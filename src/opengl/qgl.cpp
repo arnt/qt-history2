@@ -3023,6 +3023,14 @@ void QGLExtensions::init_extensions()
         glExtensions |= GenerateMipmap;
     if (extensions.contains("texture_compression_s3tc"))
         glExtensions |= TextureCompression;
+    if (extensions.contains("ARB_fragment_shader"))
+	glExtensions |= FragmentShader;
+    if (extensions.contains("clamp_to_edge"))
+	glExtensions |= ClampToEdge;
+    if (extensions.contains("clamp_to_border"))
+	glExtensions |= ClampToBorder;
+    if (extensions.contains("mirrored_repeat"))
+	glExtensions |= MirroredRepeat;
 
     QGLContext cx(QGLFormat::defaultFormat());
     if (glExtensions & TextureCompression) {

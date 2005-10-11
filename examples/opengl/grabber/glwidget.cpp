@@ -107,6 +107,7 @@ void GLWidget::paintGL()
     drawGear(gear3, -3.1, -1.8, -2.2, +2.0 * (gear1Rot / 16.0) - 2.0);
 
     glPopMatrix();
+    renderText(20, 20, "Ole i dole");
 }
 
 void GLWidget::resizeGL(int width, int height)

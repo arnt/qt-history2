@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <qdebug.h>
+#include <private/qdrawhelper_p.h>
 #include <private/qpaintengine_p.h>
 #include "qapplication.h"
 #include "qbrush.h"
@@ -24,7 +25,10 @@
 #include <private/qpainter_p.h>
 #include <qglpbuffer.h>
 #include <private/qglpbuffer_p.h>
+#include <private/qmath_p.h>
 
+static void mk_texture(const QGradient& g);
+static void mk_color_table(const QGradientStops& s, unsigned int *colorTable, int size);
 
 #ifdef Q_OS_MAC
 # include <OpenGL/glu.h>
@@ -179,7 +183,170 @@ public:
     GLubyte brush_color[4];
     QPainterPrivate::TransformationCodes txop;
     QGLDrawable drawable;
+
+    GLuint palette_tex;
+    GLuint grad_radial;
+    GLuint grad_radial_palette_loc;
+    GLuint grad_radial_focus_loc;
+    GLuint grad_radial_fmp_loc;
+    GLuint grad_radial_fmp2_m_radius2_loc;
+    GLuint grad_conical;
+    GLuint grad_conical_palette_loc;
+    GLuint grad_conical_point_loc;
+    GLuint grad_conical_angle_loc;
 };
+
+/* shader_object extension crap */
+typedef void (APIENTRY *pfn_glDeleteObjectARB) (GLhandleARB);
+typedef GLhandleARB (APIENTRY *pfn_glGetHandleARB) (GLenum);
+typedef void (APIENTRY *pfn_glDetachObjectARB) (GLhandleARB, GLhandleARB);
+typedef GLhandleARB (APIENTRY *pfn_glCreateShaderObjectARB) (GLenum);
+typedef void (APIENTRY *pfn_glShaderSourceARB) (GLhandleARB, GLsizei, const GLcharARB* *, const GLint *);
+typedef void (APIENTRY *pfn_glCompileShaderARB) (GLhandleARB);
+typedef GLhandleARB (APIENTRY *pfn_glCreateProgramObjectARB) (void);
+typedef void (APIENTRY *pfn_glAttachObjectARB) (GLhandleARB, GLhandleARB);
+typedef void (APIENTRY *pfn_glLinkProgramARB) (GLhandleARB);
+typedef void (APIENTRY *pfn_glUseProgramObjectARB) (GLhandleARB);
+typedef void (APIENTRY *pfn_glValidateProgramARB) (GLhandleARB);
+typedef void (APIENTRY *pfn_glUniform1fARB) (GLint, GLfloat);
+typedef void (APIENTRY *pfn_glUniform2fARB) (GLint, GLfloat, GLfloat);
+typedef void (APIENTRY *pfn_glUniform3fARB) (GLint, GLfloat, GLfloat, GLfloat);
+typedef void (APIENTRY *pfn_glUniform4fARB) (GLint, GLfloat, GLfloat, GLfloat, GLfloat);
+typedef void (APIENTRY *pfn_glUniform1iARB) (GLint, GLint);
+typedef void (APIENTRY *pfn_glUniform2iARB) (GLint, GLint, GLint);
+typedef void (APIENTRY *pfn_glUniform3iARB) (GLint, GLint, GLint, GLint);
+typedef void (APIENTRY *pfn_glUniform4iARB) (GLint, GLint, GLint, GLint, GLint);
+typedef void (APIENTRY *pfn_glUniform1fvARB) (GLint, GLsizei, const GLfloat *);
+typedef void (APIENTRY *pfn_glUniform2fvARB) (GLint, GLsizei, const GLfloat *);
+typedef void (APIENTRY *pfn_glUniform3fvARB) (GLint, GLsizei, const GLfloat *);
+typedef void (APIENTRY *pfn_glUniform4fvARB) (GLint, GLsizei, const GLfloat *);
+typedef void (APIENTRY *pfn_glUniform1ivARB) (GLint, GLsizei, const GLint *);
+typedef void (APIENTRY *pfn_glUniform2ivARB) (GLint, GLsizei, const GLint *);
+typedef void (APIENTRY *pfn_glUniform3ivARB) (GLint, GLsizei, const GLint *);
+typedef void (APIENTRY *pfn_glUniform4ivARB) (GLint, GLsizei, const GLint *);
+typedef void (APIENTRY *pfn_glUniformMatrix2fvARB) (GLint, GLsizei, GLboolean, const GLfloat *);
+typedef void (APIENTRY *pfn_glUniformMatrix3fvARB) (GLint, GLsizei, GLboolean, const GLfloat *);
+typedef void (APIENTRY *pfn_glUniformMatrix4fvARB) (GLint, GLsizei, GLboolean, const GLfloat *);
+typedef void (APIENTRY *pfn_glGetObjectParameterfvARB) (GLhandleARB, GLenum, GLfloat *);
+typedef void (APIENTRY *pfn_glGetObjectParameterivARB) (GLhandleARB, GLenum, GLint *);
+typedef void (APIENTRY *pfn_glGetInfoLogARB) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+typedef void (APIENTRY *pfn_glGetAttachedObjectsARB) (GLhandleARB, GLsizei, GLsizei *, GLhandleARB *);
+typedef GLint (APIENTRY *pfn_glGetUniformLocationARB) (GLhandleARB, const GLcharARB *);
+typedef void (APIENTRY *pfn_glGetActiveUniformARB) (GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
+typedef void (APIENTRY *pfn_glGetUniformfvARB) (GLhandleARB, GLint, GLfloat *);
+typedef void (APIENTRY *pfn_glGetUniformivARB) (GLhandleARB, GLint, GLint *);
+typedef void (APIENTRY *pfn_glGetShaderSourceARB) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+
+static pfn_glDeleteObjectARB qt_glDeleteObjectARB = 0;
+static pfn_glGetHandleARB qt_glGetHandleARB = 0;
+static pfn_glDetachObjectARB qt_glDetachObjectARB = 0;
+static pfn_glCreateShaderObjectARB qt_glCreateShaderObjectARB = 0;
+static pfn_glShaderSourceARB qt_glShaderSourceARB = 0;
+static pfn_glCompileShaderARB qt_glCompileShaderARB = 0;
+static pfn_glCreateProgramObjectARB qt_glCreateProgramObjectARB = 0;
+static pfn_glAttachObjectARB qt_glAttachObjectARB = 0;
+static pfn_glLinkProgramARB qt_glLinkProgramARB = 0;
+static pfn_glUseProgramObjectARB qt_glUseProgramObjectARB = 0;
+static pfn_glValidateProgramARB qt_glValidateProgramARB = 0;
+static pfn_glUniform1fARB qt_glUniform1fARB = 0;
+static pfn_glUniform2fARB qt_glUniform2fARB = 0;
+static pfn_glUniform3fARB qt_glUniform3fARB = 0;
+static pfn_glUniform4fARB qt_glUniform4fARB = 0;
+static pfn_glUniform1iARB qt_glUniform1iARB = 0;
+static pfn_glUniform2iARB qt_glUniform2iARB = 0;
+static pfn_glUniform3iARB qt_glUniform3iARB = 0;
+static pfn_glUniform4iARB qt_glUniform4iARB = 0;
+static pfn_glUniform1fvARB qt_glUniform1fvARB = 0;
+static pfn_glUniform2fvARB qt_glUniform2fvARB = 0;
+static pfn_glUniform3fvARB qt_glUniform3fvARB = 0;
+static pfn_glUniform4fvARB qt_glUniform4fvARB = 0;
+static pfn_glUniform1ivARB qt_glUniform1ivARB = 0;
+static pfn_glUniform2ivARB qt_glUniform2ivARB = 0;
+static pfn_glUniform3ivARB qt_glUniform3ivARB = 0;
+static pfn_glUniform4ivARB qt_glUniform4ivARB = 0;
+static pfn_glUniformMatrix2fvARB qt_glUniformMatrix2fvARB = 0;
+static pfn_glUniformMatrix3fvARB qt_glUniformMatrix3fvARB = 0;
+static pfn_glUniformMatrix4fvARB qt_glUniformMatrix4fvARB = 0;
+static pfn_glGetObjectParameterfvARB qt_glGetObjectParameterfvARB = 0;
+static pfn_glGetObjectParameterivARB qt_glGetObjectParameterivARB = 0;
+static pfn_glGetInfoLogARB qt_glGetInfoLogARB = 0;
+static pfn_glGetAttachedObjectsARB qt_glGetAttachedObjectsARB = 0;
+static pfn_glGetUniformLocationARB qt_glGetUniformLocationARB = 0;
+static pfn_glGetActiveUniformARB qt_glGetActiveUniformARB = 0;
+static pfn_glGetUniformfvARB qt_glGetUniformfvARB = 0;
+static pfn_glGetUniformivARB qt_glGetUniformivARB = 0;
+static pfn_glGetShaderSourceARB qt_glGetShaderSourceARB = 0;
+
+/* load function pointers */
+static void load_shader_object_ext()
+{
+    QGLContext cx(QGLFormat::defaultFormat());
+#define LOAD_EXT(func) qt_##func = (pfn_##func) cx.getProcAddress( #func )
+
+    LOAD_EXT(glDeleteObjectARB);
+    LOAD_EXT(glGetHandleARB);
+    LOAD_EXT(glDetachObjectARB);
+    LOAD_EXT(glCreateShaderObjectARB);
+    LOAD_EXT(glShaderSourceARB);
+    LOAD_EXT(glCompileShaderARB);
+    LOAD_EXT(glCreateProgramObjectARB);
+    LOAD_EXT(glAttachObjectARB);
+    LOAD_EXT(glLinkProgramARB);
+    LOAD_EXT(glUseProgramObjectARB);
+    LOAD_EXT(glValidateProgramARB);
+    LOAD_EXT(glUniform1fARB);
+    LOAD_EXT(glUniform2fARB);
+    LOAD_EXT(glUniform3fARB);
+    LOAD_EXT(glUniform4fARB);
+    LOAD_EXT(glUniform1iARB);
+    LOAD_EXT(glUniform2iARB);
+    LOAD_EXT(glUniform3iARB);
+    LOAD_EXT(glUniform4iARB);
+    LOAD_EXT(glUniform1fvARB);
+    LOAD_EXT(glUniform2fvARB);
+    LOAD_EXT(glUniform3fvARB);
+    LOAD_EXT(glUniform4fvARB);
+    LOAD_EXT(glUniform1ivARB);
+    LOAD_EXT(glUniform2ivARB);
+    LOAD_EXT(glUniform3ivARB);
+    LOAD_EXT(glUniform4ivARB);
+    LOAD_EXT(glUniformMatrix2fvARB);
+    LOAD_EXT(glUniformMatrix3fvARB);
+    LOAD_EXT(glUniformMatrix4fvARB);
+    LOAD_EXT(glGetObjectParameterfvARB);
+    LOAD_EXT(glGetObjectParameterivARB);
+    LOAD_EXT(glGetInfoLogARB);
+    LOAD_EXT(glGetAttachedObjectsARB);
+    LOAD_EXT(glGetUniformLocationARB);
+    LOAD_EXT(glGetActiveUniformARB);
+    LOAD_EXT(glGetUniformfvARB);
+    LOAD_EXT(glGetUniformivARB);
+    LOAD_EXT(glGetShaderSourceARB);
+}
+
+/* create a shader object from the string sh */
+static GLuint load_shader(const char *sh)
+{
+    GLint status, fs, ps;
+
+    fs = qt_glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+    qt_glShaderSourceARB(fs, 1, &sh, NULL);
+    qt_glCompileShaderARB(fs);
+    qt_glGetObjectParameterivARB( fs, GL_OBJECT_COMPILE_STATUS_ARB, &status);
+    if(!status){	printf("Could not compile the shader!\n"); return 0;}
+    ps = qt_glCreateProgramObjectARB();
+    qt_glAttachObjectARB(ps,fs);
+    qt_glDeleteObjectARB(fs);
+    qt_glLinkProgramARB(ps);
+    qt_glGetObjectParameterivARB( ps, GL_OBJECT_LINK_STATUS_ARB, &status);
+    if(!status){	printf("Could not link the shader!\n"); return 0;}
+    qt_glValidateProgramARB(ps);
+    qt_glGetObjectParameterivARB( ps, GL_OBJECT_VALIDATE_STATUS_ARB,&status);
+    if(!status){	printf("Could not validate the shader!\n"); return 0;}
+    return ps;
+}
+
+
 
 QOpenGLPaintEngine::QOpenGLPaintEngine()
     : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
@@ -189,10 +356,74 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
                                            | ConicalGradientFill
                                            | PatternBrush)))
 {
+    Q_D(QOpenGLPaintEngine);
+
+    if((QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
+       && (QGLExtensions::glExtensions &
+           (QGLExtensions::ClampToEdge||QGLExtensions::ClampToBorder)))
+    {
+        gccaps |= LinearGradientFill;
+        glGenTextures(1,&d->palette_tex);
+	if(QGLExtensions::glExtensions & QGLExtensions::FragmentShader)
+	{
+            static char grad_radial_shad[] =
+                "uniform sampler1D palette;\n"
+                "uniform vec2 focus;\n"
+                "uniform vec2 fmp;\n"
+                "uniform float fmp2_m_radius2;\n"
+                "void main(){\n"
+                "	vec2 A = gl_FragCoord.xy - focus;\n"
+                "	vec2 B = fmp;\n"
+                "	float a = fmp2_m_radius2;\n"
+                "	float b = 2.0*dot(A,B);\n"
+                "	float c = dot(A,A);\n"
+                "	float val = (-b - sqrt(b*b - 4.0*a*c) ) / (2.0*a);\n"
+                "	gl_FragColor = texture1D( palette, val );\n"
+                "}\n";
+            static char grad_conical_shad[] =
+                "#define M_PI  3.14159265358979323846\n"
+                "uniform sampler1D palette;\n"
+                "uniform vec2 point;\n"
+                "uniform float angle;\n"
+                "void main(){\n"
+                "	vec2 A = gl_FragCoord.xy - point;\n"
+                "	float val = mod((atan(-A.y, A.x) + angle)/(2.0 * M_PI),1);\n"
+                "	gl_FragColor = texture1D( palette, val );\n"
+                "}\n";
+
+            gccaps |= (RadialGradientFill|ConicalGradientFill);
+
+            load_shader_object_ext();
+
+            d->grad_radial = load_shader(grad_radial_shad);
+            d->grad_radial_palette_loc = qt_glGetUniformLocationARB(d->grad_radial,"palette");
+            d->grad_radial_focus_loc = qt_glGetUniformLocationARB(d->grad_radial,"focus");
+            d->grad_radial_fmp_loc = qt_glGetUniformLocationARB(d->grad_radial,"fmp");
+            d->grad_radial_fmp2_m_radius2_loc = qt_glGetUniformLocationARB(d->grad_radial,
+                                                                           "fmp2_m_radius2");
+
+            d->grad_conical = load_shader(grad_conical_shad);
+            d->grad_conical_palette_loc = qt_glGetUniformLocationARB(d->grad_conical,"palette");
+            d->grad_conical_point_loc = qt_glGetUniformLocationARB(d->grad_conical,"point");
+            d->grad_conical_angle_loc = qt_glGetUniformLocationARB(d->grad_conical,"angle");
+
+	}
+    }
 }
 
 QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
+    Q_D(QOpenGLPaintEngine);
+
+    if(QGLExtensions::glExtensions & QGLExtensions::FragmentShader)
+    {
+        qt_glUseProgramObjectARB(0);
+        glBindTexture(GL_TEXTURE_1D,0);
+
+        qt_glDeleteObjectARB(d->grad_radial);
+        qt_glDeleteObjectARB(d->grad_conical);
+        glDeleteTextures(1,&d->palette_tex);
+    }
 }
 
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
@@ -275,6 +506,80 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
 void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
     Q_D(QOpenGLPaintEngine);
+    /* load the gradient shader */
+    if(QGLExtensions::glExtensions & QGLExtensions::FragmentShader) {
+        switch (brush.style()) {
+	case Qt::LinearGradientPattern:
+	{
+            const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
+            float tr[4], f;
+            tr[0] = g->finalStop().x() - g->start().x();
+            tr[1] = g->finalStop().y() - g->start().y();
+            f = 1.0/(tr[0]*tr[0] + tr[1]*tr[1]);
+            tr[0] *= f;
+            tr[1] *= f;
+            tr[2] = 0;
+            tr[3] = - (g->start().x()*tr[0] + g->start().y()*tr[1]);
+
+            d->setGLBrush(Qt::white);
+            glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+            glTexGenfv(GL_S, GL_OBJECT_PLANE, tr);
+            glEnable(GL_TEXTURE_GEN_S);
+            glEnable(GL_TEXTURE_1D);
+
+            glBindTexture(GL_TEXTURE_1D,d->palette_tex);
+            mk_texture(*brush.gradient());
+            qt_glUseProgramObjectARB(0);
+            break;
+	}
+	case Qt::RadialGradientPattern:
+	{
+            const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
+            float pt[2];
+            float f;
+            qt_glUseProgramObjectARB(d->grad_radial);
+            pt[0] = g->focalPoint().x();
+            pt[1] = d->pdev->height() - g->focalPoint().y();
+            qt_glUniform2fvARB(d->grad_radial_focus_loc,1,pt);
+            pt[0] -= g->center().x();
+            pt[1] -= d->pdev->height() - g->center().y();
+            qt_glUniform2fvARB(d->grad_radial_fmp_loc,1,pt);
+            f = pt[0]*pt[0] + pt[1]*pt[1] - g->radius()*g->radius();
+            qt_glUniform1fARB(d->grad_radial_fmp2_m_radius2_loc, f);
+            qt_glUniform1iARB(d->grad_radial_palette_loc, 0);
+
+            glBindTexture(GL_TEXTURE_1D,d->palette_tex);
+            mk_texture(*brush.gradient());
+            glDisable(GL_TEXTURE_GEN_S);
+            glDisable(GL_TEXTURE_1D);
+            break;
+	}
+	case Qt::ConicalGradientPattern:
+	{
+            const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
+            float pt[2];
+            qt_glUseProgramObjectARB(d->grad_conical);
+            pt[0] = g->center().x();
+            pt[1] = d->pdev->height() - g->center().y();
+            qt_glUniform2fvARB(d->grad_conical_point_loc,1,pt);
+            qt_glUniform1fARB(d->grad_conical_angle_loc, g->angle()* 2 * Q_PI / 360.0);
+            qt_glUniform1iARB(d->grad_conical_palette_loc, 0);
+
+            glBindTexture(GL_TEXTURE_1D,d->palette_tex);
+            mk_texture(*brush.gradient());
+            glDisable(GL_TEXTURE_GEN_S);
+            glDisable(GL_TEXTURE_1D);
+            break;
+	}
+    	default:
+            qt_glUseProgramObjectARB(0);
+            glBindTexture(GL_TEXTURE_1D,0);
+            glDisable(GL_TEXTURE_GEN_S);
+            glDisable(GL_TEXTURE_1D);
+            break;
+        }
+    }
+
     d->cbrush = brush;
     d->has_brush = (brush.style() != Qt::NoBrush);
     d->setGLBrush(brush.color());
@@ -791,6 +1096,10 @@ QOpenGLPaintEngine::handle() const
 void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     Q_D(QOpenGLPaintEngine);
+    glPushAttrib(GL_CURRENT_BIT);
+    glDisable(GL_TEXTURE_1D);
+    glDisable(GL_TEXTURE_GEN_S);
+    qt_glUseProgramObjectARB(0);
     QImage img((int)textItem.width(),
                (int)(textItem.ascent() + textItem.descent()),
                QImage::Format_ARGB32_Premultiplied);
@@ -804,4 +1113,90 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
               img,
               QRectF(0, 0, img.width(), img.height()),
               Qt::AutoColor);
+    glPopAttrib();
+    if (d->cbrush.style() == Qt::ConicalGradientPattern)
+        qt_glUseProgramObjectARB(d->grad_conical);
+    else if (d->cbrush.style() == Qt::RadialGradientPattern)
+        qt_glUseProgramObjectARB(d->grad_radial);
 }
+
+/* fill the array colorTable with the gradient */
+static void mk_color_table(const QGradientStops& s, unsigned int *colorTable, int size)
+{
+    int pos = 0;
+    qreal fpos = 0.0;
+    qreal incr = 1.0 / qreal(size);
+    QVector<unsigned int> colors(s.size());
+
+    /* init the array of converted colors */
+    for(int i=0;i<s.size();i++)
+    	colors[i] = s[i].second.rgba();
+
+    while(fpos<s.first().first)
+    {
+	colorTable[pos] = colors[0];
+    	pos++;
+	fpos += incr;
+    }
+
+    for(int i=0;i<s.size()-1;i++)
+    {
+	/* do things intelligently, only one division per stop */
+	qreal delta = 1/(s[i+1].first - s[i].first);
+
+	while(fpos<s[i+1].first && pos<size)
+	{
+	    int dist = int(255*((fpos-s[i].first)*delta));
+	    int idist = 255 - dist;
+	    colorTable[pos] = INTERPOLATE_PIXEL_256(colors[i],
+                                                    idist, colors[i+1], dist);
+	    pos++;
+	    fpos += incr;
+	}
+    }
+
+    for(;pos<size;pos++)
+	colorTable[pos] = colors[s.size()-1];
+}
+
+/* load the gradient as the current 1D texture */
+static void mk_texture(const QGradient& g)
+{
+#define PAL_SIZE 1024
+    unsigned int palbuf[PAL_SIZE];
+    mk_color_table(g.stops(),palbuf,PAL_SIZE);
+
+    if(g.spread() == QGradient::RepeatSpread || g.type() == QGradient::ConicalGradient)
+        glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+    else if(g.spread() == QGradient::ReflectSpread)
+        glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_WRAP_S,GL_MIRRORED_REPEAT_IBM);
+    /* use CLAMP_TO_BORDER if possible */
+    else if(QGLExtensions::glExtensions & QGLExtensions::ClampToBorder)
+        glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_BORDER_SGIS);
+    else
+        glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE_SGIS);
+
+    /* mipmaps do not work well with conical gradient, and are probably not worth */
+    if(! (QGLExtensions::glExtensions & QGLExtensions::GenerateMipmap) )
+        glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    else if( (g.type() == QGradient::ConicalGradient) ||
+             ( (g.spread() == QGradient::PadSpread) &&
+               !(QGLExtensions::glExtensions & QGLExtensions::ClampToBorder)))
+    {
+        /* if we are using CLAMP_TO_EDGE (in place of CLAMP_TO_BORDER)
+           disable mipmaps for pad gradients, or else they will look weird */
+        glTexParameteri(GL_TEXTURE_1D,GL_GENERATE_MIPMAP_SGIS,GL_FALSE);
+        glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    }
+    else
+    {
+        glTexParameteri(GL_TEXTURE_1D,GL_GENERATE_MIPMAP_SGIS,GL_TRUE);
+        glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    }
+    glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+
+    glTexImage1D(GL_TEXTURE_1D,0,GL_RGBA,PAL_SIZE,0,GL_BGRA,GL_UNSIGNED_BYTE,palbuf);
+
+
+}
+

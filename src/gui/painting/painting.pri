@@ -113,7 +113,7 @@ win32|x11|embedded {
 embedded {
 	SOURCES += \
 		painting/qcolormap_qws.cpp \
-		painting/qpaintdevice_qws.cpp 
+		painting/qpaintdevice_qws.cpp
 }
 
 mac {
@@ -121,7 +121,7 @@ mac {
 } else:sse|win32-g++ {
     sse_compiler.commands = $$QMAKE_CXX -c -msse $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
     sse_compiler.dependency_type = TYPE_C
-    sse_compiler.output = $${OBJECTS_DIR}/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+    sse_compiler.output = ${OBJECTS_DIR}/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
     sse_compiler.input = SSE_SOURCES
     sse_compiler.CONFIG += no_link
     sse_compiler.variable_out = OBJECTS
