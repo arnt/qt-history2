@@ -16,7 +16,7 @@
 
 #include <QtGui/QWidget>
 
-#include "resourceeditor_global.h"
+#include "shared_global_p.h"
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
@@ -31,7 +31,7 @@ class QTreeView;
 
 namespace qdesigner_internal {
 
-class QT_RESOURCEEDITOR_EXPORT ResourceEditor : public QWidget
+class QDESIGNER_SHARED_EXPORT ResourceEditor : public QWidget
 {
     Q_OBJECT
 

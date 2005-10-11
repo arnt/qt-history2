@@ -8,7 +8,8 @@ FORMS += \
     $$PWD/promotetocustomwidgetdialog.ui \
     $$PWD/findicondialog.ui \
     $$PWD/orderdialog.ui \
-    $$PWD/newactiondialog.ui
+    $$PWD/newactiondialog.ui \
+    $$PWD/resourceeditor.ui
 
 HEADERS += \
     $$PWD/shared_global_p.h \
@@ -49,7 +50,8 @@ HEADERS += \
     $$PWD/qdesigner_menu_p.h \
     $$PWD/actionprovider_p.h \
     $$PWD/orderdialog_p.h \
-    $$PWD/newactiondialog_p.h
+    $$PWD/newactiondialog_p.h \
+    $$PWD/resourceeditor.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -87,5 +89,6 @@ SOURCES += \
     $$PWD/qdesigner_menubar.cpp \
     $$PWD/qdesigner_menu.cpp \
     $$PWD/orderdialog.cpp \
-    $$PWD/newactiondialog.cpp
+    $$PWD/newactiondialog.cpp \
+    $$PWD/resourceeditor.cpp
 

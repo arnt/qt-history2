@@ -43,7 +43,6 @@ include(../widgetbox/widgetbox.pri)
 include(../buddyeditor/buddyeditor.pri)
 include(../taskmenu/taskmenu.pri)
 include(../tabordereditor/tabordereditor.pri)
-include(../resourceeditor/resourceeditor.pri)
 
 PRECOMPILED_HEADER= lib_pch.h
 
