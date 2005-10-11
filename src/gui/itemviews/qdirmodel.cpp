@@ -936,6 +936,10 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         return QModelIndex();
 
     QString absolutePath = QDir(path).absolutePath();
+#ifdef Q_OS_WIN
+    absolutePath = absolutePath.toLower();
+#endif
+
     QStringList pathElements = absolutePath.split(QChar('/'), QString::SkipEmptyParts);
     if ((pathElements.isEmpty() || !QFileInfo(path).exists())
 #ifndef Q_OS_WIN
@@ -976,7 +980,11 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         // search for the element in the child nodes first
         int row = -1;
         for (int j = parent->children.count() - 1; j >= 0; --j) {
-            if (parent->children.at(j).info.fileName() == element) {
+            QString childFileName = parent->children.at(j).info.fileName();
+#ifdef Q_OS_WIN
+            childFileName = childFileName.toLower();
+#endif
+            if (childFileName == element) {
                 row = j;
                 break;
             }
@@ -986,11 +994,19 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         if (row == -1) {
             if (idx.isValid()) {
                 QStringList entries = d->entryList(parent->info.absoluteFilePath());
+#ifdef Q_OS_WIN 
+                for (int k=0; k<entries.count(); ++k)
+                    entries[k] = entries.at(k).toLower();
+#endif
                 row = entries.indexOf(element);
             } else { // parent is root
                 for (int j = 0; j < d->root.children.count(); ++j) {
                     QString s = QDir::cleanPath(d->root.children.at(j).info.absoluteFilePath());
+#ifdef Q_OS_WIN
+                    if (element == s.toLower()) {
+#else
                     if (element == s) {
+#endif
                         row = j;
                         break;
                     }
