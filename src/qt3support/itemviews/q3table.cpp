@@ -6600,6 +6600,7 @@ void Q3TableHeader::paintEvent(QPaintEvent *e)
 	     orientation() == Vertical && r. bottom() >= e->rect().bottom())
 	    return;
     }
+    p.end();
     if (!reg.isEmpty())
 	erase(reg);
 }
