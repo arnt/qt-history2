@@ -63,9 +63,9 @@ static inline bool isEmpty(const QRegionPrivate *preg)
     return !preg || preg->numRects == 0;
 }
 
-typedef void (*OverlapFunc)(register QRegionPrivate &dest, const register QRect *r1, const QRect *r1End,
-                            const register QRect *r2, const QRect *r2End, register int y1, register int y2);
-typedef void (*NonOverlapFunc)(register QRegionPrivate &dest, const register QRect *r, const QRect *rEnd,
+typedef void (*OverlapFunc)(register QRegionPrivate &dest, register const QRect *r1, const QRect *r1End,
+                            register const QRect *r2, const QRect *r2End, register int y1, register int y2);
+typedef void (*NonOverlapFunc)(register QRegionPrivate &dest, register const QRect *r, const QRect *rEnd,
                                register int y1, register int y2);
 
 static void UnionRegion(const QRegionPrivate *reg1, const QRegionPrivate *reg2, QRegionPrivate &dest);
@@ -369,8 +369,8 @@ static void OffsetRegion(register QRegionPrivate &region, register int x, regist
  *
  *-----------------------------------------------------------------------
  */
-static void miIntersectO(register QRegionPrivate &dest, const register QRect *r1, const QRect *r1End,
-                         const register QRect *r2, const QRect *r2End, int y1, int y2)
+static void miIntersectO(register QRegionPrivate &dest, register const QRect *r1, const QRect *r1End,
+                         register const QRect *r2, const QRect *r2End, int y1, int y2)
 {
     register int x1;
     register int x2;
@@ -565,16 +565,16 @@ static void miRegionOp(register QRegionPrivate &dest, const QRegionPrivate *reg1
                        OverlapFunc overlapFunc, NonOverlapFunc nonOverlap1Func,
                        NonOverlapFunc nonOverlap2Func)
 {
-    const register QRect *r1;         // Pointer into first region
-    const register QRect *r2;         // Pointer into 2d region
+    register const QRect *r1;         // Pointer into first region
+    register const QRect *r2;         // Pointer into 2d region
     const QRect *r1End;               // End of 1st region
     const QRect *r2End;               // End of 2d region
     register int ybot;          // Bottom of intersection
     register int ytop;          // Top of intersection
     int prevBand;               // Index of start of previous band in dest
     int curBand;                // Index of start of current band in dest
-    const register QRect *r1BandEnd;  // End of current band in r1
-    const register QRect *r2BandEnd;  // End of current band in r2
+    register const QRect *r1BandEnd;  // End of current band in r1
+    register const QRect *r2BandEnd;  // End of current band in r2
     int top;                    // Top of non-overlapping band
     int bot;                    // Bottom of non-overlapping band
 
@@ -767,7 +767,7 @@ static void miRegionOp(register QRegionPrivate &dest, const QRegionPrivate *reg1
  *-----------------------------------------------------------------------
  */
 
-static void miUnionNonO(register QRegionPrivate &dest, const register QRect *r, const QRect *rEnd,
+static void miUnionNonO(register QRegionPrivate &dest, register const QRect *r, const QRect *rEnd,
                         register int y1, register int y2)
 {
     register QRect *pNextRect;
@@ -803,8 +803,8 @@ static void miUnionNonO(register QRegionPrivate &dest, const register QRect *r, 
  *-----------------------------------------------------------------------
  */
 
-static void miUnionO(register QRegionPrivate &dest, const register QRect *r1, const QRect *r1End,
-                     const register QRect *r2, const QRect *r2End, register int y1, register int y2)
+static void miUnionO(register QRegionPrivate &dest, register const QRect *r1, const QRect *r1End,
+                     register const QRect *r2, const QRect *r2End, register int y1, register int y2)
 {
     register QRect *pNextRect;
 
@@ -915,7 +915,7 @@ static void UnionRegion(const QRegionPrivate *reg1, const QRegionPrivate *reg2, 
  *-----------------------------------------------------------------------
  */
 
-static void miSubtractNonO1(register QRegionPrivate &dest, const register QRect *r,
+static void miSubtractNonO1(register QRegionPrivate &dest, register const QRect *r,
                             const QRect *rEnd, register int y1, register int y2)
 {
     register QRect *pNextRect;
@@ -949,8 +949,8 @@ static void miSubtractNonO1(register QRegionPrivate &dest, const register QRect 
  *-----------------------------------------------------------------------
  */
 
-static void miSubtractO(register QRegionPrivate &dest, const register QRect *r1, const QRect *r1End,
-                        const register QRect *r2, const QRect *r2End, register int y1, register int y2)
+static void miSubtractO(register QRegionPrivate &dest, register const QRect *r1, const QRect *r1End,
+                        register const QRect *r2, const QRect *r2End, register int y1, register int y2)
 {
     register QRect *pNextRect;
     register int x1;
