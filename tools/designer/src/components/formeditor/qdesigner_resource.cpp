@@ -45,6 +45,7 @@
 #include <QtGui/QActionGroup>
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
+#include <QtGui/QSplitter>
 
 #include <QtCore/QBuffer>
 #include <QtCore/QDir>
@@ -581,6 +582,11 @@ DomLayout *QDesignerResource::createDom(QLayout *layout, DomLayout *ui_parentLay
     if (item == 0) {
         // nothing to do.
         return 0;
+    }
+    
+    if (qobject_cast<QSplitter*>(layout->parentWidget()) != 0) {
+    	// nothing to do.
+    	return 0;
     }
 
     m_chain.push(layout);
