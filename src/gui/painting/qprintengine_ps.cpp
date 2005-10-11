@@ -1166,6 +1166,8 @@ void QPSPrintEngineFont::drawText(QTextStream &stream, QPSPrintEnginePrivate *d,
     stream << y << " Y";
 
     int len = ti.num_chars;
+    if (len == 0)
+        return;
 
     stream << "<";
     if (ti.flags & QTextItem::RightToLeft) {
@@ -1723,6 +1725,8 @@ void QPSPrintEngineFontFT::drawText(QTextStream &stream, QPSPrintEnginePrivate *
 
     int len;
     len = ti.num_glyphs;
+    if (len == 0)
+        return;
 
     stream << "<";
     if (ti.flags & QTextItem::RightToLeft) {
