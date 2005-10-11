@@ -69,12 +69,14 @@ public:
     virtual qint64 read(char *data, qint64 maxlen) = 0;
     virtual qint64 write(const char *data, qint64 len) = 0;
 
+#ifndef QT_NO_UDPSOCKET
     virtual qint64 readDatagram(char *data, qint64 maxlen, QHostAddress *addr = 0,
                                 quint16 *port = 0) = 0;
     virtual qint64 writeDatagram(const char *data, qint64 len, const QHostAddress &addr,
                                  quint16 port) = 0;
     virtual bool hasPendingDatagrams() const = 0;
     virtual qint64 pendingDatagramSize() const = 0;
+#endif
     
     virtual int option(SocketOption option) const = 0;
     virtual bool setOption(SocketOption option, int value) = 0;

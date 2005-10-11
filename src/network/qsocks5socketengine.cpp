@@ -1444,6 +1444,7 @@ bool QSocks5SocketEngine::waitForRead(int msecs, bool *timedOut) const
             if (timedOut && d->data->controlSocket->error() == QAbstractSocket::SocketTimeoutError)
                 *timedOut = true;
         }
+#ifndef QT_NO_UDPSOCKET
     } else {
         // what about if the tcp socket is disconnected ...
         while (!d->readNotificationActivated && d->udpData->udpSocket->waitForReadyRead(qt_timeout_value(msecs, stopWatch.elapsed()))) {
@@ -1454,6 +1455,7 @@ bool QSocks5SocketEngine::waitForRead(int msecs, bool *timedOut) const
             if (timedOut && d->udpData->udpSocket->error() == QAbstractSocket::SocketTimeoutError)
                 *timedOut = true;
         }
+#endif // QT_NO_UDPSOCKET
     }
 
 
