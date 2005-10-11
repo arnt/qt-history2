@@ -180,7 +180,9 @@ public:
     enum ObjectTypes {
         NoObject,
         ImageObject,
-        TableObject
+        TableObject,
+
+        UserObject = 0x1000
     };
 
     QTextFormat();
