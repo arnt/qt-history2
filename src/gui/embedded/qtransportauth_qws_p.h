@@ -41,12 +41,12 @@ public:
     QWSClient *client() const;
     bool authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen );
     bool authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen );
-signals:
+Q_SIGNALS:
     void authViolation( QTransportAuth::Data & );
     void policyCheck( QTransportAuth::Data &, const QString & );
 protected:
     qint64 writeData(const char *, qint64 );
-private slots:
+private Q_SLOTS:
     void recvReadyRead();
 private:
     void authorizeMessage();
