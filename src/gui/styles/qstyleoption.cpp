@@ -454,13 +454,10 @@ QStyleOptionFrameV2::QStyleOptionFrameV2(int version)
 */
 QStyleOptionFrameV2::QStyleOptionFrameV2(const QStyleOptionFrame &other)
 {
+    QStyleOptionFrame::operator=(other);
+
     const QStyleOptionFrameV2 *f2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(&other);
-    if (f2) {
-        *this = *f2;
-    } else {
-        QStyleOptionFrame::operator=(other);
-        version = Version;
-    }
+    features = f2 ? f2->features : QStyleOptionFrameV2::None;
 }
 
 /*!
@@ -471,8 +468,7 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
     QStyleOptionFrame::operator=(other);
 
     const QStyleOptionFrameV2 *f2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(&other);
-    if (f2)
-        features = QStyleOptionFrameV2::None;
+    features = f2 ? f2->features : QStyleOptionFrameV2::None;
     return *this;
 }
 
@@ -1027,6 +1023,8 @@ QStyleOptionTabV2 &QStyleOptionTabV2::operator=(const QStyleOptionTab &other)
 
     if (const QStyleOptionTabV2 *tab = qstyleoption_cast<const QStyleOptionTabV2 *>(&other))
         iconSize = tab->iconSize;
+    else
+        iconSize = QSize();
     return *this;
 }
 
@@ -1224,11 +1222,9 @@ QStyleOptionProgressBarV2 &QStyleOptionProgressBarV2::operator=(const QStyleOpti
     QStyleOptionProgressBar::operator=(other);
 
     const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(&other);
-    if (pb2) {
-        orientation = pb2->orientation;
-        invertedAppearance = pb2->invertedAppearance;
-        bottomToTop = pb2->bottomToTop;
-    }
+    orientation = pb2 ? pb2->orientation : Qt::Horizontal;
+    invertedAppearance = pb2 ? pb2->invertedAppearance : false;
+    bottomToTop = pb2 ? pb2->bottomToTop : false;
     return *this;
 }
 
