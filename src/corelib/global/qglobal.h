@@ -1639,13 +1639,13 @@ inline quint64 qntoh(const uchar *data)
 {
     return 0
         | data[7]
-        | data[6] * (1 << 8)  
-        | data[5] * (1 << 16)
-        | data[4] * (1 << 24)
-        | data[3] * (1 << 32)
-        | data[2] * (1 << 40)
-        | data[1] * (1 << 48)
-        | data[0] * (1 << 56);
+        | data[6] * (256)  
+        | data[5] * (65536)
+        | data[4] * (65536*256)
+        | data[3] * (65536*65536)
+        | data[2] * (65536*65536*256)
+        | data[1] * (65536*65536*65536)
+        | data[0] * (65536*65536*65536*256);
 }
 
 template <>
@@ -1679,10 +1679,10 @@ inline quint64 qletoh(const uchar *data)
         | data[1] * (1 << 8)  
         | data[2] * (1 << 16)
         | data[3] * (1 << 24)
-        | data[4] * (1 << 32)
-        | data[5] * (1 << 40)
-        | data[6] * (1 << 48)
-        | data[7] * (1 << 56);
+        | data[4] * (65536*65536)
+        | data[5] * (65536*65536*256)   
+        | data[6] * (65536*65536*65536) 
+        | data[7] * (65536*65536*65536*256);
 }
 
 template <>
@@ -1763,7 +1763,7 @@ template <typename T> inline T qhton(T source)
 { return source; }
 template <typename T> inline T qntoh(T source)
 { return source; }
-template <typename T> inline T qhtole(T source);
+template <typename T> inline T qhtole(T source)
 { return qbswap<T>(source); }
 template <typename T> inline T qletoh(T source)
 { return qbswap<T>(source); }
