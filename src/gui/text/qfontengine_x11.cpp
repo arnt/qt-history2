@@ -1300,26 +1300,6 @@ void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Shap
     unlockFace();
 }
 
-static void addCurve(QPainterPath *path, const QPointF &cp, const QPointF &endPoint,
-                     int startOff, int nOff, FT_GlyphSlot g)
-{
-    int j;
-    QPointF c0 = QPointF(g->outline.points[startOff-1].x/64., -g->outline.points[startOff-1].y/64.);
-    QPointF current = QPointF(g->outline.points[startOff].x/64., -g->outline.points[startOff].y/64.);
-    for(j = 1; j <= nOff; j++) {
-        QPointF next = (j == nOff)
-                       ? endPoint
-                       : QPointF(g->outline.points[startOff + j].x/64., -g->outline.points[startOff + j].y/64.);
-        QPointF c3 = (j == nOff) ? next : (next + current)/2;
-        QPointF c1 = (2*current + c0)/3;
-        QPointF c2 = (2*current + c3)/3;
-//         qDebug("cubicTo %f/%f %f/%f %f/%f", (cp + c1).x(), (cp + c1).y(),
-//                (cp + c2).x(), (cp + c2).y(), (cp + c3).x(), (cp + c3).y());
-        path->cubicTo(cp + c1, cp + c2, cp + c3);
-        c0 = c3;
-        current = next;
-    }
-}
 
 void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
@@ -1347,45 +1327,74 @@ void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyph
             // convert the outline to a painter path
             int i = 0;
             for (int c = 0; c < g->outline.n_contours; ++c) {
-                QPointF p = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
-//                 qDebug("contour: %d -- %d", i, g->outline.contours[c]);
-//                 qDebug("first point at %f %f", p.x(), p.y());
-                path->moveTo(p);
-
-                int first = i;
-                int startOff = 0;
-                int nOff = 0;
-                ++i;
-                while (i <= g->outline.contours[c]) {
-                    QPointF p = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
-//                     qDebug("     point at %f %f, on curve=%d", p.x(), p.y(), g->outline.tags[i] & 1);
-                    if (!(g->outline.tags[i] & 1)) {
-                        /* Off curve */
-                        if (!startOff) {
-                            startOff = i;
-                            nOff = 1;
-                        } else {
-                            ++nOff;
-                        }
-                    } else {
-                        /* On Curve */
-                        if (startOff) {
-                            // ###### fix 3rd order beziers
-                            addCurve(path, cp, QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.),
-                                     startOff, nOff, g);
-                            startOff = 0;
-                        } else {
-                            p = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
-                            path->lineTo(p);
-                        }
-                    }
-                    ++i;
+                int last_point = g->outline.contours[c];
+                QPointF start = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
+                if(!(g->outline.tags[i] & 1)) {
+                    start += cp + QPointF(g->outline.points[last_point].x/64., -g->outline.points[last_point].y/64.);
+                    start /= 2;
                 }
-                QPointF end(g->outline.points[first].x/64., -g->outline.points[first].y/64.);
-                if (startOff)
-                    addCurve(path, cp, end, startOff, nOff, g);
-                else
-                    path->lineTo(end + cp);
+//                 qDebug("contour: %d -- %d", i, g->outline.contours[c]);
+//                 qDebug("first point at %f %f", start.x(), start.y());
+                path->moveTo(start);
+
+                QPointF c[4];
+                c[0] = start;
+                int n = 1;
+                while (i < last_point) {
+                    ++i;
+                    c[n] = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
+//                     qDebug() << "    i=" << i << " flag=" << (int)g->outline.tags[i] << "point=" << c[n];
+                    ++n;
+                    switch (g->outline.tags[i] & 3) {
+                    case 2:
+                        // cubic bezier element
+                        if (n < 4)
+                            continue;
+                        c[3] = (c[3] + c[2])/2;
+                        --i;
+                        break;
+                    case 0:
+                        // quadratic bezier element
+                        if (n < 3)
+                            continue;
+                        c[3] = (c[1] + c[2])/2;
+                        c[2] = (2*c[1] + c[3])/3;
+                        c[1] = (2*c[1] + c[0])/3;
+                        --i;
+                        break;
+                    case 1:
+                    case 3:
+                        if (n == 2) {
+//                             qDebug() << "lineTo" << c[1];
+                            path->lineTo(c[1]);
+                            c[0] = c[1];
+                            n = 1;
+                            continue;
+                        } else if (n == 3) {
+                            c[3] = c[2];
+                            c[2] = (2*c[1] + c[3])/3;
+                            c[1] = (2*c[1] + c[0])/3;
+                        } 
+                        break;
+                    }
+//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
+                    path->cubicTo(c[1], c[2], c[3]);
+                    c[0] = c[3];
+                    n = 1;
+                }
+                if (n == 1) {
+//                     qDebug() << "closeSubpath";
+                    path->closeSubpath();
+                } else {
+                    c[3] = start;
+                    if (n == 2) {
+                        c[2] = (2*c[1] + c[3])/3;
+                        c[1] = (2*c[1] + c[0])/3;
+                    }
+//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
+                    path->cubicTo(c[1], c[2], c[3]);
+                }
+                ++i;
             }
         }
         unlockFace();
