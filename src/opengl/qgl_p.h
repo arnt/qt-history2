@@ -1,3 +1,4 @@
+//depot/qt/main/src/opengl/qgl_p.h#35 - edit change 194576 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -130,11 +131,7 @@ public:
 	TextureRectangle 	= 0x00000001,
 	SampleBuffers 		= 0x00000002,
 	GenerateMipmap 		= 0x00000004,
-	TextureCompression 	= 0x00000008,
-	FragmentShader	 	= 0x00000010,
-	ClampToEdge		= 0x00000020,
-	ClampToBorder		= 0x00000040,
-	MirroredRepeat		= 0x00000080
+	TextureCompression 	= 0x00000008
     };
     Q_DECLARE_FLAGS(Extensions, Extension)
 

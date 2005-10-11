@@ -1,3 +1,4 @@
+//depot/qt/main/src/opengl/qgl.cpp#251 - edit change 195531 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -3023,14 +3024,6 @@ void QGLExtensions::init_extensions()
         glExtensions |= GenerateMipmap;
     if (extensions.contains("texture_compression_s3tc"))
         glExtensions |= TextureCompression;
-    if (extensions.contains("ARB_fragment_shader"))
-	glExtensions |= FragmentShader;
-    if (extensions.contains("clamp_to_edge"))
-	glExtensions |= ClampToEdge;
-    if (extensions.contains("clamp_to_border"))
-	glExtensions |= ClampToBorder;
-    if (extensions.contains("mirrored_repeat"))
-	glExtensions |= MirroredRepeat;
 
     QGLContext cx(QGLFormat::defaultFormat());
     if (glExtensions & TextureCompression) {
