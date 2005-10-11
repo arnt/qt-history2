@@ -234,18 +234,6 @@ bool QGLPbuffer::release()
     return false;
 }
 
-GLuint QGLPbuffer::generateTexture(GLint format)
-{
-    Q_D(QGLPbuffer);
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, d->size.width(), d->size.height(), 0, GL_RGBA, GL_FLOAT, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    return texture;
-}
-
 
 bool QGLPbuffer::hasPbuffers()
 {

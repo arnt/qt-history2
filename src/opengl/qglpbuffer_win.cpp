@@ -211,7 +211,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
 	return;
     }
     d->format = pfiToQGLFormat(d->dc, pixel_format);
-    
+
     // NB! The below ONLY works if the width/height are powers of 2.
     // Set some pBuffer attributes so that we can use this pBuffer as
     // a 2D RGBA texture target.
@@ -293,18 +293,6 @@ bool QGLPbuffer::doneCurrent()
     return wglMakeCurrent(d->dc, 0);
 }
 
-GLuint QGLPbuffer::generateTexture(GLint format)
-{
-    Q_D(QGLPbuffer);
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, d->size.width(), d->size.height(), 0, GL_RGBA, GL_FLOAT, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    return texture;
-}
-
 bool QGLPbuffer::hasPbuffers()
 {
     return qt_resolve_pbuffer_extensions();
@@ -320,7 +308,7 @@ bool qt_resolve_pbuffer_extensions()
 
     QGLWidget dummy;
     dummy.makeCurrent();
-    
+
     wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)
 				wglGetProcAddress("wglGetExtensionsStringARB");
     QString extensions;
