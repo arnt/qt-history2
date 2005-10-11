@@ -242,6 +242,8 @@ public:
     QString type(const QModelIndex &index) const;
     QString time(const QModelIndex &index) const;
 
+    void appendChild(QDirModelPrivate::QDirNode *parent, const QString &path) const;
+
     inline QDirNode *node(const QModelIndex &index) const;
     inline void populate(QDirNode *parent) const;
     inline void clear(QDirNode *parent) const;
@@ -950,19 +952,11 @@ QModelIndex QDirModel::index(const QString &path, int column) const
     if (absolutePath.startsWith(QLatin1String("//"))) { // UNC path
         QString host = pathElements.first();
         int r = 0;
-        for (; r < d->root.children.count(); ++r) {
+        for (; r < d->root.children.count(); ++r)
             if (d->root.children.at(r).info.fileName() == host)
                 break;
-        }
-        if (r >= d->root.children.count()) {
-            QFileInfo info(QLatin1String("//") + host);
-            QDirModelPrivate::QDirNode node;
-            node.populated = false;
-            node.parent = 0;
-            node.info = info;
-            node.info.setCaching(true);
-            d->root.children.append(node);
-        }
+        if (r >= d->root.children.count())
+            d->appendChild(&d->root, QLatin1String("//") + host);
         idx = index(r, 0, QModelIndex());
         pathElements.pop_front();
     } else if (pathElements.at(0).endsWith(QLatin1Char(':'))) {
@@ -972,28 +966,47 @@ QModelIndex QDirModel::index(const QString &path, int column) const
     // add the "/" item, since it is a valid path element on unix
     pathElements.prepend(QLatin1String("/"));
 #endif
+
     for (int i = 0; i < pathElements.count(); ++i) {
-        QStringList entries;
-        Q_ASSERT(!pathElements.at(i).isEmpty()); // we don't allow empty elements
-        // get the list of children of the current path element
-        if (idx.isValid()) {
-            QDirModelPrivate::QDirNode *node = d->node(idx);
-            entries = d->entryList(node->info.absoluteFilePath());
-        } else { // parent is "My Computer"
-            for (int j = 0; j < d->root.children.count(); ++j)
-                entries << QDir::cleanPath(d->root.children.at(j).info.absoluteFilePath());
+        Q_ASSERT(!pathElements.at(i).isEmpty());
+        QString element = pathElements.at(i);
+        QDirModelPrivate::QDirNode *parent = (idx.isValid() ? d->node(idx) : &d->root);
+        Q_ASSERT(parent);
+
+        // search for the element in the child nodes first
+        int row = -1;
+        for (int j = parent->children.count() - 1; j >= 0; --j) {
+            if (parent->children.at(j).info.fileName() == element) {
+                row = j;
+                break;
+            }
         }
 
-        // find the row of the current path element in the list of children
-        int row = entries.indexOf(pathElements.at(i));
-        idx = index(row, column, idx); // will check row and lazily populate
-        // hit an invalid element (could be hidden or just not found)
-        if (!idx.isValid()) {
-            qWarning("The file or directory %s in the path %s could not be found",
-                     qPrintable(pathElements.at(i)),
-                     qPrintable(path));
-            break; // return an invalid index
+        // if it was not in the list of children, maybe we just need to populate the parent, then it should be in the entries
+        if (row == -1) {
+            if (idx.isValid()) {
+                QStringList entries = d->entryList(parent->info.absoluteFilePath());
+                row = entries.indexOf(element);
+            } else { // parent is root
+                for (int j = 0; j < d->root.children.count(); ++j) {
+                    QString s = QDir::cleanPath(d->root.children.at(j).info.absoluteFilePath());
+                    if (element == s) {
+                        row = j;
+                        break;
+                    }
+                }
+            }
         }
+
+        // we _still_ couldn't find the path element, we create a new node since we _know_ that the path is valid
+        if (row == -1) {
+            d->appendChild(parent, parent->info.absoluteFilePath() + "/" + element);
+            row = parent->children.count() - 1;
+        }
+
+        Q_ASSERT(row >= 0);
+        idx = index(row, column, idx); // will check row and lazily populate
+        Q_ASSERT(idx.isValid());
     }
 
     return idx;
@@ -1345,6 +1358,16 @@ QString QDirModelPrivate::time(const QModelIndex &index) const
 #else
     return QString();
 #endif
+}
+
+void QDirModelPrivate::appendChild(QDirModelPrivate::QDirNode *parent, const QString &path) const
+{
+    QDirModelPrivate::QDirNode node;
+    node.populated = false;
+    node.parent = (parent == &root ? 0 : parent);
+    node.info = QFileInfo(path);
+    node.info.setCaching(true);
+    parent->children.append(node);
 }
 
 #endif // QT_NO_DIRMODEL
