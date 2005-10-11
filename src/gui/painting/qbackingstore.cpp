@@ -40,6 +40,9 @@ extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); // qapplication_xxx.cpp
 
 bool QWidgetBackingStore::paintOnScreen(QWidget *w)
 {
+#ifdef Q_WS_QWS
+    return false;
+#else
     if (w && (w->testAttribute(Qt::WA_PaintOnScreen)))
         return true;
     static signed char checked_env = -1;
@@ -47,6 +50,7 @@ bool QWidgetBackingStore::paintOnScreen(QWidget *w)
         checked_env = (qgetenv("QT_ONSCREEN_PAINT") == "1") ? 1 : 0;
 
     return (checked_env == 1);
+#endif
 }
 
 #ifdef Q_WS_QWS
@@ -182,11 +186,13 @@ void qt_syncBackingStore(QWidget *widget)
     QTLWExtra *topData = tlw->d_func()->topData();
 
 //    QRegion toClean = tlw->rect();
-    QRegion toClean = topData->backingStore->dirty;
+    QWidgetBackingStore *wbs = topData->backingStore;
+    QRegion toClean = wbs->dirty_on_screen;
 
-#if 0
+#if 0 // debug
     qDebug() << "qt_syncBackingStore" << tlw << tlw->rect();
-    qDebug() << "dirty ==" << topData->backingStore->dirty;
+    qDebug() << "dirty ==" << wbs->dirty;
+    qDebug() << "dirty_on_screen ==" << wbs->dirty_on_screen;
 #endif
     if (!toClean.isEmpty())
         topData->backingStore->cleanRegion(toClean, tlw);
@@ -236,7 +242,7 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
     QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
     HDC engine_dc = engine->getDC();
     if (!engine_dc)
-        return;   
+        return;
 
     BitBlt(engine_dc, pos.x()+dx, pos.y()+dy, rect.width(), rect.height(),
            engine_dc, pos.x(), pos.y(), SRCCOPY);
@@ -252,7 +258,11 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
     XFreeGC(tlw->d_func()->xinfo.display(), gc);
 //    qDebug("done");
 #elif defined(Q_WS_QWS)
-    //### QWS has its own implementation; should be unified
+    pos += topLevelOffset();
+    QRect bsrect(pos, rect.size());
+    buffer.lock(true);
+    buffer.blt(bsrect, pos + QPoint(dx,dy));
+    buffer.unlock();
 #endif
 }
 
@@ -305,6 +315,10 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
         QRegion parentExpose = rect & clipR;
         parentExpose -= newRect;
         pd->invalidateBuffer(parentExpose);
+#ifdef Q_WS_QWS
+        //no native child widgets: copy everything to screen, just like scrollRect()
+        tlw->d_func()->dirtyWidget_sys(QRegion(sourceRect)+destRect);
+#endif
     }
 }
 
@@ -347,94 +361,12 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
         childExpose += newDirty;
         invalidateBuffer(childExpose);
 
-        // windows uses native scroll-on-screen, otherwise we copy
-        // from backingstore, giving only one screen update for each
+        // Instead of using native scroll-on-screen, we copy from
+        // backingstore, giving only one screen update for each
         // scroll, and a solid appearance
         dirtyWidget_sys(rect);
     }
 }
-
-#ifdef Q_WS_QWS
-void QWidgetPrivate::scrollWidget(int dx, int dy, const QRect &sr)
-{
-    Q_Q(QWidget);
-
-    int x1, y1, x2, y2, w=sr.width(), h=sr.height();
-    if (dx > 0) {
-        x1 = sr.x();
-        x2 = x1+dx;
-        w -= dx;
-    } else {
-        x2 = sr.x();
-        x1 = x2-dx;
-        w += dx;
-    }
-    if (dy > 0) {
-        y1 = sr.y();
-        y2 = y1+dy;
-        h -= dy;
-    } else {
-        y2 = sr.y();
-        y1 = y2-dy;
-        h += dy;
-    }
-
-
-
-    QWidget *tlw = q->window();
-    QTLWExtra *topextra = tlw->d_func()->extra->topextra;
-
-    if (topextra->inPaintTransaction) {
-        topextra->backingStore->dirtyRegion(sr, q);
-        return;
-    }
-
-    QPoint tlOffset = q->mapTo(tlw,QPoint(0,0));
-    QRegion tlUpdate(sr.translated(tlOffset));
-
-    QWidgetBackingStore *wbs = topextra->backingStore;
-
-
-    QWSBackingStore *bs = &wbs->buffer;
-    QRect scrollRect;
-
-    // noOverlappingSiblings -> should not happen in real world
-
-    bool hasOwnBackground = !isBackgroundInherited(); //###??? may not be 100% correct
-    bool dirtyScrollRect = wbs->dirty.contains(sr.translated(tlOffset));
-
-    bool fastScroll = !dirtyScrollRect && h >0 && w >0  && q->isVisible() && hasOwnBackground;
-    if (fastScroll) {
-        QPoint bsOffset = tlOffset + wbs->topLevelOffset();
-
-        QPoint p1(x1,y1);
-        QPoint p2(x2,y2);
-
-        QPoint bsp1 = p1 + bsOffset;
-        QPoint bsp2 = p2 + bsOffset;
-
-        QRect bsrect(bsp1, QSize(w,h));
-
-        bs->lock(true);
-        bs->blt(bsrect, bsp2);
-        bs->unlock();
-
-        scrollRect = QRect(p2 + tlOffset, QSize(w,h));
-        tlUpdate -= scrollRect;
-    }
-
-    wbs->dirty |= tlUpdate;
-
-    bs->lock(true);
-    wbs->paintToBuffer(wbs->dirty, tlw, wbs->topLevelOffset());
-    bs->unlock();
-    wbs->copyToScreen(wbs->dirty + scrollRect, tlw, wbs->topLevelOffset());
-
-    wbs->dirty = QRegion();
-}
-#endif
-
-
 
 void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
 {
@@ -443,10 +375,15 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
     if(!widget->isVisible() || !widget->updatesEnabled())
         return;
     wrgn &= widget->d_func()->clipRect();
+#ifndef Q_WS_QWS
     widget->d_func()->dirtyWidget_sys(wrgn);
+#endif
     if(!QWidgetBackingStore::paintOnScreen(widget)) {
         wrgn.translate(widget->mapTo(tlw, QPoint(0, 0)));
         dirty += wrgn;
+#ifdef Q_WS_QWS
+        tlw->d_func()->dirtyWidget_sys(wrgn); //optimization: don't translate twice
+#endif
     }
 }
 
@@ -463,6 +400,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
     QRegion globalrgn = rgn;
     globalrgn.translate(win->geometry().topLeft());
     win->qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn);
+    widget->d_func()->cleanWidget_sys(rgn);
 
     qt_flushUpdate(0, globalrgn);
 #else
@@ -592,12 +530,8 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
             buffer.unlock();
 #endif
         }
-#ifdef Q_WS_QWS
-        QRegion toFlush = toClean; //??? correct as long as we don't have fast scroll
-#else
         QRegion toFlush = rgn;
         toFlush.translate(widget->mapTo(tlw, QPoint()));
-#endif
         copyToScreen(toFlush, tlw, tlwOffset);
     }
 }

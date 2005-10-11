@@ -48,7 +48,6 @@
 //  - top-level widgets have extra extra data to reduce cost further
 #if defined(Q_WS_QWS)
 class QWSManager;
-class QWSBackingStore;
 #endif
 #if defined(Q_WS_WIN)
 class QOleDropTarget;
@@ -263,14 +262,9 @@ public:
     void setConstraints_sys();
 
 #if defined(Q_WS_QWS)
-//    void updateRequestedRegion(const QPoint &gpos);
-//    QRegion requestedRegion() const;
     QRegion localRequestedRegion() const;
 
-    void doPaint(const QRegion &rgn);
-
     void bltToScreen(const QRegion &globalrgn);
-    void scrollWidget(int dx, int dy, const QRect &r);
 #ifndef QT_NO_CURSOR
     void updateCursor(const QRegion &r) const;
 #endif

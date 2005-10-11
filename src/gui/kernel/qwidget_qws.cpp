@@ -513,22 +513,45 @@ void QWidget::activateWindow()
 void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 {
     Q_Q(QWidget);
-    QApplication::postEvent(q->window(), new QEvent(QEvent::UpdateRequest));
+    QWidget *tlw = q->window();
+    QWidgetBackingStore *wbs = tlw->d_func()->topData()->backingStore;
+    QRegion wrgn(rgn);
+
+    if (tlw != q) {
+        QPoint offs(q->mapTo(tlw, QPoint()));
+        wrgn.translate(offs);
+    }
+
+    wbs->dirty_on_screen += wrgn;
+
+    QApplication::postEvent(tlw, new QEvent(QEvent::UpdateRequest));
 }
 
 void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
 {
+    Q_Q(QWidget);
+    QWidget *tlw = q->window();
+    QWidgetBackingStore *wbs = tlw->d_func()->topData()->backingStore;
+    QRegion wrgn(rgn);
+    if (tlw != q) {
+        QPoint offs(q->mapTo(tlw, QPoint()));
+        wrgn.translate(offs);
+    }
+
+    wbs->dirty_on_screen -= wrgn;
 }
 
 
 
 /*
   Should we require that  q is a toplevel window ???
+
+  Used by QWSManager
  */
 void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
 {
     Q_Q(QWidget);
-//    qDebug("QWidgetPrivate::bltToScreen");
+x//    qDebug("QWidgetPrivate::bltToScreen");
     QWidget *win = q->window();
     QBrush bgBrush = win->palette().brush(win->backgroundRole());
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
@@ -866,7 +889,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     QRect r(x, y, w, h);
 
     bool isResize = olds != r.size();
-    isMove = oldp != r.topLeft(); //###### why do we have isMove as a parameter ??????
+    isMove = oldp != r.topLeft(); //### why do we have isMove as a parameter?
 
     // We only care about stuff that changes the geometry, or may
     // cause the window manager to change its state
@@ -930,12 +953,12 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             if (q->isWindow()) {
                 invalidateBuffer(q->rect()); //###
             } else {
-//### move not optimized yet
-//                 if(isMove)
-//                     q->parentWidget()->d_func()->scrollBuffer(QRect(oldPos, olds),
-//                                                           x - oldPos.x(), y - oldPos.y());
-//                 else
-                    q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, olds));
+#if 0 //optimized move
+                if(isMove)
+                    moveRect(QRect(oldPos, olds), x - oldPos.x(), y - oldPos.y());
+                else
+#endif
+                q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, olds));
             }
         }
     } else { // not visible
@@ -993,46 +1016,24 @@ void QWidgetPrivate::setConstraints_sys()
 
 void QWidget::scroll(int dx, int dy)
 {
-    scroll(dx, dy, QRect());
-}
 
-void QWidget::scroll(int dx, int dy, const QRect& r)
-{
     Q_D(QWidget);
     if (!updatesEnabled() && children().size() == 0)
         return;
     if (dx == 0 && dy == 0)
         return;
+    d->scrollChildren(dx, dy);
+    d->scrollRect(rect(), dx, dy);
+}
 
-    bool valid_rect = r.isValid();
-
-
-
-    if (!valid_rect && children().size() > 0) {        // scroll children
-//        d->setChildrenAllocatedDirty();
-        QPoint pd(dx, dy);
-        QObjectList childObjects = children();
-        for (int i = 0; i < childObjects.size(); ++i) { // move all children
-            QObject *object = childObjects.at(i);
-            if (object->isWidgetType()) {
-                QWidget *w = static_cast<QWidget *>(object);
-                QPoint oldp = w->pos();
-                QRect  r(w->pos() + pd, w->size());
-                w->data->crect = r;
-//                w->d_func()->updateRequestedRegion(gpos + w->pos());
-                QMoveEvent e(r.topLeft(), oldp);
-                QApplication::sendEvent(w, &e);
-            }
-        }
-    }
-
-    static int doScroll = -1;
-    if (doScroll == -1)
-        doScroll = qgetenv("QT_FAKE_SCROLL").isEmpty();
-    if (doScroll)
-        d->scrollWidget(dx,dy, valid_rect ? r & rect() : rect() );
-    else
-        update(valid_rect ? r & rect() : rect());
+void QWidget::scroll(int dx, int dy, const QRect& r)
+{
+   Q_D(QWidget);
+    if (!updatesEnabled() && children().size() == 0)
+        return;
+    if (dx == 0 && dy == 0)
+        return;
+    d->scrollRect(r, dx, dy);
 }
 
 int QWidget::metric(PaintDeviceMetric m) const

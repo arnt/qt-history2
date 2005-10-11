@@ -2293,7 +2293,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             XResizeWindow(dpy, data.winid, w, h);
     } else {
 #ifdef QT_USE_BACKINGSTORE
-        if(q->isVisible()) {
+        if(!isResize && q->isVisible()) {
             moveRect(QRect(oldPos, oldSize), x - oldPos.x(), y - oldPos.y());
         }
 #endif

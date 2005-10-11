@@ -53,6 +53,7 @@ class QWidgetBackingStore
     QBackingStoreDevice buffer;
 #elif defined(Q_WS_QWS)
     QWSBackingStore buffer;
+    QRegion dirty_on_screen;
 #else
     QPixmap buffer;
 #endif
