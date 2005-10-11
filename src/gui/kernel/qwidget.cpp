@@ -152,7 +152,9 @@ void QWidgetPrivate::scrollChildren(int dx, int dy)
                 QPoint oldp = w->pos();
                 QRect  r(w->pos() + pd, w->size());
                 w->data->crect = r;
+#ifndef Q_WS_QWS
                 w->d_func()->setWSGeometry();
+#endif
                 QMoveEvent e(r.topLeft(), oldp);
                 QApplication::sendEvent(w, &e);
             }
