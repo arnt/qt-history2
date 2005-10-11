@@ -14,8 +14,6 @@
 #ifndef QSIGNALSPY_H
 #define QSIGNALSPY_H
 
-#include <QtCore/qglobal.h>
-
 #include <QtCore/qbytearray.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qobject.h>
@@ -143,4 +141,3 @@ private:
 };
 
 #endif
-

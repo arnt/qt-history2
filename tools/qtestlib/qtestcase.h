@@ -14,10 +14,10 @@
 #ifndef QTESTCASE_P_H
 #define QTESTCASE_P_H
 
+#include <QtTest/qtest_global.h>
+
 #include <QtCore/qnamespace.h>
 #include <QtCore/qmetatype.h>
-
-#include "QtTest/qtest_global.h"
 
 #define QVERIFY(statement) \
 do {\
@@ -238,4 +238,3 @@ namespace QTest
 #undef QTEST_COMPARE_DECL
 
 #endif
-

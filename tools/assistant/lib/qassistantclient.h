@@ -33,17 +33,17 @@ public:
 
     void setArguments( const QStringList &args );
 
-public slots:
+public Q_SLOTS:
     virtual void openAssistant();
     virtual void closeAssistant();
     virtual void showPage( const QString &page );
 
-signals:
+Q_SIGNALS:
     void assistantOpened();
     void assistantClosed();
     void error( const QString &msg );
 
-private slots:
+private Q_SLOTS:
     void socketConnected();
     void socketConnectionClosed();
     void readPort();

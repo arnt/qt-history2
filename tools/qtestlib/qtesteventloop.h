@@ -88,4 +88,3 @@ inline void QTestEventLoop::timerEvent(QTimerEvent *e)
 }
 
 #endif
-

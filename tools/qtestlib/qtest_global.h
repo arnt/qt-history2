@@ -43,4 +43,3 @@ namespace QTest
 }
 
 #endif
-

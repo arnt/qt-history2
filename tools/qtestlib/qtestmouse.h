@@ -19,9 +19,9 @@
 #pragma qt_no_master_include
 #endif
 
-#include "QtTest/qtest_global.h"
-#include "QtTest/qtestassert.h"
-#include "QtTest/qtestsystem.h"
+#include <QtTest/qtest_global.h>
+#include <QtTest/qtestassert.h>
+#include <QtTest/qtestsystem.h>
 #include "QtTest/private/qtestspontaneevent_p.h"
 
 #include <QtCore/qpoint.h>
@@ -103,4 +103,3 @@ namespace QTest
 }
 
 #endif // QTESTMOUSE_H
-

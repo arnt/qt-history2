@@ -19,9 +19,9 @@
 #pragma qt_no_master_include
 #endif
 
-#include "QtTest/qtestassert.h"
-#include "QtTest/qtest_global.h"
-#include "QtTest/qtestsystem.h"
+#include <QtTest/qtestassert.h>
+#include <QtTest/qtest_global.h>
+#include <QtTest/qtestsystem.h>
 #include "QtTest/private/qtestspontaneevent_p.h"
 
 #include <QtCore/qpointer.h>
@@ -152,5 +152,4 @@ namespace QTest
 
 }
 
-#endif //QTESTKEYBOARD_H
-
+#endif // QTESTKEYBOARD_H

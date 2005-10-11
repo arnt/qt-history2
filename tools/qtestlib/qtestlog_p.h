@@ -14,7 +14,7 @@
 #ifndef QTESTLOG_H
 #define QTESTLOG_H
 
-#include "QtTest/qtest_global.h"
+#include <QtTest/qtest_global.h>
 
 class QTestLog
 {
@@ -55,4 +55,3 @@ private:
 };
 
 #endif
-

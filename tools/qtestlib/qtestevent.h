@@ -19,10 +19,10 @@
 #pragma qt_no_master_include
 #endif
 
-#include "QtTest/qtest_global.h"
-#include "QtTest/qtestkeyboard.h"
-#include "QtTest/qtestmouse.h"
-#include "QtTest/qtestsystem.h"
+#include <QtTest/qtest_global.h>
+#include <QtTest/qtestkeyboard.h>
+#include <QtTest/qtestmouse.h>
+#include <QtTest/qtestsystem.h>
 
 #include <QtCore/qlist.h>
 
@@ -174,4 +174,3 @@ public:
 Q_DECLARE_METATYPE(QTestEventList)
 
 #endif
-

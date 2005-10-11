@@ -24,7 +24,6 @@ public:
         XPass
     };
 
-
     enum MessageTypes {
         Warn,
         QWarning,
@@ -34,7 +33,6 @@ public:
         Skip,
         Info
     };
-
 
     QAbstractTestLogger() {}
     virtual ~QAbstractTestLogger() {}
@@ -55,4 +53,3 @@ public:
 };
 
 #endif
-

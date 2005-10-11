@@ -14,9 +14,9 @@
 #ifndef QTEST_H
 #define QTEST_H
 
-#include "QtTest/qtest_global.h"
-#include "QtTest/qtestcase.h"
-#include "QtTest/qtestdata.h"
+#include <QtTest/qtest_global.h>
+#include <QtTest/qtestcase.h>
+#include <QtTest/qtestdata.h>
 
 #include <QtCore/qbytearray.h>
 #include <QtCore/qstring.h>
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) \
 
 #ifdef QT_GUI_LIB
 
-#include "QtTest/qtest_gui.h"
+#include <QtTest/qtest_gui.h>
 
 #define QTEST_MAIN(TestObject) \
 int main(int argc, char *argv[]) \
@@ -160,7 +160,6 @@ int main(int argc, char *argv[]) \
     return QTest::qExec(&tc, argc, argv); \
 }
 
-#endif //QT_GUI_LIB
+#endif // QT_GUI_LIB
 
 #endif
-

@@ -14,14 +14,14 @@
 #ifndef QTEST_GUI_H
 #define QTEST_GUI_H
 
+#include <QtTest/qtestassert.h>
+#include <QtTest/qtest.h>
+#include <QtTest/qtestevent.h>
+#include <QtTest/qtestmouse.h>
+#include <QtTest/qtestkeyboard.h>
+
 #include <QtGui/qicon.h>
 #include <QtGui/qpixmap.h>
-
-#include "QtTest/qtestassert.h"
-#include "QtTest/qtest.h"
-#include "QtTest/qtestevent.h"
-#include "QtTest/qtestmouse.h"
-#include "QtTest/qtestkeyboard.h"
 
 #if 0
 // inform syncqt

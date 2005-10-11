@@ -14,10 +14,10 @@
 #ifndef QTESTDATA_H
 #define QTESTDATA_H
 
+#include <QtTest/qtest_global.h>
+
 #include <QtCore/qmetatype.h>
 #include <QtCore/qstring.h>
-
-#include "QtTest/qtest_global.h"
 
 class QTestTable;
 class QTestDataPrivate;
@@ -56,4 +56,3 @@ inline QTestData &operator<<(QTestData &data, const char * value)
 }
 
 #endif
-
