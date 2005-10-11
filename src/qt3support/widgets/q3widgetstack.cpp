@@ -15,6 +15,7 @@
 #include "qlayout.h"
 #include "private/qlayoutengine_p.h"
 #include "qapplication.h"
+#include "qpainter.h"
 
 using namespace Qt;
 
@@ -25,12 +26,17 @@ public:
     public:
 	    Invisible(Q3WidgetStack * parent): QWidget(parent, "qt_invisible_widgetstack")
 	    {
-	        setBackgroundMode(NoBackground);
+                setBackgroundMode(NoBackground);
 	    }
 	    const char * className() const
 	    {
 	        return "Q3WidgetStackPrivate::Invisible";
 	    }
+    protected:
+            void paintEvent(QPaintEvent *)
+            {
+                QPainter(this).eraseRect(rect());
+            }
     };
 
     int nextNegativeID;
