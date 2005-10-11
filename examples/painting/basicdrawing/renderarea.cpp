@@ -1,18 +1,11 @@
+//depot/qt/main/examples/painting/basicdrawing/renderarea.cpp#6 - integrate change 186537 (text)
 /****************************************************************************
 **
-** Copyright (C) 2005-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
 **
-** This file is part of the example classes of the Qt Toolkit.
+** This file is part of the $MODULE$ of the Qt Toolkit.
 **
-** Licensees holding valid Qt Commercial licenses may use this file in
-** accordance with the Qt Commercial License Agreement provided with the
-** Software.
-**
-** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about Qt Commercial License Agreements.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
+** $LICENSE$
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -75,17 +68,12 @@ void RenderArea::setTransformed(bool transformed)
 
 void RenderArea::paintEvent(QPaintEvent *)
 {
-    //static const int polygonPoints[8] = { 10, 80, 10, 10, 80, 10, 80, 70 };
-    //QPolygon polygon(4, polygonPoints);
-
-	// TWEAK THESE TWO SLIGHTY (+/- .01 at a time to show problem on your screen)
-	qreal YTOP = 9.9;
-	qreal PENW = 10.65;
-
-	QPolygonF polygon;
-	
-	polygon << QPointF(10, 180) << QPointF(10, YTOP) << QPointF(180, YTOP);
-
+    static const QPoint points[4] = {
+        QPoint(10, 80),
+        QPoint(20, 10),
+        QPoint(80, 30),
+        QPoint(90, 70)
+    };
 
     QRect rect(10, 20, 80, 60);
 
@@ -99,13 +87,12 @@ void RenderArea::paintEvent(QPaintEvent *)
 
     QPainter painter(this);
     painter.setPen(pen);
-	
     painter.setBrush(brush);
     if (antialiased)
         painter.setRenderHint(QPainter::Antialiasing);
 
-    for (int x = 0; x < width(); x += 200) {
-        for (int y = 0; y < height(); y += 200) {
+    for (int x = 0; x < width(); x += 100) {
+        for (int y = 0; y < height(); y += 100) {
             painter.save();
             painter.translate(x, y);
             if (transformed) {
@@ -120,15 +107,13 @@ void RenderArea::paintEvent(QPaintEvent *)
                 painter.drawLine(rect.bottomLeft(), rect.topRight());
                 break;
             case Points:
-                painter.drawPoints(polygon);
+                painter.drawPoints(points, 4);
                 break;
             case Polyline:
-				pen.setWidthF(PENW);
-				painter.setPen(pen);
-				painter.drawPolyline(polygon);
+                painter.drawPolyline(points, 4);
                 break;
             case Polygon:
-                painter.drawPolygon(polygon);
+                painter.drawPolygon(points, 4);
                 break;
             case Rect:
                 painter.drawRect(rect);
@@ -161,4 +146,3 @@ void RenderArea::paintEvent(QPaintEvent *)
         }
     }
 }
-

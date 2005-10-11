@@ -1,3 +1,4 @@
+//depot/qt/main/examples/opengl/grabber/glwidget.cpp#5 - integrate change 179691 (text)
 /****************************************************************************
 **
 ** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -107,7 +108,6 @@ void GLWidget::paintGL()
     drawGear(gear3, -3.1, -1.8, -2.2, +2.0 * (gear1Rot / 16.0) - 2.0);
 
     glPopMatrix();
-    renderText(20, 20, "Ole i dole");
 }
 
 void GLWidget::resizeGL(int width, int height)
