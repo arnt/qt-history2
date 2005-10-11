@@ -2037,7 +2037,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 //Make sure the cliprect is also rotated if vertical
                 if(vertical)clip = m.mapRect(clip);
 
-                if(!prevClip.isNull())p->setClipRegion(intersection);
+                if(!prevClip.isEmpty())p->setClipRegion(intersection);
                 else p->setClipRect(clip);
 
                 for (int i = 0; i < chunksToDraw ; ++i) {
