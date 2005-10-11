@@ -1639,13 +1639,13 @@ inline quint64 qntoh(const uchar *data)
 {
     return 0
         | data[7]
-        | data[6] * (256)  
-        | data[5] * (65536)
-        | data[4] * (65536*256)
-        | data[3] * (65536*65536)
-        | data[2] * (65536*65536*256)
-        | data[1] * (65536*65536*65536)
-        | data[0] * (65536*65536*65536*256);
+        | data[6] * Q_UINT64_C(0x0000000000000100)
+        | data[5] * Q_UINT64_C(0x0000000000010000)
+        | data[4] * Q_UINT64_C(0x0000000001000000)
+        | data[3] * Q_UINT64_C(0x0000000100000000)
+        | data[2] * Q_UINT64_C(0x0000010000000000)
+        | data[1] * Q_UINT64_C(0x0001000000000000)
+        | data[0] * Q_UINT64_C(0x0100000000000000);
 }
 
 template <>
@@ -1653,9 +1653,9 @@ inline quint32 qntoh(const uchar *data)
 {
     return 0
         | data[3]
-        | data[2] * (1 << 8)  
-        | data[1] * (1 << 16)
-        | data[0] * (1 << 24);
+        | data[2] * Q_UINT64_C(0x0000000000000100)
+        | data[1] * Q_UINT64_C(0x0000000000010000)
+        | data[0] * Q_UINT64_C(0x0000000001000000);
 }
 
 template <>
@@ -1663,7 +1663,7 @@ inline quint16 qntoh(const uchar *data)
 {
     return 0
         | data[1]
-        | data[0] * (1 << 8);
+        | data[0] * Q_UINT64_C(0x0000000000000100)
 }
 
 /* This function will read a little-endian encoded value
@@ -1676,13 +1676,13 @@ inline quint64 qletoh(const uchar *data)
 {
     return 0
         | data[0]
-        | data[1] * (1 << 8)  
-        | data[2] * (1 << 16)
-        | data[3] * (1 << 24)
-        | data[4] * (65536*65536)
-        | data[5] * (65536*65536*256)   
-        | data[6] * (65536*65536*65536) 
-        | data[7] * (65536*65536*65536*256);
+        | data[1] * Q_UINT64_C(0x0000000000000100)
+        | data[2] * Q_UINT64_C(0x0000000000010000)
+        | data[3] * Q_UINT64_C(0x0000000001000000)
+        | data[4] * Q_UINT64_C(0x0000000100000000)
+        | data[5] * Q_UINT64_C(0x0000010000000000)
+        | data[6] * Q_UINT64_C(0x0001000000000000)
+        | data[7] * Q_UINT64_C(0x0100000000000000);
 }
 
 template <>
@@ -1690,9 +1690,9 @@ inline quint32 qletoh(const uchar *data)
 {
     return 0
         | data[0]
-        | data[1] * (1 << 8)
-        | data[2] * (1 << 16)
-        | data[3] * (1 << 24);
+        | data[1] * Q_UINT64_C(0x0000000000000100)
+        | data[2] * Q_UINT64_C(0x0000000000010000)
+        | data[3] * Q_UINT64_C(0x0000000001000000)
 }
 
 template <>
@@ -1700,7 +1700,7 @@ inline quint16 qletoh(const uchar *data)
 {
     return 0
         | data[0]
-        | data[1] * (1 << 8);
+        | data[1] * Q_UINT64_C(0x0000000000000100)
 }
 
 template <>
