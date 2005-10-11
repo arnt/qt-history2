@@ -185,7 +185,6 @@ void qt_syncBackingStore(QWidget *widget)
     QWidget *tlw = widget->window();
     QTLWExtra *topData = tlw->d_func()->topData();
 
-//    QRegion toClean = tlw->rect();
     QWidgetBackingStore *wbs = topData->backingStore;
     QRegion toClean = wbs->dirty_on_screen;
 
@@ -230,8 +229,7 @@ QWidgetBackingStore::~QWidgetBackingStore()
 */
 void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *widget)
 {
-#ifdef Q_WS_X11
-    //### need cross-platform test
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     if (buffer.isNull())
         return;
 #endif
@@ -316,8 +314,8 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
         parentExpose -= newRect;
         pd->invalidateBuffer(parentExpose);
 #ifdef Q_WS_QWS
-        //no native child widgets: copy everything to screen, just like scrollRect()
-        tlw->d_func()->dirtyWidget_sys(QRegion(sourceRect)+destRect);
+        //QWS does not have native child widgets: copy everything to screen, just like scrollRect()
+        pd->dirtyWidget_sys(QRegion(sourceRect)+destRect);
 #endif
     }
 }

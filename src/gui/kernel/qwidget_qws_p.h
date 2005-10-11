@@ -47,6 +47,7 @@ public:
     int memoryId() const { return shmid; }
     QSize size() const;
 
+    bool isNull() const;
 private:
     QPixmap *pix;
     int shmid;

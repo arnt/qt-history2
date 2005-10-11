@@ -580,6 +580,11 @@ QPixmap *QWSBackingStore::pixmap() const
     return pix;
 }
 
+bool QWSBackingStore::isNull() const
+{
+    return pix ? pix->isNull() : true;
+}
+
 // 32bpp only
 void QWSBackingStore::blt(const QRect &r, const QPoint &p)
 {
@@ -715,10 +720,11 @@ void QWidgetPrivate::show_sys()
     q->setAttribute(Qt::WA_Mapped);
     if (q->isWindow()) {
         QRegion r = localRequestedRegion();
-        r.translate(data.crect.topLeft());
 #ifndef QT_NO_QWS_MANAGER
         if (extra && extra->topextra && extra->topextra->qwsManager) {
+            r.translate(data.crect.topLeft());
             r += extra->topextra->qwsManager->region();
+            r.translate(-data.crect.topLeft());
         }
 #endif
         invalidateBuffer(r);
@@ -953,12 +959,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             if (q->isWindow()) {
                 invalidateBuffer(q->rect()); //###
             } else {
-#if 0 //optimized move
                 if(isMove)
                     moveRect(QRect(oldPos, olds), x - oldPos.x(), y - oldPos.y());
                 else
-#endif
-                q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, olds));
+                    q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, olds));
             }
         }
     } else { // not visible
@@ -971,43 +975,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     if (!inTransaction)
         topextra->inPaintTransaction = false;
 }
-
-/*
-//##### #define FAST_WIDGET_MOVE
-#ifdef FAST_WIDGET_MOVE
-//                    if (isMove && (w==olds.width() && h==olds.height())) {
-//                        QSize s(qt_screen->width(), qt_screen->height());
-//
-//                        QPoint td1 = qt_screen->mapToDevice(QPoint(0,0), s);
-//                        QPoint td2 = qt_screen->mapToDevice(QPoint(x - oldp.x(),y - oldp.y()), s);
-//                        QPoint dd = QPoint(td2.x()-td1.x(), td2.y()-td1.y());
-//                        oldAlloc.translate(dd.x(), dd.y());
-//
-//                        QRegion alloc(allocatedRegion());
-//
-//                        QRegion scrollRegion(alloc & oldAlloc);
-//                        if (!scrollRegion.isEmpty()) {
-//                            bool was_unclipped = p->testAttribute(Qt::WA_PaintUnclipped);
-//                            p->setAttribute(Qt::WA_PaintUnclipped);
-//
-//                            QWSPaintEngine * engine=static_cast<QWSPaintEngine*>(p->paintEngine());
-//                            engine->begin(p);
-//
-//                            engine->setClipDeviceRegion(scrollRegion);
-//                            engine->scroll(x,y,w,h,oldp.x(),oldp.y());
-//                            engine->end();
-//                            if (!was_unclipped)
-//                                p->setAttribute(Qt::WA_PaintUnclipped,false);
-//
-//                            QSize ds(qt_screen->deviceWidth(), qt_screen->deviceHeight());
-//                            scrollRegion = qt_screen->mapFromDevice(scrollRegion, ds);
-//                            QPoint gp = p->mapToGlobal(QPoint(0,0));
-//                            scrollRegion.translate(-gp.x(), -gp.y());
-//                            paintRegion -= scrollRegion;
-//                        }
-//                    }
-#endif
-*/
 
 void QWidgetPrivate::setConstraints_sys()
 {
