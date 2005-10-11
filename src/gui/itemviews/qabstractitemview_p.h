@@ -30,7 +30,6 @@
 #include "QtCore/qdatetime.h"
 #include "QtGui/qevent.h"
 #include "QtGui/qmime.h"
-#include "QtGui/qpainter.h"
 #include "QtCore/qmap.h"
 #include "QtCore/qtimer.h"
 #include "QtGui/qregion.h"
