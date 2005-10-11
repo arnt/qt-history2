@@ -239,9 +239,14 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     opt.init(q);
     bool down = q->isDown();
     bool checked = q->isChecked();
+    if (qobject_cast<const QToolBar *>(q)) {
+        int iconSize = q->style()->pixelMetric(QStyle::PM_ToolBarIconSize, &opt, q);
+        opt.iconSize = QSize(iconSize, iconSize);
+    } else {
+        opt.iconSize = q->iconSize();
+    }
     opt.text = text;
     opt.icon = icon;
-    opt.iconSize = q->iconSize();
     opt.arrowType = arrowType;
     if (down)
         opt.state |= QStyle::State_Sunken;
@@ -310,7 +315,7 @@ QSize QToolButton::sizeHint() const
 
     QFontMetrics fm = fontMetrics();
     if (opt.toolButtonStyle != Qt::ToolButtonTextOnly) {
-        QSize icon = iconSize();
+        QSize icon = opt.iconSize;
         w = icon.width();
         h = icon.height();
     }
