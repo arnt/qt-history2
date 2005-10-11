@@ -1823,14 +1823,14 @@ void QTreeViewPrivate::updateHorizontalScrollbar()
 
     int count = header->count();
     // if the header is out of sync we have to relayout
-    if (count != model->columnCount(root)) {
+    if (model && count != model->columnCount(root)) {
         header->doItemsLayout();
         count = header->count();
     }
 
     int width = viewport->width();
     // if we have no viewport or no columns, there is nothing to do
-    if (width <= 0 || count <= 0) {
+    if (!model || width <= 0 || count <= 0) {
         q->horizontalScrollBar()->setRange(0, 0);
         return;
     }

@@ -49,14 +49,14 @@ void QTableViewPrivate::updateVerticalScrollbar()
 
     int count = verticalHeader->count();
     // if the header is out of sync we have to relayout
-    if (count != model->rowCount(root)) {
+    if (model && count != model->rowCount(root)) {
         verticalHeader->doItemsLayout();
         count = verticalHeader->count();
     }
 
     int height = viewport->height();
     // if we have no viewport or no rows, there is nothing to do
-    if (height <= 0 || count <= 0) {
+    if (!model || height <= 0 || count <= 0) {
         q->verticalScrollBar()->setRange(0, 0);
         return;
     }
@@ -102,14 +102,14 @@ void QTableViewPrivate::updateHorizontalScrollbar()
 
     int count = horizontalHeader->count();
     // if the header is out of sync we have to relayout
-    if (count != model->columnCount(root)) {
+    if (model && count != model->columnCount(root)) {
         horizontalHeader->doItemsLayout();
         count = horizontalHeader->count();
     }
 
     int width = viewport->width();
     // if we have no viewport or no columns, there is nothing to do
-    if (width <= 0 || count <= 0) {
+    if (!model || width <= 0 || count <= 0) {
         q->horizontalScrollBar()->setRange(0, 0);
         return;
     }
