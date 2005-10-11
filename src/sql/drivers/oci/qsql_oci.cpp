@@ -193,9 +193,9 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
         if (isOutValue(i))
             values[i].detach();
         const QVariant &val = values.at(i);
-        void *data = const_cast<void *>(val.constData());
+        void *data = const_cast<void *>(val.constData());              
 
-        //qDebug("binding values: %d, %s", i, values.at(i).toString().ascii());
+        //qDebug("binding values: %d, %s", i, qPrintable(values.at(i).toString()));
         OCIBind * hbnd = 0; // Oracle handles these automatically
         sb2 *indPtr = &indicators[i];
         *indPtr = val.isNull() ? -1 : 0;
@@ -312,8 +312,8 @@ void QOCIPrivate::outValues(QVector<QVariant> &values, IndicatorArray &indicator
             continue;
 
         QVariant::Type typ = values.at(i).type();
-
-        switch(typ) {
+        
+        switch(typ) {           
             case QVariant::Time:
                 values[i] = qMakeDate(tmpStorage.takeFirst()).time();
                 break;
@@ -651,7 +651,7 @@ public:
     int fieldFromDefine(OCIDefine* d);
     void getValues(QVector<QVariant> &v, int index);
     inline int size() { return fieldInf.size(); }
-    static bool execBatch(QOCIPrivate *d, int colCount, const QVector<QVariant> &values);
+    static bool execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues, bool arrayBind);
 
 private:
     char* create(int position, int size);
@@ -930,9 +930,12 @@ struct QOCIBatchColumn
     OCIBind* bindh;
     ub2 bindAs;
     ub4 maxLen;
+    ub4 recordCount;
     char* data;
     ub2* lengths;
     sb2* indicators;
+    ub4 maxarr_len;
+    ub4 curelep;
 };
 
 struct QOCIBatchCleanupHandler
@@ -953,28 +956,38 @@ struct QOCIBatchCleanupHandler
     QVector<QOCIBatchColumn> &col;
 };
 
-bool QOCIResultPrivate::execBatch(QOCIPrivate *d, int columnCount, const QVector<QVariant> &values)
-{
-    if (values.isEmpty() || columnCount == 0)
-        return false;
-
-    int recordCount = values.count() / columnCount;
+bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues, bool arrayBind)
+{   
+    int columnCount = boundValues.count(); 
+    if (boundValues.isEmpty() || columnCount == 0)
+        return false;                            
+           
     int i;
-
+    sword r;
+    
     QVarLengthArray<QVariant::Type> fieldTypes;
     for (i = 0; i < columnCount; ++i)
-        fieldTypes.append(values.at(i).type());
+        fieldTypes.append(boundValues.at(i).toList().at(0).type());
+
 
     QVector<QOCIBatchColumn> columns(columnCount);
     QOCIBatchCleanupHandler cleaner(columns);
 
     // figuring out buffer sizes
     for (i = 0; i < columnCount; ++i) {
+    
+        if (boundValues.at(i).type() != QVariant::List)
+            continue;                
+    
         QOCIBatchColumn &col = columns[i];
+        col.recordCount = boundValues.at(i).toList().count();        
+        
         col.maxLen = 0;
         col.data = 0;
-        col.lengths = new ub2[recordCount];
-        col.indicators = new sb2[recordCount];
+        col.lengths = new ub2[col.recordCount];
+        col.indicators = new sb2[col.recordCount];
+        col.maxarr_len = col.recordCount;
+        col.curelep = col.recordCount;
 
         switch (fieldTypes[i]) {
             case QVariant::Time:
@@ -1006,9 +1019,8 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, int columnCount, const QVector
 
             case QVariant::String: {
                 col.bindAs = SQLT_STR;
-                col.maxLen = values.at(i).toString().length() + 1;
-                for (int j = 1; j < recordCount; ++j) {
-                    uint len = values.at(j * columnCount + i).toString().length() + 1;
+                for (uint j = 0; j < col.recordCount; ++j) {
+                    uint len = boundValues.at(i).toList().at(j).toString().length() + 1;
                     if (len > col.maxLen)
                         col.maxLen = len;
                 }
@@ -1020,94 +1032,88 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, int columnCount, const QVector
             case QVariant::ByteArray:
             default: {
                 col.bindAs = SQLT_LBI;
-                col.maxLen = values.at(i).toByteArray().size();
-                for (int j = 1; j < recordCount; ++j) {
-                    col.lengths[j] = values.at(j * columnCount + i).toByteArray().size();
+                for (uint j = 0; j < col.recordCount; ++j) {
+                    col.lengths[j] = boundValues.at(i).toList().at(j).toByteArray().size();
                     if (col.lengths[j] > col.maxLen)
                         col.maxLen = col.lengths[j];
                 }
                 break; }
         }
 
-        col.data = new char[col.maxLen * recordCount];
-        memset(col.data, 0, col.maxLen * recordCount);
-    }
-
-    int row, c;
-    // now we populate arrays with data
-    for (row = 0; row < recordCount; ++row) {
-        for (c = 0; c < columnCount; ++c) {
-            const QVariant &val = values.at(row * columnCount + c);
+        col.data = new char[col.maxLen * col.recordCount];
+        memset(col.data, 0, col.maxLen * col.recordCount);
+        
+        // we may now populate column with data
+        for (uint row = 0; row < col.recordCount; ++row) {
+            const QVariant &val = boundValues.at(i).toList().at(row);            
+            
             if (val.isNull()){
-                columns[c].indicators[row] = -1;
-                columns[c].lengths[row] = 0;
+                columns[i].indicators[row] = -1;
+                columns[i].lengths[row] = 0;
             } else {
-                columns[c].indicators[row] = 0;
-                char *dataPtr = columns[c].data + (columns[c].maxLen * row);
-                switch (fieldTypes[c]) {
+                columns[i].indicators[row] = 0;
+                char *dataPtr = columns[i].data + (columns[i].maxLen * row);
+                switch (fieldTypes[i]) {
                     case QVariant::Time:
                     case QVariant::Date:
                     case QVariant::DateTime:{
-                        columns[c].lengths[row] = columns[c].maxLen;
+                        columns[i].lengths[row] = columns[i].maxLen;
                         const QByteArray ba = qMakeOraDate(val.toDateTime());
-                        Q_ASSERT(ba.size() == int(columns[c].maxLen));
-                        memcpy(dataPtr, ba.constData(), columns[c].maxLen);
+                        Q_ASSERT(ba.size() == int(columns[i].maxLen));
+                        memcpy(dataPtr, ba.constData(), columns[i].maxLen);
                         break;
                     }
                     case QVariant::Int:
-                        columns[c].lengths[row] = columns[c].maxLen;
+                        columns[i].lengths[row] = columns[i].maxLen;
                         *reinterpret_cast<int*>(dataPtr) = val.toInt();
                         break;
 
                     case QVariant::UInt:
-                        columns[c].lengths[row] = columns[c].maxLen;
+                        columns[i].lengths[row] = columns[i].maxLen;
                         *reinterpret_cast<uint*>(dataPtr) = val.toUInt();
                         break;
 
                     case QVariant::Double:
-                         columns[c].lengths[row] = columns[c].maxLen;
+                         columns[i].lengths[row] = columns[i].maxLen;
                          *reinterpret_cast<double*>(dataPtr) = val.toDouble();
                          break;
 
                     case QVariant::String: {
                         const QString s = val.toString();
-                        columns[c].lengths[row] = (s.length() + 1) * sizeof(QChar);
-                        memcpy(dataPtr, s.utf16(), columns[c].lengths[row]);
+                        columns[i].lengths[row] = (s.length() + 1) * sizeof(QChar);
+                        memcpy(dataPtr, s.utf16(), columns[i].lengths[row]);
                         break;
                     }
                     case QVariant::UserType:
                         if (qVariantCanConvert<QOCIRowIdPointer>(val)) {
                             const QOCIRowIdPointer rptr = qVariantValue<QOCIRowIdPointer>(val);
                             *reinterpret_cast<OCIRowid**>(dataPtr) = rptr->id;
-                            columns[c].lengths[row] = 0;
+                            columns[i].lengths[row] = 0;
                             break;
                         }
                     case QVariant::ByteArray:
                     default: {
                         const QByteArray ba = val.toByteArray();
-                        columns[c].lengths[row] = ba.size();
+                        columns[i].lengths[row] = ba.size();
                         memcpy(dataPtr, ba.constData(), ba.size());
                         break;
                     }
                 }
             }
-        }
-    }
-
-    sword r;
-
-    // and once more to bind it all
-    for (c = 0; c < columnCount; ++c) {
-
+        }       
+        
+        // binding the column        
         r = OCIBindByPos(
-                d->sql, &columns[c].bindh, d->err, c + 1,
-                (dvoid *) columns[c].data,
-                columns[c].maxLen,
-                columns[c].bindAs,
-                (dvoid *)columns[c].indicators ,
-                (ub2 *) columns[c].lengths,
+                d->sql, &columns[i].bindh, d->err, i + 1,
+                (dvoid *) columns[i].data,
+                columns[i].maxLen,
+                columns[i].bindAs,
+                (dvoid *)columns[i].indicators ,
+                (ub2 *) columns[i].lengths,
                 (ub2*) 0,
-                (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                arrayBind ? columns[i].maxarr_len : 0, 
+                arrayBind ? &columns[i].curelep : 0, 
+                OCI_DEFAULT);
 
         if (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO) {
             qOraWarning("QOCIPrivate::execBatch: unable to bind column:", d);
@@ -1117,11 +1123,11 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, int columnCount, const QVector
         }
 
         r = OCIBindArrayOfStruct (
-                columns[c].bindh, d->err,
-                columns[c].maxLen,
-                sizeof(columns[c].indicators[0]),
-                sizeof(columns[c].lengths[0]),
-                0);
+                columns[i].bindh, d->err,
+                columns[i].maxLen,
+                sizeof(columns[i].indicators[0]),
+                sizeof(columns[i].lengths[0]),
+                0);        
 
         if (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO) {
             qOraWarning("QOCIPrivate::execBatch: unable to bind column:", d);
@@ -1133,7 +1139,8 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, int columnCount, const QVector
 
     //finaly we can execute
     r = OCIStmtExecute(d->svc, d->sql, d->err,
-                       recordCount, 0, NULL, NULL,
+                       arrayBind ? 1 : columns[0].recordCount, 
+                       0, NULL, NULL,
                        d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS);
 
     if (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO) {
@@ -1141,15 +1148,59 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, int columnCount, const QVector
         d->q->setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
                         "Unable to execute batch statement"), QSqlError::StatementError, d));
         return false;
-    }
+    }              
+        
+    // for out parameters we copy data back to value vector
+    for (i = 0; i < columnCount; ++i) {
+        
+        if (!d->isOutValue(i) || boundValues.at(i).type() != QVariant::List)
+            continue;     
+                   
+        QVariantList *list = static_cast<QVariantList *>(const_cast<void*>(boundValues.at(i).data()));
+       
+        char* data = columns[i].data;
+        for (uint r = 0; r < columns[i].recordCount; ++r){                        
+            
+            if (columns[i].indicators[r] == -1) {
+                (*list)[r] = QVariant();
+                continue;
+            }
+                      
+            switch(columns[i].bindAs) {            
+                
+                case SQLT_DAT:
+                    (*list)[r] =  qMakeDate(data + r * columns[i].maxLen);
+                    break;
 
+                case SQLT_INT:
+                    (*list)[r] =  *reinterpret_cast<int*>(data + r * columns[i].maxLen);
+                    break;
+
+                case SQLT_UIN:               
+                    (*list)[r] =  *reinterpret_cast<uint*>(data + r * columns[i].maxLen);
+                    break;
+
+                case SQLT_FLT:
+                    (*list)[r] =  *reinterpret_cast<double*>(data + r * columns[i].maxLen);
+                    break;
+
+                case SQLT_STR: 
+                    (*list)[r] =  QString::fromUtf16((ushort*)(data + r * columns[i].maxLen));
+                    break;
+
+                default:
+                    (*list)[r] =  QByteArray(data + r * columns[i].maxLen, columns[i].maxLen);
+                break;
+            }    
+        }                 
+    }            
+        
     d->q->setSelect(false);
     d->q->setAt(QSql::BeforeFirstRow);
     d->q->setActive(true);
 
     return true;
 }
-
 
 static int qInitialLobSize(QOCIPrivate *d, OCILobLocator *lob)
 {
@@ -1475,7 +1526,7 @@ bool QOCIResult::exec()
                     (dvoid*)&stmtType,
                     NULL,
                     OCI_ATTR_STMT_TYPE,
-                    d->err);
+                    d->err);                      
     // execute
     if (stmtType == OCI_STMT_SELECT)
     {
@@ -1492,7 +1543,7 @@ bool QOCIResult::exec()
             setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
                          "Unable to execute select statement"), QSqlError::StatementError, d));
             return false;
-        }
+        }                
         ub4 parmCount = 0;
         int r = OCIAttrGet(d->sql, OCI_HTYPE_STMT, (dvoid*)&parmCount, NULL, OCI_ATTR_PARAM_COUNT, d->err);
         if (r == 0 && !cols)
@@ -1503,7 +1554,7 @@ bool QOCIResult::exec()
         r = OCIStmtExecute(d->svc, d->sql, d->err, 1,0,
                                 (CONST OCISnapshot *) NULL,
                                 (OCISnapshot *) NULL,
-                                d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS );
+                                d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS );                                                
         if (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO) {
             qOraWarning("QOCIResult::exec: unable to execute statement:", d);
             setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
@@ -1513,7 +1564,7 @@ bool QOCIResult::exec()
         setSelect(false);
     }
     setAt(QSql::BeforeFirstRow);
-    setActive(true);
+    setActive(true);  
 
     if (hasOutValues())
         d->outValues(boundValues(), indicators, tmpStorage);
@@ -1548,9 +1599,8 @@ void QOCIResult::virtual_hook(int id, void *data)
     Q_ASSERT(id == QSqlResult::BatchOperation);
     Q_ASSERT(data);
 
-    BatchOperationData *op = reinterpret_cast<BatchOperationData *>(data);
-    QOCIResultPrivate::execBatch(d, op->colCount, *(op->values));
-
+    bool *op = reinterpret_cast<bool *>(data);
+    QOCIResultPrivate::execBatch(d, boundValues(), *op);
 }
 
 ////////////////////////////////////////////////////////////////////////////
