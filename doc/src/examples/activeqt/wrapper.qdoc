@@ -30,8 +30,8 @@
     Then run \c qmake and your make tool in \c
     examples/activeqt/wrapper.
 
-    The \l{qaxserver-demo-wrapper.html}{demonstration} requires your
-    WebBrowser to support ActiveX controls, and scripting to be
+    The \l{qaxserver-demo-wrapper.html}{demonstration} requires a
+    web browser that supports ActiveX controls, and scripting to be
     enabled.
 
     \quotefromfile examples/activeqt/wrapper-demo.qdocinc
