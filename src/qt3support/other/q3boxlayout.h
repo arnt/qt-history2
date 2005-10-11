@@ -24,9 +24,9 @@ public:
     inline explicit Q3BoxLayout(Direction dir, QWidget *parent = 0)
         : QBoxLayout(dir, parent) { setMargin(0); setSpacing(0); }
 
-    inline Q3BoxLayout(QWidget *parent, Direction dir, int border = 0, int spacing = -1,
+    inline Q3BoxLayout(QWidget *parent, Direction dir, int margin = 0, int spacing = -1,
                        const char *name = 0)
-        : QBoxLayout(parent, dir, border, spacing, name) {}
+        : QBoxLayout(parent, dir, margin, spacing, name) {}
 
     inline Q3BoxLayout(QLayout *parentLayout, Direction dir, int spacing = -1,
                        const char *name = 0)
@@ -46,9 +46,9 @@ public:
 
     inline explicit QHBoxLayout(QWidget *parent) : Q3BoxLayout(LeftToRight, parent) {}
 
-    inline QHBoxLayout(QWidget *parent, int border,
+    inline QHBoxLayout(QWidget *parent, int margin,
                  int spacing = -1, const char *name = 0)
-        : Q3BoxLayout(parent, LeftToRight, border, spacing, name) {}
+        : Q3BoxLayout(parent, LeftToRight, margin, spacing, name) {}
 
     inline QHBoxLayout(QLayout *parentLayout,
                  int spacing = -1, const char *name = 0)
@@ -68,9 +68,9 @@ public:
 
     inline explicit QVBoxLayout(QWidget *parent) : Q3BoxLayout(TopToBottom, parent) {}
 
-    inline QVBoxLayout(QWidget *parent, int border,
+    inline QVBoxLayout(QWidget *parent, int margin,
                  int spacing = -1, const char *name = 0)
-        : Q3BoxLayout(parent, TopToBottom, border, spacing, name) {}
+        : Q3BoxLayout(parent, TopToBottom, margin, spacing, name) {}
 
     inline QVBoxLayout(QLayout *parentLayout,
                  int spacing = -1, const char *name = 0)

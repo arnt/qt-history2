@@ -24,9 +24,9 @@ public:
     inline explicit Q3GridLayout(QWidget *parent)
         : QGridLayout(parent) { setMargin(0); setSpacing(0); }
 
-    inline Q3GridLayout(QWidget *parent, int nRows, int nCols = 1, int border = 0,
+    inline Q3GridLayout(QWidget *parent, int nRows, int nCols = 1, int margin = 0,
                         int spacing = -1, const char *name = 0)
-        : QGridLayout(parent, nRows, nCols, border, spacing, name) {}
+        : QGridLayout(parent, nRows, nCols, margin, spacing, name) {}
 
     inline Q3GridLayout(int nRows, int nCols = 1, int spacing = -1, const char *name = 0)
         : QGridLayout(nRows, nCols, spacing, name) {}
