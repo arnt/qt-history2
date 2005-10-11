@@ -87,16 +87,14 @@ extern void qt_qws_set_max_window_rect(const QRect& r);
 
 QWSServer Q_GUI_EXPORT *qwsServer=0;
 
-class QWSServerData {
+class QWSServerPrivate : public QObjectPrivate {
+    Q_DECLARE_PUBLIC(QWSServer)
 public:
-    QWSServerData()
+    QWSServerPrivate()
+        : screensaverintervals(0), saver(0), cursorClient(0), mouseState(0)
     {
-        screensaverintervals = 0;
-        saver = 0;
-        cursorClient = 0;
-        mouseState = 0;
     }
-    ~QWSServerData()
+    ~QWSServerPrivate()
     {
         qDeleteAll(deletedWindows);
         delete [] screensaverintervals;
@@ -597,7 +595,7 @@ struct QWSCommandStruct
 };
 
 QWSServer::QWSServer(int flags, QObject *parent) :
-    QObject(parent), disablePainting(false)
+    QObject(*new QWSServerPrivate, parent), disablePainting(false)
 {
     initServer(flags);
 }
@@ -607,7 +605,7 @@ QWSServer::QWSServer(int flags, QObject *parent) :
     Use the two-argument overload and call setObjectName() instead.
 */
 QWSServer::QWSServer(int flags, QObject *parent, const char *name) :
-    QObject(parent), disablePainting(false)
+    QObject(*new QWSServerPrivate, parent), disablePainting(false)
 {
     setObjectName(QString::fromAscii(name));
     initServer(flags);
@@ -619,7 +617,7 @@ static void ignoreSignal(int) {} // Used to eat SIGPIPE signals below
 
 void QWSServer::initServer(int flags)
 {
-    d = new QWSServerData;
+    Q_D(QWSServer);
     Q_ASSERT(!qwsServer);
     qwsServer = this;
 
@@ -717,7 +715,6 @@ QWSServer::~QWSServer()
 #ifndef QT_NO_QWS_KEYBOARD
     closeKeyboard();
 #endif
-    delete d;
 }
 
 /*!
@@ -808,6 +805,7 @@ void QWSServer::newConnection()
 */
 void QWSServer::clientClosed()
 {
+    Q_D(QWSServer);
     QWSClient* cl = (QWSClient*)sender();
 
     // Remove any queued commands for this client
@@ -876,6 +874,7 @@ void QWSServer::clientClosed()
 
 void QWSServer::deleteWindowsLater()
 {
+    Q_D(QWSServer);
     qDeleteAll(d->deletedWindows);
     d->deletedWindows.clear();
 }
@@ -1252,7 +1251,7 @@ void QWSServer::sendMouseEventUnfiltered(const QPoint &pos, int state, int wheel
          *qt_last_y = pos.y();
     }
      mousePosition = pos;
-    qwsServer->d->mouseState = state;
+     qwsServer->d_func()->mouseState = state;
 
     QWSMouseEvent event;
 
@@ -1315,11 +1314,11 @@ void QWSServer::sendMouseEventUnfiltered(const QPoint &pos, int state, int wheel
 
     // Make sure that if we leave a window, that window gets one last mouse
     // event so that it knows the mouse has left.
-    QWSClient *oldClient = qwsServer->d->cursorClient;
+    QWSClient *oldClient = qwsServer->d_func()->cursorClient;
     if (oldClient && oldClient != winClient && oldClient != serverClient)
         oldClient->sendEvent(&event);
 
-    qwsServer->d->cursorClient = winClient;
+    qwsServer->d_func()->cursorClient = winClient;
 
     if (!(state&btnMask) && !qwsServer->mouseGrabbing)
         qwsServer->releaseMouse(qwsServer->mouseGrabber);
@@ -2042,7 +2041,7 @@ void QWSServer::invokePositionCursor(QWSPositionCursorCommand *cmd, QWSClient *)
 {
     QPoint newPos(cmd->simpleData.newX, cmd->simpleData.newY);
     if (newPos != mousePosition)
-        sendMouseEvent(newPos, qwsServer->d->mouseState);
+        sendMouseEvent(newPos, qwsServer->d_func()->mouseState);
 }
 #endif
 
@@ -2668,24 +2667,25 @@ void QWSServer::setScreenSaverIntervals(int* ms)
 {
     if (!qwsServer)
         return;
-    delete [] qwsServer->d->screensaverintervals;
+    QWSServerPrivate *qd = qwsServer->d_func();
+    delete [] qd->screensaverintervals;
     if (ms) {
         int* t=ms;
         int n=0;
         while (*t++) n++;
         if (n) {
             n++; // the 0
-            qwsServer->d->screensaverintervals = new int[n];
-            memcpy(qwsServer->d->screensaverintervals, ms, n*sizeof(int));
+            qd->screensaverintervals = new int[n];
+            memcpy(qd->screensaverintervals, ms, n*sizeof(int));
         } else {
-            qwsServer->d->screensaverintervals = 0;
+            qd->screensaverintervals = 0;
         }
     } else {
-        qwsServer->d->screensaverintervals = 0;
+        qd->screensaverintervals = 0;
     }
     qwsServer->screensaverinterval = 0;
 
-    qwsServer->d->screensavertimer->stop();
+    qd->screensavertimer->stop();
     qt_screen->blank(false);
     qwsServer->screenSaverWake();
 }
@@ -2706,6 +2706,7 @@ extern bool qt_disable_lowpriority_timers; //in qeventloop_unix.cpp
 
 void QWSServer::screenSaverWake()
 {
+    Q_D(QWSServer);
     if (d->screensaverintervals) {
         if (screensaverinterval != d->screensaverintervals) {
             if (d->saver) d->saver->restore();
@@ -2724,6 +2725,7 @@ void QWSServer::screenSaverWake()
 
 void QWSServer::screenSaverSleep()
 {
+    Q_D(QWSServer);
     qt_screen->blank(true);
 #if !defined(QT_QWS_IPAQ) && !defined(QT_QWS_EBX)
     d->screensavertimer->stop();
@@ -2746,12 +2748,14 @@ void QWSServer::screenSaverSleep()
 */
 void QWSServer::setScreenSaver(QWSScreenSaver* ss)
 {
-    delete qwsServer->d->saver;
-    qwsServer->d->saver = ss;
+    QWSServerPrivate *qd = qwsServer->d_func();
+    delete qd->saver;
+    qd->saver = ss;
 }
 
 void QWSServer::screenSave(int level)
 {
+    Q_D(QWSServer);
     if (d->saver) {
         if (d->saver->save(level)) {
             if (screensaverinterval && screensaverinterval[1]) {
@@ -2776,13 +2780,14 @@ void QWSServer::screenSave(int level)
 
 void QWSServer::screenSaverTimeout()
 {
+    Q_D(QWSServer);
     if (screensaverinterval) {
         if (d->screensavertime.elapsed() > *screensaverinterval*2) {
             // bogus (eg. unsuspend, system time changed)
             screenSaverWake(); // try again
             return;
         }
-        screenSave(screensaverinterval-d->screensaverintervals);
+        screenSave(screensaverinterval - d->screensaverintervals);
     }
 }
 
@@ -2793,7 +2798,7 @@ void QWSServer::screenSaverTimeout()
 bool QWSServer::screenSaverActive()
 {
     return qwsServer->screensaverinterval
-        && !qwsServer->d->screensavertimer->isActive();
+        && !qwsServer->d_func()->screensavertimer->isActive();
 }
 
 /*!
@@ -2815,6 +2820,7 @@ void QWSServer::disconnectClient(QWSClient *c)
 
 void QWSServer::updateClientCursorPos()
 {
+    Q_D(QWSServer);
     QWSWindow *win = qwsServer->mouseGrabber ? qwsServer->mouseGrabber : qwsServer->windowAt(mousePosition);
     QWSClient *winClient = win ? win->client() : 0;
     if (winClient && winClient != d->cursorClient)

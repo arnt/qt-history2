@@ -29,7 +29,6 @@ struct QWSWindowData;
 class QWSCursor;
 class QWSClient;
 class QWSRegionManager;
-class QWSServerData;
 class QWSSocket;
 class QWSServerSocket;
 class QTcpSocket;
@@ -152,6 +151,7 @@ private:
 
 class QWSMouseHandler;
 struct QWSCommandStruct;
+class QWSServerPrivate;
 
 class Q_GUI_EXPORT QWSServer : public QObject
 {
@@ -161,7 +161,7 @@ class Q_GUI_EXPORT QWSServer : public QObject
     friend class QWSDisplay;
     friend class QWSInputMethod;
     Q_OBJECT
-
+    Q_DECLARE_PRIVATE(QWSServer)
 public:
     explicit QWSServer(int flags = 0, QObject *parent=0);
 #ifdef QT3_SUPPORT
@@ -426,7 +426,6 @@ private:
         } time;
     } selectionOwner;
     QTime timer;
-    QWSServerData* d;
     int* screensaverinterval;
 
     QWSWindow *focusw;
