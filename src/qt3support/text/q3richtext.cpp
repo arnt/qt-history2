@@ -3214,8 +3214,12 @@ void Q3TextDocument::drawParagraph(QPainter *painter, Q3TextParagraph *parag, in
 
     painter->translate(ir.x(), ir.y());
 
-    if (!parag->document()->parent())
+    if (!parag->document()->parent()) {
+        const QPoint oldOrigin = painter->brushOrigin();
+        painter->setBrushOrigin(-ir.topLeft());
         painter->fillRect(QRect(0, 0, ir.width(), ir.height()), parag->backgroundBrush(pal));
+        painter->setBrushOrigin(oldOrigin);
+    }
 
     painter->translate(-(ir.x() - parag->rect().x()),
                        -(ir.y() - parag->rect().y()));
