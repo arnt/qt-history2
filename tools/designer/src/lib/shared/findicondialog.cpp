@@ -19,36 +19,187 @@
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtCore/QMetaObject>
+#include <QtCore/QSettings>
 #include <QtCore/qdebug.h>
 #include <QtGui/QFileDialog>
 #include <QtGui/QHeaderView>
 #include <QtGui/QImageReader>
+#include <QtGui/QLabel>
+#include <QtGui/QComboBox>
+#include <QtGui/QLineEdit>
 
 namespace qdesigner_internal {
+
+static QStringList extensionList()
+{
+    static QStringList extension_list;
+
+    if (extension_list.isEmpty()) {
+        QList<QByteArray> _extension_list = QImageReader::supportedImageFormats();
+        foreach (const QByteArray &ext, _extension_list)
+            extension_list.append(QLatin1String("*.") + QString::fromAscii(ext));
+    }
+
+    return extension_list;
+}
+
+static const int g_file_item_id = 0;
+static const int g_dir_item_id = 1;
+
+static QListWidgetItem *createListWidgetItem(const QIcon &icon, const QString &text, int item_id, QListWidget *parent)
+{
+    QListWidgetItem *result = new QListWidgetItem(icon, text, parent);
+    QSize s = parent->iconSize();
+    result->setSizeHint(QSize(s.width()*3, s.height()*2));
+    result->setData(Qt::UserRole, item_id);
+    return result;
+}
+
+static bool dirItem(QListWidgetItem *item)
+{
+    QVariant v = item->data(Qt::UserRole);
+    if (!v.canConvert(QVariant::Int))
+        return false;
+    return v.toInt() == g_dir_item_id;
+}
 
 FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *parent)
     : QDialog(parent)
 {
+    m_form = form;
+    m_view_dir = QDir::temp();
+
     ui = new Ui::FindIconDialog;
     ui->setupUi(this);
 
-    connect(ui->m_file_dir_input, SIGNAL(textChanged(QString)), this, SLOT(updateBoxes()));
+    QSize icon_size(24, 24);
+
+    ui->m_icon_view->setViewMode(QListWidget::IconMode);
+    ui->m_icon_view->setMovement(QListWidget::Static);
+    ui->m_icon_view->setResizeMode(QListWidget::Adjust);
+    ui->m_icon_view->setIconSize(icon_size);
+    ui->m_icon_view->setTextElideMode(Qt::ElideRight);
+
+    QSettings settings;
+    QStringList recent_dir_list = settings.value(QLatin1String("FindIconDialog/RecentDirectories")).toStringList();
+    foreach (const QString &dir, recent_dir_list)
+        ui->m_file_input->addItem(dir);
+
     connect(ui->m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
     connect(ui->m_cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(ui->m_file_image_list, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-                this, SLOT(imageFileSelected(QListWidgetItem*)));
-    connect(ui->m_file_dir_browse, SIGNAL(clicked()), this, SLOT(browseFileDir()));
     connect(ui->m_specify_file_input, SIGNAL(clicked()), this, SLOT(setActiveBox()));
     connect(ui->m_specify_resource_input, SIGNAL(clicked()), this, SLOT(setActiveBox()));
-    connect(ui->m_resource_combo, SIGNAL(activated(int)), this, SLOT(updateBoxes()));
+    connect(ui->m_icon_view, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
+            this, SLOT(currentItemChanged(QListWidgetItem*)));
+    connect(ui->m_icon_view, SIGNAL(itemActivated(QListWidgetItem*)),
+            this, SLOT(itemActivated(QListWidgetItem*)));
+    connect(ui->m_cd_up_button, SIGNAL(clicked()), this, SLOT(cdUp()));
+    connect(ui->m_file_input->lineEdit(), SIGNAL(textEdited(QString)), this, SLOT(setFile(QString)));
+    connect(ui->m_file_input, SIGNAL(currentIndexChanged(QString)), this, SLOT(setFile(QString)));
 
-    m_form = form;
-    QStringList res_list = m_form->resourceFiles();
-    QStringList rel_res_list;
-    foreach (QString res, res_list)
-        rel_res_list.append(m_form->absoluteDir().relativeFilePath(res));
-    ui->m_resource_combo->addItems(rel_res_list);
-    ui->m_resource_tree->header()->hide();
+    updateButtons();
+}
+
+void FindIconDialog::accept()
+{
+    if (!m_current_file.isEmpty()) {
+        QStringList recent_dir_list;
+        for (int i = 0; i < ui->m_file_input->count(); ++i) {
+            if (i > 15)
+                break;
+            recent_dir_list.append(ui->m_file_input->itemText(i));
+        }
+        if (!recent_dir_list.contains(m_view_dir.path()))
+            recent_dir_list.prepend(m_view_dir.path());
+        QSettings settings;
+        settings.setValue(QLatin1String("FindIconDialog/RecentDirectories"), recent_dir_list);
+    }
+    QDialog::accept();
+}
+
+void FindIconDialog::cdUp()
+{
+    QDir dir = m_view_dir;
+    if (dir.cdUp())
+        setFile(dir.path());
+
+    updateButtons();
+}
+
+void FindIconDialog::itemActivated(QListWidgetItem *item)
+{
+    QString file = item->text();
+    QString path = m_view_dir.filePath(file);
+
+    if (dirItem(item))
+        QMetaObject::invokeMethod(this, "setFile", Qt::QueuedConnection, Q_ARG(QString, path));
+    else
+        accept();
+
+    updateButtons();
+}
+
+void FindIconDialog::currentItemChanged(QListWidgetItem *item)
+{
+    if (item == 0)
+        return;
+    QString path = m_view_dir.filePath(item->text());
+    ui->m_file_input->lineEdit()->setText(path);
+
+    if (dirItem(item))
+        m_current_file.clear();
+    else
+        m_current_file = path;
+
+    updateButtons();
+}
+
+void FindIconDialog::setViewDir(const QString &path)
+{
+    static const QIcon dir_icon(QLatin1String(":/trolltech/formeditor/images/win/fileopen.png"));
+
+    if (path == m_view_dir.path())
+        return;
+    m_view_dir.setPath(path);
+    ui->m_icon_view->clear();
+    QStringList subdir_list = m_view_dir.entryList(QStringList() << "*", QDir::Dirs | QDir::NoDotAndDotDot);
+    QStringList icon_file_list = m_view_dir.entryList(extensionList(), QDir::Files);
+
+    foreach (const QString &subdir, subdir_list)
+        createListWidgetItem(dir_icon, subdir, g_dir_item_id, ui->m_icon_view);
+    foreach (const QString &icon_file, icon_file_list) {
+        QIcon icon(m_view_dir.filePath(icon_file));
+        if (!icon.isNull())
+            createListWidgetItem(icon, icon_file, g_file_item_id, ui->m_icon_view);
+    }
+}
+
+void FindIconDialog::setFile(const QString &path)
+{
+    QFileInfo info(path);
+
+    QString file, dir;
+    if (info.isDir()) {
+        dir = path;
+    } else {
+        dir = info.path();
+        file = info.fileName();
+    }
+
+    setViewDir(dir);
+
+    ui->m_file_input->lineEdit()->setText(path);
+
+    m_current_file.clear();
+    ui->m_icon_view->clearSelection();
+    if (!file.isEmpty()) {
+        QList<QListWidgetItem*> item_list = ui->m_icon_view->findItems(file, Qt::MatchExactly);
+        if (!item_list.isEmpty()) {
+            ui->m_icon_view->setItemSelected(item_list.first(), true);
+            m_current_file = path;
+        }
+    }
 
     updateButtons();
 }
@@ -59,173 +210,49 @@ FindIconDialog::~FindIconDialog()
     ui = 0;
 }
 
+void FindIconDialog::setQrc(const QString&, const QString&)
+{
+}
+
 void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
 {
     if (qrcPath.isEmpty()) {
-        activateBox(FileBox);
-        QString fileDir;
-        QString fileName;
-        if (filePath.endsWith(QString(QDir::separator()))) {
-            fileDir = filePath;
-        } else {
-            QFileInfo fi(filePath);
-            fileDir = fi.absolutePath();
-            fileName = fi.fileName();
-        }
-        ui->m_file_dir_input->setText(fileDir);
-        m_icon_file_name = fileName;
+        setActiveBox(FileBox);
+        setFile(filePath);
     } else {
-        activateBox(ResourceBox);
-        int idx = ui->m_resource_combo->findText(m_form->absoluteDir().relativeFilePath(qrcPath));
-        if (idx != -1) {
-            ui->m_resource_combo->setCurrentIndex(idx);
-            m_icon_file_name = filePath;
-        }
+        setActiveBox(ResourceBox);
+        setQrc(qrcPath, filePath);
     }
-
-    updateBoxes();
-}
-
-void FindIconDialog::resourceSelected(const QModelIndex &index)
-{
-    m_icon_file_name.clear();
-
-    ResourceModel *model = qobject_cast<ResourceModel*>(ui->m_resource_tree->model());
-    if (model != 0) {
-        QString prefix, file;
-        model->getItem(index, prefix, file);
-        if (!file.isEmpty()) {
-            if (model->iconFileExtension(file))
-                m_icon_file_name = QLatin1String(":") + prefix + QLatin1String("/") + file;
-            else
-                m_icon_file_name.clear();
-        }
-    }
-    updateButtons();
-}
-
-void FindIconDialog::updateBoxes()
-{
-    if (activeBox() == FileBox) {
-        ui->m_file_image_list->clear();
-        QString dir_path = ui->m_file_dir_input->text();
-        if (dir_path.isEmpty()) {
-            dir_path = m_form->absoluteDir().absolutePath();
-            bool blocked = ui->m_file_dir_input->blockSignals(true);
-            ui->m_file_dir_input->setText(dir_path);
-            ui->m_file_dir_input->blockSignals(blocked);
-        }
-        QDir dir(dir_path);
-        if (dir.exists()) {
-            QList<QByteArray> _extension_list = QImageReader::supportedImageFormats();
-            QStringList extension_list;
-            foreach (const QByteArray &ext, _extension_list)
-                extension_list.append(QLatin1String("*.") + QString::fromAscii(ext));
-            QStringList file_list = dir.entryList(extension_list);
-
-            foreach (QString file, file_list) {
-                QListWidgetItem *item = new QListWidgetItem(ui->m_file_image_list);
-                item->setText(file);
-                item->setIcon(QIcon(dir.filePath(file)));
-                if (item->text() == m_icon_file_name) {
-                    ui->m_file_image_list->setItemSelected(item, true);
-                    ui->m_file_image_list->setCurrentItem(item);
-                }
-            }
-        }
-        if (ui->m_file_image_list->currentItem() == 0)
-            m_icon_file_name.clear();
-    } else {
-        int idx = ui->m_resource_combo->currentIndex();
-        if (idx != -1) {
-            QString qrc_file = m_form->absoluteDir().absoluteFilePath(ui->m_resource_combo->itemText(idx));
-            ResourceFile rf(qrc_file);
-            rf.load();
-            QAbstractItemModel *old_model = ui->m_resource_tree->model();
-            ui->m_resource_tree->setModel(0);
-            delete old_model;
-            ResourceModel *new_model = new ResourceModel(rf);
-            ui->m_resource_tree->setModel(new_model);
-
-            if (m_icon_file_name.startsWith(QLatin1String(":"))) {
-                QString prefix, file;
-                rf.split(m_icon_file_name, &prefix, &file);
-                QModelIndex file_index = new_model->getIndex(prefix, file);
-                QModelIndex prefix_index = new_model->prefixIndex(file_index);
-                ui->m_resource_tree->setExpanded(prefix_index, true);
-                ui->m_resource_tree->setCurrentIndex(file_index);
-            } else {
-                m_icon_file_name.clear();
-            }
-
-            connect(ui->m_resource_tree->selectionModel(),
-                        SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-                        this, SLOT(resourceSelected(QModelIndex)));
-        }
-    }
-
-    updateButtons();
-}
-
-void FindIconDialog::imageFileSelected(QListWidgetItem *item)
-{
-    m_icon_file_name.clear();
-    if (item != 0)
-        m_icon_file_name = item->text();
-
-    updateButtons();
 }
 
 void FindIconDialog::updateButtons()
 {
-    ui->m_ok_button->setEnabled(!m_icon_file_name.isEmpty());
+    ui->m_ok_button->setEnabled(!filePath().isEmpty());
 }
 
 void FindIconDialog::setActiveBox()
 {
-    activateBox(sender() == ui->m_specify_file_input ? FileBox : ResourceBox);
+    setActiveBox(sender() == ui->m_specify_file_input ? FileBox : ResourceBox);
 }
 
-void FindIconDialog::activateBox(InputBox box)
+void FindIconDialog::setActiveBox(InputBox box)
 {
-    ui->m_specify_file_input->setChecked(box == FileBox);
-    ui->m_specify_file_box->setEnabled(box == FileBox);
-
-    ui->m_specify_resource_box->setEnabled(box == ResourceBox);
-    ui->m_specify_resource_input->setChecked(box == ResourceBox);
-
-    updateBoxes();
+    ui->m_widget_stack->setCurrentIndex(box == FileBox ? 0 : 1);
 }
 
 FindIconDialog::InputBox FindIconDialog::activeBox() const
 {
-    if (ui->m_specify_file_input->isChecked())
-        return FileBox;
-    return ResourceBox;
+    return ui->m_widget_stack->currentIndex() == 0 ? FileBox : ResourceBox;
 }
 
 QString FindIconDialog::qrcPath() const
 {
-    if (activeBox() == FileBox)
-        return QString();
-    return m_form->absoluteDir().absoluteFilePath(ui->m_resource_combo->currentText());
+    return QString();
 }
 
 QString FindIconDialog::filePath() const
 {
-    if (activeBox() == FileBox) {
-        return QDir::cleanPath(ui->m_file_dir_input->text() + QDir::separator() + m_icon_file_name);
-    } else {
-        return QDir::cleanPath(m_icon_file_name);
-    }
+    return activeBox() == FileBox ? m_current_file : QString();
 }
-
-void FindIconDialog::browseFileDir()
-{
-    QString dir = QFileDialog::getExistingDirectory(this);
-    if (!dir.isEmpty())
-        ui->m_file_dir_input->setText(dir);
-}
-
 
 } // namespace qdesigner_internal

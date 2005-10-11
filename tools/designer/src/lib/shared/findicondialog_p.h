@@ -27,6 +27,7 @@
 
 #include "shared_global_p.h"
 
+#include <QtCore/QDir>
 #include <QtGui/QDialog>
 
 class QDesignerFormWindowInterface;
@@ -52,23 +53,31 @@ public:
     QString qrcPath() const;
     QString filePath() const;
 
+    virtual void accept();
+
 private slots:
-    void updateBoxes();
-    void imageFileSelected(QListWidgetItem*);
-    void browseFileDir();
     void setActiveBox();
-    void resourceSelected(const QModelIndex&);
     void updateButtons();
+
+    void setFile(const QString &path);
+    void setQrc(const QString &qrc, const QString &file);
+    void cdUp();
+
+    void itemActivated(QListWidgetItem *item);
+    void currentItemChanged(QListWidgetItem *item);
 
 private:
     enum InputBox { FileBox, ResourceBox };
 
-    void activateBox(InputBox box);
+    void setActiveBox(InputBox box);
     InputBox activeBox() const;
 
     Ui::FindIconDialog *ui;
-    QString m_icon_file_name;
     QDesignerFormWindowInterface *m_form;
+
+    void setViewDir(const QString &path);
+    QDir m_view_dir;
+    QString m_current_file;
 };
 
 } // namespace qdesigner_internal

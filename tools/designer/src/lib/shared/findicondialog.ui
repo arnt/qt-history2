@@ -1,6 +1,6 @@
 <ui version="4.0" >
  <author></author>
-  <comment>*********************************************************************
+ <comment>*********************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -19,8 +19,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>456</height>
+    <width>399</width>
+    <height>419</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -34,278 +34,105 @@
     <number>6</number>
    </property>
    <item>
-    <widget class="QRadioButton" name="m_specify_file_input" >
-     <property name="geometry" >
-      <rect>
-       <x>9</x>
-       <y>9</y>
-       <width>382</width>
-       <height>20</height>
-      </rect>
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
      </property>
-     <property name="text" >
-      <string>Specify image file</string>
+     <property name="spacing" >
+      <number>6</number>
      </property>
-     <property name="checked" >
-      <bool>true</bool>
+     <item>
+      <widget class="QRadioButton" name="m_specify_file_input" >
+       <property name="text" >
+        <string>Specify image file</string>
+       </property>
+       <property name="checked" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="m_specify_resource_input" >
+       <property name="text" >
+        <string>Specify resource</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="m_specify_file_box" >
-     <property name="geometry" >
-      <rect>
-       <x>9</x>
-       <y>35</y>
-       <width>382</width>
-       <height>171</height>
-      </rect>
+    <widget class="QStackedWidget" name="m_widget_stack" >
+     <property name="currentIndex" >
+      <number>0</number>
      </property>
-     <property name="title" >
-      <string>File</string>
-     </property>
-     <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>9</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item>
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>1</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="label_2" >
-          <property name="geometry" >
-           <rect>
-            <x>1</x>
-            <y>1</y>
-            <width>62</width>
-            <height>32</height>
-           </rect>
-          </property>
-          <property name="frameShape" >
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow" >
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="text" >
-           <string>Directory:</string>
-          </property>
-          <property name="textFormat" >
-           <enum>Qt::AutoText</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="m_file_dir_input" >
-          <property name="geometry" >
-           <rect>
-            <x>69</x>
-            <y>6</y>
-            <width>181</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text" >
-           <string/>
-          </property>
-          <property name="echoMode" >
-           <enum>QLineEdit::Normal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="m_file_dir_browse" >
-          <property name="geometry" >
-           <rect>
-            <x>256</x>
-            <y>1</y>
-            <width>103</width>
-            <height>32</height>
-           </rect>
-          </property>
-          <property name="text" >
-           <string>Browse</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_4" >
-        <property name="geometry" >
-         <rect>
-          <x>11</x>
-          <y>70</y>
-          <width>360</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="frameShape" >
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow" >
-         <enum>QFrame::Plain</enum>
-        </property>
-        <property name="text" >
-         <string>Image files:</string>
-        </property>
-        <property name="textFormat" >
-         <enum>Qt::AutoText</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QListWidget" name="m_file_image_list" >
-        <property name="geometry" >
-         <rect>
-          <x>11</x>
-          <y>92</y>
-          <width>360</width>
-          <height>68</height>
-         </rect>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="QWidget" name="page" >
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QComboBox" name="m_file_input" >
+           <property name="editable" >
+            <bool>true</bool>
+           </property>
+           <property name="insertPolicy" >
+            <enum>QComboBox::NoInsert</enum>
+           </property>
+           <property name="autoCompletion" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="m_cd_up_button" >
+           <property name="text" >
+            <string>Parent directory</string>
+           </property>
+           <property name="icon" >
+            <iconset resource="../../components/formeditor/formeditor.qrc" >:/trolltech/formeditor/images/win/up.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QListWidget" name="m_icon_view" >
+         <property name="iconSize" >
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page" />
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="m_specify_resource_input" >
-     <property name="geometry" >
-      <rect>
-       <x>9</x>
-       <y>212</y>
-       <width>382</width>
-       <height>20</height>
-      </rect>
+    <widget class="Line" name="line_2" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="text" >
-      <string>Specify resource</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="m_specify_resource_box" >
-     <property name="enabled" >
-      <bool>false</bool>
-     </property>
-     <property name="geometry" >
-      <rect>
-       <x>9</x>
-       <y>238</y>
-       <width>382</width>
-       <height>169</height>
-      </rect>
-     </property>
-     <property name="title" >
-      <string>Resource</string>
-     </property>
-     <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>9</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item>
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>1</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="label" >
-          <property name="geometry" >
-           <rect>
-            <x>1</x>
-            <y>1</y>
-            <width>85</width>
-            <height>26</height>
-           </rect>
-          </property>
-          <property name="frameShape" >
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow" >
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="text" >
-           <string>Resource file:</string>
-          </property>
-          <property name="textFormat" >
-           <enum>Qt::AutoText</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="m_resource_combo" >
-          <property name="geometry" >
-           <rect>
-            <x>92</x>
-            <y>1</y>
-            <width>267</width>
-            <height>26</height>
-           </rect>
-          </property>
-          <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>7</hsizetype>
-            <vsizetype>0</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_3" >
-        <property name="geometry" >
-         <rect>
-          <x>11</x>
-          <y>64</y>
-          <width>360</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="frameShape" >
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow" >
-         <enum>QFrame::Plain</enum>
-        </property>
-        <property name="text" >
-         <string>Resources:</string>
-        </property>
-        <property name="textFormat" >
-         <enum>Qt::AutoText</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTreeView" name="m_resource_tree" >
-        <property name="geometry" >
-         <rect>
-          <x>11</x>
-          <y>86</y>
-          <width>360</width>
-          <height>72</height>
-         </rect>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </item>
    <item>
@@ -318,14 +145,6 @@
      </property>
      <item>
       <spacer>
-       <property name="geometry" >
-        <rect>
-         <x>1</x>
-         <y>1</y>
-         <width>206</width>
-         <height>32</height>
-        </rect>
-       </property>
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
@@ -342,14 +161,6 @@
        <property name="enabled" >
         <bool>false</bool>
        </property>
-       <property name="geometry" >
-        <rect>
-         <x>300</x>
-         <y>1</y>
-         <width>81</width>
-         <height>32</height>
-        </rect>
-       </property>
        <property name="text" >
         <string>OK</string>
        </property>
@@ -359,25 +170,20 @@
       </widget>
      </item>
      <item>
-         <widget class="QPushButton" name="m_cancel_button" >
-             <property name="geometry" >
-                 <rect>
-                     <x>213</x>
-                     <y>1</y>
-                     <width>81</width>
-                     <height>32</height>
-                 </rect>
-             </property>
-             <property name="text" >
-                 <string>Cancel</string>
-             </property>
-         </widget>
+      <widget class="QPushButton" name="m_cancel_button" >
+       <property name="text" >
+        <string>Cancel</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
   </layout>
  </widget>
  <pixmapfunction></pixmapfunction>
- <resources/>
+ <resources>
+  <include location="../../designer/designer.qrc" />
+  <include location="../../components/formeditor/formeditor.qrc" />
+ </resources>
  <connections/>
 </ui>
