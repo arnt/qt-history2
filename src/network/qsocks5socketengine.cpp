@@ -214,7 +214,7 @@ static bool qt_socks5_get_host_address_and_port(const QByteArray &buf, QHostAddr
             QSOCKS5_DEBUG << "need more data for ip4 address";
             return false;
         }
-        address.setAddress(qntoh<quint32>(*(reinterpret_cast<const quint32 *>(&pBuf[pos]))));
+        address.setAddress(qntoh<quint32>(reinterpret_cast<const uchar*>(&pBuf[pos])));
         pos += 4;
         ret = true;
     } else if (pBuf[pos] == S5_IP_V6) {
@@ -241,7 +241,7 @@ static bool qt_socks5_get_host_address_and_port(const QByteArray &buf, QHostAddr
             QSOCKS5_DEBUG << "need more data for port";
             return false;
         }
-        port = qntoh<quint16>(*(reinterpret_cast<const quint16 *>(&pBuf[pos])));
+        port = qntoh<quint16>(reinterpret_cast<const uchar*>(&pBuf[pos]));
         pos += 2;
     }
 

@@ -1623,17 +1623,98 @@ inline int qIntCast(double f) { return int(f); }
 inline int qIntCast(float f) { return int(f); }
 
 
-#if Q_BYTE_ORDER == Q_BIG_ENDIAN
-template <typename T> T qhton(T source)
-{ return source; }
-template <typename T> T qntoh(T source)
-{ return source; }
-#else
-template <typename T> T qhton(T source);
-template <typename T> T qntoh(T source)
-{ return qhton<T>(source); }
 
-template <> inline quint64 qhton(quint64 source)
+/*
+ * ENDIAN FUNCTIONS
+ */ 
+
+
+/* This function will read a big-endian (also known as network order) encoded value
+ * from a memory location and return the value in host byte order.
+ * This function should also be alignment-safe.
+ */
+template <typename T> T qntoh(const uchar *data);
+template <>
+inline quint64 qntoh(const uchar *data)
+{
+    return 0
+        | data[7]
+        | data[6] * (1 << 8)  
+        | data[5] * (1 << 16)
+        | data[4] * (1 << 24)
+        | data[3] * (1 << 32)
+        | data[2] * (1 << 40)
+        | data[1] * (1 << 48)
+        | data[0] * (1 << 56);
+}
+
+template <>
+inline quint32 qntoh(const uchar *data)
+{
+    return 0
+        | data[3]
+        | data[2] * (1 << 8)  
+        | data[1] * (1 << 16)
+        | data[0] * (1 << 24);
+}
+
+template <>
+inline quint16 qntoh(const uchar *data)
+{
+    return 0
+        | data[1]
+        | data[0] * (1 << 8);
+}
+
+/* This function will read a little-endian encoded value
+ * from a memory location and return the value in host byte order.
+ * This function should also be alignment-safe.
+ */
+template <typename T> T qletoh(const uchar *data);
+template <>
+inline quint64 qletoh(const uchar *data)
+{
+    return 0
+        | data[0]
+        | data[1] * (1 << 8)  
+        | data[2] * (1 << 16)
+        | data[3] * (1 << 24)
+        | data[4] * (1 << 32)
+        | data[5] * (1 << 40)
+        | data[6] * (1 << 48)
+        | data[7] * (1 << 56);
+}
+
+template <>
+inline quint32 qletoh(const uchar *data)
+{
+    return 0
+        | data[0]
+        | data[1] * (1 << 8)
+        | data[2] * (1 << 16)
+        | data[3] * (1 << 24);
+}
+
+template <>
+inline quint16 qletoh(const uchar *data)
+{
+    return 0
+        | data[0]
+        | data[1] * (1 << 8);
+}
+
+template <>
+inline qint64 qletoh(const uchar *data) { return qletoh<quint64>(data); }
+template <>
+inline qint32 qletoh(const uchar *data) { return qletoh<quint32>(data); }
+template <>
+inline qint16 qletoh(const uchar *data) { return qletoh<quint16>(data); }
+
+/*
+ * Changes the byte order of a value from big endian to little endian or vice versa.
+ */
+template <typename T> T qbswap(T source);
+template <> inline quint64 qbswap(quint64 source)
 {
     return 0
         | ((source & Q_UINT64_C(0x00000000000000ff)) << 56)
@@ -1646,7 +1727,7 @@ template <> inline quint64 qhton(quint64 source)
         | ((source & Q_UINT64_C(0xff00000000000000)) >> 56);
 }
 
-template <> inline quint32 qhton(quint32 source)
+template <> inline quint32 qbswap(quint32 source)
 {
     return 0
         | ((source & 0x000000ff) << 24)
@@ -1655,27 +1736,48 @@ template <> inline quint32 qhton(quint32 source)
         | ((source & 0xff000000) >> 24);
 }
 
-template <> inline quint16 qhton(quint16 source)
+template <> inline quint16 qbswap(quint16 source)
 {
     return 0
         | ((source & 0x00ff) << 8)
         | ((source & 0xff00) >> 8);
 }
 
-template <> inline qint64 qhton(qint64 source)
+template <> inline qint64 qbswap(qint64 source)
 {
-    return qhton<quint64>(quint64(source));
+    return qbswap<quint64>(quint64(source));
 }
 
-template <> inline qint32 qhton(qint32 source)
+template <> inline qint32 qbswap(qint32 source)
 {
-    return qhton<quint32>(quint32(source));
+    return qbswap<quint32>(quint32(source));
 }
 
-template <> inline qint16 qhton(qint16 source)
+template <> inline qint16 qbswap(qint16 source)
 {
-    return qhton<quint16>(quint16(source));
+    return qbswap<quint16>(quint16(source));
 }
+
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+template <typename T> inline T qhton(T source)
+{ return source; }
+template <typename T> inline T qntoh(T source)
+{ return source; }
+template <typename T> inline T qhtole(T source);
+{ return qbswap<T>(source); }
+template <typename T> inline T qletoh(T source)
+{ return qbswap<T>(source); }
+
+#else // Q_LITTLE_ENDIAN
+template <typename T> inline T qhton(T source)
+{ return qbswap<T>(source); }
+template <typename T> inline T qntoh(T source)
+{ return qbswap<T>(source); }
+template <typename T> inline T qhtole(T source)
+{ return source; }
+template <typename T> inline T qletoh(T source)
+{ return source; }
+
 #endif // Q_BYTE_ORDER == Q_BIG_ENDIAN
 
 //
