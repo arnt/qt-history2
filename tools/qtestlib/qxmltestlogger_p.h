@@ -14,7 +14,7 @@
 #ifndef QXMLTESTLOGGER_H
 #define QXMLTESTLOGGER_H
 
-#include "QtTest/private/qabstracttestlogger_p.h"
+#include <QtTest/private/qabstracttestlogger_p.h>
 
 class QXmlTestLogger : public QAbstractTestLogger
 {

@@ -86,7 +86,9 @@ namespace QTest {
 
     static void messageHandler(QtMsgType type, const char *msg)
     {
+#if 0
         static QBasicAtomic counter = Q_ATOMIC_INIT(2002);
+#endif
 
         if (!msg || !QTest::testLogger) {
             // if this goes wrong, something is seriously broken.
@@ -127,7 +129,6 @@ namespace QTest {
             break;
         }
     }
-
 
 }
 
@@ -313,4 +314,3 @@ const char *QTestLog::outputFileName()
 {
     return QTest::outFile;
 }
-
