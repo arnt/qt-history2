@@ -725,10 +725,10 @@ void FormWindow::ensureUniqueObjectName(QObject *object)
     }
 }
 
-template <class _T, class _P>
-static void merge(QList<_T> *target, const QList<_P> &source)
+template <class T, class P>
+void merge(QList<T> *target, const QList<P> &source)
 {
-    foreach (_P item, source) {
+    foreach (P item, source) {
         target->append(item);
     }
 }
