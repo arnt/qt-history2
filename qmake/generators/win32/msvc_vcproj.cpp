@@ -1057,13 +1057,12 @@ void VcprojGenerator::initHeaderFiles()
 void VcprojGenerator::initGeneratedFiles()
 {
     vcProject.GeneratedFiles.Name = "Generated Files";
-    vcProject.GeneratedFiles.Filter = "cpp;c;cxx;moc;h;qrc;def;odl;idl;res;";
+    vcProject.GeneratedFiles.Filter = "cpp;c;cxx;moc;h;def;odl;idl;res;";
     vcProject.GeneratedFiles.Guid = _GUIDGeneratedFiles;
 
     // ### These cannot have CustomBuild (mocSrc)!!
     vcProject.GeneratedFiles.addFiles(project->variables()["GENERATED_SOURCES"]);
-    vcProject.GeneratedFiles.addFiles(project->variables()["GENERATED_FILES"]);
-    vcProject.GeneratedFiles.addFiles(project->variables()["RESOURCES"]);
+    vcProject.GeneratedFiles.addFiles(project->variables()["GENERATED_FILES"]);    
     vcProject.GeneratedFiles.addFiles(project->variables()["IDLSOURCES"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["RES_FILE"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["QMAKE_IMAGE_COLLECTION"]);   // compat
@@ -1124,7 +1123,7 @@ void VcprojGenerator::initResourceFiles()
 {
     vcProject.ResourceFiles.Name = "Resource Files";
     vcProject.ResourceFiles.ParseFiles = _False;
-    vcProject.ResourceFiles.Filter = ""; //"rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;ts;qrc";
+    vcProject.ResourceFiles.Filter = "qrc;*"; //"rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;ts;qrc";
     vcProject.ResourceFiles.Guid = _GUIDResourceFiles;
 
     // Bad hack, please look away -------------------------------------
@@ -1159,6 +1158,7 @@ void VcprojGenerator::initResourceFiles()
     }
     // You may look again --------------------------------------------
 
+    vcProject.ResourceFiles.addFiles(project->variables()["RESOURCES"]);
     vcProject.ResourceFiles.addFiles(project->variables()["IMAGES"]);
 
     vcProject.ResourceFiles.Project = this;
