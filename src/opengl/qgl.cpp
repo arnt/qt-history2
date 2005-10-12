@@ -1229,6 +1229,31 @@ static void qt_gl_image_cleanup(int serial)
 }
 
 
+QImage QGLContextPrivate::convertToGL_BGRA(const QImage &image)
+{
+    QImage img = image;
+    if (image.format() != QImage::Format_ARGB32)
+        img = image.convertToFormat(QImage::Format_ARGB32);
+
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+        // mirror + swizzle
+        QImage res = img.copy();
+        for (int i=0; i < img.height(); i++) {
+            uint *p = (uint*) img.scanLine(i);
+            uint *q = (uint*) res.scanLine(img.height() - i - 1);
+            uint *end = p + img.width();
+            while (p < end) {
+                *q = (*p << 8) | ((*p >> 24) & 0xFF);
+                p++;
+                q++;
+            }
+        }
+        return res;
+    } else {
+        return img.mirrored();
+    }
+}
+
 GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint format,
                                       const QString &key, bool clean)
 {
@@ -1246,13 +1271,10 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
     int tx_w = nearest_gl_texture_size(image.width());
     int tx_h = nearest_gl_texture_size(image.height());
 
-    if (image.format() != QImage::Format_ARGB32)
-        tx = image.convertToFormat(QImage::Format_ARGB32);
-
     if (target == GL_TEXTURE_2D && (tx_w != image.width() || tx_h != image.height()))
-        tx = QGLWidget::convertToGLFormat(image.scaled(tx_w, tx_h));
+        tx = convertToBGRA(image.scaled(tx_w, tx_h));
     else
-        tx = QGLWidget::convertToGLFormat(image);
+        tx = convertToBGRA(image);
 
     GLuint tx_id;
     glGenTextures(1, &tx_id);
@@ -1268,7 +1290,7 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
         glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
 
-    glTexImage2D(target, 0, format, tx.width(), tx.height(), 0, GL_RGBA,
+    glTexImage2D(target, 0, format, tx.width(), tx.height(), 0, GL_BGRA,
                  GL_UNSIGNED_BYTE, tx.bits());
 
     // this assumes the size of a texture is always smaller than the max cache size
