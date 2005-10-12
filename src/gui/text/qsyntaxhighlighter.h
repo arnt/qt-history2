@@ -14,10 +14,14 @@
 #ifndef QSYNTAXHIGHLIGHTER_H
 #define QSYNTAXHIGHLIGHTER_H
 
+#include <QtCore/qglobal.h>
+
+#ifndef QT_NO_SYNTAXHIGHLIGHTER
+
 #include <QtCore/qobject.h>
 #include <QtGui/qtextobject.h>
 
-#ifndef QT_NO_SYNTAXHIGHLIGHTER
+QT_MODULE(Gui)
 
 class QTextDocument;
 class QSyntaxHighlighterPrivate;

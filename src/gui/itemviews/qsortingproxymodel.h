@@ -16,6 +16,8 @@
 
 #include <QtGui/qmappingproxymodel.h>
 
+QT_MODULE(Gui)
+
 class QSortingProxyModelPrivate;
 
 class Q_GUI_EXPORT QSortingProxyModel : public QMappingProxyModel

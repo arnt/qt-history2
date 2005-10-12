@@ -14,6 +14,10 @@
 #ifndef QSCREENMACH64DEFS_QWS_H
 #define QSCREENMACH64DEFS_QWS_H
 
+#include <QtCore/qglobal.h>
+
+QT_MODULE(Gui)
+
 #define GEN_TEST_CNTL 0x00d0
 #define FIFO_STAT 0x0310
 #define BUS_CNTL 0x00a0

@@ -13,7 +13,10 @@
 
 #ifndef QENDIAN_H
 #define QENDIAN_H
-#include "qglobal.h"
+
+#include <QtCore/qglobal.h>
+
+QT_MODULE(Core)
 
 /*
  * ENDIAN FUNCTIONS
@@ -305,4 +308,4 @@ template <typename T> inline void qToLittleEndian(T src, uchar *dest)
 
 #endif // Q_BYTE_ORDER == Q_BIG_ENDIAN
 
-#endif
+#endif // QENDIAN_H
