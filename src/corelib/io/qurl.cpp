@@ -107,6 +107,10 @@
     followed by exactly two hexadecimal characters (e.g., "13% coverage.html")
     will be replaced by "%25".
 
+    \o Non-US-ASCII characters: An encoded URL should only contain US-ASCII
+    characters. In TolerantMode, characters outside this range are
+    automatically percent-encoded.
+
     \endlist
 */
 
@@ -3585,6 +3589,7 @@ void QUrl::setEncodedUrl(const QByteArray &encodedUrl, ParsingMode parsingMode)
     if ((d->parsingMode = parsingMode) == TolerantMode) {
         // Allow spaces in the QByteArray variant
         tmp.replace(" ", "%20");
+        
         // Replace stray % with %25
         QByteArray copy = tmp;
         for (int i = 0; i < copy.size(); ++i) {
@@ -3593,7 +3598,22 @@ void QUrl::setEncodedUrl(const QByteArray &encodedUrl, ParsingMode parsingMode)
                     tmp.replace(i, 1, "%25");
             }
         }
+
+        // Replace non-US-ASCII characters with percent encoding
+        copy = tmp;
+        tmp.clear();
+        for (int i = 0; i < copy.size(); ++i) {
+            if (quint8(copy.at(i)) > 127) {
+                char buf[4];
+                ::snprintf(buf, sizeof(buf), "%%%02hhX", quint8(copy.at(i)));
+                buf[3] = '\0';
+                tmp.append(buf);
+            } else {
+                tmp.append(copy.at(i));
+            }
+        }
     }
+
     d->encodedOriginal = tmp;
 }
 
