@@ -42,10 +42,11 @@ public:
 
     QDesignerFormWindowInterface *form() const { return m_form; }
     int qrcCount() const;
+    void setCurrentFile(const QString &qrc_path, const QString &file_path);
 
 signals:
     void fileActivated(const QString &qrc_path, const QString &file_path);
-    void fileChanged(const QString &qrc_path, const QString &file_path);
+    void currentFileChanged(const QString &qrc_path, const QString &file_path);
 
 public slots:
     void saveCurrentView();
@@ -83,13 +84,13 @@ private:
     void insertEmptyComboItem();
     void removeEmptyComboItem();
 
-private:
     QComboBox *m_qrc_combo;
     QStackedWidget *m_qrc_stack;
     QToolButton *m_add_button;
     QToolButton *m_remove_button;
     QPushButton *m_add_files_button;
     QToolButton *m_remove_qrc_button;
+    bool m_ignore_update;
 };
 
 } // namespace qdesigner_internal

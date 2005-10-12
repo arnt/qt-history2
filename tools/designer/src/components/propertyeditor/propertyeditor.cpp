@@ -273,10 +273,16 @@ void GraphicsPropertyEditor::showDialog()
         file_path = dialog.filePath();
         qrc_path = dialog.qrcPath();
         if (!file_path.isEmpty()) {
-            if (m_mode == Icon)
-                setIcon(m_core->iconCache()->nameToIcon(file_path, qrc_path));
-            else
-                setPixmap(m_core->iconCache()->nameToPixmap(file_path, qrc_path));
+            populateCombo();
+            if (m_mode == Icon) {
+                QIcon icon = m_core->iconCache()->nameToIcon(file_path, qrc_path);
+                populateCombo();
+                setIcon(icon);
+            } else {
+                QPixmap pixmap = m_core->iconCache()->nameToPixmap(file_path, qrc_path);
+                populateCombo();
+                setPixmap(pixmap);
+            }
         }
     }
 }

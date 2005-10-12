@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 #include <QtCore/qdebug.h>
 #include <QtGui/QTabWidget>
 #include <QtGui/QVBoxLayout>
@@ -389,6 +390,7 @@ ResourceModel *ModelCache::model(const QString &file)
 ResourceEditor::ResourceEditor(QDesignerFormEditorInterface *core, QWidget *parent)
     : QWidget(parent)
 {
+    m_ignore_update = false;
     Ui::ResourceEditor ui;
     ui.setupUi(this);
 
@@ -624,6 +626,9 @@ void ResourceEditor::setCurrentIndex(int i)
 
 void ResourceEditor::updateQrcStack()
 {
+    if (m_ignore_update)
+        return;
+
     m_qrc_combo->clear();
     while (m_qrc_stack->count() > 0) {
         QWidget *w = m_qrc_stack->widget(0);
@@ -685,8 +690,28 @@ void ResourceEditor::addView(const QString &qrc_file)
 
     setCurrentIndex(idx);
 
+    m_ignore_update = true;
     if (m_form && !qrc_file.isEmpty())
         m_form->addResourceFile(qrc_file);
+    m_ignore_update = false;
+
+    updateUi();
+}
+
+void ResourceEditor::setCurrentFile(const QString &_qrc_path, const QString &file_path)
+{
+    QDir form_dir = m_form->absoluteDir();
+    QString qrc_path = form_dir.relativeFilePath(_qrc_path);
+
+    for (int i = 0; i < m_qrc_stack->count(); ++i) {
+        ResourceModel *model = this->model(i);
+        if (qrc_path == form_dir.relativeFilePath(model->fileName())) {
+            setCurrentIndex(i);
+            QModelIndex index = model->getIndex(file_path);
+            view(i)->setCurrentIndex(index);
+            break;
+        }
+    }
 
     updateUi();
 }
@@ -704,11 +729,11 @@ void ResourceEditor::itemChanged(const QModelIndex &index)
                         + QLatin1Char('/')
                         + file;
             file_name = QDir::cleanPath(file_name);
-            qrc_path = m_form->absoluteDir().relativeFilePath(model->fileName());
+            qrc_path = m_form->absoluteDir().absoluteFilePath(model->fileName());
         }
     }
 
-    emit fileChanged(qrc_path, file_name);
+    emit currentFileChanged(qrc_path, file_name);
 }
 
 void ResourceEditor::itemActivated(const QModelIndex &index)
@@ -725,7 +750,7 @@ void ResourceEditor::itemActivated(const QModelIndex &index)
                         + QLatin1Char('/')
                         + file;
     file_name = QDir::cleanPath(file_name);
-    QString qrc_path = m_form->absoluteDir().relativeFilePath(model->fileName());
+    QString qrc_path = m_form->absoluteDir().absoluteFilePath(model->fileName());
 
     emit fileActivated(qrc_path, file_name);
 }
@@ -743,8 +768,9 @@ void ResourceEditor::saveCurrentView()
         if (file_name.isEmpty())
             return;
         model->setFileName(file_name);
-        if (m_form != 0)
-            m_form->addResourceFile(file_name);
+        m_ignore_update = true;
+        m_form->addResourceFile(file_name);
+        m_ignore_update = false;
         QString s = QFileInfo(file_name).fileName();
         bool blocked = m_qrc_combo->blockSignals(true);
         m_qrc_combo->setItemText(currentIndex(), s);
@@ -788,8 +814,10 @@ void ResourceEditor::removeCurrentView()
 
     disconnect(model, SIGNAL(dirtyChanged(bool)), this, SLOT(updateUi()));
 
+    m_ignore_update = true;
     if (m_form != 0 && !file_name.isEmpty())
         m_form->removeResourceFile(file_name);
+    m_ignore_update = false;
 
     if (qrcCount() == 0) {
         insertEmptyComboItem();
@@ -849,6 +877,8 @@ void ResourceEditor::setActiveForm(QDesignerFormWindowInterface *form)
     if (m_form != 0) {
         disconnect(m_form, SIGNAL(fileNameChanged(QString)),
                     this, SLOT(updateQrcPaths()));
+        disconnect(m_form, SIGNAL(resourceFilesChanged()),
+                    this, SLOT(updateQrcStack()));
     }
 
     m_form = form;
@@ -857,6 +887,8 @@ void ResourceEditor::setActiveForm(QDesignerFormWindowInterface *form)
     if (m_form != 0) {
         connect(m_form, SIGNAL(fileNameChanged(QString)),
                     this, SLOT(updateQrcPaths()));
+        connect(m_form, SIGNAL(resourceFilesChanged()),
+                    this, SLOT(updateQrcStack()));
     }
 
     setEnabled(m_form != 0);

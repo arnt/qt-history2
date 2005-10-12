@@ -127,6 +127,7 @@ public:
     virtual void changePrefix(const QModelIndex &idx, const QString &prefix);
     virtual QModelIndex deleteItem(const QModelIndex &idx);
     QModelIndex getIndex(const QString &prefix, const QString &file);
+    QModelIndex getIndex(const QString &prefixed_file);
     QModelIndex prefixIndex(const QModelIndex &sel_idx) const;
 
     QString absolutePath(const QString &path) const

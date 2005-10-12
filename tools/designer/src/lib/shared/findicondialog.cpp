@@ -96,11 +96,13 @@ FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *pare
     QVBoxLayout *layout = new QVBoxLayout(page);
     layout->setMargin(0);
     m_resource_editor = new ResourceEditor(form->core(), page);
+
     disconnect(form->core()->formWindowManager(),
                 SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
                 m_resource_editor, SLOT(setActiveForm(QDesignerFormWindowInterface*)));
     m_resource_editor->setActiveForm(form);
     layout->addWidget(m_resource_editor);
+    m_resource_editor->layout()->setMargin(0);
 
     connect(ui->m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
     connect(ui->m_cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
@@ -115,7 +117,7 @@ FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *pare
     connect(ui->m_file_input, SIGNAL(currentIndexChanged(QString)), this, SLOT(setFile(QString)));
     connect(m_resource_editor, SIGNAL(fileActivated(QString, QString)),
             this, SLOT(itemActivated(QString, QString)));
-    connect(m_resource_editor, SIGNAL(fileChanged(QString, QString)),
+    connect(m_resource_editor, SIGNAL(currentFileChanged(QString, QString)),
             this, SLOT(itemChanged(QString, QString)));
 
     updateButtons();
@@ -123,7 +125,7 @@ FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *pare
 
 void FindIconDialog::accept()
 {
-    if (m_qrc_path.isEmpty() && !m_current_file.isEmpty()) {
+    if (activeBox() == FileBox && !filePath().isEmpty()) {
         QStringList recent_dir_list;
         QString new_path = m_view_dir.path();
         recent_dir_list.append(new_path);
@@ -149,6 +151,8 @@ void FindIconDialog::cdUp()
 
 void FindIconDialog::itemActivated(const QString&, const QString &file_name)
 {
+    if (activeBox() != ResourceBox)
+        return;
     if (!file_name.isEmpty())
         accept();
 
@@ -157,6 +161,8 @@ void FindIconDialog::itemActivated(const QString&, const QString &file_name)
 
 void FindIconDialog::itemActivated(QListWidgetItem *item)
 {
+    if (activeBox() != FileBox)
+        return;
     QString file = item->text();
     QString path = m_view_dir.filePath(file);
 
@@ -170,15 +176,19 @@ void FindIconDialog::itemActivated(QListWidgetItem *item)
 
 void FindIconDialog::itemChanged(const QString &qrc_path, const QString &file_name)
 {
-    m_current_file = file_name;
-    m_qrc_path = qrc_path;
+    if (activeBox() != ResourceBox)
+        return;
+
+    m_resource_data.file = file_name;
+    m_resource_data.qrc = qrc_path;
 
     updateButtons();
 }
 
 void FindIconDialog::currentItemChanged(QListWidgetItem *item)
 {
-    m_qrc_path.clear();
+    if (activeBox() != FileBox)
+        return;
 
     if (item == 0)
         return;
@@ -186,9 +196,9 @@ void FindIconDialog::currentItemChanged(QListWidgetItem *item)
     ui->m_file_input->lineEdit()->setText(path);
 
     if (dirItem(item))
-        m_current_file.clear();
+        m_file_data.file.clear();
     else
-        m_current_file = path;
+        m_file_data.file = path;
 
     updateButtons();
 }
@@ -215,8 +225,6 @@ void FindIconDialog::setViewDir(const QString &path)
 
 void FindIconDialog::setFile(const QString &path)
 {
-    m_qrc_path.clear();
-
     QFileInfo info(path);
 
     QString file, dir;
@@ -231,13 +239,13 @@ void FindIconDialog::setFile(const QString &path)
 
     ui->m_file_input->lineEdit()->setText(path);
 
-    m_current_file.clear();
+    m_file_data.file.clear();
     ui->m_icon_view->clearSelection();
     if (!file.isEmpty()) {
         QList<QListWidgetItem*> item_list = ui->m_icon_view->findItems(file, Qt::MatchExactly);
         if (!item_list.isEmpty()) {
             ui->m_icon_view->setItemSelected(item_list.first(), true);
-            m_current_file = path;
+            m_file_data.file = path;
         }
     }
 
@@ -250,8 +258,12 @@ FindIconDialog::~FindIconDialog()
     ui = 0;
 }
 
-void FindIconDialog::setQrc(const QString&, const QString&)
+void FindIconDialog::setQrc(const QString &qrc_path, const QString &file_name)
 {
+    m_resource_editor->setCurrentFile(qrc_path, file_name);
+    m_resource_data.file = file_name;
+    m_resource_data.qrc = qrc_path;
+    updateButtons();
 }
 
 void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
@@ -260,6 +272,7 @@ void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
         setActiveBox(FileBox);
         setFile(filePath);
     } else {
+        setFile(m_form->absoluteDir().path());
         setActiveBox(ResourceBox);
         setQrc(qrcPath, filePath);
     }
@@ -277,7 +290,15 @@ void FindIconDialog::setActiveBox()
 
 void FindIconDialog::setActiveBox(InputBox box)
 {
-    ui->m_widget_stack->setCurrentIndex(box == FileBox ? 0 : 1);
+    if (box == FileBox) {
+        ui->m_specify_file_input->setChecked(true);
+        ui->m_widget_stack->setCurrentIndex(0);
+    } else {
+        ui->m_specify_resource_input->setChecked(true);
+        ui->m_widget_stack->setCurrentIndex(1);
+    }
+
+    updateButtons();
 }
 
 FindIconDialog::InputBox FindIconDialog::activeBox() const
@@ -287,12 +308,12 @@ FindIconDialog::InputBox FindIconDialog::activeBox() const
 
 QString FindIconDialog::qrcPath() const
 {
-    return m_qrc_path;
+    return activeBox() == FileBox ? QString() : m_resource_data.qrc;
 }
 
 QString FindIconDialog::filePath() const
 {
-    return m_current_file;
+    return activeBox() == FileBox ? m_file_data.file : m_resource_data.file;
 }
 
 } // namespace qdesigner_internal

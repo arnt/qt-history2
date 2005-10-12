@@ -81,7 +81,13 @@ private:
 
     void setViewDir(const QString &path);
     QDir m_view_dir;
-    QString m_current_file, m_qrc_path;
+    struct {
+        QString file;
+    } m_file_data;
+    struct {
+        QString file;
+        QString qrc;
+    } m_resource_data;
     ResourceEditor *m_resource_editor;
 };
 

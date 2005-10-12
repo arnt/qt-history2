@@ -519,6 +519,14 @@ void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &
     }
 }
 
+QModelIndex ResourceModel::getIndex(const QString &prefixed_file)
+{
+    QString prefix, file;
+    if (!m_resource_file.split(prefixed_file, &prefix, &file))
+        return QModelIndex();
+    return getIndex(prefix, file);
+}
+
 QModelIndex ResourceModel::getIndex(const QString &prefix, const QString &file)
 {
     if (prefix.isEmpty())
