@@ -200,7 +200,7 @@ static bool qt_socks5_get_host_address_and_port(const QByteArray &buf, QHostAddr
 {
     bool ret = false;
     int pos = *pPos;
-    const char *pBuf = buf.constData();
+    const unsigned char *pBuf = reinterpret_cast<const unsigned char*>(buf.constData());
     QHostAddress address;
     quint16 port = 0;
 
@@ -214,7 +214,7 @@ static bool qt_socks5_get_host_address_and_port(const QByteArray &buf, QHostAddr
             QSOCKS5_DEBUG << "need more data for ip4 address";
             return false;
         }
-        address.setAddress(qFromBigEndian<quint32>(reinterpret_cast<const uchar*>(&pBuf[pos])));
+        address.setAddress(qFromBigEndian<quint32>(&pBuf[pos]));
         pos += 4;
         ret = true;
     } else if (pBuf[pos] == S5_IP_V6) {
@@ -241,7 +241,7 @@ static bool qt_socks5_get_host_address_and_port(const QByteArray &buf, QHostAddr
             QSOCKS5_DEBUG << "need more data for port";
             return false;
         }
-        port = qFromBigEndian<quint16>(reinterpret_cast<const uchar*>(&pBuf[pos]));
+        port = qFromBigEndian<quint16>(&pBuf[pos]);
         pos += 2;
     }
 
