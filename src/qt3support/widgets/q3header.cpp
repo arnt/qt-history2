@@ -385,6 +385,7 @@ void Q3Header::init(int n)
     trackingIsOn = false;
     setBackgroundRole(QPalette::Button);
     setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
+    setAttribute(Qt::WA_PaintOutsidePaintEvent);
 }
 
 /*!
