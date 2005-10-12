@@ -489,6 +489,80 @@ void QTreeView::setExpanded(const QModelIndex &index, bool expanded)
 }
 
 /*!
+  \reimp
+ */
+void QTreeView::keyboardSearch(const QString &search)
+{
+    Q_D(QTreeView);
+    if (!model() || !model()->rowCount(rootIndex()) || !model()->columnCount(rootIndex()))
+        return;
+
+    QModelIndex start = currentIndex().isValid() ? currentIndex()
+                        : model()->index(0, 0, rootIndex());
+
+    QTime now(QTime::currentTime());
+    bool skipRow = false;
+    if (d->keyboardInputTime.msecsTo(now) > QApplication::keyboardInputInterval()) {
+        d->keyboardInput = search;
+        skipRow = true;
+    } else {
+        d->keyboardInput += search;
+    }
+    d->keyboardInputTime = now;
+
+    // special case for searches with same key like 'aaaaa'
+    bool sameKey = false;
+    if (d->keyboardInput.length() > 1) {
+        int c = d->keyboardInput.count(d->keyboardInput.at(d->keyboardInput.length() - 1));
+        sameKey = (c == d->keyboardInput.length());
+        if (sameKey)
+            skipRow = true;
+    }
+
+    // skip if we are searching for the same key or a new search started
+    if (skipRow)
+        start = indexBelow(start).isValid() ?
+                indexBelow(start) : model()->index(0, start.column(), rootIndex());
+
+    int startIndex = d->viewIndex(start);
+    if (startIndex <= -1)
+        return;
+
+    int previousLevel = -1;
+    int bestAbove = -1;
+    int bestBelow = -1;
+    QString searchString = sameKey ? QString(d->keyboardInput.at(0)) : d->keyboardInput;
+    for (int i = 0; i < d->viewItems.count(); ++i) {
+        if ((int)d->viewItems.at(i).level > previousLevel) {
+            QModelIndex searchFrom = d->viewItems.at(i).index;
+            if (searchFrom.parent() == start.parent())
+                searchFrom = start;
+            QModelIndexList match = model()->match(searchFrom, Qt::DisplayRole, searchString);
+            if (match.count()) {
+                int hitIndex = d->viewIndex(match.at(0));
+                if (hitIndex >= 0 && hitIndex < startIndex)
+                    bestAbove = bestAbove == -1 ? hitIndex : qMin(hitIndex, bestAbove);
+                else if (hitIndex >= startIndex)
+                    bestBelow = bestBelow == -1 ? hitIndex : qMin(hitIndex, bestBelow);
+            }
+        }
+        previousLevel = d->viewItems.at(i).level;
+    }
+
+    QModelIndex index;
+    if (bestBelow > -1)
+        index = d->viewItems.at(bestBelow).index;
+    else if (bestAbove > -1)
+        index = d->viewItems.at(bestAbove).index;
+
+    if (index.isValid())
+        selectionModel()->setCurrentIndex(index, (d->selectionMode == SingleSelection ?
+                                                  QItemSelectionModel::ClearAndSelect
+                                                  | d->selectionBehaviorFlags()
+                                                  : QItemSelectionModel::NoUpdate));
+}
+
+/*!
   Returns the rectangle on the viewport occupied by the item at \a index.
   If the index is not visible or explicitly hidden, the returned rectangle is invalid.
 */
@@ -1834,7 +1908,7 @@ void QTreeViewPrivate::updateHorizontalScrollbar()
         q->horizontalScrollBar()->setRange(0, 0);
         return;
     }
-    
+
     // count how many items are visible in the viewport
     int left = q->horizontalScrollBar()->value() / horizontalStepsPerItem;
     while (header->isSectionHidden(left))
