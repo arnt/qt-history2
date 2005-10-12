@@ -317,7 +317,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         break;
 
     case PM_MenuBarVMargin:
-        ret = 2;
+        ret = 0;
         break;
 
     case PM_MenuBarPanelWidth:

@@ -1367,7 +1367,7 @@ QSize QMenuBar::sizeHint() const
         }
         const int hmargin = style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, this),
                   vmargin = style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, this);
-        ret += QSize(2*fw + hmargin, 2*fw + vmargin);
+        ret += QSize(2*fw + 2*hmargin, 2*fw + 2*vmargin);
     }
 
     if(d->leftWidget) {
@@ -1410,12 +1410,15 @@ int QMenuBar::heightForWidth(int) const
 #endif
     int height = 0;
     if(as_gui_menubar) {
-        if (d->actionList.count())
-            height = d->actionRect(d->actionList.first()).bottom(); // ### this is a bit fishy
+        if (d->actionList.count()) {
+            // assume all actionrects have the same height
+            height = d->actionRect(d->actionList.first()).height();
+            height += style()->styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this);
+        }
         int fw = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this);
         height += 2*fw;
         const int vmargin = style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, this);
-        height += vmargin;
+        height += 2*vmargin;
     }
     if(d->leftWidget)
         height = qMax(d->leftWidget->sizeHint().height(), height);

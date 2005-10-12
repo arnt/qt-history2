@@ -4531,6 +4531,10 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
             if (menuItem->menuItemType == QStyleOptionMenuItem::Separator)
                 newSize.setHeight(2);
         }
+        break;
+    case CT_MenuBarItem:
+        newSize.setHeight(newSize.height() + 2);
+        break;
     default:
         break;
     }
@@ -4890,6 +4894,9 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     case SH_ScrollBar_MiddleClickAbsolutePosition:
         ret = true;
         break;
+    case SH_MainWindow_SpaceBelowMenuBar:
+        ret = 0;
+        break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
         break;
@@ -4954,6 +4961,9 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 {
     int ret = -1;
     switch (metric) {
+    case PM_ToolBarIconSize:
+        ret = 24;
+        break;
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
         ret = 1;
@@ -4996,7 +5006,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         ret = 3;
         break;
     case PM_MenuBarVMargin:
-        ret = 3;
+        ret = 2;
         break;
     case PM_MenuBarHMargin:
         ret = 0;
