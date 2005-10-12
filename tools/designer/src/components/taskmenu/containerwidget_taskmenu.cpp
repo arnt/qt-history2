@@ -20,6 +20,7 @@
 #include <qdesigner_stackedbox_p.h>
 #include <qdesigner_tabwidget_p.h>
 #include <qdesigner_toolbox_p.h>
+#include <qdesigner_dockwidget_p.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
@@ -144,6 +145,7 @@ QObject *ContainerWidgetTaskMenuFactory::createExtension(QObject *object, const 
     if (qobject_cast<QDesignerStackedWidget*>(widget)
             || qobject_cast<QDesignerToolBox*>(widget)
             || qobject_cast<QDesignerTabWidget*>(widget)
+            || qobject_cast<QDesignerDockWidget*>(widget)
             || qobject_cast<QMainWindow*>(widget))
         return 0;
 
