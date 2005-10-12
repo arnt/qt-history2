@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-
 // Dialogs
 #define QT_NO_COLORDIALOG
 #define QT_NO_FONTDIALOG
@@ -57,6 +56,8 @@
 #define QT_NO_COP
 #define QT_NO_HOSTINFO
 #define QT_NO_HTTP
+#define QT_NO_NETWORKPROXY
+#define QT_NO_SOCKS5
 #define QT_NO_UDPSOCKET
 #define QT_NO_URLINFO
 #define QT_NO_FTP
@@ -67,8 +68,8 @@
 #define QT_NO_PRINTER
 
 // Qt/Embedded-specific
-#define QT_NO_QWS_PROPERTIES
 #define QT_NO_QWS_SOUNDSERVER
+#define QT_NO_QWS_PROPERTIES
 
 // Styles
 #define QT_NO_STYLE_MOTIF
@@ -86,6 +87,7 @@
 #define QT_NO_SIZEGRIP
 #define QT_NO_DIAL
 #define QT_NO_STATUSBAR
+#define QT_NO_STATUSTIP
 #define QT_NO_TABLEWIDGET
 #define QT_NO_TOOLBUTTON
 #define QT_NO_TABBAR
