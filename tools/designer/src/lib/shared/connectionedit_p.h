@@ -69,14 +69,22 @@ class QDESIGNER_SHARED_EXPORT Connection : public CETypes
 {
 public:
     Connection(ConnectionEdit *edit);
-    Connection(ConnectionEdit *edit, QWidget *source, QWidget *target);
+    Connection(ConnectionEdit *edit, QObject *source, QObject *target);
     virtual ~Connection() {}
 
+    QObject *object(EndPoint::Type type) const
+    {
+        return (type == EndPoint::Source ? m_source : m_target);
+    }
+
     QWidget *widget(EndPoint::Type type) const
-        { return type == EndPoint::Source ? m_source : m_target; }
+    {
+        return qobject_cast<QWidget*>(object(type));
+    }
+
     QPoint endPointPos(EndPoint::Type type) const;
     QRect endPointRect(EndPoint::Type) const;
-    void setEndPoint(EndPoint::Type type, QWidget *w, const QPoint &pos)
+    void setEndPoint(EndPoint::Type type, QObject *w, const QPoint &pos)
         { type == EndPoint::Source ? setSource(w, pos) : setTarget(w, pos); }
 
     bool isVisible() const;
@@ -104,7 +112,7 @@ public:
 
 private:
     QPoint m_source_pos, m_target_pos;
-    QWidget *m_source, *m_target;
+    QObject *m_source, *m_target;
     QList<QPoint> m_knee_list;
     QPolygonF m_arrow_head;
     ConnectionEdit *m_edit;
@@ -113,8 +121,8 @@ private:
     QRect m_source_rect, m_target_rect;
     bool m_visible;
 
-    void setSource(QWidget *source, const QPoint &pos);
-    void setTarget(QWidget *target, const QPoint &pos);
+    void setSource(QObject *source, const QPoint &pos);
+    void setTarget(QObject *target, const QPoint &pos);
     void updateKneeList();
     void trimLine();
     void updatePixmap(EndPoint::Type type);
