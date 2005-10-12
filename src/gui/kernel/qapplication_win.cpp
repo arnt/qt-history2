@@ -457,6 +457,8 @@ static void qt_set_windows_resources()
     const QColor fg = pal.foreground().color(), btn = pal.button().color();
     QColor disabled((fg.red()+btn.red())/2,(fg.green()+btn.green())/2,
                      (fg.blue()+btn.blue())/2);
+    pal.setColorGroup(QPalette::Disabled, pal.foreground(), pal.button(), pal.light(), 
+        pal.dark(), pal.mid(), pal.text(), pal.brightText(), pal.base(), pal.background() );
     pal.setColor(QPalette::Disabled, QPalette::Foreground, disabled);
     pal.setColor(QPalette::Disabled, QPalette::Text, disabled);
     pal.setColor(QPalette::Disabled, QPalette::ButtonText, disabled);
