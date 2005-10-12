@@ -313,6 +313,8 @@ static int getToken()
 
                         if ( yyCh == '\n' ) {
                             yyCh = getChar();
+                        } else if ( yyCh == 'r' ) { // Skip \r since Linguist also removes those.
+                            yyCh = getChar();
                         } else if ( yyCh == 'x' ) {
                             QByteArray hex = "0";
 
