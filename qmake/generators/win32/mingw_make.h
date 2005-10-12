@@ -31,6 +31,10 @@ private:
     void init();
     void processPrlVariable(const QString &var, const QStringList &l);
 
+    QStringList &findDependencies(const QString &file);
+    
+    QString preCompHeaderOut;
+
     virtual bool findLibraries();
     void fixTargetExt();
 
