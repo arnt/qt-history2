@@ -18,7 +18,7 @@
 #include "dommodel.h"
 #include "mainwindow.h"
 
-MainWindow::MainWindow()
+MainWindow::MainWindow() : QMainWindow(), model(0)
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(tr("&Open..."), this, SLOT(openFile()),
@@ -32,6 +32,11 @@ MainWindow::MainWindow()
 
     setCentralWidget(view);
     setWindowTitle("Simple DOM Model");
+}
+
+MainWindow::~MainWindow()
+{
+    delete model;
 }
 
 void MainWindow::openFile()
