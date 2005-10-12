@@ -25,10 +25,10 @@
     QDesignerFormWindowCursorInterface is a convenience class that
     provides an interface to the associated form window's text cursor;
     it provides a collection of functions that enables you to query a
-    given form window's selection, and change the selection's focus
+    given form window's selection and change the selection's focus
     according to defined modes (MoveMode) and movements
-    (MoveOperation). You can also query the form's widgets and change
-    their properties.
+    (MoveOperation). You can also use the interface to query the
+    form's widgets and change their properties.
 
     The interface is not intended to be instantiated directly, but to
     provide access to the selections and widgets of \QD's current form
@@ -58,9 +58,10 @@
 
     You can retrieve any of the form window's widgets using the
     widget() function, and check if a widget is selected using the
-    isWidgetSelected() function. You can setProperty() for the
-    selected widget, and setWidgetProperty() or resetWidgetProperty()
-    for any given widget.
+    isWidgetSelected() function. You can use the setProperty()
+    function to set the selected widget's properties, and the
+    setWidgetProperty() or resetWidgetProperty() functions to modify
+    the properties of any given widget.
 
     Finally, you can change the selection by changing the text
     cursor's position() using the setPosition() and movePosition()

@@ -37,7 +37,7 @@
 
 /*!
     Constructs an action editor interface with the given \a parent and
-    specified window \a flags.
+    the specified window \a flags.
 */
 QDesignerActionEditorInterface::QDesignerActionEditorInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)

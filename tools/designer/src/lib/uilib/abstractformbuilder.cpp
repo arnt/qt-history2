@@ -290,7 +290,7 @@ static QString platformNeutralKeySequence(const QKeySequence &ks)
     \list
     \o load() handles reading of \c{.ui} format files from arbitrary
        QIODevices, and construction of widgets from the XML data
-       they contain.
+       that they contain.
     \o save() handles saving of widget details in \c{.ui} format to
        arbitrary QIODevices.
     \o workingDirectory() and setWorkingDirectory() control the
@@ -298,12 +298,12 @@ static QString platformNeutralKeySequence(const QKeySequence &ks)
        other resources on paths relative to this directory.
     \endlist
 
-    For a complete example using QFormBuilder, see the \l
-    {designer/calculatorbuilder}{Calculator Builder example} which
-    shows how to create a user interface from a \QD form at runtime,
-    using the QFormBuilder class.
+    The QFormBuilder class is typically used by custom components and
+    applications that embed \QD. Standalone applications that need to
+    dynamically generate user interfaces at run-time use the
+    QForm::Loader class, found in the QtForm module.
 
-    \sa QFormBuilder
+    \sa {QtForm Module}
 */
 
 /*!
@@ -2268,7 +2268,8 @@ QDir QAbstractFormBuilder::workingDirectory() const
 }
 
 /*!
-    Sets the current working directory of the form builder to the \a directory specified.
+    Sets the current working directory of the form builder to the
+    specified \a directory.
 
     \sa workingDirectory()*/
 void QAbstractFormBuilder::setWorkingDirectory(const QDir &directory)

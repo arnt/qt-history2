@@ -27,13 +27,14 @@
 
     In \QD the extensions are not created until they are required. For
     that reason, when implementing a custom extension, you must also
-    create a QExtensionFactory, i.e a class that is able to make an
+    create a QExtensionFactory, i.e. a class that is able to make an
     instance of your extension, and register it using \QD's \l
     {QExtensionManager}{extension manager}.
 
     The QExtensionManager class provides extension management
     facilities for Qt Designer. When an extension is required, Qt
-    Designer will run through all its registered factories calling
+    Designer's \l {QExtensionManager}{extension manager} will run
+    through all its registered factories calling
     QExtensionFactory::createExtension() for each until the first one
     that is able to create a requested extension for the selected
     object, is found. This factory will then make an instance of the
@@ -146,8 +147,9 @@ void QExtensionFactory::objectDestroyed(QObject *object)
 }
 
 /*!
-    Returns an extension specified by \a iid for the given \a object.
-    The extension object is created as a child of the specified \a parent.
+    Creates an extension specified by \a iid for the given \a object.
+    The extension object is created as a child of the specified \a
+    parent.
 
     \sa extension()
 */

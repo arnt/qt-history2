@@ -41,9 +41,9 @@
                 this, SLOT(checkProperty(QString, QVariant)));
     \endcode
 
-    Then the custom slot can, for example, check if the new value is
-    within the range we want when a specified property belonging to a
-    particular widget, changes:
+    Then the custom slot can check if the new value is within the
+    range we want when a specified property, belonging to a particular
+    widget, changes:
 
     \code
         void checkProperty(QString property, QVariant value) {
@@ -53,7 +53,7 @@
             QObject *object = propertyeditor->object();
             MyCustomWidget *widget = qobject_cast<MyCustomWidget>(object);
 
-            if (widget && property == "alignment" && value.toInt() != Qt::AlignLeft)
+            if (widget && property == aProperty && value != expectedValue)
                 {...}
         }
     \endcode
@@ -63,7 +63,7 @@
     property editor using the
     QDesignerFormEditorInterface::propertyEditor() function. A pointer
     to \QD's current QDesignerFormEditorInterface object (\c
-    formEditor) is provided by the
+    formEditor in the examples above) is provided by the
     QDesignerCustomWidgetInterface::initialize() function's
     parameter. When implementing a custom widget plugin, you must
     subclass the QDesignerCustomWidgetInterface to expose your plugin
@@ -75,7 +75,7 @@
     of the currently selected property in the property editor, the
     object() function that returns the currently selected object in
     \QD's workspace, and the isReadOnly() function that returns true
-    if the property editor is write proteced; otherwise false.
+    if the property editor is write proteced (otherwise false).
 
     The slots manipulating the property editor's state are the
     setObject() slot that you can use to change the currently selected
@@ -88,7 +88,7 @@
 
 /*!
     Constructs a property editor interface with the given \a parent and
-    specified window \a flags.
+    the specified window \a flags.
 */
 QDesignerPropertyEditorInterface::QDesignerPropertyEditorInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)

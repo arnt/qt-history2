@@ -49,13 +49,14 @@
     directly. You can retrieve an interface to \QD's extension manager
     using the QDesignerFormEditorInterface::extensionManager()
     function. A pointer to \QD's current QDesignerFormEditorInterface
-    object (\c formEditor) is provided by the
+    object (\c formEditor in the example above) is provided by the
     QDesignerCustomWidgetInterface::initialize() function's
     parameter. When implementing a custom widget plugin, you must
     subclass the QDesignerCustomWidgetInterface to expose your plugin
     to \QD.
 
-    Then, when an extension is required, \QD will run through all its
+    Then, when an extension is required, \QD's \l
+    {QExtensionManager}{extension manager} will run through all its
     registered factories calling QExtensionFactory::createExtension()
     for each until the first one that is able to create the requested
     extension for the selected object, is found. This factory will
@@ -120,7 +121,7 @@ void QExtensionManager::unregisterExtensions(QAbstractExtensionFactory *factory,
 }
 
 /*!
-    Returns the extension, specified by \a iid, for the given \a
+    Returns the extension specified by \a iid, for the given \a
     object.
 */
 QObject *QExtensionManager::extension(QObject *object, const QString &iid) const

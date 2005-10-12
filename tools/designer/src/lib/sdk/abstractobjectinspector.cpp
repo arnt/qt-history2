@@ -22,7 +22,7 @@
     \inmodule QtDesigner
 
     You can use the QDesignerObjectInspectorInterface to change the
-    currently selected form window. For example, when implementing a
+    current form window selection. For example, when implementing a
     custom widget plugin:
 
     \code
@@ -40,7 +40,7 @@
     object inspector using the
     QDesignerFormEditorInterface::objectInspector() function.  A
     pointer to \QD's current QDesignerFormEditorInterface object (\c
-    formEditor) is provided by the
+    formEditor in the example above) is provided by the
     QDesignerCustomWidgetInterface::initialize() function's
     parameter. When implementing a custom widget plugin, you must
     subclass the QDesignerCustomWidgetInterface to expose your plugin
@@ -49,14 +49,14 @@
     The interface provides the core() function that you can use to
     retrieve a pointer to \QD's current QDesignerFormEditorInterface
     object, and the setFormWindow() function that enables you to
-    change the currently selected form window.
+    change the current form window selection.
 
     \sa QDesignerFormEditorInterface, QDesignerFormWindowInterface
 */
 
 /*!
     Constructs an object inspector interface with the given \a parent
-    and specified window \a flags.
+    and the specified window \a flags.
 */
 QDesignerObjectInspectorInterface::QDesignerObjectInspectorInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)

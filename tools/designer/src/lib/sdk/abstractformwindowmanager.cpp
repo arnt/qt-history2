@@ -40,19 +40,19 @@
     \endcode
 
     When implementing a custom widget plugin, a pointer to \QD's
-    current QDesignerFormEditorInterface object (\c formEditor) is
-    provided by the QDesignerCustomWidgetInterface::initialize()
-    function's parameter.  You must subclass the
-    QDesignerCustomWidgetInterface to expose your plugin to Qt
-    Designer.
+    current QDesignerFormEditorInterface object (\c formEditor in the
+    example above) is provided by the
+    QDesignerCustomWidgetInterface::initialize() function's parameter.
+    You must subclass the QDesignerCustomWidgetInterface to expose
+    your plugin to Qt Designer.
 
     The form window manager interface provides the createFormWindow()
     function that enables you to create a new form window which you
     can add to the collection of form windows that the manager
     maintains, using the addFormWindow() slot. It also provides the
-    formWindowCount() function returning the current number of form
-    windows under the managers control, the formWindow() function
-    returning the form window associated with a given index and the
+    formWindowCount() function returning the number of form windows
+    currently under the manager's control, the formWindow() function
+    returning the form window associated with a given index, and the
     activeFormWindow() function returning the currently selected form
     window. The removeFormWindow() slot allows you to reduce the
     number of form windows the manager must maintain, and the
@@ -268,8 +268,8 @@ QDesignerFormEditorInterface *QDesignerFormWindowManagerInterface::core() const
 }
 
 /*!
-   Adds the given \a formWindow to the collection of windows \QD's
-   form window manager maintains.
+   Adds the given \a formWindow to the collection of windows that
+   \QD's form window manager maintains.
 
    \sa formWindowAdded()
 */
@@ -279,7 +279,7 @@ void QDesignerFormWindowManagerInterface::addFormWindow(QDesignerFormWindowInter
 }
 
 /*!
-   Removes the given \a formWindow from the collection of windows
+   Removes the given \a formWindow from the collection of windows that
    \QD's form window manager maintains.
 
    \sa formWindow(), formWindowRemoved()
@@ -361,7 +361,7 @@ QAction *QDesignerFormWindowManagerInterface::actionRedo() const
     \fn void QDesignerFormWindowManagerInterface::formWindowAdded(QDesignerFormWindowInterface *formWindow)
 
     This signal is emitted when a new form window is added to the
-    collection of windows \QD's form window manager maintains. A
+    collection of windows that \QD's form window manager maintains. A
     pointer to the new \a formWindow is passed as an argument.
 
     \sa addFormWindow(), setActiveFormWindow()
@@ -371,7 +371,7 @@ QAction *QDesignerFormWindowManagerInterface::actionRedo() const
     \fn void QDesignerFormWindowManagerInterface::formWindowRemoved(QDesignerFormWindowInterface *formWindow)
 
     This signal is emitted when a form window is removed from the
-    collection of windows \QD's form window manager maintains. A
+    collection of windows that \QD's form window manager maintains. A
     pointer to the removed \a formWindow is passed as an argument.
 
     \sa removeFormWindow()

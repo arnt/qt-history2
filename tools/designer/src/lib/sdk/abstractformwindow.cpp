@@ -67,18 +67,18 @@
     \endcode
 
     The pointer to \QD's current QDesignerFormEditorInterface object
-    (\c formEditor) is provided by the
+    (\c formEditor in the example above) is provided by the
     QDesignerCustomWidgetInterface::initialize() function's
     parameter. When implementing a custom widget plugin, you must
     subclass the QDesignerCustomWidgetInterface class to expose your
     plugin to \QD.
 
-    Once you have the form window, you can query its properties or
-    define them yourself. For example, a plain custom widget plugin is
-    managed by \QD only at its top level, i.e. none of its child
-    widgets can, for example, be resized in \QD's workspace. But
-    QDesignerFormWindowInterface provides you with functions enabling
-    you to control whether a widget should be managed by \QD, or not:
+    Once you have the form window, you can query its properties. For
+    example, a plain custom widget plugin is managed by \QD only at
+    its top level, i.e. none of its child widgets can be resized in
+    \QD's workspace. But QDesignerFormWindowInterface provides you
+    with functions that enables you to control whether a widget should
+    be managed by \QD, or not:
 
     \code
         if (formWindow->isManaged(myWidget))
@@ -133,7 +133,7 @@
 
 /*!
     Constructs a form window interface with the given \a parent and
-    specified window \a flags.
+    the specified window \a flags.
 */
 QDesignerFormWindowInterface::QDesignerFormWindowInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
@@ -281,6 +281,12 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     \fn virtual void QDesignerFormWindowInterface::setLayoutFunction(const QString &margin, const QString &spacing)
 
     Sets the \a margin and \a spacing for the form's layout.
+
+    The default layout properties will be replaced by the
+    corresponding layout functions when \c uic generates code for the
+    form, that is, if the functions are specified. This is useful when
+    different environments requires different layouts for the same
+    form.
 
     \sa layoutFunction()
 */
@@ -434,7 +440,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 /*!
     \fn virtual bool QDesignerFormWindowInterface::isDirty() const
 
-    Returns true if the form window is "dirty" (is modified but not
+    Returns true if the form window is "dirty" (modified but not
     saved); otherwise returns false.
 
     \sa setDirty()
@@ -554,8 +560,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     \fn virtual void QDesignerFormWindowInterface::setDirty(bool dirty)
 
     If \a dirty is true, the form window is marked as dirty, meaning
-    that it has been modified but not saved. If \a dirty is false, the
-    form window is considered to be unmodified.
+    that it is modified but not saved. If \a dirty is false, the form
+    window is considered to be unmodified.
 
     \sa isDirty()
 */

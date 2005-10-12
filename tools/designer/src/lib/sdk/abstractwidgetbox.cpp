@@ -47,11 +47,12 @@
     instantiated directly. You can retrieve an interface to Qt
     Designer's widget box using the
     QDesignerFormEditorInterface::widgetBox() function. A pointer to
-    \QD's current QDesignerFormEditorInterface object (\c formEditor)
-    is provided by the QDesignerCustomWidgetInterface::initialize()
-    function's parameter. When implementing a custom widget plugin,
-    you must subclass the QDesignerCustomWidgetInterface to expose
-    your plugin to \QD.
+    \QD's current QDesignerFormEditorInterface object (\c formEditor
+    in the example above) is provided by the
+    QDesignerCustomWidgetInterface::initialize() function's
+    parameter. When implementing a custom widget plugin, you must
+    subclass the QDesignerCustomWidgetInterface to expose your plugin
+    to \QD.
 
     If you want to save your changes, and at the same time preserve
     the original contents, you can use the save() function combined
@@ -83,12 +84,12 @@
     \endcode
 
 
-    \sa QDesignerFormEditorInterface, QDesignerCustomWidgetInterface
+    \sa QDesignerFormEditorInterface
 */
 
 /*!
     Constructs a widget box interface with the given \a parent and
-    specified window \a flags.
+    the specified window \a flags.
 */
 QDesignerWidgetBoxInterface::QDesignerWidgetBoxInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)

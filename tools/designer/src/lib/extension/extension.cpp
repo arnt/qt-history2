@@ -31,14 +31,14 @@
     your extension, and register it using \QD's \l
     {QExtensionManager}{extension manager}.
 
-    When an extension is required, \QD will run through all its
+    When an extension is required, \QD's \l
+    {QExtensionManager}{extension manager} will run through all its
     registered factories calling QExtensionFactory::createExtension()
     for each until the first one that is able to create the requested
     extension for the selected object, is found. This factory will
     then make an instance of the extension.
 
-    \sa QExtensionFactory, QExtensionManager,
-    QAbstractExtensionManager
+    \sa QExtensionFactory, QExtensionManager
 */
 
 /*!
@@ -71,14 +71,14 @@
     instance of your extension, and register it using \QD's \l
     {QExtensionManager}{extension manager}.
 
-    When an extension is required, \QD will run through all its
+    When an extension is required, \QD's \l
+    {QExtensionManager}{extension manager} will run through all its
     registered factories calling QExtensionFactory::createExtension()
     for each until the first one that is able to create the requested
     extension for the selected object, is found. This factory will
     then make an instance of the extension.
 
-    \sa QExtensionManager, QExtensionFactory,
-    QAbstractExtensionFactory
+    \sa QExtensionManager, QExtensionFactory
 */
 
 /*!
@@ -90,13 +90,15 @@
 /*!
     \fn void QAbstractExtensionManager::registerExtensions(QAbstractExtensionFactory *factory, const QString &iid)
 
-    Register the given extension \a factory specified by \a iid.
+    Register the given extension \a factory with the extension
+    specified by \a iid.
 */
 
 /*!
     \fn void QAbstractExtensionManager::unregisterExtensions(QAbstractExtensionFactory *factory, const QString &iid)
 
-    Unregister the given \a factory specified by \a iid.
+    Unregister the given \a factory with the extension specified by \a
+    iid.
 */
 
 /*!

@@ -9,8 +9,22 @@
     create your own custom widget plugins for Qt Designer, and classes
     that enable you to access Qt Designer's components.
 
-    In addition the QFormBuilder class provides the possibility of
+    In addition, the QFormBuilder class provides the possibility of
     constructing user interfaces from \c .ui files at run-time.
+
+    To include the definitions of the module's classes, use the
+    following directive:
+
+    \code
+        #include <QtDesigner>
+    \endcode
+
+    To link against the module, add this line to your \c qmake .pro
+    file:
+
+    \code
+        CONFIG += designer
+    \endcode
 
     \tableofcontents
 
@@ -28,21 +42,21 @@
     associated extension classes:
 
     The QDesignerContainerExtension class allows you to add pages to a
-    multi-page container plugin in \QD. The QDesignerTaskMenuExtension
-    class allows you to add custom menu entries to \QD's task
-    menu. The QDesignerMemberSheetExtension class allows you to
-    manipulate a widget's member functions which is displayed in \QD's
-    signal and slot editor. And finally, the
-    QDesignerPropertySheetExtension class allows you to manipulate a
-    widget's properties which is displayed in Qt Designer's property
-    editor.
+    custom multi-page container. The QDesignerTaskMenuExtension class
+    allows you to add custom menu entries to \QD's task menu. The
+    QDesignerMemberSheetExtension class allows you to manipulate a
+    widget's member functions which is displayed when configuring
+    connections using \QD's mode for editing signals and slots. And
+    finally, the QDesignerPropertySheetExtension class allows you to
+    manipulate a widget's properties which is displayed in \QD's
+    property editor.
 
     \image qtdesignerextensions.png
 
     In \QD the extensions are not created until they are required. For
     that reason, when implementing extensions, you must also subclass
     QExtensionFactory, i.e create a class that is able to make
-    instances of your extensions. In addition you must make \QD's
+    instances of your extensions. In addition, you must make \QD's
     extension manager register your factory; the extension manager
     controls the construction of extensions as they are required, and
     you can access it through QDesignerFormEditorInterface and
@@ -50,7 +64,8 @@
 
     For a complete example creating a custom widget plugin with an
     extension, see the \l {designer/taskmenuextension}{Task Menu
-    Extension example}.
+    Extension} or \l {designer/containerextension}{Container
+    Extension} examples.
 
     \section1 Retrieving Access to \QD Components
 
@@ -89,19 +104,20 @@
     the form windows currently appearing in \QD's workspace: The
     QDesignerFormWindowInterface class allows you to query and
     manipulate the form windows, and it provides an interface to the
-    form windows' cursors; QDesignerFormWindowCursorInterface is a
+    form windows' cursors. QDesignerFormWindowCursorInterface is a
     convenience class allowing you to query and modify a given form
     window's widget selection, and in addition modify the properties
     of all the form's widgets.
 
     \section1 Creating User Interfaces at Run-Time
 
-    The QtDesigner module contains the QFormBuilder class that provides a
-    mechanism for dynamically creating user interfaces at run-time, based
-    on \c .ui files created with \QD. This class is typically used by
-    custom components and applications that embed \QD. Standalone
-    applications that need to dynamically generate user interfaces at
-    run-time use the QForm::Loader class, found in the QtForm module.
+    The \c QtDesigner module contains the QFormBuilder class that
+    provides a mechanism for dynamically creating user interfaces at
+    run-time, based on \c .ui files created with \QD. This class is
+    typically used by custom components and applications that embed
+    \QD. Standalone applications that need to dynamically generate
+    user interfaces at run-time use the QForm::Loader class, found in
+    the QtForm module.
 
     For a complete example using QForm::Loader, see
     the \l {designer/calculatorbuilder}{Calculator Builder example}.
@@ -113,15 +129,16 @@
     \class QDesignerMemberSheetExtension
 
     \brief The QDesignerMemberSheetExtension class allows you to
-    manipulate a widget's member functions which is displayed in Qt
-    Designer's signal and slot editor.
+    manipulate a widget's member functions which is displayed when
+    configuring connections using Qt Designer's mode for editing
+    signals and slots.
 
     \inmodule QtDesigner
 
     QDesignerMemberSheetExtension is a collection of functions that is
     typically used to query a widget's member functions, and to
-    manipulate the member functions' appearance in \QD's signal
-    and slot editor. For example:
+    manipulate the member functions' appearance in \QD's signals and
+    slots editing mode. For example:
 
     \code
         QDesignerMemberSheetExtension *memberSheet  = 0;
@@ -131,29 +148,29 @@
         int index = memberSheet->indexOf(setEchoMode);
         memberSheet->setVisible(index, false);
 
-        delete sheet;
+        delete memberSheet;
     \endcode
 
     When implementing a custom widget plugin, a pointer to \QD's
-    current QDesignerFormEditorInterface object (\c formEditor) is
-    provided by the QDesignerCustomWidgetInterface::initialize()
-    function's parameter.
+    current QDesignerFormEditorInterface object (\c formEditor in the
+    example above) is provided by the
+    QDesignerCustomWidgetInterface::initialize() function's parameter.
 
     The member sheet (and any other extension), can be retrieved by
     querying \QD's extension manager using the qt_extension()
     function. When you want to release the extension, you only need to
     delete the pointer.
 
-    All widgets have a default member sheet which populates \QD's
-    signal and slot editor with the widget's member functions. But
+    All widgets have a default member sheet used in \QD's signals and
+    slots editing mode with the widget's member functions. But
     QDesignerMemberSheetExtension also provides an interface for
     creating custom member sheet extensions.
 
-    \warning \QD uses the QDesignerMemberSheetExtension to feed its
-    signal and slot editor. Whenever a connection between two widgets
-    is requested, \QD will query for the widgets' member sheet
-    extensions. If a widget has an implemented member sheet extension,
-    this extension will override the default member sheet.
+    \warning \QD uses the QDesignerMemberSheetExtension to facilitate
+    the signal and slot editing mode. Whenever a connection between
+    two widgets is requested, \QD will query for the widgets' member
+    sheet extensions. If a widget has an implemented member sheet
+    extension, this extension will override the default member sheet.
 
     To create a member sheet extension, your extension class must
     inherit from both QObject and QDesignerMemberSheetExtension. Then,
@@ -182,20 +199,20 @@
     that is able to make an instance of your extension, and register
     it using \QD's \l {QExtensionManager}{extension manager}.
 
-    When a widget's member sheet extension is required, \QD
-    will run through all its registered factories calling
-    QExtensionFactory::createExtension() for each until the first one
-    that is able to create a member sheet extension for that widget,
-    is found. This factory will then make an instance of the
-    extension. If no such factory is found, \QD will use the default
-    member sheet.
+    When a widget's member sheet extension is required, \QD's \l
+    {QExtensionManager}{extension manager} will run through all its
+    registered factories calling QExtensionFactory::createExtension()
+    for each until the first one that is able to create a member sheet
+    extension for that widget, is found. This factory will then make
+    an instance of the extension. If no such factory is found, \QD
+    will use the default member sheet.
 
     There are four available types of extensions in \QD:
-    QDesignerContainerExtension , QDesignerMemberSheetExtension,
+    QDesignerContainerExtension, QDesignerMemberSheetExtension,
     QDesignerPropertySheetExtension and
-    QDesignerTaskMenuExtension. \QD's behavior is the same
-    whether the requested extension is associated with a multi page
-    container, a member sheet, a property sheet or a task menu.
+    QDesignerTaskMenuExtension. \QD's behavior is the same whether the
+    requested extension is associated with a multi page container, a
+    member sheet, a property sheet or a task menu.
 
     The QExtensionFactory class provides a standard extension
     factory, and can also be used as an interface for custom
@@ -246,7 +263,8 @@
     Designer, and how to to use the QDesignerTaskMenuExtension class
     to add custom items to \QD's task menu.
 
-    \sa QExtensionFactory, QExtensionManager, {Qt Designer}
+    \sa QExtensionFactory, QExtensionManager, {Creating Custom Widget
+    Extensions}
 */
 
 /*!
@@ -258,7 +276,7 @@
 /*!
     \fn int QDesignerMemberSheetExtension::count() const
 
-    Returns the extension's number of functions.
+    Returns the extension's number of member functions.
 */
 
 /*!
@@ -309,8 +327,8 @@
     \fn void QDesignerMemberSheetExtension::setVisible(int index, bool visible)
 
     If \a visible is true, the member function with the given \a index
-    is visible in \QD's signal and slot editor; otherwise the member
-    function is hidden.
+    is visible in \QD's signals and slots editing mode; otherwise the
+    member function is hidden.
 
     \sa indexOf(), isVisible()
 */
@@ -364,7 +382,7 @@
     \fn QList<QByteArray> QDesignerMemberSheetExtension::parameterTypes(int index) const
 
     Returns the parameter types of the member function with the given
-    \a index as a QByteArray list.
+    \a index, as a QByteArray list.
 
     \sa indexOf(), parameterNames()
 */
@@ -373,7 +391,7 @@
     \fn QList<QByteArray> QDesignerMemberSheetExtension::parameterNames(int index) const
 
     Returns the parameter names of the member function with the given
-    \a index as a QByteArray list.
+    \a index, as a QByteArray list.
 
     \sa indexOf(), parameterTypes()
 */
@@ -510,7 +528,7 @@
 /*!
     \class QDesignerContainerExtension
     \brief The QDesignerContainerExtension class allows you to add pages to
-    a multi-page container plugin in Qt Designer.
+    a custom multi-page container in Qt Designer's workspace.
     \inmodule QtDesigner
 
     QDesignerContainerExtension provide an interface for creating
@@ -518,8 +536,10 @@
     collection of functions that \QD needs to manage a multi-page
     container plugin, and a list of the container's pages.
 
+    \image containerextension-example.png
+
     \warning This is \e not an extension for container plugins in
-    general.
+    general, only custom \e multi-page containers.
 
     To create a container extension, your extension class must inherit
     from both QObject and QDesignerContainerExtension. For example:
@@ -553,15 +573,15 @@
     query for supported interfaces using nothing but a QObject
     pointer.
 
-    You must reimplement several functions to enable \QD to manage
-    your multi-page container widget: \QD uses count() to keep track
+    You must reimplement several functions to enable \QD to manage a
+    custom multi-page container widget: \QD uses count() to keep track
     of the number pages in your container, widget() to return the page
     at a given index in the list of the container's pages, and
     currentIndex() to return the list index of the selected page. \QD
-    uses the addWidget() function to add a given page to the container,
-    expecting it to be appended to the list of pages, while it expects
-    the insertWidget() function to add a given page to the container by
-    inserting it at a specified index in the list of pages.
+    uses the addWidget() function to add a given page to the
+    container, expecting it to be appended to the list of pages, while
+    it expects the insertWidget() function to add a given page to the
+    container by inserting it at a given index.
 
     In \QD the extensions are not created until they are
     required. For that reason you must also create a
@@ -569,11 +589,12 @@
     your extension, and register it using \QD's \l
     {QExtensionManager}{extension manager}.
 
-    When a container extension is required, \QD will run
-    through all its registered factories calling
-    QExtensionFactory::createExtension() for each until the first one
-    that is able to create a container extension, is found. This
-    factory will then create the extension for the plugin.
+    When a container extension is required, \QD's \l
+    {QExtensionManager}{extension manager} will run through all its
+    registered factories calling QExtensionFactory::createExtension()
+    for each until the first one that is able to create a container
+    extension, is found. This factory will then create the extension
+    for the plugin.
 
     There are four available types of extensions in \QD:
     QDesignerContainerExtension , QDesignerMemberSheetExtension,
@@ -628,10 +649,10 @@
     For a complete example using the QDesignerContainerExtension
     class, see the \l {designer/containerextension}{Container
     Extension example}. The example shows how to create a custom
-    multi-page plugin for Qt Designer using the
-    QDesignerContainerExtension class.
+    multi-page plugin for Qt Designer.
 
-    \sa QExtensionFactory, QExtensionManager, {Qt Designer}
+    \sa QExtensionFactory, QExtensionManager, {Creating Custom Widget
+    Extensions}
 */
 
 /*!
@@ -686,7 +707,7 @@
     \fn void QDesignerContainerExtension::insertWidget(int index, QWidget *page)
 
     Adds the given \a page to the container by inserting it at the
-    given \a index in extension's list of pages.
+    given \a index in the extension's list of pages.
 
     \sa addWidget(), remove(), widget()
 */
@@ -762,22 +783,22 @@
     can reimplement the preferredEditAction() function to set the
     action that is invoked when selecting your plugin and pressing
     \key F2. The preferred edit action must be one of the actions
-    returned by taskActions() and, if it's not defined, \key F2
-    key presses will simply be ignored.
+    returned by taskActions() and, if it's not defined, pressing the
+    \key F2 key will simply be ignored.
 
     In \QD, extensions are not created until they are required. A
     task menu extension, for example, is created when you click the
     right mouse button over a widget in \QD's workspace. For that
     reason you must also construct an extension factory, using either
     QExtensionFactory or a subclass, and register it using \QD's
-    \l {QExtensionManager}{extension manager}. The extension factory
-    will be used to create new instances of your extensions.
+    \l {QExtensionManager}{extension manager}.
 
-    When a task menu extension is required, \QD will run
-    through all its registered factories calling
-    QExtensionFactory::createExtension() for each until it finds one
-    that is able to create a task menu extension for the selected
-    widget. This factory will then make an instance of the extension.
+    When a task menu extension is required, \QD's \l
+    {QExtensionManager}{extension manager} will run through all its
+    registered factories calling QExtensionFactory::createExtension()
+    for each until it finds one that is able to create a task menu
+    extension for the selected widget. This factory will then make an
+    instance of the extension.
 
     There are four available types of extensions in \QD:
     QDesignerContainerExtension, QDesignerMemberSheetExtension,
@@ -834,7 +855,8 @@
     for \QD, and how to to use the QDesignerTaskMenuExtension
     class to add custom items to \QD's task menu.
 
-    \sa QExtensionFactory, QExtensionManager, {Qt Designer}
+    \sa QExtensionFactory, QExtensionManager, {Creating Custom Widget
+    Extensions}
 */
 
 /*!
@@ -856,7 +878,7 @@
     \fn QList<QAction*> QDesignerTaskMenuExtension::taskActions() const
 
     Returns the task menu extension as a list of actions which will be
-    included in \QD task menu when a plugin with the specified
+    included in \QD's task menu when a plugin with the specified
     extension is selected.
 
     The function must be reimplemented to add actions to the list.
@@ -878,9 +900,11 @@
     plugins in the same library, you must in addition subclass
     QDesignerCustomWidgetCollectionInterface.
 
-    For example, if you have several custom widgets \c
-    CustomWidgetOne, \c CustomWidgetTwo and \c CustomWidgetThree, the
-    class definition may look like this:
+    QDesignerCustomWidgetCollectionInterface contains one single
+    function returning a list of the collection's
+    QDesignerCustomWidgetInterface objects. For example, if you have
+    several custom widgets \c CustomWidgetOne, \c CustomWidgetTwo and
+    \c CustomWidgetThree, the class definition may look like this:
 
     \code
     #include customwidgetoneinterface.h
@@ -926,17 +950,11 @@
     Q_EXPORT_PLUGIN(MyCustomWidgets)
     \endcode
 
-    Instead of exporting each custom widget plugin using the
+    Note that instead of exporting each custom widget plugin using the
     Q_EXPORT_PLUGIN() macro, you export the entire collection. The
     Q_EXPORT_PLUGIN() macro ensures that \QD can access and construct
     the custom widgets. Without this macro, there is no way for \QD to
     use them.
-
-    QDesignerCustomWidgetCollectionInterface contains one single
-    function returning a list of the collection's
-    QDesignerCustomWidgetInterface objects. \QD uses the
-    interface to manage the collection of custom widgets as one single
-    library in its workspace.
 
     \sa QDesignerCustomWidgetInterface, {Creating Custom Widgets for
     Qt Designer}
@@ -973,7 +991,7 @@
     function which is called after the custom widget plugin is loaded
     into \QD. This latter function's
     QDesignerFormWindowInterface parameter provides the plugin with a
-    gateway to all of \QD's API's.
+    gateway to all of \QD's API.
 
     When implementing a custom widget you must subclass
     QDesignerCustomWidgetInterface to expose your widget to \QD. For
@@ -1026,9 +1044,14 @@
     custom widget. Without this macro, there is no way for Qt
     Designer to use it.
 
-    \warning If your custom widget plugin has any QVariant properties,
-    be aware that only the following \l {QVariant::Type}{types} are
-    supported:
+    When implementing a custom widget plugin, you build it as a
+    separate library. If you want to include several custom widget
+    plugins in the same library, you must in addition subclass
+    QDesignerCustomWidgetCollectionInterface.
+
+    \warning If your custom widget plugin contains QVariant
+    properties, be aware that only the following \l
+    {QVariant::Type}{types} are supported:
 
     \list
     \o QVariant::ByteArray
@@ -1352,13 +1375,13 @@
         propertySheet->setProperty(index, 10);
         propertySheet->setChanged(index, true);
 
-        delete sheet;
+        delete propertySheet;
     \endcode
 
     When implementing a custom widget plugin, a pointer to \QD's
-    current QDesignerFormEditorInterface object (\c formEditor) is
-    provided by the QDesignerCustomWidgetInterface::initialize()
-    function's parameter.
+    current QDesignerFormEditorInterface object (\c formEditor in the
+    example above) is provided by the
+    QDesignerCustomWidgetInterface::initialize() function's parameter.
 
     The property sheet, or any other extension, can be retrieved by
     querying \QD's extension manager using the qt_extension()
@@ -1366,10 +1389,10 @@
     delete the pointer.
 
     All widgets have a default property sheet which populates \QD's
-    property editor with the widget's properties (that is the ones
-    defined with the Q_PROPERTY() macro). But
-    QDesignerPropertySheetExtension also provides an interface for
-    creating custom property sheet extensions.
+    property editor with the widget's properties (i.e the ones defined
+    with the Q_PROPERTY() macro). But QDesignerPropertySheetExtension
+    also provides an interface for creating custom property sheet
+    extensions.
 
     \warning \QD uses the QDesignerPropertySheetExtension to feed its
     property editor. Whenever a widget is selected in its workspace,
@@ -1404,13 +1427,13 @@
     that is able to make an instance of your extension, and register
     it using \QD's \l {QExtensionManager}{extension manager}.
 
-    When a property sheet extension is required, \QD will run
-    through all its registered factories calling
-    QExtensionFactory::createExtension() for each until the first one
-    that is able to create a property sheet extension for the selected
-    widget, is found. This factory will then make an instance of the
-    extension. If no such factory can be found, \QD will use the
-    default property sheet.
+    When a property sheet extension is required, \QD's \l
+    {QExtensionManager}{extension manager} will run through all its
+    registered factories calling QExtensionFactory::createExtension()
+    for each until the first one that is able to create a property
+    sheet extension for the selected widget, is found. This factory
+    will then make an instance of the extension. If no such factory
+    can be found, \QD will use the default property sheet.
 
     There are four available types of extensions in \QD:
     QDesignerContainerExtension, QDesignerMemberSheetExtension,
@@ -1469,7 +1492,8 @@
     Designer, and how to to use the QDesignerTaskMenuExtension class
     to add custom items to \QD's task menu.
 
-    \sa QExtensionFactory, QExtensionManager, {Qt Designer}
+    \sa QExtensionFactory, QExtensionManager, {Creating Custom Widget
+    Extensions}
 */
 
 /*!
@@ -1507,9 +1531,10 @@
 
     \QD's property editor supports property groups, i.e. sections of
     related properties. A property can be related to a group using the
-    setProperty() function. The default group of any property is the
-    name of the class that defines it. The QObject::objectName
-    property, for example, appears within the QObject property group.
+    setPropertyGroup() function. The default group of any property is
+    the name of the class that defines it. For example, the
+    QObject::objectName property appears within the QObject property
+    group.
 
     \sa indexOf(), setPropertyGroup()
 */
@@ -1522,9 +1547,9 @@
 
     Relating a property to a group makes it appear within that group's
     section in the property editor. The default property group of any
-    property is the name of the class that defines it. The
-    QObject::objectName property, for example, appears within the
-    QObject property group.
+    property is the name of the class that defines it. For example,
+    the QObject::objectName property appears within the QObject
+    property group.
 
     \sa indexOf(), property(), propertyGroup()
 */

@@ -103,12 +103,12 @@ static QFormBuilderExtra &extraInfo(QFormBuilder *builder)
        can be used to create new instances of registered custom widgets.
     \endlist
 
-    For a complete example using QFormBuilder, see the \l
-    {designer/calculatorbuilder}{Calculator Builder example} which
-    shows how to create a user interface from a \QD form at runtime,
-    using the QFormBuilder class.
+    The QFormBuilder class is typically used by custom components and
+    applications that embed \QD. Standalone applications that need to
+    dynamically generate user interfaces at run-time use the
+    QForm::Loader class, found in the QtForm module.
 
-    \sa QAbstractFormBuilder
+    \sa QAbstractFormBuilder, {QtForm Module}
 */
 
 /*!
@@ -333,16 +333,19 @@ QActionGroup *QFormBuilder::create(DomActionGroup *ui_action_group, QObject *par
 /*!
     Returns the list of paths the form builder searches for plugins.
 
-    \sa addPluginPath(), clearPluginPaths(), setPluginPath()*/
+    \sa addPluginPath()
+*/
 QStringList QFormBuilder::pluginPaths() const
 {
     return m_pluginPaths;
 }
 
 /*!
-    Clears the list of paths that the form builder uses to search for custom widget plugins.
+    Clears the list of paths that the form builder uses to search for
+    custom widget plugins.
 
-    \sa pluginPaths(), addPluginPath(), setPluginPath()*/
+    \sa pluginPaths()
+*/
 void QFormBuilder::clearPluginPaths()
 {
     m_pluginPaths.clear();
@@ -350,10 +353,12 @@ void QFormBuilder::clearPluginPaths()
 }
 
 /*!
-    Adds a new plugin path specified by \a pluginPath to the list of paths that will be
-    searched by the form builder when loading a custom widget plugin.
+    Adds a new plugin path specified by \a pluginPath to the list of
+    paths that will be searched by the form builder when loading a
+    custom widget plugin.
 
-    \sa setPluginPath(), clearPluginPaths()*/
+    \sa setPluginPath(), clearPluginPaths()
+*/
 void QFormBuilder::addPluginPath(const QString &pluginPath)
 {
     m_pluginPaths.append(pluginPath);
@@ -363,7 +368,8 @@ void QFormBuilder::addPluginPath(const QString &pluginPath)
 /*!
     Sets the list of plugin paths to the list specified by \a pluginPaths.
 
-    \sa addPluginPath(), clearPluginPaths(), pluginPaths()*/
+    \sa addPluginPath()
+*/
 void QFormBuilder::setPluginPath(const QStringList &pluginPaths)
 {
     m_pluginPaths = pluginPaths;
@@ -411,7 +417,7 @@ void QFormBuilder::updateCustomWidgets()
 /*!
     \fn QList<QDesignerCustomWidgetInterface*> QFormBuilder::customWidgets() const
 
-    Returns the list of interfaces to the custom widgets registered with the form builder.
+    Returns a list of the available plugins.
 */
 QList<QDesignerCustomWidgetInterface*> QFormBuilder::customWidgets() const
 {
