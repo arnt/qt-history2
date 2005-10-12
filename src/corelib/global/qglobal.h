@@ -19,7 +19,7 @@
 #define QT_VERSION_STR   "4.1.0"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
- */
+*/
 #define QT_VERSION 0x040100
 
 #define QT_PACKAGEDATE_STR "YYYY-MM-DD"
@@ -213,7 +213,7 @@
 #  if defined(__INTEL_COMPILER)
 #    define Q_CC_INTEL
 #  endif
-// x64 does not support mmx intrinsics on windows
+/* x64 does not support mmx intrinsics on windows */
 #  if (defined(Q_OS_WIN64) && defined(_M_X64))
 #    undef QT_HAVE_SSE
 #  endif
@@ -226,7 +226,7 @@
 #    define Q_NO_BOOL_TYPE
 #    define Q_NO_EXPLICIT_KEYWORD
 #  endif
-#  define Q_NO_USING_KEYWORD /* ### check "using" status */
+#  define Q_NO_USING_KEYWORD
 
 #elif defined(__WATCOMC__)
 #  define Q_CC_WAT
@@ -531,7 +531,7 @@
 
 
 /*
-  Size-dependent types (architechture-dependent byte order)
+   Size-dependent types (architechture-dependent byte order)
 */
 
 typedef signed char qint8;         /* 8 bit signed */
@@ -642,7 +642,7 @@ typedef unsigned long ulong;
 #  endif
 #endif
 #if defined(QT3_SUPPORT_WARNINGS)
-#  if !defined(QT_COMPAT_WARNINGS) //also enable compat
+#  if !defined(QT_COMPAT_WARNINGS) /* also enable compat */
 #    define QT_COMPAT_WARNINGS
 #  endif
 #  undef QT3_SUPPORT
@@ -651,8 +651,8 @@ typedef unsigned long ulong;
 #  define QT3_SUPPORT_VARIABLE Q_DECL_VARIABLE_DEPRECATED
 #  undef QT3_SUPPORT_CONSTRUCTOR
 #  define QT3_SUPPORT_CONSTRUCTOR explicit Q_DECL_CONSTRUCTOR_DEPRECATED
-#elif defined(QT3_SUPPORT) //define back to nothing
-#  if !defined(QT_COMPAT) //also enable qt3 support
+#elif defined(QT3_SUPPORT) /* define back to nothing */
+#  if !defined(QT_COMPAT) /* also enable qt3 support */
 #    define QT_COMPAT
 #  endif
 #  undef QT3_SUPPORT
@@ -669,7 +669,7 @@ typedef unsigned long ulong;
 #  define QT_COMPAT_VARIABLE Q_DECL_VARIABLE_DEPRECATED
 #  undef QT_COMPAT_CONSTRUCTOR
 #  define QT_COMPAT_CONSTRUCTOR explicit Q_DECL_CONSTRUCTOR_DEPRECATED
-#elif defined(QT_COMPAT) //define back to nothing
+#elif defined(QT_COMPAT) /* define back to nothing */
 #  undef QT_COMPAT
 #  define QT_COMPAT
 #  undef QT_COMPAT_VARIABLE
@@ -677,7 +677,7 @@ typedef unsigned long ulong;
 #  undef QT_COMPAT_CONSTRUCTOR
 #  define QT_COMPAT_CONSTRUCTOR
 #endif
-// moc compats (signals/slots)
+/* moc compats (signals/slots) */
 #ifndef QT_MOC_COMPAT
 #  if defined(QT3_SUPPORT)
 #    define QT_MOC_COMPAT QT3_SUPPORT
@@ -711,9 +711,9 @@ typedef float qreal;
 typedef double qreal;
 #endif
 
-//
-// Utility macros and inline functions
-//
+/*
+   Utility macros and inline functions
+*/
 
 template <typename T>
 inline T qAbs(const T &t) { return t >= 0 ? t : -t; }
@@ -757,9 +757,9 @@ typedef unsigned long Q_ULONG;      /* word up to 64 bit unsigned */
 #  define QMIN(a, b) qMin((a), (b))
 #endif
 
-//
-// Data stream functions are provided by many classes (defined in qdatastream.h)
-//
+/*
+   Data stream functions are provided by many classes (defined in qdatastream.h)
+*/
 
 class QDataStream;
 
@@ -814,10 +814,11 @@ class QDataStream;
 #  endif
 #endif
 
-//
-// Create Qt DLL if QT_DLL is defined (Windows only)
-// or QT_SHARED is defined (Kylix only)
-//
+/*
+   Create Qt DLL if QT_DLL is defined (Windows only)
+   or QT_SHARED is defined (Kylix only)
+*/
+
 #if defined(Q_OS_WIN)
 #  if defined(QT_NODLL)
 #    undef QT_MAKEDLL
@@ -916,7 +917,8 @@ class QDataStream;
 #  endif
 #endif
 
-/* No, this is not an evil backdoor. QT_BUILD_INTERNAL just exports more symbols
+/*
+   No, this is not an evil backdoor. QT_BUILD_INTERNAL just exports more symbols
    for Trolltech's internal unit tests. If you want slower loading times and more
    symbols that can vanish from version to version, feel free to define QT_BUILD_INTERNAL.
 */
@@ -928,9 +930,9 @@ class QDataStream;
 #    define Q_INTERNAL_EXPORT
 #endif
 
-//
-// System information
-//
+/*
+   System information
+*/
 
 class QString;
 class Q_CORE_EXPORT QSysInfo {
@@ -957,7 +959,7 @@ public:
     };
 #if !defined(Q_BYTE_ORDER)
 #  if defined(QT_BUILD_QMAKE)
-    // needed to bootstrap qmake
+    /* needed to bootstrap qmake */
     static const int ByteOrder;
 #  else
 #    error "Qt not configured correctly, please run configure"
@@ -987,7 +989,7 @@ public:
     enum MacVersion {
         MV_Unknown = 0x0000,
 
-        //version
+        /* version */
         MV_9 = 0x0001,
         MV_10_0 = 0x0002,
         MV_10_1 = 0x0003,
@@ -995,7 +997,7 @@ public:
         MV_10_3 = 0x0005,
         MV_10_4 = 0x0006,
 
-        //codenames
+        /* codenames */
         MV_CHEETAH = MV_10_0,
         MV_PUMA = MV_10_1,
         MV_JAGUAR = MV_10_2,
@@ -1038,7 +1040,7 @@ inline QT3_SUPPORT int qWinVersion() { return QSysInfo::WindowsVersion; }
 #define QT_WA(uni, ansi) ansi
 #define QT_WA_INLINE(uni, ansi) ansi
 #endif
-#endif // Q_WS_WIN
+#endif /* Q_WS_WIN */
 
 #ifndef Q_OUTOFLINE_TEMPLATE
 #  define Q_OUTOFLINE_TEMPLATE
@@ -1051,9 +1053,10 @@ inline QT3_SUPPORT int qWinVersion() { return QSysInfo::WindowsVersion; }
 #  define Q_TYPENAME typename
 #endif
 
-//
-// Use to avoid "unused parameter" warnings
-//
+/*
+   Avoid "unused parameter" warnings
+*/
+
 #if defined(Q_CC_INTEL)
 template <typename T>
 inline void qUnused(T &x) { (void)x; }
@@ -1062,9 +1065,9 @@ inline void qUnused(T &x) { (void)x; }
 #  define Q_UNUSED(x) (void)x;
 #endif
 
-//
-// Debugging and error handling
-//
+/*
+   Debugging and error handling
+*/
 
 #if !defined(QT_NO_DEBUG) && !defined(QT_DEBUG)
 #  define QT_DEBUG
@@ -1074,13 +1077,13 @@ inline void qUnused(T &x) { (void)x; }
 #  define qPrintable(string) (string).toLocal8Bit().constData()
 #endif
 
-Q_CORE_EXPORT void qDebug(const char *, ...) // print debug message
+Q_CORE_EXPORT void qDebug(const char *, ...) /* print debug message */
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_CORE_EXPORT void qWarning(const char *, ...) // print warning message
+Q_CORE_EXPORT void qWarning(const char *, ...) /* print warning message */
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -1088,12 +1091,12 @@ Q_CORE_EXPORT void qWarning(const char *, ...) // print warning message
 
 class QString;
 Q_CORE_EXPORT QString qt_error_string(int errorCode = -1);
-Q_CORE_EXPORT void qCritical(const char *, ...) // print critical message
+Q_CORE_EXPORT void qCritical(const char *, ...) /* print critical message */
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
-Q_CORE_EXPORT void qFatal(const char *, ...) // print fatal message and exit
+Q_CORE_EXPORT void qFatal(const char *, ...) /* print fatal message and exit */
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -1101,7 +1104,7 @@ Q_CORE_EXPORT void qFatal(const char *, ...) // print fatal message and exit
 
 #ifdef QT3_SUPPORT
 Q_CORE_EXPORT QT3_SUPPORT void qSystemWarning(const char *msg, int code = -1);
-#endif // QT3_SUPPORT
+#endif /* QT3_SUPPORT */
 Q_CORE_EXPORT void qErrnoWarning(int code, const char *msg, ...);
 Q_CORE_EXPORT void qErrnoWarning(const char *msg, ...);
 
@@ -1262,13 +1265,14 @@ static inline bool qFuzzyCompare(float p1, float p2)
 }
 
 /*
- compilers which follow outdated template instantiation rules
- require a class to have a comparison operator to exist when
- a QList of this type is instantiated. It's not actually
- used in the list, though. Hence the dummy implementation.
- Just in case other code relies on it we better trigger a warning
- mandating a real implementation.
+   Compilers which follow outdated template instantiation rules
+   require a class to have a comparison operator to exist when
+   a QList of this type is instantiated. It's not actually
+   used in the list, though. Hence the dummy implementation.
+   Just in case other code relies on it we better trigger a warning
+   mandating a real implementation.
 */
+
 #ifdef Q_FULL_TEMPLATE_INSTANTIATION
 #  define Q_DUMMY_COMPARISON_OPERATOR(C) \
     bool operator==(const C&) const { \
@@ -1281,8 +1285,8 @@ static inline bool qFuzzyCompare(float p1, float p2)
 
 
 /*
-  QTypeInfo     - type trait functionality
-  qIsDetached   - data sharing functionality
+   QTypeInfo     - type trait functionality
+   qIsDetached   - data sharing functionality
 */
 
 #ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
@@ -1290,6 +1294,7 @@ static inline bool qFuzzyCompare(float p1, float p2)
 /*
   The catch-all template.
 */
+
 template <typename T> inline bool qIsDetached(T &) { return true; }
 
 template <typename T>
@@ -1338,18 +1343,17 @@ public:
     };
 };
 
-#endif // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
-
+#endif /* QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION */
 
 /*
-  Specialize a specific type with:
+   Specialize a specific type with:
 
-    Q_DECLARE_TYPEINFO(type, flags);
+     Q_DECLARE_TYPEINFO(type, flags);
 
-  where 'type' is the name of the type to specialize and 'flags' is
-  logically-OR'ed combination of the flags below.
+   where 'type' is the name of the type to specialize and 'flags' is
+   logically-OR'ed combination of the flags below.
 */
-enum { // TYPEINFO flags
+enum { /* TYPEINFO flags */
     Q_COMPLEX_TYPE = 0,
     Q_PRIMITIVE_TYPE = 0x1,
     Q_STATIC_TYPE = 0,
@@ -1373,19 +1377,19 @@ public: \
 }
 
 /*
-  Specialize a shared type with:
+   Specialize a shared type with:
 
-    Q_DECLARE_SHARED(type);
+     Q_DECLARE_SHARED(type);
 
-  where 'type' is the name of the type to specialize.  NOTE: shared
-  types must declare a 'bool isDetached(void) const;' member for this
-  to work.
+   where 'type' is the name of the type to specialize.  NOTE: shared
+   types must declare a 'bool isDetached(void) const;' member for this
+   to work.
 */
 #define Q_DECLARE_SHARED(TYPE) \
 template <> inline bool qIsDetached<TYPE>(TYPE &t) { return t.isDetached(); }
 
 /*
-  QTypeInfo primitive specializations
+   QTypeInfo primitive specializations
 */
 Q_DECLARE_TYPEINFO(bool, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(char, Q_PRIMITIVE_TYPE);
@@ -1417,29 +1421,28 @@ Q_CORE_EXPORT void *qMemSet(void *dest, int c, size_t n);
 
 
 /*
-    Avoid some particularly useless warnings from some stupid compilers.
-    To get ALL C++ compiler warnings, define QT_CC_WARNINGS or comment out
-    the line "#define QT_NO_WARNINGS".
+   Avoid some particularly useless warnings from some stupid compilers.
+   To get ALL C++ compiler warnings, define QT_CC_WARNINGS or comment out
+   the line "#define QT_NO_WARNINGS".
 */
-
 #if !defined(QT_CC_WARNINGS)
 #  define QT_NO_WARNINGS
 #endif
 #if defined(QT_NO_WARNINGS)
 #  if defined(Q_CC_MSVC)
-#    pragma warning(disable: 4251) // class 'A' needs to have dll interface for to be used by clients of class 'B'.
-#    pragma warning(disable: 4244) // 'conversion' conversion from 'type1' to 'type2', possible loss of data
-#    pragma warning(disable: 4275) // non - DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier'
-#    pragma warning(disable: 4514) // unreferenced inline/local function has been removed
-#    pragma warning(disable: 4800) // 'type' : forcing value to bool 'true' or 'false' (performance warning)
-#    pragma warning(disable: 4097) // typedef-name 'identifier1' used as synonym for class-name 'identifier2'
-#    pragma warning(disable: 4706) // assignment within conditional expression
-#    pragma warning(disable: 4786) // truncating debug info after 255 characters
-#    pragma warning(disable: 4660) // template-class specialization 'identifier' is already instantiated
-#    pragma warning(disable: 4355) // 'this' : used in base member initializer list
-#    pragma warning(disable: 4231) // nonstandard extension used : 'extern' before template explicit instantiation
-#    pragma warning(disable: 4710) // function not inlined
-#    pragma warning(disable: 4530) // C++ exception handler used, but unwind semantics are not enabled. Specify -GX
+#    pragma warning(disable: 4251) /* class 'A' needs to have dll interface for to be used by clients of class 'B'. */
+#    pragma warning(disable: 4244) /* 'conversion' conversion from 'type1' to 'type2', possible loss of data */
+#    pragma warning(disable: 4275) /* non - DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier' */
+#    pragma warning(disable: 4514) /* unreferenced inline/local function has been removed */
+#    pragma warning(disable: 4800) /* 'type' : forcing value to bool 'true' or 'false' (performance warning) */
+#    pragma warning(disable: 4097) /* typedef-name 'identifier1' used as synonym for class-name 'identifier2' */
+#    pragma warning(disable: 4706) /* assignment within conditional expression */
+#    pragma warning(disable: 4786) /* truncating debug info after 255 characters */
+#    pragma warning(disable: 4660) /* template-class specialization 'identifier' is already instantiated */
+#    pragma warning(disable: 4355) /* 'this' : used in base member initializer list */
+#    pragma warning(disable: 4231) /* nonstandard extension used : 'extern' before template explicit instantiation */
+#    pragma warning(disable: 4710) /* function not inlined */
+#    pragma warning(disable: 4530) /* C++ exception handler used, but unwind semantics are not enabled. Specify -GX */
 #  elif defined(Q_CC_BOR)
 #    pragma option -w-inl
 #    pragma option -w-aus
@@ -1461,8 +1464,6 @@ public:
 
 inline QFlag::QFlag(int ai) : i(ai) {}
 
-
-//#define Q_NO_TYPESAFE_FLAGS
 
 #ifndef Q_NO_TYPESAFE_FLAGS
 
@@ -1509,16 +1510,16 @@ inline QFlags<Flags::enum_type> operator|(Flags::enum_type f1, Flags::enum_type 
 inline QFlags<Flags::enum_type> operator|(Flags::enum_type f1, QFlags<Flags::enum_type> f2) \
 { return f2 | f1; }
 
-#else // Q_NO_TYPESAFE_FLAGS
+#else /* Q_NO_TYPESAFE_FLAGS */
 
 #define Q_DECLARE_FLAGS(Flags, Enum)\
 typedef uint Flags;
 #define Q_DECLARE_OPERATORS_FOR_FLAGS(Flags)
 
-#endif // Q_NO_TYPESAFE_FLAGS
+#endif /* Q_NO_TYPESAFE_FLAGS */
 
 #if defined(Q_CC_GNU) && !defined(Q_CC_INTEL)
-// make use of typeof-extension
+/* make use of typeof-extension */
 template <typename T>
 class QForeachContainer {
 public:
@@ -1578,7 +1579,7 @@ inline const QForeachContainer<T> *qForeachContainer(const QForeachContainerBase
 #endif
 
 #if 0
-// tell gcc to use its built-in methods for some common functions
+/* tell gcc to use its built-in methods for some common functions */
 #if defined(QT_NO_DEBUG) && defined(Q_CC_GNU)
 #  define qMemCopy __builtin_memcpy
 #  define qMemSet __builtin_memset
@@ -1623,9 +1624,9 @@ inline int qIntCast(double f) { return int(f); }
 inline int qIntCast(float f) { return int(f); }
 
 
-//
-// Compat functions that were generated by configure
-//
+/*
+   Compat functions that were generated by configure
+*/
 #ifdef QT3_SUPPORT
 #ifndef QT_PRODUCT_LICENSEE
 #  define QT_PRODUCT_LICENSEE QLibraryInfo::licensee()
@@ -1645,11 +1646,11 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 #endif
 
 /*
-  This gives us the possibility to check which modules the user can
-  use. These are purely compile time checks and will generate no code.
+   This gives us the possibility to check which modules the user can
+   use. These are purely compile time checks and will generate no code.
 */
 
-// Qt modules
+/* Qt modules */
 #define QT_MODULE_CORE                  0x001
 #define QT_MODULE_GUI                   0x002
 #define QT_MODULE_NETWORK               0x004
@@ -1660,7 +1661,7 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 #define QT_MODULE_QT3SUPPORT            0x080
 #define QT_MODULE_SVG                   0x100
 
-// Qt editions
+/* Qt editions */
 #define QT_EDITION_CONSOLE      (QT_MODULE_CORE \
                                  | QT_MODULE_NETWORK \
                                  | QT_MODULE_SQL \
@@ -1683,7 +1684,7 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 #define QT_EDITION_EVALUATION   QT_EDITION_DESKTOP
 #define QT_EDITION_OPENSOURCE   QT_EDITION_DESKTOP
 
-// Determine which modules can be used
+/* Determine which modules can be used */
 #ifndef QT_EDITION
 #  ifdef QT_BUILD_QMAKE
 #    define QT_EDITION QT_EDITION_DESKTOP
