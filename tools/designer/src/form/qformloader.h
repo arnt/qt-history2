@@ -17,6 +17,9 @@
 #include <QtCore/QObject>
 
 class QWidget;
+class QLayout;
+class QAction;
+class QActionGroup;
 class QString;
 class QIODevice;
 
@@ -36,9 +39,12 @@ public:
     void addPluginPath(const QString &path);
 
     QWidget *load(QIODevice *device, QWidget *parentWidget = 0);
+    QStringList availableWidgets() const;
 
     virtual QWidget *createWidget(const QString &className, QWidget *parent = 0);
-    QStringList availableWidgets() const;
+    virtual QLayout *createLayout(const QString &className, QObject *parent = 0);
+    virtual QActionGroup *createActionGroup(QObject *parent = 0);
+    virtual QAction *createAction(QObject *parent = 0);
 
 private:
     Q_DECLARE_PRIVATE(Loader)
