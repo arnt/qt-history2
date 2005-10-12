@@ -87,17 +87,17 @@ public:
 private:
     Q_DECLARE_PRIVATE(QSocks5SocketEngine)
     Q_DISABLE_COPY(QSocks5SocketEngine)
-    Q_PRIVATE_SLOT(d_func(), void controlSocketConnected());
-    Q_PRIVATE_SLOT(d_func(), void controlSocketReadNotification());
-    Q_PRIVATE_SLOT(d_func(), void controlSocketError(QAbstractSocket::SocketError));
+    Q_PRIVATE_SLOT(d_func(), void controlSocketConnected())
+    Q_PRIVATE_SLOT(d_func(), void controlSocketReadNotification())
+    Q_PRIVATE_SLOT(d_func(), void controlSocketError(QAbstractSocket::SocketError))
 #ifndef QT_NO_UDPSOCKET
-    Q_PRIVATE_SLOT(d_func(), void udpSocketReadNotification());
+    Q_PRIVATE_SLOT(d_func(), void udpSocketReadNotification())
 #endif
-    Q_PRIVATE_SLOT(d_func(), void controlSocketBytesWritten());
-    Q_PRIVATE_SLOT(d_func(), void emitPendingReadNotification());
-    Q_PRIVATE_SLOT(d_func(), void emitPendingWriteNotification());
-    Q_PRIVATE_SLOT(d_func(), void controlSocketDisconnected());
-    Q_PRIVATE_SLOT(d_func(), void controlSocketStateChanged(QAbstractSocket::SocketState));
+    Q_PRIVATE_SLOT(d_func(), void controlSocketBytesWritten())
+    Q_PRIVATE_SLOT(d_func(), void emitPendingReadNotification())
+    Q_PRIVATE_SLOT(d_func(), void emitPendingWriteNotification())
+    Q_PRIVATE_SLOT(d_func(), void controlSocketDisconnected())
+    Q_PRIVATE_SLOT(d_func(), void controlSocketStateChanged(QAbstractSocket::SocketState))
 
 };
 
