@@ -21,24 +21,24 @@ int main(int argc, char *argv[])
     
     QFile file(":/default.txt");
     file.open(QIODevice::ReadOnly);
-    TreeModel *model = new TreeModel(file.readAll());
+    TreeModel model(file.readAll());
     file.close();
 
-    QTreeView *unsortedView = new QTreeView;
-    unsortedView->setModel(model);
-    unsortedView->setWindowTitle("Unsorted Data");
-    unsortedView->show();
+    QTreeView unsortedView;
+    unsortedView.setModel(&model);
+    unsortedView.setWindowTitle("Unsorted Data");
+    unsortedView.show();
 
-    QSortingProxyModel *sortingModel = new QSortingProxyModel;
-    sortingModel->setSourceModel(model);
+    QSortingProxyModel sortingModel;
+    sortingModel.setSourceModel(&model);
 
-    QTreeView *sortedView = new QTreeView;
-    sortedView->setModel(sortingModel);
-    sortedView->setWindowTitle("Sorted Data");
-    sortedView->header()->setSortIndicator(1, Qt::AscendingOrder);
-    sortedView->header()->setSortIndicatorShown(true);
-    sortedView->header()->setClickable(true);
-    sortedView->show();
+    QTreeView sortedView;
+    sortedView.setModel(&sortingModel);
+    sortedView.setWindowTitle("Sorted Data");
+    sortedView.header()->setSortIndicator(1, Qt::AscendingOrder);
+    sortedView.header()->setSortIndicatorShown(true);
+    sortedView.header()->setClickable(true);
+    sortedView.show();
 
     return app.exec();
 }
