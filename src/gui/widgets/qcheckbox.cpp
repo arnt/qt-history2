@@ -123,7 +123,7 @@ QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
         opt.state |= QStyle::State_NoChange;
     else
         opt.state |= checked ? QStyle::State_On : QStyle::State_Off;
-    if (q->underMouse()) {
+    if (q->testAttribute(Qt::WA_Hover) &&  q->underMouse()) {
         if (hovering) 
             opt.state |= QStyle::State_MouseOver;
         else
@@ -242,13 +242,15 @@ void QCheckBox::paintEvent(QPaintEvent *)
 void QCheckBox::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QCheckBox);
-    bool hit = false;
-    if (underMouse())
-        hit = hitButton(e->pos());
+    if (testAttribute(Qt::WA_Hover)) {
+        bool hit = false;
+        if (underMouse())
+            hit = hitButton(e->pos());
 
-    if (hit != d->hovering) {
-        update(rect());
-        d->hovering = hit;
+        if (hit != d->hovering) {
+            update(rect());
+            d->hovering = hit;
+        }
     }
 
     QAbstractButton::mouseMoveEvent(e);

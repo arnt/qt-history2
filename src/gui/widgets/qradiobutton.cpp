@@ -117,7 +117,7 @@ static QStyleOptionButton getStyleOption(const QRadioButton *btn, bool hitButton
     if (btn->isDown())
         opt.state |= QStyle::State_Sunken;
     opt.state |= (btn->isChecked() ? QStyle::State_On : QStyle::State_Off);
-    if (btn->underMouse()) {
+    if (btn->testAttribute(Qt::WA_Hover) && btn->underMouse()) {
         if (hitButton)
             opt.state |= QStyle::State_MouseOver;
         else
@@ -156,13 +156,15 @@ bool QRadioButton::hitButton(const QPoint &pos) const
 void QRadioButton::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QRadioButton);
-    bool hit = false;
-    if (underMouse())
-        hit = hitButton(e->pos());
-
-    if (hit != d->hovering) {
-        update(rect());
-        d->hovering = hit;
+    if (testAttribute(Qt::WA_Hover)) {
+        bool hit = false;
+        if (underMouse())
+            hit = hitButton(e->pos());
+        
+        if (hit != d->hovering) {
+            update();
+            d->hovering = hit;
+        }
     }
 
     QAbstractButton::mouseMoveEvent(e);
