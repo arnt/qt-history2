@@ -298,23 +298,11 @@ void TorrentClient::setDumpedState(const QByteArray &dumpedState)
     while (!stream.atEnd()) {
         int index;
         int length;
-        QBitArray bits;
-        stream >> index >> length >> bits;
+        QBitArray completed;
+        stream >> index >> length >> completed;
         if (stream.status() != QDataStream::Ok) {
             d->completedPieces.clear();
             break;
-        }
-
-        // ### it should be enough the read the QBitArray, but the
-        // ### size is sometimes wrong then.
-        int size = length / BlockSize;
-        if (length % BlockSize)
-            ++size;
-        QBitArray completed(size);
-        int bitsSize = bits.size();
-        for (int i = 0; i < bitsSize; ++i) {
-            if (bits.testBit(i))
-                completed.setBit(i);
         }
 
         TorrentPiece *piece = new TorrentPiece;

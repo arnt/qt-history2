@@ -172,15 +172,12 @@ void PeerWireClient::sendPieceList(const QBitArray &bitField)
     if (!sentHandShake)
         sendHandShake();
 
-    // Don't send the bit field unless we have pieces.
-    int bitFieldSize = bitField.size();
-    if (bitFieldSize == 0)
-        return;
+    // Don't send the bitfield if it's all zeros.
+    if (bitField.count(true) == 0)
+	return;
 
-    // ### Can't we simply use bitField.data()? ;-)
-    int size = bitFieldSize / 8;
-    if (bitFieldSize % 8)
-        ++size;
+    int bitFieldSize = bitField.size();
+    int size = (bitFieldSize + 7) / 8;
     QByteArray bits(size, '\0');
     for (int i = 0; i < bitFieldSize; ++i) {
         if (bitField.testBit(i)) {
@@ -191,7 +188,7 @@ void PeerWireClient::sendPieceList(const QBitArray &bitField)
     }
 
     char message[] = {0, 0, 0, 1, 5};
-    toNetworkData(1 + bits.size(), &message[0]);
+    toNetworkData(bits.size() + 1, &message[0]);
     write(message, sizeof(message));
     write(bits);
 }
