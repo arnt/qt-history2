@@ -256,6 +256,15 @@ void MingwMakefileGenerator::writeLibsPart(QTextStream &t)
     }
 }
 
+QString MingwMakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
+{
+    QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out);
+
+    ret.replace("${OBJECTS_DIR}",  project->first("OBJECTS_DIR"));
+    return ret;
+}
+
+
 void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
 {
     if (project->variables()["OBJECTS"].count() < var("QMAKE_LINK_OBJECT_MAX").toInt()) {

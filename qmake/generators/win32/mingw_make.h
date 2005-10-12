@@ -30,6 +30,7 @@ private:
     void writeRcFilePart(QTextStream &t);
     void init();
     void processPrlVariable(const QString &var, const QStringList &l);
+    QString replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out);
 
     QStringList &findDependencies(const QString &file);
     
