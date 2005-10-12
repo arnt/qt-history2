@@ -14,7 +14,10 @@
 #ifndef QTRANSPORTAUTH_QWS_P_H
 #define QTRANSPORTAUTH_QWS_P_H
 
+#include "qtransportauth_qws.h"
 #include "qbuffer.h"
+
+#ifndef QT_NO_QWS_MULTIPROCESS
 
 /**
   \internal
@@ -57,5 +60,6 @@ private:
     QWSClient *m_client;
 };
 
-#endif
+#endif // QT_NO_QWS_MULTIPROCESS
+#endif // QTRANSPORTAUTH_QWS_P_H
 
