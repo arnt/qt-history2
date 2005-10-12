@@ -678,8 +678,9 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
         painter.fillRect(0, 0, img.width(), img.height(), color);
         painter.end();
 
-        pm = new QPixmap(QPixmap::fromImage(img));
-        QPixmapCache::insert(key, *pm);
+        QPixmap selected = QPixmap(QPixmap::fromImage(img));
+        QPixmapCache::insert(key, selected);
+        pm = QPixmapCache::find(key);
     }
     return pm;
 }
