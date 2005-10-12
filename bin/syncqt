@@ -135,6 +135,8 @@ sub classNames {
     my ($iheader) = @_;
     if(basename($iheader) eq "qglobal.h") {
 	push @ret, "QtGlobal";
+    } elsif(basename($iheader) eq "qendian.h") {
+	push @ret, "QtEndian";
     } elsif(basename($iheader) eq "qconfig.h") {
         push @ret, "QtConfig";
     } elsif(basename($iheader) eq "qplugin.h") {
