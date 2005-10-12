@@ -1828,7 +1828,6 @@ void qt_init(QApplicationPrivate *priv, int,
 #endif // QT_NO_TABLET
 
         X11->startupId = getenv("DESKTOP_STARTUP_ID");
-        // On linux this "leaks" memory because putenv makes a copy while solaris (and others?) alias
         putenv(strdup("DESKTOP_STARTUP_ID="));
 
     } else {
