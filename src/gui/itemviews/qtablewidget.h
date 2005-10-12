@@ -15,12 +15,12 @@
 #define QTABLEWIDGET_H
 
 #include <QtGui/qtableview.h>
-
-#ifndef QT_NO_TABLEWIDGET
 #include <QtCore/qvariant.h>
 #include <QtCore/qvector.h>
 
 QT_MODULE(Gui)
+
+#ifndef QT_NO_TABLEWIDGET
 
 class Q_GUI_EXPORT QTableWidgetSelectionRange
 {
