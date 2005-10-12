@@ -52,11 +52,11 @@ static bool use2000style = true;
 
 enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 
-/* 
+/*
     \internal
 */
 QWindowsStylePrivate::QWindowsStylePrivate()
-    : alt_down(false), menuBarTimer(0), animationFps(10), animateTimer(0), animateStep(0) 
+    : alt_down(false), menuBarTimer(0), animationFps(10), animateTimer(0), animateStep(0)
 {
 }
 
@@ -200,7 +200,6 @@ QWindowsStyle::~QWindowsStyle()
 /*! \reimp */
 void QWindowsStyle::polish(QApplication *app)
 {
-    Q_D(QWindowsStyle);
     // We only need the overhead when shortcuts are sometimes hidden
     if (!styleHint(SH_UnderlineShortcut, 0) && app)
         app->installEventFilter(this);
@@ -338,7 +337,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
 
     case PM_ToolBarIconSize:
         ret = 24;
-        break; 
+        break;
 
 #endif // QT_NO_MENU
 
@@ -997,7 +996,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         bool stippled;
         bool panel = (pe == PE_PanelButtonTool);
         if ((!(opt->state & State_Sunken ))
-            && (!(opt->state & State_Enabled) 
+            && (!(opt->state & State_Enabled)
                 || ((opt->state & State_Enabled ) && !(opt->state & State_MouseOver)))
             && (opt->state & State_On) && use2000style) {
             fill = QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
@@ -2029,11 +2028,11 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 QRect clip = rect;
                 clip.setLeft(clip.left() + margin);
                 clip.setRight(clip.right() - margin);
-                QRegion intersection = prevClip.intersect(clip);     
-                
+                QRegion intersection = prevClip.intersect(clip);
+
                 int x0 = reverse ? rect.right() - unit_width*(step) - unit_width  : margin + unit_width * step;
                 int x = 0;
-            
+
                 //Make sure the cliprect is also rotated if vertical
                 if(vertical)clip = m.mapRect(clip);
 
@@ -2047,7 +2046,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     x += reverse ? -unit_width : unit_width;
                 }
                 //Draw wrap-around chunks
-                if( step > chunkCount-5){ 
+                if( step > chunkCount-5){
                     x0 = reverse ? rect.right() - unit_width : margin ;
                     x = 0;
                     int chunksToDraw = step - (chunkCount - chunksInRow);
@@ -2059,7 +2058,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     }
                 }
                 p->setClipRegion(prevClip); //restore state
-            } 
+            }
             else {
                 QCommonStyle::drawControl(ce, opt, p, widget);
             }

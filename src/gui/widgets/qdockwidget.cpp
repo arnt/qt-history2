@@ -245,7 +245,7 @@ void QDockWidgetPrivate::updateButtons()
     if (anyButton) {
         QStyleOptionDockWidget opt = getStyleOption();
         if (floatButton)
-            floatButton->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarMaxButton, &opt, q));
+            floatButton->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarNormalButton, &opt, q));
         if (closeButton)
             closeButton->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarCloseButton, &opt, q));
     }
