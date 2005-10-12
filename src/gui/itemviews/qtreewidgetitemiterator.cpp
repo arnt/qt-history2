@@ -14,6 +14,7 @@
 #include "qtreewidgetitemiterator.h"
 #include "qtreewidget.h"
 #include "qtreewidget_p.h"
+#include "qwidgetitemdata_p.h"
 
 #ifndef QT_NO_TREEWIDGET
 
