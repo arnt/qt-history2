@@ -16,6 +16,8 @@
 
 #include <QtGui/qmappingproxymodel.h>
 
+QT_MODULE(Gui)
+
 class QFilteringProxyModelPrivate;
 
 class Q_GUI_EXPORT QFilteringProxyModel : public QMappingProxyModel

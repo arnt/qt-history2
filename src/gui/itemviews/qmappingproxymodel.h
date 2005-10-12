@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractproxymodel.h>
 
+QT_MODULE(Gui)
+
 class QMappingProxyModelPrivate;
 
 class Q_GUI_EXPORT QMappingProxyModel : public QAbstractProxyModel

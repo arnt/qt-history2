@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_TREEWIDGET
 
 class QTreeWidget;

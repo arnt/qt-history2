@@ -16,6 +16,8 @@
 
 #include <QtCore/qabstractitemmodel.h>
 
+QT_MODULE(Gui)
+
 class QAbstractProxyModelPrivate;
 
 class Q_GUI_EXPORT QAbstractProxyModel : public QAbstractItemModel

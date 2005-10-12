@@ -17,6 +17,8 @@
 #include <QtCore/qregexp.h>
 #include <QtGui/qfilteringproxymodel.h>
 
+QT_MODULE(Gui)
+
 class QStringFilterModelPrivate;
 
 class Q_GUI_EXPORT QStringFilterModel : public QFilteringProxyModel
