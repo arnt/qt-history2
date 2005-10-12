@@ -277,14 +277,23 @@ bool QGroupBox::event(QEvent *e)
         QStyle::SubControl control = style()->hitTestComplexControl(QStyle::CC_GroupBox, &box,
                                                                     static_cast<QHoverEvent *>(e)->pos(),
                                                                     this);
-        d->hover = (control == QStyle::SC_GroupBoxLabel || control == QStyle::SC_GroupBoxCheckBox);
-        update();
-        break;
+        bool oldHover = d->hover;        
+        d->hover = d->checkable && (control == QStyle::SC_GroupBoxLabel || control == QStyle::SC_GroupBoxCheckBox);
+        if (oldHover != d->hover) {
+            QRect rect = style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxCheckBox, this)
+                         | style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxLabel, this);
+            update(rect);
+        }
+        return true;
     }
     case QEvent::HoverLeave:
         d->hover = false;
-        update();
-        break;
+        if (d->checkable) {
+            QRect rect = style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxCheckBox, this)
+                         | style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxLabel, this);
+            update(rect);
+        }
+        return true;
     default:
         break;
     }
@@ -554,7 +563,8 @@ void QGroupBox::mousePressEvent(QMouseEvent *event)
     QStyleOptionGroupBox box = d->getStyleOption();
     d->pressedControl = style()->hitTestComplexControl(QStyle::CC_GroupBox, &box,
                                                        event->pos(), this);
-    update();
+    if (d->pressedControl == QStyle::SC_GroupBoxCheckBox)
+        update(style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxCheckBox, this));
 }
 
 /*! \reimp */
@@ -564,10 +574,8 @@ void QGroupBox::mouseMoveEvent(QMouseEvent *event)
     QStyleOptionGroupBox box = d->getStyleOption();
     QStyle::SubControl pressed = style()->hitTestComplexControl(QStyle::CC_GroupBox, &box,
                                                                 event->pos(), this);
-    if (d->pressedControl != pressed) {
-        d->pressedControl = pressed;
-        update();
-    }
+    if (d->pressedControl == QStyle::SC_GroupBoxCheckBox && d->pressedControl != pressed)
+        update(style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxCheckBox, this));
 }
 
 /*! \reimp */

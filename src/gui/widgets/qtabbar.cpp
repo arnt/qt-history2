@@ -1023,10 +1023,12 @@ bool QTabBar::event(QEvent *e)
                 update(oldHoverRect);
             update(d->hoverRect);
         }
+        return true;
     } else if (e->type() == QEvent::HoverLeave ) {
         QRect oldHoverRect = d->hoverRect;
         d->hoverRect = QRect();
         update(oldHoverRect);
+        return true;
 #ifndef QT_NO_TOOLTIP
     } else if (e->type() == QEvent::ToolTip) {
         if (const QTabBarPrivate::Tab *tab = d->at(d->indexAtPos(static_cast<QHelpEvent*>(e)->pos()))) {
