@@ -344,8 +344,21 @@ QString Launcher::readExampleDescription(const QDomNode &parentNode) const
     while (!node.isNull()) {
         if (node.isText())
             description += node.nodeValue();
-        else if (node.hasChildNodes())
+        else if (node.hasChildNodes()) {
+            if (node.nodeName() == "b")
+                description += "<b>";
+            else if (node.nodeName() == "a")
+                description += "<font color=\"blue\">";
+            else if (node.nodeName() == "i")
+                description += "<i>";
             description += readExampleDescription(node);
+            if (node.nodeName() == "b")
+                description += "</b>";
+            else if (node.nodeName() == "a")
+                description += "</font>";
+            else if (node.nodeName() == "i")
+                description += "</i>";
+        }
 
         node = node.nextSibling();
     }
