@@ -550,6 +550,15 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model)
 }
 
 /*!
+  Constructs a selection model that operates on the specified item \a model with \a parent.
+*/
+QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *parent)
+    : QObject(*new QItemSelectionModelPrivate, parent)
+{
+    d_func()->model = model;
+}
+
+/*!
   \internal
 */
 QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model)

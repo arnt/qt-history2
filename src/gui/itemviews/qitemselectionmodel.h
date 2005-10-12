@@ -106,6 +106,7 @@ public:
     Q_DECLARE_FLAGS(SelectionFlags, SelectionFlag)
 
     explicit QItemSelectionModel(QAbstractItemModel *model);
+    explicit QItemSelectionModel(QAbstractItemModel *model, QObject *parent);
     virtual ~QItemSelectionModel();
 
     QModelIndex currentIndex() const;
