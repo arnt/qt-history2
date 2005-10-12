@@ -3603,7 +3603,7 @@ void QUrl::setEncodedUrl(const QByteArray &encodedUrl, ParsingMode parsingMode)
         copy = tmp;
         tmp.clear();
         for (int i = 0; i < copy.size(); ++i) {
-            if (quint8(copy.at(i)) > 127) {
+            if (quint8(copy.at(i)) < 32 || quint8(copy.at(i)) > 127) {
                 char buf[4];
                 ::snprintf(buf, sizeof(buf), "%%%02hhX", quint8(copy.at(i)));
                 buf[3] = '\0';
