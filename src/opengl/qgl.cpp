@@ -1229,7 +1229,7 @@ static void qt_gl_image_cleanup(int serial)
 }
 
 
-QImage QGLContextPrivate::convertToGL_BGRA(const QImage &image)
+QImage QGLContextPrivate::convertToBGRA(const QImage &image)
 {
     QImage img = image;
     if (image.format() != QImage::Format_ARGB32)

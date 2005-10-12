@@ -633,7 +633,6 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
             poly = stroke.toFillPolygon();
         } else {
             stroker.setWidth(width);
-            stroker.setCurveThreshold( 1 / (2 * 10 * d->matrix.m11() * d->matrix.m22()));
             stroke = stroker.createStroke(path);
             if (stroke.isEmpty())
                 return;
