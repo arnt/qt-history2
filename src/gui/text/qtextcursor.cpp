@@ -1697,7 +1697,7 @@ QTextTable *QTextCursor::insertTable(int rows, int cols)
 */
 QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat &format)
 {
-    if(!d || !d->priv)
+    if(!d || !d->priv || rows == 0 || cols == 0)
         return 0;
 
     int pos = d->position;
