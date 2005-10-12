@@ -26,6 +26,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
+    ~MainWindow();
 
     bool openImage(const QString &fileName);
 

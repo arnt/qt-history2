@@ -17,7 +17,7 @@
 #include "mainwindow.h"
 #include "pixeldelegate.h"
 
-MainWindow::MainWindow()
+MainWindow::MainWindow() : QMainWindow()
 {
     currentPath = QDir::home().absolutePath();
     model = 0;
@@ -79,6 +79,11 @@ MainWindow::MainWindow()
 
     setWindowTitle(tr("Pixelator"));
     resize(640, 480);
+}
+
+MainWindow::~MainWindow()
+{
+    delete model;
 }
 
 void MainWindow::chooseImage()
