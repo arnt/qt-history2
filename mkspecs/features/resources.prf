@@ -28,5 +28,5 @@ rcc.depend_command = $$QMAKE_RCC -list $$QMAKE_RESOURCE_FLAGS ${QMAKE_FILE_IN}
 rcc.input = RESOURCES
 rcc.variable_out = SOURCES
 rcc.name = RCC ${QMAKE_FILE_IN}
-unix:silent:rcc.commands = @echo rcc ${QMAKE_FILE_IN} && $$rcc.commands
+silent:rcc.commands = @echo rcc ${QMAKE_FILE_IN} && $$rcc.commands
 QMAKE_EXTRA_COMPILERS += rcc

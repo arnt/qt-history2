@@ -29,7 +29,7 @@ isEmpty(UI_HEADERS_DIR):UI_HEADERS_DIR = $$UI_DIR
     uic.variable_out = GENERATED_FILES
     uic.CONFIG += no_link
     uic.name = UIC ${QMAKE_FILE_IN}
-    unix:silent:uic.commands = @echo uic ${QMAKE_FILE_IN} && $$uic.commands
+    silent:uic.commands = @echo uic ${QMAKE_FILE_IN} && $$uic.commands
     QMAKE_EXTRA_COMPILERS += uic
 }
 
@@ -50,7 +50,7 @@ uic3 {
     uic3_decl.CONFIG += no_link
     uic3_decl.variable_out = GENERATED_FILES UIC3_HEADERS
     uic3_decl.name = UIC3 Decl ${QMAKE_FILE_IN}
-    unix:silent:uic3_decl.commands = @echo uic3 ${QMAKE_FILE_IN} && $$uic3_decl.commands
+    silent:uic3_decl.commands = @echo uic3 ${QMAKE_FILE_IN} && $$uic3_decl.commands
     QMAKE_EXTRA_COMPILERS += uic3_decl
 
     uic3_impl.commands = $$QMAKE_UIC3 -impl ${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)} ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
@@ -60,7 +60,7 @@ uic3 {
     uic3_impl.input = $$UIC3_FORMS
     uic3_impl.variable_out = GENERATED_SOURCES
     uic3_impl.name = UIC3 Impl ${QMAKE_FILE_IN}
-    unix:silent:uic3_impl.commands = @echo uic3 -impl ${QMAKE_FILE_IN} && $$uic3_impl.commands
+    silent:uic3_impl.commands = @echo uic3 -impl ${QMAKE_FILE_IN} && $$uic3_impl.commands
     QMAKE_EXTRA_COMPILERS += uic3_impl
 
     ### add a moc step
@@ -80,7 +80,7 @@ image_collection.input = IMAGES
 image_collection.CONFIG += combine
 image_collection.name = UIC3 Image collection in ${QMAKE_FILE_OUT}
 image_collection.commands = $$QMAKE_UIC3 -embed $$TARGET ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-unix:silent:image_collection.commands = @echo uic3 -embed ${QMAKE_FILE_IN} && $$image_collection.commands
+silent:image_collection.commands = @echo uic3 -embed ${QMAKE_FILE_IN} && $$image_collection.commands
 QMAKE_EXTRA_COMPILERS += image_collection
 
 

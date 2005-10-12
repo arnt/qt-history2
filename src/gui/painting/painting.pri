@@ -126,7 +126,7 @@ mac {
     sse_compiler.CONFIG += no_link
     sse_compiler.variable_out = OBJECTS
     sse_compiler.name = compiling[sse]  ${QMAKE_FILE_IN}
-    unix:silent:sse_compiler.commands = @echo compiling[sse] ${QMAKE_FILE_IN} && $$sse_compiler.commands
+    silent:sse_compiler.commands = @echo compiling[sse] ${QMAKE_FILE_IN} && $$sse_compiler.commands
     QMAKE_EXTRA_COMPILERS += sse_compiler
     DEFINES += QT_HAVE_SSE
 
