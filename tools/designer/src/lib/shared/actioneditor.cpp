@@ -134,8 +134,10 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     m_actionRepository = new ActionRepository(splitter);
     splitter->addWidget(m_actionRepository);
 
-    connect(m_actionRepository, SIGNAL(itemClicked(QListWidgetItem*)),
-        this, SLOT(slotItemChanged(QListWidgetItem*)));
+    connect(m_actionRepository, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
+            this, SLOT(slotItemChanged(QListWidgetItem*)));
+    connect(m_actionRepository, SIGNAL(itemActivated(QListWidgetItem*)),
+            this, SLOT(editAction(QListWidgetItem*)));
 }
 
 ActionEditor::~ActionEditor()
@@ -274,12 +276,7 @@ void ActionEditor::slotNewAction()
         QAction *action = new QAction(form);
         action->setObjectName(dlg.actionName());
         action->setText(dlg.actionText());
-
-        if (dlg.isMenuAction()) {
-            QMenu *menu = qobject_cast<QMenu*>(core()->widgetFactory()->createWidget("QMenu"));
-            core()->metaDataBase()->add(menu);
-            action->setMenu(menu);
-        }
+        action->setIcon(dlg.actionIcon());
 
         core()->metaDataBase()->add(action);
 
@@ -289,10 +286,30 @@ void ActionEditor::slotNewAction()
         sheet->setChanged(sheet->indexOf("text"), true);
 
         // formWindow()->emitSelectionChanged();
+        m_actionRepository->clearSelection();
         QListWidgetItem *item = createListWidgetItem(action);
         m_actionRepository->setItemSelected(item, true);
         core()->propertyEditor()->setObject(action);
     }
+}
+
+void ActionEditor::editAction(QListWidgetItem *item)
+{
+    QAction *action = qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole));
+    if (action == 0)
+        return;
+
+
+    NewActionDialog dlg(this);
+    dlg.setActionData(action->text(), action->icon());
+
+    if (!dlg.exec())
+        return;
+
+    action->setObjectName(dlg.actionName());
+    action->setText(dlg.actionText());
+    action->setIcon(dlg.actionIcon());
+    core()->propertyEditor()->setObject(action);
 }
 
 void ActionEditor::slotDeleteAction()

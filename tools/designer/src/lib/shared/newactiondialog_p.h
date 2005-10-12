@@ -29,11 +29,15 @@ public:
 
     QString actionText() const;
     QString actionName() const;
-    bool isMenuAction() const;
+    QIcon actionIcon() const;
+
+    void setActionData(const QString &text, const QIcon &icon);
 
 private slots:
     void accept();
     void on_editActionText_textChanged(const QString &text);
+    void on_iconButton_clicked();
+    void on_removeIconButton_clicked();
 
 private:
     ActionEditor *m_actionEditor;

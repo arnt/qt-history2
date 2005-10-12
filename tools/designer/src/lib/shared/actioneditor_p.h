@@ -61,6 +61,7 @@ public slots:
 
 private slots:
     void slotItemChanged(QListWidgetItem *item);
+    void editAction(QListWidgetItem *item);
     void slotActionChanged();
     void slotNewAction();
     void slotDeleteAction();

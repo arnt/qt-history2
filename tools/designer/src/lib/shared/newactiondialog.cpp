@@ -13,6 +13,10 @@
 
 #include "newactiondialog_p.h"
 #include "actioneditor_p.h"
+#include "findicondialog_p.h"
+#include <QtDesigner/abstracticoncache.h>
+#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/abstractformeditor.h>
 
 #include <QRegExp>
 
@@ -25,6 +29,17 @@ NewActionDialog::NewActionDialog(ActionEditor *parent)
     ui.setupUi(this);
     ui.editActionText->setFocus();
     ui.okButton->setEnabled(false);
+}
+
+QIcon NewActionDialog::actionIcon() const
+{
+    return ui.iconButton->icon();
+}
+
+void NewActionDialog::setActionData(const QString &text, const QIcon &icon)
+{
+    ui.editActionText->setText(text);
+    ui.iconButton->setIcon(icon);
 }
 
 NewActionDialog::~NewActionDialog()
@@ -57,14 +72,42 @@ QString NewActionDialog::actionName() const
     return name;
 }
 
-bool NewActionDialog::isMenuAction() const
-{
-    return ui.checkBoxMenuAction->isChecked();
-}
-
 void NewActionDialog::on_editActionText_textChanged(const QString &text)
 {
     ui.okButton->setEnabled(!text.isEmpty());
+}
+
+void NewActionDialog::on_iconButton_clicked()
+{
+    QDesignerFormWindowInterface *form = m_actionEditor->formWindow();
+    QDesignerFormEditorInterface *core = form->core();
+
+    QString file_path = form->absoluteDir().absolutePath();
+    QString qrc_path;
+    if (!actionIcon().isNull()) {
+        file_path = core->iconCache()->iconToFilePath(actionIcon());
+        qrc_path = core->iconCache()->iconToQrcPath(actionIcon());
+    }
+
+    FindIconDialog dialog(form, this);
+    dialog.setPaths(qrc_path, file_path);
+
+    if (!dialog.exec())
+        return;
+
+    file_path = dialog.filePath();
+    qrc_path = dialog.qrcPath();
+
+    if (file_path.isEmpty())
+        return;
+
+    QIcon icon = core->iconCache()->nameToIcon(file_path, qrc_path);
+    ui.iconButton->setIcon(icon);
+}
+
+void NewActionDialog::on_removeIconButton_clicked()
+{
+    ui.iconButton->setIcon(QIcon());
 }
 
 } // namespace qdesigner_internal
