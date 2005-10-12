@@ -3045,6 +3045,9 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
     QSize sz(contentsSize);
 
     switch (ct) {
+    case CT_Menu:
+        sz -= QSize(1,2);
+        break;
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(option))
         {
