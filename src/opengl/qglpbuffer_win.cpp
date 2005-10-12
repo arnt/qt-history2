@@ -206,7 +206,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     int pixel_format;
     wglChoosePixelFormatARB(d->dc, attribs, 0, 1, &pixel_format, &num_formats);
     if (num_formats == 0) {
-	qWarning("QGLPbuffer::Unable to find a pixel format with pbuffer  - giving up.");
+	qWarning("QGLPbuffer: Unable to find a pixel format with pbuffer  - giving up.");
 	ReleaseDC(d->dmy.winId(), d->dc);
 	return;
     }
@@ -221,7 +221,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
 
     d->pbuf = wglCreatePbufferARB(d->dc, pixel_format, size.width(), size.height(), pb_attribs);
     if(!d->pbuf) {
-	qWarning("QGLPbuffer::Unable to create pbuffer [w=%d, h=%d] - giving up.", size.width(), size.height());
+	qWarning("QGLPbuffer: Unable to create pbuffer [w=%d, h=%d] - giving up.", size.width(), size.height());
 	ReleaseDC(d->dmy.winId(), d->dc);
 	return;
     }
@@ -231,13 +231,13 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     d->ctx = wglCreateContext(d->dc);
 
     if (!d->dc || !d->ctx) {
-	qWarning("QGLPbuffer::Unable to create pbuffer context - giving up.");
+	qWarning("QGLPbuffer: Unable to create pbuffer context - giving up.");
 	return;
     }
 
     HGLRC share_ctx = shareWidget ? shareWidget->d_func()->glcx->d_func()->rc : 0;
     if (share_ctx && !wglShareLists(share_ctx, d->ctx))
-        qWarning("QGLPbuffer::Unable to share display lists - with share widget.");
+        qWarning("QGLPbuffer: Unable to share display lists - with share widget.");
 
     int width, height;
     wglQueryPbufferARB(d->pbuf, WGL_PBUFFER_WIDTH_ARB, &width);

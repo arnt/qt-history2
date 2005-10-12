@@ -185,7 +185,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
             d->size = size;
             d->invalid = false;
         } else {
-            qWarning("Unable to create a pbuffer/context - giving up.");
+            qWarning("QGLPbuffer: Unable to create a pbuffer/context - giving up.");
         }
 
         // cleanup
@@ -194,7 +194,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
         XFree(configs);
         d->qctx = new QGLContext(f);
     } else {
-        qWarning("Unable to find a context/format match - giving up");
+        qWarning("QGLPbuffer: Unable to find a context/format match - giving up.");
         return;
     }
 }

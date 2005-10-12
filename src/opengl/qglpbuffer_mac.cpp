@@ -66,7 +66,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
 
     AGLPixelFormat format = aglChoosePixelFormat(0, 0, attribs);
     if (!format) {
-	qWarning("QGLPbuffer::Unable to find a pixel format (AGL error %d).", 
+	qWarning("QGLPbuffer: Unable to find a pixel format (AGL error %d).",
 		 (int) aglGetError());
     }
 
@@ -107,19 +107,19 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
 	share = d->share_ctx = static_cast<AGLContext>(shareWidget->d_func()->glcx->d_func()->cx);
     d->ctx = aglCreateContext(format, share);
     if (!d->ctx) {
-	qWarning("QGLPbuffer::Unable to create a context (AGL error %d).",
+	qWarning("QGLPbuffer: Unable to create a context (AGL error %d).",
 		 (int) aglGetError());
 	return;
     }
 
     if (!aglCreatePBuffer(size.width(), size.height(), GL_TEXTURE_2D, GL_RGBA, 0, &d->pbuf)) {
-	qWarning("QGLPbuffer::Unable to create a pbuffer (AGL error %d).",
+	qWarning("QGLPbuffer: Unable to create a pbuffer (AGL error %d).",
 		 (int) aglGetError());
 	return;
     }
 
     if (!aglSetPBuffer(d->ctx, d->pbuf, 0, 0, 0)) {
-	qWarning("QGLPbuffer::Unable to set pbuffer (AGL error %d).",
+	qWarning("QGLPbuffer: Unable to set pbuffer (AGL error %d).",
 		 (int) aglGetError());
 	return;
     }
