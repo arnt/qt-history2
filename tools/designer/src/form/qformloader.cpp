@@ -37,29 +37,29 @@ public:
 
     FormBuilderPrivate(): loader(0) {}
 
-    QWidget *defaultCreateWidget(const QString &className, QWidget *parent)
+    QWidget *defaultCreateWidget(const QString &className, QWidget *parent, const QString &name)
     {
-        return QFormInternal::QFormBuilder::createWidget(className, parent, QString());
+        return QFormInternal::QFormBuilder::createWidget(className, parent, name);
     }
 
-    QLayout *defaultCreateLayout(const QString &className, QObject *parent)
+    QLayout *defaultCreateLayout(const QString &className, QObject *parent, const QString &name)
     {
-        return QFormInternal::QFormBuilder::createLayout(className, parent, QString());
+        return QFormInternal::QFormBuilder::createLayout(className, parent, name);
     }
 
-    QAction *defaultCreateAction(QObject *parent)
+    QAction *defaultCreateAction(QObject *parent, const QString &name)
     {
-        return QFormInternal::QFormBuilder::createAction(parent, QString());
+        return QFormInternal::QFormBuilder::createAction(parent, name);
     }
 
-    QActionGroup *defaultCreateActionGroup(QObject *parent)
+    QActionGroup *defaultCreateActionGroup(QObject *parent, const QString &name)
     {
-        return QFormInternal::QFormBuilder::createActionGroup(parent, QString());
+        return QFormInternal::QFormBuilder::createActionGroup(parent, name);
     }
 
     virtual QWidget *createWidget(const QString &className, QWidget *parent, const QString &name)
     {
-        if (QWidget *widget = loader->createWidget(className, parent)) {
+        if (QWidget *widget = loader->createWidget(className, parent, name)) {
             widget->setObjectName(name);
             return widget;
         }
@@ -69,7 +69,7 @@ public:
 
     virtual QLayout *createLayout(const QString &className, QObject *parent, const QString &name)
     {
-        if (QLayout *layout = loader->createLayout(className, parent)) {
+        if (QLayout *layout = loader->createLayout(className, parent, name)) {
             layout->setObjectName(name);
             return layout;
         }
@@ -79,7 +79,7 @@ public:
 
     virtual QActionGroup *createActionGroup(QObject *parent, const QString &name)
     {
-        if (QActionGroup *actionGroup = loader->createActionGroup(parent)) {
+        if (QActionGroup *actionGroup = loader->createActionGroup(parent, name)) {
             actionGroup->setObjectName(name);
             return actionGroup;
         }
@@ -89,7 +89,7 @@ public:
 
     virtual QAction *createAction(QObject *parent, const QString &name)
     {
-        if (QAction *action = loader->createAction(parent)) {
+        if (QAction *action = loader->createAction(parent, name)) {
             action->setObjectName(name);
             return action;
         }
@@ -211,55 +211,55 @@ void Loader::addPluginPath(const QString &path)
 }
 
 /*!
-  \fn QWidget *QForm::Loader::createWidget(const QString &className, QWidget *parent)
+  \fn QWidget *QForm::Loader::createWidget(const QString &className, QWidget *parent, const QString &name)
 
-  Creates a new widget using the class specified by \a className with the given
+  Creates a new widget called \a name using the class specified by \a className with the given
   \a parent widget.
 
   \sa availableWidgets()*/
-QWidget *Loader::createWidget(const QString &className, QWidget *parent)
+QWidget *Loader::createWidget(const QString &className, QWidget *parent, const QString &name)
 {
     Q_D(Loader);
-    return d->builder.defaultCreateWidget(className, parent);
+    return d->builder.defaultCreateWidget(className, parent, name);
 }
 
 /*!
-  \fn QLayout *QForm::Loader::createLayout(const QString &className, QObject *parent)
+  \fn QLayout *QForm::Loader::createLayout(const QString &className, QObject *parent, const QString &name)
 
-  Creates a new layout using the class specified by \a className with the given
+  Creates a new layout called \a name using the class specified by \a className with the given
   \a parent object.
 
   \sa createWidget()*/
-QLayout *Loader::createLayout(const QString &className, QObject *parent)
+QLayout *Loader::createLayout(const QString &className, QObject *parent, const QString &name)
 {
     Q_D(Loader);
-    return d->builder.defaultCreateLayout(className, parent);
+    return d->builder.defaultCreateLayout(className, parent, name);
 }
 
 /*!
-  \fn QActionGroup *QForm::Loader::createActionGroup(QObject *parent)
+  \fn QActionGroup *QForm::Loader::createActionGroup(QObject *parent, const QString &name)
 
-  Creates a new action group with the given
+  Creates a new action group called \a name with the given
   \a parent object.
 
   \sa createAction()*/
-QActionGroup *Loader::createActionGroup(QObject *parent)
+QActionGroup *Loader::createActionGroup(QObject *parent, const QString &name)
 {
     Q_D(Loader);
-    return d->builder.defaultCreateActionGroup(parent);
+    return d->builder.defaultCreateActionGroup(parent, name);
 }
 
 /*!
-  \fn QAction *QForm::Loader::createAction(QObject *parent)
+  \fn QAction *QForm::Loader::createAction(QObject *parent, const QString &name)
 
-  Creates a new action with the given
+  Creates a new action called \a name with the given
   \a parent object.
 
   \sa createActionGroup()*/
-QAction *Loader::createAction(QObject *parent)
+QAction *Loader::createAction(QObject *parent, const QString &name)
 {
     Q_D(Loader);
-    return d->builder.defaultCreateAction(parent);
+    return d->builder.defaultCreateAction(parent, name);
 }
 
 /*!

@@ -41,10 +41,10 @@ public:
     QWidget *load(QIODevice *device, QWidget *parentWidget = 0);
     QStringList availableWidgets() const;
 
-    virtual QWidget *createWidget(const QString &className, QWidget *parent = 0);
-    virtual QLayout *createLayout(const QString &className, QObject *parent = 0);
-    virtual QActionGroup *createActionGroup(QObject *parent = 0);
-    virtual QAction *createAction(QObject *parent = 0);
+    virtual QWidget *createWidget(const QString &className, QWidget *parent = 0, const QString &name = QString());
+    virtual QLayout *createLayout(const QString &className, QObject *parent = 0, const QString &name = QString());
+    virtual QActionGroup *createActionGroup(QObject *parent = 0, const QString &name = QString());
+    virtual QAction *createAction(QObject *parent = 0, const QString &name = QString());
 
 private:
     Q_DECLARE_PRIVATE(Loader)
