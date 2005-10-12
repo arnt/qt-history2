@@ -6346,6 +6346,6 @@ Q3FilePreview::Q3FilePreview()
 */
 
 
-#include "q3filedialog.moc"
+#include "moc_q3filedialog.cpp"
 
 #endif

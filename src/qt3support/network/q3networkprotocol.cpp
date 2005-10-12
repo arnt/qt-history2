@@ -1174,4 +1174,5 @@ void Q3NetworkOperation::deleteMe()
     delete this;
 }
 
+#include "moc_q3networkprotocol.cpp"
 #endif

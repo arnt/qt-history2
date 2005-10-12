@@ -1184,4 +1184,5 @@ void Q3UrlOperator::slotItemChanged( Q3NetworkOperation *op )
     }
 }
 
+#include "moc_q3urloperator.cpp"
 #endif // QT_NO_NETWORKPROTOCOL
