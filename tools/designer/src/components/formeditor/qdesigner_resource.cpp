@@ -67,17 +67,18 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
     m_topLevelSpacerCount = 0;
     m_copyWidget = false;
 
+    // ### generalise
+    m_internal_to_qt.insert(QLatin1String("QLayoutWidget"), QLatin1String("QWidget"));
     m_internal_to_qt.insert(QLatin1String("QDesignerWidget"), QLatin1String("QWidget"));
     m_internal_to_qt.insert(QLatin1String("QDesignerStackedWidget"), QLatin1String("QStackedWidget"));
-    m_internal_to_qt.insert(QLatin1String("QLayoutWidget"), QLatin1String("QWidget"));
     m_internal_to_qt.insert(QLatin1String("QDesignerTabWidget"), QLatin1String("QTabWidget"));
     m_internal_to_qt.insert(QLatin1String("QDesignerDialog"), QLatin1String("QDialog"));
     m_internal_to_qt.insert(QLatin1String("QDesignerLabel"), QLatin1String("QLabel"));
     m_internal_to_qt.insert(QLatin1String("QDesignerToolBox"), QLatin1String("QToolBox"));
     m_internal_to_qt.insert(QLatin1String("QDesignerToolBar"), QLatin1String("QToolBar"));
-    m_internal_to_qt.insert(QLatin1String("QDesignerMenuBar"), QLatin1String("QMenu"));
     m_internal_to_qt.insert(QLatin1String("QDesignerMenuBar"), QLatin1String("QMenuBar"));
     m_internal_to_qt.insert(QLatin1String("QDesignerMenu"), QLatin1String("QMenu"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerDockWidget"), QLatin1String("QDockWidget"));
 
     // invert
     QHashIterator<QString, QString> it(m_internal_to_qt);
@@ -583,7 +584,7 @@ DomLayout *QDesignerResource::createDom(QLayout *layout, DomLayout *ui_parentLay
         // nothing to do.
         return 0;
     }
-    
+
     if (qobject_cast<QSplitter*>(layout->parentWidget()) != 0) {
     	// nothing to do.
     	return 0;
