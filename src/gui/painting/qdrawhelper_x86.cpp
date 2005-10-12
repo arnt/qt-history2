@@ -472,6 +472,7 @@ static void QT_FASTCALL comp_func_solid_SourceAtop(uint *dest, int length, uint 
         m64 d = load(dest[i]);
         dest[i] = store(interpolate_pixel_255(s, alpha(d), d, a));
     }
+    end_mmx();
 }
 
 static void QT_FASTCALL comp_func_SourceAtop(uint *dest, const uint *src, int length, uint const_alpha)
@@ -515,6 +516,7 @@ static void QT_FASTCALL comp_func_solid_DestinationAtop(uint *dest, int length, 
         m64 d = load(dest[i]);
         dest[i] = store(interpolate_pixel_255(s, negate(alpha(d)), d, a));
     }
+    end_mmx();
 }
 
 static void QT_FASTCALL comp_func_DestinationAtop(uint *dest, const uint *src, int length, uint const_alpha)
@@ -559,6 +561,7 @@ static void QT_FASTCALL comp_func_solid_XOR(uint *dest, int length, uint src, ui
         m64 d = load(dest[i]);
         dest[i] = store(interpolate_pixel_255(s, negate(alpha(d)), d, a));
     }
+    end_mmx();
 }
 
 static void QT_FASTCALL comp_func_XOR(uint *dest, const uint *src, int length, uint const_alpha)
