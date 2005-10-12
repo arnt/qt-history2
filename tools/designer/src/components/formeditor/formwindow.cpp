@@ -455,10 +455,10 @@ bool FormWindow::handleMouseMoveEvent(QWidget *widget, QWidget *, QMouseEvent *e
 #endif
         ) {
             item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::CopyDrop,
-                this, widget, e->globalPos()));
+                this, widget, mapToGlobal(startPos)));
         } else {
             item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::MoveDrop,
-                this, widget, e->globalPos()));
+                this, widget, mapToGlobal(startPos)));
             widget->hide();
         }
     }
@@ -739,8 +739,12 @@ bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
 
     if (!found) {
         QList<QObject*> objects;
-        merge(&objects, qFindChildren<QWidget*>(this));
-        merge(&objects, qFindChildren<QAction*>(this));
+
+        if (mainContainer()) {
+            objects.append(mainContainer());
+            merge(&objects, qFindChildren<QWidget*>(mainContainer()));
+            merge(&objects, qFindChildren<QAction*>(mainContainer()));
+        }
 
         QMutableListIterator<QObject*> mit(objects);
         while (mit.hasNext()) {
