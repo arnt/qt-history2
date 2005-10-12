@@ -342,22 +342,25 @@ QString Launcher::readExampleDescription(const QDomNode &parentNode) const
     QDomNode node = parentNode.firstChild();
 
     while (!node.isNull()) {
+        QString beginTag;
+        QString endTag;
         if (node.isText())
             description += node.nodeValue();
         else if (node.hasChildNodes()) {
-            if (node.nodeName() == "b")
-                description += "<b>";
-            else if (node.nodeName() == "a")
-                description += "<font color=\"blue\">";
-            else if (node.nodeName() == "i")
-                description += "<i>";
-            description += readExampleDescription(node);
-            if (node.nodeName() == "b")
-                description += "</b>";
-            else if (node.nodeName() == "a")
-                description += "</font>";
-            else if (node.nodeName() == "i")
-                description += "</i>";
+            if (node.nodeName() == "b") {
+                beginTag = "<b>";
+                endTag = "</b>";
+            } else if (node.nodeName() == "a") {
+                beginTag = "<font color=\"blue\">";
+                endTag = "</font>";
+            } else if (node.nodeName() == "i") {
+                beginTag = "<i>";
+                endTag = "</i>";
+            } else if (node.nodeName() == "tt") {
+                beginTag = "<tt>";
+                endTag = "</tt>";
+            }
+            description += beginTag + readExampleDescription(node) + endTag;
         }
 
         node = node.nextSibling();
