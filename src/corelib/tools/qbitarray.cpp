@@ -13,6 +13,7 @@
 
 #include "qbitarray.h"
 #include <qdatastream.h>
+#include <qdebug.h>
 #include <string.h>
 
 /*!
@@ -741,14 +742,19 @@ QDataStream &operator>>(QDataStream &in, QBitArray &ba)
     ba.clear();
     quint32 len;
     in >> len;
+    if (len == 0) {
+	ba.clear();
+	return in;
+    }
 
     const quint32 Step = 8 * 1024 * 1024;
+    quint32 totalBytes = (len + 7) / 8;
     quint32 allocated = 0;
 
-    while (allocated < len) {
-        int blockSize = qMin(Step, len - allocated);
-        ba.resize(allocated + blockSize);
-        if (in.readRawData(ba.d.data() + 1 + ((allocated + 7) / 8), (blockSize + 7) / 8) != (blockSize + 7) / 8) {
+    while (allocated < totalBytes) {
+        int blockSize = qMin(Step, totalBytes - allocated);
+        ba.d.resize(allocated + blockSize + 1);
+        if (in.readRawData(ba.d.data() + 1 + allocated, blockSize) != blockSize) {
             ba.clear();
             in.setStatus(QDataStream::ReadPastEnd);
             return in;
@@ -756,11 +762,7 @@ QDataStream &operator>>(QDataStream &in, QBitArray &ba)
         allocated += blockSize;
     }
 
-    int paddingMask = ~((0x1 << (len & 0x7)) - 1);
-    if (paddingMask != ~0x0 && (ba.d.constData()[ba.d.size() - 1] & paddingMask)) {
-        ba.clear();
-        in.setStatus(QDataStream::ReadCorruptData);
-    }
+    *ba.d.data() = ba.d.size() * 8 - len;
     return in;
 }
 #endif
