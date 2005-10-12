@@ -240,6 +240,7 @@ static void create_wm_client_leader()
                      XA_WINDOW, 32, PropModeReplace,
                      (unsigned char *)&X11->wm_client_leader, 1);
 
+#ifndef QT_NO_SESSIONMANAGER
     // If we are session managed, inform the window manager about it
     QByteArray session = qApp->sessionId().toLatin1();
     if (!session.isEmpty()) {
@@ -248,6 +249,7 @@ static void create_wm_client_leader()
                          XA_STRING, 8, PropModeReplace,
                          (unsigned char *)session.data(), session.size());
     }
+#endif
 }
 
 
