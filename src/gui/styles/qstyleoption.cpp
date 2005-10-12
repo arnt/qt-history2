@@ -511,7 +511,7 @@ QStyleOptionFrameV2::QStyleOptionFrameV2(const QStyleOptionFrame &other)
     QStyleOptionFrame::operator=(other);
 
     const QStyleOptionFrameV2 *f2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(&other);
-    features = f2 ? f2->features : QStyleOptionFrameV2::None;
+    features = f2 ? f2->features : FrameFeatures(QStyleOptionFrameV2::None);
 }
 
 /*!
@@ -529,7 +529,7 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
     QStyleOptionFrame::operator=(other);
 
     const QStyleOptionFrameV2 *f2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(&other);
-    features = f2 ? f2->features : QStyleOptionFrameV2::None;
+    features = f2 ? f2->features : FrameFeatures(QStyleOptionFrameV2::None);
     return *this;
 }
 
