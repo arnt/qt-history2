@@ -18,5 +18,6 @@
 #include <QString>
 
 QMap<QString, QString> proFileTagMap( const QString& text );
+QStringList tokenizeFileNames(const QString &fileNames);
 
 #endif
