@@ -17,7 +17,7 @@
 
 /*
  * ENDIAN FUNCTIONS
- */ 
+ */
 inline void qbswap_helper(const uchar *src, uchar *dest, int size)
 {
     for (int i = 0; i < size ; ++i) dest[i] = src[size - 1 - i];
@@ -132,7 +132,7 @@ template <> inline qint16 qFromBigEndian(const uchar *src)
 /*
  * T qbswap(T source).
  * Changes the byte order of a value from big endian to little endian or vice versa.
- * This function can be used if you are not concerned about alignment issues, 
+ * This function can be used if you are not concerned about alignment issues,
  * and it is therefore a bit more convenient and in most cases more efficient.
  */
 template <typename T> T qbswap(T source);
