@@ -4974,7 +4974,7 @@ void QETWidget::translatePaintEvent(const XEvent *event)
         }
     }
 
-    if (!paintRegion.isEmpty()) {
+    if (!paintRegion.isEmpty() && !(!testAttribute(Qt::WA_StaticContents) && testAttribute(Qt::WA_WState_ConfigPending))) {
 #ifdef QT_USE_BACKINGSTORE
         extern void qt_syncBackingStore(QRegion rgn, QWidget *widget);
         qt_syncBackingStore(paintRegion, this);

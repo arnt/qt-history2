@@ -82,7 +82,7 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec)
 static void qt_showYellowThing(QWidget *widget, const QRegion &toBePainted, int msec)
 {
     //flags to fool painter
-   bool paintUnclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
+    bool paintUnclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
     if (!QWidgetBackingStore::paintOnScreen(widget))
         widget->setAttribute(Qt::WA_PaintUnclipped);
 
@@ -158,7 +158,7 @@ void qt_syncBackingStore(QRegion rgn, QWidget *widget)
 {
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         QWidget *tlw = widget->window();
-        tlw->d_func()->topData()->backingStore->cleanRegion(rgn, widget);
+        tlw->d_func()->topData()->backingStore->cleanRegion(rgn, widget, false);
     } else {
         widget->repaint(rgn);
     }
@@ -466,7 +466,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 #endif
 }
 
-void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
+void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool recursiveCopyToScreen)
 {
     if (!widget->isVisible() || !widget->updatesEnabled() || !tlw->testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
         return;
@@ -530,7 +530,10 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
         }
         QRegion toFlush = rgn;
         toFlush.translate(widget->mapTo(tlw, QPoint()));
-        copyToScreen(toFlush, tlw, tlwOffset);
+        if (recursiveCopyToScreen)
+            copyToScreen(toFlush, tlw, tlwOffset, recursiveCopyToScreen);
+        else
+            copyToScreen(rgn, widget, widget->mapTo(tlw, QPoint()), false);
     }
 }
 
@@ -664,6 +667,11 @@ void QWidgetPrivate::invalidateBuffer(const QRegion &rgn)
 
 void QWidget::repaint(const QRegion& rgn)
 {
+    if (testAttribute(Qt::WA_WState_ConfigPending)) {
+        update(rgn);
+        return;
+    }
+
     if (!isVisible() || !updatesEnabled() || rgn.isEmpty())
         return;
 //    qDebug() << "repaint" << this << rgn;
