@@ -20,7 +20,7 @@
 MainWindow::MainWindow() : QMainWindow()
 {
     currentPath = QDir::home().absolutePath();
-    model = 0;
+    model = new ImageModel(QImage(), this);
 
     QWidget *centralWidget = new QWidget;
 
@@ -81,38 +81,33 @@ MainWindow::MainWindow() : QMainWindow()
     resize(640, 480);
 }
 
-MainWindow::~MainWindow()
-{
-    delete model;
-}
-
 void MainWindow::chooseImage()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Choose an image"), currentPath, "*");
 
-    if (!fileName.isEmpty()) {
-        if (openImage(fileName))
-            currentPath = fileName;
-    }
+    if (!fileName.isEmpty())
+        openImage(fileName);
 }
 
-bool MainWindow::openImage(const QString &fileName)
+void MainWindow::openImage(const QString &fileName)
 {
     QImage image;
 
     if (image.load(fileName)) {
-        ImageModel *newModel = new ImageModel(image);
+        ImageModel *newModel = new ImageModel(image, this);
         view->setModel(newModel);
         delete model;
         model = newModel;
-        setWindowTitle(tr("%1 - %2").arg(fileName).arg(tr("Pixelator")));
+
+        if (!fileName.startsWith(":/")) {
+            currentPath = fileName;
+            setWindowTitle(tr("%1 - Pixelator").arg(currentPath));
+        }
 
         printAction->setEnabled(true);
         updateView();
-        return true;
     }
-    return false;
 }
 
 void MainWindow::printImage()

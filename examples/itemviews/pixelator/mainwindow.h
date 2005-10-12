@@ -26,9 +26,8 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
-    ~MainWindow();
 
-    bool openImage(const QString &fileName);
+    void openImage(const QString &fileName);
 
 public slots:
     void chooseImage();
