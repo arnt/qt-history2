@@ -26,17 +26,12 @@ MainWindow::MainWindow() : QMainWindow(), model(0)
     fileMenu->addAction(tr("E&xit"), this, SLOT(close()),
                         QKeySequence(tr("Ctrl+Q")));
 
-    model = new DomModel(QDomDocument());
+    model = new DomModel(QDomDocument(), this);
     view = new QTreeView(this);
     view->setModel(model);
 
     setCentralWidget(view);
     setWindowTitle("Simple DOM Model");
-}
-
-MainWindow::~MainWindow()
-{
-    delete model;
 }
 
 void MainWindow::openFile()
@@ -50,7 +45,7 @@ void MainWindow::openFile()
         if (file.open(QIODevice::ReadOnly)) {
             QDomDocument document;
             if (document.setContent(&file)) {
-                DomModel *newModel = new DomModel(document);
+                DomModel *newModel = new DomModel(document, this);
                 view->setModel(newModel);
                 delete model;
                 model = newModel;
