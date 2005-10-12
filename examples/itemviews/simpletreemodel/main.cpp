@@ -23,12 +23,12 @@ int main(int argc, char *argv[])
 
     QFile file(":/default.txt");
     file.open(QIODevice::ReadOnly);
-    TreeModel *model = new TreeModel(file.readAll());
+    TreeModel model(file.readAll());
     file.close();
 
-    QTreeView *view = new QTreeView;
-    view->setModel(model);
-    view->setWindowTitle("Simple Tree Model");
-    view->show();
+    QTreeView view;
+    view.setModel(&model);
+    view.setWindowTitle("Simple Tree Model");
+    view.show();
     return app.exec();
 }
