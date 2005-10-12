@@ -58,8 +58,8 @@ public:
 	setAttribute(Qt::WA_DeleteOnClose, true);
         p->setWindowTitle(p->windowTitle());
         setEnabled(p->isEnabled());
-        QObject::connect(this, SIGNAL(activated(QAction*)), p, SIGNAL(activated(QAction*)));
-        QObject::connect(this, SIGNAL(highlighted(QAction*)), p, SIGNAL(highlighted(QAction*)));
+        QObject::connect(this, SIGNAL(activated(int)), p, SIGNAL(activated(int)));
+        QObject::connect(this, SIGNAL(highlighted(int)), p, SIGNAL(highlighted(int)));
         QList<QAction*> items = p->actions();
         for(int i = 0; i < items.count(); i++)
             addAction(items.at(i));
