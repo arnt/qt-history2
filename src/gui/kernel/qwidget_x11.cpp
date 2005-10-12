@@ -2615,6 +2615,8 @@ bool QWidgetPrivate::registerDropSite(bool on)
 
     Note that this effect can be slow if the region is particularly
     complex.
+
+    \sa windowOpacity
 */
 
 void QWidget::setMask(const QRegion& region)
@@ -2652,7 +2654,7 @@ void QWidget::setMask(const QRegion& region)
     giving the appearance that an irregularly-shaped image is being drawn
     directly onto the screen.
 
-    \sa clearMask()
+    \sa clearMask(), windowOpacity()
 */
 
 void QWidget::setMask(const QBitmap &bitmap)

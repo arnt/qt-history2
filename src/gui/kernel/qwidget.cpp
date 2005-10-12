@@ -6810,6 +6810,8 @@ bool QWidget::testAttribute_helper(Qt::WidgetAttribute attribute) const
   correctly. This affects mainly the use of QPixmap::grabWindow(). Also note
   that semi-transparent windows update and resize significantly slower than
   opaque windows.
+
+  \sa setMask()
 */
 
 /*!
