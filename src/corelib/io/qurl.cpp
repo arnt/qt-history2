@@ -152,6 +152,9 @@
 
 //#define QURL_DEBUG
 
+// implemented in qvsnprintf.cpp
+Q_CORE_EXPORT int qsnprintf(char *str, size_t n, const char *fmt, ...);
+
 // needed by the punycode encoder/decoder
 #define Q_MAXINT ((uint)((uint)(-1)>>1))
 static const uint base = 36;
@@ -3605,7 +3608,7 @@ void QUrl::setEncodedUrl(const QByteArray &encodedUrl, ParsingMode parsingMode)
         for (int i = 0; i < copy.size(); ++i) {
             if (quint8(copy.at(i)) < 32 || quint8(copy.at(i)) > 127) {
                 char buf[4];
-                ::snprintf(buf, sizeof(buf), "%%%02hhX", quint8(copy.at(i)));
+                qsnprintf(buf, sizeof(buf), "%%%02hhX", quint8(copy.at(i)));
                 buf[3] = '\0';
                 tmp.append(buf);
             } else {
