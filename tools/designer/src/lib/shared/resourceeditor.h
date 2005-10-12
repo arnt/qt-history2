@@ -20,7 +20,6 @@
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
-class ResourceModel;
 class QPushButton;
 class QToolButton;
 class QLineEdit;
@@ -31,6 +30,8 @@ class QTreeView;
 class QModelIndex;
 
 namespace qdesigner_internal {
+
+class ResourceModel;
 
 class QDESIGNER_SHARED_EXPORT ResourceEditor : public QWidget
 {
