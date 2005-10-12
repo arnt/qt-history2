@@ -267,7 +267,7 @@ void QDockWidgetPrivate::relayout()
     int minHeight = qMax(closeSize.width(), closeSize.height());
     minHeight = qMax(minHeight, qMax(floatSize.width(), floatSize.height()));
     minHeight += 2; // Allow 1px frame around title area with buttons inside
-    minHeight = qMax(minHeight, q->fontMetrics().lineSpacing() + 2); //Allow 1 px frame around font as well
+    minHeight = qMax(minHeight, q->fontMetrics().lineSpacing() + 4); //Ensure 2 px margin around font
     titleArea = QRect(QPoint(fw, fw),
                       QSize(q->rect().width() - (fw * 2), minHeight));
     int posX = titleArea.right();
