@@ -30,6 +30,8 @@ QDesignerActionProvider::QDesignerActionProvider(QWidget *widget, QObject *paren
     Q_ASSERT(m_widget != 0);
 
     m_indicator = new InvisibleWidget(m_widget);
+    m_indicator->setBackgroundRole(QPalette::Background);
+
     QPalette p;
     p.setColor(m_indicator->backgroundRole(), Qt::red);
     m_indicator->setPalette(p);
@@ -83,6 +85,13 @@ void QDesignerActionProvider::adjustIndicator(const QPoint &pos)
         }
 
         m_indicator->setGeometry(g);
+
+        QPalette p = m_indicator->palette();
+        if (p.color(m_indicator->backgroundRole()) != Qt::red) {
+            p.setColor(m_indicator->backgroundRole(), Qt::red);
+            m_indicator->setPalette(p);
+        }
+
         m_indicator->show();
         m_indicator->raise();
     } else {
