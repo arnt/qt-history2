@@ -1243,7 +1243,10 @@ QImage QGLContextPrivate::convertToBGRA(const QImage &image)
             uint *q = (uint*) res.scanLine(img.height() - i - 1);
             uint *end = p + img.width();
             while (p < end) {
-                *q = (*p << 8) | ((*p >> 24) & 0xFF);
+		*q = ((*p << 24) & 0xff000000) 
+                     | ((*p >> 24) & 0xff000000)
+                     | ((*p << 8) & 0x00ff0000)
+                     | ((*p >> 8) & 0x0000ff00);
                 p++;
                 q++;
             }
