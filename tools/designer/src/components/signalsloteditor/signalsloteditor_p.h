@@ -40,8 +40,7 @@ typedef QList<ClassInfo> ClassList;
 enum MemberType { SignalMember, SlotMember };
 
 QStringList objectNameList(QDesignerFormWindowInterface *form);
-QStringList memberList(QDesignerFormWindowInterface *form, QWidget *widget,
-                        MemberType member_type);
+QStringList memberList(QDesignerFormWindowInterface *form, QObject *object, MemberType member_type);
 bool signalMatchesSlot(const QString &signal, const QString &slot);
 ClassList classList(const QString &obj_name, MemberType member_type,
                             const QString &peer, QDesignerFormWindowInterface *form);

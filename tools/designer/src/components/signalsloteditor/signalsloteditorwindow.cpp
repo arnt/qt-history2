@@ -129,8 +129,9 @@ QVariant ConnectionModel::data(const QModelIndex &index, int role) const
     if (role != Qt::DisplayRole && role != Qt::EditRole)
         return QVariant();
 
-    if (index.row() < 0 || index.row() >= m_editor->connectionCount())
+    if (index.row() < 0 || index.row() >= m_editor->connectionCount()) {
         return QVariant();
+    }
 
     SignalSlotConnection *con
         = static_cast<SignalSlotConnection*>(m_editor->connection(index.row()));
@@ -185,7 +186,7 @@ bool ConnectionModel::setData(const QModelIndex &index, const QVariant &data, in
             break;
         }
         case 1: {
-            if (!memberList(form, con->widget(CETypes::EndPoint::Source), SignalMember).contains(s))
+            if (!memberList(form, con->object(CETypes::EndPoint::Source), SignalMember).contains(s))
                 s.clear();
             m_editor->setSignal(con, s);
             break;
@@ -197,7 +198,7 @@ bool ConnectionModel::setData(const QModelIndex &index, const QVariant &data, in
             break;
         }
         case 3: {
-            if (!memberList(form, con->widget(CETypes::EndPoint::Target), SlotMember).contains(s))
+            if (!memberList(form, con->object(CETypes::EndPoint::Target), SlotMember).contains(s))
                 s.clear();
             m_editor->setSlot(con, s);
             break;
@@ -364,7 +365,8 @@ void InlineEditor::checkSelection(int idx)
 {
     if (idx == m_idx)
         return;
-    if (m_model->isTitle(idx))
+
+   if (m_model->isTitle(idx))
         setCurrentIndex(m_idx);
     else
         m_idx = idx;

@@ -18,6 +18,7 @@
 
 #include <QtDesigner/QtDesigner>
 
+#include <QtGui/QAction>
 #include <QtGui/QDialog>
 #include <QtGui/QListWidget>
 #include <QtGui/QTreeWidget>
@@ -41,6 +42,19 @@ namespace qdesigner_internal {
 ** Tools
 */
 
+template <typename T>
+static void merge(QDesignerFormWindowInterface *form, QStringList *lst, const QList<T> &elts)
+{
+    QDesignerMetaDataBaseInterface *db = form->core()->metaDataBase();
+
+    foreach (T e, elts) {
+        if (db->item(e) == 0)
+            continue;
+
+        lst->append(e->objectName());
+    }
+}
+
 QStringList objectNameList(QDesignerFormWindowInterface *form)
 {
     QDesignerFormWindowCursorInterface *cursor = form->cursor();
@@ -50,21 +64,26 @@ QStringList objectNameList(QDesignerFormWindowInterface *form)
         if (!name.isEmpty())
             result.append(name);
     }
+
+    if (form->mainContainer()) {
+        merge(form, &result, qFindChildren<QAction*>(form->mainContainer()));
+    }
+
     result.sort();
 
     return result;
 }
 
-QStringList memberList(QDesignerFormWindowInterface *form, QWidget *widget, MemberType member_type)
+QStringList memberList(QDesignerFormWindowInterface *form, QObject *object, MemberType member_type)
 {
     QStringList result;
 
-    if (widget == 0)
+    if (object == 0)
         return result;
 
     QDesignerMemberSheetExtension *members
         = qt_extension<QDesignerMemberSheetExtension*>
-                (form->core()->extensionManager(), widget);;
+                (form->core()->extensionManager(), object);
     Q_ASSERT(members != 0);
 
     for (int i = 0; i < members->count(); ++i) {
@@ -125,14 +144,14 @@ ClassList classList(const QString &obj_name, MemberType member_type,
 {
     ClassList result;
 
-    QWidget *w = qFindChild<QWidget*>(form, obj_name);
+    QObject *object = qFindChild<QObject*>(form, obj_name);
 
-    if (w == 0)
+    if (object == 0)
         return result;
 
     QDesignerMemberSheetExtension *members
         = qt_extension<QDesignerMemberSheetExtension*>
-                (form->core()->extensionManager(), w);;
+                (form->core()->extensionManager(), object);
     Q_ASSERT(members != 0);
 
     QString class_name;
@@ -196,14 +215,15 @@ private:
     QCheckBox *m_show_all_checkbox;
 };
 
-static QString realObjectName(QDesignerFormEditorInterface *core, QWidget *widget)
+// ### deprecated
+static QString realObjectName(QDesignerFormEditorInterface *core, QObject *object)
 {
-    if (widget == 0)
+    if (object == 0)
         return QString();
 
-    QString object_name = widget->objectName();
+    QString object_name = object->objectName();
     QDesignerMetaDataBaseInterface *mdb = core->metaDataBase();
-    QDesignerMetaDataBaseItemInterface *item = mdb->item(widget);
+    QDesignerMetaDataBaseItemInterface *item = mdb->item(object);
     if (item != 0)
         object_name = item->name();
     return object_name;
@@ -529,7 +549,7 @@ QString SignalSlotConnection::sender() const
     SignalSlotEditor *edit = qobject_cast<SignalSlotEditor*>(this->edit());
     Q_ASSERT(edit != 0);
 
-    return realObjectName(edit->formWindow()->core(), widget(EndPoint::Source));
+    return realObjectName(edit->formWindow()->core(), object(EndPoint::Source));
 }
 
 QString SignalSlotConnection::receiver() const
@@ -537,7 +557,7 @@ QString SignalSlotConnection::receiver() const
     SignalSlotEditor *edit = qobject_cast<SignalSlotEditor*>(this->edit());
     Q_ASSERT(edit != 0);
 
-    return realObjectName(edit->formWindow()->core(), widget(EndPoint::Target));
+    return realObjectName(edit->formWindow()->core(), object(EndPoint::Target));
 }
 
 void SignalSlotConnection::updateVisibility()
@@ -613,7 +633,7 @@ SignalSlotEditor::SignalSlotEditor(QDesignerFormWindowInterface *form_window, QW
     QDesignerFormEditorInterface *core = form_window->core();
     QDesignerMemberSheetFactory *factory = new QDesignerMemberSheetFactory(core->extensionManager());
     core->extensionManager()->registerExtensions(factory, Q_TYPEID(QDesignerMemberSheetExtension));
-    connect(this, SIGNAL(widgetActivated(QWidget*)), form_window, SIGNAL(activated(QWidget*)));    
+    connect(this, SIGNAL(widgetActivated(QWidget*)), form_window, SIGNAL(activated(QWidget*)));
 }
 
 QAbstractItemModel *SignalSlotEditor::model() const
@@ -666,16 +686,23 @@ DomConnections *SignalSlotEditor::toUi() const
         // If a widget's parent has been removed, and the parent was not a managed widget
         // (a page in a tab widget), we never get a widgetRemoved(). So we filter out
         // these child widgets here.
-        QWidget *source = con->widget(EndPoint::Source);
+        QObject *source = con->object(EndPoint::Source);
         if (source == 0)
             continue;
-        if (!background()->isAncestorOf(source))
-            continue;
-        QWidget *target = con->widget(EndPoint::Target);
+
+        QObject *target = con->object(EndPoint::Target);
         if (target == 0)
             continue;
-        if (!background()->isAncestorOf(target))
-            continue;
+
+        if (QWidget *sourceWidget = qobject_cast<QWidget*>(source)) {
+            if (!background()->isAncestorOf(sourceWidget))
+                continue;
+        }
+
+        if (QWidget *targetWidget = qobject_cast<QWidget*>(target)) {
+            if (!background()->isAncestorOf(targetWidget))
+                continue;
+        }
 
         list.append(con->toUi());
     }
@@ -683,13 +710,13 @@ DomConnections *SignalSlotEditor::toUi() const
     return result;
 }
 
-QWidget *SignalSlotEditor::widgetByName(QWidget *topLevel, const QString &name)
+QObject *SignalSlotEditor::objectByName(QWidget *topLevel, const QString &name)
 {
     Q_ASSERT(topLevel);
     if (topLevel->objectName() == name)
         return topLevel;
 
-    return qFindChild<QWidget*>(topLevel, name);
+    return qFindChild<QObject*>(topLevel, name);
 }
 
 void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
@@ -701,13 +728,13 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
 
     QList<DomConnection*> list = connections->elementConnection();
     foreach (DomConnection *dom_con, list) {
-        QWidget *source = widgetByName(parent, dom_con->elementSender());
+        QObject *source = objectByName(parent, dom_con->elementSender());
         if (source == 0) {
             qWarning("SignalSlotEditor::fromUi(): no source widget called \"%s\"",
                         dom_con->elementSender().toUtf8().constData());
             continue;
         }
-        QWidget *destination = widgetByName(parent, dom_con->elementReceiver());
+        QObject *destination = objectByName(parent, dom_con->elementReceiver());
         if (destination == 0) {
             qWarning("SignalSlotEditor::fromUi(): no destination widget called \"%s\"",
                         dom_con->elementReceiver().toUtf8().constData());
@@ -805,8 +832,10 @@ void SignalSlotEditor::setSource(Connection *_con, const QString &obj_name)
     m_form_window->beginCommand(tr("Change sender"));
     ConnectionEdit::setSource(con, obj_name);
 
-    QWidget *w = con->widget(EndPoint::Source);
-    QStringList member_list = memberList(m_form_window, w, SignalMember);
+    QObject *sourceObject = con->object(EndPoint::Source);
+    Q_ASSERT(sourceObject != 0);
+
+    QStringList member_list = memberList(m_form_window, sourceObject, SignalMember);
 
     if (!member_list.contains(con->signal()))
         undoStack()->push(new SetMemberCommand(con, EndPoint::Source, QString(), this));
