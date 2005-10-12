@@ -157,7 +157,7 @@
 
     Note that the first assignment only includes values that are specified on
     the same line as the \c SOURCES variable. The second assignment splits
-    the items across lines by using the \\ character.
+    the items across lines by using the \c \\ character.
 
     The list of values in a variable is extended in the following way:
 
@@ -166,7 +166,7 @@
     The \c CONFIG variable is another special variable that \c qmake
     uses when generating a Makefile. It is discussed in the section on
     \l{#GeneralConfiguration}{general configuration} later in this chapter.
-    In the above line, \c QT is added to the list of existing values
+    In the above line, \c qt is added to the list of existing values
     contained in \c CONFIG.
 
     The following table lists the variables that \c qmake recognizes, and
@@ -599,7 +599,7 @@
     \endcode
 
     If you are certain you want your variables processed after the
-    the files specified, then you may pass the \c -after option. When this
+    files specified, then you may pass the \c -after option. When this
     is specified, all assignments on the command line after the \c -after
     option will be postponed until after the specified files are parsed.
 
@@ -877,7 +877,6 @@
     If FORMS3 is defined in your project, then this variable must contain
     forms for uic, and not uic3. If CONFIG contains uic3, and FORMS3 is not
     defined, the this variable must contain only uic3 type forms.
-
 
     \target FORMS3
     \section1 FORMS3
