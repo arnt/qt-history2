@@ -45,10 +45,6 @@ class QTableWidget;
 class QTableModel;
 class QWidgetItemData;
 
-#ifdef Q_CC_SUN
-#include <private/qwidgetitemdata_p.h>
-#endif
-
 class Q_GUI_EXPORT QTableWidgetItem
 {
     friend class QTableWidget;
