@@ -17,8 +17,9 @@
 /*!
     \namespace QForm
     \inmodule QtForm
-    \brief The QForm namespace contains classes that are used to handle forms created with
-    Qt Designer.
+
+    \brief The QForm namespace contains classes that are used to
+    handle forms created with Qt Designer.
 */
 
 namespace QForm
@@ -125,16 +126,92 @@ void LoaderPrivate::setupWidgetMap() const
 /*!
     \class QForm::Loader
     \inmodule QtForm
-    \brief The Loader class is used to load form files created with Qt Designer
-    and use the information within them to build user interfaces.
+    \brief The Loader class allows standalone applicatons to create user
+    interfaces dynamically at run-time using the information stored in .ui
+    files, or using specified plugin paths.
 
-    \sa QForm
+    In addition, by subclassing the Loader class, you can intervene the
+    process of creating the user interfaces.
+
+    If you have a custom component or application that embed Qt Designer,
+    you can also use the QFormBuilder class provided by the QtDesigner module.
+
+    The Loader class provides functions that allows you to create \l {QWidget}s
+    based on the information in \c .ui files created with Qt Designer, or
+    available in the specified plugin paths. You can retrieve the contents of
+    an \c .ui file using the load() function. For example:
+
+    \code
+    MyForm::MyForm(QWidget *parent)
+        : QWidget(parent)
+    {
+        QForm::loader loader;
+        QFile file(":/forms/myWidget.ui");
+        file.open(QFile::ReadOnly);
+        QWidget *myWidget = loader.load(&file, this);
+        file.close();
+
+        QVBoxLayout *layout = new QVBoxLayout;
+        layout->addWidget(myWidget);
+        setLayout(layout);
+    }
+    \endcode
+
+    By including the user interface in the form's resources (\c
+    myForm.grc), we ensure that it will be present at run-time:
+
+    \code
+        <!DOCTYPE RCC><RCC version="1.0">
+        <qresource prefix="/forms">
+        <file>mywidget.ui</file>
+        </qresource>
+        </RCC>
+    \endcode
+
+    The availableWidgets() function returns a QStringList with the classnames
+    of the widgets available in the specified plugin paths (which can be
+    retrieved using the pluginPaths() function). You can create
+    any of these widgets using the createWidget() function. For example:
+
+    \code
+        QForm::Loader loader;
+        MyCustomWidget *myWidget;
+        Qwidget parent;
+        QString name;
+
+        QStringList availableWidgets = loader.availableWidgets();
+        bool available = false;
+
+        for each (QString name, availableWidgets) {
+        if (name == "MyCustomWidget")
+            available = true;
+        }
+        if (available)
+            myWidget = qobject_cast<MyCustomWidget *>loader.createWidget(MyCustomWidget,
+                                                                         parent, name)
+    \endcode
+
+    You can make a custom widget available to the loader using the
+    addPluginPath() function, and you can remove all the available widgets
+    by calling the clearPluginPaths() function.
+
+    The createAction(), createActionGroup(), createLayout() and createWidget()
+    functions are used internally by the Loader class whenever it has to create
+    an action, action group, layout or widget respectively. For that reason, you can
+    subclass the Loader class and reimplement these functions to intervene
+    the process of constructing an user interface. For example, you might want to
+    create a list of the actions created when loading a form or creating a custom widget.
+
+    For a complete example using the Loader class, see the \l
+    {designer/calculatorbuilder}{Calculator Builder} example.
+
+    \sa QForm, QFormBuilder
 */
 
 /*!
-  \fn QForm::Loader::Loader(QObject *parent)
+    \fn QForm::Loader::Loader(QObject *parent)
 
-  Creates a form loader with the given \a parent.
+    Creates a form loader with the given \a parent.
 */
 Loader::Loader(QObject *parent)
     : QObject(*new LoaderPrivate, parent)
@@ -152,19 +229,21 @@ Loader::Loader(QObject *parent)
 }
 
 /*!
-  \fn QForm::Loader::~Loader()
+    \fn QForm::Loader::~Loader()
 
-  Destroys the loader.
+    Destroys the loader.
 */
 Loader::~Loader()
 {
 }
 
 /*!
-  \fn QWidget *QForm::Loader::load(QIODevice *device, QWidget *parentWidget)
+    \fn QWidget *QForm::Loader::load(QIODevice *device, QWidget *parent)
 
-  Loads a form from the given \a device and creates a new widget with the given
-  \a parent to hold its contents.
+    Loads a form from the given \a device and creates a new widget with the given
+    \a parent to hold its contents.
+
+    \sa createWidget()
 */
 QWidget *Loader::load(QIODevice *device, QWidget *parentWidget)
 {
@@ -173,11 +252,11 @@ QWidget *Loader::load(QIODevice *device, QWidget *parentWidget)
 }
 
 /*!
-  \fn QStringList QForm::Loader::pluginPaths() const
+    \fn QStringList QForm::Loader::pluginPaths() const
 
-  Returns a list of paths the loader searches to locate custom widget plugins.
+    Returns a list of paths the loader searches to locate custom widget plugins.
 
-  \sa addPluginPath(), clearPluginPaths()
+    \sa addPluginPath(), clearPluginPaths()
 */
 QStringList Loader::pluginPaths() const
 {
@@ -186,11 +265,11 @@ QStringList Loader::pluginPaths() const
 }
 
 /*!
-  \fn void QForm::Loader::clearPluginPaths()
+    \fn void QForm::Loader::clearPluginPaths()
 
-  Clears the list of paths used to locate plugins.
+    Clears the list of paths the loader searches to locate plugins.
 
-  \sa addPluginPath(), pluginPaths()
+    \sa addPluginPath(), pluginPaths()
 */
 void Loader::clearPluginPaths()
 {
@@ -199,11 +278,11 @@ void Loader::clearPluginPaths()
 }
 
 /*!
-  \fn void QForm::Loader::addPluginPath(const QString &path)
+    \fn void QForm::Loader::addPluginPath(const QString &path)
 
-  Adds the given \a path to the list of paths used to locate plugins.
+    Adds the given \a path to the list of paths the loader searches to locate plugins.
 
-  \sa pluginPaths(), clearPluginPaths()
+    \sa pluginPaths(), clearPluginPaths()
 */
 void Loader::addPluginPath(const QString &path)
 {
@@ -212,12 +291,18 @@ void Loader::addPluginPath(const QString &path)
 }
 
 /*!
-  \fn QWidget *QForm::Loader::createWidget(const QString &className, QWidget *parent, const QString &name)
+    \fn QWidget *QForm::Loader::createWidget(const QString &className, QWidget *parent, const QString &name)
 
-  Creates a new widget called \a name using the class specified by \a className with the given
-  \a parent widget.
+    Creates a new widget called \a name using the class specified by \a className with the given
+    \a parent widget. You can create any of the widgets returned by the availableWidgets()
+    function.
 
-  \sa availableWidgets()*/
+    The function is also used internally by the Loader class whenever it has to create
+    a widget. For that reason, you can subclass the Loader class and reimplement
+    this function to intervene the process of constructing an user interface or widget.
+
+  \sa availableWidgets(), load()
+*/
 QWidget *Loader::createWidget(const QString &className, QWidget *parent, const QString &name)
 {
     Q_D(Loader);
@@ -225,12 +310,17 @@ QWidget *Loader::createWidget(const QString &className, QWidget *parent, const Q
 }
 
 /*!
-  \fn QLayout *QForm::Loader::createLayout(const QString &className, QObject *parent, const QString &name)
+    \fn QLayout *QForm::Loader::createLayout(const QString &className, QObject *parent, const QString &name)
 
-  Creates a new layout called \a name using the class specified by \a className with the given
-  \a parent object.
+    Creates a new layout called \a name using the class specified by \a className with the given
+    \a parent object.
 
-  \sa createWidget()*/
+    The function is used internally by the Loader class whenever it has to create
+    a layout. For that reason, you can subclass the Loader class and reimplement
+    this function to intervene the process of constructing an user interface or widget.
+
+    \sa createWidget(), load()
+*/
 QLayout *Loader::createLayout(const QString &className, QObject *parent, const QString &name)
 {
     Q_D(Loader);
@@ -238,12 +328,16 @@ QLayout *Loader::createLayout(const QString &className, QObject *parent, const Q
 }
 
 /*!
-  \fn QActionGroup *QForm::Loader::createActionGroup(QObject *parent, const QString &name)
+    \fn QActionGroup *QForm::Loader::createActionGroup(QObject *parent, const QString &name)
 
-  Creates a new action group called \a name with the given
-  \a parent object.
+    Creates a new action group called \a name with the given \a parent object.
 
-  \sa createAction()*/
+    The function is used internally by the Loader class whenever it has to create
+    an action group. For that reason, you can subclass the Loader class and reimplement
+    this function to intervene the process of constructing an user interface or widget.
+
+    \sa createAction(), createWidget(), load()
+ */
 QActionGroup *Loader::createActionGroup(QObject *parent, const QString &name)
 {
     Q_D(Loader);
@@ -251,12 +345,16 @@ QActionGroup *Loader::createActionGroup(QObject *parent, const QString &name)
 }
 
 /*!
-  \fn QAction *QForm::Loader::createAction(QObject *parent, const QString &name)
+    \fn QAction *QForm::Loader::createAction(QObject *parent, const QString &name)
 
-  Creates a new action called \a name with the given
-  \a parent object.
+    Creates a new action called \a name with the given \a parent object.
 
-  \sa createActionGroup()*/
+    The function is used internally by the Loader class whenever it has to create
+    an action. For that reason, you can subclass the Loader class and reimplement
+    this function to intervene the process of constructing an user interface or widget.
+
+    \sa createActionGroup(), createwidget(), load()
+*/
 QAction *Loader::createAction(QObject *parent, const QString &name)
 {
     Q_D(Loader);
@@ -264,9 +362,13 @@ QAction *Loader::createAction(QObject *parent, const QString &name)
 }
 
 /*!
-  \fn QStringList QForm::Loader::availableWidgets() const
+    \fn QStringList QForm::Loader::availableWidgets() const
 
-  Returns a list of available widgets that can be built using the loader.
+    Returns a list of available widgets that can be built using the loader, i.e all the widgets
+    specified within the given plugin paths.
+
+    \sa pluginPaths()
+
 */
 QStringList Loader::availableWidgets() const
 {
