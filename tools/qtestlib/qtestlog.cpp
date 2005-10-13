@@ -86,9 +86,7 @@ namespace QTest {
 
     static void messageHandler(QtMsgType type, const char *msg)
     {
-#if 0
         static QBasicAtomic counter = Q_ATOMIC_INIT(2002);
-#endif
 
         if (!msg || !QTest::testLogger) {
             // if this goes wrong, something is seriously broken.
@@ -102,7 +100,6 @@ namespace QTest {
             return;
 
         if (type != QtFatalMsg) {
-#if 0
             if (counter <= 0)
                 return;
 
@@ -111,7 +108,6 @@ namespace QTest {
                         "Maximum amount of warnings exceeded.");
                 return;
             }
-#endif
         }
 
         switch (type) {
