@@ -295,6 +295,9 @@ void ActionEditor::slotNewAction()
 
 void ActionEditor::editAction(QListWidgetItem *item)
 {
+    if (!item)
+        return;
+
     QAction *action = qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole));
     if (action == 0)
         return;
