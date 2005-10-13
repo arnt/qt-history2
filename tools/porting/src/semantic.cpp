@@ -447,10 +447,10 @@ void Semantic::parseUsingDirective(UsingDirectiveAST *ast)
     if (targetNamespace == 0)
         return;
 
-    // Find the insertion namespace, wich is the first common
-    // ancesotor namespace for the current sope and the insertion namespace
+    // Find the insertion namespace, which is the first common
+    // ancesotor namespace for the current scope and the target namespace
 
-    // currentScope might be a block scope, find the first namespace parent
+    // currentScope might be a block scope, find its first namespace parent
     CodeModel::Scope *currentParent = currentScope.top();
     while (currentParent->toNamespaceScope() == 0) {
         currentParent = currentParent->parent();
