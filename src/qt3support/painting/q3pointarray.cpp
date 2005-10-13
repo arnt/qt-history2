@@ -47,10 +47,10 @@ void Q3PointArray::makeArc(int x, int y, int w, int h, int a1, int a2)
 {
     QRectF r(x, y, w, h);
     QPointF startPoint;
-    qt_find_ellipse_coords(r, a1, a2, &startPoint, 0);
+    qt_find_ellipse_coords(r, a1 / 16, a2 / 16, &startPoint, 0);
 
     QPainterPath path(startPoint);
-    path.arcTo(r, a1, a2);
+    path.arcTo(r, a1 / 16, a2 / 16);
     *this = path.toSubpathPolygons().at(0).toPolygon();
 }
 #endif
