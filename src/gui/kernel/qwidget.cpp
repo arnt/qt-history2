@@ -1432,6 +1432,10 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRect &clipRect,
 bool QWidgetPrivate::hasBackground() const
 {
     Q_Q(const QWidget);
+    if (!q->isWindow() && q->parentWidget() && q->parentWidget()->testAttribute(Qt::WA_PaintOnScreen))
+        return true;
+    if (q->testAttribute(Qt::WA_PaintOnScreen))
+        return true;
     if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
         const QPalette &pal = q->palette();
         QPalette::ColorRole bg = q->backgroundRole();
@@ -1446,9 +1450,8 @@ bool QWidgetPrivate::hasBackground() const
 bool QWidgetPrivate::isOpaque() const
 {
     Q_Q(const QWidget);
-    if (q->testAttribute(Qt::WA_PaintOnScreen))
-        return false;
     if (q->testAttribute(Qt::WA_NoBackground)
+        || q->testAttribute(Qt::WA_PaintOnScreen)
         || q->testAttribute(Qt::WA_NoSystemBackground))
         return true;
 
