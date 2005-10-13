@@ -1976,6 +1976,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         break;
 
 
+#endif // QT_NO_TOOLBAR
 #ifndef QT_NO_PROGRESSBAR
     case CE_ProgressBarContents:
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
@@ -2065,7 +2066,6 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         }
         break;
 #endif // QT_NO_PROGRESSBAR
-#endif // QT_NO_TOOLBAR
     default:
         QCommonStyle::drawControl(ce, opt, p, widget);
     }
