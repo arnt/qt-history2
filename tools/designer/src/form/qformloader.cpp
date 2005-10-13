@@ -31,6 +31,7 @@ class FormBuilderPrivate: public QFormInternal::QFormBuilder
 {
     friend class Loader;
     friend class LoaderPrivate;
+    typedef QFormInternal::QFormBuilder ParentClass;
 
 public:
     Loader *loader;
@@ -39,22 +40,22 @@ public:
 
     QWidget *defaultCreateWidget(const QString &className, QWidget *parent, const QString &name)
     {
-        return QFormInternal::QFormBuilder::createWidget(className, parent, name);
+        return ParentClass::createWidget(className, parent, name);
     }
 
     QLayout *defaultCreateLayout(const QString &className, QObject *parent, const QString &name)
     {
-        return QFormInternal::QFormBuilder::createLayout(className, parent, name);
+        return ParentClass::createLayout(className, parent, name);
     }
 
     QAction *defaultCreateAction(QObject *parent, const QString &name)
     {
-        return QFormInternal::QFormBuilder::createAction(parent, name);
+        return ParentClass::createAction(parent, name);
     }
 
     QActionGroup *defaultCreateActionGroup(QObject *parent, const QString &name)
     {
-        return QFormInternal::QFormBuilder::createActionGroup(parent, name);
+        return ParentClass::createActionGroup(parent, name);
     }
 
     virtual QWidget *createWidget(const QString &className, QWidget *parent, const QString &name)
