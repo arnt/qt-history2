@@ -12,6 +12,7 @@ DESCRIPTION=$6
 shift 6
 LIBPATH=""
 INCLUDEPATH=""
+CXXFLAGS=""
 PARAMS=$@
 for PARAM in $PARAMS; do
     PREFIX=`echo $PARAM | sed 's/^\(..\).*/\1/'`
@@ -22,6 +23,9 @@ for PARAM in $PARAMS; do
     -I)
         INC=`echo $PARAM | sed -e 's/^-I//'`
         INCLUDEPATH="$INCLUDEPATH $INC"
+        ;;
+    -f)
+        CXXFLAGS="$CXXFLAGS $PARAM"
         ;;
     *) ;;
     esac
@@ -34,7 +38,7 @@ test -d $OUTDIR/$TEST || mkdir -p $OUTDIR/$TEST
 
 cd $OUTDIR/$TEST 
 
-$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "LIBS*=$LIBPATH" "INCLUDEPATH*=$INCLUDEPATH" $SRCDIR/$TEST/$EXE.pro -o $OUTDIR/$TEST/Makefile >/dev/null 2>&1
+$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "LIBS*=$LIBPATH" "INCLUDEPATH*=$INCLUDEPATH" "QMAKE_CXXFLAGS*=$CXXFLAGS" $SRCDIR/$TEST/$EXE.pro -o $OUTDIR/$TEST/Makefile >/dev/null 2>&1
 
 if [ "$VERBOSE" = "yes" ]; then
     make

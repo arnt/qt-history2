@@ -3002,7 +3002,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     NOTYPE=no
     $x11tests/notype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && NOTYPE=yes
     if [ $NOTYPE = "yes" ]; then 
-        $I_FLAGS="$I_FLAGS -fpermissive"
+        I_FLAGS="$I_FLAGS -fpermissive"
     fi
 
     # auto-detect OpenGL support
