@@ -1146,15 +1146,13 @@ void QComboBox::setEditable(bool editable)
 void QComboBox::setLineEdit(QLineEdit *edit)
 {
     Q_D(QComboBox);
-    if ( !edit ) {
+    if (!edit) {
 	Q_ASSERT(edit != 0);
 	return;
     }
-    if (!(model()->flags(model()->index(0, d->modelColumn, rootModelIndex()))
-                & Qt::ItemIsEditable)) {
-        delete edit;
+
+    if (edit == d->lineEdit)
         return;
-    }
 
     edit->setText(currentText());
     delete d->lineEdit;
