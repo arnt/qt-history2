@@ -1668,6 +1668,10 @@ void QWidget::setMask(const QRegion &region)
         fleft = d->topData()->fleft;
     }
     OffsetRgn(wr, fleft, ftop);
+#ifndef QT_NO_BACKINGSTORE
+    if (!testAttribute(Qt::WA_PaintOnScreen))
+        update();
+#endif
     SetWindowRgn(winId(), wr, true);
 }
 
