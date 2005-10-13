@@ -235,6 +235,15 @@ void WriteInitialization::acceptWidget(DomWidget *node)
             }
 
             output << option.indent << parentWidget << "->addToolBar(" << area << varName << ");\n";
+        } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QDockWidget"))) {
+            QString area;
+            if (DomProperty *pstyle = attributes.value(QLatin1String("dockWidgetArea"))) {
+                area += QLatin1String("static_cast<Qt::DockWidgetArea>(");
+                area += QString::number(pstyle->elementNumber());
+                area += "), ";
+            }
+
+            output << option.indent << parentWidget << "->addDockWidget(" << area << varName << ");\n";
         } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QStatusBar"))) {
             output << option.indent << parentWidget << "->setStatusBar(" << varName << ");\n";
         } else if (className == QLatin1String("QWidget")) {
