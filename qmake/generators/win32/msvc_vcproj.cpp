@@ -674,6 +674,7 @@ void VcprojGenerator::init()
 
     // Setup PCH variables
     precompH = project->first("PRECOMPILED_HEADER");
+    precompCPP = project->first("PRECOMPILED_SOURCE");
     usePCH = !precompH.isEmpty() && project->isActiveConfig("precompile_header");
     if (usePCH) {
         precompHFilename = fileInfo(precompH).fileName();
@@ -687,6 +688,15 @@ void VcprojGenerator::init()
         // Return to variable pool
         project->variables()["PRECOMPILED_OBJECT"] = QStringList(precompObj);
         project->variables()["PRECOMPILED_PCH"]    = QStringList(precompPch);
+
+        autogenPrecompCPP = precompCPP.isEmpty() && project->isActiveConfig("autogen_precompile_source");
+        if (autogenPrecompCPP) {
+            precompCPP = precompH
+                + (Option::cpp_ext.count() ? Option::cpp_ext.at(0) : QLatin1String(".cpp"));
+            project->variables()["GENERATED_SOURCES"] += precompCPP;
+        } else if (!precompCPP.isEmpty()) {
+            project->variables()["SOURCES"] += precompCPP;
+        }
     }
 
     // Add all input files for a custom compiler into a map for uniqueness,

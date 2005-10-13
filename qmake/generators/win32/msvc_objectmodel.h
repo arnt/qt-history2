@@ -111,7 +111,7 @@ enum eAppProtectionOption {
     eAppProtectMedium,
     eAppProtectHigh
 };
-enum EnableEnhancedInstructionSet {
+enum enhancedInstructionSetOption {
     archNotSet = 0,
     archSSE = 1,
     archSSE2 = 2
@@ -425,7 +425,7 @@ public:
     triState                Detect64BitPortabilityProblems;
     triState                DisableLanguageExtensions;
     QStringList             DisableSpecificWarnings;
-    EnableEnhancedInstructionSet  m_EnableEnhancedInstructionSet;
+    enhancedInstructionSetOption  EnableEnhancedInstructionSet;
     triState                EnableFiberSafeOptimizations;
     triState                EnableFunctionLevelLinking;
     triState                EnableIntrinsicFunctions;

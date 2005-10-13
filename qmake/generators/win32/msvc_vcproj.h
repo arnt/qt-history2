@@ -41,8 +41,9 @@ public:
     ~VcprojGenerator();
 
     QString defaultMakefile() const;
-    QString precompH, precompHFilename,
+    QString precompH, precompHFilename, precompCPP,
             precompObj, precompPch;
+    bool autogenPrecompCPP;
     static bool hasBuiltinCompiler(const QString &file);
 
     QMap<QString, QStringList> extraCompilerSources;
