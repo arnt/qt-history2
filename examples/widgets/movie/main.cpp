@@ -17,8 +17,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    MoviePlayer *player = new MoviePlayer;
-    player->show();
-
+    MoviePlayer player;
+    player.show();
     return app.exec();
 }
