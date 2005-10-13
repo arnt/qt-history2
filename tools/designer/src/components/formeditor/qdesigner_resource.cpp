@@ -17,6 +17,7 @@
 #include "qdesigner_toolbox_p.h"
 #include "qdesigner_stackedbox_p.h"
 #include "qdesigner_toolbar_p.h"
+#include "qdesigner_dockwidget_p.h"
 
 // shared
 #include <widgetdatabase_p.h>
@@ -530,6 +531,8 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         w = saveWidget(toolBox, ui_parentWidget);
     else if (QDesignerToolBar *toolBar = qobject_cast<QDesignerToolBar*>(widget))
         w = saveWidget(toolBar, ui_parentWidget);
+    else if (QDesignerDockWidget *dockWidget = qobject_cast<QDesignerDockWidget*>(widget))
+        w = saveWidget(dockWidget, ui_parentWidget);
     else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), widget))
         w = saveWidget(widget, container, ui_parentWidget);
     else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
@@ -753,6 +756,20 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBar *toolBar, DomWidget *u
         Qt::ToolBarArea area = mainWindow->toolBarArea(toolBar);
         DomProperty *attr = new DomProperty();
         attr->setAttributeName(QLatin1String("toolBarArea"));
+        attr->setElementNumber(int(area));
+        ui_widget->setElementAttribute(ui_widget->elementAttribute() << attr);
+    }
+
+    return ui_widget;
+}
+
+DomWidget *QDesignerResource::saveWidget(QDesignerDockWidget *dockWidget, DomWidget *ui_parentWidget)
+{
+    DomWidget *ui_widget = QAbstractFormBuilder::createDom(dockWidget, ui_parentWidget, true);
+    if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(dockWidget->parentWidget())) {
+        Qt::DockWidgetArea area = mainWindow->dockWidgetArea(dockWidget);
+        DomProperty *attr = new DomProperty();
+        attr->setAttributeName(QLatin1String("dockWidgetArea"));
         attr->setElementNumber(int(area));
         ui_widget->setElementAttribute(ui_widget->elementAttribute() << attr);
     }

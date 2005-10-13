@@ -108,6 +108,12 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
     if (event->button() != Qt::LeftButton)
         return true;
 
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        if (QDesignerPropertyEditorInterface *pe = fw->core()->propertyEditor()) {
+            pe->setObject(this);
+        }
+    }
+
     m_startPosition = mapFromGlobal(event->globalPos());
 
     int index = findAction(m_startPosition);
@@ -121,7 +127,6 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
             menu->setActiveAction(0);
         }
     }
-
 
     return true;
 }

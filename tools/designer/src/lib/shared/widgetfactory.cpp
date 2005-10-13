@@ -96,6 +96,8 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         w = new QDesignerMenu(parentWidget);
     } else if (widgetName == QLatin1String("Spacer")) {
         w = new Spacer(parentWidget);
+    } else if (widgetName == QLatin1String("QDockWidget")) {
+        w = new QDesignerDockWidget(parentWidget);
     } else if (widgetName == QLatin1String("QLayoutWidget")) {
         w = fw ? new QLayoutWidget(fw, parentWidget) : new QWidget(parentWidget);
     } else if (widgetName == QLatin1String("QDialog")) {
@@ -165,6 +167,12 @@ const char *WidgetFactory::classNameOf(QObject* o)
         return "QTabWidget";
     else if (qobject_cast<QDesignerStackedWidget*>(o))
         return "QStackedWidget";
+    else if (qobject_cast<QDesignerMenuBar*>(o))
+        return "QMenuBar";
+    else if (qobject_cast<QDesignerToolBar*>(o))
+        return "QToolBar";
+    else if (qobject_cast<QDesignerDockWidget*>(o))
+        return "QDockWidget";
     else if (qobject_cast<QDesignerToolBox*>(o))
         return "QToolBox";
     else if (qobject_cast<QDesignerDialog*>(o))

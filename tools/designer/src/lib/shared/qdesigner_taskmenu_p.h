@@ -64,6 +64,7 @@ private slots:
     void changeWhatsThis();
     void createMenuBar();
     void addToolBar();
+    void createStatusBar();
 
 private:
     QPointer<QWidget> m_widget;
@@ -79,6 +80,7 @@ private:
 
     QAction *m_addMenuBar;
     QAction *m_addToolBar;
+    QAction *m_addStatusBar;
 };
 
 class QDESIGNER_SHARED_EXPORT QDesignerTaskMenuFactory: public QExtensionFactory

@@ -24,6 +24,8 @@
 #include <QtGui/QImage>
 #include <QtGui/QPixmap>
 
+#include <QtGui/QDockWidget>
+#include <QtGui/QDialog>
 
 namespace qdesigner_internal {
 
@@ -78,7 +80,6 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         createFakeProperty(QLatin1String("whatsThis"));
         createFakeProperty(QLatin1String("acceptDrops"));
         createFakeProperty(QLatin1String("dragEnabled"));
-        createFakeProperty(QLatin1String("modal"));
 
         int pindex = -1;
 
@@ -91,6 +92,10 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         createFakeProperty(QLatin1String("spacing"), 0);
         setAttribute(pindex, true);
         setPropertyGroup(pindex, tr("Layout"));
+    }
+
+    if (qobject_cast<QDialog*>(object)) {
+        createFakeProperty(QLatin1String("modal"));        
     }
 }
 

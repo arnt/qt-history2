@@ -45,6 +45,9 @@ class QDesignerContainerExtension;
 class QDesignerPropertySheetExtension;
 class QDesignerMetaDataBaseItemInterface;
 
+class QMenuBar;
+class QStatusBar;
+class QToolBar;
 class QToolBox;
 class QTabWidget;
 class QTableWidget;
@@ -628,6 +631,54 @@ public:
     virtual void undo();
 };
 
+class QDESIGNER_SHARED_EXPORT CreateMenuBarCommand: public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    CreateMenuBarCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QMainWindow *mainWindow);
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    QPointer<QMainWindow> m_mainWindow;
+    QPointer<QMenuBar> m_menuBar;
+};
+
+class QDESIGNER_SHARED_EXPORT CreateStatusBarCommand: public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    CreateStatusBarCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QMainWindow *mainWindow);
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    QPointer<QMainWindow> m_mainWindow;
+    QPointer<QStatusBar> m_statusBar;
+};
+
+class QDESIGNER_SHARED_EXPORT AddToolBarCommand: public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    AddToolBarCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QMainWindow *mainWindow);
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    QPointer<QMainWindow> m_mainWindow;
+    QPointer<QToolBar> m_toolBar;
+};
+
 class QDESIGNER_SHARED_EXPORT DockWidgetCommand: public QDesignerFormWindowCommand
 {
     Q_OBJECT
@@ -664,6 +715,7 @@ public:
     AddDockWidgetCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QMainWindow *mainWindow, QDockWidget *dockWidget);
+    void init(QMainWindow *mainWindow);
 
     virtual void undo();
     virtual void redo();

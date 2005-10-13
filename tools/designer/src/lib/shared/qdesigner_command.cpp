@@ -21,6 +21,9 @@
 
 #include <QtCore/qdebug.h>
 
+#include <QtGui/QMenuBar>
+#include <QtGui/QStatusBar>
+#include <QtGui/QToolBar>
 #include <QtGui/QToolBox>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QTabWidget>
@@ -1359,6 +1362,132 @@ void TabOrderCommand::undo()
     m_widgetItem->setTabOrder(m_oldTabOrder);
 }
 
+// ---- CreateMenuBarCommand ----
+CreateMenuBarCommand::CreateMenuBarCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Create Menu Bar"), formWindow)
+{
+}
+
+void CreateMenuBarCommand::init(QMainWindow *mainWindow)
+{
+    m_mainWindow = mainWindow;
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    m_menuBar = qobject_cast<QMenuBar*>(core->widgetFactory()->createWidget("QMenuBar", m_mainWindow));
+}
+
+void CreateMenuBarCommand::redo()
+{
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QDesignerContainerExtension *c;
+    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    c->addWidget(m_menuBar);
+
+    m_menuBar->setObjectName("menuBar");
+    formWindow()->ensureUniqueObjectName(m_menuBar);
+    core->metaDataBase()->add(m_menuBar);
+    formWindow()->emitSelectionChanged();
+}
+
+void CreateMenuBarCommand::undo()
+{
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QDesignerContainerExtension *c;
+    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    for (int i = 0; i < c->count(); ++i) {
+        if (c->widget(i) == m_menuBar) {
+            c->remove(i);
+            break;
+        }
+    }
+
+    core->metaDataBase()->remove(m_menuBar);
+    formWindow()->emitSelectionChanged();
+}
+
+// ---- CreateStatusBarCommand ----
+CreateStatusBarCommand::CreateStatusBarCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Create Status Bar"), formWindow)
+{
+}
+
+void CreateStatusBarCommand::init(QMainWindow *mainWindow)
+{
+    m_mainWindow = mainWindow;
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    m_statusBar = qobject_cast<QStatusBar*>(core->widgetFactory()->createWidget("QStatusBar", m_mainWindow));
+}
+
+void CreateStatusBarCommand::redo()
+{
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QDesignerContainerExtension *c;
+    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    c->addWidget(m_statusBar);
+
+    m_statusBar->setObjectName("statusBar");
+    formWindow()->ensureUniqueObjectName(m_statusBar);
+    formWindow()->manageWidget(m_statusBar);
+    formWindow()->emitSelectionChanged();
+}
+
+void CreateStatusBarCommand::undo()
+{
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QDesignerContainerExtension *c;
+    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    for (int i = 0; i < c->count(); ++i) {
+        if (c->widget(i) == m_statusBar) {
+            c->remove(i);
+            break;
+        }
+    }
+
+    formWindow()->unmanageWidget(m_statusBar);
+    formWindow()->emitSelectionChanged();
+}
+
+// ---- AddToolBarCommand ----
+AddToolBarCommand::AddToolBarCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Add Tool Bar"), formWindow)
+{
+}
+
+void AddToolBarCommand::init(QMainWindow *mainWindow)
+{
+    m_mainWindow = mainWindow;
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    m_toolBar = qobject_cast<QToolBar*>(core->widgetFactory()->createWidget("QToolBar", m_mainWindow));
+}
+
+void AddToolBarCommand::redo()
+{
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    core->metaDataBase()->add(m_toolBar);
+
+    QDesignerContainerExtension *c;
+    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    c->addWidget(m_toolBar);
+
+    m_toolBar->setObjectName("toolBar");
+    formWindow()->ensureUniqueObjectName(m_toolBar);
+    formWindow()->emitSelectionChanged();
+}
+
+void AddToolBarCommand::undo()
+{
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    core->metaDataBase()->remove(m_toolBar);
+    QDesignerContainerExtension *c;
+    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    for (int i = 0; i < c->count(); ++i) {
+        if (c->widget(i) == m_toolBar) {
+            c->remove(i);
+            break;
+        }
+    }
+    formWindow()->emitSelectionChanged();
+}
+
 // ---- DockWidgetCommand:: ----
 DockWidgetCommand::DockWidgetCommand(const QString &description, QDesignerFormWindowInterface *formWindow)
     : QDesignerFormWindowCommand(description, formWindow)
@@ -1411,14 +1540,40 @@ void AddDockWidgetCommand::init(QMainWindow *mainWindow, QDockWidget *dockWidget
     m_dockWidget = dockWidget;
 }
 
+void AddDockWidgetCommand::init(QMainWindow *mainWindow)
+{
+    m_mainWindow = mainWindow;
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    m_dockWidget = qobject_cast<QDockWidget*>(core->widgetFactory()->createWidget("QDockWidget", m_mainWindow));
+}
+
 void AddDockWidgetCommand::redo()
 {
-    m_mainWindow->addDockWidget(Qt::LeftDockWidgetArea, m_dockWidget);
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QDesignerContainerExtension *c;
+    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    c->addWidget(m_dockWidget);
+
+    m_dockWidget->setObjectName("dockWidget");
+    formWindow()->ensureUniqueObjectName(m_dockWidget);
+    formWindow()->manageWidget(m_dockWidget);
+    formWindow()->emitSelectionChanged();
 }
 
 void AddDockWidgetCommand::undo()
 {
-    m_mainWindow->removeDockWidget(m_dockWidget);
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QDesignerContainerExtension *c;
+    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    for (int i = 0; i < c->count(); ++i) {
+        if (c->widget(i) == m_dockWidget) {
+            c->remove(i);
+            break;
+        }
+    }
+
+    formWindow()->unmanageWidget(m_dockWidget);
+    formWindow()->emitSelectionChanged();
 }
 
 // ---- AdjustWidgetSizeCommand ----

@@ -46,6 +46,7 @@
 #include <QtGui/QTabWidget>
 #include <QtGui/QToolBar>
 #include <QtGui/QMenuBar>
+#include <QtGui/QDockWidget>
 
 #include <QtCore/qdebug.h>
 
@@ -504,6 +505,18 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
                 mw->addToolBar(area, toolBar);
             } else {
                 mw->addToolBar(toolBar);
+            }
+        }
+    }
+
+    // apply the dockwidget's attributes
+    else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(widget)) {
+        if (QMainWindow *mw = qobject_cast<QMainWindow*>(parentWidget)) {
+            if (DomProperty *attr = attributes.value(QLatin1String("dockWidgetArea"))) {
+                Qt::DockWidgetArea area = static_cast<Qt::DockWidgetArea>(attr->elementNumber());
+                mw->addDockWidget(area, dockWidget);
+            } else {
+                mw->addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
             }
         }
     }

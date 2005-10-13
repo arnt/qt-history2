@@ -28,22 +28,28 @@
 #include "shared_global_p.h"
 #include <QtGui/QDockWidget>
 
-namespace qdesigner_internal {
+class QDesignerFormWindowInterface;
 
 class QDESIGNER_SHARED_EXPORT QDesignerDockWidget: public QDockWidget
 {
     Q_OBJECT
-    Q_PROPERTY(Qt::DockWidgetArea dockWidgetArea READ dockWidgetArea WRITE setDockWidgetArea DESIGNABLE inMainWindow)
+    Q_PROPERTY(Qt::DockWidgetArea dockWidgetArea READ dockWidgetArea WRITE setDockWidgetArea DESIGNABLE docked STORED false)
+    Q_PROPERTY(bool docked READ docked WRITE setDocked DESIGNABLE inMainWindow STORED false)
 public:
     QDesignerDockWidget(QWidget *parent = 0);
     virtual ~QDesignerDockWidget();
+
+    bool docked() const;
+    void setDocked(bool b);
 
     Qt::DockWidgetArea dockWidgetArea() const;
     void setDockWidgetArea(Qt::DockWidgetArea dockWidgetArea);
 
     bool inMainWindow() const;
-};
 
-} // namespace qdesigner_internal
+private:
+    QDesignerFormWindowInterface *formWindow() const;
+    QMainWindow *findMainWindow() const;
+};
 
 #endif // QDESIGNER_DOCKWIDGET_H

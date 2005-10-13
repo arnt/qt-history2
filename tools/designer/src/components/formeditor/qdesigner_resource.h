@@ -31,6 +31,7 @@ class QDesignerTabWidget;
 class QDesignerStackedWidget;
 class QDesignerToolBox;
 class QDesignerToolBar;
+class QDesignerDockWidget;
 class QLayoutWidget;
 
 namespace qdesigner_internal {
@@ -104,6 +105,7 @@ protected:
     DomWidget *saveWidget(QDesignerToolBox *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QWidget *widget, QDesignerContainerExtension *container, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QDesignerToolBar *toolBar, DomWidget *ui_parentWidget);
+    DomWidget *saveWidget(QDesignerDockWidget *dockWidget, DomWidget *ui_parentWidget);
 
     virtual DomCustomWidgets *saveCustomWidgets();
     virtual DomTabStops *saveTabStops();
