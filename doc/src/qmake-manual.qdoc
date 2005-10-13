@@ -2137,7 +2137,7 @@
     For example:
 
     \code
-        error(A error has occurred in the configuration process.)
+        error(An error has occurred in the configuration process.)
     \endcode
 
     \section1 exists(filename)
@@ -2410,7 +2410,7 @@
     \section1 INSTALLS
 
     It is common on Unix to be able to install from the same utility as
-    you build with (e.g make install). For this \c qmake has introduce the
+    you build with (e.g make install). For this \c qmake has introduced the
     concept of an install set. The notation for this is quite simple,
     first you fill in an "object" in qmake for example:
 
