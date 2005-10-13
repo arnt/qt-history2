@@ -435,6 +435,8 @@ void QFTOutlineMapper::clipElements(const QPointF *elements,
             path.cubicTo(elements[i], elements[i+1], elements[i+2]);
             i += 2;
             break;
+        default:
+            break;
         }
     }
 
@@ -1718,11 +1720,11 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         ok = SystemParametersInfoA(SPI_GETFONTSMOOTHINGTYPE, 0, &result, 0);
         if (ok)
             clearType = (result == FE_FONTSMOOTHINGCLEARTYPE);
-    }); 
+    });
 
     // Only support cleartype for solid pens, 32 bit target buffers and when the pen color is
     // opaque
-    clearType = clearType && (d->penData.type == QSpanData::Solid) 
+    clearType = clearType && (d->penData.type == QSpanData::Solid)
         && d->deviceDepth == 32 && qAlpha(d->penData.solid.color) == 255;
 
     if (d->txop >= QPainterPrivate::TxScale) {
@@ -1735,7 +1737,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     QFixed x_buffering = ti.ascent;
 
-    // Hack to reserve some space on the left side of the string in case 
+    // Hack to reserve some space on the left side of the string in case
     // the character has a large negative bearing (e.g. it should be drawn on top
     // of the previous character)
     qreal leftBearingReserve = ti.fontEngine->maxCharWidth();
@@ -1786,23 +1788,23 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             }
             penColor = d->penData.solid.color;
         } else {
-            d->fontRasterBuffer->resetBuffer(255);    
+            d->fontRasterBuffer->resetBuffer(255);
         }
 
         // Fill buffer with stuff
-        SetTextColor(d->fontRasterBuffer->hdc(), 
+        SetTextColor(d->fontRasterBuffer->hdc(),
             RGB(qRed(penColor), qGreen(penColor), qBlue(penColor)));
         qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, d->fontRasterBuffer->hdc());
 
         // Clean up alpha channel
-        if (clearType) {   
+        if (clearType) {
             for (int y=ymin; y<ymax; ++y) {
                 QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y());
                 for (int x=xmin; x<xmax; ++x) {
-                    if (qAlpha(scanline[x - devRect.x()]) == 0) 
-                        scanline[x - devRect.x()] |= 0xff000000;                
+                    if (qAlpha(scanline[x - devRect.x()]) == 0)
+                        scanline[x - devRect.x()] |= 0xff000000;
                 }
-            }            
+            }
         }
     }
 
@@ -1832,20 +1834,20 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             }
         }
     } else if (clearType) {
-        QSpanData data; 
+        QSpanData data;
         memcpy(&data, &d->penData, sizeof(QSpanData));
         data.type = QSpanData::Texture;
         data.texture.imageData = d->fontRasterBuffer->buffer();
         data.texture.width = d->fontRasterBuffer->bytesPerLine() / 4;
         data.texture.height = d->fontRasterBuffer->height();
         data.texture.hasAlpha = true;
-        data.bilinear = false;        
+        data.bilinear = false;
 
         data.dx = -devRect.x();
         data.dy = -devRect.y();
-        data.adjustSpanMethods();    
+        data.adjustSpanMethods();
         data.blend = d->rasterBuffer->drawHelper->blend;
-        fillRect(QRect(xmin, ymin, xmax - xmin, ymax - ymin), &data);        
+        fillRect(QRect(xmin, ymin, xmax - xmin, ymax - ymin), &data);
     } else {
         for (int y=ymin; y<ymax; ++y) {
             QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
