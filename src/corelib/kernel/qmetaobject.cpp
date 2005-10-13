@@ -1725,13 +1725,21 @@ bool QMetaProperty::write(QObject *object, const QVariant &value) const
 */
 bool QMetaProperty::reset(QObject *object) const
 {
-    if (!object || !mobj)
+    if (!object || !mobj || !isResetable())
         return false;
     void *argv[] = { 0 };
     object->qt_metacall(QMetaObject::ResetProperty, idx + mobj->propertyOffset(), argv);
     return true;
 }
 
+
+bool QMetaProperty::isResetable() const
+{
+    if (!mobj)
+        return false;
+    int flags = mobj->d.data[handle + 2];
+    return flags & Resetable;
+}
 
 /*!
     Returns true if this property is readable; otherwise returns false.
