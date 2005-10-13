@@ -745,7 +745,15 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
 	NodeList::ConstIterator m = (*s).members.begin();
 	while ( m != (*s).members.end() ) {
 	    if ( (*m)->access() != Node::Private ) { // ### check necessary?
-		generateDetailedMember(*m, inner, marker);
+                if ((*m)->type() != Node::Class)
+		    generateDetailedMember(*m, inner, marker);
+                else {
+                    out() << "<h3>";
+                    generateFullName(*m, inner, marker);
+                    out() << "</h3>";
+                    generateBrief(*m, marker, inner);
+                }
+
                 QStringList names;
                 names << (*m)->name();
                 if ((*m)->type() == Node::Function) {
@@ -1054,13 +1062,18 @@ void HtmlGenerator::generateFooter( const Node *node )
 	     "</html>\n";
 }
 
-void HtmlGenerator::generateBrief(const Node *node, CodeMarker *marker)
+void HtmlGenerator::generateBrief(const Node *node, CodeMarker *marker,
+                                  const Node *relative)
 {
     Text brief = node->doc().briefText();
     if (!brief.isEmpty()) {
-	out() << "<p>";
-	generateText(brief, node, marker);
-	out() << " <a href=\"#" << registerRef("details") << "\">More...</a></p>\n";
+        out() << "<p>";
+        generateText(brief, node, marker);
+        if (!relative || node == relative)
+            out() << " <a href=\"#";
+        else
+            out() << " <a href=\"" << linkForNode(node, relative) << "#";
+        out() << registerRef("details") << "\">More...</a></p>\n";
     }
 }
 

@@ -55,7 +55,8 @@ private:
     void generateTitle(const QString& title, const Text &subTitle, SubTitleSize subTitleSize,
                        const Node *relative, CodeMarker *marker);
     void generateFooter( const Node *node = 0 );
-    void generateBrief(const Node *node, CodeMarker *marker);
+    void generateBrief(const Node *node, CodeMarker *marker,
+                       const Node *relative = 0);
     void generateIncludes(const InnerNode *inner, CodeMarker *marker);
 #if 0
     void generateNavigationBar( const NavigationBar& bar, const Node *node,
