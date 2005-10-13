@@ -187,9 +187,6 @@ void QRubberBand::paintEvent(QPaintEvent *)
 {
     Q_D(QRubberBand);
 
-#ifndef Q_WS_MAC
-    d->updateMask();
-#endif
     QStylePainter painter(this);
     painter.drawControl(QStyle::CE_RubberBand, d->getStyleOption());
 }
@@ -209,9 +206,6 @@ void QRubberBand::changeEvent(QEvent *e)
             setWindowFlags(windowFlags() | Qt::ToolTip);
         }
         break;
-    case QEvent::Resize:
-    case QEvent::Move:
-        d->updateMask();
     default:
         break;
     }
@@ -226,6 +220,24 @@ void QRubberBand::showEvent(QShowEvent *e)
 {
     raise();
     e->ignore();
+}
+
+/*!
+    \reimp
+*/
+void QRubberBand::resizeEvent(QResizeEvent *)
+{
+    Q_D(QRubberBand);
+    d->updateMask();
+}
+
+/*!
+    \reimp
+*/
+void QRubberBand::moveEvent(QResizeEvent *)
+{
+    Q_D(QRubberBand);
+    d->updateMask();
 }
 
 /*!

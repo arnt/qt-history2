@@ -1652,6 +1652,8 @@ void QWidget::setMask(const QRegion &region)
 {
     Q_D(QWidget);
     d->createExtra();
+    if (region == d->extra->mask)
+        return;
     if(QWExtra *extra = d->extraData())
         extra->mask = region;
 

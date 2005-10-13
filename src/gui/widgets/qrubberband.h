@@ -49,6 +49,8 @@ protected:
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
     void showEvent(QShowEvent *);
+    void resizeEvent(QResizeEvent *);
+    void moveEvent(QResizeEvent *);
 
 private:
     Q_DECLARE_PRIVATE(QRubberBand)

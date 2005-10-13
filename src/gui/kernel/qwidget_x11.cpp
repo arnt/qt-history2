@@ -2625,11 +2625,17 @@ void QWidget::setMask(const QRegion& region)
 {
     Q_D(QWidget);
     d->createExtra();
+    if (region == d->extra->mask)
+        return;
     if(QWExtra *extra = d->extraData())
         extra->mask = region;
 
     XShapeCombineRegion(X11->display, winId(), ShapeBounding, 0, 0,
                          region.handle(), ShapeSet);
+#ifndef QT_NO_BACKINGSTORE
+    if (!testAttribute(Qt::WA_PaintOnScreen))
+        update();
+#endif
 }
 
 /*!
