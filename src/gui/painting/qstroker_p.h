@@ -92,7 +92,7 @@ typedef void (*qStrokerCubicToHook)(qfixed c1x, qfixed c1y,
                                     qfixed ex, qfixed ey,
                                     void *data);
 
-class QStrokerOps
+class Q_GUI_EXPORT QStrokerOps
 {
 public:
     struct Element {
@@ -142,7 +142,7 @@ private:
 
 };
 
-class QStroker : public QStrokerOps
+class Q_GUI_EXPORT QStroker : public QStrokerOps
 {
 public:
 
@@ -202,7 +202,7 @@ protected:
     qfixed m_back2Y;
 };
 
-class QDashStroker : public QStrokerOps
+class Q_GUI_EXPORT QDashStroker : public QStrokerOps
 {
 public:
     QDashStroker(QStroker *stroker);

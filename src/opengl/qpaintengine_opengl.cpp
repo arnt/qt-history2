@@ -24,6 +24,8 @@
 #include <private/qpainter_p.h>
 #include <qglpbuffer.h>
 #include <private/qglpbuffer_p.h>
+#include <private/qstroker_p.h>
+#include <private/qbezier_p.h>
 
 
 #ifdef Q_OS_MAC
@@ -33,6 +35,125 @@
 #endif
 
 #include <stdlib.h>
+
+
+struct Subpath
+{
+    int start, end;
+    qreal left, right, top, bottom;
+    bool marked;
+
+    inline void unite(qreal x, qreal y) {
+        if (x < left) left = x;
+        else if (x > right) right = x;
+        if (y > bottom) bottom = y;
+        else if (y < top) top = y;
+    }
+
+    inline bool intersects(const Subpath &s) const
+    {
+        return (qMax(left, s.left) <= qMin(right, s.right) &&
+                qMax(top, s.top) <= qMin(bottom, s.bottom));
+    }
+};
+
+QDebug operator<<(QDebug s, const Subpath &p)
+{
+    s << "Subpath [" << p.start << "-" << p.end << "]"
+      << "left:" << p.left
+      << "right:" << p.right
+      << "top:" << p.top
+      << "bottom:" << p.bottom
+      << p.marked;
+    return s;
+}
+
+#define QREAL_MAX 9e100
+#define QREAL_MIN -9e100
+
+void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDataBuffer<Subpath> *subpaths)
+{
+//     qDebug() << "\nqt_painterpath_split";
+
+    // reset the old buffers...
+    paths->reset();
+    subpaths->reset();
+
+    // Create the set of current subpaths...
+    {
+        Subpath *current = 0;
+        for (int i=0; i<path.elementCount(); ++i) {
+            const QPainterPath::Element &e = path.elementAt(i);
+            switch (e.type) {
+            case QPainterPath::MoveToElement: {
+                if (current)
+                    current->end = i-1;
+                Subpath sp = { i, 0, QREAL_MAX, QREAL_MIN, QREAL_MAX, QREAL_MIN, false };
+                sp.unite(e.x, e.y);
+                subpaths->add(sp);
+                current = &subpaths->data()[subpaths->size() - 1];
+                break;
+            }
+            case QPainterPath::LineToElement:
+                current->unite(e.x, e.y);
+                break;
+            case QPainterPath::CurveToElement: {
+                const QPainterPath::Element &cp2 = path.elementAt(i+1);
+                const QPainterPath::Element &ep = path.elementAt(i+2);
+                current->unite(e.x, e.y);
+                current->unite(cp2.x, cp2.y);
+                current->unite(ep.x, ep.y);
+                i+=2;
+                break;
+            }
+            default:
+                break;
+            }
+        }
+        if (current)
+            current->end = path.elementCount() - 1;
+    }
+
+//     for (int i=0; i<subpaths->size(); ++i) {
+//         qDebug() << subpaths->at(i);
+//     }
+
+    // Check which intersect and merge in paths variable
+    {
+        for (int spi=0; spi<subpaths->size(); ++spi) {
+            if (subpaths->at(spi).marked)
+                continue;
+
+            paths->add(spi);
+
+//             qDebug() << " - matching: " << spi << subpaths->at(spi) << paths->size();
+
+            for (int i=paths->size() - 1; i<paths->size(); ++i) {
+                Q_ASSERT(paths->at(i) >= 0);
+                Subpath *s1 = subpaths->data() + paths->at(i);
+                s1->marked = true;
+//                 qDebug() << "   - marking" << paths->at(i) << *(subpaths->data() + paths->at(i));
+
+                for (int j=0; j<subpaths->size(); ++j) {
+                    const Subpath &s2 = subpaths->at(j);
+                    if (s2.marked)
+                        continue;
+//                     qDebug() << "      - " << j << s2;
+                    if (s1->intersects(s2)) {
+//                         qDebug() << "        - intersects...";
+                        paths->add(j);
+                    }
+                }
+            }
+
+            paths->add(-1);
+//             qDebug() << "paths...";
+//             for (int i=0; i<paths->size(); ++i)
+//                 qDebug() << "  " << paths->at(i);
+        }
+    }
+}
+
 
 #ifndef CALLBACK // for Windows
 #define CALLBACK
@@ -142,13 +263,51 @@ inline QColor QGLDrawable::backgroundColor() const
     return QColor();
 }
 
+// Need to allocate space for new vertices on intersecting lines and
+// they need to be alive until gluTessEndPolygon() has returned
+static QDataBuffer<GLdouble> vertexStorage;
+static void CALLBACK qgl_tess_combine(GLdouble coords[3],
+				      GLdouble *[4],
+				      GLfloat [4], GLdouble **dataOut)
+{
+//     GLdouble *vertex;
+//     vertex = (GLdouble *) malloc(3 * sizeof(GLdouble));
+//     vertex[0] = coords[0];
+//     vertex[1] = coords[1];
+//     vertex[2] = coords[2];
+//     *dataOut = vertex;
+    vertexStorage.add(coords[0]);
+    vertexStorage.add(coords[1]);
+    vertexStorage.add(0);
+    *dataOut = vertexStorage.data() + vertexStorage.size() - 3;
+//     vertexStorage.append(vertex);
+}
+
+static void CALLBACK qgl_tess_error(GLenum errorCode)
+{
+    qWarning("QOpenGLPaintEngine: tessellation error: %s", gluErrorString(errorCode));
+}
+
+struct QGLUTesselatorCleanupHandler
+{
+    inline QGLUTesselatorCleanupHandler() { qgl_tess = gluNewTess(); }
+    inline ~QGLUTesselatorCleanupHandler() { gluDeleteTess(qgl_tess); }
+    GLUtesselator *qgl_tess;
+};
+
+Q_GLOBAL_STATIC(QGLUTesselatorCleanupHandler, tessHandler)
+
 
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
     QOpenGLPaintEnginePrivate()
         : bgmode(Qt::TransparentMode)
-        , txop(QPainterPrivate::TxNone) {}
+        , txop(QPainterPrivate::TxNone)
+        , moveToCount(0)
+        , dashStroker(0)
+        , stroker(0)
+        {}
 
     void setGLPen(const QColor &c) {
         pen_color[0] = c.red();
@@ -163,6 +322,12 @@ public:
         brush_color[2] = c.blue();
         brush_color[3] = c.alpha();
     }
+
+    void beginPath(QPaintEngine::PolygonDrawMode mode);
+    void endPath();
+    inline void moveTo(const QPointF &p);
+    inline void lineTo(const QPointF &p);
+    inline void curveTo(const QPointF &cp1, const QPointF &cp2, const QPointF &ep);
 
     QPen cpen;
     QBrush cbrush;
@@ -179,7 +344,135 @@ public:
     GLubyte brush_color[4];
     QPainterPrivate::TransformationCodes txop;
     QGLDrawable drawable;
+
+    int moveToCount;
+    QStroker basicStroker;
+    QDashStroker *dashStroker;
+    QStrokerOps *stroker;
+    QPointF path_start;
+
+    QDataBuffer<Subpath> subpath_buffer;
+    QDataBuffer<int> int_buffer;
+
+    QDataBuffer<GLdouble> tessVector;
 };
+
+void QOpenGLPaintEnginePrivate::beginPath(QPaintEngine::PolygonDrawMode mode)
+{
+    Q_ASSERT(mode != QPaintEngine::PolylineMode);
+
+    vertexStorage.reset();
+    tessVector.reset();
+    moveToCount = 0;
+
+    GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
+    gluTessProperty(qgl_tess, GLU_TESS_WINDING_RULE,
+                    mode == QPaintEngine::WindingMode
+                    ? GLU_TESS_WINDING_NONZERO
+                    : GLU_TESS_WINDING_ODD);
+    gluTessBeginPolygon(qgl_tess, NULL);
+    gluTessBeginContour(qgl_tess);
+}
+
+void QOpenGLPaintEnginePrivate::endPath()
+{
+    // rewind to first position...
+    lineTo(path_start);
+
+//     for (int i=0; i<10000; ++i) {
+//         tessVector.add(0);
+//         vertexStorage.add(0);
+//     }
+
+//     printf("endPath() -> tessVector = %d, vertexStorage = %d\n", tessVector.size(), vertexStorage.size());
+
+    GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
+    gluTessEndContour(qgl_tess);
+    gluTessEndPolygon(qgl_tess);
+}
+
+inline void QOpenGLPaintEnginePrivate::moveTo(const QPointF &p)
+{
+    if (moveToCount == 0) {
+        // store rewind position
+        path_start = p;
+    } else if (moveToCount >= 2) {
+        // rewind to first position...
+        lineTo(path_start);
+    }
+
+    ++moveToCount;
+    lineTo(p);
+}
+
+inline void QOpenGLPaintEnginePrivate::lineTo(const QPointF &p)
+{
+    GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
+    tessVector.add(p.x());
+    tessVector.add(p.y());
+    tessVector.add(0);
+    gluTessVertex(qgl_tess, tessVector.data() + tessVector.size() - 3, tessVector.data() + tessVector.size() - 3);
+}
+
+inline void QOpenGLPaintEnginePrivate::curveTo(const QPointF &cp1, const QPointF &cp2, const QPointF &ep)
+{
+    qreal x1 = tessVector.at(tessVector.size() - 3);
+    qreal y1 = tessVector.at(tessVector.size() - 2);
+
+    QBezier beziers[32];
+    beziers[0] = QBezier::fromPoints(QPointF(x1, y1), cp1, cp2, ep);
+    QBezier *b = beziers;
+    while (b >= beziers) {
+        // check if we can pop the top bezier curve from the stack
+        qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
+        qreal d;
+        if (l > 1) {
+            d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2) - (b->y4 - b->y1)*(b->x1 - b->x2) )
+                + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3) - (b->y4 - b->y1)*(b->x1 - b->x3) );
+            d /= l;
+        } else {
+            d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
+                qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
+        }
+        if (d < 0.5 || b == beziers + 31) {
+            // good enough, we pop it off and add the endpoint
+            lineTo(QPointF(b->x4, b->y4));
+            --b;
+        } else {
+            // split, second half of the polygon goes lower into the stack
+            b->split(b+1, b);
+            ++b;
+        }
+    }
+}
+
+
+void strokeMoveTo(qfixed x, qfixed y, void *data)
+{
+    ((QOpenGLPaintEnginePrivate *) data)->moveTo(QPointF(qt_fixed_to_real(x),
+                                                         qt_fixed_to_real(y)));
+}
+
+
+void strokeLineTo(qfixed x, qfixed y, void *data)
+{
+    ((QOpenGLPaintEnginePrivate *) data)->lineTo(QPointF(qt_fixed_to_real(x),
+                                                         qt_fixed_to_real(y)));
+}
+
+
+void strokeCurveTo(qfixed c1x, qfixed c1y,
+                   qfixed c2x, qfixed c2y,
+                   qfixed ex, qfixed ey,
+                   void *data)
+{
+    ((QOpenGLPaintEnginePrivate *) data)->curveTo(QPointF(qt_fixed_to_real(c1x),
+                                                          qt_fixed_to_real(c1y)),
+                                                  QPointF(qt_fixed_to_real(c2x),
+                                                          qt_fixed_to_real(c2y)),
+                                                  QPointF(qt_fixed_to_real(ex),
+                                                          qt_fixed_to_real(ey)));
+}
 
 QOpenGLPaintEngine::QOpenGLPaintEngine()
     : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
@@ -189,10 +482,39 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
                                            | ConicalGradientFill
                                            | PatternBrush)))
 {
+    Q_D(QOpenGLPaintEngine);
+    d->basicStroker.setMoveToHook(strokeMoveTo);
+    d->basicStroker.setLineToHook(strokeLineTo);
+    d->basicStroker.setCubicToHook(strokeCurveTo);
+
+    GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
+
+#ifdef Q_WS_MAC  // This removes warnings.
+    gluTessCallback(qgl_tess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glBegin));
+    gluTessCallback(qgl_tess, GLU_TESS_VERTEX,
+                    reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glVertex3dv));
+    gluTessCallback(qgl_tess, GLU_TESS_END, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glEnd));
+    gluTessCallback(qgl_tess, GLU_TESS_COMBINE,
+                    reinterpret_cast<GLvoid (CALLBACK *)(...)>(&qgl_tess_combine));
+    gluTessCallback(qgl_tess, GLU_TESS_ERROR,
+                    reinterpret_cast<GLvoid (CALLBACK *)(...)>(&qgl_tess_error));
+#else
+    gluTessCallback(qgl_tess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)()>(&glBegin));
+    gluTessCallback(qgl_tess, GLU_TESS_VERTEX,
+                    reinterpret_cast<GLvoid (CALLBACK *)()>(&glVertex3dv));
+    gluTessCallback(qgl_tess, GLU_TESS_END, reinterpret_cast<GLvoid (CALLBACK *)()>(&glEnd));
+    gluTessCallback(qgl_tess, GLU_TESS_COMBINE,
+                    reinterpret_cast<GLvoid (CALLBACK *)()>(&qgl_tess_combine));
+    gluTessCallback(qgl_tess, GLU_TESS_ERROR,
+                    reinterpret_cast<GLvoid (CALLBACK *) ()>(&qgl_tess_error));
+#endif
 }
 
 QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
+    Q_D(QOpenGLPaintEngine);
+    if (d->dashStroker)
+        delete d->dashStroker;
 }
 
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
@@ -225,7 +547,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
-
     return true;
 }
 
@@ -269,7 +590,29 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     d->cpen = pen;
     d->has_pen = (pen.style() != Qt::NoPen);
     d->setGLPen(pen.color());
+
     glColor4ubv(d->pen_color);
+
+    d->basicStroker.setJoinStyle(pen.joinStyle());
+    d->basicStroker.setCapStyle(pen.capStyle());
+    d->basicStroker.setMiterLimit(pen.miterLimit());
+    qreal penWidth = pen.widthF();
+    if (penWidth == 0)
+        d->basicStroker.setStrokeWidth(1);
+    else
+        d->basicStroker.setStrokeWidth(penWidth);
+
+    Qt::PenStyle pen_style = pen.style();
+    if(pen_style == Qt::SolidLine) {
+        d->stroker = &d->basicStroker;
+    } else if (pen_style != Qt::NoPen) {
+        if (!d->dashStroker)
+            d->dashStroker = new QDashStroker(&d->basicStroker);
+        d->dashStroker->setDashPattern(pen.dashPattern());
+        d->stroker = d->dashStroker;
+    } else {
+        d->stroker = 0;
+    }
 }
 
 void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
@@ -415,25 +758,33 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
     // ### this could be done faster I'm sure...
     for (int i=0; i<rectCount; ++i) {
         QRectF r = rects[i];
-        double x = r.x();
-        double y = r.y();
-        double w = r.width();
-        double h = r.height();
+
+        qreal left = r.left();
+        qreal right = r.right();
+        qreal top = r.top();
+        qreal bottom = r.bottom();
+
         if (d->has_brush) {
             glColor4ubv(d->brush_color);
-            glRectd(x, y, x+w, y+h);
+            d->beginPath(QPaintEngine::ConvexMode);
+            d->moveTo(QPointF(left, top));
+            d->lineTo(QPointF(left, bottom));
+            d->lineTo(QPointF(right, bottom));
+            d->lineTo(QPointF(right, top));
+            d->endPath();
         }
 
         if (d->has_pen) {
             glColor4ubv(d->pen_color);
-            glBegin(GL_LINE_LOOP);
-            {
-                glVertex2d(x, y);
-                glVertex2d(x+w, y);
-                glVertex2d(x+w, y+h);
-                glVertex2d(x, y+h);
-            }
-            glEnd();
+            d->beginPath(QPaintEngine::WindingMode);
+            d->stroker->begin(d);
+            d->stroker->moveTo(qt_real_to_fixed(left), qt_real_to_fixed(top));
+            d->stroker->lineTo(qt_real_to_fixed(right), qt_real_to_fixed(top));
+            d->stroker->lineTo(qt_real_to_fixed(right), qt_real_to_fixed(bottom));
+            d->stroker->lineTo(qt_real_to_fixed(left), qt_real_to_fixed(bottom));
+            d->stroker->lineTo(qt_real_to_fixed(left), qt_real_to_fixed(top));
+            d->stroker->end();
+            d->endPath();
         }
     }
 }
@@ -443,16 +794,10 @@ void QOpenGLPaintEngine::drawPoints(const QPointF *points, int pointCount)
     Q_D(QOpenGLPaintEngine);
     GLfloat pen_width = d->cpen.widthF();
     if (pen_width > 1 || (pen_width > 0 && d->txop > QPainterPrivate::TxTranslate)) {
-        const QPointF *end = points + pointCount;
-        while (points < end) {
-            QPainterPath path;
-            path.moveTo(*points);
-            path.lineTo(points->x() + 0.001, points->y());
-            drawPath(path);
-            ++points;
-        }
+        QPaintEngine::drawPoints(points, pointCount);
         return;
     }
+
     glBegin(GL_POINTS);
     {
         for (int i=0; i<pointCount; ++i)
@@ -465,135 +810,50 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     Q_D(QOpenGLPaintEngine);
 
-    GLfloat pen_width = d->cpen.widthF();
-    if (pen_width > 1 || (pen_width > 0 && d->txop > QPainterPrivate::TxTranslate)) {
-        QPainterPath path(lines[0].p1());
-        path.lineTo(lines[0].p2());
-        for (int i = 1; i < lineCount; ++lines) {
-            path.lineTo(lines[i].p1());
-            path.lineTo(lines[i].p2());
-        }
-        drawPath(path);
-        return;
-    }
-    glColor4ubv(d->pen_color);
-    glBegin(GL_LINES);
-    {
-        for (int i = 0; i < lineCount; ++i) {
-            glVertex2d(lines[i].x1(), lines[i].y1());
-            glVertex2d(lines[i].x2(), lines[i].y2());
+    if (d->has_pen) {
+        glColor4ubv(d->pen_color);
+        for (int i=0; i<lineCount; ++i) {
+            const QLineF &l = lines[i];
+            d->beginPath(QPaintEngine::WindingMode);
+            d->stroker->begin(d);
+            d->stroker->moveTo(qt_real_to_fixed(l.x1()), qt_real_to_fixed(l.y1()));
+            d->stroker->lineTo(qt_real_to_fixed(l.x2()), qt_real_to_fixed(l.y2()));
+            d->stroker->end();
+            d->endPath();
         }
     }
-    glEnd();
+
+//     glBegin(GL_LINES);
+//     {
+//         for (int i = 0; i < lineCount; ++i) {
+//             glVertex2d(lines[i].x1(), lines[i].y1());
+//             glVertex2d(lines[i].x2(), lines[i].y2());
+//         }
+//     }
+//     glEnd();
 }
 
-// Need to allocate space for new vertices on intersecting lines and
-// they need to be alive until gluTessEndPolygon() has returned
-static QList<GLdouble *> vertexStorage;
-static void CALLBACK qgl_tess_combine(GLdouble coords[3],
-				      GLdouble *[4],
-				      GLfloat [4], GLdouble **dataOut)
-{
-    GLdouble *vertex;
-    vertex = (GLdouble *) malloc(3 * sizeof(GLdouble));
-    vertex[0] = coords[0];
-    vertex[1] = coords[1];
-    vertex[2] = coords[2];
-    *dataOut = vertex;
-    vertexStorage.append(vertex);
-}
-
-static void CALLBACK qgl_tess_error(GLenum errorCode)
-{
-    qWarning("QOpenGLPaintEngine: tessellation error: %s", gluErrorString(errorCode));
-}
-
-struct QGLUTesselatorCleanupHandler
-{
-    inline QGLUTesselatorCleanupHandler() { qgl_tess = gluNewTess(); }
-    inline ~QGLUTesselatorCleanupHandler() { gluDeleteTess(qgl_tess); }
-    GLUtesselator *qgl_tess;
-};
-
-Q_GLOBAL_STATIC(QGLUTesselatorCleanupHandler, tessHandler)
-
-static void qgl_draw_poly(const QPointF *points, int pointCount, bool winding = false)
-{
-#ifndef QT_GL_NO_CONCAVE_POLYGONS
-    GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
-    gluTessProperty(qgl_tess, GLU_TESS_WINDING_RULE,
-                    winding ? GLU_TESS_WINDING_NONZERO : GLU_TESS_WINDING_ODD);
-    QVarLengthArray<GLdouble> v(pointCount*3);
-#ifdef Q_WS_MAC  // This removes warnings.
-    gluTessCallback(qgl_tess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glBegin));
-    gluTessCallback(qgl_tess, GLU_TESS_VERTEX,
-                    reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glVertex3dv));
-    gluTessCallback(qgl_tess, GLU_TESS_END, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glEnd));
-    gluTessCallback(qgl_tess, GLU_TESS_COMBINE,
-                    reinterpret_cast<GLvoid (CALLBACK *)(...)>(&qgl_tess_combine));
-    gluTessCallback(qgl_tess, GLU_TESS_ERROR,
-                    reinterpret_cast<GLvoid (CALLBACK *)(...)>(&qgl_tess_error));
-#else
-    gluTessCallback(qgl_tess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)()>(&glBegin));
-    gluTessCallback(qgl_tess, GLU_TESS_VERTEX,
-                    reinterpret_cast<GLvoid (CALLBACK *)()>(&glVertex3dv));
-    gluTessCallback(qgl_tess, GLU_TESS_END, reinterpret_cast<GLvoid (CALLBACK *)()>(&glEnd));
-    gluTessCallback(qgl_tess, GLU_TESS_COMBINE,
-                    reinterpret_cast<GLvoid (CALLBACK *)()>(&qgl_tess_combine));
-    gluTessCallback(qgl_tess, GLU_TESS_ERROR,
-                    reinterpret_cast<GLvoid (CALLBACK *) ()>(&qgl_tess_error));
-#endif
-    gluTessBeginPolygon(qgl_tess, NULL);
-    {
-	gluTessBeginContour(qgl_tess);
-	{
-	    for (int i = 0; i < pointCount; ++i) {
-		v[i*3] = points[i].x();
-		v[i*3+1] = points[i].y();
-		v[i*3+2] = 0.0;
-		gluTessVertex(qgl_tess, &v[i*3], &v[i*3]);
-	    }
-	}
-	gluTessEndContour(qgl_tess);
-    }
-    gluTessEndPolygon(qgl_tess);
-    // clean up after the qgl_tess_combine callback
-    for (int i=0; i < vertexStorage.size(); ++i)
-	free(vertexStorage[i]);
-    vertexStorage.clear();
-#else
-    glBegin(GL_POLYGON);
-    {
-        for (int i = 0; i < pointCount; ++i)
-	    glVertex2d(points[i].x(), points[i].y());
-    }
-    glEnd();
-#endif
-}
 
 void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
     Q_D(QOpenGLPaintEngine);
-    if(!pointCount)
+    if(pointCount < 3)
         return;
-    glColor4ubv(d->brush_color);
-    if (d->has_brush && mode != PolylineMode)
-        qgl_draw_poly(points, pointCount, mode == QPaintEngine::WindingMode);
+
+    if (d->has_brush && mode != PolylineMode) {
+        glColor4ubv(d->brush_color);
+        d->beginPath(mode);
+        d->moveTo(points[0]);
+        for (int i=1; i<pointCount; ++i)
+            d->lineTo(points[i]);
+        d->endPath();
+    }
+
     if (d->has_pen) {
         glColor4ubv(d->pen_color);
-        double x1 = points[0].x();
-        double y1 = points[0].y();
-        double x2 = points[pointCount - 1].x();
-        double y2 = points[pointCount - 1].y();
-
-        glBegin(GL_LINE_STRIP);
-        {
-            for (int i = 0; i < pointCount; ++i)
-                glVertex2d(points[i].x(), points[i].y());
-            if (mode != PolylineMode && !(x1 == x2 && y1 == y2))
-                glVertex2d(x1, y1);
-        }
-        glEnd();
+        d->beginPath(WindingMode);
+        d->stroker->strokePolygon(points, pointCount, mode != PolylineMode, d, QMatrix());
+        d->endPath();
     }
 }
 
@@ -604,58 +864,43 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
     if (path.isEmpty())
         return;
 
+    qt_painterpath_split(path, &d->int_buffer, &d->subpath_buffer);
+
     if (d->has_brush) {
-        QPolygonF poly = path.toFillPolygon();
-        bool had_pen = d->has_pen;
-        QPen old_pen = d->cpen;
-        d->has_pen = false;
-        d->cpen.setStyle(Qt::NoPen);
-        drawPolygon(poly.data(), poly.size(),
-                    path.fillRule() == Qt::OddEvenFill ? OddEvenMode : WindingMode);
-        d->has_pen = had_pen;
-        d->cpen = old_pen;
+        glColor4ubv(d->brush_color);
+        for (int i=0; i<d->int_buffer.size(); ++i) {
+            d->beginPath(path.fillRule() == Qt::WindingFill
+                         ? QPaintEngine::WindingMode
+                         : QPaintEngine::OddEvenMode);
+            for (; d->int_buffer.at(i) != -1; ++i) {
+                const Subpath &sp = d->subpath_buffer.at(d->int_buffer.at(i));
+                for (int j=sp.start; j<=sp.end; ++j) {
+                    const QPainterPath::Element &e = path.elementAt(j);
+                    switch (e.type) {
+                    case QPainterPath::MoveToElement:
+                        d->moveTo(e);
+                        break;
+                    case QPainterPath::LineToElement:
+                        d->lineTo(e);
+                        break;
+                    case QPainterPath::CurveToElement:
+                        d->curveTo(e, path.elementAt(j+1), path.elementAt(j+2));
+                        j+=2;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+            d->endPath();
+        }
     }
 
     if (d->has_pen) {
-        QPainterPathStroker stroker;
-        stroker.setDashPattern(d->cpen.dashPattern());
-        stroker.setCapStyle(d->cpen.capStyle());
-        stroker.setJoinStyle(d->cpen.joinStyle());
-        stroker.setMiterLimit(d->cpen.miterLimit());
-        QPainterPath stroke;
-        qreal width = d->cpen.widthF();
-        QPolygonF poly;
-        if (width == 0) {
-            stroker.setWidth(1);
-            stroke = stroker.createStroke(path * d->matrix);
-            if (stroke.isEmpty())
-                return;
-            poly = stroke.toFillPolygon();
-        } else {
-            stroker.setWidth(width);
-            stroke = stroker.createStroke(path);
-            if (stroke.isEmpty())
-                return;
-            poly = stroke.toFillPolygon(d->matrix);
-        }
-
-        bool had_pen = d->has_pen;
-        bool had_brush = d->has_brush;
-        QBrush old_brush = d->cbrush;
-        d->has_pen = false;
-        d->has_brush = true;
-        d->setGLBrush(d->cpen.brush().color());
-
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-        drawPolygon(poly.data(), poly.size(), WindingMode);
-        glPopMatrix();
-
-        d->has_pen = had_pen;
-        d->has_brush = had_brush;
-        d->cbrush = old_brush;
-        d->setGLBrush(d->cbrush.color());
+        glColor4ubv(d->pen_color);
+        d->beginPath(WindingMode);
+        d->stroker->strokePath(path, d, QMatrix());
+        d->endPath();
     }
 }
 
@@ -789,18 +1034,19 @@ QOpenGLPaintEngine::handle() const
 
 void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
-    Q_D(QOpenGLPaintEngine);
-    QImage img((int)textItem.width(),
-               (int)(textItem.ascent() + textItem.descent()),
-               QImage::Format_ARGB32_Premultiplied);
-    img.fill(0);
-    QPainter painter(&img);
-    painter.setPen(d->cpen);
-    painter.setBrush(d->cbrush);
-    painter.drawTextItem(QPoint(0, (int)(textItem.ascent())), textItem);
-    painter.end();
-    drawImage(QRectF(p.x(), p.y()-(textItem.ascent()), img.width(), img.height()),
-              img,
-              QRectF(0, 0, img.width(), img.height()),
-              Qt::AutoColor);
+//     Q_D(QOpenGLPaintEngine);
+//     QImage img((int)textItem.width(),
+//                (int)(textItem.ascent() + textItem.descent()),
+//                QImage::Format_ARGB32_Premultiplied);
+//     img.fill(0);
+//     QPainter painter(&img);
+//     painter.setPen(d->cpen);
+//     painter.setBrush(d->cbrush);
+//     painter.drawTextItem(QPoint(0, (int)(textItem.ascent())), textItem);
+//     painter.end();
+//     drawImage(QRectF(p.x(), p.y()-(textItem.ascent()), img.width(), img.height()),
+//               img,
+//               QRectF(0, 0, img.width(), img.height()),
+//               Qt::AutoColor);
+    QPaintEngine::drawTextItem(p, textItem);
 }
