@@ -110,7 +110,10 @@ QVariant QStringListModel::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags QStringListModel::flags(const QModelIndex &index) const
 {
-    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+    if (index.isValid())
+        return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+    else
+        return QAbstractItemModel::flags(index);
 }
 
 /*!
