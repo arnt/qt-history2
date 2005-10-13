@@ -66,7 +66,7 @@ void ListWidgetEditor::fillContentsFromComboBox(QComboBox *comboBox)
     for (int i=0; i<comboBox->count(); ++i) {
         QListWidgetItem *item = new QListWidgetItem();
         item->setText(comboBox->itemText(i));
-        item->setIcon(comboBox->itemData(i).value<QIcon>());
+        item->setIcon(qVariantValue<QIcon>(comboBox->itemData(i)));
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui.listWidget->addItem(item);
     }
