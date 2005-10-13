@@ -1568,6 +1568,12 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                     --checkPoint;
 
                 layoutStruct->y = checkPoint->y;
+
+                if (layoutStruct->pageHeight > 0.0) {
+                    int page = int(layoutStruct->y / layoutStruct->pageHeight);
+                    layoutStruct->pageBottom = (page + 1) * layoutStruct->pageHeight;
+                }
+
                 it = iteratorForTextPosition(checkPoint->positionInFrame);
                 checkPoints.resize(checkPoint - checkPoints.begin() + 1);
             } else {
@@ -1709,7 +1715,6 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             checkPoints.append(cp);
         } else {
             currentLazyLayoutPosition = checkPoints.last().positionInFrame;
-            //qDebug() << "after layout flow in that aborted early layoutpos is" << currentLazyLayoutPosition;
             // #######
             //checkPoints.last().positionInFrame = q->document()->docHandle()->length();
         }
