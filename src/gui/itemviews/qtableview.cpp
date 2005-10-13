@@ -486,7 +486,7 @@ void QTableView::paintEvent(QPaintEvent *event)
     QPainter painter(d->viewport);
 
     // if there's nothing to do, clear the area and return
-    if (d->horizontalHeader->count() == 0 || d->verticalHeader->count() == 0) {
+    if (horizontalHeader->count() == 0 || verticalHeader->count() == 0) {
         painter.fillRect(event->rect(), option.palette.brush(QPalette::Base));
         return;
     }
@@ -498,8 +498,8 @@ void QTableView::paintEvent(QPaintEvent *event)
         area.translate(offset);
 
         // get the horizontal start and end sections (visual indexes)
-        int left = d->horizontalHeader->visualIndexAt(area.left());
-        int right = d->horizontalHeader->visualIndexAt(area.right());
+        int left = horizontalHeader->visualIndexAt(area.left());
+        int right = horizontalHeader->visualIndexAt(area.right());
 
         if (isRightToLeft()) {
             left = (left == -1 ? model()->columnCount(rootIndex()) - 1 : left);
@@ -514,7 +514,7 @@ void QTableView::paintEvent(QPaintEvent *event)
         right = qMax(tmp, right);
 
         // get the vertical start and end sections (visual indexes)
-        int bottom = d->verticalHeader->visualIndexAt(area.bottom());
+        int bottom = verticalHeader->visualIndexAt(area.bottom());
         bottom = (bottom == -1 ? d->model->rowCount(rootIndex()) - 1 : bottom);
 
         int top = 0;
@@ -593,8 +593,8 @@ void QTableView::paintEvent(QPaintEvent *event)
 
         int w = d->viewport->width();
         int h = d->viewport->height();
-        int x = d->horizontalHeader->length();
-        int y = d->verticalHeader->length();
+        int x = horizontalHeader->length();
+        int y = verticalHeader->length();
         QRect b(0, y, w, h - y);
         if (y < h && area.intersects(b))
             painter.fillRect(b, option.palette.brush(QPalette::Base));
