@@ -582,7 +582,7 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
             PAINTDEVICE->paintEngine()->setSystemClip(wrgn);
 
             //paint the background
-            if((asRoot && !widget->testAttribute(Qt::WA_NoBackground) && !widget->testAttribute(Qt::WA_NoBackground))
+            if((asRoot && !widget->testAttribute(Qt::WA_NoBackground) && !widget->testAttribute(Qt::WA_NoSystemBackground))
                || widget->d_func()->hasBackground()) {
 
                 QPainter p(widget);
