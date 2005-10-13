@@ -26,6 +26,7 @@
 #include "qthread.h"
 #include "qcoreapplication.h"
 #include <qendian.h>
+
 //#define QSOCKS5SOCKETLAYER_DEBUG
 
 #define MAX_DATA_DUMP 256
@@ -149,16 +150,12 @@ static bool qt_socks5_set_host_address_and_port(const QHostAddress &address, qui
 
     if (address.protocol() == QAbstractSocket::IPv4Protocol) {
         int spaceAvailable = pBuf->size() - pos;
-        if (spaceAvailable < 5)
-            pBuf->resize(pBuf->size() + 5 - spaceAvailable);
-        char *buf = pBuf->data();
+        if (spaceAvailable < sizeof(quint32) + 1)
+            pBuf->resize(pBuf->size() + sizeof(quint32) + 1 - spaceAvailable);
+        unsigned char *buf = reinterpret_cast<unsigned char *>(pBuf->data());
         buf[pos++] = S5_IP_V4;
-        quint32 add = qToBigEndian<quint32>(address.toIPv4Address());
-        char *ipv4 = reinterpret_cast<char *>(&add);
-        buf[pos++] = ipv4[0];
-        buf[pos++] = ipv4[1];
-        buf[pos++] = ipv4[2];
-        buf[pos++] = ipv4[3];
+        qToUnaligned(qToBigEndian<quint32>(address.toIPv4Address()), &buf[pos]);
+        pos += sizeof(quint32);
         ret = true;
     } else if (address.protocol() == QAbstractSocket::IPv6Protocol) {
         int spaceAvailable = pBuf->size() - pos;
@@ -177,13 +174,11 @@ static bool qt_socks5_set_host_address_and_port(const QHostAddress &address, qui
 
     if (ret) {
         int spaceAvailable = pBuf->size() - pos;
-        if (spaceAvailable < 2)
-            pBuf->resize(pBuf->size() + 2 - spaceAvailable);
-        char *buf = pBuf->data();
-        quint16 nPort = qToBigEndian<quint16>(port);
-        char *pport = reinterpret_cast<char *>(&nPort);
-        buf[pos++] = pport[0];
-        buf[pos++] = pport[1];
+        if (spaceAvailable < sizeof(quint16))
+            pBuf->resize(pBuf->size() + sizeof(quint16) - spaceAvailable);
+        unsigned char *buf = reinterpret_cast<unsigned char *>(pBuf->data());
+        qToUnaligned(qToBigEndian<quint16>(port), &buf[pos]);
+        pos += sizeof(quint16);
     }
 
     if (ret)
@@ -1363,11 +1358,10 @@ qint64 QSocks5SocketEngine::writeDatagram(const char *data, qint64 len, const QH
 
     QByteArray outBuf;
     outBuf.reserve(270 + len);
-    char *buf = outBuf.data();
     int pos = 0;
-    buf[pos++] = 0x00;
-    buf[pos++] = 0x00;
-    buf[pos++] = 0x00;
+    outBuf[pos++] = 0x00;
+    outBuf[pos++] = 0x00;
+    outBuf[pos++] = 0x00;
     if (!qt_socks5_set_host_address_and_port(address, port, &outBuf, &pos)) {
     }
     outBuf += QByteArray(data, len);
