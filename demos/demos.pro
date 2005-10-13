@@ -10,7 +10,8 @@ SUBDIRS     = \
         interview \
         mainwindow \
         spreadsheet \
-        textedit
+        textedit \
+        arthurplugin
 
 CONFIG += ordered
 
