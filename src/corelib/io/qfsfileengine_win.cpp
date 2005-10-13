@@ -952,7 +952,6 @@ bool QFSFileEnginePrivate::doStat() const
                 }
             }
         } else {
-
             QT_WA({
                 fileAttrib = GetFileAttributesW((TCHAR*)QFSFileEnginePrivate::longFileName(file).utf16());
             } , {
@@ -960,35 +959,41 @@ bool QFSFileEnginePrivate::doStat() const
             });
             could_stat = fileAttrib != INVALID_FILE_ATTRIBUTES;
             if (!could_stat) {
-                QString path = QDir::convertSeparators(file);
-                bool is_dir = false;
-                if (path.startsWith("\\\\")) {
-                    // UNC - stat doesn't work for all cases (Windows bug)
-                    int s = path.indexOf(path.at(0),2);
-                    if (s > 0) {
-                        // "\\server\..."
-                        s = path.indexOf(path.at(0),s+1);
+                if (file.at(0).isLetter() && file.mid(1, file.length()) == ":/") {
+                    // an empty drive ??
+                    fileAttrib = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN;
+                    could_stat = true;
+                } else {
+                    QString path = QDir::convertSeparators(file);
+                    bool is_dir = false;
+                    if (path.startsWith("\\\\")) {
+                        // UNC - stat doesn't work for all cases (Windows bug)
+                        int s = path.indexOf(path.at(0),2);
                         if (s > 0) {
-                            // "\\server\share\..."
-                            if (s == path.size() - 1) {
-                                // "\\server\share\"
-                                is_dir = true;
+                            // "\\server\..."
+                            s = path.indexOf(path.at(0),s+1);
+                            if (s > 0) {
+                                // "\\server\share\..."
+                                if (s == path.size() - 1) {
+                                    // "\\server\share\"
+                                    is_dir = true;
+                                } else {
+                                    // "\\server\share\notfound"
+                                }
                             } else {
-                                // "\\server\share\notfound"
+                                // "\\server\share"
+                                is_dir = true;
                             }
                         } else {
-                            // "\\server\share"
+                            // "\\server"
                             is_dir = true;
                         }
-                    } else {
-                        // "\\server"
-                        is_dir = true;
                     }
-                }
-                if (is_dir && uncShareExists(path)) {
-                    // looks like a UNC dir, is a dir.
-                    fileAttrib = FILE_ATTRIBUTE_DIRECTORY;
-                    could_stat = true;
+                    if (is_dir && uncShareExists(path)) {
+                        // looks like a UNC dir, is a dir.
+                        fileAttrib = FILE_ATTRIBUTE_DIRECTORY;
+                        could_stat = true;
+                    }
                 }
             }
         }
@@ -1309,7 +1314,7 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
             ret |= QAbstractFileEngine::FileFlags(ExistsFlag | LocalDiskFlag);
             if (d->fileAttrib & FILE_ATTRIBUTE_HIDDEN)
                 ret |= HiddenFlag;
-            if (d->file == "/" || (d->file[0].isLetter() && d->file.mid(1,d->file.length()) == ":/")
+            if (d->file == "/" || (d->file.at(0).isLetter() && d->file.mid(1,d->file.length()) == ":/")
                 || isUncRoot(d->file))
                 ret |= RootFlag;
         }

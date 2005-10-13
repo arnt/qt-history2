@@ -139,16 +139,19 @@ QDateTime
     if(request == QAbstractFileEngine::CreationTime) {
         if(data->getCachedFlag(CachedCTime))
             return data->fileTimes[request];
+        data->setCachedFlag(CachedCTime);
         return (data->fileTimes[request] = data->fileEngine->fileTime(request));
     }
     if(request == QAbstractFileEngine::ModificationTime) {
         if(data->getCachedFlag(CachedMTime))
             return data->fileTimes[request];
+        data->setCachedFlag(CachedMTime);
         return (data->fileTimes[request] = data->fileEngine->fileTime(request));
     }
     if(request == QAbstractFileEngine::AccessTime) {
         if(data->getCachedFlag(CachedATime))
             return data->fileTimes[request];
+        data->setCachedFlag(CachedATime);
         return (data->fileTimes[request] = data->fileEngine->fileTime(request));
     }
     return data->fileTimes[0]; //cannot really happen
@@ -1037,8 +1040,10 @@ QFileInfo::size() const
     Q_D(const QFileInfo);
     if(!d->data->fileEngine)
         return 0;
-    if(!d->data->getCachedFlag(QFileInfoPrivate::CachedSize))
+    if(!d->data->getCachedFlag(QFileInfoPrivate::CachedSize)) {
+        d->data->setCachedFlag(QFileInfoPrivate::CachedSize);
         d->data->fileSize = d->data->fileEngine->size();
+    }
     return d->data->fileSize;
 }
 
