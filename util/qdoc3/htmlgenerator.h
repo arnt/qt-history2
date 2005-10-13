@@ -103,6 +103,7 @@ private:
     void findAllClasses(const InnerNode *node);
     void findAllFunctions(const InnerNode *node);
     void findAllLegaleseTexts(const InnerNode *node);
+    void findAllNamespaces(const InnerNode *node);
     static int hOffset(const Node *node);
     static bool isThreeColumnEnumValueTable(const Atom *atom);
     QString getLink(const Atom *atom, const Node *relative, CodeMarker *marker);
@@ -145,6 +146,7 @@ private:
     QMap<QString, const Node *> nonCompatClasses;
     QMap<QString, const Node *> mainClasses;
     QMap<QString, const Node *> compatClasses;
+    QMap<QString, const Node *> namespaceIndex;
     QMap<QString, QMap<QString, const Node *> > funcIndex;
     QMap<Text, const Node *> legaleseTexts;
 };

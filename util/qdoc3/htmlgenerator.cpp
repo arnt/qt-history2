@@ -131,6 +131,7 @@ void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
     findAllClasses(tree->root());
     findAllFunctions(tree->root());
     findAllLegaleseTexts(tree->root());
+    findAllNamespaces(tree->root());
     PageGenerator::generateTree(tree, marker);
 }
 
@@ -308,6 +309,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	    generateCompactList(relative, marker, mainClasses);
 	} else if (atom->string() == "overviews") {
             generateOverviewList(relative, marker);
+	} else if (atom->string() == "namespaces") {
+	    generateAnnotatedList(relative, marker, namespaceIndex);
         }
 
 	break;
@@ -748,7 +751,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
                 if ((*m)->type() != Node::Class)
 		    generateDetailedMember(*m, inner, marker);
                 else {
-                    out() << "<h3>";
+                    out() << "<h3> class ";
                     generateFullName(*m, inner, marker);
                     out() << "</h3>";
                     generateBrief(*m, marker, inner);
@@ -2077,12 +2080,17 @@ void HtmlGenerator::findAllClasses(const InnerNode *node)
     while (c != node->childNodes().constEnd()) {
 	if ((*c)->access() != Node::Private && (*c)->url().isEmpty()) {
 	    if ((*c)->type() == Node::Class && !(*c)->doc().isEmpty()) {
+                QString className = (*c)->name();
+                if ((*c)->parent() && (*c)->parent()->type() == Node::Namespace &&
+                    !(*c)->parent()->name().isEmpty())
+                    className = (*c)->parent()->name()+"::"+className;
+
                 if ((*c)->status() == Node::Compat) {
-                    compatClasses.insert((*c)->name(), *c);
+                    compatClasses.insert(className, *c);
                 } else {
-	            nonCompatClasses.insert((*c)->name(), *c);
+	            nonCompatClasses.insert(className, *c);
                     if ((*c)->status() == Node::Main)
-		        mainClasses.insert((*c)->name(), *c);
+		        mainClasses.insert(className, *c);
                 }
                 QString moduleName = (*c)->moduleName();
                 if (moduleName == "Qt3SupportLight") {
@@ -2127,6 +2135,24 @@ void HtmlGenerator::findAllLegaleseTexts(const InnerNode *node)
 		legaleseTexts.insertMulti((*c)->doc().legaleseText(), *c);
 	    if ((*c)->isInnerNode())
 		findAllLegaleseTexts(static_cast<const InnerNode *>(*c));
+        }
+	++c;
+    }
+}
+
+void HtmlGenerator::findAllNamespaces(const InnerNode *node)
+{
+    NodeList::ConstIterator c = node->childNodes().begin();
+    while (c != node->childNodes().end()) {
+	if ((*c)->access() != Node::Private) {
+	    if ((*c)->isInnerNode()) {
+		findAllNamespaces(static_cast<const InnerNode *>(*c));
+                if ((*c)->type() == Node::Namespace) {
+		    const NamespaceNode *nspace = static_cast<const NamespaceNode *>(*c);
+                    if (!nspace->name().isEmpty())
+		        namespaceIndex.insert(nspace->name(), *c);
+                }
+            }
         }
 	++c;
     }
