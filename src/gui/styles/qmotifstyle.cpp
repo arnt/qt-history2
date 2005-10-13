@@ -52,7 +52,7 @@ static const int motifItemVMargin       = 2;    // menu item ver text margin
 static const int motifArrowHMargin      = 6;    // arrow horizontal margin
 static const int motifTabSpacing        = 12;   // space between text and tab
 static const int motifCheckMarkHMargin  = 2;    // horiz. margins of check mark
-static const int motifCheckMarkSpace    = 12;
+static const int motifCheckMarkSpace    = 16;
 
 
 /*!
@@ -1138,24 +1138,18 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 int mw = maxpmw;
                 int mh = h - 2*motifItemFrame;
 
-                if (menuitem->checked) {
-                    if (menuitem->checkType & QStyleOptionMenuItem::Exclusive) {
-                        QStyleOptionButton newMenuItem;
-                        newMenuItem.state = State_Sunken;
-                        if (qobject_cast<const QCDEStyle *>(this))
-                            newMenuItem.state = State_On; // :->
-                        if ((opt->state & State_Enabled))
-                            newMenuItem.state |= State_Enabled;
-                        newMenuItem.rect.setRect(xvis, y + motifItemFrame + mh / 4, 11, 11);
-                        drawPrimitive(PE_IndicatorRadioButton, &newMenuItem, p, widget);
-                    } else {
-                        QStyleOptionMenuItem newMenuItem = *menuitem;
-                        newMenuItem.state = State_On;
-                        if ((opt->state & State_Enabled))
-                            newMenuItem.state |= State_Enabled;
-                        newMenuItem.rect = QRect(xvis, y+motifItemFrame, mw, mh);                    
-                        drawPrimitive(PE_IndicatorMenuCheckMark, &newMenuItem, p, widget);
-                    }
+                QStyleOptionButton newMenuItem;
+                newMenuItem.state = menuitem->checked ? State_On : State_None;
+                if (menuitem->state & State_Sunken)
+                    newMenuItem.state |= State_Sunken;
+                if ((opt->state & State_Enabled))
+                    newMenuItem.state |= State_Enabled;
+                if (menuitem->checkType & QStyleOptionMenuItem::Exclusive) {
+                    newMenuItem.rect.setRect(xvis + 2, y + motifItemFrame + mh / 4, 11, 11);
+                    drawPrimitive(PE_IndicatorRadioButton, &newMenuItem, p, widget);
+                } else {
+                    newMenuItem.rect.setRect(xvis + 5, y + motifItemFrame + mh / 4, 9, 9);
+                    drawPrimitive(PE_IndicatorCheckBox, &newMenuItem, p, widget);
                 }
             }
 
@@ -1180,6 +1174,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 int m = motifItemVMargin;
                 int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 text_flags |= Qt::AlignLeft;
+                QFont oldFont = p->font();
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(opt->direction, opt->rect,
                                           QRect(x+w-menuitem->tabWidth-motifItemHMargin-motifItemFrame,
@@ -1187,6 +1182,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                                                 h-2*motifItemVMargin));
                     int xv = vr.x();
                     QRect tr(xv, y+m, menuitem->tabWidth, h-2*m);
+                    p->setFont(menuitem->font);
                     p->drawText(tr, text_flags, s.mid(t+1));
                     if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
                         p->fillRect(tr, QBrush(p->background().color(), Qt::Dense5Pattern));
@@ -1194,6 +1190,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 }
                 QRect tr(xvis, y+m, w - xm - menuitem->tabWidth + 1, h-2*m);
                 p->drawText(tr, text_flags, s.left(t));
+                p->setFont(oldFont);
                 if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
                     p->fillRect(tr, QBrush(p->background().color(), Qt::Dense5Pattern));
             }

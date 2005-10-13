@@ -159,12 +159,18 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         QBrush fill = showUp || opt->state & State_NoChange ? opt->palette.brush(QPalette::Button) : opt->palette.brush(QPalette::Mid);
         qDrawShadePanel(p, opt->rect, opt->palette, !showUp, pixelMetric(PM_DefaultFrameWidth), &opt->palette.brush(QPalette::Button));
 
-        if (!(opt->state & State_Off)) {
+        if (on) {
             QRect r = opt->rect;
             QPolygon a(7 * 2);
-            int i, xx, yy;
+            int i, xx, yy;           
             xx = r.x() + 3;
             yy = r.y() + 5;
+            if (opt->rect.width() <= 9) {
+                // When called from CE_MenuItem in QMotifStyle
+                xx -= 2;
+                yy -= 2;
+            }
+
             for (i = 0; i < 3; i++) {
                 a.setPoint(2 * i, xx, yy);
                 a.setPoint(2 * i + 1, xx, yy + 2);

@@ -2580,6 +2580,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
                 int w = 0;
                 if (!menuItem->text.isEmpty()) {
+                    painter->setFont(menuItem->font);
                     drawItemText(painter, menuItem->rect.adjusted(5, 0, -5, 0), Qt::AlignLeft | Qt::AlignVCenter,
                                  menuItem->palette, menuItem->state & State_Enabled, menuItem->text,
                                  QPalette::Text);
