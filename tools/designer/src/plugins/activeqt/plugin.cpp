@@ -457,6 +457,6 @@ private:
     QDesignerFormEditorInterface *m_core;
 };
 
-Q_EXPORT_PLUGIN2(qaxwidget, QActiveXPlugin)
+Q_EXPORT_PLUGIN(QActiveXPlugin)
 
 #include "plugin.moc"

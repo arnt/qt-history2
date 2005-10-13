@@ -64,6 +64,6 @@ QList<QDesignerCustomWidgetInterface*> Qt3SupportWidgets::customWidgets() const
     return m_plugins;
 }
 
-Q_EXPORT_PLUGIN2(qt3supportwidgets, Qt3SupportWidgets)
+Q_EXPORT_PLUGIN(Qt3SupportWidgets)
 
 #include "qt3supportwidgets.moc"
