@@ -21,7 +21,7 @@ OrderDialog::OrderDialog(QDesignerFormWindowInterface *form, QWidget *parent)
 {
     ui.setupUi(this);
     m_form = form;
-    
+
     ui.upButton->setEnabled(false);
     ui.downButton->setEnabled(false);
 }
@@ -51,7 +51,7 @@ void OrderDialog::on_okButton_clicked()
     m_pages->clear();
     for (int i=0; i<ui.pageList->count(); ++i)
     {
-        if (QWidget *w = ui.pageList->item(i)->data(Qt::UserRole).value<QWidget*>())
+        if (QWidget *w = qvariant_cast<QWidget*>(ui.pageList->item(i)->data(Qt::UserRole)))
             m_pages->append(w);
     }
 
