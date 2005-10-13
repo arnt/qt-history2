@@ -290,7 +290,8 @@ bool QNativeSocketEngine::initialize(QAbstractSocket::SocketType socketType, QAb
     }
 
     // Make sure we receive out-of-band data
-    if (!setOption(ReceiveOutOfBandData, 1)) {
+    if (socketType == QAbstractSocket::TcpSocket
+        && !setOption(ReceiveOutOfBandData, 1)) {
         qWarning("QNativeSocketEngine::initialize unable to inline out-of-band data");
     }
 
