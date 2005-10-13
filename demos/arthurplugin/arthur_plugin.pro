@@ -1,7 +1,7 @@
 
 QTDIR       = $$QT_SOURCE_TREE
 
-CONFIG      += designer plugin
+CONFIG      += designer plugin debug_and_release
 TEMPLATE    = lib
 DESTDIR     = $$QT_BUILD_TREE/plugins/designer
 
