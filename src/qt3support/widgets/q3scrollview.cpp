@@ -123,6 +123,7 @@ public:
         fake_scroll = false;
         hbarPressed = false;
         vbarPressed = false;
+        hbar->setLayoutDirection(Qt::LeftToRight);
     }
     ~Q3ScrollViewData();
 
