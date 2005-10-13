@@ -781,7 +781,6 @@ private:
     Q_DISABLE_COPY(QWorkspaceChild)
 
     QWidget *childWidget;
-    QWidget *backgroundWidget;
     QWidgetResizeHandler *widgetResizeHandler;
     QWorkspaceTitleBar *titlebar;
     QPointer<QWorkspaceTitleBar> iconw;
@@ -2343,8 +2342,7 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::WFlags
     shademode = false;
     titlebar = 0;
 
-    backgroundWidget = new QWidget(this);
-    backgroundWidget->setAttribute(Qt::WA_NoSystemBackground);
+    setBackgroundRole(QPalette::Background);
     if (window) {
         if (flags)
             window->setParent(this, flags & ~Qt::WindowType_Mask);
@@ -2506,7 +2504,6 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
                              ||childWidget->isMaximized());
 
     windowSize = cr.size();
-    backgroundWidget->setGeometry(cr);
     childWidget->move(cr.topLeft());
     if (doContentsResize)
         childWidget->resize(cr.size());
@@ -2581,7 +2578,6 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
         if (windowWidget() && (windowWidget()->windowFlags() & Qt::WindowStaysOnTopHint)) {
             internalRaise();
             show();
-            backgroundWidget->lower();
         }
         ((QWorkspace*)parentWidget())->d_func()->showWindow(windowWidget());
         break;
