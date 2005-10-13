@@ -35,7 +35,8 @@ public:
 
 private slots:
     void accept();
-    void on_editActionText_textChanged(const QString &text);
+    void on_editActionText_textEdited(const QString &text);
+    void on_editObjectName_textEdited(const QString &text);
     void on_iconButton_clicked();
     void on_removeIconButton_clicked();
 

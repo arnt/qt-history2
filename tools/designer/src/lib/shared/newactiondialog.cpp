@@ -80,15 +80,21 @@ static QString actionTextToName(const QString &text)
     return name;
 }
 
-void NewActionDialog::on_editActionText_textChanged(const QString &text)
+void NewActionDialog::on_editActionText_textEdited(const QString &text)
 {
-    ui.okButton->setEnabled(!text.isEmpty());
-
     if (text.isEmpty())
         m_auto_update_object_name = true;
 
     if (m_auto_update_object_name)
         ui.editObjectName->setText(actionTextToName(text));
+
+    ui.okButton->setEnabled(!text.isEmpty() && !actionName().isEmpty());
+}
+
+void NewActionDialog::on_editObjectName_textEdited(const QString &text)
+{
+    ui.okButton->setEnabled(!text.isEmpty() && !actionName().isEmpty());
+    m_auto_update_object_name = false;
 }
 
 void NewActionDialog::on_iconButton_clicked()
