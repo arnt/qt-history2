@@ -81,10 +81,10 @@ private:
 
     void setViewDir(const QString &path);
     QDir m_view_dir;
-    struct {
+    struct FileData {
         QString file;
     } m_file_data;
-    struct {
+    struct ResourceData {
         QString file;
         QString qrc;
     } m_resource_data;
