@@ -1769,8 +1769,8 @@ void QAbstractItemView::keyboardSearch(const QString &search)
     if (!match.isEmpty() && match.at(0).isValid()) {
         selectionModel()->setCurrentIndex(match.at(0),
             (d->selectionMode == SingleSelection
-             ? QItemSelectionModel::ClearAndSelect | d->selectionBehaviorFlags()
-             : QItemSelectionModel::NoUpdate));
+             ? QItemSelectionModel::SelectionFlags(QItemSelectionModel::ClearAndSelect | d->selectionBehaviorFlags())
+             : QItemSelectionModel::SelectionFlags(QItemSelectionModel::NoUpdate)));
     }
 }
 
