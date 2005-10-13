@@ -4962,6 +4962,14 @@ static void initPixmap(QPixmap &pm)
     pm.fill(Qt::white);
 }
 
+QPixmap fromHICON(HICON hIcon)
+{
+    ICONINFO icoInfo;
+    if (GetIconInfo(hIcon, &icoInfo) && icoInfo.hbmColor) {
+        return QPixmap::fromWinHBITMAP(icoInfo.hbmColor);
+    }
+    return QPixmap();
+}
 
 QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
     : Q3FileIconProvider(parent, name)
@@ -5012,11 +5020,7 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
         }
 
         if (res) {
-            defaultFolder.resize(pixw, pixh);
-            initPixmap(defaultFolder);
-            HDC dc = defaultFolder.getDC();
-            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0, DI_NORMAL);
-            defaultFolder.releaseDC(dc);
+            defaultFolder = fromHICON(si);
             defaultFolder.setMask(defaultFolder.createHeuristicMask());
             *closedFolderIcon = defaultFolder;
             DestroyIcon(si);
@@ -5042,11 +5046,7 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
 #endif
 
     if (res) {
-        defaultFile.resize(pixw, pixh);
-        initPixmap(defaultFile);
-        HDC dc = defaultFile.getDC();
-        DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0, DI_NORMAL);
-        defaultFile.releaseDC(dc);
+        defaultFile  = fromHICON(si);
         defaultFile.setMask(defaultFile.createHeuristicMask());
         *fileIcon = defaultFile;
         DestroyIcon(si);
@@ -5069,11 +5069,7 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
 #endif
 
     if (res) {
-        defaultExe.resize(pixw, pixh);
-        initPixmap(defaultExe);
-        HDC dc = defaultExe.getDC();
-        DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0, DI_NORMAL);
-        defaultExe.releaseDC(dc);
+        defaultExe = fromHICON(si);
         defaultExe.setMask(defaultExe.createHeuristicMask());
         DestroyIcon(si);
     } else {
@@ -5174,11 +5170,7 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
         }
 
         if (res) {
-            pix.resize(pixw, pixh);
-            initPixmap(pix);
-            HDC dc = pix.getDC();
-            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0, DI_NORMAL);
-            pix.releaseDC(dc);
+            pix = fromHICON(si);
             pix.setMask(pix.createHeuristicMask());
             DestroyIcon(si);
         } else {
@@ -5220,11 +5212,7 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
         }
 
         if (res) {
-            pix.resize(pixw, pixh);
-            initPixmap(pix);
-            HDC dc = pix.getDC();
-            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0, DI_NORMAL);
-            pix.releaseDC(dc);
+            pix = fromHICON(si);
             pix.setMask(pix.createHeuristicMask());
             DestroyIcon(si);
         } else {
