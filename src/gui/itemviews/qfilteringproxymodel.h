@@ -23,8 +23,8 @@ class QFilteringProxyModelPrivate;
 class Q_GUI_EXPORT QFilteringProxyModel : public QMappingProxyModel
 {
     Q_OBJECT
-public:
 
+public:
     QFilteringProxyModel(QObject *parent = 0);
     ~QFilteringProxyModel();
 
@@ -36,9 +36,8 @@ public:
 
 protected:
     QFilteringProxyModel(QFilteringProxyModelPrivate &, QObject *parent);
-
     virtual bool filterRow(int source_row, const QModelIndex &source_parent) const;
-    virtual bool filterColumn(int source_column,  const QModelIndex &source_parent) const;
+    virtual bool filterColumn(int source_column, const QModelIndex &source_parent) const;
     virtual void mapChildren(const QModelIndex &parent) const;
     void sourceLayoutChanged();
 
