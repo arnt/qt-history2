@@ -21,6 +21,7 @@
 #include "qdesigner_toolbar_p.h"
 #include "qdesigner_menubar_p.h"
 #include "qdesigner_menu_p.h"
+#include "qdesigner_dockwidget_p.h"
 #include "qdesigner_promotedwidget_p.h"
 #include "abstractformwindow.h"
 
@@ -72,12 +73,15 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
 
     QWidget *w = 0;
 
+    // ### cleanup
     if (QDesignerCustomWidgetInterface *f = m_customFactory.value(widgetName)) {
         return f->createWidget(parentWidget);
     } else if (widgetName == QLatin1String("Line")) {
         w = new Line(parentWidget);
     } else if (widgetName == QLatin1String("QLabel")) {
         w = new QDesignerLabel(parentWidget);
+    } else if (widgetName == QLatin1String("QDockWidget")) {
+        w = new QDesignerDockWidget(parentWidget);
     } else if (widgetName == QLatin1String("QTabWidget")) {
         w = new QDesignerTabWidget(parentWidget);
     } else if (widgetName == QLatin1String("QStackedWidget")) {
