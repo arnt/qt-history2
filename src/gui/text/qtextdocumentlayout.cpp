@@ -1048,10 +1048,18 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
     switch (style) {
     case QTextListFormat::ListDecimal:
     case QTextListFormat::ListLowerAlpha:
-    case QTextListFormat::ListUpperAlpha:
-        painter->setFont(font);
-        painter->drawText(QPointF(r.left(), pos.y() + fontMetrics.ascent()), itemText);
+    case QTextListFormat::ListUpperAlpha: {
+        QTextLayout layout(itemText, font, q->paintDevice());
+        layout.setCacheEnabled(true);
+        QTextOption option(Qt::AlignLeft | Qt::AlignAbsolute);
+        option.setTextDirection(dir);
+        layout.setTextOption(option);
+        layout.beginLayout();
+        layout.createLine();
+        layout.endLayout();
+        layout.draw(painter, QPointF(r.left(), pos.y()));
         break;
+    }
     case QTextListFormat::ListSquare:
         painter->fillRect(r, brush);
         break;
