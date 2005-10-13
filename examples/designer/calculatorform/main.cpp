@@ -18,7 +18,8 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    CalculatorForm *calculator = new CalculatorForm;
-    calculator->show();
+    CalculatorForm calculator;
+    calculator.show();
     return app.exec();
 }
+
