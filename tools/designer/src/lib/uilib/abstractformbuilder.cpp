@@ -1917,7 +1917,7 @@ void QAbstractFormBuilder::saveComboBoxExtraInfo(QComboBox *comboBox, DomWidget 
         p->setElementString(str);
         properties.append(p);
 
-        QIcon icon = comboBox->itemData(i).value<QIcon>();
+        QIcon icon = qVariantValue<QIcon>(comboBox->itemData(i));
         if (!icon.isNull()) {
             QString iconPath = iconToFilePath(icon);
             QString qrcPath = iconToQrcPath(icon);
