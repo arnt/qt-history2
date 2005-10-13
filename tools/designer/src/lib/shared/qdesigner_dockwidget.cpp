@@ -39,8 +39,6 @@ void QDesignerDockWidget::setDocked(bool b)
         if (b && !docked()) {
             // Dock it
             // ### undo/redo stack
-            formWindow()->unmanageWidget(this);
-            core->metaDataBase()->add(this);
             setParent(0);
             c->addWidget(this);
             formWindow()->emitSelectionChanged();
@@ -54,8 +52,6 @@ void QDesignerDockWidget::setDocked(bool b)
             }
             // #### restore the position
             setParent(mainWindow->centralWidget());
-            core->metaDataBase()->remove(this);
-            formWindow()->manageWidget(this);
             show();
             formWindow()->emitSelectionChanged();
         }
