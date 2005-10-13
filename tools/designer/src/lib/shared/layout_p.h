@@ -31,6 +31,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/QObject>
 #include <QtCore/QMap>
+#include <QtCore/QHash>
 
 #include <QtGui/QLayout>
 #include <QtGui/QGridLayout>
@@ -71,7 +72,7 @@ protected:
     QList<QWidget*> m_widgets;
     QWidget *m_parentWidget;
     QPoint startPoint;
-    QMap<QPointer<QWidget>, QRect> geometries;
+    QHash<QPointer<QWidget>, QRect> geometries;
     QWidget *layoutBase;
     QDesignerFormWindowInterface *formWindow;
     QRect oldGeometry;
