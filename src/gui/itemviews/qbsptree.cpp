@@ -13,11 +13,7 @@
 
 #include "qbsptree_p.h"
 
-QBspTree::QBspTree()
-  : depth(6), visited(0)
-{
-
-}
+QBspTree::QBspTree() : depth(6), visited(0) {}
 
 void QBspTree::create(int n)
 {
@@ -38,16 +34,17 @@ void QBspTree::destroy()
 
 void QBspTree::climbTree(const QRect &rect, callback *function, QBspTreeData data)
 {
+    if (nodes.isEmpty())
+        return;
     ++visited;
     climbTree(rect, function, data, 0);
 }
 
 void QBspTree::climbTree(const QRect &area, callback *function, QBspTreeData data, int index)
 {
-    int tvs = nodes.count(); // the number of non-leaf-nodes
-    if (index >= tvs) { // the index points to a leaf
-        if (tvs > 0)
-            function(leaf(index - tvs), area, visited, data);
+    if (index >= nodes.count()) { // the index points to a leaf
+        Q_ASSERT(!nodes.isEmpty());
+        function(leaf(index - nodes.count()), area, visited, data);
         return;
     }
 
