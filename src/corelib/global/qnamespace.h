@@ -32,6 +32,7 @@ Qt {
     Q_FLAGS(Alignment)
     Q_FLAGS(Orientations)
     Q_FLAGS(DockWidgetAreas)
+    Q_ENUMS(DockWidgetArea)
 public:
 #endif
     enum GlobalColor {
