@@ -42,19 +42,19 @@ private:
 class Q_COMPAT_EXPORT Q3HBoxLayout : public Q3BoxLayout
 {
 public:
-    inline QHBoxLayout() : Q3BoxLayout(LeftToRight) {}
+    inline Q3HBoxLayout() : Q3BoxLayout(LeftToRight) {}
 
-    inline explicit QHBoxLayout(QWidget *parent) : Q3BoxLayout(LeftToRight, parent) {}
+    inline explicit Q3HBoxLayout(QWidget *parent) : Q3BoxLayout(LeftToRight, parent) {}
 
-    inline QHBoxLayout(QWidget *parent, int margin,
+    inline Q3HBoxLayout(QWidget *parent, int margin,
                  int spacing = -1, const char *name = 0)
         : Q3BoxLayout(parent, LeftToRight, margin, spacing, name) {}
 
-    inline QHBoxLayout(QLayout *parentLayout,
+    inline Q3HBoxLayout(QLayout *parentLayout,
                  int spacing = -1, const char *name = 0)
         : Q3BoxLayout(parentLayout, LeftToRight, spacing, name) {}
 
-    inline QHBoxLayout(int spacing, const char *name = 0)
+    inline Q3HBoxLayout(int spacing, const char *name = 0)
         : Q3BoxLayout(LeftToRight, spacing, name) {}
 
 private:
@@ -64,19 +64,19 @@ private:
 class Q_COMPAT_EXPORT Q3VBoxLayout : public Q3BoxLayout
 {
 public:
-    inline QVBoxLayout() : Q3BoxLayout(TopToBottom) {}
+    inline Q3VBoxLayout() : Q3BoxLayout(TopToBottom) {}
 
-    inline explicit QVBoxLayout(QWidget *parent) : Q3BoxLayout(TopToBottom, parent) {}
+    inline explicit Q3VBoxLayout(QWidget *parent) : Q3BoxLayout(TopToBottom, parent) {}
 
-    inline QVBoxLayout(QWidget *parent, int margin,
+    inline Q3VBoxLayout(QWidget *parent, int margin,
                  int spacing = -1, const char *name = 0)
         : Q3BoxLayout(parent, TopToBottom, margin, spacing, name) {}
 
-    inline QVBoxLayout(QLayout *parentLayout,
+    inline Q3VBoxLayout(QLayout *parentLayout,
                  int spacing = -1, const char *name = 0)
         : Q3BoxLayout(parentLayout, TopToBottom, spacing, name) {}
 
-    inline QVBoxLayout(int spacing, const char *name = 0)
+    inline Q3VBoxLayout(int spacing, const char *name = 0)
         : Q3BoxLayout(TopToBottom, spacing, name) {}
 
 private:
