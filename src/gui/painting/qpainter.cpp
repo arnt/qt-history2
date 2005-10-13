@@ -52,15 +52,6 @@ void qt_format_text(const QFont &font,
                     int tabstops, int* tabarray, int tabarraylen,
                     QPainter *painter);
 
-template <class From, class To> QVector<To> qt_convert_points(const From *points, int pointCount, const To & /*dummy*/)
-{
-    QVector<To> v;
-    v.reserve(pointCount);
-    for (int i=0; i<pointCount; ++i)
-        v << points[i];
-    return v;
-}
-
 void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperation op)
 {
 #ifdef QT_DEBUG_DRAW
@@ -2894,7 +2885,8 @@ void QPainter::drawLines(const QLine *lines, int lineCount)
 void QPainter::drawLines(const QPointF *pointPairs, int lineCount)
 {
     Q_ASSERT_X(pointPairs, "QPainter::drawLines", "pointPairs array cannot be 0");
-    // This will go horribly wrong if the layout of QLineF changes!
+    Q_ASSERT(sizeof(QLineF) == 2*sizeof(QPointF));
+
     drawLines((QLineF*)pointPairs, lineCount);
 }
 
@@ -2912,9 +2904,9 @@ void QPainter::drawLines(const QPointF *pointPairs, int lineCount)
 void QPainter::drawLines(const QPoint *pointPairs, int lineCount)
 {
     Q_ASSERT_X(pointPairs, "QPainter::drawLines", "pointPairs array cannot be 0");
-    QVector<QPointF> pts = qt_convert_points(pointPairs, lineCount * 2, QPointF());
-    // This will go horribly wrong if the layout of QLineF changes!
-    drawLines((QLineF*)pts.constData(), pts.size() / 2);
+    Q_ASSERT(sizeof(QLine) == 2*sizeof(QPoint));
+    
+    drawLines((QLine*)pointPairs, lineCount);
 }
 
 
