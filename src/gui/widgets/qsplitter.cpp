@@ -617,7 +617,7 @@ void QSplitterPrivate::setGeo(QSplitterLayoutStruct *sls, int p, int s, bool all
     //   Hide the child widget, but without calling hide() so that
     //   the splitter handle is still shown.
     if (sls->collapsed)
-        r.moveTopLeft(QPoint(-QWIDGETSIZE_MAX, -QWIDGETSIZE_MAX));
+        r.moveTopLeft(QPoint(-r.width()-1, -r.height()-1));
 
     w->setGeometry(r);
 
