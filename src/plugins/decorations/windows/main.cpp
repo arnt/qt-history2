@@ -43,4 +43,5 @@ QDecoration* DecorationWindows::create(const QString& s)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(DecorationWindows)
+Q_EXPORT_STATIC_PLUGIN(DecorationWindows)
+Q_EXPORT_PLUGIN2(qdecorationwindows, DecorationWindows)

@@ -112,6 +112,7 @@ QTextCodec *JPTextCodecs::createForName(const QByteArray &name)
 }
 
 
-Q_EXPORT_PLUGIN(JPTextCodecs);
+Q_EXPORT_STATIC_PLUGIN(JPTextCodecs);
+Q_EXPORT_PLUGIN2(qjpcodecs, JPTextCodecs);
 
 #endif // QT_NO_TEXTCODECPLUGIN

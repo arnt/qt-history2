@@ -86,6 +86,7 @@ QTextCodec *KRTextCodecs::createForName(const QByteArray &name)
 }
 
 
-Q_EXPORT_PLUGIN(KRTextCodecs);
+Q_EXPORT_STATIC_PLUGIN(KRTextCodecs);
+Q_EXPORT_PLUGIN2(qkrcodecs, KRTextCodecs);
 
 #endif // QT_NO_TEXTCODECPLUGIN

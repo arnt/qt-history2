@@ -17,5 +17,4 @@
 
 using namespace qdesigner_internal;
 
-Q_EXPORT_STATIC_PLUGIN(TabOrderEditorPlugin)
-
+Q_EXPORT_PLUGIN(TabOrderEditorPlugin)

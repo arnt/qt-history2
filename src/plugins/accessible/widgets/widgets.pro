@@ -1,4 +1,4 @@
-TARGET  = qtwidgets
+TARGET  = qtaccessiblewidgets
 include(../../qpluginbase.pri)
 
 DESTDIR  = $$QT_BUILD_TREE/plugins/accessible

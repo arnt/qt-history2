@@ -107,6 +107,7 @@ QTextCodec *CNTextCodecs::createForName(const QByteArray &name)
 }
 
 
-Q_EXPORT_PLUGIN(CNTextCodecs);
+Q_EXPORT_STATIC_PLUGIN(CNTextCodecs)
+Q_EXPORT_PLUGIN2(qcncodecs, CNTextCodecs)
 
 #endif // QT_NO_TEXTCODECPLUGIN

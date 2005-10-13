@@ -44,4 +44,5 @@ QScreen* GfxTransformedDriver::create(const QString& driver, int displayId)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(GfxTransformedDriver)
+Q_EXPORT_STATIC_PLUGIN(GfxTransformedDriver)
+Q_EXPORT_PLUGIN2(qgfxtransformed, GfxTransformedDriver)

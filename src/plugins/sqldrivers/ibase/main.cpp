@@ -45,4 +45,5 @@ QStringList QIBaseDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN(QIBaseDriverPlugin)
+Q_EXPORT_STATIC_PLUGIN(QIBaseDriverPlugin)
+Q_EXPORT_PLUGIN2(qsqlibase, QIBaseDriverPlugin)

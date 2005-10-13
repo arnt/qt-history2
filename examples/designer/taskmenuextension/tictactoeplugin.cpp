@@ -88,7 +88,4 @@ void TicTacToePlugin::initialize(QDesignerFormEditorInterface *formEditor)
     initialized = true;
 }
 
-Q_EXPORT_PLUGIN(TicTacToePlugin)
-
-
-
+Q_EXPORT_PLUGIN2(taskmenuextension, TicTacToePlugin)

@@ -71,4 +71,4 @@ void QView3DPlugin::removeFormWindow(QDesignerFormWindowInterface *formWindow)
     delete tool;
 }
 
-Q_EXPORT_PLUGIN(QView3DPlugin)
+Q_EXPORT_PLUGIN2(view3d, QView3DPlugin)

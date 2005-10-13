@@ -62,4 +62,5 @@ QStringList TSLibMouseDriverPlugin::keys() const
     return QStringList() << "TSLib";
 }
 
-Q_EXPORT_PLUGIN(TSLibMouseDriverPlugin)
+Q_EXPORT_STATIC_PLUGIN(TSLibMouseDriverPlugin)
+Q_EXPORT_PLUGIN2(qtslibmousehandler, TSLibMouseDriverPlugin)

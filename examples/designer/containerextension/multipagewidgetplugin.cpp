@@ -98,4 +98,4 @@ QString MultiPageWidgetPlugin::domXml() const
     ");
 }
 
-Q_EXPORT_PLUGIN(MultiPageWidgetPlugin)
+Q_EXPORT_PLUGIN2(containerextension, MultiPageWidgetPlugin)

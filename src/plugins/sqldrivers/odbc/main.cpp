@@ -46,4 +46,5 @@ QStringList QODBCDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN(QODBCDriverPlugin)
+Q_EXPORT_STATIC_PLUGIN(QODBCDriverPlugin)
+Q_EXPORT_PLUGIN2(qsqlodbc, QODBCDriverPlugin)

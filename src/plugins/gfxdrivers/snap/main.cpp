@@ -44,4 +44,5 @@ QScreen* GfxSnapDriver::create(const QString& driver, int displayId)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(GfxSnapDriver)
+Q_EXPORT_STATIC_PLUGIN(GfxSnapDriver)
+Q_EXPORT_PLUGIN2(qgfxsnap, GfxSnapDriver)

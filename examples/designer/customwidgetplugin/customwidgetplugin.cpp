@@ -101,4 +101,4 @@ QString AnalogClockPlugin::codeTemplate() const
     return "";
 }
 
-Q_EXPORT_PLUGIN(AnalogClockPlugin)
+Q_EXPORT_PLUGIN2(customwidgetplugin, AnalogClockPlugin)

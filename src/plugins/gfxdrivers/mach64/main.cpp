@@ -44,4 +44,5 @@ QScreen* GfxMach64Driver::create(const QString& driver, int displayId)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(GfxMach64Driver)
+Q_EXPORT_STATIC_PLUGIN(GfxMach64Driver)
+Q_EXPORT_PLUGIN2(qgfxmach64, GfxMach64Driver)

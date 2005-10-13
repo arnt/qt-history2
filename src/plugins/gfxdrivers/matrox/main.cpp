@@ -44,4 +44,5 @@ QScreen* GfxMatroxDriver::create(const QString& driver, int displayId)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(GfxMatroxDriver)
+Q_EXPORT_STATIC_PLUGIN(GfxMatroxDriver)
+Q_EXPORT_PLUGIN2(qgfxmatrox, GfxMatroxDriver)

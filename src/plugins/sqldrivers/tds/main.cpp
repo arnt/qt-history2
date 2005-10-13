@@ -53,4 +53,5 @@ QStringList QTDSDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN(QTDSDriverPlugin)
+Q_EXPORT_STATIC_PLUGIN(QTDSDriverPlugin)
+Q_EXPORT_PLUGIN2(qsqltds, QTDSDriverPlugin)

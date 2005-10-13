@@ -46,4 +46,5 @@ QStringList QOCIDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN(QOCIDriverPlugin)
+Q_EXPORT_STATIC_PLUGIN(QOCIDriverPlugin)
+Q_EXPORT_PLUGIN2(qsqloci, QOCIDriverPlugin)

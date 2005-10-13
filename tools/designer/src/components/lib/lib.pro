@@ -5,6 +5,9 @@ CONFIG += qt debug_and_release depend_prl
 DESTDIR = $$QT_BUILD_TREE/lib
 DLLDESTDIR = $$QT_BUILD_TREE/bin
 
+# QtDesignerComponents uses
+DEFINES += QT_STATICPLUGIN
+
 isEmpty(QT_MAJOR_VERSION) {
    VERSION=4.1.0
 } else {

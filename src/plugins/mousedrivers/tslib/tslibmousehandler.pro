@@ -1,4 +1,4 @@
-TARGET = tslibmousehandler
+TARGET = qtslibmousehandler
 include(../../qpluginbase.pri)
 
 DESTDIR  = $$QT_BUILD_TREE/plugins/mousedrivers

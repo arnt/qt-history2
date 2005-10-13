@@ -94,4 +94,5 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
     return iface;
 }
 
-Q_EXPORT_PLUGIN(CompatAccessibleFactory)
+Q_EXPORT_STATIC_PLUGIN(CompatAccessibleFactory)
+Q_EXPORT_PLUGIN2(qtaccessiblecompatwidgets, CompatAccessibleFactory)

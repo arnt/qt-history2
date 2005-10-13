@@ -46,4 +46,5 @@ QStringList QPSQLDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN(QPSQLDriverPlugin)
+Q_EXPORT_STATIC_PLUGIN(QPSQLDriverPlugin)
+Q_EXPORT_PLUGIN2(qsqlpsql, QPSQLDriverPlugin)

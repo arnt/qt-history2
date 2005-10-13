@@ -45,4 +45,5 @@ QScreen* ScreenVfbDriver::create(const QString& driver, int displayId)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(ScreenVfbDriver)
+Q_EXPORT_STATIC_PLUGIN(ScreenVfbDriver)
+Q_EXPORT_PLUGIN2(qscreenvfb, ScreenVfbDriver)

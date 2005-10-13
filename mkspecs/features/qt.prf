@@ -125,56 +125,54 @@ for(QTPLUG, $$list($$lower($$unique(QTPLUGIN)))) {
       qplugin_style = release
    }
 
-   # Check if the plugin is known
-   IMAGEPLUGINS = mng jpeg gif
-   #CODECPLUGINS = cn jp kr tw
-   #SQLPLUGINS = sqlite
-   #INPUTPLUGINS = imsw-multi
-   ALLPLUGINS = $$IMAGEPLUGINS $$CODECPLUGINS $$SQLPLUGINS $$INPUTPLUGINS
-   !contains(ALLPLUGINS, $$QTPLUG):warning(Unknown plugin: $$QTPLUG)
-   contains(ALLPLUGINS, $$QTPLUG) {
+   # Check if the plugin is known to Qt. We can use this to determine
+   # the plugin path. Unknown plugins must rely on the default link path.
+   ACCESSIBLEPLUGINS = qtaccessiblewidgets qtaccessiblecompatwidgets
+   CODECPLUGINS = qcncodecs qjpcodecs qkrcodecs qtwcodecs
+   DECORATIONPLUGINS = qdecorationdefault qdecorationwindows
+   GFXDRIVERPLUGINS = qgfxvnc qscreenvfb qgfxsnap qgfxvga16 qgfxmatrox qgfxvoodoo qgfxtransformed qgfxshadowfb
+   IMAGEPLUGINS = qgif qmng qjpeg
+   INPUTPLUGINS = qimsw-multi
+   MOUSEDRIVERPLUGINS = qtslibmousehandler
+   SQLPLUGINS = qsqldb2 qsqloci qsqltds qsqlodbc qsqlpsql qsqlibase qsqlmysql qsqlite2 qsqlite
+
+   ALLQTPLUGINS = $$ACCESSIBLEPLUGINS $$CODECPLUGINS $$DECORATIONPLUGINS $$GFXDRIVERPLUGINS $$IMAGEPLUGINS $$INPUTPLUGINS $$MOUSEDRIVERPLUGINS $$SQLPLUGINS
+
+   QT_PLUGINPATH = 
+   contains(ALLQTPLUGINS, $$QTPLUG) {
        # Determine the plugin path
-       QT_PLUGINPATH = 
-       contains(IMAGEPLUGINS, $$QTPLUG) {
-           QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/imageformats/
-           qplugin = q$$QTPLUG
-       }
-       contains(CODECPLUGINS, $$QTPLUG) {
-           QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/codecs/
-           qplugin = q$${QTPLUG}codecs
-       }
-       contains(SQLPLUGINS, $$QTPLUG) {
-           QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/sqldrivers/
-           qplugin = q$${QTPLUG}
-       }
-       contains(INPUTPLUGINS, $$QTPLUG) {
-           QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/inputmethods/
-           qplugin = q$${QTPLUG}
-       }
-       !exists($$QT_PLUGINPATH):warning(Cannot find the "$$QTPLUG" plugin in $$[QT_INSTALL_PLUGINS])
-    
-       # Determine the plugin linker line
-       target_qt:isEqual(TARGET, qplugin) {
-          warning($$TARGET cannot have a QTPLUGIN of $$QTPLUG)
-       } else {
-          QT_LINKAGE =
-          false {
-             QT_LINKAGE = -l$${qplugin}
-          } else:isEmpty(QT_LINKAGE) {
-             win32 {
-                CONFIG(debug, debug|release):QT_LINKAGE = -l$${qplugin}d
-                else:QT_LINKAGE = -l$${qplugin}
-             } else { 
-                isEqual(qplugin_style, debug):QT_LINKAGE = -l$${qplugin}_debug
-                else:QT_LINKAGE = -l$${qplugin}
-             }
+       contains(ACCESSIBLEPLUGINS, $$QTPLUG): QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/accessible/
+       contains(CODECPLUGINS, $$QTPLUG): QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/codecs/
+       contains(DECORATIONPLUGINS, $$QTPLUG): QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/decorations/
+       contains(GFXDRIVERPLUGINS, $$QTPLUG): QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/gfxdrivers/
+       contains(IMAGEPLUGINS, $$QTPLUG): QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/imageformats/
+       contains(INPUTPLUGINS, $$QTPLUG): QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/inputmethods/
+       contains(MOUSEDRIVERPLUGINS, $$QTPLUG): QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/mousedrivers/
+       contains(SQLPLUGINS, $$QTPLUG):  QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/sqldrivers/
+    }
+
+    # Generate the plugin linker line
+    target_qt:isEqual(TARGET, QTPLUG) {
+       warning($$TARGET cannot have a QTPLUGIN of $$QTPLUG)
+    } else {
+       QT_LINKAGE =
+       false {
+          QT_LINKAGE = -l$${QTPLUG}
+       } else:isEmpty(QT_LINKAGE) {
+          win32 {
+             CONFIG(debug, debug|release):QT_LINKAGE = -l$${QTPLUG}d
+             else:QT_LINKAGE = -l$${QTPLUG}
+          } else { 
+             isEqual(qplugin_style, debug):QT_LINKAGE = -l$${QTPLUG}_debug
+             else:QT_LINKAGE = -l$${QTPLUG}
           }
-             
-          LIBS += -L$$QT_PLUGINPATH $$QT_LINKAGE
        }
-   }
+       
+       !isEmpty($$QT_PLUGINPATH): LIBS += -L$$QT_PLUGINPATH
+       LIBS += $$QT_LINKAGE
+    }
 }
-    
+
 qt_compat {
    !qt_compat_no_warning:QTDIR_build:warning(***USE of COMPAT inside of QTDIR!**) #just for us
    INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt

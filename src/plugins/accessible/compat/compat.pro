@@ -1,4 +1,4 @@
-TARGET  = qtcompatwidgets
+TARGET  = qtaccessiblecompatwidgets
 CONFIG += qt_no_compat_warning
 include(../../qpluginbase.pri)
 

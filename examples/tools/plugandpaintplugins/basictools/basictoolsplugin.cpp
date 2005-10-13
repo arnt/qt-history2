@@ -146,4 +146,4 @@ QImage BasicToolsPlugin::filterImage(const QString &filter, const QImage &image,
     return result;
 }
 
-Q_EXPORT_PLUGIN(BasicToolsPlugin)
+Q_EXPORT_PLUGIN2(pnp_basictools, BasicToolsPlugin)

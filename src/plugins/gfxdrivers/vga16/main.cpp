@@ -44,4 +44,5 @@ QScreen* GfxVga16Driver::create(const QString& driver, int displayId)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(GfxVga16Driver)
+Q_EXPORT_STATIC_PLUGIN(GfxVga16Driver)
+Q_EXPORT_PLUGIN2(qgfxvga16, GfxVga16Driver)

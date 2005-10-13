@@ -74,6 +74,7 @@ QString QMultiInputContextPlugin::description( const QString &key )
 }
 
 
-Q_EXPORT_PLUGIN( QMultiInputContextPlugin )
+Q_EXPORT_STATIC_PLUGIN(QMultiInputContextPlugin)
+Q_EXPORT_STATIC_PLUGIN(qimsw-multi, QMultiInputContextPlugin)
 
 #endif

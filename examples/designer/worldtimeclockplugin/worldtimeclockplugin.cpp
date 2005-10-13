@@ -94,4 +94,4 @@ QString WorldTimeClockPlugin::codeTemplate() const
     return "";
 }
 
-Q_EXPORT_PLUGIN(WorldTimeClockPlugin)
+Q_EXPORT_PLUGIN2(worldtimeclockplugin, WorldTimeClockPlugin)

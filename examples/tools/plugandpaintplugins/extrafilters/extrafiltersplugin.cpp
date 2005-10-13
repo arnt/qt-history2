@@ -94,4 +94,4 @@ QImage ExtraFiltersPlugin::filterImage(const QString &filter,
     return result;
 }
 
-Q_EXPORT_PLUGIN(ExtraFiltersPlugin)
+Q_EXPORT_PLUGIN2(pnp_extrafilters, ExtraFiltersPlugin)

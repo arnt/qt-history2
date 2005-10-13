@@ -44,4 +44,5 @@ QScreen* GfxVoodooDriver::create(const QString& driver, int displayId)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(GfxVoodooDriver)
+Q_EXPORT_STATIC_PLUGIN(GfxVoodooDriver)
+Q_EXPORT_PLUGIN2(qgfxvoodoo, GfxVoodooDriver)

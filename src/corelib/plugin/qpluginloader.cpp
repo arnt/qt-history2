@@ -99,15 +99,24 @@
 /*!
     \macro Q_EXPORT_PLUGIN(ClassName)
     \relates QPluginLoader
+    \obsolete
 
-    This macro exports the plugin class \a ClassName. There should be
-    exactly one occurrence of this macro in a Qt plugin's source code
-    (in an implementation file).
+    Use Q_EXPORT_PLUGIN2 instead. This macro is equivalent to
+    Q_EXPORT_PLUGIN2(\a ClassName, \a ClassName).
+*/
+
+/*!
+    \macro Q_EXPORT_PLUGIN2(PluginName, ClassName)
+    \relates QPluginLoader
+
+    This macro exports the plugin class \a ClassName with the name \a
+    PluginName. There should be exactly one occurrence of this macro in a Qt
+    plugin's source code (in an implementation file).
 
     Example:
 
     \code
-        Q_EXPORT_PLUGIN(ExtraFiltersPlugin)
+        Q_EXPORT_PLUGIN2(pnp_extrafilters, ExtraFiltersPlugin)
     \endcode
 
     See the \l{tools/plugandpaint}{Plug & Paint} example for details.

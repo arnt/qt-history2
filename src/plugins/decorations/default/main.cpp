@@ -43,4 +43,5 @@ QDecoration* DecorationDefault::create(const QString& s)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(DecorationDefault)
+Q_EXPORT_STATIC_PLUGIN(DecorationDefault)
+Q_EXPORT_PLUGIN2(qdecorationdefault, DecorationDefault)

@@ -45,4 +45,5 @@ QStringList QDB2DriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN(QDB2DriverPlugin)
+Q_EXPORT_STATIC_PLUGIN(QDB2DriverPlugin)
+Q_EXPORT_PLUGIN2(qsqldb2, QDB2DriverPlugin)

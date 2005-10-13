@@ -209,5 +209,7 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     return iface;
 }
 
-Q_EXPORT_PLUGIN(AccessibleFactory)
+Q_EXPORT_STATIC_PLUGIN(AccessibleFactory)
+Q_EXPORT_PLUGIN2(qtaccessiblewidgets, AccessibleFactory)
+
 #endif // QT_NO_ACCESSIBILITY

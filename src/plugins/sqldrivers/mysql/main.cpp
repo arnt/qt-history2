@@ -46,4 +46,5 @@ QStringList QMYSQLDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN(QMYSQLDriverPlugin)
+Q_EXPORT_STATIC_PLUGIN(QMYSQLDriverPlugin)
+Q_EXPORT_PLUGIN2(qsqlmysql, QMYSQLDriverPlugin)
