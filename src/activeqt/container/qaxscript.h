@@ -16,6 +16,8 @@
 
 #include <ActiveQt/qaxobject.h>
 
+QT_MODULE(ActiveQt)
+
 class QAxBase;
 class QAxScript;
 class QAxScriptSite;

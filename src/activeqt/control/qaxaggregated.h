@@ -16,6 +16,8 @@
 
 #include <QtCore/qobject.h>
 
+QT_MODULE(ActiveQt)
+
 struct IUnknown;
 struct QUuid;
 

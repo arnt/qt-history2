@@ -23,6 +23,8 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qvariant.h>
 
+QT_MODULE(ActiveQt)
+
 struct IUnknown;
 struct IDispatch;
 struct QUuid;

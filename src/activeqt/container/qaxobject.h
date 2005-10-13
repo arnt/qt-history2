@@ -20,6 +20,8 @@
 
 #include <ActiveQt/qaxbase.h>
 
+QT_MODULE(ActiveQt)
+
 class QAxObject : public QObject, public QAxBase
 {
     friend class QAxEventSink;

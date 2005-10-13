@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_MODULE(ActiveQt)
+
 class QAxAggregated;
 class QIODevice;
 struct IAxServerBase;

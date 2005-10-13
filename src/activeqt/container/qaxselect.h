@@ -17,6 +17,8 @@
 #include <QtGui/qdialog.h>
 #include "ui_qaxselect.h"
 
+QT_MODULE(ActiveQt)
+
 class QAxSelect : public QDialog, private Ui::QAxSelect
 {
     Q_OBJECT

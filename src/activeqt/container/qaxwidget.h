@@ -17,6 +17,8 @@
 #include <ActiveQt/qaxbase.h>
 #include <QtGui/qwidget.h>
 
+QT_MODULE(ActiveQt)
+
 class QAxHostWindow;
 class QAxAggregated;
 

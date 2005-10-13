@@ -23,6 +23,8 @@
 #include <QtCore/qdatetime.h>
 #include <QtCore/qvariant.h>
 
+QT_MODULE(ActiveQt)
+
 extern GUID IID_IAxServerBase;
 struct IAxServerBase : public IUnknown
 {

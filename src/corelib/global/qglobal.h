@@ -1660,6 +1660,7 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 #define QT_MODULE_QT3SUPPORTLIGHT       0x040
 #define QT_MODULE_QT3SUPPORT            0x080
 #define QT_MODULE_SVG                   0x100
+#define QT_MODULE_ACTIVEQT              0x200
 
 /* Qt editions */
 #define QT_EDITION_CONSOLE      (QT_MODULE_CORE \
@@ -1669,7 +1670,7 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 #define QT_EDITION_DESKTOPLIGHT (QT_MODULE_CORE \
                                  | QT_MODULE_GUI \
                                  | QT_MODULE_QT3SUPPORTLIGHT)
-#define QT_EDITION_DESKTOP      (QT_MODULE_CORE \
+#define QT_EDITION_UNIVERSAL    (QT_MODULE_CORE \
                                  | QT_MODULE_GUI \
                                  | QT_MODULE_NETWORK \
                                  | QT_MODULE_OPENGL \
@@ -1678,11 +1679,12 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
                                  | QT_MODULE_QT3SUPPORTLIGHT \
                                  | QT_MODULE_QT3SUPPORT \
                                  | QT_MODULE_SVG)
-#define QT_EDITION_UNIVERSAL    QT_EDITION_DESKTOP
-#define QT_EDITION_ACADEMIC     QT_EDITION_DESKTOP
-#define QT_EDITION_EDUCATIONAL  QT_EDITION_DESKTOP
-#define QT_EDITION_EVALUATION   QT_EDITION_DESKTOP
-#define QT_EDITION_OPENSOURCE   QT_EDITION_DESKTOP
+#define QT_EDITION_ACADEMIC     QT_EDITION_UNIVERSAL
+#define QT_EDITION_EDUCATIONAL  QT_EDITION_UNIVERSAL
+#define QT_EDITION_EVALUATION   QT_EDITION_UNIVERSAL
+#define QT_EDITION_OPENSOURCE   QT_EDITION_UNIVERSAL
+#define QT_EDITION_DESKTOP     (QT_EDITION_UNIVERSAL \
+                                 | QT_MODULE_ACTIVEQT)
 
 /* Determine which modules can be used */
 #ifndef QT_EDITION
@@ -1722,6 +1724,9 @@ QT_LICENSED_MODULE(Qt3Support)
 #endif
 #if (QT_EDITION & QT_MODULE_SVG)
 QT_LICENSED_MODULE(Svg)
+#endif
+#if (QT_EDITION & QT_MODULE_ACTIVEQT)
+QT_LICENSED_MODULE(ActiveQt)
 #endif
 
 #define QT_MODULE(x) \
