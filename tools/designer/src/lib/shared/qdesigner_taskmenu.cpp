@@ -141,11 +141,14 @@ void QDesignerTaskMenu::addToolBar()
 
         QDesignerFormEditorInterface *core = fw->core();
         QToolBar *tb = qobject_cast<QToolBar*>(core->widgetFactory()->createWidget("QToolBar", mw));
+        tb->setObjectName(QLatin1String("toolBar"));
         core->metaDataBase()->add(tb);
+        fw->ensureUniqueObjectName(tb);
 
         QDesignerContainerExtension *c;
         c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), mw);
         c->addWidget(tb);
+        fw->emitSelectionChanged();
     }
 }
 
