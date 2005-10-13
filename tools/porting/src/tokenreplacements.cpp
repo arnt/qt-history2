@@ -216,6 +216,8 @@ ScopedTokenReplacement::ScopedTokenReplacement(const QByteArray &oldToken,
         newName = newToken.mid(newToken.lastIndexOf(':')+1);
         newScope = newToken.mid(0, newToken.indexOf(':'));
     }
+
+    strictMode = Logger::instance()->globalState.contains("strictMode");
 }
 
 bool ScopedTokenReplacement::doReplace(const TokenContainer &tokenContainer, int sourceIndex, TextReplacements &textReplacements)
@@ -238,13 +240,13 @@ bool ScopedTokenReplacement::doReplace(const TokenContainer &tokenContainer, int
     // This is done by checking the parentScope attriute, wich returns the scope
     // for the declaration associated with this name use.
     const bool haveNameUseInfo = !attributes->attribute(sourceIndex, "nameUse").isEmpty();
-    if (haveNameUseInfo)
+    if (haveNameUseInfo) {
         if (attributes->attribute(sourceIndex, "parentScope") != oldScope)
             return false;
-
-    // If we get here that means that the nameUse info was correct, or that it
-    // is missing. If it is missing we assume that the C++ parsing failed for
-    // some reason and just go ahead and replace.
+    // If the user has specified -strict, we don't replace tokens when we don't have name use info.
+    } else if (strictMode) {
+        return false;
+    }
 
     // The token might have a qualifier, and in that case we need to check if
     // we should replace the qualifier as well.

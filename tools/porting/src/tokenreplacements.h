@@ -97,6 +97,7 @@ private:
     QByteArray newName;
     QByteArray newScope;
     QByteArray newScopedName;
+    bool strictMode;
 };
 
 class QualifiedNameParser
