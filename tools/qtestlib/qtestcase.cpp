@@ -709,6 +709,17 @@ static void qPrintTestSlots()
     }
 }
 
+static int qToInt(char *str)
+{
+    char *pEnd;
+    int l = (int)strtol(str, &pEnd, 10);
+    if (*pEnd != 0) {
+        printf("Invalid numeric parameter: '%s'\n", str);
+        exit(1);
+    }
+    return l;
+}
+
 static void qParseArgs(int argc, char *argv[])
 {
     for (int i = 1; i < argc; ++i) {
@@ -731,6 +742,8 @@ static void qParseArgs(int argc, char *argv[])
                    " -keydelay ms      : Set default delay for keyboard simulation to ms milliseconds\n"
                    " -mousedelay ms    : Set default delay for mouse simulation to ms milliseconds\n"
                    " -keyevent-verbose : Turn on verbose messages for keyboard simulation\n"
+                   " -maxwarnings n    : Sets the maximum amount of messages to output.\n"
+                   "                     0 means unlimited, default: 2000\n"
                    "%s"
                    " -help      : This help\n", argv[0], eHelp);
             exit(0);
@@ -759,21 +772,28 @@ static void qParseArgs(int argc, char *argv[])
                 printf("-eventdelay needs an extra parameter to indicate the delay(ms)\n");
                 exit(1);
             } else {
-                QTest::eventDelay = atoi(argv[++i]);
+                QTest::eventDelay = qToInt(argv[++i]);
             }
         } else if (strcmp(argv[i], "-keydelay") == 0) {
             if (i + 1 >= argc) {
                 printf("-keydelay needs an extra parameter to indicate the delay(ms)\n");
                 exit(1);
             } else {
-                QTest::keyDelay = atoi(argv[++i]);
+                QTest::keyDelay = qToInt(argv[++i]);
             }
         } else if (strcmp(argv[i], "-mousedelay") == 0) {
             if (i + 1 >= argc) {
                 printf("-mousedelay needs an extra parameter to indicate the delay(ms)\n");
                 exit(1);
             } else {
-                QTest::mouseDelay = atoi(argv[++i]);
+                QTest::mouseDelay = qToInt(argv[++i]);
+            }
+        } else if (strcmp(argv[i], "-maxwarnings") == 0) {
+            if (i + 1 >= argc) {
+                printf("-maxwarnings needs an extra parameter with the amount of warnings\n");
+                exit(1);
+            } else {
+                QTestLog::setMaxWarnings(qToInt(argv[++i]));
             }
         } else if (strcmp(argv[i], "-keyevent-verbose") == 0) {
             QTest::keyVerbose = 1;

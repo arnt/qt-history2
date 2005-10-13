@@ -49,6 +49,8 @@ public:
     static void redirectOutput(const char *fileName);
     static const char *outputFileName();
 
+    static void setMaxWarnings(int max);
+
 private:
     QTestLog();
     ~QTestLog();

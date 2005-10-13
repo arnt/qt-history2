@@ -20,11 +20,11 @@
 #include "QtTest/private/qxmltestlogger_p.h"
 
 #include "qatomic.h"
+#include <QtCore/QByteArray>
 
 #include <stdlib.h>
 #include <string.h>
-
-#include <QtCore/QByteArray>
+#include <limits.h>
 
 namespace QTest {
 
@@ -54,6 +54,7 @@ namespace QTest {
 
     static QTestLog::LogMode logMode = QTestLog::Plain;
     static int verbosity = 0;
+    static int maxWarnings = 2002;
 
     static QAbstractTestLogger *testLogger = 0;
     static const char *outFile = 0;
@@ -86,7 +87,7 @@ namespace QTest {
 
     static void messageHandler(QtMsgType type, const char *msg)
     {
-        static QBasicAtomic counter = Q_ATOMIC_INIT(2002);
+        static QAtomic counter = QTest::maxWarnings;
 
         if (!msg || !QTest::testLogger) {
             // if this goes wrong, something is seriously broken.
@@ -310,3 +311,9 @@ const char *QTestLog::outputFileName()
 {
     return QTest::outFile;
 }
+
+void QTestLog::setMaxWarnings(int m)
+{
+    QTest::maxWarnings = m <= 0 ? INT_MAX : m + 2;
+}
+
