@@ -91,9 +91,9 @@ template <class T> inline T qFromLittleEndian(const uchar *src)
     return qFromLittleEndian_helper(src, reinterpret_cast<T*>(0));
 }
 
-#else 
+#else
 template <typename T> inline T qFromLittleEndian(const uchar *src);
-template <> inline quint64 qFromLittleEndian(const uchar *src)
+template <> inline quint64 qFromLittleEndian<quint64>(const uchar *src)
 {
     return 0
         | src[0]
@@ -106,7 +106,7 @@ template <> inline quint64 qFromLittleEndian(const uchar *src)
         | src[7] * Q_UINT64_C(0x0100000000000000);
 }
 
-template <> inline quint32 qFromLittleEndian(const uchar *src)
+template <> inline quint32 qFromLittleEndian<quint32>(const uchar *src)
 {
     return 0
         | src[0]
@@ -115,7 +115,7 @@ template <> inline quint32 qFromLittleEndian(const uchar *src)
         | src[3] * quint32(0x01000000);
 }
 
-template <> inline quint16 qFromLittleEndian(const uchar *src)
+template <> inline quint16 qFromLittleEndian<quint16>(const uchar *src)
 {
     return 0
         | src[0]
@@ -123,13 +123,13 @@ template <> inline quint16 qFromLittleEndian(const uchar *src)
 }
 
 // signed specializations
-template <> inline qint64 qFromLittleEndian(const uchar *src)
+template <> inline qint64 qFromLittleEndian<qint64>(const uchar *src)
 { return static_cast<qint64>(qFromLittleEndian<quint64>(src)); }
 
-template <> inline qint32 qFromLittleEndian(const uchar *src)
+template <> inline qint32 qFromLittleEndian<qint32>(const uchar *src)
 { return static_cast<qint32>(qFromLittleEndian<quint32>(src)); }
 
-template <> inline qint16 qFromLittleEndian(const uchar *src)
+template <> inline qint16 qFromLittleEndian<qint16>(const uchar *src)
 { return static_cast<qint16>(qFromLittleEndian<quint16>(src)); }
 #endif
 
@@ -183,7 +183,7 @@ template <class T> inline T qFromBigEndian(const uchar *src)
 #else
 template <class T> inline T qFromBigEndian(const uchar *src);
 template<>
-inline quint64 qFromBigEndian(const uchar *src)
+inline quint64 qFromBigEndian<quint64>(const uchar *src)
 {
     return 0
         | src[7]
@@ -197,7 +197,7 @@ inline quint64 qFromBigEndian(const uchar *src)
 }
 
 template<>
-inline quint32 qFromBigEndian(const uchar *src)
+inline quint32 qFromBigEndian<quint32>(const uchar *src)
 {
     return 0
         | src[3]
@@ -207,7 +207,7 @@ inline quint32 qFromBigEndian(const uchar *src)
 }
 
 template<>
-inline quint16 qFromBigEndian(const uchar *src)
+inline quint16 qFromBigEndian<quint16>(const uchar *src)
 {
     return 0
         | src[1]
@@ -216,13 +216,13 @@ inline quint16 qFromBigEndian(const uchar *src)
 
 
 // signed specializations
-template <> inline qint64 qFromBigEndian(const uchar *src)
+template <> inline qint64 qFromBigEndian<qint64>(const uchar *src)
 { return static_cast<qint64>(qFromBigEndian<quint64>(src)); }
 
-template <> inline qint32 qFromBigEndian(const uchar *src)
+template <> inline qint32 qFromBigEndian<qint32>(const uchar *src)
 { return static_cast<qint32>(qFromBigEndian<quint32>(src)); }
 
-template <> inline qint16 qFromBigEndian(const uchar *src)
+template <> inline qint16 qFromBigEndian<qint16>(const uchar *src)
 { return static_cast<qint16>(qFromBigEndian<quint16>(src)); }
 #endif
 /*
@@ -232,7 +232,7 @@ template <> inline qint16 qFromBigEndian(const uchar *src)
  * and it is therefore a bit more convenient and in most cases more efficient.
 */
 template <typename T> T qbswap(T source);
-template <> inline quint64 qbswap(quint64 source)
+template <> inline quint64 qbswap<quint64>(quint64 source)
 {
     return 0
         | ((source & Q_UINT64_C(0x00000000000000ff)) << 56)
@@ -245,7 +245,7 @@ template <> inline quint64 qbswap(quint64 source)
         | ((source & Q_UINT64_C(0xff00000000000000)) >> 56);
 }
 
-template <> inline quint32 qbswap(quint32 source)
+template <> inline quint32 qbswap<quint32>(quint32 source)
 {
     return 0
         | ((source & 0x000000ff) << 24)
@@ -254,7 +254,7 @@ template <> inline quint32 qbswap(quint32 source)
         | ((source & 0xff000000) >> 24);
 }
 
-template <> inline quint16 qbswap(quint16 source)
+template <> inline quint16 qbswap<quint16>(quint16 source)
 {
     return 0
         | ((source & 0x00ff) << 8)
@@ -262,17 +262,17 @@ template <> inline quint16 qbswap(quint16 source)
 }
 
 // signed specializations
-template <> inline qint64 qbswap(qint64 source)
+template <> inline qint64 qbswap<qint64>(qint64 source)
 {
     return qbswap<quint64>(quint64(source));
 }
 
-template <> inline qint32 qbswap(qint32 source)
+template <> inline qint32 qbswap<qint32>(qint32 source)
 {
     return qbswap<quint32>(quint32(source));
 }
 
-template <> inline qint16 qbswap(qint16 source)
+template <> inline qint16 qbswap<qint16>(qint16 source)
 {
     return qbswap<quint16>(quint16(source));
 }
