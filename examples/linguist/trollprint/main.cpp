@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     translator.load(QString("trollprint_") + locale);
     app.installTranslator(&translator);
 
-    MainWindow *mainWin = new MainWindow;
-    mainWin->show();
+    MainWindow mainWindow;
+    mainWindow.show();
     return app.exec();
 }
