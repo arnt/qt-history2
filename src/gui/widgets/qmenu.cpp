@@ -741,7 +741,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 
     if (currentAction && currentAction == action)
         opt.state |= QStyle::State_Selected;
-    if (mouseDown)
+    if (mouseDown && currentAction && currentAction == action)
         opt.state |= QStyle::State_Sunken;
     opt.menuHasCheckableItems = hasCheckableItems;
     if (!action->isCheckable()) {
@@ -1664,6 +1664,7 @@ void QMenu::mousePressEvent(QMouseEvent *e)
 
     QAction *action = d->actionAt(e->pos());
     d->setCurrentAction(action, 20);
+    update();
 }
 
 /*!

@@ -101,23 +101,25 @@ static const char * const qt_plastique_check_sunken[] = {
     "oXo...oXo"};
 
 static const char * const qt_plastique_radio[] = {
-    "13 13 3 1",
+    "13 13 5 1",
     "X c #828282",
     "o c None",
+    "- c None",
+    "* c None",
     ". c None",
-    "...oXXXXXo...",
-    "..XXo...oXX..",
-    ".Xo.......oX.",
-    "oX.........Xo",
-    "Xo.........oX",
-    "X...........X",
-    "X...........X",
-    "X...........X",
-    "Xo.........oX",
-    "oX.........Xo",
-    ".Xo.......oX.",
-    "..XXo...oXX..",
-    "...oXXXXXo..."};
+    "...*XXXXX*...",
+    "..XXo---oXX..",
+    ".Xo-------oX.",
+    "*X---------X*",
+    "Xo---------oX",
+    "X-----------X",
+    "X-----------X",
+    "X-----------X",
+    "Xo---------oX",
+    "*X---------X*",
+    ".Xo-------oX.",
+    "..XXo---oXX..",
+    "...*XXXXX*..."};
 
 static const char * const qt_plastique_radioborder[] = {
     "13 13 2 1",
@@ -2575,10 +2577,20 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
             if (menuItem->menuItemType == QStyleOptionMenuItem::Separator) {
                 painter->fillRect(menuItem->rect, option->palette.background().color().light(103));
-                painter->setPen(alphaCornerColor);
-                painter->drawLine(menuItem->rect.left() + 5, menuItem->rect.top(),
-                                  menuItem->rect.right() - 5, menuItem->rect.top());
 
+                int w = 0;
+                if (!menuItem->text.isEmpty()) {
+                    drawItemText(painter, menuItem->rect.adjusted(5, 0, -5, 0), Qt::AlignLeft | Qt::AlignVCenter,
+                                 menuItem->palette, menuItem->state & State_Enabled, menuItem->text,
+                                 QPalette::Text);
+                    w = menuItem->fontMetrics.width(menuItem->text) + 5;
+                }
+                
+                painter->setPen(alphaCornerColor);
+                bool reverse = menuItem->direction == Qt::RightToLeft;
+                painter->drawLine(menuItem->rect.left() + 5 + (reverse ? 0 : w), menuItem->rect.center().y(),
+                                  menuItem->rect.right() - 5 - (reverse ? w : 0), menuItem->rect.center().y());
+                    
                 painter->restore();
                 break;
             }
@@ -2599,42 +2611,74 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
             bool checkable = menuItem->checkType != QStyleOptionMenuItem::NotCheckable;
             bool checked = menuItem->checked;
+            bool sunken = menuItem->state & State_Sunken;
             bool enabled = menuItem->state & State_Enabled;
 
             // Check
             QRect checkRect(option->rect.left() + 7, option->rect.center().y() - 6, 13, 13);
             checkRect = visualRect(menuItem->direction, menuItem->rect, checkRect);
             if (checkable) {
-                if (menuItem->icon.isNull()) {
-                    painter->setPen(borderColor);
-                    painter->drawRect(checkRect.adjusted(0, 0, -1, -1));
-                    painter->setPen(mergedColors(borderColor,
-                                                 selected ? option->palette.highlight().color()
-                                                 : option->palette.background().color()));
-                    painter->drawPoint(checkRect.topLeft());
-                    painter->drawPoint(checkRect.topRight());
-                    painter->drawPoint(checkRect.bottomLeft());
-                    painter->drawPoint(checkRect.bottomRight());
-                    painter->fillRect(checkRect.adjusted(1, 1, -1, -1), option->palette.base().color());
+                if (menuItem->checkType & QStyleOptionMenuItem::Exclusive) {
+                    // Radio button
+                    QImage image(qt_plastique_radio);
+                    image.setColor(0, borderColor.rgba());
+                    image.setColor(1, alphaCornerColor.rgba());
+                    image.setColor(2, menuItem->palette.base().color().rgba());
+                    image.setColor(3, selected
+                                   ? mergedColors(borderColor, option->palette.highlight().color()).rgba()
+                                   : alphaCornerColor.rgba());
+                    painter->drawImage(checkRect.topLeft(), image);
 
-                    if (checked) {
-                        QImage image(qt_plastique_check);
-                        image.setColor(0, option->palette.text().color().rgba());
-                        image.setColor(1, alphaTextColor.rgba());
-                        painter->drawImage(QPoint(checkRect.center().x() - image.width() / 2,
-                                                  checkRect.center().y() - image.height() / 2), image);
+                    if (checked || sunken) {
+                        image = QImage(qt_plastique_radio_check);
+                        if (sunken) {
+                            image.setColor(1, mergedColors(menuItem->palette.background().color(), alphaTextColor).rgba());
+                            image.setColor(2, mergedColors(menuItem->palette.background().color(), menuItem->palette.foreground().color()).rgba());
+                        } else {
+                            image.setColor(1, alphaTextColor.rgba());
+                            image.setColor(2, menuItem->palette.foreground().color().rgba());
+                        }
+                        painter->drawImage(checkRect, image);
                     }
-                } else if (checked) {
-                    int iconSize = qMax(menuItem->maxIconWidth, 20);
-                    QRect sunkenRect(option->rect.left() + 2,
-                                     option->rect.top() + (option->rect.height() - iconSize) / 2,
-                                     iconSize, iconSize);
-                    sunkenRect = visualRect(menuItem->direction, menuItem->rect, sunkenRect);
 
-                    QStyleOption opt = *option;
-                    opt.state |= State_Sunken;
-                    opt.rect = sunkenRect;
-                    qt_plastique_drawShadedPanel(painter, &opt, false, widget);
+                } else {
+                    // Check box
+                    if (menuItem->icon.isNull()) {
+                        painter->setPen(borderColor);
+                        painter->drawRect(checkRect.adjusted(0, 0, -1, -1));
+                        painter->setPen(mergedColors(borderColor,
+                                                     selected ? option->palette.highlight().color()
+                                                     : option->palette.background().color()));
+                        painter->drawPoint(checkRect.topLeft());
+                        painter->drawPoint(checkRect.topRight());
+                        painter->drawPoint(checkRect.bottomLeft());
+                        painter->drawPoint(checkRect.bottomRight());
+                        painter->fillRect(checkRect.adjusted(1, 1, -1, -1), option->palette.base().color());
+
+                        if (checked || sunken) {
+                            QImage image(qt_plastique_check);
+                            if (sunken) {
+                                image.setColor(0, mergedColors(menuItem->palette.background().color(), menuItem->palette.foreground().color()).rgba());
+                                image.setColor(1, mergedColors(menuItem->palette.background().color(), alphaTextColor).rgba());
+                            } else {
+                                image.setColor(0, option->palette.text().color().rgba());
+                                image.setColor(1, alphaTextColor.rgba());
+                            }
+                            painter->drawImage(QPoint(checkRect.center().x() - image.width() / 2,
+                                                      checkRect.center().y() - image.height() / 2), image);
+                        }
+                    } else if (checked) {
+                        int iconSize = qMax(menuItem->maxIconWidth, 20);
+                        QRect sunkenRect(option->rect.left() + 2,
+                                         option->rect.top() + (option->rect.height() - iconSize) / 2,
+                                         iconSize, iconSize);
+                        sunkenRect = visualRect(menuItem->direction, menuItem->rect, sunkenRect);
+
+                        QStyleOption opt = *option;
+                        opt.state |= State_Sunken;
+                        opt.rect = sunkenRect;
+                        qt_plastique_drawShadedPanel(painter, &opt, false, widget);
+                    }
                 }
             }
 
@@ -4529,7 +4573,7 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             if (menuItem->menuItemType == QStyleOptionMenuItem::Separator)
-                newSize.setHeight(2);
+                newSize.setHeight(menuItem->text.isEmpty() ? 2 : menuItem->fontMetrics.lineSpacing());
         }
         break;
     case CT_MenuBarItem:

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qmotifstyle.h"
+#include "qcdestyle.h"
 
 #if !defined(QT_NO_STYLE_MOTIF) || defined(QT_PLUGIN)
 
@@ -1072,11 +1073,22 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             int x, y, w, h;
             opt->rect.getRect(&x, &y, &w, &h);
 
-            if(menuitem->menuItemType == QStyleOptionMenuItem::Separator) {  // draw separator
+            if (menuitem->menuItemType == QStyleOptionMenuItem::Separator) {  // draw separator
+                int textWidth = 0;
+                if (!menuitem->text.isEmpty()) {
+                    p->fillRect(x, y, w, h, opt->palette.brush(QPalette::Button));
+                    drawItemText(p, menuitem->rect.adjusted(10, 0, -5, 0), Qt::AlignLeft | Qt::AlignVCenter,
+                                 menuitem->palette, menuitem->state & State_Enabled, menuitem->text,
+                                 QPalette::Text);
+                    textWidth = menuitem->fontMetrics.width(menuitem->text) + 10;
+                    y += menuitem->fontMetrics.lineSpacing() / 2;
+                }
                 p->setPen(opt->palette.dark().color());
-                p->drawLine(x, y, x+w, y);
+                p->drawLine(x, y, x + 5, y);
+                p->drawLine(x + 5 + textWidth, y, x+w, y);
                 p->setPen(opt->palette.light().color());
-                p->drawLine(x, y+1, x+w, y+1);
+                p->drawLine(x, y + 1, x + 5, y + 1);
+                p->drawLine(x + 5 + textWidth, y + 1, x+w, y + 1);
                 return;
             }
 
@@ -1125,15 +1137,25 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             } else  if (menuitem->checkType != QStyleOptionMenuItem::NotCheckable) {  // just "checking"...
                 int mw = maxpmw;
                 int mh = h - 2*motifItemFrame;
+
                 if (menuitem->checked) {
-                    QStyleOptionMenuItem newMenuItem = *menuitem;
-                    newMenuItem.state = State_None;
-                    if ((opt->state & State_Enabled))
-                        newMenuItem.state |= State_Enabled;
-                    if ((opt->state & State_Selected))
-                        newMenuItem.state |= State_On;
-                    newMenuItem.rect = QRect(xvis, y+motifItemFrame, mw, mh);
-                    drawPrimitive(PE_IndicatorMenuCheckMark, &newMenuItem, p, widget);
+                    if (menuitem->checkType & QStyleOptionMenuItem::Exclusive) {
+                        QStyleOptionButton newMenuItem;
+                        newMenuItem.state = State_Sunken;
+                        if (qobject_cast<const QCDEStyle *>(this))
+                            newMenuItem.state = State_On; // :->
+                        if ((opt->state & State_Enabled))
+                            newMenuItem.state |= State_Enabled;
+                        newMenuItem.rect.setRect(xvis, y + motifItemFrame + mh / 4, 11, 11);
+                        drawPrimitive(PE_IndicatorRadioButton, &newMenuItem, p, widget);
+                    } else {
+                        QStyleOptionMenuItem newMenuItem = *menuitem;
+                        newMenuItem.state = State_On;
+                        if ((opt->state & State_Enabled))
+                            newMenuItem.state |= State_Enabled;
+                        newMenuItem.rect = QRect(xvis, y+motifItemFrame, mw, mh);                    
+                        drawPrimitive(PE_IndicatorMenuCheckMark, &newMenuItem, p, widget);
+                    }
                 }
             }
 
@@ -1923,7 +1945,7 @@ QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 
             if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
                 w = 10;
-                h = motifSepHeight;
+                h = (mi->text.isEmpty()) ? motifSepHeight : mi->fontMetrics.lineSpacing();
             }
 
             // a little bit of border can never harm
