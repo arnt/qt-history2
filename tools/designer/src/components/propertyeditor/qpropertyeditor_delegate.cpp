@@ -24,9 +24,10 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QMessageBox>
 #include <QtGui/QLabel>
-
 #include <QtGui/qdrawutil.h>
+
 #include <QtCore/qdebug.h>
+
 #include <limits.h>
 
 #ifndef Q_MOC_RUN
@@ -109,17 +110,30 @@ bool QPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
                 return true;
             }
             if (ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return) {
-                QWidget *widget = static_cast<QWidget*>(object);
+                QWidget *widget = qobject_cast<QWidget*>(object);
                 if (QSpinBox *spinBox = qobject_cast<QSpinBox*>(widget)) { // ### hack (remove me)
                     spinBox->interpretText();
                 }
                 emit commitData(widget);
+                emit closeEditor(editor, NoHint);
                 return true;
             }
         } break;
+
         case QEvent::FocusOut:
-            emit commitData(editor);
+            if (!editor->isActiveWindow() || (QApplication::focusWidget() != editor)) {
+                QWidget *w = QApplication::focusWidget();
+                while (w) { // dont worry about focus changes internally in the editor
+                    if (w == editor)
+                        return false;
+                    w = w->parentWidget();
+                }
+
+                emit commitData(editor);
+                emit closeEditor(qobject_cast<QWidget*>(object), NoHint);
+            }
             return false;
+
         default:
             break;
     }
