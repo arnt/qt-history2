@@ -1233,7 +1233,8 @@ QString HtmlGenerator::generateLowStatusMemberFile(const InnerNode *inner, CodeM
     generateTitle(title, Text(), SmallSubTitle, inner, marker);
 
     if (status == CodeMarker::Compat) {
-        out() << "<p><b>The following class members are part of the Qt 3 support layer.</b> "
+        out() << "<p><b>The following class members are part of the "
+                 "<a href=\"qt3support.html\">Qt 3 support layer</a>.</b> "
                  "They are provided to help you port old code to Qt 4. We advise against "
                  "using them in new code.</p>\n";
     } else {
@@ -1564,6 +1565,8 @@ void HtmlGenerator::generateSynopsis(const Node *node, const Node *relative,
     out() << highlightedCode( marked, marker, relative );
 }
 
+#include <qdebug.h>
+
 void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* marker */)
 {
     QMap<QString, FakeNode *> fakeNodeMap;
@@ -1578,8 +1581,12 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
             if (fakeNode->subType() == FakeNode::Example)
                 continue;
 
-            // not interested either in individial (Qt Designer etc.) manual chapters
+            // not interested either in individual (Qt Designer etc.) manual chapters
             if (fakeNode->links().contains(Node::PreviousLink))
+                continue;
+
+            // Discard external nodes.
+            if (fakeNode->subType() == FakeNode::ExternalPage)
                 continue;
 
             QString sortKey = fakeNode->fullTitle().toLower();
