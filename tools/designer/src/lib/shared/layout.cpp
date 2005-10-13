@@ -72,6 +72,12 @@ void add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs
     }
 }
 
+bool operator < (const QPointer<QWidget> &p1, const QPointer<QWidget> &p2)
+{
+    return p1.operator->() < p2.operator->();
+}
+
+
 /*!
   \class Layout layout.h
   \brief Baseclass for layouting widgets in the Designer
