@@ -25,22 +25,19 @@
 // We mean it.
 //
 
-#include "QtCore/qnamespace.h"
-#include "private/qmappingproxymodel_p.h"
+#include <QtCore/qnamespace.h>
+#include <QtCore/qmap.h>
+#include <QtCore/qpair.h>
+#include <private/qmappingproxymodel_p.h>
 
 class QFilteringProxyModelPrivate : private QMappingProxyModelPrivate
 {
     Q_DECLARE_PUBLIC(QFilteringProxyModel)
 
 public:
-    QFilteringProxyModelPrivate() : QMappingProxyModelPrivate(),
-                                    mode(QFilteringProxyModel::FilterRows) {}
-
-    void filterRows(const QModelIndex &parent) const;
-    void filterColumns(const QModelIndex &parent) const;
-
-    mutable QMap<QModelIndex, int> filtered_count; // maps the parent to the  number of  rows or columns filtered out
-    QFilteringProxyModel::FilterMode mode;
+    QFilteringProxyModelPrivate() : QMappingProxyModelPrivate() {}
+    // maps the parent to the  number of filtered rows and columns
+    mutable QMap<QModelIndex, QPair<int,int> > filtered_count;
 };
 
 #endif // QFILTERINGPROXYMODEL_P_H

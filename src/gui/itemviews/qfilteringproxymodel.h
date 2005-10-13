@@ -23,16 +23,10 @@ class QFilteringProxyModelPrivate;
 class Q_GUI_EXPORT QFilteringProxyModel : public QMappingProxyModel
 {
     Q_OBJECT
-    Q_ENUMS(FilterMode)
-    Q_PROPERTY(FilterMode filterMode READ filterMode WRITE setFilterMode)
 public:
-    enum FilterMode { FilterRows, FilterColumns };
 
     QFilteringProxyModel(QObject *parent = 0);
     ~QFilteringProxyModel();
-
-    FilterMode filterMode() const;
-    void setFilterMode(FilterMode mode);
 
     void clear();
 

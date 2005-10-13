@@ -13,6 +13,7 @@
 
 #include "qfilteringproxymodel.h"
 #include <private/qfilteringproxymodel_p.h>
+#include <qbitarray.h>
 #include <qdebug.h>
 
 /*!
@@ -21,13 +22,6 @@
     that is passed between another model and a view.
 
     \since 4.1
-*/
-
-/*!
-  \enum QFilteringProxyModel::FilterMode
-
-  \valie FilterRows
-  \value FilterColumns
 */
 
 /*!
@@ -54,24 +48,6 @@ QFilteringProxyModel::QFilteringProxyModel(QFilteringProxyModelPrivate &dd, QObj
 QFilteringProxyModel::~QFilteringProxyModel()
 {
 
-}
-
-/*!
-  \property QFilteringProxyModel::filterMode
-  \brief wether to filter rows or columns
-
-*/
-QFilteringProxyModel::FilterMode QFilteringProxyModel::filterMode() const
-{
-    Q_D(const QFilteringProxyModel);
-    return d->mode;
-}
-
-void QFilteringProxyModel::setFilterMode(FilterMode mode)
-{
-    Q_D(QFilteringProxyModel);
-    d->mode = mode;
-    reset();
 }
 
 /*!
@@ -108,13 +84,11 @@ QModelIndex QFilteringProxyModel::index(int row, int column, const QModelIndex &
 int QFilteringProxyModel::rowCount(const QModelIndex &parent) const
 {
     Q_D(const QFilteringProxyModel);
-    if (d->mode == FilterColumns)
-        return QMappingProxyModel::rowCount(parent);
     if (d->filtered_count.isEmpty() || !d->filtered_count.contains(parent))
         mapChildren(parent); // filter and map the children of parent, including proxy_index
     if (d->proxy_to_source.isEmpty()) // nothing was mapped
         return 0;
-    return QMappingProxyModel::rowCount(parent) - d->filtered_count.value(parent);
+    return QMappingProxyModel::rowCount(parent) - d->filtered_count.value(parent).first;
 }
 
 /*!
@@ -123,13 +97,11 @@ int QFilteringProxyModel::rowCount(const QModelIndex &parent) const
 int QFilteringProxyModel::columnCount(const QModelIndex &parent) const
 {
     Q_D(const QFilteringProxyModel);
-    if (d->mode == FilterRows)
-        return QMappingProxyModel::columnCount(parent);
     if (d->filtered_count.isEmpty() || !d->filtered_count.contains(parent))
         mapChildren(parent); // filter and map the children of parent, including proxy_index
     if (d->proxy_to_source.isEmpty()) // nothing was mapped
         return 0;
-    return QMappingProxyModel::columnCount(parent) - d->filtered_count.value(parent);
+    return QMappingProxyModel::columnCount(parent) - d->filtered_count.value(parent).second;
 }
 
 /*!
@@ -138,10 +110,44 @@ int QFilteringProxyModel::columnCount(const QModelIndex &parent) const
 void QFilteringProxyModel::mapChildren(const QModelIndex &parent) const
 {
     Q_D(const QFilteringProxyModel);
-    if (d->mode == FilterRows)
-        d->filterRows(parent);
-    else
-        d->filterColumns(parent);
+
+    QModelIndex source_parent;
+    void *parent_node = 0;
+    if (parent.isValid()) {
+        parent_node = d->proxy_to_source.find(parent); // ### slow
+        source_parent = d->proxy_to_source.value(parent);
+    }
+
+    int proxy_row = 0;
+    int filtered_rows_count = 0;
+    int source_row_count = d->model->rowCount(source_parent);
+    int source_column_count = d->model->columnCount(source_parent);
+    int filtered_columns_count = 0;
+    QBitArray filtered_columns(source_column_count);
+    for (int source_row = 0; source_row < source_row_count; ++source_row) {
+        if (filterRow(source_row, source_parent)) {
+            ++filtered_rows_count;
+        } else {
+            int proxy_column = 0;
+            for (int source_column = 0; source_column < source_column_count; ++source_column) {
+                if (proxy_row == 0 && filterColumn(source_column, source_parent)) {
+                    filtered_columns.setBit(source_column);
+                    ++filtered_columns_count;
+                } else if (!filtered_columns.testBit(source_column)) {
+                    QModelIndex source_index = d->model->index(source_row, source_column,
+                                                               source_parent);
+                    QModelIndex proxy_index = createIndex(proxy_row, proxy_column, parent_node);
+                    Q_ASSERT(proxy_index.isValid());
+                    Q_ASSERT(source_index.isValid());
+                    //Q_ASSERT(!proxy_to_source.contains(proxy_index)); 
+                    d->proxy_to_source.insert(proxy_index, source_index);
+                    ++proxy_column;
+                }
+            }
+            ++proxy_row;
+        }
+    }
+    d->filtered_count.insert(parent, QPair<int,int>(filtered_rows_count, filtered_columns_count));    
 }
 
 /*!
@@ -172,70 +178,4 @@ void QFilteringProxyModel::sourceLayoutChanged()
     Q_D(QFilteringProxyModel);
     d->filtered_count.clear();
     d->proxy_to_source.clear();
-}
-
-void QFilteringProxyModelPrivate::filterRows(const QModelIndex &parent) const
-{
-    Q_Q(const QFilteringProxyModel);
-    
-    QModelIndex source_parent;
-    void *parent_node = 0;
-    if (parent.isValid()) {
-        parent_node = proxy_to_source.find(parent); // ### slow
-        source_parent = proxy_to_source.value(parent);
-    }
-
-    int proxy_row = 0;
-    int filtered_rows_count = 0;
-    int source_row_count = model->rowCount(source_parent);
-    int source_column_count = model->columnCount(source_parent);
-    for (int source_row = 0; source_row < source_row_count; ++source_row) {
-        if (q->filterRow(source_row, source_parent)) {
-            ++filtered_rows_count;
-        } else {
-            for (int source_column = 0; source_column < source_column_count; ++source_column) {
-                QModelIndex source_index = model->index(source_row, source_column, source_parent);
-                QModelIndex proxy_index = q->createIndex(proxy_row, source_column, parent_node);
-                Q_ASSERT(proxy_index.isValid());
-                Q_ASSERT(source_index.isValid());
-                //Q_ASSERT(!proxy_to_source.contains(proxy_index)); 
-                proxy_to_source.insert(proxy_index, source_index);
-            }
-            ++proxy_row;
-        }
-    }
-    filtered_count.insert(parent, filtered_rows_count);
-}
-
-void QFilteringProxyModelPrivate::filterColumns(const QModelIndex &parent) const
-{
-    Q_Q(const QFilteringProxyModel);
-    
-    QModelIndex source_parent;
-    void *parent_node = 0;
-    if (parent.isValid()) {
-        parent_node = proxy_to_source.find(parent); // ### slow
-        source_parent = proxy_to_source.value(parent);
-    }
-
-    int proxy_column = 0;
-    int filtered_columns_count = 0;
-    int source_row_count = model->rowCount(source_parent);
-    int source_column_count = model->columnCount(source_parent);
-    for (int source_column = 0; source_column < source_column_count; ++source_column) {
-        if (q->filterColumn(source_column, source_parent)) {
-            ++filtered_columns_count;
-        } else {
-            for (int source_row = 0; source_row < source_row_count; ++source_row) {
-                QModelIndex source_index = model->index(source_row, source_column, source_parent);
-                QModelIndex proxy_index = q->createIndex(source_row, proxy_column, parent_node);
-                Q_ASSERT(proxy_index.isValid());
-                Q_ASSERT(source_index.isValid());
-                //Q_ASSERT(!proxy_to_source.contains(proxy_index)); FIXME
-                proxy_to_source.insert(proxy_index, source_index);
-            }
-            ++proxy_column;
-        }
-    }
-    filtered_count.insert(parent, filtered_columns_count);
 }
