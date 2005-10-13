@@ -196,7 +196,6 @@ void QRubberBand::paintEvent(QPaintEvent *)
 */
 void QRubberBand::changeEvent(QEvent *e)
 {
-    Q_D(QRubberBand);
     QWidget::changeEvent(e);
     switch (e->type()) {
     case QEvent::ParentChange:

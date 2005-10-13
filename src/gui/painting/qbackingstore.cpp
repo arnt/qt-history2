@@ -373,6 +373,8 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
     if(!widget->isVisible() || !widget->updatesEnabled())
         return;
     wrgn &= widget->d_func()->clipRect();
+    if (!widget->mask().isEmpty())
+        wrgn &= widget->mask();
 #ifndef Q_WS_QWS
     widget->d_func()->dirtyWidget_sys(wrgn);
 #endif

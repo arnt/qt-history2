@@ -2303,7 +2303,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 #ifdef QT_USE_BACKINGSTORE
         if (isResize) {
             invalidateBuffer(q->rect()); //after the resize
-            q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
+            QRegion oldRegion(QRect(oldPos, oldSize));
+            if (!q->mask().isEmpty())
+                oldRegion &= q->mask().translated(q->geometry().topLeft());
+            q->parentWidget()->d_func()->invalidateBuffer(oldRegion);
         }
 #endif
     }
