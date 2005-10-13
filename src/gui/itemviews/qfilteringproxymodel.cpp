@@ -145,7 +145,9 @@ void QFilteringProxyModel::mapChildren(const QModelIndex &parent) const
 }
 
 /*!
-
+  Returns true if the value in the item in the row indicated by
+  the given \a source_row and \a source_parent should be removed from the model.
+  The default implementation returns false.
 */
 bool QFilteringProxyModel::filterRow(int source_row, const QModelIndex &source_parent) const
 {    
@@ -153,7 +155,9 @@ bool QFilteringProxyModel::filterRow(int source_row, const QModelIndex &source_p
 }
 
 /*!
-
+  Returns true if the value in the item in the column indicated by
+  the given \a source_column and \a source_parent should be removed from the model.
+  The default implementation returns false.
 */
 bool QFilteringProxyModel::filterColumn(int source_column,  const QModelIndex &source_parent) const
 {

@@ -102,8 +102,7 @@ void QStringFilterModel::setPattern(const QString &pattern)
 }
 
 /*!
-  Returns true if the value in the item in the row indicated by
-  the given \a source_row and \a source_parent should be removed from the model.
+  \reimp
 */
 bool QStringFilterModel::filterRow(int source_row, const QModelIndex &source_parent) const
 {
