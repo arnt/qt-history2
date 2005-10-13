@@ -29,6 +29,7 @@ NewActionDialog::NewActionDialog(ActionEditor *parent)
     ui.setupUi(this);
     ui.editActionText->setFocus();
     ui.okButton->setEnabled(false);
+    m_auto_update_object_name = true;
 }
 
 QIcon NewActionDialog::actionIcon() const
@@ -36,10 +37,12 @@ QIcon NewActionDialog::actionIcon() const
     return ui.iconButton->icon();
 }
 
-void NewActionDialog::setActionData(const QString &text, const QIcon &icon)
+void NewActionDialog::setActionData(const QString &text, const QString &name, const QIcon &icon)
 {
     ui.editActionText->setText(text);
+    ui.editObjectName->setText(name);
     ui.iconButton->setIcon(icon);
+    m_auto_update_object_name = false;
 }
 
 NewActionDialog::~NewActionDialog()
@@ -58,7 +61,12 @@ QString NewActionDialog::actionText() const
 
 QString NewActionDialog::actionName() const
 {
-    QString name = actionText();
+    return ui.editObjectName->text();
+}
+
+static QString actionTextToName(const QString &text)
+{
+    QString name = text;
     if (name.isEmpty())
         return QString();
 
@@ -75,6 +83,12 @@ QString NewActionDialog::actionName() const
 void NewActionDialog::on_editActionText_textChanged(const QString &text)
 {
     ui.okButton->setEnabled(!text.isEmpty());
+
+    if (text.isEmpty())
+        m_auto_update_object_name = true;
+
+    if (m_auto_update_object_name)
+        ui.editObjectName->setText(actionTextToName(text));
 }
 
 void NewActionDialog::on_iconButton_clicked()

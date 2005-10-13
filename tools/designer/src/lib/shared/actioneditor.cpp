@@ -301,7 +301,7 @@ void ActionEditor::editAction(QListWidgetItem *item)
 
 
     NewActionDialog dlg(this);
-    dlg.setActionData(action->text(), action->icon());
+    dlg.setActionData(action->text(), action->objectName(), action->icon());
 
     if (!dlg.exec())
         return;

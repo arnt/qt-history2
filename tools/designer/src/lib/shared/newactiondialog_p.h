@@ -31,7 +31,7 @@ public:
     QString actionName() const;
     QIcon actionIcon() const;
 
-    void setActionData(const QString &text, const QIcon &icon);
+    void setActionData(const QString &text, const QString &name, const QIcon &icon);
 
 private slots:
     void accept();
@@ -42,6 +42,7 @@ private slots:
 private:
     ActionEditor *m_actionEditor;
     Ui::NewActionDialog ui;
+    bool m_auto_update_object_name;
 };
 
 } // namespace qdesigner_internal
