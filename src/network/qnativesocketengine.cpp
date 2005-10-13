@@ -289,6 +289,11 @@ bool QNativeSocketEngine::initialize(QAbstractSocket::SocketType socketType, QAb
         return false;
     }
 
+    // Make sure we receive out-of-band data
+    if (!setOption(ReceiveOutOfBandData, 1)) {
+        qWarning("QNativeSocketEngine::initialize unable to inline out-of-band data");
+    }
+
     // Set the send and receive buffer sizes to a magic size, found
     // most optimal for our platforms.
     setReceiveBufferSize(49152);

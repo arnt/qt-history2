@@ -206,6 +206,9 @@ int QNativeSocketEnginePrivate::option(QNativeSocketEngine::SocketOption opt) co
         break;
     case QNativeSocketEngine::BindExclusively:
         return true;
+    case QNativeSocketEngine::ReceiveOutOfBandData:
+        n = SO_OOBINLINE;
+        break;
     }
 
     int v = -1;
@@ -246,6 +249,9 @@ bool QNativeSocketEnginePrivate::setOption(QNativeSocketEngine::SocketOption opt
         break;
     case QNativeSocketEngine::BindExclusively:
         return true;
+    case QNativeSocketEngine::ReceiveOutOfBandData:
+        n = SO_OOBINLINE;
+        break;
     }
 
     return ::setsockopt(socketDescriptor, SOL_SOCKET, n, (char *) &v, sizeof(v)) == 0;

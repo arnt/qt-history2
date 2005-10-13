@@ -38,7 +38,7 @@ public:
 
     static QAbstractSocketEngine *createSocketEngine(const QHostAddress &address, QAbstractSocket::SocketType socketType, QObject *parent);
     static QAbstractSocketEngine *createSocketEngine(int socketDescripter, QObject *parent);
-    
+
     QAbstractSocketEngine(QObject *parent = 0);
 
     enum SocketOption {
@@ -47,11 +47,12 @@ public:
         ReceiveBufferSocketOption,
         SendBufferSocketOption,
         AddressReusable,
-        BindExclusively
+        BindExclusively,
+        ReceiveOutOfBandData
     };
 
     virtual bool initialize(QAbstractSocket::SocketType type, QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::IPv4Protocol) = 0;
-    
+
     virtual bool initialize(int socketDescriptor, QAbstractSocket::SocketState socketState = QAbstractSocket::ConnectedState) = 0;
 
     virtual int socketDescriptor() const = 0;
@@ -77,10 +78,10 @@ public:
     virtual bool hasPendingDatagrams() const = 0;
     virtual qint64 pendingDatagramSize() const = 0;
 #endif
-    
+
     virtual int option(SocketOption option) const = 0;
     virtual bool setOption(SocketOption option, int value) = 0;
-    
+
     virtual bool waitForRead(int msecs = 30000, bool *timedOut = 0) const = 0;
     virtual bool waitForWrite(int msecs = 30000, bool *timedOut = 0) const = 0;
     virtual bool waitForReadOrWrite(bool *readyToRead, bool *readyToWrite,
@@ -97,7 +98,7 @@ public:
     quint16 localPort() const;
     QHostAddress peerAddress() const;
     quint16 peerPort() const;
-    
+
     virtual bool isReadNotificationEnabled() const = 0;
     virtual void setReadNotificationEnabled(bool enable) = 0;
     virtual bool isWriteNotificationEnabled() const = 0;
@@ -112,7 +113,7 @@ Q_SIGNALS:
 
 protected:
     QAbstractSocketEngine(QAbstractSocketEnginePrivate &dd, QObject* parent = 0);
-    
+
     void setError(QAbstractSocket::SocketError error, const QString &errorString) const;
     void setState(QAbstractSocket::SocketState state);
     void setSocketType(QAbstractSocket::SocketType socketType);

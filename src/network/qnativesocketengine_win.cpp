@@ -360,6 +360,9 @@ int QNativeSocketEnginePrivate::option(QNativeSocketEngine::SocketOption opt) co
     case QNativeSocketEngine::BindExclusively:
         n = SO_EXCLUSIVEADDRUSE;
         break;
+    case QNativeSocketEngine::ReceiveOutOfBandData:
+        n = SO_OOBINLINE;
+        break;
     }
 
     int v = -1;
@@ -407,6 +410,9 @@ bool QNativeSocketEnginePrivate::setOption(QNativeSocketEngine::SocketOption opt
         break;
     case QNativeSocketEngine::BindExclusively:
         n = SO_EXCLUSIVEADDRUSE;
+        break;
+    case QNativeSocketEngine::ReceiveOutOfBandData:
+        n = SO_OOBINLINE;
         break;
     }
 
@@ -461,12 +467,12 @@ bool QNativeSocketEnginePrivate::fetchConnectionParameters()
         int err = WSAGetLastError();
         WS_ERROR_DEBUG(err);
         if (err == WSAENOTSOCK) {
-            setError(QAbstractSocket::UnsupportedSocketOperationError, 
+            setError(QAbstractSocket::UnsupportedSocketOperationError,
                 InvalidSocketErrorString);
             return false;
         }
     }
-    
+
     memset(&sa, 0, sizeof(sa));
     if (::getpeername(socketDescriptor, pSa, &sz) == 0) {
         qt_socket_getPortAndAddress(socketDescriptor, pSa, &peerPort, &peerAddress);
