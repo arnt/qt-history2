@@ -23,20 +23,28 @@ class QFilteringProxyModelPrivate;
 class Q_GUI_EXPORT QFilteringProxyModel : public QMappingProxyModel
 {
     Q_OBJECT
-
+    Q_ENUMS(FilterMode)
+    Q_PROPERTY(FilterMode filterMode READ filterMode WRITE setFilterMode)
 public:
+    enum FilterMode { FilterColumns, FilterRows };
+
     QFilteringProxyModel(QObject *parent = 0);
     ~QFilteringProxyModel();
+
+    FilterMode filterMode() const;
+    void setFilterMode(FilterMode mode);
 
     void clear();
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
 
 protected:
     QFilteringProxyModel(QFilteringProxyModelPrivate &, QObject *parent);
 
-    virtual bool filterRow(int source_row, const QModelIndex &source_parent) const = 0;
+    virtual bool filterRow(int source_row, const QModelIndex &source_parent) const;
+    virtual bool filterColumn(int source_column,  const QModelIndex &source_parent) const;
     virtual void mapChildren(const QModelIndex &parent) const;
     void sourceLayoutChanged();
 

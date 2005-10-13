@@ -33,8 +33,14 @@ class QFilteringProxyModelPrivate : private QMappingProxyModelPrivate
     Q_DECLARE_PUBLIC(QFilteringProxyModel)
 
 public:
-    QFilteringProxyModelPrivate() : QMappingProxyModelPrivate() {}
-    mutable QMap<QModelIndex, int> filtered_row_count; // maps the parent to the  number of  rows filtered out
+    QFilteringProxyModelPrivate() : QMappingProxyModelPrivate(),
+                                    mode(QFilteringProxyModel::FilterRows) {}
+
+    void filterRows(const QModelIndex &parent) const;
+    void filterColumns(const QModelIndex &parent) const;
+
+    mutable QMap<QModelIndex, int> filtered_count; // maps the parent to the  number of  rows or columns filtered out
+    QFilteringProxyModel::FilterMode mode;
 };
 
 #endif // QFILTERINGPROXYMODEL_P_H
