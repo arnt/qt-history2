@@ -303,7 +303,7 @@ void MainWindow::createMenus()
     formatMenu = editMenu->addMenu(tr("&Format"));
     formatMenu->addAction(boldAct);
     formatMenu->addAction(italicAct);
-    formatMenu->addSeparator();
+    formatMenu->addSeparator()->setText(tr("Alignment"));
     formatMenu->addAction(leftAlignAct);
     formatMenu->addAction(rightAlignAct);
     formatMenu->addAction(justifyAct);
