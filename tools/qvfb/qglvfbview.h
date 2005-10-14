@@ -28,6 +28,8 @@ public:
 
     QSize sizeHint() const;
 
+    virtual QWidget *widget();
+
 public slots:
     bool setRate(int);
     bool setZoom(double, double);

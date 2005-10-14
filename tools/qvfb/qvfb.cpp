@@ -13,6 +13,9 @@
 
 #include "qvfb.h"
 #include "qvfbview.h"
+#ifndef QT_NO_OPENGL
+#include "qglvfbview.h"
+#endif
 #include "qvfbratedlg.h"
 #include "ui_config.h"
 #include "skin.h"
@@ -101,7 +104,7 @@ static const char *red_off_led_xpm[] = {
 class AnimationSaveWidget : public QWidget {
     Q_OBJECT
 public:
-    AnimationSaveWidget(QVFbView *v);
+    AnimationSaveWidget(QVFbViewIface *v);
     ~AnimationSaveWidget();
     bool detectPpmtoMpegCommand();
     void timerEvent(QTimerEvent *te);
@@ -112,7 +115,7 @@ protected slots:
     void reset();
     void save();
 private:
-    QVFbView *view;
+    QVFbViewIface *view;
     QProgressBar *progressBar;
     QLabel *statusText;
     bool haveMpeg, savingAsMpeg, recording;
@@ -210,17 +213,22 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
     	    if ( vis ) hide();
     	    menuBar()->hide();
 	    scroller = 0;
+#ifndef QT_NO_OPENGL
+            qDebug("gl composition");
+	    view = new QGLVFbView( display_id, pw, ph, d, rot, skin );
+#else
 	    view = new QVFbView( display_id, pw, ph, d, rot, skin );
+#endif
 	    skin->setView( view );
-	    view->setContentsMargins( 0, 0, 0, 0 );
-	    view->setFixedSize( sw, sh );
+	    view->widget()->setContentsMargins( 0, 0, 0, 0 );
+	    view->widget()->setFixedSize( sw, sh );
 	    setCentralWidget( skin );
 	    adjustSize();
 	    skinscaleH = (double)sw/pw;
 	    skinscaleV = (double)sh/ph;
 	    if ( skinscaleH != 1.0 || skinscaleH != 1.0 )
 		setZoom(skinscaleH);
-	    view->show();
+	    view->widget()->show();
 	    if ( vis ) show();
 	} else {
 	    delete skin;
@@ -245,9 +253,14 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 	}
 	menuBar()->show();
 	scroller = new QScrollArea(this);
-	view = new QVFbView( display_id, pw, ph, d, rot, scroller );
-	scroller->setWidget(view);
-	view->setContentsMargins( 0, 0, 0, 0 );
+#ifndef QT_NO_OPENGL
+        qDebug("gl composition");
+	view = new QGLVFbView(display_id, pw, ph, d, rot, scroller);
+#else
+        view = new QGLVFbView(display_id, pw, ph, d, rot, scroller);
+#endif
+	scroller->setWidget(view->widget());
+	view->widget()->setContentsMargins( 0, 0, 0, 0 );
 	setCentralWidget(scroller);
 #if QT_VERSION >= 0x030000
 	ph += 2;					// avoid scrollbar
@@ -258,7 +271,7 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
     }
     view->setRate(refreshRate);
     // Resize QVFb to the new size
-    QSize newSize = view->sizeHint();
+    QSize newSize = view->widget()->sizeHint();
 
     // ... fudge factor
     newSize += QSize(20, 35);
@@ -269,9 +282,9 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 void QVFb::enableCursor( bool e )
 {
     if ( skin && skin->hasCursor() ) {
-	view->setCursor( Qt::BlankCursor );
+	view->widget()->setCursor( Qt::BlankCursor );
     } else {
-	view->setCursor( e ? Qt::ArrowCursor : Qt::BlankCursor );
+	view->widget()->setCursor( e ? Qt::ArrowCursor : Qt::BlankCursor );
     }
     viewMenu->setItemChecked( cursorId, e );
 }
@@ -337,7 +350,7 @@ void QVFb::setZoom(double z)
     view->setZoom(z,z*skinscaleV/skinscaleH);
     if (skin) {
 	skin->setZoom(z/skinscaleH);
-	view->setFixedSize(
+	view->widget()->setFixedSize(
 	    int(view->displayWidth()*z),
 	    int(view->displayHeight()*z*skinscaleV/skinscaleH));
     }
@@ -629,7 +642,7 @@ QSize QVFb::sizeHint() const
 
 // =====================================================================
 
-AnimationSaveWidget::AnimationSaveWidget(QVFbView *v) :
+AnimationSaveWidget::AnimationSaveWidget(QVFbViewIface *v) :
 	QWidget((QWidget*)0,0),
 	view(v), recording(false), animation(0),
 	timerId(-1), progressTimerId(-1),

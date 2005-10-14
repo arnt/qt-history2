@@ -601,3 +601,8 @@ void QVFbView::skinKeyReleaseEvent( int code, const QString& text, bool autorep 
     QKeyEvent e(QEvent::KeyRelease,code,text.isEmpty() ? 0 : text[0].latin1(),0,text,autorep);
     keyReleaseEvent(&e);
 }
+
+QWidget * QVFbView::widget()
+{
+    return this;
+}

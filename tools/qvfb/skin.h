@@ -20,7 +20,7 @@
 #include <QPixmap>
 
 class QVFb;
-class QVFbView;
+class QVFbViewIface;
 class CursorWindow;
 class QTextStream;
 
@@ -30,7 +30,7 @@ class Skin : public QWidget
 public:
     Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH );
     ~Skin( );
-    void setView( QVFbView *v );
+    void setView( QVFbViewIface *v );
     void setZoom( double );
     bool isValid() {return skinValid;}
 
@@ -49,7 +49,7 @@ protected:
 
 private:
     QVFb *parent;
-    QVFbView *view;
+    QVFbViewIface *view;
     QPoint parentpos;
     QPoint clickPos;
     bool buttonPressed;

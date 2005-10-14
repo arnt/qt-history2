@@ -6,6 +6,8 @@
 #include <QImage>
 
 class QVFbHeader;
+class QMouseEvent;
+class QPoint;
 
 class QVFbViewIface
 {
@@ -35,7 +37,14 @@ public:
     double zoomH() const;
     double zoomV() const;
 
+    virtual QWidget *widget() = 0;
     virtual QImage image() const =0;
+
+    virtual void skinKeyPressEvent( int code, const QString& text,
+                                    bool autorep=FALSE ) =0;
+    virtual void skinKeyReleaseEvent( int code, const QString& text,
+                                      bool autorep=FALSE ) =0;
+    virtual void skinMouseEvent( QMouseEvent *e ) =0;
 public:
     virtual bool setTouchscreenEmulation(bool);
     virtual bool setLcdScreenEmulation(bool);
