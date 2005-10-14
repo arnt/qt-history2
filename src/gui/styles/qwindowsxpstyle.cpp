@@ -2074,8 +2074,26 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 drawItemText(p, mbi->rect, alignment, mbi->palette, mbi->state & State_Enabled, mbi->text, textRole);
         }
         return;
+#ifndef QT_NO_DOCKWIDGET
+    case CE_DockWidgetTitle:
+        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option)) {
+            QRect r = dwOpt->rect.adjusted(0, 2, -1, 1); 
+            if (dwOpt->movable) {
+                p->setPen(dwOpt->palette.color(QPalette::Dark));
+                p->drawRect(r);
+            }
+            if (!dwOpt->title.isEmpty()) {
+                const int indent = p->fontMetrics().descent();
+                drawItemText(p, r.adjusted(indent + 1, 2, -indent - 1, -1),
+                            Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                            dwOpt->state & State_Enabled, dwOpt->title,
+                            QPalette::Foreground);
+            }
+        }
+        return;
+#endif // QT_NO_DOCKWIDGET
 
-    default:
+      default:
         break;
     }
 

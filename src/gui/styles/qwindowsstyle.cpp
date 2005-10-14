@@ -338,6 +338,9 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
     case PM_ToolBarIconSize:
         ret = 24;
         break;
+    case PM_DockWidgetTitleMargin:
+        ret = 2;
+        break;
 
 #endif // QT_NO_MENU
 
@@ -1384,9 +1387,9 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                         opt->rect.right(), opt->rect.bottom());
         }
         p->setPen(oldPen);
-        break; }
+        break; } 
     default:
-        QCommonStyle::drawPrimitive(pe, opt, p, w);
+        QCommonStyle::drawPrimitive(pe, opt, p, w); 
     }
 }
 
@@ -2066,6 +2069,24 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         }
         break;
 #endif // QT_NO_PROGRESSBAR
+#ifndef QT_NO_DOCKWIDGET
+    case CE_DockWidgetTitle:
+        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
+            QRect r = dwOpt->rect.adjusted(0, 2, -1, 1); 
+            if (dwOpt->movable) {
+                p->setPen(dwOpt->palette.color(QPalette::Dark));
+                p->drawLine(r.bottomLeft(), r.bottomRight());
+            }
+            if (!dwOpt->title.isEmpty()) {
+                const int indent = p->fontMetrics().descent();
+                drawItemText(p, r.adjusted(indent + 1, 2, -indent - 1, -1),
+                            Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                            dwOpt->state & State_Enabled, dwOpt->title,
+                            QPalette::Foreground);
+            }
+        }
+        return;
+#endif // QT_NO_DOCKWIDGET
     default:
         QCommonStyle::drawControl(ce, opt, p, widget);
     }

@@ -1119,6 +1119,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         horizontal dock window and the height of the handle in a
         vertical dock window
     \value PM_DockWidgetFrameWidth  Frame width of a dock window
+    \value PM_DockWidgetTitleMargin Margin of the dock window title
 
     \value PM_MenuBarPanelWidth  Frame width of a menubar, defaults to PM_DefaultFrameWidth
     \value PM_MenuBarItemSpacing  Spacing between menubar items

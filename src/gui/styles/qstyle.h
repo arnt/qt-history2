@@ -463,6 +463,8 @@ public:
         PM_CheckBoxLabelSpacing,
         PM_TabBarIconSize,
         PM_MacSizeGripSize,
+        PM_DockWidgetTitleMargin,
+
 
         // do not add any values below/greater than this
         PM_CustomBase = 0xf0000000

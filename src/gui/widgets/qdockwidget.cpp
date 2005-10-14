@@ -260,14 +260,15 @@ void QDockWidgetPrivate::relayout()
 {
     Q_Q(QDockWidget);
     int fw = q->isFloating() ? q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth) : 0;
+    int mw = q->style()->pixelMetric(QStyle::PM_DockWidgetTitleMargin);
     QSize closeSize = closeButton ? closeButton->sizeHint() : QSize(0,0);
     QSize floatSize = floatButton ? floatButton->sizeHint() : QSize(0,0);
 
-    int minWidth  = q->fontMetrics().width(q->windowTitle()) + 2 * fw;
-    int minHeight = qMax(closeSize.width(), closeSize.height());
+    int minWidth  = q->fontMetrics().width(q->windowTitle()) + 2 * fw + 2 * mw;
+    int minHeight = qMax(closeSize.width(), closeSize.height()) + 2 * mw;
     minHeight = qMax(minHeight, qMax(floatSize.width(), floatSize.height()));
     minHeight += 2; // Allow 1px frame around title area with buttons inside
-    minHeight = qMax(minHeight, q->fontMetrics().lineSpacing() + 4); //Ensure 2 px margin around font
+    minHeight = qMax(minHeight, q->fontMetrics().lineSpacing() + 2 + 2 * mw); //Ensure 2 px margin around font
     titleArea = QRect(QPoint(fw, fw),
                       QSize(q->rect().width() - (fw * 2), minHeight));
     int posX = titleArea.right();

@@ -3160,7 +3160,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
     case PM_DockWidgetHandleExtent:
         ret = 8;
         break;
-
+    case PM_DockWidgetTitleMargin:
+        ret = 0;
+        break;
     case PM_DockWidgetFrameWidth:
         ret = 1;
         break;
