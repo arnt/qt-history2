@@ -66,15 +66,6 @@
 #  endif
 #endif
 
-/*
-    Used to prevent division by zero in LinearGradientData::init.
-    This number does not have to be the smallest possible positive qreal.
-    The size of the result of QPaintDevice::width() is more interesting, since the error
-    is accumulated for each pixel in the interpolation. Thus, interpolating over a large number of pixels
-    will make the error larger.
-*/
-#define GRADIENT_EPSILON  0.000000001
-
 #define qreal_to_fixed_26_6(f) (int(f * 64))
 #define qt_swap_int(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
 #define qt_swap_qreal(x, y) { qreal tmp = (x); (x) = (y); (y) = tmp; }
@@ -2383,7 +2374,6 @@ QRasterBuffer::~QRasterBuffer()
 
 void QRasterBuffer::init()
 {
-    clip = 0;
     clipEnabled = false;
     opaqueBackground = false;
 

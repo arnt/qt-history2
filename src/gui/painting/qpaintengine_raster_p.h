@@ -238,15 +238,15 @@ class QRasterBuffer
 {
 public:
 #if defined(Q_WS_WIN)
-    QRasterBuffer() : m_hdc(0), m_bitmap(0), m_width(0), m_height(0), m_buffer(0) { init(); }
+    QRasterBuffer() : clip(0), m_hdc(0), m_bitmap(0), m_width(0), m_height(0), m_buffer(0){ init(); }
 
     HDC hdc() const { return m_hdc; }
 #elif defined(Q_WS_X11)
-    QRasterBuffer() : m_width(0), m_height(0), m_buffer(0) { init(); }
+    QRasterBuffer() : clip(0), m_width(0), m_height(0), m_buffer(0) { init(); }
 #elif defined(Q_WS_QWS)
-    QRasterBuffer() : m_width(0), m_height(0), m_buffer(0) { init(); }
+    QRasterBuffer() : clip(0), m_width(0), m_height(0), m_buffer(0) { init(); }
 #elif defined(Q_WS_MAC)
-    QRasterBuffer() : m_data(0), m_width(0), m_height(0), m_buffer(0) { init(); }
+    QRasterBuffer() : clip(0), m_data(0), m_width(0), m_height(0), m_buffer(0) { init(); }
 # if defined(QMAC_NO_COREGRAPHICS)
     GWorldPtr m_data;
 # else
