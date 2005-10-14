@@ -1026,17 +1026,9 @@ QStyle *QApplication::style()
             style = QLatin1String("Plastique");                // default style for small devices
 #endif
         }
-        if (!(QApplicationPrivate::app_style = QStyleFactory::create(style)) // platform default style not available, try alternatives
-            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Windows")))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Plastique")))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Platinum")))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("MotifPlus")))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Motif")))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("CDE")))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Mac")))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("SGI")))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Compact")))
-            && (QStyleFactory::keys().isEmpty() || !(QApplicationPrivate::app_style = QStyleFactory::create(QStyleFactory::keys().first()))))
+        if (!(QApplicationPrivate::app_style = QStyleFactory::create(style)))
+            QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Plastique"));
+        if (!QApplicationPrivate::app_style)
             qFatal("No %s style available!", qPrintable(style));
     }
 
