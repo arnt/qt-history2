@@ -1177,7 +1177,7 @@ bool QPainter::hasClipping() const
     Enables clipping if \a enable is true, or disables clipping if \a
     enable is false.
 
-    \sa hasClipping(), setClipRect(), setClipRegion()
+    \sa hasClipping(), setClipRect(), setClipRegion(), setClipPath()
 */
 
 void QPainter::setClipping(bool enable)
@@ -1209,10 +1209,10 @@ void QPainter::setClipping(bool enable)
 
 /*!
     Returns the currently set clip region. Note that the clip region
-    is given in logical coordinates and \e subject to
-    \link coordsys.html coordinate transformation \endlink.
+    is given in logical coordinates and are subject to
+    \l{The Coordinate System}{coordinate transformations}.
 
-    \sa setClipRegion(), setClipRect(), setClipping()
+    \sa setClipRegion(), setClipRect(), setClipPath(), setClipping()
 */
 
 QRegion QPainter::clipRegion() const
@@ -1284,8 +1284,10 @@ QRegion QPainter::clipRegion() const
 
 /*!
     Returns the currently clip as a path. Note that the clip path is
-    given in logical coordinates and \e subject to \link coordsys.html
-    coordinate transformation \endlink
+    given in logical coordinates and are subject to
+    \l{The Coordinate System}{coordinate transformations}.
+
+    \sa setClipPath(), setClipRegion(), setClipRect(), setClipping()
 */
 QPainterPath QPainter::clipPath() const
 {
@@ -1328,7 +1330,7 @@ QPainterPath QPainter::clipPath() const
     operation \a op. The default operation is to replace the current
     clip rectangle.
 
-    \sa setClipRegion(), clipRegion(), setClipping()
+    \sa clipRect(), setClipRegion(), setClipPath(), setClipping()
 */
 
 /*!
@@ -1337,7 +1339,7 @@ QPainterPath QPainter::clipPath() const
     Sets the clip region to the rectangle \a x, \a y, \a w, \a h and
     enables clipping.
 
-    \sa setClipRegion(), clipRegion(), setClipping()
+    \sa clipRect(), setClipRegion(), setClipPath(), setClipping()
 */
 
 /*!
@@ -1360,7 +1362,7 @@ void QPainter::setClipRect(const QRectF &rect, Qt::ClipOperation op)
     and \e subject to \link coordsys.html coordinate
     transformation.\endlink
 
-    \sa setClipRect(), clipRegion(), setClipping()
+    \sa clipRegion(), setClipRect(), setClipPath(), setClipping()
 */
 
 void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
@@ -1476,7 +1478,7 @@ const QMatrix &QPainter::matrix() const
 
 /*!
     Returns the matrix that transforms from logical coordinates to
-    device coordinates of the platform dependent paintdevice.
+    device coordinates of the platform dependent paint device.
 
     This function is \e only needed when using platform painting commands
     on the platform dependent handle, and the platform does not do
@@ -1671,6 +1673,8 @@ void QPainter::translate(const QPointF &offset)
     operation \a op.
 
     The clip path is specified in logical (painter) coordinates.
+
+    \sa clipPath(), setClipRect(), setClipRegion(), setClipping()
 
 */
 void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
