@@ -2243,6 +2243,11 @@
     that provides the old semantics. See the Q3Painter documentation
     for details and for the reasons why we had to make this change.
 
+    The \l{http://doc.trolltech.com/3.3/qpainter.html#CoordinateMode-enum}
+    {QPainter::CoordinateMode} enum has been removed in Qt 4. All clipping
+    operations are now defined using logical coordinates and are subject
+    to transformation operations.
+
 \omit
     \section1 QPixmap
 
