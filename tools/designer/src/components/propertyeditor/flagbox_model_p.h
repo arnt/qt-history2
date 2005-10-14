@@ -65,6 +65,8 @@ public:
     virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
     virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    static int bitcount(int mask);
 
 private:
     QList<FlagBoxModelItem> m_items;

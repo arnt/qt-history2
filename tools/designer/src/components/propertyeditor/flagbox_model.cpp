@@ -96,3 +96,35 @@ bool FlagBoxModel::setData(const QModelIndex &index, const QVariant &value, int 
 
     return false;
 }
+
+Qt::ItemFlags FlagBoxModel::flags(const QModelIndex &index) const
+{
+    Q_ASSERT(index.row() != -1);
+
+    const FlagBoxModelItem &thisItem = m_items[index.row()];
+    if (thisItem.value() == 0) {
+        // Disabled if checked
+        if (thisItem.isChecked())
+            return 0;
+    } else if (bitcount(thisItem.value()) > 1) {
+        // Disabled if all flags contained in the mask are checked
+        unsigned int currentMask = 0;
+        for (int i = 0; i < m_items.size(); ++i) {
+            const FlagBoxModelItem &item = m_items[i];
+            if (bitcount(item.value()) == 1)
+                currentMask |= item.isChecked() ? item.value() : 0;
+        }
+        if ((currentMask & thisItem.value()) == thisItem.value())
+            return 0;
+    }
+    return QAbstractItemModel::flags(index);
+}
+
+// Helper function that counts the number of 1 bits in argument
+int FlagBoxModel::bitcount(int mask)
+{
+    int count = 0;
+    for (int i = 31; i >= 0; --i)
+        count += ((mask >> i) & 1) ? 1 : 0;
+    return count;
+}

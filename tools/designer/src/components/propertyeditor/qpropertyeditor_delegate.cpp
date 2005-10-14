@@ -115,7 +115,6 @@ bool QPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
                     spinBox->interpretText();
                 }
                 emit commitData(widget);
-                emit closeEditor(editor, NoHint);
                 return true;
             }
         } break;
@@ -130,7 +129,6 @@ bool QPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
                 }
 
                 emit commitData(editor);
-                emit closeEditor(qobject_cast<QWidget*>(object), NoHint);
             }
             return false;
 

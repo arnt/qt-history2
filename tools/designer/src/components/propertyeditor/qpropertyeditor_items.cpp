@@ -781,13 +781,26 @@ QWidget *FlagsProperty::createEditor(QWidget *parent, const QObject *target, con
 {
     QList<FlagBoxModelItem> l;
     QMapIterator<QString, QVariant> it(items());
+    unsigned int v = m_value.toUInt();
+    int initialIndex = -1;
+    int i = 0;
     while (it.hasNext()) {
         it.next();
-        l.append(FlagBoxModelItem(it.key(), it.value().toUInt(), /*checked=*/false));
+        unsigned int value = it.value().toUInt();
+        bool checked = (value == 0) ? (v == 0) : ((value & v) == value);
+        l.append(FlagBoxModelItem(it.key(), value, checked));
+        if ((value & v) == value) {
+            if (initialIndex == -1)
+                initialIndex = i;
+            else if (FlagBoxModel::bitcount(value) > FlagBoxModel::bitcount(l.at(initialIndex).value()))
+                initialIndex = i;
+        }
+        ++i;
     }
 
     FlagBox *editor = new FlagBox(parent);
     editor->setItems(l);
+    editor->setCurrentIndex(initialIndex);
     QObject::connect(editor, SIGNAL(activated(int)), target, receiver);
     return editor;
 }
@@ -798,45 +811,66 @@ void FlagsProperty::updateEditorContents(QWidget *editor)
     if (box == 0)
         return;
 
-    unsigned int v = m_value.toUInt();
-
-    // step 0) clear the contents
-    for (int i=0; i<box->count(); ++i) {
-        FlagBoxModelItem &item = box->item(i);
-        item.setChecked(false);
-    }
-
-    // step 1) perfect match
-    bool foundPerfectMatch = false;
-    for (int i=0; !foundPerfectMatch && i<box->count(); ++i) {
-        FlagBoxModelItem &item = box->item(i);
-        foundPerfectMatch = item.value() == v;
-        item.setChecked(foundPerfectMatch);
-    }
-
-    if (!foundPerfectMatch) {
-        // step 2)
-        for (int i=0; i<box->count(); ++i) {
-            FlagBoxModelItem &item = box->item(i);
-            item.setChecked((item.value() & v) == item.value());
-        }
-    }
-
     box->view()->reset();
 }
 
 void FlagsProperty::updateValue(QWidget *editor)
 {
     FlagBox *box = qobject_cast<FlagBox*>(editor);
-    if (box == 0)
+    if ((box == 0) || (box->currentIndex() < 0))
         return;
 
     unsigned int newValue = 0;
 
-    for (int i=0; i<box->count(); ++i) {
-        FlagBoxModelItem &item = box->item(i);
-        if (item.isChecked())
-            newValue |= item.value();
+    FlagBoxModelItem &thisItem = box->item(box->currentIndex());
+    if (thisItem.value() == 0) {
+        // Uncheck all items except 0-mask
+        for (int i=0; i<box->count(); ++i)
+            box->item(i).setChecked(i == box->currentIndex());
+    } else {
+        // Compute new value, without including (additional) supermasks
+        if (thisItem.isChecked())
+            newValue = thisItem.value();
+        for (int i=0; i<box->count(); ++i) {
+            FlagBoxModelItem &item = box->item(i);
+            if (item.isChecked() && (FlagBoxModel::bitcount(item.value()) == 1))
+                newValue |= item.value();
+        }
+        if (newValue == 0) {
+            // Uncheck all items except 0-mask
+            for (int i=0; i<box->count(); ++i) {
+                FlagBoxModelItem &item = box->item(i);
+                item.setChecked(item.value() == 0);
+            }
+        } else if (newValue == m_value) {
+            if (!thisItem.isChecked() && (FlagBoxModel::bitcount(thisItem.value()) > 1)) {
+                // We unchecked something, but the original value still holds
+                thisItem.setChecked(true);
+            }
+        } else {
+            // Make sure 0-mask is not selected
+            for (int i=0; i<box->count(); ++i) {
+                FlagBoxModelItem &item = box->item(i);
+                if (item.value() == 0)
+                        item.setChecked(false);
+            }
+            // Check/uncheck proper masks
+            if (thisItem.isChecked()) {
+                // Make sure submasks and supermasks are selected
+                for (int i=0; i<box->count(); ++i) {
+                    FlagBoxModelItem &item = box->item(i);
+                    if ((item.value() != 0) && ((item.value() & newValue) == item.value()) && !item.isChecked())
+                        item.setChecked(true);
+                }
+            } else {
+                // Make sure supermasks are not selected if they're no longer valid
+                for (int i=0; i<box->count(); ++i) {
+                    FlagBoxModelItem &item = box->item(i);
+                    if (item.isChecked() && ((item.value() == thisItem.value()) || ((item.value() & newValue) != item.value())))
+                        item.setChecked(false);
+                }
+            }
+        }
     }
 
     if (newValue != m_value) {
