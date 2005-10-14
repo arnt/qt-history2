@@ -461,6 +461,7 @@ void QFTOutlineMapper::clipElements(const QPointF *elements,
     point_types[0] = QPainterPath::MoveToElement;
     for (int i=0; i<clipped_count; ++i) point_types[i] = QPainterPath::LineToElement;
     convertElements(clipped_points, point_types, clipped_count);
+    delete[] point_types;
 }
 
 
