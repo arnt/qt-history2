@@ -194,6 +194,8 @@ public:
 
     void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
+    void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs,
+                         QPainterPath *path, QTextItem::RenderFlags flags);
     void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
