@@ -1592,8 +1592,13 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                         image.setColor(1, alphaLightTextColor.light(130).rgba());
                         image.setColor(2, alphaLightTextColor.light(110).rgba());
                     } else {
-                        image.setColor(0, option->palette.foreground().color().rgba());
-                        image.setColor(1, alphaTextColor.rgba());
+                        if (button->state & State_Enabled) {
+                            image.setColor(0, option->palette.foreground().color().rgba());
+                            image.setColor(1, alphaTextColor.rgba());
+                        } else {
+                            image.setColor(0, alphaLightTextColor.rgba());
+                            image.setColor(1, alphaLightTextColor.light(130).rgba());
+                        }
                     }
                     checkBoxPainter.drawImage(pixmapRect.x() + 2, pixmapRect.y() + 2, image);
                 }
