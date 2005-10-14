@@ -555,11 +555,15 @@ void QTreeView::keyboardSearch(const QString &search)
     else if (bestAbove > -1)
         index = d->viewItems.at(bestAbove).index;
 
-    if (index.isValid())
-        selectionModel()->setCurrentIndex(index, (d->selectionMode == SingleSelection ?
-                                                  QItemSelectionModel::ClearAndSelect
-                                                  | d->selectionBehaviorFlags()
-                                                  : QItemSelectionModel::NoUpdate));
+    if (index.isValid()) {
+        QItemSelectionModel::SelectionFlags flags = (d->selectionMode == SingleSelection
+                                                     ? QItemSelectionModel::SelectionFlags(
+                                                         QItemSelectionModel::ClearAndSelect
+                                                         |d->selectionBehaviorFlags())
+                                                     : QItemSelectionModel::SelectionFlags(
+                                                         QItemSelectionModel::NoUpdate));
+        selectionModel()->setCurrentIndex(index, flags);
+    }
 }
 
 /*!
