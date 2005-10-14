@@ -1668,6 +1668,7 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
     if (segmentPositions.isEmpty() || flowPositions.isEmpty())
         return;
     const int segLast = segmentPositions.count() - 1;
+    Q_ASSERT(segLast > -1);
     int seg = qBinarySearch<int>(segmentPositions, segStartPosition, 0, segLast);
     for (; seg <= segLast && segmentPositions.at(seg) <= segEndPosition; ++seg) {
         int first = segmentStartRows.at(seg);
@@ -1919,8 +1920,11 @@ QSize QListViewPrivate::itemSize(const QStyleOptionViewItem &option, const QMode
 {
     if (!uniformItemSizes)
         return delegate->sizeHint(option, index);
-    if (!cachedItemSize.isValid())
-        cachedItemSize = delegate->sizeHint(option, index);
+    if (!cachedItemSize.isValid()) { // the last item is probaly the largest, so we use it's size
+        int row = model->rowCount(root) - 1;
+        QModelIndex sample = model->index(row, column, root);
+        cachedItemSize = delegate->sizeHint(option, sample);
+    }
     return cachedItemSize;
 }
 
