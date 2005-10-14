@@ -258,7 +258,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
             glyphs[pos].attributes = glyphs[pos-1].attributes;
             ++pos;
         }
-        const QUnicodeTables::Properties *prop = QUnicodeTables::properties(uc[0].unicode());
+        const QUnicodeTables::Properties *prop = QUnicodeTables::properties(uc[i].unicode());
         int cat = prop->category;
         if (cat != QChar::Mark_NonSpacing) {
             glyphs[pos].attributes.mark = false;
