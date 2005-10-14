@@ -304,6 +304,7 @@ public:
     QOpenGLPaintEnginePrivate()
         : bgmode(Qt::TransparentMode)
         , txop(QPainterPrivate::TxNone)
+        , inverseScale(1)
         , moveToCount(0)
         , dashStroker(0)
         , stroker(0)
@@ -344,6 +345,8 @@ public:
     GLubyte brush_color[4];
     QPainterPrivate::TransformationCodes txop;
     QGLDrawable drawable;
+
+    qreal inverseScale;
 
     int moveToCount;
     QStroker basicStroker;
@@ -419,6 +422,8 @@ inline void QOpenGLPaintEnginePrivate::curveTo(const QPointF &cp1, const QPointF
     qreal x1 = tessVector.at(tessVector.size() - 3);
     qreal y1 = tessVector.at(tessVector.size() - 2);
 
+    qreal inverseScaleHalf = inverseScale / 2;
+
     QBezier beziers[32];
     beziers[0] = QBezier::fromPoints(QPointF(x1, y1), cp1, cp2, ep);
     QBezier *b = beziers;
@@ -426,7 +431,7 @@ inline void QOpenGLPaintEnginePrivate::curveTo(const QPointF &cp1, const QPointF
         // check if we can pop the top bezier curve from the stack
         qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
         qreal d;
-        if (l > 1) {
+        if (l > inverseScale) {
             d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2) - (b->y4 - b->y1)*(b->x1 - b->x2) )
                 + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3) - (b->y4 - b->y1)*(b->x1 - b->x3) );
             d /= l;
@@ -434,7 +439,7 @@ inline void QOpenGLPaintEnginePrivate::curveTo(const QPointF &cp1, const QPointF
             d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
                 qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
         }
-        if (d < 0.5 || b == beziers + 31) {
+        if (d < inverseScaleHalf || b == beziers + 31) {
             // good enough, we pop it off and add the endpoint
             lineTo(QPointF(b->x4, b->y4));
             --b;
@@ -524,6 +529,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     d->has_clipping = false;
     d->has_autoswap = d->drawable.autoBufferSwap();
     d->drawable.setAutoBufferSwap(false);
+    d->inverseScale = 1;
     setActive(true);
     d->drawable.makeCurrent();
     glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -672,6 +678,8 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
         d->txop = QPainterPrivate::TxTranslate;
     else
         d->txop = QPainterPrivate::TxNone;
+
+    d->inverseScale = 1 / qMax(mtx.m11(), mtx.m22());
 
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(&mat[0][0]);
