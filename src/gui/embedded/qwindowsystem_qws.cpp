@@ -1681,7 +1681,6 @@ void QWSServerPrivate::invokeRegionName(const QWSRegionNameCommand *cmd, QWSClie
 
 void QWSServerPrivate::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
 {
-    Q_Q(QWSServer);
 #ifdef QWS_REGION_DEBUG
     qDebug("QWSServer::invokeRegion %d rects (%d)",
             cmd->simpleData.nrectangles, cmd->simpleData.windowid);
@@ -1697,28 +1696,10 @@ void QWSServerPrivate::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
         return;
     }
 
-//########    bool containsMouse = changingw->allocatedRegion().contains(mousePosition);
-
     QRegion region;
     region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);
 
-    changingw->backingStore()->attach(cmd->simpleData.shmid, region.boundingRect().size());
-    changingw->opaque = cmd->simpleData.opaque;
-
-    setWindowRegion(changingw, region);
-
-    bool isShow = !changingw->isVisible() && !region.isEmpty();
-    if (isShow)
-        emit q->windowEvent(changingw, QWSServer::Show);
-    if (!region.isEmpty())
-        emit q->windowEvent(changingw, QWSServer::Geometry);
-    else
-        emit q->windowEvent(changingw, QWSServer::Hide);
-    if (region.isEmpty())
-        handleWindowClose(changingw);
-    // if the window under our mouse changes, send update.
-//##########     if (containsMouse != changingw->allocatedRegion().contains(mousePosition))
-//         updateClientCursorPos();
+    request_region(cmd->simpleData.windowid, cmd->simpleData.shmid, cmd->simpleData.windowtype, region, changingw);
 }
 
 void QWSServerPrivate::invokeRegionMove(const QWSRegionMoveCommand *cmd, QWSClient *client)
@@ -2139,7 +2120,7 @@ QWSWindow* QWSServerPrivate::newWindow(int id, QWSClient* client)
 
     // insert after "stays on top" windows
     bool added = false;
-    for (int i = 0; i < windows.size(); ++i) {
+    for (int i = nReserved; i < windows.size(); ++i) {
         QWSWindow *win = windows.at(i);
         if (!win->onTop) {
             windows.insert(i, w);
@@ -2187,12 +2168,12 @@ void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
 
     int newPos = -1;
     if (changingw->onTop) {
-        windows.prepend(changingw);
-        newPos = 0;
+        windows.insert(nReserved, changingw);
+        newPos = nReserved;
     } else {
         // insert after "stays on top" windows
         bool in = false;
-        for (int i = 0; i < windows.size(); ++i) {
+        for (int i = nReserved; i < windows.size(); ++i) {
             QWSWindow *w = windows.at(i);
             if (!w->onTop) {
                 windows.insert(i, changingw);
@@ -2232,7 +2213,6 @@ void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
 {
     if (!changingw) return;
 
-    //### optimize with scroll
     QRegion oldRegion(changingw->requested_region);
     changingw->requested_region.translate(dx, dy);
 
@@ -2258,7 +2238,7 @@ void QWSServerPrivate::setWindowRegion(QWSWindow* changingw, QRegion r)
 
 void QWSServerPrivate::exposeRegion(QRegion r, int changing)
 {
-    qt_screen->exposeRegion(r, changing);
+    qt_screen->exposeRegion(r, qMax(nReserved, changing));
 }
 
 /*!
@@ -2460,20 +2440,46 @@ void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
     exposeRegion(region, level);
 }
 
-void QWSServerPrivate::request_region(int wid, int shmid, bool opaque, QRegion region)
+void QWSServerPrivate::request_region(int wid, int shmid, int windowtype, QRegion region, QWSWindow *changingw)
 {
     Q_Q(QWSServer);
-    QWSClient *serverClient = clientMap[-1];
-    Q_UNUSED( serverClient );
-    QWSWindow* changingw = findWindow(wid, 0);
+    if (!changingw)
+        changingw = findWindow(wid, 0);
     if (!changingw) {
         return;
     }
     bool isShow = !changingw->isVisible() && !region.isEmpty();
 
-    changingw->backingStore()->attach(shmid, region.boundingRect().size());
-    changingw->opaque = opaque;
-    setWindowRegion(changingw, region);
+    if (windowtype == QWSRegionCommand::OnScreen) {
+        int i = 0;
+
+        int oldPos = windows.indexOf(changingw);
+        int newPos = oldPos < nReserved ? nReserved-1 : nReserved;
+        while (i < qMin(nReserved,oldPos)) {
+            QWSWindow *rw = windows.at(i);
+            //for Reserved regions, requested_region is really the allocated region
+            region -= rw->requested_region;
+            ++i;
+        }
+        windows.move(oldPos, newPos);
+        nReserved = newPos + 1;
+        if (isShow) {
+            delete changingw->_backingStore;
+            changingw->_backingStore = 0;
+            changingw->requested_region = region;
+        } else {
+            //handle change
+            QRegion oldRegion = changingw->requested_region;
+            changingw->requested_region = region;
+            exposeRegion(oldRegion - changingw->requested_region, newPos);
+        }
+
+    } else {
+        changingw->backingStore()->attach(shmid, region.boundingRect().size());
+        changingw->opaque = windowtype != QWSRegionCommand::Transparent;
+
+        setWindowRegion(changingw, region);
+    }
     if (isShow)
         emit q->windowEvent(changingw, QWSServer::Show);
     if (!region.isEmpty())
@@ -2482,6 +2488,12 @@ void QWSServerPrivate::request_region(int wid, int shmid, bool opaque, QRegion r
         emit q->windowEvent(changingw, QWSServer::Hide);
     if (region.isEmpty())
         handleWindowClose(changingw);
+
+
+
+    //### if the window under our mouse changes, send update.
+    //     if (containsMouse != changingw->allocatedRegion().contains(mousePosition))
+    //         updateClientCursorPos();
 }
 
 void QWSServerPrivate::destroy_region(const QWSRegionDestroyCommand *cmd)

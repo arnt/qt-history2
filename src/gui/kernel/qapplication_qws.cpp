@@ -1048,10 +1048,10 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
         d->sendCommand(cmd);
 }
 
-void QWSDisplay::requestRegion(int winId, int shmid, bool opaque, QRegion r)
+void QWSDisplay::requestRegion(int winId, int shmid, int windowtype, QRegion r)
 {
     if (d->directServerConnection()) {
-        qwsServer->d_func()->request_region(winId, shmid, opaque, r);
+        qwsServer->d_func()->request_region(winId, shmid, windowtype, r);
     } else {
         QVector<QRect> ra = r.rects();
 
@@ -1064,7 +1064,7 @@ void QWSDisplay::requestRegion(int winId, int shmid, bool opaque, QRegion r)
 
         QWSRegionCommand cmd;
         cmd.simpleData.windowid = winId;
-        cmd.simpleData.opaque = opaque;
+        cmd.simpleData.windowtype = windowtype;
         cmd.simpleData.shmid = shmid;
         cmd.simpleData.nrectangles = ra.count();
         cmd.setData(reinterpret_cast<char *>(ra.data()), ra.count() * sizeof(QRect), false);
@@ -3176,75 +3176,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
 
 void QETWidget::updateRegion()
 {
-    qWarning("QETWidget::updateRegion() not implemented");
-#if 0
-    if ((windowType() == Qt::Desktop))
-       return;
-    if (!isVisible())
-        return;
-    QRegion r;
-    if (d->extra && !d->extra->mask.isEmpty()) {
-       r = d->extra->mask;
-       r &= rect();
-       r.translate(data->crect.x(),data->crect.y());
-    } else {
-       r = data->crect;
-    }
-#ifndef QT_NO_QWS_MANAGER
-    if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager)
-        r += d->extra->topextra->qwsManager->region();;
-#endif
-
-    r = qt_screen->mapToDevice(r, QSize(qt_screen->width(), qt_screen->height()));
-
-    qwsDisplay()->requestRegion(winId(), r);
-#endif
 }
-
-#if 0
-bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event)
-{
-    qDebug("QETWidget::translateRegionModifiedEvent");
-#if 0
-    QWSRegionManager *rgnMan = qt_fbdpy->regionManager();
-
-    if (data->alloc_region_index < 0) {
-        data->alloc_region_index = rgnMan->find(winId());
-
-        if (data->alloc_region_index < 0) {
-            return false;
-        }
-    }
-
-    if (event->simpleData.nrectangles)
-    {
-        QRegion exposed;
-        exposed.setRects(event->rectangles, event->simpleData.nrectangles);
-        QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
-        exposed = qt_screen->mapFromDevice(exposed, s);
-/*
-        for (int i = 0; i < event->simpleData.nrectangles; i++)
-            qDebug("exposed: %d, %d %d x %d",
-                event->rectangles[i].x(),
-                event->rectangles[i].y(),
-                event->rectangles[i].width(),
-                event->rectangles[i].height());
-*/
-        /////////// repaintDecoration(exposed, false);
-
-//### change 25062: don't leave WM decorations behind when resizing
-//#ifndef QT_NO_QWS_MANAGER
-//        exposed |= extraExposed;
-//#endif
-//### change 53580: but only for resizes
-//    qws_regionRequest = false;
-
-        d->blitToScreen(exposed);
-    }
-#endif
-    return true;
-}
-#endif
 
 void  QApplication::setCursorFlashTime(int msecs)
 {

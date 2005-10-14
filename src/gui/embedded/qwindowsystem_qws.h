@@ -25,7 +25,7 @@
 
 QT_MODULE(Gui)
 
-struct QWSWindowData;
+struct QWSWindowPrivate;
 class QWSCursor;
 class QWSClient;
 class QWSRegionManager;
@@ -66,6 +66,7 @@ class Q_GUI_EXPORT QWSWindow
 {
     friend class QWSServer;
     friend class QWSServerPrivate;
+
 public:
     QWSWindow(int i, QWSClient* client);
     ~QWSWindow();
@@ -116,7 +117,7 @@ private:
     QWSBackingStore *_backingStore;
     uint _opacity;
     bool opaque;
-    QWSWindowData *d;
+    QWSWindowPrivate *d;
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QRegion requested() const { return requested_region; }
 //    inline QT3_SUPPORT QRegion allocation() const { return allocated_region; }

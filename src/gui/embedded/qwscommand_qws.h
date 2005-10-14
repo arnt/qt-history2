@@ -221,10 +221,11 @@ struct QWSRegionCommand : public QWSCommand
         rectangles = reinterpret_cast<QRect*>(rawDataPtr);
     }
 
+    enum WindowType {Transparent=0, Opaque=1, OnScreen=2};
     struct SimpleData {
         int windowid;
         int shmid;
-        bool opaque;
+        uint windowtype:8;
         int nrectangles;
     } simpleData;
 

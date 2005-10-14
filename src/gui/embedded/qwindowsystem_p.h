@@ -49,7 +49,7 @@ class QWSServerPrivate : public QObjectPrivate {
 
 public:
     QWSServerPrivate()
-        : screensaverintervals(0), saver(0), cursorClient(0), mouseState(0)
+        : screensaverintervals(0), saver(0), cursorClient(0), mouseState(0), nReserved(0)
     {
     }
     ~QWSServerPrivate()
@@ -88,7 +88,7 @@ private:
     void set_altitude(const QWSChangeAltitudeCommand *);
     void set_opacity(const QWSSetOpacityCommand *);
     void request_focus(const QWSRequestFocusCommand *);
-    void request_region(int winId, int shmid, bool opaque, QRegion);
+    void request_region(int winId, int shmid, int windowtype, QRegion, QWSWindow* =0);
     void repaint_region(int winId, bool opaque, QRegion);
     void destroy_region(const QWSRegionDestroyCommand *);
     void name_region(const QWSRegionNameCommand *);
@@ -230,6 +230,7 @@ private:
 
     // Window management
     QList<QWSWindow*> windows; // first=topmost
+    int nReserved;
     QWSWindow* newWindow(int id, QWSClient* client);
     QWSWindow* findWindow(int windowid, QWSClient* client);
     void moveWindowRegion(QWSWindow*, int dx, int dy);
@@ -251,6 +252,4 @@ private:
     QWSServerSocket *ssocket;
 
 };
-
-
 #endif
