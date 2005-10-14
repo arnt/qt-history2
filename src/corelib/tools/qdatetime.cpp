@@ -1107,7 +1107,7 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
 
     \table
     \header \i Field  \i Default value
-    \row    \i Year   \i The current year
+    \row    \i Year   \i 1900
     \row    \i Month  \i 1
     \row    \i Day    \i 1
     \endtable
@@ -1115,7 +1115,7 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
     The following examples demonstrate the default values:
 
     \code
-        QDate::fromString("1.30", "M.d");           // January 30 in the current year
+        QDate::fromString("1.30", "M.d");           // January 30 1900
         QDate::fromString("20000110", "yyyyMMdd");  // January 10, 2000
         QDate::fromString("20000110", "yyyyMd");    // January 10, 2000
     \endcode
@@ -1507,15 +1507,19 @@ QString QTime::toString(Qt::DateFormat f) const
          \i the hour without a leading zero (0 to 23 or 1 to 12 if AM/PM display)
     \row \i hh
          \i the hour with a leading zero (00 to 23 or 01 to 12 if AM/PM display)
+    \row \i H
+         \i the hour without a leading zero (0 to 23, even with AM/PM display)
+    \row \i HH
+         \i the hour with a leading zero (00 to 23, even with AM/PM display)
     \row \i m \i the minute without a leading zero (0 to 59)
     \row \i mm \i the minute with a leading zero (00 to 59)
     \row \i s \i the second whithout a leading zero (0 to 59)
     \row \i ss \i the second whith a leading zero (00 to 59)
     \row \i z \i the milliseconds without leading zeroes (0 to 999)
     \row \i zzz \i the milliseconds with leading zeroes (000 to 999)
-    \row \i AP
+    \row \i AP or A
          \i use AM/PM display. \e AP will be replaced by either "AM" or "PM".
-    \row \i ap
+    \row \i ap or a
          \i use am/pm display. \e ap will be replaced by either "am" or "pm".
     \endtable
 
@@ -1529,6 +1533,7 @@ QString QTime::toString(Qt::DateFormat f) const
     \header \i Format \i Result
     \row \i hh:mm:ss.zzz \i 14:13:09.042
     \row \i h:m:s ap     \i 2:13:9 pm
+    \row \i H:m:s a      \i 14:13:9 pm
     \endtable
 
     If the datetime is invalid, an empty string will be returned.
@@ -2746,15 +2751,19 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
             \i the hour without a leading zero (0 to 23 or 1 to 12 if AM/PM display)
     \row \i hh
             \i the hour with a leading zero (00 to 23 or 01 to 12 if AM/PM display)
+    \row \i H
+            \i the hour without a leading zero (0 to 23, even with AM/PM display)
+    \row \i HH
+            \i the hour with a leading zero (00 to 23, even with AM/PM display)
     \row \i m \i the minute without a leading zero (0 to 59)
     \row \i mm \i the minute with a leading zero (00 to 59)
     \row \i s \i the second whithout a leading zero (0 to 59)
     \row \i ss \i the second whith a leading zero (00 to 59)
     \row \i z \i the milliseconds without leading zeroes (0 to 999)
     \row \i zzz \i the milliseconds with leading zeroes (000 to 999)
-    \row \i AP
+    \row \i AP or A
          \i interpret as an AM/PM time. \e AP must be either "AM" or "PM".
-    \row \i ap
+    \row \i ap or a
          \i Interpret as an AM/PM time. \e ap must be either "am" or "pm".
     \endtable
 
@@ -2763,8 +2772,13 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
     treated as text and not be used as an expression.
 
     \code
-        QDateTime dateTime = QDateTime::fromString("M1d1y9800:01:02",
-                                                   "'M'M'd'd'y'yyhh:mm:ss");
+        QTime time1 = QTime::fromString("131", "HHh");
+        // time1 is 13:00:00
+        QTime time1 = QTime::fromString("1apA", "1amAM");
+        // time1 is 01:00:00
+
+        QDateTime dateTime2 = QDateTime::fromString("M1d1y9800:01:02",
+                                                    "'M'M'd'd'y'yyhh:mm:ss");
         // dateTime is 1 January 1998 00:01:02
     \endcode
 
@@ -2786,7 +2800,7 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
 
     \table
     \header \i Field  \i Default value
-    \row    \i Year   \i The current year
+    \row    \i Year   \i 1900
     \row    \i Month  \i 1 (January)
     \row    \i Day    \i 1
     \row    \i Hour   \i 0
