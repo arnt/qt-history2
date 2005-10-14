@@ -1,0 +1,15 @@
+/*!
+    \example painting/svgviewer
+    \title SVG Viewer Example
+
+    The SVG Viewer example shows how to add SVG viewing support to applications.
+
+    \image svgviewer-example.png
+
+    Scalable Vector Graphics (SVG) is an XML-based language for describing two-dimensional
+    vector graphics. Qt provides classes for rendering and displaying SVG drawings in
+    widgets and on other paint devices. This example uses QSvgRenderer to paint onto
+    a QWidget, a QImage, and a QGLWidget.
+
+    See the QtSvg module documentation for more information about SVG and Qt's SVG classes.
+*/

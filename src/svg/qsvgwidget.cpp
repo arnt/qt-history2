@@ -25,6 +25,24 @@
     Scalable Vector Graphics (SVG) files.
     \since 4.1
 
+    This class enables developers to display SVG drawings alongside standard widgets, and
+    is used in much the same way as QLabel is used for displaying text and bitmap images.
+
+    Since QSvgWidget is a subclass of QWidget, SVG drawings are rendered using the properties
+    of the display. More control over can be exercised over the rendering process with the
+    QSvgRenderer class, as this can be used to paint onto other paint devices, such as QImage
+    and QGLWidget. The renderer used by the widget can be obtained with the renderer()
+    function.
+
+    Each QSvgWidget can be constructed with the file name of a SVG file, or they can be
+    constructed without a specific file to render and one can be supplied later. The load()
+    functions provide two different ways to load an SVG file: they accept either the file name
+    of an SVG file or a QByteArray containing the serialized XML representation of an SVG file.
+
+    By default, the widget provides a size hint to reflect the size of the drawing that it
+    displays. If no data has been loaded, the widget provides the default QWidget size hint.
+    Subclass this class and reimplement sizeHint() if you need to customize this behavior.
+
     \sa QSvgRenderer, {QtSvg Module}, QPicture
 */
 
