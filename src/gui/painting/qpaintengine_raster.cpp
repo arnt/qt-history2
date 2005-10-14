@@ -1717,7 +1717,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     // Only support cleartype for solid pens, 32 bit target buffers and when the pen color is
     // opaque
     clearType = clearType && (d->penData.type == QSpanData::Solid)
-        && d->deviceDepth == 32 && qAlpha(d->penData.solid.color) == 255;        
+        && d->deviceDepth == 32 && qAlpha(d->penData.solid.color) == 255;
 
     if (d->txop >= QPainterPrivate::TxScale) {
         bool antialiased = d->antialiased;
@@ -1734,7 +1734,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     // of the previous character)
     qreal leftBearingReserve = ti.fontEngine->maxCharWidth();
     QRectF logRect(p.x() - leftBearingReserve, p.y() - ti.ascent.toReal(), (ti.width + x_buffering).toReal() + leftBearingReserve,
-		    (ti.ascent + ti.descent).toReal());
+                    (ti.ascent + ti.descent).toReal());
     QRect devRect = d->matrix.mapRect(logRect).toRect();
 
     if(devRect.width() == 0 || devRect.height() == 0)
@@ -1780,15 +1780,15 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                     if (qAlpha(sourceScanline[x]) == 0x00)
                         destScanline[x - devRect.x()] = 0xffffffff;
                     else
-                        destScanline[x - devRect.x()] = sourceScanline[x];                    
+                        destScanline[x - devRect.x()] = sourceScanline[x];
                 }
-            }                        
-        } 
-        
+            }
+        }
+
         if (!clearType)
-            d->fontRasterBuffer->resetBuffer(255);        
+            d->fontRasterBuffer->resetBuffer(255);
         else
-            penColor = d->penData.solid.color;        
+            penColor = d->penData.solid.color;
 
         // Fill buffer with stuff
         SetTextColor(d->fontRasterBuffer->hdc(),
@@ -1799,12 +1799,12 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         if (clearType) {
             for (int y=ymin; y<ymax; ++y) {
                 QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y());
-                for (int x=xmin; x<xmax; ++x) {                    
-                    // Blit transparent pixels if the background has not been changed. 
-                    // Only draw opaque text for now. 
-                    switch (qAlpha(scanline[x - devRect.x()])) {                    
+                for (int x=xmin; x<xmax; ++x) {
+                    // Blit transparent pixels if the background has not been changed.
+                    // Only draw opaque text for now.
+                    switch (qAlpha(scanline[x - devRect.x()])) {
                     case 0x0: scanline[x - devRect.x()] |= 0xff000000; break ;
-                    default: scanline[x - devRect.x()] = 0x0; break ;                    
+                    default: scanline[x - devRect.x()] = 0x0; break ;
                     };
                 }
             }
@@ -2979,9 +2979,9 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
         for(int i = 0; i < ti.num_glyphs; i++) {
             QString str(QChar(glyphs->glyph));
             QByteArray cstr = str.toLocal8Bit();
-	    TextOutA(hdc, qRound(x + glyphs->offset.x.toReal()), qRound(y + glyphs->offset.y.toReal()),
+            TextOutA(hdc, qRound(x + glyphs->offset.x.toReal()), qRound(y + glyphs->offset.y.toReal()),
                      cstr.data(), cstr.length());
-	    x += glyphs->advance.x.toReal();
+            x += glyphs->advance.x.toReal();
             glyphs++;
         }
     } else {
@@ -3002,10 +3002,10 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                 g[i] = glyphs[i].glyph;
             // fast path
             ExtTextOutW(hdc,
-		        qRound(x + glyphs->offset.x.toReal()),
-		        qRound(y + glyphs->offset.y.toReal()),
+                        qRound(x + glyphs->offset.x.toReal()),
+                        qRound(y + glyphs->offset.y.toReal()),
                         options, 0, convertToText ? convertedGlyphs : g.data(), ti.num_glyphs, 0);
-	    x += w.toReal();
+            x += w.toReal();
         } else {
             QVarLengthArray<QFixedPoint> positions;
             QVarLengthArray<glyph_t> glyphs;
@@ -3013,7 +3013,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
             matrix.translate(p.x(), p.y());
             ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
 
-            i = 0;
+            int i = 0;
             while(i < glyphs.size()) {
                 wchar_t g = glyphs[i];
                 ExtTextOutW(hdc, qRound(positions[i].x), qRound(positions[i].y), options, 0,
@@ -3024,20 +3024,20 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
     }
 
     if (ti.flags & (QTextItem::Underline)) {
-	    int lw = qRound(fe->lineThickness());
-	    int yp = qRound(y + fe->underlinePosition().toReal());
+            int lw = qRound(fe->lineThickness());
+            int yp = qRound(y + fe->underlinePosition().toReal());
         Rectangle(hdc, xo, yp, qRound(ti.width) + xo, yp + lw);
     }
 
     if (ti.flags & (QTextItem::StrikeOut)) {
-	    int lw = qRound(fe->lineThickness());
-	    int yp = qRound(y - fe->ascent().toReal()/3.);
+            int lw = qRound(fe->lineThickness());
+            int yp = qRound(y - fe->ascent().toReal()/3.);
         Rectangle(hdc, xo, yp, qRound(ti.width) + xo, yp + lw);
     }
 
     if (ti.flags & (QTextItem::Overline)) {
-	    int lw = qRound(fe->lineThickness());
-	    int yp = qRound(y - fe->ascent().toReal());
+            int lw = qRound(fe->lineThickness());
+            int yp = qRound(y - fe->ascent().toReal());
         Rectangle(hdc, xo, yp, qRound(ti.width) + xo, yp + lw);
     }
 }
@@ -3082,14 +3082,14 @@ static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC h
         ti2.f = ti.f;
         draw_text_item_win(QPointF(x, y), ti2, hdc, convertToText);
 
-	QFixed x_add;
+        QFixed x_add;
         // reset the high byte for all glyphs and advance to the next sub-string
         const int hi = which << 24;
         for (i = start; i < end; ++i) {
             glyphs[i].glyph = hi | glyphs[i].glyph;
             x_add += glyphs[i].advance.x;
         }
-	x += x_add.toReal();
+        x += x_add.toReal();
 
         // change engine
         start = end;
