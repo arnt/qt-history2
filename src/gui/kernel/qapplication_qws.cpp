@@ -369,7 +369,7 @@ public:
     }
     QWSEvent *dequeue()
     {
-        QWSEvent *r;
+        QWSEvent *r=0;
         if (queue.count()) {
             r = queue.first(); queue.removeFirst();
         } else if (mouse_event) {
@@ -583,7 +583,7 @@ void QWSDisplay::Data::init()
 
     /* Initialise framebuffer memory manager */
     /* Add 4k for luck and to avoid clobbering hardware cursor */
-    int screensize=qt_screen->screenSize();
+//    int screensize=qt_screen->screenSize();
 //     memorymanager=new QMemoryManager(qt_screen->base()+screensize+4096,
 //         qt_screen->totalSize()-(screensize+4096),0);
 
@@ -2351,7 +2351,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             w = widget; // w is the widget the cursor is in.
             QSize s(qt_screen->width(), qt_screen->height());
             QPoint dp = qt_screen->mapToDevice(p, s);
-#warning "more alloc_region trouble"
+            //### ??? alloc_region
             //#### why should we get events outside alloc_region ????
             if (1 /*widget->data->alloc_region.contains(dp) */) {
                 // Find the child widget that the cursor is in.
@@ -2985,7 +2985,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
         QSize s(qt_screen->width(), qt_screen->height());
         for (int i = 0; i < QApplicationPrivate::popupWidgets->size(); ++i) {
             QWidget *w = QApplicationPrivate::popupWidgets->at(i);
-#warning "even more alloc_region trouble"
+            //### alloc_region ???
             if ((w->windowType() == Qt::Popup) && w->d_func()->localRequestedRegion().contains(globalPos - w->geometry().topLeft())) { //was alloc_region
                 popup = w;
                 break;
@@ -3239,7 +3239,7 @@ bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event
 //### change 53580: but only for resizes
 //    qws_regionRequest = false;
 
-        d->bltToScreen(exposed);
+        d->blitToScreen(exposed);
     }
 #endif
     return true;

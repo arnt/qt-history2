@@ -41,6 +41,7 @@ extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); // qapplication_xxx.cpp
 bool QWidgetBackingStore::paintOnScreen(QWidget *w)
 {
 #ifdef Q_WS_QWS
+    Q_UNUSED(w);
     return false;
 #else
     if (w && (w->testAttribute(Qt::WA_PaintOnScreen)))
@@ -259,7 +260,7 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
     pos += topLevelOffset();
     QRect bsrect(pos, rect.size());
     buffer.lock(true);
-    buffer.blt(bsrect, pos + QPoint(dx,dy));
+    buffer.blit(bsrect, pos + QPoint(dx,dy));
     buffer.unlock();
 #endif
 }

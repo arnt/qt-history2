@@ -389,7 +389,7 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
     QDecoration &dec = QApplication::qwsDecoration();
     //### copies too much, but we don't know here what has actually been changed
     if (result)
-        d->managed->d_func()->bltToScreen(dec.region(d->managed, d->managed->geometry()));
+        d->managed->d_func()->blitToScreen(dec.region(d->managed, d->managed->geometry()));
     return result;
 }
 

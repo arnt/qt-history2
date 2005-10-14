@@ -548,7 +548,7 @@ void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
 
   Used by QWSManager
  */
-void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
+void QWidgetPrivate::blitToScreen(const QRegion &globalrgn)
 {
     Q_Q(QWidget);
 //    qDebug("QWidgetPrivate::bltToScreen");
@@ -586,9 +586,9 @@ bool QWSBackingStore::isNull() const
 }
 
 // 32bpp only
-void QWSBackingStore::blt(const QRect &r, const QPoint &p)
+void QWSBackingStore::blit(const QRect &r, const QPoint &p)
 {
-    int depth = pix->depth();
+//    int depth = pix->depth();
     int lineskip = pix->width();
 
     uint *src;
@@ -868,7 +868,7 @@ void QWidgetPrivate::lower_sys()
     }
 }
 
-void QWidgetPrivate::stackUnder_sys(QWidget* w)
+void QWidgetPrivate::stackUnder_sys(QWidget*)
 {
     Q_Q(QWidget);
     if (QWidget *p = q->parentWidget()) {

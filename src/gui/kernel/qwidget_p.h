@@ -264,7 +264,7 @@ public:
 #if defined(Q_WS_QWS)
     QRegion localRequestedRegion() const;
 
-    void bltToScreen(const QRegion &globalrgn);
+    void blitToScreen(const QRegion &globalrgn);
 #ifndef QT_NO_CURSOR
     void updateCursor(const QRegion &r) const;
 #endif

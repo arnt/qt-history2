@@ -42,7 +42,7 @@ public:
 
     QPixmap *pixmap() const;
 
-    void blt(const QRect &src, const QPoint &dest);
+    void blit(const QRect &src, const QPoint &dest);
 
     int memoryId() const { return shmid; }
     QSize size() const;
