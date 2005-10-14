@@ -558,62 +558,19 @@ QString QDateTimeEdit::sectionText(Section section) const
 
   \brief the format used to display the time/date of the date time edit
 
-  This format is a subset of the format described in QDateTime::toString()
+  This format is the same as the one used described in QDateTime::toString()
+  and QDateTime::fromString()
 
-  These expressions may be used:
-
-  \table
-  \header \i Expression \i Output
-  \row \i hh
-  \i the hour with a leading zero(00 to 23 or 01 to 12 if AM/PM display)
-  \row \i mm \i the minute with a leading zero(00 to 59)
-  \row \i ss \i the second whith a leading zero(00 to 59)
-  \row \i zzz \i the milliseconds with leading zeroes(000 to 999)
-  \row \i AP
-  \i use AM/PM display. \e AP will be replaced by either "AM" or "PM".
-  \row \i ap
-  \i use am/pm display. \e ap will be replaced by either "am" or "pm".
-  \row \i dd \i the day as number with a leading zero(01 to 31)
-  \row \i MM \i the month as number with a leading zero(01 to 12)
-  \row \i MMM
-  \i the abbreviated localized month name(e.g. 'Jan' to 'Dec').
-  Uses QDate::shortMonthName().
-  \row \i yy \i the year as two digit number(00 to 99)
-  \row \i yyyy \i the year as four digit number(1752 to 8000)
-  \endtable
-
-  All other input characters or sequence of characters that are
-  enclosed in singlequotes will be treated as text and can be used
-  as delimiters.
-
-  Example format strings(assuming that the date is 20 July 1969):
+  Example format strings(assuming that the date is 2nd of July 1969):
 
   \table
   \header \i Format \i Result
-  \row \i dd.MM.yyyy    \i 20.07.1969
-  \row \i MMM d yy \i Jul 20 69
+  \row \i dd.MM.yyyy    \i 02.07.1969
+  \row \i MMM d yy \i Jul 2 69
+  \row \i MMMM d yy \i July 2 69
   \endtable
 
   If you specify an invalid format the format will not be set.
-
-  Multiple instances of the same field is not allowed.A format with
-  no valid fields is not allowed either.
-
-  \warning Since QDateTimeEdit internally always operates on a
-  QDateTime, changing the format can change the minimum time or
-  date and the current time or date. For example:
-
-  \code
-  QDateTimeEdit edit;     // default format is "yyyy.MM.dd hh:mm:ss"
-  edit.setMinimumDate(QDate(2000, 1, 1));
-  edit.setMaximumDate(QDate(2003, 1, 1));
-  edit.setDateTime(QDateTime(QDate(2002, 5, 5), QTime(10, 10, 10)));
-  edit.setDisplayFormat("hh:mm:ss");
-
-  // edit can no longer display dates. This means that the
-  // minimum and maximum date will be set to the current date,
-  // e.g. 2002, 5, 5.
-  \endcode
 
   \sa QDateTime::toString(), displayedSections()
 */
