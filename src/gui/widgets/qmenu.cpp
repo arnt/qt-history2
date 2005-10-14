@@ -2293,6 +2293,17 @@ int QMenu::insertAny(const QIcon *icon, const QString *text, const QObject *rece
     return findIdForAction(act);
 }
 
+int QMenu::insertItem(QMenuItem *item, int id, int index)
+{
+    if (index == -1 || index >= actions().count())
+        addAction(item);
+    else
+        insertAction(actions().value(index), item);
+    if (id > -1)
+        item->d_func()->id = id;
+    return findIdForAction(item);
+}
+
 /*!
     Use the insertSeparator() overload that takes a QAction *
     parameter instead.
@@ -2358,6 +2369,12 @@ int QMenu::itemParameter(int id) const
     if (QAction *act = findActionForId(id))
         return act->d_func()->param;
     return id;
+}
+
+void QMenu::setId(int index, int id)
+{
+    if(QAction *act = actions().value(index))
+        act->d_func()->id = id;
 }
 
 /*!

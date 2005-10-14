@@ -168,6 +168,7 @@ public:
         QIcon icon(pixmap);
         return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
     }
+    QT3_SUPPORT int insertItem(QMenuItem *item, int id=-1, int index=-1);
     QT3_SUPPORT int insertSeparator(int index=-1);
     inline QT3_SUPPORT void removeItem(int id) {
         if(QAction *act = findActionForId(id))
@@ -216,6 +217,9 @@ public:
             act->setIcon(icon);
             act->setText(text);
         }
+    }
+    inline QT3_SUPPORT void setActiveItem(int id) {
+        setActiveAction(findActionForId(id));
     }
     inline QT3_SUPPORT bool isItemActive(int id) const {
         return findActionForId(id) == activeAction();
@@ -268,6 +272,7 @@ public:
     inline QT3_SUPPORT int idAt(int index) const {
         return findIdForAction(actions().value(index));
     }
+    QT3_SUPPORT void setId (int index, int id);
     inline QT3_SUPPORT void activateItemAt(int index) {
         if(QAction *ret = actions().value(index))
             ret->activate(QAction::Trigger);

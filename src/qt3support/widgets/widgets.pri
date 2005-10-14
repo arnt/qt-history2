@@ -23,7 +23,8 @@ HEADERS += \
     widgets/q3widgetstack.h \
     widgets/q3button.h \
     widgets/q3rangecontrol.h \
-    widgets/q3popupmenu.h 
+    widgets/q3popupmenu.h \
+    widgets/q3combobox.h
 
 SOURCES += \
     widgets/q3action.cpp \
@@ -47,5 +48,6 @@ SOURCES += \
     widgets/q3widgetstack.cpp \
     widgets/q3button.cpp \
     widgets/q3rangecontrol.cpp \
-    widgets/q3spinwidget.cpp
+    widgets/q3spinwidget.cpp \
+    widgets/q3combobox.cpp
 
