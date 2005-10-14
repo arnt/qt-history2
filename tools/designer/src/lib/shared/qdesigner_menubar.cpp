@@ -23,12 +23,49 @@
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QMenu>
+#include <QtGui/QToolButton>
+#include <QtGui/QDrag>
 #include <QtGui/qevent.h>
 
 Q_DECLARE_METATYPE(QAction*)
 Q_DECLARE_METATYPE(QListWidgetItem*)
 
 using namespace qdesigner_internal;
+
+namespace qdesigner_internal
+{
+
+MenuToolBox::MenuToolBox(QDesignerMenuBar *menuBar)
+    : QWidget(menuBar)
+{
+    QHBoxLayout *lay = new QHBoxLayout(this);
+    lay->setMargin(0);
+    lay->setSpacing(2);;
+
+    m_createMenuButton = new QToolButton(this);
+    m_createMenuButton->setObjectName("__qt__passive_create_menu");
+    lay->addWidget(m_createMenuButton);
+    connect(m_createMenuButton, SIGNAL(pressed()), this, SLOT(slotCreateMenu()));
+}
+
+MenuToolBox::~MenuToolBox()
+{
+}
+
+QDesignerMenuBar *MenuToolBox::menuBar() const
+{
+    return qobject_cast<QDesignerMenuBar*>(parentWidget());
+}
+
+void MenuToolBox::slotCreateMenu()
+{
+    m_createMenuButton->setDown(false);
+
+    QDrag *drag = new QDrag(this);
+    drag->setMimeData(new MenuMimeData()); // ### set a nice pixmap
+    drag->start();
+}
+
 
 QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
     : QMenuBar(parent)
@@ -45,6 +82,9 @@ QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
 
     m_sentinelChecker = new QTimer(this);
     connect(m_sentinelChecker, SIGNAL(timeout()), this, SLOT(slotCheckSentinel()));
+
+    m_toolBox = new MenuToolBox(this);
+    setCornerWidget(m_toolBox);
 
     qApp->installEventFilter(this);
 }
@@ -236,10 +276,10 @@ void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
             setActiveAction(action);
             action->menu()->setActiveAction(0);
         }
+    }
 
-        if (QDesignerActionProviderExtension *a = actionProvider()) {
-            a->adjustIndicator(pos);
-        }
+    if (QDesignerActionProviderExtension *a = actionProvider()) {
+        a->adjustIndicator(pos);
     }
 }
 
@@ -253,6 +293,9 @@ void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
             event->acceptProposedAction();
             adjustIndicator(event->pos());
         }
+    } else if (qobject_cast<const MenuMimeData*>(event->mimeData())) {
+        event->acceptProposedAction();
+        adjustIndicator(event->pos());
     }
 }
 
@@ -266,6 +309,9 @@ void QDesignerMenuBar::dragMoveEvent(QDragMoveEvent *event)
             event->acceptProposedAction();
             adjustIndicator(event->pos());
         }
+    } else if (qobject_cast<const MenuMimeData*>(event->mimeData())) {
+        event->acceptProposedAction();
+        adjustIndicator(event->pos());
     }
 }
 
@@ -284,10 +330,31 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
             insertAction(actions().at(index), action);
+            adjustIndicator(QPoint(-1, -1));
+        }
+    } else if (qobject_cast<const MenuMimeData*>(event->mimeData())) {
+        if (QDesignerFormWindowInterface *fw = formWindow()) {
+            QDesignerFormEditorInterface *core = fw->core();
+            event->acceptProposedAction();
+
+            QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu", this)); // ### use undo/redo stack
+            menu->setObjectName("menu");
+            core->metaDataBase()->add(menu);
+            fw->ensureUniqueObjectName(menu);
+
+            QAction *menuAction = menu->menuAction();
+            core->metaDataBase()->add(menuAction);
+            // fw->ensureUniqueObjectName(menuAction);
+            menu->setTitle(tr("Menu"));
+            addAction(menu->menuAction());
+            core->actionEditor()->setFormWindow(fw);
+            core->propertyEditor()->setObject(menu);
+
+            if (QDesignerActionProviderExtension *a = actionProvider()) {
+                a->adjustIndicator(QPoint(-1, -1));
+            }
         }
     }
-
-    adjustIndicator(QPoint(-1, -1));
 }
 
 void QDesignerMenuBar::actionEvent(QActionEvent *event)
@@ -330,3 +397,4 @@ QDesignerActionProviderExtension *QDesignerMenuBar::actionProvider()
     return 0;
 }
 
+} // namespace qdesigner_internal

@@ -69,6 +69,7 @@ private slots:
 
 private:
     QListWidgetItem *createListWidgetItem(QAction *action);
+    void updatePropertyEditor(QAction *action);
 
 private:
     QDesignerFormEditorInterface *m_core;

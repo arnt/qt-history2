@@ -205,6 +205,9 @@ QIcon fixActionIcon(QIcon icon)
 
 QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
 {
+    if (action->menu())
+        return 0;
+
     QListWidgetItem *item = new QListWidgetItem(m_actionRepository);
     QSize s = m_actionRepository->iconSize();
     item->setSizeHint(QSize(s.width()*3, s.height()*2));
@@ -224,21 +227,31 @@ QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
     return item;
 }
 
+void ActionEditor::updatePropertyEditor(QAction *action)
+{
+    if (!action || !core()->propertyEditor())
+        return;
+
+    QObject *sel = action;
+    if (action->menu())
+        sel = action->menu();
+
+    core()->propertyEditor()->setObject(action->menu());
+}
+
 void ActionEditor::slotItemChanged(QListWidgetItem *item)
 {
     if (!item)
         return;
 
-    if (QDesignerPropertyEditorInterface *propertyEditor = core()->propertyEditor()) {
-        if (QAction *action = qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole))) {
-            propertyEditor->setObject(action);
-        }
+    if (QAction *action = qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole))) {
+        updatePropertyEditor(action);
     }
 }
 
 void ActionEditor::slotActionChanged()
 {
-    static const QIcon empty_icon(":/trolltech/formeditor/images/emptyicon.png");
+    QIcon empty_icon(":/trolltech/formeditor/images/emptyicon.png");
 
     QAction *action = qobject_cast<QAction*>(sender());
     Q_ASSERT(action != 0);
@@ -289,7 +302,7 @@ void ActionEditor::slotNewAction()
         m_actionRepository->clearSelection();
         QListWidgetItem *item = createListWidgetItem(action);
         m_actionRepository->setItemSelected(item, true);
-        core()->propertyEditor()->setObject(action);
+        updatePropertyEditor(action);
     }
 }
 
@@ -312,7 +325,7 @@ void ActionEditor::editAction(QListWidgetItem *item)
     action->setObjectName(dlg.actionName());
     action->setText(dlg.actionText());
     action->setIcon(dlg.actionIcon());
-    core()->propertyEditor()->setObject(action);
+    updatePropertyEditor(action);
 }
 
 void ActionEditor::slotDeleteAction()

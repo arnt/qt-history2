@@ -340,6 +340,11 @@ void WidgetFactory::initialize(QObject *object) const
             sheet->setVisible(sheet->indexOf(QLatin1String("windowIcon")), true);
         }
     }
+
+    if (qobject_cast<QMenu*>(object)) {
+        sheet->setChanged(sheet->indexOf(QLatin1String("geometry")), false);
+        sheet->setChanged(sheet->indexOf(QLatin1String("title")), true);
+    }
 }
 
 bool WidgetFactory::isPassiveInteractor(QWidget *widget)

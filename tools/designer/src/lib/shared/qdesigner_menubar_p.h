@@ -30,10 +30,46 @@
 #include <QtCore/QPointer>
 #include <QtGui/QAction>
 #include <QtGui/QMenuBar>
+#include <QtCore/QMimeData>
 
 class QTimer;
+class QToolButton;
 class QDesignerFormWindowInterface;
 class QDesignerActionProviderExtension;
+class QDesignerMenuBar;
+
+namespace qdesigner_internal {
+
+class MenuToolBox;
+
+class MenuMimeData: public QMimeData
+{
+    Q_OBJECT
+public:
+    MenuMimeData() {}
+    virtual ~MenuMimeData() {}
+
+    virtual bool hasFormat(const QString &mimeType) const
+    { return mimeType == QLatin1String("action-repository/menu"); }
+};
+
+class MenuToolBox: public QWidget
+{
+    Q_OBJECT
+public:
+    MenuToolBox(QDesignerMenuBar *menuBar);
+    virtual ~MenuToolBox();
+
+    QDesignerMenuBar *menuBar() const;
+
+private slots:
+    void slotCreateMenu();
+
+private:
+    QToolButton *m_createMenuButton;
+};
+
+} // namespace qdesigner_internal
 
 class QDESIGNER_SHARED_EXPORT QDesignerMenuBar: public QMenuBar
 {
@@ -76,6 +112,7 @@ private:
     bool m_blockSentinelChecker;
     QPointer<QMenu> m_activeMenu;
     QPoint m_startPosition;
+    qdesigner_internal::MenuToolBox *m_toolBox;
 };
 
 #endif // QDESIGNER_MENUBAR_H
