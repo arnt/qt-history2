@@ -12,14 +12,16 @@ HEADERS         = qvfb.h \
 		  qvfbratedlg.h \
 		  qanimationwriter.h \
                   gammaview.h \
-		  skin.h
+		  skin.h \
+                  qvfbviewiface.h
 
 SOURCES         = qvfb.cpp \
 		  qvfbview.cpp \
 		  qvfbratedlg.cpp \
                   main.cpp \
 		  qanimationwriter.cpp \
-		  skin.cpp
+		  skin.cpp \
+                  qvfbviewiface.cpp
 
 contains(QT_CONFIG, system-png) {
 	LIBS += -lpng
