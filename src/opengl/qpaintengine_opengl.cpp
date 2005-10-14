@@ -134,7 +134,7 @@ void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDa
                 s1->marked = true;
 //                 qDebug() << "   - marking" << paths->at(i) << *(subpaths->data() + paths->at(i));
 
-                for (int j=0; j<subpaths->size(); ++j) {
+                for (int j=spi+1; j<subpaths->size(); ++j) {
                     const Subpath &s2 = subpaths->at(j);
                     if (s2.marked)
                         continue;
