@@ -1938,155 +1938,69 @@ void QX11PaintEngine::drawMulti(const QPointF &p, const QTextItemInt &ti)
 
 void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
 {
-    if (ti.num_glyphs) {
-        int size = qRound(ti.fontEngine->ascent());
-        int x = qRound(p.x());
-        int y = qRound(p.y());
-        int s = size - 3;
-
-        Q_D(QX11PaintEngine);
-        if (d->txop > QPainterPrivate::TxTranslate) {
-            for (int k = 0; k < ti.num_glyphs; k++) {
-                qt_draw_transformed_rect(this, x, y, s, s, false);
-                x += size;
-            }
-        } else {
-            if (d->txop == QPainterPrivate::TxTranslate) {
-                x += qRound(d->matrix.dx());
-                y += qRound(d->matrix.dy());
-            }
-            XRectangle rects[64];
-
-            int gl = 0;
-            while (gl < ti.num_glyphs) {
-                int toDraw = qMin(64, ti.num_glyphs-gl);
-                int adv = toDraw * size;
-                if (x + adv < SHRT_MAX && x > SHRT_MIN) {
-                    for (int k = 0; k < toDraw; k++) {
-                        rects[k].x = x + (k * size);
-                        rects[k].y = y - size + 2;
-                        rects[k].width = rects[k].height = s;
-                    }
-                    XDrawRectangles(d->dpy, d->hd, d->gc, rects, toDraw);
-                }
-                gl += toDraw;
-                x += adv;
-            }
-        }
-    }
     if (ti.flags)
         ::drawLines(this, ti, qRound(p.y()), qRound(p.x()), qRound(ti.width));
-}
+    if (!ti.num_glyphs)
+        return;
 
+    QVarLengthArray<QFixedPoint> positions;
+    QVarLengthArray<glyph_t> glyphs;
+    QMatrix matrix;
+    matrix.translate(p.x(), p.y());
+    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    
+    int size = qRound(ti.fontEngine->ascent());
+    QSize s(size - 3, size - 3);
 
-void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &si)
+    painter()->save();
+    painter()->setBrush(Qt::NoBrush);
+    QPen pen = painter()->pen();
+    pen.setWidthF(ti.fontEngine->lineThickness().toReal());
+    painter()->setPen(pen);
+    for (int k = 0; k < positions.size(); k++) 
+        painter()->drawRect(QRectF(positions[k].toPointF(), s));
+    painter()->restore();
+}                 
+
+void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &ti)
 {
     Q_D(QX11PaintEngine);
 
-    QFontEngineXLFD *xlfd = static_cast<QFontEngineXLFD *>(si.fontEngine);
-    Qt::HANDLE font_id = xlfd->fontStruct()->fid;
     if (d->txop > QPainterPrivate::TxTranslate) {
         // XServer or font don't support server side transformations, need to do it by hand
-        QPaintEngine::drawTextItem(p, si);
+        QPaintEngine::drawTextItem(p, ti);
         return;
     }
 
-    QFixed x = QFixed::fromReal(p.x() + d->matrix.dx());
-    QFixed y = QFixed::fromReal(p.y() + d->matrix.dy());
+    if (ti.flags)
+        ::drawLines(this, ti, qRound(p.y()), qRound(p.x()), qRound(ti.width));
+
+    if (!ti.num_glyphs)
+        return;
+
+    QVarLengthArray<QFixedPoint> positions;
+    QVarLengthArray<glyph_t> glyphs;
+    QMatrix matrix = d->matrix;
+    matrix.translate(p.x(), p.y());
+    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+
+    QFontEngineXLFD *xlfd = static_cast<QFontEngineXLFD *>(ti.fontEngine);
+    Qt::HANDLE font_id = xlfd->fontStruct()->fid;
 
     XSetFont(d->dpy, d->gc, font_id);
 
-#ifdef FONTENGINE_DEBUG
-    p->save();
-    p->setBrush(Qt::white);
-    glyph_metrics_t ci = boundingBox(glyphs, si.num_glyphs);
-    p->drawRect(x + ci.x, y + ci.y, ci.width, ci.height);
-    p->drawRect(x + ci.x, y + 100 + ci.y, ci.width, ci.height);
-    qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height);
-    p->restore();
-    int xp = x;
-    int yp = y;
-#endif
+    QVarLengthArray<XChar2b> chars(glyphs.size());
 
-    QGlyphLayout *glyphs = si.glyphs;
-
-    if (si.flags)
-        ::drawLines(this, si, qRound(p.y()), qRound(p.x()), qRound(si.width));
-
-    if (!si.num_glyphs)
-        return;
-
-    QVarLengthArray<XChar2b> chars(si.num_glyphs);
-
-    for (int i = 0; i < si.num_glyphs; i++) {
-        chars[i].byte1 = glyphs[i].glyph >> 8;
-        chars[i].byte2 = glyphs[i].glyph & 0xff;
-    }
-
-    if (si.flags & QTextItem::RightToLeft) {
-        int i = si.num_glyphs;
-        while(i--) {
-            x += glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6);
-            y += glyphs[i].advance.y;
-        }
-        i = 0;
-        while(i < si.num_glyphs) {
-            x -= glyphs[i].advance.x;
-            y -= glyphs[i].advance.y;
-
-            int xp = qRound(x + glyphs[i].offset.x);
-            int yp = qRound(y + glyphs[i].offset.y);
-            if (xp < SHRT_MAX && xp > SHRT_MIN)
-                XDrawString16(d->dpy, d->hd, d->gc, xp, yp, chars.data()+i, 1);
-
-            if (glyphs[i].nKashidas) {
-                QChar ch(0x640); // Kashida character
-                QGlyphLayout g[8];
-                int nglyphs = 7;
-                si.fontEngine->stringToCMap(&ch, 1, g, &nglyphs, 0);
-                for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
-                    x -= g[0].advance.x;
-                    y -= g[0].advance.y;
-
-                    int xp = qRound(x + g[0].offset.x);
-                    int yp = qRound(y + g[0].offset.y);
-                    if (xp < SHRT_MAX && xp > SHRT_MIN)
-                        XDrawString16(d->dpy, d->hd, d->gc, xp, yp, chars.data()+i, 1);
-                }
-            } else {
-                x -= QFixed::fromFixed(glyphs[i].space_18d6);
-            }
-            ++i;
-        }
-    } else {
-        int i = 0;
-        while(i < si.num_glyphs) {
-            int xp = qRound(x + glyphs[i].offset.x);
-            int yp = qRound(y + glyphs[i].offset.y);
-            if (xp < SHRT_MAX && xp > SHRT_MIN)
-                XDrawString16(d->dpy, d->hd, d->gc, xp, yp, chars.data()+i, 1);
-            x += glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6);
-            y += glyphs[i].advance.y;
-            i++;
+    for (int i = 0; i < glyphs.size(); i++) {
+        int xp = qRound(positions[i].x);
+        int yp = qRound(positions[i].y);
+        if (xp < SHRT_MAX && xp > SHRT_MIN) {
+            XChar2b ch;
+            ch.byte1 = glyphs[i] >> 8;
+            ch.byte2 = glyphs[i] & 0xff;
+            XDrawString16(d->dpy, d->hd, d->gc, xp, yp, &ch, 1);
         }
     }
-
-#ifdef FONTENGINE_DEBUG
-    x = xp;
-    y = yp;
-    p->save();
-    p->setPen(Qt::red);
-    for (int i = 0; i < si.num_glyphs; i++) {
-        glyph_metrics_t ci = boundingBox(glyphs[i].glyph);
-        p->drawRect(x + ci.x + glyphs[i].offset.x, y + 100 + ci.y + glyphs[i].offset.y, ci.width, ci.height);
-        qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
-               ci.xoff, ci.yoff, glyphs[i].offset.x, glyphs[i].offset.y,
-               glyphs[i].advance.x, glyphs[i].advance.y);
-        x += glyphs[i].advance.x;
-        y += glyphs[i].advance.y;
-    }
-    p->restore();
-#endif
 }
 
 #ifndef QT_NO_FONTCONFIG
@@ -2141,244 +2055,67 @@ void QX11PaintEngine::core_render_glyph(QFontEngineFT *fe, int xp, int yp, uint 
     }
 }
 
-void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
+void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 {
     Q_D(QX11PaintEngine);
     QFixed xpos = QFixed::fromReal(p.x() + d->matrix.dx());
     QFixed ypos = QFixed::fromReal(p.y() + d->matrix.dy());
 
-    QFontEngineFT *ft = static_cast<QFontEngineFT *>(si.fontEngine);
+    QFontEngineFT *ft = static_cast<QFontEngineFT *>(ti.fontEngine);
     if (!d->cpen.isSolid() || ft->drawAsOutline() || d->txop >= QPainterPrivate::TxScale) {
-        QPaintEngine::drawTextItem(p, si);
+        QPaintEngine::drawTextItem(p, ti);
         return;
     }
 
-    bool transform = d->txop >= QPainterPrivate::TxScale;
+    if (ti.flags)
+        ::drawLines(this, ti, qRound(p.y()), qRound(p.x()), qRound(ti.width));
 
-    QGlyphLayout *glyphs = si.glyphs;
-
-#ifdef FONTENGINE_DEBUG
-    qDebug("===== drawing %d glyphs reverse=%s ======", si.num_glyphs,
-           si.flags & QTextItem::RightToLeft ?"true":"false");
-    p->painter()->save();
-    p->painter()->setBrush(Qt::white);
-    glyph_metrics_t ci = boundingBox(glyphs, si.num_glyphs);
-    p->painter()->drawRect(x + ci.x, y + ci.y, ci.width, ci.height);
-    p->painter()->drawLine(x + ci.x, y, ci.width, y);
-    p->painter()->drawRect(x + ci.x, y + 100 + ci.y, ci.width, ci.height);
-    p->painter()->drawLine(x + ci.x, y + 100, ci.width, y + 100);
-    qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height);
-    p->painter()->restore();
-#endif
-
-    if (si.flags)
-        ::drawLines(this, si, p.toPoint().y(), p.toPoint().x(), qRound(si.width));
-
-    if (!si.num_glyphs)
+    if (!ti.num_glyphs)
         return;
+
+    QVarLengthArray<QFixedPoint> positions;
+    QVarLengthArray<glyph_t> glyphs;
+    QMatrix matrix = d->matrix;
+    matrix.translate(p.x(), p.y());
+    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
 
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
-#ifdef FONTENGINE_DEBUG
-        p->painter()->save();
-        p->painter()->setPen(Qt::red);
-#endif
-        GlyphSet glyphSet = ft->glyphSet;
         int nGlyphs = 0;
-        int screen = d->scrn;
-        QVarLengthArray<XGlyphElt32, 256> glyphSpec(si.num_glyphs);
-
-        if (si.flags & QTextItem::RightToLeft) {
-            int i = si.num_glyphs;
-            while(i--) {
-                xpos += glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6);
-                ypos += glyphs[i].advance.y;
-            }
-            i = 0;
-            while(i < si.num_glyphs) {
-                xpos -= glyphs[i].advance.x;
-                ypos -= glyphs[i].advance.y;
-
-                QFixed gpos_x = xpos + glyphs[i].offset.x;
-                QFixed gpos_y = ypos + glyphs[i].offset.y;
-                if (transform) {
-                    QPointF gpos(gpos_x.toReal(), gpos_y.toReal());
-                    gpos = gpos * d->matrix;
-                    gpos_x = QFixed::fromReal(gpos.x());
-                    gpos_y = QFixed::fromReal(gpos.y());
-                }
-                int xp = qRound(gpos_x);
-                int yp = qRound(gpos_y);
-                if (xp > SHRT_MIN && xp < SHRT_MAX) {
-                    glyphSpec[nGlyphs].glyphset = glyphSet;
-                    glyphSpec[nGlyphs].chars = &glyphs[i].glyph;
-                    glyphSpec[nGlyphs].nchars = 1;
-                    glyphSpec[nGlyphs].xOff = xp;
-                    glyphSpec[nGlyphs].yOff = yp;
-                    ++nGlyphs;
-                }
-                if (glyphs[i].nKashidas) {
-                    glyphSpec.resize(glyphSpec.size() + glyphs[i].nKashidas);
-                    QChar ch(0x640); // Kashida character
-                    QGlyphLayout g[8];
-                    int nglyphs = 7;
-                    si.fontEngine->stringToCMap(&ch, 1, g, &nglyphs, 0);
-                    for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
-                        xpos -= g[0].advance.x;
-                        ypos -= g[0].advance.y;
-
-                        QFixed gpos_x = xpos + glyphs[i].offset.x;
-                        QFixed gpos_y = ypos + glyphs[i].offset.y;
-                        if (transform) {
-                            QPointF gpos(gpos_x.toReal(), gpos_y.toReal());
-                            gpos = gpos * d->matrix;
-                            gpos_x = QFixed::fromReal(gpos.x());
-                            gpos_y = QFixed::fromReal(gpos.y());
-                        }
-                        int xp = qRound(gpos_x);
-                        int yp = qRound(gpos_y);
-                        if (xp > SHRT_MIN && xp < SHRT_MAX) {
-                            glyphSpec[nGlyphs].glyphset = glyphSet;
-                            glyphSpec[nGlyphs].chars = &g[0].glyph;
-                            glyphSpec[nGlyphs].nchars = 1;
-                            glyphSpec[nGlyphs].xOff = xp;
-                            glyphSpec[nGlyphs].yOff = yp;
-                        }
-                        ++nGlyphs;
-                    }
-                } else {
-                    xpos -= QFixed::fromFixed(glyphs[i].space_18d6);
-                }
-#ifdef FONTENGINE_DEBUG
-                glyph_metrics_t ci = boundingBox(glyphs[i].glyph);
-                p->painter()->drawRect(x + ci.x + glyphs[i].offset.x, y + 100 + ci.y + glyphs[i].offset.y, ci.width, ci.height);
-                qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
-                       ci.xoff, ci.yoff, glyphs[i].offset.x, glyphs[i].offset.y, glyphs[i].advance.x, glyphs[i].advance.y);
-#endif
-                ++i;
-            }
-        } else {
-            int i = 0;
-            while (i < si.num_glyphs) {
-                QFixed gpos_x = xpos + glyphs[i].offset.x;
-                QFixed gpos_y = ypos + glyphs[i].offset.y;
-                if (transform) {
-                    QPointF gpos(gpos_x.toReal(), gpos_y.toReal());
-                    gpos = gpos * d->matrix;
-                    gpos_x = QFixed::fromReal(gpos.x());
-                    gpos_y = QFixed::fromReal(gpos.y());
-                }
-                int xp = qRound(gpos_x);
-                int yp = qRound(gpos_y);
-                if (xp > SHRT_MIN && xp < SHRT_MAX) {
-                    glyphSpec[i].glyphset = glyphSet;
-                    glyphSpec[i].chars = &glyphs[i].glyph;
-                    glyphSpec[i].nchars = 1;
-                    glyphSpec[i].xOff = xp;
-                    glyphSpec[i].yOff = yp;
-                    ++nGlyphs;
-                }
-#ifdef FONTENGINE_DEBUG
-                glyph_metrics_t ci = boundingBox(glyphs[i].glyph);
-                qDebug("bounding %d ci[%x]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, glyphs[i].glyph,
-                       ci.x, ci.y, ci.width, ci.height, ci.xoff, ci.yoff,
-                       glyphs[i].offset.x, glyphs[i].offset.y, glyphs[i].advance.x, glyphs[i].advance.y);
-#endif
-
-                xpos += glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6);
-                ypos += glyphs[i].advance.y;
-                ++i;
+        GlyphSet glyphSet = ft->glyphSet;
+        const QColor &pen = d->cpen.color();
+        ::Picture src = X11->getSolidFill(d->scrn, pen);
+        XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, ft->xglyph_format);
+        
+        QVarLengthArray<XGlyphElt32, 256> glyphSpec(glyphs.size());
+        for (int i = 0; i < glyphs.size(); ++i) {
+            int xp = qRound(positions[i].x);
+            int yp = qRound(positions[i].y);
+            if (xp > SHRT_MIN && xp < SHRT_MAX) {
+                glyphSpec[nGlyphs].glyphset = glyphSet;
+                glyphSpec[nGlyphs].chars = &glyphs[i];
+                glyphSpec[nGlyphs].nchars = 1;
+                glyphSpec[nGlyphs].xOff = xp;
+                glyphSpec[nGlyphs].yOff = yp;
+                ++nGlyphs;
             }
         }
 
-#ifdef FONTENGINE_DEBUG
-        p->painter()->restore();
-#endif
-
-        const QColor &pen = d->cpen.color();
-        ::Picture src = X11->getSolidFill(screen, pen);
-
         int i = 0;
-
-        XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, ft->xglyph_format);
         while (i < nGlyphs) {
-            // ############ inefficient
             XRenderCompositeText32 (X11->display, PictOpOver, src, d->picture,
                                     maskFormat, 0, 0, 0, 0,
                                     glyphSpec.data() + i, 1);
-            i++;
+            ++i;
         }
         return;
     }
 #endif
-
     ft->lockFace();
-    if (si.flags & QTextItem::RightToLeft) {
-        int i = si.num_glyphs;
-        while(i--) {
-            xpos += glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6);
-            ypos += glyphs[i].advance.y;
-        }
-        i = 0;
-        while(i < si.num_glyphs) {
-            xpos -= glyphs[i].advance.x;
-            ypos -= glyphs[i].advance.y;
-
-            QFixed gpos_x = xpos + glyphs[i].offset.x;
-            QFixed gpos_y = ypos + glyphs[i].offset.y;
-            if (transform) {
-                QPointF gpos(gpos_x.toReal(), gpos_y.toReal());
-                gpos = gpos * d->matrix;
-                gpos_x = QFixed::fromReal(gpos.x());
-                gpos_y = QFixed::fromReal(gpos.y());
-            }
-            int xp = qRound(gpos_x);
-            int yp = qRound(gpos_y);
-            core_render_glyph(ft, xp, yp, glyphs[i].glyph);
-            if (glyphs[i].nKashidas) {
-                QChar ch(0x640); // Kashida character
-                QGlyphLayout g[8];
-                int nglyphs = 7;
-                si.fontEngine->stringToCMap(&ch, 1, g, &nglyphs, 0);
-                for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
-                    xpos -= g[0].advance.x;
-                    ypos -= g[0].advance.y;
-
-                    QFixed gpos_x = xpos + glyphs[i].offset.x;
-                    QFixed gpos_y = ypos + glyphs[i].offset.y;
-                    if (transform) {
-                        QPointF gpos(gpos_x.toReal(), gpos_y.toReal());
-                        gpos = gpos * d->matrix;
-                        gpos_x = QFixed::fromReal(gpos.x());
-                        gpos_y = QFixed::fromReal(gpos.y());
-                    }
-                    int xp = qRound(gpos_x);
-                    int yp = qRound(gpos_y);
-                    core_render_glyph(ft, xp, yp, g[0].glyph);
-                }
-            } else {
-                xpos -= QFixed::fromFixed(glyphs[i].space_18d6);
-            }
-            ++i;
-        }
-    } else {
-        int i = 0;
-        while (i < si.num_glyphs) {
-            QFixed gpos_x = xpos + glyphs[i].offset.x;
-            QFixed gpos_y = ypos + glyphs[i].offset.y;
-            if (transform) {
-                QPointF gpos(gpos_x.toReal(), gpos_y.toReal());
-                gpos = gpos * d->matrix;
-                gpos_x = QFixed::fromReal(gpos.x());
-                gpos_y = QFixed::fromReal(gpos.y());
-            }
-            int xp = qRound(gpos_x);
-            int yp = qRound(gpos_y);
-            core_render_glyph(ft, xp, yp, glyphs[i].glyph);
-            xpos += glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6);
-            ypos += glyphs[i].advance.y;
-            ++i;
-        }
+    int i = 0;
+    while (i < glyphs.size()) {
+        core_render_glyph(ft, qRound(positions[i].x), qRound(positions[i].y), glyphs[i]);
+        ++i;
     }
     ft->unlockFace();
 }

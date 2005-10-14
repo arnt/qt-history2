@@ -55,6 +55,7 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
+    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags);
     QFixed ascent() const;
     QFixed descent() const;
     QFixed leading() const;
@@ -163,7 +164,10 @@ public:
 
     void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
     void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
-    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
+    void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs,
+                         QPainterPath *path, QTextItem::RenderFlags flags);
+    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
+                          QPainterPath *path, QTextItem::RenderFlags flags);
 
     FcPattern *pattern() const { return _pattern; }
     QOpenType *openType() const;

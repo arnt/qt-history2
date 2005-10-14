@@ -403,6 +403,10 @@ bool QFontEngineXLFD::canRender(const QChar *string, int len)
     return allExist;
 }
 
+void QFontEngineXLFD::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags)
+{
+    addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
+}
 
 #ifndef QT_NO_FONTCONFIG
 
@@ -1301,103 +1305,102 @@ void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Shap
 }
 
 
+void QFontEngineFT::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs,
+                                    QPainterPath *path, QTextItem::RenderFlags flags)
+{
+    FT_Face face = lockFace();
+
+    for (int gl = 0; gl < numGlyphs; gl++) {
+        FT_UInt glyph = glyphs[gl];
+
+        FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP);
+
+        FT_GlyphSlot g = face->glyph;
+        if (g->format != FT_GLYPH_FORMAT_OUTLINE)
+            continue;
+
+        QPointF cp = positions[gl].toPointF();
+        
+        // convert the outline to a painter path
+        int i = 0;
+        for (int c = 0; c < g->outline.n_contours; ++c) {
+            int last_point = g->outline.contours[c];
+            QPointF start = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
+            if(!(g->outline.tags[i] & 1)) {
+                start += cp + QPointF(g->outline.points[last_point].x/64., -g->outline.points[last_point].y/64.);
+                start /= 2;
+            }
+//                 qDebug("contour: %d -- %d", i, g->outline.contours[c]);
+//                 qDebug("first point at %f %f", start.x(), start.y());
+            path->moveTo(start);
+
+            QPointF c[4];
+            c[0] = start;
+            int n = 1;
+            while (i < last_point) {
+                ++i;
+                c[n] = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
+//                     qDebug() << "    i=" << i << " flag=" << (int)g->outline.tags[i] << "point=" << c[n];
+                ++n;
+                switch (g->outline.tags[i] & 3) {
+                case 2:
+                    // cubic bezier element
+                    if (n < 4)
+                        continue;
+                    c[3] = (c[3] + c[2])/2;
+                    --i;
+                    break;
+                case 0:
+                    // quadratic bezier element
+                    if (n < 3)
+                        continue;
+                    c[3] = (c[1] + c[2])/2;
+                    c[2] = (2*c[1] + c[3])/3;
+                    c[1] = (2*c[1] + c[0])/3;
+                    --i;
+                    break;
+                case 1:
+                case 3:
+                    if (n == 2) {
+//                             qDebug() << "lineTo" << c[1];
+                        path->lineTo(c[1]);
+                        c[0] = c[1];
+                        n = 1;
+                        continue;
+                    } else if (n == 3) {
+                        c[3] = c[2];
+                        c[2] = (2*c[1] + c[3])/3;
+                        c[1] = (2*c[1] + c[0])/3;
+                    } 
+                    break;
+                }
+//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
+                path->cubicTo(c[1], c[2], c[3]);
+                c[0] = c[3];
+                n = 1;
+            }
+            if (n == 1) {
+//                     qDebug() << "closeSubpath";
+                path->closeSubpath();
+            } else {
+                c[3] = start;
+                if (n == 2) {
+                    c[2] = (2*c[1] + c[3])/3;
+                    c[1] = (2*c[1] + c[0])/3;
+                }
+//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
+                path->cubicTo(c[1], c[2], c[3]);
+            }
+            ++i;
+        }
+    }
+    unlockFace();
+}
+
 void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
     if (FT_IS_SCALABLE(freetype->face)) {
-        FT_Face face = lockFace();
-        QPointF point = QPointF(x, y);
-        if (flags & QTextItem::RightToLeft) {
-            for (int gl = 0; gl < numGlyphs; gl++)
-                point += glyphs[gl].advance.toPointF();
-        }
-        for (int gl = 0; gl < numGlyphs; gl++) {
-            FT_UInt glyph = glyphs[gl].glyph;
-            if (flags & QTextItem::RightToLeft)
-                point -= glyphs[gl].advance.toPointF();
-            QPointF cp = point + glyphs[gl].offset.toPointF();
-            if (!(flags & QTextItem::RightToLeft))
-                point += glyphs[gl].advance.toPointF();
-
-            FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP);
-
-            FT_GlyphSlot g = face->glyph;
-            if (g->format != FT_GLYPH_FORMAT_OUTLINE)
-                continue;
-
-            // convert the outline to a painter path
-            int i = 0;
-            for (int c = 0; c < g->outline.n_contours; ++c) {
-                int last_point = g->outline.contours[c];
-                QPointF start = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
-                if(!(g->outline.tags[i] & 1)) {
-                    start += cp + QPointF(g->outline.points[last_point].x/64., -g->outline.points[last_point].y/64.);
-                    start /= 2;
-                }
-//                 qDebug("contour: %d -- %d", i, g->outline.contours[c]);
-//                 qDebug("first point at %f %f", start.x(), start.y());
-                path->moveTo(start);
-
-                QPointF c[4];
-                c[0] = start;
-                int n = 1;
-                while (i < last_point) {
-                    ++i;
-                    c[n] = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
-//                     qDebug() << "    i=" << i << " flag=" << (int)g->outline.tags[i] << "point=" << c[n];
-                    ++n;
-                    switch (g->outline.tags[i] & 3) {
-                    case 2:
-                        // cubic bezier element
-                        if (n < 4)
-                            continue;
-                        c[3] = (c[3] + c[2])/2;
-                        --i;
-                        break;
-                    case 0:
-                        // quadratic bezier element
-                        if (n < 3)
-                            continue;
-                        c[3] = (c[1] + c[2])/2;
-                        c[2] = (2*c[1] + c[3])/3;
-                        c[1] = (2*c[1] + c[0])/3;
-                        --i;
-                        break;
-                    case 1:
-                    case 3:
-                        if (n == 2) {
-//                             qDebug() << "lineTo" << c[1];
-                            path->lineTo(c[1]);
-                            c[0] = c[1];
-                            n = 1;
-                            continue;
-                        } else if (n == 3) {
-                            c[3] = c[2];
-                            c[2] = (2*c[1] + c[3])/3;
-                            c[1] = (2*c[1] + c[0])/3;
-                        } 
-                        break;
-                    }
-//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
-                    path->cubicTo(c[1], c[2], c[3]);
-                    c[0] = c[3];
-                    n = 1;
-                }
-                if (n == 1) {
-//                     qDebug() << "closeSubpath";
-                    path->closeSubpath();
-                } else {
-                    c[3] = start;
-                    if (n == 2) {
-                        c[2] = (2*c[1] + c[3])/3;
-                        c[1] = (2*c[1] + c[0])/3;
-                    }
-//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
-                    path->cubicTo(c[1], c[2], c[3]);
-                }
-                ++i;
-            }
-        }
-        unlockFace();
+        QFontEngine::addOutlineToPath(x, y, glyphs, numGlyphs, path, flags);
     } else {
         addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
     }
