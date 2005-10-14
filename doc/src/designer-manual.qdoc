@@ -1519,6 +1519,17 @@ without having to write code themselves.
                                     the widget in \c{uic}-generated files.
     \endtable
 
+    Two other virtual functions can also be reimplemented:
+
+    \table
+    \row    \o \c initialize()    \o Sets up extensions and other features for custom
+                                     widgets.
+    \row    \o \c isInitialized() \o Returns true if the widget has been initialized;
+                                     otherwise returns false. Reimplementations usually
+                                     check whether the initialize() function has been
+                                     called and return the result of this test.
+    \endtable
+
     If the custom widget does not provide a reasonable size hint, it is necessary
     to specify a default geometry in the string returned by the \c domXml() function
     in your subclass. For example, the \c AnalogClockPlugin provided by the
@@ -1536,6 +1547,19 @@ without having to write code themselves.
     can still be used by other widgets in the form. This feature is used to hide
     widgets that should not be explicitly created by the user, but which are
     required by other widgets.
+
+    \section1 Creating Well Behaved Widgets
+
+    Some custom widgets have special user interface features that may make them
+    behave differently to many of the standard widgets found in \QD. Specifically,
+    if a custom widget grabs the keyboard as a result of a call to
+    QWidget::grabKeyboard(), the operation of \QD will be affected.
+
+    To give custom widgets special behavior in \QD, provide an implementation of
+    the initialize() function to configure the widget construction process for
+    \QD specific behavior. This function will be called for the first time before
+    any calls to createWidget() and could perhaps set an internal flag that can be
+    tested later when \QD calls the plugin's createWidget() function.
 
     \section1 Building The Plugin
 
