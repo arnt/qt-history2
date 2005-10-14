@@ -265,22 +265,17 @@ inline QColor QGLDrawable::backgroundColor() const
 
 // Need to allocate space for new vertices on intersecting lines and
 // they need to be alive until gluTessEndPolygon() has returned
-static QDataBuffer<GLdouble> vertexStorage;
+static QList<GLdouble *> vertexStorage;
 static void CALLBACK qgl_tess_combine(GLdouble coords[3],
 				      GLdouble *[4],
 				      GLfloat [4], GLdouble **dataOut)
 {
-//     GLdouble *vertex;
-//     vertex = (GLdouble *) malloc(3 * sizeof(GLdouble));
-//     vertex[0] = coords[0];
-//     vertex[1] = coords[1];
-//     vertex[2] = coords[2];
-//     *dataOut = vertex;
-    vertexStorage.add(coords[0]);
-    vertexStorage.add(coords[1]);
-    vertexStorage.add(0);
-    *dataOut = vertexStorage.data() + vertexStorage.size() - 3;
-//     vertexStorage.append(vertex);
+    GLdouble *vertex = (GLdouble *) malloc(3 * sizeof(GLdouble));
+    vertex[0] = coords[0];
+    vertex[1] = coords[1];
+    vertex[2] = coords[2];
+    *dataOut = vertex;
+    vertexStorage.append(vertex);
 }
 
 static void CALLBACK qgl_tess_error(GLenum errorCode)
@@ -303,6 +298,7 @@ class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
 public:
     QOpenGLPaintEnginePrivate()
         : bgmode(Qt::TransparentMode)
+        , has_fast_pen(false)
         , txop(QPainterPrivate::TxNone)
         , inverseScale(1)
         , moveToCount(0)
@@ -339,6 +335,7 @@ public:
     uint has_pen : 1;
     uint has_brush : 1;
     uint has_autoswap : 1;
+    uint has_fast_pen : 1;
 
     QMatrix matrix;
     GLubyte pen_color[4];
@@ -364,7 +361,6 @@ void QOpenGLPaintEnginePrivate::beginPath(QPaintEngine::PolygonDrawMode mode)
 {
     Q_ASSERT(mode != QPaintEngine::PolylineMode);
 
-    vertexStorage.reset();
     tessVector.reset();
     moveToCount = 0;
 
@@ -392,6 +388,10 @@ void QOpenGLPaintEnginePrivate::endPath()
     GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
     gluTessEndContour(qgl_tess);
     gluTessEndPolygon(qgl_tess);
+
+    for (int i=0; i<vertexStorage.size(); ++i)
+        free(vertexStorage.at(i));
+    vertexStorage.clear();
 }
 
 inline void QOpenGLPaintEnginePrivate::moveTo(const QPointF &p)
@@ -527,6 +527,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     Q_D(QOpenGLPaintEngine);
     d->drawable.setDevice(pdev);
     d->has_clipping = false;
+    d->has_fast_pen = false;
     d->has_autoswap = d->drawable.autoBufferSwap();
     d->drawable.setAutoBufferSwap(false);
     d->inverseScale = 1;
@@ -570,29 +571,66 @@ bool QOpenGLPaintEngine::end()
 void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
 {
     QPaintEngine::DirtyFlags flags = state.state();
-    if (flags & DirtyPen) updatePen(state.pen());
-    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
-    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
-    if (flags & DirtyFont) updateFont(state.font());
-    if (flags & DirtyTransform) updateMatrix(state.matrix());
+
+    bool update_fast_pen = false;
+
+    if (flags & DirtyTransform) {
+        update_fast_pen = true;
+        updateMatrix(state.matrix());
+    }
+
+    if (flags & DirtyPen) {
+        update_fast_pen = true;
+        updatePen(state.pen());
+    }
+
+    if (flags & DirtyBrush) {
+        updateBrush(state.brush(), state.brushOrigin());
+    }
+
+    if (flags & DirtyBackground) {
+        updateBackground(state.backgroundMode(), state.backgroundBrush());
+    }
+
+    if (flags & DirtyFont) {
+        updateFont(state.font());
+    }
+
     if (state.state() & DirtyClipEnabled) {
         if (state.isClipEnabled())
             updateClipRegion(painter()->clipRegion(), Qt::ReplaceClip);
         else
             updateClipRegion(QRegion(), Qt::NoClip);
     }
+
     if (flags & DirtyClipPath) {
         updateClipRegion(QRegion(state.clipPath().toFillPolygon().toPolygon(),
                                  state.clipPath().fillRule()),
                          state.clipOperation());
     }
-    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
-    if (flags & DirtyHints) updateRenderHints(state.renderHints());
+
+    if (flags & DirtyClipRegion) {
+        updateClipRegion(state.clipRegion(), state.clipOperation());
+    }
+
+    if (flags & DirtyHints) {
+        updateRenderHints(state.renderHints());
+    }
+
+    if (update_fast_pen) {
+        Q_D(QOpenGLPaintEngine);
+        qreal pen_width = d->cpen.widthF();
+        d->has_fast_pen =
+            (pen_width == 0 || (pen_width == 1 && d->txop <= QPainterPrivate::TxTranslate))
+            && d->cpen.style() == Qt::SolidLine
+            && d->cpen.isSolid();
+    }
 }
 
 void QOpenGLPaintEngine::updatePen(const QPen &pen)
 {
     Q_D(QOpenGLPaintEngine);
+
     d->cpen = pen;
     d->has_pen = (pen.style() != Qt::NoPen);
     d->setGLPen(pen.color());
@@ -763,7 +801,7 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
     Q_D(QOpenGLPaintEngine);
-    // ### this could be done faster I'm sure...
+
     for (int i=0; i<rectCount; ++i) {
         QRectF r = rects[i];
 
@@ -774,12 +812,7 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 
         if (d->has_brush) {
             glColor4ubv(d->brush_color);
-            d->beginPath(QPaintEngine::ConvexMode);
-            d->moveTo(QPointF(left, top));
-            d->lineTo(QPointF(left, bottom));
-            d->lineTo(QPointF(right, bottom));
-            d->lineTo(QPointF(right, top));
-            d->endPath();
+            glRectd(left, top, right, bottom);
         }
 
         if (d->has_pen) {
@@ -817,28 +850,30 @@ void QOpenGLPaintEngine::drawPoints(const QPointF *points, int pointCount)
 void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     Q_D(QOpenGLPaintEngine);
-
     if (d->has_pen) {
-        glColor4ubv(d->pen_color);
-        for (int i=0; i<lineCount; ++i) {
-            const QLineF &l = lines[i];
-            d->beginPath(QPaintEngine::WindingMode);
-            d->stroker->begin(d);
-            d->stroker->moveTo(qt_real_to_fixed(l.x1()), qt_real_to_fixed(l.y1()));
-            d->stroker->lineTo(qt_real_to_fixed(l.x2()), qt_real_to_fixed(l.y2()));
-            d->stroker->end();
-            d->endPath();
+        if (d->has_fast_pen) {
+            glColor4ubv(d->pen_color);
+            glBegin(GL_LINES);
+            {
+                for (int i = 0; i < lineCount; ++i) {
+                    glVertex2d(lines[i].x1(), lines[i].y1());
+                    glVertex2d(lines[i].x2(), lines[i].y2());
+                }
+            }
+            glEnd();
+        } else {
+            glColor4ubv(d->pen_color);
+            for (int i=0; i<lineCount; ++i) {
+                const QLineF &l = lines[i];
+                d->beginPath(QPaintEngine::WindingMode);
+                d->stroker->begin(d);
+                d->stroker->moveTo(qt_real_to_fixed(l.x1()), qt_real_to_fixed(l.y1()));
+                d->stroker->lineTo(qt_real_to_fixed(l.x2()), qt_real_to_fixed(l.y2()));
+                d->stroker->end();
+                d->endPath();
+            }
         }
     }
-
-//     glBegin(GL_LINES);
-//     {
-//         for (int i = 0; i < lineCount; ++i) {
-//             glVertex2d(lines[i].x1(), lines[i].y1());
-//             glVertex2d(lines[i].x2(), lines[i].y2());
-//         }
-//     }
-//     glEnd();
 }
 
 
@@ -867,9 +902,19 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
     if (d->has_pen) {
         glColor4ubv(d->pen_color);
-        d->beginPath(WindingMode);
-        d->stroker->strokePolygon(points, pointCount, mode != PolylineMode, d, QMatrix());
-        d->endPath();
+        if (d->has_fast_pen) {
+            glBegin(GL_LINE_STRIP); {
+                for (int i=0; i<pointCount; ++i)
+                    glVertex2d(points[i].x(), points[i].y());
+                if (mode != PolylineMode)
+                    glVertex2d(points[0].x(), points[0].y());
+            }
+            glEnd();
+        } else {
+            d->beginPath(WindingMode);
+            d->stroker->strokePolygon(points, pointCount, mode != PolylineMode, d, QMatrix());
+            d->endPath();
+        }
     }
 }
 
@@ -880,32 +925,57 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
     if (path.isEmpty())
         return;
 
-    qt_painterpath_split(path, &d->int_buffer, &d->subpath_buffer);
-
     if (d->has_brush) {
-        glColor4ubv(d->brush_color);
-        for (int i=0; i<d->int_buffer.size(); ++i) {
+        // Don't split "simple" paths...
+        if (path.elementCount() > 32) {
+            qt_painterpath_split(path, &d->int_buffer, &d->subpath_buffer);
+            glColor4ubv(d->brush_color);
+            for (int i=0; i<d->int_buffer.size(); ++i) {
+                d->beginPath(path.fillRule() == Qt::WindingFill
+                             ? QPaintEngine::WindingMode
+                             : QPaintEngine::OddEvenMode);
+                for (; d->int_buffer.at(i) != -1; ++i) {
+                    const Subpath &sp = d->subpath_buffer.at(d->int_buffer.at(i));
+                    for (int j=sp.start; j<=sp.end; ++j) {
+                        const QPainterPath::Element &e = path.elementAt(j);
+                        switch (e.type) {
+                        case QPainterPath::MoveToElement:
+                            d->moveTo(e);
+                            break;
+                        case QPainterPath::LineToElement:
+                            d->lineTo(e);
+                            break;
+                        case QPainterPath::CurveToElement:
+                            d->curveTo(e, path.elementAt(j+1), path.elementAt(j+2));
+                            j+=2;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                }
+                d->endPath();
+            }
+        } else {
+            glColor4ubv(d->brush_color);
             d->beginPath(path.fillRule() == Qt::WindingFill
                          ? QPaintEngine::WindingMode
                          : QPaintEngine::OddEvenMode);
-            for (; d->int_buffer.at(i) != -1; ++i) {
-                const Subpath &sp = d->subpath_buffer.at(d->int_buffer.at(i));
-                for (int j=sp.start; j<=sp.end; ++j) {
-                    const QPainterPath::Element &e = path.elementAt(j);
-                    switch (e.type) {
-                    case QPainterPath::MoveToElement:
-                        d->moveTo(e);
-                        break;
-                    case QPainterPath::LineToElement:
-                        d->lineTo(e);
-                        break;
-                    case QPainterPath::CurveToElement:
-                        d->curveTo(e, path.elementAt(j+1), path.elementAt(j+2));
-                        j+=2;
-                        break;
-                    default:
-                        break;
-                    }
+            for (int i=0; i<path.elementCount(); ++i) {
+                const QPainterPath::Element &e = path.elementAt(i);
+                switch (e.type) {
+                case QPainterPath::MoveToElement:
+                    d->moveTo(e);
+                    break;
+                case QPainterPath::LineToElement:
+                    d->lineTo(e);
+                    break;
+                case QPainterPath::CurveToElement:
+                    d->curveTo(e, path.elementAt(i+1), path.elementAt(i+2));
+                    i+=2;
+                    break;
+                default:
+                    break;
                 }
             }
             d->endPath();
@@ -914,9 +984,66 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
 
     if (d->has_pen) {
         glColor4ubv(d->pen_color);
-        d->beginPath(WindingMode);
-        d->stroker->strokePath(path, d, QMatrix());
-        d->endPath();
+        if (d->has_fast_pen) {
+            QBezier beziers[32];
+            for (int i=0; i<path.elementCount(); ++i) {
+                const QPainterPath::Element &e = path.elementAt(i);
+                switch (e.type) {
+                case QPainterPath::MoveToElement:
+                    if (i != 0)
+                        glEnd(); // GL_LINE_STRIP
+                    glBegin(GL_LINE_STRIP);
+                    glVertex2d(e.x, e.y);
+                    break;
+                case QPainterPath::LineToElement:
+                    glVertex2d(e.x, e.y);
+                    break;
+
+                case QPainterPath::CurveToElement:
+                    {
+                        QPointF sp = path.elementAt(i-1);
+                        QPointF cp2 = path.elementAt(i+1);
+                        QPointF ep = path.elementAt(i+2);
+                        i+=2;
+
+                        qreal inverseScaleHalf = d->inverseScale / 2;
+                        beziers[0] = QBezier::fromPoints(sp, e, cp2, ep);
+                        QBezier *b = beziers;
+                        while (b >= beziers) {
+                            // check if we can pop the top bezier curve from the stack
+                            qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
+                            qreal d;
+                            if (l > d_func()->inverseScale) {
+                                d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2)
+                                          - (b->y4 - b->y1)*(b->x1 - b->x2) )
+                                    + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3)
+                                            - (b->y4 - b->y1)*(b->x1 - b->x3) );
+                                d /= l;
+                            } else {
+                                d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
+                                    qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
+                            }
+                            if (d < inverseScaleHalf || b == beziers + 31) {
+                                // good enough, we pop it off and add the endpoint
+                                glVertex2d(b->x4, b->y4);
+                                --b;
+                            } else {
+                                // split, second half of the polygon goes lower into the stack
+                                b->split(b+1, b);
+                                ++b;
+                            }
+                        }
+                    } // case CurveToElement
+                default:
+                    break;
+                } // end of switch
+            }
+            glEnd(); // GL_LINE_STRIP
+        } else {
+            d->beginPath(WindingMode);
+            d->stroker->strokePath(path, d, QMatrix());
+            d->endPath();
+        }
     }
 }
 
@@ -1050,19 +1177,26 @@ QOpenGLPaintEngine::handle() const
 
 void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
-//     Q_D(QOpenGLPaintEngine);
-//     QImage img((int)textItem.width(),
-//                (int)(textItem.ascent() + textItem.descent()),
-//                QImage::Format_ARGB32_Premultiplied);
-//     img.fill(0);
-//     QPainter painter(&img);
-//     painter.setPen(d->cpen);
-//     painter.setBrush(d->cbrush);
-//     painter.drawTextItem(QPoint(0, (int)(textItem.ascent())), textItem);
-//     painter.end();
-//     drawImage(QRectF(p.x(), p.y()-(textItem.ascent()), img.width(), img.height()),
-//               img,
-//               QRectF(0, 0, img.width(), img.height()),
-//               Qt::AutoColor);
-    QPaintEngine::drawTextItem(p, textItem);
+#ifdef Q_WS_WIN
+    Q_D(QOpenGLPaintEngine);
+    // the image fallback is both faster and nicer looking on windows...
+    if (d->txop <= QPainterPrivate::TxTranslate) {
+        QImage img((int)textItem.width(),
+                   (int)(textItem.ascent() + textItem.descent()),
+                   QImage::Format_ARGB32_Premultiplied);
+        img.fill(0);
+        QPainter painter(&img);
+        painter.setPen(d->cpen);
+        painter.setBrush(d->cbrush);
+        painter.drawTextItem(QPoint(0, (int)(textItem.ascent())), textItem);
+        painter.end();
+        drawImage(QRectF(p.x(), p.y()-(textItem.ascent()), img.width(), img.height()),
+                  img,
+                  QRectF(0, 0, img.width(), img.height()),
+                  Qt::AutoColor);
+    } else
+#endif
+    {
+        QPaintEngine::drawTextItem(p, textItem);
+    }
 }
