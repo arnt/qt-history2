@@ -849,12 +849,20 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
         return;
 
     if (d->has_brush && mode != PolylineMode) {
-        glColor4ubv(d->brush_color);
-        d->beginPath(mode);
-        d->moveTo(points[0]);
-        for (int i=1; i<pointCount; ++i)
-            d->lineTo(points[i]);
-        d->endPath();
+        if (mode == ConvexMode) {
+            glBegin(GL_TRIANGLE_FAN); {
+                for (int i=0; i<pointCount; ++i)
+                    glVertex2d(points[i].x(), points[i].y());
+            }
+            glEnd();
+        } else {
+            glColor4ubv(d->brush_color);
+            d->beginPath(mode);
+            d->moveTo(points[0]);
+            for (int i=1; i<pointCount; ++i)
+                d->lineTo(points[i]);
+            d->endPath();
+        }
     }
 
     if (d->has_pen) {

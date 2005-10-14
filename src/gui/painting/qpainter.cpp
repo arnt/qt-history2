@@ -2905,7 +2905,7 @@ void QPainter::drawLines(const QPoint *pointPairs, int lineCount)
 {
     Q_ASSERT_X(pointPairs, "QPainter::drawLines", "pointPairs array cannot be 0");
     Q_ASSERT(sizeof(QLine) == 2*sizeof(QPoint));
-    
+
     drawLines((QLine*)pointPairs, lineCount);
 }
 
@@ -3184,8 +3184,30 @@ void QPainter::drawPolygon(const QPoint *points, int pointCount, Qt::FillRule fi
 
 void QPainter::drawConvexPolygon(const QPoint *points, int pointCount)
 {
-    // ### Fix when QPainter::drawPolygon(QPolygon, PolyDrawMode) is in place
-    drawPolygon(points, pointCount, Qt::WindingFill);
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawConvexPolygon(), count=%d\n", pointCount);
+#endif
+
+    if (!isActive() || pointCount <= 0)
+        return;
+
+    Q_D(QPainter);
+    d->updateState(d->state);
+
+    uint emulationSpecifier = d->state->emulationSpecifier;
+
+    if (emulationSpecifier) {
+        QPainterPath polygonPath(points[0]);
+        for (int i=1; i<pointCount; ++i)
+            polygonPath.lineTo(points[i]);
+        polygonPath.closeSubpath();
+        polygonPath.setFillRule(Qt::WindingFill);
+        d->draw_helper(polygonPath);
+        return;
+    }
+
+    d->engine->drawPolygon(points, pointCount, QPaintEngine::ConvexMode);
 }
 
 /*!
@@ -3201,8 +3223,30 @@ void QPainter::drawConvexPolygon(const QPoint *points, int pointCount)
 */
 void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
 {
-    // ### Fix when QPainter::drawPolygon(QPolygon, PolyDrawMode) is in place
-    drawPolygon(points, pointCount, Qt::WindingFill);
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawConvexPolygon(), count=%d\n", pointCount);
+#endif
+
+    if (!isActive() || pointCount <= 0)
+        return;
+
+    Q_D(QPainter);
+    d->updateState(d->state);
+
+    uint emulationSpecifier = d->state->emulationSpecifier;
+
+    if (emulationSpecifier) {
+        QPainterPath polygonPath(points[0]);
+        for (int i=1; i<pointCount; ++i)
+            polygonPath.lineTo(points[i]);
+        polygonPath.closeSubpath();
+        polygonPath.setFillRule(Qt::WindingFill);
+        d->draw_helper(polygonPath);
+        return;
+    }
+
+    d->engine->drawPolygon(points, pointCount, QPaintEngine::ConvexMode);
 }
 
 
