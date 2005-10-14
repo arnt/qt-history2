@@ -47,6 +47,8 @@
 #include <private/qcrashhandler_p.h>
 #include <private/qcolor_p.h>
 #include <private/qcursor_p.h>
+#include "qstyle.h"
+#include "qmetaobject.h"
 
 #include "qeventdispatcher_x11_p.h"
 #include <private/qpaintengine_x11_p.h>
@@ -764,88 +766,98 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         // first, read from settings
         QApplicationPrivate::x11_apply_settings();
 
-        // second, parse the RESOURCE_MANAGER property
-        int format;
-        ulong  nitems, after = 1;
-        QString res;
-        long offset = 0;
-        Atom type = XNone;
+        QString style = QApplication::style()->metaObject()->className();
+        if (style == QLatin1String("QWindowsStyle")
+            || style == QLatin1String("QMotifStyle")
+            || style == QLatin1String("QCDEStyle")) {
+            // ### Only plain styles currently work fine with RESOURCE_MANAGER
+            // provided palette entries. For now, we apply this code to only
+            // our own plain styles, until we can get complex styles to work
+            // properly. We might also introduce a style hint for this.
+            
+            // second, parse the RESOURCE_MANAGER property
+            int format;
+            ulong  nitems, after = 1;
+            QString res;
+            long offset = 0;
+            Atom type = XNone;
 
-        while (after > 0) {
-            uchar *data;
-            XGetWindowProperty(X11->display, QX11Info::appRootWindow(0),
-                                ATOM(RESOURCE_MANAGER),
-                                offset, 8192, False, AnyPropertyType,
-                                &type, &format, &nitems, &after,
-                                &data);
-            if (type == XA_STRING)
-                res += QString::fromLatin1((char*)data);
-            else
-                res += QString::fromLocal8Bit((char*)data);
-            offset += 2048; // offset is in 32bit quantities... 8192/4 == 2048
-            if (data)
-                XFree((char *)data);
-        }
+            while (after > 0) {
+                uchar *data;
+                XGetWindowProperty(X11->display, QX11Info::appRootWindow(0),
+                                   ATOM(RESOURCE_MANAGER),
+                                   offset, 8192, False, AnyPropertyType,
+                                   &type, &format, &nitems, &after,
+                                   &data);
+                if (type == XA_STRING)
+                    res += QString::fromLatin1((char*)data);
+                else
+                    res += QString::fromLocal8Bit((char*)data);
+                offset += 2048; // offset is in 32bit quantities... 8192/4 == 2048
+                if (data)
+                    XFree((char *)data);
+            }
 
-        QString key, value;
-        int l = 0, r;
-        QString apn = QString::fromLocal8Bit(appName);
-        QString apc = QString::fromLocal8Bit(appClass);
-        int apnl = apn.length();
-        int apcl = apc.length();
-        int resl = res.length();
+            QString key, value;
+            int l = 0, r;
+            QString apn = QString::fromLocal8Bit(appName);
+            QString apc = QString::fromLocal8Bit(appClass);
+            int apnl = apn.length();
+            int apcl = apc.length();
+            int resl = res.length();
 
-        while (l < resl) {
-            r = res.indexOf(QLatin1Char('\n'), l);
-            if (r < 0)
-                r = resl;
-            while (::isSpace(res.at(l)))
-                l++;
-            bool mine = false;
-            QChar sc = res.at(l + 1);
-            if (res.at(l) == QLatin1Char('*') &&
-                 (sc == QLatin1Char('f') || sc == QLatin1Char('b') || sc == QLatin1Char('g') ||
-                  sc == QLatin1Char('F') || sc == QLatin1Char('B') || sc == QLatin1Char('G') ||
-                  sc == QLatin1Char('s') || sc == QLatin1Char('S'))) {
-                // OPTIMIZED, since we only want "*[fbgs].."
-                QString item = res.mid(l, r - l).simplified();
-                int i = item.indexOf(QLatin1Char(':'));
-                key = item.left(i).trimmed().mid(1).toLower();
-                value = item.right(item.length() - i - 1).trimmed();
-                mine = true;
-            } else if (res.at(l) == apn.at(0) || (appClass && res.at(l) == apc.at(0))) {
-                if (res.mid(l,apnl) == apn && (res.at(l+apnl) == QLatin1Char('.')
-                            || res.at(l+apnl) == QLatin1Char('*'))) {
+            while (l < resl) {
+                r = res.indexOf(QLatin1Char('\n'), l);
+                if (r < 0)
+                    r = resl;
+                while (::isSpace(res.at(l)))
+                    l++;
+                bool mine = false;
+                QChar sc = res.at(l + 1);
+                if (res.at(l) == QLatin1Char('*') &&
+                    (sc == QLatin1Char('f') || sc == QLatin1Char('b') || sc == QLatin1Char('g') ||
+                     sc == QLatin1Char('F') || sc == QLatin1Char('B') || sc == QLatin1Char('G') ||
+                     sc == QLatin1Char('s') || sc == QLatin1Char('S'))) {
+                    // OPTIMIZED, since we only want "*[fbgs].."
                     QString item = res.mid(l, r - l).simplified();
                     int i = item.indexOf(QLatin1Char(':'));
-                    key = item.left(i).trimmed().mid(apnl+1).toLower();
+                    key = item.left(i).trimmed().mid(1).toLower();
                     value = item.right(item.length() - i - 1).trimmed();
                     mine = true;
-                } else if (res.mid(l,apcl) == apc && (res.at(l+apcl) == QLatin1Char('.')
-                            || res.at(l+apcl) == QLatin1Char('*'))) {
-                    QString item = res.mid(l, r - l).simplified();
-                    int i = item.indexOf(QLatin1Char(':'));
-                    key = item.left(i).trimmed().mid(apcl+1).toLower();
-                    value = item.right(item.length() - i - 1).trimmed();
-                    mine = true;
+                } else if (res.at(l) == apn.at(0) || (appClass && res.at(l) == apc.at(0))) {
+                    if (res.mid(l,apnl) == apn && (res.at(l+apnl) == QLatin1Char('.')
+                                                   || res.at(l+apnl) == QLatin1Char('*'))) {
+                        QString item = res.mid(l, r - l).simplified();
+                        int i = item.indexOf(QLatin1Char(':'));
+                        key = item.left(i).trimmed().mid(apnl+1).toLower();
+                        value = item.right(item.length() - i - 1).trimmed();
+                        mine = true;
+                    } else if (res.mid(l,apcl) == apc && (res.at(l+apcl) == QLatin1Char('.')
+                                                          || res.at(l+apcl) == QLatin1Char('*'))) {
+                        QString item = res.mid(l, r - l).simplified();
+                        int i = item.indexOf(QLatin1Char(':'));
+                        key = item.left(i).trimmed().mid(apcl+1).toLower();
+                        value = item.right(item.length() - i - 1).trimmed();
+                        mine = true;
+                    }
                 }
-            }
 
-            if (mine) {
-                if (!font && key == QLatin1String("systemfont"))
-                    sysFont = value.left(value.lastIndexOf(QLatin1Char(':')));
-                if (!font && key == QLatin1String("font"))
-                    resFont = value;
-                else if  (!fg && key == QLatin1String("foreground"))
-                    resFG = value;
-                else if (!bg && key == QLatin1String("background"))
-                    resBG = value;
-                else if (key == QLatin1String("guieffects"))
-                    resEF = value;
-                // NOTE: if you add more, change the [fbg] stuff above
-            }
+                if (mine) {
+                    if (!font && key == QLatin1String("systemfont"))
+                        sysFont = value.left(value.lastIndexOf(QLatin1Char(':')));
+                    if (!font && key == QLatin1String("font"))
+                        resFont = value;
+                    else if  (!fg && key == QLatin1String("foreground"))
+                        resFG = value;
+                    else if (!bg && key == QLatin1String("background"))
+                        resBG = value;
+                    else if (key == QLatin1String("guieffects"))
+                        resEF = value;
+                    // NOTE: if you add more, change the [fbg] stuff above
+                }
 
-            l = r + 1;
+                l = r + 1;
+            }
         }
     }
     if (!sysFont.isEmpty())
