@@ -25,6 +25,36 @@
     \brief The QSvgRenderer class is used to draw the contents of SVG files onto paint devices.
     \since 4.1
 
+    Using QSvgRenderer, Scalable Vector Graphics (SVG) can be rendered onto any QPaintDevice
+    subclass, including QWidget, QImage, and QGLWidget. 
+
+    QSvgRenderer provides an API that supports basic features of SVG rendering, such as loading
+    and rendering of static drawings, and more interactive features like animation. Since the
+    rendering is performed using QPainter, SVG drawings can be rendered on any subclass of
+    QPaintDevice.
+
+    SVG drawings are either loaded when an QSvgRenderer is constructed, or loaded later
+    using the load() functions. Data is either supplied directly as serialized XML, or
+    indirectly using a file name. If a valid file has been loaded, either when the renderer
+    is constructed or at some later time, isValid() returns true; otherwise it returns false.
+
+    The defaultSize() function provides information about the amount of space that is required
+    to render the currently loaded SVG file. This is useful for paint devices, such as QWidget,
+    that often need to supply a size hint to their parent layout.
+    The default size of a drawing may differ from its visible area, found using the \l viewBox
+    property.
+
+    Animated SVG drawings are supported, and can be controlled with a simple collection of
+    functions and properties:
+
+    \list
+    \o The animated() function indicates whether a drawing contains animation information.
+    \o The animationDuration() function provides the duration in milliseconds of the
+       animation, without taking any looping into account.
+    \o The \l currentFrame property contains the current frame of the animation.
+    \o The \l framesPerSecond property contains the rate at which the animation runs.
+    \endlist
+
     \sa QSvgWidget, {QtSvg Module}, QPicture
 */
 
