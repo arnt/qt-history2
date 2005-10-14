@@ -21,12 +21,13 @@
     There are four available types of extensions in \QD:
 
     \list
-        \o QDesignerMemberSheetExtension provides an extension that allows
-           you to manipulate a widget's member functions displayed when
-           connecting signals and slots.
+        \o QDesignerMemberSheetExtension  provides an extension that allows
+           you to manipulate a widget's member functions which is displayed
+           when configuring connections using Qt Designer's mode for editing
+           signals and slots.
         \o QDesignerPropertySheetExtension provides an extension that
-           allows you to manipulate a widget's properties displayed in
-           Qt Designer's property editor.
+           allows you to manipulate a widget's properties which is displayed
+           in Qt Designer's property editor.
         \o QDesignerTaskMenuExtension provides an extension that allows
            you to add custom menu entries to \QD's task menu.
         \o QDesignerContainerExtension provides an extension that allows
@@ -36,7 +37,7 @@
 
     You can use all the extensions following the same pattern as in
     this example, only replacing the respective extension base
-    class. For more information see the \l {QtDesigner Module}.
+    class. For more information, see the \l {QtDesigner Module}.
 
     The Container Extension example consists of four classes:
 
@@ -55,8 +56,8 @@
     The project file for custom widget plugins needs some additional
     information to ensure that they will work within \QD. For example,
     custom widget plugins rely on components supplied with \QD, and
-    this must be specified in the project file that we use. For that
-    reason we will first take a look at the plugin's project file.
+    this must be specified in the project file that we use. We will
+    first take a look at the plugin's project file.
 
     Then we will continue by reviewing the \c MultiPageWidgetPlugin
     class, and take a look at the \c MultiPageWidgetExtensionFactory
@@ -70,7 +71,7 @@
     \printline CONFIG
     \printline DESTDIR
 
-    The \c TEMPLATE variable's value make \c qmake create the custom
+    The \c TEMPLATE variable's value makes \c qmake create the custom
     widget as a library. Later, we will ensure that the widget will be
     recognized as a plugin by Qt by using the Q_EXPORT_PLUGIN() macro
     to export the relevant widget information.
@@ -94,9 +95,9 @@
     your \c CONFIG variable. Otherwise, if a plugin is built in a mode
     that is incompatible with \QD, it won't be loaded and
     installed. For more information about plugins, see the \l {How to
-    Create Qt Plugins} document.
+    Create Qt Plugins} documentation.
 
-    The \c DESTDIR variable's value makes qmake install the plugin
+    The \c DESTDIR variable's value makes \c qmake install the plugin
     alongside the other \QD widget plugins which is useful for testing
     purposes.
 
@@ -159,8 +160,8 @@
 
     One of the functions that differ is the isContainer() function
     which returns true in this example since our custom widget is
-    intended to be used as a container. A function with larger
-    differences, is the initialize() function:
+    intended to be used as a container. Note also the initialize()
+    function:
 
     \skipto initialize(
     \printuntil return;
@@ -173,38 +174,44 @@
     and tool plugins. QDesignerFormEditorInterface provides access to
     all the \QD components that you normally need to create a tool
     plugin: the extension manager, the object inspector, the property
-    editor and the widget box. You can also access individual widgets
-    in the \QD's GUI such as the mainwindow, toolbars and
-    menubar. Custom widget plugins have access to the same components.
+    editor and the widget box. Custom widget plugins have access to
+    the same components.
 
     \skipto manager
     \printuntil manager
 
     When creating extensions associated with custom widget plugins, we
-    need to access the extension manager which we retrieve from the
-    QDesignerFormEditorInterface parameter.
+    need to access \QD's current extension manager which we retrieve
+    from the QDesignerFormEditorInterface parameter.
+
+    \QD's QDesignerFormEditorInterface holds information about all Qt
+    Designer's components: The action editor, the object inspector,
+    the property editor, the widget box, and the extension and form
+    window managers.
 
     The QExtensionManager class provides extension management
-    facilities for \QD. Using an extension manager you can retrieve
-    the extension for a given object. You can also register and
-    unregister an extension for a given object. Remember that an
+    facilities for \QD. Using \QD's current extension manager you can
+    retrieve the extension for a given object. You can also register
+    and unregister an extension for a given object. Remember that an
     extension is an object which modifies the behavior of \QD.
 
-    When registrering an extension it is actually the associated
+    When registrering an extension, it is actually the associated
     extension factory that is registered. In \QD, extension factories
     are used to look up and create named extensions as they are
-    required. So the container extension itself is not created until
-    \QD must know whether the associated widget is a container, or not.
+    required. So, in this example, the container extension itself is
+    not created until \QD must know whether the associated widget is a
+    container, or not.
 
     \skipto factory
     \printuntil }
 
     We create a \c MultiPageWidgetExtensionFactory object that we
-    register using the QExtensionManager we retrieved from the
-    QDesignerFormEditorInterface parameter. The first argument is the
-    newly created factory and the second argument is an extension
-    identifier which is a string. The \c Q_TYPEID() macro simply
-    convert the string into a QLatin1String.
+    register using \QD's current \l {QExtensionManager}{extension
+    manager} retrieved from the QDesignerFormEditorInterface
+    parameter. The first argument is the newly created factory and the
+    second argument is an extension identifier which is a string. The
+    \c Q_TYPEID() macro simply convert the string into a
+    QLatin1String.
 
     The \c MultiPageWidgetExtensionFactory class is a subclass of
     QExtensionFactory. When \QD must know whether a widget is a
@@ -216,13 +223,12 @@
     \skipto domXml
     \printuntil /^\}/
 
-    The last function that differs is the \c domXml() function which
-    include default settings for the widget in the standard XML format
-    used by \QD. In this case, we specify the container's first page;
-    any inital pages of a multi-page widget must be specified within
-    this function.
+    Note also the \c domXml() function which include default settings
+    for the widget in the standard XML format used by \QD. In this
+    case, we specify the container's first page; any inital pages of a
+    multi-page widget must be specified within this function.
 
-    In this example, we have omitted to reimplement the
+    We have omitted to reimplement the
     QDesignerCustomWidgetInterface::codeTemplate() function which
     normally provide a sample code template for the custom widget.
 
@@ -276,10 +282,11 @@
     is a container extension.
 
     If the object is a MultiPageWidget requesting a container
-    extension, we create a \c MultiPageWidgetExtension
+    extension, we create and return a \c MultiPageWidgetExtension
     object. Otherwise, we simply return a null pointer, allowing \QD's
     extension manager to continue its search through the registered
     factories.
+
 
     \section1 MultiPageWidgetContainerExtension Class Definition
 
@@ -296,6 +303,10 @@
     multi-page widget's functionality; your custom multi-page widget
     must implement functionality corresponding to the extension's
     functions.
+
+    Note also that we implement a constructor that takes \e two
+    arguments: the parent widget, and the \c MultiPageWidget object
+    for which the task menu is requested.
 
     QDesignerContainerExtension provides a couple of menu entries in
     \QD's task menu by default, enabling the user to add or delete
@@ -349,8 +360,8 @@
     You must reimplement \l
     {QDesignerContainerExtension::insertWidget()}{insertWidget()}
     adding a given page to the container at a given index, \l
-    {QDesignerContainerExtension::remove()}{remove()} removing
-    (deleting) the page at a given index, \l
+    {QDesignerContainerExtension::remove()}{remove()} deleting the
+    page at a given index, \l
     {QDesignerContainerExtension::setCurrentIndex()}{setCurrentIndex()}
     setting the index of the currently selected page, and finally \l
     {QDesignerContainerExtension::widget()}{widget()} returning the

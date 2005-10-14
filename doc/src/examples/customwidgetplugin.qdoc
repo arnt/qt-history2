@@ -32,9 +32,9 @@
     \skipto HEADERS
     \printuntil customwidgetplugin.cpp
 
-    The custom widget is created as a library. Later, we will ensure that it
-    will be recognized as a plugin by \QD by using the \c Q_EXPORT_PLUGIN macro
-    to export the relevant widget information.
+    The custom widget is created as a library. Later, we will ensure
+    that it will be recognized as a plugin by \QD by using the
+    Q_EXPORT_PLUGIN() macro to export the relevant widget information.
 
     \section1 AnalogClock Class Definition and Implementation
 
@@ -113,9 +113,9 @@
     \skipto AnalogClockPlugin::group(
     \printuntil /^\}/
 
-    Note that all widget plugins will be placed in the "Custom Widgets"
-    section of \QD's widget box. The icon used to represent the widget in
-    the widget box is returned by the \c icon() function:
+    The widget plugin will be placed in a section identified by its
+    group name in \QD's widget box. The icon used to represent the
+    widget in the widget box is returned by the \c icon() function:
 
     \skipto AnalogClockPlugin::icon(
     \printuntil /^\}/
@@ -176,8 +176,8 @@
     The code template is optionally used to specify how the widget is used
     in application code.
 
-    Finally, we use the \c Q_EXPORT_PLUGIN macro to export the \c AnalogClockPlugin
-    class for use with \QD:
+    Finally, we use the Q_EXPORT_PLUGIN() macro to export the \c
+    AnalogClockPlugin class for use with \QD:
 
     \skipto Q_EXPORT_PLUGIN
     \printuntil Q_EXPORT_PLUGIN

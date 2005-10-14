@@ -1378,6 +1378,15 @@
         delete propertySheet;
     \endcode
 
+    Note that if you change the value of a property using the
+    QDesignerPropertySheetExtension::setProperty() function, the undo
+    stack is not updated. To ensure that a property's value can be
+    reverted using the undo stack, you must use the
+    QDesignerFormWindowCursorInterface::setProperty() function, or its
+    buddy \l
+    {QDesignerFormWindowCursorInterface::setWidgetProperty()}{setWidgetProperty()},
+    instead.
+
     When implementing a custom widget plugin, a pointer to \QD's
     current QDesignerFormEditorInterface object (\c formEditor in the
     example above) is provided by the
@@ -1622,6 +1631,14 @@
     \fn void QDesignerPropertySheetExtension::setProperty(int index, const QVariant &value)
 
     Sets the \a value of the property at the given \a index.
+
+    \warning If you change the value of a property using this
+    function, the undo stack is not updated. To ensure that a
+    property's value can be reverted using the undo stack, you must
+    use the QDesignerFormWindowCursorInterface::setProperty()
+    function, or its buddy \l
+    {QDesignerFormWindowCursorInterface::setWidgetProperty()}{setWidgetProperty()},
+    instead.
 
     \sa indexOf(), property(), propertyGroup()
 */
