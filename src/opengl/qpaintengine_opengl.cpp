@@ -717,7 +717,7 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     else
         d->txop = QPainterPrivate::TxNone;
 
-    d->inverseScale = 1 / qMax(mtx.m11(), mtx.m22());
+    d->inverseScale = qMax(1 / qMax(mtx.m11(), mtx.m22()), 0.01);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(&mat[0][0]);
