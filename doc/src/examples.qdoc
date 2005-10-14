@@ -116,6 +116,7 @@
     \o \l{painting/basicdrawing}{Basic Drawing}\raisedaster
     \o \l{painting/concentriccircles}{Concentric Circles}\raisedaster
     \o \l{painting/painterpaths}{Painter Paths}\raisedaster
+    \o \l{painting/svgviewer}{SVG Viewer}
     \o \l{painting/transformations}{Transformations}
     \endlist
 
@@ -207,6 +208,7 @@
     \o \l{designer/customwidgetplugin}{Custom Widget Plugin}\raisedaster
     \o \l{designer/taskmenuextension}{Task Menu Extension}\raisedaster
     \o \l{designer/containerextension}{Container Extension}\raisedaster
+    \o \l{designer/worldtimeclockplugin}{World Time Clock Builder}\raisedaster
     \o \l{designer/worldtimeclockplugin}{World Time Clock Plugin}\raisedaster
     \endlist
 
