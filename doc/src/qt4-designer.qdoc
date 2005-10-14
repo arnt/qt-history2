@@ -72,6 +72,11 @@
 
     \section2 Editing Features
 
+    \QD allows form designers to work on different aspects of their forms by
+    switching between specialized editing modes. Tools for editing widget
+    properties, resources, and actions provide context-sensitive information
+    about the forms being edited.
+
     \table
     \row \i \inlineimage designer-choosing-form.png
     \i \bold{Form Templates}
@@ -179,11 +184,29 @@
     The new modular \QD is designed to be integrated into other environments
     and extended with custom components.
 
-    The Software Development Toolkit is a library that developers can use to
+    The Software Development Kit is a library that developers can use to
     write extensions and plugins for \QD, and enables \QD components to be
     embedded into Integrated Development Environments (IDEs). Documentation of
     this API is currently underway and more should appear during the
     maintenance releases of Qt 4.
     \i \inlineimage designer-custom-widget-box.png
+    \endtable
+
+    \section1 Run-Time Support for Forms
+
+    The new QtForm library can be used by standalone applications to
+    dynamically create form-based user interfaces at run-time. This library
+    can be statically linked with applications and redistributed under the
+    same terms as Qt.
+
+    \table
+    \row
+    \i \inlineimage calculatorbuilder-example.png
+    \i \bold{Dynamic Form Creation}
+
+    The QtForm library lets developers dynamically construct user interfaces at
+    run-time using the same techniques as \QD. Since forms can contain custom
+    widget plugins, the loading mechanism can be customized to search for
+    third party or application-specific plugins.
     \endtable
 */
