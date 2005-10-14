@@ -554,7 +554,7 @@ void QSocks5SocketEnginePrivate::initialize(Socks5Mode socks5Mode)
     QObject::connect(data->controlSocket, SIGNAL(disconnected()), q, SLOT(controlSocketDisconnected()));
     QObject::connect(data->controlSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
                      q, SLOT(controlSocketStateChanged(QAbstractSocket::SocketState)));
-    //### this should be some where else
+    //### this should be some where else when authentication methods are public
     if (!proxyInfo.user().isEmpty() || !proxyInfo.password().isEmpty()) {
         data->authenticator = new QSocks5PasswordAuthenticator(proxyInfo.user(), proxyInfo.password());
     } else {
@@ -572,11 +572,20 @@ void QSocks5SocketEnginePrivate::parseAuthenticationMethodReply()
 
     QByteArray buf(2, 0);
     if (data->controlSocket->read(buf.data(), 2) != 2) {
-        qDebug() << "serrious error i gues1";
+        QSOCKS5_D_DEBUG << "Control socket read failure";
+        socks5State = AuthenticatingError;
+        q->setError(QAbstractSocket::NetworkError, "Socks5 read error on control socket");
+        data->controlSocket->close();
+        emitWriteNotification();
         return;
     }
     if (buf.at(0) != S5_VERSION_5) {
-        qDebug() << " serrios error i gues2";
+        QSOCKS5_D_DEBUG << "Socks5 version incorrect";
+        socks5State = AuthenticatingError;
+        q->setError(QAbstractSocket::NetworkError, "Socks5 version incorrect");
+        data->controlSocket->close();
+        emitWriteNotification();
+        return;
     }
     if (uchar(buf.at(1)) == 0xFF) {
         QSOCKS5_D_DEBUG << "Authentication method not supported";
@@ -587,6 +596,10 @@ void QSocks5SocketEnginePrivate::parseAuthenticationMethodReply()
     }
     if (buf.at(1) != data->authenticator->methodId()) {
         QSOCKS5_D_DEBUG << "Authentication method was not what we sent";
+        socks5State = AuthenticatingError;
+        q->setError(QAbstractSocket::SocketAccessError, "Socks5 host did not support authentication method.");
+        emitWriteNotification();
+        return;
     }
     bool AuthComplete = false;
     if (!data->authenticator->beginAuthenticate(data->controlSocket, &AuthComplete)) {
@@ -994,7 +1007,7 @@ void QSocks5SocketEnginePrivate::controlSocketReadNotification()
         case Connected: {
             QByteArray buf;
             if (!data->authenticator->unSeal(data->controlSocket, &buf))
-                qDebug() << "shit  not enough ??";
+                qDebug() << "unseal error maybe need to wait for more data";
             if (buf.size()) {
                 QSOCKS5_DEBUG << dump(buf);
                 connectData->readBuffer += buf;
@@ -1058,32 +1071,44 @@ void QSocks5SocketEnginePrivate::checkForDatagrams() const
 
 void QSocks5SocketEnginePrivate::udpSocketReadNotification()
 {
+    Q_Q(QSocks5SocketEngine);
+    
+    QSOCKS5_D_DEBUG << "udpSocketReadNotification()";
+
     // check some state stuff
     if (!udpData->udpSocket->hasPendingDatagrams()) {
-        qDebug() << "false read ??";
+        QSOCKS5_D_DEBUG << "false read ??";
         return;
     }
 
     while (udpData->udpSocket->hasPendingDatagrams()) {
         QByteArray sealedBuf(udpData->udpSocket->pendingDatagramSize(), 0);
-        QSOCKS5_DEBUG << "new datagram";
+        QSOCKS5_D_DEBUG << "new datagram";
         udpData->udpSocket->readDatagram(sealedBuf.data(), sealedBuf.size());
         QByteArray inBuf;
-        if (!data->authenticator->unSeal(sealedBuf, &inBuf))
-            qDebug() << "failed unseal";
+        if (!data->authenticator->unSeal(sealedBuf, &inBuf)) {
+            QSOCKS5_D_DEBUG << "failed unsealing datagram discarding";
+            return;
+        }
         QSOCKS5_DEBUG << dump(inBuf);
-
         int pos = 0;
         const char *buf = inBuf.constData();
-        if (inBuf.size() < 4)
-            qDebug() << "####we are fucked";
-
+        if (inBuf.size() < 4) {
+            QSOCKS5_D_DEBUG << "bugus udp data, discarding";
+            return;
+        }
         QSocks5RevivedDatagram datagram;
-        if (buf[pos++] != 0 || buf[pos++] != 0)
-            qDebug() << "in valid";
-        if (buf[pos++] != 0) //### add fragmentation reading support
-            qDebug() << "dont support fragmentation yet";
+        if (buf[pos++] != 0 || buf[pos++] != 0) {
+            QSOCKS5_D_DEBUG << "invalid datagram discarding";
+            return;
+        }
+        if (buf[pos++] != 0) { //### add fragmentation reading support
+            QSOCKS5_D_DEBUG << "dont support fragmentation yet disgarding";
+            return;
+        }
         if (!qt_socks5_get_host_address_and_port(inBuf, &datagram.address, &datagram.port, &pos)) {
+            QSOCKS5_D_DEBUG << "failed to get addres from datagram disgarding";
+            return;
         }
         datagram.data = QByteArray(&buf[pos], inBuf.size() - pos);
         udpData->pendingDatagrams.enqueue(datagram);
@@ -1114,7 +1139,8 @@ bool QSocks5SocketEngine::bind(const QHostAddress &address, quint16 port)
 #ifndef QT_NO_UDPSOCKET
     if (d->mode == QSocks5SocketEnginePrivate::UdpAssociateMode) {
         if (!d->udpData->udpSocket->bind(address, port)) {
-            qDebug() << "dead";
+            QSOCKS5_D_DEBUG << "local udp bind failed";
+            setError(d->udpData->udpSocket->error(), d->udpData->udpSocket->errorString());
             return false;
         }
         d->localAddress = d->udpData->udpSocket->localAddress();
@@ -1300,6 +1326,7 @@ qint64 QSocks5SocketEngine::write(const char *data, qint64 len)
             int written = d->data->controlSocket->write(sealedBuf);
             if (written != sealedBuf.size()) {
                 QSOCKS5_Q_DEBUG << "control socket write failed :" << d->data->controlSocket->errorString();
+                setError(d->data->controlSocket->error(), d->data->controlSocket->errorString());
                 return -1; //### ?????
             }
             totalWritten += buf.size();
@@ -1367,8 +1394,11 @@ qint64 QSocks5SocketEngine::writeDatagram(const char *data, qint64 len, const QH
     outBuf += QByteArray(data, len);
     QSOCKS5_DEBUG << "sending" << dump(outBuf);
     QByteArray sealedBuf;
-    if (!d->data->authenticator->seal(outBuf, &sealedBuf))
-        qDebug() << "shit";
+    if (!d->data->authenticator->seal(outBuf, &sealedBuf)) {
+        QSOCKS5_DEBUG << "sealing data failed";
+        setError(QAbstractSocket::SocketAccessError, d->data->authenticator->errorString());
+        return -1;
+    }
     if (d->udpData->udpSocket->writeDatagram(sealedBuf, d->udpData->associateAddress, d->udpData->associatePort) != sealedBuf.size()) {
         //### try frgamenting
         if (d->udpData->udpSocket->error() == QAbstractSocket::DatagramTooLargeError)
