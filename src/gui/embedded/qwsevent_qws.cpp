@@ -32,11 +32,9 @@ QWSEvent *QWSEvent::factory(int type)
     case QWSEvent::Key:
         event = new QWSKeyEvent;
         break;
-#if 0
-    case QWSEvent::RegionModified:
-        event = new QWSRegionModifiedEvent;
+    case QWSEvent::Region:
+        event = new QWSRegionEvent;
         break;
-#endif
     case QWSEvent::Creation:
         event = new QWSCreationEvent;
         break;

@@ -18,6 +18,7 @@
 #include "qwsdisplay_qws.h"
 #include "qwscommand_qws.h"
 #include "qwindowsystem_qws.h"
+#include "qwindowsystem_p.h"
 #include "qlist.h"
 #include "qmap.h"
 #include "qdatastream.h"
@@ -369,7 +370,7 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
             bool known = qcopServerMap && qcopServerMap->contains(c)
                         && !((*qcopServerMap)[c]).isEmpty();
             QByteArray ans = known ? "known" : "unkown";
-            QWSServer::sendQCopEvent(cl, "", ans, data, true);
+            QWSServerPrivate::sendQCopEvent(cl, "", ans, data, true);
             return;
         } else if (msg == "detach()") {
             QByteArray c;
@@ -392,7 +393,7 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
             return;
         }
         qWarning("QCopChannel: unknown internal command %s", qPrintable(msg));
-        QWSServer::sendQCopEvent(cl, "", "bad", data);
+        QWSServerPrivate::sendQCopEvent(cl, "", "bad", data);
         return;
     }
 
@@ -405,7 +406,7 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
 
     for (int i=0; i < clist.size(); ++i) {
         QWSClient *c = clist.at(i);
-        QWSServer::sendQCopEvent(c, ch, msg, data);
+        QWSServerPrivate::sendQCopEvent(c, ch, msg, data);
     }
 }
 

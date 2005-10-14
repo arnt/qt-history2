@@ -298,8 +298,9 @@ protected:
     int displayId;
 
     friend class QWSServer;
+    friend class QWSServerPrivate;
     static ClearCacheFunc clearCacheFunc;
-    
+
 private:
     void compose(int level, const QRegion &exposed, QRegion &blend, QImage &blendbuffer, int changing_level);
     void paintBackground(const QRegion &);

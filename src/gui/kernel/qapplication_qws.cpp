@@ -42,6 +42,8 @@
 #include "qwsmanager_qws.h"
 //#include "qwsregionmanager_qws.h"
 #include "qwindowsystem_qws.h"
+#include "private/qwindowsystem_p.h"
+
 #include "qwsdisplay_qws.h"
 #include "private/qwsinputcontext_p.h"
 #include "qfile.h"
@@ -993,7 +995,7 @@ void QWSDisplay::setAltitude(int winId, int alt, bool fixed)
     cmd.simpleData.altitude = alt;
     cmd.simpleData.fixed = fixed;
     if (d->directServerConnection()) {
-        qwsServer->set_altitude(&cmd);
+        qwsServer->d_func()->set_altitude(&cmd);
     } else {
         d->sendCommand(cmd);
     }
@@ -1006,7 +1008,7 @@ void QWSDisplay::setOpacity(int winId, int opacity)
     cmd.simpleData.windowid = winId;
     cmd.simpleData.opacity = opacity;
     if (d->directServerConnection()) {
-        qwsServer->set_opacity(&cmd);
+        qwsServer->d_func()->set_opacity(&cmd);
     } else {
         d->sendCommand(cmd);
     }
@@ -1020,7 +1022,7 @@ void QWSDisplay::requestFocus(int winId, bool get)
     cmd.simpleData.windowid = winId;
     cmd.simpleData.flag = get;
     if (d->directServerConnection())
-        qwsServer->request_focus(&cmd);
+        qwsServer->d_func()->request_focus(&cmd);
     else
         d->sendCommand(cmd);
 }
@@ -1030,7 +1032,7 @@ void QWSDisplay::setIdentity(const QString &appName)
     QWSIdentifyCommand cmd;
     cmd.setId(appName);
     if (d->directServerConnection())
-        qwsServer->set_identity(&cmd);
+        qwsServer->d_func()->set_identity(&cmd);
     else
         d->sendCommand(cmd);
 }
@@ -1041,7 +1043,7 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
     cmd.simpleData.windowid = winId;
     cmd.setName(n, c);
     if (d->directServerConnection())
-        qwsServer->name_region(&cmd);
+        qwsServer->d_func()->name_region(&cmd);
     else
         d->sendCommand(cmd);
 }
@@ -1049,7 +1051,7 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
 void QWSDisplay::requestRegion(int winId, int shmid, bool opaque, QRegion r)
 {
     if (d->directServerConnection()) {
-        qwsServer->request_region(winId, shmid, opaque, r);
+        qwsServer->d_func()->request_region(winId, shmid, opaque, r);
     } else {
         QVector<QRect> ra = r.rects();
 
@@ -1076,7 +1078,7 @@ void QWSDisplay::requestRegion(int winId, int shmid, bool opaque, QRegion r)
 void QWSDisplay::repaintRegion(int winId, bool opaque, QRegion r)
 {
     if (d->directServerConnection()) {
-        qwsServer->repaint_region(winId, opaque, r);
+        qwsServer->d_func()->repaint_region(winId, opaque, r);
     } else {
         QVector<QRect> ra = r.rects();
 
@@ -1112,7 +1114,7 @@ void QWSDisplay::moveRegion(int winId, int dx, int dy)
     cmd.simpleData.dy = p2.y() - p1.y();
 
     if (d->directServerConnection()) {
-        qwsServer->move_region(&cmd);
+        qwsServer->d_func()->move_region(&cmd);
     } else {
         d->sendCommand(cmd);
     }
@@ -1125,7 +1127,7 @@ void QWSDisplay::destroyRegion(int winId)
     QWSRegionDestroyCommand cmd;
     cmd.simpleData.windowid = winId;
     if (d->directServerConnection()) {
-        qwsServer->destroy_region(&cmd);
+        qwsServer->d_func()->destroy_region(&cmd);
     } else {
         d->sendCommand(cmd);
     }
@@ -1142,7 +1144,7 @@ void QWSDisplay::sendIMUpdate(int type, int winId, int widgetid)
     cmd.simpleData.type = type;
 
       if (d->directServerConnection()) {
-        qwsServer->im_update(&cmd);
+        qwsServer->d_func()->im_update(&cmd);
     } else {
         d->sendCommand(cmd);
     }
@@ -1157,7 +1159,7 @@ void QWSDisplay::sendIMResponse(int winId, int property, const QVariant &result)
     cmd.setResult(result);
 
     if (d->directServerConnection()) {
-        qwsServer->im_response(&cmd);
+        qwsServer->d_func()->im_response(&cmd);
     } else {
         d->sendCommand(cmd);
     }
@@ -1174,7 +1176,7 @@ void QWSDisplay::sendIMMouseEvent(int index, bool isPress)
     cmd.simpleData.index = index;
     cmd.simpleData.state = isPress ? QWSServer::MousePress : QWSServer::MouseRelease;
     if (d->directServerConnection()) {
-        qwsServer->send_im_mouse(&cmd);
+        qwsServer->d_func()->send_im_mouse(&cmd);
     } else {
         d->sendCommand(cmd);
     }
@@ -1405,8 +1407,8 @@ void QWSDisplay::setTransformation(int t)
     qws_mapPixmaps(false);
 
     if (qt_fbdpy->d_func()->directServerConnection()) {
-        qwsServer->resetEngine();
-        qwsServer->refresh();
+        qwsServer->d_func()->resetEngine();
+        qwsServer->d_func()->refresh();
     }
 
     QSize olds = qApp->desktop()->size();

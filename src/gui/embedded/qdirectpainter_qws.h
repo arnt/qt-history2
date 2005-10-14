@@ -14,18 +14,18 @@
 #ifndef QDIRECTPAINTER_QWS_H
 #define QDIRECTPAINTER_QWS_H
 
-#include <QtGui/qpainter.h>
+#include <QtCore/qobject.h>
 
 QT_MODULE(Gui)
-
 #define QT_NO_DIRECTPAINTER
-
 #ifndef QT_NO_DIRECTPAINTER
 class QDirectPainterPrivate;
 
-class Q_GUI_EXPORT QDirectPainter : public QPainter {
+class Q_GUI_EXPORT QDirectPainter : public QObject {
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QDirectPainter)
 public:
-    explicit QDirectPainter(QWidget*);
+    explicit QDirectPainter(const QRegion&);
     ~QDirectPainter();
 
     uchar* frameBuffer();
@@ -46,9 +46,6 @@ public:
     QSize size() const;
 
     void setAreaChanged(const QRect&);
-
-private:
-    QDirectPainterPrivate *d;
 };
 
 #endif

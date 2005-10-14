@@ -34,7 +34,7 @@ struct QWSEvent : QWSProtocolItem {
         Mouse,
         Focus,
         Key,
-        Unused_RegionModified,
+        Region,
         Creation,
         PropertyNotify,
         PropertyReply,
@@ -184,10 +184,10 @@ struct QWSSelectionNotifyEvent : QWSEvent {
 };
 
 //complex events:
-#if 0
-struct QWSRegionModifiedEvent : QWSEvent {
-    QWSRegionModifiedEvent()
-        : QWSEvent(QWSEvent::RegionModified, sizeof(simpleData),
+
+struct QWSRegionEvent : QWSEvent {
+    QWSRegionEvent()
+        : QWSEvent(QWSEvent::Region, sizeof(simpleData),
                 reinterpret_cast<char*>(&simpleData))
         { memset(reinterpret_cast<char*>(&simpleData),0,sizeof(simpleData)); }
 
@@ -199,12 +199,12 @@ struct QWSRegionModifiedEvent : QWSEvent {
     struct SimpleData {
         int window;
         int nrectangles;
-        uint is_ack:1;
+        uint is_request:1;
     } simpleData;
 
     QRect *rectangles;
 };
-#endif
+
 #ifndef QT_NO_QWS_PROPERTIES
 struct QWSPropertyReplyEvent : QWSEvent {
     QWSPropertyReplyEvent()

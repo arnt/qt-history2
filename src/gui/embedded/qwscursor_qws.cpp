@@ -16,6 +16,7 @@
 #include "qscreen_qws.h"
 #include "qapplication.h"
 #include "qwindowsystem_qws.h"
+#include "qwindowsystem_p.h"
 #include "qwscursor_qws.h"
 
 #ifndef QT_NO_QWS_CURSOR
@@ -285,8 +286,9 @@ static const uchar busym_bits[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 #endif
 
-void QWSServer::initializeCursor()
+void QWSServerPrivate::initializeCursor()
 {
+    Q_Q(QWSServer);
     // setup system cursors
 #ifndef QT_NO_QWS_CURSOR
 //    qt_screen->initCursor(sharedram + ramlen,true);
@@ -295,10 +297,10 @@ void QWSServer::initializeCursor()
     cursor = 0;
     setCursor(QWSCursor::systemCursor(Qt::ArrowCursor));
 #endif
-    sendMouseEvent(QPoint(swidth/2, sheight/2), 0);
+    q->sendMouseEvent(QPoint(swidth/2, sheight/2), 0);
 }
 
-void QWSServer::setCursor(QWSCursor *curs)
+void QWSServerPrivate::setCursor(QWSCursor *curs)
 {
 #ifndef QT_NO_QWS_CURSOR
     if (cursor == curs)

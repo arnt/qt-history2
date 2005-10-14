@@ -60,6 +60,7 @@ private:
     QCopChannelPrivate* d;
 
     friend class QWSServer;
+    friend class QWSServerPrivate;
     friend class QApplication;
 };
 

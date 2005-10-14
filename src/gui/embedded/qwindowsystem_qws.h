@@ -65,6 +65,7 @@ public:
 class Q_GUI_EXPORT QWSWindow
 {
     friend class QWSServer;
+    friend class QWSServerPrivate;
 public:
     QWSWindow(int i, QWSClient* client);
     ~QWSWindow();
@@ -235,7 +236,7 @@ public:
 #endif
     QWSWindow *windowAt(const QPoint& pos);
 
-    const QList<QWSWindow*> &clientWindows() { return windows; }
+    const QList<QWSWindow*> &clientWindows();
 
     void openMouse();
     void closeMouse();
@@ -262,9 +263,9 @@ public:
 
     void sendPropertyNotifyEvent(int property, int state);
 #ifndef QT_NO_QWS_PROPERTIES
-    QWSPropertyManager *manager() {
-        return &propertyManager;
-    }
+//###    QWSPropertyManager *manager() {
+//###        return &propertyManager;
+//###    }
 #endif
 
     static QPoint mousePosition;
@@ -280,7 +281,7 @@ public:
     static bool isCursorVisible();
 #endif
 
-    const QBrush &backgroundBrush() const { return *bgBrush; }
+    const QBrush &backgroundBrush() const;
 
     enum WindowEvent { Create=0x0001, Destroy=0x0002, Hide=0x0004, Show=0x0008,
                        Raise=0x0010, Lower=0x0020, Geometry=0x0040, Active = 0x0080,
@@ -297,182 +298,29 @@ Q_SIGNALS:
 #ifndef QT_NO_QWS_INPUTMETHODS
     void markedText(const QString &);
 #endif
+
 private:
-    void initServer(int flags);
-#ifndef QT_NO_COP
-    static void sendQCopEvent(QWSClient *c, const QString &ch,
-                               const QString &msg, const QByteArray &data,
-                               bool response = false);
-#endif
-    void move_region(const QWSRegionMoveCommand *);
-    void set_altitude(const QWSChangeAltitudeCommand *);
-    void set_opacity(const QWSSetOpacityCommand *);
-    void request_focus(const QWSRequestFocusCommand *);
-    void request_region(int winId, int shmid, bool opaque, QRegion);
-    void repaint_region(int winId, bool opaque, QRegion);
-    void destroy_region(const QWSRegionDestroyCommand *);
-    void name_region(const QWSRegionNameCommand *);
-    void set_identity(const QWSIdentifyCommand *);
-#ifndef QT_NO_QWS_INPUTMETHODS
-    void im_response(const QWSIMResponseCommand *);
-
-    void im_update(const QWSIMUpdateCommand *);
-
-    void send_im_mouse(const QWSIMMouseCommand *);
-#endif
-    // not in ifndef as this results in more readable functions.
-    static void sendKeyEventUnfiltered(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
-                                       bool isPress, bool autoRepeat);
-    static void sendMouseEventUnfiltered(const QPoint &pos, int state, int wheel = 0);
-    static void emergency_cleanup();
-
-    static QBrush *bgBrush;
-
-    void sendMaxWindowRectEvents();
-    void invokeIdentify(const QWSIdentifyCommand *cmd, QWSClient *client);
-    void invokeCreate(QWSCreateCommand *cmd, QWSClient *client);
-    void invokeRegionName(const QWSRegionNameCommand *cmd, QWSClient *client);
-    void invokeRegion(QWSRegionCommand *cmd, QWSClient *client);
-    void invokeRegionMove(const QWSRegionMoveCommand *cmd, QWSClient *client);
-    void invokeRegionDestroy(const QWSRegionDestroyCommand *cmd, QWSClient *client);
-    void invokeSetAltitude(const QWSChangeAltitudeCommand *cmd, QWSClient *client);
-    void invokeSetOpacity(const QWSSetOpacityCommand *cmd, QWSClient *client);
-#ifndef QT_NO_QWS_PROPERTIES
-    void invokeAddProperty(QWSAddPropertyCommand *cmd);
-    void invokeSetProperty(QWSSetPropertyCommand *cmd);
-    void invokeRemoveProperty(QWSRemovePropertyCommand *cmd);
-    void invokeGetProperty(QWSGetPropertyCommand *cmd, QWSClient *client);
-#endif //QT_NO_QWS_PROPERTIES
-    void invokeSetSelectionOwner(QWSSetSelectionOwnerCommand *cmd);
-    void invokeConvertSelection(QWSConvertSelectionCommand *cmd);
-    void invokeSetFocus(const QWSRequestFocusCommand *cmd, QWSClient *client);
-
-    void initIO();
-    void setFocus(QWSWindow*, bool gain);
-#ifndef QT_NO_QWS_CURSOR
-    void invokeDefineCursor(QWSDefineCursorCommand *cmd, QWSClient *client);
-    void invokeSelectCursor(QWSSelectCursorCommand *cmd, QWSClient *client);
-    void invokePositionCursor(QWSPositionCursorCommand *cmd, QWSClient *client);
-#endif
-    void invokeGrabMouse(QWSGrabMouseCommand *cmd, QWSClient *client);
-    void invokeGrabKeyboard(QWSGrabKeyboardCommand *cmd, QWSClient *client);
-#ifndef QT_NO_SOUND
-    void invokePlaySound(QWSPlaySoundCommand *cmd, QWSClient *client);
-#endif
-#ifndef QT_NO_COP
-    void invokeRegisterChannel(QWSQCopRegisterChannelCommand *cmd,
-                                QWSClient *client);
-    void invokeQCopSend(QWSQCopSendCommand *cmd, QWSClient *client);
-#endif
-    void invokeRepaintRegion(QWSRepaintRegionCommand *cmd,
-                              QWSClient *client);
-#ifndef QT_NO_QWS_INPUTMETHODS
-    void invokeIMResponse(const QWSIMResponseCommand *cmd,
-                         QWSClient *client);
-     void invokeIMUpdate(const QWSIMUpdateCommand *cmd,
-                          QWSClient *client);
-#endif
-
-    QWSMouseHandler* newMouseHandler(const QString& spec);
-    void openDisplay();
-    void closeDisplay();
-
-    void showCursor();
-    void hideCursor();
-    void initializeCursor();
-
-    void refreshBackground();
-    void resetEngine();
-
-private Q_SLOTS:
-#ifndef QT_NO_QWS_MULTIPROCESS
-    void clientClosed();
-    void doClient();
-    void deleteWindowsLater();
-#endif
-
-    void screenSaverWake();
-    void screenSaverSleep();
-    void screenSaverTimeout();
-
-#ifndef QT_NO_QWS_MULTIPROCESS
-    void newConnection();
-#endif
-private:
-    void disconnectClient(QWSClient *);
-    void screenSave(int level);
-    void doClient(QWSClient *);
-    typedef QMap<int,QWSClient*>::Iterator ClientIterator;
-    typedef QMap<int,QWSClient*> ClientMap;
-    void handleWindowClose(QWSWindow *w);
-    void releaseMouse(QWSWindow* w);
-    void releaseKeyboard(QWSWindow* w);
-    void updateClientCursorPos();
-
-    uchar* sharedram;
-    int ramlen;
-
-    ClientMap clientMap;
-#ifndef QT_NO_QWS_PROPERTIES
-    QWSPropertyManager propertyManager;
-#endif
-    struct SelectionOwner {
-        int windowid;
-        struct Time {
-            void set(int h, int m, int s, int s2) {
-                hour = h; minute = m; sec = s; ms = s2;
-            }
-            int hour, minute, sec, ms;
-        } time;
-    } selectionOwner;
-    QTime timer;
-    int* screensaverinterval;
-
-    QWSWindow *focusw;
-    QWSWindow *mouseGrabber;
-    bool mouseGrabbing;
-    int swidth, sheight, sdepth;
-#ifndef QT_NO_QWS_CURSOR
-    bool haveviscurs;
-    QWSCursor *cursor;      // cursor currently shown
-    QWSCursor *nextCursor;  // cursor to show once grabbing is off
-#endif
-
-    bool disablePainting;
-    QList<QWSMouseHandler*> mousehandlers;
-#ifndef QT_NO_QWS_KEYBOARD
-    QList<QWSKeyboardHandler*> keyboardhandlers;
-#endif
-
-    QList<QWSCommandStruct*> commandQueue;
-
-    // Window management
-    QList<QWSWindow*> windows; // first=topmost
-    QWSWindow* newWindow(int id, QWSClient* client);
-    QWSWindow* findWindow(int windowid, QWSClient* client);
-    void moveWindowRegion(QWSWindow*, int dx, int dy);
-    void setWindowRegion(QWSWindow*, QRegion r);
-    void raiseWindow(QWSWindow *, int = 0);
-    void lowerWindow(QWSWindow *, int = -1);
-    void exposeRegion(QRegion , int index = 0);
-
-    void setCursor(QWSCursor *curs);
-
-    // multimedia
-#ifndef QT_NO_SOUND
-    QWSSoundServer *soundserver;
-#endif
-#ifndef QT_NO_COP
-    QMap<QString, QList<QWSClient*> > channels;
-#endif
 #ifdef QT3_SUPPORT
 #ifndef QT_NO_QWS_KEYBOARD
-    static inline QT3_SUPPORT void setKeyboardFilter(KeyboardFilter *f)
+    static inline QT3_SUPPORT void setKeyboardFilter(QWSServer::KeyboardFilter *f)
         { if (f) addKeyboardFilter(f); else removeKeyboardFilter(); }
 #endif
 #endif
 
-    QWSServerSocket *ssocket;
+private:
+#ifndef QT_NO_QWS_MULTIPROCESS
+    Q_PRIVATE_SLOT(d_func(), void clientClosed())
+    Q_PRIVATE_SLOT(d_func(), void doClient())
+    Q_PRIVATE_SLOT(d_func(), void deleteWindowsLater())
+#endif
+
+    Q_PRIVATE_SLOT(d_func(), void screenSaverWake())
+    Q_PRIVATE_SLOT(d_func(), void screenSaverSleep())
+    Q_PRIVATE_SLOT(d_func(), void screenSaverTimeout())
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+    Q_PRIVATE_SLOT(d_func(), void newConnection())
+#endif
 };
 
 extern QWSServer *qwsServer; //there can be only one

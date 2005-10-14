@@ -15,6 +15,7 @@ embedded {
 		    embedded/qlock_p.h \
 		    embedded/qscreen_qws.h \
 		    embedded/qwindowsystem_qws.h \
+		    embedded/qwindowsystem_p.h \
 		    embedded/qwscommand_qws.h \
 		    embedded/qwscursor_qws.h \
 		    embedded/qwsdisplay_qws.h \

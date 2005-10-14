@@ -184,7 +184,7 @@ const char * eventNames[N_EVENTS] =  {
         "NoEvent",
         "Connected",
         "Mouse", "Focus", "Key",
-        "RegionModified",
+        "Region",
         "Creation",
         "PropertyNotify",
         "PropertyReply",
