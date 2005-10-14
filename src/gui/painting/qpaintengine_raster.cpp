@@ -1726,7 +1726,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     // Only support cleartype for solid pens, 32 bit target buffers and when the pen color is
     // opaque
     clearType = clearType && (d->penData.type == QSpanData::Solid)
-        && d->deviceDepth == 32 && qAlpha(d->penData.solid.color) == 255;
+        && d->deviceDepth == 32 && qAlpha(d->penData.solid.color) == 255;        
 
     if (d->txop >= QPainterPrivate::TxScale) {
         bool antialiased = d->antialiased;
@@ -1784,13 +1784,20 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                 QRgb *sourceScanline = (QRgb *) d->rasterBuffer->scanLine(y);
                 QRgb *destScanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y());
                 for (int x=xmin; x<xmax; ++x) {
-                    destScanline[x - devRect.x()] = sourceScanline[x];
+                    // There's basically not much the Windows text engine can do with transparent
+                    // backgrounds.
+                    if (qAlpha(sourceScanline[x]) == 0x00)
+                        destScanline[x - devRect.x()] = 0xffffffff;
+                    else
+                        destScanline[x - devRect.x()] = sourceScanline[x];                    
                 }
-            }
-            penColor = d->penData.solid.color;
-        } else {
-            d->fontRasterBuffer->resetBuffer(255);
-        }
+            }                        
+        } 
+        
+        if (!clearType)
+            d->fontRasterBuffer->resetBuffer(255);        
+        else
+            penColor = d->penData.solid.color;        
 
         // Fill buffer with stuff
         SetTextColor(d->fontRasterBuffer->hdc(),
@@ -1801,9 +1808,13 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         if (clearType) {
             for (int y=ymin; y<ymax; ++y) {
                 QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y());
-                for (int x=xmin; x<xmax; ++x) {
-                    if (qAlpha(scanline[x - devRect.x()]) == 0)
-                        scanline[x - devRect.x()] |= 0xff000000;
+                for (int x=xmin; x<xmax; ++x) {                    
+                    // Blit transparent pixels if the background has not been changed. 
+                    // Only draw opaque text for now. 
+                    switch (qAlpha(scanline[x - devRect.x()])) {                    
+                    case 0x0: scanline[x - devRect.x()] |= 0xff000000; break ;
+                    default: scanline[x - devRect.x()] = 0x0; break ;                    
+                    };
                 }
             }
         }
@@ -1847,7 +1858,6 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         data.dx = -devRect.x();
         data.dy = -devRect.y();
         data.adjustSpanMethods();
-        data.blend = d->rasterBuffer->drawHelper->blend;
         fillRect(QRect(xmin, ymin, xmax - xmin, ymax - ymin), &data);
     } else {
         for (int y=ymin; y<ymax; ++y) {
