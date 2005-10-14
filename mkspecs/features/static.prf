@@ -1,7 +1,9 @@
 CONFIG -= shared dll
 contains(TEMPLATE, ".*lib"):{
     CONFIG += staticlib
-    QMAKE_CFLAGS += $$QMAKE_CFLAGS_STATIC_LIB
-    QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_STATIC_LIB
+    unix:!embedded {
+        QMAKE_CFLAGS += $$QMAKE_CFLAGS_SHLIB
+        QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_SHLIB
+    }
 }
 !static_and_shared:fix_output_dirs:fixExclusiveOutputDirs(static, shared)
