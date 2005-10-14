@@ -3336,6 +3336,24 @@
         have been renamed QString::toUtf8() and
         QString::toLocal8Bit().
 
+        To obtain a \c{const char *} pointer to ASCII or Latin-1 data,
+        use QString::toAscii() or QString::toLatin1() to obtain a
+        QByteArray containing the data, then call QByteArray::constData()
+        to access the character data directly. Note that the pointer
+        returned by this function is only valid for the lifetime of the
+        byte array; you should avoid taking a pointer to the data
+        contained in temporary objects.
+
+        \code
+        QString greeting = "Hello";
+        const char *badData = greeting.toAscii().constData(); // data is invalid
+        QByteArray asciiData = greeting.toAscii();
+        const char *goodData = asciiData.constData();
+        \endcode
+
+        In the above example, the \c goodData pointer is valid for the lifetime
+        of the \c asciiData byte array.
+
     \o  QString::at() returned a non-const reference, whereas the
         new QString::at() returns a const value. Code like
 
@@ -3924,6 +3942,14 @@
     In Qt 3, the QWidgetList class was a typedef for
     QPtrList<QWidget>. In Qt 4, it is a typedef for QList<QWidget *>.
     See the \l{#qptrlist.section}{section on QPtrList<T>}.
+
+    \section1 QWidgetPlugin
+
+    The QWidgetPlugin class is no longer available in Qt 4. To create
+    custom widget plugins, subclass QDesignerCustomWidgetInterface to
+    provide information about the custom widget, and build a plugin in
+    the way described in the \l{Custom Widget Plugin Example}{Custom
+    Widget Plugin} example.
 
     \section1 QWidgetStack
 
