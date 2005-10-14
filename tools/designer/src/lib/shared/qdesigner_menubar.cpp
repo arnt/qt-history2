@@ -25,6 +25,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QToolButton>
 #include <QtGui/QDrag>
+#include <QtGui/QLayout>
 #include <QtGui/qevent.h>
 
 Q_DECLARE_METATYPE(QAction*)
