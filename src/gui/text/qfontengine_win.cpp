@@ -616,10 +616,9 @@ static inline QPointF qt_to_qpointf(const POINTFX &pt) {
 #define GGO_UNHINTED 0x0100
 #endif
 
-void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
-                                      QPainterPath *path, QTextItem::RenderFlags flags)
+void QFontEngineWin::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs,
+				     QPainterPath *path, QTextItem::RenderFlags)
 {
-    QPointF oset(x, y);
     MAT2 mat;
     mat.eM11.value = mat.eM22.value = 1;
     mat.eM11.fract = mat.eM22.fract = 0;
@@ -632,35 +631,26 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
     GLYPHMETRICS gMetric;
     uint glyphFormat = GGO_NATIVE | GGO_GLYPH_INDEX | GGO_UNHINTED;
 
-    bool useFallback = false;
-
-    if (flags & QTextItem::RightToLeft) {
-        for (int gl = 0; gl < numGlyphs; gl++)
-	    oset += glyphs[gl].advance.toPointF();
-    }
-    for (int i=0; i<numGlyphs; ++i) {
+    for(int i = 0; i < nglyphs; ++i) {
         memset(&gMetric, 0, sizeof(GLYPHMETRICS));
         int bufferSize;
         QT_WA( {
-            bufferSize = GetGlyphOutlineW(hdc, glyphs[i].glyph, glyphFormat, &gMetric, 0, 0, &mat);
+            bufferSize = GetGlyphOutlineW(hdc, glyphs[i], glyphFormat, &gMetric, 0, 0, &mat);
         }, {
-            bufferSize = GetGlyphOutlineA(hdc, glyphs[i].glyph, glyphFormat, &gMetric, 0, 0, &mat);
+            bufferSize = GetGlyphOutlineA(hdc, glyphs[i], glyphFormat, &gMetric, 0, 0, &mat);
         });
         if ((DWORD)bufferSize == GDI_ERROR) {
-            if (i == 0)
-                useFallback = true;
-            else
-                qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(1) failed");
-            break;
+            qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(1) failed");
+            return;
         }
 
-        void *dataBuffer = new char[bufferSize];
-        DWORD ret;
-        QT_WA( {
-            ret = GetGlyphOutlineW(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize,
-                                   dataBuffer, &mat);
-        }, {
-            ret = GetGlyphOutlineA(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize,
+	void *dataBuffer = new char[bufferSize];
+	DWORD ret;
+	QT_WA( {
+	    ret = GetGlyphOutlineW(hdc, glyphs[i], glyphFormat, &gMetric, bufferSize,
+				dataBuffer, &mat);
+	}, {
+            ret = GetGlyphOutlineA(hdc, glyphs[i], glyphFormat, &gMetric, bufferSize,
                                    dataBuffer, &mat);
         } );
 
@@ -673,8 +663,7 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
         int headerOffset = 0;
         TTPOLYGONHEADER *ttph = 0;
 
-        if (flags & QTextItem::RightToLeft)
-	    oset -= glyphs[i].advance.toPointF();
+	QPointF oset = positions[i].toPointF();
         while (headerOffset < bufferSize) {
             ttph = (TTPOLYGONHEADER*)((char *)dataBuffer + headerOffset);
 
@@ -729,13 +718,17 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
             headerOffset += ttph->cb;
         }
         delete [] (char*)dataBuffer;
-        if (!(flags & QTextItem::RightToLeft))
-	    oset += glyphs[i].advance.toPointF();
     }
+}
 
-    if (useFallback) {
-        addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
+void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
+                                      QPainterPath *path, QTextItem::RenderFlags flags)
+{
+    if(tm.w.tmPitchAndFamily & TMPF_TRUETYPE|TMPF_VECTOR) {
+	QFontEngine::addOutlineToPath(x, y, glyphs, numGlyphs, path, flags);
+	return;
     }
+    QFontEngine::addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
 }
 
 // -------------------------------------- Multi font engine

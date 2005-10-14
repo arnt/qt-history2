@@ -2978,7 +2978,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 
     SelectObject(hdc, fe->hfont);
 
-    unsigned int options =  fe->ttf && !convertToText ? ETO_GLYPH_INDEX : 0;
+    unsigned int options = (fe->ttf && !convertToText) ? ETO_GLYPH_INDEX : 0;
 
     wchar_t *convertedGlyphs = (wchar_t *)ti.chars;
 
@@ -2986,96 +2986,53 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 
     int xo = qRound(x);
 
-    if (!(ti.flags & QTextItem::RightToLeft)) {
+    if (!(ti.flags & QTextItem::RightToLeft) && fe->useTextOutA) {
         // hack to get symbol fonts working on Win95. See also QFontEngine constructor
-        if (fe->useTextOutA) {
-            // can only happen if !ttf
-            for(int i = 0; i < ti.num_glyphs; i++) {
-                QString str(QChar(glyphs->glyph));
-                QByteArray cstr = str.toLocal8Bit();
-		TextOutA(hdc, qRound(x + glyphs->offset.x.toReal()), qRound(y + glyphs->offset.y.toReal()),
-                         cstr.data(), cstr.length());
-		x += glyphs->advance.x.toReal();
-                glyphs++;
-            }
-        } else {
-            bool haveOffsets = false;
-            QFixed w = 0;
-            for(int i = 0; i < ti.num_glyphs; i++) {
-                if (glyphs[i].offset.x != 0 || glyphs[i].offset.y != 0 || glyphs[i].space_18d6 != 0) {
-                    haveOffsets = true;
-                    break;
-                }
-                w += glyphs[i].advance.x;
-            }
-
-            if (haveOffsets || has_kerning) {
-                for(int i = 0; i < ti.num_glyphs; i++) {
-                    wchar_t chr = glyphs->glyph;
-		    qreal xp = x + glyphs->offset.x.toReal();
-		    qreal yp = y + glyphs->offset.y.toReal();
-
-            ExtTextOutW(hdc, qRound(xp), qRound(yp), options, 0,
-                convertToText ? convertedGlyphs + i : &chr,
-                1, 0);
-		    x += (glyphs->advance.x + QFixed::fromFixed(glyphs->space_18d6)).toReal();
-		    y += glyphs->advance.y.toReal();
-                    glyphs++;
-                }
-            } else {
-                // fast path
-                QVarLengthArray<wchar_t> g(ti.num_glyphs);
-                for (int i = 0; i < ti.num_glyphs; ++i)
-                    g[i] = glyphs[i].glyph;
-                // fast path
-                    QString s = QString::fromRawData(ti.chars, ti.num_chars);
-                ExtTextOutW(hdc,
-		            qRound(x + glyphs->offset.x.toReal()),
-		            qRound(y + glyphs->offset.y.toReal()),
-                    options, 0, convertToText ? convertedGlyphs : g.data(), ti.num_glyphs, 0);
-		x += w.toReal();
-            }
+        // can only happen if !ttf
+        for(int i = 0; i < ti.num_glyphs; i++) {
+            QString str(QChar(glyphs->glyph));
+            QByteArray cstr = str.toLocal8Bit();
+	    TextOutA(hdc, qRound(x + glyphs->offset.x.toReal()), qRound(y + glyphs->offset.y.toReal()),
+                     cstr.data(), cstr.length());
+	    x += glyphs->advance.x.toReal();
+            glyphs++;
         }
     } else {
-        int i = ti.num_glyphs;
-        while(i--) {
-	    x += (glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6)).toReal();
-	    y += glyphs[i].advance.y.toReal();
-        }
-        i = 0;
-        while(i < ti.num_glyphs) {
-	    x -= glyphs[i].advance.x.toReal();
-	    y -= glyphs[i].advance.y.toReal();
-
-	    int xp = qRound(x+glyphs[i].offset.x.toReal());
-            int yp = qRound(y+glyphs[i].offset.y.toReal());
-            QString s = QString::fromRawData(ti.chars, ti.num_chars);
-            ExtTextOutW(hdc, xp, yp, options, 0,
-                convertToText ?
-                    convertedGlyphs + i
-                    : reinterpret_cast<wchar_t *>(&glyphs[i].glyph),
-                1, 0);
-
-            if (glyphs[i].nKashidas) {
-                QChar ch(0x640); // Kashida character
-                QGlyphLayout g[8];
-                int nglyphs = 7;
-                ti.fontEngine->stringToCMap(&ch, 1, g, &nglyphs, 0);
-                for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
-		    x -= g[0].advance.x.toReal();
-		    y -= g[0].advance.y.toReal();
-
-		    int xp = qRound(x+g[0].offset.x.toReal());
-		    int yp = qRound(y+g[0].offset.y.toReal());
-                    ExtTextOutW(hdc, xp, yp, options, 0,
-                        convertToText
-                            ? reinterpret_cast<wchar_t *>(&ch.unicode())
-                            : reinterpret_cast<wchar_t *>(&g[0].glyph), 1, 0);
-                }
-            } else {
-		x -= QFixed::fromFixed(glyphs[i].space_18d6).toReal();
+        bool fast = !has_kerning;
+        QFixed w = 0;
+        for(int i = 0; i < ti.num_glyphs; i++) {
+            if (glyphs[i].offset.x != 0 || glyphs[i].offset.y != 0 || glyphs[i].space_18d6 != 0) {
+                fast = false;
+                break;
             }
-            ++i;
+            w += glyphs[i].advance.x;
+        }
+
+        if (fast) {
+            // fast path
+            QVarLengthArray<wchar_t> g(ti.num_glyphs);
+            for (int i = 0; i < ti.num_glyphs; ++i)
+                g[i] = glyphs[i].glyph;
+            // fast path
+            ExtTextOutW(hdc,
+		        qRound(x + glyphs->offset.x.toReal()),
+		        qRound(y + glyphs->offset.y.toReal()),
+                        options, 0, convertToText ? convertedGlyphs : g.data(), ti.num_glyphs, 0);
+	    x += w.toReal();
+        } else {
+            QVarLengthArray<QFixedPoint> positions;
+            QVarLengthArray<glyph_t> glyphs;
+            QMatrix matrix;
+            matrix.translate(p.x(), p.y());
+            ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+
+            i = 0;
+            while(i < glyphs.size()) {
+                wchar_t g = glyphs[i];
+                ExtTextOutW(hdc, qRound(positions[i].x), qRound(positions[i].y), options, 0,
+                            convertToText ? convertedGlyphs + i : &g, 1, 0);
+                ++i;
+            }
         }
     }
 
