@@ -23,6 +23,12 @@ SOURCES         = qvfb.cpp \
 		  skin.cpp \
                   qvfbviewiface.cpp
 
+contains(QT_CONFIG, opengl) {
+	HEADERS += qglvfbview.h
+	SOURCES += qglvfbview.cpp 
+	QT += opengl
+}
+
 contains(QT_CONFIG, system-png) {
 	LIBS += -lpng
 } else {
