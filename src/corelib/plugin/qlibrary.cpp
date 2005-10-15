@@ -575,7 +575,7 @@ bool QLibraryPrivate::isPlugin()
     the library loaded in advance, in which case you would use this
     function.
 
-    On Darwin and Mac OS X this function uses code from dlcompat, part of the
+    On Mac OS X this function uses code from dlcompat, part of the
     OpenDarwin project.
 
     \sa unload()
@@ -794,7 +794,7 @@ void QLibrary::setFileNameAndVersion(const QString &fileName, int verNum)
         #endif
     \endcode
 
-    On Darwin and Mac OS X this function uses code from dlcompat, part of the
+    On Mac OS X this function uses code from dlcompat, part of the
     OpenDarwin project.
 
     \legalese
