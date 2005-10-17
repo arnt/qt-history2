@@ -378,9 +378,14 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
         }
     }
 
-    SetTextColor(d->hdc, RGB(qRed(brushColor), qGreen(brushColor), qBlue(brushColor)));
+    COLORREF cf = RGB(qRed(brushColor), qGreen(brushColor), qBlue(brushColor));
+    SelectObject(d->hdc, CreateSolidBrush(cf));
+    SelectObject(d->hdc, CreatePen(PS_SOLID, 1, cf));
+    SetTextColor(d->hdc, cf);
     qt_draw_text_item(QPointF(d->matrix.dx(), d->matrix.dy()) + p,
                       ti, d->hdc, latin1String);
+    DeleteObject(SelectObject(d->hdc,GetStockObject(HOLLOW_BRUSH)));
+    DeleteObject(SelectObject(d->hdc,GetStockObject(BLACK_PEN)));
 }
 
 int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const

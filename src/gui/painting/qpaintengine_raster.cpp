@@ -1791,9 +1791,14 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             penColor = d->penData.solid.color;
 
         // Fill buffer with stuff
-        SetTextColor(d->fontRasterBuffer->hdc(),
-            RGB(qRed(penColor), qGreen(penColor), qBlue(penColor)));
-        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, d->fontRasterBuffer->hdc());
+        COLORREF cf = RGB(qRed(penColor), qGreen(penColor), qBlue(penColor));
+        SelectObject(d->fontRasterBuffer->hdc(), CreateSolidBrush(cf));
+        SelectObject(d->fontRasterBuffer->hdc(), CreatePen(PS_SOLID, 1, cf));
+        SetTextColor(d->fontRasterBuffer->hdc(), cf);            
+        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, 
+            d->fontRasterBuffer->hdc());
+        DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(HOLLOW_BRUSH)));
+        DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(BLACK_PEN)));
 
         // Clean up alpha channel
         if (clearType) {
