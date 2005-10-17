@@ -24,11 +24,13 @@
 
     For example, if you want to write a custom QStyle subclass and
     have Qt applications load it dynamically, you would use the
-    higher-level API; whereas if you want to extend \e{Qt Designer},
-    you would use the lower-level API.
+    higher-level API.
 
     Since the higher-level API is built on top of the lower-level API,
     some issues are common to both.
+
+    If you want to provide plugins for use with \QD, see the QtDesigner
+    module documentation.
 
     Topics:
 
