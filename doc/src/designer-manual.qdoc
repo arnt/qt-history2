@@ -1523,7 +1523,10 @@ without having to write code themselves.
 
     \table
     \row    \o \c initialize()    \o Sets up extensions and other features for custom
-                                     widgets.
+                                     widgets. Custom container extensions (see
+                                     QDesignerContainerExtension) and task menu extensions
+                                     (see QDesignerTaskMenuExtenstion) should be set up in
+                                     this function.
     \row    \o \c isInitialized() \o Returns true if the widget has been initialized;
                                      otherwise returns false. Reimplementations usually
                                      check whether the initialize() function has been
