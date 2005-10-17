@@ -1901,6 +1901,7 @@ QPdfPen* QPdfPen::setDashArray(const QPen& pen, qreal phase)
         sequence.append(qMax(1*lw-capsize,qreal(0))); // safety
         sequence.append(1*lw+capsize);
         break;
+    case Qt::CustomDashLine:
     case Qt::MPenStyle:
         // avoid compiler warning
         break;
