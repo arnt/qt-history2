@@ -37,7 +37,7 @@
 #include <stdlib.h>
 
 
-struct Subpath
+struct QSubpath
 {
     int start, end;
     qreal left, right, top, bottom;
@@ -50,14 +50,14 @@ struct Subpath
         else if (y < top) top = y;
     }
 
-    inline bool intersects(const Subpath &s) const
+    inline bool intersects(const QSubpath &s) const
     {
         return (qMax(left, s.left) <= qMin(right, s.right) &&
                 qMax(top, s.top) <= qMin(bottom, s.bottom));
     }
 };
 
-QDebug operator<<(QDebug s, const Subpath &p)
+QDebug operator<<(QDebug s, const QSubpath &p)
 {
     s << "Subpath [" << p.start << "-" << p.end << "]"
       << "left:" << p.left
@@ -71,7 +71,7 @@ QDebug operator<<(QDebug s, const Subpath &p)
 #define QREAL_MAX 9e100
 #define QREAL_MIN -9e100
 
-void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDataBuffer<Subpath> *subpaths)
+void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDataBuffer<QSubpath> *subpaths)
 {
 //     qDebug() << "\nqt_painterpath_split";
 
@@ -81,14 +81,14 @@ void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDa
 
     // Create the set of current subpaths...
     {
-        Subpath *current = 0;
+        QSubpath *current = 0;
         for (int i=0; i<path.elementCount(); ++i) {
             const QPainterPath::Element &e = path.elementAt(i);
             switch (e.type) {
             case QPainterPath::MoveToElement: {
                 if (current)
                     current->end = i-1;
-                Subpath sp = { i, 0, QREAL_MAX, QREAL_MIN, QREAL_MAX, QREAL_MIN, false };
+                QSubpath sp = { i, 0, QREAL_MAX, QREAL_MIN, QREAL_MAX, QREAL_MIN, false };
                 sp.unite(e.x, e.y);
                 subpaths->add(sp);
                 current = &subpaths->data()[subpaths->size() - 1];
@@ -130,12 +130,12 @@ void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDa
 
             for (int i=paths->size() - 1; i<paths->size(); ++i) {
                 Q_ASSERT(paths->at(i) >= 0);
-                Subpath *s1 = subpaths->data() + paths->at(i);
+                QSubpath *s1 = subpaths->data() + paths->at(i);
                 s1->marked = true;
 //                 qDebug() << "   - marking" << paths->at(i) << *(subpaths->data() + paths->at(i));
 
                 for (int j=spi+1; j<subpaths->size(); ++j) {
-                    const Subpath &s2 = subpaths->at(j);
+                    const QSubpath &s2 = subpaths->at(j);
                     if (s2.marked)
                         continue;
 //                     qDebug() << "      - " << j << s2;
@@ -351,7 +351,7 @@ public:
     QStrokerOps *stroker;
     QPointF path_start;
 
-    QDataBuffer<Subpath> subpath_buffer;
+    QDataBuffer<QSubpath> subpath_buffer;
     QDataBuffer<int> int_buffer;
 
     QDataBuffer<GLdouble> tessVector;
@@ -452,21 +452,21 @@ inline void QOpenGLPaintEnginePrivate::curveTo(const QPointF &cp1, const QPointF
 }
 
 
-void strokeMoveTo(qfixed x, qfixed y, void *data)
+static void strokeMoveTo(qfixed x, qfixed y, void *data)
 {
     ((QOpenGLPaintEnginePrivate *) data)->moveTo(QPointF(qt_fixed_to_real(x),
                                                          qt_fixed_to_real(y)));
 }
 
 
-void strokeLineTo(qfixed x, qfixed y, void *data)
+static void strokeLineTo(qfixed x, qfixed y, void *data)
 {
     ((QOpenGLPaintEnginePrivate *) data)->lineTo(QPointF(qt_fixed_to_real(x),
                                                          qt_fixed_to_real(y)));
 }
 
 
-void strokeCurveTo(qfixed c1x, qfixed c1y,
+static void strokeCurveTo(qfixed c1x, qfixed c1y,
                    qfixed c2x, qfixed c2y,
                    qfixed ex, qfixed ey,
                    void *data)
@@ -935,7 +935,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
                              ? QPaintEngine::WindingMode
                              : QPaintEngine::OddEvenMode);
                 for (; d->int_buffer.at(i) != -1; ++i) {
-                    const Subpath &sp = d->subpath_buffer.at(d->int_buffer.at(i));
+                    const QSubpath &sp = d->subpath_buffer.at(d->int_buffer.at(i));
                     for (int j=sp.start; j<=sp.end; ++j) {
                         const QPainterPath::Element &e = path.elementAt(j);
                         switch (e.type) {
