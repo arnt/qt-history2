@@ -107,7 +107,7 @@ QSize Q3HBox::sizeHint() const
 */
 bool Q3HBox::setStretchFactor(QWidget* w, int stretch)
 {
-    QApplication::sendPostedEvents(w, QEvent::ChildInserted);
+    QApplication::sendPostedEvents(this, QEvent::ChildInserted);
     if (QBoxLayout *lay = qobject_cast<QBoxLayout *>(layout()))
         return lay->setStretchFactor(w, stretch);
     return false;
