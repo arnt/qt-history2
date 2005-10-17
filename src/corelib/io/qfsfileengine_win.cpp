@@ -703,7 +703,7 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
 
         if (fname.endsWith(".lnk")) {
             isSymLink = true;
-            isDir = isDirPath(readLink(fname), 0);
+            isDir = isDirPath(readLink(QFileInfo(d->file, fname).absoluteFilePath()), 0);
             isFile = !isDir;
         }
 
@@ -1015,7 +1015,7 @@ static QString readLink(const QString &link)
 {
 #if !defined(QT_NO_LIBRARY)
     QString ret;
-    QT_WA({
+    //QT_WA({
         bool neededCoInit = false;
         IShellLink *psl;                            // pointer to IShellLink i/f
         HRESULT hres;
@@ -1051,7 +1051,7 @@ static QString readLink(const QString &link)
         }
         if(neededCoInit)
             CoUninitialize();
-    } , {
+   /* } , {
 	    bool neededCoInit = false;
         IShellLinkA *psl;                            // pointer to IShellLink i/f
         HRESULT hres;
@@ -1088,7 +1088,7 @@ static QString readLink(const QString &link)
         }
         if(neededCoInit)
             CoUninitialize();
-    });
+    });*/
     return ret;
 #else
     return QString();
@@ -1310,12 +1310,20 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
     }
     if (type & TypesMask) {
         if (d->doStat()) {
-            if(d->file.endsWith(".lnk"))
+            if(d->file.endsWith(".lnk")) {
                 ret |= LinkType;
-            else if (d->fileAttrib & FILE_ATTRIBUTE_DIRECTORY)
+                QString l = readLink(d->file);
+                if (!l.isEmpty()) {
+                    if (isDirPath(l, 0))
+                        ret |= DirectoryType;
+                    else
+                        ret |= FileType;
+                }
+            } else if (d->fileAttrib & FILE_ATTRIBUTE_DIRECTORY) {
                 ret |= DirectoryType;
-            else
+            } else {
                 ret |= FileType;
+            }
         }
     }
     if (type & FlagsMask) {
