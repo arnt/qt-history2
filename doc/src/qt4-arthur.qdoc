@@ -337,4 +337,33 @@
 
     painter.end();
     \endcode
+
+    \section2 SVG Rendering Support
+
+    \l{Scalable Vector Graphics} (SVG) is an language for describing both static
+    and animated two-dimensional vector graphics. Qt includes support for the Tiny
+    profiles of both SVG 1.1 and SVG 1.2, taking advantage of the improved paint
+    system in Qt 4. SVG drawings can be rendered onto any QPaintDevice subclass,
+    such as QWidget, QImage, and QGLWidget, to take advantage of specific
+    advantages of each device. This approach gives developers the flexibility to
+    experiment, in order to find the best solution for each application.
+
+    \image svg-image.png
+
+    Since SVG is an XML-based format, the QtXml module is required to read SVG
+    files. For this reason, classes for SVG handling are provided separately in
+    the QtSvg module.
+
+    Displaying an SVG drawing in an application is as simple as displaying a
+    bitmap image. QSvgWidget is a display widget that can be placed in an
+    appropriate place in a user interface, and new content can be loaded as
+    required. For example, a predetermined file can be loaded and displayed in
+    a widget with little effort:
+
+    \quotefromfile snippets/qsvgwidget/main.cpp
+    \skipto QSvgWidget
+    \printuntil show
+
+    For applications with more specialized requirements, the QSvgRenderer class
+    provides more control over the way SVG drawings are rendered and animated.
 */
