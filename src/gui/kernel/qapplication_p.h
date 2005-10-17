@@ -247,6 +247,7 @@ public:
 #if defined(Q_WS_X11)
     static void applyX11SpecificCommandLineArguments(QWidget *main_widget);
 #endif
+
 #ifdef Q_WS_MAC
     bool do_mouse_down(const QPoint &, bool *);
     static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);
@@ -254,8 +255,14 @@ public:
     static void qt_context_timer_callbk(EventLoopTimerRef, void *);
     static bool qt_mac_apply_settings();
 #endif
+
 #ifdef Q_WS_QWS
     QPointer<QWSManager> last_manager;
+# ifndef QT_NO_DIRECTPAINTER
+    int directPainterID;
+    bool seenRegionEvent;
+    QRegion directPainterRegion;
+# endif
 #endif
 
     static QApplicationPrivate *instance() { return self; }

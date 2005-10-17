@@ -2475,10 +2475,12 @@ void QWSServerPrivate::request_region(int wid, int shmid, int windowtype, QRegio
 
         int oldPos = windows.indexOf(changingw);
         int newPos = oldPos < nReserved ? nReserved-1 : nReserved;
-        while (i < qMin(nReserved,oldPos)) {
+        while (i < nReserved) {
             QWSWindow *rw = windows.at(i);
-            //for Reserved regions, requested_region is really the allocated region
-            region -= rw->requested_region;
+            if (i != oldPos) {
+                //for Reserved regions, requested_region is really the allocated region
+                region -= rw->requested_region;
+            }
             ++i;
         }
         windows.move(oldPos, newPos);

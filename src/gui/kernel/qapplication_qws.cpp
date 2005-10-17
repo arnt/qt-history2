@@ -2254,13 +2254,16 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
     if (qwsEventFilter(event))                        // send through app filter
         return 1;
 
-#ifndef QT_NO_DIRECTPAINTER //### name is going to change
+#ifndef QT_NO_DIRECTPAINTER
     if (event->type == QWSEvent::Region) {
         QWSRegionEvent *e = static_cast<QWSRegionEvent*>(event);
-            QRegion region;
-            region.setRects(e->rectangles, e->simpleData.nrectangles);
 
-            qDebug() << "QWSEvent::Region" << e->simpleData.type << "region" << region;
+        if (e->simpleData.window == d->directPainterID && e->simpleData.type == QWSRegionEvent::Allocation) {
+            d->directPainterRegion.setRects(e->rectangles, e->simpleData.nrectangles);
+            d->seenRegionEvent = true;
+            qDebug() << "QWSEvent::Region" << e->simpleData.type << "region" <<  d->directPainterRegion;
+            return 1;
+        }
         return 0;
     }
 #endif

@@ -15,9 +15,10 @@
 #define QDIRECTPAINTER_QWS_H
 
 #include <QtCore/qobject.h>
+#include <QtGui/qregion.h>
 
 QT_MODULE(Gui)
-#define QT_NO_DIRECTPAINTER
+
 #ifndef QT_NO_DIRECTPAINTER
 class QDirectPainterPrivate;
 
@@ -25,27 +26,20 @@ class Q_GUI_EXPORT QDirectPainter : public QObject {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDirectPainter)
 public:
-    explicit QDirectPainter(const QRegion&);
-    ~QDirectPainter();
+    //    explicit QDirectPainter(const QRegion&);
+    //~QDirectPainter();
 
-    uchar* frameBuffer();
-    int lineStep();
-    int transformOrientation();
+    static QRegion reserveRegion(const QRegion&);
+    static QRegion region();
 
-    int numRects() const;
-    const QRect& rect(int i) const;
-    QRegion region() const;
+    static uchar* frameBuffer();
+    static int screenDepth();
+    static int screenWidth();
+    static int screenHeight();
+    static int linestep();
 
-    int depth() const;
-    int width() const;
-    int height() const;
-    int xOffset() const;
-    int yOffset() const;
-
-    QPoint offset() const;
-    QSize size() const;
-
-    void setAreaChanged(const QRect&);
+    static void lock();
+    static void unlock();
 };
 
 #endif

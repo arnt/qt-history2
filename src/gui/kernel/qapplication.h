@@ -283,6 +283,7 @@ private:
 
 #if defined(Q_WS_QWS)
     friend class QInputContext;
+    friend class QDirectPainter;
 #endif
 };
 

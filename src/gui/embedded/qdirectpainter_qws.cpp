@@ -13,6 +13,12 @@
 
 #include "qdirectpainter_qws.h"
 
+#include "qscreen_qws.h"
+#include "private/qobject_p.h"
+#include "private/qapplication_p.h"
+#include "qwsdisplay_qws.h"
+#include "qwscommand_qws.h"
+
 #ifdef Q_WS_QWS
 #ifndef QT_NO_DIRECTPAINTER
 
@@ -29,185 +35,114 @@
     When the hardware is known and well defined, as is often the case
     with software for embedded devices, it may be useful to manipulate
     the underlying video hardware directly. In order to do this in a
-    way that is co-operative with other applications, you must lock
-    the video hardware for exclusive use for a small time while you
-    write to it, and you must know the clipping region which is
-    allocated to a widget.
+    way that is co-operative with other applications,
+    you must reserve a region of the screen for the application.
 
     QDirectPainter provides this functionality.
 
-    In the simplest case, you make a QDirectPainter on a widget and
-    then, observing the clip region, perform some platform-specific
-    operation. For example:
-    \code
-        void MyWidget::updatePlatformGraphics()
-        {
-            QDirectPainter dp(this);
-            for (int i = 0; i < dp.numRects; i++) {
-                const QRect& clip = dp.rect(i);
-                ... // platform specific operation
-            }
-        }
-    \endcode
+    Depending on the hardware, you may also have to lock the video
+    hardware for exclusive use for a small time while you write to
+    it. Use the functions lock() and unlock() in that case.
 
-    The platform-specific code has access to the display, but should
-    only modify graphics in the rectangles specified by numRects() and
-    rect(). Note that these rectangles are relative to the entire
-    display.
-
-    The offset() function returns the position of the widget relative
-    to the entire display, allowing you to offset platform-specific
-    operations appropriately. The xOffset() and yOffset() functions
-    merely return the component values of offset().
-
-    For simple frame-buffer hardware, the frameBuffer(), lineStep(),
-    and depth() functions provide basic access, though some hardware
-    configurations are insufficiently specified by such simple
-    parameters.
-
-    Note that while a QDirectPainter exists, the entire Qtopia Core
-    window system is locked from use by other applications. Always
-    construct the QDirectPainter as an auto (stack) variable, and be
-    very careful to write robust and stable code within its scope.
 */
 
 /*!
-    Construct a direct painter on \a w. The display is locked and the
-    mouse cursor is hidden if it is above \a w.
+  Attempts to reserve the region \a reg and returns the region
+  actually reserved.  Releases the previously reserved region, if
+  any. If not released explicitly, the region will be released on
+  application exit.
+
+
 */
-QDirectPainter::QDirectPainter(QWidget* w) :
-    QPainter(w)
+QRegion QDirectPainter::reserveRegion(const QRegion &reg)
 {
-    d = new QDirectPainterPrivate;
-    QWSPaintEngine *qp = static_cast<QWSPaintEngine*>(device()->paintEngine());
-    d->gfx = static_cast<QDirectPainterGfx*>(qp->d_func()->gfx);
-    d->offset = w->mapToGlobal(QPoint(0,0));
-    d->w = w->width();
-    d->h = w->height();
-    d->gfx->beginTransaction(QRect(d->offset,size()));
-    d->change = QRect(d->offset, QSize(d->w,d->h));
+    static bool firstTime = true;
+    //### ideally, application private functionality should be in qapplication...
+    QApplicationPrivate *ad = qApp->d_func();
 
-    //???? pretend to be in paint event to shut up warning from QWSPaintEngine::begin
-}
-
-/*!
-    Destroys the direct painter. The mouse cursor is revealed if
-    necessary and the display is unlocked.
-*/
-QDirectPainter::~QDirectPainter()
-{
-    d->gfx->endTransaction();
-    qt_screen->setDirty(d->change);
-    delete d;
-}
-
-
-/*!
-    Returns a pointer to the framebuffer memory if available.
-*/
-uchar* QDirectPainter::frameBuffer() { return d->gfx->memory(); }
-
-/*!
-    Returns the spacing in bytes from one framebuffer line to the
-    next.
-*/
-int QDirectPainter::lineStep() { return d->gfx->linestep(); }
-
-/*!
-    Returns a number that signifies the orientation of the
-    framebuffer.
-    \table
-    \row \i11 0 \i11 no rotation
-    \row \i11 1 \i11 90 degrees rotation
-    \row \i11 2 \i11 180 degrees rotation
-    \row \i11 3 \i11 270 degrees rotation
-    \endtable
-*/
-int QDirectPainter::transformOrientation()
-{
-    return qt_screen->transformOrientation();
-}
-
-/*!
-    Returns the number of rectangles in the drawable region.
-
-    \sa rect(), region()
-*/
-int QDirectPainter::numRects() const { return d->gfx->numRects(); }
-
-/*!
-    Returns a reference to rectangle \a i of the drawable region.
-    Valid values for \a i are 0..numRects()-1.
-
-    \sa region()
-*/
-const QRect& QDirectPainter::rect(int i) const { return d->gfx->rect(i); }
-
-/*!
-    Returns the region of the framebuffer which represents the exposed
-    area of the widget being painted on. Note that this may be a sub-area of
-    the clip region, because of child widgets and overlapping cousin widgets.
-
-    \sa numRects(), rect()
-*/
-QRegion QDirectPainter::region() const
-{
-    if (d->rgn.isEmpty() && numRects()) {
-        QRegion r;
-        r.setRects(&d->gfx->rect(0), numRects());
-        d->rgn = r;
+    if (firstTime) {
+        firstTime = false;
+        ad->directPainterID  = QWidget::qwsDisplay()->takeId();
+        QWidget::qwsDisplay()->nameRegion(ad->directPainterID, "QDirectPainter reserved space", "reserved");
     }
-    return d->rgn;
+    QWidget::qwsDisplay()->requestRegion(ad->directPainterID, -1, QWSRegionCommand::OnScreen, reg);
+
+    //### slightly dirty way to do a blocking wait for the region event
+
+    ad->seenRegionEvent  = false;
+    while (!ad->seenRegionEvent)
+        QApplication::processEvents();
+
+    return ad->directPainterRegion;
+}
+
+/*
+  Returns a pointer to the beginning of display memory. It is the
+  applications responsibility to limit itself to modifying only the
+  region reserved by reserveRegion().
+*/
+uchar* QDirectPainter::frameBuffer()
+{
+    return qt_screen->base();
 }
 
 /*!
-    Returns the bit-depth of the display.
+  Returns the reserved region.
 */
-int QDirectPainter::depth() const { return d->gfx->bitDepth(); }
-
-/*!
-    Returns the width of the widget drawn upon.
-*/
-int QDirectPainter::width() const { return d->w; }
-
-/*!
-    Returns the height of the widget drawn upon.
-*/
-int QDirectPainter::height() const { return d->h; }
-
-/*!
-    Returns the X-position of the widget relative to the entire
-    display.
-*/
-int QDirectPainter::xOffset() const { return d->offset.x(); }
-
-/*!
-    Returns the Y-position of the widget relative to the entire
-    display.
-*/
-int QDirectPainter::yOffset() const { return d->offset.y(); }
-
-/*!
-    Returns the position of the widget relative to the entire display.
-*/
-QPoint QDirectPainter::offset() const { return d->offset; }
-
-/*!
-    Returns the size of the widget drawn upon.
-
-    \sa width(), height()
-*/
-QSize QDirectPainter::size() const { return QSize(d->w,d->h); }
-
-/*!
-    Sets the area changed by the transaction to \a r. By default, the
-    entire widget is assumed to have changed. The area changed is only
-    used by some graphics drivers, so often calling this function for
-    a smaller area will make no difference to performance.
-*/
-void QDirectPainter::setAreaChanged(const QRect& r)
+QRegion QDirectPainter::region()
 {
-    d->change = r;
+    return qApp->d_func()->directPainterRegion;
+}
+
+/*!
+  Returns the bit depth of the display.
+*/
+int QDirectPainter::screenDepth()
+{
+    return qt_screen->depth();
+}
+
+/*!
+  Returns the width of the display in pixels.
+*/
+int QDirectPainter::screenWidth()
+{
+    return qt_screen->width();
+}
+
+/*!
+  Returns the height of the display in pixels.
+*/
+int QDirectPainter::screenHeight()
+{
+    return qt_screen->height();
+}
+
+/*!
+  Returns the length in bytes of each scanline of the framebuffer.
+*/
+int QDirectPainter::linestep()
+{
+    return qt_screen->linestep();
+}
+
+
+/*!
+  Locks access to video hardware, stopping all other applications from accessing the screen.
+  \warning this will prevent all other applications from working until unlock() is called.
+*/
+void QDirectPainter::lock()
+{
+    //###
+    qDebug("QDirectPainter::lock() not implemented");
+}
+/*!
+  Unlocks the video lock, allowing other applications to display on the screen.
+ */
+void QDirectPainter::unlock()
+{
+    //###
+    qDebug("QDirectPainter::unlock() not implemented");
 }
 
 #endif //QT_NO_DIRECTPAINTER
