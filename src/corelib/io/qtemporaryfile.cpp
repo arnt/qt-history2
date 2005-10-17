@@ -68,11 +68,11 @@ bool QTemporaryFileEngine::open(QIODevice::OpenMode)
 #endif
     if(d->fd != -1) {
         d->file = QString::fromLocal8Bit(filename); //changed now!
-        free(filename);
+        delete [] filename;
         d->sequential = 0;
         return true;
     }
-    free(filename);
+    delete [] filename;
     setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError, qt_error_string(errno));
     return false;
 }
