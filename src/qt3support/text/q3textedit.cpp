@@ -3193,6 +3193,8 @@ void Q3TextEdit::repaintChanged()
     if (!updatesEnabled() || !viewport()->updatesEnabled())
         return;
 
+    if (doc->firstParagraph())
+        lastFormatted = doc->firstParagraph();
     updateContents(); // good enough until this class is rewritten
 }
 
