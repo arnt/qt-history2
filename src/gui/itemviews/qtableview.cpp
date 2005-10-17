@@ -221,7 +221,7 @@ int QTableViewPrivate::firstVisualIndex(int y) const
 
     The table has a vertical header that can be obtained using the
     verticalHeader() function, and a horizontal header that is available
-    through the horizontalHeader() function. Each of the rows in the
+    through the horizontalHeader() function. The height of each row in the
     table can be found by using rowHeight(); similarly, the width of
     columns can be found using columnWidth().
 
