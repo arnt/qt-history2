@@ -847,7 +847,7 @@ void QPdfEngine::adaptMonochromePixmap(QPixmap& pm)
                 for (int j=0; j!=im.height();++j)
                     if(im0.pixelIndex(i,j) == Qt::color0)
                         im.setPixel(i,j,Qt::color0);
-            bm.fromImage(im);
+            bm = QBitmap::fromImage(im);
         }
         pm = QPixmap(pm.width(),pm.height());
         pm.fill(lastPen_->color());
@@ -873,7 +873,7 @@ uint QPdfStream::write(const char* src, uint len)
 
 #ifndef QT_NO_COMPRESS
     if(do_compress) {
-        uLongf destLen = (uLongf)ceil(1.001 * len + 12); // zlib requirement
+        uLongf destLen = 1001 * len / 1000 + 13; // zlib requirement
         Bytef* dest = new Bytef[destLen];
         if (Z_OK == ::compress(dest, &destLen, (const Bytef*) src, (uLongf)len)) {
             stream_->writeRawData((const char*)dest,destLen);
