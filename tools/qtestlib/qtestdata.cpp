@@ -49,7 +49,7 @@ QTestData::~QTestData()
             QMetaType::destroy(d->parent->elementTypeId(i), d->data[i]);
     }
     delete [] d->data;
-    free(d->tag);
+    delete [] d->tag;
     delete d;
 }
 
