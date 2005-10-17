@@ -66,7 +66,7 @@ namespace QTest {
 
     static const char *incidentType2String(QAbstractTestLogger::IncidentTypes type)
     {
-        static bool colored = (qgetenv("QTEST_COLORED").constData() != 0);
+        static bool colored = (!qgetenv("QTEST_COLORED").isEmpty());
         switch (type) {
         case QAbstractTestLogger::Pass:
             return COLORED_MSG(0, 32, "PASS   "); //green
@@ -84,7 +84,7 @@ namespace QTest {
 
     static const char *messageType2String(QAbstractTestLogger::MessageTypes type)
     {
-        static bool colored = (qgetenv("QTEST_COLORED").constData() != 0);
+        static bool colored = (!qgetenv("QTEST_COLORED").isEmpty());
         switch (type) {
         case QAbstractTestLogger::Skip:
             return COLORED_MSG(0, 37, "SKIP   "); //white
