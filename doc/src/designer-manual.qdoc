@@ -91,7 +91,7 @@ also acknowledge these contributions and quote the following license
 statements in an appendix to the documentation.
 
 \list
-\i \l{Implementation of the Recursive Shadow Casting Algorithm in Qt Designer }
+\i \l{Implementation of the Recursive Shadow Casting Algorithm in Qt Designer}
 \i \l{Contributions to the Following Qt Designer Files: treewalker.h,
 treedump.cpp, treedump.h, treewalker.cpp}\endlist
 
@@ -1294,7 +1294,7 @@ process.
     When saving a form in \QD, it is stored as an \c .ui file. Several form
     settings, for example the margin and spacing for the default layout,
     are stored along with the form's components. These settings are used when the
-    \l {User Interface Compiler} (\c uic) generates the form's C++ code.
+    \l uic generates the form's C++ code.
     For more information on how to use forms in your application, see
     the \l {Using Forms and Components} section.
 
@@ -1430,7 +1430,7 @@ process.
 \tableofcontents
 
 With Qt's integrated build tools, \l{qmake-manual.html}{qmake} and
-\l{uic.html}{uic}, the code for user interface components created
+\l uic, the code for user interface components created
 with \QD is automatically generated when the rest of of your
 application is built. Forms can be included and used directly from
 your application or, and you can use them to extend subclasses of
@@ -2034,8 +2034,7 @@ name, size hint, and other standard QWidget properties.
 
 /*!
     \page designer-recursive-shadow-casting.html
-    \title Implementation of the Recursive Shadow Casting Algorithm in Qt
-Designer
+    \title Implementation of the Recursive Shadow Casting Algorithm in Qt Designer
     \contentspage {Qt Designer Manual}{Contents}
 
     \legalese
@@ -2057,9 +2056,8 @@ Designer
 
 /*!
     \page designer-treewalker.html
-    \title Contributions to the Following Qt Designer Files: treewalker.h,
-    treedump.cpp, treedump.h, treewalker.cpp    \contentspage {Qt Designer
-    Manual}{Contents}
+    \title Contributions to the Following Qt Designer Files: treewalker.h, treedump.cpp, treedump.h, treewalker.cpp
+    \contentspage {Qt Designer Manual}{Contents}
     \legalese
     Copyright (C) 2005 Trolltech AS. All rights reserved. \BR
     Copyright (C) 2005 Roberto Raggi
