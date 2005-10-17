@@ -50,7 +50,7 @@ protected:
     void changeEvent(QEvent *);
     void showEvent(QShowEvent *);
     void resizeEvent(QResizeEvent *);
-    void moveEvent(QResizeEvent *);
+    void moveEvent(QMoveEvent *);
 
 private:
     Q_DECLARE_PRIVATE(QRubberBand)

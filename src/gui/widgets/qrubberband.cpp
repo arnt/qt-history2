@@ -233,7 +233,7 @@ void QRubberBand::resizeEvent(QResizeEvent *)
 /*!
     \reimp
 */
-void QRubberBand::moveEvent(QResizeEvent *)
+void QRubberBand::moveEvent(QMoveEvent *)
 {
     Q_D(QRubberBand);
     d->updateMask();
