@@ -52,10 +52,10 @@
     \o The animationDuration() function provides the duration in milliseconds of the
        animation, without taking any looping into account.
     \o The \l currentFrame property contains the current frame of the animation.
-    \o The \l framesPerSecond property contains the rate at which the animation runs.
+    \o The \l framesPerSecond property contains the rate at which the animation plays.
     \endlist
 
-    \sa QSvgWidget, {QtSvg Module}, QPicture
+    \sa QSvgWidget, {QtSvg Module}, {SVG Viewer Example}, QPicture
 */
 
 class QSvgRendererPrivate : public QObjectPrivate
