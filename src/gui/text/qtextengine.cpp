@@ -749,7 +749,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
         cls = QUnicodeTables::LineBreak_ID;
 
     charAttributes[0].softBreak = false;
-    charAttributes[0].whiteSpace = (cls == QUnicodeTables::LineBreak_SP);
+    charAttributes[0].whiteSpace = (cls == QUnicodeTables::LineBreak_SP || cls == QUnicodeTables::LineBreak_BK);
     charAttributes[0].charStop = true;
     charAttributes[0].category = prop->category;
 
@@ -768,7 +768,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
             // ### correctly handle second surrogate
         }
 
-        if (ncls == QUnicodeTables::LineBreak_SP) {
+        if (ncls == QUnicodeTables::LineBreak_SP || ncls == QUnicodeTables::LineBreak_BK) {
             charAttributes[i].softBreak = false;
             charAttributes[i].whiteSpace = true;
             charAttributes[i].charStop = true;
