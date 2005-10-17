@@ -42,6 +42,8 @@
 #  define INVALID_FILE_ATTRIBUTES (DWORD (-1))
 #endif
 
+static QString readLink(const QString &link);
+
 Q_CORE_EXPORT int qt_ntfs_permission_lookup = 0;
 
 #if !defined(QT_NO_LIBRARY)
@@ -522,7 +524,7 @@ static inline bool rmDir(const QString &path)
 /*!
     \reimp
 */
-static inline bool isDir(const QString &dirPath, bool *existed) 
+static inline bool isDirPath(const QString &dirPath, bool *existed) 
 {
     QString path = dirPath;
     if (path.length() == 2 &&path.at(1) == QLatin1Char(':'))
@@ -563,7 +565,7 @@ bool QFSFileEngine::mkdir(const QString &name, bool createParentDirectories) con
             if (slash) {
                 QString chunk = dirName.left(slash);
                 bool existed = false;
-                if (!isDir(chunk, &existed) && !existed) {
+                if (!isDirPath(chunk, &existed) && !existed) {
                     if (!mkDir(chunk))
                         return false;
                 }
@@ -586,7 +588,7 @@ bool QFSFileEngine::rmdir(const QString &name, bool recurseParentDirectories) co
             QString chunk = dirName.left(slash);
             if (chunk.length() == 2 && chunk.at(0).isLetter() && chunk.at(1) == QLatin1Char(':'))
                 break;
-            if (!isDir(chunk, 0))
+            if (!isDirPath(chunk, 0))
                 return false;
             if (!rmDir(chunk))
                 return oldslash != 0;
@@ -698,6 +700,12 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
         } , {
             fname = QString::fromLocal8Bit((const char*)finfo.cFileName);
         });
+
+        if (fname.endsWith(".lnk")) {
+            isSymLink = true;
+            isDir = isDirPath(readLink(fname), 0);
+            isFile = !isDir;
+        }
 
 #ifndef QT_NO_REGEXP
         if(!(filters & QDir::AllDirs && isDir)) {
@@ -1003,10 +1011,7 @@ bool QFSFileEnginePrivate::doStat() const
 }
 
 
-/*!
-    \internal
-*/
-QString QFSFileEnginePrivate::getLink() const
+static QString readLink(const QString &link)
 {
 #if !defined(QT_NO_LIBRARY)
     QString ret;
@@ -1030,15 +1035,14 @@ QString QFSFileEnginePrivate::getLink() const
             IPersistFile *ppf;
             hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
             if(SUCCEEDED(hres))  {
-                hres = ppf->Load((LPOLESTR)file.utf16(), STGM_READ);
+                hres = ppf->Load((LPOLESTR)link.utf16(), STGM_READ);
                 if(SUCCEEDED(hres)) {        // Resolve the link.
 
                     hres = psl->Resolve(0, SLR_ANY_MATCH | SLR_NO_UI | SLR_UPDATE);
 
                     if(SUCCEEDED(hres)) {
-                        memcpy(szGotPath, (TCHAR*)file.utf16(), (file.length()+1)*sizeof(QChar));
-                        hres = psl->GetPath(szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY);
-                        ret = QString::fromUtf16((ushort*)szGotPath);
+                        if (psl->GetPath(szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY) == NOERROR)
+                            ret = QString::fromUtf16((ushort*)szGotPath);
                     }
                 }
                 ppf->Release();
@@ -1068,17 +1072,14 @@ QString QFSFileEnginePrivate::getLink() const
             IPersistFile *ppf;
             hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
             if(SUCCEEDED(hres))  {
-                hres = ppf->Load((LPOLESTR)QFileInfo(file).absoluteFilePath().utf16(), STGM_READ);
+                hres = ppf->Load((LPOLESTR)QFileInfo(link).absoluteFilePath().utf16(), STGM_READ);
                 if(SUCCEEDED(hres)) {        // Resolve the link.
 
                     hres = psl->Resolve(0, SLR_ANY_MATCH);
 
                     if(SUCCEEDED(hres)) {
-                        QByteArray lfn = file.toLocal8Bit();
-                        memcpy(szGotPath, lfn.data(), (lfn.length()+1)*sizeof(char));
-                        hres = psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY);
-                        ret = QString::fromLocal8Bit(szGotPath);
-
+                        if (psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY) == NOERROR)
+                            ret = QString::fromLocal8Bit(szGotPath);
                     }
                 }
                 ppf->Release();
@@ -1092,6 +1093,14 @@ QString QFSFileEnginePrivate::getLink() const
 #else
     return QString();
 #endif // QT_NO_LIBRARY
+}
+
+/*!
+    \internal
+*/
+QString QFSFileEnginePrivate::getLink() const
+{
+    return readLink(file);
 }
 
 /*!
