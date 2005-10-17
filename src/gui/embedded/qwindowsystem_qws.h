@@ -401,6 +401,7 @@ public:
     void sendPropertyReplyEvent(int property, int len, char *data);
     void sendSelectionClearEvent(int windowid);
     void sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int windowid);
+    void sendRegionEvent(int winid, QRegion rgn, int type);
     QWSCommand* readMoreCommand();
 
     int clientId() const { return cid; }

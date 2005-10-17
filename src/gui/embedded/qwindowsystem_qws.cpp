@@ -398,6 +398,22 @@ void QWSClient::sendEvent(QWSEvent* event)
     }
 }
 
+
+void QWSClient::sendRegionEvent(int winid, QRegion rgn, int type)
+{
+    QWSRegionEvent event;
+    event.simpleData.window = winid;
+    event.simpleData.nrectangles = rgn.rects().count();
+    event.simpleData.type = type;
+    QVector<QRect> rects = rgn.rects();
+    event.setData((char *)rects.constData(),
+                    rects.count() * sizeof(QRect), false);
+
+//    qDebug() << "Sending Region event to" << winid << "rgn" << rgn << "type" << type;
+
+    sendEvent(&event);
+}
+
 void QWSClient::sendConnectedEvent(const char *display_spec)
 {
     QWSConnectedEvent event;
@@ -2471,9 +2487,9 @@ void QWSServerPrivate::request_region(int wid, int shmid, int windowtype, QRegio
             //handle change
             QRegion oldRegion = changingw->requested_region;
             changingw->requested_region = region;
-            exposeRegion(oldRegion - changingw->requested_region, newPos);
+            exposeRegion(oldRegion - region, newPos);
         }
-
+        changingw->client()->sendRegionEvent(wid, region, 0);
     } else {
         changingw->backingStore()->attach(shmid, region.boundingRect().size());
         changingw->opaque = windowtype != QWSRegionCommand::Transparent;

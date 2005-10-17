@@ -2254,6 +2254,17 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
     if (qwsEventFilter(event))                        // send through app filter
         return 1;
 
+#ifndef QT_NO_DIRECTPAINTER //### name is going to change
+    if (event->type == QWSEvent::Region) {
+        QWSRegionEvent *e = static_cast<QWSRegionEvent*>(event);
+            QRegion region;
+            region.setRects(e->rectangles, e->simpleData.nrectangles);
+
+            qDebug() << "QWSEvent::Region" << e->simpleData.type << "region" << region;
+        return 0;
+    }
+#endif
+
 #ifndef QT_NO_QWS_PROPERTIES
     if (event->type == QWSEvent::PropertyNotify) {
         QWSPropertyNotifyEvent *e = static_cast<QWSPropertyNotifyEvent*>(event);

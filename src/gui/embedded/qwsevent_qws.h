@@ -196,10 +196,11 @@ struct QWSRegionEvent : QWSEvent {
         rectangles = reinterpret_cast<QRect*>(rawDataPtr);
     }
 
+    enum Type {Allocation, Request};
     struct SimpleData {
         int window;
         int nrectangles;
-        uint is_request:1;
+        uint type:8;
     } simpleData;
 
     QRect *rectangles;
