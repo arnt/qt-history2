@@ -550,42 +550,6 @@ MakefileGenerator::init()
     if(noIO() || !doDepends())
         QMakeSourceFileInfo::setDependencyMode(QMakeSourceFileInfo::NonRecursive);
 
-    if(!noIO()) {
-        depHeuristicsCache.clear();
-        // dependency paths
-        QStringList incDirs = v["DEPENDPATH"] + v["QMAKE_ABSOLUTE_SOURCE_PATH"];
-        if(project->isActiveConfig("depend_includepath"))
-            incDirs += v["INCLUDEPATH"];
-        if(!project->isActiveConfig("no_include_pwd")) {
-            QString pwd = qmake_getpwd();
-            if(pwd.isEmpty())
-                pwd = ".";
-            incDirs += pwd;
-        }
-        QList<QMakeLocalFileName> deplist;
-        for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it)
-            deplist.append(QMakeLocalFileName((*it)));
-        QMakeSourceFileInfo::setDependencyPaths(deplist);
-        debug_msg(1, "Dependency Directories: %s", incDirs.join(" :: ").toLatin1().constData());
-        //cache info
-        if(project->isActiveConfig("qmake_cache")) {
-            QString cache_file;
-            if(!project->isEmpty("QMAKE_INTERNAL_CACHE_FILE")) {
-                cache_file = Option::fixPathToLocalOS(project->first("QMAKE_INTERNAL_CACHE_FILE"));
-            } else {
-                cache_file = ".qmake.internal.cache";
-                if(project->isActiveConfig("build_pass"))
-                    cache_file += ".BUILD." + project->first("BUILD_PASS");
-            }
-            if(cache_file.indexOf(QDir::separator()) == -1)
-                cache_file.prepend(Option::output_dir + QDir::separator());
-            QMakeSourceFileInfo::setCacheFile(cache_file);
-        }
-
-        for(x = 0; x < compilers.count(); ++x)
-            initCompiler(compilers.at(x));
-    }
-
     //merge actual compiler outputs into their variable_out. This is done last so that
     //files are already properly fixified.
     for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
@@ -655,6 +619,42 @@ MakefileGenerator::init()
                 }
             }
         }
+    }
+
+    if(!noIO()) {
+        depHeuristicsCache.clear();
+        // dependency paths
+        QStringList incDirs = v["DEPENDPATH"] + v["QMAKE_ABSOLUTE_SOURCE_PATH"];
+        if(project->isActiveConfig("depend_includepath"))
+            incDirs += v["INCLUDEPATH"];
+        if(!project->isActiveConfig("no_include_pwd")) {
+            QString pwd = qmake_getpwd();
+            if(pwd.isEmpty())
+                pwd = ".";
+            incDirs += pwd;
+        }
+        QList<QMakeLocalFileName> deplist;
+        for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it)
+            deplist.append(QMakeLocalFileName((*it)));
+        QMakeSourceFileInfo::setDependencyPaths(deplist);
+        debug_msg(1, "Dependency Directories: %s", incDirs.join(" :: ").toLatin1().constData());
+        //cache info
+        if(project->isActiveConfig("qmake_cache")) {
+            QString cache_file;
+            if(!project->isEmpty("QMAKE_INTERNAL_CACHE_FILE")) {
+                cache_file = Option::fixPathToLocalOS(project->first("QMAKE_INTERNAL_CACHE_FILE"));
+            } else {
+                cache_file = ".qmake.internal.cache";
+                if(project->isActiveConfig("build_pass"))
+                    cache_file += ".BUILD." + project->first("BUILD_PASS");
+            }
+            if(cache_file.indexOf(QDir::separator()) == -1)
+                cache_file.prepend(Option::output_dir + QDir::separator());
+            QMakeSourceFileInfo::setCacheFile(cache_file);
+        }
+
+        for(x = 0; x < compilers.count(); ++x)
+            initCompiler(compilers.at(x));
     }
 
     processSources(); //remove anything in SOURCES which is included (thus it need not be linked in)
