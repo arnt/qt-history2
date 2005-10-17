@@ -1,11 +1,11 @@
 /*!
-    \page qttestlib-manual.html
-    \title QtTestLib Manual
+    \page qtestlib-manual.html
+    \title QTestLib Manual
 
-    \keyword qttestlib
+    \keyword qtestlib
 
-    The QtTestLib framework, provided by Trolltech, is a tool for unit
-    testing Qt based applications and libraries. QtTestLib provides
+    The QTestLib framework, provided by Trolltech, is a tool for unit
+    testing Qt based applications and libraries. QTestLib provides
     all the functionality commonly found in unit testing frameworks as
     well as extensions for testing graphical user interfaces.
 
@@ -13,16 +13,16 @@
 
     \tableofcontents
 
-    \section1 QtTestLib Features
+    \section1 QTestLib Features
 
-    QtTestLib is designed to ease the writing of unit tests for Qt
+    QTestLib is designed to ease the writing of unit tests for Qt
     based applications and libraries:
 
     \table
     \header \o Feature \o Details
     \row
         \o \bold Lightweight
-        \o QtTestLib consists of about 6000 lines of code and 60
+        \o QTestLib consists of about 6000 lines of code and 60
            exported symbols.
     \row
         \o \bold Self-contained
@@ -37,10 +37,10 @@
         \o A test can be executed multiple times with different test data.
     \row
         \o \bold {Basic GUI testing}
-        \o QtTestLib offers functionality for mouse and keyboard simulation.
+        \o QTestLib offers functionality for mouse and keyboard simulation.
     \row
          \o \bold {IDE friendly}
-         \o QtTestLib outputs messages that can be interpreted by Visual
+         \o QTestLib outputs messages that can be interpreted by Visual
             Studio and KDevelop.
     \row
          \o \bold Thread-safety
@@ -59,28 +59,15 @@
     \l{http://www.trolltech.com/products/3rdparty/tools.html}{Qt
     testing products provided by Trolltech partners}.
 
-    \section1 QtTestLib Installation
+    \section1 QTestLib API
 
-    QtTestLib integrates itself into your existing Qt installation. In the
-    QtTestLib directory, invoke \c qmake and run your build utility (for example
-    \c make or \c nmake). After compilation finished, run \c{make install}
-    (or \c{nmake install} for Visual Studio) to install QtTestLib. Depending
-    on your installation, the \c{make install} step might require super user (root)
-    priviledges.
-
-    Note that QtTestLib evaluates the existing Qt installation and
-    builds a debug and/or release library accordingly. If you
-    reinstall Qt, you should rebuild and reinstall QtTestLib as well.
-
-    \section1 QtTestLib API
-
-    All public methods are in the \l QtTest namespace. In addition, the
+    All public methods are in the \l QTest namespace. In addition, the
     \l QSignalSpy class provides easy introspection for Qt's signals and slots.
 
-    \section1 QtTestLib Tutorial
+    \section1 QTestLib Tutorial
 
     This tutorial gives a short introduction to how to use some of the
-    features of the QtTestLib framework. It is divided into four
+    features of the QTestLib framework. It is divided into four
     chapters:
 
     \list 1
@@ -90,7 +77,7 @@
     \o \l {Chapter 4: Replaying GUI Events}{Replaying GUI Events}
     \endlist
 
-    \section1 QtTestLib Command Line Arguments
+    \section1 QTestLib Command Line Arguments
 
     \section2 Syntax
 
@@ -134,7 +121,7 @@
 
     \section2 Options
 
-    The following command line arguments are understood by \l QtTest::exec():
+    The following command line arguments are understood by \l QTest::exec():
 
     \list
     \o \c -help \BR
@@ -151,8 +138,8 @@
     outputs XML formatted results instead of plain text
     \o \c -eventdelay \e ms \BR
     if no delay is specified for keyboard or mouse simulation
-    (\l QtTest::keyClick(),
-    \l QtTest::mouseClick() etc.), the value from this parameter
+    (\l QTest::keyClick(),
+    \l QTest::mouseClick() etc.), the value from this parameter
     (in milliseconds) is substituted.
     \o \c -keydelay \e ms \BR
     like -eventdelay, but only influences keyboard simulation and not mouse
@@ -166,14 +153,14 @@
 */
 
 /*!
-    \page qttestlib-tutorial.html
-    \contentspage QtTestLib Manual
+    \page qtestlib-tutorial.html
+    \contentspage QTestLib Manual
     \nextpage {Chapter 1: Writing a Unit Test}{Chapter 1}
 
-    \title QtTestLib Tutorial
+    \title QTestLib Tutorial
 
     This tutorial gives a short introduction to how to use some of the
-    features of the QtTestLib framework. It is divided into four
+    features of the QTestLib framework. It is divided into four
     chapters:
 
     \list 1
@@ -189,7 +176,7 @@
 /*!
     \example tutorial1
 
-    \contentspage {QtTestLib Tutorial}{Contents}
+    \contentspage {QTestLib Tutorial}{Contents}
     \nextpage {Chapter 2: Data Driven Testing}{Chapter 2}
 
     \title Chapter 1: Writing a Unit Test
@@ -207,7 +194,7 @@
     \skipto #include
     \printuntil };
 
-    Note that you need to include the QtTest namespace, and that the
+    Note that you need to include the QTest namespace, and that the
     test function have to be declared as a private slot so the
     test framework finds it and can execute it.
 
@@ -241,10 +228,10 @@
     Finally, to make our test case a stand-alone executable, the
     following two lines are needed:
 
-    \skipto QTTEST_MAIN
+    \skipto QTEST_MAIN
     \printuntil #include
 
-    The \l QTTEST_MAIN() macro expands to a simple \c main()
+    The \l QTEST_MAIN() macro expands to a simple \c main()
     method that runs all the test functions. Note that if both the
     declaration and the implementation of our test class are in a \c
     .cpp file, we also need to include the generated moc file to make
@@ -271,7 +258,7 @@
 
     \code
         ********* Start testing of TestQString *********
-        Config: Using QtTest library 2.0.0, Qt 4.0.1
+        Config: Using QTest library 2.0.0, Qt 4.0.1
         PASS   : TestQString::initTestCase()
         PASS   : TestQString::toUpper()
         PASS   : TestQString::cleanupTestCase()
@@ -280,7 +267,7 @@
     \endcode
 
     Congratulations! You just wrote and executed your first unit test
-    using the QtTestLib framework.
+    using the QTestLib framework.
 
 */
 
@@ -288,7 +275,7 @@
     \example tutorial2
 
     \previouspage {Chapter 1: Writing a Unit Test}{Chapter 1}
-    \contentspage {QtTestLib Tutorial}{Contents}
+    \contentspage {QTestLib Tutorial}{Contents}
     \nextpage {Chapter 3: Simulating Gui Events}{Chapter 3}
 
     \title Chapter 2: Data Driven Testing
@@ -308,7 +295,7 @@
     \endcode
 
     To prevent that the function ends up being cluttered by repetative
-    code, QtTestLib supports adding test data to a test function. All
+    code, QTestLib supports adding test data to a test function. All
     we need is to add another private slot to our test class:
 
     \quotefromfile tutorial2/testqstring.cpp
@@ -318,29 +305,29 @@
     \section1 Writing the Data Function
 
     A test function's associated data function carries the same name,
-    appended by \c{_data}, and it takes a QtTestTable reference as an
+    appended by \c{_data}, and it takes a QTestTable reference as an
     argument. Our data function looks like this:
 
     \skipto toUpper_data
     \printuntil /^\}/
 
     First, we define the two elements of our test table using the \l
-    QtTestTable::defineElement() function: A test string, and the
+    QTestTable::defineElement() function: A test string, and the
     expected result of applying the QString::toUpper() function to
     that string.
 
     Then we add some data to the table using the \l
-    QtTestTable::newData() function. Each set of data will become a
+    QTestTable::newData() function. Each set of data will become a
     separate row in the test table.
 
-    \l QtTestTable::newData() takes one argument: A name that will be
+    \l QTestTable::newData() takes one argument: A name that will be
     associated with the data set. If the test fails, the name will be
     used in the test log, referencing the corrupted data. Then we
     stream the data set into the new table row: First an arbitrary
     string, and then the expected result of applying the
     QString::toUpper() function to that string.
 
-    You can think of the QtTestTable as a two-dimensional table. In
+    You can think of the QTestTable as a two-dimensional table. In
     our case, it has two columns called \c string and \c result and
     three rows. In addition a name as well as an index is associated
     with each row:
@@ -376,7 +363,7 @@
     \printuntil /^\}/
 
     The TestQString::toUpper() function will be executed three times,
-    once for each entry in the QtTestTable that we created in the
+    once for each entry in the QTestTable that we created in the
     associated TestQString::toUpper_data() function.
 
     First, we fetch the two elements of the data set using the \l
@@ -390,10 +377,10 @@
     And again, to make our test case a stand-alone executable,
     the following two lines are needed:
 
-    \skipto QTTEST_MAIN
+    \skipto QTEST_MAIN
     \printuntil moc
 
-    As before, the QTTEST_MAIN() macro expands to a simple main()
+    As before, the QTEST_MAIN() macro expands to a simple main()
     method that runs all the test functions, and since both the
     declaration and the implementation of our test class are in a .cpp
     file, we also need to include the generated moc file to make Qt's
@@ -404,14 +391,14 @@
     \example tutorial3
 
     \previouspage {Chapter 2 Data Driven Testing}{Chapter 2}
-    \contentspage {QtTestLib Tutorial}{Contents}
+    \contentspage {QTestLib Tutorial}{Contents}
     \nextpage {Chapter 4: Replaying GUI Events}{Chapter 4}
 
     \title Chapter 3: Simulating GUI Events
 
-    QtTestLib features some mechanisms to test graphical user
+    QTestLib features some mechanisms to test graphical user
     interfaces. Instead of simulating native window system events,
-    QtTestLib sends internal Qt events. That means there are no
+    QTestLib sends internal Qt events. That means there are no
     side-effects on the machine the tests are running on.
 
     In this chapter we will se how to write a simple GUI test.
@@ -427,22 +414,22 @@
     \printuntil /^\}/
 
     The only difference is that you need to include the QtGui class
-    definitions in addition to the QtTest namespace.
+    definitions in addition to the QTest namespace.
 
     \skipto testGui
     \printuntil /^\}/
 
     In the implementation of the test function we first create a
     QLineEdit. Then we simulate writing "hello world" in the line edit
-    using the \l QtTest::keyClicks() function.
+    using the \l QTest::keyClicks() function.
 
-    QtTest::keyClicks() simulates clicking a sequence of keys on a
+    QTest::keyClicks() simulates clicking a sequence of keys on a
     widget. Optionally, a keyboard modifier can be specified as well
     as a delay (in milliseconds) of the test after each key click. In
-    a similar way, you can use the QtTest::keyClick(),
-    QtTest::keyPress(), QtTest::keyRelease(), QtTest::mouseClick(),
-    QtTest::mouseDClick(), QtTest::mouseMove(), QtTest::mousePress()
-    and QtTest::mouseRelease() functions to simulate the associated
+    a similar way, you can use the QTest::keyClick(),
+    QTest::keyPress(), QTest::keyRelease(), QTest::mouseClick(),
+    QTest::mouseDClick(), QTest::mouseMove(), QTest::mousePress()
+    and QTest::mouseRelease() functions to simulate the associated
     GUI events.
 
     Finally, we use the \l COMPARE() macro to check if the line edit's
@@ -451,10 +438,10 @@
     As before, to make our test case a stand-alone executable, the
     following two lines are needed:
 
-    \skipto QTTEST_MAIN
+    \skipto QTEST_MAIN
     \printuntil moc
 
-    The QTTEST_MAIN() macro expands to a simple main() method that
+    The QTEST_MAIN() macro expands to a simple main() method that
     runs all the test functions, and since both the declaration and
     the implementation of our test class are in a .cpp file, we also
     need to include the generated moc file to make Qt's introspection
@@ -465,7 +452,7 @@
     \example tutorial4
 
     \previouspage {Chapter 3: Simulating GUI Event}{Chapter 3}
-    \contentspage {QtTestLib Tutorial}{Contents}
+    \contentspage {QTestLib Tutorial}{Contents}
 
     \title Chapter 4: Replaying GUI Events
 
@@ -485,32 +472,32 @@
     \section1 Writing the Data Function
 
     As before, a test function's associated data function carries the
-    same name, appended by \c _data, and takes a QtTestTable reference
+    same name, appended by \c _data, and takes a QTestTable reference
     as an argument.
 
     \skipto testGui_data
     \printuntil /^\}/
 
     First, we define the elements of the table using the
-    QtTest::defineElement() function: A list of GUI events, and the
+    QTest::defineElement() function: A list of GUI events, and the
     expected result of applying the list of events on a QWidget. Note
-    that the type of the first element is \l QtTestEventList.
+    that the type of the first element is \l QTestEventList.
 
-    A QtTestEventList can be populated with GUI events that can be
+    A QTestEventList can be populated with GUI events that can be
     stored as test data for later usage, or be replayed on any
     QWidget.
 
     In our current data function, we create two \l
-    {QtTestEventList}s. The first list consists of a single click to
+    {QTestEventList}s. The first list consists of a single click to
     the 'a' key. We add the event to the list using the
-    QtTestEventList::addKeyClick() function. Then we use the
-    QtTestTable::newData() function to give the data set a name, and
+    QTestEventList::addKeyClick() function. Then we use the
+    QTestTable::newData() function to give the data set a name, and
     stream the event list and the expected result into the table.
 
     The second list consists of two key clicks: an 'a' with a
     following 'backspace'. Again we use the
-    QtTestEventList::addKeyClick() to add the events to the list, and
-    QtTestTable::newData() to put the event list and the expected
+    QTestEventList::addKeyClick() to add the events to the list, and
+    QTestTable::newData() to put the event list and the expected
     result into the table with an associated name.
 
     \section1 Rewriting the Test Function
@@ -521,14 +508,14 @@
     \printuntil /^\}/
 
     The TestGui::testString() function will be executed two times,
-    once for each entry in the QtTestTable that we created in the
+    once for each entry in the QTestTable that we created in the
     associated TestGui::testGui_data() function.
 
     First, we fetch the two elements of the data set using the \l
     FETCH() macro. \l FETCH() takes two arguments: The data type of
     the element and the element name. Then we create a QLineEdit, and
     apply the list of events on that widget using the
-    QtTestEventList::simulate() function.
+    QTestEventList::simulate() function.
 
     Finally, we use the COMPARE() macro to check if the line edit's
     text is as expected.
@@ -536,10 +523,10 @@
     As before, to make our test case a stand-alone executable,
     the following two lines are needed:
 
-    \skipto QTTEST_MAIN
+    \skipto QTEST_MAIN
     \printuntil moc
 
-    The QTTEST_MAIN() macro expands to a simple main() method that
+    The QTEST_MAIN() macro expands to a simple main() method that
     runs all the test functions, and since both the declaration and
     the implementation of our test class are in a .cpp file, we also
     need to include the generated moc file to make Qt's introspection
