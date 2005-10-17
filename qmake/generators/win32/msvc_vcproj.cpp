@@ -34,13 +34,6 @@ const char _GUIDTranslationFiles[]     = "{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}
 const char _GUIDFormFiles[]            = "{99349809-55BA-4b9d-BF79-8FDBB0286EB3}";
 const char _GUIDExtraCompilerFiles[]   = "{E0D8C965-CC5F-43d7-AD63-FAEF0BBC0F85}";
 
-enum DotNET {
-    NETUnknown = 0,
-    NET2002 = 0x70,
-    NET2003 = 0x71,
-    NET2005 = 0x80
-};
-
 #ifdef Q_OS_WIN32
 #include <qt_windows.h>
 
@@ -799,6 +792,7 @@ void VcprojGenerator::initConfiguration()
     // - Do this first since main configuration elements may need
     // - to know of certain compiler/linker options
     VCConfiguration &conf = vcProject.Configuration;
+    conf.CompilerVersion = which_dotnet_version();
 
     initCompilerTool();
     

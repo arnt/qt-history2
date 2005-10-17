@@ -821,11 +821,41 @@ bool VCCLCompilerTool::parseOption(const char* option)
         if(second == '\0') {
             CompileOnly = _True;
         } else if(second == 'l') {
-            if(*(option+5) == 'n') {
-                CompileAsManaged = managedAssembly;
-                TurnOffAssemblyGeneration = _True;
+            if (config->CompilerVersion != NET2005) {
+                if(*(option+5) == 'n') {
+                    CompileAsManaged = managedAssemblyPure;
+                    TurnOffAssemblyGeneration = _True;
+                } else if(*(option+5) == 'p') {
+                    CompileAsManaged = managedAssemblyPure;
+                    warn_msg(WarnLogic, "/clr:pure option only for .NET >= 2005, using /clr");
+                } else if(*(option+5) == 's') {
+                    CompileAsManaged = managedAssemblyPure;
+                    warn_msg(WarnLogic, "/clr:safe option only for .NET >= 2005, using /clr");
+                } else if(*(option+5) == 'o') {
+                    CompileAsManaged = managedAssemblyPure;
+                    warn_msg(WarnLogic, "/clr:oldSyntax option only for .NET >= 2005, using /clr");
+                } else if(*(option+5) == 'i') {
+                    CompileAsManaged = managedAssemblyPure;
+                    warn_msg(WarnLogic, "initialAppDomain enum value unknown, using /crl");
+                } else {
+                    CompileAsManaged = managedAssemblyPure;
+                }
             } else {
-                CompileAsManaged = managedAssembly;
+                if(*(option+5) == 'n') {
+                    CompileAsManaged = managedAssembly;
+                    TurnOffAssemblyGeneration = _True;
+                } else if(*(option+5) == 'p') {
+                    CompileAsManaged = managedAssemblyPure;
+                } else if(*(option+5) == 's') {
+                    CompileAsManaged = managedAssemblySafe;
+                } else if(*(option+5) == 'o') {
+                    CompileAsManaged = managedAssemblyOldSyntax;
+                } else if(*(option+5) == 'i') {
+                    CompileAsManaged = managedAssembly;
+                    warn_msg(WarnLogic, "initialAppDomain enum value unknown, using /crl default");
+                } else {
+                    CompileAsManaged = managedAssembly;
+                }
             }
         } else {
             found = false; break;

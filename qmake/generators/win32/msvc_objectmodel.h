@@ -23,6 +23,13 @@
 #include <qmap.h>
 #include <qdebug.h>
 
+enum DotNET {
+    NETUnknown = 0,
+    NET2002 = 0x70,
+    NET2003 = 0x71,
+    NET2005 = 0x80
+};
+
 /*
     This Object model is of course VERY simplyfied,
     and does not actually follow the original MSVC
@@ -82,8 +89,11 @@ enum charSet {
     charSetMBCS
 };
 enum compileAsManagedOptions {
-    managedDefault = -1,
-    managedAssembly = 2
+    managedDefault           = -1, // Was: noAssembly
+    managedAssembly          = 1,
+    managedAssemblyPure      = 2,  // Old was: Assembly
+    managedAssemblySafe      = 3,
+    managedAssemblyOldSyntax = 4
 };
 enum CompileAsOptions{
     compileAsDefault,
@@ -679,6 +689,8 @@ public:
     // Functions
     VCConfiguration();
     ~VCConfiguration(){}
+
+    DotNET                  CompilerVersion;
 
     // Variables
     triState                ATLMinimizesCRunTimeLibraryUsage;
