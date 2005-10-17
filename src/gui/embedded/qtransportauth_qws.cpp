@@ -574,19 +574,17 @@ void QAuthDevice::authorizeMessage()
     QTransportAuth *auth = QTransportAuth::getInstance();
     bool isAuthorized = (( d->status & QTransportAuth::StatusMask ) == QTransportAuth::Allow );
 #if defined(SXV_DISCOVERY)
-    if ( auth->isDiscoveryMode() )
-    {
+    if (auth->isDiscoveryMode()) {
 #ifndef QT_NO_TEXTSTREAM
         QFile log( auth->logFilePath() );
-        if ( !log.open( QIODevice::WriteOnly | QIODevice::Append ))
-        {
-            qWarning("Could not write to log in discovery mode: %s",
-                     qPrintable(auth->logFilePath()));
-        }
-        else
-        {
-            QTextStream ts( &log );
-            ts << d->progId << '\t' << ( isAuthorized ? "Allow" : "Deny" ) << '\t' << request << endl;
+        if (!log.isEmpty()) {
+            if (!log.open(QIODevice::WriteOnly | QIODevice::Append)) {
+                qWarning("Could not write to log in discovery mode: %s",
+                         qPrintable(auth->logFilePath()));
+            } else {
+                QTextStream ts( &log );
+                ts << d->progId << '\t' << ( isAuthorized ? "Allow" : "Deny" ) << '\t' << request << endl;
+            }
         }
 #endif
         isAuthorized = true;
