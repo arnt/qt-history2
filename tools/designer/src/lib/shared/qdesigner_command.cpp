@@ -416,6 +416,7 @@ void InsertWidgetCommand::redo()
 
     formWindow()->manageWidget(m_widget);
     m_widget->show();
+    formWindow()->emitSelectionChanged();
 }
 
 void InsertWidgetCommand::undo()
@@ -432,6 +433,7 @@ void InsertWidgetCommand::undo()
 
     formWindow()->unmanageWidget(m_widget);
     m_widget->hide();
+    formWindow()->emitSelectionChanged();
 }
 
 // ---- RaiseWidgetCommand ----
