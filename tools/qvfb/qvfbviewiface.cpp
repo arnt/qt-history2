@@ -11,6 +11,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifdef Q_OS_UNIX
+#include <unistd.h>
+#endif
 
 QVFbViewIface::QVFbViewIface(int display_id, int w, int h, int d, Rotation r)
     : m_displayId(display_id), m_width(w), m_height(h), m_viewDepth(d),
