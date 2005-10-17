@@ -135,6 +135,7 @@ bool QWindowsStyle::eventFilter(QObject *o, QEvent *e)
         d->seenAlt.removeAll(widget);
         d->seenAlt.removeAll(widget->window());
         break;
+#ifndef QT_NO_PROGRESSBAR
     case QEvent::StyleChange:
     case QEvent::Show:
         if (QProgressBar *bar = qobject_cast<QProgressBar *>(o)) {
@@ -154,6 +155,8 @@ bool QWindowsStyle::eventFilter(QObject *o, QEvent *e)
                 d->animateTimer = 0;
             }
         }
+        break;
+#endif // QT_NO_PROGRESSBAR
     default:
         break;
     }
@@ -1376,7 +1379,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                         opt->rect.right(), opt->rect.bottom() - 1);
             p->setPen(opt->palette.shadow().color());
             p->drawLine(opt->rect.left(),          opt->rect.bottom(),
-                        opt->rect.right(), opt->rect.bottom()); 
+                        opt->rect.right(), opt->rect.bottom());
         } else {
             p->drawLine(opt->rect.left(), opt->rect.top(),
                         opt->rect.left(), opt->rect.bottom());
@@ -1388,9 +1391,9 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                         opt->rect.right(), opt->rect.bottom());
         }
         p->setPen(oldPen);
-        break; } 
+        break; }
     default:
-        QCommonStyle::drawPrimitive(pe, opt, p, w); 
+        QCommonStyle::drawPrimitive(pe, opt, p, w);
     }
 }
 
@@ -2073,7 +2076,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 #ifndef QT_NO_DOCKWIDGET
     case CE_DockWidgetTitle:
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
-            QRect r = dwOpt->rect; 
+            QRect r = dwOpt->rect;
             if (dwOpt->movable) {
                 const QDockWidget *dockWidget = qobject_cast<const QDockWidget *>(widget);
                 p->setPen(dwOpt->palette.color(QPalette::Light));
