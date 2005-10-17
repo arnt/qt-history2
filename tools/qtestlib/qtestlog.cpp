@@ -34,7 +34,7 @@ namespace QTest {
             : type(tp), next(0)
         { msg = qstrdup(message); }
         inline ~IgnoreResultList()
-        { free(msg); }
+        { delete [] msg; }
 
         static inline void clearList(IgnoreResultList *&list)
         {
