@@ -1,5 +1,6 @@
 /*!
   \module QtSvg
+  \since 4.1
   \title QtSvg Module
   \contentspage Qt's Modules
   \previouspage QtSql
