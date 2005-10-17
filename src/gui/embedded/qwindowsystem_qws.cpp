@@ -844,7 +844,9 @@ void QWSServerPrivate::clientClosed()
                 setFocus(focusw,0);
             if (mouseGrabber == w)
                 releaseMouse(w);
-            windows.removeAll(w);
+            windows.takeAt(i);
+            if (i < nReserved)
+                --nReserved;
 #ifndef QT_NO_QWS_PROPERTIES
             propertyManager.removeProperties(w->winId());
 #endif
@@ -1754,6 +1756,8 @@ void QWSServerPrivate::invokeRegionDestroy(const QWSRegionDestroyCommand *cmd, Q
     for (int i = 0; i < windows.size(); ++i) {
         if (windows.at(i) == changingw) {
             windows.takeAt(i);
+            if (i < nReserved)
+                --nReserved;
             break;
         }
     }
