@@ -1678,7 +1678,7 @@ without having to write code themselves.
 
     \QD's plugin-based architecture allows user-defined and third party custom
     widgets to be edited in the same way as standard Qt widgets. All the
-features    of the custom widgets are made available to the designer, including
+features    of the custom widgets are made available to \QD, including
 widget    properties, signals, and slots. Since \QD uses real widgets during the
 form    design process, custom widgets will appear the same as they do when
 previewed.
@@ -1829,13 +1829,19 @@ name, size hint, and other standard QWidget properties.
 
     Once you have a custom widget plugin for \QD, you can provide it
     with the expected behavior and functionality within \QD's
-    workspace, through custom widget extensions.
+    workspace, using custom widget extensions.
 
     \tableofcontents
 
+    \section1 Extension Types
+
     There are four available types of extensions in \QD. You can use
     all the extensions following the same pattern, only replacing the
-    respective extension base class:
+    respective extension base class.
+
+    QDesignerTaskMenuExtension is useful for custom widgets while
+    QDesignerContainerExtension is necessary when implementing a custom
+    multi-page container.
 
     \table 100%
     \row
@@ -1858,7 +1864,13 @@ name, size hint, and other standard QWidget properties.
 
            See also the \l {designer/containerextension}{Container
            Extension} example.
+    \endtable
 
+    The usage of QDesignerMemberSheetExtension and QDesignerPropertySheetExtension
+    is more rare, but the classes enables you to manipulate the appearance of class
+    members within \QD's workspace.
+
+    \table 100 %
     \row
         \o \inlineimage designer-manual-membersheetextension.png
         \o \bold {QDesignerMemberSheetExtension}
@@ -1878,7 +1890,7 @@ name, size hint, and other standard QWidget properties.
     \endtable
 
     \QD uses the QDesignerPropertySheetExtension and the
-    QDesignerMemberSheetExtension to feed its property and signal and
+    QDesignerMemberSheetExtension classes to feed its property and signal and
     slot editors. Whenever a widget is selected in its workspace, \QD
     will query for the widget's property sheet extension, and whenever
     a connection between two widgets is requested, \QD will query for
@@ -1891,47 +1903,25 @@ name, size hint, and other standard QWidget properties.
     \section1 Creating an Extension
 
     To create an extension you must inherit both QObject and the
-    appropriate base class, and reimplement its functions. For example,
-    creating a task menu extension requires the following class
-    definition:
-
-    \code
-    #ifndef MYTASKMENUEXTENSION_H
-    #define MYTASKMENUEXTENSION_H
-
-    #include <QtDesigner/QDesignerTaskMenuExtension>
-
-    class QAction;
-
-    class MyTaskMenuExtension : public QObject,
-            public QDesignerTaskMenuExtension
-    {
-        Q_OBJECT
-        Q_INTERFACES(QDesignerTaskMenuExtension)
-
-    public:
-        MyTaskMenuExtension(MyCustomWidget *widget, QObject *parent);
-
-        QAction *preferredEditAction() const;
-        QList<QAction *> taskActions() const;
-
-    private slots:
-        void mySlot();
-
-    private:
-        MyCustomWidget *widget;
-        QAction *myAction;
-    };
-
-    #endif
-    \endcode
-
+    appropriate base class, and reimplement its functions.
     Since we are implementing an interface, we must ensure that it's
     made known to the meta object system using the Q_INTERFACES()
-    macro. This enables \QD to use the qobject_cast() function
+    macro in the extension class's definition. For example:
+
+    \code
+    class MyExtension: public QObject,
+                       public QdesignerContainerExtension
+    {
+        Q_OBJECT
+        Q_INTERFACE(QDesignerContainerExtension)
+
+        ...
+    }
+    \endcode
+
+    This enables \QD to use the qobject_cast() function
     to query for supported interfaces using nothing but a QObject
     pointer.
-
 
     \section1 Exposing an Extension to Qt Designer
 
@@ -1955,33 +1945,7 @@ name, size hint, and other standard QWidget properties.
 
     The QExtensionFactory class provides a standard extension factory,
     but can also be used as an interface for custom extension
-    factories. For example, creating a custom container extension
-    factory requires the following class definition:
-
-    \code
-        #ifndef MYCONTAINEREXTENSIONFACTORY_H
-        #define MYCONTAINEREXTENSIONFACTORY_H
-
-        #include <QtDesigner/QDesignerContainerExtension>
-        #include <QtDesigner/QExtensionFactory>
-
-        class QExtensionManager;
-
-        class MyContainerExtensionFactory: public QExtensionFactory
-        {
-            Q_OBJECT
-
-        public:
-            MyContainerExtensionFactory(QExtensionManager *parent = 0);
-
-        protected:
-            QObject *createExtension(QObject *object, const QString &iid,
-QObject *parent) const;        };
-
-        #endif
-    \endcode
-
-    The purpose is to reimplement the
+    factories. The purpose is to reimplement the
     QExtensionFactory::createExtension() function, making it able to
     create your extension, such as a
     \l{designer/containerextension}{MultiPageWidget} container
@@ -1998,16 +1962,16 @@ QObject *parent) const;        };
                 return 0;
 
             if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
-                   (object))
+                    (object))
                 return new MyContainerExtension(widget, parent);
 
             return 0;
         }
     \endcode
 
-    Or you can use an existing factory, expanding the
+    or you can use an existing factory, expanding the
     QExtensionFactory::createExtension() function to enable the factory
-    to create your custom extension as well. For example:
+    to create your custom extension as well:
 
     \code
         QObject *AGeneralExtensionFactory::createExtension(QObject *object,
@@ -2016,10 +1980,10 @@ QObject *parent) const;        };
             MyCustomWidget *widget = qobject_cast<MyCustomWidget*>(object);
 
             if (widget && (iid == Q_TYPEID(QDesignerTaskMenuExtension))) {
-                return new MyTaskMenuExtension(widget, parent);
+                 return new MyTaskMenuExtension(widget, parent);
 
-            } else if (widget && (iid == Q_TYPEID(QDesignerContainerExtension)))
-{                return new MyContainerExtension(widget, parent);
+            } else if (widget && (iid == Q_TYPEID(QDesignerContainerExtension))) {
+                return new MyContainerExtension(widget, parent);
 
             } else {
                 return 0;
@@ -2052,7 +2016,7 @@ QObject *parent) const;        };
     }
     \endcode
 
-    The \c formEditor parameter to the
+    The \c formEditor parameter in the
     QDesignerCustomWidgetInterface::initialize() function is a pointer to
     \QD's current QDesignerFormEditorInterface object. You must use the
     QDesignerFormEditorInterface::extensionManager() function to
