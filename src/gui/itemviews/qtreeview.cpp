@@ -1548,9 +1548,9 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     for (int column = start; column <= end; ++column) {
-        QModelIndex idx = index.sibling(index.row(), column);
-        if (idx.isValid() )
-            height = qMax(height, delegate->sizeHint(option, idx).height());
+        QModelIndex index = index.sibling(index.row(), column);
+        if (index.isValid() )
+            height = qMax(height, delegate->sizeHint(option, index).height());
     }
 
     return height;
@@ -1610,32 +1610,32 @@ void QTreeViewPrivate::expand(int i, bool emitSignal)
         emit q->expanded(index);
 }
 
-void QTreeViewPrivate::collapse(int i, bool emitSignal)
+void QTreeViewPrivate::collapse(int item, bool emitSignal)
 {
     Q_Q(QTreeView);
 
-    if (!model || i == -1 || expandedIndexes.isEmpty())
+    if (!model || item == -1 || expandedIndexes.isEmpty())
         return;
 
-    int total = viewItems.at(i).total;
-    QModelIndex index = viewItems.at(i).index;
-    int idx = expandedIndexes.indexOf(index);
-    if (idx >= 0)
-        expandedIndexes.remove(idx);
-    viewItems[i].expanded = false;
+    int total = viewItems.at(item).total;
+    QModelIndex modelIndex = viewItems.at(item).index;
+    int index = expandedIndexes.indexOf(modelIndex);
+    if (index >= 0)
+        expandedIndexes.remove(index);
+    viewItems[item].expanded = false;
 
-    idx = i;
-    QModelIndex tmp = index;
-    while (tmp.isValid() && tmp != root) {
-        Q_ASSERT(idx > -1);
-        viewItems[idx].total -= total;
-        tmp = tmp.parent();
-        idx = viewIndex(tmp);
+    index = item;
+    QModelIndex parent = modelIndex;
+    while (parent.isValid() && parent != root) {
+        Q_ASSERT(index > -1);
+        viewItems[index].total -= total;
+        parent = parent.parent();
+        index = viewIndex(parent);
     }
-    viewItems.remove(i + 1, total); // collapse
+    viewItems.remove(item + 1, total); // collapse
 
     if (emitSignal)
-        emit q->collapsed(index);
+        emit q->collapsed(modelIndex);
 }
 
 void QTreeViewPrivate::layout(int i)
@@ -1684,14 +1684,14 @@ void QTreeViewPrivate::layout(int i)
 
 int QTreeViewPrivate::pageUp(int i) const
 {
-    int idx = item(coordinate(i) - viewport->height());
-    return idx == -1 ? 0 : idx;
+    int index = item(coordinate(i) - viewport->height());
+    return index == -1 ? 0 : index;
 }
 
 int QTreeViewPrivate::pageDown(int i) const
 {
-    int idx = item(coordinate(i) + viewport->height());
-    return idx == -1 ? viewItems.count() - 1 : idx;
+    int index = item(coordinate(i) + viewport->height());
+    return index == -1 ? viewItems.count() - 1 : index;
 }
 
 int QTreeViewPrivate::indentation(int i) const
