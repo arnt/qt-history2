@@ -66,7 +66,7 @@ void MenuToolBox::slotCreateMenu()
     drag->setMimeData(new MenuMimeData()); // ### set a nice pixmap
     drag->start();
 }
-
+} // namespace qdesigner_internal
 
 QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
     : QMenuBar(parent)
@@ -397,5 +397,3 @@ QDesignerActionProviderExtension *QDesignerMenuBar::actionProvider()
 
     return 0;
 }
-
-} // namespace qdesigner_internal
