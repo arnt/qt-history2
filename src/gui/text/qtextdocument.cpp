@@ -935,7 +935,7 @@ void QTextDocument::print(QPrinter *printer) const
         p.scale(printerPageSize.width() / scaledPageSize.width(),
                 printerPageSize.height() / scaledPageSize.height());
     } else {
-        doc = clone();
+        doc = clone(const_cast<QTextDocument *>(this));
         clonedDoc = const_cast<QTextDocument *>(doc);
 
         QAbstractTextDocumentLayout *layout = doc->documentLayout();
