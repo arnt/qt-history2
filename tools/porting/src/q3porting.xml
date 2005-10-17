@@ -12,7 +12,7 @@
 **
 **************************************************************************-->
 <Rules>
-    <Count>3670</Count>
+    <Count>3675</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -44,6 +44,10 @@
     <item Type="RenamedHeader" >
         <Qt4>q3cleanuphandler.h</Qt4>
         <Qt3>qcleanuphandler.h</Qt3>
+    </item>
+    <item Type="RenamedHeader" >
+        <Qt4>q3combobox.h</Qt4>
+        <Qt3>qcombobox.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
         <Qt4>q3cstring.h</Qt4>
@@ -428,6 +432,10 @@
     <item Type="RenamedHeader" >
         <Qt4>q3cleanuphandler.h</Qt4>
         <Qt3>qcleanuphandler.h</Qt3>
+    </item>
+    <item Type="RenamedHeader" >
+        <Qt4>q3combobox.h</Qt4>
+        <Qt3>qcombobox.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
         <Qt4>q3cstring.h</Qt4>
@@ -952,6 +960,10 @@
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
         <Name>Q3ColorDrag</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
+        <Name>Q3ComboBox</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
@@ -4777,6 +4789,7 @@
     <item Type="qt4Header" >Q3CheckTableItem</item>
     <item Type="qt4Header" >Q3CleanupHandler</item>
     <item Type="qt4Header" >Q3ColorDrag</item>
+    <item Type="qt4Header" >Q3ComboBox</item>
     <item Type="qt4Header" >Q3ComboTableItem</item>
     <item Type="qt4Header" >Q3DataBrowser</item>
     <item Type="qt4Header" >Q3DataTable</item>
@@ -5767,6 +5780,10 @@
     <item Type="RenamedClass" >
         <Qt4>Q3ColorDrag</Qt4>
         <Qt3>QColorDrag</Qt3>
+    </item>
+    <item Type="RenamedClass" >
+        <Qt4>Q3ComboBox</Qt4>
+        <Qt3>QComboBox</Qt3>
     </item>
     <item Type="RenamedClass" >
         <Qt4>Q3ComboTableItem</Qt4>
@@ -10032,16 +10049,16 @@
         <Header>QBoxLayout</Header>
     </item>
     <item Type="NeedHeader" >
-        <Class>QVBoxLayout</Class>
-        <Header>QVBoxLayout</Header>
+        <Class>Q3VBoxLayout</Class>
+        <Header>Q3VBoxLayout</Header>
     </item>
     <item Type="NeedHeader" >
-        <Class>QHBoxLayout</Class>
-        <Header>QHBoxLayout</Header>
+        <Class>Q3HBoxLayout</Class>
+        <Header>Q3HBoxLayout</Header>
     </item>
     <item Type="NeedHeader" >
-        <Class>QGridLayout</Class>
-        <Header>QGridLayout</Header>
+        <Class>Q3GridLayout</Class>
+        <Header>Q3GridLayout</Header>
     </item>
     <item Type="NeedHeader" >
         <Class>Q3CString</Class>

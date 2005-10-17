@@ -734,9 +734,9 @@ void generateManualRules()
     addNeedHeaderRule("QTextStream");
     addNeedHeaderRule("Q3Frame");
     addNeedHeaderRule("QBoxLayout");
-    addNeedHeaderRule("QVBoxLayout");
-    addNeedHeaderRule("QHBoxLayout");
-    addNeedHeaderRule("QGridLayout");
+    addNeedHeaderRule("Q3VBoxLayout");
+    addNeedHeaderRule("Q3HBoxLayout");
+    addNeedHeaderRule("Q3GridLayout");
     addNeedHeaderRule("Q3CString");
     addNeedHeaderRule("QPixmap");
     addNeedHeaderRule("QTranslator");
