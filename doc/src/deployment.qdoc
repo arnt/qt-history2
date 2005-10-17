@@ -880,7 +880,7 @@
     the \c otool:
 
     \code
-        otool -L plugandpaint.app/contents/MacOs/plugandpaint
+        otool -L plugandpaint.app/Contents/MacOs/plugandpaint
     \endcode
 
     Here is what the output looks like for the static \l
