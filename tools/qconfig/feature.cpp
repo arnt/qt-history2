@@ -18,14 +18,15 @@ QMap<QString, Feature*> Feature::instances;
 
 Feature* Feature::getInstance(const QString &key)
 {
-    if (!instances.contains(key))
-        instances[key] = new Feature(key);        
-    return instances[key];
+    QString ukey = key.toUpper();
+    if (!instances.contains(ukey))
+        instances[ukey] = new Feature(ukey);
+    return instances[ukey];
 }
 
 Feature::~Feature()
 {
-    delete d;    
+    delete d;
 }
 
 void Feature::clear()
@@ -39,16 +40,16 @@ static QString listToHtml(const QString &title, const QStringList &list)
 {
     if (list.isEmpty())
 	return QString();
-	
+
     QString str;
     QTextStream stream(&str);
 
-    stream << "<h3>" << title << ":</h3>";    
+    stream << "<h3>" << title << ":</h3>";
     stream << "<ul>";
     foreach (QString l, list)
 	stream << "<li>" << l << "</li>";
     stream << "</ul>";
-    
+
     return str;
 }
 
@@ -104,7 +105,7 @@ void Feature::addRelation(const QString &key)
 void Feature::setRelations(const QStringList &keys)
 {
     foreach(QString key, keys)
-        if (key != "???")        
+        if (key != "???")
             addRelation(key);
 }
 
@@ -115,9 +116,9 @@ QList<Feature*> Feature::relations() const
 
 void Feature::addDependency(const QString &key)
 {
-    Feature *f = getInstance(key);    
+    Feature *f = getInstance(key);
     d->dependencies.insert(f);
-    f->d->supports.insert(this);    
+    f->d->supports.insert(this);
 }
 
 void Feature::setDependencies(const QStringList &keys)
@@ -137,12 +138,12 @@ QList<Feature*> Feature::supports() const
 }
 
 /*
-    Returns a html formatted detailed description of this Feature.  
+    Returns a html formatted detailed description of this Feature.
 */
 QString Feature::getDocumentation() const
 {
     return QString() + "<h2>" + d->title + "</h2>";
-                     
+
 }
 
 void Feature::setEnabled(bool on)
@@ -153,12 +154,12 @@ void Feature::setEnabled(bool on)
     d->enabled = on;
     foreach (Feature *f, supports())
 	f->updateSelectable();
-    emit changed();    
+    emit changed();
 }
 
 /*
   Update whether this feature should be selectable.
-  A feature is selectable if all it's dependencies is enabled.  
+  A feature is selectable if all it's dependencies is enabled.
 */
 void Feature::updateSelectable()
 {
