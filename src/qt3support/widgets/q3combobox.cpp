@@ -64,14 +64,14 @@
     constructor creates an "old-style" combobox in Motif (or Aqua)
     style:
     \code
-	Q3ComboBox *c = new Q3ComboBox( this, "read-only combobox" );
+        Q3ComboBox *c = new Q3ComboBox(this, tr("read-only combobox"));
     \endcode
 
     The other constructor creates a new-style combobox in Motif style,
     and can create both read-only and editable comboboxes:
     \code
-	Q3ComboBox *c1 = new Q3ComboBox( false, this, "read-only combobox" );
-	Q3ComboBox *c2 = new Q3ComboBox( true, this, "editable combobox" );
+        Q3ComboBox *c1 = new Q3ComboBox(false, this, tr("read-only combobox"));
+        Q3ComboBox *c2 = new Q3ComboBox(true, this, tr("editable combobox"));
     \endcode
 
     New-style comboboxes use a list box in both Motif and Windows
@@ -126,18 +126,12 @@
     using setAutoCompletion() and whether or not the user can add
     duplicates is set with setDuplicatesEnabled().
 
-    1-m.png">(Motif 1, read-only)<br clear=all>
-    <img src="qcombo2-m.png">(Motif 2, editable)<br clear=all>
-    <img src="qcombo3-m.png">(Motif 2, read-only)<br clear=all>
-    <img src="qcombo1-w.png">(Windows style)
-
-    Depending on the style, Q3ComboBox will use a QListBox or a
-    QPopupMenu to display the list of items. See setListBox() for
+    Depending on the style, Q3ComboBox will use a list box or a
+    popup menu to display the list of items. See setListBox() for
     more information.
 
-    \sa QLineEdit QListBox QSpinBox QRadioButton QButtonGroup
-    \link guibooks.html#fowler GUI Design Handbook: Combo Box,\endlink
-    \link guibooks.html#fowler GUI Design Handbook: Drop-Down List Box.\endlink
+    \sa QComboBox, QLineEdit, QSpinBox
+        {GUI Design Handbook}{GUI Design Handbook: Combo Box, Drop-Down List Box}
 */
 
 
