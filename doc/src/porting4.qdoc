@@ -3357,9 +3357,9 @@
         \endcode
 
         In the above example, the \c goodData pointer is valid for the lifetime
-        of the \c asciiData byte array. If you need to keep the data stored at
-        that address in a non-Qt data structure, use standard C memory allocation
-        and copying functions to make a copy before destroying the byte array.
+        of the \c asciiData byte array. If you need to keep a copy of the data
+        in a non-Qt data structure, use standard C memory allocation and string
+        copying functions to do so \e before destroying the byte array.
 
     \o  QString::at() returned a non-const reference, whereas the
         new QString::at() returns a const value. Code like
