@@ -1,5 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/files" >
-   <file>sunflower.svg</file>
+   <file>spheres.svg</file>
 </qresource>
 </RCC>
