@@ -1704,7 +1704,10 @@ process:
 #endif
     case Qt::Key_Return:
     case Qt::Key_Enter:
-        d->cursor.insertBlock();
+        if (e->modifiers() & Qt::ControlModifier)
+            d->cursor.insertText(QString(QChar::LineSeparator));
+        else
+            d->cursor.insertBlock();
         break;
 #ifdef QT_KEYPAD_NAVIGATION
     case Qt::Key_Up:
