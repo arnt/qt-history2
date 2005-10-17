@@ -1,0 +1,83 @@
+/*! \class QSignalSpy
+
+    \brief The QSignalSpy class enables introspection of signal emission.
+
+    QSignalSpy can connect to any signal of any object and records its emission.
+    QSignalSpy itself is a list of QVariant lists. Each emission of the signal
+    will append one item to the list, containing the arguments of the signal.
+
+    The following example records all signal emissions for the \c clicked() signal
+    of a QCheckBox:
+
+    \code
+    QCheckBox *box = ...;
+    QSignalSpy spy(box, SIGNAL(clicked(bool)));
+
+    // do something that triggeres the signal
+    box->animateClick();
+
+    COMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
+    QList<QVariant> arguments = spy.takeFirst(); // take the first signal
+
+    VERIFY(arguments.at(0).toBool() == true); // verify the first argument
+    \endcode
+
+    \c{spy.takeFirst()} returns the arguments for the first emitted signal, as a
+    list of QVariant objects. The \c clicked() signal has a single bool argument,
+    which is stored as the first entry in the list of arguments.
+
+    The example below catches a signal from a custom object:
+
+    \code
+    QSignalSpy spy(myCustomObject, SIGNAL(mySignal(int, QString, double)));
+
+    myCustomObject->doSomething(); // trigger emission of the signal
+
+    QList<QVariant> arguments = spy.takeFirst();
+    VERIFY(arguments.at(0).type() == QVariant::Int);
+    VERIFY(arguments.at(1).type() == QVariant::QString);
+    VERIFY(arguments.at(2).type() == QVariant::double);
+    \endcode
+
+    \bold {Note:} Non-standard data types need to be registered, using
+    the qRegisterMetaType() function, before you can create a
+    QSignalSpy. For example:
+
+    \code
+    qRegisterMetaType<QModelIndex>("QModelIndex");
+    QSignalSpy spy(&model, SIGNAL(whatever(QModelIndex)));
+    \endcode
+
+    To retrieve the \c QModelIndex, you can use qvariant_cast:
+
+    \code
+    // get the first argument from the first received signal:
+    QModelIndex result = qvariant_cast<QModelIndex>(spy.at(0).at(0));
+    \endcode
+ */
+
+/*! \fn QSignalSpy::QSignalSpy(QObject *object, const char *signal)
+
+    Constructs a new QSignalSpy that listens for emissions of the \a signal
+    from the QObject \a object. Neither \a signal nor \a object can be null.
+
+    Example:
+    \code
+    QSignalSpy spy(myPushButton, SIGNAL(clicked(bool)));
+    \endcode
+*/
+
+/*! \fn QSignalSpy::isValid() const
+
+    Returns true if the signal spy listens to a valid signal, otherwise false.
+*/
+
+/*! \fn QSignalSpy::signal() const
+
+    Returns the normalized signal the spy is currently listening to.
+*/
+
+/*! \fn int QSignalSpy::qt_metacall(QMetaObject::Call call, int id, void **a)
+    \internal
+*/
+
