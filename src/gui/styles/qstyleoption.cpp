@@ -512,6 +512,7 @@ QStyleOptionFrameV2::QStyleOptionFrameV2(const QStyleOptionFrame &other)
 
     const QStyleOptionFrameV2 *f2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(&other);
     features = f2 ? f2->features : FrameFeatures(QStyleOptionFrameV2::None);
+    version = Version;
 }
 
 /*!
@@ -530,6 +531,7 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
 
     const QStyleOptionFrameV2 *f2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(&other);
     features = f2 ? f2->features : FrameFeatures(QStyleOptionFrameV2::None);
+    version = Version;
     return *this;
 }
 
