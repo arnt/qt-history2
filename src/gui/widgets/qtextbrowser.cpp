@@ -471,7 +471,10 @@ void QTextBrowserPrivate::keypadMove(bool next)
     QTextBrowser provides backward() and forward() slots which you can
     use to implement Back and Forward buttons. The home() slot sets
     the text to the very first document displayed. The anchorClicked()
-    signal is emitted when the user clicks an anchor.
+    signal is emitted when the user clicks an anchor. To override the
+    default navigation behavior of the browser, call the setSource()
+    function to supply new document text in a slot connected to this
+    signal.
 
     If you want to provide your users with editable rich text use
     QTextEdit. If you want a text browser without hypertext navigation
@@ -483,6 +486,8 @@ void QTextBrowserPrivate::keypadMove(bool next)
     qrc as the scheme in the URL to load. For example, for the document
     resource path \c{:/docs/index.html} use \c{qrc:/docs/index.html} as
     the URL with setSource().
+
+    \sa QTextEdit, QTextDocument
 */
 
 /*!
@@ -689,6 +694,11 @@ void QTextBrowser::setSource(const QUrl &url)
 
     This signal is emitted when the user clicks an anchor. The
     URL referred to by the anchor is passed in \a link.
+
+    Note that the browser will automatically handle navigation to the
+    location specified by \a link unless you call setSource() in a slot
+    connected. This mechanism is used to override the default navigation
+    features of the browser.
 */
 
 /*!
