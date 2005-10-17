@@ -357,7 +357,7 @@ void QDockWidgetLayout::setGeometry(const QRect &rect)
     QVector<QLayoutStruct> a(layout_info.count());
     int x;
     const int separator_extent =
-	qApp->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
+	parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
 
     for (x = 0; x < layout_info.count(); ++x) {
         const QDockWidgetLayoutInfo &info = layout_info.at(x);
@@ -462,7 +462,7 @@ QSize QDockWidgetLayout::minimumSize() const
 
         int size = 0, perp = 0;
         const int sep_extent =
-            QApplication::style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
+            parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
 
         for (int it = 0; it < layout_info.count(); ++it) {
             const QDockWidgetLayoutInfo &info = layout_info.at(it);
@@ -495,7 +495,7 @@ QSize QDockWidgetLayout::sizeHint() const
 
         int size = 0, perp = 0;
         const int sep_extent =
-            QApplication::style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
+            parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
 
         for (int it = 0; it < layout_info.count(); ++it) {
             const QDockWidgetLayoutInfo &info = layout_info.at(it);
@@ -1323,7 +1323,7 @@ static void locateDockWidget(QDockWidget *w, QDockWidgetLayout **layout, int *wh
             *layout = qobject_cast<QDockWidgetLayout *>(lout);
             locateDockWidget(w, layout, where);
         }
-        if (*where != -1) 
+        if (*where != -1)
             return;
     }
 }
