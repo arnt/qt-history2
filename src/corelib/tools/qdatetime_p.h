@@ -69,6 +69,15 @@ public:
     QDateTimeParser(QVariant::Type t)
         : currentSectionIndex(-1), display(0), cachedDay(-1), typ(t), fixday(false), allowEmpty(true)
     {
+        first.type = FirstSection;
+        first.pos = -1;
+        first.count = -1;
+        last.type = FirstSection;
+        last.pos = -1;
+        last.count = -1;
+        none.type = NoSection;
+        none.pos = -1;
+        none.count = -1;
     }
     virtual ~QDateTimeParser() {}
     enum {
