@@ -1931,11 +1931,19 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 int ret = 0;
                 QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(widget);
                 if (acc) {
-                    QString text = acc->text(QAccessible::Value, 0);
+                    QString text = acc->text(QAccessible::Name, 0);
                     ret = qMin<int>(wParam - 1, text.size());
                     text.resize(ret);
-                    memcpy((void *)lParam, text.utf16(), (text.size() + 1) * 2); 
+                    QT_WA({
+                        memcpy((void *)lParam, text.utf16(), (text.size() + 1) * 2); 
+                    }, {
+                        memcpy((void *)lParam, text.toLocal8Bit().data(), text.size() + 1); 
+                    }); 
                     delete acc;
+                }
+                if (!ret) {
+                    result = false;
+                    break;
                 }
                 RETURN(ret);
             }
