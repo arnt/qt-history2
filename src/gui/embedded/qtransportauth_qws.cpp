@@ -576,8 +576,8 @@ void QAuthDevice::authorizeMessage()
 #if defined(SXV_DISCOVERY)
     if (auth->isDiscoveryMode()) {
 #ifndef QT_NO_TEXTSTREAM
-        QFile log( auth->logFilePath() );
-        if (!log.isEmpty()) {
+        if (!auth->logFilePath().isEmpty()) {
+            QFile log( auth->logFilePath() );
             if (!log.open(QIODevice::WriteOnly | QIODevice::Append)) {
                 qWarning("Could not write to log in discovery mode: %s",
                          qPrintable(auth->logFilePath()));
