@@ -3601,6 +3601,19 @@ void Q3ListBox::viewportPaintEvent(QPaintEvent * e)
         return;
     p.setClipRegion(r);
     p.fillRect(0, 0, w, h, viewport()->palette().brush(viewport()->backgroundRole()));
+
+    if(d->rubber && d->rubber->width() && d->rubber->height()) {
+        p.save();
+        p.setClipping(false);
+        // p.setRasterOp(NotROP); // ### fix - use qrubberband instead
+        QStyleOptionRubberBand opt;
+        opt.rect = d->rubber->normalized();
+        opt.palette = palette();
+        opt.shape = QRubberBand::Rectangle;
+        opt.opaque = false;
+        style()->drawControl(QStyle::CE_RubberBand, &opt, &p, this);
+        p.restore();
+    }
 }
 
 
@@ -4116,15 +4129,7 @@ void Q3ListBox::drawRubber()
         return;
     if (!d->rubber->width() && !d->rubber->height())
         return;
-    QPainter p(viewport());
-    // p.setRasterOp(NotROP); // ### fix - use qrubberband instead
-    QStyleOptionRubberBand opt;
-    opt.rect = d->rubber->normalized();
-    opt.palette = palette();
-    opt.shape = QRubberBand::Rectangle;
-    opt.opaque = false;
-    style()->drawControl(QStyle::CE_RubberBand, &opt, &p, this);
-    p.end();
+    update();
 }
 
 /*!
