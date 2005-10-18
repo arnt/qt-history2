@@ -362,7 +362,7 @@ QFontEngineData::~QFontEngineData()
     either.
 
     \code
-    QFont f("Helvetica [Cronyx]"); 
+    QFont f("Helvetica [Cronyx]");
     \endcode
     You can specify the foundry you want in the family name. The font f
     in the above example will be set to "Helvetica
@@ -410,7 +410,7 @@ QFontEngineData::~QFontEngineData()
 
 void qt_font_tread_test()
 {
-    if (QThread::currentThread() != qApp->thread())
+    if (QApplication::instance() && QThread::currentThread() != QApplication::instance()->thread())
         qWarning("QFont: It is not safe to use text and fonts outside the gui thread");
 }
 
@@ -1340,8 +1340,8 @@ static void initFontSubst()
 
 #if defined(Q_WS_X11)
         "arial",        "helvetica",
-        "times new roman", "times", 
-        "courier new",  "courier", 
+        "times new roman", "times",
+        "courier new",  "courier",
         "sans serif",   "helvetica",
 #elif defined(Q_WS_WIN)
         "times",        "times new roman",
