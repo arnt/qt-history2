@@ -504,40 +504,43 @@ static void set_text(const QImage &image, png_structp png_ptr, png_infop info_pt
 
     if (text.isEmpty())
         return;
-    
+
     png_textp text_ptr = new png_text[text.size()];
 
     QMap<QString, QString>::ConstIterator it = text.constBegin();
-    int i = 0;    
+    int i = 0;
     while (it != text.constEnd()) {
         QString t = it.value();
         if (t.length() < 40)
             text_ptr[i].compression = PNG_TEXT_COMPRESSION_NONE;
         else
             text_ptr[i].compression = PNG_TEXT_COMPRESSION_zTXt;
-        char *keyCopy = ::strdup(it.key().left(80).toLatin1().constData());
-        text_ptr[i].key = keyCopy;
+        text_ptr[i].key = qstrdup(it.key().left(79).toLatin1().constData());
 
 #ifndef PNG_iTXt_SUPPORTED
         QByteArray value = it.value().toLatin1();
-        char *valueCopy = ::strdup(value.constData());
-        text_ptr[i].text = valueCopy;
+        text_ptr[i].text = qstrdup(value.constData());
         text_ptr[i].text_length = value.size();
 #else
         QByteArray value = it.value().toUtf8();
-        char *valueCopy = ::strdup(value.constData());
-        text_ptr[i].text = valueCopy;
+        text_ptr[i].text = qstrdup(value.constData());
         text_ptr[i].text_length = 0;
         text_ptr[i].itxt_length = value.size();
         text_ptr[i].lang = "UTF-8";
-        char *keyCopy2 = ::strdup(it.key().toUtf8().constData());
-        text_ptr[i].lang_key = keyCopy;
+        text_ptr[i].lang_key = qstrdup(it.key().toUtf8().constData());
 #endif
         ++i;
         ++it;
     }
 
     png_set_text(png_ptr, info_ptr, text_ptr, i);
+    for (i = 0; i < text.size(); ++i) {
+        delete [] text_ptr[i].key;
+        delete [] text_ptr[i].text;
+#ifdef PNG_iTXt_SUPPORTED
+        delete [] text_ptr[i].lang_key;
+#endif
+    }
     delete [] text_ptr;
 }
 #endif
