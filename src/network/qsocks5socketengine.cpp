@@ -38,7 +38,7 @@
 
 #ifdef QSOCKS5SOCKETLAYER_DEBUG
 #  define QSOCKS5_Q_DEBUG qDebug() << this
-#  define QSOCKS5_D_DEBUG qDebug() << q
+#  define QSOCKS5_D_DEBUG qDebug() << q_ptr
 #  define QSOCKS5_DEBUG qDebug() << "[QSocks5]"
 #else
 #  define QSOCKS5_DEBUG if (0) qDebug()
@@ -150,7 +150,7 @@ static bool qt_socks5_set_host_address_and_port(const QHostAddress &address, qui
 
     if (address.protocol() == QAbstractSocket::IPv4Protocol) {
         int spaceAvailable = pBuf->size() - pos;
-        if (spaceAvailable < sizeof(quint32) + 1)
+        if (spaceAvailable < int(sizeof(quint32) + 1))
             pBuf->resize(pBuf->size() + sizeof(quint32) + 1 - spaceAvailable);
         unsigned char *buf = reinterpret_cast<unsigned char *>(pBuf->data());
         buf[pos++] = S5_IP_V4;
@@ -174,7 +174,7 @@ static bool qt_socks5_set_host_address_and_port(const QHostAddress &address, qui
 
     if (ret) {
         int spaceAvailable = pBuf->size() - pos;
-        if (spaceAvailable < sizeof(quint16))
+        if (spaceAvailable < int(sizeof(quint16)))
             pBuf->resize(pBuf->size() + sizeof(quint16) - spaceAvailable);
         unsigned char *buf = reinterpret_cast<unsigned char *>(pBuf->data());
         qToUnaligned(qToBigEndian<quint16>(port), &buf[pos]);
@@ -314,11 +314,9 @@ public:
 
 protected:
     void timerEvent(QTimerEvent * event);
-
-    int sweepTimerId;
-
+    
     QMutex mutex;
-
+    int sweepTimerId;
     //socket descriptor, data, timestamp
     QHash<int, QSocks5BindData *> store;
 };
@@ -988,7 +986,6 @@ void QSocks5SocketEnginePrivate::controlSocketConnected()
 
 void QSocks5SocketEnginePrivate::controlSocketReadNotification()
 {
-    Q_Q(QSocks5SocketEngine);
     QSOCKS5_D_DEBUG << "controlSocketReadNotification ... socks5 state" <<  s5StateToString(socks5State);
     switch (socks5State) {
         case AuthenticationMethodsSent:
@@ -1051,13 +1048,11 @@ void QSocks5SocketEnginePrivate::controlSocketError(QAbstractSocket::SocketError
 
 void QSocks5SocketEnginePrivate::controlSocketDisconnected()
 {
-    Q_Q(QSocks5SocketEngine);
     QSOCKS5_D_DEBUG << "controlSocketDisconnected";
 }
 
 void QSocks5SocketEnginePrivate::controlSocketStateChanged(QAbstractSocket::SocketState state)
 {
-    Q_Q(QSocks5SocketEngine);
     QSOCKS5_D_DEBUG << "controlSocketStateChanged" << state;
 }
 
@@ -1071,8 +1066,6 @@ void QSocks5SocketEnginePrivate::checkForDatagrams() const
 
 void QSocks5SocketEnginePrivate::udpSocketReadNotification()
 {
-    Q_Q(QSocks5SocketEngine);
-    
     QSOCKS5_D_DEBUG << "udpSocketReadNotification()";
 
     // check some state stuff
@@ -1139,7 +1132,7 @@ bool QSocks5SocketEngine::bind(const QHostAddress &address, quint16 port)
 #ifndef QT_NO_UDPSOCKET
     if (d->mode == QSocks5SocketEnginePrivate::UdpAssociateMode) {
         if (!d->udpData->udpSocket->bind(address, port)) {
-            QSOCKS5_D_DEBUG << "local udp bind failed";
+            QSOCKS5_Q_DEBUG << "local udp bind failed";
             setError(d->udpData->udpSocket->error(), d->udpData->udpSocket->errorString());
             return false;
         }
