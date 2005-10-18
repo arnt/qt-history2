@@ -1685,6 +1685,104 @@ void QRasterPaintEnginePrivate::drawBox(const QPointF &, const QTextItem &)
 
 #else
 
+#if defined(Q_WS_WIN)
+bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, int ymin, int xmax, 
+                                              int ymax, const QTextItem &textItem, bool clearType,
+                                              qreal leftBearingReserve)
+{   
+    Q_D(QRasterPaintEngine);
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+
+    if (d->mono_surface) {
+        // Some extra work to get proper rasterization of text on monochrome targets    
+        HBITMAP bitmap = CreateBitmap(devRect.width(), devRect.height(), 1, 1, 0);
+        HDC hdc = CreateCompatibleDC(qt_win_display_dc());
+        HGDIOBJ null_bitmap = SelectObject(hdc, bitmap);
+        SelectObject(hdc, GetStockObject(WHITE_BRUSH));
+        SelectObject(hdc, GetStockObject(NULL_PEN));
+        Rectangle(hdc, 0, 0, devRect.width() + 1, devRect.height() + 1);
+
+        // Fill buffer with stuff
+        SelectObject(hdc, GetStockObject(BLACK_BRUSH));
+        SelectObject(hdc, GetStockObject(BLACK_PEN));
+        SetTextColor(hdc, RGB(0,0,0));            
+        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, hdc);
+
+        BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
+               hdc, 0, 0, SRCCOPY);
+        SelectObject(hdc, null_bitmap);
+        DeleteObject(bitmap);
+        DeleteDC(hdc);
+
+        return false;
+    } else {
+        // Let Windows handle the composition of background and foreground for cleartype text
+        QRgb penColor = 0;
+        if (clearType) {
+            penColor = d->penData.solid.color;
+
+            // Copy background from raster buffer
+            for (int y=ymin; y<ymax; ++y) {
+                QRgb *sourceScanline = (QRgb *) d->rasterBuffer->scanLine(y);
+                QRgb *destScanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y());
+                for (int x=xmin; x<xmax; ++x) {
+                    // If the background is transparent, set it to completely opaque so we will
+                    // recognize it after Windows screws up the alpha channel of font buffer.
+                    // Otherwise, just copy the contents.
+                    if (qAlpha(sourceScanline[x]) == 0x00)
+                        destScanline[x - devRect.x()] |= 0xff000000;
+                    else
+                        destScanline[x - devRect.x()] = sourceScanline[x];
+                }
+            }
+        } else {
+            d->fontRasterBuffer->resetBuffer(255);
+        }
+
+        // Draw the text item
+        COLORREF cf = RGB(qRed(penColor), qGreen(penColor), qBlue(penColor));
+        SelectObject(d->fontRasterBuffer->hdc(), CreateSolidBrush(cf));
+        SelectObject(d->fontRasterBuffer->hdc(), CreatePen(PS_SOLID, 1, cf));
+        SetTextColor(d->fontRasterBuffer->hdc(), cf);            
+        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, 
+            d->fontRasterBuffer->hdc());
+        DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(HOLLOW_BRUSH)));
+        DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(BLACK_PEN)));
+
+        // Clean up alpha channel
+        if (clearType) {
+            for (int y=ymin; y<ymax; ++y) {
+                QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y());
+                QRgb *rbScanline = (QRgb *) d->rasterBuffer->scanLine(y);
+                for (int x=xmin; x<xmax; ++x) {
+                    // If alpha is 0, then Windows has drawn text on top of the pixel, so set
+                    // the pixel to opaque. Otherwise, Windows has not touched the pixel, so 
+                    // we can set it to transparent so the background shines through instead.
+                    switch (qAlpha(scanline[x - devRect.x()])) {
+                    case 0x0: 
+                        // Special case: If Windows has drawn on top of a transparent pixel, then
+                        // we bail out. This is an attempt at avoiding the problem where Windows
+                        // has no background to use for composition, but also minimizing the 
+                        // number of cases hit by the fall back. 
+                        // ### This is far from optimal.                        
+                        if (qAlpha(rbScanline[x]) == 0) {
+                            return drawTextInFontBuffer(devRect, xmin, ymin, xmax, ymax, textItem,
+                                false, leftBearingReserve);
+                        }
+                        scanline[x - devRect.x()] |= 0xff000000; 
+                        break ;
+                    default: scanline[x - devRect.x()] = 0x0; break ;
+                    };
+                }
+            }
+        }
+    }
+
+    return clearType;
+} 
+#endif // Q_WS_WIN
+
+
 void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
@@ -1748,73 +1846,9 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     int xmax = qMin(devRect.x() + devRect.width(), d->rasterBuffer->width());
     int xmin = qMax(devRect.x(), 0);
 
-    if (d->mono_surface) {
-        // Some extra work to get proper rasterization of text on monochrome targets
-
-        HBITMAP bitmap = CreateBitmap(devRect.width(), devRect.height(), 1, 1, 0);
-        HDC hdc = CreateCompatibleDC(qt_win_display_dc());
-        HGDIOBJ null_bitmap = SelectObject(hdc, bitmap);
-        SelectObject(hdc, GetStockObject(WHITE_BRUSH));
-        SelectObject(hdc, GetStockObject(NULL_PEN));
-        Rectangle(hdc, 0, 0, devRect.width() + 1, devRect.height() + 1);
-
-        // Fill buffer with stuff
-        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, hdc);
-
-        BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
-               hdc, 0, 0, SRCCOPY);
-        SelectObject(hdc, null_bitmap);
-        DeleteObject(bitmap);
-        DeleteDC(hdc);
-    } else {
-        // Let Windows handle the composition of background and foreground for cleartype text
-        QRgb penColor = 0;
-        if (clearType) {
-            // ### Brute force. We should use BitBlt when we can
-            for (int y=ymin; y<ymax; ++y) {
-                QRgb *sourceScanline = (QRgb *) d->rasterBuffer->scanLine(y);
-                QRgb *destScanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y());
-                for (int x=xmin; x<xmax; ++x) {
-                    // There's basically not much the Windows text engine can do with transparent
-                    // backgrounds.
-                    if (qAlpha(sourceScanline[x]) == 0x00)
-                        destScanline[x - devRect.x()] = 0xffffffff;
-                    else
-                        destScanline[x - devRect.x()] = sourceScanline[x];
-                }
-            }
-        }
-
-        if (!clearType)
-            d->fontRasterBuffer->resetBuffer(255);
-        else
-            penColor = d->penData.solid.color;
-
-        // Fill buffer with stuff
-        COLORREF cf = RGB(qRed(penColor), qGreen(penColor), qBlue(penColor));
-        SelectObject(d->fontRasterBuffer->hdc(), CreateSolidBrush(cf));
-        SelectObject(d->fontRasterBuffer->hdc(), CreatePen(PS_SOLID, 1, cf));
-        SetTextColor(d->fontRasterBuffer->hdc(), cf);            
-        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, 
-            d->fontRasterBuffer->hdc());
-        DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(HOLLOW_BRUSH)));
-        DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(BLACK_PEN)));
-
-        // Clean up alpha channel
-        if (clearType) {
-            for (int y=ymin; y<ymax; ++y) {
-                QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y());
-                for (int x=xmin; x<xmax; ++x) {
-                    // Blit transparent pixels if the background has not been changed.
-                    // Only draw opaque text for now.
-                    switch (qAlpha(scanline[x - devRect.x()])) {
-                    case 0x0: scanline[x - devRect.x()] |= 0xff000000; break ;
-                    default: scanline[x - devRect.x()] = 0x0; break ;
-                    };
-                }
-            }
-        }
-    }
+    // Fill the font raster buffer with text
+    clearType = drawTextInFontBuffer(devRect, xmin, ymin, xmax, ymax, textItem, clearType,
+        leftBearingReserve);
 
     const int NSPANS = 256;
     QSpan spans[NSPANS];
