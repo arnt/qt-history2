@@ -408,7 +408,10 @@ int QHeaderView::sectionSize(int logicalIndex) const
     if (isSectionHidden(logicalIndex))
         return 0;
     int visual = visualIndex(logicalIndex);
-    Q_ASSERT(visual != -1);
+
+    if (visual == -1)
+        return 0;
+
     return d->sections.at(visual + 1).position - d->sections.at(visual).position;
 }
 
@@ -639,7 +642,7 @@ bool QHeaderView::isSectionHidden(int logicalIndex) const
     Q_ASSERT(logicalIndex >= 0);
     if (logicalIndex >= d->sections.count() - 1)
         return false;
-    
+
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
     return d->sections.at(visual).hidden;
@@ -711,7 +714,7 @@ int QHeaderView::visualIndex(int logicalIndex) const
 {
     Q_D(const QHeaderView);
     Q_ASSERT(logicalIndex >= 0);
-    
+
     d->executePostedLayout();
 #if 0 // for debugging
     if (d->visualIndices.isEmpty()) { // nothing has been moved, so we have no mapping
@@ -1310,6 +1313,7 @@ void QHeaderView::initializeSections(int start, int end)
 void QHeaderView::currentChanged(const QModelIndex &current, const QModelIndex &old)
 {
     Q_D(QHeaderView);
+
     if (d->orientation == Qt::Horizontal && current.column() != old.column()) {
         if (old.isValid())
             d->setDirtyRegion(QRect(sectionViewportPosition(old.column()), 0,
