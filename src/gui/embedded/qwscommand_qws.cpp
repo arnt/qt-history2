@@ -175,7 +175,7 @@ QDebug operator<<(QDebug dbg, QWSHexDump hd) {
 
 QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
 {
-    dbg << getCommandTypeString( tp );
+    dbg << qws_getCommandTypeString( tp );
     return dbg;
 }
 
@@ -203,7 +203,7 @@ class QWSServer;
 extern QWSServer *qwsServer;
 #endif
 
-const char *getCommandTypeString( QWSCommand::Type tp )
+const char *qws_getCommandTypeString( QWSCommand::Type tp )
 {
     const char *typeStr;
     switch(tp) {

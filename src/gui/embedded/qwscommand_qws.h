@@ -117,7 +117,7 @@ struct QWSCommand : QWSProtocolItem
     static QWSCommand *factory(int type);
 };
 
-const char *getCommandTypeString( QWSCommand::Type tp );
+const char *qws_getCommandTypeString( QWSCommand::Type tp );
 
 #ifndef QT_NO_DEBUG
 class QDebug;

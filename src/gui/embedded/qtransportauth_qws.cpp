@@ -557,7 +557,7 @@ void QAuthDevice::authorizeMessage()
     cmdBuf.close();
     cmdBuf.open( QIODevice::ReadOnly );
     QWSCommand::Type command_type = (QWSCommand::Type)(qws_read_uint( &cmdBuf ));
-    QString request( getCommandTypeString( command_type ));
+    QString request( qws_getCommandTypeString( command_type ));
 #ifndef QT_NO_COP
     if ( command_type == QWSCommand::QCopSend )
     {
