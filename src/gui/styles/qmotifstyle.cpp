@@ -91,9 +91,9 @@ QMotifStyle::QMotifStyle(bool useHighlightCols)
 }
 
 
-QMotifStyle::QMotifStyle(QMotifStylePrivate &dd, bool useHighlightColors) 
+QMotifStyle::QMotifStyle(QMotifStylePrivate &dd, bool useHighlightColors)
     : QCommonStyle(dd)
-{ 
+{
     focus = 0;
     highlightCols = useHighlightColors;
 }
@@ -245,7 +245,7 @@ void QMotifStyle::unpolish(QWidget* widget)
 {
     QCommonStyle::unpolish(widget);
     if (qobject_cast<QProgressBar *>(widget))
-        widget->removeEventFilter(this);   
+        widget->removeEventFilter(this);
 }
 
 
@@ -1135,7 +1135,6 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 p->drawPixmap(pmr.topLeft(), pixmap);
 
             } else  if (menuitem->checkType != QStyleOptionMenuItem::NotCheckable) {  // just "checking"...
-                int mw = maxpmw;
                 int mh = h - 2*motifItemFrame;
 
                 QStyleOptionButton newMenuItem;
@@ -1280,10 +1279,10 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                  p->setMatrix(m);
                  p->setPen(QPen(pal2.highlight().color(), 4));
                  p->drawLine(x, rect.y() + 1, x, rect.height() - fw);
-   
-            } else 
+
+            } else
                 QCommonStyle::drawControl(element, opt, p, widget);
-        }           
+        }
         break;
 #endif // QT_NO_PROGRESSBAR
     default:

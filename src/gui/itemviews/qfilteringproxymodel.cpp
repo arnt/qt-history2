@@ -139,7 +139,7 @@ void QFilteringProxyModel::mapChildren(const QModelIndex &parent) const
                     QModelIndex proxy_index = createIndex(proxy_row, proxy_column, parent_node);
                     Q_ASSERT(proxy_index.isValid());
                     Q_ASSERT(source_index.isValid());
-                    //Q_ASSERT(!proxy_to_source.contains(proxy_index)); 
+                    //Q_ASSERT(!proxy_to_source.contains(proxy_index));
                     d->proxy_to_source.insert(proxy_index, source_index);
                     ++proxy_column;
                 }
@@ -147,7 +147,7 @@ void QFilteringProxyModel::mapChildren(const QModelIndex &parent) const
             ++proxy_row;
         }
     }
-    d->filtered_count.insert(parent, QPair<int,int>(filtered_rows_count, filtered_columns_count));    
+    d->filtered_count.insert(parent, QPair<int,int>(filtered_rows_count, filtered_columns_count));
 }
 
 /*!
@@ -155,8 +155,8 @@ void QFilteringProxyModel::mapChildren(const QModelIndex &parent) const
   the given \a source_row and \a source_parent should be removed from the model.
   The default implementation returns false.
 */
-bool QFilteringProxyModel::filterRow(int source_row, const QModelIndex &source_parent) const
-{    
+bool QFilteringProxyModel::filterRow(int /*source_row*/, const QModelIndex &/*source_parent*/) const
+{
     return false;
 }
 
@@ -165,7 +165,7 @@ bool QFilteringProxyModel::filterRow(int source_row, const QModelIndex &source_p
   the given \a source_column and \a source_parent should be removed from the model.
   The default implementation returns false.
 */
-bool QFilteringProxyModel::filterColumn(int source_column,  const QModelIndex &source_parent) const
+bool QFilteringProxyModel::filterColumn(int /*source_column*/,  const QModelIndex &/*source_parent*/) const
 {
     return false;
 }
