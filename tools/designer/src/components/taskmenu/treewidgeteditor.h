@@ -69,6 +69,7 @@ private:
 
     Ui::TreeWidgetEditor ui;
     QDesignerFormWindowInterface *m_form;
+    bool m_updating;
 };
 
 }  // namespace qdesigner_internal
