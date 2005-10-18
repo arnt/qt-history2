@@ -687,6 +687,8 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
 
 QFontEngineFT::~QFontEngineFT()
 {
+    delete _openType;
+    _openType = 0;
     if (!freetype->ref.deref()) {
         FT_Done_Face(freetype->face);
         FcCharSetDestroy(freetype->charset);
@@ -707,7 +709,6 @@ QFontEngineFT::~QFontEngineFT()
     if (glyphSet)
         XRenderFreeGlyphSet(X11->display, glyphSet);
 #endif
-    delete _openType;
 }
 
 FT_Face QFontEngineFT::lockFace() const
@@ -1306,7 +1307,7 @@ void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Shap
 
 
 void QFontEngineFT::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs,
-                                    QPainterPath *path, QTextItem::RenderFlags flags)
+                                    QPainterPath *path, QTextItem::RenderFlags)
 {
     FT_Face face = lockFace();
 
@@ -1408,17 +1409,17 @@ void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyph
 
 QFixed QFontEngineFT::ascent() const
 {
-    return TRUNC(ROUND(metrics.ascender));
+    return QFixed::fromFixed(metrics.ascender);
 }
 
 QFixed QFontEngineFT::descent() const
 {
-    return -TRUNC(ROUND(metrics.descender)) + 1;
+    return QFixed::fromFixed(-metrics.descender + (1<<6));
 }
 
 QFixed QFontEngineFT::leading() const
 {
-    return (metrics.height - metrics.ascender + metrics.descender) >> 6;
+    return QFixed::fromFixed(metrics.height - metrics.ascender + metrics.descender);
 }
 
 QFixed QFontEngineFT::xHeight() const

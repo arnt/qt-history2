@@ -55,7 +55,7 @@ static const OTScripts ot_scripts [] = {
     // Arabic
     { FT_MAKE_TAG('a', 'r', 'a', 'b'), 1 },
     // Syriac
-    { FT_MAKE_TAG('s', 'y', 'r', 'c'), 2 },
+    { FT_MAKE_TAG('s', 'y', 'r', 'c'), 1 },
     // Thaana
     { FT_MAKE_TAG('t', 'h', 'a', 'a'), 1 },
     // Devanagari
