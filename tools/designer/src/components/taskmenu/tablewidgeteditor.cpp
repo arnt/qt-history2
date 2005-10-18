@@ -19,12 +19,11 @@
 #include <QtDesigner/QtDesigner>
 #include <QtCore/QDir>
 #include <QtCore/QQueue>
-#include <QtCore/qdebug.h>
 
 using namespace qdesigner_internal;
 
 TableWidgetEditor::TableWidgetEditor(QDesignerFormWindowInterface *form, QWidget *parent)
-    : QDialog(parent), updating(false)
+    : QDialog(parent), m_updating(false)
 {
     ui.setupUi(this);
     m_form = form;
@@ -58,6 +57,7 @@ TableWidgetEditor::~TableWidgetEditor()
 
 void TableWidgetEditor::fillContentsFromTableWidget(QTableWidget *tableWidget)
 {
+    m_updating = true;
     copyContents(tableWidget, ui.tableWidget);
 
     ui.columnsListWidget->clear();
@@ -93,6 +93,7 @@ void TableWidgetEditor::fillContentsFromTableWidget(QTableWidget *tableWidget)
 
     if (ui.tableWidget->columnCount() > 0 && ui.tableWidget->rowCount() > 0)
         ui.tableWidget->setCurrentCell(0, 0);
+    m_updating = false;
     updateEditor();
 }
 
@@ -169,40 +170,44 @@ void TableWidgetEditor::copyContents(QTableWidget *sourceWidget, QTableWidget *d
 void TableWidgetEditor::on_tableWidget_currentItemChanged(QTableWidgetItem *,
             QTableWidgetItem *)
 {
-    if (updating)
+    if (m_updating)
         return;
-    updating = true;
+    m_updating = true;
     int row = ui.tableWidget->currentRow();
     int col = ui.tableWidget->currentColumn();
     ui.rowsListWidget->setCurrentRow(row);
     ui.columnsListWidget->setCurrentRow(col);
+    m_updating = false;
     updateEditor();
     ui.itemTextLineEdit->selectAll();
     ui.itemTextLineEdit->setFocus();
-    updating = false;
 }
 
 void TableWidgetEditor::on_tableWidget_itemChanged(QTableWidgetItem *)
 {
+    if (m_updating)
+        return;
     updateEditor();
 }
 
 void TableWidgetEditor::on_columnsListWidget_currentRowChanged(int col)
 {
-    if (updating)
+    if (m_updating)
         return;
-    updating = true;
+    m_updating = true;
     QListWidgetItem *currentRow = ui.rowsListWidget->currentItem();
     if (currentRow) {
         int row = ui.rowsListWidget->currentRow();
         ui.tableWidget->setCurrentCell(row, col);
     }
+    m_updating = false;
     updateEditor();
-    updating = false;
 }
 
 void TableWidgetEditor::on_columnsListWidget_itemChanged(QListWidgetItem *item)
 {
+    if (m_updating)
+        return;
     QString str = item->text();
     int col = ui.columnsListWidget->row(item);
     QTableWidgetItem *headerItem = ui.tableWidget->horizontalHeaderItem(col);
@@ -214,20 +219,22 @@ void TableWidgetEditor::on_columnsListWidget_itemChanged(QListWidgetItem *item)
 
 void TableWidgetEditor::on_rowsListWidget_currentRowChanged(int row)
 {
-    if (updating)
+    if (m_updating)
         return;
-    updating = true;
+    m_updating = true;
     QListWidgetItem *currentColumn = ui.columnsListWidget->currentItem();
     if (currentColumn) {
         int col = ui.columnsListWidget->currentRow();
         ui.tableWidget->setCurrentCell(row, col);
     }
+    m_updating = false;
     updateEditor();
-    updating = false;
 }
 
 void TableWidgetEditor::on_rowsListWidget_itemChanged(QListWidgetItem *item)
 {
+    if (m_updating)
+        return;
     QString str = item->text();
     int row = ui.rowsListWidget->row(item);
     QTableWidgetItem *headerItem = ui.tableWidget->verticalHeaderItem(row);
@@ -332,6 +339,8 @@ void TableWidgetEditor::updateEditor()
 
 void TableWidgetEditor::on_itemTextLineEdit_textEdited(const QString &text)
 {
+    if (m_updating)
+        return;
     QListWidgetItem *currentColumn = ui.columnsListWidget->currentItem();
     QListWidgetItem *currentRow = ui.rowsListWidget->currentItem();
     if (!currentColumn || !currentRow)
@@ -489,6 +498,7 @@ void TableWidgetEditor::moveRowsUp(int fromRow, int toRow)
 
 void TableWidgetEditor::on_newColumnButton_clicked()
 {
+    m_updating = true;
     QListWidgetItem *currentColumn = ui.columnsListWidget->currentItem();
     int idx = ui.columnsListWidget->count();
     if (currentColumn)
@@ -512,6 +522,9 @@ void TableWidgetEditor::on_newColumnButton_clicked()
     ui.columnsListWidget->insertItem(idx, item);
     ui.columnsListWidget->setCurrentItem(item);
 
+    m_updating = true;
+    updateEditor();
+
     ui.columnsListWidget->editItem(item);
 }
 
@@ -530,6 +543,8 @@ void TableWidgetEditor::on_deleteColumnButton_clicked()
     if (!currentColumn)
         return;
 
+    m_updating = true;
+
     int idx = ui.columnsListWidget->currentRow();
     int columnCount = ui.tableWidget->columnCount();
 
@@ -541,8 +556,9 @@ void TableWidgetEditor::on_deleteColumnButton_clicked()
         idx--;
     if (idx >= 0)
         ui.columnsListWidget->setCurrentRow(idx);
-    else
-        updateEditor();
+
+    m_updating = false;
+    updateEditor();
 }
 
 void TableWidgetEditor::on_moveColumnUpButton_clicked()
@@ -556,10 +572,15 @@ void TableWidgetEditor::on_moveColumnUpButton_clicked()
     if (idx == 0)
         return;
 
+    m_updating = true;
+
     moveColumnsRight(idx - 1, idx);
     ui.columnsListWidget->takeItem(idx);
     ui.columnsListWidget->insertItem(idx - 1, currentColumn);
     ui.columnsListWidget->setCurrentItem(currentColumn);
+
+    m_updating = false;
+    updateEditor();
 }
 
 void TableWidgetEditor::on_moveColumnDownButton_clicked()
@@ -574,10 +595,15 @@ void TableWidgetEditor::on_moveColumnDownButton_clicked()
     if (idx == columnCount - 1)
         return;
 
+    m_updating = true;
+
     moveColumnsLeft(idx, idx + 1);
     ui.columnsListWidget->takeItem(idx);
     ui.columnsListWidget->insertItem(idx + 1, currentColumn);
     ui.columnsListWidget->setCurrentItem(currentColumn);
+
+    m_updating = false;
+    updateEditor();
 }
 
 void TableWidgetEditor::on_previewPixmapColumnButton_clicked()
@@ -637,6 +663,8 @@ void TableWidgetEditor::on_deletePixmapColumnButton_clicked()
 
 void TableWidgetEditor::on_newRowButton_clicked()
 {
+    m_updating = true;
+
     QListWidgetItem *currentRow = ui.rowsListWidget->currentItem();
     int idx = ui.rowsListWidget->count();
     if (currentRow)
@@ -660,6 +688,9 @@ void TableWidgetEditor::on_newRowButton_clicked()
     ui.rowsListWidget->insertItem(idx, item);
     ui.rowsListWidget->setCurrentItem(item);
 
+    m_updating = false;
+    updateEditor();
+
     ui.rowsListWidget->editItem(item);
 }
 
@@ -674,6 +705,8 @@ void TableWidgetEditor::on_renameRowButton_clicked()
 
 void TableWidgetEditor::on_deleteRowButton_clicked()
 {
+    m_updating = true;
+
     QListWidgetItem *currentRow = ui.rowsListWidget->currentItem();
     if (!currentRow)
         return;
@@ -689,8 +722,9 @@ void TableWidgetEditor::on_deleteRowButton_clicked()
         idx--;
     if (idx >= 0)
         ui.rowsListWidget->setCurrentRow(idx);
-    else
-        updateEditor();
+
+    m_updating = false;
+    updateEditor();
 }
 
 void TableWidgetEditor::on_moveRowUpButton_clicked()
@@ -704,10 +738,15 @@ void TableWidgetEditor::on_moveRowUpButton_clicked()
     if (idx == 0)
         return;
 
+    m_updating = true;
+
     moveRowsUp(idx - 1, idx);
     ui.rowsListWidget->takeItem(idx);
     ui.rowsListWidget->insertItem(idx - 1, currentRow);
     ui.rowsListWidget->setCurrentItem(currentRow);
+
+    m_updating = false;
+    updateEditor();
 }
 
 void TableWidgetEditor::on_moveRowDownButton_clicked()
@@ -722,10 +761,15 @@ void TableWidgetEditor::on_moveRowDownButton_clicked()
     if (idx == rowCount - 1)
         return;
 
+    m_updating = true;
+
     moveRowsDown(idx, idx + 1);
     ui.rowsListWidget->takeItem(idx);
     ui.rowsListWidget->insertItem(idx + 1, currentRow);
     ui.rowsListWidget->setCurrentItem(currentRow);
+
+    m_updating = false;
+    updateEditor();
 }
 
 void TableWidgetEditor::on_previewPixmapRowButton_clicked()

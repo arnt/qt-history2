@@ -75,7 +75,7 @@ private:
 
     Ui::TableWidgetEditor ui;
     QDesignerFormWindowInterface *m_form;
-    bool updating;
+    bool m_updating;
 };
 
 }  // namespace qdesigner_internal
