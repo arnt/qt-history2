@@ -755,14 +755,14 @@ void QDirModel::setNameFilters(const QStringList &filters)
 {
     Q_D(QDirModel);
 
-    d->savePersistentIndexes();
     beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
+    d->savePersistentIndexes();
 
     d->nameFilters = filters;
     d->clear(&d->root); // clear model
 
-    endRemoveRows();
     d->restorePersistentIndexes();
+    endRemoveRows();
 }
 
 /*!
@@ -788,14 +788,14 @@ void QDirModel::setFilter(QDir::Filters filters)
 {
     Q_D(QDirModel);
 
-    d->savePersistentIndexes();
     beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
+    d->savePersistentIndexes();
 
     d->filters = filters;
     d->clear(&d->root); // clear model
 
-    endRemoveRows();
     d->restorePersistentIndexes();
+    endRemoveRows();
 }
 
 /*!
@@ -820,14 +820,14 @@ void QDirModel::setSorting(QDir::SortFlags sort)
 {
     Q_D(QDirModel);
 
-    d->savePersistentIndexes();
     beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
+    d->savePersistentIndexes();
 
     d->sort = sort;
     d->clear(&d->root); // clear model
 
-    endRemoveRows();
     d->restorePersistentIndexes();
+    endRemoveRows();
 }
 
 /*!
@@ -918,13 +918,13 @@ void QDirModel::refresh(const QModelIndex &parent)
     QDirModelPrivate::QDirNode *p = d->node(parent);
     QDirModelPrivate::QDirNode *n = (p ? p : &(d->root));
 
-    d->savePersistentIndexes();
     beginRemoveRows(parent, 0, n->children.count() - 1);
+    d->savePersistentIndexes();
 
     d->refresh(p); // if (p == 0) it reads the drives
 
-    endRemoveRows();
     d->restorePersistentIndexes();
+    endRemoveRows();
 }
 
 /*!
