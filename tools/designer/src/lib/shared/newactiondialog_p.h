@@ -44,6 +44,8 @@ private:
     ActionEditor *m_actionEditor;
     Ui::NewActionDialog ui;
     bool m_auto_update_object_name;
+
+    void updateButtons();
 };
 
 } // namespace qdesigner_internal

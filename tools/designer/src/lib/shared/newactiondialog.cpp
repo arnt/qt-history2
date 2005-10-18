@@ -28,8 +28,8 @@ NewActionDialog::NewActionDialog(ActionEditor *parent)
 {
     ui.setupUi(this);
     ui.editActionText->setFocus();
-    ui.okButton->setEnabled(false);
     m_auto_update_object_name = true;
+    updateButtons();
 }
 
 QIcon NewActionDialog::actionIcon() const
@@ -43,6 +43,7 @@ void NewActionDialog::setActionData(const QString &text, const QString &name, co
     ui.editObjectName->setText(name);
     ui.iconButton->setIcon(icon);
     m_auto_update_object_name = false;
+    updateButtons();
 }
 
 NewActionDialog::~NewActionDialog()
@@ -88,12 +89,12 @@ void NewActionDialog::on_editActionText_textEdited(const QString &text)
     if (m_auto_update_object_name)
         ui.editObjectName->setText(actionTextToName(text));
 
-    ui.okButton->setEnabled(!text.isEmpty() && !actionName().isEmpty());
+    updateButtons();
 }
 
-void NewActionDialog::on_editObjectName_textEdited(const QString &text)
+void NewActionDialog::on_editObjectName_textEdited(const QString&)
 {
-    ui.okButton->setEnabled(!text.isEmpty() && !actionName().isEmpty());
+    updateButtons();
     m_auto_update_object_name = false;
 }
 
@@ -123,11 +124,19 @@ void NewActionDialog::on_iconButton_clicked()
 
     QIcon icon = core->iconCache()->nameToIcon(file_path, qrc_path);
     ui.iconButton->setIcon(icon);
+    updateButtons();
 }
 
 void NewActionDialog::on_removeIconButton_clicked()
 {
     ui.iconButton->setIcon(QIcon());
+    updateButtons();
+}
+
+void NewActionDialog::updateButtons()
+{
+    ui.okButton->setEnabled(!actionText().isEmpty() && !actionName().isEmpty());
+    ui.removeIconButton->setEnabled(!ui.iconButton->icon().isNull());
 }
 
 } // namespace qdesigner_internal

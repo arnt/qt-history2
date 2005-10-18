@@ -236,7 +236,7 @@ void ActionEditor::updatePropertyEditor(QAction *action)
     if (action->menu())
         sel = action->menu();
 
-    core()->propertyEditor()->setObject(action->menu());
+    core()->propertyEditor()->setObject(sel);
 }
 
 void ActionEditor::slotItemChanged(QListWidgetItem *item)
