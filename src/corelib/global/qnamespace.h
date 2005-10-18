@@ -345,7 +345,7 @@ public:
 
         WA_AcceptDrops = 78,
         WA_DropSiteRegistered = 79, // internal
-        WA_ForceAcceptDrops = WA_DropSiteRegistered,
+        WA_ForceAcceptDrops = WA_DropSiteRegistered, // ## deprecated
 
         WA_WindowPropagation = 80,
 
