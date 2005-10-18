@@ -260,10 +260,10 @@ QString MingwMakefileGenerator::replaceExtraCompilerVariables(const QString &var
 {
     QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out);
 
-    if (ret.contains("${OBJECTS_DIR}")) {
-        ret.replace("${OBJECTS_DIR}/",  project->first("OBJECTS_DIR"));
-        ret.replace("${OBJECTS_DIR}\\",  project->first("OBJECTS_DIR"));
-        ret.replace("${OBJECTS_DIR}",  project->first("OBJECTS_DIR"));
+    if (ret.contains("$(OBJECTS_DIR)")) {
+        ret.replace("$(OBJECTS_DIR)/",  project->first("OBJECTS_DIR"));
+        ret.replace("$(OBJECTS_DIR)\\",  project->first("OBJECTS_DIR"));
+        ret.replace("$(OBJECTS_DIR)",  project->first("OBJECTS_DIR"));
     }
     return ret;
 }
