@@ -1381,6 +1381,12 @@
     typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
     needs to be modified.
 
+    \section1 QTPLUGIN
+
+    This variable contains a list of names of static plugins that are to be
+    compiled with an application so that they are available as built-in
+    resources.
+
     \target POST_TARGETDEPS
     \section1 POST_TARGETDEPS
 
