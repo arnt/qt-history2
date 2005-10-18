@@ -2591,11 +2591,7 @@ QMenu *QTextEdit::createStandardContextMenu()
 
 
     menu->addSeparator();
-    a = menu->addAction(tr("Select All")
-#if !defined(Q_WS_X11)
-                        + ACCEL_KEY(A)
-#endif
-                        , this, SLOT(selectAll()));
+    a = menu->addAction(tr("Select All") + ACCEL_KEY(A), this, SLOT(selectAll()));
 
     a->setEnabled(!d->doc->isEmpty());
 
