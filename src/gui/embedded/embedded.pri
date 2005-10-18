@@ -25,7 +25,6 @@ embedded {
 		    embedded/qwsproperty_qws.h \
                     embedded/qtransportauth_qws.h \
                     embedded/qtransportauth_qws_p.h \
-                    embedded/md5.h \
 		    embedded/qwssocket_qws.h \
 		    embedded/qwsutils_qws.h
 
@@ -45,7 +44,7 @@ embedded {
 		    embedded/qwsmanager_qws.cpp \
 		    embedded/qwsproperty_qws.cpp \
                     embedded/qtransportauth_qws.cpp \
-                    embedded/md5.c \
+                    ../3rdparty/md5/md5.c \
 		    embedded/qwssocket_qws.cpp
 
 	contains(QT_CONFIG, ft) {
