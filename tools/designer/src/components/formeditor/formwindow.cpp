@@ -753,9 +753,6 @@ bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
             }
         }
 
-        QString orig = s;
-        int num = 1;
-
         QListIterator<QObject*> it(objects);
         while (it.hasNext()) {
             QObject *child = it.next();
@@ -766,7 +763,19 @@ bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
                 if (!changeIt)
                     break;
 
-                s = orig + QLatin1String("_") + QString::number(++num);
+                qlonglong num = 0;
+                qlonglong factor = 1;
+                int idx = s.length()-1;
+                for ( ; (idx > 0) && s.at(idx).isDigit(); --idx) {
+                    num += (s.at(idx).unicode() - QLatin1Char('0').unicode()) * factor;
+                    factor *= 10;
+                }
+
+                if ((idx >= 0) && (QLatin1Char('_') == s.at(idx)))
+                    s = s.left(idx+1) + QString::number(num+1);
+                else
+                    s = s + QLatin1String("_2");
+
                 it.toFront();
             }
         }
