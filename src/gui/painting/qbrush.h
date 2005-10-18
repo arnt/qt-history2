@@ -149,7 +149,8 @@ public:
     void setStops(const QGradientStops &stops);
     QGradientStops stops() const;
 
-    bool operator==(const QGradient &gradient);
+    bool operator==(const QGradient &gradient); // 5.0 - remove me
+    bool operator==(const QGradient &gradient) const;
 
 
 private:

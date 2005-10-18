@@ -875,7 +875,7 @@ QGradientStops QGradient::stops() const
 /*!
     \internal
 */
-bool QGradient::operator==(const QGradient &gradient)
+bool QGradient::operator==(const QGradient &gradient) const
 {
     if (gradient.m_type != m_type || gradient.m_spread != m_spread) return false;
 
@@ -899,7 +899,12 @@ bool QGradient::operator==(const QGradient &gradient)
             return false;
     }
 
-    return m_stops == gradient.m_stops;
+    return stops() == gradient.stops();
+}
+
+bool QGradient::operator==(const QGradient &gradient)
+{
+    return const_cast<const QGradient *>(this)->operator==(gradient);
 }
 
 
