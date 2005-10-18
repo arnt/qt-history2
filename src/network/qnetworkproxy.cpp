@@ -41,6 +41,7 @@
 
 #include "qsocks5socketengine_p.h"
 #include "qmutex.h"
+#include "qatomic.h"
 
 class QGlobalNetworkProxy
 {
@@ -93,23 +94,20 @@ Q_GLOBAL_STATIC(QGlobalNetworkProxy, globalNetworkProxy);
 
 class QNetworkProxyPrivate
 {
-    Q_DECLARE_PUBLIC(QNetworkProxy)
-
 public:
+    QBasicAtomic ref;
     QNetworkProxy::ProxyType type;
     QString user;
     QString password;
     QString hostName;
     quint16 port;
-
-    QNetworkProxy *q_ptr;
 };
 
 QNetworkProxy::QNetworkProxy()
  : d_ptr(new QNetworkProxyPrivate)
 {
     Q_D(QNetworkProxy);
-    d->q_ptr = this;
+    d->ref.init(1);
     d->type = DefaultProxy;
     d->port = 0;
 }
@@ -119,12 +117,32 @@ QNetworkProxy::QNetworkProxy(ProxyType type, const QString &hostName, quint16 po
  : d_ptr(new QNetworkProxyPrivate)
 {
     Q_D(QNetworkProxy);
-    d->q_ptr = this;
+    d->ref.init(1);
     setType(type);
     setHostName(hostName);
     setPort(port);
     setUser(user);
     setPassword(password);
+}
+
+QNetworkProxy::QNetworkProxy(const QNetworkProxy &other)
+    : d_ptr(other.d_ptr)
+{
+
+    d_ptr->ref.ref();
+}
+
+QNetworkProxy::~QNetworkProxy()
+{
+    Q_D(QNetworkProxy);
+    if (!d->ref.deref())
+        delete d_ptr;
+}
+
+QNetworkProxy &QNetworkProxy::operator=(const QNetworkProxy &other)
+{
+    qAtomicAssign(d_ptr, other.d_ptr);
+    return *this;
 }
 
 /*!

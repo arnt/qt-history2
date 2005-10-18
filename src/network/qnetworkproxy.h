@@ -36,6 +36,9 @@ public:
     QNetworkProxy();
     QNetworkProxy(ProxyType type, const QString &hostName = QString(), quint16 port = 0,
                   const QString &user = QString(), const QString &password = QString());
+    QNetworkProxy(const QNetworkProxy &other);
+    QNetworkProxy &operator=(const QNetworkProxy &other);
+    ~QNetworkProxy();
 
     void setType(QNetworkProxy::ProxyType type);
     QNetworkProxy::ProxyType type() const;
