@@ -45,11 +45,10 @@ bool DragDropListModel::dropMimeData(const QMimeData *data,
     else
         beginRow = parent.row();
 
-    int rows = 0;
-
     QByteArray encodedData = data->data("text/plain");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
     QStringList newItems;
+    int rows = 0;
 
     while (!stream.atEnd()) {
         QString text;
