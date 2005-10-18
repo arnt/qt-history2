@@ -23,10 +23,6 @@
 
 #include "qfile.h"
 
-#ifndef GL_BGRA
-#  define GL_BGRA 0x80E1
-#endif
-
 Q_GLOBAL_STATIC(QGLFormat, qgl_default_format)
 
 class QGLDefaultOverlayFormat: public QGLFormat
@@ -1247,7 +1243,7 @@ QImage QGLContextPrivate::convertToBGRA(const QImage &image)
             uint *q = (uint*) res.scanLine(img.height() - i - 1);
             uint *end = p + img.width();
             while (p < end) {
-		*q = ((*p << 24) & 0xff000000)
+                *q = ((*p << 24) & 0xff000000)
                      | ((*p >> 24) & 0xff000000)
                      | ((*p << 8) & 0x00ff0000)
                      | ((*p >> 8) & 0x0000ff00);
@@ -3052,6 +3048,14 @@ void QGLExtensions::init_extensions()
         glExtensions |= GenerateMipmap;
     if (extensions.contains("texture_compression_s3tc"))
         glExtensions |= TextureCompression;
+    if (extensions.contains("ARB_fragment_shader"))
+        glExtensions |= FragmentShader;
+    if (extensions.contains("clamp_to_edge"))
+        glExtensions |= ClampToEdge;
+    if (extensions.contains("clamp_to_border"))
+        glExtensions |= ClampToBorder;
+    if (extensions.contains("mirrored_repeat"))
+        glExtensions |= MirroredRepeat;
 
     QGLContext cx(QGLFormat::defaultFormat());
     if (glExtensions & TextureCompression) {
