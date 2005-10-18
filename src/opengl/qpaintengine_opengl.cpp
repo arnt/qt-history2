@@ -564,6 +564,10 @@ typedef unsigned int GLhandleARB;
 #define GL_OBJECT_SHADER_SOURCE_LENGTH_ARB 0x8B88
 #endif
 
+#ifndef APIENTRY
+# define APIENTRY
+#endif
+
 typedef void (APIENTRY *pfn_glDeleteObjectARB) (GLhandleARB);
 typedef GLhandleARB (APIENTRY *pfn_glGetHandleARB) (GLenum);
 typedef void (APIENTRY *pfn_glDetachObjectARB) (GLhandleARB, GLhandleARB);
