@@ -173,8 +173,10 @@ void QMenuBarPrivate::updateGeometries()
     }
     q->updateGeometry();
 #ifdef QT3_SUPPORT
-    QMenubarUpdatedEvent menubarUpdated(q);
-    QApplication::sendEvent(q->parentWidget(), &menubarUpdated);
+    if (q->parentWidget() != 0) {
+        QMenubarUpdatedEvent menubarUpdated(q);
+        QApplication::sendEvent(q->parentWidget(), &menubarUpdated);
+    }
 #endif
 }
 
@@ -1159,7 +1161,7 @@ bool QMenuBar::event(QEvent *e)
     case QEvent::Show:
 #ifdef QT3_SUPPORT
         // If itemsDirty == true, updateGeometries sends the MenubarUpdated event.
-        if (!d->itemsDirty) { 
+        if (!d->itemsDirty) {
             QMenubarUpdatedEvent menubarUpdated(this);
             QApplication::sendEvent(parentWidget(), &menubarUpdated);
         }
@@ -1173,7 +1175,7 @@ bool QMenuBar::event(QEvent *e)
         QApplication::sendEvent(parentWidget(), &menubarUpdated);
     } break;
 #endif
-        
+
 #ifndef QT_NO_WHATSTHIS
     case QEvent::QueryWhatsThis:
         e->setAccepted(d->whatsThis.size());
