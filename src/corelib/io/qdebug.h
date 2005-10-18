@@ -18,6 +18,7 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
+#include <QtCore/qpair.h>
 #include <QtCore/qtextstream.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qvector.h>
@@ -122,6 +123,13 @@ inline QDebug operator<<(QDebug debug, const QHash<aKey, aT> &hash)
             it != hash.constEnd(); ++it)
         debug << "(" << it.key() << ", " << it.value() << ")";
     debug << ")";
+    return debug.space();
+}
+
+template <class T1, class T2>
+inline QDebug operator<<(QDebug debug, const QPair<T1, T2> &pair)
+{
+    debug.nospace() << "QPair(" << pair.first << "," << pair.second << ")";
     return debug.space();
 }
 
