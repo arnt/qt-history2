@@ -134,7 +134,7 @@ namespace QTest {
 #ifdef Q_OS_WIN
                           "%s(%d) : failure location\n"
 #else
-                          "    Loc: [%s(%d)]\n"
+                          "   Loc: [%s(%d)]\n"
 #endif
                           , type, QTestResult::currentTestObjectName(), fn, gtag, filler, tag,
                           msg[0] ? " " : "", msg, file, line);

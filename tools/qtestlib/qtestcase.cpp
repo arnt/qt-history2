@@ -982,26 +982,28 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
     QTestTable *gTable = QTestTable::globalTestTable();
     QMetaObject::invokeMethod(testObject, "initTestCase_data", Qt::DirectConnection);
 
-    QTestResult::setCurrentTestLocation(QTestResult::Func);
-    QMetaObject::invokeMethod(testObject, "initTestCase");
-    QTestResult::finishedCurrentTestFunction();
+    if (!QTest::skipCurrentTest) {
+        QTestResult::setCurrentTestLocation(QTestResult::Func);
+        QMetaObject::invokeMethod(testObject, "initTestCase");
+        QTestResult::finishedCurrentTestFunction();
 
-    if (lastTestFuncIdx >= 0) {
-        for (int i = 0; i <= lastTestFuncIdx; ++i) {
-            qInvokeTestMethod(mo->method(testFuncs[i].function).signature(), testFuncs[i].data);
+        if (lastTestFuncIdx >= 0) {
+            for (int i = 0; i <= lastTestFuncIdx; ++i) {
+                qInvokeTestMethod(mo->method(testFuncs[i].function).signature(), testFuncs[i].data);
+            }
+        } else {
+            int sc = mo->methodCount();
+            for (int i = 0; i < sc; ++i) {
+                QMetaMethod sl = mo->method(i);
+                if (!isValidSlot(sl))
+                    continue;
+                qInvokeTestMethod(sl.signature());
+            }
         }
-    } else {
-        int sc = mo->methodCount();
-        for (int i = 0; i < sc; ++i) {
-            QMetaMethod sl = mo->method(i);
-            if (!isValidSlot(sl))
-                continue;
-            qInvokeTestMethod(sl.signature());
-        }
+
+        QTestResult::setCurrentTestFunction("cleanupTestCase");
+        QMetaObject::invokeMethod(testObject, "cleanupTestCase");
     }
-
-    QTestResult::setCurrentTestFunction("cleanupTestCase");
-    QMetaObject::invokeMethod(testObject, "cleanupTestCase");
     QTestResult::finishedCurrentTestFunction();
     QTestResult::setCurrentTestFunction(0);
     delete gTable; gTable = 0;
