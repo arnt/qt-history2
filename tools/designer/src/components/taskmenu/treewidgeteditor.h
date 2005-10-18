@@ -45,7 +45,7 @@ private slots:
             QTreeWidgetItem *previous);
     void on_treeWidget_itemChanged(QTreeWidgetItem *current);
 
-    void on_itemTextLineEdit_textChanged(const QString &text);
+    void on_itemTextLineEdit_textEdited(const QString &text);
     void on_previewPixmapItemButton_clicked();
     void on_deletePixmapItemButton_clicked();
 

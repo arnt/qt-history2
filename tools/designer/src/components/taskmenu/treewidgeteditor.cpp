@@ -461,7 +461,7 @@ void TreeWidgetEditor::updateEditor()
 
 }
 
-void TreeWidgetEditor::on_itemTextLineEdit_textChanged(const QString &text)
+void TreeWidgetEditor::on_itemTextLineEdit_textEdited(const QString &text)
 {
     if (m_updating)
         return;
