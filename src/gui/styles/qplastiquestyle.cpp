@@ -2591,12 +2591,12 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                                  QPalette::Text);
                     w = menuItem->fontMetrics.width(menuItem->text) + 5;
                 }
-                
+
                 painter->setPen(alphaCornerColor);
                 bool reverse = menuItem->direction == Qt::RightToLeft;
                 painter->drawLine(menuItem->rect.left() + 5 + (reverse ? 0 : w), menuItem->rect.center().y(),
                                   menuItem->rect.right() - 5 - (reverse ? w : 0), menuItem->rect.center().y());
-                    
+
                 painter->restore();
                 break;
             }
@@ -4572,8 +4572,7 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
 #endif
 #ifndef QT_NO_COMBOBOX
     case CT_ComboBox:
-        newSize.setHeight(sizeFromContents(CT_LineEdit, option, size, widget).height());
-        newSize.rheight() -= (1 - newSize.rheight() & 1);
+        ++newSize.rheight();
         break;
 #endif
     case CT_MenuItem:
