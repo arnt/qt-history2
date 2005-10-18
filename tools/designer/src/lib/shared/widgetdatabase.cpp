@@ -192,6 +192,7 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerToolBar")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerMenuBar")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerDockWidget")));
+    append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerQ3WidgetStack")));
 
     // ### remove me
     // ### check the casts
@@ -209,6 +210,7 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDesignerToolBar"))))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDesignerMenuBar"))))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDesignerDockWidget"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDesignerQ3WidgetStack"))))->setContainer(true);
 
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QWidget"))))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDialog"))))->setContainer(true);

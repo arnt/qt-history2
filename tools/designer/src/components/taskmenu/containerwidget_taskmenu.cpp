@@ -43,7 +43,7 @@ ContainerWidgetTaskMenu::ContainerWidgetTaskMenu(QWidget *widget, QObject *paren
     m_actionInsertPage = new QAction(tr("Insert Page Before Current Page"), this);
     connect(m_actionInsertPage, SIGNAL(triggered()), this, SLOT(addPage()));
 
-    m_actionInsertPageAfter = new QAction(tr("Insert Page"), this);
+    m_actionInsertPageAfter = new QAction(tr("Insert Page After Current Page"), this);
     connect(m_actionInsertPageAfter, SIGNAL(triggered()), this, SLOT(addPageAfter()));
 
     m_taskActions.append(m_actionDeletePage);
@@ -69,6 +69,8 @@ QList<QAction*> ContainerWidgetTaskMenu::taskActions() const
 {
     QList<QAction*> actions = QDesignerTaskMenu::taskActions();
     actions += m_taskActions;
+    if (QDesignerContainerExtension *ce = containterExtension())
+        m_actionDeletePage->setEnabled(ce->count() > 1);
     return actions;
 }
 

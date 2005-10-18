@@ -18,7 +18,7 @@
 #include <QtDesigner/QExtensionManager>
 
 #include <QtCore/qplugin.h>
-#include <Qt3Support/Q3WidgetStack>
+#include "qdesigner_q3widgetstack_p.h"
 
 Q3WidgetStackPlugin::Q3WidgetStackPlugin(QObject *parent)
     : QObject(parent), m_initialized(false)
@@ -46,7 +46,7 @@ bool Q3WidgetStackPlugin::isContainer() const
 { return true; }
 
 QWidget *Q3WidgetStackPlugin::createWidget(QWidget *parent)
-{ return new Q3WidgetStack(parent); }
+{ return new QDesignerQ3WidgetStack(parent); }
 
 bool Q3WidgetStackPlugin::isInitialized() const
 { return m_initialized; }
@@ -78,9 +78,8 @@ QString Q3WidgetStackPlugin::domXml() const
                 <height>80</height>\
             </rect>\
         </property>\
-        <widget class=\"QWidget\" />\
-        <widget class=\"QWidget\" />\
+        <widget class=\"QWidget\" name=\"page\"/>\
+        <widget class=\"QWidget\" name=\"page_2\"/>\
     </widget>\
     ");
 }
-

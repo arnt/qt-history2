@@ -17,14 +17,14 @@
 #include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QExtensionFactory>
 
-class Q3WidgetStack;
+class QDesignerQ3WidgetStack;
 
 class Q3WidgetStackContainer: public QObject, public QDesignerContainerExtension
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerContainerExtension)
 public:
-    Q3WidgetStackContainer(Q3WidgetStack *widget, QObject *parent = 0);
+    Q3WidgetStackContainer(QDesignerQ3WidgetStack *widget, QObject *parent = 0);
 
     virtual int count() const;
     virtual QWidget *widget(int index) const;
@@ -35,7 +35,7 @@ public:
     virtual void remove(int index);
 
 private:
-    Q3WidgetStack *m_widget;
+    QDesignerQ3WidgetStack *m_widget;
     QList<QWidget*> m_pages;
 };
 

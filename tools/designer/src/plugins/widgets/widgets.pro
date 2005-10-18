@@ -56,6 +56,7 @@ HEADERS += q3buttongroup/q3buttongroup_plugin.h \
            q3toolbar/q3toolbar_plugin.h \
            q3widgetstack/q3widgetstack_container.h \
            q3widgetstack/q3widgetstack_plugin.h \
+           q3widgetstack/qdesigner_q3widgetstack_p.h \
            q3wizard/q3wizard_container.h \
            q3wizard/q3wizard_plugin.h \
            q3listbox/q3listbox_extrainfo.h \
@@ -78,6 +79,7 @@ SOURCES += q3buttongroup/q3buttongroup_plugin.cpp \
            q3toolbar/q3toolbar_plugin.cpp \
            q3widgetstack/q3widgetstack_container.cpp \
            q3widgetstack/q3widgetstack_plugin.cpp \
+           q3widgetstack/qdesigner_q3widgetstack.cpp \
            q3wizard/q3wizard_container.cpp \
            q3wizard/q3wizard_plugin.cpp \
            q3listbox/q3listbox_extrainfo.cpp \

@@ -80,6 +80,7 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
     m_internal_to_qt.insert(QLatin1String("QDesignerMenuBar"), QLatin1String("QMenuBar"));
     m_internal_to_qt.insert(QLatin1String("QDesignerMenu"), QLatin1String("QMenu"));
     m_internal_to_qt.insert(QLatin1String("QDesignerDockWidget"), QLatin1String("QDockWidget"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerQ3WidgetStack"), QLatin1String("Q3WidgetStack"));
 
     // invert
     QHashIterator<QString, QString> it(m_internal_to_qt);

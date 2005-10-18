@@ -12,11 +12,11 @@
 ****************************************************************************/
 
 #include "q3widgetstack_container.h"
-#include <Qt3Support/Q3WidgetStack>
+#include "qdesigner_q3widgetstack_p.h"
 
 #include <QtCore/qdebug.h>
 
-Q3WidgetStackContainer::Q3WidgetStackContainer(Q3WidgetStack *widget, QObject *parent)
+Q3WidgetStackContainer::Q3WidgetStackContainer(QDesignerQ3WidgetStack *widget, QObject *parent)
     : QObject(parent),
       m_widget(widget)
 {}
@@ -48,12 +48,21 @@ void Q3WidgetStackContainer::insertWidget(int index, QWidget *widget)
 {
     m_pages.insert(index, widget);
     m_widget->addWidget(widget);
+    m_widget->setCurrentIndex(index);
 }
 
 void Q3WidgetStackContainer::remove(int index)
 {
+    int current = currentIndex();
     m_widget->removeWidget(m_pages.at(index));
     m_pages.removeAt(index);
+    if (index == current) {
+        if (count() > 0)
+            m_widget->setCurrentIndex((index == count()) ? index-1 : index);
+    } else if (index < current) {
+        if (current > 0)
+            m_widget->setCurrentIndex(current-1);
+    }
 }
 
 Q3WidgetStackContainerFactory::Q3WidgetStackContainerFactory(QExtensionManager *parent)
@@ -66,7 +75,7 @@ QObject *Q3WidgetStackContainerFactory::createExtension(QObject *object, const Q
     if (iid != Q_TYPEID(QDesignerContainerExtension))
         return 0;
 
-    if (Q3WidgetStack *w = qobject_cast<Q3WidgetStack*>(object))
+    if (QDesignerQ3WidgetStack *w = qobject_cast<QDesignerQ3WidgetStack*>(object))
         return new Q3WidgetStackContainer(w, parent);
 
     return 0;

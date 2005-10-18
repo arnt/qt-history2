@@ -183,6 +183,8 @@ const char *WidgetFactory::classNameOf(QObject* o)
         return "QLabel";
     else if (qstrcmp(o->metaObject()->className(), "QAxBase") == 0)
         return "QAxWidget";
+    else if (qstrcmp(o->metaObject()->className(), "QDesignerQ3WidgetStack") == 0)
+        return "Q3WidgetStack";
     else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o))
         return promoted->customClassName();
 
