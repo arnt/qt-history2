@@ -82,7 +82,7 @@ public:
     Qt::PenStyle style;
     Qt::PenCapStyle capStyle;
     Qt::PenJoinStyle joinStyle;
-    QVector<qreal> dashPattern;
+    mutable QVector<qreal> dashPattern;
     qreal miterLimit;
 };
 
@@ -565,6 +565,16 @@ bool QPen::isSolid() const
     \sa operator==()
 */
 
+static bool qFuzzyVectorCompare(const QVector<qreal> &v1, const QVector<qreal> &v2)
+{
+    if (v1.count() != v2.count())
+        return false;
+    for (int i = 0; i < v1.count(); ++i)
+        if (!qFuzzyCompare(v1.at(i), v2.at(i)))
+            return false;
+    return true;
+}
+
 /*!
     Returns true if the pen is equal to \a p; otherwise returns false.
 
@@ -578,9 +588,10 @@ bool QPen::operator==(const QPen &p) const
     return (p.d == d) || (p.d->style == d->style
                           && p.d->capStyle == d->capStyle
                           && p.d->joinStyle == d->joinStyle
-                          && p.d->width == d->width
-                          && p.d->miterLimit == d->miterLimit
-                          && p.d->dashPattern == d->dashPattern
+                          && qFuzzyCompare(p.d->width, d->width)
+                          && qFuzzyCompare(p.d->miterLimit, d->miterLimit)
+                          && (d->style != Qt::CustomDashLine
+                              || qFuzzyVectorCompare(p.dashPattern(), dashPattern()))
                           && p.d->brush == d->brush);
 }
 
@@ -660,14 +671,14 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
         s >> dashPattern;
     }
 
-    Qt::PenStyle penStyle = Qt::PenStyle(style & Qt::MPenStyle);
-    Qt::PenCapStyle capStyle = Qt::PenCapStyle(style & Qt::MPenCapStyle);
-    Qt::PenJoinStyle joinStyle = Qt::PenJoinStyle(style & Qt::MPenJoinStyle);
-
-    p = QPen(brush, width, penStyle, capStyle, joinStyle);
-    p.setMiterLimit(miterLimit);
-    p.setDashPattern(dashPattern);
-    p.setStyle(penStyle);
+    p.detach();
+    p.d->width = width;
+    p.d->brush = brush;
+    p.d->style = Qt::PenStyle(style & Qt::MPenStyle);
+    p.d->capStyle = Qt::PenCapStyle(style & Qt::MPenCapStyle);
+    p.d->joinStyle = Qt::PenJoinStyle(style & Qt::MPenJoinStyle);
+    p.d->dashPattern = dashPattern;
+    p.d->miterLimit = miterLimit;
 
     return s;
 }
