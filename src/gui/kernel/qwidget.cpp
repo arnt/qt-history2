@@ -1822,19 +1822,14 @@ bool QWidget::isFullScreen() const
 */
 void QWidget::showFullScreen()
 {
-    bool isFull = isFullScreen();
-    if (isFull && isVisible())
-	return;
-
     ensurePolished();
 #ifdef QT3_SUPPORT
     if (parent())
         QApplication::sendPostedEvents(parent(), QEvent::ChildInserted);
 #endif
 
-    if (!isFull)
-	setWindowState((windowState() & ~(Qt::WindowMinimized | Qt::WindowMaximized))
-                       | Qt::WindowFullScreen);
+    setWindowState((windowState() & ~(Qt::WindowMinimized | Qt::WindowMaximized))
+                   | Qt::WindowFullScreen);
     show();
     activateWindow();
 }
@@ -1851,9 +1846,6 @@ void QWidget::showFullScreen()
 */
 void QWidget::showMaximized()
 {
-    if (isMaximized() && isVisible())
-	return;
-
     ensurePolished();
 #ifdef QT3_SUPPORT
     if (parent())
