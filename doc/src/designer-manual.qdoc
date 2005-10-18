@@ -1252,7 +1252,7 @@ or one of its subdirectories.
 \i \bold{Editing Resource Files}
 
 Press the \gui + button to add a new resource entry to the file. Then use the
-\gui Add Files button to specify the resource.
+\gui {Add Files} button to specify the resource.
 
 You can remove resources by selecting the corresponding entry in the resource
 editor, and press the \gui - button.
@@ -1268,7 +1268,7 @@ resource file.
 \target UsingResources
 \table
 \row
-\i \inlineimage designer-using-resources.png
+\i \inlineimage designer-resources-using.png
 \i \bold{Using Resources}
 
 When changing properties which values might be defined within a resource file,
