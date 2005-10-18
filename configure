@@ -2997,17 +2997,19 @@ fi
 # x11
 if [ "$PLATFORM_X11" = "yes" ]; then
     x11tests=$relpath/config.tests/x11
+    X11TESTS_FLAGS=
 
     # work around broken X11 headers when using GCC 2.95 or later
     NOTYPE=no
     $x11tests/notype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && NOTYPE=yes
     if [ $NOTYPE = "yes" ]; then 
-        I_FLAGS="$I_FLAGS -fpermissive"
+        QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fpermissive\""
+        X11TESTS_FLAGS="$X11TESTS_FLAGS -fpermissive"
     fi
 
     # auto-detect OpenGL support
     if [ "$CFG_OPENGL" = "auto" ]; then
-        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/opengl "OpenGL" $L_FLAGS $I_FLAGS; then
+        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/opengl "OpenGL" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
             CFG_OPENGL=yes
         else
             CFG_OPENGL=no
@@ -3016,7 +3018,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xcursor support
     if [ "$CFG_XCURSOR" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xcursor "Xcursor" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xcursor "Xcursor" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
 	    CFG_XCURSOR=yes
 	else
 	    if [ "$CFG_XCURSOR" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3033,7 +3035,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xrandr support (resize and rotate extension)
     if [ "$CFG_XRANDR" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xrandr "Xrandr" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xrandr "Xrandr" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
 	    CFG_XRANDR=yes
 	else
 	    if [ "$CFG_XRANDR" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3050,7 +3052,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xrender support
     if [ "$CFG_XRENDER" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xrender "Xrender" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xrender "Xrender" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
 	    CFG_XRENDER=yes
 	else
 	    if [ "$CFG_XRENDER" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3068,7 +3070,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     # auto-detect FontConfig support
     if [ "$CFG_FONTCONFIG" != "no" ]; then
 	mkdir -p $outpath/config.tests/x11
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/fontconfig "FontConfig" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/fontconfig "FontConfig" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
 	    CFG_FONTCONFIG=yes
 	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=-lfreetype -lfontconfig \$\$QMAKE_LIBS_X11\""
 	else
@@ -3086,7 +3088,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Session Management support
     if [ "$CFG_SM" = "auto" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/sm "Session Management" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/sm "Session Management" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
 	    CFG_SM=yes
 	else
 	    if [ "$CFG_SM" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3103,7 +3105,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect SHAPE support
     if [ "$CFG_XSHAPE" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xshape "XShape" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xshape "XShape" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
 	    CFG_XSHAPE=yes
 	else
 	    if [ "$CFG_XSHAPE" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3120,7 +3122,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xinerama support
     if [ "$CFG_XINERAMA" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xinerama "Xinerama" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xinerama "Xinerama" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
 	    CFG_XINERAMA=yes
 	else
 	    if [ "$CFG_XINERAMA" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3137,7 +3139,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect tablet support (currenlty only in IRIX)
     if [ "$CFG_TABLET" != "no" ]; then
-        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xinput "Tablet (XInput)" $L_FLAGS $I_FLAGS; then
+        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xinput "Tablet (XInput)" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
             CFG_TABLET=yes
         else
             if [ "$CFG_TABLET" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3154,7 +3156,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect XKB support
     if [ "$CFG_XKB" != "no" ]; then
-        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xkb "XKB" $L_FLAGS $I_FLAGS; then
+        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xkb "XKB" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
             CFG_XKB=yes
         else
             if [ "$CFG_XKB" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
