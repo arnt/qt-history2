@@ -17,6 +17,7 @@
 #ifndef QT_NO_QWS_MULTIPROCESS
 
 #include "../../3rdparty/md5/md5.h"
+#include "../../3rdparty/md5/md5.c"
 #include "qwsutils_qws.h"
 #include "qwscommand_qws.h"
 #include "qwindowsystem_qws.h"

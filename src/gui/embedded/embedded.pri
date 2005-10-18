@@ -44,7 +44,6 @@ embedded {
 		    embedded/qwsmanager_qws.cpp \
 		    embedded/qwsproperty_qws.cpp \
                     embedded/qtransportauth_qws.cpp \
-                    ../3rdparty/md5/md5.c \
 		    embedded/qwssocket_qws.cpp
 
 	contains(QT_CONFIG, ft) {
