@@ -26,6 +26,7 @@
 #include "qcheckbox.h"
 #include "q3cleanuphandler.h"
 #include "qcombobox.h"
+#include "q3combobox.h"
 #include "q3cstring.h"
 #include "qcursor.h"
 #include "qdesktopwidget.h"
@@ -887,7 +888,7 @@ public:
     QStringList history;
 
     bool geometryDirty;
-    QComboBox * paths;
+    Q3ComboBox * paths;
     QComboBox * types;
     QLabel * pathL;
     QLabel * fileL;
@@ -2473,9 +2474,9 @@ void Q3FileDialog::init()
     cancelB = new QPushButton(tr("Cancel") , this, "Cancel");
     connect(cancelB, SIGNAL(clicked()), this, SLOT(cancelClicked()));
 
-    d->paths = new QComboBox(true, this, "directory history/editor");
+    d->paths = new Q3ComboBox(true, this, "directory history/editor");
     d->paths->setDuplicatesEnabled(false);
-    d->paths->setInsertionPolicy(QComboBox::NoInsertion);
+    d->paths->setInsertionPolicy(Q3ComboBox::NoInsertion);
     makeVariables();
 
     QFileInfoList rootDrives = QDir::drives();
@@ -2485,7 +2486,7 @@ void Q3FileDialog::init()
     }
 
     if (QDir::homeDirPath().size()) {
-        if (d->paths->findText(QDir::homeDirPath()) != -1)
+        if (!d->paths->listBox()->findItem(QDir::homeDirPath()))
             d->paths->insertItem(*openFolderIcon, QDir::homeDirPath());
     }
 
