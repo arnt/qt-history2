@@ -565,16 +565,6 @@ bool QPen::isSolid() const
     \sa operator==()
 */
 
-static bool qFuzzyVectorCompare(const QVector<qreal> &v1, const QVector<qreal> &v2)
-{
-    if (v1.count() != v2.count())
-        return false;
-    for (int i = 0; i < v1.count(); ++i)
-        if (!qFuzzyCompare(v1.at(i), v2.at(i)))
-            return false;
-    return true;
-}
-
 /*!
     Returns true if the pen is equal to \a p; otherwise returns false.
 
@@ -588,10 +578,10 @@ bool QPen::operator==(const QPen &p) const
     return (p.d == d) || (p.d->style == d->style
                           && p.d->capStyle == d->capStyle
                           && p.d->joinStyle == d->joinStyle
-                          && qFuzzyCompare(p.d->width, d->width)
-                          && qFuzzyCompare(p.d->miterLimit, d->miterLimit)
+                          && p.d->width == d->width
+                          && p.d->miterLimit == d->miterLimit
                           && (d->style != Qt::CustomDashLine
-                              || qFuzzyVectorCompare(p.dashPattern(), dashPattern()))
+                              || p.dashPattern() == dashPattern())
                           && p.d->brush == d->brush);
 }
 
