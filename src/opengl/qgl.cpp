@@ -3048,8 +3048,10 @@ void QGLExtensions::init_extensions()
         glExtensions |= GenerateMipmap;
     if (extensions.contains("texture_compression_s3tc"))
         glExtensions |= TextureCompression;
+#ifndef Q_WS_MACX
     if (extensions.contains("ARB_fragment_shader"))
         glExtensions |= FragmentShader;
+#endif
     if (extensions.contains("clamp_to_edge"))
         glExtensions |= ClampToEdge;
     if (extensions.contains("clamp_to_border"))

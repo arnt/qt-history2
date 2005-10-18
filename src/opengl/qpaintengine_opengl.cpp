@@ -291,6 +291,10 @@ struct QGLUTesselatorCleanupHandler
 
 Q_GLOBAL_STATIC(QGLUTesselatorCleanupHandler, tessHandler)
 
+#ifndef GL_ARB_shader_objects
+typedef char GLcharARB;
+typedef unsigned int GLhandleARB;
+#endif
 
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
@@ -322,7 +326,7 @@ public:
 
     inline void startGradientOps();
     inline void endGradientOps();
-    GLuint loadShader(const char *);
+    GLhandleARB loadShader(const char *);
     void generateGradientColorTable(const QGradientStops& s,
                                     unsigned int *colorTable, int size);
     void createGradientPaletteTexture(const QGradient& g);
@@ -364,13 +368,13 @@ public:
     QDataBuffer<GLdouble> tessVector;
 
     GLuint grad_palette;
-    GLuint grad_radial;
+    GLhandleARB grad_radial;
     GLuint grad_radial_palette_loc;
     GLuint grad_radial_fmp_loc;
     GLuint grad_radial_fmp2_m_radius2_loc;
     GLuint grad_radial_inv_matrix_loc;
     GLuint grad_radial_inv_matrix_offset_loc;
-    GLuint grad_conical;
+    GLhandleARB grad_conical;
     GLuint grad_conical_palette_loc;
     GLuint grad_conical_angle_loc;
     GLuint grad_conical_inv_matrix_loc;
@@ -514,11 +518,6 @@ static void strokeCurveTo(qfixed c1x, qfixed c1y,
 #ifndef GL_SGIS_generate_mipmap
 #define GL_GENERATE_MIPMAP_SGIS           0x8191
 #define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
-#endif
-
-#ifndef GL_ARB_shader_objects
-typedef char GLcharARB;
-typedef unsigned int GLhandleARB;
 #endif
 
 #ifndef GL_ARB_fragment_shader
@@ -743,10 +742,12 @@ static bool qt_resolve_frag_shader_extensions()
     return resolved;
 }
 
-GLuint QOpenGLPaintEnginePrivate::loadShader(const char *sh)
+GLhandleARB QOpenGLPaintEnginePrivate::loadShader(const char *sh)
 {
-    GLint status, fs, ps;
-
+    
+    GLint status;
+    GLhandleARB ps, fs;
+    
     fs = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
     glShaderSourceARB(fs, 1, &sh, 0);
     glCompileShaderARB(fs);
