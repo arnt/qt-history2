@@ -667,7 +667,26 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     p = QPen(brush, width, penStyle, capStyle, joinStyle);
     p.setMiterLimit(miterLimit);
     p.setDashPattern(dashPattern);
+    p.setStyle(penStyle);
 
     return s;
 }
 #endif //QT_NO_DATASTREAM
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug dbg, const QPen &p)
+{
+#ifndef Q_BROKEN_DEBUG_STREAM
+    dbg.nospace() << "QPen(" << p.width() << ',' << p.brush()
+                  << ',' << int(p.style()) << ',' << int(p.capStyle())
+                  << ',' << int(p.joinStyle()) << ',' << p.dashPattern()
+                  << ',' << p.miterLimit() << ')';
+    return dbg.space();
+#else
+    qWarning("This compiler doesn't support streaming QPen to QDebug");
+    return dbg;
+    Q_UNUSED(p);
+#endif
+}
+#endif
+

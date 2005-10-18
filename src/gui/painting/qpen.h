@@ -78,6 +78,10 @@ private:
 Q_DECLARE_TYPEINFO(QPen, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QPen)
 
+#ifndef QT_NO_DEBUG_STREAM
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QPen &);
+#endif
+
 /*****************************************************************************
   QPen stream functions
  *****************************************************************************/

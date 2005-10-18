@@ -621,7 +621,7 @@ static void streamDebug(QDebug dbg, const QVariant &v)
         break;
 #endif
     case QVariant::Pen:
-//        dbg.nospace() << qvariant_cast<QPen>(v); //FIXME
+        dbg.nospace() << qvariant_cast<QPen>(v);
         break;
     default:
         qcoreVariantHandler()->debugStream(dbg, v);
