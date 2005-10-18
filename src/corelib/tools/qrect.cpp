@@ -1775,6 +1775,8 @@ QRectF QRectF::operator|(const QRectF &r) const
 
 QRectF QRectF::operator&(const QRectF &r) const
 {
+    if (isNull() || r.isNull())
+        return QRectF();
     QRectF r1 = normalized();
     QRectF r2 = r.normalized();
     QRectF tmp;
@@ -1806,6 +1808,8 @@ QRectF QRectF::operator&(const QRectF &r) const
 
 bool QRectF::intersects(const QRectF &r) const
 {
+    if (isNull() || r.isNull())
+        return false;
     QRectF r1 = normalized();
     QRectF r2 = r.normalized();
     return qMax(r1.xp, r2.xp) <= qMin(r1.xp + r1.w, r2.xp + r2.w)
