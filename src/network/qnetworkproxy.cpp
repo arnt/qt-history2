@@ -95,7 +95,6 @@ Q_GLOBAL_STATIC(QGlobalNetworkProxy, globalNetworkProxy);
 class QNetworkProxyPrivate
 {
 public:
-    QBasicAtomic ref;
     QNetworkProxy::ProxyType type;
     QString user;
     QString password;
@@ -107,7 +106,6 @@ QNetworkProxy::QNetworkProxy()
  : d_ptr(new QNetworkProxyPrivate)
 {
     Q_D(QNetworkProxy);
-    d->ref.init(1);
     d->type = DefaultProxy;
     d->port = 0;
 }
@@ -116,8 +114,6 @@ QNetworkProxy::QNetworkProxy(ProxyType type, const QString &hostName, quint16 po
                   const QString &user, const QString &password)
  : d_ptr(new QNetworkProxyPrivate)
 {
-    Q_D(QNetworkProxy);
-    d->ref.init(1);
     setType(type);
     setHostName(hostName);
     setPort(port);
@@ -126,22 +122,19 @@ QNetworkProxy::QNetworkProxy(ProxyType type, const QString &hostName, quint16 po
 }
 
 QNetworkProxy::QNetworkProxy(const QNetworkProxy &other)
-    : d_ptr(other.d_ptr)
+    : d_ptr(new QNetworkProxyPrivate)
 {
-
-    d_ptr->ref.ref();
+    *d_ptr = *other.d_ptr;
 }
 
 QNetworkProxy::~QNetworkProxy()
 {
-    Q_D(QNetworkProxy);
-    if (!d->ref.deref())
-        delete d_ptr;
+    delete d_ptr;
 }
 
 QNetworkProxy &QNetworkProxy::operator=(const QNetworkProxy &other)
 {
-    qAtomicAssign(d_ptr, other.d_ptr);
+    *d_ptr = *other.d_ptr;
     return *this;
 }
 
