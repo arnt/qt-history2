@@ -1653,7 +1653,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
                 Qt::Alignment align = Qt::AlignLeft;
 
-                if (QTextTable *table = qobject_cast<QTextTable *>(c))
+                QTextTable *table = qobject_cast<QTextTable *>(c);
+
+                if (table)
                     align = table->format().alignment();
 
                 if (align == Qt::AlignRight)
@@ -1666,9 +1668,13 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                 cd->layoutDirty = false;
 
                 if (inRootFrame
-                    && cd->position.y() + cd->size.height() > layoutStruct->pageBottom) {
+                    && cd->position.y() + cd->size.height() > layoutStruct->pageBottom
+                    // if the frame is a table and it was previously broken for paged layout
+                    // by an incremental layout run then we must not do that again because
+                    // pageBreakInsideTable uses td->rowPositions which contains already the spacings
+                    && (!table || static_cast<QTextTableData *>(data(table))->rowPageBreaks.isEmpty())
+                   ) {
 
-                    QTextTable *table = qobject_cast<QTextTable *>(c);
                     if (table && cd->size.height() > layoutStruct->pageHeight / 2) {
                         pageBreakInsideTable(table, layoutStruct);
                     } else {
