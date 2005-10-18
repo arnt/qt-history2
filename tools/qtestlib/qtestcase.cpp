@@ -607,8 +607,8 @@ namespace QTest
     static QObject *currentTestObject = 0;
 
     struct TestFunction {
-        TestFunction() { function = 0; data = 0; }
-        ~TestFunction() { if(data) free(data); }
+        TestFunction():function(0), data(0) {}
+        ~TestFunction() { delete [] data; }
         int function;
         char *data;
     } testFuncs[512];
