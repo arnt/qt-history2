@@ -351,12 +351,15 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
 
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
-        {
+        if (widget && (widget->windowType() == Qt::Tool)) {
+            // MS always use one less than they say
 #if defined(Q_OS_TEMP)
             ret = GetSystemMetrics(SM_CYCAPTION) - 1;
 #else
             ret = GetSystemMetrics(SM_CYSMCAPTION) - 1;
 #endif
+        } else {
+            ret = GetSystemMetrics(SM_CYCAPTION) - 1;
         }
 
         break;
