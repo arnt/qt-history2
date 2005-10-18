@@ -19,7 +19,6 @@
 #include <QtDesigner/QtDesigner>
 #include <QtCore/QDir>
 #include <QtCore/QQueue>
-#include <QtCore/qdebug.h>
 
 using namespace qdesigner_internal;
 
@@ -392,7 +391,6 @@ void TreeWidgetEditor::updateEditor()
     if (currentColumn) {
         currentColumnEnabled = true;
         int idx = ui.listWidget->currentRow();
-        qDebug("currentRow %d", idx);
         if (idx > 0)
             moveColumnUpEnabled = true;
         if (idx < ui.listWidget->count() - 1)
