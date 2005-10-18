@@ -330,7 +330,7 @@ void TableWidgetEditor::updateEditor()
     ui.deletePixmapRowButton->setEnabled(!rowIcon.isNull());
 }
 
-void TableWidgetEditor::on_itemTextLineEdit_textChanged(const QString &text)
+void TableWidgetEditor::on_itemTextLineEdit_textEdited(const QString &text)
 {
     QListWidgetItem *currentColumn = ui.columnsListWidget->currentItem();
     QListWidgetItem *currentRow = ui.rowsListWidget->currentItem();

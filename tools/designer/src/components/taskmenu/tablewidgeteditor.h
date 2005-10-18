@@ -38,7 +38,7 @@ private slots:
             QTableWidgetItem *previous);
     void on_tableWidget_itemChanged(QTableWidgetItem *item);
 
-    void on_itemTextLineEdit_textChanged(const QString &text);
+    void on_itemTextLineEdit_textEdited(const QString &text);
     void on_previewPixmapItemButton_clicked();
     void on_deletePixmapItemButton_clicked();
 

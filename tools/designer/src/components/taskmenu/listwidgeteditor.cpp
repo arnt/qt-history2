@@ -140,7 +140,7 @@ void ListWidgetEditor::on_listWidget_itemChanged(QListWidgetItem *)
     updateEditor();
 }
 
-void ListWidgetEditor::on_itemTextLineEdit_textChanged(const QString &text)
+void ListWidgetEditor::on_itemTextLineEdit_textEdited(const QString &text)
 {
     int currentRow = ui.listWidget->currentRow();
     if (currentRow != -1) {
