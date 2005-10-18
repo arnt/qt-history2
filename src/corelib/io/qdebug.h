@@ -20,6 +20,7 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qtextstream.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qvector.h>
 
 QT_MODULE(Core)
 
@@ -93,6 +94,12 @@ inline QDebug operator<<(QDebug debug, const QList<T> &list)
     }
     debug << ")";
     return debug.space();
+}
+
+template <typename T>
+inline QDebug operator<<(QDebug debug, const QVector<T> &vec)
+{
+    return operator<<(debug, vec.toList());
 }
 
 template <class aKey, class aT>
