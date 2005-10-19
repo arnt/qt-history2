@@ -755,14 +755,20 @@ QTextFrame::iterator &QTextFrame::iterator::operator--()
 
 /*!
     \class QTextBlockUserData
-    \brief The QTextBlockUserData class can be used to store custom data in blocks of text.
+    \brief The QTextBlockUserData class is used to associate custom data with blocks of text.
     \since 4.1
 
     \ingroup text
 
-    QTextBlockUserData is an abstract interface that you can inherit from and attach to
-    a block of text using QTextBlock::setUserData(), making it possible to store additional
-    data per text block.
+    QTextBlockUserData provides an abstract interface for container classes that are used
+    to associate application-specific user data with text blocks in a QTextDocument.
+
+    Generally, this subclasses of this class provide functions to allow data to be stored
+    and retrieved, and instances are attached to blocks of text using
+    QTextBlock::setUserData(). This makes it possible to store additional data per text
+    block in a way that can be retrieved safely by the application.
+
+    \sa QTextBlock
 */
 QTextBlockUserData::~QTextBlockUserData()
 {
