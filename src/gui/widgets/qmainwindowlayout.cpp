@@ -1066,9 +1066,9 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     int tb_fill = 0;
     if (!tb_layout_info.isEmpty() && !tb_layout_info.at(0).list.isEmpty()) {
 	tb_fill = tb_layout_info.at(0).list.at(0).item->widget()->layout()->margin() * 2
-                  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarHandleExtent)
-		  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarItemSpacing) * 2
-                  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarExtensionExtent);
+                  + parentWidget()->style()->pixelMetric(QStyle::PM_ToolBarHandleExtent)
+		  + parentWidget()->style()->pixelMetric(QStyle::PM_ToolBarItemSpacing) * 2
+                  + parentWidget()->style()->pixelMetric(QStyle::PM_ToolBarExtensionExtent);
     }
     for (int line = 0; line < tb_layout_info.size(); ++line) {
         ToolBarLineInfo &lineInfo = tb_layout_info[line];
@@ -1349,7 +1349,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 #endif // QT_NO_TOOLBAR
 
     // layout dockwidgets and center widget
-    const int ext = QApplication::style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
+    const int ext = parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
 
     if (relayout_type == QInternal::RelayoutNormal) {
         // hide separators for empty layouts
@@ -1649,7 +1649,7 @@ QSize QMainWindowLayout::sizeHint() const
              + szR.height()
              + (corners[Qt::BottomRightCorner] == Qt::BottomDockWidgetArea ? szB.height() : 0);
 
-        const int ext = QApplication::style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
+        const int ext = parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
         if (layout_info[LEFT].item && !szL.isEmpty())
             left += ext;
         if (layout_info[RIGHT].item && !szR.isEmpty())
@@ -1746,7 +1746,7 @@ QSize QMainWindowLayout::minimumSize() const
              + szR.height()
              + (corners[Qt::BottomRightCorner] == Qt::BottomDockWidgetArea ? szB.height() : 0);
 
-        const int ext = QApplication::style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
+        const int ext = parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
         if (layout_info[LEFT].item && !szL.isEmpty())
             left += ext;
         if (layout_info[RIGHT].item && !szR.isEmpty())
@@ -1895,7 +1895,7 @@ int QMainWindowLayout::constrain(QDockWidgetLayout *dock, int delta)
                   + pick(pos, info[CENTER].size)
                   + pick(pos, info[order[pos]].size);
 
-    const int _ext = QApplication::style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
+    const int _ext = parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
     const QSize ext(_ext, _ext);
     const QSize dmin = info[pos].item->minimumSize() + ext,
                 dmax = info[pos].item->maximumSize() + ext;
