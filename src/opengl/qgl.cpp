@@ -2853,7 +2853,7 @@ int QGLWidget::fontDisplayListBase(const QFont & fnt, int listBase)
 void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt, int listBase)
 {
     makeCurrent();
-    glPushAttrib(GL_TRANSFORM_BIT | GL_VIEWPORT_BIT | GL_LIST_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -2862,6 +2862,7 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt,
     glPushMatrix();
     glLoadIdentity();
 
+    glDisable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glRasterPos2i(0, 0);
