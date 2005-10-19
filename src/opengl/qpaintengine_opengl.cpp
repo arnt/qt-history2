@@ -500,6 +500,10 @@ static void strokeCurveTo(qfixed c1x, qfixed c1y,
                                                           qt_fixed_to_real(ey)));
 }
 
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
+
 #ifndef GL_IBM_texture_mirrored_repeat
 #define GL_MIRRORED_REPEAT_IBM            0x8370
 #endif
