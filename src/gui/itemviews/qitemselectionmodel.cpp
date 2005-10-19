@@ -425,7 +425,7 @@ void QItemSelection::merge(const QItemSelection &other, QItemSelectionModel::Sel
 /*!
   Splits the selection \a range using the selection \a other range.
   Removes all items in \a other from \a range and puts the result in \a result.
-  This can be compared with the semantics of the \i subtract operation of a set.
+  This can be compared with the semantics of the \e subtract operation of a set.
   \sa merge()
 */
 

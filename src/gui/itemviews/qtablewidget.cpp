@@ -1440,8 +1440,8 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
   \fn void QTableWidget::currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
 
   This signal is emitted whenever the current cell changes. The cell specified by \a
-  previousRow and \previousColumn is the cell that previously had the focus, the cell
-  specified by \a currentRow and \a previouscolumn is the new current cell.
+  previousRow and \a previousColumn is the cell that previously had the focus, the cell
+  specified by \a currentRow and \a previousColumn is the new current cell.
 */
 
 
@@ -1866,7 +1866,7 @@ void QTableWidget::closePersistentEditor(QTableWidgetItem *item)
 
   Returns the widget displayed in the cell in the given \a row and \a column.
 
-  \sa setItemWidget()
+  \sa setCellWidget()
 */
 QWidget *QTableWidget::cellWidget(int row, int column) const
 {
@@ -1879,7 +1879,7 @@ QWidget *QTableWidget::cellWidget(int row, int column) const
 
   Sets the \a widget to be displayed in the cell in the given \a row and \a column.
 
-  \sa itemWidget()
+  \sa cellWidget()
 */
 void QTableWidget::setCellWidget(int row, int column, QWidget *widget)
 {

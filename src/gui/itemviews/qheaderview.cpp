@@ -606,7 +606,10 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 }
 
 /*!
-    Resizes the sections according to the given \a mode, ignoring the set resizeMode.
+    Resizes the sections according to the given \a mode, ignoring the current
+    resize mode.
+
+    \sa resizeMode()
 */
 
 void QHeaderView::resizeSections(QHeaderView::ResizeMode mode)
@@ -878,7 +881,7 @@ QHeaderView::ResizeMode QHeaderView::resizeMode(int logicalIndex) const
     Returns the number of sections that are set to resize mode stretch.
     In views this can be used to see if the headerview needs to resize the sections when the view geometry changes.
 
-    \sa updateGeometry stretchLastSection resizeMode
+    \sa stretchLastSection, resizeMode()
 */
 
 int QHeaderView::stretchSectionCount() const

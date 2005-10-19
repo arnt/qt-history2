@@ -29,6 +29,18 @@
 */
 
 /*!
+    \typedef QSortingProxyModel::Compare
+
+    Defines the type of function to be used when comparing items of
+    data from the model. Comparison functions must have a signature in
+    the following form:
+
+    \code
+    bool(*Compare)(const QModelIndex &left, const QModelIndex &right);
+    \endcode
+*/
+
+/*!
     Constructs a sorting proxy model with the given \a parent.
 */
 

@@ -510,7 +510,7 @@ QStringList QImageReader::textKeys() const
     Support for this option is implemented through
     QImageIOHandler::Description.
 
-    \sa textKeys(), setText(), QImageWriter::text()
+    \sa textKeys(), QImageWriter::setText()
 */
 QString QImageReader::text(const QString &key) const
 {

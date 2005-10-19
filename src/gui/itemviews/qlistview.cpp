@@ -1070,8 +1070,10 @@ QRect QListView::rectForIndex(const QModelIndex &index) const
 /*!
     \since 4.1
 
-    Sets the contents position of the item at \a index in the model to the given \a pos.
-    If the listview movement mode is Static, this function will have no effect.
+    Sets the contents position of the item at \a index in the model to the given
+    \a position.
+    If the list view's movement mode is Static, this function will have no
+    effect.
 */
 void QListView::setPositionForIndex(const QPoint &position, const QModelIndex &index)
 {
