@@ -124,7 +124,7 @@
     text edit widget.
 
     \quotefromfile snippets/scribe-overview/main.cpp
-    \skipto QTextEdit *edit
+    \skipto QTextEdit *editor = 
     \printuntil show()
 
     You can retrieve the document from the text edit using the

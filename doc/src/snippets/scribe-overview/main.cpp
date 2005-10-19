@@ -21,9 +21,9 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    QTextEdit *edit = new QTextEdit(parent);
-    edit->setHtml(aStringContainingHTMLtext);
-    edit->show();
+    QTextEdit *editor = new QTextEdit(parent);
+    editor->setHtml(aStringContainingHTMLtext);
+    editor->show();
 
     return app.exec();
 }
