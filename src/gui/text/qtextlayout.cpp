@@ -1975,6 +1975,17 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
     if (!(si.analysis.bidiLevel % 2))
         pos += eng->length(item);
     pos = qMax(line.from, pos);
-    pos = qMin(line.from + line_length, pos);
+
+    int maxPos = line.from + line_length;
+
+    // except for the last line we assume that the
+    // character between lines is a space and we want
+    // to position the cursor to the left of that
+    // character.
+    // ###### breaks with japanese for example, fix > 4.1
+    if (this->i < eng->lines.count() - 1)
+        --maxPos;
+
+    pos = qMin(pos, maxPos);
     return pos;
 }
