@@ -168,7 +168,9 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, QBidiContro
             item.analysis.script = s == QUnicodeTables::Inherited ? QUnicodeTables::Common : s;
             item.analysis.bidiLevel = level;
         } else {
-            continue;
+            if (i - start < 32000)
+                continue;
+            start = i;
         }
 
         item.position = i;
