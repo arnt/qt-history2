@@ -68,7 +68,7 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
     source_parent_stack.push(QModelIndex());
 
     QList<QModelIndex> source_children;
-    Compare *compare = (order == Qt::AscendingOrder ? d->less : d->greater);
+    Compare compare = (order == Qt::AscendingOrder ? d->less : d->greater);
 
     while (!source_parent_stack.isEmpty()) {
 
@@ -80,7 +80,7 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
             source_children.append(source_index);
         }
 
-        qSort(source_children.begin(), source_children.end(), *compare);
+        qSort(source_children.begin(), source_children.end(), compare);
 
         QModelIndex proxy_parent = d->proxy_to_source.key(source_parent); // ### slow
         void *parent_node = 0;
@@ -107,7 +107,7 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
                 d->proxy_to_source.insert(new_proxy_index, source_index);
             }
         }
-        
+
         source_children.clear();
     }
 
@@ -122,13 +122,13 @@ void QSortingProxyModel::clear()
     Q_D(QSortingProxyModel);
     d->sort_column = -1;
     d->sort_order = Qt::AscendingOrder;
-    QMappingProxyModel::clear();    
+    QMappingProxyModel::clear();
 }
 
 /*!
   Sets the given \a function to be used as the < operator when sorting;
 */
-void QSortingProxyModel::setLessThan(Compare *function)
+void QSortingProxyModel::setLessThan(Compare function)
 {
     d_func()->less = function;
 }
@@ -136,7 +136,7 @@ void QSortingProxyModel::setLessThan(Compare *function)
 /*!
   Sets the given \a function to be used as the > operator when sorting;
 */
-void QSortingProxyModel::setGreaterThan(Compare *function)
+void QSortingProxyModel::setGreaterThan(Compare function)
 {
     d_func()->greater = function;
 }
