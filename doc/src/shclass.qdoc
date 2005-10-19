@@ -67,7 +67,7 @@
 
     Implicit sharing automatically detaches the object from a shared block
     if the object is about to change and the reference count is greater
-    than one. (This is often called "copy-on-write".)
+    than one. (This is often called "copy-on-write" or "value semantics".)
 
     An implicitly shared class has total control of its internal data. In
     any member functions that modify its data, it automatically detaches
@@ -80,14 +80,14 @@
     \code
         void QPen::setStyle(Qt::PenStyle style)
         {
-	    detach();           // detach from common data
-	    d->style = style;   // set the style member
+            detach();           // detach from common data
+            d->style = style;   // set the style member
         }
 
         void QPen::detach()
         {
-	    if (d->ref != 1) {
-	        ...             // perform a deep copy
+            if (d->ref != 1) {
+                ...             // perform a deep copy
             }
         }
     \endcode
@@ -159,10 +159,10 @@
     \code
         QPixmap p1, p2;
         p1.load("image.bmp");
-        p2 = p1;			// p1 and p2 share data
+        p2 = p1;                        // p1 and p2 share data
 
         QPainter paint;
-        paint.begin(&p2);		// cuts p2 loose from p1
+        paint.begin(&p2);               // cuts p2 loose from p1
         paint.drawText(0,50, "Hi");
         paint.end();
     \endcode

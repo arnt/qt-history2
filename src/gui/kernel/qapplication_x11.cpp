@@ -3005,7 +3005,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
     the \a event parameter.
 
     Return true if you want to stop the event from being processed.
-    Return false for normal event dispatching. THe default
+    Return false for normal event dispatching. The default
     implementation returns false.
 
     \sa x11ProcessEvent()
