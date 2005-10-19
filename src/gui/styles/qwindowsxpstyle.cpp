@@ -1379,7 +1379,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     case PE_IndicatorButtonDropDown:
         name = "TOOLBAR";
         partId = TP_SPLITBUTTONDROPDOWN;
-        if (!flags & State_Enabled)
+        if (!(flags & State_Enabled))
             stateId = TS_DISABLED;
         else if (flags & State_Sunken)
             stateId = TS_PRESSED;
@@ -1387,6 +1387,15 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             stateId = flags & State_On ? TS_HOTCHECKED : TS_HOT;
         else if (flags & State_On)
             stateId = TS_CHECKED;
+        else
+            stateId = TS_NORMAL;
+        break;
+
+    case PE_IndicatorArrowDown:
+        name = "TOOLBAR";
+        partId = TP_SPLITBUTTONDROPDOWN;
+        if (!(flags & State_Enabled))
+            stateId = TS_DISABLED;
         else
             stateId = TS_NORMAL;
         break;
@@ -1789,10 +1798,11 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         {
             name = "BUTTON";
             partId = BP_PUSHBUTTON;
+            bool justFlat = (btn->features & QStyleOptionButton::Flat) && !(flags & (State_On|State_Sunken));
             if (!(flags & State_Enabled) && !(btn->features & QStyleOptionButton::Flat))
                 stateId = PBS_DISABLED;
-            else if ((btn->features & QStyleOptionButton::Flat) && !(flags & (State_On|State_Sunken)))
-                return;
+            else if (justFlat)
+                ;
             else if (flags & (State_Sunken | State_On))
                 stateId = PBS_PRESSED;
             else if (flags & State_MouseOver)
@@ -1801,6 +1811,28 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 stateId = PBS_DEFAULTED;
             else
                 stateId = PBS_NORMAL;
+
+            if (!justFlat) {
+                XPThemeData theme(widget, p, name, partId, stateId, rect);
+                d->drawBackground(theme);
+            }
+
+            if (btn->features & QStyleOptionButton::HasMenu) {
+                int mbiw = 0, mbih = 0;
+                XPThemeData theme(widget, 0, "TOOLBAR", TP_SPLITBUTTONDROPDOWN);
+                if (theme.isValid()) {
+                    SIZE size;
+                    pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
+                    mbiw = size.cx;
+                    mbih = size.cy;
+                }
+
+                QRect ir = btn->rect;
+                QStyleOptionButton newBtn = *btn;
+                newBtn.rect = QRect(ir.right() - mbiw - 1, (ir.height()/2) - (mbih/2), mbiw, mbih);
+                drawPrimitive(PE_IndicatorArrowDown, &newBtn, p, widget);        
+            }
+            return;
         }
         break;
     case CE_TabBarTab:
@@ -2140,7 +2172,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
             if (sb->frame && (sub & SC_SpinBoxFrame)) {
                 partId = EP_EDITTEXT;
-                if ((!flags & State_Enabled))
+                if (!(flags & State_Enabled))
                     stateId = ETS_DISABLED;
                 else if (flags & State_HasFocus)
                     stateId = ETS_FOCUSED;
