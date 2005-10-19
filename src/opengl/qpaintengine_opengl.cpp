@@ -507,14 +507,6 @@ static void strokeCurveTo(qfixed c1x, qfixed c1y,
 #define GL_MIRRORED_REPEAT_IBM            0x8370
 #endif
 
-#ifndef GL_SGIS_texture_edge_clamp
-#define GL_CLAMP_TO_EDGE_SGIS             0x812F
-#endif
-
-#ifndef GL_SGIS_texture_border_clamp
-#define GL_CLAMP_TO_BORDER_SGIS           0x812D
-#endif
-
 #ifndef GL_SGIS_generate_mipmap
 #define GL_GENERATE_MIPMAP_SGIS           0x8191
 #define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
@@ -744,10 +736,10 @@ static bool qt_resolve_frag_shader_extensions()
 
 GLhandleARB QOpenGLPaintEnginePrivate::loadShader(const char *sh)
 {
-    
+
     GLint status;
     GLhandleARB ps, fs;
-    
+
     fs = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
     glShaderSourceARB(fs, 1, &sh, 0);
     glCompileShaderARB(fs);
@@ -815,12 +807,10 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     else if (g.spread() == QGradient::ReflectSpread)
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT_IBM);
-#ifdef GL_CLAMP_TO_BORDER_SGIS
     else if (QGLExtensions::glExtensions & QGLExtensions::ClampToBorder)
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_SGIS);
-#endif
+        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     else
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE_SGIS);
+        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
     // mipmaps do not work well with conical gradients
     if (!(QGLExtensions::glExtensions & QGLExtensions::GenerateMipmap))
