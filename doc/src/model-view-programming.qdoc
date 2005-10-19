@@ -90,7 +90,12 @@
     defines an interface that is used by views and delegates to access data.
     The data itself does not have to be stored in the model; it can be held
     in a data structure or repository provided by a seperate class, a file,
-    a database, or some other application component. QAbstractItemModel
+    a database, or some other application component.
+
+    The basic concepts surrounding models are presented in the section
+    on \l{Model Classes}.
+
+    QAbstractItemModel
     provides an interface to data that is flexible enough to handle views
     that represent data in the form of tables, lists, and trees. However,
     when implementing new models for list and table-like data structures,
@@ -98,6 +103,9 @@
     starting points because they provide appropriate default implementations
     of common functions. Each of these classes can be subclassed to provide
     models that support specialized kinds of lists and tables.
+
+    The process of subclassing models is discussed in the section on
+    \l{Creating New Models}.
 
     Qt provides some ready-made models that can be used to handle items of
     data:
@@ -126,12 +134,16 @@
     ready-to-use implementations, they can also be subclassed to provide
     customized views.
 
+    The available views are examined in the section on \l{View Classes}.
+
     \section2 Delegates
 
     QAbstractItemDelegate is the abstract base class for delegates in the
     model/view framework. A default delegate implementation is provided by
     the QItemDelegate class, and this is used as the default delegate by
     Qt's standard views.
+
+    Delegates are described in the section on \l{Delegate Classes}.
 
     \section2 Convenience Classes
 
@@ -156,20 +168,22 @@
     by a section showing how you can create new components.
 
     \list
-    \i \l{Using Models and Views}
+    \o \l{Using Models and Views}
       \tableofcontents{1 Using Models and Views}
-    \i \l{Model Classes}
+    \o \l{Model Classes}
       \tableofcontents{1 Model Classes}
-    \i \l{Creating New Models}
+    \o \l{Creating New Models}
       \tableofcontents{1 Creating New Models}
-    \i \l{View Classes}
+    \o \l{View Classes}
       \tableofcontents{1 View Classes}
-    \i \l{Handling Selections in Item Views}
+    \o \l{Handling Selections in Item Views}
       \tableofcontents{1 Handling Selections in Item Views}
-    \i \l{Delegate Classes}
+    \o \l{Delegate Classes}
       \tableofcontents{1 Delegate Classes}
-    \i \l{Item View Convenience Classes}
+    \o \l{Item View Convenience Classes}
       \tableofcontents{1 Item View Convenience Classes}
+    \o \l{Using Drag and Drop with Item Views}
+      \tableofcontents{1 Using Drag and Drop with Item Views}
     \endlist
 
     See also the list of \l{Model/View Classes}.
@@ -409,9 +423,10 @@
 
     Items in a model can perform various \e roles for other components,
     allowing different kinds of data to be supplied for different situations.
-    For example, the \l{Qt::ItemDataRole}{DisplayRole} role is used
-    to access a string that can be displayed as text in a view.
-    Typically, items contain data for a number of different roles.
+    For example, Qt::DisplayRole is used to access a string that can be
+    displayed as text in a view.
+    Typically, items contain data for a number of different roles, and the
+    standard roles are defined by Qt::ItemDataRole.
 
     We can ask the model for the item's data by passing it the model index
     corresponding to the item, and by specifying a role to obtain the type
@@ -429,13 +444,16 @@
     Views can display the roles in different ways, so it is important to
     supply appropriate information for each role.
 
-    We will examine roles in more detail when we
-    \l{Creating New Models}{create an example model}.
+    The \l{Creating New Models} section covers some specific uses of roles
+    in more detail.
     \endtable
 
-    Many of the most common uses for items of data are represented by
-    standard roles. However, it is also possible to define additional
-    roles for your own purposes.
+    Most common uses for item data are covered by the standard roles defined
+    in Qt::ItemDataRole. By supplying appropriate item data for each role,
+    models can provide hints to views and delegates about how items should be
+    presented to the user. Different kinds of views have the freedom to
+    interpret or ignore this information as required. It is also possible to
+    define additional roles for application-specific purposes.
 
     \section2 Summary of Concepts
 
@@ -992,9 +1010,7 @@
 
     To select these items in the model, and see the corresponding change
     in the table view, we need to construct a selection object then apply
-    it to the selection model. We must also specify the model that the
-    indexes belong to because the model indexes do not contain this
-    information:
+    it to the selection model:
 
     \skipto QItemSelection
     \printuntil selectionModel->select
@@ -1460,6 +1476,7 @@
     \page model-view-convenience.html
     \contentspage model-view-programming.html Contents
     \previouspage Delegate Classes
+    \nextpage Using Drag and Drop with Item Views
 
     \title Item View Convenience Classes
 
@@ -1720,4 +1737,200 @@
     The above code causes items in a tree widget to be selected if they
     contain the text given in the search string. This pattern can also be
     used in the list and table widgets.
+*/
+
+/*!
+    \page model-view-dnd.html
+    \contentspage model-view-programming.html Contents
+    \previouspage Item View Convenience Classes
+
+    \title Using Drag and Drop with Item Views
+
+    \tableofcontents
+
+    \section1 Overview
+
+    Qt's drag and drop infrastructure is fully supported by the model/view framework.
+    Items in lists, tables, and trees can be dragged within the views, and data can be
+    imported and exported as MIME-encoded data.
+
+    \section1 Moving Items within Views
+
+    The standard views automatically support internal drag and drop, where items are
+    moved around to change the order in which they are displayed. By default, drag and
+    drop is not enabled for these views because they are configured for the simplest,
+    most common uses. To allow items to be dragged around, certain properties of the
+    view need to be enabled, and the items themselves must also allow dragging to occur.
+
+    \section2 Using Convenience Views
+
+    Each of the types of item used with QListWidget, QTableWidget, and QTreeWidget
+    is configured to use a different set of flags by default. For example, each
+    QListWidgetItem or QTreeWidgetItem is initially enabled, checkable, selectable,
+    and can be used as the source of a drag and drop operation; each QTableWidgetItem
+    can also be edited and used as the target of a drag and drop operation.
+
+    Although all of the standard items have one or both flags set for drag and drop,
+    you generally need to set various properties in the view itself to take advantage
+    of the built-in support for drag and drop:
+
+    \list
+    \o To enable item dragging, set the view's
+       \l{QAbstractItemView::dragEnabled}{dragEnabled} property to \c true.
+    \o To allow the user to drop either internal or external items within the view,
+       set the view's \l{QWidget::acceptDrops}{acceptDrops} property to \c true.
+    \o To show the user where the item currently being dragged will be placed if
+       dropped, set the view's \l{QAbstractItemView::showDropIndicator}{showDropIndicator}
+       property. This provides the user with continuously updating information about
+       item placement within the view.
+    \endlist
+
+    For example, we can enable drag and drop in a list widget with the following lines
+    of code:
+
+    \quotefromfile snippets/qlistwidget-dnd/mainwindow.cpp
+    \skipto QListWidget *listWidget
+    \printuntil setDropIndicatorShown
+
+    The result is a list widget which allows the items to be copied around within
+    the view, and even lets the user drag items between views containing the same
+    type of data. In both situations, the items are copied rather than moved.
+    To move items around
+
+    \section2 Using Model/View Classes
+
+    Setting up a view for drag and drop follows the same pattern used with the
+    convenience views. For example, a QListView can be set up in the same way as a
+    QListWidget:
+
+    \quotefromfile snippets/qlistview-dnd/mainwindow.cpp
+    \skipto QListView *listView
+    \printuntil setDropIndicatorShown
+
+    Since access to the data displayed by the view is controlled by a model, the
+    model used also has to provide support for drag and drop operations. The
+    actions supported by a model can be specified by reimplementing the
+    QAbstractItemModel::supportedDropActions() function. For example, copy and
+    move operations are enabled with the following code:
+
+    \quotefromfile snippets/qlistview-dnd/model.cpp
+    \skipto Model::supportedDropActions
+    \printuntil /^\}/
+
+    Although any combination of values from Qt::DropActions can be given, the
+    model needs to be written to support them. For example, to allow Qt::MoveAction
+    to be used properly with a list model, the model must provide an implementation
+    of QAbstractItemModel::removeRows(), either directly or by inheriting the
+    implementation from its base class.
+
+    \section2 Enabling Drag and Drop for Items
+
+    Models indicate to views which items can be dragged, and which will accept drops,
+    by reimplementing the QAbstractItemModel::flags() function to provide suitable
+    flags.
+
+    For example, a model which provides a simple list based on QAbstractListModel can
+    enable drag and drop for each of the items by ensuring that the flags returned
+    contains the \l Qt::ItemIsDragEnabled and \l Qt::ItemIsDropEnabled values:
+
+    \quotefromfile snippets/qlistview-dnd/model.cpp
+    \skipto Model::flags
+    \printuntil /^\}/
+
+    Note that items can be dropped into the top level of the model, but dragging is
+    only enabled for valid items.
+
+    \section2 Encoding Exported Data
+
+    When items of data are exported from a model in a drag and drop operation, they
+    are encoded into an appropriate format corresponding to one or more MIME types.
+    Models declare the MIME types that they can use to supply items by reimplementing
+    the QAbstractItemModel::mimeTypes() function, returning a list of standard MIME
+    types.
+
+    For example, a model that only provides plain text would provide the following
+    implementation:
+
+    \skipto Model::mimeTypes
+    \printuntil /^\}/
+
+    The model must also provide code to encode data in the advertised format. This
+    is achieved by reimplementing the QAbstractItemModel::mimeData() function to
+    provide a QMimeData object, just as in any other drag and drop operation.
+
+    The following code shows items of data, corresponding to a given list of indexes,
+    is encoded as plain text and stored in a QMimeData object.
+
+    \quotefromfile snippets/qlistview-dnd/model.cpp
+    \skipto Model::mimeData
+    \printuntil /^\}/
+
+    Since a list of model indexes is supplied to the function, this approach is general
+    enough to be used in both hierarchical and non-heirarchical models.
+
+    \section2 Inserting Dropped Data into a Model
+
+    The way that any given model handles dropped data depends on both its type
+    (list, table, or tree) and the way its contents is likely to be presented to
+    the user. Generally, the approach taken to accommodate dropped data should
+    be the one that most suits the model's underlying data store.
+
+    Different types of model tend to handle dropped data in different ways. List
+    and table models only provide a flat structure in which items of data are
+    stored. As a result, they may insert new rows (and columns) when data is
+    dropped on an existing item in a view, or they may overwrite the item's
+    contents in the model using some of the data supplied. Tree models are
+    often able to add child items containing new data to their underlying data
+    stores, and will therefore behave more predictably as far as the user
+    is concerned.
+
+    Dropped data is handled by a model's reimplementation of
+    QAbstractItemModel::dropMimeData(). For example, a model that handles a
+    simple list of strings can provide an implementation that handles data
+    dropped onto existing items separately to data dropped into the top level
+    of the model (i.e., onto an invalid item).
+
+    The model first has to make sure that the operation should be acted on,
+    the data supplied is in a format that can be used, and that its destination
+    within the model is valid:
+
+    \quotefromfile snippets/qlistview-dnd/model.cpp
+    \skipto Model::dropMimeData
+    \printuntil if (column
+    \printuntil return
+
+    A simple one column string list model can indicate failure if the data
+    supplied is not plain text, or if the column number given for the drop
+    is invalid.
+
+    The data to be inserted into the model is treated differently depending on
+    whether it is dropped onto an existing item or not. In this simple example,
+
+
+    \skipto int beginRow
+    \printuntil /^\}/
+
+    \section2 Decoding Imported Data
+
+    Each implementation of \l{QAbstractItemModel::dropMimeData()}{dropMimeData()} must
+    also decode the data and insert it into the model's underlying data structure.
+
+    For a simple string list model, the encoded items can be decoded and streamed
+    into a QStringList:
+
+    \skipto QByteArray
+    \printuntil }
+
+    The strings can then be inserted into the underlying data store. For consistency,
+    this can be done through the model's own interface:
+
+    \printuntil /^\}/
+
+
+
+    \section1 External Drag and Drop
+
+
+
+    \sa {Item Views Puzzle Example}
 */
