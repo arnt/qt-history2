@@ -815,8 +815,10 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     else if (g.spread() == QGradient::ReflectSpread)
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT_IBM);
+#ifdef GL_CLAMP_TO_BORDER_SGIS
     else if (QGLExtensions::glExtensions & QGLExtensions::ClampToBorder)
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_SGIS);
+#endif
     else
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE_SGIS);
 
