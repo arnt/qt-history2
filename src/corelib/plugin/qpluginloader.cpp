@@ -108,6 +108,7 @@
 /*!
     \macro Q_EXPORT_PLUGIN2(PluginName, ClassName)
     \relates QPluginLoader
+    \since 4.1
 
     This macro exports the plugin class \a ClassName with the name \a
     PluginName. There should be exactly one occurrence of this macro in a Qt
