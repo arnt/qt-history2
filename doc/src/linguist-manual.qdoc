@@ -125,15 +125,15 @@
     An example of a complete \c .pro file with four translation source files:
     \code
         HEADERS         = main-dlg.h \
-		          options-dlg.h
+                          options-dlg.h
         SOURCES         = main-dlg.cpp \
-		          options-dlg.cpp \
-		          main.cpp
+                          options-dlg.cpp \
+                          main.cpp
         FORMS           = search-dlg.ui
         TRANSLATIONS    = superapp_dk.ts \
-		          superapp_fi.ts \
-		          superapp_no.ts \
-		          superapp_se.ts
+                          superapp_fi.ts \
+                          superapp_no.ts \
+                          superapp_se.ts
     \endcode
 
      QTextCodec::setCodecForTr() makes it possible to choose a
@@ -153,7 +153,7 @@
     system as for its source code and you want to use  non-ASCII
     characters in string literals, you will need to set the \c
     CODECFORSRC. For example:
-    
+
     \code
         CODECFORSRC     = UTF-8
     \endcode
@@ -214,7 +214,7 @@
     files. Once the \c .qm files are available the application will
     detect them and use them automatically.
 
-    Note that \l lrelease will only incorporate translations that are
+    Note that lrelease will only incorporate translations that are
     marked as "done". If a translation is missing, or has failed
     validation, the original text will be used instead.
 
