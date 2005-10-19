@@ -30,9 +30,9 @@
 template <typename Type> class QDataBuffer
 {
 public:
-    QDataBuffer()
+    QDataBuffer(int res = 64)
     {
-        capacity = 64;
+        capacity = res;
         buffer = (Type*) qMalloc(capacity * sizeof(Type));
         siz = 0;
     }
