@@ -18,7 +18,7 @@ headerdirs              = $QTDIR/src \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib \
-                          $QTDIR/tools/qtestlib
+                          $QTDIR/tools/qtestlib/src
 sourcedirs              = $QTDIR/src \
                           $QTDIR/doc/src \
                           $QTDIR/extensions/activeqt \
@@ -27,7 +27,7 @@ sourcedirs              = $QTDIR/src \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib \
-                          $QTDIR/tools/qtestlib
+                          $QTDIR/tools/qtestlib/src
 sources.fileextensions  = "*.cpp *.qdoc"
 exampledirs             = $QTDIR/doc/src \
                           $QTDIR/examples \

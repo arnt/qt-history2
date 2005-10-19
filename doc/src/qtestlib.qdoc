@@ -131,7 +131,7 @@
     \o \c -v1 \BR
     verbose output; outputs information on entering and exiting test functions.
     \o \c -v2 \BR
-    extended verbose output; also outputs each \l COMPARE() and \l VERIFY()
+    extended verbose output; also outputs each \l QCOMPARE() and \l QVERIFY()
     \o \c -vs \BR
     outputs every signal that gets emitted
     \o \c -xml \BR
@@ -209,14 +209,14 @@
         }
     \endcode
 
-    The \l VERIFY() macro evaluates the expression passed as its
+    The \l QVERIFY() macro evaluates the expression passed as its
     argument. If the expression evaluates to true, the execution of
     the test function continues. Otherwise, a message describing the
     failure is appended to the test log, and the test function stops
     executing.
 
     But if you want a more verbose output to the test log, you should
-    use the \l COMPARE() macro instead:
+    use the \l QCOMPARE() macro instead:
 
     \skipto TestQString::toUpper()
     \printuntil /^\}/
@@ -288,10 +288,10 @@
     this:
 
     \code
-    COMPARE(QString("hello").toUpper(), QString("HELLO"));
-    COMPARE(QString("Hello").toUpper(), QString("HELLO"));
-    COMPARE(QString("HellO").toUpper(), QString("HELLO"));
-    COMPARE(QString("HELLO").toUpper(), QString("HELLO"));
+    QCOMPARE(QString("hello").toUpper(), QString("HELLO"));
+    QCOMPARE(QString("Hello").toUpper(), QString("HELLO"));
+    QCOMPARE(QString("HellO").toUpper(), QString("HELLO"));
+    QCOMPARE(QString("HELLO").toUpper(), QString("HELLO"));
     \endcode
 
     To prevent that the function ends up being cluttered by repetative
@@ -367,9 +367,9 @@
     associated TestQString::toUpper_data() function.
 
     First, we fetch the two elements of the data set using the \l
-    FETCH() macro. \l FETCH() takes two arguments: The data type of
+    QFETCH() macro. \l QFETCH() takes two arguments: The data type of
     the element and the element name. Then we perform the test using
-    the \l COMPARE() macro.
+    the \l QCOMPARE() macro.
 
     This approach makes it very easy to add new data to the test
     without modifying the test itself.
@@ -432,7 +432,7 @@
     and QTest::mouseRelease() functions to simulate the associated
     GUI events.
 
-    Finally, we use the \l COMPARE() macro to check if the line edit's
+    Finally, we use the \l QCOMPARE() macro to check if the line edit's
     text is as expected.
 
     As before, to make our test case a stand-alone executable, the
@@ -512,12 +512,12 @@
     associated TestGui::testGui_data() function.
 
     First, we fetch the two elements of the data set using the \l
-    FETCH() macro. \l FETCH() takes two arguments: The data type of
+    QFETCH() macro. \l QFETCH() takes two arguments: The data type of
     the element and the element name. Then we create a QLineEdit, and
     apply the list of events on that widget using the
     QTestEventList::simulate() function.
 
-    Finally, we use the COMPARE() macro to check if the line edit's
+    Finally, we use the QCOMPARE() macro to check if the line edit's
     text is as expected.
 
     As before, to make our test case a stand-alone executable,

@@ -1,8 +1,8 @@
-/*!  \class QtTestTable
+/*!  \class QTestTable
 
-    \brief The QtTestTable class stores test data.
+    \brief The QTestTable class stores test data.
 
-    QtTestTable is a helper class that contains a two-dimensional
+    QTestTable is a helper class that contains a two-dimensional
     array of test data. It can have an arbitrary number of elements
     (columns) and an arbitrary number of test data (rows).
 
@@ -23,7 +23,7 @@
     data in a QTestTable. For example:
 
     \code
-    void TestQString::toInt_data(QtTestTable &t)
+    void TestQString::toInt_data(QTestTable &t)
     {
         t.defineElement("QString", "string");
         t.defineElement("int", "result");
@@ -80,54 +80,54 @@
     test fail.
 
 
-    \bold {Note:} You never have to allocate a QtTestTable yourself,
-    the QtTest framework will do it for you if it encounters a data
+    \bold {Note:} You never have to allocate a QTestTable yourself,
+    the QTest framework will do it for you if it encounters a data
     slot for your test function.
 
 */
 
-/*! \fn QtTestTable::QtTestTable()
+/*! \fn QTestTable::QTestTable()
 
-    Constructs a new and empty QtTestTable. Usually, the QtTest
+    Constructs a new and empty QTestTable. Usually, the QTest
     framework creates test tables; you never have to construct it
     yourself.
 */
 
-/*! \fn QtTestTable::~QtTestTable()
+/*! \fn QTestTable::~QTestTable()
 
     Destroys the test table and frees all data.
 */
 
-/*! \fn int QtTestTable::dataCount() const
+/*! \fn int QTestTable::dataCount() const
 
     Returns the amount of test data in the table, i.e. the number of rows.
 
     \sa elementCount()
 */
 
-/*! \fn int QtTestTable::elementCount() const
+/*! \fn int QTestTable::elementCount() const
 
     Returns the amount of elements in the table, i.e. the number of columns.
 
     \sa dataCount()
 */
 
-/*! \fn bool QtTestTable::isEmpty() const
+/*! \fn bool QTestTable::isEmpty() const
 
     Returns true if the test table is empty, otherwise false.
 */
 
-/*! \fn const char * QtTestTable::dataTag(int index) const
+/*! \fn const char * QTestTable::dataTag(int index) const
 
     Returns the name of the data at \a index.
 */
 
-/*! \fn int QtTestTable::indexOf(const char *elementName) const
+/*! \fn int QTestTable::indexOf(const char *elementName) const
 
     Returns the index of the element called \a elementName in the table.
 */
 
-/*! \fn void QtTestTable::defineElement ( const char * elementType, const char * elementName )
+/*! \fn void QTestTable::defineElement ( const char * elementType, const char * elementName )
 
     Defines a new element (column) in the test table with type \a elementType named
     \a elementName.
@@ -138,7 +138,7 @@
     \endcode
 */
 
-/*! \fn const char * QtTestTable::elementType ( int index ) const
+/*! \fn const char * QTestTable::elementType ( int index ) const
 
     Returns the name of the element type at \a index. Use elementTypeId() if
     you want the type id rather than the name of the type.
@@ -152,7 +152,7 @@
     \sa elementTypeId()
 */
 
-/*! \fn int QtTestTable::elementTypeId(int index) const
+/*! \fn int QTestTable::elementTypeId(int index) const
 
     Returns the type id of the element at \a index.
     Please read Qt's QMetaType documentation for more information
@@ -167,10 +167,10 @@
     \sa elementType()
 */
 
-/*! \fn QtTestData * QtTestTable::newData ( const char * tag )
+/*! \fn QTestData * QTestTable::newData ( const char * tag )
 
     Creates a new row in the test table named \a tag. Use this function
-    to append data to a QtTestTable.
+    to append data to a QTestTable.
 
     Example:
     \code
@@ -180,10 +180,10 @@
     \endcode
 */
 
-/*! \fn QtTestData * QtTestTable::testData ( int index ) const
+/*! \fn QTestData * QTestTable::testData ( int index ) const
 
     Returns the test data (row) at \a index. You usually don't
-    have to call this function, since the QtTest framework manages
+    have to call this function, since the QTest framework manages
     the test data.
 
     \sa newData()

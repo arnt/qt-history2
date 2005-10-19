@@ -1,17 +1,17 @@
-/*! \class QtTestEventList
+/*! \class QTestEventList
 
-    \brief QtTestEventList is a list of GUI events.
+    \brief QTestEventList is a list of GUI events.
 
-    QtTestEventList inherits from QList<QtTestEvent>, and provides
+    QTestEventList inherits from QList<QTestEvent>, and provides
     convenience functions for populating the list.
 
-    A QtTestEventList can be populated with GUI events that can be
+    A QTestEventList can be populated with GUI events that can be
     stored as test data for later usage, or be replayed on any
     QWidget.
 
     Example:
     \code
-    QtTestEventList events;
+    QTestEventList events;
     events.addKeyClick('a');
     events.addKeyClick(Qt::Key_Backspace);
     events.addDelay(200);
@@ -27,132 +27,132 @@
     repeating it.
 */
 
-/*! \fn QtTestEventList::QtTestEventList()
+/*! \fn QTestEventList::QTestEventList()
 
-    Constructs an empty QtTestEventList.
+    Constructs an empty QTestEventList.
 */
 
-/*! \fn QtTestEventList::QtTestEventList(const QtTestEventList &other)
+/*! \fn QTestEventList::QTestEventList(const QTestEventList &other)
 
-    Constructs a new QtTestEventList as a copy of \a other.
+    Constructs a new QTestEventList as a copy of \a other.
 */
 
-/*! \fn QtTestEventList::~QtTestEventList()
+/*! \fn QTestEventList::~QTestEventList()
 
     Empties the list and destroys all stored events.
 */
 
-/*! \fn void QtTestEventList::clear()
+/*! \fn void QTestEventList::clear()
 
     Removes all events from the list.
 */
 
-/*! \fn void QtTestEventList::addKeyClick(Qt::Key qtKey, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
+/*! \fn void QTestEventList::addKeyClick(Qt::Key qtKey, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
 
     Adds a new key click to the list. The event will simulate the key \a qtKey with the modifier \a modifiers and then wait for \a msecs milliseconds.
 
-    \sa QtTest::keyClick()
+    \sa QTest::keyClick()
 */
 
-/*! \fn void QtTestEventList::addKeyPress(Qt::Key qtKey, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
+/*! \fn void QTestEventList::addKeyPress(Qt::Key qtKey, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
 
     Adds a new key press to the list. The event will press the key \a qtKey with the modifier \a modifiers and then wait for \a msecs milliseconds.
 
-    \sa QtTest::keyPress()
+    \sa QTest::keyPress()
 */
 
-/*! \fn void QtTestEventList::addKeyRelease(Qt::Key qtKey, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
+/*! \fn void QTestEventList::addKeyRelease(Qt::Key qtKey, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
 
     Adds a new key release to the list. The event will release the key \a qtKey with the modifier \a modifiers and then wait for \a msecs milliseconds.
 
-    \sa QtTest::keyRelease()
+    \sa QTest::keyRelease()
 
 */
 
-/*! \fn void QtTestEventList::addKeyEvent(QtTest::KeyAction action, Qt::Key qtKey, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
+/*! \fn void QTestEventList::addKeyEvent(QTest::KeyAction action, Qt::Key qtKey, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
     \internal
 */
 
-/*! \fn void QtTestEventList::addKeyClick(char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
+/*! \fn void QTestEventList::addKeyClick(char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
 
     \overload
 
     Adds a new key click to the list. The event will simulate the key \a ascii with the modifier \a modifiers and then wait for \a msecs milliseconds.
 
-    \sa QtTest::keyClick()
+    \sa QTest::keyClick()
 
 */
 
-/*! \fn void QtTestEventList::addKeyPress(char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
+/*! \fn void QTestEventList::addKeyPress(char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
 
     \overload
 
     Adds a new key press to the list. The event will press the key \a ascii with the modifier \a modifiers and then wait for \a msecs milliseconds.
 
-    \sa QtTest::keyPress()
+    \sa QTest::keyPress()
 */
 
-/*! \fn void QtTestEventList::addKeyRelease(char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
+/*! \fn void QTestEventList::addKeyRelease(char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
 
     \overload
 
     Adds a new key release to the list. The event will release the key \a ascii with the modifier \a modifiers and then wait for \a msecs milliseconds.
 
-    \sa QtTest::keyRelease()
+    \sa QTest::keyRelease()
 */
 
-/*! \fn void QtTestEventList::addKeyClicks(const QString &keys, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
+/*! \fn void QTestEventList::addKeyClicks(const QString &keys, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
 
     Adds new keyboard entries to the list. The event will press the \a keys with the \a modifiers and wait \a msecs milliseconds between each key.
 
-    \sa QtTest::keyClicks()
+    \sa QTest::keyClicks()
 */
 
-/*! \fn void QtTestEventList::addKeyEvent(QtTest::KeyAction action, char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
+/*! \fn void QTestEventList::addKeyEvent(QTest::KeyAction action, char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
     \internal
 */
 
-/*! \fn void QtTestEventList::addDelay(int msecs)
+/*! \fn void QTestEventList::addDelay(int msecs)
 
     Adds a \a msecs milliseconds delay.
 
-    \sa QtTest::wait()
+    \sa QTest::wait()
 */
 
-/*! \fn void QtTestEventList::simulate(QWidget *w)
+/*! \fn void QTestEventList::simulate(QWidget *w)
 
     Simulates the events from the list one by one on the widget \a w.
-    For an example, please read the \l QtTestEventList class documentation.
+    For an example, please read the \l QTestEventList class documentation.
 */
 
-/*! \fn void QtTestEventList::addMousePress(Qt::MouseButton button, Qt::KeyboardModifiers modifiers = 0, QPoint pos = QPoint(), int delay=-1)
+/*! \fn void QTestEventList::addMousePress(Qt::MouseButton button, Qt::KeyboardModifiers modifiers = 0, QPoint pos = QPoint(), int delay=-1)
 
     Add a mouse press to the list. The event will press the \a button with optional \a modifiers at the position \a pos with an optional \a delay. The default position is the center of the widget.
 
-    \sa QtTest::mousePress()
+    \sa QTest::mousePress()
 */
-/*! \fn void QtTestEventList::addMouseRelease(Qt::MouseButton button, Qt::KeyboardModifiers modifiers = 0, QPoint pos = QPoint(), int delay=-1)
+/*! \fn void QTestEventList::addMouseRelease(Qt::MouseButton button, Qt::KeyboardModifiers modifiers = 0, QPoint pos = QPoint(), int delay=-1)
 
     Add a mouse release to the list. The event will release the \a button with optional \a modifiers at the position \a pos with an optional \a delay. The default position is the center of the widget.
 
-    \sa QtTest::mouseRelease()
+    \sa QTest::mouseRelease()
 */
-/*! \fn void QtTestEventList::addMouseClick(Qt::MouseButton button, Qt::KeyboardModifiers modifiers = 0, QPoint pos = QPoint(), int delay=-1)
+/*! \fn void QTestEventList::addMouseClick(Qt::MouseButton button, Qt::KeyboardModifiers modifiers = 0, QPoint pos = QPoint(), int delay=-1)
 
     Add a mouse click to the list. The event will click the \a button with optional \a modifiers at the position \a pos with an optional \a delay. The default position is the center of the widget.
 
-    \sa QtTest::mouseClick()
+    \sa QTest::mouseClick()
 */
-/*! \fn void QtTestEventList::addMouseDClick(Qt::MouseButton button, Qt::KeyboardModifiers modifiers = 0, QPoint pos = QPoint(), int delay=-1)
+/*! \fn void QTestEventList::addMouseDClick(Qt::MouseButton button, Qt::KeyboardModifiers modifiers = 0, QPoint pos = QPoint(), int delay=-1)
 
     Add a double mouse click to the list. The event will double click the \a button with optional \a modifiers at the position \a pos with an optional \a delay. The default position is the center of the widget.
 
-    \sa QtTest::mousePress()
+    \sa QTest::mousePress()
 */
-/*! \fn void QtTestEventList::addMouseMove(QPoint pos = QPoint(), int delay=-1)
+/*! \fn void QTestEventList::addMouseMove(QPoint pos = QPoint(), int delay=-1)
 
     Adds a mouse move to the list. The event will move the mouse to the position \a pos. If a \a delay (in milliseconds) is set, the test will wait after moving the mouse. The default position is the center of the widget.
 
-    \sa QtTest::mousePress()
+    \sa QTest::mousePress()
 */
 
