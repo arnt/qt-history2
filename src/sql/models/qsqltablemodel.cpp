@@ -333,7 +333,8 @@ QString QSqlTableModel::tableName() const
 
 /*!
     Populates the model with data from the table that was set via setTable(), using the
-    specified filter and sort condition.
+    specified filter and sort condition, and returns true if the model selects at least
+    one row; otherwise returns false.
 
     \sa setTable(), setFilter(), selectStatement()
 */
