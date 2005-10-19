@@ -29,6 +29,7 @@
 #include "QtGui/qapplication.h"
 #include "QtGui/qfont.h"
 #include "QtGui/qcursor.h"
+#include "QtGui/qregion.h"
 #include "QtCore/qmutex.h"
 #include "QtCore/qtranslator.h"
 #include "QtCore/qbasictimer.h"

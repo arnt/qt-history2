@@ -18,6 +18,7 @@
 #include "private/qapplication_p.h"
 #include "qwsdisplay_qws.h"
 #include "qwscommand_qws.h"
+#include "qwidget.h"
 
 #ifdef Q_WS_QWS
 #ifndef QT_NO_DIRECTPAINTER
