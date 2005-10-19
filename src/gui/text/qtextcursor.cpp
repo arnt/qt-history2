@@ -353,6 +353,13 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         if (!line.isValid() || line.textLength() == 0)
             break;
         newPosition = blockIt.position() + line.textStart() + line.textLength();
+        if (line.lineNumber() < layout->lineCount() - 1) {
+            const QString text = blockIt.text();
+            // ###### this relies on spaces being the cause for linebreaks.
+            // this doesn't work with japanese
+            if (text.at(line.textStart() + line.textLength() - 1).isSpace())
+                --newPosition;
+        }
         break;
     }
     case QTextCursor::EndOfWord: {
