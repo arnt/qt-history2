@@ -103,7 +103,7 @@ void QTreeModel::setColumnCount(int columns)
     int count = header->columnCount();
     if (count == columns)
         return;
- 
+
     if (columns < count) {
         beginRemoveColumns(QModelIndex(), columns, count - 1);
         header->values.resize(columns);
@@ -335,7 +335,7 @@ bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
   \reimp
 
   Returns the flags for the item refered to the given \a index.
-  
+
 */
 
 Qt::ItemFlags QTreeModel::flags(const QModelIndex &index) const
@@ -475,12 +475,12 @@ Qt::DropActions QTreeModel::supportedDropActions() const
 */
 
 void QTreeModel::emitDataChanged(QTreeWidgetItem *item, int column)
-{ 
+{
     if (item->model->header == item) {
         emit headerDataChanged(Qt::Horizontal, column, column);
         return;
     }
-    
+
     QModelIndex br, tl;
     if (column == -1) { // the whole row
         tl = index(item, 0);
@@ -526,7 +526,7 @@ void QTreeModel::ensureValidIterator(QTreeWidgetItemIterator *iterator, const QT
             if (*(*iterator) == walkItem) {
                 ensureValidIterator(iterator, walkItem);    // recurse
             }
-            walkItem = walk(walkItem);            
+            walkItem = walk(walkItem);
         }
         (*iterator).current = nextSibling;
         // This does not have to be valid, iterate to the next if it doesn't match our flags
@@ -697,7 +697,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
     Returns the flags used to describe the item. These determine whether
     the item can be checked, edited, and selected.
 
-    The default value for flags is 
+    The default value for flags is
     Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled.
     If the item was constructed with a parent, flags will in addition contain Qt::ItemIsDropEnabled.
 
@@ -756,7 +756,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 /*!
     \fn void QTreeWidgetItem::setStatusTip(int column, const QString &statusTip)
 
-    Sets the status tip for the given \a column to the given \a statusTip.  
+    Sets the status tip for the given \a column to the given \a statusTip.
     QTreeWidget mouse tracking needs to be enabled for this feature to work.
 
     \sa statusTip() setToolTip() setWhatsThis()
@@ -1133,7 +1133,7 @@ QTreeWidgetItem::~QTreeWidgetItem()
 */
 QTreeWidgetItem *QTreeWidgetItem::clone() const
 {
-    QTreeWidgetItem *copy = new QTreeWidgetItem(*this);
+    QTreeWidgetItem *copy = 0;
 
     QStack<const QTreeWidgetItem*> stack;
     QStack<QTreeWidgetItem*> parentStack;
@@ -1195,8 +1195,8 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         values[column].append(QWidgetItemData(role, value));
     if (model)
         model->emitDataChanged(this, column);
-}    
- 
+}
+
 /*!
     Returns the value for the item's \a column and \a role.
 */
@@ -1730,7 +1730,7 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     // model signals
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitItemChanged(QModelIndex)));
-            
+
     header()->setClickable(false);
 }
 
