@@ -1536,8 +1536,6 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         item->glyphs[i].attributes.zeroWidth = false;
         IDEBUG("    %d: %4x", i, reordered[i]);
     }
-    item->glyphs[0].attributes.clusterStart = true;
-
 
     // now we have the syllable in the right order, and can start running it through open type.
 
@@ -1689,6 +1687,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
     }
 #endif
+    item->glyphs[0].attributes.clusterStart = true;
 
     IDEBUG("<<<<<<");
     return true;
@@ -2032,7 +2031,6 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         item->glyphs[i].attributes.zeroWidth = false;
         IDEBUG("    %d: %4x", i, str[i].unicode());
     }
-    item->glyphs[0].attributes.clusterStart = true;
 
     // now we have the syllable in the right order, and can start running it through open type.
 
@@ -2041,10 +2039,12 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         openType->selectScript(QUnicodeTables::Tibetan, tibetan_features);
 
         openType->shape(item);
-        return openType->positionAndAdd(item, false);
+        if (!openType->positionAndAdd(item, false))
+            return false;
     }
 #endif
 
+    item->glyphs[0].attributes.clusterStart = true;
     return true;
 }
 
@@ -2677,7 +2677,6 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 	item->glyphs[i].attributes.zeroWidth = false;
 	KHDEBUG("    %d: %4x property=%x", i, reordered[i], properties[i]);
     }
-    item->glyphs[0].attributes.clusterStart = true;
 
     // now we have the syllable in the right order, and can start running it through open type.
 
@@ -2707,7 +2706,8 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
         }
 
         openType->shape(item, where);
-	openType->positionAndAdd(item, false);
+	if (!openType->positionAndAdd(item, false))
+            return false;
     } else
 #endif
     {
@@ -2715,6 +2715,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 	Q_UNUSED(openType);
     }
 
+    item->glyphs[0].attributes.clusterStart = true;
     return true;
 }
 
@@ -2953,7 +2954,6 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
         item->glyphs[i].attributes.zeroWidth = false;
         IDEBUG("    %d: %4x", i, ch[i].unicode());
     }
-    item->glyphs[0].attributes.clusterStart = true;
 
 #if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     if (openType && !composed) {
@@ -2964,11 +2964,13 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
         item->log_clusters = logClusters.data();
 
         openType->shape(item);
-        return openType->positionAndAdd(item, false);
+        if (!openType->positionAndAdd(item, false))
+            return false;
 
     }
 #endif
 
+    item->glyphs[0].attributes.clusterStart = true;
     return true;
 }
 
