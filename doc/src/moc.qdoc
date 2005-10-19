@@ -241,6 +241,10 @@
         };
     \endcode
 
+    Another limitation is that moc does not expand macros, so you
+    for example cannot use a macro to declare a signal/slot
+    or use one to define a base class for a QObject.
+
     Less importantly, the following constructs are illegal. All of
     them have alternatives which we think are usually better, so
     removing these limitations is not a high priority for us.
