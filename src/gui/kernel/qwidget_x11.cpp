@@ -580,7 +580,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         // note: WM_TRANSIENT_FOR is set in QWidgetPrivate::show_sys()
 
         XSizeHints size_hints;
-        memset(&size_hints, 0, sizeof(size_hints));
         size_hints.flags = USSize | PSize | PWinGravity;
         size_hints.x = data.crect.left();
         size_hints.y = data.crect.top();
@@ -590,7 +589,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             QApplication::isRightToLeft() ? NorthEastGravity : NorthWestGravity;
 
         XWMHints wm_hints;                        // window manager hints
-        memset(&wm_hints, 0, sizeof(wm_hints));
         wm_hints.flags = InputHint | StateHint | WindowGroupHint;
         wm_hints.input = True;
         wm_hints.initial_state = NormalState;
