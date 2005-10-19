@@ -299,7 +299,7 @@ void QDockWidgetPrivate::relayout()
 void QDockWidgetPrivate::toggleTopLevel()
 {
     Q_Q(QDockWidget);
-    QPoint p = q->mapToGlobal(QPoint(q->height(), q->height()));
+    QPoint p = q->mapToGlobal(QPoint(titleArea.height(), titleArea.height()));
     bool visible = q->isVisible();
     if (visible)
         q->hide();
