@@ -153,14 +153,25 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
         }
     }
 
-    qSort(list.begin(), list.end(), caseInsensitiveLessThan);
-    setStringList(list);
-    
     int bestMatch = perfectMatch;
     if (bestMatch == -1)
         bestMatch = goodMatch;
 
-    return index(qMax(0, bestMatch), 0, QModelIndex());
+    bestMatch = qMax(0, bestMatch);
+    
+    // sort the new list
+    QString match;
+    if (bestMatch > 0 && list.count() > bestMatch)
+        match = list[bestMatch];
+    qSort(list.begin(), list.end(), caseInsensitiveLessThan);
+    setStringList(list);
+    for (int i = 0; i < list.size(); ++i) {
+        if (list.at(i) == match){
+            bestMatch = i;
+            break;
+        }
+    }
+    return index(bestMatch, 0, QModelIndex());
 }
 
 HelpNavigationListItem::HelpNavigationListItem(QListWidget *ls, const QString &txt)
