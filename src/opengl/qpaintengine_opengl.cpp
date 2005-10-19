@@ -308,6 +308,8 @@ public:
         , moveToCount(0)
         , dashStroker(0)
         , stroker(0)
+        , tessVector(20000)
+        , shader_dev(0)
         {}
 
     inline void setGLPen(const QColor &c) {
@@ -367,6 +369,7 @@ public:
     QDataBuffer<int> int_buffer;
     QDataBuffer<GLdouble> tessVector;
 
+    QPaintDevice *shader_dev;
     GLuint grad_palette;
     GLhandleARB grad_radial;
     GLuint grad_radial_palette_loc;
@@ -401,12 +404,6 @@ void QOpenGLPaintEnginePrivate::endPath()
 {
     // rewind to first position...
     lineTo(path_start);
-
-//     for (int i=0; i<10000; ++i) {
-//         tessVector.add(0);
-//         vertexStorage.add(0);
-//     }
-
 //     printf("endPath() -> tessVector = %d, vertexStorage = %d\n", tessVector.size(), vertexStorage.size());
 
     GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
@@ -890,16 +887,77 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
                     reinterpret_cast<GLvoid (CALLBACK *) ()>(&qgl_tess_error));
 #endif
 
+}
+
+QOpenGLPaintEngine::~QOpenGLPaintEngine()
+{
+    Q_D(QOpenGLPaintEngine);
+    if (d->dashStroker)
+        delete d->dashStroker;
+
+    if (QGLExtensions::glExtensions & QGLExtensions::FragmentShader) {
+        glUseProgramObjectARB(0);
+        glBindTexture(GL_TEXTURE_1D, 0);
+
+        glDeleteObjectARB(d->grad_radial);
+        glDeleteObjectARB(d->grad_conical);
+        glDeleteTextures(1, &d->grad_palette);
+    }
+}
+
+bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
+{
+    Q_D(QOpenGLPaintEngine);
+    d->drawable.setDevice(pdev);
+    d->has_clipping = false;
+    d->has_fast_pen = false;
+    d->has_autoswap = d->drawable.autoBufferSwap();
+    d->drawable.setAutoBufferSwap(false);
+    d->inverseScale = 1;
+    setActive(true);
+    d->drawable.makeCurrent();
+
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glDisable(GL_MULTISAMPLE);
+    glDisable(GL_TEXTURE_1D);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_RECTANGLE_NV);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    glShadeModel(GL_FLAT);
+
+    const QColor &c = d->drawable.backgroundColor();
+    glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
+    QSize sz(d->drawable.size());
+    glViewport(0, 0, sz.width(), sz.height());
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, sz.width(), sz.height(), 0, -999999, 999999);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+
     if ((QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
-        && (QGLExtensions::glExtensions &
-            QGLExtensions::Extension(QGLExtensions::ClampToEdge || QGLExtensions::ClampToBorder)))
+        && ((QGLExtensions::glExtensions & QGLExtensions::ClampToEdge)
+            || (QGLExtensions::glExtensions & QGLExtensions::ClampToBorder))
+        && (pdev != d->shader_dev))
     {
+        if (d->shader_dev) {
+            glUseProgramObjectARB(0);
+            glBindTexture(GL_TEXTURE_1D, 0);
+
+            glDeleteObjectARB(d->grad_radial);
+            glDeleteObjectARB(d->grad_conical);
+            glDeleteTextures(1, &d->grad_palette);
+        }
+        d->shader_dev = pdev;
         gccaps |= LinearGradientFill;
         glGenTextures(1, &d->grad_palette);
 
         if (QGLExtensions::glExtensions & QGLExtensions::FragmentShader) {
             qt_resolve_frag_shader_extensions();
-
             static char radial_shader[] =
                 "uniform sampler1D palette;\n"
                 "uniform vec2 fmp;\n"
@@ -943,57 +1001,9 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
             d->grad_conical_inv_matrix_offset_loc = glGetUniformLocationARB(d->grad_conical, "inv_matrix_offset");
         }
     }
-}
 
-
-QOpenGLPaintEngine::~QOpenGLPaintEngine()
-{
-    Q_D(QOpenGLPaintEngine);
-    if (d->dashStroker)
-        delete d->dashStroker;
-
-    if(QGLExtensions::glExtensions & QGLExtensions::FragmentShader) {
-        glUseProgramObjectARB(0);
-        glBindTexture(GL_TEXTURE_1D, 0);
-
-        glDeleteObjectARB(d->grad_radial);
-        glDeleteObjectARB(d->grad_conical);
-        glDeleteTextures(1, &d->grad_palette);
-    }
-}
-
-bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
-{
-    Q_D(QOpenGLPaintEngine);
-    d->drawable.setDevice(pdev);
-    d->has_clipping = false;
-    d->has_fast_pen = false;
-    d->has_autoswap = d->drawable.autoBufferSwap();
-    d->drawable.setAutoBufferSwap(false);
-    d->inverseScale = 1;
-    setActive(true);
-    d->drawable.makeCurrent();
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    const QColor &c = d->drawable.backgroundColor();
-    glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glShadeModel(GL_FLAT);
-    QSize sz(d->drawable.size());
-    glViewport(0, 0, sz.width(), sz.height());
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, sz.width(), sz.height(), 0, -999999, 999999);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
     setDirty(QPaintEngine::DirtyPen);
     setDirty(QPaintEngine::DirtyBrush);
-    glDisable(GL_MULTISAMPLE);
-    glDisable(GL_TEXTURE_1D);
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_STENCIL_TEST);
     return true;
 }
 
