@@ -451,8 +451,10 @@ void QAbstractButtonPrivate::click()
     QObject *guard = q;
     QMetaObject::addGuard(&guard);
     q->nextCheckState();
-    if (!guard)
+    if (!guard) {
+        QMetaObject::removeGuard(&guard);
         return;
+    }
     blockRefresh = false;
     refresh();
     emit q->released();
@@ -1038,6 +1040,7 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
 #endif
             if (guard)
                 emit pressed();
+            QMetaObject::removeGuard(&guard);
         }
     } else if (e->timerId() == d->animateTimer.timerId()) {
         d->animateTimer.stop();
