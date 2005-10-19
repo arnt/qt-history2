@@ -22,7 +22,7 @@
     OpenGL pixel buffer (pbuffer). A pixel buffer can be rendered into
     using full hardware acceleration. This is usually much faster than
     rendering into a system pixmap, where software rendering is often
-    used. Under Windows and on the Mac it is also possible to bind the
+    used. Under Windows and on Mac OS X it is also possible to bind the
     pixel buffer directly as a texture using the \c render_texture
     extension, thus eliminating the need for additional copy
     operations to generate dynamic textures.
