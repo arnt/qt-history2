@@ -804,20 +804,13 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     else if (g.spread() == QGradient::ReflectSpread)
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT_IBM);
-    else if (QGLExtensions::glExtensions & QGLExtensions::ClampToBorder)
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     else
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
-    // mipmaps do not work well with conical gradients
     if (!(QGLExtensions::glExtensions & QGLExtensions::GenerateMipmap))
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    else if ((g.type() == QGradient::ConicalGradient)
-             || ((g.spread() == QGradient::PadSpread)
-                 && !(QGLExtensions::glExtensions & QGLExtensions::ClampToBorder)))
-    {
-        // if we are using CLAMP_TO_EDGE (in place of CLAMP_TO_BORDER)
-        // disable mipmaps for pad gradients, or else they will look weird
+    else if (g.type() == QGradient::ConicalGradient || g.spread() == QGradient::PadSpread) {
+        // disable mipmaps for pad gradients and conical gradients
         glTexParameteri(GL_TEXTURE_1D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE);
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     } else {
@@ -887,6 +880,8 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
                     reinterpret_cast<GLvoid (CALLBACK *) ()>(&qgl_tess_error));
 #endif
 
+    if (QGLExtensions::glExtensions & QGLExtensions::FragmentShader)
+        qt_resolve_frag_shader_extensions();
 }
 
 QOpenGLPaintEngine::~QOpenGLPaintEngine()
@@ -940,8 +935,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glEnable(GL_BLEND);
 
     if ((QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
-        && ((QGLExtensions::glExtensions & QGLExtensions::ClampToEdge)
-            || (QGLExtensions::glExtensions & QGLExtensions::ClampToBorder))
         && (pdev != d->shader_dev))
     {
         if (d->shader_dev) {
@@ -957,7 +950,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         glGenTextures(1, &d->grad_palette);
 
         if (QGLExtensions::glExtensions & QGLExtensions::FragmentShader) {
-            qt_resolve_frag_shader_extensions();
             static char radial_shader[] =
                 "uniform sampler1D palette;\n"
                 "uniform vec2 fmp;\n"
