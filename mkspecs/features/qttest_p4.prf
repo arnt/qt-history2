@@ -24,7 +24,7 @@ isEmpty(QTEST_LIB) {
 contains(QT_CONFIG, embedded):CONFIG += embedded
 
 embed_testlib {
-    QTESTDIR = $$(QTDIR)/tools/qtestlib
+    QTESTDIR = $$(QTDIR)/tools/qtestlib/src
     SOURCES += $${QTESTDIR}/qasciikey.cpp \
                $${QTESTDIR}/qabstracttestlogger.cpp \
                $${QTESTDIR}/qsignaldumper.cpp \
