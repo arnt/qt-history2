@@ -1505,43 +1505,31 @@ MakefileGenerator::createObjectList(const QStringList &sources)
     return ret;
 }
 
-struct ReplaceExtraCompilerCacheKey
+ReplaceExtraCompilerCacheKey::ReplaceExtraCompilerCacheKey(const QString &v, const QString &i, const QString &o)
 {
-    mutable uint hash;
-    QString var, in, out, pwd;
-    ReplaceExtraCompilerCacheKey(const QString &v, const QString &i, const QString &o)
-    {
-        hash = 0;
-        pwd = qmake_getpwd();
-        var = v;
-        in = i;
-        out = o;
-    }
-    bool operator==(const ReplaceExtraCompilerCacheKey &f) const
-    {
-        return (hashCode() == f.hashCode() &&
-                f.in == in &&
-                f.out == out &&
-                f.var == var &&
-                f.pwd == pwd);
-    }
-    inline uint hashCode() const {
-        if(!hash)
-            hash = qHash(var) | qHash(in) | qHash(out) /*| qHash(pwd)*/;
-        return hash;
-    }
-};
-uint qHash(const ReplaceExtraCompilerCacheKey &f) { return f.hashCode(); }
+    hash = 0;
+    pwd = qmake_getpwd();
+    var = v;
+    in = i;
+    out = o;
+}
+
+bool ReplaceExtraCompilerCacheKey::operator==(const ReplaceExtraCompilerCacheKey &f) const
+{
+    return (hashCode() == f.hashCode() &&
+            f.in == in &&
+            f.out == out &&
+            f.var == var &&
+            f.pwd == pwd);
+}
+
 
 QString
 MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
 {
     //lazy cache
-    static QHash<ReplaceExtraCompilerCacheKey, QString> *cache = 0;
-    if(!cache)
-        cache = new QHash<ReplaceExtraCompilerCacheKey, QString>;
     ReplaceExtraCompilerCacheKey cacheKey(var, in, out);
-    QString cacheVal = cache->value(cacheKey);
+    QString cacheVal = extraCompilerVariablesCache.value(cacheKey);
     if(!cacheVal.isNull())
         return cacheVal;
 
@@ -1579,7 +1567,7 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
     }
 
     //cache the value
-    cache->insert(cacheKey, ret);
+    extraCompilerVariablesCache.insert(cacheKey, ret);
     return ret;
 }
 
