@@ -821,8 +821,8 @@ void QAbstractItemModelPrivate::reset()
     pointer or as an integer value. Custom models typically use these
     unique identifiers in other reimplemented functions to retrieve item
     data and access information about the item's parents and children.
-    See the \l{Simple Tree Model} example for more information about unique
-    identifiers.
+    See the \l{itemviews/simpletreemodel}{Simple Tree Model} example for
+    more information about unique identifiers.
 
     It is not necessary to support every role defined in Qt::ItemDataRole.
     Depending on the type of data contained within a model, it may only be
@@ -1186,9 +1186,9 @@ QStringList QAbstractItemModel::mimeTypes() const
 }
 
 /*!
-    Returns an object that contains a serialized description of the specified
-    \a indexes. The format used to describe the items corresponding to the
-    indexes is obtained from the mimeTypes() function.
+    Returns an object that contains serialized items of data corresponding to the
+    list of \a indexes specified. The formats used to describe the encoded data
+    is obtained from the mimeTypes() function.
 
     If the list of indexes is empty, 0 is returned rather than a serialized
     empty list.
