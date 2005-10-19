@@ -356,6 +356,12 @@ protected:
     void *castOrDetach(Type t);
 #endif
     bool cmp(const QVariant &other) const;
+
+private:
+#ifndef QT3_SUPPORT
+    // force compile error, prevent QVariant(QVariant::Type, int) to be called
+    inline QVariant(bool, int) { Q_ASSERT(false); }
+#endif
 };
 
 #ifndef QT_MOC
