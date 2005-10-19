@@ -1083,7 +1083,6 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
   Removes the directory corresponding to the model item \a index in the
   directory model, returning true if successful. If the directory
   cannot be removed, false is returned.
-
 */
 
 bool QDirModel::rmdir(const QModelIndex &index)
@@ -1112,8 +1111,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
 /*!
   Removes the model item \a index from the directory model, returning
   true if successful. If the item cannot be removed, false is returned.
-
- */
+*/
 
 bool QDirModel::remove(const QModelIndex &index)
 {
