@@ -65,7 +65,7 @@ template<> inline char *toString(const QChar &c)
     return qstrdup(QString::fromLatin1("QChar: '%1' (0x%2)").arg(c).arg(QString::number(c.unicode(), 16)).toLatin1().constData());
 }
 
-#ifndef QTEST_NO_PARTIAL_SPECIALIZATIONS
+#ifndef QTEST_NO_SPECIALIZATIONS
 template<>
 #endif
 inline bool qCompare(QString const &t1, QLatin1String const &t2, const char *actual,
@@ -73,7 +73,7 @@ inline bool qCompare(QString const &t1, QLatin1String const &t2, const char *act
 {
     return qCompare<QString>(t1, QString(t2), actual, expected, file, line);
 }
-#ifndef QTEST_NO_PARTIAL_SPECIALIZATIONS
+#ifndef QTEST_NO_SPECIALIZATIONS
 template<>
 #endif
 inline bool qCompare(QLatin1String const &t1, QString const &t2, const char *actual,

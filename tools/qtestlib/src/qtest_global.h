@@ -26,8 +26,8 @@
 # endif
 #endif
 
-#if defined (Q_CC_MSVC) || defined (Q_CC_SUN) || defined (Q_CC_XLC) || (defined (Q_CC_GNU) && (__GNUC__ - 0 < 3))
-# define QTEST_NO_PARTIAL_SPECIALIZATIONS
+#if (defined (Q_CC_MSVC) && _MSC_VER < 1310) || defined (Q_CC_SUN) || defined (Q_CC_XLC) || (defined (Q_CC_GNU) && (__GNUC__ - 0 < 3))
+# define QTEST_NO_SPECIALIZATIONS
 #endif
 
 #define QTEST_VERSION     0x040100
