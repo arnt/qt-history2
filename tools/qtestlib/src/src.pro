@@ -18,8 +18,8 @@ QT       = core
 INCLUDEPATH += .
 
 MOC_DIR         = tmp
-DESTDIR = ../../lib
-DLLDESTDIR = ../../bin
+DESTDIR = ../../../lib
+DLLDESTDIR = ../../../bin
 isEmpty(QT_MAJOR_VERSION) {
    VERSION=4.1.0
 } else {
