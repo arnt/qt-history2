@@ -34,7 +34,7 @@ inline void qbswap_helper(const uchar *src, uchar *dest, int size)
 */
 template <typename T> inline void qbswap(const T src, uchar *dest)
 {
-    qbswap_helper(static_cast<T>(&src), dest, sizeof(T));
+    qbswap_helper(reinterpret_cast<const uchar *>(&src), dest, sizeof(T));
 }
 
 // Used to implement a type-safe and alignment-safe copy operation
