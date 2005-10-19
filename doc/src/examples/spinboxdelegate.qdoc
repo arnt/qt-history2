@@ -98,7 +98,7 @@
 
     \quotefromfile itemviews/spinboxdelegate/main.cpp
     \skipto int main(
-    \printuntil tableView->setItemDelegate(
+    \printuntil tableView.setItemDelegate(
 
     The table view is informed about the delegate, and will use it to
     display each of the items. Since the delegate is a subclass of
@@ -114,7 +114,7 @@
     Finally, the table view is displayed with a window title, and we start
     the application's event loop:
 
-    \skipto tableView->setWindowTitle(
+    \skipto tableView.setWindowTitle(
     \printuntil /^\}/
 
     Each of the cells in the table can now be edited in the usual way, but

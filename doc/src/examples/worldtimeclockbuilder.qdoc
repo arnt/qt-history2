@@ -9,13 +9,13 @@
   \image worldtimeclockbuilder-example.png
 
   This example uses a form containing the custom widget plugin described in the
-  \l{World Time Clock Example}{World Time Clock} example, and dynamically
-  generates a user interface using the QForm::Loader class, part of the QtForm
-  module.
+  \l{designer/worldtimeclockplugin}{World Time Clock Plugin} example, and
+  dynamically generates a user interface using the QForm::Loader class, part of
+  the QtForm module.
 
   \section1 Preparation
 
-  As with the \l{Calculator Builder Example}{Calculator Builder} example, the
+  As with the \l{designer/calculatorbuilder}{Calculator Builder} example, the
   project file for this example needs to include the appropriate definitions
   to ensure that it is built against the required Qt modules.
 

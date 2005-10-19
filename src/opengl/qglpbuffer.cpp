@@ -13,17 +13,17 @@
 
 /*!
     \class QGLPbuffer
-    \brief The QGLPbuffer class encapsulates an OpenGL pbuffer.
+    \brief The QGLPbuffer class encapsulates an OpenGL pixel buffer.
     \since 4.1
 
     \ingroup multimedia
 
     QGLPbuffer provides functionality for creating and managing an
-    OpenGL pbuffer. A pbuffer can be rendered into using full
-    hardware acceleration. This is usually much faster than rendering
-    into a system pixmap, where software rendering is often
+    OpenGL pixel buffer (pbuffer). A pixel buffer can be rendered into
+    using full hardware acceleration. This is usually much faster than
+    rendering into a system pixmap, where software rendering is often
     used. Under Windows and on the Mac it is also possible to bind the
-    pbuffer directly as a texture using the \c render_texture
+    pixel buffer directly as a texture using the \c render_texture
     extension, thus eliminating the need for additional copy
     operations to generate dynamic textures.
 
@@ -31,6 +31,8 @@
     well known power-of-2 rule applies to the size of the buffer. If
     the size of the buffer is a non-power of 2 size, it can not be
     bound to a texture.
+
+    \sa {examples/pbuffers}
 */
 
 #include <qglpbuffer.h>

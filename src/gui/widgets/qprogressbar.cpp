@@ -223,10 +223,10 @@ int QProgressBar::maximum() const
 
 /*!
     \property QProgressBar::value
-    \brief the progressbar's current value
+    \brief the progress bar's current value
 
-    Attemting to change the current value to one outside
-    the minimum-maximum range has no effect the current value.
+    Attempting to change the current value to one outside
+    the minimum-maximum range has no effect on the current value.
 */
 void QProgressBar::setValue(int value)
 {

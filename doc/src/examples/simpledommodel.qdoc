@@ -76,8 +76,8 @@
     The \c DomItem class is used to hold information about a specific QDomNode in
     the document:
 
-    \quotefromfile itemviews/simpledommodel/dommodel.h
-    \skipto class DomModel
+    \quotefromfile itemviews/simpledommodel/domitem.h
+    \skipto class DomItem
     \printuntil /^\};/
 
     Each \c DomItem provides a wrapper for a QDomNode obtained from the underlying
@@ -268,7 +268,6 @@
     the underlying document node. Depending on the column specified, the data we return
     is obtained in different ways:
 
-    \skipto QDomNode node
     \printuntil /^\}/
 
     For the first column, we return the node's name. For the second column, we read any

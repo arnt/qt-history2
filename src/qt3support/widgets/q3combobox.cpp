@@ -43,9 +43,8 @@
 /*!
     \class Q3ComboBox q3combobox.h
     \brief The Q3ComboBox widget is a combined button and popup list.
-
-    \ingroup basic
-    \mainclass
+    \since 4.1
+    \compat
 
     A combobox is a selection widget which displays the current item
     and can pop up a list of items. A combobox may be editable in
