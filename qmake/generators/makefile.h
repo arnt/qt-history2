@@ -40,7 +40,7 @@ struct ReplaceExtraCompilerCacheKey
         return hash;
     }
 };
-uint qHash(const ReplaceExtraCompilerCacheKey &f) { return f.hashCode(); }
+inline uint qHash(const ReplaceExtraCompilerCacheKey &f) { return f.hashCode(); }
 
 struct ReplaceExtraCompilerCacheKey;
 
