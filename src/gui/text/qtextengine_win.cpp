@@ -469,7 +469,9 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, QBidiCont
             } else if (b) {
                 b = false;
             } else {
-                continue;
+                if (j - rstart < 32000) 
+                    continue;
+                rstart = j;
             }
 
             item.position = j+start;
