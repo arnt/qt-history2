@@ -7,15 +7,16 @@
     \previouspage The Qt 4 Main Window Classes
     \nextpage Cross-Platform Accessibility Support in Qt 4
 
-    \QD has been completely re-written based on our experience with the previous
-    versions of the product for Qt 3. One of the main new ideas behind this new
-    version is to release the application as a collection of interchangeable
-    components that include the form editor, widget box, and other useful tools
-    for creating graphical user interfaces with Qt. These components can either
-    be used together in the \QD application, or independently integrated into
-    other systems.
-    As a result, certain features such as the project editor and code editor have
-    been removed from the version included with this release.
+    \QD has been completely re-written based on our experience with
+    the previous versions of the product for Qt 3. One of the main new
+    ideas behind this new version is to release the application as a
+    collection of interchangeable components that include the property
+    editor, the widget box, and other useful tools for creating
+    graphical user interfaces with Qt. These components can either be
+    used together in the \QD application, or independently integrated
+    into other systems.  As a result, certain features such as the
+    project editor and code editor have been removed from the version
+    included with this release.
 
     The current version of \QD is near feature complete and can be used for
     many tasks. However, it is still under continuous development. This
@@ -27,17 +28,18 @@
 
     \section1 The Current State of Qt Designer
 
-    When used as a standalone application, \QD includes a number of components
-    that work together to provide a flexible GUI design tool. Widgets and dialog
-    windows can be composed using a form-based interface that fully supports drag
-    and drop, clipboard operations, and an undo/redo stack.
+    When used as a standalone application, \QD includes a number of
+    components that work together to provide a flexible GUI design
+    tool. Widgets and dialog windows can be composed using a
+    form-based interface that fully supports drag and drop, clipboard
+    operations, and an undo/redo stack.
 
-    This version of \QD introduces a number of editing modes to make different
-    types of editing more natural. Each editing mode displays the form in an
-    appropriate way for that mode, and provides a specialized user interface for
-    manipulating its contents.
-    Examples of editing modes include Form Editing mode, Signals and Slots Editing
-    mode, Buddy Editing mode, and Tab Order Editing mode.
+    This version of \QD introduces a number of editing modes to make
+    different types of editing more natural. Each editing mode
+    displays the form in an appropriate way for that mode, and
+    provides a specialized user interface for manipulating its
+    contents. The current editing modes are Widget Editing, Signals
+    and Slots Editing, Buddy Editing, and Tab Order Editing.
 
     \section2 User Interface Features
 
@@ -45,28 +47,33 @@
     \row \i \inlineimage designer-main-window.png
     \i \bold{Widget Box}
 
-    The widget box displays a categorized list of widgets and other objects that
-    can be placed on a form using drag and drop.
+    The Widget Box displays a categorized list of widgets and other
+    objects that can be placed on a form using drag and drop.
 
-    When \QD is in Top Level mode, the window containing the widget box also holds
-    the main menu and tool bar. When in Workspace mode, the widget box
-    becomes an independent window within the \QD workspace.
+    When \QD is in multi-window mode, the window containing the Widget
+    Box also holds the main menu and the tool bar. When in workbench
+    mode, the Widget Box becomes an independent window within the \QD
+    workspace.
 
-    The contents of the widget box are defined in an XML file that holds a
-    collection of .ui documents for standard Qt widgets. This file can be extended,
-    making it possible to add custom widgets to the widget box.
+    The contents of the Widget Box are defined in an XML file that
+    holds a collection of .ui documents for standard Qt widgets. This
+    file can be extended, making it possible to add custom widgets to
+    the Widget Box.
     \endtable
 
     \table
     \row \i \bold{Property Editor}
 
-    The property editor allows designers to edit most properties of widgets and
-    layout objects. The property names and values are presented in an editable
-    tree view that shows the properties of the currently selected object.
+    The Property Editor allows designers to edit most properties of
+    widgets and layout objects. The property names and values are
+    presented in an editable tree view that shows the properties of
+    the currently selected object.
 
-    Certain resources, such as icons, can be configured in the property editor.
-    Resources can be taken from any currently installed resource files, making
-    it easier to design self-contained components.
+    Certain resources, such as icons, can be configured in the
+    Property Editor.  Resources can be taken from any currently
+    installed resource files, making it easier to design
+    self-contained components.
+
     \i \inlineimage designer-property-editor.png
     \endtable
 
@@ -92,11 +99,11 @@
 
     \table
     \row
-    \i \bold{Form Editing Mode}
+    \i \bold{Widget Editing Mode}
 
-    The new form editor allows widgets to be dropped into existing layouts on
-    the form. Previously, it was necessary to break layouts in order to add
-    new widgets to them.
+    The new \QD allows widgets to be dropped into existing layouts on
+    the form. Previously, it was necessary to break layouts in order
+    to add new widgets to them.
 
     \QD now supports more direct manipulation of widgets:
     You can clone a widget by dragging it with the \key CTRL key held down, and
@@ -104,6 +111,7 @@
 
     In-place widget editors provide specialized editing facilities for
     the most-used widget properties.
+
     \i \inlineimage designer-editing-mode.png
     \endtable
 
@@ -112,11 +120,11 @@
     \i \inlineimage designer-connection-mode.png
     \i \bold{Signals and Slots Editing Mode}
 
-    \QD now employs a "wired" approach to the problem of representing and editing
-    connections between objects on a form. This editing mode displays all the
-    signal and slot connections on your form as arrows. These arrows can be
-    manipulated visually, and provide the user with an overview of the form's
-    connection logic.
+    \QD now employs a "wired" approach when representing and editing
+    connections between objects on a form. The Signal and Slots
+    Editing mode displays all the signal and slot connections on your
+    form as arrows. These arrows can be manipulated visually, and
+    provide the user with an overview of the form's connection logic.
 
     Connections can be made between objects on a form and the form itself.
     This is particularly useful when designing dialogs.
@@ -126,10 +134,13 @@
     \row
     \i \bold{Buddy Editing Mode}
 
-    Widgets that cannot accept keyboard input are often given buddy widgets
-    that will take the keyboard focus on their behalf. In Buddy Editing mode,
-    \QD provides a similar to that used in Signals and Slots Editing mode to
-    show the relationships between widgets and their buddies.
+    Widgets that cannot accept keyboard input are often given buddy
+    widgets that will take the keyboard focus on their behalf.
+
+    In Buddy Editing mode, \QD provides a similar approach to that
+    used in the Signals and Slots Editing mode to show the
+    relationships between widgets and their buddies.
+
     \i \inlineimage designer-buddy-mode.png
     \endtable
 
@@ -141,21 +152,45 @@
     In this mode, users can specify the order in which input widgets accept
     the keyboard focus.
 
-    The way that the tab order is defined follows the approach taken in Qt 3's
-    version of \QD.
+    The way that the tab order is defined follows the approach taken
+    in Qt 3's version of \QD; The default tab order is based on the
+    order in which widgets are constructed.
+
     \endtable
 
     \table
     \row
-    \i \bold{Resource Editor}
+    \i \bold{The Resource Editor}
 
-    Resources can be associated with a given form, and these can be modified
-    and extended using a file browser style interface.
+    The new \QD fully supports The Qt Resource System, and provide the
+    Resource Editor to help designers and developers manage the
+    resources that are needed by their applications.
 
-    The Resource Editor uses files that are processed by various components of
-    the \l{The Qt Resource System}{Qt Resource System} to ensure that all
-    required resources are embedded in the application.
+    Using the Resource Editor, resources can be associated with a
+    given form, and also modified and extended throught the editor's
+    file browser style interface.
+
+    The Resource Editor uses files that are processed by various
+    components of the \l{The Qt Resource System}{Qt Resource System}
+    to ensure that all required resources are embedded in the
+    application.
+
     \i \inlineimage designer-resources-editing.png
+    \endtable
+
+    \table
+    \row
+    \i \inlineimage designer-action-editor.png
+    \i \bold{The Action Editor}
+
+    With the release of Qt 4.1, \QD introduces the Action Editor
+    simplifying the management of actions when creating main window
+    applications.
+
+    When creating a main window, you can add a menu bar and toolbars
+    using \QD's context menu. Once you have the menu bar or a toolbar
+    in place, you can create and add actions using the Action Editor.
+
     \endtable
 
     \section2 Plugin Support
@@ -179,25 +214,35 @@
 
     \table
     \row
-    \i \bold{Qt Designer SDK}
+    \i \bold{The QtDesigner Module}
 
     The new modular \QD is designed to be integrated into other environments
     and extended with custom components.
 
-    The Software Development Kit is a library that developers can use to
-    write extensions and plugins for \QD, and enables \QD components to be
-    embedded into Integrated Development Environments (IDEs). Documentation of
-    this API is currently underway and more should appear during the
-    maintenance releases of Qt 4.
-    \i \inlineimage designer-custom-widget-box.png
+    The QtDesigner Module is a library that developers can use to
+    write extensions and plugins for \QD, and enables \QD components
+    to be embedded into Integrated Development Environments
+    (IDEs).
+
+    With the release of Qt 4.1 the QtDesigner Module is fully
+    documented. The release also provides several new examples using
+    the QtDesigner API to create task menu extensions and custom
+    multi-page widgets (i.e. container extensions).
+
+    \i \inlineimage designer-manual-taskmenuextension.png
     \endtable
 
     \section1 Run-Time Support for Forms
 
-    The new QtForm library can be used by standalone applications to
-    dynamically create form-based user interfaces at run-time. This library
-    can be statically linked with applications and redistributed under the
-    same terms as Qt.
+    With the Qt 4.1 release, the new QtForm module is introduced to
+    provide classes handling forms created with \QD.
+
+    Currently the module only contains the QForm::Loader class.
+
+    QForm::Loader can be used by standalone applications to
+    dynamically create form-based user interfaces at run-time. This
+    library can be statically linked with applications and
+    redistributed under the same terms as Qt.
 
     \table
     \row
