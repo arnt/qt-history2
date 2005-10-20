@@ -23,10 +23,6 @@
 #include "QtTest/private/qtestresult_p.h"
 #include "QtTest/private/qsignaldumper_p.h"
 
-#ifndef QTEST_LIGHT
-#include "QtTest/private/qtestextended_p.h"
-#endif
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -722,30 +718,29 @@ static int qToInt(char *str)
 
 static void qParseArgs(int argc, char *argv[])
 {
+    const char *testOptions =
+         " options:\n"
+         " -functions : Returns a list of current testfunctions\n"
+         " -xml       : Outputs results as XML document\n"
+         " -lightxml  : Outputs results as stream of XML tags\n"
+         " -o filename: Writes all output into a file\n"
+         " -v1        : Print enter messages for each testfunction\n"
+         " -v2        : Also print out each QVERIFY/QCOMPARE/QTEST\n"
+         " -vs        : Print every signal emitted\n"
+         " -eventdelay ms    : Set default delay for mouse and keyboard simulation to ms milliseconds\n"
+         " -keydelay ms      : Set default delay for keyboard simulation to ms milliseconds\n"
+         " -mousedelay ms    : Set default delay for mouse simulation to ms milliseconds\n"
+         " -keyevent-verbose : Turn on verbose messages for keyboard simulation\n"
+         " -maxwarnings n    : Sets the maximum amount of messages to output.\n"
+         "                     0 means unlimited, default: 2000\n"
+         " -help      : This help\n";
+
     for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "-help") == 0) {
-            const char *eHelp = "";
-#ifndef QTEST_LIGHT
-            eHelp = QTest::helpText();
-#endif
+        if (strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "--help") == 0
+            || strcmp(argv[i], "/?") == 0) {
             printf(" Usage: %s [options] [testfunctions[:testdata]]...\n"
                    "    By default, all testfunction will be run.\n\n"
-                   " options:\n"
-                   " -functions : Returns a list of current testfunctions\n"
-                   " -xml       : Outputs results as XML document\n"
-                   " -lightxml  : Outputs results as stream of XML tags\n"
-                   " -o filename: Writes all output into a file\n"
-                   " -v1        : Print enter messages for each testfunction\n"
-                   " -v2        : Also print out each QVERIFY/QCOMPARE/QTEST\n"
-                   " -vs        : Print every signal emitted\n"
-                   " -eventdelay ms    : Set default delay for mouse and keyboard simulation to ms milliseconds\n"
-                   " -keydelay ms      : Set default delay for keyboard simulation to ms milliseconds\n"
-                   " -mousedelay ms    : Set default delay for mouse simulation to ms milliseconds\n"
-                   " -keyevent-verbose : Turn on verbose messages for keyboard simulation\n"
-                   " -maxwarnings n    : Sets the maximum amount of messages to output.\n"
-                   "                     0 means unlimited, default: 2000\n"
-                   "%s"
-                   " -help      : This help\n", argv[0], eHelp);
+                   "%s", argv[0], testOptions);
             exit(0);
         } else if (strcmp(argv[i], "-functions") == 0) {
             qPrintTestSlots();
@@ -800,15 +795,8 @@ static void qParseArgs(int argc, char *argv[])
         } else if (strcmp(argv[i], "-qws") == 0) {
             // do nothing
         } else if (argv[i][0] == '-') {
-#ifndef QTEST_LIGHT
-            if (!QTest::parseArg_hook(i, argc, argv)) {
-                printf("Unknown option: '%s', try -help\n", argv[i]);
-                exit(1);
-            }
-#else
-            printf("Unknown option: '%s'\n", argv[i]);
+            printf("Unknown option: '%s'\n\n%s", argv[i], testOptions);
             exit(1);
-#endif
         } else {
             int colon = -1;
             char buf[512], *data=0;
@@ -962,12 +950,6 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
     QTEST_ASSERT(testObject);
     QTEST_ASSERT(!currentTestObject);
     currentTestObject = testObject;
-
-#ifndef QTEST_LIGHT
-    int hookVal = exec_hook(argc, argv);
-    if (hookVal)
-        return hookVal;
-#endif
 
     const QMetaObject *mo = testObject->metaObject();
     QTEST_ASSERT(mo);
