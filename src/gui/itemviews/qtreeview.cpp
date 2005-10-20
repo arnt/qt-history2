@@ -1249,7 +1249,9 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         const QVector<QTreeViewItem> viewItems = d->viewItems;
 
         int currentY = d->topItemDelta(currentScrollbarValue, d->height(currentViewIndex));
-        int previousY = d->topItemDelta(previousScrollbarValue, d->height(previousViewIndex));
+        int previousY = currentY;
+        if ((previousViewIndex >= 0) && (previousViewIndex < d->viewItems.size()))
+            previousY = d->topItemDelta(previousScrollbarValue, d->height(previousViewIndex));
 
         dy = currentY - previousY;
         if (previousViewIndex < currentViewIndex) { // scrolling down
