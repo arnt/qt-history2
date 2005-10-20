@@ -2910,7 +2910,7 @@ QString Q_INTERNAL_EXPORT qt_nameprep(const QString &source)
             }
         }
     }
-    
+
     return mapped;
 }
 
@@ -3223,7 +3223,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
         if (_query(ptr, &__query))
             ch = *((*ptr)++);
     }
-        
+
     // optional fragment
     if (ch == '#') {
         that->hasFragment = true;
@@ -3592,7 +3592,7 @@ void QUrl::setEncodedUrl(const QByteArray &encodedUrl, ParsingMode parsingMode)
     if ((d->parsingMode = parsingMode) == TolerantMode) {
         // Allow spaces in the QByteArray variant
         tmp.replace(" ", "%20");
-        
+
         // Replace stray % with %25
         QByteArray copy = tmp;
         for (int i = 0; i < copy.size(); ++i) {
@@ -4024,7 +4024,7 @@ void QUrl::addQueryItem(const QString &key, const QString &value)
     // query = *( pchar / "/" / "?" )
     d->query += QUrl::toPercentEncoding(value, "!$&'()*+,;=:@/?", alsoEncode);
 
-    d->hasQuery = !query.isEmpty();
+    d->hasQuery = !d->query.isEmpty();
 }
 
 /*!
