@@ -1655,17 +1655,21 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
     if (isNull() || before == after)
         return *this;
 
+    QByteArray aft = after;
+    if (after.d == d)
+        aft.detach();
+
     QByteArrayMatcher matcher(before);
     int index = 0;
     const int bl = before.d->size;
-    const int al = after.d->size;
+    const int al = aft.d->size;
     int len = d->size;
     char *d = data();
 
     if (bl == al) {
         if (bl) {
             while ((index = matcher.indexIn(*this, index)) != -1) {
-                memcpy(d + index, after, al);
+                memcpy(d + index, aft.constData(), al);
                 index += bl;
             }
         }
@@ -1684,7 +1688,7 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
                 to = index;
             }
             if (al) {
-                memcpy(d + to, after, al);
+                memcpy(d + to, aft.constData(), al);
                 to += al;
             }
             index += bl;
@@ -1735,8 +1739,8 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
                 int insertstart = indices[pos] + pos*(al-bl);
                 int moveto = insertstart + al;
                 memmove(d + moveto, d + movestart, (moveend - movestart));
-                if (after.size())
-                    memcpy(d + insertstart, after, al);
+                if (aft.size())
+                    memcpy(d + insertstart, aft.constData(), al);
                 moveend = movestart - bl;
             }
         }
