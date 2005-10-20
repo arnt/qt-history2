@@ -1228,6 +1228,8 @@ bool QTest::currentTestFailed()
     unresponsive. Network communication might time out while
     sleeping. Use \l qWait() to do non-blocking sleeping.
 
+    \a ms must be greater than 0.
+
     \bold {Note:} The qSleep() function calls either \c nanosleep() on
     unix or \c Sleep() on windows, so the accuracy of time spent in
     qSleep() depends on the operating system.
@@ -1241,12 +1243,12 @@ bool QTest::currentTestFailed()
 */
 void QTest::qSleep(int ms)
 {
+    QTEST_ASSERT(ms > 0);
+
 #ifdef Q_OS_WIN32
     Sleep(uint(ms));
 #else
-    struct timespec ts = { 0, 0 };
-    // a nanosecond is 1/1000 of a microsecond, a microsecond is 1/1000 of a millisecond
-    ts.tv_nsec = ms * 1000 * 1000;
+    struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
     nanosleep(&ts, NULL);
 #endif
 }
