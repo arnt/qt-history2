@@ -185,7 +185,7 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
                      (doWritable && !fi.isWritable()) ||
                      (doExecable && !fi.isExecutable()))
                     continue;
-            if (!doSymLinks && fi.isSymLink()) || !doFiles && fi.isFile() || !doDirs && fi.isDir())
+            if (!doSymLinks && fi.isSymLink() || !doFiles && fi.isFile() || !doDirs && fi.isDir())
                 continue;
             if (filters & QDir::NoDotAndDotDot && (fn == QLatin1String(".") || fn == QLatin1String("..")))
                 continue;
