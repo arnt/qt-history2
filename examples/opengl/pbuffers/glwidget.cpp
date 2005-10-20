@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "glwidget.h"
+#include <QtGui/QImage>
 
 #include <math.h>
 

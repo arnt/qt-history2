@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <QtGui/QApplication>
+#include <QtGui/QMessageBox>
 #include "glwidget.h"
 
 int main(int argc, char **argv)
