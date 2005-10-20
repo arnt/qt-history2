@@ -2618,7 +2618,7 @@ void QWidgetPrivate::fixupDnd()
     // will sync children_use_dnd up to our window
     checkChildrenDnd();
     QWidget *window = q->window();
-    X11->dndEnable(q, (window->d_func()->sextra && window->d_func()->extra->children_use_dnd));
+    X11->dndEnable(q, (window->d_func()->extra && window->d_func()->extra->children_use_dnd));
 }
 
 void QWidgetPrivate::registerDropSite(bool /*on*/)
