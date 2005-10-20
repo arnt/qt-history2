@@ -310,6 +310,7 @@ public:
         , stroker(0)
         , tessVector(20000)
         , shader_dev(0)
+        , grad_palette(0)
         {}
 
     inline void setGLPen(const QColor &c) {
@@ -828,15 +829,19 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
 
 inline void QOpenGLPaintEnginePrivate::startGradientOps()
 {
-    if (cbrush.style() == Qt::RadialGradientPattern) {
-        glDisable(GL_TEXTURE_GEN_S);
-        glDisable(GL_TEXTURE_1D);
-        glUseProgramObjectARB(grad_radial);
-    } else if (cbrush.style() == Qt::ConicalGradientPattern) {
-        glDisable(GL_TEXTURE_GEN_S);
-        glDisable(GL_TEXTURE_1D);
-        glUseProgramObjectARB(grad_conical);
-    } else if (cbrush.style() == Qt::LinearGradientPattern) {
+    if (QGLExtensions::glExtensions & QGLExtensions::FragmentShader) {
+        if (cbrush.style() == Qt::RadialGradientPattern) {
+            glDisable(GL_TEXTURE_GEN_S);
+            glDisable(GL_TEXTURE_1D);
+            glUseProgramObjectARB(grad_radial);
+        } else if (cbrush.style() == Qt::ConicalGradientPattern) {
+            glDisable(GL_TEXTURE_GEN_S);
+            glDisable(GL_TEXTURE_1D);
+            glUseProgramObjectARB(grad_conical);
+        }
+    }
+
+    if (cbrush.style() == Qt::LinearGradientPattern) {
         glEnable(GL_TEXTURE_GEN_S);
         glEnable(GL_TEXTURE_1D);
     }
@@ -844,7 +849,8 @@ inline void QOpenGLPaintEnginePrivate::startGradientOps()
 
 inline void QOpenGLPaintEnginePrivate::endGradientOps()
 {
-    glUseProgramObjectARB(0);
+    if (QGLExtensions::glExtensions & QGLExtensions::FragmentShader)
+        glUseProgramObjectARB(0);
     glDisable(GL_TEXTURE_GEN_S);
     glDisable(GL_TEXTURE_1D);
 }
@@ -894,13 +900,15 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
     if (d->dashStroker)
         delete d->dashStroker;
 
+    if (d->grad_palette) {
+        glBindTexture(GL_TEXTURE_1D, 0);
+        glDeleteTextures(1, &d->grad_palette);
+    }
+
     if (QGLExtensions::glExtensions & QGLExtensions::FragmentShader) {
         glUseProgramObjectARB(0);
-        glBindTexture(GL_TEXTURE_1D, 0);
-
         glDeleteObjectARB(d->grad_radial);
         glDeleteObjectARB(d->grad_conical);
-        glDeleteTextures(1, &d->grad_palette);
     }
 }
 
@@ -942,12 +950,13 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         && (pdev != d->shader_dev))
     {
         if (d->shader_dev) {
-            glUseProgramObjectARB(0);
             glBindTexture(GL_TEXTURE_1D, 0);
-
-            glDeleteObjectARB(d->grad_radial);
-            glDeleteObjectARB(d->grad_conical);
             glDeleteTextures(1, &d->grad_palette);
+            if (QGLExtensions::glExtensions & QGLExtensions::FragmentShader) {
+                glUseProgramObjectARB(0);
+                glDeleteObjectARB(d->grad_radial);
+                glDeleteObjectARB(d->grad_conical);
+            }
         }
         d->shader_dev = pdev;
         gccaps |= LinearGradientFill;
@@ -1112,36 +1121,35 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
     d->has_brush = (brush.style() != Qt::NoBrush);
     d->setGLBrush(brush.color());
     glColor4ubv(d->brush_color);
+    bool has_mirrored_repeat = QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat;
+    bool has_frag_shader = QGLExtensions::glExtensions & QGLExtensions::FragmentShader;
 
-    if (QGLExtensions::glExtensions & QGLExtensions::FragmentShader) {
-        d->has_grad_brush = brush.style() >= Qt::LinearGradientPattern
-                            && brush.style() <= Qt::ConicalGradientPattern;
-        switch (brush.style()) {
-        case Qt::LinearGradientPattern:
-        {
-            const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
-            float tr[4], f;
-            tr[0] = g->finalStop().x() - g->start().x();
-            tr[1] = g->finalStop().y() - g->start().y();
-            f = 1.0/(tr[0]*tr[0] + tr[1]*tr[1]);
-            tr[0] *= f;
-            tr[1] *= f;
-            tr[2] = 0;
-            tr[3] = -(g->start().x()*tr[0] + g->start().y()*tr[1]);
+    Qt::BrushStyle style = brush.style();
+    d->has_grad_brush = (style >= Qt::LinearGradientPattern && style <= Qt::ConicalGradientPattern);
+
+    if (style == Qt::LinearGradientPattern && has_mirrored_repeat) {
+        const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
+        float tr[4], f;
+        tr[0] = g->finalStop().x() - g->start().x();
+        tr[1] = g->finalStop().y() - g->start().y();
+        f = 1.0/(tr[0]*tr[0] + tr[1]*tr[1]);
+        tr[0] *= f;
+        tr[1] *= f;
+        tr[2] = 0;
+        tr[3] = -(g->start().x()*tr[0] + g->start().y()*tr[1]);
+        if (has_frag_shader)
             glUseProgramObjectARB(0);
-            d->setGLBrush(Qt::white);
-            glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-            glTexGenfv(GL_S, GL_OBJECT_PLANE, tr);
-            glEnable(GL_TEXTURE_GEN_S);
-            glEnable(GL_TEXTURE_1D);
+        d->setGLBrush(Qt::white);
+        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+        glTexGenfv(GL_S, GL_OBJECT_PLANE, tr);
+        glEnable(GL_TEXTURE_GEN_S);
+        glEnable(GL_TEXTURE_1D);
 
-            glBindTexture(GL_TEXTURE_1D, d->grad_palette);
-            d->createGradientPaletteTexture(*brush.gradient());
-            glFlush();
-            break;
-        }
-        case Qt::RadialGradientPattern:
-        {
+        glBindTexture(GL_TEXTURE_1D, d->grad_palette);
+        d->createGradientPaletteTexture(*brush.gradient());
+    } else if ((style == Qt::RadialGradientPattern || style == Qt::ConicalGradientPattern)
+               && has_frag_shader) {
+        if (style == Qt::RadialGradientPattern) {
             const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
             float pt[2];
             float f;
@@ -1170,10 +1178,7 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
             d->createGradientPaletteTexture(*brush.gradient());
             glDisable(GL_TEXTURE_GEN_S);
             glDisable(GL_TEXTURE_1D);
-            break;
-        }
-        case Qt::ConicalGradientPattern:
-        {
+        } else if (style == Qt::ConicalGradientPattern) {
             const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
             float pt[2];
             glUseProgramObjectARB(d->grad_conical);
@@ -1196,15 +1201,13 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
             d->createGradientPaletteTexture(*brush.gradient());
             glDisable(GL_TEXTURE_GEN_S);
             glDisable(GL_TEXTURE_1D);
-            break;
         }
-        default:
+    } else if (has_mirrored_repeat || has_frag_shader) {
+        glBindTexture(GL_TEXTURE_1D, 0);
+        glDisable(GL_TEXTURE_GEN_S);
+        glDisable(GL_TEXTURE_1D);
+        if (has_frag_shader)
             glUseProgramObjectARB(0);
-            glBindTexture(GL_TEXTURE_1D, 0);
-            glDisable(GL_TEXTURE_GEN_S);
-            glDisable(GL_TEXTURE_1D);
-            break;
-        }
     }
 }
 
