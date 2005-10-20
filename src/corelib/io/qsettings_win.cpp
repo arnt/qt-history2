@@ -322,6 +322,7 @@ public:
     RegistryKey(HKEY parent_handle = 0, const QString &key = QString(), bool read_only = true);
     QString key() const;
     HKEY handle() const;
+    HKEY parentHandle() const;
     bool readOnly() const;
     void close();
 private:
@@ -355,6 +356,11 @@ HKEY RegistryKey::handle() const
         m_handle = createOrOpenKey(m_parent_handle, m_key, &m_read_only);
 
     return m_handle;
+}
+
+HKEY RegistryKey::parentHandle() const
+{
+    return m_parent_handle;
 }
 
 bool RegistryKey::readOnly() const
@@ -835,7 +841,15 @@ QString QWinSettingsPrivate::fileName() const
 {
     if (regList.isEmpty())
         return QString();
-    return regList.at(0).key();
+
+    const RegistryKey &key = regList.at(0);
+    QString result;
+    if (key.parentHandle() == HKEY_CURRENT_USER)
+        result = QLatin1String("\\HKEY_CURRENT_USER\\");
+    else
+        result = QLatin1String("\\HKEY_LOCAL_MACHINE\\");
+
+    return result + regList.at(0).key();
 }
 
 bool QWinSettingsPrivate::isWritable() const
