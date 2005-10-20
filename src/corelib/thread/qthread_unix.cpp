@@ -458,7 +458,7 @@ void QThread::setPriority(Priority priority)
     }
 
     int prio_min = sched_get_priority_min(sched_policy);
-    int prio_max = sched_get_priority_\max(sched_policy);
+    int prio_max = sched_get_priority_max(sched_policy);
     if (prio_min == -1 || prio_max == -1) {
         // failed to get the scheduling parameters, don't
         // bother setting the priority
