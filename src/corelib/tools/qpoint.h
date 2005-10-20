@@ -216,7 +216,7 @@ inline QPointF::QPointF(const QPoint &p) : xp(p.x()), yp(p.y()) { }
 
 inline bool QPointF::isNull() const
 {
-    return qFuzzyCompare(xp, 0) && qFuzzyCompare(yp, 0);
+    return qIsNull(xp) && qIsNull(yp);
 }
 
 inline qreal QPointF::x() const

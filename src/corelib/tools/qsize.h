@@ -237,7 +237,7 @@ inline QSizeF::QSizeF(qreal w, qreal h)
 { wd = w; ht = h; }
 
 inline bool QSizeF::isNull() const
-{ return qFuzzyCompare(wd, 0) && qFuzzyCompare(ht, 0); }
+{ return qIsNull(wd) && qIsNull(ht); }
 
 inline bool QSizeF::isEmpty() const
 { return wd <= 0. || ht <= 0.; }

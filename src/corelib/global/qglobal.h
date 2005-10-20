@@ -1265,6 +1265,26 @@ static inline bool qFuzzyCompare(float p1, float p2)
 }
 
 /*
+   This function tests a double for a null value. It doesn't
+   check whether the actual value is 0 or close to 0, but whether
+   it is binary 0.
+*/
+static inline bool qIsNull(double d)
+{
+    return *reinterpret_cast<quint64 *>(&d) == Q_UINT64_C(0);
+}
+
+/*
+   This function tests a float for a null value. It doesn't
+   check whether the actual value is 0 or close to 0, but whether
+   it is binary 0.
+*/
+static inline bool qIsNull(float f)
+{
+    return *reinterpret_cast<quint32 *>(&f) == 0u;
+}
+
+/*
    Compilers which follow outdated template instantiation rules
    require a class to have a comparison operator to exist when
    a QList of this type is instantiated. It's not actually
