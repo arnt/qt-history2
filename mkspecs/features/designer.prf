@@ -8,4 +8,8 @@ CONFIG(debug, debug|release) {
     LIBS += -lQtDesigner
 }
 
+plugin {
+    DEFINES += QDESIGNER_EXPORT_WIDGETS
+}
+
 INCLUDEPATH += $$QMAKE_INCDIR_QT/QtDesigner

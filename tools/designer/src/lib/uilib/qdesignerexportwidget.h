@@ -1,0 +1,30 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#ifndef QDESIGNEREXPORTWIDGET_H
+#define QDESIGNEREXPORTWIDGET_H
+
+#include <QtCore/QtGlobal>
+
+#if 0
+// pragma for syncqt, don't remove.
+#pragma qt_class(QDesignerExportWidget)
+#endif
+
+#if defined(QDESIGNER_EXPORT_WIDGETS)
+#  define QDESIGNER_WIDGET_EXPORT Q_DECL_EXPORT
+#else
+#  define QDESIGNER_WIDGET_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif //QDESIGNEREXPORTWIDGET_H
