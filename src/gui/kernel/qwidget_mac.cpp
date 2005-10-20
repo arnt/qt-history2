@@ -2068,11 +2068,10 @@ void QWidgetPrivate::updateFrameStrut() const
     }
 }
 
-bool QWidgetPrivate::registerDropSite(bool on)
+void QWidgetPrivate::registerDropSite(bool on)
 {
     Q_Q(QWidget);
     SetControlDragTrackingEnabled((HIViewRef)q->winId(), on);
-    return true;
 }
 
 void QWidget::setMask(const QRegion &region)

@@ -207,6 +207,7 @@ public:
 
 #if defined(Q_WS_X11)
     void checkChildrenDnd();
+    void fixupDnd();
 #ifndef QT_USE_BACKINGSTORE
     QRegion invalidated_region;
 #endif
@@ -249,7 +250,7 @@ public:
     void hide_sys();
     void hide_helper();
     void setEnabled_helper(bool);
-    bool registerDropSite(bool);
+    void registerDropSite(bool);
     void updateFrameStrut() const;
     void setWindowIconText_sys(const QString &cap);
     void setWindowIconText_helper(const QString &cap);

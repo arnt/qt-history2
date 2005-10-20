@@ -1044,10 +1044,9 @@ void QWidgetPrivate::deleteTLSysExtra()
 {
 }
 
-bool QWidgetPrivate::registerDropSite(bool on)
+void QWidgetPrivate::registerDropSite(bool on)
 {
     Q_UNUSED(on);
-    return true;
 }
 
 QRegion QWidgetPrivate::localRequestedRegion() const

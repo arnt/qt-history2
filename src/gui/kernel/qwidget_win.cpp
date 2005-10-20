@@ -1626,7 +1626,7 @@ void QWidgetPrivate::deleteTLSysExtra()
 #endif
 }
 
-bool QWidgetPrivate::registerDropSite(bool on)
+void QWidgetPrivate::registerDropSite(bool on)
 {
     Q_Q(QWidget);
     // Enablement is defined by d->extra->dropTarget != 0.
@@ -1644,8 +1644,6 @@ bool QWidgetPrivate::registerDropSite(bool on)
             extra->dropTarget = 0;
         }
     }
-
-    return true;
 }
 
 void QWidget::setMask(const QRegion &region)

@@ -796,6 +796,11 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     if (q->testAttribute(Qt::WA_DropSiteRegistered))
         q->setAttribute(Qt::WA_DropSiteRegistered, false);
 
+    // if we are a top then remove our dnd prop for now
+    // it will get rest later
+    if (q->isWindow())
+        X11->dndEnable(q, false);
+
     QWidget *oldparent = q->parentWidget();
     WId old_winid = data.winid;
     if ((q->windowType() == Qt::Desktop))
@@ -894,23 +899,23 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     if (setcurs)
         q->setCursor(oldcurs);
 
-    // re-register dnd
+    // ensure the dnd state of our old parent
     if (oldparent)
-        oldparent->d_func()->checkChildrenDnd();
+        oldparent->d_func()->fixupDnd();
 
+    // check if we need to register our dropsite
     if (q->testAttribute(Qt::WA_AcceptDrops)
         || (!q->isWindow() && q->parentWidget() && q->parentWidget()->testAttribute(Qt::WA_DropSiteRegistered))) {
         q->setAttribute(Qt::WA_DropSiteRegistered, true);
     } else {
-        checkChildrenDnd();
-        topData()->dnd = 0;
-        X11->dndEnable(q, (extra && extra->children_use_dnd));
+        // ensure that if any of our children need dnd then we have it set
+        fixupDnd();
     }
+
 #ifdef QT_USE_BACKINGSTORE
     invalidateBuffer(q->rect());
 #endif
 }
-
 
 /*!
     Translates the widget coordinate \a pos to global screen
@@ -2605,11 +2610,20 @@ void QWidgetPrivate::checkChildrenDnd()
     }
 }
 
-bool QWidgetPrivate::registerDropSite(bool on)
+// This function attemps to ensure that the window for a widget has
+// the correct dnd aware property set at all times.
+void QWidgetPrivate::fixupDnd()
 {
-    bool ok = X11->dndEnable(q_func(), on);
-    checkChildrenDnd(); // ## ???
-    return ok;
+    Q_Q(QWidget);
+    // will sync children_use_dnd up to our window
+    checkChildrenDnd();
+    QWidget *window = q->window();
+    X11->dndEnable(q, (window->d_func()->sextra && window->d_func()->extra->children_use_dnd));
+}
+
+void QWidgetPrivate::registerDropSite(bool /*on*/)
+{
+    fixupDnd();
 }
 
 /*!
