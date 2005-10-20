@@ -11,3 +11,6 @@ message(Translation files: $$[QT_INSTALL_TRANSLATIONS])
 message(Settings: $$[QT_INSTALL_SETTINGS])
 message(Examples: $$[QT_INSTALL_EXAMPLES])
 message(Demonstrations: $$[QT_INSTALL_DEMOS])
+
+# Show configuration information.
+message(CONFIG = $$CONFIG)
