@@ -15,8 +15,9 @@
 #define ANALOGCLOCK_H
 
 #include <QWidget>
+#include <QtDesigner/QDesignerExportWidget>
 
-class AnalogClock : public QWidget
+class QDESIGNER_WIDGET_EXPORT AnalogClock : public QWidget
 {
     Q_OBJECT
 

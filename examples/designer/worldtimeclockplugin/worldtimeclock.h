@@ -16,8 +16,9 @@
 
 #include <QTime>
 #include <QWidget>
+#include <QtDesigner/QDesignerExportWidget>
 
-class WorldTimeClock : public QWidget
+class QDESIGNER_WIDGET_EXPORT WorldTimeClock : public QWidget
 {
     Q_OBJECT
 
