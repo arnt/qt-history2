@@ -205,6 +205,11 @@ QFontMetrics &QFontMetrics::operator=(const QFontMetrics &fm)
 
     \sa operator!=()
 */
+bool QFontMetrics::operator ==(const QFontMetrics &other) const
+{
+    return d == other.d;
+}
+
 bool QFontMetrics::operator ==(const QFontMetrics &other)
 {
     return d == other.d;
@@ -917,6 +922,11 @@ QFontMetricsF &QFontMetricsF::operator=(const QFontMetricsF &fm)
   same QFont and the paint devices they were constructed for are
   considered to be compatible.
 */
+bool QFontMetricsF::operator ==(const QFontMetricsF &other) const
+{
+    return d == other.d;
+}
+
 bool QFontMetricsF::operator ==(const QFontMetricsF &other)
 {
     return d == other.d;

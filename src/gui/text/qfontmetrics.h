@@ -73,7 +73,8 @@ public:
     int strikeOutPos() const;
     int lineWidth() const;
 
-    bool operator==(const QFontMetrics &other);
+    bool operator==(const QFontMetrics &other); // 5.0 - remove me
+    bool operator==(const QFontMetrics &other) const;
     inline bool operator !=(const QFontMetrics &other) { return !operator==(other); }
 
 #ifdef QT3_SUPPORT
@@ -135,8 +136,10 @@ public:
     qreal strikeOutPos() const;
     qreal lineWidth() const;
 
-    bool operator==(const QFontMetricsF &other);
-    inline bool operator !=(const QFontMetricsF &other) { return !operator==(other); }
+    bool operator==(const QFontMetricsF &other); // 5.0 - remove me
+    bool operator==(const QFontMetricsF &other) const;
+    inline bool operator !=(const QFontMetricsF &other) { return !operator==(other); } // 5.0 - remove me
+    inline bool operator !=(const QFontMetricsF &other) const { return !operator==(other); }
 
 private:
     QFontPrivate *d;

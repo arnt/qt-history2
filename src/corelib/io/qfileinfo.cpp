@@ -303,7 +303,7 @@ QFileInfo::~QFileInfo()
 */
 
 bool
-QFileInfo::operator==(const QFileInfo &fileinfo)
+QFileInfo::operator==(const QFileInfo &fileinfo) const
 {
     Q_D(QFileInfo);
     if(fileinfo.d_func()->data == d->data)
@@ -327,6 +327,10 @@ QFileInfo::operator==(const QFileInfo &fileinfo)
         }
     }
     return false;
+}
+bool QFileInfo::operator==(const QFileInfo &fileinfo)
+{
+    return const_cast<const QFileInfo *>(this)->operator==(fileinfo);
 }
 
 /*!
