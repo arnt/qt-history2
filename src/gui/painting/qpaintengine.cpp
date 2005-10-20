@@ -522,11 +522,20 @@ void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF 
 /*!
     \fn void QPaintEngine::updateState(const QPaintEngineState &state)
 
-    \internal
+    Reimplement this function to update the state of a paint engine.
+
+    When implemented, this function is responsible for checking the
+    paint engine's current \a state and update the properties that are
+    changed. Use the QPaintEngineState::state() function to find out
+    which properties that must be updated, then use the corresponding
+    \l {GetFunction}{get function} to retrieve the current values for
+    the given properties.
+
+    \sa QPaintEngineState
 */
 
 /*!
-  Creates a paint engine with the featureset specified by \a caps.
+    Creates a paint engine with the featureset specified by \a caps.
 */
 
 QPaintEngine::QPaintEngine(PaintEngineFeatures caps)

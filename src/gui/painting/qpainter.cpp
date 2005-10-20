@@ -5159,28 +5159,75 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     \class QPaintEngineState
     \since 4.1
 
-    This class contains information on the current state of a paint
-    engine and which properties that have changed since the last time
-    a paint engine was updated using QPaintEngine::updateState().
+    \brief The QPaintEngineState class provides information about the
+    active paint engine's current state.
 
-    This class is read only by a QPaintEngine and is passed to the
-    virtual function QPaintEngine::updateState. When called the engine
-    is responsible for checking the state changes using state() and
-    updating all properties that are changed.
+    QPaintEngineState records which properties that have changed since
+    the last time the paint engine was updated, as well as their
+    current value.
+
+    Which properties that have changed can at any time be retrieved
+    using the state() function. This function returns an instance of
+    the QPaintEngine::DirtyFlags type which stores an OR combination
+    of QPaintEngine::DirtyFlag values. The QPaintEngine::DirtyFlag
+    enum defines whether a property has changed since the last update
+    or not.
+
+    If a property is marked with a dirty flag, its current value can
+    be retrieved using the corresponding get function:
+
+    \target GetFunction
+
+    \table
+    \header \o Property Flag \o Current Property Value
+    \row \o QPaintEngine::DirtyBackground \o backgroundBrush()
+    \row \o QPaintEngine::DirtyBackgroundMode \o backgroundMode()
+    \row \o QPaintEngine::DirtyBrush \o brush()
+    \row \o QPaintEngine::DirtyBrushOrigin \o brushOrigin()
+    \row \o QPaintEngine::DirtyClipRegion \e or QPaintEngine::DirtyClipPath
+         \o clipOperation()
+    \row \o QPaintEngine::DirtyClipPath \o clipPath()
+    \row \o QPaintEngine::DirtyClipRegion \o clipRegion()
+    \row \o QPaintEngine::DirtyCompositionMode \o compositionMode()
+    \row \o QPaintEngine::DirtyFont \o font()
+    \row \o QPaintEngine::DirtyTransform \o matrix()
+    \row \o QPaintEngine::DirtyClipEnabled \o isClipEnabled()
+    \row \o QPaintEngine::DirtyPen \o pen()
+    \row \o QPaintEngine::DirtyHints \o renderHints()
+    \endtable
+
+    The QPaintEngineState class also provide the painter() function
+    which returns a pointer to the painter that is currently updating
+    the paint engine.
+
+    An instance of this class, representing the current state of the
+    active paint engine, is passed as argument to the
+    QPaintEngine::updateState() function. The only situation in which
+    you will have to use this class directly is when implementing your
+    own paint engine.
+
+    \sa QPaintEngine
 */
 
 
 /*!
     \fn QPaintEngine::DirtyFlags QPaintEngineState::state() const
 
-    Returns the set of states that need to be updated during a call
-    to QPaintEngine::updateState().
+    Returns a combination of flags identifying the set of properties
+    that need to be updated when updating the paint engine's state
+    (i.e. during a call to the QPaintEngine::updateState() function).
+
+    \sa QPaintEngine::updateState()
 */
 
 
 /*!
-    Returns the pen in the current paint engine state. This variable
-    should only be used when state() contains QPaintEngine::DirtyPen.
+    Returns the pen in the current paint engine state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyPen flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 QPen QPaintEngineState::pen() const
@@ -5189,9 +5236,12 @@ QPen QPaintEngineState::pen() const
 }
 
 /*!
-    Returns the brush in the current paint engine state. This variable
-    should only be used when state() contains
-    QPaintEngine::DirtyBrush.
+    Returns the brush in the current paint engine state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyBrush flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 QBrush QPaintEngineState::brush() const
@@ -5200,9 +5250,12 @@ QBrush QPaintEngineState::brush() const
 }
 
 /*!
-    Returns the brushOrigin in the current paint engine state. This
-    variable should only be used when state() contains
-    QPaintEngine::DirtyBrushOrigin.
+    Returns the brush origin in the current paint engine state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyBrushOrigin flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 QPointF QPaintEngineState::brushOrigin() const
@@ -5211,9 +5264,12 @@ QPointF QPaintEngineState::brushOrigin() const
 }
 
 /*!
-    Returns the background brush in the current paint engine
-    state. This variable should only be used when state() contains
-    QPaintEngine::DirtyBackground.
+    Returns the background brush in the current paint engine state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyBackground flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 QBrush QPaintEngineState::backgroundBrush() const
@@ -5223,8 +5279,12 @@ QBrush QPaintEngineState::backgroundBrush() const
 
 /*!
     Returns the background mode in the current paint engine
-    state. This variable should only be used when state() contains
-    QPaintEngine::DirtyBackgroundMode.
+    state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyBackgroundMode flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 Qt::BGMode QPaintEngineState::backgroundMode() const
@@ -5234,8 +5294,12 @@ Qt::BGMode QPaintEngineState::backgroundMode() const
 
 /*!
     Returns the font in the current paint engine
-    state. This variable should only be used when state() contains
-    QPaintEngine::DirtyFont.
+    state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyFont flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 QFont QPaintEngineState::font() const
@@ -5245,8 +5309,12 @@ QFont QPaintEngineState::font() const
 
 /*!
     Returns the matrix in the current paint engine
-    state. This variable should only be used when state() contains
-    QPaintEngine::DirtyMatrix.
+    state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyTransform flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 QMatrix QPaintEngineState::matrix() const
@@ -5256,8 +5324,13 @@ QMatrix QPaintEngineState::matrix() const
 
 /*!
     Returns the clip operation in the current paint engine
-    state. This variable should only be used when state() contains
-    QPaintEngine::DirtyClipRegion or QPaintEngine::DirtyClipPath.
+    state.
+
+    This variable should only be used when the state() returns a
+    combination which includes either the QPaintEngine::DirtyClipPath
+    or the QPaintEngine::DirtyClipRegion flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 Qt::ClipOperation QPaintEngineState::clipOperation() const
@@ -5266,9 +5339,12 @@ Qt::ClipOperation QPaintEngineState::clipOperation() const
 }
 
 /*!
-    Returns the clip region in the current paint engine state. This
-    variable should be used together with clipOperation(), and only
-    when state() contains QPaintEngine::DirtyClipRegion.
+    Returns the clip region in the current paint engine state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyClipRegion flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 QRegion QPaintEngineState::clipRegion() const
@@ -5277,9 +5353,12 @@ QRegion QPaintEngineState::clipRegion() const
 }
 
 /*!
-    Returns the clip path in the current paint engine state. This
-    variable should be used together with clipOperation(), and only
-    when state() contains QPaintEngine::DirtyClipPath.
+    Returns the clip path in the current paint engine state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyClipPath flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 QPainterPath QPaintEngineState::clipPath() const
@@ -5289,8 +5368,13 @@ QPainterPath QPaintEngineState::clipPath() const
 
 /*!
     Returns wether clipping is enabled or not in the current paint
-    engine state. This variable should only be used when state()
-    contains QPaintEngine::DirtyClipEnabled.
+    engine state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyClipEnabled
+    flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 bool QPaintEngineState::isClipEnabled() const
@@ -5299,9 +5383,13 @@ bool QPaintEngineState::isClipEnabled() const
 }
 
 /*!
-    Returns the render hints in the current paint engine state. This
-    variable should only be used when state() contains
-    QPaintEngine::DirtyHints.
+    Returns the render hints in the current paint engine state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyHints
+    flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 QPainter::RenderHints QPaintEngineState::renderHints() const
@@ -5310,9 +5398,13 @@ QPainter::RenderHints QPaintEngineState::renderHints() const
 }
 
 /*!
-    Returns the composition mode in the current paint engine state. This
-    variable should only be used when state() contains
-    QPaintEngine::DirtyCompositionMode.
+    Returns the composition mode in the current paint engine state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyCompositionMode
+    flag.
+
+    \sa state(), QPaintEngine::updateState()
 */
 
 QPainter::CompositionMode QPaintEngineState::compositionMode() const
@@ -5322,7 +5414,8 @@ QPainter::CompositionMode QPaintEngineState::compositionMode() const
 
 
 /*!
-    Returns the painter that is currnetly updating the engine.
+    Returns a pointer to the painter currently updating the paint
+    engine.
 */
 
 QPainter *QPaintEngineState::painter() const
