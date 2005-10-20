@@ -305,7 +305,7 @@ QFileInfo::~QFileInfo()
 bool
 QFileInfo::operator==(const QFileInfo &fileinfo) const
 {
-    Q_D(QFileInfo);
+    Q_D(const QFileInfo);
     if(fileinfo.d_func()->data == d->data)
         return true;
     if(!d->data->fileEngine || !fileinfo.d_func()->data->fileEngine)
