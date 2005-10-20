@@ -274,18 +274,22 @@ void QDockWidgetPrivate::relayout()
     int posX = titleArea.right();
 
     if (closeButton) {
-        closeButton->setGeometry(posX - closeSize.width(),
-                                 titleArea.bottom() - closeSize.height(),
-                                 closeSize.width(),
-                                 closeSize.height());
+        //### Fix this properly in Qt 4.2
+        closeButton->setGeometry(QStyle::visualRect(
+                                    qApp->reverseLayout() ? Qt::RightToLeft : Qt::LeftToRight,
+                                    titleArea, QRect(posX - closeSize.width(),
+                                    titleArea.bottom() - closeSize.height(), // - mw
+                                    closeSize.width(), closeSize.height()))); 
         posX -= closeSize.width() + 1;
     }
 
     if (floatButton) {
-        floatButton->setGeometry(posX - floatSize.width(),
-                                 titleArea.bottom() - floatSize.height(),
-                                 floatSize.width(),
-                                 floatSize.height());
+        //### Fix this properly in Qt 4.2
+        floatButton->setGeometry(QStyle::visualRect(
+                                    qApp->reverseLayout() ?  Qt::RightToLeft : Qt::LeftToRight, 
+                                    titleArea, QRect(posX - floatSize.width(),
+                                    titleArea.bottom() - floatSize.height(), // - mw
+                                    floatSize.width(), floatSize.height())));
         posX -= floatSize.width() + 1;
     }
 
