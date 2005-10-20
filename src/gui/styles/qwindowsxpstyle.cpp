@@ -1362,6 +1362,11 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         break;
 
     case PE_PanelButtonTool:
+        if (widget && widget->inherits("QDockWidgetTitleButton")) {
+            if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget->parent()))
+                if (dw->isFloating())
+                    return;
+        }
         name = "TOOLBAR";
         partId = TP_BUTTON;
         if (!(flags & State_Enabled))
@@ -1543,10 +1548,30 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     case PE_PanelMenuBar:
         break;
 
-    case PE_FrameDockWidget:
-        name = "REBAR";
-        partId = RP_BAND;
-        stateId = 1;
+ case PE_FrameDockWidget:
+     if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(option))
+        {
+            name = "WINDOW";
+            if (flags & State_Active)
+                stateId = FS_ACTIVE;
+            else
+                stateId = FS_INACTIVE;
+
+            int fwidth = pixelMetric(PM_DockWidgetFrameWidth, frm, widget);
+
+            XPThemeData theme(widget, p, name, 0, stateId);
+            if (!theme.isValid())
+                break;
+            theme.rect = QRect(frm->rect.x(), frm->rect.y(), frm->rect.x()+fwidth, frm->rect.height()-fwidth);           theme.partId = WP_SMALLFRAMELEFT;
+            d->drawBackground(theme);
+            theme.rect = QRect(frm->rect.width()-fwidth, frm->rect.y(), fwidth, frm->rect.height()-fwidth);
+            theme.partId = WP_SMALLFRAMERIGHT;
+            d->drawBackground(theme);
+            theme.rect = QRect(frm->rect.x(), frm->rect.bottom()-fwidth+1, frm->rect.width(), fwidth);
+            theme.partId = WP_SMALLFRAMEBOTTOM;
+            d->drawBackground(theme);
+            return;
+        }
         break;
 
     case PE_IndicatorHeaderArrow:
@@ -2107,25 +2132,81 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         return;
 #ifndef QT_NO_DOCKWIDGET
-    case CE_DockWidgetTitle:
-        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option)) {
-            QRect r = dwOpt->rect.adjusted(0, 2, -1, 1); 
-            if (dwOpt->movable) {
-                p->setPen(dwOpt->palette.color(QPalette::Dark));
-                p->drawRect(r);
+case CE_DockWidgetTitle:
+        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
+        {
+            QRect r = option->rect.adjusted(0, 2, -1, 0);
+            if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget)){
+                if (!dw->isFloating()){
+                    p->setPen(dwOpt->palette.color(QPalette::Dark));
+                    p->drawRect(r);
+                    if (!dwOpt->title.isEmpty()) {
+                        const int indent = p->fontMetrics().descent();
+                        drawItemText(p, r.adjusted(indent + 1, 3, -indent - 1, -1),
+                                    Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                                    dwOpt->state & State_Enabled, dwOpt->title,
+                                    QPalette::Foreground);
+                    }
+                    return;
+                }
+            }
+            name = "WINDOW";
+            if (dwOpt->state & State_Enabled)
+                stateId = CS_ACTIVE;
+            else
+                stateId = CS_INACTIVE;
+
+            int fw = pixelMetric(PM_DockWidgetFrameWidth, dwOpt, widget);
+            int titleHeight = rect.height() - 2;
+            rect = rect.adjusted(-fw, -fw, fw, 0);
+
+            XPThemeData theme(widget, p, name, 0, stateId);
+            if (!theme.isValid())
+                break;
+
+            // Draw small type title bar
+            theme.rect = rect;
+            theme.partId = WP_SMALLCAPTION;
+            d->drawBackground(theme);
+
+            // Figure out maximal button space on title bar
+            QSize closeSize = dwOpt->closable ? 
+                standardPixmap(QStyle::SP_TitleBarCloseButton, dwOpt, widget).size() : QSize(0,0);
+            QSize floatSize = dwOpt->floatable ? 
+                standardPixmap(QStyle::SP_TitleBarMaxButton, dwOpt, widget).size() : QSize(0,0);
+
+            int iconSize = qMax(closeSize.width(), closeSize.height());
+            iconSize = qMax(iconSize, qMax(floatSize.width(), floatSize.height()));
+
+            QIcon ico = widget->windowIcon();
+            bool hasIcon = (ico.serialNumber() != qApp->windowIcon().serialNumber());
+            int indent = fw;
+            if (hasIcon) {
+                QPixmap pxIco = ico.pixmap(titleHeight);
+                if(qApp->reverseLayout())
+                    p->drawPixmap(rect.width() - indent - pxIco.width(), rect.bottom() - titleHeight - 2, pxIco);
+                else 
+                    p->drawPixmap(indent, rect.bottom() - titleHeight - 2, pxIco);
+                indent += pxIco.width() + 1;
             }
             if (!dwOpt->title.isEmpty()) {
-                const int indent = p->fontMetrics().descent();
-                drawItemText(p, r.adjusted(indent + 1, 2, -indent - 1, -1),
-                            Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
-                            dwOpt->state & State_Enabled, dwOpt->title,
-                            QPalette::Foreground);
+                p->setPen(Qt::white);
+                QFont oldFont = p->font();
+                QFont titleFont = oldFont;
+                titleFont.setBold(true);
+                p->setFont(titleFont);
+                drawItemText(p, rect.adjusted(indent + 1, rect.bottom() - p->fontMetrics().lineSpacing() - 4,
+                                              - (2 * iconSize), -1),
+                             Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                             dwOpt->state & State_Enabled, dwOpt->title);
+                p->setFont(oldFont);
             }
+            return;
         }
-        return;
+        break;
 #endif // QT_NO_DOCKWIDGET
 
-      default:
+default:
         break;
     }
 
@@ -2954,7 +3035,19 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
         break;
 
 #endif // QT_NO_TOOLBAR
-
+    case PM_DockWidgetFrameWidth:
+    {
+        XPThemeData theme(widget, 0, "WINDOW", WP_SMALLFRAMERIGHT, FS_ACTIVE);
+        if (theme.isValid()) {
+            SIZE size;
+            pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
+            res = size.cx;
+        }
+    }
+    break;
+    case PM_DockWidgetSeparatorExtent:
+        res = 4;
+        break;
     default:
         res = QWindowsStyle::pixelMetric(pm, option, widget);
     }
@@ -3231,7 +3324,6 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
                                                   const QStyleOption *option,
                                                   const QWidget *widget) const
 {
-    //Q_D(const QWindowsXPStyle);
     QWindowsXPStylePrivate *d = const_cast<QWindowsXPStylePrivate*>(d_func());
     switch(standardIcon) {
     case SP_TitleBarMaxButton:
@@ -3305,6 +3397,43 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
                 if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget))
                     if (dw->isFloating())
                         return d->dockClose;
+        }
+        break;
+        case SP_TitleBarNormalButton:
+        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
+        {
+            if (d->dockFloat.isNull()) {
+                XPThemeData themeSize(0, 0, "WINDOW", WP_SMALLCLOSEBUTTON, CBS_NORMAL);
+                XPThemeData theme(0, 0, "WINDOW", WP_RESTOREBUTTON, MAXBS_NORMAL);
+                if (theme.isValid()) {
+                    SIZE size;
+                    pGetThemePartSize(themeSize.handle(), 0, themeSize.partId, themeSize.stateId, 0, TS_TRUE, &size);
+                    QPixmap pm = QPixmap(size.cx, size.cy);
+                    QPainter p(&pm);
+                    theme.painter = &p;
+                    theme.rect = QRect(0, 0, size.cx, size.cy);
+                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
+                    d->drawBackground(theme);
+                    d->dockFloat.addPixmap(pm, QIcon::Normal, QIcon::Off);    // Normal
+                    theme.stateId = MAXBS_PUSHED;
+                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
+                    d->drawBackground(theme);
+                    d->dockFloat.addPixmap(pm, QIcon::Normal, QIcon::On);     // Pressed
+                    theme.stateId = MAXBS_HOT;
+                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
+                    d->drawBackground(theme);
+                    d->dockFloat.addPixmap(pm, QIcon::Active, QIcon::Off);    // Hover
+                    theme.stateId = MAXBS_DISABLED;
+                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
+                    d->drawBackground(theme);
+                    d->dockFloat.addPixmap(pm, QIcon::Disabled, QIcon::Off);  // Disabled
+                }
+            }
+            if (widget)
+                if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget))
+                    if (dw->isFloating())
+                        return d->dockFloat;
+
         }
         break;
     }
