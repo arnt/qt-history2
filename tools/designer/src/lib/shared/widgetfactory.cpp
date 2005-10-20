@@ -91,7 +91,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     } else if (widgetName == QLatin1String("QToolBar")) {
         w = new QDesignerToolBar(parentWidget);
     } else if (widgetName == QLatin1String("QMenuBar")) {
-        w = new QDesignerMenuBar(parentWidget);
+        w = new QMenuBar(parentWidget);
     } else if (widgetName == QLatin1String("QMenu")) {
         w = new QDesignerMenu(parentWidget);
     } else if (widgetName == QLatin1String("Spacer")) {
@@ -367,8 +367,6 @@ bool WidgetFactory::isPassiveInteractor(QWidget *widget)
     else if (qobject_cast<QSizeGrip*>(widget))
         return (m_lastWasAPassiveInteractor = true);
     else if (qobject_cast<QAbstractButton*>(widget) && (qobject_cast<QTabBar*>(widget->parent()) || qobject_cast<QToolBox*>(widget->parent())))
-        return (m_lastWasAPassiveInteractor = true);
-    else if (qobject_cast<QMenuBar*>(widget))
         return (m_lastWasAPassiveInteractor = true);
     else if (qstrcmp(widget->metaObject()->className(), "QDockSeparator") == 0)
         return (m_lastWasAPassiveInteractor = true);

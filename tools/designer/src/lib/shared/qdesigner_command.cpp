@@ -1387,6 +1387,7 @@ void CreateMenuBarCommand::redo()
     m_menuBar->setObjectName("menuBar");
     formWindow()->ensureUniqueObjectName(m_menuBar);
     core->metaDataBase()->add(m_menuBar);
+    formWindow()->manageWidget(m_menuBar);
     formWindow()->emitSelectionChanged();
 }
 
@@ -1402,6 +1403,7 @@ void CreateMenuBarCommand::undo()
         }
     }
 
+    formWindow()->unmanageWidget(m_menuBar);
     core->metaDataBase()->remove(m_menuBar);
     formWindow()->emitSelectionChanged();
 }
