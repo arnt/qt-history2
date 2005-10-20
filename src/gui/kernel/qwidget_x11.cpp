@@ -814,8 +814,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         top->fleft = top->fright = top->ftop = top->fbottom = 0;
         data.fstrut_dirty = true;
     }
-    if (q->isWindow() && parent && !(f & Qt::Window)) {
-        // reparenting from top-level into a parent...
+    if (q->isWindow()) {
+        // reparenting from top-level, make sure show() works again
         QTLWExtra *top = topData();
         top->waitingForMapNotify = 0;
         top->validWMState = 0;
