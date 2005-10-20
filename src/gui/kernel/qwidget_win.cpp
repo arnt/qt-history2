@@ -1418,7 +1418,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         data.window_state &= ~Qt::WindowFullScreen;
     }
 
-    bool accelerateMove = false;
     if (q->testAttribute(Qt::WA_WState_ConfigPending)) {        // processing config event
         qWinRequestConfig(q->winId(), isMove ? 2 : 1, x, y, w, h);
     } else {
@@ -1438,12 +1437,13 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             GetClientRect(q->winId(), &rect);
     	    data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);
         } else {
+        QRect oldGeom(data.crect);
+            data.crect.setRect(x, y, w, h);
 #ifdef QT_USE_BACKINGSTORE
             if(q->isVisible() && !q->isHidden()) {
-                moveRect(QRect(oldPos, oldSize), x - q->x(), y - q->y());
+                moveRect(QRect(oldPos, oldSize), x - oldGeom.x(), y - oldGeom.y());
             }
 #endif
-            data.crect.setRect(x, y, w, h);
             setWSGeometry();
         }
         q->setAttribute(Qt::WA_WState_ConfigPending, false);
