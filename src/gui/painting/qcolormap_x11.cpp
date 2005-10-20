@@ -103,7 +103,7 @@ static Visual *find_visual(Display *display,
     rvi.screen = screen;
 
     if (visual_class != -1) {
-        rvi.c_class = X11->visual_class;
+        rvi.c_class = visual_class;
         mask |= VisualClassMask;
     } else if (visual_id != -1) {
         rvi.visualid = visual_id;
