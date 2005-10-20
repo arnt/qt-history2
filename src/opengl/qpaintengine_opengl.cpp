@@ -789,7 +789,15 @@ void QOpenGLPaintEnginePrivate::generateGradientColorTable(const QGradientStops&
         while (fpos < s[i+1].first && pos < size) {
             int dist = int(255 * ((fpos - s[i].first) * delta));
             int idist = 255 - dist;
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
             colorTable[pos] = INTERPOLATE_PIXEL_256(colors[i], idist, colors[i+1], dist);
+#else
+	    uint c = INTERPOLATE_PIXEL_256(colors[i], idist, colors[i+1], dist);
+	    colorTable[pos] = ((c << 24) & 0xff000000)
+	                      | ((c >> 24) & 0x000000ff)
+	                      | ((c << 8) & 0x00ff0000)
+	                      | ((c >> 8) & 0x0000ff00);
+#endif // Q_BYTE_ORDER
             ++pos;
             fpos += incr;
         }
