@@ -966,6 +966,8 @@ QWorkspacePrivate::init()
     corner = 0;
     xoffset = yoffset = 0;
 
+    q->window()->installEventFilter(q);
+
     inTitleChange = false;
     updateWorkspace();
 }
