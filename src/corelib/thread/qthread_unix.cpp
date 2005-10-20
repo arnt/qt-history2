@@ -232,7 +232,7 @@ void QThread::start(Priority priority)
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-    d->priority = InheritPriority;
+    d->priority = priority;
 
 #if defined(Q_OS_DARWIN) || !defined(Q_OS_OPENBSD) && defined(_POSIX_THREAD_PRIORITY_SCHEDULING) && (_POSIX_THREAD_PRIORITY_SCHEDULING-0 >= 0)
     switch (priority) {
@@ -283,13 +283,9 @@ void QThread::start(Priority priority)
 
             pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
             pthread_attr_setschedparam(&attr, &sp);
-
-            d->priority = priority;
             break;
         }
     }
-#else
-    Q_UNUSED(priority);
 #endif // _POSIX_THREAD_PRIORITY_SCHEDULING
 
     if (d->stackSize > 0) {
@@ -446,6 +442,8 @@ void QThread::setPriority(Priority priority)
         return;
     }
 
+    d->priority = priority;
+
     // copied from start() with a few modifications:
 
 #if defined(Q_OS_DARWIN) || !defined(Q_OS_OPENBSD) && defined(_POSIX_THREAD_PRIORITY_SCHEDULING) && (_POSIX_THREAD_PRIORITY_SCHEDULING-0 >= 0)
@@ -460,7 +458,7 @@ void QThread::setPriority(Priority priority)
     }
 
     int prio_min = sched_get_priority_min(sched_policy);
-    int prio_max = sched_get_priority_max(sched_policy);
+    int prio_max = sched_get_priority_\max(sched_policy);
     if (prio_min == -1 || prio_max == -1) {
         // failed to get the scheduling parameters, don't
         // bother setting the priority
@@ -491,9 +489,6 @@ void QThread::setPriority(Priority priority)
 
     param.sched_priority = prio;
     pthread_setschedparam(d->thread_id, sched_policy, &param);
-    d->priority = priority;
-#else
-    Q_UNUSED(d->priority);
 #endif
 }
 
