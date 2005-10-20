@@ -4023,6 +4023,8 @@ void QUrl::addQueryItem(const QString &key, const QString &value)
     d->query += d->valueDelimiter;
     // query = *( pchar / "/" / "?" )
     d->query += QUrl::toPercentEncoding(value, "!$&'()*+,;=:@/?", alsoEncode);
+
+    d->hasQuery = !query.isEmpty();
 }
 
 /*!
