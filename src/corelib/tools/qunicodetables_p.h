@@ -103,7 +103,7 @@ namespace QUnicodeTables {
 
 #include "qunicodedata_p.h"
 
-};
+}
 
 
 inline QChar::Category category(const QChar &c)

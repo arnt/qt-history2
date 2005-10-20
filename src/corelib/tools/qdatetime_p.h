@@ -92,7 +92,7 @@ public:
     enum {
         NoSectionIndex = -1,
         FirstSectionIndex = -2,
-        LastSectionIndex = -3,
+        LastSectionIndex = -3
     };
 
     enum Section {
