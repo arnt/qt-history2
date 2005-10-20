@@ -40,6 +40,7 @@
 #include "private/qmath_p.h"
 #include "private/qapplication_p.h"
 #include "private/qinternal_p.h"
+#include "private/qbackingstore_p.h"
 
 #ifndef QT_NO_THREAD
 #include "qmutex.h"
@@ -3462,6 +3463,13 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
 #ifndef QT_USE_BACKINGSTORE
              if (!testAttribute(Qt::WA_StaticContents))
                  testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
+#else
+            if (!testAttribute(Qt::WA_StaticContents)) {
+                if(QWidgetBackingStore::paintOnScreen(this))
+                    repaint();
+                else
+                    qt_syncBackingStore(d_func()->clipRect(), this);
+            }
 #endif
         } else {
             QResizeEvent *e = new QResizeEvent(newSize, oldSize);
