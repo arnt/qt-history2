@@ -1214,6 +1214,7 @@ QDomDocumentType QDomImplementation::createDocumentType(const QString& qName, co
         dt->publicId = fixedPublicId;
         dt->systemId = fixedSystemId;
     }
+    dt->ref.deref();
     return QDomDocumentType(dt);
 }
 
