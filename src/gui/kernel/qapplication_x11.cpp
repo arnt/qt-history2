@@ -824,7 +824,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                     key = item.left(i).trimmed().mid(1).toLower();
                     value = item.right(item.length() - i - 1).trimmed();
                     mine = true;
-                } else if (res.at(l) == apn.at(0) || (appClass && res.at(l) == apc.at(0))) {
+                } else if (apnl && res.at(l) == apn.at(0) || (appClass && apcl && res.at(l) == apc.at(0))) {
                     if (res.mid(l,apnl) == apn && (res.at(l+apnl) == QLatin1Char('.')
                                                    || res.at(l+apnl) == QLatin1Char('*'))) {
                         QString item = res.mid(l, r - l).simplified();
