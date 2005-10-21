@@ -47,7 +47,7 @@ static void qSignalDumperCallback(QObject *caller, int method_index, void **argv
     QMetaMethod member = mo->method(method_index);
     Q_ASSERT(member.signature());
 
-    if (QTest::ignoreClasses()->contains(mo->className())) {
+    if (QTest::ignoreClasses() && QTest::ignoreClasses()->contains(mo->className())) {
         ++QTest::ignoreLevel;
         return;
     }
@@ -67,7 +67,8 @@ static void qSignalDumperCallback(QObject *caller, int method_index, void **argv
         str += args.at(i);
         int typeId = QMetaType::type(args.at(i).constData());
         if (args.at(i).endsWith("*")) {
-            str.append("(0x").append(QByteArray::number(reinterpret_cast<quint64>(*reinterpret_cast<void **>(argv[i + 1])), 16)).append(")");
+            quint64 addr = quint64(*reinterpret_cast<void **>(argv[i + 1]));
+            str.append("(0x").append(QByteArray::number(addr, 16)).append(")");
         } else if (typeId != QMetaType::Void) {
             str.append("(").append(QVariant(typeId, argv[i + 1]).toString().toLocal8Bit()).append(
             ")");
@@ -89,7 +90,8 @@ static void qSignalDumperCallbackSlot(QObject *caller, int method_index, void **
     if (!member.signature())
         return;
 
-    if (QTest::ignoreLevel || QTest::ignoreClasses()->contains(mo->className()))
+    if (QTest::ignoreLevel ||
+            (QTest::ignoreClasses() && QTest::ignoreClasses()->contains(mo->className())))
         return;
 
     QByteArray str;
@@ -106,7 +108,8 @@ static void qSignalDumperCallbackSlot(QObject *caller, int method_index, void **
 static void qSignalDumperCallbackEndSignal(QObject *caller, int /*method_index*/)
 {
     Q_ASSERT(caller); Q_ASSERT(caller->metaObject());
-    if (QTest::ignoreClasses()->contains(caller->metaObject()->className())) {
+    if (QTest::ignoreClasses()
+            && QTest::ignoreClasses()->contains(caller->metaObject()->className())) {
         --QTest::ignoreLevel;
         Q_ASSERT(QTest::ignoreLevel >= 0);
         return;
@@ -145,11 +148,13 @@ void QSignalDumper::endDump()
 
 void QSignalDumper::ignoreClass(const QByteArray &klass)
 {
-    QTest::ignoreClasses()->append(klass);
+    if (QTest::ignoreClasses())
+        QTest::ignoreClasses()->append(klass);
 }
 
 void QSignalDumper::clearIgnoredClasses()
 {
-    QTest::ignoreClasses()->clear();
+    if (QTest::ignoreClasses())
+        QTest::ignoreClasses()->clear();
 }
 
