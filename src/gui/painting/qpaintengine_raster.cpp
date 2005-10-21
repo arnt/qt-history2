@@ -1240,7 +1240,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
 {
     Q_D(QRasterPaintEngine);
-    if (1 || !(d->int_xform && d->fast_pen)) {
+    if (!(d->int_xform && d->fast_pen)) {
         // this calls the float version
         QPaintEngine::drawPolygon(points, pointCount, mode);
         return;
@@ -1990,6 +1990,8 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
     qDebug() << " - QRasterPaintEngine::drawLine()";
 #endif
     Q_D(QRasterPaintEngine);
+    if (!d->penData.blend)
+        return;
     if (d->fast_pen) {
         QRect bounds(0, 0, d->deviceRect.width(), d->deviceRect.height());
         LineDrawMode mode = d->pen.capStyle() == Qt::FlatCap
@@ -2027,6 +2029,8 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
     qDebug() << " - QRasterPaintEngine::drawLine()";
 #endif
     Q_D(QRasterPaintEngine);
+    if (!d->penData.blend)
+        return;
     if (d->fast_pen) {
         QRect bounds(0, 0, d->deviceRect.width(), d->deviceRect.height());
         LineDrawMode mode = d->pen.capStyle() == Qt::FlatCap
