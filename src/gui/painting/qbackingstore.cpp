@@ -295,7 +295,14 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
     bool accelerateMove = accelEnv &&  isOpaque()  && !isOverlapped(rect & clipR);
 
     if (!accelerateMove) {
-        pd->invalidateBuffer(QRegion(rect & clipR) - newRect);
+        QRegion parentR(rect & clipR);
+        if (q->mask().isEmpty()) {
+            parentR -= newRect;
+        } else {
+            // invalidateBuffer() excludes anything outside the mask
+            parentR += newRect & clipR;
+        }
+        pd->invalidateBuffer(parentR);
         invalidateBuffer((newRect & clipR).translated(-data.crect.topLeft()));
     } else {
         QRect destRect = rect.intersect(clipR).translated(dx,dy).intersect(clipR);
@@ -317,6 +324,9 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
 
         QRegion parentExpose = rect & clipR;
         parentExpose -= newRect;
+        if (!q->mask().isEmpty()) {
+            parentExpose += QRegion(newRect) - q->mask().translated(data.crect.topLeft());
+        }
         pd->invalidateBuffer(parentExpose);
 #ifdef Q_WS_QWS
         //QWS does not have native child widgets: copy everything to screen, just like scrollRect()
