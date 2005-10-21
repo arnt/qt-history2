@@ -31,7 +31,7 @@ public:
     inline QItemSelectionRange(const QItemSelectionRange &other)
         : tl(other.tl), br(other.br) {}
     inline QItemSelectionRange(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    inline QItemSelectionRange(const QModelIndex &index)
+    explicit inline QItemSelectionRange(const QModelIndex &index)
         { tl = index; br = tl; }
 
     inline int top() const { return tl.row(); }
