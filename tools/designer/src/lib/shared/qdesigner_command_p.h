@@ -855,6 +855,34 @@ private:
     QList<QPair<QString, QIcon> > m_newItemsState;
 };
 
+class QDESIGNER_SHARED_EXPORT AddFormActionCommand : public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    AddFormActionCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QAction *action);
+    virtual void redo();
+    virtual void undo();
+
+private:
+    QAction *m_action;
+};
+
+class QDESIGNER_SHARED_EXPORT RemoveFormActionCommand : public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    RemoveFormActionCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QAction *action);
+    virtual void redo();
+    virtual void undo();
+
+private:
+    QAction *m_action;
+};
+
 } // namespace qdesigner_internal
 
 #endif // QDESIGNER_COMMAND_H

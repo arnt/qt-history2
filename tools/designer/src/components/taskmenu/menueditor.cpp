@@ -138,13 +138,17 @@ void MenuEditor::on_newItemButton_clicked()
     QDesignerFormEditorInterface *core = m_form->core();
     QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu", m_widget));
     menu->setTitle(newText);
-    core->metaDataBase()->add(menu);
+    core->metaDataBase()->add(menu->menuAction());
     m_form->manageWidget(menu);
     if (parentAction)
         parentAction->menu()->insertAction(beforeAction, menu->menuAction());
     else
         m_widget->insertAction(beforeAction, menu->menuAction());
     // COMMAND END
+
+    menu->setObjectName(QLatin1String("menuAction"));
+    m_form->ensureUniqueObjectName(menu);
+    menu->menuAction()->setObjectName(menu->objectName());
 
     m_actionToItem[menu->menuAction()] = newItem;
     m_itemToAction[newItem] = menu->menuAction();

@@ -2164,4 +2164,60 @@ void ChangeListContentsCommand::changeContents(QComboBox *comboBox,
     }
 }
 
+AddFormActionCommand::AddFormActionCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Add action"), formWindow)
+{
+    m_action = 0;
+}
+
+void AddFormActionCommand::init(QAction *action)
+{
+    Q_ASSERT(m_action == 0);
+    m_action = action;
+}
+
+void AddFormActionCommand::redo()
+{
+    Q_ASSERT(m_action != 0);
+    m_action->setVisible(true);
+    formWindow()->addFormAction(m_action);
+    core()->propertyEditor()->setObject(m_action);
+}
+
+void AddFormActionCommand::undo()
+{
+    Q_ASSERT(m_action != 0);
+    formWindow()->removeFormAction(m_action);
+    m_action->setVisible(false);
+    core()->propertyEditor()->setObject(formWindow());
+}
+
+RemoveFormActionCommand::RemoveFormActionCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Remove action"), formWindow)
+{
+    m_action = 0;
+}
+
+void RemoveFormActionCommand::init(QAction *action)
+{
+    Q_ASSERT(m_action == 0);
+    m_action = action;
+}
+
+void RemoveFormActionCommand::redo()
+{
+    Q_ASSERT(m_action != 0);
+    formWindow()->removeFormAction(m_action);
+    m_action->setVisible(false);
+    core()->propertyEditor()->setObject(formWindow());
+}
+
+void RemoveFormActionCommand::undo()
+{
+    Q_ASSERT(m_action != 0);
+    m_action->setVisible(true);
+    formWindow()->addFormAction(m_action);
+    core()->propertyEditor()->setObject(m_action);
+}
+
 } // namespace qdesigner_internal

@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qmainwindow_container.h"
-#include "qdesigner_toolbar_p.h"
 
 #include <QtCore/qdebug.h>
 

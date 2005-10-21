@@ -14,7 +14,7 @@
 #include "actioneditor_p.h"
 #include "iconloader_p.h"
 #include "newactiondialog_p.h"
-#include "qdesigner_menu_p.h"
+#include "qdesigner_command_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -308,7 +308,6 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
     }
 
     ActionEditorModel *model = m_modelCache->model(formWindow);
-    qDebug() << "ActionEditor::setFormWindow():" << model;
     m_formWindow = formWindow;
     m_actionView->setModel(model);
 
@@ -337,8 +336,9 @@ void ActionEditor::slotNewAction()
         action->setObjectName(dlg.actionName());
         action->setText(dlg.actionText());
         action->setIcon(dlg.actionIcon());
-        formWindow()->addFormAction(action);
-        core()->propertyEditor()->setObject(action);
+        AddFormActionCommand *cmd = new AddFormActionCommand(formWindow());
+        cmd->init(action);
+        formWindow()->commandHistory()->push(cmd);
     }
 }
 
