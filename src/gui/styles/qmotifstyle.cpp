@@ -127,6 +127,8 @@ bool QMotifStyle::eventFilter(QObject *o, QEvent *e)
         }
         break;
     case QEvent::Destroy:
+        d->bars.removeAll(reinterpret_cast<QProgressBar *>(o));
+        break;
     case QEvent::Hide:
         if (QProgressBar *bar = qobject_cast<QProgressBar *>(o)) {
             d->bars.removeAll(bar);
