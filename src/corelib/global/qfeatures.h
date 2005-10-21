@@ -421,6 +421,11 @@
 #define QT_NO_TREEVIEW
 #endif
 
+// "What's this" help
+#if !defined(QT_NO_WHATSTHIS) && (defined(QT_NO_TOOLBUTTON) || defined(QT_NO_ACTION))
+#define QT_NO_WHATSTHIS
+#endif
+
 // QColorDialog
 #if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR) || defined(QT_NO_SPINBOX))
 #define QT_NO_COLORDIALOG
@@ -454,11 +459,6 @@
 // QTreeWidget
 #if !defined(QT_NO_TREEWIDGET) && (defined(QT_NO_TREEVIEW))
 #define QT_NO_TREEWIDGET
-#endif
-
-// "What's this" help
-#if !defined(QT_NO_WHATSTHIS) && (defined(QT_NO_TOOLTIP) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_ACTION))
-#define QT_NO_WHATSTHIS
 #endif
 
 // Main-windows

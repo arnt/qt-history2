@@ -350,7 +350,7 @@ SeeAlso: ???
 
 Feature: WHATSTHIS
 Section: Widgets
-Requires: TOOLTIP TOOLBUTTON ACTION
+Requires: TOOLBUTTON ACTION
 Name: "What's this" help
 SeeAlso: ???
 
