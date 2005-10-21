@@ -443,7 +443,8 @@ void QAbstractSlider::setSliderPosition(int position)
     d->position = position;
     if (!d->tracking)
         update();
-    emit sliderMoved(position);
+    if (d->pressed)
+        emit sliderMoved(position);
     if (d->tracking && !d->blocktracking)
         triggerAction(SliderMove);
 }
@@ -479,8 +480,11 @@ void QAbstractSlider::setValue(int value)
     if (d->value == value)
         return;
     d->value = value;
-    if (d->position != value)
-        emit sliderMoved((d->position = value));
+    if (d->position != value) {
+        d->position = value;
+        if (d->pressed)
+            emit sliderMoved((d->position = value));
+    }
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
 #endif
