@@ -107,9 +107,9 @@ static void render(FT_Face face, glyph_t index, QGlyph *result, bool smooth)
     }
 
     int size = bm.pitch*bm.rows;
-    result->data = new uchar[size];
     result->mono = bm.pixel_mode == ft_pixel_mode_mono;
     if (size) {
+        result->data = new uchar[size];
         memcpy(result->data, bm.buffer, size);
     } else {
         result->data = 0;
