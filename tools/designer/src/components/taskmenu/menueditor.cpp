@@ -140,15 +140,15 @@ void MenuEditor::on_newItemButton_clicked()
     menu->setTitle(newText);
     core->metaDataBase()->add(menu->menuAction());
     m_form->manageWidget(menu);
+    menu->setObjectName(QLatin1String("menuAction"));
+    m_form->ensureUniqueObjectName(menu);
+    menu->menuAction()->setObjectName(menu->objectName());
     if (parentAction)
         parentAction->menu()->insertAction(beforeAction, menu->menuAction());
     else
         m_widget->insertAction(beforeAction, menu->menuAction());
     // COMMAND END
 
-    menu->setObjectName(QLatin1String("menuAction"));
-    m_form->ensureUniqueObjectName(menu);
-    menu->menuAction()->setObjectName(menu->objectName());
 
     m_actionToItem[menu->menuAction()] = newItem;
     m_itemToAction[newItem] = menu->menuAction();
@@ -184,8 +184,11 @@ void MenuEditor::on_newSubItemButton_clicked()
     QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu",
                     parentAction->menu()));
     menu->setTitle(newText);
-    core->metaDataBase()->add(menu);
+    core->metaDataBase()->add(menu->menuAction());
     m_form->manageWidget(menu);
+    menu->setObjectName(QLatin1String("menuAction"));
+    m_form->ensureUniqueObjectName(menu);
+    menu->menuAction()->setObjectName(menu->objectName());
     parentAction->menu()->insertAction(beforeAction, menu->menuAction());
     // COMMAND END
 
@@ -232,9 +235,12 @@ void MenuEditor::on_newSeparatorItemButton_clicked()
     newItem->setText(0, newText);
 
     // COMMAND BEGIN
-    //QDesignerFormEditorInterface *core = m_form->core();
+    QDesignerFormEditorInterface *core = m_form->core();
     QAction *action = new QAction(m_widget);
     action->setSeparator(true);
+    core->metaDataBase()->add(action);
+    action->setObjectName(QLatin1String("menuAction"));
+    m_form->ensureUniqueObjectName(action);
     if (parentAction)
         parentAction->menu()->insertAction(beforeAction, action);
     else
@@ -282,11 +288,12 @@ void MenuEditor::on_deleteItemButton_clicked()
     }
 
     // COMMAND BEGIN
+    QDesignerFormEditorInterface *core = m_form->core();
     if (actionToRemove->menu()) {
-        QDesignerFormEditorInterface *core = m_form->core();
         core->metaDataBase()->remove(actionToRemove->menu());
         m_form->unmanageWidget(actionToRemove->menu());
     }
+    core->metaDataBase()->remove(actionToRemove);
     if (parentAction)
         parentAction->menu()->removeAction(actionToRemove);
     else
@@ -450,7 +457,7 @@ void MenuEditor::on_treeWidget_itemChanged(QTreeWidgetItem *item)
     QAction *action = m_itemToAction[item];
     QString text = item->text(0);
     // COMMAND BEGIN
-    action->setIconText(text);
+    action->setText(text);
     // COMMAND END
     m_updating = false;
     updateEditor();
@@ -523,7 +530,7 @@ void MenuEditor::on_itemTextLineEdit_textEdited(const QString &text)
     m_updating = true;
     QAction *action = m_itemToAction[curItem];
     // COMMAND BEGIN
-    action->setIconText(text);
+    action->setText(text);
     // COMMAND END
     curItem->setText(0, text);
     m_updating = false;
