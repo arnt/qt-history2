@@ -890,7 +890,7 @@ void Q3ListViewItem::removeRenameBox()
     Q3ListView *lv = listView();
     if (!lv || !renameBox)
         return;
-    bool resetFocus = lv->viewport()->focusProxy() == renameBox;
+    const bool resetFocus = lv->viewport()->focusProxy() == renameBox;
     delete renameBox;
     renameBox = 0;
     if (resetFocus) {
