@@ -563,7 +563,7 @@ bool QAbstractSocketPrivate::canWriteNotification()
 bool QAbstractSocketPrivate::flush()
 {
     Q_Q(QAbstractSocket);
-    if (!socketEngine->isValid() || writeBuffer.isEmpty()) {
+    if (!socketEngine || !socketEngine->isValid() || writeBuffer.isEmpty()) {
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::flush() nothing to do: valid ? %s, writeBuffer.isEmpty() ? %s",
            socketEngine->isValid() ? "yes" : "no", writeBuffer.isEmpty() ? "yes" : "no");
