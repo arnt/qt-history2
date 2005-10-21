@@ -587,6 +587,7 @@ private:
 
     friend void qt_syncBackingStore(QWidget *);
     friend void qt_syncBackingStore(QRegion, QWidget *);
+    friend void qt_syncBackingStore(QRegion, QWidget *, bool);
     friend class QBackingStoreDevice;
     friend class QWidgetBackingStore;
     friend class QApplication;

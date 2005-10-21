@@ -155,14 +155,18 @@ static bool qt_flushUpdate(QWidget *widget, const QRegion &rgn)
 }
 
 
-void qt_syncBackingStore(QRegion rgn, QWidget *widget)
+void qt_syncBackingStore(QRegion rgn, QWidget *widget, bool recursive)
 {
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         QWidget *tlw = widget->window();
-        tlw->d_func()->topData()->backingStore->cleanRegion(rgn, widget, false);
+        tlw->d_func()->topData()->backingStore->cleanRegion(rgn, widget, recursive);
     } else {
         widget->repaint(rgn);
     }
+}
+void qt_syncBackingStore(QRegion rgn, QWidget *widget)
+{
+    qt_syncBackingStore(rgn, widget, false);
 }
 
 #if defined(Q_WS_X11)

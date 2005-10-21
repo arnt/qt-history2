@@ -41,6 +41,7 @@
 #include "private/qapplication_p.h"
 #include "private/qinternal_p.h"
 #include "private/qbackingstore_p.h"
+#include "qdebug.h"
 
 #ifndef QT_NO_THREAD
 #include "qmutex.h"
@@ -246,6 +247,7 @@ QRgb qt_colorref2qrgb(COLORREF col)
 
 #ifdef QT_USE_BACKINGSTORE
 extern void qt_syncBackingStore(QRegion rgn, QWidget *widget);
+extern void qt_syncBackingStore(QRegion rgn, QWidget *widget, bool);
 #endif
 extern Q_CORE_EXPORT char      appName[];
 extern Q_CORE_EXPORT char      appFileName[];
@@ -3380,7 +3382,7 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
 //
 // Paint event translation
 //
-bool QETWidget::translatePaintEvent(const MSG &)
+bool QETWidget::translatePaintEvent(const MSG &msg)
 {
     QRegion rgn(0, 0, 1, 1);
     int res = GetUpdateRgn(winId(), rgn.handle(), FALSE);
@@ -3390,15 +3392,15 @@ bool QETWidget::translatePaintEvent(const MSG &)
         d_func()->hd = 0;
         return false;
     }
-
     PAINTSTRUCT ps;
     d_func()->hd = BeginPaint(winId(), &ps);
 
     // Mapping region from system to qt (32 bit) coordinate system.
     rgn.translate(data->wrect.topLeft());
 #ifdef QT_USE_BACKINGSTORE
-    qt_syncBackingStore(rgn, this);
+    qt_syncBackingStore(rect(), this, (msg.message == WM_QT_REPAINT));
 #else
+    Q_UNUSED(msg);
     repaint(rgn);
 #endif
 
