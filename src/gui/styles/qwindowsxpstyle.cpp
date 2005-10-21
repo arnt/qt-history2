@@ -1304,6 +1304,10 @@ void QWindowsXPStyle::unpolish(QWidget *widget)
 /*! \reimp */
 QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option, const QWidget *widget) const
 {
+    if (!QWindowsXPStylePrivate::useXP()) {
+        return QWindowsStyle::subElementRect(sr, option, widget);
+    }
+
     QRect rect(option->rect);
     switch(sr) {
     case SE_TabWidgetTabContents:
@@ -3296,6 +3300,9 @@ QPalette QWindowsXPStyle::standardPalette() const
 QPixmap QWindowsXPStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option,
                                         const QWidget *widget) const
 {
+    if (!QWindowsXPStylePrivate::useXP())
+        return QWindowsStyle::standardPixmap(standardPixmap, option, widget);
+
     switch(standardPixmap) {
     case SP_TitleBarMaxButton:
     case SP_TitleBarCloseButton:
@@ -3324,6 +3331,10 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
                                                   const QStyleOption *option,
                                                   const QWidget *widget) const
 {
+    if (!QWindowsXPStylePrivate::useXP()) {
+        return QWindowsStyle::standardIconImplementation(standardIcon, option, widget);
+    }
+
     QWindowsXPStylePrivate *d = const_cast<QWindowsXPStylePrivate*>(d_func());
     switch(standardIcon) {
     case SP_TitleBarMaxButton:
