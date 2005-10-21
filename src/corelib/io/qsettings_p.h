@@ -116,7 +116,7 @@ private:
     friend class QConfFile_createsItself; // supress compiler warning
 };
 
-class QSettingsPrivate
+class Q_INTERNAL_EXPORT QSettingsPrivate
 #ifndef QT_NO_QOBJECT
     : public QObjectPrivate
 #endif
