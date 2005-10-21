@@ -18,26 +18,19 @@
 #include "qwindowsystem_qws.h"
 #include "qhash.h"
 #include "qalgorithms.h"
+#include "qbytearray.h"
 
-#include <stdlib.h>
 #include <stdio.h>
 
 class QWSPropertyManager::Data {
 public:
-    struct Property {
-        ~Property() { if (data) delete [] data; }
-        int len;
-        char *data;
-    };
-    Property* find(int winId, int property)
+    QByteArray find(int winId, int property)
     {
-        QHash<int,Property*>* wp = properties.value(winId);
-        if (!wp) return 0;
-        Property* prop = wp->value(property);
-        return prop;
+        return properties.value(winId).value(property);
     }
 
-    QHash<int,QHash<int,Property*>*> properties;
+    typedef QHash<int, QHash<int, QByteArray> > PropertyHash;
+    PropertyHash properties;
 };
 
 /*********************************************************************
@@ -53,136 +46,67 @@ QWSPropertyManager::QWSPropertyManager()
 
 QWSPropertyManager::~QWSPropertyManager()
 {
-
-    qDeleteAll(d->properties);
     delete d;
 }
 
-
-//#define QWS_PROPERTY_DEBUG
-
-
 bool QWSPropertyManager::setProperty(int winId, int property, int mode, const char *data, int len)
 {
-    Data::Property* prop = d->find(winId,property);
-    if (!prop) return false;
+    QHash<int, QByteArray> props = d->properties.value(winId);
+    QHash<int, QByteArray>::iterator it = props.find(property);
+    if (it == props.end())
+        return false;
 
     switch (mode) {
-    case PropReplace: {
-#ifdef QWS_PROPERTY_DEBUG
-        qDebug("PropReplace");
-#endif
-        delete [] prop->data;
-        char *nd = new char[len]; //###Must make sure this is deleted
-        memcpy(nd, data, len);
-        prop->len = len;
-        prop->data = nd;
-    } break;
-    case PropAppend: {
-#ifdef QWS_PROPERTY_DEBUG
-        qDebug("PropAppend");
-#endif
-        int origLen = prop->len;
-        char *nd = new char[len + origLen];
-        memcpy(nd, prop->data, origLen);
-        memcpy(nd+origLen, data, len);
-        delete [] prop->data;
-        prop->len = len + origLen;
-        prop->data = nd;
-    } break;
-    case PropPrepend: {
-#ifdef QWS_PROPERTY_DEBUG
-        qDebug("PropPrepend");
-#endif
-        int origLen = prop->len;
-        char *nd = new char[len + origLen];
-        memcpy(nd, data, len);
-        memcpy(nd+len, prop->data, origLen);
-        delete [] prop->data;
-        prop->len = len + origLen;
-        prop->data = nd;
-    } break;
+    case PropReplace:
+        it.value() = QByteArray(data, len);
+        break;
+    case PropAppend:
+        it.value().append(data);
+        break;
+    case PropPrepend:
+        it.value().prepend(data);
+        break;
     }
-#ifdef QWS_PROPERTY_DEBUG
-    qDebug("QWSPropertyManager::setProperty: %d %d (%s) to %s", winId, property, key,
-            d->properties.find(key)->data);
-#endif
-
     return true;
 }
 
 bool QWSPropertyManager::hasProperty(int winId, int property)
 {
-    Data::Property* prop = d->find(winId,property);
-    return !!prop;
+    return d->properties.value(winId).contains(property);
 }
 
 bool QWSPropertyManager::removeProperty(int winId, int property)
 {
-#ifdef QWS_PROPERTY_DEBUG
-    qDebug("QWSPropertyManager::removeProperty %d %d (%s)", winId, property, key);
-#endif
-    QHash<int,Data::Property*>* wp = d->properties.value(winId);
-    if (!wp) return false;
-    Data::Property* prop = wp->value(property);
-    if (!prop) return false;
-    delete wp->take(property);
-    if (wp->count() == 0)
-        delete d->properties.take(winId);
-    return true;
+    QWSPropertyManager::Data::PropertyHash::iterator it = d->properties.find(winId);
+    if (it == d->properties.end())
+        return false;
+    return it.value().remove(property);
 }
 
 bool QWSPropertyManager::addProperty(int winId, int property)
 {
-    QHash<int,Data::Property*>* wp = d->properties.value(winId);
-    if (!wp) {
-        d->properties.insert(winId,wp = new QHash<int,Data::Property*>);
-    }
-    Data::Property* prop = wp->value(property);
-    if (prop) return false;
-    wp->insert(property, prop = new Data::Property);
-
-    prop->len = -1;
-    prop->data = 0;
-#ifdef QWS_PROPERTY_DEBUG
-    qDebug("QWSPropertyManager::addProperty: %d %d (%s)", winId, property, key);
-#endif
+    d->properties[winId][property] = QByteArray();
     return true;
 }
 
 bool QWSPropertyManager::getProperty(int winId, int property, char *&data, int &len)
 {
-    Data::Property* prop = d->find(winId,property);
-    if (!prop) {
+    QHash<int, QByteArray> props = d->properties.value(winId);
+    QHash<int, QByteArray>::iterator it = props.find(property);
+    if (it == props.end()) {
         data = 0;
         len = -1;
         return false;
     }
-
-    len = prop->len;
-    data = prop->data;
-#ifdef QWS_PROPERTY_DEBUG
-    qDebug("QWSPropertyManager::getProperty: %d %d (%s) %d", winId, property,
-            key, len);
-    if (len > 0) {
-        for (int i = 0; i < len; i++)
-            printf("%c",data[i]);
-        printf("\n");
-    }
-#endif
+    data = it.value().data();
+    len = it.value().length();
 
     return true;
 }
 
 bool QWSPropertyManager::removeProperties(int winId)
 {
-    QHash<int,Data::Property*> *wp = d->properties.take(winId);
-
-    if (wp) {
-        qDeleteAll(*wp);
-        delete wp;
-    }
-    return wp != 0;
+    return d->properties.remove(winId);
 }
 
 #endif //QT_NO_QWS_PROPERTIES
