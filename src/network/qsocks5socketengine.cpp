@@ -310,7 +310,7 @@ public:
 
     int add(QSocks5BindData *bindData);
     bool contains(int socketDescriptor);
-    QSocks5BindData *retive(int socketDescriptor);
+    QSocks5BindData *retrieve(int socketDescriptor);
 
 protected:
     void timerEvent(QTimerEvent * event);
@@ -364,10 +364,12 @@ bool QSocks5BindStore::contains(int socketDescriptor)
     return false;
 }
 
-QSocks5BindData *QSocks5BindStore::retive(int socketDescriptor)
+QSocks5BindData *QSocks5BindStore::retrieve(int socketDescriptor)
 {
     QMutexLocker lock(&mutex);
-    QSocks5BindData *bindData = store.value(socketDescriptor, 0);
+    if (!store.contains(socketDescriptor))
+        return 0;
+    QSocks5BindData *bindData = store.take(socketDescriptor);
     if (bindData) {
         if (bindData->controlSocket->thread() != QThread::currentThread()) {
             qWarning("Can not access socks5 bind data from different thread");
@@ -858,7 +860,7 @@ bool QSocks5SocketEngine::initialize(int socketDescriptor, QAbstractSocket::Sock
         return false;
     }
 
-    QSocks5BindData *bindData = socks5BindStore()->retive(socketDescriptor);
+    QSocks5BindData *bindData = socks5BindStore()->retrieve(socketDescriptor);
     if (bindData) {
 
         d->socketState = socketState;
