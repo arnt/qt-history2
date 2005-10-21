@@ -5328,8 +5328,10 @@ QDomNodePrivate* QDomCommentPrivate::cloneNode(bool deep)
 
 void QDomCommentPrivate::save(QTextStream& s, int depth, int indent) const
 {
-    s << QString(depth*indent, QLatin1Char(' ')); // Indent
-    s << "<!-- " << value << " -->" << endl;
+    s << "<!--" << value;
+    if (value.endsWith(QLatin1Char('-')))
+        s << " "; // Ensures that XML comment doesn't end with --->
+    s << "-->";
 }
 
 /**************************************************************
