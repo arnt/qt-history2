@@ -1,6 +1,3 @@
-OBJECTS_DIR     = tmp
-MOC_DIR         = tmp
-
 CONFIG          += qt warn_on console depend_includepath
 CONFIG          -= debug_and_release_target
 
@@ -8,9 +5,13 @@ CONFIG          -= debug_and_release_target
 CONFIG(debug, debug|release) {
     win32:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/QtTest_debug.prl
     else:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/libQtTest_debug.prl
+    OBJECTS_DIR     = tmp/debug
+    MOC_DIR         = tmp/debug
 } else {
     win32:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/QtTest.prl
     else:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/libQtTest.prl
+    OBJECTS_DIR     = tmp/release
+    MOC_DIR         = tmp/release
 }
 QTEST_LIB = $$fromfile($$QTESTLIB_PRL, QMAKE_PRL_TARGET)
 win32: QTEST_LIB = $${QTEST_LIB}4.dll
