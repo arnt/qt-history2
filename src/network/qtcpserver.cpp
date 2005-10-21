@@ -231,11 +231,10 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
     // anyway -- furthermore, the meaning of reusable on Windows is different:
     // it means that you can use the same address-port for multiple listening
     // sockets.
-    if (!d->socketEngine->setOption(QAbstractSocketEngine::AddressReusable, 1)) {
-        d->serverSocketError = d->socketEngine->error();
-        d->serverSocketErrorString = d->socketEngine->errorString();
-        return false;
-    }
+    // Don't abort though if we can't set that option. For example the socks
+    // engine doesn't support that option, but that shouldn't prevent us from
+    // trying to bind/listen.
+    d->socketEngine->setOption(QAbstractSocketEngine::AddressReusable, 1);
 #endif
 
     if (!d->socketEngine->bind(address, port)) {
