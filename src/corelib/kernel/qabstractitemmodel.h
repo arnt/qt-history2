@@ -60,6 +60,11 @@ inline QModelIndex::QModelIndex(int arow, int acolumn, void *adata,
 				const QAbstractItemModel *amodel)
     : r(arow), c(acolumn), p(adata), m(amodel) {}
 
+inline uint qHash(const QModelIndex &index)
+{
+    return uint((index.row() << 4) + index.column() + index.internalId());
+}
+
 #ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
 #endif
