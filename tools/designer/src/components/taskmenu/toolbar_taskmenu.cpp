@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "toolbar_taskmenu.h"
+#include "menueditor.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -25,15 +26,15 @@
 
 using namespace qdesigner_internal;
 
-ToolBarTaskMenu::ToolBarTaskMenu(QToolBar *toolbar, QObject *parent)
-    : QDesignerTaskMenu(toolbar, parent),
-      m_toolbar(toolbar)
+ToolBarTaskMenu::ToolBarTaskMenu(QToolBar *toolBar, QObject *parent)
+    : QDesignerTaskMenu(toolBar, parent),
+      m_toolBar(toolBar)
 {
-    m_editTextAction = new QAction(this);
-    m_editTextAction->setText(tr("Customize..."));
+    m_editToolBarAction = new QAction(this);
+    m_editToolBarAction->setText(tr("Edit Tool Bar..."));
 
-    connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editToolBar()));
-    m_taskActions.append(m_editTextAction);
+    connect(m_editToolBarAction, SIGNAL(triggered()), this, SLOT(editToolBar()));
+    m_taskActions.append(m_editToolBarAction);
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
@@ -46,7 +47,7 @@ ToolBarTaskMenu::~ToolBarTaskMenu()
 
 QAction *ToolBarTaskMenu::preferredEditAction() const
 {
-    return m_editTextAction;
+    return m_editToolBarAction;
 }
 
 QList<QAction*> ToolBarTaskMenu::taskActions() const
@@ -56,10 +57,15 @@ QList<QAction*> ToolBarTaskMenu::taskActions() const
 
 void ToolBarTaskMenu::editToolBar()
 {
-    m_formWindow = QDesignerFormWindowInterface::findFormWindow(m_toolbar);
-    if (!m_formWindow.isNull()) {
-    }
-    Q_ASSERT(0);
+    m_formWindow = QDesignerFormWindowInterface::findFormWindow(m_toolBar);
+    if (m_formWindow.isNull())
+        return;
+
+    Q_ASSERT(m_toolBar != 0);
+
+    MenuEditor dlg(m_formWindow, m_toolBar->window());
+    dlg.fillContentsFromWidget(m_toolBar);
+    dlg.exec();
 }
 
 ToolBarTaskMenuFactory::ToolBarTaskMenuFactory(QExtensionManager *extensionManager)

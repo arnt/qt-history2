@@ -1474,6 +1474,7 @@ void AddToolBarCommand::redo()
 
     m_toolBar->setObjectName("toolBar");
     formWindow()->ensureUniqueObjectName(m_toolBar);
+    formWindow()->manageWidget(m_toolBar);
     formWindow()->emitSelectionChanged();
 }
 
@@ -1489,6 +1490,7 @@ void AddToolBarCommand::undo()
             break;
         }
     }
+    formWindow()->unmanageWidget(m_toolBar);
     formWindow()->emitSelectionChanged();
 }
 

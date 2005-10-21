@@ -89,11 +89,11 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     } else if (widgetName == QLatin1String("QToolBox")) {
         w = new QDesignerToolBox(parentWidget);
     } else if (widgetName == QLatin1String("QToolBar")) {
-        w = new QDesignerToolBar(parentWidget);
+        w = new QToolBar(parentWidget);
     } else if (widgetName == QLatin1String("QMenuBar")) {
         w = new QMenuBar(parentWidget);
     } else if (widgetName == QLatin1String("QMenu")) {
-        w = new QDesignerMenu(parentWidget);
+        w = new QMenu(parentWidget);
     } else if (widgetName == QLatin1String("Spacer")) {
         w = new Spacer(parentWidget);
     } else if (widgetName == QLatin1String("QDockWidget")) {

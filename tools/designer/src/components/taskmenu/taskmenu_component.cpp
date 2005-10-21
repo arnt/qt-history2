@@ -22,6 +22,8 @@
 #include "containerwidget_taskmenu.h"
 #include "combobox_taskmenu.h"
 #include "textedit_taskmenu.h"
+#include "menubar_taskmenu.h"
+#include "toolbar_taskmenu.h"
 
 #include <QtDesigner/QtDesigner>
 #include <QtDesigner/QExtensionManager>
@@ -65,6 +67,12 @@ TaskMenuComponent::TaskMenuComponent(QDesignerFormEditorInterface *core, QObject
 
     TextEditTaskMenuFactory *textEdit_factory = new TextEditTaskMenuFactory(mgr);
     mgr->registerExtensions(textEdit_factory, Q_TYPEID(QDesignerTaskMenuExtension));
+
+    MenuBarTaskMenuFactory *menuBar_factory = new MenuBarTaskMenuFactory(mgr);
+    mgr->registerExtensions(menuBar_factory, Q_TYPEID(QDesignerTaskMenuExtension));
+
+    ToolBarTaskMenuFactory *toolBar_factory = new ToolBarTaskMenuFactory(mgr);
+    mgr->registerExtensions(toolBar_factory, Q_TYPEID(QDesignerTaskMenuExtension));
 }
 
 TaskMenuComponent::~TaskMenuComponent()

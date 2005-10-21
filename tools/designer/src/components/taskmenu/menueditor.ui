@@ -1,0 +1,301 @@
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>MenuEditor</class>
+ <widget class="QDialog" name="MenuEditor" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>494</width>
+    <height>264</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Edit Menu Bar</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="margin" >
+    <number>8</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item>
+    <widget class="QSplitter" name="splitter" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="layoutWidget" >
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="2" column="0" >
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="pixmapLabel" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>0</hsizetype>
+             <vsizetype>5</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text" >
+            <string>&amp;Pixmap</string>
+           </property>
+           <property name="buddy" >
+            <cstring>previewPixmapItemButton</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="previewPixmapItemButton" >
+           <property name="toolTip" >
+            <string>Set Item Pixmap</string>
+           </property>
+           <property name="text" >
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="deletePixmapItemButton" >
+           <property name="toolTip" >
+            <string>Reset Item Pixmap</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="textLabel" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>0</hsizetype>
+             <vsizetype>5</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text" >
+            <string>&amp;Text</string>
+           </property>
+           <property name="buddy" >
+            <cstring>itemTextLineEdit</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="itemTextLineEdit" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>13</hsizetype>
+             <vsizetype>4</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip" >
+            <string>Set Item Text</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QToolButton" name="moveItemUpButton" >
+         <property name="toolTip" >
+          <string>Move Item Up</string>
+         </property>
+         <property name="text" >
+          <string>U</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" >
+        <widget class="QToolButton" name="moveItemDownButton" >
+         <property name="toolTip" >
+          <string>Move Item Down</string>
+         </property>
+         <property name="text" >
+          <string>D</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2" >
+        <widget class="QTreeWidget" name="treeWidget" >
+         <property name="focusPolicy" >
+          <enum>Qt::TabFocus</enum>
+         </property>
+         <property name="toolTip" >
+          <string>Tree Items</string>
+         </property>
+         <column>
+          <property name="text" >
+           <string>Menu Items</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QToolButton" name="newItemButton" >
+           <property name="toolTip" >
+            <string>New Menu</string>
+           </property>
+           <property name="text" >
+            <string>&amp;New Menu</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="newSubItemButton" >
+           <property name="toolTip" >
+            <string>New Submenu</string>
+           </property>
+           <property name="text" >
+            <string>New &amp;Submenu</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="newSeparatorItemButton" >
+           <property name="toolTip" >
+            <string>New Separator</string>
+           </property>
+           <property name="text" >
+            <string>New Separator</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="deleteItemButton" >
+           <property name="toolTip" >
+            <string>Remove</string>
+           </property>
+           <property name="text" >
+            <string>&amp;Remove</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>51</width>
+             <height>23</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QFrame" name="actionEditor" >
+      <property name="frameShape" >
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow" >
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeButton" >
+       <property name="text" >
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+  <widget class="QWidget" name="layoutWidget_2" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>338</width>
+     <height>257</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QWidget" name="widget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <pixmapfunction></pixmapfunction>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>closeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MenuEditor</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>376</x>
+     <y>215</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>389</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

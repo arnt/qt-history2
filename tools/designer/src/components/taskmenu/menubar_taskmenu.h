@@ -11,44 +11,44 @@
 **
 ****************************************************************************/
 
-#ifndef TOOLBAR_TASKMENU_H
-#define TOOLBAR_TASKMENU_H
+#ifndef MENUBAR_TASKMENU_H
+#define MENUBAR_TASKMENU_H
 
-#include <QtGui/QToolBar>
 #include <QtCore/QPointer>
 
 #include <qdesigner_taskmenu_p.h>
 #include <QtDesigner/default_extensionfactory.h>
 
+class QMenuBar;
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
 
-class ToolBarTaskMenu: public QDesignerTaskMenu
+class MenuBarTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
 public:
-    ToolBarTaskMenu(QToolBar *button, QObject *parent = 0);
-    virtual ~ToolBarTaskMenu();
+    MenuBarTaskMenu(QMenuBar *menuBar, QObject *parent = 0);
+    virtual ~MenuBarTaskMenu();
 
     virtual QAction *preferredEditAction() const;
     virtual QList<QAction*> taskActions() const;
 
 private slots:
-    void editToolBar();
+    void editMenu();
 
 private:
-    QToolBar *m_toolBar;
+    QMenuBar *m_menuBar;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
     mutable QList<QAction*> m_taskActions;
-    QAction *m_editToolBarAction;
+    QAction *m_editMenuAction;
 };
 
-class ToolBarTaskMenuFactory: public QExtensionFactory
+class MenuBarTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    ToolBarTaskMenuFactory(QExtensionManager *extensionManager = 0);
+    MenuBarTaskMenuFactory(QExtensionManager *extensionManager = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
@@ -56,4 +56,4 @@ protected:
 
 }  // namespace qdesigner_internal
 
-#endif // TOOLBAR_TASKMENU_H
+#endif // MENUBAR_TASKMENU_H
