@@ -189,8 +189,16 @@ struct QtFontStyle
 #ifdef Q_WS_X11
         delete [] weightName;
         delete [] setwidthName;
-        while (count--)
+#endif
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+        while (count--) {
+#ifdef Q_WS_X11
             free(pixelSizes[count].encodings);
+#endif
+#ifdef Q_WS_QWS
+            pixelSizes[count].fileName.~QByteArray();
+#endif
+        }
 #endif
         free(pixelSizes);
     }
