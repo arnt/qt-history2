@@ -13,7 +13,7 @@
 
 #include "qdesigner_menubar_p.h"
 #include "qdesigner_toolbar_p.h"
-#include "actionrepository_p.h"
+// #include "actionrepository_p.h"
 #include "actionprovider_p.h"
 
 #include <QtDesigner/QtDesigner>
@@ -29,7 +29,7 @@
 #include <QtGui/qevent.h>
 
 Q_DECLARE_METATYPE(QAction*)
-Q_DECLARE_METATYPE(QListWidgetItem*)
+// Q_DECLARE_METATYPE(QListWidgetItem*)
 
 using namespace qdesigner_internal;
 
@@ -118,7 +118,7 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
 void QDesignerMenuBar::startDrag(const QPoint &pos)
 {
     int index = findAction(pos);
-    if (index >= actions().count() - 1)
+/*    if (index >= actions().count() - 1)
         return;
 
     QAction *action = actions().at(index);
@@ -138,7 +138,7 @@ void QDesignerMenuBar::startDrag(const QPoint &pos)
         QAction *previous = actions().at(index);
         insertAction(previous, action);
         adjustSize();
-    }
+    }*/
 }
 
 bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
@@ -286,7 +286,7 @@ void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
 
 void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
+/*    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
         Q_ASSERT(!d->items.isEmpty());
 
         QAction *action = d->items.first();
@@ -297,12 +297,12 @@ void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
     } else if (qobject_cast<const MenuMimeData*>(event->mimeData())) {
         event->acceptProposedAction();
         adjustIndicator(event->pos());
-    }
+    } */
 }
 
 void QDesignerMenuBar::dragMoveEvent(QDragMoveEvent *event)
 {
-    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
+/*    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
         Q_ASSERT(!d->items.isEmpty());
 
         QAction *action = d->items.first();
@@ -313,7 +313,7 @@ void QDesignerMenuBar::dragMoveEvent(QDragMoveEvent *event)
     } else if (qobject_cast<const MenuMimeData*>(event->mimeData())) {
         event->acceptProposedAction();
         adjustIndicator(event->pos());
-    }
+    } */
 }
 
 void QDesignerMenuBar::dragLeaveEvent(QDragLeaveEvent *)
@@ -323,7 +323,7 @@ void QDesignerMenuBar::dragLeaveEvent(QDragLeaveEvent *)
 
 void QDesignerMenuBar::dropEvent(QDropEvent *event)
 {
-    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
+/*    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
         event->acceptProposedAction();
 
         QAction *action = d->items.first();
@@ -355,7 +355,7 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
                 a->adjustIndicator(QPoint(-1, -1));
             }
         }
-    }
+    } */
 }
 
 void QDesignerMenuBar::actionEvent(QActionEvent *event)

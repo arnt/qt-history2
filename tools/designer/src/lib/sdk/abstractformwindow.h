@@ -107,6 +107,10 @@ public:
     virtual void addResourceFile(const QString &path) = 0;
     virtual void removeResourceFile(const QString &path) = 0;
 
+    virtual void addFormAction(QAction *action) = 0;
+    virtual void removeFormAction(QAction *action) = 0;
+    virtual QList<QAction*> formActionList() const = 0;
+
     virtual void ensureUniqueObjectName(QObject *object) = 0;
 
 public Q_SLOTS:
@@ -140,6 +144,8 @@ Q_SIGNALS:
 
     void changed();
     void widgetRemoved(QWidget *w);
+
+    void formActionsChanged();
 };
 
 #endif // ABSTRACTFORMWINDOW_H
