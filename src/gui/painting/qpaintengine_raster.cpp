@@ -1843,6 +1843,8 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     int ymin = qMax(devRect.y(), 0);
     int xmax = qMin(devRect.x() + devRect.width(), d->rasterBuffer->width());
     int xmin = qMax(devRect.x(), 0);
+    if (xmax - xmin <= 0 || ymax - ymin <= 0)
+        return;
 
     // Fill the font raster buffer with text
     clearType = drawTextInFontBuffer(devRect, xmin, ymin, xmax, ymax, textItem, clearType,
@@ -1875,7 +1877,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         }
     } else if (clearType) {
         QSpanData data;
-        memcpy(&data, &d->penData, sizeof(QSpanData));
+        data.init(d->rasterBuffer);
         data.type = QSpanData::Texture;
         data.texture.imageData = d->fontRasterBuffer->buffer();
         data.texture.width = d->fontRasterBuffer->bytesPerLine() / 4;
