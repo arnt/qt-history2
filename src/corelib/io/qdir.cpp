@@ -436,7 +436,7 @@ QDir::QDir(const QString &path) : d_ptr(new QDirPrivate(this))
     Q_D(QDir);
     d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
     d->data->nameFilters = QStringList(QString::fromLatin1("*"));
-    d->data->filters = TypeMask;
+    d->data->filters = AllEntries;
     d->data->sort = SortFlags(Name | IgnoreCase);
 }
 
@@ -446,7 +446,7 @@ QDir::QDir(const QString &path) : d_ptr(new QDirPrivate(this))
     also sorts the names using \a sort.
 
     The default \a nameFilter is an empty string, which excludes
-    nothing; the default \a filters is \l TypeMask, which also means
+    nothing; the default \a filters is \l AllEntries, which also means
     exclude nothing. The default \a sort is \l Name | \l IgnoreCase,
     i.e. sort by name case-insensitively.
 
@@ -915,9 +915,8 @@ QDir::Filters QDir::filter() const
     \value NoSymLinks  Do not list symbolic links (ignored by operating
                        systems that don't support symbolic links).
     \value NoDotAndDotDot Do not list the special entries "." and "..".
-    \value All  List directories, files, drives and symlinks (this does not list
+    \value AllEntries  List directories, files, drives and symlinks (this does not list
                 broken symlinks unless you specify System).
-                NoSymLinks flags.
     \value Readable  List files for which the application has read access.
     \value Writable  List files for which the application has write access.
     \value Executable  List files for which the application has
@@ -933,6 +932,7 @@ QDir::Filters QDir::filter() const
 
     \omitvalue DefaultFilter
     \omitvalue TypeMask
+    \omitvalue All
     \omitvalue RWEMask
     \omitvalue AccessMask
     \omitvalue PermissionMask

@@ -33,9 +33,10 @@ public:
                   Files       = 0x002,
                   Drives      = 0x004,
                   NoSymLinks  = 0x008,
+                  AllEntries  = Dirs | Files | Drives,
                   TypeMask    = 0x00f,
 #ifdef QT3_SUPPORT
-                  All         = TypeMask,
+                  All         = AllEntries,
 #endif
 
                   Readable    = 0x010,
@@ -88,7 +89,7 @@ public:
     QDir(const QDir &);
     QDir(const QString &path = QString());
     QDir(const QString &path, const QString &nameFilter,
-         SortFlags sort = SortFlags(Name | IgnoreCase), Filters filter = TypeMask);
+         SortFlags sort = SortFlags(Name | IgnoreCase), Filters filter = AllEntries);
     ~QDir();
 
     QDir &operator=(const QDir &);
