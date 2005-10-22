@@ -104,11 +104,11 @@ void MenuEditor::on_newItemButton_clicked()
     m_updating = true;
     QTreeWidgetItem *curItem = ui.treeWidget->currentItem();
     QTreeWidgetItem *newItem = 0;
-    QAction *parentAction = 0;
+    QWidget *parentWidget = 0;
     QAction *beforeAction = 0;
     if (curItem) {
         if (curItem->parent()) {
-            parentAction = m_itemToAction[curItem->parent()];
+            parentWidget = m_itemToAction[curItem->parent()]->menu();
             QTreeWidgetItem *beforeItem = 0;
             int idx = curItem->parent()->indexOfChild(curItem);
             if (curItem->parent()->childCount() > idx + 1)
@@ -117,8 +117,8 @@ void MenuEditor::on_newItemButton_clicked()
                 beforeAction = m_itemToAction[beforeItem];
 
             newItem = new QTreeWidgetItem(curItem->parent(), curItem);
-        }
-        else {
+        } else {
+            parentWidget = m_widget;
             QTreeWidgetItem *beforeItem = 0;
             int idx = ui.treeWidget->indexOfTopLevelItem(curItem);
             if (ui.treeWidget->topLevelItemCount() > idx + 1)
@@ -128,8 +128,10 @@ void MenuEditor::on_newItemButton_clicked()
 
             newItem = new QTreeWidgetItem(ui.treeWidget, curItem);
         }
-    } else
+    } else {
         newItem = new QTreeWidgetItem(ui.treeWidget);
+        parentWidget = m_widget;
+    }
     QString newText = tr("New Menu");
     newItem->setText(0, newText);
     newItem->setFlags(newItem->flags() | Qt::ItemIsEditable);
@@ -138,17 +140,14 @@ void MenuEditor::on_newItemButton_clicked()
     QDesignerFormEditorInterface *core = m_form->core();
     QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu", m_widget));
     menu->setTitle(newText);
-    core->metaDataBase()->add(menu->menuAction());
-    m_form->manageWidget(menu);
     menu->setObjectName(QLatin1String("menuAction"));
     m_form->ensureUniqueObjectName(menu);
     menu->menuAction()->setObjectName(menu->objectName());
-    if (parentAction)
-        parentAction->menu()->insertAction(beforeAction, menu->menuAction());
-    else
-        m_widget->insertAction(beforeAction, menu->menuAction());
-    // COMMAND END
 
+    AddWidgetActionCommand *cmd = new AddWidgetActionCommand(m_form);
+    cmd->init(parentWidget, menu->menuAction(), beforeAction);
+    m_form->commandHistory()->push(cmd);
+    // COMMAND END
 
     m_actionToItem[menu->menuAction()] = newItem;
     m_itemToAction[newItem] = menu->menuAction();
@@ -184,12 +183,13 @@ void MenuEditor::on_newSubItemButton_clicked()
     QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu",
                     parentAction->menu()));
     menu->setTitle(newText);
-    core->metaDataBase()->add(menu->menuAction());
-    m_form->manageWidget(menu);
     menu->setObjectName(QLatin1String("menuAction"));
     m_form->ensureUniqueObjectName(menu);
     menu->menuAction()->setObjectName(menu->objectName());
-    parentAction->menu()->insertAction(beforeAction, menu->menuAction());
+
+    AddWidgetActionCommand *cmd = new AddWidgetActionCommand(m_form);
+    cmd->init(parentAction->menu(), menu->menuAction(), beforeAction);
+    m_form->commandHistory()->push(cmd);
     // COMMAND END
 
     m_actionToItem[menu->menuAction()] = newItem;
@@ -205,11 +205,11 @@ void MenuEditor::on_newSeparatorItemButton_clicked()
     m_updating = true;
     QTreeWidgetItem *curItem = ui.treeWidget->currentItem();
     QTreeWidgetItem *newItem = 0;
-    QAction *parentAction = 0;
+    QWidget *parentWidget = 0;
     QAction *beforeAction = 0;
     if (curItem) {
         if (curItem->parent()) {
-            parentAction = m_itemToAction[curItem->parent()];
+            parentWidget = m_itemToAction[curItem->parent()]->menu();
             QTreeWidgetItem *beforeItem = 0;
             int idx = curItem->parent()->indexOfChild(curItem);
             if (curItem->parent()->childCount() > idx + 1)
@@ -218,8 +218,8 @@ void MenuEditor::on_newSeparatorItemButton_clicked()
                 beforeAction = m_itemToAction[beforeItem];
 
             newItem = new QTreeWidgetItem(curItem->parent(), curItem);
-        }
-        else {
+        } else {
+            parentWidget = m_widget;
             QTreeWidgetItem *beforeItem = 0;
             int idx = ui.treeWidget->indexOfTopLevelItem(curItem);
             if (ui.treeWidget->topLevelItemCount() > idx + 1)
@@ -229,22 +229,22 @@ void MenuEditor::on_newSeparatorItemButton_clicked()
 
             newItem = new QTreeWidgetItem(ui.treeWidget, curItem);
         }
-    } else
+    } else {
         newItem = new QTreeWidgetItem(ui.treeWidget);
+        parentWidget = m_widget;
+    }
     QString newText = tr("< S E P A R A T O R >");
     newItem->setText(0, newText);
 
     // COMMAND BEGIN
-    QDesignerFormEditorInterface *core = m_form->core();
     QAction *action = new QAction(m_widget);
     action->setSeparator(true);
-    core->metaDataBase()->add(action);
-    action->setObjectName(QLatin1String("menuAction"));
+    action->setObjectName(QLatin1String("spearator"));
     m_form->ensureUniqueObjectName(action);
-    if (parentAction)
-        parentAction->menu()->insertAction(beforeAction, action);
-    else
-        m_widget->insertAction(beforeAction, action);
+
+    AddWidgetActionCommand *cmd = new AddWidgetActionCommand(m_form);
+    cmd->init(parentWidget, action, beforeAction);
+    m_form->commandHistory()->push(cmd);
     // COMMAND END
 
     m_actionToItem[action] = newItem;
@@ -264,40 +264,39 @@ void MenuEditor::on_deleteItemButton_clicked()
     m_updating = true;
 
     QAction *actionToRemove = m_itemToAction[curItem];
-    QAction *parentAction = 0;
+    QAction *beforeAction = 0;
+    QWidget *parentWidget = 0;
     QTreeWidgetItem *nextCurrent = 0;
     if (curItem->parent()) {
-        parentAction = m_itemToAction[curItem->parent()];
+        parentWidget = m_itemToAction[curItem->parent()]->menu();
         int idx = curItem->parent()->indexOfChild(curItem);
         if (idx == curItem->parent()->childCount() - 1)
             idx--;
-        else
+        else {
             idx++;
+            beforeAction = m_itemToAction[curItem->parent()->child(idx)];
+        }
         if (idx < 0)
             nextCurrent = curItem->parent();
         else
             nextCurrent = curItem->parent()->child(idx);
     } else {
+        parentWidget = m_widget;
         int idx = ui.treeWidget->indexOfTopLevelItem(curItem);
         if (idx == ui.treeWidget->topLevelItemCount() - 1)
             idx--;
-        else
+        else {
             idx++;
+            beforeAction = m_itemToAction[ui.treeWidget->topLevelItem(idx)];
+        }
         if (idx >= 0)
             nextCurrent = ui.treeWidget->topLevelItem(idx);
     }
 
     // COMMAND BEGIN
-    QDesignerFormEditorInterface *core = m_form->core();
-    if (actionToRemove->menu()) {
-        core->metaDataBase()->remove(actionToRemove->menu());
-        m_form->unmanageWidget(actionToRemove->menu());
-    }
-    core->metaDataBase()->remove(actionToRemove);
-    if (parentAction)
-        parentAction->menu()->removeAction(actionToRemove);
-    else
-        m_widget->removeAction(actionToRemove);
+    RemoveWidgetActionCommand *cmd = new RemoveWidgetActionCommand(m_form);
+    cmd->init(parentWidget, actionToRemove, beforeAction);
+    m_form->commandHistory()->push(cmd);
     // COMMAND END
 
     QQueue<QTreeWidgetItem *> pendingQueue;
@@ -337,7 +336,7 @@ void MenuEditor::on_moveItemUpButton_clicked()
 
     m_updating = true;
 
-    QAction *parentAction = 0;
+    QWidget *parentWidget = 0;
     QAction *action = m_itemToAction[curItem];
     QAction *oldBefore = 0;
     QAction *newBefore = 0;
@@ -345,7 +344,7 @@ void MenuEditor::on_moveItemUpButton_clicked()
     QTreeWidgetItem *takenItem = 0;
     if (curItem->parent()) {
         QTreeWidgetItem *parentItem = curItem->parent();
-        parentAction = m_itemToAction[parentItem];
+        parentWidget = m_itemToAction[parentItem]->menu();
         if (parentItem->childCount() > idx + 1)
             oldBefore = m_itemToAction[parentItem->child(idx + 1)];
         newBefore = m_itemToAction[parentItem->child(idx - 1)];
@@ -353,6 +352,7 @@ void MenuEditor::on_moveItemUpButton_clicked()
         takenItem = parentItem->takeChild(idx);
         parentItem->insertChild(idx - 1, takenItem);
     } else {
+        parentWidget = m_widget;
         if (ui.treeWidget->topLevelItemCount() > idx + 1)
             oldBefore = m_itemToAction[ui.treeWidget->topLevelItem(idx + 1)];
         newBefore = m_itemToAction[ui.treeWidget->topLevelItem(idx - 1)];
@@ -363,13 +363,9 @@ void MenuEditor::on_moveItemUpButton_clicked()
     ui.treeWidget->setCurrentItem(takenItem);
 
     // COMMAND BEGIN
-    if (parentAction) {
-        parentAction->menu()->removeAction(action);
-        parentAction->menu()->insertAction(newBefore, action);
-    } else {
-        m_widget->removeAction(action);
-        m_widget->insertAction(newBefore, action);
-    }
+    MoveWidgetActionCommand *cmd = new MoveWidgetActionCommand(m_form);
+    cmd->init(action, parentWidget, oldBefore, parentWidget, newBefore);
+    m_form->commandHistory()->push(cmd);
     // COMMAND END
 
     m_updating = false;
@@ -395,7 +391,7 @@ void MenuEditor::on_moveItemDownButton_clicked()
 
     m_updating = true;
 
-    QAction *parentAction = 0;
+    QWidget *parentWidget = 0;
     QAction *action = m_itemToAction[curItem];
     QAction *oldBefore = 0;
     QAction *newBefore = 0;
@@ -403,7 +399,7 @@ void MenuEditor::on_moveItemDownButton_clicked()
     QTreeWidgetItem *takenItem = 0;
     if (curItem->parent()) {
         QTreeWidgetItem *parentItem = curItem->parent();
-        parentAction = m_itemToAction[parentItem];
+        parentWidget = m_itemToAction[parentItem]->menu();
         oldBefore = m_itemToAction[parentItem->child(idx + 1)];
         if (parentItem->childCount() > idx + 2)
             newBefore = m_itemToAction[parentItem->child(idx + 2)];
@@ -411,6 +407,7 @@ void MenuEditor::on_moveItemDownButton_clicked()
         takenItem = parentItem->takeChild(idx);
         parentItem->insertChild(idx + 1, takenItem);
     } else {
+        parentWidget = m_widget;
         oldBefore = m_itemToAction[ui.treeWidget->topLevelItem(idx + 1)];
         if (ui.treeWidget->topLevelItemCount() > idx + 2)
             newBefore = m_itemToAction[ui.treeWidget->topLevelItem(idx + 2)];
@@ -421,13 +418,9 @@ void MenuEditor::on_moveItemDownButton_clicked()
     ui.treeWidget->setCurrentItem(takenItem);
 
     // COMMAND BEGIN
-    if (parentAction) {
-        parentAction->menu()->removeAction(action);
-        parentAction->menu()->insertAction(newBefore, action);
-    } else {
-        m_widget->removeAction(action);
-        m_widget->insertAction(newBefore, action);
-    }
+    MoveWidgetActionCommand *cmd = new MoveWidgetActionCommand(m_form);
+    cmd->init(action, parentWidget, oldBefore, parentWidget, newBefore);
+    m_form->commandHistory()->push(cmd);
     // COMMAND END
 
     m_updating = false;
@@ -457,7 +450,9 @@ void MenuEditor::on_treeWidget_itemChanged(QTreeWidgetItem *item)
     QAction *action = m_itemToAction[item];
     QString text = item->text(0);
     // COMMAND BEGIN
-    action->setText(text);
+    SetPropertyCommand *cmd = new SetPropertyCommand(m_form);
+    cmd->init(action, QLatin1String("text"), text);
+    m_form->commandHistory()->push(cmd);
     // COMMAND END
     m_updating = false;
     updateEditor();
@@ -530,7 +525,9 @@ void MenuEditor::on_itemTextLineEdit_textEdited(const QString &text)
     m_updating = true;
     QAction *action = m_itemToAction[curItem];
     // COMMAND BEGIN
-    action->setText(text);
+    SetPropertyCommand *cmd = new SetPropertyCommand(m_form);
+    cmd->init(action, QLatin1String("text"), text);
+    m_form->commandHistory()->push(cmd);
     // COMMAND END
     curItem->setText(0, text);
     m_updating = false;
@@ -547,7 +544,9 @@ void MenuEditor::on_deletePixmapItemButton_clicked()
     QAction *action = m_itemToAction[curItem];
 
     // COMMAND BEGIN
-    action->setIcon(QIcon());
+    SetPropertyCommand *cmd = new SetPropertyCommand(m_form);
+    cmd->init(action, QLatin1String("icon"), QIcon());
+    m_form->commandHistory()->push(cmd);
     // COMMAND END
 
     ui.previewPixmapItemButton->setIcon(QIcon());
@@ -585,7 +584,9 @@ void MenuEditor::on_previewPixmapItemButton_clicked()
             QAction *action = m_itemToAction[curItem];
 
             // COMMAND BEGIN
-            action->setIcon(icon);
+            SetPropertyCommand *cmd = new SetPropertyCommand(m_form);
+            cmd->init(action, QLatin1String("icon"), icon);
+            m_form->commandHistory()->push(cmd);
             // COMMAND END
         }
     }

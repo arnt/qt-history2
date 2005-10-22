@@ -2220,4 +2220,131 @@ void RemoveFormActionCommand::undo()
     core()->propertyEditor()->setObject(m_action);
 }
 
+AddWidgetActionCommand::AddWidgetActionCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Add action"), formWindow),
+    m_parentWidget(0), m_action(0), m_beforeAction(0)
+{
+}
+
+void AddWidgetActionCommand::init(QWidget *parentWidget, QAction *action,
+            QAction *beforeAction)
+{
+    Q_ASSERT(m_parentWidget == 0);
+    Q_ASSERT(m_action == 0);
+
+    m_parentWidget = parentWidget;
+    m_action = action;
+    m_beforeAction = beforeAction;
+}
+
+void AddWidgetActionCommand::redo()
+{
+    Q_ASSERT(m_action != 0);
+    Q_ASSERT(m_parentWidget != 0);
+
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    core->metaDataBase()->add(m_action);
+    if (m_action->menu())
+        formWindow()->manageWidget(m_action->menu());
+    m_parentWidget->insertAction(m_beforeAction, m_action);
+}
+
+void AddWidgetActionCommand::undo()
+{
+    Q_ASSERT(m_action != 0);
+    Q_ASSERT(m_parentWidget != 0);
+
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    core->metaDataBase()->remove(m_action);
+    if (m_action->menu())
+        formWindow()->unmanageWidget(m_action->menu());
+    m_parentWidget->removeAction(m_action);
+}
+
+RemoveWidgetActionCommand::RemoveWidgetActionCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Remove action"), formWindow),
+    m_parentWidget(0), m_action(0), m_beforeAction(0)
+{
+}
+
+void RemoveWidgetActionCommand::init(QWidget *parentWidget, QAction *action,
+            QAction *beforeAction)
+{
+    Q_ASSERT(m_parentWidget == 0);
+    Q_ASSERT(m_action == 0);
+
+    m_parentWidget = parentWidget;
+    m_action = action;
+    m_beforeAction = beforeAction;
+}
+
+void RemoveWidgetActionCommand::redo()
+{
+    Q_ASSERT(m_action != 0);
+    Q_ASSERT(m_parentWidget != 0);
+
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    core->metaDataBase()->remove(m_action);
+    if (m_action->menu())
+        formWindow()->unmanageWidget(m_action->menu());
+    m_parentWidget->removeAction(m_action);
+}
+
+void RemoveWidgetActionCommand::undo()
+{
+    Q_ASSERT(m_action != 0);
+    Q_ASSERT(m_parentWidget != 0);
+
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    core->metaDataBase()->add(m_action);
+    if (m_action->menu())
+        formWindow()->manageWidget(m_action->menu());
+    m_parentWidget->insertAction(m_beforeAction, m_action);
+}
+
+MoveWidgetActionCommand::MoveWidgetActionCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Move action"), formWindow),
+    m_action(0), m_oldParentWidget(0), m_oldBeforeAction(0),
+    m_newParentWidget(0), m_newBeforeAction(0)
+{
+}
+
+void MoveWidgetActionCommand::init(QAction *action,
+            QWidget *oldParentWidget, QAction *oldBeforeAction,
+            QWidget *newParentWidget, QAction *newBeforeAction)
+{
+    Q_ASSERT(m_oldParentWidget == 0);
+    Q_ASSERT(m_newParentWidget == 0);
+    Q_ASSERT(m_action == 0);
+
+    m_action = action;
+    m_oldParentWidget = oldParentWidget;
+    m_oldBeforeAction = oldBeforeAction;
+    m_newParentWidget = newParentWidget;
+    m_newBeforeAction = newBeforeAction;
+}
+
+void MoveWidgetActionCommand::redo()
+{
+    Q_ASSERT(m_oldParentWidget != 0);
+    Q_ASSERT(m_newParentWidget != 0);
+    Q_ASSERT(m_action != 0);
+
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    m_oldParentWidget->removeAction(m_action);
+    m_newParentWidget->insertAction(m_newBeforeAction, m_action);
+}
+
+void MoveWidgetActionCommand::undo()
+{
+    Q_ASSERT(m_oldParentWidget != 0);
+    Q_ASSERT(m_newParentWidget != 0);
+    Q_ASSERT(m_action != 0);
+
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    m_newParentWidget->removeAction(m_action);
+    m_oldParentWidget->insertAction(m_oldBeforeAction, m_action);
+}
+
+
 } // namespace qdesigner_internal

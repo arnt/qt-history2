@@ -883,6 +883,57 @@ private:
     QAction *m_action;
 };
 
+class QDESIGNER_SHARED_EXPORT AddWidgetActionCommand : public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    AddWidgetActionCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QWidget *parentWidget, QAction *action, QAction *beforeAction);
+    virtual void redo();
+    virtual void undo();
+
+private:
+    QWidget *m_parentWidget;
+    QAction *m_action;
+    QAction *m_beforeAction;
+};
+
+class QDESIGNER_SHARED_EXPORT RemoveWidgetActionCommand : public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    RemoveWidgetActionCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QWidget *parentWidget, QAction *action, QAction *beforeAction);
+    virtual void redo();
+    virtual void undo();
+
+private:
+    QWidget *m_parentWidget;
+    QAction *m_action;
+    QAction *m_beforeAction;
+};
+
+class QDESIGNER_SHARED_EXPORT MoveWidgetActionCommand : public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    MoveWidgetActionCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QAction *action, QWidget *oldParentWidget, QAction *oldBeforeAction,
+                    QWidget *newParentWidget, QAction *newBeforeAction);
+    virtual void redo();
+    virtual void undo();
+
+private:
+    QAction *m_action;
+    QWidget *m_oldParentWidget;
+    QAction *m_oldBeforeAction;
+    QWidget *m_newParentWidget;
+    QAction *m_newBeforeAction;
+};
+
 } // namespace qdesigner_internal
 
 #endif // QDESIGNER_COMMAND_H
