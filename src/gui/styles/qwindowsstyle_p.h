@@ -28,6 +28,7 @@
 #include "qwindowsstyle.h"
 #include "qcommonstyle_p.h"
 
+#ifndef QT_NO_STYLE_WINDOWS
 #include <QList>
 #include <QTime>
 
@@ -52,4 +53,5 @@ public:
     int animateStep;    
 };
 
+#endif // QT_NO_STYLE_WINDOWS
 #endif //QWINDOWSSTYLE_P_H
