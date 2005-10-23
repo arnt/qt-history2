@@ -848,11 +848,20 @@ void Generator::generateSignal(FunctionDef *def,int index)
     fprintf(out, "\n// SIGNAL %d\n%s %s::%s(",
             index, def->type.constData(), cdef->qualified.constData(), def->name.constData());
 
+    QByteArray thisPtr = "this";
+    const char *constQualifier = "";
+
+    if (def->isConst) {
+        thisPtr = "const_cast<";
+        thisPtr += cdef->qualified;
+        thisPtr += " *>(this)";
+        constQualifier = "const";
+    }
 
     if (def->arguments.isEmpty() && def->normalizedType.isEmpty()) {
-        fprintf(out, ")\n{\n"
-                "    QMetaObject::activate(this, &staticMetaObject, %d, 0);\n"
-                "}\n", index);
+        fprintf(out, ")%s\n{\n"
+                "    QMetaObject::activate(%s, &staticMetaObject, %d, 0);\n"
+                "}\n", constQualifier, thisPtr.constData(), index);
         return;
     }
 
@@ -863,7 +872,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
             fprintf(out, ", ");
         fprintf(out, "%s _t%d%s", a.type.constData(), offset++, a.rightType.constData());
     }
-    fprintf(out, ")\n{\n");
+    fprintf(out, ")%s\n{\n", constQualifier);
     if (def->type.size() && def->normalizedType.size())
         fprintf(out, "    %s _t0;\n", noRef(def->normalizedType).constData());
 
@@ -888,9 +897,9 @@ void Generator::generateSignal(FunctionDef *def,int index)
         if (def->arguments.at(i).isDefault)
             ++n;
     if (n)
-        fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, %d, _a);\n", index, index + n);
+        fprintf(out, "    QMetaObject::activate(%s, &staticMetaObject, %d, %d, _a);\n", thisPtr.constData(), index, index + n);
     else
-        fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _a);\n", index);
+        fprintf(out, "    QMetaObject::activate(%s, &staticMetaObject, %d, _a);\n", thisPtr.constData(), index);
     if (def->normalizedType.size())
         fprintf(out, "    return _t0;\n");
     fprintf(out, "}\n");

@@ -834,8 +834,6 @@ void Moc::parseSignals(ClassDef *def)
         parseFunction(&funcDef);
         if (funcDef.isVirtual)
             error("Signals cannot be declared virtual");
-        if (funcDef.isConst)
-            error("Signals cannot have const qualifier");
         if (funcDef.inlineCode)
             error("Not a signal declaration");
         def->signalList += funcDef;
