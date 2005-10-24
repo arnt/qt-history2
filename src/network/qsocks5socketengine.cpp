@@ -771,6 +771,12 @@ void QSocks5SocketEnginePrivate::emitPendingReadNotification()
     if (readNotificationEnabled) {
         QSOCKS5_D_DEBUG << "emitting readNotification";
         emit q->readNotification();
+        // check if there needs to be a new zero read notifcation
+        if (socks5State == ControlSocketError 
+            && data->controlSocket->error() == QAbstractSocket::RemoteHostClosedError) {
+            connectData->readBuffer.clear();
+            emitReadNotification();
+        }
     }
 }
 
@@ -905,8 +911,9 @@ bool QSocks5SocketEngine::isValid() const
     Q_D(const QSocks5SocketEngine);
     return d->socketType != QAbstractSocket::UnknownSocketType
            && d->socketProtocol != QAbstractSocket::UnknownNetworkLayerProtocol
-           && d->socks5State != QSocks5SocketEnginePrivate::ControlSocketError
-           && d->socks5State != QSocks5SocketEnginePrivate::SocksError;
+           && d->socks5State != QSocks5SocketEnginePrivate::SocksError
+           && (d->socketError == QAbstractSocket::UnknownSocketError
+               || d->socketError == QAbstractSocket::SocketTimeoutError);
 }
 
 bool QSocks5SocketEngine::connectToHost(const QHostAddress &address, quint16 port)
@@ -992,8 +999,11 @@ void QSocks5SocketEnginePrivate::controlSocketReadNotification()
             parseRequestMethodReply();
             break;
         case RequestSuccess:
-            // only get here if command is bind
-            parseNewConnection();
+            if (mode == BindMode) {
+                // only get here if command is bind
+                parseNewConnection();
+            }
+            // else in conect mode but wating for second call to connectToHost
             break;
         case Connected: {
             QByteArray buf;
@@ -1004,6 +1014,7 @@ void QSocks5SocketEnginePrivate::controlSocketReadNotification()
                 connectData->readBuffer += buf;
                 emitReadNotification();
             }
+            break;
         }
         default:
             QSOCKS5_DEBUG << "why a controlSocketReadNotification ????";
@@ -1029,8 +1040,9 @@ void QSocks5SocketEnginePrivate::controlSocketError(QAbstractSocket::SocketError
 
     if (error == QAbstractSocket::RemoteHostClosedError) {
         socks5State = ControlSocketError;
-        // clear the read buffer in connect mode so that bytes available returns 0;
-        if (mode == ConnectMode)
+        // clear the read buffer in connect mode so that bytes available returns 0
+        // if there already is a read notification pending then this will be porcessed first
+        if (mode == ConnectMode && !readNotificationPending)
             connectData->readBuffer.clear();
         emitReadNotification();
     } else if (error == QAbstractSocket::ConnectionRefusedError
@@ -1270,7 +1282,7 @@ qint64 QSocks5SocketEngine::read(char *data, qint64 maxlen)
     Q_D(QSocks5SocketEngine);
     QSOCKS5_Q_DEBUG << "read( , maxlen = " << maxlen << ")";
     if (d->mode == QSocks5SocketEnginePrivate::ConnectMode) {
-        if (d->connectData->readBuffer.size() == 0 && maxlen != 0) {
+        if (d->connectData->readBuffer.size() == 0) {
             //imitate remote closed
             close();
             setError(QAbstractSocket::RemoteHostClosedError,
@@ -1318,8 +1330,16 @@ qint64 QSocks5SocketEngine::write(const char *data, qint64 len)
             }
             totalWritten += buf.size();
             while(d->data->controlSocket->bytesToWrite()) {
-                if (!d->data->controlSocket->waitForBytesWritten(qt_timeout_value(msecs, stopWatch.elapsed())))
+                if (!d->data->controlSocket->waitForBytesWritten(qt_timeout_value(msecs, stopWatch.elapsed()))) {
+                    QSOCKS5_Q_DEBUG << "controlSocket->waitForBytesWritten() retruned false";
                     break;
+                }
+            }
+            if (d->data->controlSocket->error() != QAbstractSocket::UnknownSocketError 
+                && d->data->controlSocket->error() != QAbstractSocket::SocketTimeoutError) {
+                QSOCKS5_DEBUG << "control socket error while writing. -- " << d->data->controlSocket->errorString();
+                totalWritten = -1;
+                break;
             }
         }
         QSOCKS5_DEBUG << "wrote" << totalWritten;
@@ -1473,7 +1493,7 @@ bool QSocks5SocketEngine::waitForRead(int msecs, bool *timedOut) const
     bool ret = d->readNotificationActivated;
     d->readNotificationActivated = false;
 
-    QSOCKS5_DEBUG << "waitForrRead returned" << ret;
+    QSOCKS5_DEBUG << "waitForRead returned" << ret;
     return ret;
 }
 
