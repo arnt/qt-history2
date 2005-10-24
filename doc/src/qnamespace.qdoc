@@ -844,6 +844,7 @@
     \omitvalue WA_TransparentForMouseEvents
     \omitvalue WA_InvalidSize
     \omitvalue WA_ForceUpdatesDisabled
+    \omitvalue WA_NoX11EventCompression
 
     \omitvalue WA_AttributeCount
 */

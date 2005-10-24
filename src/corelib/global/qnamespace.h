@@ -349,6 +349,8 @@ public:
 
         WA_WindowPropagation = 80,
 
+        WA_NoX11EventCompression = 81,
+
         // Add new attributes above this
         WA_AttributeCount
     };

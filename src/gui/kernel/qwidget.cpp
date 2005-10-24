@@ -6763,6 +6763,13 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         d->resolvePalette();
         d->resolveFont();
         break;
+#ifdef Q_WS_X11
+    case Qt::WA_NoX11EventCompression:
+        if (!d->extra)
+            d->createExtra();
+        d->extra->compress_events = on;
+        break;
+#endif
     default:
         break;
     }
