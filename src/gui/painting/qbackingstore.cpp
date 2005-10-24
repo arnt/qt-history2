@@ -503,6 +503,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             extern int qt_x11_preferred_pixmap_depth;
             int old_qt_x11_preferred_pixmap_depth = qt_x11_preferred_pixmap_depth;
             qt_x11_preferred_pixmap_depth = widget->x11Info().depth();
+            QPixmap::x11SetDefaultScreen(widget->x11Info().screen());
             buffer = QPixmap(tlwSize);
             qt_x11_preferred_pixmap_depth = old_qt_x11_preferred_pixmap_depth;
 #elif defined(Q_WS_WIN)
