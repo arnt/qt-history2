@@ -103,7 +103,7 @@ void QXmlTestLogger::stopLogging()
 void QXmlTestLogger::enterTestFunction(const char *function)
 {
     char buf[1024];
-    QTest::qt_snprintf(buf, sizeof(buf), "<TestFunction name=\"%s\">", function);
+    QTest::qt_snprintf(buf, sizeof(buf), "<TestFunction name=\"%s\">\n", function);
     outputString(buf);
 }
 
