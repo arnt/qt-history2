@@ -2139,14 +2139,14 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 case CE_DockWidgetTitle:
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
         {
-            QRect r = option->rect.adjusted(0, 2, -1, 0);
+            QRect r = option->rect.adjusted(0, 2, -1, -3);
             if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget)){
                 if (!dw->isFloating()){
                     p->setPen(dwOpt->palette.color(QPalette::Dark));
                     p->drawRect(r);
                     if (!dwOpt->title.isEmpty()) {
                         const int indent = p->fontMetrics().descent();
-                        drawItemText(p, r.adjusted(indent + 1, 3, -indent - 1, -1),
+                        drawItemText(p, r.adjusted(indent + 1, 1, -indent - 1, -1),
                                     Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                                     dwOpt->state & State_Enabled, dwOpt->title,
                                     QPalette::Foreground);
@@ -3052,6 +3052,9 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
     case PM_DockWidgetSeparatorExtent:
         res = 4;
         break;
+    case PM_DockWidgetTitleMargin:
+        res = 3;
+        break;
     default:
         res = QWindowsStyle::pixelMetric(pm, option, widget);
     }
@@ -3228,10 +3231,10 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
   QWindowsXPStylePrivate *d = const_cast<QWindowsXPStylePrivate*>(d_func());
     if (!QWindowsXPStylePrivate::useXP())
         return QWindowsStyle::styleHint(hint, option, widget, returnData);
-
+    
     int res = 0;
     switch (hint) {
-
+    
     case SH_SpinControls_DisableOnBounds:
         res = 0;
         break;

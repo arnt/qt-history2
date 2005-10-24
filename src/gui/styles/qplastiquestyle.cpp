@@ -5114,6 +5114,8 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         break;
     case PM_MaximumDragDistance:
         return -1;
+    case PM_DockWidgetTitleMargin:
+        return 0;
     default:
         break;
     }
