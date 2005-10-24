@@ -354,7 +354,9 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
         QRect pixmapRect = pixmap.rect();
         QRect textRect(0, 0, editor->fontMetrics().width(text), editor->fontMetrics().lineSpacing());
         QRect checkRect = check(option, textRect, model->data(index, Qt::CheckStateRole));
-        doLayout(option, &checkRect, &pixmapRect, &textRect, false);
+        QStyleOptionViewItem opt = option;
+        opt.showDecorationSelected = true; // let the editor take up all available space
+        doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
         editor->setGeometry(textRect);
     }
 }
