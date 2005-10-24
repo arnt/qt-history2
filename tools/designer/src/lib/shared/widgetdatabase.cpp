@@ -189,6 +189,8 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
     append(new WidgetDataBaseItem(QString::fromUtf8("QLayoutWidget")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerWidget")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerDialog")));
+    append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerToolBar")));
+    append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerMenuBar")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerDockWidget")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerQ3WidgetStack")));
 
@@ -205,8 +207,8 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QSplitter"))))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QMainWindow"))))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDockWidget"))))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QToolBar"))))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QMenuBar"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDesignerToolBar"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDesignerMenuBar"))))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDesignerDockWidget"))))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDesignerQ3WidgetStack"))))->setContainer(true);
 

@@ -12,9 +12,10 @@
 ****************************************************************************/
 
 #include "actioneditor_p.h"
+#include "actionrepository_p.h"
 #include "iconloader_p.h"
 #include "newactiondialog_p.h"
-#include "qdesigner_command_p.h"
+#include "qdesigner_menu_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -29,217 +30,58 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
-#include <QtGui/QStandardItemModel>
 
 #include <qdebug.h>
 
 Q_DECLARE_METATYPE(QAction*)
 Q_DECLARE_METATYPE(QListWidgetItem*)
 
-#define ICON_SIZE QSize(32, 32)
-
 namespace qdesigner_internal {
 
-static QString fixActionText(QString text)
+class ActionFilterWidget: public QWidget
 {
-    return text.replace(QLatin1String("&"), QString());
-}
-
-static QIcon fixActionIcon(QIcon icon)
-{
-    static const QIcon empty_icon(":/trolltech/formeditor/images/emptyicon.png");
-    if (icon.isNull())
-        return empty_icon;
-    return icon;
-}
-
-/******************************************************************************
-** ActionEditorModel
-*/
-
-class ActionEditorModel : public QStandardItemModel
-{
-    Q_OBJECT
 public:
-    enum { ActionRole = Qt::UserRole + 1000 };
+    ActionFilterWidget(ActionEditor *actionEditor, QToolBar *parent)
+        : QWidget(parent),
+          m_actionEditor(actionEditor)
+    {
+        QHBoxLayout *l = new QHBoxLayout(this);
+        l->setMargin(0);
+        l->setSpacing(0);
 
-    ActionEditorModel(QDesignerFormWindowInterface *form, QObject *parent = 0);
-    QAction *action(int idx) const;
+        l->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
-private slots:
-    void updateActions();
-    void actionChanged();
+        QLabel *label = new QLabel(tr("Filter: "), this);
+        label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        l->addWidget(label);
+
+        m_editor = new QLineEdit(this);
+        l->addWidget(m_editor);
+
+        connect(m_editor, SIGNAL(textChanged(QString)), actionEditor, SLOT(setFilter(QString)));
+    }
+
 private:
-    QPointer<QDesignerFormWindowInterface> m_form;
-    void insertAction(QAction *action, int idx);
-    void removeAction(int idx);
-    int findAction(QAction *action) const;
+    QLineEdit *m_editor;
+    ActionEditor *m_actionEditor;
 };
 
-ActionEditorModel::ActionEditorModel(QDesignerFormWindowInterface *form, QObject *parent)
-    : QStandardItemModel(parent)
+class ActionGroupDelegate: public QItemDelegate
 {
-    m_form = form;
-    connect(m_form, SIGNAL(formActionsChanged()), this, SLOT(updateActions()));
-    insertColumn(0);
-    updateActions();
-}
-
-void ActionEditorModel::updateActions()
-{
-    if (m_form == 0)
-        return;
-    QList<QAction*> newActionList = m_form->formActionList();
-
-    for (int i = 0; i < newActionList.size(); ++i) {
-        QAction *action = newActionList.at(i);
-        int idx = findAction(action);
-        if (idx == -1)
-            insertAction(action, i);
-    }
-
-    int cnt = rowCount();
-    for (int i = 0; i < cnt; ++i) {
-        QAction *action = this->action(i);
-        if (!newActionList.contains(action))
-            removeAction(i);
-        ++i;
-    }
-}
-
-void ActionEditorModel::actionChanged()
-{
-    QAction *action = qobject_cast<QAction*>(sender());
-    if (action == 0)
-        return;
-    int idx = findAction(action);
-    if (idx == -1)
-        return;
-    QModelIndex model_idx = index(idx, 0);
-    setData(model_idx, fixActionText(action->text()), Qt::DisplayRole);
-    setData(model_idx, fixActionIcon(action->icon()), Qt::DecorationRole);
-}
-
-int ActionEditorModel::findAction(QAction *action) const
-{
-    int cnt = rowCount();
-    for (int i = 0; i < cnt; ++i) {
-        if (this->action(i) == action)
-            return i;
-    }
-    return -1;
-}
-
-QAction *ActionEditorModel::action(int idx) const
-{
-    if (idx >= rowCount())
-        return 0;
-    QVariant actionData = data(index(idx, 0), ActionRole);
-    if (!qVariantCanConvert<QAction*>(actionData))
-        return 0;
-    return qvariant_cast<QAction*>(actionData);
-}
-
-void ActionEditorModel::insertAction(QAction *action, int idx)
-{
-    insertRow(idx);
-    QModelIndex model_idx = index(idx, 0);
-
-    setData(model_idx, QSize(ICON_SIZE.width()*3, ICON_SIZE.height()*2), Qt::SizeHintRole);
-    setData(model_idx, fixActionText(action->text()), Qt::DisplayRole);
-    setData(model_idx, fixActionIcon(action->icon()), Qt::DecorationRole);
-
-    QVariant actionData;
-    qVariantSetValue(actionData, action);
-    setData(model_idx, actionData, ActionRole);
-
-    connect(action, SIGNAL(changed()), this, SLOT(actionChanged()));
-}
-
-void ActionEditorModel::removeAction(int idx)
-{
-    QAction *action = this->action(idx);
-    if (action == 0)
-        return;
-    disconnect(action, SIGNAL(changed()), this, SLOT(actionChanged()));
-    removeRow(idx);
-}
-
-/******************************************************************************
-** ActionEditorModelCache
-*/
-
-class ActionEditorModelCache : public QObject
-{
-    Q_OBJECT
 public:
-    ActionEditorModelCache(QDesignerFormEditorInterface *core);
-    ActionEditorModel *model(QDesignerFormWindowInterface *form);
-private slots:
-    void formWindowRemoved(QDesignerFormWindowInterface *form);
-private:
-    QMap<QDesignerFormWindowInterface*, ActionEditorModel*> m_modelMap;
-};
+    ActionGroupDelegate(QObject *parent)
+        : QItemDelegate(parent) {}
 
-ActionEditorModelCache::ActionEditorModelCache(QDesignerFormEditorInterface *core)
-{
-    connect(core->formWindowManager(),
-            SIGNAL(formWindowRemoved(QDesignerFormWindowInterface*)),
-            this, SLOT(formWindowRemoved(QDesignerFormWindowInterface*)));
-}
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        if (option.state & QStyle::State_Selected)
+            painter->fillRect(option.rect, option.palette.highlight());
 
-void ActionEditorModelCache::formWindowRemoved(QDesignerFormWindowInterface *form)
-{
-    ActionEditorModel *model = this->model(form);
-    if (model == 0)
-        return;
-    m_modelMap.remove(form);
-    delete model;
-}
-
-ActionEditorModel *ActionEditorModelCache::model(QDesignerFormWindowInterface *form)
-{
-    if (form == 0)
-        return 0;
-    ActionEditorModel *result = m_modelMap.value(form, 0);
-    if (result == 0) {
-        result = new ActionEditorModel(form, this);
-        m_modelMap.insert(form, result);
+        QItemDelegate::paint(painter, option, index);
     }
-    return result;
-}
 
-/******************************************************************************
-** ActionEditorView
-*/
-
-class ActionEditorView : public QListView
-{
-    Q_OBJECT
-public:
-    ActionEditorView(QWidget *parent = 0);
+    virtual void drawFocus(QPainter * /*painter*/, const QStyleOptionViewItem &/*option*/, const QRect &/*rect*/) const {}
 };
-
-ActionEditorView::ActionEditorView(QWidget *parent)
-    : QListView(parent)
-{
-    setViewMode(IconMode);
-    setMovement(Static);
-    setResizeMode(Adjust);
-    setIconSize(ICON_SIZE);
-    setSpacing(iconSize().width() / 3);
-    setTextElideMode(Qt::ElideRight);
-    setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-    setDragEnabled(true);
-    setAcceptDrops(false);
-}
-
-/******************************************************************************
-** ActionEditor
-*/
-
-ActionEditorModelCache *ActionEditor::m_modelCache = 0;
 
 ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, Qt::WindowFlags flags)
     : QDesignerActionEditorInterface(parent, flags),
@@ -266,15 +108,36 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     m_actionDelete->setIcon(createIconSet("editdelete.png"));
     m_actionDelete->setEnabled(false);
 
-    connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotDeleteAction()));
+    m_filterWidget = new ActionFilterWidget(this, toolbar);
+    m_filterWidget->setEnabled(false);
+    toolbar->addWidget(m_filterWidget);
 
-    m_actionView = new ActionEditorView(this);
-    l->addWidget(m_actionView);
-    connect(m_actionView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(slotEditAction(QModelIndex)));
+    connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotNotImplemented()));
 
-    if (m_modelCache == 0)
-        m_modelCache = new ActionEditorModelCache(core);
+    splitter = new QSplitter(Qt::Horizontal, this);
+    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    l->addWidget(splitter);
+
+#if 0 // ### implement me
+    m_actionGroups = new QListWidget(splitter);
+    splitter->addWidget(m_actionGroups);
+    m_actionGroups->setItemDelegate(new ActionGroupDelegate(m_actionGroups));
+    m_actionGroups->setMovement(QListWidget::Static);
+    m_actionGroups->setResizeMode(QListWidget::Fixed);
+    m_actionGroups->setIconSize(QSize(48, 48));
+    m_actionGroups->setFlow(QListWidget::TopToBottom);
+    m_actionGroups->setViewMode(QListWidget::IconMode);
+    m_actionGroups->setWrapping(false);
+#endif
+
+    m_actionRepository = new ActionRepository(splitter);
+    splitter->addWidget(m_actionRepository);
+
+    connect(m_actionRepository, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
+            this, SLOT(slotItemChanged(QListWidgetItem*)));
+    connect(m_actionRepository, SIGNAL(itemActivated(QListWidgetItem*)),
+            this, SLOT(editAction(QListWidgetItem*)));
 }
 
 ActionEditor::~ActionEditor()
@@ -298,28 +161,106 @@ QDesignerFormWindowInterface *ActionEditor::formWindow() const
 
 void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
 {
-    if (formWindow == m_formWindow)
+    m_formWindow = formWindow;
+
+    m_actionRepository->clear();
+
+    if (!formWindow || !formWindow->mainContainer()) {
+        m_actionNew->setEnabled(false);
+        m_actionDelete->setEnabled(false);
+        m_filterWidget->setEnabled(false);
+        return;
+    }
+
+    m_actionNew->setEnabled(true);
+    m_actionDelete->setEnabled(true);
+    m_filterWidget->setEnabled(true);
+
+    QList<QAction*> actionList = qFindChildren<QAction*>(formWindow->mainContainer());
+    foreach (QAction *action, actionList) {
+        if (!core()->metaDataBase()->item(action)
+            || action->isSeparator()
+            // ### || action->menu()
+            )
+            continue;
+
+        createListWidgetItem(action);
+    }
+
+    setFilter(m_filter);
+}
+
+QString fixActionText(QString text)
+{
+    return text.replace(QLatin1String("&"), QString());
+}
+
+QIcon fixActionIcon(QIcon icon)
+{
+    static const QIcon empty_icon(":/trolltech/formeditor/images/emptyicon.png");
+    if (icon.isNull())
+        return empty_icon;
+    return icon;
+}
+
+QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
+{
+    if (action->menu())
+        return 0;
+
+    QListWidgetItem *item = new QListWidgetItem(m_actionRepository);
+    QSize s = m_actionRepository->iconSize();
+    item->setSizeHint(QSize(s.width()*3, s.height()*2));
+    item->setText(fixActionText(action->objectName()));
+    item->setIcon(fixActionIcon(action->icon()));
+
+    QVariant itemData;
+    qVariantSetValue(itemData, action);
+    item->setData(ActionRepository::ActionRole, itemData);
+
+    QVariant actionData;
+    qVariantSetValue(actionData, item);
+    action->setData(actionData);
+
+    connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
+
+    return item;
+}
+
+void ActionEditor::updatePropertyEditor(QAction *action)
+{
+    if (!action || !core()->propertyEditor())
         return;
 
-    QItemSelectionModel *sel_model = m_actionView->selectionModel();
-    if (sel_model != 0) {
-        disconnect(sel_model, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-                    this, SLOT(updatePropertyEditor(QModelIndex)));
+    QObject *sel = action;
+    if (action->menu())
+        sel = action->menu();
+
+    core()->propertyEditor()->setObject(sel);
+}
+
+void ActionEditor::slotItemChanged(QListWidgetItem *item)
+{
+    if (!item)
+        return;
+
+    if (QAction *action = qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole))) {
+        updatePropertyEditor(action);
     }
+}
 
-    ActionEditorModel *model = m_modelCache->model(formWindow);
-    m_formWindow = formWindow;
-    m_actionView->setModel(model);
+void ActionEditor::slotActionChanged()
+{
+    QIcon empty_icon(":/trolltech/formeditor/images/emptyicon.png");
 
-    sel_model = m_actionView->selectionModel();
-    if (sel_model != 0) {
-        connect(sel_model, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-                    this, SLOT(updatePropertyEditor(QModelIndex)));
-    }
+    QAction *action = qobject_cast<QAction*>(sender());
+    Q_ASSERT(action != 0);
 
-    bool b = formWindow != 0 && formWindow->mainContainer() != 0;
-    m_actionNew->setEnabled(b);
-    m_actionDelete->setEnabled(b);
+    QListWidgetItem *item = qvariant_cast<QListWidgetItem*>(action->data());
+    Q_ASSERT(item != 0);
+
+    item->setText(fixActionText(action->text()));
+    item->setIcon(fixActionIcon(action->icon()));
 }
 
 QDesignerFormEditorInterface *ActionEditor::core() const
@@ -327,36 +268,53 @@ QDesignerFormEditorInterface *ActionEditor::core() const
     return m_core;
 }
 
+QString ActionEditor::filter() const
+{
+    return m_filter;
+}
+
+void ActionEditor::setFilter(const QString &f)
+{
+    m_filter = f;
+    m_actionRepository->filter(m_filter);
+}
+
 void ActionEditor::slotNewAction()
 {
     NewActionDialog dlg(this);
 
     if (dlg.exec() == QDialog::Accepted) {
-        QAction *action = new QAction(m_formWindow);
+        QWidget *form = formWindow()->mainContainer();
+
+        QAction *action = new QAction(form);
         action->setObjectName(dlg.actionName());
         action->setText(dlg.actionText());
         action->setIcon(dlg.actionIcon());
-        AddFormActionCommand *cmd = new AddFormActionCommand(formWindow());
-        cmd->init(action);
-        formWindow()->commandHistory()->push(cmd);
+
+        core()->metaDataBase()->add(action);
+
+        QDesignerPropertySheetExtension *sheet = 0;
+        sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
+        sheet->setChanged(sheet->indexOf("objectName"), true);
+        sheet->setChanged(sheet->indexOf("text"), true);
+
+        // formWindow()->emitSelectionChanged();
+        m_actionRepository->clearSelection();
+        QListWidgetItem *item = createListWidgetItem(action);
+        m_actionRepository->setItemSelected(item, true);
+        updatePropertyEditor(action);
     }
 }
 
-ActionEditorModel *ActionEditor::actionEditorModel() const
+void ActionEditor::editAction(QListWidgetItem *item)
 {
-    return qobject_cast<ActionEditorModel*>(m_actionView->model());
-}
-
-void ActionEditor::slotEditAction(const QModelIndex &index)
-{
-    ActionEditorModel *model = actionEditorModel();
-    if (model == 0)
+    if (!item)
         return;
 
-    QAction *action = model->action(index.row());
-
+    QAction *action = qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole));
     if (action == 0)
         return;
+
 
     NewActionDialog dlg(this);
     dlg.setActionData(action->text(), action->objectName(), action->icon());
@@ -367,28 +325,16 @@ void ActionEditor::slotEditAction(const QModelIndex &index)
     action->setObjectName(dlg.actionName());
     action->setText(dlg.actionText());
     action->setIcon(dlg.actionIcon());
-
-    core()->propertyEditor()->setObject(action);
-}
-
-void ActionEditor::updatePropertyEditor(const QModelIndex &index)
-{
-    ActionEditorModel *model = actionEditorModel();
-    if (model == 0)
-        return;
-
-    QAction *action = model->action(index.row());
-
-    if (action == 0)
-        return;
-
-    core()->propertyEditor()->setObject(action);
+    updatePropertyEditor(action);
 }
 
 void ActionEditor::slotDeleteAction()
 {
 }
 
-} // namespace qdesigner_internal
+void ActionEditor::slotNotImplemented()
+{
+    QMessageBox::information(this, tr("Designer"), tr("Feature not implemented!"));
+}
 
-#include "actioneditor.moc"
+} // namespace qdesigner_internal

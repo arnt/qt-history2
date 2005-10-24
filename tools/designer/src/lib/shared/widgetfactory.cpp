@@ -18,6 +18,9 @@
 #include "qdesigner_tabwidget_p.h"
 #include "qdesigner_toolbox_p.h"
 #include "qdesigner_stackedbox_p.h"
+#include "qdesigner_toolbar_p.h"
+#include "qdesigner_menubar_p.h"
+#include "qdesigner_menu_p.h"
 #include "qdesigner_dockwidget_p.h"
 #include "qdesigner_promotedwidget_p.h"
 #include "abstractformwindow.h"
@@ -85,6 +88,12 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         w = new QDesignerStackedWidget(parentWidget);
     } else if (widgetName == QLatin1String("QToolBox")) {
         w = new QDesignerToolBox(parentWidget);
+    } else if (widgetName == QLatin1String("QToolBar")) {
+        w = new QDesignerToolBar(parentWidget);
+    } else if (widgetName == QLatin1String("QMenuBar")) {
+        w = new QDesignerMenuBar(parentWidget);
+    } else if (widgetName == QLatin1String("QMenu")) {
+        w = new QDesignerMenu(parentWidget);
     } else if (widgetName == QLatin1String("Spacer")) {
         w = new Spacer(parentWidget);
     } else if (widgetName == QLatin1String("QDockWidget")) {
@@ -93,7 +102,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         w = fw ? new QLayoutWidget(fw, parentWidget) : new QWidget(parentWidget);
     } else if (widgetName == QLatin1String("QDialog")) {
         if (fw) {
-            w = new QDesignerDialog(fw, parentWidget);
+             w = new QDesignerDialog(fw, parentWidget);
         } else {
             w = new QDialog(parentWidget);
         }
@@ -158,6 +167,10 @@ const char *WidgetFactory::classNameOf(QObject* o)
         return "QTabWidget";
     else if (qobject_cast<QDesignerStackedWidget*>(o))
         return "QStackedWidget";
+    else if (qobject_cast<QDesignerMenuBar*>(o))
+        return "QMenuBar";
+    else if (qobject_cast<QDesignerToolBar*>(o))
+        return "QToolBar";
     else if (qobject_cast<QDesignerDockWidget*>(o))
         return "QDockWidget";
     else if (qobject_cast<QDesignerToolBox*>(o))
@@ -354,6 +367,8 @@ bool WidgetFactory::isPassiveInteractor(QWidget *widget)
     else if (qobject_cast<QSizeGrip*>(widget))
         return (m_lastWasAPassiveInteractor = true);
     else if (qobject_cast<QAbstractButton*>(widget) && (qobject_cast<QTabBar*>(widget->parent()) || qobject_cast<QToolBox*>(widget->parent())))
+        return (m_lastWasAPassiveInteractor = true);
+    else if (qobject_cast<QMenuBar*>(widget))
         return (m_lastWasAPassiveInteractor = true);
     else if (qstrcmp(widget->metaObject()->className(), "QDockSeparator") == 0)
         return (m_lastWasAPassiveInteractor = true);

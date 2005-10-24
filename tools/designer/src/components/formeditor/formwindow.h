@@ -190,10 +190,6 @@ public:
     void dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
                         const QPoint &global_mouse_pos);
 
-    virtual void addFormAction(QAction *action);
-    virtual void removeFormAction(QAction *action);
-    virtual QList<QAction*> formActionList() const;
-
 signals:
     void contextMenuRequested(QMenu *menu, QWidget *widget);
 

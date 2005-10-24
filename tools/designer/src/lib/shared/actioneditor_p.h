@@ -33,13 +33,11 @@
 class QDesignerPropertyEditorInterface;
 class QListWidget;
 class QListWidgetItem;
-class QModelIndex;
+class QSplitter;
 
 namespace qdesigner_internal {
 
-class ActionEditorModel;
-class ActionEditorModelCache;
-class ActionEditorView;
+class ActionRepository;
 
 class QDESIGNER_SHARED_EXPORT ActionEditor: public QDesignerActionEditorInterface
 {
@@ -56,21 +54,33 @@ public:
     QAction *actionNew() const;
     QAction *actionDelete() const;
 
+    QString filter() const;
+
+public slots:
+    void setFilter(const QString &filter);
+
 private slots:
+    void slotItemChanged(QListWidgetItem *item);
+    void editAction(QListWidgetItem *item);
+    void slotActionChanged();
     void slotNewAction();
     void slotDeleteAction();
-    void slotEditAction(const QModelIndex&);
-    void updatePropertyEditor(const QModelIndex&);
+    void slotNotImplemented();
+
+private:
+    QListWidgetItem *createListWidgetItem(QAction *action);
+    void updatePropertyEditor(QAction *action);
 
 private:
     QDesignerFormEditorInterface *m_core;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
+    QSplitter *splitter;
+    QListWidget *m_actionGroups;
+    ActionRepository *m_actionRepository;
     QAction *m_actionNew;
     QAction *m_actionDelete;
-    ActionEditorView *m_actionView;
-    static ActionEditorModelCache *m_modelCache;
-
-    ActionEditorModel *actionEditorModel() const;
+    QString m_filter;
+    QWidget *m_filterWidget;
 };
 
 } // namespace qdesigner_internal

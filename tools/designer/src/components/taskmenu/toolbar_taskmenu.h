@@ -38,10 +38,10 @@ private slots:
     void editToolBar();
 
 private:
-    QToolBar *m_toolBar;
+    QToolBar *m_toolbar;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
     mutable QList<QAction*> m_taskActions;
-    QAction *m_editToolBarAction;
+    QAction *m_editTextAction;
 };
 
 class ToolBarTaskMenuFactory: public QExtensionFactory

@@ -57,7 +57,15 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
 {
     QWidget *widget = 0;
 
-    widget = core()->widgetFactory()->createWidget(widgetName, parentWidget);
+    if (widgetName == QLatin1String("QToolBar")) {
+        widget = new QToolBar(parentWidget);
+    } else if (widgetName == QLatin1String("QMenu")) {
+        widget = new QMenu(parentWidget);
+    } else if (widgetName == QLatin1String("QMenuBar")) {
+        widget = new QMenuBar(parentWidget);
+    } else {
+        widget = core()->widgetFactory()->createWidget(widgetName, parentWidget);
+    }
 
     if (widget)
         widget->setObjectName(name);

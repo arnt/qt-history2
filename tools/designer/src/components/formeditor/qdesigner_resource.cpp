@@ -16,6 +16,7 @@
 #include "qdesigner_tabwidget_p.h"
 #include "qdesigner_toolbox_p.h"
 #include "qdesigner_stackedbox_p.h"
+#include "qdesigner_toolbar_p.h"
 #include "qdesigner_dockwidget_p.h"
 
 // shared
@@ -35,11 +36,10 @@
 // sdk
 #include <QtDesigner/QtDesigner>
 
+#include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QLayout>
 #include <QtGui/QTabWidget>
-#include <QtGui/QMenuBar>
-#include <QtGui/QToolBar>
 #include <QtGui/QToolBox>
 #include <QtGui/QTabBar>
 #include <QtGui/QAction>
@@ -47,7 +47,6 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 #include <QtGui/QSplitter>
-#include <QtGui/QToolBar>
 
 #include <QtCore/QBuffer>
 #include <QtCore/QDir>
@@ -77,6 +76,9 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
     m_internal_to_qt.insert(QLatin1String("QDesignerDialog"), QLatin1String("QDialog"));
     m_internal_to_qt.insert(QLatin1String("QDesignerLabel"), QLatin1String("QLabel"));
     m_internal_to_qt.insert(QLatin1String("QDesignerToolBox"), QLatin1String("QToolBox"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerToolBar"), QLatin1String("QToolBar"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerMenuBar"), QLatin1String("QMenuBar"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerMenu"), QLatin1String("QMenu"));
     m_internal_to_qt.insert(QLatin1String("QDesignerDockWidget"), QLatin1String("QDockWidget"));
     m_internal_to_qt.insert(QLatin1String("QDesignerQ3WidgetStack"), QLatin1String("Q3WidgetStack"));
 
@@ -458,14 +460,11 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
     changeObjectName(w, name);
 
     QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget);
-
-    if (qobject_cast<QMainWindow*>(parentWidget) != 0
-        && (qobject_cast<QMenuBar*>(w) != 0 || qobject_cast<QToolBar*>(w) != 0))
+    if (!parentWidget || !container) {
         m_formWindow->manageWidget(w);
-    else if (!parentWidget || !container)
-        m_formWindow->manageWidget(w);
-    else
+    } else {
         m_core->metaDataBase()->add(w);
+    }
 
     w->setWindowFlags(w->windowFlags() & ~Qt::Window);
 
@@ -531,7 +530,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         w = saveWidget(stackedWidget, ui_parentWidget);
     else if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(widget))
         w = saveWidget(toolBox, ui_parentWidget);
-    else if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget))
+    else if (QDesignerToolBar *toolBar = qobject_cast<QDesignerToolBar*>(widget))
         w = saveWidget(toolBar, ui_parentWidget);
     else if (QDesignerDockWidget *dockWidget = qobject_cast<QDesignerDockWidget*>(widget))
         w = saveWidget(dockWidget, ui_parentWidget);
@@ -751,7 +750,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerStackedWidget *widget, DomWidg
     return ui_widget;
 }
 
-DomWidget *QDesignerResource::saveWidget(QToolBar *toolBar, DomWidget *ui_parentWidget)
+DomWidget *QDesignerResource::saveWidget(QDesignerToolBar *toolBar, DomWidget *ui_parentWidget)
 {
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(toolBar, ui_parentWidget, false);
     if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(toolBar->parentWidget())) {
@@ -1363,7 +1362,8 @@ DomActionRef *QDesignerResource::createActionRefDom(QAction *action)
 {
     QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(action);
 
-    if (!item || (!action->isSeparator() && action->objectName().isEmpty()))
+    if (!item || qobject_cast<SentinelAction*>(action)
+              || (!action->isSeparator() && action->objectName().isEmpty()))
         return 0;
 
     return QAbstractFormBuilder::createActionRefDom(action);
