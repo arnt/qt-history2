@@ -268,6 +268,8 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
     else
         e->ignore();
 
+    int identicalMatches = d->identicals.count();
+
     switch(result) {
     case QKeySequence::NoMatch:
         return stateWasAccepted;
@@ -279,7 +281,7 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
     }
     // If nextState is QKeySequence::ExactMatch && identicals.count == 0
     // we've only found disabled shortcuts
-    return d->identicals.count() > 0 || result == QKeySequence::PartialMatch;
+    return identicalMatches > 0 || result == QKeySequence::PartialMatch;
 }
 
 /*! \internal
