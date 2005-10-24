@@ -672,6 +672,8 @@ void QAbstractItemModelPrivate::reset()
 
     Returns a \c{void} \c{*} pointer used by the model to associate
     the index with the internal data structure.
+    
+    \sa QAbstractItemModel::createIndex()
 */
 
 /*!
