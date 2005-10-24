@@ -533,10 +533,14 @@ void QWSDisplay::Data::init()
 #ifndef QT_NO_QWS_MULTIPROCESS
 
         shm = QSharedMemory(sharedRamSize,pipe, 'm');
-        if (!shm.create())
+        if (!shm.create()) {
             perror("Cannot create main ram shared memory\n");
-        if (!shm.attach())
+            qFatal("Unable to allocate %d bytes of shared memory", sharedRamSize);
+        }
+        if (!shm.attach()) {
             perror("Cannot attach to main ram shared memory\n");
+            qFatal("Cannot attach to main ram shared memory");
+        }
         sharedRam = static_cast<uchar *>(shm.base());
 #else
         sharedRam=static_cast<uchar *>(malloc(sharedRamSize));
