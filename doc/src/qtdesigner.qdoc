@@ -990,7 +990,7 @@
     instances of the custom widget, and it defines the initialize()
     function which is called after the custom widget plugin is loaded
     into \QD. This latter function's
-    QDesignerFormWindowInterface parameter provides the plugin with a
+    QDesignerFormEditorInterface parameter provides the plugin with a
     gateway to all of \QD's API.
 
     When implementing a custom widget you must subclass

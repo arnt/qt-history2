@@ -130,7 +130,7 @@
     \c MultiPageWidgetPlugin also defines the \l
     {QDesignerCustomWidgetInterface::initialize()}{initialize()}
     function which is called after the plugin is loaded into \QD. The
-    function's QDesignerFormWindowInterface parameter provides the
+    function's QDesignerFormEditorInterface parameter provides the
     plugin with a gateway to all of \QD's API's.
 
     The \c MultiPageWidgetPlugin class inherits from both QObject and
