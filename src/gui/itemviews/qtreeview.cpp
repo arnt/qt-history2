@@ -778,14 +778,18 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const bool reverse = isRightToLeft();
     const QStyle::State state = opt.state;
+    const int left = d->left;
+    const int right = d->right;
+
+    // ### special case: treeviews with multiple columns draw the selections differently than with only one column
+    opt.showDecorationSelected = (right > left) || option.showDecorationSelected;
 
     int width, height = option.rect.height();
-
     int position;
     int headerSection;
     QModelIndex modelIndex;
 
-    for (int headerIndex = d->left; headerIndex <= d->right; ++headerIndex) {
+    for (int headerIndex = left; headerIndex <= right; ++headerIndex) {
         headerSection = d->header->logicalIndex(headerIndex);
         if (header->isSectionHidden(headerSection))
             continue;
