@@ -1383,7 +1383,8 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
 #if defined (QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocket::waitForBytesWritten calls canReadNotification");
 #endif
-            d->canReadNotification();
+            if(!d->canReadNotification())
+                return false;
         }
 
 
