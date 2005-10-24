@@ -162,13 +162,14 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
 
     data = (unsigned char *)mmap(0, mapsize, PROT_READ | PROT_WRITE,
                                  MAP_SHARED, fd, 0);
-    data += dataoffset;
 
     if ((long)data == -1) {
         perror("mapping /dev/fb0");
         qWarning("Error: failed to map framebuffer device to memory.");
         return false;
     }
+
+    data += dataoffset;
 
     canaccel=useOffscreen();
 
