@@ -1357,6 +1357,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
             copy.scale(r.width() / sr.width(), r.height() / sr.height());
         copy.translate(-sr.x(), -sr.y());
         textureData.setupMatrix(copy, QPainterPrivate::TxRotShear, d->bilinear);
+	textureData.adjustSpanMethods();
 
         bool wasAntialiased = d->antialiased;
         if (!d->antialiased)
@@ -2903,7 +2904,7 @@ void QSpanData::adjustSpanMethods()
     if (!unclipped_blend) {
         blend = 0;
     } else if (rasterBuffer->clipEnabled) {
-        blend = rasterBuffer->clip ? qt_span_fill_clipped : 0;
+        blend = rasterBuffer->clip ? qt_span_fill_clipped : unclipped_blend;
     } else {
         blend = unclipped_blend;
     }
