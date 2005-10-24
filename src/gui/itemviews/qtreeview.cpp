@@ -1095,20 +1095,16 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     case MoveUp:
         return d->modelIndex(d->above(vi));
     case MoveLeft:
-        if (model()->hasChildren(d->viewItems.at(vi).index)) {
-            if (d->viewItems.at(vi).expanded && d->itemsExpandable)
-                d->collapse(vi);
-            updateGeometries();
-            viewport()->update();
-        }
+        if (d->viewItems.at(vi).expanded && d->itemsExpandable)
+            d->collapse(vi);
+        updateGeometries();
+        viewport()->update();
         break;
     case MoveRight:
-        if (model()->hasChildren(d->viewItems.at(vi).index)) {
-            if (!d->viewItems.at(vi).expanded && d->itemsExpandable)
-                d->expand(vi);
-            updateGeometries();
-            viewport()->update();
-        }
+        if (!d->viewItems.at(vi).expanded && d->itemsExpandable)
+            d->expand(vi);
+        updateGeometries();
+        viewport()->update();
         break;
     case MovePageUp:
         return d->modelIndex(d->pageUp(vi));
