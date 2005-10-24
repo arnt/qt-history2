@@ -452,25 +452,24 @@ void QAbstractItemModelPrivate::rowsInserted(const QModelIndex &parent,
 void QAbstractItemModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
                                                      int first, int last)
 {
-    QStack<Change> persistent_changes;
-    persistent_changes.push(Change(parent, first, last));
-
     QList<int> persistent_moved;
     QList<int> persistent_invalidated;
 
-    while (!persistent_changes.isEmpty()) {
-        Change change = persistent_changes.pop();
-        for (int position = 0; position < persistent.indexes.count(); ++position) {
-            QModelIndex index = persistent.indexes.at(position)->index;
-            if (index.isValid() && index.parent() == change.parent) {
-                if (index.row() > change.last) { // below the removed rows
+    for (int position = 0; position < persistent.indexes.count(); ++position) {
+        bool traversedToParent = false;
+        QModelIndex current = persistent.indexes.at(position)->index;
+        while (current.isValid()) {
+            if (current.parent() == parent) {
+                 // below the removed rows
+                if (!traversedToParent && current.row() > last)
                     persistent_moved.append(position);
-                } else if (index.row() >= change.first) { // about to be removed
-                    if (q_func()->hasChildren(index)) // the children are invalidated too
-                        persistent_changes.push(Change(index, 0, q_func()->rowCount(index) - 1));
+                // row removed or child of row that is removed
+                else if (current.row() <= last && current.row() >= first)
                     persistent_invalidated.append(position);
-                }
+                break;
             }
+            current = current.parent();
+            traversedToParent = true;
         }
     }
 
@@ -526,25 +525,24 @@ void QAbstractItemModelPrivate::columnsInserted(const QModelIndex &parent,
 void QAbstractItemModelPrivate::columnsAboutToBeRemoved(const QModelIndex &parent,
                                                         int first, int last)
 {
-    QStack<Change> persistent_changes;
-    persistent_changes.push(Change(parent, first, last));
-
     QList<int> persistent_moved;
     QList<int> persistent_invalidated;
 
-    while (!persistent_changes.isEmpty()) {
-        Change change = persistent_changes.pop();
-        for (int position = 0; position < persistent.indexes.count(); ++position) {
-            QModelIndex index = persistent.indexes.at(position)->index;
-            if (index.isValid() && index.parent() == change.parent) {
-                if (index.column() > change.last) { // after the removed columns
+    for (int position = 0; position < persistent.indexes.count(); ++position) {
+        bool traversedToParent = false;
+        QModelIndex current = persistent.indexes.at(position)->index;
+        while (current.isValid()) {
+            if (current.parent() == parent) {
+                 // after the removed columns
+                if (!traversedToParent && current.column() > last)
                     persistent_moved.append(position);
-                } else if (index.column() >= change.first) { // about to be removed
-                    if (q_func()->hasChildren(index)) // children are invalidated too
-                        persistent_changes.push(Change(index, 0, q_func()->columnCount(index) - 1));
+                // about to be removed or parent about to be removed
+                else if (current.column() <= last && current.column() >= first)
                     persistent_invalidated.append(position);
-                }
+                break;
             }
+            current = current.parent();
+            traversedToParent = true;
         }
     }
 
@@ -672,7 +670,7 @@ void QAbstractItemModelPrivate::reset()
 
     Returns a \c{void} \c{*} pointer used by the model to associate
     the index with the internal data structure.
-    
+
     \sa QAbstractItemModel::createIndex()
 */
 
