@@ -570,6 +570,18 @@ static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
     }
 }
 
+#if defined(Q_OS_IRIX) && defined(Q_CC_GNU) && __GNUC__ == 3 && __GNUC__ < 4 && QT_POINTER_SIZE == 8
+#define Q_IRIX_GCC3_3_WORKAROUND
+//
+// work around http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14484
+//
+static uint gccBug(uint value) __attribute__((noinline));
+static uint gccBug(uint value)
+{
+    return value;
+}
+#endif
+
 static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -619,10 +631,17 @@ static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void 
                 int y1_offset = y1 * image_width;
                 int y2_offset = y1_offset + image_width;
 
+#if defined(Q_IRIX_GCC3_3_WORKAROUND)
+                uint tl = gccBug((x1_out || y1_out) ? uint(0) : image_bits[y1_offset + x1]);
+                uint tr = gccBug((x2_out || y1_out) ? uint(0) : image_bits[y1_offset + x2]);
+                uint bl = gccBug((x1_out || y2_out) ? uint(0) : image_bits[y2_offset + x1]);
+                uint br = gccBug((x2_out || y2_out) ? uint(0) : image_bits[y2_offset + x2]);
+#else
                 uint tl = (x1_out || y1_out) ? uint(0) : image_bits[y1_offset + x1];
                 uint tr = (x2_out || y1_out) ? uint(0) : image_bits[y1_offset + x2];
                 uint bl = (x1_out || y2_out) ? uint(0) : image_bits[y2_offset + x1];
                 uint br = (x2_out || y2_out) ? uint(0) : image_bits[y2_offset + x2];
+#endif
 
                 uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
                 uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
@@ -699,10 +718,17 @@ static void blend_transformed_bilinear_tiled_argb(int count, const QSpan *spans,
                 int y1_offset = y1 * image_width;
                 int y2_offset = y2 * image_width;
 
+#if defined(Q_IRIX_GCC3_3_WORKAROUND)
+                uint tl = gccBug(image_bits[y1_offset + x1]);
+                uint tr = gccBug(image_bits[y1_offset + x2]);
+                uint bl = gccBug(image_bits[y2_offset + x1]);
+                uint br = gccBug(image_bits[y2_offset + x2]);
+#else
                 uint tl = image_bits[y1_offset + x1];
                 uint tr = image_bits[y1_offset + x2];
                 uint bl = image_bits[y2_offset + x1];
                 uint br = image_bits[y2_offset + x2];
+#endif
 
                 uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
                 uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
