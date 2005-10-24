@@ -968,6 +968,9 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         // function depends on.
     }
 
+    if (!data->canWait && data->eventDispatcher)
+        data->eventDispatcher->wakeUp();
+
     --data->postEventList.recursion;
     // clear the global list, i.e. remove everything that was
     // delivered.
