@@ -1,4 +1,5 @@
 # Show information about the Qt installation.
+message(Qt version: $$[QT_VERSION])
 message(Qt is installed in $$[QT_INSTALL_PREFIX])
 message(Qt resources can be found in the following locations:)
 message(Documentation: $$[QT_INSTALL_DOCS])
