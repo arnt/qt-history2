@@ -1442,7 +1442,7 @@ bool QWidgetPrivate::hasBackground() const
         QBrush bgBrush = pal.brush(bg);
         return (bgBrush.style() != Qt::NoBrush &&
                 ((q->isWindow() || q->windowType() == Qt::SubWindow)
-                 || (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
+                 || (QPalette::ColorRole(bg_role) != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
     }
     return false;
 }
@@ -1460,7 +1460,7 @@ bool QWidgetPrivate::isOpaque() const
     QBrush bgBrush = pal.brush(bg);
     return (bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque() &&
             ((q->isWindow() || q->windowType() == Qt::SubWindow)
-             || (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
+             || (QPalette::ColorRole(bg_role) != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
 }
 
 /*!
