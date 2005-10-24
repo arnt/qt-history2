@@ -1870,7 +1870,7 @@ void VCFilter::modifyPCHstage(QString str)
             lines << "*";
             lines << "* WARNING: All changes made in this file will be lost.";
             lines << "--------------------------------------------------------------------*/";
-            lines << "#include \"" + Project->precompH + "\"";
+            lines << "#include \"" + Project->precompHFilename + "\"";
             foreach(QString line, lines)
                 CustomBuildTool.CommandLine += "echo " + line + ">>" + toFile;
         }
