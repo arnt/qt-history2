@@ -1588,9 +1588,8 @@ QStringList QCoreApplication::libraryPaths()
         QStringList *app_libpaths = self->d_func()->app_libpaths = new QStringList;
         QString installPathPlugins =  QLibraryInfo::location(QLibraryInfo::PluginsPath);
         if (QFile::exists(installPathPlugins)) {
-#ifdef Q_WS_WIN
-            installPathPlugins.replace(QLatin1Char('\\'), QLatin1Char('/'));
-#endif
+            // Make sure we convert from backslashes to slashes.
+            installPathPlugins = QDir(installPathPlugins).canonicalPath();
             app_libpaths->append(installPathPlugins);
         }
 
@@ -1601,8 +1600,17 @@ QStringList QCoreApplication::libraryPaths()
             app_libpaths->append(app_location);
 
         const QByteArray libPathEnv = qgetenv("QT_PLUGIN_PATH");
-        if (!libPathEnv.isEmpty())
-            (*app_libpaths) += QString::fromLocal8Bit(libPathEnv.constData()).split(QLatin1String(":"), QString::SkipEmptyParts);
+        if (!libPathEnv.isEmpty()) {
+#ifdef Q_OS_WIN
+            QChar pathSep(';');
+#else
+            QChar pathSep(':');
+#endif
+            QStringList paths = QString::fromLatin1(libPathEnv).split(pathSep, QString::SkipEmptyParts);
+            for (QStringList::iterator it = paths.begin(); it != paths.end(); ++it) {
+                app_libpaths->append(QDir(*it).canonicalPath());
+            }
+        }
     }
     return *self->d_func()->app_libpaths;
 }
