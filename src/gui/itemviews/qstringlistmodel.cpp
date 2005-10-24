@@ -186,6 +186,17 @@ bool QStringListModel::removeRows(int row, int count, const QModelIndex &parent)
 }
 
 /*!
+  \reimp
+*/
+void QStringListModel::sort(int, Qt::SortOrder order)
+{
+    if (order == Qt::AscendingOrder)
+        qSort(lst.begin(), lst.end(), qLess<QString>());
+    else
+        qSort(lst.begin(), lst.end(), qGreater<QString>());
+}
+
+/*!
     Returns the string list used by the model to store data.
 */
 QStringList QStringListModel::stringList() const
