@@ -27,7 +27,7 @@
 
 typedef void (*QtCrashHandler)();
 
-class QSegfaultHandler
+class Q_CORE_EXPORT QSegfaultHandler
 {
     friend void qt_signal_handler(int);
     static QtCrashHandler callback;
