@@ -90,6 +90,7 @@ protected:
 
     void insertMapping(const QModelIndex &proxy_index, const QModelIndex &source_index);
     void removeMapping(const QModelIndex &proxy_index);
+    bool isMapped(const QModelIndex &proxy_index) const;
 
 private:
     Q_DECLARE_PRIVATE(QMappingProxyModel)

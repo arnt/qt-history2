@@ -576,3 +576,13 @@ void QMappingProxyModel::removeMapping(const QModelIndex &proxy_index)
     Q_D(QMappingProxyModel);
     d->proxy_to_source.remove(proxy_index);
 }
+
+/*!
+  Returns true if the given \a proxy_index is mapped to a
+  source model index, otherwise returns false.
+ */
+bool QMappingProxyModel::isMapped(const QModelIndex &proxy_index) const
+{
+    Q_D(const QMappingProxyModel);
+    return d->proxy_to_source.contains(proxy_index);
+}
