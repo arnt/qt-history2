@@ -651,12 +651,22 @@ void QWSBackingStore::create(QSize s)
 #ifdef QT_SHAREDMEM_DEBUG
         qDebug() << "QWSBackingStore::create null size";
 #endif
+        shmid = -1;
+        shmaddr = 0;
         return;
     }
     int extradatasize = 0;//2 * sizeof(int); //store height and width ???
     int datasize = 4 * s.width() * s.height() + extradatasize; //### hardcoded 32bpp
     shmid = shmget(IPC_PRIVATE, datasize, IPC_CREAT|0600);
+    if (shmid == -1) {
+        perror("Error allocating shared memory");
+        qFatal("Error allocating shared memory of size %d", datasize);
+    }
     shmaddr = shmat(shmid,0,0);
+    if (shmaddr == (void*)-1) {
+        perror("Error attaching to shared memory");
+        qFatal("Error attaching to shared memory");
+    }
     shmctl(shmid, IPC_RMID, 0);
     QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
                QImage::Format_ARGB32_Premultiplied);
@@ -672,6 +682,8 @@ void QWSBackingStore::attach(int id, QSize s)
         return;
     detach();
     shmid = id;
+    if (s.isNull())
+        return;
     pix = new QPixmap;
     if (id == -1) {
 #ifdef QT_SHAREDMEM_DEBUG
@@ -683,6 +695,8 @@ void QWSBackingStore::attach(int id, QSize s)
     }
     shmaddr = shmat(shmid,0,0);
     if (shmaddr == (void*)-1) {
+        perror("Error attaching to shared memory");
+        qFatal("Error attaching to shared memory of size %d", s.width() * s.height());
 #ifdef QT_SHAREDMEM_DEBUG
         qDebug() << "QWSBackingStore::attach COULD NOT ATTACH TO SHARED MEMORY size" << s << "shmid" << shmid;
 #endif
