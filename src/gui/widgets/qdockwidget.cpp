@@ -153,21 +153,14 @@ void QDockWidgetPrivate::init() {
     top = new QGridLayout(q);
     top->setMargin(0);
     top->setSpacing(0);
-    top->setColumnStretch(1, 1);
 
     box = new QVBoxLayout;
     box->setMargin(0);
     box->setSpacing(0);
-    top->addLayout(box, 1, 1);
+    top->addLayout(box, 1, 0);
 
-    leftSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Ignored);
-    rightSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Ignored);
     topSpacer = new QSpacerItem(0, 20, QSizePolicy::Ignored, QSizePolicy::Fixed);
-    bottomSpacer = new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Fixed);
-    top->addItem(topSpacer, 0, 1);
-    top->addItem(leftSpacer, 1, 0);
-    top->addItem(rightSpacer, 1, 2);
-    top->addItem(bottomSpacer, 2, 1);
+    box->addItem(topSpacer);
 
     resizer = new QWidgetResizeHandler(q);
     resizer->setMovingEnabled(false);
@@ -293,10 +286,8 @@ void QDockWidgetPrivate::relayout()
         posX -= floatSize.width() + 1;
     }
 
-    leftSpacer->changeSize(fw, 0, QSizePolicy::Fixed, QSizePolicy::Ignored);
-    rightSpacer->changeSize(fw, 0, QSizePolicy::Fixed, QSizePolicy::Ignored);
-    topSpacer->changeSize(minWidth, fw + titleArea.height(), QSizePolicy::Expanding, QSizePolicy::Fixed);
-    bottomSpacer->changeSize(0, fw, QSizePolicy::Ignored, QSizePolicy::Fixed);
+    topSpacer->changeSize(minWidth, 0 + titleArea.height(), QSizePolicy::Expanding, QSizePolicy::Fixed);
+    top->setMargin(fw);
     top->invalidate();
 }
 

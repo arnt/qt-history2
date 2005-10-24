@@ -56,8 +56,7 @@ public:
                    | QDockWidget::DockWidgetMovable
                    | QDockWidget::DockWidgetFloatable),
           allowedAreas(Qt::AllDockWidgetAreas), top(0), box(0),
-          leftSpacer(0), rightSpacer(0), bottomSpacer(0),
-          floatButton(0), closeButton(0), resizer(0)
+          topSpacer(0), floatButton(0), closeButton(0), resizer(0)
     { }
 
     void init();
@@ -77,7 +76,7 @@ public:
 
     QGridLayout *top;
     QBoxLayout *box;
-    QSpacerItem *leftSpacer, *rightSpacer, *topSpacer, *bottomSpacer;
+    QSpacerItem *topSpacer;
     QRect titleArea;
     QDockWidgetTitleButton *floatButton;
     QDockWidgetTitleButton *closeButton;
