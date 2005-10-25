@@ -341,7 +341,7 @@ extern bool     qt_check_clipboard_sentinel(); //def in qclipboard_x11.cpp
 extern bool        qt_check_selection_sentinel(); //def in qclipboard_x11.cpp
 
 static void        qt_save_rootinfo();
-bool        qt_try_modal(QWidget *, XEvent *);
+Q_GUI_EXPORT bool qt_try_modal(QWidget *, XEvent *);
 
 QWidget *qt_button_down = 0; // last widget to be pressed with the mouse
 static QWidget *qt_popup_down = 0;  // popup that contains the pressed widget
