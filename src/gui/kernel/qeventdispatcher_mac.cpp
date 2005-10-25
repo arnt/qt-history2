@@ -445,6 +445,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         if (canWait) {
             emit aboutToBlock();
             while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);
+            emit awake();
         } else {
             break;
         }
