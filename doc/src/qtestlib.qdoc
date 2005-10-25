@@ -121,7 +121,7 @@
 
     \section2 Options
 
-    The following command line arguments are understood by \l QTest::exec():
+    The following command line arguments are understood:
 
     \list
     \o \c -help \BR
@@ -312,7 +312,7 @@
     \printuntil /^\}/
 
     First, we define the two elements of our test table using the \l
-    QTestTable::defineElement() function: A test string, and the
+    QTest::addColumn() function: A test string, and the
     expected result of applying the QString::toUpper() function to
     that string.
 

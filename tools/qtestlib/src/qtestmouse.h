@@ -32,14 +32,13 @@
 
 namespace QTest
 {
-    int Q_TESTLIB_EXPORT defaultMouseDelay();
-
     enum MouseAction { MousePress, MouseRelease, MouseClick, MouseDClick, MouseMove };
 
     static void mouseEvent(MouseAction action, QWidget *widget, Qt::MouseButton button,
                            Qt::KeyboardModifiers stateKey, QPoint pos, int delay=-1)
     {
         QTEST_ASSERT(widget);
+        extern int Q_TESTLIB_EXPORT defaultMouseDelay();
 
         if (delay == -1 || delay < defaultMouseDelay())
             delay = defaultMouseDelay();

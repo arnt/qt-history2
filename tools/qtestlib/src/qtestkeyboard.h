@@ -31,14 +31,13 @@
 
 namespace QTest
 {
-    int Q_TESTLIB_EXPORT defaultKeyDelay();
-
     enum KeyAction { Press, Release, Click };
 
     static void simulateEvent(QWidget *widget, bool press, int code,
                               Qt::KeyboardModifiers modifier, QString text, bool repeat, int delay=-1)
     {
         QTEST_ASSERT(widget);
+        extern int Q_TESTLIB_EXPORT defaultKeyDelay();
 
         if (delay == -1 || delay < defaultKeyDelay())
             delay = defaultKeyDelay();

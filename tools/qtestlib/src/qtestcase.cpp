@@ -274,7 +274,7 @@
     QTEST_MAIN(TestQString)
     \endcode
 
-    \sa QTEST_APPLESS_MAIN(), QTest::exec()
+    \sa QTEST_APPLESS_MAIN(), QTest::qExec()
 */
 
 /*! \macro QTEST_APPLESS_MAIN(TestClass)
@@ -568,35 +568,6 @@
     \sa qSleep()
 */
 
-/*! \fn int QTest::defaultMouseDelay()
-    \internal
-*/
-
-/*! \fn int QTest::defaultKeyDelay()
-    \internal
-*/
-
-/*! \fn int QTest::defaultEventDelay()
-    \internal
-*/
-
-/*! \fn void QTest::mouseEvent(MouseAction action, QWidget *widget, Qt::MouseButton button, Qt::KeyboardModifiers stateKey, QPoint pos, int delay=-1)
-
-    \internal
-*/
-
-/*! \fn void QTest::simulateEvent(QWidget *widget, bool press, int code, Qt::KeyboardModifiers modifier, QString text, bool repeat, int delay=-1)
-    \internal
-*/
-
-/*! \fn void QTest::sendKeyEvent(KeyAction action, QWidget *widget, Qt::Key code, QString text, Qt::KeyboardModifiers modifier, int delay=-1)
-    \internal
-*/
-
-/*! \fn void QTest::sendKeyEvent(KeyAction action, QWidget *widget, Qt::Key code, char ascii, Qt::KeyboardModifiers modifier, int delay=-1)
-    \internal
-*/
-
 namespace QTest
 {
     static bool skipCurrentTest = false;
@@ -644,7 +615,7 @@ bool Q_TESTLIB_EXPORT defaultKeyVerbose()
     return keyVerbose == 1;
 }
 
-int Q_TESTLIB_EXPORT defaultEventDelay()
+int defaultEventDelay()
 {
     if (eventDelay == -1) {
         if (qgetenv("QTEST_EVENT_DELAY").constData())
@@ -925,8 +896,7 @@ void *fetchData(QTestData *data, const char *tagName, int typeId)
 
 } // namespace
 
-/*! \fn int QTest::qExec(QObject *testObject, int argc = 0, char **argv = 0)
-
+/*!
     Executes tests declared in \a testObject. Optionally, the command line arguments
     \a argc and \a argv can be provided. For a list of recognized arguments, read
     \l {QTestLib Command Line Arguments}.
@@ -1052,8 +1022,7 @@ void QTest::qWarn(const char *message)
     QTestLog::warn(message);
 }
 
-/*! \fn void QTest::ignoreMessage(QtMsgType type, const char *message)
-
+/*!
     Ignores messages created by qDebug() or qWarning(). If the \a message
     with the corresponding \a type is outputted, it will be removed from the
     test log. If the test finished and the \a message was not outputted,
@@ -1148,7 +1117,7 @@ QTestData &QTest::newRow(const char *dataTag)
     return *tbl->newData(dataTag);
 }
 
-/*! \fn void addColumn(const char *name, T *dummy = 0)
+/*! \fn void QTest::addColumn(const char *name, T *dummy = 0)
 
     Adds a column with type \c{T} to the current test data.
     \a name is the name of the column. \a dummy is a workaround
@@ -1176,11 +1145,10 @@ QTestData &QTest::newRow(const char *dataTag)
 
     ### link to test-driven
 
-    \sa newRow(), QFETCH(), QMetaType
+    \sa QTest::newRow(), QFETCH(), QMetaType
 */
 
-/*! \fn const char *QTest::currentTestFunction()
-
+/*!
     Returns the name of the test function that is currently executed.
 
     Example:
@@ -1200,8 +1168,7 @@ const char *QTest::currentTestFunction()
     return QTestResult::currentTestFunction();
 }
 
-/*! \fn const char *QTest::currentDataTag()
-
+/*!
     Returns the name of the current test data. If the test doesn't
     have any assigned testdata, the function returns 0.
 
@@ -1212,8 +1179,7 @@ const char *QTest::currentDataTag()
     return QTestResult::currentDataTag();
 }
 
-/*! \fn void QTest::currentTestFailed()
-
+/*!
     Returns true if the current test function failed, otherwise false.
 */
 bool QTest::currentTestFailed()
@@ -1221,8 +1187,7 @@ bool QTest::currentTestFailed()
     return QTestResult::currentTestFailed();
 }
 
-/*! \fn void QTest::qSleep(int ms)
-
+/*!
     Sleeps for \a ms milliseconds, blocking execution of the
     test. qSleep() will not do any event processing and leave your test
     unresponsive. Network communication might time out while
@@ -1345,3 +1310,69 @@ bool QTest::compare_string_helper(const char *t1, const char *t2, const char *ac
             : compare_helper(false, "Compared strings are not the same",
                              toString(t1), toString(t2), actual, expected, file, line);
 }
+
+/*! \fn bool QTest::compare_ptr_helper(const void *t1, const void *t2, const char *actual, const char *expected, const char *file, int line);
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(T1 const &, T2 const &, const char *, const char *, const char *, int);
+    \internal
+*/
+
+
+/*! \fn void QTest::mouseEvent(MouseAction action, QWidget *widget, Qt::MouseButton button, Qt::KeyboardModifiers stateKey, QPoint pos, int delay=-1)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(QIcon const &t1, QIcon const &t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(QPixmap const &t1, QPixmap const &t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(T const &t1, T const &t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(const T *t1, const T *t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(T *t1, T *t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(const T1 *t1, const T2 *t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(T1 *t1, T2 *t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(const char *t1, const char *t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(char *t1, char *t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(char *t1, const char *t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(const char *t1, char *t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qTest(const T& actual, const char *elementName, const char *actualStr, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn void QTest::sendKeyEvent(KeyAction action, QWidget *widget, Qt::Key code, QString text, Qt::KeyboardModifiers modifier, int delay=-1)
+    \internal
+*/
+

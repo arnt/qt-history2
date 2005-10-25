@@ -116,7 +116,7 @@
 
     Adds a \a msecs milliseconds delay.
 
-    \sa QTest::wait()
+    \sa QTest::qWait()
 */
 
 /*! \fn void QTestEventList::simulate(QWidget *w)
