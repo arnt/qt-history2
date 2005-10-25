@@ -20,8 +20,10 @@
     \class QFilteringProxyModel
     \brief The QFilteringProxyModel class provides support for filtering data
     that is passed between another model and a view.
-
     \since 4.1
+    \ingroup model-view
+
+    \sa QProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 /*!

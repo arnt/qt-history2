@@ -238,7 +238,7 @@ int QTableViewPrivate::firstVisualIndex(int y) const
     columnViewportPosition() functions provide the equivalent conversion
     operations between x-coordinates and column indexes.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QAbstractItemView
+    \sa {Model/View Programming}, QAbstractItemModel, QAbstractItemView
 
 */
 

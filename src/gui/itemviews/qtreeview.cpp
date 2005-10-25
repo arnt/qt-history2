@@ -73,7 +73,7 @@
     Describe the expanding/collapsing concept if not covered elsewhere.
     \endomit
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QAbstractItemView
+    \sa QListView, QTreeWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView
 */
 
 

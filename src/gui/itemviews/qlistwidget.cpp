@@ -952,7 +952,7 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     current item changes, the currentItemChanged() signal is emitted with the
     new current item and the item that was previously current.
 
-    \sa QListWidgetItem \link model-view-programming.html Model/View Programming\endlink
+    \sa QListWidgetItem, QListView, QTreeView, {Model/View Programming}
 */
 
 /*!

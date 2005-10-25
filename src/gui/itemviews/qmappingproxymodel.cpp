@@ -19,9 +19,11 @@
 /*!
   \since 4.1
   \class QMappingProxyModel
-  \brief The QMappingProxyModel class provides support for mapping data
-  that is passed between another model and a view.
+  \brief The QMappingProxyModel class provides support for mapping data passed between
+  another model and a view.
+  \ingroup model-view
 
+  \sa QProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 /*!

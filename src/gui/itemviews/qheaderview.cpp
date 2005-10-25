@@ -80,7 +80,7 @@
     model, and for a vertical header the section is equivalent to a row
     in the model.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QListView QTableView QTreeView
+    \sa {Model/View Programming}, QListView, QTableView, QTreeView
 
 */
 

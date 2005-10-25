@@ -19,6 +19,9 @@
     \class QAbstractProxyModel
     \brief The QAbstractProxyModel class provides a base class for proxy item models
     that can do sorting, filtering or other data processing tasks.
+    \ingroup model-view
+
+    \sa QProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 

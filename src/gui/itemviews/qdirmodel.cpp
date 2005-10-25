@@ -330,8 +330,7 @@ void QDirModelPrivate::clear(QDirNode *parent) const
   Directories can be created and removed using mkdir(), rmdir(), and the
   model will be automatically updated to take the changes into account.
 
-  \sa nameFilters(), setFilter(), filter(),
-      \link model-view-programming.html Model/View Programming\endlink QListView QTreeView
+  \sa nameFilters(), setFilter(), filter(), {Model/View Programming}, QListView, QTreeView
 
 */
 

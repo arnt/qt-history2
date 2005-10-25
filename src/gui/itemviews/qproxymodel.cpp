@@ -22,7 +22,10 @@
     \class QProxyModel
     \obsolete
     \brief The QProxyModel class provides support for filtering and sorting data
-    that is passed between another model and a view.
+    passed between another model and a view.
+
+    \ingroup model-view
+
     If you want to do filtering and sorting, see QFilteringProxyModel and QSortingProxyModel.
 
     Proxy models provide a standard model interface that can be used to

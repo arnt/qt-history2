@@ -46,7 +46,7 @@
   removed with removeRows(). The contents of the string list can be
   retrieved with the stringList() convenience function.
 
-  \sa QAbstractListModel QAbstractItemModel
+  \sa QAbstractListModel, QAbstractItemModel, {Model/View Programming}
 */
 
 /*!

@@ -1205,7 +1205,7 @@ QTableWidgetItem &QTableWidgetItem::operator=(const QTableWidgetItem &other)
     number of columns with columnCount(). The table can be cleared with the
     clear() function.
 
-    \sa QTableWidgetItem \link model-view-programming.html Model/View Programming\endlink
+    \sa QTableWidgetItem, QTableView, {Model/View Programming}
 */
 
 /*!

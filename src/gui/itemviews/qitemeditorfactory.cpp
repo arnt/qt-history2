@@ -27,6 +27,7 @@
     \class QItemEditorFactory
     \brief The QItemEditorFactory class provides widgets for editing item data
     in views and delegates.
+    \ingroup model-view
 
     When editing the data shown by an item delegate, the QItemDelegate responsible
     requests an editor widget from its item editor factory. The default factory is
@@ -34,7 +35,7 @@
     specialized editing behavior, such as row or column-specific editors, or editors
     for certain types of data.
 
-    \sa QItemDelegate
+    \sa QItemDelegate, {Model/View Programming}
 */
 
 /*!
@@ -206,13 +207,14 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     \class QItemEditorCreatorBase
     \brief The QItemEditorCreatorBase class provides an abstract base class that
     must be subclassed when implementing new item editor creators.
+    \ingroup model-view
 
     Item editor creators are specialized widget factories that provide editor widgets
     for specific types of item data. QItemEditorFactory finds the appropriate factory
     for editors using a QVariant-based scheme to associate data types with editor
     creators.
 
-    \sa QItemEditorFactory
+    \sa QItemEditorFactory, {Model/View Programming}
 */
 
 /*!

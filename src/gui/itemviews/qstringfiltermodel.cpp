@@ -19,7 +19,9 @@
   \class QStringFilterModel
   \brief The QStringFilterModel class provides support for filtering data
   that is passed between another model and a view, using a QRegExp.
+  \ingroup model-view
 
+  \sa QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 class QStringFilterModelPrivate : public QFilteringProxyModelPrivate

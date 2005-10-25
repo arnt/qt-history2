@@ -1602,9 +1602,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
   setSortingEnabled(). The isSortingEnabled() function indicates whether
   sorting is enabled.
 
-
-
-  \sa \link model-view-programming.html Model/View Programming\endlink QTreeWidgetItem
+  \sa QTreeWidgetItem, QTreeView, {Model/View Programming}
 */
 
 /*!

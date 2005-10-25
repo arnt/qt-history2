@@ -25,7 +25,7 @@
 
   \ingroup model-view
 
-  \sa QProxyModel, QAbstractItemModel, {Model/View Programming}
+  \sa QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 /*!

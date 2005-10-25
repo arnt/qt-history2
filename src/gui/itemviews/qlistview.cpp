@@ -72,7 +72,7 @@
     within a notional grid of size specified by gridSize(). The items can
     be rendered as large or small icons depending on their iconSize().
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
+    \sa {Model/View Programming}, QTreeView, QTableView, QListWidget
 */
 
 /*!
