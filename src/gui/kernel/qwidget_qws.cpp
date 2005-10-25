@@ -314,6 +314,11 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
 
     setEnabled_helper(enable); //preserving WA_ForceDisabled
     q->setFocusPolicy(fp);
+    if (extra && !extra->mask.isEmpty()) {
+        QRegion r = extra->mask;
+        extra->mask = QRegion();
+        q->setMask(r);
+    }
     if ((int)old_winid > 0)
         QWidget::qwsDisplay()->destroyRegion(old_winid);
 #ifndef QT_NO_CURSOR

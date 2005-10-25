@@ -892,8 +892,11 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     setEnabled_helper(enable); //preserving WA_ForceDisabled
 
     q->setFocusPolicy(fp);
-    if (extra && !extra->mask.isEmpty())
-        q->setMask(extra->mask);
+    if (extra && !extra->mask.isEmpty()) {
+        QRegion r = extra->mask;
+        extra->mask = QRegion();
+        q->setMask(r);
+    }
     if (old_winid)
         qt_XDestroyWindow(q, X11->display, old_winid);
     if (setcurs)
@@ -2695,7 +2698,7 @@ void QWidget::setMask(const QBitmap &bitmap)
     if (bm.x11Info().screen() != d->xinfo.screen())
         bm.x11SetScreen(d->xinfo.screen());
     XShapeCombineMask(X11->display, winId(), ShapeBounding, 0, 0,
-                       bm.handle(), ShapeSet);
+                      bm.handle(), ShapeSet);
 }
 
 /*!

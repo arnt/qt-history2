@@ -602,8 +602,11 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     q->resize(s);
     setEnabled_helper(enable); //preserving WA_ForceDisabled
     q->setFocusPolicy(fp);
-    if (extra && !extra->mask.isEmpty())
+    if (extra && !extra->mask.isEmpty()) {
+        QRegion r = extra->mask;
+        extra->mask = QRegion();
         q->setMask(extra->mask);
+    }
     if (extra && extra->topextra && !extra->topextra->caption.isEmpty())
         setWindowTitle_helper(extra->topextra->caption);
     if (old_winid)
