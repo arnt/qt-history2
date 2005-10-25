@@ -1343,6 +1343,7 @@ void QWidgetPrivate::setWindowIcon_sys(bool forceReset)
     QIcon icon = q->windowIcon();
     QPixmap *pm = 0;
     if (!icon.isNull()) {
+        delete extra->topextra->iconPixmap;
         pm = new QPixmap(icon.pixmap(QSize(22, 22)));
         extra->topextra->iconPixmap = pm;
     }
