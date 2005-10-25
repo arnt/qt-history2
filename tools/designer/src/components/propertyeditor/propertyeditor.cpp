@@ -703,7 +703,7 @@ void PropertyEditor::setObject(QObject *object)
             m_object = action->menu();
     }
 
-    delete m_properties;
+    IPropertyGroup *old_properties = m_properties;
     m_properties = 0;
     m_prop_sheet = 0;
 
@@ -714,6 +714,8 @@ void PropertyEditor::setObject(QObject *object)
     }
 
     m_editor->setInitialInput(m_properties);
+
+    delete old_properties;
 }
 
 void PropertyEditor::resetProperty(const QString &prop_name)
