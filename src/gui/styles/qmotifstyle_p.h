@@ -38,11 +38,13 @@ public:
     QMotifStylePrivate();
 
 public:
+#ifndef QT_NO_PROGRESSBAR
     QList<QProgressBar *> bars;
     int animationFps;
     int animateTimer;
     QTime startTime;
-    int animateStep;    
+    int animateStep;
+#endif // QT_NO_PROGRESSBAR
 };
 
 #endif //QMOTIFSTYLE_P_H

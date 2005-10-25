@@ -114,6 +114,7 @@ Animate indeterminate progressbars only when visible
 */
 bool QMotifStyle::eventFilter(QObject *o, QEvent *e)
 {
+#ifndef QT_NO_PROGRESSBAR
     Q_D(QMotifStyle);
     switch(e->type()) {
     case QEvent::StyleChange:
@@ -140,6 +141,7 @@ bool QMotifStyle::eventFilter(QObject *o, QEvent *e)
     default:
         break;
     }
+#endif // QT_NO_PROGRESSBAR
     return QStyle::eventFilter(o, e);
 }
 
@@ -150,8 +152,8 @@ bool QMotifStyle::eventFilter(QObject *o, QEvent *e)
 */
 void QMotifStyle::timerEvent(QTimerEvent *event)
 {
-    Q_D(QMotifStyle);
 #ifndef QT_NO_PROGRESSBAR
+    Q_D(QMotifStyle);
     if (event->timerId() == d->animateTimer) {
         Q_ASSERT(d->animationFps > 0);
         d->animateStep = d->startTime.elapsed() / (1000 / d->animationFps);
@@ -166,7 +168,9 @@ void QMotifStyle::timerEvent(QTimerEvent *event)
 
 
 QMotifStylePrivate::QMotifStylePrivate()
+#ifndef QT_NO_PROGRESSBAR
     : animationFps(25), animateTimer(0), animateStep(0)
+#endif
 {
 }
 
@@ -234,8 +238,10 @@ void QMotifStyle::polish(QPalette& pal)
 void QMotifStyle::polish(QWidget* widget)
 {
     QStyle::polish(widget);
+#ifndef QT_NO_PROGRESSBAR
     if (qobject_cast<QProgressBar *>(widget))
         widget->installEventFilter(this);
+#endif
 }
 
 /*!
@@ -246,8 +252,10 @@ void QMotifStyle::polish(QWidget* widget)
 void QMotifStyle::unpolish(QWidget* widget)
 {
     QCommonStyle::unpolish(widget);
+#ifndef QT_NO_PROGRESSBAR
     if (qobject_cast<QProgressBar *>(widget))
         widget->removeEventFilter(this);
+#endif
 }
 
 
