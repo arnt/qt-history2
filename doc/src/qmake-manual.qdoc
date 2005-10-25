@@ -2327,7 +2327,7 @@
     \page qmake-environment-reference.html
     \contentspage {qmake Manual}{Contents}
     \previouspage qmake Function Reference
-    \nextpage qmake Advanced Usage
+    \nextpage qmake Tutorial
 
     \title Configuring qmake's Environment
 
@@ -2344,6 +2344,9 @@
         qmake -set VARIABLE VALUE
     \endcode
 
+    The appropriate variable and value should be substituted for
+    \c VARIABLE and \c VALUE.
+
     To retrieve this information back from qmake you can do:
 
     \code
@@ -2353,32 +2356,34 @@
 
     This information will be saved into a QSettings object (meaning it
     will be stored in different places for different platforms). As
-    VARIABLE is versioned as well, you can set one value in an older
-    version of qmake, and newer versions will retrieve this value, however
-    if you -set VARIABLE into a newer version of qmake the older version
+    \c VARIABLE is versioned as well, you can set one value in an older
+    version of \c qmake, and newer versions will retrieve this value. However,
+    if you set \c VARIABLE for a newer version of \c qmake, the older version
     will not use this value. You can however query a specific version of a
-    variable if you prefix that version of qmake to VARIABLE, as in:
+    variable if you prefix that version of \c qmake to \c VARIABLE, as in
+    the following example:
 
     \code
         qmake -query "1.06a/VARIABLE"
     \endcode
 
-    qmake also has the notion of \c builtin properties, for example you can
-    query the installation of Qt for this version of qmake with the
-    QT_INSTALL_PREFIX property:
+    \c qmake also has the notion of \c builtin properties, for example you can
+    query the installation of Qt for this version of \c qmake with the
+    \c QT_INSTALL_PREFIX property:
 
     \code
         qmake -query "QT_INSTALL_PREFIX"
     \endcode
 
-    These builtin properties cannot have a version prefixed to them as
-    they are not versioned and each qmake will have its own notion of
-    these values. The list below outlines the builtin properties:
+    These built-in properties cannot have a version prefixed to them as
+    they are not versioned, and each version of \c qmake will have its own
+    built-in set of these values. The list below outlines the built-in
+    properties:
 
     \list
-    \o QT_INSTALL_PREFIX - Where the version of Qt this qmake is built for resides
-    \o QT_INSTALL_DATA - Where data for this version of Qt resides
-    \o QMAKE_VERSION - The current version of qmake
+    \o \c QT_INSTALL_PREFIX - Where the version of Qt this qmake is built for resides
+    \o \c QT_INSTALL_DATA - Where data for this version of Qt resides
+    \o \c QMAKE_VERSION - The current version of qmake
     \endlist
 
     Finally, these values can be queried in a project file with a special
@@ -2409,151 +2414,169 @@
        QLibraryInfo::DataPath).
     \endlist
 
-    Note: the QMAKESPEC path will automatically be added to the
+    \bold{Note:} The \c QMAKESPEC path will automatically be added to the
     \l{qmake Variable Reference#INCLUDEPATH}{INCLUDEPATH} system variable.
 
     \target INSTALLS
     \section1 INSTALLS
 
-    It is common on Unix to be able to install from the same utility as
-    you build with (e.g make install). For this \c qmake has introduced the
-    concept of an install set. The notation for this is quite simple,
-    first you fill in an "object" in qmake for example:
+    It is common on Unix to also use the build tool to install applications
+    and libraries; for example, by invoking \c{make install}. For this reason,
+    \c qmake has the concept of an install set, an object which contains
+    instructions about the way part of a project is to be installed.
+    For example, a collection of documentation files can be described in the
+    following way:
 
     \code
         documentation.path = /usr/local/program/doc
         documentation.files = docs/*
     \endcode
 
-    In this way you are telling \c qmake several things about this
-    install, first that you plan to install to /usr/local/program/doc (the
-    path member), second that you plan to copy everything in the docs
-    directory. Once this is done you may insert it in the install list:
+    The \c path member informs \c qmake that the files should be installed in
+    \c /usr/local/program/doc (the path member), and the \c files member
+    specifies the files that should be copied to the installation directory.
+    In this case, everything in the \c docs directory will be coped to
+    \c /usr/local/program/doc.
+
+    Once an install set has been fully described, you can append it to the
+    install list with a line like this:
 
     \code
         INSTALLS += documentation
     \endcode
 
-    Now \c qmake will take over making sure the correct things are copied
-    to the specified places. If however you require greater control you
-    may use the \c extra member of the object:
+    \c qmake will ensure that the specified files are copied to the installation
+    directory. If you require greater control over this process, you can also
+    provide a definition for the \c extra member of the object. For example,
+    the following line tells \c qmake to execute a series of commands for this
+    install set:
 
     \code
         unix:documentation.extra = create_docs; mv master.doc toc.doc
     \endcode
 
-    Then qmake will run the things in extra (this is of course platform
-    specific, so you may need to test for your platform first, this case
-    we test for unix). Then it will do the normal processings of the files
-    member. Finally if you appened a builtin install to INSTALLS \c qmake
-    (and do not specify a files or extra member) will decide what needs to
-    be copied for you, currently the only supported builtin is target:
+    The \c unix scope
+    (see \l{qmake Advanced Usage#Scopes and Conditions}{Scopes and Conditions})
+    ensures that these particular commands are only executed on Unix platforms.
+    Appropriate commands for other platforms can be defined using other scope
+    rules.
+
+    Commands specified in the \c extra member are executed before the instructions
+    in the other members of the object are performed.
+
+    If you append a built-in install set to the \c INSTALLS variable and do
+    not specify \c files or \c extra members, \c qmake will decide what needs to
+    be copied for you. Currently, the only supported built-in install set is
+    \c target:
 
     \code
         target.path = /usr/local/myprogram
         INSTALLS += target
     \endcode
 
-    With this \c qmake will know what you plan need copied, and do this
-    for you.
+    In the above lines, \c qmake knows what needs to be copied, and will handle
+    the installation process automatically.
 
     \target cache
     \section1 Cache File
 
-    The cache file (mentioned above in the options) is a special file \c qmake
-    will read to find settings not specified in the \c qmake.conf file, the
-    .pro file, or the command line. If \c -nocache is not specified, \c qmake
-    will try to find a file called \c .qmake.cache in parent directories.  If
-    it fails to find this file, it will silently ignore this step of
-    processing.
+    The cache file is a special file \c qmake reads to find settings not specified
+    in the \c qmake.conf file, project files, or at the command line. If
+    \c -nocache is not specified when \c qmake is run, it will try to find a file
+    called \c{.qmake.cache} in parent directories of the current directory. If
+    it fails to find this file, it will silently ignore this step of processing.
 
     \target LibDepend
     \section1 Library Dependencies
 
-    Often when linking against a library \c qmake relies on the underlying
+    Often when linking against a library, \c qmake relies on the underlying
     platform to know what other libraries this library links against, and
     lets the platform pull them in. In many cases, however, this is not
-    sufficent. For example when statically linking a library there are no
-    libraries linked against, and therefore no dependencies to those
-    libraries are created - however an application that later links
+    sufficent. For example, when statically linking a library, no other
+    libraries are linked to, and therefore no dependencies to those
+    libraries are created. However, an application that later links
     against this library will need to know where to find the symbols that
-    the linked in library will require. To help with this situation \c
-    qmake will follow a library's dependencies when it feels appropriate,
-    however this behavior must be enabled in \c qmake. To enable requires
-    two steps. First, you must enable it in the library - to do this you
-    must tell \c qmake to save information about this library:
+    the static library will require. To help with this situation, \c qmake
+    attempts to follow a library's dependencies where appropriate, but
+    this behavior must be explicitly enabled by following two steps.
+
+    The first step is to enable dependency tracking in the library itself.
+    To do this you must tell \c qmake to save information about the library:
 
     \code
         CONFIG += create_prl
     \endcode
 
-    This is only relevant to the lib template, and will be ignored for all
-    others. When this option is enabled \c qmake will create a file
-    (called a .prl file) which will save some meta information about the
-    library. This metafile is itself just a qmake project file, but with
-    all internal variables. You are free to view this file, and if deleted
-    \c qmake will know to recreate it when necesary (either when the .pro
-    file is later read, or if a dependent library (described below) has
-    changed). When installing this library (by using target in INSTALLS,
-    above) \c qmake will automatically copy the .prl file to your install
-    path.
+    This is only relevant to the \c lib template, and will be ignored for
+    all others. When this option is enabled, \c qmake will create a file
+    ending in .prl which will save some meta-information about the
+    library. This metafile is just like an ordinary project file, but only
+    contains internal variable declarations. You are free to view this file
+    and, if it is deleted, \c qmake will know to recreate it when necessary,
+    either when the project file is later read, or if a dependent library
+    (described below) has changed. When installing this library, by
+    specifying it as a target in an \c INSTALLS declaration, \c qmake will
+    automatically copy the .prl file to the installation path.
 
-    The second step to enabling this processing is to turn on reading of
-    the meta information created above:
+    The second step in this process is to enable reading of this meta
+    information in the applications that use the static library:
 
     \code
         CONFIG += link_prl
     \endcode
 
-    When this is turned on \c qmake will process all libraries linked to,
-    and find their meta information. With this meta information \c qmake
-    will figure out what is relevant to linking, specifically it will add
-    to your list of DEFINES as well as LIBS. Once \c qmake has processed
-    this file, it will then look through the newly introduced LIBS and
-    find their dependent .prl files, and continue until all libraries have
-    been resolved. At this point the Makefile is created as usual, and the
-    libraries are linked explicity against your program.
+    When this is enabled, \c qmake will process all libraries linked to
+    by the application and find their meta-information. \c qmake will use
+    this to determine the relevant linking information, specifically adding
+    values to the application project file's list of \c DEFINES as well as
+    \c LIBS. Once \c qmake has processed this file, it will then look through
+    the newly introduced libraries in the \c LIBS variable, and find their
+    dependent .prl files, continuing until all libraries have been resolved.
+    At this point, the Makefile is created as usual, and the libraries are
+    linked explicitlyy against the application.
 
     The internals of the .prl file are left closed so they can easily
-    change later. It is not designed to be changed by hand however, and
-    should only be created by \c qmake - these .prl files should also not
-    be transfered from operating system to operating system as they may be
-    platform dependent (like a Makefile).
+    change later. They are not designed to be changed by hand, should only
+    be created by \c qmake, and should not be transferred between operating
+    systems as they may contain platform-dependent information.
 
     \target Extensions
     \section1 File Extensions
 
     Under normal circumstances \c qmake will try to use appropriate file extensions
-    for your platform. There may be times, however, that you would like to override
-    the behavior of these extensions. To do this, you must modify builtin variables
-    in your .pro file, which will in turn changes \c qmake's interpretation of these
-    files. You may do this as:
+    for your platform. However, it it sometimes necessary to override the default
+    choices for each platform and explicitly define file extensions for \c qmake to use.
+    This is achieved by redefining certain built-in variables; for example the extension
+    used for \l moc files can be redefined with the following assignment in a project
+    file:
 
     \code
         QMAKE_EXT_MOC = .mymoc
     \endcode
 
-    The variables are as follows:
+    The following variables can be used to redefine common file extensions recognized
+    by \c qmake:
 
     \list
     \o QMAKE_EXT_MOC - This modifies the extension placed on included moc files.
-    \o QMAKE_EXT_UI - This modifies the extension used for designer UI files (usually in FORMS).
+    \o QMAKE_EXT_UI - This modifies the extension used for designer UI files (usually
+                      in \c FORMS).
     \o QMAKE_EXT_PRL - This modifies the extension placed on
                        \l{#LibDepend}{library dependency files}.
-    \o QMAKE_EXT_LEX - This changes the suffix used in files (usually in LEXSOURCES).
-    \o QMAKE_EXT_YACC - This changes the suffix used in files (usually in YACCSOURCES).
+    \o QMAKE_EXT_LEX - This changes the suffix used in files (usually in \c LEXSOURCES).
+    \o QMAKE_EXT_YACC - This changes the suffix used in files (usually in \c YACCSOURCES).
     \o QMAKE_EXT_OBJ - This changes the suffix used on generated object files.
     \endlist
 
-    All the above accept just the first value, so you must assign to it one value that
-    will be used through your Makefile. There are two variables that accept a list of values,
-    they are:
+    All of the above accept just the first value, so you must assign to it just one
+    value that will be used throughout your project file. There are two variables that
+    accept a list of values:
 
     \list
-    \o QMAKE_EXT_CPP - Changes interpretation all files with these suffixes to be
+    \o QMAKE_EXT_CPP - Causes \c qmake to interpret all files with these suffixes as
                        C++ source files.
-    \o QMAKE_EXT_H - Changes interpretation all files with these suffixes to be
-                       C header files.
+    \o QMAKE_EXT_H - Causes \c qmake to interpret all files with these suffixes as
+                     C and C++ header files.
     \endlist
 
     \target Customizing
@@ -2622,7 +2645,7 @@
     \title qmake Advanced Usage
     \contentspage {qmake Manual}{Contents}
     \previouspage Configuring qmake's Environment
-    \nextpage qmake Tutorial
+    \nextpage qmake Reference
 
     Many \c qmake project files simply describe the sources and header files used
     by the project, using a list of \c{name = value} and \c{name += value}
@@ -2972,7 +2995,7 @@
     \o In a directory listed in the \c QMAKEFEATURES property variable; this
        contains a colon-spearated list of directories.
     \o In a features directory beneath the project's root directory (where
-       the .qmake.cache file is generated).
+       the \c{.qmake.cache} file is generated).
     \o In a features directory residing within a \c mkspecs directory.
        \c mkspecs directories can be located beneath any of the directories
        listed in the \c QMAKEPATH environment variable (a colon-separated list
