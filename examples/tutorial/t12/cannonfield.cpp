@@ -33,6 +33,7 @@ CannonField::CannonField(QWidget *parent)
     shootForce = 0;
     target = QPoint(0, 0);
     setPalette(QPalette(QColor(250, 250, 200)));
+    setAutoFillBackground(true);
     newTarget();
 }
 

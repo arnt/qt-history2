@@ -20,6 +20,7 @@ CannonField::CannonField(QWidget *parent)
 {
     currentAngle = 45;
     setPalette(QPalette(QColor(250, 250, 200)));
+    setAutoFillBackground(true);
 }
 
 void CannonField::setAngle(int angle)

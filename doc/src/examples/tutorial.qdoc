@@ -962,7 +962,8 @@
 
     This palette uses the indicated color as background and picks other
     colors suitably. (For this widget only the background and text
-    colors will actually be used.)
+    colors will actually be used.) We then call setAutoFillBackground(true)
+    to tell Qt fill the background automatically.
 
     The QColor is specified as a RGB (red-green-blue) triplet, where
     each value is between 0 (dark) and 255 (bright). We could also

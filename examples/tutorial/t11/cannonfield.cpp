@@ -30,6 +30,7 @@ CannonField::CannonField(QWidget *parent)
     shootAngle = 0;
     shootForce = 0;
     setPalette(QPalette(QColor(250, 250, 200)));
+    setAutoFillBackground(true);
 }
 
 void CannonField::setAngle(int angle)

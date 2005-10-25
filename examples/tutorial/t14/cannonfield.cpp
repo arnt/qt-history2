@@ -36,6 +36,7 @@ CannonField::CannonField(QWidget *parent)
     gameEnded = false;
     barrelPressed = false;
     setPalette(QPalette(QColor(250, 250, 200)));
+    setAutoFillBackground(true);
     newTarget();
 }
 
