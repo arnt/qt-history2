@@ -43,6 +43,7 @@ public:
     void init();
     void popupPressed();
     QStyleOptionButton getStyleOption() const;
+    QDialog *dialogParent();
     QPointer<QMenu> menu;
     uint autoDefault : 1;
     uint defaultButton : 1;
@@ -247,10 +248,22 @@ QPushButton::~QPushButton()
 {
 }
 
+QDialog *QPushButtonPrivate::dialogParent()
+{
+    Q_Q(QPushButton);
+    QWidget *p = q;
+    while (p && !p->isWindow()) {
+        p = p->parentWidget();
+        if (QDialog *dialog = qobject_cast<QDialog*>(p))
+            return dialog;
+    }
+    return 0;
+}
+
 void QPushButtonPrivate::init()
 {
     Q_Q(QPushButton);
-    autoDefault = (qobject_cast<QDialog*>(q->window()) != 0);
+    autoDefault = (dialogParent() != 0);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
@@ -305,8 +318,7 @@ void QPushButton::setDefault(bool enable)
         return;
     d->defaultButton = enable;
     if (d->defaultButton) {
-        QDialog *dlg = qobject_cast<QDialog*>(window());
-        if (dlg)
+        if (QDialog *dlg = d->dialogParent())
             dlg->d_func()->setMainDefault(this);
     }
     update();
