@@ -65,7 +65,6 @@ protected:
     // prepared query support
     virtual bool exec();
     virtual bool prepare(const QString& query);
-    // ### TODO - find a much better name
     virtual bool savePrepare(const QString& sqlquery);
     virtual void bindValue(int pos, const QVariant& val, QSql::ParamType type);
     virtual void bindValue(const QString& placeholder, const QVariant& val,
@@ -97,8 +96,9 @@ protected:
     virtual QSqlRecord record() const;
     virtual QVariant lastInsertId() const;
 
-    enum VirtualHookOperation { BatchOperation };    
+    enum VirtualHookOperation { BatchOperation };
     virtual void virtual_hook(int id, void *data);
+
     bool execBatch(bool arrayBind = false);
 
 private:

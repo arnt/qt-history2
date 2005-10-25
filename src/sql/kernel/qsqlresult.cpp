@@ -829,10 +829,10 @@ void QSqlResult::virtual_hook(int, void *)
 
     For batch executions, bound values have to be provided as lists
     of variants (QVariantList).
-    
+
     Each list must contain values of the same type. All lists must
     contain equal amount of values (rows).
-    
+
     NULL values are passed in as typed QVariants, for example
     \c {QVariant(QVariant::Int)} for an integer NULL value.
 
@@ -845,15 +845,15 @@ void QSqlResult::virtual_hook(int, void *)
     QVariantList col1;
     QVariantList col2;
     QVariantList col3;
-    
+
     col1 << 1 << 3;
     col2 << 2 << 4;
     col3 << "hello" << "world";
-    
+
     q.bindValue(0, col1);
     q.bindValue(1, col2);
     q.bindValue(2, col3);
-        
+
     if (!q.execBatch())
         qDebug() << q.lastError();
     \endcode
@@ -864,16 +864,16 @@ void QSqlResult::virtual_hook(int, void *)
 */
 bool QSqlResult::execBatch(bool arrayBind)
 {
-    if (driver()->hasFeature(QSqlDriver::BatchOperations)) {      
+    if (driver()->hasFeature(QSqlDriver::BatchOperations)) {
         virtual_hook(BatchOperation, &arrayBind);
         return d->error.type() == QSqlError::NoError;
     } else {
-        QVector<QVariant> values = d->values;        
+        QVector<QVariant> values = d->values;
         if (values.count() == 0)
-            return false;        
-        for (int i = 0; i < values.at(0).toList().count(); ++i) {            
+            return false;
+        for (int i = 0; i < values.at(0).toList().count(); ++i) {
             for (int j = 0; j < values.count(); ++j)
-                bindValue(j, values.at(j).toList().at(i), QSql::In);            
+                bindValue(j, values.at(j).toList().at(i), QSql::In);
             if (!exec())
                 return false;
         }
