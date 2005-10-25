@@ -1125,6 +1125,11 @@ void QApplication::setStyle(QStyle *style)
         QApplication::sendEvent(QApplicationPrivate::focus_widget->style(), &in);
         QApplicationPrivate::focus_widget->update();
     }
+    // Initialize the sys_pal if it hasn't happened yet...
+    if (!QApplicationPrivate::sys_pal)
+        QApplicationPrivate::setSystemPalette(QApplicationPrivate::app_style->standardPalette());
+    if (QApplicationPrivate::set_pal) // repolish set palette with the new style
+        QApplication::setPalette(*QApplicationPrivate::set_pal);
 }
 
 /*!
