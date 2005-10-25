@@ -1258,6 +1258,8 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 #endif
         } else {
             mask |= GCTile;
+            if (d->pdev_depth == 32 && pm.depth() != 32)
+                pm.data->convertToARGB32();
             vals.tile = (pm.depth() == d->pdev_depth
                          ? pm.handle()
                          : pm.data->x11ConvertToDefaultDepth());
@@ -1948,7 +1950,7 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
     QMatrix matrix;
     matrix.translate(p.x(), p.y());
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
-    
+
     int size = qRound(ti.fontEngine->ascent());
     QSize s(size - 3, size - 3);
 
@@ -1957,10 +1959,10 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
     QPen pen = painter()->pen();
     pen.setWidthF(ti.fontEngine->lineThickness().toReal());
     painter()->setPen(pen);
-    for (int k = 0; k < positions.size(); k++) 
+    for (int k = 0; k < positions.size(); k++)
         painter()->drawRect(QRectF(positions[k].toPointF(), s));
     painter()->restore();
-}                 
+}
 
 void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &ti)
 {
@@ -2086,7 +2088,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         const QColor &pen = d->cpen.color();
         ::Picture src = X11->getSolidFill(d->scrn, pen);
         XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, ft->xglyph_format);
-        
+
         QVarLengthArray<XGlyphElt32, 256> glyphSpec(glyphs.size());
         for (int i = 0; i < glyphs.size(); ++i) {
             int xp = qRound(positions[i].x);

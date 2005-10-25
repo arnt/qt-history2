@@ -2154,7 +2154,7 @@ void QPixmapData::convertToARGB32()
     if (!X11->use_xrender)
         return;
 
-    Q_ASSERT(count == 1);
+    // Q_ASSERT(count == 1);
 
     Pixmap pm = XCreatePixmap(X11->display, RootWindow(X11->display, xinfo.screen()),
                               w, h, 32);
