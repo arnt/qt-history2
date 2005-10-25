@@ -565,7 +565,7 @@
     The code above will wait until the network server is responding for a
     maximum of about 12.5 seconds.
 
-    \sa qSleep()
+    \sa QTest::qSleep()
 */
 
 namespace QTest
@@ -1375,4 +1375,14 @@ bool QTest::compare_string_helper(const char *t1, const char *t2, const char *ac
 /*! \fn void QTest::sendKeyEvent(KeyAction action, QWidget *widget, Qt::Key code, QString text, Qt::KeyboardModifiers modifier, int delay=-1)
     \internal
 */
+
+/*! \fn void QTest::sendKeyEvent(KeyAction action, QWidget *widget, Qt::Key code, char ascii, Qt::KeyboardModifiers modifier, int delay=-1)
+    \internal
+*/
+
+/*! \fn void QTest::simulateEvent(QWidget *widget, bool press, int code, Qt::KeyboardModifiers modifier, QString text, bool repeat, int delay=-1)
+    \internal
+*/
+
+
 
