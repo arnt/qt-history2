@@ -662,6 +662,12 @@ bool overrideClassRename(QString className)
     */
     else if(className == "QAction")
         return true;
+    /*
+        We want people to use the new QComboBox by default. Q3ComboBox is
+        only for special use.
+    */
+    else if(className == "QComboBox")
+        return true;
 
     return false;
 }

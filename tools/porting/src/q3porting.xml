@@ -12,7 +12,7 @@
 **
 **************************************************************************-->
 <Rules>
-    <Count>3675</Count>
+    <Count>3676</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -2244,6 +2244,10 @@
     <item Type="Qt4Class" >
         <Library>QtDesigner</Library>
         <Name>QDesignerDnDItemInterface</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtDesigner</Library>
+        <Name>QDesignerExportWidget</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtDesigner</Library>
@@ -5047,6 +5051,7 @@
     <item Type="qt4Header" >QDesignerCustomWidgetCollectionInterface</item>
     <item Type="qt4Header" >QDesignerCustomWidgetInterface</item>
     <item Type="qt4Header" >QDesignerDnDItemInterface</item>
+    <item Type="qt4Header" >QDesignerExportWidget</item>
     <item Type="qt4Header" >QDesignerExtraInfoExtension</item>
     <item Type="qt4Header" >QDesignerFormEditorInterface</item>
     <item Type="qt4Header" >QDesignerFormEditorPluginInterface</item>
@@ -5780,10 +5785,6 @@
     <item Type="RenamedClass" >
         <Qt4>Q3ColorDrag</Qt4>
         <Qt3>QColorDrag</Qt3>
-    </item>
-    <item Type="RenamedClass" >
-        <Qt4>Q3ComboBox</Qt4>
-        <Qt3>QComboBox</Qt3>
     </item>
     <item Type="RenamedClass" >
         <Qt4>Q3ComboTableItem</Qt4>
