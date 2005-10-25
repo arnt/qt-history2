@@ -75,6 +75,7 @@ void verboseWSErrorDebug(int r)
         case WSAEDISCON: qDebug("WSA error : WSAEDISCON"); break;
         default: qDebug("WSA error : Unknown"); break;
     }
+    qErrnoWarning(r, "more details");
 }
 
 /*
