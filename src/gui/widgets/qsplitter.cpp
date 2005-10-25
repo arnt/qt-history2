@@ -1219,6 +1219,11 @@ bool QSplitter::event(QEvent *e)
 {
     Q_D(QSplitter);
     switch (e->type()) {
+    case QEvent::Hide:
+        // Reset firstShow to false here since things can be done to the splitter in between
+        if (!d->firstShow)
+            d->firstShow = true;
+        break;
     case QEvent::Show:
         if (!d->firstShow)
             break;
