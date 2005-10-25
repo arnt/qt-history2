@@ -116,7 +116,7 @@ void ScribbleArea::drawLineTo(const QPoint &endPoint)
     painter.drawLine(lastPoint, endPoint);
     modified = true;
 
-    int rad = myPenWidth / 2;
+    int rad = (myPenWidth / 2) + 2;
     update(QRect(lastPoint, endPoint).normalized()
                                      .adjusted(-rad, -rad, +rad, +rad));
     lastPoint = endPoint;
