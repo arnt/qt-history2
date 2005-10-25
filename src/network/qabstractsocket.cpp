@@ -912,7 +912,7 @@ QAbstractSocket::~QAbstractSocket()
 */
 bool QAbstractSocket::isValid() const
 {
-    return d_func()->socketEngine->isValid();
+    return d_func()->socketEngine ? d_func()->socketEngine->isValid() : false;
 }
 
 /*!
