@@ -679,6 +679,8 @@ void QAbstractItemModelPrivate::reset()
 
     Returns a \c{qint64} used by the model to associate
     the index with the internal data structure.
+
+    \sa QAbstractItemModel::createIndex()
 */
 
 /*!
