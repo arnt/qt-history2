@@ -36,6 +36,72 @@
 #include <stdlib.h>
 #include <errno.h>
 
+// Uncomment to generate debug output
+// #define QTRANSPORTAUTH_DEBUG 1
+
+#ifdef QTRANSPORTAUTH_DEBUG
+void hexstring( char *buf, const unsigned char* key, size_t sz );
+#endif
+
+/**
+  \class QTransportAuth
+
+  \brief Authenticate a message transport.
+
+  For performance reasons, message authentication is tied to an individual
+  message transport instance.  For example in connection oriented transports
+  the authentication cookie can be cached against the connection avoiding
+  the overhead of authentication on every message.
+
+  For each process there is one instance of the QTransportAuth object.
+  For server processes it can determine the \link secure-exe-environ.html SXV
+  Program Identity \endlink and provide access to policy data to determine if
+  the message should be forwarded for action.  If not actioned, the message
+  may be treated as being from a flawed or malicious process.
+
+  Retrieve the instance with the getInstance() method.  The constructor is
+  disabled and instances of QTransportAuth should never be constructed by
+  calling classes.
+
+  To make the Authentication easier to use a proxied QIODevice is provided
+  which uses an internal QBuffer.
+
+  In the server code first get a pointer to a QTransportAuth::Data object
+  using the connectTransport() method:
+
+  \code
+  QTransportAuth::Data *conData;
+  QTransportAuth *a = QTransportAuth::getInstance();
+
+  conData = a->QTransportconnectTransport(
+        QTransportAuth::Trusted | QTransportAuth::UnixStreamSock,
+        socketDescriptor );
+  \endcode
+
+  Here it is asserted that the transport is trusted.  See the assumptions
+  listed in the \link secure-exe-environ.html SXV documentation \endlink
+
+  Then proxy in the authentication device:
+
+  \code
+  // mySocket can be any QIODevice subclass
+  AuthDevice *ad = a->recvBuf( d, mySocket );
+
+  // proxy in the auth device where the socket would have gone
+  connect( ad, SIGNAL(readyRead()), this, SLOT(mySocketReadyRead()));
+  \endcode
+
+  In the client code it is similar.  Use the connectTransport() method
+  just the same then proxy in the authentication device instead of the
+  socket in write calls:
+
+  \code
+  AuthDevice *ad = a->authBuf( d, mySocket );
+
+  ad->write( someData );
+  \endcode
+*/
+
 static int hmac_md5(
         unsigned char*  text,         /* pointer to data stream */
         int             text_length,  /* length of data stream */
@@ -64,12 +130,23 @@ const char *QTransportAuth::errorString( const Data &d )
     return errorStrings[( d.status & ErrMask )];
 }
 
+QTransportAuthPrivate::QTransportAuthPrivate()
+    : keyInitialised(false)
+{
+}
+
+QTransportAuthPrivate::~QTransportAuthPrivate()
+{
+    freeCache();
+    while ( data.count() )
+        delete data.takeLast();
+}
+
 /**
   \internal
   Construct a new QTransportAuth
 */
-QTransportAuth::QTransportAuth()
-    : keyInitialised( false )
+QTransportAuth::QTransportAuth() : QObject(*new QTransportAuthPrivate)
 {
     // qDebug( "creating transport auth" );
 }
@@ -80,31 +157,31 @@ QTransportAuth::QTransportAuth()
 */
 QTransportAuth::~QTransportAuth()
 {
-    freeCache();
-    while ( data.count() )
-        delete data.takeLast();
     // qDebug( "deleting transport auth" );
 }
 
 void QTransportAuth::setProcessKey( const char *authdata )
 {
     // qDebug( "set process key" );
-    ::memcpy( &authKey, authdata, sizeof(authKey) );
-    keyInitialised = true;
+    Q_D(QTransportAuth);
+    ::memcpy(&d->authKey, authdata, sizeof(d->authKey));
+    d->keyInitialised = true;
 }
 
 void QTransportAuth::registerPolicyReceiver( QObject *pr )
 {
+    Q_D(QTransportAuth);
     QPointer<QObject> guard = pr;
-    policyReceivers.append( guard );
+    d->policyReceivers.append(guard);
 }
 
 QTransportAuth::Data *QTransportAuth::connectTransport( unsigned char properties, int descriptor )
 {
-    Data *d = new Data( properties, descriptor );
-    d->status = Pending;
-    data.append( d );
-    return d;
+    Q_D(QTransportAuth);
+    Data *data = new Data(properties, descriptor);
+    data->status = Pending;
+    d->data.append(data);
+    return data;
 }
 
 /**
@@ -189,22 +266,26 @@ QTransportAuth *QTransportAuth::getInstance()
 */
 void QTransportAuth::setKeyFilePath( const QString &path )
 {
-    m_keyFilePath = path;
+    Q_D(QTransportAuth);
+    d->m_keyFilePath = path;
 }
 
 QString QTransportAuth::keyFilePath() const
 {
-    return m_keyFilePath;
+    Q_D(const QTransportAuth);
+    return d->m_keyFilePath;
 }
 
 void QTransportAuth::setLogFilePath( const QString &path )
 {
-    m_logFilePath = path;
+    Q_D(QTransportAuth);
+    d->m_logFilePath = path;
 }
 
 QString QTransportAuth::logFilePath() const
 {
-    return m_logFilePath;
+    Q_D(const QTransportAuth);
+    return d->m_logFilePath;
 }
 
 bool QTransportAuth::isDiscoveryMode() const
@@ -237,10 +318,12 @@ bool QTransportAuth::isDiscoveryMode() const
 */
 QIODevice *QTransportAuth::passThroughByClient( QWSClient *client ) const
 {
+    Q_D(const QTransportAuth);
+
     if ( client == 0 ) return 0;
-    if ( buffersByClient.contains( client ))
+    if ( d->buffersByClient.contains( client ))
     {
-        return buffersByClient[client];
+        return d->buffersByClient[client];
     }
     qWarning( "buffer not found for client %p", client );
     return 0;
@@ -262,18 +345,20 @@ QIODevice *QTransportAuth::passThroughByClient( QWSClient *client ) const
 
   \sa setTargetDevice()
 */
-QAuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *d, QIODevice *iod )
+QAuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *data, QIODevice *iod )
 {
-    if ( buffers.contains( d ))
-        return buffers[d];
-    QAuthDevice *authBuf = new QAuthDevice( iod, d, QAuthDevice::Receive );
-    for ( int i = 0; i < policyReceivers.count(); ++i )
+    Q_D(QTransportAuth);
+
+    if (d->buffers.contains(data))
+        return d->buffers[data];
+    QAuthDevice *authBuf = new QAuthDevice( iod, data, QAuthDevice::Receive );
+    for ( int i = 0; i < d->policyReceivers.count(); ++i )
     {
         connect( authBuf, SIGNAL(policyCheck(QTransportAuth::Data &, const QString &)),
-                policyReceivers[i], SLOT(policyCheck(QTransportAuth::Data &, const QString &)));
+                d->policyReceivers[i], SLOT(policyCheck(QTransportAuth::Data &, const QString &)));
     }
     // qDebug( "created new authbuf %p", authBuf );
-    buffers[d] = authBuf;
+    d->buffers[data] = authBuf;
     return authBuf;
 }
 
@@ -292,12 +377,13 @@ QAuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *d, QIODevice *iod )
 
   \sa setTargetDevice()
 */
-QAuthDevice *QTransportAuth::authBuf( QTransportAuth::Data *d, QIODevice *iod )
+QAuthDevice *QTransportAuth::authBuf( QTransportAuth::Data *data, QIODevice *iod )
 {
-    if ( buffers.contains( d ))
-        return buffers[d];
-    QAuthDevice *authBuf = new QAuthDevice( iod, d, QAuthDevice::Send );
-    buffers[d] = authBuf;
+    Q_D(QTransportAuth);
+    if (d->buffers.contains(data))
+        return d->buffers[data];
+    QAuthDevice *authBuf = new QAuthDevice( iod, data, QAuthDevice::Send );
+    d->buffers[data] = authBuf;
     return authBuf;
 }
 
@@ -309,7 +395,7 @@ static struct AuthCookie *keyCache[ KEY_CACHE_SIZE ] = { 0 };
 
 TODO: reimplement this using Qt structures
 */
-void QTransportAuth::freeCache()
+void QTransportAuthPrivate::freeCache()
 {
     int i;
     for ( i = 0; i < KEY_CACHE_SIZE; ++i )
@@ -326,7 +412,7 @@ void QTransportAuth::freeCache()
   Find the client key for the \a progId.  If it is cached should be very
   fast, otherwise requires a read of the secret key file
 */
-const unsigned char *QTransportAuth::getClientKey( unsigned char progId )
+const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
 {
     int fd, i;
     struct AuthCookie kr;
@@ -339,7 +425,7 @@ const unsigned char *QTransportAuth::getClientKey( unsigned char progId )
     }
     if ( i == KEY_CACHE_SIZE ) // cache buffer has wrapped
         i = 0;
-    memset( &kr, 0, sizeof( kr ));
+    ::memset( &kr, 0, sizeof( kr ));
     fd = ::open( m_keyFilePath.toLocal8Bit().constData(), O_RDONLY );
     if ( fd == -1 )
     {
@@ -403,7 +489,7 @@ QAuthDevice::~QAuthDevice()
 void QAuthDevice::setClient( QWSClient *cli )
 {
     m_client = cli;
-    QTransportAuth::getInstance()->buffersByClient[cli] = this;
+    QTransportAuth::getInstance()->d_func()->buffersByClient[cli] = this;
 }
 
 QWSClient *QAuthDevice::client() const
@@ -626,7 +712,7 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
     if ( d.connection() &&
             (( d.status & QTransportAuth::ErrMask ) != QTransportAuth::Pending ))
         return false;
-    if ( ! a->keyInitialised )
+    if ( ! a->d_func()->keyInitialised )
     {
         qWarning( "Cannot add transport authentication - key not initialised!" );
         return false;
@@ -640,17 +726,17 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
     if ( !d.trusted())
     {
         // Use HMAC
-        int rc = hmac_md5( (unsigned char *)msg, msgLen, a->authKey.key, KEY_LEN, digest );
+        int rc = hmac_md5( (unsigned char *)msg, msgLen, a->d_func()->authKey.key, KEY_LEN, digest );
         if ( rc == -1 )
             return false;
         memcpy( hdr + KEY_IDX, digest, KEY_LEN );
     }
     else
     {
-        memcpy( hdr + KEY_IDX, a->authKey.key, KEY_LEN );
+        memcpy( hdr + KEY_IDX, a->d_func()->authKey.key, KEY_LEN );
     }
 
-    hdr[ PROG_IDX ] = a->authKey.progId;
+    hdr[ PROG_IDX ] = a->d_func()->authKey.progId;
 
 #ifdef QTRANSPORTAUTH_DEBUG
     char keydisplay[KEY_LEN*2+1];
@@ -757,7 +843,7 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
         return false;
     }
     unsigned char progbuf = (unsigned char)(msg[ PROG_IDX ]);
-    const unsigned char *clientKey = a->getClientKey( progbuf );
+    const unsigned char *clientKey = a->d_func()->getClientKey( progbuf );
     if ( clientKey == NULL )
     {
         d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::NoSuchKey;
