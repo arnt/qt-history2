@@ -245,7 +245,11 @@ bool QNativeSocketEnginePrivate::setOption(QNativeSocketEngine::SocketOption opt
         return flags != -1 && ::fcntl(socketDescriptor, F_SETFL, flags | O_NONBLOCK) != -1;
     }
     case QNativeSocketEngine::AddressReusable:
+#ifdef SO_REUSEPORT
+        n = SO_REUSEPORT;
+#else
         n = SO_REUSEADDR;
+#endif
         break;
     case QNativeSocketEngine::BindExclusively:
         return true;
