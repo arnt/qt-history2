@@ -146,9 +146,9 @@ inline void QPalette::setColor(ColorGroup acg, ColorRole acr,
                                const QColor &acolor)
 { setBrush(acg, acr, QBrush(acolor)); }
 inline void QPalette::setColor(ColorRole acr, const QColor &acolor)
-{ setColor(ColorGroup(current_group), acr, acolor); }
+{ setColor(All, acr, acolor); }
 inline void QPalette::setBrush(ColorRole acr, const QBrush &abrush)
-{ setBrush(ColorGroup(current_group), acr, abrush); }
+{ setBrush(All, acr, abrush); }
 
 #ifdef QT3_SUPPORT
 class Q_GUI_EXPORT QColorGroup : public QPalette

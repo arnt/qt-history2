@@ -148,7 +148,7 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 
     \overload
 
-    Sets the brush used for color role \a r in the current ColorGroup to a solid color \a c.
+    Sets the color used for color role \a r in all color groups to a solid color \a c.
 
     \sa brush() setColor() ColorRole
 */
@@ -156,7 +156,8 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 /*!
     \fn void QPalette::setBrush(ColorRole cr, const QBrush &brush)
 
-    Sets the brush used to color role \a cr and brush \a brush.
+    Sets the brush for color role \a cr to brush \a brush for all
+    groups in the palette.
 
     \sa brush() setColor() ColorRole
 */
