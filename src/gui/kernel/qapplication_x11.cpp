@@ -906,7 +906,6 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
     }
 
     if ((button || !resBG.isEmpty() || !resFG.isEmpty())) {// set app colors
-        qDebug() << "here i am";
         (void) QApplication::style();  // trigger creation of application style and system palettes
         QColor btn;
         QColor bg;
