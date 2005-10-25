@@ -1342,7 +1342,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
         repaintChanged();
         break;
     default: {
-            char ascii = e->text().length() ? e->text().unicode()->latin1() : 0;
+            unsigned char ascii = e->text().length() ? e->text().unicode()->latin1() : 0;
             if (e->text().length() &&
                 (!(e->state() & Qt::ControlButton) &&
 #ifndef Q_OS_MAC

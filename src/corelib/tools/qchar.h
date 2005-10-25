@@ -256,7 +256,7 @@ Q_DECLARE_TYPEINFO(QChar, Q_MOVABLE_TYPE);
 inline QChar::QChar() : ucs(0) {}
 
 inline const char QChar::toLatin1() const { return ucs > 0xff ? '\0' : char(ucs); }
-inline QChar QChar::fromLatin1(char c) { return QChar(ushort(c)); }
+inline QChar QChar::fromLatin1(char c) { return QChar(ushort(uchar(c))); }
 
 inline QChar::QChar(uchar c, uchar r) : ucs((r << 8) | c){}
 inline QChar::QChar(short rc) : ucs(ushort(rc)){}

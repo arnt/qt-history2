@@ -190,7 +190,10 @@ Qt::Key QTest::asciiToKey(char ascii)
     case 0xdd: return Qt::Key_Yacute;
     case 0xde: return Qt::Key_THORN;
     case 0xdf: return Qt::Key_ssharp;
+    case 0xe5: return Qt::Key_Aring;
+    case 0xe6: return Qt::Key_AE;
     case 0xf7: return Qt::Key_division;
+    case 0xf8: return Qt::Key_Ooblique;
     case 0xff: return Qt::Key_ydiaeresis;
     default: QTEST_ASSERT(false); return Qt::Key(0);
     }
@@ -388,8 +391,8 @@ char QTest::keyToAscii(Qt::Key key)
     case Qt::Key_Acircumflex: return char(0xc2);
     case Qt::Key_Atilde: return char(0xc3);
     case Qt::Key_Adiaeresis: return char(0xc4);
-    case Qt::Key_Aring: return char(0xc5);
-    case Qt::Key_AE: return char(0xc6);
+    case Qt::Key_Aring: return char(0xe5);
+    case Qt::Key_AE: return char(0xe6);
     case Qt::Key_Ccedilla: return char(0xc7);
     case Qt::Key_Egrave: return char(0xc8);
     case Qt::Key_Eacute: return char(0xc9);
@@ -407,7 +410,7 @@ char QTest::keyToAscii(Qt::Key key)
     case Qt::Key_Otilde: return char(0xd5);
     case Qt::Key_Odiaeresis: return char(0xd6);
     case Qt::Key_multiply: return char(0xd7);
-    case Qt::Key_Ooblique: return char(0xd8);
+    case Qt::Key_Ooblique: return char(0xf8);
     case Qt::Key_Ugrave: return char(0xd9);
     case Qt::Key_Uacute: return char(0xda);
     case Qt::Key_Ucircumflex: return char(0xdb);
