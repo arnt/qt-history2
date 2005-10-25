@@ -58,12 +58,14 @@ namespace QTest
 
         if (!widget)
             widget = QWidget::keyboardGrabber();
+        if (!widget) {
+            if (QWidget *apw = QApplication::activePopupWidget())
+                widget = apw->focusWidget() ? apw->focusWidget() : apw;
+            else
+                widget = QApplication::focusWidget();
+        }
         if (!widget)
-            widget = qApp->focusWidget();
-        if (!widget)
-            widget = qApp->activePopupWidget();
-        if (!widget)
-            widget = qApp->activeWindow();
+            widget = QApplication::activeWindow();
 
         QTEST_ASSERT(widget);
 
