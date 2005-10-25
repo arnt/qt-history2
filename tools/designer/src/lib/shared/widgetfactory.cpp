@@ -75,7 +75,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
 
     // ### cleanup
     if (QDesignerCustomWidgetInterface *f = m_customFactory.value(widgetName)) {
-        return f->createWidget(parentWidget);
+        w = f->createWidget(parentWidget);
     } else if (widgetName == QLatin1String("Line")) {
         w = new Line(parentWidget);
     } else if (widgetName == QLatin1String("QLabel")) {
@@ -333,6 +333,14 @@ void WidgetFactory::initialize(QObject *object) const
         QSize sz = widget->sizeHint();
         if (sz.width() <= 0 && sz.height() <= 0)
             widget->setMinimumSize(QSize(16, 16));
+        widget->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        widget->setAutoFillBackground(true);
+        QPalette pal = widget->palette();
+        QColor col = pal.color(QPalette::Window);
+        if (col.alpha() == 255)
+            col.setAlphaF(.8);
+        pal.setColor(QPalette::Window, col);
+        widget->setPalette(pal);
     }
 
     if (qobject_cast<QDockWidget*>(object) || qobject_cast<QToolBar*>(object)) {

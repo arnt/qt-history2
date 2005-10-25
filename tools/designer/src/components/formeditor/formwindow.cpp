@@ -285,6 +285,11 @@ void FormWindow::setMainContainer(QWidget *w)
 
     m_mainContainer = w;
     w->setAutoFillBackground(true);
+    QPalette pal = w->palette();
+    QColor col = pal.color(QPalette::Window);
+    col.setAlpha(255);
+    pal.setColor(QPalette::Window, col);
+    w->setPalette(pal);
     QSize sz = m_mainContainer->size();
 
     m_mainContainer->setParent(m_widgetStack, 0);
