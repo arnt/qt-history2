@@ -19,7 +19,7 @@ extern void draw_round_rect(QPainter *p, const QRect &bounds, int radius);
 
 PathStrokeWidget::PathStrokeWidget()
 {
-    setWindowTitle("Primitive Stroking");
+    setWindowTitle(tr("Path Stroking"));
 
     // Setting up palette.
     QPalette pal = palette();
