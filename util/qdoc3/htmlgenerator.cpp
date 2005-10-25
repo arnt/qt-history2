@@ -474,6 +474,10 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         in_para = true;
 	break;
     case Atom::ParaRight:
+        if (inLink) {
+            out() << "</a>\n";
+            inLink = false;
+        }
         if (in_para) {
             out() << "</p>\n";
             in_para = false;
@@ -1580,8 +1584,6 @@ void HtmlGenerator::generateSynopsis(const Node *node, const Node *relative,
     }
     out() << highlightedCode( marked, marker, relative );
 }
-
-#include <qdebug.h>
 
 void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* marker */)
 {
