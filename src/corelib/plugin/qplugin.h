@@ -51,13 +51,16 @@ typedef QObject *(*QtPluginInstanceFunction)();
 #  define Q_EXPORT_PLUGIN(PLUGIN) \
             Q_EXPORT_PLUGIN2(PLUGIN, PLUGIN)
 
+#  define Q_EXPORT_STATIC_PLUGIN(PLUGIN) \
+            Q_EXPORT_STATIC_PLUGIN2(PLUGIN, PLUGIN)
+
 #if defined(QT_STATICPLUGIN)
 
 #  define Q_EXPORT_PLUGIN2(PLUGIN, PLUGINCLASS) \
             Q_DECL_EXPORT QObject *qt_plugin_instance_##PLUGIN() \
             Q_PLUGIN_INSTANCE(PLUGINCLASS)
 
-#  define Q_EXPORT_STATIC_PLUGIN(PLUGIN, PLUGINCLASS) \
+#  define Q_EXPORT_STATIC_PLUGIN2(PLUGIN, PLUGINCLASS) \
             Q_EXPORT_PLUGIN2(PLUGIN, PLUGINCLASS)
 
 #else
@@ -93,7 +96,7 @@ typedef QObject *(*QtPluginInstanceFunction)();
             Q_EXTERN_C Q_DECL_EXPORT QObject * Q_STANDARD_CALL qt_plugin_instance() \
             Q_PLUGIN_INSTANCE(PLUGINCLASS)
 
-#  define Q_EXPORT_STATIC_PLUGIN(PLUGIN)
+#  define Q_EXPORT_STATIC_PLUGIN2(PLUGIN, PLUGINCLASS)
 
 #endif
 
