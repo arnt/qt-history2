@@ -762,6 +762,13 @@ QDataStream &operator>>(QDataStream &in, QBitArray &ba)
         allocated += blockSize;
     }
 
+    int paddingMask = ~((0x1 << (len & 0x7)) - 1);
+    if (paddingMask != ~0x0 && (ba.d.constData()[ba.d.size() - 1] & paddingMask)) {
+        ba.clear();
+        in.setStatus(QDataStream::ReadCorruptData);
+        return in;
+    }
+
     *ba.d.data() = ba.d.size() * 8 - len;
     return in;
 }
