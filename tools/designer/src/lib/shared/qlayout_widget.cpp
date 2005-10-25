@@ -820,7 +820,7 @@ QLayoutWidget::QLayoutWidget(QDesignerFormWindowInterface *formWindow, QWidget *
     : QWidget(parent), m_formWindow(formWindow),
       m_support(formWindow, this)
 {
-    setBackgroundRole(QPalette::Base);
+//    setBackgroundRole(QPalette::Base);
 }
 
 void QLayoutWidget::paintEvent(QPaintEvent*)
