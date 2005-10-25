@@ -114,7 +114,7 @@ public:
     QToolTip *toolTip;
 #endif
     bool act                    :1;
-    QWidget* window;
+    QPointer<QWidget> window;
     bool movable            :1;
     bool pressed            :1;
     bool autoraise          :1;
@@ -337,6 +337,10 @@ void QWorkspaceTitleBar::contextMenuEvent(QContextMenuEvent *e)
 void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QWorkspaceTitleBar);
+    if (!d->window) {
+        // could have been deleted as part of a double click event on the sysmenu
+        return;
+    }
     if (e->button() == Qt::LeftButton && d->pressed) {
         e->accept();
         QStyleOptionTitleBar opt = d->getStyleOption();
