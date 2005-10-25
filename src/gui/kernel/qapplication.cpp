@@ -913,7 +913,8 @@ QWidget *QApplication::widgetAt(const QPoint &p)
         //shoot a hole in the widget and try once again
         QRegion oldmask = ret->mask();
         QPoint wpoint = ret->mapFromGlobal(QPoint(x, y));
-        QRegion newmask = oldmask - QRegion(wpoint.x(), wpoint.y(), 1, 1);
+        QRegion newmask = (oldmask.isEmpty() ? QRegion(ret->rect()) : oldmask)
+                          - QRegion(wpoint.x()-2, wpoint.y()-2, 4, 4);
         ret->setMask(newmask);
         QWidget *poke = QApplicationPrivate::widgetAt_sys(x, y);
         ret->setMask(oldmask);
