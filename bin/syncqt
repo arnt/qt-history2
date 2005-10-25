@@ -165,7 +165,7 @@ sub classNames {
                         last unless($line =~ /\\$/);
                     }
                 }
-		push(@ret, "$1") if($line =~ m/^#pragma qt_class\(([^)]*)\)$/);
+                push(@ret, "$1") if($line =~ m/^#pragma qt_class\(([^)]*)\)[\r\n]*$/);
 		$line = 0;
             }
 	    if($line) {
