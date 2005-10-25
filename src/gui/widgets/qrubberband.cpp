@@ -45,7 +45,11 @@ QStyleOptionRubberBand QRubberBandPrivate::getStyleOption() const
     QStyleOptionRubberBand opt;
     opt.init(q);
     opt.shape = shape;
+#ifndef Q_WS_MAC
     opt.opaque = true;
+#else
+    opt.opaque = q->windowFlags() & Qt::ToolTip;
+#endif
     return opt;
 }
 

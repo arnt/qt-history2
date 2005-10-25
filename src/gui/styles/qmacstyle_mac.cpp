@@ -2163,10 +2163,27 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
         break; }
     case QStyle::CE_RubberBand:
         if (const QStyleOptionRubberBand *rubber = qstyleoption_cast<const QStyleOptionRubberBand *>(opt)) {
-            QColor highlight(opt->palette.color(QPalette::Disabled, QPalette::Highlight));
-            if(!rubber->opaque)
-                highlight.setAlphaF(0.75);
-            p->fillRect(opt->rect, highlight);
+            QColor fillColor(opt->palette.color(QPalette::Disabled, QPalette::Highlight));
+            if (!rubber->opaque) {
+                QColor strokeColor;
+                // I retrieved these colors from the Carbon-Dev mailing list
+                strokeColor.setHsvF(0, 0, 0.86, 1.0);
+                fillColor.setHsvF(0, 0, 0.53, 0.25);
+                if (opt->rect.width() * opt->rect.height() <= 3) {
+                    p->fillRect(opt->rect, strokeColor);
+                } else {
+                    QPen oldPen = p->pen();
+                    QBrush oldBrush = p->brush();
+                    QPen pen(strokeColor);
+                    p->setPen(pen);
+                    p->setBrush(fillColor);
+                    p->drawRect(opt->rect.adjusted(0, 0, -1, -1));
+                    p->setPen(oldPen);
+                    p->setBrush(oldBrush);
+                }
+            } else {
+                p->fillRect(opt->rect, fillColor);
+            }
         }
         break;
     case QStyle::CE_HeaderSection:
