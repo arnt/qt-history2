@@ -749,7 +749,7 @@ static void qt_set_input_encoding()
 // set font, foreground and background from x11 resources. The
 // arguments may override the resource settings.
 static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
-                                  const char* bg = 0, const char* button = 0)
+                                 const char* bg = 0, const char* button = 0)
 {
 
     QString resFont, resFG, resBG, resEF, sysFont;
@@ -762,9 +762,15 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
     QApplication::setEffectEnabled(Qt::UI_FadeTooltip, false);
     QApplication::setEffectEnabled(Qt::UI_AnimateToolBox, false);
 
+    bool paletteAlreadySet = false;
     if (QApplication::desktopSettingsAware()) {
         // first, read from settings
         QApplicationPrivate::x11_apply_settings();
+
+        // the call to QApplication::style() below creates the system
+        // palette, which breaks the logic after the RESOURCE_MANAGER
+        // loop... so I have to save this value to be able to use it later
+        paletteAlreadySet = (QApplicationPrivate::sys_pal != 0);
 
         QString style = QApplication::style()->metaObject()->className();
         if (style == QLatin1String("QWindowsStyle")
@@ -774,7 +780,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
             // provided palette entries. For now, we apply this code to only
             // our own plain styles, until we can get complex styles to work
             // properly. We might also introduce a style hint for this.
-            
+
             // second, parse the RESOURCE_MANAGER property
             int format;
             ulong  nitems, after = 1;
@@ -847,9 +853,9 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                         sysFont = value.left(value.lastIndexOf(QLatin1Char(':')));
                     if (!font && key == QLatin1String("font"))
                         resFont = value;
-                    else if  (!fg && key == QLatin1String("foreground"))
+                    else if  (!paletteAlreadySet && !fg && key == QLatin1String("foreground"))
                         resFG = value;
-                    else if (!bg && key == QLatin1String("background"))
+                    else if (!paletteAlreadySet && !bg && key == QLatin1String("background"))
                         resBG = value;
                     else if (key == QLatin1String("guieffects"))
                         resEF = value;
@@ -889,8 +895,8 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                 if (fnt.pointSize() <= 0 && fnt.pixelSize() <= 0)
                     // size is all wrong... fix it
                     fnt.setPointSize((int) ((fontinfo.pixelSize() * 72. /
-                                                (float) QX11Info::appDpiY()) +
-                                              0.5));
+                                             (float) QX11Info::appDpiY()) +
+                                            0.5));
             }
         }
 
@@ -899,8 +905,8 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         }
     }
 
-    if (!QApplicationPrivate::sys_pal
-        && (button || !resBG.isEmpty() || !resFG.isEmpty())) {// set app colors
+    if (!paletteAlreadySet
+        || (button || !resBG.isEmpty() || !resFG.isEmpty())) {// set app colors
         (void) QApplication::style();  // trigger creation of application style and system palettes
         QColor btn;
         QColor bg;
@@ -956,17 +962,17 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         QStringList effects = resEF.split(QLatin1Char(' '));
         QApplication::setEffectEnabled(Qt::UI_General, effects.contains(QLatin1String("general")));
         QApplication::setEffectEnabled(Qt::UI_AnimateMenu,
-                effects.contains(QLatin1String("animatemenu")));
+                                       effects.contains(QLatin1String("animatemenu")));
         QApplication::setEffectEnabled(Qt::UI_FadeMenu,
-                effects.contains(QLatin1String("fademenu")));
+                                       effects.contains(QLatin1String("fademenu")));
         QApplication::setEffectEnabled(Qt::UI_AnimateCombo,
-                effects.contains(QLatin1String("animatecombo")));
+                                       effects.contains(QLatin1String("animatecombo")));
         QApplication::setEffectEnabled(Qt::UI_AnimateTooltip,
-                effects.contains(QLatin1String("animatetooltip")));
+                                       effects.contains(QLatin1String("animatetooltip")));
         QApplication::setEffectEnabled(Qt::UI_FadeTooltip,
-                effects.contains(QLatin1String("fadetooltip")));
+                                       effects.contains(QLatin1String("fadetooltip")));
         QApplication::setEffectEnabled(Qt::UI_AnimateToolBox,
-                effects.contains(QLatin1String("animatetoolbox")));
+                                       effects.contains(QLatin1String("animatetoolbox")));
     }
 }
 
