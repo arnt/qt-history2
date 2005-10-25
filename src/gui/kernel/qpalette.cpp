@@ -163,8 +163,16 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 
 /*!
     \fn const QBrush & QPalette::foreground() const
+    \obsolete
 
-    Returns the foreground brush of the current color group.
+    Use windowText() instead.
+*/
+
+/*!
+    \fn const QBrush & QPalette::windowText() const
+
+    Returns the window text (general foreground) brush of the
+    current color group.
 
     \sa ColorRole brush()
 */
@@ -251,8 +259,16 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 
 /*!
     \fn const QBrush & QPalette::background() const
+    \obsolete
 
-    Returns the background brush of the current color group.
+    Use window() instead.
+*/
+
+/*!
+    \fn const QBrush & QPalette::window() const
+
+    Returns the window (general background) brush of the current
+    color group.
 
     \sa ColorRole brush()
 */
@@ -390,9 +406,13 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 
     The central roles are:
 
-    \value Background  A general background color.
+    \value Window  A general background color.
 
-    \value Foreground  A general foreground color.
+    \value Background  This value is obsolete. Use Window instead.
+
+    \value WindowText  A general foreground color.
+
+    \value Foreground  This value is obsolete. Use WindowText instead.
 
     \value Base  Used as the background color for text entry widgets;
                  usually white or another light color.
@@ -402,19 +422,19 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
                           QAbstractItemView::setAlternatingRowColors()).
 
     \value Text  The foreground color used with \c Base. This is usually
-                 the same as the \c Foreground, in which case it must provide
-                 good contrast with \c Background and \c Base.
+                 the same as the \c WindowText, in which case it must provide
+                 good contrast with \c Window and \c Base.
 
     \value Button The general button background color. This background can be different from
-                  \c Background as some styles require a different background color for buttons.
+                  \c Window as some styles require a different background color for buttons.
 
     \value ButtonText  A foreground color used with the \c Button color.
 
     There are some color roles used mostly for 3D bevel and shadow effects.
-    All of these are normally derived from \c Background, and used in ways that
+    All of these are normally derived from \c Window, and used in ways that
     depend on that relationship. For example, buttons depend on it to make the
     bevels look attractive, and Motif scroll bars depend on \c Mid to be
-    slightly different from \c Background.
+    slightly different from \c Window.
 
     \value Light  Lighter than \c Button color.
 
@@ -502,7 +522,7 @@ static void qt_palette_from_color(QPalette &pal, const QColor & button)
 
 /*!
   Constructs a palette from the \a button color. The other colors are
-  automatically calculated, based on this color. Background will be
+  automatically calculated, based on this color. \c Window will be
   the button color as well.
 */
 QPalette::QPalette(const QColor &button)
@@ -513,7 +533,7 @@ QPalette::QPalette(const QColor &button)
 
 /*!
   Constructs a palette from the \a button color. The other colors are
-  automatically calculated, based on this color. Background will be
+  automatically calculated, based on this color. \c Window will be
   the button color as well.
 */
 QPalette::QPalette(Qt::GlobalColor button)
@@ -524,48 +544,48 @@ QPalette::QPalette(Qt::GlobalColor button)
 
 /*!
     Constructs a palette. You can pass either brushes, pixmaps or
-    plain colors for \a foreground, \a button, \a light, \a dark, \a
-    mid, \a text, \a bright_text, \a base and \a background.
+    plain colors for \a windowText, \a button, \a light, \a dark, \a
+    mid, \a text, \a bright_text, \a base and \a window.
 
     \sa QBrush
 */
-QPalette::QPalette(const QBrush &foreground, const QBrush &button,
+QPalette::QPalette(const QBrush &windowText, const QBrush &button,
                    const QBrush &light, const QBrush &dark,
                    const QBrush &mid, const QBrush &text,
                    const QBrush &bright_text, const QBrush &base,
-                   const QBrush &background)
+                   const QBrush &window)
 {
     init();
-    setColorGroup(All, foreground, button, light, dark, mid, text, bright_text,
-                  base, background);
+    setColorGroup(All, windowText, button, light, dark, mid, text, bright_text,
+                  base, window);
 }
 
 
 /*!\obsolete
 
-  Constructs a palette with the specified \a foreground, \a
-  background, \a light, \a dark, \a mid, \a text, and \a base colors.
-  The button color will be set to the background color.
+  Constructs a palette with the specified \a windowText, \a
+  window, \a light, \a dark, \a mid, \a text, and \a base colors.
+  The button color will be set to the window color.
 */
-QPalette::QPalette(const QColor &foreground, const QColor &background,
+QPalette::QPalette(const QColor &windowText, const QColor &window,
                    const QColor &light, const QColor &dark, const QColor &mid,
                    const QColor &text, const QColor &base)
 {
     init();
-    setColorGroup(All, QBrush(foreground), QBrush(background), QBrush(light),
+    setColorGroup(All, QBrush(windowText), QBrush(window), QBrush(light),
                   QBrush(dark), QBrush(mid), QBrush(text), QBrush(light),
-                  QBrush(base), QBrush(background));
+                  QBrush(base), QBrush(window));
 }
 
 /*!
-    Constructs a palette from a \a button color and a \a background.
+    Constructs a palette from a \a button color and a \a window.
     The other colors are automatically calculated, based on these
     colors.
 */
-QPalette::QPalette(const QColor &button, const QColor &background)
+QPalette::QPalette(const QColor &button, const QColor &window)
 {
     init();
-    QColor bg = background, btn = button, fg, base, disfg;
+    QColor bg = window, btn = button, fg, base, disfg;
     int h, s, v;
     bg.getHsv(&h, &s, &v);
     if(v > 128) {
@@ -960,19 +980,19 @@ bool QPalette::isCopyOf(const QPalette &p) const
 /*!
 
     Sets a the group at \a cg. You can pass either brushes, pixmaps or
-    plain colors for \a foreground, \a button, \a light, \a dark, \a
-    mid, \a text, \a bright_text, \a base and \a background.
+    plain colors for \a windowText, \a button, \a light, \a dark, \a
+    mid, \a text, \a bright_text, \a base and \a window.
 
     \sa QBrush
 */
-void QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &button,
+void QPalette::setColorGroup(ColorGroup cg, const QBrush &windowText, const QBrush &button,
                              const QBrush &light, const QBrush &dark, const QBrush &mid,
                              const QBrush &text, const QBrush &bright_text, const QBrush &base,
-                             const QBrush &background)
+                             const QBrush &window)
 {
     QBrush mid_light = QBrush(qt_mix_colors(button.color(), light.color()));
-    setColorGroup(cg, foreground, button, light, dark, mid, text, bright_text, base,
-                  mid_light, background, mid_light, text,
+    setColorGroup(cg, windowText, button, light, dark, mid, text, bright_text, base,
+                  mid_light, window, mid_light, text,
                   QBrush(Qt::black), QBrush(Qt::darkBlue), QBrush(Qt::white),
                   QBrush(Qt::blue), QBrush(Qt::magenta));
 
@@ -1100,7 +1120,7 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
 
 /*! \fn const QColor &QColorGroup::foreground() const
 
-    Use QPalette::foreground().color() instead.
+    Use QPalette::windowText().color() instead.
 */
 
 /*! \fn const QColor &QColorGroup::button() const
@@ -1135,7 +1155,7 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
 
 /*! \fn const QColor &QColorGroup::background() const
 
-    Use QPalette::background().color() instead.
+    Use QPalette::window().color() instead.
 */
 
 /*! \fn const QColor &QColorGroup::midlight() const

@@ -969,6 +969,9 @@ void QWidgetPrivate::updateSystemBackground()
         || type == Qt::Popup || type == Qt::ToolTip
         )
         XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
+    else if (brush.style() == Qt::SolidPattern && brush.isOpaque())
+        XSetWindowBackground(X11->display, q->winId(),
+                             QColormap::instance(xinfo.screen()).pixel(brush.color()));
     else if (isBackgroundInherited())
         XSetWindowBackgroundPixmap(X11->display, q->winId(), ParentRelative);
     else if (brush.style() == Qt::TexturePattern)
@@ -1587,7 +1590,7 @@ void QWidget::repaint(const QRegion& rgn)
 
     QPaintEvent e(rgn);
     if (engine
-        && !testAttribute(Qt::WA_NoBackground)
+        && !testAttribute(Qt::WA_OpaquePaintEvent)
         && !testAttribute(Qt::WA_NoSystemBackground)) {
         d->composeBackground(br);
 #ifdef QT3_SUPPORT
@@ -1945,10 +1948,11 @@ void QWidgetPrivate::show_sys()
         topData()->waitingForMapNotify = 1;
 
     if (!q->isWindow()
-        && (q->testAttribute(Qt::WA_NoBackground)
+        && (!q->autoFillBackground()
             || q->palette().brush(q->backgroundRole()).style() == Qt::LinearGradientPattern)) {
         XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
         XMapWindow(X11->display, q->winId());
+        updateSystemBackground();
         return;
     }
     XMapWindow(X11->display, q->winId());

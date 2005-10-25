@@ -603,10 +603,11 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
 #ifndef QT_NO_LINEEDIT
     case PE_PanelLineEdit:
         if (const QStyleOptionFrame *panel = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
-            if (!(panel->state & State_Enabled)) {
-                QBrush bg = panel->palette.brush(QPalette::Base);
-                p->fillRect(panel->rect, bg);
-            }
+            p->fillRect(panel->rect.adjusted(panel->lineWidth, panel->lineWidth, -panel->lineWidth, -panel->lineWidth),
+                        panel->palette.brush(QPalette::Base));
+            
+            if (panel->lineWidth > 0)
+                drawPrimitive(PE_FrameLineEdit, panel, p, widget);
         }
         break;
 #endif // QT_NO_LINEEDIT

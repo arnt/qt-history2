@@ -689,8 +689,10 @@
     own. This is set/cleared by QWidget::setCursor() and
     QWidget::unsetCursor().
 
+    \value WA_NoBackground This value is obsolete. Use
+    WA_OpaquePaintEvent instead.
 
-    \value WA_NoBackground Indicates that the widget paints all its
+    \value WA_OpaquePaintEvent Indicates that the widget paints all its
     pixels when it receives a paint event. It is thus not required for
     operations like updating, resizing, scrolling and focus changes to
     call erase the widget before generating paint events. Using

@@ -80,7 +80,10 @@ class QAbstractScrollAreaWidget : public QWidget
 
 public:
     QAbstractScrollAreaWidget(Q3ScrollView* parent=0, const char* name=0, Qt::WFlags f = 0)
-        : QWidget(parent, name, f) {}
+        : QWidget(parent, name, f)
+    {
+        setAutoFillBackground(true);
+    }
 };
 
 class QClipperWidget : public QWidget

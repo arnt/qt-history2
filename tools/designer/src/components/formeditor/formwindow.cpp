@@ -284,6 +284,7 @@ void FormWindow::setMainContainer(QWidget *w)
     }
 
     m_mainContainer = w;
+    w->setAutoFillBackground(true);
     QSize sz = m_mainContainer->size();
 
     m_mainContainer->setParent(m_widgetStack, 0);

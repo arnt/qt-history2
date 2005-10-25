@@ -152,7 +152,7 @@
               <number>0</number>
              </property>
              <property name="text" >
-              <string>Back&amp;ground:</string>
+              <string>Window back&amp;ground:</string>
              </property>
              <property name="alignment" >
               <set>Qt::AlignVCenter</set>

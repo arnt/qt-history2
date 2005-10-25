@@ -598,26 +598,38 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
             PAINTDEVICE->paintEngine()->setSystemClip(wrgn);
 
             //paint the background
-            if((asRoot && !widget->testAttribute(Qt::WA_NoBackground) && !widget->testAttribute(Qt::WA_NoSystemBackground))
-               || widget->d_func()->hasBackground()) {
+            if ((asRoot || widget->autoFillBackground())
+                && !widget->testAttribute(Qt::WA_OpaquePaintEvent)
+                && !widget->testAttribute(Qt::WA_NoSystemBackground)) {
+
+                const QBrush autoFillBrush = widget->palette().brush(widget->backgroundRole());
 
                 QPainter p(widget);
-                const QBrush bg = widget->palette().brush(widget->backgroundRole());
+                if (asRoot && !(widget->autoFillBackground() && autoFillBrush.isOpaque())) {
+                    const QBrush bg = widget->palette().brush(QPalette::Window);
 #ifdef Q_WS_QWS
-                if (widget->isWindow())
                     p.setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
 #endif
-                if (bg.style() == Qt::TexturePattern)
-                    p.drawTiledPixmap(toBePainted.boundingRect(), bg.texture(), toBePainted.boundingRect().topLeft());
-                else
-                    p.fillRect(toBePainted.boundingRect(), bg);
+                    if (bg.style() == Qt::TexturePattern)
+                        p.drawTiledPixmap(toBePainted.boundingRect(), bg.texture(),
+                                          toBePainted.boundingRect().topLeft());
+                    else
+                        p.fillRect(toBePainted.boundingRect(), bg);
+                }
+
+                if (widget->autoFillBackground()) {
+                    if (autoFillBrush.style() == Qt::TexturePattern)
+                        p.drawTiledPixmap(toBePainted.boundingRect(), autoFillBrush.texture(),
+                                          toBePainted.boundingRect().topLeft());
+                    else
+                        p.fillRect(toBePainted.boundingRect(), autoFillBrush);
+                }
             }
 
 #if 0
             qDebug() << "painting" << widget << "opaque ==" << hasBackground(widget);
             qDebug() << "clipping to" << toBePainted << "location == " << offset
                      << "geometry ==" << QRect(widget->mapTo(tlw, QPoint(0, 0)), widget->size());
-            fflush(stderr);
 #endif
 
             //actually send the paint event
@@ -638,7 +650,7 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
         } else if(widget == tlw) {
             QPainter p(PAINTDEVICE);
             p.setClipRegion(toBePainted);
-            const QBrush bg = widget->palette().brush(widget->backgroundRole());
+            const QBrush bg = widget->palette().brush(QPalette::Window);
             if (bg.style() == Qt::TexturePattern)
                 p.drawTiledPixmap(widget->rect(), bg.texture());
             else
@@ -726,7 +738,7 @@ void QWidget::repaint(const QRegion& rgn)
 
         //paint the background
         QPaintEvent e(rgn);
-        if (!testAttribute(Qt::WA_NoBackground)
+        if (!testAttribute(Qt::WA_OpaquePaintEvent)
             && !testAttribute(Qt::WA_NoSystemBackground)) {
             d->composeBackground(rgn.boundingRect());
 #ifdef QT3_SUPPORT

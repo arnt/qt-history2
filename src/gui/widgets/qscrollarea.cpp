@@ -193,6 +193,7 @@ void QScrollArea::setWidget(QWidget *w)
      if (!w->testAttribute(Qt::WA_Resized))
          w->resize(w->sizeHint());
     d->widget = w;
+    d->widget->setAutoFillBackground(true);
     w->installEventFilter(this);
     d->widgetSize = QSize();
     d->updateScrollBars();

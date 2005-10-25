@@ -814,7 +814,7 @@ Qt::FocusReason QFocusEvent::reason()
     erased with the widget's background; otherwise returns false.
 
     Qt 4 \e always erases regions that require painting. The exception
-    to this rule is if the widget sets the Qt::WA_NoBackground or
+    to this rule is if the widget sets the Qt::WA_OpaquePaintEvent or
     Qt::WA_NoSystemBackground attributes. If either one of those
     attributes is set \e and the window system does not make use of
     subwidget alpha composition (currently X11 and Windows, but this

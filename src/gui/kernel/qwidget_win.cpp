@@ -965,7 +965,7 @@ void QWidget::repaint(const QRegion& rgn)
 
     QPaintEvent e(rgn);
     if (engine
-        && !testAttribute(Qt::WA_NoBackground)
+        && !testAttribute(Qt::WA_OpaquePaintEvent)
         && !testAttribute(Qt::WA_NoSystemBackground)) {
         d->composeBackground(br);
 #ifdef QT3_SUPPORT
@@ -1506,7 +1506,7 @@ void QWidget::scroll(int dx, int dy)
 #endif
     {
         UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
-        if (!testAttribute(Qt::WA_NoBackground))
+        if (!testAttribute(Qt::WA_OpaquePaintEvent))
             flags |= SW_ERASE;
         ScrollWindowEx(winId(), dx, dy, 0, 0, 0, 0, flags);
         d->scrollRect(rect(), dx, dy);
@@ -1536,7 +1536,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         wr.right = r.right()+1;
 
         UINT flags = SW_INVALIDATE;
-        if (!testAttribute(Qt::WA_NoBackground))
+        if (!testAttribute(Qt::WA_OpaquePaintEvent))
             flags |= SW_ERASE;
         ScrollWindowEx(winId(), dx, dy, &wr, &wr, 0, 0, flags);
         d->scrollRect(rect(), dx, dy);

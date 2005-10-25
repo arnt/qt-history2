@@ -287,6 +287,38 @@ void QWidget::setEditFocus(bool on)
 #endif
 
 /*!
+    \property QWidget::autoFillBackground
+    \brief whether the widget background is filled automatically
+    \since 4.1
+
+    If enabled, this will cause Qt to fill the background
+    using the widget's background role before invoking
+    the paint event.
+
+    In addition, Windows are always filled with QPalette::Window,
+    unless the WA_OpaquePaintEvent or WA_NoSystemBackground
+    attributes are set.
+
+    \sa Qt::WA_OpaquePaintEvent, Qt::WA_NoSystemBackground
+*/
+bool QWidget::autoFillBackground() const
+{
+    Q_D(const QWidget);
+    return d->extra && d->extra->autoFillBackground;
+}
+
+void QWidget::setAutoFillBackground(bool enabled)
+{
+    Q_D(QWidget);
+    if (!d->extra)
+        d->createExtra();
+    if (d->extra->autoFillBackground != enabled) {
+        d->extra->autoFillBackground = enabled;
+        update();
+    }
+}
+
+/*!
     \class QWidget qwidget.h
     \brief The QWidget class is the base class of all user interface objects.
 
@@ -1069,6 +1101,7 @@ void QWidgetPrivate::createExtra()
         extra->minw = extra->minh = 0;
         extra->maxw = extra->maxh = QWIDGETSIZE_MAX;
         extra->explicitMinSize = 0;
+        extra->autoFillBackground = 0;
 #ifndef QT_NO_CURSOR
         extra->curs = 0;
 #endif
@@ -1115,6 +1148,8 @@ void QWidgetPrivate::deleteExtra()
   A widget does not inherit its parent's background if
   setBackgroundRole() was called, or a brush is defined for the
   background role.
+
+  Only used in the paintOnScreen case.
 */
 
 bool QWidgetPrivate::isBackgroundInherited() const
@@ -1125,7 +1160,7 @@ bool QWidgetPrivate::isBackgroundInherited() const
     if (q->isWindow() || q->windowType() == Qt::SubWindow)
         return false;
 
-    if (q->testAttribute(Qt::WA_NoSystemBackground) || q->testAttribute(Qt::WA_NoBackground))
+    if (q->testAttribute(Qt::WA_NoSystemBackground) || q->testAttribute(Qt::WA_OpaquePaintEvent))
         return false;
 
     const QPalette &pal = q->palette();
@@ -1133,13 +1168,8 @@ bool QWidgetPrivate::isBackgroundInherited() const
     QBrush brush = pal.brush(bg);
 
     // non opaque brushes leaves us no choice, we must inherit
-    if (!brush.isOpaque())
+    if (!q->autoFillBackground() || !brush.isOpaque())
         return true;
-
-    // if we have a background role set, or a custom brush for the
-    // background role, then the background is not inherited
-    if (QPalette::ColorRole(bg_role) != QPalette::NoRole || (pal.resolve() & (1<<bg)))
-        return false;
 
     if (brush.style() == Qt::SolidPattern) {
         // the background is just a solid color. If there is no
@@ -1436,7 +1466,7 @@ bool QWidgetPrivate::hasBackground() const
         return true;
     if (q->testAttribute(Qt::WA_PaintOnScreen))
         return true;
-    if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
+    if (!q->testAttribute(Qt::WA_OpaquePaintEvent) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
         const QPalette &pal = q->palette();
         QPalette::ColorRole bg = q->backgroundRole();
         QBrush bgBrush = pal.brush(bg);
@@ -1450,17 +1480,18 @@ bool QWidgetPrivate::hasBackground() const
 bool QWidgetPrivate::isOpaque() const
 {
     Q_Q(const QWidget);
-    if (q->testAttribute(Qt::WA_NoBackground)
+    if (q->testAttribute(Qt::WA_OpaquePaintEvent)
         || q->testAttribute(Qt::WA_PaintOnScreen)
         || q->testAttribute(Qt::WA_NoSystemBackground))
         return true;
 
+    if (!q->autoFillBackground())
+        return false;
+
     const QPalette &pal = q->palette();
     QPalette::ColorRole bg = q->backgroundRole();
     QBrush bgBrush = pal.brush(bg);
-    return (bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque() &&
-            ((q->isWindow() || q->windowType() == Qt::SubWindow)
-             || (QPalette::ColorRole(bg_role) != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
+    return bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque();
 }
 
 /*!
@@ -3142,6 +3173,7 @@ void QWidget::setPalette(const QPalette &palette)
     Q_D(QWidget);
     setAttribute(Qt::WA_SetPalette, palette.resolve() != 0);
     d->setPalette_helper(palette.resolve(qt_naturalWidgetPalette(this)));
+    update();
 }
 
 void QWidgetPrivate::resolvePalette()
@@ -6542,8 +6574,8 @@ void QWidget::repaint(const QRect &r)
     paintEvent() call.
 
     Qt normally erases the widget's area before the paintEvent() call.
-    If the Qt::WA_NoBackground widget attribute is set, the widget is
-    responsible for painting all its pixels itself.
+    If the Qt::WA_OpaquePaintEvent widget attribute is set, the widget is
+    responsible for painting all its pixels with an opaque color.
 
     \sa repaint() paintEvent(), setUpdatesEnabled()
 */

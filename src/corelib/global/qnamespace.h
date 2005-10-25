@@ -282,7 +282,8 @@ public:
         WA_UnderMouse = 1,
         WA_MouseTracking = 2,
         WA_ContentsPropagated = 3,
-        WA_NoBackground = 4,
+        WA_OpaquePaintEvent = 4,
+        WA_NoBackground = WA_OpaquePaintEvent, // ## deprecated
         WA_StaticContents = 5,
         WA_LaidOut = 7,
         WA_PaintOnScreen = 8,

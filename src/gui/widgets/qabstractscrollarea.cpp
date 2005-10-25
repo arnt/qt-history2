@@ -119,6 +119,7 @@ void QAbstractScrollAreaPrivate::init()
     QObject::connect(vbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
     viewport = new QAbstractScrollAreaViewport(q);
     viewport->setBackgroundRole(QPalette::Base);
+    viewport->setAutoFillBackground(true);
     viewport->setFocusProxy(q);
     q->setFocusPolicy(Qt::WheelFocus);
     q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);

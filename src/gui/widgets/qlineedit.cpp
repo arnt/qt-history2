@@ -68,7 +68,7 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     Q_Q(const QLineEdit);
     QStyleOptionFrame opt;
     opt.init(q);
-    opt.lineWidth = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    opt.lineWidth = frame ? q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
     opt.midLineWidth = 0;
     opt.state |= QStyle::State_Sunken;
     if (readOnly)
@@ -1998,22 +1998,15 @@ void QLineEdit::paintEvent(QPaintEvent *)
     QRect r = rect();
     const QPalette &pal = palette();
 
-    if (d->frame) {
-        int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-        QStyleOptionFrame opt;
-        opt.init(this);
-        opt.lineWidth = frameWidth;
-        opt.midLineWidth = 0;
-        opt.state |= QStyle::State_Sunken;
-        style()->drawPrimitive(QStyle::PE_FrameLineEdit, &opt, &p, this);
-
-        r.adjust(frameWidth, frameWidth, -frameWidth, -frameWidth);
-    }
-    p.setClipRect(r);
-
     QStyleOptionFrame panel = d->getStyleOption();
     style()->drawPrimitive(QStyle::PE_PanelLineEdit, &panel, &p, this);
 
+    if (d->frame) {
+        int frameWidth = panel.lineWidth;
+        r.adjust(frameWidth, frameWidth, -frameWidth, -frameWidth);
+        p.setClipRect(r);
+    }
+    
     QFontMetrics fm = fontMetrics();
     QRect lineRect(r.x() + innerMargin, r.y() + (r.height() - fm.height() + 1) / 2,
                     r.width() - 2*innerMargin, fm.height());

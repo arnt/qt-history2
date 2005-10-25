@@ -167,7 +167,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
 #endif
     Q_PROPERTY(Qt::LayoutDirection layoutDirection READ layoutDirection WRITE setLayoutDirection RESET unsetLayoutDirection)
     QDOC_PROPERTY(Qt::WindowFlags windowFlags READ windowFlags WRITE setWindowFlags)
-
+    Q_PROPERTY(bool autoFillBackground READ autoFillBackground WRITE setAutoFillBackground)
 
 public:
     explicit QWidget(QWidget* parent = 0, Qt::WFlags f = 0);
@@ -507,6 +507,9 @@ public:
     bool hasEditFocus() const;
     void setEditFocus(bool on);
 #endif
+
+    bool autoFillBackground() const;
+    void setAutoFillBackground(bool enabled);
 
 Q_SIGNALS:
     void customContextMenuRequested(const QPoint &pos);

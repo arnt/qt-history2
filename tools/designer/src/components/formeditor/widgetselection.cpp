@@ -62,6 +62,7 @@ WidgetHandle::WidgetHandle(FormWindow *parent, WidgetHandle::Type t, WidgetSelec
     setMouseTracking(false);
     formWindow = parent;
     sel = s;
+    setAutoFillBackground(true);
 
     if (type == TaskMenu) {
         setBackgroundRole(QPalette::Button);

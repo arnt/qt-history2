@@ -139,6 +139,7 @@ struct QWExtra {
     uint compress_events : 1;
 #endif
     uint explicitMinSize : 2;
+    uint autoFillBackground : 1;
 };
 
 class Q_GUI_EXPORT QWidgetPrivate : public QObjectPrivate

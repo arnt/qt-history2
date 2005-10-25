@@ -34,11 +34,11 @@ public:
     QPalette();
     QPalette(const QColor &button);
     QPalette(Qt::GlobalColor button);
-    QPalette(const QColor &button, const QColor &background);
-    QPalette(const QBrush &foreground, const QBrush &button, const QBrush &light,
+    QPalette(const QColor &button, const QColor &window);
+    QPalette(const QBrush &windowText, const QBrush &button, const QBrush &light,
              const QBrush &dark, const QBrush &mid, const QBrush &text,
-             const QBrush &bright_text, const QBrush &base, const QBrush &background);
-    QPalette(const QColor &foreground, const QColor &background, const QColor &light,
+             const QBrush &bright_text, const QBrush &base, const QBrush &window);
+    QPalette(const QColor &windowText, const QColor &window, const QColor &light,
              const QColor &dark, const QColor &mid, const QColor &text, const QColor &base);
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QPalette(const QColorGroup &active, const QColorGroup &disabled, const QColorGroup &inactive);
@@ -50,10 +50,13 @@ public:
 
     // Do not change the order, the serialization format depends on it
     enum ColorGroup { Active, Disabled, Inactive, NColorGroups, Current, All, Normal = Active };
-    enum ColorRole { Foreground, Button, Light, Midlight, Dark, Mid,
-                     Text, BrightText, ButtonText, Base, Background, Shadow,
+    enum ColorRole { WindowText, Button, Light, Midlight, Dark, Mid,
+                     Text, BrightText, ButtonText, Base, Window, Shadow,
                      Highlight, HighlightedText, Link, LinkVisited, AlternateBase,
-                     NColorRoles, NoRole = NColorRoles };
+                     NColorRoles, NoRole = NColorRoles
+                     // ## deprecated
+                     , Foreground = WindowText, Background = Window
+                   };
 
     inline ColorGroup currentColorGroup() const { return static_cast<ColorGroup>(current_group); }
     inline void setCurrentColorGroup(ColorGroup cg) { current_group = cg; }
@@ -65,15 +68,16 @@ public:
     inline void setColor(ColorRole cr, const QColor &color);
     inline void setBrush(ColorRole cr, const QBrush &brush);
     void setBrush(ColorGroup cg, ColorRole cr, const QBrush &brush);
-    void setColorGroup(ColorGroup cr, const QBrush &foreground, const QBrush &button,
+    void setColorGroup(ColorGroup cr, const QBrush &windowText, const QBrush &button,
                        const QBrush &light, const QBrush &dark, const QBrush &mid,
                        const QBrush &text, const QBrush &bright_text, const QBrush &base,
-                       const QBrush &background);
+                       const QBrush &window);
     bool isEqual(ColorGroup cr1, ColorGroup cr2) const;
 
     inline const QColor &color(ColorRole cr) const { return color(Current, cr); }
     inline const QBrush &brush(ColorRole cr) const { return brush(Current, cr); }
     inline const QBrush &foreground() const { return brush(Foreground); }
+    inline const QBrush &windowText() const { return brush(WindowText); }
     inline const QBrush &button() const { return brush(Button); }
     inline const QBrush &light() const { return brush(Light); }
     inline const QBrush &dark() const { return brush(Dark); }
@@ -82,6 +86,7 @@ public:
     inline const QBrush &base() const { return brush(Base); }
     inline const QBrush &alternateBase() const { return brush(AlternateBase); }
     inline const QBrush &background() const { return brush(Background); }
+    inline const QBrush &window() const { return brush(Window); }
     inline const QBrush &midlight() const { return brush(Midlight); }
     inline const QBrush &brightText() const { return brush(BrightText); }
     inline const QBrush &buttonText() const { return brush(ButtonText); }
@@ -115,11 +120,11 @@ public:
     inline void resolve(uint mask) { resolve_mask = mask; }
 
 private:
-    void setColorGroup(ColorGroup cr, const QBrush &foreground, const QBrush &button,
+    void setColorGroup(ColorGroup cr, const QBrush &windowText, const QBrush &button,
                        const QBrush &light, const QBrush &dark, const QBrush &mid,
                        const QBrush &text, const QBrush &bright_text,
                        const QBrush &base, const QBrush &alternate_base,
-                       const QBrush &background, const QBrush &midlight,
+                       const QBrush &window, const QBrush &midlight,
                        const QBrush &button_text, const QBrush &shadow,
                        const QBrush &highlight, const QBrush &highlighted_text,
                        const QBrush &link, const QBrush &link_visited);

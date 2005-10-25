@@ -1711,7 +1711,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         case WM_ERASEBKGND:                        // erase window background
 #ifndef QT_USE_BACKINGSTORE
             if (!widget->testAttribute(Qt::WA_PendingUpdate)
-                && !widget->testAttribute(Qt::WA_NoBackground)
+                && !widget->testAttribute(Qt::WA_NoSystemBackground)
                 && widget->windowType() != Qt::Popup
                 && widget->windowType() != Qt::ToolTip)
                 widget->eraseWindowBackground((HDC)wParam);
