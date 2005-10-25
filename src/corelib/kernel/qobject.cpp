@@ -311,8 +311,8 @@ QObjectList QObjectPrivate::receiverList(const char *signal) const
         return receivers;
     QConnectionList *list = ::connectionList();
     QReadLocker locker(&list->lock);
-    QConnectionList::Hash::const_iterator it = list->sendersHash.find(q);
-    while (it != list->sendersHash.end() && it.key() == q) {
+    QConnectionList::Hash::const_iterator it = list->sendersHash.constFind(q);
+    while (it != list->sendersHash.constEnd() && it.key() == q) {
         const QConnection &c = list->connections.at(it.value());
         if (c.signal == signal_index)
             receivers << c.receiver;
@@ -327,10 +327,11 @@ QObjectList QObjectPrivate::senderList() const
     QObjectList senders;
     QConnectionList *list = ::connectionList();
     QReadLocker locker(&list->lock);
-    QConnectionList::Hash::const_iterator it = list->receiversHash.find(q);
-    while (it != list->receiversHash.end() && it.key() == q) {
+    QConnectionList::Hash::const_iterator it = list->receiversHash.constFind(q);
+    while (it != list->receiversHash.constEnd() && it.key() == q) {
         const QConnection &c = list->connections.at(it.value());
         senders << c.sender;
+        ++it;
     }
     return senders;
 }
