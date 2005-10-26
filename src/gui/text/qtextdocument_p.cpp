@@ -984,7 +984,7 @@ QString QTextDocumentPrivate::plainText() const
     result.reserve(length());
     for (QTextDocumentPrivate::FragmentIterator it = begin(); it != end(); ++it) {
         const QTextFragmentData *f = *it;
-        result += QString(text.unicode() + f->stringPosition, f->size);
+        result += QString::fromRawData(text.unicode() + f->stringPosition, f->size);
     }
     // remove trailing block separator
     result.chop(1);
