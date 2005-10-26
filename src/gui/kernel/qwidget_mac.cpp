@@ -461,17 +461,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         if(was_unclipped)
                             widget->setAttribute(Qt::WA_PaintUnclipped);
                         p.setClipRegion(qrgn);
-
-
-                        if (widget->isWindow() || widget->autoFillBackground()) {
-                        const QBrush bg = widget->palette().brush(widget->backgroundRole());
-                        QPixmap pm = bg.texture();
-                        if(!pm.isNull())
-                            p.drawTiledPixmap(rr, pm, QPoint(rr.x()%pm.width(), rr.y()%pm.height()));
-                        else
-                            p.fillRect(rr, bg.color());
-                        }
-
+                        widget->d_func()->paintBackground(&p, rr, widget->isWindow());
                         if (widget->testAttribute(Qt::WA_TintedBackground)) {
                             QColor tint = widget->palette().window();
                             tint.setAlphaF(.6);

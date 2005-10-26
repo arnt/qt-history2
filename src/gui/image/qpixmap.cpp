@@ -25,6 +25,7 @@
 #include "qbuffer.h"
 #include "qapplication.h"
 #include <private/qinternal_p.h>
+#include <private/qwidget_p.h>
 #include "qevent.h"
 #include "qfile.h"
 #include "qfileinfo.h"
@@ -723,6 +724,7 @@ int QPixmap::serialNumber() const
   Fills \a buf with \a r in \a widget. Then blits \a buf on \a res at
   position \a offset
  */
+#ifndef QT_USE_BACKINGSTORE
 static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
                               const QRect &r, const QPoint &offset)
 {
@@ -747,7 +749,7 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
         grabWidget_helper(child, res, buf, cr, offset + child->pos());
     }
 }
-
+#endif
 /*!
     \overload
 
@@ -766,7 +768,6 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
 
 QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
 {
-
     if (!widget)
         return QPixmap();
 
@@ -779,12 +780,21 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
     if (!r.intersects(widget->rect()))
         return QPixmap();
 
-    QPixmap res(r.size());
+     QPixmap res(r.size());
+
+#ifdef QT_USE_BACKINGSTORE
+    QWidget *tlw = widget->window();
+    QPoint tlwOffset = widget->mapTo(tlw, QPoint());
+    r.translate(tlwOffset);
+    tlw->d_func()->drawWidget(&res, r, -r.topLeft(),
+                              QWidgetPrivate::DrawRecursive | QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawPaintOnScreen);
+#else
     QPixmap buf(r.size());
     if(res.isNull() || buf.isNull())
         return res;
 
     grabWidget_helper(widget, res, buf, r, QPoint());
+#endif
     return res;
 }
 

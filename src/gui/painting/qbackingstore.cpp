@@ -139,6 +139,12 @@ static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
     return true;
 }
 
+static void qt_unflushPaint(QWidget *widget, const QRegion &rgn)
+{
+    if (!QWidgetBackingStore::paintOnScreen(widget))
+        QWidgetBackingStore::copyToScreen(widget, rgn);
+}
+
 static bool qt_flushUpdate(QWidget *widget, const QRegion &rgn)
 {
     static int checked_env = -1;
@@ -402,6 +408,16 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
     }
 }
 
+
+void QWidgetBackingStore::copyToScreen(QWidget *widget, const QRegion &rgn)
+{
+    QWidget *tlw = widget->window();
+    QTLWExtra *topextra = tlw->d_func()->extra->topextra;
+    QPoint offset = widget->mapTo(tlw, QPoint());
+    topextra->backingStore->copyToScreen(rgn, widget, offset, false);
+}
+
+
 void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool recursive)
 {
     if (rgn.isEmpty())
@@ -539,11 +555,10 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             dirty -= toClean;
 #ifdef Q_WS_QWS
             buffer.lock();
-#endif
-            //cleanBuffer(toClean, tlw, tlwOffset, Recursive|AsRoot);
-            paintToBuffer(toClean, tlw, tlwOffset);
-#ifdef Q_WS_QWS
+            tlw->d_func()->drawWidget(buffer.pixmap(), toClean, tlwOffset);
             buffer.unlock();
+#else
+            tlw->d_func()->drawWidget(&buffer, toClean, tlwOffset);
 #endif
         }
         QRegion toFlush = rgn;
@@ -569,104 +584,85 @@ bool QWidgetBackingStore::isOpaque(const QWidget *widget)
     return widget->d_func()->isOpaque();
 }
 
-#ifdef Q_WS_QWS
-#define PAINTDEVICE buffer.pixmap()
-#else
-#define PAINTDEVICE (&buffer)
-#endif
 
-void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool asRoot)
+void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QPoint &offset, int flags)
 {
-    if (!widget->isVisible() || !widget->updatesEnabled() || rgn.isEmpty())
+    Q_Q(QWidget);
+    if (!q->isVisible() || !q->updatesEnabled() || rgn.isEmpty())
         return;
 
-    QRegion toBePainted  = rgn & widget->d_func()->clipRect(); //(rgn & widget->d_func()->visibleRegion());
-    widget->d_func()->subtractOpaqueChildren(toBePainted, widget->rect(), QPoint());
+    QRegion toBePainted  = rgn & clipRect(); //(rgn & visibleRegion());
+    subtractOpaqueChildren(toBePainted, q->rect(), QPoint());
+
+
+    bool asRoot = flags & DrawAsRoot;
+    bool alsoOnScreen = flags & DrawPaintOnScreen;
+    bool recursive = flags & DrawRecursive;
 
     if (!toBePainted.isEmpty()) {
-        if (!QWidgetBackingStore::paintOnScreen(widget)) {
+        bool onScreen = QWidgetBackingStore::paintOnScreen(q);
+        if (!onScreen || alsoOnScreen) {
             //update the "in paint event" flag
-            if (widget->testAttribute(Qt::WA_WState_InPaintEvent))
+            if (q->testAttribute(Qt::WA_WState_InPaintEvent))
                 qWarning("QWidget::repaint: recursive repaint detected.");
-            widget->setAttribute(Qt::WA_WState_InPaintEvent);
+            q->setAttribute(Qt::WA_WState_InPaintEvent);
 
             //clip away the new area
-            bool flushed = qt_flushPaint(widget, toBePainted);
-            QPainter::setRedirected(widget, PAINTDEVICE, -offset);
+            bool flushed = qt_flushPaint(q, toBePainted);
+            QPainter::setRedirected(q, pdev, -offset);
             QRegion wrgn = toBePainted;
             wrgn.translate(offset);
-            PAINTDEVICE->paintEngine()->setSystemClip(wrgn);
+            pdev->paintEngine()->setSystemClip(wrgn);
 
             //paint the background
-            if ((asRoot || widget->autoFillBackground())
-                && !widget->testAttribute(Qt::WA_OpaquePaintEvent)
-                && !widget->testAttribute(Qt::WA_NoSystemBackground)) {
+            if ((asRoot || q->autoFillBackground() || onScreen)
+                && !q->testAttribute(Qt::WA_OpaquePaintEvent)
+                && !q->testAttribute(Qt::WA_NoSystemBackground)) {
 
-                const QBrush autoFillBrush = widget->palette().brush(widget->backgroundRole());
-
-                QPainter p(widget);
-                if (asRoot && !(widget->autoFillBackground() && autoFillBrush.isOpaque())) {
-                    const QBrush bg = widget->palette().brush(QPalette::Window);
-#ifdef Q_WS_QWS
-                    p.setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
-#endif
-                    if (bg.style() == Qt::TexturePattern)
-                        p.drawTiledPixmap(toBePainted.boundingRect(), bg.texture(),
-                                          toBePainted.boundingRect().topLeft());
-                    else
-                        p.fillRect(toBePainted.boundingRect(), bg);
-                }
-
-                if (widget->autoFillBackground()) {
-                    if (autoFillBrush.style() == Qt::TexturePattern)
-                        p.drawTiledPixmap(toBePainted.boundingRect(), autoFillBrush.texture(),
-                                          toBePainted.boundingRect().topLeft());
-                    else
-                        p.fillRect(toBePainted.boundingRect(), autoFillBrush);
-                }
+                QPainter p(q);
+                paintBackground(&p, toBePainted.boundingRect(), asRoot || onScreen);
             }
-            if (widget->testAttribute(Qt::WA_TintedBackground)) {
-                QPainter p(widget);
-                QColor tint = widget->palette().window();
+            if (q->testAttribute(Qt::WA_TintedBackground)) {
+                QPainter p(q);
+                QColor tint = q->palette().window();
                 tint.setAlphaF(.6);
                 p.fillRect(toBePainted.boundingRect(), tint);
             }
 
 #if 0
-            qDebug() << "painting" << widget << "opaque ==" << hasBackground(widget);
+            qDebug() << "painting" << q << "opaque ==" << hasBackground(q);
             qDebug() << "clipping to" << toBePainted << "location == " << offset
-                     << "geometry ==" << QRect(widget->mapTo(tlw, QPoint(0, 0)), widget->size());
+                     << "geometry ==" << QRect(q->mapTo(tlw, QPoint(0, 0)), q->size());
 #endif
 
             //actually send the paint event
-            widget->setAttribute(Qt::WA_PendingUpdate, false);
+            q->setAttribute(Qt::WA_PendingUpdate, false);
             QPaintEvent e(toBePainted);
-            qt_sendSpontaneousEvent(widget, &e);
+            qt_sendSpontaneousEvent(q, &e);
 
             //restore
-            PAINTDEVICE->paintEngine()->setSystemClip(QRegion());
-            QPainter::restoreRedirected(widget);
+            pdev->paintEngine()->setSystemClip(QRegion());
+            QPainter::restoreRedirected(q);
 
-            widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
-            if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
+            q->setAttribute(Qt::WA_WState_InPaintEvent, false);
+            if(!q->testAttribute(Qt::WA_PaintOutsidePaintEvent) && q->paintingActive())
                 qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 
             if (flushed)
-                copyToScreen(toBePainted, widget, offset, false);
-        } else if(widget == tlw) {
-            QPainter p(PAINTDEVICE);
+                qt_unflushPaint(q, toBePainted);
+        } else if(q->isWindow()) {
+            QPainter p(pdev);
             p.setClipRegion(toBePainted);
-            const QBrush bg = widget->palette().brush(QPalette::Window);
+            const QBrush bg = q->palette().brush(QPalette::Window);
             if (bg.style() == Qt::TexturePattern)
-                p.drawTiledPixmap(widget->rect(), bg.texture());
+                p.drawTiledPixmap(q->rect(), bg.texture());
             else
-                p.fillRect(widget->rect(), bg);
+                p.fillRect(q->rect(), bg);
         }
     }
 
-    //always be recursive
-    {
-        const QObjectList children = widget->children();
+    if (recursive) {
+        const QObjectList children = q->children();
         for(int i = 0; i < children.size(); ++i) {
             if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
                 if(!child->isWindow() && child->isVisible() && child->updatesEnabled()) {
@@ -679,7 +675,7 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
                                 childRegion &= extra->mask;
                         }
                         if(!childRegion.isEmpty())
-                            paintToBuffer(childRegion, child, offset+child->pos(), false);
+                            child->d_func()->drawWidget(pdev, childRegion, offset+child->pos(), flags & ~DrawAsRoot);
                     }
                 }
             }
@@ -716,45 +712,25 @@ void QWidget::repaint(const QRegion& rgn)
         QTLWExtra* x = tlw->d_func()->topData();
         x->backingStore->dirtyRegion(rgn, this);
         x->backingStore->cleanRegion(rgn, this);
-    } else {
+    }
+#ifndef Q_WS_QWS
+// QWS doesn't support paint-on-screen
+    else {
         Q_D(QWidget);
         d->cleanWidget_sys(rgn);
-
-
         //     qDebug() << "QWidget::repaint paintOnScreen" << this << "region" << rgn;
-
-
-        //update the "in paint event" flag
-        if (testAttribute(Qt::WA_WState_InPaintEvent))
-            qWarning("QWidget::repaint: recursive repaint detected.");
-        setAttribute(Qt::WA_WState_InPaintEvent);
-
-        qt_flushPaint(this, rgn);
+      qt_flushPaint(this, rgn);
 
         QPaintEngine *engine = paintEngine();
 
         QRegion systemClipRgn(rgn);
-#ifndef Q_WS_QWS //QWS doesn't need wrect
         if (!data->wrect.topLeft().isNull()) {
             QPainter::setRedirected(this, this, data->wrect.topLeft());
             systemClipRgn.translate(-data->wrect.topLeft());
         }
-#endif
         engine->setSystemClip(systemClipRgn);
 
-        //paint the background
-        QPaintEvent e(rgn);
-        if (!testAttribute(Qt::WA_OpaquePaintEvent)
-            && !testAttribute(Qt::WA_NoSystemBackground)) {
-            d->composeBackground(rgn.boundingRect());
-#ifdef QT3_SUPPORT
-            e.setErased(true);
-#endif
-        }
-
-        //actually send the paint event
-        setAttribute(Qt::WA_PendingUpdate, false);
-        QApplication::sendSpontaneousEvent(this, &e);
+        d->drawWidget(this, rgn, QPoint(), QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawPaintOnScreen);
 
 #ifdef Q_WS_WIN
         if (engine && engine->type() == QPaintEngine::Raster) {
@@ -768,16 +744,14 @@ void QWidget::repaint(const QRegion& rgn)
             }
         }
 #endif
-#ifndef Q_WS_QWS
         if (!data->wrect.topLeft().isNull())
             QPainter::restoreRedirected(this);
-#endif
         engine->setSystemClip(QRegion());
 
-        setAttribute(Qt::WA_WState_InPaintEvent, false);
         if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())
             qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
     }
+#endif //Q_WS_QWS
 }
 
 void QWidget::update()

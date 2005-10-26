@@ -62,7 +62,6 @@ class QWidgetBackingStore
 
     bool isOpaque(const QWidget *widget);
 
-    void paintToBuffer(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool asRoot = true);
     void copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool recursive = true);
 
     friend void qt_syncBackingStore(QRegion, QWidget *);
@@ -86,6 +85,7 @@ public:
 
     inline QPoint topLevelOffset() const { return tlwOffset; }
     static bool paintOnScreen(QWidget *);
+    static void copyToScreen(QWidget *, const QRegion &);
 };
 
 #endif // QBACKINGSTORE_P_H

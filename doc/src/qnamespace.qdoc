@@ -665,13 +665,8 @@
     Qt kernel.
 
     \value WA_ContentsPropagated This flag is superfluous and
-    obsolete, it only has a meaning for widgets that set
-    WA_PaintOnScreen on window systems that support it. It allows the
-    contents painted in a QWidget::paintEvent() to be used as the
-    background for children that inherit their background. This is
-    set/cleared by the widget author or by the style. We strongly
-    recommend not to use the flag, but rely on Qt's builtin
-    composition capabilities.
+    obsolete; it no longer has any effect. Since Qt 4.1, all widgets
+    that do not set WA_PaintOnScreen propagate their contents.
 
     \value WA_ForceDisabled Indicates that the widget is
     explicitly disabled, i.e. it will remain disabled even when all

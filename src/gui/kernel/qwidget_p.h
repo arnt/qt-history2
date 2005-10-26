@@ -181,11 +181,16 @@ public:
 
     bool isBackgroundInherited() const;
     void updateInheritedBackground();
-    void updatePropagatedBackground(const QRegion * = 0);
 
     void setUpdatesEnabled_helper(bool );
 
-    void composeBackground(const QRect &);
+    void paintBackground(QPainter *, const QRect &, bool asRoot = true) const;
+    enum DrawWidgetFlags {
+        DrawAsRoot = 1,
+        DrawPaintOnScreen = 2,
+        DrawRecursive = 4
+    };
+    void drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QPoint &offset, int flags = DrawAsRoot | DrawRecursive);
 
     QRect clipRect() const;
     QRegion clipRegion() const;

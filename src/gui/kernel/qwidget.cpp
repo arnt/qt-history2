@@ -1139,11 +1139,7 @@ void QWidgetPrivate::deleteExtra()
   Returns true if the background is inherited; otherwise returns
   false.
 
-  A widget does not inherit its parent's background if
-  setBackgroundRole() was called, or a brush is defined for the
-  background role.
-
-  Only used in the paintOnScreen case.
+  Mainly used in the paintOnScreen case.
 */
 
 bool QWidgetPrivate::isBackgroundInherited() const
@@ -1171,7 +1167,7 @@ bool QWidgetPrivate::isBackgroundInherited() const
         // optimization that it was not inheritet. This is the normal
         // case in standard Windows or Motif style.
         const QWidget *w = q->parentWidget();
-        if (!w->testAttribute(Qt::WA_ContentsPropagated) && !w->d_func()->isBackgroundInherited())
+        if (!w->d_func()->isBackgroundInherited())
             return false;
     }
 
@@ -1199,32 +1195,6 @@ void QWidgetPrivate::updateInheritedBackground()
     for (int i = 0; i < children.size(); ++i)
         if (QWidget *w = qobject_cast<QWidget *>(children.at(i)))
             w->d_func()->updateInheritedBackground();
-#endif
-}
-
-/*
-  In case a widget propagates its or its ancestor's contents to its
-  children, this function updates everything that needs to be updated
-  after a resize.
-
-  Call this only when Qt::WA_ContentsPropagated is set. This is not
-  necessary on Mac OS X because due to the composite manager we get
-  this for free, and as a result doing it here will actually force
-  more paints than are necessary, this is a NO-OP for a composited
-  windowing system like Mac OS X.
- */
-void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
-{
-#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS) && !defined(QT_USE_BACKINGSTORE)
-    for (int i = 0; i < children.size(); ++i) {
-        if (QWidget *w = qobject_cast<QWidget*>(children.at(i))) {
-            if (reg && !reg->boundingRect().intersects(w->geometry()))
-                continue;
-            w->d_func()->updateInheritedBackground();
-        }
-    }
-#else
-    Q_UNUSED(reg)
 #endif
 }
 
@@ -1262,69 +1232,6 @@ bool QWidgetPrivate::isOverlapped(const QRect &rect) const
     return false;
 }
 #endif
-
-void QWidgetPrivate::composeBackground(const QRect &crect)
-{
-    Q_Q(QWidget);
-#if 0 //DEBUG
-    static int ii = 0;
-    //QColor bgCol = QColor::fromHsv(double(ii%5)/5.0, double(ii%33+22)/55.0, double(ii%17+33)/50.0);
-    QColor bgCol = QColor::fromHsv((ii%5*360)/5, (255*(ii%33+22))/55, (255*(ii%17+33)/50));
-    QPainter bgPainter(q);
-    bgPainter.fillRect(crect, bgCol);
-    ii = (ii+1) % 4095;
-    return;
-#endif
-
-
-    QPoint offset;
-    QVector<QWidget*> layers;
-    QWidget *w = q;
-    layers += w;
-
-    // Build the stack of widgets to composite
-    while (w->d_func()->isBackgroundInherited()) {
-        offset += w->pos();
-        layers += (w = w->parentWidget());
-    }
-
-    QWidget *top = w;
-    for (int i=layers.size() - 1; i>=0; --i) {
-        w = layers.at(i);
-
-        // Remove the offset for previous layer.
-        if (top != w)
-            offset -= w->pos();
-
-        // Do the background if needed.
-        QBrush bgBrush = w->palette().brush(w->backgroundRole());
-        if (w == top || (!bgBrush.isOpaque() && w->testAttribute(Qt::WA_SetPalette))) {
-            QPainter bgPainter(q);
-            if (bgBrush.style() == Qt::TexturePattern) {
-                //### optimization because translation makes pattern brushes slow - should be improved in painter
-                bgPainter.drawTiledPixmap(crect, bgBrush.texture(), crect.topLeft() + offset);
-            } else {
-                bgPainter.setBrushOrigin(-offset);
-                bgPainter.fillRect(crect, bgBrush);
-            }
-        }
-
-        // Propagate contents if enabled and w is not the actual widget.
-        if (w->testAttribute(Qt::WA_ContentsPropagated) && i>0) {
-            // Setup redirection from w to this widget.
-            QRect rr = crect;
-            rr.translate(offset);
-            bool was_in_paint_event = w->testAttribute(Qt::WA_WState_InPaintEvent);
-            w->setAttribute(Qt::WA_WState_InPaintEvent);
-            QPainter::setRedirected(w, q, offset);
-            QPaintEvent e(rr);
-            QApplication::sendEvent(w, &e);
-            w->setAttribute(Qt::WA_WState_InPaintEvent, was_in_paint_event);
-            QPainter::restoreRedirected(w);
-        }
-    }
-}
-
 
 void QWidgetPrivate::setUpdatesEnabled_helper(bool enable)
 {
@@ -1504,10 +1411,39 @@ bool QWidgetPrivate::isOpaque() const
 
 void QPixmap::fill( const QWidget *widget, const QPoint &off )
 {
-    QPainter::setRedirected(widget, this, off);
-    const_cast<QWidget *>(widget)->d_func()->composeBackground(widget->rect());
-    QPainter::restoreRedirected(widget);
+    QPainter p(this);
+    p.translate(-off);
+    widget->d_func()->paintBackground(&p, QRect(off, size()));
+
 }
+
+
+void QWidgetPrivate::paintBackground(QPainter *painter, const QRect &rect, bool asRoot) const
+{
+#define FILL_RECT_WORKAROUND(painter, rect, brush)              \
+    if (brush.style() == Qt::TexturePattern)                    \
+        painter->drawTiledPixmap(rect, brush.texture(), rect.topLeft()); \
+    else                                                        \
+        painter->fillRect(rect, brush);
+
+    Q_Q(const QWidget);
+
+    const QBrush autoFillBrush = q->palette().brush(q->backgroundRole());
+
+    if (asRoot && !(q->autoFillBackground() && autoFillBrush.isOpaque())) {
+        const QBrush bg = q->palette().brush(QPalette::Window);
+#ifdef Q_WS_QWS
+        painter->setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
+#endif
+
+        FILL_RECT_WORKAROUND(painter, rect, bg);
+    }
+
+    if (q->autoFillBackground()) {
+        FILL_RECT_WORKAROUND(painter, rect, autoFillBrush);
+    }
+}
+
 
 /*!
   \internal
@@ -4129,8 +4065,6 @@ void QWidget::resize(const QSize &s)
     setAttribute(Qt::WA_Resized);
     QSize olds = size();
     d->setGeometry_sys(geometry().x(), geometry().y(), s.width(), s.height(), false);
-    if (testAttribute(Qt::WA_ContentsPropagated) &&  olds != size())
-        d->updatePropagatedBackground();
 }
 
 void QWidget::setGeometry(const QRect &r)
@@ -4142,9 +4076,7 @@ void QWidget::setGeometry(const QRect &r)
     setAttribute(Qt::WA_Moved);
     d->setGeometry_sys(r.x(), r.y(), r.width(), r.height(), true);
 
-    if (testAttribute(Qt::WA_ContentsPropagated) && olds != size())
-        d->updatePropagatedBackground();
-    else if (oldp != pos())
+    if (oldp != pos())
         d->updateInheritedBackground();
 }
 
@@ -6775,10 +6707,6 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         extern void qt_mac_update_ignore_mouseevents(QWidget*); //qwidget_mac.cpp
         qt_mac_update_ignore_mouseevents(this);
 #endif
-        break;
-    case Qt::WA_ContentsPropagated:
-        if (isVisible())
-            d->updatePropagatedBackground();
         break;
 #ifdef Q_WS_WIN
     case Qt::WA_InputMethodEnabled:

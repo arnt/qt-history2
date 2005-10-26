@@ -281,7 +281,7 @@ public:
         WA_Disabled = 0,
         WA_UnderMouse = 1,
         WA_MouseTracking = 2,
-        WA_ContentsPropagated = 3,
+        WA_ContentsPropagated = 3, // ## deprecated
         WA_OpaquePaintEvent = 4,
         WA_NoBackground = WA_OpaquePaintEvent, // ## deprecated
         WA_StaticContents = 5,

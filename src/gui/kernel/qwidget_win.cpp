@@ -967,7 +967,8 @@ void QWidget::repaint(const QRegion& rgn)
     if (engine
         && !testAttribute(Qt::WA_OpaquePaintEvent)
         && !testAttribute(Qt::WA_NoSystemBackground)) {
-        d->composeBackground(br);
+        QPainter p(this);
+        d->paintBackground(&p, rgn.boundingRect());
 #ifdef QT3_SUPPORT
         e.setErased(true);
 #endif
@@ -999,10 +1000,6 @@ void QWidget::repaint(const QRegion& rgn)
     setAttribute(Qt::WA_WState_InPaintEvent, false);
     if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())
         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
-
-    if (testAttribute(Qt::WA_ContentsPropagated))
-        d->updatePropagatedBackground(&rgn);
-
 }
 #endif
 
