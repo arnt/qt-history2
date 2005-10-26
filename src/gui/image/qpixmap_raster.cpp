@@ -391,7 +391,7 @@ QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
     QPoint tlwOffset = widget->mapTo(tlw, QPoint());
     r.translate(tlwOffset);
     tlw->d_func()->drawWidget(&res, r, -r.topLeft(),
-                              QWidgetPrivate::AsRoot | QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawPaintOnScreen);
+                              QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawPaintOnScreen);
 #else
     QPixmap buf(r.size());
     if(res.isNull() || buf.isNull())
