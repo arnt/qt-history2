@@ -293,6 +293,8 @@ void MainWindow::on_actionEditFind_triggered()
         findDialog = new FindDialog(this);
     findDialog->reset();
     findDialog->show();
+    findDialog->raise();
+    findDialog->activateWindow();
 }
 
 void MainWindow::on_actionEditFindAgain_triggered()
