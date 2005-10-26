@@ -945,12 +945,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if (flags & Qt::WNoMousePropagation)
 	setAttribute(Qt::WA_NoMousePropagation);
 #endif
-    if (type == Qt::Dialog && data->window_modality == Qt::NonModal
-        && parentWidget() && parentWidget()->windowModality() != Qt::NonModal) {
-        // dialogs automatically inherit modality from their parents
-        // (if the windowModality property has not already been set)
-        setWindowModality(parentWidget()->windowModality());
-    }
 
     if ( type != Qt::Widget && type != Qt::Window && type != Qt::Dialog)
         setAttribute(Qt::WA_QuitOnClose, false);
