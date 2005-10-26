@@ -1095,7 +1095,8 @@ void QTest::addColumnInternal(int id, const char *name)
 
     Example:
     \code
-    void myTestFunction_data() {
+    void myTestFunction_data()
+    {
         QTest::addColumn<QString>("aString");
         QTest::newRow("just hello") << QString("hello");
         QTest::newRow("a null string") << QString();
@@ -1107,7 +1108,7 @@ void QTest::addColumnInternal(int id, const char *name)
 
     ### link to test-driven
 
-    \sa addColumn(), QTestData, QFETCH()
+    \sa addColumn(), QFETCH()
 */
 QTestData &QTest::newRow(const char *dataTag)
 {

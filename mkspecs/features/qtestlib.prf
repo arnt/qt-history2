@@ -1,0 +1,7 @@
+CONFIG(debug, debug|release) {
+    LIBS += -lQtTest_debug
+} else {
+    LIBS += -lQtTest
+}
+
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtTest

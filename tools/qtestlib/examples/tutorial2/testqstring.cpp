@@ -5,28 +5,28 @@ class TestQString: public QObject
     Q_OBJECT
 
 private slots:
-    void toUpper_data(QtTestTable &t);
+    void toUpper_data();
     void toUpper();
 };
 
-void TestQString::toUpper_data(QtTestTable &t)
+void TestQString::toUpper_data()
 {
-    t.defineElement("QString", "string");
-    t.defineElement("QString", "result");
+    QTest::addColumn<QString>("string");
+    QTest::addColumn<QString>("result");
 
-    *t.newData("all lower") << "hello" << "HELLO";
-    *t.newData("mixed")     << "Hello" << "HELLO";
-    *t.newData("all upper") << "HELLO" << "HELLO";
+    QTest::newRow("all lower") << "hello" << "HELLO";
+    QTest::newRow("mixed")     << "Hello" << "HELLO";
+    QTest::newRow("all upper") << "HELLO" << "HELLO";
 }
 
 void TestQString::toUpper()
 {
-    FETCH(QString, string);
-    FETCH(QString, result);
+    QFETCH(QString, string);
+    QFETCH(QString, result);
 
-    COMPARE(string.toUpper(), result);
+    QCOMPARE(string.toUpper(), result);
 }
 
-QTTEST_MAIN(TestQString)
+QTEST_MAIN(TestQString)
 #include "testqstring.moc"
 

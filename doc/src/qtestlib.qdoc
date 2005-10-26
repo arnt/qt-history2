@@ -194,9 +194,9 @@
     \skipto #include
     \printuntil };
 
-    Note that you need to include the QTest namespace, and that the
-    test function have to be declared as a private slot so the
-    test framework finds it and can execute it.
+    Note that you need to include the QTest header, and that the
+    test functions have to be declared as private slots so the
+    test framework finds and executes it.
 
     Then you need to implement the test function itself. The
     implementation could look like this:
@@ -205,7 +205,7 @@
         void TestQString::toUpper()
         {
             QString str = "Hello";
-            VERIFY(str.toUpper()== "HELLO");
+            QVERIFY(str.toUpper() == "HELLO");
         }
     \endcode
 
@@ -245,7 +245,7 @@
     and generate a makefile.
 
     \code
-        /myTestDirectory$ qmake -project
+        /myTestDirectory$ qmake -project "CONFIG += qtestlib"
         /myTestDirectory$ qmake
         /myTestDirectory$ make
     \endcode
@@ -258,7 +258,7 @@
 
     \code
         ********* Start testing of TestQString *********
-        Config: Using QTest library 2.0.0, Qt 4.0.1
+        Config: Using QTest library 4.1.0, Qt 4.1.0
         PASS   : TestQString::initTestCase()
         PASS   : TestQString::toUpper()
         PASS   : TestQString::cleanupTestCase()
@@ -268,7 +268,6 @@
 
     Congratulations! You just wrote and executed your first unit test
     using the QTestLib framework.
-
 */
 
 /*!
@@ -305,8 +304,7 @@
     \section1 Writing the Data Function
 
     A test function's associated data function carries the same name,
-    appended by \c{_data}, and it takes a QTestTable reference as an
-    argument. Our data function looks like this:
+    appended by \c{_data}. Our data function looks like this:
 
     \skipto toUpper_data
     \printuntil /^\}/
@@ -317,17 +315,17 @@
     that string.
 
     Then we add some data to the table using the \l
-    QTestTable::newData() function. Each set of data will become a
+    QTest::newRow() function. Each set of data will become a
     separate row in the test table.
 
-    \l QTestTable::newData() takes one argument: A name that will be
+    \l QTest::newRow() takes one argument: A name that will be
     associated with the data set. If the test fails, the name will be
-    used in the test log, referencing the corrupted data. Then we
+    used in the test log, referencing the failed data. Then we
     stream the data set into the new table row: First an arbitrary
     string, and then the expected result of applying the
     QString::toUpper() function to that string.
 
-    You can think of the QTestTable as a two-dimensional table. In
+    You can think of the test data as a two-dimensional table. In
     our case, it has two columns called \c string and \c result and
     three rows. In addition a name as well as an index is associated
     with each row:
@@ -363,7 +361,7 @@
     \printuntil /^\}/
 
     The TestQString::toUpper() function will be executed three times,
-    once for each entry in the QTestTable that we created in the
+    once for each entry in the test table that we created in the
     associated TestQString::toUpper_data() function.
 
     First, we fetch the two elements of the data set using the \l
@@ -472,14 +470,13 @@
     \section1 Writing the Data Function
 
     As before, a test function's associated data function carries the
-    same name, appended by \c _data, and takes a QTestTable reference
-    as an argument.
+    same name, appended by \c{_data}.
 
     \skipto testGui_data
     \printuntil /^\}/
 
     First, we define the elements of the table using the
-    QTest::defineElement() function: A list of GUI events, and the
+    QTest::addColumn() function: A list of GUI events, and the
     expected result of applying the list of events on a QWidget. Note
     that the type of the first element is \l QTestEventList.
 
@@ -491,13 +488,13 @@
     {QTestEventList}s. The first list consists of a single click to
     the 'a' key. We add the event to the list using the
     QTestEventList::addKeyClick() function. Then we use the
-    QTestTable::newData() function to give the data set a name, and
+    QTest::newRow() function to give the data set a name, and
     stream the event list and the expected result into the table.
 
     The second list consists of two key clicks: an 'a' with a
     following 'backspace'. Again we use the
     QTestEventList::addKeyClick() to add the events to the list, and
-    QTestTable::newData() to put the event list and the expected
+    QTest::newRow() to put the event list and the expected
     result into the table with an associated name.
 
     \section1 Rewriting the Test Function
@@ -508,7 +505,7 @@
     \printuntil /^\}/
 
     The TestGui::testString() function will be executed two times,
-    once for each entry in the QTestTable that we created in the
+    once for each entry in the test data that we created in the
     associated TestGui::testGui_data() function.
 
     First, we fetch the two elements of the data set using the \l

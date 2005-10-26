@@ -14,11 +14,11 @@ void TestGui::testGui()
 {
     QLineEdit lineEdit;
 
-    QtTest::keyClicks(&lineEdit, "hello world");
+    QTest::keyClicks(&lineEdit, "hello world");
 
-    COMPARE(lineEdit.text(), QString("hello world"));
+    QCOMPARE(lineEdit.text(), QString("hello world"));
 }
 
-QTTEST_MAIN(TestGui)
+QTEST_MAIN(TestGui)
 #include "testgui.moc"
 

@@ -10,9 +10,9 @@ private slots:
 void TestQString::toUpper()
 {
     QString str = "Hello";
-    COMPARE(str.toUpper(), QString("HELLO"));
+    QCOMPARE(str.toUpper(), QString("HELLO"));
 }
 
-QTTEST_MAIN(TestQString)
+QTEST_MAIN(TestQString)
 #include "testqstring.moc"
 
