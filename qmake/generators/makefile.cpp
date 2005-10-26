@@ -350,12 +350,10 @@ MakefileGenerator::initCompiler(const MakefileGenerator::Compiler &comp)
     // find all the relevant file inputs
     if(!init_compiler_already.contains(comp.variable_in)) {
         init_compiler_already.insert(comp.variable_in, true);
-        l = findFilesInVPATH(l, (comp.flags & Compiler::CompilerRemoveNoExist) ?
-                             VPATH_RemoveMissingFiles : VPATH_WarnMissingFiles, "VPATH_" + comp.variable_in);
+        if(!noIO())
+            l = findFilesInVPATH(l, (comp.flags & Compiler::CompilerRemoveNoExist) ?
+                                 VPATH_RemoveMissingFiles : VPATH_WarnMissingFiles, "VPATH_" + comp.variable_in);
     }
-    //add to dependency engine
-    if(!(comp.flags & Compiler::CompilerNoCheckDeps))
-        addSourceFiles(l, QMakeSourceFileInfo::SEEK_DEPS, (QMakeSourceFileInfo::SourceFileType)comp.type);
 }
 
 void
@@ -549,6 +547,8 @@ MakefileGenerator::init()
 
     if(noIO() || !doDepends())
         QMakeSourceFileInfo::setDependencyMode(QMakeSourceFileInfo::NonRecursive);
+    for(x = 0; x < compilers.count(); ++x)
+        initCompiler(compilers.at(x));
 
     //merge actual compiler outputs into their variable_out. This is done last so that
     //files are already properly fixified.
@@ -621,8 +621,9 @@ MakefileGenerator::init()
         }
     }
 
+    //handle dependencies
+    depHeuristicsCache.clear();
     if(!noIO()) {
-        depHeuristicsCache.clear();
         // dependency paths
         QStringList incDirs = v["DEPENDPATH"] + v["QMAKE_ABSOLUTE_SOURCE_PATH"];
         if(project->isActiveConfig("depend_includepath"))
@@ -653,8 +654,13 @@ MakefileGenerator::init()
             QMakeSourceFileInfo::setCacheFile(cache_file);
         }
 
-        for(x = 0; x < compilers.count(); ++x)
-            initCompiler(compilers.at(x));
+        //add to dependency engine
+        for(x = 0; x < compilers.count(); ++x) {
+            const MakefileGenerator::Compiler &comp = compilers.at(x);
+            if(!(comp.flags & Compiler::CompilerNoCheckDeps))
+                addSourceFiles(v[comp.variable_in], QMakeSourceFileInfo::SEEK_DEPS,
+                               (QMakeSourceFileInfo::SourceFileType)comp.type);
+        }
     }
 
     processSources(); //remove anything in SOURCES which is included (thus it need not be linked in)
