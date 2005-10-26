@@ -1106,7 +1106,8 @@ void QTest::addColumnInternal(int id, const char *name)
     \bold {Note:} This macro can only be used in a test's data function
     that is invoked by the test framework.
 
-    ### link to test-driven
+    See \l {Chapter 2: Data Driven Testing}{Data Driven Testing} for
+    a more extensive example.
 
     \sa addColumn(), QFETCH()
 */
@@ -1144,7 +1145,8 @@ QTestData &QTest::newRow(const char *dataTag)
     \bold {Note:} This macro can only be used in a test's data function
     that is invoked by the test framework.
 
-    ### link to test-driven
+    See \l {Chapter 2: Data Driven Testing}{Data Driven Testing} for
+    a more extensive example.
 
     \sa QTest::newRow(), QFETCH(), QMetaType
 */
