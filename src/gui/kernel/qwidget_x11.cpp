@@ -2658,7 +2658,7 @@ void QWidget::setMask(const QRegion& region)
         extra->mask = region;
 
     XShapeCombineRegion(X11->display, winId(), ShapeBounding, 0, 0,
-                         region.handle(), ShapeSet);
+                        region.handle(), ShapeSet);
 #ifndef QT_NO_BACKINGSTORE
     if (!testAttribute(Qt::WA_PaintOnScreen))
         update();
@@ -2714,6 +2714,9 @@ void QWidget::setMask(const QBitmap &bitmap)
 
 void QWidget::clearMask()
 {
+    Q_D(QWidget);
+    if (QWExtra *extra = d->extraData())
+        extra->mask = QRegion();
     XShapeCombineMask(X11->display, winId(), ShapeBounding, 0, 0,
                        XNone, ShapeSet);
 }

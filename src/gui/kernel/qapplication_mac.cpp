@@ -1057,24 +1057,6 @@ static QWidget *qt_mac_recursive_widgetAt(QWidget *widget, int x, int y)
     return widget;
 }
 
-QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
-{
-    QWidget *tlw = QApplication::topLevelAt(x, y);
-    if(!tlw)
-        return 0;
-    QWidget *ret = tlw;
-
-    HIViewRef child;
-    const QPoint qpt = tlw->mapFromGlobal(QPoint(x, y));
-    const HIPoint pt = CGPointMake(qpt.x(), qpt.y());
-    if(HIViewGetSubviewHit((HIViewRef)tlw->winId(), &pt, true, &child) == noErr && child) {
-        ret = QWidget::find((WId)child);
-        if(ret && ret->testAttribute(Qt::WA_TransparentForMouseEvents))
-            return qt_mac_recursive_widgetAt(tlw, x, y); //oh well, try the old way
-    }
-    return ret;
-}
-
 void QApplication::beep()
 {
     SysBeep(0);

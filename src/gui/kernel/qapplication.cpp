@@ -906,21 +906,39 @@ QApplication::~QApplication()
 */
 QWidget *QApplication::widgetAt(const QPoint &p)
 {
-    int x = p.x();
-    int y = p.y();
-    QWidget *ret = QApplicationPrivate::widgetAt_sys(x, y);
-    if(ret && ret->testAttribute(Qt::WA_TransparentForMouseEvents)) {
-        //shoot a hole in the widget and try once again
-        QRegion oldmask = ret->mask();
-        QPoint wpoint = ret->mapFromGlobal(QPoint(x, y));
-        QRegion newmask = (oldmask.isEmpty() ? QRegion(ret->rect()) : oldmask)
-                          - QRegion(wpoint.x()-2, wpoint.y()-2, 4, 4);
-        ret->setMask(newmask);
-        QWidget *poke = QApplicationPrivate::widgetAt_sys(x, y);
-        ret->setMask(oldmask);
-        ret = poke;
+    QWidget *window = QApplication::topLevelAt(p);
+    if (!window)
+        return 0;
+
+    QWidget *child = 0;
+
+    if (!window->testAttribute(Qt::WA_TransparentForMouseEvents))
+        child = window->childAt(window->mapFromGlobal(p));
+
+    if (child)
+        return child;
+
+    if (window->testAttribute(Qt::WA_TransparentForMouseEvents)) {
+        //shoot a hole in the widget and try once again,
+        //suboptimal on Qt/E where we do know the stacking order
+        //of the toplevels.
+        int x = p.x();
+        int y = p.y();
+        QRegion oldmask = window->mask();
+        QPoint wpoint = window->mapFromGlobal(QPoint(x, y));
+        QRegion newmask = (oldmask.isEmpty() ? QRegion(window->rect()) : oldmask)
+                          - QRegion(wpoint.x(), wpoint.y(), 1, 1);
+        window->setMask(newmask);
+        QWidget *recurse = 0;
+        if (QApplication::topLevelAt(p) != window) // verify recursion will terminate
+            recurse = widgetAt(x, y);
+        if (oldmask.isEmpty())
+            window->clearMask();
+        else
+            window->setMask(oldmask);
+        return recurse;
     }
-    return ret;
+    return window;
 }
 
 /*!

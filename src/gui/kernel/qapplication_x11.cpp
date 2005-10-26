@@ -2274,15 +2274,11 @@ Window QX11Data::findClientWindow(Window win, Atom property, bool leaf)
 
 QWidget *QApplication::topLevelAt(const QPoint &p)
 {
-    QWidget *c = QApplicationPrivate::widgetAt_sys(p.x(), p.y());
-    return c ? c->window() : 0;
-}
-
-QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
-{
     int screen = QCursor::x11Screen();
     int unused;
 
+    int x = p.x();
+    int y = p.y();
     Window target;
     if (!XTranslateCoordinates(X11->display,
                                QX11Info::appRootWindow(screen),
@@ -2292,7 +2288,7 @@ QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
     }
     if (!target || target == QX11Info::appRootWindow(screen))
         return 0;
-    QWidget *w, *c;
+    QWidget *w;
     w = QWidget::find((WId)target);
 
     if (!w) {
@@ -2326,9 +2322,7 @@ QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
             }
         }
     }
-    if (w && (c = w->childAt(w->mapFromGlobal(QPoint(x, y)))))
-        return c;
-    return w;
+    return w ? w->window() : 0;
 }
 
 /*!
@@ -2684,6 +2678,18 @@ int QApplication::x11ProcessEvent(XEvent* event)
 #if !defined(QT_NO_TABLET)
         if (!qt_tabletChokeMouse) {
 #endif
+            if (widget->testAttribute(Qt::WA_TransparentForMouseEvents)) {
+                QPoint pos(event->xbutton.x, event->xbutton.y);
+                pos = widget->d_func()->mapFromWS(pos);
+                QWidget *window = widget->window();
+                pos = widget->mapTo(window, pos);
+                if (QWidget *child = window->childAt(pos)) {
+                    widget = static_cast<QETWidget *>(child);
+                    pos = child->mapFrom(window, pos);
+                    event->xbutton.x = pos.x();
+                    event->xbutton.y = pos.y();
+                }
+            }
             widget->translateMouseEvent(event);
 #if !defined(QT_NO_TABLET)
         } else {
@@ -3403,7 +3409,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             }
 #endif
             qt_button_down = childAt(pos);        //magic for masked widgets
-            if (!qt_button_down || !qt_button_down->testAttribute(Qt::WA_MouseNoMask))
+            if (!qt_button_down)
                 qt_button_down = this;
             if (mouseActWindow == event->xbutton.window &&
                 mouseButtonPressed == button &&

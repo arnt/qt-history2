@@ -628,19 +628,13 @@ void FormWindowManager::beginDrag(const QList<QDesignerDnDItemInterface*> &item_
 
     foreach(QDesignerDnDItemInterface *item, m_drag_item_list) {
         QWidget *deco = item->decoration();
-        QBitmap bitmap(deco->size());
-        QPainter p(&bitmap);
-        p.fillRect(bitmap.rect(), Qt::color1);
-        p.setPen(Qt::color0);
-        p.drawPoint(deco->mapFromGlobal(globalPos));
-        p.end();
-        deco->setMask(bitmap);
+        deco->setAttribute(Qt::WA_TransparentForMouseEvents);
+        deco->setWindowOpacity(0.8);
         QPoint pos = deco->pos();
         QRect ag = qApp->desktop()->availableGeometry(deco);
         deco->move(qMin(qMax(pos.x(), ag.left()), ag.right()), qMin(qMax(pos.y(), ag.top()), ag.bottom()));
-        deco->show();
         deco->move(pos);
-        deco->setWindowOpacity(0.8);
+        deco->show();
     }
 
 #ifndef Q_OS_WIN

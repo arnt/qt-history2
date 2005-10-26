@@ -2176,7 +2176,7 @@ QWidget *QApplicationPrivate::findWidget(const QObjectList& list,
                 && (!w->d_func()->extra || w->d_func()->extra->mask.isEmpty() ||  w->d_func()->extra->mask.contains(pos - w->geometry().topLeft()) )) {
                 if (!rec)
                     return w;
-                QWidget *c = findChildWidget(w, w->mapFromParent(pos));
+                QWidget *c = w->childAt(w->mapFromParent(pos));
                 return c ? c : w;
             }
         }
@@ -2184,14 +2184,6 @@ QWidget *QApplicationPrivate::findWidget(const QObjectList& list,
     return 0;
 }
 
-/*!
-    Recursively searches all of \a p's child widgets and returns the
-    most nested widget that contains point \a pos.
-*/
-QWidget *QApplicationPrivate::findChildWidget(const QWidget *p, const QPoint &pos)
-{
-    return findWidget(p->children(), pos, true);
-}
 
 QWidget *QApplication::topLevelAt(const QPoint &pos)
 {
@@ -2217,17 +2209,6 @@ QWidget *QApplication::topLevelAt(const QPoint &pos)
     }
 #endif
     return 0;
-}
-
-QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
-{
-    // XXX not a fast function...
-    QWidget *tlw = QApplication::topLevelAt(x, y);
-    if (!tlw)
-        return 0;
-    QPoint pos(x,y);
-    QWidget *c = findChildWidget(tlw, tlw->mapFromParent(pos));
-    return c ? c : tlw;
 }
 
 void QApplication::beep()
@@ -2373,7 +2354,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             //#### why should we get events outside alloc_region ????
             if (1 /*widget->data->alloc_region.contains(dp) */) {
                 // Find the child widget that the cursor is in.
-                w = static_cast<QETWidget*>(QApplicationPrivate::findChildWidget(widget, widget->mapFromParent(p)));
+                w = static_cast<QETWidget*>(widget->childAt(widget->mapFromParent(p)));
                 w = w ? static_cast<QETWidget*>(w) : widget;
 #ifndef QT_NO_CURSOR
                 // Update Cursor.
@@ -2959,8 +2940,8 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
 
 #endif
                 if (mouse.state&button) { //button press
-                    qt_button_down = QApplicationPrivate::findChildWidget(this, pos);        //magic for masked widgets
-                    if (!qt_button_down || !qt_button_down->testAttribute(Qt::WA_MouseNoMask))
+                    qt_button_down = childAt(pos);
+                    if (!qt_button_down)
                         qt_button_down = this;
                     if (/*XXX mouseActWindow == this &&*/
                         mouseButtonPressed == button &&
@@ -3011,7 +2992,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
         }
         pos = popup->mapFromGlobal(globalPos);
         bool releaseAfter = false;
-        QWidget *popupChild  = QApplicationPrivate::findChildWidget(popup, pos);
+        QWidget *popupChild  = popup->childAt(pos);
         QWidget *popupTarget = popupChild ? popupChild : popup;
 
         if (popup != popupOfPopupButtonFocus){

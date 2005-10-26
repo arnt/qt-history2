@@ -139,7 +139,6 @@ public:
     static void reset_instance_pointer();
 #elif defined(Q_WS_QWS)
     static bool qws_apply_settings();
-    static QWidget *findChildWidget(const QWidget *p, const QPoint &pos);
     static QWidget *findWidget(const QObjectList&, const QPoint &, bool rec);
 #endif
     static bool quitOnLastWindowClosed;
@@ -149,7 +148,6 @@ public:
     QString appName() const;
 
     static void dispatchEnterLeave(QWidget *enter, QWidget *leave);
-    static QWidget *widgetAt_sys(int x, int y);
 
     //modality
     static void enterModal(QWidget*);

@@ -460,7 +460,7 @@ static void qt_set_windows_resources()
     const QColor fg = pal.foreground().color(), btn = pal.button().color();
     QColor disabled((fg.red()+btn.red())/2,(fg.green()+btn.green())/2,
                      (fg.blue()+btn.blue())/2);
-    pal.setColorGroup(QPalette::Disabled, pal.foreground(), pal.button(), pal.light(), 
+    pal.setColorGroup(QPalette::Disabled, pal.foreground(), pal.button(), pal.light(),
         pal.dark(), pal.mid(), pal.text(), pal.brightText(), pal.base(), pal.background() );
     pal.setColor(QPalette::Disabled, QPalette::Foreground, disabled);
     pal.setColor(QPalette::Disabled, QPalette::Text, disabled);
@@ -1027,30 +1027,7 @@ void qt_win_set_cursor(QWidget *w, const QCursor& /* c */)
   Routines to find a Qt widget from a screen position
  *****************************************************************************/
 
-static QWidget *findChildWidget(const QWidget *p, const QPoint &pos)
-{
-    QObjectList children = p->children();
-    for(int i = children.size(); i > 0 ;) {
-        --i;
-        QObject *o = children.at(i);
-        if (o->isWidgetType()) {
-            QWidget *w = (QWidget*)o;
-            if (w->isVisible() && w->geometry().contains(pos)) {
-                QWidget *c = findChildWidget(w, w->mapFromParent(pos));
-                return c ? c : w;
-            }
-        }
-    }
-    return 0;
-}
-
 QWidget *QApplication::topLevelAt(const QPoint &p)
-{
-    QWidget *c = QApplicationPrivate::widgetAt_sys(p.x(), p.y());
-    return c ? c->window() : 0;
-}
-
-QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
 {
     POINT p;
     HWND  win;
@@ -1066,7 +1043,7 @@ QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
         win = GetParent(win);
         w = QWidget::find(win);
     }
-    return w;
+    return w ? w->window() : 0;
 }
 
 void QApplication::beep()
@@ -1938,10 +1915,10 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     ret = qMin<int>(wParam - 1, text.size());
                     text.resize(ret);
                     QT_WA({
-                        memcpy((void *)lParam, text.utf16(), (text.size() + 1) * 2); 
+                        memcpy((void *)lParam, text.utf16(), (text.size() + 1) * 2);
                     }, {
-                        memcpy((void *)lParam, text.toLocal8Bit().data(), text.size() + 1); 
-                    }); 
+                        memcpy((void *)lParam, text.toLocal8Bit().data(), text.size() + 1);
+                    });
                     delete acc;
                 }
                 if (!ret) {
@@ -2524,9 +2501,8 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         pos = mapFromGlobal(QPoint(gpos.x, gpos.y));
 
         if (type == QEvent::MouseButtonPress || type == QEvent::MouseButtonDblClick) {        // mouse button pressed
-            // Magic for masked widgets
-            qt_button_down = findChildWidget(this, pos);
-            if (!qt_button_down || !qt_button_down->testAttribute(Qt::WA_MouseNoMask))
+            qt_button_down = childAt(pos);
+            if (!qt_button_down)
                 qt_button_down = this;
         }
     }
@@ -2544,7 +2520,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             else                                // send to last popup
                 pos = popup->mapFromGlobal(QPoint(gpos.x, gpos.y));
         }
-        QWidget *popupChild = findChildWidget(popup, pos);
+        QWidget *popupChild = popup->childAt(pos);
         bool releaseAfter = false;
         switch (type) {
             case QEvent::MouseButtonPress:
