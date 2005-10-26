@@ -2001,16 +2001,18 @@ static QStyleOptionQ3ListView getStyleOption(const Q3ListView *lv, const Q3ListV
 }
 
 /*!
+    \fn void Q3ListViewItem::paintCell(QPainter *painter, const QColorGroup & cg, int column, int width, int align)
+
     This virtual function paints the contents of one column of an item
     and aligns it as described by \a align.
 
-    \a p is a Q3Painter open on the relevant paint device. \a p is
-    translated so (0, 0) is the top-left pixel in the cell and \a
-    width-1, height()-1 is the bottom-right pixel \e in the cell. The
-    other properties of \a p (pen, brush, etc) are undefined. \a cg is
-    the color group to use. \a column is the logical column number
-    within the item that is to be painted; 0 is the column which may
-    contain a tree.
+    The \a painter is a Q3Painter open on the relevant paint
+    device. It is translated so (0, 0) is the top-left pixel in the
+    cell and \a width - 1, height() - 1 is the bottom-right pixel \e
+    in the cell. The other properties of the \a painter (pen, brush, etc) are
+    undefined. \a cg is the color group to use. \a column is the
+    logical column number within the item that is to be painted; 0 is
+    the column which may contain a tree.
 
     This function may use Q3ListView::itemMargin() for readability
     spacing on the left and right sides of data such as text, and
@@ -2022,7 +2024,7 @@ static QStyleOptionQ3ListView getStyleOption(const Q3ListView *lv, const Q3ListV
 
     The rectangle to be painted is in an undefined state when this
     function is called, so you \e must draw on all the pixels. The
-    painter \a p has the right font on entry.
+    \a painter has the right font on entry.
 
     \sa paintBranches(), Q3ListView::drawContentsOffset()
 */

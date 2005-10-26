@@ -101,18 +101,18 @@
     no other services are allowed to rebind. By passing this option to
     QUdpSocket::bind(), you are guaranteed that on successs, your service
     is the only one that listens to the address and port. No services are
-    allowed to rebind, even if they pass \l ReuseAddressHint. This option
-    provides more security than \l ShareAddress, but on certain operating
+    allowed to rebind, even if they pass ReuseAddressHint. This option
+    provides more security than ShareAddress, but on certain operating
     systems, it requires you to run the server with administrator privileges.
     On Unix and Mac OS X, not sharing is the default behavior for binding
     an address and port, so this option is ignored. On Windows, this
     option uses the SO_EXCLUSIVEADDRUSE socket option.
-    
+
     \value ReuseAddressHint Provides a hint to QUdpSocket that it should try
     to rebind the service even if the address and port are already bound by
     another socket. On Windows, this is equivalent to the SO_REUSEADDR
     socket option. On Unix, this option is ignored.
-    
+
     \value DefaultForPlatform The default option for the current platform.
     On Unix and Mac OS X, this is equivalent to (DontShareAddress
     + ReuseAddressHint), and on Windows, it's equivalent to ShareAddress.

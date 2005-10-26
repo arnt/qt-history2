@@ -32,7 +32,7 @@
     the size of the buffer is a non-power of 2 size, it can not be
     bound to a texture.
 
-    \sa {examples/pbuffers}
+    \sa {examples/opengl/pbuffers}
 */
 
 #include <qglpbuffer.h>
@@ -265,7 +265,14 @@ int QGLPbuffer::metric(PaintDeviceMetric metric) const
 }
 
 /*!
-    The same as calling QGLContext::bindTexture().
+    Generates and binds a 2D GL texture to the current context, based
+    on \a image. The generated texture id is returned and can be used
+    in later glBindTexture() calls.
+
+    The \a target parameter specifies the texture target. The \a
+    format parameter sets the internal format for the texture.
+
+    Equivalent to calling QGLContext::bindTexture().
 
     \sa deleteTexture()
 */
@@ -278,7 +285,9 @@ GLuint QGLPbuffer::bindTexture(const QImage &image, GLenum target, GLint format)
 
 /*! \overload
 
-    Same as calling QGLContext::bindTexture().
+    Generates and binds a 2D GL texture based on \a pixmap.
+
+    Equivalent to calling QGLContext::bindTexture().
 
     \sa deleteTexture()
 */
@@ -290,7 +299,10 @@ GLuint QGLPbuffer::bindTexture(const QPixmap &pixmap, GLenum target, GLint forma
 
 /*! \overload
 
-    The same as calling QGLContext::bindTexture().
+    Reads the DirectDrawSurface (DDS) compressed file \a fileName and
+    generates a 2D GL texture from it.
+
+    Equivalent to calling QGLContext::bindTexture().
 
     \sa deleteTexture()
 */
@@ -301,7 +313,9 @@ GLuint QGLPbuffer::bindTexture(const QString &fileName)
 }
 
 /*!
-    The same as calling QGLContext::deleteTexture().
+    Removes the texture identified by texture_id from the texture cache.
+
+    Equivalent to calling QGLContext::deleteTexture().
  */
 void QGLPbuffer::deleteTexture(GLuint texture_id)
 {

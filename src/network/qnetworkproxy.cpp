@@ -28,7 +28,7 @@
 
     This enum describes the types of network proxying provided in Qt.
 
-    \value AutoProxy Proxying is determind based on application settings
+    \value DefaultProxy Proxying is determind based on application settings
     \value Socks5Proxy Socks 5 proxying is used
     \value NoProxy No proxying is used
 
@@ -139,7 +139,7 @@ QNetworkProxy &QNetworkProxy::operator=(const QNetworkProxy &other)
 }
 
 /*!
-    Sets the method of proxying fro this instance to be \a type.
+    Sets the method of proxying for this instance to be \a type.
 
     \sa type()
 */
@@ -183,7 +183,7 @@ void QNetworkProxy::setUser(const QString &user)
 /*!
     Returns the user name used for authentication.
 
-    \sa setuser(), setPassword(), password()
+    \sa setUser(), setPassword(), password()
 */
 QString QNetworkProxy::user() const
 {
@@ -197,7 +197,7 @@ QString QNetworkProxy::user() const
 /*!
     Sets the password for proxy authentication to be \a password.
 
-    \sa user(), setuser(), password()
+    \sa user(), setUser(), password()
 */
 void QNetworkProxy::setPassword(const QString &password)
 {
@@ -211,7 +211,7 @@ void QNetworkProxy::setPassword(const QString &password)
 /*!
     Returns the password used for authentication.
 
-    \sa user(), setPassword(), setuser()
+    \sa user(), setPassword(), setUser()
 */
 QString QNetworkProxy::password() const
 {
@@ -223,7 +223,7 @@ QString QNetworkProxy::password() const
 }
 
 /*!
-    Sets the host name of the proxy host to be \a hostname.
+    Sets the host name of the proxy host to be \a hostName.
 
     \sa hostName(), setPort(), port()
 */
@@ -267,7 +267,7 @@ void QNetworkProxy::setPort(quint16 port)
 /*!
     Returns the port of the proxy host.
 
-    \sa setHostMame(), setPort(), hostName()
+    \sa setHostName(), setPort(), hostName()
 */
 quint16 QNetworkProxy::port() const
 {
@@ -279,7 +279,7 @@ quint16 QNetworkProxy::port() const
 }
 
 /*!
-    Sets the application level netwok proxying to be \networkProxy.
+    Sets the application level netwok proxying to be \a networkProxy.
 
     \sa applicationProxy(), QAbstractSocket::setProxy(), QTcpServer::setProxy()
 */

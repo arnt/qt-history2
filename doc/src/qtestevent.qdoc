@@ -1,6 +1,6 @@
 /*! \class QTestEventList
 
-    \brief QTestEventList is a list of GUI events.
+    \brief The QTestEventList class provides a list of GUI events.
 
     QTestEventList inherits from QList<QTestEvent>, and provides
     convenience functions for populating the list.

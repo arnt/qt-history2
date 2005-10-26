@@ -1580,7 +1580,12 @@ uint QDomNodeList::length() const
 /*!
     \fn QDomNode QDomNodeList::at(int index) const
 
-    This function is provided for Qt API consistency. It is equivalent to item().
+    This function is provided for Qt API consistency. It is equivalent
+    to item().
+
+    If \a index is negative or if \a index >= length() then a null
+    node is returned (i.e. a node for which QDomNode::isNull() returns
+    true).
 */
 
 /**************************************************************
