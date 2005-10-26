@@ -39,6 +39,12 @@ Meta Object Compiler (moc)
 Qt Assistant
 ------------
 
+QTestLib
+--------
+
+- Added QTestLib, the Qt Unit Testing Library. See the "QTestLib" chapter
+  in the Qt documentation for more information.
+
 
 General Fixes
 -------------
