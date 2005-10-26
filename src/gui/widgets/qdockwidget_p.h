@@ -86,6 +86,8 @@ public:
     QAction *toggleViewAction;
 #endif
 
+    QMainWindow *findMainWindow(QWidget *widget) const;
+
     void mousePressEvent(QMouseEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

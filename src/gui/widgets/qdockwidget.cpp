@@ -271,8 +271,8 @@ void QDockWidgetPrivate::relayout()
         closeButton->setGeometry(QStyle::visualRect(
 				    qApp->layoutDirection(),
                                     titleArea, QRect(posX - closeSize.width() - mw,
-                                    titleArea.bottom() - closeSize.height() - mw, 
-                                    closeSize.width(), closeSize.height()))); 
+                                    titleArea.bottom() - closeSize.height() - mw,
+                                    closeSize.width(), closeSize.height())));
         posX -= closeSize.width() + 1;
     }
 
@@ -281,7 +281,7 @@ void QDockWidgetPrivate::relayout()
         floatButton->setGeometry(QStyle::visualRect(
 				    qApp->layoutDirection(),
                                     titleArea, QRect(posX - floatSize.width() - mw,
-                                    titleArea.bottom() - floatSize.height() - mw, 
+                                    titleArea.bottom() - floatSize.height() - mw,
                                     floatSize.width(), floatSize.height())));
         posX -= floatSize.width() + 1;
     }
@@ -303,6 +303,26 @@ void QDockWidgetPrivate::toggleTopLevel()
         q->move(p);
     if (visible)
         q->show();
+}
+
+QMainWindow *QDockWidgetPrivate::findMainWindow(QWidget *widget) const
+{
+    Q_Q(const QDockWidget);
+    QMainWindow *mainwindow = 0;
+    // look for our QMainWindow
+    while (widget && !mainwindow) {
+        if (widget == q->parentWidget()) {
+            // found our parent widget, has to be the mainwindow we're looking for
+            mainwindow = qobject_cast<QMainWindow *>(widget);
+            break;
+        } else if (widget->isWindow()) {
+            // found a window that isn't our QMainWindow, stop looking
+            widget = 0;
+        } else {
+            widget = widget->parentWidget();
+        }
+    }
+    return mainwindow;
 }
 
 void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
@@ -381,26 +401,16 @@ void QDockWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
         // see if there is a main window under us, and ask it to place the tool window
         QWidget *widget = QApplication::widgetAt(event->globalPos());
         if (widget) {
-            while (widget && !qobject_cast<QMainWindow *>(widget)) {
-                if (widget->isWindow()) {
-                    widget = 0;
-                    break;
-                }
-                widget = widget->parentWidget();
-            }
-
-            if (widget) {
-                QMainWindow *mainwindow = qobject_cast<QMainWindow *>(widget);
-                if (mainwindow && mainwindow == q->parentWidget()) {
-                    QMainWindowLayout *layout =
-                        qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
-                    Q_ASSERT(layout != 0);
-                    QRect request = state->origin;
-                    // ### remove extra frame
-                    request.moveTopLeft(event->globalPos() - state->offset);
-                    target = layout->placeDockWidget(q, request, event->globalPos());
-                    layout->resetLayoutInfo();
-                }
+            QMainWindow *mainwindow = findMainWindow(widget);
+            if (mainwindow) {
+                QMainWindowLayout *layout =
+                    qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
+                Q_ASSERT(layout != 0);
+                QRect request = state->origin;
+                // ### remove extra frame
+                request.moveTopLeft(event->globalPos() - state->offset);
+                target = layout->placeDockWidget(q, request, event->globalPos());
+                layout->resetLayoutInfo();
             }
         }
     }
@@ -465,26 +475,16 @@ void QDockWidgetPrivate::mouseReleaseEvent(QMouseEvent *event)
         // see if there is a main window under us, and ask it to drop the tool window
         QWidget *widget = QApplication::widgetAt(event->globalPos());
         if (state->canDrop && widget) {
-            while (widget && !qobject_cast<QMainWindow *>(widget)) {
-                if (widget->isWindow()) {
-                    widget = 0;
-                    break;
-                }
-                widget = widget->parentWidget();
-            }
-
-            if (widget) {
-                QMainWindow *mainwindow = qobject_cast<QMainWindow *>(widget);
-                if (mainwindow && mainwindow == q->parentWidget()) {
-                    QMainWindowLayout *layout =
-                        qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
-                    Q_ASSERT(layout != 0);
-                    QRect request = state->origin;
-                    // ### remove extra frame
-                    request.moveTopLeft(event->globalPos() - state->offset);
-                    layout->dropDockWidget(q, request, event->globalPos());
-                    dropped = true;
-                }
+            QMainWindow *mainwindow = findMainWindow(widget);
+            if (mainwindow) {
+                QMainWindowLayout *layout =
+                    qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
+                Q_ASSERT(layout != 0);
+                QRect request = state->origin;
+                // ### remove extra frame
+                request.moveTopLeft(event->globalPos() - state->offset);
+                layout->dropDockWidget(q, request, event->globalPos());
+                dropped = true;
             }
         }
     }
