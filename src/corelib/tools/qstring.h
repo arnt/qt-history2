@@ -783,10 +783,10 @@ inline const QString operator+(const QString &s, const QByteArray &ba)
 
 #ifndef QT_NO_STL
 inline std::string QString::toStdString() const
-{ return toAscii().data(); }
+{ const QByteArray asc = toAscii(); return std::string(asc.constData(), asc.length()); }
 
 inline QString QString::fromStdString(const std::string &s)
-{ return fromAscii(s.c_str()); }
+{ return fromAscii(s.c_str(), s.length()); }
 
 # ifndef QT_NO_STL_WCHAR
 inline QStdWString QString::toStdWString() const
