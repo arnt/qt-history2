@@ -1572,7 +1572,17 @@ bool QSocks5SocketEngine::isReadNotificationEnabled() const
 void QSocks5SocketEngine::setReadNotificationEnabled(bool enable)
 {
     Q_D(QSocks5SocketEngine);
+    bool emitSignal = false;
+    if (!d->readNotificationEnabled
+        && enable
+        && d->mode == QSocks5SocketEnginePrivate::ConnectMode
+        && !d->connectData->readBuffer.isEmpty())
+        emitSignal = true;
+
     d->readNotificationEnabled = enable;
+
+    if (emitSignal)
+        d->emitReadNotification();
 }
 
 bool QSocks5SocketEngine::isWriteNotificationEnabled() const
