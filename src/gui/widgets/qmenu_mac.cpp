@@ -58,6 +58,7 @@ static struct {
  *****************************************************************************/
 extern IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
 extern QWidget * mac_keyboard_grabber; //qwidget_mac.cpp
+extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); //qapplication_xxx.cpp
 
 /*****************************************************************************
   QMenu utility functions

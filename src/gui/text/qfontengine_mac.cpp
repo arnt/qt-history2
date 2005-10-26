@@ -109,11 +109,11 @@ QFontEngineMac::recalcAdvances(int numGlyphs, QGlyphLayout *glyphs,
     if(numGlyphs < 1)
         return;
 
-    QChar str[numGlyphs];
+    QVarLengthArray<QChar> str(numGlyphs);
     for(int i = 0; i < numGlyphs; ++i)
-        str[i] = (short)glyphs[i].glyph;
+        str[i] = ushort(glyphs[i].glyph);
     QFixed *advances = 0;
-    doTextTask(str, 0, numGlyphs, numGlyphs, ADVANCES, 0, 0, 0, (void**)&advances);
+    doTextTask(str.constData(), 0, numGlyphs, numGlyphs, ADVANCES, 0, 0, 0, (void**)&advances);
     if(advances) { //try using "correct" advances
         for(int i = 0; i < numGlyphs; ++i) {
             glyphs[i].advance.x = advances[i];
@@ -640,9 +640,9 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 #if 1
     if(task & ADVANCES) {
         Q_ASSERT(data);
-        ATSUGlyphInfoArray info[use_len];
+        QVarLengthArray<ATSUGlyphInfoArray> info(use_len);
         ByteCount size = sizeof(ATSUGlyphInfoArray) * use_len;
-        OSStatus err = ATSUGetGlyphInfo(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &size, info);
+        OSStatus err = ATSUGetGlyphInfo(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &size, info.data());
         if(err == noErr) {
             //sanity
             Q_ASSERT(info[0].numGlyphs == (uint)use_len);

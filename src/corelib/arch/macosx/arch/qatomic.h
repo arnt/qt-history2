@@ -16,7 +16,7 @@
 
 #include <QtCore/qglobal.h>
 
-#if defined(_ARCH_PPC)
+#if defined(_ARCH_PPC) || defined(Q_CC_XLC)
 
 #if defined(Q_CC_GNU)
 #ifdef __64BIT__
@@ -169,6 +169,8 @@ extern "C" {
     int q_atomic_decrement(volatile int *);
     int q_atomic_set_int(volatile int *, int);
     void *q_atomic_set_ptr(volatile void *, void *);
+    int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval);
+    int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval);
 } // extern "C"
 
 #endif

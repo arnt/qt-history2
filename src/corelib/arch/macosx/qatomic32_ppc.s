@@ -18,6 +18,38 @@ _q_atomic_test_and_set_int:
 	blr
 
 	.align 2
+	.globl _q_atomic_test_and_set_acquire_int
+        .section __TEXT,__text,regular,pure_instructions
+	.align 2
+_q_atomic_test_and_set_acquire_int:
+	lwarx  r6,0,r3
+        cmpw   r6,r4
+        bne-   $+20
+        stwcx. r5,0,r3
+        bne-   $-16
+        addi   r3,0,1
+        b      $+8
+        addi   r3,0,0
+        eieio
+	blr
+
+	.align 2
+	.globl _q_atomic_test_and_set_release_int
+        .section __TEXT,__text,regular,pure_instructions
+	.align 2
+_q_atomic_test_and_set_release_int:
+        eieio
+	lwarx  r6,0,r3
+        cmpw   r6,r4
+        bne-   $+20
+        stwcx. r5,0,r3
+        bne-   $-16
+        addi   r3,0,1
+        blr
+        addi   r3,0,0
+	blr
+
+	.align 2
 	.globl _q_atomic_test_and_set_ptr
         .section __TEXT,__text,regular,pure_instructions
 	.align 2
