@@ -451,7 +451,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         engine->setSystemClip(qrgn);
 
                     //handle the erase
-                    if (engine && (widget->isWindow() || widget->autoFillBackground())) {                       
+                    if (engine && (widget->isWindow() || widget->autoFillBackground()) || widget->testAttribute(Qt::WA_TintedBackground)) {
                         if (!redirectionOffset.isNull())
                             QPainter::setRedirected(widget, widget, redirectionOffset);
                         QRect rr = qrgn.boundingRect();
@@ -462,15 +462,21 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                             widget->setAttribute(Qt::WA_PaintUnclipped);
                         p.setClipRegion(qrgn);
 
-                        
+
+                        if (widget->isWindow() || widget->autoFillBackground()) {
                         const QBrush bg = widget->palette().brush(widget->backgroundRole());
                         QPixmap pm = bg.texture();
                         if(!pm.isNull())
                             p.drawTiledPixmap(rr, pm, QPoint(rr.x()%pm.width(), rr.y()%pm.height()));
                         else
                             p.fillRect(rr, bg.color());
+                        }
 
-                        
+                        if (widget->testAttribute(Qt::WA_TintedBackground)) {
+                            QColor tint = widget->palette().window();
+                            tint.setAlphaF(.6);
+                            p.fillRect(rr, tint);
+                        }
                         p.end();
                         if (!redirectionOffset.isNull())
                             QPainter::restoreRedirected(widget);
