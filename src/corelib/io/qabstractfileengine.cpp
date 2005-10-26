@@ -779,7 +779,7 @@ QString QAbstractFileEngine::errorString() const
 }
 
 /*!
-    Sets the error type to \a error, and the error string to \a errorString().
+    Sets the error type to \a error, and the error string to \a errorString.
     Call this function to set the error values returned by the higher-level
     classes.
 
