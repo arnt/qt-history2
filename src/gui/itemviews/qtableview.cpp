@@ -784,10 +784,10 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
         break;
     case MovePageUp: {
         int newRow = rowAt(visualRect(current).top() - d->viewport->height());
-        return model()->index(newRow <= bottom ? newRow : 0, current.column(), rootIndex());}
+        return model()->index(qBound(0, newRow, bottom), current.column(), rootIndex()); }
     case MovePageDown: {
         int newRow = rowAt(visualRect(current).bottom() + d->viewport->height());
-        return model()->index(newRow >= 0 ? newRow : bottom, current.column(), rootIndex());}
+        return model()->index(qBound(0, newRow, bottom), current.column(), rootIndex());}
     }
 
     int logicalRow = verticalHeader()->logicalIndex(visualRow);

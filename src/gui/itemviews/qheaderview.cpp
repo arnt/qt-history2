@@ -359,7 +359,7 @@ int QHeaderView::visualIndexAt(int position) const
     Q_D(const QHeaderView);
     d->executePostedLayout();
     int count = this->count();
-    if (count < 1 || position < 0)
+    if (count < 1)
         return -1;
     if (d->reverse())
         position = d->viewport->width() - position;
