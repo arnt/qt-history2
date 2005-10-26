@@ -1179,7 +1179,7 @@ void QTextLine::layout_helper(int maxGlyphs)
         }
         state = newState;
 
-        if (state == Characters) {
+        if (state == Characters || current.isTab) {
             tmpData.ascent = qMax(tmpData.ascent, current.ascent);
             tmpData.descent = qMax(tmpData.descent, current.descent);
         }
