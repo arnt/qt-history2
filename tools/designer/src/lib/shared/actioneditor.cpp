@@ -112,7 +112,7 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     m_filterWidget->setEnabled(false);
     toolbar->addWidget(m_filterWidget);
 
-    connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotNotImplemented()));
+    connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotDeleteAction()));
 
     splitter = new QSplitter(Qt::Horizontal, this);
     splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -211,7 +211,7 @@ QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
     QListWidgetItem *item = new QListWidgetItem(m_actionRepository);
     QSize s = m_actionRepository->iconSize();
     item->setSizeHint(QSize(s.width()*3, s.height()*2));
-    item->setText(fixActionText(action->objectName()));
+    item->setText(fixActionText(action->text()));
     item->setIcon(fixActionIcon(action->icon()));
 
     QVariant itemData;
@@ -336,6 +336,21 @@ void ActionEditor::editAction(QListWidgetItem *item)
 
 void ActionEditor::slotDeleteAction()
 {
+    QListWidgetItem *item = m_actionRepository->currentItem();
+    if (item == 0)
+        return;
+
+    QAction *action = qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole));
+    if (action == 0)
+        return;
+
+    core()->metaDataBase()->remove(action);
+    action->setParent(0);
+
+    delete item;
+
+    if (m_actionRepository->count() == 0)
+        core()->propertyEditor()->setObject(formWindow()->mainContainer());
 }
 
 void ActionEditor::slotNotImplemented()
