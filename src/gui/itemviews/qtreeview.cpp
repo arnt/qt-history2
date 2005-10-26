@@ -1920,15 +1920,16 @@ void QTreeViewPrivate::updateHorizontalScrollbar()
     }
 
     // count how many items are visible in the viewport
-    int left = q->horizontalScrollBar()->value() / horizontalStepsPerItem;
-    while (header->isSectionHidden(left))
+    int left = header->visualIndexAt(0); // ### log n
+    while (header->isSectionHidden(header->logicalIndex(left)))
         ++left;
     Q_ASSERT(left >= 0);
     int visibleCount = 0;
     int x = 0;
     for (int section = left; section < count && x < width; ++section) {
-        if (!header->isSectionHidden(section)) {
-            x += header->sectionSize(section);
+        int logicalIndex = header->logicalIndex(section);
+        if (!header->isSectionHidden(logicalIndex)) {
+            x += header->sectionSize(logicalIndex);
             ++visibleCount;
         }
     }

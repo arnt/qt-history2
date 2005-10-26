@@ -62,15 +62,16 @@ void QTableViewPrivate::updateVerticalScrollbar()
     }
 
     // count how many items are visible in the viewport
-    int top = q->verticalScrollBar()->value() / verticalStepsPerItem;
-    while (verticalHeader->isSectionHidden(top))
+    int top = qMax(verticalHeader->visualIndexAt(0), 0); // ### log n
+    while (verticalHeader->isSectionHidden(verticalHeader->logicalIndex(top)))
         ++top;
     Q_ASSERT(top >= 0);
     int visibleCount = 0;
     int y = 0;
     for (int section = top; section < count && y < height; ++section) {
-        if (!verticalHeader->isSectionHidden(section)) {
-            y += verticalHeader->sectionSize(section);
+        int logicalIndex = verticalHeader->logicalIndex(section);
+        if (!verticalHeader->isSectionHidden(logicalIndex)) {
+            y += verticalHeader->sectionSize(logicalIndex);
             ++visibleCount;
         }
     }
@@ -115,15 +116,16 @@ void QTableViewPrivate::updateHorizontalScrollbar()
     }
 
     // count how many items are visible in the viewport
-    int left = q->horizontalScrollBar()->value() / horizontalStepsPerItem;
-    while (horizontalHeader->isSectionHidden(left))
+    int left = qMax(horizontalHeader->visualIndexAt(0), 0); // ### log n
+    while (horizontalHeader->isSectionHidden(horizontalHeader->logicalIndex(left)))
         ++left;
     Q_ASSERT(left >= 0);
     int visibleCount = 0;
     int x = 0;
     for (int section = left; section < count && x < width; ++section) {
-        if (!horizontalHeader->isSectionHidden(section)) {
-            x += horizontalHeader->sectionSize(section);
+        int logicalIndex = horizontalHeader->logicalIndex(section);
+        if (!horizontalHeader->isSectionHidden(logicalIndex)) {
+            x += horizontalHeader->sectionSize(logicalIndex);
             ++visibleCount;
         }
     }
@@ -192,7 +194,8 @@ int QTableViewPrivate::firstVisualIndex(int y) const
 {
     int top = q_func()->verticalScrollBar()->value() / verticalStepsPerItem;
     int row = verticalHeader->logicalIndex(top);
-    for (int v = verticalHeader->sectionPosition(row) - verticalHeader->offset();
+    const int bottom = verticalHeader->count() - 1;
+    for (int v = verticalHeader->sectionViewportPosition(row);
          (v += verticalHeader->sectionSize(row)) < y && top < bottom; ++top)
         row = verticalHeader->logicalIndex(top);
     return top;
