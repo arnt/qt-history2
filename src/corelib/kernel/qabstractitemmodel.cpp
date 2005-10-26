@@ -455,21 +455,22 @@ void QAbstractItemModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
     QList<int> persistent_moved;
     QList<int> persistent_invalidated;
 
+    // find the persistent indexes that are affected by the change, either by being in the removed subtree
+    //or by being on the same level and below the removed rows
     for (int position = 0; position < persistent.indexes.count(); ++position) {
-        bool traversedToParent = false;
+        bool level_changed = false;
         QModelIndex current = persistent.indexes.at(position)->index;
         while (current.isValid()) {
-            if (current.parent() == parent) {
-                 // below the removed rows
-                if (!traversedToParent && current.row() > last)
+            QModelIndex current_parent = current.parent();
+            if (current_parent == parent) { // on the same level as the change
+                if (!level_changed && current.row() > last) // below the removed rows
                     persistent_moved.append(position);
-                // row removed or child of row that is removed
-                else if (current.row() <= last && current.row() >= first)
+                else if (current.row() <= last && current.row() >= first) // in the removed subtree
                     persistent_invalidated.append(position);
                 break;
             }
-            current = current.parent();
-            traversedToParent = true;
+            current = current_parent;
+            level_changed = true;
         }
     }
 
@@ -528,21 +529,22 @@ void QAbstractItemModelPrivate::columnsAboutToBeRemoved(const QModelIndex &paren
     QList<int> persistent_moved;
     QList<int> persistent_invalidated;
 
+    // find the persistent indexes that are affected by the change, either by being in the removed subtree
+    //or by being on the same level and right of the removed columns
     for (int position = 0; position < persistent.indexes.count(); ++position) {
-        bool traversedToParent = false;
+        bool level_changed = false;
         QModelIndex current = persistent.indexes.at(position)->index;
         while (current.isValid()) {
-            if (current.parent() == parent) {
-                 // after the removed columns
-                if (!traversedToParent && current.column() > last)
+            QModelIndex current_parent = current.parent();
+            if (current_parent == parent) { // on the same level as the change
+                if (!level_changed && current.column() > last) // left of the removed columns
                     persistent_moved.append(position);
-                // about to be removed or parent about to be removed
-                else if (current.column() <= last && current.column() >= first)
+                else if (current.column() <= last && current.column() >= first) // in the removed subtree
                     persistent_invalidated.append(position);
                 break;
             }
-            current = current.parent();
-            traversedToParent = true;
+            current = current_parent;
+            level_changed = true;
         }
     }
 
