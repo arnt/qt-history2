@@ -2160,4 +2160,52 @@ void ChangeListContentsCommand::changeContents(QComboBox *comboBox,
     }
 }
 
+// ---- AddActionCommand ----
+
+AddActionCommand::AddActionCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(QLatin1String("Add action"), formWindow)
+{
+    m_action = 0;
+}
+
+void AddActionCommand::init(QAction *action)
+{
+    Q_ASSERT(m_action == 0);
+    m_action = action;
+}
+
+void AddActionCommand::redo()
+{
+    core()->actionEditor()->addAction(m_action);
+}
+
+void AddActionCommand::undo()
+{
+    core()->actionEditor()->removeAction(m_action);
+}
+
+// ---- RemoveActionCommand ----
+
+RemoveActionCommand::RemoveActionCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(QLatin1String("Remove action"), formWindow)
+{
+    m_action = 0;
+}
+
+void RemoveActionCommand::init(QAction *action)
+{
+    Q_ASSERT(m_action == 0);
+    m_action = action;
+}
+
+void RemoveActionCommand::redo()
+{
+    core()->actionEditor()->removeAction(m_action);
+}
+
+void RemoveActionCommand::undo()
+{
+    core()->actionEditor()->addAction(m_action);
+}
+
 } // namespace qdesigner_internal

@@ -30,6 +30,9 @@ public:
 
     virtual QDesignerFormEditorInterface *core() const;
 
+    virtual void addAction(QAction *action) = 0;
+    virtual void removeAction(QAction *action) = 0;
+
 public Q_SLOTS:
     virtual void setFormWindow(QDesignerFormWindowInterface *formWindow) = 0;
 };

@@ -16,6 +16,7 @@
 #include "iconloader_p.h"
 #include "newactiondialog_p.h"
 #include "qdesigner_menu_p.h"
+#include "qdesigner_command_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -241,8 +242,13 @@ void ActionEditor::updatePropertyEditor(QAction *action)
 
 void ActionEditor::slotItemChanged(QListWidgetItem *item)
 {
-    if (!item)
+    if (core()->propertyEditor() == 0)
         return;
+
+    if (!item) {
+        core()->propertyEditor()->setObject(formWindow()->mainContainer());
+        return;
+    }
 
     if (QAction *action = qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole))) {
         updatePropertyEditor(action);
@@ -279,31 +285,56 @@ void ActionEditor::setFilter(const QString &f)
     m_actionRepository->filter(m_filter);
 }
 
+void ActionEditor::addAction(QAction *action)
+{
+    action->setParent(formWindow()->mainContainer());
+    core()->metaDataBase()->add(action);
+
+    QDesignerPropertySheetExtension *sheet = 0;
+    sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
+    sheet->setChanged(sheet->indexOf("objectName"), true);
+    sheet->setChanged(sheet->indexOf("text"), true);
+    sheet->setChanged(sheet->indexOf("icon"), !action->icon().isNull());
+
+    m_actionRepository->clearSelection();
+    QListWidgetItem *item = createListWidgetItem(action);
+    m_actionRepository->setCurrentItem(item);
+}
+
+void ActionEditor::removeAction(QAction *action)
+{
+    QListWidgetItem *item = qvariant_cast<QListWidgetItem*>(action->data());
+    if (item == 0) {
+        qWarning() << "ActionEditor::removeAction(): action has no associated item";
+        return;
+    }
+
+    disconnect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
+    core()->metaDataBase()->remove(action);
+    action->setParent(0);
+
+    QVariant actionData;
+    qVariantSetValue(actionData, (QListWidgetItem*)0);
+    action->setData(actionData);
+
+    m_actionRepository->clearSelection();
+
+    delete item;
+}
+
 void ActionEditor::slotNewAction()
 {
     NewActionDialog dlg(this);
 
     if (dlg.exec() == QDialog::Accepted) {
-        QWidget *form = formWindow()->mainContainer();
-
-        QAction *action = new QAction(form);
+        QAction *action = new QAction(0);
         action->setObjectName(dlg.actionName());
         action->setText(dlg.actionText());
         action->setIcon(dlg.actionIcon());
 
-        core()->metaDataBase()->add(action);
-
-        QDesignerPropertySheetExtension *sheet = 0;
-        sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
-        sheet->setChanged(sheet->indexOf("objectName"), true);
-        sheet->setChanged(sheet->indexOf("text"), true);
-        sheet->setChanged(sheet->indexOf("icon"), !action->icon().isNull());
-
-        // formWindow()->emitSelectionChanged();
-        m_actionRepository->clearSelection();
-        QListWidgetItem *item = createListWidgetItem(action);
-        m_actionRepository->setItemSelected(item, true);
-        updatePropertyEditor(action);
+        AddActionCommand *cmd = new AddActionCommand(formWindow());
+        cmd->init(action);
+        formWindow()->commandHistory()->push(cmd);
     }
 }
 
@@ -344,13 +375,9 @@ void ActionEditor::slotDeleteAction()
     if (action == 0)
         return;
 
-    core()->metaDataBase()->remove(action);
-    action->setParent(0);
-
-    delete item;
-
-    if (m_actionRepository->count() == 0)
-        core()->propertyEditor()->setObject(formWindow()->mainContainer());
+    RemoveActionCommand *cmd = new RemoveActionCommand(formWindow());
+    cmd->init(action);
+    formWindow()->commandHistory()->push(cmd);
 }
 
 void ActionEditor::slotNotImplemented()

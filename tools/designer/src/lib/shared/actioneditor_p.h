@@ -56,6 +56,9 @@ public:
 
     QString filter() const;
 
+    virtual void addAction(QAction *action);
+    virtual void removeAction(QAction *action);
+
 public slots:
     void setFilter(const QString &filter);
 
