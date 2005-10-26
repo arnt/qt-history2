@@ -132,7 +132,7 @@ public:
 	SampleBuffers 		= 0x00000002,
 	GenerateMipmap 		= 0x00000004,
 	TextureCompression 	= 0x00000008,
-	FragmentShader	 	= 0x00000010,
+	FragmentProgram	 	= 0x00000010,
 	MirroredRepeat		= 0x00000020
     };
     Q_DECLARE_FLAGS(Extensions, Extension)
