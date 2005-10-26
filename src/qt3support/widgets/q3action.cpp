@@ -162,16 +162,18 @@ Q3ActionPrivate::~Q3ActionPrivate()
         if (menu->findItem(mi->id))
             menu->removeItem(mi->id);
     }
+    qDeleteAll(menuitems);
 
     QList<Q3ActionPrivate::Action4Item*>::Iterator itmi4(action4items.begin());
     Q3ActionPrivate::Action4Item* mi4;
-    while (itmi != menuitems.end()) {
+    while (itmi4 != action4items.end()) {
         mi4 = *itmi4;
         ++itmi4;
         mi4->widget->removeAction(mi4->action);
     }
     delete Q3ActionPrivate::Action4Item::action;
     Q3ActionPrivate::Action4Item::action = 0;
+    qDeleteAll(action4items);
 
     QList<Q3ActionPrivate::ComboItem*>::Iterator itci(comboitems.begin());
     Q3ActionPrivate::ComboItem* ci;
@@ -196,6 +198,7 @@ Q3ActionPrivate::~Q3ActionPrivate()
             }
         }
     }
+    qDeleteAll(comboitems);
 
 #ifndef QT_NO_ACCEL
     delete accel;
