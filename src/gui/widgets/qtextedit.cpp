@@ -92,6 +92,14 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
             break;
         case Qt::Key_Down:
             op = QTextCursor::Down;
+            if (mode == QTextCursor::KeepAnchor) {
+                QTextBlock block = cursor.block();
+                QTextLine line = currentTextLine(cursor);
+                if (!block.next().isValid()
+                    && line.isValid()
+                    && line.lineNumber() == block.layout()->lineCount() - 1)
+                    op = QTextCursor::End;
+            }
             break;
         case Qt::Key_Left:
             op = e->modifiers() & Qt::ControlModifier
@@ -141,12 +149,21 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
                 QApplication::beep();
                 return true;
             } else {
-                if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
+                if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier)) {
                     op = QTextCursor::End;
-                else if (e->modifiers() & Qt::AltModifier)
+                } else if (e->modifiers() & Qt::AltModifier) {
                     op = QTextCursor::EndOfBlock;
-                else
+                } else {
                     op = QTextCursor::Down;
+                    if (mode == QTextCursor::KeepAnchor) {
+                        QTextBlock block = cursor.block();
+                        QTextLine line = currentTextLine(cursor);
+                        if (!block.next().isValid()
+                            && line.isValid()
+                            && line.lineNumber() == block.layout()->lineCount() - 1)
+                            op = QTextCursor::End;
+                    }
+                }
             }
             break;
         case Qt::Key_Left:
