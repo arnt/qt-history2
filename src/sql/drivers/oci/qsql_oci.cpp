@@ -210,7 +210,7 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
                                   ((QByteArray*)data)->size(),
                                   SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                   (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
-            break;
+                break;
             case QVariant::Time:
             case QVariant::Date:
             case QVariant::DateTime: {
@@ -258,12 +258,13 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
                                      -1,
                                      SQLT_RDD, (dvoid *) indPtr, (ub2 *) 0, (ub2 *) 0,
                                      (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
-                    break;
+                } else {
+                    qWarning("Unknown bind variable");
+                    r = OCI_ERROR;
                 }
-                // fall through
-            case QVariant::String:
-            default: {
-                QString s = val.toString();
+                break;
+            case QVariant::String: {
+                const QString s = val.toString();
                 if (isBinaryValue(i)) {
                     r = OCIBindByPos(sql, &hbnd, err,
                                      i + 1,
@@ -271,8 +272,23 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
                                      s.length() * sizeof(QChar),
                                      SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                      (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
-                } else if (isOutValue(i)) {
-                    QByteArray ba((char*)s.utf16(), (s.length() + 1) * sizeof(QChar));
+                    break;
+                } else if (!isOutValue(i)) {
+                    // don't detach the string
+                    r = OCIBindByPos(sql, &hbnd, err,
+                                     i + 1,
+                                     (dvoid *)s.utf16(),
+                                     (s.length() + 1) * sizeof(QChar),
+                                     SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+                                     (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                    break;
+                }
+            } // fall through for OUT values
+            default: {
+                const QString s = val.toString();
+                // create a deep-copy
+                QByteArray ba((char*)s.utf16(), (s.length() + 1) * sizeof(QChar));
+                if (isOutValue(i)) {
                     ba.reserve((s.capacity() + 1) * sizeof(QChar));
                     ub2 cap = ba.size();
                     r = OCIBindByPos(sql, &hbnd, err,
@@ -281,20 +297,17 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
                                      ba.capacity(),
                                      SQLT_STR, (dvoid *) indPtr, &cap, (ub2*) 0,
                                      (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
-                    tmpStorage.append(ba);
                 } else {
-                    s.utf16(); // append 0
                     r = OCIBindByPos(sql, &hbnd, err,
                                      i + 1,
-                                     //yes, we cast away the const.
-                                     // But Oracle shouldn't touch IN values
-                                     (dvoid *)s.constData(),
-                                     (s.length() + 1) * sizeof(QChar),
+                                     (dvoid *)ba.constData(),
+                                     ba.size(),
                                      SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                      (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
                 }
                 if (r == OCI_SUCCESS)
                     setCharset(hbnd);
+                tmpStorage.append(ba);
                 break; }
         }
         if (r != OCI_SUCCESS)
