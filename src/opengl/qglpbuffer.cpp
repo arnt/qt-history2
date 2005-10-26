@@ -32,7 +32,7 @@
     the size of the buffer is a non-power of 2 size, it can not be
     bound to a texture.
 
-    \sa {examples/opengl/pbuffers}
+    \sa {opengl/pbuffers}
 */
 
 #include <qglpbuffer.h>

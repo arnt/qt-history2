@@ -556,9 +556,9 @@ QString QHostAddress::toString() const
     unique.
 
     IPv6 specifies the following four levels of reachability:
-    
+
     \list
-    
+
     \o Node-local: Addresses that are only used for communicating with
     services on the same interface (e.g., the loopback interface "::1").
 
@@ -574,7 +574,7 @@ QString QHostAddress::toString() const
 
     \o Global: For globally routable addresses, such as public servers on the
     Internet.
-    
+
     \endlist
 
     When using a link-local or site-local address for IPv6 connections, you
@@ -593,8 +593,8 @@ QString QHostAddress::scopeId() const
 /*!
     \since 4.1
 
-    Sets the IPv6 scope ID of the address. If the address protocol is not
-    IPv6, this function does nothing.
+    Sets the IPv6 scope ID of the address to \a id. If the address
+    protocol is not IPv6, this function does nothing.
 */
 void QHostAddress::setScopeId(const QString &id)
 {

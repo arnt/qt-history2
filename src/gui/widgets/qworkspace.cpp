@@ -2133,7 +2133,7 @@ void QWorkspace::activatePreviousWindow()
 /*!
     Arranges all the child windows in a cascade pattern.
 
-    \sa tile() \sa arrangeIcons()
+    \sa tile(), arrangeIcons()
 */
 void QWorkspace::cascade()
 {
@@ -2201,7 +2201,7 @@ void QWorkspace::cascade()
 /*!
     Arranges all child windows in a tile pattern.
 
-    \sa cascade() \sa arrangeIcons()
+    \sa cascade(), arrangeIcons()
 */
 void QWorkspace::tile()
 {
@@ -2309,9 +2309,9 @@ void QWorkspace::tile()
 }
 
 /*!
-    Arranges all iconsed windows at the bottom of the workspace.
+    Arranges all iconized windows at the bottom of the workspace.
 
-    \sa cascade() \sa tile()
+    \sa cascade(), tile()
 */
 void QWorkspace::arrangeIcons()
 {

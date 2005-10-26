@@ -364,7 +364,7 @@ QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &fileName, int verN
         lib->libraryRefCount.ref();
         return lib;
     }
-    
+
     return new QLibraryPrivate(fileName, verNum);
 }
 
@@ -732,15 +732,18 @@ void QLibrary::setFileName(const QString &fileName)
 }
 
 QString QLibrary::fileName() const
-{   
+{
     if (d)
-        return d->qualifiedFileName.isEmpty() ? d->fileName : d->qualifiedFileName;        
+        return d->qualifiedFileName.isEmpty() ? d->fileName : d->qualifiedFileName;
     return QString();
 }
 
 /*!
-    Sets the fileName property and major version number.
-    
+    \fn void QLibrary::setFileNameAndVersion(const QString &fileName, int versionNumber)
+
+    Sets the fileName property and major version number to \a fileName
+    and \a versionNumber respectively.
+
     \sa setFileName()
 */
 void QLibrary::setFileNameAndVersion(const QString &fileName, int verNum)
@@ -752,9 +755,9 @@ void QLibrary::setFileNameAndVersion(const QString &fileName, int verNum)
     }
     d = QLibraryPrivate::findOrCreate(fileName, verNum);
     if (d && d->pHnd)
-        did_load = true;    
+        did_load = true;
 }
-    
+
 /*!
     Returns the address of the exported symbol \a symbol. The library is
     loaded if necessary. The function returns 0 if the symbol could
@@ -850,15 +853,15 @@ void *QLibrary::resolve(const QString &fileName, const char *symbol)
 /*!
     \overload
 
-    Loads the library \a fileName with major version number \a verNum and 
-    returns the address of the exported symbol \a symbol. 
-    Note that \a fileName should not include the platform-specific file suffix; 
+    Loads the library \a fileName with major version number \a verNum and
+    returns the address of the exported symbol \a symbol.
+    Note that \a fileName should not include the platform-specific file suffix;
     (see \l{fileName}). The library remains loaded until the application exits.
 
     The function returns 0 if the symbol could not be resolved or if
     the library could not be loaded.
 
-    \sa resolve() 
+    \sa resolve()
 */
 void *QLibrary::resolve(const QString &fileName, int verNum, const char *symbol)
 {

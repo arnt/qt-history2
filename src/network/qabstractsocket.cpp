@@ -949,6 +949,9 @@ void QAbstractSocket::connectToHost(const QString &hostName, quint16 port,
     \since 4.1
 
     Contains the implementation of connectToHost().
+
+    Attempts to make a connection to \a hostName on the given \a
+    port. The socket is opened in the given \a openMode.
 */
 void QAbstractSocket::connectToHostImplementation(const QString &hostName, quint16 port,
                                                   OpenMode openMode)

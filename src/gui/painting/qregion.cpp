@@ -84,8 +84,8 @@
 
     \overload
 
-    Translates the region that is translated \a{p}\e{.x()} along the x axis
-    and \a dy along the \a{p}\e{.y()} axis, relative to the current
+    Translates the region \a{point}\e{.x()} along the x axis and
+    \a{point}\e{.y()} along the y axis, relative to the current
     position. Positive values move the region to the right and down.
 
     Translates to the given \a point.

@@ -788,10 +788,10 @@ bool QPrinter::collateCopies() const
 /*!
     \since 4.1
 
-    Sets the default value for collation checkbox when the print dialog appears.
-    If \a on is true, it will enable setCollateCopiesEnabled().
-    The default value is false. This value will be changed by what the
-    user presses in the print dialog.
+    Sets the default value for collation checkbox when the print
+    dialog appears.  If \a collate is true, it will enable
+    setCollateCopiesEnabled().  The default value is false. This value
+    will be changed by what the user presses in the print dialog.
 
     \sa collateCopies()
 */
@@ -910,7 +910,7 @@ QPrinter::PaperSource QPrinter::paperSource() const
 /*!
   \since 4.1
 
-  Enabled or disables font embedding
+  Enabled or disables font embedding depending on \a enable.
 
   Currently this option is only supported on X11.
 

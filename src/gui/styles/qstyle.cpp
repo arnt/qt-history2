@@ -250,6 +250,8 @@ QStyle::QStyle()
 
 
 /*!
+    \internal
+
     Constructs a style object.
 */
 QStyle::QStyle(QStylePrivate &dd)

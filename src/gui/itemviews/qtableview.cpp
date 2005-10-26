@@ -113,7 +113,7 @@ void QTableViewPrivate::updateHorizontalScrollbar()
         q->horizontalScrollBar()->setRange(0, 0);
         return;
     }
-    
+
     // count how many items are visible in the viewport
     int left = q->horizontalScrollBar()->value() / horizontalStepsPerItem;
     while (horizontalHeader->isSectionHidden(left))
@@ -459,7 +459,7 @@ QStyleOptionViewItem QTableView::viewOptions() const
 }
 
 /*!
-    Paints the table on receipt of the given paint event \a e.
+    Paints the table on receipt of the given paint event \a event.
 */
 void QTableView::paintEvent(QPaintEvent *event)
 {

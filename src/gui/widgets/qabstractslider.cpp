@@ -116,19 +116,20 @@
     This signal is emitted when the user presses the slider with the
     mouse, or programmatically when setSliderDown(true) is called.
 
-    \sa sliderReleased() sliderMoved() sliderDown()
+    \sa sliderReleased(), sliderMoved(), isSliderDown()
 */
 
 /*!
     \fn void QAbstractSlider::sliderMoved(int value)
 
-    This signal is emitted when sliderDown() is true and the slider moves. This
+    This signal is emitted when sliderDown is true and the slider moves. This
     usually happens when the user is dragging the slider. The \a value
     is the new slider position.
 
     This signal is emitted even when tracking is turned off.
 
-    \sa setTracking(), valueChanged() sliderDown() sliderPressed() sliderReleased()
+    \sa setTracking(), valueChanged(), isSliderDown(),
+    sliderPressed(), sliderReleased()
 */
 
 /*!

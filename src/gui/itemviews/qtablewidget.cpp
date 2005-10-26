@@ -1439,9 +1439,10 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
   \since 4.1
   \fn void QTableWidget::currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
 
-  This signal is emitted whenever the current cell changes. The cell specified by \a
-  previousRow and \a previousColumn is the cell that previously had the focus, the cell
-  specified by \a currentRow and \a previousColumn is the new current cell.
+  This signal is emitted whenever the current cell changes. The cell
+  specified by \a previousRow and \a previousColumn is the cell that
+  previously had the focus, the cell specified by \a currentRow and \a
+  currentColumn is the new current cell.
 */
 
 

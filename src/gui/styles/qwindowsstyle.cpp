@@ -188,6 +188,8 @@ QWindowsStyle::QWindowsStyle() : QCommonStyle(*new QWindowsStylePrivate)
 }
 
 /*!
+    \internal
+
     Constructs a QWindowsStyle object.
 */
 QWindowsStyle::QWindowsStyle(QWindowsStylePrivate &dd) : QCommonStyle(dd)

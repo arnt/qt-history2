@@ -94,8 +94,8 @@ void QStringFilterModel::setKeyColumn(int column)
 }
 
 /*!
-  Sets the string pattern used to filterthe contents
-  of the source model.
+  Sets the string pattern used to filter the contents
+  of the source model, to \a pattern.
 */
 void QStringFilterModel::setPattern(const QString &pattern)
 {

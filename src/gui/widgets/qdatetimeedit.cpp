@@ -120,8 +120,7 @@ public:
   \value MSecSection
   \value SecondSection
   \value MinuteSection
-  \value Hour12Section
-  \value Hour24Section
+  \value HourSection
   \value DaySection
   \value MonthSection
   \value YearSection

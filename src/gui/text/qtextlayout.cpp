@@ -1808,6 +1808,8 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
 }
 
 /*!
+  \fn int QTextLine::xToCursor(qreal x, CursorPosition cpos) const
+
   Converts the x-coordinate \a x, to the nearest matching cursor
   position, depending on the cursor position type, \a cpos.
 
