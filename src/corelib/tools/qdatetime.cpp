@@ -406,11 +406,11 @@ QString QDate::shortMonthName(int month)
     const wchar_t mmm_t[] = L"MMM"; // workaround for Borland
     QT_WA({
         TCHAR buf[255];
-        if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, mmm_t, buf, 255))
+        if (GetDateFormat(GetThreadLocale(), 0, &st, mmm_t, buf, 255))
             return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
-        if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "MMM", (char*)&buf, 255))
+        if (GetDateFormatA(GetThreadLocale(), 0, &st, "MMM", (char*)&buf, 255))
             return QString::fromLocal8Bit(buf);
     });
 #endif
@@ -468,11 +468,11 @@ QString QDate::longMonthName(int month)
     const wchar_t mmmm_t[] = L"MMMM"; // workaround for Borland
     QT_WA({
         TCHAR buf[255];
-        if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, mmmm_t, buf, 255))
+        if (GetDateFormat(GetThreadLocale(), 0, &st, mmmm_t, buf, 255))
             return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
-        if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "MMMM", (char*)&buf, 255))
+        if (GetDateFormatA(GetThreadLocale(), 0, &st, "MMMM", (char*)&buf, 255))
             return QString::fromLocal8Bit(buf);
     })
 #endif
@@ -527,11 +527,11 @@ QString QDate::shortDayName(int weekday)
     const wchar_t ddd_t[] = L"ddd"; // workaround for Borland
     QT_WA({
         TCHAR buf[255];
-        if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, ddd_t, buf, 255))
+        if (GetDateFormat(GetThreadLocale(), 0, &st, ddd_t, buf, 255))
             return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
-        if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "ddd", (char*)&buf, 255))
+        if (GetDateFormatA(GetThreadLocale(), 0, &st, "ddd", (char*)&buf, 255))
             return QString::fromLocal8Bit(buf);
     });
 #endif
@@ -585,11 +585,11 @@ QString QDate::longDayName(int weekday)
     const wchar_t dddd_t[] = L"dddd"; // workaround for Borland
     QT_WA({
         TCHAR buf[255];
-        if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, dddd_t, buf, 255))
+        if (GetDateFormat(GetThreadLocale(), 0, &st, dddd_t, buf, 255))
             return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
-        if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "dddd", (char*)&buf, 255))
+        if (GetDateFormatA(GetThreadLocale(), 0, &st, "dddd", (char*)&buf, 255))
             return QString::fromLocal8Bit(buf);
     });
 #endif
@@ -643,11 +643,11 @@ QString QDate::toString(Qt::DateFormat f) const
             st.wDay = day();
             QT_WA({
                 TCHAR buf[255];
-                if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255))
+                if (GetDateFormat(GetThreadLocale(), 0, &st, 0, buf, 255))
                     return QString::fromUtf16((ushort*)buf);
             } , {
                 char buf[255];
-                if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255))
+                if (GetDateFormatA(GetThreadLocale(), 0, &st, 0, (char*)&buf, 255))
                     return QString::fromLocal8Bit(buf);
             });
 #elif defined(Q_WS_MAC)
