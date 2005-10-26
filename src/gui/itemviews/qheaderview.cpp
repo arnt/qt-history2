@@ -1360,7 +1360,8 @@ bool QHeaderView::event(QEvent *e)
         int oldHover = d->hover;
         d->hover = logicalIndexAt(he->pos());
         if (d->hover != oldHover && d->hover != -1) {
-            updateSection(oldHover);
+            if (oldHover != -1)
+                updateSection(oldHover);
             updateSection(d->hover);
         }
         break; }
