@@ -297,6 +297,7 @@ void ActionEditor::slotNewAction()
         sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
         sheet->setChanged(sheet->indexOf("objectName"), true);
         sheet->setChanged(sheet->indexOf("text"), true);
+        sheet->setChanged(sheet->indexOf("icon"), !action->icon().isNull());
 
         // formWindow()->emitSelectionChanged();
         m_actionRepository->clearSelection();
@@ -325,6 +326,11 @@ void ActionEditor::editAction(QListWidgetItem *item)
     action->setObjectName(dlg.actionName());
     action->setText(dlg.actionText());
     action->setIcon(dlg.actionIcon());
+
+    QDesignerPropertySheetExtension *sheet = 0;
+    sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
+    sheet->setChanged(sheet->indexOf("icon"), !action->icon().isNull());
+
     updatePropertyEditor(action);
 }
 
