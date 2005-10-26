@@ -2,7 +2,7 @@
     \module QAxContainer
     \title QAxContainer Module
     \contentspage Qt's Modules
-    \previouspage Qt3Support
+    \previouspage QtTest
     \nextpage QAxServer
 
     \brief The QAxContainer module is a Windows-only extension for

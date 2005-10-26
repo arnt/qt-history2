@@ -1,4 +1,6 @@
-/*! \class QTestEventList
+/*! 
+    \class QTestEventList
+    \inmodule QtTest
 
     \brief The QTestEventList class provides a list of GUI events.
 

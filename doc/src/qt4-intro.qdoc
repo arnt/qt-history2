@@ -67,12 +67,15 @@
     \row    \o \l{QtNetwork}    \o Network module
     \row    \o \l{QtOpenGL}     \o OpenGL module
     \row    \o \l{QtSql}        \o SQL module
+    \row    \o \l{QtSvg}        \o SVG rendering classes
     \row    \o \l{QtXml}        \o XML module
     \row    \o \l{Qt3Support}   \o Qt 3 support classes
     \row    \o \l{QAxContainer} \o ActiveQt client extension
     \row    \o \l{QAxServer}    \o ActiveQt server extension
-    \row    \o \l{QtDesigner}   \o Classes for extending and embedding Qt Designer
     \row    \o \l{QtAssistant}  \o Classes for launching Qt Assistant
+    \row    \o \l{QtDesigner}   \o Classes for extending and embedding Qt Designer
+    \row    \o \l{QtForm}       \o Classes for dynamic GUI generation
+    \row    \o \l{QtTest}       \o Tool classes for unit testing
     \endtable
 
     QtCore contains tool classes like QString, QList, and QFile, as
@@ -205,7 +208,7 @@
         char *name" in their subclasses's constructors. For example:
 
         \code
-	MyWidget::MyWidget(QWidget *parent, const char *name)
+        MyWidget::MyWidget(QWidget *parent, const char *name)
             : QWidget(parent, name)
         {
             ...

@@ -1,0 +1,17 @@
+/*!
+    \module QtTest
+    \title QtTest Module
+    \contentspage Qt's Modules
+    \previouspage Qt3Support
+    \nextpage QAxContainer
+
+    \keyword QtTest
+
+    \brief The QtTest module contains classes for unit testing.
+
+    \code
+        #include <QtTest>
+    \endcode
+
+    The QtTest module is part of all \l{Qt editions}.
+*/

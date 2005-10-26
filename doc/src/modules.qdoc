@@ -19,6 +19,7 @@
     \row \o \l{QtForm} \o Classes for handling \QD forms in applications
     \row \o \l{QtAssistant} \o Support for online help
     \row \o \l{Qt3Support} \o Qt 3 compatibility classes
+    \row \o \l{QtTest} \o Tool classes for unit testing
     \endtable
 
     The following extension modules are available in the \l{Qt

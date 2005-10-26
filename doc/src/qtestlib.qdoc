@@ -192,7 +192,7 @@
 
 
 /*!
-    \example tutorial1
+    \example qtestlib/tutorial/t1
 
     \contentspage {QTestLib Tutorial}{Contents}
     \nextpage {Chapter 2: Data Driven Testing}{Chapter 2}
@@ -289,7 +289,7 @@
 */
 
 /*!
-    \example tutorial2
+    \example qtestlib/tutorial/t2
 
     \previouspage {Chapter 1: Writing a Unit Test}{Chapter 1}
     \contentspage {QTestLib Tutorial}{Contents}
@@ -404,7 +404,7 @@
 */
 
 /*!
-    \example tutorial3
+    \example qtestlib/tutorial/t3
 
     \previouspage {Chapter 2 Data Driven Testing}{Chapter 2}
     \contentspage {QTestLib Tutorial}{Contents}
@@ -465,7 +465,7 @@
 */
 
 /*!
-    \example tutorial4
+    \example qtestlib/tutorial/t4
 
     \previouspage {Chapter 3: Simulating GUI Event}{Chapter 3}
     \contentspage {QTestLib Tutorial}{Contents}

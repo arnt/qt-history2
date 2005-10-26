@@ -3,7 +3,7 @@
     \title Qt3Support Module
     \contentspage Qt's Modules
     \previouspage Qt3Support
-    \nextpage QAxContainer
+    \nextpage QtTest
 
     \brief The Qt3Support module provides classes that ease porting
     from Qt 3 to Qt 4.

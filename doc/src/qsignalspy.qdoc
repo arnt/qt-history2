@@ -1,4 +1,6 @@
-/*! \class QSignalSpy
+/*! 
+    \class QSignalSpy
+    \inmodule QtTest
 
     \brief The QSignalSpy class enables introspection of signal emission.
 
