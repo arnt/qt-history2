@@ -26,6 +26,7 @@
 
 #include <QtGui/QDockWidget>
 #include <QtGui/QDialog>
+#include <QtGui/QStackedWidget>
 
 namespace qdesigner_internal {
 
@@ -43,6 +44,13 @@ static const QMetaObject *introducedBy(const QMetaObject *meta, int index)
 } // qdesigner_internal
 
 using namespace qdesigner_internal;
+
+static bool hasLayoutAttributes(QObject *object)
+{
+    if (qobject_cast<QStackedWidget*>(object) != 0)
+        return false;
+    return true;
+}
 
 QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     : QObject(parent),
@@ -81,21 +89,23 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         createFakeProperty(QLatin1String("acceptDrops"));
         createFakeProperty(QLatin1String("dragEnabled"));
 
-        int pindex = -1;
+        if (hasLayoutAttributes(object)) {
+            int pindex = -1;
 
-        pindex = count();
-        createFakeProperty(QLatin1String("margin"), 0);
-        setAttribute(pindex, true);
-        setPropertyGroup(pindex, tr("Layout"));
+            pindex = count();
+            createFakeProperty(QLatin1String("margin"), 0);
+            setAttribute(pindex, true);
+            setPropertyGroup(pindex, tr("Layout"));
 
-        pindex = count();
-        createFakeProperty(QLatin1String("spacing"), 0);
-        setAttribute(pindex, true);
-        setPropertyGroup(pindex, tr("Layout"));
+            pindex = count();
+            createFakeProperty(QLatin1String("spacing"), 0);
+            setAttribute(pindex, true);
+            setPropertyGroup(pindex, tr("Layout"));
+        }
     }
 
     if (qobject_cast<QDialog*>(object)) {
-        createFakeProperty(QLatin1String("modal"));        
+        createFakeProperty(QLatin1String("modal"));
     }
 }
 
