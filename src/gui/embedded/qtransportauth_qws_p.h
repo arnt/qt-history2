@@ -21,7 +21,7 @@
 
 #include "private/qobject_p.h"
 
-/**
+/*!
   \internal
   \class QAuthDevice
 
@@ -76,14 +76,14 @@ private:
 // does not matter for trusted transports.
 #define AMOUNT_TO_AUTHENTICATE 200
 
-/**
+/*!
   \internal
   \class AuthCookie
   Struct to carry process authentication key and id
 */
 #define HEADER_LEN 24
 
-/**
+/*!
   \macro AUTH_ID
   Macro to manage authentication header.  Format of header is:
   \table
@@ -117,7 +117,7 @@ const int magicInt = 0xBAD4D4BA;
 
 #define KEYFILE "keyfile"
 
-/**
+/*
   Header in above format, less the magic bytes.
   Useful for reading off the socket
 */
@@ -130,7 +130,7 @@ struct AuthHeader
     unsigned char seq;
 };
 
-/**
+/*
   Header in a form suitable for authentication routines
 */
 struct AuthMessage
@@ -148,7 +148,7 @@ struct AuthMessage
     char payLoad[AMOUNT_TO_AUTHENTICATE];
 };
 
-/**
+/*
   Auth data as written to the key file
 */
 struct AuthCookie

@@ -43,7 +43,7 @@
 void hexstring( char *buf, const unsigned char* key, size_t sz );
 #endif
 
-/**
+/*!
   \class QTransportAuth
 
   \brief Authenticate a message transport.
@@ -142,7 +142,7 @@ QTransportAuthPrivate::~QTransportAuthPrivate()
         delete data.takeLast();
 }
 
-/**
+/*!
   \internal
   Construct a new QTransportAuth
 */
@@ -151,7 +151,7 @@ QTransportAuth::QTransportAuth() : QObject(*new QTransportAuthPrivate)
     // qDebug( "creating transport auth" );
 }
 
-/**
+/*!
   \internal
   Destructor
 */
@@ -184,7 +184,7 @@ QTransportAuth::Data *QTransportAuth::connectTransport( unsigned char properties
     return data;
 }
 
-/**
+/*!
   Is the transport trusted.  This is true iff data written into the
   transport medium cannot be intercepted or modified by another process.
   This is for example true for Unix Domain Sockets, but not for shared
@@ -199,7 +199,7 @@ inline bool QTransportAuth::Data::trusted() const
     return (bool)(properties & Trusted);
 }
 
-/**
+/*!
   Assert that the transport is trusted.
 
   For example with respect to shared memory, if it is ensured that no untrusted
@@ -214,7 +214,7 @@ inline void QTransportAuth::Data::setTrusted( bool t )
     properties = t ? properties | Trusted : properties & ~Trusted;
 }
 
-/**
+/*!
   Is the transport connection oriented.  This is true iff once a connection
   has been accepted, and state established, then further messages over the
   transport are guaranteed to have come from the original connecting entity.
@@ -235,7 +235,7 @@ inline bool QTransportAuth::Data::connection() const
     return (bool)(properties & Connection);
 }
 
-/**
+/*!
   Assert that the transport is connnection oriented
 
   \sa connection()
@@ -245,7 +245,7 @@ inline void QTransportAuth::Data::setConnection( bool t )
     properties = t ? properties | Connection : properties & ~Connection;
 }
 
-/**
+/*!
   Return a pointer to the instance of this process's QTransportAuth object
 */
 QTransportAuth *QTransportAuth::getInstance()
@@ -255,7 +255,7 @@ QTransportAuth *QTransportAuth::getInstance()
     return &theInstance;
 }
 
-/**
+/*!
   Set the full path to the key file
 
   Since this is normally relative to Qtopia::qpeDir() this needs to be
@@ -310,7 +310,7 @@ bool QTransportAuth::isDiscoveryMode() const
 #endif
 }
 
-/**
+/*!
   \internal
   Return the authorizer device mapped to this client.  Note that this
   could probably all be void* instead of QWSClient* for generality.
@@ -329,7 +329,7 @@ QIODevice *QTransportAuth::passThroughByClient( QWSClient *client ) const
     return 0;
 }
 
-/**
+/*!
   \internal
   Return a QIODevice pointer (to an internal QBuffer) which can be used
   to receive data after authorisation on transport \a d.
@@ -362,7 +362,7 @@ QAuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *data, QIODevice *iod
     return authBuf;
 }
 
-/**
+/*!
   Return a QIODevice pointer (to an internal QBuffer) which can be used
   to write data onto, for authorisation on transport \a d.
 
@@ -389,7 +389,7 @@ QAuthDevice *QTransportAuth::authBuf( QTransportAuth::Data *data, QIODevice *iod
 
 static struct AuthCookie *keyCache[ KEY_CACHE_SIZE ] = { 0 };
 
-/**
+/*!
   \internal
   Free the key cache on destruction of this object
 
@@ -407,7 +407,7 @@ void QTransportAuthPrivate::freeCache()
     }
 }
 
-/**
+/*!
   \internal
   Find the client key for the \a progId.  If it is cached should be very
   fast, otherwise requires a read of the secret key file
@@ -497,7 +497,7 @@ QWSClient *QAuthDevice::client() const
     return m_client;
 }
 
-/**
+/*!
   \function authViolation(QTransportAuth::Data&)
   This signal is emitted if an authorization failure is generated, as
   described in checkAuth();
@@ -506,7 +506,7 @@ QWSClient *QAuthDevice::client() const
 */
 
 
-/**
+/*!
   \function policyCheck(QTransportAuth::Data& transport, const QString &request )
   This signal is emitted when a transport successfully delivers a request
   and gives the opportunity to either deny or accept the request.
@@ -520,7 +520,7 @@ QWSClient *QAuthDevice::client() const
   \sa checkAuth()
 */
 
-/**
+/*!
   \internal
   Reimplement QIODevice writeData method.
 
@@ -576,7 +576,7 @@ qint64 QAuthDevice::writeData(const char *data, qint64 len)
     return tot;
 }
 
-/**
+/*!
   \internal
   Receive readyRead signal from the target recv device.  In response
   authorize the data, and write results out to the recvBuf() device
@@ -689,7 +689,7 @@ void QAuthDevice::authorizeMessage()
 #endif
 }
 
-/**
+/*!
   \internal
    Add authentication header to the beginning of a message
 
@@ -755,7 +755,7 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
 }
 
 
-/**
+/*!
   Check authorization on the \a msg, which must be of size \a msgLen,
   for the transport \a d.
 
@@ -889,7 +889,7 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
 
 
 #ifdef QTRANSPORTAUTH_DEBUG
-/**
+/*!
   In order to printf in hex, need to break the key up into unsigned ints
   so the %x format can be used.
 
@@ -909,7 +909,7 @@ void hexstring( char *buf, const unsigned char* key, size_t key_len )
 }
 #endif
 
-/**
+/*!
   HMAC MD5 as listed in RFC 2104
 
   This code is taken from:
