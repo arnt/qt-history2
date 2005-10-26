@@ -10,8 +10,8 @@ const qdocCommand = qdocDir + "/qdoc3";
 const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
-const validLicenses = ["opensource", "commercial", "preview"];
-const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots", "eval"]; // these are either true or false, set by -do-foo/-no-foo
+const validLicenses = ["opensource", "commercial", "preview", "eval"];
+const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
 const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
@@ -104,10 +104,10 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/decorations"),
 			  new RegExp("^qmake/Makefile$"),
 			  new RegExp("^qmake/Makefile.win32-g++"),
-			  new RegExp("^/src/activeqt"),
-			  new RegExp("^/tools/activeqt"),
-			  new RegExp("^/tools/designer/src/plugins/activeqt"),
-			  new RegExp("^/examples/activeqt"),
+			  new RegExp("^src/activeqt"),
+			  new RegExp("^tools/activeqt"),
+			  new RegExp("^tools/designer/src/plugins/activeqt"),
+			  new RegExp("^examples/activeqt"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
 			  new RegExp("_wce"),
@@ -125,10 +125,10 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/decorations"),
 			  new RegExp("^qmake/Makefile$"),
 			  new RegExp("^qmake/Makefile.win32-g++"),
-			  new RegExp("^/src/activeqt"),
-			  new RegExp("^/tools/activeqt"),
-			  new RegExp("^/tools/designer/src/plugins/activeqt"),
-			  new RegExp("^/examples/activeqt"),
+			  new RegExp("^src/activeqt"),
+			  new RegExp("^tools/activeqt"),
+			  new RegExp("^tools/designer/src/plugins/activeqt"),
+			  new RegExp("^examples/activeqt"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
 			  new RegExp("_wce"),
@@ -148,10 +148,10 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("_wce"),
 			       new RegExp("_mac"),
 			       new RegExp("^src/plugins/styles/mac"),
-			       new RegExp("^/src/activeqt"),
-			       new RegExp("^/tools/activeqt"),
-			       new RegExp("^/tools/designer/src/plugins/activeqt"),
-			       new RegExp("^/examples/activeqt"),
+			       new RegExp("^src/activeqt"),
+			       new RegExp("^tools/activeqt"),
+			       new RegExp("^tools/designer/src/plugins/activeqt"),
+			       new RegExp("^examples/activeqt"),
 			       new RegExp("_qnx4"),
 			       new RegExp("_qnx6"),
 			       new RegExp("^LICENSE.QPL"),
@@ -160,6 +160,8 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 var licenseRemove = new Array();
 
 licenseRemove["commercial"] = [ new RegExp("LICENSE.GPL") ];
+
+licenseRemove["eval"] = licenseRemove["commercial"];
 
 licenseRemove["opensource"] = [ new RegExp("^/src/activeqt"),
 				new RegExp("^/tools/activeqt"),
@@ -241,7 +243,8 @@ for (var p in validPlatforms) {
     for (var l in validLicenses) {
 	var platform = validPlatforms[p];
 	var license = validLicenses[l];
-	if (options[platform] && options[license]) {
+	if (options[platform] && options[license] &&
+	    (license != "eval" || (platform == "x11" || platform == "embedded"))) {
 	    print("Packaging %1-%2...".arg(platform).arg(license));
 	    indentation+=tabSize;
 	    
