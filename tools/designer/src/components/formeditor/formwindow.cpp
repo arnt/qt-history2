@@ -568,6 +568,9 @@ void FormWindow::selectWidget(QWidget* w, bool select)
     if (!isManaged(w) && !isCentralWidget(w))
         return;
 
+    if (!select && !isWidgetSelected(w))
+        return;
+
     if (isMainContainer(w)) {
         QWidget *opw = m_currentWidget;
         setCurrentWidget(mainContainer());
