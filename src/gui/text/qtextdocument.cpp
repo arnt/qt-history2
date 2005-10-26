@@ -1114,8 +1114,9 @@ QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
     of HTML.
 */
 QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
-{
+{    
     html = QLatin1String("<html><head><meta name=\"qrichtext\" content=\"1\" />");
+    html.reserve(doc->docHandle()->length());
 
     if (!encoding.isEmpty())
         html += QString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=%1\" />").arg(QString::fromAscii(encoding));

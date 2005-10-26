@@ -981,6 +981,7 @@ void QTextDocumentPrivate::adjustDocumentChangesAndCursors(int from, int addedOr
 QString QTextDocumentPrivate::plainText() const
 {
     QString result;
+    result.reserve(length());
     for (QTextDocumentPrivate::FragmentIterator it = begin(); it != end(); ++it) {
         const QTextFragmentData *f = *it;
         result += QString(text.unicode() + f->stringPosition, f->size);
