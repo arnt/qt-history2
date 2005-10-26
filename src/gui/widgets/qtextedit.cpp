@@ -1128,6 +1128,9 @@ Qt::Alignment QTextEdit::alignment() const
 void QTextEdit::setDocument(QTextDocument *document)
 {
     Q_D(QTextEdit);
+    if (d->doc == document)
+        return;
+
     d->doc->disconnect(this);
     d->doc->documentLayout()->disconnect(this);
     d->doc->documentLayout()->setPaintDevice(0);
