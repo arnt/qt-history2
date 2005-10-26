@@ -464,7 +464,7 @@ FunctionNode *Tree::findVirtualFunctionInBaseClasses(ClassNode *classe, Function
 	FunctionNode *func;
         if ( ((func = findVirtualFunctionInBaseClasses((*r).node, clone)) != 0 ||
 	      (func = (*r).node->findFunctionNode(clone)) != 0) ) {
-	    if (func->virtualness() != FunctionNode::NonVirtual )
+	    if (func->virtualness() != FunctionNode::NonVirtual)
 	        return func;
         }
  	++r;
