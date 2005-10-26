@@ -77,6 +77,24 @@
     \o \l {Chapter 4: Replaying GUI Events}{Replaying GUI Events}
     \endlist
 
+    \section1 Building a Test
+
+    If you are using \c qmake as your build tool, just add the
+    following to your project file:
+
+    \code
+    CONFIG += qtestlib
+    \endcode
+
+    If you are using other buildtools, make sure that you add the location
+    of the QTestLib header files to your include path (usually \c{include/QtTest}
+    under your Qt installation directory). If you are using a release build
+    of Qt, link your test to the \c QtTest library. For debug builds, use
+    \c{QtTest_debug}.
+
+    See \l {Chapter 1: Writing a Unit Test}{Writing a Unit Test} for a step by
+    step explanation.
+
     \section1 QTestLib Command Line Arguments
 
     \section2 Syntax
