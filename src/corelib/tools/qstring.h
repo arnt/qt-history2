@@ -786,7 +786,7 @@ inline std::string QString::toStdString() const
 { const QByteArray asc = toAscii(); return std::string(asc.constData(), asc.length()); }
 
 inline QString QString::fromStdString(const std::string &s)
-{ return fromAscii(s.c_str(), s.length()); }
+{ return fromAscii(s.data(), int(s.length())); }
 
 # ifndef QT_NO_STL_WCHAR
 inline QStdWString QString::toStdWString() const
@@ -797,7 +797,7 @@ inline QStdWString QString::toStdWString() const
     return str;
 }
 inline QString QString::fromStdWString(const QStdWString &s)
-{ return fromWCharArray(s.c_str(), int(s.length())); }
+{ return fromWCharArray(s.data(), int(s.length())); }
 # endif
 #endif
 
