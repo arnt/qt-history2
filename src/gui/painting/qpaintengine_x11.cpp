@@ -1258,8 +1258,10 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 #endif
         } else {
             mask |= GCTile;
+#ifndef QT_NO_XRENDER
             if (d->pdev_depth == 32 && pm.depth() != 32)
                 pm.data->convertToARGB32();
+#endif
             vals.tile = (pm.depth() == d->pdev_depth
                          ? pm.handle()
                          : pm.data->x11ConvertToDefaultDepth());
