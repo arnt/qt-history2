@@ -77,8 +77,10 @@ bool QEventDispatcherQWS::processEvents(QEventLoop::ProcessEventsFlags flags)
             break;
         }
 
-        if (filterEvent(event))
+        if (filterEvent(event)) {
+            delete event;
             continue;
+        }
         nevents++;
 
         bool ret = qApp->qwsProcessEvent(event) == 1;

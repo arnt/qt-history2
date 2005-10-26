@@ -350,7 +350,12 @@ QWSClient::QWSClient(QObject* parent, QTcpSocket* sock, int id)
 
 QWSClient::~QWSClient()
 {
-    cursors.clear();
+    qDeleteAll(cursors);
+    delete command;
+    delete c;
+#ifndef QT_NO_QWS_MULTIPROCESS
+    delete csocket;
+#endif
 }
 
 void QWSClient::setIdentity(const QString& i)
@@ -586,8 +591,11 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
 struct QWSCommandStruct
 {
     QWSCommandStruct(QWSCommand *c, QWSClient *cl) :command(c),client(cl){}
+    ~QWSCommandStruct() { delete command; }
+
     QWSCommand *command;
     QWSClient *client;
+
 };
 
 QWSServer::QWSServer(int flags, QObject *parent) :
@@ -938,7 +946,7 @@ QWSCommand* QWSClient::readMoreCommand()
 void QWSServer::processEventQueue()
 {
     if (qwsServerPrivate)
-        qwsServerPrivate->doClient(qwsServerPrivate->clientMap[-1]);
+        qwsServerPrivate->doClient(qwsServerPrivate->clientMap.value(-1));
 }
 
 
@@ -1082,7 +1090,6 @@ void QWSServerPrivate::doClient(QWSClient *client)
                                 cs->client);
             break;
         }
-        delete cs->command;
         delete cs;
     }
 }

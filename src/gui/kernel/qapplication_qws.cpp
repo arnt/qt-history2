@@ -310,7 +310,13 @@ public:
             csocket->flush(); // may be pending QCop message, eg.
             delete csocket;
         }
+#endif
         delete connected_event;
+        delete mouse_event;
+        delete current_event;
+        qDeleteAll(queue);
+#ifndef QT_NO_COP
+        delete qcop_response;
 #endif
     }
 
@@ -1884,6 +1890,10 @@ void qt_cleanup()
     if (qws_single_process) {
         QWSServer::closedown();
     }
+
+    qDeleteAll(outgoing);
+    qDeleteAll(incoming);
+
     if (qt_is_gui_used) {
         delete qt_fbdpy;
     }
