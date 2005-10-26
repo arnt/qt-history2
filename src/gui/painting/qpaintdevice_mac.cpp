@@ -58,7 +58,7 @@ int QPaintDevice::metric(PaintDeviceMetric) const
     as it can be relocated.
 */
 
-GrafPtr qt_mac_qd_context(const QPaintDevice *device)
+Q_GUI_EXPORT GrafPtr qt_mac_qd_context(const QPaintDevice *device)
 {
     if (device->devType() == QInternal::Widget) {
         return static_cast<GrafPtr>(static_cast<const QWidget *>(device)->handle());
@@ -79,7 +79,7 @@ GrafPtr qt_mac_qd_context(const QPaintDevice *device)
     it.
 */
 
-CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
+Q_GUI_EXPORT CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
 {
     if(pdev->devType() == QInternal::Pixmap) {
         const QPixmap *pm = static_cast<const QPixmap*>(pdev);
