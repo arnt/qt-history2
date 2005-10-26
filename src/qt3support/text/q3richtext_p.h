@@ -1688,7 +1688,7 @@ inline QColor Q3TextDocument::selectionColor(int id) const
 {
     const Q3TextDocument *p = this;
     while (p->par)
-        p = par;
+        p = p->par;
     return p->selectionColors[id].background;
 }
 
@@ -1696,7 +1696,7 @@ inline QColor Q3TextDocument::selectionTextColor(int id) const
 {
     const Q3TextDocument *p = this;
     while (p->par)
-        p = par;
+        p = p->par;
     return p->selectionColors[id].text;
 }
 
@@ -1704,7 +1704,7 @@ inline bool Q3TextDocument::hasSelectionTextColor(int id) const
 {
     const Q3TextDocument *p = this;
     while (p->par)
-        p = par;
+        p = p->par;
     return p->selectionColors.contains(id);
 }
 
@@ -1712,7 +1712,7 @@ inline void Q3TextDocument::setSelectionColor(int id, const QColor &c)
 {
     Q3TextDocument *p = this;
     while (p->par)
-        p = par;
+        p = p->par;
     p->selectionColors[id].background = c;
 }
 
@@ -1720,7 +1720,7 @@ inline void Q3TextDocument::setSelectionTextColor(int id, const QColor &c)
 {
     Q3TextDocument *p = this;
     while (p->par)
-        p = par;
+        p = p->par;
     p->selectionColors[id].text = c;
 }
 
