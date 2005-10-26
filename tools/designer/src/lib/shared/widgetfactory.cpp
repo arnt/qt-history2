@@ -334,13 +334,7 @@ void WidgetFactory::initialize(QObject *object) const
         if (sz.width() <= 0 && sz.height() <= 0)
             widget->setMinimumSize(QSize(16, 16));
         widget->setAttribute(Qt::WA_TransparentForMouseEvents, false);
-        widget->setAutoFillBackground(true);
-        QPalette pal = widget->palette();
-        QColor col = pal.color(QPalette::Window);
-        if (col.alpha() == 255)
-            col.setAlphaF(.8);
-        pal.setColor(QPalette::Window, col);
-        widget->setPalette(pal);
+        widget->setAttribute(Qt::WA_TintedBackground);
     }
 
     if (qobject_cast<QDockWidget*>(object) || qobject_cast<QToolBar*>(object)) {

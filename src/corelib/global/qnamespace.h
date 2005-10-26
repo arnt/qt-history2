@@ -351,6 +351,7 @@ public:
         WA_WindowPropagation = 80,
 
         WA_NoX11EventCompression = 81,
+        WA_TintedBackground = 82,
 
         // Add new attributes above this
         WA_AttributeCount

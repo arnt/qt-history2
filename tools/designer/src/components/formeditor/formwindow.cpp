@@ -285,11 +285,6 @@ void FormWindow::setMainContainer(QWidget *w)
 
     m_mainContainer = w;
     w->setAutoFillBackground(true);
-    QPalette pal = w->palette();
-    QColor col = pal.color(QPalette::Window);
-    col.setAlpha(255);
-    pal.setColor(QPalette::Window, col);
-    w->setPalette(pal);
     QSize sz = m_mainContainer->size();
 
     m_mainContainer->setParent(m_widgetStack, 0);
@@ -1880,20 +1875,23 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
     if (container == mainContainer())
         return; // no highlight for the main container;
 
-    // ### this code is broken
     if (mode == Restore) {
-        container->setPalette(palettesBeforeHighlight.take(container));
+        QPair<QPalette, bool> paletteAndFill = palettesBeforeHighlight.take(container);
+        container->setPalette(paletteAndFill.first);
+        container->setAutoFillBackground(paletteAndFill.second);
     } else {
         QPalette p = container->palette();
         if (!palettesBeforeHighlight.contains(container)) {
+            QPair<QPalette, bool> paletteAndFill;
             if (container->testAttribute(Qt::WA_SetPalette))
-                palettesBeforeHighlight[container] = p;
-            else
-                palettesBeforeHighlight[container] = QPalette();
+                paletteAndFill.first = p;
+            paletteAndFill.second = container->autoFillBackground();
+            palettesBeforeHighlight[container] = paletteAndFill;
         }
 
         p.setColor(backgroundRole(), p.midlight().color());
         container->setPalette(p);
+        container->setAutoFillBackground(true);
     }
 }
 

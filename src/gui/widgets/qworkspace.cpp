@@ -1046,6 +1046,8 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
     if (!w)
         return 0;
 
+    w->setAutoFillBackground(true);
+
     bool customize =  (flags & (Qt::WindowTitleHint
             | Qt::WindowSystemMenuHint
             | Qt::WindowMinimizeButtonHint

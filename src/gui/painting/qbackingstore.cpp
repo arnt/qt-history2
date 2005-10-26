@@ -625,6 +625,12 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
                         p.fillRect(toBePainted.boundingRect(), autoFillBrush);
                 }
             }
+            if (widget->testAttribute(Qt::WA_TintedBackground)) {
+                QPainter p(widget);
+                QColor tint = widget->palette().window();
+                tint.setAlphaF(.6);
+                p.fillRect(toBePainted.boundingRect(), tint);
+            }
 
 #if 0
             qDebug() << "painting" << widget << "opaque ==" << hasBackground(widget);

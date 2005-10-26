@@ -318,7 +318,7 @@ private:
     QList<QWidget*> orderedWidgets;
     QList<QWidget*> stackedWidgets;
 
-    QMap<QWidget*, QPalette> palettesBeforeHighlight;
+    QMap<QWidget*, QPair<QPalette ,bool> > palettesBeforeHighlight;
 
     QRubberBand *m_rubberBand;
 
