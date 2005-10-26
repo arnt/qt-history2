@@ -2145,7 +2145,7 @@ void QApplication::restoreOverrideCursor()
     int cursor_handle = Qt::ArrowCursor;
     if (qApp->d_func()->cursor_list.isEmpty()) {
         qws_overrideCursor = false;
-        QWidget *upw = QApplicationPrivate::widgetAt_sys(*qt_last_x, *qt_last_y);
+        QWidget *upw = QApplication::widgetAt(*qt_last_x, *qt_last_y);
         if (upw)
             cursor_handle = upw->cursor().handle();
     } else {
