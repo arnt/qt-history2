@@ -660,12 +660,6 @@ void QPainter::initFrom(const QWidget *widget)
     d->state->pen = QPen(pal.brush(widget->foregroundRole()), 0);
     d->state->bgBrush = pal.brush(widget->backgroundRole());
     d->state->font = widget->font();
-    const QWidget *w = widget;
-    d->state->bgOrigin = QPointF();
-    while (w->d_func()->isBackgroundInherited()) {
-        d->state->bgOrigin -= w->pos();
-        w = w->parentWidget();
-    }
     if (d->engine) {
         d->engine->setDirty(QPaintEngine::DirtyPen);
         d->engine->setDirty(QPaintEngine::DirtyBrush);
@@ -869,11 +863,7 @@ bool QPainter::begin(QPaintDevice *pd)
     // required for QPixmap::grabWidget()
     if (originalDevice->devType() == QInternal::Widget) {
         QWidget *widget = static_cast<QWidget *>(originalDevice);
-        const QPalette &pal = widget->palette();
-        d->state->deviceFont = widget->font();
-        d->state->pen = QPen(pal.brush(widget->foregroundRole()), 0);
-        d->state->bgBrush = pal.brush(widget->backgroundRole());
-        d->state->layoutDirection = widget->layoutDirection();
+        initFrom(widget);
     } else {
         d->state->layoutDirection = QApplication::layoutDirection();
     }
