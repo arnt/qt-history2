@@ -158,7 +158,7 @@ protected:
     static QString toString(const DomString *str);
     static QHash<QString, DomProperty*> propertyMap(const QList<DomProperty*> &properties);
 
-    void setupColorGroup(QPalette &palette, DomColorGroup *group);
+    void setupColorGroup(QPalette &palette, QPalette::ColorGroup colorGroup, DomColorGroup *group);
     DomColorGroup *saveColorGroup(const QPalette &palette);
 
     void reset();

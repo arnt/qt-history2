@@ -868,20 +868,14 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         DomPalette *dom = p->elementPalette();
         QPalette palette;
 
-        if (dom->elementActive()) {
-            palette.setCurrentColorGroup(QPalette::Active);
-            setupColorGroup(palette, dom->elementActive());
-        }
+        if (dom->elementActive())
+            setupColorGroup(palette, QPalette::Active, dom->elementActive());
 
-        if (dom->elementInactive()) {
-            palette.setCurrentColorGroup(QPalette::Inactive);
-            setupColorGroup(palette, dom->elementInactive());
-        }
+        if (dom->elementInactive())
+            setupColorGroup(palette, QPalette::Inactive, dom->elementInactive());
 
-        if (dom->elementDisabled()) {
-            palette.setCurrentColorGroup(QPalette::Disabled);
-            setupColorGroup(palette, dom->elementDisabled());
-        }
+        if (dom->elementDisabled())
+            setupColorGroup(palette, QPalette::Disabled, dom->elementDisabled());
 
         palette.setCurrentColorGroup(QPalette::Active);
         v = qVariantFromValue(palette);
@@ -940,13 +934,14 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
 /*!
     \internal
 */
-void QAbstractFormBuilder::setupColorGroup(QPalette &palette, DomColorGroup *group)
+void QAbstractFormBuilder::setupColorGroup(QPalette &palette, QPalette::ColorGroup colorGroup,
+            DomColorGroup *group)
 {
     QList<DomColor*> colors = group->elementColor();
     for (int role = 0; role < colors.size(); ++role) {
         DomColor *color = colors.at(role);
         QColor c(color->elementRed(), color->elementGreen(), color->elementBlue());
-        palette.setColor(QPalette::ColorRole(role), c); // ### TODO: support the QPalette::ColorRole as string
+        palette.setColor(colorGroup, QPalette::ColorRole(role), c); // ### TODO: support the QPalette::ColorRole as string
     }
 }
 
