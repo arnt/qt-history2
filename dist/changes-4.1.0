@@ -45,6 +45,9 @@ QTestLib
 - Added QTestLib, the Qt Unit Testing Library. See the "QTestLib" chapter
   in the Qt documentation for more information.
 
+- Users of older versions of QtTestLib can use the updater utility in
+  tools/qtestlib/updater to convert existing autotests to work with QTestLib.
+
 
 General Fixes
 -------------
