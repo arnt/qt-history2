@@ -79,8 +79,8 @@ public:
     bool interactive(bool i);
 
 public slots:
-    void moveLeft();
-    void moveRight();
+    void moveLeft(bool ctrl = false);
+    void moveRight(bool ctrl = false);
     void moveUp();
     void moveDown();
 
@@ -114,6 +114,8 @@ protected:
     void enterEditMode();
     void leaveEditMode();
     void showLineEdit();
+
+    QAction *createAction();
 
 private:
     QAction *m_addMenu;
