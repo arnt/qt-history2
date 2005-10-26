@@ -1080,6 +1080,10 @@ QStyle *QApplication::style()
     certain styles have to adapt the color palette to be fully
     style-guide compliant.
 
+    Note that setting the style before a palette has been set
+    (i.e. before creating QApplication) will cause the application to
+    use QStyle::standardPalette() for the palette.
+
     \sa style(), QStyle, setPalette(), desktopSettingsAware()
 */
 void QApplication::setStyle(QStyle *style)
@@ -1112,8 +1116,9 @@ void QApplication::setStyle(QStyle *style)
     } else if (QApplicationPrivate::sys_pal) {
         QApplicationPrivate::initializeWidgetPaletteHash();
         QApplicationPrivate::setPalette_helper(*QApplicationPrivate::sys_pal, /*className=*/0, /*clearWidgetPaletteHash=*/false);
-    } else {
-        qWarning("QApplication::setStyle(): Called before creating QApplication, palette undefined.");
+    } else if (!QApplicationPrivate::sys_pal) {
+        // Initialize the sys_pal if it hasn't happened yet...
+        QApplicationPrivate::setSystemPalette(QApplicationPrivate::app_style->standardPalette());
     }
 
     // initialize the application with the new style
@@ -1143,11 +1148,6 @@ void QApplication::setStyle(QStyle *style)
         QApplication::sendEvent(QApplicationPrivate::focus_widget->style(), &in);
         QApplicationPrivate::focus_widget->update();
     }
-    // Initialize the sys_pal if it hasn't happened yet...
-    if (!QApplicationPrivate::sys_pal)
-        QApplicationPrivate::setSystemPalette(QApplicationPrivate::app_style->standardPalette());
-    if (QApplicationPrivate::set_pal) // repolish set palette with the new style
-        QApplication::setPalette(*QApplicationPrivate::set_pal);
 }
 
 /*!

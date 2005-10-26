@@ -1241,7 +1241,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value CT_CheckBox A check box, like QCheckBox
     \value CT_ComboBox A combo box, like QComboBox
-    \value CT_DialogButtons 
+    \value CT_DialogButtons
     \value CT_Q3DockWindow
     \value CT_HeaderSection A header section, like QHeader
     \value CT_LineEdit A line edit, like QLineEdit
@@ -1818,7 +1818,7 @@ QPalette QStyle::standardPalette() const
 {
 #ifdef Q_WS_X11
     QColor background;
-    if (QX11Info::appDepth() > 8)
+    if (!qApp || QX11Info::appDepth() > 8)
         background = QColor(0xd4, 0xd0, 0xc8); // win 2000 grey
     else
         background = QColor(192, 192, 192);
@@ -1898,7 +1898,7 @@ QIcon QStyle::standardIconImplementation(StandardPixmap standardIcon, const QSty
 QDebug operator<<(QDebug debug, QStyle::State state)
 {
     debug << "QStyle::State(";
- 
+
     QStringList states;
     if (state & QStyle::State_Active) states << QLatin1String("Active");
     if (state & QStyle::State_AutoRaise) states << QLatin1String("AutoRaise");
