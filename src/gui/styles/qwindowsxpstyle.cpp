@@ -1493,8 +1493,23 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
 
             if (usePalette) {
                 p->fillRect(panel->rect, bg);
-                return;
+            } else {
+                XPThemeData theme(0, p, name, partId, stateId, rect);
+                if (!theme.isValid()) {
+                    QWindowsStyle::drawPrimitive(pe, option, p, widget);
+                    return;
+                }
+                theme.mirrorHorizontally = hMirrored;
+                theme.mirrorVertically = vMirrored;
+                theme.noBorder = noBorder;
+                theme.noContent = noContent;
+                theme.rotate = rotate;
+                d->drawBackground(theme);
             }
+
+            if (panel->lineWidth > 0)
+                drawPrimitive(PE_FrameLineEdit, panel, p, widget);
+            return;
         }
         break;
 
