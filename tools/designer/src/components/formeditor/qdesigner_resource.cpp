@@ -18,6 +18,8 @@
 #include "qdesigner_stackedbox_p.h"
 #include "qdesigner_toolbar_p.h"
 #include "qdesigner_dockwidget_p.h"
+#include "qdesigner_menu_p.h"
+#include "qdesigner_menubar_p.h"
 
 // shared
 #include <widgetdatabase_p.h>
@@ -47,6 +49,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 #include <QtGui/QSplitter>
+#include <QtGui/QMenuBar>
 
 #include <QtCore/QBuffer>
 #include <QtCore/QDir>
@@ -307,9 +310,65 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
         }
     }
 
+    // save the actions
+    QList<DomActionRef*> actionRefs = ui_widget->elementAddAction();
+    ui_widget->setElementAddAction(QList<DomActionRef*>());
+
     QWidget *w = QAbstractFormBuilder::create(ui_widget, parentWidget);
+
+    // restore the actions
+    ui_widget->setElementAddAction(actionRefs);
+
     if (w == 0)
         return 0;
+
+    QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(w);
+    QDesignerMenuBar *menuBar = qobject_cast<QDesignerMenuBar*>(w);
+
+    if (menu)
+        menu->interactive(false);
+    else if (menuBar)
+        menuBar->interactive(false);
+
+    foreach (DomActionRef *ui_action_ref, actionRefs) {
+        QString name = ui_action_ref->attributeName();
+        if (name == QLatin1String("separator")) {
+            QAction *sep = new QAction(w);
+            sep->setSeparator(true);
+            w->addAction(sep);
+            addMenuAction(sep);
+        } else if (QAction *a = m_actions.value(name)) {
+            w->addAction(a);
+        } else if (QActionGroup *g = m_actionGroups.value(name)) {
+            w->addActions(g->actions());
+        } else if (QMenu *menu = qFindChild<QMenu*>(w, name)) {
+            QMenu *parentMenu = qobject_cast<QMenu*>(w);
+            QMenuBar *parentMenuBar = qobject_cast<QMenuBar*>(w);
+
+            menu->setParent(w, Qt::Popup);
+
+            QAction *menuAction = 0;
+
+            if (parentMenuBar)
+                menuAction = parentMenuBar->addMenu(menu);
+            else if (parentMenu)
+                menuAction = parentMenu->addMenu(menu);
+
+            if (menuAction) {
+                menuAction->setObjectName(menu->objectName() + QLatin1String("Action"));
+                addMenuAction(menuAction);
+            }
+        }
+    }
+
+    if (menu) {
+        menu->interactive(true);
+        menu->adjustSpecialActions();
+    } else if (menuBar) {
+        menuBar->interactive(true);
+        menuBar->adjustSpecialActions();
+    }
+
 
     ui_widget->setAttributeClass(className); // fix the class name
 
@@ -460,7 +519,7 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
     changeObjectName(w, name);
 
     QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget);
-    if (!parentWidget || !container) {
+    if (!qobject_cast<QMenu*>(w) && (!parentWidget || !container)) {
         m_formWindow->manageWidget(w);
     } else {
         m_core->metaDataBase()->add(w);

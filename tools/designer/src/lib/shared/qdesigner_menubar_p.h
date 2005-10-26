@@ -34,13 +34,13 @@
 
 class QTimer;
 class QToolButton;
+class QLineEdit;
+
 class QDesignerFormWindowInterface;
 class QDesignerActionProviderExtension;
 class QDesignerMenuBar;
 
 namespace qdesigner_internal {
-
-class MenuToolBox;
 
 class MenuMimeData: public QMimeData
 {
@@ -53,20 +53,12 @@ public:
     { return mimeType == QLatin1String("action-repository/menu"); }
 };
 
-class MenuToolBox: public QWidget
+class SpecialMenuAction: public QAction
 {
     Q_OBJECT
 public:
-    MenuToolBox(QDesignerMenuBar *menuBar);
-    virtual ~MenuToolBox();
-
-    QDesignerMenuBar *menuBar() const;
-
-private slots:
-    void slotCreateMenu();
-
-private:
-    QToolButton *m_createMenuButton;
+    SpecialMenuAction(QObject *parent = 0);
+    virtual ~SpecialMenuAction();
 };
 
 } // namespace qdesigner_internal
@@ -83,36 +75,54 @@ public:
     QDesignerFormWindowInterface *formWindow() const;
     QDesignerActionProviderExtension *actionProvider();
 
+    void adjustSpecialActions();
+    bool interactive(bool i);
+
+public slots:
+    void moveLeft();
+    void moveRight();
+    void moveUp();
+    void moveDown();
+
 private slots:
     void slotRemoveSelectedAction(QAction *action);
-    void slotCheckSentinel();
 
 protected:
-    void startDrag(const QPoint &pos);
     virtual void actionEvent(QActionEvent *event);
     virtual void dragEnterEvent(QDragEnterEvent *event);
     virtual void dragMoveEvent(QDragMoveEvent *event);
     virtual void dragLeaveEvent(QDragLeaveEvent *event);
     virtual void dropEvent(QDropEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
+    virtual void focusOutEvent(QFocusEvent *event);
 
     bool handleEvent(QWidget *widget, QEvent *event);
     bool handleMousePressEvent(QWidget *widget, QMouseEvent *event);
     bool handleMouseReleaseEvent(QWidget *widget, QMouseEvent *event);
     bool handleMouseMoveEvent(QWidget *widget, QMouseEvent *event);
     bool handleContextMenuEvent(QWidget *widget, QContextMenuEvent *event);
+    bool handleKeyPressEvent(QWidget *widget, QKeyEvent *event);
+
+    void startDrag(const QPoint &pos);
 
     void adjustIndicator(const QPoint &pos);
     int findAction(const QPoint &pos) const;
 
-    bool blockSentinelChecker(bool b);
+    QAction *currentAction() const;
+    int realActionCount() const;
+
+    void enterEditMode();
+    void leaveEditMode();
+    void showLineEdit();
 
 private:
-    QTimer *m_sentinelChecker;
-    QAction *m_sentinel;
-    bool m_blockSentinelChecker;
+    QAction *m_addMenu;
+    QAction *m_addSeparator;
     QPointer<QMenu> m_activeMenu;
     QPoint m_startPosition;
-    qdesigner_internal::MenuToolBox *m_toolBox;
+    int m_currentIndex;
+    bool m_interactive;
+    QLineEdit *m_editor;
 };
 
 #endif // QDESIGNER_MENUBAR_H

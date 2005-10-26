@@ -29,10 +29,13 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QMenu>
+#include <QtCore/QHash>
 
 class QTimer;
 class QDesignerFormWindowInterface;
 class QDesignerActionProviderExtension;
+class QDesignerMenu;
+class QDesignerMenuBar;
 
 class QDESIGNER_SHARED_EXPORT QDesignerMenu: public QMenu
 {
@@ -46,9 +49,24 @@ public:
     QDesignerFormWindowInterface *formWindow() const;
     QDesignerActionProviderExtension *actionProvider();
 
+    QDesignerMenu *parentMenu() const;
+    QDesignerMenuBar *parentMenuBar() const;
+
+    virtual void setVisible(bool visible);
+
+    void adjustSpecialActions();
+
+    bool interactive(bool i);
+
+public slots:
+    void moveLeft();
+    void moveRight();
+    void moveUp();
+    void moveDown();
+
 private slots:
     void slotRemoveSelectedAction(QAction *action);
-    void slotCheckSentinel();
+    void slotShowSubMenuNow();
 
 protected:
     void startDrag(const QPoint &pos);
@@ -57,23 +75,35 @@ protected:
     virtual void dragMoveEvent(QDragMoveEvent *event);
     virtual void dragLeaveEvent(QDragLeaveEvent *event);
     virtual void dropEvent(QDropEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
 
     bool handleEvent(QWidget *widget, QEvent *event);
     bool handleMousePressEvent(QWidget *widget, QMouseEvent *event);
     bool handleMouseReleaseEvent(QWidget *widget, QMouseEvent *event);
     bool handleMouseMoveEvent(QWidget *widget, QMouseEvent *event);
     bool handleContextMenuEvent(QWidget *widget, QContextMenuEvent *event);
+    bool handleKeyPressEvent(QWidget *widget, QKeyEvent *event);
 
     void adjustIndicator(const QPoint &pos);
     int findAction(const QPoint &pos) const;
 
-    bool blockSentinelChecker(bool b);
+    QAction *currentAction() const;
+    int realActionCount();
+
+    void updateCurrentAction();
+    void showSubMenu(QAction *action);
+    void closeMenuChain();
+
+    QDesignerMenu *findOrCreateSubMenu(QAction *action);
 
 private:
-    QTimer *m_sentinelChecker;
-    QAction *m_sentinel;
-    bool m_blockSentinelChecker;
     QPoint m_startPosition;
+    int m_currentIndex;
+    QAction *m_addItem;
+    QAction *m_addSeparator;
+    QHash<QAction*, QDesignerMenu*> m_subMenus;
+    QTimer *m_showSubMenuTimer;
+    bool m_interactive;
 };
 
 #endif // QDESIGNER_MENU_H

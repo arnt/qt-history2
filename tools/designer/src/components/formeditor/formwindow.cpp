@@ -38,8 +38,8 @@
 // sdk
 #include <QtDesigner/QtDesigner>
 
-#include <QtGui/QtGui>
-#include <QtCore/qdebug.h>
+#include <QtGui>
+#include <QtDebug>
 
 namespace qdesigner_internal {
 
@@ -950,8 +950,14 @@ void FormWindow::selectWidgets()
     emitSelectionChanged();
 }
 
-bool FormWindow::handleKeyPressEvent(QWidget *, QWidget *, QKeyEvent *e)
+bool FormWindow::handleKeyPressEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e)
 {
+    if (qobject_cast<FormWindow*>(widget))
+        return false;
+
+    if (qobject_cast<QMenu*>(widget))
+        return false;
+
     e->accept(); // we always accept!
 
     switch (e->key()) {
@@ -960,22 +966,28 @@ bool FormWindow::handleKeyPressEvent(QWidget *, QWidget *, QKeyEvent *e)
         case Qt::Key_Delete:
         case Qt::Key_Backspace:
             deleteWidgets();
-            break;
+            return true;
+
         case Qt::Key_Tab:
             cursor()->movePosition(QDesignerFormWindowCursorInterface::Next);
-            break;
+            return true;
+
         case Qt::Key_Backtab:
             cursor()->movePosition(QDesignerFormWindowCursorInterface::Prev);
-            break;
+            return true;
+
         case Qt::Key_Left:
         case Qt::Key_Right:
         case Qt::Key_Up:
         case Qt::Key_Down:
-            handleArrowKeyEvent(e->key(), e->modifiers() == Qt::ControlModifier);
+            if (e->modifiers() && Qt::ControlModifier) {
+                handleArrowKeyEvent(e->key(), e->modifiers() == Qt::ControlModifier);
+                return true;
+            }
             break;
     }
 
-    return true;
+    return false;
 }
 
 void FormWindow::handleArrowKeyEvent(int key, bool modifier)
@@ -1232,6 +1244,8 @@ void FormWindow::manageWidget(QWidget *w)
 {
     if (isManaged(w))
         return;
+
+    Q_ASSERT(qobject_cast<QMenu*>(w) == 0);
 
     if (w->hasFocus())
         setFocus();

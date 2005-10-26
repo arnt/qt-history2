@@ -349,6 +349,10 @@ void WidgetFactory::initialize(QObject *object) const
         sheet->setChanged(sheet->indexOf(QLatin1String("geometry")), false);
         sheet->setChanged(sheet->indexOf(QLatin1String("title")), true);
     }
+
+    if (qobject_cast<QMenu*>(object) || qobject_cast<QMenuBar*>(object)) {
+        qobject_cast<QWidget*>(object)->setFocusPolicy(Qt::StrongFocus);
+    }
 }
 
 bool WidgetFactory::isPassiveInteractor(QWidget *widget)

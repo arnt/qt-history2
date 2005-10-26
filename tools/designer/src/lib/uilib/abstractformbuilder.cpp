@@ -411,9 +411,7 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
         } else if (QAction *a = m_actions.value(name)) {
             w->addAction(a);
         } else if (QActionGroup *g = m_actionGroups.value(name)) {
-            foreach (QAction *a, g->actions()) {
-                w->addAction(a);
-            }
+            w->addActions(g->actions());
         } else if (QMenu *menu = qFindChild<QMenu*>(w, name)) {
             QMenu *parentMenu = qobject_cast<QMenu*>(w);
             QMenuBar *parentMenuBar = qobject_cast<QMenuBar*>(w);

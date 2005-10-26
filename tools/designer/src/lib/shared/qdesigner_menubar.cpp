@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_menubar_p.h"
+#include "qdesigner_menu_p.h"
 #include "qdesigner_toolbar_p.h"
 #include "actionrepository_p.h"
 #include "actionprovider_p.h"
@@ -26,6 +27,7 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QDrag>
 #include <QtGui/QLayout>
+#include <QtGui/QLineEdit>
 #include <QtGui/qevent.h>
 
 Q_DECLARE_METATYPE(QAction*)
@@ -36,62 +38,61 @@ using namespace qdesigner_internal;
 namespace qdesigner_internal
 {
 
-MenuToolBox::MenuToolBox(QDesignerMenuBar *menuBar)
-    : QWidget(menuBar)
-{
-    QHBoxLayout *lay = new QHBoxLayout(this);
-    lay->setMargin(0);
-    lay->setSpacing(2);;
-
-    m_createMenuButton = new QToolButton(this);
-    m_createMenuButton->setObjectName("__qt__passive_create_menu");
-    lay->addWidget(m_createMenuButton);
-    connect(m_createMenuButton, SIGNAL(pressed()), this, SLOT(slotCreateMenu()));
-}
-
-MenuToolBox::~MenuToolBox()
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+SpecialMenuAction::SpecialMenuAction(QObject *parent)
+    : QAction(parent)
 {
 }
 
-QDesignerMenuBar *MenuToolBox::menuBar() const
+SpecialMenuAction::~SpecialMenuAction()
 {
-    return qobject_cast<QDesignerMenuBar*>(parentWidget());
 }
 
-void MenuToolBox::slotCreateMenu()
-{
-    m_createMenuButton->setDown(false);
 
-    QDrag *drag = new QDrag(this);
-    drag->setMimeData(new MenuMimeData()); // ### set a nice pixmap
-    drag->start();
-}
 } // namespace qdesigner_internal
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
-    : QMenuBar(parent)
+    : QMenuBar(parent),
+      m_interactive(true)
 {
-    m_blockSentinelChecker = false;
-    m_sentinel = 0;
+    m_currentIndex = -1;
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
 
     setAcceptDrops(true); // ### fake
 
-    m_sentinel = new SentinelAction(this);       // ### use a special widget as indicator
-    addAction(m_sentinel);
+    m_addMenu = new SpecialMenuAction(this);
+    m_addMenu->setText(tr("new menu"));
+    addAction(m_addMenu);
 
-    m_sentinelChecker = new QTimer(this);
-    connect(m_sentinelChecker, SIGNAL(timeout()), this, SLOT(slotCheckSentinel()));
+    m_addSeparator = new SpecialMenuAction(this);
+    m_addSeparator->setText(tr("new separator"));
+    addAction(m_addSeparator);
 
-    m_toolBox = new MenuToolBox(this);
-    setCornerWidget(m_toolBox);
+    m_editor = new QLineEdit(this);
+    m_editor->setObjectName("__qt__passive_editor");
+    m_editor->hide();
+    m_editor->installEventFilter(this);
 
     qApp->installEventFilter(this);
 }
 
 QDesignerMenuBar::~QDesignerMenuBar()
 {
+}
+
+void QDesignerMenuBar::paintEvent(QPaintEvent *event)
+{
+    QMenuBar::paintEvent(event);
+
+    if (QAction *a = currentAction()) {
+        QPainter p(this);
+        QRect g = actionGeometry(a);
+        p.setPen(QPen(Qt::black, 1, Qt::DotLine));
+        p.drawRect(g.adjusted(0, 0, -1, -1));
+    }
 }
 
 bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
@@ -110,8 +111,31 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
             return handleMouseMoveEvent(widget, static_cast<QMouseEvent*>(event));
         case QEvent::ContextMenu:
             return handleContextMenuEvent(widget, static_cast<QContextMenuEvent*>(event));
+        case QEvent::KeyPress:
+            return handleKeyPressEvent(widget, static_cast<QKeyEvent*>(event));
     }
 
+    return true;
+}
+
+bool QDesignerMenuBar::handleKeyPressEvent(QWidget *widget, QKeyEvent *event)
+{
+    event->accept();
+
+    switch (event->key()) {
+        case Qt::Key_Left:
+            moveLeft();
+            break;
+        case Qt::Key_Right:
+            moveRight();
+            break;
+        case Qt::Key_Up:
+            moveUp();
+            break;
+        case Qt::Key_Down:
+            moveDown();
+            break;
+    }
     return true;
 }
 
@@ -227,14 +251,74 @@ void QDesignerMenuBar::slotRemoveSelectedAction(QAction *action)
     removeAction(a);
 }
 
+void QDesignerMenuBar::focusOutEvent(QFocusEvent *event)
+{
+    QMenuBar::focusOutEvent(event);
+}
+
+void QDesignerMenuBar::enterEditMode()
+{
+    if (m_currentIndex < realActionCount()) {
+        showLineEdit();
+    } else {
+        QAction *sep = new QAction(formWindow());
+        sep->setSeparator(true);
+        insertAction(currentAction(), sep);
+    }
+}
+
+void QDesignerMenuBar::leaveEditMode()
+{
+    QAction *action = 0;
+
+    if (m_currentIndex < realActionCount()) {
+        action = actions().at(m_currentIndex);
+    } else {
+        Q_ASSERT(formWindow() != 0);   // ### undo/redo
+        action = new QAction(formWindow());
+        insertAction(currentAction(), action);
+    }
+
+    action->setText(m_editor->text()); // ### undo/redo
+}
+
+void QDesignerMenuBar::showLineEdit()
+{
+    QAction *action = 0;
+
+    if (m_currentIndex < realActionCount())
+        action = actions().at(m_currentIndex);
+    else
+        action = m_addMenu;
+
+    if (action->isSeparator())
+        return;
+
+    // open edit field for item name
+    m_editor->setText(action->text());
+    m_editor->selectAll();
+    m_editor->setGeometry(actionGeometry(action));
+    m_editor->show();
+    m_editor->setFocus();
+}
+
 bool QDesignerMenuBar::eventFilter(QObject *object, QEvent *event)
 {
-    if (object == qApp->activePopupWidget())
+    if (object == m_editor && event->type() == QEvent::FocusOut) {
+        leaveEditMode();
+        m_editor->hide();
+        update();
+        return false;
+    }
+
+    if (object != this)
         return false;
 
     switch (event->type()) {
         default: break;
 
+        case QEvent::KeyPress:
+        case QEvent::KeyRelease:
         case QEvent::ContextMenu:
         case QEvent::MouseMove:
         case QEvent::MouseButtonPress:
@@ -361,31 +445,11 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
 void QDesignerMenuBar::actionEvent(QActionEvent *event)
 {
     QMenuBar::actionEvent(event);
-
-    if (!m_blockSentinelChecker && event->type() == QEvent::ActionAdded
-            && m_sentinel && event->action() != m_sentinel)
-        m_sentinelChecker->start(0);
 }
 
 QDesignerFormWindowInterface *QDesignerMenuBar::formWindow() const
 {
     return QDesignerFormWindowInterface::findFormWindow(const_cast<QDesignerMenuBar*>(this));
-}
-
-void QDesignerMenuBar::slotCheckSentinel()
-{
-    bool blocked = blockSentinelChecker(true);
-    m_sentinelChecker->stop();
-    removeAction(m_sentinel);
-    addAction(m_sentinel);
-    blockSentinelChecker(blocked);
-}
-
-bool QDesignerMenuBar::blockSentinelChecker(bool b)
-{
-    bool old = m_blockSentinelChecker;
-    m_blockSentinelChecker = b;
-    return old;
 }
 
 QDesignerActionProviderExtension *QDesignerMenuBar::actionProvider()
@@ -396,4 +460,64 @@ QDesignerActionProviderExtension *QDesignerMenuBar::actionProvider()
     }
 
     return 0;
+}
+
+QAction *QDesignerMenuBar::currentAction() const
+{
+    if (m_currentIndex < 0 || m_currentIndex >= actions().count())
+        return 0;
+
+    return actions().at(m_currentIndex);
+}
+
+int QDesignerMenuBar::realActionCount() const
+{
+    return actions().count() - 2; // 2 fake actions
+}
+
+void QDesignerMenuBar::moveLeft()
+{
+    m_currentIndex = qMax(0, --m_currentIndex);
+    update();
+}
+
+void QDesignerMenuBar::moveRight()
+{
+    m_currentIndex = qMin(actions().count() - 1, ++m_currentIndex);
+    update();
+}
+
+void QDesignerMenuBar::moveUp()
+{
+    update();
+}
+
+void QDesignerMenuBar::moveDown()
+{
+    QAction *a = currentAction();
+    if (a && a->menu()) {
+        QMenu *menu = a->menu();
+        QRect g = actionGeometry(a);
+
+        menu->setWindowFlags(Qt::FramelessWindowHint | Qt::Window); // ### check me
+        menu->adjustSize();
+        menu->move(mapToGlobal(g.bottomLeft()));
+        menu->setFocus(Qt::MouseFocusReason);
+        menu->show();
+    }
+}
+
+void QDesignerMenuBar::adjustSpecialActions()
+{
+    removeAction(m_addMenu);
+    removeAction(m_addSeparator);
+    addAction(m_addMenu);
+    addAction(m_addSeparator);
+}
+
+bool QDesignerMenuBar::interactive(bool i)
+{
+    bool old = m_interactive;
+    m_interactive = i;
+    return old;
 }
