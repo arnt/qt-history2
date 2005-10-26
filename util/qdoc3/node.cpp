@@ -363,6 +363,7 @@ QString Node::moduleName() const
     QString path = location().filePath();
     QString pattern = QString("src") + QDir::separator();
     int start = path.lastIndexOf(pattern);
+
     if (start == -1)
         return "";
 
@@ -390,6 +391,8 @@ QString Node::moduleName() const
         return "QtSvg";
     else if (moduleDir == "sql")
         return "QtSql";
+    else if (moduleDir == "qtestlib")
+        return "QtTest";
     else if (moduleDir == "xml")
         return "QtXml";
     else

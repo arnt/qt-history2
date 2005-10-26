@@ -76,6 +76,8 @@ protected:
     QMap<QString, QString> &formattingLeftMap();
     QMap<QString, QString> &formattingRightMap();
 
+    QMap<QString, QStringList> editionModuleMap;
+
     static QString trimmedTrailing(const QString &string);
     static bool matchAhead( const Atom *atom, Atom::Type expectedAtomType );
 

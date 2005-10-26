@@ -126,6 +126,7 @@ void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
     mainClasses.clear();
     compatClasses.clear();
     moduleClassMap.clear();
+    moduleNamespaceMap.clear();
     funcIndex.clear();
     legaleseTexts.clear();
     findAllClasses(tree->root());
@@ -665,12 +666,11 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     classSection.keywords += qMakePair(inner->name(), classSection.ref);
 
     Text moduleText;
-    if (!inner->moduleName().isEmpty()) {
-        QString fixedModule = inner->moduleName();
-        if (fixedModule == "Qt3SupportLight")
-            fixedModule = "Qt3Support";
+    QString fixedModule = inner->moduleName();
+    if (fixedModule == "Qt3SupportLight")
+        fixedModule = "Qt3Support";
+    if (!fixedModule.isEmpty())
 	moduleText << "[" << Atom(Atom::AutoLink, fixedModule) << " module]";
-    }
 
     generateHeader(title, inner);
     generateTitle(title, moduleText, SmallSubTitle, inner, marker);
@@ -838,9 +838,15 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     generateBrief(fake, marker);
     generateStatus(fake, marker);
 
-    if (fake->subType() == FakeNode::Module && moduleClassMap.contains(fake->name())) {
-        out() << "<h2>Classes</h2>\n";
-        generateAnnotatedList(fake, marker, moduleClassMap[fake->name()]);
+    if (fake->subType() == FakeNode::Module) {
+        if (moduleNamespaceMap.contains(fake->name())) {
+            out() << "<h2>Namespaces</h2>\n";
+            generateAnnotatedList(fake, marker, moduleNamespaceMap[fake->name()]);
+        }
+        if (moduleClassMap.contains(fake->name())) {
+            out() << "<h2>Classes</h2>\n";
+            generateAnnotatedList(fake, marker, moduleClassMap[fake->name()]);
+        }
     }
 
     sections = marker->sections(fake, CodeMarker::Summary, CodeMarker::Okay);
@@ -2151,8 +2157,18 @@ void HtmlGenerator::findAllNamespaces(const InnerNode *node)
 		findAllNamespaces(static_cast<const InnerNode *>(*c));
                 if ((*c)->type() == Node::Namespace) {
 		    const NamespaceNode *nspace = static_cast<const NamespaceNode *>(*c);
-                    if (!nspace->name().isEmpty())
+                    // Ensure that the namespace's name is not empty (the root
+                    // namespace has no name).
+                    if (!nspace->name().isEmpty()) {
 		        namespaceIndex.insert(nspace->name(), *c);
+                        QString moduleName = (*c)->moduleName();
+                        if (moduleName == "Qt3SupportLight") {
+                            moduleNamespaceMap[moduleName].insert((*c)->name(), *c);
+                            moduleName = "Qt3Support";
+                        }
+                        if (!moduleName.isEmpty())
+                            moduleNamespaceMap[moduleName].insert((*c)->name(), *c);
+                    }
                 }
             }
         }

@@ -2,7 +2,6 @@
   cppcodeparser.cpp
 */
 
-#include <qdebug.h>
 #include <qfile.h>
 
 #include <stdio.h>
@@ -358,12 +357,26 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
     } else if ( command == COMMAND_REIMP ) {
 	if ( node != 0 && node->type() == Node::Function ) {
 	    FunctionNode *func = (FunctionNode *) node;
-	    if ( func->reimplementedFrom() == 0 )
-		doc.location().warning( tr("Cannot find base function for '\\%1'")
-					.arg(COMMAND_REIMP) );
-            func->setAccess(Node::Private);
+	    const FunctionNode *from = func->reimplementedFrom();
+	    if (from == 0) {
+		doc.location().warning(
+                    tr("Cannot find base function for '\\%1' in %2()")
+		    .arg(COMMAND_REIMP).arg(node->name()));
+            }
+#if 0 // Ideally, we would enable this check to warn whenever \reimp is used
+      // incorrectly, and only make the node internal if the function is a
+      // reimplementation of another function in a base class.
+            else if (from->access() == Node::Private
+                     || from->parent()->access() == Node::Private) {
+                doc.location().warning(
+                    tr("Base function for '\\%1' in %2() is private or internal")
+		    .arg(COMMAND_REIMP).arg(node->name()));
+            } else
+#endif
+                func->setAccess(Node::Private);
 	} else {
-	    doc.location().warning( tr("Ignored '\\%1'").arg(COMMAND_REIMP) );
+	    doc.location().warning(tr("Ignored '\\%1' in %2").arg(COMMAND_REIMP)
+                                   .arg(node->name()));
 	}
     } else if (command == COMMAND_RELATES) {
 	InnerNode *pseudoParent;
@@ -419,6 +432,7 @@ void CppCodeParser::reset( Tree *tree )
     access = Node::Public;
     metaness = FunctionNode::Plain;
     lastPath.clear();
+    moduleName = "";
 }
 
 void CppCodeParser::readToken()

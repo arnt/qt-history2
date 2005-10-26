@@ -246,10 +246,12 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 		        if ( !best.isEmpty() && !documentedItems.contains(best) )
 			    details = tr( "Maybe you meant '%1'?" ).arg( best );
 
-		        node->doc().location().warning(tr("No such enum item '%1'").arg(*a),
-						       details);
+		        node->doc().location().warning(
+                            tr("No such enum item '%1' in %2").arg(*a).arg(marker->plainFullName(node)),
+                            details);
 		    } else if ( !documentedItems.contains(*a) ) {
-		        node->doc().location().warning(tr("Undocumented enum item '%1'").arg(*a));
+		        node->doc().location().warning(
+                            tr("Undocumented enum item '%1' in %2").arg(*a).arg(marker->plainFullName(node)));
 		    }
 		    ++a;
 	        }
@@ -282,8 +284,9 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 		        if ( !best.isEmpty() )
 			    details = tr("Maybe you meant '%1'?").arg(best);
 
-		        node->doc().location().warning(tr("No such parameter '%1'").arg(*a),
-						       details);
+		        node->doc().location().warning(
+                            tr("No such parameter '%1' in %2").arg(*a).arg(marker->plainFullName(node)),
+                            details);
 		    } else if ( !(*a).isEmpty() && !documentedParams.contains(*a) ) {
 		        bool needWarning = (func->status() > Node::Obsolete);
 		        if (func->overloadNumber() > 1) {
@@ -299,13 +302,19 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 			    }
                         }
                         if (needWarning)
-			    node->doc().location().warning(tr("Undocumented parameter '%1'")
-						           .arg(*a));
+			    node->doc().location().warning(
+                                tr("Undocumented parameter '%1' in %2").arg(*a).arg(marker->plainFullName(node)));
 		    }
 		    ++a;
 	        }
 	    }
-
+/* Something like this return value check should be implemented at some point.
+            if (func->status() > Node::Obsolete && func->returnType() == "bool") {
+                QString body = func->doc().body().toString();
+                if (!body.contains("return", Qt::CaseInsensitive))
+                    node->doc().location().warning(tr("Undocumented return value"));
+            }
+*/
 	    if ( func->reimplementedFrom() != 0 )
 	        generateReimplementedFrom( func, marker );
         }
@@ -460,16 +469,15 @@ void Generator::generateModuleWarning(const ClassNode *classe, CodeMarker *marke
     QString module = classe->moduleName();
     if (!module.isEmpty()) {
         Text text;
-        if (Tokenizer::isTrue("defined(consoleedition)") && module != "QtCore"
-                && module != "QtNetwork" && module != "QtSql"
-                && module != "QtXml") {
+        if (Tokenizer::isTrue("defined(consoleedition)")
+                && !editionModuleMap["Console"].contains(module)) {
             text << Atom::ParaLeft
                  << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD)
                  << "This class is not part of the Qt Console Edition."
                  << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD)
                  << Atom::ParaRight;
-        } else if (Tokenizer::isTrue("defined(desktoplightedition)") && module != "QtCore"
-                && module != "QtGui" && module != "Qt3SupportLight") {
+        } else if (Tokenizer::isTrue("defined(desktoplightedition)")
+                && !editionModuleMap["DesktopLight"].contains(module)) {
             text << Atom::ParaLeft
                  << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD)
                  << "This class is not part of the Qt Desktop Light Edition."
@@ -734,11 +742,13 @@ void Generator::generateReimplementedFrom( const FunctionNode *func,
 {
     if ( func->reimplementedFrom() != 0 ) {
 	const FunctionNode *from = func->reimplementedFrom();
-	Text text;
-	text << Atom::ParaLeft << "Reimplemented from ";
-	appendFullName( text, from->parent(), func, marker, from );
-	text << "." << Atom::ParaRight;
-	generateText( text, func, marker );
+        if (from->access() != Node::Private && from->parent()->access() != Node::Private) {
+	    Text text;
+	    text << Atom::ParaLeft << "Reimplemented from ";
+	    appendFullName( text, from->parent(), func, marker, from );
+	    text << "." << Atom::ParaRight;
+	    generateText( text, func, marker );
+        }
     }
 }
 
