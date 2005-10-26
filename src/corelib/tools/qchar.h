@@ -28,7 +28,7 @@ public:
     inline const ushort unicode() const { return ushort(uchar(ch)); }
 
 private:
-    const char ch;
+    char ch;
 };
 
 
