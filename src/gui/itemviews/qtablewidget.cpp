@@ -1804,12 +1804,12 @@ void QTableWidget::setSortingEnabled(bool enable)
     if (enable) {
         disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)),
                    this, SLOT(selectColumn(int)));
-        connect(horizontalHeader(), SIGNAL(sectionPressed(int)),
+        connect(horizontalHeader(), SIGNAL(sectionClicked(int)),
                 this, SLOT(sortByColumn(int)));
     } else {
         connect(horizontalHeader(), SIGNAL(sectionPressed(int)),
                 this, SLOT(selectColumn(int)));
-        disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)),
+        disconnect(horizontalHeader(), SIGNAL(sectionClicked(int)),
                    this, SLOT(sortByColumn(int)));
     }
 }
