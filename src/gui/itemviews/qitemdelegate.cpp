@@ -704,8 +704,6 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
 }
 
 /*!
-    \internal
-
     If the \a object is the current editor: if the \a event is an Esc
     key press the current edit is cancelled and ended, or if the \a
     event is an Enter or Return key press the current edit is accepted
