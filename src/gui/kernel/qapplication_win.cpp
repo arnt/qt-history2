@@ -1027,13 +1027,13 @@ void qt_win_set_cursor(QWidget *w, const QCursor& /* c */)
   Routines to find a Qt widget from a screen position
  *****************************************************************************/
 
-QWidget *QApplication::topLevelAt(const QPoint &p)
+QWidget *QApplication::topLevelAt(const QPoint &pos)
 {
     POINT p;
     HWND  win;
     QWidget *w;
-    p.x = x;
-    p.y = y;
+    p.x = pos.x();
+    p.y = pos.y();
     win = WindowFromPoint(p);
     if (!win)
         return 0;
