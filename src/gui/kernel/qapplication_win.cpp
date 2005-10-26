@@ -1701,6 +1701,11 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             result = widget->translateConfigEvent(msg);
             break;
 
+        case WM_ACTIVATEAPP:
+            if (wParam == FALSE)
+                QApplication::setActiveWindow(0);
+            break;
+
         case WM_ACTIVATE:
 	    if ( qApp->type() == QApplication::Tty )
 	        break;
@@ -1724,7 +1729,12 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     popup->close();
             }
 
-            qApp->winFocus(widget, LOWORD(wParam) != WA_INACTIVE);
+            // WM_ACTIVATEAPP handles the "true" false case, as this is only when the application
+            // looses focus. Doing it here would result in the widget getting focus to not know
+            // where it got it from; it would simply get a 0 value as the old focus widget.
+            if (LOWORD(wParam) != WA_INACTIVE)
+                qApp->winFocus(widget, true);
+
             // Windows tries to activate a modally blocked window.
             // This happens when restoring an application after "Show Desktop"
             if (app_do_modal && LOWORD(wParam) == WA_ACTIVE) {
