@@ -99,7 +99,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), QSizeF dynamicDocumentSizeSlot())
 };
 
-class QTextObjectInterface
+class Q_GUI_EXPORT QTextObjectInterface
 {
 public:
     virtual ~QTextObjectInterface() {}
