@@ -354,9 +354,23 @@ void ActionEditor::editAction(QListWidgetItem *item)
     if (!dlg.exec())
         return;
 
-    action->setObjectName(dlg.actionName());
-    action->setText(dlg.actionText());
-    action->setIcon(dlg.actionIcon());
+    formWindow()->beginCommand(QLatin1String("Edit action"));
+    if (action->objectName() != dlg.actionName()) {
+        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
+        cmd->init(action, "objectName", dlg.actionName());
+        formWindow()->commandHistory()->push(cmd);
+    }
+    if (action->text() != dlg.actionText()) {
+        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
+        cmd->init(action, "text", dlg.actionText());
+        formWindow()->commandHistory()->push(cmd);
+    }
+    if (action->icon().serialNumber() != dlg.actionIcon().serialNumber()) {
+        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
+        cmd->init(action, "icon", dlg.actionIcon());
+        formWindow()->commandHistory()->push(cmd);
+    }
+    formWindow()->endCommand();
 
     QDesignerPropertySheetExtension *sheet = 0;
     sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
