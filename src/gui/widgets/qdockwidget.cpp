@@ -270,7 +270,7 @@ void QDockWidgetPrivate::relayout()
         //### Fix this properly in Qt 4.2
         closeButton->setGeometry(QStyle::visualRect(
 				    qApp->layoutDirection(),
-                                    titleArea, QRect(posX - closeSize.width(),
+                                    titleArea, QRect(posX - closeSize.width() - mw,
                                     titleArea.bottom() - closeSize.height() - mw, 
                                     closeSize.width(), closeSize.height()))); 
         posX -= closeSize.width() + 1;
@@ -280,12 +280,12 @@ void QDockWidgetPrivate::relayout()
         //### Fix this properly in Qt 4.2
         floatButton->setGeometry(QStyle::visualRect(
 				    qApp->layoutDirection(),
-                                    titleArea, QRect(posX - floatSize.width(),
+                                    titleArea, QRect(posX - floatSize.width() - mw,
                                     titleArea.bottom() - floatSize.height() - mw, 
                                     floatSize.width(), floatSize.height())));
         posX -= floatSize.width() + 1;
     }
-
+ 
     topSpacer->changeSize(minWidth, 0 + titleArea.height(), QSizePolicy::Expanding, QSizePolicy::Fixed);
     top->setMargin(fw);
     top->invalidate();
