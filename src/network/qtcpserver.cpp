@@ -291,7 +291,7 @@ void QTcpServer::close()
 
     if (d->socketEngine) {
         d->socketEngine->close();
-        delete d->socketEngine;
+        d->socketEngine->deleteLater();
         d->socketEngine = 0;
     }
 
