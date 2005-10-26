@@ -859,15 +859,6 @@ bool QPainter::begin(QPaintDevice *pd)
             break;
     }
 
-    // Copy painter properties from original paint device,
-    // required for QPixmap::grabWidget()
-    if (originalDevice->devType() == QInternal::Widget) {
-        QWidget *widget = static_cast<QWidget *>(originalDevice);
-        initFrom(widget);
-    } else {
-        d->state->layoutDirection = QApplication::layoutDirection();
-    }
-
     // make sure we have a font compatible with the paintdevice
     d->state->deviceFont = d->state->font = QFont(d->state->deviceFont, d->device);
 
@@ -885,6 +876,15 @@ bool QPainter::begin(QPaintDevice *pd)
         return false;
     } else {
         d->engine->setActive(begun);
+    }
+
+    // Copy painter properties from original paint device,
+    // required for QPixmap::grabWidget()
+    if (originalDevice->devType() == QInternal::Widget) {
+        QWidget *widget = static_cast<QWidget *>(originalDevice);
+        initFrom(widget);
+    } else {
+        d->state->layoutDirection = QApplication::layoutDirection();
     }
 
     d->state->ww = d->state->vw = pd->metric(QPaintDevice::PdmWidth);
