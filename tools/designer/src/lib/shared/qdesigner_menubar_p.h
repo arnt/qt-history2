@@ -120,6 +120,9 @@ protected:
     void showMenu();
 
     QAction *createAction();
+    QAction *safeActionAt(int index) const;
+
+    bool swap(int a, int b);
 
 private:
     QAction *m_addMenu;

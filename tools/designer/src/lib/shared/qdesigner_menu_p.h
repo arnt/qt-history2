@@ -105,7 +105,9 @@ protected:
     QAction *createAction();
     QDesignerMenu *findOrCreateSubMenu(QAction *action);
 
+    QAction *safeActionAt(int index) const;
     QAction *safeMenuAction(QDesignerMenu *menu) const;
+    bool swap(int a, int b);
 
 private:
     QPoint m_startPosition;

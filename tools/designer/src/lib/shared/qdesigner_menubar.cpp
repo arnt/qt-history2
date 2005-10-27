@@ -571,14 +571,21 @@ int QDesignerMenuBar::realActionCount() const
     return actions().count() - 2; // 2 fake actions
 }
 
-void QDesignerMenuBar::moveLeft(bool /*ctrl*/)
+void QDesignerMenuBar::moveLeft(bool ctrl)
 {
+    if (ctrl)
+        (void) swap(m_currentIndex, m_currentIndex - 1);
+
     m_currentIndex = qMax(0, --m_currentIndex);
+
     update();
 }
 
-void QDesignerMenuBar::moveRight(bool /*ctrl*/)
+void QDesignerMenuBar::moveRight(bool ctrl)
 {
+    if (ctrl)
+        (void) swap(m_currentIndex + 1, m_currentIndex);
+
     m_currentIndex = qMin(actions().count() - 1, ++m_currentIndex);
     update();
 }
@@ -644,5 +651,41 @@ void QDesignerMenuBar::showMenu()
         menu->setFocus(Qt::MouseFocusReason);
         menu->show();
     }
+}
+
+QAction *QDesignerMenuBar::safeActionAt(int index) const
+{
+    if (index < 0 || index >= actions().count())
+        return 0;
+
+    return actions().at(index);
+}
+
+bool QDesignerMenuBar::swap(int a, int b) // ### undo/redo
+{
+    int left = qMin(a, b);
+    int right = qMax(a, b);
+
+    QAction *action_a = safeActionAt(left);
+    QAction *action_b = safeActionAt(right);
+
+    if (action_a == action_b
+            || !action_a
+            || !action_b
+            || qobject_cast<SpecialMenuAction*>(action_a)
+            || qobject_cast<SpecialMenuAction*>(action_b))
+        return false; // nothing to do
+
+    right = qMin(right, realActionCount());
+    if (right < 0)
+        return false; // nothing to do
+
+    removeAction(action_b);
+    insertAction(action_a, action_b);
+
+    removeAction(action_a);
+    insertAction(actions().at(right), action_a);
+
+    return true;
 }
 
