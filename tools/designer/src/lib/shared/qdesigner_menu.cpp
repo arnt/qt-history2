@@ -54,6 +54,9 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
     m_showSubMenuTimer = new QTimer(this);
     connect(m_showSubMenuTimer, SIGNAL(timeout()), this, SLOT(slotShowSubMenuNow()));
 
+    m_deactivateWindowTimer = new QTimer(this);
+    connect(m_deactivateWindowTimer, SIGNAL(timeout()), this, SLOT(slotDeactivateNow()));
+
     m_editor = new QLineEdit(this);
     m_editor->setObjectName("__qt__passive_editor");
     m_editor->hide();
@@ -61,6 +64,7 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
 
     m_editor->installEventFilter(this);
     qApp->installEventFilter(this);
+
 }
 
 QDesignerMenu::~QDesignerMenu()
@@ -299,6 +303,28 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
     }
 }
 
+QDesignerMenu *QDesignerMenu::findRootMenu() const
+{
+    if (parentMenu())
+        return parentMenu()->findRootMenu();
+
+    return const_cast<QDesignerMenu*>(this);
+}
+
+QDesignerMenu *QDesignerMenu::findActivatedMenu() const
+{
+    QList<QDesignerMenu*> candidates;
+    candidates.append(const_cast<QDesignerMenu*>(this));
+    candidates += qFindChildren<QDesignerMenu*>(this);
+
+    foreach (QDesignerMenu *m, candidates) {
+        if (m->isActiveWindow())
+            return m;
+    }
+
+    return 0;
+}
+
 bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
 {
     if (object != this && object != m_editor)
@@ -313,6 +339,10 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
 
     switch (event->type()) {
         default: break;
+
+        case QEvent::WindowDeactivate:
+            deactivateMenu();
+            break;
 
         case QEvent::KeyPress:
         case QEvent::KeyRelease:
@@ -747,9 +777,26 @@ void QDesignerMenu::deleteAction() // ### undo/redo
     update();
 }
 
+void QDesignerMenu::deactivateMenu()
+{
+    m_deactivateWindowTimer->start(10);
+}
+
+void QDesignerMenu::slotDeactivateNow()
+{
+    m_deactivateWindowTimer->stop();
+
+    QDesignerMenu *root = findRootMenu();
+
+    if (! findRootMenu()->findActivatedMenu()) {
+        root->hide();
+        root->hideSubMenu();
+    }
+}
+
 void QDesignerMenu::drawSelection(QPainter *p, const QRect &r)
 {
-    static const QColor sel_color = Qt::blue;
+    const QColor sel_color = Qt::blue;
     static const int bg_alpha = 32;
 
     p->save();
@@ -762,3 +809,4 @@ void QDesignerMenu::drawSelection(QPainter *p, const QRect &r)
 
     p->restore();
 }
+

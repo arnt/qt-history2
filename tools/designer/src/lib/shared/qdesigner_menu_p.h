@@ -74,6 +74,7 @@ public slots:
 private slots:
     void slotRemoveSelectedAction(QAction *action);
     void slotShowSubMenuNow();
+    void slotDeactivateNow();
 
 protected:
     virtual void actionEvent(QActionEvent *event);
@@ -114,6 +115,10 @@ protected:
 
     void hideSubMenu();
     void deleteAction();
+    void deactivateMenu();
+
+    QDesignerMenu *findRootMenu() const;
+    QDesignerMenu *findActivatedMenu() const;
 
 private:
     QPoint m_startPosition;
@@ -122,6 +127,7 @@ private:
     QAction *m_addSeparator;
     QHash<QAction*, QDesignerMenu*> m_subMenus;
     QTimer *m_showSubMenuTimer;
+    QTimer *m_deactivateWindowTimer;
     bool m_interactive;
     QLineEdit *m_editor;
 };
