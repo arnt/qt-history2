@@ -175,6 +175,7 @@ void MainWindow::printFile()
     QPrinter printer;
 
     QPrintDialog *dialog = new QPrintDialog(&printer, this);
+    dialog->setWindowTitle(tr("Print Document"));
     if (dialog->exec() != QDialog::Accepted)
         return;
 
