@@ -651,7 +651,7 @@ bool QDesignerMenu::interactive(bool i)
 
 void QDesignerMenu::enterEditMode()
 {
-    if (m_currentIndex < realActionCount()) {
+    if (m_currentIndex <= realActionCount()) {
         showLineEdit();
     } else {
         QAction *sep = createAction();

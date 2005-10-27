@@ -366,7 +366,7 @@ QAction *QDesignerMenuBar::createAction() // ### undo/redo
 
 void QDesignerMenuBar::enterEditMode()
 {
-    if (m_currentIndex < realActionCount()) {
+    if (m_currentIndex <= realActionCount()) {
         showLineEdit();
     }
 }
