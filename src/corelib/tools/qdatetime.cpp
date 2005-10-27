@@ -3984,7 +3984,7 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
 */
 
 QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
-                                                  const QVariant &currentValue, const bool fixup) const
+                                                  const QVariant &currentValue, bool fixup) const
 {
     QString input = inp;
     State state = Acceptable;
