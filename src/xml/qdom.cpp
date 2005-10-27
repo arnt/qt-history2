@@ -5331,7 +5331,7 @@ QDomNodePrivate* QDomCommentPrivate::cloneNode(bool deep)
     return p;
 }
 
-void QDomCommentPrivate::save(QTextStream& s, int depth, int indent) const
+void QDomCommentPrivate::save(QTextStream& s, int /*depth*/, int /*indent*/) const
 {
     s << "<!--" << value;
     if (value.endsWith(QLatin1Char('-')))
