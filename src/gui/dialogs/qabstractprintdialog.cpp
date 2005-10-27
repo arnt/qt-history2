@@ -228,9 +228,12 @@ QPrinter *QAbstractPrintDialog::printer() const
     }
     \endcode
 
-    The printer dialog in Motif style:
-
-    \img qprintdlg-m.png
+    \table
+    \row
+    \o \inlineimage qprintdialog-plastique.png Screenshot of a Plastique style printer dialog
+    \row
+    \o A printer dialog in Plastique style
+    \endtable
 */
 
 /*!
