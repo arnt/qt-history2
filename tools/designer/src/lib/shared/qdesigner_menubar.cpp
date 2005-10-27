@@ -258,7 +258,7 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
     if (index >= actions().count() - 1)
         return true;
 
-
+    hideMenu();
     m_currentIndex = index;
     update();
 
