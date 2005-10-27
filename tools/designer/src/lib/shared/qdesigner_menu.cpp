@@ -23,6 +23,7 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
+#include <QtGui/QLineEdit>
 #include <QtGui/QPainter>
 #include <QtGui/QRubberBand>
 #include <QtGui/qevent.h>
@@ -52,6 +53,12 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
     m_showSubMenuTimer = new QTimer(this);
     connect(m_showSubMenuTimer, SIGNAL(timeout()), this, SLOT(slotShowSubMenuNow()));
 
+    m_editor = new QLineEdit(this);
+    m_editor->setObjectName("__qt__passive_editor");
+    m_editor->hide();
+    m_editor->installEventFilter(this);
+
+    m_editor->installEventFilter(this);
     qApp->installEventFilter(this);
 }
 
@@ -105,9 +112,108 @@ void QDesignerMenu::startDrag(const QPoint &pos)
     }
 }
 
-bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *event)
+bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
 {
     m_showSubMenuTimer->stop();
+
+    if (m_editor->isHidden()) { // In navigation mode
+        switch (e->key()) {
+
+        case Qt::Key_Delete:
+#if 0 // ### implement me
+            hideMenu();
+            deleteMenu();
+#endif
+            break;
+
+        case Qt::Key_Left:
+            e->accept();
+            moveLeft();
+            return true;
+
+        case Qt::Key_Right:
+            e->accept();
+            moveRight();
+            return true; // no update
+
+        case Qt::Key_Up:
+            e->accept();
+            moveUp(e->modifiers() & Qt::ControlModifier);
+            return true;
+
+        case Qt::Key_Down:
+            e->accept();
+            moveDown(e->modifiers() & Qt::ControlModifier);
+            return true;
+
+        case Qt::Key_PageUp:
+            m_currentIndex = 0;
+            break;
+
+        case Qt::Key_PageDown:
+            m_currentIndex = actions().count() - 1;
+            break;
+
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+        case Qt::Key_F2:
+            e->accept();
+            enterEditMode();
+            return true; // no update
+
+        case Qt::Key_Escape:
+            e->ignore();
+            setFocus();
+            hide();
+            closeMenuChain();
+            return true;
+
+        case Qt::Key_Alt:
+        case Qt::Key_Shift:
+        case Qt::Key_Control:
+            e->ignore();
+            setFocus(); // FIXME: this is because some other widget get the focus when CTRL is pressed
+            return true; // no update
+
+        default:
+            if (!e->text().isEmpty() && e->text().at(0).toLatin1() >= 32) {
+                showLineEdit();
+                QApplication::sendEvent(m_editor, e);
+                e->accept();
+            } else {
+                e->ignore();
+            }
+            return true;
+        }
+    } else { // In edit mode
+        switch (e->key()) {
+        default:
+            return false;
+
+        case Qt::Key_Control:
+            e->ignore();
+            return true;
+
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+            leaveEditMode();
+            m_editor->hide();
+            setFocus();
+            break;
+
+        case Qt::Key_Escape:
+            m_editor->hide();
+            setFocus();
+            break;
+        }
+    }
+
+    e->accept();
+    update();
+
+    return true;
+
+#if 0
     event->accept();
 
     switch (event->key()) {
@@ -132,6 +238,7 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *event)
     }
 
     return true;
+#endif
 }
 
 bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
@@ -217,8 +324,15 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
 
 bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
 {
-    if (object != this)
+    if (object != this && object != m_editor)
         return false;
+
+    if (object == m_editor && event->type() == QEvent::FocusOut) {
+        leaveEditMode();
+        m_editor->hide();
+        update();
+        return false;
+    }
 
     switch (event->type()) {
         default: break;
@@ -324,6 +438,9 @@ void QDesignerMenu::actionEvent(QActionEvent *event)
 
 QDesignerFormWindowInterface *QDesignerMenu::formWindow() const
 {
+    if (parentMenu())
+        return parentMenu()->formWindow();
+
     return QDesignerFormWindowInterface::findFormWindow(parentWidget());
 }
 
@@ -371,7 +488,7 @@ void QDesignerMenu::moveRight()
     }
 }
 
-void QDesignerMenu::moveUp()
+void QDesignerMenu::moveUp(bool ctrl)
 {
     if (m_currentIndex == 0) {
         hide();
@@ -381,7 +498,7 @@ void QDesignerMenu::moveUp()
     updateCurrentAction();
 }
 
-void QDesignerMenu::moveDown()
+void QDesignerMenu::moveDown(bool ctrl)
 {
     if (m_currentIndex == actions().count() - 1) {
         hide();
@@ -409,6 +526,21 @@ void QDesignerMenu::updateCurrentAction()
     update();
 
     showSubMenu(currentAction());
+}
+
+void QDesignerMenu::createRealMenuAction(QAction *action) // ### undo/redo
+{
+    if (action->menu())
+        return; // nothing to do
+
+    QDesignerMenu *tempMenu = findOrCreateSubMenu(action);
+    m_subMenus.remove(action);
+
+    action->setMenu(tempMenu);
+
+    Q_ASSERT(formWindow() != 0);
+    QDesignerFormWindowInterface *fw = formWindow();
+    fw->core()->metaDataBase()->add(action->menu());
 }
 
 QDesignerMenu *QDesignerMenu::findOrCreateSubMenu(QAction *action)
@@ -489,3 +621,77 @@ bool QDesignerMenu::interactive(bool i)
     m_interactive = i;
     return old;
 }
+
+void QDesignerMenu::enterEditMode()
+{
+    if (m_currentIndex < realActionCount()) {
+        showLineEdit();
+    } else {
+        QAction *sep = createAction();
+        sep->setSeparator(true);
+        insertAction(currentAction(), sep);
+    }
+}
+
+void QDesignerMenu::leaveEditMode()
+{
+    QAction *action = 0;
+
+    if (m_currentIndex < realActionCount()) {
+        action = actions().at(m_currentIndex);
+    } else {
+        Q_ASSERT(formWindow() != 0);   // ### undo/redo
+        action = createAction();
+        insertAction(currentAction(), action);
+    }
+
+    action->setText(m_editor->text()); // ### undo/redo
+    adjustSize();
+
+    if (parentMenu()) { // ### undo/redo
+        parentMenu()->createRealMenuAction(parentMenu()->currentAction());
+    }
+}
+
+QAction *QDesignerMenu::safeMenuAction(QDesignerMenu *menu) const
+{
+    QAction *action = menu->menuAction();
+
+    if (!action)
+        action = m_subMenus.key(menu);
+
+    return action;
+}
+
+void QDesignerMenu::showLineEdit()
+{
+    QAction *action = 0;
+
+    if (m_currentIndex < realActionCount())
+        action = actions().at(m_currentIndex);
+    else
+        action = m_addItem;
+
+    if (action->isSeparator())
+        return;
+
+    // open edit field for item name
+    m_editor->setText(action->text());
+    m_editor->selectAll();
+    m_editor->setGeometry(actionGeometry(action));
+    m_editor->show();
+    m_editor->setFocus();
+}
+
+QAction *QDesignerMenu::createAction() // ### undo/redo
+{
+    Q_ASSERT(formWindow() != 0);
+    QDesignerFormWindowInterface *fw = formWindow();
+
+    QAction *action = new QAction(fw);
+    action->setObjectName("action");
+    fw->core()->metaDataBase()->add(action);
+    fw->ensureUniqueObjectName(action);
+    return action;
+}
+

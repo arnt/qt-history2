@@ -32,6 +32,8 @@
 #include <QtCore/QHash>
 
 class QTimer;
+class QLineEdit;
+
 class QDesignerFormWindowInterface;
 class QDesignerActionProviderExtension;
 class QDesignerMenu;
@@ -57,12 +59,13 @@ public:
     void adjustSpecialActions();
 
     bool interactive(bool i);
+    void createRealMenuAction(QAction *action);
 
 public slots:
     void moveLeft();
     void moveRight();
-    void moveUp();
-    void moveDown();
+    void moveUp(bool ctrl);
+    void moveDown(bool ctrl);
     void closeMenuChain();
 
 private slots:
@@ -95,7 +98,14 @@ protected:
     void updateCurrentAction();
     void showSubMenu(QAction *action);
 
+    void enterEditMode();
+    void leaveEditMode();
+    void showLineEdit();
+
+    QAction *createAction();
     QDesignerMenu *findOrCreateSubMenu(QAction *action);
+
+    QAction *safeMenuAction(QDesignerMenu *menu) const;
 
 private:
     QPoint m_startPosition;
@@ -105,6 +115,7 @@ private:
     QHash<QAction*, QDesignerMenu*> m_subMenus;
     QTimer *m_showSubMenuTimer;
     bool m_interactive;
+    QLineEdit *m_editor;
 };
 
 #endif // QDESIGNER_MENU_H

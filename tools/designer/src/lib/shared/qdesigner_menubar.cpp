@@ -209,26 +209,6 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
     update();
 
     return true;
-
-#if 0
-    event->accept();
-
-    switch (event->key()) {
-        case Qt::Key_Left:
-            moveLeft();
-            break;
-        case Qt::Key_Right:
-            moveRight();
-            break;
-        case Qt::Key_Up:
-            moveUp();
-            break;
-        case Qt::Key_Down:
-            moveDown();
-            break;
-    }
-    return true;
-#endif
 }
 
 void QDesignerMenuBar::startDrag(const QPoint &pos)
