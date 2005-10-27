@@ -1754,15 +1754,17 @@
     Items in lists, tables, and trees can be dragged within the views, and data can be
     imported and exported as MIME-encoded data.
 
-    \section1 Moving Items within Views
-
     The standard views automatically support internal drag and drop, where items are
     moved around to change the order in which they are displayed. By default, drag and
     drop is not enabled for these views because they are configured for the simplest,
     most common uses. To allow items to be dragged around, certain properties of the
     view need to be enabled, and the items themselves must also allow dragging to occur.
 
-    \section2 Using Convenience Views
+    The requirements for a model that only allows items to be exported from a
+    view, and which does not allow data to be dropped into it, are fewer than
+    those for a fully-enabled drag and drop model.
+
+    \section1 Using Convenience Views
 
     Each of the types of item used with QListWidget, QTableWidget, and QTreeWidget
     is configured to use a different set of flags by default. For example, each
@@ -1797,7 +1799,7 @@
     type of data. In both situations, the items are copied rather than moved.
     To move items around
 
-    \section2 Using Model/View Classes
+    \section1 Using Model/View Classes
 
     Setting up a view for drag and drop follows the same pattern used with the
     convenience views. For example, a QListView can be set up in the same way as a
@@ -1858,8 +1860,8 @@
     is achieved by reimplementing the QAbstractItemModel::mimeData() function to
     provide a QMimeData object, just as in any other drag and drop operation.
 
-    The following code shows items of data, corresponding to a given list of indexes,
-    is encoded as plain text and stored in a QMimeData object.
+    The following code shows how each item of data, corresponding to a given list of
+    indexes, is encoded as plain text and stored in a QMimeData object.
 
     \quotefromfile snippets/qlistview-dnd/model.cpp
     \skipto Model::mimeData
@@ -1905,10 +1907,20 @@
 
     The data to be inserted into the model is treated differently depending on
     whether it is dropped onto an existing item or not. In this simple example,
-
+    when a drop occurs between existing top-level items in the model, the
+    specified parent index is invalid and the row corresponds to the row in
+    the model in which to insert new items:
 
     \skipto int beginRow
-    \printuntil /^\}/
+    \printuntil parent.row
+
+    When a drop occurs on a top-level item, the specified parent index is valid
+    and new items are inserted into the top level of the model before that item.
+
+    In hierarchical models, when a drop occurs on an item, it would be better to
+    insert new items into the model as children of that item. In the simple
+    example shown here, the model only has one level, so this approach is not
+    appropriate.
 
     \section2 Decoding Imported Data
 
@@ -1924,13 +1936,11 @@
     The strings can then be inserted into the underlying data store. For consistency,
     this can be done through the model's own interface:
 
+    \skipto insertRows
     \printuntil /^\}/
 
-
-
-    \section1 External Drag and Drop
-
-
+    Note that the model will typically need to provide implementations of the
+    QAbstractItemModel::insertRows() and QAbstractItemModel::setData() functions.
 
     \sa {Item Views Puzzle Example}
 */
