@@ -1174,6 +1174,7 @@ bool QWidgetPrivate::isBackgroundInherited() const
     return true;
 }
 
+#ifndef Q_WS_MAC
 /*
   Returns true if there are widgets above this which overlap with
   \a rect, which is in parent's coordinate system (same as crect).
@@ -1206,6 +1207,7 @@ bool QWidgetPrivate::isOverlapped(const QRect &rect) const
     }
     return false;
 }
+#endif
 
 void QWidgetPrivate::setUpdatesEnabled_helper(bool enable)
 {
