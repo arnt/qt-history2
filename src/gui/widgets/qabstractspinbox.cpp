@@ -390,8 +390,8 @@ void QAbstractSpinBox::clear()
 QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 {
     Q_D(const QAbstractSpinBox);
-    if (d->readOnly)
-        return StepEnabled(0);
+    if (d->readOnly || d->type == QVariant::Invalid)
+        return StepNone;
     if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
         || d->wrapping)
         return StepEnabled(StepUpEnabled | StepDownEnabled);
@@ -1401,11 +1401,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
     if (buttonState)
         opt.state |= QStyle::State_Sunken;
 
-    if (type != QVariant::Invalid) {
-        opt.stepEnabled = q->stepEnabled();
-    } else {
-        opt.stepEnabled = QAbstractSpinBox::StepNone;
-    }
+    opt.stepEnabled = q->stepEnabled();
 
     opt.frame = frame;
     return opt;
