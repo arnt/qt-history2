@@ -122,6 +122,7 @@
   notice or indicate any restrictions on use.
 
   Last revised 11 July 1995.
+  \endlegalese
 */
 
 /*!

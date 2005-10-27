@@ -35,7 +35,9 @@
 #endif
 
 
-/*! \namespace QTest
+/*! 
+   \namespace QTest
+   \inmodule QtTest
 
    \brief The QTest namespace contains all the functions and
    declarations that are related to the QTestLib tool.
