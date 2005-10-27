@@ -556,7 +556,9 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
 */
 QPointF QPainterPath::currentPosition() const
 {
-    return isEmpty() ? QPointF() : QPointF(d_func()->elements.last().x, d_func()->elements.last().y);
+    return !d_ptr || d_func()->elements.isEmpty()
+        ? QPointF()
+        : QPointF(d_func()->elements.last().x, d_func()->elements.last().y);
 }
 
 
