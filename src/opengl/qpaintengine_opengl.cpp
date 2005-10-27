@@ -318,7 +318,6 @@ public:
 
     inline void startGradientOps();
     inline void endGradientOps();
-    GLhandleARB loadShader(const char *);
     void generateGradientColorTable(const QGradientStops& s,
                                     unsigned int *colorTable, int size);
     void createGradientPaletteTexture(const QGradient& g);
