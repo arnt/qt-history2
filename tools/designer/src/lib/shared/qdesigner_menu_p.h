@@ -63,13 +63,13 @@ public slots:
     void moveRight();
     void moveUp();
     void moveDown();
+    void closeMenuChain();
 
 private slots:
     void slotRemoveSelectedAction(QAction *action);
     void slotShowSubMenuNow();
 
 protected:
-    void startDrag(const QPoint &pos);
     virtual void actionEvent(QActionEvent *event);
     virtual void dragEnterEvent(QDragEnterEvent *event);
     virtual void dragMoveEvent(QDragMoveEvent *event);
@@ -84,6 +84,8 @@ protected:
     bool handleContextMenuEvent(QWidget *widget, QContextMenuEvent *event);
     bool handleKeyPressEvent(QWidget *widget, QKeyEvent *event);
 
+    void startDrag(const QPoint &pos);
+
     void adjustIndicator(const QPoint &pos);
     int findAction(const QPoint &pos) const;
 
@@ -92,7 +94,6 @@ protected:
 
     void updateCurrentAction();
     void showSubMenu(QAction *action);
-    void closeMenuChain();
 
     QDesignerMenu *findOrCreateSubMenu(QAction *action);
 

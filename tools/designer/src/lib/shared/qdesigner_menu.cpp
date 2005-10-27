@@ -472,6 +472,7 @@ void QDesignerMenu::setVisible(bool visible)
         m_currentIndex = 0;
 
     QMenu::setVisible(visible);
+
 }
 
 void QDesignerMenu::adjustSpecialActions()

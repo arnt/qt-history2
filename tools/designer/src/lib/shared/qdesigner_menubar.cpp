@@ -125,11 +125,8 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
         switch (e->key()) {
 
         case Qt::Key_Delete:
-#if 0
-            hideItem();
-            deleteItem();
-            showItem();
-#endif
+            hideMenu();
+            deleteMenu();
             break;
 
         case Qt::Key_Left:
@@ -613,17 +610,7 @@ void QDesignerMenuBar::moveUp()
 
 void QDesignerMenuBar::moveDown()
 {
-    QAction *a = currentAction();
-    if (a && a->menu()) {
-        QMenu *menu = a->menu();
-        QRect g = actionGeometry(a);
-
-        menu->setWindowFlags(Qt::FramelessWindowHint | Qt::Window); // ### check me
-        menu->adjustSize();
-        menu->move(mapToGlobal(g.bottomLeft()));
-        menu->setFocus(Qt::MouseFocusReason);
-        menu->show();
-    }
+    showMenu();
 }
 
 void QDesignerMenuBar::adjustSpecialActions()
@@ -639,5 +626,43 @@ bool QDesignerMenuBar::interactive(bool i)
     bool old = m_interactive;
     m_interactive = i;
     return old;
+}
+
+void QDesignerMenuBar::hideMenu()
+{
+    QAction *action = currentAction();
+
+    if (action && action->menu()) {
+        action->menu()->hide();
+
+        if (QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(action->menu())) {
+            menu->closeMenuChain();
+        }
+    }
+}
+
+void QDesignerMenuBar::deleteMenu()
+{
+    QAction *action = currentAction();
+
+    if (action && !qobject_cast<SpecialMenuAction*>(action)) {
+        removeAction(action);
+    }
+}
+
+void QDesignerMenuBar::showMenu()
+{
+    QAction *action = currentAction();
+
+    if (action && action->menu()) {
+        QMenu *menu = action->menu();
+        QRect g = actionGeometry(action);
+
+        menu->setWindowFlags(Qt::FramelessWindowHint | Qt::Window); // ### check me
+        menu->adjustSize();
+        menu->move(mapToGlobal(g.bottomLeft()));
+        menu->setFocus(Qt::MouseFocusReason);
+        menu->show();
+    }
 }
 

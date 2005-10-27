@@ -115,6 +115,10 @@ protected:
     void leaveEditMode();
     void showLineEdit();
 
+    void hideMenu();
+    void deleteMenu();
+    void showMenu();
+
     QAction *createAction();
 
 private:
