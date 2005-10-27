@@ -488,7 +488,6 @@ void QWSDisplay::Data::init()
 
         QWSIdentifyCommand cmd;
         cmd.setId(appName);
-#ifndef QT_NO_QWS_MULTIPROCESS
         QTransportAuth *a = QTransportAuth::getInstance();
         QTransportAuth::Data *d = a->connectTransport(
                 QTransportAuth::UnixStreamSock |
@@ -500,7 +499,6 @@ void QWSDisplay::Data::init()
         if  (csocket)
             cmd.write( ad );
         else
-#endif
             qt_server_enqueue(&cmd);
 
         // wait for connect confirmation
