@@ -3962,8 +3962,8 @@
 
     The \c QWizard class is no longer part of the Qt public API. It
     has been renamed Q3Wizard and moved to Qt3Support. In Qt 4 applications,
-    you can easily obtain the same result by combining a QStackedBox with a
-    QDialog and provide \l{QPushButton}s yourself.
+    you can easily obtain the same result by combining a QStackedWidget with
+    a QDialog and provide \l{QPushButton}s yourself.
 
     The \l{dialogs/simplewizard}{Simple Wizard} and
     \l{dialogs/complexwizard}{Complex Wizard} examples show how to
