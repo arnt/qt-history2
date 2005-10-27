@@ -624,7 +624,7 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
             }
             if (q->testAttribute(Qt::WA_TintedBackground)) {
                 QPainter p(q);
-                QColor tint = q->palette().window();
+                QColor tint = q->palette().window().color();
                 tint.setAlphaF(.6);
                 p.fillRect(toBePainted.boundingRect(), tint);
             }
