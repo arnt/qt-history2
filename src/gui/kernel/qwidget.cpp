@@ -312,10 +312,11 @@ void QWidget::setAutoFillBackground(bool enabled)
     Q_D(QWidget);
     if (!d->extra)
         d->createExtra();
-    if (d->extra->autoFillBackground != enabled) {
-        d->extra->autoFillBackground = enabled;
-        update();
-    }
+    if (d->extra->autoFillBackground == enabled)
+        return;
+    
+    d->extra->autoFillBackground = enabled;
+    update();
 }
 
 /*!
@@ -3079,7 +3080,6 @@ void QWidget::setPalette(const QPalette &palette)
     Q_D(QWidget);
     setAttribute(Qt::WA_SetPalette, palette.resolve() != 0);
     d->setPalette_helper(palette.resolve(qt_naturalWidgetPalette(this)));
-    update();
 }
 
 void QWidgetPrivate::resolvePalette()
@@ -3090,11 +3090,13 @@ void QWidgetPrivate::resolvePalette()
 
 void QWidgetPrivate::setPalette_helper(const QPalette &palette)
 {
+    Q_Q(QWidget);
     if (data.pal == palette && data.pal.resolve() == palette.resolve())
         return;
     data.pal = palette;
     updateSystemBackground();
     propagatePaletteChange();
+    q->update();
 }
 
 
