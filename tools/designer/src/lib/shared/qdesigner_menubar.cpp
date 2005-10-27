@@ -69,10 +69,6 @@ QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
     m_addMenu->setText(tr("new menu"));
     addAction(m_addMenu);
 
-    m_addSeparator = new SpecialMenuAction(this);
-    m_addSeparator->setText(tr("new separator"));
-    addAction(m_addSeparator);
-
     m_editor = new QLineEdit(this);
     m_editor->setObjectName("__qt__passive_editor");
     m_editor->hide();
@@ -125,7 +121,11 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
 bool QDesignerMenuBar::handleMouseDoubleClickEvent(QWidget *widget, QMouseEvent *e)
 {
     e->accept();
-    enterEditMode();
+
+    m_startPosition = QPoint();
+    m_currentIndex = findAction(e->pos());
+    showLineEdit();
+
     return true;
 }
 
@@ -264,12 +264,11 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
     m_startPosition = mapFromGlobal(event->globalPos());
 
     int index = findAction(m_startPosition);
-    if (index >= actions().count() - 1)
-        return true;
-
-    hideMenu();
-    m_currentIndex = index;
-    update();
+    if (index < realActionCount()) {
+        hideMenu();
+        m_currentIndex = index;
+        update();
+    }
 
     return true;
 }
@@ -347,9 +346,7 @@ QAction *QDesignerMenuBar::createAction() // ### undo/redo
 
     QAction *menuAction = menu->menuAction();
     core->metaDataBase()->add(menuAction);
-    // fw->ensureUniqueObjectName(menuAction);
     menu->setTitle(tr("Menu"));
-//    addAction(menu->menuAction());
     core->actionEditor()->setFormWindow(fw);
     core->propertyEditor()->setObject(menu);
 
@@ -361,10 +358,6 @@ void QDesignerMenuBar::enterEditMode()
 {
     if (m_currentIndex < realActionCount()) {
         showLineEdit();
-    } else {
-        QAction *sep = createAction();
-        sep->setSeparator(true);
-        insertAction(currentAction(), sep);
     }
 }
 
@@ -475,13 +468,10 @@ void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
         Q_ASSERT(!d->items.isEmpty());
 
         QAction *action = d->items.first();
-        if (action && !actions().contains(action)) {
+        if (action && action->menu() && !actions().contains(action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
         }
-    } else if (qobject_cast<const MenuMimeData*>(event->mimeData())) {
-        event->acceptProposedAction();
-        adjustIndicator(event->pos());
     }
 }
 
@@ -495,9 +485,6 @@ void QDesignerMenuBar::dragMoveEvent(QDragMoveEvent *event)
             event->acceptProposedAction();
             adjustIndicator(event->pos());
         }
-    } else if (qobject_cast<const MenuMimeData*>(event->mimeData())) {
-        event->acceptProposedAction();
-        adjustIndicator(event->pos());
     }
 }
 
@@ -517,29 +504,6 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
             index = qMin(index, actions().count() - 1);
             insertAction(actions().at(index), action);
             adjustIndicator(QPoint(-1, -1));
-        }
-    } else if (qobject_cast<const MenuMimeData*>(event->mimeData())) {
-        if (QDesignerFormWindowInterface *fw = formWindow()) {
-            QDesignerFormEditorInterface *core = fw->core();
-            event->acceptProposedAction();
-
-// ### deprecated (Remove)
-            QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu", this)); // ### use undo/redo stack
-            menu->setObjectName("menu");
-            core->metaDataBase()->add(menu);
-            fw->ensureUniqueObjectName(menu);
-
-            QAction *menuAction = menu->menuAction();
-            core->metaDataBase()->add(menuAction);
-            // fw->ensureUniqueObjectName(menuAction);
-            menu->setTitle(tr("Menu"));
-            addAction(menu->menuAction());
-            core->actionEditor()->setFormWindow(fw);
-            core->propertyEditor()->setObject(menu);
-
-            if (QDesignerActionProviderExtension *a = actionProvider()) {
-                a->adjustIndicator(QPoint(-1, -1));
-            }
         }
     }
 }
@@ -574,7 +538,7 @@ QAction *QDesignerMenuBar::currentAction() const
 
 int QDesignerMenuBar::realActionCount() const
 {
-    return actions().count() - 2; // 2 fake actions
+    return actions().count() - 1; // 1 fake actions
 }
 
 void QDesignerMenuBar::moveLeft(bool ctrl)
@@ -609,9 +573,7 @@ void QDesignerMenuBar::moveDown()
 void QDesignerMenuBar::adjustSpecialActions()
 {
     removeAction(m_addMenu);
-    removeAction(m_addSeparator);
     addAction(m_addMenu);
-    addAction(m_addSeparator);
 }
 
 bool QDesignerMenuBar::interactive(bool i)

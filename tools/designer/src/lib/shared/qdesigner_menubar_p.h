@@ -42,17 +42,6 @@ class QDesignerMenuBar;
 
 namespace qdesigner_internal {
 
-class MenuMimeData: public QMimeData
-{
-    Q_OBJECT
-public:
-    MenuMimeData() {}
-    virtual ~MenuMimeData() {}
-
-    virtual bool hasFormat(const QString &mimeType) const
-    { return mimeType == QLatin1String("action-repository/menu"); }
-};
-
 class SpecialMenuAction: public QAction
 {
     Q_OBJECT
@@ -127,7 +116,6 @@ protected:
 
 private:
     QAction *m_addMenu;
-    QAction *m_addSeparator;
     QPointer<QMenu> m_activeMenu;
     QPoint m_startPosition;
     int m_currentIndex;
