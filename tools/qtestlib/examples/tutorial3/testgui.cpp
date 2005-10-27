@@ -1,5 +1,5 @@
 #include <QtGui>
-#include <QtTest>
+#include <QtTest/QtTest>
 
 class TestGui: public QObject
 {
