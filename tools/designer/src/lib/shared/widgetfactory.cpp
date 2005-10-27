@@ -345,6 +345,10 @@ void WidgetFactory::initialize(QObject *object) const
         }
     }
 
+    if (qobject_cast<QAction*>(object)) {
+        sheet->setChanged(sheet->indexOf(QLatin1String("text")), true);
+    }
+
     if (qobject_cast<QMenu*>(object)) {
         sheet->setChanged(sheet->indexOf(QLatin1String("geometry")), false);
         sheet->setChanged(sheet->indexOf(QLatin1String("title")), true);

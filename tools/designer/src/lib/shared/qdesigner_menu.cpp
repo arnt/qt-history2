@@ -681,7 +681,11 @@ QAction *QDesignerMenu::createAction() // ### undo/redo
     QDesignerFormWindowInterface *fw = formWindow();
 
     QAction *action = new QAction(fw);
+    fw->core()->widgetFactory()->initialize(action);
+
     action->setObjectName("action");
+    fw->core()->metaDataBase()->add(action);
+    fw->ensureUniqueObjectName(action);
 
     AddActionCommand *cmd = new AddActionCommand(fw);
     cmd->init(action);
