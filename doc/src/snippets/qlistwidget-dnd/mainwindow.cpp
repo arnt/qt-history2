@@ -12,11 +12,11 @@ MainWindow::MainWindow()
     menuBar()->addMenu(fileMenu);
 
 //  For convenient quoting:
-    QListWidget *listWidget = new QListWidget(this);
-    listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-    listWidget->setDragEnabled(true);
-    listWidget->setAcceptDrops(true);
-    listWidget->setDropIndicatorShown(true);
+QListWidget *listWidget = new QListWidget(this);
+listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+listWidget->setDragEnabled(true);
+listWidget->setAcceptDrops(true);
+listWidget->setDropIndicatorShown(true);
 
     this->listWidget = listWidget;
 
