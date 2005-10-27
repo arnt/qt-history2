@@ -1469,8 +1469,10 @@ void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->winIconSmall = 0;
     extra->topextra->winIconBig = 0;
-//######ifdef QT_USE_BACKINGSTORE
-    extra->topextra->backingStore = new QWidgetBackingStore(q_func());
+    if (!QWidgetPrivate::paintOnScreen())
+        extra->topextra->backingStore = new QWidgetBackingStore(q_func());
+    else
+        extra->topextra->backingStore = 0;
 }
 
 void QWidgetPrivate::deleteTLSysExtra()
@@ -1479,9 +1481,7 @@ void QWidgetPrivate::deleteTLSysExtra()
         DestroyIcon(extra->topextra->winIconSmall);
     if (extra->topextra->winIconBig)
         DestroyIcon(extra->topextra->winIconBig);
-//########ifdef QT_USE_BACKINGSTORE
-    if (extra->topextra->backingStore)
-        delete extra->topextra->backingStore;
+    delete extra->topextra->backingStore;
 }
 
 void QWidgetPrivate::registerDropSite(bool on)

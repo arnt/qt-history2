@@ -2267,8 +2267,11 @@ void QWidgetPrivate::deleteSysExtra()
 void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->iconMask = 0;
-//####ifdef QT_USE_BACKINGSTORE
-    extra->topextra->backingStore = new QWidgetBackingStore(q_func());
+    if (!QWidgetBackingStore::paintOnScreen())
+        extra->topextra->backingStore = new QWidgetBackingStore(q_func());
+    else
+        extra->topextra->backingStore = 0;
+
     extra->topextra->validWMState = 0;
     extra->topextra->waitingForMapNotify = 0;
 }
@@ -2279,9 +2282,7 @@ void QWidgetPrivate::deleteTLSysExtra()
     // QWidget::destroy() destroyInputContext();
     delete extra->topextra->iconMask;
     extra->topextra->iconMask = 0;
-//#######ifdef QT_USE_BACKINGSTORE
-    if (extra->topextra->backingStore)
-        delete extra->topextra->backingStore;
+    delete extra->topextra->backingStore;
 }
 
 /*

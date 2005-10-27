@@ -40,11 +40,14 @@ extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); // qapplication_xxx.cpp
 
 bool QWidgetBackingStore::paintOnScreen(QWidget *w)
 {
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     Q_UNUSED(w);
     return false;
+#elif  defined(QT_NO_BACKINGSTORE)
+    Q_UNUSED(w);
+    return true;
 #else
-    if (w && (w->testAttribute(Qt::WA_PaintOnScreen)))
+    if (w && w->testAttribute(Qt::WA_PaintOnScreen))
         return true;
     static signed char checked_env = -1;
     if(checked_env == -1)

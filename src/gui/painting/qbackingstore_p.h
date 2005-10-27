@@ -46,6 +46,23 @@ public:
 
 class QWidgetBackingStore
 {
+public:
+    QWidgetBackingStore(QWidget *t);
+    ~QWidgetBackingStore();
+    void bltRect(const QRect &rect, int dx, int dy, QWidget *widget);
+    void dirtyRegion(const QRegion &rgn, QWidget *widget=0);
+    void cleanRegion(const QRegion &rgn, QWidget *widget=0, bool recursiveCopyToScreen = true);
+#if defined(Q_WS_X11)
+    QPixmap backingPixmap() const { return buffer; }
+#elif defined(Q_WS_QWS)
+    QPixmap *backingPixmap() const { return buffer.pixmap(); }
+    void releaseBuffer();
+#endif
+
+    inline QPoint topLevelOffset() const { return tlwOffset; }
+    static bool paintOnScreen(QWidget * = 0);
+    static void copyToScreen(QWidget *, const QRegion &);
+private:
     QWidget *tlw;
     QRegion dirty;
 
@@ -70,22 +87,7 @@ class QWidgetBackingStore
 #endif
     friend class QWidgetPrivate;
     friend class QWidget;
-public:
-    QWidgetBackingStore(QWidget *t);
-    ~QWidgetBackingStore();
-    void bltRect(const QRect &rect, int dx, int dy, QWidget *widget);
-    void dirtyRegion(const QRegion &rgn, QWidget *widget=0);
-    void cleanRegion(const QRegion &rgn, QWidget *widget=0, bool recursiveCopyToScreen = true);
-#if defined(Q_WS_X11)
-    QPixmap backingPixmap() const { return buffer; }
-#elif defined(Q_WS_QWS)
-    QPixmap *backingPixmap() const { return buffer.pixmap(); }
-    void releaseBuffer();
-#endif
 
-    inline QPoint topLevelOffset() const { return tlwOffset; }
-    static bool paintOnScreen(QWidget *);
-    static void copyToScreen(QWidget *, const QRegion &);
 };
 
 #endif // QBACKINGSTORE_P_H
