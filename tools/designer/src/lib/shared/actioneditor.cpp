@@ -174,7 +174,7 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
     }
 
     m_actionNew->setEnabled(true);
-    m_actionDelete->setEnabled(true);
+//    m_actionDelete->setEnabled(true);
     m_filterWidget->setEnabled(true);
 
     QList<QAction*> actionList = qFindChildren<QAction*>(formWindow->mainContainer());
@@ -242,8 +242,10 @@ void ActionEditor::updatePropertyEditor(QAction *action)
 
 void ActionEditor::slotItemChanged(QListWidgetItem *item)
 {
-    if (core()->propertyEditor() == 0)
+    if (core()->propertyEditor() == 0 || formWindow() == 0)
         return;
+
+    m_actionDelete->setEnabled(item != 0);
 
     if (!item) {
         core()->propertyEditor()->setObject(formWindow()->mainContainer());
@@ -296,7 +298,6 @@ void ActionEditor::addAction(QAction *action)
     sheet->setChanged(sheet->indexOf("text"), true);
     sheet->setChanged(sheet->indexOf("icon"), !action->icon().isNull());
 
-    m_actionRepository->clearSelection();
     QListWidgetItem *item = createListWidgetItem(action);
     m_actionRepository->setCurrentItem(item);
 }
@@ -316,8 +317,6 @@ void ActionEditor::removeAction(QAction *action)
     QVariant actionData;
     qVariantSetValue(actionData, (QListWidgetItem*)0);
     action->setData(actionData);
-
-    m_actionRepository->clearSelection();
 
     delete item;
 }
@@ -375,8 +374,6 @@ void ActionEditor::editAction(QListWidgetItem *item)
     QDesignerPropertySheetExtension *sheet = 0;
     sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
     sheet->setChanged(sheet->indexOf("icon"), !action->icon().isNull());
-
-    updatePropertyEditor(action);
 }
 
 void ActionEditor::slotDeleteAction()
