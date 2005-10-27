@@ -213,6 +213,8 @@ public:
 
     bool readNotificationEnabled, writeNotificationEnabled, exceptNotificationEnabled;
 
+    int socketDescriptor;
+
     QSocks5Data *data;
     QSocks5ConnectData *connectData;
 #ifndef QT_NO_UDPSOCKET
