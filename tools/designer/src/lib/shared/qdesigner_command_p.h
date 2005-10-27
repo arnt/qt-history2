@@ -879,6 +879,38 @@ private:
     QAction *m_action;
 };
 
+class QDESIGNER_SHARED_EXPORT InsertActionIntoCommand : public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    InsertActionIntoCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QWidget *parentWidget, QAction *action, QAction *beforeAction);
+    virtual void redo();
+    virtual void undo();
+
+private:
+    QWidget *m_parentWidget;
+    QAction *m_action;
+    QAction *m_beforeAction;
+};
+
+class QDESIGNER_SHARED_EXPORT RemoveActionFromCommand : public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    RemoveActionFromCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QWidget *parentWidget, QAction *action, QAction *beforeAction);
+    virtual void redo();
+    virtual void undo();
+
+private:
+    QWidget *m_parentWidget;
+    QAction *m_action;
+    QAction *m_beforeAction;
+};
+
 } // namespace qdesigner_internal
 
 #endif // QDESIGNER_COMMAND_H

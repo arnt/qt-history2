@@ -14,6 +14,7 @@
 #include "qdesigner_menubar_p.h"
 #include "qdesigner_menu_p.h"
 #include "qdesigner_toolbar_p.h"
+#include "qdesigner_command_p.h"
 #include "actionrepository_p.h"
 #include "actionprovider_p.h"
 
@@ -647,12 +648,30 @@ bool QDesignerMenuBar::swap(int a, int b) // ### undo/redo
     if (right < 0)
         return false; // nothing to do
 
-    removeAction(action_b);
-    insertAction(action_a, action_b);
 
-    removeAction(action_a);
-    insertAction(actions().at(right), action_a);
+    formWindow()->beginCommand(QLatin1String("Move action"));
 
+    QAction *action_b_before = safeActionAt(right + 1);
+
+    RemoveActionFromCommand *cmd1 = new RemoveActionFromCommand(formWindow());
+    cmd1->init(this, action_b, action_b_before);
+    formWindow()->commandHistory()->push(cmd1);
+
+    QAction *action_a_before = safeActionAt(left + 1);
+
+    InsertActionIntoCommand *cmd2 = new InsertActionIntoCommand(formWindow());
+    cmd2->init(this, action_b, action_a_before);
+    formWindow()->commandHistory()->push(cmd2);
+
+    RemoveActionFromCommand *cmd3 = new RemoveActionFromCommand(formWindow());
+    cmd3->init(this, action_a, action_b);
+    formWindow()->commandHistory()->push(cmd3);
+
+    InsertActionIntoCommand *cmd4 = new InsertActionIntoCommand(formWindow());
+    cmd4->init(this, action_a, action_b_before);
+    formWindow()->commandHistory()->push(cmd4);
+
+    formWindow()->endCommand();
     return true;
 }
 
