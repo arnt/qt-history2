@@ -512,24 +512,27 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
 {
     if (sr.isEmpty() || rectangle.isEmpty() || pixmap.isNull())
         return;
-
-    QImage mask;
-    QPixmap pm = pixmap;
-
+    QPixmap pm = pixmap.copy(sr.toRect());
     adaptMonochromePixmap(pm);
-    //     const QBitmap* bm = pm.mask();
-    //     if (bm)
-    //         mask = bm->toImage();
 
-    QImage im = pm.toImage();
-    im = im.copy(sr.toRect());
-    //     mask = mask.copy(sr.toRect());
+    QImage image = pm.toImage();
+    drawImage(rectangle, image, QRectF(0, 0, image.width(), image.height()));
+}
+
+void QPdfEngine::drawImage(const QRectF & rectangle, const QImage & image, const QRectF & sr, Qt::ImageConversionFlags)
+{
+    if (sr.isEmpty() || rectangle.isEmpty() || image.isNull())
+        return;
+
+    QImage im = image.copy(sr.toRect());
+    QImage::Format format = im.format();
+    if (format != QImage::Format_RGB32 && format != QImage::Format_ARGB32)
+        im = im.convertToFormat(im.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32);
 
     QMatrix mat = d->curMatrix->lastMatrix();
-
     updateMatrix(QMatrix(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
                          rectangle.x(), rectangle.y()) * mat);
-    QPdfImage* img = new QPdfImage(im, mask);
+    QPdfImage* img = new QPdfImage(im);
     img->name = "/Im" + QByteArray::number(pixmapnumber_++);
     d->curPage->append(img);
     updateMatrix(mat);
@@ -1040,13 +1043,8 @@ int QPdfImage::convert(const QImage& img, const QImage& mask)
 
     ismask_ = (d==1); // is monochrome - deal with it as mask
 
-    if (d == 8) {
-        im = im.convertToFormat(im.hasAlphaChannel()
-                                ? QImage::Format_ARGB32
-                                : QImage::Format_RGB32);
-        d = 32;
-    }
-
+    // ### this needs fixing. Images never have masks, but we can optimise if
+    // the alpha channel doesn't have other values apart 0 or 255.
     if (im.hasAlphaChannel()) {
         delete softmask;
         softmask = new QPdfImage;
@@ -1069,9 +1067,6 @@ int QPdfImage::convert(const QImage& img, const QImage& mask)
     case 1:
         rowlen = (im.width() % 8) ? im.width() / 8 + 1 : im.width() / 8;
         break;
-    case 8:
-        rowlen = im.width();
-        break;
     case 32:
         rowlen = 3 * im.width();
         break;
@@ -1086,7 +1081,6 @@ int QPdfImage::convert(const QImage& img, const QImage& mask)
     int i,j;
     switch(d) {
     case 1:
-    case 8:
         for (i=0; i!=im.height(); ++i)
             memcpy(rawdata_+i*rowlen, im.scanLine(i), rowlen * sizeof(char));
         break;
@@ -1211,7 +1205,7 @@ QByteArray QPdfGradient::getSingleMainDefinition()
       << x0_
       << y0_
       << x1_
-      << y1_ << "\n"
+      << y1_ << "]\n"
       << "/Function " << funcobj_ << " 0 R\n"
         "/Extend [true true]\n"
         ">>\n"
@@ -1515,7 +1509,7 @@ QByteArray QPdfBrush::Pattern::defBegin(int ptype, int w, int h)
       << matrix.m21()
       << matrix.m22()
       << matrix.dx()
-      << matrix.dy() << "\n";
+      << matrix.dy() << "]\n";
     s << "/Resources \n<<\n"; // open resource tree
 
     return str;
@@ -1586,7 +1580,7 @@ QByteArray QPdfBrush::GradientPattern::getDefinition()
       << matrix.m21()
       << matrix.m22()
       << matrix.dx()
-      << matrix.dy() << "\n";
+      << matrix.dy() << "]\n";
 
     s << "/Shading " << shader->mainObject() << " 0 R\n"
         ">>\n"

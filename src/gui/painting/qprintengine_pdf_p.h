@@ -504,6 +504,8 @@ public:
     void drawEllipse (const QRectF & rectangle);
     void drawPath (const QPainterPath & path);
     void drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QRectF & sr);
+    void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
+                   Qt::ImageConversionFlags flags = Qt::AutoColor);
     void drawTiledPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QPointF & point);
 
     void updateState(const QPaintEngineState &state);
