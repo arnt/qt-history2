@@ -600,10 +600,9 @@ void QWSPcMouseHandlerPrivate::openDevices()
             //qDebug("/dev/input/mice fd %d #%d", fd, nsub-1);
         }
 
-        char fn[] = "/dev/ttyS?";
-        for (int ch='0'; ch<='3'; ch++) {
-            fn[9] = ch;
-            fd = open(fn, O_RDWR | O_NDELAY);
+        const char fn[4][11] = { "/dev/ttyS0", "/dev/ttyS1", "/dev/ttyS2", "/dev/ttyS3" };
+        for (int ch = 0; ch < 4; ++ch) {
+            fd = open(fn[ch], O_RDWR | O_NDELAY);
             if (fd >= 0) {
                 //sub[nsub++] = new QWSPcMouseSubHandler_intellimouse(fd);
                 sub[nsub++] = new QWSPcMouseSubHandler_mousesystems(fd);
