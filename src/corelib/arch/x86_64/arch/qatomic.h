@@ -90,6 +90,66 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     return newval;
 }
 
+#else
+
+extern "C" {
+    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
+}
+inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
+{
+    return q_atomic_test_and_set_int(ptr, expected, newval);
+}
+
+inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
+{
+    return q_atomic_test_and_set_int(ptr, expected, newval);
+}
+
+inline int q_atomic_increment(volatile int *ptr)
+{
+    int expected;
+    forever {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, expected + 1))
+            break;
+    }
+    return expected != -1;
+}
+
+inline int q_atomic_decrement(volatile int *ptr)
+{
+    int expected;
+    forever {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, expected - 1))
+            break;
+    }
+    return expected != 1;
+}
+
+inline int q_atomic_set_int(volatile int *ptr, int newval)
+{
+    int expected;
+    forever {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, newval))
+            break;
+    }
+    return expected;
+}
+
+inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
+{
+    void *expected;
+    forever {
+        expected = *reinterpret_cast<void * volatile *>(ptr);
+        if (q_atomic_test_and_set_ptr(ptr, expected, newval))
+            break;
+    }
+    return expected;
+}
+
 #endif
 
 #endif // X86_64_QATOMIC_H
