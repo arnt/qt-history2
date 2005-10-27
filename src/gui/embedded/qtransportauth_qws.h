@@ -24,6 +24,12 @@
 
 QT_MODULE(Gui)
 
+#define KEY_TEMPLATE "XOXOXOauthOXOXOX99"
+#define APP_KEY const char *_key = KEY_TEMPLATE;
+#define QL_APP_KEY const char *_ql_key = KEY_TEMPLATE;
+
+
+
 class QAuthDevice;
 class QWSClient;
 class QIODevice;

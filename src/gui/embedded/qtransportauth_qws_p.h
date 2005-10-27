@@ -62,11 +62,6 @@ private:
     QWSClient *m_client;
 };
 
-
-#define KEY_TEMPLATE "XOXOXOauthOXOXOX99"
-#define APP_KEY const char *_key = KEY_TEMPLATE;
-#define QL_APP_KEY const char *_ql_key = KEY_TEMPLATE;
-
 #define KEY_LEN 16
 #define MAGIC_BYTES 4
 #define MAX_PROG_ID 255
