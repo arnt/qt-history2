@@ -23,6 +23,7 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
+#include <QtGui/QPainter>
 #include <QtGui/QRubberBand>
 #include <QtGui/qevent.h>
 

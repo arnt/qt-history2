@@ -28,6 +28,7 @@
 #include <QtGui/QDrag>
 #include <QtGui/QLayout>
 #include <QtGui/QLineEdit>
+#include <QtGui/QPainter>
 #include <QtGui/qevent.h>
 
 Q_DECLARE_METATYPE(QAction*)
