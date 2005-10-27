@@ -243,7 +243,7 @@
     \quotefromfile tools/plugandpaint/plugindialog.cpp
     \skipto ::populateTreeWidget
     \printuntil /^\}$/
-    
+
     The \c populateTreeWidget() is very similar to \c
     MainWindow::loadPlugins(). It uses QPluginLoader to load the
     plugins and uses \l qobject_cast() to find out which interfaces
@@ -383,7 +383,7 @@
     RGB}, and \gui{Grayscale}.
 
     \printline ::filterImage
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     The \c filterImage() function takes a filter name and a QImage as
     parameters and returns an altered QImage. The first thing we do
@@ -398,10 +398,10 @@
 
     Whereas applications have a \c main() function as their entry
     point, plugins need to contain exactly one occurrence of the \c
-    Q_EXPORT_PLUGIN() macro to specify which class provides the
+    Q_EXPORT_PLUGIN2() macro to specify which class provides the
     plugin:
 
-    \printline Q_EXPORT_PLUGIN(BasicToolsPlugin)
+    \printline Q_EXPORT_PLUGIN2
 
     This line may appear in any \c .cpp file that is part of the
     plugin's source code.

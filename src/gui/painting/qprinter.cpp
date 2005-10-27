@@ -929,7 +929,7 @@ void QPrinter::setFontEmbeddingEnabled(bool enable)
 
   Currently this option is only supported on X11.
 
-  \sa fontEmbeddingEnabled()
+  \sa setFontEmbeddingEnabled()
 */
 bool QPrinter::fontEmbeddingEnabled() const
 {
@@ -1602,7 +1602,7 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
     \value PPK_WindowsPageSize An integer specifying a DM_PAPER entry
     on Windows.
 
-    \value PPK_SupressSystemPrintStatus Suppress the built-in dialog for showing
+    \value PPK_SuppressSystemPrintStatus Suppress the built-in dialog for showing
     printing progress. As of 4.1 this only has effect on Mac OS X where, by default,
     a status dialog is shown.
 

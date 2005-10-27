@@ -46,7 +46,7 @@
     widget class:
 
     \quotefromfile designer/worldtimeclockplugin/worldtimeclock.h
-    \skipto class WorldTimeClock
+    \skipto class QDESIGNER_WIDGET_EXPORT WorldTimeClock
     \printuntil /^\};/
 
     We declare the \c setTimeZone() slot with an associated \c

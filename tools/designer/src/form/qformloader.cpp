@@ -362,7 +362,7 @@ QActionGroup *Loader::createActionGroup(QObject *parent, const QString &name)
     Loader class and reimplement this function to intervene the
     process of constructing an user interface or widget.
 
-    \sa createActionGroup(), createwidget(), load()
+    \sa createActionGroup(), createWidget(), load()
 */
 QAction *Loader::createAction(QObject *parent, const QString &name)
 {

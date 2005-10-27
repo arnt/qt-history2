@@ -55,12 +55,12 @@
     subclass the QDesignerCustomWidgetInterface to expose your plugin
     to \QD.
 
-    Then, when an extension is required, \QD's \l
-    {QExtensionManager}{extension manager} will run through all its
-    registered factories calling QExtensionFactory::createExtension()
-    for each until the first one that is able to create the requested
-    extension for the selected object, is found. This factory will
-    then make an instance of the extension.
+    Then, when an extension is required, \QD's extension manager will
+    run through all its registered factories calling
+    QExtensionFactory::createExtension() for each until the first one
+    that is able to create the requested extension for the selected
+    object, is found. This factory will then make an instance of the
+    extension.
 
     There are four available types of extensions in \QD:
     QDesignerContainerExtension , QDesignerMemberSheetExtension,

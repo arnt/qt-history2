@@ -45,6 +45,7 @@ void hexstring( char *buf, const unsigned char* key, size_t sz );
 
 /*!
   \class QTransportAuth
+  \internal
 
   \brief Authenticate a message transport.
 

@@ -2910,7 +2910,7 @@ QWSInputMethod::~QWSInputMethod()
 }
 
 /*!
-    \fn bool QWSInputMethod::filterKey(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
+    \fn bool QWSInputMethod::filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
 
     This function must be implemented in subclasses to handle key
     input from physical or virtual keyboards. Returning true will

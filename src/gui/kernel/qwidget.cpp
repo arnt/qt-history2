@@ -1591,7 +1591,7 @@ QStyle* QWidget::setStyle(const QString &style)
     This property only makes sense for windows. A modal widget
     prevents widgets in all other windows from getting any input.
 
-    \sa isWindow(), QWidget::modalityType, QDialog
+    \sa isWindow(), windowModality, QDialog
 */
 
 /*!

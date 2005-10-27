@@ -104,8 +104,8 @@
     \value SO_FocusRect \l QStyleOptionFocusRect
     \value SO_Button \l QStyleOptionButton
     \value SO_Tab \l QStyleOptionTab
-    \value SO_TabWidgetFrame \l QStyleOptionTabBarBase
-    \value SO_TabBarBase \l QStyleOptionTabWidgetFrame
+    \value SO_TabWidgetFrame \l QStyleOptionTabWidgetFrame
+    \value SO_TabBarBase \l QStyleOptionTabBarBase
     \value SO_MenuItem \l QStyleOptionMenuItem
     \value SO_Complex \l QStyleOptionComplex
     \value SO_Slider \l QStyleOptionSlider
@@ -462,9 +462,9 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
     \endcode
 
     In the example above: If the \c frameOption's version is 1, \l
-    FrameFeature is set to \l QStyleOption::None for \c
-    frameOptionV2. If \c frameOption's version is 2, the constructor
-    will simply copy the \c frameOption's \l FrameFeature value.
+    FrameFeature is set to \l None for \c frameOptionV2. If \c
+    frameOption's version is 2, the constructor will simply copy the
+    \c frameOption's \l FrameFeature value.
 
     For an example demonstrating how style options can be used, see
     the \l {widgets/styles}{Styles} example.
@@ -1526,7 +1526,7 @@ QStyleOptionProgressBarV2 &QStyleOptionProgressBarV2::operator=(const QStyleOpti
     \variable QStyleOptionProgressBarV2::orientation
     \brief the progress bar's orientation (horizontal or vertical)
 
-    \sa QProgressBar::Orientation
+    \sa QProgressBar::orientation
 */
 
 /*!
@@ -2890,6 +2890,10 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 #endif // QT_NO_TABWIDGET
 
 #ifndef QT_NO_TABBAR
+
+/*!
+    \class QStyleOptionTabBarBase
+*/
 
 QStyleOptionTabBarBase::QStyleOptionTabBarBase()
     : QStyleOption(Version, SO_TabBarBase), shape(QTabBar::RoundedNorth)

@@ -313,7 +313,7 @@ GLuint QGLPbuffer::bindTexture(const QString &fileName)
 }
 
 /*!
-    Removes the texture identified by texture_id from the texture cache.
+    Removes the texture identified by \a texture_id from the texture cache.
 
     Equivalent to calling QGLContext::deleteTexture().
  */
