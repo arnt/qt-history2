@@ -1388,6 +1388,7 @@ void CreateMenuBarCommand::redo()
     formWindow()->ensureUniqueObjectName(m_menuBar);
     core->metaDataBase()->add(m_menuBar);
     formWindow()->emitSelectionChanged();
+    m_menuBar->setFocus();
 }
 
 void CreateMenuBarCommand::undo()

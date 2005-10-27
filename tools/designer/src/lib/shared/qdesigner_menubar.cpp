@@ -59,7 +59,7 @@ QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
     : QMenuBar(parent),
       m_interactive(true)
 {
-    m_currentIndex = -1;
+    m_currentIndex = 0;
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
 
@@ -105,6 +105,8 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
     switch (event->type()) {
         default: break;
 
+        case QEvent::MouseButtonDblClick:
+            return handleMouseDoubleClickEvent(widget, static_cast<QMouseEvent*>(event));
         case QEvent::MouseButtonPress:
             return handleMousePressEvent(widget, static_cast<QMouseEvent*>(event));
         case QEvent::MouseButtonRelease:
@@ -117,6 +119,13 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
             return handleKeyPressEvent(widget, static_cast<QKeyEvent*>(event));
     }
 
+    return true;
+}
+
+bool QDesignerMenuBar::handleMouseDoubleClickEvent(QWidget *widget, QMouseEvent *e)
+{
+    e->accept();
+    enterEditMode();
     return true;
 }
 
@@ -215,7 +224,7 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
 void QDesignerMenuBar::startDrag(const QPoint &pos)
 {
     int index = findAction(pos);
-    if (index >= actions().count() - 1)
+    if (index >= realActionCount())
         return;
 
     QAction *action = actions().at(index);
@@ -314,8 +323,10 @@ bool QDesignerMenuBar::handleContextMenuEvent(QWidget *, QContextMenuEvent *even
 void QDesignerMenuBar::slotRemoveSelectedAction(QAction *action)
 {
     QAction *a = qvariant_cast<QAction*>(action->data());
-    Q_ASSERT(a != 0);
-    removeAction(a);
+    if (qobject_cast<SpecialMenuAction*>(a))
+        return; // nothing to do
+
+    removeAction(a); // ### undo/redo
 }
 
 void QDesignerMenuBar::focusOutEvent(QFocusEvent *event)

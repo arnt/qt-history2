@@ -14,6 +14,7 @@
 #include "qdesigner_menu_p.h"
 #include "qdesigner_menubar_p.h"
 #include "qdesigner_toolbar_p.h"
+#include "qdesigner_command_p.h"
 #include "actionrepository_p.h"
 #include "actionprovider_p.h"
 
@@ -186,11 +187,8 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
     } else { // In edit mode
         switch (e->key()) {
         default:
-            return false;
-
-        case Qt::Key_Control:
             e->ignore();
-            return true;
+            return false;
 
         case Qt::Key_Enter:
         case Qt::Key_Return:
@@ -453,9 +451,15 @@ void QDesignerMenu::moveLeft()
 
 void QDesignerMenu::moveRight()
 {
-    closeMenuChain();
-    if (QDesignerMenuBar *mb = parentMenuBar()) {
-        mb->moveRight();
+    QAction *action = currentAction();
+
+    if (qobject_cast<SpecialMenuAction*>(action) || action->isSeparator()) {
+        closeMenuChain();
+        if (QDesignerMenuBar *mb = parentMenuBar()) {
+            mb->moveRight();
+        }
+    } else {
+        slotShowSubMenuNow();
     }
 }
 
@@ -503,8 +507,6 @@ int QDesignerMenu::realActionCount()
 void QDesignerMenu::updateCurrentAction()
 {
     update();
-
-    showSubMenu(currentAction());
 }
 
 void QDesignerMenu::createRealMenuAction(QAction *action) // ### undo/redo
@@ -608,7 +610,9 @@ void QDesignerMenu::enterEditMode()
     } else {
         QAction *sep = createAction();
         sep->setSeparator(true);
-        insertAction(currentAction(), sep);
+        insertAction(safeActionAt(realActionCount()), sep);
+        m_currentIndex = realActionCount() - 1;
+        update();
     }
 }
 
@@ -669,8 +673,13 @@ QAction *QDesignerMenu::createAction() // ### undo/redo
 
     QAction *action = new QAction(fw);
     action->setObjectName("action");
-    fw->core()->metaDataBase()->add(action);
-    fw->ensureUniqueObjectName(action);
+
+    AddActionCommand *cmd = new AddActionCommand(fw);
+    cmd->init(action);
+    fw->commandHistory()->push(cmd);
+
+    fw->core()->actionEditor()->setFormWindow(fw);
+
     return action;
 }
 
