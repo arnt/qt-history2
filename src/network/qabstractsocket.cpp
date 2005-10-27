@@ -174,7 +174,7 @@
     \value IPv6Protocol IPv6
     \value UnknownNetworkLayerProtocol Other than IPv4 and IPv6
 
-    \sa QSocketLayer::protocol()
+    \sa QHostAddress::protocol()
 */
 
 /*! \enum QAbstractSocket::SocketType

@@ -498,8 +498,9 @@ QWSClient *QAuthDevice::client() const
     return m_client;
 }
 
-/*!
-  \function authViolation(QTransportAuth::Data&)
+/*
+  \fn void QAuthDevice::authViolation(QTransportAuth::Data &)
+
   This signal is emitted if an authorization failure is generated, as
   described in checkAuth();
 
@@ -507,8 +508,9 @@ QWSClient *QAuthDevice::client() const
 */
 
 
-/*!
-  \function policyCheck(QTransportAuth::Data& transport, const QString &request )
+/*
+  \fn void QAuthDevice::policyCheck(QTransportAuth::Data &transport, const QString &request )
+
   This signal is emitted when a transport successfully delivers a request
   and gives the opportunity to either deny or accept the request.
 
@@ -910,7 +912,7 @@ void hexstring( char *buf, const unsigned char* key, size_t key_len )
 }
 #endif
 
-/*!
+/*
   HMAC MD5 as listed in RFC 2104
 
   This code is taken from:

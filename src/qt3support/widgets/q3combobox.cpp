@@ -178,7 +178,8 @@
 */
 
 /*!
-    \overload void Q3ComboBox::activated( const QString &string )
+    \overload
+    \fn void Q3ComboBox::activated( const QString &string )
 
     This signal is emitted when a new item has been activated
     (selected). \a string is the selected string.
@@ -200,7 +201,8 @@
 */
 
 /*!
-    \overload void Q3ComboBox::highlighted( const QString &string )
+    \overload
+    \fn void Q3ComboBox::highlighted( const QString &string )
 
     This signal is emitted when a new item has been set to be the
     current item. \a string is the item's text.

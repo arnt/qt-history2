@@ -2937,7 +2937,7 @@ QMenubarUpdatedEvent::QMenubarUpdatedEvent(QMenuBar * const menuBar)
 :QEvent(QEvent::MenubarUpdated), m_menuBar(menuBar) {}
 
 /*!
-    \fn QMenuBar *menuBar()
+    \fn QMenuBar *QMenubarUpdatedEvent::menuBar()
     \internal
 */
 

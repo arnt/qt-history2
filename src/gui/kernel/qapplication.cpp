@@ -3729,7 +3729,7 @@ bool QApplication::keypadNavigationEnabled()
 #endif
 
 /*!
-    \macro QApplication *qApp
+    \macro qApp
     \relates QApplication
 
     A global pointer referring to the unique application object. It is

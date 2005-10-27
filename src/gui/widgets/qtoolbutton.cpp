@@ -1005,7 +1005,7 @@ QToolButton::QToolButton(QToolButtonPrivate &dd, QWidget *parent)
 */
 
 /*!
-    \fn void QToolButton::setTextPosition(TextPosition pos)
+    \fn void QToolButton::setTextPosition(QToolButton::TextPosition pos)
 
     Use setToolButtonStyle() instead.
 */

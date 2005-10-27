@@ -136,7 +136,7 @@
 */
 
 /*!
-    \fn void QButtonGroup::setId(QAbstractButton *button, int id) const;
+    \fn void QButtonGroup::setId(QAbstractButton *button, int id)
     \since 4.1
 
     Sets the \a id for the specified \a button.

@@ -926,7 +926,7 @@ void QComboBox::setAutoCompletion(bool enable)
 }
 
 /*!
-    \property QComboBod::autoCompletionCaseSensitivity
+    \property QComboBox::autoCompletionCaseSensitivity
     \brief the case-sensitive property used in auto-completion
 
     \sa autoCompletion
