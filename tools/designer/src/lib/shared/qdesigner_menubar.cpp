@@ -135,6 +135,8 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
         switch (e->key()) {
 
         case Qt::Key_Delete:
+            if (m_currentIndex == -1 || m_currentIndex >= realActionCount())
+                break;
             hideMenu();
             deleteMenu();
             break;

@@ -97,7 +97,7 @@ bool QDesignerMenu::handleEvent(QWidget *widget, QEvent *event)
 void QDesignerMenu::startDrag(const QPoint &pos)
 {
     int index = findAction(pos);
-    if (index >= actions().count() - 1)
+    if (index >= realActionCount())
         return;
 
     QAction *action = actions().at(index);
@@ -126,6 +126,8 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
         switch (e->key()) {
 
         case Qt::Key_Delete:
+            if (m_currentIndex == -1 || m_currentIndex >= realActionCount())
+                break;
             hideSubMenu();
             deleteAction();
             break;
