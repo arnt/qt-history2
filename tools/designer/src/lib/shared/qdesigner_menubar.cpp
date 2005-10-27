@@ -246,9 +246,13 @@ void QDesignerMenuBar::startDrag(const QPoint &pos)
     data->items.append(action);
     drag->setMimeData(data);
 
+    int old_index = m_currentIndex;
+    m_currentIndex = -1;
+
     if (drag->start() == Qt::IgnoreAction) {
         QAction *previous = actions().at(index);
         insertAction(previous, action);
+        m_currentIndex = old_index;
         adjustSize();
     }
 }
@@ -511,6 +515,7 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
             insertAction(actions().at(index), action);
+            m_currentIndex = index;
             adjustIndicator(QPoint(-1, -1));
         }
     }
