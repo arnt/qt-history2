@@ -146,13 +146,12 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     p.end();
 
     q->save();
-    q->setMatrix(QMatrix(1, 0, 0, 1, -redirection_offset.x(), -redirection_offset.y()));
+    q->resetMatrix();
     updateState(state);
-
     engine->drawImage(absPathRect,
-                      image,
-                      QRectF(0, 0, absPathRect.width(), absPathRect.height()),
-                      Qt::OrderedDither | Qt::OrderedAlphaDither);
+                 image,
+                 QRectF(0, 0, absPathRect.width(), absPathRect.height()),
+                 Qt::OrderedDither | Qt::OrderedAlphaDither);
 
     q->restore();
 }
