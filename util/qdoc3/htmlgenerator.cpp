@@ -348,7 +348,9 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	if (link.isEmpty()) {
             if (showBrokenLinks)
                 out() << "<i>";
-            relative->doc().location().warning(tr("Cannot link to '%1'").arg(atom->string()));
+            relative->doc().location().warning(
+                tr("Cannot link to '%1' in %2").arg(atom->string())
+                .arg(marker->plainFullName(relative)));
 	} else {
 	    out() << "<a href=\"" << link << "\">";
 	}
