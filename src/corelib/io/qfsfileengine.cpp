@@ -271,7 +271,16 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags, FILE *fh)
     QT_STATBUF st;
     if (QT_FSTAT(QT_FILENO(fh), &st) != 0)
 	return false;
+#ifdef Q_OS_WIN32
+    HANDLE hnd = (HANDLE)_get_osfhandle(d->fd);
+    if (hnd == INVALID_HANDLE_VALUE)
+        return false;
+
+    DWORD ftype = ::GetFileType(hnd);
+    d->sequential = ftype == FILE_TYPE_CHAR || ftype == FILE_TYPE_PIPE;
+#else
     d->sequential = S_ISCHR(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode);
+#endif
     d->closeFileHandle = false;
     return true;
 }
