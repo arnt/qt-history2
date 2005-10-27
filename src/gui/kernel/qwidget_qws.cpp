@@ -668,11 +668,11 @@ void QWSBackingStore::create(QSize s)
         qFatal("Error allocating shared memory of size %d", datasize);
     }
     shmaddr = shmat(shmid,0,0);
+    shmctl(shmid, IPC_RMID, 0);
     if (shmaddr == (void*)-1) {
         perror("QWSBackingStore::create attaching to shared memory");
         qFatal("Error attaching to shared memory");
     }
-    shmctl(shmid, IPC_RMID, 0);
     QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
                QImage::Format_ARGB32_Premultiplied);
     *pix = QPixmap::fromImage(img);
@@ -697,6 +697,7 @@ void QWSBackingStore::attach(int id, QSize s)
         return;
     }
     shmaddr = shmat(id,0,0);
+    shmctl(shmid, IPC_RMID, 0);
     if (shmaddr == (void*)-1) {
         perror("QWSBackingStore::attach attaching to shared memory");
         qWarning("Error attaching to shared memory 0x%x of size %d",
@@ -706,9 +707,6 @@ void QWSBackingStore::attach(int id, QSize s)
     }
     shmid = id;
     pix = new QPixmap;
-    // IPC_RMID only marks for deletion, so we know that the segment will be removed on exit
-    // we do it in attach instead of create in order to allow on-demand (single use) backing store
-    shmctl(shmid, IPC_RMID, 0);
 
     int extradatasize = 0;
     QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
