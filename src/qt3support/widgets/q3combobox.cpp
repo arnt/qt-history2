@@ -226,13 +226,6 @@
     non-editable comboboxes it has no effect. It is false by default.
 */
 
-/*!
-    \property Q3ComboBox::autoMask
-    \brief whether the combobox is automatically masked
-
-    \sa QWidget::setAutoMask()
-*/
-
 /*! \property Q3ComboBox::autoResize
     \brief whether auto resize is enabled
     \obsolete

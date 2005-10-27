@@ -42,7 +42,6 @@ class Q_COMPAT_EXPORT Q3ComboBox : public QWidget
     Q_PROPERTY( Policy insertionPolicy READ insertionPolicy WRITE setInsertionPolicy )
     Q_PROPERTY( bool autoCompletion READ autoCompletion WRITE setAutoCompletion )
     Q_PROPERTY( bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled )
-    Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
     Q3ComboBox( QWidget* parent=0, const char* name=0 );
