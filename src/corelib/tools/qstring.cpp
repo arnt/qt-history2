@@ -739,7 +739,8 @@ QString::QString(QChar ch)
 /*! \fn QString::QString(const QByteArray &ba)
 
     Constructs a string initialized with the byte array \a ba. \a ba
-    is converted to Unicode using fromAscii().
+    is converted to Unicode using fromAscii(). Stops copying at the
+    first 0 character, otherwise copies the entire byte array.
 
     You can disable this constructor by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
