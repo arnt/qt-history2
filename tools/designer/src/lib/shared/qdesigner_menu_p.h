@@ -130,6 +130,7 @@ private:
     QTimer *m_deactivateWindowTimer;
     bool m_interactive;
     QLineEdit *m_editor;
+    bool m_dragging;
 };
 
 #endif // QDESIGNER_MENU_H

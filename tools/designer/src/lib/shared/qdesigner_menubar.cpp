@@ -14,7 +14,6 @@
 #include "qdesigner_menubar_p.h"
 #include "qdesigner_menu_p.h"
 #include "qdesigner_toolbar_p.h"
-#include "qdesigner_command_p.h"
 #include "actionrepository_p.h"
 #include "actionprovider_p.h"
 
@@ -86,10 +85,8 @@ void QDesignerMenuBar::paintEvent(QPaintEvent *event)
 {
     QMenuBar::paintEvent(event);
 
-    if (!hasFocus())
-        return;
-
-    if (QAction *a = currentAction()) {
+    QAction *a = currentAction();
+    if (a) {
         QPainter p(this);
         QRect g = actionGeometry(a);
         QDesignerMenu::drawSelection(&p, g.adjusted(1, 1, -3, -3));
@@ -100,9 +97,6 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
 {
      if (!formWindow())
          return false;
-
-    if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut)
-        update();
 
     switch (event->type()) {
         default: break;
@@ -465,7 +459,8 @@ void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
     Q_ASSERT(action != 0);
 
     QDesignerMenu *m = qobject_cast<QDesignerMenu*>(action->menu());
-    if (m && m->parentMenu()) {
+    if (!m || m->parentMenu()) {
+        m_currentIndex = index;
         showMenu(index);
     }
 
@@ -480,9 +475,17 @@ void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
         Q_ASSERT(!d->items.isEmpty());
 
         QAction *action = d->items.first();
-        if (action && action->menu() && !actions().contains(action)) {
-            event->acceptProposedAction();
+        if (!action)
+            return;
+
+        event->acceptProposedAction();
+
+        if (action->menu() && !actions().contains(action)) {
             adjustIndicator(event->pos());
+        } else {
+            int index = findAction(event->pos());
+            m_currentIndex = index;
+            showMenu(m_currentIndex);
         }
     }
 }
@@ -493,9 +496,15 @@ void QDesignerMenuBar::dragMoveEvent(QDragMoveEvent *event)
         Q_ASSERT(!d->items.isEmpty());
 
         QAction *action = d->items.first();
-        if (action && !actions().contains(action)) {
+        Q_ASSERT(action != 0);
+
+        if (action->menu() && !actions().contains(action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
+        } else {
+            int index = findAction(event->pos());
+            m_currentIndex = index;
+            showMenu(m_currentIndex);
         }
     }
 }
@@ -600,7 +609,8 @@ void QDesignerMenuBar::hideMenu(int index)
 {
     if (index < 0)
         index = m_currentIndex;
-    else if (index < realActionCount())
+
+    if (index < realActionCount())
         m_currentIndex = index;
 
     QAction *action = currentAction();
@@ -627,7 +637,8 @@ void QDesignerMenuBar::showMenu(int index)
 {
     if (index < 0)
         index = m_currentIndex;
-    else if (index < realActionCount())
+
+    if (index < realActionCount())
         m_currentIndex = index;
 
     QAction *action = currentAction();
@@ -640,6 +651,7 @@ void QDesignerMenuBar::showMenu(int index)
         menu->adjustSize();
         menu->move(mapToGlobal(g.bottomLeft()));
         menu->setFocus(Qt::MouseFocusReason);
+        menu->raise();
         menu->show();
     }
 }
@@ -671,30 +683,12 @@ bool QDesignerMenuBar::swap(int a, int b) // ### undo/redo
     if (right < 0)
         return false; // nothing to do
 
+    removeAction(action_b);
+    insertAction(action_a, action_b);
 
-    formWindow()->beginCommand(QLatin1String("Move action"));
+    removeAction(action_a);
+    insertAction(actions().at(right), action_a);
 
-    QAction *action_b_before = safeActionAt(right + 1);
-
-    RemoveActionFromCommand *cmd1 = new RemoveActionFromCommand(formWindow());
-    cmd1->init(this, action_b, action_b_before);
-    formWindow()->commandHistory()->push(cmd1);
-
-    QAction *action_a_before = safeActionAt(left + 1);
-
-    InsertActionIntoCommand *cmd2 = new InsertActionIntoCommand(formWindow());
-    cmd2->init(this, action_b, action_a_before);
-    formWindow()->commandHistory()->push(cmd2);
-
-    RemoveActionFromCommand *cmd3 = new RemoveActionFromCommand(formWindow());
-    cmd3->init(this, action_a, action_b);
-    formWindow()->commandHistory()->push(cmd3);
-
-    InsertActionIntoCommand *cmd4 = new InsertActionIntoCommand(formWindow());
-    cmd4->init(this, action_a, action_b_before);
-    formWindow()->commandHistory()->push(cmd4);
-
-    formWindow()->endCommand();
     return true;
 }
 

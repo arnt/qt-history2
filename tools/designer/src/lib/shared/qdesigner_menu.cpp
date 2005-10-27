@@ -39,6 +39,7 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
     : QMenu(parent)
 {
     m_interactive = true;
+    m_dragging = false;
     m_currentIndex = 0;
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
@@ -296,7 +297,7 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
 {
     QMenu::paintEvent(event);
 
-    if (!hasFocus())
+    if (!hasFocus() || m_dragging)
         return;
 
     if (QAction *a = currentAction()) {
@@ -383,15 +384,11 @@ int QDesignerMenu::findAction(const QPoint &pos) const
         }
     }
 
-    return actions().size() - 1; // the sentinel
+    return actions().size() - 2; // the fake actions
 }
 
 void QDesignerMenu::adjustIndicator(const QPoint &pos)
 {
-    m_currentIndex = findAction(pos);
-    update();
-    slotShowSubMenuNow();
-
     if (QDesignerActionProviderExtension *a = actionProvider()) {
         a->adjustIndicator(pos);
     }
@@ -399,6 +396,8 @@ void QDesignerMenu::adjustIndicator(const QPoint &pos)
 
 void QDesignerMenu::dragEnterEvent(QDragEnterEvent *event)
 {
+    m_dragging = true;
+
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
         Q_ASSERT(!d->items.isEmpty());
 
@@ -406,6 +405,7 @@ void QDesignerMenu::dragEnterEvent(QDragEnterEvent *event)
         if (action && !actions().contains(action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
+            update();
         }
     }
 }
@@ -425,6 +425,7 @@ void QDesignerMenu::dragMoveEvent(QDragMoveEvent *event)
 
 void QDesignerMenu::dragLeaveEvent(QDragLeaveEvent *)
 {
+    m_dragging = false;
     adjustIndicator(QPoint(-1, -1));
 }
 
@@ -811,6 +812,10 @@ void QDesignerMenu::deactivateMenu()
 void QDesignerMenu::slotDeactivateNow()
 {
     m_deactivateWindowTimer->stop();
+
+    if (m_dragging) {
+        return;
+    }
 
     QDesignerMenu *root = findRootMenu();
 
