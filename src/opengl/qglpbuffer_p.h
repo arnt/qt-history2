@@ -25,6 +25,7 @@
 // We mean it.
 //
 #include "QtOpenGL/qglpbuffer.h"
+#include <private/qgl_p.h>
 
 #ifdef Q_WS_X11
 #include <GL/glx.h>
@@ -39,6 +40,7 @@ class QGLPbufferPrivate {
 public:
     QGLPbufferPrivate() : invalid(true), qctx(0), pbuf(0), ctx(0)
     {
+        QGLExtensions::init();
 #ifdef Q_WS_WIN
         dc = 0;
 #elif defined(Q_WS_MACX)
