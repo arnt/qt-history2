@@ -1,4 +1,4 @@
 TEMPLATE = subdirs
-SUBDIRS  = src updater examples
+SUBDIRS  = src updater
 CONFIG += ordered
 
