@@ -57,7 +57,7 @@ public:
     QGlyph() :
         advance(0),
         data(0) {}
-    ~QGlyph() {}
+    ~QGlyph() { delete[] data; }
 
     quint8 pitch;
     quint8 width;
