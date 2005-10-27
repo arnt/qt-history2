@@ -716,10 +716,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     Q_D(QWidget);
-#ifdef QT_USE_BACKINGSTORE
     if (QWidget *p = parentWidget())
         p->d_func()->invalidateBuffer(geometry());
-#endif
     d->deactivateWidgetCleanup();
     if (testAttribute(Qt::WA_WState_Created)) {
         setAttribute(Qt::WA_WState_Created, false);
@@ -779,11 +777,8 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
     Q_Q(QWidget);
-#ifdef QT_USE_BACKINGSTORE
     if (q->isVisible() && q->parentWidget() && parent != q->parentWidget())
         q->parentWidget()->d_func()->invalidateBuffer(q->geometry());
-#endif
-
     extern void qPRCreate(const QWidget *, Window);
     QCursor oldcurs;
     bool setcurs = q->testAttribute(Qt::WA_SetCursor);
@@ -852,9 +847,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
                 w->d_func()->parent = 0;
                 w->setParent(q);
             } else if (!w->isWindow()) {
-#ifdef QT_USE_BACKINGSTORE
                 w->d_func()->invalidateBuffer(w->rect());
-#endif
                 XReparentWindow(X11->display, w->winId(), q->winId(),
                                 w->geometry().x(), w->geometry().y());
             } else if (isTransient(w)) {
@@ -914,10 +907,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         // ensure that if any of our children need dnd then we have it set
         fixupDnd();
     }
-
-#ifdef QT_USE_BACKINGSTORE
     invalidateBuffer(q->rect());
-#endif
 }
 
 /*!
@@ -1372,8 +1362,6 @@ void QWidget::activateWindow()
     }
 }
 
-
-#ifdef QT_USE_BACKINGSTORE
 void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 {
     Q_Q(QWidget);
@@ -1387,262 +1375,6 @@ void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
 {
     dirtyOnScreen -= rgn;
 }
-#else
-void QWidget::update()
-{
-    Q_D(QWidget);
-    if (isVisible() && updatesEnabled()) {
-//         d->removePendingPaintEvents(); // ### this is far too slow to go in
-        d->invalidated_region = d->clipRect();
-        QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
-    }
-}
-
-void QWidget::update(const QRegion &rgn)
-{
-    Q_D(QWidget);
-    if (isVisible() && updatesEnabled()) {
-        d->invalidated_region |= (rgn & d->clipRect());
-        QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
-    }
-}
-
-void QWidget::update(const QRect &r)
-{
-    Q_D(QWidget);
-    int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    if (w && h && isVisible() && updatesEnabled()) {
-        if (w < 0)
-            w = data->crect.width()  - x;
-        if (h < 0)
-            h = data->crect.height() - y;
-        if (w != 0 && h != 0) {
-            d->invalidated_region |= (d->clipRect() & QRect(x, y, w, h));
-            QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
-        }
-    }
-}
-
-struct QX11DoubleBuffer
-{
-    enum {
-        MaxWidth  = SHRT_MAX,
-        MaxHeight = SHRT_MAX
-    };
-
-    Qt::HANDLE hd, picture;
-    int screen, depth;
-    int width, height;
-};
-
-static QX11DoubleBuffer *qt_x11_global_double_buffer = 0;
-static bool qt_x11_global_double_buffer_active = false;
-static bool qt_x11_enable_global_db = true;
-
-/*!
-    This function can be used to enable/disable the global double
-    buffering under X11.
-*/
-
-Q_GUI_EXPORT void qt_x11_set_global_double_buffer(bool enable)
-{
-    qt_x11_enable_global_db = enable;
-}
-
-static void qt_discard_double_buffer(QX11DoubleBuffer **db)
-{
-    if (!*db) return;
-
-    XFreePixmap(X11->display, (*db)->hd);
-#ifndef QT_NO_XRENDER
-    if (X11->use_xrender)
-        XRenderFreePicture(X11->display, (*db)->picture);
-#endif
-    delete *db;
-    *db = 0;
-}
-
-void qt_discard_double_buffer()
-{
-    qt_discard_double_buffer(&qt_x11_global_double_buffer);
-}
-
-static void qt_x11_release_double_buffer(QX11DoubleBuffer **db)
-{
-    if (*db != qt_x11_global_double_buffer) {
-        // qDebug("--> discarding temporary double buffer");
-        qt_discard_double_buffer(db);
-    } else {
-        // qDebug("--> global double buffer unused");
-	qt_x11_global_double_buffer_active = false;
-    }
-}
-
-static QX11DoubleBuffer *qt_x11_create_double_buffer(int screen, int depth, int width, int height)
-{
-    QX11DoubleBuffer *db = new QX11DoubleBuffer;
-    db->hd = XCreatePixmap(X11->display, RootWindow(X11->display, screen), width, height, depth);
-    db->picture = 0;
-#ifndef QT_NO_XRENDER
-    if (X11->use_xrender)
-        db->picture = XRenderCreatePicture(X11->display, db->hd,
-                                           XRenderFindVisualFormat(X11->display, (Visual *) QX11Info::appVisual()), 0, 0);
-#endif
-    db->screen = screen;
-    db->depth = depth;
-    db->width = width;
-    db->height = height;
-    return db;
-}
-
-static
-void qt_x11_get_double_buffer(QX11DoubleBuffer **db, int screen, int depth, int width, int height)
-{
-    if (!qt_reuse_double_buffer || qt_x11_global_double_buffer_active) {
-        // qDebug("<-- creating temporary double buffer");
-        *db = qt_x11_create_double_buffer(screen, depth, width, height);
-	return;
-    }
-
-    // qDebug("<-- using global double buffer");
-    qt_x11_global_double_buffer_active = true;
-
-    // the db should consist of 128x128 chunks
-    width  = qMin(((width / 128) + 1) * 128, (int)QX11DoubleBuffer::MaxWidth);
-    height = qMin(((height / 128) + 1) * 128, (int)QX11DoubleBuffer::MaxHeight);
-
-    if (qt_x11_global_double_buffer) {
-        if (qt_x11_global_double_buffer->screen == screen
-            && qt_x11_global_double_buffer->depth == depth
-            && qt_x11_global_double_buffer->width >= width
-            && qt_x11_global_double_buffer->height >= height) {
-            *db = qt_x11_global_double_buffer;
-            return;
-        }
-
- 	width  = qMax(qt_x11_global_double_buffer->width, width);
- 	height = qMax(qt_x11_global_double_buffer->height, height);
-
-        qt_discard_double_buffer();
-    }
-
-    qt_x11_global_double_buffer = *db = qt_x11_create_double_buffer(screen, depth, width, height);
-}
-
-void QWidget::repaint(const QRegion& rgn)
-{
-    Q_D(QWidget);
-    if (!isVisible() || !updatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
-        return;
-
-    if (testAttribute(Qt::WA_WState_InPaintEvent))
-        qWarning("QWidget::repaint: recursive repaint detected.");
-
-
-    if (!d->invalidated_region.isEmpty())
-        d->invalidated_region -= rgn;
-
-    setAttribute(Qt::WA_WState_InPaintEvent);
-
-    QRect br = rgn.boundingRect();
-    QVector<QRect> rects = rgn.rects();
-    QRect brWS = d->mapToWS(br);
-
-    bool double_buffer = (!testAttribute(Qt::WA_PaintOnScreen)
-                          && !testAttribute(Qt::WA_NoSystemBackground)
-                          && br.width()  <= QX11DoubleBuffer::MaxWidth
-                          && br.height() <= QX11DoubleBuffer::MaxHeight
-                          && !QPainter::redirected(this)
-                          && qt_x11_enable_global_db);
-
-    bool do_system_clip = !double_buffer && (rects.size() > 1 || (br != QRect(0,0,data->crect.width(),data->crect.height())));
-
-    Qt::HANDLE old_hd = d->hd;
-    Qt::HANDLE old_picture = d->picture;
-
-    QPoint redirectionOffset;
-    QX11DoubleBuffer *qDoubleBuffer = 0;
-    if (double_buffer) {
-        qt_x11_get_double_buffer(&qDoubleBuffer, d->xinfo.screen(), d->xinfo.depth(),
-                                 br.width(), br.height());
-
-	d->hd = qDoubleBuffer->hd;
-	d->picture = qDoubleBuffer->picture;
-        redirectionOffset = br.topLeft();
-    } else {
-        redirectionOffset = data->wrect.topLeft();
-    }
-
-    if (!redirectionOffset.isNull())
-        QPainter::setRedirected(this, this, redirectionOffset);
-
-    QPaintEngine *engine = paintEngine();
-
-    if (engine && do_system_clip) {
-        if (redirectionOffset.isNull()) {
-            engine->setSystemClip(rgn);
-        } else {
-            QRegion redirectedRegion(rgn);
-            redirectedRegion.translate(-redirectionOffset);
-            engine->setSystemClip(redirectedRegion);
-        }
-    }
-
-    QPaintEvent e(rgn);
-    if (engine
-        && !testAttribute(Qt::WA_OpaquePaintEvent)
-        && !testAttribute(Qt::WA_NoSystemBackground)) {
-        QPainter p(this);
-        d->paintBackground(&p, rgn.boundingRect());
-#ifdef QT3_SUPPORT
-        e.setErased(true);
-#endif
-    }
-    QApplication::sendSpontaneousEvent(this, &e);
-
-    if (engine && do_system_clip)
-        engine->setSystemClip(QRegion());
-
-    if (!redirectionOffset.isNull())
-        QPainter::restoreRedirected(this);
-
-    if (double_buffer) {
-        GC gc = XCreateGC(d->xinfo.display(), d->hd, 0, 0);
-        if (testAttribute(Qt::WA_PaintUnclipped))
-	    XSetSubwindowMode(X11->display, gc, IncludeInferiors);
-        for (int i = 0; i < rects.size(); ++i) {
-            QRect rr = d->mapToWS(rects.at(i));
-            XCopyArea(X11->display, d->hd, winId(), gc,
-                      rr.x() - brWS.x(), rr.y() - brWS.y(),
-                      rr.width(), rr.height(),
-                      rr.x(), rr.y());
-        }
-        XFreeGC(d->xinfo.display(), gc);
-
-        d->hd = old_hd;
-        d->picture = old_picture;
-
-	qt_x11_release_double_buffer(&qDoubleBuffer);
-
-        if (!QApplicationPrivate::active_window) {
-            extern int qt_double_buffer_timer;
-            if (qt_double_buffer_timer)
-                qApp->killTimer(qt_double_buffer_timer);
-            qt_double_buffer_timer = qApp->startTimer(500);
-        }
-    }
-
-    // Clean out the temporary engine if used...
-    if (d->extraPaintEngine) {
-        delete d->extraPaintEngine;
-        d->extraPaintEngine = 0;
-    }
-
-    setAttribute(Qt::WA_WState_InPaintEvent, false);
-    if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())
-        qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
-}
-#endif
 
 void QWidget::setWindowState(Qt::WindowStates newstate)
 {
@@ -1934,10 +1666,7 @@ void QWidgetPrivate::show_sys()
         }
     }
 
-#ifdef QT_USE_BACKINGSTORE
     invalidateBuffer(q->rect());
-#endif
-
 
     if (q->testAttribute(Qt::WA_OutsideWSRange))
         return;
@@ -2022,9 +1751,7 @@ void QWidgetPrivate::hide_sys()
 
         XFlush(X11->display);
     } else {
-#ifdef QT_USE_BACKINGSTORE
         invalidateBuffer(q->rect());
-#endif
         q->setAttribute(Qt::WA_Mapped, false);
         if (q->winId()) // in nsplugin, may be 0
             XUnmapWindow(X11->display, q->winId());
@@ -2035,20 +1762,16 @@ void QWidgetPrivate::raise_sys()
 {
     Q_Q(QWidget);
     XRaiseWindow(X11->display, q->winId());
-#ifdef QT_USE_BACKINGSTORE
     if(!q->isWindow())
         invalidateBuffer(q->rect());
-#endif
 }
 
 void QWidgetPrivate::lower_sys()
 {
     Q_Q(QWidget);
     XLowerWindow(X11->display, q->winId());
-#ifdef QT_USE_BACKINGSTORE
     if(!q->isWindow())
         invalidateBuffer(q->rect());
-#endif
 }
 
 void QWidgetPrivate::stackUnder_sys(QWidget* w)
@@ -2058,10 +1781,8 @@ void QWidgetPrivate::stackUnder_sys(QWidget* w)
     stack[0] = w->winId();;
     stack[1] = q->winId();
     XRestackWindows(X11->display, stack, 2);
-#ifdef QT_USE_BACKINGSTORE
     if(!q->isWindow())
         invalidateBuffer(q->rect());
-#endif
 }
 
 
@@ -2306,13 +2027,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         } else if (isResize)
             XResizeWindow(dpy, data.winid, w, h);
     } else {
-#ifdef QT_USE_BACKINGSTORE
         if(!isResize && q->isVisible()) {
             moveRect(QRect(oldPos, oldSize), x - oldPos.x(), y - oldPos.y());
         }
-#endif
         setWSGeometry();
-#ifdef QT_USE_BACKINGSTORE
         if (isResize) {
             invalidateBuffer(q->rect()); //after the resize
             QRegion oldRegion(QRect(oldPos, oldSize));
@@ -2320,7 +2038,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 oldRegion &= q->mask().translated(oldPos);
             q->parentWidget()->d_func()->invalidateBuffer(oldRegion);
         }
-#endif
     }
 
     if (q->isVisible()) {
@@ -2341,10 +2058,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
             QResizeEvent e(q->size(), oldSize);
             QApplication::sendEvent(q, &e);
-#ifndef QT_USE_BACKINGSTORE
-            if (!q->testAttribute(Qt::WA_StaticContents))
-                q->update();
-#endif
         }
     } else {
         if (isMove && q->pos() != oldPos)
@@ -2378,7 +2091,6 @@ void QWidgetPrivate::setConstraints_sys()
 
 void QWidget::scroll(int dx, int dy)
 {
-#ifdef QT_USE_BACKINGSTORE
     Q_D(QWidget);
     if (!updatesEnabled() && children().size() == 0)
         return;
@@ -2390,9 +2102,6 @@ void QWidget::scroll(int dx, int dy)
     } else {
         scroll(dx, dy, QRect());
     }
-#else
-    scroll(dx, dy, QRect());
-#endif
 }
 
 /*!
@@ -2413,25 +2122,18 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         return;
     if (dx == 0 && dy == 0)
         return;
-#ifdef QT_USE_BACKINGSTORE
-
     if (!QWidgetBackingStore::paintOnScreen(this)) {
         d->scrollRect(r, dx, dy);
         d->dirtyWidget_sys(r);
         return;
     }
-#endif
     bool valid_rect = r.isValid();
     bool just_update = qAbs(dx) > width() || qAbs(dy) > height();
     QRect sr = valid_rect ? r : d->clipRect();
     if (just_update) {
         update();
     } else if (!valid_rect){
-#ifdef QT_USE_BACKINGSTORE
         d->dirtyOnScreen.translate(dx,dy);
-#else
-        d->invalidated_region.translate(dx, dy);
-#endif
     }
 
     int x1, y1, x2, y2, w = sr.width(), h = sr.height();
@@ -2565,9 +2267,8 @@ void QWidgetPrivate::deleteSysExtra()
 void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->iconMask = 0;
-#ifdef QT_USE_BACKINGSTORE
+//####ifdef QT_USE_BACKINGSTORE
     extra->topextra->backingStore = new QWidgetBackingStore(q_func());
-#endif
     extra->topextra->validWMState = 0;
     extra->topextra->waitingForMapNotify = 0;
 }
@@ -2578,10 +2279,9 @@ void QWidgetPrivate::deleteTLSysExtra()
     // QWidget::destroy() destroyInputContext();
     delete extra->topextra->iconMask;
     extra->topextra->iconMask = 0;
-#ifdef QT_USE_BACKINGSTORE
+//#######ifdef QT_USE_BACKINGSTORE
     if (extra->topextra->backingStore)
         delete extra->topextra->backingStore;
-#endif
 }
 
 /*

@@ -245,10 +245,8 @@ QRgb qt_colorref2qrgb(COLORREF col)
   Internal variables and functions
  *****************************************************************************/
 
-#ifdef QT_USE_BACKINGSTORE
 extern void qt_syncBackingStore(QRegion rgn, QWidget *widget);
 extern void qt_syncBackingStore(QRegion rgn, QWidget *widget, bool);
-#endif
 extern Q_CORE_EXPORT char      appName[];
 extern Q_CORE_EXPORT char      appFileName[];
 extern Q_CORE_EXPORT HINSTANCE appInst;                        // handle to app instance
@@ -1686,13 +1684,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 
         case WM_ERASEBKGND:                        // erase window background
-#ifndef QT_USE_BACKINGSTORE
-            if (!widget->testAttribute(Qt::WA_PendingUpdate)
-                && !widget->testAttribute(Qt::WA_NoSystemBackground)
-                && widget->windowType() != Qt::Popup
-                && widget->windowType() != Qt::ToolTip)
-                widget->eraseWindowBackground((HDC)wParam);
-#endif
             RETURN(true);
             break;
 
@@ -3383,13 +3374,7 @@ bool QETWidget::translatePaintEvent(const MSG &msg)
 
     // Mapping region from system to qt (32 bit) coordinate system.
     rgn.translate(data->wrect.topLeft());
-#ifdef QT_USE_BACKINGSTORE
     qt_syncBackingStore(rect(), this, (msg.message == WM_QT_REPAINT));
-#else
-    Q_UNUSED(msg);
-    repaint(rgn);
-#endif
-
     d_func()->hd = 0;
     EndPaint(winId(), &ps);
     return true;
@@ -3448,17 +3433,12 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
         if (isVisible()) {
             QResizeEvent e(newSize, oldSize);
             QApplication::sendSpontaneousEvent(this, &e);
-#ifndef QT_USE_BACKINGSTORE
-             if (!testAttribute(Qt::WA_StaticContents))
-                 testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
-#else
             if (!testAttribute(Qt::WA_StaticContents)) {
                 if(QWidgetBackingStore::paintOnScreen(this))
                     repaint();
                 else
                     qt_syncBackingStore(d_func()->clipRect(), this);
             }
-#endif
         } else {
             QResizeEvent *e = new QResizeEvent(newSize, oldSize);
             QApplication::postEvent(this, e);

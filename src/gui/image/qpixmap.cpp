@@ -724,7 +724,7 @@ int QPixmap::serialNumber() const
   Fills \a buf with \a r in \a widget. Then blits \a buf on \a res at
   position \a offset
  */
-#ifndef QT_USE_BACKINGSTORE
+#ifdef Q_WS_MAC
 static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
                               const QRect &r, const QPoint &offset)
 {
@@ -782,7 +782,7 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
 
      QPixmap res(r.size());
 
-#ifdef QT_USE_BACKINGSTORE
+#ifndef Q_WS_MAC
     QWidget *tlw = widget->window();
     QPoint tlwOffset = widget->mapTo(tlw, QPoint());
     r.translate(tlwOffset);

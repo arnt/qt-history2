@@ -69,9 +69,7 @@
 
 #include "qwidget_p.h"
 
-#ifdef QT_USE_BACKINGSTORE
 #include <private/qbackingstore_p.h>
-#endif
 
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN
@@ -4960,14 +4958,7 @@ void QETWidget::translatePaintEvent(const XEvent *event)
     paintRect = d->mapFromWS(paintRect);
 
     QRect clipRect = d->clipRect();
-#ifdef QT_USE_BACKINGSTORE
     QRegion paintRegion = paintRect;
-#else
-    QRegion paintRegion = d->invalidated_region;
-    paintRegion |= paintRect;
-    d->invalidated_region = QRegion();
-    paintRegion &= clipRect;
-#endif
 
     // WARNING: this is O(number_of_events * number_of_matching_events)
     while (XCheckIfEvent(X11->display,&xevent,isPaintOrScrollDoneEvent,
@@ -4982,28 +4973,15 @@ void QETWidget::translatePaintEvent(const XEvent *event)
                            xevent.xexpose.height);
             translateBySips(this, exposure);
             exposure = d->mapFromWS(exposure);
-#ifdef QT_USE_BACKINGSTORE
             paintRegion |= exposure;
-#else
-            if (clipRect.contains(exposure)) {
-                paintRegion |= exposure;
-            } else if (!paintRegion.isEmpty()) {
-                repaint(paintRegion);
-                paintRegion = exposure;
-            }
-#endif
         } else {
             translateScrollDoneEvent(&xevent);
         }
     }
 
     if (!paintRegion.isEmpty() && !(!testAttribute(Qt::WA_StaticContents) && testAttribute(Qt::WA_WState_ConfigPending))) {
-#ifdef QT_USE_BACKINGSTORE
         extern void qt_syncBackingStore(QRegion rgn, QWidget *widget);
         qt_syncBackingStore(paintRegion, this);
-#else
-        repaint(paintRegion);
-#endif
     }
 }
 
@@ -5114,9 +5092,6 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
     }
 
     if (wasResize && !testAttribute(Qt::WA_StaticContents)) {
-#if !defined( QT_USE_BACKINGSTORE )
-        testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
-#else
         XEvent xevent;
         PaintEventInfo info;
         info.window = winId();
@@ -5131,7 +5106,6 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
             extern void qt_syncBackingStore(QRegion rgn, QWidget *widget);
             qt_syncBackingStore(d->clipRect(), this);
         }
-#endif
     }
     return true;
 }

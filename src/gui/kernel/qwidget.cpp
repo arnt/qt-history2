@@ -1175,31 +1175,6 @@ bool QWidgetPrivate::isBackgroundInherited() const
 }
 
 /*
-  In case a widget inherits its parent's pixmap background or content,
-  and possibly propagates it further to its own children, this
-  function updates everthing that needs to be updated after a move.
-
-  This is necessary because the pixmap offset has changed. This is not
-  necessary on Mac OS X because due to the composite manager we get
-  this for free, and as a result doing it here will actually force
-  more paints than are necessary, this is a NO-OP for a composited
-  windowing system like Mac OS X.
- */
-void QWidgetPrivate::updateInheritedBackground()
-{
-#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS) && !defined(QT_USE_BACKINGSTORE)
-    Q_Q(QWidget);
-    if (!q->isVisible() || !isBackgroundInherited())
-        return;
-    q->repaint();
-    for (int i = 0; i < children.size(); ++i)
-        if (QWidget *w = qobject_cast<QWidget *>(children.at(i)))
-            w->d_func()->updateInheritedBackground();
-#endif
-}
-
-#ifdef QT_USE_BACKINGSTORE
-/*
   Returns true if there are widgets above this which overlap with
   \a rect, which is in parent's coordinate system (same as crect).
 */
@@ -1231,7 +1206,6 @@ bool QWidgetPrivate::isOverlapped(const QRect &rect) const
     }
     return false;
 }
-#endif
 
 void QWidgetPrivate::setUpdatesEnabled_helper(bool enable)
 {
@@ -4049,8 +4023,6 @@ void QWidget::move(const QPoint &p)
     d->setGeometry_sys(p.x() + geometry().x() - QWidget::x(),
                        p.y() + geometry().y() - QWidget::y(),
                        width(), height(), true);
-    if (oldp != pos())
-        d->updateInheritedBackground();
 }
 
 /*! \fn void QWidget::resize(int w, int h)
@@ -4075,9 +4047,6 @@ void QWidget::setGeometry(const QRect &r)
     setAttribute(Qt::WA_Resized);
     setAttribute(Qt::WA_Moved);
     d->setGeometry_sys(r.x(), r.y(), r.width(), r.height(), true);
-
-    if (oldp != pos())
-        d->updateInheritedBackground();
 }
 
 
@@ -5235,20 +5204,10 @@ bool QWidget::event(QEvent *e)
         break;
 
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
-#if defined(QT_USE_BACKINGSTORE) || defined(Q_WS_QWS)
     case QEvent::UpdateRequest: {
         extern void qt_syncBackingStore(QWidget *widget);
         qt_syncBackingStore(this);
         break; }
-#else
-    case QEvent::UpdateRequest:
-        if (!d->invalidated_region.isEmpty()) {
-            QRegion rgn = d->invalidated_region;
-            d->invalidated_region = QRegion();
-            repaint(rgn);
-        }
-        break;
-#endif
 #endif
 
     case QEvent::UpdateLater:

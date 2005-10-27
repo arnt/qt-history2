@@ -70,7 +70,7 @@ struct QTLWExtra {
     short incw, inch; // size increments
     ulong fleft, fright, ftop, fbottom; // frame strut
     uint opacity : 8;
-#ifdef QT_USE_BACKINGSTORE
+#ifndef Q_WS_MAC
     QWidgetBackingStore *backingStore;
 #endif
 #if defined(Q_WS_WIN)
@@ -180,7 +180,6 @@ public:
     void resolveLayoutDirection();
 
     bool isBackgroundInherited() const;
-    void updateInheritedBackground();
 
     void setUpdatesEnabled_helper(bool );
 
@@ -214,9 +213,6 @@ public:
 #if defined(Q_WS_X11)
     void checkChildrenDnd();
     void fixupDnd();
-#ifndef QT_USE_BACKINGSTORE
-    QRegion invalidated_region;
-#endif
 
     void setWindowRole(const char *role);
     void sendStartupMessage(const char *message) const;
@@ -228,7 +224,7 @@ public:
 
     void scrollChildren(int dx, int dy);
 
-#ifdef QT_USE_BACKINGSTORE
+#ifndef Q_WS_MAC
     void dirtyWidget_sys(const QRegion &rgn);
     void cleanWidget_sys(const QRegion& rgn);
     void moveRect(const QRect &, int dx, int dy);

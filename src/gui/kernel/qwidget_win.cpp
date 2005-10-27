@@ -501,10 +501,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     Q_D(QWidget);
-#ifdef QT_USE_BACKINGSTORE
     if (QWidget *p = parentWidget())
         p->d_func()->invalidateBuffer(geometry());
-#endif
     d->deactivateWidgetCleanup();
     if (testAttribute(Qt::WA_WState_Created)) {
         setAttribute(Qt::WA_WState_Created, false);
@@ -547,9 +545,7 @@ void QWidgetPrivate::reparentChildren()
                 if (showIt)
                     w->show();
             } else {
-#ifdef QT_USE_BACKINGSTORE
                 w->d_func()->invalidateBuffer(w->rect());
-#endif
                 SetParent(w->winId(), q->winId());
                 w->d_func()->reparentChildren();
             }
@@ -561,10 +557,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
     Q_Q(QWidget);
 
-#ifdef QT_USE_BACKINGSTORE
     if (q->isVisible() && q->parentWidget() && parent != q->parentWidget())
         q->parentWidget()->d_func()->invalidateBuffer(q->geometry());
-#endif
 
     WId old_winid = data.winid;
     // hide and reparent our own window away. Otherwise we might get
@@ -624,9 +618,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         SetWindowText(winId(), (TCHAR*)txt.utf16());
     }
 #endif
-#ifdef QT_USE_BACKINGSTORE
     invalidateBuffer(q->rect());
-#endif
 }
 
 
@@ -873,8 +865,6 @@ void QWidget::activateWindow()
     SetForegroundWindow(window()->winId());
 }
 
-#ifdef QT_USE_BACKINGSTORE
-
 extern UINT WM_QT_REPAINT;
 
 void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
@@ -898,110 +888,6 @@ void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
     Q_Q(QWidget);
     ValidateRgn(q->winId(),rgn.handle());
 }
-#else
-void QWidget::update()
-{
-    if (isVisible() && updatesEnabled()) {
-        InvalidateRect(winId(), 0, FALSE);
-        setAttribute(Qt::WA_PendingUpdate);
-    }
-}
-
-void QWidget::update(const QRegion &rgn)
-{
-    if (isVisible() && updatesEnabled()) {
-        if (!rgn.isEmpty()) {
-            InvalidateRgn(winId(), rgn.handle(), FALSE);
-            setAttribute(Qt::WA_PendingUpdate);
-        }
-    }
-}
-
-void QWidget::update(const QRect &r)
-{
-    int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    if (w && h && isVisible() && updatesEnabled()) {
-        RECT r;
-        r.left = x;
-        r.top  = y;
-        if (w < 0)
-            r.right = data->crect.width();
-        else
-            r.right = x + w;
-        if (h < 0)
-            r.bottom = data->crect.height();
-        else
-            r.bottom = y + h;
-        InvalidateRect(winId(), &r, FALSE);
-        setAttribute(Qt::WA_PendingUpdate);
-    }
-}
-
-void QWidget::repaint(const QRegion& rgn)
-{
-    Q_D(QWidget);
-    if (!isVisible() || !updatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
-        return;
-
-    setAttribute(Qt::WA_PendingUpdate, false);
-    if (testAttribute(Qt::WA_WState_InPaintEvent))
-        qWarning("QWidget::repaint: recursive repaint detected.");
-
-    ValidateRgn(winId(),rgn.handle());
-
-    setAttribute(Qt::WA_WState_InPaintEvent);
-
-    QRect br = rgn.boundingRect();
-    bool do_clipping = (br != QRect(0, 0, data->crect.width(), data->crect.height()));
-
-    QRasterPaintEngine *rasterEngine = 0;
-    QPaintEngine *engine = paintEngine();
-
-    if (engine && engine->type() == QPaintEngine::Raster)
-	    rasterEngine = static_cast<QRasterPaintEngine *>(paintEngine());
-
-    if (rasterEngine && do_clipping)
-        rasterEngine->setSystemClip(rgn);
-
-    QPaintEvent e(rgn);
-    if (engine
-        && !testAttribute(Qt::WA_OpaquePaintEvent)
-        && !testAttribute(Qt::WA_NoSystemBackground)) {
-        QPainter p(this);
-        d->paintBackground(&p, rgn.boundingRect());
-#ifdef QT3_SUPPORT
-        e.setErased(true);
-#endif
-    }
-    QApplication::sendSpontaneousEvent(this, &e);
-
-    if (rasterEngine) {
-        bool tmp_dc = !d->hd;
-        if (tmp_dc)
-            d->hd = GetDC(winId());
-
-	rasterEngine->flush(this, -data->wrect.topLeft());
-
-        if (tmp_dc) {
-            ReleaseDC(winId(), (HDC)d->hd);
-            d->hd = 0;
-        }
-	if (do_clipping)
-	    rasterEngine->setSystemClip(QRegion());
-    }
-
-
-    // as a result of a recursive paint event...
-    if (d->extraPaintEngine) {
-        delete d->extraPaintEngine;
-        d->extraPaintEngine = 0;
-    }
-
-    setAttribute(Qt::WA_WState_InPaintEvent, false);
-    if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())
-        qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
-}
-#endif
 
 void QWidget::setWindowState(Qt::WindowStates newstate)
 {
@@ -1110,10 +996,8 @@ void QWidgetPrivate::hide_sys()
     Q_Q(QWidget);
     deactivateWidgetCleanup();
     ShowWindow(q->winId(), SW_HIDE);
-#ifdef QT_USE_BACKINGSTORE
     if(!q->isWindow())
         invalidateBuffer(q->rect());
-#endif
 }
 
 
@@ -1150,9 +1034,7 @@ void QWidgetPrivate::show_sys()
         data.window_state |= Qt::WindowMaximized;
 
     UpdateWindow(q->winId());
-#ifdef QT_USE_BACKINGSTORE
     invalidateBuffer(q->rect());
-#endif
 }
 
 #else // Q_OS_TEMP --------------------------------------------------
@@ -1196,10 +1078,8 @@ void QWidget::show_sys()
     if (isWindow() && sm == SW_SHOW)
         SetForegroundWindow(winId());
     UpdateWindow(winId());
-#ifdef QT_USE_BACKINGSTORE
     if(!q->isWindow())
         invalidateBuffer(q->rect());
-#endif
 }
 
 #endif // Q_OS_TEMP -------------------------------------------------
@@ -1208,28 +1088,22 @@ void QWidgetPrivate::raise_sys()
 {
     Q_Q(QWidget);
     SetWindowPos(q->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-#ifdef QT_USE_BACKINGSTORE
     if(!q->isWindow())
         invalidateBuffer(q->rect());
-#endif
 }
 
 void QWidgetPrivate::lower_sys()
 {
     Q_Q(QWidget);
     SetWindowPos(q->winId(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-#ifdef QT_USE_BACKINGSTORE
     invalidateBuffer(q->rect());
-#endif
 }
 
 void QWidgetPrivate::stackUnder_sys(QWidget* w)
 {
     Q_Q(QWidget);
     SetWindowPos(q->winId(), w->winId() , 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-#ifdef QT_USE_BACKINGSTORE
     invalidateBuffer(q->rect());
-#endif
 }
 
 
@@ -1439,23 +1313,19 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         } else {
         QRect oldGeom(data.crect);
             data.crect.setRect(x, y, w, h);
-#ifdef QT_USE_BACKINGSTORE
             if(q->isVisible() && !q->isHidden()) {
                 moveRect(QRect(oldPos, oldSize), x - oldGeom.x(), y - oldGeom.y());
             }
-#endif
             setWSGeometry();
         }
         q->setAttribute(Qt::WA_WState_ConfigPending, false);
     }
 
-#ifdef QT_USE_BACKINGSTORE
     if (q->isVisible() && !q->isHidden() && isResize) {
         invalidateBuffer(q->rect()); //after the resize
         if(q->parentWidget())
             q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
     }
-#endif
 
     // Process events immediately rather than in translateConfigEvent to
     // avoid windows message process delay.
@@ -1467,10 +1337,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         if (isResize) {
             QResizeEvent e(q->size(), oldSize);
             QApplication::sendEvent(q, &e);
-#ifndef QT_USE_BACKINGSTORE
-            if (!q->testAttribute(Qt::WA_StaticContents))
-                q->update();
-#endif
         }
     } else {
         if (isMove && q->pos() != oldPos)
@@ -1496,12 +1362,9 @@ void QWidget::scroll(int dx, int dy)
     Q_D(QWidget);
     d->scrollChildren(dx, dy);
 
-#ifdef QT_USE_BACKINGSTORE
     if (!QWidgetBackingStore::paintOnScreen(this)) {
         d->scrollRect(rect(), dx, dy);
-    } else
-#endif
-    {
+    } else {
         UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
         if (!testAttribute(Qt::WA_OpaquePaintEvent))
             flags |= SW_ERASE;
@@ -1520,12 +1383,9 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
     Q_D(QWidget);
 
-#ifdef QT_USE_BACKINGSTORE
     if (!QWidgetBackingStore::paintOnScreen(this)) {
         d->scrollRect(rect(), dx, dy);
-    } else
-#endif
-    {
+    } else {
         RECT wr;
         wr.top = r.top();
         wr.left = r.left();
@@ -1609,9 +1469,8 @@ void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->winIconSmall = 0;
     extra->topextra->winIconBig = 0;
-#ifdef QT_USE_BACKINGSTORE
+//######ifdef QT_USE_BACKINGSTORE
     extra->topextra->backingStore = new QWidgetBackingStore(q_func());
-#endif
 }
 
 void QWidgetPrivate::deleteTLSysExtra()
@@ -1620,10 +1479,9 @@ void QWidgetPrivate::deleteTLSysExtra()
         DestroyIcon(extra->topextra->winIconSmall);
     if (extra->topextra->winIconBig)
         DestroyIcon(extra->topextra->winIconBig);
-#ifdef QT_USE_BACKINGSTORE
+//########ifdef QT_USE_BACKINGSTORE
     if (extra->topextra->backingStore)
         delete extra->topextra->backingStore;
-#endif
 }
 
 void QWidgetPrivate::registerDropSite(bool on)

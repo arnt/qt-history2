@@ -339,36 +339,6 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
     return m;
 }
 
-/*
-  fills \a buf with \a r in \a widget. Then blits \a buf on \a res at
-  position \a offset
- */
-#ifndef QT_USE_BACKINGSTORE
-static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
-                              const QRect &r, const QPoint &offset)
-{
-    buf.fill(widget, r.topLeft());
-    QPainter::setRedirected(widget, &buf, r.topLeft());
-    QPaintEvent e(r & widget->rect());
-    QApplication::sendEvent(widget, &e);
-    QPainter::restoreRedirected(widget);
-    {
-        QPainter pt(&res);
-        pt.drawPixmap(offset.x(), offset.y(), buf, 0, 0, r.width(), r.height());
-    }
-
-    const QObjectList children = widget->children();
-    for (int i = 0; i < children.size(); ++i) {
-        QWidget *child = static_cast<QWidget*>(children.at(i));
-        if (!child->isWidgetType() || child->isWindow()
-            || child->isHidden() || !child->geometry().intersects(r))
-            continue;
-        QRect cr = r & child->geometry();
-        cr.translate(-child->pos());
-        grabWidget_helper(child, res, buf, cr, offset + child->pos());
-    }
-}
-#endif
 
 QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
 {
@@ -386,19 +356,10 @@ QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
 
      QPixmap res(r.size());
 
-#ifdef QT_USE_BACKINGSTORE
     QWidget *tlw = widget->window();
     QPoint tlwOffset = widget->mapTo(tlw, QPoint());
     r.translate(tlwOffset);
     tlw->d_func()->drawWidget(&res, r, -r.topLeft(), QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawPaintOnScreen);
-#else
-    QPixmap buf(r.size());
-    if(res.isNull() || buf.isNull())
-        return res;
-
-    grabWidget_helper(widget, res, buf, r, QPoint());
-#endif
-
     return res;
 }
 
