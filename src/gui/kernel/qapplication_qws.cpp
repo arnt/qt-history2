@@ -1890,7 +1890,9 @@ void qt_cleanup()
     }
 
     qDeleteAll(outgoing);
+    outgoing.clear();
     qDeleteAll(incoming);
+    incoming.clear();
 
     if (qt_is_gui_used) {
         delete qt_fbdpy;
