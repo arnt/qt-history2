@@ -38,6 +38,7 @@ class QDesignerFormWindowInterface;
 class QDesignerActionProviderExtension;
 class QDesignerMenu;
 class QDesignerMenuBar;
+class QPainter;
 
 class QDESIGNER_SHARED_EXPORT QDesignerMenu: public QMenu
 {
@@ -60,6 +61,8 @@ public:
 
     bool interactive(bool i);
     void createRealMenuAction(QAction *action);
+
+    static void drawSelection(QPainter *p, const QRect &r);
 
 public slots:
     void moveLeft();

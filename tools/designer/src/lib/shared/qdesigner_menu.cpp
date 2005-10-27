@@ -212,6 +212,7 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
 
 bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
 {
+    m_showSubMenuTimer->stop();
     m_startPosition = QPoint();
     event->accept();
 
@@ -219,6 +220,14 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
         return true;
 
     m_startPosition = mapFromGlobal(event->globalPos());
+
+    int index = findAction(m_startPosition);
+    if (index >= actions().count() - 1)
+        return true;
+
+    hideSubMenu();
+    m_currentIndex = index;
+    updateCurrentAction();
 
     return true;
 }
@@ -286,8 +295,7 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
     if (QAction *a = currentAction()) {
         QPainter p(this);
         QRect g = actionGeometry(a);
-        p.setPen(QPen(Qt::black, 1, Qt::DotLine));
-        p.drawRect(g.adjusted(0, 0, -1, -1));
+        drawSelection(&p, g.adjusted(1, 1, -3, -3));
     }
 }
 
@@ -634,6 +642,7 @@ void QDesignerMenu::leaveEditMode()
     if (parentMenu()) { // ### undo/redo
         parentMenu()->createRealMenuAction(parentMenu()->currentAction());
     }
+    updateCurrentAction();
 }
 
 QAction *QDesignerMenu::safeMenuAction(QDesignerMenu *menu) const
@@ -732,4 +741,20 @@ void QDesignerMenu::deleteAction() // ### undo/redo
     removeAction(currentAction());
     adjustSize();
     update();
+}
+
+void QDesignerMenu::drawSelection(QPainter *p, const QRect &r)
+{
+    static const QColor sel_color = Qt::blue;
+    static const int bg_alpha = 32;
+
+    p->save();
+
+    QColor c = sel_color;
+    p->setPen(c);
+    c.setAlpha(bg_alpha);
+    p->setBrush(c);
+    p->drawRect(r);
+
+    p->restore();
 }

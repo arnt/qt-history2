@@ -88,8 +88,7 @@ void QDesignerMenuBar::paintEvent(QPaintEvent *event)
     if (QAction *a = currentAction()) {
         QPainter p(this);
         QRect g = actionGeometry(a);
-        p.setPen(QPen(Qt::black, 1, Qt::DotLine));
-        p.drawRect(g.adjusted(0, 0, -1, -1));
+        QDesignerMenu::drawSelection(&p, g.adjusted(1, 1, -3, -3));
     }
 }
 
