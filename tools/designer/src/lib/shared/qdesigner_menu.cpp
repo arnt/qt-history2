@@ -120,10 +120,8 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
         switch (e->key()) {
 
         case Qt::Key_Delete:
-#if 0 // ### implement me
-            hideMenu();
-            deleteMenu();
-#endif
+            hideSubMenu();
+            deleteAction();
             break;
 
         case Qt::Key_Left:
@@ -212,33 +210,6 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
     update();
 
     return true;
-
-#if 0
-    event->accept();
-
-    switch (event->key()) {
-        case Qt::Key_Escape:
-            hide();
-            break;
-        case Qt::Key_Up:
-            moveUp();
-            break;
-        case Qt::Key_Down:
-            moveDown();
-            break;
-        case Qt::Key_Left:
-            moveLeft();
-            break;
-        case Qt::Key_Right:
-            moveRight();
-            break;
-
-        default:
-            break;
-    }
-
-    return true;
-#endif
 }
 
 bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
@@ -738,4 +709,18 @@ QAction *QDesignerMenu::safeActionAt(int index) const
         return 0;
 
     return actions().at(index);
+}
+
+void QDesignerMenu::hideSubMenu()
+{
+    foreach (QMenu *subMenu, qFindChildren<QMenu*>(this)) {
+        subMenu->hide();
+    }
+}
+
+void QDesignerMenu::deleteAction() // ### undo/redo
+{
+    removeAction(currentAction());
+    adjustSize();
+    update();
 }

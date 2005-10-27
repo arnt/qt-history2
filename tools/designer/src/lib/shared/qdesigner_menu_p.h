@@ -109,6 +109,9 @@ protected:
     QAction *safeMenuAction(QDesignerMenu *menu) const;
     bool swap(int a, int b);
 
+    void hideSubMenu();
+    void deleteAction();
+
 private:
     QPoint m_startPosition;
     int m_currentIndex;
