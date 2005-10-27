@@ -2061,10 +2061,11 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             tdi.version = 1;
             tdi.style = kThemeTabNonFront;
             tdi.direction = getTabDirection(tabOpt->shape);
+            tdi.size = kHIThemeTabSizeNormal;
             bool verticalTabs = tdi.direction == kThemeTabWest || tdi.direction == kThemeTabEast;
             QRect tabRect = tabOpt->rect;
 
-            if ((!verticalTabs && tabRect.height() > 20 || verticalTabs && tabRect.width() > 20)) {
+            if ((!verticalTabs && tabRect.height() > 21 || verticalTabs && tabRect.width() > 21)) {
                 drawPantherTab(tabOpt, p, w);
                 break;
             }
@@ -5767,7 +5768,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 QStyleOptionTabV2 myTab = *tab;
                 ThemeTabDirection ttd = getTabDirection(myTab.shape);
                 bool verticalTabs = ttd == kThemeTabWest || ttd == kThemeTabEast;
-                myTab.rect.setHeight(myTab.rect.height() - 2);
+                myTab.rect.setHeight(myTab.rect.height() - 1);
                 if (verticalTabs) {
                     p->save();
                     p->translate((ttd == kThemeTabWest) ? -2 : 0, 0);
