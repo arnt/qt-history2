@@ -45,12 +45,12 @@ typedef void (*_glXDestroyPbuffer) (Display *dpy, GLXPbuffer pbuf);
 typedef GLXContext (*_glXCreateNewContext) (Display *dpy, GLXFBConfig config, int render_type, GLXContext share_list, Bool direct);
 typedef Bool (*_glXMakeContextCurrent) (Display *dpy, GLXDrawable draw, GLXDrawable read, GLXContext ctx);
 
-_glXChooseFBConfig qt_glXChooseFBConfig;
-_glXCreateNewContext qt_glXCreateNewContext;
-_glXCreatePbuffer qt_glXCreatePbuffer;
-_glXDestroyPbuffer qt_glXDestroyPbuffer;
-_glXGetFBConfigAttrib qt_glXGetFBConfigAttrib;
-_glXMakeContextCurrent qt_glXMakeContextCurrent;
+static _glXChooseFBConfig qt_glXChooseFBConfig = 0;
+static _glXCreateNewContext qt_glXCreateNewContext = 0;
+static _glXCreatePbuffer qt_glXCreatePbuffer = 0;
+static _glXDestroyPbuffer qt_glXDestroyPbuffer = 0;
+static _glXGetFBConfigAttrib qt_glXGetFBConfigAttrib = 0;
+static _glXMakeContextCurrent qt_glXMakeContextCurrent = 0;
 
 #define glXChooseFBConfig qt_glXChooseFBConfig
 #define glXCreateNewContext qt_glXCreateNewContext

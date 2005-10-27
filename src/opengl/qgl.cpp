@@ -3049,10 +3049,8 @@ void QGLExtensions::init_extensions()
         glExtensions |= GenerateMipmap;
     if (extensions.contains("texture_compression_s3tc"))
         glExtensions |= TextureCompression;
-#ifndef Q_WS_MACX
     if (extensions.contains("ARB_fragment_program"))
         glExtensions |= FragmentProgram;
-#endif
     if (extensions.contains("mirrored_repeat"))
         glExtensions |= MirroredRepeat;
 

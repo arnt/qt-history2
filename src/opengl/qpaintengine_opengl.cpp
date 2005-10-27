@@ -157,20 +157,6 @@ void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDa
     }
 }
 
-
-#ifndef CALLBACK // for Windows
-#define CALLBACK
-#endif
-
-#ifndef GL_MULTISAMPLE
-#define GL_MULTISAMPLE  0x809D
-#endif
-
-// define QT_GL_NO_CONCAVE_POLYGONS to remove support for drawing
-// concave polygons (much faster)
-
-//#define QT_GL_NO_CONCAVE_POLYGONS
-
 class QGLDrawable {
 public:
     QGLDrawable() : widget(0), buffer(0) {}
@@ -266,6 +252,10 @@ inline QColor QGLDrawable::backgroundColor() const
     return QColor();
 }
 
+#ifndef CALLBACK // for Windows
+#define CALLBACK
+#endif
+
 // Need to allocate space for new vertices on intersecting lines and
 // they need to be alive until gluTessEndPolygon() has returned
 static QList<GLdouble *> vertexStorage;
@@ -294,11 +284,6 @@ struct QGLUTesselatorCleanupHandler
 };
 
 Q_GLOBAL_STATIC(QGLUTesselatorCleanupHandler, tessHandler)
-
-#ifndef GL_ARB_shader_objects
-typedef char GLcharARB;
-typedef unsigned int GLhandleARB;
-#endif
 
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
@@ -497,6 +482,14 @@ static void strokeCurveTo(qfixed c1x, qfixed c1y,
                                                           qt_fixed_to_real(ey)));
 }
 
+#ifndef APIENTRY
+# define APIENTRY
+#endif
+
+#ifndef GL_MULTISAMPLE
+#define GL_MULTISAMPLE  0x809D
+#endif
+
 #ifndef GL_CLAMP_TO_EDGE
 #define GL_CLAMP_TO_EDGE 0x812F
 #endif
@@ -510,25 +503,23 @@ static void strokeCurveTo(qfixed c1x, qfixed c1y,
 #define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
 #endif
 
-#ifndef APIENTRY
-# define APIENTRY
-#endif
-
 // ARB_fragment_program extension protos
+#ifndef GL_FRAGMENT_PROGRAM_ARB
 #define GL_FRAGMENT_PROGRAM_ARB           0x8804
 #define GL_PROGRAM_FORMAT_ASCII_ARB       0x8875
+#endif
 
-typedef void (APIENTRY *pfn_glProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
-typedef void (APIENTRY *pfn_glBindProgramARB) (GLenum, GLuint);
-typedef void (APIENTRY *pfn_glDeleteProgramsARB) (GLsizei, const GLuint *);
-typedef void (APIENTRY *pfn_glGenProgramsARB) (GLsizei, GLuint *);
-typedef void (APIENTRY *pfn_glProgramLocalParameter4fvARB) (GLenum, GLuint, const GLfloat *);
+typedef void (APIENTRY *_glProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
+typedef void (APIENTRY *_glBindProgramARB) (GLenum, GLuint);
+typedef void (APIENTRY *_glDeleteProgramsARB) (GLsizei, const GLuint *);
+typedef void (APIENTRY *_glGenProgramsARB) (GLsizei, GLuint *);
+typedef void (APIENTRY *_glProgramLocalParameter4fvARB) (GLenum, GLuint, const GLfloat *);
 
-static pfn_glProgramStringARB qt_glProgramStringARB = 0;
-static pfn_glBindProgramARB qt_glBindProgramARB = 0;
-static pfn_glDeleteProgramsARB qt_glDeleteProgramsARB = 0;
-static pfn_glGenProgramsARB qt_glGenProgramsARB = 0;
-static pfn_glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
+static _glProgramStringARB qt_glProgramStringARB = 0;
+static _glBindProgramARB qt_glBindProgramARB = 0;
+static _glDeleteProgramsARB qt_glDeleteProgramsARB = 0;
+static _glGenProgramsARB qt_glGenProgramsARB = 0;
+static _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
 
 #define glProgramStringARB qt_glProgramStringARB
 #define glBindProgramARB qt_glBindProgramARB
@@ -633,11 +624,11 @@ static bool qt_resolve_frag_program_extensions()
     QGLContext cx(QGLFormat::defaultFormat());
 
     // ARB_fragment_program
-    qt_glProgramStringARB = (pfn_glProgramStringARB) cx.getProcAddress("glProgramStringARB");
-    qt_glBindProgramARB = (pfn_glBindProgramARB) cx.getProcAddress("glBindProgramARB");
-    qt_glDeleteProgramsARB = (pfn_glDeleteProgramsARB) cx.getProcAddress("glDeleteProgramsARB");
-    qt_glGenProgramsARB = (pfn_glGenProgramsARB) cx.getProcAddress("glGenProgramsARB");
-    qt_glProgramLocalParameter4fvARB = (pfn_glProgramLocalParameter4fvARB) cx.getProcAddress("glProgramLocalParameter4fvARB");
+    qt_glProgramStringARB = (_glProgramStringARB) cx.getProcAddress("glProgramStringARB");
+    qt_glBindProgramARB = (_glBindProgramARB) cx.getProcAddress("glBindProgramARB");
+    qt_glDeleteProgramsARB = (_glDeleteProgramsARB) cx.getProcAddress("glDeleteProgramsARB");
+    qt_glGenProgramsARB = (_glGenProgramsARB) cx.getProcAddress("glGenProgramsARB");
+    qt_glProgramLocalParameter4fvARB = (_glProgramLocalParameter4fvARB) cx.getProcAddress("glProgramLocalParameter4fvARB");
 
     resolved = qt_glProgramLocalParameter4fvARB ? true : false;
     return resolved;
@@ -993,8 +984,6 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
         d->setGLBrush(Qt::white);
         glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
         glTexGenfv(GL_S, GL_OBJECT_PLANE, tr);
-        glEnable(GL_TEXTURE_GEN_S);
-        glEnable(GL_TEXTURE_1D);
 
         glBindTexture(GL_TEXTURE_1D, d->grad_palette);
         d->createGradientPaletteTexture(*brush.gradient());
@@ -1042,9 +1031,10 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
             glBindTexture(GL_TEXTURE_1D, d->grad_palette);
             d->createGradientPaletteTexture(*brush.gradient());
         }
-    } else if (has_mirrored_repeat || has_frag_program) {
-        d->endGradientOps();
     }
+
+    if (!d->has_grad_brush)
+        d->endGradientOps();
 }
 
 void QOpenGLPaintEngine::updateFont(const QFont &)
