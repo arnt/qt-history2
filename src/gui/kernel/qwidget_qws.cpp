@@ -664,12 +664,12 @@ void QWSBackingStore::create(QSize s)
     int datasize = 4 * s.width() * s.height() + extradatasize; //### hardcoded 32bpp
     shmid = shmget(IPC_PRIVATE, datasize, IPC_CREAT|0600);
     if (shmid == -1) {
-        perror("Error allocating shared memory");
+        perror("QWSBackingStore::create allocating shared memory");
         qFatal("Error allocating shared memory of size %d", datasize);
     }
     shmaddr = shmat(shmid,0,0);
     if (shmaddr == (void*)-1) {
-        perror("Error attaching to shared memory");
+        perror("QWSBackingStore::create attaching to shared memory");
         qFatal("Error attaching to shared memory");
     }
     shmctl(shmid, IPC_RMID, 0);
@@ -686,10 +686,8 @@ void QWSBackingStore::attach(int id, QSize s)
     if (shmid == id && s == size())
         return;
     detach();
-    shmid = id;
     if (s.isNull())
         return;
-    pix = new QPixmap;
     if (id == -1) {
 #ifdef QT_SHAREDMEM_DEBUG
         qDebug() << "QWSBackingStore::attach no id, size" << s;
@@ -698,15 +696,16 @@ void QWSBackingStore::attach(int id, QSize s)
         pix->fill(QColor(255,255,0,128));
         return;
     }
-    shmaddr = shmat(shmid,0,0);
+    shmaddr = shmat(id,0,0);
     if (shmaddr == (void*)-1) {
-        perror("Error attaching to shared memory");
-        qFatal("Error attaching to shared memory of size %d", s.width() * s.height());
-#ifdef QT_SHAREDMEM_DEBUG
-        qDebug() << "QWSBackingStore::attach COULD NOT ATTACH TO SHARED MEMORY size" << s << "shmid" << shmid;
-#endif
+        perror("QWSBackingStore::attach attaching to shared memory");
+        qWarning("Error attaching to shared memory 0x%x of size %d",
+                 id, s.width() * s.height());
+        shmaddr = 0;
         return;
     }
+    shmid = id;
+    pix = new QPixmap;
     // IPC_RMID only marks for deletion, so we know that the segment will be removed on exit
     // we do it in attach instead of create in order to allow on-demand (single use) backing store
     shmctl(shmid, IPC_RMID, 0);
