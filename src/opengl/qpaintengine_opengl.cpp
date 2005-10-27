@@ -291,7 +291,6 @@ public:
     QOpenGLPaintEnginePrivate()
         : bgmode(Qt::TransparentMode)
         , has_fast_pen(false)
-        , has_grad_brush(false)
         , txop(QPainterPrivate::TxNone)
         , inverseScale(1)
         , moveToCount(0)
@@ -316,12 +315,12 @@ public:
         brush_color[3] = c.alpha();
     }
 
-    inline void startGradientOps();
-    inline void endGradientOps();
+    inline void setGradientOps(Qt::BrushStyle style);
     void generateGradientColorTable(const QGradientStops& s,
                                     unsigned int *colorTable, int size);
     void createGradientPaletteTexture(const QGradient& g);
 
+    void updateGradient(const QBrush &brush);
     void beginPath(QPaintEngine::PolygonDrawMode mode);
     void endPath();
     inline void moveTo(const QPointF &p);
@@ -333,12 +332,14 @@ public:
     QBrush bgbrush;
     Qt::BGMode bgmode;
     QRegion crgn;
+    Qt::BrushStyle brush_style;
+    Qt::BrushStyle pen_brush_style;
+
     uint has_clipping : 1;
     uint has_pen : 1;
     uint has_brush : 1;
     uint has_autoswap : 1;
     uint has_fast_pen : 1;
-    uint has_grad_brush : 1;
 
     QMatrix matrix;
     GLubyte pen_color[4];
@@ -700,26 +701,21 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
 }
 
 
-inline void QOpenGLPaintEnginePrivate::startGradientOps()
+inline void QOpenGLPaintEnginePrivate::setGradientOps(Qt::BrushStyle style)
 {
-    if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram
-        && (cbrush.style() == Qt::RadialGradientPattern
-            || cbrush.style() == Qt::ConicalGradientPattern)) {
+    if (style == Qt::RadialGradientPattern || style == Qt::ConicalGradientPattern) {
         glDisable(GL_TEXTURE_GEN_S);
         glDisable(GL_TEXTURE_1D);
         glEnable(GL_FRAGMENT_PROGRAM_ARB);
-    } else if (cbrush.style() == Qt::LinearGradientPattern) {
+    } else if (style == Qt::LinearGradientPattern) {
+        glDisable(GL_FRAGMENT_PROGRAM_ARB);
         glEnable(GL_TEXTURE_GEN_S);
         glEnable(GL_TEXTURE_1D);
-    }
-}
-
-inline void QOpenGLPaintEnginePrivate::endGradientOps()
-{
-    if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram)
+    } else {
         glDisable(GL_FRAGMENT_PROGRAM_ARB);
-    glDisable(GL_TEXTURE_GEN_S);
-    glDisable(GL_TEXTURE_1D);
+        glDisable(GL_TEXTURE_GEN_S);
+        glDisable(GL_TEXTURE_1D);
+    }
 }
 
 QOpenGLPaintEngine::QOpenGLPaintEngine()
@@ -925,12 +921,90 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
     }
 }
 
+void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
+{
+    bool has_mirrored_repeat = QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat;
+    bool has_frag_program = QGLExtensions::glExtensions & QGLExtensions::FragmentProgram;
+    Qt::BrushStyle style = brush.style();
+
+    if (has_mirrored_repeat && style == Qt::LinearGradientPattern) {
+        const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
+        float tr[4], f;
+        tr[0] = g->finalStop().x() - g->start().x();
+        tr[1] = g->finalStop().y() - g->start().y();
+        f = 1.0 / (tr[0]*tr[0] + tr[1]*tr[1]);
+        tr[0] *= f;
+        tr[1] *= f;
+        tr[2] = 0;
+        tr[3] = -(g->start().x()*tr[0] + g->start().y()*tr[1]);
+        setGLBrush(Qt::white);
+        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+        glTexGenfv(GL_S, GL_OBJECT_PLANE, tr);
+
+        glBindTexture(GL_TEXTURE_1D, grad_palette);
+        createGradientPaletteTexture(*brush.gradient());
+    } else if (has_frag_program) {
+        if (style == Qt::RadialGradientPattern) {
+            const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
+            QMatrix translate(1, 0, 0, 1, -g->focalPoint().x(), -g->focalPoint().y());
+            QMatrix gl_to_qt(1, 0, 0, -1, 0, pdev->height());
+            QMatrix inv_matrix = gl_to_qt * matrix.invert() * translate;
+
+            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, radial_frag_program);
+
+            float pt[4] = {inv_matrix.dx(), inv_matrix.dy(), 0.f, 0.f};
+            float inv[4] = {inv_matrix.m11(), inv_matrix.m12(),
+                            inv_matrix.m21(), inv_matrix.m22()};
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
+
+            pt[0] = g->center().x() - g->focalPoint().x();
+            pt[1] = g->center().y() - g->focalPoint().y();
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 2, pt); // fmp
+
+            float f[4] = {-pt[0]*pt[0] - pt[1]*pt[1] + g->radius()*g->radius(), 0.f, 0.f, 0.f};
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, f); // fmp2_m_radius2
+
+            glBindTexture(GL_TEXTURE_1D, grad_palette);
+            createGradientPaletteTexture(*brush.gradient());
+        } else if (style == Qt::ConicalGradientPattern) {
+            const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
+            QMatrix translate(1, 0, 0, 1, -g->center().x(), -g->center().y());
+            QMatrix gl_to_qt(1, 0, 0, -1, 0, pdev->height());
+            QMatrix inv_matrix = gl_to_qt * matrix.invert() * translate;
+
+            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, conical_frag_program);
+
+            float pt[4] = {inv_matrix.dx(), inv_matrix.dy(), 0.f, 0.f};
+            float inv[4] = {inv_matrix.m11(), inv_matrix.m12(),
+                            inv_matrix.m21(), inv_matrix.m22()};
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
+
+            float angle[4] = {-(g->angle() * 2 * Q_PI) / 360.0, 0.f, 0.f, 0.f};
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, angle); // angle
+
+            glBindTexture(GL_TEXTURE_1D, grad_palette);
+            createGradientPaletteTexture(*brush.gradient());
+        }
+    }
+    glDisable(GL_TEXTURE_1D);
+    glDisable(GL_TEXTURE_GEN_S);
+    glDisable(GL_FRAGMENT_PROGRAM_ARB);
+}
+
+
 void QOpenGLPaintEngine::updatePen(const QPen &pen)
 {
     Q_D(QOpenGLPaintEngine);
+    Qt::PenStyle pen_style = pen.style();
+    d->pen_brush_style = pen.brush().style();
 
+    if (d->pen_brush_style >= Qt::LinearGradientPattern
+        && d->pen_brush_style <= Qt::ConicalGradientPattern)
+        d->updateGradient(pen.brush());
     d->cpen = pen;
-    d->has_pen = (pen.style() != Qt::NoPen);
+    d->has_pen = (pen_style != Qt::NoPen);
     d->setGLPen(pen.color());
 
     glColor4ubv(d->pen_color);
@@ -944,8 +1018,7 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     else
         d->basicStroker.setStrokeWidth(penWidth);
 
-    Qt::PenStyle pen_style = pen.style();
-    if(pen_style == Qt::SolidLine) {
+    if (pen_style == Qt::SolidLine) {
         d->stroker = &d->basicStroker;
     } else if (pen_style != Qt::NoPen) {
         if (!d->dashStroker)
@@ -961,79 +1034,14 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
     Q_D(QOpenGLPaintEngine);
     d->cbrush = brush;
-    d->has_brush = (brush.style() != Qt::NoBrush);
+    d->brush_style = brush.style();
+    d->has_brush = (d->brush_style != Qt::NoBrush);
     d->setGLBrush(brush.color());
     glColor4ubv(d->brush_color);
 
-    bool has_mirrored_repeat = QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat;
-    bool has_frag_program = QGLExtensions::glExtensions & QGLExtensions::FragmentProgram;
-    Qt::BrushStyle style = brush.style();
-    d->has_grad_brush = (style >= Qt::LinearGradientPattern && style <= Qt::ConicalGradientPattern);
-
-    if (has_mirrored_repeat && style == Qt::LinearGradientPattern) {
-        const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
-        float tr[4], f;
-        tr[0] = g->finalStop().x() - g->start().x();
-        tr[1] = g->finalStop().y() - g->start().y();
-        f = 1.0 / (tr[0]*tr[0] + tr[1]*tr[1]);
-        tr[0] *= f;
-        tr[1] *= f;
-        tr[2] = 0;
-        tr[3] = -(g->start().x()*tr[0] + g->start().y()*tr[1]);
-        d->setGLBrush(Qt::white);
-        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-        glTexGenfv(GL_S, GL_OBJECT_PLANE, tr);
-
-        glBindTexture(GL_TEXTURE_1D, d->grad_palette);
-        d->createGradientPaletteTexture(*brush.gradient());
-    } else if (has_frag_program) {
-        if (style == Qt::RadialGradientPattern) {
-            const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
-            QMatrix translate(1, 0, 0, 1, -g->focalPoint().x(), -g->focalPoint().y());
-            QMatrix gl_to_qt(1, 0, 0, -1, 0, d->pdev->height());
-            QMatrix inv_matrix = gl_to_qt * d->matrix.invert() * translate;
-
-            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->radial_frag_program);
-
-            float pt[4] = {inv_matrix.dx(), inv_matrix.dy(), 0.f, 0.f};
-            float inv[4] = {inv_matrix.m11(), inv_matrix.m12(),
-                            inv_matrix.m21(), inv_matrix.m22()};
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
-
-            pt[0] = g->center().x() - g->focalPoint().x();
-            pt[1] = g->center().y() - g->focalPoint().y();
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 2, pt); // fmp
-
-            float f[4] = {-pt[0]*pt[0] - pt[1]*pt[1] + g->radius()*g->radius(), 0.f, 0.f, 0.f};
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, f); // fmp2_m_radius2
-
-            glBindTexture(GL_TEXTURE_1D, d->grad_palette);
-            d->createGradientPaletteTexture(*brush.gradient());
-        } else if (style == Qt::ConicalGradientPattern) {
-            const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
-            QMatrix translate(1, 0, 0, 1, -g->center().x(), -g->center().y());
-            QMatrix gl_to_qt(1, 0, 0, -1, 0, d->pdev->height());
-            QMatrix inv_matrix = gl_to_qt * d->matrix.invert() * translate;
-
-            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->conical_frag_program);
-
-            float pt[4] = {inv_matrix.dx(), inv_matrix.dy(), 0.f, 0.f};
-            float inv[4] = {inv_matrix.m11(), inv_matrix.m12(),
-                            inv_matrix.m21(), inv_matrix.m22()};
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
-
-            float angle[4] = {-(g->angle() * 2 * Q_PI) / 360.0, 0.f, 0.f, 0.f};
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, angle); // angle
-
-            glBindTexture(GL_TEXTURE_1D, d->grad_palette);
-            d->createGradientPaletteTexture(*brush.gradient());
-        }
-    }
-
-    if (!d->has_grad_brush)
-        d->endGradientOps();
+    if (d->brush_style >= Qt::LinearGradientPattern
+        && d->brush_style <= Qt::ConicalGradientPattern)
+        d->updateGradient(brush);
 }
 
 void QOpenGLPaintEngine::updateFont(const QFont &)
@@ -1179,15 +1187,13 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
         qreal bottom = r.bottom();
 
         if (d->has_brush) {
-            if (d->has_grad_brush)
-                d->startGradientOps();
+            d->setGradientOps(d->brush_style);
             glColor4ubv(d->brush_color);
             glRectd(left, top, right, bottom);
-            if (d->has_grad_brush)
-                d->endGradientOps();
         }
 
         if (d->has_pen) {
+            d->setGradientOps(d->pen_brush_style);
             glColor4ubv(d->pen_color);
             d->beginPath(QPaintEngine::WindingMode);
             d->stroker->begin(d);
@@ -1205,6 +1211,8 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 void QOpenGLPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
     Q_D(QOpenGLPaintEngine);
+    d->setGradientOps(d->pen_brush_style);
+
     GLfloat pen_width = d->cpen.widthF();
     if (pen_width > 1 || (pen_width > 0 && d->txop > QPainterPrivate::TxTranslate)) {
         QPaintEngine::drawPoints(points, pointCount);
@@ -1223,6 +1231,7 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     Q_D(QOpenGLPaintEngine);
     if (d->has_pen) {
+        d->setGradientOps(d->pen_brush_style);
         if (d->has_fast_pen) {
             glColor4ubv(d->pen_color);
             glBegin(GL_LINES);
@@ -1256,8 +1265,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
         return;
 
     if (d->has_brush && mode != PolylineMode) {
-        if (d->has_grad_brush)
-            d->startGradientOps();
+        d->setGradientOps(d->brush_style);
         if (mode == ConvexMode) {
             glBegin(GL_TRIANGLE_FAN); {
                 for (int i=0; i<pointCount; ++i)
@@ -1272,11 +1280,10 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                 d->lineTo(points[i]);
             d->endPath();
         }
-        if (d->has_grad_brush)
-            d->endGradientOps();
     }
 
     if (d->has_pen) {
+        d->setGradientOps(d->pen_brush_style);
         glColor4ubv(d->pen_color);
         if (d->has_fast_pen) {
             glBegin(GL_LINE_STRIP); {
@@ -1302,8 +1309,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
         return;
 
     if (d->has_brush) {
-        if (d->has_grad_brush)
-            d->startGradientOps();
+        d->setGradientOps(d->brush_style);
         // Don't split "simple" paths...
         if (path.elementCount() > 32) {
             qt_painterpath_split(path, &d->int_buffer, &d->subpath_buffer);
@@ -1358,12 +1364,11 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
             }
             d->endPath();
         }
-        if (d->has_grad_brush)
-            d->endGradientOps();
     }
 
     if (d->has_pen) {
         glColor4ubv(d->pen_color);
+        d->setGradientOps(d->pen_brush_style);
         if (d->has_fast_pen) {
             QBezier beziers[32];
             for (int i=0; i<path.elementCount(); ++i) {
