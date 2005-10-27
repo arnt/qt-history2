@@ -40,7 +40,7 @@ INSTALLS += target sources
 
 RESOURCES += arthur_plugin.qrc
 
-win32-msvc.net {
+win32-msvc.net|win32-msvc {
 	QMAKE_CFLAGS += /Zm500
 	QMAKE_CXXFLAGS += /Zm500
 }
