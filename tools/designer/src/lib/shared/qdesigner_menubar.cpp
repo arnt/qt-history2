@@ -20,6 +20,7 @@
 #include <QtDesigner/QtDesigner>
 
 #include <QtCore/QTimer>
+#include <QtCore/qdebug.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
@@ -255,15 +256,11 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
 
     int index = findAction(m_startPosition);
     if (index >= actions().count() - 1)
-        return false;
+        return true;
 
-    if (QAction *action = actions().at(index)) {
-        setActiveAction(action);
 
-        if (QMenu *menu = action->menu()) {
-            menu->setActiveAction(0);
-        }
-    }
+    m_currentIndex = index;
+    update();
 
     return true;
 }
@@ -274,20 +271,18 @@ bool QDesignerMenuBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 
     m_startPosition = QPoint();
 
-    return false;
+    return true;
 }
 
 bool QDesignerMenuBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 {
-    event->accept();
-
     if (m_startPosition.isNull())
-        return false;
+        return true;
 
     QPoint pos = mapFromGlobal(event->globalPos());
 
     if ((pos - m_startPosition).manhattanLength() < qApp->startDragDistance())
-        return false;
+        return true;
 
     startDrag(pos);
     m_startPosition = QPoint();
@@ -343,7 +338,7 @@ QAction *QDesignerMenuBar::createAction() // ### undo/redo
     core->metaDataBase()->add(menuAction);
     // fw->ensureUniqueObjectName(menuAction);
     menu->setTitle(tr("Menu"));
-    addAction(menu->menuAction());
+//    addAction(menu->menuAction());
     core->actionEditor()->setFormWindow(fw);
     core->propertyEditor()->setObject(menu);
 
@@ -366,12 +361,12 @@ void QDesignerMenuBar::leaveEditMode()
 {
     QAction *action = 0;
 
-    if (m_currentIndex < realActionCount()) {
+    if (m_currentIndex >= 0 && m_currentIndex < realActionCount()) {
         action = actions().at(m_currentIndex);
     } else {
         Q_ASSERT(formWindow() != 0);   // ### undo/redo
         action = createAction();
-        insertAction(currentAction(), action);
+        insertAction(m_addMenu, action);
     }
 
     action->setText(m_editor->text()); // ### undo/redo
@@ -381,7 +376,7 @@ void QDesignerMenuBar::showLineEdit()
 {
     QAction *action = 0;
 
-    if (m_currentIndex < realActionCount())
+    if (m_currentIndex >= 0 && m_currentIndex < realActionCount())
         action = actions().at(m_currentIndex);
     else
         action = m_addMenu;
