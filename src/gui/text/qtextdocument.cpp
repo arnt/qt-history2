@@ -1124,10 +1124,50 @@ QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
     QString title  = doc->metaInformation(QTextDocument::DocumentTitle);
     if (!title.isEmpty())
         html += "<title>" + title + "</title>";
-    html += QString("</head><body style=\" white-space: pre-wrap; font-family:%1; font-weight:%2; font-style:%3; text-decoration:none;\"")
-            .arg(defaultCharFormat.fontFamily())
-            .arg(defaultCharFormat.fontWeight() * 8)
-            .arg(defaultCharFormat.fontItalic() ? "italic" : "normal");
+    html += QString("</head><body style=\" white-space: pre-wrap;");
+
+    html += QLatin1String(" font-family:");
+    html += defaultCharFormat.fontFamily();
+    html += QLatin1Char(';');
+
+    if (defaultCharFormat.hasProperty(QTextFormat::FontPointSize)) {
+        html += QLatin1String(" font-size:");
+        html += QString::number(defaultCharFormat.fontPointSize());
+        html += QLatin1String("pt;");
+    }
+
+    html += QLatin1String(" font-weight:");
+    html += QString::number(defaultCharFormat.fontWeight() * 8);
+    html += QLatin1Char(';');
+
+    html += QLatin1String(" font-style:");
+    html += (defaultCharFormat.fontItalic() ? QLatin1String("italic") : QLatin1String("normal"));
+    html += QLatin1Char(';');
+
+    {
+        html += QLatin1String(" text-decoration:");
+        bool atLeastOneDecorationSet = false;
+
+        if (defaultCharFormat.fontUnderline()) {
+            html += QLatin1String(" underline");
+            atLeastOneDecorationSet = true;
+        }
+
+        if (defaultCharFormat.fontOverline()) {
+            html += QLatin1String(" overline");
+            atLeastOneDecorationSet = true;
+        }
+
+        if (defaultCharFormat.fontStrikeOut()) {
+            html += QLatin1String(" line-through");
+            atLeastOneDecorationSet = true;
+        }
+
+        if (!atLeastOneDecorationSet)
+            html += QLatin1String("none");
+        html += QLatin1Char(';');
+    }
+    html += QLatin1Char('\"');
 
     const QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
     QBrush bg = fmt.background();

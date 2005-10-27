@@ -191,6 +191,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &_c
         containsCompleteDocument = true;
         doc->rootFrame()->setFrameFormat(_cursor.d->priv->rootFrame()->frameFormat());
         doc->setMetaInformation(QTextDocument::DocumentTitle, _cursor.d->priv->document()->metaInformation(QTextDocument::DocumentTitle));
+        doc->setDefaultFont(_cursor.d->priv->defaultFont());
     }
 
     QTextCursor destCursor(doc);
