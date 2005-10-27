@@ -61,6 +61,8 @@ public:
 
     void startingUp();
 
+    bool event(QEvent *e);
+
 private:
     friend LRESULT CALLBACK qt_internal_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp);
 };

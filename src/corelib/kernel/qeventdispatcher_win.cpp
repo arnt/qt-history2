@@ -48,6 +48,14 @@ struct TimerInfo {                              // internal timer info
         Off
     };
 };
+
+class QZeroTimerEvent : public QEvent
+{
+public:
+    int timerid;
+    QZeroTimerEvent(int id) : QEvent(QEvent::ZeroTimerEvent), timerid(id) {}
+};
+
 typedef QList<TimerInfo*>  TimerVec;            // vector of TimerInfo structs
 typedef QHash<int,TimerInfo*> TimerDict;        // fast dict of timers
 
@@ -590,10 +598,9 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
     if (interval > 10 || !interval || !qtimeSetEvent) {
         ok = 1;
         if (!interval)  // optimization for single-shot-zero-timer
-            QT_WA_INLINE(PostMessageW(d->internalHwnd(), WM_TIMER, WPARAM(t->ind), 0),            
-                         PostMessageA(d->internalHwnd(), WM_TIMER, WPARAM(t->ind), 0));
-        
-        ok = SetTimer(d->internalHwnd(), t->ind, (uint) interval, 0);        
+            QCoreApplication::postEvent(this, new QZeroTimerEvent(t->ind));
+        else 
+            ok = SetTimer(d->internalHwnd(), t->ind, (uint) interval, 0);        
     } else {
         t->dispatcher = d;
         t->type = ::TimerInfo::Fast;        
@@ -741,4 +748,22 @@ void QEventDispatcherWin32::startingUp()
     Q_D(QEventDispatcherWin32);
 
     if (d->wakeUpNotifier.handle()) d->wakeUpNotifier.setEnabled(true);
+}
+
+bool QEventDispatcherWin32::event(QEvent *e)
+{
+    Q_D(QEventDispatcherWin32);
+    if (e->type() == QEvent::ZeroTimerEvent) {
+        QZeroTimerEvent *zte = static_cast<QZeroTimerEvent*>(e);
+        ::TimerInfo *t = d->timerDict.value(zte->timerid);
+        if (t) {
+            QTimerEvent te(zte->timerid);
+            QCoreApplication::sendEvent(t->obj, &te);
+            ::TimerInfo *tn = d->timerDict.value(zte->timerid);
+            if (tn && t == tn)
+                QCoreApplication::postEvent(this, new QZeroTimerEvent(zte->timerid));
+        }
+        return true;
+    }
+    return QAbstractEventDispatcher::event(e);
 }

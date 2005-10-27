@@ -178,6 +178,8 @@ public:
         MenubarUpdated = 153,                    // Support event for Q3MainWindow, which needs to 
                                                  // knwow when QMenubar is updated.
 
+        ZeroTimerEvent = 154,                   // Used for Windows Zero timer events
+
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id
     };

@@ -178,6 +178,7 @@
     \omitvalue Speech
     \omitvalue Style
     \omitvalue ThreadChange
+    \omitvalue ZeroTimerEvent
 */
 
 /*!
