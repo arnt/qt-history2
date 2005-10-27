@@ -97,7 +97,7 @@ bool QDesignerMenu::handleEvent(QWidget *widget, QEvent *event)
 void QDesignerMenu::startDrag(const QPoint &pos)
 {
     int index = findAction(pos);
-    if (index >= realActionCount())
+    if (index >= actions().count() - 1)
         return;
 
     QAction *action = actions().at(index);
@@ -126,8 +126,6 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
         switch (e->key()) {
 
         case Qt::Key_Delete:
-            if (m_currentIndex == -1 || m_currentIndex >= realActionCount())
-                break;
             hideSubMenu();
             deleteAction();
             break;
@@ -433,6 +431,8 @@ void QDesignerMenu::dragLeaveEvent(QDragLeaveEvent *)
 
 void QDesignerMenu::dropEvent(QDropEvent *event)
 {
+    m_dragging = false;
+
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
         event->acceptProposedAction();
 
@@ -654,7 +654,7 @@ bool QDesignerMenu::interactive(bool i)
 
 void QDesignerMenu::enterEditMode()
 {
-    if (m_currentIndex <= realActionCount()) {
+    if (m_currentIndex < realActionCount()) {
         showLineEdit();
     } else {
         QAction *sep = createAction();

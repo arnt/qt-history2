@@ -60,6 +60,7 @@ QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
       m_interactive(true)
 {
     m_currentIndex = 0;
+    m_dragging = false;
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
 
@@ -86,7 +87,7 @@ void QDesignerMenuBar::paintEvent(QPaintEvent *event)
     QMenuBar::paintEvent(event);
 
     QAction *a = currentAction();
-    if (a) {
+    if (a && !m_dragging) {
         QPainter p(this);
         QRect g = actionGeometry(a);
         QDesignerMenu::drawSelection(&p, g.adjusted(1, 1, -3, -3));
@@ -135,8 +136,6 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
         switch (e->key()) {
 
         case Qt::Key_Delete:
-            if (m_currentIndex == -1 || m_currentIndex >= realActionCount())
-                break;
             hideMenu();
             deleteMenu();
             break;
@@ -211,7 +210,7 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
             break;
 
         case Qt::Key_Escape:
-            m_editor->hide();
+            update();
             setFocus();
             break;
         }
@@ -242,13 +241,9 @@ void QDesignerMenuBar::startDrag(const QPoint &pos)
     data->items.append(action);
     drag->setMimeData(data);
 
-    int old_index = m_currentIndex;
-    m_currentIndex = -1;
-
     if (drag->start() == Qt::IgnoreAction) {
         QAction *previous = actions().at(index);
         insertAction(previous, action);
-        m_currentIndex = old_index;
         adjustSize();
     }
 }
@@ -270,9 +265,8 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
     m_startPosition = mapFromGlobal(event->globalPos());
 
     int index = findAction(m_startPosition);
-    if (index < realActionCount()) {
-        hideMenu();
-        m_currentIndex = index;
+    if (index < actions().count()) {
+        hideMenu(index);
         update();
     }
 
@@ -362,7 +356,7 @@ QAction *QDesignerMenuBar::createAction() // ### undo/redo
 
 void QDesignerMenuBar::enterEditMode()
 {
-    if (m_currentIndex <= realActionCount()) {
+    if (m_currentIndex < realActionCount()) {
         showLineEdit();
     }
 }
@@ -473,6 +467,8 @@ void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
 
 void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
 {
+    m_dragging = true;
+
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
         Q_ASSERT(!d->items.isEmpty());
 
@@ -513,11 +509,15 @@ void QDesignerMenuBar::dragMoveEvent(QDragMoveEvent *event)
 
 void QDesignerMenuBar::dragLeaveEvent(QDragLeaveEvent *)
 {
+    m_dragging = false;
+
     adjustIndicator(QPoint(-1, -1));
 }
 
 void QDesignerMenuBar::dropEvent(QDropEvent *event)
 {
+    m_dragging = false;
+
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
         event->acceptProposedAction();
 
@@ -527,6 +527,7 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
             index = qMin(index, actions().count() - 1);
             insertAction(actions().at(index), action);
             m_currentIndex = index;
+            update();
             adjustIndicator(QPoint(-1, -1));
         }
     }
