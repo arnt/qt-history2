@@ -2342,6 +2342,16 @@ QByteArray qgetenv(const char *varName)
     \sa qDebug(), qWarning(), qCritical(), qFatal()
 */
 
+/*!
+    \macro Q_UNUSED(name)
+    \relates <QtGlobal>
+
+    Indicates to the compiler that the parameter with the specified
+    \a name is not used in the body of a function. This can be used to
+    suppress compiler warnings while allowing functions to be defined
+    with meaningful parameter names in their signatures.
+*/
+
 #if defined(QT3_SUPPORT) && !defined(QT_NO_SETTINGS)
 #include <qlibraryinfo.h>
 static const char *qInstallLocation(QLibraryInfo::LibraryLocation loc)
