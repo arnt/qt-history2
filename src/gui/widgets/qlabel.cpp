@@ -135,13 +135,13 @@ public:
 
     \table
     \row
-    \i \inlineimage macintosh-label.png Screenshot of a Macintosh style label.
+    \i \inlineimage macintosh-label.png Screenshot of a Macintosh style label
     \i A Macintosh style label
     \row
-    \i \inlineimage plastique-label.png Screenshot of a Plastique style label.
+    \i \inlineimage plastique-label.png Screenshot of a Plastique style label
     \i A Plastique style label
     \row
-    \i \inlineimage windowsxp-label.png Screenshot of a Windows XP style label.
+    \i \inlineimage windowsxp-label.png Screenshot of a Windows XP style label
     \i A Windows XP style label
     \endtable
 
