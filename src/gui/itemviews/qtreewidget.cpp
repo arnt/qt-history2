@@ -1922,6 +1922,8 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
 /*!
   Adds a column in the header for each item in the \a labels list, and sets
   the label for each column.
+
+  Note that setHeaderLabels wont remove existing columns.
 */
 void QTreeWidget::setHeaderLabels(const QStringList &labels)
 {
