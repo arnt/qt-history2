@@ -41,7 +41,7 @@
     \row \o \link #QODBC QODBC\endlink
          \o Open Database Connectivity (ODBC) - Microsoft SQL Server and other
             ODBC-compliant databases
-    \row \o \link #QPSQL QPSQL\endlink \o PostgreSQL (versions 7 and 8)
+    \row \o \link #QPSQL QPSQL\endlink \o PostgreSQL (versions 7.3 and higher)
     \row \o \link #QSQLITE2 QSQLITE2\endlink \o SQLite version 2
     \row \o \link #QSQLITE QSQLITE\endlink \o SQLite version 3
     \row \o \link #QTDS QTDS\endlink \o Sybase Adaptive Server
@@ -347,14 +347,11 @@
     make in the line above.
 
     \target QPSQL
-    \section2 QPSQL for PostgreSQL Version 7 and 8
+    \section2 QPSQL for PostgreSQL Version 7.3 and higher
 
     \section3 General Information
 
-    The QPSQL driver supports both version 7 and version 8 of PostgreSQL.
-    We recommend compiling the plugin with a recent version of the
-    PostgreSQL client library (libpq) because it is more stable and still
-    backwards compatible.
+    The QPSQL driver supports version 7.3 and higher of PostgreSQL.
 
     For more information about PostgreSQL visit \l http://www.postgresql.org.
 
@@ -376,7 +373,7 @@
     \section3 BLOB Support
 
     Binary Large Objects are supported through the \c BYTEA field type in
-    PostgreSQL versions >= 7.1.
+    PostgreSQL server versions >= 7.1.
 
     \section3 How to Build the Plugin on Unix and Mac OS X
 

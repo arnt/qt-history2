@@ -600,7 +600,7 @@ QStringList QSqlDatabase::connectionNames()
     \row \i QMYSQL   \i MySQL Driver
     \row \i QOCI     \i Oracle Call Interface Driver
     \row \i QODBC    \i ODBC Driver (includes Microsoft SQL Server)
-    \row \i QPSQL    \i PostgreSQL v6.x and v7.x Driver
+    \row \i QPSQL    \i PostgreSQL 7.3 and above Driver
     \row \i QSQLITE  \i SQLite version 3 or above
     \row \i QSQLITE2 \i SQLite version 2
     \row \i QTDS     \i Sybase Adaptive Server
