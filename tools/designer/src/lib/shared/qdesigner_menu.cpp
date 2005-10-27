@@ -61,7 +61,6 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
     m_editor = new QLineEdit(this);
     m_editor->setObjectName("__qt__passive_editor");
     m_editor->hide();
-    m_editor->installEventFilter(this);
     qApp->installEventFilter(this);
 
 }
@@ -103,8 +102,6 @@ void QDesignerMenu::startDrag(const QPoint &pos)
     QAction *action = actions().at(index);
     removeAction(action);
     adjustSize();
-
-    adjustIndicator(pos);
 
     QDrag *drag = new QDrag(this);
     drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
@@ -391,6 +388,10 @@ int QDesignerMenu::findAction(const QPoint &pos) const
 
 void QDesignerMenu::adjustIndicator(const QPoint &pos)
 {
+    m_currentIndex = findAction(pos);
+    update();
+    slotShowSubMenuNow();
+
     if (QDesignerActionProviderExtension *a = actionProvider()) {
         a->adjustIndicator(pos);
     }

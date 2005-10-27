@@ -105,9 +105,9 @@ protected:
     void leaveEditMode();
     void showLineEdit();
 
-    void hideMenu();
     void deleteMenu();
-    void showMenu();
+    void showMenu(int index = -1);
+    void hideMenu(int index = -1);
 
     QAction *createAction();
     QAction *safeActionAt(int index) const;

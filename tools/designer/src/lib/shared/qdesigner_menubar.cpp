@@ -237,7 +237,7 @@ void QDesignerMenuBar::startDrag(const QPoint &pos)
     removeAction(action);
     adjustSize();
 
-    adjustIndicator(pos);
+    hideMenu(index);
 
     QDrag *drag = new QDrag(this);
     drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
@@ -456,11 +456,13 @@ int QDesignerMenuBar::findAction(const QPoint &pos) const
 
 void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
 {
-    if (QAction *action = actions().at(findAction(pos))) {
-        if (action->menu()) {
-            setActiveAction(action);
-            action->menu()->setActiveAction(0);
-        }
+    int index = findAction(pos);
+    QAction *action = safeActionAt(index);
+    Q_ASSERT(action != 0);
+
+    QDesignerMenu *m = qobject_cast<QDesignerMenu*>(action->menu());
+    if (m && m->parentMenu()) {
+        showMenu(index);
     }
 
     if (QDesignerActionProviderExtension *a = actionProvider()) {
@@ -589,8 +591,13 @@ bool QDesignerMenuBar::interactive(bool i)
     return old;
 }
 
-void QDesignerMenuBar::hideMenu()
+void QDesignerMenuBar::hideMenu(int index)
 {
+    if (index < 0)
+        index = m_currentIndex;
+    else if (index < realActionCount())
+        m_currentIndex = index;
+
     QAction *action = currentAction();
 
     if (action && action->menu()) {
@@ -606,13 +613,18 @@ void QDesignerMenuBar::deleteMenu()
 {
     QAction *action = currentAction();
 
-    if (action && !qobject_cast<SpecialMenuAction*>(action)) {
+    if (action && !qobject_cast<SpecialMenuAction*>(action)) { // ### undo/redo
         removeAction(action);
     }
 }
 
-void QDesignerMenuBar::showMenu()
+void QDesignerMenuBar::showMenu(int index)
 {
+    if (index < 0)
+        index = m_currentIndex;
+    else if (index < realActionCount())
+        m_currentIndex = index;
+
     QAction *action = currentAction();
 
     if (action && action->menu()) {
