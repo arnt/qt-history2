@@ -59,18 +59,22 @@ QLayoutSupport::QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget
     p.setColor(QPalette::Base, Qt::red);
 
     m_indicatorLeft = new InvisibleWidget(m_widget);
+    m_indicatorLeft->setAutoFillBackground(true);
     m_indicatorLeft->setPalette(p);
     m_indicatorLeft->hide();
 
     m_indicatorTop = new InvisibleWidget(m_widget);
+    m_indicatorTop->setAutoFillBackground(true);
     m_indicatorTop->setPalette(p);
     m_indicatorTop->hide();
 
     m_indicatorRight = new InvisibleWidget(m_widget);
+    m_indicatorRight->setAutoFillBackground(true);
     m_indicatorRight->setPalette(p);
     m_indicatorRight->hide();
 
     m_indicatorBottom = new InvisibleWidget(m_widget);
+    m_indicatorBottom->setAutoFillBackground(true);
     m_indicatorBottom->setPalette(p);
     m_indicatorBottom->hide();
 
