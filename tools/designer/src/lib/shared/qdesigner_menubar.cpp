@@ -86,6 +86,9 @@ void QDesignerMenuBar::paintEvent(QPaintEvent *event)
 {
     QMenuBar::paintEvent(event);
 
+    if (!hasFocus())
+        return;
+
     if (QAction *a = currentAction()) {
         QPainter p(this);
         QRect g = actionGeometry(a);
@@ -97,6 +100,9 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
 {
      if (!formWindow())
          return false;
+
+    if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut)
+        update();
 
     switch (event->type()) {
         default: break;

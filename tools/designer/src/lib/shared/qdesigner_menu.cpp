@@ -21,6 +21,7 @@
 #include <QtDesigner/QtDesigner>
 
 #include <QtCore/QTimer>
+#include <QtCore/qdebug.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
@@ -61,8 +62,6 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
     m_editor->setObjectName("__qt__passive_editor");
     m_editor->hide();
     m_editor->installEventFilter(this);
-
-    m_editor->installEventFilter(this);
     qApp->installEventFilter(this);
 
 }
@@ -73,6 +72,10 @@ QDesignerMenu::~QDesignerMenu()
 
 bool QDesignerMenu::handleEvent(QWidget *widget, QEvent *event)
 {
+    if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut) {
+        update();
+    }
+
     switch (event->type()) {
         default: break;
 
@@ -295,6 +298,9 @@ void QDesignerMenu::slotRemoveSelectedAction(QAction *action)
 void QDesignerMenu::paintEvent(QPaintEvent *event)
 {
     QMenu::paintEvent(event);
+
+    if (!hasFocus())
+        return;
 
     if (QAction *a = currentAction()) {
         QPainter p(this);
@@ -587,6 +593,7 @@ void QDesignerMenu::slotShowSubMenuNow()
         QRect g = actionGeometry(action);
         menu->move(mapToGlobal(g.topRight()));
         menu->show();
+        menu->setFocus();
     }
 }
 
@@ -814,14 +821,11 @@ void QDesignerMenu::slotDeactivateNow()
 
 void QDesignerMenu::drawSelection(QPainter *p, const QRect &r)
 {
-    const QColor sel_color = Qt::blue;
-    static const int bg_alpha = 32;
-
     p->save();
 
-    QColor c = sel_color;
+    QColor c = Qt::blue;
     p->setPen(c);
-    c.setAlpha(bg_alpha);
+    c.setAlpha(32);
     p->setBrush(c);
     p->drawRect(r);
 
