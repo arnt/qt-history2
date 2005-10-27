@@ -53,6 +53,12 @@
     connections across threads and per-thread event loops.
     \o A new \l{resource system} for embedding images
     and other resource files into the application executable.
+    \o Integrated support for rendering
+    \l{The Arthur Paint System#SVG Rendering Support}{Scalable Vector Graphics}
+    (SVG).
+    \o A Portable Document Format (PDF) backend for Qt's printing system.
+    \o Additional features for developers using \l{QtOpenGL}{OpenGL}, such as
+    support for pixel buffers and sample buffers.
     \endlist
 
     \section1 Build System
