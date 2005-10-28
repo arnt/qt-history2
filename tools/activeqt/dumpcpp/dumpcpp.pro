@@ -1,6 +1,6 @@
 TEMPLATE = app
 
 CONFIG  += console qaxcontainer
-DESTDIR  = ../../../../bin
+DESTDIR  = ../../../bin
 
 SOURCES += main.cpp
