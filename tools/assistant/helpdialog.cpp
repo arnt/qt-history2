@@ -18,6 +18,7 @@
 #include "mainwindow.h"
 #include "config.h"
 #include "tabbedbrowser.h"
+#include "private/qunicodetables_p.h"
 
 #include <QtGui>
 #include <QtDebug>
@@ -116,9 +117,22 @@ private:
     QMultiMap<QString, QString> contents;
 };
 
-bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
+bool caseInsensitiveLessThan(const QString &as, const QString &bs)
 {
-    return s1.toLower() < s2.toLower();
+    const QChar *a = as.unicode();
+    const QChar *b = bs.unicode();    
+    if (a == 0)
+        return true;
+    if (b == 0)
+        return false;
+    if (a == b)
+        return false;
+    int l=qMin(as.length(),bs.length());
+    while (l-- && QUnicodeTables::lower((*a).unicode()) == QUnicodeTables::lower((*b).unicode()))
+        a++,b++;
+    if (l==-1)
+        return (as.length() < bs.length());
+    return QUnicodeTables::lower((*a).unicode()) < QUnicodeTables::lower((*b).unicode());
 }
 
 /**
@@ -135,12 +149,13 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
         perfectMatch = 0;
 
     const QRegExp regExp(s);
-    const QList<QString> keys = contents.keys();
-    for (int i = 0; i < keys.size(); ++i){
-        if (i > 0 && keys.at(i-1) == keys.at(i))
+    QMultiMap<QString, QString>::iterator it = contents.begin();
+    QString lastKey;
+    for (; it != contents.end(); ++it) {
+        if (it.key() == lastKey)
             continue;
-
-        const QString key = keys.at(i);
+        lastKey = it.key();
+        const QString key = it.key();
         if (key.contains(regExp) || key.contains(s, Qt::CaseInsensitive)) {
             list.append(key);
             //qDebug() << regExp << regExp.indexIn(s) << s << key << regExp.matchedLength();
@@ -149,6 +164,8 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
                     goodMatch = list.count() - 1;
                 if (s.length() == key.length())
                     perfectMatch = list.count() - 1;
+            }  else if (perfectMatch > -1 && s == key) {
+                perfectMatch = list.count() - 1;
             }
         }
     }
@@ -161,7 +178,7 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
     
     // sort the new list
     QString match;
-    if (bestMatch > 0 && list.count() > bestMatch)
+    if (bestMatch >= 0 && list.count() > bestMatch)
         match = list[bestMatch];
     qSort(list.begin(), list.end(), caseInsensitiveLessThan);
     setStringList(list);
@@ -197,6 +214,8 @@ HelpDialog::HelpDialog(QWidget *parent, MainWindow *h)
     indexModel = new IndexListModel(this);
     ui.listIndex->setModel(indexModel);
     ui.listIndex->setLayoutMode(QListView::Batched);
+    ui.listBookmarks->setItemHidden(ui.listBookmarks->headerItem(), true);
+    ui.listContents->setItemHidden(ui.listContents->headerItem(), true);
 }
 
 void HelpDialog::initialize()
@@ -220,9 +239,7 @@ void HelpDialog::initialize()
 
     cacheFilesPath = QDir::homePath() + QLatin1String("/.assistant"); //### Find a better location for the dbs
 
-    ui.editIndex->installEventFilter(this);
-    ui.listBookmarks->setItemHidden(ui.listBookmarks->headerItem(), true);
-    ui.listContents->setItemHidden(ui.listContents->headerItem(), true);
+    ui.editIndex->installEventFilter(this);    
 
     ui.framePrepare->hide();
     connect(qApp, SIGNAL(lastWindowClosed()), SLOT(lastWinClosed()));
