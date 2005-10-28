@@ -566,7 +566,6 @@ void QWidgetPrivate::blitToScreen(const QRegion &globalrgn)
 //#define QT_SHAREDMEM_DEBUG
 
 QWSBackingStore::QWSBackingStore()
-    :pix(0), shmid(-1), shmaddr(0)
 {
 }
 
@@ -575,38 +574,23 @@ QWSBackingStore::~QWSBackingStore()
     detach();
 }
 
-QSize QWSBackingStore::size() const
-{
-    return pix ? pix->size() : QSize(0,0);
-}
-
-QPixmap *QWSBackingStore::pixmap() const
-{
-    return pix;
-}
-
-bool QWSBackingStore::isNull() const
-{
-    return pix ? pix->isNull() : true;
-}
-
 // 32bpp only
 void QWSBackingStore::blit(const QRect &r, const QPoint &p)
 {
-//    int depth = pix->depth();
-    int lineskip = pix->width();
+//    int depth = pix.depth();
+    int lineskip = pix.width();
 
     uint *src;
     uint *dest;
 
     if (r.top() < p.y()) {
         // backwards vertically
-        src = (uint*)shmaddr + r.bottom()*lineskip + r.left();
-        dest = (uint*)shmaddr + (p.y()+r.height()-1)*lineskip + p.x();
+        src = (uint*)shm.address() + r.bottom()*lineskip + r.left();
+        dest = (uint*)shm.address() + (p.y()+r.height()-1)*lineskip + p.x();
         lineskip = -lineskip;
     } else {
-        src = (uint*)shmaddr + r.top()*lineskip + r.left();
-        dest = (uint*)shmaddr + p.y()*lineskip + p.x();
+        src = (uint*)shm.address() + r.top()*lineskip + r.left();
+        dest = (uint*)shm.address() + p.y()*lineskip + p.x();
     }
 
     const int w = r.width();
@@ -632,17 +616,10 @@ void QWSBackingStore::blit(const QRect &r, const QPoint &p)
 void QWSBackingStore::detach()
 {
 #ifdef QT_SHAREDMEM_DEBUG
-    qDebug() << "QWSBackingStore::detach shmid" << shmid << "shmaddr" << shmaddr;
+    qDebug() << "QWSBackingStore::detach shmid" << shmid << "shmaddr" << shm.address();
 #endif
-    delete pix;
-    pix =0;
-    if (shmid != -1) {
-        //we don't IPC_RMID it here; we do it in attach() instead. Otherwise the server could get a
-        //region event with a shmid that's already deleted
-        shmdt(shmaddr);
-        shmid = -1;
-        shmaddr = 0;
-    }
+    pix = QPixmap();
+    shm.detach();
 }
 
 void QWSBackingStore::create(QSize s)
@@ -651,69 +628,56 @@ void QWSBackingStore::create(QSize s)
         return;
     }
     detach();
-    pix = new QPixmap;
     if (s.isNull()) {
 #ifdef QT_SHAREDMEM_DEBUG
         qDebug() << "QWSBackingStore::create null size";
 #endif
-        shmid = -1;
-        shmaddr = 0;
         return;
     }
     int extradatasize = 0;//2 * sizeof(int); //store height and width ???
     int datasize = 4 * s.width() * s.height() + extradatasize; //### hardcoded 32bpp
-    shmid = shmget(IPC_PRIVATE, datasize, IPC_CREAT|0600);
-    if (shmid == -1) {
+
+    if (!shm.create(datasize)) {
         perror("QWSBackingStore::create allocating shared memory");
-        qFatal("Error allocating shared memory of size %d", datasize);
+        qFatal("Error creating shared memory of size %d", datasize);
     }
-    shmaddr = shmat(shmid,0,0);
-    shmctl(shmid, IPC_RMID, 0);
-    if (shmaddr == (void*)-1) {
-        perror("QWSBackingStore::create attaching to shared memory");
-        qFatal("Error attaching to shared memory");
-    }
-    QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
+
+    QImage img(static_cast<uchar*>(shm.address())+extradatasize, s.width(), s.height(),
                QImage::Format_ARGB32_Premultiplied);
-    *pix = QPixmap::fromImage(img);
+    pix = QPixmap::fromImage(img);
 #ifdef QT_SHAREDMEM_DEBUG
-    qDebug() << "QWSBackingStore::create size" << s << "shmid" << shmid << "shmaddr" << shmaddr;
+    qDebug() << "QWSBackingStore::create size" << s << "shmid" << shm.id() << "shmaddr" << shm.address();
 #endif
 }
 
 void QWSBackingStore::attach(int id, QSize s)
 {
-    if (shmid == id && s == size())
+    if (shm.id() == id && s == size())
         return;
     detach();
     if (s.isNull())
         return;
     if (id == -1) {
+        // this is a creative solution (aka hack) for implementing QT_FLUSH_PAINT
 #ifdef QT_SHAREDMEM_DEBUG
         qDebug() << "QWSBackingStore::attach no id, size" << s;
 #endif
-        pix = new QPixmap(s);
-        pix->fill(QColor(255,255,0,128));
+        pix = QPixmap(s);
+        pix.fill(QColor(255,255,0,128));
         return;
     }
-    shmaddr = shmat(id,0,0);
-    shmctl(shmid, IPC_RMID, 0);
-    if (shmaddr == (void*)-1) {
+    if (!shm.attach(id)) {
         perror("QWSBackingStore::attach attaching to shared memory");
         qWarning("Error attaching to shared memory 0x%x of size %d",
                  id, s.width() * s.height());
-        shmaddr = 0;
         return;
     }
-    shmid = id;
-    pix = new QPixmap;
-
     int extradatasize = 0;
-    QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
+    QImage img(static_cast<uchar*>(shm.address())+extradatasize, s.width(), s.height(),
                QImage::Format_ARGB32_Premultiplied);
-    *pix = QPixmap::fromImage(img);
+    pix = QPixmap::fromImage(img);
 #ifdef QT_SHAREDMEM_DEBUG
-    qDebug() << "QWSBackingStore::attach size" << s << "shmid" << shmid << "shmaddr" << shmaddr;
+    qDebug() << "QWSBackingStore::attach size" << s << "shmid" << shm.id() << "shmaddr" << shm.address();
 #endif
 }
 

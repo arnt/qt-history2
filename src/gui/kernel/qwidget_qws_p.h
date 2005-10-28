@@ -25,7 +25,8 @@
 // We mean it.
 //
 
-class QPixmap;
+#include <qpixmap.h>
+#include <private/qsharedmemory_p.h>
 
 class QWSBackingStore
 {
@@ -40,18 +41,17 @@ public:
     void lock(bool write=false);
     void unlock();
 
-    QPixmap *pixmap() const;
+    QPixmap *pixmap() { return &pix; }
 
     void blit(const QRect &src, const QPoint &dest);
 
-    int memoryId() const { return shmid; }
-    QSize size() const;
+    int memoryId() const { return shm.id(); }
+    QSize size() const { return pix.size(); }
 
-    bool isNull() const;
+    bool isNull() const { return pix.isNull(); }
 private:
-    QPixmap *pix;
-    int shmid;
-    void *shmaddr;
+    QPixmap pix;
+    QSharedMemory shm;
 };
 
 #endif // QWIDGET_QWS_P_H

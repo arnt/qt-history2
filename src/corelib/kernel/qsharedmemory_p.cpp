@@ -15,78 +15,111 @@
 
 #if !defined(QT_QWS_NO_SHM)
 
-#if defined(QT_POSIX_QSHM)
-#include <sys/mman.h>
+#include <sys/shm.h>
 
-QSharedMemory::QSharedMemory (int size, const QString &filename, char c)
+
+
+QSharedMemory::QSharedMemory()
+    : shmBase(0), shmSize(0), character(0),  shmId(-1), key(-1)
 {
-  shmSize = size;
-  shmFile = filename;
-  character = c;
-  shmFile.append(c);
 }
 
-bool QSharedMemory::create ()
+
+QSharedMemory::~QSharedMemory()
 {
-  shmFD = shm_open (shmFile.latin1 (), O_RDWR | O_EXCL | O_CREAT, 0666);
-  if (shmFD == -1)
-    return false;
-  else if (ftruncate (shmFD, shmSize) == -1)
-    {
-      close (shmFD);
-      return false;
+    detach();
+}
+
+
+bool QSharedMemory::create(int size)
+{
+    if (shmId != -1)
+        detach();
+    shmId = shmget(IPC_PRIVATE, size, IPC_CREAT|0600);
+
+    if (shmId == -1) {
+#ifdef QT_SHM_DEBUG
+        perror("QWSBackingStore::create allocating shared memory");
+        qWarning("Error allocating shared memory of size %d", datasize);
+#endif
+        return false;
     }
-
-  return true;
+    shmBase = shmat(shmId,0,0);
+    shmctl(shmId, IPC_RMID, 0);
+    if (shmBase == (void*)-1) {
+#ifdef QT_SHM_DEBUG
+        perror("QWSBackingStore::create attaching to shared memory");
+        qWarning("Error attaching to shared memory");
+#endif
+        shmBase = 0;
+        return false;
+    }
+    return true;
 }
 
-void QSharedMemory::destroy ()
+bool QSharedMemory::attach(int id)
 {
-  shm_unlink (shmFile.latin1 ());
+    if (shmId == id)
+        return id != -1;
+    if (shmId != -1)
+        detach();
+
+    shmBase = shmat(id,0,0);
+    if (shmBase == (void*)-1) {
+#ifdef QT_SHM_DEBUG
+        perror("QWSBackingStore::attach attaching to shared memory");
+        qWarning("Error attaching to shared memory 0x%x of size %d",
+                 id, s.width() * s.height());
+#endif
+        shmBase = 0;
+        return false;
+    }
+    shmId = id;
+    return true;
 }
 
-bool QSharedMemory::attach ()
-{
-  shmBase = mmap (0, shmSize, PROT_READ | PROT_WRITE, MAP_SHARED, shmFD, 0);
-
-  if (shmBase == MAP_FAILED)
-    return false;
-
-  close (shmFD);
-  return true;
-}
 
 void QSharedMemory::detach ()
 {
-  munmap (shmBase, shmSize);
+    if (!shmBase)
+        return;
+    shmdt (shmBase);
+    shmBase = 0;
+    shmSize = 0;
+    shmId = -1;
 }
 
 void QSharedMemory::setPermissions (mode_t mode)
 {
-  mprotect (shmBase, shmSize, mode);        // Provide defines to make prot work properly
+  struct shmid_ds shm;
+  shmctl (shmId, IPC_STAT, &shm);
+  shm.shm_perm.mode = mode;
+  shmctl (shmId, IPC_SET, &shm);
 }
 
-int QSharedMemory::size()
+int QSharedMemory::size () const
 {
-    struct stat buf;
-    int rc = fstat (shmFD, &buf);
-    if (rc != -1)
-        return buf.st_size;
-    else
-        return rc;
+    struct shmid_ds shm;
+    shmctl (shmId, IPC_STAT, &shm);
+    return shm.shm_segsz;
 }
 
-#else // Assume SysV for backwards compat
-#include <sys/shm.h>
+
+// old API
+
+
 
 QSharedMemory::QSharedMemory (int size, const QString &filename, char c)
 {
   shmSize = size;
   shmFile = filename;
+  shmBase = 0;
+  shmId = -1;
   character = c;
   key = ftok (shmFile.toLatin1().constData(), c);
-  idInitted = false;
 }
+
+
 
 bool QSharedMemory::create ()
 {
@@ -109,32 +142,9 @@ bool QSharedMemory::attach ()
     shmId = shmget (key, shmSize, 0);
 
   shmBase = shmat (shmId, 0, 0);
-  if ((long) shmBase == -1 || shmBase == 0)
-    return false;
-  else
-    return true;
+
+  return (long)shmBase != -1 && shmBase != 0;
 }
 
-void QSharedMemory::detach ()
-{
-  shmdt (shmBase);
-}
-
-void QSharedMemory::setPermissions (mode_t mode)
-{
-  struct shmid_ds shm;
-  shmctl (shmId, IPC_STAT, &shm);
-  shm.shm_perm.mode = mode;
-  shmctl (shmId, IPC_SET, &shm);
-}
-
-int QSharedMemory::size ()
-{
-    struct shmid_ds shm;
-    shmctl (shmId, IPC_STAT, &shm);
-    return shm.shm_segsz;
-}
-
-#endif
 
 #endif

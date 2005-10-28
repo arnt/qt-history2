@@ -32,32 +32,40 @@
 
 class Q_CORE_EXPORT QSharedMemory {
 public:
-        QSharedMemory() {};
-        QSharedMemory(int, const QString &, char c = 'Q');
-        ~QSharedMemory() {};
 
-        bool create();
-        void destroy();
+    QSharedMemory();
+    ~QSharedMemory();
 
-        bool attach();
-        void detach();
+    void setPermissions(mode_t mode);
+    int size() const;
+    void *address() { return shmBase; };
 
-        void setPermissions(mode_t mode);
-        int size();
-        void * base() { return shmBase; };
+    int id() const { return shmId; }
+
+    void detach();
+
+    bool create(int size);
+    bool attach(int id);
+
+    //bool create(int size, const QString &filename, char c = 'Q');
+    //bool attach(const QString &filename, char c = 'Q');
+// old API
+
+    QSharedMemory(int, const QString &, char c = 'Q');
+    void * base() { return address(); };
+
+    bool create();
+    void destroy();
+
+    bool attach();
 
 private:
-        void *shmBase;
-        int shmSize;
-        QString shmFile;
-        char character;
-#if defined(QT_POSIX_QSHM)
-        int shmFD;
-#else
-        int shmId;
-        key_t key;
-        int idInitted;
-#endif
+    void *shmBase;
+    int shmSize;
+    QString shmFile;
+    char character;
+    int shmId;
+    key_t key;
 };
 
 #endif
