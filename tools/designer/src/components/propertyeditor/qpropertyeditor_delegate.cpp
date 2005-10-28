@@ -55,6 +55,7 @@ private:
 EditorWithReset::EditorWithReset(const QString &prop_name, QWidget *parent)
     : QWidget(parent)
 {
+    setAutoFillBackground(true);
     m_prop_name = prop_name;
     m_child_editor = 0;
     m_layout = new QHBoxLayout(this);
