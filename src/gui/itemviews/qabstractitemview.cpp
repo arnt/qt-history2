@@ -2058,6 +2058,8 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
     if (current.isValid() && !d->autoScrollTimer.isActive()) {
         scrollTo(current);
         edit(current, CurrentChanged, 0);
+        if (current.row() == (model()->rowCount(rootIndex()) - 1))
+            d->fetchMore();
     }
 }
 
