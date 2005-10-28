@@ -41,6 +41,7 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
     m_interactive = true;
     m_dragging = false;
     m_currentIndex = 0;
+    m_lastSubMenuIndex = -1;
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
     setAcceptDrops(true); // ### fake
@@ -422,32 +423,62 @@ void QDesignerMenu::adjustIndicator(const QPoint &pos)
     }
 }
 
-void QDesignerMenu::dragEnterEvent(QDragEnterEvent *event)
+QAction *QDesignerMenu::actionMimeData(const QMimeData *mimeData) const
 {
-    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
+    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(mimeData)) {
         Q_ASSERT(!d->items.isEmpty());
 
-        QAction *action = d->items.first();
-        if (action && !actions().contains(action)) {
-            m_dragging = true;
-            event->acceptProposedAction();
-            adjustIndicator(event->pos());
-            update();
-        }
+        return d->items.first();
+    }
+
+    return 0;
+}
+
+bool QDesignerMenu::checkAction(QAction *action) const
+{
+    if (!action || action->menu())
+        return false; // menu action!! nothing to do
+
+    if (actions().contains(action))
+        return false; // we already have the action in the menu
+
+    return true;
+}
+
+void QDesignerMenu::dragEnterEvent(QDragEnterEvent *event)
+{
+    QAction *action = actionMimeData(event->mimeData());
+    if (!action)
+        return;
+
+    m_dragging = true;
+    event->acceptProposedAction();
+
+    if (checkAction(action)) {
+        adjustIndicator(event->pos());
     }
 }
 
 void QDesignerMenu::dragMoveEvent(QDragMoveEvent *event)
 {
-    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
-        Q_ASSERT(!d->items.isEmpty());
-
-        QAction *action = d->items.first();
-        if (action && !actions().contains(action)) {
+    if (QAction *action = actionMimeData(event->mimeData())) {
+        if (checkAction(action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
         }
+    } else {
+        event->ignore();
     }
+
+    int index = findAction(event->pos());
+
+    if (index >= realActionCount())
+        return;
+
+    m_currentIndex = index;
+
+    if (m_lastSubMenuIndex != index)
+        m_showSubMenuTimer->start(300);
 }
 
 void QDesignerMenu::dragLeaveEvent(QDragLeaveEvent *)
@@ -460,16 +491,20 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
 {
     m_dragging = false;
 
-    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
+    if (QAction *action = actionMimeData(event->mimeData())) {
         event->acceptProposedAction();
 
-        QAction *action = d->items.first();
-        if (action && !actions().contains(action)) {
+        if (checkAction(action)) {
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
             insertAction(actions().at(index), action);
             m_currentIndex = index;
             adjustSize();
+
+            if (parentMenu()) { // ### undo/redo
+                parentMenu()->createRealMenuAction(parentMenu()->currentAction());
+            }
+            updateCurrentAction();
         }
     }
 
@@ -512,6 +547,8 @@ void QDesignerMenu::closeMenuChain()
             subMenu->hide();
         }
     }
+
+    m_lastSubMenuIndex = -1;
 }
 
 void QDesignerMenu::moveLeft()
@@ -625,6 +662,13 @@ QDesignerMenu *QDesignerMenu::findOrCreateSubMenu(QAction *action)
 void QDesignerMenu::slotShowSubMenuNow()
 {
     m_showSubMenuTimer->stop();
+
+    if (m_lastSubMenuIndex == m_currentIndex)
+        return;
+
+    if (m_lastSubMenuIndex != -1)
+        hideSubMenu();
+
     QAction *action = currentAction();
 
     if (QMenu *menu = findOrCreateSubMenu(action)) {
@@ -634,6 +678,7 @@ void QDesignerMenu::slotShowSubMenuNow()
         menu->move(mapToGlobal(g.topRight()));
         menu->show();
         menu->setFocus();
+        m_lastSubMenuIndex = m_currentIndex;
     }
 }
 
@@ -839,6 +884,7 @@ QAction *QDesignerMenu::safeActionAt(int index) const
 
 void QDesignerMenu::hideSubMenu()
 {
+    m_lastSubMenuIndex = -1;
     foreach (QMenu *subMenu, qFindChildren<QMenu*>(this)) {
         subMenu->hide();
     }

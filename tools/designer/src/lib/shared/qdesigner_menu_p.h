@@ -39,6 +39,7 @@ class QDesignerActionProviderExtension;
 class QDesignerMenu;
 class QDesignerMenuBar;
 class QPainter;
+class QMimeData;
 
 class QDESIGNER_SHARED_EXPORT QDesignerMenu: public QMenu
 {
@@ -98,6 +99,8 @@ protected:
 
     QAction *currentAction() const;
     int realActionCount() const;
+    QAction *actionMimeData(const QMimeData *mimeData) const;
+    bool checkAction(QAction *action) const;
 
     void updateCurrentAction();
     void showSubMenu(QAction *action);
@@ -131,6 +134,7 @@ private:
     bool m_interactive;
     QLineEdit *m_editor;
     bool m_dragging;
+    int m_lastSubMenuIndex;
 };
 
 #endif // QDESIGNER_MENU_H
