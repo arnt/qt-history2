@@ -240,12 +240,13 @@
 } d
 
 
+% ########## fix non level3 code path
 % create a linear gradient pattern
-% x1 y1 x2 y2 color1 color2 SetLinGrad --
+% x1 y1 x2 y2 color_string size SetLinGrad --
 /SetLinGrad {
   level3 {
-    /c2 exch def
-    /c1 exch def
+    /size exch def
+    /colors exch def
     /y2 exch def
     /x2 exch def
     /y1 exch def
@@ -261,11 +262,12 @@
 	/Extend [true true]
 	/Function 
 	  <<
-	  /FunctionType 2
+	  /FunctionType 0
 	  /Domain [0 1]
-	  /C0 c1
-	  /C1 c2
-	  /N 1
+          /Range [0 1 0 1 0 1]
+	  /DataSource colors
+          /BitsPerSample 8
+	  /Size [size]
 	  >>
 	>>
       >>
