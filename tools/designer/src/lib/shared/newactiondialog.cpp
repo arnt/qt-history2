@@ -23,7 +23,7 @@
 namespace qdesigner_internal {
 
 NewActionDialog::NewActionDialog(ActionEditor *parent)
-    : QDialog(parent),
+    : QDialog(parent, Qt::Sheet),
       m_actionEditor(parent)
 {
     ui.setupUi(this);
