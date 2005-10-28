@@ -1310,8 +1310,12 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     }
 
     QPoint mouse = QCursor::pos();
-    const bool snapToMouse = true; //(p == mouse); ###
+    const bool snapToMouse = (p == mouse);
     if (snapToMouse) {
+        // Ensure that the menu is visible when the menu is opened at the
+        // mouse cursor position (e.g., a context menu), and if we are in
+        // reverse layout mode, "flip" it so it opens to the left instead of
+        // the right.
         if (qApp->layoutDirection() == Qt::RightToLeft)
             pos.setX(pos.x()-size.width());
         if (pos.x()+size.width() > screen.right())
