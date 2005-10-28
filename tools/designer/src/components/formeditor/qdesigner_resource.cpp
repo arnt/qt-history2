@@ -1416,10 +1416,9 @@ QActionGroup *QDesignerResource::create(DomActionGroup *ui_action_group, QObject
 
 DomActionRef *QDesignerResource::createActionRefDom(QAction *action)
 {
-    QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(action);
-
-    if (!item || qobject_cast<SentinelAction*>(action)
-              || (!action->isSeparator() && action->objectName().isEmpty()))
+    if (!core()->metaDataBase()->item(action)
+            || qobject_cast<SentinelAction*>(action)
+            || (!action->isSeparator() && !action->menu() && action->objectName().isEmpty()))
         return 0;
 
     return QAbstractFormBuilder::createActionRefDom(action);
