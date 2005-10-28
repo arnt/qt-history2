@@ -389,7 +389,6 @@ void QWSClient::sendEvent(QWSEvent* event)
         //qDebug() << "QWSClient::sendEvent type " << event->type << " socket state " << csocket->state();
         if (csocket->state() == QAbstractSocket::ConnectedState) {
             event->write(csocket);
-//            csocket->flush(); //### triggers QAbstractSocket bug, and we don't seem to need it
         }
     }
     else
@@ -771,8 +770,10 @@ void QWSServerPrivate::newConnection()
     while (QTcpSocket *sock = ssocket->nextPendingConnection()) {
         int socket = sock->socketDescriptor();
 
-        clientMap[socket] = new QWSClient(q,sock, get_object_id());
+        QWSClient *client = new QWSClient(q,sock, get_object_id());
+        clientMap[socket] = client;
 
+#ifndef QT_NO_SXV
 #ifdef QTRANSPORTAUTH_DEBUG
         qDebug( "Transport auth connected: unix stream socket %d", socket );
 #endif
@@ -785,22 +786,28 @@ void QWSServerPrivate::newConnection()
                 QTransportAuth::Trusted, socket );
 
         QAuthDevice *ad = a->recvBuf( d, sock );
-        ad->setClient( clientMap[socket] );
+        ad->setClient(client);
 
         QObject::connect(ad, SIGNAL(readyRead()),
                 q, SLOT(doClient()));
 
-        QObject::connect(clientMap[socket], SIGNAL(connectionClosed()),
+        QObject::connect(client, SIGNAL(connectionClosed()),
                 q, SLOT(clientClosed()));
+#else
+        QObject::connect(client, SIGNAL(readyRead()),
+                         q, SLOT(doClient()));
+        QObject::connect(client, SIGNAL(connectionClosed()),
+                         q, SLOT(clientClosed()));
+#endif // QT_NO_SXV
 
-        clientMap[socket]->sendConnectedEvent(qws_display_spec);
+        client->sendConnectedEvent(qws_display_spec);
 
         if (!maxwindow_rect.isEmpty() && clientMap.contains(socket))
-            clientMap[socket]->sendMaxWindowRectEvent();
+            client->sendMaxWindowRectEvent();
 
         // pre-provide some object id's
         for (int i=0; i<20 && clientMap.contains(socket); i++)
-            invokeCreate(0,clientMap[socket]);
+            invokeCreate(0, client);
 
     }
 }
@@ -888,38 +895,34 @@ void QWSServerPrivate::deleteWindowsLater()
 
 QWSCommand* QWSClient::readMoreCommand()
 {
-#ifndef QT_NO_QWS_MULTIPROCESS
-    QIODevice *ad = 0;
-    if ( socketDescriptor != -1 )  // not server socket
-        ad = QTransportAuth::getInstance()->passThroughByClient( this );
+    QIODevice *socket = 0;
+#ifndef QT_NO_SXV
+    if (socketDescriptor != -1)  // not server socket
+        socket = QTransportAuth::getInstance()->passThroughByClient( this );
 #if QTRANSPORTAUTH_DEBUG
-    if ( ad )
-    {
+    if (socket) {
         char displaybuf[1024];
-        qint64 bytes = ad->bytesAvailable();
+        qint64 bytes = socket->bytesAvailable();
         if ( bytes > 511 ) bytes = 511;
-        hexstring( displaybuf, ((unsigned char *)(reinterpret_cast<QAuthDevice*>(ad)->buffer().constData())), bytes );
-        qDebug( "readMoreCommand: %lli bytes - %s", ad->bytesAvailable(), displaybuf );
+        hexstring( displaybuf, ((unsigned char *)(reinterpret_cast<QAuthDevice*>(socket)->buffer().constData())), bytes );
+        qDebug( "readMoreCommand: %lli bytes - %s", socket->bytesAvailable(), displaybuf );
     }
 #endif
-    if ( !ad )
-        ad = csocket;   // server socket
-    if (ad)
-    {
+#endif // QT_NO_SXV
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+    if (!socket)
+        socket = csocket;   // server socket
+    if (socket) {
         // read next command
-        if (!command)
-        {
-            int command_type = qws_read_uint(ad);
+        if (!command) {
+            int command_type = qws_read_uint(socket);
 
-            // qDebug("Got cmd: %s", getCommandTypeString( (QWSCommand::Type)command_type ));
-
-            if ( command_type >= 0 )
+            if (command_type >= 0)
                 command = QWSCommand::factory(command_type);
         }
-        if (command)
-        {
-            if (command->read(ad))
-            {
+        if (command) {
+            if (command->read(socket)) {
                 // Finished reading a whole command.
                 QWSCommand* result = command;
                 command = 0;
@@ -929,9 +932,8 @@ QWSCommand* QWSClient::readMoreCommand()
 
         // Not finished reading a whole command.
         return 0;
-    }
-    else
-#endif
+    } else
+#endif // QT_NO_QWS_MULTIPROCESS
     {
         QList<QWSCommand*> *serverQueue = qt_get_server_queue();
         return serverQueue->isEmpty() ? 0 : serverQueue->takeFirst();
@@ -959,20 +961,19 @@ void QWSServerPrivate::doClient()
         return;
     }
     active = true;
-    QAuthDevice *ad = qobject_cast<QAuthDevice*>(q->sender());
+
     QWSClient* client;
-    if ( ad )
-    {
+#ifndef QT_NO_SXV
+    QAuthDevice *ad = qobject_cast<QAuthDevice*>(q->sender());
+    if (ad)
         client = ad->client();
-    }
     else
-    {
+#endif
         client = (QWSClient*)q->sender();
-    }
     doClient(client);
     active = false;
 }
-#endif
+#endif // QT_NO_QWS_MULTIPROCESS
 
 void QWSServerPrivate::doClient(QWSClient *client)
 {
@@ -984,7 +985,6 @@ void QWSServerPrivate::doClient(QWSClient *client)
         // Try for some more...
         command=client->readMoreCommand();
     }
-
 
     while (!commandQueue.isEmpty()) {
         QWSCommandStruct *cs = commandQueue.takeAt(0);
@@ -1293,7 +1293,7 @@ void QWSServerPrivate::sendMouseEventUnfiltered(const QPoint &pos, int state, in
     event.simpleData.delta = wheel;
     event.simpleData.time=qwsServerPrivate->timer.elapsed();
 
-    QWSClient *serverClient = qwsServerPrivate->clientMap[-1];
+    QWSClient *serverClient = qwsServerPrivate->clientMap.value(-1);
     QWSClient *winClient = win ? win->client() : 0;
 
 #ifndef QT_NO_QWS_INPUTMETHODS
@@ -1609,7 +1609,7 @@ void QWSServer::sendIMEvent(const QInputMethodEvent *ime)
         out << a.type << a.start << a.length << a.value;
     }
     event.setData(buffer.data(), buffer.size());
-     QWSClient *serverClient = qwsServerPrivate->clientMap[-1];
+    QWSClient *serverClient = qwsServerPrivate->clientMap.value(-1);
     if (serverClient)
         serverClient->sendEvent(&event);
     if (win && win->client() && win->client() != serverClient)
@@ -2428,31 +2428,31 @@ QBrush *QWSServerPrivate::bgBrush = 0;
 
 void QWSServerPrivate::move_region(const QWSRegionMoveCommand *cmd)
 {
-    QWSClient *serverClient = clientMap[-1];
+    QWSClient *serverClient = clientMap.value(-1);
     invokeRegionMove(cmd, serverClient);
 }
 
 void QWSServerPrivate::set_altitude(const QWSChangeAltitudeCommand *cmd)
 {
-    QWSClient *serverClient = clientMap[-1];
+    QWSClient *serverClient = clientMap.value(-1);
     invokeSetAltitude(cmd, serverClient);
 }
 
 void QWSServerPrivate::set_opacity(const QWSSetOpacityCommand *cmd)
 {
-    QWSClient *serverClient = clientMap[-1];
+    QWSClient *serverClient = clientMap.value(-1);
     invokeSetOpacity(cmd, serverClient);
 }
 
 
 void QWSServerPrivate::request_focus(const QWSRequestFocusCommand *cmd)
 {
-    invokeSetFocus(cmd, clientMap[-1]);
+    invokeSetFocus(cmd, clientMap.value(-1));
 }
 
 void QWSServerPrivate::set_identity(const QWSIdentifyCommand *cmd)
 {
-    invokeIdentify(cmd, clientMap[-1]);
+    invokeIdentify(cmd, clientMap.value(-1));
 }
 
 void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
@@ -2526,23 +2526,23 @@ void QWSServerPrivate::request_region(int wid, int shmid, int windowtype, QRegio
 
 void QWSServerPrivate::destroy_region(const QWSRegionDestroyCommand *cmd)
 {
-    invokeRegionDestroy(cmd, clientMap[-1]);
+    invokeRegionDestroy(cmd, clientMap.value(-1));
 }
 
 void QWSServerPrivate::name_region(const QWSRegionNameCommand *cmd)
 {
-    invokeRegionName(cmd, clientMap[-1]);
+    invokeRegionName(cmd, clientMap.value(-1));
 }
 
 #ifndef QT_NO_QWS_INPUTMETHODS
 void QWSServerPrivate::im_response(const QWSIMResponseCommand *cmd)
  {
-     invokeIMResponse(cmd, clientMap[-1]);
+     invokeIMResponse(cmd, clientMap.value(-1));
 }
 
 void QWSServerPrivate::im_update(const QWSIMUpdateCommand *cmd)
 {
-    invokeIMUpdate(cmd, clientMap[-1]);
+    invokeIMUpdate(cmd, clientMap.value(-1));
 }
 
 void QWSServerPrivate::send_im_mouse(const QWSIMMouseCommand *cmd)

@@ -14,7 +14,7 @@
 #include "qtransportauth_qws.h"
 #include "qtransportauth_qws_p.h"
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifndef QT_NO_SXV
 
 #include "../../3rdparty/md5/md5.h"
 #include "../../3rdparty/md5/md5.c"
@@ -988,4 +988,4 @@ static int hmac_md5(
 
 #include "moc_qtransportauth_qws_p.cpp"
 
-#endif // QT_NO_QWS_MULTIPROCESS
+#endif // QT_NO_SXV

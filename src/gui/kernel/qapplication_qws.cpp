@@ -481,18 +481,18 @@ void QWSDisplay::Data::init()
 
         QWSIdentifyCommand cmd;
         cmd.setId(appName);
+#ifndef QT_NO_SXV
         QTransportAuth *a = QTransportAuth::getInstance();
         QTransportAuth::Data *d = a->connectTransport(
                 QTransportAuth::UnixStreamSock |
                 QTransportAuth::Trusted,
                 csocket->socketDescriptor());
-
         QAuthDevice *ad = a->authBuf( d, csocket );
 
-        if  (csocket)
-            cmd.write( ad );
-        else
-            qt_server_enqueue(&cmd);
+        cmd.write(ad);
+#else
+        cmd.write(csocket);
+#endif
 
         // wait for connect confirmation
         waitForConnection();
@@ -511,8 +511,8 @@ void QWSDisplay::Data::init()
             QScreen *s = qt_get_screen(qws_display_id, qws_display_spec);
             sharedRamSize += s->memoryNeeded(qws_display_spec);
         } else {
-            perror("Can't attach to main ram memory.");
-            exit(1);
+            perror("QWSDisplay::Data::init");
+            qFatal("Client can't attach to main ram memory.");
         }
         sharedRam = static_cast<uchar *>(shm.address());
     } else
@@ -935,18 +935,6 @@ void QWSDisplay::setProperty(int winId, int property, int mode,
     cmd.setData(data, strlen(data));
     d->sendCommand(cmd);
 }
-
-#ifdef QT_QWS_REPEATER
-void QWSDisplay::repaintRegion(QRegion & r)
-{
-    QWSRepaintRegionCommand cmd;
-    cmd.simpleData.winId = -1;
-    cmd.simpleData.nrectangles=r.rects().count();
-    cmd.setData((char *)r.rects().data(),
-                 r.rects().count() * sizeof(QRect), false);
-    d->sendCommand(cmd);
-}
-#endif
 
 void QWSDisplay::removeProperty(int winId, int property)
 {
@@ -2242,7 +2230,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         if (e->simpleData.window == d->directPainterID && e->simpleData.type == QWSRegionEvent::Allocation) {
             d->directPainterRegion.setRects(e->rectangles, e->simpleData.nrectangles);
             d->seenRegionEvent = true;
-            qDebug() << "QWSEvent::Region" << e->simpleData.type << "region" <<  d->directPainterRegion;
+//            qDebug() << "QWSEvent::Region" << e->simpleData.type << "region" <<  d->directPainterRegion;
             return 1;
         }
         return 0;

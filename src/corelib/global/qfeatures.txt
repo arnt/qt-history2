@@ -792,3 +792,8 @@ Requires:
 Name: Qt/Embedded window system properties.
 SeeAlso: ???
 
+Feature: SXV
+Section: Qt/Embedded-specific
+Requires: MULTIPROCESS
+Name: Secure Execution Environment (experimental)
+SeeAlso: ???

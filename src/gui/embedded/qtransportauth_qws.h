@@ -20,15 +20,9 @@
 #include <QtCore/qbuffer.h>
 #include <QtCore/qpointer.h>
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifndef QT_NO_SXV
 
 QT_MODULE(Gui)
-
-#define KEY_TEMPLATE "XOXOXOauthOXOXOX99"
-#define APP_KEY const char *_key = KEY_TEMPLATE;
-#define QL_APP_KEY const char *_ql_key = KEY_TEMPLATE;
-
-
 
 class QAuthDevice;
 class QWSClient;
@@ -121,5 +115,5 @@ private:
     Q_DECLARE_PRIVATE(QTransportAuth)
 };
 
-#endif // QT_NO_QWS_MULTIPROCESS
+#endif // QT_NO_SXV
 #endif // QTRANSPORTAUTH_QWS_H

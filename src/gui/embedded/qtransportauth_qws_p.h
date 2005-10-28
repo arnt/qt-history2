@@ -17,7 +17,7 @@
 #include "qtransportauth_qws.h"
 #include "qbuffer.h"
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifndef QT_NO_SXV
 
 #include "private/qobject_p.h"
 
@@ -173,6 +173,6 @@ public:
     QHash<QWSClient*,QIODevice*> buffersByClient;
 };
 
-#endif // QT_NO_QWS_MULTIPROCESS
+#endif // QT_NO_SXV
 #endif // QTRANSPORTAUTH_QWS_P_H
 

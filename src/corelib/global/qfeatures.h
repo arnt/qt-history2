@@ -296,6 +296,11 @@
 #define QT_NO_STYLE_WINDOWSXP
 #endif
 
+// Secure Execution Environment (experimental)
+#if !defined(QT_NO_SXV) && (defined(QT_NO_MULTIPROCESS))
+#define QT_NO_SXV
+#endif
+
 // FTP file access
 #if !defined(QT_NO_FTP) && (defined(QT_NO_URLINFO) || defined(QT_NO_TEXTDATE))
 #define QT_NO_FTP

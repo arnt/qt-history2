@@ -94,9 +94,6 @@ public:
     void registerChannel(const QString &channel);
     void sendMessage(const QString &channel, const QString &msg,
                        const QByteArray &data);
-#ifdef QT_QWS_REPEATER
-    void repaintRegion(QRegion &);
-#endif
 #ifndef QT_NO_QWS_INPUTMETHODS
     void sendIMUpdate(int type, int winId, int widgetid);
     void resetIM();
