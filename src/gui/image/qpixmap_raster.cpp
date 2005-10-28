@@ -359,7 +359,7 @@ QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
     QWidget *tlw = widget->window();
     QPoint tlwOffset = widget->mapTo(tlw, QPoint());
     r.translate(tlwOffset);
-    tlw->d_func()->drawWidget(&res, r, -r.topLeft(), QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawPaintOnScreen);
+    tlw->d_func()->drawWidget(&res, r, -r.topLeft(), QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawPaintOnScreen | QWidgetPrivate::DrawInvisible);
     return res;
 }
 

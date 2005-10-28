@@ -556,13 +556,15 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 
         if(!toClean.isEmpty()) {
             dirty -= toClean;
+            if (tlw->isUpdatesEnabled()) {
 #ifdef Q_WS_QWS
-            buffer.lock();
-            tlw->d_func()->drawWidget(buffer.pixmap(), toClean, tlwOffset);
-            buffer.unlock();
+                buffer.lock();
+                tlw->d_func()->drawWidget(buffer.pixmap(), toClean, tlwOffset);
+                buffer.unlock();
 #else
-            tlw->d_func()->drawWidget(&buffer, toClean, tlwOffset);
+                tlw->d_func()->drawWidget(&buffer, toClean, tlwOffset);
 #endif
+            }
         }
         QRegion toFlush = rgn;
         toFlush.translate(widget->mapTo(tlw, QPoint()));
@@ -591,16 +593,18 @@ bool QWidgetBackingStore::isOpaque(const QWidget *widget)
 void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QPoint &offset, int flags)
 {
     Q_Q(QWidget);
-    if (!q->isVisible() || !q->updatesEnabled() || rgn.isEmpty())
+    if (rgn.isEmpty())
         return;
 
-    QRegion toBePainted  = rgn & clipRect(); //(rgn & visibleRegion());
+    const bool asRoot = flags & DrawAsRoot;
+    const bool alsoOnScreen = flags & DrawPaintOnScreen;
+    const bool recursive = flags & DrawRecursive;
+    const bool alsoInvisible = flags & DrawInvisible;
+
+    QRegion toBePainted = rgn;
+    if (asRoot && !alsoInvisible)
+        toBePainted &= clipRect(); //(rgn & visibleRegion());
     subtractOpaqueChildren(toBePainted, q->rect(), QPoint());
-
-
-    bool asRoot = flags & DrawAsRoot;
-    bool alsoOnScreen = flags & DrawPaintOnScreen;
-    bool recursive = flags & DrawRecursive;
 
     if (!toBePainted.isEmpty()) {
         bool onScreen = QWidgetBackingStore::paintOnScreen(q);
@@ -633,9 +637,9 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
             }
 
 #if 0
-            qDebug() << "painting" << q << "opaque ==" << hasBackground(q);
+            qDebug() << "painting" << q << "opaque ==" << isOpaque();
             qDebug() << "clipping to" << toBePainted << "location == " << offset
-                     << "geometry ==" << QRect(q->mapTo(tlw, QPoint(0, 0)), q->size());
+                     << "geometry ==" << QRect(q->mapTo(q->window(), QPoint(0, 0)), q->size());
 #endif
 
             //actually send the paint event
@@ -668,11 +672,11 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
         const QObjectList children = q->children();
         for(int i = 0; i < children.size(); ++i) {
             if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
-                if(!child->isWindow() && child->isVisible() && child->updatesEnabled()) {
+                if(!child->isWindow() && !child->isHidden() && child->updatesEnabled()) {
                     if (qRectIntersects(rgn.boundingRect().translated(-child->pos()), child->rect())) {
                         QRegion childRegion(rgn);
                         childRegion.translate(-child->pos());
-                        childRegion &= child->d_func()->clipRect();
+                        childRegion &= child->rect();
                         if(QWExtra *extra = child->d_func()->extraData()) {
                             if(!extra->mask.isEmpty())
                                 childRegion &= extra->mask;

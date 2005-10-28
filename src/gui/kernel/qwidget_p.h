@@ -185,9 +185,10 @@ public:
 
     void paintBackground(QPainter *, const QRect &, bool asRoot = true) const;
     enum DrawWidgetFlags {
-        DrawAsRoot = 1,
-        DrawPaintOnScreen = 2,
-        DrawRecursive = 4
+        DrawAsRoot = 0x01,
+        DrawPaintOnScreen = 0x02,
+        DrawRecursive = 0x04,
+        DrawInvisible = 0x08
     };
     void drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QPoint &offset, int flags = DrawAsRoot | DrawRecursive);
 
