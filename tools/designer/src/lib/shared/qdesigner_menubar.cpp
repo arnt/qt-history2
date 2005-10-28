@@ -293,12 +293,8 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
     }
 
     m_startPosition = mapFromGlobal(event->globalPos());
-
-    int index = findAction(m_startPosition);
-    if (index < actions().count()) {
-        hideMenu(index);
-        update();
-    }
+    m_currentIndex = findAction(m_startPosition);
+    update();
 
     return true;
 }
@@ -306,6 +302,17 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
 bool QDesignerMenuBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 {
     event->accept();
+
+    if (event->button() != Qt::LeftButton)
+        return true;
+
+    if (m_startPosition == mapFromGlobal(event->globalPos())) {
+        int index = findAction(m_startPosition);
+        if (index < actions().count()) {
+            showMenu(index);
+            update();
+        }
+    }
 
     m_startPosition = QPoint();
 
@@ -321,6 +328,12 @@ bool QDesignerMenuBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 
     if ((pos - m_startPosition).manhattanLength() < qApp->startDragDistance())
         return true;
+
+    int index = findAction(m_startPosition);
+    if (index < actions().count()) {
+        hideMenu(index);
+        update();
+    }
 
     startDrag(pos);
     m_startPosition = QPoint();
