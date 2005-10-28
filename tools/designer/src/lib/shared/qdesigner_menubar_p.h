@@ -126,6 +126,7 @@ private:
     bool m_interactive;
     QLineEdit *m_editor;
     bool m_dragging;
+    int m_lastMenuActionIndex;
 };
 
 #endif // QDESIGNER_MENUBAR_H

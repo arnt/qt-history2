@@ -411,13 +411,12 @@ void QDesignerMenu::adjustIndicator(const QPoint &pos)
 
 void QDesignerMenu::dragEnterEvent(QDragEnterEvent *event)
 {
-    m_dragging = true;
-
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
         Q_ASSERT(!d->items.isEmpty());
 
         QAction *action = d->items.first();
         if (action && !actions().contains(action)) {
+            m_dragging = true;
             event->acceptProposedAction();
             adjustIndicator(event->pos());
             update();

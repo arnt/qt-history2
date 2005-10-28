@@ -61,6 +61,7 @@ QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
       m_interactive(true)
 {
     m_currentIndex = 0;
+    m_lastMenuActionIndex = -1;
     m_dragging = false;
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
@@ -278,7 +279,6 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
     m_startPosition = mapFromGlobal(event->globalPos());
 
     int index = findAction(m_startPosition);
-    qDebug() << "QDesignerMenuBar::handleMousePressEvent():" << index;
     if (index < actions().count()) {
         hideMenu(index);
         update();
@@ -527,14 +527,14 @@ bool QDesignerMenuBar::checkAction(QAction *action) const
 
 void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
 {
-    m_dragging = true;
-
     QAction *action = actionMimeData(event->mimeData());
     if (!action)
         return;
 
+    m_dragging = true;
+    event->acceptProposedAction();
+
     if (checkAction(action)) {
-        event->acceptProposedAction();
         adjustIndicator(event->pos());
     }
 }
@@ -544,6 +544,10 @@ void QDesignerMenuBar::dragMoveEvent(QDragMoveEvent *event)
     if (checkAction(actionMimeData(event->mimeData()))) {
         event->acceptProposedAction();
         adjustIndicator(event->pos());
+    } else {
+        event->ignore();
+        int index = findAction(event->pos());
+        showMenu(index);
     }
 }
 
@@ -562,7 +566,7 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
         event->acceptProposedAction();
 
         QAction *action = d->items.first();
-        if (action && action->menu() && !actions().contains(action)) {
+        if (action && action->menu() && !actions().contains(action)) { // ### undo/redo
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
             insertAction(actions().at(index), action);
@@ -653,6 +657,9 @@ void QDesignerMenuBar::hideMenu(int index)
     if (index < 0)
         index = m_currentIndex;
 
+    if (index >= realActionCount())
+        return;
+
     m_currentIndex = index;
 
     QAction *action = currentAction();
@@ -687,12 +694,17 @@ void QDesignerMenuBar::showMenu(int index)
     if (index < 0)
         index = m_currentIndex;
 
-    if (index < realActionCount())
-        m_currentIndex = index;
+    if (index >= realActionCount())
+        return;
 
+    m_currentIndex = index;
     QAction *action = currentAction();
 
     if (action && action->menu()) {
+        if (m_lastMenuActionIndex != -1 && m_lastMenuActionIndex != index)
+            hideMenu(m_lastMenuActionIndex);
+
+        m_lastMenuActionIndex = index;
         QMenu *menu = action->menu();
         QRect g = actionGeometry(action);
 
