@@ -556,7 +556,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 
         if(!toClean.isEmpty()) {
             dirty -= toClean;
-            if (tlw->isUpdatesEnabled()) {
+            if (tlw->updatesEnabled()) {
 #ifdef Q_WS_QWS
                 buffer.lock();
                 tlw->d_func()->drawWidget(buffer.pixmap(), toClean, tlwOffset);
