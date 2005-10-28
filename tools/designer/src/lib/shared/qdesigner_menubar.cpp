@@ -689,9 +689,7 @@ void QDesignerMenuBar::hideMenu(int index)
     if (index >= realActionCount())
         return;
 
-    m_currentIndex = index;
-
-    QAction *action = currentAction();
+    QAction *action = actions().at(index);
 
     if (action && action->menu()) {
         action->menu()->hide();
