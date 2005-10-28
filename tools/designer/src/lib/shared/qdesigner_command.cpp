@@ -2233,14 +2233,7 @@ void InsertActionIntoCommand::redo()
     Q_ASSERT(m_action != 0);
     Q_ASSERT(m_parentWidget != 0);
 
-    QDesignerFormEditorInterface *core = formWindow()->core();
-    /*
-    core->metaDataBase()->add(m_action);
-    if (m_action->menu())
-        formWindow()->manageWidget(m_action->menu());
-    */
     m_parentWidget->insertAction(m_beforeAction, m_action);
-    m_parentWidget->adjustSize();
 }
 
 void InsertActionIntoCommand::undo()
@@ -2248,14 +2241,7 @@ void InsertActionIntoCommand::undo()
     Q_ASSERT(m_action != 0);
     Q_ASSERT(m_parentWidget != 0);
 
-    QDesignerFormEditorInterface *core = formWindow()->core();
-    /*
-    core->metaDataBase()->remove(m_action);
-    if (m_action->menu())
-        formWindow()->unmanageWidget(m_action->menu());
-    */
     m_parentWidget->removeAction(m_action);
-    m_parentWidget->adjustSize();
 }
 
 // ---- RemoveActionFromCommand ----
@@ -2282,14 +2268,7 @@ void RemoveActionFromCommand::redo()
     Q_ASSERT(m_action != 0);
     Q_ASSERT(m_parentWidget != 0);
 
-    QDesignerFormEditorInterface *core = formWindow()->core();
-    /*
-    core->metaDataBase()->remove(m_action);
-    if (m_action->menu())
-        formWindow()->unmanageWidget(m_action->menu());
-    */
     m_parentWidget->removeAction(m_action);
-    m_parentWidget->adjustSize();
 }
 
 void RemoveActionFromCommand::undo()
@@ -2297,14 +2276,7 @@ void RemoveActionFromCommand::undo()
     Q_ASSERT(m_action != 0);
     Q_ASSERT(m_parentWidget != 0);
 
-    QDesignerFormEditorInterface *core = formWindow()->core();
-    /*
-    core->metaDataBase()->add(m_action);
-    if (m_action->menu())
-        formWindow()->manageWidget(m_action->menu());
-    */
     m_parentWidget->insertAction(m_beforeAction, m_action);
-    m_parentWidget->adjustSize();
 }
 
 } // namespace qdesigner_internal
