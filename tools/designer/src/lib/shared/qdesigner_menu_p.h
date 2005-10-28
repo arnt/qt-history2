@@ -65,6 +65,8 @@ public:
 
     static void drawSelection(QPainter *p, const QRect &r);
 
+    bool dragging() const;
+
 public slots:
     void moveLeft();
     void moveRight();

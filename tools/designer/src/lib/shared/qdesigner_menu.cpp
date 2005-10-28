@@ -330,10 +330,25 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
     if (!hasFocus() || m_dragging)
         return;
 
+    if (QDesignerMenu *menu = parentMenu()) {
+        if (menu->dragging())
+            return;
+    }
+
+    if (QDesignerMenuBar *menubar = qobject_cast<QDesignerMenuBar*>(parentWidget())) {
+        if (menubar->dragging())
+            return;
+    }
+
     if (QAction *a = currentAction()) {
         QRect g = actionGeometry(a);
         drawSelection(&p, g.adjusted(1, 1, -1, -1));
     }
+}
+
+bool QDesignerMenu::dragging() const
+{
+    return m_dragging;
 }
 
 QDesignerMenu *QDesignerMenu::findRootMenu() const
@@ -461,20 +476,20 @@ void QDesignerMenu::dragEnterEvent(QDragEnterEvent *event)
 
 void QDesignerMenu::dragMoveEvent(QDragMoveEvent *event)
 {
-    if (QAction *action = actionMimeData(event->mimeData())) {
-        if (checkAction(action)) {
-            event->acceptProposedAction();
-            adjustIndicator(event->pos());
-        }
-    } else {
+    int index = findAction(event->pos());
+    if (index >= realActionCount() + 1) {
         event->ignore();
+        return;
     }
 
-    int index = findAction(event->pos());
-
-    if (index >= realActionCount())
+    QAction *action = actionMimeData(event->mimeData());
+    if (action == 0 || !checkAction(action)) {
+        event->ignore();
         return;
+    }
 
+    event->acceptProposedAction();
+    adjustIndicator(event->pos());
     m_currentIndex = index;
 
     if (m_lastSubMenuIndex != index)
@@ -669,7 +684,13 @@ void QDesignerMenu::slotShowSubMenuNow()
     if (m_lastSubMenuIndex != -1)
         hideSubMenu();
 
+    if (m_currentIndex >= realActionCount())
+        return;
+
     QAction *action = currentAction();
+
+    if (action->isSeparator())
+        return;
 
     if (QMenu *menu = findOrCreateSubMenu(action)) {
         menu->setWindowFlags(Qt::FramelessWindowHint | Qt::Window);

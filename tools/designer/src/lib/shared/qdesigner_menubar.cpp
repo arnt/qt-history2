@@ -649,6 +649,11 @@ void QDesignerMenuBar::moveLeft(bool ctrl)
     update();
 }
 
+bool QDesignerMenuBar::dragging() const
+{
+    return m_dragging;
+}
+
 void QDesignerMenuBar::moveRight(bool ctrl)
 {
     if (ctrl)

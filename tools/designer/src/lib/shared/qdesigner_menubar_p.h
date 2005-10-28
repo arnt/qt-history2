@@ -67,6 +67,7 @@ public:
 
     void adjustSpecialActions();
     bool interactive(bool i);
+    bool dragging() const;
 
 public slots:
     void moveLeft(bool ctrl = false);
