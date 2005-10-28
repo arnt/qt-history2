@@ -420,12 +420,8 @@ int QDesignerMenu::findAction(const QPoint &pos) const
         QRect g = actionGeometry(actions().at(i));
         g.setTopLeft(QPoint(0, 0));
 
-        if (g.contains(pos)) {
-            if (pos.x() > g.right() - 10) // ### 10px
-                return i + 1;
-
+        if (g.contains(pos))
             return i;
-        }
     }
 
     return realActionCount(); // the fake actions
