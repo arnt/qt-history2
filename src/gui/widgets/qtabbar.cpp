@@ -534,7 +534,7 @@ void QTabBar::setShape(Shape shape)
     If true then QTabBar draws a base in relation to the styles overlab.
     Otherwise only the tabs are drawn.
 
-    \sa QStyle::pixelMetric() QStyle::PM_TabBarBaseOverlap
+    \sa QStyle::pixelMetric() QStyle::PM_TabBarBaseOverlap QStyleOptionTabBarBase
 */
 
 void QTabBar::setDrawBase(bool drawBase)

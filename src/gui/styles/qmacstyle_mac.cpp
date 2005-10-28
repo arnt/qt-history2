@@ -5157,7 +5157,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case PM_ToolTipLabelFrameWidth:
         ret = 0;
         break;
-    case PM_MacSizeGripSize: {
+    case PM_SizeGripSize: {
         QAquaWidgetSize aSize;
         if (widget && widget->window()->windowType() == Qt::Tool)
             aSize = QAquaSizeSmall;

@@ -91,6 +91,9 @@ QMotifStyle::QMotifStyle(bool useHighlightCols)
 }
 
 
+/*!
+    \internal
+*/
 QMotifStyle::QMotifStyle(QMotifStylePrivate &dd, bool useHighlightColors)
     : QCommonStyle(dd)
 {

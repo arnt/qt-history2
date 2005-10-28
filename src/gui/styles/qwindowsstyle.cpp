@@ -87,9 +87,12 @@ void QWindowsStyle::timerEvent(QTimerEvent *event)
     event->ignore();
 }
 
-// Records Alt- and Focus events
+/*!
+    \reimp
+*/
 bool QWindowsStyle::eventFilter(QObject *o, QEvent *e)
 {
+    // Records Alt- and Focus events
     if (!o->isWidgetType())
         return QObject::eventFilter(o, e);
 

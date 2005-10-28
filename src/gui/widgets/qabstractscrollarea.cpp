@@ -160,7 +160,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
 
     // Get the size of the size-grip from the style.
     const int magicPixelOffset = -2;
-    const int sizeGripSize = q->style()->pixelMetric(QStyle::PM_MacSizeGripSize, &opt, q) + magicPixelOffset;
+    const int sizeGripSize = q->style()->pixelMetric(QStyle::PM_SizeGripSize, &opt, q) + magicPixelOffset;
 
     // Get coordiantes for the bottom-right corner of the scroll area and its window.
     const QPoint scrollAreaBottomRight = q->mapTo(q->window(), vr.bottomRight());

@@ -61,7 +61,7 @@ QCommonStyle::QCommonStyle()
     : QStyle(*new QCommonStylePrivate)
 { }
 
-/* \internal 
+/*! \internal
 */
 QCommonStyle::QCommonStyle(QCommonStylePrivate &dd)
     : QStyle(dd)
@@ -3308,6 +3308,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
     case PM_CheckBoxLabelSpacing:
         ret = 6;
+        break;
+    case PM_SizeGripSize:
+        ret = 13;
         break;
     default:
         ret = 0;

@@ -2893,8 +2893,17 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 
 /*!
     \class QStyleOptionTabBarBase
+    \brief The QStyleOptionTabBarBase class is used to describe the
+    the base of a tabbar. That is the part that the tabbar usually overlaps with.
+
+   This is drawn by a standalone QTabBar (one that isn't part of a QTabWidget).
+
+   \sa QTabBar::drawBase()
 */
 
+/*!
+    Construct a QStyleOptionTabBarBase. The members are given default values.
+*/
 QStyleOptionTabBarBase::QStyleOptionTabBarBase()
     : QStyleOption(Version, SO_TabBarBase), shape(QTabBar::RoundedNorth)
 {
@@ -2907,6 +2916,11 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 }
 
 /*!
+    \fn QStyleOptionTabBarBase::QStyleOptionTabBarBase(const QStyleOptionTabBarBase &other)
+
+    Constructs a copy of \a other.
+*/
+/*!
     \variable QStyleOptionTabBarBase::Type
 
     Equals SO_TabBarBase.
@@ -2916,6 +2930,26 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
     \variable QStyleOptionTabBarBase::Version
 
     Equals 1.
+*/
+
+/*!
+    \variable QStyleOptionTabBarBase::shape
+
+    The shape of the tabbar.
+*/
+
+/*!
+    \variable QStyleOptionTabBarBase::tabBarRect
+
+    The rectangle containing all the tabs.
+*/
+
+/*!
+    \variable QStyleOptionTabBarBase::selectedTabRect
+
+    The rectangle containing the selected tab
+
+    This is within the bounds of the tabBarRect.
 */
 
 #endif // QT_NO_TABBAR

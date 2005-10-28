@@ -462,7 +462,7 @@ public:
         PM_ToolTipLabelFrameWidth,
         PM_CheckBoxLabelSpacing,
         PM_TabBarIconSize,
-        PM_MacSizeGripSize,
+        PM_SizeGripSize,
         PM_DockWidgetTitleMargin,
 
 
