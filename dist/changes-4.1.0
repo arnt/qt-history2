@@ -68,6 +68,12 @@ General Fixes
 - QMap/QHash
 	Const-correctness in const_iterator's operator--(int).
 
+- QMainWindow
+ 	The saveState() and restoreState() functions no longer
+ 	fallback to using the windowTitle property when the objectName
+ 	property is not set on a QToolBar or QDockWidget; this
+ 	behavior was undocumented and has been removed.
+
 - QMetaType
         Class is now fully reentrant.
         Metatypes can be registered or queried from multiple threads.
