@@ -78,7 +78,9 @@ void QSvgTinyDocument::draw(QPainter *p)
     QList<QSvgNode*>::iterator itr = m_renderers.begin();
     applyStyle(p);
     while (itr != m_renderers.end()) {
-        (*itr)->draw(p);
+        QSvgNode *node = *itr;
+        if (node->isVisible())
+            node->draw(p);
         ++itr;
     }
     revertStyle(p);

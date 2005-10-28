@@ -17,7 +17,8 @@
 #include "qdebug.h"
 
 QSvgNode::QSvgNode(QSvgNode *parent)
-    : m_parent(parent)
+    : m_parent(parent),
+      m_visible(true)
 {
 }
 
@@ -210,4 +211,16 @@ void QSvgNode::setRequiredFonts(const QStringList &lst)
 const QStringList & QSvgNode::requiredFonts() const
 {
     return m_requiredFonts;
+}
+
+void QSvgNode::setVisible(bool visible)
+{
+    //propagate visibility change of true to the parent
+    //not propagating false is just a small performance
+    //degradation since we'll iterate over children without
+    //drawing any of them
+    if (m_parent && visible && !m_parent->isVisible())
+        m_parent->setVisible(true);
+
+    m_visible = visible;
 }

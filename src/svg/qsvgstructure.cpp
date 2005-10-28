@@ -29,7 +29,9 @@ void QSvgG::draw(QPainter *p)
     QList<QSvgNode*>::iterator itr = m_renderers.begin();
     applyStyle(p);
     while (itr != m_renderers.end()) {
-        (*itr)->draw(p);
+        QSvgNode *node = *itr;
+        if (node->isVisible())
+            node->draw(p);
         ++itr;
     }
     revertStyle(p);
@@ -128,55 +130,57 @@ void QSvgSwitch::draw(QPainter *p)
     applyStyle(p);
     while (itr != m_renderers.end()) {
         QSvgNode *node = *itr;
-        const QStringList &features  = node->requiredFeatures();
-        const QStringList &extensions = node->requiredExtensions();
-        const QStringList &languages = node->requiredLanguages();
-        const QStringList &formats = node->requiredFormats();
-        const QStringList &fonts = node->requiredFonts();
+        if (node->isVisible()) {
+            const QStringList &features  = node->requiredFeatures();
+            const QStringList &extensions = node->requiredExtensions();
+            const QStringList &languages = node->requiredLanguages();
+            const QStringList &formats = node->requiredFormats();
+            const QStringList &fonts = node->requiredFonts();
 
-        bool okToRender = true;
-        if (!features.isEmpty()) {
-            QStringList::const_iterator sitr = features.begin();
-            for (; sitr != features.end(); ++sitr) {
-                if (!m_features.contains(*sitr)) {
-                    okToRender = false;
-                    break;
+            bool okToRender = true;
+            if (!features.isEmpty()) {
+                QStringList::const_iterator sitr = features.begin();
+                for (; sitr != features.end(); ++sitr) {
+                    if (!m_features.contains(*sitr)) {
+                        okToRender = false;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (okToRender && !extensions.isEmpty()) {
-            QStringList::const_iterator sitr = extensions.begin();
-            for (; sitr != extensions.end(); ++sitr) {
-                if (!m_extensions.contains(*sitr)) {
-                    okToRender = false;
-                    break;
+            if (okToRender && !extensions.isEmpty()) {
+                QStringList::const_iterator sitr = extensions.begin();
+                for (; sitr != extensions.end(); ++sitr) {
+                    if (!m_extensions.contains(*sitr)) {
+                        okToRender = false;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (okToRender && !languages.isEmpty()) {
-            QStringList::const_iterator sitr = languages.begin();
-            okToRender = false;
-            for (; sitr != languages.end(); ++sitr) {
-                if ((*sitr).startsWith(m_systemLanguagePrefix)) {
-                    okToRender = true;
-                    break;
+            if (okToRender && !languages.isEmpty()) {
+                QStringList::const_iterator sitr = languages.begin();
+                okToRender = false;
+                for (; sitr != languages.end(); ++sitr) {
+                    if ((*sitr).startsWith(m_systemLanguagePrefix)) {
+                        okToRender = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (okToRender && !formats.isEmpty()) {
-            okToRender = false;
-        }
+            if (okToRender && !formats.isEmpty()) {
+                okToRender = false;
+            }
 
-        if (okToRender && !fonts.isEmpty()) {
-            okToRender = false;
-        }
+            if (okToRender && !fonts.isEmpty()) {
+                okToRender = false;
+            }
 
-        if (okToRender) {
-            node->draw(p);
-            break;
+            if (okToRender) {
+                node->draw(p);
+                break;
+            }
         }
         ++itr;
     }

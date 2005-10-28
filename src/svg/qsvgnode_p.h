@@ -90,6 +90,9 @@ public:
 
     void setRequiredFonts(const QStringList &lst);
     const QStringList & requiredFonts() const;
+
+    void setVisible(bool visible);
+    bool isVisible() const;
 protected:
     QSvgNode   *m_parent;
     QSvgStyle   m_style;
@@ -100,11 +103,18 @@ protected:
     QStringList m_requiredLanguages;
     QStringList m_requiredFormats;
     QStringList m_requiredFonts;
+
+    bool        m_visible;
 };
 
 inline QSvgNode *QSvgNode::parent() const
 {
     return m_parent;
+}
+
+inline bool QSvgNode::isVisible() const
+{
+    return m_visible;
 }
 
 #endif // QSVGNODE_P_H

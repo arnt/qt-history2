@@ -897,28 +897,42 @@ static void parseTransform(QSvgNode *node,
 
 }
 
+static void parseVisibility(QSvgNode *node,
+                            const QXmlAttributes &attributes,
+                            QSvgHandler *)
+{
+    QString value = attributes.value("visibility");
+    QSvgNode *parent = node->parent();
+
+    if (parent && (value.isEmpty() || value == "inherit"))
+        node->setVisible(parent->isVisible());
+    else if (value == "hidden" || value == "collapse") {
+        node->setVisible(false);
+    } else
+        node->setVisible(true);
+}
 
 static void pathArcSegment(QPainterPath &path,
                            qreal xc, qreal yc,
                            qreal th0, qreal th1,
-                           qreal rx, qreal ry, qreal x_axis_rotation)
+                           qreal rx, qreal ry, qreal xAxisRotation)
 {
-    qreal sin_th, cos_th;
+    qreal sinTh, cosTh;
     qreal a00, a01, a10, a11;
     qreal x1, y1, x2, y2, x3, y3;
     qreal t;
-    qreal th_half;
+    qreal thHalf;
 
-    sin_th = sin(x_axis_rotation * (M_PI / 180.0));
-    cos_th = cos(x_axis_rotation * (M_PI / 180.0));
+    sinTh = sin(xAxisRotation * (M_PI / 180.0));
+    cosTh = cos(xAxisRotation * (M_PI / 180.0));
 
-    a00 =  cos_th * rx;
-    a01 = -sin_th * ry;
-    a10 =  sin_th * rx;
-    a11 =  cos_th * ry;
+    a00 =  cosTh * rx;
+    a01 = -sinTh * ry;
+    a10 =  sinTh * rx;
+    a11 =  cosTh * ry;
 
-    th_half = 0.5 * (th1 - th0);
-    t = (8.0 / 3.0) * sin(th_half * 0.5) * sin(th_half * 0.5) / sin(th_half);
+    thHalf = 0.5 * (th1 - th0);
+    t = (8.0 / 3.0) * sin(thHalf * 0.5) * sin(thHalf * 0.5) / sin(thHalf);
     x1 = xc + cos(th0) - t * sin(th0);
     y1 = yc + sin(th0) + t * cos(th0);
     x3 = xc + cos(th1);
@@ -931,7 +945,32 @@ static void pathArcSegment(QPainterPath &path,
                  a00 * x3 + a01 * y3, a10 * x3 + a11 * y3);
 }
 
-// the code underneath is from XSVG
+// the arc handling code underneath is from XSVG (BSD license)
+/*
+ * Copyright © 2002 USC/Information Sciences Institute
+ *
+ * Permission to use, copy, modify, distribute, and sell this software
+ * and its documentation for any purpose is hereby granted without
+ * fee, provided that the above copyright notice appear in all copies
+ * and that both that copyright notice and this permission notice
+ * appear in supporting documentation, and that the name of
+ * Information Sciences Institute not be used in advertising or
+ * publicity pertaining to distribution of the software without
+ * specific, written prior permission.  Information Sciences Institute
+ * makes no representations about the suitability of this software for
+ * any purpose.  It is provided "as is" without express or implied
+ * warranty.
+ *
+ * INFORMATION SCIENCES INSTITUTE DISCLAIMS ALL WARRANTIES WITH REGARD
+ * TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL INFORMATION SCIENCES
+ * INSTITUTE BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+ * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA
+ * OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ * PERFORMANCE OF THIS SOFTWARE.
+ *
+ */
 static void pathArc(QPainterPath &path,
                     qreal		rx,
                     qreal		ry,
@@ -1419,6 +1458,8 @@ static bool parseStyle(QSvgNode *node,
     parsePen(node, attributes, handler);
     parseFont(node, attributes, handler);
     parseTransform(node, attributes, handler);
+    parseVisibility(node, attributes, handler);
+
 
 #if 0
     value = attributes.value("audio-level");
@@ -1448,8 +1489,6 @@ static bool parseStyle(QSvgNode *node,
     value = attributes.value("viewport-fill");
 
     value = attributes.value("viewport-fill-opacity");
-
-    value = attributes.value("visibility");
 #endif
     return true;
 }
