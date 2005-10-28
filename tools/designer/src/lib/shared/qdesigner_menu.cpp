@@ -372,7 +372,7 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
 
 int QDesignerMenu::findAction(const QPoint &pos) const
 {
-    for (int i = 0; i<actions().size() - 1; ++i) {
+    for (int i = 0; i<realActionCount(); ++i) {
         QRect g = actionGeometry(actions().at(i));
         g.setTopLeft(QPoint(0, 0));
 
@@ -384,7 +384,7 @@ int QDesignerMenu::findAction(const QPoint &pos) const
         }
     }
 
-    return actions().size() - 2; // the fake actions
+    return realActionCount(); // the fake actions
 }
 
 void QDesignerMenu::adjustIndicator(const QPoint &pos)
@@ -547,7 +547,7 @@ QAction *QDesignerMenu::currentAction() const
     return actions().at(m_currentIndex);
 }
 
-int QDesignerMenu::realActionCount()
+int QDesignerMenu::realActionCount() const
 {
     return actions().count() - 2; // 2 fake actions
 }

@@ -97,7 +97,7 @@ protected:
     int findAction(const QPoint &pos) const;
 
     QAction *currentAction() const;
-    int realActionCount();
+    int realActionCount() const;
 
     void updateCurrentAction();
     void showSubMenu(QAction *action);

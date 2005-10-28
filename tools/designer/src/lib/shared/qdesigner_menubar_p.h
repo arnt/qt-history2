@@ -27,9 +27,10 @@
 
 #include "shared_global_p.h"
 
-#include <QtCore/QPointer>
 #include <QtGui/QAction>
 #include <QtGui/QMenuBar>
+
+#include <QtCore/QPointer>
 #include <QtCore/QMimeData>
 
 class QTimer;
@@ -94,6 +95,9 @@ protected:
     bool handleKeyPressEvent(QWidget *widget, QKeyEvent *event);
 
     void startDrag(const QPoint &pos);
+
+    QAction *actionMimeData(const QMimeData *mimeData) const;
+    bool checkAction(QAction *action) const;
 
     void adjustIndicator(const QPoint &pos);
     int findAction(const QPoint &pos) const;

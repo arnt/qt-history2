@@ -103,7 +103,6 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
          return false;
 
    if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut) {
-       qDebug() << "QDesignerMenuBar::handleEvent():" << widget << event;
        update();
    }
 
@@ -473,45 +472,51 @@ void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
     }
 }
 
+QAction *QDesignerMenuBar::actionMimeData(const QMimeData *mimeData) const
+{
+    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(mimeData)) {
+        Q_ASSERT(!d->items.isEmpty());
+
+        return d->items.first();
+    }
+
+    return 0;
+}
+
+bool QDesignerMenuBar::checkAction(QAction *action) const
+{
+    if (!action || !action->menu())
+        return false; // no menu action!! nothing to do
+
+    QDesignerMenu *m = qobject_cast<QDesignerMenu*>(action->menu());
+    if (m && m->parentMenu())
+        return false; // it looks like a submenu
+
+    if (actions().contains(action))
+        return false; // we already have the action in the menubar
+
+    return true;
+}
+
 void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
 {
     m_dragging = true;
 
-    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
-        Q_ASSERT(!d->items.isEmpty());
+    QAction *action = actionMimeData(event->mimeData());
+    if (!action)
+        return;
 
-        QAction *action = d->items.first();
-        if (!action)
-            return;
-
+    if (checkAction(action)) {
         event->acceptProposedAction();
-
-        if (action->menu() && !actions().contains(action)) {
-            adjustIndicator(event->pos());
-        } else {
-            int index = findAction(event->pos());
-            m_currentIndex = index;
-            showMenu(m_currentIndex);
-        }
+        adjustIndicator(event->pos());
     }
 }
 
 void QDesignerMenuBar::dragMoveEvent(QDragMoveEvent *event)
 {
-    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
-        Q_ASSERT(!d->items.isEmpty());
-
-        QAction *action = d->items.first();
-        Q_ASSERT(action != 0);
-
-        if (action->menu() && !actions().contains(action)) {
-            event->acceptProposedAction();
-            adjustIndicator(event->pos());
-        } else {
-            int index = findAction(event->pos());
-            m_currentIndex = index;
-            showMenu(m_currentIndex);
-        }
+    if (checkAction(actionMimeData(event->mimeData()))) {
+        event->acceptProposedAction();
+        adjustIndicator(event->pos());
     }
 }
 
