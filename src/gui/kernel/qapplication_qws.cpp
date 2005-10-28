@@ -81,7 +81,7 @@
 #endif
 #endif
 
-const int qwsSharedRamSize = 1 * 1024; // misc data, written by server, read by clients
+const int qwsSharedRamSize = 100 * 1024; // misc data, written by server, read by clients
 
 extern void qt_qws_set_max_window_rect(const QRect& r);
 extern QRect qt_maxWindowRect;
@@ -514,7 +514,7 @@ void QWSDisplay::Data::init()
             perror("Can't attach to main ram memory.");
             exit(1);
         }
-        sharedRam = static_cast<uchar *>(shm.base());
+        sharedRam = static_cast<uchar *>(shm.address());
     } else
 #endif
     {
