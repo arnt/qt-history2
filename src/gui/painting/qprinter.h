@@ -150,7 +150,6 @@ public:
     PrinterState printerState() const;
 
     QPaintEngine *paintEngine() const;
-
     QPrintEngine *printEngine() const;
 
 #ifdef Q_WS_WIN
@@ -193,7 +192,8 @@ public:
 #endif
 
 protected:
-    int         metric(PaintDeviceMetric) const;
+    int metric(PaintDeviceMetric) const;
+    void setEngines(QPrintEngine *printEngine, QPaintEngine *paintEngine);
 
 private:
     Q_DISABLE_COPY(QPrinter)

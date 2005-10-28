@@ -42,6 +42,32 @@
         return; \
     }
 
+void QPrinterPrivate::createDefaultEngines()
+{
+    if (outputFormat == QPrinter::NativeFormat) {
+#if defined (Q_WS_WIN)
+        QWin32PrintEngine *winEngine = new QWin32PrintEngine(printerMode);
+        paintEngine = winEngine;
+        printEngine = winEngine;
+#elif defined (Q_WS_MAC)
+        QMacPrintEngine *macEngine = new QMacPrintEngine(printerMode);
+        paintEngine = macEngine;
+        printEngine = macEngine;
+#elif defined (Q_OS_UNIX)
+        QPSPrintEngine *psEngine = new QPSPrintEngine(printerMode);
+        paintEngine = psEngine;
+        printEngine = psEngine;
+#endif
+    } else {
+        QPdfEngine *pdfEngine = new QPdfEngine;
+        paintEngine = pdfEngine;
+        printEngine = pdfEngine;
+    }
+
+    use_default_engine = true;
+}
+
+
 /*!
   \class QPrinter qprinter.h
   \brief The QPrinter class is a paint device that paints on a printer.
@@ -339,14 +365,33 @@ QPrinter::QPrinter(PrinterMode mode)
 
     d->printerMode = mode;
     d->outputFormat = QPrinter::NativeFormat;
+    d->createDefaultEngines();
+}
 
-#if defined (Q_WS_WIN)
-    d->printEngine = new QWin32PrintEngine(mode);
-#elif defined (Q_WS_MAC)
-    d->printEngine = new QMacPrintEngine(mode);
-#elif defined (Q_OS_UNIX)
-    d->printEngine = new QPSPrintEngine(mode);
-#endif
+/*!
+    This function is used by subclasses of QPrinter to specify custom
+    print engine and paint engine.
+
+    QPrinter does not take ownership of the engines, so you need to
+    manage these engine instances yourself.
+
+    Note that changing the engines will reset the printer state and
+    all its properties.
+
+    \sa printEngine() paintEngine() setOutputFormat()
+
+    \since 4.1
+*/
+void QPrinter::setEngines(QPrintEngine *printEngine, QPaintEngine *paintEngine)
+{
+    Q_D(QPrinter);
+
+    if (d->use_default_engine)
+        delete d->printEngine;
+
+    d->printEngine = printEngine;
+    d->paintEngine = paintEngine;
+    d->use_default_engine = false;
 }
 
 /*!
@@ -360,7 +405,8 @@ QPrinter::~QPrinter()
 #if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))
     delete d->printDialog;
 #endif
-    delete d->printEngine;
+    if (d->use_default_engine)
+        delete d->printEngine;
     delete d;
 }
 
@@ -390,25 +436,13 @@ void QPrinter::setOutputFormat(OutputFormat format)
 
 #ifdef QT_PDF_SUPPORT
     Q_D(QPrinter);
-
     if (d->outputFormat == format)
         return;
-
-    delete d->printEngine;
-
-    if (format == NativeFormat) {
-#if defined (Q_WS_WIN)
-        d->printEngine = new QWin32PrintEngine(d->printerMode);
-#elif defined (Q_WS_MAC)
-        d->printEngine = new QMacPrintEngine(d->printerMode);
-#elif defined (Q_OS_UNIX)
-        d->printEngine = new QPSPrintEngine(d->printerMode);
-#endif
-    } else {
-        d->printEngine = new QPdfEngine;
-    }
-
     d->outputFormat = format;
+    if (d->use_default_engine)
+        delete d->printEngine;
+    d->createDefaultEngines();
+
 #else
     Q_UNUSED(format);
 #endif
@@ -978,19 +1012,9 @@ int QPrinter::metric(PaintDeviceMetric id) const
     Returns the paint engine used by the printer.
 */
 QPaintEngine *QPrinter::paintEngine() const
-
 {
     Q_D(const QPrinter);
-// Being a bit safe, since we have multiple inheritance...
-#if defined (Q_WS_WIN)
-    return static_cast<QWin32PrintEngine*>(d->printEngine);
-#elif defined (Q_WS_MAC)
-    return static_cast<QMacPrintEngine *>(d->printEngine);
-#elif defined (Q_OS_UNIX)
-    return static_cast<QPSPrintEngine *>(d->printEngine);
-#else
-    return 0;
-#endif
+    return d->paintEngine;
 }
 
 /*!
@@ -1266,7 +1290,7 @@ void QPrinter::setPrinterSelectionOption(const QString &option)
 
 int QPrinter::fromPage() const
 {
-#if defined(QT3SUPPORT) && !defined(QT_NO_PRINTDIALOG)
+#if defined(QT3_SUPPORT) && !defined(QT_NO_PRINTDIALOG)
     Q_D(const QPrinter);
     if (!d->printDialog)
         const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
@@ -1292,7 +1316,7 @@ int QPrinter::fromPage() const
 
 int QPrinter::toPage() const
 {
-#if defined(QT3SUPPORT) && !defined(QT_NO_PRINTDIALOG)
+#if defined(QT3_SUPPORT) && !defined(QT_NO_PRINTDIALOG)
     Q_D(const QPrinter);
     if (!d->printDialog)
         const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
@@ -1321,7 +1345,7 @@ int QPrinter::toPage() const
 
 void QPrinter::setFromTo(int from, int to)
 {
-#if defined(QT3SUPPORT) && !defined(QT_NO_PRINTDIALOG)
+#if defined(QT3_SUPPORT) && !defined(QT_NO_PRINTDIALOG)
     Q_D(QPrinter);
     if (!d->printDialog)
         const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
