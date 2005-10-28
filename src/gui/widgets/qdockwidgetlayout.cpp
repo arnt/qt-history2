@@ -79,14 +79,7 @@ void QDockWidgetLayout::saveState(QDataStream &stream) const
             const QDockWidget * const widget =
                 qobject_cast<QDockWidget *>(info.item->widget());
             stream << (uchar) WidgetMarker;
-            if (widget->objectName().isEmpty()) {
-                qWarning("QMainWindow::saveState(): 'objectName' not set for QDockWidget "
-                         "%p '%s', using 'windowTitle' instead.",
-                         widget, widget->windowTitle().toLocal8Bit().constData());
-                stream << widget->windowTitle();
-            } else {
-                stream << widget->objectName();
-            }
+            stream << widget->objectName();
             uchar flags = 0;
             if (!widget->isHidden())
                 flags |= StateFlagVisible;
@@ -152,30 +145,18 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
                     }
                 }
                 if (!widget) {
-                    qWarning("QMainWindow::restoreState(): cannot find a QDockWidget named "
-                             "'%s', trying to match using 'windowTitle' instead.",
+                    qWarning("QMainWindow::restoreState(): cannot find a QDockWidget with "
+                             "matching 'objectName' (looking for '%s').",
                              objectName.toLocal8Bit().constData());
-                    // try matching the window title
-                    for (int t = 0; t < widgets.size(); ++t) {
-                        if (widgets.at(t)->windowTitle() == objectName) {
-                            widget = widgets.at(t);
-                            break;
-                        }
-                    }
-                    if (!widget) {
-                        qWarning("QMainWindow::restoreState(): cannot find a QDockWidget with "
-                                 "matching 'windowTitle' (looking for '%s').",
-                                 objectName.toLocal8Bit().constData());
-                        // discard size/position data for unknown widget
-                        QDockWidgetLayoutInfo info(0);
-                        stream >> info.cur_pos;
-                        stream >> info.cur_size;
-                        stream >> info.min_size;
-                        stream >> info.max_size;
-                        continue;
-                    }
+                    // discard size/position data for unknown widget
+                    QDockWidgetLayoutInfo info(0);
+                    stream >> info.cur_pos;
+                    stream >> info.cur_size;
+                    stream >> info.min_size;
+                    stream >> info.max_size;
+                    continue;
                 }
-
+                
                 QDockWidgetLayoutInfo &info = insert(-1, new QWidgetItem(widget));
                 if (flags & StateFlagFloating) {
                     widget->hide();

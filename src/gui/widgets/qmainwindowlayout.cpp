@@ -464,14 +464,7 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
             for (int i = 0; i < lineInfo.list.size(); ++i) {
                 const ToolBarLayoutInfo &info = lineInfo.list.at(i);
                 QWidget *widget = info.item->widget();
-                if (widget->objectName().isEmpty()) {
-                    qWarning("QMainWindow::saveState(): 'objectName' not set for QToolBar "
-                             "%p '%s', using 'windowTitle' instead",
-                             widget, widget->windowTitle().toLocal8Bit().constData());
-                    stream << widget->windowTitle();
-                } else {
-                    stream << widget->objectName();
-                }
+                stream << widget->objectName();
                 stream << (uchar) !widget->isHidden();
                 stream << info.pos;
                 stream << info.size;
@@ -547,23 +540,10 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
                 }
             }
             if (!toolbar) {
-                qWarning("QMainWindow::restoreState(): cannot find a QToolBar named "
-                         "'%s', trying to match using 'windowTitle' instead.",
+                qWarning("QMainWindow::restoreState(): cannot find a QToolBar with "
+                         "matching 'objectName' (looking for '%s').",
                          objectName.toLocal8Bit().constData());
-                // try matching the window title
-                for (int t = 0; t < toolbars.size(); ++t) {
-                    QToolBar *tb = toolbars.at(t);
-                    if (tb && tb->windowTitle() == objectName) {
-                        toolbar = tb;
-                        break;
-                    }
-                }
-                if (!toolbar) {
-                    qWarning("QMainWindow::restoreState(): cannot find a QToolBar with "
-                             "matching 'windowTitle' (looking for '%s').",
-                             objectName.toLocal8Bit().constData());
-                    continue;
-                }
+                continue;
             }
 
             info.item = new QWidgetItem(toolbar);
