@@ -285,7 +285,7 @@ void QAbstractSpinBox::setReadOnly(bool enable)
     Q_D(QAbstractSpinBox);
     d->readOnly = enable;
     d->edit->setReadOnly(enable);
-    d->updateSpinBox();
+    d->updateButtons();
 }
 
 /*!
@@ -645,7 +645,6 @@ void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
     d->edit->setGeometry(style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                                  QStyle::SC_SpinBoxEditField, this));
     update();
-//    d->updateSpinBox();
 }
 
 /*!
@@ -1323,7 +1322,7 @@ void QAbstractSpinBoxPrivate::init()
     Calls QWidget::update() on the area where the arrows are painted.
 */
 
-void QAbstractSpinBoxPrivate::updateSpinBox()
+void QAbstractSpinBoxPrivate::updateButtons()
 {
     Q_Q(QAbstractSpinBox);
 
@@ -1352,7 +1351,7 @@ void QAbstractSpinBoxPrivate::reset()
         if (spinClickThresholdTimerId != -1)
             q->killTimer(spinClickThresholdTimerId);
         spinClickTimerId = spinClickThresholdTimerId = -1;
-        updateSpinBox();
+        updateButtons();
     }
 }
 
@@ -1460,6 +1459,8 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
     pendingEmit = false;
     if (doUpdate) {
         updateEdit();
+    } else {
+        updateButtons();
     }
 
     if (ep == AlwaysEmit || (ep == EmitIfChanged && old != value)) {
@@ -1495,7 +1496,7 @@ void QAbstractSpinBoxPrivate::updateEdit()
         }
     }
     edit->blockSignals(sb);
-    updateSpinBox();
+    updateButtons();
 }
 
 /*!
