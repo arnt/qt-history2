@@ -1254,9 +1254,9 @@ Qt::DropActions QAbstractItemModel::supportedDropActions() const
 }
 
 /*!
-  Inserts \a count rows into the model before the given \a row.
-  The items in the new row will be children of the item represented by the
-  \a parent model index.
+  On models that support this, inserts \a count rows into the model before the
+  given \a row.  The items in the new row will be children of the item
+  represented by the \a parent model index.
 
   If \a row is 0, the rows are prepended to any existing rows in the parent.
   If \a row is rowCount(), the rows are appended to any existing rows in the
@@ -1268,11 +1268,9 @@ Qt::DropActions QAbstractItemModel::supportedDropActions() const
 
   The base class implementation does nothing and returns false.
 
-  If you want to be able to insert rows in a subclass, you must reimplement
-  this function, calling the beginInsertRows() function \e before inserting
-  new rows into your underlying data store, and call the endInsertRows()
-  function \e afterwards. Return true to indicate success; otherwise return
-  false.
+  If you implement your own model, you can reimplement this function if you
+  want to support insertions. Alternatively, you can provide you own API for
+  altering the data.
 */
 bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
 {
@@ -1280,9 +1278,9 @@ bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
 }
 
 /*!
-  Inserts \a count new columns into the model before the given \a column.
-  The items in each new column will be children of the item represented by the
-  \a parent model index.
+  On models that support this, inserts \a count new columns into the model
+  before the given \a column.  The items in each new column will be children
+  of the item represented by the \a parent model index.
 
   If \a column is 0, the columns are prepended to any existing columns.
   If \a column is columnCount(), the columns are appended to any existing
@@ -1294,11 +1292,9 @@ bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
 
   The base class implementation does nothing and returns false.
 
-  If you want to be able to insert columns in a subclass, you must reimplement
-  this function, calling the beginInsertColumns() function \e before inserting
-  new columns into your underlying data store, and call the endInsertColumns()
-  function \e afterwards. Return true to indicate success; otherwise return
-  false.
+  If you implement your own model, you can reimplement this function if you
+  want to support insertions. Alternatively, you can provide you own API for
+  altering the data.
 */
 bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
 {
@@ -1306,17 +1302,15 @@ bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
 }
 
 /*!
-    Removes \a count rows starting with the given \a row under parent
-    \a parent from the model. Returns true if the rows were successfully
-    removed; otherwise returns false.
+    On models that support this, removes \a count rows starting with the given
+    \a row under parent \a parent from the model. Returns true if the rows
+    were successfully removed; otherwise returns false.
 
     The base class implementation does nothing and returns false.
 
-    If you want to be able to remove rows in a subclass, you must reimplement
-    this function, calling the beginRemoveRows() function \e before removing
-    new rows into your underlying data store, and call the endRemoveRows()
-    function \e afterwards. Return true to indicate success; otherwise return
-    false.
+    If you implement your own model, you can reimplement this function if you
+    want to support removing. Alternatively, you can provide you own API for
+    altering the data.
 
     \sa removeRow(), removeColumns(), insertColumns()
 */
@@ -1326,17 +1320,15 @@ bool QAbstractItemModel::removeRows(int, int, const QModelIndex &)
 }
 
 /*!
-    Removes \a count columns starting with the given \a column under
-    parent \a parent from the model. Returns true if the columns were
-    successfully removed; otherwise returns false.
+    On models that support this, removes \a count columns starting with the
+    given \a column under parent \a parent from the model. Returns true if the
+    columns were successfully removed; otherwise returns false.
 
     The base class implementation does nothing and returns false.
 
-    If you want to be able to remove columns in a subclass, you must reimplement
-    this function, calling the beginRemoveColumns() function \e before removing
-    new columns into your underlying data store, and call the endRemoveColumns()
-    function \e afterwards. Return true to indicate success; otherwise return
-    false.
+    If you implement your own model, you can reimplement this function if you
+    want to support removing. Alternatively, you can provide you own API for
+    altering the data.
 
     \sa removeColumn(), removeRows(), insertColumns()
 */
