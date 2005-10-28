@@ -74,7 +74,7 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
     line to your pro file:
 
     \code
-        LIBS += -lqassistantclient
+        CONFIG += assistant
     \endcode
 
     See also \l{Qt Assistant Manual#Modifying The Default Documentation Set}{Modifying The Default Documentation Set}.
@@ -145,7 +145,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
     connect( proc, SIGNAL(readyReadStandardError()),
              this, SLOT(readStdError()) );
     connect( proc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(procError(QProcess::ProcessError)) );    
+        this, SLOT(procError(QProcess::ProcessError)) );
 }
 
 /*!
@@ -200,7 +200,7 @@ void QAssistantClient::openAssistant()
 
     connect( proc, SIGNAL(readyReadStandardOutput()),
         this, SLOT(readPort()) );
-    
+
     proc->start(assistantCommand, args);
 }
 
