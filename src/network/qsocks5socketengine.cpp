@@ -30,6 +30,7 @@
 //#define QSOCKS5SOCKETLAYER_DEBUG
 
 #define MAX_DATA_DUMP 256
+#define SOCKS5_BLOCKING_BIND_TIMEOUT 5000
 
 #define Q_INIT_CHECK(returnValue) do { \
     if (!d->data) { \
@@ -1180,12 +1181,17 @@ bool QSocks5SocketEngine::bind(const QHostAddress &address, quint16 port)
         return false;
     }
 
-    int msecs = 3000;
+    int msecs = SOCKS5_BLOCKING_BIND_TIMEOUT;
     QTime stopWatch;
     stopWatch.start();
     d->data->controlSocket->connectToHost(d->proxyInfo.hostName(), d->proxyInfo.port());
     if (!d->data->controlSocket->waitForConnected(qt_timeout_value(msecs, stopWatch.elapsed()))) {
-        //### ?
+        if (d->data->controlSocket->error() != QAbstractSocket::SocketTimeoutError) {
+            setError(d->data->controlSocket->error(), d->data->controlSocket->errorString());
+        } else {
+            setError(QAbstractSocket::SocketTimeoutError, tr("Socks5 timeout error connecting to socks server"));
+        }
+        QSOCKS5_Q_DEBUG << "waitForConnected to proxy server" << d->data->controlSocket->errorString();
         return false;
     }
     while (d->data->controlSocket->waitForReadyRead(qt_timeout_value(msecs, stopWatch.elapsed()))) {
