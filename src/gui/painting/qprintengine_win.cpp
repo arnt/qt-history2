@@ -360,7 +360,7 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
     Q_D(const QWin32PrintEngine);
 
     QRgb brushColor = state->pen().brush().color().rgb();
-    bool fallBack = (d->txop >= QPainterPrivate::TxScale || state->pen().brush().style() != Qt::SolidPattern 
+    bool fallBack = (d->txop >= QPainterPrivate::TxScale || state->pen().brush().style() != Qt::SolidPattern
         || qAlpha(brushColor) != 0xff);
     if (fallBack) {
         QPaintEngine::drawTextItem(p, textItem);
@@ -391,8 +391,6 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
 int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
 {
     Q_D(const QWin32PrintEngine);
-    if (!isActive())
-        return 0;
     int val;
     int res = d->resolution;
 
