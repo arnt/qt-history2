@@ -38,20 +38,25 @@ public:
         cStart(0), fillRule(Qt::OddEvenFill)
     {
         ref = 1;
+        require_moveTo = false;
     }
 
     QPainterPathData(const QPainterPathData &other) :
         QPainterPathPrivate(), cStart(other.cStart), fillRule(other.fillRule)
     {
         ref = 1;
+        require_moveTo = false;
         elements = other.elements;
     }
 
     inline bool isClosed() const;
     inline void close();
+    inline void maybeMoveTo();
 
     int cStart;
     Qt::FillRule fillRule;
+
+    bool require_moveTo;
 };
 
 
@@ -68,11 +73,22 @@ inline bool QPainterPathData::isClosed() const
 inline void QPainterPathData::close()
 {
     Q_ASSERT(ref == 1);
+    require_moveTo = true;
     const QPainterPath::Element &first = elements.at(cStart);
     const QPainterPath::Element &last = elements.last();
     if (first.x != last.x || first.y != last.y) {
         QPainterPath::Element e = { first.x, first.y, QPainterPath::LineToElement };
         elements << e;
+    }
+}
+
+inline void QPainterPathData::maybeMoveTo()
+{
+    if (require_moveTo) {
+        QPainterPath::Element e = elements.last();
+        e.type = QPainterPath::MoveToElement;
+        elements.append(e);
+        require_moveTo = false;
     }
 }
 

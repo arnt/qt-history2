@@ -299,7 +299,6 @@ void QPainterPath::closeSubpath()
     detach();
 
     d_func()->close();
-    moveTo(QPointF(0, 0));
 }
 
 /*!
@@ -333,6 +332,9 @@ void QPainterPath::moveTo(const QPointF &p)
 
     QPainterPathData *d = d_func();
     Q_ASSERT(!d->elements.isEmpty());
+
+    d->require_moveTo = false;
+
     if (d->elements.last().type == MoveToElement) {
         d->elements.last().x = p.x();
         d->elements.last().y = p.y();
@@ -374,6 +376,7 @@ void QPainterPath::lineTo(const QPointF &p)
 
     QPainterPathData *d = d_func();
     Q_ASSERT(!d->elements.isEmpty());
+    d->maybeMoveTo();
     if (p == QPointF(d->elements.last()))
         return;
     Element elm = { p.x(), p.y(), LineToElement };
@@ -417,10 +420,13 @@ void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &
     QPainterPathData *d = d_func();
     Q_ASSERT(!d->elements.isEmpty());
 
+
     // Abort on empty curve as a stroker cannot handle this and the
     // curve is irrelevant anyway.
     if (d->elements.last() == c1 && c1 == c2 && c2 == e)
         return;
+
+    d->maybeMoveTo();
 
     Element ce1 = { c1.x(), c1.y(), CurveToElement };
     Element ce2 = { c2.x(), c2.y(), CurveToDataElement };
@@ -601,6 +607,7 @@ void QPainterPath::addRect(const QRectF &r)
     Element l4 = { r.x(), r.y(), LineToElement };
 
     d_func()->elements << l1 << l2 << l3 << l4;
+    d_func()->require_moveTo = true;
 }
 
 /*!
@@ -668,6 +675,7 @@ void QPainterPath::addEllipse(const QRectF &boundingRect)
     cubicTo(pts[3], pts[4], pts[5]);           // 270 -> 180
     cubicTo(pts[6], pts[7], pts[8]);           // 180 -> 90
     cubicTo(pts[9], pts[10], pts[11]);         // 90 - >0
+    d_func()->require_moveTo = true;
 }
 
 /*!
@@ -762,6 +770,8 @@ void QPainterPath::addPath(const QPainterPath &other)
     int cStart = d->elements.size() + other.d_func()->cStart;
     d->elements += other.d_func()->elements;
     d->cStart = cStart;
+
+    d->require_moveTo = other.d_func()->isClosed();
 }
 
 
