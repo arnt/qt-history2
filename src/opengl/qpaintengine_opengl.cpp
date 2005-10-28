@@ -938,6 +938,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
         tr[2] = 0;
         tr[3] = -(g->start().x()*tr[0] + g->start().y()*tr[1]);
         setGLBrush(Qt::white);
+        setGLPen(Qt::white);
         glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
         glTexGenfv(GL_S, GL_OBJECT_PLANE, tr);
 
@@ -999,15 +1000,17 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     Q_D(QOpenGLPaintEngine);
     Qt::PenStyle pen_style = pen.style();
     d->pen_brush_style = pen.brush().style();
-
-    if (d->pen_brush_style >= Qt::LinearGradientPattern
-        && d->pen_brush_style <= Qt::ConicalGradientPattern)
-        d->updateGradient(pen.brush());
     d->cpen = pen;
     d->has_pen = (pen_style != Qt::NoPen);
-    d->setGLPen(pen.color());
 
-    glColor4ubv(d->pen_color);
+
+    if (d->pen_brush_style >= Qt::LinearGradientPattern
+        && d->pen_brush_style <= Qt::ConicalGradientPattern) {
+        d->updateGradient(pen.brush());
+    } else {
+        d->setGLPen(pen.color());
+        glColor4ubv(d->pen_color);
+    }
 
     d->basicStroker.setJoinStyle(pen.joinStyle());
     d->basicStroker.setCapStyle(pen.capStyle());
@@ -1036,12 +1039,14 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
     d->cbrush = brush;
     d->brush_style = brush.style();
     d->has_brush = (d->brush_style != Qt::NoBrush);
-    d->setGLBrush(brush.color());
-    glColor4ubv(d->brush_color);
 
     if (d->brush_style >= Qt::LinearGradientPattern
-        && d->brush_style <= Qt::ConicalGradientPattern)
+        && d->brush_style <= Qt::ConicalGradientPattern) {
         d->updateGradient(brush);
+    } else {
+        d->setGLBrush(brush.color());
+        glColor4ubv(d->brush_color);
+    }
 }
 
 void QOpenGLPaintEngine::updateFont(const QFont &)
