@@ -938,7 +938,6 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
         tr[2] = 0;
         tr[3] = -(g->start().x()*tr[0] + g->start().y()*tr[1]);
         setGLBrush(Qt::white);
-        setGLPen(Qt::white);
         glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
         glTexGenfv(GL_S, GL_OBJECT_PLANE, tr);
 
@@ -1007,6 +1006,7 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     if (d->pen_brush_style >= Qt::LinearGradientPattern
         && d->pen_brush_style <= Qt::ConicalGradientPattern) {
         d->updateGradient(pen.brush());
+        d->setGLPen(Qt::white);
     } else {
         d->setGLPen(pen.color());
         glColor4ubv(d->pen_color);
