@@ -352,9 +352,6 @@ QWSClient::~QWSClient()
 {
     qDeleteAll(cursors);
     delete command;
-#ifndef QT_NO_QWS_MULTIPROCESS
-    delete csocket;
-#endif
 }
 
 void QWSClient::setIdentity(const QString& i)
@@ -418,12 +415,15 @@ void QWSClient::sendRegionEvent(int winid, QRegion rgn, int type)
     sendEvent(&event);
 }
 
+extern int qt_servershmid;
+
 void QWSClient::sendConnectedEvent(const char *display_spec)
 {
     QWSConnectedEvent event;
     event.simpleData.window = 0;
     event.simpleData.len = strlen(display_spec) + 1;
     event.simpleData.clientId = cid;
+    event.simpleData.servershmid = qt_servershmid;
     char * tmp=(char *)display_spec;
     event.setData(tmp, event.simpleData.len);
     sendEvent(&event);

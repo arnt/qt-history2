@@ -73,6 +73,7 @@ struct QWSConnectedEvent : QWSEvent {
         int window;
         int len;
         int clientId;
+        int servershmid;
     } simpleData;
 
     char *display;

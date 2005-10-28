@@ -81,8 +81,7 @@
 #endif
 #endif
 
-const int qwsSharedRamSize = 100 * 1024;
-                          //Small amount to fit on small devices.
+const int qwsSharedRamSize = 1 * 1024; // misc data, written by server, read by clients
 
 extern void qt_qws_set_max_window_rect(const QRect& r);
 extern QRect qt_maxWindowRect;
@@ -109,12 +108,11 @@ QWidget *qt_mouseGrb = 0;
 int *qt_last_x = 0;
 int *qt_last_y = 0;
 
-bool qt_override_paint_on_screen = false;
-
-
 static int mouse_x_root = -1;
 static int mouse_y_root = -1;
 static int mouse_state = 0;
+
+int qt_servershmid = -1;
 
 bool qws_overrideCursor = false;
 #ifndef QT_NO_QWS_MANAGER
@@ -303,9 +301,6 @@ public:
 #endif
 #ifndef QT_NO_QWS_MULTIPROCESS
         shm.detach();
-        if (!csocket && ramid != -1) {
-            shm.destroy();
-        }
         if (csocket) {
             csocket->flush(); // may be pending QCop message, eg.
             delete csocket;
@@ -336,7 +331,6 @@ public:
     QSharedMemory shm;
 #endif
     int sharedRamSize;
-    int ramid;
 
 private:
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -474,7 +468,6 @@ void QWSDisplay::Data::init()
 #endif
     current_event = 0;
     mouse_event_count = 0;
-    ramid = -1;
     mouseFilter = 0;
 
     QString pipe = qws_qtePipeFilename();
@@ -514,8 +507,7 @@ void QWSDisplay::Data::init()
         if (!QWSDisplay::initLock(pipe, false))
             qFatal("Cannot get display lock");
 
-        shm = QSharedMemory(0,pipe,'m');
-        if (shm.create() && shm.attach()) {
+        if (shm.attach(connected_event->simpleData.servershmid)) {
             QScreen *s = qt_get_screen(qws_display_id, qws_display_spec);
             sharedRamSize += s->memoryNeeded(qws_display_spec);
         } else {
@@ -536,16 +528,12 @@ void QWSDisplay::Data::init()
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 
-        shm = QSharedMemory(sharedRamSize,pipe, 'm');
-        if (!shm.create()) {
+        if (!shm.create(sharedRamSize)) {
             perror("Cannot create main ram shared memory\n");
             qFatal("Unable to allocate %d bytes of shared memory", sharedRamSize);
         }
-        if (!shm.attach()) {
-            perror("Cannot attach to main ram shared memory\n");
-            qFatal("Cannot attach to main ram shared memory");
-        }
-        sharedRam = static_cast<uchar *>(shm.base());
+        qt_servershmid = shm.id();
+        sharedRam = static_cast<uchar *>(shm.address());
 #else
         sharedRam=static_cast<uchar *>(malloc(sharedRamSize));
 #endif
@@ -1806,8 +1794,6 @@ void qt_init(QApplicationPrivate *priv, int type)
             type = QApplication::GuiServer;
         } else if (arg == "-interlaced") {
             qws_screen_is_interlaced = true;
-        } else if (arg == "-paint-on-screen") {
-            qt_override_paint_on_screen = true;
         } else if (arg == "-display") {
             if (++i < argc)
                 qws_display_spec = argv[i];

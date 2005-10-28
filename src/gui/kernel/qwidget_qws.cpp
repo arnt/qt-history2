@@ -49,8 +49,6 @@ extern QWidget *qt_mouseGrb;
 
 extern QRect qt_maxWindowRect;
 
-extern bool qt_override_paint_on_screen;
-
 static QWidget *keyboardGrb = 0;
 
 static int takeLocalId()
