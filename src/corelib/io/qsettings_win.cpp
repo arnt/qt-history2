@@ -16,6 +16,7 @@
 #include "qvector.h"
 #include "qmap.h"
 #include "qt_windows.h"
+#include "qdebug.h"
 
 /*  Keys are stored in QStrings. If the variable name starts with 'u', this is a "user"
     key, ie. "foo/bar/alpha/beta". If the variable name starts with 'r', this is a "registry"
@@ -151,31 +152,22 @@ static HKEY createOrOpenKey(HKEY parentHandle, REGSAM perms, const QString &rSub
 // Open or create a key in read-write mode if possible, otherwise read-only
 static HKEY createOrOpenKey(HKEY parentHandle, const QString &rSubKey, bool *readOnly)
 {
-    // try to open it read/write
-    HKEY resultHandle = openKey(parentHandle, KEY_ALL_ACCESS, rSubKey);
+    // try to open or create it read/write
+    HKEY resultHandle = createOrOpenKey(parentHandle, KEY_ALL_ACCESS, rSubKey);
     if (resultHandle != 0) {
         if (readOnly != 0)
             *readOnly = false;
         return resultHandle;
     }
 
-    // try to open it read/only
-    resultHandle = openKey(parentHandle, KEY_READ, rSubKey);
+    // try to open or create it read/only
+    resultHandle = createOrOpenKey(parentHandle, KEY_READ, rSubKey);
     if (resultHandle != 0) {
         if (readOnly != 0)
             *readOnly = true;
         return resultHandle;
     }
-
-    // try to create it
-    resultHandle = createOrOpenKey(parentHandle, KEY_ALL_ACCESS, rSubKey);
-    if (resultHandle != 0) {
-        if (readOnly != 0)
-            *readOnly = false;
-        return resultHandle;
-    }
-
-     return 0;
+    return 0;
 }
 
 static QStringList childKeysOrGroups(HKEY parentHandle, QSettingsPrivate::ChildSpec spec)
