@@ -8,7 +8,7 @@ no-png {
 			porting \
                         qtestlib
     !contains(QT_EDITION, Console):SUBDIRS += designer
-    unix:SUBDIRS        += qtconfig
+    unix:!embedded:SUBDIRS        += qtconfig
     win32:SUBDIRS       += activeqt
 }
 
