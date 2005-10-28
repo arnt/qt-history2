@@ -476,8 +476,7 @@ void QDesignerMenu::dragEnterEvent(QDragEnterEvent *event)
 
 void QDesignerMenu::dragMoveEvent(QDragMoveEvent *event)
 {
-    int index = findAction(event->pos());
-    if (index >= realActionCount() + 1) {
+    if (actionGeometry(m_addSeparator).contains(event->pos())) {
         event->ignore();
         return;
     }
@@ -490,9 +489,9 @@ void QDesignerMenu::dragMoveEvent(QDragMoveEvent *event)
 
     event->acceptProposedAction();
     adjustIndicator(event->pos());
-    m_currentIndex = index;
+    m_currentIndex = findAction(event->pos());
 
-    if (m_lastSubMenuIndex != index)
+    if (m_lastSubMenuIndex != m_currentIndex)
         m_showSubMenuTimer->start(300);
 }
 
@@ -504,6 +503,8 @@ void QDesignerMenu::dragLeaveEvent(QDragLeaveEvent *)
 
 void QDesignerMenu::dropEvent(QDropEvent *event)
 {
+    m_showSubMenuTimer->stop();
+    hideSubMenu();
     m_dragging = false;
 
     if (QAction *action = actionMimeData(event->mimeData())) {
