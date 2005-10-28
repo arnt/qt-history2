@@ -306,7 +306,7 @@ void QFtpDTP::connectToHost(const QString & host, quint16 port)
 
 int QFtpDTP::setupListener(const QHostAddress &address)
 {
-    if (!listener.listen(address, 0))
+    if (!listener.isListening() && !listener.listen(address, 0))
         return -1;
 
     return listener.serverPort();
