@@ -237,6 +237,8 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
     if (index >= actions().count() - 1)
         return true;
 
+    formWindow()->core()->propertyEditor()->setObject(safeActionAt(index));
+
     hideSubMenu();
     m_currentIndex = index;
     updateCurrentAction();
@@ -249,6 +251,11 @@ bool QDesignerMenu::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
     event->accept();
 
     m_startPosition = QPoint();
+
+    m_currentIndex = findAction(event->pos());
+    QAction *action = safeActionAt(m_currentIndex);
+    if (action != 0 && action->menu() != 0)
+        slotShowSubMenuNow();
 
     return true;
 }
@@ -474,6 +481,7 @@ void QDesignerMenu::dragMoveEvent(QDragMoveEvent *event)
 {
     if (actionGeometry(m_addSeparator).contains(event->pos())) {
         event->ignore();
+        adjustIndicator(QPoint(-1, -1));
         return;
     }
 
@@ -495,6 +503,7 @@ void QDesignerMenu::dragLeaveEvent(QDragLeaveEvent *)
 {
     m_dragging = false;
     adjustIndicator(QPoint(-1, -1));
+    m_showSubMenuTimer->stop();
 }
 
 void QDesignerMenu::dropEvent(QDropEvent *event)
