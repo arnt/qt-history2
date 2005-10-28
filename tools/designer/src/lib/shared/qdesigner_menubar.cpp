@@ -92,14 +92,26 @@ void QDesignerMenuBar::paintEvent(QPaintEvent *event)
 {
     QMenuBar::paintEvent(event);
 
-    if (!hasFocus())
+    QPainter p(this);
+
+    foreach (QAction *a, actions()) {
+        if (qobject_cast<SpecialMenuAction*>(a)) {
+            QRect g = actionGeometry(a);
+            QLinearGradient lg(g.left(), g.top(), g.left(), g.bottom());
+            lg.setColorAt(0.0, Qt::transparent);
+            lg.setColorAt(0.7, QColor(0, 0, 0, 32));
+            lg.setColorAt(1.0, Qt::transparent);
+
+            p.fillRect(g, lg);
+        }
+    }
+
+    if (!hasFocus() || m_dragging)
         return;
 
-    QAction *a = currentAction();
-    if (a && !m_dragging) {
-        QPainter p(this);
+    if (QAction *a = currentAction()) {
         QRect g = actionGeometry(a);
-        QDesignerMenu::drawSelection(&p, g.adjusted(1, 1, -3, -3));
+        QDesignerMenu::drawSelection(&p, g.adjusted(1, 1, -1, -1));
     }
 }
 
