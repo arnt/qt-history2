@@ -69,8 +69,12 @@ QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
     setAcceptDrops(true); // ### fake
 
     m_addMenu = new SpecialMenuAction(this);
-    m_addMenu->setText(tr("new menu"));
+    m_addMenu->setText(tr("<menu>"));
     addAction(m_addMenu);
+
+    QFont italic;
+    italic.setItalic(true);
+    m_addMenu->setFont(italic);
 
     m_editor = new QLineEdit(this);
     m_editor->setObjectName("__qt__passive_editor");

@@ -1379,13 +1379,10 @@ QString QDesignerResource::pixmapToQrcPath(const QPixmap &pm) const
 
 DomAction *QDesignerResource::createDom(QAction *action)
 {
-    if (core()->metaDataBase()->item(action) != 0) {
-        if (action->menu())
-            action->setObjectName(action->menu()->objectName() + QLatin1String("Action"));
-        return QAbstractFormBuilder::createDom(action);
-    }
+    if (!core()->metaDataBase()->item(action) || action->menu())
+        return 0;
 
-    return 0;
+    return QAbstractFormBuilder::createDom(action);
 }
 
 DomActionGroup *QDesignerResource::createDom(QActionGroup *actionGroup)

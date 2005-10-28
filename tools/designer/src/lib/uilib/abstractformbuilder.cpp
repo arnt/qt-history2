@@ -1158,8 +1158,8 @@ DomActionRef *QAbstractFormBuilder::createActionRefDom(QAction *action)
 {
     QString name = action->objectName();
 
-    if (action->menu() != 0 && name.endsWith(QLatin1String("Action")))
-        name = name.left(name.count() - 6);
+    if (action->menu() != 0)
+        name = action->menu()->objectName();
 
     DomActionRef *ui_action_ref = new DomActionRef();
     if (action->isSeparator())

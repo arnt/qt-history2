@@ -312,13 +312,26 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
 {
     QMenu::paintEvent(event);
 
+    QPainter p(this);
+
+    foreach (QAction *a, actions()) {
+        if (qobject_cast<SpecialMenuAction*>(a)) {
+            QRect g = actionGeometry(a);
+            QLinearGradient lg(g.left(), g.top(), g.left(), g.bottom());
+            lg.setColorAt(0.0, Qt::transparent);
+            lg.setColorAt(0.7, QColor(0, 0, 0, 32));
+            lg.setColorAt(1.0, Qt::transparent);
+
+            p.fillRect(g, lg);
+        }
+    }
+
     if (!hasFocus() || m_dragging)
         return;
 
     if (QAction *a = currentAction()) {
-        QPainter p(this);
         QRect g = actionGeometry(a);
-        drawSelection(&p, g.adjusted(1, 1, -3, -3));
+        drawSelection(&p, g.adjusted(1, 1, -1, -1));
     }
 }
 
@@ -577,14 +590,23 @@ void QDesignerMenu::createRealMenuAction(QAction *action) // ### undo/redo
     if (action->menu())
         return; // nothing to do
 
-    QDesignerMenu *tempMenu = findOrCreateSubMenu(action);
+    QDesignerMenu *menu = findOrCreateSubMenu(action);
     m_subMenus.remove(action);
 
-    action->setMenu(tempMenu);
+    action->setMenu(menu);
+    menu->setTitle(action->text());
 
     Q_ASSERT(formWindow() != 0);
     QDesignerFormWindowInterface *fw = formWindow();
-    fw->core()->metaDataBase()->add(action->menu());
+    QDesignerFormEditorInterface *core = formWindow()->core();
+
+    core->widgetFactory()->initialize(menu);
+    menu->setObjectName("menu");
+    core->metaDataBase()->add(menu);
+    fw->ensureUniqueObjectName(menu);
+
+    QAction *menuAction = menu->menuAction();
+    core->metaDataBase()->add(menuAction);
 }
 
 QDesignerMenu *QDesignerMenu::findOrCreateSubMenu(QAction *action)
