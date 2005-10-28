@@ -13,7 +13,9 @@ HEADERS         = qvfb.h \
 		  qanimationwriter.h \
                   gammaview.h \
 		  skin.h \
-                  qvfbviewiface.h
+                  qvfbviewiface.h \
+                  qvfbprotocol.h \
+                  qvfbdisplay.h
 
 SOURCES         = qvfb.cpp \
 		  qvfbview.cpp \
@@ -21,7 +23,8 @@ SOURCES         = qvfb.cpp \
                   main.cpp \
 		  qanimationwriter.cpp \
 		  skin.cpp \
-                  qvfbviewiface.cpp
+                  qvfbviewiface.cpp \
+                  qvfbprotocol.cpp
 
 contains(QT_CONFIG, opengl) {
 	HEADERS += qglvfbview.h
