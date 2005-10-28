@@ -45,6 +45,12 @@
 #define DEBUG if(0) qDebug
 #endif
 
+#ifdef DND_DEBUG
+#define DNDDEBUG qDebug()
+#else
+#define DNDDEBUG if(0) qDebug()
+#endif
+
 // and all this stuff is copied -into- qapp_x11.cpp
 
 static void handle_xdnd_position(QWidget *, const XEvent *, bool);
@@ -222,6 +228,7 @@ static WId xdndProxy(WId w)
 
 static bool xdndEnable(QWidget* w, bool on)
 {
+    DNDDEBUG << "xdndEnable" << w << on;
     if (on) {
         QWidget * xdnd_widget = 0;
         if ((w->windowType() == Qt::Desktop)) {
@@ -246,8 +253,9 @@ static bool xdndEnable(QWidget* w, bool on)
             xdnd_widget = w->window();
         }
         if (xdnd_widget) {
+            DNDDEBUG << "setting XdndAware for" << xdnd_widget << xdnd_widget->winId();
             Atom atm = (Atom)xdnd_version;
-            XChangeProperty (X11->display, xdnd_widget->winId(), ATOM(XdndAware),
+            XChangeProperty(X11->display, xdnd_widget->winId(), ATOM(XdndAware),
                              XA_ATOM, 32, PropModeReplace, (unsigned char *)&atm, 1);
             return true;
         } else {
@@ -258,6 +266,8 @@ static bool xdndEnable(QWidget* w, bool on)
             XDeleteProperty(X11->display, w->winId(), ATOM(XdndProxy));
             delete xdnd_data.desktop_proxy;
             xdnd_data.desktop_proxy = 0;
+        } else {
+            DNDDEBUG << "not deleteing XDndAware";
         }
         return true;
     }
@@ -726,6 +736,12 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
         finished.window = qt_xdnd_dragsource_xid;
         finished.format = 32;
         finished.message_type = ATOM(XdndFinished);
+        DNDDEBUG << "xdndHandleDrop"
+             << "qt_xdnd_current_widget" << qt_xdnd_current_widget 
+             << (qt_xdnd_current_widget ? qt_xdnd_current_widget->winId() : 0) 
+             << "t_xdnd_current_widget->window()" 
+             << (qt_xdnd_current_widget ? qt_xdnd_current_widget->window() : 0)
+             << (qt_xdnd_current_widget ? qt_xdnd_current_widget->window()->winId() : 0);
         finished.data.l[0] = qt_xdnd_current_widget?qt_xdnd_current_widget->window()->winId():0;
         finished.data.l[1] = de.isAccepted() ? 1 : 0; // flags
         finished.data.l[2] = qtaction_to_xdndaction(global_accepted_action);
@@ -745,6 +761,10 @@ void QX11Data::xdndHandleFinished(QWidget *, const XEvent * xe, bool passive)
 {
     DEBUG("xdndHandleFinished");
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
+
+    DNDDEBUG << "xdndHandleFinished, l[0]" << l[0] 
+             << "qt_xdnd_current_target" << qt_xdnd_current_target 
+             << "qt_xdnd_current_proxy_targe" << qt_xdnd_current_proxy_target;
 
     if (l[0] && (l[0] == qt_xdnd_current_target
             || l[0] == qt_xdnd_current_proxy_target)) {
@@ -990,6 +1010,7 @@ void QDragManager::move(const QPoint & globalPos)
         //me
         Window src = rootwin;
         while (target != 0) {
+            DNDDEBUG << "checking target for XdndAware" << QWidget::find(target) << target;
             int lx2, ly2;
             Window t;
             // translate coordinates
@@ -1010,8 +1031,10 @@ void QDragManager::move(const QPoint & globalPos)
                                AnyPropertyType, &type, &f,&n,&a,&data);
 	    if (data)
                 XFree(data);
-	    if (type)
+	    if (type) {
+                DNDDEBUG << "Found XdndAware on " << QWidget::find(target) << target;
                 break;
+            }
 
             // find child at the coordinates
             if (!XTranslateCoordinates(X11->display, src, src, lx, ly, &lx2, &ly2, &target)) {
@@ -1020,7 +1043,9 @@ void QDragManager::move(const QPoint & globalPos)
             }
         }
         if (xdnd_data.deco && (!target || target == xdnd_data.deco->winId())) {
+            DNDDEBUG << "need to find real window";
             target = findRealWindow(globalPos, rootwin, 6);
+            DNDDEBUG << "real window found" << QWidget::find(target) << target;
         }
     }
 
@@ -1033,6 +1058,9 @@ void QDragManager::move(const QPoint & globalPos)
         w = 0;
         target = rootwin;
     }
+
+    DNDDEBUG << "and the final target is " << QWidget::find(target) << target;
+    DNDDEBUG << "the widget w is" << w;
 
     WId proxy_target = xdndProxy(target);
     if (!proxy_target)
