@@ -556,7 +556,6 @@ void QDesignerMenu::moveUp(bool ctrl)
 void QDesignerMenu::moveDown(bool ctrl)
 {
     if (m_currentIndex == actions().count() - 1) {
-        hide();
         return;
     }
 
