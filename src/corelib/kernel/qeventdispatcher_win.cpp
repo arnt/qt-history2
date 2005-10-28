@@ -603,7 +603,8 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
             ok = SetTimer(d->internalHwnd(), t->ind, (uint) interval, 0);        
     } else {
         t->dispatcher = d;
-        t->type = ::TimerInfo::Fast;        
+        t->type = ::TimerInfo::Fast;
+        d->internalHwnd(); // make sure this is created in this thread
         t->fastInd = qtimeSetEvent(interval, 1, qt_fast_timer_proc, (DWORD_PTR)t, TIME_CALLBACK_FUNCTION|TIME_PERIODIC);
         ok = t->fastInd;
         if (ok == 0) { // fall back to normal timer if no more multimedia timers avaiable
