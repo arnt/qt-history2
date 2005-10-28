@@ -163,10 +163,10 @@ licenseRemove["commercial"] = [ new RegExp("LICENSE.GPL") ];
 
 licenseRemove["eval"] = licenseRemove["commercial"];
 
-licenseRemove["opensource"] = [ new RegExp("^/src/activeqt"),
-				new RegExp("^/tools/activeqt"),
-				new RegExp("^/tools/designer/src/plugins/activeqt"),
-				new RegExp("^/examples/activeqt"),
+licenseRemove["opensource"] = [ new RegExp("^src/activeqt"),
+				new RegExp("^tools/activeqt"),
+				new RegExp("^tools/designer/src/plugins/activeqt"),
+				new RegExp("^examples/activeqt"),
 				new RegExp("^src/plugins/sqldrivers/db2"),
 				new RegExp("^src/plugins/sqldrivers/oci"),
 				new RegExp("^src/plugins/sqldrivers/tds"),
