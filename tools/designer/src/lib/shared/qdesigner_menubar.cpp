@@ -14,6 +14,7 @@
 #include "qdesigner_menubar_p.h"
 #include "qdesigner_menu_p.h"
 #include "qdesigner_toolbar_p.h"
+#include "qdesigner_command_p.h"
 #include "actionrepository_p.h"
 #include "actionprovider_p.h"
 
@@ -341,7 +342,14 @@ void QDesignerMenuBar::slotRemoveSelectedAction(QAction *action)
     if (qobject_cast<SpecialMenuAction*>(a))
         return; // nothing to do
 
-    removeAction(a); // ### undo/redo
+    int pos = actions().indexOf(a);
+    QAction *action_before = 0;
+    if (pos != -1)
+        action_before = safeActionAt(pos + 1);
+
+    RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
+    cmd->init(this, a, action_before);
+    formWindow()->commandHistory()->push(cmd);
 }
 
 void QDesignerMenuBar::focusOutEvent(QFocusEvent *event)
@@ -383,13 +391,21 @@ void QDesignerMenuBar::leaveEditMode()
 
     if (m_currentIndex >= 0 && m_currentIndex < realActionCount()) {
         action = actions().at(m_currentIndex);
+        formWindow()->beginCommand(QLatin1String("Set action text"));
     } else {
-        Q_ASSERT(formWindow() != 0);   // ### undo/redo
+        Q_ASSERT(formWindow() != 0);
+        formWindow()->beginCommand(QLatin1String("Insert action"));
         action = createAction();
-        insertAction(m_addMenu, action);
+        InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+        cmd->init(this, action, m_addMenu);
+        formWindow()->commandHistory()->push(cmd);
     }
 
-    action->setText(m_editor->text()); // ### undo/redo
+    SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
+    cmd->init(action, QLatin1String("text"), m_editor->text());
+    formWindow()->commandHistory()->push(cmd);
+
+    formWindow()->endCommand();
 }
 
 void QDesignerMenuBar::showLineEdit()
@@ -417,7 +433,7 @@ bool QDesignerMenuBar::eventFilter(QObject *object, QEvent *event)
     if (object != this && object != m_editor)
         return false;
 
-    if (object == m_editor && event->type() == QEvent::FocusOut) {
+    if (!m_editor->isHidden() && object == m_editor && event->type() == QEvent::FocusOut) {
         leaveEditMode();
         m_editor->hide();
         update();
@@ -654,8 +670,15 @@ void QDesignerMenuBar::deleteMenu()
 {
     QAction *action = currentAction();
 
-    if (action && !qobject_cast<SpecialMenuAction*>(action)) { // ### undo/redo
-        removeAction(action);
+    if (action && !qobject_cast<SpecialMenuAction*>(action)) {
+        int pos = actions().indexOf(action);
+        QAction *action_before = 0;
+        if (pos != -1)
+            action_before = safeActionAt(pos + 1);
+
+        RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
+        cmd->init(this, action, action_before);
+        formWindow()->commandHistory()->push(cmd);
     }
 }
 
@@ -690,7 +713,7 @@ QAction *QDesignerMenuBar::safeActionAt(int index) const
     return actions().at(index);
 }
 
-bool QDesignerMenuBar::swap(int a, int b) // ### undo/redo
+bool QDesignerMenuBar::swap(int a, int b)
 {
     int left = qMin(a, b);
     int right = qMax(a, b);
@@ -709,11 +732,29 @@ bool QDesignerMenuBar::swap(int a, int b) // ### undo/redo
     if (right < 0)
         return false; // nothing to do
 
-    removeAction(action_b);
-    insertAction(action_a, action_b);
+    formWindow()->beginCommand(QLatin1String("Move action"));
 
-    removeAction(action_a);
-    insertAction(actions().at(right), action_a);
+    QAction *action_b_before = safeActionAt(right + 1);
+
+    RemoveActionFromCommand *cmd1 = new RemoveActionFromCommand(formWindow());
+    cmd1->init(this, action_b, action_b_before);
+    formWindow()->commandHistory()->push(cmd1);
+
+    QAction *action_a_before = safeActionAt(left + 1);
+
+    InsertActionIntoCommand *cmd2 = new InsertActionIntoCommand(formWindow());
+    cmd2->init(this, action_b, action_a_before);
+    formWindow()->commandHistory()->push(cmd2);
+
+    RemoveActionFromCommand *cmd3 = new RemoveActionFromCommand(formWindow());
+    cmd3->init(this, action_a, action_b);
+    formWindow()->commandHistory()->push(cmd3);
+
+    InsertActionIntoCommand *cmd4 = new InsertActionIntoCommand(formWindow());
+    cmd4->init(this, action_a, action_b_before);
+    formWindow()->commandHistory()->push(cmd4);
+
+    formWindow()->endCommand();
 
     return true;
 }

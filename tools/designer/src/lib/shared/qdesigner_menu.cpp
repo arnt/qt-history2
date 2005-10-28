@@ -295,7 +295,16 @@ void QDesignerMenu::slotRemoveSelectedAction(QAction *action)
 {
     QAction *a = qvariant_cast<QAction*>(action->data());
     Q_ASSERT(a != 0);
-    removeAction(a);
+
+    int pos = actions().indexOf(a);
+    QAction *action_before = 0;
+    if (pos != -1)
+        action_before = safeActionAt(pos + 1);
+
+    RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
+    cmd->init(this, a, action_before);
+    formWindow()->commandHistory()->push(cmd);
+
     adjustSize();
 }
 
@@ -340,7 +349,7 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
     if (object != this && object != m_editor)
         return false;
 
-    if (object == m_editor && event->type() == QEvent::FocusOut) {
+    if (!m_editor->isHidden() && object == m_editor && event->type() == QEvent::FocusOut) {
         leaveEditMode();
         m_editor->hide();
         update();
@@ -678,13 +687,22 @@ void QDesignerMenu::leaveEditMode()
 
     if (m_currentIndex < realActionCount()) {
         action = actions().at(m_currentIndex);
+        formWindow()->beginCommand(QLatin1String("Set action text"));
     } else {
-        Q_ASSERT(formWindow() != 0);   // ### undo/redo
+        Q_ASSERT(formWindow() != 0);
+        formWindow()->beginCommand(QLatin1String("Insert action"));
         action = createAction();
-        insertAction(currentAction(), action);
+        InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+        cmd->init(this, action, currentAction());
+        formWindow()->commandHistory()->push(cmd);
     }
 
-    action->setText(m_editor->text()); // ### undo/redo
+    SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
+    cmd->init(action, QLatin1String("text"), m_editor->text());
+    formWindow()->commandHistory()->push(cmd);
+
+    formWindow()->endCommand();
+
     adjustSize();
 
     if (parentMenu()) { // ### undo/redo
@@ -745,7 +763,7 @@ QAction *QDesignerMenu::createAction() // ### undo/redo
 }
 
 // ### share with QDesignerMenu::swap
-bool QDesignerMenu::swap(int a, int b) // ### undo/redo
+bool QDesignerMenu::swap(int a, int b)
 {
     int left = qMin(a, b);
     int right = qMax(a, b);
@@ -806,9 +824,18 @@ void QDesignerMenu::hideSubMenu()
     }
 }
 
-void QDesignerMenu::deleteAction() // ### undo/redo
+void QDesignerMenu::deleteAction()
 {
-    removeAction(currentAction());
+    QAction *action = currentAction();
+    int pos = actions().indexOf(action);
+    QAction *action_before = 0;
+    if (pos != -1)
+        action_before = safeActionAt(pos + 1);
+
+    RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
+    cmd->init(this, action, action_before);
+    formWindow()->commandHistory()->push(cmd);
+
     adjustSize();
     update();
 }

@@ -2240,6 +2240,7 @@ void InsertActionIntoCommand::redo()
         formWindow()->manageWidget(m_action->menu());
     */
     m_parentWidget->insertAction(m_beforeAction, m_action);
+    m_parentWidget->adjustSize();
 }
 
 void InsertActionIntoCommand::undo()
@@ -2254,6 +2255,7 @@ void InsertActionIntoCommand::undo()
         formWindow()->unmanageWidget(m_action->menu());
     */
     m_parentWidget->removeAction(m_action);
+    m_parentWidget->adjustSize();
 }
 
 // ---- RemoveActionFromCommand ----
@@ -2287,6 +2289,7 @@ void RemoveActionFromCommand::redo()
         formWindow()->unmanageWidget(m_action->menu());
     */
     m_parentWidget->removeAction(m_action);
+    m_parentWidget->adjustSize();
 }
 
 void RemoveActionFromCommand::undo()
@@ -2301,6 +2304,7 @@ void RemoveActionFromCommand::undo()
         formWindow()->manageWidget(m_action->menu());
     */
     m_parentWidget->insertAction(m_beforeAction, m_action);
+    m_parentWidget->adjustSize();
 }
 
 } // namespace qdesigner_internal
