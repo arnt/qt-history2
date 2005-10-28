@@ -86,6 +86,9 @@ void QDesignerMenuBar::paintEvent(QPaintEvent *event)
 {
     QMenuBar::paintEvent(event);
 
+    if (!hasFocus())
+        return;
+
     QAction *a = currentAction();
     if (a && !m_dragging) {
         QPainter p(this);
@@ -98,6 +101,11 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
 {
      if (!formWindow())
          return false;
+
+   if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut) {
+       qDebug() << "QDesignerMenuBar::handleEvent():" << widget << event;
+       update();
+   }
 
     switch (event->type()) {
         default: break;
