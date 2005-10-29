@@ -968,3 +968,14 @@ void QDesignerMenu::drawSelection(QPainter *p, const QRect &r)
     p->restore();
 }
 
+void QDesignerMenu::keyPressEvent(QKeyEvent *event)
+{
+    event->ignore();
+}
+
+void QDesignerMenu::keyReleaseEvent(QKeyEvent *event)
+{
+    event->ignore();
+}
+
+

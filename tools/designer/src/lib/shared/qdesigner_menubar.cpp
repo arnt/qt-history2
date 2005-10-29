@@ -803,3 +803,14 @@ bool QDesignerMenuBar::swap(int a, int b)
     return true;
 }
 
+void QDesignerMenuBar::keyPressEvent(QKeyEvent *event)
+{
+    event->ignore();
+}
+
+void QDesignerMenuBar::keyReleaseEvent(QKeyEvent *event)
+{
+    event->ignore();
+}
+
+

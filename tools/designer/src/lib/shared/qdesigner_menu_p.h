@@ -86,6 +86,8 @@ protected:
     virtual void dragLeaveEvent(QDragLeaveEvent *event);
     virtual void dropEvent(QDropEvent *event);
     virtual void paintEvent(QPaintEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event);
 
     bool handleEvent(QWidget *widget, QEvent *event);
     bool handleMousePressEvent(QWidget *widget, QMouseEvent *event);
