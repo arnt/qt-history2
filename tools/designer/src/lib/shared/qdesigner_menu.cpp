@@ -285,8 +285,8 @@ bool QDesignerMenu::handleContextMenuEvent(QWidget *, QContextMenuEvent *event)
     event->accept();
 
     int index = findAction(mapFromGlobal(event->globalPos()));
-    QAction *action = actions().at(index);
-    if (action == actions().last())
+    QAction *action = safeActionAt(index);
+    if (qobject_cast<SpecialMenuAction*>(action))
         return true;
 
     QMenu menu(0);
