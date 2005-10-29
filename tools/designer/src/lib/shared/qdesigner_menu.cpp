@@ -102,7 +102,7 @@ void QDesignerMenu::startDrag(const QPoint &pos)
     if (index >= realActionCount())
         return;
 
-    QAction *action = actions().at(index);
+    QAction *action = safeActionAt(index);
     removeAction(action);
     adjustSize();
 
@@ -117,7 +117,7 @@ void QDesignerMenu::startDrag(const QPoint &pos)
     m_currentIndex = -1;
 
     if (drag->start() == Qt::IgnoreAction) {
-        QAction *previous = actions().at(index);
+        QAction *previous = safeActionAt(index);
         insertAction(previous, action);
         m_currentIndex = old_index;
         adjustSize();
@@ -434,7 +434,7 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
 int QDesignerMenu::findAction(const QPoint &pos) const
 {
     for (int i = 0; i<realActionCount(); ++i) {
-        QRect g = actionGeometry(actions().at(i));
+        QRect g = actionGeometry(safeActionAt(i));
         g.setTopLeft(QPoint(0, 0));
 
         if (g.contains(pos))
@@ -528,7 +528,7 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
         if (checkAction(action)) {
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
-            insertAction(actions().at(index), action);
+            insertAction(safeActionAt(index), action);
             m_currentIndex = index;
             adjustSize();
 
@@ -642,7 +642,7 @@ QAction *QDesignerMenu::currentAction() const
     if (m_currentIndex < 0 || m_currentIndex >= actions().count())
         return 0;
 
-    return actions().at(m_currentIndex);
+    return safeActionAt(m_currentIndex);
 }
 
 int QDesignerMenu::realActionCount() const
@@ -815,7 +815,7 @@ void QDesignerMenu::leaveEditMode(LeaveEditMode mode)
     QAction *action = 0;
 
     if (m_currentIndex < realActionCount()) {
-        action = actions().at(m_currentIndex);
+        action = safeActionAt(m_currentIndex);
         formWindow()->beginCommand(QLatin1String("Set action text"));
     } else {
         Q_ASSERT(formWindow() != 0);
@@ -855,7 +855,7 @@ void QDesignerMenu::showLineEdit()
     QAction *action = 0;
 
     if (m_currentIndex < realActionCount())
-        action = actions().at(m_currentIndex);
+        action = safeActionAt(m_currentIndex);
     else
         action = m_addItem;
 
