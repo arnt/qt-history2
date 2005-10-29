@@ -405,6 +405,7 @@ QAction *QDesignerMenuBar::createAction()
     QDesignerFormWindowInterface *fw = formWindow();
     QDesignerFormEditorInterface *core = fw->core();
     QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu", 0));
+    core->widgetFactory()->initialize(menu);
     menu->setObjectName("menu");
     menu->setTitle(tr("Menu"));
     fw->ensureUniqueObjectName(menu);

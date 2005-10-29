@@ -1375,6 +1375,7 @@ void CreateMenuBarCommand::init(QMainWindow *mainWindow)
     m_mainWindow = mainWindow;
     QDesignerFormEditorInterface *core = formWindow()->core();
     m_menuBar = qobject_cast<QMenuBar*>(core->widgetFactory()->createWidget("QMenuBar", m_mainWindow));
+    core->widgetFactory()->initialize(m_menuBar);
 }
 
 void CreateMenuBarCommand::redo()
