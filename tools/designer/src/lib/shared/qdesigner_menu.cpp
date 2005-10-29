@@ -593,6 +593,7 @@ void QDesignerMenu::moveRight()
             mb->moveRight();
         }
     } else {
+        m_lastSubMenuIndex = -1; // force a refresh
         slotShowSubMenuNow();
     }
 }
