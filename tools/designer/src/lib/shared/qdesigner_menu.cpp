@@ -351,6 +351,14 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
 
     if (QAction *a = currentAction()) {
         QRect g = actionGeometry(a);
+
+        if (!a->isSeparator() && !a->menu()
+                && !qobject_cast<SpecialMenuAction*>(a) && canCreateSubMenu(a)) {
+            QStyleOption opt;
+            opt.init(this);
+            opt.rect.setRect(g.width() - 20, g.top(), 20, g.height());
+            style()->drawPrimitive(QStyle::PE_IndicatorArrowRight, &opt, &p);
+        }
         drawSelection(&p, g.adjusted(1, 1, -1, -1));
     }
 }
@@ -685,7 +693,7 @@ QDesignerMenu *QDesignerMenu::findOrCreateSubMenu(QAction *action)
     return menu;
 }
 
-bool QDesignerMenu::canCreateSubMenu(QAction *action) const
+bool QDesignerMenu::canCreateSubMenu(QAction *action) const // ### improve it's a bit too slow
 {
     QWidget *topLevel = formWindow()->mainContainer();
     QList<QMenu*> menus = qFindChildren<QMenu*>(topLevel);
