@@ -190,6 +190,7 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerWidget")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerDialog")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerToolBar")));
+    append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerMenu")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerMenuBar")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerDockWidget")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerQ3WidgetStack")));

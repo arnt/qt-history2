@@ -115,11 +115,13 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
                 className = QLatin1String(static_cast<QWidget*>(object)->layout()->metaObject()->className());
             }
 
-            item->setText(1, className);
             item->setIcon(0, widgetItem->icon());
-        } else {
-            item->setText(1, className);
         }
+
+        if (className.startsWith("QDesigner"))
+            className.remove(1, 8);
+
+        item->setText(1, className);
 
         item->setData(0, 1000, qVariantFromValue(object));
 
