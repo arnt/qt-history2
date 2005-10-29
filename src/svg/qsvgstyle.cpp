@@ -161,24 +161,47 @@ void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
             color = p->pen().color();
         QList<qreal>::const_iterator itr = m_resolvePoints.begin();
         for (; itr != m_resolvePoints.end(); ++itr) {
-            qDebug()<<"resolving "<<(*itr)<<" to "<<color;
+            //qDebug()<<"resolving "<<(*itr)<<" to "<<color;
             m_gradient->setColorAt(*itr, color);
         }
     }
 
-    //we need to resolve boundries on linear gradients
-    if (m_resolveBounds &&
-        m_gradient->type() == QGradient::LinearGradient) {
-        qDebug()<< (((QLinearGradient*)m_gradient)->start())
-                << (((QLinearGradient*)m_gradient)->finalStop())
-                << rect;
-        QLinearGradient gradient(rect.x(), rect.y(),
-                                 rect.width(), rect.height());
-        gradient.setStops(m_gradient->stops());
-        qDebug()<<m_gradient->stops().count()
-                << (m_gradient->stops()[0].second) << (m_gradient->stops()[1].second);
-        QBrush b(gradient);
-        p->setBrush(b);
+    //we need to resolve boundries
+    //the code is funky i'll have to verify it
+    //(testcases right now are bugs/resolve_radial.svg
+    // and bugs/resolve_linear.svg)
+    if (m_resolveBounds) {
+        if (m_gradient->type() == QGradient::LinearGradient) {
+            QLinearGradient *grad = (QLinearGradient*)(m_gradient);
+            qreal xs, ys, xf, yf;
+            xs = rect.x();
+            ys = rect.y();
+            xf = (rect.x()+rect.width())  * grad->finalStop().x();
+            yf = (rect.y()+rect.height()) * grad->finalStop().y();
+            QLinearGradient gradient(xs, ys,
+                                     xf, yf);
+            gradient.setStops(m_gradient->stops());
+            QBrush b(gradient);
+            p->setBrush(b);
+        } else {
+            QRadialGradient *grad = (QRadialGradient*)m_gradient;
+            qreal cx, cy, r, fx, fy;
+            cx = rect.width() * grad->center().x();
+            cy = rect.height() * grad->center().y();
+            //### the radius is wrong. it has to be transformed
+            // so that the horizontal on is rect.width() * grad->radius();
+            // and vertical rect.height() * grad->radius(). it's a simple
+            // transformation but we don't support exclusive fill
+            // transformations at the moment
+            r  = rect.width() * grad->radius();
+            fx = rect.width() * grad->focalPoint().x();
+            fy = rect.width() * grad->focalPoint().y();
+            QRadialGradient gradient(cx, cy,
+                                     r, fx, fy);
+            gradient.setStops(m_gradient->stops());
+            QBrush b(gradient);
+            p->setBrush(b);
+        }
     } else {
         QBrush b(*m_gradient);
         p->setBrush(b);

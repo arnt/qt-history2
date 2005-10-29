@@ -111,6 +111,8 @@ void QSvgLine::draw(QPainter *p)
 QSvgPath::QSvgPath(QSvgNode *parent, const QPainterPath &qpath)
     : QSvgNode(parent), m_path(qpath)
 {
+    //m_cachedBounds = m_path.controlPointRect();
+    m_cachedBounds = m_path.boundingRect();
 }
 
 void QSvgPath::draw(QPainter *p)
@@ -118,6 +120,11 @@ void QSvgPath::draw(QPainter *p)
     applyStyle(p);
     p->drawPath(m_path);
     revertStyle(p);
+}
+
+QRectF QSvgPath::bounds() const
+{
+    return m_cachedBounds;
 }
 
 QSvgPolygon::QSvgPolygon(QSvgNode *parent, const QPolygonF &poly)
@@ -378,3 +385,4 @@ QSvgNode::Type QSvgVideo::type() const
 {
     return VIDEO;
 }
+

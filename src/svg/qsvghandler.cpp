@@ -363,7 +363,6 @@ static void parseBrush(QSvgNode *node,
         if (value.startsWith("url")) {
             value = value.remove(0, 3);
             QString id = idFromUrl(value);
-
             QSvgStructureNode *group = 0;
             QSvgNode *dummy = node;
             while (dummy && (dummy->type() != QSvgNode::DOC  &&
@@ -1823,22 +1822,25 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
     QString y2 = attributes.value("y2");
     QString link = attributes.value("xlink:href");
     QString trans = attributes.value("gradientTransform");
+    QString units = attributes.value("gradientUnits");
     qreal nx1 = x1.toDouble();
     qreal ny1 = y1.toDouble();
     qreal nx2 = x2.toDouble();
     qreal ny2 = y2.toDouble();
-    bool  needsResolving = (nx2==0 && ny2==0);
+    bool  needsResolving = true;
+
+    if (nx2==0 && ny2==0) {
+        nx2 = 1;
+        ny2 = 1;
+    } else if (units == "userSpaceOnUse") {
+        needsResolving = false;
+    }
 
     QSvgNode *itr = node;
     while (itr && itr->type() != QSvgNode::DOC) {
         itr = itr->parent();
     }
-    QSvgTinyDocument *doc = static_cast<QSvgTinyDocument*>(itr);
-    Q_ASSERT(doc);
-    if (nx2 == 0)
-        nx2 = doc->viewBox().width();
-    if (ny2 == 0)
-        ny2 = doc->viewBox().height();
+
 
     if (!trans.isEmpty()) {
         QMatrix matrix;
@@ -1982,6 +1984,8 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
     QString fy = attributes.value("fy");
     QString link = attributes.value("xlink:href");
     QString trans = attributes.value("gradientTransform");
+    QString units = attributes.value("gradientUnits");
+    bool needsResolving = true;
 
     qreal ncx = 0.5;
     qreal ncy = 0.5;
@@ -1994,6 +1998,10 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
         nr = r.toDouble();
     qreal nfx = fx.toDouble();
     qreal nfy = fy.toDouble();
+
+    if (units == "userSpaceOnUse") {
+        needsResolving = false;
+    }
 
     if (!trans.isEmpty()) {
         QMatrix matrix;
@@ -2017,7 +2025,7 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
             grad->setStops(inherited->qgradient()->stops());
         }
     }
-    QSvgGradientStyle *prop = new QSvgGradientStyle(grad);
+    QSvgGradientStyle *prop = new QSvgGradientStyle(grad, needsResolving);
     return prop;
 }
 

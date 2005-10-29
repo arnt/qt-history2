@@ -103,8 +103,10 @@ public:
     QSvgPath(QSvgNode *parent, const QPainterPath &qpath);
     virtual void draw(QPainter *p);
     virtual Type type() const;
+    virtual QRectF bounds() const;
 private:
     QPainterPath m_path;
+    QRectF m_cachedBounds;
 };
 
 class QSvgPolygon : public QSvgNode
