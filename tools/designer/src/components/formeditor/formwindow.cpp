@@ -119,33 +119,10 @@ bool FormWindow::hasFeature(Feature f) const
     return f & m_feature;
 }
 
-void FormWindow::bfs(QWidget *widget)
-{
-    QDesignerMetaDataBaseInterface *db = core()->metaDataBase();
-
-    foreach (QObject *o, widget->children()) {
-        QWidget *childWidget = qobject_cast<QWidget*>(o);
-        if (childWidget && db->item(childWidget) != 0)
-            m_widgets.append(childWidget);
-    }
-
-    foreach (QObject *o, widget->children()) {
-        QWidget *childWidget = qobject_cast<QWidget*>(o);
-        if (childWidget && db->item(childWidget) != 0)
-            bfs(childWidget);
-    }
-}
-
 void FormWindow::updateWidgets()
 {
     if (!m_mainContainer)
         return;
-
-#if 0
-    m_widgets.clear();
-    m_widgets.append(m_mainContainer);
-    bfs(m_mainContainer);
-#endif
 }
 
 int FormWindow::widgetDepth(QWidget *w)

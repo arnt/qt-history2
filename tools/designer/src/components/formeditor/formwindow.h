@@ -272,7 +272,6 @@ private:
     void editWidgets();
 
     void updateWidgets();
-    void bfs(QWidget *widget);
 
     void handleArrowKeyEvent(int key, bool modifier);
 
