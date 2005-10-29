@@ -240,8 +240,6 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
     if (index >= actions().count() - 1)
         return true;
 
-    formWindow()->core()->propertyEditor()->setObject(safeActionAt(index));
-
     hideSubMenu();
     m_currentIndex = index;
     updateCurrentAction();
