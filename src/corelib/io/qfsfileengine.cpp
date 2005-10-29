@@ -174,8 +174,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags)
         return false;
     d->sequential = S_ISCHR(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode);
     return true;
-#endif
-
+#else
     int oflags = QT_OPEN_RDONLY;
     if ((flags & QFile::ReadWrite) == QFile::ReadWrite) {
         oflags = QT_OPEN_RDWR | QT_OPEN_CREAT;
@@ -212,6 +211,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags)
     }
     setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError, qt_error_string(errno));
     return false;
+#endif
 }
 
 /*!
@@ -246,7 +246,6 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
     return true;
 #else
     Q_UNUSED(flags);
-#endif
     d->fd = fd;
     if(d->fd != -1) {
         d->sequential = 0;
@@ -257,6 +256,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
         return true;
     }
     return false;
+#endif
 }
 
 /*!

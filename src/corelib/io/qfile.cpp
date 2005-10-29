@@ -26,8 +26,6 @@
 
 #include <errno.h>
 
-static const int read_cache_size = 4096;
-
 static QByteArray locale_encode(const QString &f)
 {
 #ifndef Q_OS_DARWIN

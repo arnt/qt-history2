@@ -514,7 +514,6 @@ static Bool
 End_Profile( TRaster_Instance*  raster )
 {
     Long      h;
-    PProfile  oldProfile;
 
     h = (Long)( ras.top - ras.cProfile->offset );
 
@@ -530,7 +529,6 @@ End_Profile( TRaster_Instance*  raster )
         QT_FT_TRACE6( "Ending profile %lx, start = %ld, height = %ld top=%p\n\n",
                    (long)ras.cProfile, ras.cProfile->start, h,ras.top );
 
-        oldProfile           = ras.cProfile;
         ras.cProfile->height = (long)h;
         ras.cProfile         = (PProfile)ras.top;
 
