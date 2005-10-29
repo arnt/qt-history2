@@ -109,8 +109,13 @@ protected:
     void updateCurrentAction();
     void showSubMenu(QAction *action);
 
+    enum LeaveEditMode {
+        Default = 0,
+        ForceAccept
+    };
+
     void enterEditMode();
-    void leaveEditMode();
+    void leaveEditMode(LeaveEditMode mode);
     void showLineEdit();
 
     QAction *createAction();

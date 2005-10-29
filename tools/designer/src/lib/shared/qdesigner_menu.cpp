@@ -208,7 +208,7 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
 
         case Qt::Key_Enter:
         case Qt::Key_Return:
-            leaveEditMode();
+            leaveEditMode(ForceAccept);
             m_editor->hide();
             setFocus();
             break;
@@ -396,7 +396,7 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
         return false;
 
     if (!m_editor->isHidden() && object == m_editor && event->type() == QEvent::FocusOut) {
-        leaveEditMode();
+        leaveEditMode(Default);
         m_editor->hide();
         update();
         return false;
@@ -807,8 +807,11 @@ void QDesignerMenu::enterEditMode()
     }
 }
 
-void QDesignerMenu::leaveEditMode()
+void QDesignerMenu::leaveEditMode(LeaveEditMode mode)
 {
+    if (mode == Default)
+        return;
+
     QAction *action = 0;
 
     if (m_currentIndex < realActionCount()) {
