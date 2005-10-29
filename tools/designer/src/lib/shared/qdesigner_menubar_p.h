@@ -104,6 +104,7 @@ protected:
 
     void adjustIndicator(const QPoint &pos);
     int findAction(const QPoint &pos) const;
+    int actionAtPosition(const QPoint &pos) const;
 
     QAction *currentAction() const;
     int realActionCount() const;

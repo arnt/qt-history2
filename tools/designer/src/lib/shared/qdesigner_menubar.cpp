@@ -143,13 +143,18 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
     return true;
 }
 
-bool QDesignerMenuBar::handleMouseDoubleClickEvent(QWidget *widget, QMouseEvent *e)
+bool QDesignerMenuBar::handleMouseDoubleClickEvent(QWidget *widget, QMouseEvent *event)
 {
-    e->accept();
+    event->accept();
 
     m_startPosition = QPoint();
-    m_currentIndex = findAction(e->pos());
-    showLineEdit();
+
+    if (event->button() != Qt::LeftButton)
+        return true;
+
+    m_currentIndex = actionAtPosition(event->pos());
+    if (m_currentIndex != -1)
+        showLineEdit();
 
     return true;
 }
@@ -254,7 +259,7 @@ void QDesignerMenuBar::startDrag(const QPoint &pos)
     if (m_currentIndex == -1 || index >= realActionCount())
         return;
 
-    QAction *action = actions().at(index);
+    QAction *action = safeActionAt(index);
     removeAction(action);
     adjustSize();
 
@@ -271,7 +276,7 @@ void QDesignerMenuBar::startDrag(const QPoint &pos)
     m_currentIndex = -1;
 
     if (drag->start() == Qt::IgnoreAction) {
-        QAction *previous = actions().at(index);
+        QAction *previous = safeActionAt(index);
         insertAction(previous, action);
         m_currentIndex = old_index;
         adjustSize();
@@ -286,14 +291,8 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
     if (event->button() != Qt::LeftButton)
         return true;
 
-    if (QDesignerFormWindowInterface *fw = formWindow()) {
-        if (QDesignerPropertyEditorInterface *pe = fw->core()->propertyEditor()) {
-            pe->setObject(this);
-        }
-    }
-
     m_startPosition = mapFromGlobal(event->globalPos());
-    m_currentIndex = findAction(m_startPosition);
+    m_currentIndex = actionAtPosition(m_startPosition);
     update();
 
     return true;
@@ -307,10 +306,14 @@ bool QDesignerMenuBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
         return true;
 
     if (m_startPosition == mapFromGlobal(event->globalPos())) {
-        int index = findAction(m_startPosition);
+        int index = actionAtPosition(m_startPosition);
         if (index < actions().count()) {
             showMenu(index);
-            update();
+            // update();
+        } else if (QDesignerFormWindowInterface *fw = formWindow()) {
+            if (QDesignerPropertyEditorInterface *pe = fw->core()->propertyEditor()) {
+                pe->setObject(this);
+            }
         }
     }
 
@@ -329,7 +332,7 @@ bool QDesignerMenuBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
     if ((pos - m_startPosition).manhattanLength() < qApp->startDragDistance())
         return true;
 
-    int index = findAction(m_startPosition);
+    int index = actionAtPosition(m_startPosition);
     if (index < actions().count()) {
         hideMenu(index);
         update();
@@ -345,19 +348,22 @@ bool QDesignerMenuBar::handleContextMenuEvent(QWidget *, QContextMenuEvent *even
 {
     event->accept();
 
-    int index = findAction(mapFromGlobal(event->globalPos()));
-    QAction *action = actions().at(index);
-    if (action == actions().last())
+    m_currentIndex = actionAtPosition(mapFromGlobal(event->globalPos()));
+    QAction *action = safeActionAt(m_currentIndex);
+    if (!action || qobject_cast<SpecialMenuAction*>(action))
         return true;
+
+    update();
 
     QVariant itemData;
     qVariantSetValue(itemData, action);
 
     QMenu menu(0);
-    QAction *remove_menubar = menu.addAction(tr("Remove menu bar"));
-
-    QAction *remove_action = menu.addAction(tr("Remove action '%1'").arg(action->objectName()));
+    QAction *remove_action = menu.addAction(tr("Remove Menu '%1'").arg(action->menu()->objectName()));
     remove_action->setData(itemData);
+
+    menu.addSeparator();
+    QAction *remove_menubar = menu.addAction(tr("Remove Menu Bar"));
 
     connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(slotRemoveSelectedAction(QAction*)));
     menu.exec(event->globalPos());
@@ -419,7 +425,7 @@ void QDesignerMenuBar::leaveEditMode()
     QAction *action = 0;
 
     if (m_currentIndex >= 0 && m_currentIndex < realActionCount()) {
-        action = actions().at(m_currentIndex);
+        action = safeActionAt(m_currentIndex);
         formWindow()->beginCommand(QLatin1String("Set action text"));
     } else {
         Q_ASSERT(formWindow() != 0);
@@ -442,7 +448,7 @@ void QDesignerMenuBar::showLineEdit()
     QAction *action = 0;
 
     if (m_currentIndex >= 0 && m_currentIndex < realActionCount())
-        action = actions().at(m_currentIndex);
+        action = safeActionAt(m_currentIndex);
     else
         action = m_addMenu;
 
@@ -494,17 +500,28 @@ bool QDesignerMenuBar::eventFilter(QObject *object, QEvent *event)
     return false;
 };
 
-int QDesignerMenuBar::findAction(const QPoint &pos) const
+
+int QDesignerMenuBar::actionAtPosition(const QPoint &pos) const
 {
     QList<QAction*> lst = actions();
     int index = 0;
-    for (; index<lst.size() - 1; ++index) {
+    for (; index<lst.count(); ++index) {
         QRect g = actionGeometry(lst.at(index));
         g.setTopLeft(QPoint(0, 0));
 
         if (g.contains(pos))
-            break;
+            return index;
     }
+
+    return -1;
+}
+
+
+int QDesignerMenuBar::findAction(const QPoint &pos) const
+{
+    int index = actionAtPosition(pos);
+    if (index == -1)
+        return realActionCount();
 
     return index;
 }
@@ -598,7 +615,7 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
         if (action && action->menu() && !actions().contains(action)) { // ### undo/redo
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
-            insertAction(actions().at(index), action);
+            insertAction(safeActionAt(index), action);
             m_currentIndex = index;
             update();
             adjustIndicator(QPoint(-1, -1));
@@ -631,7 +648,7 @@ QAction *QDesignerMenuBar::currentAction() const
     if (m_currentIndex < 0 || m_currentIndex >= actions().count())
         return 0;
 
-    return actions().at(m_currentIndex);
+    return safeActionAt(m_currentIndex);
 }
 
 int QDesignerMenuBar::realActionCount() const
@@ -694,7 +711,7 @@ void QDesignerMenuBar::hideMenu(int index)
     if (index >= realActionCount())
         return;
 
-    QAction *action = actions().at(index);
+    QAction *action = safeActionAt(index);
 
     if (action && action->menu()) {
         action->menu()->hide();
