@@ -187,7 +187,7 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
             return true; // no update
 
         default:
-            if (!currentAction() || currentAction()->isSeparator()) {
+            if (!currentAction() || currentAction()->isSeparator() || currentAction() == m_addSeparator) {
                 e->ignore();
                 return true;
             } else if (!e->text().isEmpty() && e->text().at(0).toLatin1() >= 32) {
