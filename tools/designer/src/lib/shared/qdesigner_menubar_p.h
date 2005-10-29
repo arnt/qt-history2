@@ -109,8 +109,13 @@ protected:
     QAction *currentAction() const;
     int realActionCount() const;
 
+    enum LeaveEditMode {
+        Default = 0,
+        ForceAccept
+    };
+
     void enterEditMode();
-    void leaveEditMode();
+    void leaveEditMode(LeaveEditMode mode);
     void showLineEdit();
 
     void deleteMenu();
