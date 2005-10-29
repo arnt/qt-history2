@@ -413,22 +413,8 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
         } else if (QActionGroup *g = m_actionGroups.value(name)) {
             w->addActions(g->actions());
         } else if (QMenu *menu = qFindChild<QMenu*>(w, name)) {
-            QMenu *parentMenu = qobject_cast<QMenu*>(w);
-            QMenuBar *parentMenuBar = qobject_cast<QMenuBar*>(w);
-
-            menu->setParent(w, Qt::Popup);
-
-            QAction *menuAction = 0;
-
-            if (parentMenuBar)
-                menuAction = parentMenuBar->addMenu(menu);
-            else if (parentMenu)
-                menuAction = parentMenu->addMenu(menu);
-
-            if (menuAction) {
-                menuAction->setObjectName(menu->objectName() + QLatin1String("Action"));
-                addMenuAction(menuAction);
-            }
+            w->addAction(menu->menuAction());
+            addMenuAction(menu->menuAction());
         }
     }
 
