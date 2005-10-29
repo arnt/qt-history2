@@ -322,13 +322,17 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     if (w == 0)
         return 0;
 
+    // ### generalize using the extension manager
     QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(w);
     QDesignerMenuBar *menuBar = qobject_cast<QDesignerMenuBar*>(w);
+    QDesignerToolBar *toolBar = qobject_cast<QDesignerToolBar*>(w);
 
     if (menu)
         menu->interactive(false);
     else if (menuBar)
         menuBar->interactive(false);
+    else if (toolBar)
+        toolBar->interactive(false);
 
     foreach (DomActionRef *ui_action_ref, actionRefs) {
         QString name = ui_action_ref->attributeName();
@@ -353,6 +357,9 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     } else if (menuBar) {
         menuBar->interactive(true);
         menuBar->adjustSpecialActions();
+    } else if (toolBar) {
+        toolBar->interactive(true);
+        toolBar->adjustSpecialActions();
     }
 
 

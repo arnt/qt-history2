@@ -31,9 +31,9 @@ Q_DECLARE_METATYPE(QListWidgetItem*)
 using namespace qdesigner_internal;
 
 QDesignerToolBar::QDesignerToolBar(QWidget *parent)
-    : QToolBar(parent)
+    : QToolBar(parent),
+      m_interactive(true)
 {
-    m_blockSentinelChecker = false;
     m_sentinel = 0;
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
@@ -45,9 +45,6 @@ QDesignerToolBar::QDesignerToolBar(QWidget *parent)
 
     m_sentinel = addWidget(btn);
     addAction(m_sentinel);
-
-    m_sentinelChecker = new QTimer(this);
-    connect(m_sentinelChecker, SIGNAL(timeout()), this, SLOT(slotCheckSentinel()));
 
     qApp->installEventFilter(this);
 }
@@ -290,10 +287,6 @@ void QDesignerToolBar::dropEvent(QDropEvent *event)
 void QDesignerToolBar::actionEvent(QActionEvent *event)
 {
     QToolBar::actionEvent(event);
-
-    if (!m_blockSentinelChecker && event->type() == QEvent::ActionAdded
-            && m_sentinel && event->action() != m_sentinel)
-        m_sentinelChecker->start(0);
 }
 
 QDesignerFormWindowInterface *QDesignerToolBar::formWindow() const
@@ -311,22 +304,6 @@ bool QDesignerToolBar::isPassiveWidget(QWidget *widget) const
     return false;
 }
 
-void QDesignerToolBar::slotCheckSentinel()
-{
-    bool blocked = blockSentinelChecker(true);
-    m_sentinelChecker->stop();
-    removeAction(m_sentinel);
-    addAction(m_sentinel);
-    blockSentinelChecker(blocked);
-}
-
-bool QDesignerToolBar::blockSentinelChecker(bool b)
-{
-    bool old = m_blockSentinelChecker;
-    m_blockSentinelChecker = b;
-    return old;
-}
-
 void QDesignerToolBar::slotNewToolBar()
 {
     if (QDesignerFormWindowInterface *fw = formWindow()) {
@@ -340,6 +317,20 @@ void QDesignerToolBar::slotNewToolBar()
     }
 }
 
+void QDesignerToolBar::adjustSpecialActions()
+{
+    removeAction(m_sentinel);
+    addAction(m_sentinel);
+}
+
+bool QDesignerToolBar::interactive(bool i)
+{
+    bool old = m_interactive;
+    m_interactive = i;
+    return old;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 SentinelAction::SentinelAction(QWidget *widget)
     : QAction(widget)
 {

@@ -64,12 +64,14 @@ public:
 
     bool eventFilter(QObject *object, QEvent *event);
 
+    bool interactive(bool i);
+    void adjustSpecialActions();
+
     QDesignerFormWindowInterface *formWindow() const;
     QDesignerActionProviderExtension *actionProvider();
 
 private slots:
     void slotRemoveSelectedAction(QAction *action);
-    void slotCheckSentinel();
     void slotNewToolBar();
 
 protected:
@@ -90,13 +92,10 @@ protected:
     int findAction(const QPoint &pos) const;
     bool isPassiveWidget(QWidget *widget) const;
 
-    bool blockSentinelChecker(bool b);
-
 private:
-    QTimer *m_sentinelChecker;
     QAction *m_sentinel;
-    bool m_blockSentinelChecker;
     QPoint m_startPosition;
+    bool m_interactive;
 };
 
 #endif // QDESIGNER_TOOLBAR_H
