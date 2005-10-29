@@ -45,6 +45,8 @@ class QDesignerContainerExtension;
 class QDesignerPropertySheetExtension;
 class QDesignerMetaDataBaseItemInterface;
 
+class QDesignerMenu;
+
 class QMenuBar;
 class QStatusBar;
 class QToolBar;
@@ -935,6 +937,19 @@ public:
 private:
     QAction *m_action;
     QWidget *m_parent;
+};
+
+class QDESIGNER_SHARED_EXPORT CreateSubmenuCommand : public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    CreateSubmenuCommand(QDesignerFormWindowInterface *formWindow);
+    void init(QDesignerMenu *menu, QAction *action);
+    virtual void redo();
+    virtual void undo();
+private:
+    QAction *m_action;
+    QDesignerMenu *m_menu;
 };
 
 } // namespace qdesigner_internal

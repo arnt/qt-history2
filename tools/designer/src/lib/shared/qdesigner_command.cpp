@@ -18,6 +18,7 @@
 #include "qlayout_widget_p.h"
 #include "qdesigner_widget_p.h"
 #include "qdesigner_promotedwidget_p.h"
+#include "qdesigner_menu_p.h"
 
 #include <QtCore/qdebug.h>
 
@@ -2303,14 +2304,14 @@ void AddMenuActionCommand::redo()
 {
     core()->metaDataBase()->add(m_action);
     core()->metaDataBase()->add(m_action->menu());
-    m_action->menu()->setParent(m_parent);
+//    m_action->menu()->setParent(m_parent);
     core()->propertyEditor()->setObject(m_action->menu());
 }
 
 void AddMenuActionCommand::undo()
 {
     core()->propertyEditor()->setObject(m_parent);
-    m_action->menu()->setParent(0);
+//    m_action->menu()->setParent(0);
     core()->metaDataBase()->remove(m_action->menu());
     core()->metaDataBase()->remove(m_action);
 }
@@ -2344,6 +2345,30 @@ void RemoveMenuActionCommand::undo()
     core()->metaDataBase()->add(m_action->menu());
     m_action->menu()->setParent(m_parent);
     core()->propertyEditor()->setObject(m_action->menu());
+}
+
+// ---- CreateSubmenuCommand ----
+CreateSubmenuCommand::CreateSubmenuCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Create submenu"), formWindow)
+{
+    m_action = 0;
+    m_menu = 0;
+}
+
+void CreateSubmenuCommand::init(QDesignerMenu *menu, QAction *action)
+{
+    m_menu = menu;
+    m_action = action;
+}
+
+void CreateSubmenuCommand::redo()
+{
+    m_menu->createRealMenuAction(m_action);
+}
+
+void CreateSubmenuCommand::undo()
+{
+    m_menu->removeRealMenu(m_action);
 }
 
 } // namespace qdesigner_internal

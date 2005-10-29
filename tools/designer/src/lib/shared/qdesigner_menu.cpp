@@ -103,7 +103,11 @@ void QDesignerMenu::startDrag(const QPoint &pos)
         return;
 
     QAction *action = safeActionAt(index);
-    removeAction(action);
+
+    RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
+    cmd->init(this, action, actions().at(index + 1));
+    formWindow()->commandHistory()->push(cmd);
+
     adjustSize();
 
     QDrag *drag = new QDrag(this);
@@ -118,7 +122,11 @@ void QDesignerMenu::startDrag(const QPoint &pos)
 
     if (drag->start() == Qt::IgnoreAction) {
         QAction *previous = safeActionAt(index);
-        insertAction(previous, action);
+
+        InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+        cmd->init(this, action, previous);
+        formWindow()->commandHistory()->push(cmd);
+
         m_currentIndex = old_index;
         adjustSize();
     }
@@ -528,12 +536,21 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
         if (checkAction(action)) {
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
-            insertAction(safeActionAt(index), action);
+
+            InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+            cmd->init(this, action, safeActionAt(index));
+            formWindow()->commandHistory()->push(cmd);
+
             m_currentIndex = index;
             adjustSize();
 
             if (parentMenu()) { // ### undo/redo
-                parentMenu()->createRealMenuAction(parentMenu()->currentAction());
+                QAction *parent_action = parentMenu()->currentAction();
+                if (parent_action->menu() == 0) {
+                    CreateSubmenuCommand *cmd = new CreateSubmenuCommand(formWindow());
+                    cmd->init(parentMenu(), parentMenu()->currentAction());
+                    formWindow()->commandHistory()->push(cmd);
+                }
             }
             updateCurrentAction();
         }
@@ -677,6 +694,16 @@ void QDesignerMenu::createRealMenuAction(QAction *action) // ### undo/redo
 
     QAction *menuAction = menu->menuAction();
     core->metaDataBase()->add(menuAction);
+}
+
+void QDesignerMenu::removeRealMenu(QAction *action)
+{
+    QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(action->menu());
+    if (menu == 0)
+        return;
+    action->setMenu(0);
+    m_subMenus.insert(action, menu);
+    formWindow()->core()->metaDataBase()->remove(menu);
 }
 
 QDesignerMenu *QDesignerMenu::findOrCreateSubMenu(QAction *action)
@@ -835,7 +862,12 @@ void QDesignerMenu::leaveEditMode(LeaveEditMode mode)
     adjustSize();
 
     if (parentMenu()) { // ### undo/redo
-        parentMenu()->createRealMenuAction(parentMenu()->currentAction());
+        QAction *parent_action = parentMenu()->currentAction();
+        if (parent_action->menu() == 0) {
+            CreateSubmenuCommand *cmd = new CreateSubmenuCommand(formWindow());
+            cmd->init(parentMenu(), parentMenu()->currentAction());
+            formWindow()->commandHistory()->push(cmd);
+        }
     }
     updateCurrentAction();
 }
@@ -870,7 +902,7 @@ void QDesignerMenu::showLineEdit()
     m_editor->setFocus();
 }
 
-QAction *QDesignerMenu::createAction() // ### undo/redo
+QAction *QDesignerMenu::createAction()
 {
     Q_ASSERT(formWindow() != 0);
     QDesignerFormWindowInterface *fw = formWindow();
@@ -879,7 +911,6 @@ QAction *QDesignerMenu::createAction() // ### undo/redo
     fw->core()->widgetFactory()->initialize(action);
 
     action->setObjectName("action");
-    fw->core()->metaDataBase()->add(action);
     fw->ensureUniqueObjectName(action);
 
     AddActionCommand *cmd = new AddActionCommand(fw);

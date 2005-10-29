@@ -41,6 +41,8 @@ class QDesignerMenuBar;
 class QPainter;
 class QMimeData;
 
+namespace qdesigner_internal { class CreateSubmenuCommand; }
+
 class QDESIGNER_SHARED_EXPORT QDesignerMenu: public QMenu
 {
     Q_OBJECT
@@ -62,6 +64,7 @@ public:
 
     bool interactive(bool i);
     void createRealMenuAction(QAction *action);
+    void removeRealMenu(QAction *action);
 
     static void drawSelection(QPainter *p, const QRect &r);
 
@@ -145,6 +148,8 @@ private:
     QLineEdit *m_editor;
     bool m_dragging;
     int m_lastSubMenuIndex;
+
+    friend class qdesigner_internal::CreateSubmenuCommand;
 };
 
 #endif // QDESIGNER_MENU_H
