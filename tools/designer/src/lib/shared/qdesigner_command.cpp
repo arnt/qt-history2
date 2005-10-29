@@ -2234,6 +2234,7 @@ void InsertActionIntoCommand::redo()
     Q_ASSERT(m_parentWidget != 0);
 
     m_parentWidget->insertAction(m_beforeAction, m_action);
+    core()->propertyEditor()->setObject(m_action);
 }
 
 void InsertActionIntoCommand::undo()
@@ -2242,6 +2243,7 @@ void InsertActionIntoCommand::undo()
     Q_ASSERT(m_parentWidget != 0);
 
     m_parentWidget->removeAction(m_action);
+    core()->propertyEditor()->setObject(m_parentWidget);
 }
 
 // ---- RemoveActionFromCommand ----
@@ -2269,6 +2271,7 @@ void RemoveActionFromCommand::redo()
     Q_ASSERT(m_parentWidget != 0);
 
     m_parentWidget->removeAction(m_action);
+    core()->propertyEditor()->setObject(m_parentWidget);
 }
 
 void RemoveActionFromCommand::undo()
@@ -2277,6 +2280,69 @@ void RemoveActionFromCommand::undo()
     Q_ASSERT(m_parentWidget != 0);
 
     m_parentWidget->insertAction(m_beforeAction, m_action);
+    core()->propertyEditor()->setObject(m_action);
+}
+
+// ---- AddMenuActionCommand ----
+AddMenuActionCommand::AddMenuActionCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Add menu"), formWindow)
+{
+    m_action = 0;
+    m_parent = 0;
+}
+
+void AddMenuActionCommand::init(QAction *action, QWidget *parent)
+{
+    Q_ASSERT(action->menu() != 0);
+    m_action = action;
+    m_parent = parent;
+}
+
+void AddMenuActionCommand::redo()
+{
+    core()->metaDataBase()->add(m_action);
+    core()->metaDataBase()->add(m_action->menu());
+    m_action->menu()->setParent(m_parent);
+    core()->propertyEditor()->setObject(m_action->menu());
+}
+
+void AddMenuActionCommand::undo()
+{
+    core()->propertyEditor()->setObject(m_parent);
+    m_action->menu()->setParent(0);
+    core()->metaDataBase()->remove(m_action->menu());
+    core()->metaDataBase()->remove(m_action);
+}
+
+// ---- RemoveMenuActionCommand ----
+RemoveMenuActionCommand::RemoveMenuActionCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Remove menu"), formWindow)
+{
+    m_action = 0;
+    m_parent = 0;
+}
+
+void RemoveMenuActionCommand::init(QAction *action, QWidget *parent)
+{
+    Q_ASSERT(action->menu() != 0);
+    m_action = action;
+    m_parent = parent;
+}
+
+void RemoveMenuActionCommand::redo()
+{
+    core()->propertyEditor()->setObject(m_parent);
+    m_action->menu()->setParent(0);
+    core()->metaDataBase()->remove(m_action->menu());
+    core()->metaDataBase()->remove(m_action);
+}
+
+void RemoveMenuActionCommand::undo()
+{
+    core()->metaDataBase()->add(m_action);
+    core()->metaDataBase()->add(m_action->menu());
+    m_action->menu()->setParent(m_parent);
+    core()->propertyEditor()->setObject(m_action->menu());
 }
 
 } // namespace qdesigner_internal

@@ -260,7 +260,11 @@ void QDesignerMenuBar::startDrag(const QPoint &pos)
         return;
 
     QAction *action = safeActionAt(index);
-    removeAction(action);
+
+    RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
+    cmd->init(this, action, actions().at(index + 1));
+    formWindow()->commandHistory()->push(cmd);
+
     adjustSize();
 
     hideMenu(index);
@@ -276,8 +280,10 @@ void QDesignerMenuBar::startDrag(const QPoint &pos)
     m_currentIndex = -1;
 
     if (drag->start() == Qt::IgnoreAction) {
-        QAction *previous = safeActionAt(index);
-        insertAction(previous, action);
+        InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+        cmd->init(this, action, safeActionAt(index));
+        formWindow()->commandHistory()->push(cmd);
+
         m_currentIndex = old_index;
         adjustSize();
     }
@@ -392,22 +398,22 @@ void QDesignerMenuBar::focusOutEvent(QFocusEvent *event)
     QMenuBar::focusOutEvent(event);
 }
 
-QAction *QDesignerMenuBar::createAction() // ### undo/redo
+QAction *QDesignerMenuBar::createAction()
 {
     Q_ASSERT(formWindow() != 0);
 
     QDesignerFormWindowInterface *fw = formWindow();
     QDesignerFormEditorInterface *core = fw->core();
-    QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu", this)); // ### use undo/redo stack
+    QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu", 0));
     menu->setObjectName("menu");
-    core->metaDataBase()->add(menu);
+    menu->setTitle(tr("Menu"));
     fw->ensureUniqueObjectName(menu);
 
     QAction *menuAction = menu->menuAction();
-    core->metaDataBase()->add(menuAction);
-    menu->setTitle(tr("Menu"));
-    core->actionEditor()->setFormWindow(fw);
-    core->propertyEditor()->setObject(menu);
+
+    AddMenuActionCommand *cmd = new AddMenuActionCommand(formWindow());
+    cmd->init(menuAction, this);
+    formWindow()->commandHistory()->push(cmd);
 
     return menuAction;
 }
@@ -615,10 +621,14 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
         event->acceptProposedAction();
 
         QAction *action = d->items.first();
-        if (action && action->menu() && !actions().contains(action)) { // ### undo/redo
+        if (action && action->menu() && !actions().contains(action)) {
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
-            insertAction(safeActionAt(index), action);
+
+            InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+            cmd->init(this, action, safeActionAt(index));
+            formWindow()->commandHistory()->push(cmd);
+
             m_currentIndex = index;
             update();
             adjustIndicator(QPoint(-1, -1));
@@ -735,9 +745,15 @@ void QDesignerMenuBar::deleteMenu()
         if (pos != -1)
             action_before = safeActionAt(pos + 1);
 
+        formWindow()->beginCommand("Remove menu");
         RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
         cmd->init(this, action, action_before);
         formWindow()->commandHistory()->push(cmd);
+
+        RemoveMenuActionCommand *cmd2 = new RemoveMenuActionCommand(formWindow());
+        cmd2->init(action, this);
+        formWindow()->commandHistory()->push(cmd2);
+        formWindow()->endCommand();
     }
 }
 

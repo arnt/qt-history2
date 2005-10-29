@@ -911,6 +911,32 @@ private:
     QAction *m_beforeAction;
 };
 
+class QDESIGNER_SHARED_EXPORT AddMenuActionCommand : public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    AddMenuActionCommand(QDesignerFormWindowInterface *formWindow);
+    void init(QAction *action, QWidget *parent);
+    virtual void redo();
+    virtual void undo();
+private:
+    QAction *m_action;
+    QWidget *m_parent;
+};
+
+class QDESIGNER_SHARED_EXPORT RemoveMenuActionCommand : public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    RemoveMenuActionCommand(QDesignerFormWindowInterface *formWindow);
+    void init(QAction *action, QWidget *parent);
+    virtual void redo();
+    virtual void undo();
+private:
+    QAction *m_action;
+    QWidget *m_parent;
+};
+
 } // namespace qdesigner_internal
 
 #endif // QDESIGNER_COMMAND_H
