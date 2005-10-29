@@ -33,6 +33,7 @@
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QHeaderView>
 #include <QtGui/QApplication>
+#include <QtGui/QMenu>
 
 #include <QtCore/qdebug.h>
 
@@ -48,10 +49,24 @@ static void merge(QDesignerFormWindowInterface *form, QStringList *lst, const QL
     QDesignerMetaDataBaseInterface *db = form->core()->metaDataBase();
 
     foreach (T e, elts) {
-        if (db->item(e) == 0)
+        QAction *action = qobject_cast<QAction*>(e);
+
+        if (action && db->item(action->menu())) {
+            // good
+        } else if (!db->item(e)) {
+            // hmm, nothing to do
+            continue;
+        }
+
+        QString name = e->objectName();
+
+        if (action && action->menu())
+            name = action->menu()->objectName();
+
+        if (name.isEmpty())
             continue;
 
-        lst->append(e->objectName());
+        lst->append(name);
     }
 }
 
