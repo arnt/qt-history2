@@ -217,6 +217,7 @@ void QPdfEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
         break;
     case PPK_Orientation:
         d->orientation = QPrinter::Orientation(value.toInt());
+        break;
     case PPK_OutputFileName: {
         if (isActive()) {
             qWarning("QPdfEngine::setFileName: Not possible while painting");
