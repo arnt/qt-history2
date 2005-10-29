@@ -124,6 +124,7 @@ protected:
     void deleteAction();
     void deactivateMenu();
 
+    bool canCreateSubMenu(QAction *action) const;
     QDesignerMenu *findRootMenu() const;
     QDesignerMenu *findActivatedMenu() const;
 

@@ -28,6 +28,7 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QPainter>
 #include <QtGui/QRubberBand>
+#include <QtGui/QToolTip>
 #include <QtGui/qevent.h>
 
 Q_DECLARE_METATYPE(QAction*)
@@ -578,8 +579,10 @@ void QDesignerMenu::moveLeft()
     if (parentMenu()) {
         hide();
     } else if (QDesignerMenuBar *mb = parentMenuBar()) {
+#if 0 //. ### disabled for now.. it's a bit confusing
         hide();
         mb->moveLeft();
+#endif
     }
     updateCurrentAction();
 }
@@ -682,6 +685,27 @@ QDesignerMenu *QDesignerMenu::findOrCreateSubMenu(QAction *action)
     return menu;
 }
 
+bool QDesignerMenu::canCreateSubMenu(QAction *action) const
+{
+    QWidget *topLevel = formWindow()->mainContainer();
+    QList<QMenu*> menus = qFindChildren<QMenu*>(topLevel);
+    QList<QToolBar*> toolBars = qFindChildren<QToolBar*>(topLevel);
+
+    foreach (QMenu *m, menus) {
+        if (m != this && m->actions().contains(action)) {
+            return false; // sorry
+        }
+    }
+
+    foreach (QToolBar *tb, toolBars) {
+        if (tb->actions().contains(action)) {
+            return false; // sorry
+        }
+    }
+
+    return true;
+}
+
 void QDesignerMenu::slotShowSubMenuNow()
 {
     m_showSubMenuTimer->stop();
@@ -697,7 +721,7 @@ void QDesignerMenu::slotShowSubMenuNow()
 
     QAction *action = currentAction();
 
-    if (action->isSeparator())
+    if (action->isSeparator() || !canCreateSubMenu(action))
         return;
 
     if (QMenu *menu = findOrCreateSubMenu(action)) {
