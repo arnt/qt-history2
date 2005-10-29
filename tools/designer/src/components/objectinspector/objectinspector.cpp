@@ -21,6 +21,8 @@
 #include <qdesigner_promotedwidget_p.h>
 
 // Qt
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
 #include <QtGui/QApplication>
 #include <QtGui/QHeaderView>
 #include <QtGui/QScrollBar>
@@ -104,7 +106,7 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
         if (m_selected == object)
             theSelectedItem = item;
 
-        QString className;
+        QString className = object->metaObject()->className();
         if (QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
             className = widgetItem->name();
 
@@ -115,6 +117,8 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 
             item->setText(1, className);
             item->setIcon(0, widgetItem->icon());
+        } else {
+            item->setText(1, className);
         }
 
         item->setData(0, 1000, qVariantFromValue(object));
@@ -125,6 +129,13 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
         QString objectName = object->objectName();
         if (objectName.isEmpty())
             objectName = tr("<noname>");
+
+        if (QAction *act = qobject_cast<QAction*>(object)) { // separator is reserved
+            if (act->isSeparator()) {
+                objectName = tr("separator");
+            }
+            item->setIcon(0, act->icon());
+        }
 
         item->setText(0, objectName);
 
@@ -142,13 +153,31 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
                 children = promoted->child()->children();
             else
                 children = object->children();
+
             qSort(children.begin(), children.end(), ObjectInspector::sortEntry);
+
             foreach (QObject *child, children) {
-                if (!child->isWidgetType() || !fw->isManaged(static_cast<QWidget*>(child)))
+                QWidget *widget = qobject_cast<QWidget*>(child);
+                if (!widget || !fw->isManaged(widget))
                     continue;
 
                 QTreeWidgetItem *childItem = new QTreeWidgetItem(item);
                 workingList.append(qMakePair(childItem, child));
+            }
+
+            if (QWidget *widget = qobject_cast<QWidget*>(object)) {
+                QList<QAction*> actions = widget->actions();
+                foreach (QAction *action, actions) {
+                    if (!fw->core()->metaDataBase()->item(action))
+                        continue;
+
+                    QObject *obj = action;
+                    if (action->menu())
+                        obj = action->menu();
+
+                    QTreeWidgetItem *childItem = new QTreeWidgetItem(item);
+                    workingList.append(qMakePair(childItem, obj));
+                }
             }
         }
 
