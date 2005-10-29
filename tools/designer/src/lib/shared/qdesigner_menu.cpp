@@ -187,7 +187,10 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
             return true; // no update
 
         default:
-            if (!e->text().isEmpty() && e->text().at(0).toLatin1() >= 32) {
+            if (!currentAction() || currentAction()->isSeparator()) {
+                e->ignore();
+                return true;
+            } else if (!e->text().isEmpty() && e->text().at(0).toLatin1() >= 32) {
                 showLineEdit();
                 QApplication::sendEvent(m_editor, e);
                 e->accept();
