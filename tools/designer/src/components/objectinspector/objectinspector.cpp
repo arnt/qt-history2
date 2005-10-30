@@ -56,6 +56,8 @@ ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *pa
 
     connect(m_treeWidget, SIGNAL(itemPressed(QTreeWidgetItem*,int)),
             this, SLOT(slotSelectionChanged()));
+    connect(m_treeWidget, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
+            this, SLOT(slotSelectionChanged()));
 }
 
 ObjectInspector::~ObjectInspector()
