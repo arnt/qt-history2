@@ -2237,6 +2237,7 @@ void InsertActionIntoCommand::redo()
 
     m_parentWidget->insertAction(m_beforeAction, m_action);
     core()->propertyEditor()->setObject(m_action);
+    core()->objectInspector()->setFormWindow(formWindow());
 }
 
 void InsertActionIntoCommand::undo()
@@ -2246,6 +2247,7 @@ void InsertActionIntoCommand::undo()
 
     m_parentWidget->removeAction(m_action);
     core()->propertyEditor()->setObject(m_parentWidget);
+    core()->objectInspector()->setFormWindow(formWindow());
 }
 
 // ---- RemoveActionFromCommand ----

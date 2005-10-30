@@ -32,6 +32,8 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
 
+#include <QtCore/QRegExp>
+
 #include <qdebug.h>
 
 Q_DECLARE_METATYPE(QAction*)
@@ -395,5 +397,22 @@ void ActionEditor::slotNotImplemented()
 {
     QMessageBox::information(this, tr("Designer"), tr("Feature not implemented!"));
 }
+
+QString ActionEditor::actionTextToName(const QString &text)
+{
+    QString name = text;
+    if (name.isEmpty())
+        return QString();
+
+    name[0] = name.at(0).toUpper();
+    name.prepend(QLatin1String("action"));
+    name.replace(QRegExp(QString("[^a-zA-Z_0-9]")), QString("_"));
+    name.replace(QRegExp("__*"), QString("_"));
+    if (name.endsWith("_"))
+        name.truncate(name.size() - 1);
+
+    return name;
+}
+
 
 } // namespace qdesigner_internal

@@ -59,6 +59,8 @@ public:
     virtual void addAction(QAction *action);
     virtual void removeAction(QAction *action);
 
+    static QString actionTextToName(const QString &text);
+
 public slots:
     void setFilter(const QString &filter);
 

@@ -65,29 +65,13 @@ QString NewActionDialog::actionName() const
     return ui.editObjectName->text();
 }
 
-static QString actionTextToName(const QString &text)
-{
-    QString name = text;
-    if (name.isEmpty())
-        return QString();
-
-    name[0] = name.at(0).toUpper();
-    name.prepend(QLatin1String("action"));
-    name.replace(QRegExp(QString("[^a-zA-Z_0-9]")), QString("_"));
-    name.replace(QRegExp("__*"), QString("_"));
-    if (name.endsWith("_"))
-        name.truncate(name.size() - 1);
-
-    return name;
-}
-
 void NewActionDialog::on_editActionText_textEdited(const QString &text)
 {
     if (text.isEmpty())
         m_auto_update_object_name = true;
 
     if (m_auto_update_object_name)
-        ui.editObjectName->setText(actionTextToName(text));
+        ui.editObjectName->setText(ActionEditor::actionTextToName(text));
 
     updateButtons();
 }
