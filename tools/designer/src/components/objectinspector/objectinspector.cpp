@@ -211,8 +211,15 @@ void ObjectInspector::slotSelectionChanged()
     foreach (QTreeWidgetItem *item, items) {
         QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
         m_selected = object;
-        if (QWidget *widget = qobject_cast<QWidget*>(object))
+
+        QWidget *widget = qobject_cast<QWidget*>(object);
+
+        if (widget && m_formWindow->isManaged(widget)) {
             m_formWindow->selectWidget(widget);
+        } else if (core()->metaDataBase()->item(object)) {
+            // refresh at least the property editor
+            core()->propertyEditor()->setObject(object);
+        }
     }
 }
 
