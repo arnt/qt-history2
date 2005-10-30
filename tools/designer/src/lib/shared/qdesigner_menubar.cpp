@@ -404,7 +404,7 @@ QAction *QDesignerMenuBar::createAction()
 
     QDesignerFormWindowInterface *fw = formWindow();
     QDesignerFormEditorInterface *core = fw->core();
-    QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu", 0));
+    QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu", this));
     core->widgetFactory()->initialize(menu);
     menu->setObjectName("menu");
     menu->setTitle(tr("Menu"));
@@ -436,10 +436,10 @@ void QDesignerMenuBar::leaveEditMode(LeaveEditMode mode)
 
     if (m_currentIndex >= 0 && m_currentIndex < realActionCount()) {
         action = safeActionAt(m_currentIndex);
-        formWindow()->beginCommand(QLatin1String("Set action text"));
+        formWindow()->beginCommand(QLatin1String("Change Title"));
     } else {
         Q_ASSERT(formWindow() != 0);
-        formWindow()->beginCommand(QLatin1String("Insert action"));
+        formWindow()->beginCommand(QLatin1String("Insert Menu"));
         action = createAction();
         InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
         cmd->init(this, action, m_addMenu);
