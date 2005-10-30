@@ -447,7 +447,7 @@ const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
         {
             if ( keyCache[i] == NULL )
                 keyCache[i] = (AuthCookie *)(malloc( sizeof( kr )));
-            memcpy( keyCache[i]->key, kr.key, KEY_LEN );
+            memcpy( keyCache[i]->key, kr.key, QSXV_KEY_LEN );
 #ifdef QTRANSPORTAUTH_DEBUG
             qDebug( "Found client key for prog %u", progId );
 #endif
@@ -634,7 +634,7 @@ void QAuthDevice::authorizeMessage()
     char buf[128];
     // msg auth header detected and auth determined, remove hdr
     if (( d->status & QTransportAuth::ErrMask ) != QTransportAuth::NoMagic )
-        m_target->read( buf, HEADER_LEN );
+        m_target->read( buf, QSXV_HEADER_LEN );
     QBuffer cmdBuf;
     cmdBuf.open( QIODevice::WriteOnly );
     qint64 bytes;
@@ -720,30 +720,30 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
         qWarning( "Cannot add transport authentication - key not initialised!" );
         return false;
     }
-    unsigned char digest[KEY_LEN];
+    unsigned char digest[QSXV_KEY_LEN];
     char *msgPtr = hdr;
     // magic always goes on the beginning
-    for ( int m = 0; m < MAGIC_BYTES; ++m )
+    for ( int m = 0; m < QSXV_MAGIC_BYTES; ++m )
         *msgPtr++ = magic[m];
-    hdr[ LEN_IDX ] = (unsigned char)msgLen;
+    hdr[ QSXV_LEN_IDX ] = (unsigned char)msgLen;
     if ( !d.trusted())
     {
         // Use HMAC
-        int rc = hmac_md5( (unsigned char *)msg, msgLen, a->d_func()->authKey.key, KEY_LEN, digest );
+        int rc = hmac_md5( (unsigned char *)msg, msgLen, a->d_func()->authKey.key, QSXV_KEY_LEN, digest );
         if ( rc == -1 )
             return false;
-        memcpy( hdr + KEY_IDX, digest, KEY_LEN );
+        memcpy( hdr + QSXV_KEY_IDX, digest, QSXV_KEY_LEN );
     }
     else
     {
-        memcpy( hdr + KEY_IDX, a->d_func()->authKey.key, KEY_LEN );
+        memcpy( hdr + QSXV_KEY_IDX, a->d_func()->authKey.key, QSXV_KEY_LEN );
     }
 
-    hdr[ PROG_IDX ] = a->d_func()->authKey.progId;
+    hdr[ QSXV_PROG_IDX ] = a->d_func()->authKey.progId;
 
 #ifdef QTRANSPORTAUTH_DEBUG
-    char keydisplay[KEY_LEN*2+1];
-    hexstring( keydisplay, a->authKey.key, KEY_LEN );
+    char keydisplay[QSXV_KEY_LEN*2+1];
+    hexstring( keydisplay, a->authKey.key, QSXV_KEY_LEN );
 
     qDebug( "Auth to message %s against prog id %u and key %s\n",
             msg, a->authKey.progId, keydisplay );
@@ -751,7 +751,7 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
 
     // TODO implement sequence to prevent replay attack, not required
     // for trusted transports
-    hdr[ SEQ_IDX ] = 1;  // dummy sequence
+    hdr[ QSXV_SEQ_IDX ] = 1;  // dummy sequence
 
     d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
     return true;
@@ -809,7 +809,7 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
 */
 bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen )
 {
-    if ( msgLen < MAGIC_BYTES )
+    if ( msgLen < QSXV_MAGIC_BYTES )
     {
         d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::TooSmall;
         return false;
@@ -817,7 +817,7 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
     // if no magic bytes, exit straight away
     int m;
     const unsigned char *mptr = reinterpret_cast<const unsigned char *>(msg);
-    for ( m = 0; m < MAGIC_BYTES; ++m )
+    for ( m = 0; m < QSXV_MAGIC_BYTES; ++m )
     {
         if ( *mptr++ != magic[m] )
         {
@@ -833,19 +833,19 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
     }
 
 #ifdef QTRANSPORTAUTH_DEBUG
-    char authhdr[HEADER_LEN*2+1];
-    hexstring( authhdr, reinterpret_cast<const unsigned char *>(msg), HEADER_LEN );
+    char authhdr[QSXV_HEADER_LEN*2+1];
+    hexstring( authhdr, reinterpret_cast<const unsigned char *>(msg), QSXV_HEADER_LEN );
     qDebug( "authFromMessage(): message header is %s", authhdr );
 #endif
 
-    unsigned char authLen = (unsigned char)(msg[ LEN_IDX ]);
+    unsigned char authLen = (unsigned char)(msg[ QSXV_LEN_IDX ]);
 
     if ( msgLen < AUTH_SPACE(authLen) )
     {
         d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::TooSmall;
         return false;
     }
-    unsigned char progbuf = (unsigned char)(msg[ PROG_IDX ]);
+    unsigned char progbuf = (unsigned char)(msg[ QSXV_PROG_IDX ]);
     const unsigned char *clientKey = a->d_func()->getClientKey( progbuf );
     if ( clientKey == NULL )
     {
@@ -855,25 +855,25 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
     }
 
 #ifdef QTRANSPORTAUTH_DEBUG
-    char keydisplay[KEY_LEN*2+1];
-    hexstring( keydisplay, clientKey, KEY_LEN );
+    char keydisplay[QSXV_KEY_LEN*2+1];
+    hexstring( keydisplay, clientKey, QSXV_KEY_LEN );
     qDebug( "authFromMessage(): message %s against prog id %u and key %s\n",
-            AUTH_DATA(msg), ((unsigned int)(msg[ PROG_IDX ])), keydisplay );
+            AUTH_DATA(msg), ((unsigned int)(msg[ QSXV_PROG_IDX ])), keydisplay );
 #endif
 
     const unsigned char *auth_tok;
-    unsigned char digest[KEY_LEN];
+    unsigned char digest[QSXV_KEY_LEN];
     if ( !d.trusted())
     {
-        hmac_md5( AUTH_DATA(msg), authLen, clientKey, KEY_LEN, digest );
+        hmac_md5( AUTH_DATA(msg), authLen, clientKey, QSXV_KEY_LEN, digest );
         auth_tok = digest;
     }
     else
     {
         auth_tok = clientKey;
     }
-    mptr = reinterpret_cast<const unsigned char *>( msg + KEY_IDX );
-    for ( m = 0; m < KEY_LEN; ++m )
+    mptr = reinterpret_cast<const unsigned char *>( msg + QSXV_KEY_IDX );
+    for ( m = 0; m < QSXV_KEY_LEN; ++m )
     {
         if ( *mptr++ != *auth_tok++ )
         {
@@ -883,7 +883,7 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
         }
     }
     // TODO - provide sequence number check against replay attack
-    d.progId = msg[PROG_IDX];
+    d.progId = msg[QSXV_PROG_IDX];
     d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
     return true;
 }

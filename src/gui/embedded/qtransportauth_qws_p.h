@@ -62,9 +62,9 @@ private:
     QWSClient *m_client;
 };
 
-#define KEY_LEN 16
-#define MAGIC_BYTES 4
-#define MAX_PROG_ID 255
+#define QSXV_KEY_LEN 16
+#define QSXV_MAGIC_BYTES 4
+#define QSXV_MAX_PROG_ID 255
 
 // Number of bytes of each message to authenticate.  Just need to ensure
 // that the command at the beginning hasn't been tampered with.  This value
@@ -76,7 +76,7 @@ private:
   \class AuthCookie
   Struct to carry process authentication key and id
 */
-#define HEADER_LEN 24
+#define QSXV_HEADER_LEN 24
 
 /*!
   \macro AUTH_ID
@@ -96,21 +96,21 @@ private:
   AUTH_KEY, AUTH_DATA and AUTH_SPACE macros.
 */
 
-#define AUTH_ID(k) ((unsigned char)(k[KEY_LEN]))
+#define AUTH_ID(k) ((unsigned char)(k[QSXV_KEY_LEN]))
 #define AUTH_KEY(k) ((unsigned char *)(k))
 
 // must be a largish -ve number under any endianess when cast as an int
-const unsigned char magic[MAGIC_BYTES] = { 0xBA, 0xD4, 0xD4, 0xBA };
+const unsigned char magic[QSXV_MAGIC_BYTES] = { 0xBA, 0xD4, 0xD4, 0xBA };
 const int magicInt = 0xBAD4D4BA;
 
-#define AUTH_DATA(x) (unsigned char *)((x) + HEADER_LEN)
-#define AUTH_SPACE(x) ((x) + HEADER_LEN)
-#define LEN_IDX 4
-#define KEY_IDX 6
-#define PROG_IDX 22
-#define SEQ_IDX 23
+#define AUTH_DATA(x) (unsigned char *)((x) + QSXV_HEADER_LEN)
+#define AUTH_SPACE(x) ((x) + QSXV_HEADER_LEN)
+#define QSXV_LEN_IDX 4
+#define QSXV_KEY_IDX 6
+#define QSXV_PROG_IDX 22
+#define QSXV_SEQ_IDX 23
 
-#define KEYFILE "keyfile"
+#define QSXV_KEYFILE "keyfile"
 
 /*
   Header in above format, less the magic bytes.
@@ -120,7 +120,7 @@ struct AuthHeader
 {
     unsigned char len;
     unsigned char pad;
-    unsigned char digest[KEY_LEN];
+    unsigned char digest[QSXV_KEY_LEN];
     unsigned char id;
     unsigned char seq;
 };
@@ -133,9 +133,9 @@ struct AuthMessage
     AuthMessage()
     {
         ::memset( authData, 0, sizeof(authData) );
-        ::memcpy( pad_magic, magic, MAGIC_BYTES );
+        ::memcpy( pad_magic, magic, QSXV_MAGIC_BYTES );
     }
-    unsigned char pad_magic[MAGIC_BYTES];
+    unsigned char pad_magic[QSXV_MAGIC_BYTES];
     union {
         AuthHeader hdr;
         char authData[sizeof(AuthHeader)];
@@ -148,7 +148,7 @@ struct AuthMessage
 */
 struct AuthCookie
 {
-    unsigned char key[KEY_LEN];
+    unsigned char key[QSXV_KEY_LEN];
     unsigned char pad;
     unsigned char progId;
 };
