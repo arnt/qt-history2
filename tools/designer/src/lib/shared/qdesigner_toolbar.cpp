@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_toolbar_p.h"
+#include "qdesigner_command_p.h"
 #include "actionrepository_p.h"
 #include "actionprovider_p.h"
 
@@ -23,6 +24,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QToolButton>
 #include <QtGui/QMenu>
+#include <QtGui/QMainWindow>
 #include <QtGui/qevent.h>
 
 Q_DECLARE_METATYPE(QAction*)
@@ -306,14 +308,14 @@ bool QDesignerToolBar::isPassiveWidget(QWidget *widget) const
 
 void QDesignerToolBar::slotNewToolBar()
 {
-    if (QDesignerFormWindowInterface *fw = formWindow()) {
+    QDesignerFormWindowInterface *fw = formWindow();
+    if (fw && qobject_cast<QMainWindow*>(fw->mainContainer())) {
         QDesignerFormEditorInterface *core = fw->core();
-        QToolBar *tb = qobject_cast<QToolBar*>(core->widgetFactory()->createWidget("QToolBar", fw->mainContainer()));
-        core->metaDataBase()->add(tb);
+        QMainWindow *mw = qobject_cast<QMainWindow*>(fw->mainContainer());
 
-        if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), fw->mainContainer())) {
-            container->addWidget(tb);
-        }
+        AddToolBarCommand *cmd = new AddToolBarCommand(fw);
+        cmd->init(mw);
+        fw->commandHistory()->push(cmd);
     }
 }
 
@@ -345,8 +347,9 @@ Sentinel::Sentinel(QWidget *widget)
     : QToolButton(widget)
 {
     setObjectName(QString::fromUtf8("__qt__passive_new"));
-    setText(tr("=>")); // ### replace with something else
+    setArrowType(Qt::RightArrow);
     setToolButtonStyle(Qt::ToolButtonTextOnly);
+    setToolTip(tr("New Tool Bar"));
 }
 
 Sentinel::~Sentinel()
