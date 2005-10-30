@@ -122,7 +122,7 @@ protected:
     void showMenu(int index = -1);
     void hideMenu(int index = -1);
 
-    QAction *createAction();
+    QAction *createAction(const QString &objectName);
     QAction *safeActionAt(int index) const;
 
     bool swap(int a, int b);

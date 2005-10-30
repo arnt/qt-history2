@@ -17,6 +17,7 @@
 #include "qdesigner_command_p.h"
 #include "actionrepository_p.h"
 #include "actionprovider_p.h"
+#include "actioneditor_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -688,7 +689,12 @@ void QDesignerMenu::createRealMenuAction(QAction *action) // ### undo/redo
     QDesignerFormEditorInterface *core = formWindow()->core();
 
     core->widgetFactory()->initialize(menu);
-    menu->setObjectName("menu");
+
+    QString niceObjectName = ActionEditor::actionTextToName(menu->title());
+    if (niceObjectName.startsWith("action"))
+        niceObjectName.replace(0, 6, QLatin1String("menu"));
+    menu->setObjectName(niceObjectName);
+
     core->metaDataBase()->add(menu);
     fw->ensureUniqueObjectName(menu);
 
@@ -826,7 +832,7 @@ void QDesignerMenu::enterEditMode()
     if (m_currentIndex >= 0 && m_currentIndex <= realActionCount()) {
         showLineEdit();
     } else {
-        QAction *sep = createAction();
+        QAction *sep = createAction(QString());
         sep->setSeparator(true);
         insertAction(safeActionAt(realActionCount()), sep);
         m_currentIndex = realActionCount() - 1;
@@ -847,7 +853,7 @@ void QDesignerMenu::leaveEditMode(LeaveEditMode mode)
     } else {
         Q_ASSERT(formWindow() != 0);
         formWindow()->beginCommand(QLatin1String("Insert action"));
-        action = createAction();
+        action = createAction(ActionEditor::actionTextToName(m_editor->text()));
         InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
         cmd->init(this, action, currentAction());
         formWindow()->commandHistory()->push(cmd);
@@ -902,7 +908,7 @@ void QDesignerMenu::showLineEdit()
     m_editor->setFocus();
 }
 
-QAction *QDesignerMenu::createAction()
+QAction *QDesignerMenu::createAction(const QString &objectName)
 {
     Q_ASSERT(formWindow() != 0);
     QDesignerFormWindowInterface *fw = formWindow();
@@ -910,7 +916,7 @@ QAction *QDesignerMenu::createAction()
     QAction *action = new QAction(fw);
     fw->core()->widgetFactory()->initialize(action);
 
-    action->setObjectName("action");
+    action->setObjectName(objectName);
     fw->ensureUniqueObjectName(action);
 
     AddActionCommand *cmd = new AddActionCommand(fw);

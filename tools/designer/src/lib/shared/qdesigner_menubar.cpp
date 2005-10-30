@@ -17,6 +17,7 @@
 #include "qdesigner_command_p.h"
 #include "actionrepository_p.h"
 #include "actionprovider_p.h"
+#include "actioneditor_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -398,7 +399,7 @@ void QDesignerMenuBar::focusOutEvent(QFocusEvent *event)
     QMenuBar::focusOutEvent(event);
 }
 
-QAction *QDesignerMenuBar::createAction()
+QAction *QDesignerMenuBar::createAction(const QString &name)
 {
     Q_ASSERT(formWindow() != 0);
 
@@ -406,7 +407,7 @@ QAction *QDesignerMenuBar::createAction()
     QDesignerFormEditorInterface *core = fw->core();
     QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu", this));
     core->widgetFactory()->initialize(menu);
-    menu->setObjectName("menu");
+    menu->setObjectName(name);
     menu->setTitle(tr("Menu"));
     fw->ensureUniqueObjectName(menu);
 
@@ -440,7 +441,12 @@ void QDesignerMenuBar::leaveEditMode(LeaveEditMode mode)
     } else {
         Q_ASSERT(formWindow() != 0);
         formWindow()->beginCommand(QLatin1String("Insert Menu"));
-        action = createAction();
+
+        QString niceObjectName = ActionEditor::actionTextToName(m_editor->text());
+        if (niceObjectName.startsWith("action"))
+            niceObjectName.replace(0, 6, QLatin1String("menu"));
+
+        action = createAction(niceObjectName);
         InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
         cmd->init(this, action, m_addMenu);
         formWindow()->commandHistory()->push(cmd);

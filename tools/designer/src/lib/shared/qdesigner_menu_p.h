@@ -121,7 +121,7 @@ protected:
     void leaveEditMode(LeaveEditMode mode);
     void showLineEdit();
 
-    QAction *createAction();
+    QAction *createAction(const QString &text);
     QDesignerMenu *findOrCreateSubMenu(QAction *action);
 
     QAction *safeActionAt(int index) const;
