@@ -54,8 +54,14 @@ ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *pa
     m_treeWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_treeWidget->header()->setResizeMode(1, QHeaderView::Stretch);
 
+    m_treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(m_treeWidget, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(slotPopupContextMenu(QPoint)));
+
     connect(m_treeWidget, SIGNAL(itemPressed(QTreeWidgetItem*,int)),
             this, SLOT(slotSelectionChanged()));
+
     connect(m_treeWidget, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
             this, SLOT(slotSelectionChanged()));
 }
@@ -67,6 +73,32 @@ ObjectInspector::~ObjectInspector()
 QDesignerFormEditorInterface *ObjectInspector::core() const
 {
     return m_core;
+}
+
+void ObjectInspector::slotPopupContextMenu(const QPoint &pos)
+{
+    QTreeWidgetItem *item = m_treeWidget->itemAt(pos);
+    if (!item)
+        return;
+
+    QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
+    if (!object)
+        return;
+
+#if defined(TASKMENU_INTEGRATION)
+    QDesignerTaskMenuExtension *task;
+
+    if (0 != (task = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), object))) {
+        QList<QAction*> actions = task->taskActions();
+
+        if (!actions.isEmpty()) {
+            QMenu menu(this);
+
+            menu.addActions(actions);
+            menu.exec(m_treeWidget->viewport()->mapToGlobal(pos));
+        }
+    }
+#endif
 }
 
 bool ObjectInspector::sortEntry(const QObject *a, const QObject *b)

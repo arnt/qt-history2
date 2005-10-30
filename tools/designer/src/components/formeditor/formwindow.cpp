@@ -1407,12 +1407,12 @@ bool FormWindow::handleMouseButtonDblClickEvent(QWidget *, QWidget *managedWidge
     return true;
 }
 
-void FormWindow::finishContextMenu(QWidget *w, QWidget *menuParent, QContextMenuEvent *e)
+void FormWindow::finishContextMenu(QWidget *w, QWidget *, QContextMenuEvent *e)
 {
     e->accept();
 
     QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), w);
-    QMenu *menu = createPopupMenu(menuParent);
+    QMenu *menu = createPopupMenu(w);
     if (menu && taskMenu) {
         QList<QAction *> acts = taskMenu->taskActions();
         QAction *sep = new QAction(menu);
@@ -1446,14 +1446,15 @@ bool FormWindow::handleContextMenu(QWidget *, QWidget *managedWidget, QContextMe
     if (!isMainContainer(managedWidget)) { // press on a child widget
         // if widget is laid out, find the first non-laid out super-widget
         QWidget *realWidget = managedWidget; // but store the original one
+        QMainWindow *mw = qobject_cast<QMainWindow*>(mainContainer());
 
-        if (qobject_cast<QMainWindow*>(mainContainer()) && static_cast<QMainWindow*>(mainContainer())->centralWidget() == realWidget) {
+        if (mw && mw->centralWidget() == realWidget) {
             finishContextMenu(managedWidget, this, e);
         } else {
             finishContextMenu(realWidget, realWidget, e);
         }
     } else {
-        finishContextMenu(this, this, e);
+        finishContextMenu(mainContainer(), mainContainer(), e);
     }
 
     return true;

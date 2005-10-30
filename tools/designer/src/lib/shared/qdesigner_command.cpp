@@ -82,6 +82,28 @@ QDesignerFormEditorInterface *QDesignerFormWindowCommand::core() const
     return 0;
 }
 
+void QDesignerFormWindowCommand::undo()
+{
+    cheapUpdate();
+}
+
+void QDesignerFormWindowCommand::redo()
+{
+    cheapUpdate();
+}
+
+void QDesignerFormWindowCommand::cheapUpdate()
+{
+    if (core()->objectInspector())
+        core()->objectInspector()->setFormWindow(formWindow());
+
+    if (core()->actionEditor())
+        core()->actionEditor()->setFormWindow(formWindow());
+
+    if (core()->actionEditor())
+        core()->actionEditor()->setFormWindow(formWindow());
+}
+
 bool QDesignerFormWindowCommand::hasLayout(QWidget *widget) const
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
@@ -222,6 +244,8 @@ void SetPropertyCommand::redo()
                                                                  // changes parent's palette, but
                                                                  // the child is the active widget.
     }
+
+    cheapUpdate();
 }
 
 void SetPropertyCommand::undo()
@@ -248,6 +272,8 @@ void SetPropertyCommand::undo()
                                                                  // changes parent's palette, but
                                                                  // the child is the active widget.
     }
+
+    cheapUpdate();
 }
 
 bool SetPropertyCommand::mergeMeWith(QtCommand *other)
@@ -985,15 +1011,13 @@ void DeleteToolBoxPageCommand::init(QToolBox *toolBox)
 void DeleteToolBoxPageCommand::redo()
 {
     removePage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void DeleteToolBoxPageCommand::undo()
 {
     addPage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- AddToolBoxPageCommand ----
@@ -1033,15 +1057,13 @@ void AddToolBoxPageCommand::init(QToolBox *toolBox, InsertionMode mode)
 void AddToolBoxPageCommand::redo()
 {
     addPage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void AddToolBoxPageCommand::undo()
 {
     removePage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- TabWidgetCommand ----
@@ -1099,15 +1121,13 @@ void DeleteTabPageCommand::init(QTabWidget *tabWidget)
 void DeleteTabPageCommand::redo()
 {
     removePage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void DeleteTabPageCommand::undo()
 {
     addPage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- AddTabPageCommand ----
@@ -1147,15 +1167,13 @@ void AddTabPageCommand::init(QTabWidget *tabWidget, InsertionMode mode)
 void AddTabPageCommand::redo()
 {
     addPage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void AddTabPageCommand::undo()
 {
     removePage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- MoveTabPageCommand ----
@@ -1280,15 +1298,13 @@ void DeleteStackedWidgetPageCommand::init(QStackedWidget *stackedWidget)
 void DeleteStackedWidgetPageCommand::redo()
 {
     removePage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void DeleteStackedWidgetPageCommand::undo()
 {
     addPage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- AddStackedWidgetPageCommand ----
@@ -1326,15 +1342,13 @@ void AddStackedWidgetPageCommand::init(QStackedWidget *stackedWidget, InsertionM
 void AddStackedWidgetPageCommand::redo()
 {
     addPage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void AddStackedWidgetPageCommand::undo()
 {
     removePage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- TabOrderCommand ----
@@ -1776,15 +1790,13 @@ void DeleteContainerWidgetPageCommand::init(QWidget *containerWidget)
 void DeleteContainerWidgetPageCommand::redo()
 {
     removePage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void DeleteContainerWidgetPageCommand::undo()
 {
     addPage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- AddContainerWidgetPageCommand ----
@@ -1824,15 +1836,13 @@ void AddContainerWidgetPageCommand::init(QWidget *containerWidget, InsertionMode
 void AddContainerWidgetPageCommand::redo()
 {
     addPage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void AddContainerWidgetPageCommand::undo()
 {
     removePage();
-    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
-        objectInspector->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- ChangeTableContentsCommand ----
@@ -2237,7 +2247,7 @@ void InsertActionIntoCommand::redo()
 
     m_parentWidget->insertAction(m_beforeAction, m_action);
     core()->propertyEditor()->setObject(m_action);
-    core()->objectInspector()->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void InsertActionIntoCommand::undo()
@@ -2247,7 +2257,7 @@ void InsertActionIntoCommand::undo()
 
     m_parentWidget->removeAction(m_action);
     core()->propertyEditor()->setObject(m_parentWidget);
-    core()->objectInspector()->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- RemoveActionFromCommand ----
@@ -2276,7 +2286,7 @@ void RemoveActionFromCommand::redo()
 
     m_parentWidget->removeAction(m_action);
     core()->propertyEditor()->setObject(m_parentWidget);
-    core()->objectInspector()->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void RemoveActionFromCommand::undo()
@@ -2286,7 +2296,7 @@ void RemoveActionFromCommand::undo()
 
     m_parentWidget->insertAction(m_beforeAction, m_action);
     core()->propertyEditor()->setObject(m_action);
-    core()->objectInspector()->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- AddMenuActionCommand ----
@@ -2310,7 +2320,7 @@ void AddMenuActionCommand::redo()
     core()->metaDataBase()->add(m_action->menu());
 
     core()->propertyEditor()->setObject(m_action->menu());
-    core()->objectInspector()->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void AddMenuActionCommand::undo()
@@ -2319,7 +2329,7 @@ void AddMenuActionCommand::undo()
     core()->metaDataBase()->remove(m_action);
 
     core()->propertyEditor()->setObject(m_parent);
-    core()->objectInspector()->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- RemoveMenuActionCommand ----
@@ -2344,17 +2354,17 @@ void RemoveMenuActionCommand::redo()
     core()->metaDataBase()->remove(m_action);
 
     core()->propertyEditor()->setObject(m_parent);
-    core()->objectInspector()->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void RemoveMenuActionCommand::undo()
 {
+    m_action->menu()->setParent(m_parent);
     core()->metaDataBase()->add(m_action);
     core()->metaDataBase()->add(m_action->menu());
-    m_action->menu()->setParent(m_parent);
 
     core()->propertyEditor()->setObject(m_action->menu());
-    core()->objectInspector()->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 // ---- CreateSubmenuCommand ----
@@ -2374,13 +2384,13 @@ void CreateSubmenuCommand::init(QDesignerMenu *menu, QAction *action)
 void CreateSubmenuCommand::redo()
 {
     m_menu->createRealMenuAction(m_action);
-    core()->objectInspector()->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 void CreateSubmenuCommand::undo()
 {
     m_menu->removeRealMenu(m_action);
-    core()->objectInspector()->setFormWindow(formWindow());
+    cheapUpdate();
 }
 
 } // namespace qdesigner_internal

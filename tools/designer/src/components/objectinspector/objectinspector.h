@@ -39,6 +39,7 @@ public:
 
 private slots:
     void slotSelectionChanged();
+    void slotPopupContextMenu(const QPoint &pos);
 
 protected:
     virtual void showEvent(QShowEvent *enent);

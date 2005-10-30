@@ -69,6 +69,8 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     : QObject(parent),
       m_widget(widget)
 {
+    Q_ASSERT(qobject_cast<QDesignerFormWindowInterface*>(widget) == 0);
+
     m_separator = new QAction(this);
     m_separator->setSeparator(true);
 
@@ -177,29 +179,31 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
     QDesignerFormWindowInterface *formWindow = QDesignerFormWindowInterface::findFormWindow(widget());
     Q_ASSERT(formWindow);
 
+    bool isMainContainer = formWindow->mainContainer() == widget();
+
     QList<QAction*> actions;
 
-    if (const QMainWindow *mw = qobject_cast<const QMainWindow*>(formWindow->mainContainer())) {
-        if (!findMenuBar(mw)) {
-            actions.append(m_addMenuBar);
+    if (const QMainWindow *mw = qobject_cast<const QMainWindow*>(formWindow->mainContainer()))  {
+        if (isMainContainer || mw->centralWidget() == widget()) {
+            if (!findMenuBar(mw)) {
+                actions.append(m_addMenuBar);
+            }
+
+            actions.append(m_addToolBar);
+            // ### create the status bar
+#if 0
+            if (!findStatusBar(mw))
+                actions.append(m_addStatusBar);
+#endif
+            actions.append(m_separator2);
         }
-        actions.append(m_addToolBar);
-        // ### create the status bar
-#if 0
-        if (!findStatusBar(mw))
-            actions.append(m_addStatusBar);
-#endif
-#if 0
-        actions.append(m_createDockWidgetAction);
-#endif
-        actions.append(m_separator2);
     }
     actions.append(m_changeObjectNameAction);
     actions.append(m_separator);
     actions.append(m_changeToolTip);
     actions.append(m_changeWhatsThis);
 
-    if (static_cast<void*>(m_widget) != static_cast<void*>(formWindow)) {
+    if (!isMainContainer) {
         actions.append(m_separator);
         if (qobject_cast<const QDesignerPromotedWidget*>(m_widget) == 0)
             actions.append(m_promoteToCustomWidgetAction);

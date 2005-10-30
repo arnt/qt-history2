@@ -99,12 +99,17 @@ public:
     QDesignerFormWindowInterface *formWindow() const;
     QDesignerFormEditorInterface *core() const;
 
+    virtual void undo();
+    virtual void redo();
+
 protected:
     void checkObjectName(QObject *object);
     void updateBuddies(const QString &old_name, const QString &new_name);
     void checkSelection(QWidget *widget);
     void checkParent(QWidget *widget, QWidget *parentWidget);
     bool hasLayout(QWidget *widget) const;
+
+    void cheapUpdate();
 
 private:
     QPointer<QDesignerFormWindowInterface> m_formWindow;
