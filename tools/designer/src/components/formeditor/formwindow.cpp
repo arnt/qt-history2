@@ -363,6 +363,21 @@ bool FormWindow::handleMousePressEvent(QWidget *widget, QWidget *managedWidget, 
     return true;
 }
 
+bool FormWindow::isPageOfContainerWidget(QWidget *widget) const
+{
+    QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(),
+                widget->parentWidget());
+
+    if (c != 0) {
+        for (int i = 0; i<c->count(); ++i) {
+            if (widget == c->widget(i))
+                return true;
+        }
+    }
+
+    return false;
+}
+
 bool FormWindow::handleMouseMoveEvent(QWidget *widget, QWidget *, QMouseEvent *e)
 {
     e->accept();
@@ -396,10 +411,13 @@ bool FormWindow::handleMouseMoveEvent(QWidget *widget, QWidget *, QMouseEvent *e
 
         bool done = false;
         while (!isMainContainer(current) && !done) {
+            QDesignerContainerExtension *c = 0;
+            c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), current->parentWidget());
+
             if (LayoutInfo::isWidgetLaidout(core(), current)) {
                 current = current->parentWidget();
                 continue;
-            } else if (qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), current->parentWidget())) {
+            } else if (isPageOfContainerWidget(current)) {
                 current = current->parentWidget();
                 continue;
             } else if (current->parentWidget()) {

@@ -105,7 +105,11 @@ void QMainWindowContainer::addWidget(QWidget *widget)
         m_mainWindow->addDockWidget(dockWidgetArea(dockWidget), dockWidget);
         dockWidget->show();
     } else if (widget != m_mainWindow->centralWidget()) {
-        Q_ASSERT(m_mainWindow->centralWidget() == 0);
+        if (m_mainWindow->centralWidget() != 0) {
+            // ignore this widget!
+            return;
+        }
+
         widget->setParent(m_mainWindow);
         m_mainWindow->setCentralWidget(widget);
         m_widgets.prepend(widget);
