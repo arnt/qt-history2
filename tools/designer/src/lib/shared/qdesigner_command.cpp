@@ -2179,12 +2179,12 @@ void AddActionCommand::init(QAction *action)
 
 void AddActionCommand::redo()
 {
-    core()->actionEditor()->addAction(m_action);
+    core()->actionEditor()->manageAction(m_action);
 }
 
 void AddActionCommand::undo()
 {
-    core()->actionEditor()->removeAction(m_action);
+    core()->actionEditor()->unmanageAction(m_action);
 }
 
 // ---- RemoveActionCommand ----
@@ -2203,12 +2203,12 @@ void RemoveActionCommand::init(QAction *action)
 
 void RemoveActionCommand::redo()
 {
-    core()->actionEditor()->removeAction(m_action);
+    core()->actionEditor()->unmanageAction(m_action);
 }
 
 void RemoveActionCommand::undo()
 {
-    core()->actionEditor()->addAction(m_action);
+    core()->actionEditor()->manageAction(m_action);
 }
 
 // ---- InsertActionIntoCommand ----
@@ -2276,6 +2276,7 @@ void RemoveActionFromCommand::redo()
 
     m_parentWidget->removeAction(m_action);
     core()->propertyEditor()->setObject(m_parentWidget);
+    core()->objectInspector()->setFormWindow(formWindow());
 }
 
 void RemoveActionFromCommand::undo()
@@ -2285,6 +2286,7 @@ void RemoveActionFromCommand::undo()
 
     m_parentWidget->insertAction(m_beforeAction, m_action);
     core()->propertyEditor()->setObject(m_action);
+    core()->objectInspector()->setFormWindow(formWindow());
 }
 
 // ---- AddMenuActionCommand ----
@@ -2306,16 +2308,18 @@ void AddMenuActionCommand::redo()
 {
     core()->metaDataBase()->add(m_action);
     core()->metaDataBase()->add(m_action->menu());
-//    m_action->menu()->setParent(m_parent);
+
     core()->propertyEditor()->setObject(m_action->menu());
+    core()->objectInspector()->setFormWindow(formWindow());
 }
 
 void AddMenuActionCommand::undo()
 {
-    core()->propertyEditor()->setObject(m_parent);
-//    m_action->menu()->setParent(0);
     core()->metaDataBase()->remove(m_action->menu());
     core()->metaDataBase()->remove(m_action);
+
+    core()->propertyEditor()->setObject(m_parent);
+    core()->objectInspector()->setFormWindow(formWindow());
 }
 
 // ---- RemoveMenuActionCommand ----
@@ -2335,10 +2339,12 @@ void RemoveMenuActionCommand::init(QAction *action, QWidget *parent)
 
 void RemoveMenuActionCommand::redo()
 {
-    core()->propertyEditor()->setObject(m_parent);
     m_action->menu()->setParent(0);
     core()->metaDataBase()->remove(m_action->menu());
     core()->metaDataBase()->remove(m_action);
+
+    core()->propertyEditor()->setObject(m_parent);
+    core()->objectInspector()->setFormWindow(formWindow());
 }
 
 void RemoveMenuActionCommand::undo()
@@ -2346,7 +2352,9 @@ void RemoveMenuActionCommand::undo()
     core()->metaDataBase()->add(m_action);
     core()->metaDataBase()->add(m_action->menu());
     m_action->menu()->setParent(m_parent);
+
     core()->propertyEditor()->setObject(m_action->menu());
+    core()->objectInspector()->setFormWindow(formWindow());
 }
 
 // ---- CreateSubmenuCommand ----
@@ -2366,11 +2374,13 @@ void CreateSubmenuCommand::init(QDesignerMenu *menu, QAction *action)
 void CreateSubmenuCommand::redo()
 {
     m_menu->createRealMenuAction(m_action);
+    core()->objectInspector()->setFormWindow(formWindow());
 }
 
 void CreateSubmenuCommand::undo()
 {
     m_menu->removeRealMenu(m_action);
+    core()->objectInspector()->setFormWindow(formWindow());
 }
 
 } // namespace qdesigner_internal

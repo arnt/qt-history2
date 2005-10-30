@@ -56,8 +56,8 @@ public:
 
     QString filter() const;
 
-    virtual void addAction(QAction *action);
-    virtual void removeAction(QAction *action);
+    virtual void manageAction(QAction *action);
+    virtual void unmanageAction(QAction *action);
 
     static QString actionTextToName(const QString &text);
 

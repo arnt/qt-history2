@@ -289,7 +289,7 @@ void ActionEditor::setFilter(const QString &f)
     m_actionRepository->filter(m_filter);
 }
 
-void ActionEditor::addAction(QAction *action)
+void ActionEditor::manageAction(QAction *action)
 {
     action->setParent(formWindow()->mainContainer());
     core()->metaDataBase()->add(action);
@@ -304,11 +304,11 @@ void ActionEditor::addAction(QAction *action)
     m_actionRepository->setCurrentItem(item);
 }
 
-void ActionEditor::removeAction(QAction *action)
+void ActionEditor::unmanageAction(QAction *action)
 {
     QListWidgetItem *item = qvariant_cast<QListWidgetItem*>(action->data());
     if (item == 0) {
-        qWarning() << "ActionEditor::removeAction(): action has no associated item";
+        qWarning() << "ActionEditor::unmanageAction(): action has no associated item";
         return;
     }
 
