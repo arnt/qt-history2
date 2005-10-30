@@ -726,7 +726,7 @@ bool QDesignerMenu::canCreateSubMenu(QAction *action) const // ### improve it's 
     QList<QMenu*> menus = qFindChildren<QMenu*>(topLevel);
     QList<QToolBar*> toolBars = qFindChildren<QToolBar*>(topLevel);
 
-    foreach (QMenu *m, menus) {
+    foreach (const QMenu *m, menus) {
         if (m != this && m->actions().contains(action)) {
             return false; // sorry
         }
