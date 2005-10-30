@@ -332,19 +332,29 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
 
     QPainter p(this);
 
+    QAction *current = currentAction();
+
     foreach (QAction *a, actions()) {
+        QRect g = actionGeometry(a);
+
         if (qobject_cast<SpecialMenuAction*>(a)) {
-            QRect g = actionGeometry(a);
             QLinearGradient lg(g.left(), g.top(), g.left(), g.bottom());
             lg.setColorAt(0.0, Qt::transparent);
             lg.setColorAt(0.7, QColor(0, 0, 0, 32));
             lg.setColorAt(1.0, Qt::transparent);
 
             p.fillRect(g, lg);
+        } else if ((m_dragging || a == current)
+                        && !a->isSeparator() && !a->menu() && canCreateSubMenu(a)) {
+            QStyleOption opt;
+            opt.init(this);
+            opt.palette.setColor(QPalette::Background, Qt::blue);
+            opt.rect.setRect(g.width() - 18, g.top(), 10, g.height());
+            style()->drawPrimitive(QStyle::PE_IndicatorArrowRight, &opt, &p);
         }
     }
 
-    if (!hasFocus() || m_dragging)
+    if (!hasFocus() || !current || m_dragging)
         return;
 
     if (QDesignerMenu *menu = parentMenu()) {
@@ -357,18 +367,8 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
             return;
     }
 
-    if (QAction *a = currentAction()) {
-        QRect g = actionGeometry(a);
-
-        if (!a->isSeparator() && !a->menu()
-                && !qobject_cast<SpecialMenuAction*>(a) && canCreateSubMenu(a)) {
-            QStyleOption opt;
-            opt.init(this);
-            opt.rect.setRect(g.width() - 20, g.top(), 20, g.height());
-            style()->drawPrimitive(QStyle::PE_IndicatorArrowRight, &opt, &p);
-        }
-        drawSelection(&p, g.adjusted(1, 1, -1, -1));
-    }
+    QRect g = actionGeometry(current);
+    drawSelection(&p, g.adjusted(1, 1, -1, -1));
 }
 
 bool QDesignerMenu::dragging() const
@@ -603,7 +603,7 @@ void QDesignerMenu::moveLeft()
 {
     if (parentMenu()) {
         hide();
-    } else if (QDesignerMenuBar *mb = parentMenuBar()) {
+    } else if (/*QDesignerMenuBar *mb = */parentMenuBar()) {
 #if 0 //. ### disabled for now.. it's a bit confusing
         hide();
         mb->moveLeft();
@@ -778,7 +778,7 @@ void QDesignerMenu::showSubMenu(QAction *action)
             || action->isSeparator() || !isVisible())
         return;
 
-    m_showSubMenuTimer->start(1000);
+    m_showSubMenuTimer->start(300);
 }
 
 QDesignerMenu *QDesignerMenu::parentMenu() const
