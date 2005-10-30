@@ -473,7 +473,7 @@ QAction *QDesignerMenu::actionMimeData(const QMimeData *mimeData) const
 
 bool QDesignerMenu::checkAction(QAction *action) const
 {
-    if (!action || action->menu())
+    if (!action || (action->menu() && action->menu()->parentWidget() != const_cast<QDesignerMenu*>(this)))
         return false; // menu action!! nothing to do
 
     if (actions().contains(action))

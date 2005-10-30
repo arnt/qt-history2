@@ -357,29 +357,47 @@ bool QDesignerMenuBar::handleContextMenuEvent(QWidget *, QContextMenuEvent *even
 
     m_currentIndex = actionAtPosition(mapFromGlobal(event->globalPos()));
     QAction *action = safeActionAt(m_currentIndex);
-    if (!action || qobject_cast<SpecialMenuAction*>(action))
-        return true;
 
     update();
 
-    QVariant itemData;
-    qVariantSetValue(itemData, action);
-
     QMenu menu(0);
-    QAction *remove_action = menu.addAction(tr("Remove Menu '%1'").arg(action->menu()->objectName()));
-    remove_action->setData(itemData);
 
-    menu.addSeparator();
+    if (action && !qobject_cast<SpecialMenuAction*>(action)) {
+        QVariant itemData;
+        qVariantSetValue(itemData, action);
+
+        QAction *remove_action = menu.addAction(tr("Remove Menu '%1'").arg(action->menu()->objectName()));
+        remove_action->setData(itemData);
+        connect(remove_action, SIGNAL(triggered()), this, SLOT(slotRemoveSelectedAction()));
+
+        menu.addSeparator();
+    }
+
     QAction *remove_menubar = menu.addAction(tr("Remove Menu Bar"));
+    connect(remove_menubar, SIGNAL(triggered()), this, SLOT(slotRemoveMenuBar()));
 
-    connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(slotRemoveSelectedAction(QAction*)));
     menu.exec(event->globalPos());
 
     return true;
 }
 
-void QDesignerMenuBar::slotRemoveSelectedAction(QAction *action)
+void QDesignerMenuBar::slotRemoveMenuBar()
 {
+    Q_ASSERT(formWindow() != 0);
+
+    QDesignerFormWindowInterface *fw = formWindow();
+
+    DeleteMenuBarCommand *cmd = new DeleteMenuBarCommand(fw);
+    cmd->init(this);
+    fw->commandHistory()->push(cmd);
+}
+
+void QDesignerMenuBar::slotRemoveSelectedAction()
+{
+    QAction *action = qobject_cast<QAction*>(sender());
+    if (!action)
+        return;
+
     QAction *a = qvariant_cast<QAction*>(action->data());
     if (qobject_cast<SpecialMenuAction*>(a))
         return; // nothing to do

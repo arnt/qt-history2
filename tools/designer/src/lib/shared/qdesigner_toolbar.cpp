@@ -152,24 +152,47 @@ bool QDesignerToolBar::handleContextMenuEvent(QWidget *, QContextMenuEvent *even
     event->accept();
 
     int index = findAction(mapFromGlobal(event->globalPos()));
-    QAction *action = actions().at(index);
-    if (action == actions().last())
-        return true;
 
     QMenu menu(0);
-    QAction *a = menu.addAction(tr("Remove action '%1'").arg(action->objectName()));
-    QVariant itemData;
-    qVariantSetValue(itemData, action);
-    a->setData(itemData);
 
-    connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(slotRemoveSelectedAction(QAction*)));
+    QAction *action = actions().at(index);
+
+    if (action && action != m_sentinel) {
+        QAction *a = menu.addAction(tr("Remove action '%1'").arg(action->objectName()));
+        QVariant itemData;
+        qVariantSetValue(itemData, action);
+        a->setData(itemData);
+
+        connect(a, SIGNAL(triggered()), this, SLOT(slotRemoveSelectedAction()));
+
+        menu.addSeparator();
+    }
+
+    QAction *remove_toolbar = menu.addAction(tr("Remove Tool Bar"));
+    connect(remove_toolbar, SIGNAL(triggered()), this, SLOT(slotRemoveToolBar()));
+
     menu.exec(event->globalPos());
 
     return true;
 }
 
-void QDesignerToolBar::slotRemoveSelectedAction(QAction *action)
+void QDesignerToolBar::slotRemoveToolBar()
 {
+    Q_ASSERT(formWindow() != 0);
+
+    QDesignerFormWindowInterface *fw = formWindow();
+
+    DeleteToolBarCommand *cmd = new DeleteToolBarCommand(fw);
+    cmd->init(this);
+    fw->commandHistory()->push(cmd);
+}
+
+void QDesignerToolBar::slotRemoveSelectedAction()
+{
+    QAction *action = qobject_cast<QAction*>(sender());
+    if (!action)
+        return;
+
     QAction *a = qvariant_cast<QAction*>(action->data());
     Q_ASSERT(a != 0);
     removeAction(a);
@@ -241,7 +264,7 @@ void QDesignerToolBar::dragEnterEvent(QDragEnterEvent *event)
         Q_ASSERT(!d->items.isEmpty());
 
         QAction *action = d->items.first();
-        if (action && !actions().contains(action)) {
+        if (action && !action->menu() && !actions().contains(action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
         }
@@ -254,7 +277,7 @@ void QDesignerToolBar::dragMoveEvent(QDragMoveEvent *event)
         Q_ASSERT(!d->items.isEmpty());
 
         QAction *action = d->items.first();
-        if (action && !actions().contains(action)) {
+        if (action && !action->menu() && actions().contains(action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
         }

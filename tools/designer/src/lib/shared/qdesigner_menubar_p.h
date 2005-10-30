@@ -76,7 +76,8 @@ public slots:
     void moveDown();
 
 private slots:
-    void slotRemoveSelectedAction(QAction *action);
+    void slotRemoveSelectedAction();
+    void slotRemoveMenuBar();
 
 protected:
     virtual void actionEvent(QActionEvent *event);

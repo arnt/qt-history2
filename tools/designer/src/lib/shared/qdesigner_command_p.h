@@ -654,6 +654,22 @@ private:
     QPointer<QMenuBar> m_menuBar;
 };
 
+class QDESIGNER_SHARED_EXPORT DeleteMenuBarCommand: public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    DeleteMenuBarCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QMenuBar *menuBar);
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    QPointer<QMainWindow> m_mainWindow;
+    QPointer<QMenuBar> m_menuBar;
+};
+
 class QDESIGNER_SHARED_EXPORT CreateStatusBarCommand: public QDesignerFormWindowCommand
 {
     Q_OBJECT
@@ -677,6 +693,22 @@ public:
     AddToolBarCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(QMainWindow *mainWindow);
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    QPointer<QMainWindow> m_mainWindow;
+    QPointer<QToolBar> m_toolBar;
+};
+
+class QDESIGNER_SHARED_EXPORT DeleteToolBarCommand: public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    DeleteToolBarCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QToolBar *toolBar);
 
     virtual void undo();
     virtual void redo();

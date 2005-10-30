@@ -245,7 +245,10 @@ void SetPropertyCommand::redo()
                                                                  // the child is the active widget.
     }
 
-    cheapUpdate();
+    if (m_propertyName == QLatin1String("objectName")) {
+        if (QDesignerObjectInspectorInterface *oi = formWindow()->core()->objectInspector())
+            oi->setFormWindow(formWindow());
+    }
 }
 
 void SetPropertyCommand::undo()
@@ -273,7 +276,10 @@ void SetPropertyCommand::undo()
                                                                  // the child is the active widget.
     }
 
-    cheapUpdate();
+    if (m_propertyName == QLatin1String("objectName")) {
+        if (QDesignerObjectInspectorInterface *oi = formWindow()->core()->objectInspector())
+            oi->setFormWindow(formWindow());
+    }
 }
 
 bool SetPropertyCommand::mergeMeWith(QtCommand *other)
@@ -1423,6 +1429,53 @@ void CreateMenuBarCommand::undo()
     formWindow()->emitSelectionChanged();
 }
 
+// ---- DeleteMenuBarCommand ----
+DeleteMenuBarCommand::DeleteMenuBarCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Delete Menu Bar"), formWindow)
+{
+}
+
+void DeleteMenuBarCommand::init(QMenuBar *menuBar)
+{
+    m_menuBar = menuBar;
+    m_mainWindow = qobject_cast<QMainWindow*>(menuBar->parentWidget());
+}
+
+void DeleteMenuBarCommand::redo()
+{
+    if (m_mainWindow) {
+        QDesignerContainerExtension *c;
+        c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
+        Q_ASSERT(c != 0);
+        for (int i=0; i<c->count(); ++i) {
+            if (c->widget(i) == m_menuBar) {
+                c->remove(i);
+                break;
+            }
+        }
+    }
+
+    core()->metaDataBase()->remove(m_menuBar);
+    m_menuBar->hide();
+    m_menuBar->setParent(formWindow());
+    formWindow()->emitSelectionChanged();
+}
+
+void DeleteMenuBarCommand::undo()
+{
+    if (m_mainWindow) {
+        m_menuBar->setParent(m_mainWindow);
+        QDesignerContainerExtension *c;
+        c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
+
+        c->addWidget(m_menuBar);
+
+        core()->metaDataBase()->add(m_menuBar);
+        m_menuBar->show();
+        formWindow()->emitSelectionChanged();
+    }
+}
+
 // ---- CreateStatusBarCommand ----
 CreateStatusBarCommand::CreateStatusBarCommand(QDesignerFormWindowInterface *formWindow)
     : QDesignerFormWindowCommand(tr("Create Status Bar"), formWindow)
@@ -2392,5 +2445,53 @@ void CreateSubmenuCommand::undo()
     m_menu->removeRealMenu(m_action);
     cheapUpdate();
 }
+
+// ---- DeleteToolBarCommand ----
+DeleteToolBarCommand::DeleteToolBarCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Delete Tool Bar"), formWindow)
+{
+}
+
+void DeleteToolBarCommand::init(QToolBar *toolBar)
+{
+    m_toolBar = toolBar;
+    m_mainWindow = qobject_cast<QMainWindow*>(toolBar->parentWidget());
+}
+
+void DeleteToolBarCommand::redo()
+{
+    if (m_mainWindow) {
+        QDesignerContainerExtension *c;
+        c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
+        Q_ASSERT(c != 0);
+        for (int i=0; i<c->count(); ++i) {
+            if (c->widget(i) == m_toolBar) {
+                c->remove(i);
+                break;
+            }
+        }
+    }
+
+    core()->metaDataBase()->remove(m_toolBar);
+    m_toolBar->hide();
+    m_toolBar->setParent(formWindow());
+    formWindow()->emitSelectionChanged();
+}
+
+void DeleteToolBarCommand::undo()
+{
+    if (m_mainWindow) {
+        m_toolBar->setParent(m_mainWindow);
+        QDesignerContainerExtension *c;
+        c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
+
+        c->addWidget(m_toolBar);
+
+        core()->metaDataBase()->add(m_toolBar);
+        m_toolBar->show();
+        formWindow()->emitSelectionChanged();
+    }
+}
+
 
 } // namespace qdesigner_internal

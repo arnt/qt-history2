@@ -71,8 +71,9 @@ public:
     QDesignerActionProviderExtension *actionProvider();
 
 private slots:
-    void slotRemoveSelectedAction(QAction *action);
+    void slotRemoveSelectedAction();
     void slotNewToolBar();
+    void slotRemoveToolBar();
 
 protected:
     virtual void actionEvent(QActionEvent *event);
