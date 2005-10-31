@@ -2988,17 +2988,19 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 #ifndef QT_NO_DRAGANDDROP
     case QEvent::DragEnter: {
             QWidget* w = static_cast<QWidget *>(receiver);
+            QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent *>(e);
             while (w) {
                 if (w->isEnabled() && w->acceptDrops()) {
-                    res = d->notify_helper(w, e);
-                    if (res && e->isAccepted()) {
-                        if (static_cast<QDragEnterEvent *>(e)->dropAction() != Qt::IgnoreAction)
+                    res = d->notify_helper(w, dragEvent);
+                    if (res && dragEvent->isAccepted()) {
+                        if (dragEvent->dropAction() != Qt::IgnoreAction)
                             QDragManager::self()->setCurrentTarget(w);
                         break;
                     }
                 }
                 if (w->isWindow())
                     break;
+                dragEvent->p = w->mapToParent(dragEvent->p);
                 w = w->parentWidget();
             }
         }
@@ -3009,6 +3011,14 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             QWidget * w = QDragManager::self()->currentTarget();
             if (!w)
                 break;
+            if (e->type() == QEvent::DragMove || e->type() == QEvent::Drop) {
+                QDropEvent *dragEvent = static_cast<QDropEvent *>(e);
+                QWidget *origReciver = static_cast<QWidget *>(receiver);
+                while (origReciver && w != origReciver) {
+                    dragEvent->p = origReciver->mapToParent(dragEvent->p);
+                    origReciver = origReciver->parentWidget();
+                }
+            }
             res = d->notify_helper(w, e);
             if (e->type() != QEvent::DragMove)
                 QDragManager::self()->setCurrentTarget(0, e->type() == QEvent::Drop);

@@ -447,6 +447,7 @@ public:
 
 
 protected:
+    friend class QApplication;
     QPoint p;
     Qt::MouseButtons mouseState;
     Qt::KeyboardModifiers modState;
