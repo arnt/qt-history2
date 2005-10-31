@@ -915,8 +915,19 @@ public:
     void init(QAction *action);
     virtual void redo();
     virtual void undo();
+
+    struct ActionDataItem {
+        ActionDataItem(QAction *_before = 0, QWidget *_widget = 0)
+            : before(_before), widget(_widget) {}
+        QAction *before;
+        QWidget *widget;
+    };
+    typedef QList<ActionDataItem> ActionData;
+
 private:
     QAction *m_action;
+
+    ActionData m_actionData;
 };
 
 class QDESIGNER_SHARED_EXPORT InsertActionIntoCommand : public QDesignerFormWindowCommand

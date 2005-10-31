@@ -2274,20 +2274,52 @@ RemoveActionCommand::RemoveActionCommand(QDesignerFormWindowInterface *formWindo
     m_action = 0;
 }
 
+template <typename T>
+static RemoveActionCommand::ActionData findActionIn(QDesignerFormWindowInterface *formWindow,
+                                                    QAction *action)
+{
+    RemoveActionCommand::ActionData result;
+
+    QList<T*> widgetList = qFindChildren<T*>(formWindow->mainContainer());
+    foreach (QWidget *widget, widgetList) {
+        QList<QAction*> actionList = widget->actions();
+        for (int i = 0; i < actionList.size(); ++i) {
+            if (actionList.at(i) == action) {
+                QAction *before = 0;
+                if (i + 1 < actionList.size())
+                    before = actionList.at(i + 1);
+                result.append(RemoveActionCommand::ActionDataItem(before, widget));
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
 void RemoveActionCommand::init(QAction *action)
 {
     Q_ASSERT(m_action == 0);
     m_action = action;
+
+    m_actionData = findActionIn<QMenu>(formWindow(), action);
+    m_actionData += findActionIn<QToolBar>(formWindow(), action);
 }
 
 void RemoveActionCommand::redo()
 {
+    foreach (const ActionDataItem &item, m_actionData) {
+        item.widget->removeAction(m_action);
+    }
     core()->actionEditor()->unmanageAction(m_action);
 }
 
 void RemoveActionCommand::undo()
 {
     core()->actionEditor()->manageAction(m_action);
+    foreach (const ActionDataItem &item, m_actionData) {
+        item.widget->insertAction(item.before, m_action);
+    }
 }
 
 // ---- InsertActionIntoCommand ----
