@@ -162,58 +162,10 @@ embedded {
 		SOURCES += embedded/qscreenvnc_qws.cpp
 	}
 
-#	!contains( DEFINES, QT_NO_QWS_LINUXFB):contains( gfx-drivers, vga16 ) {
-#		HEADERS += embedded/qscreenvga16_qws.h
-#		SOURCES += embedded/qscreenvga16_qws.cpp
-#	}
-#
 	contains( gfx-drivers, transformed ) {
 		HEADERS += embedded/qscreentransformed_qws.h
 		SOURCES += embedded/qscreentransformed_qws.cpp
 	}
-#
-#	contains( gfx-drivers, mach64 ) {
-#		HEADERS += embedded/qscreenmach64_qws.h \
-#			   embedded/qscreenmach64defs_qws.h
-#		SOURCES += embedded/qscreenmach64_qws.cpp
-#	}
-#
-#	contains( gfx-drivers, snap ) {
-#		exists( $(SCITECH)/include/snap/graphics.h) {
-#			HEADERS += embedded/qscreensnap_qws.h
-#			SOURCES += embedded/qscreensnap_qws.cpp
-#			INCLUDEPATH += $(SCITECH)/include
-#			debug:LIBS	+= -L$(SCITECH)/lib/debug/linux/gcc/x86/so -lpm
-#			else:LIBS	+= -L$(SCITECH)/lib/release/linux/gcc/x86/so -lpm
-#		}
-#		else {
-#			message("SciTech SNAP SDK is not properly set up! Please make sure the SCITECH")
-#			message("environment variable is pointing to the SciTech SNAP SDK.")
-#			error("Please fix and re-build the makefiles.")
-#		}
-#	}
-#
-#	contains( gfx-drivers, voodoo ) {
-#		HEADERS += embedded/qscreenvoodoo_qws.h \
-#			   embedded/qscreenvoodoodefs_qws.h
-#		SOURCES += embedded/qscreenvoodoo_qws.cpp
-#	}
-#
-#	contains( gfx-drivers, matrox ) {
-#		HEADERS += embedded/qscreenmatrox_qws.h \
-#			   embedded/qscreenmatroxdefs_qws.h
-#		SOURCES += embedded/qscreenmatrox_qws.cpp
-#	}
-#
-#	contains( gfx-drivers, shadowfb ) {
-#		HEADERS += embedded/qscreenshadow_qws.h
-#		SOURCES += embedded/qscreenshadow_qws.cpp
-#	}
-#
-#	contains( gfx-drivers, repeater ) {
-#		HEADERS += embedded/qscreenrepeater_qws.h
-#		SOURCES += embedded/qscreenrepeater_qws.cpp
-#	}
 
 #
 # Keyboard drivers
