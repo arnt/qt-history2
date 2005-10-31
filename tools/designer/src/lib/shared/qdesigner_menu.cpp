@@ -706,6 +706,10 @@ void QDesignerMenu::createRealMenuAction(QAction *action) // ### undo/redo
     if (action->menu())
         return; // nothing to do
 
+    QDesignerFormWindowInterface *fw = formWindow();
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    core->actionEditor()->unmanageAction(action);
+
     QDesignerMenu *menu = findOrCreateSubMenu(action);
     m_subMenus.remove(action);
 
@@ -713,8 +717,6 @@ void QDesignerMenu::createRealMenuAction(QAction *action) // ### undo/redo
     menu->setTitle(action->text());
 
     Q_ASSERT(formWindow() != 0);
-    QDesignerFormWindowInterface *fw = formWindow();
-    QDesignerFormEditorInterface *core = formWindow()->core();
 
     core->widgetFactory()->initialize(menu);
 
@@ -737,7 +739,9 @@ void QDesignerMenu::removeRealMenu(QAction *action)
         return;
     action->setMenu(0);
     m_subMenus.insert(action, menu);
-    formWindow()->core()->metaDataBase()->remove(menu);
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    core->metaDataBase()->remove(menu);
+    core->actionEditor()->manageAction(action);
 }
 
 QDesignerMenu *QDesignerMenu::findOrCreateSubMenu(QAction *action)
@@ -891,8 +895,6 @@ void QDesignerMenu::leaveEditMode(LeaveEditMode mode)
     cmd->init(action, QLatin1String("text"), m_editor->text());
     formWindow()->commandHistory()->push(cmd);
 
-    formWindow()->endCommand();
-
     adjustSize();
 
     if (parentMenu()) { // ### undo/redo
@@ -904,6 +906,7 @@ void QDesignerMenu::leaveEditMode(LeaveEditMode mode)
         }
     }
     updateCurrentAction();
+    formWindow()->endCommand();
 }
 
 QAction *QDesignerMenu::safeMenuAction(QDesignerMenu *menu) const
