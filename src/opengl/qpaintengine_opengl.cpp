@@ -1098,7 +1098,12 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     else
         d->txop = QPainterPrivate::TxNone;
 
-    d->inverseScale = qMax(1 / qMax(mtx.m11(), mtx.m22()), 0.01);
+    // 1/10000 == 0.0001, so we have good enough res to cover curves
+    // that span the entire widget...
+    d->inverseScale = qMax(1 / qMax( qMax(qAbs(mtx.m11()), qAbs(mtx.m22())),
+                                     qMax(qAbs(mtx.m12()), qAbs(mtx.m21())) ),
+                           0.0001);
+
 
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(&mat[0][0]);
