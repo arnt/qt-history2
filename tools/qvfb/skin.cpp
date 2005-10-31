@@ -41,7 +41,7 @@ class CursorWindow : public QWidget
 public:
     CursorWindow( const QString& fn, QPoint hot, QWidget *sk);
 
-    void setView(QVFbViewIface*);
+    void setView(QVFbView*);
     void setPos(QPoint);
     void handleMouseEvent(QEvent *ev);
 
@@ -51,7 +51,7 @@ protected:
 
 private:
     QWidget *mouseRecipient;
-    QVFbViewIface *view;
+    QVFbView *view;
     QWidget *skin;
     QPoint hotspot;
 };
@@ -157,7 +157,7 @@ bool Skin::parseSkinFileHeader(QTextStream& ts,
     return true;
 }
 
-Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
+Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : 
     QWidget(p), view(0), buttonPressed(false), buttonIndex(0), skinValid(false),
     zoom(1.0), numberOfAreas(0), areas(0),
     cursorw(0),
@@ -336,14 +336,14 @@ void Skin::setZoom( double z )
     calcRegions();
     loadImages();
     if ( view )
-	view->widget()->move( int(viewX1*zoom), int(viewY1*zoom) );
+	view->move( int(viewX1*zoom), int(viewY1*zoom) );
 }
 
-void Skin::setView( QVFbViewIface *v )
+void Skin::setView( QVFbView *v )
 {
     view = v;
-    view->widget()->setFocus();
-    view->widget()->move( int(viewX1*zoom), int(viewY1*zoom) );
+    view->setFocus();
+    view->move( int(viewX1*zoom), int(viewY1*zoom) );
     if ( cursorw )
 	cursorw->setView(v);
 
@@ -397,7 +397,7 @@ void Skin::mousePressEvent( QMouseEvent *e )
 		}
 	    }
 	}
-
+	
 //	This is handy for finding the areas to define rectangles for new skins
 //	printf("Clicked in %i,%i\n",  e->pos().x(),  e->pos().y());
 	clickPos = e->pos();
@@ -545,11 +545,11 @@ void CursorWindow::handleMouseEvent(QEvent *ev)
 	    if ( ev->type() >= QEvent::MouseButtonPress && ev->type() <= QEvent::MouseMove ) {
 		QMouseEvent *e = (QMouseEvent*)ev;
 		QPoint gp = e->globalPos();
-		QPoint vp = view->widget()->mapFromGlobal(gp);
+		QPoint vp = view->mapFromGlobal(gp);
 		QPoint sp = skin->mapFromGlobal(gp);
 		if ( e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick ) {
-		    if ( view->widget()->rect().contains(vp) )
-			mouseRecipient = view->widget();
+		    if ( view->rect().contains(vp) )
+			mouseRecipient = view;
 		    else if ( skin->parentWidget()->geometry().contains(gp) )
 			mouseRecipient = skin;
 		    else
@@ -572,15 +572,15 @@ void CursorWindow::handleMouseEvent(QEvent *ev)
     }
 }
 
-void CursorWindow::setView(QVFbViewIface* v)
+void CursorWindow::setView(QVFbView* v)
 {
     if ( view ) {
-	view->widget()->removeEventFilter(this);
-	view->widget()->removeEventFilter(this);
+	view->removeEventFilter(this);
+	view->removeEventFilter(this);
     }
     view = v;
-    view->widget()->installEventFilter(this);
-    view->widget()->installEventFilter(this);
+    view->installEventFilter(this);
+    view->installEventFilter(this);
     mouseRecipient = 0;
 }
 

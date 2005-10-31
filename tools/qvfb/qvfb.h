@@ -17,7 +17,7 @@
 #include <QMainWindow>
 #include <QStringList>
 
-class QVFbViewIface;
+class QVFbView;
 class QVFbRateDialog;
 class QPopupMenu;
 class QMenuData;
@@ -91,7 +91,7 @@ private:
     void init( int display_id, int w, int h, int d, int r, const QString& skin );
     Skin *skin;
     double skinscaleH,skinscaleV;
-    QVFbViewIface *view;
+    QVFbView *view;
     QVFbRateDialog *rateDlg;
     QMenu *viewMenu;
     int cursorId;
