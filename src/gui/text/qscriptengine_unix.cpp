@@ -2936,9 +2936,6 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
     int len = item->length;
     QChar c(composed);
 
-    // ### icc says 'chars' is unused
-    // const QChar *chars = ch;
-
     // if we have a modern hangul use the composed form
     if (composed) {
         // chars = &c;
