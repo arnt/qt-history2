@@ -28,8 +28,10 @@
 #include <zlib.h>
 #endif
 
+#include <private/qdrawhelper_p.h>
+
 // might be helpful for smooth transforms of images
-bool QPdfImage::interpolation_ = false;
+static const bool interpolateImages = false;
 
 #ifdef QT_NO_COMPRESS
 static const bool do_compress = false;
@@ -457,55 +459,7 @@ void QPdfEngine::drawPathPrivate (const QPainterPath &p)
     if (clipping_)
         path->painttype |= QPdfPath::CLIPPING;
 
-    QPdfPath::SubPath sb;
-
-    QPointF subPathStart;
-    QPainterPath::Element lastelm;
-
-    bool dangling = true;
-    for (int i=0; i<p.elementCount(); ++i) {
-        const QPainterPath::Element &elm  = p.elementAt(i);
-        QPdfPath::Element el;
-
-        dangling = false;
-        switch (elm.type) {
-        case QPainterPath::CurveToDataElement:
-            Q_ASSERT(false);
-            break;
-        case QPainterPath::MoveToElement:
-            dangling = true;
-            if (i>0) {
-                if (subPathStart == QPointF(lastelm.x,lastelm.y))
-                    sb.close();
-                path->subpaths.append(sb);
-                sb = QPdfPath::SubPath();
-            }
-            sb.start.x = elm.x;
-            sb.start.y = elm.y;
-            subPathStart = QPointF(elm.x, elm.y);
-            sb.initialized = true;
-            break;
-        case QPainterPath::LineToElement:
-            el.setLine(elm.x, elm.y);
-            sb.elements.append(el);
-            break;
-        case QPainterPath::CurveToElement:
-            Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
-            Q_ASSERT(p.elementAt(i+2).type == QPainterPath::CurveToDataElement);
-            el.setCurve(elm.x, elm.y,
-                        p.elementAt(i+1).x, p.elementAt(i+1).y,
-                        p.elementAt(i+2).x, p.elementAt(i+2).y);
-            sb.elements.append(el);
-            i += 2; // Skip the next two
-        }
-        lastelm  = elm;
-    }
-    if (subPathStart == QPointF(lastelm.x,lastelm.y))
-        sb.close();
-
-    if (!dangling)
-        path->subpaths.append(sb);
-
+    path->path = p;
     d->curPage->append(path);
 }
 
@@ -514,10 +468,16 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
     if (sr.isEmpty() || rectangle.isEmpty() || pixmap.isNull())
         return;
     QPixmap pm = pixmap.copy(sr.toRect());
-    adaptMonochromePixmap(pm);
 
     QImage image = pm.toImage();
-    drawImage(rectangle, image, QRectF(0, 0, image.width(), image.height()));
+        
+    QMatrix mat = d->curMatrix->lastMatrix();
+    updateMatrix(QMatrix(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
+                         rectangle.x(), rectangle.y()) * mat);
+    int object = d->addImage(image, true);
+    QPdfImage* img = new QPdfImage(image.width(), image.height(), object);
+    d->curPage->append(img);
+    updateMatrix(mat);
 }
 
 void QPdfEngine::drawImage(const QRectF & rectangle, const QImage & image, const QRectF & sr, Qt::ImageConversionFlags)
@@ -526,15 +486,12 @@ void QPdfEngine::drawImage(const QRectF & rectangle, const QImage & image, const
         return;
 
     QImage im = image.copy(sr.toRect());
-    QImage::Format format = im.format();
-    if (format != QImage::Format_RGB32 && format != QImage::Format_ARGB32)
-        im = im.convertToFormat(im.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32);
 
     QMatrix mat = d->curMatrix->lastMatrix();
     updateMatrix(QMatrix(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
                          rectangle.x(), rectangle.y()) * mat);
-    QPdfImage* img = new QPdfImage(im);
-    img->name = "/Im" + QByteArray::number(pixmapnumber_++);
+    int object = d->addImage(im, false);
+    QPdfImage* img = new QPdfImage(im.width(), im.height(), object);
     d->curPage->append(img);
     updateMatrix(mat);
 }
@@ -694,7 +651,7 @@ void QPdfEngine::updatePen (const QPen & pen)
 
 
     d->curPage->append(d->curPen->setColor(tpen.color()));
-    d->curPage->append(d->curPen->setLineWidth(tpen.width()));
+    d->curPage->append(d->curPen->setLineWidth(tpen.widthF()));
 
     switch(tpen.capStyle()) {
     case Qt::FlatCap:
@@ -827,71 +784,16 @@ void QPdfEngine::setBrush (QPdfBrush& pbr, const QBrush & brush, const QPointF &
     case Qt::TexturePattern: {
         QPixmap pm = brush.texture();
         if (!pm.isNull()) {
-            adaptMonochromePixmap(pm);
-            pbr.setPixmap(pm, tmp);
+            QImage im = pm.toImage();
+            int object = d->addImage(im, true);
+            QPdfImage* img = new QPdfImage(im.width(), im.height(), object);
+            pbr.setPixmap(img, tmp);
         }
         break;
     }
     default:
         pbr.setFixed(brush.style(), brush.color(), tmp);
         break;
-    }
-}
-
-void QPdfEngine::adaptMonochromePixmap(QPixmap& pm)
-{
-    if (pm.depth() == 1 && lastPen_) { // pm _is_ mask
-        QBitmap bm0 = pm.mask();
-        QBitmap bm = pm.createMaskFromColor(Qt::color0);
-
-        if (!bm0.isNull()) { // combine masks
-            QImage im0 = bm0.toImage();
-            QImage im(im0.size(), QImage::Format_ARGB32_Premultiplied);
-            for (int i=0; i!=im.width();++i)
-                for (int j=0; j!=im.height();++j)
-                    if(im0.pixelIndex(i,j) == Qt::color0)
-                        im.setPixel(i,j,Qt::color0);
-            bm = QBitmap::fromImage(im);
-        }
-        pm = QPixmap(pm.width(),pm.height());
-        pm.fill(lastPen_->color());
-        pm.setMask(bm);
-    }
-}
-
-
-QPdfStream::QPdfStream()
-{
-    stream_ = 0;
-}
-
-void QPdfStream::setStream(QDataStream& val)
-{
-    stream_ = &val;
-}
-
-uint QPdfStream::write(const char* src, uint len)
-{
-    if (!stream_)
-        return 0;
-
-#ifndef QT_NO_COMPRESS
-    if(do_compress) {
-        uLongf destLen = 1001 * len / 1000 + 13; // zlib requirement
-        Bytef* dest = new Bytef[destLen];
-        if (Z_OK == ::compress(dest, &destLen, (const Bytef*) src, (uLongf)len)) {
-            stream_->writeRawData((const char*)dest,destLen);
-        } else {
-            qWarning("QPdfStream::write(): compress error");
-            destLen = 0;
-        }
-        delete [] dest;
-        return (uint)destLen;
-    } else
-#endif
-    {
-        stream_->writeRawData(src,len);
-        return len;
     }
 }
 
@@ -943,191 +845,17 @@ QMatrix QPdfMatrix::lastMatrix() const
     return matrices_.last();
 }
 
-QPdfImage::QPdfImage()
-    : QPdfObject()
-{
-    init();
-}
-
-QPdfImage::QPdfImage(const QImage& im)
-    : QPdfObject()
-{
-    init();
-    QImage dummy;
-    rawlen_ = convert(im, dummy);
-}
-
-QPdfImage::QPdfImage(const QImage& im, const QImage& mask)
-    : QPdfObject()
-{
-    init();
-    rawlen_ = convert(im, mask);
-}
-
-void QPdfImage::init()
+QPdfImage::QPdfImage(int _w, int _h, int _object)
+    : QPdfObject(), w(_w), h(_h), object(_object)
 {
     type = QPdfObject::IMAGE;
-    stencil = softmask = 0;
-    rawdata_ = 0;
-    isgray_ = hashardmask_ = ismask_ = false;
-    softmaskobj_ = maskobj_ = lenobj_ = -1;
-    rawlen_ = -1;
 }
 
-QPdfImage::~QPdfImage()
-{
-    delete stencil;
-    delete softmask;
-    delete [] rawdata_;
-}
-
-void QPdfImage::setMaskObj(int obj)
-{
-    maskobj_ = obj;
-}
-
-void QPdfImage::setSoftMaskObj(int obj)
-{
-    softmaskobj_ = obj;
-}
-
-void QPdfImage::setLenObj(int obj)
-{
-    lenobj_ = obj;
-}
-
-QByteArray QPdfImage::getDefinition()
-{
-    QByteArray str = "<<\n"
-                   "/Type /XObject\n"
-                   "/Subtype /Image\n";
-    QPdfByteStream s(&str);
-    s << "/Width " << w_ << "\n";
-    s << "/Height " << h_ << "\n";
-    if (ismask_) {
-        s << "/ImageMask true\n"
-            "/Decode [1 0]\n";
-    }
-    else {
-        s << "/BitsPerComponent " << (ismask_ ? 1 : 8) << "\n"
-            "/ColorSpace "
-          << ((isgray_ || ismask_) ? "/DeviceGray\n" : "/DeviceRGB\n");
-    }
-    if (hashardmask_ && maskobj_>0)
-        s << "/Mask " << maskobj_ << "0 R\n";
-    if (hasSoftMask() && softmaskobj_>0)
-        s << "/SMask " << softmaskobj_ << "0 R\n";
-    if (lenobj_>0)
-        s << "/Length " << lenobj_ << "0 R\n";
-    if (interpolation_)
-        s << "/Interpolate true\n";
-    if (do_compress)
-        s << "/Filter /FlateDecode\n";
-    s << ">>\n";
-    return str;
-}
-
-
-// \return length of raw data in byte
-int QPdfImage::convert(const QImage& img, const QImage& mask)
-{
-    if (img.isNull())
-        return -1;
-
-    QImage im = img;
-
-    w_ = im.width();
-    h_ = im.height();
-
-
-    int d = im.depth();
-
-    ismask_ = (d==1); // is monochrome - deal with it as mask
-
-    // ### this needs fixing. Images never have masks, but we can optimise if
-    // the alpha channel doesn't have other values apart 0 or 255.
-    if (im.hasAlphaChannel()) {
-        delete softmask;
-        softmask = new QPdfImage;
-        softmask->w_ = im.width();
-        softmask->h_ = im.height();
-        softmask->rawlen_ = w_ * h_;
-        softmask->isgray_ = true;
-        softmask->rawdata_ = new char[softmask->rawlen_];
-        hassoftmask_p = true;
-    }
-    else if (!mask.isNull()) {
-        delete stencil;
-        stencil = new QPdfImage(mask);
-        stencil->ismask_ = true;
-        hashardmask_ = true;
-    }
-
-    int rowlen = 0;
-    switch(d) {
-    case 1:
-        rowlen = (im.width() % 8) ? im.width() / 8 + 1 : im.width() / 8;
-        break;
-    case 32:
-        rowlen = 3 * im.width();
-        break;
-    default:
-        qWarning("QPdfImage::convert(): unsupported pixmap depth");
-        return -1;
-    }
-
-    delete rawdata_;
-    rawdata_ = new char[rowlen * im.height()];
-
-    int i,j;
-    switch(d) {
-    case 1:
-        for (i=0; i!=im.height(); ++i)
-            memcpy(rawdata_+i*rowlen, im.scanLine(i), rowlen * sizeof(char));
-        break;
-    case 32: {
-        int w = im.width();
-
-        for (i=0; i!=im.height(); ++i)
-            for (j=0; j!=w; ++j)
-            {
-                QRgb rgb = im.pixel(j,i);
-                rawdata_[i*rowlen+3*j] = (char)qRed(rgb);
-                rawdata_[i*rowlen+3*j+1] = (char)qGreen(rgb);
-                rawdata_[i*rowlen+3*j+2] = (char)qBlue(rgb);
-                if (hasSoftMask())
-                {
-                    softmask->rawdata_[i*w+j] = (char)qAlpha(rgb);
-                    /*
-                      if (!mask.isNull()) // integrate hard mask with soft mask
-                      {
-                      if (mask.bitOrder() == QImage::LittleEndian)
-                      {
-                      if (!(*(mask.scanLine(i) + (j >> 3)) & 1 << (j & 7)))
-                      softmask->rawdata_[i*w+j] = 0;
-                      }
-                      else
-                      {
-                      if (!(*(mask.scanLine(i) + (j >> 3)) & 1 << (7 - (j & 7))))
-                      softmask->rawdata_[i*w+j] = 0;
-                      }
-                      }
-                    */
-                }
-            }
-        break;
-    }
-    default:
-        break;
-    }
-
-    return rowlen * im.height();
-}
 
 void QPdfImage::streamText(QPdfByteStream &stream)
 {
-    stream << "q\n" << w_ << " 0 0 " << -h_ << " 0 " << h_ << " cm\n"
-           << name
+    stream << "q\n" << w << " 0 0 " << -h << " 0 " << h << " cm\n"
+           << "/Im" << object
            <<" Do\nQ\n";
 }
 
@@ -1544,18 +1272,18 @@ QByteArray QPdfBrush::FixedPattern::getDefinition()
 
 
 
-QByteArray QPdfBrush::PixmapPattern::getDefinition(int objno)
+QByteArray QPdfBrush::PixmapPattern::getDefinition()
 {
     Q_ASSERT(image);
-    QByteArray str = defBegin(1, image->w(), image->h());
+    QByteArray str = defBegin(1, image->w, image->h);
     QPdfByteStream s(&str);
-    s << "/XObject <<" << image->name << ' ' << objno << "0 R>>\n";
+    s << "/XObject << /Im" << image->object << ' ' << image->object << "0 R>>\n";
 
-    QMatrix m(image->w(),0,0,-image->h(),0,image->h());
+    QMatrix m(image->w, 0, 0, -image->h, 0, image->h);
     QByteArray res;
     QPdfByteStream ress(&res);
     QPdfMatrix::streamMatrix(m, ress);
-    ress << image->name << " Do\n";
+    ress << "/Im" << image->object << " Do\n";
     s << Pattern::getDefinition(res);
 
     return str;
@@ -1693,23 +1421,14 @@ QPdfBrush* QPdfBrush::setGradient(const QColor &rgba, const QColor &gradrgba,
     return this;
 }
 
-QPdfBrush* QPdfBrush::setPixmap(const QPixmap& pm, const QMatrix& mat)
+QPdfBrush* QPdfBrush::setPixmap(QPdfImage *image, const QMatrix& mat)
 {
     nobrush_ = false;
     streamstate_.append(PIXMAP);
     QByteArray s("/PatI");
     s += id_ + QByteArray::number(pixmaps.size());
 
-    QImage im = pm.toImage();
-    QImage mask;
-    QBitmap bmm = pm.mask();
-    if (!bmm.isNull())
-        mask = bmm.toImage();
-
-    QPdfImage* img = new QPdfImage(im,mask);
-    img->name = "/PImg" + id_ + QByteArray::number(pixmaps.size());
-
-    pixmaps.append(PixmapPattern(s,img,mat));
+    pixmaps.append(PixmapPattern(s, image, mat));
     alpha_.append(-1.0);
     return this;
 }
@@ -1853,54 +1572,12 @@ qreal QPdfPen::alpha() const
 
 QPdfPen* QPdfPen::setDashArray(const QPen& pen, qreal phase)
 {
-    QVector<qreal> sequence;
+    QVector<qreal> sequence = pen.dashPattern();
+    qreal w = pen.width();
+    for (int i = 0; i < sequence.size(); ++i)
+        sequence[i] *= w;
 
-    qreal capsize = 0;
-    qreal lw = qMax(pen.width(),1);
-
-    switch(pen.capStyle()) {
-    case Qt::RoundCap:
-    case Qt::SquareCap:
-        capsize = qMax(lw,qreal(1));
-        break;
-    default:
-        break;
-    };
-
-    bool stroke = true;
-    switch (pen.style()) {
-    case Qt::NoPen:
-        stroke = false;
-        break;
-    case Qt::SolidLine:
-        break;
-    case Qt::DashLine:
-        sequence.append(3*lw-capsize); // 3 full
-        sequence.append(1*lw+capsize); // 1 gap
-        break;
-    case Qt::DotLine:
-        sequence.append(qMax(1*lw-capsize,qreal(0))); // 1 full
-        sequence.append(1*lw+capsize); // 1 gap
-        break;
-    case Qt::DashDotLine:
-        sequence.append(3*lw-capsize); // 3 full
-        sequence.append(1*lw+capsize); // 1 gap
-        sequence.append(qMax(1*lw-capsize,qreal(0))); // 1 full
-        sequence.append(1*lw+capsize); // 1 gap
-        break;
-    case Qt::DashDotDotLine:
-        sequence.append(3*lw-capsize);
-        sequence.append(1*lw+capsize);
-        sequence.append(1*lw-capsize);
-        sequence.append(1*lw+capsize);
-        sequence.append(qMax(1*lw-capsize,qreal(0))); // safety
-        sequence.append(1*lw+capsize);
-        break;
-    case Qt::CustomDashLine:
-    case Qt::MPenStyle:
-        // avoid compiler warning
-        break;
-    }
+    bool stroke = pen.style() != Qt::NoPen;
 
     streamstate_.append(DASHARRAY);
     stroking_.append(stroke);
@@ -1915,12 +1592,11 @@ bool QPdfPen::stroking() const
     return stroking_.last();
 }
 
-QPdfPath::QPdfPath(const QPdfPen* pen, const QPdfBrush* brush, int brushflags,  bool closed)
+QPdfPath::QPdfPath(const QPdfPen* pen, const QPdfBrush* brush, int brushflags)
     : QPdfObject(), ca_(1.0), CA_(1.0), alphaobj_(-1), gradientstrokealpha_(false)
 {
     type = QPdfObject::PATH;
-
-    painttype = (closed) ? CLOSE : NONE;
+    painttype = 0;
 
     if (pen && pen->stroking())
         painttype |= STROKE;
@@ -1947,15 +1623,7 @@ QByteArray QPdfPath::paintOperator() const
 
     if (painttype & STROKE) {
         bool nsa = !hasTrueStrokeAlpha(); // don't use PDF combined operators in this case
-        if (painttype & CLOSE) {
             if (painttype & FILLNONZERO)
-                s = (nsa) ? "b" : "f";
-            else if (painttype & FILLEVENODD)
-                s = (nsa) ? "b*" : "f*";
-            else
-                s = "s";
-        }
-        else if (painttype & FILLNONZERO)
             s = (nsa) ? "B" : "f";
         else if (painttype & FILLEVENODD)
             s = (nsa) ? "B*" : "f*";
@@ -1972,38 +1640,42 @@ QByteArray QPdfPath::paintOperator() const
     return s;
 }
 
+#define QT_PATH_ELEMENT(elm) elm.x << ' ' << elm.y << ' '
+
 void QPdfPath::streamCoreText(QPdfByteStream &s) const
 {
-    for (int i=0; i != subpaths.size(); ++i) {
-        const SubPath& spath = subpaths[i];
-        Q_ASSERT(spath.initialized);
-
-        s << spath.start.x
-          << spath.start.y
-          << "m\n";
-        for (int j=0; j!= spath.elements.size(); ++j) {
-            switch (spath.elements[j].type) {
-            case Element::LINE:
-                s << spath.elements[j].line.x
-                  << spath.elements[j].line.y
-                  << "l\n";
+    int start = -1;
+    for (int i = 0; i < path.elementCount(); ++i) {
+        const QPainterPath::Element &elm = path.elementAt(i);
+        switch (elm.type) {
+        case QPainterPath::MoveToElement:
+            if (start >= 0
+                && path.elementAt(start).x == path.elementAt(i-1).x
+                && path.elementAt(start).y == path.elementAt(i-1).y)
+                s << "h\n";
+            s << QT_PATH_ELEMENT(elm) << "m\n";
+            start = i;
                 break;
-            case Element::CURVE:
-                s << spath.elements[j].curve.x1
-                  << spath.elements[j].curve.y1
-                  << spath.elements[j].curve.x2
-                  << spath.elements[j].curve.y2
-                  << spath.elements[j].curve.xnew
-                  << spath.elements[j].curve.ynew
+        case QPainterPath::LineToElement:
+            s << QT_PATH_ELEMENT(elm) << "l\n";
+            break;
+        case QPainterPath::CurveToElement:
+            Q_ASSERT(path.elementAt(i+1).type == QPainterPath::CurveToDataElement);
+            Q_ASSERT(path.elementAt(i+2).type == QPainterPath::CurveToDataElement);
+            s << QT_PATH_ELEMENT(elm)
+                          << QT_PATH_ELEMENT(path.elementAt(i+1))
+                          << QT_PATH_ELEMENT(path.elementAt(i+2))
                   << "c\n";
+            i += 2;
                 break;
             default:
-                break;
+            qFatal("QPdfPrintEngine::drawPath(), unhandled type: %d", elm.type);
             }
         }
-        if (spath.closed)
+    if (start >= 0
+        && path.elementAt(start).x == path.elementAt(path.elementCount()-1).x
+        && path.elementAt(start).y == path.elementAt(path.elementCount()-1).y)
             s << "h\n";
-    }
 }
 
 void QPdfPath::streamText(QPdfByteStream &s)
@@ -2021,10 +1693,7 @@ void QPdfPath::streamText(QPdfByteStream &s)
 
     // 2nd run to get Qt's fill->stroke sequential behavior
     if (hasTrueStrokeAlpha()) {
-        if (paintop != "S" && paintop != "s") {
-            if (painttype & CLOSE)
-                paintop = "s";
-            else
+        if (paintop != "S") {
                 paintop = "S";
             streamCoreText(s);
             s << ' ' << paintop << "\n";
@@ -2160,7 +1829,7 @@ QPdfObject* QPdfPage::append(QPdfObject* val, bool protect)
 
     gobjects_.append(val);
     if (val->type == QPdfObject::IMAGE)
-        images.append((QPdfImage*)val);
+        images.append(((QPdfImage*)val)->object);
     else if (val->type == QPdfObject::PATH)
         paths.append((QPdfPath*)val);
 
@@ -2176,7 +1845,7 @@ QPdfEnginePrivate::QPdfEnginePrivate()
     width_ = 0;
     height_ = 0;
     options_ = 0;
-    streampos_ = 0;
+    streampos = 0;
     landscape_ = false;
 
     curPage = new QPdfPage;
@@ -2185,7 +1854,7 @@ QPdfEnginePrivate::QPdfEnginePrivate()
     curPen = new QPdfPen;
     curBrush = new QPdfBrush;
 
-    stream_ = new QDataStream;
+    stream = new QDataStream;
     pageOrder = QPrinter::FirstPageFirst;
     orientation = QPrinter::Portrait;
     fullPage = false;
@@ -2197,14 +1866,14 @@ QPdfEnginePrivate::~QPdfEnginePrivate()
     delete curMatrix;
     delete curPen;
     delete curBrush;
-    delete stream_;
+    delete stream;
 }
 
 // For strings up to 10000 bytes only !
-int QPdfEnginePrivate::xprintf(const char* fmt, ...)
+void QPdfEnginePrivate::xprintf(const char* fmt, ...)
 {
-    if (!stream_)
-        return 0;
+    if (!stream)
+        return;
 
     const int msize = 10000;
     static char buf[msize];
@@ -2217,21 +1886,163 @@ int QPdfEnginePrivate::xprintf(const char* fmt, ...)
 
     va_end(args);
 
-    stream_->writeRawData(buf,bufsize);
-    streampos_ += bufsize;
-    return bufsize;
+    stream->writeRawData(buf, bufsize);
+    streampos += bufsize;
 }
+
+int QPdfEnginePrivate::write(const char *src, int len)
+{
+#ifndef QT_NO_COMPRESS
+    if(do_compress) {
+        uLongf destLen = 1001 * len / 1000 + 13; // zlib requirement
+        Bytef* dest = new Bytef[destLen];
+        if (Z_OK == ::compress(dest, &destLen, (const Bytef*) src, (uLongf)len)) {
+            stream->writeRawData((const char*)dest, destLen);
+        } else {
+            qWarning("QPdfStream::write(): compress error");
+            destLen = 0;
+        }
+        delete [] dest;
+        len = destLen;
+    } else
+#endif
+    {
+        stream->writeRawData(src,len);
+    }
+    streampos += len;
+    return len;
+}
+
 
 void QPdfEnginePrivate::setDevice(QIODevice* device)
 {
-    stream_->setDevice(device);
-    streampos_ = 0;
+    stream->setDevice(device);
+    streampos = 0;
 }
 
 void QPdfEnginePrivate::unsetDevice()
 {
-    stream_->unsetDevice();
+    stream->unsetDevice();
 }
+
+int QPdfEnginePrivate::writeImage(const QByteArray &data, int width, int height, int depth,
+                                  int maskObject, int softMaskObject)
+{
+    int image = addXrefEntry(-1);
+    xprintf("<<\n"
+            "/Type /XObject\n"
+            "/Subtype /Image\n"
+            "/Width %d\n"
+            "/Height %d\n", width, height);
+    
+    if (depth == 1) {
+        xprintf("/ImageMask true\n"
+                "/Decode [1 0]\n");
+    } else {
+        xprintf("/BitsPerComponent 8\n"
+                "/ColorSpace %s\n", (depth == 32) ? "/DeviceRGB" : "/DeviceGray");
+    }
+    if (maskObject > 0)
+        xprintf("/Mask %d 0 R\n", maskObject);
+    if (softMaskObject > 0)
+        xprintf("/SMask %d 0 R\n", softMaskObject);
+
+    int lenobj = requestObject();
+    xprintf("/Length %d 0 R\n", lenobj);
+    if (interpolateImages)
+        xprintf("/Interpolate true\n");
+    if (do_compress)
+        xprintf("/Filter /FlateDecode\n");
+    xprintf(">>\nstream\n");
+    int len = write(data);
+    xprintf("endstream\n"
+            "endobj\n");
+    addXrefEntry(lenobj);
+    xprintf("%d\n"
+            "endobj\n", len);
+    return image;
+}
+
+int QPdfEnginePrivate::addImage(const QImage &img, bool maybeBitmap)
+{
+    if (img.isNull())
+        return -1;
+
+    QImage image = img;
+    QImage::Format format = image.format();
+    if (image.depth() == 1 && maybeBitmap) {
+        if (format == QImage::Format_MonoLSB)
+            image = image.convertToFormat(QImage::Format_Mono);
+    } else {
+        if (format != QImage::Format_RGB32 && format != QImage::Format_ARGB32)
+            image = image.convertToFormat(QImage::Format_ARGB32);
+    }
+
+    int w = image.width();
+    int h = image.height();
+    int d = image.depth();
+
+    if (d == 1) {
+        int bytesPerLine = (w + 7) >> 3;
+        QByteArray data;
+        data.resize(bytesPerLine * h);
+        char *rawdata = data.data();
+        for (int y = 0; y < h; ++y) {
+            memcpy(rawdata, image.scanLine(y), bytesPerLine * sizeof(char));
+            rawdata += bytesPerLine;
+        }
+        return writeImage(data, w, h, d, 0, 0);
+    }
+
+    QByteArray imageData;
+    QByteArray softMaskData;
+
+    imageData.resize(3 * w * h);
+    softMaskData.resize(w * h);
+
+    uchar *data = (uchar *)imageData.data();
+    uchar *sdata = (uchar *)softMaskData.data();
+    bool hasAlpha = false;
+    bool hasMask = false;
+    for (int y = 0; y < h; ++y) {
+        const QRgb *rgb = (const QRgb *)image.scanLine(y);
+        for (int x = 0; x < w; ++x) {
+            *(data++) = qRed(*rgb);
+            *(data++) = qGreen(*rgb);
+            *(data++) = qBlue(*rgb);
+            uchar alpha = qAlpha(*rgb);
+            *sdata++ = alpha;
+            hasMask |= (alpha < 255);
+            hasAlpha |= (alpha != 0 && alpha != 255);
+            ++rgb;
+        }
+    }
+    int maskObject = 0;
+    if (hasMask) {
+        // dither the soft mask to 1bit and add it. This also helps PDF viewers
+        // without transparency support
+        int bytesPerLine = (w + 7) >> 3;
+        QByteArray mask(bytesPerLine * h, 0);
+        uchar *mdata = (uchar *)mask.data();
+        const uchar *sdata = (const uchar *)softMaskData.constData();
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                if (qt_bayer_matrix[x%16][y%16] < *sdata) {
+                    mdata[x>>3] |= (0x80 >> (x&7));
+                }
+                ++sdata;
+            }
+            mdata += bytesPerLine;
+        }
+        maskObject = writeImage(mask, w, h, 1, 0, 0);
+    }
+    int softMaskObject = 0;
+    if (hasAlpha) 
+        softMaskObject = writeImage(softMaskData, w, h, 8, 0, 0);
+
+    return writeImage(imageData, w, h, 32, maskObject, softMaskObject);
+}
+
 
 void QPdfEnginePrivate::writeHeader()
 {
@@ -2240,12 +2051,55 @@ void QPdfEnginePrivate::writeHeader()
     xprintf("%%PDF-1.4\n%\342\343\317\323\n");
 
     writeInfo();
-    writeCatalog();
 
-    graphicsState = requestObject();
-    patternColorSpace = requestObject();
-    colorSpace = requestObject();
-    colorSpaceGray = requestObject();
+    catalog = addXrefEntry(-1);
+    pageRoot = requestObject();
+    xprintf("<<\n"
+            "/Type /Catalog\n"
+            "/Pages %d 0 R\n"
+            ">>\n"
+            "endobj\n", pageRoot);
+
+    // graphics state
+    graphicsState = addXrefEntry(-1);
+    xprintf("<<\n"
+            "/Type /ExtGState\n"
+            "/SA true\n"
+            "/SM 0.02\n"
+            "/BG2 /Default\n"
+            "/BM /Normal\n"
+            "/UCR2 /Default\n"
+            "/TR2 /Default\n"
+            "/ca 1.0\n"
+            "/CA 1.0\n"
+            "/AIS false\n"
+            ">>\n"
+            "endobj\n");
+
+    // color spaces
+    colorSpace = addXrefEntry(-1);
+    xprintf("[ /CalRGB\n"
+            "<<\n"
+            "/WhitePoint [0.9505 1.0000 1.0890]\n"
+            "/Gamma [1.8000 1.8000 1.8000]\n"
+            "/Matrix [ 0.4497 0.2446 0.0252 0.3163 0.6720 0.1412 0.1845 0.0833 0.9227]\n"
+            //"/Matrix [ 1 0 0 0 1 0 0 0 1]\n"
+            ">>\n"
+            "]\n"
+            "endobj\n");
+
+    colorSpaceGray = addXrefEntry(-1);
+    xprintf("[ /CalGray\n"
+            "<<\n"
+            "/WhitePoint [0.9505 1.0000 1.0890]\n"
+            ">>\n"
+            "]\n"
+            "endobj\n");
+
+    // color space for pattern
+    patternColorSpace = addXrefEntry(-1);
+    xprintf("[/Pattern %d 0 R]\n"
+            "endobj\n", colorSpace);
 }
 
 void QPdfEnginePrivate::writeInfo()
@@ -2269,103 +2123,40 @@ void QPdfEnginePrivate::writeInfo()
             title.toUtf8().constData(), author.toUtf8().constData(), creator.toUtf8().constData(),
             qVersion(), y.constData());
 
-    if(!newtime){
-        xprintf(">>\n"
-                "endobj\n");
-        return;
-    }
-
-    xprintf("/CreationDate (D:%d%02d%02d%02d%02d%02d)\n"
-            ">>\n"
-            "endobj\n",
+    if (newtime) {
+        xprintf("/CreationDate (D:%d%02d%02d%02d%02d%02d)\n",
             newtime->tm_year+1900,
             newtime->tm_mon+1,
             newtime->tm_mday,
             newtime->tm_hour,
             newtime->tm_min,
             newtime->tm_sec);
-}
-
-
-// Create catalog and page structure - 2nd and 3th PDF object
-
-void QPdfEnginePrivate::writeCatalog()
-{
-    catalog = addXrefEntry(-1);
-    pageRoot = requestObject();
-    xprintf("<<\n"
-            "/Type /Catalog\n"
-            "/Pages %d 0 R\n"
-            ">>\n"
-            "endobj\n",pageRoot);
+    }
+    xprintf(">>\n"
+            "endobj\n");
 }
 
 void QPdfEnginePrivate::writePageRoot()
 {
     addXrefEntry(pageRoot);
-    int viewport[4] = {0,0,width_,height_};
 
     xprintf("<<\n"
             "/Type /Pages\n"
-            "/Kids \n");
-
-    xprintf("[\n");
+            "/Kids \n"
+            "[\n");
     int size = pages.size();
     for (int i = 0; i < size; ++i)
-        xprintf("%d 0 R\n",pages[pageOrder == QPrinter::FirstPageFirst ? i : size-i-1]);
+        xprintf("%d 0 R\n", pages[pageOrder == QPrinter::FirstPageFirst ? i : size-i-1]);
     xprintf("]\n");
 
     //xprintf("/Group <</S /Transparency /I true /K false>>\n");
 
     xprintf("/Count %d\n"
             "/MediaBox [%d %d %d %d]\n",
-            pages.size(), viewport[0], viewport[1], viewport[2], viewport[3]);
+            pages.size(), 0, 0, width_, height_);
 
     xprintf("/ProcSet [/PDF /Text /ImageB /ImageC]\n"
             ">>\n"
-            "endobj\n"
-        );
-
-    // graphics state
-
-    addXrefEntry(graphicsState);
-    xprintf("<<\n"
-            "/Type /ExtGState\n"
-            "/SA true\n"
-            "/SM 0.02\n"
-            "/BG2 /Default\n"
-            "/BM /Normal\n"
-            "/UCR2 /Default\n"
-            "/TR2 /Default\n"
-            "/ca 1.0\n"
-            "/CA 1.0\n"
-            "/AIS false\n"
-            ">>\n"
-            "endobj\n");
-
-    // color space for pattern
-
-    addXrefEntry(patternColorSpace);
-    xprintf("[/Pattern %d 0 R]\n"
-            "endobj\n", colorSpace);
-
-    addXrefEntry(colorSpace);
-    xprintf("[ /CalRGB\n"
-            "<<\n"
-            "/WhitePoint [0.9505 1.0000 1.0890]\n"
-            "/Gamma [1.8000 1.8000 1.8000]\n"
-            "/Matrix [ 0.4497 0.2446 0.0252 0.3163 0.6720 0.1412 0.1845 0.0833 0.9227]\n"
-            //"/Matrix [ 1 0 0 0 1 0 0 0 1]\n"
-            ">>\n"
-            "]\n"
-            "endobj\n");
-
-    addXrefEntry(colorSpaceGray);
-    xprintf("[ /CalGray\n"
-            "<<\n"
-            "/WhitePoint [0.9505 1.0000 1.0890]\n"
-            ">>\n"
-            "]\n"
             "endobj\n");
 }
 
@@ -2392,9 +2183,6 @@ void QPdfEnginePrivate::flushPage()
 {
     if (pages.empty())
         return;
-
-    QPdfStream cs;
-    cs.setStream(*stream_);
 
     uint pageStream = requestObject();
     uint pageStreamLength = requestObject();
@@ -2491,11 +2279,8 @@ void QPdfEnginePrivate::flushPage()
     // ... images
 
     xprintf("/XObject <<\n");
-    QVector<int> iv;
     for (i=0; i<curPage->images.size();++i) {
-        iv.append(requestObject());
-        xprintf("%s %d 0 R\n",
-                curPage->images[i]->name.constData(),iv.last());
+        xprintf("/Im%d %d 0 R\n", curPage->images[i], curPage->images[i]);
     }
     xprintf(">>\n");
 
@@ -2561,68 +2346,13 @@ void QPdfEnginePrivate::flushPage()
 
     // gather pattern images (add pixmap brushes to the remaining images)
 
-    QVector<QPdfImage*> images = curPage->images;
+    QVector<uint> images = curPage->images;
     for (i=0; i<curBrush->pixmaps.size();++i) {
         QPdfBrush::PixmapPattern p = curBrush->pixmaps[i];
         addXrefEntry(pno[i]);
-        iv.append(requestObject());
-        xprintf(p.getDefinition(iv.last()).constData());
-        images.append(curBrush->pixmaps[i].image);
+        xprintf(p.getDefinition().constData());
+        images.append(curBrush->pixmaps[i].image->object);
     }
-
-    // write all image objects
-
-    for (i=0; i<images.size();++i) {
-        addXrefEntry(iv[i]);
-        QPdfImage* im = images[i];
-
-        if (im->hasHardMask())
-            im->setMaskObj(requestObject());
-        if (im->hasSoftMask())
-            im->setSoftMaskObj(requestObject());
-        im->setLenObj(requestObject());
-        xprintf("%sstream\n", im->getDefinition().constData());
-        int len = streampos_;
-        streampos_ += (int)cs.write(im->data(), im->rawLength());
-        len = streampos_-len;
-        xprintf("endstream\n"
-                "endobj\n");
-        addXrefEntry(im->lenObj());
-        xprintf("%d\n"
-                "endobj\n", len);
-
-        // ... image masks
-
-        if (im->hasHardMask()) {
-            addXrefEntry(im->hardMaskObj());
-            QPdfImage* im2 = im->stencil;
-            im2->setLenObj(requestObject());
-            xprintf("%sstream\n", im2->getDefinition().constData());
-            len = streampos_;
-            streampos_ += (int)cs.write(im2->data(), im2->rawLength());
-            len = streampos_-len;
-            xprintf("endstream\n"
-                    "endobj\n");
-            addXrefEntry(im2->lenObj());
-            xprintf("%d\n"
-                    "endobj\n", len);
-        }
-        if (im->hasSoftMask()) {
-            addXrefEntry(im->softMaskObj());
-            QPdfImage* im2 = im->softmask;
-            im2->setLenObj(requestObject());
-            xprintf("%sstream\n", im2->getDefinition().constData());
-            len = streampos_;
-            streampos_ += (int)cs.write(im2->data(), im2->rawLength());
-            len = streampos_-len;
-            xprintf("endstream\n"
-                    "endobj\n");
-            addXrefEntry(im2->lenObj());
-            xprintf("%d\n"
-                    "endobj\n", len);
-        }
-    }
-
 
     // open page stream object
 
@@ -2645,9 +2375,7 @@ void QPdfEnginePrivate::flushPage()
         tmp.translate(resolution/3, resolution/3);
     QPdfMatrix::streamMatrix(tmp, stream);
     curPage->streamText(stream);
-    int len = streampos_;
-    streampos_ += (int)cs.write(s.constData(), s.size());
-    len = streampos_-len;
+    int len = write(s.constData(), s.size());
     xprintf("endstream\n"
             "endobj\n");
 
@@ -2687,7 +2415,7 @@ int QPdfEnginePrivate::addXrefEntry(int object, bool printostr)
     if (object>=xrefPositions.size())
         xrefPositions.resize(object+1);
 
-    xrefPositions[object] = streampos_;
+    xrefPositions[object] = streampos;
     if (printostr)
         xprintf("%d 0 obj\n",object);
 

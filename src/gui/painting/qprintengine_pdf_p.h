@@ -33,6 +33,7 @@
 #include "QtCore/qstring.h"
 #include "QtCore/qvector.h"
 #include "QtGui/qpaintengine.h"
+#include "QtGui/qpainterpath.h"
 
 class QImage;
 class QDataStream;
@@ -41,17 +42,6 @@ class QPointF;
 class QRegion;
 class QFile;
 class QPdfByteStream;
-
-class QPdfStream
-{
-public:
-    QPdfStream();
-    void setStream(QDataStream& val);
-    uint write(const char* val, uint len);
-
-private:
-    QDataStream* stream_;
-};
 
 class QPdfObject
 {
@@ -103,45 +93,11 @@ private:
 class QPdfImage : public QPdfObject
 {
 public:
-    QPdfImage();
-    explicit QPdfImage(const QImage& pm);
-    QPdfImage(const QImage& pm, const QImage& mask);
-    ~QPdfImage();
-
+    QPdfImage(int w, int h, int object);
     void streamText(QPdfByteStream &stream);
-    QByteArray getDefinition();
-    const char* data() const
-    {
-        return rawdata_;
-    }
-    QPdfImage* stencil;
-    QPdfImage* softmask;
-    int rawLength() const
-    {
-        return rawlen_;
-    }
-
-    int w() const {return w_;}
-    int h() const {return h_;}
-
-    void setMaskObj(int obj);
-    void setSoftMaskObj(int obj);
-    void setLenObj(int obj);
-    int lenObj() const {return lenobj_;}
-    int hardMaskObj() const {return maskobj_;}
-    int softMaskObj() const {return softmaskobj_;}
-    bool hasHardMask() const {return hashardmask_;}
-    QByteArray name;
-
-private:
-    void init();
-    static bool interpolation_;
-    int w_, h_;
-    char* rawdata_;
-    int rawlen_;
-    bool isgray_, hashardmask_, ismask_;
-    int softmaskobj_, maskobj_, lenobj_;
-    int convert(const QImage& img, const QImage& mask);
+    int w;
+    int h;
+    int object;
 };
 
 class QPdfGradient : public QPdfObject
@@ -199,7 +155,7 @@ public:
                            qreal bx, qreal by, qreal ex, qreal ey,
                            qreal bbox_xb, qreal bbox_xe, qreal bbox_yb, qreal bbox_ye,
                            const QMatrix& mat = QMatrix());
-    QPdfBrush* setPixmap(const QPixmap& pm, const QMatrix& mat);
+    QPdfBrush* setPixmap(QPdfImage *image, const QMatrix& mat);
 
     bool noBrush() const {return nobrush_;}
     void streamText(QPdfByteStream &stream);
@@ -236,7 +192,7 @@ public:
         explicit PixmapPattern(const QByteArray& n = QByteArray(), QPdfImage* im = 0,
                                const QMatrix& mat = QMatrix());
         QPdfImage* image;
-        QByteArray getDefinition(int objno);
+        QByteArray getDefinition();
     };
 
     class GradientPattern : public Pattern
@@ -269,6 +225,7 @@ private:
     QVector<SUBTYPE> streamstate_;
     QVector<qreal> alpha_;
     bool nobrush_;
+public:
     QByteArray id_;
 };
 
@@ -322,74 +279,16 @@ class QPdfPath : public QPdfObject
 public:
     enum PAINTTYPE {
         NONE					= 0L,
-        CLOSE         = 1L<<0,
-        STROKE        = 1L<<1,
-        FILLNONZERO   = 1L<<2,
-        FILLEVENODD   = 1L<<3,
-        CLIPPING			= 1L<<4
+        STROKE        = 1L<<0,
+        FILLNONZERO   = 1L<<1,
+        FILLEVENODD   = 1L<<2,
+        CLIPPING      = 1L<<3
     };
 
-    struct Element
-    {
-        enum SUBTYPE{
-            NONE,
-            LINE,
-            CURVE
-        };
+    explicit QPdfPath(const QPdfPen* = 0, const QPdfBrush* = 0, int brushflags = NONE);
 
-        Element() : type(NONE) {} // for QVector
-        void setLine(qreal x, qreal y)
-        {
-            line.x=x;
-            line.y=y,
-                type = LINE;
-        }
-        void setCurve(qreal x1, qreal y1,qreal x2, qreal y2,qreal xnew, qreal ynew)
-        {
-            curve.x1=x1;
-            curve.y1=y1;
-            curve.x2=x2;
-            curve.y2=y2;
-            curve.xnew=xnew;
-            curve.ynew=ynew;
-            type = CURVE;
-        }
+    QPainterPath path;
 
-        SUBTYPE type;
-
-        union
-        {
-            struct { qreal x, y; } line;
-            struct { qreal x1, y1, x2, y2, xnew, ynew; } curve;
-        };
-    };
-
-    struct SubPath
-    {
-        SubPath() : closed(false), initialized(false)
-        {}
-
-        QVector<Element> elements;
-        struct { qreal x, y, w, h; } rect;
-        struct { qreal x,y; } start;
-
-        bool closed;
-        bool initialized;
-        void close()
-        {
-            closed = true;
-        }
-        bool valid() const
-        {
-            if (elements.empty() || !initialized)
-                return false;
-            return true;
-        }
-    };
-
-    explicit QPdfPath(const QPdfPen* = 0, const QPdfBrush* = 0, int brushflags = NONE,  bool closed = false);
-
-    QVector<SubPath> subpaths;
     void streamText(QPdfByteStream &stream);
     int painttype;
     QMatrix currentMatrix;
@@ -420,7 +319,7 @@ public:
     void streamText(QPdfByteStream &stream);
     QPdfObject* append(QPdfObject* val, bool protect = false);
 
-    QVector<QPdfImage*> images;
+    QVector<uint> images;
     QVector<QPdfPath*> paths;
 
 private:
@@ -459,10 +358,11 @@ public:
     QPrinter::Orientation orientation;
     bool fullPage;
 
+    int addImage(const QImage &image, bool maybeBitmap);
+    
 private:
     Q_DISABLE_COPY(QPdfEnginePrivate)
     void writeInfo();
-    void writeCatalog();
     void writePageRoot();
     void flushPage();
     uint requestObject()
@@ -471,14 +371,19 @@ private:
     }
 
     QVector<int> xrefPositions;
-    int streampos_;
     int options_;
     bool landscape_;
     int width_, height_;
-    QDataStream* stream_;
+    QDataStream* stream;
+    int streampos;
 
-    int xprintf(const char* fmt, ...);
+    int writeImage(const QByteArray &data, int width, int height, int depth,
+                   int maskObject, int softMaskObject);
+
     int addXrefEntry(int object, bool printostr = true);
+    void xprintf(const char* fmt, ...);
+    int write(const char *src, int len);
+    inline int write(const QByteArray &data) { return write(data.constData(), data.length()); }
 
     int currentObject;
 
@@ -541,8 +446,6 @@ private:
     QPdfEnginePrivate *d;
 
     void setBrush (QPdfBrush& pbr, const QBrush & brush, const QPointF& origin);
-    void adaptMonochromePixmap(QPixmap& pm);
-
     void drawPathPrivate (const QPainterPath & path);
 
     QPrinter::PageSize pagesize_;
