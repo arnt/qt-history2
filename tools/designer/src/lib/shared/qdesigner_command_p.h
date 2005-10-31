@@ -280,6 +280,7 @@ private:
     int m_rowspan, m_colspan;
     QDesignerMetaDataBaseItemInterface *m_formItem;
     int m_tabOrderIndex;
+    QList<QPointer<QWidget> > m_managedChildren;
 };
 
 class QDESIGNER_SHARED_EXPORT ReparentWidgetCommand: public QDesignerFormWindowCommand

@@ -554,6 +554,14 @@ void DeleteWidgetCommand::init(QWidget *widget)
     m_formItem = formWindow()->core()->metaDataBase()->item(formWindow());
     m_tabOrderIndex = m_formItem->tabOrder().indexOf(widget);
 
+    // Build the list of managed children
+    m_managedChildren = QList<QPointer<QWidget> >();
+    QList<QWidget *>children = m_widget->findChildren<QWidget *>();
+    foreach (QPointer<QWidget> child, children) {
+        if (formWindow()->isManaged(child))
+            m_managedChildren.append(child);
+    }
+
     setDescription(tr("Delete '%1'").arg(widget->objectName()));
 }
 
@@ -564,6 +572,10 @@ void DeleteWidgetCommand::redo()
 
     if (deco)
         deco->removeWidget(m_widget);
+
+    // Unmanage the managed children first
+    foreach (QWidget *child, m_managedChildren)
+        formWindow()->unmanageWidget(child);
 
     formWindow()->unmanageWidget(m_widget);
     m_widget->setParent(formWindow());
@@ -583,6 +595,10 @@ void DeleteWidgetCommand::undo()
     m_widget->setParent(m_parentWidget);
     m_widget->setGeometry(m_geometry);
     formWindow()->manageWidget(m_widget);
+
+    // Manage the managed children
+    foreach (QWidget *child, m_managedChildren)
+        formWindow()->manageWidget(child);
 
     // ### set up alignment
     switch (m_layoutType) {
