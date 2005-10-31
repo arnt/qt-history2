@@ -411,7 +411,7 @@ QDesignerMenu *QDesignerMenu::findActivatedMenu() const
     candidates += qFindChildren<QDesignerMenu*>(this);
 
     foreach (QDesignerMenu *m, candidates) {
-        if (m->isActiveWindow())
+        if (m == qApp->activeWindow())
             return m;
     }
 
