@@ -100,7 +100,7 @@ bool qws_screen_is_interlaced=false; //### should be detected
 bool qws_shared_memory = false;
 bool qws_sw_cursor = true;
 bool qws_accel = true;            // ### never set
-const char *qws_display_spec = ":0";
+QByteArray qws_display_spec(":0");
 int qws_display_id = 0;
 int qws_client_id = 0;
 QWidget *qt_pressGrab = 0;
@@ -501,15 +501,15 @@ void QWSDisplay::Data::init()
 
         // now we want to get the exact display spec to use if we haven't
         // specified anything.
-        if (qws_display_spec[0] == ':')
-            qws_display_spec = strdup(connected_event->display); //###memory leak
+        if (qws_display_spec.at(0) == ':')
+            qws_display_spec = connected_event->display;
 
         if (!QWSDisplay::initLock(pipe, false))
             qFatal("Cannot get display lock");
 
         if (shm.attach(connected_event->simpleData.servershmid)) {
-            QScreen *s = qt_get_screen(qws_display_id, qws_display_spec);
-            sharedRamSize += s->memoryNeeded(qws_display_spec);
+            QScreen *s = qt_get_screen(qws_display_id, qws_display_spec.constData());
+            sharedRamSize += s->memoryNeeded(qws_display_spec.constData());
         } else {
             perror("QWSDisplay::Data::init");
             qFatal("Client can't attach to main ram memory.");
@@ -523,8 +523,8 @@ void QWSDisplay::Data::init()
         if (!QWSDisplay::initLock(pipe, true))
             qFatal("Cannot get display lock");
 
-        QScreen *s = qt_get_screen(qws_display_id, qws_display_spec);
-        sharedRamSize += s->memoryNeeded(qws_display_spec);
+        QScreen *s = qt_get_screen(qws_display_id, qws_display_spec.constData());
+        sharedRamSize += s->memoryNeeded(qws_display_spec.constData());
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 
@@ -1697,7 +1697,7 @@ void qt_init(QApplicationPrivate *priv, int type)
 
     const char *display = ::getenv("QWS_DISPLAY");
     if (display)
-        qws_display_spec = strdup(display); // since we setenv later!
+        qws_display_spec = display; // since we setenv later!
 
     //qws_savefonts = qgetenv("QWS_SAVEFONTS") != 0;
     //qws_shared_memory = qgetenv("QWS_NOSHARED") == 0;
@@ -1799,7 +1799,7 @@ void qt_init(QApplicationPrivate *priv, int type)
         qt_appType = QApplication::Type(type);
         qws_single_process = true;
         QWSServer::startup(flags);
-        setenv("QWS_DISPLAY", qws_display_spec, 0);
+        setenv("QWS_DISPLAY", qws_display_spec.constData(), 0);
     }
 
     if(qt_is_gui_used) {

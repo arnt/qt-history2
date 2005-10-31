@@ -94,7 +94,7 @@ QWSScreenSaver::~QWSScreenSaver()
 {
 }
 
-extern char *qws_display_spec;
+extern QByteArray qws_display_spec;
 extern void qt_init_display(); //qapplication_qws.cpp
 extern QString qws_qtePipeFilename();
 
@@ -802,7 +802,7 @@ void QWSServerPrivate::newConnection()
                          q, SLOT(clientClosed()));
 #endif // QT_NO_SXV
 
-        client->sendConnectedEvent(qws_display_spec);
+        client->sendConnectedEvent(qws_display_spec.constData());
 
         if (!maxwindow_rect.isEmpty() && clientMap.contains(socket))
             client->sendMaxWindowRectEvent();
