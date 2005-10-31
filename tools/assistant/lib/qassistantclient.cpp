@@ -242,6 +242,11 @@ void QAssistantClient::closeAssistant()
     if ( !opened )
         return;
     proc->terminate();
+    if (!proc->waitForFinished(2000)) {
+        // If the process hasn't died after 2 seconds,
+        // we kill it, causing it to exit immediately.
+        proc->kill();
+    }
 }
 
 /*!
