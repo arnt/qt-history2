@@ -142,7 +142,7 @@ sub classNames {
     } elsif(basename($iheader) eq "qplugin.h") {
 	push @ret, "QtPlugin";
     } elsif(basename($iheader) eq "qdrawutil.h") {
-	push @ret, "QtDrawUtils";
+	push @ret, "QtDrawUtil";
     } elsif(basename($iheader) eq "qalgorithms.h") {
 	push @ret, "QtAlgorithms";
     } elsif(basename($iheader) eq "qdebug.h") {
