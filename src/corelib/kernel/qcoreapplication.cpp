@@ -1938,10 +1938,10 @@ int QCoreApplication::loopLevel()
 */
 
 /*!
-    \macro QT_DECLARE_TR_FUNCTIONS(context)
+    \macro Q_DECLARE_TR_FUNCTIONS(context)
     \relates QCoreApplication
 
-    The QT_DECLARE_TR_FUNCTIONS() macro declares and implements two
+    The Q_DECLARE_TR_FUNCTIONS() macro declares and implements two
     translation functions, \c tr() and \c trUtf8(), with these
     signatures:
 
@@ -1955,14 +1955,14 @@ int QCoreApplication::loopLevel()
     This macro is useful if you want to use QObject::tr() or
     QObject::trUtf8() in classes that don't inherit from QObject.
 
-    QT_DECLARE_TR_FUNCTIONS() must appear at the very top of the
+    Q_DECLARE_TR_FUNCTIONS() must appear at the very top of the
     class definition (before the first \c{public:} or \c{protected:}).
     For example:
 
     \code
         class MyMfcView : public CView
         {
-            QT_DECLARE_TR_FUNCTIONS(MyMfcView)
+            Q_DECLARE_TR_FUNCTIONS(MyMfcView)
 
         public:
             MyMfcView();

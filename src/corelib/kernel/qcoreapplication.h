@@ -180,7 +180,7 @@ inline QString QCoreApplication::translate(const char *, const char *sourceText,
 }
 #endif
 
-#define QT_DECLARE_TR_FUNCTIONS(context) \
+#define Q_DECLARE_TR_FUNCTIONS(context) \
 public: \
     static inline QString tr(const char *sourceText, const char *comment = 0) \
         { return QCoreApplication::translate(#context, sourceText, comment); } \
