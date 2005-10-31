@@ -76,14 +76,6 @@ QScreen *QScreenDriverFactory::create(const QString& key, int displayId)
     if (driver == "vnc")
         return new QVNCScreen(displayId);
 #endif
-#ifndef QT_NO_QWS_SHADOWFB
-    if (driver == "shadowfb")
-        return new QShadowFbScreen(displayId);
-#endif
-#ifndef QT_NO_QWS_REPEATER
-    if (driver == "repeater")
-        return new QRepeaterScreen(displayId);
-#endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_LIBRARY
