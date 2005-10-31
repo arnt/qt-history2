@@ -14,13 +14,71 @@
 
 /*! \class QNetworkProxy
 
-    \brief The QNetworkProxy class provides a network layer proxying.
+    \since 4.1
+
+    \brief The QNetworkProxy class provides a network layer proxy.
 
     \reentrant
     \ingroup io
     \module network
 
-    \sa QAbstractSocket, QTcpSocket
+    QNetworkProxy provides the method for configuring network layer proxy support
+    to the Qt network classes. The class currently supported are QAbstractSocket,
+    QTcpSocket, QUdpSocket, QTcpServer, QHttp and QFtp. 
+    The proxy support is designed to be as transparent as possible. This means that 
+    existing network enabled applications you have written should automaticaly support
+    network proxy using the following code. 
+
+    \code
+        QNetworkProxy proxy;
+	proxy.setType(QNetworkProxy::Socks5Proxy);
+	proxy.setHostName("proxy.example.com");
+	proxy.setPort(1080);
+	proxy.setUser("username");
+	proxy.setPassword("password");
+	QNetworkProxy::setApplicationProxy(proxy);
+    \endcode
+
+    Alternativly to setting an application wide proxy it is possible to specify
+    the proxy for individual sockets using QAbstractSocket::setProxy() and 
+    QTcpServer::setProxy(). In this way it is possible to disable the use of 
+    a proxy for specific sockets using the following code.
+
+    \code
+        serverSocket->setProxy(QNetworkProxy::NoProxy);
+    \endcode
+
+    Network proxy is used if the address used in {QAbstractSocket::connectToHost()}{connectToHost()},
+    {QUdpSocket::bind()}{bind()} or {QTcpSocket::listen()}{listen()} is equivilent to
+    QHostAddress::LocalHost or QHostAddress::LocalHostIPv6.
+
+    When enabling proxy support there are certian restriction depending on the proxy
+    type. You sould read carefuly the section regarding the proxy type you wish to use
+    before using it.
+    
+    \section1 Socks5
+
+    The socks5 support in Qt 4 is based on rfc 1928/1929. Authentication 
+    methods supported are no authentication and username/password authentication.
+    Both IPv4 and IPv6 are supported but resolving domain names through the socks
+    server is not, all domain names are resolved localy. There are several things 
+    to remmber when using socks5 with QUdpSocket and QTcpServer.
+    
+    With QUdpSocket a call to \l {QUdpSocket::bind()}{bind()} may fail with a 
+    timeout error. If a port number other than 0 is passed to bind then it is not
+    guarantied to be the port that is actualy bond. Use \l {QUdpSocket::localPort()}{localPort()}
+    and \l {QUdpSocket::localAddress()}{localAddress()} to get the actual address
+    and port bound to. Becuse proxied UDP goes through two UDP connections it is
+    more likely that packets will be dropped.
+    
+    With QTcpServer a call to \l {QTcpServer::listen()}{listen()} may fail with a 
+    timeout error. If a port number other than 0 is passed to listen then it is not
+    guarantied to be the port that is actually listen on. Use \l {QTcpServer::serverPort()}{serverPort()}
+    and \l {QTcpServer::serverAddress()}{serverAddress()} to get the actual address
+    and port listened on. Socks5 only supports acceppting one conection per call to listen
+    and each call to listen is likly to result in a different \l {QTcpServer::serverPort()}{serverPort()}.
+
+    \sa QAbstractSocket, QTcpServer
 */
 
 /*!
@@ -28,8 +86,8 @@
 
     This enum describes the types of network proxying provided in Qt.
 
-    \value DefaultProxy Proxying is determind based on application settings
-    \value Socks5Proxy Socks 5 proxying is used
+    \value DefaultProxy Proxy is determind based on the application proxy set using setApplicationProxy()
+    \value Socks5Proxy \l Socks5 proxying is used
     \value NoProxy No proxying is used
 
     \sa setType(), type()
@@ -102,6 +160,9 @@ public:
     quint16 port;
 };
 
+/*!
+    Constructs a QNetworkProxy with ProxyType of DefaultProxy.
+*/
 QNetworkProxy::QNetworkProxy()
  : d_ptr(new QNetworkProxyPrivate)
 {
@@ -110,6 +171,10 @@ QNetworkProxy::QNetworkProxy()
     d->port = 0;
 }
 
+/*!
+    Constructs a QNetworkProxy with \a type, \a hostName, \a port,
+    \a user and \a password.
+*/
 QNetworkProxy::QNetworkProxy(ProxyType type, const QString &hostName, quint16 port,
                   const QString &user, const QString &password)
  : d_ptr(new QNetworkProxyPrivate)
@@ -121,17 +186,26 @@ QNetworkProxy::QNetworkProxy(ProxyType type, const QString &hostName, quint16 po
     setPassword(password);
 }
 
+/*!
+    Constructs a copy of \a other.
+*/
 QNetworkProxy::QNetworkProxy(const QNetworkProxy &other)
     : d_ptr(new QNetworkProxyPrivate)
 {
     *d_ptr = *other.d_ptr;
 }
 
+/*!
+    Destructor.
+*/
 QNetworkProxy::~QNetworkProxy()
 {
     delete d_ptr;
 }
 
+/*!
+    Assigns the value of the network proxy \a other to this network proxy.
+*/
 QNetworkProxy &QNetworkProxy::operator=(const QNetworkProxy &other)
 {
     *d_ptr = *other.d_ptr;
@@ -139,7 +213,7 @@ QNetworkProxy &QNetworkProxy::operator=(const QNetworkProxy &other)
 }
 
 /*!
-    Sets the method of proxying for this instance to be \a type.
+    Sets the proxy type for this instance to be \a type.
 
     \sa type()
 */
@@ -153,7 +227,7 @@ void QNetworkProxy::setType(QNetworkProxy::ProxyType type)
 }
 
 /*!
-    Returns the method of proxying used for this instance.
+    Returns the proxy type for this instance.
 
     \sa setType()
 */
@@ -281,6 +355,9 @@ quint16 QNetworkProxy::port() const
 /*!
     Sets the application level netwok proxying to be \a networkProxy.
 
+    If a QAbstractSocket or QTcpSocket have a proxy type of DefaultProxy then
+    the QNetworkProxy set with this function is used.
+
     \sa applicationProxy(), QAbstractSocket::setProxy(), QTcpServer::setProxy()
 */
 void QNetworkProxy::setApplicationProxy(const QNetworkProxy &networkProxy)
@@ -291,6 +368,9 @@ void QNetworkProxy::setApplicationProxy(const QNetworkProxy &networkProxy)
 
 /*!
     Returns the application level network proxying.
+
+    If a QAbstractSocket or QTcpSocket have a proxy type of DefaultProxy then
+    the QNetworkProxy returned by this function is used.
 
     \sa setApplicationProxy(), QAbstractSocket::proxy(), QTcpServer::proxy()
 */
