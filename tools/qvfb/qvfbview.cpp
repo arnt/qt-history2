@@ -105,6 +105,7 @@ QVFbView::QVFbView( int display_id, int _w, int _h, int d, Rotation r, QWidget *
 #endif
     lockId(-1), emulateTouchscreen(false), emulateLcdScreen(false)
 {
+    setAttribute(Qt::WA_PaintOnScreen, true);
     displayid = display_id;
     rotation = r;
     setMouseTracking( true );
