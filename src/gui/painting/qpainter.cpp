@@ -2025,13 +2025,12 @@ void QPainter::drawPoints(const QPointF *points, int pointCount)
             d->engine->drawPoints(&pt, 1);
         }
     } else {
-        save();
-        setBrush(d->state->pen.color());
         QPainterPath path;
-        for (int i=0; i<pointCount; ++i)
-            path.addRect(points[i].x(), points[i].y(), 1, 1);
-        d->draw_helper(path, QPainterPrivate::FillDraw);
-        restore();
+        for (int i=0; i<pointCount; ++i) {
+            path.moveTo(points[i].x(), points[i].y());
+            path.lineTo(points[i].x(), points[i].y() + 0.001);
+        }
+        d->draw_helper(path, QPainterPrivate::StrokeDraw);
     }
 }
 
