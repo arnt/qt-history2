@@ -556,7 +556,7 @@ void DeleteWidgetCommand::init(QWidget *widget)
 
     // Build the list of managed children
     m_managedChildren = QList<QPointer<QWidget> >();
-    QList<QWidget *>children = m_widget->findChildren<QWidget *>();
+    QList<QWidget *>children = qFindChildren<QWidget *>(m_widget);
     foreach (QPointer<QWidget> child, children) {
         if (formWindow()->isManaged(child))
             m_managedChildren.append(child);
