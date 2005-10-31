@@ -1182,9 +1182,11 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     }
     QWidget* oldtlw = q->window();
 
+    if (q->testAttribute(Qt::WA_DropSiteRegistered))
+        q->setAttribute(Qt::WA_DropSiteRegistered, false);
+
     //recreate and setup flags
     QObjectPrivate::setParent_helper(parent);
-    bool dropable = q->acceptDrops();
     bool enable = q->isEnabled();
     Qt::FocusPolicy fp = q->focusPolicy();
     QPoint pt = q->pos();
@@ -1200,8 +1202,6 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     if(q->isWindow() || (!parent || parent->isVisible()) || explicitlyHidden)
         q->setAttribute(Qt::WA_WState_Hidden);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
-    if(dropable)
-        q->setAcceptDrops(false);
 
     //reparent children
     QObjectList chlist = q->children();
@@ -1225,8 +1225,10 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     q->setFocusPolicy(fp);
     if (extra && !extra->mask.isEmpty())
         q->setMask(extra->mask);
-//###    if(dropable)
-  //###      setAcceptDrops_helper(true);
+    if (q->testAttribute(Qt::WA_AcceptDrops)
+        || (!q->isWindow() && q->parentWidget()
+            && q->parentWidget()->testAttribute(Qt::WA_DropSiteRegistered)))
+        q->setAttribute(Qt::WA_DropSiteRegistered, true);
     if(setcurs)
         q->setCursor(oldcurs);
 
