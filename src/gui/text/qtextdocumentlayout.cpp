@@ -1669,13 +1669,19 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
                 if (inRootFrame
                     && cd->position.y() + cd->size.height() > layoutStruct->pageBottom
-                    // if the frame is a table and it was previously broken for paged layout
-                    // by an incremental layout run then we must not do that again because
-                    // pageBreakInsideTable uses td->rowPositions which contains already the spacings
-                    && (!table || static_cast<QTextTableData *>(data(table))->rowPageBreaks.isEmpty())
                    ) {
 
-                    if (table && cd->size.height() > layoutStruct->pageHeight / 2) {
+                    // if the frame is a table and it was previously broken for paged layout
+                    // by an incremental layout run (indicated by a non-empty rowPageBreaks array)
+                    // then we must not do that again because pageBreakInsideTable uses td->rowPositions
+                    // which contains already the spacings
+                    if (table && !static_cast<QTextTableData *>(data(table))->rowPageBreaks.isEmpty()) {
+                        // layoutStruct->y is already correct, due to the correct page height,
+                        // but pageBottom needs to be updated, by the newPage() call
+                        qreal tmp = layoutStruct->y;
+                        layoutStruct->newPage();
+                        layoutStruct->y = tmp;
+                    } else if (table && cd->size.height() > layoutStruct->pageHeight / 2) {
                         pageBreakInsideTable(table, layoutStruct);
                     } else {
                         layoutStruct->newPage();
