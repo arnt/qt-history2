@@ -16,11 +16,11 @@
 
 #include <stddef.h>
 
-#define QT_VERSION_STR   "4.1.0"
+#define QT_VERSION_STR   "4.2.0"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
 */
-#define QT_VERSION 0x040100
+#define QT_VERSION 0x040200
 
 #define QT_PACKAGEDATE_STR "YYYY-MM-DD"
 
