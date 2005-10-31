@@ -948,13 +948,13 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
             const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
             QMatrix translate(1, 0, 0, 1, -g->focalPoint().x(), -g->focalPoint().y());
             QMatrix gl_to_qt(1, 0, 0, -1, 0, pdev->height());
-            QMatrix inv_matrix = gl_to_qt * matrix.invert() * translate;
+            QMatrix inv_matrix = gl_to_qt * matrix.inverted() * translate;
 
             glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, radial_frag_program);
 
             float pt[4] = {inv_matrix.dx(), inv_matrix.dy(), 0.f, 0.f};
-            float inv[4] = {inv_matrix.m11(), inv_matrix.m12(),
-                            inv_matrix.m21(), inv_matrix.m22()};
+            float inv[4] = {inv_matrix.m11(), inv_matrix.m21(),
+                            inv_matrix.m12(), inv_matrix.m22()};
             glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
             glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
 
@@ -971,13 +971,13 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
             const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
             QMatrix translate(1, 0, 0, 1, -g->center().x(), -g->center().y());
             QMatrix gl_to_qt(1, 0, 0, -1, 0, pdev->height());
-            QMatrix inv_matrix = gl_to_qt * matrix.invert() * translate;
+            QMatrix inv_matrix = gl_to_qt * matrix.inverted() * translate;
 
             glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, conical_frag_program);
 
             float pt[4] = {inv_matrix.dx(), inv_matrix.dy(), 0.f, 0.f};
-            float inv[4] = {inv_matrix.m11(), inv_matrix.m12(),
-                            inv_matrix.m21(), inv_matrix.m22()};
+            float inv[4] = {inv_matrix.m11(), inv_matrix.m21(),
+                            inv_matrix.m12(), inv_matrix.m22()};
             glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
             glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
 
