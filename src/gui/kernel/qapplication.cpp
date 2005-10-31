@@ -2989,6 +2989,16 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::DragEnter: {
             QWidget* w = static_cast<QWidget *>(receiver);
             QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent *>(e);
+#ifdef Q_WS_MAC
+            // HIView has a slight difference in how it delivers events to children and parents
+            // It will not give a leave to a child's parent when it enters a child.
+            QWidget *currentTarget = QDragManager::self()->currentTarget();
+            if (currentTarget) {
+                // Assume currentTarget did not get a leave
+                QDragLeaveEvent event;
+                QApplication::sendEvent(currentTarget, &event);
+            }
+#endif
             while (w) {
                 if (w->isEnabled() && w->acceptDrops()) {
                     res = d->notify_helper(w, dragEvent);
@@ -3009,8 +3019,23 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::Drop:
     case QEvent::DragLeave: {
             QWidget * w = QDragManager::self()->currentTarget();
-            if (!w)
-                break;
+            if (!w) {
+#ifdef Q_WS_MAC
+                // HIView has a slight difference in how it delivers events to children and parents
+                // It will not give an enter to a child's parent when it leaves the child.
+                if (e->type() == QEvent::DragLeave)
+                    break;
+                // Assume that w did not get an enter.
+                QDropEvent *dropEvent = static_cast<QDropEvent *>(e);
+                QDragEnterEvent dragEnterEvent(dropEvent->pos(), dropEvent->possibleActions(),
+                                               dropEvent->mimeData(), dropEvent->mouseButtons(),
+                                               dropEvent->keyboardModifiers());
+                QApplication::sendEvent(receiver, &dragEnterEvent);
+                w = QDragManager::self()->currentTarget();
+                if (!w)
+#endif
+                    break;
+            }
             if (e->type() == QEvent::DragMove || e->type() == QEvent::Drop) {
                 QDropEvent *dragEvent = static_cast<QDropEvent *>(e);
                 QWidget *origReciver = static_cast<QWidget *>(receiver);
