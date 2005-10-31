@@ -43,7 +43,6 @@ public:
         Rot270 = 270
     };
     bool connect(const QString &displaySpec);
-    int initCursor(void *end_of_location, bool init = false);
 
     void setTransformation(Transformation t);
     Transformation transformation() const

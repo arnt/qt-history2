@@ -161,7 +161,6 @@ private:
     void hideCursor();
     void initializeCursor();
 
-    void refreshBackground();
     void resetEngine();
 
 //private slots:

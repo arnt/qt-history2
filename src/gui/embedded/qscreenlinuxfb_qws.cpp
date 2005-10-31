@@ -507,6 +507,8 @@ bool QLinuxFbScreen::initDevice()
 
     initted=true;
 
+    QScreenCursor::initSoftwareCursor();
+
     return true;
 }
 

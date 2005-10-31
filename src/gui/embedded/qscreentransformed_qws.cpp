@@ -93,22 +93,6 @@ bool QTransformedScreen::connect(const QString &displaySpec)
     return result;
 }
 
-/*
-    The end_of_location parameter is unusual: it's the address
-    after the cursor data.
-*/
-int QTransformedScreen::initCursor(void *end_of_location, bool init)
-{
-#ifndef QT_NO_QWS_CURSOR
-    qt_sw_cursor = true;
-    SWCursorData *data_eol = (SWCursorData *)end_of_location - 1;
-    qt_screencursor = new QTransformedScreenCursor(this);
-    qt_screencursor->init(data_eol, init);
-    return sizeof(SWCursorData);
-#else
-    return 0;
-#endif
-}
 
 int QTransformedScreen::transformOrientation() const
 {

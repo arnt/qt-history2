@@ -61,56 +61,13 @@ extern bool qws_sw_cursor;
 
     Constructs a screen cursor
 */
-QScreenCursor::QScreenCursor() : imgunder(0), cursor(0)
+QScreenCursor::QScreenCursor()
 {
-}
-
-/*!
-    \internal
-
-    Initialises a screen cursor - creates an image to store the part of the screen stored under the cursor.
-    Should not be called by hardware cursor descendants. \a da points
-    to the location in framebuffer memory where the cursor saves information
-    stored under it, \a init is true if the cursor is being initialized
-    (i.e. if the program calling this is the Qtopia Core server), false
-    if another application has already initialized it.
-*/
-void QScreenCursor::init(SWCursorData *da, bool init)
-{
-    data = da;
-    save_under = false;
-    fb_start = qt_screen->base();
-    fb_end = fb_start + qt_screen->deviceHeight() * qt_screen->linestep();
-
-    if (init) {
-        data->x = qt_screen->deviceWidth()/2;
-        data->y = qt_screen->deviceHeight()/2;
-        data->width = 0;
-        data->height = 0;
-        data->enable = true;
-        data->bound = QRect(data->x - data->hotx, data->y - data->hoty,
-                       data->width+1, data->height+1);
-    }
-    clipWidth = qt_screen->deviceWidth();
-    clipHeight = qt_screen->deviceHeight();
-
-    int d = qt_screen->depth();
-    int cols = d == 1 ? 0 : 256;
-    if (d == 4) {
-        d = 8;
-        cols = 16;
-    }
-#if 0
-    imgunder = new QImage(data->under, 64, 64, d, 0,
-                cols, QImage::LittleEndian);
-    if (d <= 8) {
-        imgunder->setNumColors(cols);
-        for (int i = 0; i < cols; i++)
-            imgunder->setColor(i, qt_screen->clut()[i]);
-    }
-#else
-    imgunder = new QImage(data->under, 64, 64, QImage::Format_RGB32); //############
-#endif
+    pos = QPoint(qt_screen->deviceWidth()/2, qt_screen->deviceHeight()/2);
+    size = QSize(0,0);
+    enable = true;
+    hwaccel = false;
+    supportsAlpha = true;
 }
 
 /*!
@@ -121,25 +78,6 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 */
 QScreenCursor::~QScreenCursor()
 {
-    delete imgunder;
-}
-
-/*!
-    \internal
-
-    Returns true if an alpha-blended cursor image is supported.
-    This affects the type of QImage passed to the cursor - descendants
-    returning true (as QScreenCursor does for bit depths of 8 and above.
-    unless QT_NO_QWS_ALPHA_CURSOR is defined in qconfig.h) should be prepared
-    to accept QImages with full 8-bit alpha channels
-*/
-bool QScreenCursor::supportsAlphaCursor()
-{
-#ifndef QT_NO_QWS_ALPHA_CURSOR
-    return qt_screen->depth() >= 8;
-#else
-    return false;
-#endif
 }
 
 /*!
@@ -149,11 +87,9 @@ bool QScreenCursor::supportsAlphaCursor()
 */
 void QScreenCursor::hide()
 {
-    if (data->enable) {
-         if (restoreUnder(data->bound))
-//             QWSDisplay::ungrab();
-             ;
-        data->enable = false;
+    if (enable) {
+        enable = false;
+        qt_screen-> exposeRegion(boundingRect(), 0);
     }
 }
 
@@ -166,15 +102,9 @@ void QScreenCursor::hide()
 */
 void QScreenCursor::show()
 {
-    if (!data->enable) {
-//         if (qws_sw_cursor)
-//             QWSDisplay::grab(true);
-        data->enable = true;
-        fb_start = qt_screen->base();
-        fb_end = fb_start + qt_screen->deviceHeight() * qt_screen->linestep();
-        clipWidth = qt_screen->deviceWidth();
-        clipHeight = qt_screen->deviceHeight();
-        saveUnder();
+    if (!enable) {
+        enable = true;
+        qt_screen-> exposeRegion(boundingRect(), 0);
     }
 }
 
@@ -189,35 +119,16 @@ void QScreenCursor::show()
 */
 void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-//    QWSDisplay::grab(true);
-#endif
-    bool save = restoreUnder(data->bound);
-    data->hotx = hotx;
-    data->hoty = hoty;
-    data->width = image.width();
-    data->height = image.height();
-    for (int r = 0; r < image.height(); r++)
-        memcpy(data->cursor+data->width*r, image.scanLine(r), data->width);
-    data->colors = image.numColors();
-    int depth = qt_screen->depth();
-    if (depth <= 8) {
-        for (int i = 0; i < image.numColors(); i++) {
-            int r = qRed(image.colorTable()[i]);
-            int g = qGreen(image.colorTable()[i]);
-            int b = qBlue(image.colorTable()[i]);
-            data->translut[i] = QColormap::instance().pixel(QColor(r, g, b));
-        }
+    QRect r = boundingRect();
+
+    hotspot = QPoint(hotx, hoty);
+    cursor = image;
+    size = image.size();
+
+    if (enable) {
+        qt_screen-> exposeRegion(r | boundingRect(), 0);
     }
-    for (int i = 0; i < image.numColors(); i++) {
-        data->clut[i] = image.colorTable()[i];
-    }
-    data->bound = QRect(data->x - data->hotx, data->y - data->hoty,
-                   data->width+1, data->height+1);
-    if (save) saveUnder();
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-//    QWSDisplay::ungrab();
-#endif
+
 }
 
 /*!
@@ -230,425 +141,20 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 */
 void QScreenCursor::move(int x, int y)
 {
-    bool save = false;
-    if (qws_sw_cursor) {
-// #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-//         QWSDisplay::grab(true);
-// #endif
-        save = restoreUnder(data->bound);
-    }
-    data->x = x;
-    data->y = y;
-    data->bound = QRect(data->x - data->hotx, data->y - data->hoty,
-                        data->width+1, data->height+1);
-    if (qws_sw_cursor) {
-        if (save)
-            saveUnder();
-// #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-//         QWSDisplay::ungrab();
-// #endif
+    QRegion r = boundingRect();
+    pos = QPoint(x,y);
+    if (enable) {
+        qt_screen-> exposeRegion(r | boundingRect(), 0);
     }
 }
 
-/*!
-    \internal
 
-    This is relevant only to the software mouse cursor and should be
-    reimplemented as a null method in hardware cursor drivers. It redraws
-    what was under the mouse cursor when the cursor is moved. \a r
-    is the rectangle that needs updating,
-*/
-bool QScreenCursor::restoreUnder(const QRect &r)
+void QScreenCursor::initSoftwareCursor()
 {
-    if (!qws_sw_cursor)
-        return false;
-
-    if (!data || !data->enable) {
-        return false;
-    }
-
-    if (!r.intersects(data->bound)) {
-        return false;
-    }
-
-    if (!save_under) {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-//        QWSDisplay::grab(true);
-#endif
-        int depth = qt_screen->depth();
-
-        int x = data->x - data->hotx;
-        int y = data->y - data->hoty;
-
-        {
-        //duplicated logic
-        int screenlinestep = qt_screen->linestep();
-        int startRow = y < 0 ? qAbs(y) : 0;
-        int startCol = x < 0 ? qAbs(x) : 0;
-        int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
-        int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
-
-        unsigned char *screen = fb_start + (y + startRow) * screenlinestep
-                                + (x + startCol) * depth/8;
-        unsigned char *buf = data->under;
-
-
-        if (endCol > startCol) {
-            int bytes;
-            if (depth < 8)
-                bytes = (x + endCol)*depth/8 - (x + startCol)*depth/8 + 1;
-            else
-                bytes = (endCol - startCol) * depth / 8;
-
-                for (int row = startRow; row < endRow; row++)
-                {
-                    memcpy(screen, buf, bytes);
-                    screen += screenlinestep;
-                    buf += bytes;
-                }
-            }
-        }
-
-        save_under = true;
-        return true;
-    }
-
-    return false;
+    qt_screencursor=new QScreenCursor();
 }
 
-/*!
-    \internal
 
-    This saves the area under the mouse pointer - it should be reimplemented
-    as a null method by hardware drivers.
-*/
-void QScreenCursor::saveUnder()
-{
-    if (!qws_sw_cursor)
-        return;
-
-    int depth = qt_screen->depth();
-    int x = data->x - data->hotx;
-    int y = data->y - data->hoty;
-
-    {
-        //duplicated logic
-        int screenlinestep = qt_screen->linestep();
-        int startRow = y < 0 ? qAbs(y) : 0;
-        int startCol = x < 0 ? qAbs(x) : 0;
-        int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
-        int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
-
-        unsigned char *screen = fb_start + (y + startRow) * screenlinestep
-                                + (x + startCol) * depth/8;
-        unsigned char *buf = data->under;
-
-
-        if (endCol > startCol) {
-            int bytes;
-            if (depth < 8)
-                bytes = (x + endCol)*depth/8 - (x + startCol)*depth/8 + 1;
-            else
-                bytes = (endCol - startCol) * depth / 8;
-
-            for (int row = startRow; row < endRow; row++)
-            {
-                memcpy(buf, screen, bytes);
-                screen += screenlinestep;
-                buf += bytes;
-            }
-        }
-    }
-
-    drawCursor();
-
-    save_under = false;
-
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-//    QWSDisplay::ungrab();
-#endif
-}
-
-/*!
-    \internal
-
-    This draws the software cursor. It should be reimplemented as a null
-    method by hardware drivers
-*/
-void QScreenCursor::drawCursor()
-{
-    // We could use blt, but since cursor redraw speed is critical it
-    // is all handled here.  Whether this is significantly faster is
-    // questionable.
-    int x = data->x - data->hotx;
-    int y = data->y - data->hoty;
-
-//      ### experimental
-//     if (data->width != cursor->width() || data->height != cursor->height()) {
-//         delete cursor;
-//         cursor = new QImage(data->cursor, data->width, data->height, 8,
-//                          data->clut, data->colors, QImage::IgnoreEndian);
-//     }
-//     if (data->width && data->height) {
-//         qt_sw_cursor = false;   // prevent recursive call from blt
-//         gfx->setSource(cursor);
-//         gfx->setAlphaType(QGfx::InlineAlpha);
-//         gfx->blt(x,y,data->width,data->height,0,0);
-//         qt_sw_cursor = true;
-//     }
-
-//     return;
-
-
-    int linestep = qt_screen->linestep();
-    int depth = qt_screen->depth();
-
-    // clipping
-    int startRow = y < 0 ? qAbs(y) : 0;
-    int startCol = x < 0 ? qAbs(x) : 0;
-    int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
-    int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
-
-    unsigned char *dest = fb_start + (y + startRow) * linestep
-                            + x * depth/8;
-    unsigned const char *srcptr = data->cursor + startRow * data->width;
-
-    QRgb *clut = data->clut;
-
-#ifdef QT_QWS_DEPTH_32
-    if (depth == 32)
-    {
-        unsigned int *dptr = (unsigned int *)dest;
-        unsigned int srcval;
-        int av,r,g,b;
-        for (int row = startRow; row < endRow; row++)
-        {
-            for (int col = startCol; col < endCol; col++)
-            {
-                srcval = clut[*(srcptr+col)];
-                av = srcval >> 24;
-                if (av == 0xff) {
-                    *(dptr+col) = srcval;
-                }
-# ifndef QT_NO_QWS_ALPHA_CURSOR
-                else if (av != 0) {
-                    r = (srcval & 0xff0000) >> 16;
-                    g = (srcval & 0xff00) >> 8;
-                    b = srcval & 0xff;
-                    unsigned int hold = *(dptr+col);
-                    int sr=(hold & 0xff0000) >> 16;
-                    int sg=(hold & 0xff00) >> 8;
-                    int sb=(hold & 0xff);
-
-                    r = ((r-sr) * av) / 256 + sr;
-                    g = ((g-sg) * av) / 256 + sg;
-                    b = ((b-sb) * av) / 256 + sb;
-
-                    *(dptr+col) = (r << 16) | (g << 8) | b;
-                }
-# endif
-            }
-            srcptr += data->width;
-            dptr += linestep/4;
-        }
-        return;
-    }
-#endif
-#ifdef QT_QWS_DEPTH_24
-    if (depth == 24)
-    {
-        unsigned int srcval;
-        int av,r,g,b;
-        for (int row = startRow; row < endRow; row++)
-        {
-            unsigned char *dptr = dest + (row-startRow) * linestep + startCol * 3;
-            for (int col = startCol; col < endCol; col++, dptr += 3)
-            {
-                srcval = clut[*(srcptr+col)];
-                av = srcval >> 24;
-                if (av == 0xff) {
-                    gfxSetRgb24(dptr, srcval);
-                }
-# ifndef QT_NO_QWS_ALPHA_CURSOR
-                else if (av != 0) {
-                    r = (srcval & 0xff0000) >> 16;
-                    g = (srcval & 0xff00) >> 8;
-                    b = srcval & 0xff;
-                    unsigned int hold = gfxGetRgb24(dptr);
-                    int sr=(hold & 0xff0000) >> 16;
-                    int sg=(hold & 0xff00) >> 8;
-                    int sb=(hold & 0xff);
-
-                    r = ((r-sr) * av) / 256 + sr;
-                    g = ((g-sg) * av) / 256 + sg;
-                    b = ((b-sb) * av) / 256 + sb;
-
-                    gfxSetRgb24(dptr, r, g, b);
-                }
-# endif
-            }
-            srcptr += data->width;
-        }
-        return;
-    }
-#endif
-#ifdef QT_QWS_DEPTH_16
-    if (depth == 16)
-    {
-        unsigned short *dptr = (unsigned short *)dest;
-        unsigned int srcval;
-        int av,r,g,b;
-        for (int row = startRow; row < endRow; row++)
-        {
-            for (int col = startCol; col < endCol; col++)
-            {
-                srcval = clut[*(srcptr+col)];
-                av = srcval >> 24;
-                if (av == 0xff) {
-                    *(dptr+col) = qt_convRgbTo16(srcval);
-                }
-# ifndef QT_NO_QWS_ALPHA_CURSOR
-                else if (av != 0) {
-                    // This is absolutely silly - but we can so we do.
-                    r = (srcval & 0xff0000) >> 16;
-                    g = (srcval & 0xff00) >> 8;
-                    b = srcval & 0xff;
-
-                    int sr;
-                    int sg;
-                    int sb;
-                    qt_conv16ToRgb(*(dptr+col),sr,sg,sb);
-
-                    r = ((r-sr) * av) / 256 + sr;
-                    g = ((g-sg) * av) / 256 + sg;
-                    b = ((b-sb) * av) / 256 + sb;
-
-                    *(dptr+col) = qt_convRgbTo16(r,g,b);
-                }
-# endif
-            }
-            srcptr += data->width;
-            dptr += linestep/2;
-        }
-        return;
-    }
-#endif
-#if !defined(QT_NO_QWS_DEPTH_8)
-    if (depth == 8) {
-        unsigned char *dptr = (unsigned char *)dest;
-        unsigned int srcval;
-        int av;
-//        simple_8bpp_alloc=true;
-        for (int row = startRow; row < endRow; row++)
-        {
-            for (int col = startCol; col < endCol; col++)
-            {
-                srcval = clut[*(srcptr+col)];
-                av = srcval >> 24;
-                if (av == 0xff) {
-                    *(dptr+col) = data->translut[*(srcptr+col)];
-                }
-# if 0////ndef QT_NO_QWS_ALPHA_CURSOR
-                else if (av != 0) {
-                    int r,g,b;
-                    QRgb * screenclut=qt_screen->clut();
-                    
-                    // This is absolutely silly - but we can so we do.
-                    r = (srcval & 0xff0000) >> 16;
-                    g = (srcval & 0xff00) >> 8;
-                    b = srcval & 0xff;
-
-                    unsigned char hold = *(dptr+col);
-                    int sr,sg,sb;
-                    sr=qRed(screenclut[hold]);
-                    sg=qGreen(screenclut[hold]);
-                    sb=qBlue(screenclut[hold]);
-
-                    r = ((r-sr) * av) / 256 + sr;
-                    g = ((g-sg) * av) / 256 + sg;
-                    b = ((b-sb) * av) / 256 + sb;
-
-                    *(dptr+col) = GFX_CLOSEST_PIXEL_CURSOR(r,g,b);
-                }
-# endif
-            }
-            srcptr += data->width;
-            dptr += linestep;
-        }
-//        simple_8bpp_alloc=false;
-    }
-#endif
-#ifdef QT_QWS_DEPTH_4
-    if (depth == 4) {
-        unsigned int srcval;
-        int av;
-        for (int row = startRow; row < endRow; row++)
-        {
-            unsigned char *dp = fb_start + (y + row) * linestep;
-            for (int col = startCol; col < endCol; col++)
-            {
-                srcval = clut[*(srcptr+col)];
-                av = srcval >> 24;
-                if (av == 0xff) {
-                    int tx = x + col;
-                    unsigned char *dptr = dp + (tx>>1);
-                    int val = data->translut[*(srcptr+col)];
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-                    int s = (~tx & 1) << 2;
-#else
-                    int s = (tx & 1) << 2;
-#endif
-                    *dptr = (*dptr & (0xf0>>s)) | (val << s);
-                }
-            }
-            srcptr += data->width;
-        }
-    }
-#endif
-#ifdef QT_QWS_DEPTH_1
-    if (depth == 1) {
-        unsigned int srcval;
-        int av;
-        for (int row = startRow; row < endRow; row++)
-        {
-            unsigned char *dp = fb_start + (y + row) * linestep;
-            int x1 = x+startCol;
-            int x2 = x+endCol-1;
-            dp += x1/8;
-            int skipbits = x1%8;
-            int col = startCol;
-            for (int b = x1/8; b <= x2/8; b++) {
-                unsigned char m = *dp;
-                for (int i = 0; i < 8 && col < endCol; i++) {
-                    if (skipbits)
-                        skipbits--;
-                    else {
-                        srcval = clut[*(srcptr+col)];
-                        av = srcval >> 24;
-                        if (av == 0xff) {
-                            unsigned char val = data->translut[*(srcptr+col)];
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-                            if (val)
-                                m |= 0x80 >> i;
-                            else
-                                m &= ~(0x80 >> i);
-#else
-                            if (val)
-                                m |= 1 << i;
-                            else
-                                m &= ~(1 << i);
-#endif
-                        }
-                        col++;
-                    }
-                }
-                *(dp++) = m;
-            }
-            srcptr += data->width;
-        }
-    }
-#endif
-}
 #endif // QT_NO_QWS_CURSOR
 
 
@@ -932,32 +438,6 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 }
 
 /*!
-This is used to initialize the software cursor - \a end_of_location
-points to the address after the area where the cursor image can be stored.
-\a init is true for the first application this method is called from
-(the Qtopia Core server), false otherwise.
-*/
-
-int QScreen::initCursor(void* end_of_location, bool init)
-{
-    /*
-      The end_of_location parameter is unusual: it's the address
-      after the cursor data.
-    */
-#ifndef QT_NO_QWS_CURSOR
-    qt_sw_cursor=true;
-    // ### until QLumpManager works Ok with multiple connected clients,
-    // we steal a chunk of shared memory
-    SWCursorData *data = (SWCursorData *)end_of_location - 1;
-    qt_screencursor=new QScreenCursor();
-    qt_screencursor->init(data, init);
-    return sizeof(SWCursorData);
-#else
-    return 0;
-#endif
-}
-
-/*!
   Saves the state of the graphics card - used so that, for instance,
   the palette can be restored when switching between linux virtual
   consoles. Hardware QScreen descendants should save register state
@@ -1124,19 +604,6 @@ QScreen *qt_get_screen(int display_id, const char *spec)
     return 0;
 }
 
-
-
-#if !defined(QT_NO_QWS_CURSOR) && !defined(QT_QWS_ACCEL_CURSOR)
-# define SCREEN_PAINT_START(r) bool swc_do_save=false; \
-                    if(qt_sw_cursor) \
-                        swc_do_save = qt_screencursor->restoreUnder(r);
-# define SCREEN_PAINT_END if(qt_sw_cursor && swc_do_save) \
-                        qt_screencursor->saveUnder();
-#else //QT_NO_QWS_CURSOR
-# define SCREEN_PAINT_START(r)
-# define SCREEN_PAINT_END
-#endif //QT_NO_QWS_CURSOR
-
 void QScreen::exposeRegion(QRegion r, int changing)
 {
     if (r.isEmpty())
@@ -1147,15 +614,27 @@ void QScreen::exposeRegion(QRegion r, int changing)
     QRegion blendRegion;
     QImage blendBuffer;
 
-    SCREEN_PAINT_START(r.boundingRect());
-
+#ifndef QT_NO_QWS_CURSOR
+    if (qt_screencursor && !qt_screencursor->isAccelerated()) {
+        blendRegion = r & qt_screencursor->boundingRect();
+    }
+#endif
     compose(0, r, blendRegion, blendBuffer, changing);
+#ifndef QT_NO_QWS_CURSOR
+    if (qt_screencursor && !qt_screencursor->isAccelerated() && !blendBuffer.isNull()) {
+        //### can be optimized...
+        QPainter p(&blendBuffer);
+        p.drawImage(qt_screencursor->boundingRect().topLeft() - blendRegion.boundingRect().topLeft(), qt_screencursor->image());
+    }
+#endif
     if (!blendBuffer.isNull()) {
         //bltToScreen
         QPoint topLeft = blendRegion.boundingRect().topLeft();
         blit(blendBuffer, topLeft, blendRegion);
     }
-    SCREEN_PAINT_END;
+
+
+
     qt_screen->setDirty(r.boundingRect());
 }
 
@@ -1205,7 +684,7 @@ static void blit_32_to_16(const blit_data *data)
 
     int h = data->h;
     while (h) {
-        for (int i = 0; i < data->w; ++i) 
+        for (int i = 0; i < data->w; ++i)
             dest[i] = qt_convRgbTo16(src[i]);
         src += sbpl;
         dest += dbpl;
@@ -1359,7 +838,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
     } while (win && !win->requestedRegion().boundingRect().intersects(exposed_bounds));
 
     bool above_changing = level <= changing_level; //0 is topmost
-    
+
     QRegion exposedBelow = exposed;
     bool opaque = true;
 
@@ -1454,7 +933,7 @@ void QScreen::paintBackground(const QRegion &rr)
         return;
 
     QRegion r = qt_screen->mapFromDevice(rr, QSize(dw, dh));
-    
+
     if (bs == Qt::SolidPattern) {
         solidFill(bg.color(), r);
     } else {
@@ -1495,30 +974,6 @@ void QScreen::paintBackground(const QRegion &rr)
         blit(img, br.topLeft(), r);
     }
 }
-
-
-void QScreen::refreshBackground()
-{
-    QRegion r(0, 0, dw, dh);
-
-    const QList<QWSWindow *> windows = qwsServer->clientWindows();
-    for (int i = 0; i < windows.size(); ++i) {
-        if (r.isEmpty())
-            return; // Nothing left for deeper windows
-        QWSWindow* w = windows.at(i);
-        r -= w->requestedRegion();
-    }
-    SCREEN_PAINT_START(r.boundingRect());
-    paintBackground(r);
-    SCREEN_PAINT_END;
-    qt_screen->setDirty(r.boundingRect());
-}
-
-
-
-
-
-
 
 /*!
     \fn virtual int QScreen::sharedRamSize(void *)

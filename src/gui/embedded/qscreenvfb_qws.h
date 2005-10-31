@@ -32,7 +32,6 @@ public:
     virtual bool initDevice();
     virtual bool connect(const QString &displaySpec);
     virtual void disconnect();
-    virtual int initCursor(void*, bool);
     virtual void shutdownDevice();
     virtual void save();
     virtual void restore();

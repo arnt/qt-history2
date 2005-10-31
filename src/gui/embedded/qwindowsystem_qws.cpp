@@ -681,20 +681,22 @@ void QWSServerPrivate::initServer(int flags)
 
     clientMap[-1] = new QWSClient(q, 0, 0);
 
+    if (!bgBrush)
+        bgBrush = new QBrush(QColor(0x20, 0xb0, 0x50));
+
+    initializeCursor();
+
+    qt_screen->exposeRegion(QRect(0,0,qt_screen->width(), qt_screen->height()), 0);
+
     // input devices
     if (!(flags&QWSServer::DisableMouse)) {
         q->openMouse();
     }
-    initializeCursor();
-
 #ifndef QT_NO_QWS_KEYBOARD
     if (!(flags&QWSServer::DisableKeyboard)) {
         q->openKeyboard();
     }
 #endif
-    if (!bgBrush)
-        bgBrush = new QBrush(QColor(0x20, 0xb0, 0x50));
-    refreshBackground();
 
 #if !defined(QT_NO_SOUND) && !defined(EXTERNAL_SOUND_SERVER) && !defined(Q_OS_DARWIN)
     soundserver = new QWSSoundServer(q);
@@ -2566,11 +2568,6 @@ void QWSServerPrivate::closeDisplay()
     qt_screen->shutdownDevice();
 }
 
-void QWSServerPrivate::refreshBackground()
-{
-    qt_screen->refreshBackground();
-}
-
 const QBrush &QWSServer::backgroundBrush() const
 {
     return *QWSServerPrivate::bgBrush;
@@ -2582,10 +2579,10 @@ const QBrush &QWSServer::backgroundBrush() const
 */
 void QWSServer::setBackground(const QBrush &brush)
 {
+    if (!qwsServer)
+        return;
     *QWSServerPrivate::bgBrush = brush;
-
-    if (qwsServerPrivate)
-        qwsServerPrivate->refreshBackground();
+    qt_screen->exposeRegion(QRect(0,0,qt_screen->width(), qt_screen->height()), 0);
 }
 
 

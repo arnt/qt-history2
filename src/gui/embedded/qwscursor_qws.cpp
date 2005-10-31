@@ -311,11 +311,9 @@ void QWSServerPrivate::setCursor(QWSCursor *curs)
     if (!haveviscurs || !curs)
         curs = QWSCursor::systemCursor(Qt::BlankCursor);
 
-    qt_screencursor->hide();
     qt_screencursor->set(curs->image(),
                          curs->hotSpot().x(),
                          curs->hotSpot().y());
-    qt_screencursor->show();
 #endif
 }
 

@@ -1102,8 +1102,8 @@ QVNCScreenCursor::QVNCScreenCursor() : QScreenCursor()
 void QVNCScreenCursor::set(const QImage &image, int hotx, int hoty)
 {
     QWSDisplay::grab(true);
-    QRect r(data->x - hotx, data->y - hoty, image.width(), image.height());
-    qvnc_screen->setDirty(data->bound | r);
+    QRect r(pos - QPoint(hotx, hoty), image.size());
+    qvnc_screen->setDirty(boundingRect() | r);
     QScreenCursor::set(image, hotx, hoty);
     QWSDisplay::ungrab();
 }
@@ -1111,8 +1111,8 @@ void QVNCScreenCursor::set(const QImage &image, int hotx, int hoty)
 void QVNCScreenCursor::move(int x, int y)
 {
     QWSDisplay::grab(true);
-    QRect r(x - data->hotx, y - data->hoty, data->width, data->height);
-    qvnc_screen->setDirty(r | data->bound);
+    QRect r(pos - hotspot, size);
+    qvnc_screen->setDirty(r | boundingRect());
     QScreenCursor::move(x, y);
     QWSDisplay::ungrab();
 }
@@ -1221,6 +1221,8 @@ bool QVNCScreen::initDevice()
     hdr->dirty = false;
     memset(qvnc_screen->hdr->map, 0, MAP_WIDTH*MAP_HEIGHT);
 
+    QScreenCursor::initSoftwareCursor();
+
     return true;
 }
 
@@ -1231,20 +1233,6 @@ void QVNCScreen::shutdownDevice()
         VNCSCREEN_BASE::shutdownDevice();
 }
 
-int QVNCScreen::initCursor(void* e, bool init)
-{
-#ifndef QT_NO_QWS_CURSOR
-    qt_sw_cursor=true;
-    // ### until QLumpManager works Ok with multiple connected clients,
-    // we steal a chunk of shared memory
-    SWCursorData *data = (SWCursorData *)e - 1;
-    qt_screencursor=new QVNCScreenCursor();
-    qt_screencursor->init(data, init);
-    return sizeof(SWCursorData);
-#else
-    return 0;
-#endif
-}
 
 void QVNCScreen::setMode(int ,int ,int)
 {

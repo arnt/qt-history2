@@ -81,7 +81,7 @@
 #endif
 #endif
 
-const int qwsSharedRamSize = 100 * 1024; // misc data, written by server, read by clients
+const int qwsSharedRamSize = 1 * 1024; // misc data, written by server, read by clients
 
 extern void qt_qws_set_max_window_rect(const QRect& r);
 extern QRect qt_maxWindowRect;
@@ -546,7 +546,6 @@ void QWSDisplay::Data::init()
         qt_server_enqueue(&cmd);
     }
     setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
-    int mouseoffset = 0;
 
     // Allow some memory for the graphics driver too
     //### Note that sharedRamSize() has side effects; it must be called
@@ -561,17 +560,6 @@ void QWSDisplay::Data::init()
         qt_screen->initDevice();
     }
 
-#ifndef QT_NO_QWS_CURSOR
-    mouseoffset=qt_screen->initCursor(sharedRam + sharedRamSize,
-#ifndef QT_NO_QWS_MULTIPROCESS
-                                      !csocket
-#else
-                                      true
-#endif
-                                     );
-#endif
-
-    sharedRamSize -= mouseoffset;
     sharedRamSize -= sizeof(int);
     qt_last_x = reinterpret_cast<int *>(sharedRam + sharedRamSize);
     sharedRamSize -= sizeof(int);

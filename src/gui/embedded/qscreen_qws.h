@@ -95,59 +95,37 @@ const int SourcePixmap=1;
 
 extern bool qt_sw_cursor;
 
-#define SW_CURSOR_DATA_SIZE        4096  // 64x64 8-bit cursor
-
-struct SWCursorData {
-    unsigned char cursor[SW_CURSOR_DATA_SIZE];
-    unsigned char under[SW_CURSOR_DATA_SIZE*4]; // room for 32bpp display
-    QRgb clut[256];
-    unsigned char translut[256];
-    int colors;
-    int width;
-    int height;
-    int x;
-    int y;
-    int hotx;
-    int hoty;
-    bool enable;
-    QRect bound;
-};
-
-
 class QScreenCursor
 {
 public:
     QScreenCursor();
     virtual ~QScreenCursor();
 
-    virtual void init(SWCursorData *da, bool init = false);
-
     virtual void set(const QImage &image, int hotx, int hoty);
     virtual void move(int x, int y);
     virtual void show();
     virtual void hide();
 
-    virtual bool restoreUnder(const QRect &r);
-    virtual void saveUnder();
-    virtual void drawCursor();
-    //void draw();
-    virtual bool supportsAlphaCursor();
+    bool supportsAlphaCursor() const { return supportsAlpha; }
 
     static bool enabled() { return qt_sw_cursor; }
 
+    QRect boundingRect() const { return QRect(pos - hotspot, size); }
+    QImage image() const { return cursor; }
+    bool isVisible() const { return enable; }
+    bool isAccelerated() const { return hwaccel; }
+
+    static void initSoftwareCursor();
+
 protected:
-    QImage *imgunder;
-    QImage *cursor;
+    QImage cursor;
 
-    uchar *fb_start;
-    uchar *fb_end;
-    bool save_under;
-    SWCursorData *data;
-
-    int clipWidth;
-    int clipHeight;
-    int myoffset;
-
+    QSize size;
+    QPoint pos;
+    QPoint hotspot;
+    uint enable : 1;
+    uint hwaccel : 1;
+    uint supportsAlpha : 1;
 };
 
 extern QScreenCursor * qt_screencursor;
@@ -178,7 +156,6 @@ public:
     virtual bool initDevice() = 0;
     virtual bool connect(const QString &displaySpec) = 0;
     virtual void disconnect() = 0;
-    virtual int initCursor(void *, bool=false);
     virtual void shutdownDevice();
     virtual void setMode(int,int,int) = 0;
     virtual bool supportsDepth(int) const;
@@ -247,7 +224,6 @@ public:
 
     // composition manager methods
     virtual void exposeRegion(QRegion r, int changing);
-    virtual void refreshBackground();
 
     // these work directly on the screen
     virtual void blit(const QImage &img, const QPoint &topLeft, const QRegion &region);
