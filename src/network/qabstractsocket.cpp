@@ -1133,10 +1133,10 @@ bool QAbstractSocket::canReadLine() const
 }
 
 /*!
-    Returns the native socket descriptor of QAbstractSocket if this is
-    available; otherwise returns -1.
+    Returns the native socket descriptor of the QAbstractSocket object
+    if this is available; otherwise returns -1.
 
-    If a this socket is using QNetworkProxy then the descriptor returned
+    If the socket is using QNetworkProxy, the returned descriptor
     may not be usable with native socket functions.
 
     The socket descriptor is not available when QAbstractSocket is in
@@ -1913,16 +1913,17 @@ void QAbstractSocket::setSocketError(SocketError socketError)
 #ifndef QT_NO_NETWORKPROXY
 /*!
     \since 4.1
-    
+
     Sets the explicit network proxy for this socket to \a networkProxy.
-    
-    The following example disables the use of a proxy for this socket.
-    
+
+    To disable the use of a proxy for this socket, use the
+    QNetworkProxy::NoProxy proxy type:
+
     \code
         socket->setProxy(QNetworkProxy::NoProxy);
     \endcode
 
-    
+
     \sa proxy(), QNetworkProxy
 */
 void QAbstractSocket::setProxy(const QNetworkProxy &networkProxy)
@@ -1935,7 +1936,7 @@ void QAbstractSocket::setProxy(const QNetworkProxy &networkProxy)
 
 /*!
     \since 4.1
-    
+
     Returns the network proxy for this socket.
     By default QNetworkProxy::DefaultProxy is used.
 

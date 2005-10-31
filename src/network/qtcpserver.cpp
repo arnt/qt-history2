@@ -302,8 +302,8 @@ void QTcpServer::close()
     Returns the native socket descriptor the server uses to listen
     for incoming instructions, or -1 if the server is not listening.
 
-    If a this server is using QNetworkProxy then the descriptor returned
-    may not be usable with native socket functions.
+    If the server is using QNetworkProxy, the returned descriptor may
+    not be usable with native socket functions.
 
     \sa setSocketDescriptor(), isListening()
 */
@@ -465,8 +465,8 @@ QTcpSocket *QTcpServer::nextPendingConnection()
     Reimplement this function to alter the server's behavior when a
     connection is available.
 
-    If a this server is using QNetworkProxy then the \a socketDescriptor
-    may not be usable with native socket functions and should only be
+    If this server is using QNetworkProxy then the \a socketDescriptor
+    may not be usable with native socket functions, and should only be
     used with QTcpSocket::setSocketDescriptor().
 
     \sa newConnection(), nextPendingConnection()
@@ -535,16 +535,16 @@ QString QTcpServer::errorString() const
 #ifndef QT_NO_NETWORKPROXY
 /*!
     \since 4.1
-    
+
     Sets the explicit network proxy for this socket to \a networkProxy.
-    
-    The following example disables the use of a proxy for this socket.
-    
+
+    To disable the use of a proxy for this socket, use the
+    QNetworkProxy::NoProxy proxy type:
+
     \code
         server->setProxy(QNetworkProxy::NoProxy);
     \endcode
 
-    
     \sa proxy(), QNetworkProxy
 */
 void QTcpServer::setProxy(const QNetworkProxy &networkProxy)
@@ -557,7 +557,7 @@ void QTcpServer::setProxy(const QNetworkProxy &networkProxy)
 
 /*!
     \since 4.1
-    
+
     Returns the network proxy for this socket.
     By default QNetworkProxy::DefaultProxy is used.
 
