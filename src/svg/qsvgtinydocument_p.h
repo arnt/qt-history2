@@ -30,6 +30,7 @@
 #include "QtCore/qrect.h"
 #include "QtCore/qlist.h"
 #include "QtCore/qhash.h"
+#include "QtCore/qdatetime.h"
 
 class QPainter;
 class QByteArray;
@@ -61,6 +62,11 @@ public:
 
     void addSvgFont(QSvgFont *);
     QSvgFont *svgFont(const QString &family) const;
+
+    void restartAnimation();
+    int currentElapsed() const;
+    bool animated() const;
+    void setAnimated(bool a);
 private:
     QSize m_size;
     bool  m_widthPercent;
@@ -69,6 +75,9 @@ private:
     QRect m_viewBox;
 
     QHash<QString, QSvgFont*> m_fonts;
+
+    QTime m_time;
+    bool  m_animated;
 };
 
 inline QSize QSvgTinyDocument::size() const
@@ -104,6 +113,11 @@ inline QRect QSvgTinyDocument::viewBox() const
 inline bool QSvgTinyDocument::preserveAspectRatio() const
 {
     return false;
+}
+
+inline int QSvgTinyDocument::currentElapsed() const
+{
+    return m_time.elapsed();
 }
 
 #endif // QSVGTINYDOCUMENT_P_H

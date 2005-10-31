@@ -48,7 +48,9 @@ public:
         STROKE,
         SOLID_COLOR,
         GRADIENT,
-        TRANSFORM
+        TRANSFORM,
+        ANIMATE_TRANSFORM,
+        ANIMATE_COLOR
     };
 public:
     virtual ~QSvgStyleProperty();
@@ -252,6 +254,65 @@ private:
     QMatrix m_oldWorldMatrix;
 };
 
+
+class QSvgAnimateTransform : public QSvgStyleProperty
+{
+public:
+    enum TransformType
+    {
+        Empty,
+        Translate,
+        Scale,
+        Rotate,
+        SkewX,
+        SkewY
+    };
+public:
+    QSvgAnimateTransform(int startMs, int endMs, int by = 0);
+    void setArgs(TransformType type, const QList<qreal> &args);
+    void setFreeze(bool freeze);
+    void setRepeatCount(qreal repeatCount);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
+    virtual void revert(QPainter *p);
+    virtual Type type() const;
+protected:
+    void resolveMatrix(QSvgNode *node);
+private:
+    qreal m_from, m_to, m_by;
+    qreal m_totalRunningTime;
+    TransformType m_type;
+    QList<qreal> m_args;
+    int m_count;
+    QMatrix m_transform;
+    QMatrix m_oldWorldMatrix;
+    bool m_finished;
+    bool m_freeze;
+    qreal m_repeatCount;
+};
+
+
+class QSvgAnimateColor : public QSvgStyleProperty
+{
+public:
+    QSvgAnimateColor(int startMs, int endMs, int by = 0);
+    void setArgs(bool fill, const QList<QColor> &colors);
+    void setFreeze(bool freeze);
+    void setRepeatCount(qreal repeatCount);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
+    virtual void revert(QPainter *p);
+    virtual Type type() const;
+private:
+    qreal m_from, m_to, m_by;
+    qreal m_totalRunningTime;
+    QList<QColor> m_colors;
+    QBrush m_oldBrush;
+    QPen   m_oldPen;
+    bool m_fill;
+    bool m_finished;
+    bool m_freeze;
+    qreal m_repeatCount;
+};
+
 class QSvgStyle
 {
 public:
@@ -263,7 +324,8 @@ public:
           stroke(0),
           solidColor(0),
           gradient(0),
-          transform(0)
+          transform(0),
+          animateColor(0)
     {}
     void apply(QPainter *p, const QRectF &rect, QSvgNode *node);
     void revert(QPainter *p);
@@ -275,6 +337,8 @@ public:
     QSvgSolidColorStyle    *solidColor;
     QSvgGradientStyle      *gradient;
     QSvgTransformStyle     *transform;
+    QSvgAnimateColor       *animateColor;
+    QList<QSvgAnimateTransform*>   animateTransforms;
 };
 
 /********************************************************/

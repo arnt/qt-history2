@@ -1512,7 +1512,59 @@ static bool parseAnimateColorNode(QSvgNode *parent,
                                   const QXmlAttributes &attributes,
                                   QSvgHandler *)
 {
-    Q_UNUSED(parent); Q_UNUSED(attributes);
+    QString typeStr    = attributes.value("type");
+    QString fromStr    = attributes.value("from");
+    QString toStr      = attributes.value("to");
+    QString valuesStr  = attributes.value("values");
+    QString beginStr   = attributes.value("begin");
+    QString durStr     = attributes.value("dur");
+    QString targetStr  = attributes.value("attributeName");
+    QString repeatStr  = attributes.value("repeatCount");
+    QString fillStr    = attributes.value("fill");
+
+    QList<QColor> colors;
+    if (valuesStr.isEmpty()) {
+        QColor startColor, endColor;
+        constructColor(fromStr, QString(), startColor);
+        constructColor(toStr, QString(), endColor);
+        colors.append(startColor);
+        colors.append(endColor);
+    } else {
+        QStringList str = valuesStr.split(';');
+        QStringList::const_iterator itr;
+        for (itr = str.begin(); itr != str.end(); ++itr) {
+            QColor color;
+            constructColor(*itr, QString(), color);
+            colors.append(color);
+        }
+    }
+
+    int ms = 1000;
+    beginStr = beginStr.trimmed();
+    if (beginStr.endsWith("ms")) {
+        beginStr.chop(2);
+        ms = 1;
+    } else if (beginStr.endsWith("s")) {
+        beginStr.chop(1);
+    }
+    durStr = durStr.trimmed();
+    if (durStr.endsWith("ms")) {
+        durStr.chop(2);
+        ms = 1;
+    } else if (durStr.endsWith("s")) {
+        durStr.chop(1);
+    }
+    int begin = static_cast<int>(beginStr.toDouble() * ms);
+    int end   = static_cast<int>((durStr.toDouble() + begin) * ms);
+
+    QSvgAnimateColor *anim = new QSvgAnimateColor(begin, end, 0);
+    anim->setArgs((targetStr == "fill"), colors);
+    anim->setFreeze(fillStr == "freeze");
+    anim->setRepeatCount(
+        (repeatStr == "indefinite")?-1:repeatStr.toDouble());
+
+    parent->appendStyleProperty(anim, attributes.value("id"));
+    parent->document()->setAnimated(true);
     return true;
 }
 
@@ -1528,7 +1580,81 @@ static bool parseAnimateTransformNode(QSvgNode *parent,
                                       const QXmlAttributes &attributes,
                                       QSvgHandler *)
 {
-    Q_UNUSED(parent); Q_UNUSED(attributes);
+    QString typeStr    = attributes.value("type");
+    QString values     = attributes.value("values");
+    QString beginStr   = attributes.value("begin");
+    QString durStr     = attributes.value("dur");
+    QString targetStr  = attributes.value("attributeName");
+    QString repeatStr  = attributes.value("repeatCount");
+    QString fillStr    = attributes.value("fill");
+    QString fromStr    = attributes.value("from");
+    QString toStr      = attributes.value("to");
+
+    QList<qreal> vals;
+    if (values.isEmpty()) {
+        QString::const_iterator itr = fromStr.begin();
+        QList<qreal> lst = parseNumbersList(itr);
+        while (lst.count() < 3)
+            lst.append(0.0);
+        vals << lst;
+
+        itr = toStr.begin();
+        lst = parseNumbersList(itr);
+        while (lst.count() < 3)
+            lst.append(0.0);
+        vals << lst;
+    } else {
+        QString::const_iterator itr = values.begin();
+        while (itr != values.end()) {
+            QList<qreal> tmpVals = parseNumbersList(itr);
+            while (tmpVals.count() < 3)
+                tmpVals.append(0.0);
+
+            vals << tmpVals;
+            if (itr == values.end())
+                break;
+            ++itr;
+        }
+    }
+
+    int ms = 1000;
+    beginStr = beginStr.trimmed();
+    if (beginStr.endsWith("ms")) {
+        beginStr.chop(2);
+        ms = 1;
+    } else if (beginStr.endsWith("s")) {
+        beginStr.chop(1);
+    }
+    durStr = durStr.trimmed();
+    if (durStr.endsWith("ms")) {
+        durStr.chop(2);
+        ms = 1;
+    } else if (durStr.endsWith("s")) {
+        durStr.chop(1);
+    }
+    int begin = static_cast<int>(beginStr.toDouble() * ms);
+    int end   = static_cast<int>(durStr.toDouble()*ms) + begin;
+    QSvgAnimateTransform::TransformType type = QSvgAnimateTransform::Empty;
+    if (typeStr == "translate") {
+        type = QSvgAnimateTransform::Translate;
+    } else if (typeStr == "scale") {
+        type = QSvgAnimateTransform::Scale;
+    } else if (typeStr == "rotate") {
+        type = QSvgAnimateTransform::Rotate;
+    } else if (typeStr == "skewX") {
+        type = QSvgAnimateTransform::SkewX;
+    } else if (typeStr == "skewY") {
+        type = QSvgAnimateTransform::SkewY;
+    }
+
+    QSvgAnimateTransform *anim = new QSvgAnimateTransform(begin, end, 0);
+    anim->setArgs(type, vals);
+    anim->setFreeze(fillStr == "freeze");
+    anim->setRepeatCount(
+        (repeatStr == "indefinite")?-1:repeatStr.toDouble());
+
+    parent->appendStyleProperty(anim, attributes.value("id"));
+    parent->document()->setAnimated(true);
     return true;
 }
 

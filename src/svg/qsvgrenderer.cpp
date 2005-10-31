@@ -16,6 +16,7 @@
 #include "qsvgtinydocument_p.h"
 
 #include "qbytearray.h"
+#include "qtimer.h"
 #include "qdebug.h"
 #include "private/qobject_p.h"
 
@@ -64,13 +65,14 @@ class QSvgRendererPrivate : public QObjectPrivate
 public:
     explicit QSvgRendererPrivate()
         : QObjectPrivate(),
-          render(0), currentFrame(0),
-          fps(0)
+          render(0), timer(0), currentFrame(0),
+          fps(30)
     {}
     void init()
     {
     }
     QSvgTinyDocument *render;
+    QTimer *timer;
     int currentFrame;
     int fps;
 };
@@ -165,7 +167,9 @@ void QSvgRenderer::setViewBox(const QRect &viewbox)
 */
 bool QSvgRenderer::animated() const
 {
-    return false;
+    Q_D(const QSvgRenderer);
+    if (d->render)
+        return d->render->animated();
 }
 
 /*!
@@ -224,6 +228,18 @@ bool QSvgRenderer::load(const QString &filename)
 {
     Q_D(QSvgRenderer);
     d->render = QSvgTinyDocument::load(filename);
+    if (d->render->animated() && d->fps > 0) {
+        if (!d->timer)
+            d->timer = new QTimer(this);
+        else
+            d->timer->stop();
+        connect(d->timer, SIGNAL(timeout()),
+                this, SIGNAL(repaintNeeded()));
+        d->timer->start(1000/d->fps);
+    } else if (d->timer) {
+        d->timer->stop();
+    }
+
     return d->render;
 }
 
@@ -234,6 +250,18 @@ bool QSvgRenderer::load(const QByteArray &contents)
 {
     Q_D(QSvgRenderer);
     d->render = QSvgTinyDocument::load(contents);
+    if (d->render->animated() && d->fps > 0) {
+        if (!d->timer)
+            d->timer = new QTimer(this);
+        else
+            d->timer->stop();
+        connect(d->timer, SIGNAL(timeout()),
+                this, SLOT(repaintNeeded()));
+        d->timer->start(1000/d->fps);
+    } else if (d->timer) {
+        d->timer->stop();
+    }
+
     return d->render;
 }
 

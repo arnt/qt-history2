@@ -211,8 +211,8 @@ void QSvgText::draw(QPainter *p)
     }
 
     QTextLayout tl(m_text);
-    QTextOption op = tl.textOption();
-    op.setAlignment(m_textAlignment);
+    //QTextOption op = tl.textOption();
+    //op.setAlignment(m_textAlignment);
     //tl.setTextOption(op);
     tl.setAdditionalFormats(m_formatRanges);
     tl.beginLayout();

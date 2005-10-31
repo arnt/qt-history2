@@ -22,7 +22,8 @@
 #include "qdebug.h"
 
 QSvgTinyDocument::QSvgTinyDocument()
-    : QSvgStructureNode(0)
+    : QSvgStructureNode(0),
+      m_animated(false)
 {
 }
 
@@ -64,6 +65,10 @@ QSvgTinyDocument * QSvgTinyDocument::load(const QByteArray &contents)
 
 void QSvgTinyDocument::draw(QPainter *p)
 {
+    if (m_time.isNull()) {
+        m_time.start();
+    }
+
     //XXX set default style on the painter
     if (!m_viewBox.isEmpty())
         p->setWindow(m_viewBox);
@@ -116,4 +121,19 @@ void QSvgTinyDocument::addSvgFont(QSvgFont *font)
 QSvgFont * QSvgTinyDocument::svgFont(const QString &family) const
 {
     return m_fonts[family];
+}
+
+void QSvgTinyDocument::restartAnimation()
+{
+    m_time.restart();
+}
+
+bool QSvgTinyDocument::animated() const
+{
+    return m_animated;
+}
+
+void QSvgTinyDocument::setAnimated(bool a)
+{
+    m_animated = a;
 }
