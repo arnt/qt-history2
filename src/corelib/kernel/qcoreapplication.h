@@ -180,6 +180,15 @@ inline QString QCoreApplication::translate(const char *, const char *sourceText,
 }
 #endif
 
+#define QT_DECLARE_TR_FUNCTIONS(context) \
+public: \
+    static inline QString tr(const char *sourceText, const char *comment = 0) \
+        { return QCoreApplication::translate(#context, sourceText, comment); } \
+    static inline QString trUtf8(const char *sourceText, const char *comment = 0) \
+        { return QCoreApplication::translate(#context, sourceText, comment, \
+                                             QCoreApplication::UnicodeUTF8); } \
+private:
+
 typedef void (*QtCleanUpFunction)();
 
 Q_CORE_EXPORT void qAddPostRoutine(QtCleanUpFunction);

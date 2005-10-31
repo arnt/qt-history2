@@ -1868,7 +1868,7 @@ int QCoreApplication::loopLevel()
 */
 
 /*!
-    \fn qAddPostRoutine(QtCleanUpFunction ptr)
+    \fn void qAddPostRoutine(QtCleanUpFunction ptr)
     \relates QCoreApplication
 
     Adds a global routine that will be called from the QApplication
@@ -1902,7 +1902,7 @@ int QCoreApplication::loopLevel()
 
     For modules and libraries, using a reference-counted
     initialization manager or Qt's parent-child deletion mechanism may
-    be better. Here is an example of a private class which uses the
+    be better. Here is an example of a private class that uses the
     parent-child mechanism to call a cleanup function at the right
     time:
 
@@ -1934,5 +1934,43 @@ int QCoreApplication::loopLevel()
     \endcode
 
     By selecting the right parent object, this can often be made to
-    clean up the module's data at the exactly the right moment.
+    clean up the module's data at the right moment.
+*/
+
+/*!
+    \macro QT_DECLARE_TR_FUNCTIONS(context)
+    \relates QCoreApplication
+
+    The QT_DECLARE_TR_FUNCTIONS() macro declares and implements two
+    translation functions, \c tr() and \c trUtf8(), with these
+    signatures:
+
+    \code
+        static inline QString tr(const char *sourceText,
+                                 const char *comment = 0);
+        static inline QString trUtf8(const char *sourceText,
+                                     const char *comment = 0);
+    \endcode
+
+    This macro is useful if you want to use QObject::tr() or
+    QObject::trUtf8() in classes that don't inherit from QObject.
+
+    QT_DECLARE_TR_FUNCTIONS() must appear at the very top of the
+    class definition (before the first \c{public:} or \c{protected:}).
+    For example:
+
+    \code
+        class MyMfcView : public CView
+        {
+            QT_DECLARE_TR_FUNCTIONS(MyMfcView)
+
+        public:
+            MyMfcView();
+            ...
+        };
+    \endcode
+
+    The \e context parameter is normally the class name.
+
+    \sa Q_OBJECT, QObject::tr(), QObject::trUtf8()
 */
