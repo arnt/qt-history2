@@ -24,11 +24,14 @@ SvgRasterView::SvgRasterView(const QString &file, QWidget *parent)
     : QWidget(parent)
 {
     doc = new QSvgRenderer(file, this);
+    connect(doc, SIGNAL(repaintNeeded()),
+            this, SLOT(poluteImage()));
 }
 
 void SvgRasterView::paintEvent(QPaintEvent *)
 {
-    if (buffer.size() != size()) {
+    if (buffer.size() != size() ||
+        m_dirty) {
         buffer = QImage(size(), QImage::Format_ARGB32_Premultiplied);
         QPainter p(&buffer);
         p.setViewport(0, 0, width(), height());
@@ -44,6 +47,13 @@ QSize SvgRasterView::sizeHint() const
     if (doc)
         return doc->defaultSize();
     return QWidget::sizeHint();
+}
+
+
+void SvgRasterView::poluteImage()
+{
+    m_dirty = true;
+    update();
 }
 
 void SvgRasterView::wheelEvent(QWheelEvent *e)
@@ -67,6 +77,8 @@ SvgNativeView::SvgNativeView(const QString &file, QWidget *parent)
     : QWidget(parent)
 {
     doc = new QSvgRenderer(file, this);
+    connect(doc, SIGNAL(repaintNeeded()),
+            this, SLOT(update()));
 }
 
 void SvgNativeView::paintEvent(QPaintEvent *)
@@ -104,6 +116,8 @@ SvgGLView::SvgGLView(const QString &file, QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
     doc = new QSvgRenderer(file, this);
+    connect(doc, SIGNAL(repaintNeeded()),
+            this, SLOT(update()));
 }
 
 void SvgGLView::paintEvent(QPaintEvent *)

@@ -31,6 +31,9 @@ public:
     SvgRasterView(const QString &file, QWidget *parent=0);
 
     virtual QSize sizeHint() const;
+
+protected slots:
+    void poluteImage();
 protected:
     virtual void paintEvent(QPaintEvent *event);
     virtual void wheelEvent(QWheelEvent *event);
@@ -38,6 +41,7 @@ protected:
 private:
     QSvgRenderer *doc;
     QImage buffer;
+    bool m_dirty;
 };
 
 class SvgNativeView : public QWidget
