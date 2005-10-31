@@ -86,6 +86,8 @@ bool QDesignerMenu::handleEvent(QWidget *widget, QEvent *event)
             return handleMousePressEvent(widget, static_cast<QMouseEvent*>(event));
         case QEvent::MouseButtonRelease:
             return handleMouseReleaseEvent(widget, static_cast<QMouseEvent*>(event));
+        case QEvent::MouseButtonDblClick:
+            return handleMouseDoubleClickEvent(widget, static_cast<QMouseEvent*>(event));
         case QEvent::MouseMove:
             return handleMouseMoveEvent(widget, static_cast<QMouseEvent*>(event));
         case QEvent::ContextMenu:
@@ -231,6 +233,23 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
 
     e->accept();
     update();
+
+    return true;
+}
+
+bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
+{
+    event->accept();
+
+    m_startPosition = QPoint();
+
+    if (event->button() != Qt::LeftButton)
+        return true;
+
+    m_currentIndex = findAction(event->pos());
+
+    if (m_currentIndex != -1)
+        enterEditMode();
 
     return true;
 }
@@ -440,9 +459,9 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
     return false;
 };
 
-int QDesignerMenu::findAction(const QPoint &pos) const
+int QDesignerMenu::actionAtPosition(const QPoint &pos) const
 {
-    for (int i = 0; i<realActionCount(); ++i) {
+    for (int i = 0; i<actions().count(); ++i) {
         QRect g = actionGeometry(safeActionAt(i));
         g.setTopLeft(QPoint(0, 0));
 
@@ -450,7 +469,16 @@ int QDesignerMenu::findAction(const QPoint &pos) const
             return i;
     }
 
-    return realActionCount(); // the fake actions
+    return -1;
+}
+
+int QDesignerMenu::findAction(const QPoint &pos) const
+{
+    int index = actionAtPosition(pos);
+    if (index == -1)
+        return realActionCount();
+
+    return index;
 }
 
 void QDesignerMenu::adjustIndicator(const QPoint &pos)

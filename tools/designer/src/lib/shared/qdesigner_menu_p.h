@@ -93,6 +93,7 @@ protected:
     virtual void keyReleaseEvent(QKeyEvent *event);
 
     bool handleEvent(QWidget *widget, QEvent *event);
+    bool handleMouseDoubleClickEvent(QWidget *widget, QMouseEvent *event);
     bool handleMousePressEvent(QWidget *widget, QMouseEvent *event);
     bool handleMouseReleaseEvent(QWidget *widget, QMouseEvent *event);
     bool handleMouseMoveEvent(QWidget *widget, QMouseEvent *event);
@@ -103,6 +104,7 @@ protected:
 
     void adjustIndicator(const QPoint &pos);
     int findAction(const QPoint &pos) const;
+    int actionAtPosition(const QPoint &pos) const;
 
     QAction *currentAction() const;
     int realActionCount() const;
