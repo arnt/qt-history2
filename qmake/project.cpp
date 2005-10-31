@@ -1043,6 +1043,7 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
     parser_info pi = parser;
     reset();
 
+    const QString oldpwd = qmake_getpwd();
     QString filename = Option::fixPathToLocalOS(file);
     doVariableReplace(filename, place);
     bool ret = false, using_stdin = false;
@@ -1056,6 +1057,7 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
     } else {
         qfile.setFileName(filename);
         ret = qfile.open(QIODevice::ReadOnly);
+        qmake_setpwd(QFileInfo(filename).absolutePath());
     }
     if(ret) {
         parser_info pi = parser;
@@ -1072,6 +1074,7 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
     if(scope_blocks.count() != 1)
         warn_msg(WarnParser, "%s: Unterminated conditional at end of file.",
                  file.toLatin1().constData());
+    qmake_setpwd(oldpwd);
     return ret;
 }
 
