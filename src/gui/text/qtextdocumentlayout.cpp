@@ -77,7 +77,7 @@ public:
 };
 
 struct QLayoutStruct {
-    QLayoutStruct() : widthUsed(0), minimumWidth(0), maximumWidth(INT_MAX), fullLayout(false), pageHeight(0.0), pageBottom(0.0) {}
+    QLayoutStruct() : widthUsed(0), minimumWidth(0), maximumWidth(INT_MAX), fullLayout(false), pageHeight(0.0), pageBottom(0.0), pageMargin(0.0) {}
     QTextFrame *frame;
     qreal x_left;
     qreal x_right;
@@ -89,9 +89,10 @@ struct QLayoutStruct {
     QList<QTextFrame *> pendingFloats;
     qreal pageHeight;
     qreal pageBottom;
+    qreal pageMargin;
 
     inline void newPage()
-    { pageBottom += pageHeight; y = pageBottom - pageHeight; }
+    { pageBottom += pageHeight; y = pageBottom - pageHeight + 2 * pageMargin; }
 };
 
 class QTextTableData : public QTextFrameData
@@ -1542,7 +1543,8 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
 
     if (!f->parentFrame()) {
         layoutStruct.pageHeight = q->document()->pageSize().height();
-        layoutStruct.pageBottom = layoutStruct.pageHeight;
+        layoutStruct.pageBottom = layoutStruct.pageHeight - fd->margin;
+        layoutStruct.pageMargin = fd->margin;
     }
 
     QTextFrame::Iterator it = f->begin();
@@ -1582,7 +1584,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
                 if (layoutStruct->pageHeight > 0.0) {
                     int page = int(layoutStruct->y / layoutStruct->pageHeight);
-                    layoutStruct->pageBottom = (page + 1) * layoutStruct->pageHeight;
+                    layoutStruct->pageBottom = (page + 1) * layoutStruct->pageHeight - layoutStruct->pageMargin;
                 }
 
                 it = iteratorForTextPosition(checkPoint->positionInFrame);
@@ -1944,7 +1946,7 @@ void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, QLayout
     qreal offset = 0.0;
     for (int r = 2; r < rows; ++r) {
         if (td->rowPositions[r] + offset > pageBottom) {
-            offset += pageBottom - td->rowPositions[r - 1];
+            offset += pageBottom - td->rowPositions[r - 1] + 2 * layoutStruct->pageMargin;
             offset += extraTableHeight; // make sure there's enough space for the table margin/border
             layoutStruct->newPage();
             td->rowPositions[r - 1] = layoutStruct->y + extraTableHeight - td->position.y();

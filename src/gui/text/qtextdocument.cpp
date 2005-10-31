@@ -860,11 +860,11 @@ void QTextDocument::setModified(bool m)
 }
 
 #ifndef QT_NO_PRINTER
-static void printPage(int index, QPainter *painter, const QTextDocument *doc, QRectF *body)
+static void printPage(int index, QPainter *painter, const QTextDocument *doc, const QRectF &body, const QPointF &pageNumberPos)
 {
     painter->save();
-    painter->translate(body->left(), body->top() - (index - 1) * body->height());
-    QRectF view(0, (index - 1) * body->height(), body->width(), body->height());
+    painter->translate(body.left(), body.top() - (index - 1) * body.height());
+    QRectF view(0, (index - 1) * body.height(), body.width(), body.height());
 
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
     QAbstractTextDocumentLayout::PaintContext ctx;
@@ -874,12 +874,15 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc, QR
 
     layout->draw(painter, ctx);
 
-    painter->setClipping(false);
-    painter->setFont(QFont(doc->defaultFont()));
-    QString pageString = QString::number(index);
+    if (!pageNumberPos.isNull()) {
+        painter->setClipping(false);
+        painter->setFont(QFont(doc->defaultFont()));
+        const QString pageString = QString::number(index);
 
-    painter->drawText(qRound(view.right() - painter->fontMetrics().width(pageString)),
-               qRound(view.bottom() + painter->fontMetrics().ascent() + 5 * painter->device()->logicalDpiY() / 72), pageString);    
+        painter->drawText(qRound(pageNumberPos.x() - painter->fontMetrics().width(pageString)),
+                          qRound(pageNumberPos.y() + view.top()),
+                          pageString);
+    }
 
     painter->restore();
 }
@@ -905,6 +908,7 @@ void QTextDocument::print(QPrinter *printer) const
     (void)doc->documentLayout(); // make sure that there is a layout
 
     QRectF body = QRectF(QPointF(0, 0), d->pageSize);
+    QPointF pageNumberPos;
 
     if (d->pageSize.isValid()
         && d->pageSize.height() != INT_MAX) {
@@ -939,11 +943,20 @@ void QTextDocument::print(QPrinter *printer) const
         clonedDoc = const_cast<QTextDocument *>(doc);
 
         QAbstractTextDocumentLayout *layout = doc->documentLayout();
-        // ################
         layout->setPaintDevice(p.device());
+
         const int dpiy = p.device()->logicalDpiY();
+
         const int margin = (int) ((2/2.54)*dpiy); // 2 cm margins
-        body = QRectF(margin, margin, p.device()->width() - 2*margin, p.device()->height() - 2*margin);
+        QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
+        fmt.setMargin(margin);
+        doc->rootFrame()->setFrameFormat(fmt);
+
+        body = QRectF(0, 0, p.device()->width(), p.device()->height());
+        pageNumberPos = QPointF(body.width() - margin,
+                                body.height() - margin
+                                + QFontMetrics(doc->defaultFont(), p.device()).ascent()
+                                + 5 * p.device()->logicalDpiY() / 72);
 
         QFont font(doc->defaultFont());
         font.setPointSize(10); // we define 10pt to be a nice base size for printing
@@ -965,7 +978,7 @@ void QTextDocument::print(QPrinter *printer) const
     int toPage = printer->toPage();
     bool ascending = true;
 
-    if ( fromPage == 0 && toPage == 0 ) {
+    if (fromPage == 0 && toPage == 0) {
         fromPage = 1;
         toPage = doc->pageCount();
     }
@@ -982,7 +995,7 @@ void QTextDocument::print(QPrinter *printer) const
         int page = fromPage;
         while (true) {
             for (int j = 0; j < pageCopies; ++j) {
-                printPage(page, &p, doc, &body);
+                printPage(page, &p, doc, body, pageNumberPos);
                 if (j < pageCopies - 1)
                     printer->newPage();
             }
