@@ -27,7 +27,7 @@
     \since 4.1
 
     Using QSvgRenderer, Scalable Vector Graphics (SVG) can be rendered onto any QPaintDevice
-    subclass, including QWidget, QImage, and QGLWidget. 
+    subclass, including QWidget, QImage, and QGLWidget.
 
     QSvgRenderer provides an API that supports basic features of SVG rendering, such as loading
     and rendering of static drawings, and more interactive features like animation. Since the
@@ -170,6 +170,8 @@ bool QSvgRenderer::animated() const
     Q_D(const QSvgRenderer);
     if (d->render)
         return d->render->animated();
+    else
+        return false;
 }
 
 /*!
