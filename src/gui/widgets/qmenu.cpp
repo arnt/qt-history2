@@ -1809,7 +1809,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         QAction *nextAction = 0;
         QMenuPrivate::QMenuScroller::ScrollLocation scroll_loc = QMenuPrivate::QMenuScroller::ScrollStay;
         if (!d->currentAction) {
-            nextAction = d->actionList.first();
+            nextAction = d->actionList.isEmpty() ? 0 : d->actionList.first();
         } else {
             for(int i=0, y=0; !nextAction && i < (int)d->actionList.count(); i++) {
                 QAction *act = d->actionList.at(i);
