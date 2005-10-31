@@ -5,46 +5,66 @@
 % some compression of the code is done by the makepsheader script, so we don't need to 
 % write too criptically here. 
 
-/d  /def load def
-/D  {bind d} bind d
-/d2 {dup dup} D
-/ED {exch d} D
-/D0 {0 ED} D
-/LT {lineto} D
-/MT {moveto} D
-/S  {stroke} D
-/F  {setfont} D
-/SW {setlinewidth} D
-/CP {closepath} D
-/RL {rlineto} D
-/NP {newpath} D
-/CM {currentmatrix} D
-/SM {setmatrix} D
-/TR {translate} D
-/SD {setdash} D
-/SC {aload pop setrgbcolor} D
-/CR {currentfile read pop} D
-/i  {index} D
-/bs {bitshift} D
-/scs {setcolorspace} D
-/DB {dict dup begin} D
-/DE {end d} D
-/ie {ifelse} D
+/BD  {bind def} bind def
+/d2 {dup dup} BD
+/ED {exch def} BD
+/D0 {0 ED} BD
+
+/F  {setfont} BD
+/RL {rlineto} BD
+/NP {newpath} BD
+/CM {currentmatrix} BD
+/SM {setmatrix} BD
+/TR {translate} BD
+/SD {setdash} BD
+/SC {aload pop setrgbcolor} BD
+/CR {currentfile read pop} BD
+/i  {index} BD
+/bs {bitshift} BD
+/scs {setcolorspace} BD
+/DB {dict dup begin} BD
+/DE {end def} BD
+/ie {ifelse} BD
+
+% these use PDF syntax
+/w {setlinewidth} BD
+/d {setdash} BD
+
+/m  {moveto} BD
+/l  {lineto} BD
+/c  {curveto} BD
+/h  {closepath} BD
+/S  {stroke} BD
+/W  {clip} BD
+/W* {eoclip} BD
 
 % ENDUNCOMPRESSED: Warning: leave this line in. 
 % Everything before this line will be left untouched by the compression
 
+% PDF operators
+/re { % PDF re operator
+  4 2 roll  % w h x y
+  moveto % w h
+  dup % w h h
+  0 exch rlineto % w h
+  exch 0 rlineto % h
+  0 exch neg rlineto
+  closepath
+} bind def
 
 
-/BSt 0 d                             % brush style
-/LWi 0 d                             % line width
-/PSt 1 d                             % pen style
-/WFi false d                 % winding fill
-/OMo false d                 % opaque mode (not transparent)
 
-/BCol  [ 1 1 1 ] d                   % brush color
-/PCol  [ 0 0 0 ] d                   % pen color
-/BkCol [ 1 1 1 ] d                   % background color
+% old operators
+
+/BSt 0 def                             % brush style
+/LWi 0 def                             % line width
+/PSt 1 def                             % pen style
+/WFi false def                 % winding fill
+/OMo false def                 % opaque mode (not transparent)
+
+/BCol  [ 1 1 1 ] def                   % brush color
+/PCol  [ 0 0 0 ] def                   % pen color
+/BkCol [ 1 1 1 ] def                   % background color
 /BDArr [                             % Brush dense patterns
   0.94
   0.88
@@ -53,8 +73,8 @@
   0.37 
   0.12 
   0.06 
-] d
-/defM matrix d
+] def
+/defM matrix def
 
 % -- level3 true/false
 /level3 {
@@ -62,7 +82,7 @@
     pop
     languagelevel 3 ge 
   } { false } ifelse
-} D
+} bind def
 
 % LArr for the Pen styles is defined in emitHeader because of scaling
 
@@ -79,7 +99,7 @@
     { LArr PSt 2 mul 1 sub get } ifelse    % opaque pattern
   }
   { [] } ifelse                            % out of range => solid line
-} D
+} bind def
 
 % QS: QtStroke
 % draw and fill current path
@@ -89,7 +109,7 @@
   PSt 0 ne                         % != NO_PEN
   { 
     gsave
-      LWi SW                         % set line width
+      LWi setlinewidth                         % set line width
       true GPS 0 setdash S           % draw line pattern
       OMo PSt 1 ne and               % opaque mode and not solid line?
       { 
@@ -98,7 +118,7 @@
       } if
     grestore
   } if
-} D
+} bind def
 
 %% image drawing routines
 
@@ -119,10 +139,10 @@
     false 3 colorimage
   }{  % the hard way, based on PD code by John Walker <kelvin@autodesk.com>
     exec /QCIcolor ED
-    /QCIgray QCIcolor length 3 idiv string d
+    /QCIgray QCIcolor length 3 idiv string def
     0 1 QCIcolor length 3 idiv 1 sub
     { /QCIindex ED
-      /x QCIindex 3 mul d
+      /x QCIindex 3 mul def
       QCIgray QCIindex
       QCIcolor x       get 0.30 mul
       QCIcolor x 1 add get 0.59 mul
@@ -132,7 +152,7 @@
     } for
     QCIgray image
   } ifelse
-} D
+} bind def
 
 % general image drawing routine, used from the postscript driver
 %
@@ -178,20 +198,20 @@
 	% languagelevel3, we can use image mask and dicts
 
 	% store the image mask
-	/ma exch d
+	/ma exch def
 	% select colorspace according to 8|24 bit depth and set the decode array /dc
 	8 eq {
-	  /dc [0 1] d
+	  /dc [0 1] def
 	  /DeviceGray
 	} {
-	  /dc [0 1 0 1 0 1] d
+	  /dc [0 1 0 1 0 1] def
 	  /DeviceRGB
 	} ifelse
 	setcolorspace
 	% the image data
-	/im exch d
+	/im exch def
 	% transformation matrix
-	/mt exch d
+	/mt exch def
 	% width and height
 	/h exch def
 	/w exch def
@@ -205,7 +225,7 @@
 	  /DataSource im
 	  /BitsPerComponent 8
 	  /Decode dc
-	>> d
+	>> def
 	% the mask dictionary
 	/md
 	<<
@@ -216,7 +236,7 @@
 	  /DataSource ma
 	  /BitsPerComponent 1
 	  /Decode [0 1]
-	>> d
+	>> def
 	% and the combined image dict
 	<<
 	  /ImageType 3
@@ -237,7 +257,7 @@
       } ifelse
     } ifelse
   grestore    
-} d
+} bind def
 
 
 % ########## fix non level3 code path
@@ -273,9 +293,8 @@
       >>
     matrix makepattern def
   } { pop } ifelse
-  /BSt 15 d
-} D
-
+  /BSt 15 def
+} bind def
 
 
 /BF {                                % brush fill
@@ -300,7 +319,6 @@
     BSt 9 ge BSt 14 le and            % brush pattern?
     {
       WFi { clip } { eoclip } ifelse
-      defM SM
       pathbbox                        % left upper right lower
       3 index 3 index translate
       4 2 roll                        % right lower left upper
@@ -309,40 +327,40 @@
       sub /h ED
       sub /w ED
       OMo {
-	NP
-	0 0 MT
-	0 h RL
-	w 0 RL
-	0 h neg RL
-	CP
+	newpath
+	0 0 moveto
+	0 h rlineto
+	w 0 rlineto
+	0 h neg rlineto
+	closepath
 	BkCol SC
 	fill
       } if
       BCol SC
-      0.3 SW
-      NP
+      0.3 setlinewidth
+      newpath
       BSt 9 eq BSt 11 eq or           % horiz or cross pattern
       { 0 4 h
-	{ dup 0 exch MT w exch LT } for
+	{ dup 0 exch moveto w exch lineto } for
       } if
       BSt 10 eq BSt 11 eq or          % vert or cross pattern
       { 0 4 w
-	{ dup 0 MT h LT } for
+	{ dup 0 moveto h lineto } for
       } if
       BSt 12 eq BSt 14 eq or          % F-diag or diag cross
       { w h gt
 	{ 0 6 w h add
-	  { dup 0 MT h sub h LT } for
+	  { dup 0 moveto h sub h lineto } for
 	} { 0 6 w h add
-	  { dup 0 exch MT w sub w exch LT } for
+	  { dup 0 exch moveto w sub w exch lineto } for
 	} ifelse
       } if
       BSt 13 eq BSt 14 eq or          % B-diag or diag cross
       { w h gt
 	{ 0 6 w h add
-	  { dup h MT h sub 0 LT } for
+	  { dup h moveto h sub 0 lineto } for
 	} { 0 6 w h add
-	  { dup w exch MT w sub 0 exch LT } for
+	  { dup w exch moveto w sub 0 exch lineto } for
 	} ifelse
       } if
       S
@@ -358,84 +376,63 @@
     {
     } if
   grestore
-} D
+} bind def
 
 % for arc
-/mat matrix d
-/ang1 D0 /ang2 D0
+/mat matrix def
 /w D0 /h D0
 /x D0 /y D0
-
-/ARC {                               % Generic ARC function [ X Y W H ang1 ang2 ]
-  /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED
-  mat CM pop
-  x w 2 div add y h 2 div add TR
-  1 h w div neg scale
-  ang2 0 ge
-  {0 0 w 2 div ang1 ang1 ang2 add arc }
-  {0 0 w 2 div ang1 ang1 ang2 add arcn} ifelse
-  mat SM
-} D
 
 /C D0
 
 /P {                                 % PdcDrawPoint [x y]
-  NP
-  MT
+  newpath
+  moveto
   0.5 0.5 rmoveto
-  0  -1 RL
-  -1 0 RL
-  0  1 RL
-  CP
+  0  -1 rlineto
+  -1 0 rlineto
+  0  1 rlineto
+  closepath
   fill
-} D
+} bind def
 
 /DL {                                % PdcDrawLine [x1 y1 x0 y0]
-  NP
-  MT
-  LT
+  newpath
+  moveto
+  lineto
   QS
-} D
+} bind def
 
 /R {                                 % PdcDrawRect [x y w h]
-  /h ED /w ED /y ED /x ED
-  NP
-  x y MT
-  0 h RL
-  w 0 RL
-  0 h neg RL
-  CP
+  newpath
+  re
   BF
   QS
-} D
-
-
-/xr D0 /yr D0
-/rx D0 /ry D0 /rx2 D0 /ry2 D0
+} bind def
 
 /E {                         % PdcDrawEllipse [x y w h]
   /h ED /w ED /y ED /x ED
   mat CM pop
   x w 2 div add y h 2 div add translate
   1 h w div scale
-  NP
+  newpath
   0 0 w 2 div 0 360 arc
   mat SM
   BF
   QS
-} D
+} bind def
 
 /BC {                                % PdcSetBkColor [[R G B]]
   /BkCol ED
-} D
+} bind def
 
 /BR {                                % PdcSetBrush [style [R G B]]
   /BCol ED /BSt ED
-} D
+} bind def
 
 /NB {                                % set nobrush
   0 [0 0 0] BR
-} D
+} bind def
 
 /PE {                                % PdcSetPen [style width R G B Cap Join]
   setlinejoin setlinecap
@@ -443,16 +440,16 @@
   /LWi ED
   /PSt ED
   PCol SC
-} D
+} bind def
 
 /P1 {                                % PdcSetPen [R G B]
   1 0 3 2 roll 0 0 PE
-} D
+} bind def
 
 /ST {                                % SET TRANSFORM [matrix]
   defM setmatrix
   concat
-} D
+} bind def
 
 %% Font handling
 
@@ -499,7 +496,7 @@
     end
   } ifelse
   definefont pop
-} D
+} bind def
 
 % an embedded font. This is used for the base fonts of the composite font used later on.
 /MFEmb {                             % newname encoding fontname
@@ -507,12 +504,12 @@
   begin
     {
       1 index /FID ne
-      {d}{pop pop}ifelse
+      {def}{pop pop}ifelse
     } forall
     /Encoding ED currentdict 
   end
   definefont pop
-} D
+} bind def
 
 % DF: define font
 % used to get a scaled version of an already loaded font
@@ -521,26 +518,26 @@
 /DF {
   findfont
   % get the fontsize on top of the stack and define font matrix
-  /fs 3 -1 roll d [ fs 0 0 fs -1 mul 0 0 ]  
+  /fs 3 -1 roll def [ fs 0 0 fs -1 mul 0 0 ]  
   makefont
-  d
-} D
+  def
+} bind def
 
-/ty 0 d
+/ty 0 def
 /Y {
   /ty ED
-} D
+} bind def
 
 /Tl { % draw underline/strikeout line: () w x y lw ->Tl-> () w x
   gsave 
     setlinewidth
-    NP 1 index exch MT
+    newpath 1 index exch moveto
     1 index 0 rlineto stroke
   grestore
-} D
+} bind def
 
 /XYT {  % [string [x/y displacement array] width x]
-  ty MT % pops x
+  ty moveto % pops x
 
   /xyshow where { % interpreter has xyshow
     pop pop
@@ -555,10 +552,10 @@
     exch 0 exch % extraperchar 0 string
     ashow
   } ifelse
-} D
+} bind def
 
 /AT {
-  ty MT % pops x
+  ty moveto % pops x
   1 index % string cwidth string
   dup length 2 div exch % string cwidth length string     !have to divide by 2 since we use unicode!
   stringwidth pop % string cwidth length pwidth
@@ -566,20 +563,20 @@
   exch sub exch div % string extraperchar
   exch 0 exch % extraperchar 0 string
   ashow
-} D
+} bind def
 
 %% start of page
 /QI {
-  /C save d
+  /C save def
   pageinit
-  /OMo false d
-} D
+  /OMo false def
+} bind def
 
 %% end of page
 /QP {                                % show page
   C restore
   showpage
-} D
+} bind def
 
 % merges one key value pair into the page device dict
 %
@@ -589,23 +586,23 @@
     << 3 1 roll >>
     setpagedevice
   } { pop pop } ifelse
-} D
+} bind def
 
 /CLS {
   gsave
-  NP
-} D
+  newpath
+} bind def
 
 /ACR {                                       % add clip rect
   /h ED /w ED /y ED /x ED
-  x y MT
-  0 h RL
-  w 0 RL
-  0 h neg RL
-  CP
-} D
+  x y moveto
+  0 h rlineto
+  w 0 rlineto
+  0 h neg rlineto
+  closepath
+} bind def
 
 /CLO {                               % clipping off
   grestore                         % restore top of page state
-} D
+} bind def
 

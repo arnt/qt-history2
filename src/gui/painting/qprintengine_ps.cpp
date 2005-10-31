@@ -76,68 +76,66 @@ void qt_generate_epsf(bool b)
 }
 
 static const char *const ps_header =
-"/d/def load def/D{bind d}bind d/d2{dup dup}D/ED{exch d}D/D0{0 ED}D/LT\n"
-"{lineto}D/MT{moveto}D/S{stroke}D/F{setfont}D/SW{setlinewidth}D/CP{closepath}\n"
-"D/RL{rlineto}D/NP{newpath}D/CM{currentmatrix}D/SM{setmatrix}D/TR{translate}D\n"
-"/SD{setdash}D/SC{aload pop setrgbcolor}D/CR{currentfile read pop}D/i{index}D\n"
-"/bs{bitshift}D/scs{setcolorspace}D/DB{dict dup begin}D/DE{end d}D/ie{ifelse}\n"
-"D/BSt 0 d/LWi 0 d/PSt 1 d/WFi false d/OMo false d/BCol[1 1 1]d/PCol[0 0 0]d\n"
-"/BkCol[1 1 1]d/BDArr[0.94 0.88 0.63 0.50 0.37 0.12 0.06]d/defM matrix d\n"
-"/level3{/languagelevel where{pop languagelevel 3 ge}{false}ie}D/GPS{PSt 1 ge\n"
-"PSt 5 le and{{LArr PSt 1 sub 2 mul get}{LArr PSt 2 mul 1 sub get}ie}{[]}ie}D\n"
-"/QS{PSt 0 ne{gsave LWi SW true GPS 0 SD S OMo PSt 1 ne and{BkCol SC false\n"
-"GPS dup 0 get SD S}if grestore}if}D/sl D0/QCIgray D0/QCIcolor D0/QCIindex D0\n"
-"/QCI{/colorimage where{pop false 3 colorimage}{exec/QCIcolor ED/QCIgray\n"
-"QCIcolor length 3 idiv string d 0 1 QCIcolor length 3 idiv 1 sub{/QCIindex\n"
-"ED/x QCIindex 3 mul d QCIgray QCIindex QCIcolor x get 0.30 mul QCIcolor x 1\n"
-"add get 0.59 mul QCIcolor x 2 add get 0.11 mul add add cvi put}for QCIgray\n"
-"image}ie}D/di{gsave TR 1 i 1 eq{false eq{pop true 3 1 roll 4 i 4 i false 4 i\n"
-"4 i imagemask BkCol SC imagemask}{pop false 3 1 roll imagemask}ie}{dup false\n"
-"ne{level3}{false}ie{/ma ED 8 eq{/dc[0 1]d/DeviceGray}{/dc[0 1 0 1 0 1]d\n"
+"/BD{bind def}bind def/d2{dup dup}BD/ED{exch def}BD/D0{0 ED}BD/F{setfont}BD\n"
+"/RL{rlineto}BD/NP{newpath}BD/CM{currentmatrix}BD/SM{setmatrix}BD/TR\n"
+"{translate}BD/SD{setdash}BD/SC{aload pop setrgbcolor}BD/CR{currentfile read\n"
+"pop}BD/i{index}BD/bs{bitshift}BD/scs{setcolorspace}BD/DB{dict dup begin}BD\n"
+"/DE{end def}BD/ie{ifelse}BD/w{setlinewidth}BD/d{setdash}BD/m{moveto}BD/l\n"
+"{lineto}BD/c{curveto}BD/h{closepath}BD/S{stroke}BD/W{clip}BD/W*{eoclip}BD/re\n"
+"{4 2 roll m dup 0 exch RL exch 0 RL 0 exch neg RL h}BD/BSt 0 def/LWi 0 def\n"
+"/PSt 1 def/WFi false def/OMo false def/BCol[1 1 1]def/PCol[0 0 0]def/BkCol[1\n"
+"1 1]def/BDArr[0.94 0.88 0.63 0.50 0.37 0.12 0.06]def/defM matrix def/level3{\n"
+"/languagelevel where{pop languagelevel 3 ge}{false}ie}BD/GPS{PSt 1 ge PSt 5\n"
+"le and{{LArr PSt 1 sub 2 mul get}{LArr PSt 2 mul 1 sub get}ie}{[]}ie}BD/QS{\n"
+"PSt 0 ne{gsave LWi w true GPS 0 SD S OMo PSt 1 ne and{BkCol SC false GPS dup\n"
+"0 get SD S}if grestore}if}BD/sl D0/QCIgray D0/QCIcolor D0/QCIindex D0/QCI{\n"
+"/colorimage where{pop false 3 colorimage}{exec/QCIcolor ED/QCIgray QCIcolor\n"
+"length 3 idiv string def 0 1 QCIcolor length 3 idiv 1 sub{/QCIindex ED/x\n"
+"QCIindex 3 mul def QCIgray QCIindex QCIcolor x get 0.30 mul QCIcolor x 1 add\n"
+"get 0.59 mul QCIcolor x 2 add get 0.11 mul add add cvi put}for QCIgray image\n"
+"}ie}BD/di{gsave TR 1 i 1 eq{false eq{pop true 3 1 roll 4 i 4 i false 4 i 4 i\n"
+"imagemask BkCol SC imagemask}{pop false 3 1 roll imagemask}ie}{dup false ne{\n"
+"level3}{false}ie{/ma ED 8 eq{/dc[0 1]def/DeviceGray}{/dc[0 1 0 1 0 1]def\n"
 "/DeviceRGB}ie scs/im ED/mt ED/h ED/w ED/id <</ImageType 1/Width w/Height h\n"
-"/ImageMatrix mt/DataSource im/BitsPerComponent 8/Decode dc >> d/md <<\n"
+"/ImageMatrix mt/DataSource im/BitsPerComponent 8/Decode dc >> def/md <<\n"
 "/ImageType 1/Width w/Height h/ImageMatrix mt/DataSource ma/BitsPerComponent\n"
-"1/Decode[0 1]>> d <</ImageType 3/DataDict id/MaskDict md/InterleaveType 3 >>\n"
-"image}{pop 8 4 1 roll 8 eq{image}{QCI}ie}ie}ie grestore}d/SetLinGrad{level3{\n"
-"/size ED/colors ED/y2 ED/x2 ED/y1 ED/x1 ED/LinGrad <</PatternType 2/Shading\n"
-"<</ShadingType 2/ColorSpace[/DeviceRGB]/Coords[x1 y1 x2 y2]/Extend[true\n"
-"true]/Function <</FunctionType 0/Domain[0 1]/Range[0 1 0 1 0 1]/DataSource\n"
-"colors/BitsPerSample 8/Size[size]>> >> >> matrix makepattern d}{pop pop pop\n"
-"pop pop}ie/BSt 15 d}D/BF{gsave BSt 1 eq{BCol SC WFi{fill}{eofill}ie}if BSt 2\n"
-"ge BSt 8 le and{BDArr BSt 2 sub get/sc ED BCol{1. exch sub sc mul 1. exch\n"
+"1/Decode[0 1]>> def <</ImageType 3/DataDict id/MaskDict md/InterleaveType 3\n"
+">> image}{pop 8 4 1 roll 8 eq{image}{QCI}ie}ie}ie grestore}BD/SetLinGrad{\n"
+"level3{/size ED/colors ED/y2 ED/x2 ED/y1 ED/x1 ED/LinGrad <</PatternType 2\n"
+"/Shading <</ShadingType 2/ColorSpace[/DeviceRGB]/Coords[x1 y1 x2 y2]/Extend\n"
+"[true true]/Function <</FunctionType 0/Domain[0 1]/Range[0 1 0 1 0 1]\n"
+"/DataSource colors/BitsPerSample 8/Size[size]>> >> >> matrix makepattern def\n"
+"}{pop}ie/BSt 15 def}BD/BF{gsave BSt 1 eq{BCol SC WFi{fill}{eofill}ie}if BSt\n"
+"2 ge BSt 8 le and{BDArr BSt 2 sub get/sc ED BCol{1. exch sub sc mul 1. exch\n"
 "sub}forall 3 array astore SC WFi{fill}{eofill}ie}if BSt 9 ge BSt 14 le and{\n"
-"WFi{clip}{eoclip}ie defM SM pathbbox 3 i 3 i TR 4 2 roll 3 2 roll exch sub/h\n"
-"ED sub/w ED OMo{NP 0 0 MT 0 h RL w 0 RL 0 h neg RL CP BkCol SC fill}if BCol\n"
-"SC 0.3 SW NP BSt 9 eq BSt 11 eq or{0 4 h{dup 0 exch MT w exch LT}for}if BSt\n"
-"10 eq BSt 11 eq or{0 4 w{dup 0 MT h LT}for}if BSt 12 eq BSt 14 eq or{w h gt{\n"
-"0 6 w h add{dup 0 MT h sub h LT}for}{0 6 w h add{dup 0 exch MT w sub w exch\n"
-"LT}for}ie}if BSt 13 eq BSt 14 eq or{w h gt{0 6 w h add{dup h MT h sub 0 LT}\n"
-"for}{0 6 w h add{dup w exch MT w sub 0 exch LT}for}ie}if S}if BSt 15 eq{\n"
-"level3{LinGrad setpattern WFi{fill}{eofill}ie}if}if BSt 24 eq{}if grestore}D\n"
-"/mat matrix d/ang1 D0/ang2 D0/w D0/h D0/x D0/y D0/ARC{/ang2 ED/ang1 ED/h ED\n"
-"/w ED/y ED/x ED mat CM pop x w 2 div add y h 2 div add TR 1 h w div neg\n"
-"scale ang2 0 ge{0 0 w 2 div ang1 ang1 ang2 add arc}{0 0 w 2 div ang1 ang1\n"
-"ang2 add arcn}ie mat SM}D/C D0/P{NP MT 0.5 0.5 rmoveto 0 -1 RL -1 0 RL 0 1\n"
-"RL CP fill}D/DL{NP MT LT QS}D/R{/h ED/w ED/y ED/x ED NP x y MT 0 h RL w 0 RL\n"
-"0 h neg RL CP BF QS}D/xr D0/yr D0/rx D0/ry D0/rx2 D0/ry2 D0/E{/h ED/w ED/y\n"
-"ED/x ED mat CM pop x w 2 div add y h 2 div add TR 1 h w div scale NP 0 0 w 2\n"
-"div 0 360 arc mat SM BF QS}D/BC{/BkCol ED}D/BR{/BCol ED/BSt ED}D/NB{0[0 0 0]\n"
-"BR}D/PE{setlinejoin setlinecap/PCol ED/LWi ED/PSt ED PCol SC}D/P1{1 0 3 2\n"
-"roll 0 0 PE}D/ST{defM SM concat}D/MF{true exch true exch{exch pop exch pop\n"
-"dup 0 get dup findfont dup/FontName get 3 -1 roll eq{exit}if}forall exch dup\n"
-"1 get/fxscale ED 2 get/fslant ED exch/fencoding ED[fxscale 0 fslant 1 0 0]\n"
-"makefont fencoding false eq{}{dup maxlength dict begin{1 i/FID ne{def}{pop\n"
-"pop}ifelse}forall/Encoding fencoding d currentdict end}ie definefont pop}D\n"
-"/MFEmb{findfont dup length dict begin{1 i/FID ne{d}{pop pop}ifelse}forall\n"
-"/Encoding ED currentdict end definefont pop}D/DF{findfont/fs 3 -1 roll d[fs\n"
-"0 0 fs -1 mul 0 0]makefont d}D/ty 0 d/Y{/ty ED}D/Tl{gsave SW NP 1 i exch MT\n"
-"1 i 0 RL S grestore}D/XYT{ty MT/xyshow where{pop pop xyshow}{exch pop 1 i\n"
-"dup length 2 div exch stringwidth pop 3 -1 roll exch sub exch div exch 0\n"
-"exch ashow}ie}D/AT{ty MT 1 i dup length 2 div exch stringwidth pop 3 -1 roll\n"
-"exch sub exch div exch 0 exch ashow}D/QI{/C save d pageinit/OMo false d}D/QP\n"
-"{C restore showpage}D/SPD{/setpagedevice where{<< 3 1 roll >> setpagedevice}\n"
-"{pop pop}ie}D/CLS{gsave NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0\n"
-"h neg RL CP}D/CLO{grestore}D\n";
+"WFi{W}{W*}ie pathbbox 3 i 3 i TR 4 2 roll 3 2 roll exch sub/h ED sub/w ED\n"
+"OMo{NP 0 0 m 0 h RL w 0 RL 0 h neg RL h BkCol SC fill}if BCol SC 0.3 w NP\n"
+"BSt 9 eq BSt 11 eq or{0 4 h{dup 0 exch m w exch l}for}if BSt 10 eq BSt 11 eq\n"
+"or{0 4 w{dup 0 m h l}for}if BSt 12 eq BSt 14 eq or{w h gt{0 6 w h add{dup 0\n"
+"m h sub h l}for}{0 6 w h add{dup 0 exch m w sub w exch l}for}ie}if BSt 13 eq\n"
+"BSt 14 eq or{w h gt{0 6 w h add{dup h m h sub 0 l}for}{0 6 w h add{dup w\n"
+"exch m w sub 0 exch l}for}ie}if S}if BSt 15 eq{level3{LinGrad setpattern WFi\n"
+"{fill}{eofill}ie}if}if BSt 24 eq{}if grestore}BD/mat matrix def/w D0/h D0/x\n"
+"D0/y D0/C D0/P{NP m 0.5 0.5 rmoveto 0 -1 RL -1 0 RL 0 1 RL h fill}BD/DL{NP m\n"
+"l QS}BD/R{NP re BF QS}BD/E{/h ED/w ED/y ED/x ED mat CM pop x w 2 div add y h\n"
+"2 div add TR 1 h w div scale NP 0 0 w 2 div 0 360 arc mat SM BF QS}BD/BC{\n"
+"/BkCol ED}BD/BR{/BCol ED/BSt ED}BD/NB{0[0 0 0]BR}BD/PE{setlinejoin\n"
+"setlinecap/PCol ED/LWi ED/PSt ED PCol SC}BD/P1{1 0 3 2 roll 0 0 PE}BD/ST{\n"
+"defM SM concat}BD/MF{true exch true exch{exch pop exch pop dup 0 get dup\n"
+"findfont dup/FontName get 3 -1 roll eq{exit}if}forall exch dup 1 get/fxscale\n"
+"ED 2 get/fslant ED exch/fencoding ED[fxscale 0 fslant 1 0 0]makefont\n"
+"fencoding false eq{}{dup maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse\n"
+"}forall/Encoding fencoding def currentdict end}ie definefont pop}BD/MFEmb{\n"
+"findfont dup length dict begin{1 i/FID ne{def}{pop pop}ifelse}forall\n"
+"/Encoding ED currentdict end definefont pop}BD/DF{findfont/fs 3 -1 roll def[\n"
+"fs 0 0 fs -1 mul 0 0]makefont def}BD/ty 0 def/Y{/ty ED}BD/Tl{gsave w NP 1 i\n"
+"exch m 1 i 0 RL S grestore}BD/XYT{ty m/xyshow where{pop pop xyshow}{exch pop\n"
+"1 i dup length 2 div exch stringwidth pop 3 -1 roll exch sub exch div exch 0\n"
+"exch ashow}ie}BD/AT{ty m 1 i dup length 2 div exch stringwidth pop 3 -1 roll\n"
+"exch sub exch div exch 0 exch ashow}BD/QI{/C save def pageinit/OMo false def\n"
+"}BD/QP{C restore showpage}BD/SPD{/setpagedevice where{<< 3 1 roll >>\n"
+"setpagedevice}{pop pop}ie}BD/CLS{gsave NP}BD/ACR{/h ED/w ED/y ED/x ED x y m\n"
+"0 h RL w 0 RL 0 h neg RL h}BD/CLO{grestore}BD\n";
 
 static const char * const agl =
 ".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
@@ -556,7 +554,7 @@ struct psfont {
 };
 
 static const psfont Arial[] = {
-    {"Arial", 0, 84.04 },
+    { "Arial", 0, 84.04 },
     { "Arial-Italic", 0, 84.04 },
     { "Arial-Bold", 0, 88.65 },
     { "Arial-BoldItalic", 0, 88.65 }
@@ -1079,7 +1077,7 @@ static void emitPSFontNameList(QTextStream &s, const QString &psname, const QStr
 {
     s << "/" << psname << "List [\n";
     s << list.join("\n  ");
-    s << "\n] d\n";
+    s << "\n] def\n";
 }
 
 
@@ -1573,18 +1571,18 @@ void QPSPrintEngineFontFT::download(QTextStream& s, bool global)
     /* become the font. */
     s << "25 dict begin\n"
 
-        "/_m{moveto}D\n"
-        "/_l{lineto}D\n"
-        "/_cl{closepath eofill}D\n"
-        "/_c{curveto}D\n"
-        "/_sc{7 -1 roll{setcachedevice}{pop pop pop pop pop pop}ifelse}D\n"
-        "/_e{exec}D\n"
+        "/m{moveto}bind def\n"
+        "/l{lineto}bind def\n"
+        "/h{closepath eofill}bind def\n"
+        "/c{curveto}bind def\n"
+        "/scd{7 -1 roll{setcachedevice}{pop pop pop pop pop pop}ifelse}bind def\n"
+        "/e{exec}bind def\n"
 
         "/FontName /"
       << psname
-      << " d\n"
-        "/PaintType 0 d\n"
-        "/FontMatrix[" << 1./face->units_per_EM << " 0 0 " << 1./face->units_per_EM << " 0 0]d\n"
+      << " def\n"
+        "/PaintType 0 def\n"
+        "/FontMatrix[" << 1./face->units_per_EM << " 0 0 " << 1./face->units_per_EM << " 0 0]def\n"
 
         "/FontBBox["
       << face->bbox.xMin
@@ -1594,13 +1592,13 @@ void QPSPrintEngineFontFT::download(QTextStream& s, bool global)
       << face->bbox.xMax
       << " "
       << face->bbox.yMax
-      << "]d\n"
+      << "]def\n"
 
-        "/FontType 3 d\n"
+        "/FontType 3 def\n"
 
     // === write encoding ===
 
-        "/Encoding StandardEncoding d\n";
+        "/Encoding StandardEncoding def\n";
 
     // === write fontinfo dict ===
 
@@ -1657,7 +1655,7 @@ void QPSPrintEngineFontFT::download(QTextStream& s, bool global)
         s << (int)getFWord(post_table + 10);
         s << " def\n";
     }
-    s << ">> readonly d\n";
+    s << ">> readonly def\n";
 #endif
 
     bool glyphset[65536];
@@ -1685,7 +1683,7 @@ void QPSPrintEngineFontFT::download(QTextStream& s, bool global)
         s << glyphName(x);
         s << "{";
         charproc(x, s);
-        s << "}def\n";     /* "} bind def" */
+        s << "}def\n";
     }
 
     s << "end readonly def\n"
@@ -1699,7 +1697,7 @@ void QPSPrintEngineFontFT::download(QTextStream& s, bool global)
         " CharStrings exch\n"
         " 2 copy known not{pop /.notdef}if\n"
         " true 3 1 roll get exec\n"
-        " end}d\n"
+        " end}def\n"
 
         "\n"
 
@@ -1843,7 +1841,7 @@ static int move_to(FT_Vector *to, void *data)
     *d->s << to->x
           << " "
           << to->y
-          << " _m\n";
+          << " m\n";
 
     d->x = to->x;
     d->y = to->y;
@@ -1856,7 +1854,7 @@ static int line_to(FT_Vector *to, void *data)
     *d->s << to->x
           << " "
           << to->y
-          << " _l\n";
+          << " l\n";
 
     d->x = to->x;
     d->y = to->y;
@@ -1884,7 +1882,7 @@ static int conic_to(FT_Vector *control, FT_Vector *to, void *data)
           << to->x
           << " "
           << to->y
-          << " _c\n";
+          << " c\n";
 
     d->x = to->x;
     d->y = to->y;
@@ -1906,7 +1904,7 @@ static int cubic_to(FT_Vector *control1, FT_Vector *control2, FT_Vector *to, voi
           << to->x
           << " "
           << to->y
-          << " _c\n";
+          << " c\n";
 
     d->x = to->x;
     d->y = to->y;
@@ -1952,10 +1950,10 @@ void QPSPrintEngineFontFT::charproc(int glyph, QTextStream& s)
       << bounds.xMax
       << " "
       << bounds.yMax
-      << " _sc\n";
+      << " scd\n";
 
     FT_Outline_Decompose(&face->glyph->outline, &outline_funcs, &d);
-    s << "_cl";
+    s << "h";
 }
 #endif
 
@@ -3332,7 +3330,7 @@ void QPSPrintEnginePrivate::drawImage(qreal x, qreal y, qreal w, qreal h,
             pageStream << "/mask currentfile/ASCII85Decode filter/RunLengthDecode filter "
                        << size << " string readstring\n";
             ps_r7( pageStream, out, out.size() );
-            pageStream << " pop d\n";
+            pageStream << " pop def\n";
         }
         if (img.depth() == 1) {
             size = (width+7)/8*height;
@@ -3349,7 +3347,7 @@ void QPSPrintEnginePrivate::drawImage(qreal x, qreal y, qreal w, qreal h,
         pageStream << "/sl currentfile/ASCII85Decode filter/RunLengthDecode filter "
                        << size << " string readstring\n";
         ps_r7( pageStream, out, out.size() );
-        pageStream << " pop d\n";
+        pageStream << " pop def\n";
         pageStream << width << ' ' << height << "[" << scaleX << " 0 0 " << scaleY << " 0 0]sl "
                    << bits << (!mask.isNull() ? "mask " : "false ")
                    << x << ' ' << y << " di\n";
@@ -3452,7 +3450,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
                          " [s s] [s s]"                  //   dot line
                          " [m s s s] [s m s s]"      //   dash dot line
                          " [m s s s s] [s m s s s s]"         //   dash dot dot line
-                         "] d\n";
+                         "] def\n";
     lineStyles.replace(QLatin1String("w"), toString(10./scale));
     lineStyles.replace(QLatin1String("m"), toString(5./scale));
     lineStyles.replace(QLatin1String("s"), toString(3./scale));
@@ -3471,10 +3469,10 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     if (orientation == QPrinter::Portrait) {
         outStream << "% " << printer->widthMM() << "*" << printer->heightMM()
                << "mm (portrait)\n0 " << height*scale
-               << " translate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
+               << " translate " << scale << " -" << scale << " scale/defM matrix CM def } def\n";
     } else {
         outStream << "% " << printer->heightMM() << "*" << printer->widthMM()
-               << " mm (landscape)\n 90 rotate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
+               << " mm (landscape)\n 90 rotate " << scale << " -" << scale << " scale/defM matrix CM def } def\n";
     }
     outStream << "%%EndProlog\n";
 
@@ -3560,6 +3558,7 @@ QPSPrintEngine::QPSPrintEngine(QPrinter::PrinterMode m)
                    | PatternTransform
                    | PixmapTransform
                    | PainterPaths
+                   | PatternBrush
         )
 {
 }
@@ -3981,9 +3980,9 @@ void QPSPrintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
     d->pageStream << color(d->bkColor) << "BC\n";
 
     if (d->bkMode == Qt::TransparentMode)
-        d->pageStream << "/OMo false d\n";
+        d->pageStream << "/OMo false def\n";
     else
-        d->pageStream << "/OMo true d\n";
+        d->pageStream << "/OMo true def\n";
 }
 
 void QPSPrintEngine::updateMatrix(const QMatrix &matrix)
@@ -4079,8 +4078,8 @@ void QPSPrintEngine::drawLines(const QLineF *lines, int lineCount)
     Q_D(QPSPrintEngine);
     d->pageStream << "NP\n";
     for (int i = 0; i < lineCount; ++i) {
-        d->pageStream << POINT(lines[i].p1()) << "MT "
-                      << POINT(lines[i].p2()) << "LT\n";
+        d->pageStream << POINT(lines[i].p1()) << "m "
+                      << POINT(lines[i].p2()) << "l\n";
     }
     d->pageStream << "QS\n";
 }
@@ -4090,18 +4089,18 @@ void QPSPrintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonD
     Q_D(QPSPrintEngine);
 
     if (mode == WindingMode)
-        d->pageStream << "/WFi true d\n";
+        d->pageStream << "/WFi true def\n";
     d->pageStream << "NP\n";
-    d->pageStream << POINT(points[0]) << "MT\n";
+    d->pageStream << POINT(points[0]) << "m\n";
     for(int i = 1; i < pointCount; i++) {
-        d->pageStream << POINT(points[i]) << "LT\n";
+        d->pageStream << POINT(points[i]) << "l\n";
     }
     if (mode == PolylineMode)
         d->pageStream << "QS\n";
     else
-        d->pageStream << "CP BF QS\n";
+        d->pageStream << "h BF QS\n";
     if (mode == WindingMode)
-        d->pageStream << "/WFi false d\n";
+        d->pageStream << "/WFi false def\n";
 }
 
 void QPSPrintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
@@ -4183,7 +4182,7 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
     bool winding = (p.fillRule() == Qt::WindingFill);
 
     if (winding)
-        d->pageStream << "/WFi true d\n";
+        d->pageStream << "/WFi true def\n";
     d->pageStream << "NP\n";
 
     int start = -1;
@@ -4194,12 +4193,12 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
             if (start >= 0
                 && p.elementAt(start).x == p.elementAt(i-1).x
                 && p.elementAt(start).y == p.elementAt(i-1).y)
-                d->pageStream << "CP\n";
-            d->pageStream << QT_PATH_ELEMENT(elm) << "MT\n";
+                d->pageStream << "h\n";
+            d->pageStream << QT_PATH_ELEMENT(elm) << "m\n";
             start = i;
             break;
         case QPainterPath::LineToElement:
-            d->pageStream << QT_PATH_ELEMENT(elm) << "LT\n";
+            d->pageStream << QT_PATH_ELEMENT(elm) << "l\n";
             break;
         case QPainterPath::CurveToElement:
             Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
@@ -4207,7 +4206,7 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
             d->pageStream << QT_PATH_ELEMENT(elm)
                           << QT_PATH_ELEMENT(p.elementAt(i+1))
                           << QT_PATH_ELEMENT(p.elementAt(i+2))
-                          << "curveto\n";
+                          << "c\n";
             i += 2;
             break;
         default:
@@ -4217,12 +4216,12 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
     if (start >= 0
         && p.elementAt(start).x == p.elementAt(p.elementCount()-1).x
         && p.elementAt(start).y == p.elementAt(p.elementCount()-1).y)
-        d->pageStream << "CP\n";
+        d->pageStream << "h\n";
 
     d->pageStream << "BF QS\n";
 
     if (winding)
-        d->pageStream << "/WFi false d\n";
+        d->pageStream << "/WFi false def\n";
 }
 
 
