@@ -2682,12 +2682,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 
 #if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     if (openType) {
-	unsigned short logClusters[16];
-	for (int i = 0; i < len; ++i)
-	    logClusters[i] = i;
-
  	uint where[16];
-
         for (int i = 0; i < len; ++i) {
             where[i] = ~(PreSubstProperty
                          | BelowSubstProperty
