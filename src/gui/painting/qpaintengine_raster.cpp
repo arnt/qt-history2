@@ -1685,15 +1685,15 @@ void QRasterPaintEnginePrivate::drawBox(const QPointF &, const QTextItem &)
 #else
 
 #if defined(Q_WS_WIN)
-bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, int ymin, int xmax, 
+bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, int ymin, int xmax,
                                               int ymax, const QTextItem &textItem, bool clearType,
                                               qreal leftBearingReserve)
-{   
+{
     Q_D(QRasterPaintEngine);
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 
     if (d->mono_surface) {
-        // Some extra work to get proper rasterization of text on monochrome targets    
+        // Some extra work to get proper rasterization of text on monochrome targets
         HBITMAP bitmap = CreateBitmap(devRect.width(), devRect.height(), 1, 1, 0);
         HDC hdc = CreateCompatibleDC(qt_win_display_dc());
         HGDIOBJ null_bitmap = SelectObject(hdc, bitmap);
@@ -1704,7 +1704,7 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
         // Fill buffer with stuff
         SelectObject(hdc, GetStockObject(BLACK_BRUSH));
         SelectObject(hdc, GetStockObject(BLACK_PEN));
-        SetTextColor(hdc, RGB(0,0,0));            
+        SetTextColor(hdc, RGB(0,0,0));
         qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, hdc);
 
         BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
@@ -1742,8 +1742,8 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
         COLORREF cf = RGB(qRed(penColor), qGreen(penColor), qBlue(penColor));
         SelectObject(d->fontRasterBuffer->hdc(), CreateSolidBrush(cf));
         SelectObject(d->fontRasterBuffer->hdc(), CreatePen(PS_SOLID, 1, cf));
-        SetTextColor(d->fontRasterBuffer->hdc(), cf);            
-        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, 
+        SetTextColor(d->fontRasterBuffer->hdc(), cf);
+        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti,
             d->fontRasterBuffer->hdc());
         DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(HOLLOW_BRUSH)));
         DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(BLACK_PEN)));
@@ -1755,20 +1755,20 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
                 QRgb *rbScanline = (QRgb *) d->rasterBuffer->scanLine(y);
                 for (int x=xmin; x<xmax; ++x) {
                     // If alpha is 0, then Windows has drawn text on top of the pixel, so set
-                    // the pixel to opaque. Otherwise, Windows has not touched the pixel, so 
+                    // the pixel to opaque. Otherwise, Windows has not touched the pixel, so
                     // we can set it to transparent so the background shines through instead.
                     switch (qAlpha(scanline[x - devRect.x()])) {
-                    case 0x0: 
+                    case 0x0:
                         // Special case: If Windows has drawn on top of a transparent pixel, then
                         // we bail out. This is an attempt at avoiding the problem where Windows
-                        // has no background to use for composition, but also minimizing the 
-                        // number of cases hit by the fall back. 
-                        // ### This is far from optimal.                        
+                        // has no background to use for composition, but also minimizing the
+                        // number of cases hit by the fall back.
+                        // ### This is far from optimal.
                         if (qAlpha(rbScanline[x]) == 0) {
                             return drawTextInFontBuffer(devRect, xmin, ymin, xmax, ymax, textItem,
                                 false, leftBearingReserve);
                         }
-                        scanline[x - devRect.x()] |= 0xff000000; 
+                        scanline[x - devRect.x()] |= 0xff000000;
                         break ;
                     default: scanline[x - devRect.x()] = 0x0; break ;
                     };
@@ -1778,7 +1778,7 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
     }
 
     return clearType;
-} 
+}
 #endif // Q_WS_WIN
 
 
@@ -1972,8 +1972,8 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
         int top = 0;
         int bottom = d->deviceRect.height();
         while (points < end) {
-            x = qRound(points->x() + dx);
-            y = qRound(points->y() + dy);
+            x = qFloor(points->x() + dx);
+            y = qFloor(points->y() + dy);
             if (x >= left && x < right && y >= top && y < bottom) {
                 span.x = x;
                 span.y = y;
@@ -2014,8 +2014,8 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
                 drawLine_midpoint_i(x1, y1, x2, y2, d->penData.blend, &d->penData, mode, bounds);
             } else {
                 QLineF line = lines[i] * d->matrix;
-                drawLine_midpoint_i(qRound(line.x1()), qRound(line.y1()),
-                                    qRound(line.x2()), qRound(line.y2()),
+                drawLine_midpoint_i(qFloor(line.x1()), qFloor(line.y1()),
+                                    qFloor(line.x2()), qFloor(line.y2()),
                                     d->penData.blend, &d->penData, mode, bounds);
             }
         }
@@ -2039,8 +2039,8 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
                             : LineDrawIncludeLastPixel;
         for (int i=0; i<lineCount; ++i) {
             QLineF line = lines[i] * d->matrix;
-            drawLine_midpoint_i(qRound(line.x1()), qRound(line.y1()),
-                                qRound(line.x2()), qRound(line.y2()),
+            drawLine_midpoint_i(qFloor(line.x1()), qFloor(line.y1()),
+                                qFloor(line.x2()), qFloor(line.y2()),
                                 d->penData.blend, &d->penData, mode, bounds);
         }
     } else {
