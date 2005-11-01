@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include <qgfxdriverplugin_qws.h>
-#include <qgfxtransformed_qws.h>
+#include <qscreendriverplugin_qws.h>
+#include <qscreentransformed_qws.h>
 #include <qstringlist.h>
 
-class GfxTransformedDriver : public QGfxDriverPlugin
+class GfxTransformedDriver : public QScreenDriverPlugin
 {
 public:
     GfxTransformedDriver();
@@ -25,7 +25,7 @@ public:
 };
 
 GfxTransformedDriver::GfxTransformedDriver()
-: QGfxDriverPlugin()
+: QScreenDriverPlugin()
 {
 }
 

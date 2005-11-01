@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include <qgfxdriverplugin_qws.h>
-#include <qgfxvnc_qws.h>
+#include <qscreendriverplugin_qws.h>
+#include <qscreenvnc_qws.h>
 #include <qstringlist.h>
 
-class GfxVncDriver : public QGfxDriverPlugin
+class GfxVncDriver : public QScreenDriverPlugin
 {
 public:
     GfxVncDriver();
@@ -25,7 +25,7 @@ public:
 };
 
 GfxVncDriver::GfxVncDriver()
-: QGfxDriverPlugin()
+: QScreenDriverPlugin()
 {
 }
 
