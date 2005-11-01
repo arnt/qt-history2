@@ -1852,7 +1852,7 @@ int QPdfEnginePrivate::write(const char *src, int len)
 {
 #ifndef QT_NO_COMPRESS
     if(do_compress) {
-        uLongf destLen = 1001 * len / 1000 + 13; // zlib requirement
+        uLongf destLen = len + len/100 + 13; // zlib requirement
         Bytef* dest = new Bytef[destLen];
         if (Z_OK == ::compress(dest, &destLen, (const Bytef*) src, (uLongf)len)) {
             stream->writeRawData((const char*)dest, destLen);
