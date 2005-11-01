@@ -19,3 +19,7 @@ options = $$find(CONFIG, "debug") $$find(CONFIG, "release")
 count(options, 2) {
     message(Both release and debug specified.)
 }
+
+eval(TARGET = myapp) {
+    message($$TARGET)
+}

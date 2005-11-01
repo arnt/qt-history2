@@ -2146,6 +2146,22 @@
         error(An error has occurred in the configuration process.)
     \endcode
 
+    \section1 eval(string)
+    [Conditional]
+
+    Evaluates the contents of the string using \c qmake's syntax rules
+    and returns true.
+    Definitions and assignments can be used in the string to modify the
+    values of existing variables or create new definitions.
+
+    For example:
+    \quotefromfile snippets/qmake/functions.pro
+    \skipto eval
+    \printuntil }
+
+    Note that quotation marks can be used to delimit the string, and that
+    the return value can be discarded if it is not needed.
+
     \section1 exists(filename)
     [Conditional]
 
