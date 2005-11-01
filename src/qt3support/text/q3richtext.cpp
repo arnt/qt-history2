@@ -5933,7 +5933,7 @@ int Q3TextFormatterBreakWords::format(Q3TextDocument *doc, Q3TextParagraph *para
                 col = 0;
                 if (allowBreakInWords() || lastWasHardBreak) {
                     minw = qMax(minw, tminw);
-                    tminw = marg;
+                    tminw = marg + ww;
                 }
             } else { // ... otherwise if we had a breakable char, break there
                 DO_FLOW(lineStart);
