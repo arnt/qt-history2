@@ -15,6 +15,7 @@
 #include "qdesigner_command_p.h"
 #include "actionrepository_p.h"
 #include "actionprovider_p.h"
+#include "qdesigner_utils_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -275,7 +276,8 @@ void QDesignerToolBar::dragEnterEvent(QDragEnterEvent *event)
         Q_ASSERT(!d->items.isEmpty());
 
         QAction *action = d->items.first();
-        if (action && !action->menu() && !actions().contains(action)) {
+        if (action && !action->menu() && !actions().contains(action) &&
+            Utils::isObjectAncestorOf(formWindow()->mainContainer(), action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
         }

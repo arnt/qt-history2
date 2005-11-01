@@ -18,6 +18,7 @@
 #include "actionrepository_p.h"
 #include "actionprovider_p.h"
 #include "actioneditor_p.h"
+#include "qdesigner_utils_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -506,6 +507,9 @@ bool QDesignerMenu::checkAction(QAction *action) const
 
     if (actions().contains(action))
         return false; // we already have the action in the menu
+
+    if (!Utils::isObjectAncestorOf(formWindow()->mainContainer(), action))
+        return false; // the action belongs to another form window
 
     return true;
 }

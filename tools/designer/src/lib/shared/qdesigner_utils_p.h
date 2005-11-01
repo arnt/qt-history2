@@ -62,6 +62,17 @@ inline int valueOf(const QVariant &value, bool *ok = 0)
     return value.toInt(ok);
 }
 
+inline bool isObjectAncestorOf(QObject *ancestor, QObject *child)
+{
+    QObject *obj = child;
+    while (obj != 0) {
+        if (obj == ancestor)
+            return true;
+        obj = obj->parent();
+    }
+    return false;
+}
+
 } // namespace Utils
 
 } // namespace qdesigner_internal
