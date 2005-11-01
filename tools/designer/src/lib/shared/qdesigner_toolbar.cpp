@@ -97,7 +97,10 @@ void QDesignerToolBar::startDrag(const QPoint &pos)
 
     if (drag->start() == Qt::IgnoreAction) {
         QAction *previous = actions().at(index);
-        insertAction(previous, action);
+
+        InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+        cmd->init(this, action, previous);
+        formWindow()->commandHistory()->push(cmd);
     }
 }
 
@@ -195,7 +198,15 @@ void QDesignerToolBar::slotRemoveSelectedAction()
 
     QAction *a = qvariant_cast<QAction*>(action->data());
     Q_ASSERT(a != 0);
-    removeAction(a);
+
+    int pos = actions().indexOf(a);
+    QAction *action_before = 0;
+    if (pos != -1 && actions().count() > pos + 1)
+        action_before = actions().at(pos + 1);
+
+    RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
+    cmd->init(this, a, action_before);
+    formWindow()->commandHistory()->push(cmd);
 }
 
 bool QDesignerToolBar::eventFilter(QObject *object, QEvent *event)
@@ -300,7 +311,10 @@ void QDesignerToolBar::dropEvent(QDropEvent *event)
         if (action && !actions().contains(action)) {
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
-            insertAction(actions().at(index), action);
+
+            InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+            cmd->init(this, action, actions().at(index));
+            formWindow()->commandHistory()->push(cmd);
         }
     }
 
