@@ -278,14 +278,14 @@ class QPdfPath : public QPdfObject
 {
 public:
     enum PAINTTYPE {
-        NONE					= 0L,
+        NONE	      = 0L,
         STROKE        = 1L<<0,
         FILLNONZERO   = 1L<<1,
         FILLEVENODD   = 1L<<2,
         CLIPPING      = 1L<<3
     };
 
-    explicit QPdfPath(const QPdfPen* = 0, const QPdfBrush* = 0, int brushflags = NONE);
+    explicit QPdfPath(const QPdfPen *pen, const QPdfBrush *brush, const QPainterPath &p);
 
     QPainterPath path;
 
@@ -293,16 +293,13 @@ public:
     int painttype;
     QMatrix currentMatrix;
     bool hasTrueAlpha() const {return hasTrueStrokeAlpha() || hasTrueNonStrokeAlpha();}
-    int alphaObject() const {return alphaobj_;}
-    QByteArray alphaName() const {return alphaname_;};
-    void setAlpha(const QByteArray& prefix, int objno) {alphaname_ = prefix + QByteArray::number(objno); alphaobj_ = objno;}
     QByteArray getAlphaDefinition() const;
+
+    int alphaObject;
 
 private:
     QByteArray paintOperator() const;
     qreal ca_, CA_;
-    QByteArray alphaname_;
-    int alphaobj_;
     bool gradientstrokealpha_;
 
     bool hasTrueStrokeAlpha() const {return CA_ >= 0.0 && CA_ < 1.0 ;}
@@ -359,20 +356,15 @@ public:
     bool fullPage;
 
     int addImage(const QImage &image, bool maybeBitmap);
-    
+
 private:
     Q_DISABLE_COPY(QPdfEnginePrivate)
     void writeInfo();
     void writePageRoot();
     void flushPage();
-    uint requestObject()
-    {
-        return currentObject++;
-    }
+    inline uint requestObject() { return currentObject++; }
 
     QVector<int> xrefPositions;
-    int options_;
-    bool landscape_;
     int width_, height_;
     QDataStream* stream;
     int streampos;
@@ -406,7 +398,6 @@ public:
     void drawLines(const QLineF *lines, int lineCount);
     void drawRects(const QRectF *rects, int rectCount);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
-    void drawEllipse (const QRectF & rectangle);
     void drawPath (const QPainterPath & path);
     void drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QRectF & sr);
     void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
@@ -446,20 +437,20 @@ private:
     QPdfEnginePrivate *d;
 
     void setBrush (QPdfBrush& pbr, const QBrush & brush, const QPointF& origin);
-    void drawPathPrivate (const QPainterPath & path);
+    void drawPathPrivate (const QPainterPath & path, bool isClip = false);
 
     QPrinter::PageSize pagesize_;
-    bool clipping_, tofile_;
-    Qt::BGMode backgroundMode;
-    QIODevice* device_;
 
-    QBrush* lastBrush_, *bgBrush_;
-    QPen* lastPen_;
-    QMatrix* lastMatrix_;
-    int pixmapnumber_;
-    QPointF *lastBrushOrig_;
-    QRegion* lastClipRegion_;
+    QIODevice* device_;
     QFile* outFile_;
+
+    Qt::BGMode backgroundMode;
+    QBrush backgroundBrush;
+    QPointF brushOrigin;
+    QBrush brush;
+    QPen pen;
+    QMatrix matrix;
+    QRegion clipRegion;
 };
 
 #endif // QT_NO_PRINTER

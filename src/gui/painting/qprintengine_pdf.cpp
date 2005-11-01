@@ -28,8 +28,6 @@
 #include <zlib.h>
 #endif
 
-#include <private/qdrawhelper_p.h>
-
 // might be helpful for smooth transforms of images
 static const bool interpolateImages = false;
 
@@ -176,18 +174,9 @@ QPdfEngine::QPdfEngine()
     : QPaintEngine(qt_pdf_decide_features()), outFile_(new QFile)
 {
     device_ = 0;
-    clipping_ = false;
-    tofile_ = false;
     backgroundMode = Qt::TransparentMode;
-    pixmapnumber_ = 0;
 
     d = new QPdfEnginePrivate;
-    lastBrush_ = new QBrush;
-    lastPen_ = new QPen;
-    lastMatrix_ = new QMatrix;
-    bgBrush_ = new QBrush;
-    lastBrushOrig_ = new QPointF;
-    lastClipRegion_ = new QRegion;
 
     pagesize_ = QPrinter::A4;
     QRect r = paperRect();
@@ -198,12 +187,6 @@ QPdfEngine::~QPdfEngine()
 {
     delete d;
 
-    delete lastBrush_;
-    delete lastPen_;
-    delete lastMatrix_;
-    delete bgBrush_;
-    delete lastBrushOrig_;
-    delete lastClipRegion_;
     delete outFile_;
 }
 
@@ -399,7 +382,7 @@ void QPdfEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawM
         return;
 
     QPainterPath p;
-    QBrush br = *lastBrush_;
+    QBrush br = brush;
 
     switch(mode) {
     case OddEvenMode:
@@ -410,7 +393,7 @@ void QPdfEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawM
         p.setFillRule(Qt::WindingFill);
         break;
     case PolylineMode:
-        updateBrush(QBrush(Qt::NoBrush),*lastBrushOrig_);
+        updateBrush(QBrush(Qt::NoBrush), brushOrigin);
         break;
     default:
         break;
@@ -426,40 +409,24 @@ void QPdfEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawM
         p.closeSubpath();
     drawPath(p);
     if (mode == PolylineMode)
-        updateBrush(br,*lastBrushOrig_);
-}
-
-void QPdfEngine::drawEllipse (const QRectF & rectangle)
-{
-    QPainterPath p;
-    p.addEllipse(rectangle);
-    drawPath(p);
+        updateBrush(br, brushOrigin);
 }
 
 void QPdfEngine::drawPath (const QPainterPath &p)
 {
-    if (backgroundMode == Qt::OpaqueMode && lastBrush_->style() != Qt::NoBrush) {
-        QBrush tmp = *lastBrush_;
-        updateBrush(*bgBrush_,*lastBrushOrig_); //todo origin for bgBrush ?
-        drawPathPrivate(p);
-        updateBrush(tmp, *lastBrushOrig_);
-    }
     drawPathPrivate(p);
 }
 
-void QPdfEngine::drawPathPrivate (const QPainterPath &p)
+void QPdfEngine::drawPathPrivate (const QPainterPath &p, bool isClip)
 {
-    if (p.isEmpty() && !clipping_)
+    if (p.isEmpty() && !isClip)
         return;
 
-    QPdfPath* path = new QPdfPath(d->curPen, d->curBrush,
-                                  (p.fillRule() == Qt::WindingFill)
-                                  ? QPdfPath::FILLNONZERO : QPdfPath::FILLEVENODD);
+    QPdfPath* path = new QPdfPath(d->curPen, d->curBrush, p);
 
-    if (clipping_)
+    if (isClip)
         path->painttype |= QPdfPath::CLIPPING;
 
-    path->path = p;
     d->curPage->append(path);
 }
 
@@ -470,7 +437,7 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
     QPixmap pm = pixmap.copy(sr.toRect());
 
     QImage image = pm.toImage();
-        
+
     QMatrix mat = d->curMatrix->lastMatrix();
     updateMatrix(QMatrix(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
                          rectangle.x(), rectangle.y()) * mat);
@@ -496,16 +463,18 @@ void QPdfEngine::drawImage(const QRectF & rectangle, const QImage & image, const
     updateMatrix(mat);
 }
 
-void QPdfEngine::drawTiledPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QPointF & point)
+void QPdfEngine::drawTiledPixmap (const QRectF &rectangle, const QPixmap &pixmap, const QPointF &point)
 {
-    QBrush b = *lastBrush_;
-    QPointF pt = *lastBrushOrig_;
-    QPen pen = *lastPen_;
-    updateBrush(QBrush(pixmap),-point);
+    QBrush b = brush;
+    QPointF pt = brushOrigin;
+    QPen p = pen;
+    updateBrush(QBrush(pixmap), -point);
     updatePen(QPen(Qt::NoPen));
+
     drawRects(&rectangle, 1);
-    updatePen(pen);
-    updateBrush(b,pt);
+
+    updatePen(p);
+    updateBrush(b, pt);
 }
 
 void QPdfEngine::updateState(const QPaintEngineState &state)
@@ -538,10 +507,10 @@ void QPdfEngine::updateState(const QPaintEngineState &state)
     //     if (flags & DirtyHints) updateRenderHints(state.renderHints());
 }
 
-void QPdfEngine::updateClipRegion (const QRegion & region, Qt::ClipOperation op)
+void QPdfEngine::updateClipRegion (const QRegion &region, Qt::ClipOperation op)
 {
     QPainterPath p;
-    QRegion r = *lastClipRegion_;
+    QRegion r = clipRegion;
     QMatrix mat = d->curMatrix->lastMatrix();
     switch(op) {
     case Qt::NoClip:
@@ -560,29 +529,30 @@ void QPdfEngine::updateClipRegion (const QRegion & region, Qt::ClipOperation op)
     default:
         return;
     }
-    *lastClipRegion_ = r;
+    clipRegion = r;
 
+    // ################
     //todo p.addRegion(r);
     QVector<QRect> rects = r.rects();
-    for (int i=0; i<rects.size(); ++i) p.addRect(rects.at(i));
+    for (int i = 0; i < rects.size(); ++i)
+        p.addRect(rects.at(i));
 
     QRegion reg(p.toFillPolygon().toPolygon(), p.fillRule());
     p = QPainterPath();
     //todo p.addRegion(reg);
     rects = reg.rects();
-    for (int i=0; i<rects.size(); ++i) p.addRect(rects.at(i));
+    for (int i = 0; i < rects.size(); ++i)
+        p.addRect(rects.at(i));
 
     p = mat.map(p);
 
     if (p.isEmpty())
-        p.addRect(-1,-1,1,1);
+        p.addRect(-1, -1, 1, 1);
 
-    clipping_ = true;
-    drawPath(p);
-    clipping_ = false;
+    drawPathPrivate(p, true);
 }
 
-
+// ############# do not convert to a region!
 void QPdfEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
     QPainterPath p = path;
@@ -601,8 +571,6 @@ void QPdfEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
   if (p.isEmpty()) // dummy path
   p.addRect(0,0,0,0);
 
-  clipping_ = true;
-
   switch(op) {
   case Qt::NoClip:
   updateMatrix(QMatrix());
@@ -620,40 +588,35 @@ void QPdfEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
   drawPath(mat.map(p));
   break;
   case Qt::IntersectClip:
-  clipping_ = false;
   return;
   default:
   break;
   }
-  clipping_ = false;
   *lastClipPath_ = p;
   }
 */
 
-void QPdfEngine::updateBrush (const QBrush & brush, const QPointF & origin)
+void QPdfEngine::updateBrush (const QBrush & br, const QPointF & origin)
 {
-    *lastBrushOrig_ = origin;
-    setBrush(*d->curBrush,brush,*lastBrushOrig_);
+    brushOrigin = origin;
+    setBrush(*d->curBrush, br, brushOrigin);
     d->curPage->append(d->curBrush);
-    *lastBrush_ = brush;
+    brush = br;
 }
 
+// ################# use the information here!
 void QPdfEngine::updateBackground (Qt::BGMode bgmode, const QBrush & brush)
 {
     backgroundMode = bgmode;
-    *bgBrush_ = brush;
+    backgroundBrush = brush;
 }
 
-void QPdfEngine::updatePen (const QPen & pen)
+void QPdfEngine::updatePen (const QPen & p)
 {
-    QPen tpen = pen;
-    tpen.setWidth((pen.width()) ? pen.width() : 0);
+    d->curPage->append(d->curPen->setColor(p.color()));
+    d->curPage->append(d->curPen->setLineWidth(p.widthF()));
 
-
-    d->curPage->append(d->curPen->setColor(tpen.color()));
-    d->curPage->append(d->curPen->setLineWidth(tpen.widthF()));
-
-    switch(tpen.capStyle()) {
+    switch(p.capStyle()) {
     case Qt::FlatCap:
         d->curPage->append(d->curPen->setLineCap(0));
         break;
@@ -667,7 +630,7 @@ void QPdfEngine::updatePen (const QPen & pen)
         break;
     }
 
-    switch(tpen.joinStyle()) {
+    switch(p.joinStyle()) {
     case Qt::MiterJoin:
         d->curPage->append(d->curPen->setLineJoin(0));
         break;
@@ -681,23 +644,21 @@ void QPdfEngine::updatePen (const QPen & pen)
         break;
     }
 
-    d->curPage->append(d->curPen->setDashArray(tpen,0));
+    d->curPage->append(d->curPen->setDashArray(p, 0));
 
-    *lastPen_ = tpen;
+    pen = p;
 }
 
-void QPdfEngine::updateMatrix(const QMatrix & matrix)
+void QPdfEngine::updateMatrix(const QMatrix &m)
 {
-    d->curMatrix->setMatrix(matrix);
+    d->curMatrix->setMatrix(m);
     d->curPage->append(d->curMatrix);
-    *lastMatrix_ = matrix;
+    matrix = m;
 
-    if (lastBrush_)
-        //if (lastBrush_->style() != Qt::NoBrush && lastBrush_->style() != Qt::SolidPattern)
-        updateBrush(*lastBrush_, QPointF(0,0));
-    //	if (lastPen_)
-    //		if (lastPen_->style() != Qt::NoPen)
-    //			updatePen(*lastPen_);
+    //if (brush.style() != Qt::NoBrush && brush->style() != Qt::SolidPattern)
+    updateBrush(brush, QPointF(0,0));
+    //		if (pen.style() != Qt::NoPen)
+    //			updatePen(pen);
 }
 
 int QPdfEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
@@ -745,9 +706,9 @@ bool QPdfEngine::newPage()
 {
     if (isActive()) {
         d->newPage();
-        updateMatrix(*lastMatrix_);
-        updateBrush(*lastBrush_, *lastBrushOrig_);
-        updatePen(*lastPen_);
+        updateMatrix(matrix);
+        updateBrush(brush, brushOrigin);
+        updatePen(pen);
         return true;
     }
     return false;
@@ -1592,8 +1553,8 @@ bool QPdfPen::stroking() const
     return stroking_.last();
 }
 
-QPdfPath::QPdfPath(const QPdfPen* pen, const QPdfBrush* brush, int brushflags)
-    : QPdfObject(), ca_(1.0), CA_(1.0), alphaobj_(-1), gradientstrokealpha_(false)
+QPdfPath::QPdfPath(const QPdfPen* pen, const QPdfBrush* brush, const QPainterPath &p)
+    : QPdfObject(), path(p), alphaObject(-1), ca_(1.0), CA_(1.0), gradientstrokealpha_(false)
 {
     type = QPdfObject::PATH;
     painttype = 0;
@@ -1602,7 +1563,8 @@ QPdfPath::QPdfPath(const QPdfPen* pen, const QPdfBrush* brush, int brushflags)
         painttype |= STROKE;
 
     if (brush && !brush->noBrush())
-        painttype |= brushflags;
+        painttype |= (p.fillRule() == Qt::WindingFill)
+                     ? QPdfPath::FILLNONZERO : QPdfPath::FILLEVENODD;
 
     ca_ = (brush) ? brush->alpha() : -1.0;
     CA_ = (pen) ? pen->alpha() : -1.0;
@@ -1683,8 +1645,8 @@ void QPdfPath::streamText(QPdfByteStream &s)
     QByteArray paintop = paintOperator();
     Q_ASSERT(!paintop.isEmpty());
 
-    if (!alphaname_.isEmpty())
-        s << alphaname_ << " gs\n";
+    if (alphaObject > 0)
+        s << "/GStr" << alphaObject << " gs\n";
     else
         s << "/GSa gs\n";
 
@@ -1692,12 +1654,10 @@ void QPdfPath::streamText(QPdfByteStream &s)
     s << ' ' << paintop << "\n";
 
     // 2nd run to get Qt's fill->stroke sequential behavior
-    if (hasTrueStrokeAlpha()) {
-        if (paintop != "S") {
-                paintop = "S";
-            streamCoreText(s);
-            s << ' ' << paintop << "\n";
-        }
+    if (hasTrueStrokeAlpha() && paintop != "S") {
+        paintop = "S";
+        streamCoreText(s);
+        s << ' ' << paintop << "\n";
     }
 }
 
@@ -1844,9 +1804,7 @@ QPdfEnginePrivate::QPdfEnginePrivate()
     currentObject = 1;
     width_ = 0;
     height_ = 0;
-    options_ = 0;
     streampos = 0;
-    landscape_ = false;
 
     curPage = new QPdfPage;
 
@@ -1934,7 +1892,7 @@ int QPdfEnginePrivate::writeImage(const QByteArray &data, int width, int height,
             "/Subtype /Image\n"
             "/Width %d\n"
             "/Height %d\n", width, height);
-    
+
     if (depth == 1) {
         xprintf("/ImageMask true\n"
                 "/Decode [1 0]\n");
@@ -2018,7 +1976,10 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool maybeBitmap)
         }
     }
     int maskObject = 0;
-    if (hasMask) {
+    int softMaskObject = 0;
+    if (hasAlpha) {
+        softMaskObject = writeImage(softMaskData, w, h, 8, 0, 0);
+    } else if (hasMask) {
         // dither the soft mask to 1bit and add it. This also helps PDF viewers
         // without transparency support
         int bytesPerLine = (w + 7) >> 3;
@@ -2027,18 +1988,14 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool maybeBitmap)
         const uchar *sdata = (const uchar *)softMaskData.constData();
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
-                if (qt_bayer_matrix[x%16][y%16] < *sdata) {
+                if (*sdata) 
                     mdata[x>>3] |= (0x80 >> (x&7));
-                }
                 ++sdata;
             }
             mdata += bytesPerLine;
         }
         maskObject = writeImage(mask, w, h, 1, 0, 0);
     }
-    int softMaskObject = 0;
-    if (hasAlpha) 
-        softMaskObject = writeImage(softMaskData, w, h, 8, 0, 0);
 
     return writeImage(imageData, w, h, 32, maskObject, softMaskObject);
 }
@@ -2066,10 +2023,6 @@ void QPdfEnginePrivate::writeHeader()
             "/Type /ExtGState\n"
             "/SA true\n"
             "/SM 0.02\n"
-            "/BG2 /Default\n"
-            "/BM /Normal\n"
-            "/UCR2 /Default\n"
-            "/TR2 /Default\n"
             "/ca 1.0\n"
             "/CA 1.0\n"
             "/AIS false\n"
@@ -2081,7 +2034,7 @@ void QPdfEnginePrivate::writeHeader()
     xprintf("[ /CalRGB\n"
             "<<\n"
             "/WhitePoint [0.9505 1.0000 1.0890]\n"
-            "/Gamma [1.8000 1.8000 1.8000]\n"
+            "/Gamma [2.2 2.2 2.2]\n"
             "/Matrix [ 0.4497 0.2446 0.0252 0.3163 0.6720 0.1412 0.1845 0.0833 0.9227]\n"
             //"/Matrix [ 1 0 0 0 1 0 0 0 1]\n"
             ">>\n"
@@ -2092,6 +2045,7 @@ void QPdfEnginePrivate::writeHeader()
     xprintf("[ /CalGray\n"
             "<<\n"
             "/WhitePoint [0.9505 1.0000 1.0890]\n"
+            "/Gamma 2.2\n"
             ">>\n"
             "]\n"
             "endobj\n");
@@ -2220,8 +2174,8 @@ void QPdfEnginePrivate::flushPage()
         QPdfPath* p = curPage->paths[i];
 
         if (p->hasTrueAlpha()) {
-            p->setAlpha("/GStr", requestObject());
-            xprintf("%s %d 0 R\n", p->alphaName().constData(), p->alphaObject());
+            p->alphaObject = requestObject();
+            xprintf("/GStr%d %d 0 R\n", p->alphaObject, p->alphaObject);
         }
     }
 
@@ -2298,7 +2252,7 @@ void QPdfEnginePrivate::flushPage()
         QPdfPath* p = curPage->paths[i];
 
         if (p->hasTrueAlpha()) {
-            addXrefEntry(p->alphaObject());
+            addXrefEntry(p->alphaObject);
             xprintf(p->getAlphaDefinition().constData());
         }
     }
