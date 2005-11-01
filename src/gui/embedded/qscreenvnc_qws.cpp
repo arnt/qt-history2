@@ -24,6 +24,8 @@
 #include <qpolygon.h>
 #include "qwsdisplay_qws.h"
 
+//#define QT_QWS_VNC_DEBUG
+
 extern QString qws_qtePipeFilename();
 
 #define MAP_TILE_SIZE            16
@@ -503,11 +505,9 @@ QVNCServer::~QVNCServer()
 
 void QVNCServer::newConnection()
 {
-    qDebug("new connection");
-    if (client) {
-        qDebug("Killing old client");
+    if (client)
         delete client;
-    }
+
     client = serverSocket->nextPendingConnection();
     connect(client,SIGNAL(readyRead()),this,SLOT(readClient()));
     connect(client,SIGNAL(disconnected()),this,SLOT(discardClient()));
@@ -544,7 +544,6 @@ void QVNCServer::readClient()
             if (client->bytesAvailable() >= 1) {
                 quint8 shared;
                 client->read((char *) &shared, 1);
-                qDebug("Read client init message");
 
                 // Server Init msg
                 QRfbServerInit sim;
@@ -627,7 +626,7 @@ void QVNCServer::readClient()
                             setPixelFormat();
                             break;
                         case FixColourMapEntries:
-                            qDebug("Arrrgh: got FixColourMapEntries");
+                            qDebug("Not supported: FixColourMapEntries");
                             handleMsg = false;
                             break;
                         case SetEncodings:
@@ -661,6 +660,7 @@ void QVNCServer::setPixelFormat()
         char buf[3];
         client->read(buf, 3); // just padding
         pixelFormat.read(client);
+#ifdef QT_QWS_VNC_DEBUG
         qDebug("Want format: %d %d %d %d %d %d %d %d %d %d",
             int(pixelFormat.bitsPerPixel),
             int(pixelFormat.depth),
@@ -672,7 +672,7 @@ void QVNCServer::setPixelFormat()
             int(pixelFormat.redShift),
             int(pixelFormat.greenShift),
             int(pixelFormat.blueShift));
-
+#endif
         if (pixelFormat.bitsPerPixel != 16 && pixelFormat.bitsPerPixel != 32) {
             qDebug("Cannot handle %d bpp client", pixelFormat.bitsPerPixel);
             discardClient();
@@ -700,11 +700,12 @@ void QVNCServer::setEncodings()
             enc = ntohl(enc);
             if (enc == 5)
                 supportHextile = true;
+#ifdef QT_QWS_VNC_DEBUG
             qDebug("Can do %d", enc);
+#endif
         }
         handleMsg = false;
         encodingsPending = 0;
-        qDebug("Read SetEncodingsMsg");
     }
 }
 
