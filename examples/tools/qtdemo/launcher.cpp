@@ -138,11 +138,11 @@ bool Launcher::setup()
         mainDescription += tr("\n");
 
     categoryDescriptions["[main]"] = mainDescription + tr(
-        "<p>Press <tt>Escape</tt>, <tt>Backspace</tt>, or <tt>%1</tt> to "
+        "<p>Press <b>Escape</b>, <b>Backspace</b>, or <b>%1</b> to "
         "return to a previous menu.</p>\n"
-        "<p>Press <tt>%2</tt> to switch between normal and full screen "
+        "<p>Press <b>%2</b> to switch between normal and full screen "
         "modes.</p>\n"
-        "<p>Use <tt>%3</tt> to exit the launcher.</p>").arg(QString(
+        "<p>Use <b>%3</b> to exit the launcher.</p>").arg(QString(
             QKeySequence(tr("Alt+Left")))).arg(QString(
             QKeySequence(tr("Ctrl+F")))).arg(QString(
             QKeySequence(tr("Ctrl+Q"))));
