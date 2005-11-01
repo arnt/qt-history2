@@ -32,6 +32,29 @@ QT_CONFIG=
 SUPPORTED=
 
 #-------------------------------------------------------------------------------
+# utility function
+#-------------------------------------------------------------------------------
+
+# relies on $QMAKESPEC being set correctly. parses include statements in
+# qmake.conf and prints out the expanded file
+getQMakeConf()
+{
+    local SPEC=$QMAKESPEC
+    if [ -n "$1" ]; then
+        SPEC=$1
+    fi
+    awk -v "QMAKESPEC=$SPEC" '
+/^include\(.+\)$/{
+    fname = QMAKESPEC "/" substr($0, 9, length($0) - 9)
+    while ((getline line < fname) > 0)
+        print line
+    close(fname)
+    next
+}
+{ print }' $QMAKESPEC/qmake.conf
+}
+
+#-------------------------------------------------------------------------------
 # operating system detection
 #-------------------------------------------------------------------------------
 
@@ -1667,7 +1690,7 @@ if [ '!' -f "${XQMAKESPEC}/qplatformdefs.h" ]; then
 fi
 
 # now look at the configs and figure out what platform we are config'd for
-[ '!' -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && PLATFORM_X11=yes
+[ '!' -z "`getQMakeConf $XQMAKESPEC | grep QMAKE_LIBS_X11 | awk '{print $3;}'`" ] && PLATFORM_X11=yes
 ### echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && PLATFORM_QWS=yes
 
 if [ "$UNAME_SYSTEM" = "SunOS" ]; then
@@ -2608,19 +2631,7 @@ setBootstrapVariable()
     if [ -n "$2" ]; then
         transformation="sed $2"
     fi
-
-    local resultingVariableName=`echo $1 | $transformation`
-
-    local value=`grep "$variableRegExp" $QMAKESPEC/qmake.conf | $transformation`
-    if [ -n "$value" ]; then
-        echo $value >> $mkfile
-    fi
-    if [ -n "$COMPILER_CONF" ]; then
-        value=`grep "$variableRegExp" $QMAKESPEC/$COMPILER_CONF | sed "s,\+=,:= \\\$($resultingVariableName)," | $transformation`
-        if [ -n "$value" ]; then
-            echo $value >> $mkfile
-        fi
-    fi
+    getQMakeConf | grep "$variableRegExp" | $transformation >> $mkfile
 }
 
 # build qmake
@@ -2682,8 +2693,6 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         EXTRA_CXXFLAGS="\$(QMAKE_CXXFLAGS)"
         EXTRA_LFLAGS="\$(QMAKE_LFLAGS)"
 
-        COMPILER_CONF=`grep 'include(' $QMAKESPEC/qmake.conf | head -n 1 | sed "s,include(\(.\+\)),\1,"`
-
         setBootstrapVariable QMAKE_CC 's,QMAKE_CC,CC,'
         setBootstrapVariable QMAKE_CXX 's,QMAKE_CXX,CXX,'
         setBootstrapVariable QMAKE_CFLAGS
@@ -2697,8 +2706,8 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
             echo "include Makefile.commercial" >>$mkfile
         fi
         if [ "$CFG_DEBUG" = "yes" ]; then
-            grep "^QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
-            grep "^QMAKE_CXXFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS_DEBUG,\$(QMAKE_CFLAGS_DEBUG),"  >>$mkfile
+            setBootstrapVariable QMAKE_CFLAGS_DEBUG
+            setBootstrapVariable QMAKE_CXXFLAGS_DEBUG 's,\$\$QMAKE_CFLAGS_DEBUG,\$(QMAKE_CFLAGS_DEBUG),'
             EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
             EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(QMAKE_CXXFLAGS_DEBUG)"
         fi
@@ -3560,7 +3569,7 @@ if [ "$PLATFORM_MAC" = "yes" ]; then
     if [ "$CFG_RPATH" = "yes" ]; then  
        QMAKE_CONFIG="$QMAKE_CONFIG absolute_library_soname"
     fi
-elif [ -z "`grep QMAKE_RPATH $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
+elif [ -z "`getQMakeConf $XQMAKESPEC | grep QMAKE_RPATH | awk '{print $3;}'`" ]; then
     if [ -n "$RPATH_FLAGS" ]; then
         echo
         echo "ERROR: -R cannot be used on this platform as \$QMAKE_RPATH is"
@@ -3624,7 +3633,7 @@ fi
 case "$COMPILER" in
 g++*)
     # GNU C++
-    QMAKE_CONF_COMPILER=`grep "^QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,.* *= *\(.*\)$,\1,"`
+    QMAKE_CONF_COMPILER=`getQMakeConf | grep "^QMAKE_CXX[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
     COMPILER_VERSION=`${QMAKE_CONF_COMPILER} --version 2>/dev/null`
     case "$COMPILER_VERSION" in
     *2.95.*)
