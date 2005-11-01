@@ -39,11 +39,11 @@ SUPPORTED=
 # qmake.conf and prints out the expanded file
 getQMakeConf()
 {
-    local SPEC=$QMAKESPEC
+    tmpSPEC=$QMAKESPEC
     if [ -n "$1" ]; then
-        SPEC=$1
+        tmpSPEC=$1
     fi
-    awk -v "QMAKESPEC=$SPEC" '
+    $AWK -v "QMAKESPEC=$tmpSPEC" '
 /^include\(.+\)$/{
     fname = QMAKESPEC "/" substr($0, 9, length($0) - 9)
     while ((getline line < fname) > 0)
@@ -2625,9 +2625,9 @@ fi
 # is where the resulting variable is written to
 setBootstrapVariable()
 {
-    local variableRegExp="$1[^_A-Z0-9]"
+    variableRegExp="$1[^_A-Z0-9]"
 
-    local transformation="cat"
+    transformation="cat"
     if [ -n "$2" ]; then
         transformation="sed $2"
     fi
