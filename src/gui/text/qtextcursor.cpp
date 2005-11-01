@@ -94,6 +94,7 @@ void QTextCursorPrivate::remove()
 {
     if (anchor == position)
         return;
+    priv->beginEditBlock();
     currentCharFormat = -1;
     int pos1 = position;
     int pos2 = adjusted_anchor;
@@ -115,6 +116,7 @@ void QTextCursorPrivate::remove()
     }
 
     adjusted_anchor = anchor = position;
+    priv->endEditBlock();
 }
 
 void QTextCursorPrivate::clearCells(QTextTable *table, int startRow, int startCol, int numRows, int numCols, QTextUndoCommand::Operation op)
