@@ -529,7 +529,7 @@ void QTabBar::setShape(Shape shape)
 
 /*!
     \property QTabBar::drawBase
-    \brief defines whether or not tabbar should draw it's base.
+    \brief defines whether or not tabbar should draw its base.
 
     If true then QTabBar draws a base in relation to the styles overlab.
     Otherwise only the tabs are drawn.

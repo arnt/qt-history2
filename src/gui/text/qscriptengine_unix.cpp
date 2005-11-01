@@ -1648,7 +1648,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         int newLen = openType->len();
         OTL_GlyphItem otl_glyphs = openType->glyphs();
 
-        // move the left matra back to it's correct position in malayalam and tamil
+        // move the left matra back to its correct position in malayalam and tamil
         if ((script == QUnicodeTables::Malayalam || script == QUnicodeTables::Tamil) && (form(reordered[0]) == Matra)) {
 //             qDebug("reordering matra, len=%d", newLen);
             // need to find the base in the shaped string and move the matra there

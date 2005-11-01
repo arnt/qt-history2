@@ -427,7 +427,7 @@ void QDockWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
             target.moveTopLeft(event->globalPos() - state->offset);
         } else {
             /*
-              cannot float the window, so put it back into it's
+              cannot float the window, so put it back into its
               original position
             */
             target = state->origin;

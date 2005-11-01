@@ -2029,7 +2029,7 @@ void Q3ActionGroup::childEvent(QChildEvent *e)
 /*!
     \fn void Q3ActionGroup::activated(Q3Action* action)
 
-    This signal is emitted from groups when one of it's actions gets
+    This signal is emitted from groups when one of its actions gets
     activated.
 
     The argument is the \a action which was activated.

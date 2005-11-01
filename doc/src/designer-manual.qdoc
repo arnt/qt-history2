@@ -926,7 +926,7 @@ the main window form.
 
 \section1 Actions
 
-With the menu bar and the tool bars in place, it's time to poulate them with
+With the menu bar and the tool bars in place, it's time to populate them with
 actions: \QD provides the action editor which simplifies the creation and
 management of actions.
 

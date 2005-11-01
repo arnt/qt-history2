@@ -159,7 +159,7 @@ void Feature::setEnabled(bool on)
 
 /*
   Update whether this feature should be selectable.
-  A feature is selectable if all it's dependencies is enabled.
+  A feature is selectable if all its dependencies are enabled.
 */
 void Feature::updateSelectable()
 {

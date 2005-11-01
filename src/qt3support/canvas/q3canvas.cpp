@@ -4854,7 +4854,7 @@ void Q3CanvasText::removeFromChunks()
     Q3Canvas::at(). You should use values greater than 1000 to allow
     for extensions to this class.
 
-    Overuse of this functionality can damage it's extensibility. For
+    Overuse of this functionality can damage its extensibility. For
     example, once you have identified a base class of a Q3CanvasItem
     found by Q3Canvas::at(), cast it to that type and call meaningful
     methods rather than acting upon the object based on its rtti

@@ -341,7 +341,7 @@
     When \a child is 0, the object itself has changed.
 
     Call this function whenever the state of your accessible object or
-    one of it's sub-elements has been changed either programmatically
+    one of its sub-elements has been changed either programmatically
     (e.g. by calling QLabel::setText()) or by user interaction.
 
     If there are no accessibility tools listening to this event, the
@@ -625,7 +625,7 @@ bool QAccessible::isActive()
     children are an integral part of the object itself, for example, the
     different sections in a scrollbar.
 
-    If an accessible object provides information about it's children
+    If an accessible object provides information about its children
     through one QAccessibleInterface, the children are referenced
     using indexes. The index is 1-based for the children, i.e. 0
     refers to the object itself, 1 to the first child, 2 to the second
@@ -663,7 +663,7 @@ bool QAccessible::isActive()
     \fn int QAccessibleInterface::childCount() const
 
     Returns the number of children that belong to this object. A child
-    can provide accessibility information on it's own (e.g. a child
+    can provide accessibility information on its own (e.g. a child
     widget), or be a sub-element of this accessible object.
 
     All objects provide this information.

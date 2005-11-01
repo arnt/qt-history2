@@ -130,7 +130,7 @@
     library resource
     \o All dependencies required to run the server are in the system path 
     (or in the path used by the calling environment; note that Visual 
-    Studio has it's own set of environment variables listed in the
+    Studio has its own set of environment variables listed in the
     Tools|Options|Directories dialog).
     \endlist
 

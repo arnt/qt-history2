@@ -115,7 +115,7 @@
 
     \value DefaultForPlatform The default option for the current platform.
     On Unix and Mac OS X, this is equivalent to (DontShareAddress
-    + ReuseAddressHint), and on Windows, it's equivalent to ShareAddress.
+    + ReuseAddressHint), and on Windows, its equivalent to ShareAddress.
 */
 
 #include "qhostaddress.h"

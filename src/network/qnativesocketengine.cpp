@@ -343,7 +343,7 @@ bool QNativeSocketEngine::initialize(int socketDescriptor, QAbstractSocket::Sock
             return false;
         }
 
-        // Set the broadcasting flag if it's a Udp socket.
+        // Set the broadcasting flag if it's a UDP socket.
         if (d->socketType == QAbstractSocket::UdpSocket
             && !setOption(BroadcastSocketOption, 1)) {
             d->setError(QAbstractSocket::UnsupportedSocketOperationError,

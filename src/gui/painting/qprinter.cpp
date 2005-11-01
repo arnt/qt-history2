@@ -98,7 +98,7 @@ void QPrinterPrivate::createDefaultEngines()
   default is false, so that by default you should be able to paint
   on (0,0). If true the origin of the coordinate system will be in
   the top left corner of the paper and most probably the printer
-  will not be able to paint something there due to it's physical
+  will not be able to paint something there due to its physical
   margins.
   \i setNumCopies() tells QPrinter how many copies of the document
   it should print.

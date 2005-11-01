@@ -822,7 +822,7 @@ QTextCodec* QTextCodec::codecForLocale()
     If the codec is registered as a character set in the
     \link http://www.iana.org/assignments/character-sets
     IANA character-sets encoding file\endlink this method should return
-    the preferred mime name for the codec if defined, otherwise it's name.
+    the preferred mime name for the codec if defined, otherwise its name.
 */
 
 /*!

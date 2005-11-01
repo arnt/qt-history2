@@ -123,7 +123,7 @@
     the QObject::setProperty() and QObject::property() APIs to call the
     methods and properties of the COM object through their name. Use the 
     \l dumpdoc tool to get the documentation of the Qt API for any COM 
-    object and it's subobjects; note that not all of the COM object's APIs
+    object and its subobjects; note that not all of the COM object's APIs
     might be avaiable.
 
     See the \l{activeqt/webbrowser}{Webbrowser} example for more information.

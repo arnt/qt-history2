@@ -1040,7 +1040,7 @@ qreal QTextLine::naturalTextWidth() const
 
 /*!
     Lays out the line with the given \a width. The line is filled from
-    it's starting position with as many characters as will fit into
+    its starting position with as many characters as will fit into
     the line.
 */
 void QTextLine::setLineWidth(qreal width)
@@ -1053,7 +1053,7 @@ void QTextLine::setLineWidth(qreal width)
 }
 
 /*!
-    Lays out the line. The line is filled from it's starting position
+    Lays out the line. The line is filled from its starting position
     with as many characters as are specified by \a numColumns.
 */
 void QTextLine::setNumColumns(int numColumns)

@@ -282,7 +282,7 @@
     cleared if this property is set to true for a 1.x Motif style
     combobox. To avoid this, use setEditable() before inserting any
     items. Also note that the 1.x version of Motif didn't have any
-    editable comboboxes, so the combobox will change it's appearance
+    editable comboboxes, so the combobox will change its appearance
     to a 2.0 style Motif combobox is it is set to be editable.
 */
 

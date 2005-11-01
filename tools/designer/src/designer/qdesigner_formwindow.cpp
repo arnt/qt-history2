@@ -106,7 +106,7 @@ void QDesignerFormWindow::updateWindowTitle(const QString &fileName)
     QString fn = fileName;
 
     if (fn.isEmpty()) {
-        // Try to preserve it's "untitled" number.
+        // Try to preserve its "untitled" number.
         QRegExp rx(QLatin1String("unnamed( (\\d+))?"));
 
         if (rx.indexIn(windowTitle()) != -1) {
