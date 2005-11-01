@@ -155,7 +155,6 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
     for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
         bool is_ext = FALSE;
         const QString f(*sit);
-        qDebug() << "Filter: " << f;
         if ( f.length() > 2 ) {
             if (f[0] == '*' ) {
                 is_ext = TRUE;
