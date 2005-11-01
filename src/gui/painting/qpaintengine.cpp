@@ -360,8 +360,7 @@ void QPaintEngine::drawPoints(const QPoint *points, int pointCount)
 void QPaintEngine::drawEllipse(const QRectF &rect)
 {
     QPainterPath path;
-    path.moveTo(rect.x() + rect.width(), rect.y() + rect.height()/2);
-    path.arcTo(rect, 0, 360);
+    path.addEllipse(rect);
     if (hasFeature(PainterPaths)) {
         drawPath(path);
     } else {
