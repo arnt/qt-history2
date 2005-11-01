@@ -149,12 +149,39 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
 
 #ifndef QT_NO_REGEXP
     QList<QRegExp> filterRegExps;
-    for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
-	filterRegExps.append(QRegExp(*sit,
-	       (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
-	       QRegExp::Wildcard));
-    }
 #endif
+
+    QStringList filterExtensions; // An optimization
+    for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
+        bool is_ext = FALSE;
+        const QString f(*sit);
+        qDebug() << "Filter: " << f;
+        if ( f.length() > 2 ) {
+            if (f[0] == '*' ) {
+                is_ext = TRUE;
+                for (int i=2; i<f.length(); ++i) {
+                    if ( !(f[i] == '.' || f[i] >= 'A' && f[i] <= 'Z'
+                          || f[i] >= 'a' && f[i] <= 'z') )
+                    {
+                        is_ext = FALSE;
+                        break;
+                    }
+                }
+                if ( is_ext ) {
+                    filterExtensions.append((filters & QDir::CaseSensitive)
+                            ? f.mid(2)
+                            : f.mid(2).toLower());
+                }
+            }
+        }
+#ifndef QT_NO_REGEXP
+        if ( !is_ext ) {
+            filterRegExps.append(QRegExp(*sit,
+                   (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
+                   QRegExp::Wildcard));
+        }
+#endif
+    }
 
     QFileInfo fi;
     dirent   *file;
@@ -170,21 +197,25 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
     {
         QString fn = QFile::decodeName(QByteArray(file->d_name));
         fi.setFile(d->file + QLatin1Char('/') + fn);
-#ifndef QT_NO_REGEXP
         if(!((filters & QDir::AllDirs) && fi.isDir())) {
             bool matched = false;
-            for(QList<QRegExp>::ConstIterator sit = filterRegExps.begin(); sit != filterRegExps.end(); ++sit) {
-                if((*sit).exactMatch(fn)) {
+#ifndef QT_NO_REGEXP
+            for(QList<QRegExp>::ConstIterator rit = filterRegExps.begin(); rit != filterRegExps.end(); ++rit) {
+                if((*rit).exactMatch(fn)) {
                     matched = true;
-		    break;
-		}
+                    break;
+                }
+            }
+#endif
+            for(QStringList::ConstIterator xit = filterExtensions.begin(); xit != filterExtensions.end(); ++xit) {
+                if ( fn.endsWith(*xit,(filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive) ) {
+                    matched = true;
+                    break;
+                }
             }
             if(!matched)
                 continue;
         }
-#else
-        Q_UNUSED(filterNames);
-#endif
         if  ((doDirs && fi.isDir()) || (doFiles && fi.isFile()) ||
               (doSystem && (!fi.isFile() && !fi.isDir())) ||
               (doSymLinks && fi.isSymLink())) {
