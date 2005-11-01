@@ -724,7 +724,8 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
                                        & ~(LinearGradientFill
                                            | RadialGradientFill
                                            | ConicalGradientFill
-                                           | PatternBrush)))
+                                           | PatternBrush
+                                           | BrushStroke)))
 {
     Q_D(QOpenGLPaintEngine);
     d->basicStroker.setMoveToHook(strokeMoveTo);
