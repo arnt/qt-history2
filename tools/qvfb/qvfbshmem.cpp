@@ -155,8 +155,6 @@ QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
 
     unsigned char *data;
     uint data_offset_value = sizeof(QVFbHeader);
-    if (data_offset_value % PAGE_SIZE)
-        data_offset_value += PAGE_SIZE - (data_offset_value % PAGE_SIZE);
 
     int dataSize = bpl * h + data_offset_value;
     shmId = shmget( key, dataSize, IPC_CREAT|0666);
@@ -206,6 +204,7 @@ QShMemViewProtocol::~QShMemViewProtocol()
     struct shmid_ds shm;
     shmdt( (char*)hdr );
     shmctl( shmId, IPC_RMID, &shm );
+    delete dataCache;
     delete kh;
     delete mh;
 }

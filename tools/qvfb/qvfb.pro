@@ -14,7 +14,8 @@ HEADERS         = qvfb.h \
                   gammaview.h \
 		  skin.h \
                   qvfbprotocol.h \
-                  qvfbshmem.h
+                  qvfbshmem.h \
+                  qvfbmmap.h
 
 SOURCES         = qvfb.cpp \
 		  qvfbview.cpp \
@@ -23,7 +24,8 @@ SOURCES         = qvfb.cpp \
 		  qanimationwriter.cpp \
 		  skin.cpp \
                   qvfbprotocol.cpp \
-                  qvfbshmem.cpp
+                  qvfbshmem.cpp \
+                  qvfbmmap.cpp
 
 contains(QT_CONFIG, opengl) {
 	QT += opengl
