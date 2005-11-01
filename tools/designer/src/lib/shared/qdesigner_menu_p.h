@@ -123,7 +123,7 @@ protected:
     void leaveEditMode(LeaveEditMode mode);
     void showLineEdit();
 
-    QAction *createAction(const QString &text);
+    QAction *createAction(const QString &text, bool separator = false);
     QDesignerMenu *findOrCreateSubMenu(QAction *action);
 
     QAction *safeActionAt(int index) const;

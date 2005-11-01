@@ -864,9 +864,15 @@ void QDesignerMenu::enterEditMode()
     if (m_currentIndex >= 0 && m_currentIndex <= realActionCount()) {
         showLineEdit();
     } else {
-        QAction *sep = createAction(QString());
-        sep->setSeparator(true);
-        insertAction(safeActionAt(realActionCount()), sep);
+        formWindow()->beginCommand(tr("Add separator"));
+        QAction *sep = createAction(QString(), true);
+
+        InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+        cmd->init(this, sep, safeActionAt(realActionCount()));
+        formWindow()->commandHistory()->push(cmd);
+
+        formWindow()->endCommand();
+
         m_currentIndex = realActionCount() - 1;
         update();
     }
@@ -939,13 +945,15 @@ void QDesignerMenu::showLineEdit()
     m_editor->setFocus();
 }
 
-QAction *QDesignerMenu::createAction(const QString &objectName)
+QAction *QDesignerMenu::createAction(const QString &objectName, bool separator)
 {
     Q_ASSERT(formWindow() != 0);
     QDesignerFormWindowInterface *fw = formWindow();
 
     QAction *action = new QAction(fw);
     fw->core()->widgetFactory()->initialize(action);
+    if (separator)
+        action->setSeparator(true);
 
     action->setObjectName(objectName);
     fw->ensureUniqueObjectName(action);

@@ -294,6 +294,13 @@ void ActionEditor::manageAction(QAction *action)
     action->setParent(formWindow()->mainContainer());
     core()->metaDataBase()->add(action);
 
+    if (action->isSeparator() || action->menu() != 0) {
+        QVariant actionData;
+        qVariantSetValue(actionData, (QListWidgetItem*)0);
+        action->setData(actionData);
+        return;
+    }
+
     QDesignerPropertySheetExtension *sheet = 0;
     sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
     sheet->setChanged(sheet->indexOf("objectName"), true);
@@ -306,15 +313,14 @@ void ActionEditor::manageAction(QAction *action)
 
 void ActionEditor::unmanageAction(QAction *action)
 {
-    QListWidgetItem *item = qvariant_cast<QListWidgetItem*>(action->data());
-    if (item == 0) {
-        qWarning() << "ActionEditor::unmanageAction(): action has no associated item";
-        return;
-    }
-
-    disconnect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
     core()->metaDataBase()->remove(action);
     action->setParent(0);
+
+    disconnect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
+
+    QListWidgetItem *item = qvariant_cast<QListWidgetItem*>(action->data());
+    if (item == 0)
+        return;
 
     QVariant actionData;
     qVariantSetValue(actionData, (QListWidgetItem*)0);
