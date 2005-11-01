@@ -472,7 +472,7 @@ void Generator::generateProperties()
             if (p.type != tmp && tmp.endsWith('*')) {
                 tmp.chop(1);
                 spec = PropertyDef::PointerSpec;
-            } else if (f.type.endsWith('&')) { // raw type, not normalized type
+            } else if (f.type.name.endsWith('&')) { // raw type, not normalized type
                 spec = PropertyDef::ReferenceSpec;
             }
             if (p.type != tmp)
@@ -846,7 +846,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
     if (def->wasCloned)
         return;
     fprintf(out, "\n// SIGNAL %d\n%s %s::%s(",
-            index, def->type.constData(), cdef->qualified.constData(), def->name.constData());
+            index, def->type.name.constData(), cdef->qualified.constData(), def->name.constData());
 
     QByteArray thisPtr = "this";
     const char *constQualifier = "";
@@ -870,10 +870,10 @@ void Generator::generateSignal(FunctionDef *def,int index)
         const ArgumentDef &a = def->arguments.at(j);
         if (j)
             fprintf(out, ", ");
-        fprintf(out, "%s _t%d%s", a.type.constData(), offset++, a.rightType.constData());
+        fprintf(out, "%s _t%d%s", a.type.name.constData(), offset++, a.rightType.constData());
     }
     fprintf(out, ")%s\n{\n", constQualifier);
-    if (def->type.size() && def->normalizedType.size())
+    if (def->type.name.size() && def->normalizedType.size())
         fprintf(out, "    %s _t0;\n", noRef(def->normalizedType).constData());
 
     fprintf(out, "    void *_a[] = { ");
@@ -887,7 +887,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
     }
     int i;
     for (i = 1; i < offset; ++i)
-        if (def->arguments.at(i - 1).isVolatile)
+        if (def->arguments.at(i - 1).type.isVolatile)
             fprintf(out, ", const_cast<void*>(reinterpret_cast<const volatile void*>(&_t%d))", i);
         else
             fprintf(out, ", const_cast<void*>(reinterpret_cast<const void*>(&_t%d))", i);

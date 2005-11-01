@@ -22,6 +22,17 @@
 #include <stdio.h>
 #include <ctype.h>
 
+struct Type
+{
+    enum ReferenceType { NoReference, Reference, Pointer };
+
+    inline Type() : isVolatile(false), referenceType(NoReference) {}
+    inline explicit Type(const QByteArray &_name) : name(_name), isVolatile(false), referenceType(NoReference) {}
+    QByteArray name;
+    bool isVolatile;
+    ReferenceType referenceType;
+};
+
 struct EnumDef
 {
     QByteArray name;
@@ -30,10 +41,10 @@ struct EnumDef
 
 struct ArgumentDef
 {
-    ArgumentDef() : isDefault(false), isVolatile(false) {}
-    QByteArray type, rightType, normalizedType, name;
+    ArgumentDef() : isDefault(false) {}
+    Type type;
+    QByteArray rightType, normalizedType, name;
     bool isDefault;
-    bool isVolatile;
 };
 
 struct FunctionDef
@@ -41,7 +52,8 @@ struct FunctionDef
     FunctionDef(): returnTypeIsVolatile(false), access(Private), isConst(false), isVirtual(false),
                    inlineCode(false), wasCloned(false), isCompat(false), isInvokable(false), 
                    isScriptable(false), isSlot(false), isSignal(false) {}
-    QByteArray type, normalizedType;
+    Type type;
+    QByteArray normalizedType;
     QByteArray tag;
     QByteArray name;
     bool returnTypeIsVolatile;
@@ -174,7 +186,7 @@ public:
         return index > def->begin && index < def->end - 1;
     }
 
-    QByteArray parseType(bool *hasVolatile = 0);
+    Type parseType();
 
     bool parseEnum(EnumDef *def);
 

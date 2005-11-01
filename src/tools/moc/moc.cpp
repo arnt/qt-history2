@@ -273,7 +273,7 @@ bool Moc::parseClassHead(ClassDef *def)
             else
                 test(PUBLIC);
             test(VIRTUAL);
-            const QByteArray type = parseType();
+            const QByteArray type = parseType().name;
             // ignore the 'class Foo : BAR(Baz)' case
             if (test(LPAREN)) {
                 until(RPAREN);
@@ -290,11 +290,9 @@ bool Moc::parseClassHead(ClassDef *def)
     return true;
 }
 
-QByteArray Moc::parseType(bool *hasVolatile)
+Type Moc::parseType()
 {
-    QByteArray s;
-    if (hasVolatile)
-        *hasVolatile = false;
+    Type type;
     bool hasSignedOrUnsigned = false;
     for (;;) {
         switch (next()) {
@@ -304,10 +302,10 @@ QByteArray Moc::parseType(bool *hasVolatile)
                 // fall through
             case CONST:
             case VOLATILE:
-                s += lexem();
-                s += ' ';
-                if (hasVolatile && lookup(0) == VOLATILE)
-                    *hasVolatile = true;
+                type.name += lexem();
+                type.name += ' ';
+                if (lookup(0) == VOLATILE)
+                    type.isVolatile = true;
                 continue;
             default:
                 prev();
@@ -330,8 +328,8 @@ QByteArray Moc::parseType(bool *hasVolatile)
         case LONG:
             // preserve '[unsigned] long long'
             if (test(LONG)) {
-                s += lexem();
-                s += ' ';
+                type.name += lexem();
+                type.name += ' ';
                 prev();
                 continue;
             }
@@ -339,7 +337,7 @@ QByteArray Moc::parseType(bool *hasVolatile)
         case DOUBLE:
         case VOID:
         case BOOL:
-            s += lexem();
+            type.name += lexem();
             break;
         default:
             prev();
@@ -348,22 +346,26 @@ QByteArray Moc::parseType(bool *hasVolatile)
         if (test(LANGLE)) {
             QByteArray templ = lexemUntil(RANGLE);
             for (int i = 0; i < templ.size(); ++i) {
-                s += templ.at(i);
+                type.name += templ.at(i);
                 if (templ.at(i) == '>' && i < templ.size()-1 && templ.at(i+1) == '>')
-                    s += ' ';
+                    type.name += ' ';
             }
         }
         if (test(SCOPE))
-            s += lexem();
+            type.name += lexem();
         else
             break;
     }
     while (test(CONST) || test(VOLATILE) || test(SIGNED) || test(UNSIGNED)
            || test(STAR) || test(AND)) {
-        s += ' ';
-        s += lexem();
+        type.name += ' ';
+        type.name += lexem();
+        if (lookup(0) == AND)
+            type.referenceType = Type::Reference;
+        else if (lookup(0) == STAR)
+            type.referenceType = Type::Pointer;
     }
-    return s;
+    return type;
 }
 
 bool Moc::parseEnum(EnumDef *def)
@@ -388,8 +390,8 @@ void Moc::parseFunctionArguments(FunctionDef *def)
     Q_UNUSED(def);
     while (hasNext()) {
         ArgumentDef  arg;
-        arg.type = parseType(&arg.isVolatile);
-        if (arg.type == "void")
+        arg.type = parseType();
+        if (arg.type.name == "void")
             break;
         if (test(IDENTIFIER))
             arg.name = lexem();
@@ -399,7 +401,7 @@ void Moc::parseFunctionArguments(FunctionDef *def)
             arg.rightType += ' ';
             arg.rightType += lexem();
         }
-        arg.normalizedType = normalizeType(arg.type + ' ' + arg.rightType);
+        arg.normalizedType = normalizeType(arg.type.name + ' ' + arg.rightType);
         if (test(EQ))
             arg.isDefault = true;
         def->arguments += arg;
@@ -414,44 +416,46 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
     while (test(INLINE) || test(STATIC))
         ;
     bool templateFunction = (lookup() == TEMPLATE);
-    def->type = parseType(&def->returnTypeIsVolatile);
-    if (def->type.isEmpty()) {
+    def->type = parseType();
+    if (def->type.name.isEmpty()) {
         if (templateFunction)
             error("Template function as signal or slot");
         else
             error();
     }
     if (test(LPAREN)) {
-        def->name = def->type;
-        def->type = "int";
-        def->returnTypeIsVolatile = false;
+        def->name = def->type.name;
+        def->type = Type("int");
     } else {
-        bool hasVolatile = false;
-        def->name = parseType(&hasVolatile);
-        while (!def->name.isEmpty() && lookup() != LPAREN) {
-            if (def->type == "QT_MOC_COMPAT" || def->type == "QT3_SUPPORT")
+        Type tempType = parseType();;
+        while (!tempType.name.isEmpty() && lookup() != LPAREN) {
+            if (def->type.name == "QT_MOC_COMPAT" || def->type.name == "QT3_SUPPORT")
                 def->isCompat = true;
-            else if (def->type == "Q_INVOKABLE")
+            else if (def->type.name == "Q_INVOKABLE")
                 def->isInvokable = true;
-            else if (def->type == "Q_SCRIPTABLE")
+            else if (def->type.name == "Q_SCRIPTABLE")
                 def->isInvokable = def->isScriptable = true;
-            else if (def->type == "Q_SIGNAL")
+            else if (def->type.name == "Q_SIGNAL")
                 error();
-            else if (def->type == "Q_SLOT")
+            else if (def->type.name == "Q_SLOT")
                 error();
             else {
                 if (!def->tag.isEmpty())
                     def->tag += ' ';
-                def->tag += def->type;
+                def->tag += def->type.name;
             }
-            def->type = def->name;
-            def->returnTypeIsVolatile = hasVolatile;
-            def->name = parseType();
+            def->type = tempType;
+            tempType = parseType();
         }
         next(LPAREN, "Not a signal or slot declaration");
+        def->name = tempType.name;
     }
 
-    def->normalizedType = normalizeType(def->type);
+    // we don't support references as return types, it's too dangerous
+    if (def->type.referenceType == Type::Reference)
+        def->type = Type("void");
+
+    def->normalizedType = normalizeType(def->type.name);
 
     if (!test(RPAREN)) {
         parseFunctionArguments(def);
@@ -484,41 +488,43 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
 // like parseFunction, but never aborts with an error
 bool Moc::parseMaybeFunction(FunctionDef *def)
 {
-    def->type = parseType(&def->returnTypeIsVolatile);
-    if (def->type.isEmpty())
+    def->type = parseType();
+    if (def->type.name.isEmpty())
         return false;
     if (test(LPAREN)) {
-        def->name = def->type;
-        def->type = "int";
-        def->returnTypeIsVolatile = false;
+        def->name = def->type.name;
+        def->type = Type("int");
     } else {
-        bool hasVolatile = false;
-        def->name = parseType(&hasVolatile);
-        while (!def->name.isEmpty() && lookup() != LPAREN) {
-            if (def->type == "QT_MOC_COMPAT" || def->type == "QT3_SUPPORT")
+        Type tempType = parseType();;
+        while (!tempType.name.isEmpty() && lookup() != LPAREN) {
+            if (def->type.name == "QT_MOC_COMPAT" || def->type.name == "QT3_SUPPORT")
                 def->isCompat = true;
-            else if (def->type == "Q_INVOKABLE")
+            else if (def->type.name == "Q_INVOKABLE")
                 def->isInvokable = true;
-            else if (def->type == "Q_SCRIPTABLE")
+            else if (def->type.name == "Q_SCRIPTABLE")
                 def->isInvokable = def->isScriptable = true;
-            else if (def->type == "Q_SIGNAL")
+            else if (def->type.name == "Q_SIGNAL")
                 def->isSignal = true;
-            else if (def->type == "Q_SLOT")
+            else if (def->type.name == "Q_SLOT")
                 def->isSlot = true;
             else {
                 if (!def->tag.isEmpty())
                     def->tag += ' ';
-                def->tag += def->type;
+                def->tag += def->type.name;
             }
-            def->type = def->name;
-            def->returnTypeIsVolatile = hasVolatile;
-            def->name = parseType();
+            def->type = tempType;
+            tempType = parseType();
         }
         if (!test(LPAREN))
             return false;
+        def->name = tempType.name;
     }
 
-    def->normalizedType = normalizeType(def->type);
+    // we don't support references as return types, it's too dangerous
+    if (def->type.referenceType == Type::Reference)
+        def->type = Type("void");
+
+    def->normalizedType = normalizeType(def->type.name);
 
     if (!test(RPAREN)) {
         parseFunctionArguments(def);
@@ -850,7 +856,7 @@ void Moc::parseProperty(ClassDef *def)
 {
     next(LPAREN);
     PropertyDef propDef;
-    QByteArray type = parseType();
+    QByteArray type = parseType().name;
     if (type.isEmpty())
         error();
     propDef.designable = propDef.scriptable = propDef.stored = "true";
