@@ -147,6 +147,15 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
     if(!dir)
         return ret; // cannot read the directory
 
+#ifndef QT_NO_REGEXP
+    QList<QRegExp> filterRegExps;
+    for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
+	filterRegExps.append(QRegExp(*sit,
+	       (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
+	       QRegExp::Wildcard));
+    }
+#endif
+
     QFileInfo fi;
     dirent   *file;
 #if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
@@ -164,12 +173,11 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
 #ifndef QT_NO_REGEXP
         if(!((filters & QDir::AllDirs) && fi.isDir())) {
             bool matched = false;
-            for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
-                QRegExp rx(*sit,
-                           (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
-                           QRegExp::Wildcard);
-                if(rx.exactMatch(fn))
+            for(QList<QRegExp>::ConstIterator sit = filterRegExps.begin(); sit != filterRegExps.end(); ++sit) {
+                if((*sit).exactMatch(fn)) {
                     matched = true;
+		    break;
+		}
             }
             if(!matched)
                 continue;
