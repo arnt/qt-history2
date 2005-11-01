@@ -396,10 +396,10 @@
     \o QPixmap&
     \o [in, out] IPictureDisp**
     \row
-    \o QValueList\<QVariant\>, const QValueList\<QVariant\>&
+    \o QList\<QVariant\>, const QList\<QVariant\>&
     \o [in] SAFEARRAY(VARIANT)
     \row
-    \o QValueList\<QVariant\>&
+    \o QList\<QVariant\>&
     \o [in, out] SAFEARRAY(VARIANT)*
     \row
     \o QStringList, const QStringList&
@@ -623,7 +623,7 @@
 
         HRESULT res = E_FAIL;
         if (DllRegisterServer)
-	    res = DllRegisterServer();
+            res = DllRegisterServer();
         if (res != S_OK)
             // error handling
     \endcode
@@ -908,7 +908,7 @@
             long queryInterface(const QUuid &iid, void **iface);
 
             // IUnknown
-	    QAXAGG_IUNKNOWN
+            QAXAGG_IUNKNOWN
 
             // ISomeCOMInterface
             ...
@@ -922,13 +922,13 @@
         long AxImpl::queryInterface(const QUuid &iid, void **iface)
         {
             *iface = 0;
-	    if (iid == IID_ISomeCOMInterface)
-	        *iface = (ISomeCOMInterface *)this;
-	    else
-	        return E_NOINTERFACE;
+            if (iid == IID_ISomeCOMInterface)
+                *iface = (ISomeCOMInterface *)this;
+            else
+                return E_NOINTERFACE;
 
-	    AddRef();
-	    return S_OK;
+            AddRef();
+            return S_OK;
         }
     \endcode
 
@@ -961,7 +961,7 @@
     \code
         class MyActiveX : public QWidget, public QAxBindable
         {
-    	    Q_OBJECT
+            Q_OBJECT
 
         public:
             MyActiveX(QWidget *parent);
