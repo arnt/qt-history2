@@ -24,6 +24,7 @@ class QImage;
 class QTimer;
 class QAnimationWriter;
 struct QVFbHeader;
+class QVFbViewProtocol;
 
 class QVFbView :
 #ifdef QT_NO_OPENGL
@@ -35,7 +36,7 @@ class QVFbView :
     Q_OBJECT
 public:
     enum Rotation { Rot0, Rot90, Rot180, Rot270 };
-    QVFbView( int display_id, int w, int h, int d, Rotation r, QWidget *parent = 0);
+    QVFbView( int id, int w, int h, int d, Rotation r, QWidget *parent = 0);
     ~QVFbView();
 
     int displayId() const;
@@ -63,17 +64,17 @@ public:
     double zoomV() const { return vzm; }
 
     QSize sizeHint() const;
+    void setRate(int);
 
 public slots:
     void setTouchscreenEmulation( bool );
     void setLcdScreenEmulation( bool );
-    void setRate( int );
     void setZoom( double, double );
     void startAnimation( const QString& );
     void stopAnimation();
 
 protected slots:
-    void flushChanges();
+    void refreshDisplay(const QRect &);
 
 protected:
     QImage getBuffer( const QRect &r, int &leading ) const;
@@ -94,9 +95,6 @@ protected:
 
 private:
     void setDirty( const QRect& );
-    int shmId;
-    unsigned char *data;
-    QVFbHeader *hdr;
     int viewdepth; // "faked" depth
     int rsh;
     int gsh;
@@ -108,17 +106,11 @@ private:
     int contentsHeight;
     double gred, ggreen, gblue;
     QRgb* gammatable;
-    int lockId;
-    QTimer *t_flush;
 
-    int mouseFd;
-    int keyboardFd;
     int refreshRate;
-    QString mousePipe;
-    QString keyboardPipe;
     QAnimationWriter *animation;
-    int displayid;
     double hzm,vzm;
+    QVFbViewProtocol *mView;
     bool emulateTouchscreen;
     bool emulateLcdScreen;
     Rotation rotation;

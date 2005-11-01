@@ -27,18 +27,40 @@
 #include <unistd.h>
 #endif
 
+
+QVFbViewProtocol::QVFbViewProtocol(int display_id, QObject *parent) :
+    QObject(parent), mDisplayId(display_id) { }
+
+QVFbViewProtocol::~QVFbViewProtocol() {}
+
+void QVFbViewProtocol::flushChanges() {}
+
+void QVFbViewProtocol::sendKeyboardData(int unicode, int keycode,
+        int modifiers, bool press, bool repeat)
+{
+    if (keyHandler())
+        keyHandler()->sendKeyboardData(unicode, keycode, modifiers, press, repeat);
+}
+
+void QVFbViewProtocol::sendMouseData(const QPoint &pos, int buttons, int wheel)
+{
+    if (mouseHandler())
+        mouseHandler()->sendMouseData(pos, buttons, wheel);
+}
+
 static int openPipe(const char *fileName)
 {
     unlink(fileName);
 
     mkfifo(fileName, 0666);
-    int fd = ::open(fileName, O_WRONLY | O_NDELAY);
+    int fd = ::open(fileName, O_RDWR | O_NDELAY);
     return fd;
 }
 
 QVFbKeyPipeProtocol::QVFbKeyPipeProtocol(int display_id)
     : QVFbKeyProtocol(display_id)
 {
+    qDebug("create keyboard pipe");
     fileName = QString(QT_VFB_KEYBOARD_PIPE).arg(display_id);
     fd = openPipe(fileName.local8Bit().constData());
 
@@ -65,8 +87,8 @@ void QVFbKeyPipeProtocol::sendKeyboardData(int unicode, int keycode,
     write(fd, &kd, sizeof(QVFbKeyData));
 }
 
-QVFbPointerPipeProtocol::QVFbPointerPipeProtocol(int display_id, bool w)
-    : QVFbPointerProtocol(display_id), mSupportWheelEvents(w)
+QVFbMousePipeProtocol::QVFbMousePipeProtocol(int display_id, bool w)
+    : QVFbMouseProtocol(display_id), mSupportWheelEvents(w)
 {
     fileName = QString(QT_VFB_MOUSE_PIPE).arg(display_id);
     fd = openPipe(fileName.local8Bit().constData());
@@ -75,14 +97,14 @@ QVFbPointerPipeProtocol::QVFbPointerPipeProtocol(int display_id, bool w)
 	qFatal("Cannot open mouse pipe %s", fileName.toLocal8Bit().data());
 }
 
-QVFbPointerPipeProtocol::~QVFbPointerPipeProtocol()
+QVFbMousePipeProtocol::~QVFbMousePipeProtocol()
 {
     ::close(fd);
     unlink(fileName.local8Bit().constData());
 }
 
 
-void QVFbPointerPipeProtocol::sendPointerData(QPoint &pos, int buttons, int wheel)
+void QVFbMousePipeProtocol::sendMouseData(const QPoint &pos, int buttons, int wheel)
 {
     write(fd, &pos, sizeof(QPoint));
     write(fd, &buttons, sizeof(int));
