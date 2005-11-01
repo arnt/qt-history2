@@ -317,7 +317,7 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
 void QPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
     for (int i=0; i<pointCount; ++i) {
-        QLineF line(points[i].x(), points[i].y(), points[i].x(), points[i].y());
+        QLineF line(points[i].x(), points[i].y(), points[i].x(), points[i].y() + 0.001);
         drawLines(&line, 1);
     }
 }
