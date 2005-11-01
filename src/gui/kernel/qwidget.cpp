@@ -4361,7 +4361,8 @@ void QWidgetPrivate::hide_helper()
         QApplicationPrivate::leaveModal(q);
 
 #if defined(Q_WS_WIN)
-    if (q->isWindow() && !(q->windowType() == Qt::Popup) && q->parentWidget() && q->isActiveWindow())
+    if (q->isWindow() && !(q->windowType() == Qt::Popup) && q->parentWidget() 
+        && !q->parentWidget()->isHidden() && q->isActiveWindow())
         q->parentWidget()->activateWindow();        // Activate parent
 #endif
 
