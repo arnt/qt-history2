@@ -2159,12 +2159,12 @@ void QPdfEnginePrivate::flushPage()
             "/PCSp %d 0 R\n"
             "/CSp %d 0 R\n"
             "/CSpg %d 0 R\n"
-            "/DefaultRGB /CSp\n"
-            "/DefaultGray /CSpg\n"
+            "/DefaultRGB %d 0 R\n"
+            "/DefaultGray %d 0 R\n"
             ">>\n"
             "/ExtGState <<\n"
             "/GSa %d 0 R\n",
-            patternColorSpace, colorSpace, colorSpaceGray, graphicsState);
+            patternColorSpace, colorSpace, colorSpaceGray, colorSpace, colorSpaceGray, graphicsState);
 
     int i;
 
