@@ -1158,6 +1158,9 @@ int QAbstractSocket::socketDescriptor() const
     The socket is opened in the mode specified by \a openMode, and
     enters the socket state specified by \a socketState.
 
+    \bold{Note:} It is not possible to initialize two abstract sockets
+    with the same native socket descriptor.
+
     \sa socketDescriptor()
 */
 bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState socketState,
