@@ -176,11 +176,13 @@ static int qt_cmp_si(const void *n1, const void *n2)
     QDirSortItem* f1 = (QDirSortItem*)n1;
     QDirSortItem* f2 = (QDirSortItem*)n2;
 
-    if (f1->item.isDir() != f2->item.isDir()) {
-        if (qt_cmp_si_sort_flags & QDir::DirsFirst)
-            return f1->item.isDir() ? -1 : 1;
-        if (qt_cmp_si_sort_flags & QDir::DirsLast)
-            return f1->item.isDir() ? 1 : -1;
+    if ( qt_cmp_si_sort_flags & (QDir::DirsFirst|QDir::DirsLast) ) { // optimization
+	if (f1->item.isDir() != f2->item.isDir()) {
+	    if (qt_cmp_si_sort_flags & QDir::DirsFirst)
+		return f1->item.isDir() ? -1 : 1;
+	    if (qt_cmp_si_sort_flags & QDir::DirsLast)
+		return f1->item.isDir() ? 1 : -1;
+	}
     }
 
     int r = 0;
