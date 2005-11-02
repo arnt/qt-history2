@@ -223,8 +223,11 @@ bool QClipboard::event(QEvent *e)
 void QClipboard::connectNotify(const char *signal)
 {
     if (qstrcmp(signal,SIGNAL(dataChanged())) == 0) {
-        // ensure we are up and running
+        // ensure we are up and running but block signals so the dataChange signal
+        // is not emitted while being connected to.
+        bool blocked = blockSignals(true);
         QClipboardData *d = clipboardData();
+        blockSignals(blocked);
         Q_UNUSED(d);
     }
 }
