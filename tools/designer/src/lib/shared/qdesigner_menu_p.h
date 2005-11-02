@@ -41,7 +41,11 @@ class QDesignerMenuBar;
 class QPainter;
 class QMimeData;
 
-namespace qdesigner_internal { class CreateSubmenuCommand; }
+namespace qdesigner_internal {
+    class CreateSubmenuCommand;
+    class RemoveActionFromCommand;
+    class InsertActionIntoCommand;
+}
 
 class QDESIGNER_SHARED_EXPORT QDesignerMenu: public QMenu
 {
@@ -152,6 +156,8 @@ private:
     int m_lastSubMenuIndex;
 
     friend class qdesigner_internal::CreateSubmenuCommand;
+    friend class qdesigner_internal::RemoveActionFromCommand;
+    friend class qdesigner_internal::InsertActionIntoCommand;
 };
 
 #endif // QDESIGNER_MENU_H
