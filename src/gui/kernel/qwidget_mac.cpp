@@ -451,7 +451,8 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         engine->setSystemClip(qrgn);
 
                     //handle the erase
-                    if (engine && (widget->isWindow() || widget->autoFillBackground()) || widget->testAttribute(Qt::WA_TintedBackground)) {
+                    if (engine && !widget->testAttribute(Qt::WA_NoSystemBackground) 
+                        && (widget->isWindow() || widget->autoFillBackground()) || widget->testAttribute(Qt::WA_TintedBackground)) {
                         if (!redirectionOffset.isNull())
                             QPainter::setRedirected(widget, widget, redirectionOffset);
                         QRect rr = qrgn.boundingRect();
