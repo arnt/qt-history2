@@ -578,7 +578,7 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
             m_currentIndex = index;
             adjustSize();
 
-            if (parentMenu()) { // ### undo/redo
+            if (parentMenu()) {
                 QAction *parent_action = parentMenu()->currentAction();
                 if (parent_action->menu() == 0) {
                     CreateSubmenuCommand *cmd = new CreateSubmenuCommand(formWindow());
@@ -843,6 +843,8 @@ void QDesignerMenu::setVisible(bool visible)
 {
     if (visible)
         m_currentIndex = 0;
+    else
+        m_lastSubMenuIndex = -1;
 
     QMenu::setVisible(visible);
 
