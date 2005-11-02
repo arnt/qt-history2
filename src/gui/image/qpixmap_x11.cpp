@@ -276,6 +276,7 @@ void QPixmap::init(int w, int h, Type type)
     data->count  = 1;
     data->uninit = true;
     data->ser_no = ++qt_pixmap_serial;
+    data->detach_no = 0;
     data->picture = 0;
     data->x11_mask = 0;
     data->mask_picture = 0;
@@ -377,10 +378,10 @@ QPixmapData::~QPixmapData()
 
 void QPixmap::detach()
 {
-    if (data->count != 1) {
+    ++data->detach_no;
+    if (data->count != 1)
         *this = copy();
-        data->ser_no = ++qt_pixmap_serial;
-    }
+
     data->uninit = false;
 
     // reset the cache data

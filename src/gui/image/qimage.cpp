@@ -63,6 +63,7 @@ struct QImageData {        // internal image data
     QImage::Format format;
     int bytes_per_line;
     int ser_no;               // serial number
+    int detach_no;
 
     qreal  dpmx;                // dots per meter X (or 0)
     qreal  dpmy;                // dots per meter Y (or 0)
@@ -101,6 +102,11 @@ struct QImageData {        // internal image data
     QPaintEngine *paintEngine;
 };
 
+Q_GUI_EXPORT qint64 qt_image_id(const QImage &image)
+{
+    return (((qint64) image.d->ser_no) << 32) | ((qint64) image.d->detach_no);
+}
+
 extern int qt_defaultDpi();
 
 QBasicAtomic qimage_serial_number = Q_ATOMIC_INIT(1);
@@ -119,6 +125,7 @@ int qimage_next_serial_number()
 QImageData::QImageData()
 {
     ser_no = qimage_next_serial_number();
+    detach_no = 0;
     ref = 0;
 
     width = height = depth = 0;
@@ -901,6 +908,7 @@ QImage::operator QVariant() const
 
 void QImage::detach()
 {
+    ++d->detach_no;
     if (d && d->ref != 1)
         *this = copy();
 }

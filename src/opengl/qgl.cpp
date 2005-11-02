@@ -23,6 +23,8 @@
 
 #include "qfile.h"
 
+extern Q_GUI_EXPORT qint64 qt_image_id(const QImage &image);
+extern Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap);
 Q_GLOBAL_STATIC(QGLFormat, qgl_default_format)
 
 class QGLDefaultOverlayFormat: public QGLFormat
@@ -927,8 +929,8 @@ static int nearest_gl_texture_size(int v)
 
 class QGLTexture {
 public:
-    QGLTexture(const QGLContext *ctx, GLuint tx_id, bool _clean = false)
-        : context(ctx), id(tx_id), clean(_clean) {}
+    QGLTexture(const QGLContext *ctx, GLuint tx_id, qint64 _qt_id, bool _clean = false)
+        : context(ctx), id(tx_id), qt_id(_qt_id), clean(_clean) {}
     ~QGLTexture() {
         if (!context->isSharing())
             glDeleteTextures(1, &id);
@@ -936,6 +938,7 @@ public:
 
     const QGLContext *context;
     GLuint id;
+    qint64 qt_id;
     bool clean;
 };
 
@@ -1195,7 +1198,7 @@ GLuint QGLContext::bindTexture(const QString &fileName)
     free(pixels);
 
     int cost = bufferSize/1024;
-    qt_tex_cache->insert(key, new QGLTexture(this, tx_id), cost);
+    qt_tex_cache->insert(key, new QGLTexture(this, tx_id, 0), cost);
     return tx_id;
 }
 
@@ -1258,7 +1261,7 @@ QImage QGLContextPrivate::convertToBGRA(const QImage &image)
 }
 
 GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint format,
-                                      const QString &key, bool clean)
+                                      const QString &key, qint64 qt_id, bool clean)
 {
     Q_Q(QGLContext);
 
@@ -1310,17 +1313,18 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
             ++i;
         }
     }
-    qt_tex_cache->insert(key, new QGLTexture(q, tx_id, clean), cost);
+    qt_tex_cache->insert(key, new QGLTexture(q, tx_id, qt_id, clean), cost);
     return tx_id;
 }
 
-bool QGLContextPrivate::textureCacheLookup(const QString &key, GLuint *id)
+bool QGLContextPrivate::textureCacheLookup(const QString &key, GLuint *id, qint64 *qt_id)
 {
     Q_Q(QGLContext);
     if (qt_tex_cache) {
         QGLTexture *texture = qt_tex_cache->object(key);
         if (texture && texture->context == q) {
             *id = texture->id;
+            *qt_id = texture->qt_id;
             return true;
         }
     }
@@ -1330,11 +1334,17 @@ bool QGLContextPrivate::textureCacheLookup(const QString &key, GLuint *id)
 /*! \internal */
 GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint format, bool clean)
 {
+    Q_Q(QGLContext);
     const QString key = QString("%1_%2_%3").arg(QString().sprintf("i%08x",image.serialNumber())).arg(target).arg(format);
     GLuint id;
-    if (textureCacheLookup(key, &id)) {
-        glBindTexture(target, id);
-        return id;
+    qint64 qt_id;
+    if (textureCacheLookup(key, &id, &qt_id)) {
+        if (qt_image_id(image) == qt_id) {
+            glBindTexture(target, id);
+            return id;
+        } else {
+            q->deleteTexture(id);
+        }
     }
     return bindTexture(image, target, format, key, clean);
 }
@@ -1342,11 +1352,17 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
 /*! \internal */
 GLuint QGLContextPrivate::bindTexture(const QPixmap &pixmap, GLenum target, GLint format, bool clean)
 {
+    Q_Q(QGLContext);
     const QString key = QString("%1_%2_%3").arg(QString().sprintf("p%08x",pixmap.serialNumber())).arg(target).arg(format);
     GLuint id;
-    if (textureCacheLookup(key, &id)) {
-        glBindTexture(target, id);
-        return id;
+    qint64 qt_id;
+    if (textureCacheLookup(key, &id, &qt_id)) {
+        if (qt_pixmap_id(pixmap) == qt_id) {
+            glBindTexture(target, id);
+            return id;
+        } else {
+            q->deleteTexture(id);
+        }
     }
     return bindTexture(pixmap.toImage(), target, format, key, clean);
 }
@@ -1376,13 +1392,7 @@ GLuint QGLContextPrivate::bindTexture(const QPixmap &pixmap, GLenum target, GLin
 GLuint QGLContext::bindTexture(const QImage &image, GLenum target, GLint format)
 {
     Q_D(QGLContext);
-    const QString key = QString("%1_%2_%3").arg(QString().sprintf("i%08x",image.serialNumber())).arg(target).arg(format);
-    GLuint id;
-    if (d->textureCacheLookup(key, &id)) {
-        glBindTexture(target, id);
-        return id;
-    }
-    return d->bindTexture(image, target, format, key);
+    return d->bindTexture(image, target, format, false);
 }
 
 /*! \overload
@@ -1392,13 +1402,7 @@ GLuint QGLContext::bindTexture(const QImage &image, GLenum target, GLint format)
 GLuint QGLContext::bindTexture(const QPixmap &pixmap, GLenum target, GLint format)
 {
     Q_D(QGLContext);
-    const QString key = QString("%1_%2_%3").arg(QString().sprintf("p%08x",pixmap.serialNumber())).arg(target).arg(format);
-    GLuint id;
-    if (d->textureCacheLookup(key, &id)) {
-        glBindTexture(target, id);
-        return id;
-    }
-    return d->bindTexture(pixmap.toImage(), target, format, key);
+    return d->bindTexture(pixmap, target, format, false);
 }
 
 /*!

@@ -60,6 +60,7 @@ struct QPixmapData { // internal pixmap data
     short d;
     uint uninit:1;
     int ser_no;
+    int detach_no;
 #if !defined(Q_WS_X11) && !defined(Q_WS_MAC)
     QBitmap *mask;
 #endif

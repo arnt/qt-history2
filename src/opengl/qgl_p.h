@@ -90,10 +90,10 @@ public:
     explicit QGLContextPrivate(QGLContext *context) : q_ptr(context) {}
     ~QGLContextPrivate() {}
     GLuint bindTexture(const QImage &image, GLenum target, GLint format, const QString &key,
-                       bool clean = false);
+                       qint64 qt_id, bool clean = false);
     GLuint bindTexture(const QPixmap &pixmap, GLenum target, GLint format, bool clean);
     GLuint bindTexture(const QImage &image, GLenum target, GLint format, bool clean);
-    bool textureCacheLookup(const QString &key, GLuint *id);
+    bool textureCacheLookup(const QString &key, GLuint *id, qint64 *qt_id);
     void init(QPaintDevice *dev, const QGLFormat &format);
     QImage convertToBGRA(const QImage &image);
 
