@@ -70,26 +70,12 @@ void SettingsDialog::setFile(QLineEdit *le, const QString &caption)
         le->setText(fileName);    
 }
 
-void SettingsDialog::accept()
+void SettingsDialog::on_buttonOk_clicked()
 {
     Config *config = Config::configuration();
-
     config->setWebBrowser(ui.browserApp->text());
     config->setHomePage(ui.homePage->text());
     config->setPdfReader(ui.pdfApp->text());
-
-    hide();
-    done(Accepted);
-}
-
-void SettingsDialog::reject()
-{
-    init();
-    done(Rejected);
-}
-
-void SettingsDialog::on_buttonOk_clicked()
-{
     accept();
 }
 

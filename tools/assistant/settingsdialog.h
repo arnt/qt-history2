@@ -37,9 +37,7 @@ private slots:
     void on_buttonPDF_clicked();
 
     void init();
-    void accept();
-    void reject();
-
+    
 private:
     void setFile(QLineEdit *le, const QString &caption);
 

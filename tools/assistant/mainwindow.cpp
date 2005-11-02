@@ -484,22 +484,7 @@ void MainWindow::showSettingsDialog(int page)
     if (page != -1)
         settingsDia->settingsTab()->setCurrentIndex(page);
 
-    if (settingsDia->exec() != QDialog::Accepted)
-        return;
-
-
-    QObjectList lst = ui.Toolbar->children();
-    for (int i = 0; i < lst.size(); ++i) {
-        QObject *obj = lst.at(i);
-        if (qstrcmp(obj->metaObject()->className(), "QToolBarSeparator") == 0) {
-            delete obj;
-            break;
-        }
-    }
-    setupGoActions();
-
-    tabs->currentBrowser()->reload();
-    //showLink(tabs->currentBrowser()->source().toString());
+    settingsDia->exec();
 }
 
 MainWindow* MainWindow::newWindow()
