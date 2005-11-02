@@ -493,6 +493,7 @@ bool QPixmap::isDetached() const
 
 void QPixmap::detach()
 {
+    ++data->detach_no;
     if (data->count != 1)
         *this = copy();
 }
@@ -553,6 +554,7 @@ void QPixmap::init(int w, int h, Type type)
     }
     data = new QPixmapData;
     data->type = type;
+    data->detach_no = 0;
     if (type == PixmapType) {
         data->image = QImage(w, h, QImage::Format_RGB32);
     } else {

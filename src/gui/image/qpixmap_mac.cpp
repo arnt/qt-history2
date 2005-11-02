@@ -327,6 +327,7 @@ void QPixmap::setMask(const QBitmap &newmask)
 
 void QPixmap::detach()
 {
+    ++data->detach_no;
     if (data->count != 1) {
         *this = copy();
         data->qd_alpha = 0; //leave it behind
@@ -589,6 +590,7 @@ void QPixmap::init(int w, int h, Type type)
     data->count = 1;
     data->uninit = true;
     data->ser_no = ++qt_pixmap_serial;
+    data->detach_no = 0;
     data->type = type;
 
     bool make_null = w == 0 || h == 0;                // create null pixmap
