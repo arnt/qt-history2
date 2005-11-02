@@ -51,7 +51,7 @@ QMMapViewProtocol::QMMapViewProtocol(int displayid, const QSize &s,
 	    qFatal( "Unsupported bit depth %d\n", d );
     }
 
-    fileName = QString(QT_VFB_MAP).arg(displayid);
+    fileName = QString("/tmp/.qtvfb_map-%1").arg(displayid);
 
     int w = s.width();
     int h = s.height();
