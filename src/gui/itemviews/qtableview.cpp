@@ -1154,7 +1154,10 @@ bool QTableView::showGrid() const
 
 void QTableView::setShowGrid(bool show)
 {
-    d_func()->showGrid = show;
+    if (d_func()->showGrid != show) {
+        d_func()->showGrid = show;
+        update();
+    }
 }
 
 /*!
@@ -1170,7 +1173,10 @@ Qt::PenStyle QTableView::gridStyle() const
 
 void QTableView::setGridStyle(Qt::PenStyle style)
 {
-    d_func()->gridStyle = style;
+    if (d_func()->gridStyle != style) {
+        d_func()->gridStyle = style;
+        update();
+    }
 }
 
 /*!
