@@ -171,6 +171,12 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
     if (m_formWindow == formWindow)
         return;
 
+    if (m_formWindow != 0) {
+        QList<QAction*> actionList = qFindChildren<QAction*>(m_formWindow->mainContainer());
+        foreach (QAction *action, actionList)
+            disconnect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
+    }
+
     m_formWindow = formWindow;
 
     m_actionRepository->clear();
@@ -196,6 +202,7 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
         }
 
         createListWidgetItem(action);
+        connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
     }
 
     setFilter(m_filter);
@@ -232,8 +239,6 @@ QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
 /*    QVariant actionData;
     qVariantSetValue(actionData, item);
     action->setData(actionData); */
-
-    connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
 
     return item;
 }
@@ -285,16 +290,20 @@ QAction *ActionEditor::itemToAction(QListWidgetItem *item) const
 
 void ActionEditor::slotActionChanged()
 {
-    QIcon empty_icon(":/trolltech/formeditor/images/emptyicon.png");
-
     QAction *action = qobject_cast<QAction*>(sender());
     Q_ASSERT(action != 0);
 
     QListWidgetItem *item = actionToItem(action);
-    Q_ASSERT(item != 0);
-
-    item->setText(fixActionText(action->text()));
-    item->setIcon(fixActionIcon(action->icon()));
+    if (item == 0) {
+        if (action->menu() == 0) // action got its menu deleted, create item
+            createListWidgetItem(action);
+    } else if (action->menu() != 0) { // action got its menu created, remove item
+        delete item;
+    } else {
+        // action text or icon changed, update item
+        item->setText(fixActionText(action->text()));
+        item->setIcon(fixActionIcon(action->icon()));
+    }
 }
 
 QDesignerFormEditorInterface *ActionEditor::core() const
@@ -333,6 +342,8 @@ void ActionEditor::manageAction(QAction *action)
 
     QListWidgetItem *item = createListWidgetItem(action);
     m_actionRepository->setCurrentItem(item);
+
+    connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
 }
 
 void ActionEditor::unmanageAction(QAction *action)

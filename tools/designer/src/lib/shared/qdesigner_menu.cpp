@@ -570,6 +570,7 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
 
+            formWindow()->beginCommand(tr("Insert action"));
             InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
             cmd->init(this, action, safeActionAt(index));
             formWindow()->commandHistory()->push(cmd);
@@ -586,6 +587,7 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
                 }
             }
             updateCurrentAction();
+            formWindow()->endCommand();
         }
     }
 
@@ -712,7 +714,6 @@ void QDesignerMenu::createRealMenuAction(QAction *action) // ### undo/redo
 
     QDesignerFormWindowInterface *fw = formWindow();
     QDesignerFormEditorInterface *core = formWindow()->core();
-    core->actionEditor()->unmanageAction(action);
 
     QDesignerMenu *menu = findOrCreateSubMenu(action);
     m_subMenus.remove(action);
@@ -745,7 +746,6 @@ void QDesignerMenu::removeRealMenu(QAction *action)
     m_subMenus.insert(action, menu);
     QDesignerFormEditorInterface *core = formWindow()->core();
     core->metaDataBase()->remove(menu);
-    core->actionEditor()->manageAction(action);
 }
 
 QDesignerMenu *QDesignerMenu::findOrCreateSubMenu(QAction *action)
