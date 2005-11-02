@@ -895,13 +895,20 @@ void QPdfEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperation op)
 
 void QPdfEngine::setPen()
 {
-    // #### fix non solid pen brushes
-    QColor rgba = pen.color();
-    *d->currentPage << "/CSp CS\n"
-                    << rgba.redF()
-                    << rgba.greenF()
-                    << rgba.blueF()
-                    << "SCN\n";
+    bool specifyColor;
+    QBrush b = pen.brush();
+    int patternObject = d->addBrushPattern(b, matrix, QPointF(), &specifyColor);
+
+    *d->currentPage << (patternObject ? "/PCSp CS " : "/CSp CS ");
+    if (specifyColor) {
+        QColor rgba = b.color();
+        *d->currentPage << rgba.redF()
+                        << rgba.greenF()
+                        << rgba.blueF();
+    }
+    if (patternObject)
+        *d->currentPage << "/Pat" << patternObject;
+    *d->currentPage << "SCN\n";
 
     *d->currentPage << pen.widthF() << "w ";
 
@@ -949,9 +956,9 @@ void QPdfEngine::setBrush()
     bool specifyColor;
     int patternObject = d->addBrushPattern(brush, matrix, brushOrigin, &specifyColor);
     
-    QColor rgba = brush.color();
     *d->currentPage << (patternObject ? "/PCSp cs " : "/CSp cs ");
     if (specifyColor) {
+        QColor rgba = brush.color();
         *d->currentPage << rgba.redF()
                         << rgba.greenF()
                         << rgba.blueF();
