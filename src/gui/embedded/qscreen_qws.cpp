@@ -861,7 +861,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
     }
     if (!win) {
         paintBackground(exposed-blend);
-    } else if (!above_changing) {
+    } else if (!above_changing && !win->backingStore()->isNull()) {
         blit(win, (exposed - blend));
     }
     QRegion blendRegion = exposed & blend;
@@ -882,9 +882,9 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             spanData.dy = off.y();
         } else {
             opacity = win->opacity();
-            QPixmap *pm = win->backingStore()->pixmap();
-            if (!pm)
+            if (win->backingStore()->isNull())
                 return;
+            QPixmap *pm = win->backingStore()->pixmap();
             img = pm->toImage();
             QPoint winoff = off - win->requestedRegion().boundingRect().topLeft();
             spanData.type = QSpanData::Texture;
