@@ -154,7 +154,7 @@ void QDockWidgetPrivate::init() {
     top->setMargin(0);
     top->setSpacing(0);
 
-    box = new QVBoxLayout;
+    box = new QDockWidgetBoxLayout;
     box->setMargin(0);
     box->setSpacing(0);
     top->addLayout(box, 1, 0);
@@ -261,7 +261,7 @@ void QDockWidgetPrivate::relayout()
     int minHeight = qMax(closeSize.width(), closeSize.height()) + 2 * mw;
     minHeight = qMax(minHeight, qMax(floatSize.width(), floatSize.height()));
     minHeight += 2; // Allow 1px frame around title area with buttons inside
-    minHeight = qMax(minHeight, q->fontMetrics().lineSpacing() + 2 + 2 * mw); //Ensure 2 px margin around font
+    minHeight = qMax(minHeight, q->fontMetrics().lineSpacing() + 2 + 2 * mw) - fw; //Ensure 2 px margin around font
     titleArea = QRect(QPoint(fw, fw),
                       QSize(q->rect().width() - (fw * 2), minHeight));
     int posX = titleArea.right();
@@ -617,7 +617,7 @@ QDockWidget::~QDockWidget()
 QWidget *QDockWidget::widget() const
 {
     Q_D(const QDockWidget);
-    return d->widget;
+    return d->item ? d->item->widget() : 0;
 }
 
 /*!
@@ -628,11 +628,16 @@ QWidget *QDockWidget::widget() const
 void QDockWidget::setWidget(QWidget *widget)
 {
     Q_D(QDockWidget);
-    if (d->widget)
-        d->box->removeWidget(d->widget);
-    d->widget = widget;
-    if (d->widget)
-        d->box->insertWidget(1, d->widget);
+    if (d->item) {
+        d->box->removeItem(d->item);
+        delete d->item;
+        d->item = 0;
+    }
+    if (widget) {
+        d->item = new QDockWidgetItem(widget);
+        d->box->addChildWidget(widget);
+        d->box->insertItem(1, d->item);
+    }
 }
 
 /*!

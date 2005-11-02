@@ -88,6 +88,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void toggleView(bool))
     Q_PRIVATE_SLOT(d_func(), void toggleTopLevel())
     friend class QDockWidgetLayout;
+    friend class QDockWidgetItem;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWidget::DockWidgetFeatures)
