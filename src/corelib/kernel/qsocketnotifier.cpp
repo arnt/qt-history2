@@ -56,10 +56,10 @@
        We recommend against using this.
     \endlist
 
-    If you need to monitor both reads and writes for the same file
-    descriptor, you must create two socket notifiers. Also, it's not
-    possible to install two socket notifiers of the same type (\l
-    Read, \l Write, \l Exception) on the same socket.
+    \bold{Note:} If you need to monitor both reads and writes for the
+    same file descriptor, you must create two socket notifiers. It is
+    not possible to install two socket notifiers of the same type
+    (\l Read, \l Write, \l Exception) on the same socket.
 
     \sa QFile, QProcess, QTcpSocket, QUdpSocket
 */
