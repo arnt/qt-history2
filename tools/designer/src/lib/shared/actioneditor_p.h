@@ -62,6 +62,7 @@ public:
     static QString actionTextToName(const QString &text);
 
     QAction *itemToAction(QListWidgetItem *item) const;
+    QListWidgetItem *actionToItem(QAction *action) const;
 
 public slots:
     void setFilter(const QString &filter);

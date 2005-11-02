@@ -966,8 +966,6 @@ QAction *QDesignerMenu::createAction(const QString &objectName, bool separator)
     cmd->init(action);
     fw->commandHistory()->push(cmd);
 
-    fw->core()->actionEditor()->setFormWindow(fw);
-
     return action;
 }
 

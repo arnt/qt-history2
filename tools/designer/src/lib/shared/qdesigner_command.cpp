@@ -99,9 +99,6 @@ void QDesignerFormWindowCommand::cheapUpdate()
 
     if (core()->actionEditor())
         core()->actionEditor()->setFormWindow(formWindow());
-
-    if (core()->actionEditor())
-        core()->actionEditor()->setFormWindow(formWindow());
 }
 
 bool QDesignerFormWindowCommand::hasLayout(QWidget *widget) const
@@ -2258,11 +2255,13 @@ void AddActionCommand::init(QAction *action)
 
 void AddActionCommand::redo()
 {
+    core()->actionEditor()->setFormWindow(formWindow());
     core()->actionEditor()->manageAction(m_action);
 }
 
 void AddActionCommand::undo()
 {
+    core()->actionEditor()->setFormWindow(formWindow());
     core()->actionEditor()->unmanageAction(m_action);
 }
 
@@ -2311,11 +2310,13 @@ void RemoveActionCommand::redo()
     foreach (const ActionDataItem &item, m_actionData) {
         item.widget->removeAction(m_action);
     }
+    core()->actionEditor()->setFormWindow(formWindow());
     core()->actionEditor()->unmanageAction(m_action);
 }
 
 void RemoveActionCommand::undo()
 {
+    core()->actionEditor()->setFormWindow(formWindow());
     core()->actionEditor()->manageAction(m_action);
     foreach (const ActionDataItem &item, m_actionData) {
         item.widget->insertAction(item.before, m_action);

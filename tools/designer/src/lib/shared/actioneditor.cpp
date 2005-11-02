@@ -167,6 +167,10 @@ QDesignerFormWindowInterface *ActionEditor::formWindow() const
 
 void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
 {
+    // we do NOT rely on this function to update the action editor
+    if (m_formWindow == formWindow)
+        return;
+
     m_formWindow = formWindow;
 
     m_actionRepository->clear();
@@ -187,8 +191,9 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
         if (!core()->metaDataBase()->item(action)
             || action->isSeparator()
             // ### || action->menu()
-            )
+            ) {
             continue;
+        }
 
         createListWidgetItem(action);
     }
@@ -224,9 +229,9 @@ QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
     qVariantSetValue(itemData, action);
     item->setData(ActionRepository::ActionRole, itemData);
 
-    QVariant actionData;
+/*    QVariant actionData;
     qVariantSetValue(actionData, item);
-    action->setData(actionData);
+    action->setData(actionData); */
 
     connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
 
@@ -257,9 +262,20 @@ void ActionEditor::slotItemChanged(QListWidgetItem *item)
         return;
     }
 
-    if (QAction *action = qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole))) {
+    if (QAction *action = itemToAction(item)) {
         updatePropertyEditor(action);
     }
+}
+
+QListWidgetItem *ActionEditor::actionToItem(QAction *action) const
+{
+    int cnt = m_actionRepository->count();
+    for (int i = 0; i < cnt; ++i) {
+        QListWidgetItem *item = m_actionRepository->item(i);
+        if (itemToAction(item) == action)
+            return item;
+    }
+    return 0;
 }
 
 QAction *ActionEditor::itemToAction(QListWidgetItem *item) const
@@ -274,7 +290,7 @@ void ActionEditor::slotActionChanged()
     QAction *action = qobject_cast<QAction*>(sender());
     Q_ASSERT(action != 0);
 
-    QListWidgetItem *item = qvariant_cast<QListWidgetItem*>(action->data());
+    QListWidgetItem *item = actionToItem(action);
     Q_ASSERT(item != 0);
 
     item->setText(fixActionText(action->text()));
@@ -303,9 +319,9 @@ void ActionEditor::manageAction(QAction *action)
     core()->metaDataBase()->add(action);
 
     if (action->isSeparator() || action->menu() != 0) {
-        QVariant actionData;
+/*        QVariant actionData;
         qVariantSetValue(actionData, (QListWidgetItem*)0);
-        action->setData(actionData);
+        action->setData(actionData); */
         return;
     }
 
@@ -326,13 +342,13 @@ void ActionEditor::unmanageAction(QAction *action)
 
     disconnect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
 
-    QListWidgetItem *item = qvariant_cast<QListWidgetItem*>(action->data());
+    QListWidgetItem *item = actionToItem(action);
     if (item == 0)
         return;
 
-    QVariant actionData;
+/*    QVariant actionData;
     qVariantSetValue(actionData, (QListWidgetItem*)0);
-    action->setData(actionData);
+    action->setData(actionData); */
 
     delete item;
 }
@@ -399,7 +415,7 @@ void ActionEditor::slotDeleteAction()
     if (item == 0)
         return;
 
-    QAction *action = qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole));
+    QAction *action = itemToAction(item);
     if (action == 0)
         return;
 

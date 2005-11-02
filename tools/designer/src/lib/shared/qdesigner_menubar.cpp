@@ -612,7 +612,7 @@ bool QDesignerMenuBar::checkAction(QAction *action) const
 void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
 {
     QAction *action = actionMimeData(event->mimeData());
-    if (!action)
+    if (!action || !Utils::isObjectAncestorOf(formWindow()->mainContainer(), action))
         return;
 
     m_dragging = true;
