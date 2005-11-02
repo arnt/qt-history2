@@ -27,6 +27,7 @@
 #include <qwindowsystem_qws.h>
 #include <qsocketnotifier.h>
 #include <qapplication.h>
+#include <qscreen_qws.h>
 
 //===========================================================================
 
@@ -350,7 +351,9 @@ bool QVFbScreen::initDevice()
         hdr->numcols = screencols;
     }
 
+#ifndef QT_NO_QWS_CURSOR
     QScreenCursor::initSoftwareCursor();
+#endif
     return true;
 }
 
