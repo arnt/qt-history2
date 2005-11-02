@@ -7,6 +7,7 @@ SUBDIRS       = dialogs \
                 mainwindows \
                 network \
                 painting \
+                qtestlib \
                 richtext \
                 sql \
                 threads \

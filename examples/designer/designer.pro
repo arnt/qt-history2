@@ -1,10 +1,12 @@
 TEMPLATE    = subdirs
-SUBDIRS     = calculatorform \
-              worldtimeclockplugin
+SUBDIRS     = calculatorform
+
 !static:SUBDIRS += calculatorbuilder \
+                   containerextension \
                    customwidgetplugin \
                    taskmenuextension \
-                   containerextension
+                   worldtimeclockbuilder \
+                   worldtimeclockplugin
 
 # install
 sources.files = README *.pro

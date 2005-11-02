@@ -32,3 +32,11 @@ FORMS += forms/addtorrentform.ui
 RESOURCES += icons.qrc
 
 QT += network
+
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/network/torrent
+sources.files = $$SOURCES $$HEADERS $$RESOURCES torrent.pro *.torrent
+sources.files -= 3rdparty/sha1.c 3rdparty/sha1.h
+sources.files += icons forms 3rdparty
+sources.path = $$[QT_INSTALL_EXAMPLES]/network/torrent
+INSTALLS += target sources

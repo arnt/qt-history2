@@ -1,4 +1,3 @@
-TARGET        = svgviewer
 HEADERS       = mainwindow.h \
                 svgview.h \
                 svgwindow.h
@@ -14,7 +13,7 @@ contains(QT_CONFIG, opengl): QT += opengl
 CONFIG += console
 
 # install
-target.path = $$[QT_INSTALL_EXAMPLES]/painting/svgview
-sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS svgview.pro
-sources.path = $$[QT_INSTALL_EXAMPLES]/painting/svgview
+target.path = $$[QT_INSTALL_EXAMPLES]/painting/svgviewer
+sources.files = $$SOURCES $$HEADERS $$RESOURCES svgviewer.pro files
+sources.path = $$[QT_INSTALL_EXAMPLES]/painting/svgviewer
 INSTALLS += target sources

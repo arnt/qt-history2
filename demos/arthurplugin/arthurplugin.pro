@@ -31,14 +31,13 @@ HEADERS = \
         $$DEMO_GRADIENT_DIR/gradients.h \
         $$DEMO_STROKE_DIR/pathstroke.h \
 
-              
-# install
-target.path = $$[QT_INSTALL_PLUGINS]/designer
-sources.files = $$SOURCES $$HEADERS *.pro
-sources.path = $$[QT_INSTALL_EXAMPLES]/designer/customwidgetplugin
-INSTALLS += target sources
-
 RESOURCES += arthur_plugin.qrc
+
+# install
+target.path = $$[QT_INSTALL_PLUGINS]/arthurplugin
+sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.jpg *.png
+sources.path = $$[QT_INSTALL_DEMOS]/arthurplugin
+INSTALLS += target sources
 
 win32-msvc.net|win32-msvc {
 	QMAKE_CFLAGS += /Zm500
