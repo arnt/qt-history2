@@ -785,6 +785,7 @@ void QToolBar::actionEvent(QActionEvent *event)
                 qobject_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
             }
             item.widget->setVisible(item.action->isVisible());
+            QApplication::postEvent(this, new QResizeEvent(size(), size()));
             break;
         }
 
@@ -815,6 +816,7 @@ void QToolBar::actionEvent(QActionEvent *event)
                 if (!isHidden())
                     item.widget->hide();
             }
+            QApplication::postEvent(this, new QResizeEvent(size(), size()));
             break;
         }
 
@@ -1006,7 +1008,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 bool QToolBar::event(QEvent *event)
 {
     Q_D(QToolBar);
-    
+
     switch (event->type()) {
     case QEvent::Hide:
         if (!isHidden())
