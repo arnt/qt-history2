@@ -139,7 +139,10 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
 
     connect(m_actionRepository, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
             this, SLOT(slotItemChanged(QListWidgetItem*)));
+    // make it possible for vs integration to reimplement edit action dialog
     connect(m_actionRepository, SIGNAL(itemActivated(QListWidgetItem*)),
+            this, SIGNAL(itemActivated(QListWidgetItem*)));
+    connect(this, SIGNAL(itemActivated(QListWidgetItem*)),
             this, SLOT(editAction(QListWidgetItem*)));
 }
 
@@ -259,6 +262,11 @@ void ActionEditor::slotItemChanged(QListWidgetItem *item)
     }
 }
 
+QAction *ActionEditor::itemToAction(QListWidgetItem *item) const
+{
+    return qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole));
+}
+
 void ActionEditor::slotActionChanged()
 {
     QIcon empty_icon(":/trolltech/formeditor/images/emptyicon.png");
@@ -332,6 +340,7 @@ void ActionEditor::unmanageAction(QAction *action)
 void ActionEditor::slotNewAction()
 {
     NewActionDialog dlg(this);
+    dlg.setWindowTitle(tr("New action"));
 
     if (dlg.exec() == QDialog::Accepted) {
         QAction *action = new QAction(formWindow());
@@ -350,12 +359,12 @@ void ActionEditor::editAction(QListWidgetItem *item)
     if (!item)
         return;
 
-    QAction *action = qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole));
+    QAction *action = itemToAction(item);
     if (action == 0)
         return;
 
-
     NewActionDialog dlg(this);
+    dlg.setWindowTitle(tr("Edit action"));
     dlg.setActionData(action->text(), action->objectName(), action->icon());
 
     if (!dlg.exec())

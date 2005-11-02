@@ -61,6 +61,8 @@ public:
 
     static QString actionTextToName(const QString &text);
 
+    QAction *itemToAction(QListWidgetItem *item) const;
+
 public slots:
     void setFilter(const QString &filter);
 
@@ -72,11 +74,13 @@ private slots:
     void slotDeleteAction();
     void slotNotImplemented();
 
+signals:
+    void itemActivated(QListWidgetItem *item);
+
 private:
     QListWidgetItem *createListWidgetItem(QAction *action);
     void updatePropertyEditor(QAction *action);
 
-private:
     QDesignerFormEditorInterface *m_core;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
     QSplitter *splitter;
