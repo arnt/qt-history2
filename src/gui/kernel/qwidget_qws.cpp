@@ -179,7 +179,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
         if (hasFrame) {
             // get size of wm decoration and make the old crect the new frect
             QRect cr = data.crect;
-            QRegion r = QApplication::qwsDecoration().region(q, cr);
+            QRegion r = QApplication::qwsDecoration().region(q, cr) | cr;
             QRect br(r.boundingRect());
             extra->topextra->fleft = cr.x() - br.x();
             extra->topextra->ftop = cr.y() - br.y();
