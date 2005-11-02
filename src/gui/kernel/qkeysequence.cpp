@@ -92,7 +92,7 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
 
     \value NativeText The key sequence as a platform specific string.
     This means that it will be shown translated and on the Mac it will
-    resemble a keysequenc from the menu bar. This enum is best used when you
+    resemble a keysequence from the menu bar. This enum is best used when you
     want to display the string to the user.
 
     \value PortableText The key sequence is given in a "portable" format,
@@ -403,15 +403,17 @@ int QKeySequence::assign(const QString &ks)
         // in them.. (Let's hope no one translate with a comma in it:)
         p = keyseq.indexOf(QLatin1Char(','));
         if (-1 != p) {
-            if (QLatin1Char(',') == keyseq.at(p+1)) // e.g. 'Ctrl+,, Shift+,,'
-                p++;
-            if (QLatin1Char(' ') == keyseq.at(p+1)) { // Space after comma
-                diff = 1;
-                p++;
-            } else if (QLatin1Char('\0') == keyseq.at(p+1)) { // Last comma 'Ctrl+,'
+            if (p == keyseq.count() - 1) { // Last comma 'Ctrl+,'
                 p = -1;
             } else {
-                diff = 0;
+                if (QLatin1Char(',') == keyseq.at(p+1)) // e.g. 'Ctrl+,, Shift+,,'
+                    p++;
+                if (QLatin1Char(' ') == keyseq.at(p+1)) { // Space after comma
+                    diff = 1;
+                    p++;
+                } else {
+                    diff = 0;
+                }
             }
         }
         part = keyseq.left(-1 == p ? keyseq.length() : p - diff);
