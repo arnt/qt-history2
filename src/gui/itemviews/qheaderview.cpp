@@ -247,6 +247,7 @@ void QHeaderView::setModel(QAbstractItemModel *model)
         QObject::connect(model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
                          this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
     }
+    d->hiddenSectionSize.clear();
 
     QAbstractItemView::setModel(model);
     // Users want to set sizes and modes before the widget is shown.
@@ -1161,7 +1162,6 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
     if (qMin(logicalFirst, logicalLast) < 0
         || qMax(logicalLast, logicalFirst) >= d->sections.count() - 1)
         return; // should could assert here, but since models could emit signals with strange args, we are a bit forgiving
-    // the sections have not been removed from the model yet
     int oldCount = this->count();
     int changeCount = logicalLast - logicalFirst + 1;
     if (d->visualIndices.isEmpty() && d->logicalIndices.isEmpty()) {
@@ -1170,6 +1170,8 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
         for (int i = logicalLast + 1; i < d->sections.count(); ++i)
             d->sections[i].position -= delta;
         d->sections.remove(logicalFirst, changeCount);
+        for (int i = logicalFirst; i <= changeCount+logicalFirst; ++i)
+            d->hiddenSectionSize.remove(i);
     } else {
         for (int l = logicalLast; l >= logicalFirst; --l) {
             int visual = d->visualIndices.at(l);
@@ -1184,6 +1186,8 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
                 }
             }
             d->sections.remove(visual);
+            d->hiddenSectionSize.remove(l);
+            
             d->logicalIndices.remove(visual);
             d->visualIndices.remove(l);
         }
@@ -1202,9 +1206,6 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
 void QHeaderView::initializeSections()
 {
     Q_D(QHeaderView);
-    // Do not clear the hiddenSectionSize map, since we want to use this structure to quickly find
-    // the sections that are hidden.
-    d->hiddenSectionSize.clear();
     if (!model())
         return;
     if (d->orientation == Qt::Horizontal) {
