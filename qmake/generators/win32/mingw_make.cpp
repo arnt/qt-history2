@@ -292,6 +292,7 @@ void MingwMakefileGenerator::writeBuildRulesPart(QTextStream &t)
     } else {
         t << "\n\t" << "$(LINK) $(LFLAGS) -o \"$(DESTDIR_TARGET)\" " << objectsLinkLine << " " << " $(LIBS)";
     }
+    t << endl;
 }
 
 void MingwMakefileGenerator::writeRcFilePart(QTextStream &t)
