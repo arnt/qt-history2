@@ -146,10 +146,7 @@ static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode m
         if (pp_keywords[state].ident && is_ident_char(*data))
             token = pp_keywords[state].ident;
 
-        if (mode == TokenizeFile && token >= PP_FIRST_STATEMENT && token <= PP_LAST_STATEMENT) {
-            while (*data && *data != '\n')
-                ++data;
-        } else switch (token) {
+        switch (token) {
         case NOTOKEN:
             ++data;
             break;
@@ -242,8 +239,8 @@ exit:
     return symbols;
 }
 
-static Symbols tokenize(const Symbol &symbol)
-{ return tokenize(symbol.lexem(), symbol.lineNum, TokenizeLine); }
+//static Symbols tokenize(const Symbol &symbol)
+//{ return tokenize(symbol.lexem(), symbol.lineNum, TokenizeLine); }
 
 static Symbols substitute(const Macros &macros, const Symbols& symbols, int &i,
                           bool discardWhitespace = false, QList<QByteArray> safeset = QList<QByteArray>())
@@ -519,12 +516,10 @@ bool PP_Expression::primary_expression_lookup()
             || t == PP_LPAREN);
 }
 
-static int evaluateCondition(const Macros &macros, const Symbol &symbol)
+static int evaluateCondition(const Macros &macros, const Symbols &symbols, int &i)
 {
     PP_Expression expression;
     expression.macros = macros;
-    Symbols symbols = tokenize(symbol);
-    int i = 1;
     bool skip = false;
     while (hasNext(symbols, i)) {
         const Symbol &sym = next(symbols, i);
@@ -534,10 +529,30 @@ static int evaluateCondition(const Macros &macros, const Symbol &symbol)
             expression.symbols += substitute(macros, symbols, i, true);
         else
             expression.symbols += sym;
+
+        if (sym.pp_token == PP_NEWLINE)
+            break;
         skip = (sym.pp_token == PP_DEFINED || skip && sym.pp_token == PP_LPAREN);
     }
 
     return expression.value();
+}
+
+static inline QByteArray lexemUntil(const Symbols &symbols, int i, PP_Token token)
+{
+    QByteArray s;
+    while (i < symbols.size() && symbols.at(i).pp_token != token) {
+        s += symbols.at(i).lexem();
+        ++i;
+    }
+    return s;
+}
+
+static inline void until(const Symbols &symbols, int &i, PP_Token token)
+{
+    while (i < symbols.size() && symbols.at(i).pp_token != token) {
+        ++i;
+    }
 }
 
 static void preprocess(const QByteArray &filename, const Symbols &symbols, Macros &macros, Symbols &preprocessed);
@@ -553,13 +568,41 @@ static void preprocess(const QByteArray &filename, const Symbols &symbols, Macro
     static int depth = 0;
     preprocessed.reserve(preprocessed.size() + symbols.size());
     int i = 0;
+    bool skipUntilNewLine = false;
     while (hasNext(symbols,i)) {
+
+        if (skipUntilNewLine) {
+            until(symbols, i, PP_NEWLINE);
+            // skip the newline token
+            if (hasNext(symbols, i))
+                ++i;
+            skipUntilNewLine = false;
+            continue;
+        }
+
         Symbol sym = next(symbols, i);
+
+        // preprocessor statements always end with a PP_NEWLINE. Some of the
+        // statement handlers operate on the actual lexical elements until the
+        // newline and others (like evaluationCondition) operate on the tokens
+        // directly. That's why we can't skip to PP_NEWLINE here but we have to
+        // do it in the next loop iteration, using skipUntilNewLine.
+        QByteArray statementLexem;
+        if (sym.pp_token >= PP_FIRST_STATEMENT
+            && sym.pp_token <= PP_LAST_STATEMENT) {
+            int lexemIndex = i;
+            if (hasNext(symbols, lexemIndex) && symbols.at(lexemIndex).pp_token == PP_WHITESPACE)
+                ++lexemIndex;
+            statementLexem = lexemUntil(symbols, lexemIndex, PP_NEWLINE);
+
+            skipUntilNewLine = true;
+        }
+
         switch (sym.pp_token) {
         case PP_INCLUDE:
         {
-            QByteArray include = sym.lexem();
-            const char *data = include.constData() + 8;
+            QByteArray include = statementLexem;
+            const char *data = include.constData();
             while (*data && is_whitespace(*data))
                 ++data;
             const char *name = data++;
@@ -630,8 +673,8 @@ static void preprocess(const QByteArray &filename, const Symbols &symbols, Macro
         }
         case PP_DEFINE:
         {
-            QByteArray macro = sym.lexem();
-            const char *data = macro.constData() + 7;
+            QByteArray macro = statementLexem;
+            const char *data = macro.constData();
             while (*data && is_whitespace(*data))
                 ++data;
             if (!is_ident_start(*data))
@@ -651,8 +694,8 @@ static void preprocess(const QByteArray &filename, const Symbols &symbols, Macro
             continue;
         }
         case PP_UNDEF: {
-            QByteArray macro = sym.lexem();
-            const char *data = macro.constData() + 7;
+            QByteArray macro = statementLexem;
+            const char *data = macro.constData();
             while (*data && is_whitespace(*data))
                 ++data;
             if (!is_ident_start(*data))
@@ -694,13 +737,17 @@ static void preprocess(const QByteArray &filename, const Symbols &symbols, Macro
         case PP_IFDEF:
         case PP_IFNDEF:
         case PP_IF:
-            while (!evaluateCondition(macros, sym)) {
+            while (!evaluateCondition(macros, symbols, i)) {
                 if (!skipBranch(symbols, i))
                     break;
                 sym = next(symbols, i);
                 if (sym.pp_token != PP_ELIF)
                     break;
             }
+            // evaluateCondition already does the job of skipping
+            // over the newline, so don't do it twice and accidentially
+            // loose tokens by that
+            skipUntilNewLine = false;
             continue;
         case PP_ELIF:
         case PP_ELSE:
