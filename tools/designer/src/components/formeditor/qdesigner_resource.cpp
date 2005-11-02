@@ -327,12 +327,14 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     QDesignerMenuBar *menuBar = qobject_cast<QDesignerMenuBar*>(w);
     QDesignerToolBar *toolBar = qobject_cast<QDesignerToolBar*>(w);
 
-    if (menu)
+    if (menu) {
         menu->interactive(false);
-    else if (menuBar)
+        menu->hide();
+    } else if (menuBar) {
         menuBar->interactive(false);
-    else if (toolBar)
+    } else if (toolBar) {
         toolBar->interactive(false);
+    }
 
     foreach (DomActionRef *ui_action_ref, actionRefs) {
         QString name = ui_action_ref->attributeName();
