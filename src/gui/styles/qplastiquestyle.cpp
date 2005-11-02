@@ -1592,13 +1592,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                         image.setColor(1, alphaLightTextColor.light(130).rgba());
                         image.setColor(2, alphaLightTextColor.light(110).rgba());
                     } else {
-                        if (button->state & State_Enabled) {
-                            image.setColor(0, option->palette.foreground().color().rgba());
-                            image.setColor(1, alphaTextColor.rgba());
-                        } else {
-                            image.setColor(0, alphaLightTextColor.rgba());
-                            image.setColor(1, alphaLightTextColor.light(130).rgba());
-                        }
+                        image.setColor(0, option->palette.foreground().color().rgba());
+                        image.setColor(1, alphaTextColor.rgba());
                     }
                     checkBoxPainter.drawImage(pixmapRect.x() + 2, pixmapRect.y() + 2, image);
                 }
@@ -1702,8 +1697,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 #endif // QT_NO_DOCKWIDGET
     case PE_IndicatorViewItemCheck: {
         QStyleOptionButton button;
-        button.state = option->state & ~State_MouseOver;
-        button.rect = option->rect;
+        button.QStyleOption::operator=(*option);
+        button.state &= ~State_MouseOver;
         drawPrimitive(PE_IndicatorCheckBox, &button, painter, widget);
         break;
     }
