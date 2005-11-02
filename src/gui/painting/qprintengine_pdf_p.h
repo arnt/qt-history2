@@ -34,6 +34,7 @@
 #include "QtCore/qvector.h"
 #include "QtGui/qpaintengine.h"
 #include "QtGui/qpainterpath.h"
+#include "QtCore/qdatastream.h"
 
 class QImage;
 class QDataStream;
@@ -41,291 +42,53 @@ class QPen;
 class QPointF;
 class QRegion;
 class QFile;
-class QPdfByteStream;
 
-class QPdfObject
-{
-public:
-    QPdfObject()
-        : type(NONE), appended(0), hassoftmask_p(false) {}
-    virtual ~QPdfObject() {}
+const char *qt_real_to_string(qreal val, char *buf);
+const char *qt_int_to_string(int val, char *buf);
 
-    enum TYPE{
-        NONE,
-        MATRIX,
-        PATH,
-        PEN,
-        BRUSH,
-        IMAGE,
-        GRADIENT,
-        SOFTMASK
-    };
+namespace QPdf {
 
-    TYPE type;
-    int appended;
-
-    virtual void streamText(QPdfByteStream &) {}
-
-    bool hasSoftMask()
-    {
-        return hassoftmask_p;
-    }
-
-protected:
-    bool hassoftmask_p;
-};
-
-class QPdfMatrix : public QPdfObject
-{
-public:
-    QPdfMatrix();
-    QPdfMatrix* setMatrix(QMatrix const& m);
-    QMatrix currentMatrix() const;
-    QMatrix lastMatrix() const;
-    void streamText(QPdfByteStream &stream);
-
-    static void streamMatrix(const QMatrix &m, QPdfByteStream &stream);
-
-private:
-    QVector<QMatrix> matrices_;
-};
-
-class QPdfImage : public QPdfObject
-{
-public:
-    QPdfImage(int w, int h, int object);
-    void streamText(QPdfByteStream &stream);
-    int w;
-    int h;
-    int object;
-};
-
-class QPdfGradient : public QPdfObject
-{
-public:
-    QPdfGradient();
-    ~QPdfGradient();
-    void setParameter(const QColor &b, const QColor &e, qreal x0, qreal y0, qreal x1, qreal y1);
-
-
-    void setObjects(int mainobj, int funcobj);
-    QByteArray getMainDefinition();
-    QByteArray getFuncDefinition();
-    QByteArray getSoftMaskFormDefinition();
-    QByteArray getSoftMaskMainDefinition();
-    QByteArray getSoftMaskFuncDefinition();
-
-    void setColorSpaceObject(int obj);
-    void setSoftMaskColorSpaceObject(int obj);
-    void setSoftMaskObjects(int formobj, int mainobj, int funcobj);
-    void setSoftMaskRange(qreal x, qreal y, qreal w, qreal h);
-
-    int mainObject() const {return mainobj_;}
-    int functionObject() const {return funcobj_;}
-    int softMaskFormObject() const {return smfmobj_;}
-    int softMaskMainObject() const {return (softmask) ? softmask->mainObject() : -1;}
-    int softMaskFunctionObject() const {return (softmask) ? softmask->functionObject() : -1;}
-    QByteArray softMaskGraphicStateName() const {return (softmask) ? name + "ExtGS" : QByteArray();}
-
-    QByteArray name;
-
-private:
-    QPdfGradient* softmask;
-    bool issoftmask_;
-    int mainobj_, funcobj_, smfmobj_, csrgbobj_, csgrayobj_;
-    qreal x0_, y0_, x1_, y1_;
-    QColor beg_, end_;
-    qreal x_, y_, w_, h_;
-
-    QByteArray getSingleMainDefinition();
-    QByteArray getSingleFuncDefinition();
-    QByteArray softMaskName() const {return (softmask) ? name + "SM" : QByteArray();}
-};
-
-class QPdfBrush : public QPdfObject
-{
-public:
-    explicit QPdfBrush(const QByteArray& id = QByteArray());
-    ~QPdfBrush();
-
-    qreal alpha() const;
-
-    QPdfBrush* setFixed(Qt::BrushStyle style, const QColor &rgba, const QMatrix& mat = QMatrix());
-    QPdfBrush* setGradient(const QColor &rgba, const QColor &gradrgba,
-                           qreal bx, qreal by, qreal ex, qreal ey,
-                           qreal bbox_xb, qreal bbox_xe, qreal bbox_yb, qreal bbox_ye,
-                           const QMatrix& mat = QMatrix());
-    QPdfBrush* setPixmap(QPdfImage *image, const QMatrix& mat);
-
-    bool noBrush() const {return nobrush_;}
-    void streamText(QPdfByteStream &stream);
-
-    class Pattern
+    class ByteStream
     {
     public:
-        QByteArray name;
-
-    protected:
-        QByteArray defBegin(int ptype, int w, int h);
-        QByteArray getDefinition(const QByteArray &res);
-        QMatrix matrix;
-    };
-
-    class FixedPattern : public Pattern
-    {
-    public:
-        explicit FixedPattern(const QByteArray& n = QByteArray(), int idx = -1, const QColor &col = QColor(),
-                              const QMatrix& mat = QMatrix());
-        QColor rgba;
-        bool isEmpty() const {return patternidx == Qt::NoBrush;}
-        bool isSolid() const {return patternidx == Qt::SolidPattern;}
-        bool isTruePattern() const {return patternidx > 1;}
-
-        QByteArray getDefinition();
+        ByteStream(QByteArray *b) :ba(b) {}
+        ByteStream &operator <<(char chr) { *ba += chr; return *this; }
+        ByteStream &operator <<(const char *str) { *ba += str; return *this; }
+        ByteStream &operator <<(const QByteArray &str) { *ba += str; return *this; }
+        ByteStream &operator <<(qreal val) { char buf[256]; *ba += qt_real_to_string(val, buf); return *this; }
+        ByteStream &operator <<(int val) { char buf[256]; *ba += qt_int_to_string(val, buf); return *this; }
     private:
-        int patternidx;
+        QByteArray *ba;
     };
 
-    class PixmapPattern : public Pattern
-    {
-    public:
-        explicit PixmapPattern(const QByteArray& n = QByteArray(), QPdfImage* im = 0,
-                               const QMatrix& mat = QMatrix());
-        QPdfImage* image;
-        QByteArray getDefinition();
+    enum PathFlags {
+        PathNone, 
+        PathIsClip,
+        StrokeOnly,
+        FillOnly,
+        StrokeAndFill
     };
+    QByteArray generatePath(const QPainterPath &path, PathFlags flags);
+    QByteArray generateMatrix(const QMatrix &matrix);
+    QByteArray generateDashes(const QPen &pen);
+    QByteArray patternForBrush(const QBrush &b);
 
-    class GradientPattern : public Pattern
-    {
-    public:
-        explicit GradientPattern(const QByteArray& n = QByteArray(), QPdfGradient* grad = 0,
-                                 const QMatrix& mat = QMatrix());
-        QPdfGradient* shader;
-        void setMainObj(int obj);
-        int getMainObj() const {return mainobj_;}
-        QByteArray getDefinition();
-    private:
-        int mainobj_;
-    };
-
-    QVector<FixedPattern> fixeds;
-    QVector<GradientPattern> gradients;
-    QVector<PixmapPattern> pixmaps;
-
-    bool isGradient() const;
-    bool firstIsGradient() const;
-
-private:
-    enum SUBTYPE{
-        FIXED,
-        GRADIENT,
-        PIXMAP,
-    };
-
-    QVector<SUBTYPE> streamstate_;
-    QVector<qreal> alpha_;
-    bool nobrush_;
-public:
-    QByteArray id_;
 };
 
-class QPdfPen : public QPdfObject
-{
-public:
-    QPdfPen();
-    void streamText(QPdfByteStream &stream);
 
-    QPdfPen* setLineWidth(qreal v);
-    QPdfPen* setLineCap(unsigned v);
-    QPdfPen* setLineJoin(unsigned v);
-    QPdfPen* setMiterLimit(qreal v);
-    QPdfPen* setDashArray(const QPen& pen, qreal phase);
-    QPdfPen* setColor(const QColor &rgba);
-    bool stroking() const;
-    qreal alpha() const;
-
-private:
-    struct DashArray
-    {
-        DashArray(){}
-        DashArray(const QVector<qreal>& v, qreal p)
-            :seq(v), phase(p) {}
-
-        QVector<qreal> seq;
-        qreal phase;
-    };
-
-    enum SUBTYPE{
-        LINEWIDTH,
-        LINECAP,
-        LINEJOIN,
-        MITERLIMIT,
-        DASHARRAY,
-        COLOR
-    };
-
-
-    QVector<SUBTYPE> streamstate_;
-    QVector<DashArray> da_;
-    QVector<qreal> lw_, ml_;
-    QVector<int>   lc_, lj_;
-    QVector<QByteArray> ri_;
-    QVector<QColor> col_;
-    QVector<bool> stroking_;
-};
-
-class QPdfPath : public QPdfObject
-{
-public:
-    enum PAINTTYPE {
-        NONE	      = 0L,
-        STROKE        = 1L<<0,
-        FILLNONZERO   = 1L<<1,
-        FILLEVENODD   = 1L<<2,
-        CLIPPING      = 1L<<3
-    };
-
-    explicit QPdfPath(const QPdfPen *pen, const QPdfBrush *brush, const QPainterPath &p);
-
-    QPainterPath path;
-
-    void streamText(QPdfByteStream &stream);
-    int painttype;
-    QMatrix currentMatrix;
-    bool hasTrueAlpha() const {return hasTrueStrokeAlpha() || hasTrueNonStrokeAlpha();}
-    QByteArray getAlphaDefinition() const;
-
-    int alphaObject;
-
-private:
-    QByteArray paintOperator() const;
-    qreal ca_, CA_;
-    bool gradientstrokealpha_;
-
-    bool hasTrueStrokeAlpha() const {return CA_ >= 0.0 && CA_ < 1.0 ;}
-    bool hasTrueNonStrokeAlpha() const {return ca_ >= 0.0 && ca_ < 1.0 ;}
-    bool hasGradientNonStrokeAlpha() const {return gradientstrokealpha_;}
-    void streamCoreText(QPdfByteStream &s) const;
-};
-
-class QPdfPage : public QPdfObject
+class QPdfPage : public QPdf::ByteStream
 {
 public:
     QPdfPage();
-    void  destroy();
-    void streamText(QPdfByteStream &stream);
-    QPdfObject* append(QPdfObject* val, bool protect = false);
+    QByteArray content() { return data; }
 
     QVector<uint> images;
-    QVector<QPdfPath*> paths;
+    QVector<uint> graphicStates;
+    QVector<uint> patterns;
 
+    void streamImage(int w, int h, int object);
 private:
-    QVector<QPdfObject*> gobjects_;
-    int width_, height_;
-    bool landscape_;
-
-    bool predType(int i, QPdfObject::TYPE);
-    bool nextType(int i, QPdfObject::TYPE);
+    QByteArray data;
 };
 
 class QPdfEnginePrivate
@@ -334,13 +97,10 @@ public:
     QPdfEnginePrivate();
     ~QPdfEnginePrivate();
 
-    QPdfPage* curPage;
+    QPdfPage* currentPage;
     void newPage();
     void setDimensions(int w, int h){width_ = w; height_ = h;}
 
-    QPdfMatrix* curMatrix;
-    QPdfPen* curPen;
-    QPdfBrush* curBrush;
     QString title, creator, author;
 
     void setDevice(QIODevice*);
@@ -355,13 +115,16 @@ public:
     QPrinter::Orientation orientation;
     bool fullPage;
 
-    int addImage(const QImage &image, bool maybeBitmap);
+    int addImage(const QImage &image, bool *bitmap);
+    int addPenGState(const QPen &pen);
+    int addBrushGState(const QBrush &brush);
+    int addBrushPattern(const QBrush &b, const QMatrix &matrix, const QPointF &brushOrigin, bool *specifyColor);
 
 private:
     Q_DISABLE_COPY(QPdfEnginePrivate)
     void writeInfo();
     void writePageRoot();
-    void flushPage();
+
     inline uint requestObject() { return currentObject++; }
 
     QVector<int> xrefPositions;
@@ -371,11 +134,17 @@ private:
 
     int writeImage(const QByteArray &data, int width, int height, int depth,
                    int maskObject, int softMaskObject);
+    void writePage();
 
     int addXrefEntry(int object, bool printostr = true);
     void xprintf(const char* fmt, ...);
-    int write(const char *src, int len);
-    inline int write(const QByteArray &data) { return write(data.constData(), data.length()); }
+    inline void write(const QByteArray &data) {
+        stream->writeRawData(data.constData(), data.size());
+        streampos += data.size();
+    }
+    
+    int writeCompressed(const char *src, int len);
+    inline int writeCompressed(const QByteArray &data) { return writeCompressed(data.constData(), data.length()); }
 
     int currentObject;
 
@@ -407,12 +176,6 @@ public:
     void updateState(const QPaintEngineState &state);
     Type type() const;
     // end reimplementations QPaintEngine
-    void updateBackground (Qt::BGMode bgmode, const QBrush & brush);
-    void updateBrush (const QBrush & brush, const QPointF & origin);
-    void updateClipPath(const QPainterPath & path, Qt::ClipOperation op);
-    void updateClipRegion (const QRegion & region, Qt::ClipOperation op);
-    void updatePen (const QPen & pen);
-    void updateMatrix (const QMatrix & matrix);
 
     // reimplementations QPrintEngine
     void setProperty(PrintEnginePropertyKey key, const QVariant &value);
@@ -423,9 +186,15 @@ public:
     QPrinter::PrinterState printerState() const {return QPrinter::Idle;}
     // end reimplementations QPrintEngine
 
+    void updateClipPath(const QPainterPath & path, Qt::ClipOperation op);
+
+    void setPen();
+    void setBrush();
+
 
     QRect paperRect() const;
     QRect pageRect() const;
+
     // ### unused, should have something for this in QPrintEngine
     void setAuthor(const QString &author);
     QString author() const;
@@ -435,9 +204,6 @@ public:
 private:
     Q_DISABLE_COPY(QPdfEngine)
     QPdfEnginePrivate *d;
-
-    void setBrush (QPdfBrush& pbr, const QBrush & brush, const QPointF& origin);
-    void drawPathPrivate (const QPainterPath & path, bool isClip = false);
 
     QPrinter::PageSize pagesize_;
 
@@ -449,8 +215,14 @@ private:
     QPointF brushOrigin;
     QBrush brush;
     QPen pen;
+    uint brushSoftMask;
+    uint penSoftMask;
     QMatrix matrix;
-    QRegion clipRegion;
+    QList<QPainterPath> clips;
+    bool clipEnabled;
+    bool allClipped;
+    bool hasPen;
+    bool hasBrush;
 };
 
 #endif // QT_NO_PRINTER
