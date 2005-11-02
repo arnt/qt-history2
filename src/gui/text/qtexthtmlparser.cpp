@@ -452,6 +452,8 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
         format.setFontWeight(fontWeight);
     if (color.isValid())
         format.setForeground(QBrush(color));
+    if (bgColor.isValid())
+        format.setBackground(QBrush(bgColor));
     if (verticalAlignment != QTextCharFormat::AlignNormal)
         format.setVerticalAlignment(verticalAlignment);
     if (isAnchor) {
@@ -1296,6 +1298,24 @@ static bool parseFontFamily(QTextHtmlParserNode *node, const QString &value)
     return true;
 }
 
+static QColor parseColor(QString value)
+{
+    QColor color;
+    if (value.startsWith(QLatin1String("rgb("))
+        && value.endsWith(QLatin1Char(')'))) {
+
+        value.chop(1);
+        value.remove(0, 4);
+
+        const QStringList rgb = value.split(',');
+        if (rgb.count() == 3)
+            color.setRgb(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt());
+    } else {
+        color.setNamedColor(value);
+    }
+    return color;
+}
+
 // style parser taken from Qt 3
 static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
 {
@@ -1327,21 +1347,9 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
                 format.setVAlign(QTextFormat::AlignNormal);
 #endif
         } else if (style.startsWith(QLatin1String("color:"))) {
-            QString s = style.mid(6).trimmed();
-            if (s.startsWith(QLatin1String("rgb("))
-                    && s.at(s.length() - 1) == QLatin1Char(')')) {
-
-                s.chop(1);
-                s.remove(0, 4);
-
-                const QStringList rgb = s.split(',');
-                if (rgb.count() == 3)
-                    node->color.setRgb(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt());
-                else
-                    node->color = QColor();
-            } else {
-                node->color.setNamedColor(style.mid(6));
-            }
+            node->color = parseColor(style.mid(6).trimmed());
+        } else if (style.startsWith(QLatin1String("background-color:"))) {
+            node->bgColor = parseColor(style.mid(17).trimmed());
         } else if (style.startsWith(QLatin1String("float:"))) {
             QString s = style.mid(6).trimmed();
             node->cssFloat = QTextFrameFormat::InFlow;

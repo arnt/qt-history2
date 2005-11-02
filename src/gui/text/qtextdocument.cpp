@@ -1284,6 +1284,13 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
         attributesEmitted = true;
     }
 
+    if (format.background() != defaultCharFormat.background()) {
+        html += QLatin1String(" background-color:");
+        html += format.background().color().name();
+        html += QLatin1Char(';');
+        attributesEmitted = true;
+    }
+
     if (format.verticalAlignment() != defaultCharFormat.verticalAlignment()) {
         html += QLatin1String(" vertical-align:");
 
