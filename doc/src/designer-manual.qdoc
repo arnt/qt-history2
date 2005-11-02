@@ -604,7 +604,7 @@ properties such as \c objectName (the object's internal name) and
 \inlineimage designer-property-editor.png
 \i \bold{Editing Properties}
 
-The eroperty editor uses standard Qt input widgets to manage the properties
+The property editor uses standard Qt input widgets to manage the properties
 of objects on the form. Textual properties are shown in line edits,
 integer properties are displayed in spinboxes, and compound properties such
 as colors and sizes are presented in drop-down lists of input widgets.
@@ -884,7 +884,9 @@ click inside it and apply the layout as usual.
 
 \title Creating Main Windows in Qt Designer
 
+\omit
 \image designer-mainwindow-template.png
+\endomit
 
 \QD can be used to create user interfaces for different purposes, and provides
 different kinds of form templates for each of these. One of these are the main
@@ -898,38 +900,117 @@ Create a new main window by opening the \gui File menu and select
 the \gui {New Form...} option, or by pressing \key Ctrl+N.. Then select
 the \gui {Main Window} template.
 
-The template provides a main application window. Once the main window is
-created a menu bar can be created and tool bars can be added.
+The template provides a main application window which contains
+a menu bar and a toolbar by default; these can be removed if they are
+not required.
+
+If you remove the menu bar, a new one can be created by selecting the
+\gui {Create Menu Bar} option from the context menu, obtained by
+right-clicking within the main window form.
+
+An application can only have one menu bar, but several toolbars can be
+added.
 
 \section1 The Menu Bar
 
-An application can only have one menu bar but several tool bars.
+Menus are added to the menu bar by modifying the \gui{<menu>} placeholders.
+One of these is always present for editing purposes, and will not be
+displayed in the preview or in the finished window.
 
-\target CreatingMenuBar
+Once created, the properties of a menu can be accessed using the
+\l{Qt Designer's Widget Editing Mode#The Property Editor}{Property Editor},
+and each menu can be accessed for this purpose via the
+\l{Qt Designer's Widget Editing Mode#The Object Inspector}{The Object Inspector}.
+
+Existing menus can be removed by opening a context menu over the
+label in the menu bar, and selecting \gui{Remove Menu}.
+
+\target CreatingAMenu
 \table
 \row
-\i \inlineimage designer-creating-menubar.png
-\i \bold{Creating a Menu Bar}
+\o \inlineimage designer-creating-menu1.png
+\o \inlineimage designer-creating-menu2.png
+\o \bold{Creating a Menu}
 
-Create a menu bar by selecting the \gui {Create Menu Bar} option from
-the context menu obtained by right-clicking within the main window form.
+Double-click the placeholder item to start the editing process.
 
-An application can only have one menu bar.
+The menu text is displayed using a line edit, and can be modified.
 
-Menus can be added to the menu bar by clicking the button in its top right corner.
+\row
+\o \inlineimage designer-creating-menu3.png
+\o \inlineimage designer-creating-menu4.png
+\o Insert the required text for the new menu. Inserting an ampersand
+   character (&) causes the letter following it to be used as a
+   mnemonic for the menu.
 
+Press \key{Return} or \key{Enter} to accept the new text, or press
+\key{Escape} to reject it. You can undo the editing operation later if
+required.
 \endtable
 
-Tool bars are added the in a similar way as the menu bar: select the \gui
-{Add Tool Bar} option from the context menu obtained by right-clicking within
-the main window form.
+Menus can also be rearranged in the menu bar with simple drag and drop
+operations. Simply click and drag the menu you want to move, and drop
+it in the required location. A vertical red line indicates the position
+where the menu will be inserted.
+
+Menus can contain any number of entries and separators, and can be
+nested to the required depth. Adding new entries to menus can be
+achieved by navigating the menu structure in the usual way.
+
+\target CreatingAMenuEntry
+\table
+\row
+\o \inlineimage designer-creating-menu-entry1.png
+\o \inlineimage designer-creating-menu-entry2.png
+\o \bold{Creating a Menu Entry}
+
+Double-click the \gui{new action} item to start the editing process,
+or double-click \gui{new separator} to insert a new separator line
+after the last entry in the menu.
+
+The menu entry's text is displayed using a line edit, and can be modified.
+
+\row
+\o \inlineimage designer-creating-menu-entry3.png
+\o \inlineimage designer-creating-menu-entry4.png
+\o Insert the required text for the new entry, optionally using the
+   ampersand character (&) to mark the letter to use as a mnemonic for
+   the entry.
+
+Press \key{Return} or \key{Enter} to accept the new text, or press
+\key{Escape} to reject it. The action created for this menu entry will
+be accessible via the \l{#TheActionEditor}{action editor}, and any
+associated keyboard shortcut can be set there.
+\endtable
+
+Just as with menus, entries can be moved around using drag and drop
+operations. When an entry is dragged over a closed menu, the menu will
+open to allow it to be inserted there. Since menu entries are based on
+actions, they can also be dropped onto toolbars, where they will be
+displayed as toolbar buttons.
+
+\section1 Toolbars
+
+Toolbars are added to a main window in a similar way to the menu bar:
+Select the \gui {Add Tool Bar} option from the form's context menu.
+Alternatively, if there is an existing toolbar in the main window, you
+can click the arrow at its right-hand end to create a new toolbar.
+
+Toolbar buttons are created by using the action system to populate each
+toolbar, rather than by using specific button widgets from the widget box.
+Since actions can be represented by menu entries and toolbar buttons, they
+can be moved between menus and toolbars. To share an action between a
+menu and a toolbar, drag its icon from the
+\l{#The Action Editor}{Action Editor} to the toolbar rather than from the
+menu where its entry is located.
+
+New actions for menus and toolbars can be created in the Action Editor.
 
 \section1 Actions
 
-With the menu bar and the tool bars in place, it's time to populate them with
-actions: \QD provides the action editor which simplifies the creation and
-management of actions.
-
+With the menu bar and the toolbars in place, it's time to populate them with
+actions: \QD provides an action editor to simplify the creation and management
+of actions.
 
 \target TheActionEditor
 \table
@@ -959,14 +1040,15 @@ Once the action is created, it can be used wherever actions are applicable.
 \target AddingAnAction
 \table
 \row
-\i \inlineimage designer-adding-action.png
-\i \bold{Adding an Action}
+\o \inlineimage designer-adding-menu-action.png
+\o \inlineimage designer-adding-toolbar-action.png
+\o \bold{Adding an Action}
 
-To add an action to a menu, simply press the left mouse button over the action in the action editor, and drag it onto the form and to the menu you want to add it to.
+To add an action to a menu or a toolbar, simply press the left mouse button over
+the action in the action editor, and drag it to where it is required.
 
 \QD provides highlighted guide lines that tell you where the action will be added.
 Release the mouse button to add the action when you have found the right spot.
-
 \endtable
 */
 
