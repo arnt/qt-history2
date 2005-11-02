@@ -330,9 +330,9 @@ void QPixmap::detach()
     if (data->count != 1) {
         *this = copy();
         data->qd_alpha = 0; //leave it behind
+        data->ser_no = ++qt_pixmap_serial;
     }
     data->uninit = false;
-    data->ser_no = ++qt_pixmap_serial;
 }
 
 int QPixmap::metric(PaintDeviceMetric m) const
