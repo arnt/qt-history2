@@ -39,6 +39,38 @@
 #  define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
 
+/**
+ * If \a in contains spaces, make sure that it is quoted on windows,
+ * and escape the spaces on unix.
+ * If \a in is already quoted or escaped, it will return \a in unmodified.
+ */
+static QString fixFilenameForMakefileOutput(const QString &in)
+{
+    if (in.indexOf(' ') != -1) {
+#ifdef Q_OS_WIN
+        if (!((in.startsWith('\"') && in.endsWith('\"')) || (in.startsWith('\'') && in.endsWith('\''))))
+        {
+            return QLatin1String("\"") + in + QLatin1String("\"");
+        }
+#else
+        QString out;
+        out.reserve(in.count());
+        for (int i = 0; i < in.count(); ++i) {
+            QChar c = in.at(i);
+            if (c == QLatin1Char(' ')) {
+                // Only escape it if isn't already escaped
+                if (i == 0 || in.at(i - 1) != QLatin1Char('\\')) {
+                    out += QLatin1Char('\\');
+                }
+            }
+            out += c;
+        }
+        return out;
+#endif
+    } 
+    return in;
+}
+
 QString mkdir_p_asstring(const QString &dir)
 {
     QString ret =  "@$(CHK_DIR_EXISTS) \"" + dir + "\" ";
@@ -1903,7 +1935,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
             QString in = Option::fixPathToTargetOS((*input), false);
             QStringList deps = findDependencies((*input));
-            deps += in;
+            deps += fixFilenameForMakefileOutput(in);
             QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString());
             if(!tmp_dep.isEmpty()) {
                 QStringList pre_deps = fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
