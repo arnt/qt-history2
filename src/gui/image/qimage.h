@@ -251,7 +251,7 @@ private:
     QImageData *d;
 
     friend class QPixmap;
-    friend qint64 qt_image_id(const QImage &image);
+    friend Q_GUI_EXPORT qint64 qt_image_id(const QImage &image);
 };
 
 Q_DECLARE_SHARED(QImage)

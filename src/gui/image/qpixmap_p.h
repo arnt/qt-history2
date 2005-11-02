@@ -39,6 +39,7 @@ struct QPixmapData { // internal pixmap data
     void ref() { ++count; }
     bool deref() { return !--count; }
     int count;
+    int detach_no;
     QImage image;
     QPixmap::Type type;
 
