@@ -980,8 +980,17 @@ void Moc::parseClassInfo(ClassDef *def)
     next(STRING_LITERAL);
     infoDef.name = symbol().unquotedLexem();
     next(COMMA);
-    next(STRING_LITERAL);
-    infoDef.value = symbol().unquotedLexem();
+    if (test(STRING_LITERAL)) {
+        infoDef.value = symbol().unquotedLexem();
+    } else {
+        // support Q_CLASSINFO("help", QT_TR_NOOP("blah"))
+        next(IDENTIFIER);
+        next(LPAREN);
+        next(STRING_LITERAL);
+        infoDef.value = symbol().unquotedLexem();
+        next(RPAREN);
+    }
+    next(RPAREN);
     def->classInfoList += infoDef;
 }
 
