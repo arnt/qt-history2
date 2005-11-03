@@ -592,7 +592,7 @@ qint64 QNativeSocketEnginePrivate::nativeReceiveDatagram(char *data, qint64 maxS
 
 #if defined (QNATIVESOCKETENGINE_DEBUG)
     qDebug("QNativeSocketEnginePrivate::nativeReceiveDatagram(%p \"%s\", %lli, %s, %i) == %lli",
-           data, qt_prettyDebug(data, qMin(recvFromResult, 16), recvFromResult).data(), maxSize,
+           data, qt_prettyDebug(data, qMin(recvFromResult, ssize_t(16)), recvFromResult).data(), maxSize,
            address ? address->toString().toLatin1().constData() : "(nil)",
            port ? *port : 0, (qint64) recvFromResult);
 #endif
@@ -816,7 +816,7 @@ qint64 QNativeSocketEnginePrivate::nativeRead(char *data, qint64 maxSize)
 
 #if defined (QNATIVESOCKETENGINE_DEBUG)
     qDebug("QNativeSocketEnginePrivate::nativeRead(%p \"%s\", %llu) == %i",
-           data, qt_prettyDebug(data, qMin(r, 16), r).data(),
+           data, qt_prettyDebug(data, qMin(r, ssize_t(16)), r).data(),
            maxSize, r);
 #endif
 
