@@ -575,9 +575,9 @@ void QListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
 {
     Q_D(QListView);
     // if the parent is above rootIndex() in the tree, nothing will happen
+    QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
     d->doDelayedItemsLayout();
     d->prepareItemsLayout(); // cleanup
-    QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
 }
 
 /*!
