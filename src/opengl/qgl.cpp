@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
+#include "qapplication.h"
 #include "qplatformdefs.h"
-
 #include "qgl.h"
 #include "qpixmap.h"
 #include "qimage.h"
@@ -2978,7 +2978,33 @@ void QGLWidget::deleteTexture(GLuint id)
     d->glcx->deleteTexture(id);
 }
 
-Q_GLOBAL_STATIC(QOpenGLPaintEngine, qt_widget_paintengine)
+void qt_cleanup_gl_engine();
+
+struct QGLEngineCleanup
+{
+    QGLEngineCleanup() {
+        cleaned_up = false;
+        engine = new QOpenGLPaintEngine();
+        qAddPostRoutine(qt_cleanup_gl_engine);
+    }
+    ~QGLEngineCleanup(){
+        qt_cleanup_gl_engine();
+    }
+    bool cleaned_up;
+    QOpenGLPaintEngine *engine;
+};
+
+Q_GLOBAL_STATIC(QGLEngineCleanup, qt_gl_engine_handler)
+
+void qt_cleanup_gl_engine()
+{
+    if (!qt_gl_engine_handler()->cleaned_up) {
+        qRemovePostRoutine(qt_cleanup_gl_engine);
+        qt_gl_engine_handler()->cleaned_up = true;
+        delete qt_gl_engine_handler()->engine;
+    }    
+}
+
 /*!
     \internal
 
@@ -2987,7 +3013,7 @@ Q_GLOBAL_STATIC(QOpenGLPaintEngine, qt_widget_paintengine)
 */
 QPaintEngine *QGLWidget::paintEngine() const
 {
-    return qt_widget_paintengine();
+    return qt_gl_engine_handler()->engine;
 }
 
 #ifdef QT3_SUPPORT
