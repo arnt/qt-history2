@@ -60,26 +60,42 @@ that they will look and feel exactly as you intended.
 \section1 Figures and Hints
 
 \list
-\i \l{Getting Started with Qt Designer#MainWindow}{\QD's main window}
-\i \l{Getting Started with Qt Designer#WidgetBox}{\QD's widget box}
-\i \l{Designing a Component with Qt Designer#ChoosingAForm}{Choosing a form}
+\i \l{Getting Started with Qt Designer#MainWindow}{\QD's Main Window}
+\i \l{Getting Started with Qt Designer#WidgetBox}{\QD's Widget Box}
+\i \l{Designing a Component with Qt Designer#ChoosingAForm}{Choosing a Form}
 \i \l{Designing a Component with Qt Designer#EditingModes}{Editing Modes}
-\i \l{Designing a Component with Qt Designer#AddingWidgetsToAForm}{Adding widgets to a form}
+\i \l{Designing a Component with Qt Designer#AddingWidgetsToAForm}{Adding Widgets to a Form}
 \i \l{Designing a Component with Qt Designer#ThePropertyEditor}{The Property Editor}
-\i \l{Designing a Component with Qt Designer#PlacingWidgetsInLayouts}{Placing widgets in layouts}
-\i \l{Designing a Component with Qt Designer#ConnectingWidgets}{Connecting widgets}
-\i \l{Designing a Component with Qt Designer#PreviewingAForm}{Previewing a form}
-\i \l{Qt Designer's Widget Editing Mode#SelectingObjects}{Selecting objects}
+\i \l{Designing a Component with Qt Designer#PlacingWidgetsInLayouts}{Placing Widgets in Layouts}
+\i \l{Designing a Component with Qt Designer#ConnectingWidgets}{Connecting Widgets}
+\i \l{Designing a Component with Qt Designer#PreviewingAForm}{Previewing a Form}
+\i \l{Qt Designer's Widget Editing Mode#SelectingObjects}{Selecting Objects}
 \i \l{Qt Designer's Widget Editing Mode#DragAndDrop}{Drag and drop}
-\i \l{Qt Designer's Widget Editing Mode#EditingProperties}{Editing properties}
+\i \l{Qt Designer's Widget Editing Mode#EditingProperties}{Editing Properties}
 \i \l{Qt Designer's Widget Editing Mode#TheObjectInspector}{The Object Inspector}
-\i \l{Qt Designer's Widget Editing Mode#InsertingObjectsIntoALayout}{Inserting objects into a layout}
-\i \l{Qt Designer's Signals and Slots Editing Mode#HighlightedObjects}{Highlighted objects}
-\i \l{Qt Designer's Signals and Slots Editing Mode#MakingAConnection}{Making a connection}
-\i \l{Qt Designer's Signals and Slots Editing Mode#ChoosingSignalsAndSlots}{Choosing signals and slots}
-\i \l{Qt Designer's Signals and Slots Editing Mode#ConnectingToTheForm}{Connecting to a form}
-\i \l{Qt Designer's Signals and Slots Editing Mode#DeletingConnections}{Deleting connections}
+\i \l{Qt Designer's Widget Editing Mode#InsertingObjectsIntoALayout}{Inserting Objects into a Layout}
+\i \l{Using Containers in Qt Designer#Frames}{Frames}
+\i \l{Using Containers in Qt Designer#Group Boxes}{Group Boxes}
+\i \l{Using Containers in Qt Designer#Stacked Widgets}{Stacked Widgets}
+\i \l{Using Containers in Qt Designer#Tab Widgets}{Tab Widgets}
+\i \l{Using Containers in Qt Designer#Toolbox Widgets}{Toolbox Widgets}
+\i \l{Using Containers in Qt Designer#Dock Widgets}{Dock Widgets}
+\i \l{Creating Main Windows in Qt Designer#CreatingAMenu}{Creating a Menu}
+\i \l{Creating Main Windows in Qt Designer#CreatingAMenuEntry}{Creating a Menu Entry}
+\i \l{Creating Main Windows in Qt Designer#TheActionEditor}{The Action Editor}
+\i \l{Creating Main Windows in Qt Designer#AddingAnAction}{Adding an Action}
+\i \l{Creating Main Windows in Qt Designer#AddingADockWidget}{Adding a Dock Widget}
+\i \l{Qt Designer's Signals and Slots Editing Mode#HighlightedObjects}{Highlighted Objects}
+\i \l{Qt Designer's Signals and Slots Editing Mode#MakingAConnection}{Making a Connection}
+\i \l{Qt Designer's Signals and Slots Editing Mode#ChoosingSignalsAndSlots}{Choosing Signals and Slots}
+\i \l{Qt Designer's Signals and Slots Editing Mode#ConnectingToTheForm}{Connecting to a Form}
+\i \l{Qt Designer's Signals and Slots Editing Mode#ConnectionEditor}{The Signal/Slot Editor}
+\i \l{Qt Designer's Signals and Slots Editing Mode#DeletingConnections}{Deleting Connections}
 \i \l{Qt Designer's Buddy Editing Mode#MakingBuddies}{Making Buddies}
+\i \l{Editing Resources with Qt Designer#ResourceFiles}{Resource Files}
+\i \l{Editing Resources with Qt Designer#EditResource}{Editing Resource Files}
+\i \l{Editing Resources with Qt Designer#UsingResources}{Using Resources}
+\i \l{Customizing Qt Designer Forms#LayoutFunction}{Layout Function}
 \endlist
 
 \section1 Legal Notices
@@ -660,7 +676,7 @@ influence the geometries of the widgets.
 \table
 \row
 \i \inlineimage designer-layout-inserting.png
-\i \bold{Inserting Objects Into a Layout}
+\i \bold{Inserting Objects into a Layout}
 
 Objects can be inserted into an existing layout by dragging them from
 their current positions and dropping them at the required location.
@@ -861,8 +877,6 @@ Toolbox widgets provide a series of pages or compartments in a toolbox,
 much like the toolbox used in Qt 3's \QD. Toolboxes are handled in
 much the same way as stacked widgets.
 
-\endtable
-
 To rename a page in a toolbox, make it the current page, open the
 Property Editor, and change the \c currentItemText property.
 To add a new page, select the toolbox widget, open the context menu,
@@ -870,6 +884,7 @@ and select \gui{Insert Page}. Then you are given the option of adding
 the page either before or after the current page.
 To delete the current page, select the toolbox widget, open the context
 menu, and select \gui{Delete Page}.
+\endtable
 
 Each page in the toolbox can be given its own layout, and this is
 necessary if it contains other objects. To add a layout to a page,
@@ -886,11 +901,10 @@ Dock widgets are floating panels, often containing input widgets and more
 complex controls, that are either attached to the edges of the main window
 in "dock areas" or floated as independent tool windows.
 
-\endtable
-
 Although dock widgets can be added to any type of form, they are typically
 used with forms created from the
 \l{Creating Main Windows in Qt Designer}{main window template}.
+\endtable
 */
 
 /*!
@@ -1086,11 +1100,11 @@ its \gui{dockWidgetArea} property.
 To add a dock widget, simply drag one from the \gui{Containers} section of the
 widget box, and drop it onto the main form area. Just as with other widgets, its
 properties can be modified with the Property Editor.
-\endtable
 
 Since dock widgets can be optionally floated as independent tool windows, it is
 useful to give them window titles by setting their \gui{windowTitle} properties.
 This also helps to identify them on the form.
+\endtable
 */
 
 
@@ -1217,7 +1231,7 @@ connection path.
 \table
 \row
 \i \inlineimage designer-connection-editor.png
-\i \bold{Signal/Slot Editor}
+\i \bold{The Signal/Slot Editor}
 
 The signal and slot used in a connection can be changed after it has
 been set up. When a connection is configured, it becomes visible in
@@ -1234,7 +1248,7 @@ connection dialog.
 \table
 \row
 \i \inlineimage designer-connection-editing.png
-\i \bold{Deleting connections}
+\i \bold{Deleting Connections}
 
 The whole connection can be selected by clicking on any of the path
 segments. Once selected, connections can be deleted with the \key Delete
