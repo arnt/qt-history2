@@ -285,7 +285,7 @@ bool QDesignerMenu::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 
     m_currentIndex = findAction(event->pos());
     QAction *action = safeActionAt(m_currentIndex);
-    if (action != 0 && action->menu() != 0)
+    if (action != 0)
         slotShowSubMenuNow();
 
     return true;
