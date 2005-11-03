@@ -2349,6 +2349,7 @@ void InsertActionIntoCommand::redo()
 
     m_parentWidget->insertAction(m_beforeAction, m_action);
     core()->propertyEditor()->setObject(m_action);
+    m_parentWidget->adjustSize();
     cheapUpdate();
 }
 
@@ -2360,6 +2361,7 @@ void InsertActionIntoCommand::undo()
     if (QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(m_parentWidget))
         menu->hideSubMenu();
     m_parentWidget->removeAction(m_action);
+    m_parentWidget->adjustSize();
     core()->propertyEditor()->setObject(m_parentWidget);
     cheapUpdate();
 }
@@ -2391,6 +2393,7 @@ void RemoveActionFromCommand::redo()
     if (QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(m_parentWidget))
         menu->hideSubMenu();
     m_parentWidget->removeAction(m_action);
+    m_parentWidget->adjustSize();
 
     core()->propertyEditor()->setObject(m_parentWidget);
     cheapUpdate();
@@ -2402,6 +2405,7 @@ void RemoveActionFromCommand::undo()
     Q_ASSERT(m_parentWidget != 0);
 
     m_parentWidget->insertAction(m_beforeAction, m_action);
+    m_parentWidget->adjustSize();
     core()->propertyEditor()->setObject(m_action);
     cheapUpdate();
 }

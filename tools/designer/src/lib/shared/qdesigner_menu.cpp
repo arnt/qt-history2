@@ -112,8 +112,6 @@ void QDesignerMenu::startDrag(const QPoint &pos)
     cmd->init(this, action, actions().at(index + 1));
     formWindow()->commandHistory()->push(cmd);
 
-    adjustSize();
-
     QDrag *drag = new QDrag(this);
     drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
 
@@ -132,7 +130,6 @@ void QDesignerMenu::startDrag(const QPoint &pos)
         formWindow()->commandHistory()->push(cmd);
 
         m_currentIndex = old_index;
-        adjustSize();
     }
 }
 
@@ -343,8 +340,6 @@ void QDesignerMenu::slotRemoveSelectedAction(QAction *action)
     RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
     cmd->init(this, a, action_before);
     formWindow()->commandHistory()->push(cmd);
-
-    adjustSize();
 }
 
 void QDesignerMenu::paintEvent(QPaintEvent *event)
@@ -575,7 +570,6 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
         formWindow()->commandHistory()->push(cmd);
 
         m_currentIndex = index;
-        adjustSize();
 
         if (parentMenu()) {
             QAction *parent_action = parentMenu()->currentAction();
@@ -706,7 +700,7 @@ void QDesignerMenu::updateCurrentAction()
     update();
 }
 
-void QDesignerMenu::createRealMenuAction(QAction *action) // ### undo/redo
+void QDesignerMenu::createRealMenuAction(QAction *action)
 {
     if (action->menu())
         return; // nothing to do
@@ -906,9 +900,7 @@ void QDesignerMenu::leaveEditMode(LeaveEditMode mode)
     cmd->init(action, QLatin1String("text"), m_editor->text());
     formWindow()->commandHistory()->push(cmd);
 
-    adjustSize();
-
-    if (parentMenu()) { // ### undo/redo
+    if (parentMenu()) {
         QAction *parent_action = parentMenu()->currentAction();
         if (parent_action->menu() == 0) {
             CreateSubmenuCommand *cmd = new CreateSubmenuCommand(formWindow());
@@ -1045,7 +1037,6 @@ void QDesignerMenu::deleteAction()
     cmd->init(this, action, action_before);
     formWindow()->commandHistory()->push(cmd);
 
-    adjustSize();
     update();
 }
 
