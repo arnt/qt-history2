@@ -101,7 +101,8 @@ bool QLibraryPrivate::load_sys()
         prefixes << "lib";
 #if defined(Q_OS_HPUX)
         suffixes << ".sl";
-        suffixes << QString(".%1").arg(majorVerNum);
+        if (majorVerNum > -1)
+            suffixes << QString(".%1").arg(majorVerNum);
 #elif defined(Q_OS_AIX)
         suffixes << ".a";
 #else

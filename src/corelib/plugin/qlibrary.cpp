@@ -675,6 +675,7 @@ QLibrary::QLibrary(const QString& fileName, QObject *parent)
 /*!
     Constructs a library object with the given \a parent that will
     load the library specified by \a fileName and major version number \a verNum.
+    Currently, the version number is ignored on Windows.
 
     We recommend omitting the file's suffix in \a fileName, since
     QLibrary will automatically look for the file with the appropriate
@@ -743,7 +744,7 @@ QString QLibrary::fileName() const
 
     Sets the fileName property and major version number to \a fileName
     and \a versionNumber respectively.
-
+    The \a versionNumber is ignored on Windows.
     \sa setFileName()
 */
 void QLibrary::setFileNameAndVersion(const QString &fileName, int verNum)
@@ -857,6 +858,7 @@ void *QLibrary::resolve(const QString &fileName, const char *symbol)
     returns the address of the exported symbol \a symbol.
     Note that \a fileName should not include the platform-specific file suffix;
     (see \l{fileName}). The library remains loaded until the application exits.
+    \a verNum is ignored on Windows.
 
     The function returns 0 if the symbol could not be resolved or if
     the library could not be loaded.
