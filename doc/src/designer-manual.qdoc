@@ -874,6 +874,23 @@ menu, and select \gui{Delete Page}.
 Each page in the toolbox can be given its own layout, and this is
 necessary if it contains other objects. To add a layout to a page,
 click inside it and apply the layout as usual.
+
+\section1 Dock Widgets
+
+\table
+\row
+\i \inlineimage designer-containers-dockwidget.png
+\i \bold{Dock Widgets}
+
+Dock widgets are floating panels, often containing input widgets and more
+complex controls, that are either attached to the edges of the main window
+in "dock areas" or floated as independent tool windows.
+
+\endtable
+
+Although dock widgets can be added to any type of form, they are typically
+used with forms created from the
+\l{Creating Main Windows in Qt Designer}{main window template}.
 */
 
 /*!
@@ -889,8 +906,9 @@ click inside it and apply the layout as usual.
 \endomit
 
 \QD can be used to create user interfaces for different purposes, and provides
-different kinds of form templates for each of these. One of these are the main
-window template.
+different kinds of form templates for each of these. The main window template
+is used to create application windows with menu bars, toolbars, and dock
+widgets.
 
 \tableofcontents
 
@@ -911,7 +929,7 @@ right-clicking within the main window form.
 An application can only have one menu bar, but several toolbars can be
 added.
 
-\section1 The Menu Bar
+\section1 Menus
 
 Menus are added to the menu bar by modifying the \gui{<menu>} placeholders.
 One of these is always present for editing purposes, and will not be
@@ -964,7 +982,7 @@ achieved by navigating the menu structure in the usual way.
 \o \inlineimage designer-creating-menu-entry2.png
 \o \bold{Creating a Menu Entry}
 
-Double-click the \gui{new action} item to start the editing process,
+Double-click the \gui{new action} placeholder to start the editing process,
 or double-click \gui{new separator} to insert a new separator line
 after the last entry in the menu.
 
@@ -1050,6 +1068,29 @@ the action in the action editor, and drag it to where it is required.
 \QD provides highlighted guide lines that tell you where the action will be added.
 Release the mouse button to add the action when you have found the right spot.
 \endtable
+
+\section1 Dock Widgets
+
+Since dock widgets are \l{Using Container in Qt Designer}{container widgets},
+they can be added to a form in the usual way. When added to a form, dock widgets
+are not placed in any particular dock area by default; you need to set the
+\gui{docked} property to true for each widget and choose an appropriate value for
+its \gui{dockWidgetArea} property.
+
+\target AddingADockWidget
+\table
+\row
+\o \inlineimage designer-adding-dockwidget.png
+\o \bold{Adding a Dock Widget}
+
+To add a dock widget, simply drag one from the \gui{Containers} section of the
+widget box, and drop it onto the main form area. Just as with other widgets, its
+properties can be modified with the Property Editor.
+\endtable
+
+Since dock widgets can be optionally floated as independent tool windows, it is
+useful to give them window titles by setting their \gui{windowTitle} properties.
+This also helps to identify them on the form.
 */
 
 
