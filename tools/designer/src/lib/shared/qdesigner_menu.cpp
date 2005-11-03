@@ -563,34 +563,33 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
     hideSubMenu();
     m_dragging = false;
 
-    if (QAction *action = actionMimeData(event->mimeData())) {
+    QAction *action = actionMimeData(event->mimeData());
+    if (action && checkAction(action)) {
         event->acceptProposedAction();
+        int index = findAction(event->pos());
+        index = qMin(index, actions().count() - 1);
 
-        if (checkAction(action)) {
-            int index = findAction(event->pos());
-            index = qMin(index, actions().count() - 1);
+        formWindow()->beginCommand(tr("Insert action"));
+        InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+        cmd->init(this, action, safeActionAt(index));
+        formWindow()->commandHistory()->push(cmd);
 
-            formWindow()->beginCommand(tr("Insert action"));
-            InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
-            cmd->init(this, action, safeActionAt(index));
-            formWindow()->commandHistory()->push(cmd);
+        m_currentIndex = index;
+        adjustSize();
 
-            m_currentIndex = index;
-            adjustSize();
-
-            if (parentMenu()) {
-                QAction *parent_action = parentMenu()->currentAction();
-                if (parent_action->menu() == 0) {
-                    CreateSubmenuCommand *cmd = new CreateSubmenuCommand(formWindow());
-                    cmd->init(parentMenu(), parentMenu()->currentAction());
-                    formWindow()->commandHistory()->push(cmd);
-                }
+        if (parentMenu()) {
+            QAction *parent_action = parentMenu()->currentAction();
+            if (parent_action->menu() == 0) {
+                CreateSubmenuCommand *cmd = new CreateSubmenuCommand(formWindow());
+                cmd->init(parentMenu(), parentMenu()->currentAction());
+                formWindow()->commandHistory()->push(cmd);
             }
-            updateCurrentAction();
-            formWindow()->endCommand();
         }
+        updateCurrentAction();
+        formWindow()->endCommand();
+    } else {
+        event->ignore();
     }
-
     adjustIndicator(QPoint(-1, -1));
 }
 

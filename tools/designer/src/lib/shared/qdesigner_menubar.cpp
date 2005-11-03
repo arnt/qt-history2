@@ -145,7 +145,7 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
     return true;
 }
 
-bool QDesignerMenuBar::handleMouseDoubleClickEvent(QWidget *widget, QMouseEvent *event)
+bool QDesignerMenuBar::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
 {
     event->accept();
 
@@ -161,7 +161,7 @@ bool QDesignerMenuBar::handleMouseDoubleClickEvent(QWidget *widget, QMouseEvent 
     return true;
 }
 
-bool QDesignerMenuBar::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
+bool QDesignerMenuBar::handleKeyPressEvent(QWidget *, QKeyEvent *e)
 {
     if (m_editor->isHidden()) { // In navigation mode
         switch (e->key()) {
@@ -647,10 +647,10 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
     m_dragging = false;
 
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
-        event->acceptProposedAction();
 
         QAction *action = d->items.first();
-        if (action && action->menu() && !actions().contains(action)) {
+        if (checkAction(action)) {
+            event->acceptProposedAction();
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
 
@@ -661,8 +661,10 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
             m_currentIndex = index;
             update();
             adjustIndicator(QPoint(-1, -1));
+            return;
         }
     }
+    event->ignore();
 }
 
 void QDesignerMenuBar::actionEvent(QActionEvent *event)
