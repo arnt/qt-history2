@@ -767,12 +767,6 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
         glBindTexture(GL_TEXTURE_1D, 0);
         glDeleteTextures(1, &d->grad_palette);
     }
-
-    if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {
-        glDisable(GL_FRAGMENT_PROGRAM_ARB);
-        glDeleteProgramsARB(1, &d->radial_frag_program);
-        glDeleteProgramsARB(1, &d->conical_frag_program);
-    }
 }
 
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)

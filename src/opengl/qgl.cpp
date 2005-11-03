@@ -2978,32 +2978,7 @@ void QGLWidget::deleteTexture(GLuint id)
     d->glcx->deleteTexture(id);
 }
 
-void qt_cleanup_gl_engine();
-
-struct QGLEngineCleanup
-{
-    QGLEngineCleanup() {
-        cleaned_up = false;
-        engine = new QOpenGLPaintEngine();
-        qAddPostRoutine(qt_cleanup_gl_engine);
-    }
-    ~QGLEngineCleanup(){
-        qt_cleanup_gl_engine();
-    }
-    bool cleaned_up;
-    QOpenGLPaintEngine *engine;
-};
-
-Q_GLOBAL_STATIC(QGLEngineCleanup, qt_gl_engine_handler)
-
-void qt_cleanup_gl_engine()
-{
-    if (!qt_gl_engine_handler()->cleaned_up) {
-        qRemovePostRoutine(qt_cleanup_gl_engine);
-        qt_gl_engine_handler()->cleaned_up = true;
-        delete qt_gl_engine_handler()->engine;
-    }    
-}
+Q_GLOBAL_STATIC(QOpenGLPaintEngine, qt_gl_engine)
 
 /*!
     \internal
@@ -3013,7 +2988,7 @@ void qt_cleanup_gl_engine()
 */
 QPaintEngine *QGLWidget::paintEngine() const
 {
-    return qt_gl_engine_handler()->engine;
+    return qt_gl_engine();
 }
 
 #ifdef QT3_SUPPORT
