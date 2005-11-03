@@ -192,7 +192,7 @@
 
 
 /*!
-    \example qtestlib/tutorial/t1
+    \example qtestlib/tutorial1
 
     \contentspage {QTestLib Tutorial}{Contents}
     \nextpage {Chapter 2: Data Driven Testing}{Chapter 2}
@@ -208,7 +208,7 @@
     First, you need a class that contains your test functions. This class
     has to inherit from QObject:
 
-    \quotefromfile tutorial1/testqstring.cpp
+    \quotefromfile qtestlib/tutorial1/testqstring.cpp
     \skipto #include
     \printuntil };
 
@@ -289,7 +289,7 @@
 */
 
 /*!
-    \example qtestlib/tutorial/t2
+    \example qtestlib/tutorial2
 
     \previouspage {Chapter 1: Writing a Unit Test}{Chapter 1}
     \contentspage {QTestLib Tutorial}{Contents}
@@ -315,7 +315,7 @@
     code, QTestLib supports adding test data to a test function. All
     we need is to add another private slot to our test class:
 
-    \quotefromfile tutorial2/testqstring.cpp
+    \quotefromfile qtestlib/tutorial2/testqstring.cpp
     \skipto class
     \printuntil };
 
@@ -404,7 +404,7 @@
 */
 
 /*!
-    \example qtestlib/tutorial/t3
+    \example qtestlib/tutorial3
 
     \previouspage {Chapter 2 Data Driven Testing}{Chapter 2}
     \contentspage {QTestLib Tutorial}{Contents}
@@ -425,7 +425,7 @@
     QLineEdit class. As before, you will need a class that contains
     your test function:
 
-    \quotefromfile tutorial3/testgui.cpp
+    \quotefromfile qtestlib/tutorial3/testgui.cpp
     \skipto #include
     \printuntil /^\}/
 
@@ -465,7 +465,7 @@
 */
 
 /*!
-    \example qtestlib/tutorial/t4
+    \example qtestlib/tutorial4
 
     \previouspage {Chapter 3: Simulating GUI Event}{Chapter 3}
     \contentspage {QTestLib Tutorial}{Contents}
@@ -481,7 +481,7 @@
     Data Driven Testing}{chapter 2}; all you need is to add a data
     function to your test class:
 
-    \quotefromfile tutorial4/testgui.cpp
+    \quotefromfile qtestlib/tutorial4/testgui.cpp
     \skipto class
     \printuntil /^\}/
 
