@@ -367,8 +367,13 @@ int Tokenizer::getToken()
 	}
     }
 
-    if ( yyPreprocessorSkipping.count() > 1 )
+    if ( yyPreprocessorSkipping.count() > 1 ) {
 	yyTokLoc.warning( tr("Expected #endif before end of file") );
+        // clear it out or we get an infinite loop!
+        while ( !yyPreprocessorSkipping.isEmpty() ) {
+            popSkipping();
+        }
+    }
 
     strcpy( yyLex, "end-of-input" );
     yyLexLen = strlen( yyLex );
