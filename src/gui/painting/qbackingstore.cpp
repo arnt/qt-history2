@@ -301,7 +301,11 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
     QRect clipR = pd->clipRect();
     QRect newRect = rect.translated(dx,dy);
 
-    bool accelerateMove = accelEnv &&  isOpaque()  && !isOverlapped(rect & clipR);
+    QRect destRect = rect.intersect(clipR).translated(dx,dy).intersect(clipR);
+    QRect sourceRect = destRect.translated(-dx, -dy);
+
+    bool accelerateMove = accelEnv &&  isOpaque() && !isOverlapped(sourceRect)
+        && !isOverlapped(destRect);
 
     if (!accelerateMove) {
         QRegion parentR(rect & clipR);
@@ -314,8 +318,6 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
         pd->invalidateBuffer(parentR);
         invalidateBuffer((newRect & clipR).translated(-data.crect.topLeft()));
     } else {
-        QRect destRect = rect.intersect(clipR).translated(dx,dy).intersect(clipR);
-        QRect sourceRect = destRect.translated(-dx, -dy);
         QWidgetBackingStore *wbs = x->backingStore;
         if (sourceRect.isValid())
             wbs->bltRect(sourceRect, dx, dy, pw);
