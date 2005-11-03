@@ -252,11 +252,13 @@ void QWorkspaceTitleBar::mousePressEvent(QMouseEvent *e)
     if (!d->act)
         emit doActivate();
     if (e->button() == Qt::LeftButton) {
-        if (!rect().adjusted(5, 5, -5, 0).contains(e->pos())) {
+        if (style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, 0) 
+            && !rect().adjusted(5, 5, -5, 0).contains(e->pos())) {
             // propagate border events to the QWidgetResizeHandler
             e->ignore();
             return;
         }
+
         d->pressed = true;
         QStyleOptionTitleBar opt = d->getStyleOption();
         QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
