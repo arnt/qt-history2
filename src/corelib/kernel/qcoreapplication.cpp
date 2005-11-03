@@ -843,7 +843,6 @@ bool QCoreApplication::compressEvent(QEvent *event, QObject *receiver, QPostEven
 
 void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 {
-
     bool doDeferredDeletion = (event_type == QEvent::DeferredDelete);
     if (event_type == -1) {
         // we were called by the event dispatcher.
@@ -968,10 +967,10 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         // function depends on.
     }
 
-    if (!data->canWait && data->eventDispatcher)
+    --data->postEventList.recursion;
+    if (!data->postEventList.recursion && !data->canWait && data->eventDispatcher)
         data->eventDispatcher->wakeUp();
 
-    --data->postEventList.recursion;
     // clear the global list, i.e. remove everything that was
     // delivered.
     if (!data->postEventList.recursion && !event_type && !receiver) {
