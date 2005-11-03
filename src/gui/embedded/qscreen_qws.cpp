@@ -737,9 +737,9 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
 void QScreen::blit(QWSWindow *win, const QRegion &clip)
 {
     QWSBackingStore *bs = win->backingStore();
-    QPixmap *pm = bs->pixmap();
-    if (!pm)
+    if (bs->isNull())
         return;
+    QPixmap *pm = bs->pixmap();
     bs->lock();
     QImage img = pm->toImage();
     QRegion rgn = clip & win->requestedRegion();
