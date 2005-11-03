@@ -739,6 +739,13 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
             emit commitData(editor);
             emit closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
             break;
+        case Qt::Key_Down:
+        case Qt::Key_Up:
+            emit commitData(editor);
+            emit closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
+            if (editor->parentWidget())
+                editor->parentWidget()->setFocus();
+            return false;   // Propagate the event to the parent so that we can do cursor move at the same time.
         case Qt::Key_Escape:
             // don't commit data
             emit closeEditor(editor, QAbstractItemDelegate::RevertModelCache);
