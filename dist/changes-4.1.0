@@ -82,6 +82,125 @@ General Fixes
         SQLite was updated to version 3.2.5
         Oracle plugin adds support for authentication using external credentials.
 
+- QThread
+	Added setPriority() and priority(), for querying and setting
+	the priority of a thread.
+
+- QFileEngine
+	?? Added long filename/path support to qt 184011
+
+- QTreeWidgetItem/QTreeWidget
+	Added new constructors and addChildren(), insertChildren(),
+	takeChildren(), insertTopLevelItems(), addTopLevelItems to
+	speed up insertion of multiple items.
+
+- QTextDocument
+	Added the class QTextBlockUserData and added the possibility
+	of storing a state or custom user data in a QTextBlock
+
+- QMetaType
+	?? Added enum to QMetaType so you can do compile-time checking
+	whether a type is declared or not 184640
+
+- QAbstractItemView
+	Added setIndexWidget() and indexWidget() which makes it
+	possible to set a widget at a given index.
+
+        Added a QAbstractItemView::ContiguousSelection mode.
+
+- QAbstractItemModel
+        Added a SizeHintRole that can be set for each item. The item
+        delegate will now check for this value before computing the
+        size hint based on other item data.
+
+        Add QModelIndex::operator<() so we are able to use them in
+        QMap and other containers.
+
+- QTableWidget
+        Added cellWidget() and setCellWidget() which makes it possible
+        to set a widget at a specified cell.
+
+        Added setCurrentCell().
+
+	Added QTableWidgetItem copy constructors.
+
+
+- QTreeWidget
+        Added setItemWidget() and itemWidget() which makes it possible
+        to set a widget on an item.
+
+- QListWidget
+        Added setItemWidget() and itemWidget() which makes it possible
+        to set a widget on an item.
+	
+	Added QListWidgetItem copy constructors.
+
+- QMutableMapIterator
+	Added value() overloads to Java-style iterators that return
+	non-const references.
+
+- QTextTable
+        Added mergeCells() and splitCells() to be able to set the row
+        or column span on a table cell.
+
+- QStyle
+	Added standardIcon() which returns a default icon for standard
+	operations.
+
+- QHash
+        Make it possible to use QHash with a type that has no default
+        constructor.
+
+- QTableView
+        Made QTableView::setShowGrid() a slot, like in Qt 3.
+
+- QTableWidgetSelectionRange
+        Added rowCount() and columnCount() convenience functions.
+
+- QSettings
+	Added support for custom formats in QSettings.
+
+- QRect
+	?? Changed the definition of a valid rectangle 189610
+
+- QTextStream
+	?? Added status(), setStatus() and resetStatus() 189615
+
+- QTextCursor
+	Added support for BlockUnderCursor selection type.
+
+- QHeaderView
+	Added defaultSectionSize property which tells the default size
+	of the header sections before resizing.
+
+- QScrollBar
+	Added context menu to the scrollbar with default navigation
+	options.
+
+- QDate
+	?? Added toString() for QTime and QDate based on the new database 190211
+
+- QButtonGroup
+	Added handling of buttons with IDs to the buttongroup like in
+	Qt 3.
+
+New classes
+-----------
+
+- QTreeWidgetItemIterator
+	Added iterator to help iterating over items in a QTreeWidget.
+
+- QSortingProxyModel
+	The QSortingProxyModel can contain another model and handles
+	the sorting of it.
+
+- QSyntaxHighlighter
+        The QSyntaxHighlighter class allows you to define syntax
+        highlighting rules.
+
+- ?? Backingstore
+	
+
 Platform-Specific Issues
 ------------------------
 
@@ -102,7 +221,12 @@ Mac OS X:
 Tools
 -----
 
-
+- zlib
+	Upgraded to zlib 1.2.3.
 
 Documentation
 -------------
+
+//depot/qt/main/src
+2005/05/26 - 2005/10/31
+last change: 190472
