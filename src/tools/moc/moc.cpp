@@ -799,6 +799,8 @@ void Moc::parseSlots(ClassDef *def, FunctionDef::Access access)
         case FRIEND:
             until(SEMIC);
             continue;
+        case USING:
+            error("'using' directive not supported in 'slots' section");
         default:
             prev();
         }
@@ -832,6 +834,8 @@ void Moc::parseSignals(ClassDef *def)
         case FRIEND:
             until(SEMIC);
             continue;
+        case USING:
+            error("'using' directive not supported in 'signals' section");
         default:
             prev();
         }
