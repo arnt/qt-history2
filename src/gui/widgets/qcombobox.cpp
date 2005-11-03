@@ -290,6 +290,9 @@ bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
         switch (static_cast<QKeyEvent*>(e)->key()) {
         case Qt::Key_Enter:
         case Qt::Key_Return:
+#ifdef QT_KEYPAD_NAVIGATION
+        case Qt::Key_Select:
+#endif
             if (view->currentIndex().isValid()) {
                 combo->hidePopup();
                 emit itemSelected(view->currentIndex());
@@ -301,6 +304,9 @@ bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
             // fall through
         case Qt::Key_F4:
         case Qt::Key_Escape:
+#ifdef QT_KEYPAD_NAVIGATION
+        case Qt::Key_Back:
+#endif
             combo->hidePopup();
             return true;
         default:
@@ -1695,6 +1701,10 @@ void QComboBox::hidePopup()
     Q_D(QComboBox);
     if (d->container && d->container->isVisible())
         d->container->hide();
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled() && isEditable())
+        setEditFocus(true);
+#endif
 }
 
 /*!
@@ -1909,6 +1919,11 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_PageUp:
     case Qt::Key_Up:
+#ifdef QT_KEYPAD_NAVIGATION
+        if (QApplication::keypadNavigationEnabled())
+            e->ignore();
+        else
+#endif
         --newIndex;
         break;
     case Qt::Key_Down:
@@ -1918,6 +1933,11 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         }
         // fall through
     case Qt::Key_PageDown:
+#ifdef QT_KEYPAD_NAVIGATION
+        if (QApplication::keypadNavigationEnabled())
+            e->ignore();
+        else
+#endif
         ++newIndex;
         break;
     case Qt::Key_Home:
@@ -1945,6 +1965,28 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         if (!d->lineEdit)
             e->ignore();
         break;
+#ifdef QT_KEYPAD_NAVIGATION
+    case Qt::Key_Select:
+        if (QApplication::keypadNavigationEnabled()) {
+            if (!hasEditFocus()) {
+                showPopup();
+                return;
+            }
+        }
+        break;
+    case Qt::Key_Left:
+        if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+            --newIndex;
+        break;
+    case Qt::Key_Right:
+        if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+            ++newIndex;
+        break;
+    case Qt::Key_Back:
+        if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+            e->ignore();
+        break;
+#endif
     default:
         if (!d->lineEdit && !e->text().isEmpty()) {
             // use keyboardSearch from the listView so we do not duplicate code
