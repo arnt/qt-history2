@@ -158,9 +158,8 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
         if ( f.length() > 2 ) {
             if (f[0] == '*' ) {
                 is_ext = TRUE;
-                for (int i=2; i<f.length(); ++i) {
-                    if ( !(f[i] == '.' || f[i] >= 'A' && f[i] <= 'Z'
-                          || f[i] >= 'a' && f[i] <= 'z') )
+                for (int i=1; i<f.length(); ++i) {
+                    if ( f[i] == '*' || f[i] == '?' || f[i] == '[' )
                     {
                         is_ext = FALSE;
                         break;
@@ -168,8 +167,8 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
                 }
                 if ( is_ext ) {
                     filterExtensions.append((filters & QDir::CaseSensitive)
-                            ? f.mid(2)
-                            : f.mid(2).toLower());
+                            ? f.mid(1)
+                            : f.mid(1).toLower());
                 }
             }
         }
