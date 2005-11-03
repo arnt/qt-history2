@@ -605,7 +605,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         if (const QStyleOptionFrame *panel = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             p->fillRect(panel->rect.adjusted(panel->lineWidth, panel->lineWidth, -panel->lineWidth, -panel->lineWidth),
                         panel->palette.brush(QPalette::Base));
-            
+
             if (panel->lineWidth > 0)
                 drawPrimitive(PE_FrameLineEdit, panel, p, widget);
         }
@@ -2892,6 +2892,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             int offset = 0;
 
             bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
+            bool isMaximized = tb->titleBarState & Qt::WindowMaximized;
 
             switch (sc) {
             case SC_TitleBarLabel:
@@ -2920,10 +2921,12 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             case SC_TitleBarNormalButton:
                 if (isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
                     offset += delta;
+                else if (isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint))
+                    offset += delta;
                 else if (sc == SC_TitleBarNormalButton)
                     break;
             case SC_TitleBarMaxButton:
-                if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                if (!isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint))
                     offset += delta;
                 else if (sc == SC_TitleBarMaxButton)
                     break;

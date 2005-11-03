@@ -660,6 +660,8 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
 
 static void qt_plastique_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBar *option, const QRect &tmp, bool hover)
 {
+    if (tmp.isNull())
+        return;
     bool active = (option->titleBarState & QStyle::State_Active);
 
     // ### use palette colors instead
@@ -4366,11 +4368,14 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             }
 
             // normalize button
-            if ((titleBar->subControls & SC_TitleBarNormalButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
+            if ((titleBar->subControls & SC_TitleBarNormalButton) &&
+                (((titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint) &&
+                 (titleBar->titleBarState & Qt::WindowMinimized)) ||
+                 ((titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint) &&
+                  (titleBar->titleBarState & Qt::WindowMaximized)))) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_MouseOver);
                 QRect normalButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarNormalButton, widget);
                 qt_plastique_draw_mdibutton(painter, titleBar, normalButtonRect, hover);
-
                 int xoffset = int(normalButtonRect.width() / 3.5);
                 int yoffset = int(normalButtonRect.height() / 3.5);
 
@@ -4406,7 +4411,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             }
 
             // context help button
-            if (titleBar->subControls & SC_TitleBarContextHelpButton) {
+            if (titleBar->subControls & SC_TitleBarContextHelpButton
+                && (titleBar->titleBarFlags & Qt::WindowContextHelpButtonHint)) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarContextHelpButton) && (titleBar->state & State_MouseOver);
                 QRect contextHelpButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarContextHelpButton, widget);
 
@@ -4827,6 +4833,7 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             int offset = 0;
 
             bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
+            bool isMaximized = tb->titleBarState & Qt::WindowMaximized;
 
             switch (sc) {
             case SC_TitleBarLabel:
@@ -4855,10 +4862,12 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             case SC_TitleBarNormalButton:
                 if (isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
                     offset += delta;
+                else if (isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint))
+                    offset += delta;
                 else if (sc == SC_TitleBarNormalButton)
                     break;
             case SC_TitleBarMaxButton:
-                if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                if (!isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint))
                     offset += delta;
                 else if (sc == SC_TitleBarMaxButton)
                     break;
