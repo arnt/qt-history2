@@ -813,7 +813,7 @@ void QToolBar::actionEvent(QActionEvent *event)
                 item.widget->hide();
                 item.widget->deleteLater();
             } else {
-                if (!isHidden())
+                if (!isHidden() && item.widget->testAttribute(Qt::WA_WState_Created))
                     item.widget->hide();
             }
             QApplication::postEvent(this, new QResizeEvent(size(), size()));
