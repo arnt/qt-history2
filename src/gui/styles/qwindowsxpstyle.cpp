@@ -3077,6 +3077,31 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
     return res;
 }
 
+/*  
+  This function is used by subControlRect to check if a button
+  should be drawn for the given subControl given a set of window flags.
+*/ 
+static bool buttonHidden(const QStyle::SubControl sc, const uint flags){
+     switch (sc) {
+     case QStyle::SC_TitleBarCloseButton:
+         if ((flags & Qt::WindowSystemMenuHint))
+             return false;
+     case QStyle::SC_TitleBarShadeButton:
+     case QStyle::SC_TitleBarUnshadeButton:
+         if ((flags & Qt::WindowShadeButtonHint))
+             return false;
+     case QStyle::SC_TitleBarMaxButton:
+         if ((flags & Qt::WindowMaximizeButtonHint))
+             return false;
+     case QStyle::SC_TitleBarMinButton:
+     case QStyle::SC_TitleBarNormalButton:
+         if ((flags & Qt::WindowMinimizeButtonHint))
+             return false;
+         return true;
+     }
+     return false;
+}
+
 /*!
     \reimp
 */
@@ -3087,10 +3112,12 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
         return QWindowsStyle::subControlRect(cc, option, sc, widget);
 
     QRect rect;
-
+    
     switch (cc) {
     case CC_TitleBar:
         if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
+            if (buttonHidden(sc, tb->titleBarFlags))
+                return rect;
             const bool isToolTitle = false; // widget->testWFlags(Qt::WA_WState_Tool)
             const int height = tb->rect.height();
             const int width = tb->rect.width();
