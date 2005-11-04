@@ -16,6 +16,10 @@ QAxBindable::load and QAxBindable::save can be reimplemented to serialize
 the object.
 
 
+Boost
+-----
+Added boost compatible syntax for declaring signals and slots.
+
 ****************************************************************************
 *                                Changes                                   *
 ****************************************************************************
@@ -147,6 +151,8 @@ General Fixes
 	Added standardIcon() which returns a default icon for standard
 	operations.
 
+	Renamed QStyleOption::init() to initFrom().
+
 - QHash
         Make it possible to use QHash with a type that has no default
         constructor.
@@ -184,6 +190,18 @@ General Fixes
 	Added handling of buttons with IDs to the buttongroup like in
 	Qt 3.
 
+- QIODevice
+	Added peek() for peeking data from a device.
+
+- QTextEdit
+	Added property tabStopWidth which sets the tab stop width in
+	pixels.
+
+- QDataStream
+	Added skipRawData().
+
+
+
 New classes
 -----------
 
@@ -194,12 +212,16 @@ New classes
 	The QSortingProxyModel can contain another model and handles
 	the sorting of it.
 
+- QFilteringProxyModel
+	Allows you to provide a subset of a model to a view.
+
 - QSyntaxHighlighter
         The QSyntaxHighlighter class allows you to define syntax
         highlighting rules.
 
 - ?? Backingstore
 	
+- ?? QGLPbuffer
 
 Platform-Specific Issues
 ------------------------
@@ -224,9 +246,12 @@ Tools
 - zlib
 	Upgraded to zlib 1.2.3.
 
+- FreeType
+	Upgraded to FreeType 2.1.10.
+
 Documentation
 -------------
 
 //depot/qt/main/src
 2005/05/26 - 2005/10/31
-last change: 190472
+last change: 191129
