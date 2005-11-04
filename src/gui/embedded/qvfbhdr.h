@@ -19,8 +19,9 @@
 
 QT_MODULE(Gui)
 
-#define QT_VFB_MOUSE_PIPE        "/tmp/.qtvfb_mouse-%1"
+#define QT_VFB_MOUSE_PIPE           "/tmp/.qtvfb_mouse-%1"
 #define QT_VFB_KEYBOARD_PIPE        "/tmp/.qtvfb_keyboard-%1"
+#define QT_VFB_MAP                  "/tmp/.qtvfb_map-%1"
 
 struct QVFbHeader
 {

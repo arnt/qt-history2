@@ -16,6 +16,7 @@
 #include "qapplication.h"
 #include "qkbdtty_qws.h"
 #include "qkbdusb_qws.h"
+#include "qkbdum_qws.h"
 #include "qkbdsl5000_qws.h"
 #include "qkbdyopy_qws.h"
 #include "qkbdvr41xx_qws.h"
@@ -80,6 +81,10 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
     if (driver == "usb")
         return new QWSUsbKeyboardHandler(device);
 # endif
+# ifndef QT_NO_QWS_KBD_UM
+    if (driver == "um" || driver == "qvfbkeyboard" )
+        return new QWSUmKeyboardHandler(device);
+# endif
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
@@ -119,6 +124,10 @@ QStringList QKbdDriverFactory::keys()
 #ifndef QT_NO_QWS_KBD_USB
     if (!list.contains("USB"))
         list << "USB";
+#endif
+#ifndef QT_NO_QWS_KBD_UM
+    if (!list.contains("UM"))
+        list << "UM";
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)

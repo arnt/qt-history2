@@ -1,0 +1,41 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#ifndef QKBDUM_QWS_H
+#define QKBDUM_QWS_H
+
+#include <QtGui/qkbd_qws.h>
+
+QT_MODULE(Gui)
+
+#ifndef QT_NO_QWS_KEYBOARD
+
+#ifndef QT_NO_QWS_KBD_UM
+
+class QWSUmKeyboardHandlerPrivate;
+
+class QWSUmKeyboardHandler : public QWSKeyboardHandler
+{
+public:
+    QWSUmKeyboardHandler(const QString &);
+    virtual ~QWSUmKeyboardHandler();
+
+private:
+
+    QWSUmKeyboardHandlerPrivate *d;
+};
+#endif // QT_NO_QWS_KBD_UM
+
+#endif // QT_NO_QWS_KEYBOARD
+
+#endif // QKBDUM_QWS_H

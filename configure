@@ -372,7 +372,11 @@ echo
 
 QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif plastique windows\""
 QMAKE_VARS="$QMAKE_VARS \"decorations += default windows styled\""
-QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\"" # adjust below as well
+if [ "$Edition" = "Trolltech" ]; then
+    QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty um\" \"mouse-drivers += pc linuxtp\"" # adjust below as well
+else
+    QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\"" # adjust below as well
+fi
 
 # QTDIR may be set and point to an old or system-wide Qt installation
 unset QTDIR
@@ -409,11 +413,20 @@ CFG_SQL_AVAILABLE=
 CFG_GFX_AVAILABLE=""
 CFG_GFX_ON=""
 CFG_GFX_OFF=""
-CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx"
-CFG_KBD_ON="tty"    #default, see QMAKE_VARS above
+
+if [ "$Edition" = "Trolltech" ]; then
+    CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx um"
+    CFG_KBD_ON="tty um"    #default, see QMAKE_VARS above
+    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx"
+    CFG_MOUSE_ON="pc linuxtp"   #default, see QMAKE_VARS above
+else
+    CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx"
+    CFG_KBD_ON="tty"    #default, see QMAKE_VARS above
+    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx"
+    CFG_MOUSE_ON="pc linuxtp"   #default, see QMAKE_VARS above
+fi
+
 CFG_KBD_OFF=
-CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx"
-CFG_MOUSE_ON="pc"   #default, see QMAKE_VARS above
 CFG_MOUSE_OFF=
 CFG_USE_GNUMAKE=no
 CFG_IM=yes

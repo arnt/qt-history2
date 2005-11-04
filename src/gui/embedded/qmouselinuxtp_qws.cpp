@@ -153,7 +153,7 @@ QWSLinuxTPMouseHandlerPrivate::QWSLinuxTPMouseHandlerPrivate(QWSLinuxTPMouseHand
         qWarning("Cannot open /dev/h3600_ts (%s)", strerror(errno));
         return;
     }
-#elif defined(QT_QWS_EBX)
+#else // best to open something, default for EBX is fairly common
 //# ifdef QT_QWS_EBX_TSRAW
 # if 0
     if ((mouseFD = open("/dev/tsraw", O_RDONLY | O_NDELAY)) < 0) {
