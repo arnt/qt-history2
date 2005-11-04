@@ -32,8 +32,7 @@ sources.fileextensions  = "*.cpp *.qdoc"
 exampledirs             = $QTDIR/doc/src \
                           $QTDIR/examples \
                           $QTDIR \
-                          $QTDIR/qmake/examples \
-                          $QTDIR/tools/qtestlib/examples
+                          $QTDIR/qmake/examples
 imagedirs               = $QTDIR/doc/src/images \
                           $QTDIR/examples
 outputdir               = $QTDIR/doc/html
