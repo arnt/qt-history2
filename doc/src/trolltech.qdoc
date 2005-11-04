@@ -11,15 +11,12 @@ the cross-platform C++ GUI toolkit. Qt enables you to develop professional,
 efficient, portable, and maintainable GUI applications quickly and
 easily.
 
-\l{http://www.trolltech.com/products/embedded}{Qtopia Core}, the embedded version
-of Qt, is designed to power today's new generation of embedded
-computers and electronic consumer devices such as mobile phones and
-PDAs. On top of that,
-\l{http://www.trolltech.com/products/qtopia/}{Qtopia} provides a
-window system and application suite for handheld devices.
-
-\e{(A version of Qt 4 for embedded Linux platforms will be
-   available in August/September 2005.)}
+\l{http://www.trolltech.com/products/embedded}{Qtopia Core}, the embedded
+Linux version of Qt, is designed to power today's new generation of
+single-application embedded devices. Qtopia Core sits at the heart of
+Trolltech's product portfolio, optimizing Qt for embedded development and
+forming the core of \l{Qtopia}, Trolltech's product family for mobile and
+embedded devices.
 
 See the \l{http://www.trolltech.com/products/}{Product Overview}
 for a complete list of products.
