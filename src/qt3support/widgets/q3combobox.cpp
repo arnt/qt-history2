@@ -163,6 +163,13 @@
     content size limit, the item at the other end of the list is
     deleted. The definition of "other end" is
     implementation-dependent.
+
+    \omitvalue NoInsert
+    \omitvalue InsertAtTop
+    \omitvalue InsertAtCurrent
+    \omitvalue InsertAtBottom
+    \omitvalue InsertAfterCurrent
+    \omitvalue InsertBeforeCurrent
 */
 
 
@@ -1615,7 +1622,9 @@ void Q3ComboBox::popup()
 
 
 /*!
-  \reimp
+  Updates the widget mask.
+
+  \sa QWidget::setMask()
 */
 void Q3ComboBox::updateMask()
 {
@@ -2005,7 +2014,10 @@ void Q3ComboBox::returnPressed()
 }
 
 
-/*! \reimp
+/*!
+  Enables the combobox if \a enabled is true; otherwise disables it.
+
+  \sa QWidget::enabled
 */
 
 void Q3ComboBox::setEnabled( bool enable )
@@ -2280,7 +2292,9 @@ void Q3ComboBox::setLineEdit( QLineEdit *edit )
 }
 
 /*!
-    \reimp
+  Hides the combobox.
+
+  \sa QWidget::hide()
 */
 void Q3ComboBox::hide()
 {

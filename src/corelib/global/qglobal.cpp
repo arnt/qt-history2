@@ -25,62 +25,6 @@
 #endif
 
 /*!
-    \macro Q_DECLARE_TYPEINFO(Type, Flags)
-    \relates <QtGlobal>
-
-    You can use this macro to specify information about a custom type
-    \a Type. With accurate type information, Qt's \l{generic
-    containers} can choose appropriate storage methods and algorithms.
-
-    \a Flag can be one of the following:
-
-    \list
-    \o \c Q_PRIMITIVE_TYPE specifies that \a Type is a POD (plain old
-       data) type with no constructor or destructor.
-    \o \c Q_MOVABLE_TYPE specifies that \a Type has a constructor
-       and/or a destructor but can be moved in memory using \c
-       memcpy().
-    \o \c Q_COMPLEX_TYPE (the default) specifies that \a Type has
-       constructors and/or a destructor and that it may not be moved
-       in memory.
-    \endlist
-
-    Example of a "primitive" type:
-
-    \code
-        struct Point2D
-        {
-            int x;
-            int y;
-        };
-
-        Q_DECLARE_TYPEINFO(Point2D, Q_PRIMITIVE_TYPE);
-    \endcode
-
-    Example of a movable type:
-
-    \code
-        class Point2D
-        {
-        public:
-            Point2D() { data = new int[2]; }
-            Point2D(const Point2D &other) { ... }
-            ~Point2D() { delete[] data; }
-
-            Point2D &operator=(const Point2D &other) { ... }
-
-            int x() const { return data[0]; }
-            int y() const { return data[1]; }
-
-        private:
-            int *data;
-        };
-
-        Q_DECLARE_TYPEINFO(Point2D, Q_MOVABLE_TYPE);
-    \endcode
-*/
-
-/*!
     \class QFlag
     \brief The QFlag class is a helper data type for QFlags.
 
@@ -2340,6 +2284,62 @@ QByteArray qgetenv(const char *varName)
     \endcode
 
     \sa qDebug(), qWarning(), qCritical(), qFatal()
+*/
+
+/*!
+    \macro Q_DECLARE_TYPEINFO(Type, Flags)
+    \relates <QtGlobal>
+
+    You can use this macro to specify information about a custom type
+    \a Type. With accurate type information, Qt's \l{generic
+    containers} can choose appropriate storage methods and algorithms.
+
+    \a Flags can be one of the following:
+
+    \list
+    \o \c Q_PRIMITIVE_TYPE specifies that \a Type is a POD (plain old
+       data) type with no constructor or destructor.
+    \o \c Q_MOVABLE_TYPE specifies that \a Type has a constructor
+       and/or a destructor but can be moved in memory using \c
+       memcpy().
+    \o \c Q_COMPLEX_TYPE (the default) specifies that \a Type has
+       constructors and/or a destructor and that it may not be moved
+       in memory.
+    \endlist
+
+    Example of a "primitive" type:
+
+    \code
+        struct Point2D
+        {
+            int x;
+            int y;
+        };
+
+        Q_DECLARE_TYPEINFO(Point2D, Q_PRIMITIVE_TYPE);
+    \endcode
+
+    Example of a movable type:
+
+    \code
+        class Point2D
+        {
+        public:
+            Point2D() { data = new int[2]; }
+            Point2D(const Point2D &other) { ... }
+            ~Point2D() { delete[] data; }
+
+            Point2D &operator=(const Point2D &other) { ... }
+
+            int x() const { return data[0]; }
+            int y() const { return data[1]; }
+
+        private:
+            int *data;
+        };
+
+        Q_DECLARE_TYPEINFO(Point2D, Q_MOVABLE_TYPE);
+    \endcode
 */
 
 /*!

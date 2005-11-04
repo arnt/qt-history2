@@ -929,6 +929,9 @@ void QTreeView::mousePressEvent(QMouseEvent *event)
     }
 }
 
+/*!
+  \reimp
+*/
 void QTreeView::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QTreeView);

@@ -786,6 +786,7 @@ QGradient::QGradient()
     \value LinearGradient The gradient is a linear gradient.
     \value RadialGradient The gradient is a radial gradient.
     \value ConicalGradient The gradient is a conical gradient.
+    \value NoGradient No gradient is used.
 */
 
 /*!

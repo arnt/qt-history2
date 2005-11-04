@@ -3980,7 +3980,6 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
 #ifndef QT_NO_DATESTRING
 /*!
   \internal
-  \reimp
 */
 
 QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,

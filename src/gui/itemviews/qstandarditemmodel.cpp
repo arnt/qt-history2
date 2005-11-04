@@ -39,7 +39,7 @@
 
     An example usage of QStandardItemModel to create a table:
     \quotefromfile itemviews/spinboxdelegate/main.cpp
-    \skipto  model = new QStandardItemModel
+    \skipto QStandardItemModel model
     \printline model
     \skipto for (int row
     \printuntil }

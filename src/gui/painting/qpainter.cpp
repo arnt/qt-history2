@@ -1319,7 +1319,7 @@ QPainterPath QPainter::clipPath() const
     operation \a op. The default operation is to replace the current
     clip rectangle.
 
-    \sa clipRect(), setClipRegion(), setClipPath(), setClipping()
+    \sa clipRegion(), setClipRegion(), setClipPath(), setClipping()
 */
 
 /*!
@@ -1328,7 +1328,7 @@ QPainterPath QPainter::clipPath() const
     Sets the clip region to the rectangle \a x, \a y, \a w, \a h and
     enables clipping.
 
-    \sa clipRect(), setClipRegion(), setClipPath(), setClipping()
+    \sa clipRegion(), setClipRegion(), setClipPath(), setClipping()
 */
 
 /*!

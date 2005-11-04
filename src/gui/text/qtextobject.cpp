@@ -768,7 +768,14 @@ QTextFrame::iterator &QTextFrame::iterator::operator--()
     QTextBlock::setUserData(). This makes it possible to store additional data per text
     block in a way that can be retrieved safely by the application.
 
+    Each subclass should provide a reimplementation of the destructor to ensure that any
+    private data is automatically cleaned up when user data objects are deleted.
+
     \sa QTextBlock
+*/
+
+/*!
+    Destroys the user data.
 */
 QTextBlockUserData::~QTextBlockUserData()
 {
