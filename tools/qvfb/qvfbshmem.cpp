@@ -92,8 +92,8 @@ private:
 };
 
 QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
-        int d, bool mmap, QObject *parent)
-    : QVFbViewProtocol(displayid, parent), hdr(0), dataCache(0), mUseMmap(mmap), lockId(-1)
+        int d, QObject *parent)
+    : QVFbViewProtocol(displayid, parent), hdr(0), dataCache(0), lockId(-1)
 {
     int actualdepth=d;
 
@@ -139,7 +139,7 @@ QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
     kh = new QVFbKeyPipeProtocol(displayid);
     /* should really depend on receiving qt version, but how can
        one tell? */
-    mh = new QVFbMousePipeProtocol(displayid, true);
+    mh = new QVFbMousePipe(displayid);
 
     QString mousePipe = mh->pipeName();
 

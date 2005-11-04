@@ -102,21 +102,36 @@ private:
     QString fileName;
 };
 
-class QVFbMousePipeProtocol : public QVFbMouseProtocol
+class QVFbMousePipe: public QVFbMouseProtocol
 {
 public:
-    QVFbMousePipeProtocol(int display_id, bool sendWheelEvents);
-    ~QVFbMousePipeProtocol();
+    QVFbMousePipe(int display_id);
+    ~QVFbMousePipe();
 
     void sendMouseData(const QPoint &pos, int buttons, int wheel);
 
-    bool wheelEventsSupported() const { return mSupportWheelEvents; }
-
     QString pipeName() const { return fileName; }
-private:
+protected:
     int fd;
     QString fileName;
-    bool mSupportWheelEvents;
 };
 
+class QTimer;
+class QVFbMouseLinuxTP : public QObject, public QVFbMousePipe
+{
+    Q_OBJECT
+public:
+    QVFbMouseLinuxTP(int display_id);
+    ~QVFbMouseLinuxTP();
+
+    void sendMouseData(const QPoint &pos, int buttons, int wheel);
+
+protected slots:
+    void repeatLastPress();
+
+protected:
+    void writeToPipe(const QPoint &pos, ushort pressure);
+    QPoint lastPos;
+    QTimer *repeater;
+};
 #endif

@@ -43,7 +43,7 @@ protected:
 
 private:
     QVFbKeyPipeProtocol *kh;
-    QVFbMousePipeProtocol *mh;
+    QVFbMouseLinuxTP *mh;
     QVFbHeader *hdr;
     QString fileName;
     int fd;

@@ -14,11 +14,12 @@
 #ifndef QVFBVIEW_H
 #define QVFBVIEW_H
 
-#ifdef QT_NO_OPENGL
+//#ifdef QT_NO_OPENGL
 #include <QWidget>
-#else
-#include <QGLWidget>
-#endif
+//#else
+//#define QVFB_USE_GLWIDGET
+//#include <QGLWidget>
+//#endif
 
 class QImage;
 class QTimer;
@@ -27,10 +28,10 @@ struct QVFbHeader;
 class QVFbViewProtocol;
 
 class QVFbView :
-#ifdef QT_NO_OPENGL
-    public QWidget
-#else
+#ifdef QVFB_USE_GLWIDGET
     public QGLWidget
+#else
+    public QWidget
 #endif
 {
     Q_OBJECT

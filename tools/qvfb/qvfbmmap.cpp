@@ -58,7 +58,7 @@ QMMapViewProtocol::QMMapViewProtocol(int displayid, const QSize &s,
 
 
     kh = new QVFbKeyPipeProtocol(displayid);
-    mh = new QVFbMousePipeProtocol(displayid, true);
+    mh = new QVFbMouseLinuxTP(displayid);
 
     int bpl;
     if ( d == 1 )

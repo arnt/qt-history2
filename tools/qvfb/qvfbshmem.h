@@ -20,7 +20,7 @@ class QTimer;
 class QShMemViewProtocol : public QVFbViewProtocol
 {
 public:
-    QShMemViewProtocol(int display_id, const QSize &size, int depth, bool mmap, QObject *parent = 0);
+    QShMemViewProtocol(int display_id, const QSize &size, int depth, QObject *parent = 0);
     ~QShMemViewProtocol();
 
     int width() const;
@@ -43,11 +43,10 @@ protected:
 
 private:
     QVFbKeyPipeProtocol *kh;
-    QVFbMousePipeProtocol *mh;
+    QVFbMousePipe *mh;
     QVFbHeader *hdr;
     size_t displaySize;
     unsigned char *dataCache;
-    bool mUseMmap;
     int lockId;
     int shmId;
     QTimer *mRefreshTimer;

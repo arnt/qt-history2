@@ -13,6 +13,7 @@
 
 #include "qvfbview.h"
 #include "qvfbshmem.h"
+#include "qvfbmmap.h"
 
 #include "qanimationwriter.h"
 #include <QApplication>
@@ -36,11 +37,13 @@
 #include <errno.h>
 #include <math.h>
 
+extern int qvfb_protocol;
+
 QVFbView::QVFbView( int id, int w, int h, int d, Rotation r, QWidget *parent )
-#ifdef QT_NO_OPENGL
-    : QWidget( parent ),
-#else
+#ifdef QVFB_USE_GLWIDGET
     : QGLWidget( parent ),
+#else
+    : QWidget( parent ),
 #endif
     viewdepth(d), rsh(0), gsh(0), bsh(0), rmax(15), gmax(15), bmax(15),
     contentsWidth(w), contentsHeight(h), gred(1.0), ggreen(1.0), gblue(1.0),
@@ -51,7 +54,15 @@ QVFbView::QVFbView( int id, int w, int h, int d, Rotation r, QWidget *parent )
     int _w = ( rotation & 0x1 ) ? h : w;
     int _h = ( rotation & 0x1 ) ? w : h;
 
-    mView = new QShMemViewProtocol(id, QSize(_w, _h), d, this);
+    switch(qvfb_protocol) {
+        default:
+        case 0:
+            mView = new QShMemViewProtocol(id, QSize(_w, _h), d, this);
+            break;
+        case 1:
+            mView = new QMMapViewProtocol(id, QSize(_w, _h), d, this);
+            break;
+    }
 
     connect(mView, SIGNAL(displayDataChanged(const QRect &)),
             SLOT(refreshDisplay(const QRect &)));
@@ -457,12 +468,13 @@ void QVFbView::drawScreen()
 
 void QVFbView::paintEvent( QPaintEvent *pe )
 {
+    /*
     QRect r( pe->rect() );
     r = QRect(int(r.x()/hzm),int(r.y()/vzm),
 	    int(r.width()/hzm)+1,int(r.height()/vzm)+1);
 
     mView->flushChanges();
-
+    */
     drawScreen();
 }
 
