@@ -788,7 +788,6 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
      QPixmap res(r.size());
 
 #ifndef Q_WS_MAC
-    QWidget *tlw = widget->window();
     widget->d_func()->drawWidget(&res, r, -r.topLeft(),
                                  QWidgetPrivate::DrawRecursive | QWidgetPrivate::DrawAsRoot
                                  | QWidgetPrivate::DrawPaintOnScreen | QWidgetPrivate::DrawInvisible);
