@@ -690,7 +690,6 @@ void QAbstractScrollAreaPrivate::hslide(int x)
 void QAbstractScrollAreaPrivate::vslide(int y)
 {
     Q_Q(QAbstractScrollArea);
-
     if (q->verticalScrollBar()->maximum() == y) {
         if (vend) {
             yoffset = y;
@@ -708,7 +707,12 @@ void QAbstractScrollAreaPrivate::vslide(int y)
 
 void QAbstractScrollAreaPrivate::showOrHideScrollBars()
 {
+    Q_Q(QAbstractScrollArea);
     layoutChildren();
+    if (q->horizontalScrollBar()->maximum() > xoffset)
+        hend = false;
+    if (q->verticalScrollBar()->maximum() > yoffset)
+        vend = false;
 }
 
 /*!
