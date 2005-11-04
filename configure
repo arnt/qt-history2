@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 #
 # Configures to build the Qt library
 #
@@ -219,7 +219,7 @@ else
             Edition="Console"
             QT_EDITION="QT_EDITION_CONSOLE"
             ;;
-        esac	
+        esac
         ;;
     Z4M|R4M|Q4M)
         LicenseType="Evaluation"
@@ -318,7 +318,7 @@ else
             cp -f $relpath/.LICENSE-EDUCATIONAL-US $outpath/LICENSE
             ;;
         esac
-        ;;        
+        ;;
     2)
         # non-US
         case "$LicenseType" in
@@ -778,7 +778,7 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
         ;;
-    sdk) 
+    sdk)
         if [ "$PLATFORM_MAC" = "yes" ]; then
             CFG_SDK="$VAL"
         else
@@ -1120,13 +1120,13 @@ while [ "$#" -gt 0 ]; do
         VAR=`echo $VAR | sed "s,^\([^-]*\).*,\1,"`
         ERROR=no
         if [ "$VAR" = "decoration" ]; then
-            ERROR=yes            
+            ERROR=yes
             for d in $CFG_DECORATION_AVAILABLE; do
                 if [ "$VAL" = "$d" ]; then
                     ERROR=no
                     break
                 fi
-            done            
+            done
         elif [ "$VAR" = "sql" ]; then
             ERROR=yes
             # check if named driver is available
@@ -1783,7 +1783,7 @@ else
                 ;;
         esac
         ARCH=macosx
-        ;; 
+        ;;
     AIX:*:00????????00)
         if [ "$OPT_VERBOSE" = "yes" ]; then
         echo "    64-bit IBM PowerPC (powerpc)"
@@ -2831,28 +2831,30 @@ fi
 for _SQLDR in $CFG_SQL_AVAILABLE; do
         case $_SQLDR in
         mysql)
-	    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/mysql_r "MySQL (thread-safe)" $L_FLAGS $I_FLAGS; then
-                QMAKE_VARS="$QMAKE_VARS \"CONFIG += use_libmysqlclient_r\""
-                if [ "$CFG_SQL_mysql" = "auto" ]; then
-                    CFG_SQL_mysql=plugin
-                fi
-            elif $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/mysql "MySQL (thread-unsafe)" $L_FLAGS $I_FLAGS; then
-                if [ "$CFG_SQL_mysql" = "auto" ]; then
-                    CFG_SQL_mysql=plugin
-                fi
-            else
-                if [ "$CFG_SQL_mysql" != "auto" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
-                    echo "MySQL support cannot be enabled due to functionality tests!"
-                    echo " Turn on verbose messaging (-v) to $0 to see the final report."
-                    echo " If you believe this message is in error you may use the continue"
-                    echo " switch (-continue) to $0 to continue."
-                    exit 101
+            if [ "$CFG_SQL_mysql" != "no" ]; then
+                if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/mysql_r "MySQL (thread-safe)" $L_FLAGS $I_FLAGS; then
+                    QMAKE_VARS="$QMAKE_VARS \"CONFIG += use_libmysqlclient_r\""
+                    if [ "$CFG_SQL_mysql" = "auto" ]; then
+                        CFG_SQL_mysql=plugin
+                    fi
+                elif $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/mysql "MySQL (thread-unsafe)" $L_FLAGS $I_FLAGS; then
+                    if [ "$CFG_SQL_mysql" = "auto" ]; then
+                        CFG_SQL_mysql=plugin
+                    fi
                 else
-                    CFG_SQL_mysql=no
+                    if [ "$CFG_SQL_mysql" != "auto" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+                        echo "MySQL support cannot be enabled due to functionality tests!"
+                        echo " Turn on verbose messaging (-v) to $0 to see the final report."
+                        echo " If you believe this message is in error you may use the continue"
+                        echo " switch (-continue) to $0 to continue."
+                        exit 101
+                    else
+                        CFG_SQL_mysql=no
+                    fi
                 fi
-            fi            	
+            fi
         ;;
-        psql)                        
+        psql)
             if [ "$CFG_SQL_psql" != "no" ]; then
                 if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/psql "PostgreSQL" $L_FLAGS $I_FLAGS; then
                     if [ "$CFG_SQL_psql" = "auto" ]; then
@@ -2868,8 +2870,8 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                     else
                         CFG_SQL_psql=no
                     fi
-                fi 
-            fi                        
+                fi
+            fi
         ;;
         odbc)
             if [ "$CFG_SQL_odbc" != "no" ]; then
@@ -2887,8 +2889,8 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                     else
                         CFG_SQL_odbc=no
                     fi
-                fi 
-            fi            
+                fi
+            fi
             ;;
         oci)
             if [ "$CFG_SQL_oci" != "no" ]; then
@@ -2906,8 +2908,8 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                     else
                         CFG_SQL_oci=no
                     fi
-                fi 
-            fi            
+                fi
+            fi
             ;;
         tds)
             if [ "$CFG_SQL_tds" != "no" ]; then
@@ -2925,8 +2927,8 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                     else
                         CFG_SQL_tds=no
                     fi
-                fi 
-            fi            
+                fi
+            fi
             ;;
         db2)
             if [ "$CFG_SQL_db2" != "no" ]; then
@@ -2944,8 +2946,8 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                     else
                         CFG_SQL_db2=no
                     fi
-                fi 
-            fi            
+                fi
+            fi
             ;;
         ibase)
             if [ "$CFG_SQL_ibase" != "no" ]; then
@@ -2963,8 +2965,8 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                     else
                         CFG_SQL_ibase=no
                     fi
-                fi 
-            fi            
+                fi
+            fi
             ;;
         sqlite2)
             if [ "$CFG_SQL_sqlite2" != "no" ]; then
@@ -2982,14 +2984,14 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                     else
                         CFG_SQL_sqlite2=no
                     fi
-                fi 
-            fi            
+                fi
+            fi
             ;;
         sqlite)
             if [ -f $relpath/src/3rdparty/sqlite/sqlite3.h ]; then
                 if [ "$CFG_SQL_sqlite" = "auto" ]; then
                         CFG_SQL_sqlite=plugin
-                fi    
+                fi
             else
                 if [ "$CFG_SQL_sqlite" != "auto" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
                     echo "SQLite support cannot be enabled due to functionality tests!"
@@ -3000,7 +3002,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                 else
                     CFG_SQL_sqlite=no
                 fi
-            fi                        
+            fi
             ;;
         *)
             if [ "$OPT_VERBOSE" = "yes" ]; then
@@ -3052,7 +3054,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     # work around broken X11 headers when using GCC 2.95 or later
     NOTYPE=no
     $x11tests/notype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && NOTYPE=yes
-    if [ $NOTYPE = "yes" ]; then 
+    if [ $NOTYPE = "yes" ]; then
         QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fpermissive\""
         X11TESTS_FLAGS="$X11TESTS_FLAGS -fpermissive"
     fi
@@ -3224,7 +3226,7 @@ fi # X11
 
 if [ "$CFG_ENDIAN" = "auto" ]; then
     if [ "$PLATFORM_MAC" = "yes" ]; then
-	true #leave as auto 
+	true #leave as auto
     else
         $unixtests/endian.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath
 	F="$?"
@@ -3310,7 +3312,7 @@ if [ "$CFG_GETADDRINFO" != "no" ]; then
             echo " If you believe this message is in error you may use the continue"
             echo " switch (-continue) to $0 to continue."
             exit 101
-	else	
+	else
 	    CFG_GETADDRINFO=no
 	fi
     fi
@@ -3578,8 +3580,8 @@ fi
 [ '!' -z "$L_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_FLAGS+=$L_FLAGS\""
 [ '!' -z "$l_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"LIBS+=$l_FLAGS\""
 
-if [ "$PLATFORM_MAC" = "yes" ]; then  
-    if [ "$CFG_RPATH" = "yes" ]; then  
+if [ "$PLATFORM_MAC" = "yes" ]; then
+    if [ "$CFG_RPATH" = "yes" ]; then
        QMAKE_CONFIG="$QMAKE_CONFIG absolute_library_soname"
     fi
 elif [ -z "`getQMakeConf $XQMAKESPEC | grep QMAKE_RPATH | awk '{print $3;}'`" ]; then
@@ -3594,8 +3596,8 @@ elif [ -z "`getQMakeConf $XQMAKESPEC | grep QMAKE_RPATH | awk '{print $3;}'`" ];
         CFG_RPATH=no
     fi
 else
-    if [ "$CFG_RPATH" = "yes" ]; then  
-        # set the default rpath to the library installation directory 
+    if [ "$CFG_RPATH" = "yes" ]; then
+        # set the default rpath to the library installation directory
         RPATH_FLAGS="$QT_INSTALL_LIBS $RPATH_FLAGS"
     fi
     if [ -n "$RPATH_FLAGS" ]; then
@@ -3819,10 +3821,10 @@ if [ "$CFG_ENDIAN" = "auto" ]; then
 #endif
 EOF
 else
-    echo "#define Q_BYTE_ORDER $CFG_ENDIAN" >>$outpath/src/corelib/global/qconfig.h.new 
+    echo "#define Q_BYTE_ORDER $CFG_ENDIAN" >>$outpath/src/corelib/global/qconfig.h.new
 fi
 
-echo '/* Compile time features */' >>$outpath/src/corelib/global/qconfig.h.new 
+echo '/* Compile time features */' >>$outpath/src/corelib/global/qconfig.h.new
 [ '!' -z "$LicenseKeyExt" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKeyExt\"" >>$outpath/src/corelib/global/qconfig.h.new
 
 if [ "$CFG_LARGEFILE" = "yes" ]; then
@@ -3909,14 +3911,14 @@ for DRIVER in $CFG_SQL_AVAILABLE; do
         QCONFIG_FLAGS="$QCONFIG_FLAGS QT_SQL_$ONDRIVER"
         SQL_DRIVERS="$SQL_DRIVERS $DRIVER"
     ;;
-    plugin)    
+    plugin)
         SQL_PLUGINS="$SQL_PLUGINS $DRIVER"
-    ;; 
-    esac               
+    ;;
+    esac
 done
 
-QMAKE_VARS="$QMAKE_VARS \"sql-drivers = $SQL_DRIVERS\"" 
-QMAKE_VARS="$QMAKE_VARS \"sql-plugins = $SQL_PLUGINS\"" 
+QMAKE_VARS="$QMAKE_VARS \"sql-drivers = $SQL_DRIVERS\""
+QMAKE_VARS="$QMAKE_VARS \"sql-plugins = $SQL_PLUGINS\""
 
 # Add other configuration options to the qconfig.h file
 [ "$CFG_GIF" = "yes" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_BUILTIN_GIF_READER=1"
@@ -4279,7 +4281,7 @@ if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_FRAMEWORK" = "yes" ] && [ "$CFG_DEBUG"
     echo
     echo "NOTE: Mac OS X frameworks implicitely build debug and release Qt libraries."
     echo
-fi 
+fi
 echo
 
 sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
@@ -4477,7 +4479,7 @@ for file in .projects .projects.3; do
                 echo " (fast)\c"
             fi
             echo
-	
+
             cat >${OUTDIR}/Makefile <<EOF
 # ${OUTDIR}/Makefile: generated by configure
 #
@@ -4485,7 +4487,7 @@ for file in .projects .projects.3; do
 # All changes made to this file will be lost.
 EOF
             [ "$CFG_BUILD_ALL" = "no" ] && echo "first_target: first" >>${OUTDIR}/Makefile
-        
+
             cat >>${OUTDIR}/Makefile <<EOF
 all clean install qmake first Makefile: FORCE
 	$QMAKE_EXEC
@@ -4546,7 +4548,7 @@ if [ `basename $0` != "config.status" ]; then
 fi
 
 if [ -n "$RPATH_MESSAGE" ]; then
-    echo 
+    echo
     echo "$RPATH_MESSAGE"
 fi
 
@@ -4554,7 +4556,7 @@ MAKE=`basename $MAKE`
 echo
 echo Qt is now configured for building. Just run \'$MAKE\'.
 if [ "$relpath" = "$QT_INSTALL_PREFIX" ]; then
-    echo Once everything is built, Qt is installed. 
+    echo Once everything is built, Qt is installed.
     echo You should not run \'$MAKE install\'.
 else
     echo Once everything is built, you must run \'$MAKE install\'.
