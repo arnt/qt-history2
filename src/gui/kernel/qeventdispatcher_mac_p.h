@@ -71,9 +71,10 @@ typedef QList<MacTimerInfo> MacTimerList;
 
 struct MacSocketInfo {
     MacSocketInfo()
-    :socket(0), refcount(0) {}
+    :socket(0), read(0), write(0) {}
     CFSocketRef socket;
-    int refcount;
+    int read;
+    int write;
 };
 typedef QHash<int, MacSocketInfo *> MacSocketHash; 
 

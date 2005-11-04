@@ -299,41 +299,59 @@ void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
 {
     Q_D(QEventDispatcherMac);
     QEventDispatcherUNIX::registerSocketNotifier(notifier);
-        
+
+    const  QSocketNotifier::Type type = notifier->type();
+    if (type == QSocketNotifier::Exception) {
+        qWarning("QSocketNotifier::Exception is not supported on Mac OS X");
+        return;
+    }
+                      
+    // Check if we have a CFSocket for the native socket, create one if not.
     const int nativeSocket = notifier->socket();
     MacSocketInfo *socketInfo = d->macSockets.value(nativeSocket);
-    if (!socketInfo)
+    if (!socketInfo) {
         socketInfo = new MacSocketInfo();
-    
-    ++socketInfo->refcount;
-    
-    // Return if we have already created a CFSocket and installed it on the event loop.
-    if (socketInfo->socket)
-        return;
-    
-    // Crate CFSocket.
-    const int callbackTypes = kCFSocketReadCallBack | kCFSocketWriteCallBack;
-    CFSocketContext context = {0, this, NULL, NULL, NULL};
-    socketInfo->socket = CFSocketCreateWithNative(kCFAllocatorDefault, notifier->socket(), callbackTypes, qt_mac_socket_callback, &context);
-    if (CFSocketIsValid(socketInfo->socket) == false) {
-        qWarning("QEventDispatcherMac::registerSocketNotifier: Failed to create CFSocket");
-        return;
-    }
-    
-    // Enable auto-reenable-write-callback. A write QSocketNotifier stays enabled
-    // after a write, while a CFSocket by default does not.
-    CFOptionFlags flags = CFSocketGetSocketFlags(socketInfo->socket);
-    flags |= kCFSocketAutomaticallyReenableWriteCallBack;
-    CFSocketSetSocketFlags(socketInfo->socket, flags);
+        
+        // Create CFSocket, specify that we want both read and write callbacks (the callbacks 
+        // are enabled/disabled later on).
+        const int callbackTypes = kCFSocketReadCallBack | kCFSocketWriteCallBack;
+        CFSocketContext context = {0, this, NULL, NULL, NULL};
+        socketInfo->socket = CFSocketCreateWithNative(kCFAllocatorDefault, nativeSocket, callbackTypes, qt_mac_socket_callback, &context);
+        if (CFSocketIsValid(socketInfo->socket) == false) {
+            qWarning("QEventDispatcherMac::registerSocketNotifier: Failed to create CFSocket");
+            return;
+        }
+        
+        // Enable auto-reenable-write-callback. A write QSocketNotifier stays enabled
+        // after a write, while a CFSocket by default does not.
+        CFOptionFlags flags = CFSocketGetSocketFlags(socketInfo->socket);
+        flags |= kCFSocketAutomaticallyReenableWriteCallBack;
+        CFSocketSetSocketFlags(socketInfo->socket, flags);
+        
+        // Add CFSocket to runloop.
+        if (qt_mac_add_socket_to_runloop(socketInfo->socket) == false) {
+            qWarning("QEventDispatcherMac::registerSocketNotifier: Failed to add CFSocket to runloop");
+            CFRelease(socketInfo->socket);
+            return;
+        }
 
-    // Add CFSocket to runloop.
-    if (qt_mac_add_socket_to_runloop(socketInfo->socket) == false) {
-        qWarning("QEventDispatcherMac::registerSocketNotifier: Failed to add CFSocket to runloop");
-        CFRelease(socketInfo->socket);
-        return;
+        // Disable both callback types by default. This must be done after
+        // we add the CFSocket to the runloop, or else these calls will have
+        // no effect.
+        CFSocketDisableCallBacks(socketInfo->socket, kCFSocketReadCallBack); 
+        CFSocketDisableCallBacks(socketInfo->socket, kCFSocketWriteCallBack); 
+
+        d->macSockets.insert(nativeSocket, socketInfo);
     }
     
-    d->macSockets.insert(nativeSocket, socketInfo);
+    // Increment read/write counters and select enable callbacks if neccesary.
+    if (type == QSocketNotifier::Read) {
+        if (++socketInfo->read == 1)
+             CFSocketEnableCallBacks(socketInfo->socket, kCFSocketReadCallBack);
+    } else if (type == QSocketNotifier::Write) {
+        if (++socketInfo->write == 1)
+             CFSocketEnableCallBacks(socketInfo->socket, kCFSocketWriteCallBack);
+    }
 }
 
 /*
@@ -345,7 +363,12 @@ void QEventDispatcherMac::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
     Q_D(QEventDispatcherMac);
     QEventDispatcherUNIX::unregisterSocketNotifier(notifier);
-
+    
+    const  QSocketNotifier::Type type = notifier->type();
+    if (type == QSocketNotifier::Exception) {
+        qWarning("QSocketNotifier::Exception is not supported on Mac OS X");
+        return; 
+    }
     const int nativeSocket = notifier->socket();
     MacSocketInfo *socketInfo = d->macSockets.value(nativeSocket);
     if (!socketInfo) {
@@ -353,10 +376,17 @@ void QEventDispatcherMac::unregisterSocketNotifier(QSocketNotifier *notifier)
         return; 
     }
     
-    --socketInfo->refcount;
-    
-    // Remove CFSocket from runloop
-    if (socketInfo->refcount < 1) {
+    // Decrement read/write counters and disable callbacks if neccesary.
+    if (type == QSocketNotifier::Read) {
+        if (--socketInfo->read == 0)
+            CFSocketDisableCallBacks(socketInfo->socket, kCFSocketReadCallBack); 
+    } else if (type == QSocketNotifier::Write) {
+        if (--socketInfo->write == 0)
+            CFSocketDisableCallBacks(socketInfo->socket, kCFSocketWriteCallBack); 
+    }
+        
+    // Remove CFSocket from runloop if this was the last QSocketNotifier.
+    if (socketInfo->read <= 0 && socketInfo->write <= 0) {
         if (CFSocketIsValid(socketInfo->socket)) {
             if (qt_mac_remove_socket_from_runloop(socketInfo->socket) == false)
                 qWarning("QEventDispatcherMac::unregisterSocketNotifier: Failed to remove CFSocket from runloop");
