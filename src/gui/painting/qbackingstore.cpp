@@ -700,8 +700,10 @@ void QWidgetPrivate::invalidateBuffer(const QRegion &rgn)
         return;
     Q_Q(QWidget);
     QWidget *tlw = q->window();
-    QTLWExtra* x = tlw->d_func()->topData();
-    x->backingStore->dirtyRegion(rgn, q);
+
+    QTLWExtra *x = tlw->d_func()->topData();
+    if (x->backingStore)
+        x->backingStore->dirtyRegion(rgn, q);
 
     q->setAttribute(Qt::WA_PendingUpdate);
 }
