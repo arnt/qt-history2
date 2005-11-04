@@ -1019,6 +1019,20 @@ QHttpResponseHeader::QHttpResponseHeader(const QString &str)
 /*!
     \since 4.1
 
+    Constructs a QHttpResponseHeader, setting the status code to \a code, the
+    reason phrase to \a text and the protocol-version to \a majorVer and \a
+    minorVer.
+
+    \sa statusCode() reasonPhrase() majorVersion() minorVersion()
+*/
+QHttpResponseHeader::QHttpResponseHeader(int code, const QString &text, int majorVer, int minorVer)
+{
+    setStatusLine(code, text, majorVer, minorVer);
+}
+
+/*!
+    \since 4.1
+
     Sets the status code to \a code, the reason phrase to \a text and
     the protocol-version to \a majorVer and \a minorVer.
 
