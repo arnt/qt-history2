@@ -16,12 +16,14 @@
 #ifndef QT_NO_TOOLBAR
 
 #include <qapplication.h>
+#include <qcombobox.h>
 #include <qevent.h>
 #include <qlayout.h>
 #include <qmainwindow.h>
 #include <qmenu.h>
 #include <qpainter.h>
 #include <qrubberband.h>
+#include <qsignalmapper.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qtoolbutton.h>
@@ -980,9 +982,20 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             if (!qobject_cast<QToolBarWidgetAction *>(item.action)) {
                 pop->addAction(item.action);
             } else {
-                // ### needs special handling of custom widgets and
-                // ### e.g. combo boxes - only actions are supported in
-                // ### the preview
+                if (QComboBox *cb = qobject_cast<QComboBox *>(item.widget)) {
+                    QMenu *cb_menu = new QMenu(cb->windowTitle(), pop);
+                    QSignalMapper *cb_mapper = new QSignalMapper(cb_menu);
+                    pop->addMenu(cb_menu);
+                    for (int i=0; i<cb->count(); ++i) {
+                        QAction *ac = cb_menu->addAction(cb->itemIcon(i), cb->itemText(i));
+                        connect(ac, SIGNAL(triggered(bool)), cb_mapper, SLOT(map()));
+                        cb_mapper->setMapping(ac, i);
+                    }
+                    connect(cb_mapper, SIGNAL(mapped(int)), cb, SIGNAL(activated(int)));
+                } else if (QToolButton *tb = qobject_cast<QToolButton *>(item.widget)) {
+                    QAction *ac = pop->addAction(tb->icon(), tb->text());
+                    connect(ac, SIGNAL(triggered()), tb, SIGNAL(clicked()));
+                }
             }
         }
         if (pop->actions().size() > 0) {
