@@ -3143,33 +3143,15 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     // because something else will transform it back later.
     qwsServer->sendMouseEventUnfiltered( tpos, state, wheel );
 }
-#endif
+#endif // 0
 
-/*!
-  \fn QWSInputMethod::sendKeyEvent( int unicode, int keycode, Qt::KeyboardModifiers modifiers, bool isPress, bool isAutoRepeat)
-
-  Sends a key event at the parameters \a unicode, \a keycode, \a modifiers, \a isPress and \a isQAutoRepeat.
-  The event will be not be tested by the filter() function.
-
-  \note calling QWSServer::sendKeyEvent() will result in the event being filtered by the
-  current inputmethod.
-
-  \sa QWSServer::sendKeyEvent()
-*/
-#endif
+#endif // QT_NO_QWS_INPUTMETHODS
 
 /*!
     \fn  QWSWindow::QWSWindow(int i, QWSClient * client)
 
     Constructs a new top-level window, associated with the client \a
     client and giving it the id \a i.
-*/
-
-/*!
-    \fn QWSServer::manager()
-
-    Returns the QWSPropertyManager, which is used for implementing
-    X11-style window properties.
 */
 
 /*!
