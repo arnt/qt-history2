@@ -209,6 +209,8 @@ void QThread::usleep(unsigned long usecs)
 }
 
 /*!
+    \fn void QThread::start(QThread::Priority priority)
+
     Begins execution of the thread by calling run(), which should be
     reimplemented in a QThread subclass to contain your code. The
     operating system will schedule the thread according to the \a

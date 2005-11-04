@@ -4747,7 +4747,7 @@ bool QUrl::operator !=(const QUrl &url) const
 }
 
 /*!
-    Assigns the data of \a url to this class.
+    Assigns the specified \a url to this object.
 */
 QUrl &QUrl::operator =(const QUrl &url)
 {
@@ -4755,6 +4755,9 @@ QUrl &QUrl::operator =(const QUrl &url)
     return *this;
 }
 
+/*!
+    Assigns the specified \a url to this object.
+*/
 QUrl &QUrl::operator =(const QString &url)
 {
     QUrl tmp(url);

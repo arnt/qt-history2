@@ -293,6 +293,17 @@ QFileInfo::~QFileInfo()
 */
 
 /*!
+    \overload
+    \fn bool QFileInfo::operator!=(const QFileInfo &fileinfo) const
+
+    Returns true if the QFileInfo refers to a different file to the one
+    specified by \a fileinfo; otherwise returns false.
+
+    \sa operator==()
+*/
+
+/*!
+    \overload
     Returns true if the QFileInfo refers to a file in the same location as
     the other \a fileinfo; otherwise returns false.
 
@@ -328,6 +339,16 @@ QFileInfo::operator==(const QFileInfo &fileinfo) const
     }
     return false;
 }
+
+/*!
+    Returns true if the QFileInfo refers to a file in the same location as
+    the other \a fileinfo; otherwise returns false.
+
+    \warning This will not compare two different symbolic links
+    pointing to the same file.
+
+    \sa operator!=()
+*/
 bool QFileInfo::operator==(const QFileInfo &fileinfo)
 {
     return const_cast<const QFileInfo *>(this)->operator==(fileinfo);

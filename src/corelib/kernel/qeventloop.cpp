@@ -42,7 +42,8 @@ public:
     \sa QAbstractEventDispatcher
 */
 
-/*! \enum QEventLoop::ProcessEventsFlag
+/*! 
+    \enum QEventLoop::ProcessEventsFlag
 
     This enum controls the types of events processed by the
     processEvents() functions.
@@ -61,6 +62,11 @@ public:
 
     \value WaitForMoreEvents Wait for events if no pending events are
     available.
+
+    \value DeferredDeletion Allow objects to be queued for deletion
+    at a later time.
+
+    \value X11ExcludeTimers
 
     \omitvalue ExcludeUserInput
     \omitvalue WaitForMore
