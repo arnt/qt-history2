@@ -954,7 +954,7 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
     setFontStrikeOut(), and setFontFixedPitch() provide additional effects for
     text.
 
-    The color is set with setTextColor(). If the text is intended to be used
+    The color is set with setForeground(). If the text is intended to be used
     as an anchor (for hyperlinks), this can be enabled with setAnchor(). The
     setAnchorHref() and setAnchorName() functions are used to specify the
     information about the hyperlink's destination and the anchor's name.
