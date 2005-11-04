@@ -18,6 +18,7 @@
 #include <qvector.h>
 #include <private/qpainter_p.h>
 #include <qdebug.h>
+#include <qmatrix.h>
 
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -28,6 +29,8 @@
 #include <errno.h>
 
 #include <qwindowsystem_qws.h>
+
+//#define QT_REGION_DEBUG
 
 // Global function ---------------------------------------------------------------------------------
 static QTransformedScreen *qt_trans_screen = 0;
@@ -41,55 +44,27 @@ void qws_setScreenTransformation(int t)
 }
 
 // -------------------------------------------------------------------------------------------------
-// Transformed Cursor
-// -------------------------------------------------------------------------------------------------
-#ifndef QT_NO_QWS_CURSOR
-class QTransformedScreenCursor : public QT_TRANS_CURSOR_BASE
-{
-public:
-    QTransformedScreenCursor(QTransformedScreen *s);
-    void set(const QImage &image, int hotx, int hoty);
-};
-
-QTransformedScreenCursor::QTransformedScreenCursor(QTransformedScreen *s)
-    : QT_TRANS_CURSOR_BASE((QT_TRANS_SCREEN_BASE *)s)
-{
-}
-
-void QTransformedScreenCursor::set(const QImage &image, int hotx, int hoty)
-{
-    double dx2 = image.width() / 2.0;
-    double dy2 = image.height() / 2.0;
-    // Create rotation matrix
-    QMatrix rotMatrix;
-    rotMatrix.translate(dx2, dy2);
-    rotMatrix.rotate(qt_trans_screen->transformOrientation());
-    rotMatrix.translate(-dx2, -dy2);
-    // Rotate image and hot-point   // ### Why do we require 8-bit cursors?
-    QImage rimg = image.transformed(rotMatrix, Qt::SmoothTransformation).convertToFormat(QImage::Format_Indexed8);
-    QPoint tp = rotMatrix.map(QPoint(hotx, hoty));
-    // Set it using the base class
-    QT_TRANS_CURSOR_BASE::set(rimg, tp.x(), tp.y());
-}
-#endif
-
-// -------------------------------------------------------------------------------------------------
 // Transformed Screen
 // -------------------------------------------------------------------------------------------------
 QTransformedScreen::QTransformedScreen(int display_id)
     : QT_TRANS_SCREEN_BASE(display_id)
 {
-    setTransformation(None);
+    trans = None;
     qt_trans_screen = this;
+
+#ifdef QT_REGION_DEBUG
+    qDebug() << "QTransformedScreen::QTransformedScreen";
+#endif
 }
 
 bool QTransformedScreen::connect(const QString &displaySpec)
 {
     bool result = QT_TRANS_SCREEN_BASE::connect(displaySpec);
     int indexOfRot = displaySpec.indexOf(":Rot");
-    if (result && indexOfRot != -1)
-        setTransformation((Transformation)displaySpec.mid(indexOfRot + 4).toInt());
-
+    if (result && indexOfRot != -1) {
+        int t = qMin(displaySpec.mid(indexOfRot + 4).toUInt()/90, uint(Rot270));
+        setTransformation(static_cast<Transformation>(t));
+    }
     return result;
 }
 
@@ -102,97 +77,104 @@ int QTransformedScreen::transformOrientation() const
 void QTransformedScreen::setTransformation(Transformation t)
 {
     trans = t;
-    matrix(); // force matrix recalculation
-
     QSize s = mapFromDevice(QSize(dw, dh));
     w = s.width();
     h = s.height();
+
+#ifdef QT_REGION_DEBUG
+    qDebug() << "QTransformedScreen::setTransformation" << t << "size" << w << h << "dev size" << dw << dh;
+#endif
+
 }
 
-QMatrix QTransformedScreen::deltaCompensation(int deg)
-{
-    QMatrix corr;
+static inline QRect correctNormalized(const QRect &r) {
+    const int x1 = qMin(r.left(), r.right());
+    const int x2 = qMax(r.left(), r.right());
+    const int y1 = qMin(r.top(), r.bottom());
+    const int y2 = qMax(r.top(), r.bottom());
 
-    int diff = dw - dh;
-    if (diff > 0) { // Landscape
-        if (deg > 270)
-            corr.translate(0.0, (-1.0 + (deg - 270)/90.0) * diff);
-        else if (deg > 180)
-            corr.translate(0.0, -diff);
-        else if (deg > 90)
-            corr.translate(0.0, -(deg - 90)/90.0 * diff);
-
-    } else if (diff < 0) { // Portrait
-        if (deg < 90)
-            corr.translate((deg/90.0) * diff, 0.0);
-        else if (deg < 180)
-            corr.translate(diff, 0.0);
-        else if (deg < 270)
-            corr.translate((1.0 - (deg - 180)/90.0) * diff, 0.0);
-    }
-
-    // Could also have been written combined as:
-    //     if (diff) {
-    //         if (deg < 90)
-    //             corr.translate(qMin(0.0, (deg/90.0) * diff), 0.0);
-    //         else if (deg < 180)
-    //             corr.translate(qMin(0, diff), qMin(0.0, -(deg - 90)/90.0 * diff));
-    //         else if (deg < 270)
-    //             corr.translate(qMin(0.0, (1.0 - (deg - 180)/90.0) * diff), qMin(0, -diff));
-    //         else if (deg < 360)
-    //             corr.translate(0.0, qMin(0.0, (-1.0 + (deg - 270)/90.0) * diff));
-    //     }
-    // but split preferred to lower the number of calculations for a given device orientation.
-
-    return corr;
+    return QRect( QPoint(x1,y1), QPoint(x2,y2) );
 }
 
-const QMatrix &QTransformedScreen::matrix()
+static inline QMatrix blitMatrix(QTransformedScreen::Transformation t)
 {
-    static Transformation prevTrans = None;
-    if (prevTrans == trans)
-        return rotMatrix;
-    prevTrans = trans;
-
-    // Update screen matrix
-    rotMatrix.reset();
-    switch(trans) {
+    QMatrix m;
+    switch(t) {
     case QTransformedScreen::None:
         break;
-    case QTransformedScreen::Rot90:
-        rotMatrix = QMatrix(0,1,-1,0, dw, 0);
+    case QTransformedScreen::Rot270:
+        m = QMatrix(0,1,-1,0, 0, 0);
         break;
     case QTransformedScreen::Rot180:
-        rotMatrix = QMatrix(-1, 0, 0, -1, dw, dh);
+        m = QMatrix(-1, 0, 0, -1, 0, 0);
         break;
-    case QTransformedScreen::Rot270:
-        rotMatrix = QMatrix(0, -1, 1, 0, 0, dh);
-        break;
-    default:
-        {   // Free rotation, only works for 0 - 360 degrees:
-            // General purpose rotation, can be used as transition
-            // effect to one of the basic rotations above.
-            double center = qMax(dw, dh) / 2.0;
-            rotMatrix.translate(center, center);
-            rotMatrix.rotate(trans);
-            rotMatrix.translate(-center, -center);
-            rotMatrix *= deltaCompensation(trans); // gradually move origo
-        }
+    case QTransformedScreen::Rot90:
+        m = QMatrix(0, -1, 1, 0, 0, 0);
         break;
     }
-    return rotMatrix;
+    return m;
+}
+
+
+void QTransformedScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &region)
+{
+    if ( trans == None) {
+        QT_TRANS_SCREEN_BASE::blit(img, topLeft, region);
+        return;
+    }
+    //### slow but correct implementation; should be optimized later
+    QRegion tr = mapToDevice(region, QSize(w,h));
+    QRect imgRect(topLeft, img.size());
+    QPoint tp = mapToDevice(imgRect, QSize(w,h)).topLeft();
+    QImage ti = img.transformed(blitMatrix(trans));
+
+#ifdef QT_REGION_DEBUG
+    qDebug() << "QTransformedScreen::blit region" << region << "transformed" << tr << "tr img size" << ti.size();;
+#endif
+
+    QT_TRANS_SCREEN_BASE::blit(ti, tp, tr);
+}
+
+void QTransformedScreen::solidFill(const QColor &color, const QRegion &region)
+{
+    QRegion tr = mapToDevice(region, QSize(w,h));
+
+    Q_ASSERT(tr.boundingRect() == mapToDevice(region.boundingRect(), QSize(w,h)));
+
+#ifdef QT_REGION_DEBUG
+    qDebug() << "QTransformedScreen::solidFill region" << region << "transformed" << tr;
+#endif
+    QT_TRANS_SCREEN_BASE::solidFill(color, tr);
 }
 
 
 // Mapping functions
 QSize QTransformedScreen::mapToDevice(const QSize &s) const
 {
-    return rotMatrix.mapRect(QRect(QPoint(0,0), s)).size();
+    switch (trans) {
+    case None:
+    case Rot180:
+        return s;
+        break;
+    case Rot90:
+    case Rot270:
+        return QSize(s.height(), s.width());
+        break;
+    }
 }
 
 QSize QTransformedScreen::mapFromDevice(const QSize &s) const
 {
-    return rotMatrix.inverted().mapRect(QRect(QPoint(0,0), s)).size();
+    switch (trans) {
+    case None:
+    case Rot180:
+        return s;
+        break;
+    case Rot90:
+    case Rot270:
+        return QSize(s.height(), s.width());
+        break;
+    }
 }
 
 QPoint QTransformedScreen::mapToDevice(const QPoint &p, const QSize &s) const
@@ -213,9 +195,6 @@ QPoint QTransformedScreen::mapToDevice(const QPoint &p, const QSize &s) const
     case Rot270:
         rp.setX(s.height() - p.y() - 1);
         rp.setY(p.x());
-        break;
-    default:
-        rp = rotMatrix.map(p);
         break;
     }
 
@@ -241,16 +220,20 @@ QPoint QTransformedScreen::mapFromDevice(const QPoint &p, const QSize &s) const
         rp.setX(p.y());
         rp.setY(s.width() - p.x() - 1);
         break;
-    default:
-        rp = rotMatrix.inverted().map(p);
-        break;
     }
 
     return rp;
 }
 
+
+
+
+
 QRect QTransformedScreen::mapToDevice(const QRect &r, const QSize &s) const
 {
+    if (r.isNull())
+        return QRect();
+
     QRect tr;
     switch (trans) {
     case None:
@@ -268,16 +251,16 @@ QRect QTransformedScreen::mapToDevice(const QRect &r, const QSize &s) const
         tr.setCoords(s.height() - r.y() - 1, r.x(),
                      s.height() - r.bottom() - 1, r.right());
         break;
-    default:
-        tr = rotMatrix.map(r);
-        break;
     }
 
-    return tr.normalized();
+    return correctNormalized(tr);
 }
 
 QRect QTransformedScreen::mapFromDevice(const QRect &r, const QSize &s) const
 {
+    if (r.isNull())
+        return QRect();
+
     QRect tr;
     switch (trans) {
     case None:
@@ -295,21 +278,20 @@ QRect QTransformedScreen::mapFromDevice(const QRect &r, const QSize &s) const
         tr.setCoords(r.y(), s.width() - r.x() - 1,
                      r.bottom(), s.width() - r.right() - 1);
         break;
-    default:
-        tr = rotMatrix.inverted().map(r);
-        break;
     }
 
-    return tr.normalized();
+    return correctNormalized(tr);
 }
 
-#if 0
+#if 1
 QRegion QTransformedScreen::mapToDevice(const QRegion &rgn, const QSize &s) const
 {
     if (trans == None)
         return rgn;
 
-    qDebug() << "toDevice: realRegion count:  " << rgn.rects().size() << " isEmpty? " << rgn.isEmpty() << "  bounds:" << rgn.boundingRect();
+#ifdef QT_REGION_DEBUG
+    qDebug() << "mapToDevice size" << s << "rgn:  " << rgn;
+#endif
     QRect tr;
     QRegion trgn;
     QVector<QRect> a = rgn.rects();
@@ -322,43 +304,31 @@ QRegion QTransformedScreen::mapToDevice(const QRegion &rgn, const QSize &s) cons
     switch (trans) {
     case None:
         break;
-    case Rot270:
-        for (int i = 0; i < size; i++, r++) {
-            tr.setCoords(h - r->y() - 1, r->x(),
-                         h - r->bottom() - 1, r->right());
-            trgn |= tr.normalized();
-        }
-        break;
     case Rot90:
         for (int i = 0; i < size; i++, r++) {
             tr.setCoords(r->y(), w - r->x() - 1,
                          r->bottom(), w - r->right() - 1);
-            trgn |= tr.normalized();
+            trgn |= correctNormalized(tr);
         }
         break;
     case Rot180:
         for (int i = 0; i < size; i++, r++) {
             tr.setCoords(w - r->x() - 1, h - r->y() - 1,
                          w - r->right() - 1, h - r->bottom() - 1);
-            trgn |= tr.normalized();
+            trgn |= correctNormalized(tr);
         }
         break;
-    default:
-        trgn = rotMatrix.map(rgn);
-        QPixmap foo(dw*2, dh*2);
-        QPainter p(&foo);
-        p.fillRect(0,0,dw*2,dh*2, Qt::white);
-        p.translate(dw/2, dh/2);
-        p.setClipRegion(rgn);
-        p.fillRect(-dw,-dh,dw*2,dh*2, Qt::green);
-        p.setClipRegion(trgn);
-        p.fillRect(-dw,-dh,dw*2,dh*2, Qt::red);
-        p.end();
-        foo.save("to.png", "PNG");
+    case Rot270:
+        for (int i = 0; i < size; i++, r++) {
+            tr.setCoords(h - r->y() - 1, r->x(),
+                         h - r->bottom() - 1, r->right());
+            trgn |= correctNormalized(tr);
+        }
         break;
     }
-
-    qDebug() << "toDevice: transRegion count: " << trgn.rects().size() << " isEmpty? " << trgn.isEmpty() << "  bounds:" << trgn.boundingRect();
+#ifdef QT_REGION_DEBUG
+    qDebug() << "mapToDevice trgn:  " << trgn;
+#endif
     return trgn;
 }
 
@@ -366,8 +336,9 @@ QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) co
 {
     if (trans == None)
         return rgn;
-
+#ifdef QT_REGION_DEBUG
     qDebug() << "fromDevice: realRegion count:  " << rgn.rects().size() << " isEmpty? " << rgn.isEmpty() << "  bounds:" << rgn.boundingRect();
+#endif
     QRect tr;
     QRegion trgn;
     QVector<QRect> a = rgn.rects();
@@ -380,43 +351,31 @@ QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) co
     switch (trans) {
     case None:
         break;
-    case Rot270:
-        for (int i = 0; i < size; i++, r++) {
-            tr.setCoords(r->y(), w - r->x() - 1,
-                         r->bottom(), w - r->right() - 1);
-            trgn |= tr.normalized();
-        }
-        break;
     case Rot90:
         for (int i = 0; i < size; i++, r++) {
             tr.setCoords(h - r->y() - 1, r->x(),
                          h - r->bottom() - 1, r->right());
-            trgn |= tr.normalized();
+            trgn |= correctNormalized(tr);
         }
         break;
     case Rot180:
         for (int i = 0; i < size; i++, r++) {
             tr.setCoords(w - r->x() - 1, h - r->y() - 1,
                          w - r->right() - 1, h - r->bottom() - 1);
-            trgn |= tr.normalized();
+            trgn |= correctNormalized(tr);
         }
         break;
-    default:
-        trgn = rotMatrix.inverted().map(rgn);
-        QPixmap foo(dw*2, dh*2);
-        QPainter p(&foo);
-        p.fillRect(0,0,dw*2,dh*2, Qt::white);
-        p.translate(dw/2, dh/2);
-        p.setClipRegion(rgn);
-        p.fillRect(-dw,-dh,dw*2,dh*2, Qt::green);
-        p.setClipRegion(trgn);
-        p.fillRect(-dw,-dh,dw*2,dh*2, Qt::red);
-        p.end();
-        foo.save("from.png", "PNG");
+    case Rot270:
+        for (int i = 0; i < size; i++, r++) {
+            tr.setCoords(r->y(), w - r->x() - 1,
+                         r->bottom(), w - r->right() - 1);
+            trgn |= correctNormalized(tr);
+        }
         break;
     }
-
+#ifdef QT_REGION_DEBUG
     qDebug() << "fromDevice: transRegion count: " << trgn.rects().size() << " isEmpty? " << trgn.isEmpty() << "  bounds:" << trgn.boundingRect();
+#endif
     return trgn;
 }
 #endif

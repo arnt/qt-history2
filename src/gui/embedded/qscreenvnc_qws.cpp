@@ -1084,40 +1084,6 @@ void QVNCServer::discardClient()
     timer->stop();
 }
 
-/*
- */
-#ifndef QT_NO_QWS_CURSOR
-class QVNCScreenCursor : public QScreenCursor
-{
-public:
-    QVNCScreenCursor();
-
-    virtual void set(const QImage &image, int hotx, int hoty);
-    virtual void move(int x, int y);
-};
-
-QVNCScreenCursor::QVNCScreenCursor() : QScreenCursor()
-{
-}
-
-void QVNCScreenCursor::set(const QImage &image, int hotx, int hoty)
-{
-    QWSDisplay::grab(true);
-    QRect r(pos - QPoint(hotx, hoty), image.size());
-    qvnc_screen->setDirty(boundingRect() | r);
-    QScreenCursor::set(image, hotx, hoty);
-    QWSDisplay::ungrab();
-}
-
-void QVNCScreenCursor::move(int x, int y)
-{
-    QWSDisplay::grab(true);
-    QRect r(pos - hotspot, size);
-    qvnc_screen->setDirty(r | boundingRect());
-    QScreenCursor::move(x, y);
-    QWSDisplay::ungrab();
-}
-#endif
 
 //===========================================================================
 

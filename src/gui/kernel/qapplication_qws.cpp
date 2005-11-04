@@ -662,7 +662,6 @@ void QWSDisplay::Data::fillQueue()
                 }
                 QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
                 QPoint p(me->simpleData.x_root, me->simpleData.y_root);
-                p = qt_screen->mapFromDevice(p, s);
                 me->simpleData.x_root = p.x();
                 me->simpleData.y_root = p.y();
                 mouse_event = me;
@@ -1073,17 +1072,10 @@ void QWSDisplay::repaintRegion(int winId, bool opaque, QRegion r)
 
 void QWSDisplay::moveRegion(int winId, int dx, int dy)
 {
-    //UNUSED QETWidget *widget = (QETWidget*)QWidget::find((WId)winId);
-
-    QPoint p1 = qt_screen->mapToDevice(QPoint(0, 0),
-                    QSize(qt_screen->width(), qt_screen->height()));
-    QPoint p2 = qt_screen->mapToDevice(QPoint(dx, dy),
-                    QSize(qt_screen->width(), qt_screen->height()));
-
     QWSRegionMoveCommand cmd;
     cmd.simpleData.windowid = winId;
-    cmd.simpleData.dx = p2.x() - p1.x();
-    cmd.simpleData.dy = p2.y() - p1.y();
+    cmd.simpleData.dx = dx;
+    cmd.simpleData.dy = dy;
 
     if (d->directServerConnection()) {
         qwsServer->d_func()->move_region(&cmd);
@@ -2320,8 +2312,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             // 2. make sure the cursor is correct.
             // 3. handle implicit mouse grab due to button press.
             w = widget; // w is the widget the cursor is in.
-            QSize s(qt_screen->width(), qt_screen->height());
-            QPoint dp = qt_screen->mapToDevice(p, s);
+
             //### ??? alloc_region
             //#### why should we get events outside alloc_region ????
             if (1 /*widget->data->alloc_region.contains(dp) */) {

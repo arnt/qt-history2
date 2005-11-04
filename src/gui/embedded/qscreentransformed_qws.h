@@ -16,32 +16,20 @@
 
 #include <QtGui/qscreenvfb_qws.h>
 #include <QtGui/qscreenlinuxfb_qws.h>
-#include <QtGui/qmatrix.h>
 
 QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_TRANSFORMED
 
 //#define QT_TRANS_SCREEN_BASE   QLinuxFbScreen
-//#define QT_TRANS_CURSOR_BASE   QScreenCursor
-
 #define QT_TRANS_SCREEN_BASE        QVFbScreen
-#define QT_TRANS_PAINTENGINE_BASE   QRasterPaintEngine
-#define QT_TRANS_PAINTENGINE_BASE_P QRasterPaintEnginePrivate
-#define QT_TRANS_CURSOR_BASE        QVFbScreenCursor
 
 class QTransformedScreen : public QT_TRANS_SCREEN_BASE
 {
 public:
     explicit QTransformedScreen(int display_id);
 
-    enum Transformation
-    {
-        None   = 0,
-        Rot90  = 90,
-        Rot180 = 180,
-        Rot270 = 270
-    };
+    enum Transformation { None, Rot90, Rot180, Rot270 };
     bool connect(const QString &displaySpec);
 
     void setTransformation(Transformation t);
@@ -50,7 +38,10 @@ public:
     int transformOrientation() const;
     bool isTransformed() const
     { return trans != None; }
-    const QMatrix &matrix();
+
+    // drawing functions
+    void blit(const QImage &img, const QPoint &topLeft, const QRegion &region);
+    void solidFill(const QColor &color, const QRegion &region);
 
 
     // Mapping functions
@@ -62,19 +53,15 @@ public:
     QRect mapToDevice(const QRect &, const QSize &) const;
     QRect mapFromDevice(const QRect &, const QSize &) const;
 
-#if 0
+
     QRegion mapToDevice(const QRegion &, const QSize &) const;
     QRegion mapFromDevice(const QRegion &, const QSize &) const;
-#endif
+
     //QImage mapToDevice(const QImage &) const;
     //QImage mapFromDevice(const QImage &) const;
 
 private:
-    QMatrix deltaCompensation(int deg);
-
     Transformation trans;
-    QMatrix rotMatrix;
-    QScreen *driver;
 };
 
 #endif // QT_NO_QWS_TRANSFORMED

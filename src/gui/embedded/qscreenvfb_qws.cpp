@@ -184,48 +184,6 @@ void QVFbKeyboardHandler::readKeyboardData()
 
 //===========================================================================
 
-#ifndef QT_NO_QWS_CURSOR
-class QVFbScreenCursor : public QScreenCursor
-{
-public:
-    QVFbScreenCursor(QVFbScreen * s);
-
-    virtual void set(const QImage &image, int hotx, int hoty);
-    virtual void move(int x, int y);
-
-private:
-
-    QVFbScreen * cursor_screen;
-
-};
-
-QVFbScreenCursor::QVFbScreenCursor(QVFbScreen * s) : QScreenCursor()
-{
-    cursor_screen=s;
-}
-
-void QVFbScreenCursor::set(const QImage &image, int hotx, int hoty)
-{
-//    QWSDisplay::grab(true);
-    QRect r(pos - QPoint(hotx, hoty), image.size());
-    cursor_screen->setDirty(boundingRect() | r);
-    QScreenCursor::set(image, hotx, hoty);
-//    QWSDisplay::ungrab();
-}
-
-void QVFbScreenCursor::move(int x, int y)
-{
-//    QWSDisplay::grab(true);
-    QRect r(pos - hotspot, size);
-    cursor_screen->setDirty(r | boundingRect());
-    QScreenCursor::move(x, y);
-//    QWSDisplay::ungrab();
-}
-#endif
-
-
-//===========================================================================
-
 QVFbScreen::QVFbScreen(int display_id) : QScreen(display_id)
 {
     mouseHandler = 0;

@@ -632,9 +632,6 @@ void QScreen::exposeRegion(QRegion r, int changing)
         QPoint topLeft = blendRegion.boundingRect().topLeft();
         blit(blendBuffer, topLeft, blendRegion);
     }
-
-
-
     qt_screen->setDirty(r.boundingRect());
 }
 
@@ -694,11 +691,12 @@ static void blit_32_to_16(const blit_data *data)
 
 /*!
     \internal
+    the base class implementation works in device coordinates, so that transformed drivers can use it
 */
 void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &region)
 {
     QVector<QRect> rects = region.rects();
-    QRect bound(0, 0, w, h);
+    QRect bound(0, 0, dw, dh);
     bound &= QRect(topLeft, img.size());
     blit_data data;
     data.img = &img;
@@ -793,10 +791,11 @@ static void fill_16(const fill_data *data)
     }
 }
 
+// the base class implementation works in device coordinates, so that transformed drivers can use it
 void QScreen::solidFill(const QColor &color, const QRegion &region)
 {
     QVector<QRect> rects = region.rects();
-    QRect bound(0, 0, w, h);
+    QRect bound(0, 0, dw, dh);
     fill_data data;
     data.color = color.rgba();
     data.data = this->data;
@@ -925,14 +924,12 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
     }
 }
 
-void QScreen::paintBackground(const QRegion &rr)
+void QScreen::paintBackground(const QRegion &r)
 {
     const QBrush &bg = qwsServer->backgroundBrush();
     Qt::BrushStyle bs = bg.style();
-    if (bs == Qt::NoBrush || rr.isEmpty())
+    if (bs == Qt::NoBrush || r.isEmpty())
         return;
-
-    QRegion r = qt_screen->mapFromDevice(rr, QSize(dw, dh));
 
     if (bs == Qt::SolidPattern) {
         solidFill(bg.color(), r);

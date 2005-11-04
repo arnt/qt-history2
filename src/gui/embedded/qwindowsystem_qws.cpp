@@ -1247,7 +1247,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     // on end of stroke, force_rejct
     // and once a stroke is rejected, do not try again till pen is lifted
 #else
-    QWSServerPrivate::sendMouseEventUnfiltered(pos, state, wheel);
+    QWSServerPrivate::sendMouseEventUnfiltered(tpos, state, wheel);
 #endif // end QT_NO_QWS_FSIM
 }
 
@@ -3133,15 +3133,7 @@ uint QWSInputMethod::inputResolutionShift() const
 */
 void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 {
-    QPoint tpos;
-    if (qt_screen->isTransformed()) {
-	QSize s = QSize(qt_screen->width(), qt_screen->height());
-	tpos = qt_screen->mapToDevice(pos, s);
-    } else {
-	tpos = pos;
-    }
-    // because something else will transform it back later.
-    qwsServer->sendMouseEventUnfiltered( tpos, state, wheel );
+    qwsServer->sendMouseEventUnfiltered( pos, state, wheel );
 }
 #endif // 0
 
