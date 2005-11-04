@@ -1011,7 +1011,7 @@ The menu entry's text is displayed using a line edit, and can be modified.
 
 Press \key{Return} or \key{Enter} to accept the new text, or press
 \key{Escape} to reject it. The action created for this menu entry will
-be accessible via the \l{#TheActionEditor}{action editor}, and any
+be accessible via the \l{#TheActionEditor}{Action Editor}, and any
 associated keyboard shortcut can be set there.
 \endtable
 
@@ -1033,7 +1033,7 @@ toolbar, rather than by using specific button widgets from the widget box.
 Since actions can be represented by menu entries and toolbar buttons, they
 can be moved between menus and toolbars. To share an action between a
 menu and a toolbar, drag its icon from the
-\l{#The Action Editor}{Action Editor} to the toolbar rather than from the
+\l{#TheActionEditor}{Action Editor} to the toolbar rather than from the
 menu where its entry is located.
 
 New actions for menus and toolbars can be created in the Action Editor.
@@ -1085,7 +1085,7 @@ Release the mouse button to add the action when you have found the right spot.
 
 \section1 Dock Widgets
 
-Since dock widgets are \l{Using Container in Qt Designer}{container widgets},
+Since dock widgets are \l{Using Containers in Qt Designer}{container widgets},
 they can be added to a form in the usual way. When added to a form, dock widgets
 are not placed in any particular dock area by default; you need to set the
 \gui{docked} property to true for each widget and choose an appropriate value for
