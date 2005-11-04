@@ -37,7 +37,6 @@
 
 // Fonts
 #define QT_NO_FREETYPE
-#define QT_NO_QWS_QPF
 
 // Images
 #define QT_NO_IMAGEFORMATPLUGIN
