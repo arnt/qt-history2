@@ -171,9 +171,6 @@ public:
             } else {
                 QPoint delta((buffer[0] & 0x10) ? buffer[1]-256 : buffer[1],
                        (buffer[0] & 0x20) ? 256-buffer[2] : -buffer[2]);
-#ifdef QT_QWS_TRANSFORMED
-                delta = qt_screen->mapToDevice(delta, QSize(1,1));
-#endif // QT_NO_QWS_TRANSFORMED
                 motion += delta;
                 int nbstate = buffer[0] & 0x7;
 #ifdef QWS_MOUSE_DEBUG
@@ -530,14 +527,12 @@ bool QWSPcMouseHandlerPrivate::sendEvent(QWSPcMouseSubHandler& h)
         if (qAbs(motion.x()) > accel_limit || qAbs(motion.y()) > accel_limit)
             motion *= accel;
         QPoint newPos = handler->pos() + motion;
+        if (qt_screen->isTransformed()) {
+            QSize s = QSize(qt_screen->width(), qt_screen->height());
+            newPos = qt_screen->mapToDevice(newPos, s);
+        }
         handler->limitToScreen(newPos);
-/*
-        qDebug("%d,%d %c%c%c",
-            newPos.x(),newPos.y(),
-            (h.buttonState()&Qt::LeftButton)?'L':'.',
-            (h.buttonState()&Qt::MidButton)?'M':'.',
-            (h.buttonState()&Qt::RightButton)?'R':'.');
- */
+
         handler->mouseChanged(newPos, h.buttonState(), h.takeWheel());
         return true;
     } else {
