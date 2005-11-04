@@ -1469,10 +1469,7 @@ void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->winIconSmall = 0;
     extra->topextra->winIconBig = 0;
-    if (!QWidgetBackingStore::paintOnScreen())
-        extra->topextra->backingStore = new QWidgetBackingStore(q_func());
-    else
-        extra->topextra->backingStore = 0;
+    extra->topextra->backingStore = new QWidgetBackingStore(q_func());
 }
 
 void QWidgetPrivate::deleteTLSysExtra()

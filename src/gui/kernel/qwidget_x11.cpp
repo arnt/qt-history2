@@ -2031,7 +2031,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             moveRect(QRect(oldPos, oldSize), x - oldPos.x(), y - oldPos.y());
         }
         setWSGeometry();
-        if (isResize) {
+        if (isResize && q->isVisible()) {
             invalidateBuffer(q->rect()); //after the resize
             QRegion oldRegion(QRect(oldPos, oldSize));
             if (!q->mask().isEmpty())
@@ -2267,11 +2267,7 @@ void QWidgetPrivate::deleteSysExtra()
 void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->iconMask = 0;
-    if (!QWidgetBackingStore::paintOnScreen())
-        extra->topextra->backingStore = new QWidgetBackingStore(q_func());
-    else
-        extra->topextra->backingStore = 0;
-
+    extra->topextra->backingStore = new QWidgetBackingStore(q_func());
     extra->topextra->validWMState = 0;
     extra->topextra->waitingForMapNotify = 0;
 }
