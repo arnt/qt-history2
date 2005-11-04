@@ -20,6 +20,10 @@ Boost
 -----
 Added boost compatible syntax for declaring signals and slots.
 
+Build system
+------------
+Added support for linking static plugins into the application.
+
 ****************************************************************************
 *                                Changes                                   *
 ****************************************************************************
@@ -27,6 +31,7 @@ Added boost compatible syntax for declaring signals and slots.
 Qt Designer
 -----------
 
+- Support for adding comments to string properties.
 
 Qt Linguist
 -----------
@@ -68,6 +73,7 @@ General Fixes
 - QMap/QHash
 	Fixed operator>>() to read back multiple values associated
 	to a same key correctly.
+        Added constFind(), for finding an item without causing a detach.
 
 - QMap/QHash
 	Const-correctness in const_iterator's operator--(int).
@@ -81,6 +87,7 @@ General Fixes
 - QMetaType
         Class is now fully reentrant.
         Metatypes can be registered or queried from multiple threads.
+        Added qMetaTypeId<T>(), which returns the meta type ID of T at compile time.
 
 - QSql
         SQLite was updated to version 3.2.5
@@ -102,6 +109,9 @@ General Fixes
 	Added the class QTextBlockUserData and added the possibility
 	of storing a state or custom user data in a QTextBlock
 
+- QTextFormat
+        Added support for setting the font pixel size.
+
 - QMetaType
 	?? Added enum to QMetaType so you can do compile-time checking
 	whether a type is declared or not 184640
@@ -111,6 +121,7 @@ General Fixes
 	possible to set a widget at a given index.
 
         Added a QAbstractItemView::ContiguousSelection mode.
+        Added scrollToTop() and scrollToBottom().
 
 - QAbstractItemModel
         Added a SizeHintRole that can be set for each item. The item
@@ -150,8 +161,12 @@ General Fixes
 - QStyle
 	Added standardIcon() which returns a default icon for standard
 	operations.
+        Added State_ReadOnly, which is enabled for read-only widgets.
 
 	Renamed QStyleOption::init() to initFrom().
+        - QGroupBox is now completely stylable (QStyleOptionGroupBox)
+        - Indeterminate (busy) progress bars are now animated properly
+          in all styles.
 
 - QHash
         Make it possible to use QHash with a type that has no default
@@ -159,6 +174,7 @@ General Fixes
 
 - QTableView
         Made QTableView::setShowGrid() a slot, like in Qt 3.
+        Added setRowHeight() and setColumnWidth().
 
 - QTableWidgetSelectionRange
         Added rowCount() and columnCount() convenience functions.
@@ -171,6 +187,8 @@ General Fixes
 
 - QTextStream
 	?? Added status(), setStatus() and resetStatus() 189615
+        Added read(qint64 maxlen), for reading parts of a text stream into a
+	QString.
 
 - QTextCursor
 	Added support for BlockUnderCursor selection type.
@@ -183,8 +201,19 @@ General Fixes
 	Added context menu to the scrollbar with default navigation
 	options.
 
+- QScrollArea
+        Added ensureVisible(), which can scroll the scrollarea to make sure a
+        specific point is visible.
+
 - QDate
 	?? Added toString() for QTime and QDate based on the new database 190211
+
+- QDateTime
+        Added addMSecs(), which adds a number of milliseconds to the QDateTime.
+
+- QDateTimeEdit
+        Added support for more date/time formats.
+        Now allows multiple sections of the same type.
 
 - QButtonGroup
 	Added handling of buttons with IDs to the buttongroup like in
@@ -196,11 +225,149 @@ General Fixes
 - QTextEdit
 	Added property tabStopWidth which sets the tab stop width in
 	pixels.
+        append(const QString &) is now a public slot.
+        Added support for inserting unicode control characters through the
+        context menu.
+        Added property acceptRichText, for whether or not the text edit
+        accepts rich text insertions by the user.
 
 - QDataStream
 	Added skipRawData().
+        Added support for QRegExp.
+
+- QProgressBar
+        Added support for vertical progress bars.
+
+- QImageIOHandler
+        The name() function has been obsoleted; use format() instead.
+        Added QImageIOHandler::Animation, for determining if the image format
+        supports animation.
+        Added QImageIOHandler::BackgroundColor, for setting the background
+        color for the image loader.
+
+- QImageReader
+        Added setBackgroundColor() and backgroundColor(), for setting the
+        background color of an image before it is read.
+        Added supportsAnimation(), for checking if the image format supports
+        animation.
+
+- QImageWriter
+        Added support for saving image text.
+
+- QLocale
+        ?? The time / date formats are now accessible 191630
+        Added decimalPoint(), groupSeparator(), percent(), zeroDigit(),
+        negativeSign() and exponential(), which provide a means to generate
+        custom number formatting.
+
+- QHostInfo
+        Added support for reverse name lookups.
+
+- QHostAddress
+        Added a QString assignment operator
+        Added convenience functions for initializing from a native sockaddr
+        structure.
+        Added support for the IPv6 scope-id.
+
+- QPrinter
+        Added property "embedFonts" for embedding fonts into the target
+        document.
+        Added support for printing to PDF.
+
+- QPrintEngine
+        Added PPK_SuppressSystemPrintStatus, for suppressing the printer
+        progress dialog on Mac OS X.
+
+- QKeySequence
+        Added fromString() and toString() for initializing a key sequence
+        from, and exporting a key sequence to a QString.
+
+- QUrl
+        Added the port(int) function, which provides a default value for the
+        port if the URL does not define a port.
+        Support for decoding Punycode encoded hostnames in URLs.
+        Made the parser more tolerant for mistakes, and added a ParsingMode
+        flag for selecting strict or tolerant parsing.
+        Added support for the NAMEPREP standard in our i18n domain name support.
+
+- QDir 
+        Added the filter QDir::NoDotAndDotDot, for the
+        special directories "." and "..".
 
 
+- QAbstractSocket
+        Added slots connectToHostImplementation() and
+        disconnectFromHostImplementation() to provide polymorphic behavior for
+        connectToHost() and disconnectFromHost().
+
+- QMenuBar
+        Added setActiveAction(), which makes the provided action
+        active.
+
+- QProxyModel
+        This class has been obsoleted (see QAbstractProxyModel)
+
+- QWidget
+        Now supports three modes of modality: NonModal, WindowModal and
+        ApplicationModal.
+        Added Qt::WindowModality, obsoleted WA_ShowModal and WA_GroupLeader.
+
+- QHttpResponseHeader
+        Added two constructors and the function setStatusLine() for generating
+        a response header.
+
+- QBitArray
+        Added count(bool), for counting on and off-bits in a bit array.
+
+- QVariant
+        Added support for QRegExp
+
+- QRegExpValidator
+        Added the property "regExp".
+
+- QTabBar
+        Added the property "iconSize", for setting the size of the icons on
+        the tabs.
+
+- QLineEdit
+        Added support for inserting unicode control characters through the
+        context menu.
+
+- QString
+        Added toLong() and toULong().
+
+- QRegion
+        Added translate(), like QRect::translated().
+
+- QProcess
+        Added systemEnvironment(), which returns the environment variables
+        of the calling process.
+        Added exitStatus(), and added a new finished() signal which takes the
+        exit status as a parameter.
+
+- QComboBox
+        Made setCurrentIndex() a slot.
+
+- QFontDataBase
+        Added styleString(), for retrieving the style string from a QFontInfo.
+        Added support for Myanmar fonts.
+
+- QFontMetrics
+        Added xHeight(), which returns the 'X' height of the font.
+
+- QCoreApplication
+        Added arguments(), which returns a list of command line arguments as a
+        QStringList.
+
+- QTcpSocket
+        Added support for SOCKS5 via setProxy().
+
+- QUdpSocket
+        Added property "bindMode", for binding several sockets to the same
+        address and port.
+
+- QPen
+        Support for custom dash pattern styles and milter limits.
 
 New classes
 -----------
@@ -215,13 +382,35 @@ New classes
 - QFilteringProxyModel
 	Allows you to provide a subset of a model to a view.
 
+- QStringFilterModel
+        ??
+
 - QSyntaxHighlighter
         The QSyntaxHighlighter class allows you to define syntax
         highlighting rules.
 
+- QAbstractFileEngine
+        A base class for implementing your own file and directory handling
+        back-end for QFile, QFileInfo and QDir.
+
+- QAbstractFileEngineHandler
+        For registering a QAbstractFileEngine subclass with Qt.
+
+- QFSFileEngine
+        The default file engine for regular file and directory access in Qt.
+
 - ?? Backingstore
 	
 - ?? QGLPbuffer
+
+- ?? QAbstractProxyModel
+
+- ?? QSvgRenderer
+
+- ?? QSvgWidget
+
+- QNetworkProxy
+        For setting up transparent (SOCKS5) networking proxying.
 
 Platform-Specific Issues
 ------------------------
@@ -249,9 +438,14 @@ Tools
 - FreeType
 	Upgraded to FreeType 2.1.10.
 
+- SQLite
+        Upgraded to SQLite 3.2.7
+
+- ?? OpenType ?? 194539
+
 Documentation
 -------------
 
 //depot/qt/main/src
 2005/05/26 - 2005/10/31
-last change: 191129
+last change: 195474
