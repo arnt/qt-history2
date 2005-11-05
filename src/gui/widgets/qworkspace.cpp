@@ -252,7 +252,7 @@ void QWorkspaceTitleBar::mousePressEvent(QMouseEvent *e)
     if (!d->act)
         emit doActivate();
     if (e->button() == Qt::LeftButton) {
-        if (style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, 0) 
+        if (style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, 0)
             && !rect().adjusted(5, 5, -5, 0).contains(e->pos())) {
             // propagate border events to the QWidgetResizeHandler
             e->ignore();
@@ -1940,7 +1940,7 @@ void QWorkspacePrivate::showOperationMenu()
         return;
     Q_ASSERT((active->windowWidget()->windowFlags() & Qt::WindowSystemMenuHint));
     QPoint p;
-    QMenu *popup = active->titlebar->isTool() ? toolPopup : this->popup;
+    QMenu *popup = (active->titlebar && active->titlebar->isTool()) ? toolPopup : this->popup;
     if (q->isRightToLeft()) {
         p = QPoint(active->windowWidget()->mapToGlobal(QPoint(active->windowWidget()->width(),0)));
         p.rx() -= popup->sizeHint().width();
@@ -1958,7 +1958,7 @@ void QWorkspacePrivate::popupOperationMenu(const QPoint&  p)
 {
     if (!active || !active->windowWidget() || !(active->windowWidget()->windowFlags() & Qt::WindowSystemMenuHint))
         return;
-    if ((active->titlebar->isTool()))
+    if (active->titlebar && active->titlebar->isTool())
         toolPopup->popup(p);
     else
         popup->popup(p);
@@ -2164,7 +2164,7 @@ void QWorkspace::cascade()
 
     for (it = d->focus.begin(); it != d->focus.end(); ++it) {
         wc = *it;
-        if (wc->windowWidget()->isVisibleTo(this) && !(wc->titlebar->isTool()))
+        if (wc->windowWidget()->isVisibleTo(this) && !(wc->titlebar && !wc->titlebar->isTool()))
             widgets.append(wc);
     }
 
@@ -2258,7 +2258,7 @@ void QWorkspace::tile()
     while (it != d->windows.end()) {
         c = *it;
         ++it;
-        if (c->iconw || c->windowWidget()->isHidden() || (c->titlebar->isTool()))
+        if (c->iconw || c->windowWidget()->isHidden() || (c->titlebar && c->titlebar->isTool()))
             continue;
         if (!row && !col) {
             w -= c->baseSize().width();
