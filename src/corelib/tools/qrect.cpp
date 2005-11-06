@@ -62,8 +62,8 @@
 
     For historical reasons right() and bottom() deviate from the true
     bottom-right corner of the rectangle.  The right() function
-    returns \e { left() + width() + 1} and the bottom() function
-    returns \e {top() + height() + 1}. The bottom-right green point in
+    returns \e { left() + width() - 1} and the bottom() function
+    returns \e {top() + height() - 1}. The bottom-right green point in
     the diagrams above shows the return coordinates of these
     functions. We recommend that you use x() + width() and y() +
     height() to find the bottom-right corner, and avoid right() and
