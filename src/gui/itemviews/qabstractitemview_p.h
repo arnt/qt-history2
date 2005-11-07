@@ -47,7 +47,9 @@ public:
 
     void init();
 
+    void rowsRemoved(const QModelIndex &parent, int start, int end);
     void columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
+    void columnsRemoved(const QModelIndex &parent, int start, int end);
 
     void fetchMore();
     bool shouldEdit(QAbstractItemView::EditTrigger trigger, const QModelIndex &index);
@@ -109,7 +111,7 @@ public:
     }
 
     inline void executePostedLayout() const {
-        if (layoutPosted) {
+        if (layoutPosted && state != QAbstractItemView::CollapsingState) {
             layoutPosted = false;
             const_cast<QAbstractItemView*>(q_func())->doItemsLayout();
         }

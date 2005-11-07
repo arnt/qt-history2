@@ -1769,7 +1769,8 @@ void QAbstractItemView::keyboardSearch(const QString &search)
     if (!match.isEmpty() && match.at(0).isValid()) {
         selectionModel()->setCurrentIndex(match.at(0),
             (d->selectionMode == SingleSelection
-             ? QItemSelectionModel::SelectionFlags(QItemSelectionModel::ClearAndSelect | d->selectionBehaviorFlags())
+             ? QItemSelectionModel::SelectionFlags(QItemSelectionModel::ClearAndSelect
+                                                   | d->selectionBehaviorFlags())
              : QItemSelectionModel::SelectionFlags(QItemSelectionModel::NoUpdate)));
     }
 }
@@ -1966,6 +1967,8 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int star
 {
     Q_D(QAbstractItemView);
 
+    setState(CollapsingState);
+
     // Ensure one selected item in single selection mode.
     QModelIndex current = currentIndex();
     if (selectionMode() == SingleSelection && current.isValid() &&
@@ -1996,6 +1999,18 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int star
 /*!
     \internal
 
+    This slot is called when rows have been removed. The deleted
+    rows are those under the given \a parent from \a start to \a end
+    inclusive.
+*/
+void QAbstractItemViewPrivate::rowsRemoved(const QModelIndex &, int, int)
+{
+    state = QAbstractItemView::NoState;
+}
+
+/*!
+    \internal
+
     This slot is called when columns are about to be removed. The deleted
     columns are those under the given \a parent from \a start to \a end
     inclusive.
@@ -2003,6 +2018,8 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int star
 void QAbstractItemViewPrivate::columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
     Q_Q(QAbstractItemView);
+
+    state = QAbstractItemView::CollapsingState;
 
     // Ensure one selected item in single selection mode.
     QModelIndex current = q->currentIndex();
@@ -2018,6 +2035,30 @@ void QAbstractItemViewPrivate::columnsAboutToBeRemoved(const QModelIndex &parent
                                               current));
         }
     }
+    
+    // Remove all affected editors; this is more efficient than waiting for updateGeometries() to clean out editors for invalid indexes
+    QMap<QPersistentModelIndex, QWidget*>::iterator it = editors.begin();
+    while (it != editors.end()) {
+        QModelIndex index = it.key();
+        if (index.column() <= start && index.column() >= end && model->parent(index) == parent) {
+            releaseEditor(it.value());
+            it = editors.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+/*!
+    \internal
+
+    This slot is called when columns have been removed. The deleted
+    rows are those under the given \a parent from \a start to \a end
+    inclusive.
+*/
+void QAbstractItemViewPrivate::columnsRemoved(const QModelIndex &, int, int)
+{
+    state = QAbstractItemView::NoState;
 }
 
 /*!
