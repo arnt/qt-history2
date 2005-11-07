@@ -835,10 +835,11 @@ void Configure::dWCE(const char *mark_option, const char *mark, const char *opti
 bool Configure::displayHelp()
 {
     if( dictionary[ "HELP" ] == "yes" ) {
-	desc("Usage: configure [-prefix dir] [-bindir <dir>] [-libdir <dir>]\n"
-	            "[-docdir <dir>] [-headerdir <dir>] [-plugindir <dir>]\n"
-	            "[-datadir <dir>] [-translationdir <dir>]\n"
-                    "[-examplesdir <dir>] [-demosdir <dir>][-buildkey <key>]\n"
+	desc("Usage: configure [-buildkey <key>]\n"
+//	desc("Usage: configure [-prefix dir] [-bindir <dir>] [-libdir <dir>]\n"
+//	            "[-docdir <dir>] [-headerdir <dir>] [-plugindir <dir>]\n"
+//	            "[-datadir <dir>] [-translationdir <dir>]\n"
+//                    "[-examplesdir <dir>] [-demosdir <dir>][-buildkey <key>]\n"
 	            "[-release] [-debug] [-debug-and-release] [-shared] [-static]\n"
 	            "[-no-fast] [-fast] [-no-exceptions] [-exceptions]\n"
 	            "[-no-accessibility] [-accessibility] [-no-rtti] [-rtti]\n"
@@ -855,6 +856,7 @@ bool Configure::displayHelp()
 
         desc("Installation options:\n\n");
 #if !defined(EVAL)
+/*
         desc(" These are optional, but you may specify install directories.\n\n", 0, 1);
 
         desc(                   "-prefix dir",          "This will install everything relative to dir\n(default $QT_INSTALL_PREFIX)\n");
@@ -868,8 +870,9 @@ bool Configure::displayHelp()
 	desc(                   "-plugindir <dir>",     "Plugins will be installed to dir\n(default PREFIX/plugins)");
 	desc(                   "-datadir <dir>",       "Data used by Qt programs will be installed to dir\n(default PREFIX)");
 	desc(                   "-translationdir <dir>","Translations of Qt programs will be installed to dir\n(default PREFIX/translations)\n");
-	desc(                   "-examplesdir <dir>",       "Examples will be installed to dir\n(default PREFIX/examples)");
-	desc(                   "-demosdir <dir>",       "Demos will be installed to dir\n(default PREFIX/demos)");
+	desc(                   "-examplesdir <dir>",   "Examples will be installed to dir\n(default PREFIX/examples)");
+	desc(                   "-demosdir <dir>",      "Demos will be installed to dir\n(default PREFIX/demos)");
+*/
         desc(" You may use these options to turn on strict plugin loading:\n\n", 0, 1);
 
 	desc(                   "-buildkey <key>",      "Build the Qt library and plugins using the specified <key>.  "
