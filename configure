@@ -153,7 +153,13 @@ else
     # one of commercial editions
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
-
+    
+    # fix license file to quote the right side
+    newlicense=`cat $HOME/.qt-license | sed -e 's/=\([^\"]\)/=\"\1/g' -e 's/\([^\"]\)$/\1\"/g' `
+    cat > $HOME/.qt-license-temp <<EOF
+$newlicense
+EOF
+    
     # read in the license file
     if [ -f $HOME/.qt-license ]; then
         . $HOME/.qt-license >/dev/null 2>&1
