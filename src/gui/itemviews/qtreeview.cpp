@@ -782,8 +782,9 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const int right = d->right;
 
     // ### special case: treeviews with multiple columns draw the selections differently than with only one column
-    opt.showDecorationSelected = (right > left) || option.showDecorationSelected;
-
+    opt.showDecorationSelected = (d->selectionBehavior & SelectRows)
+                                 || option.showDecorationSelected;
+    
     int width, height = option.rect.height();
     int position;
     int headerSection;
