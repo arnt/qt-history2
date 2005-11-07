@@ -84,28 +84,40 @@ IProperty *QPropertyEditor::initialInput() const
 
 void QPropertyEditor::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const
 {
+    // designer figts the style it uses. :(
+    static bool mac_style
+                = QApplication::style()->inherits("QMacStyle");
+    static const int windows_deco_size = 9;
+
     QStyleOptionViewItem opt = viewOptions();
-    QStyleOptionViewItem option = opt;
 
     IProperty *property = static_cast<const QPropertyEditorModel*>(model())->privateData(index);
     if (index.column() == 0 && property && property->changed()) {
-        option.font.setBold(true);
+        opt.font.setBold(true);
     }
 
     if (property && property->isSeparator()) {
-        painter->fillRect(rect, option.palette.dark());
+        painter->fillRect(rect, opt.palette.dark());
     } else if (selectionModel()->isSelected(index)) {
-        painter->fillRect(rect, option.palette.brush(QPalette::Highlight));
+        painter->fillRect(rect, opt.palette.brush(QPalette::Highlight));
     }
 
     if (model()->hasChildren(index)) {
-        static const int size = 9;
         opt.state |= QStyle::State_Children;
-        opt.rect.setRect(rect.width() - (indentation() + size) / 2,
-                         rect.y() + (rect.height() - size) / 2, size, size);
+
+        QRect primitive(rect.left(), rect.top(), indentation(), rect.height());
+
+        if (!mac_style) {
+            primitive.moveLeft(primitive.left() + (primitive.width() - windows_deco_size)/2);
+            primitive.moveTop(primitive.top() + (primitive.height() - windows_deco_size)/2);
+            primitive.setWidth(windows_deco_size);
+            primitive.setHeight(windows_deco_size);
+        }
+
+        opt.rect = primitive;
+
         if (isExpanded(index))
             opt.state |= QStyle::State_Open;
-        painter->fillRect(opt.rect, Qt::white);
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
     painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom());

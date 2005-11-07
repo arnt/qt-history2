@@ -63,22 +63,44 @@ TreeWidget::~TreeWidget()
 {
 }
 
+static int level(QAbstractItemModel *model, const QModelIndex &index)
+{
+    int result = 0;
+    QModelIndex parent = model->parent(index);
+    while (parent.isValid()) {
+        parent = model->parent(parent);
+        ++result;
+    }
+    return result;
+}
+
 void TreeWidget::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const
 {
+    // designer figts the style it uses. :(
+    static bool mac_style 
+        = QApplication::style()->inherits("QMacStyle");
+    static const int windows_deco_size = 9;
+
     QStyleOptionViewItem option = viewOptions();
 
-    if (selectionModel()->isSelected(index))
-        painter->fillRect(rect, option.palette.brush(QPalette::Highlight));
     if (model()->hasChildren(index)) {
-        static const int size = 9;
         option.state |= QStyle::State_Children;
-        option.rect.setRect(rect.left() + rect.width() - (indentation() + size) / 2,
-                            rect.y() + (rect.height() - size) / 2, size, size);
+
+        int indent = level(model(), index)*indentation();
+        QRect primitive(rect.left() + indent - 2, rect.top(), indentation(), rect.height());
+
+        if (!mac_style) {
+            primitive.moveLeft(primitive.left() + (primitive.width() - windows_deco_size)/2);
+            primitive.moveTop(primitive.top() + (primitive.height() - windows_deco_size)/2);
+            primitive.setWidth(windows_deco_size);
+            primitive.setHeight(windows_deco_size);
+        }
+
+        option.rect = primitive;
 
         if (isExpanded(index))
             option.state |= QStyle::State_Open;
 
-        painter->fillRect(option.rect, Qt::white);
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &option, painter, this);
     }
     painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom());
