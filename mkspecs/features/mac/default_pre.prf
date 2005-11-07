@@ -1,3 +1,3 @@
-CONFIG = sdk $$CONFIG
+CONFIG = sdk rez $$CONFIG
 load(default_pre)
 
