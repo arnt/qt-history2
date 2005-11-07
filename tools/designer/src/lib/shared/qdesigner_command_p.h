@@ -936,7 +936,7 @@ class QDESIGNER_SHARED_EXPORT InsertActionIntoCommand : public QDesignerFormWind
 public:
     InsertActionIntoCommand(QDesignerFormWindowInterface *formWindow);
 
-    void init(QWidget *parentWidget, QAction *action, QAction *beforeAction);
+    void init(QWidget *parentWidget, QAction *action, QAction *beforeAction, bool update = true);
     virtual void redo();
     virtual void undo();
 
@@ -944,6 +944,7 @@ private:
     QWidget *m_parentWidget;
     QAction *m_action;
     QAction *m_beforeAction;
+    bool m_update;
 };
 
 class QDESIGNER_SHARED_EXPORT RemoveActionFromCommand : public QDesignerFormWindowCommand
@@ -952,7 +953,7 @@ class QDESIGNER_SHARED_EXPORT RemoveActionFromCommand : public QDesignerFormWind
 public:
     RemoveActionFromCommand(QDesignerFormWindowInterface *formWindow);
 
-    void init(QWidget *parentWidget, QAction *action, QAction *beforeAction);
+    void init(QWidget *parentWidget, QAction *action, QAction *beforeAction, bool update = true);
     virtual void redo();
     virtual void undo();
 
@@ -960,6 +961,7 @@ private:
     QWidget *m_parentWidget;
     QAction *m_action;
     QAction *m_beforeAction;
+    bool m_update;
 };
 
 class QDESIGNER_SHARED_EXPORT AddMenuActionCommand : public QDesignerFormWindowCommand

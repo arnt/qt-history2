@@ -2332,7 +2332,7 @@ InsertActionIntoCommand::InsertActionIntoCommand(QDesignerFormWindowInterface *f
 }
 
 void InsertActionIntoCommand::init(QWidget *parentWidget, QAction *action,
-            QAction *beforeAction)
+            QAction *beforeAction, bool update)
 {
     Q_ASSERT(m_parentWidget == 0);
     Q_ASSERT(m_action == 0);
@@ -2340,6 +2340,7 @@ void InsertActionIntoCommand::init(QWidget *parentWidget, QAction *action,
     m_parentWidget = parentWidget;
     m_action = action;
     m_beforeAction = beforeAction;
+    m_update = update;
 }
 
 void InsertActionIntoCommand::redo()
@@ -2348,9 +2349,12 @@ void InsertActionIntoCommand::redo()
     Q_ASSERT(m_parentWidget != 0);
 
     m_parentWidget->insertAction(m_beforeAction, m_action);
-    core()->propertyEditor()->setObject(m_action);
-    m_parentWidget->adjustSize();
-    cheapUpdate();
+
+    if (m_update) {
+        m_parentWidget->adjustSize();
+        core()->propertyEditor()->setObject(m_action);
+        cheapUpdate();
+    }
 }
 
 void InsertActionIntoCommand::undo()
@@ -2360,10 +2364,14 @@ void InsertActionIntoCommand::undo()
 
     if (QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(m_parentWidget))
         menu->hideSubMenu();
+
     m_parentWidget->removeAction(m_action);
-    m_parentWidget->adjustSize();
-    core()->propertyEditor()->setObject(m_parentWidget);
-    cheapUpdate();
+
+    if (m_update) {
+        m_parentWidget->adjustSize();
+        core()->propertyEditor()->setObject(m_parentWidget);
+        cheapUpdate();
+    }
 }
 
 // ---- RemoveActionFromCommand ----
@@ -2375,7 +2383,7 @@ RemoveActionFromCommand::RemoveActionFromCommand(QDesignerFormWindowInterface *f
 }
 
 void RemoveActionFromCommand::init(QWidget *parentWidget, QAction *action,
-            QAction *beforeAction)
+            QAction *beforeAction, bool update)
 {
     Q_ASSERT(m_parentWidget == 0);
     Q_ASSERT(m_action == 0);
@@ -2383,6 +2391,7 @@ void RemoveActionFromCommand::init(QWidget *parentWidget, QAction *action,
     m_parentWidget = parentWidget;
     m_action = action;
     m_beforeAction = beforeAction;
+    m_update = update;
 }
 
 void RemoveActionFromCommand::redo()
@@ -2393,10 +2402,12 @@ void RemoveActionFromCommand::redo()
     if (QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(m_parentWidget))
         menu->hideSubMenu();
     m_parentWidget->removeAction(m_action);
-    m_parentWidget->adjustSize();
 
-    core()->propertyEditor()->setObject(m_parentWidget);
-    cheapUpdate();
+    if (m_update) {
+        m_parentWidget->adjustSize();
+        core()->propertyEditor()->setObject(m_parentWidget);
+        cheapUpdate();
+    }
 }
 
 void RemoveActionFromCommand::undo()
@@ -2405,9 +2416,12 @@ void RemoveActionFromCommand::undo()
     Q_ASSERT(m_parentWidget != 0);
 
     m_parentWidget->insertAction(m_beforeAction, m_action);
-    m_parentWidget->adjustSize();
-    core()->propertyEditor()->setObject(m_action);
-    cheapUpdate();
+
+    if (m_update) {
+        m_parentWidget->adjustSize();
+        core()->propertyEditor()->setObject(m_action);
+        cheapUpdate();
+    }
 }
 
 // ---- AddMenuActionCommand ----

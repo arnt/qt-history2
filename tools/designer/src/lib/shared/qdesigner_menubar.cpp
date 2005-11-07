@@ -853,21 +853,21 @@ bool QDesignerMenuBar::swap(int a, int b)
     QAction *action_b_before = safeActionAt(right + 1);
 
     RemoveActionFromCommand *cmd1 = new RemoveActionFromCommand(formWindow());
-    cmd1->init(this, action_b, action_b_before);
+    cmd1->init(this, action_b, action_b_before, false);
     formWindow()->commandHistory()->push(cmd1);
 
     QAction *action_a_before = safeActionAt(left + 1);
 
     InsertActionIntoCommand *cmd2 = new InsertActionIntoCommand(formWindow());
-    cmd2->init(this, action_b, action_a_before);
+    cmd2->init(this, action_b, action_a_before, false);
     formWindow()->commandHistory()->push(cmd2);
 
     RemoveActionFromCommand *cmd3 = new RemoveActionFromCommand(formWindow());
-    cmd3->init(this, action_a, action_b);
+    cmd3->init(this, action_a, action_b, false);
     formWindow()->commandHistory()->push(cmd3);
 
     InsertActionIntoCommand *cmd4 = new InsertActionIntoCommand(formWindow());
-    cmd4->init(this, action_a, action_b_before);
+    cmd4->init(this, action_a, action_b_before, true);
     formWindow()->commandHistory()->push(cmd4);
 
     formWindow()->endCommand();
