@@ -1725,7 +1725,7 @@ bool QMetaProperty::write(QObject *object, const QVariant &value) const
 */
 bool QMetaProperty::reset(QObject *object) const
 {
-    if (!object || !mobj || !isResetable())
+    if (!object || !mobj || !isResettable())
         return false;
     void *argv[] = { 0 };
     object->qt_metacall(QMetaObject::ResetProperty, idx + mobj->propertyOffset(), argv);
@@ -1733,7 +1733,7 @@ bool QMetaProperty::reset(QObject *object) const
 }
 
 
-bool QMetaProperty::isResetable() const
+bool QMetaProperty::isResettable() const
 {
     if (!mobj)
         return false;

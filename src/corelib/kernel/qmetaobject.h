@@ -84,7 +84,7 @@ public:
 
     bool isReadable() const;
     bool isWritable() const;
-    bool isResetable() const;
+    bool isResettable() const;
     bool isDesignable(const QObject *obj = 0) const;
     bool isScriptable(const QObject *obj = 0) const;
     bool isStored(const QObject *obj = 0) const;
