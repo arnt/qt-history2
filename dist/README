@@ -15,6 +15,11 @@ On Windows and Mac OS X, if you want to install the precompiled binary
 packages, simply launch the package and follow the instructions in the
 installation wizard.
 
+On Mac OS X, the binary package requires Mac OS X 10.4.x (Tiger) and GCC 4.0 to
+develop applications. Its applications will run on Mac OS X 10.3.9 and above. If
+you develop with another compiler/version of OS X, please use the source package
+instead.
+
 If you have a source package (a .tar.gz, .tar.bz2, or .zip file),
 follow the instructions in the INSTALL file.
 
