@@ -252,8 +252,14 @@ bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
     return true;
 }
 
-bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
+bool QDesignerMenu::handleMousePressEvent(QWidget *widget, QMouseEvent *event)
 {
+    if (!rect().contains(event->pos())) {
+        // reply the event?
+        deactivateMenu();
+        return true;
+    }
+
     m_showSubMenuTimer->stop();
     m_startPosition = QPoint();
     event->accept();
@@ -267,7 +273,17 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
     if (index >= actions().count() - 1)
         return true;
 
-    hideSubMenu();
+    QAction *action = safeActionAt(index);
+    if (action && index == m_currentIndex) {
+        if (m_lastSubMenuIndex != m_currentIndex)
+            slotShowSubMenuNow();
+        else {
+            hideSubMenu();
+        }
+    } else {
+        hideSubMenu();
+    }
+
     m_currentIndex = index;
     updateCurrentAction();
 
@@ -280,10 +296,7 @@ bool QDesignerMenu::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 
     m_startPosition = QPoint();
 
-    m_currentIndex = findAction(event->pos());
     QAction *action = safeActionAt(m_currentIndex);
-    if (action != 0)
-        slotShowSubMenuNow();
 
     return true;
 }
@@ -795,12 +808,18 @@ void QDesignerMenu::slotShowSubMenuNow()
         return;
 
     if (QMenu *menu = findOrCreateSubMenu(action)) {
-        menu->setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
-        menu->adjustSize();
-        QRect g = actionGeometry(action);
-        menu->move(mapToGlobal(g.topRight()));
-        menu->show();
+        if (!menu->isVisible()) {
+            menu->setWindowFlags(Qt::Popup); // Qt::FramelessWindowHint | Qt::Window);
+            menu->adjustSize();
+            QRect g = actionGeometry(action);
+            menu->move(mapToGlobal(g.topRight()));
+            menu->show();
+            menu->setFocus();
+        } else {
+            menu->raise();
+        }
         menu->setFocus();
+
         m_lastSubMenuIndex = m_currentIndex;
     }
 }
@@ -809,7 +828,7 @@ void QDesignerMenu::showSubMenu(QAction *action)
 {
     m_showSubMenuTimer->stop();
 
-    if (!action || qobject_cast<SpecialMenuAction*>(action)
+    if (m_editor->isVisible() || !action || qobject_cast<SpecialMenuAction*>(action)
             || action->isSeparator() || !isVisible())
         return;
 
@@ -863,6 +882,7 @@ void QDesignerMenu::enterEditMode()
     if (m_currentIndex >= 0 && m_currentIndex <= realActionCount()) {
         showLineEdit();
     } else {
+        hideSubMenu();
         formWindow()->beginCommand(tr("Add separator"));
         QAction *sep = createAction(QString(), true);
 
@@ -924,6 +944,8 @@ QAction *QDesignerMenu::safeMenuAction(QDesignerMenu *menu) const
 
 void QDesignerMenu::showLineEdit()
 {
+    m_showSubMenuTimer->stop();
+
     QAction *action = 0;
 
     if (m_currentIndex < realActionCount())
@@ -935,6 +957,8 @@ void QDesignerMenu::showLineEdit()
         return;
 
     // open edit field for item name
+    setFocus();
+
     m_editor->setText(action->text());
     m_editor->selectAll();
     m_editor->setGeometry(actionGeometry(action));

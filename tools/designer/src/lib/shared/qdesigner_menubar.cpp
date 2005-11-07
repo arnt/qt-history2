@@ -800,19 +800,24 @@ void QDesignerMenuBar::showMenu(int index)
     QAction *action = currentAction();
 
     if (action && action->menu()) {
-        if (m_lastMenuActionIndex != -1 && m_lastMenuActionIndex != index)
+        if (m_lastMenuActionIndex != -1 && m_lastMenuActionIndex != index) {
             hideMenu(m_lastMenuActionIndex);
+        }
 
         m_lastMenuActionIndex = index;
         QMenu *menu = action->menu();
         QRect g = actionGeometry(action);
 
-        menu->setWindowFlags(Qt::FramelessWindowHint | Qt::Window); // ### check me
-        menu->adjustSize();
-        menu->move(mapToGlobal(g.bottomLeft()));
-        menu->setFocus(Qt::MouseFocusReason);
-        menu->raise();
-        menu->show();
+        if (!menu->isVisible()) {
+            menu->setWindowFlags(Qt::Popup); //Qt::FramelessWindowHint | Qt::Window); // ### check me
+            menu->adjustSize();
+            menu->move(mapToGlobal(g.bottomLeft()));
+            menu->setFocus(Qt::MouseFocusReason);
+            menu->raise();
+            menu->show();
+        } else {
+            menu->raise();
+        }
     }
 }
 
