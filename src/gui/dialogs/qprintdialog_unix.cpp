@@ -824,12 +824,14 @@ static void parseQconfig(QList<QPrinterDescription> *printers)
 static char *parseCupsOutput(QList<QPrinterDescription> *printers)
 {
     char *defaultPrinter = 0;
+#ifndef QT_NO_LIBRARY
     int nd;
     cups_dest_t *d;
-#ifndef QT_NO_LIBRARY
     QLibrary lib("cups", 2);
     typedef int (*CupsGetDests)(cups_dest_t **dests);
+    typedef void (*CupsFreeDests)(int, cups_dest_t *);
     CupsGetDests _cupsGetDests = (CupsGetDests)lib.resolve("cupsGetDests");
+    CupsFreeDests _cupsFreeDests = (CupsFreeDests)lib.resolve("cupsFreeDests");
     if (_cupsGetDests) {
         nd = _cupsGetDests(&d);
         if (nd < 1)
@@ -843,6 +845,9 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
                 defaultPrinter = qstrdup(d[n].instance);
             n++;
         }
+
+        if (_cupsFreeDests)
+            _cupsFreeDests(nd, d);
     }
 #endif
     return defaultPrinter;
