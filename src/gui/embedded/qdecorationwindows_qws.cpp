@@ -184,6 +184,9 @@ QRegion QDecorationWindows::region(const QWidget *widget, const QRect &rect, int
     bool hasMinimize = flags & Qt::WindowMinimizeButtonHint;
     bool hasMaximize = flags & Qt::WindowMaximizeButtonHint;
     int titleHeight = hasTitle ? 20 : 0;
+    int state = widget->windowState();
+    bool isMinimized = state & Qt::WindowMinimized;
+    bool isMaximized = state & Qt::WindowMaximized;
 
     QRegion region;
     switch (type) {
@@ -226,7 +229,7 @@ QRegion QDecorationWindows::region(const QWidget *widget, const QRect &rect, int
             break;
 
         case Minimize: {
-                if (hasMinimize) {
+                if (hasMinimize && !isMinimized) {
                     QRect r(rect.right() - close_width
                             - (hasMaximize ? maximize_width : 0)
                             - minimize_width - 3, rect.top() - titleHeight,
@@ -237,9 +240,25 @@ QRegion QDecorationWindows::region(const QWidget *widget, const QRect &rect, int
             }
             break;
 
-        case Normalize:
         case Maximize: {
-                if (hasMaximize) {
+                if (hasMaximize && !isMaximized) {
+                    QRect r(rect.right() - close_width - maximize_width - 3,
+                            rect.top() - titleHeight, maximize_width, titleHeight);
+                    if (r.left() > rect.left() + titleHeight)
+                        region = r;
+                }
+            }
+            break;
+
+        case Normalize: {
+                if (hasMinimize && isMinimized) {
+                    QRect r(rect.right() - close_width
+                            - (hasMaximize ? maximize_width : 0)
+                            - minimize_width - 3, rect.top() - titleHeight,
+                            minimize_width, titleHeight);
+                    if (r.left() > rect.left() + titleHeight)
+                        region = r;
+                } else if (hasMaximize && isMaximized) {
                     QRect r(rect.right() - close_width - maximize_width - 3,
                             rect.top() - titleHeight, maximize_width, titleHeight);
                     if (r.left() > rect.left() + titleHeight)

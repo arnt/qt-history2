@@ -313,6 +313,9 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
     bool hasContextHelp = flags & Qt::WindowContextHelpButtonHint;
     bool hasMinimize = flags & Qt::WindowMinimizeButtonHint;
     bool hasMaximize = flags & Qt::WindowMaximizeButtonHint;
+    int state = widget->windowState();
+    bool isMinimized = state & Qt::WindowMinimized;
+    bool isMaximized = state & Qt::WindowMaximized;
 
     int titleHeight = hasTitle ? titleBarHeight(widget) : 0;
     int bw = hasBorder ? BORDER_WIDTH : 0;
@@ -465,7 +468,7 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
 
 
         case Minimize: {
-                if (hasMinimize) {
+                if (hasMinimize && !isMinimized) {
                     QRect r(rect.right() - close_width
                             - (hasMaximize ? maximize_width : 0)
                             - minimize_width + 1, rect.top() - titleHeight,
@@ -476,9 +479,25 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
             }
             break;
 
-        case Normalize:
         case Maximize: {
-                if (hasMaximize) {
+                if (hasMaximize && !isMaximized) {
+                    QRect r(rect.right() - close_width - maximize_width + 1,
+                            rect.top() - titleHeight, maximize_width, titleHeight);
+                    if (r.left() > rect.left() + titleHeight)
+                        region = r;
+                }
+            }
+            break;
+
+        case Normalize: {
+                if (hasMinimize && isMinimized) {
+                    QRect r(rect.right() - close_width
+                            - (hasMaximize ? maximize_width : 0)
+                            - minimize_width + 1, rect.top() - titleHeight,
+                            minimize_width, titleHeight);
+                    if (r.left() > rect.left() + titleHeight)
+                        region = r;
+                } else if (hasMaximize && isMaximized) {
                     QRect r(rect.right() - close_width - maximize_width + 1,
                             rect.top() - titleHeight, maximize_width, titleHeight);
                     if (r.left() > rect.left() + titleHeight)

@@ -131,13 +131,13 @@ int QDecoration::regionAt(const QWidget *w, const QPoint &point)
 {
     int regions[] = {
         TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight, // Borders first
-        Menu, Title, Help, Minimize, Maximize, Close,                         // then buttons
+        Menu, Title, Help, Minimize, Normalize, Maximize, Close,                         // then buttons
         None
     };
 
 //     char *regions_str[] = {
 //         "TopLeft", "Top", "TopRight", "Left", "Right", "BottomLeft", "Bottom", "BottomRight",
-//         "Menu", "Title", "Help", "Minimize", "Maximize", "Close",
+//         "Menu", "Title", "Help", "Minimize", "Normalize", "Maximize", "Close",
 //         "None"
 //     };
 
@@ -199,31 +199,33 @@ void QDecoration::menuTriggered(QWidget *widget, QAction *action)
 */
 void QDecoration::regionClicked(QWidget *widget, int reg)
 {
-    switch(reg)
-    {
-        case Move:
-            startMove(widget);
-            break;
-        case Resize:
-            startResize(widget);
-            break;
-        case Help:
+    switch(reg) {
+    case Move:
+        startMove(widget);
+        break;
+    case Resize:
+        startResize(widget);
+        break;
+    case Help:
 #ifndef QT_NO_WHATSTHIS
-            if (QWhatsThis::inWhatsThisMode())
-                QWhatsThis::leaveWhatsThisMode();
-            else
-                QWhatsThis::enterWhatsThisMode();
+        if (QWhatsThis::inWhatsThisMode())
+            QWhatsThis::leaveWhatsThisMode();
+        else
+            QWhatsThis::enterWhatsThisMode();
 #endif
-            break;
-        case Close:
-            widget->close();
-            break;
-        case Maximize:
-            if (widget->windowState() & Qt::WindowMaximized)
-                widget->showNormal();
-            else
-                widget->showMaximized();
-            break;
+        break;
+    case Close:
+        widget->close();
+        break;
+    case Normalize:
+        widget->showNormal();
+        break;
+    case Maximize:
+        if (widget->windowState() & Qt::WindowMaximized)
+            widget->showNormal();
+        else
+            widget->showMaximized();
+        break;
     }
 }
 
