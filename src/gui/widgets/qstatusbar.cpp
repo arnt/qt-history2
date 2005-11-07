@@ -178,9 +178,9 @@ QStatusBar::~QStatusBar()
     Adds \a widget to this status bar. \a widget is reparented if it
     isn't already a child of the QStatusBar.
 
-    The widget is located just to the left of the first permanent
-    widget (see addPermanentWidget()) and may be obscured by
-    temporary messages.
+    The widget is located to the far left of the first permanent
+    widget (see addPermanentWidget()) and may be obscured by temporary
+    messages.
 
     \a stretch is used to compute a suitable size for \a widget as the
     status bar grows and shrinks. The default of 0 uses a minimum of
