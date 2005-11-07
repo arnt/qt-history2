@@ -1743,6 +1743,7 @@
     \page model-view-dnd.html
     \contentspage model-view-programming.html Contents
     \previouspage Item View Convenience Classes
+    \nextpage Proxy Models
 
     \title Using Drag and Drop with Item Views
 
@@ -1943,4 +1944,113 @@
     QAbstractItemModel::insertRows() and QAbstractItemModel::setData() functions.
 
     \sa {Item Views Puzzle Example}
+*/
+
+/*!
+    \page model-view-proxy-models.html
+    \contentspage model-view-programming.html Contents
+    \previouspage Using Drag and Drop with Item Views
+
+    \title Proxy Models
+
+    \tableofcontents
+
+    \section1 Overview
+
+    In the model/view framework, items of data supplied by a single model can be shared
+    by any number of views, and each of these can possibly represent the same information
+    in completely different ways.
+    Custom views and delegates are effective ways to provide radically different
+    representations of the same data. However, applications often need to provide
+    conventional views onto processed versions of the same data, such as differently-sorted
+    views onto a list of items.
+
+    Although it seems appropriate to perform sorting and filtering operations as internal
+    functions of views, this approach does not allow multiple views to share the results
+    of such potentially costly operations. The alternative approach, involving sorting
+    within the model itself, leads to the similar problem where each view has to display
+    items of data that are organized according to the most recent processing operation.
+
+    To solve this problem, the model/view framework uses proxy models to manage the
+    information supplied between individual models and views. Proxy models are components
+    that behave like ordinary models from the perspective of a view, and access data from
+    source models on behalf of that view. The signals and slots used by the model/view
+    framework ensure that each view is updated appropriately no matter how many proxy models
+    are placed between itself and the source model.
+
+    \section1 Using Proxy Models
+
+    Proxy models can be inserted between an existing model and any number of views.
+    Qt is supplied with standard proxy models, such as QFilteringProxyModel or
+    QSortingProxyModel, that can be subclassed to filter and sort items obtained from
+    the source model. The QStringFilterModel class provides a ready-made proxy model
+    for filtering textual data, and can be used in the following way:
+
+    \quotefromfile snippets/qstringfiltermodel
+    \skipto QStringFilterModel
+    \printuntil setSourceModel
+    \skipto filteredView
+    \printuntil setModel
+
+    Since proxy models are inherit from QAbstractItemModel, they can be connected to
+    any kind of view, and can be shared between views. They can be also be used to
+    process the information obtained from other proxy models in a pipeline arrangement.
+
+    The QSortingProxyModel and QStringFilterModel classes are designed to be instantiated
+    and used directly in applications. More specialized proxy models can be created by
+    subclassing the most appropriate base classes and implementing the required logic
+    for filtering, sorting, or any other types of processing operation.
+
+    \section1 Customizing Proxy Models
+
+    Generally, the type of processing used in a proxy model involves mapping each item of
+    data from its original location in the source model to either a different location in
+    the proxy model. In some models, some items may have no corresponding location in the
+    proxy model; these models are \e filtering proxy models. Views access items using
+    model indexes provided by the proxy model, and these contain no information about the
+    source model or the locations of the original items in that model.
+
+    The QMappingProxyModel provides the infrastructure for index-mapping proxy models,
+    and is subclassed to provide models for two common types of mapping operation:
+    QFilteringProxyModel enables data from a source model to be filtered before being
+    supplied to views, and QSortingProxyModel allows the contents of a source model to
+    be supplied to views as pre-sorted data.
+
+    \section2 Custom Filtering Models
+
+    The QStringFilterModel class provides a filtering model that is fairly versatile, and
+    which can be used in a variety of common situations. However, it is expected that
+    developers will want to create new filtering models. As a result, QFilteringProxyModel
+    is designed to be subclassed, and provides a mechanism that enables custom
+    filters to be implemented.
+
+    Subclasses of QFilteringProxyModel should implement two virtual functions that are
+    called whenever a model index from the proxy model is requested or used:
+
+    \list
+    \o \l{QFilteringProxyModel::filterColumn()}{filterColumn()} is used to filter specific
+       columns from part of the source model.
+    \o \l{QFilteringProxyModel::filterRow()}{filterRow()} is used to filter specific
+       rows from part of the source model.
+    \endlist
+
+    The default implementations of the above functions in QFilteringProxyModel
+    return false to disable filtering; reimplementations of these functions return true
+    to filter out rows and columns.
+
+    \section2 Custom Sorting Models
+
+    Unlike QFilteringProxyModel, the QSortingProxyModel class is designed to be extended
+    rather than subclassed, although it is still possible to use a subclassing approach to
+    create new sorting models.
+
+    QSortingProxyModel instances use Qt's built-in qSort() function to set up mappings
+    between items in the source model and those in the proxy model, allowing a sorted
+    hierarchy of items to be exposed to views without modifying the structure of the
+    source model. qSort() can be used with custom comparison functions, and
+    QSortingProxyModel exposes this functionality via the
+    \l{QSortingProxyModel::setLessThan()}{setLessThan()} and
+    \l{QSortingProxyModel::setGreaterThan()}{setGreaterThan()} functions. The comparison
+    functions specified to setLessThan() and setGreaterThan() are used to sort items of
+    data in ascending and descending order respectively.
 */
