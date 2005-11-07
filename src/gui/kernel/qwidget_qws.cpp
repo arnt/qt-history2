@@ -1056,14 +1056,21 @@ void QWidget::setMask(const QRegion& region)
 
     if (isVisible()) {
         if (isWindow()) {
-            QRegion rgn = d->localRequestedRegion();
-            rgn.translate(geometry().topLeft());
+            QTLWExtra *topextra = d->extra->topextra;
+            QRegion myregion = d->localRequestedRegion();
+            myregion.translate(geometry().topLeft());
+            if (topextra) {
 #ifndef QT_NO_QWS_MANAGER
-            if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager) {
-                rgn += d->extra->topextra->qwsManager->region();
-            }
+                if (topextra->qwsManager)
+                    myregion += topextra->qwsManager->region();
 #endif
-//####            d->requestWindowRegion(rgn);
+                QRect br(myregion.boundingRect());
+                topextra->fleft = d->data.crect.x()-br.x();
+                topextra->ftop = d->data.crect.y()-br.y();
+                topextra->fright = br.right()-d->data.crect.right();
+                topextra->fbottom = br.bottom()-d->data.crect.bottom();
+            }
+            d->invalidateBuffer(rect());
         } else {
             update(); //@@@ ??? should do parent update of oldmask | newmask ....
         }
