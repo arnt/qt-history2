@@ -1814,15 +1814,15 @@ without having to write code themselves.
     \title Creating Custom Widgets for Qt Designer
 
     \QD's plugin-based architecture allows user-defined and third party custom
-    widgets to be edited in the same way as standard Qt widgets. All the
-features    of the custom widgets are made available to \QD, including
-widget    properties, signals, and slots. Since \QD uses real widgets during the
-form    design process, custom widgets will appear the same as they do when
-previewed.
+    widgets to be edited in the same way as standard Qt widgets. All the features
+    of the custom widgets are made available to \QD, including widget properties,
+    signals, and slots. Since \QD uses real widgets during the form design process,
+    custom widgets will appear the same as they do when previewed.
+
     \image worldtimeclockplugin-example.png
 
     The ability to create custom widgets in \QD is one of the features provided
-by    the \l QtDesigner module.
+    by the \l QtDesigner module.
 
     \tableofcontents
 
@@ -1830,7 +1830,7 @@ by    the \l QtDesigner module.
 
     The process of integrating an existing custom widget with \QD usually
     just requires a suitable description for the widget and an appropriate
-project    file.
+    project file.
 
     \section1 Providing an Interface Description
 
@@ -1869,7 +1869,7 @@ project    file.
             with the parent supplied.
     \row \o \c domXml()
          \o A description of the widget's properties, such as its object
-name, size hint, and other standard QWidget properties.
+            name, size hint, and other standard QWidget properties.
     \row \o \c codeTemplate()
          \o The default code to be used to construct and set up the widget in
             \c{uic}-generated files.
@@ -1890,9 +1890,9 @@ name, size hint, and other standard QWidget properties.
     \endtable
 
     If the custom widget does not provide a reasonable size hint, it is necessary
-    to specify a default geometry in the string returned by the \c
-    domXml() function    in your subclass. For example, the \c AnalogClockPlugin
-    provided by the    \l{designer/customwidgetplugin}{Custom Widget} example,
+    to specify a default geometry in the string returned by the \c domXml() function
+    in your subclass. For example, the \c AnalogClockPlugin
+    provided by the \l{designer/customwidgetplugin}{Custom Widget Plugin} example,
     defines a default widgetgeometry in the following way:
 
     \quotefromfile designer/customwidgetplugin/customwidgetplugin.cpp
@@ -1920,7 +1920,7 @@ name, size hint, and other standard QWidget properties.
     any calls to createWidget() and could perhaps set an internal flag that can be
     tested later when \QD calls the plugin's createWidget() function.
 
-    \section1 Building The Plugin
+    \section1 Building and Installing the Plugin
 
     The project file for a plugin must specify the headers and sources for both
     the custom widget and the plugin interface. Typically, the project file only
@@ -1931,11 +1931,6 @@ name, size hint, and other standard QWidget properties.
     \quotefromfile designer/customwidgetplugin/customwidgetplugin.pro
     \skipto CONFIG
     \printuntil TEMPLATE
-
-    It is also useful for testing purposes to ensure that the plugin is
-    installed alongside the other \QD widget plugins:
-
-    \printuntil DESTDIR
 
     When Qt is configured to build in both debug and release modes, \QD will be
     built in release mode. When this occurs, it is necessary to ensure that
@@ -1949,6 +1944,17 @@ name, size hint, and other standard QWidget properties.
     If plugins are built in a mode that is incompatible with \QD, they won't be
     loaded and installed. For more information about plugins, see the
     \l{plugins-howto.html}{Plugins HOWTO} document.
+
+    It is also necessary to ensure that the plugin is installed alongside the other
+    \QD widget plugins:
+
+    \code
+        target.path = $$[QT_INSTALL_PLUGINS]/designer
+        INSTALLS += target
+    \endcode
+
+    The \c $[QT_INSTALL_PLUGINS] variable is a placeholder to the location of the
+    installed Qt plugins.
 
     \section1 Related Examples
 

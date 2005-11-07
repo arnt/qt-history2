@@ -2944,7 +2944,8 @@
     plugins if the following declaration is made in its project file:
 
     \code
-        DESTDIR = $$[QT_INSTALL_PLUGINS]/designer
+        target.path = $$[QT_INSTALL_PLUGINS]/designer
+        INSTALLS += target
     \endcode
 
     \target VariableProcessingFunctions

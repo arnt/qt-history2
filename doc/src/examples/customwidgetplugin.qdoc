@@ -23,7 +23,7 @@
 
     \quotefromfile designer/customwidgetplugin/customwidgetplugin.pro
     \skipto CONFIG
-    \printuntil DESTDIR
+    \printuntil TEMPLATE
 
     The header and source files for the widget are declared in the usual way,
     and we provide an implementation of the plugin interface so that \QD can
@@ -32,9 +32,18 @@
     \skipto HEADERS
     \printuntil customwidgetplugin.cpp
 
+    It is important to ensure that the plugin is installed in a location that
+    is searched by \QD. We do this by specifying a target path for the project
+    and adding it to the list of items to install:
+
+    \code
+        target.path = $$[QT_INSTALL_PLUGINS]/designer
+        INSTALLS += target
+    \endcode
+
     The custom widget is created as a library. Later, we will ensure
     that it will be recognized as a plugin by \QD by using the
-    Q_EXPORT_PLUGIN() macro to export the relevant widget information.
+    Q_EXPORT_PLUGIN2() macro to export the relevant widget information.
 
     \section1 AnalogClock Class Definition and Implementation
 
