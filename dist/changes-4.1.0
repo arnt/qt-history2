@@ -24,6 +24,11 @@ Build system
 ------------
 Added support for linking static plugins into the application.
 
+QtSvg
+-----
+New module for displaying the contents of SVG (Scalable Vector Graphics)
+files.
+
 ****************************************************************************
 *                                Changes                                   *
 ****************************************************************************
@@ -31,22 +36,35 @@ Added support for linking static plugins into the application.
 Qt Designer
 -----------
 
+- Added support for editing menubars and toolbars
+  through actions.
 - Support for adding comments to string properties.
+- Added new static QtForm library with improved
+  QForm::Loader API for loading designer forms at run-time.
+- Added support for namespaces in uic generated code.
+- Added support for dock widgets in main windows.
+- Added support for editing table, tree and list widgets.
+- Improved palette editing and resource support.
 
 Qt Linguist
 -----------
 
-
 Qt 3 to 4 Porting Tool
 ----------------------
-
+- Q(V|H)BoxLayout and QGridLayout usage is now ported to
+  use Q3(V|H)BoxLayout/Q3GridLayout, to retain the margin/spacing
+  behavior as in Qt 3.
 
 Meta Object Compiler (moc)
 --------------------------
+- Support for const signals.
 
 
 Qt Assistant
 ------------
+
+- Added -docPath command line option for easy setting of the
+  document root path.
 
 QTestLib
 --------
@@ -56,6 +74,12 @@ QTestLib
 
 - Users of older versions of QtTestLib can use the updater utility in
   tools/qtestlib/updater to convert existing autotests to work with QTestLib.
+
+QMake
+-----------
+
+- Added support for new FORMS3 profile variable to make it possible
+  to have Qt Designer forms from Qt 3 and Qt 4 in the same project.
 
 
 General Fixes
@@ -84,14 +108,21 @@ General Fixes
  	property is not set on a QToolBar or QDockWidget; this
  	behavior was undocumented and has been removed.
 
+- QToolBar
+        Added Qt 3 compatibility signal visibilityChanged(bool).
+
 - QMetaType
         Class is now fully reentrant.
         Metatypes can be registered or queried from multiple threads.
         Added qMetaTypeId<T>(), which returns the meta type ID of T at compile time.
 
+- QMetaObject
+        Added isResettable().
+
 - QSql
         SQLite was updated to version 3.2.5
         Oracle plugin adds support for authentication using external credentials.
+        Added isValid() to QSqlError.
 
 - QThread
 	Added setPriority() and priority(), for querying and setting
@@ -111,10 +142,11 @@ General Fixes
 
 - QTextFormat
         Added support for setting the font pixel size.
+        Added UserObject to QTextFormat::ObjectTypes enum.
 
 - QMetaType
-	?? Added enum to QMetaType so you can do compile-time checking
-	whether a type is declared or not 184640
+        The value of QMetaTypeId<T>::Defined indicates whether a given type T is 
+        supported by QMetaType.
 
 - QAbstractItemView
 	Added setIndexWidget() and indexWidget() which makes it
@@ -130,6 +162,8 @@ General Fixes
 
         Add QModelIndex::operator<() so we are able to use them in
         QMap and other containers.
+
+        Added qHash function for QModelIndex.
 
 - QTableWidget
         Added cellWidget() and setCellWidget() which makes it possible
@@ -167,6 +201,8 @@ General Fixes
         - QGroupBox is now completely stylable (QStyleOptionGroupBox)
         - Indeterminate (busy) progress bars are now animated properly
           in all styles.
+
+        Added PM_DockWidgetTitleMargin as pixel metric.
 
 - QHash
         Make it possible to use QHash with a type that has no default
@@ -273,6 +309,7 @@ General Fixes
         Added property "embedFonts" for embedding fonts into the target
         document.
         Added support for printing to PDF.
+        Added support for custom print and paint engines
 
 - QPrintEngine
         Added PPK_SuppressSystemPrintStatus, for suppressing the printer
@@ -293,6 +330,8 @@ General Fixes
 - QDir 
         Added the filter QDir::NoDotAndDotDot, for the
         special directories "." and "..".
+        Added the filter QDir::AllEntries, for all entries
+        in a directory, including symlinks.
 
 
 - QAbstractSocket
@@ -311,6 +350,13 @@ General Fixes
         Now supports three modes of modality: NonModal, WindowModal and
         ApplicationModal.
         Added Qt::WindowModality, obsoleted WA_ShowModal and WA_GroupLeader.
+        Added Qt::WA_OpaquePaintEvent widget attribute, obsoleting Qt::WA_NoBackground.
+        Added boolean autoFillBackground property.
+        Child widgets now always inherit the contents of their parent.
+
+- QPalette
+        Added QPalette::Window (obsoletes Background) and
+              QPalette::WindowText (obsoletes Foreground).
 
 - QHttpResponseHeader
         Added two constructors and the function setStatusLine() for generating
@@ -335,6 +381,7 @@ General Fixes
 
 - QString
         Added toLong() and toULong().
+        Support for std::string conversions with embedded \0 characters.
 
 - QRegion
         Added translate(), like QRect::translated().
@@ -368,6 +415,17 @@ General Fixes
 
 - QPen
         Support for custom dash pattern styles and milter limits.
+        Support for QDebug.
+
+- QDebug
+        Support for QVector and QPair output.
+
+- QStringListModel
+        Added support for sorting.
+
+- QtOpenGL
+        Gradients in the OpenGL paint engine are now drawn using 
+        fragment shaders if available.
 
 New classes
 -----------
@@ -399,23 +457,37 @@ New classes
 - QFSFileEngine
         The default file engine for regular file and directory access in Qt.
 
-- ?? Backingstore
-	
-- ?? QGLPbuffer
+- Q3(H|V)BoxLayout and Q3GridLayout
+        Layout classes provided for compatibility that behave the same
+        as the Qt 4 classes but use a zero margin/spacing by default,
+        just like in Qt 3.
 
-- ?? QAbstractProxyModel
+- Added qFromLittleEndian, qToLittleEndian, qFromBigEndian and
+  qToBigEndian endian helper conversion functions (qendian.h)
 
-- ?? QSvgRenderer
+- Q_EXPORT_PLUGIN2 macro
+        Obsoletes Q_EXPORT_PLUGIN and allows static linking of
+        plugins.
 
-- ?? QSvgWidget
+- Q3ComboBox
+        For enhanced backwards compatibility with Qt 3.
+
+- QGLPbuffer
+        For creating and managing OpenGL pixel buffers.
 
 - QNetworkProxy
         For setting up transparent (SOCKS5) networking proxying.
+
+- QDirectPainter (Qtopia Core only)
+        Provides direct access to video framebuffer hardware.
 
 Platform-Specific Issues
 ------------------------
 
 Windows:
+
+- Painting
+        Added support for ClearType text rendering.
 
 
 X11:
@@ -424,7 +496,7 @@ X11:
         Added support for freedesktop.org startup notifications.
 
 UNIX:
-
+- Added support for Solaris 10 on AMD64 with the compiler provided by Sun.
 
 Mac OS X:
 
@@ -441,11 +513,14 @@ Tools
 - SQLite
         Upgraded to SQLite 3.2.7
 
-- ?? OpenType ?? 194539
-
 Documentation
 -------------
 
 //depot/qt/main/src
 2005/05/26 - 2005/10/31
-last change: 195474
+last change: 197877
+
+//depot/qt/main/tools
+2005/05/26 - 2005/10/31
+last change: 197883
+
