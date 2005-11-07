@@ -1729,6 +1729,17 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
         }
     }
 
+    // a float at the bottom of a frame may make it taller, hence the qMax() for layoutStruct->y.
+    // we don't need to do it for tables though because floats in tables are per table
+    // and not per cell and layoutCell already takes care of doing the same as we do here
+    if (!qobject_cast<QTextTable *>(layoutStruct->frame)) {
+        QList<QTextFrame *> children = layoutStruct->frame->childFrames();
+        for (int i = 0; i < children.count(); ++i) {
+            QTextFrameData *fd = data(children.at(i));
+            if (!fd->layoutDirty && fd->flow_position != QTextFrameFormat::InFlow)
+                layoutStruct->y = qMax(layoutStruct->y, fd->position.y() + fd->size.height());
+        }
+    }
 
     if (inRootFrame) {
         if (it.atEnd()) {
