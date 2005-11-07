@@ -255,8 +255,8 @@ bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
 bool QDesignerMenu::handleMousePressEvent(QWidget *widget, QMouseEvent *event)
 {
     if (!rect().contains(event->pos())) {
-        // reply the event?
-        deactivateMenu();
+        // hide the popup Qt will replay the event
+        slotDeactivateNow();
         return true;
     }
 
