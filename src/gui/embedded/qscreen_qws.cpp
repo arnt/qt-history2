@@ -735,7 +735,7 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
 void QScreen::blit(QWSWindow *win, const QRegion &clip)
 {
     QWSBackingStore *bs = win->backingStore();
-    if (bs->isNull())
+    if (!bs || bs->isNull())
         return;
     QPixmap *pm = bs->pixmap();
     bs->lock();
@@ -860,7 +860,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
     }
     if (!win) {
         paintBackground(exposed-blend);
-    } else if (!above_changing && !win->backingStore()->isNull()) {
+    } else if (!above_changing && win->backingStore() && !win->backingStore()->isNull()) {
         blit(win, (exposed - blend));
     }
     QRegion blendRegion = exposed & blend;
@@ -881,7 +881,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             spanData.dy = off.y();
         } else {
             opacity = win->opacity();
-            if (win->backingStore()->isNull())
+            if (!win->backingStore() || win->backingStore()->isNull())
                 return;
             QPixmap *pm = win->backingStore()->pixmap();
             img = pm->toImage();
