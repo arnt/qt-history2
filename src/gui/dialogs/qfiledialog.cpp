@@ -1886,36 +1886,10 @@ extern QString qt_mac_get_save_file_name(const QFileDialogArgs &args,
                                          QString *selectedFilter);
 #endif
 
-QString QFileDialogPrivate::encodeFileName(const QString &filename)
-{
-    QString str;
-    QByteArray name = filename.toUtf8();
-    static const QByteArray illegal("<>#@\"&%$:,;?={}|^~[]\'`\\*");
-
-    int len = name.length();
-    if (!len)
-        return QString();
-    for (int i = 0; i < len ;++i) {
-        uchar byte = static_cast<uchar>(name.at(i));
-        if (byte >= 128 || illegal.contains(byte)) {
-            str += QChar('%');
-            ushort c = byte / 16;
-            c += c > 9 ? 'A' - 10 : '0';
-            str += static_cast<char>(c);
-            c = byte % 16;
-            c += c > 9 ? 'A' - 10 : '0';
-            str += static_cast<char>(c);
-        } else {
-            str += static_cast<char>(byte);
-        }
-    }
-    return str;
-}
-
-QString QFileDialogPrivate::workingDirectory(const QString &path, bool encode)
+QString QFileDialogPrivate::workingDirectory(const QString &path)
 {
     if (!path.isEmpty()) {
-        QFileInfo info(encode ? encodeFileName(path) : path);
+        QFileInfo info(path);
         if (info.exists() && info.isDir())
             return path;
         return info.absolutePath();
@@ -1923,10 +1897,10 @@ QString QFileDialogPrivate::workingDirectory(const QString &path, bool encode)
     return QDir::currentPath();
 }
 
-QString QFileDialogPrivate::initialSelection(const QString &path, bool encode)
+QString QFileDialogPrivate::initialSelection(const QString &path)
 {
     if (!path.isEmpty()) {
-        QFileInfo info(encode ? encodeFileName(path) : path);
+        QFileInfo info(path);
         if (!info.isDir())
             return info.fileName();
     }
@@ -1998,8 +1972,8 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
 
 #if defined(Q_WS_WIN)
     if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
-        args.directory = QFileDialogPrivate::workingDirectory(dir, false);
-        args.selection = QFileDialogPrivate::initialSelection(dir, false);
+        args.directory = QFileDialogPrivate::workingDirectory(dir);
+        args.selection = QFileDialogPrivate::initialSelection(dir);
         return qt_win_get_open_file_name(args, &directory, selectedFilter);
     }
 #elif defined(Q_WS_MAC)
@@ -2099,8 +2073,8 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
 
 #if defined(Q_WS_WIN)
     if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
-        args.directory = QFileDialogPrivate::workingDirectory(dir, false);
-        args.selection = QFileDialogPrivate::initialSelection(dir, false);
+        args.directory = QFileDialogPrivate::workingDirectory(dir);
+        args.selection = QFileDialogPrivate::initialSelection(dir);
         return qt_win_get_save_file_name(args, &directory, selectedFilter);
     }
 #elif defined(Q_WS_MAC)
@@ -2185,7 +2159,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
 
 #if defined(Q_WS_WIN)
     if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog) && (options & ShowDirsOnly)) {
-        args.directory = QFileDialogPrivate::workingDirectory(dir, false);
+        args.directory = QFileDialogPrivate::workingDirectory(dir);
         return qt_win_get_existing_directory(args);
     }
 #elif defined(Q_WS_MAC)
@@ -2290,7 +2264,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
 
 #if defined(Q_WS_WIN)
     if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
-        args.directory = QFileDialogPrivate::workingDirectory(dir, false);
+        args.directory = QFileDialogPrivate::workingDirectory(dir);
         return qt_win_get_open_file_names(args, &directory, selectedFilter);
     }
 #elif defined(Q_WS_MAC)

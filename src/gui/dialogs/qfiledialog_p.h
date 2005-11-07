@@ -115,9 +115,8 @@ public:
         { return (listModeButton->isDown() ? QFileDialog::List : QFileDialog::Detail); }
 
     // static stuff
-    static QString encodeFileName(const QString &filename);
-    static QString workingDirectory(const QString &path, bool encode = true);
-    static QString initialSelection(const QString &path, bool encode = true);
+    static QString workingDirectory(const QString &path);
+    static QString initialSelection(const QString &path);
 
     // data
     QDirModel *model;
