@@ -1599,7 +1599,11 @@ void QWidget::setWindowOpacity(qreal level)
         SetWindowLongA(winId(), GWL_EXSTYLE, wl & ~Q_WS_EX_LAYERED);
     }
 
+    if (level != 1.0)
+        d->hide_sys(); // Work around Windows (non-)expose bug
     (*ptrSetLayeredWindowAttributes)(winId(), 0, (int)(level * 255), Q_LWA_ALPHA);
+    if (level != 1.0)
+        d->show_sys(); // Work around Windows (non-)expose bug
     d->topData()->opacity = (uchar)(level * 255);
 }
 
