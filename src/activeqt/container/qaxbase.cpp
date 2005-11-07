@@ -1457,7 +1457,7 @@ private:
         Invalid			= 0x00000000,
         Readable		= 0x00000001,
         Writable		= 0x00000002,
-        Resetable		= 0x00000004,
+        Resettable		= 0x00000004,
         EnumOrFlag		= 0x00000008,
         StdCppSet		= 0x00000100,
         Override		= 0x00000200,
