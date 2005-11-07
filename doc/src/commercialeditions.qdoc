@@ -36,7 +36,7 @@
     The table below summarizes the differences between the three
     commercial editions:
 
-    \table 60%
+    \table 75%
     \header \o{1,2} Features                 \o{3,1} Editions
     \header                                  \o Qt Console \o Qt Desktop Light \o Qt Desktop
     \row    \o \l{QtCore}{Qt Core classes}   \o \bold{X}   \o \bold{X}         \o \bold{X}
@@ -44,10 +44,18 @@
     \row    \o \l{QtNetwork}{Networking}     \o \bold{X}   \o                  \o \bold{X}
     \row    \o \l{QtOpenGL}{OpenGL}          \o            \o                  \o \bold{X}
     \row    \o \l{QtSql}{Database/SQL}       \o \bold{X}   \o                  \o \bold{X}
+    \row    \o \l{QtSvg}{SVG}                \o            \o                  \o \bold{X}
     \row    \o \l{QtXml}{XML}                \o \bold{X}   \o                  \o \bold{X}
     \row    \o \l{Qt3Support}{Qt 3 Support}  \o            \o \bold{(X)}       \o \bold{X}
+    \row    \o \l{QtDesigner}
+                 {\QD extension classes}     \o            \o                  \o \bold{X}
+    \row    \o \l{QtTest}
+                 {Unit testing framework}    \o \bold{X}   \o \bold{X}         \o \bold{X}
     \row    \o \l{ActiveQt}                  \o            \o                  \o \bold{X}
     \endtable
+
+    \bold{(X)} The Qt Desktop Light Edition contains selected classes from the Qt3Support
+    module corresponding to the functionality available in the Qt 3 Professional Edition.
 
     Lists of the classes available in each edition are available on the
     following pages:
