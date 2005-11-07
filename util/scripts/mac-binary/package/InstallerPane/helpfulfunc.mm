@@ -15,24 +15,8 @@
 
 #include <Cocoa/Cocoa.h>
 
-FILE *getQtLicenseFile(const char *mode)
-{
-    const char *homeDir = getenv("HOME");
-    static const char LicenseFile[] = ".qt-license";
-    char *filename = 0;
-    FILE *licenseFile = 0;
-    if (homeDir) {
-        int sizeEnv = strlen(homeDir);
-        int sizeLicense = strlen(LicenseFile);
-        filename = (char *)malloc(sizeLicense + sizeEnv + 3);
-        strncpy(filename, homeDir, sizeEnv);
-        filename[sizeEnv] = '/';
-        strncpy(filename + sizeEnv + 1, LicenseFile, sizeLicense);
-        licenseFile = fopen(filename, mode);
-        free(filename);
-    }
-    return licenseFile;
-}
+const char LicenseKeyExtString[] = "LicenseKeyExt=";
+const char LicenseeString[] = "Licensee=";
 
 int validateLicense(const char *string)
 {

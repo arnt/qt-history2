@@ -12,12 +12,11 @@
 
 #import <stdio.h>
 
-static const char LicenseKeyExtString[] = "LicenseKeyExt=";
-static const char LicenseeString[] = "Licensee=";
+extern const char LicenseeString[];
+extern const char LicenseKeyExtString[];
 
 enum LicenseValues { LicenseOK = 0, InvalidLicense, InvalidProduct, InvalidPlatform, InvalidType, LicenseExpired };
 
-FILE *getQtLicenseFile(const char *mode);
 int validateLicense(const char *string);
 
 #endif // HELPFULFUNC_H

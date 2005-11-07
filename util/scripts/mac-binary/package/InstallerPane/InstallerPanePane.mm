@@ -46,8 +46,15 @@
         }
 
         NSMutableString *finalString = [NSMutableString stringWithCapacity:256];
+        NSMutableString *nameString = [NSMutableString stringWithCapacity:128];
+        [nameString appendString: [nameField stringValue]];
+        [nameString replaceOccurrencesOfString:@"\"" withString:@"'"
+                           options:NSLiteralSearch range:NSMakeRange(0, [nameString length])];
+        
         [finalString appendString:[NSString stringWithUTF8String: LicenseeString]];
-        [finalString appendString:[nameField stringValue]];
+        [finalString appendString:@"\""];
+        [finalString appendString:nameString];
+        [finalString appendString:@"\""];
         [finalString appendString:@"\n"];
         [finalString appendString:[NSString stringWithUTF8String: LicenseKeyExtString]];
         [finalString appendString:fullLicenseKey];
