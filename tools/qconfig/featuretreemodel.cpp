@@ -20,11 +20,11 @@ class Node
 {
 public:
     Node(Feature *f, Node *p = 0) : feature(f), parent(p) {}
-    ~Node();    
-    Node* find(const Feature *child) const;    
-    bool contains(const Feature *child) const { return find(child) != 0; }    
+    ~Node();
+    Node* find(const Feature *child) const;
+    bool contains(const Feature *child) const { return find(child) != 0; }
     bool insert(Node *n);
-    
+
     Feature *feature;
     Node *parent;
     QList<Node*> children; // maybe convert to Map to get keys sorted
@@ -41,16 +41,11 @@ Node* Node::find(const Feature *f) const
     if (this->feature == f)
 	return const_cast<Node*>(this);
 
-    foreach (Node *n, children) 
+    foreach (Node *n, children)
 	if (Node *m = n->find(f))
 	    return m;
 
     return 0;
-}
-
-uint qHash(const QModelIndex &index)
-{
-    return (index.row() + index.column() + index.internalId());    
 }
 
 static bool nodePtrLessThan(const Node *n1, const Node *n2)
@@ -72,7 +67,7 @@ bool Node::insert(Node *n)
 	n->parent = this;
         return true;
     }
-    foreach (Node *child, children) 
+    foreach (Node *child, children)
         if (child->insert(n))
             return true;
     return false;
@@ -123,36 +118,36 @@ void FeatureTreeModel::addFeature(Feature *feature)
     Q_ASSERT(!contains(section, feature));
 
     connect(feature, SIGNAL(changed()), this, SLOT(featureChanged()));
-    
+
     Node *node = new Node(feature, 0);
-    
+
     // try insert any toplevel nodes as child of this one
-    foreach (Node *n, sections[section]) 
+    foreach (Node *n, sections[section])
 	if (node->insert(n))
 	    sections[section].removeAll(n);
-    
+
     // try insert this node as a child of any existing node
-    foreach (Node *n, sections[section]) 
+    foreach (Node *n, sections[section])
 	if (n->insert(node)) {
             emit layoutChanged();
 	    return;
         }
-	    
+
     // not a child, insert as a toplevel node
     sections[section].append(node);
     qSort(sections[section].begin(), sections[section].end(), nodePtrLessThan);
-    emit layoutChanged();    
+    emit layoutChanged();
 }
 
 QModelIndex FeatureTreeModel::createIndex(int row, int column,
-					  const QModelIndex &parent, 
+					  const QModelIndex &parent,
 					  const Node *node) const
 {
     QModelIndex index = QAbstractItemModel::createIndex(row, column,
 							(void*)node);
-    if (parent.isValid())    
+    if (parent.isValid())
 	parentMap[index] = parent;
-    if (node)    
+    if (node)
         featureIndexMap[node->feature] = index;
     return index;
 }
@@ -161,17 +156,17 @@ QModelIndex FeatureTreeModel::index(int row, int column,
                                     const QModelIndex &parent) const
 {
     if (!parent.isValid()) { // index is a section
-        if (row < sections.size() && column == 0) 
+        if (row < sections.size() && column == 0)
             return QAbstractItemModel::createIndex(row, column, 0);
 	return QModelIndex();
     }
-    
+
     if (isSection(parent)) { // index is a toplevel feature
         const int parentRow = parent.row();
         if (parentRow < sections.size()) {
             QString section = sections.keys().at(parentRow);
 	    QList<Node*> nodes = sections[section];
-            if (row < nodes.size() && column < 2) 
+            if (row < nodes.size() && column < 2)
                 return createIndex(row, column, parent, nodes.at(row));
         }
 	return QModelIndex();
@@ -180,7 +175,7 @@ QModelIndex FeatureTreeModel::index(int row, int column,
     // parent is a feature
     Node *parentNode = static_cast<Node*>(parent.internalPointer());
     QList<Node*> children = parentNode->children;
-    if (row < children.size() && column < 2) 
+    if (row < children.size() && column < 2)
 	return createIndex(row, column, parent, children.at(row));
 
     return QModelIndex();
@@ -199,7 +194,7 @@ QModelIndex FeatureTreeModel::index(const QModelIndex &parent,
         if (childSearch.isValid())
             return childSearch;
     }
-    return QModelIndex();    
+    return QModelIndex();
 }
 
 QModelIndex FeatureTreeModel::index(const Feature *feature) const
@@ -210,7 +205,7 @@ QModelIndex FeatureTreeModel::index(const Feature *feature) const
     // exhaustive search
     int sectionRow = sections.keys().indexOf(feature->section());
     QModelIndex sectionIndex = index(sectionRow, 0, QModelIndex());
-    
+
     return index(sectionIndex, feature);
 }
 
@@ -218,8 +213,8 @@ QModelIndex FeatureTreeModel::parent(const QModelIndex &index) const
 {
     if (!index.isValid())
         return QModelIndex();
-    
-    if (parentMap.contains(index)) 
+
+    if (parentMap.contains(index))
 	return parentMap.value(index);
     return QModelIndex();
 }
@@ -243,11 +238,11 @@ int FeatureTreeModel::columnCount(const QModelIndex &parent) const
 #if 0
     if (!parent.isValid())
         return 0;
-    
+
     if (isSection(parent))
        return 1;
 #endif
-    Q_UNUSED(parent);   
+    Q_UNUSED(parent);
     return 2; // Feature: [key, name]
 }
 
@@ -257,7 +252,7 @@ QVariant FeatureTreeModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     const Node *node = static_cast<Node*>(index.internalPointer());
-    
+
     switch (role) {
 	case Qt::DisplayRole: {
 	    if (node == 0)  // index is a section
@@ -271,7 +266,7 @@ QVariant FeatureTreeModel::data(const QModelIndex &index, int role) const
 	    if (node && index.column() == 0)
 		return (node->feature->enabled() ?
 			Qt::Checked : Qt::Unchecked);
-	    break;	    
+	    break;
 	}
 	case Qt::TextColorRole: {
 	    if (node && index.column() == 0)  // feature key
@@ -302,7 +297,7 @@ bool FeatureTreeModel::setData(const QModelIndex &index,
     Node *node = static_cast<Node*>(index.internalPointer());
     if (!node)
         return false;
-    
+
     if (role == Qt::CheckStateRole) {
         Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
         if (state == Qt::Checked)
@@ -310,7 +305,7 @@ bool FeatureTreeModel::setData(const QModelIndex &index,
         else if (state == Qt::Unchecked)
             node->feature->setEnabled(false);
         emit dataChanged(index, index);
-        return true;            
+        return true;
     }
     return false;
 }
@@ -321,7 +316,7 @@ Qt::ItemFlags FeatureTreeModel::flags(const QModelIndex &index) const
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
     const Node *node = static_cast<Node*>(index.internalPointer());
-    const Feature *feature = node->feature;    
+    const Feature *feature = node->feature;
     Qt::ItemFlags flags = Qt::ItemIsUserCheckable | Qt::ItemIsSelectable;
 
     if (feature->selectable())
@@ -366,14 +361,14 @@ void FeatureTreeModel::featureChanged()
 void FeatureTreeModel::readConfig(QTextStream &stream)
 {
     static QRegExp regexp("\\s*#\\s*define\\s+QT_NO_(\\S+)\\s*");
-    
+
     while (!stream.atEnd()) {
 	QString line = stream.readLine();
         if (regexp.exactMatch(line)) {
             Feature *f = Feature::getInstance(regexp.cap(1));
             f->setEnabled(false);
         }
-    } 
+    }
 }
 /*
   Search for all disabled child features of \a parent.
@@ -382,16 +377,16 @@ void FeatureTreeModel::readConfig(QTextStream &stream)
 QStringList FeatureTreeModel::findDisabled(const QModelIndex &parent) const
 {
     QStringList stringList;
-    
+
     const int rows = rowCount(parent);
     for (int i = 0; i < rows; ++i) {
         QModelIndex child = index(i, 0, parent);
         Node *node = static_cast<Node*>(child.internalPointer());
         if (node && node->feature && !node->feature->enabled())
-            stringList << node->feature->key();            
-        stringList << findDisabled(child);        
-    }    
-    return stringList;    
+            stringList << node->feature->key();
+        stringList << findDisabled(child);
+    }
+    return stringList;
 }
 
 void FeatureTreeModel::writeConfig(QTextStream &stream) const
