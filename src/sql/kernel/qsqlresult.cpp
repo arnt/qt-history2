@@ -818,7 +818,9 @@ void QSqlResult::virtual_hook(int, void *)
     Q_ASSERT(false);
 }
 
-/*!
+/*! \internal
+    \since 4.2
+
     Executes a prepared query in batch mode if the driver supports it,
     otherwise emulates a batch execution using bindValue() and exec().
     QSqlDriver::hasFeature() can be used to find out whether a driver
