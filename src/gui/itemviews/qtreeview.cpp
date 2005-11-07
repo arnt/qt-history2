@@ -606,16 +606,16 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     Q_D(QTreeView);
 
-    // Expand all parents if the parent(s) of the node are not expanded.
-    QModelIndex parent = index.parent();
-    while (parent.isValid()) {
-        if (!isExpanded(parent)) expand(parent);
-        parent = parent.parent();
-    }
-
-
     if (!model())
         return;
+
+    // Expand all parents if the parent(s) of the node are not expanded.
+    QModelIndex parent = index.parent();
+    while (parent.isValid() && state() != CollapsingState) {
+        if (!isExpanded(parent))
+            expand(parent);
+        parent = model()->parent(parent);
+    }
 
     QRect rect = visualRect(index);
     if (rect.isEmpty())
@@ -1327,13 +1327,15 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     if (d->viewItems.isEmpty())
         return;
 
+    setState(CollapsingState);
+
     // collapse all children
     for (int i = start; i <= end; ++i)
         collapse(model()->index(i, 0, parent));
 
     // collapse parent
     int p = d->viewIndex(parent);
-    if (p > 0) {
+    if (p >= 0) {
         d->collapse(p);
     } else {
         d->reexpand = -1;
@@ -1358,7 +1360,7 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
 
     // collapse parent
     int p = d->viewIndex(parent);
-    if (p > 0) {
+    if (p >= 0) {
         d->expand(p, false);
         viewport()->update();
     } else {
@@ -1367,6 +1369,8 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
         d->viewItems.clear();
         d->doDelayedItemsLayout();
     }
+
+    setState(NoState);
 }
 
 /*!
