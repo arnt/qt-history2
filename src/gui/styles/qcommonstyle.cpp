@@ -2326,8 +2326,13 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if ((tb->subControls & SC_TitleBarNormalButton
                  || tb->subControls & SC_TitleBarMinButton)
                 && tb->titleBarFlags & Qt::WindowMinimizeButtonHint) {
-                ir = subControlRect(CC_TitleBar, tb, SC_TitleBarMinButton, widget);
-
+               
+                if (tb->subControls & SC_TitleBarNormalButton)         
+                    ir = subControlRect(CC_TitleBar, tb, SC_TitleBarNormalButton, widget);                              
+                else {
+                    ir = subControlRect(CC_TitleBar, tb, SC_TitleBarMinButton, widget);                              
+                }
+                
                 QStyle::SubControl ctrl = (tb->subControls & SC_TitleBarNormalButton ?
                                            SC_TitleBarNormalButton :
                                            SC_TitleBarMinButton);
