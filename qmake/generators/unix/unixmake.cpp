@@ -164,30 +164,51 @@ UnixMakefileGenerator::init()
 
     MakefileGenerator::init();
 
-    if(project->isActiveConfig("macx") &&
-       !project->isEmpty("TARGET") && !project->isActiveConfig("compile_libtool") &&
-       ((project->first("TEMPLATE") == "app" && project->isActiveConfig("app_bundle")) ||
-        (project->first("TEMPLATE") == "lib" && project->isActiveConfig("lib_bundle") &&
-         !project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin")))) {
-        if(project->first("TEMPLATE") == "app") {
-            QString bundle = project->first("TARGET");
+    if(project->isActiveConfig("macx") && !project->isEmpty("TARGET") && !project->isActiveConfig("compile_libtool")) {
+        QString bundle;
+        if(project->isActiveConfig("bundle") && !project->isActiveConfig("QMAKE_BUNDLE_EXTENSION")) {
+            bundle = project->first("TARGET");
+            if(!project->isEmpty("QMAKE_BUNDLE_NAME"))
+                bundle = project->first("QMAKE_BUNDLE_NAME");
+            if(!bundle.endsWith(project->first("QMAKE_BUNDLE_EXTENSION")))
+                bundle += project->first("QMAKE_BUNDLE_EXTENSION");
+        } else if(project->first("TEMPLATE") == "app" && project->isActiveConfig("app_bundle")) {
+            bundle = project->first("TARGET");
             if(!project->isEmpty("QMAKE_APPLICATION_BUNDLE_NAME"))
                 bundle = project->first("QMAKE_APPLICATION_BUNDLE_NAME");
             if(!bundle.endsWith(".app"))
                 bundle += ".app";
+            if(project->isEmpty("QMAKE_BUNDLE_LOCATION"))
+                project->variables()["QMAKE_BUNDLE_LOCATION"].append("Contents/MacOS");
+        } else if(project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
+                  ((!project->isActiveConfig("plugin") && project->isActiveConfig("lib_bundle")) ||
+                   (project->isActiveConfig("plugin") && project->isActiveConfig("plugin_bundle")))) {
+            bundle = project->first("TARGET");
+            if(project->isActiveConfig("plugin")) {
+                if(!project->isEmpty("QMAKE_PLUGIN_BUNDLE_NAME"))
+                    bundle = project->first("QMAKE_PLUGIN_BUNDLE_NAME");
+                if(!bundle.endsWith(".plugin"))
+                    bundle += ".plugin";
+                if(project->isEmpty("QMAKE_BUNDLE_LOCATION"))
+                    project->variables()["QMAKE_BUNDLE_LOCATION"].append("Contents/MacOS");
+            } else {
+                if(!project->isEmpty("QMAKE_FRAMEWORK_BUNDLE_NAME"))
+                    bundle = project->first("QMAKE_FRAMEWORK_BUNDLE_NAME");
+                if(!bundle.endsWith(".framework"))
+                    bundle += ".framework";
+            }
+        }
+        if(!bundle.isEmpty()) {
             project->variables()["QMAKE_BUNDLE_NAME"] = QStringList(bundle);
             project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + bundle + "/PkgInfo");
             project->variables()["ALL_DEPS"] += project->first("QMAKE_PKGINFO");
-        } else if(project->first("TEMPLATE") == "lib") {
-            QString bundle = project->first("TARGET");
-            if(!project->isEmpty("QMAKE_FRAMEWORK_BUNDLE_NAME"))
-                bundle = project->first("QMAKE_FRAMEWORK_BUNDLE_NAME");
-            if(!bundle.endsWith(".framework"))
-                bundle += ".framework";
-            project->variables()["QMAKE_BUNDLE_NAME"] = QStringList(bundle);
+        } else {
+            project->variables()["QMAKE_BUNDLE_NAME"].clear();
+            project->variables()["QMAKE_BUNDLE_LOCATION"].clear();
         }
     } else { //no bundling here
         project->variables()["QMAKE_BUNDLE_NAME"].clear();
+        project->variables()["QMAKE_BUNDLE_LOCATION"].clear();
     }
 
     if(!project->isEmpty("QMAKE_INTERNAL_INCLUDED_FILES"))

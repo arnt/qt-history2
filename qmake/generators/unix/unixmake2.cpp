@@ -303,8 +303,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
         QString destdir = project->first("DESTDIR");
-        if(!project->isEmpty("QMAKE_BUNDLE_NAME"))
-            destdir += project->first("QMAKE_BUNDLE_NAME") + "/Contents/MacOS/";
+        if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
+            QString bundle_loc = project->first("QMAKE_BUNDLE_LOCATION");
+            if(!bundle_loc.isEmpty() && !bundle_loc.startsWith("/"))
+                bundle_loc.prepend("/");
+            if(!bundle_loc.endsWith("/"))
+                bundle_loc += "/";
+            destdir += project->first("QMAKE_BUNDLE_NAME") + bundle_loc;
+        }
         if(do_incremental) {
             //incremental target
             QString incr_target = var("TARGET") + "_incremental";
@@ -384,8 +390,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         }
     } else if(!project->isActiveConfig("staticlib")) {
         QString destdir = project->first("DESTDIR"), incr_deps;
-        if(!project->isEmpty("QMAKE_BUNDLE_NAME"))
-            destdir += project->first("QMAKE_BUNDLE_NAME") + "/";
+        if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
+            QString bundle_loc = project->first("QMAKE_BUNDLE_LOCATION");
+            if(!bundle_loc.isEmpty() && !bundle_loc.startsWith("/"))
+                bundle_loc.prepend("/");
+            if(!bundle_loc.endsWith("/"))
+                bundle_loc += "/";
+            destdir += project->first("QMAKE_BUNDLE_NAME") + bundle_loc;
+        }
         if(do_incremental) {
             QString s_ext = project->variables()["QMAKE_EXTENSION_SHLIB"].first();
             QString incr_target = var("QMAKE_ORIG_TARGET").replace(
@@ -861,9 +873,14 @@ void UnixMakefileGenerator::init2()
     project->variables()["VER_PAT"].append(l[2]);
 
     if (!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-        if(!project->isEmpty("QMAKE_BUNDLE_NAME"))
-            project->variables()["TARGET"].first().prepend(project->first("QMAKE_BUNDLE_NAME") +
-                                                          "/Contents/MacOS/");
+        if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
+            QString bundle_loc = project->first("QMAKE_BUNDLE_LOCATION");
+            if(!bundle_loc.isEmpty() && !bundle_loc.startsWith("/"))
+                bundle_loc.prepend("/");
+            if(!bundle_loc.endsWith("/"))
+                bundle_loc += "/";
+            project->variables()["TARGET"].first().prepend(project->first("QMAKE_BUNDLE_NAME") + bundle_loc);
+        }
         if(!project->isEmpty("TARGET"))
             project->variables()["TARGET"].first().prepend(project->first("DESTDIR"));
        if (!project->variables()["QMAKE_CYGWIN_EXE"].isEmpty())
@@ -884,6 +901,18 @@ void UnixMakefileGenerator::init2()
             project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGETA) $(OBJECTS)");
         if(project->isActiveConfig("compile_libtool")) {
             project->variables()["TARGET"] = project->variables()["TARGET_la"];
+        } else if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
+            QString bundle_loc = project->first("QMAKE_BUNDLE_LOCATION");
+            if(!bundle_loc.isEmpty() && !bundle_loc.startsWith("/"))
+                bundle_loc.prepend("/");
+            if(!bundle_loc.endsWith("/"))
+                bundle_loc += "/";
+            project->variables()["TARGET_"].append(project->first("QMAKE_BUNDLE_NAME") +
+                                                   bundle_loc + project->first("TARGET"));
+            project->variables()["TARGET_x.y"].append(project->first("QMAKE_BUNDLE_NAME") +
+                                                      "/Versions/" +
+                                                      project->first("VER_MAJ") + "." + project->first("VER_MIN") +
+                                                      bundle_loc + project->first("TARGET"));
         } else if(project->isActiveConfig("plugin")) {
             QString prefix;
             if(!project->isActiveConfig("no_plugin_name_prefix"))
@@ -939,13 +968,6 @@ void UnixMakefileGenerator::init2()
                                                             project->first("VER_PAT"));
             }
             project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
-        } else if (!project->isEmpty("QMAKE_BUNDLE_NAME")) {
-            project->variables()["TARGET_"].append(project->first("QMAKE_BUNDLE_NAME") +
-                                                   "/" + project->first("TARGET"));
-            project->variables()["TARGET_x.y"].append(project->first("QMAKE_BUNDLE_NAME") +
-                                                      "/Versions/" +
-                                                      project->first("VER_MAJ") + "." + project->first("VER_MIN") + "/" +
-                                                      project->first("TARGET"));
         } else {
             project->variables()["TARGET_"].append("lib" + project->first("TARGET") + "." +
                                                    project->first("QMAKE_EXTENSION_SHLIB"));
