@@ -240,15 +240,13 @@
     \value NoPen  no line at all. For example, QPainter::drawRect()
     fills but does not draw any boundary line.
 
-    \value SolidLine  a plain line.
-
-    \value DashLine  dashes separated by a few pixels.
-
-    \value DotLine  dots separated by a few pixels.
-
-    \value DashDotLine  alternate dots and dashes.
-
-    \value DashDotDotLine  one dash, two dots, one dash, two dots.
+    \value SolidLine  A plain line.
+    \value DashLine  Dashes separated by a few pixels.
+    \value DotLine  Dots separated by a few pixels.
+    \value DashDotLine  Alternate dots and dashes.
+    \value DashDotDotLine  One dash, two dots, one dash, two dots.
+    \value CustomDashLine  A custom pattern defined using
+                           QPainterPathStroker::setDashPattern().
 
     \omitvalue MPenStyle
 
@@ -889,6 +887,7 @@
     \value Key_Control    On Mac OS X, this corresponds to the Command keys.
     \value Key_Meta       On Mac OS X, this corresponds to the Control keys.
     \value Key_Alt
+    \value Key_AltGr
     \value Key_CapsLock
     \value Key_NumLock
     \value Key_ScrollLock
