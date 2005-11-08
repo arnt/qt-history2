@@ -121,7 +121,7 @@ General Fixes
         Metatypes can be registered or queried from multiple threads.
         Added qMetaTypeId<T>(), which returns the meta type ID of T at compile time.
 
-- QMetaObject
+- QMetaProperty
         Added isResettable().
 
 - QSql
