@@ -135,8 +135,10 @@ void qt_skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 }
 
 static
-void qt_term_source(j_decompress_ptr)
+void qt_term_source(j_decompress_ptr cinfo)
 {
+    my_jpeg_source_mgr* src = (my_jpeg_source_mgr*)cinfo->src;
+    src->device->seek(src->device->pos() - src->bytes_in_buffer);
 }
 
 #if defined(Q_C_CALLBACKS)
