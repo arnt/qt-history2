@@ -36,6 +36,10 @@
 #include "QtGui/qpainterpath.h"
 #include "QtCore/qdatastream.h"
 
+#include "private/qstroker_p.h"
+
+// #define USE_NATIVE_GRADIENTS
+
 class QImage;
 class QDataStream;
 class QPen;
@@ -57,21 +61,39 @@ namespace QPdf {
         ByteStream &operator <<(const QByteArray &str) { *ba += str; return *this; }
         ByteStream &operator <<(qreal val) { char buf[256]; *ba += qt_real_to_string(val, buf); return *this; }
         ByteStream &operator <<(int val) { char buf[256]; *ba += qt_int_to_string(val, buf); return *this; }
+        ByteStream &operator <<(const QPointF &p) { char buf[256]; *ba += qt_real_to_string(p.x(), buf);
+            *ba += qt_real_to_string(p.y(), buf); return *this; }
     private:
         QByteArray *ba;
     };
 
     enum PathFlags {
-        PathNone, 
-        PathIsClip,
-        StrokeOnly,
-        FillOnly,
-        StrokeAndFill
+        ClipPath,
+        FillPath, 
+        StrokePath,
+        FillAndStrokePath
     };
-    QByteArray generatePath(const QPainterPath &path, PathFlags flags);
+    QByteArray generatePath(const QPainterPath &path, const QMatrix &matrix, PathFlags flags);
     QByteArray generateMatrix(const QMatrix &matrix);
     QByteArray generateDashes(const QPen &pen);
     QByteArray patternForBrush(const QBrush &b);
+#ifdef USE_NATIVE_GRADIENTS
+    QByteArray generateLinearGradientShader(const QLinearGradient *lg, const QPointF *page_rect, bool alpha = false);
+#endif
+    
+    struct Stroker {
+        Stroker();
+        void setPen(const QPen &pen);
+        void strokePath(const QPainterPath &path);
+        ByteStream *stream;
+        bool first;
+        QMatrix matrix;
+        bool zeroWidth;
+    private:
+        QStroker basicStroker;
+        QDashStroker dashStroker;
+        QStrokerOps *stroker;
+    };
 
 };
 
@@ -117,11 +139,16 @@ public:
 
     int addImage(const QImage &image, bool *bitmap);
     int addPenGState(const QPen &pen);
-    int addBrushGState(const QBrush &brush);
-    int addBrushPattern(const QBrush &b, const QMatrix &matrix, const QPointF &brushOrigin, bool *specifyColor);
+    int addBrushPattern(const QBrush &b, const QMatrix &matrix, const QPointF &brushOrigin, bool *specifyColor, int *gStateObject);
 
+    QPdf::Stroker stroker;
 private:
     Q_DISABLE_COPY(QPdfEnginePrivate)
+
+#ifdef USE_NATIVE_GRADIENTS
+    int gradientBrush(const QBrush &b, const QMatrix &matrix, int *gStateObject);
+#endif
+
     void writeInfo();
     void writePageRoot();
 
@@ -142,14 +169,14 @@ private:
         stream->writeRawData(data.constData(), data.size());
         streampos += data.size();
     }
-    
+
     int writeCompressed(const char *src, int len);
     inline int writeCompressed(const QByteArray &data) { return writeCompressed(data.constData(), data.length()); }
 
     int currentObject;
 
     // various PDF objects
-    int pageRoot, catalog, info, graphicsState, patternColorSpace, colorSpace, colorSpaceGray;
+    int pageRoot, catalog, info, graphicsState, patternColorSpace;
     QVector<uint> pages;
 };
 
@@ -215,9 +242,6 @@ private:
     QPointF brushOrigin;
     QBrush brush;
     QPen pen;
-    uint brushSoftMask;
-    uint penSoftMask;
-    QMatrix matrix;
     QList<QPainterPath> clips;
     bool clipEnabled;
     bool allClipped;
