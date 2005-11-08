@@ -230,6 +230,7 @@ protected:
     void reset();
 
     void changePersistentIndex(const QModelIndex &from, const QModelIndex &to);
+    void changePersistentIndexList(const QModelIndexList &from, const QModelIndexList &to);
 
 private:
     Q_DECLARE_PRIVATE(QAbstractItemModel)

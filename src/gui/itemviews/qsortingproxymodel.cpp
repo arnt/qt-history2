@@ -82,6 +82,12 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
     QList<QModelIndex> source_children;
     Compare compare = (order == Qt::AscendingOrder ? d->less : d->greater);
 
+    QModelIndexList persistent_from;
+    QModelIndexList persistent_to;
+    
+    QModelIndexList map_from;
+    QModelIndexList map_to;
+
     while (!source_parent_stack.isEmpty()) {
 
         QModelIndex source_parent = source_parent_stack.pop();
@@ -102,6 +108,7 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
         // for each proxy_row, go through the source_column (same as proxy columns) and update the mapping
         int source_column_count = sourceModel()->columnCount(source_parent);
         int proxy_row_count = source_children.count();
+        
         for (int proxy_row = 0; proxy_row < proxy_row_count; ++proxy_row) {
             int source_row = source_children.at(proxy_row).row();
             for (int source_column = 0; source_column < source_column_count; ++source_column) {
@@ -110,18 +117,30 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
                 Q_ASSERT(source_index.isValid());
                 QModelIndex old_proxy_index = d->proxy_to_source.key(source_index);
                 QModelIndex new_proxy_index = createIndex(proxy_row, source_column, parent_node);
-                if (old_proxy_index.isValid()) {
-                    changePersistentIndex(old_proxy_index, new_proxy_index);
+                if (old_proxy_index.isValid()) {                    
+                    persistent_from.append(old_proxy_index);
+                    persistent_to.append(new_proxy_index);
                     d->proxy_to_source.remove(old_proxy_index);
                 }
                 Q_ASSERT(new_proxy_index.isValid());
                 Q_ASSERT(source_index.isValid());
-                d->proxy_to_source.insert(new_proxy_index, source_index);
+                map_from.append(new_proxy_index);
+                map_to.append(source_index);
             }
         }
 
+        // do the mapping afterwards to avoid problems with looking up new and old indexes
+        for (int i = 0; i < map_from.count(); ++i)
+            d->proxy_to_source.insert(map_from.at(i), map_to.at(i));
+
+        map_from.clear();
+        map_to.clear();
+
         source_children.clear();
     }
+
+    // this may be slow if we have many persistent indexes
+    changePersistentIndexList(persistent_from, persistent_to);
 
     emit layoutChanged();
 }

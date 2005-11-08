@@ -1814,7 +1814,6 @@ void QAbstractItemModel::reset()
     d->reset();
 }
 
-
 /*!
   Changes the QPersistentModelIndex that is equal to the given \a from
   model index to the given \a to model index.
@@ -1827,9 +1826,39 @@ void QAbstractItemModel::changePersistentIndex(const QModelIndex &from, const QM
     // ### optimize (use QMap ?)
     Q_D(QAbstractItemModel);
     QList<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
-    for (int i = 0; i < persistentIndexes.count(); ++i)
-        if (persistentIndexes.at(i)->index == from)
-            persistentIndexes.at(i)->index = to; // there could be more pointing to the same index
+    for (int i = 0; i < persistentIndexes.count(); ++i) {
+        if (persistentIndexes.at(i)->index == from) {
+            persistentIndexes.at(i)->index = to;
+            break;
+        }
+    }
+}
+
+/*!
+  \since 4.1
+      
+  Changes the QPersistentModelIndexes that is equal to the indexes in the given \a from
+  model index list to the given \a to model index list.
+
+  If no persistent model indexes equal to the indexes in the given \a from model index list
+  was found, nothing is changed.
+*/
+void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
+                                                   const QModelIndexList &to)
+{
+    // ### optimize (use QMap ?)
+    Q_D(QAbstractItemModel);
+    QList<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
+    QBitArray changed(persistentIndexes.count());
+    for (int i = 0; i < from.count(); ++i) {
+        for (int j = 0; j < persistentIndexes.count(); ++j) {
+            if (!changed.at(j) && persistentIndexes.at(j)->index == from.at(i)) {
+                persistentIndexes.at(j)->index = to.at(i);
+                changed.setBit(j);
+                break;
+            }
+        }
+    }
 }
 
 /*!
