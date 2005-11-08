@@ -789,7 +789,7 @@ bool QDockWidget::event(QEvent *event)
             break;
         // fallthrough intended
     case QEvent::Show:
-        d->toggleViewAction->setChecked(e->type() == QEvent::Show);
+        d->toggleViewAction->setChecked(event->type() == QEvent::Show);
         break;
 #endif
     case QEvent::StyleChange:
