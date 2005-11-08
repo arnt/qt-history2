@@ -645,6 +645,7 @@ int QCoreApplication::exec()
         qWarning("QApplication::exec() failed: the event loop is already running.");
         return -1;
     }
+    data->quitNow = false;
     QEventLoop eventLoop;
     self->d_func()->in_exec = true;
     int returnCode = eventLoop.exec();
