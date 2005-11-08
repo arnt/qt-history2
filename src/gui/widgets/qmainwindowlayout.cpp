@@ -934,7 +934,8 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                   QSize(r.width(), statusbar->heightForWidth(r.width()))
                   .expandedTo(statusbar->minimumSize()));
         sbr.moveBottom(r.bottom());
-        statusbar->setGeometry(sbr);
+        QRect vr = QStyle::visualRect(QApplication::layoutDirection(), _r, sbr);
+        statusbar->setGeometry(vr);
         r.setBottom(sbr.top() - 1);
     }
 
@@ -1533,10 +1534,14 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
             Q_ASSERT(false);
         }
 
-        if (relayout_type == QInternal::RelayoutNormal || layout_info[i].is_dummy)
-            layout_info[i].item->setGeometry(x);
-        if (relayout_type == QInternal::RelayoutNormal)
-            layout_info[i].sep->setGeometry(s);
+        if (relayout_type == QInternal::RelayoutNormal || layout_info[i].is_dummy) {
+            QRect vr = QStyle::visualRect(QApplication::layoutDirection(), _r, x);
+             layout_info[i].item->setGeometry(vr);
+        }
+        if (relayout_type == QInternal::RelayoutNormal) {
+            QRect vr = QStyle::visualRect(QApplication::layoutDirection(), _r, s);
+            layout_info[i].sep->setGeometry(vr);
+        }
     }
 
     if (layout_info[CENTER].item) {
@@ -1546,8 +1551,10 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                     right.left() - 1,
                     bottom.top() - 1);
         layout_info[CENTER].size = c.size();
-        if (relayout_type == QInternal::RelayoutNormal)
-            layout_info[CENTER].item->setGeometry(c);
+        if (relayout_type == QInternal::RelayoutNormal) {
+            QRect vr = QStyle::visualRect(QApplication::layoutDirection(), _r, c);
+            layout_info[CENTER].item->setGeometry(vr);
+        }
     }
 }
 
@@ -1870,6 +1877,9 @@ int QMainWindowLayout::constrain(QDockWidgetLayout *dock, int delta)
         delta = -delta;
     }
 
+    if ((pos == LEFT || pos == RIGHT) && QApplication::layoutDirection() == Qt::RightToLeft)
+        delta = -delta;
+
     // remove delta from 'dock'
     int current = pick(pos, info[pos].size)
                   + pick(pos, info[CENTER].size)
@@ -1953,9 +1963,13 @@ Qt::DockWidgetAreas areasForMousePosition(const QRect &r, const QPoint &p, bool 
         VDEBUG() << "    below threshold";
         if (delta == dl || delta == dr) {
             if (delta == dl)
-                areas = Qt::LeftDockWidgetArea;
+                areas = QApplication::layoutDirection() == Qt::LeftToRight
+                        ? Qt::LeftDockWidgetArea
+                        : Qt::RightDockWidgetArea;
             else
-                areas = Qt::RightDockWidgetArea;
+                areas = QApplication::layoutDirection() == Qt::LeftToRight
+                        ? Qt::RightDockWidgetArea
+                        : Qt::LeftDockWidgetArea;
 
             if (dt < threshold)
                 areas |= Qt::TopDockWidgetArea;
@@ -1968,16 +1982,24 @@ Qt::DockWidgetAreas areasForMousePosition(const QRect &r, const QPoint &p, bool 
                 areas = Qt::BottomDockWidgetArea;
 
             if (dl < threshold)
-                areas |= Qt::LeftDockWidgetArea;
+                areas |= QApplication::layoutDirection() == Qt::LeftToRight
+                         ? Qt::LeftDockWidgetArea
+                         : Qt::RightDockWidgetArea;
             else if (dr < threshold)
-                areas |= Qt::RightDockWidgetArea;
+                areas |= QApplication::layoutDirection() == Qt::LeftToRight
+                         ? Qt::RightDockWidgetArea
+                         : Qt::LeftDockWidgetArea;
         }
     } else if (!floatable) {
         VDEBUG() << "    not floatable";
         areas = ((dx > dy)
-                 ? ((p.x() < r.center().x())
-                    ? Qt::LeftDockWidgetArea
-                    : Qt::RightDockWidgetArea)
+                 ? ((QApplication::layoutDirection() == Qt::LeftToRight)
+                    ? ((p.x() < r.center().x())
+                       ? Qt::LeftDockWidgetArea
+                       : Qt::RightDockWidgetArea)
+                    :((p.x() < r.center().x())
+                      ? Qt::RightDockWidgetArea
+                      : Qt::LeftDockWidgetArea))
                  : ((p.y() < r.center().y())
                     ? Qt::TopDockWidgetArea
                     : Qt::BottomDockWidgetArea));
@@ -2038,11 +2060,12 @@ Qt::DockWidgetArea QMainWindowLayout::locateDockWidget(QDockWidget *dockwidget,
 }
 
 QRect QMainWindowLayout::placeDockWidget(QDockWidget *dockwidget,
-                                         const QRect &r,
+                                         const QRect &_r,
                                          const QPoint &mouse)
 {
     DEBUG("QMainWindowLayout::placeDockWidget");
 
+    QRect r = QStyle::visualRect(QApplication::layoutDirection(), geometry(), _r);
     Qt::DockWidgetArea area = locateDockWidget(dockwidget, mouse);
     QRect target;
 
@@ -2098,10 +2121,11 @@ QRect QMainWindowLayout::placeDockWidget(QDockWidget *dockwidget,
 }
 
 void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
-                                        const QRect &r,
+                                        const QRect &_r,
                                         const QPoint &mouse)
 {
     DEBUG("QMainWindowLayout::dropDockWidget");
+    QRect r = QStyle::visualRect(QApplication::layoutDirection(), geometry(), _r);
 
     Qt::DockWidgetArea area = locateDockWidget(dockwidget, mouse);
 
