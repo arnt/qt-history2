@@ -245,8 +245,13 @@ bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
         return true;
 
     m_currentIndex = findAction(event->pos());
+    QAction *action = safeActionAt(m_currentIndex);
 
-    if (m_currentIndex != -1)
+    QRect pm_rect;
+    if (action->menu() || hasSubMenuPixmap(action))
+        pm_rect = subMenuPixmapRect(action);
+
+    if (!pm_rect.contains(event->pos()) && m_currentIndex != -1)
         enterEditMode();
 
     return true;
@@ -273,18 +278,21 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *widget, QMouseEvent *event)
     if (index >= actions().count() - 1)
         return true;
 
+    m_currentIndex = index;
+
     QAction *action = safeActionAt(index);
-    if (action && index == m_currentIndex) {
-        if (m_lastSubMenuIndex != m_currentIndex)
-            slotShowSubMenuNow();
-        else {
+    QRect pm_rect = subMenuPixmapRect(action);
+
+    if ((hasSubMenuPixmap(action) || action->menu() != 0)
+        && pm_rect.contains(m_startPosition)) {
+        if (m_currentIndex == m_lastSubMenuIndex)
             hideSubMenu();
-        }
+        else
+            slotShowSubMenuNow();
     } else {
         hideSubMenu();
     }
 
-    m_currentIndex = index;
     updateCurrentAction();
 
     return true;
@@ -355,6 +363,24 @@ void QDesignerMenu::slotRemoveSelectedAction(QAction *action)
     formWindow()->commandHistory()->push(cmd);
 }
 
+QRect QDesignerMenu::subMenuPixmapRect(QAction *action) const
+{
+    static const QPixmap pm(":/trolltech/designer/images/submenu.png");
+    QRect g = actionGeometry(action);
+    int x = g.right() - pm.width() - 2;
+    int y = g.top() + (g.height() - pm.height())/2 + 1;
+    return QRect(x, y, pm.width(), pm.height());
+}
+
+bool QDesignerMenu::hasSubMenuPixmap(QAction *action) const
+{
+    return action != 0
+            && qobject_cast<SpecialMenuAction*>(action) == 0
+            && !action->isSeparator()
+            && !action->menu()
+            && canCreateSubMenu(action);
+}
+
 void QDesignerMenu::paintEvent(QPaintEvent *event)
 {
     QMenu::paintEvent(event);
@@ -373,13 +399,9 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
             lg.setColorAt(1.0, Qt::transparent);
 
             p.fillRect(g, lg);
-        } else if ((m_dragging || a == current)
-                        && !a->isSeparator() && !a->menu() && canCreateSubMenu(a)) {
-            QStyleOption opt;
-            opt.init(this);
-            opt.palette.setColor(QPalette::Background, Qt::blue);
-            opt.rect.setRect(g.width() - 18, g.top(), 10, g.height());
-            style()->drawPrimitive(QStyle::PE_IndicatorArrowRight, &opt, &p);
+        } else if (hasSubMenuPixmap(a)) {
+            static const QPixmap pm(":/trolltech/designer/images/submenu.png");
+            p.drawPixmap(subMenuPixmapRect(a).topLeft(), pm);
         }
     }
 

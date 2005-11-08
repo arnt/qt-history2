@@ -142,6 +142,9 @@ protected:
     QDesignerMenu *findRootMenu() const;
     QDesignerMenu *findActivatedMenu() const;
 
+    QRect subMenuPixmapRect(QAction *action) const;
+    bool hasSubMenuPixmap(QAction *action) const;
+
 private:
     QPoint m_startPosition;
     int m_currentIndex;
