@@ -104,8 +104,10 @@
     Each document's layout is managed by a subclass of the
     QAbstractTextDocumentLayout class. This class provides a common
     interface for layout and rendering engines. The default rendering
-    behavior is currently implemented in a private class.
-
+    behavior is currently implemented in a private class. This approach
+    makes it possible to create custom layouts, and provides the
+    mechanism used when preparing pages for printing or exporting to
+    Portable Document Format (PDF) files.
 
     \section1 Example Code
 
@@ -188,6 +190,26 @@
 
     The formatted text can be drawn onto a paint device; in the above code,
     the text is drawn directly onto a widget.
+
+    \section2 Printing Features
+
+    The layout system used to display rich text documents also supports
+    paged layout of documents, and this is used by Qt to generate output for
+    printing. The printing process is performed by QPrinter and controlled by
+    the user via options displayed in a QPrintDialog:
+
+    \quotefromfile snippets/textdocument-printing/mainwindow.cpp
+    \skipto MainWindow::printFile()
+    \skipto QTextDocument
+    \printuntil document->print
+
+    Rich text documents can also be exported as PDF files using QPrinter and
+    the appropriate print engine:
+
+    \quotefromfile demos/textedit/textedit.cpp
+    \skipto filePrintPdf
+    \skipto QPrinter
+    \printuntil textEdit->document()->print
 
     \section1 Comparison with Qt 3
 

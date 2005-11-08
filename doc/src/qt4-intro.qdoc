@@ -31,12 +31,29 @@
     action-based mainwindow, toolbar, menu, and docking architecture.
     \endlist
 
-    Qt 4 also includes the new \e{Qt Designer} user interface design
-    tool. See the \l{qt4-designer.html}{Qt Designer overview} to get
-    started.
+    Qt 4 also includes the new \l{The New Qt Designer}{\QD} user interface design
+    tool.
 
-    In addition, the following modules have been significantly improved
-    since Qt 3:
+    Qt 4.1 extends these technologies with the following features:
+
+    \list
+    \o Integrated support for rendering
+    \l{The Arthur Paint System#SVG Rendering Support}{Scalable Vector Graphics}
+    (SVG) drawings and animations.
+    \o A Portable Document Format (PDF) backend for Qt's printing system.
+    \o A \l{QTestLib Manual}{unit testing framework} for Qt applications and
+       libraries.
+    \o Modules for \l{QtDesigner}{extending \QD} and
+       \l{QtForm}{dynamic user interface building}.
+    \o Additional features for developers using \l{QtOpenGL}{OpenGL}, such as
+    support for pixel and sample buffers.
+    \o New proxy models to enable view-specific sorting and filtering of data
+       displayed using item views.
+    \endlist
+
+    \section1 Significant Improvements
+
+    The following modules have been significantly improved for Qt 4:
 
     \list
     \o A fully cross-platform \l{accessibility}
@@ -53,12 +70,6 @@
     connections across threads and per-thread event loops.
     \o A new \l{resource system} for embedding images
     and other resource files into the application executable.
-    \o Integrated support for rendering
-    \l{The Arthur Paint System#SVG Rendering Support}{Scalable Vector Graphics}
-    (SVG).
-    \o A Portable Document Format (PDF) backend for Qt's printing system.
-    \o Additional features for developers using \l{QtOpenGL}{OpenGL}, such as
-    support for pixel buffers and sample buffers.
     \endlist
 
     \section1 Build System

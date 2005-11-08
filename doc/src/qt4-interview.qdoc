@@ -70,6 +70,8 @@
        can use to manage items of data.
     \o QDirModel provides directory information for use with QListView and
        QTreeView.
+    \o QStringListModel is a convenience model that can be used to hold
+       strings for views such as QListView and QComboBox.
     \endlist
 
     Two specialized abstract models are provided that can be subclassed
@@ -84,6 +86,23 @@
        for use with QListView.
     \endlist
 
+    Operations on items, such as filtering and sorting, are handled by \e{proxy
+    models} that allow views to display processed data without having to
+    copy or modify data obtained from a source model. Interview provides a
+    hierarchy of classes to support this approach; most developers will find
+    the following classes useful for many common tasks:
+
+    \list
+    \o QSortingProxyModel sorts items of data from a source model before
+       supplying them to views. Custom sorting functions can be used to
+       provide application-specific sorting behavior.
+    \o QStringFilterModel filters out rows and columns from a source model,
+       only exposing them if items in a given column can be matched by a
+       specified regular expression.
+    \o QFilteringProxyModel can be subclassed to create new models with
+       custom filtering behavior.
+    \endlist
+
     Developers who are familiar with the conventional list, tree, and table
     widgets may find QListWidget, QTreeWidget, and QTableWidget useful.
     These present a simplified interface to the views that does not require a
@@ -92,8 +111,8 @@
     For details about how to use the model/view classes, see the
     \l{Model/View Programming} document.
 
-    See also the \l{qt4-sql.html}{Database GUI Layer} document for
-    information about Qt 4's database models.
+    See also the \l{The Qt 4 Database GUI Layer}{Database GUI Layer} document
+    for information about Qt 4's database models.
 
     \section1 Example Code
 
@@ -251,5 +270,5 @@
     The move towards a model/view architecture presents both challenges
     and opportunities for developers. Although the approach may appear to
     be rather powerful for simple applications, it encourages greater
-    reuse of components, both within the library and within applications.
+    reuse of components within applications.
 */

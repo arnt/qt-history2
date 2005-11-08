@@ -162,6 +162,7 @@
         <li><a href="qtsql.html">SQL Module</a></li>
         <li><a href="qtxml.html">XML Module</a></li>
         <li><a href="activeqt.html">ActiveQt Framework</a></li>
+        <li><a href="qttest.html">Unit Testing Framework</a></li>
         </ul>
         </td>
         </tr>
