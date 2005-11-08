@@ -30,6 +30,7 @@
 #include <quuid.h>
 #include <qwhatsthis.h>
 
+#include <windowsx.h>
 #include <ocidl.h>
 #include <olectl.h>
 #include <docobj.h>
@@ -423,35 +424,40 @@ bool axc_FilterProc(void *m)
     const uint message = msg->message;
     if ((message >= WM_MOUSEFIRST && message <= WM_MOUSELAST) || (message >= WM_KEYFIRST && message <= WM_KEYLAST)) {
         HWND hwnd = msg->hwnd;
-        QWidget *widget = 0;
         QAxWidget *ax = 0;
-        while (!ax && hwnd) {
-            widget = QWidget::find(hwnd);
-            if (widget)
-                ax = qobject_cast<QAxWidget*>(widget);
+        QAxHostWidget *host = 0;
+        while (!host && hwnd) {
+            host = qobject_cast<QAxHostWidget*>(QWidget::find(hwnd));
             hwnd = ::GetParent(hwnd);
         }
-        if (ax && msg->hwnd != ax->winId()) {
+        if (host)
+            ax = qobject_cast<QAxWidget*>(host->parentWidget());
+        if (ax && msg->hwnd != host->winId()) {
             if (message >= WM_KEYFIRST && message <= WM_KEYLAST) {
-                QAxHostWidget *host = qFindChild<QAxHostWidget*>(ax);
-                QAxClientSite *site = host ? host->clientSite() : 0;
+                QAxClientSite *site = host->clientSite();
                 if (site && site->inPlaceObject() && site->translateKeyEvent(msg->message, msg->wParam))
                     site->inPlaceObject()->TranslateAccelerator(msg);
             } else {
                 int i;
                 for (i = 0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3)
                     ;
+
                 if (mouseTbl[i]) {
                     QEvent::Type type = (QEvent::Type)mouseTbl[++i];
                     int button = mouseTbl[++i];
-                    DWORD ol_pos = GetMessagePos();
-                    QPoint gpos(LOWORD(ol_pos), HIWORD(ol_pos));
-                    QPoint pos = widget->mapFromGlobal(gpos);
+                    if (type != QEvent::MouseMove || ax->hasMouseTracking() || button) {
+                        if (type == QEvent::MouseMove)
+                            button = 0;
 
-		    QMouseEvent e(type, pos, gpos, (Qt::MouseButton)button,
-			    translateMouseButtonState(msg->wParam),
-			    translateModifierState(msg->wParam));
-                    QApplication::sendEvent(ax, &e);
+                        DWORD ol_pos = GetMessagePos();
+                        QPoint gpos(GET_X_LPARAM(ol_pos), GET_Y_LPARAM(ol_pos));
+                        QPoint pos = ax->mapFromGlobal(gpos);
+                        
+                        QMouseEvent e(type, pos, gpos, (Qt::MouseButton)button,
+                            translateMouseButtonState(msg->wParam),
+                            translateModifierState(msg->wParam));
+                        QApplication::sendEvent(ax, &e);
+                    }
                 }
             }
         }
