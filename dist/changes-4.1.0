@@ -128,9 +128,6 @@ General Fixes
 	Added setPriority() and priority(), for querying and setting
 	the priority of a thread.
 
-- QFileEngine
-	?? Added long filename/path support to qt 184011
-
 - QTreeWidgetItem/QTreeWidget
 	Added new constructors and addChildren(), insertChildren(),
 	takeChildren(), insertTopLevelItems(), addTopLevelItems to
@@ -218,11 +215,8 @@ General Fixes
 - QSettings
 	Added support for custom formats in QSettings.
 
-- QRect
-	?? Changed the definition of a valid rectangle 189610
-
 - QTextStream
-	?? Added status(), setStatus() and resetStatus() 189615
+	Added status(), setStatus() and resetStatus() for improved error handling.
         Added read(qint64 maxlen), for reading parts of a text stream into a
 	QString.
 
@@ -240,9 +234,6 @@ General Fixes
 - QScrollArea
         Added ensureVisible(), which can scroll the scrollarea to make sure a
         specific point is visible.
-
-- QDate
-	?? Added toString() for QTime and QDate based on the new database 190211
 
 - QDateTime
         Added addMSecs(), which adds a number of milliseconds to the QDateTime.
@@ -291,7 +282,9 @@ General Fixes
         Added support for saving image text.
 
 - QLocale
-        ?? The time / date formats are now accessible 191630
+        Added dateFormat()/timeFormat() to query the date/time format for the
+        current locale.
+        Added toString() overloads for localized QTime and QDate output.
         Added decimalPoint(), groupSeparator(), percent(), zeroDigit(),
         negativeSign() and exponential(), which provide a means to generate
         custom number formatting.
@@ -441,7 +434,8 @@ New classes
 	Allows you to provide a subset of a model to a view.
 
 - QStringFilterModel
-        ??
+        Allows you to provide a subset of a model to a view based on a
+        regular expression.
 
 - QSyntaxHighlighter
         The QSyntaxHighlighter class allows you to define syntax
@@ -489,6 +483,8 @@ Windows:
 - Painting
         Added support for ClearType text rendering.
 
+- File Engine
+        Added support for long filenames/paths.
 
 X11:
 
