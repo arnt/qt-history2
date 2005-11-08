@@ -38,7 +38,6 @@ void qt_format_text(const QFont&, const QRectF&,
                     int, int*, int, QPainter*);
 
 static const int textMargin = 1;
-static const bool doEliding = true;
 
 class QItemDelegatePrivate : public QObjectPrivate
 {
