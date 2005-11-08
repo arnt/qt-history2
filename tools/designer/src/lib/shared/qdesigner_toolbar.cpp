@@ -290,7 +290,7 @@ void QDesignerToolBar::dragMoveEvent(QDragMoveEvent *event)
         Q_ASSERT(!d->items.isEmpty());
 
         QAction *action = d->items.first();
-        if (action && !action->menu() && actions().contains(action)) {
+        if (action && !action->menu() && !actions().contains(action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
         }

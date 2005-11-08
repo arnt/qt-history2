@@ -929,6 +929,15 @@ void QDesignerMenu::enterEditMode()
         cmd->init(this, sep, safeActionAt(realActionCount()));
         formWindow()->commandHistory()->push(cmd);
 
+        if (parentMenu()) {
+            QAction *parent_action = parentMenu()->currentAction();
+            if (parent_action->menu() == 0) {
+                CreateSubmenuCommand *cmd = new CreateSubmenuCommand(formWindow());
+                cmd->init(parentMenu(), parentMenu()->currentAction());
+                formWindow()->commandHistory()->push(cmd);
+            }
+        }
+
         formWindow()->endCommand();
 
         m_currentIndex = realActionCount() - 1;

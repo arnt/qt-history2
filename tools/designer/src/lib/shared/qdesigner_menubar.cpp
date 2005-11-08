@@ -451,6 +451,9 @@ void QDesignerMenuBar::leaveEditMode(LeaveEditMode mode)
     if (mode == Default)
         return;
 
+    if (m_editor->text().isEmpty())
+        return;
+
     QAction *action = 0;
 
     if (m_currentIndex >= 0 && m_currentIndex < realActionCount()) {
