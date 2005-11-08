@@ -479,6 +479,7 @@ public:
 #endif
 
 protected:
+    friend class QApplication;
     QRect rect;
 };
 

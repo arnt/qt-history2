@@ -3003,8 +3003,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 if (w->isEnabled() && w->acceptDrops()) {
                     res = d->notify_helper(w, dragEvent);
                     if (res && dragEvent->isAccepted()) {
-                        if (dragEvent->dropAction() != Qt::IgnoreAction)
-                            QDragManager::self()->setCurrentTarget(w);
+                        QDragManager::self()->setCurrentTarget(w);
                         break;
                     }
                 }
@@ -3045,8 +3044,12 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 }
             }
             res = d->notify_helper(w, e);
-            if (e->type() != QEvent::DragMove)
+            if (e->type() != QEvent::DragMove) {
                 QDragManager::self()->setCurrentTarget(0, e->type() == QEvent::Drop);
+            } else {
+                QDragMoveEvent *moveEvent = static_cast<QDragMoveEvent *>(e);
+                moveEvent->rect.setTopLeft(static_cast<QWidget *>(receiver)->mapFrom(w, moveEvent->rect.topLeft()));
+            }
         }
         break;
 #endif
