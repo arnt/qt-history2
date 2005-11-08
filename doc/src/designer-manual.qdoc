@@ -1954,7 +1954,13 @@ without having to write code themselves.
     \endcode
 
     The \c $[QT_INSTALL_PLUGINS] variable is a placeholder to the location of the
-    installed Qt plugins.
+    installed Qt plugins. You can configure \QD to look for plugins in other
+    locations by setting the \c QT_PLUGIN_PATH environment variable before running
+    the application. Note that \QD will look for a \c designer subdirectory on each
+    path supplied.
+
+    See QCoreApplication::libraryPaths() for more information about customizing
+    paths for libraries and plugins with Qt applications.
 
     \section1 Related Examples
 
