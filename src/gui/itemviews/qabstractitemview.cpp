@@ -1530,7 +1530,8 @@ void QAbstractItemView::updateEditorData()
 {
     QMap<QPersistentModelIndex, QWidget*>::iterator it = d_func()->editors.begin();
     for (; it != d_func()->editors.end(); ++it)
-        itemDelegate()->setEditorData(it.value(), it.key());
+        if (it.value() && it.key().isValid())
+            itemDelegate()->setEditorData(it.value(), it.key());
 }
 
 /*!
