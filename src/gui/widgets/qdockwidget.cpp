@@ -285,7 +285,7 @@ void QDockWidgetPrivate::relayout()
                                     floatSize.width(), floatSize.height())));
         posX -= floatSize.width() + 1;
     }
- 
+
     topSpacer->changeSize(minWidth, 0 + titleArea.height(), QSizePolicy::Expanding, QSizePolicy::Fixed);
     top->setMargin(fw);
     top->invalidate();
@@ -786,10 +786,10 @@ bool QDockWidget::event(QEvent *event)
 #ifndef QT_NO_ACTION
     case QEvent::Hide:
         if (!isHidden())
-            d->toggleViewAction->setChecked(false);
-        break;
+            break;
+        // fallthrough intended
     case QEvent::Show:
-        d->toggleViewAction->setChecked(true);
+        d->toggleViewAction->setChecked(e->type() == QEvent::Show);
         break;
 #endif
     case QEvent::StyleChange:
