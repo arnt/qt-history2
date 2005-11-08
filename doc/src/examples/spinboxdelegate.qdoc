@@ -14,7 +14,6 @@
 
     \image spinboxdelegate-example.png
 
-
     This concepts behind this example are covered in the
     \l{model-view-delegate.html}{Delegate Classes} chapter of the
     \l{model-view-programming.html}{Model/View Programming} overview.

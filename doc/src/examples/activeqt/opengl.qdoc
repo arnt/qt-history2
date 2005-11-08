@@ -20,7 +20,7 @@
     methods to change the scene.
 
     \quotefromfile activeqt/opengl/main.cpp
-    \skipto <qaxfactory.h>
+    \skipto <QAxFactory>
     The application uses the default factory as provided by the 
     QAXFACTORY_DEFAULT macro to expose the \c GLBox widget as an ActiveX 
     control.

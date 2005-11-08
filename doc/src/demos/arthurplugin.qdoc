@@ -1,0 +1,15 @@
+/*!
+    \example demos/arthurplugin
+    \title Arthur Plugin
+
+    In this demo we demonstrate the abilities of Qt's painting system
+    in combination with \QD's custom widget plugin facilities.
+
+    \image arthurplugin-demo.png
+
+    The specialized widgets used in the other demonstrations of the Arthur
+    painting system are provided as custom widgets to be used with \QD.
+    Since each of the widgets provides a set of signals and slots, the
+    effects they show can be controlled by connecting them up to standard
+    input widgets.
+*/
