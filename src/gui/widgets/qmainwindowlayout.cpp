@@ -1486,7 +1486,8 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
     for (int i = 0; i < 4; ++i) {
         if (!layout_info[i].item) continue;
-        layout_info[i].size = rect[i].size();
+        if (rect[i].isValid())
+            layout_info[i].size = rect[i].size();
         QRect x, s;
 
         switch (i) {
