@@ -263,6 +263,7 @@ General Fixes
         context menu.
         Added property acceptRichText, for whether or not the text edit
         accepts rich text insertions by the user.
+        Added overwriteMode property.
 
 - QDataStream
         Added skipRawData().
