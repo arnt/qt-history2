@@ -37,12 +37,18 @@ Qt Designer
 -----------
 
 - Added support for editing menubars and toolbars.
+
 - Added support for adding comments to string properties.
+
 - Added new static QtForm library with improved
   QForm::Loader API for loading designer forms at run-time.
+
 - Added support for namespaces in uic generated code.
+
 - Added support for dock widgets in main windows.
+
 - Added support for editing table, tree and list widgets.
+
 - Improved palette editing and resource support.
 
 Qt 3 to 4 Porting Tool
@@ -77,6 +83,7 @@ QMake
 
 - Added support for new FORMS3 profile variable to make it possible
   to have Qt Designer forms from Qt 3 and Qt 4 in the same project.
+
 - Added support for precompiled headers on win32-g++ (mingw)
 
 
