@@ -1005,7 +1005,6 @@ QAbstractItemModel::~QAbstractItemModel()
 
 /*!
     \fn void QAbstractItemModel::rowsInserted(const QModelIndex &parent, int start, int end)
-    \internal
 
     This signal is emitted after rows have been inserted into the
     model. The new items are those between \a start and \a end
@@ -1016,7 +1015,6 @@ QAbstractItemModel::~QAbstractItemModel()
 
 /*!
     \fn void QAbstractItemModel::rowsAboutToBeInserted(const QModelIndex &parent, int start, int end)
-    \internal
 
     This signal is emitted just before rows are inserted into the
     model. The new items will be positioned between \a start and \a end
@@ -1027,7 +1025,6 @@ QAbstractItemModel::~QAbstractItemModel()
 
 /*!
     \fn void QAbstractItemModel::rowsRemoved(const QModelIndex &parent, int start, int end)
-    \internal
 
     This signal is emitted after rows have been removed from the
     model. The removed items are those between \a start and \a end
@@ -1038,7 +1035,6 @@ QAbstractItemModel::~QAbstractItemModel()
 
 /*!
     \fn void QAbstractItemModel::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
-    \internal
 
     This signal is emitted just before rows are removed from the
     model. The items that will be removed are those between \a start and \a end
@@ -1049,7 +1045,6 @@ QAbstractItemModel::~QAbstractItemModel()
 
 /*!
     \fn void QAbstractItemModel::columnsInserted(const QModelIndex &parent, int start, int end)
-    \internal
 
     This signal is emitted after columns have been inserted into the
     model. The new items are those between \a start and \a end
@@ -1060,7 +1055,6 @@ QAbstractItemModel::~QAbstractItemModel()
 
 /*!
     \fn void QAbstractItemModel::columnsAboutToBeInserted(const QModelIndex &parent, int start, int end)
-    \internal
 
     This signal is emitted just before columns are inserted into the
     model. The new items will be positioned between \a start and \a end
@@ -1071,7 +1065,6 @@ QAbstractItemModel::~QAbstractItemModel()
 
 /*!
     \fn void QAbstractItemModel::columnsRemoved(const QModelIndex &parent, int start, int end)
-    \internal
 
     This signal is emitted after columns have been removed from the
     model. The removed items are those between \a start and \a end
@@ -1082,7 +1075,6 @@ QAbstractItemModel::~QAbstractItemModel()
 
 /*!
     \fn void QAbstractItemModel::columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
-    \internal
 
     This signal is emitted just before columns are removed
     from the model. The items to be removed are those between \a start and
