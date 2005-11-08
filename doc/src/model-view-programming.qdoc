@@ -184,6 +184,8 @@
       \tableofcontents{1 Item View Convenience Classes}
     \o \l{Using Drag and Drop with Item Views}
       \tableofcontents{1 Using Drag and Drop with Item Views}
+    \o \l{Proxy Models}
+      \tableofcontents{1 Proxy Models}
     \endlist
 
     See also the list of \l{Model/View Classes}.
