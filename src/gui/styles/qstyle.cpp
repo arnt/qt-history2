@@ -1822,7 +1822,7 @@ QPalette QStyle::standardPalette() const
 {
 #ifdef Q_WS_X11
     QColor background;
-    if (!qApp || QX11Info::appDepth() > 8)
+    if (QX11Info::appDepth() > 8)
         background = QColor(0xd4, 0xd0, 0xc8); // win 2000 grey
     else
         background = QColor(192, 192, 192);
