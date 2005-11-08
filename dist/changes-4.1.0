@@ -125,7 +125,6 @@ General Fixes
         Added isResettable().
 
 - QSql
-        SQLite was updated to version 3.2.5
         Oracle plugin adds support for authentication using external credentials.
         Added isValid() to QSqlError.
 
