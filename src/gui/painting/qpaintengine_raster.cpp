@@ -951,7 +951,9 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     }
 
     if (update_fast_pen) {
-        d->fast_pen = d->pen.style() == Qt::SolidLine && !d->antialiased
+        d->fast_pen = d->pen.style() == Qt::SolidLine
+                      && !d->antialiased
+                      && d->pen.brush().isOpaque()
                       && (d->pen.widthF() == 0
                           || d->pen.widthF() <= 1 && d->txop <= QPainterPrivate::TxTranslate);
     }
