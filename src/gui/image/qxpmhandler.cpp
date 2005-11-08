@@ -728,15 +728,8 @@ static int rgb_cmp(const void *d1, const void *d2)
 }
 #endif
 
-static bool qt_get_named_xpm_rgb(const char *name, QRgb *rgb)
+static bool qt_get_named_xpm_rgb(const char *name_no_space, QRgb *rgb)
 {
-    int len = int(strlen(name)) + 1;
-    char *name_no_space = (char *)malloc(len);
-    for(int o = 0, i = 0; i < len; i++) {
-	if(name[i] != '\t' && name[i] != ' ')
-	    name_no_space[o++] = name[i];
-    }
-
     XPMRGBData x;
     x.name = name_no_space;
     // Funtion bsearch() is supposed to be
@@ -744,7 +737,6 @@ static bool qt_get_named_xpm_rgb(const char *name, QRgb *rgb)
     // So why (char*)? Are there broken bsearch() declarations out there?
     XPMRGBData *r = (XPMRGBData *)bsearch((char *)&x, (char *)xpmRgbTbl, xpmRgbTblSize,
                                           sizeof(XPMRGBData), rgb_cmp);
-    free(name_no_space);
     if (r) {
 	*rgb = r->value;
 	return true;
@@ -815,6 +807,16 @@ static bool read_xpm_string(QByteArray &buf, QIODevice *d, const char * const *s
     return true;
 }
 
+// Tests if the given prefix can be the start of an XPM color specification
+
+static bool is_xpm_color_spec_prefix(const QByteArray& prefix)
+{
+    return prefix == "c" ||
+           prefix == "g" ||
+           prefix == "g4" ||
+           prefix == "m" ||
+           prefix == "s";
+}
 
 //
 // INTERNAL
@@ -878,25 +880,28 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
         }
         QByteArray index;
         index = buf.left(cpp);
-        buf = buf.mid(cpp).simplified().toLower();
-        buf.prepend(" ");
-        i = buf.indexOf(" c ");
+        buf = buf.mid(cpp).simplified().trimmed().toLower();
+        QList<QByteArray> tokens = buf.split(' ');
+        i = tokens.indexOf("c");
         if (i < 0)
-            i = buf.indexOf(" g ");
+            i = tokens.indexOf("g");
         if (i < 0)
-            i = buf.indexOf(" g4 ");
+            i = tokens.indexOf("g4");
         if (i < 0)
-            i = buf.indexOf(" m ");
+            i = tokens.indexOf("m");
         if (i < 0) {
             qWarning("QImage: XPM color specification is missing: %s", buf.constData());
             return false;        // no c/g/g4/m specification at all
         }
-        buf = buf.mid(i+3);
-        // Strip any other colorspec
-        int end = buf.indexOf(' ', 4);
-        if (end >= 0)
-            buf.truncate(end);
-        buf = buf.trimmed();
+        QByteArray color;
+        while ((++i < tokens.size()) && !is_xpm_color_spec_prefix(tokens.at(i))) {
+            color.append(tokens.at(i));
+        }
+        if (color.isEmpty()) {
+            qWarning("QImage: XPM color value is missing from specification: %s", buf.constData());
+            return false;        // no color value
+        }
+        buf = color;
         if (buf == "none") {
             int transparentColor = currentColor;
             if (image.depth() == 8) {
