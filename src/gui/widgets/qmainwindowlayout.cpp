@@ -2080,7 +2080,7 @@ QRect QMainWindowLayout::placeDockWidget(QDockWidget *dockwidget,
         DEBUG("  forwarding...");
         QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(layout_info[pos].item->layout());
         Q_ASSERT(l != 0);
-        target = l->place(dockwidget, r, mouse);
+        target = l->place(dockwidget, _r, mouse);
         DEBUG("END of QMainWindowLayout::placeDockWidget (forwarded)");
         return target;
     }
@@ -2091,7 +2091,7 @@ QRect QMainWindowLayout::placeDockWidget(QDockWidget *dockwidget,
     // see if the tool window will fix in the main window
     const QSize cur = parentWidget()->size();
 
-    QMainWindowLayoutItem layoutitem(dockwidget, r);
+    QMainWindowLayoutItem layoutitem(dockwidget, _r);
     layout_info[pos].item = &layoutitem;
     layout_info[pos].size = r.size();
     DEBUG() << "  pos" << pos << " size" << layout_info[pos].size;
@@ -2140,7 +2140,7 @@ void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
         DEBUG() << "  forwarding...";
         QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(layout_info[pos].item->layout());
         Q_ASSERT(l);
-        l->drop(dockwidget, r, mouse);
+        l->drop(dockwidget, _r, mouse);
         relayout();
         DEBUG() << "END of QMainWindowLayout::dropDockWidget (forwarded)";
         return;

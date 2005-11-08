@@ -156,7 +156,7 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
                     stream >> info.max_size;
                     continue;
                 }
-                
+
                 QDockWidgetLayoutInfo &info = insert(-1, new QWidgetItem(widget));
                 if (flags & StateFlagFloating) {
                     widget->hide();
@@ -429,9 +429,11 @@ void QDockWidgetLayout::setGeometry(const QRect &rect)
 	info.min_size = ls.minimumSize;
 	info.max_size = ls.maximumSize;
 
-	info.item->setGeometry(((orientation == Qt::Horizontal) ?
-                                QRect(rect.x() + ls.pos, rect.y(), ls.size, rect.height()) :
-                                QRect(rect.x(), rect.y() + ls.pos, rect.width(), ls.size)));
+        QRect vr = QStyle::visualRect(QApplication::layoutDirection(),
+                                      rect, ((orientation == Qt::Horizontal)
+                                           ? QRect(rect.x() + ls.pos, rect.y(), ls.size, rect.height())
+                                           : QRect(rect.x(), rect.y() + ls.pos, rect.width(), ls.size)));
+	info.item->setGeometry(vr);
     }
 
     VDEBUG("END");
@@ -696,6 +698,9 @@ QPoint QDockWidgetLayout::constrain(QDockWidgetSeparator *sep, int delta)
 {
     VDEBUG("QDockWidgetLayout::constrain: delta %4d", delta);
     QList<QDockWidgetLayoutInfo> local_list;
+
+    if (orientation == Qt::Horizontal && QApplication::layoutDirection() == Qt::RightToLeft)
+        delta = -delta;
 
     for (int pass = 0; pass < 2; ++pass) {
 	VDEBUG("  PASS %d", pass);
@@ -1038,12 +1043,17 @@ static QRect trySplit(Qt::Orientation orientation,
 
 /*!
  */
-QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse)
+QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &_r, const QPoint &mouse)
 {
     DEBUG("QDockWidgetLayout::place");
 
-    const QPoint p = parentWidget()->mapFromGlobal(mouse);
-    Location location = locate(p - geometry().topLeft());
+    // screen -> logical coordinates
+    QPoint p = parentWidget()->mapFromGlobal(mouse);
+    if (QApplication::layoutDirection() == Qt::RightToLeft)
+        p = QPoint(parentWidget()->rect().right() - p.x(), p.y());
+    QRect r = QStyle::visualRect(QApplication::layoutDirection(), parentWidget()->rect(), _r);
+
+    Location location = locate(p - QStyle::visualRect(QApplication::layoutDirection(), parentWidget()->rect(), geometry()).topLeft());
     const QDockWidgetLayoutInfo &info = layout_info.at(location.index);
     const bool horizontal = orientation == Qt::Horizontal;
 
@@ -1054,7 +1064,7 @@ QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QP
         QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
         DEBUG("  forwarding...");
-        target = l->place(dockwidget, r, mouse);
+        target = l->place(dockwidget, _r, mouse);
         DEBUG("END of QDockWidgetLayout::place (forwarded)");
         return target;
     }
@@ -1064,7 +1074,12 @@ QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QP
     const int separatorExtent =
         parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
     Qt::DockWidgetAreas allowedAreas =
-        getAllowedAreas(info.item->geometry(), sz1, sz2, separatorExtent);
+        getAllowedAreas(QStyle::visualRect(QApplication::layoutDirection(),
+                                           parentWidget()->rect(),
+                                           info.item->geometry()),
+                        sz1,
+                        sz2,
+                        separatorExtent);
 
     /*
       we do in-place reordering if the dock widget is in this layout.
@@ -1092,7 +1107,10 @@ QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QP
         }
 
         const int center =
-            pick(orientation, layout_info.at(location.index).item->geometry().center());
+            pick(orientation,
+                 QStyle::visualRect(QApplication::layoutDirection(),
+                                    parentWidget()->rect(),
+                                    layout_info.at(location.index).item->geometry()).center());
         const int pos = pick(orientation, p);
 
         if ((which > location.index && pos < center)
@@ -1116,10 +1134,21 @@ QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QP
     }
 
     DEBUG() << "  trySplit:" << orientation << location.area
-            << info.item->geometry() << p << sz1 << sz2 << separatorExtent;
-    target = ::trySplit(orientation, location.area, allowedAreas,
-                        info.item->geometry(), p, separatorExtent);
+            << QStyle::visualRect(QApplication::layoutDirection(),
+                                  parentWidget()->rect(),
+                                  info.item->geometry())
+            << p << sz1 << sz2 << separatorExtent;
+    target = ::trySplit(orientation,
+                        location.area,
+                        allowedAreas,
+                        QStyle::visualRect(QApplication::layoutDirection(),
+                                           parentWidget()->rect(),
+                                           info.item->geometry()),
+                        p,
+                        separatorExtent);
+    DEBUG() << "    got" << target;
     if (!target.isEmpty()) {
+        target = QStyle::visualRect(QApplication::layoutDirection(), parentWidget()->rect(), target);
         target.setSize(target.size().expandedTo(sz1));
         target.moveTopLeft(parentWidget()->mapToGlobal(target.topLeft()));
     }
@@ -1129,12 +1158,17 @@ QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QP
 
 /*!
  */
-void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse)
+void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &_r, const QPoint &mouse)
 {
     DEBUG("QDockWidgetLayout::drop");
 
-    const QPoint p = parentWidget()->mapFromGlobal(mouse);
-    Location location = locate(p - geometry().topLeft());
+    // screen -> logical coordinates
+    QPoint p = parentWidget()->mapFromGlobal(mouse);
+    if (QApplication::layoutDirection() == Qt::RightToLeft)
+        p = QPoint(parentWidget()->rect().right() - p.x(), p.y());
+    QRect r = QStyle::visualRect(QApplication::layoutDirection(), parentWidget()->rect(), _r);
+
+    Location location = locate(p - QStyle::visualRect(QApplication::layoutDirection(), parentWidget()->rect(), geometry()).topLeft());
     const QDockWidgetLayoutInfo &info = layout_info.at(location.index);
     const bool horizontal = orientation == Qt::Horizontal;
 
@@ -1143,7 +1177,7 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
         QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
         DEBUG("  forwarding...");
-        l->drop(dockwidget, r, mouse);
+        l->drop(dockwidget, _r, mouse);
         DEBUG("END of QDockWidgetLayout::drop (forwarded)");
         return;
     }
@@ -1163,7 +1197,12 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
     const int separatorExtent =
         parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
     Qt::DockWidgetAreas allowedAreas =
-        getAllowedAreas(info.item->geometry(), sz1, sz2, separatorExtent);
+        getAllowedAreas(QStyle::visualRect(QApplication::layoutDirection(),
+                                           parentWidget()->rect(),
+                                           info.item->geometry()),
+                        sz1,
+                        sz2,
+                        separatorExtent);
 
     /*
       we do in-place reordering if the dock widget is in this layout.
@@ -1194,10 +1233,21 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
 
 #ifndef QT_NO_MAINWINDOW
     DEBUG() << "  trySplit:" << orientation << location.area
-            << info.item->geometry() << p << sz1 << sz2 << separatorExtent;
-    QRect target = ::trySplit(orientation, location.area, allowedAreas,
-                              info.item->geometry(), p, separatorExtent);
+            << QStyle::visualRect(QApplication::layoutDirection(),
+                                                 parentWidget()->rect(),
+                                  info.item->geometry())
+            << p << sz1 << sz2 << separatorExtent;
+    QRect target = ::trySplit(orientation,
+                              location.area,
+                              allowedAreas,
+                              QStyle::visualRect(QApplication::layoutDirection(),
+                                                 parentWidget()->rect(),
+                                                 info.item->geometry()),
+                              p,
+                              separatorExtent);
+    DEBUG() << "    got" << target;
     if (!target.isEmpty()) {
+        target = QStyle::visualRect(QApplication::layoutDirection(), parentWidget()->rect(), target);
         QMainWindowLayout *layout =
             qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
         Q_ASSERT(layout != 0);
@@ -1233,8 +1283,10 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
         }
 
         if (nested) {
+            DEBUG() << "    splitting";
             split(qobject_cast<QDockWidget *>(info.item->widget()), dockwidget, location.area);
         } else {
+            DEBUG() << "    extending";
             int at = location.index / 2;
             if (location.area == Qt::RightDockWidgetArea
                 || location.area == Qt::BottomDockWidgetArea)
