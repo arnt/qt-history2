@@ -842,6 +842,7 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
             step.buildStep += " \\\n\t";
             QString command(compilerCommands.join(" "));
             // Might be a macro, and not a valid filename, so the replaceExtraCompilerVariables() would eat it
+            command.replace("\"${QMAKE_FILE_IN}\"", fileIn); // InputPath is quoted already
             command.replace("${QMAKE_FILE_IN}", fileIn);
             command.replace("${QMAKE_FILE_BASE}", fileBase);
             command.replace("${QMAKE_FILE_OUT}", fileOut);
