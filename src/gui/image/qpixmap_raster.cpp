@@ -360,10 +360,7 @@ QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
 
      QPixmap res(r.size());
 
-    QWidget *tlw = widget->window();
-    QPoint tlwOffset = widget->mapTo(tlw, QPoint());
-    r.translate(tlwOffset);
-    tlw->d_func()->drawWidget(&res, r, -r.topLeft(), QWidgetPrivate::DrawRecursive | QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawPaintOnScreen | QWidgetPrivate::DrawInvisible);
+    widget->d_func()->drawWidget(&res, r, -r.topLeft(), QWidgetPrivate::DrawRecursive | QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawPaintOnScreen | QWidgetPrivate::DrawInvisible);
     return res;
 }
 
