@@ -497,8 +497,12 @@ X11:
 - QWidget
         Added support for freedesktop.org startup notifications.
 
-UNIX:
 - Added support for Solaris 10 on AMD64 with the compiler provided by Sun.
+
+Mac OS X:
+
+- Improved support for the VoiceOver accessibility tool in Mac OS 10.4
+  and later
 
 Tools
 -----
