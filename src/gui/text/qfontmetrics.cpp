@@ -196,6 +196,7 @@ QFontMetrics &QFontMetrics::operator=(const QFontMetrics &fm)
 }
 
 /*!
+    \overload
     Returns true if \a other is equal to this object; otherwise
     returns false.
 
@@ -210,6 +211,16 @@ bool QFontMetrics::operator ==(const QFontMetrics &other) const
     return d == other.d;
 }
 
+/*!
+    Returns true if \a other is equal to this object; otherwise
+    returns false.
+
+    Two font metrics are considered equal if they were constructed
+    from the same QFont and the paint devices they were constructed
+    for are considered compatible.
+
+    \sa operator!=()
+*/
 bool QFontMetrics::operator ==(const QFontMetrics &other)
 {
     return d == other.d;
@@ -915,6 +926,7 @@ QFontMetricsF &QFontMetricsF::operator=(const QFontMetricsF &fm)
 }
 
 /*!
+  \overload
   Returns true if the font metrics are equal to the \a other font
   metrics; otherwise returns false.
 
@@ -927,13 +939,31 @@ bool QFontMetricsF::operator ==(const QFontMetricsF &other) const
     return d == other.d;
 }
 
+/*!
+  Returns true if the font metrics are equal to the \a other font
+  metrics; otherwise returns false.
+
+  Two font metrics are considered equal if they were constructed from the
+  same QFont and the paint devices they were constructed for are
+  considered to be compatible.
+*/
 bool QFontMetricsF::operator ==(const QFontMetricsF &other)
 {
     return d == other.d;
 }
 
 /*!
-  \fn bool QFontMetricsF::operator !=(const QFontMetricsF &other);
+  \fn bool QFontMetricsF::operator !=(const QFontMetricsF &other)
+
+  Returns true if the font metrics are not equal to the \a other font
+  metrics; otherwise returns false.
+
+  \sa operator==()
+*/
+
+/*!
+  \fn bool QFontMetricsF::operator !=(const QFontMetricsF &other) const
+  \overload
 
   Returns true if the font metrics are not equal to the \a other font
   metrics; otherwise returns false.

@@ -2015,7 +2015,7 @@ void Q3ComboBox::returnPressed()
 
 
 /*!
-  Enables the combobox if \a enabled is true; otherwise disables it.
+  Enables the combobox if \a enable is true; otherwise disables it.
 
   \sa QWidget::enabled
 */
