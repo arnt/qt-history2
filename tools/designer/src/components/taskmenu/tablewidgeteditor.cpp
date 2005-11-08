@@ -167,16 +167,13 @@ void TableWidgetEditor::copyContents(QTableWidget *sourceWidget, QTableWidget *d
     }
 }
 
-void TableWidgetEditor::on_tableWidget_currentItemChanged(QTableWidgetItem *,
-            QTableWidgetItem *)
+void TableWidgetEditor::on_tableWidget_currentCellChanged(int currentRow, int currentCol, int, int)
 {
     if (m_updating)
         return;
     m_updating = true;
-    int row = ui.tableWidget->currentRow();
-    int col = ui.tableWidget->currentColumn();
-    ui.rowsListWidget->setCurrentRow(row);
-    ui.columnsListWidget->setCurrentRow(col);
+    ui.rowsListWidget->setCurrentRow(currentRow);
+    ui.columnsListWidget->setCurrentRow(currentCol);
     m_updating = false;
     updateEditor();
     ui.itemTextLineEdit->selectAll();
@@ -516,13 +513,19 @@ void TableWidgetEditor::on_newColumnButton_clicked()
     ui.tableWidget->setHorizontalHeaderItem(columnCount, headerItem);
     moveColumnsLeft(idx, columnCount);
 
+    QListWidgetItem *currentRow = ui.rowsListWidget->currentItem();
+    if (currentRow) {
+        int row = ui.rowsListWidget->currentRow();
+        ui.tableWidget->setCurrentCell(row, idx);
+    }
+
     QListWidgetItem *item = new QListWidgetItem();
     item->setFlags(item->flags() | Qt::ItemIsEditable);
     item->setText(newColumnString);
     ui.columnsListWidget->insertItem(idx, item);
     ui.columnsListWidget->setCurrentItem(item);
 
-    m_updating = true;
+    m_updating = false;
     updateEditor();
 
     ui.columnsListWidget->editItem(item);
@@ -681,6 +684,12 @@ void TableWidgetEditor::on_newRowButton_clicked()
     headerItem->setText(newRowString);
     ui.tableWidget->setVerticalHeaderItem(rowCount, headerItem);
     moveRowsDown(idx, rowCount);
+
+    QListWidgetItem *currentCol = ui.columnsListWidget->currentItem();
+    if (currentCol) {
+        int col = ui.columnsListWidget->currentRow();
+        ui.tableWidget->setCurrentCell(idx, col);
+    }
 
     QListWidgetItem *item = new QListWidgetItem();
     item->setFlags(item->flags() | Qt::ItemIsEditable);

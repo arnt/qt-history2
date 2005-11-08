@@ -34,8 +34,7 @@ public:
 
 private slots:
 
-    void on_tableWidget_currentItemChanged(QTableWidgetItem *current,
-            QTableWidgetItem *previous);
+    void on_tableWidget_currentCellChanged(int currentRow, int currnetCol, int, int);
     void on_tableWidget_itemChanged(QTableWidgetItem *item);
 
     void on_itemTextLineEdit_textEdited(const QString &text);

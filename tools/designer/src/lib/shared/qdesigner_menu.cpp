@@ -283,6 +283,10 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *widget, QMouseEvent *event)
     QAction *action = safeActionAt(index);
     QRect pm_rect = subMenuPixmapRect(action);
 
+#ifdef Q_WS_MAC
+    pm_rect.setLeft(pm_rect.left() - 10); // account for diff in style
+#endif
+    
     if ((hasSubMenuPixmap(action) || action->menu() != 0)
         && pm_rect.contains(m_startPosition)) {
         if (m_currentIndex == m_lastSubMenuIndex)
