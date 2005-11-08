@@ -238,11 +238,24 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
 bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
 {
     event->accept();
-
     m_startPosition = QPoint();
 
-    if (event->button() != Qt::LeftButton)
+    if ((event->buttons() & Qt::LeftButton) != Qt::LeftButton)
         return true;
+
+    if (!rect().contains(event->pos())) {
+        // special case for menubar
+        if (QMenuBar *mb = qobject_cast<QMenuBar*>(QApplication::widgetAt(event->globalPos()))) {
+            QPoint pt = mb->mapFromGlobal(event->globalPos());
+            QAction *action = mb->actionAt(pt);
+            if (action) {
+                QMouseEvent e(event->type(), pt, event->globalPos(), event->button(), event->buttons(), event->modifiers());
+                QApplication::sendEvent(mb, &e);
+            }
+        }
+
+        return true;
+    }
 
     m_currentIndex = findAction(event->pos());
     QAction *action = safeActionAt(m_currentIndex);
@@ -286,7 +299,7 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *widget, QMouseEvent *event)
 #ifdef Q_WS_MAC
     pm_rect.setLeft(pm_rect.left() - 10); // account for diff in style
 #endif
-    
+
     if ((hasSubMenuPixmap(action) || action->menu() != 0)
         && pm_rect.contains(m_startPosition)) {
         if (m_currentIndex == m_lastSubMenuIndex)
@@ -305,20 +318,20 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *widget, QMouseEvent *event)
 bool QDesignerMenu::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 {
     event->accept();
-
     m_startPosition = QPoint();
-
-    QAction *action = safeActionAt(m_currentIndex);
 
     return true;
 }
 
 bool QDesignerMenu::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 {
-    event->accept();
+    if ((event->buttons() & Qt::LeftButton) != Qt::LeftButton)
+        return true;
 
     if (m_startPosition.isNull())
         return true;
+
+    event->accept();
 
     QPoint pos = mapFromGlobal(event->globalPos());
 
@@ -340,7 +353,7 @@ bool QDesignerMenu::handleContextMenuEvent(QWidget *, QContextMenuEvent *event)
     if (qobject_cast<SpecialMenuAction*>(action))
         return true;
 
-    QMenu menu(0);
+    QMenu menu(this);
     QAction *a = menu.addAction(tr("Remove action '%1'").arg(action->objectName()));
     QVariant itemData;
     qVariantSetValue(itemData, action);

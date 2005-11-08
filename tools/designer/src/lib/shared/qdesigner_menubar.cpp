@@ -108,11 +108,13 @@ void QDesignerMenuBar::paintEvent(QPaintEvent *event)
         }
     }
 
-    if (!hasFocus() || m_dragging)
+    QAction *action = currentAction();
+
+    if (m_dragging || !action)
         return;
 
-    if (QAction *a = currentAction()) {
-        QRect g = actionGeometry(a);
+    if (hasFocus() || (action->menu() && action->menu()->isVisible())) {
+        QRect g = actionGeometry(action);
         QDesignerMenu::drawSelection(&p, g.adjusted(1, 1, -1, -1));
     }
 }
@@ -147,12 +149,15 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
 
 bool QDesignerMenuBar::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
 {
+    if (!rect().contains(event->pos()))
+        return true;
+
+    if ((event->buttons() & Qt::LeftButton) != Qt::LeftButton)
+        return true;
+
     event->accept();
 
     m_startPosition = QPoint();
-
-    if (event->button() != Qt::LeftButton)
-        return true;
 
     m_currentIndex = actionAtPosition(event->pos());
     if (m_currentIndex != -1)
@@ -299,7 +304,7 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
     if (event->button() != Qt::LeftButton)
         return true;
 
-    m_startPosition = mapFromGlobal(event->globalPos());
+    m_startPosition = event->pos();
     m_currentIndex = actionAtPosition(m_startPosition);
     update();
 
@@ -308,30 +313,24 @@ bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
 
 bool QDesignerMenuBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 {
-    event->accept();
+    m_startPosition = QPoint();
 
     if (event->button() != Qt::LeftButton)
         return true;
 
-    if (m_startPosition == mapFromGlobal(event->globalPos())) {
-        int index = actionAtPosition(m_startPosition);
-        if (index < actions().count()) {
-            showMenu(index);
-            // update();
-        } else if (QDesignerFormWindowInterface *fw = formWindow()) {
-            if (QDesignerPropertyEditorInterface *pe = fw->core()->propertyEditor()) {
-                pe->setObject(this);
-            }
-        }
-    }
-
-    m_startPosition = QPoint();
+    event->accept();
+    m_currentIndex = actionAtPosition(event->pos());
+    if (m_currentIndex != -1 && m_currentIndex < realActionCount())
+        showMenu();
 
     return true;
 }
 
 bool QDesignerMenuBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 {
+    if ((event->buttons() & Qt::LeftButton) != Qt::LeftButton)
+        return true;
+
     if (m_startPosition.isNull())
         return true;
 
@@ -361,7 +360,7 @@ bool QDesignerMenuBar::handleContextMenuEvent(QWidget *, QContextMenuEvent *even
 
     update();
 
-    QMenu menu(0);
+    QMenu menu(this);
 
     if (action && !qobject_cast<SpecialMenuAction*>(action)) {
         QVariant itemData;
@@ -489,6 +488,8 @@ void QDesignerMenuBar::showLineEdit()
 
     if (action->isSeparator())
         return;
+
+    // hideMenu();
 
     // open edit field for item name
     m_editor->setText(action->text());
