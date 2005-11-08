@@ -38,6 +38,9 @@
 /W  {clip} BD
 /W* {eoclip} BD
 
+/q  {gsave} BD
+/Q  {grestore} BD
+
 % ENDUNCOMPRESSED: Warning: leave this line in. 
 % Everything before this line will be left untouched by the compression
 
@@ -122,8 +125,6 @@
 
 %% image drawing routines
 
-/sl D0 % ### is this needed ?
-
 % defines for QCI
 /QCIgray D0 /QCIcolor D0 /QCIindex D0
 
@@ -138,15 +139,15 @@
     pop
     false 3 colorimage
   }{  % the hard way, based on PD code by John Walker <kelvin@autodesk.com>
-    exec /QCIcolor ED
+    exec /QCIcolor exch def
     /QCIgray QCIcolor length 3 idiv string def
     0 1 QCIcolor length 3 idiv 1 sub
-    { /QCIindex ED
-      /x QCIindex 3 mul def
+    { /QCIindex exch def
+      /_x QCIindex 3 mul def
       QCIgray QCIindex
-      QCIcolor x       get 0.30 mul
-      QCIcolor x 1 add get 0.59 mul
-      QCIcolor x 2 add get 0.11 mul
+      QCIcolor _x       get 0.30 mul
+      QCIcolor _x 1 add get 0.59 mul
+      QCIcolor _x 2 add get 0.11 mul
       add add cvi
       put
     } for
@@ -198,50 +199,50 @@
 	% languagelevel3, we can use image mask and dicts
 
 	% store the image mask
-	/ma exch def
+	/_ma exch def
 	% select colorspace according to 8|24 bit depth and set the decode array /dc
 	8 eq {
-	  /dc [0 1] def
+	  /_dc [0 1] def
 	  /DeviceGray
 	} {
-	  /dc [0 1 0 1 0 1] def
+	  /_dc [0 1 0 1 0 1] def
 	  /DeviceRGB
 	} ifelse
 	setcolorspace
 	% the image data
-	/im exch def
+	/_im exch def
 	% transformation matrix
-	/mt exch def
+	/_mt exch def
 	% width and height
-	/h exch def
-	/w exch def
+	/_h exch def
+	/_w exch def
 	% the image dict
-	/id
+	/_id
 	<<
 	  /ImageType 1
-	  /Width w
-	  /Height h
-	  /ImageMatrix mt
-	  /DataSource im
+	  /Width _w
+	  /Height _h
+	  /ImageMatrix _mt
+	  /DataSource _im
 	  /BitsPerComponent 8
-	  /Decode dc
+	  /Decode _dc
 	>> def
 	% the mask dictionary
-	/md
+	/_md
 	<<
 	  /ImageType 1
-	  /Width w
-	  /Height h
-	  /ImageMatrix mt
-	  /DataSource ma
+	  /Width _w
+	  /Height _h
+	  /ImageMatrix _mt
+	  /DataSource _ma
 	  /BitsPerComponent 1
 	  /Decode [0 1]
 	>> def
 	% and the combined image dict
 	<<
 	  /ImageType 3
-	  /DataDict id
-	  /MaskDict md
+	  /DataDict _id
+	  /MaskDict _md
 	  /InterleaveType 3
 	>> 
 	image
@@ -265,12 +266,12 @@
 % x1 y1 x2 y2 color_string size SetLinGrad --
 /SetLinGrad {
   level3 {
-    /size exch def
-    /colors exch def
-    /y2 exch def
-    /x2 exch def
-    /y1 exch def
-    /x1 exch def
+    /_size exch def
+    /_colors exch def
+    /_y2 exch def
+    /_x2 exch def
+    /_y1 exch def
+    /_x1 exch def
     /LinGrad 
     << 
       /PatternType 2
@@ -278,16 +279,16 @@
 	<<
         /ShadingType 2
 	/ColorSpace [/DeviceRGB]
-	/Coords [x1 y1 x2 y2]
+	/Coords [_x1 _y1 _x2 _y2]
 	/Extend [true true]
 	/Function 
 	  <<
 	  /FunctionType 0
 	  /Domain [0 1]
           /Range [0 1 0 1 0 1]
-	  /DataSource colors
+	  /DataSource _colors
           /BitsPerSample 8
-	  /Size [size]
+	  /Size [_size]
 	  >>
 	>>
       >>
@@ -306,11 +307,11 @@
     } if
     BSt 2 ge BSt 8 le and             % dense pattern?
     {
-      BDArr BSt 2 sub get /sc ED 
+      BDArr BSt 2 sub get /_sc exch def 
       % the following line scales the brush color according to the pattern. the higher the pattern the lighter the color.
       BCol 
       { 
-	1. exch sub sc mul 1. exch sub 
+	1. exch sub _sc mul 1. exch sub 
       } forall 
       3 array astore
       SC 
@@ -324,14 +325,14 @@
       4 2 roll                        % right lower left upper
       3 2 roll                        % right left upper lower
       exch                            % left right lower upper
-      sub /h ED
-      sub /w ED
+      sub /_h exch def
+      sub /_w exch def
       OMo {
 	newpath
 	0 0 moveto
-	0 h rlineto
-	w 0 rlineto
-	0 h neg rlineto
+	0 _h rlineto
+	_w 0 rlineto
+	0 _h neg rlineto
 	closepath
 	BkCol SC
 	fill
@@ -340,27 +341,27 @@
       0.3 setlinewidth
       newpath
       BSt 9 eq BSt 11 eq or           % horiz or cross pattern
-      { 0 4 h
-	{ dup 0 exch moveto w exch lineto } for
+      { 0 4 _h
+	{ dup 0 exch moveto _w exch lineto } for
       } if
       BSt 10 eq BSt 11 eq or          % vert or cross pattern
-      { 0 4 w
-	{ dup 0 moveto h lineto } for
+      { 0 4 _w
+	{ dup 0 moveto _h lineto } for
       } if
       BSt 12 eq BSt 14 eq or          % F-diag or diag cross
-      { w h gt
-	{ 0 6 w h add
-	  { dup 0 moveto h sub h lineto } for
-	} { 0 6 w h add
-	  { dup 0 exch moveto w sub w exch lineto } for
+      { _w _h gt
+	{ 0 6 _w _h add
+	  { dup 0 moveto _h sub _h lineto } for
+	} { 0 6 _w _h add
+	  { dup 0 exch moveto _w sub _w exch lineto } for
 	} ifelse
       } if
       BSt 13 eq BSt 14 eq or          % B-diag or diag cross
-      { w h gt
-	{ 0 6 w h add
-	  { dup h moveto h sub 0 lineto } for
-	} { 0 6 w h add
-	  { dup w exch moveto w sub 0 exch lineto } for
+      { _w _h gt
+	{ 0 6 _w _h add
+	  { dup _h moveto _h sub 0 lineto } for
+	} { 0 6 _w _h add
+	  { dup _w exch moveto _w sub 0 exch lineto } for
 	} ifelse
       } if
       S
@@ -378,10 +379,6 @@
   grestore
 } bind def
 
-% for arc
-/mat matrix def
-/w D0 /h D0
-/x D0 /y D0
 
 /C D0
 
@@ -411,23 +408,23 @@
 } bind def
 
 /E {                         % PdcDrawEllipse [x y w h]
-  /h ED /w ED /y ED /x ED
-  mat CM pop
-  x w 2 div add y h 2 div add translate
-  1 h w div scale
+  gsave
+  /_h exch def /_w exch def /_y exch def /_x exch def
+  _x _w 2 div add _y _h 2 div add translate
+  1 _h _w div scale
   newpath
-  0 0 w 2 div 0 360 arc
-  mat SM
+  0 0 _w 2 div 0 360 arc
   BF
   QS
+  grestore
 } bind def
 
 /BC {                                % PdcSetBkColor [[R G B]]
-  /BkCol ED
+  /BkCol exch def
 } bind def
 
 /BR {                                % PdcSetBrush [style [R G B]]
-  /BCol ED /BSt ED
+  /BCol exch def /BSt exch def
 } bind def
 
 /NB {                                % set nobrush
@@ -436,9 +433,9 @@
 
 /PE {                                % PdcSetPen [style width R G B Cap Join]
   setlinejoin setlinecap
-  /PCol ED
-  /LWi ED
-  /PSt ED
+  /PCol exch def
+  /LWi exch def
+  /PSt exch def
   PCol SC
 } bind def
 
@@ -506,7 +503,7 @@
       1 index /FID ne
       {def}{pop pop}ifelse
     } forall
-    /Encoding ED currentdict 
+    /Encoding exch def currentdict 
   end
   definefont pop
 } bind def
@@ -518,14 +515,14 @@
 /DF {
   findfont
   % get the fontsize on top of the stack and define font matrix
-  /fs 3 -1 roll def [ fs 0 0 fs -1 mul 0 0 ]  
+  /_fs 3 -1 roll def [ _fs 0 0 _fs -1 mul 0 0 ]  
   makefont
   def
 } bind def
 
-/ty 0 def
+/_ty 0 def
 /Y {
-  /ty ED
+  /_ty exch def
 } bind def
 
 /Tl { % draw underline/strikeout line: () w x y lw ->Tl-> () w x
@@ -537,7 +534,7 @@
 } bind def
 
 /XYT {  % [string [x/y displacement array] width x]
-  ty moveto % pops x
+  _ty moveto % pops x
 
   /xyshow where { % interpreter has xyshow
     pop pop
@@ -555,7 +552,7 @@
 } bind def
 
 /AT {
-  ty moveto % pops x
+  _ty moveto % pops x
   1 index % string cwidth string
   dup length 2 div exch % string cwidth length string     !have to divide by 2 since we use unicode!
   stringwidth pop % string cwidth length pwidth
@@ -594,11 +591,11 @@
 } bind def
 
 /ACR {                                       % add clip rect
-  /h ED /w ED /y ED /x ED
-  x y moveto
-  0 h rlineto
-  w 0 rlineto
-  0 h neg rlineto
+  /_h exch def /_w exch def /_y exch def /_x exch def
+  _x _y moveto
+  0 _h rlineto
+  _w 0 rlineto
+  0 _h neg rlineto
   closepath
 } bind def
 
