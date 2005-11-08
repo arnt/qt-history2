@@ -3297,10 +3297,37 @@ bool Q3TextEdit::focusNextPrevChild(bool n)
         return false;
     bool b = doc->focusNextPrevChild(n);
     repaintChanged();
-    if (b)
-        //##### this does not work with tables. The focusIndicator
-        //should really be a Q3TextCursor. Fix 3.1
-        makeParagVisible(doc->focusIndicator.parag);
+    if (b) {
+        Q3TextParagraph *p = doc->focusIndicator.parag;
+        int start = doc->focusIndicator.start;
+        int len = doc->focusIndicator.len;
+
+        int y = p->rect().y();
+        while (p
+               && len == 0
+               && p->at(start)->isCustom()
+               && p->at(start)->customItem()->isNested()) {
+
+            Q3TextTable *t = (Q3TextTable*)p->at(start)->customItem();
+            QList<Q3TextTableCell *> cells = t->tableCells();
+            for (int idx = 0; idx < cells.count(); ++idx) {
+                Q3TextTableCell *c = cells.at(idx);
+                Q3TextDocument *cellDoc = c->richText();
+                if ( cellDoc->hasFocusParagraph() ) {
+                    y += c->geometry().y() + c->verticalAlignmentOffset();
+
+                    p = cellDoc->focusIndicator.parag;
+                    start = cellDoc->focusIndicator.start;
+                    len = cellDoc->focusIndicator.len;
+                    if ( p )
+                        y += p->rect().y();
+
+                    break;
+                }
+            }
+        }
+        setContentsPos( contentsX(), QMIN( y, contentsHeight() - visibleHeight() ) );
+    }
     return b;
 }
 
