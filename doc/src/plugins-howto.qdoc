@@ -50,13 +50,13 @@
     \row    \o QAccessibleBridgePlugin \o \c plugins/accessiblebridge \o Case Sensitive
     \row    \o QAccessiblePlugin       \o \c plugins/accessible       \o Case Sensitive
     \row    \o QDecorationPlugin       \o \c plugins/decorations      \o Case Sensitive
-    \row    \o QGfxDriverPlugin        \o \c plugins/gfxdrivers       \o Case Sensitive
     \row    \o QIconEnginePlugin       \o \c plugins/iconengines      \o Case Insensitive
     \row    \o QImageIOPlugin          \o \c plugins/imageformats     \o Case Sensitive
     \row    \o QInputContextPlugin     \o \c plugins/inputmethods     \o Case Sensitive
     \row    \o QKbdDriverPlugin        \o \c plugins/kbddrivers       \o Case Sensitive
     \row    \o QMouseDriverPlugin      \o \c plugins/mousedrivers     \o Case Sensitive
     \row    \o QPictureFormatPlugin    \o \c plugins/pictureformats   \o Case Sensitive
+    \row    \o QScreenDriverPlugin     \o \c plugins/gfxdrivers       \o Case Sensitive
     \row    \o QSqlDriverPlugin        \o \c plugins/sqldrivers       \o Case Sensitive
     \row    \o QStylePlugin            \o \c plugins/styles           \o Case Insensitive
     \row    \o QTextCodecPlugin        \o \c plugins/codecs           \o Case Sensitive
