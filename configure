@@ -4522,6 +4522,20 @@ done
 rm -f .projects .projects.3
 
 #-------------------------------------------------------------------------------
+# XShape is important, DnD in the Designer doens't work without it
+#-------------------------------------------------------------------------------
+if [ "$CFG_XSHAPE" = "no" ]; then
+    cat <<EOF
+
+	NOTICE: Qt will not be built with XShape support. 
+
+	As a result, drag-and-drop in the Qt Designer will NOT
+	work. We recommend that you enable XShape support by passing
+	the -xshape switch to $0.
+EOF
+fi
+
+#-------------------------------------------------------------------------------
 # check for platforms that we don't yet know about
 #-------------------------------------------------------------------------------
 if [ "$ARCH" = "generic" ]; then
