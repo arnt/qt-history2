@@ -1988,7 +1988,7 @@
     the source model. The QStringFilterModel class provides a ready-made proxy model
     for filtering textual data, and can be used in the following way:
 
-    \quotefromfile snippets/qstringfiltermodel
+    \quotefromfile snippets/qstringfiltermodel/main.cpp
     \skipto QStringFilterModel
     \printuntil setSourceModel
     \skipto filteredView
