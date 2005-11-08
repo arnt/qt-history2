@@ -1534,6 +1534,11 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
         QPainterPath stroke;
         qreal width = d->cpen.widthF();
         QPolygonF poly;
+        QMatrix old_matrix = d->matrix;
+        bool adjust_coords = d->has_alpha_pen && !(d->render_hints & QPainter::Antialiasing);
+        // necessary to get aliased alphablended primitives to be drawn correctly
+        if (adjust_coords)
+            d->matrix.translate(0.5f, 0.5f);
         if (width == 0) {
             stroker.setWidth(1);
             stroke = stroker.createStroke(path * d->matrix);
@@ -1549,6 +1554,8 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
             stroke.setFillRule(Qt::WindingFill);
             d->fillPath(stroke, QX11PaintEnginePrivate::PenGC, true);
         }
+        if (adjust_coords)
+            d->matrix = old_matrix;
     } else if (d->has_pen) {
         // if we have a pen width of 0 - use XDrawLine() for speed
         QList<QPolygonF> polys = path.toSubpathPolygons(d->matrix);
