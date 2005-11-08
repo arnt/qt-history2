@@ -26,7 +26,7 @@ Added support for linking static plugins into the application.
 
 QtSvg
 -----
-New module for displaying the contents of SVG (Scalable Vector Graphics)
+New module for rendering the contents of SVG (Scalable Vector Graphics)
 files.
 
 ****************************************************************************
@@ -36,9 +36,8 @@ files.
 Qt Designer
 -----------
 
-- Added support for editing menubars and toolbars
-  through actions.
-- Support for adding comments to string properties.
+- Added support for editing menubars and toolbars.
+- Added support for adding comments to string properties.
 - Added new static QtForm library with improved
   QForm::Loader API for loading designer forms at run-time.
 - Added support for namespaces in uic generated code.
@@ -46,19 +45,17 @@ Qt Designer
 - Added support for editing table, tree and list widgets.
 - Improved palette editing and resource support.
 
-Qt Linguist
------------
-
 Qt 3 to 4 Porting Tool
 ----------------------
+
 - Q(V|H)BoxLayout and QGridLayout usage is now ported to
   use Q3(V|H)BoxLayout/Q3GridLayout, to retain the margin/spacing
   behavior as in Qt 3.
 
 Meta Object Compiler (moc)
 --------------------------
-- Support for const signals.
 
+- Added support for const signals.
 
 Qt Assistant
 ------------
@@ -80,6 +77,7 @@ QMake
 
 - Added support for new FORMS3 profile variable to make it possible
   to have Qt Designer forms from Qt 3 and Qt 4 in the same project.
+- Added support for precompiled headers on win32-g++ (mingw)
 
 
 General Fixes
@@ -89,24 +87,24 @@ General Fixes
         Added toLong() and toULong().
 
 - QFileDialog
-	Fix shortcut and focus for "Alpha channel" spinbox.
+        Fix shortcut and focus for "Alpha channel" spinbox.
 
 - QLinkedList
         Added conversion methods to convert from/to STL lists.
 
 - QMap/QHash
-	Fixed operator>>() to read back multiple values associated
-	to a same key correctly.
+        Fixed operator>>() to read back multiple values associated
+        to a same key correctly.
         Added constFind(), for finding an item without causing a detach.
 
 - QMap/QHash
-	Const-correctness in const_iterator's operator--(int).
+        Const-correctness in const_iterator's operator--(int).
 
 - QMainWindow
- 	The saveState() and restoreState() functions no longer
- 	fallback to using the windowTitle property when the objectName
- 	property is not set on a QToolBar or QDockWidget; this
- 	behavior was undocumented and has been removed.
+        The saveState() and restoreState() functions no longer
+        fallback to using the windowTitle property when the objectName
+        property is not set on a QToolBar or QDockWidget; this
+        behavior was undocumented and has been removed.
 
 - QToolBar
         Added Qt 3 compatibility signal visibilityChanged(bool).
@@ -125,17 +123,19 @@ General Fixes
         Added isValid() to QSqlError.
 
 - QThread
-	Added setPriority() and priority(), for querying and setting
-	the priority of a thread.
+        Added setPriority() and priority(), for querying and setting
+        the priority of a thread.
 
 - QTreeWidgetItem/QTreeWidget
-	Added new constructors and addChildren(), insertChildren(),
-	takeChildren(), insertTopLevelItems(), addTopLevelItems to
-	speed up insertion of multiple items.
+        Added new constructors and addChildren(), insertChildren(),
+        takeChildren(), insertTopLevelItems(), addTopLevelItems to
+        speed up insertion of multiple items.
 
 - QTextDocument
-	Added the class QTextBlockUserData and added the possibility
-	of storing a state or custom user data in a QTextBlock
+        Added the class QTextBlockUserData and added the possibility
+        of storing a state or custom user data in a QTextBlock
+        Added useDesignMetrics property, to enable the use of design metrics for
+        all fonts in a QTextDocument.
 
 - QTextFormat
         Added support for setting the font pixel size.
@@ -146,8 +146,8 @@ General Fixes
         supported by QMetaType.
 
 - QAbstractItemView
-	Added setIndexWidget() and indexWidget() which makes it
-	possible to set a widget at a given index.
+        Added setIndexWidget() and indexWidget() which makes it
+        possible to set a widget at a given index.
 
         Added a QAbstractItemView::ContiguousSelection mode.
         Added scrollToTop() and scrollToBottom().
@@ -168,7 +168,7 @@ General Fixes
 
         Added setCurrentCell().
 
-	Added QTableWidgetItem copy constructors.
+        Added QTableWidgetItem copy constructors.
 
 
 - QTreeWidget
@@ -178,23 +178,23 @@ General Fixes
 - QListWidget
         Added setItemWidget() and itemWidget() which makes it possible
         to set a widget on an item.
-	
-	Added QListWidgetItem copy constructors.
+
+        Added QListWidgetItem copy constructors.
 
 - QMutableMapIterator
-	Added value() overloads to Java-style iterators that return
-	non-const references.
+        Added value() overloads to Java-style iterators that return
+        non-const references.
 
 - QTextTable
         Added mergeCells() and splitCells() to be able to set the row
         or column span on a table cell.
 
 - QStyle
-	Added standardIcon() which returns a default icon for standard
-	operations.
+        Added standardIcon() which returns a default icon for standard
+        operations.
         Added State_ReadOnly, which is enabled for read-only widgets.
 
-	Renamed QStyleOption::init() to initFrom().
+        Renamed QStyleOption::init() to initFrom().
         - QGroupBox is now completely stylable (QStyleOptionGroupBox)
         - Indeterminate (busy) progress bars are now animated properly
           in all styles.
@@ -213,23 +213,23 @@ General Fixes
         Added rowCount() and columnCount() convenience functions.
 
 - QSettings
-	Added support for custom formats in QSettings.
+        Added support for custom formats in QSettings.
 
 - QTextStream
-	Added status(), setStatus() and resetStatus() for improved error handling.
+        Added status(), setStatus() and resetStatus() for improved error handling.
         Added read(qint64 maxlen), for reading parts of a text stream into a
-	QString.
+        QString.
 
 - QTextCursor
-	Added support for BlockUnderCursor selection type.
+        Added support for BlockUnderCursor selection type.
 
 - QHeaderView
-	Added defaultSectionSize property which tells the default size
-	of the header sections before resizing.
+        Added defaultSectionSize property which tells the default size
+        of the header sections before resizing.
 
 - QScrollBar
-	Added context menu to the scrollbar with default navigation
-	options.
+        Added context menu to the scrollbar with default navigation
+        options.
 
 - QScrollArea
         Added ensureVisible(), which can scroll the scrollarea to make sure a
@@ -243,15 +243,15 @@ General Fixes
         Now allows multiple sections of the same type.
 
 - QButtonGroup
-	Added handling of buttons with IDs to the buttongroup like in
-	Qt 3.
+        Added handling of buttons with IDs to the buttongroup like in
+        Qt 3.
 
 - QIODevice
-	Added peek() for peeking data from a device.
+        Added peek() for peeking data from a device.
 
 - QTextEdit
-	Added property tabStopWidth which sets the tab stop width in
-	pixels.
+        Added property tabStopWidth which sets the tab stop width in
+        pixels.
         append(const QString &) is now a public slot.
         Added support for inserting unicode control characters through the
         context menu.
@@ -259,7 +259,7 @@ General Fixes
         accepts rich text insertions by the user.
 
 - QDataStream
-	Added skipRawData().
+        Added skipRawData().
         Added support for QRegExp.
 
 - QProgressBar
@@ -320,7 +320,7 @@ General Fixes
         flag for selecting strict or tolerant parsing.
         Added support for the NAMEPREP standard in our i18n domain name support.
 
-- QDir 
+- QDir
         Added the filter QDir::NoDotAndDotDot, for the
         special directories "." and "..".
         Added the filter QDir::AllEntries, for all entries
@@ -407,11 +407,11 @@ General Fixes
         address and port.
 
 - QPen
-        Support for custom dash pattern styles and milter limits.
-        Support for QDebug.
+        Added support for custom dash pattern styles and milter limits.
+        Added support for QDebug.
 
 - QDebug
-        Support for QVector and QPair output.
+        Added support for QVector and QPair output.
 
 - QStringListModel
         Added support for sorting.
@@ -424,14 +424,14 @@ New classes
 -----------
 
 - QTreeWidgetItemIterator
-	Added iterator to help iterating over items in a QTreeWidget.
+        Added iterator to help iterating over items in a QTreeWidget.
 
 - QSortingProxyModel
-	The QSortingProxyModel can contain another model and handles
-	the sorting of it.
+        The QSortingProxyModel can contain another model and handles
+        the sorting of it.
 
 - QFilteringProxyModel
-	Allows you to provide a subset of a model to a view.
+        Allows you to provide a subset of a model to a view.
 
 - QStringFilterModel
         Allows you to provide a subset of a model to a view based on a
@@ -494,17 +494,14 @@ X11:
 UNIX:
 - Added support for Solaris 10 on AMD64 with the compiler provided by Sun.
 
-Mac OS X:
-
-
 Tools
 -----
 
 - zlib
-	Upgraded to zlib 1.2.3.
+        Upgraded to zlib 1.2.3.
 
 - FreeType
-	Upgraded to FreeType 2.1.10.
+        Upgraded to FreeType 2.1.10.
 
 - SQLite
         Upgraded to SQLite 3.2.7
@@ -520,3 +517,6 @@ last change: 197877
 2005/05/26 - 2005/10/31
 last change: 197883
 
+//depot/qt/main/qmake
+2005/05/26 - 2005/10/31
+last change: 197463
