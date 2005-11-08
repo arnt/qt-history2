@@ -1795,7 +1795,12 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
 //    qDebug() << "layoutBlock; width" << layoutStruct->x_right - layoutStruct->x_left << "(maxWidth is btw" << tl->maximumWidth() << ")";
 
     if (previousBlock.isValid()) {
-        layoutStruct->y += qMax(blockFormat.topMargin(), previousBlock.blockFormat().bottomMargin());
+        qreal margin = qMax(blockFormat.topMargin(), previousBlock.blockFormat().bottomMargin());
+        if (margin > 0 && q->paintDevice()) {
+            extern int qt_defaultDpi();
+            margin *= qreal(q->paintDevice()->logicalDpiY()) / qreal(qt_defaultDpi());
+        }
+        layoutStruct->y += margin;
     }
 
     //QTextFrameData *fd = data(layoutStruct->frame);
