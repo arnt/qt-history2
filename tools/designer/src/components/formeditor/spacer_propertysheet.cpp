@@ -29,17 +29,19 @@ SpacerPropertySheet::SpacerPropertySheet(Spacer *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {
     m_fakeProperties.clear();
-
-    for (int i=0; i<count(); ++i)
-        setVisible(i, false);
-
-    setVisible(indexOf(QLatin1String("orientation")), true);
-    setVisible(indexOf(QLatin1String("sizeType")), true);
-    setVisible(indexOf(QLatin1String("sizeHint")), true);
 }
 
 SpacerPropertySheet::~SpacerPropertySheet()
 {
+}
+
+bool SpacerPropertySheet::isVisible(int index) const
+{
+    QString name = propertyName(index);
+
+    return name == QLatin1String("orientation")
+            || name == QLatin1String("sizeType")
+            || name == QLatin1String("sizeHint");
 }
 
 void SpacerPropertySheet::setProperty(int index, const QVariant &value)

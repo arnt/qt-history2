@@ -30,19 +30,17 @@ QLayoutWidgetPropertySheet::QLayoutWidgetPropertySheet(QLayoutWidget *object, QO
     : QDesignerPropertySheet(object, parent)
 {
     m_fakeProperties.clear();
-
-    for (int index = 0; index < count(); ++index) {
-        QString pname = propertyName(index);
-        setVisible(index, false);
-        if (pname == QLatin1String("margin")
-                || pname == QLatin1String("spacing")
-                /*|| pname == QLatin1String("objectName") ### */ )
-            setVisible(index, true);
-    }
 }
 
 QLayoutWidgetPropertySheet::~QLayoutWidgetPropertySheet()
 {
+}
+
+bool QLayoutWidgetPropertySheet::isVisible(int index) const
+{
+    QString name = propertyName(index);
+
+    return name == QLatin1String("margin") || name == QLatin1String("spacing");
 }
 
 void QLayoutWidgetPropertySheet::setProperty(int index, const QVariant &value)

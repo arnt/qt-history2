@@ -29,6 +29,7 @@ public:
     virtual ~LinePropertySheet();
 
     virtual void setProperty(int index, const QVariant &value);
+    virtual bool isVisible(int index) const;
 };
 
 class LinePropertySheetFactory: public QExtensionFactory

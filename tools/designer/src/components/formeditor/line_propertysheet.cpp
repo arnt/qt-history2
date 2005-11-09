@@ -32,24 +32,25 @@ LinePropertySheet::LinePropertySheet(Line *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {
     m_fakeProperties.clear();
-
-    for (int i=0; i<count(); ++i)
-        setVisible(i, false);
-
-    setVisible(indexOf(QLatin1String("geometry")), true);
-    setVisible(indexOf(QLatin1String("orientation")), true);
-    setVisible(indexOf(QLatin1String("objectName")), true);
 }
 
 LinePropertySheet::~LinePropertySheet()
 {
 }
 
+bool LinePropertySheet::isVisible(int index) const
+{
+    QString name = propertyName(index);
+
+    return (name == QLatin1String("geometry")
+            || name == QLatin1String("orientation")
+            || name == QLatin1String("objectName"));
+}
+
 void LinePropertySheet::setProperty(int index, const QVariant &value)
 {
     QDesignerPropertySheet::setProperty(index, value);
 }
-
 
 LinePropertySheetFactory::LinePropertySheetFactory(QExtensionManager *parent)
     : QExtensionFactory(parent)
