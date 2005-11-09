@@ -6,6 +6,8 @@
     \previouspage The Arthur Paint System
     \nextpage The Qt 4 Main Window Classes
 
+    \keyword Scribe
+
     Scribe introduces a set of text layout classes to Qt 4. These classes
     replace the old rich text engine found in Qt 3, and provide new features
     for processing and laying out both plain and rich text.

@@ -149,6 +149,7 @@
         <li><a href="i18n.html">Internationalization</a></li>
         <li><a href="plugins-howto.html">Plugin System</a></li>
         <li><a href="gallery.html">Qt Widget Gallery</a></li>
+        <li><a href="qtestlib-manual.html">Unit Testing Framework</a></li>
         </ul>
         </td>
         <td valign="top">
@@ -160,9 +161,9 @@
         <li><a href="qtnetwork.html">Network Module</a></li>
         <li><a href="qtopengl.html">OpenGL Module</a></li>
         <li><a href="qtsql.html">SQL Module</a></li>
+        <li><a href="qtsvg.html">SVG Module</a></li>
         <li><a href="qtxml.html">XML Module</a></li>
         <li><a href="activeqt.html">ActiveQt Framework</a></li>
-        <li><a href="qttest.html">Unit Testing Framework</a></li>
         </ul>
         </td>
         </tr>
