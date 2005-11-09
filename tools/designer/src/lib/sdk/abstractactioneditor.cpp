@@ -26,8 +26,13 @@
     action editor using the
     QDesignerFormEditorInterface::actionEditor() function.
 
-    QDesignerActionEditorInterface provides the core() function that
-    you can use to retrieve a pointer to \QD's current
+    You can control which actions that are available in the action
+    editor's window using the manageAction() and unmanageAction()
+    functions. An action that is managed by \QD is available in the
+    action editor while an unmanaged action is ignored.
+
+    QDesignerActionEditorInterface also provides the core() function
+    that you can use to retrieve a pointer to \QD's current
     QDesignerFormEditorInterface object, and the setFormWindow()
     function that enables you to change the currently selected form
     window.
@@ -64,5 +69,24 @@ QDesignerFormEditorInterface *QDesignerActionEditorInterface::core() const
     \fn void QDesignerActionEditorInterface::setFormWindow(QDesignerFormWindowInterface *formWindow)
 
     Sets the currently selected form window to \a formWindow.
+
+*/
+
+/*!
+    \fn void QDesignerActionEditorInterface::manageAction(QAction *action)
+
+    Instructs \QD to manage the specified \a action. An action that is
+    managed by \QD is available in the action editor.
+
+    \sa unmanageAction()
+*/
+
+/*!
+    \fn void QDesignerActionEditorInterface::unmanageAction(QAction *action)
+
+    Instructs \QD to ignore the specified \a action. An unmanaged
+    action is not available in the action editor.
+
+    \sa manageAction()
 
 */
