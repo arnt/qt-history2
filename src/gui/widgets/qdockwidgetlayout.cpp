@@ -375,7 +375,7 @@ void QDockWidgetLayout::setGeometry(const QRect &rect)
                 ls.minimumSize = pick(orientation, info.item->minimumSize());
                 ls.maximumSize = pick(orientation, info.item->maximumSize());
 
-                if (canGrow(orientation, sp)) {
+                 if (canGrow(orientation, sp)) {
                     ls.sizeHint = ls.minimumSize;
                     ls.stretch = info.cur_size == -1
                                  ? pick(orientation, info.item->sizeHint())
@@ -404,10 +404,17 @@ void QDockWidgetLayout::setGeometry(const QRect &rect)
     VDEBUG("  final placement:");
     for (int i = 0; i < a.count(); ++i) {
 	const QLayoutStruct &ls = a.at(i);
-        if (ls.empty)
-            continue;
-
 	QDockWidgetLayoutInfo &info = layout_info[i];
+
+        if (ls.empty) {
+            if (info.item->layout()) {
+                // this is a hack, but we need to make sure that empty
+                // nested layouts have a chance to hide unneeded
+                // separators
+                info.item->setGeometry(QRect());
+            }
+            continue;
+        }
 
 	if (info.is_sep) {
 	    VDEBUG("    separator  cur %4d", ls.size);
