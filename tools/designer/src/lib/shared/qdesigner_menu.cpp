@@ -51,7 +51,7 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
 
     m_adjustSizeTimer = new QTimer(this);
     connect(m_adjustSizeTimer, SIGNAL(timeout()), this, SLOT(slotAdjustSizeNow()));
-    
+
     m_addItem = new SpecialMenuAction(this);
     m_addItem->setText(tr("new action"));
     addAction(m_addItem);
@@ -253,12 +253,16 @@ bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
 
     if (!rect().contains(event->pos())) {
         // special case for menubar
-        if (QMenuBar *mb = qobject_cast<QMenuBar*>(QApplication::widgetAt(event->globalPos()))) {
-            QPoint pt = mb->mapFromGlobal(event->globalPos());
-            QAction *action = mb->actionAt(pt);
+        QWidget *target = QApplication::widgetAt(event->globalPos());
+        QMenuBar *mb = qobject_cast<QMenuBar*>(target);
+        QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(target);
+        if (mb != 0 || menu != 0) {
+            QPoint pt = target->mapFromGlobal(event->globalPos());
+
+            QAction *action = mb == 0 ? menu->actionAt(pt) : mb->actionAt(pt);
             if (action) {
                 QMouseEvent e(event->type(), pt, event->globalPos(), event->button(), event->buttons(), event->modifiers());
-                QApplication::sendEvent(mb, &e);
+                QApplication::sendEvent(target, &e);
             }
         }
         return true;
@@ -268,8 +272,11 @@ bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
     QAction *action = safeActionAt(m_currentIndex);
 
     QRect pm_rect;
-    if (action->menu() || hasSubMenuPixmap(action))
+    if (action->menu() || hasSubMenuPixmap(action)) {
         pm_rect = subMenuPixmapRect(action);
+        pm_rect.setLeft(pm_rect.left() - 20); // give the user a little more
+                                              // space to click
+    }
 
     if (!pm_rect.contains(event->pos()) && m_currentIndex != -1)
         enterEditMode();
@@ -308,23 +315,28 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *widget, QMouseEvent *event)
 
     int index = findAction(m_startPosition);
 
-    m_currentIndex = index;
-
     QAction *action = safeActionAt(index);
     QRect pm_rect = subMenuPixmapRect(action);
+    pm_rect.setLeft(pm_rect.left() - 20); // give the user a little more space to click
 
-#ifdef Q_WS_MAC
-    pm_rect.setLeft(pm_rect.left() - 10); // account for diff in style
-#endif
+    int old_index = m_currentIndex;
+    m_currentIndex = index;
 
     if ((hasSubMenuPixmap(action) || action->menu() != 0)
         && pm_rect.contains(m_startPosition)) {
-        if (m_currentIndex == m_lastSubMenuIndex)
+        if (m_currentIndex == m_lastSubMenuIndex) {
             hideSubMenu();
-        else
+        } else
             slotShowSubMenuNow();
     } else {
-        hideSubMenu();
+        if (index == old_index) {
+            if (m_currentIndex == m_lastSubMenuIndex) {
+                hideSubMenu();
+            } else
+                slotShowSubMenuNow();
+        } else {
+            hideSubMenu();
+        }
     }
 
     updateCurrentAction();
@@ -357,10 +369,9 @@ bool QDesignerMenu::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
                 QApplication::sendEvent(mb, &e);
                 return true;
             }
+            // hide the popup Qt will replay the event
+            slotDeactivateNow();
         }
-
-        // hide the popup Qt will replay the event
-        slotDeactivateNow();
         return true;
     }
 
@@ -1045,6 +1056,8 @@ void QDesignerMenu::showLineEdit()
 
     if (action->isSeparator())
         return;
+
+    hideSubMenu();
 
     // open edit field for item name
     setFocus();
