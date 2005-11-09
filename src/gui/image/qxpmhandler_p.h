@@ -32,6 +32,7 @@
 class Q_GUI_EXPORT QXpmHandler : public QImageIOHandler
 {
 public:
+    QXpmHandler();
     bool canRead() const;
     bool read(QImage *image);
     bool write(const QImage &image);
@@ -45,6 +46,20 @@ public:
     bool supportsOption(ImageOption option) const;
 
 private:
+    bool readHeader();
+    bool readImage(QImage *image);
+    enum State {
+        Ready,
+        ReadHeader,
+        Error
+    };
+    State state;
+    int width;
+    int height;
+    int ncols;
+    int cpp;
+    QByteArray buffer;
+    int index;
     QString fileName;
 };
 

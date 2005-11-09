@@ -727,6 +727,7 @@ QGifHandler::QGifHandler()
     nextDelay = 0;
     loopCnt = 0;
     frameNumber = -1;
+    nextSize = QSize();
 }
 
 QGifHandler::~QGifHandler()
@@ -734,15 +735,10 @@ QGifHandler::~QGifHandler()
     delete gifFormat;
 }
 
-bool QGifHandler::canRead() const
+// Does partial decode if necessary, just to see if an image is coming
+
+bool QGifHandler::imageIsComing() const
 {
-    if (!nextDelay && canRead(device())) {
-        setFormat("gif");
-        return true;
-    }
-
-    // Do partial decode just to see if an image is coming
-
     const int GifChunkSize = 4096;
 
     while (!gifFormat->partialNewFrame) {
@@ -759,6 +755,16 @@ bool QGifHandler::canRead() const
         buffer.remove(0, decoded);
     }
     return gifFormat->partialNewFrame;
+}
+
+bool QGifHandler::canRead() const
+{
+    if (!nextDelay && canRead(device())) {
+        setFormat("gif");
+        return true;
+    }
+
+    return imageIsComing();
 }
 
 bool QGifHandler::canRead(QIODevice *device)
@@ -811,19 +817,18 @@ bool QGifHandler::write(const QImage &image)
 
 bool QGifHandler::supportsOption(ImageOption option) const
 {
-    if (option == Size)
-        return true;
-    else if (option == Animation)
-        return true;
-    return false;
+    return option == Size
+        || option == Animation;
 }
 
 QVariant QGifHandler::option(ImageOption option) const
 {
-    if (option == Size)
-        return nextSize;
-    else if (option == Animation)
+    if (option == Size) {
+        if (imageIsComing())
+            return nextSize;
+    } else if (option == Animation) {
         return true;
+    }
     return QVariant();
 }
 

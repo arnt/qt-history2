@@ -48,6 +48,7 @@ public:
     int currentImageNumber() const;
 
 private:
+    bool imageIsComing() const;
     QGIFFormat *gifFormat;
     QString fileName;
     mutable QByteArray buffer;

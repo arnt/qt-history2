@@ -16,6 +16,7 @@
 #ifndef QT_NO_IMAGEFORMAT_BMP
 
 #include <qimage.h>
+#include <qvariant.h>
 #include <qvector.h>
 
 static void swapPixel01(QImage *image)        // 1-bpp: swap 0 and 1 pixels
@@ -50,14 +51,6 @@ static void swapPixel01(QImage *image)        // 1-bpp: swap 0 and 1 pixels
 
 const int BMP_FILEHDR_SIZE = 14;                // size of BMP_FILEHDR data
 
-struct BMP_FILEHDR {                                // BMP file header
-    char   bfType[2];                                // "BM"
-    qint32  bfSize;                                // size of file
-    qint16  bfReserved1;
-    qint16  bfReserved2;
-    qint32  bfOffBits;                                // pointer to the pixmap bits
-};
-
 QDataStream &operator>>(QDataStream &s, BMP_FILEHDR &bf)
 {                                                // read file header
     s.readRawData(bf.bfType, 2);
@@ -81,20 +74,6 @@ const int BMP_RGB  = 0;                                // no compression
 const int BMP_RLE8 = 1;                                // run-length encoded, 8 bits
 const int BMP_RLE4 = 2;                                // run-length encoded, 4 bits
 const int BMP_BITFIELDS = 3;                        // RGB values encoded in data as bit-fields
-
-struct BMP_INFOHDR {                                // BMP information header
-    qint32  biSize;                                // size of this struct
-    qint32  biWidth;                                // pixmap width
-    qint32  biHeight;                                // pixmap height
-    qint16  biPlanes;                                // should be 1
-    qint16  biBitCount;                        // number of bits per pixel
-    qint32  biCompression;                        // compression method
-    qint32  biSizeImage;                                // size of image
-    qint32  biXPelsPerMeter;                        // horizontal resolution
-    qint32  biYPelsPerMeter;                        // vertical resolution
-    qint32  biClrUsed;                                // number of colors used
-    qint32  biClrImportant;                        // number of important colors
-};
 
 
 QDataStream &operator>>(QDataStream &s, BMP_INFOHDR &bi)
@@ -142,12 +121,41 @@ static int calc_shift(int mask)
     return result;
 }
 
-static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
+static bool read_dib_fileheader(QDataStream &s, BMP_FILEHDR &bf)
 {
-    BMP_INFOHDR bi;
-    QIODevice* d = s.device();
+    // read BMP file header
+    s >> bf;
+    if (s.status() != QDataStream::Ok)
+        return false;
 
+    // check header
+    if (qstrncmp(bf.bfType,"BM",2) != 0)
+        return false;
+
+    return true;
+}
+
+static bool read_dib_infoheader(QDataStream &s, BMP_INFOHDR &bi)
+{
     s >> bi;                                        // read BMP info header
+    if (s.status() != QDataStream::Ok)
+        return false;
+
+    int nbits = bi.biBitCount;
+    int comp = bi.biCompression;
+    if (!(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 16 || nbits == 24 || nbits == 32) ||
+        bi.biPlanes != 1 || comp > BMP_BITFIELDS)
+        return false;                                        // weird BMP image
+    if (!(comp == BMP_RGB || (nbits == 4 && comp == BMP_RLE4) ||
+        (nbits == 8 && comp == BMP_RLE8) || ((nbits == 16 || nbits == 32) && comp == BMP_BITFIELDS)))
+         return false;                                // weird compression type
+
+    return true;
+}
+
+static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int startpos, QImage &image)
+{
+    QIODevice* d = s.device();
     if (d->atEnd())                                // end of stream/file
         return false;
 #if 0
@@ -174,13 +182,6 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
     int red_scale = 0;
     int green_scale = 0;
     int blue_scale = 0;
-
-    if (!(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 16 || nbits == 24 || nbits == 32) ||
-        bi.biPlanes != 1 || comp > BMP_BITFIELDS)
-        return false;                                        // weird BMP image
-    if (!(comp == BMP_RGB || (nbits == 4 && comp == BMP_RLE4) ||
-        (nbits == 8 && comp == BMP_RLE8) || ((nbits == 16 || nbits == 32) && comp == BMP_BITFIELDS)))
-         return false;                                // weird compression type
 
     int ncols = 0;
     int depth = 0;
@@ -593,16 +594,49 @@ bool Q_GUI_EXPORT qt_write_dib(QDataStream &s, QImage image)
 // this is also used in qmime_win.cpp
 bool Q_GUI_EXPORT qt_read_dib(QDataStream &s, QImage &image)
 {
-    return read_dib(s,-1,-BMP_FILEHDR_SIZE,image);
+    BMP_INFOHDR bi;
+    if (!read_dib_infoheader(s, bi))
+        return false;
+    return read_dib_body(s, bi, -1, -BMP_FILEHDR_SIZE, image);
+}
+
+QBmpHandler::QBmpHandler()
+    : state(Ready)
+{
+}
+
+bool QBmpHandler::readHeader()
+{
+    state = Error;
+
+    QIODevice *d = device();
+    QDataStream s(d);
+    startpos = d->pos();
+
+    // Intel byte order
+    s.setByteOrder(QDataStream::LittleEndian);
+
+    // read BMP file header
+    if (!read_dib_fileheader(s, fileHeader))
+        return false;
+
+    // read BMP info header
+    if (!read_dib_infoheader(s, infoHeader))
+        return false;
+
+    state = ReadHeader;
+    return true;
 }
 
 bool QBmpHandler::canRead() const
 {
-    if (canRead(device())) {
+    if (state == Ready) {
+        if (!canRead(device()))
+            return false;
         setFormat("bmp");
         return true;
     }
-    return false;
+    return state != Error;
 }
 
 bool QBmpHandler::canRead(QIODevice *device)
@@ -621,28 +655,29 @@ bool QBmpHandler::canRead(QIODevice *device)
 
 bool QBmpHandler::read(QImage *image)
 {
+    if (state == Error)
+        return false;
+    
+    if (state == Ready && !readHeader()) {
+        state = Error;
+        return false;
+    }
+
     QIODevice *d = device();
     QDataStream s(d);
-    BMP_FILEHDR bf = {{0, 0}, 0, 0, 0, 0};
-    int startpos = d->pos();
 
     // Intel byte order
     s.setByteOrder(QDataStream::LittleEndian);
 
-    // read BMP file header
-    s >> bf;
-
-    // check header
-    if (qstrncmp(bf.bfType,"BM",2) != 0)
-        return false;
-
     // read image
     QImage tmpImage;
-    if (!read_dib(s, bf.bfOffBits, startpos, tmpImage))
+    if (!read_dib_body(s, infoHeader, fileHeader.bfOffBits, startpos, tmpImage))
         return false;
 
     if (image)
         *image = tmpImage;
+
+    state = Ready;
     return true;
 }
 
@@ -680,8 +715,32 @@ bool QBmpHandler::write(const QImage &image)
     return qt_write_dib(s, image);
 }
 
+bool QBmpHandler::supportsOption(ImageOption option) const
+{
+    return option == Size;
+}
+
+QVariant QBmpHandler::option(ImageOption option) const
+{
+    if (option == Size) {
+        if (state == Error)
+            return QVariant();
+        if (state == Ready && !const_cast<QBmpHandler*>(this)->readHeader())
+            return QVariant();
+        return QSize(infoHeader.biWidth, infoHeader.biHeight);
+    }
+    return QVariant();
+}
+
+void QBmpHandler::setOption(ImageOption option, const QVariant &value)
+{
+    Q_UNUSED(option);
+    Q_UNUSED(value);
+}
+
 QByteArray QBmpHandler::name() const
 {
     return "bmp";
 }
+
 #endif // QT_NO_IMAGEFORMAT_BMP

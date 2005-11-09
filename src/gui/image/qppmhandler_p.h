@@ -33,6 +33,7 @@ class QByteArray;
 class Q_GUI_EXPORT QPpmHandler : public QImageIOHandler
 {
 public:
+    QPpmHandler();
     bool canRead() const;
     bool read(QImage *image);
     bool write(const QImage &image);
@@ -46,6 +47,17 @@ public:
     bool supportsOption(ImageOption option) const;
 
 private:
+    bool readHeader();
+    enum State {
+        Ready,
+        ReadHeader,
+        Error
+    };
+    State state;
+    char type;
+    int width;
+    int height;
+    int mcc;
     mutable QByteArray subType;
 };
 

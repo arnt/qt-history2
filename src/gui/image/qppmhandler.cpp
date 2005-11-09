@@ -57,22 +57,42 @@ static int read_pbm_int(QIODevice *d)
     return val;
 }
 
-static bool read_pbm_image(QIODevice *device, QImage *outImage)        // read PBM image data
+static bool read_pbm_header(QIODevice *device, char& type, int& w, int& h, int& mcc)
 {
-    const int        buflen = 300;
-    char        buf[buflen];
-    int                w, h, nbits, mcc, y;
-    int                pbm_bpl;
-    char        type;
-    bool        raw;
-    QImage        image;
-
+    char buf[3];
     if (device->read(buf, 3) != 3)                        // read P[1-6]<white-space>
         return false;
+
     if (!(buf[0] == 'P' && isdigit((uchar) buf[1]) && isspace((uchar) buf[2])))
         return false;
+
+    type = buf[1];
+    if (type < '1' || type > '6')
+        return false;
+
+    w = read_pbm_int(device);                        // get image width
+    h = read_pbm_int(device);                        // get image height
+
+    if (type == '1' || type == '4')
+        mcc = 1;                                  // ignore max color component
+    else
+        mcc = read_pbm_int(device);               // get max color component
+
+    if (w <= 0 || w > 32767 || h <= 0 || h > 32767 || mcc <= 0)
+        return false;                                        // weird P.M image
+
+    return true;
+}
+
+static bool read_pbm_body(QIODevice *device, char type, int w, int h, int mcc, QImage *outImage)
+{
+    int nbits, y;
+    int pbm_bpl;
+    bool raw;
+    QImage image;
+
     QImage::Format format;
-    switch ((type=buf[1])) {
+    switch (type) {
         case '1':                                // ascii PBM
         case '4':                                // raw PBM
             nbits = 1;
@@ -92,14 +112,6 @@ static bool read_pbm_image(QIODevice *device, QImage *outImage)        // read P
             return false;
     }
     raw = type >= '4';
-    w = read_pbm_int(device);                        // get image width
-    h = read_pbm_int(device);                        // get image height
-    if (nbits == 1)
-        mcc = 1;                                // ignore max color component
-    else
-        mcc = read_pbm_int(device);                // get max color component
-    if (w <= 0 || w > 32767 || h <= 0 || h > 32767 || mcc <= 0)
-        return false;                                        // weird P.M image
 
     int maxc = mcc;
     if (maxc > 255)
@@ -322,13 +334,29 @@ static bool write_pbm_image(QIODevice *out, const QImage &sourceImage, const QBy
     return true;
 }
 
+QPpmHandler::QPpmHandler()
+    : state(Ready)
+{
+}
+
+bool QPpmHandler::readHeader()
+{
+    state = Error;
+    if (!read_pbm_header(device(), type, width, height, mcc))
+        return false;
+    state = ReadHeader;
+    return true;
+}
+
 bool QPpmHandler::canRead() const
 {
-    if (canRead(device(), &subType)) {
+    if (state == Ready) {
+        if (!canRead(device(), &subType))
+            return false;
         setFormat(subType);
         return true;
     }
-    return false;
+    return state != Error;
 }
 
 bool QPpmHandler::canRead(QIODevice *device, QByteArray *subType)
@@ -362,7 +390,21 @@ bool QPpmHandler::canRead(QIODevice *device, QByteArray *subType)
 
 bool QPpmHandler::read(QImage *image)
 {
-    return read_pbm_image(device(), image);
+    if (state == Error)
+        return false;
+    
+    if (state == Ready && !readHeader()) {
+        state = Error;
+        return false;
+    }
+
+    if (!read_pbm_body(device(), type, width, height, mcc, image)) {
+        state = Error;
+        return false;
+    }
+
+    state = Ready;
+    return true;
 }
 
 bool QPpmHandler::write(const QImage &image)
@@ -372,12 +414,22 @@ bool QPpmHandler::write(const QImage &image)
 
 bool QPpmHandler::supportsOption(ImageOption option) const
 {
-    return option == SubType;
+    return option == SubType
+        || option == Size;
 }
 
 QVariant QPpmHandler::option(ImageOption option) const
 {
-    return option == SubType ? subType : QByteArray();
+    if (option == SubType) {
+        return subType;
+    } else if (option == Size) {
+        if (state == Error)
+            return QVariant();
+        if (state == Ready && !const_cast<QPpmHandler*>(this)->readHeader())
+            return QVariant();
+        return QSize(width, height);
+    }
+    return QVariant();
 }
 
 void QPpmHandler::setOption(ImageOption option, const QVariant &value)

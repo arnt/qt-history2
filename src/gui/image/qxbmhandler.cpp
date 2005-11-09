@@ -33,14 +33,12 @@ static inline int hex2byte(register char *p)
            (isdigit((uchar) *(p+1)) ? *(p+1) - '0' : toupper((uchar) *(p+1)) - 'A' + 10);
 }
 
-static bool read_xbm_image(QIODevice *device, QImage *outImage)
+static bool read_xbm_header(QIODevice *device, int& w, int& h)
 {
     const int buflen = 300;
     char buf[buflen + 1];
     QRegExp r1(QLatin1String("^#define[ \t]+[a-zA-Z0-9._]+[ \t]+"));
     QRegExp r2(QLatin1String("[0-9]+"));
-    int w = -1, h = -1;
-    QImage image;
 
     qint64 readBytes = 0;
 
@@ -78,6 +76,17 @@ static bool read_xbm_image(QIODevice *device, QImage *outImage)
     // format error
     if (w <= 0 || w > 32767 || h <= 0 || h > 32767)
         return false;
+
+    return true;
+}
+
+static bool read_xbm_body(QIODevice *device, int w, int h, QImage *outImage)
+{
+    const int buflen = 300;
+    char buf[buflen + 1];
+    QImage image;
+
+    qint64 readBytes = 0;
 
     // scan for database
     for (;;) {
@@ -122,6 +131,14 @@ static bool read_xbm_image(QIODevice *device, QImage *outImage)
 
     *outImage = image;
     return true;
+}
+
+static bool read_xbm_image(QIODevice *device, QImage *outImage)
+{
+    int w, h;
+    if (!read_xbm_header(device, w, h))
+        return false;
+    return read_xbm_body(device, w, h, outImage);
 }
 
 static bool write_xbm_image(const QImage &sourceImage, QIODevice *device, const QString &fileName)
@@ -205,13 +222,29 @@ static bool write_xbm_image(const QImage &sourceImage, QIODevice *device, const 
     return true;
 }
 
+QXbmHandler::QXbmHandler()
+    : state(Ready)
+{
+}
+
+bool QXbmHandler::readHeader()
+{
+    state = Error;
+    if (!read_xbm_header(device(), width, height))
+        return false;
+    state = ReadHeader;
+    return true;
+}
+
 bool QXbmHandler::canRead() const
 {
-    if (canRead(device())) {
+    if (state == Ready) {
+        if (!canRead(device()))
+            return false;
         setFormat("xbm");
         return true;
     }
-    return false;
+    return state != Error;
 }
 
 bool QXbmHandler::canRead(QIODevice *device)
@@ -233,7 +266,21 @@ bool QXbmHandler::canRead(QIODevice *device)
 
 bool QXbmHandler::read(QImage *image)
 {
-    return read_xbm_image(device(), image);
+    if (state == Error)
+        return false;
+    
+    if (state == Ready && !readHeader()) {
+        state = Error;
+        return false;
+    }
+
+    if (!read_xbm_body(device(), width, height, image)) {
+        state = Error;
+        return false;
+    }
+
+    state = Ready;
+    return true;
 }
 
 bool QXbmHandler::write(const QImage &image)
@@ -243,12 +290,22 @@ bool QXbmHandler::write(const QImage &image)
 
 bool QXbmHandler::supportsOption(ImageOption option) const
 {
-    return option == Name;
+    return option == Name
+        || option == Size;
 }
 
 QVariant QXbmHandler::option(ImageOption option) const
 {
-    return option == Name ? fileName : QString();
+    if (option == Name) {
+        return fileName;
+    } else if (option == Size) {
+        if (state == Error)
+            return QVariant();
+        if (state == Ready && !const_cast<QXbmHandler*>(this)->readHeader())
+            return QVariant();
+        return QSize(width, height);
+    }
+    return QVariant();
 }
 
 void QXbmHandler::setOption(ImageOption option, const QVariant &value)
