@@ -275,8 +275,13 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *widget, QMouseEvent *event)
         if (QMenuBar *mb = qobject_cast<QMenuBar*>(QApplication::widgetAt(event->globalPos()))) {
             QPoint pt = mb->mapFromGlobal(event->globalPos());
             QAction *action = mb->actionAt(pt);
-            if (action && action->menu() == findRootMenu())
+
+            if (action && action->menu() == findRootMenu()) {
+                // propagate the mouse press event (but don't close the popup)
+                QMouseEvent e(event->type(), pt, event->globalPos(), event->button(), event->buttons(), event->modifiers());
+                QApplication::sendEvent(mb, &e);
                 return true;
+            }
         }
 
         // hide the popup Qt will replay the event
@@ -333,6 +338,25 @@ bool QDesignerMenu::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 {
     if ((event->buttons() & Qt::LeftButton) != Qt::LeftButton)
         return true;
+
+    if (!rect().contains(event->pos())) {
+
+        if (QMenuBar *mb = qobject_cast<QMenuBar*>(QApplication::widgetAt(event->globalPos()))) {
+            QPoint pt = mb->mapFromGlobal(event->globalPos());
+            QAction *action = mb->actionAt(pt);
+
+            if (action && action->menu() == findRootMenu()) {
+                // propagate the mouse press event (but don't close the popup)
+                QMouseEvent e(event->type(), pt, event->globalPos(), event->button(), event->buttons(), event->modifiers());
+                QApplication::sendEvent(mb, &e);
+                return true;
+            }
+        }
+
+        // hide the popup Qt will replay the event
+        slotDeactivateNow();
+        return true;
+    }
 
     if (m_startPosition.isNull())
         return true;
