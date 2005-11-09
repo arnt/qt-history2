@@ -96,12 +96,14 @@ void QSyntaxHighlighterPrivate::applyFormatChanges()
 
 void QSyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int charsAdded)
 {
+    Q_UNUSED(charsRemoved);
+
     QTextBlock block = doc->findBlock(from);
     if (!block.isValid())
         return;
 
     QTextBlock endBlock;
-    if (charsAdded > charsRemoved || charsAdded == charsRemoved)
+    if (charsAdded > 0)
         endBlock = doc->findBlock(from + charsAdded);
     else
         endBlock = block;
