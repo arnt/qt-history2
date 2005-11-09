@@ -34,7 +34,9 @@
     Qt 4 also includes the new \l{The New Qt Designer}{\QD} user interface design
     tool.
 
-    Qt 4.1 extends these technologies with the following features:
+    \section2 What's New in Qt 4.1
+
+    Qt 4.1 extends Qt 4's new technologies with the following features:
 
     \list
     \o Integrated support for rendering
@@ -45,14 +47,18 @@
        libraries.
     \o Modules for \l{QtDesigner}{extending \QD} and
        \l{QtForm}{dynamic user interface building}.
-    \o New proxy models to enable view-specific sorting and filtering of data
-       displayed using item views.
+    \o New \l{Proxy Models}{proxy models} to enable view-specific sorting and
+       filtering of data displayed using item views.
     \o Additional features for developers using \l{QtOpenGL}{OpenGL}, such as
     support for pixel and sample buffers.
     \o A flexible \l{QSyntaxHighlighter}{syntax highlighting class} based on the
        \l{Scribe} rich text framework.
     \o Support for OLE verbs and MIME data handling in \l{ActiveQt}.
     \endlist
+
+    For more information about improvements in the current release, see
+    the \l{http://www.trolltech.com/developer/changes/changes-4.1.0.html}
+    {detailed list of changes}.
 
     \section1 Significant Improvements
 
