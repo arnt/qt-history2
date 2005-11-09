@@ -612,13 +612,14 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
 
     QTextBlock block = doc->findBlock(documentPosition);
     QTextLayout *layout = block.layout();
-    QPointF layoutPos = layout->position();
+    const qreal blockY = doc->documentLayout()->blockBoundingRect(block).top();
+
     const int relativePos = documentPosition - block.position();
     QTextLine line = layout->lineForTextPosition(relativePos);
     if (!line.isValid())
         return;
 
-    const int y = qRound(layoutPos.y() + line.y());
+    const int y = qRound(blockY + line.y());
     vbar->setValue(y);
 }
 
