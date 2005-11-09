@@ -25,3 +25,8 @@ include(../lib/uilib/uilib.pri)
 
 HEADERS += qformloader.h
 SOURCES += qformloader.cpp
+
+include($$QT_SOURCE_TREE/include/QtForm/headers.pri)
+qform_headers.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
+qform_headers.path = $$[QT_INSTALL_HEADERS]/QtForm
+INSTALLS        += qform_headers
