@@ -3564,7 +3564,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
         printf("QPainter::drawText(), pos=[%.2f,%.2f], str='%s'\n", p.x(), p.y(), str.toLatin1().constData());
 #endif
 
-    if (!isActive() || str.isEmpty())
+    if (!isActive() || str.isEmpty() || pen().style() == Qt::NoPen)
         return;
 
     Q_D(QPainter);
@@ -3638,7 +3638,7 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
            r.x(), r.y(), r.width(), r.height(), flags, str.toLatin1().constData());
 #endif
 
-    if (!isActive() || str.length() == 0)
+    if (!isActive() || str.length() == 0 || pen().style() == Qt::NoPen)
         return;
 
     Q_D(QPainter);
@@ -3675,7 +3675,7 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *
            r.x(), r.y(), r.width(), r.height(), flags, str.toLatin1().constData());
 #endif
 
-    if (!isActive() || str.length() == 0)
+    if (!isActive() || str.length() == 0 || pen().style() == Qt::NoPen)
         return;
 
     Q_D(QPainter);
@@ -3699,7 +3699,7 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
            r.x(), r.y(), r.width(), r.height(), text.toLatin1().constData());
 #endif
 
-    if (!isActive() || text.length() == 0)
+    if (!isActive() || text.length() == 0 || pen().style() == Qt::NoPen)
         return;
 
     Q_D(QPainter);
@@ -3770,7 +3770,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
     qt_painter_tread_test();
 #endif
 
-    if (!isActive())
+    if (!isActive() || pen().style() == Qt::NoPen)
         return;
     Q_D(QPainter);
     d->updateState(d->state);
