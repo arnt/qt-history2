@@ -917,20 +917,37 @@ void QTextHtmlParser::resolveParent()
     QTextHtmlParserNode *node = &nodes.last();
     int p = node->parent;
 
-    // block elements close inline elements
-    // ... with the exception of the font element ... grmbl ...
-    if (node->isBlock)
-        while (p
-               && !at(p).isBlock
-               && at(p).id != Html_font) {
+    // permit invalid html by letting block elements be children
+    // of inline elements with the exception of paragraphs:
+    //
+    // a new paragraph closes parent inline elements (while loop),
+    // unless they themselves are children of a non-paragraph block
+    // element (if statement)
+    //
+    // For example:
+    //
+    // <body><p><b>Foo<p>Bar <-- second <p> implicitly closes <b> that
+    //                           belongs to the first <p>. The self-nesting
+    //                           check further down prevents the second <p>
+    //                           from nesting into the first one then.
+    //                           so Bar is not bold.
+    //
+    // <body><b><p>Foo <-- Foo should be bold.
+    //
+    // <body><b><p>Foo<p>Bar <-- Foo and Bar should be bold.
+    //
+    if (node->id == Html_p) {
+        while (p && !at(p).isBlock)
             p = at(p).parent;
-        }
+
+        if (!p || at(p).id != Html_p)
+            p = node->parent;
+    }
 
     // some elements are not self nesting
-    if (node->tag == at(p).tag) {
-        if (node->isNotSelfNesting())
-            p = at(p).parent;
-    }
+    if (node->id == at(p).id
+        && node->isNotSelfNesting())
+        p = at(p).parent;
 
     // some elements are not allowed in certain contexts
     while (p && !node->allowedInContext(at(p).id)
