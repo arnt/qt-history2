@@ -1749,6 +1749,20 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
     return QWidget::eventFilter(o, e);
 }
 
+static QMenuBar *findMenuBar(QWidget *w)
+{
+    // don't search recursively to avoid finding a menubar of a
+    // mainwindow that happens to be a workspace window (like
+    // a mainwindow in designer)
+    QList<QObject *> children = w->children();
+    for (int i = 0; i < children.count(); ++i) {
+        QMenuBar *bar = qobject_cast<QMenuBar *>(children.at(i));
+        if (bar)
+            return bar;
+    }
+    return 0;
+}
+
 void QWorkspacePrivate::showMaximizeControls()
 {
     Q_Q(QWorkspace);
@@ -1771,17 +1785,16 @@ void QWorkspacePrivate::showMaximizeControls()
 
         // Do a breadth-first search first on every parent,
         QWidget* w = q->parentWidget();
-        QList<QMenuBar*> l;
-        while (l.isEmpty() && w) {
-            l = qFindChildren<QMenuBar*>(w);
+        while (w) {
+            b = findMenuBar(w);
+            if (b)
+                break;
             w = w->parentWidget();
         }
 
-        // and query recursively if nothing is found.
-        if (!l.size())
-            l = qFindChildren<QMenuBar*>(q->window());
-        if (l.size())
-            b = l.at(0);
+        // last attempt.
+        if (!b)
+            b = findMenuBar(q->window());
 
         if (!b)
             return;
