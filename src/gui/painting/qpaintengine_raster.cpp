@@ -2556,6 +2556,11 @@ QClipData::~QClipData()
 
 void QClipData::fixup()
 {
+    if (count == 0) {
+        ymin = ymax = xmin = xmax = 0;
+        return;
+    }
+
 //      qDebug("QClipData::fixup: count=%d",count);
     int y = -1;
     ymin = spans[0].y;
