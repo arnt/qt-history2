@@ -1314,7 +1314,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         } else {
         QRect oldGeom(data.crect);
             data.crect.setRect(x, y, w, h);
-            if(q->isVisible() && !q->isHidden()) {
+            if(!isResize && q->isVisible() && !q->isHidden()) {
                 moveRect(QRect(oldPos, oldSize), x - oldGeom.x(), y - oldGeom.y());
             }
             setWSGeometry();
@@ -1324,8 +1324,12 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
     if (q->isVisible() && !q->isHidden() && isResize) {
         invalidateBuffer(q->rect()); //after the resize
-        if(q->parentWidget())
-            q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
+        if(q->parentWidget()) {
+            QRegion oldRegion(QRect(oldPos, oldSize));
+            if (!q->mask().isEmpty())
+                oldRegion &= q->mask().translated(oldPos);
+            q->parentWidget()->d_func()->invalidateBuffer(oldRegion);
+        }
     }
 
     // Process events immediately rather than in translateConfigEvent to
