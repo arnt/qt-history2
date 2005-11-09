@@ -166,7 +166,9 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         case QImage::Format_ARGB32:
         case QImage::Format_ARGB32_Premultiplied:
             for(int x=0;x<w;++x) {
-                if(sfmt == QImage::Format_ARGB32_Premultiplied)
+                if(sfmt == QImage::Format_RGB32)
+                    *(drow+x) = 0xFF000000 | (*(((quint32*)srow) + x) & 0x00FFFFFF);
+                else if(sfmt == QImage::Format_ARGB32_Premultiplied)
                     *(drow+x) = *(((quint32*)srow) + x);
                 else
                     *(drow+x) = PREMUL(*(((quint32*)srow) + x));
