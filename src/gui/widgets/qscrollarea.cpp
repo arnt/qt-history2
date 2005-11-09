@@ -12,25 +12,14 @@
 ****************************************************************************/
 
 #include "qscrollarea.h"
+#include "private/qscrollarea_p.h"
 
 #ifndef QT_NO_SCROLLAREA
 
 #include "qscrollbar.h"
-#include "private/qabstractscrollarea_p.h"
 #include "qlayout.h"
 #include "qapplication.h"
 #include "private/qlayoutengine_p.h"
-class QScrollAreaPrivate: public QAbstractScrollAreaPrivate
-{
-    Q_DECLARE_PUBLIC(QScrollArea)
-
-public:
-    QScrollAreaPrivate(): resizable(false){}
-    void updateScrollBars();
-    QPointer<QWidget> widget;
-    mutable QSize widgetSize;
-    bool resizable;
-};
 
 /*!
     \class QScrollArea
