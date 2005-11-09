@@ -137,6 +137,7 @@ private:
     QLineEdit *m_editor;
     bool m_dragging;
     int m_lastMenuActionIndex;
+    QPointer<QWidget> m_lastFocusWidget;
 };
 
 #endif // QDESIGNER_MENUBAR_H

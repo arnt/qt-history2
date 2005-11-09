@@ -137,7 +137,7 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
 {
     m_showSubMenuTimer->stop();
 
-    if (m_editor->isHidden()) { // In navigation mode
+    if (m_editor->isHidden() && hasFocus()) { // In navigation mode
         switch (e->key()) {
 
         case Qt::Key_Delete:
@@ -209,7 +209,7 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget *widget, QKeyEvent *e)
             }
             return true;
         }
-    } else { // In edit mode
+    } else if (m_editor->hasFocus()) { // In edit mode
         switch (e->key()) {
         default:
             e->ignore();
@@ -253,7 +253,6 @@ bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
                 QApplication::sendEvent(mb, &e);
             }
         }
-
         return true;
     }
 
@@ -273,6 +272,13 @@ bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
 bool QDesignerMenu::handleMousePressEvent(QWidget *widget, QMouseEvent *event)
 {
     if (!rect().contains(event->pos())) {
+        if (QMenuBar *mb = qobject_cast<QMenuBar*>(QApplication::widgetAt(event->globalPos()))) {
+            QPoint pt = mb->mapFromGlobal(event->globalPos());
+            QAction *action = mb->actionAt(pt);
+            if (action && action->menu() == findRootMenu())
+                return true;
+        }
+
         // hide the popup Qt will replay the event
         slotDeactivateNow();
         return true;
@@ -478,6 +484,8 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
         return false;
     }
 
+    bool dispatch = true;
+
     switch (event->type()) {
         default: break;
 
@@ -492,6 +500,9 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
         case QEvent::MouseButtonPress:
         case QEvent::MouseButtonRelease:
         case QEvent::MouseButtonDblClick:
+            dispatch = (object != m_editor);
+            // no break
+
         case QEvent::Enter:
         case QEvent::Leave:
         case QEvent::FocusIn:
@@ -499,7 +510,7 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
         {
             QWidget *widget = qobject_cast<QWidget*>(object);
 
-            if (widget && (widget == this || isAncestorOf(widget)))
+            if (dispatch && widget && (widget == this || isAncestorOf(widget)))
                 return handleEvent(widget, event);
         } break;
     }
@@ -1121,13 +1132,12 @@ void QDesignerMenu::slotDeactivateNow()
 {
     m_deactivateWindowTimer->stop();
 
-    if (m_dragging) {
+    if (m_dragging)
         return;
-    }
 
     QDesignerMenu *root = findRootMenu();
 
-    if (! findRootMenu()->findActivatedMenu()) {
+    if (! root->findActivatedMenu()) {
         root->hide();
         root->hideSubMenu();
     }

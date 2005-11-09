@@ -160,8 +160,9 @@ bool QDesignerMenuBar::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event
     m_startPosition = QPoint();
 
     m_currentIndex = actionAtPosition(event->pos());
-    if (m_currentIndex != -1)
+    if (m_currentIndex != -1) {
         showLineEdit();
+    }
 
     return true;
 }
@@ -243,8 +244,11 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *, QKeyEvent *e)
         case Qt::Key_Enter:
         case Qt::Key_Return:
             leaveEditMode(ForceAccept);
+            m_editor->releaseKeyboard();
+            if (m_lastFocusWidget)
+                m_lastFocusWidget->setFocus();
+
             m_editor->hide();
-            setFocus();
             break;
 
         case Qt::Key_Escape:
@@ -320,7 +324,7 @@ bool QDesignerMenuBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 
     event->accept();
     m_currentIndex = actionAtPosition(event->pos());
-    if (m_currentIndex != -1 && m_currentIndex < realActionCount())
+    if (!m_editor->isVisible() && m_currentIndex != -1 && m_currentIndex < realActionCount())
         showMenu();
 
     return true;
@@ -494,12 +498,15 @@ void QDesignerMenuBar::showLineEdit()
 
     // hideMenu();
 
+    m_lastFocusWidget = qApp->focusWidget();
+
     // open edit field for item name
     m_editor->setText(action->text());
     m_editor->selectAll();
     m_editor->setGeometry(actionGeometry(action));
     m_editor->show();
     m_editor->setFocus();
+    m_editor->grabKeyboard();
 }
 
 bool QDesignerMenuBar::eventFilter(QObject *object, QEvent *event)
@@ -511,8 +518,10 @@ bool QDesignerMenuBar::eventFilter(QObject *object, QEvent *event)
         leaveEditMode(Default);
         m_editor->hide();
         update();
-        return false;
+        return true;
     }
+
+    bool dispatch = true;
 
     switch (event->type()) {
         default: break;
@@ -524,6 +533,9 @@ bool QDesignerMenuBar::eventFilter(QObject *object, QEvent *event)
         case QEvent::MouseButtonPress:
         case QEvent::MouseButtonRelease:
         case QEvent::MouseButtonDblClick:
+            dispatch = (object != m_editor);
+            // no break
+
         case QEvent::Enter:
         case QEvent::Leave:
         case QEvent::FocusIn:
@@ -531,7 +543,7 @@ bool QDesignerMenuBar::eventFilter(QObject *object, QEvent *event)
         {
             QWidget *widget = qobject_cast<QWidget*>(object);
 
-            if (widget && (widget == this || isAncestorOf(widget)))
+            if (dispatch && widget && (widget == this || isAncestorOf(widget)))
                 return handleEvent(widget, event);
         } break;
     }
@@ -753,10 +765,10 @@ bool QDesignerMenuBar::interactive(bool i)
 
 void QDesignerMenuBar::hideMenu(int index)
 {
-    if (index < 0)
+    if (index < 0 && m_currentIndex >= 0)
         index = m_currentIndex;
 
-    if (index >= realActionCount())
+    if (index < 0 || index >= realActionCount())
         return;
 
     QAction *action = safeActionAt(index);
@@ -794,10 +806,10 @@ void QDesignerMenuBar::deleteMenu()
 
 void QDesignerMenuBar::showMenu(int index)
 {
-    if (index < 0)
+    if (index < 0 && m_currentIndex >= 0)
         index = m_currentIndex;
 
-    if (index >= realActionCount())
+    if (index < 0 || index >= realActionCount())
         return;
 
     m_currentIndex = index;
