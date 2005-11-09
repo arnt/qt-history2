@@ -956,9 +956,16 @@ int QTextCursor::anchor() const
 }
 
 /*!
-    Moves the cursor in accordance with the \c MoveOperation \a op,
-    using \c MoveMode \a mode. The move is performed \a n (default 1)
-    times.
+    \fn bool QTextCursor::movePosition(MoveOperation operation, MoveMode mode, int n)
+
+    Moves the cursor by performing the given \a operation \a n times, using the specified
+    \a mode, and returns true if all operations were completed successfully; otherwise
+    returns false.
+
+    For example, if this function is repeatedly used to seek to the end of the next
+    word, it will eventually fail when the end of the document is reached.
+
+    By default, the move operation is performed once (\a n = 1).
 
     If \a mode is \c KeepAnchor, the cursor selects the text it moves
     over. This is the same effect that the user achieves when they
