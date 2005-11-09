@@ -645,7 +645,6 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
 #endif
 
             //actually send the paint event
-            q->setAttribute(Qt::WA_PendingUpdate, false);
             QPaintEvent e(toBePainted);
             qt_sendSpontaneousEvent(q, &e);
 
@@ -704,8 +703,6 @@ void QWidgetPrivate::invalidateBuffer(const QRegion &rgn)
     QTLWExtra *x = tlw->d_func()->topData();
     if (x->backingStore)
         x->backingStore->dirtyRegion(rgn, q);
-
-    q->setAttribute(Qt::WA_PendingUpdate);
 }
 
 void QWidget::repaint(const QRegion& rgn)
@@ -786,8 +783,6 @@ void QWidget::update(const QRegion& rgn)
         QWidget *tlw = window();
         QTLWExtra* x = tlw->d_func()->topData();
         x->backingStore->dirtyRegion(rgn, this);
-
-        setAttribute(Qt::WA_PendingUpdate);
     }
 }
 

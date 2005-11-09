@@ -3375,6 +3375,7 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
 //
 bool QETWidget::translatePaintEvent(const MSG &msg)
 {
+    setAttribute(Qt::WA_PendingUpdate, false);
     QRegion rgn(0, 0, 1, 1);
     int res = GetUpdateRgn(winId(), rgn.handle(), FALSE);
     if (!GetUpdateRect(winId(), 0, FALSE)  // The update bounding rect is invalid

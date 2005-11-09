@@ -874,6 +874,7 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
         InvalidateRgn(q->winId(), rgn.handle(), FALSE);
         // check if this is the first call to dirty a previously clean widget
         if (!q->testAttribute(Qt::WA_PendingUpdate)) {
+            q->setAttribute(Qt::WA_PendingUpdate);
             QT_WA( {
                 PostMessageW(q->winId(), WM_QT_REPAINT, 0, 0);
             }, {
