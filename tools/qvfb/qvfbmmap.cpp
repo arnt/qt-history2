@@ -78,7 +78,7 @@ QMMapViewProtocol::QMMapViewProtocol(int displayid, const QSize &s,
     unlink(fileName.local8Bit().data());
     fd = ::open( fileName.local8Bit().data(), O_CREAT|O_RDWR, 0666 );
     ::lseek(fd, dataSize, SEEK_SET);
-    ::write(fd, '\0', 1);
+    ::write(fd, "\0", 1);
     if (fd < 0) {
         data = (unsigned char *)-1;
     } else {
