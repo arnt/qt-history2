@@ -10,7 +10,7 @@
 ActiveQt
 --------
 
-QAxServer now supports mime-type handling - a ActiveX control can be 
+QAxServer now supports mime-type handling - a ActiveX control can be
 registered to handle a certain file extension and mime-type, in which case
 QAxBindable::load and QAxBindable::save can be reimplemented to serialize
 the object.
@@ -148,7 +148,7 @@ General Fixes
         Added UserObject to QTextFormat::ObjectTypes enum.
 
 - QMetaType
-        The value of QMetaTypeId<T>::Defined indicates whether a given type T is 
+        The value of QMetaTypeId<T>::Defined indicates whether a given type T is
         supported by QMetaType.
 
 - QAbstractItemView
@@ -423,9 +423,10 @@ General Fixes
 - QStringListModel
         Added support for sorting.
 
-- QtOpenGL
-        Gradients in the OpenGL paint engine are now drawn using 
-        fragment shaders if available.
+- QtOpenGLPaintEngine
+        Gradients in the OpenGL paint engine are now drawn using
+        fragment programs, if the extension is available. Lots of
+        fixes, speedups and tweaks.
 
 New classes
 -----------
