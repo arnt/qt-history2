@@ -1740,13 +1740,27 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 #ifndef Q_OS_TEMP
             case WM_MOUSEACTIVATE:
                 {
-                    const QWidget *tlw = widget->window();
-                    // Do not change activation if the clicked widget is inside a floating dock window
-                    if (tlw->inherits("QDockWidget") && qApp->activeWindow()
-                         && !qApp->activeWindow()->inherits("QDockWidget"))
-                        RETURN(MA_NOACTIVATE);
+                    QWidget *w = widget;
+                    if (!w->window()->focusWidget()) {
+                        while (w && (w->focusPolicy() & Qt::ClickFocus) == 0) {
+                            if (w->isTopLevel()) {
+                                QWidget *pw = w->parentWidget();
+                                while (pw) {
+                                    pw = pw->window();
+                                    if (pw && pw->isVisible() && pw->focusWidget()) {
+                                        SetWindowPos(pw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+                                        RETURN(MA_NOACTIVATE);
+                                    }
+                                    pw = pw->parentWidget();
+                                }
+                                
+                                break;
+                            }
+                            w = w->parentWidget();
+                        }
+                    }
                 }
-                result = false;
+                RETURN(MA_ACTIVATE);
                 break;
 #endif
             case WM_SHOWWINDOW:

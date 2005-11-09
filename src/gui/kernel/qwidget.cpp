@@ -3802,8 +3802,6 @@ QWidget *QWidget::nextInFocusChain() const
 bool QWidget::isActiveWindow() const
 {
     QWidget *tlw = window();
-    if((windowType() == Qt::SubWindow) && parentWidget())
-        tlw = parentWidget()->window();
     if(tlw == qApp->activeWindow() || (isVisible() && (tlw->windowType() == Qt::Popup)))
         return true;
 #ifdef Q_WS_MAC
@@ -3826,9 +3824,6 @@ bool QWidget::isActiveWindow() const
            (!tlw->parentWidget() || tlw->parentWidget()->isActiveWindow()))
            return true;
         QWidget *w = qApp->activeWindow();
-        if(!(windowType() == Qt::SubWindow) && w && (w->windowType() == Qt::SubWindow) &&
-            w->parentWidget()->window() == tlw)
-            return true;
         while(w && ((tlw->windowType() == Qt::Dialog) || (tlw->windowType() == Qt::Tool)) &&
               !w->isModal() && w->parentWidget()) {
             w = w->parentWidget()->window();
@@ -3840,7 +3835,7 @@ bool QWidget::isActiveWindow() const
     HWND parent = tlw->winId();
     HWND topparent = GetActiveWindow();
     while (parent) {
-        parent = ::GetParent(parent);
+        parent = ::GetAncestor(parent, GA_PARENT);
         if (parent && parent == topparent)
             return true;
     }
