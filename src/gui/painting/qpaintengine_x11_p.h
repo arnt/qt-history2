@@ -161,6 +161,7 @@ public:
     Qt::HANDLE picture;
     Qt::HANDLE current_brush;
     QPixmap bitmap_texture;
+    int composition_mode;
 #else
     Qt::HANDLE picture;
 #endif

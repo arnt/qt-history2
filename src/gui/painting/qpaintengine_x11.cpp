@@ -81,6 +81,54 @@ static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2,
 #endif // QT_NO_XRENDER
 }
 
+static inline int qpainterOpToXrender(QPainter::CompositionMode mode)
+{
+#ifndef QT_NO_XRENDER
+    switch (mode) {
+    case QPainter::CompositionMode_SourceOver:
+        return PictOpOver;
+        break;
+    case QPainter::CompositionMode_DestinationOver:
+        return PictOpOverReverse;
+        break;
+    case QPainter::CompositionMode_Clear:
+        return PictOpClear;
+        break;
+    case QPainter::CompositionMode_Source:
+        return PictOpSrc;
+        break;
+    case QPainter::CompositionMode_Destination:
+        return PictOpDst;
+        break;
+    case QPainter::CompositionMode_SourceIn:
+        return PictOpIn;
+        break;
+    case QPainter::CompositionMode_DestinationIn:
+        return PictOpInReverse;
+        break;
+    case QPainter::CompositionMode_SourceOut:
+        return PictOpOut;
+        break;
+    case QPainter::CompositionMode_DestinationOut:
+        return PictOpOutReverse;
+        break;
+    case QPainter::CompositionMode_SourceAtop:
+        return PictOpAtop;
+        break;
+    case QPainter::CompositionMode_DestinationAtop:
+        return PictOpAtopReverse;
+        break;
+    case QPainter::CompositionMode_Xor:
+        return PictOpXor;
+        break;
+    default:
+        return PictOpOver;
+        break;
+    }
+#endif
+    return 0;
+}
+
 static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
 #ifndef QT_NO_XRENDER
                                     Picture picture
@@ -592,6 +640,7 @@ void QX11PaintEnginePrivate::init()
     xinfo = 0;
 #ifndef QT_NO_XRENDER
     current_brush = 0;
+    composition_mode = PictOpOver;
 #endif
 }
 
@@ -620,8 +669,10 @@ static QPaintEngine::PaintEngineFeatures qt_decide_features()
         | QPaintEngine::AlphaBlend
         | QPaintEngine::PainterPaths;
 
-    if (X11->use_xrender)
+    if (X11->use_xrender) {
         features |= QPaintEngine::Antialiasing;
+        features |= QPaintEngine::PorterDuff;
+    }
 
     return features;
 }
@@ -895,11 +946,11 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
             if (r.isEmpty())
                 continue;
             if (d->has_texture || d->has_pattern) {
-                XRenderComposite(d->dpy, PictOpOver, d->current_brush, 0, pict,
+                XRenderComposite(d->dpy, d->composition_mode, d->current_brush, 0, pict,
                                  qRound(r.x() - d->bg_origin.x()), qRound(r.y() - d->bg_origin.y()),
                                  0, 0, r.x(), r.y(), r.width(), r.height());
             } else {
-                XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc, r.x(), r.y(), r.width(), r.height());
+                XRenderFillRectangle(d->dpy, d->composition_mode, pict, &xc, r.x(), r.y(), r.width(), r.height());
             }
             if (d->has_pen)
                 XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
@@ -1015,6 +1066,10 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
     }
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
     if (flags & DirtyHints) updateRenderHints(state.renderHints());
+    if (flags & DirtyCompositionMode) {
+        d->composition_mode =
+            qpainterOpToXrender(state.compositionMode());
+    }
     d->decidePathFallback();
 }
 
@@ -1409,7 +1464,7 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
                 XRenderPictureAttributes attrs;
                 attrs.poly_edge = antialias ? PolyEdgeSmooth : PolyEdgeSharp;
                 XRenderChangePicture(dpy, picture, CPPolyEdge, &attrs);
-                XRenderCompositeTrapezoids(dpy, PictOpOver, src, picture,
+                XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
                                            antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
                                            x_offset, y_offset,
                                            traps.constData(), traps.size());
@@ -1606,7 +1661,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
                              d->bg_mode == Qt::OpaqueMode);
             return;
         } else if (pixmap.data->d != 1 && (pixmap.data->d == 32 || pixmap.data->d != d->pdev_depth)) {
-            XRenderComposite(d->dpy, PictOpOver,
+            XRenderComposite(d->dpy, d->composition_mode,
                              src_pict, 0, d->picture, sx, sy, 0, 0, x, y, sw, sh);
             return;
         }
@@ -1808,7 +1863,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
                                      xOff, yOff, xPos, yPos, drawW, drawH, d->cpen, d->bg_brush,
                                      d->bg_mode == Qt::OpaqueMode);
                 } else {
-                    XRenderComposite(d->dpy, PictOpOver,
+                    XRenderComposite(d->dpy, d->composition_mode,
                                      pixmap.x11PictureHandle(), XNone, d->picture,
                                      xOff, yOff, 0, 0, xPos, yPos, drawW, drawH);
                 }
