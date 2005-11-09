@@ -2351,7 +2351,6 @@ void InsertActionIntoCommand::redo()
     m_parentWidget->insertAction(m_beforeAction, m_action);
 
     if (m_update) {
-        m_parentWidget->adjustSize();
         core()->propertyEditor()->setObject(m_action);
         cheapUpdate();
     }
@@ -2368,7 +2367,6 @@ void InsertActionIntoCommand::undo()
     m_parentWidget->removeAction(m_action);
 
     if (m_update) {
-        m_parentWidget->adjustSize();
         core()->propertyEditor()->setObject(m_parentWidget);
         cheapUpdate();
     }
@@ -2404,7 +2402,6 @@ void RemoveActionFromCommand::redo()
     m_parentWidget->removeAction(m_action);
 
     if (m_update) {
-        m_parentWidget->adjustSize();
         core()->propertyEditor()->setObject(m_parentWidget);
         cheapUpdate();
     }
@@ -2418,7 +2415,6 @@ void RemoveActionFromCommand::undo()
     m_parentWidget->insertAction(m_beforeAction, m_action);
 
     if (m_update) {
-        m_parentWidget->adjustSize();
         core()->propertyEditor()->setObject(m_action);
         cheapUpdate();
     }

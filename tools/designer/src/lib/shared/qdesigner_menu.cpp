@@ -49,6 +49,9 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
     setContextMenuPolicy(Qt::DefaultContextMenu);
     setAcceptDrops(true); // ### fake
 
+    m_adjustSizeTimer = new QTimer(this);
+    connect(m_adjustSizeTimer, SIGNAL(timeout()), this, SLOT(slotAdjustSizeNow()));
+    
     m_addItem = new SpecialMenuAction(this);
     m_addItem->setText(tr("new action"));
     addAction(m_addItem);
@@ -72,6 +75,11 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
 
 QDesignerMenu::~QDesignerMenu()
 {
+}
+
+void QDesignerMenu::slotAdjustSizeNow()
+{
+    adjustSize();
 }
 
 bool QDesignerMenu::handleEvent(QWidget *widget, QEvent *event)
@@ -299,8 +307,6 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *widget, QMouseEvent *event)
     m_startPosition = mapFromGlobal(event->globalPos());
 
     int index = findAction(m_startPosition);
-    if (index >= actions().count() - 1)
-        return true;
 
     m_currentIndex = index;
 
@@ -466,7 +472,7 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
     }
 
     QRect g = actionGeometry(current);
-    drawSelection(&p, g.adjusted(1, 1, -1, -1));
+    drawSelection(&p, g.adjusted(1, 1, -3, -2));
 }
 
 bool QDesignerMenu::dragging() const
@@ -677,6 +683,7 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
 void QDesignerMenu::actionEvent(QActionEvent *event)
 {
     QMenu::actionEvent(event);
+    m_adjustSizeTimer->start(0);
 }
 
 QDesignerFormWindowInterface *QDesignerMenu::formWindow() const
@@ -884,7 +891,6 @@ void QDesignerMenu::slotShowSubMenuNow()
     if (QMenu *menu = findOrCreateSubMenu(action)) {
         if (!menu->isVisible()) {
             menu->setWindowFlags(Qt::Popup); // Qt::FramelessWindowHint | Qt::Window);
-            menu->adjustSize();
             QRect g = actionGeometry(action);
             menu->move(mapToGlobal(g.topRight()));
             menu->show();
@@ -1011,6 +1017,7 @@ void QDesignerMenu::leaveEditMode(LeaveEditMode mode)
             formWindow()->commandHistory()->push(cmd);
         }
     }
+
     updateCurrentAction();
     formWindow()->endCommand();
 }
@@ -1044,7 +1051,7 @@ void QDesignerMenu::showLineEdit()
 
     m_editor->setText(action->text());
     m_editor->selectAll();
-    m_editor->setGeometry(actionGeometry(action));
+    m_editor->setGeometry(actionGeometry(action).adjusted(1, 1, -2, -2));
     m_editor->show();
     m_editor->setFocus();
 }
