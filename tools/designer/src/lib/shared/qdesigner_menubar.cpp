@@ -244,7 +244,6 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *, QKeyEvent *e)
         case Qt::Key_Enter:
         case Qt::Key_Return:
             leaveEditMode(ForceAccept);
-            m_editor->releaseKeyboard();
             if (m_lastFocusWidget)
                 m_lastFocusWidget->setFocus();
 
@@ -452,6 +451,8 @@ void QDesignerMenuBar::enterEditMode()
 
 void QDesignerMenuBar::leaveEditMode(LeaveEditMode mode)
 {
+    m_editor->releaseKeyboard();
+
     if (mode == Default)
         return;
 
