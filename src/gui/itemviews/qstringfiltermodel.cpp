@@ -21,7 +21,41 @@
   that is passed between another model and a view, using a QRegExp.
   \ingroup model-view
 
-  \sa QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}
+  Although the model/view framework is designed to handle data in arbitrary formats,
+  many models provide textual representations of their data to other components, as
+  described by \l{Qt::DisplayRole}. As a result, it is often possible to categorize
+  and filter data using this role, even if the primary data supplied by the model is
+  supplied in another format.
+
+  If you need to apply more specialized filters to data, subclass QFilteringProxyModel
+  and reimplement its virtual functions to provide the sorting behavior you require.
+
+  QStringFilterModel enables the developer to filter out rows at any level in a
+  hierarchical model by applying a \l{QRegExp}{regular expression}, specified by the 
+  \l regExp property, to the data supplied by the source model. Only one item from each
+  row in the model is tested against the regular expression, and this is obtained from
+  the column specified by the \l keyColumn property; by default the first column is
+  used (the key column is 0). Rows where the regular expression fails to match against
+  the data obtained from the key column are filtered out, and are not supplied to views
+  and delegates.
+
+  Additionally, the pattern used for the regular expression can be set using the
+  setPattern() slot. For example, a QLineEdit can be used to allow the user to specify
+  which regular expression to apply to the model's data:
+
+  \quotefromfile snippets/qstringfiltermodel/main.cpp
+  \skipto QStringFilterModel
+  \printuntil setSourceModel
+  \skipto QLineEdit
+  \printuntil QLineEdit
+  \skipto connect
+  \printuntil setPattern
+
+  The model applies the regular expression whenever the source model or the regular
+  expression changes, ensuring that the data displayed in other components is accurate
+  and up-to-date.
+
+  \sa QFilteringProxyModel, QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 class QStringFilterModelPrivate : public QFilteringProxyModelPrivate

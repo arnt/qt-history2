@@ -15,13 +15,14 @@ int main(int argc, char *argv[])
 
     QWidget *window = new QWidget;
 
-    QListView *filteredView = new QListView(window);
+    QListView *filteredView = new QListView;
     filteredView->setModel(filterModel);
     filteredView->setWindowTitle("Filtered view onto a string list model");
 
-    QLineEdit *patternEditor = new QLineEdit(window);
-    QObject::connect(patternEditor, SIGNAL(textChanged(const QString &)),
-                     filterModel, SLOT(setPattern(const QString &)));
+    QLineEdit *patternEditor = new QLineEdit;
+    QObject::
+    connect(patternEditor, SIGNAL(textChanged(const QString &)),
+            filterModel, SLOT(setPattern(const QString &)));
 
     QVBoxLayout *layout = new QVBoxLayout(window);
     layout->addWidget(filteredView);
