@@ -1265,7 +1265,7 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
 void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
     Q_D(QOpenGLPaintEngine);
-    if(pointCount < 3)
+    if(pointCount < 2)
         return;
 
     if (d->has_brush && mode != PolylineMode) {
