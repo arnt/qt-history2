@@ -448,10 +448,11 @@ void QWSManager::maximize()
     if (r.isEmpty()) {
         nr = desk;
     } else {
+        r += dummy; // make sure we get the full window region in case of 0 width borders
         QRect rect = r.boundingRect();
         nr = QRect(desk.x()-rect.x(), desk.y()-rect.y(),
-                desk.width() - (rect.width()==1 ? 0 : rect.width()), // ==1 -> dummy
-                desk.height() - (rect.height()==1 ? 0 : rect.height()));
+                desk.width() - (rect.width()==1 ? 0 : rect.width()-1), // ==1 -> dummy
+                desk.height() - (rect.height()==1 ? 0 : rect.height()-1));
     }
     d->managed->setGeometry(nr);
 }
