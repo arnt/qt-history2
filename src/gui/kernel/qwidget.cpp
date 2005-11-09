@@ -3835,7 +3835,7 @@ bool QWidget::isActiveWindow() const
     HWND parent = tlw->winId();
     HWND topparent = GetActiveWindow();
     while (parent) {
-        parent = ::GetAncestor(parent, GA_PARENT);
+        parent = IsWindow(parent) ? 0 : GetParent(parent);
         if (parent && parent == topparent)
             return true;
     }
