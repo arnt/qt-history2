@@ -860,18 +860,20 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
     if (cpp > 15)
         return false;
 
-    QImage::Format format = QImage::Format_Indexed8;
-    if (ncols > 256)
-        format = QImage::Format_ARGB32;
-    image = QImage(w, h, format);
-    if (ncols <= 256)
+    // For > 256 colors, we delay creation of the image until
+    // after we have read the color specifications, so that we can
+    // create it in correct format (Format_RGB32 vs Format_ARGB32,
+    // depending on absence or presence of "c none", respectively)
+    if (ncols <= 256) {
+        image = QImage(w, h, QImage::Format_Indexed8);
         image.setNumColors(ncols);
-
-    if (image.isNull())
-        return false;
+        if (image.isNull())
+            return false;
+    }
 
     QMap<quint64, int> colorMap;
     int currentColor;
+    bool hasTransparency = false;
 
     for(currentColor=0; currentColor < ncols; ++currentColor) {
         if (!read_xpm_string(buf, device, source, index, state)) {
@@ -903,8 +905,9 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
         }
         buf = color;
         if (buf == "none") {
+            hasTransparency = true;
             int transparentColor = currentColor;
-            if (image.depth() == 8) {
+            if (ncols <= 256) {
                 image.setColor(transparentColor, 0);
                 colorMap.insert(xpmHash((const char *)index.constData()), transparentColor);
             } else {
@@ -920,13 +923,22 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
             } else {
                 qt_get_named_xpm_rgb(buf, &c_rgb);
             }
-            if (image.depth() == 8) {
+            if (ncols <= 256) {
                 image.setColor(currentColor, 0xff000000 | c_rgb);
                 colorMap.insert(xpmHash((const char *)index.constData()), currentColor);
             } else {
                 colorMap.insert(xpmHash((const char *)index.constData()), 0xff000000 | c_rgb);
             }
         }
+    }
+
+    if (ncols > 256) {
+        // Now we can create 32-bit image of appropriate format
+        QImage::Format format = hasTransparency ?
+                                QImage::Format_ARGB32 : QImage::Format_RGB32;
+        image = QImage(w, h, format);
+        if (image.isNull())
+            return false;
     }
 
     // Read pixels
