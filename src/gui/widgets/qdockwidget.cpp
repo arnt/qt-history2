@@ -180,13 +180,8 @@ QStyleOptionDockWidget QDockWidgetPrivate::getStyleOption()
 {
     Q_Q(QDockWidget);
     QStyleOptionDockWidget opt;
+    opt.init(q);
     opt.rect = titleArea;
-    opt.palette = q->palette();
-    if (q->isEnabled()) {
-        opt.state |= QStyle::State_Enabled;
-        if (q->underMouse())
-            opt.state |= QStyle::State_MouseOver;
-    }
     opt.title = q->windowTitle();
     opt.closable = hasFeature(q, QDockWidget::DockWidgetClosable);
     opt.movable = hasFeature(q, QDockWidget::DockWidgetMovable);

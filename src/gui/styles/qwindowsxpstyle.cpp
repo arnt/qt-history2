@@ -2170,7 +2170,7 @@ case CE_DockWidgetTitle:
                 }
             }
             name = "WINDOW";
-            if (dwOpt->state & State_Enabled)
+            if (dwOpt->state & State_Active)
                 stateId = CS_ACTIVE;
             else
                 stateId = CS_INACTIVE;
