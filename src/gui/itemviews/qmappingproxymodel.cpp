@@ -23,7 +23,36 @@
   another model and a view.
   \ingroup model-view
 
-  \sa QProxyModel, QAbstractItemModel, {Model/View Programming}
+  Mapping proxy models transform the structure of a source model by mapping the model indexes
+  it supplies to new indexes, corresponding to different locations, for views to use.
+  This approach allows a given source model to be restructured as far as views are concerned
+  without requiring any transformations on the underlying data.
+
+  QMappingProxyModel is used as a base class for new mapping proxy models, and is not
+  intended to be instantiated directly in applications.
+
+  Generally, subclasses of this class maintain a map between model indexes in the source
+  model and proxy model indexes that are supplied to views and delegates. A number of
+  convenience functions are provided to manipulate this map:
+
+  \list
+  \o insertMapping() inserts a new mapping between a model index from the source model
+     and a proxy model index for other components to use.
+  \o removeMapping() removes a mapping associated with a given proxy model index, if one
+     exists.
+  \o isMapped() can be used to test whether a mapping already exists for a given proxy
+     index before insertMapping() is used.
+  \o sourceIndex() is used to obtain the source index mapped to a specified proxy index.
+  \o proxyIndex() is used to obtain the proxy index mapped to a specified source index.
+  \endlist
+
+  The clear() function is used by subclasses to clear all the mappings applied to the
+  source model that expose a transformed source model to other model/view components.
+  You should not need to call this function from outside the model.
+
+  Note that this class only supports one-to-one mapping between model indexes.
+
+  \sa QFilteringProxyModel, QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 /*!

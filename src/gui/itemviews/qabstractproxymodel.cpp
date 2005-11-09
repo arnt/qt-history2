@@ -21,7 +21,18 @@
     that can do sorting, filtering or other data processing tasks.
     \ingroup model-view
 
-    \sa QProxyModel, QAbstractItemModel, {Model/View Programming}
+    This class defines the standard interface that proxy models must use to be able to
+    interoperate correctly with other model/view components. It is not supposed to be
+    instantiated directly.
+
+    All standard proxy models are derived from the QAbstractProxyModel class. If you
+    need to create a new proxy model class, it is usually better to subclass an existing
+    class that provides the closest behavior to the one you want to provide. Proxy models
+    that filter items of data from a source model should be created by subclassing
+    QFilteringProxyModel; those that sort or manipulate the order of items presented to
+    views should be based on QSortingProxyModel.
+
+    \sa QMappingProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 

@@ -25,7 +25,30 @@
 
   \ingroup model-view
 
-  \sa QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}
+  Sorting proxy models apply mappings between a source model and a proxy model to expose
+  a sorted items to other model/view components.
+
+  QSortingProxyModel is designed to be used without subclassing, and provides two functions
+  to allow the sorting algorithm to be customized:
+
+  \list
+  \o setLessThan() is used to specify the function to be used as a < (less than) operator
+     when comparing data referenced by two model indexes. This function is used when the
+     sorting model needs to sort data in ascending order.
+  \o setGreaterThan() is used to specify the function to be used as a > (greater than)
+     operator when comparing data referenced by two model indexes. This function is used
+     when the sorting model needs to sort data in descending order.
+  \endlist
+
+  You must call \e both setLessThan() and setGreaterThan() functions if you want to change
+  the default sorting behavior. If you only redefine one sorting function, the arrangement
+  of sorted items for ascending sort order will not be the reverse of the arrangement for
+  descending sort order.
+
+  The clear() function is used to disable sorting and reset the sort order. It does not
+  reset the sorting functions to the default ones provided by this class.
+
+  \sa QFilteringProxyModel, QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 /*!

@@ -23,7 +23,34 @@
     \since 4.1
     \ingroup model-view
 
-    \sa QProxyModel, QAbstractItemModel, {Model/View Programming}
+    Filtering models allow whole rows and columns obtained from a source model to be hidden
+    from views and delegates. QFilteringProxyModel is used as a base class for new filtering
+    proxy models, and is not intended to be instantiated directly in applications.
+
+    An existing filter model is provided by the QStringFilterModel class.
+
+    Subclasses of QFilteringProxyModel need to reimplement two virtual functions that
+    are used by the model/view framework to filter out rows and columns from the source
+    model:
+
+    \list
+    \o filterColumn() is called with a parent model index and a column number.
+       Reimplementations of this function should iterate over all rows of child items,
+       and test the items in the specified column.
+    \o filterRow() is called with a parent model index and a row number.
+       Reimplementations of this function should iterate over all columns of child items,
+       and test the items in the specified row.
+    \endlist
+
+    Each function should return true if the row or column should be filtered; otherwise they
+    should return false. The default implementations for these functions return false to
+    ensure that no filtering happens if they are not reimplemented.
+
+    The clear() function is used in subclasses to clear all the mappings applied to the
+    source model that provide the filtering behavior. You should not need to call this
+    function from outside the model.
+
+    \sa QSortingProxyModel, QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 /*!
