@@ -423,7 +423,7 @@ General Fixes
 - QStringListModel
         Added support for sorting.
 
-- QtOpenGLPaintEngine
+- QOpenGLPaintEngine
         Gradients in the OpenGL paint engine are now drawn using
         fragment programs, if the extension is available. Lots of
         fixes, speedups and tweaks.
