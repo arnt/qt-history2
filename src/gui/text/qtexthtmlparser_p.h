@@ -93,6 +93,9 @@ enum QTextHTMLElements {
     Html_tr,
     Html_td,
     Html_th,
+    Html_thead,
+    Html_tbody,
+    Html_tfoot,
     Html_html,
 
     // misc...
@@ -107,7 +110,7 @@ struct QTextHtmlElement
 {
     const char *name;
     int id;
-    enum DisplayMode { DisplayBlock, DisplayInline, DisplayNone } displayMode;
+    enum DisplayMode { DisplayBlock, DisplayInline, DisplayTable, DisplayNone } displayMode;
 };
 
 class QTextHtmlParser;
@@ -210,7 +213,11 @@ struct QTextHtmlParserNode {
         switch (id) {
             case Html_dd: return (parentId == Html_dt || parentId == Html_dl);
             case Html_dt: return (parentId == Html_dl);
-            case Html_tr: return (parentId == Html_table);
+            case Html_tr: return (parentId == Html_table
+                                  || parentId == Html_thead
+                                  || parentId == Html_tbody
+                                  || parentId == Html_tfoot
+                                 );
             case Html_th:
             case Html_td: return (parentId == Html_tr);
             default: break;
