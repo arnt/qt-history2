@@ -96,6 +96,8 @@ void QDockSeparator::mouseMoveEvent(QMouseEvent *event)
 
 void QDockSeparator::mouseReleaseEvent(QMouseEvent *event)
 {
+    if (!state)
+        return;
     if (event->button() != Qt::LeftButton)
         return;
 
