@@ -2305,10 +2305,12 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
 
 /*! \reimp
 */
-bool QTextEdit::focusNextPrevChild(bool)
+bool QTextEdit::focusNextPrevChild(bool next)
 {
     Q_D(const QTextEdit);
-    return d->readOnly;
+    if (!d->tabChangesFocus && !d->readOnly)
+        return false;
+    return QAbstractScrollArea::focusNextPrevChild(next);
 }
 
 /*!

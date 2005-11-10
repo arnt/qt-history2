@@ -928,7 +928,7 @@ bool QTextBrowser::focusNextPrevChild(bool next)
     Q_D(QTextBrowser);
 
     if (!d->readOnly)
-        return false;
+        return QTextEdit::focusNextPrevChild(next);
 
     int anchorStart, anchorEnd;
     if (d->findNextPrevAnchor(next, anchorStart, anchorEnd)) {
@@ -946,7 +946,7 @@ bool QTextBrowser::focusNextPrevChild(bool next)
         return true;
     } else {
         d->viewport->update();
-        return false;
+        return QTextEdit::focusNextPrevChild(next);
     }
 }
 
