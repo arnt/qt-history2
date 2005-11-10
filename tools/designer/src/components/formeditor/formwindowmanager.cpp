@@ -57,6 +57,7 @@ FormWindowManager::FormWindowManager(QDesignerFormEditorInterface *core, QObject
       m_activeFormWindow(0)
 {
     m_layoutChilds = false;
+    m_savedContextMenuPolicy = Qt::NoContextMenu;
 
     setupActions();
     qApp->installEventFilter(this);
@@ -644,6 +645,8 @@ void FormWindowManager::beginDrag(const QList<QDesignerDnDItemInterface*> &item_
 
 #ifndef Q_OS_WIN
     m_core->topLevel()->grabMouse();
+    m_savedContextMenuPolicy = m_core->topLevel()->contextMenuPolicy();
+    m_core->topLevel()->setContextMenuPolicy(Qt::NoContextMenu);
 #endif
 }
 
@@ -712,6 +715,7 @@ void FormWindowManager::endDrag(const QPoint &pos)
 {
 #ifndef Q_OS_WIN
     m_core->topLevel()->releaseMouse();
+    m_core->topLevel()->setContextMenuPolicy(m_savedContextMenuPolicy);
 #endif
 
     Q_ASSERT(!m_drag_item_list.isEmpty());

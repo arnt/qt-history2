@@ -300,7 +300,7 @@ QWidget *FormWindow::findTargetContainer(QWidget *widget) const
     return mainContainer();
 }
 
-bool FormWindow::handleMousePressEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
+bool FormWindow::handleMousePressEvent(QWidget */*widget*/, QWidget *managedWidget, QMouseEvent *e)
 {
     startPos = QPoint();
     e->accept();
@@ -378,7 +378,7 @@ bool FormWindow::isPageOfContainerWidget(QWidget *widget) const
     return false;
 }
 
-bool FormWindow::handleMouseMoveEvent(QWidget *widget, QWidget *, QMouseEvent *e)
+bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
 {
     e->accept();
 
@@ -945,7 +945,7 @@ void FormWindow::selectWidgets()
     emitSelectionChanged();
 }
 
-bool FormWindow::handleKeyPressEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e)
+bool FormWindow::handleKeyPressEvent(QWidget *widget, QWidget *, QKeyEvent *e)
 {
     if (qobject_cast<FormWindow*>(widget))
         return false;
