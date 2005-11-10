@@ -386,7 +386,7 @@ Sentinel::Sentinel(QWidget *widget)
     : QToolButton(widget)
 {
     setObjectName(QString::fromUtf8("__qt__passive_new"));
-    setArrowType(Qt::RightArrow);
+    setText(">>");
     setToolButtonStyle(Qt::ToolButtonTextOnly);
     setToolTip(tr("New Tool Bar"));
 }
