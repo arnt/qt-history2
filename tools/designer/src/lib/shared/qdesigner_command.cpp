@@ -860,7 +860,8 @@ void LayoutCommand::undo()
 
     m_layout->undoLayout();
 
-    if (!m_layoutBase && lb != 0 && !qobject_cast<QLayoutWidget*>(lb)) {
+    // ### generalize (put in function)
+    if (!m_layoutBase && lb != 0 && !(qobject_cast<QLayoutWidget*>(lb) || qobject_cast<QSplitter*>(lb))) {
         core->metaDataBase()->add(lb);
         lb->show();
     }
