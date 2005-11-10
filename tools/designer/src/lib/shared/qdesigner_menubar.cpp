@@ -547,6 +547,10 @@ bool QDesignerMenuBar::eventFilter(QObject *object, QEvent *event)
             if (dispatch && widget && (widget == this || isAncestorOf(widget)))
                 return handleEvent(widget, event);
         } break;
+
+        case QEvent::Shortcut:
+            event->accept();
+            return true;
     }
 
     return false;
