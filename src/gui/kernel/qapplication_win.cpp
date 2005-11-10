@@ -1927,6 +1927,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(widget);
                 if (acc) {
                     QString text = acc->text(QAccessible::Name, 0);
+                    if (text.isEmpty())
+                        text = widget->objectName();
                     ret = qMin<int>(wParam - 1, text.size());
                     text.resize(ret);
                     QT_WA({
