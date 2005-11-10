@@ -1409,14 +1409,18 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
 
     equalsCharPos = -1;
 
-    while (device.getChar(&ch)) {
+    QByteArray linein = device.readLine();
+    int posin = 0;
+
+    while (posin < linein.length()) {
+        ch = linein.at(posin++);
     process_ch:
         MAYBE_GROW();
 
         switch (ch) {
         case '"':
             data[pos++] = '"';
-            while (device.getChar(&ch) && ch != '"') {
+            while (posin < linein.length() && (ch=linein.at(posin++)) != '"') {
                 MAYBE_GROW();
 
                 if (static_cast<signed char>(ch) == -1)
@@ -1424,8 +1428,9 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
 
                 if (ch == '\\') {
                     data[pos++] = '\\';
-                    if (!device.getChar(&ch))
+                    if (posin >= linein.length())
                         goto end;
+                    ch = linein.at(posin++);
                 }
                 data[pos++] = ch;
             }
@@ -1445,20 +1450,30 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
                 the ungetch() call is expensive, so let's not do it.
             */
 #if 0
+            /*
             if (!device.getChar(&ch2))
                 goto end;
             if ((ch2 != '\n' && ch2 != '\r') || ch == ch2)
                 device.ungetChar(ch2);
+            */
+            // never tested, this was already disabled when getChar was replaced
+            if (posin >= linein.length())
+                goto end;
+            ch2 = linein.at(posin++);
+            if ((ch2 != '\n' && ch2 != '\r') || ch == ch2)
+                --posin;
 #endif
             if (pos > 0)
                 goto end;
             break;
         case '\\':
-            if (!device.getChar(&ch))
+            if (posin >= linein.length())
                 goto end;
+            ch = linein.at(posin++);
 
             if (ch == '\n' || ch == '\r') {
-                if (!device.getChar(&ch2)) {
+                if (posin < linein.length()) {
+                    ch2 = linein.at(posin++);
                     if ((ch2 != '\n' && ch2 != '\r') || ch == ch2) {
                         ch = ch2;
                         goto process_ch;
@@ -1470,7 +1485,8 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
             }
             break;
         case ';':
-            while (device.getChar(&ch)) {
+            while (posin < linein.length()) {
+                ch = linein.at(posin++);
                 if (ch == '\n' || ch == '\r')
                     goto process_newline;
             }
