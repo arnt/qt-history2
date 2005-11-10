@@ -142,6 +142,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_fileActions->addAction(sep);
 
     m_quitAction = new QAction(tr("&Quit"), this);
+    m_quitAction->setShortcut(tr("CTRL+Q"));
     connect(m_quitAction, SIGNAL(triggered()),
             this, SLOT(shutdown()));
     m_fileActions->addAction(m_quitAction);
