@@ -18,7 +18,7 @@
 // and then that many bytes are allocated.  If the rawLen is corrupted (or
 // the protocol is being attacked) too many bytes can be allocated.  Set
 // a hard limit here for security.
-#define MAX_COMMAND_SIZE 1024
+#define MAX_COMMAND_SIZE (16 * 1024)
 
 #include <QtCore/qbytearray.h>
 #include <QtGui/qwsutils_qws.h>

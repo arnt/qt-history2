@@ -359,8 +359,13 @@ bool qws_read_command(QIODevice *socket, char *&simpleData, int &simpleLen,
     if (bytesRead) {
         if (!rawLen)
             return true;
-        if (socket->bytesAvailable() < uint(rawLen) ||
-                uint(rawLen) > MAX_COMMAND_SIZE )
+        if (uint(rawLen) > MAX_COMMAND_SIZE) {
+            socket->close();
+            qWarning("qws_read_command: Won't read command of length %d, "
+                     "connection closed.", rawLen);
+            return false;
+        }
+        if (socket->bytesAvailable() < uint(rawLen))
             return false;
         rawData = new char[rawLen];
         bytesRead += socket->read(rawData, rawLen);
