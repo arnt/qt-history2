@@ -19,9 +19,6 @@ MdiChild::MdiChild()
 {
     setAttribute(Qt::WA_DeleteOnClose);
     isUntitled = true;
-
-    connect(document(), SIGNAL(contentsChanged()),
-            this, SLOT(documentWasModified()));
 }
 
 void MdiChild::newFile()
@@ -31,6 +28,9 @@ void MdiChild::newFile()
     isUntitled = true;
     curFile = tr("document%1.txt").arg(sequenceNumber++);
     setWindowTitle(curFile + "[*]");
+
+    connect(document(), SIGNAL(contentsChanged()),
+            this, SLOT(documentWasModified()));
 }
 
 bool MdiChild::loadFile(const QString &fileName)
@@ -50,6 +50,10 @@ bool MdiChild::loadFile(const QString &fileName)
     QApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);
+
+    connect(document(), SIGNAL(contentsChanged()),
+            this, SLOT(documentWasModified()));
+
     return true;
 }
 
