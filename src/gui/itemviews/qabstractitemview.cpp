@@ -845,6 +845,21 @@ Qt::TextElideMode QAbstractItemView::textElideMode() const
 }
 
 /*!
+  \reimp
+*/
+bool QAbstractItemView::event(QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress && d_func()->tabKeyNavigation) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Tab || keyEvent->key() == Qt::Key_BackTab) {
+            keyPressEvent(keyEvent);
+            return keyEvent->isAccepted();
+        }
+    }
+    return QAbstractScrollArea::event(event);
+}
+
+/*!
     \fn bool QAbstractItemView::viewportEvent(QEvent *event)
 
     This function is used to handle tool tips, status tips, and What's
@@ -1366,10 +1381,6 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Control:
         event->ignore();
         break;
-    case Qt::Key_Backtab:
-    case Qt::Key_Tab:
-        event->accept(); // don't change focus
-        break;
     case Qt::Key_Space:
         selectionModel()->select(currentIndex(), selectionCommand(currentIndex(), event));
         break;
@@ -1437,25 +1448,6 @@ void QAbstractItemView::timerEvent(QTimerEvent *event)
         doAutoScroll();
     else if (event->timerId() == d->updateTimer.timerId())
         d->updateDirtyRegion();
-}
-
-/*!
-    \since 4.1
-
-    Finds a new item to give the keyboard focus to, as appropriate
-    for Tab and Shift+Tab, and returns true if it can find a new
-    widget, or false if it can't.
-
-    If \a next is true, this function searches forward, if \a next
-    is false, it searches backward.
-*/
-bool QAbstractItemView::focusNextPrevChild(bool next)
-{
-     Q_D(QAbstractItemView);
-     if (d->tabKeyNavigation && currentIndex().isValid())
-         return false;
-     else
-         return QAbstractScrollArea::focusNextPrevChild(next);
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -2536,6 +2528,7 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
             q->itemDelegate()->setEditorData(w, index);
             q->itemDelegate()->updateEditorGeometry(w, options, index);
             editors.insert(index, w);
+            QWidget::setTabOrder(w, q);
         }
     }
     return w;

@@ -235,6 +235,7 @@ protected:
     void stopAutoScroll();
     void doAutoScroll();
 
+    bool event(QEvent *event);
     bool viewportEvent(QEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -251,8 +252,6 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void resizeEvent(QResizeEvent *event);
     void timerEvent(QTimerEvent *event);
-
-    bool focusNextPrevChild(bool next);
 
 #ifndef QT_NO_DRAGANDDROP
     enum DropIndicatorPosition { OnItem, AboveItem, BelowItem, OnViewport };

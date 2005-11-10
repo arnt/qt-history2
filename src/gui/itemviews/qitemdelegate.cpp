@@ -728,11 +728,11 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
         case Qt::Key_Tab:
             emit commitData(editor);
             emit closeEditor(editor, QAbstractItemDelegate::EditNextItem);
-            break;
+            return true;
         case Qt::Key_Backtab:
             emit commitData(editor);
             emit closeEditor(editor, QAbstractItemDelegate::EditPreviousItem);
-            break;
+            return true;
         case Qt::Key_Enter:
         case Qt::Key_Return:
             emit commitData(editor);
