@@ -115,6 +115,9 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 
     m_formWindow = fw;
 
+    if (fw && fw->cursor())
+        m_selected = fw->cursor()->selectedWidget(0);
+
     int xoffset = m_treeWidget->horizontalScrollBar()->value();
     int yoffset = m_treeWidget->verticalScrollBar()->value();
 
@@ -125,7 +128,7 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 
     QDesignerWidgetDataBaseInterface *db = fw->core()->widgetDataBase();
 
-    m_treeWidget->viewport()->setUpdatesEnabled(false);
+    m_treeWidget->setUpdatesEnabled(false);
 
     QStack< QPair<QTreeWidgetItem*, QObject*> > workingList;
     QObject *rootObject = fw->mainContainer();
@@ -223,13 +226,15 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
     m_treeWidget->horizontalScrollBar()->setValue(xoffset);
     m_treeWidget->verticalScrollBar()->setValue(yoffset);
 
-    m_treeWidget->viewport()->setUpdatesEnabled(true);
-    m_treeWidget->viewport()->update();
+    if (theSelectedItem) {
+        m_treeWidget->setCurrentItem(theSelectedItem);
+        m_treeWidget->scrollToItem(theSelectedItem);
+    }
+
+    m_treeWidget->setUpdatesEnabled(true);
+    m_treeWidget->update();
 
     m_treeWidget->resizeColumnToContents(0);
-
-    if (theSelectedItem)
-        m_treeWidget->setCurrentItem(theSelectedItem);
 }
 
 void ObjectInspector::slotSelectionChanged()
