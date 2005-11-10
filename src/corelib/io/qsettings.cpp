@@ -444,6 +444,7 @@ static const char hexDigits[] = "0123456789ABCDEF";
 
 void QSettingsPrivate::iniEscapedKey(const QString &key, QByteArray &result)
 {
+    result.reserve(result.length()+key.length()*3/2);
     for (int i = 0; i < key.size(); ++i) {
         uint ch = key.at(i).unicode();
 
@@ -472,6 +473,7 @@ bool QSettingsPrivate::iniUnescapedKey(const QByteArray &key, int from, int to, 
 {
     bool lowercaseOnly = true;
     int i = from;
+    result.reserve(result.length()+(to-from+1)*3/2);
     while (i < to) {
         int ch = (uchar)key.at(i);
 
@@ -528,6 +530,7 @@ void QSettingsPrivate::iniEscapedString(const QString &str, QByteArray &result)
     int i;
     int startPos = result.size();
 
+    result.reserve(startPos+str.size()*3/2);
     for (i = 0; i < str.size(); ++i) {
         uint ch = str.at(i).unicode();
         if (ch == ';' || ch == ',' || ch == '=')
