@@ -830,7 +830,7 @@ void QDesignerMenuBar::showMenu(int index)
         QRect g = actionGeometry(action);
 
         if (!menu->isVisible()) {
-            menu->setWindowFlags(Qt::Popup); //Qt::FramelessWindowHint | Qt::Window); // ### check me
+            menu->setWindowFlags(Qt::Popup);
             menu->adjustSize();
             menu->move(mapToGlobal(g.bottomLeft()));
             menu->setFocus(Qt::MouseFocusReason);
