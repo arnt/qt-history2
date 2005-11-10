@@ -4,4 +4,6 @@ CONFIG(debug, debug|release) {
     LIBS += -lQtTest
 }
 
+CONFIG += console
+
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtTest
