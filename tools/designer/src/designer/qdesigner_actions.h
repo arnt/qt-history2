@@ -119,9 +119,6 @@ public slots:
 signals:
     void useBigIcons(bool);
 
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-
 private slots:
     void saveForm();
     void saveFormAs();

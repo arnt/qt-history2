@@ -581,30 +581,19 @@ void QDesignerActions::previewFormLater(QAction *action)
 void QDesignerActions::previewForm(QAction *action)
 {
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
-        QDialog *fakeTopLevel = new QDialog(fw);
-        QHBoxLayout *layout = new QHBoxLayout(fakeTopLevel);
-        layout->setMargin(0);
-
         qdesigner_internal::QDesignerFormBuilder builder(core());
         builder.setWorkingDirectory(fw->absoluteDir());
 
         QByteArray bytes = fw->contents().toUtf8();
         QBuffer buffer(&bytes);
 
-        QWidget *widget = builder.load(&buffer, fakeTopLevel);
+        QWidget *widget = builder.load(&buffer, 0);
         Q_ASSERT(widget);
 
-        if (QDialog *dlg = qobject_cast<QDialog *>(widget)) {
-            dlg->setAttribute(Qt::WA_DeleteOnClose, true);
-            connect(dlg, SIGNAL(destroyed()), fakeTopLevel, SLOT(accept()));
-        }
-
-        QSize size = widget->size();
-
-        widget->setParent(fakeTopLevel, 0);
-        layout->addWidget(widget);
-
-        widget->installEventFilter(this);
+        widget->setParent(fw->window(), Qt::Dialog);
+        widget->setWindowModality(Qt::ApplicationModal);
+        widget->setAttribute(Qt::WA_DeleteOnClose, true);
+        widget->move(fw->mapToGlobal(QPoint(0, 0)) + QPoint(10, 10));
 
         QStyle *style = 0;
 
@@ -613,9 +602,10 @@ void QDesignerActions::previewForm(QAction *action)
             style = QStyleFactory::create(styleName);
 
             if (style != 0) {
-                fakeTopLevel->setStyle(style);
-                fakeTopLevel->setPalette(style->standardPalette());
-                QList<QWidget*> lst = qFindChildren<QWidget*>(fakeTopLevel);
+                style->setParent(widget);
+                widget->setStyle(style);
+                widget->setPalette(style->standardPalette());
+                QList<QWidget*> lst = qFindChildren<QWidget*>(widget);
                 foreach (QWidget *w, lst) {
                     if (w->windowType() == Qt::Popup)
                         w->setPalette(style->standardPalette());
@@ -624,28 +614,10 @@ void QDesignerActions::previewForm(QAction *action)
             }
         }
 
-        fakeTopLevel->resize(size);
-        fakeTopLevel->setWindowTitle(tr("%1 - [Preview]").arg(widget->windowTitle()));
-        fakeTopLevel->exec();
+        widget->setWindowTitle(tr("%1 - [Preview]").arg(widget->windowTitle()));
 
-        delete fakeTopLevel;
-        delete style;
+        widget->show();
     }
-}
-
-bool QDesignerActions::eventFilter(QObject *obj, QEvent *event)
-{
-    bool retval = QObject::eventFilter(obj, event);
-
-    if (event->type() == QEvent::Resize) {
-        QDialog *w = qobject_cast<QDialog *>(obj);
-        QDialog *dlg = qobject_cast<QDialog *>(obj->parent());
-        if ((w && dlg) && w->isSizeGripEnabled() && (w->size() != dlg->size())) {
-            dlg->resize(w->size());
-        }
-    }
-
-    return retval;
 }
 
 void QDesignerActions::fixActionContext()
