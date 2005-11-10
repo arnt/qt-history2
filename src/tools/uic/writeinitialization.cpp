@@ -687,18 +687,24 @@ void WriteInitialization::writeProperties(const QString &varName,
             DomFont *f = p->elementFont();
             QString fontName = driver->unique(QLatin1String("font"));
             output << option.indent << "QFont " << fontName << ";\n";
-            output << option.indent << fontName << ".setFamily(QString::fromUtf8(" << fixString(f->elementFamily())
-                << "));\n";
-            output << option.indent << fontName << ".setPointSize(" << f->elementPointSize()
-                << ");\n";
+            if (!f->elementFamily().isEmpty()) {
+                output << option.indent << fontName << ".setFamily(QString::fromUtf8(" << fixString(f->elementFamily())
+                    << "));\n";
+            }
+            if (f->elementPointSize() > 0) {
+                output << option.indent << fontName << ".setPointSize(" << f->elementPointSize()
+                    << ");\n";
+            }
             output << option.indent << fontName << ".setBold("
                 << (f->elementBold() ? "true" : "false") << ");\n";
             output << option.indent << fontName << ".setItalic("
                 <<  (f->elementItalic() ? "true" : "false") << ");\n";
             output << option.indent << fontName << ".setUnderline("
                 << (f->elementUnderline() ? "true" : "false") << ");\n";
-            output << option.indent << fontName << ".setWeight("
-                << f->elementWeight() << ");" << endl;
+            if (f->elementWeight() > 0) {
+                output << option.indent << fontName << ".setWeight("
+                    << f->elementWeight() << ");" << endl;
+            }
             output << option.indent << fontName << ".setStrikeOut("
                 << (f->elementStrikeOut() ? "true" : "false") << ");\n";
             propertyValue = fontName;
