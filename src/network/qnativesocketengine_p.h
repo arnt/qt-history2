@@ -30,7 +30,7 @@
 
 class QNativeSocketEnginePrivate;
 
-class QNativeSocketEngine : public QAbstractSocketEngine 
+class QNativeSocketEngine : public QAbstractSocketEngine
 {
     Q_OBJECT
 public:
@@ -70,7 +70,7 @@ public:
 
     int option(SocketOption option) const;
     bool setOption(SocketOption option, int value);
-    
+
     bool waitForRead(int msecs = 30000, bool *timedOut = 0) const;
     bool waitForWrite(int msecs = 30000, bool *timedOut = 0) const;
     bool waitForReadOrWrite(bool *readyToRead, bool *readyToWrite,
@@ -87,7 +87,7 @@ public:
 private:
     Q_DECLARE_PRIVATE(QNativeSocketEngine)
     Q_DISABLE_COPY(QNativeSocketEngine)
-#ifndef QT_OS_WIN
+#ifdef Q_OS_WIN
     Q_PRIVATE_SLOT(d_func(), void systemReadNotification())
 #endif
 };
@@ -120,26 +120,26 @@ public:
 #endif
 
     enum ErrorString {
-        NonBlockingInitFailedErrorString, 
+        NonBlockingInitFailedErrorString,
         BroadcastingInitFailedErrorString,
-        NoIpV6ErrorString, 
+        NoIpV6ErrorString,
         RemoteHostClosedErrorString,
         TimeOutErrorString,
         ResourceErrorString,
         OperationUnsupportedErrorString,
-        ProtocolUnsupportedErrorString, 
-        InvalidSocketErrorString, 
-        UnreachableErrorString, 
-        AccessErrorString, 
-        ConnectionTimeOutErrorString, 
-        ConnectionRefusedErrorString, 
-        AddressInuseErrorString, 
-        AddressNotAvailableErrorString, 
-        AddressProtectedErrorString, 
-        DatagramTooLargeErrorString, 
+        ProtocolUnsupportedErrorString,
+        InvalidSocketErrorString,
+        UnreachableErrorString,
+        AccessErrorString,
+        ConnectionTimeOutErrorString,
+        ConnectionRefusedErrorString,
+        AddressInuseErrorString,
+        AddressNotAvailableErrorString,
+        AddressProtectedErrorString,
+        DatagramTooLargeErrorString,
         SendDatagramErrorString,
         ReceiveDatagramErrorString,
-        WriteErrorString, 
+        WriteErrorString,
         ReadErrorString,
         PortInuseErrorString
     };
@@ -174,7 +174,7 @@ public:
 
     bool fetchConnectionParameters();
 
-#ifndef QT_OS_WIN
+#ifdef Q_OS_WIN
     void systemReadNotification();
 #endif
 };
