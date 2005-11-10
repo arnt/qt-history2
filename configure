@@ -1305,6 +1305,15 @@ QT_INSTALL_DEMOS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DEMOS"`
 unixtests=$relpath/config.tests/unix
 WHICH=$unixtests/which.test
 
+# find out which awk we want to use, prefer gawk, then nawk, then regular awk
+AWK=
+for e in gawk nawk awk; do
+    if $WHICH $e >/dev/null 2>&1 && ( $e -f /dev/null /dev/null ) >/dev/null 2>&1; then
+        AWK=$e
+        break
+    fi
+done
+
 ### skip this if the user just needs help...
 if [ "$OPT_HELP" != "yes" ]; then
 
@@ -1395,14 +1404,6 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     ln -s $relpath/tools/porting/src/q3porting.xml $outpath/tools/porting/src
 fi
 
-# find out which awk we want to use, prefer gawk, then nawk, then regular awk
-AWK=
-for e in gawk nawk awk; do
-    if $WHICH $e >/dev/null 2>&1 && ( $e -f /dev/null /dev/null ) >/dev/null 2>&1; then
-        AWK=$e
-        break
-    fi
-done
 if [ "$OPT_FAST" = "auto" ]; then
    if [ '!' -z "$AWK" ] && [ "$Edition" = "Trolltech" ]; then
        OPT_FAST=yes
