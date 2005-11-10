@@ -103,6 +103,9 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     }
     updateRecentFileActions();
 
+    act = new QAction(this);
+    act->setSeparator(true);
+    m_recentFilesActions->addAction(act);
 
     act = new QAction(tr("Clear &Menu"), this);
     connect(act, SIGNAL(triggered()), this, SLOT(clearRecentFiles()));
