@@ -1203,6 +1203,8 @@ void WriteInitialization::initializeComboBox(DomWidget *w)
     if (items.isEmpty())
         return;
 
+    refreshOut << option.indent << varName << "->clear();\n";
+
     for (int i=0; i<items.size(); ++i) {
         DomItem *item = items.at(i);
 
