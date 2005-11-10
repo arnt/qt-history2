@@ -1312,24 +1312,26 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             GetClientRect(q->winId(), &rect);
     	    data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);
         } else {
-        QRect oldGeom(data.crect);
+            QRect oldGeom(data.crect);
             data.crect.setRect(x, y, w, h);
-            if(!isResize && q->isVisible() && !q->isHidden()) {
-                moveRect(QRect(oldPos, oldSize), x - oldGeom.x(), y - oldGeom.y());
+            if (q->isVisible()) {
+                if (!isResize) {
+                    moveRect(QRect(oldPos, oldSize), x - oldGeom.x(), y - oldGeom.y());
+                } else {
+                    invalidateBuffer(q->rect());
+                    QRegion oldRegion(QRect(oldPos, oldSize));
+                    if (!q->mask().isEmpty())
+                        oldRegion &= q->mask().translated(oldPos);
+                    q->parentWidget()->d_func()->invalidateBuffer(oldRegion);
+                }
             }
             setWSGeometry();
         }
         q->setAttribute(Qt::WA_WState_ConfigPending, false);
     }
 
-    if (q->isVisible() && !q->isHidden() && isResize) {
+    if (q->isWindow() && q->isVisible() && isResize) {
         invalidateBuffer(q->rect()); //after the resize
-        if(q->parentWidget()) {
-            QRegion oldRegion(QRect(oldPos, oldSize));
-            if (!q->mask().isEmpty())
-                oldRegion &= q->mask().translated(oldPos);
-            q->parentWidget()->d_func()->invalidateBuffer(oldRegion);
-        }
     }
 
     // Process events immediately rather than in translateConfigEvent to
