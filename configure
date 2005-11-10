@@ -1570,7 +1570,7 @@ if [ -z "$PLATFORM" ]; then
         ;;
      Linux:*)
         case "$UNAME_MACHINE" in
-            x86_64|s390x|ppc64)
+            x86_64|s390x)
                 PLATFORM=linux-g++-64
                 ;;
             *)
