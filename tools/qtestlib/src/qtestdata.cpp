@@ -69,6 +69,7 @@ void QTestData::append(int type, const void *data)
 
 void *QTestData::data(int index) const
 {
+    QTEST_ASSERT(index >= 0);
     QTEST_ASSERT(index < d->parent->elementCount());
     return d->data[index];
 }
