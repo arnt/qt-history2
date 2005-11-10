@@ -821,7 +821,7 @@ bool QDir::cd(const QString &dirName)
     }
     {
         QFileInfo fi(newPath);
-        if(!fi.exists())
+        if (!(fi.exists() && fi.isDir()))
             return false;
     }
 
