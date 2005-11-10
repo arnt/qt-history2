@@ -12,7 +12,8 @@
 ****************************************************************************/
 
 
-/*! \class QNetworkProxy
+/*! 
+    \class QNetworkProxy
 
     \since 4.1
 
@@ -32,12 +33,12 @@
 
     \code
         QNetworkProxy proxy;
-	proxy.setType(QNetworkProxy::Socks5Proxy);
-	proxy.setHostName("proxy.example.com");
-	proxy.setPort(1080);
-	proxy.setUser("username");
-	proxy.setPassword("password");
-	QNetworkProxy::setApplicationProxy(proxy);
+        proxy.setType(QNetworkProxy::Socks5Proxy);
+        proxy.setHostName("proxy.example.com");
+        proxy.setPort(1080);
+        proxy.setUser("username");
+        proxy.setPassword("password");
+        QNetworkProxy::setApplicationProxy(proxy);
     \endcode
 
     An alternative to setting an application wide proxy is to specify
@@ -60,14 +61,14 @@
     documentation of the \l {proxyType}{proxy type} carefully before
     using it.
 
-    \section1 Socks5
+    \section1 SOCKS5
 
-    The Socks5 support in Qt 4 is based on rfc 1928/1929. The
-    supported authentication methods are no authentication and
+    The SOCKS5 support in Qt 4 is based on \l{RFC 1928} and \l{RFC 1929}.
+    The supported authentication methods are no authentication and
     username/password authentication.  Both IPv4 and IPv6 are
-    supported, but resolving domain names through the Socks server is
-    not, i.e. all domain names are resolved locally. There are several
-    things to remmber when using socks5 with QUdpSocket and
+    supported, but resolving domain names through the SOCKS server is
+    not; i.e. all domain names are resolved locally. There are several
+    things to remmber when using SOCKS5 with QUdpSocket and
     QTcpServer:
 
     With QUdpSocket a call to \l {QUdpSocket::bind()}{bind()} may fail
@@ -86,7 +87,7 @@
     that it is the specified port that will be used. Use \l
     {QTcpServer::serverPort()}{serverPort()} and \l
     {QTcpServer::serverAddress()}{serverAddress()} to get the actual
-    address and port listened on. Socks5 only supports one accepted
+    address and port listened on. SOCKS5 only supports one accepted
     connection per call to \l {QTcpServer::listen()}{listen()}, and
     each call is likely to result in a different \l
     {QTcpServer::serverPort()}{serverPort()}.

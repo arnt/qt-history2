@@ -53,6 +53,8 @@
     support for pixel and sample buffers.
     \o A flexible \l{QSyntaxHighlighter}{syntax highlighting class} based on the
        \l{Scribe} rich text framework.
+    \o Support for \l{QNetworkProxy}{network proxy} servers using the SOCKS5
+       protocol.
     \o Support for OLE verbs and MIME data handling in \l{ActiveQt}.
     \endlist
 
