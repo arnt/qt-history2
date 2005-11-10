@@ -1,8 +1,7 @@
 #!/bin/sh
 
 FVISIBILITY_SUPPORT=no
-XPLATFORM=`basename $1`
-XCONFIG=$1/qmake.conf
+COMPILER=$1
 VERBOSE=$2
 
 cat >>sse.c << EOF
@@ -10,7 +9,6 @@ cat >>sse.c << EOF
 #include <xmmintrin.h>
 EOF
 
-COMPILER=`grep QMAKE_CC $XCONFIG | sed "s,.*= *,,"`
 $COMPILER -c -msse sse.c >/dev/null 2>&1 && SSE_SUPPORT=yes
 rm -f sse.c sse.o
 
