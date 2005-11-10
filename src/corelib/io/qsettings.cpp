@@ -1412,7 +1412,7 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
     QByteArray linein;
     do {
         linein = device.readLine();
-    } while (linein.at(0)=='\r' || linein.at(0)=='\n'); // skip blanks here
+    } while (!linein.isEmpty() && (linein.at(0)=='\r' || linein.at(0)=='\n')); // skip blanks here
     int posin = 0;
 
     while (posin < linein.length()) {
