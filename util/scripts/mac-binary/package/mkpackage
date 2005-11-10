@@ -197,6 +197,10 @@ fi
 if [ -z "$LICENSE" ]; then
     DEPOT_LICENSE="$SOURCE_DIR/dist/commercial/LICENSE" 
     PACKAGE_LICENSE="$SOURCE_DIR/.LICENSE" 
+    if [ "$LICENSETYPE" = "eval" ]; then
+        DEPOT_LICENSE="$SOURCE_DIR/dist/eval/LICENSE-EVALUATION"
+        PACKAGE_LICENSE="$PACKAGE_LICENSE-EVALUATION"
+    fi
     if [ -e "$DEPOT_LICENSE" ]; then
         LICENSE=$DEPOT_LICENSE
     elif [ -e "$PACKAGE_LICENSE" ]; then
@@ -209,6 +213,10 @@ fi
 if [ -z "$LICENSE_US" ]; then
     DEPOT_LICENSE_US="$SOURCE_DIR/dist/commercial/LICENSE-US" 
     PACKAGE_LICENSE_US="$SOURCE_DIR/.LICENSE-US" 
+    if [ "$LICENSETYPE" = "eval" ]; then
+        DEPOT_LICENSE_US="$SOURCE_DIR/dist/eval/LICENSE-EVALUATION-US"
+        PACKAGE_LICENSE_US="$SOURCE_DIR/.LICENSE-EVALUATION-US"
+    fi
     if [ -e "$DEPOT_LICENSE_US" ]; then
         LICENSE_US=$DEPOT_LICENSE_US
     elif [ -e "$PACKAGE_LICENSE_US" ]; then
