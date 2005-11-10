@@ -901,7 +901,8 @@ void QDesignerMenu::slotShowSubMenuNow()
 
     if (QMenu *menu = findOrCreateSubMenu(action)) {
         if (!menu->isVisible()) {
-            menu->setWindowFlags(Qt::Popup);
+            if ((menu->windowFlags() & Qt::Popup) != Qt::Popup)
+                menu->setWindowFlags(Qt::Popup);
             QRect g = actionGeometry(action);
             menu->move(mapToGlobal(g.topRight()));
             menu->show();
