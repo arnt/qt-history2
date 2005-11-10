@@ -229,6 +229,7 @@ private:
     friend class QGLDrawable;
     friend class QGLWidgetPrivate;
 #ifdef Q_WS_MAC
+    friend class QMacGLWindowChangeEvent;
     void updatePaintDevice();
 #endif
 

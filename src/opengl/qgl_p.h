@@ -111,6 +111,9 @@ public:
 #if defined(Q_WS_X11)
     quint32 gpm;
 #endif
+#if defined(Q_WS_MAC)
+    bool update;
+#endif
 #endif
     QGLFormat glFormat;
     QGLFormat reqFormat;

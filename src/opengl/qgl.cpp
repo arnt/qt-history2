@@ -904,6 +904,9 @@ void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
     hbitmap = 0;
     hbitmap_hdc = 0;
 #endif
+#if defined(Q_WS_MAC)
+    update = false;
+#endif
     crWin = false;
     initDone = false;
     sharing = false;
