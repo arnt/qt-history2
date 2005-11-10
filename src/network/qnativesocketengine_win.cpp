@@ -17,6 +17,8 @@
 
 #include <qabstracteventdispatcher.h>
 #include <qsocketnotifier.h>
+#include <qdebug.h>
+#include <qdatetime.h>
 
 //#define QNATIVESOCKETENGINE_DEBUG
 
@@ -279,6 +281,21 @@ QWindowsSockInit::~QWindowsSockInit()
     WSACleanup();
 }
 
+// MS Transport Provider IOCTL to control
+// reporting PORT_UNREACHABLE messages
+// on UDP sockets via recv/WSARecv/etc.
+// Path TRUE in input buffer to enable (default if supported),
+// FALSE to disable.
+#ifndef SIO_UDP_CONNRESET
+#  ifndef IOC_VENDOR
+#    define IOC_VENDOR 0x18000000
+#  endif
+#  ifndef _WSAIOW
+#    define _WSAIOW(x,y) (IOC_IN|(x)|(y))
+#  endif
+#  define SIO_UDP_CONNRESET _WSAIOW(IOC_VENDOR,12)
+#endif
+
 bool QNativeSocketEnginePrivate::createNewSocket(QAbstractSocket::SocketType socketType, QAbstractSocket::NetworkLayerProtocol socketProtocol)
 {
 
@@ -318,6 +335,18 @@ bool QNativeSocketEnginePrivate::createNewSocket(QAbstractSocket::SocketType soc
         }
 
         return false;
+    }
+
+
+    // disable new behavior using
+    // SIO_UDP_CONNRESET
+    DWORD dwBytesReturned = 0;
+    int bNewBehavior = 0;
+    if (::WSAIoctl(socket, SIO_UDP_CONNRESET, &bNewBehavior, sizeof(bNewBehavior),
+                   NULL, 0, &dwBytesReturned, NULL, NULL) == SOCKET_ERROR) {
+        // not to worry isBogusUdpReadNotification() should handle this otherwise
+        int err = WSAGetLastError();
+        WS_ERROR_DEBUG(err);
     }
 
     socketDescriptor = socket;
@@ -868,7 +897,7 @@ qint64 QNativeSocketEnginePrivate::nativeSendDatagram(const char *data, qint64 l
         setError(QAbstractSocket::DatagramTooLargeError, DatagramTooLargeErrorString);
     } else {
         WSABUF buf;
-        buf.buf = (char*)data;
+        buf.buf = len ? (char*)data : 0;
         buf.len = len;
         DWORD flags = 0;
         DWORD bytesSent = 0;
@@ -984,21 +1013,114 @@ qint64 QNativeSocketEnginePrivate::nativeRead(char *data, qint64 maxLength)
     return ret;
 }
 
+#ifdef QNATIVESOCKETENGINE_DEBUG
+#define UDPBOGUS_DEBUG qDebug()
+#else
+#define UDPBOGUS_DEBUG if (0) qDebug()
+#endif
+
+// fall back if SIO_UDP_CONNRESET is not available
+static bool isConnectionResetNotification(int socketDescriptor)
+{
+    UDPBOGUS_DEBUG << "isBogusUdpReadNotification(" << socketDescriptor << ")";
+    // On a UPD-datagram socket readnotification followed by a read with the error WSAECONNRESET
+    // indicates that a previous send operation resulted in an ICMP "Port Unreachable" message.
+    // We want to ignore this case. 
+    // If the udp socket was "connected" then this code will be hit twice
+    // If there are multiple WSAECONNRESET pending it seams that we must leave this function
+    // and then come back or else suddenly data is lost
+    WSABUF buf;
+    buf.buf = 0;
+    buf.len = 0;
+    DWORD bytesRead = 0;
+    DWORD readFlags = 0;
+    DWORD peekFlags = MSG_PEEK;
+#if !defined(QT_NO_IPV6)
+    qt_sockaddr_storage aa;
+#else
+
+    struct sockaddr_in aa;
+#endif
+    memset(&aa, 0, sizeof(aa));
+    QT_SOCKLEN_T sz;
+    sz = sizeof(aa);
+
+    UDPBOGUS_DEBUG << "peeking to see if there is an error";
+    if (::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &peekFlags, (struct sockaddr *) &aa, &sz,0,0) == SOCKET_ERROR) {
+        int err = WSAGetLastError();
+        UDPBOGUS_DEBUG << "WSARecvFrom (first peek) was error ...";
+        WS_ERROR_DEBUG(err);
+        if (err == WSAECONNRESET) {
+            // first read removes the error
+            if (::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &readFlags, (struct sockaddr *) &aa, &sz,0,0) == SOCKET_ERROR) {
+                int err = WSAGetLastError();
+                UDPBOGUS_DEBUG << "first read to remove WSAECONNRESET returned ...";
+                //if (err != WSAECONNRESET)  .... what now?
+                WS_ERROR_DEBUG(err);
+            }
+            // perform second peek to see if there really was data
+            UDPBOGUS_DEBUG << "peeking again to see if there really was data";
+            if (::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &peekFlags, (struct sockaddr *) &aa, &sz,0,0) == SOCKET_ERROR) {
+                int err = WSAGetLastError();
+                UDPBOGUS_DEBUG << "WSARecvFrom (second peek) was error ...";
+                WS_ERROR_DEBUG(err);
+                if (err == WSAECONNRESET) {
+                    UDPBOGUS_DEBUG << "another WSAECONNRESET we'll be back! returning true";
+                    return true;
+                }
+                if (err == WSAEWOULDBLOCK) {
+                    // there was no reall data so do a read to reset the read notification
+                    if (::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &readFlags, (struct sockaddr *) &aa, &sz,0,0) == SOCKET_ERROR) {
+                        int err = WSAGetLastError();
+                        UDPBOGUS_DEBUG << "second read to rest notification returned ...";
+                        WS_ERROR_DEBUG(err);
+                    }
+                    UDPBOGUS_DEBUG << "there was no data and all should be good returning true";
+                    return true;
+                }
+            }
+        } else if (err == WSAEWOULDBLOCK) {
+            UDPBOGUS_DEBUG << "seams to be no data returning true";
+            return true;
+        }
+    }
+    return false;
+}
+
 int QNativeSocketEnginePrivate::nativeSelect(int timeout, bool selectForRead) const
 {
     fd_set fds;
-    memset(&fds, 0, sizeof(fd_set));
-    fds.fd_count = 1;
-    fds.fd_array[0] = socketDescriptor;
 
-    struct timeval tv;
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
+    int ret = 0;
 
-    if (selectForRead)
-        return select(0, &fds, 0, 0, timeout < 0 ? 0 : &tv);
-    else
-        return select(0, 0, &fds, 0, timeout < 0 ? 0 : &tv);
+    QTime stopWatch;
+    stopWatch.start();
+
+    for (;;) {
+
+        int nextTimeOut = timeout - stopWatch.elapsed();
+
+        memset(&fds, 0, sizeof(fd_set));
+        fds.fd_count = 1;
+        fds.fd_array[0] = socketDescriptor;
+
+        struct timeval tv;
+        tv.tv_sec = nextTimeOut / 1000;
+        tv.tv_usec = (nextTimeOut % 1000) * 1000;
+
+        if (selectForRead)
+            ret = select(0, &fds, 0, 0, nextTimeOut < 0 ? 0 : &tv);
+        else
+            ret = select(0, 0, &fds, 0, nextTimeOut < 0 ? 0 : &tv);
+
+        if (ret && selectForRead && FD_ISSET(socketDescriptor, &fds)
+            && socketType == QAbstractSocket::UdpSocket
+            && isConnectionResetNotification(socketDescriptor))
+            continue;
+
+        break;
+    }
+    return ret;
 }
 
 int QNativeSocketEnginePrivate::nativeSelect(int timeout,
@@ -1006,26 +1128,43 @@ int QNativeSocketEnginePrivate::nativeSelect(int timeout,
                                       bool *selectForRead, bool *selectForWrite) const
 {
     fd_set fdread;
-    memset(&fdread, 0, sizeof(fd_set));
-    if (checkRead) {
-        fdread.fd_count = 1;
-        fdread.fd_array[0] = socketDescriptor;
-    }
-
     fd_set fdwrite;
-    memset(&fdwrite, 0, sizeof(fd_set));
-    if (checkWrite) {
-        fdwrite.fd_count = 1;
-        fdwrite.fd_array[0] = socketDescriptor;
-    }
 
-    struct timeval tv;
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
+    int ret = 0;
 
-    int ret = select(socketDescriptor + 1, &fdread, &fdwrite, 0, timeout < 0 ? 0 : &tv);
-    if (ret <= 0)
-        return ret;
+    QTime stopWatch;
+    stopWatch.start();
+
+    for (;;) {
+
+        int nextTimeOut = timeout - stopWatch.elapsed();
+
+        memset(&fdread, 0, sizeof(fd_set));
+        if (checkRead) {
+            fdread.fd_count = 1;
+            fdread.fd_array[0] = socketDescriptor;
+        }
+        memset(&fdwrite, 0, sizeof(fd_set));
+        if (checkWrite) {
+            fdwrite.fd_count = 1;
+            fdwrite.fd_array[0] = socketDescriptor;
+        }
+
+        struct timeval tv;
+        tv.tv_sec = nextTimeOut / 1000;
+        tv.tv_usec = (nextTimeOut % 1000) * 1000;
+
+        ret = select(socketDescriptor + 1, &fdread, &fdwrite, 0, nextTimeOut < 0 ? 0 : &tv);
+        if (ret <= 0)
+            return ret;
+
+        if (ret && checkRead && FD_ISSET(socketDescriptor, &fdread)
+            && socketType == QAbstractSocket::UdpSocket
+            && isConnectionResetNotification(socketDescriptor))
+            continue;
+
+        break;
+    };
 
     *selectForRead = FD_ISSET(socketDescriptor, &fdread);
     *selectForWrite = FD_ISSET(socketDescriptor, &fdwrite);
@@ -1038,4 +1177,14 @@ void QNativeSocketEnginePrivate::nativeClose()
     qDebug("QNativeSocketEnginePrivate::nativeClose()");
 #endif
     ::closesocket(socketDescriptor);
+}
+
+void QNativeSocketEnginePrivate::systemReadNotification()
+{
+    Q_Q(QNativeSocketEngine);
+    
+    if (socketType == QAbstractSocket::UdpSocket
+        && isConnectionResetNotification(socketDescriptor))
+        return;
+    emit q->readNotification();
 }

@@ -87,6 +87,9 @@ public:
 private:
     Q_DECLARE_PRIVATE(QNativeSocketEngine)
     Q_DISABLE_COPY(QNativeSocketEngine)
+#ifndef QT_OS_WIN
+    Q_PRIVATE_SLOT(d_func(), void systemReadNotification())
+#endif
 };
 
 #ifdef Q_OS_WIN
@@ -170,6 +173,10 @@ public:
     void nativeClose();
 
     bool fetchConnectionParameters();
+
+#ifndef QT_OS_WIN
+    void systemReadNotification();
+#endif
 };
 
 #endif // QNATIVESOCKETENGINE_P_H
