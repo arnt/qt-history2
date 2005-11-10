@@ -773,6 +773,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 #endif
     }
 
+    setDirty(QPaintEngine::DirtyClipRegion);
     setDirty(QPaintEngine::DirtyPen);
     setDirty(QPaintEngine::DirtyBrush);
     setDirty(QPaintEngine::DirtyBackground);
@@ -1063,8 +1064,9 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
         updateClipRegion(QRegion(state.clipPath().toFillPolygon().toPolygon(),
                                  state.clipPath().fillRule()),
                          state.clipOperation());
+    } else if (flags & DirtyClipRegion) {
+        updateClipRegion(state.clipRegion(), state.clipOperation());
     }
-    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
     if (flags & DirtyHints) updateRenderHints(state.renderHints());
     if (flags & DirtyCompositionMode) {
         d->composition_mode =
@@ -1679,7 +1681,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         XFillRectangle(d->dpy, comb.handle(), cgc, 0, 0, sw, sh);
         XSetBackground(d->dpy, cgc, 0);
         XSetForeground(d->dpy, cgc, 1);
-        if (d->has_clipping) {
+        if (!d->crgn.isEmpty()) {
             int num;
             XRectangle *rects = (XRectangle *)qt_getClipRects(d->crgn, num);
             XSetClipRectangles(d->dpy, cgc, -x, -y, rects, num, Unsorted);
@@ -1781,7 +1783,7 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
     QRegion sysClip = systemClip();
     if (op == Qt::NoClip) {
         d->has_clipping = false;
-        d->crgn = QRegion();
+        d->crgn = sysClip;
         if (!sysClip.isEmpty()) {
             x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->picture, sysClip);
         } else {
