@@ -76,13 +76,7 @@ FormEditor::FormEditor(QObject *parent)
 
     setExtensionManager(mgr);
 
-    // load the plugins
-    widgetDatabase->loadPlugins();
-    widgetDatabase->grabDefaultPropertyValues();
-    widgetFactory->loadPlugins();
-
     setIconCache(new IconCache(this));
-
 }
 
 FormEditor::~FormEditor()

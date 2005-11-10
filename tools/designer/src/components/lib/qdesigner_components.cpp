@@ -14,6 +14,8 @@
 #include <QtDesigner/QDesignerComponents>
 
 #include <actioneditor_p.h>
+#include <widgetdatabase_p.h>
+#include <widgetfactory_p.h>
 
 #include <formeditor/formeditor.h>
 #include <widgetbox/widgetbox.h>
@@ -71,6 +73,23 @@ void QDesignerComponents::initializeResources()
 {
     Q_INIT_RESOURCE(formeditor);
     Q_INIT_RESOURCE(widgetbox);
+}
+
+/*!
+    Initializes the plugins used by the components.*/
+void QDesignerComponents::initializePlugins(QDesignerFormEditorInterface *core)
+{
+    using namespace qdesigner_internal;
+
+    // load the plugins
+    if (WidgetDataBase *widgetDatabase = qobject_cast<WidgetDataBase*>(core->widgetDataBase())) {
+        widgetDatabase->loadPlugins();
+        widgetDatabase->grabDefaultPropertyValues();
+    }
+
+    if (WidgetFactory *widgetFactory = qobject_cast<WidgetFactory*>(core->widgetFactory())) {
+        widgetFactory->loadPlugins();
+    }
 }
 
 /*!

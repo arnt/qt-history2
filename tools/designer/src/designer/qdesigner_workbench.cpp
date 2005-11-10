@@ -116,7 +116,10 @@ void QDesignerWorkbench::initialize()
     QDesignerSettings settings;
     m_core = QDesignerComponents::createFormEditor(this);
 
+    (void) QDesignerComponents::createTaskMenu(core(), this);
+
     initializeCorePlugins();
+    QDesignerComponents::initializePlugins(core());
 
     m_toolActions = new QActionGroup(this);
     m_toolActions->setExclusive(false);
@@ -169,7 +172,6 @@ void QDesignerWorkbench::initialize()
         previewSubMenu->addAction(action);
     }
 
-
     m_toolMenu = m_globalMenuBar->addMenu(tr("&Tools"));
 
     m_toolMenu->addSeparator();
@@ -205,8 +207,6 @@ void QDesignerWorkbench::initialize()
 
     m_integration = new qdesigner_internal::QDesignerIntegration(core(), this);
 
-    (void) QDesignerComponents::createTaskMenu(core(), this);
-
     // create the toolbars
     m_editToolBar = new QToolBar;
     m_editToolBar->setObjectName(QLatin1String("editToolBar"));
@@ -238,7 +238,6 @@ void QDesignerWorkbench::initialize()
     toolbarMenu->addAction(m_formToolBar->toggleViewAction());
 
     m_geometries.clear();
-
 
     emit initialized();
 

@@ -29,6 +29,7 @@ class QDESIGNER_COMPONENTS_EXPORT QDesignerComponents
 {
 public:
     static void initializeResources();
+    static void initializePlugins(QDesignerFormEditorInterface *core);
 
     static QDesignerFormEditorInterface *createFormEditor(QObject *parent);
     static QDesignerWidgetBoxInterface *createWidgetBox(QDesignerFormEditorInterface *core, QWidget *parent);

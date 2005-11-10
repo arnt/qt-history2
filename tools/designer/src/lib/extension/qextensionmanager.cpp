@@ -93,7 +93,7 @@ QExtensionManager::QExtensionManager(QObject *parent)
 void QExtensionManager::registerExtensions(QAbstractExtensionFactory *factory, const QString &iid)
 {
     if (iid.isEmpty()) {
-        m_globalExtension.append(factory);
+        m_globalExtension.prepend(factory);
         return;
     }
 
