@@ -41,7 +41,7 @@ void verboseWSErrorDebug(int r)
         case WSAEINPROGRESS: qDebug("WSA error : WSAEINPROGRESS"); break;
         case WSAEALREADY: qDebug("WSA error : WSAEALREADY"); break;
         case WSAENOTSOCK: qDebug("WSA error : WSAENOTSOCK"); break;
-        case WSAEDESTADDRREQ: qDebug("WSA error : WSAEDESTADDRREQ"); break;
+        case WSAEDESTADDRREQ: qDebug("WSA error : WSAEDESTADDRREQ"; break;
         case WSAEMSGSIZE: qDebug("WSA error : WSAEMSGSIZE"); break;
         case WSAEPROTOTYPE: qDebug("WSA error : WSAEPROTOTYPE"); break;
         case WSAENOPROTOOPT: qDebug("WSA error : WSAENOPROTOOPT"); break;
@@ -1089,6 +1089,10 @@ static bool isConnectionResetNotification(int socketDescriptor)
 
 int QNativeSocketEnginePrivate::nativeSelect(int timeout, bool selectForRead) const
 {
+    bool readEnabled = selectForRead && readNotifier && readNotifier->isEnabled();
+    if (readEnabled)
+        readNotifier->setEnabled(false);
+    
     fd_set fds;
 
     int ret = 0;
@@ -1120,6 +1124,10 @@ int QNativeSocketEnginePrivate::nativeSelect(int timeout, bool selectForRead) co
 
         break;
     }
+
+    if (readEnabled)
+        readNotifier->setEnabled(true);
+
     return ret;
 }
 
@@ -1127,6 +1135,10 @@ int QNativeSocketEnginePrivate::nativeSelect(int timeout,
                                       bool checkRead, bool checkWrite,
                                       bool *selectForRead, bool *selectForWrite) const
 {
+    bool readEnabled = checkRead && readNotifier && readNotifier->isEnabled();
+    if (readEnabled)
+        readNotifier->setEnabled(false);
+    
     fd_set fdread;
     fd_set fdwrite;
 
@@ -1168,6 +1180,10 @@ int QNativeSocketEnginePrivate::nativeSelect(int timeout,
 
     *selectForRead = FD_ISSET(socketDescriptor, &fdread);
     *selectForWrite = FD_ISSET(socketDescriptor, &fdwrite);
+
+    if (readEnabled)
+        readNotifier->setEnabled(true);
+
     return ret;
 }
 
