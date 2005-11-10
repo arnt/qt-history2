@@ -26,6 +26,7 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QLayout>
+#include <QtGui/QSplitter>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QApplication>
 #include <QtGui/QIcon>
@@ -432,7 +433,9 @@ void FormWindowManager::slotActionBreakLayoutActivated()
 
         while (currentWidget && currentWidget != m_activeFormWindow) {
             if (QLayout *layout = LayoutInfo::managedLayout(core(), currentWidget)) {
-                if (!layout->isEmpty() && !layoutBaseList.contains(layout->parentWidget())) {
+                // ### generalize (put in function)
+                if ((!layout->isEmpty() || qobject_cast<QSplitter*>(currentWidget))
+                     && !layoutBaseList.contains(layout->parentWidget())) {
                     layoutBaseList.prepend(layout->parentWidget());
                 }
             }
@@ -527,7 +530,9 @@ void FormWindowManager::slotUpdateActions()
                                     && layout == 0;
 
                 m_layoutChilds = layoutAvailable;
-                breakAvailable = (layout != 0 && !layout->isEmpty()) || LayoutInfo::isWidgetLaidout(m_core, widget);
+                // ### generalize (put in function)
+                breakAvailable = (layout != 0 && (!layout->isEmpty() || qobject_cast<QSplitter*>(widget)))
+                                  || LayoutInfo::isWidgetLaidout(m_core, widget);
             }
         } else {
             layoutAvailable = unlaidoutWidgetCount > 1;
