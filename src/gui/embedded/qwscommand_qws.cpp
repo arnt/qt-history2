@@ -327,55 +327,45 @@ void qws_write_command(QIODevice *socket, int type, char *simpleData, int simple
         socket->write(rawData, rawLen);
 }
 
+/*
+  command format: [type][rawLen][simpleData][rawData]
+  type is already read when entering this function
+*/
+
 bool qws_read_command(QIODevice *socket, char *&simpleData, int &simpleLen,
                       char *&rawData, int &rawLen, int &bytesRead)
 {
+    // read rawLen
     if (rawLen == -1) {
-        if (socket->bytesAvailable() < sizeof(rawLen))
-            return false;
         rawLen = qws_read_uint(socket);
-#ifdef QWSCOMMAND_DEBUG
-        qDebug() << "qws_read_command rawLen " << rawLen;
-#endif
+        if (rawLen == -1)
+            return false;
     }
 
-    if (!bytesRead) {
-        if (simpleLen) {
-            if (socket->bytesAvailable() < uint(simpleLen))
-                return false;
-            bytesRead = socket->read(simpleData, simpleLen);
-#ifdef QWSCOMMAND_DEBUG
-         if (simpleLen)
-             qDebug() << "READ simpleData " << QWSHexDump(simpleData, bytesRead);
-#endif
-        } else {
-            bytesRead = 1; // hack!
-        }
-// #ifdef QWSCOMMAND_DEBUG
-//         qDebug() << "simpleLen " << simpleLen << ", bytesRead " << bytesRead;
-//#endif
+    // read simpleData, assumes socket is capable of buffering all the data
+    if (simpleLen && !rawData) {
+        if (socket->bytesAvailable() < uint(simpleLen))
+            return false;
+        int tmp = socket->read(simpleData, simpleLen);
+        Q_ASSERT(tmp == simpleLen);
     }
 
-    if (bytesRead) {
-        if (!rawLen)
-            return true;
-        if (uint(rawLen) > MAX_COMMAND_SIZE) {
-            socket->close();
-            qWarning("qws_read_command: Won't read command of length %d, "
-                     "connection closed.", rawLen);
-            return false;
-        }
-        if (socket->bytesAvailable() < uint(rawLen))
-            return false;
+    if (rawLen > MAX_COMMAND_SIZE) {
+        socket->close();
+        qWarning("qws_read_command: Won't read command of length %d, "
+                 "connection closed.", rawLen);
+        return false;
+    }
+
+    // read rawData
+    if (rawLen && !rawData) {
         rawData = new char[rawLen];
-        bytesRead += socket->read(rawData, rawLen);
-#ifdef QWSCOMMAND_DEBUG
-        qDebug() << "READ rawData " << QWSHexDump(rawData, rawLen);
-        //qDebug() << "==== bytesRead " << bytesRead;
-#endif
-        return true;
+        bytesRead = 0;
     }
-    return false;
+    if (bytesRead < rawLen && socket->bytesAvailable())
+        bytesRead += socket->read(rawData + bytesRead, rawLen - bytesRead);
+
+    return (bytesRead == rawLen);
 }
 #endif
 
