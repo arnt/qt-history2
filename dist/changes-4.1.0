@@ -1,42 +1,45 @@
-****************************************************************************
-*                          Important Notices                               *
-****************************************************************************
+Qt 4.1 introduces many new features as well as many improvements and
+bugfixes over the 4.0.x series. For more details, see the online
+documentation which is included in this distribution. The
+documentation is also available at http://doc.trolltech.com/
 
-
-****************************************************************************
-*                             New Features                                 *
-****************************************************************************
-
-ActiveQt
---------
-
-QAxServer now supports mime-type handling - a ActiveX control can be
-registered to handle a certain file extension and mime-type, in which case
-QAxBindable::load and QAxBindable::save can be reimplemented to serialize
-the object.
-
-
-Boost
------
-Added boost compatible syntax for declaring signals and slots.
-
-Build system
-------------
-Added support for linking static plugins into the application.
-
-QtSvg
------
-New module for rendering the contents of SVG (Scalable Vector Graphics)
-files.
+The Qt version 4.1 series is binary compatible with the 4.0.x series.
+Applications compiled for 4.0 will continue to run with 4.1.
 
 ****************************************************************************
-*                                Changes                                   *
+*			    General					   *
 ****************************************************************************
+
+Qt library
+----------
+
+  - Integrated support for rendering Scalable Vector Graphics (SVG)
+    drawings and animations (QtSvg module).
+
+  - A Portable Document Format (PDF) backend for Qt's printing system.
+
+  - A unit testing framework for Qt applications and libraries.
+
+  - Modules for extending Qt Designer and dynamic user interface
+    building.
+
+  - New proxy models to enable view-specific sorting and filtering of
+    data displayed using item views.
+
+  - Additional features for developers using OpenGL, such as support
+    for pixel and sample buffers.
+
+  - A flexible syntax highlighting class based on the Scribe rich text
+    framework.
+
+  - Support for network proxy servers using the SOCKS5 protocol.
+
+  - Support for OLE verbs and MIME data handling in ActiveQt.
 
 Qt Designer
 -----------
 
-- Added support for editing menubars and toolbars.
+- Added support for editing menu bars and tool bars.
 
 - Added support for adding comments to string properties.
 
@@ -51,12 +54,41 @@ Qt Designer
 
 - Improved palette editing and resource support.
 
+QTestLib
+--------
+
+- Added QTestLib, the Qt Unit Testing Library. See the "QTestLib" chapter
+  in the Qt documentation for more information.
+
+- Users of older versions of QtTestLib can use the updater utility in
+  tools/qtestlib/updater to convert existing autotests to work with QTestLib.
+
+Boost
+-----
+
+Added boost compatible syntax for declaring signals and slots. If you
+define the macro QT_NO_KEYWORDS "Q_SIGNALS" and "Q_SLOTS" are
+recognized as keywords instead of the default "signals" and "slots".
+
+ActiveQt
+--------
+
+QAxServer now supports mime-type handling - a ActiveX control can be
+registered to handle a certain file extension and mime-type, in which case
+QAxBindable::load and QAxBindable::save can be reimplemented to serialize
+the object.
+
+Build system
+------------
+
+Added support for linking static plugins into the application.
+
 Qt 3 to 4 Porting Tool
 ----------------------
 
-- Q(V|H)BoxLayout and QGridLayout usage is now ported to
-  use Q3(V|H)BoxLayout/Q3GridLayout, to retain the margin/spacing
-  behavior as in Qt 3.
+Q(V|H)BoxLayout and QGridLayout usage is now ported to use
+Q3(V|H)BoxLayout/Q3GridLayout, to retain the margin/spacing
+behavior as in Qt 3.
 
 Meta Object Compiler (moc)
 --------------------------
@@ -69,26 +101,84 @@ Qt Assistant
 - Added -docPath command line option for easy setting of the
   document root path.
 
-QTestLib
---------
-
-- Added QTestLib, the Qt Unit Testing Library. See the "QTestLib" chapter
-  in the Qt documentation for more information.
-
-- Users of older versions of QtTestLib can use the updater utility in
-  tools/qtestlib/updater to convert existing autotests to work with QTestLib.
-
 QMake
------------
+-----
 
 - Added support for new FORMS3 profile variable to make it possible
   to have Qt Designer forms from Qt 3 and Qt 4 in the same project.
 
-- Added support for precompiled headers on win32-g++ (mingw)
+- Added support for precompiled headers on win32-g++ (MinGW)
+
+Compilers
+---------
+
+Added support for Solaris 10 on AMD64 with the compiler provided by
+Sun.
 
 
-General Fixes
--------------
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+
+New classes
+-----------
+
+- QTreeWidgetItemIterator
+        Added iterator to help iterating over items in a QTreeWidget.
+
+- QSortingProxyModel
+        The QSortingProxyModel can contain another model and handles
+        the sorting of it.
+
+- QFilteringProxyModel
+        Allows you to provide a subset of a model to a view.
+
+- QStringFilterModel
+        Allows you to provide a subset of a model to a view based on a
+        regular expression.
+
+- QSyntaxHighlighter
+        The QSyntaxHighlighter class allows you to define syntax
+        highlighting rules.
+
+- QAbstractFileEngine
+        A base class for implementing your own file and directory handling
+        back-end for QFile, QFileInfo and QDir.
+
+- QAbstractFileEngineHandler
+        For registering a QAbstractFileEngine subclass with Qt.
+
+- QFSFileEngine
+        The default file engine for regular file and directory access in Qt.
+
+- Q3(H|V)BoxLayout and Q3GridLayout
+        Layout classes provided for compatibility that behave the same
+        as the Qt 4 classes but use a zero margin/spacing by default,
+        just like in Qt 3.
+
+- Added qFromLittleEndian, qToLittleEndian, qFromBigEndian and
+  qToBigEndian endian helper conversion functions (qendian.h)
+
+- Q_EXPORT_PLUGIN2 macro
+        Obsoletes Q_EXPORT_PLUGIN and allows static linking of
+        plugins.
+
+- Q3ComboBox
+        For enhanced backwards compatibility with Qt 3.
+
+- QGLPbuffer
+        For creating and managing OpenGL pixel buffers.
+
+- QNetworkProxy
+        For setting up transparent (SOCKS5) networking proxying.
+
+- QDirectPainter (Qtopia Core only)
+        Provides direct access to video framebuffer hardware.
+
+
+General improvements
+--------------------
 
 - QByteArray
         Added toLong() and toULong().
@@ -259,7 +349,7 @@ General Fixes
         Added property tabStopWidth which sets the tab stop width in
         pixels.
         append(const QString &) is now a public slot.
-        Added support for inserting unicode control characters through the
+        Added support for inserting Unicode control characters through the
         context menu.
         Added property acceptRichText, for whether or not the text edit
         accepts rich text insertions by the user.
@@ -376,7 +466,7 @@ General Fixes
         the tabs.
 
 - QLineEdit
-        Added support for inserting unicode control characters through the
+        Added support for inserting Unicode control characters through the
         context menu.
 
 - QString
@@ -414,7 +504,7 @@ General Fixes
         address and port.
 
 - QPen
-        Added support for custom dash pattern styles and milter limits.
+        Added support for custom dash pattern styles and miter limits.
         Added support for QDebug.
 
 - QDebug
@@ -428,63 +518,9 @@ General Fixes
         fragment programs, if the extension is available. Lots of
         fixes, speedups and tweaks.
 
-New classes
------------
 
-- QTreeWidgetItemIterator
-        Added iterator to help iterating over items in a QTreeWidget.
-
-- QSortingProxyModel
-        The QSortingProxyModel can contain another model and handles
-        the sorting of it.
-
-- QFilteringProxyModel
-        Allows you to provide a subset of a model to a view.
-
-- QStringFilterModel
-        Allows you to provide a subset of a model to a view based on a
-        regular expression.
-
-- QSyntaxHighlighter
-        The QSyntaxHighlighter class allows you to define syntax
-        highlighting rules.
-
-- QAbstractFileEngine
-        A base class for implementing your own file and directory handling
-        back-end for QFile, QFileInfo and QDir.
-
-- QAbstractFileEngineHandler
-        For registering a QAbstractFileEngine subclass with Qt.
-
-- QFSFileEngine
-        The default file engine for regular file and directory access in Qt.
-
-- Q3(H|V)BoxLayout and Q3GridLayout
-        Layout classes provided for compatibility that behave the same
-        as the Qt 4 classes but use a zero margin/spacing by default,
-        just like in Qt 3.
-
-- Added qFromLittleEndian, qToLittleEndian, qFromBigEndian and
-  qToBigEndian endian helper conversion functions (qendian.h)
-
-- Q_EXPORT_PLUGIN2 macro
-        Obsoletes Q_EXPORT_PLUGIN and allows static linking of
-        plugins.
-
-- Q3ComboBox
-        For enhanced backwards compatibility with Qt 3.
-
-- QGLPbuffer
-        For creating and managing OpenGL pixel buffers.
-
-- QNetworkProxy
-        For setting up transparent (SOCKS5) networking proxying.
-
-- QDirectPainter (Qtopia Core only)
-        Provides direct access to video framebuffer hardware.
-
-Platform-Specific Issues
-------------------------
+Platform-Specific changes
+-------------------------
 
 Windows:
 
@@ -499,15 +535,14 @@ X11:
 - QWidget
         Added support for freedesktop.org startup notifications.
 
-- Added support for Solaris 10 on AMD64 with the compiler provided by Sun.
-
 Mac OS X:
 
 - Improved support for the VoiceOver accessibility tool in Mac OS 10.4
   and later
 
-Tools
------
+
+3rd-party libraries
+-------------------
 
 - zlib
         Upgraded to zlib 1.2.3.
@@ -517,18 +552,3 @@ Tools
 
 - SQLite
         Upgraded to SQLite 3.2.7
-
-Documentation
--------------
-
-//depot/qt/main/src
-2005/05/26 - 2005/10/31
-last change: 197877
-
-//depot/qt/main/tools
-2005/05/26 - 2005/10/31
-last change: 197883
-
-//depot/qt/main/qmake
-2005/05/26 - 2005/10/31
-last change: 197463
