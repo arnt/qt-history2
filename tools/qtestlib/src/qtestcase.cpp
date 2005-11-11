@@ -976,6 +976,10 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
         }
 
         QTestLog::stopLogging();
+#ifdef Q_OS_WIN
+        // rethrow exception to make debugging easier
+        throw;
+#endif
         return -1;
     }
 #endif
