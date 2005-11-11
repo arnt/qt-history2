@@ -675,6 +675,7 @@ bool QDesignerActions::readInForm(const QString &fileName)
     }
     formWindow->show();
     addRecentFile(fileName);
+    formWindow->editor()->setDirty(false);
     return true;
 }
 
