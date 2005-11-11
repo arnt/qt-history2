@@ -2298,8 +2298,7 @@ int QMenu::insertAny(const QIcon *icon, const QString *text, const QObject *rece
 }
 
 /*!
-    Inserts the given menu \a item into the menu at the specified \a index,
-    and assigns the \a id to it for later identification.
+    Use insertAction() or one of the addAction() overloads instead.
 */
 int QMenu::insertItem(QMenuItem *item, int id, int index)
 {
@@ -2380,7 +2379,7 @@ int QMenu::itemParameter(int id) const
 }
 
 /*!
-    Sets the \a id for the menu item at the specified \a index in the menu.
+    Use actions instead.
 */
 void QMenu::setId(int index, int id)
 {
