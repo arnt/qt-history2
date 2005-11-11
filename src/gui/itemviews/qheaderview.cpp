@@ -1489,6 +1489,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
         d->state = QHeaderViewPrivate::ResizeSection;
         d->section = handle;
     }
+    d->firstPos = pos;
     d->lastPos = pos;
 }
 
@@ -1515,17 +1516,25 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
             return;
         }
         case QHeaderViewPrivate::MoveSection: {
-            int indicatorCenter = (orientation() == Qt::Horizontal
-                                   ? d->sectionIndicator->width()
-                                   : d->sectionIndicator->height()) / 2;
-            int centerOffset = indicatorCenter - d->sectionIndicatorOffset;
-            // This will drop the moved section to the position under the center of the indicator.
-            // If centerOffset is 0, the section will be moved to the position of the mouse cursor.
-            int visual = visualIndexAt(pos + centerOffset);
-            if (visual == -1)
-                return;
-            d->target = d->logicalIndex(visual);
-            d->updateSectionIndicator(d->section, pos);
+            if (qAbs(pos - d->firstPos) >= QApplication::startDragDistance()) {
+                int indicatorCenter = (orientation() == Qt::Horizontal
+                                       ? d->sectionIndicator->width()
+                                       : d->sectionIndicator->height()) / 2;
+                int centerOffset = indicatorCenter - d->sectionIndicatorOffset;
+                // This will drop the moved section to the position under the center of the indicator.
+                // If centerOffset is 0, the section will be moved to the position of the mouse cursor.
+                int visual = visualIndexAt(pos + centerOffset);
+                if (visual == -1)
+                    return;
+                d->target = d->logicalIndex(visual);
+                d->updateSectionIndicator(d->section, pos);
+            } else {
+                int visual = visualIndexAt(d->firstPos);
+                if (visual == -1)
+                    return;
+                d->target = d->logicalIndex(visual);
+                d->updateSectionIndicator(d->section, d->firstPos);
+            }
             return;
         }
         case QHeaderViewPrivate::NoState: {
@@ -1551,7 +1560,7 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
     switch (d->state) {
     case QHeaderViewPrivate::MoveSection:
-        if (pos != d->lastPos) { // moving
+        if (d->sectionIndicator->isShown()) { // moving
             int from = visualIndex(d->section);
             Q_ASSERT(from != -1);
             int to = visualIndex(d->target);

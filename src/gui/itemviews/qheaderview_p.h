@@ -44,6 +44,7 @@ public:
           sortIndicatorSection(0),
           sortIndicatorShown(false),
           lastPos(-1),
+          firstPos(-1),
           section(-1),
           target(-1),
           pressed(-1),
@@ -102,6 +103,7 @@ public:
     mutable QHash<int, int> hiddenSectionSize; // from logical index to section size
 
     int lastPos;
+    int firstPos;
     int section; // used for resizing and moving sections
     int target;
     int pressed;
