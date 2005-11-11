@@ -64,10 +64,8 @@ void RenderArea::paintEvent(QPaintEvent *event)
 
     drawOutline(painter);
 
-    painter.save();
     transformPainter(painter);
     drawCoordinates(painter);
-    painter.restore();
 }
 
 void RenderArea::drawCoordinates(QPainter &painter)
