@@ -121,11 +121,11 @@ void QDesignerMenuBar::paintEvent(QPaintEvent *event)
 
 bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
 {
-     if (!formWindow())
-         return false;
+    if (!formWindow())
+        return false;
 
-   if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut)
-       update();
+    if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut)
+        update();
 
     switch (event->type()) {
         default: break;
@@ -142,6 +142,9 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
             return handleContextMenuEvent(widget, static_cast<QContextMenuEvent*>(event));
         case QEvent::KeyPress:
             return handleKeyPressEvent(widget, static_cast<QKeyEvent*>(event));
+        case QEvent::FocusIn:
+        case QEvent::FocusOut:
+            return widget != m_editor;
     }
 
     return true;
