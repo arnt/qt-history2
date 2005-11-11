@@ -81,6 +81,7 @@ protected:
     virtual void timerEvent(QTimerEvent *e);
 private:
     void doLayout(int from, int oldLength, int length);
+    void layoutFinished();
 };
 
 #endif // QTEXTDOCUMENTLAYOUT_P_H

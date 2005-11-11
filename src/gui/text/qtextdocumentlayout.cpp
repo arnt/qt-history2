@@ -291,7 +291,8 @@ public:
           fixedColumnWidth(-1),
           tabStopWidth(80), // same default as in qtextengine.cpp
           currentLazyLayoutPosition(-1),
-          lazyLayoutStepSize(1000)
+          lazyLayoutStepSize(1000),
+          showLayoutProgress(true)
     { }
 
     bool pagedLayout;
@@ -309,6 +310,7 @@ public:
     mutable int lazyLayoutStepSize;
     QBasicTimer layoutTimer;
     mutable QBasicTimer sizeChangedTimer;
+    bool showLayoutProgress;
 
     qreal indent(QTextBlock bl) const;
 
@@ -2087,7 +2089,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
 {
     Q_D(QTextDocumentLayout);
 
-    QSizeF pageSize = document()->pageSize();
+    const QSizeF pageSize = document()->pageSize();
     if (pageSize.isNull() || !pageSize.isValid())
         return;
 
@@ -2095,8 +2097,23 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     const int oldPageCount = dynamicPageCount();
 
     d->lazyLayoutStepSize = 1000;
+    d->sizeChangedTimer.stop();
 
-    bool fullLayout = (oldLength == 0 && length == document()->docHandle()->length());
+    const int documentLength = document()->docHandle()->length();
+    const bool fullLayout = (oldLength == 0 && length == documentLength);
+    const bool smallChange = documentLength > 0
+                             && (qMax(length, oldLength) * 100 / documentLength) < 5;
+    
+    // don't show incremental layout progress (avoid scrollbar flicker)
+    // if we see only a small change in the document and we're either starting
+    // a layout run or we're already in progress for that and we haven't seen
+    // any bigger change previously (showLayoutProgress already false)
+    if (smallChange
+        && (d->currentLazyLayoutPosition == -1 || d->showLayoutProgress == false))
+        d->showLayoutProgress = false;
+    else
+        d->showLayoutProgress = true;
+    
     if (fullLayout) {
         d->currentLazyLayoutPosition = 0;
         d->checkPoints.clear();
@@ -2109,13 +2126,15 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     if (!d->layoutTimer.isActive() && d->currentLazyLayoutPosition != -1)
         d->layoutTimer.start(10, this);
 
-    const QSizeF newSize = dynamicDocumentSize();
-    if (newSize != oldSize)
-        emit documentSizeChanged(newSize);
-    const int newPageCount = dynamicPageCount();
-    if (oldPageCount != newPageCount)
+    if (d->showLayoutProgress) {
+        const QSizeF newSize = dynamicDocumentSize();
+        if (newSize != oldSize)
+            emit documentSizeChanged(newSize);
+        const int newPageCount = dynamicPageCount();
+        if (oldPageCount != newPageCount)
         emit pageCountChanged(newPageCount);
-
+    }
+    
     emit update();
 }
 
@@ -2132,6 +2151,11 @@ void QTextDocumentLayout::doLayout(int from, int oldLength, int length)
     if(data(root)->sizeDirty)
         d->layoutFrame(root, from, from + length);
     data(root)->layoutDirty = false;
+
+    if (d->currentLazyLayoutPosition == -1)
+        layoutFinished();
+    else if (d->showLayoutProgress)
+        d->sizeChangedTimer.start(0, this);
 }
 
 int QTextDocumentLayout::hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const
@@ -2261,8 +2285,6 @@ void QTextDocumentLayoutPrivate::ensureLayouted(qreal y) const
     while (currentLazyLayoutPosition != -1
            && checkPoints.last().y < y)
         layoutStep();
-
-    sizeChangedTimer.start(0, const_cast<QTextDocumentLayout *>(q_func()));
 }
 
 void QTextDocumentLayoutPrivate::ensureLayoutedByPosition(int position) const
@@ -2275,7 +2297,6 @@ void QTextDocumentLayoutPrivate::ensureLayoutedByPosition(int position) const
            && currentLazyLayoutPosition < position) {
         const_cast<QTextDocumentLayout *>(q_func())->doLayout(currentLazyLayoutPosition, 0, INT_MAX - currentLazyLayoutPosition);
     }
-    sizeChangedTimer.start(0, const_cast<QTextDocumentLayout *>(q_func()));
 }
 
 void QTextDocumentLayoutPrivate::layoutStep() const
@@ -2401,26 +2422,8 @@ void QTextDocumentLayout::timerEvent(QTimerEvent *e)
 {
     Q_D(QTextDocumentLayout);
     if (e->timerId() == d->layoutTimer.timerId()) {
-//        qDebug() << "layoutTimer";
-        if (d->currentLazyLayoutPosition != -1) {
-            const QSizeF oldSize = dynamicDocumentSize();
-            const int oldPageCount = dynamicPageCount();
-
+        if (d->currentLazyLayoutPosition != -1)
             d->layoutStep();
-
-            const QSizeF newSize = dynamicDocumentSize();
-            if (newSize != oldSize)
-                emit documentSizeChanged(newSize);
-            const int newPageCount = dynamicPageCount();
-            if (oldPageCount != newPageCount)
-                emit pageCountChanged(newPageCount);
-            d->sizeChangedTimer.stop();
-        }
-
-        if (d->currentLazyLayoutPosition == -1) {
-            emit update();
-            d->layoutTimer.stop();
-        }
     } else if (e->timerId() == d->sizeChangedTimer.timerId()) {
         emit documentSizeChanged(dynamicDocumentSize());
         emit pageCountChanged(dynamicPageCount());
@@ -2428,6 +2431,15 @@ void QTextDocumentLayout::timerEvent(QTimerEvent *e)
     } else {
         QAbstractTextDocumentLayout::timerEvent(e);
     }
+}
+
+void QTextDocumentLayout::layoutFinished()
+{
+    Q_D(QTextDocumentLayout);
+    d->layoutTimer.stop();
+    d->sizeChangedTimer.start(0, this);
+    // reset
+    d->showLayoutProgress = true;
 }
 
 void QTextDocumentLayout::ensureLayouted(qreal y)
