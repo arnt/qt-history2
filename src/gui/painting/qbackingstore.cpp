@@ -97,12 +97,14 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &toBePainted, int 
 
     //setup the engine
     QPaintEngine *pe = widget->paintEngine();
-    pe->setSystemClip(toBePainted);
-    {
-        QPainter p(widget);
-        p.setClipRegion(toBePainted);
-        p.fillRect(widget->rect(), Qt::yellow);
-        p.end();
+    if (pe) {
+        pe->setSystemClip(toBePainted);
+        {
+            QPainter p(widget);
+            p.setClipRegion(toBePainted);
+            p.fillRect(widget->rect(), Qt::yellow);
+            p.end();
+        }
     }
 
     if(setFlag)
@@ -110,13 +112,16 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &toBePainted, int 
 
     //restore
     widget->setAttribute(Qt::WA_PaintUnclipped, paintUnclipped);
-    pe->setSystemClip(QRegion());
 
-    //flush
-    if (pe->type() == QPaintEngine::Raster) {
-        QRasterPaintEngine *rpe = static_cast<QRasterPaintEngine *>(pe);
-        rpe->flush(widget, QPoint());
+    if (pe) {
+        pe->setSystemClip(QRegion());
+        //flush
+        if (pe->type() == QPaintEngine::Raster) {
+            QRasterPaintEngine *rpe = static_cast<QRasterPaintEngine *>(pe);
+            rpe->flush(widget, QPoint());
+        }
     }
+
     QApplication::syncX();
 
 #if defined(Q_OS_UNIX)
@@ -621,21 +626,25 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
             QPainter::setRedirected(q, pdev, -offset);
             QRegion wrgn = toBePainted;
             wrgn.translate(offset);
-            pdev->paintEngine()->setSystemClip(wrgn);
 
-            //paint the background
-            if ((asRoot || q->autoFillBackground() || onScreen)
-                && !q->testAttribute(Qt::WA_OpaquePaintEvent)
-                && !q->testAttribute(Qt::WA_NoSystemBackground)) {
+            QPaintEngine *paintEngine = pdev->paintEngine();
+            if (paintEngine) {
+                paintEngine->setSystemClip(wrgn);
 
-                QPainter p(q);
-                paintBackground(&p, toBePainted.boundingRect(), asRoot || onScreen);
-            }
-            if (q->testAttribute(Qt::WA_TintedBackground)) {
-                QPainter p(q);
-                QColor tint = q->palette().window().color();
-                tint.setAlphaF(.6);
-                p.fillRect(toBePainted.boundingRect(), tint);
+                //paint the background
+                if ((asRoot || q->autoFillBackground() || onScreen)
+                    && !q->testAttribute(Qt::WA_OpaquePaintEvent)
+                    && !q->testAttribute(Qt::WA_NoSystemBackground)) {
+
+                    QPainter p(q);
+                    paintBackground(&p, toBePainted.boundingRect(), asRoot || onScreen);
+                }
+                if (q->testAttribute(Qt::WA_TintedBackground)) {
+                    QPainter p(q);
+                    QColor tint = q->palette().window().color();
+                    tint.setAlphaF(.6);
+                    p.fillRect(toBePainted.boundingRect(), tint);
+                }
             }
 
 #if 0
@@ -649,9 +658,10 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
             qt_sendSpontaneousEvent(q, &e);
 
             //restore
-            pdev->paintEngine()->setSystemClip(QRegion());
-            QPainter::restoreRedirected(q);
-
+            if (paintEngine) {
+                pdev->paintEngine()->setSystemClip(QRegion());
+                QPainter::restoreRedirected(q);
+            }
             q->setAttribute(Qt::WA_WState_InPaintEvent, false);
             if(!q->testAttribute(Qt::WA_PaintOutsidePaintEvent) && q->paintingActive())
                 qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
@@ -659,13 +669,15 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
             if (flushed)
                 qt_unflushPaint(q, toBePainted);
         } else if(q->isWindow()) {
-            QPainter p(pdev);
-            p.setClipRegion(toBePainted);
-            const QBrush bg = q->palette().brush(QPalette::Window);
-            if (bg.style() == Qt::TexturePattern)
-                p.drawTiledPixmap(q->rect(), bg.texture());
-            else
-                p.fillRect(q->rect(), bg);
+            if (pdev->paintEngine()) {
+                QPainter p(pdev);
+                p.setClipRegion(toBePainted);
+                const QBrush bg = q->palette().brush(QPalette::Window);
+                if (bg.style() == Qt::TexturePattern)
+                    p.drawTiledPixmap(q->rect(), bg.texture());
+                else
+                    p.fillRect(q->rect(), bg);
+            }
         }
     }
 
@@ -732,11 +744,14 @@ void QWidget::repaint(const QRegion& rgn)
         QPaintEngine *engine = paintEngine();
 
         QRegion systemClipRgn(rgn);
-        if (!data->wrect.topLeft().isNull()) {
-            QPainter::setRedirected(this, this, data->wrect.topLeft());
-            systemClipRgn.translate(-data->wrect.topLeft());
+
+        if (engine) {
+            if (!data->wrect.topLeft().isNull()) {
+                QPainter::setRedirected(this, this, data->wrect.topLeft());
+                systemClipRgn.translate(-data->wrect.topLeft());
+            }
+            engine->setSystemClip(systemClipRgn);
         }
-        engine->setSystemClip(systemClipRgn);
 
         d->drawWidget(this, rgn, QPoint(), QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawPaintOnScreen);
 
@@ -752,9 +767,11 @@ void QWidget::repaint(const QRegion& rgn)
             }
         }
 #endif
-        if (!data->wrect.topLeft().isNull())
-            QPainter::restoreRedirected(this);
-        engine->setSystemClip(QRegion());
+        if (engine) {
+            if (!data->wrect.topLeft().isNull())
+                QPainter::restoreRedirected(this);
+            engine->setSystemClip(QRegion());
+        }
 
         if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())
             qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
