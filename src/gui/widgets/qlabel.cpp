@@ -302,11 +302,11 @@ void QLabelPrivate::init()
     \brief the label's text
 
     If no text has been set this will return an empty string. Setting
-    the text clears any previous content, unless they are the same.
+    the text clears any previous content.
 
-    The text will be interpreted either as a plain text or as a rich
+    The text will be interpreted either as plain text or as rich
     text, depending on the text format setting; see setTextFormat().
-    The default setting is Qt::AutoText, i.e. QLabel will try to
+    The default setting is Qt::AutoText; i.e. QLabel will try to
     auto-detect the format of the text set.
 
     If the text is interpreted as a plain text and a buddy has been
@@ -314,12 +314,12 @@ void QLabelPrivate::init()
 
     The label resizes itself if auto-resizing is enabled.
 
-    Note that Qlabel is well-suited to display small rich text
-    documents, i.e. those small documents that get their document
+    Note that QLabel is well-suited to display small rich text
+    documents, such as small documents that get their document
     specific settings (font, text color, link color) from the label's
     palette and font properties. For large documents, use QTextEdit
-    in read-only mode instead. QTextEdit will flicker less on resize
-    and can also provide a scrollbar when necessary.
+    in read-only mode instead. QTextEdit can also provide a scrollbar
+    when necessary.
 
     \sa setTextFormat(), setBuddy(), alignment
 */

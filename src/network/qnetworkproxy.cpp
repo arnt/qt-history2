@@ -53,44 +53,42 @@
     Network proxy is used if the address used in \l
     {QAbstractSocket::connectToHost()}{connectToHost()}, \l
     {QUdpSocket::bind()}{bind()} or \l
-    {QTcpSocket::listen()}{listen()} is equivilent to
+    {QTcpServer::listen()}{listen()} is equivalent to
     QHostAddress::LocalHost or QHostAddress::LocalHostIPv6.
 
-    When enabling proxy support there are certain restrictions
-    depending on the \l {proxyType}{proxy type}. You should read the
-    documentation of the \l {proxyType}{proxy type} carefully before
-    using it.
+    Each type of proxy support has certain restrictions associated with it.
+    You should read the \l{ProxyType} documentation carefully before
+    selecting a proxy type to use.
 
     \section1 SOCKS5
 
     The SOCKS5 support in Qt 4 is based on \l{RFC 1928} and \l{RFC 1929}.
     The supported authentication methods are no authentication and
     username/password authentication.  Both IPv4 and IPv6 are
-    supported, but resolving domain names through the SOCKS server is
-    not; i.e. all domain names are resolved locally. There are several
-    things to remmber when using SOCKS5 with QUdpSocket and
+    supported, but domain name resolution via the SOCKS server is not
+    supported; i.e. all domain names are resolved locally. There are
+    several things to remmber when using SOCKS5 with QUdpSocket and
     QTcpServer:
 
-    With QUdpSocket a call to \l {QUdpSocket::bind()}{bind()} may fail
+    With QUdpSocket, a call to \l {QUdpSocket::bind()}{bind()} may fail
     with a timeout error. If a port number other than 0 is passed to
-    \l {QUdpSocket::bind()}{bind()}, then it is not guaranteed that it
-    is the specified port that will be used. Use \l
-    {QUdpSocket::localPort()}{localPort()} and \l
-    {QUdpSocket::localAddress()}{localAddress()} to get the actual
+    \l {QUdpSocket::bind()}{bind()}, it is not guaranteed that it is the
+    specified port that will be used.
+    Use \l{QUdpSocket::localPort()}{localPort()} and
+    \l{QUdpSocket::localAddress()}{localAddress()} to get the actual
     address and port number in use. Because proxied UDP goes through
-    two UDP connections, it is more likely that packets will be
-    dropped.
+    two UDP connections, it is more likely that packets will be dropped.
 
-    With QTcpServer a call to \l {QTcpServer::listen()}{listen()} may
+    With QTcpServer a call to \l{QTcpServer::listen()}{listen()} may
     fail with a timeout error. If a port number other than 0 is passed
-    to \l {QTcpServer::listen()}{listen()}, then it is not guaranteed
-    that it is the specified port that will be used. Use \l
-    {QTcpServer::serverPort()}{serverPort()} and \l
-    {QTcpServer::serverAddress()}{serverAddress()} to get the actual
-    address and port listened on. SOCKS5 only supports one accepted
-    connection per call to \l {QTcpServer::listen()}{listen()}, and
-    each call is likely to result in a different \l
-    {QTcpServer::serverPort()}{serverPort()}.
+    to \l{QTcpServer::listen()}{listen()}, then it is not guaranteed
+    that it is the specified port that will be used.
+    Use \l{QTcpServer::serverPort()}{serverPort()} and
+    \l{QTcpServer::serverAddress()}{serverAddress()} to get the actual
+    address and port used to listen for connections. SOCKS5 only supports
+    one accepted connection per call to \l{QTcpServer::listen()}{listen()},
+    and each call is likely to result in a different
+    \l{QTcpServer::serverPort()}{serverPort()} being used.
 
     \sa QAbstractSocket, QTcpServer
 */

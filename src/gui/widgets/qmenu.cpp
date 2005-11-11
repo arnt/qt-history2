@@ -2297,6 +2297,10 @@ int QMenu::insertAny(const QIcon *icon, const QString *text, const QObject *rece
     return findIdForAction(act);
 }
 
+/*!
+    Inserts the given menu \a item into the menu at the specified \a index,
+    and assigns the \a id to it for later identification.
+*/
 int QMenu::insertItem(QMenuItem *item, int id, int index)
 {
     if (index == -1 || index >= actions().count())
@@ -2375,6 +2379,9 @@ int QMenu::itemParameter(int id) const
     return id;
 }
 
+/*!
+    Sets the \a id for the menu item at the specified \a index in the menu.
+*/
 void QMenu::setId(int index, int id)
 {
     if(QAction *act = actions().value(index))
@@ -2689,6 +2696,12 @@ int QMenu::findIdForAction(QAction *act) const
     \fn bool QMenu::isCheckable() const
 
     Not necessary anymore. Always returns true.
+*/
+
+/*!
+    \fn void QMenu::setActiveItem(int id)
+
+    Use setActiveAction() instead.
 */
 
 // for private slots

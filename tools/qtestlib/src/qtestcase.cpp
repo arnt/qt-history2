@@ -1008,7 +1008,8 @@ bool QTest::qVerify(bool statement, const char *statementStr, const char *descri
     return QTestResult::verify(statement, statementStr, description, file, line);
 }
 
-/*! \internal
+/*! \fn void QTest::qSkip(const char *message, SkipMode mode, const char *file, int line)
+\internal
  */
 void QTest::qSkip(const char *message, QTest::SkipMode mode,
                  const char *file, int line)
@@ -1018,7 +1019,8 @@ void QTest::qSkip(const char *message, QTest::SkipMode mode,
         skipCurrentTest = true;
 }
 
-/*! \internal
+/*! \fn bool QTest::qExpectFail(const char *dataIndex, const char *comment, TestFailMode mode, const char *file, int line)
+\internal
  */
 bool QTest::qExpectFail(const char *dataIndex, const char *comment,
                        QTest::TestFailMode mode, const char *file, int line)
@@ -1185,8 +1187,6 @@ const char *QTest::currentTestFunction()
 /*!
     Returns the name of the current test data. If the test doesn't
     have any assigned testdata, the function returns 0.
-
-    \sa QTestTable
 */
 const char *QTest::currentDataTag()
 {
@@ -1254,6 +1254,9 @@ bool QTest::compare_helper(bool success, const char *msg, char *val1, char *val2
     return QTestResult::compare(success, msg, val1, val2, actual, expected, file, line);
 }
 
+/*! \fn bool QTest::qCompare<float>(float const &t1, float const &t2, const char *actual, const char *expected, const char *file, int line)
+\internal
+ */
 template <>
 bool QTest::qCompare<float>(float const &t1, float const &t2, const char *actual, const char *expected,
                     const char *file, int line)
@@ -1264,6 +1267,9 @@ bool QTest::qCompare<float>(float const &t1, float const &t2, const char *actual
                              toString(t1), toString(t2), actual, expected, file, line);
 }
 
+/*! \fn bool QTest::qCompare<double>(double const &t1, double const &t2, const char *actual, const char *expected, const char *file, int line)
+\internal
+ */
 template <>
 bool QTest::qCompare<double>(double const &t1, double const &t2, const char *actual, const char *expected,
                     const char *file, int line)
