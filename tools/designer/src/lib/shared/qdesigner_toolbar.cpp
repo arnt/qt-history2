@@ -349,7 +349,6 @@ void QDesignerToolBar::slotNewToolBar()
 {
     QDesignerFormWindowInterface *fw = formWindow();
     if (fw && qobject_cast<QMainWindow*>(fw->mainContainer())) {
-        QDesignerFormEditorInterface *core = fw->core();
         QMainWindow *mw = qobject_cast<QMainWindow*>(fw->mainContainer());
 
         AddToolBarCommand *cmd = new AddToolBarCommand(fw);
