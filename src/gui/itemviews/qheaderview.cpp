@@ -484,9 +484,9 @@ void QHeaderView::moveSection(int from, int to)
     Q_ASSERT(to >= 0 && to < d->sections.count() - 1);
 
     if (from == to) {
-        int visual = visualIndex(from);
-        Q_ASSERT(visual != -1);
-        updateSection(visual);
+        int logical = logicalIndex(from);
+        Q_ASSERT(logical != -1);
+        updateSection(logical);
         return;
     }
 
@@ -507,21 +507,22 @@ void QHeaderView::moveSection(int from, int to)
     int logical = logicalIndices[from];
     int visual = from;
     bool hidden = sections[from].hidden;
-    QVarLengthArray<int> sizes(qAbs(to - from));
+    QVarLengthArray<int> sizes(qAbs(to - from) + 1);
 
     // move sections and indices
     if (to > from) {
+        sizes[to - from] = sections[from + 1].position - sections[from].position;
         while (visual < to) {
-            sizes[sizes.size() - 1 - (visual - from)] = sections[visual + 1].position - sections[visual].position;
+            sizes[visual - from] = sections[visual + 2].position - sections[visual + 1].position;
             sections[visual].hidden = sections[visual + 1].hidden;
             visualIndices[logicalIndices[visual + 1]] = visual;
             logicalIndices[visual] = logicalIndices[visual + 1];
             ++visual;
         }
     } else {
+        sizes[0] = sections[from + 1].position - sections[from].position;
         while (visual > to) {
-            sizes[sizes.size() - (visual - to)] = sections[visual].position
-                                                      - sections[visual - 1].position;
+            sizes[visual - to] = sections[visual].position - sections[visual - 1].position;
             sections[visual].hidden = sections[visual - 1].hidden;
             visualIndices[logicalIndices[visual - 1]] = visual;
             logicalIndices[visual] = logicalIndices[visual - 1];
@@ -534,10 +535,10 @@ void QHeaderView::moveSection(int from, int to)
 
     // move "pixel" positions
     if (to > from) {
-        for (visual = from; visual < to; ++visual)
+        for (visual = from; visual <= to; ++visual)
             sections[visual + 1].position = sections[visual].position + sizes[visual - from];
     } else {
-        for (visual = to; visual < from; ++visual)
+        for (visual = to; visual <= from; ++visual)
             sections[visual + 1].position = sections[visual].position + sizes[visual - to];
     }
 
