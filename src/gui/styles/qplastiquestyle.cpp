@@ -561,7 +561,7 @@ static void qt_plastique_draw_gradient(QPainter *painter, const QRect &rect, con
     QPixmap cache;
     if (!UsePixmapCache || !QPixmapCache::find(gradientName, cache)) {
         cache = QPixmap(rect.size());
-        cache.fill(Qt::transparent);
+        cache.fill(Qt::white);
         QPainter cachePainter(&cache);
         QRect pixmapRect(0, 0, rect.width(), rect.height());
         int x = pixmapRect.center().x();
@@ -1255,7 +1255,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         QString pixmapName = uniqueName("toolbarhandle", option, option->rect.size());
         if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
             cache = QPixmap(option->rect.size());
-            cache.fill(Qt::transparent);
+            cache.fill(Qt::white);
             QPainter cachePainter(&cache);
             if (widget)
                 cachePainter.fillRect(option->rect, option->palette.brush(widget->backgroundRole()));
@@ -1318,7 +1318,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(rect.size());
-                cache.fill(Qt::transparent);
+                cache.fill(Qt::white);
                 QRect pixmapRect(0, 0, rect.width(), rect.height());
                 QPainter buttonPainter(&cache);
                 if (widget) {
@@ -1524,7 +1524,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             QString pixmapName = uniqueName("checkbox", option, option->rect.size());
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(rect.size());
-                cache.fill(Qt::transparent);
+                cache.fill(Qt::white);
                 QRect pixmapRect(0, 0, rect.width(), rect.height());
                 QPainter checkBoxPainter(&cache);
 
@@ -1614,7 +1614,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             QString pixmapName = uniqueName("radiobutton", option, rect.size());
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(rect.size());
-                cache.fill(Qt::transparent);
+                cache.fill(Qt::white);
                 QRect pixmapRect(0, 0, rect.width(), rect.height());
                 QPainter radioButtonPainter(&cache);
                 if (widget)
@@ -2472,7 +2472,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             if (!UsePixmapCache || !QPixmapCache::find(progressBarName, cache)) {
                 QSize size = rect.size();
                 cache = QPixmap(QSize(size.width() - 6 + 30, size.height() - 6));
-                cache.fill(Qt::transparent);
+                cache.fill(Qt::white);
                 QPainter cachePainter(&cache);
                 QRect pixmapRect(0, 0, cache.width(), cache.height());
 
@@ -2529,7 +2529,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(option->rect.size());
-                cache.fill(Qt::transparent);
+                cache.fill(Qt::white);
                 QRect pixmapRect(0, 0, option->rect.width(), option->rect.height());
                 QPainter cachePainter(&cache);
 
@@ -2795,7 +2795,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             QString pixmapName = uniqueName("menubaritem", option, option->rect.size());
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(option->rect.size());
-                cache.fill(Qt::transparent);
+                cache.fill(Qt::white);
                 QRect pixmapRect(0, 0, option->rect.width(), option->rect.height());
                 QPainter cachePainter(&cache);
 
@@ -3126,7 +3126,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 QString groovePixmapName = uniqueName("slider_groove", option, groove.size());
                 if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
                     cache = QPixmap(groove.size());
-                    cache.fill(Qt::transparent);
+                    cache.fill(Qt::white);
                     QRect pixmapRect(0, 0, groove.width(), groove.height());
                     QPainter groovePainter(&cache);
                     groovePainter.fillRect(pixmapRect, option->palette.background());
@@ -3179,7 +3179,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
                 if (!UsePixmapCache || !QPixmapCache::find(handlePixmapName, cache)) {
                     cache = QPixmap(handle.size());
-                    cache.fill(Qt::transparent);
+                    cache.fill(Qt::white);
                     QRect pixmapRect(0, 0, handle.width(), handle.height());
                     QPainter handlePainter(&cache);
                     handlePainter.fillRect(pixmapRect, option->palette.background());
@@ -3344,7 +3344,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
                     QRect grooveRect = rect;
                     cache = QPixmap(grooveRect.size());
-                    cache.fill(Qt::transparent);
+                    cache.fill(Qt::white);
                     QPainter groovePainter(&cache);
 
                     QRect pixmapRect = QRect(0, 0, grooveRect.width(), grooveRect.height());
@@ -3375,7 +3375,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 QString groovePixmapName = uniqueName("scrollbar_groove_dark", option, rect.size());
                 if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
                     cache = QPixmap(rect.size());
-                    cache.fill(Qt::transparent);
+                    cache.fill(Qt::white);
                     QPainter groovePainter(&cache);
                     QRect pixmapRect = QRect(0, 0, rect.width(), rect.height());
                     groovePainter.fillRect(pixmapRect, QBrush(scrollBar->palette.base().color().dark(125), Qt::Dense4Pattern));
@@ -3412,7 +3412,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 QString subLinePixmapName = uniqueName("scrollbar_subline", option, button1.size());
                 if (!UsePixmapCache || !QPixmapCache::find(subLinePixmapName, cache)) {
                     cache = QPixmap(button1.size());
-                    cache.fill(Qt::transparent);
+                    cache.fill(Qt::white);
                     QRect pixmapRect(0, 0, cache.width(), cache.height());
                     QPainter subLinePainter(&cache);
                     subLinePainter.fillRect(pixmapRect, option->palette.background());
@@ -3487,7 +3487,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
                 if (!UsePixmapCache || !QPixmapCache::find(addLinePixmapName, cache)) {
                     cache = QPixmap(scrollBarAddLine.size());
-                    cache.fill(Qt::transparent);
+                    cache.fill(Qt::white);
                     QRect pixmapRect(0, 0, cache.width(), cache.height());
                     QPainter addLinePainter(&cache);
                     addLinePainter.fillRect(pixmapRect, option->palette.background());
@@ -3561,7 +3561,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     sliderPixmapName += QLatin1String("-horizontal");
                 if (!UsePixmapCache || !QPixmapCache::find(sliderPixmapName, cache)) {
                     cache = QPixmap(scrollBarSlider.size());
-                    cache.fill(Qt::transparent);
+                    cache.fill(Qt::white);
                     QRect pixmapRect(0, 0, cache.width(), cache.height());
                     QPainter sliderPainter(&cache);
                     bool sunken = (scrollBar->activeSubControls & SC_ScrollBarSlider) && (scrollBar->state & State_Sunken);
@@ -3635,7 +3635,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             QString pixmapName = uniqueName("spinbox", spinBox, spinBox->rect.size());
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(spinBox->rect.size());
-                cache.fill(Qt::transparent);
+                cache.fill(Qt::white);
                 QRect pixmapRect(0, 0, spinBox->rect.width(), spinBox->rect.height());
                 QPainter cachePainter(&cache);
 
@@ -3962,7 +3962,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(comboBox->rect.size());
-                cache.fill(Qt::transparent);
+                cache.fill(Qt::white);
                 QPainter cachePainter(&cache);
                 QRect pixmapRect(0, 0, comboBox->rect.width(), comboBox->rect.height());
                 cachePainter.fillRect(pixmapRect, painter->brush());
