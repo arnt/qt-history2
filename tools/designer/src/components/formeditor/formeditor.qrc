@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/trolltech/formeditor">
+    <file>images/submenu.png</file>
     <file>images/cursors/arrow.png</file>
     <file>images/cursors/cross.png</file>
     <file>images/cursors/hand.png</file>
