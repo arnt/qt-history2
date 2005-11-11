@@ -795,14 +795,14 @@ void VcprojGenerator::initConfiguration()
     conf.CompilerVersion = which_dotnet_version();
 
     initCompilerTool();
-    
+
     // Only on configuration per build
     bool isDebug = project->isActiveConfig("debug");
-    
+
     if(projectTarget == StaticLib)
         initLibrarianTool();
     else {
-        conf.linker.GenerateDebugInformation == isDebug ? _True : _False;    
+        conf.linker.GenerateDebugInformation = isDebug ? _True : _False;
         initLinkerTool();
     }
     initResourceTool();
@@ -1066,7 +1066,7 @@ void VcprojGenerator::initGeneratedFiles()
 
     // ### These cannot have CustomBuild (mocSrc)!!
     vcProject.GeneratedFiles.addFiles(project->variables()["GENERATED_SOURCES"]);
-    vcProject.GeneratedFiles.addFiles(project->variables()["GENERATED_FILES"]);    
+    vcProject.GeneratedFiles.addFiles(project->variables()["GENERATED_FILES"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["IDLSOURCES"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["RES_FILE"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["QMAKE_IMAGE_COLLECTION"]);   // compat
