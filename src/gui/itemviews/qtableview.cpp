@@ -787,6 +787,7 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
         return model()->index(qBound(0, newRow, bottom), current.column(), rootIndex()); }
     case MovePageDown: {
         int newRow = rowAt(visualRect(current).bottom() + d->viewport->height());
+        if (newRow == -1) newRow = bottom;
         return model()->index(qBound(0, newRow, bottom), current.column(), rootIndex());}
     }
 
