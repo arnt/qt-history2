@@ -572,10 +572,10 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
 
         if (option.direction == Qt::RightToLeft) {
             display.setRect(x, y, w - cw, textRect->height());
-            decoration.setRect(x, y + h, w - cw, h - textRect->height());
+            decoration.setRect(x, y + textRect->height(), w - cw, h - textRect->height());
         } else {
             display.setRect(x + cw, y, w - cw, textRect->height());
-            decoration.setRect(x + cw, y + h, w - cw, h - textRect->height());
+            decoration.setRect(x + cw, y + textRect->height(), w - cw, h - textRect->height());
         }
         break; }
     case QStyleOptionViewItem::Left: {
