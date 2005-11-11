@@ -1343,10 +1343,15 @@ void QTableView::rowMoved(int, int oldIndex, int newIndex)
 {
     Q_D(QTableView);
 
-    int o = rowViewportPosition(d->verticalHeader->logicalIndex(oldIndex));
-    int n = rowViewportPosition(d->verticalHeader->logicalIndex(newIndex));
-    int top = (o < n ? o : n);
-    int height = d->viewport->height() - (o > n ? o : n);
+    int logicalOldIndex = d->verticalHeader->logicalIndex(oldIndex);
+    int logicalNewIndex = d->verticalHeader->logicalIndex(newIndex);
+    int oldTop = rowViewportPosition(logicalOldIndex);
+    int newTop = rowViewportPosition(logicalNewIndex);
+    int oldBottom = oldTop + rowHeight(logicalOldIndex);
+    int newBottom = newTop + rowHeight(logicalNewIndex);
+    int top = qMin(oldTop, newTop);
+    int bottom = qMax(oldBottom, newBottom);
+    int height = bottom - top;
     updateGeometries();
     d->viewport->update(0, top, d->viewport->width(), height);
 }
@@ -1362,10 +1367,15 @@ void QTableView::columnMoved(int, int oldIndex, int newIndex)
 {
     Q_D(QTableView);
 
-    int o = columnViewportPosition(d->horizontalHeader->logicalIndex(oldIndex));
-    int n = columnViewportPosition(d->horizontalHeader->logicalIndex(newIndex));
-    int left = (o < n ? o : n);
-    int width = d->viewport->width() - (o > n ? o : n);
+    int logicalOldIndex = d->horizontalHeader->logicalIndex(oldIndex);
+    int logicalNewIndex = d->horizontalHeader->logicalIndex(newIndex);
+    int oldLeft = columnViewportPosition(logicalOldIndex);
+    int newLeft = columnViewportPosition(logicalNewIndex);
+    int oldRight = oldLeft + columnWidth(logicalOldIndex);
+    int newRight = newLeft + columnWidth(logicalNewIndex);
+    int left = qMin(oldLeft, newLeft);
+    int right = qMax(oldRight, newRight);
+    int width = right - left;
     updateGeometries();
     d->viewport->update(left, 0, width, d->viewport->height());
 }
