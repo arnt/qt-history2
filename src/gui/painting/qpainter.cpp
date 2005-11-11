@@ -658,7 +658,8 @@ void QPainter::initFrom(const QWidget *widget)
     Q_D(QPainter);
     d->state->pen = QPen(pal.brush(widget->foregroundRole()), 0);
     d->state->bgBrush = pal.brush(widget->backgroundRole());
-    d->state->font = widget->font();
+    d->state->deviceFont = QFont(widget->font(), d->device);
+    d->state->font = d->state->deviceFont;
     if (d->engine) {
         d->engine->setDirty(QPaintEngine::DirtyPen);
         d->engine->setDirty(QPaintEngine::DirtyBrush);
@@ -858,9 +859,6 @@ bool QPainter::begin(QPaintDevice *pd)
             break;
     }
 
-    // make sure we have a font compatible with the paintdevice
-    d->state->deviceFont = d->state->font = QFont(d->state->deviceFont, d->device);
-
     if (d->state->ww == 0) // For compat with 3.x painter defaults
         d->state->ww = d->state->wh = d->state->vw = d->state->vh = 1024;
 
@@ -884,6 +882,8 @@ bool QPainter::begin(QPaintDevice *pd)
         initFrom(widget);
     } else {
         d->state->layoutDirection = QApplication::layoutDirection();
+        // make sure we have a font compatible with the paintdevice
+        d->state->deviceFont = d->state->font = QFont(d->state->deviceFont, d->device);
     }
 
     d->state->ww = d->state->vw = pd->metric(QPaintDevice::PdmWidth);
