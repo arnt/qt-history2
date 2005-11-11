@@ -1958,6 +1958,10 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     if(!updatesEnabled() &&  (valid_rect || children().isEmpty()))
         return;
 
+    if (HIViewGetNeedsDisplay((HIViewRef)winId())) {
+        update(valid_rect ? r : rect());
+        return;
+    }
     if(!valid_rect) {        // scroll children
         QPoint pd(dx, dy);
         QWidgetList moved;
