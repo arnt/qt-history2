@@ -2298,13 +2298,6 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
                     tb_layout_info.removeAt(l);
                 if (tb_layout_info.at(l-1).pos == where) {
                     TBDEBUG() << "1. appending to existing" << info.item->widget() << info.item->widget()->geometry();
-                    if (tb_layout_info[l-1].list.size() > 0) {
-                        const ToolBarLayoutInfo &tmp = tb_layout_info.at(l-1).list.last();
-                        if (pick_perp(where, tmp.pos) == pick_perp(where, info.pos))
-                            info.offset = info.pos - (tmp.pos + QPoint(tmp.size.width(), tmp.size.height()) - offset);
-                        else if (pick_perp(where, tmp.pos) < pick_perp(where, info.pos))
-                            info.offset = -(tmp.pos + QPoint(tmp.size.width(), tmp.size.height()) - info.pos + offset);
-                    }
                     tb_layout_info[l-1].list.append(info);
 
                 } else {
@@ -2332,13 +2325,6 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
                 if (tb_layout_info.at(l).list.size() == 0)
                     tb_layout_info.removeAt(l--);
                 if (tb_layout_info.at(l+1).pos == where) {
-                    if (tb_layout_info[l+1].list.size() > 0) {
-                        const ToolBarLayoutInfo &tmp = tb_layout_info.at(l+1).list.last();
-                        if (pick_perp(where, tmp.pos) == pick_perp(where, info.pos))
-                            info.offset = info.pos -(tmp.pos + QPoint(tmp.size.width(), tmp.size.height()) - offset);
-                        else if (pick_perp(where, tmp.pos) < pick_perp(where, info.pos))
-                            info.offset = -(tmp.pos + QPoint(tmp.size.width(), tmp.size.height()) - info.pos + offset);
-                    }
                     tb_layout_info[l+1].list.append(info);
                     TBDEBUG() << "1. appending to exisitng";
                 } else {
