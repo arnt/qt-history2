@@ -16,6 +16,7 @@
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(designer);
+    Q_INIT_RESOURCE(shared);
 
     QDesigner app(argc, argv);
     app.setQuitOnLastWindowClosed(false);

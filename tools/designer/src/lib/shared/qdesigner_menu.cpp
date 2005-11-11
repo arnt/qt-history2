@@ -429,7 +429,7 @@ void QDesignerMenu::slotRemoveSelectedAction(QAction *action)
 
 QRect QDesignerMenu::subMenuPixmapRect(QAction *action) const
 {
-    static const QPixmap pm(":/trolltech/designer/images/submenu.png");
+    static const QPixmap pm(":/trolltech/libdesigner/images/submenu.png");
     QRect g = actionGeometry(action);
     int x = g.right() - pm.width() - 2;
     int y = g.top() + (g.height() - pm.height())/2 + 1;
@@ -464,7 +464,7 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
 
             p.fillRect(g, lg);
         } else if (hasSubMenuPixmap(a)) {
-            static const QPixmap pm(":/trolltech/designer/images/submenu.png");
+            static const QPixmap pm(":/trolltech/libdesigner/images/submenu.png");
             p.drawPixmap(subMenuPixmapRect(a).topLeft(), pm);
         }
     }

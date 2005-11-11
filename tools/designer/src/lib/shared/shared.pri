@@ -11,6 +11,8 @@ FORMS += \
     $$PWD/newactiondialog.ui \
     $$PWD/resourceeditor.ui
 
+RESOURCES += $$PWD/shared.qrc
+
 HEADERS += \
     $$PWD/shared_global_p.h \
     $$PWD/spacer_widget_p.h \
