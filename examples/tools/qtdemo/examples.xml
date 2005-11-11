@@ -57,7 +57,6 @@
     <example filename="blockingfortuneclient" name="Blocking Fortune Client" />
     <example filename="broadcastreceiver" name="Broadcast Receiver" />
     <example filename="broadcastsender" name="Broadcast Sender" />
-    <example filename="broadcastserver" name="Broadcast Server" executable="false" />
     <example filename="fortuneclient" name="Fortune Client" />
     <example filename="fortuneserver" name="Fortune Server" />
     <example filename="ftp" name="FTP" name="FTP Client" />
