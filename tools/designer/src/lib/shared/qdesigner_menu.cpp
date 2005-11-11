@@ -79,6 +79,9 @@ QDesignerMenu::~QDesignerMenu()
 
 void QDesignerMenu::slotAdjustSizeNow()
 {
+    // Not using a single-shot, since we want to compress the timers if many items are being
+    // adjusted
+    m_adjustSizeTimer->stop();
     adjustSize();
 }
 
