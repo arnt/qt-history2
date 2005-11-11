@@ -1041,7 +1041,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
     }
 #endif
 
-    if (d->selectionAllowed(index) && selectionModel()) {
+    if ((event->buttons() & Qt::LeftButton) && d->selectionAllowed(index) && selectionModel()) {
         setState(DragSelectingState);
         QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
 
