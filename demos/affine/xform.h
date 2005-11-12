@@ -26,10 +26,10 @@ class XFormView : public ArthurFrame
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool animation READ animation WRITE setAnimation);
-    Q_PROPERTY(double shear READ shear WRITE changeShear);
-    Q_PROPERTY(double rotation READ rotation WRITE changeRotation);
-    Q_PROPERTY(double scale READ scale WRITE changeScale);
+    Q_PROPERTY(bool animation READ animation WRITE setAnimation)
+    Q_PROPERTY(double shear READ shear WRITE changeShear)
+    Q_PROPERTY(double rotation READ rotation WRITE changeRotation)
+    Q_PROPERTY(double scale READ scale WRITE changeScale)
 
 public:
     XFormView(QWidget *parent);
