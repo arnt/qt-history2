@@ -20,8 +20,8 @@
 class PathStrokeRenderer : public ArthurFrame
 {
     Q_OBJECT
-    Q_PROPERTY(bool animation READ animation WRITE setAnimation);
-    Q_PROPERTY(double penWidth READ realPenWidth WRITE setRealPenWidth);
+    Q_PROPERTY(bool animation READ animation WRITE setAnimation)
+    Q_PROPERTY(double penWidth READ realPenWidth WRITE setRealPenWidth)
 public:
     enum PathMode { CurveMode, LineMode };
 

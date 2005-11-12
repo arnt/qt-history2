@@ -23,11 +23,11 @@
 class PathDeformRenderer : public ArthurFrame
 {
     Q_OBJECT
-    Q_PROPERTY(bool animated READ animated WRITE setAnimated);
-    Q_PROPERTY(int radius READ radius WRITE setRadius);
-    Q_PROPERTY(int fontSize READ fontSize WRITE setFontSize);
-    Q_PROPERTY(int intensity READ intensity WRITE setIntensity);
-    Q_PROPERTY(QString text READ text WRITE setText);
+    Q_PROPERTY(bool animated READ animated WRITE setAnimated)
+    Q_PROPERTY(int radius READ radius WRITE setRadius)
+    Q_PROPERTY(int fontSize READ fontSize WRITE setFontSize)
+    Q_PROPERTY(int intensity READ intensity WRITE setIntensity)
+    Q_PROPERTY(QString text READ text WRITE setText)
 
 public:
     PathDeformRenderer(QWidget *widget);
