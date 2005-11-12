@@ -29,7 +29,7 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QMainWindow>
 
-static uint qHash(const QPointer<QWidget> &w)
+inline uint qHash(const QPointer<QWidget> &w)
 {
      return qHash((QWidget*) w);
 }
