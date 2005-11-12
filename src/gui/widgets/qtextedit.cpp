@@ -2064,6 +2064,7 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     p->setClipRect(r);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
+    ctx.selections = extraSelections;
     ctx.palette = q->palette();
     if (cursorOn && q->isEnabled())
         ctx.cursorPosition = cursor.position();
@@ -2737,6 +2738,30 @@ void QTextEdit::setAcceptRichText(bool accept)
 {
     Q_D(QTextEdit);
     d->acceptRichText = accept;
+}
+
+void QTextEdit::setExtraSelections(const QList<ExtraSelection> &selections)
+{
+    Q_D(QTextEdit);
+    d->extraSelections.resize(selections.count());
+    for (int i = 0; i < selections.count(); ++i) {
+        d->extraSelections[i].cursor = selections.at(i).cursor;
+        d->extraSelections[i].format = selections.at(i).format;
+    }
+    d->viewport->update();
+}
+
+QList<QTextEdit::ExtraSelection> QTextEdit::extraSelections() const
+{
+    Q_D(const QTextEdit);
+    QList<ExtraSelection> selections;
+    for (int i = 0; i < d->extraSelections.count(); ++i) {
+        ExtraSelection sel;
+        sel.cursor = d->extraSelections.at(i).cursor;
+        sel.format = d->extraSelections.at(i).format;
+        selections.append(sel);
+    }
+    return selections;
 }
 
 /*!

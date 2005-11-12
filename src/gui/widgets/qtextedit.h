@@ -17,23 +17,20 @@
 #include <QtGui/qabstractscrollarea.h>
 #include <QtGui/qtextdocument.h>
 #include <QtGui/qtextoption.h>
+#include <QtGui/qtextcursor.h>
+#include <QtGui/qtextformat.h>
 
 #ifndef QT_NO_TEXTEDIT
 
 #ifdef QT3_SUPPORT
-#include <QtGui/qtextcursor.h>
-#include <QtGui/qtextformat.h>
 #include <QtGui/qtextobject.h>
 #include <QtGui/qtextlayout.h>
 #endif
 
 QT_MODULE(Gui)
 
-class QTextCharFormat;
 class QStyleSheet;
 class QTextDocument;
-class QTextCursor;
-class QTextBlockFormat;
 class QMenu;
 class QTextEditPrivate;
 class QMimeData;
@@ -172,6 +169,14 @@ public:
     
     bool acceptRichText() const;
     void setAcceptRichText(bool accept);
+
+    struct ExtraSelection
+    {
+        QTextCursor cursor;
+        QTextCharFormat format;
+    };
+    void setExtraSelections(const QList<ExtraSelection> &selections);
+    QList<ExtraSelection> extraSelections() const;
 
 public Q_SLOTS:
     void setFontPointSize(qreal s);

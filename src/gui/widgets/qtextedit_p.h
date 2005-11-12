@@ -31,6 +31,7 @@
 #include "QtGui/qtextcursor.h"
 #include "QtGui/qtextformat.h"
 #include "QtGui/qmenu.h"
+#include "QtGui/qabstracttextdocumentlayout.h"
 #include "QtCore/qbasictimer.h"
 
 #ifndef QT_NO_TEXTEDIT
@@ -169,6 +170,8 @@ public:
 
     bool overwriteMode;
     bool acceptRichText;
+
+    QVector<QAbstractTextDocumentLayout::Selection> extraSelections;
 };
 #endif // QT_NO_TEXTEDIT
 
