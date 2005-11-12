@@ -1175,8 +1175,6 @@ void QMenu::clear()
 }
 
 /*!
-  \internal
-
   If a menu does not fit on the screen it lays itself out so that it
   does fit. It is style dependent what layout means (for example, on
   Windows it will use multiple columns).
@@ -1189,8 +1187,6 @@ int QMenu::columnCount() const
 }
 
 /*!
-  \internal
-
   Returns the item at \a pt; returns 0 if there is no item there.
 */
 QAction *QMenu::actionAt(const QPoint &pt) const
@@ -1201,8 +1197,6 @@ QAction *QMenu::actionAt(const QPoint &pt) const
 }
 
 /*!
-  \internal
-
   Returns the geometry of action \a act.
 */
 QRect QMenu::actionGeometry(QAction *act) const
