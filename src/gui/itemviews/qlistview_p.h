@@ -62,7 +62,7 @@ private:
     int x, y;
     short w, h;
     mutable int indexHint;
-    uint visited : 16;
+    uint visited;
 };
 
 class QListViewPrivate: public QAbstractItemViewPrivate
