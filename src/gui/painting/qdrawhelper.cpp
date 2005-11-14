@@ -2101,6 +2101,8 @@ enum CPUFeatures {
 static uint detectCPUFeatures() {
 #if defined(__x86_64__) || defined(Q_OS_WIN64)
     return MMX|SSE|SSE2|CMOV;
+#elif defined(__ia64__)
+    return MMX|SSE|SSE2;
 #elif defined(__IWMMXT__)
     return MMX|SSE;
 #else
