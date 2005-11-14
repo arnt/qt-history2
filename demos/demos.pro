@@ -10,8 +10,9 @@ SUBDIRS     = \
         interview \
         mainwindow \
         spreadsheet \
-        textedit \
-        arthurplugin
+        textedit 
+
+!contains(QT_EDITION, Console):SUBDIRS += arthurplugin
 
 CONFIG += ordered
 
