@@ -74,12 +74,12 @@ public:
 
     bool dragging() const;
 
-public slots:
+    void closeMenuChain();
+
     void moveLeft();
     void moveRight();
     void moveUp(bool ctrl);
     void moveDown(bool ctrl);
-    void closeMenuChain();
 
 private slots:
     void slotRemoveSelectedAction(QAction *action);
