@@ -687,7 +687,7 @@ void Launcher::showExamples(const QString &category)
 
     DisplayShape *newTitle = addTitle(category, verticalMargin);
     addTitleBackground(newTitle);
-    
+
     qreal topMargin = 6*verticalMargin;
     qreal bottomMargin = height() - 3.2*verticalMargin;
     qreal space = bottomMargin - topMargin;
@@ -801,7 +801,7 @@ void Launcher::showExampleSummary(const QString &example)
     qreal bottomMargin = height() - 8*verticalMargin;
     qreal space = bottomMargin - topMargin;
     qreal step = qMin(newTitle->rect().height() / fontRatio,
-                      (bottomMargin + 4.8*verticalMargin - topMargin)
+                      (bottomMargin + qreal(4.8)*verticalMargin - topMargin)
                       /qreal(maximumLabels));
     qreal textHeight = fontRatio * step;
 
@@ -1029,7 +1029,7 @@ void Launcher::resizeEvent(QResizeEvent *event)
     documentFont = font();
     documentFont.setPointSizeF(qMin(documentFont.pointSizeF()*width()/640.0,
                                     documentFont.pointSizeF()*height()/480.0));
-    
+
     if (inFullScreenResize) {
         emit windowResized();
         inFullScreenResize = false;

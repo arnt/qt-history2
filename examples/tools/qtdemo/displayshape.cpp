@@ -282,7 +282,7 @@ ImageShape::ImageShape(const QImage &original, const QPointF &position,
 {
     source = original.convertToFormat(QImage::Format_ARGB32_Premultiplied);
     qreal scale = qMin(qMin(maxSize.width()/source.width(),
-                            maxSize.height()/source.height()), 1.0);
+                            maxSize.height()/source.height()), qreal(1.0));
 
     source = source.scaled(int(ceil(source.width() * scale)),
                            int(ceil(source.height() * scale)),
