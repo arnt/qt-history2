@@ -29,11 +29,6 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QMainWindow>
 
-inline uint qHash(const QPointer<QWidget> &w)
-{
-     return qHash((QWidget*) w);
-}
-
 namespace qdesigner_internal {
 
 class FriendlyBoxLayout: public QBoxLayout
@@ -208,8 +203,9 @@ void Layout::setup()
 void Layout::widgetDestroyed()
 {
      if (sender() && sender()->isWidgetType()) {
-         const QWidget *w = static_cast<const QWidget*>(sender());
-         m_widgets.removeAt(m_widgets.indexOf(const_cast<QWidget*>(w)));
+         QWidget *w = static_cast<QWidget *>(sender());
+         m_widgets.removeAt(m_widgets.indexOf(w));
+         geometries.remove(w);
      }
 }
 
@@ -279,7 +275,7 @@ void Layout::undoLayout()
     formWindow->selectWidget(layoutBase, false);
 
     QDesignerWidgetFactoryInterface *widgetFactory = formWindow->core()->widgetFactory();
-    QHashIterator<QPointer<QWidget>, QRect> it(geometries);
+    QHashIterator<QWidget *, QRect> it(geometries);
     while (it.hasNext()) {
         it.next();
 

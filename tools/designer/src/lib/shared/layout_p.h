@@ -72,7 +72,7 @@ protected:
     QList<QWidget*> m_widgets;
     QWidget *m_parentWidget;
     QPoint startPoint;
-    QHash<QPointer<QWidget>, QRect> geometries;
+    QHash<QWidget *, QRect> geometries;
     QWidget *layoutBase;
     QDesignerFormWindowInterface *formWindow;
     QRect oldGeometry;
