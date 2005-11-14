@@ -1271,8 +1271,13 @@ static inline bool qFuzzyCompare(float p1, float p2)
 */
 static inline bool qIsNull(double d)
 {
-    quint64 ui = *reinterpret_cast<quint64 *>(&d);
-    return ui == Q_UINT64_C(0);
+    union U {
+        double d;
+        quint64 u;
+    };
+    U val;
+    val.d = d;
+    return val.u == quint64(0);
 }
 
 /*
@@ -1282,8 +1287,13 @@ static inline bool qIsNull(double d)
 */
 static inline bool qIsNull(float f)
 {
-    quint32 ui = *reinterpret_cast<quint32 *>(&f);
-    return ui == 0u;
+    union U {
+        float f;
+        quint32 u;
+    };
+    U val;
+    val.f = f;
+    return val.u == 0u;
 }
 
 /*
