@@ -149,7 +149,7 @@ void TextEdit::setupFileActions()
     tb->addAction(a);
     menu->addAction(a);
 
-    a = new QAction(QIcon(rsrcPath + "/fileprint.png"), tr("&Export PDF..."), this);
+    a = new QAction(QIcon(rsrcPath + "/exportpdf.png"), tr("&Export PDF..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_D);
     connect(a, SIGNAL(triggered()), this, SLOT(filePrintPdf()));
     tb->addAction(a);
