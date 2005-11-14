@@ -314,7 +314,7 @@ void QWidget::setAutoFillBackground(bool enabled)
         d->createExtra();
     if (d->extra->autoFillBackground == enabled)
         return;
-    
+
     d->extra->autoFillBackground = enabled;
     update();
 }
@@ -4356,7 +4356,7 @@ void QWidgetPrivate::hide_helper()
         QApplicationPrivate::leaveModal(q);
 
 #if defined(Q_WS_WIN)
-    if (q->isWindow() && !(q->windowType() == Qt::Popup) && q->parentWidget() 
+    if (q->isWindow() && !(q->windowType() == Qt::Popup) && q->parentWidget()
         && !q->parentWidget()->isHidden() && q->isActiveWindow())
         q->parentWidget()->activateWindow();        // Activate parent
 #endif
@@ -4393,13 +4393,6 @@ void QWidgetPrivate::hide_helper()
     if (wasVisible)
         QAccessible::updateAccessibility(q, 0, QAccessible::ObjectHide);
 #endif
-    // invalidate layout similar to updateGeometry()
-    if (!q->isWindow() && q->parentWidget()) {
-        if (q->parentWidget()->d_func()->layout)
-            q->parentWidget()->d_func()->layout->update();
-        if (wasVisible)
-            QApplication::postEvent(q->parentWidget(), new QEvent(QEvent::LayoutRequest));
-    }
 }
 
 /*!
@@ -4493,6 +4486,17 @@ void QWidget::setVisible(bool visible)
             d->hide_helper();
         else
             setAttribute(Qt::WA_WState_ExplicitShowHide);
+
+        // invalidate layout similar to updateGeometry()
+        if (!isWindow() && parentWidget()) {
+            qDebug() << "NEW CODE ()#@%*(*)%#&(*#%&" << this;
+            if (parentWidget()->d_func()->layout)
+                parentWidget()->d_func()->layout->update();
+            else if (parentWidget()-isVisible())
+                QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
+        }
+
+
         QEvent hideToParentEvent(QEvent::HideToParent);
         QApplication::sendEvent(this, &hideToParentEvent);
     }
