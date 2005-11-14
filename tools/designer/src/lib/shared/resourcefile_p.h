@@ -76,7 +76,6 @@ public:
 
     bool isEmpty() const;
 
-private:
     struct File {
         File(const QString &_name = QString(), const QString &_alias = QString())
             : name(_name), alias(_alias) {}
@@ -95,6 +94,7 @@ private:
         FileList file_list;
     };
     typedef QList<Prefix> PrefixList;
+private:
     PrefixList m_prefix_list;
     QString m_file_name;
     QString m_error_message;
