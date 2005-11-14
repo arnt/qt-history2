@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-CONFIG -= moc
+CONFIG -= moc app_bundle
 DEPENDPATH += .
 INCLUDEPATH += .
 

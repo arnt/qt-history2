@@ -1,5 +1,6 @@
 SOURCES += semaphores.cpp
 QT = core
+CONFIG -= app_bundle
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/threads/semaphores
