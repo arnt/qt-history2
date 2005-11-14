@@ -25,13 +25,15 @@ class QFormBuilderExtra
 {
 public:
     void reset()
-    { m_buddies.clear(); }
+    { m_buddies.clear(); rootWidget = 0; }
 
     void addBuddy(QLabel *label, const QString &buddyName)
     { m_buddies.insert(label, buddyName); }
 
     QHash<QLabel*, QString> buddies() const
     { return m_buddies; }
+
+    QPointer<QWidget> rootWidget;
 
 private:
     QHash<QLabel*, QString> m_buddies;
@@ -178,6 +180,9 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
 
     if (qobject_cast<QDialog *>(w))
         w->setParent(parentWidget);
+
+    if (!extraInfo(this).rootWidget)
+        extraInfo(this).rootWidget = w;
 
     return w;
 }
@@ -434,13 +439,15 @@ void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &proper
         if (v.isNull())
             continue;
 
-        if (qobject_cast<QLabel*>(o) && p->attributeName() == QLatin1String("buddy")) {
+        if (o == extraInfo(this).rootWidget && p->attributeName() == QLatin1String("geometry")) {
+            // apply only the size for the rootWidget
+            extraInfo(this).rootWidget->resize(qvariant_cast<QRect>(v).size());
+        } else if (qobject_cast<QLabel*>(o) && p->attributeName() == QLatin1String("buddy")) {
             // save the buddy and continue
             extraInfo(this).addBuddy(qobject_cast<QLabel*>(o), v.toString());
-            continue;
+        } else {
+            o->setProperty(p->attributeName().toUtf8(), v);
         }
-
-        o->setProperty(p->attributeName().toUtf8(), v);
     }
 }
 
