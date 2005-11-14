@@ -917,7 +917,7 @@ void QTreeView::mousePressEvent(QMouseEvent *event)
     int i = d->itemDecorationAt(event->pos());
     if (i == -1) {
         QAbstractItemView::mousePressEvent(event);
-    } else if (model()->hasChildren(d->viewItems.at(i).index)) {
+    } else if (itemsExpandable() && model()->hasChildren(d->viewItems.at(i).index)) {
         if (d->viewItems.at(i).expanded) {
             setState(ExpandingState);
             d->collapse(i);
