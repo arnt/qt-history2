@@ -542,7 +542,7 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
         case QEvent::MouseButtonRelease:
         case QEvent::MouseButtonDblClick:
 
-            while (!qobject_cast<QDesignerMenu*>(QApplication::activePopupWidget())) {
+            while (QApplication::activePopupWidget() && !qobject_cast<QDesignerMenu*>(QApplication::activePopupWidget())) {
                 QApplication::activePopupWidget()->close();
             }
 
