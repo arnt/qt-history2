@@ -151,19 +151,12 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
         qdesigner_internal::QDesignerFormBuilder formBuilder(workbench()->core());
 
         QWidget *fake = new QWidget(0);
+        fake->setAttribute(Qt::WA_WState_Visible);
+
         if (QWidget *widget = formBuilder.load(&f, fake)) {
-            QSize size = widget->size();
             widget->setParent(fake, 0);
-            widget->resize(size);
             widget->show();
             f.close();
-
-            QList<QLayout*> layouts = qFindChildren<QLayout*>(widget);
-            foreach (QLayout *layout, layouts)
-                layout->activate();
-
-            widget->ensurePolished();
-            qDesigner->processEvents();
 
             QPixmap pix = QPixmap::grabWidget(widget);
             QImage image = pix.toImage();
