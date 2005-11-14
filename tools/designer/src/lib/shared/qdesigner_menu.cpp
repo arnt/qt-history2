@@ -69,8 +69,9 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
     m_editor = new QLineEdit(this);
     m_editor->setObjectName("__qt__passive_editor");
     m_editor->hide();
-    qApp->installEventFilter(this);
 
+    m_editor->installEventFilter(this);
+    installEventFilter(this);
 }
 
 QDesignerMenu::~QDesignerMenu()
