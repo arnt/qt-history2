@@ -140,7 +140,16 @@ void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
         p.setY(state->offset.y() + p.y());
 
     // re-position toolbar
-    layout->dropToolBar(toolBar, event->globalPos(), p);
-}
+    Qt::ToolBarArea oldArea = layout->toolBarArea(toolBar);
+    bool toolBarPositionSwapped = layout->dropToolBar(toolBar, event->globalPos(), p);
+    Qt::ToolBarArea newArea = layout->toolBarArea(toolBar);
+    
+    // ensure modified toolbar areas are repainted
+    if (toolBarPositionSwapped) {
+        layout->updateToolbarsInArea(oldArea);
+        if (newArea != oldArea)
+            layout->updateToolbarsInArea(newArea);
+    }
+}   
 
 #endif // QT_NO_TOOLBAR

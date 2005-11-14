@@ -2253,8 +2253,9 @@ int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) con
     return pos;
 }
 
-void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset)
+bool QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset)
 {
+    bool toolBarPositionSwapped = false;
     POSITION where = static_cast<POSITION>(locateToolBar(toolbar, mouse));
 
     if (positionForArea(toolBarArea(toolbar)) == where) {
@@ -2291,7 +2292,8 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 	}
 
 	if (pick(where, offset) < -magic_offset) { // move left/up
-	    TBDEBUG() << "left/up" << offset << "line: " << l << where;
+	    toolBarPositionSwapped = true;
+        TBDEBUG() << "left/up" << offset << "line: " << l << where;
 	    if (l > 0 && tb_layout_info.at(l-1).pos == where) { // is this the first line in this tb area?
                 tb_layout_info[l].list.removeAt(i);
                 if (tb_layout_info[l].list.size() == 0)
@@ -2319,9 +2321,10 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
                 TBDEBUG() << "3. inserting new" << l << toolbar;
             }
         } else if (pick(where, offset) > pick(where, info.size) + magic_offset) { // move right/down
+            toolBarPositionSwapped = true;
             TBDEBUG() << "right/down" << offset << "line: " << l;
             if (l < tb_layout_info.size()-1 && tb_layout_info.at(l+1).pos == where) {
-                tb_layout_info[l].list.removeAt(i);
+	            tb_layout_info[l].list.removeAt(i);
                 if (tb_layout_info.at(l).list.size() == 0)
                     tb_layout_info.removeAt(l--);
                 if (tb_layout_info.at(l+1).pos == where) {
@@ -2347,24 +2350,26 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
             }
         }
     } else {
+        toolBarPositionSwapped = true;
         TBDEBUG() << "changed area";
-
-        //We have to update all toolbars in affected areas, since
-        //QStyleOptionToolbar can handle toolbars differently depending on their positions
-        int currentPos = positionForArea(toolBarArea(toolbar));
-
-        for (int i = 0; i < tb_layout_info.size(); ++i) {
-            const ToolBarLineInfo &lineInfo = tb_layout_info.at(i);
-            if (lineInfo.pos == currentPos || lineInfo.pos == where) {
-                for (int j = 0; j < lineInfo.list.size(); ++j)
-                    lineInfo.list.at(j).item->widget()->update();
-            }
-        }
         addToolBar(static_cast<Qt::ToolBarArea>(areaForPosition(where)), toolbar, false);
-        dropToolBar(toolbar, mouse, QPoint());
-        return;
+        return toolBarPositionSwapped;
     }
     relayout();
+    return toolBarPositionSwapped;
+}
+
+void QMainWindowLayout::updateToolbarsInArea(Qt::ToolBarArea area)
+{
+    POSITION pos = positionForArea(area);
+    for (int i = 0; i < tb_layout_info.size(); ++i) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(i);
+        if ( lineInfo.pos == pos ) {
+            for (int j = 0; j < lineInfo.list.size(); ++j) {
+                lineInfo.list.at(j).item->widget()->update();
+            }
+        }
+    }
 }
 
 void QMainWindowLayout::removeToolBarInfo(QToolBar *toolbar)
