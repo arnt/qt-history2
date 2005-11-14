@@ -9,7 +9,7 @@ no-png {
                         qtestlib
     !contains(QT_EDITION, Console):SUBDIRS += designer
     unix:!embedded:SUBDIRS        += qtconfig
-    win32:SUBDIRS       += activeqt
+    win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS       += activeqt
 }
 
 CONFIG+=ordered
