@@ -518,8 +518,9 @@ QDesignerMenu *QDesignerMenu::findActivatedMenu() const
 
 bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
 {
-    if (object != this && object != m_editor)
+    if (object != this && object != m_editor) {
         return false;
+    }
 
     if (!m_editor->isHidden() && object == m_editor && event->type() == QEvent::FocusOut) {
         leaveEditMode(Default);
@@ -536,14 +537,19 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
         case QEvent::WindowDeactivate:
             deactivateMenu();
             break;
-
-        case QEvent::KeyPress:
-        case QEvent::KeyRelease:
         case QEvent::ContextMenu:
-        case QEvent::MouseMove:
         case QEvent::MouseButtonPress:
         case QEvent::MouseButtonRelease:
         case QEvent::MouseButtonDblClick:
+
+            while (!qobject_cast<QDesignerMenu*>(QApplication::activePopupWidget())) {
+                QApplication::activePopupWidget()->close();
+            }
+
+        // fall through
+        case QEvent::KeyPress:
+        case QEvent::KeyRelease:
+        case QEvent::MouseMove:
             dispatch = (object != m_editor);
             // no break
 
