@@ -116,8 +116,10 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
         QModelIndex source_parent = source_parent_stack.pop();
         for (int row = 0; row < sourceModel()->rowCount(source_parent); ++row) {
             QModelIndex source_index = sourceModel()->index(row, column, source_parent);
-            if (sourceModel()->hasChildren(source_index))
-                source_parent_stack.push(source_index);
+            // we only traverse the children of items in column 0
+            QModelIndex source_index_sibling = sourceModel()->index(row, 0, source_parent);
+            if (sourceModel()->hasChildren(source_index_sibling))
+                source_parent_stack.push(source_index_sibling);
             source_children.append(source_index);
         }
 
