@@ -38,6 +38,11 @@
     /usr/local/Trolltech/Qt-%VERSION% but this can be changed by using the
     -prefix parameter.
 
+    NOTE: If you encounter problems with header files having a size of zero and 
+    no permissions, remove these files and try building again. This is typically 
+    encountered when building with multiple jobs, so try running make -j1 instead.
+    This is a known issue, and should be fixed in an upcoming release.
+
 4.  Environment variables
 
     In order to use Qt, some environment variables needs to be
