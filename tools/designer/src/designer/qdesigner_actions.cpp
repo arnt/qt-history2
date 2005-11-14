@@ -827,8 +827,15 @@ void QDesignerActions::addRecentFile(const QString &fileName)
 
 void QDesignerActions::minimizeForm()
 {
-    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
-        fw->parentWidget()->showMinimized();
+    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
+        if (m_workbench->mode() == QDesignerWorkbench::DockedMode) {
+            // Yuck, I need to get to the QWorkspaceChild::showShaded(), but there is no way
+            // to do that legally, so I use the QMetaObject as my guide.
+            QMetaObject::invokeMethod(fw->parentWidget()->parentWidget(), "showShaded");
+        } else {
+            fw->parentWidget()->showMinimized();
+        }
+    }
 }
 
 void QDesignerActions::bringAllToFront()

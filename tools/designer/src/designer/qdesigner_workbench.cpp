@@ -765,9 +765,13 @@ void QDesignerWorkbench::formWindowActionTriggered(QAction *a)
     QWidget *widget = a->parentWidget();
     Q_ASSERT(widget != 0);
 
-    widget->setWindowState(widget->windowState() & ~Qt::WindowMinimized);
-    widget->activateWindow();
-    widget->raise();
+    if (m_mode == DockedMode) {
+        m_workspace->setActiveWindow(widget);
+    } else {
+        widget->setWindowState(widget->windowState() & ~Qt::WindowMinimized);
+        widget->activateWindow();
+        widget->raise();
+    }
 }
 
 void QDesignerWorkbench::showToolBars()
