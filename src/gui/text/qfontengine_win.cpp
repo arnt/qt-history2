@@ -173,7 +173,7 @@ int QFontEngine::getGlyphIndexes(const QChar *str, int numChars, QGlyphLayout *g
                 if (ucs >= first && ucs <= last)
                     glyphs->glyph = ucs;
                 else
-                    glyphs->glyph = 0;                    
+                    glyphs->glyph = 0;
                 glyphs++;
                 str++;
             }
@@ -747,7 +747,7 @@ void QFontEngineWin::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, in
 void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
                                       QPainterPath *path, QTextItem::RenderFlags flags)
 {
-    if(tm.w.tmPitchAndFamily & TMPF_TRUETYPE|TMPF_VECTOR) {
+    if(tm.w.tmPitchAndFamily & (TMPF_TRUETYPE|TMPF_VECTOR)) {
 	QFontEngine::addOutlineToPath(x, y, glyphs, numGlyphs, path, flags);
 	return;
     }
