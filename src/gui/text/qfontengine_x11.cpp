@@ -208,9 +208,9 @@ bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyp
                 r <= _fs->max_byte1 &&
                 c >= _fs->min_char_or_byte2 &&
                 c <= _fs->max_char_or_byte2) {
-                g->glyph = 0;
-            } else {
                 g->advance.x = xcs->width;
+            } else {
+                g->glyph = 0;
             }
         }
     }
