@@ -55,9 +55,9 @@ class CompositionRenderer : public ArthurFrame
 
     enum ObjectType { NoObject, Circle, Rectangle, Image };
 
-    Q_PROPERTY(int circleColor READ circleColor WRITE setCircleColor);
-    Q_PROPERTY(int circleAlpha READ circleAlpha WRITE setCircleAlpha);
-    Q_PROPERTY(bool animation READ animationEnabled WRITE setAnimationEnabled);
+    Q_PROPERTY(int circleColor READ circleColor WRITE setCircleColor)
+    Q_PROPERTY(int circleAlpha READ circleAlpha WRITE setCircleAlpha)
+    Q_PROPERTY(bool animation READ animationEnabled WRITE setAnimationEnabled)
 
 public:
     CompositionRenderer(QWidget *parent);
