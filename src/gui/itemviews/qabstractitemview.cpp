@@ -851,7 +851,7 @@ bool QAbstractItemView::event(QEvent *event)
 {
     if (event->type() == QEvent::KeyPress && d_func()->tabKeyNavigation) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        if (keyEvent->key() == Qt::Key_Tab || keyEvent->key() == Qt::Key_BackTab) {
+        if (keyEvent->key() == Qt::Key_Tab || keyEvent->key() == Qt::Key_Backtab) {
             keyPressEvent(keyEvent);
             return keyEvent->isAccepted();
         }
@@ -2028,7 +2028,7 @@ void QAbstractItemViewPrivate::columnsAboutToBeRemoved(const QModelIndex &parent
                                               current));
         }
     }
-    
+
     // Remove all affected editors; this is more efficient than waiting for updateGeometries() to clean out editors for invalid indexes
     QMap<QPersistentModelIndex, QWidget*>::iterator it = editors.begin();
     while (it != editors.end()) {
