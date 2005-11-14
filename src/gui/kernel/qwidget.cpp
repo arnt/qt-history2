@@ -4489,7 +4489,6 @@ void QWidget::setVisible(bool visible)
 
         // invalidate layout similar to updateGeometry()
         if (!isWindow() && parentWidget()) {
-            qDebug() << "NEW CODE ()#@%*(*)%#&(*#%&" << this;
             if (parentWidget()->d_func()->layout)
                 parentWidget()->d_func()->layout->update();
             else if (parentWidget()-isVisible())
