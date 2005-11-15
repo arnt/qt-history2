@@ -82,7 +82,7 @@ void PreviewView::zoomOut()
     update();
 }
 
-void PreviewView::paintEvent(QPaintEvent *e)
+void PreviewView::paintEvent(QPaintEvent *)
 {
     QPainter p(viewport());
 
@@ -131,9 +131,9 @@ void PreviewView::resizeEvent(QResizeEvent *)
     const QSize viewportSize = viewport()->size();
 
     QSize docSize;
-    docSize.setWidth(doc->pageSize().width() * scale + 2 * interPageSpacing);
+    docSize.setWidth(qRound(doc->pageSize().width() * scale + 2 * interPageSpacing));
     const int pageCount = doc->pageCount();
-    docSize.setHeight(pageCount * doc->pageSize().height() * scale + (pageCount + 1) * interPageSpacing);
+    docSize.setHeight(qRound(pageCount * doc->pageSize().height() * scale + (pageCount + 1) * interPageSpacing));
 
     horizontalScrollBar()->setRange(0, docSize.width() - viewportSize.width());
     horizontalScrollBar()->setPageStep(viewportSize.width());
