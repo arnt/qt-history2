@@ -185,11 +185,11 @@
     The code template is optionally used to specify how the widget is used
     in application code.
 
-    Finally, we use the Q_EXPORT_PLUGIN() macro to export the \c
+    Finally, we use the Q_EXPORT_PLUGIN2() macro to export the \c
     AnalogClockPlugin class for use with \QD:
 
-    \skipto Q_EXPORT_PLUGIN
-    \printuntil Q_EXPORT_PLUGIN
+    \skipto Q_EXPORT_PLUGIN2
+    \printuntil Q_EXPORT_PLUGIN2
 
     This macro ensures that \QD can access and construct the custom widget.
     Without this macro, there is no way for \QD to use the widget.

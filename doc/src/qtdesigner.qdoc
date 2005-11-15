@@ -947,12 +947,12 @@
         return widgets;
     }
 
-    Q_EXPORT_PLUGIN(MyCustomWidgets)
+    Q_EXPORT_PLUGIN2(MyCustomWidgets)
     \endcode
 
     Note that instead of exporting each custom widget plugin using the
-    Q_EXPORT_PLUGIN() macro, you export the entire collection. The
-    Q_EXPORT_PLUGIN() macro ensures that \QD can access and construct
+    Q_EXPORT_PLUGIN2() macro, you export the entire collection. The
+    Q_EXPORT_PLUGIN2() macro ensures that \QD can access and construct
     the custom widgets. Without this macro, there is no way for \QD to
     use them.
 
@@ -1033,11 +1033,11 @@
     pointer.
 
     In the implementation of the class you must remember to export
-    your custom widget plugin to \QD using the Q_EXPORT_PLUGIN()
+    your custom widget plugin to \QD using the Q_EXPORT_PLUGIN2()
     macro:
 
     \code
-     Q_EXPORT_PLUGIN(MyCustomWidget)
+        Q_EXPORT_PLUGIN2(MyCustomWidget)
     \endcode
 
     This macro ensures that \QD can access and construct the
