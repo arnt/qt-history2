@@ -509,7 +509,7 @@ void QHeaderView::moveSection(int from, int to)
         while (visual < to) {
             sizes[visual - from] = sections[visual + 2].position - sections[visual + 1].position;
             if (!sectionHidden.isEmpty())
-                sectionHidden.setBit(visual, sectionHidden.at(visual + 1));
+                sectionHidden.setBit(visual, sectionHidden.testBit(visual + 1));
             visualIndices[logicalIndices[visual + 1]] = visual;
             logicalIndices[visual] = logicalIndices[visual + 1];
             ++visual;
@@ -519,14 +519,14 @@ void QHeaderView::moveSection(int from, int to)
         while (visual > to) {
             sizes[visual - to] = sections[visual].position - sections[visual - 1].position;
             if (!sectionHidden.isEmpty())
-                sectionHidden.setBit(visual, sectionHidden.at(visual - 1));
+                sectionHidden.setBit(visual, sectionHidden.testBit(visual - 1));
             visualIndices[logicalIndices[visual - 1]] = visual;
             logicalIndices[visual] = logicalIndices[visual - 1];
             --visual;
         }
     }
     if (!sectionHidden.isEmpty()) {
-        sectionHidden.setBit(to, d->sectionHidden.at(from));
+        sectionHidden.setBit(to, d->sectionHidden.testBit(from));
         d->sectionHidden = sectionHidden;
     }
     visualIndices[logical] = to;
@@ -648,7 +648,7 @@ bool QHeaderView::isSectionHidden(int logicalIndex) const
         return false; // there are no hidden sections
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    return d->sectionHidden.at(visual);
+    return d->sectionHidden.testBit(visual);
 }
 
 /*!
@@ -838,9 +838,9 @@ void QHeaderView::setResizeMode(ResizeMode mode)
 {
     Q_D(QHeaderView);
     initializeSections();
-    QHeaderViewPrivate::HeaderSection *sections = d->sections.data();
-    for (int i = 0; i < d->sections.count(); ++i)
-        sections[i].mode = mode;
+    QHeaderView::ResizeMode *modes = d->sectionResizeMode.data();
+    for (int i = 0; i < d->sectionResizeMode.count(); ++i)
+        modes[i] = mode;
     d->stretchSections = (mode == Stretch ? count() : 0);
     d->globalResizeMode = mode;
     if (isVisible() && (d->stretchSections || d->stretchLastSection))
@@ -860,8 +860,8 @@ void QHeaderView::setResizeMode(int logicalIndex, ResizeMode mode)
 
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    ResizeMode old = d->sections[visual].mode;
-    d->sections[visual].mode = mode;
+    ResizeMode old = d->sectionResizeMode.at(visual);
+    d->sectionResizeMode[visual] = mode;
     if (mode == Stretch && old != Stretch)
         ++d->stretchSections;
     if (isVisible() && (d->stretchSections || d->stretchLastSection))
@@ -879,7 +879,7 @@ QHeaderView::ResizeMode QHeaderView::resizeMode(int logicalIndex) const
     Q_D(const QHeaderView);
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    return d->sections.at(visual).mode;
+    return d->sectionResizeMode.at(visual);
 }
 
 /*!
@@ -911,7 +911,7 @@ void QHeaderView::setSortIndicatorShown(bool show)
         return;
 
     if (d->sections.size() > sortIndicatorSection()
-        && d->sections.at(sortIndicatorSection()).mode == Custom) {
+        && d->sectionResizeMode.at(sortIndicatorSection()) == Custom) {
         resizeSections();
         d->viewport->update();
     }
@@ -1248,7 +1248,9 @@ void QHeaderView::initializeSections(int start, int end)
     int oldCount = count();
     end += 1; // one past the last item, so we get the end position of the last section
     d->sections.resize(end + 1);
-    if (!d->logicalIndices.isEmpty()){
+    d->sectionResizeMode.resize(end + 1);
+    
+    if (!d->logicalIndices.isEmpty() && start > 0) {
         d->logicalIndices.resize(end + 1);
         d->visualIndices.resize(end + 1);
         for (int i = start; i < end; ++i){
@@ -1259,6 +1261,7 @@ void QHeaderView::initializeSections(int start, int end)
 
     int pos = (start > 0 ? d->sections.at(start).position : 0);
     QHeaderViewPrivate::HeaderSection *sections = d->sections.data() + start;
+    QHeaderView::ResizeMode *modes = d->sectionResizeMode.data() + start;
     int num = end - start + 1;
     int size = d->defaultSectionSize;
 
@@ -1270,35 +1273,36 @@ void QHeaderView::initializeSections(int start, int end)
     // unroll loop - to initialize the arrays as fast as possible
     while (num >= 4) {
 
-        sections[0].mode = mode;
+        modes[0] = mode;
         sections[0].position = pos;
         pos += size;
 
-        sections[1].mode = mode;
+        modes[1] = mode;
         sections[1].position = pos;
         pos += size;
 
-        sections[2].mode = mode;
+        modes[2] = mode;
         sections[2].position = pos;
         pos += size;
 
-        sections[3].mode = mode;
+        modes[3] = mode;
         sections[3].position = pos;
         pos += size;
 
+        modes += 4;
         sections += 4;
         num -= 4;
     }
     if (num > 0) {
-        sections[0].mode = mode;
+        modes[0] = mode;
         sections[0].position = pos;
         pos += size;
         if (num > 1) {
-            sections[1].mode = mode;
+            modes[1] = mode;
             sections[1].position = pos;
             pos += size;
             if (num > 2) {
-                sections[2].mode = mode;
+                modes[2] = mode;
                 sections[2].position = pos;
                 pos += size;
             }
@@ -2072,16 +2076,16 @@ bool QHeaderViewPrivate::isSectionSelected(int section) const
     if (section < 0 || section >= sections.count() - 1)
         return false;
     int i = section * 2;
-    if (sectionSelection.testBit(i))
-        return sectionSelection.testBit(i + 1);
-    bool selected = false;
+    if (sectionSelected.testBit(i)) // if the value was cached
+        return sectionSelected.testBit(i + 1);
+    bool s = false;
     if (orientation == Qt::Horizontal)
-        selected = q->selectionModel()->isColumnSelected(section, QModelIndex());
+        s = q->selectionModel()->isColumnSelected(section, QModelIndex());
     else
-        selected = q->selectionModel()->isRowSelected(section, QModelIndex());
-    sectionSelection.setBit(i + 1, selected);
-    sectionSelection.setBit(i, true);
-    return selected;
+        s = q->selectionModel()->isRowSelected(section, QModelIndex());
+    sectionSelected.setBit(i + 1, s); // selection state
+    sectionSelected.setBit(i, true); // cache state
+    return s;
 }
 
 void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool useGlobalMode)
@@ -2114,7 +2118,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         if (useGlobalMode)
             mode = globalMode;
         else
-            mode = (i == last ? QHeaderView::Stretch : sections.at(i).mode);
+            mode = (i == last ? QHeaderView::Stretch : sectionResizeMode.at(i));
         if (mode == QHeaderView::Stretch) {
             ++stretchSecs;
             continue;
@@ -2153,7 +2157,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         if (useGlobalMode)
             mode = globalMode;
         else
-            mode = (i == last ? QHeaderView::Stretch : sections.at(i).mode);
+            mode = (i == last ? QHeaderView::Stretch : sectionResizeMode.at(i));
         if (mode == QHeaderView::Stretch) {
             position += stretchSectionSize;
         } else {

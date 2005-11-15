@@ -65,9 +65,9 @@ public:
 
     bool isSectionSelected(int section) const;
     inline void prepareSectionSelected() {
-        if (sectionSelection.count() != sections.count() * 2)
-            sectionSelection.fill(false, sections.count() * 2);
-        else sectionSelection.fill(false);
+        if (sectionSelected.count() != sections.count() * 2)
+            sectionSelected.fill(false, sections.count() * 2);
+        else sectionSelected.fill(false);
     }
 
     inline bool reverse() const {
@@ -104,21 +104,22 @@ public:
 
     struct HeaderSection {
         int position;
-        QHeaderView::ResizeMode mode;
     };
 
     void clear() {
         sections.clear();
+        sectionResizeMode.clear();
         visualIndices.clear();
         logicalIndices.clear();
-        sectionSelection.clear();
+        sectionSelected.clear();
         sectionHidden.clear();
         hiddenSectionSize.clear();
     }
     mutable QVector<HeaderSection> sections; // HeaderSection = sections.at(visualIndex)
+    mutable QVector<QHeaderView::ResizeMode> sectionResizeMode; // ### not optimized
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
     mutable QVector<int> logicalIndices; // logicalIndex = row or column in the model
-    mutable QBitArray sectionSelection;
+    mutable QBitArray sectionSelected;
     mutable QBitArray sectionHidden;
     mutable QHash<int, int> hiddenSectionSize; // from logical index to section size
 
