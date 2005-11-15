@@ -48,6 +48,7 @@ private slots:
     bool fileSave();
     bool fileSaveAs();
     void filePrint();
+    void filePrintPreview();
     void filePrintPdf();
 
     void textBold();

@@ -3,8 +3,9 @@ TARGET          = textedit
 
 CONFIG          += qt warn_on
 
-HEADERS         = textedit.h
+HEADERS         = textedit.h printpreview.h
 SOURCES         = textedit.cpp \
+                  printpreview.cpp \
                   main.cpp
 
 RESOURCES += textedit.qrc
