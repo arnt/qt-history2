@@ -2740,6 +2740,15 @@ void QTextEdit::setAcceptRichText(bool accept)
     d->acceptRichText = accept;
 }
 
+/*!
+    \since 4.2
+    This function allows temporarily marking certain regions in the document
+    with a given color. This can be useful for example in a programming editor
+    to mark a whole line of text with a given background color to indicate
+    the existance of a breakpoint.
+
+    \sa extraSelections()
+*/
 void QTextEdit::setExtraSelections(const QList<ExtraSelection> &selections)
 {
     Q_D(QTextEdit);
@@ -2751,6 +2760,12 @@ void QTextEdit::setExtraSelections(const QList<ExtraSelection> &selections)
     d->viewport->update();
 }
 
+/*!
+    \since 4.2
+    Returns previously set extra selections.
+
+    \sa setExtraSelections()
+*/
 QList<QTextEdit::ExtraSelection> QTextEdit::extraSelections() const
 {
     Q_D(const QTextEdit);
