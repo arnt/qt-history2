@@ -242,6 +242,7 @@ void QHeaderView::setModel(QAbstractItemModel *model)
                          this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
     }
     d->hiddenSectionSize.clear();
+    d->sectionHidden.clear();
 
     QAbstractItemView::setModel(model);
     // Users want to set sizes and modes before the widget is shown.
@@ -375,7 +376,7 @@ int QHeaderView::visualIndexAt(int position) const
         visual = (start + end + 1) / 2;
     }
 
-    while (sections.at(visual).hidden && visual < count)
+    while (d->isVisualIndexHidden(visual) && visual < count)
         ++visual;
     if (visual >= count || (visual == end && sections.at(end + 1).position < position))
         return -1;
@@ -421,8 +422,6 @@ int QHeaderView::sectionPosition(int logicalIndex) const
     Q_D(const QHeaderView);
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-//     if (d->sections.at(visual).hidden)
-//         return -1;
     return d->sections.at(visual).position;
 }
 
@@ -496,11 +495,12 @@ void QHeaderView::moveSection(int from, int to)
     }
 
     QHeaderViewPrivate::HeaderSection *sections = d->sections.data();
+    QBitArray sectionHidden = d->sectionHidden;
     int *visualIndices = d->visualIndices.data();
     int *logicalIndices = d->logicalIndices.data();
     int logical = logicalIndices[from];
     int visual = from;
-    bool hidden = sections[from].hidden;
+
     QVarLengthArray<int> sizes(qAbs(to - from) + 1);
 
     // move sections and indices
@@ -508,7 +508,8 @@ void QHeaderView::moveSection(int from, int to)
         sizes[to - from] = sections[from + 1].position - sections[from].position;
         while (visual < to) {
             sizes[visual - from] = sections[visual + 2].position - sections[visual + 1].position;
-            sections[visual].hidden = sections[visual + 1].hidden;
+            if (!sectionHidden.isEmpty())
+                sectionHidden.setBit(visual, sectionHidden.at(visual + 1));
             visualIndices[logicalIndices[visual + 1]] = visual;
             logicalIndices[visual] = logicalIndices[visual + 1];
             ++visual;
@@ -517,13 +518,17 @@ void QHeaderView::moveSection(int from, int to)
         sizes[0] = sections[from + 1].position - sections[from].position;
         while (visual > to) {
             sizes[visual - to] = sections[visual].position - sections[visual - 1].position;
-            sections[visual].hidden = sections[visual - 1].hidden;
+            if (!sectionHidden.isEmpty())
+                sectionHidden.setBit(visual, sectionHidden.at(visual - 1));
             visualIndices[logicalIndices[visual - 1]] = visual;
             logicalIndices[visual] = logicalIndices[visual - 1];
             --visual;
         }
     }
-    sections[to].hidden = hidden;
+    if (!sectionHidden.isEmpty()) {
+        sectionHidden.setBit(to, d->sectionHidden.at(from));
+        d->sectionHidden = sectionHidden;
+    }
     visualIndices[logical] = to;
     logicalIndices[to] = logical;
 
@@ -639,12 +644,11 @@ bool QHeaderView::isSectionHidden(int logicalIndex) const
 {
     Q_D(const QHeaderView);
     Q_ASSERT(logicalIndex >= 0);
-    if (logicalIndex >= d->sections.count() - 1)
-        return false;
-
+    if (logicalIndex >= d->sectionHidden.count())
+        return false; // there are no hidden sections
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    return d->sections.at(visual).hidden;
+    return d->sectionHidden.at(visual);
 }
 
 /*!
@@ -672,20 +676,27 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
     Q_D(QHeaderView);
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    if (hide && d->sections.at(visual).hidden)
+    if (hide && d->isVisualIndexHidden(visual))
         return;
     if (hide) {
         int size = sectionSize(logicalIndex);
         resizeSection(logicalIndex, 0);
         d->hiddenSectionSize.insert(logicalIndex, size);
-        d->sections[visual].hidden = true;
+        if (d->sectionHidden.count() < count())
+            d->sectionHidden.resize(count());
+        d->sectionHidden.setBit(visual, true);
         // A bit of a hack because resizeSection has to called before hiding FIXME
         if (isVisible() && (d->stretchSections || d->stretchLastSection))
             resizeSections(); // changes because of the new/old hiddne
-    } else if (d->sections.at(visual).hidden) {
+    } else if (d->isVisualIndexHidden(visual)) {
         int size = d->hiddenSectionSize.value(logicalIndex, d->defaultSectionSize);
         d->hiddenSectionSize.remove(logicalIndex);
-        d->sections[visual].hidden = false;
+        if (d->hiddenSectionSize.isEmpty()) {
+            d->sectionHidden.clear();
+        } else {
+            Q_ASSERT(visual <= d->sectionHidden.count());
+            d->sectionHidden.setBit(visual, false);
+        }
         resizeSection(logicalIndex, size);
     }
 }
@@ -1182,7 +1193,6 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
             }
             d->sections.remove(visual);
             d->hiddenSectionSize.remove(l);
-            
             d->logicalIndices.remove(visual);
             d->visualIndices.remove(l);
         }
@@ -1260,22 +1270,18 @@ void QHeaderView::initializeSections(int start, int end)
     // unroll loop - to initialize the arrays as fast as possible
     while (num >= 4) {
 
-        sections[0].hidden = false;
         sections[0].mode = mode;
         sections[0].position = pos;
         pos += size;
 
-        sections[1].hidden = false;
         sections[1].mode = mode;
         sections[1].position = pos;
         pos += size;
 
-        sections[2].hidden = false;
         sections[2].mode = mode;
         sections[2].position = pos;
         pos += size;
 
-        sections[3].hidden = false;
         sections[3].mode = mode;
         sections[3].position = pos;
         pos += size;
@@ -1284,17 +1290,14 @@ void QHeaderView::initializeSections(int start, int end)
         num -= 4;
     }
     if (num > 0) {
-        sections[0].hidden = false;
         sections[0].mode = mode;
         sections[0].position = pos;
         pos += size;
         if (num > 1) {
-            sections[1].hidden = false;
             sections[1].mode = mode;
             sections[1].position = pos;
             pos += size;
             if (num > 2) {
-                sections[2].hidden = false;
                 sections[2].mode = mode;
                 sections[2].position = pos;
                 pos += size;
@@ -1418,7 +1421,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     const bool active = isActiveWindow();
     const QFont fnt(painter.font()); // save the painter font
     for (int i = start; i <= end; ++i) {
-        if (sections.at(i).hidden)
+        if (d->isVisualIndexHidden(i))
             continue;
         logical = logicalIndex(i);
         if (orientation() == Qt::Horizontal) {
@@ -2094,7 +2097,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
     int last = -1;
     if (stretchLastSection && !useGlobalMode) {
         for (int i = count - 1; i >= 0; --i) {
-            if (!sections.at(i).hidden) {
+            if (!isVisualIndexHidden(i)) {
                 last = i;
                 break;
             }
@@ -2106,7 +2109,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
     int secSize = 0;
     QHeaderView::ResizeMode mode;
     for (int i = 0; i < count; ++i) {
-        if (sections.at(i).hidden)
+        if (isVisualIndexHidden(i))
             continue;
         if (useGlobalMode)
             mode = globalMode;
@@ -2145,7 +2148,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
     for (int i = 0; i < count; ++i) {
         int oldSize = sections.at(i + 1).position - sections.at(i).position;
         sections[i].position = position;
-        if (sections[i].hidden)
+        if (isVisualIndexHidden(i))
             continue;
         if (useGlobalMode)
             mode = globalMode;

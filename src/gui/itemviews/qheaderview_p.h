@@ -86,6 +86,14 @@ public:
         orientation = o;
     }
 
+    inline bool isVisualIndexHidden(int visual) const {
+        return !sectionHidden.isEmpty() && sectionHidden.at(visual);
+    }
+
+    inline void setVisualIndexHidden(int visual, bool hidden) {
+        if (!sectionHidden.isEmpty()) sectionHidden.setBit(visual, hidden);
+    }
+
     enum State { NoState, ResizeSection, MoveSection } state;
 
     int offset;
@@ -96,7 +104,6 @@ public:
 
     struct HeaderSection {
         int position;
-        uint hidden : 1;
         QHeaderView::ResizeMode mode;
     };
 
@@ -111,6 +118,7 @@ public:
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
     mutable QVector<int> logicalIndices; // logicalIndex = row or column in the model
     mutable QBitArray sectionSelection;
+    mutable QBitArray sectionHidden;
     mutable QHash<int, int> hiddenSectionSize; // from logical index to section size
 
     int lastPos;
