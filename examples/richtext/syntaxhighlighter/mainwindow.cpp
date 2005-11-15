@@ -19,10 +19,20 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setupFileMenu();
+    setupHelpMenu();
     setupEditor();
 
     setCentralWidget(editor);
     setWindowTitle(tr("Syntax Highlighter"));
+}
+
+void MainWindow::about()
+{
+    QMessageBox::about(this, tr("About Syntax Highlighter"),
+                tr("<p>The <b>Syntax Highlighter</b> example shows how " \
+                   "to perform simple syntax highlighting by subclassing " \
+                   "the QSyntaxHighlighter class and describing " \
+                   "highlighting rules using regular expressions.</p>"));
 }
 
 void MainWindow::newFile()
@@ -68,9 +78,21 @@ void MainWindow::setupFileMenu()
     menuBar()->addMenu(fileMenu);
 
     fileMenu->addAction(tr("&New"), this, SLOT(newFile()),
-                        QKeySequence(tr("Ctrl+N", "File|New")));
+                        QKeySequence(tr("Ctrl+N",
+                                        "File|New")));
     fileMenu->addAction(tr("&Open..."), this, SLOT(openFile()),
-                        QKeySequence(tr("Ctrl+O", "File|Open")));
+                        QKeySequence(tr("Ctrl+O",
+                                        "File|Open")));
     fileMenu->addAction(tr("E&xit"), qApp, SLOT(quit()),
-                        QKeySequence(tr("Ctrl+Q", "File|Exit")));
+                        QKeySequence(tr("Ctrl+Q",
+                                        "File|Exit")));
+}
+
+void MainWindow::setupHelpMenu()
+{
+    QMenu *helpMenu = new QMenu(tr("&Help"), this);
+    menuBar()->addMenu(helpMenu);
+
+    helpMenu->addAction(tr("&About"), this, SLOT(about()));
+    helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
 }

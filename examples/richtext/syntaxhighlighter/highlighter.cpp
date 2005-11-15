@@ -18,40 +18,37 @@
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
-    QTextCharFormat keywordFormat;
     keywordFormat.setForeground(Qt::darkBlue);
     keywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
-    keywordPatterns << "\\bchar\\b" << "\\bclass\\b" << "\\bconst\\b" << "\\bdouble\\b"
-                    << "\\benum\\b" << "\\bexplicit\\b" << "\\bfriend\\b" << "\\binline\\b"
-                    << "\\bint\\b" << "\\blong\\b" << "\\bnamespace\\b" << "\\boperator\\b"
+    keywordPatterns << "\\bchar\\b" << "\\bclass\\b" << "\\bconst\\b"
+                    << "\\bdouble\\b" << "\\benum\\b" << "\\bexplicit\\b"
+                    << "\\bfriend\\b" << "\\binline\\b" << "\\bint\\b"
+                    << "\\blong\\b" << "\\bnamespace\\b" << "\\boperator\\b"
                     << "\\bprivate\\b" << "\\bprotected\\b" << "\\bpublic\\b"
                     << "\\bshort\\b" << "\\bsignals\\b" << "\\bsigned\\b"
-                    << "\\bslots\\b" << "\\bstatic\\b" << "\\bstruct\\b" << "\\btemplate\\b"
-                    << "\\btypedef\\b" << "\\btypename\\b" << "\\bunion\\b" << "\\bunsigned\\b"
-                    << "\\bvirtual\\b"<< "\\bvoid\\b" << "\\bvolatile\\b";
+                    << "\\bslots\\b" << "\\bstatic\\b" << "\\bstruct\\b"
+                    << "\\btemplate\\b" << "\\btypedef\\b" << "\\btypename\\b"
+                    << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
+                    << "\\bvoid\\b" << "\\bvolatile\\b";
     foreach (QString pattern, keywordPatterns)
         mappings[pattern] = keywordFormat;
 
-    QTextCharFormat classFormat;
     classFormat.setFontWeight(QFont::Bold);
     classFormat.setForeground(Qt::darkMagenta);
     mappings["\\bQ[A-Za-z]+\\b"] = classFormat;
 
-    QTextCharFormat singleLineCommentFormat;
     singleLineCommentFormat.setForeground(Qt::red);
     mappings["//[^\n]*"] = singleLineCommentFormat;
 
     multiLineCommentFormat.setForeground(Qt::red);
 
-    QTextCharFormat quotationFormat;
     quotationFormat.setForeground(Qt::darkGreen);
     mappings["\".*\""] = quotationFormat;
 
-    QTextCharFormat functionFormat;
     functionFormat.setFontItalic(true);
     functionFormat.setForeground(Qt::blue);
-    mappings["\\b[A-Za-z0-9_]+\\(.*\\)"] = functionFormat;
+    mappings["\\b[A-Za-z0-9_]+(?=\\()"] = functionFormat;
 }
 
 void Highlighter::highlightBlock(const QString &text)
@@ -81,7 +78,8 @@ void Highlighter::highlightBlock(const QString &text)
            setCurrentBlockState(1);
            commentLength = text.length() - startIndex;
        } else {
-           commentLength = endIndex - startIndex + endExpression.matchedLength();
+           commentLength = endIndex - startIndex
+                           + endExpression.matchedLength();
        }
        setFormat(startIndex, commentLength, multiLineCommentFormat);
        startIndex = text.indexOf(startExpression, startIndex + commentLength);
