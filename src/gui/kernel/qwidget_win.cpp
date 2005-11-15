@@ -1372,7 +1372,7 @@ void QWidget::scroll(int dx, int dy)
     if (!QWidgetBackingStore::paintOnScreen(this)) {
         d->scrollRect(rect(), dx, dy);
     } else {
-        UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
+        UINT flags = SW_INVALIDATE;
         if (!testAttribute(Qt::WA_OpaquePaintEvent))
             flags |= SW_ERASE;
         ScrollWindowEx(winId(), dx, dy, 0, 0, 0, 0, flags);
