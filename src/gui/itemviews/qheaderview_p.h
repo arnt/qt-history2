@@ -65,8 +65,8 @@ public:
 
     bool isSectionSelected(int section) const;
     inline void prepareSectionSelected() {
-        if (sectionSelected.count() != sections.count() * 2)
-            sectionSelected.fill(false, sections.count() * 2);
+        if (sectionSelected.count() != sectionPosition.count() * 2)
+            sectionSelected.fill(false, sectionPosition.count() * 2);
         else sectionSelected.fill(false);
     }
 
@@ -102,12 +102,8 @@ public:
     int sortIndicatorSection;
     bool sortIndicatorShown;
 
-    struct HeaderSection {
-        int position;
-    };
-
     void clear() {
-        sections.clear();
+        sectionPosition.clear();
         sectionResizeMode.clear();
         visualIndices.clear();
         logicalIndices.clear();
@@ -115,7 +111,8 @@ public:
         sectionHidden.clear();
         hiddenSectionSize.clear();
     }
-    mutable QVector<HeaderSection> sections; // HeaderSection = sections.at(visualIndex)
+
+    mutable QVector<int> sectionPosition; // uses visual index                              // ### not optimized
     mutable QVector<QHeaderView::ResizeMode> sectionResizeMode; // ### not optimized
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
     mutable QVector<int> logicalIndices; // logicalIndex = row or column in the model
