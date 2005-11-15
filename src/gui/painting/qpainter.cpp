@@ -2069,7 +2069,10 @@ void QPainter::drawPoints(const QPoint *points, int pointCount)
         }
     } else {
         save();
-        setBrush(d->state->pen.color());
+        if (d->state->pen.brush().style() != Qt::NoBrush)
+            setBrush(d->state->pen.brush());
+        else
+            setBrush(d->state->pen.color());
         QPainterPath path;
         for (int i=0; i<pointCount; ++i)
             path.addRect(points[i].x(), points[i].y(), 1, 1);
