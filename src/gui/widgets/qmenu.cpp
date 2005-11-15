@@ -739,10 +739,11 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 
     opt.font = action->font();
 
-    if (currentAction && currentAction == action)
-        opt.state |= QStyle::State_Selected;
-    if (mouseDown && currentAction && currentAction == action)
-        opt.state |= QStyle::State_Sunken;
+    if (currentAction && currentAction == action && !currentAction->isSeparator()) {
+        opt.state |= QStyle::State_Selected
+                     | (mouseDown ? QStyle::State_Sunken : QStyle::State_None);
+    }
+
     opt.menuHasCheckableItems = hasCheckableItems;
     if (!action->isCheckable()) {
         opt.checkType = QStyleOptionMenuItem::NotCheckable;
