@@ -112,6 +112,7 @@ public:
         visualIndices.clear();
         logicalIndices.clear();
         sectionSelection.clear();
+        sectionHidden.clear();
         hiddenSectionSize.clear();
     }
     mutable QVector<HeaderSection> sections; // HeaderSection = sections.at(visualIndex)
