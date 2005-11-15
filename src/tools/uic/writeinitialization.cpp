@@ -517,6 +517,7 @@ void WriteInitialization::acceptAction(DomAction *node)
         return;
 
     QString actionName = driver->findOrInsertAction(node);
+    m_registeredActions.insert(actionName, node);
     QString varName = driver->findOrInsertWidget(m_widgetChain.top());
 
     if (m_actionGroupChain.top())
@@ -1500,21 +1501,25 @@ QString WriteInitialization::trCall(DomString *str) const
     return trCall(toString(str), str->attributeComment());
 }
 
+bool WriteInitialization::isValidObject(const QString &name) const
+{
+    return m_registeredWidgets.contains(name)
+        || m_registeredActions.contains(name);
+}
+
 void WriteInitialization::acceptConnection(DomConnection *connection)
 {
-    if (!m_registeredWidgets.contains(connection->elementSender())
-            || !m_registeredWidgets.contains(connection->elementReceiver()))
-        return;
-
-    output << option.indent << "QObject::connect("
-        << connection->elementSender()
-        << ", "
-        << "SIGNAL(" << connection->elementSignal() << ")"
-        << ", "
-        << connection->elementReceiver()
-        << ", "
-        << "SLOT(" << connection->elementSlot() << ")"
-        << ");\n";
+    if (isValidObject(connection->elementSender()) && isValidObject(connection->elementReceiver())) {
+        output << option.indent << "QObject::connect("
+            << connection->elementSender()
+            << ", "
+            << "SIGNAL(" << connection->elementSignal() << ")"
+            << ", "
+            << connection->elementReceiver()
+            << ", "
+            << "SLOT(" << connection->elementSlot() << ")"
+            << ");\n";
+    }
 }
 
 DomImage *WriteInitialization::findImage(const QString &name) const

@@ -109,8 +109,9 @@ private:
     void initializeSqlDataBrowser(DomWidget *w);
 
     DomWidget *findWidget(const QString &widgetClass);
-
     DomImage *findImage(const QString &name) const;
+
+    bool isValidObject(const QString &name) const;
 
 private:
     Uic *uic;
@@ -135,6 +136,7 @@ private:
     QHash<QString, QString> m_buttonGroups;
     QHash<QString, DomWidget*> m_registeredWidgets;
     QHash<QString, DomImage*> m_registeredImages;
+    QHash<QString, DomAction*> m_registeredActions;
 
     // layout defaults
     int m_defaultMargin;
