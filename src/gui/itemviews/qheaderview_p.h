@@ -94,6 +94,11 @@ public:
         if (!sectionHidden.isEmpty()) sectionHidden.setBit(visual, hidden);
     }
 
+    inline QHeaderView::ResizeMode visualIndexResizeMode(int visual) const {
+        return (sectionResizeMode.count() <= visual
+                ? globalResizeMode : sectionResizeMode.at(visual));
+    }
+
     enum State { NoState, ResizeSection, MoveSection } state;
 
     int offset;
@@ -103,8 +108,8 @@ public:
     bool sortIndicatorShown;
 
     void clear() {
-        sectionPosition.clear();
         sectionResizeMode.clear();
+        sectionPosition.clear();
         visualIndices.clear();
         logicalIndices.clear();
         sectionSelected.clear();
@@ -112,8 +117,8 @@ public:
         hiddenSectionSize.clear();
     }
 
-    mutable QVector<int> sectionPosition; // uses visual index                              // ### not optimized
     mutable QVector<QHeaderView::ResizeMode> sectionResizeMode; // ### not optimized
+    mutable QVector<int> sectionPosition; // uses visual index                              // ### not optimized
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
     mutable QVector<int> logicalIndices; // logicalIndex = row or column in the model
     mutable QBitArray sectionSelected;

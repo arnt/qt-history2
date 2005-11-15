@@ -838,11 +838,9 @@ void QHeaderView::setResizeMode(ResizeMode mode)
 {
     Q_D(QHeaderView);
     initializeSections();
-    QHeaderView::ResizeMode *modes = d->sectionResizeMode.data();
-    for (int i = 0; i < d->sectionResizeMode.count(); ++i)
-        modes[i] = mode;
     d->stretchSections = (mode == Stretch ? count() : 0);
     d->globalResizeMode = mode;
+    d->sectionResizeMode.clear();
     if (isVisible() && (d->stretchSections || d->stretchLastSection))
         resizeSections(); // section sizes may change as a result of the new mode
 }
@@ -857,9 +855,10 @@ void QHeaderView::setResizeMode(ResizeMode mode)
 void QHeaderView::setResizeMode(int logicalIndex, ResizeMode mode)
 {
     Q_D(QHeaderView);
-
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
+    if (d->sectionResizeMode.count() < d->sectionPosition.count())
+        d->sectionResizeMode.fill(d->globalResizeMode, d->sectionPosition.count());
     ResizeMode old = d->sectionResizeMode.at(visual);
     d->sectionResizeMode[visual] = mode;
     if (mode == Stretch && old != Stretch)
@@ -879,7 +878,7 @@ QHeaderView::ResizeMode QHeaderView::resizeMode(int logicalIndex) const
     Q_D(const QHeaderView);
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    return d->sectionResizeMode.at(visual);
+    return d->visualIndexResizeMode(visual);
 }
 
 /*!
@@ -911,7 +910,7 @@ void QHeaderView::setSortIndicatorShown(bool show)
         return;
 
     if (d->sectionPosition.size() > sortIndicatorSection()
-        && d->sectionResizeMode.at(sortIndicatorSection()) == Custom) {
+        && d->visualIndexResizeMode(sortIndicatorSection()) == Custom) {
         resizeSections();
         d->viewport->update();
     }
@@ -1248,7 +1247,6 @@ void QHeaderView::initializeSections(int start, int end)
     int oldCount = count();
     end += 1; // one past the last item, so we get the end position of the last section
     d->sectionPosition.resize(end + 1);
-    d->sectionResizeMode.resize(end + 1);
     
     if (!d->logicalIndices.isEmpty() && start > 0) {
         d->logicalIndices.resize(end + 1);
@@ -1261,48 +1259,38 @@ void QHeaderView::initializeSections(int start, int end)
 
     int pos = (start > 0 ? d->sectionPosition.at(start) : 0);
     int *positions = d->sectionPosition.data() + start;
-    QHeaderView::ResizeMode *modes = d->sectionResizeMode.data() + start;
     int num = end - start + 1;
     int size = d->defaultSectionSize;
 
     // set resize mode
-    ResizeMode mode = d->globalResizeMode;
-    if (mode == Stretch)
+    if (d->globalResizeMode == Stretch)
         d->stretchSections += num;
 
     // unroll loop - to initialize the arrays as fast as possible
     while (num >= 4) {
 
-        modes[0] = mode;
         positions[0] = pos;
         pos += size;
 
-        modes[1] = mode;
         positions[1] = pos;
         pos += size;
 
-        modes[2] = mode;
         positions[2] = pos;
         pos += size;
 
-        modes[3] = mode;
         positions[3] = pos;
         pos += size;
 
-        modes += 4;
         positions += 4;
         num -= 4;
     }
     if (num > 0) {
-        modes[0] = mode;
         positions[0] = pos;
         pos += size;
         if (num > 1) {
-            modes[1] = mode;
             positions[1] = pos;
             pos += size;
             if (num > 2) {
-                modes[2] = mode;
                 positions[2] = pos;
                 pos += size;
             }
@@ -2118,7 +2106,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         if (useGlobalMode)
             mode = globalMode;
         else
-            mode = (i == last ? QHeaderView::Stretch : sectionResizeMode.at(i));
+            mode = (i == last ? QHeaderView::Stretch : visualIndexResizeMode(i));
         if (mode == QHeaderView::Stretch) {
             ++stretchSecs;
             continue;
@@ -2157,7 +2145,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         if (useGlobalMode)
             mode = globalMode;
         else
-            mode = (i == last ? QHeaderView::Stretch : sectionResizeMode.at(i));
+            mode = (i == last ? QHeaderView::Stretch : visualIndexResizeMode(i));
         if (mode == QHeaderView::Stretch) {
             position += stretchSectionSize;
         } else {
