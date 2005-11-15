@@ -20,29 +20,35 @@
 /SC {aload pop setrgbcolor} BD
 /CR {currentfile read pop} BD
 /i  {index} BD
-/bs {bitshift} BD
 /scs {setcolorspace} BD
 /DB {dict dup begin} BD
 /DE {end def} BD
 /ie {ifelse} BD
+/gs {gsave} BD
+/gr {grestore} BD
 
 % these use PDF syntax
 /w {setlinewidth} BD
 /d {setdash} BD
+/J {setlinecap} BD
+/j {setlinejoin} BD
+/scn {3 array astore /BCol exch def} BD
+/SCN {3 array astore /PCol exch def} BD
+/cm {6 array astore concat} BD
 
 /m  {moveto} BD
 /l  {lineto} BD
 /c  {curveto} BD
 /h  {closepath} BD
-/S  {stroke} BD
+
 /W  {clip} BD
 /W* {eoclip} BD
-
-/q  {gsave} BD
-/Q  {grestore} BD
-
+/n {} BD
 % ENDUNCOMPRESSED: Warning: leave this line in. 
 % Everything before this line will be left untouched by the compression
+
+/q  {gsave 10 dict begin} BD
+/Q  {end grestore} BD
 
 % PDF operators
 /re { % PDF re operator
@@ -55,15 +61,18 @@
   closepath
 } bind def
 
+/S {
+    gsave
+      PCol SC stroke
+    grestore
+} BD
 
 
 % old operators
 
 /BSt 0 def                             % brush style
 /LWi 0 def                             % line width
-/PSt 1 def                             % pen style
 /WFi false def                 % winding fill
-/OMo false def                 % opaque mode (not transparent)
 
 /BCol  [ 1 1 1 ] def                   % brush color
 /PCol  [ 0 0 0 ] def                   % pen color
@@ -87,41 +96,6 @@
   } { false } ifelse
 } bind def
 
-% LArr for the Pen styles is defined in emitHeader because of scaling
-
-% GPS: GetPenStyle 
-% Returns the line pattern (from pen style PSt).
-%
-%   bool GPS pattern
-%   true : returns draw pattern
-%   false: returns fill pattern
-/GPS {
-  PSt 1 ge PSt 5 le and                      % valid pen pattern?
-  { 
-    { LArr PSt 1 sub 2 mul get }           % draw pattern
-    { LArr PSt 2 mul 1 sub get } ifelse    % opaque pattern
-  }
-  { [] } ifelse                            % out of range => solid line
-} bind def
-
-% QS: QtStroke
-% draw and fill current path
-%
-%     - QS -
-/QS {                                % stroke command
-  PSt 0 ne                         % != NO_PEN
-  { 
-    gsave
-      LWi setlinewidth                         % set line width
-      true GPS 0 setdash S           % draw line pattern
-      OMo PSt 1 ne and               % opaque mode and not solid line?
-      { 
-	BkCol SC
-	false GPS dup 0 get setdash S % fill in opaque pattern
-      } if
-    grestore
-  } if
-} bind def
 
 %% image drawing routines
 
@@ -171,22 +145,10 @@
   gsave
     translate
     1 index 1 eq { % bitmap
-      false eq { % no mask, draw solid background
-	pop
-	true 3 1 roll % width height false matrix image
-	4 index
-	4 index
-	false
-	4 index
-	4 index
-	imagemask
-	BkCol SC
-	imagemask
-      } { 
-	pop
-	false 3 1 roll % width height false matrix image
-	imagemask
-      } ifelse
+      pop pop % get rid of mask and depth
+      false 3 1 roll % width height false matrix image
+      BCol SC
+      imagemask
     } { 
       dup false ne { 
 	% have a mask, see if we can use it
@@ -216,33 +178,29 @@
 	% width and height
 	/_h exch def
 	/_w exch def
-	% the image dict
-	/_id
-	<<
-	  /ImageType 1
-	  /Width _w
-	  /Height _h
-	  /ImageMatrix _mt
-	  /DataSource _im
-	  /BitsPerComponent 8
-	  /Decode _dc
-	>> def
-	% the mask dictionary
-	/_md
-	<<
-	  /ImageType 1
-	  /Width _w
-	  /Height _h
-	  /ImageMatrix _mt
-	  /DataSource _ma
-	  /BitsPerComponent 1
-	  /Decode [0 1]
-	>> def
 	% and the combined image dict
 	<<
 	  /ImageType 3
-	  /DataDict _id
-	  /MaskDict _md
+	  % the image dict
+	  /DataDict <<
+              /ImageType 1
+	      /Width _w
+	      /Height _h
+	      /ImageMatrix _mt
+	      /DataSource _im
+	      /BitsPerComponent 8
+	      /Decode _dc
+	  >> 
+	  % the mask dictionary
+	  /MaskDict <<
+             /ImageType 1
+	     /Width _w
+	     /Height _h
+	     /ImageMatrix _mt
+	     /DataSource _ma
+	     /BitsPerComponent 1
+	     /Decode [0 1]
+	  >> 
 	  /InterleaveType 3
 	>> 
 	image
@@ -258,43 +216,6 @@
       } ifelse
     } ifelse
   grestore    
-} bind def
-
-
-% ########## fix non level3 code path
-% create a linear gradient pattern
-% x1 y1 x2 y2 color_string size SetLinGrad --
-/SetLinGrad {
-  level3 {
-    /_size exch def
-    /_colors exch def
-    /_y2 exch def
-    /_x2 exch def
-    /_y1 exch def
-    /_x1 exch def
-    /LinGrad 
-    << 
-      /PatternType 2
-      /Shading 
-	<<
-        /ShadingType 2
-	/ColorSpace [/DeviceRGB]
-	/Coords [_x1 _y1 _x2 _y2]
-	/Extend [true true]
-	/Function 
-	  <<
-	  /FunctionType 0
-	  /Domain [0 1]
-          /Range [0 1 0 1 0 1]
-	  /DataSource _colors
-          /BitsPerSample 8
-	  /Size [_size]
-	  >>
-	>>
-      >>
-    matrix makepattern def
-  } { pop } ifelse
-  /BSt 15 def
 } bind def
 
 
@@ -327,16 +248,6 @@
       exch                            % left right lower upper
       sub /_h exch def
       sub /_w exch def
-      OMo {
-	newpath
-	0 0 moveto
-	0 _h rlineto
-	_w 0 rlineto
-	0 _h neg rlineto
-	closepath
-	BkCol SC
-	fill
-      } if
       BCol SC
       0.3 setlinewidth
       newpath
@@ -368,10 +279,6 @@
     } if
     BSt 15 eq
     {
-      level3 {
-	LinGrad setpattern
-	WFi { fill } { eofill } ifelse
-      } if
     } if
     BSt 24 eq                         % TexturePattern
     {
@@ -379,45 +286,11 @@
   grestore
 } bind def
 
-
-/C D0
-
-/P {                                 % PdcDrawPoint [x y]
-  newpath
-  moveto
-  0.5 0.5 rmoveto
-  0  -1 rlineto
-  -1 0 rlineto
-  0  1 rlineto
-  closepath
-  fill
-} bind def
-
-/DL {                                % PdcDrawLine [x1 y1 x0 y0]
-  newpath
-  moveto
-  lineto
-  QS
-} bind def
-
-/R {                                 % PdcDrawRect [x y w h]
-  newpath
-  re
-  BF
-  QS
-} bind def
-
-/E {                         % PdcDrawEllipse [x y w h]
-  gsave
-  /_h exch def /_w exch def /_y exch def /_x exch def
-  _x _w 2 div add _y _h 2 div add translate
-  1 _h _w div scale
-  newpath
-  0 0 _w 2 div 0 360 arc
-  BF
-  QS
-  grestore
-} bind def
+% more PDF operators
+/f { /WFi true def BF } bind def
+/f* { /WFi false def BF } bind def
+/B { /WFi true def BF S } bind def
+/B* { /WFi false def BF S } bind def
 
 /BC {                                % PdcSetBkColor [[R G B]]
   /BkCol exch def
@@ -520,21 +393,9 @@
   def
 } bind def
 
-/_ty 0 def
-/Y {
-  /_ty exch def
-} bind def
-
-/Tl { % draw underline/strikeout line: () w x y lw ->Tl-> () w x
-  gsave 
-    setlinewidth
-    newpath 1 index exch moveto
-    1 index 0 rlineto stroke
-  grestore
-} bind def
-
-/XYT {  % [string [x/y displacement array] width x]
-  _ty moveto % pops x
+/XYT {  % [string [x/y displacement array] width x y]
+  PCol SC
+  moveto % pops x y
 
   /xyshow where { % interpreter has xyshow
     pop pop
@@ -552,7 +413,8 @@
 } bind def
 
 /AT {
-  _ty moveto % pops x
+  PCol SC
+  moveto % pops x y
   1 index % string cwidth string
   dup length 2 div exch % string cwidth length string     !have to divide by 2 since we use unicode!
   stringwidth pop % string cwidth length pwidth
@@ -566,11 +428,12 @@
 /QI {
   /C save def
   pageinit
-  /OMo false def
+  q
 } bind def
 
 %% end of page
-/QP {                                % show page
+/QP {
+  Q                                % show page
   C restore
   showpage
 } bind def

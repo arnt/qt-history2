@@ -48,33 +48,21 @@ public:
 
     void updateState(const QPaintEngineState &state);
 
-    void updatePen(const QPen &pen);
-    void updateBrush(const QBrush &brush, const QPointF &pt);
-    void updateFont(const QFont &font);
-    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
-    void updateMatrix(const QMatrix &matrix);
-    void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
+    void setPen();
+    void setBrush();
+    void updateClipPath(const QPainterPath &p, Qt::ClipOperation op);
 
-    virtual void drawLine(const QLineF &line);
     virtual void drawLines(const QLineF *lines, int lineCount);
-#ifdef Q_NO_USING_KEYWORD
-    inline  void drawLines(const QLine *lines, int lineCount) { QPaintEngine::drawLines(lines, lineCount); }
-    inline  void drawEllipse(const QRect &r) { QPaintEngine::drawEllipse(r); }
-#else
-    using QPaintEngine::drawLines;
-    using QPaintEngine::drawEllipse;
-#endif
-    virtual void drawRect(const QRectF &r);
-    virtual void drawPoint(const QPointF &p);
-    virtual void drawEllipse(const QRectF &r);
-    virtual void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode);
     virtual void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
+    virtual void drawPath(const QPainterPath &);
 
     virtual void drawImage(const QRectF &r, const QImage &img, const QRectF &sr, Qt::ImageConversionFlags);
     virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
-    virtual void drawTextItem(const QPointF &p, const QTextItem &textItem);
     virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
-    virtual void drawPath(const QPainterPath &);
+
+    virtual void drawImageInternal(const QRectF &r, QImage img, bool bitmap);
+    
+    virtual void drawTextItem(const QPointF &p, const QTextItem &textItem);
 
     virtual QPaintEngine::Type type() const { return QPaintEngine::PostScript; }
 
@@ -92,8 +80,6 @@ public:
     virtual Qt::HANDLE handle() const { return 0; };
 
 private:
-    QByteArray color(const QColor &c) const;
-
     Q_DISABLE_COPY(QPSPrintEngine)
 };
 

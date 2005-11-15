@@ -57,12 +57,11 @@ $h =~ s/ lineto / l /g;
 $h =~ s/ moveto / m /g;
 $h =~ s/ curveto / c /g;
 $h =~ s/ closepath / h /g;
-$h =~ s/ stroke / S /g;
 $h =~ s/ clip / W /g;
 $h =~ s/ eoclip / W* /g;
 
-$h =~ s/ gsave / q /g;
-$h =~ s/ grestore / Q /g;
+$h =~ s/ gsave / gs /g;
+$h =~ s/ grestore / gr /g;
 
 # add the uncompressed part of the header before
 $h = $uc.' '.$h;
