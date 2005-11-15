@@ -2741,13 +2741,31 @@ void QTextEdit::setAcceptRichText(bool accept)
 }
 
 /*!
+    \class QTextEdit::ExtraSelection
+    \since 4.2
+    \brief The QTextEdit::ExtraSelection structure provides a way of specifying a
+           character format for a given selection in a document
+*/
+
+/*!
+    \variable QTextEdit::ExtraSelection::cursor
+    A cursor that contains a selection in a QTextDocument
+*/
+
+/*!
+    \variable QTextEdit::ExtraSelection::format
+    A format that is used to specify a foreground or background brush/color
+    for the selection.
+*/
+
+/*!
     \since 4.2
     This function allows temporarily marking certain regions in the document
-    with a given color. This can be useful for example in a programming editor
-    to mark a whole line of text with a given background color to indicate
-    the existance of a breakpoint.
+    with a given color, specified as \a selections. This can be useful for
+    example in a programming editor to mark a whole line of text with a given
+    background color to indicate the existance of a breakpoint.
 
-    \sa extraSelections()
+    \sa QTextEdit::ExtraSelection, extraSelections()
 */
 void QTextEdit::setExtraSelections(const QList<ExtraSelection> &selections)
 {
