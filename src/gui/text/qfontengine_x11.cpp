@@ -102,7 +102,8 @@ static inline XCharStruct *charStruct(XFontStruct *xfs, uint ch)
     XCharStruct *xcs = 0;
     unsigned char r = ch>>8;
     unsigned char c = ch&0xff;
-    if (r >= xfs->min_byte1 &&
+    if (xfs->per_char &&
+         r >= xfs->min_byte1 &&
          r <= xfs->max_byte1 &&
          c >= xfs->min_char_or_byte2 &&
          c <= xfs->max_char_or_byte2) {
