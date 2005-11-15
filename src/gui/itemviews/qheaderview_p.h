@@ -49,6 +49,7 @@ public:
           target(-1),
           pressed(-1),
           hover(-1),
+          sectionCount(0),
           movableSections(false),
           clickableSections(false),
           highlightSelected(false),
@@ -99,15 +100,8 @@ public:
                 ? globalResizeMode : sectionResizeMode.at(visual));
     }
 
-    enum State { NoState, ResizeSection, MoveSection } state;
-
-    int offset;
-    Qt::Orientation orientation;
-    Qt::SortOrder sortIndicatorOrder;
-    int sortIndicatorSection;
-    bool sortIndicatorShown;
-
     void clear() {
+        sectionCount = 0;
         sectionResizeMode.clear();
         sectionPosition.clear();
         visualIndices.clear();
@@ -116,6 +110,16 @@ public:
         sectionHidden.clear();
         hiddenSectionSize.clear();
     }
+
+    QStyleOptionHeader getStyleOption() const;
+
+    enum State { NoState, ResizeSection, MoveSection } state;
+
+    int offset;
+    Qt::Orientation orientation;
+    Qt::SortOrder sortIndicatorOrder;
+    int sortIndicatorSection;
+    bool sortIndicatorShown;
 
     mutable QVector<QHeaderView::ResizeMode> sectionResizeMode;
     mutable QVector<int> sectionPosition; // uses visual index                              // ### not optimized
@@ -131,6 +135,7 @@ public:
     int target;
     int pressed;
     int hover;
+    int sectionCount;
     bool movableSections;
     bool clickableSections;
     bool highlightSelected;
@@ -140,7 +145,6 @@ public:
     int defaultSectionSize;
     Qt::Alignment defaultAlignment;
     QLabel *sectionIndicator;
-    QStyleOptionHeader getStyleOption() const;
     QHeaderView::ResizeMode globalResizeMode;
 };
 
