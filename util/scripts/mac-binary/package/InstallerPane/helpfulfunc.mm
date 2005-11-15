@@ -63,10 +63,14 @@ int validateLicense(const char *string)
             for (uint i = 0; i < [bundles count]; ++i) {
                 NSBundle *bun = [bundles objectAtIndex: i];
                 NSRange location = [[bun bundleIdentifier] rangeOfString:@"com.trolltech.qt4."];
+                if (location.length == 0)
+                    location = [[bun bundleIdentifier] rangeOfString:@"Trolltech Qt Packages"];
+
                 if (location.length != 0) {
                     bundle = bun;
                     break;
                 }
+
             }
             NSString *contents = [NSString stringWithContentsOfFile:[bundle pathForResource:@".package_date" ofType:nil]
                                                         encoding:NSUTF8StringEncoding error:0];
