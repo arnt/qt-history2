@@ -334,8 +334,8 @@ Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, co
             // Move *hi to lo's position, shift values
             // between lo and hi - 1 one place up.
             T value = *hi;
-            for (BiIterator i = lo; i != hi; ++i) {
-                *(i + 1) = *i;  // #### is this legal use of a BiIterator?
+            for (BiIterator i = hi; i != lo; --i) {
+                *i = *(i-1); 
             }
             *lo = value;
             ++hi;
