@@ -765,13 +765,22 @@
     \o stl - STL support is enabled
     \endlist
 
-    These options define specific things depending on the platform and/or template:
+    These options define specific things on Windows only:
 
     \list
     \o flat - When using the vcapp template this will put all the source files into the source group and
         the header files into the header group regardless of what directory they reside in.  Turning this
         option off will group the files within the source/header group depending on the directory they
         reside.  This is turned on by default.
+    \endlist
+
+    These options only have an effect on Mac OS X:
+
+    \list
+    \o ppc - Builds a PowerPC binary.
+    \o x86 - Builds an i386 compatible binary.
+    \o app_bundle - Puts the executable into a bundle (this is the default).
+    \o lib_bundle - Puts the library into a library bundle.
     \endlist
 
     The \c CONFIG variable will also be checked when resolving
