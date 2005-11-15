@@ -977,6 +977,7 @@ public:
         WV_2000     = 0x0020,
         WV_XP       = 0x0030,
         WV_2003     = 0x0040,
+        WV_VISTA    = 0x0080,
         WV_NT_based = 0x00f0,
 
         WV_CE       = 0x0100,

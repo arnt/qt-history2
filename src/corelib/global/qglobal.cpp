@@ -1522,6 +1522,8 @@ static QSysInfo::WinVersion winVersion()
     default: // VER_PLATFORM_WIN32_NT
         if (osver.dwMajorVersion < 5) {
             winver = QSysInfo::WV_NT;
+        } else if (osver.dwMajorVersion == 6) {
+            winver = QSysInfo::WV_VISTA;
         } else if (osver.dwMinorVersion == 0) {
             winver = QSysInfo::WV_2000;
         } else if (osver.dwMinorVersion == 1) {
