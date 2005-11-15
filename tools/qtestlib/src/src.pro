@@ -3,7 +3,10 @@ TEMPLATE = lib
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 contains(QT_CONFIG, debug):contains(QT_CONFIG, release):CONFIG += debug_and_release build_all
 contains(QT_CONFIG, embedded):CONFIG += embedded
-!contains(CONFIG, static):CONFIG += dll
+!contains(CONFIG, static) {
+	CONFIG += dll
+	DEFINES += QT_SHARED
+}
 
 CONFIG(debug, debug|release) {
     TARGET = QtTest_debug
