@@ -21,6 +21,15 @@
 
 #include "private/qobject_p.h"
 
+// Uncomment to generate debug output
+// #define QTRANSPORTAUTH_DEBUG 1
+
+#ifdef QTRANSPORTAUTH_DEBUG
+void hexstring( char *buf, const unsigned char* key, size_t sz );
+#endif
+
+#include <QMutex>
+
 /*!
   \internal
   \class QAuthDevice
@@ -143,14 +152,26 @@ struct AuthMessage
     char payLoad[AMOUNT_TO_AUTHENTICATE];
 };
 
-/*
-  Auth data as written to the key file
+/**
+  Auth data as stored in _key
 */
 struct AuthCookie
 {
     unsigned char key[QSXV_KEY_LEN];
     unsigned char pad;
     unsigned char progId;
+};
+
+/*
+  Auth data as written to the key file
+*/
+struct AuthRecord
+{
+    union {
+        AuthCookie auth;
+        char data[sizeof(struct AuthCookie)];
+    };
+    time_t change_time;
 };
 
 class QTransportAuthPrivate : public QObjectPrivate
@@ -171,6 +192,7 @@ public:
     QHash<QTransportAuth::Data*,QAuthDevice*> buffers;
     QList< QPointer<QObject> > policyReceivers;
     QHash<QWSClient*,QIODevice*> buffersByClient;
+    QMutex keyfileMutex;
 };
 
 #endif // QT_NO_SXV

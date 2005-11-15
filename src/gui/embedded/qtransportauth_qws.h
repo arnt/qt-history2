@@ -28,6 +28,7 @@ class QAuthDevice;
 class QWSClient;
 class QIODevice;
 class QTransportAuthPrivate;
+class QMutex;
 
 class Q_GUI_EXPORT QTransportAuth : public QObject
 {
@@ -100,6 +101,8 @@ public:
 
     void setKeyFilePath( const QString & );
     QString keyFilePath() const;
+    const unsigned char *getClientKey( unsigned char progId );
+    QMutex *getKeyFileMutex();
     void setLogFilePath( const QString & );
     QString logFilePath() const;
     bool isDiscoveryMode() const;

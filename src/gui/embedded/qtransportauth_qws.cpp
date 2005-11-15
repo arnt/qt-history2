@@ -36,13 +36,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-// Uncomment to generate debug output
-// #define QTRANSPORTAUTH_DEBUG 1
-
-#ifdef QTRANSPORTAUTH_DEBUG
-void hexstring( char *buf, const unsigned char* key, size_t sz );
-#endif
-
 /*!
   \class QTransportAuth
   \internal
@@ -165,7 +158,7 @@ void QTransportAuth::setProcessKey( const char *authdata )
 {
     // qDebug( "set process key" );
     Q_D(QTransportAuth);
-    ::memcpy(&d->authKey, authdata, sizeof(d->authKey));
+    ::memcpy(&d->authKey, authdata, sizeof(struct AuthCookie));
     d->keyInitialised = true;
 }
 
@@ -388,6 +381,18 @@ QAuthDevice *QTransportAuth::authBuf( QTransportAuth::Data *data, QIODevice *iod
     return authBuf;
 }
 
+const unsigned char *QTransportAuth::getClientKey( unsigned char progId )
+{
+    Q_D(QTransportAuth);
+    return d->getClientKey( progId );
+}
+
+QMutex *QTransportAuth::getKeyFileMutex()
+{
+    Q_D(QTransportAuth);
+    return &d->keyfileMutex;
+}
+
 static struct AuthCookie *keyCache[ KEY_CACHE_SIZE ] = { 0 };
 
 /*!
@@ -412,11 +417,22 @@ void QTransportAuthPrivate::freeCache()
   \internal
   Find the client key for the \a progId.  If it is cached should be very
   fast, otherwise requires a read of the secret key file
+
+  Note that for the Keyfile, there is multi-thread concurrency issues:
+  the Keyfile can be read by the qpe process when QTransportAuth is
+  verifying a request, and it can be read or written by the Monitor
+  thread within the qpe process when monitor rekeying is being done.
+
+  To protect against this, the keyfileMutex is used.
+
+Invariant:
+  qpe is the only process which can access the Keyfile, there are no
+  multi-process concurrency issues (file locking is not required).
 */
 const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
 {
     int fd, i;
-    struct AuthCookie kr;
+    struct AuthRecord kr;
     for ( i = 0; i < KEY_CACHE_SIZE; ++i )
     {
         if ( keyCache[i] == NULL )
@@ -432,30 +448,24 @@ const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
     {
         perror( "couldnt open keyfile" );
         qWarning( "check keyfile path %s", m_keyFilePath.toLocal8Bit().constData() );
+        return NULL;
     }
-    // block until file lock obtained
-    struct flock lock;
-    lock.l_type = F_WRLCK;
-    lock.l_start = 0;
-    lock.l_whence = SEEK_SET;
-    lock.l_len = 0;
-    fcntl( fd, F_SETLKW, &lock );
-
-    while ( ::read( fd, &kr, sizeof( struct AuthCookie )) != 0 )
+    QMutexLocker keyfileLocker( &keyfileMutex );
+    while ( ::read( fd, &kr, sizeof( struct AuthRecord )) != 0 )
     {
-        if ( kr.progId == progId )
+        if ( kr.auth.progId == progId )
         {
             if ( keyCache[i] == NULL )
                 keyCache[i] = (AuthCookie *)(malloc( sizeof( kr )));
-            memcpy( keyCache[i]->key, kr.key, QSXV_KEY_LEN );
+            memcpy( (char*)(keyCache[i]), kr.data, sizeof( kr ));
 #ifdef QTRANSPORTAUTH_DEBUG
             qDebug( "Found client key for prog %u", progId );
 #endif
-            ::close( fd );  // release lock
+            ::close( fd );
             return keyCache[i]->key;
         }
     }
-    ::close( fd );  // release lock
+    ::close( fd );
     qWarning( "Not found client key for prog %u", progId );
     return NULL;
 }
@@ -743,10 +753,10 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
 
 #ifdef QTRANSPORTAUTH_DEBUG
     char keydisplay[QSXV_KEY_LEN*2+1];
-    hexstring( keydisplay, a->authKey.key, QSXV_KEY_LEN );
+    hexstring( keydisplay, a->d_func()->authKey.key, QSXV_KEY_LEN );
 
     qDebug( "Auth to message %s against prog id %u and key %s\n",
-            msg, a->authKey.progId, keydisplay );
+            msg, a->d_func()->authKey.progId, keydisplay );
 #endif
 
     // TODO implement sequence to prevent replay attack, not required
