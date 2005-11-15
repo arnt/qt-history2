@@ -5,7 +5,7 @@
     The Concentric Circles example shows the improved rendering
     quality that can be obtained using floating point precision and
     anti-aliasing when drawing custom widgets. The example also shows
-    how to do simple animation.
+    how to do simple animations.
 
     The application's main window displays several widgets which are
     drawn using the various combinations of precision and

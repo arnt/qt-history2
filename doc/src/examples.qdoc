@@ -115,6 +115,7 @@
     \list
     \o \l{painting/basicdrawing}{Basic Drawing}\raisedaster
     \o \l{painting/concentriccircles}{Concentric Circles}\raisedaster
+    \o \l{painting/imagecomposition}{Image Composition}
     \o \l{painting/painterpaths}{Painter Paths}\raisedaster
     \o \l{painting/svgviewer}{SVG Viewer}
     \o \l{painting/transformations}{Transformations}

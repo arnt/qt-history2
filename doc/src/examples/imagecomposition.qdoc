@@ -1,0 +1,9 @@
+/*!
+    \example painting/imagecomposition
+    \title Image Composition Example
+
+    The Image Composition example lets the user combine images
+    together using any composition mode supported by QPainter.
+
+    \image imagecomposition-example.png
+*/

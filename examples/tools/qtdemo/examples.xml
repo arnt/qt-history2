@@ -75,9 +75,10 @@
   <category dirname="painting" name="Painting">
     <example filename="basicdrawing" name="Basic Drawing" />
     <example filename="concentriccircles" name="Concentric Circles" />
+    <example filename="imagecomposition" name="Image Composition" />
     <example filename="painterpaths" name="Painter Paths" />
-    <example filename="transformations" name="Transformations" />
     <example filename="svgviewer" name="SVG Viewer" />
+    <example filename="transformations" name="Transformations" />
   </category>
   <category dirname="richtext" name="Rich Text">
     <example filename="calendar" name="Calendar" />

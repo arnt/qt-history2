@@ -1,6 +1,7 @@
 TEMPLATE      = subdirs
 SUBDIRS       = basicdrawing \
                 concentriccircles \
+                imagecomposition \
                 painterpaths \
                 svgviewer \
                 transformations
