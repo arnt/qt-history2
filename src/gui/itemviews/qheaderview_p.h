@@ -64,16 +64,27 @@ public:
     void resizeSections(QHeaderView::ResizeMode globalMode, bool useGlobalMode = false);
 
     bool isSectionSelected(int section) const;
-    inline void prepareSectionSelected()
-        { if (sectionSelection.count() != sections.count() * 2)
+    inline void prepareSectionSelected() {
+        if (sectionSelection.count() != sections.count() * 2)
             sectionSelection.fill(false, sections.count() * 2);
-          else sectionSelection.fill(false); }
+        else sectionSelection.fill(false);
+    }
 
-    inline bool reverse() const
-        { return q_func()->isRightToLeft() && orientation == Qt::Horizontal; }
+    inline bool reverse() const {
+        return q_func()->isRightToLeft() && orientation == Qt::Horizontal;
+    }
 
-    inline int logicalIndex(int visualIndex) const
-        { return logicalIndices.isEmpty() ? visualIndex : logicalIndices.at(visualIndex); }
+    inline int logicalIndex(int visualIndex) const {
+        return logicalIndices.isEmpty() ? visualIndex : logicalIndices.at(visualIndex);
+    }
+
+    inline void setDefaultValues(Qt::Orientation o) {
+        defaultSectionSize = (o == Qt::Horizontal ? 100 : 30);
+        defaultAlignment = (o == Qt::Horizontal
+                            ? Qt::Alignment(Qt::AlignCenter)
+                            : Qt::AlignLeft|Qt::AlignVCenter);
+        orientation = o;
+    }
 
     enum State { NoState, ResizeSection, MoveSection } state;
 

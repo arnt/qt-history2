@@ -166,10 +166,7 @@ QHeaderView::QHeaderView(Qt::Orientation orientation, QWidget *parent)
     : QAbstractItemView(*new QHeaderViewPrivate, parent)
 {
     Q_D(QHeaderView);
-    d->orientation = orientation;
-    d->defaultSectionSize = (orientation == Qt::Horizontal ? 100 : 30);
-    d->defaultAlignment = (orientation == Qt::Horizontal
-                           ? Qt::Alignment(Qt::AlignCenter) : Qt::AlignLeft|Qt::AlignVCenter);
+    d->setDefaultValues(orientation);
     initialize();
 }
 
@@ -181,10 +178,7 @@ QHeaderView::QHeaderView(QHeaderViewPrivate &dd,
     : QAbstractItemView(dd, parent)
 {
     Q_D(QHeaderView);
-    d->orientation = orientation;
-    d->defaultSectionSize = (orientation == Qt::Horizontal ? 100 : 30);
-    d->defaultAlignment = (orientation == Qt::Horizontal
-                           ? Qt::Alignment(Qt::AlignCenter) : Qt::AlignLeft|Qt::AlignVCenter);
+    d->setDefaultValues(orientation);
     initialize();
 }
 
