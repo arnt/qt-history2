@@ -117,7 +117,7 @@ public:
         hiddenSectionSize.clear();
     }
 
-    mutable QVector<QHeaderView::ResizeMode> sectionResizeMode; // ### not optimized
+    mutable QVector<QHeaderView::ResizeMode> sectionResizeMode;
     mutable QVector<int> sectionPosition; // uses visual index                              // ### not optimized
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
     mutable QVector<int> logicalIndices; // logicalIndex = row or column in the model
