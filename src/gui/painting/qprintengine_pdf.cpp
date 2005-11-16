@@ -1064,19 +1064,19 @@ enum Flags {
     YSame = (1 << 5),
     YShortPositive = (1 << 5)
 };
-struct POINT {
+struct TTF_POINT {
     qint16 x;
     qint16 y;
     quint8 flags;
 };
-Q_DECLARE_TYPEINFO(POINT, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(TTF_POINT, Q_PRIMITIVE_TYPE);
 
-static void convertPath(const QPainterPath &path, QList<POINT> *points, QList<int> *endPoints, qreal ppem)
+static void convertPath(const QPainterPath &path, QList<TTF_POINT> *points, QList<int> *endPoints, qreal ppem)
 {
     int numElements = path.elementCount();
     for (int i = 0; i < numElements - 1; ++i) {
         const QPainterPath::Element &e = path.elementAt(i);
-        POINT p;
+        TTF_POINT p;
         p.x = qRound(e.x * 2048. / ppem);
         p.y = qRound(-e.y * 2048. / ppem);
 
@@ -1097,7 +1097,7 @@ static void convertPath(const QPainterPath &path, QList<POINT> *points, QList<in
             break;
         case QPainterPath::CurveToElement: {
             // cubic bezier curve, we need to reduce to a list of quadratic curves
-            POINT list[3*16 + 4]; // we need max 16 subdivisions
+            TTF_POINT list[3*16 + 4]; // we need max 16 subdivisions
             list[3] = points->at(points->size() - 1);
             list[2] = p;
             const QPainterPath::Element &e2 = path.elementAt(++i);
@@ -1107,7 +1107,7 @@ static void convertPath(const QPainterPath &path, QList<POINT> *points, QList<in
             list[0].x = qRound(e3.x * 2048. / ppem);
             list[0].y = qRound(-e3.y * 2048. / ppem);
 
-            POINT *base = list;
+            TTF_POINT *base = list;
 
             bool try_reduce = points->size() > 1
                               && points->at(points->size() - 1).flags == OnCurve
@@ -1117,7 +1117,7 @@ static void convertPath(const QPainterPath &path, QList<POINT> *points, QList<in
                 const int split_limit = 3;
 //                 {
 //                     qDebug("iteration:");
-//                     POINT *x = list;
+//                     TTF_POINT *x = list;
 //                     while (x <= base + 3) {
 //                         qDebug() << "    " << QPoint(x->x, x->y);
 //                         ++x;
@@ -1132,7 +1132,7 @@ static void convertPath(const QPainterPath &path, QList<POINT> *points, QList<in
 //                 qDebug() << "checking: i1=" << QPoint(i1_x, i1_y) << " i2=" << QPoint(i2_x, i2_y);
                 if (qAbs(i1_x - i2_x) <= split_limit && qAbs(i1_y - i2_y) <= split_limit) {
                     // got a quadratic bezier curve
-                    POINT np;
+                    TTF_POINT np;
                     np.x = (i1_x + i2_x) >> 1;
                     np.y = (i1_y + i2_y) >> 1;
                     if (try_reduce) {
@@ -1192,7 +1192,7 @@ static void convertPath(const QPainterPath &path, QList<POINT> *points, QList<in
     endPoints->append(points->size() - 1);
 }
 
-static void getBounds(const QList<POINT> &points, qint16 *xmin, qint16 *xmax, qint16 *ymin, qint16 *ymax)
+static void getBounds(const QList<TTF_POINT> &points, qint16 *xmin, qint16 *xmax, qint16 *ymin, qint16 *ymax)
 {
     *xmin = points.at(0).x;
     *xmax = *xmin;
@@ -1207,7 +1207,7 @@ static void getBounds(const QList<POINT> &points, qint16 *xmin, qint16 *xmax, qi
     }
 }
 
-static int convertToRelative(QList<POINT> *points)
+static int convertToRelative(QList<TTF_POINT> *points)
 {
     // convert points to relative and setup flags
 //     qDebug() << "relative points:";
@@ -1217,7 +1217,7 @@ static int convertToRelative(QList<POINT> *points)
     for (int i = 0; i < points->size(); ++i) {
         const int x = points->at(i).x;
         const int y = points->at(i).y;
-        POINT rel;
+        TTF_POINT rel;
         rel.x = x - prev_x;
         rel.y = y - prev_y;
         rel.flags = points->at(i).flags;
@@ -1260,7 +1260,7 @@ static int convertToRelative(QList<POINT> *points)
     return point_array_size;
 }
 
-static void getGlyphData(QTtfGlyph *glyph, const QList<POINT> &points, const QList<int> &endPoints, int point_array_size)
+static void getGlyphData(QTtfGlyph *glyph, const QList<TTF_POINT> &points, const QList<int> &endPoints, int point_array_size)
 {
     const int max_size = 5*sizeof(qint16) // header
                          + endPoints.size()*sizeof(quint16) // end points of contours
@@ -1310,7 +1310,7 @@ static void getGlyphData(QTtfGlyph *glyph, const QList<POINT> &points, const QLi
 
 static QTtfGlyph generateGlyph(int index, const QPainterPath &path, qreal advance, qreal lsb, qreal ppem)
 {
-    QList<POINT> points;
+    QList<TTF_POINT> points;
     QList<int> endPoints;
     QTtfGlyph glyph;
     glyph.index = index;
