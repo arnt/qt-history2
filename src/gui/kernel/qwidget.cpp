@@ -1194,7 +1194,7 @@ bool QWidgetPrivate::isOverlapped(const QRect &rect) const
         bool above = false;
         for (int i = 0; i < pd->children.size(); ++i) {
             QWidget *sibling = qobject_cast<QWidget *>(pd->children.at(i));
-            if (!sibling || !sibling->isVisible())
+            if (!sibling || !sibling->isVisible() || sibling->isWindow())
                 continue;
             if (!above) {
                 above = (sibling == w);
