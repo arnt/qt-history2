@@ -137,11 +137,6 @@ QFontEngineXLFD::~QFontEngineXLFD()
     _fs = 0;
 }
 
-QFontEngine::FECaps QFontEngineXLFD::capabilites() const
-{
-    return FullTransformations;
-}
-
 bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
 {
     if (*nglyphs < len) {
@@ -513,21 +508,21 @@ void QFontEngineFT::computeSize()
 
 
 static FT_Library library = 0;
-QHash<QFreetypeFaceId, QFreetypeFace *> *QFontEngineFT::freetypeFaces = 0;
+QHash<QFontEngine::FaceId, QFreetypeFace *> *QFontEngineFT::freetypeFaces = 0;
 
 QFontEngineFT::Glyph::~Glyph()
 {
     delete [] data;
 }
 
-static QFreetypeFaceId face_id(FcPattern *pattern)
+static QFontEngine::FaceId face_id(FcPattern *pattern)
 {
     char *file_name;
     FcPatternGetString(pattern, FC_FILE, 0, (FcChar8 **)&file_name);
     int face_index;
     if (!FcPatternGetInteger(pattern, FC_INDEX, 0, &face_index))
         face_index = 0;
-    QFreetypeFaceId face_id;
+    QFontEngine::FaceId face_id;
     face_id.filename = file_name;
     face_id.index = face_index;
     return face_id;
@@ -563,9 +558,9 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
         FT_Init_FreeType(&library);
 
     if (!freetypeFaces)
-        freetypeFaces = new QHash<QFreetypeFaceId, QFreetypeFace *>();
+        freetypeFaces = new QHash<QFontEngine::FaceId, QFreetypeFace *>();
 
-    QFreetypeFaceId face_id = ::face_id(pattern);
+    face_id = ::face_id(pattern);
 
     freetype = freetypeFaces->value(face_id, 0);
     if (!freetype) {
@@ -694,7 +689,7 @@ QFontEngineFT::~QFontEngineFT()
         FT_Done_Face(freetype->face);
         FcCharSetDestroy(freetype->charset);
         delete freetype;
-        freetypeFaces->take(::face_id(_pattern));
+        freetypeFaces->take(face_id);
     }
     if (!freetypeFaces->size()) {
         delete freetypeFaces;
@@ -1306,6 +1301,86 @@ void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Shap
     unlockFace();
 }
 
+static void addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPainterPath *path, bool no_scale = false)
+{
+    qreal factor = no_scale ? 1. : 1./64.;
+    
+    QPointF cp = point.toPointF();
+        
+    // convert the outline to a painter path
+    int i = 0;
+    for (int c = 0; c < g->outline.n_contours; ++c) {
+        int last_point = g->outline.contours[c];
+        QPointF start = cp + QPointF(g->outline.points[i].x*factor, -g->outline.points[i].y*factor);
+        if(!(g->outline.tags[i] & 1)) {
+            start += cp + QPointF(g->outline.points[last_point].x*factor, -g->outline.points[last_point].y*factor);
+            start /= 2;
+        }
+//                 qDebug("contour: %d -- %d", i, g->outline.contours[c]);
+//                 qDebug("first point at %f %f", start.x(), start.y());
+        path->moveTo(start);
+
+        QPointF c[4];
+        c[0] = start;
+        int n = 1;
+        while (i < last_point) {
+            ++i;
+            c[n] = cp + QPointF(g->outline.points[i].x*factor, -g->outline.points[i].y*factor);
+//                     qDebug() << "    i=" << i << " flag=" << (int)g->outline.tags[i] << "point=" << c[n];
+            ++n;
+            switch (g->outline.tags[i] & 3) {
+            case 2:
+                // cubic bezier element
+                if (n < 4)
+                    continue;
+                c[3] = (c[3] + c[2])/2;
+                --i;
+                break;
+            case 0:
+                // quadratic bezier element
+                if (n < 3)
+                    continue;
+                c[3] = (c[1] + c[2])/2;
+                c[2] = (2*c[1] + c[3])/3;
+                c[1] = (2*c[1] + c[0])/3;
+                --i;
+                break;
+            case 1:
+            case 3:
+                if (n == 2) {
+//                             qDebug() << "lineTo" << c[1];
+                    path->lineTo(c[1]);
+                    c[0] = c[1];
+                    n = 1;
+                    continue;
+                } else if (n == 3) {
+                    c[3] = c[2];
+                    c[2] = (2*c[1] + c[3])/3;
+                    c[1] = (2*c[1] + c[0])/3;
+                } 
+                break;
+            }
+//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
+            path->cubicTo(c[1], c[2], c[3]);
+            c[0] = c[3];
+            n = 1;
+        }
+        if (n == 1) {
+//                     qDebug() << "closeSubpath";
+            path->closeSubpath();
+        } else {
+            c[3] = start;
+            if (n == 2) {
+                c[2] = (2*c[1] + c[3])/3;
+                c[1] = (2*c[1] + c[0])/3;
+            }
+//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
+            path->cubicTo(c[1], c[2], c[3]);
+        }
+        ++i;
+    }
+}
+
 
 void QFontEngineFT::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs,
                                     QPainterPath *path, QTextItem::RenderFlags)
@@ -1320,81 +1395,7 @@ void QFontEngineFT::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int
         FT_GlyphSlot g = face->glyph;
         if (g->format != FT_GLYPH_FORMAT_OUTLINE)
             continue;
-
-        QPointF cp = positions[gl].toPointF();
-        
-        // convert the outline to a painter path
-        int i = 0;
-        for (int c = 0; c < g->outline.n_contours; ++c) {
-            int last_point = g->outline.contours[c];
-            QPointF start = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
-            if(!(g->outline.tags[i] & 1)) {
-                start += cp + QPointF(g->outline.points[last_point].x/64., -g->outline.points[last_point].y/64.);
-                start /= 2;
-            }
-//                 qDebug("contour: %d -- %d", i, g->outline.contours[c]);
-//                 qDebug("first point at %f %f", start.x(), start.y());
-            path->moveTo(start);
-
-            QPointF c[4];
-            c[0] = start;
-            int n = 1;
-            while (i < last_point) {
-                ++i;
-                c[n] = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
-//                     qDebug() << "    i=" << i << " flag=" << (int)g->outline.tags[i] << "point=" << c[n];
-                ++n;
-                switch (g->outline.tags[i] & 3) {
-                case 2:
-                    // cubic bezier element
-                    if (n < 4)
-                        continue;
-                    c[3] = (c[3] + c[2])/2;
-                    --i;
-                    break;
-                case 0:
-                    // quadratic bezier element
-                    if (n < 3)
-                        continue;
-                    c[3] = (c[1] + c[2])/2;
-                    c[2] = (2*c[1] + c[3])/3;
-                    c[1] = (2*c[1] + c[0])/3;
-                    --i;
-                    break;
-                case 1:
-                case 3:
-                    if (n == 2) {
-//                             qDebug() << "lineTo" << c[1];
-                        path->lineTo(c[1]);
-                        c[0] = c[1];
-                        n = 1;
-                        continue;
-                    } else if (n == 3) {
-                        c[3] = c[2];
-                        c[2] = (2*c[1] + c[3])/3;
-                        c[1] = (2*c[1] + c[0])/3;
-                    } 
-                    break;
-                }
-//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
-                path->cubicTo(c[1], c[2], c[3]);
-                c[0] = c[3];
-                n = 1;
-            }
-            if (n == 1) {
-//                     qDebug() << "closeSubpath";
-                path->closeSubpath();
-            } else {
-                c[3] = start;
-                if (n == 2) {
-                    c[2] = (2*c[1] + c[3])/3;
-                    c[1] = (2*c[1] + c[0])/3;
-                }
-//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
-                path->cubicTo(c[1], c[2], c[3]);
-            }
-            ++i;
-        }
+        addGlyphToPath(g, positions[gl], path);
     }
     unlockFace();
 }
@@ -1501,6 +1502,50 @@ QFixed QFontEngineFT::underlinePosition() const
     return underline_position;
 }
 
+
+QFontEngine::Properties QFontEngineFT::properties() const
+{
+    Properties p;
+    QByteArray psname = FT_Get_Postscript_Name(freetype->face);
+    if (psname.isEmpty()) {
+        fontDef.family.toUtf8();
+        psname.replace(" ", "");
+    }
+    p.postscriptName = psname;
+    p.ascent = freetype->face->ascender;
+    p.descent = -freetype->face->descender;
+    p.leading = freetype->face->height - freetype->face->ascender + freetype->face->descender;
+    p.emSquare = freetype->face->units_per_EM;
+    p.boundingBox = QRectF(freetype->face->bbox.xMin, -freetype->face->bbox.yMax,
+                           freetype->face->bbox.xMax - freetype->face->bbox.xMin,
+                           freetype->face->bbox.yMax - freetype->face->bbox.yMin);
+    p.italicAngle = 0;
+    p.capHeight = p.ascent;
+    p.lineWidth = freetype->face->underline_thickness;
+    return p;
+}
+
+void QFontEngineFT::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
+{
+    FT_Face face = lockFace();
+    FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP|FT_LOAD_NO_SCALE);
+
+    int left  = face->glyph->metrics.horiBearingX;
+    int right = face->glyph->metrics.horiBearingX + face->glyph->metrics.width;
+    int top    = face->glyph->metrics.horiBearingY;
+    int bottom = face->glyph->metrics.horiBearingY - face->glyph->metrics.height;
+
+    metrics->width = right-left;
+    metrics->height = top-bottom;
+    metrics->x = left;
+    metrics->y = -top;
+    metrics->xoff = face->glyph->advance.x;
+    QFixedPoint p;
+    p.x = 0;
+    p.y = 0;
+    addGlyphToPath(face->glyph, p, path, true /* no_scale */);
+    unlockFace();
+}
 
 QOpenType *QFontEngineFT::openType() const
 {

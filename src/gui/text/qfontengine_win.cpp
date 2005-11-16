@@ -263,14 +263,6 @@ QFontEngineWin::~QFontEngineWin()
         free(designAdvances);
 }
 
-QFontEngine::FECaps QFontEngineWin::capabilites() const
-{
-    return QT_WA_INLINE(
-        (tm.w.tmPitchAndFamily & (TMPF_VECTOR|TMPF_TRUETYPE) ? FullTransformations : NoTransformations),
-        (tm.a.tmPitchAndFamily & (TMPF_VECTOR|TMPF_TRUETYPE) ? RotScale : NoTransformations)
-       );
-}
-
 HGDIOBJ QFontEngineWin::selectDesignFont(QFixed *overhang) const
 {
     LOGFONT f = logfont;

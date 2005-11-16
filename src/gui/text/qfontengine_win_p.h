@@ -31,8 +31,6 @@ public:
     QFontEngineWin(const QString &name, HFONT, bool, LOGFONT);
     ~QFontEngineWin();
 
-    FECaps capabilites() const;
-
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);

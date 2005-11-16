@@ -146,11 +146,6 @@ QFontEngineFT::~QFontEngineFT()
 }
 
 
-QFontEngine::FECaps QFontEngineFT::capabilites() const
-{
-    return NoTransformations;
-}
-
 inline unsigned int getChar(const QChar *str, int &i, const int len)
 {
     unsigned int uc = str[i].unicode();
@@ -869,10 +864,6 @@ QFontEngineQPF::~QFontEngineQPF()
 {
 }
 
-QFontEngine::FECaps QFontEngineQPF::capabilites() const
-{
-    return NoTransformations;
-}
 
 bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags) const
 {

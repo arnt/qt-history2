@@ -47,8 +47,6 @@ public:
     QFontEngineXLFD(XFontStruct *f, const QByteArray &name, int mib);
     ~QFontEngineXLFD();
 
-    FECaps capabilites() const;
-
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
                       QTextEngine::ShaperFlags flags) const;
 
@@ -100,11 +98,6 @@ private:
     int screen;
 };
 
-struct QFreetypeFaceId {
-    QByteArray filename;
-    int index;
-};
-
 struct QFreetypeFace {
     QAtomic ref;
     QAtomic lock;
@@ -120,24 +113,16 @@ struct QFreetypeFace {
     glyph_t cmapCache[cmapCacheSize];
 };
 
-inline bool operator ==(const QFreetypeFaceId &f1, const QFreetypeFaceId &f2)
-{
-    return f1.index == f2.index && f1.filename == f2.filename;
-}
-
-inline uint qHash(const QFreetypeFaceId &f)
-{
-    return qHash(f.index) + qHash(f.filename);
-}
-
 class Q_GUI_EXPORT QFontEngineFT : public QFontEngine
 {
 public:
     explicit QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen);
     ~QFontEngineFT();
 
-    FECaps capabilites() const { return 0; }
-
+    QFontEngine::FaceId faceId() const { return face_id; }
+    QFontEngine::Properties properties() const;
+    void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
+    
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
                       QTextEngine::ShaperFlags flags) const;
 
@@ -181,8 +166,9 @@ public:
 private:
     void computeSize();
 
-    static QHash<QFreetypeFaceId, QFreetypeFace *> *freetypeFaces;
+    static QHash<QFontEngine::FaceId, QFreetypeFace *> *freetypeFaces;
     QFreetypeFace *freetype;
+    QFontEngine::FaceId face_id;
 
     mutable QFixed lbearing;
     mutable QFixed rbearing;

@@ -171,6 +171,32 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
     path->addRegion(region);
 }
 
+QFontEngine::Properties QFontEngine::properties() const
+{
+    Properties p;
+    QByteArray psname = fontDef.family.toUtf8();
+    psname.replace(" ", "");
+    p.postscriptName = psname;
+    p.ascent = ascent();
+    p.descent = descent();
+    p.leading = leading();
+    p.emSquare = p.ascent;
+    p.boundingBox = QRectF(0, p.ascent.toReal(), maxCharWidth(), (p.ascent + p.descent).toReal());
+    p.italicAngle = 0;
+    p.capHeight = p.ascent;
+    p.lineWidth = lineThickness();
+    return p;
+}
+
+void QFontEngine::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics) 
+{
+    *metrics = boundingBox(glyph);
+    QFixedPoint p;
+    p.x = 0;
+    p.y = 0;
+    addGlyphsToPath(&glyph, &p, 1, path, QFlag(0));
+}
+
 
 // ------------------------------------------------------------------
 // The box font engine
@@ -199,11 +225,6 @@ QFontEngineBox::QFontEngineBox(int size)
 
 QFontEngineBox::~QFontEngineBox()
 {
-}
-
-QFontEngine::FECaps QFontEngineBox::capabilites() const
-{
-    return FullTransformations;
 }
 
 bool QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags) const
@@ -340,9 +361,6 @@ QFontEngineMulti::~QFontEngineMulti()
         }
     }
 }
-
-QFontEngine::FECaps QFontEngineMulti::capabilites() const
-{ return engine(0)->capabilites(); }
 
 bool QFontEngineMulti::stringToCMap(const QChar *str, int len,
                                     QGlyphLayout *glyphs, int *nglyphs,
