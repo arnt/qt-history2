@@ -589,6 +589,11 @@ int QTextHtmlParser::margin(int i, int mar) const {
 
 int QTextHtmlParser::topMargin(int i) const
 {
+    if (!i)
+        return 0;
+    return at(i).margin[MarginTop];
+    // we do margin collapsing in QTextDocumentFragment
+#if 0
     int m = 0;
     const QTextHtmlParserNode *node;
     while (i) {
@@ -621,10 +626,16 @@ int QTextHtmlParser::topMargin(int i) const
         i = node->parent;
     }
     return m;
+#endif
 }
 
 int QTextHtmlParser::bottomMargin(int i) const
 {
+    if (!i)
+        return 0;
+    return at(i).margin[MarginBottom];
+#if 0
+    // we do margin collapsing in QTextDocumentFragment
     int m = 0;
     const QTextHtmlParserNode *node;
     while (i) {
@@ -655,6 +666,7 @@ int QTextHtmlParser::bottomMargin(int i) const
         i = node->parent;
     }
     return m;
+#endif
 }
 
 void QTextHtmlParser::eatSpace()
