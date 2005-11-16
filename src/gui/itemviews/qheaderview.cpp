@@ -1550,7 +1550,7 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
     switch (d->state) {
     case QHeaderViewPrivate::MoveSection:
-        if (d->sectionIndicator->isShown()) { // moving
+        if (!d->sectionIndicator->isHidden()) { // moving
             int from = visualIndex(d->section);
             Q_ASSERT(from != -1);
             int to = visualIndex(d->target);
