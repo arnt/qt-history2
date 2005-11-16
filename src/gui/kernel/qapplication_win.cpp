@@ -1719,11 +1719,23 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 while ((popup=QApplication::activePopupWidget()) && maxiter--)
                     popup->close();
             }
+            
+            // If we are a tool with no child or us that accepts focus then reject
+            // the activation
+            if (LOWORD(wParam) == WA_ACTIVE && widget->windowType() == Qt::Tool) {
+                QWidget *fw = widget;
+                while ((fw = fw->nextInFocusChain()) != widget && fw->focusPolicy() == Qt::NoFocus)
+                    ;
+                if (fw == widget && widget->focusPolicy() == Qt::NoFocus) {
+                    result = true;
+                    break;
+                }
+            }
 
             // WM_ACTIVATEAPP handles the "true" false case, as this is only when the application
             // looses focus. Doing it here would result in the widget getting focus to not know
             // where it got it from; it would simply get a 0 value as the old focus widget.
-            if (LOWORD(wParam) != WA_INACTIVE)
+            if (LOWORD(wParam) != WA_INACTIVE) 
                 qApp->winFocus(widget, true);
 
             // Windows tries to activate a modally blocked window.
@@ -1739,22 +1751,26 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 
 #ifndef Q_OS_TEMP
             case WM_MOUSEACTIVATE:
-                {
+                if (widget->windowType() == Qt::Tool) {
                     QWidget *w = widget;
                     if (!w->window()->focusWidget()) {
                         while (w && (w->focusPolicy() & Qt::ClickFocus) == 0) {
-                            if (w->isTopLevel()) {
+                            if (w->isWindow()) {
+                                QWidget *fw = w;
+                                while ((fw = fw->nextInFocusChain()) != w && fw->focusPolicy() == Qt::NoFocus)
+                                    ;
+                                if (fw != w) 
+                                   break;
                                 QWidget *pw = w->parentWidget();
                                 while (pw) {
                                     pw = pw->window();
                                     if (pw && pw->isVisible() && pw->focusWidget()) {
                                         SetWindowPos(pw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-                                        RETURN(MA_NOACTIVATE);
+                                        break;
                                     }
                                     pw = pw->parentWidget();
                                 }
-                                
-                                break;
+                                RETURN(MA_NOACTIVATE);
                             }
                             w = w->parentWidget();
                         }

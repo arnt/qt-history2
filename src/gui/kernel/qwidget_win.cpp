@@ -1025,7 +1025,7 @@ void QWidgetPrivate::show_sys()
         else if (q->isMaximized())
             sm = SW_SHOWMAXIMIZED;
     }
-    if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup) || q->windowType() == Qt::ToolTip)
+    if ((q->windowType() == Qt::Popup) || q->windowType() == Qt::ToolTip)
         sm = SW_SHOWNOACTIVATE;
 
     ShowWindow(q->winId(), sm);
