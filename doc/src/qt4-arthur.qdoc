@@ -124,7 +124,7 @@
 
     \img radialGradient.png
 
-    Concal gradients are specified using a center and a start
+    Conical gradients are specified using a center and a start
     angle. Setting a conical brush is done by creating a
     QConicalGradient object and setting it as a brush.
 
