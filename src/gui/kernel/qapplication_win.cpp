@@ -2232,12 +2232,12 @@ void QApplicationPrivate::closePopup(QWidget *popup)
     QApplicationPrivate::popupWidgets->removeAll(popup);
     POINT curPos;
     GetCursorPos(&curPos);
-    replayPopupMouseEvent = (!popup->geometry().contains(QPoint(curPos.x, curPos.y))
-                             && !popup->testAttribute(Qt::WA_NoMouseReplay));
 
     if (QApplicationPrivate::popupWidgets->isEmpty()) { // this was the last popup
         delete QApplicationPrivate::popupWidgets;
         QApplicationPrivate::popupWidgets = 0;
+        replayPopupMouseEvent = (!popup->geometry().contains(QPoint(curPos.x, curPos.y))
+                                && !popup->testAttribute(Qt::WA_NoMouseReplay));
         if (!popup->isEnabled())
             return;
         if (!qt_nograb())                        // grabbing not disabled
