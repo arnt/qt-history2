@@ -663,17 +663,8 @@ void QPdf::Stroker::strokePath(const QPainterPath &path)
 
 // ------------------------------ Truetype embedding support
 
-typedef quint8 BYTE;
-typedef qint8 CHAR;
-typedef quint16 USHORT;
-typedef qint16 SHORT;
-typedef quint32 ULONG;
-typedef qint32 LONG;
 typedef qint32 Fixed;
-typedef qint16 FWORD;
-typedef quint16 UFWORD;
 typedef qint16 F2DOT14;
-typedef qint64 LONGDATETIME;
 typedef quint32 Tag;
 typedef quint16 GlyphID;
 typedef quint16 Offset;
@@ -685,7 +676,7 @@ public:
     QTtfStream &operator <<(quint8 v) { *data = v; ++data; return *this; }
     QTtfStream &operator <<(quint16 v) { qToBigEndian(v, data); data += sizeof(v); return *this; }
     QTtfStream &operator <<(quint32 v) { qToBigEndian(v, data); data += sizeof(v); return *this; }
-    QTtfStream &operator <<(qint8 v) { *data = BYTE(v); ++data; return *this; }
+    QTtfStream &operator <<(qint8 v) { *data = quint8(v); ++data; return *this; }
     QTtfStream &operator <<(qint16 v) { qToBigEndian(v, data); data += sizeof(v); return *this; }
     QTtfStream &operator <<(qint32 v) { qToBigEndian(v, data); data += sizeof(v); return *this; }
     QTtfStream &operator <<(qint64 v) { qToBigEndian(v, data); data += sizeof(v); return *this; }
@@ -699,10 +690,10 @@ private:
 };
 
 #define MAKE_TAG( str )                      \
-    ( ( (ULONG)str[0] << 24 ) |           \
-      ( (ULONG)str[1] << 16 ) |           \
-      ( (ULONG)str[2] <<  8 ) |           \
-      (ULONG)str[3]         )
+    ( ( (quint32)str[0] << 24 ) |           \
+      ( (quint32)str[1] << 16 ) |           \
+      ( (quint32)str[2] <<  8 ) |           \
+      (quint32)str[3]         )
 
 struct QTtfTable {
     Tag tag;
@@ -713,38 +704,38 @@ Q_DECLARE_TYPEINFO(QTtfTable, Q_MOVABLE_TYPE);
 
 struct qttf_head_table {
     Fixed font_revision;
-    USHORT flags;
-    LONGDATETIME created;
-    LONGDATETIME modified;
-    SHORT xMin;
-    SHORT yMin;
-    SHORT xMax;
-    SHORT yMax;
-    USHORT macStyle;
-    SHORT indexToLocFormat;
+    quint16 flags;
+    qint64 created;
+    qint64 modified;
+    qint16 xMin;
+    qint16 yMin;
+    qint16 xMax;
+    qint16 yMax;
+    quint16 macStyle;
+    qint16 indexToLocFormat;
 };
 
 
 struct qttf_hhea_table {
-    FWORD ascender;
-    FWORD descender;
-    FWORD lineGap;
-    UFWORD maxAdvanceWidth;
-    FWORD minLeftSideBearing;
-    FWORD minRightSideBearing;
-    FWORD xMaxExtent;
-    USHORT numberOfHMetrics;
+    qint16 ascender;
+    qint16 descender;
+    qint16 lineGap;
+    quint16 maxAdvanceWidth;
+    qint16 minLeftSideBearing;
+    qint16 minRightSideBearing;
+    qint16 xMaxExtent;
+    quint16 numberOfHMetrics;
 };
 
 
 struct qttf_maxp_table {
-    USHORT numGlyphs;
-    USHORT maxPoints;
-    USHORT maxContours;
-    USHORT maxCompositePoints;
-    USHORT maxCompositeContours;
-    USHORT maxComponentElements;
-    USHORT maxComponentDepth;
+    quint16 numGlyphs;
+    quint16 maxPoints;
+    quint16 maxContours;
+    quint16 maxCompositePoints;
+    quint16 maxCompositeContours;
+    quint16 maxComponentElements;
+    quint16 maxComponentDepth;
 };
 
 struct qttf_name_table {
@@ -769,15 +760,15 @@ struct qttf_font_tables
 
 
 struct QTtfGlyph {
-    USHORT index;
-    SHORT xMin;
-    SHORT xMax;
-    SHORT yMin;
-    SHORT yMax;
-    USHORT advanceWidth;
-    SHORT lsb;
-    USHORT numContours;
-    USHORT numPoints;
+    quint16 index;
+    qint16 xMin;
+    qint16 xMax;
+    qint16 yMin;
+    qint16 yMax;
+    quint16 advanceWidth;
+    qint16 lsb;
+    quint16 numContours;
+    quint16 numPoints;
     QByteArray data;
 };
 Q_DECLARE_TYPEINFO(QTtfGlyph, Q_MOVABLE_TYPE);
@@ -789,19 +780,19 @@ static QList<QTtfTable> generateGlyphTables(qttf_font_tables &tables, const QLis
 static QByteArray bindFont(const QList<QTtfTable>& _tables);
 
 
-static ULONG checksum(const QByteArray &table)
+static quint32 checksum(const QByteArray &table)
 {
-    ULONG sum = 0;
+    quint32 sum = 0;
     int offset = 0;
     const uchar *d = (uchar *)table.constData();
     while (offset <= table.size()-3) {
-        sum += qFromBigEndian<ULONG>(d + offset);
+        sum += qFromBigEndian<quint32>(d + offset);
         offset += 4;
     }
     int shift = 24;
-    ULONG x = 0;
+    quint32 x = 0;
     while (offset < table.size()) {
-        x |= ((ULONG)d[offset]) << shift;
+        x |= ((quint32)d[offset]) << shift;
         ++offset;
         shift -= 8;
     }
@@ -823,11 +814,11 @@ static QTtfTable generateHead(const qttf_head_table &head)
 // Fixed  fontRevision  Set by font manufacturer.
     s << Fixed(0x00010000)
       << head.font_revision
-// ULONG  checkSumAdjustment  To compute: set it to 0, sum the entire font as ULONG, then store 0xB1B0AFBA - sum.
-      << ULONG(0)
-// ULONG  magicNumber  Set to 0x5F0F3CF5.
-      << ULONG(0x5F0F3CF5)
-// USHORT  flags  Bit 0: Baseline for font at y=0;
+// quint32  checkSumAdjustment  To compute: set it to 0, sum the entire font as quint32, then store 0xB1B0AFBA - sum.
+      << quint32(0)
+// quint32  magicNumber  Set to 0x5F0F3CF5.
+      << quint32(0x5F0F3CF5)
+// quint16  flags  Bit 0: Baseline for font at y=0;
 // Bit 1: Left sidebearing point at x=0;
 // Bit 2: Instructions may depend on point size;
 // Bit 3: Force ppem to integer values for all internal scaler math; may use fractional ppem sizes if this bit is clear;
@@ -838,23 +829,23 @@ static QTtfTable generateHead(const qttf_head_table &head)
 // Bit 13: Font optimised for ClearType
 // Bit 14: Reserved, set to 0
 // Bit 15: Reserved, set to 0
-      << USHORT(0)
+      << quint16(0)
 
-// USHORT  unitsPerEm  Valid range is from 16 to 16384. This value should be a power of 2 for fonts that have TrueType outlines.
-      << USHORT(2048)
-// LONGDATETIME  created  Number of seconds since 12:00 midnight, January 1, 1904. 64-bit integer
+// quint16  unitsPerEm  Valid range is from 16 to 16384. This value should be a power of 2 for fonts that have TrueType outlines.
+      << quint16(2048)
+// qint64  created  Number of seconds since 12:00 midnight, January 1, 1904. 64-bit integer
       << head.created
-// LONGDATETIME  modified  Number of seconds since 12:00 midnight, January 1, 1904. 64-bit integer
+// qint64  modified  Number of seconds since 12:00 midnight, January 1, 1904. 64-bit integer
       << head.modified
-// SHORT  xMin  For all glyph bounding boxes.
-// SHORT  yMin  For all glyph bounding boxes.
-// SHORT  xMax  For all glyph bounding boxes.
-// SHORT  yMax  For all glyph bounding boxes.
+// qint16  xMin  For all glyph bounding boxes.
+// qint16  yMin  For all glyph bounding boxes.
+// qint16  xMax  For all glyph bounding boxes.
+// qint16  yMax  For all glyph bounding boxes.
       << head.xMin
       << head.yMin
       << head.xMax
       << head.yMax
-// USHORT  macStyle  Bit 0: Bold (if set to 1);
+// quint16  macStyle  Bit 0: Bold (if set to 1);
 // Bit 1: Italic (if set to 1)
 // Bit 2: Underline (if set to 1)
 // Bit 3: Outline (if set to 1)
@@ -863,18 +854,18 @@ static QTtfTable generateHead(const qttf_head_table &head)
 // Bit 6: Extended (if set to 1)
 // Bits 7-15: Reserved (set to 0).
       << head.macStyle
-// USHORT  lowestRecPPEM  Smallest readable size in pixels.
-      << USHORT(6) // just a wild guess
-// SHORT  fontDirectionHint   0: Fully mixed directional glyphs;
-      << SHORT(0)
+// quint16  lowestRecPPEM  Smallest readable size in pixels.
+      << quint16(6) // just a wild guess
+// qint16  fontDirectionHint   0: Fully mixed directional glyphs;
+      << qint16(0)
 // 1: Only strongly left to right;
 // 2: Like 1 but also contains neutrals;
 // -1: Only strongly right to left;
 // -2: Like -1 but also contains neutrals. 1
-// SHORT  indexToLocFormat  0 for short offsets, 1 for long.
+// qint16  indexToLocFormat  0 for short offsets, 1 for long.
       << head.indexToLocFormat
-// SHORT  glyphDataFormat  0 for current format.
-      << SHORT(0);
+// qint16  glyphDataFormat  0 for current format.
+      << qint16(0);
 
     Q_ASSERT(s.offset() == head_size);
     return t;
@@ -891,40 +882,40 @@ static QTtfTable generateHhea(const qttf_hhea_table &hhea)
     QTtfStream s(t.data);
 // Fixed  Table version number  0x00010000 for version 1.0.
     s << Fixed(0x00010000)
-// FWORD  Ascender  Typographic ascent.  (Distance from baseline of highest ascender)
+// qint16  Ascender  Typographic ascent.  (Distance from baseline of highest ascender)
       << hhea.ascender
-// FWORD  Descender  Typographic descent.  (Distance from baseline of lowest descender)
+// qint16  Descender  Typographic descent.  (Distance from baseline of lowest descender)
       << hhea.descender
-// FWORD  LineGap  Typographic line gap.
+// qint16  LineGap  Typographic line gap.
 // Negative LineGap values are treated as zero
 // in Windows 3.1, System 6, and
 // System 7.
       << hhea.lineGap
-// UFWORD  advanceWidthMax  Maximum advance width value in 'hmtx' table.
+// quint16  advanceWidthMax  Maximum advance width value in 'hmtx' table.
       << hhea.maxAdvanceWidth
-// FWORD  minLeftSideBearing  Minimum left sidebearing value in 'hmtx' table.
+// qint16  minLeftSideBearing  Minimum left sidebearing value in 'hmtx' table.
       << hhea.minLeftSideBearing
-// FWORD  minRightSideBearing  Minimum right sidebearing value; calculated as Min(aw - lsb - (xMax - xMin)).
+// qint16  minRightSideBearing  Minimum right sidebearing value; calculated as Min(aw - lsb - (xMax - xMin)).
       << hhea.minRightSideBearing
-// FWORD  xMaxExtent  Max(lsb + (xMax - xMin)).
+// qint16  xMaxExtent  Max(lsb + (xMax - xMin)).
       << hhea.xMaxExtent
-// SHORT  caretSlopeRise  Used to calculate the slope of the cursor (rise/run); 1 for vertical.
-      << SHORT(1)
-// SHORT  caretSlopeRun  0 for vertical.
-      << SHORT(0)
-// SHORT  caretOffset  The amount by which a slanted highlight on a glyph needs to be shifted to produce the best appearance. Set to 0 for non-slanted fonts
-      << SHORT(0)
-// SHORT  (reserved)  set to 0
-      << SHORT(0)
-// SHORT  (reserved)  set to 0
-      << SHORT(0)
-// SHORT  (reserved)  set to 0
-      << SHORT(0)
-// SHORT  (reserved)  set to 0
-      << SHORT(0)
-// SHORT  metricDataFormat  0 for current format.
-      << SHORT(0)
-// USHORT  numberOfHMetrics  Number of hMetric entries in 'hmtx' table
+// qint16  caretSlopeRise  Used to calculate the slope of the cursor (rise/run); 1 for vertical.
+      << qint16(1)
+// qint16  caretSlopeRun  0 for vertical.
+      << qint16(0)
+// qint16  caretOffset  The amount by which a slanted highlight on a glyph needs to be shifted to produce the best appearance. Set to 0 for non-slanted fonts
+      << qint16(0)
+// qint16  (reserved)  set to 0
+      << qint16(0)
+// qint16  (reserved)  set to 0
+      << qint16(0)
+// qint16  (reserved)  set to 0
+      << qint16(0)
+// qint16  (reserved)  set to 0
+      << qint16(0)
+// qint16  metricDataFormat  0 for current format.
+      << qint16(0)
+// quint16  numberOfHMetrics  Number of hMetric entries in 'hmtx' table
       << hhea.numberOfHMetrics;
 
     Q_ASSERT(s.offset() == hhea_size);
@@ -943,33 +934,33 @@ static QTtfTable generateMaxp(const qttf_maxp_table &maxp)
 
 // Fixed  Table version number  0x00010000 for version 1.0.
     s << Fixed(0x00010000)
-// USHORT  numGlyphs  The number of glyphs in the font.
+// quint16  numGlyphs  The number of glyphs in the font.
       << maxp.numGlyphs
-// USHORT  maxPoints  Maximum points in a non-composite glyph.
+// quint16  maxPoints  Maximum points in a non-composite glyph.
       << maxp.maxPoints
-// USHORT  maxContours  Maximum contours in a non-composite glyph.
+// quint16  maxContours  Maximum contours in a non-composite glyph.
       << maxp.maxContours
-// USHORT  maxCompositePoints  Maximum points in a composite glyph.
+// quint16  maxCompositePoints  Maximum points in a composite glyph.
       << maxp.maxCompositePoints
-// USHORT  maxCompositeContours  Maximum contours in a composite glyph.
+// quint16  maxCompositeContours  Maximum contours in a composite glyph.
       << maxp.maxCompositeContours
-// USHORT  maxZones  1 if instructions do not use the twilight zone (Z0), or 2 if instructions do use Z0; should be set to 2 in most cases.
-      << USHORT(1) // we do not embed instructions
-// USHORT  maxTwilightPoints  Maximum points used in Z0.
-      << USHORT(0)
-// USHORT  maxStorage  Number of Storage Area locations.
-      << USHORT(0)
-// USHORT  maxFunctionDefs  Number of FDEFs.
-      << USHORT(0)
-// USHORT  maxInstructionDefs  Number of IDEFs.
-      << USHORT(0)
-// USHORT  maxStackElements  Maximum stack depth2.
-      << USHORT(0)
-// USHORT  maxSizeOfInstructions  Maximum byte count for glyph instructions.
-      << USHORT(0)
-// USHORT  maxComponentElements  Maximum number of components referenced at "top level" for any composite glyph.
+// quint16  maxZones  1 if instructions do not use the twilight zone (Z0), or 2 if instructions do use Z0; should be set to 2 in most cases.
+      << quint16(1) // we do not embed instructions
+// quint16  maxTwilightPoints  Maximum points used in Z0.
+      << quint16(0)
+// quint16  maxStorage  Number of Storage Area locations.
+      << quint16(0)
+// quint16  maxFunctionDefs  Number of FDEFs.
+      << quint16(0)
+// quint16  maxInstructionDefs  Number of IDEFs.
+      << quint16(0)
+// quint16  maxStackElements  Maximum stack depth2.
+      << quint16(0)
+// quint16  maxSizeOfInstructions  Maximum byte count for glyph instructions.
+      << quint16(0)
+// quint16  maxComponentElements  Maximum number of components referenced at "top level" for any composite glyph.
       << maxp.maxComponentElements
-// USHORT  maxComponentDepth  Maximum levels of recursion; 1 for simple components.
+// quint16  maxComponentDepth  Maximum levels of recursion; 1 for simple components.
       << maxp.maxComponentDepth;
 
     Q_ASSERT(s.offset() == maxp_size);
@@ -977,7 +968,7 @@ static QTtfTable generateMaxp(const qttf_maxp_table &maxp)
 }
 
 struct NameRecord {
-    USHORT nameId;
+    quint16 nameId;
     QString value;
 };
 
@@ -1024,37 +1015,37 @@ static QTtfTable generateName(const QList<NameRecord> &name)
     t.data.resize(name_size + string_size);
 
     QTtfStream s(t.data);
-// USHORT  format  Format selector (=0).
-    s << USHORT(0)
-// USHORT  count  Number of name records.
-      << USHORT(name.size())
-// USHORT  stringOffset  Offset to start of string storage (from start of table).
-      << USHORT(name_size);
+// quint16  format  Format selector (=0).
+    s << quint16(0)
+// quint16  count  Number of name records.
+      << quint16(name.size())
+// quint16  stringOffset  Offset to start of string storage (from start of table).
+      << quint16(name_size);
 // NameRecord  nameRecord[count]  The name records where count is the number of records.
 // (Variable)
 
     int off = 0;
     for (int i = 0; i < name.size(); ++i) {
         int len = name.at(i).value.length()*char_size;
-// USHORT  platformID  Platform ID.
-// USHORT  encodingID  Platform-specific encoding ID.
-// USHORT  languageID  Language ID.
-        s << USHORT(3)
-          << USHORT(1)
-          << USHORT(0x0409) // en_US
-// USHORT  nameId  Name ID.
+// quint16  platformID  Platform ID.
+// quint16  encodingID  Platform-specific encoding ID.
+// quint16  languageID  Language ID.
+        s << quint16(3)
+          << quint16(1)
+          << quint16(0x0409) // en_US
+// quint16  nameId  Name ID.
           << name.at(i).nameId
-// USHORT  length  String length (in bytes).
-          << USHORT(len)
-// USHORT  offset  String offset from start of storage area (in bytes).
-          << USHORT(off);
+// quint16  length  String length (in bytes).
+          << quint16(len)
+// quint16  offset  String offset from start of storage area (in bytes).
+          << quint16(off);
         off += len;
     }
     for (int i = 0; i < name.size(); ++i) {
         const QString &n = name.at(i).value;
         const ushort *uc = n.utf16();
         for (int i = 0; i < n.length(); ++i) {
-            s << USHORT(*uc);
+            s << quint16(*uc);
             ++uc;
         }
     }
@@ -1074,9 +1065,9 @@ enum Flags {
     YShortPositive = (1 << 5)
 };
 struct POINT {
-    SHORT x;
-    SHORT y;
-    BYTE flags;
+    qint16 x;
+    qint16 y;
+    quint8 flags;
 };
 Q_DECLARE_TYPEINFO(POINT, Q_PRIMITIVE_TYPE);
 
@@ -1159,7 +1150,7 @@ static void convertPath(const QPainterPath &path, QList<POINT> *points, QList<in
                 } else {
                     // need to split
 //                     qDebug() << "  -> splitting";
-                    SHORT a, b, c, d;
+                    qint16 a, b, c, d;
                     base[6].x = base[3].x;
                     c = base[1].x;
                     d = base[2].x;
@@ -1201,7 +1192,7 @@ static void convertPath(const QPainterPath &path, QList<POINT> *points, QList<in
     endPoints->append(points->size() - 1);
 }
 
-static void getBounds(const QList<POINT> &points, SHORT *xmin, SHORT *xmax, SHORT *ymin, SHORT *ymax)
+static void getBounds(const QList<POINT> &points, qint16 *xmin, qint16 *xmax, qint16 *ymin, qint16 *ymax)
 {
     *xmin = points.at(0).x;
     *xmax = *xmin;
@@ -1220,8 +1211,8 @@ static int convertToRelative(QList<POINT> *points)
 {
     // convert points to relative and setup flags
 //     qDebug() << "relative points:";
-    SHORT prev_x = 0;
-    SHORT prev_y = 0;
+    qint16 prev_x = 0;
+    qint16 prev_y = 0;
     int point_array_size = 0;
     for (int i = 0; i < points->size(); ++i) {
         const int x = points->at(i).x;
@@ -1271,43 +1262,43 @@ static int convertToRelative(QList<POINT> *points)
 
 static void getGlyphData(QTtfGlyph *glyph, const QList<POINT> &points, const QList<int> &endPoints, int point_array_size)
 {
-    const int max_size = 5*sizeof(SHORT) // header
-                         + endPoints.size()*sizeof(USHORT) // end points of contours
-                         + sizeof(USHORT) // instruction length == 0
+    const int max_size = 5*sizeof(qint16) // header
+                         + endPoints.size()*sizeof(quint16) // end points of contours
+                         + sizeof(quint16) // instruction length == 0
                          + points.size()*(1) // flags
                          + point_array_size; // coordinates
 
     glyph->data.resize(max_size);
 
     QTtfStream s(glyph->data);
-    s << SHORT(endPoints.size())
+    s << qint16(endPoints.size())
       << glyph->xMin << glyph->yMin << glyph->xMax << glyph->yMax;
 
     for (int i = 0; i < endPoints.size(); ++i)
-        s << USHORT(endPoints.at(i));
-    s << USHORT(0); // instruction length
+        s << quint16(endPoints.at(i));
+    s << quint16(0); // instruction length
 
     // emit flags
     for (int i = 0; i < points.size(); ++i)
-        s << BYTE(points.at(i).flags);
+        s << quint8(points.at(i).flags);
     // emit points
     for (int i = 0; i < points.size(); ++i) {
-        BYTE flags = points.at(i).flags;
-        SHORT x = points.at(i).x;
+        quint8 flags = points.at(i).flags;
+        qint16 x = points.at(i).x;
 
         if (flags & XShortVector)
-            s << BYTE(x);
+            s << quint8(x);
         else if (!(flags & XSame))
-            s << SHORT(x);
+            s << qint16(x);
     }
     for (int i = 0; i < points.size(); ++i) {
-        BYTE flags = points.at(i).flags;
-        SHORT y = points.at(i).y;
+        quint8 flags = points.at(i).flags;
+        qint16 y = points.at(i).y;
 
         if (flags & YShortVector)
-            s << BYTE(y);
+            s << quint8(y);
         else if (!(flags & YSame))
-            s << SHORT(y);
+            s << qint16(y);
     }
 
 //     qDebug() << "offset=" << s.offset() << "max_size=" << max_size << "point_array_size=" << point_array_size;
@@ -1374,7 +1365,7 @@ static QList<QTtfTable> generateGlyphTables(qttf_font_tables &tables, const QLis
 
     QTtfTable loca;
     loca.tag = MAKE_TAG("loca");
-    loca.data.resize(glyf_size < max_size_small ? (nGlyphs+1)*sizeof(USHORT) : (nGlyphs+1)*sizeof(ULONG));
+    loca.data.resize(glyf_size < max_size_small ? (nGlyphs+1)*sizeof(quint16) : (nGlyphs+1)*sizeof(quint32));
     QTtfStream ls(loca.data);
 
     QTtfTable hmtx;
@@ -1385,8 +1376,8 @@ static QList<QTtfTable> generateGlyphTables(qttf_font_tables &tables, const QLis
     int pos = 0;
     for (int i = 0; i < nGlyphs; ++i) {
         int gpos = glyf.data.size();
-        USHORT advance = 0;
-        SHORT lsb = 0;
+        quint16 advance = 0;
+        qint16 lsb = 0;
 
         if (glyphs[pos].index == i) {
             // emit glyph
@@ -1400,20 +1391,20 @@ static QList<QTtfTable> generateGlyphTables(qttf_font_tables &tables, const QLis
         }
         if (glyf_size < max_size_small) {
             // use short loca format
-            ls << USHORT(gpos>>1);
+            ls << quint16(gpos>>1);
         } else {
             // use long loca format
-            ls << ULONG(gpos);
+            ls << quint32(gpos);
         }
         hs << advance
            << lsb;
     }
     if (glyf_size < max_size_small) {
         // use short loca format
-        ls << USHORT(glyf.data.size()>>1);
+        ls << quint16(glyf.data.size()>>1);
     } else {
         // use long loca format
-        ls << ULONG(glyf.data.size());
+        ls << quint32(glyf.data.size());
     }
 
     Q_ASSERT(loca.data.size() == ls.offset());
@@ -1438,8 +1429,8 @@ static QByteArray bindFont(const QList<QTtfTable>& _tables)
     qSort(tables);
 
     QByteArray font;
-    const int header_size = sizeof(Fixed) + 4*sizeof(USHORT);
-    const int directory_size = 4*sizeof(ULONG)*tables.size();
+    const int header_size = sizeof(Fixed) + 4*sizeof(quint16);
+    const int directory_size = 4*sizeof(quint32)*tables.size();
     font.resize(header_size + directory_size);
 
     int log2 = 0;
@@ -1451,32 +1442,32 @@ static QByteArray bindFont(const QList<QTtfTable>& _tables)
         n >>= 1;
     }
 
-    ULONG head_offset = 0;
+    quint32 head_offset = 0;
     {
         QTtfStream f(font);
 // Offset Table
 // Type  Name  Description
 //   Fixed  sfnt version  0x00010000 for version 1.0.
-//   USHORT   numTables  Number of tables.
-//   USHORT   searchRange  (Maximum power of 2 <= numTables) x 16.
-//   USHORT   entrySelector  Log2(maximum power of 2 <= numTables).
-//   USHORT   rangeShift  NumTables x 16-searchRange.
+//   quint16   numTables  Number of tables.
+//   quint16   searchRange  (Maximum power of 2 <= numTables) x 16.
+//   quint16   entrySelector  Log2(maximum power of 2 <= numTables).
+//   quint16   rangeShift  NumTables x 16-searchRange.
         f << Fixed(0x00010000)
-          << USHORT(tables.size())
-          << USHORT(16*pow)
-          << USHORT(log2)
-          << USHORT(16*(tables.size() - pow));
+          << quint16(tables.size())
+          << quint16(16*pow)
+          << quint16(log2)
+          << quint16(16*(tables.size() - pow));
 
 // Table Directory
 // Type  Name  Description
-//   ULONG  tag  4 -byte identifier.
-//   ULONG  checkSum  CheckSum for this table.
-//   ULONG  offset  Offset from beginning of TrueType font file.
-//   ULONG  length  Length of this table.
-        ULONG table_offset = header_size + directory_size;
+//   quint32  tag  4 -byte identifier.
+//   quint32  checkSum  CheckSum for this table.
+//   quint32  offset  Offset from beginning of TrueType font file.
+//   quint32  length  Length of this table.
+        quint32 table_offset = header_size + directory_size;
         for (int i = 0; i < tables.size(); ++i) {
             const QTtfTable &t = tables.at(i);
-            const ULONG size = (t.data.size() + 3) & ~3;
+            const quint32 size = (t.data.size() + 3) & ~3;
             if (t.tag == MAKE_TAG("head"))
                 head_offset = table_offset;
             f << t.tag
@@ -1501,7 +1492,7 @@ static QByteArray bindFont(const QList<QTtfTable>& _tables)
     }
 
     // calculate the fonts checksum and qToBigEndian into 'head's checksum_adjust
-    ULONG checksum_adjust = 0xB1B0AFBA - checksum(font);
+    quint32 checksum_adjust = 0xB1B0AFBA - checksum(font);
     qToBigEndian(checksum_adjust, (uchar *)font.data() + head_offset + 8);
 
     return font;
@@ -1582,9 +1573,9 @@ QByteArray QPdf::Font::toTruetype() const
         font.head.yMin = qMin(font.head.yMin, glyph.yMin);
         font.head.yMax = qMax(font.head.yMax, glyph.yMax);
 
-        font.hhea.xMaxExtent = qMax(font.hhea.xMaxExtent, (FWORD)(glyph.lsb + glyph.xMax - glyph.xMin));
+        font.hhea.xMaxExtent = qMax(font.hhea.xMaxExtent, (qint16)(glyph.lsb + glyph.xMax - glyph.xMin));
 
-        font.maxp.numGlyphs = qMax(font.maxp.numGlyphs, USHORT(g + 1));
+        font.maxp.numGlyphs = qMax(font.maxp.numGlyphs, quint16(g + 1));
         font.maxp.maxPoints = qMax(font.maxp.maxPoints, glyph.numPoints);
         font.maxp.maxContours = qMax(font.maxp.maxContours, glyph.numContours);
 
