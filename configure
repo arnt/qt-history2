@@ -460,6 +460,7 @@ CFG_RPATH=yes
 CFG_FRAMEWORK=auto
 CFG_UNIVERSAL_BINARY=auto
 CFG_SXV=no
+CFG_LOCAL_INSTALL=yes
 CFG_SDK=
 D_FLAGS=
 I_FLAGS=
@@ -1235,67 +1236,6 @@ while [ "$#" -gt 0 ]; do
     fi
 done
 
-#-------------------------------------------------------------------------------
-# post process QT_INSTALL_* variables
-#-------------------------------------------------------------------------------
-
-#prefix
-if [ -z "$QT_INSTALL_PREFIX" ]; then
-    if [ "$Edition" = "Trolltech" ]; then
-        # At Trolltech, we use sandboxed builds by default
-	QT_INSTALL_PREFIX=$outpath
-    else
-        # the default install prefix is /usr/local/Trolltech/Qt-$QT_VERSION
-        QT_INSTALL_PREFIX=/usr/local/Trolltech/Qt-${QT_VERSION}
-    fi
-fi
-QT_INSTALL_PREFIX=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_PREFIX"`
-
-#docs
-[ -z "$QT_INSTALL_DOCS" ] && QT_INSTALL_DOCS=$QT_INSTALL_PREFIX/doc #default
-QT_INSTALL_DOCS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DOCS"`
-
-#headers
-[ -z "$QT_INSTALL_HEADERS" ] && QT_INSTALL_HEADERS=$QT_INSTALL_PREFIX/include #default
-QT_INSTALL_HEADERS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_HEADERS"`
-
-#libs
-[ -z "$QT_INSTALL_LIBS" ] && QT_INSTALL_LIBS=$QT_INSTALL_PREFIX/lib #default
-QT_INSTALL_LIBS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_LIBS"`
-
-#bins
-[ -z "$QT_INSTALL_BINS" ] && QT_INSTALL_BINS=$QT_INSTALL_PREFIX/bin #default
-QT_INSTALL_BINS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_BINS"`
-
-#plugins
-[ -z "$QT_INSTALL_PLUGINS" ] && QT_INSTALL_PLUGINS=$QT_INSTALL_PREFIX/plugins #default
-QT_INSTALL_PLUGINS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_PLUGINS"`
-
-#data
-[ -z "$QT_INSTALL_DATA" ] && QT_INSTALL_DATA=$QT_INSTALL_PREFIX #default
-QT_INSTALL_DATA=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DATA"`
-
-#translations
-[ -z "$QT_INSTALL_TRANSLATIONS" ] && QT_INSTALL_TRANSLATIONS=$QT_INSTALL_PREFIX/translations #default
-QT_INSTALL_TRANSLATIONS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_TRANSLATIONS"`
-
-#settings
-if [ "$PLATFORM_MAC" = "yes" ]; then
-   [ -z "$QT_INSTALL_SETTINGS" ] && QT_INSTALL_SETTINGS=/Library/Preferences/Qt #default
-else
-   [ -z "$QT_INSTALL_SETTINGS" ] && QT_INSTALL_SETTINGS=/etc/xdg #default
-fi
-if mkdir -p "$QT_INSTALL_SETTINGS" >/dev/null 2>&1; then
-  QT_INSTALL_SETTINGS=`(cd "$QT_INSTALL_SETTINGS"; /bin/pwd)` #absolute
-fi
-
-#examples
-[ -z "$QT_INSTALL_EXAMPLES" ] && QT_INSTALL_EXAMPLES=$QT_INSTALL_PREFIX/examples #default
-QT_INSTALL_EXAMPLES=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_EXAMPLES"`
-
-#demos
-[ -z "$QT_INSTALL_DEMOS" ] && QT_INSTALL_DEMOS=$QT_INSTALL_PREFIX/demos #default
-QT_INSTALL_DEMOS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DEMOS"`
 
 #-------------------------------------------------------------------------------
 # build tree initialization
@@ -1901,6 +1841,29 @@ if [ "$PLATFORM_MAC" = "yes" ]; then
     fi
 fi
 
+# find the default framework value
+if [ "$PLATFORM_MAC" = "yes" ] && [ "$PLATFORM" != "macx-xlc" ]; then
+    if [ "$CFG_FRAMEWORK" = "auto" ]; then
+        CFG_FRAMEWORK="$CFG_SHARED"
+    elif [ "$CFG_FRAMEWORK" = "yes" ] && [ "$CFG_SHARED" = "no" ]; then
+	echo
+	echo "WARNING: Using static linking will disable the use of Mac frameworks."
+	echo
+        CFG_FRAMEWORK="no"
+    fi
+else
+    CFG_FRAMEWORK=no
+fi
+
+# find the default universal value
+if [ "$PLATFORM_MAC" = "yes" ]; then
+    if [ "$CFG_UNIVERSAL_BINARY" = "auto" ]; then
+         CFG_UNIVERSAL_BINARY="no" #any other default? ###
+    fi
+else
+    CFG_UNIVERSAL_BINARY="no"
+fi
+
 #x11 tests are done after qmake is built
 
 # embedded graphics
@@ -1913,6 +1876,114 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
         CFG_OPENGL=no
     fi
 fi # QWS
+
+#-------------------------------------------------------------------------------
+# post process QT_INSTALL_* variables
+#-------------------------------------------------------------------------------
+
+#prefix
+if [ -z "$QT_INSTALL_PREFIX" ]; then
+    if [ "$Edition" = "Trolltech" ]; then
+        # At Trolltech, we use sandboxed builds by default
+	QT_INSTALL_PREFIX="$outpath"
+    else
+        # the default install prefix is /usr/local/Trolltech/Qt-$QT_VERSION
+        QT_INSTALL_PREFIX="/usr/local/Trolltech/Qt-${QT_VERSION}"
+    fi
+fi
+QT_INSTALL_PREFIX=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_PREFIX"`
+
+#docs
+if [ -z "$QT_INSTALL_DOCS" ]; then #default
+    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ]; then
+	QT_INSTALL_DOCS="/Developer/Documentation/Qt"
+    else
+	QT_INSTALL_DOCS="$QT_INSTALL_PREFIX/doc"
+    fi
+fi
+QT_INSTALL_DOCS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DOCS"`
+
+#headers
+if [ -z "$QT_INSTALL_HEADERS" ]; then #default
+    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_FRAMEWORK" = "yes" ]; then
+	QT_INSTALL_HEADERS=
+    else
+	QT_INSTALL_HEADERS="$QT_INSTALL_PREFIX/include"
+    fi
+fi
+QT_INSTALL_HEADERS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_HEADERS"`
+
+#libs
+if [ -z "$QT_INSTALL_LIBS" ]; then #default
+    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_FRAMEWORK" = "yes" ]; then
+	QT_INSTALL_LIBS="/Libraries/Frameworks"
+    else
+	QT_INSTALL_LIBS="$QT_INSTALL_PREFIX/lib"
+    fi
+fi
+QT_INSTALL_LIBS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_LIBS"`
+
+#bins
+if [ -z "$QT_INSTALL_BINS" ]; then #default
+    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ]; then
+	QT_INSTALL_BINS="/Developer/Applications/Qt"
+    else
+	QT_INSTALL_BINS="$QT_INSTALL_PREFIX/bin"
+    fi
+fi
+QT_INSTALL_BINS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_BINS"`
+
+#plugins
+if [ -z "$QT_INSTALL_PLUGINS" ]; then #default
+    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ]; then
+	QT_INSTALL_PLUGINS="/Developer/Applications/Qt/plugins"
+    else
+	QT_INSTALL_PLUGINS="$QT_INSTALL_PREFIX/plugins"
+    fi
+fi
+QT_INSTALL_PLUGINS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_PLUGINS"`
+
+#data
+if [ -z "$QT_INSTALL_DATA" ]; then #default
+    QT_INSTALL_DATA="$QT_INSTALL_PREFIX"
+fi
+QT_INSTALL_DATA=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DATA"`
+
+#translations
+if [ -z "$QT_INSTALL_TRANSLATIONS" ]; then #default
+    QT_INSTALL_TRANSLATIONS="$QT_INSTALL_PREFIX/translations"
+fi
+QT_INSTALL_TRANSLATIONS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_TRANSLATIONS"`
+
+#settings
+if [ -z "$QT_INSTALL_SETTINGS" ]; then #default
+    if [ "$PLATFORM_MAC" = "yes" ]; then
+	QT_INSTALL_SETTINGS=/Library/Preferences/Qt 
+    else
+	QT_INSTALL_SETTINGS=/etc/xdg
+    fi
+fi
+QT_INSTALL_SETTINGS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_SETTINGS"`
+
+#examples
+if [ -z "$QT_INSTALL_EXAMPLES" ]; then #default
+    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ]; then
+	QT_INSTALL_EXAMPLES="/Developer/Examples/Qt"
+    else
+	QT_INSTALL_EXAMPLES="$QT_INSTALL_PREFIX/examples"
+    fi
+fi
+QT_INSTALL_EXAMPLES=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_EXAMPLES"`
+
+#demos
+if [ -z "$QT_INSTALL_DEMOS" ]; then #default
+    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ]; then
+	QT_INSTALL_DEMOS="/Developer/Examples/Qt/Demos"
+    else
+	QT_INSTALL_DEMOS="$QT_INSTALL_PREFIX/demos"
+    fi
+fi
+QT_INSTALL_DEMOS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DEMOS"`
 
 #-------------------------------------------------------------------------------
 # help - interactive parts of the script _after_ this section please
@@ -3268,29 +3339,6 @@ if [ "$CFG_STL" != "no" ]; then
             CFG_STL=no
         fi
     fi
-fi
-
-# find the default framework value
-if [ "$PLATFORM_MAC" = "yes" ] && [ "$PLATFORM" != "macx-xlc" ]; then
-    if [ "$CFG_FRAMEWORK" = "auto" ]; then
-        CFG_FRAMEWORK="$CFG_SHARED"
-    elif [ "$CFG_FRAMEWORK" = "yes" ] && [ "$CFG_SHARED" = "no" ]; then
-	echo
-	echo "WARNING: Using static linking will disable the use of Mac frameworks."
-	echo
-        CFG_FRAMEWORK="no"
-    fi
-else
-    CFG_FRAMEWORK=no
-fi
-
-# find the default universal value
-if [ "$PLATFORM_MAC" = "yes" ]; then
-    if [ "$CFG_UNIVERSAL_BINARY" = "auto" ]; then
-         CFG_UNIVERSAL_BINARY="no" #any other default? ###
-    fi
-else
-    CFG_UNIVERSAL_BINARY="no"
 fi
 
 # find if the platform supports IPv6
