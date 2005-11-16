@@ -94,6 +94,12 @@
     on Mac OS X or be part of the main window. This feature is on by
     default.
 
+    \section1 void qt_mac_set_dock_menu(QMenu *\e{menu})
+
+    Sets this menu as the menu to be shown when a press and hold is 
+    attempted on your application's dock icon. The menu will be turned 
+    into a Mac menu which will be merged with Mac OS X builtin commands.
+
     \section1 void qt_mac_set_press_and_hold_context(bool \e{enable})
 
     Turns emulation of the right mouse button by clicking and holding
