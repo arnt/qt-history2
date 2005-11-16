@@ -34,7 +34,7 @@
 class QPrinter;
 class QPSPrintEnginePrivate;
 
-class Q_GUI_EXPORT QPSPrintEngine : public QPaintEngine, public QPrintEngine
+class QPSPrintEngine : public QPaintEngine, public QPrintEngine
 {
     Q_DECLARE_PRIVATE(QPSPrintEngine)
 public:

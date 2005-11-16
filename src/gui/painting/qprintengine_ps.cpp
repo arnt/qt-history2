@@ -3260,8 +3260,9 @@ void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF
 void QPSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     Q_D(QPSPrintEngine);
-    if (d->clipEnabled && d->allClipped)
+    if (!d->hasPen || (d->clipEnabled && d->allClipped))
         return;
+
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
     d->setFont(ti.fontEngine);
     Q_ASSERT(d->currentPSFont);
@@ -3270,23 +3271,36 @@ void QPSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
         *d->pageStream << "q\n" << QPdf::generateMatrix(d->stroker.matrix);
         setPen();
         d->currentPSFont->drawText(*d->pageStream, d, p, ti);
-        if (ti.flags & QTextItem::Underline)
-            *d->pageStream << p.x() << p.y() + d->currentFont->underlinePosition().toReal() + d->currentFont->lineThickness().toReal()
-                           << ti.width.toReal() << d->currentFont->lineThickness().toReal() << "re f\n";
-        if (ti.flags & QTextItem::StrikeOut)
-            *d->pageStream << p.x() << p.y() + d->currentFont->ascent().toReal()/qreal(3.) << ti.width.toReal() << d->currentFont->lineThickness().toReal() << " re f\n";
+        if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut|QTextItem::Overline)) {
+            QBrush br = d->brush;
+            d->brush = b;
+            setBrush();
+            QFontEngine *fe = ti.fontEngine;
+            qreal lw = fe->lineThickness().toReal();
+            *d->pageStream << "NP ";
+            if (ti.flags & (QTextItem::Underline)) 
+                *d->pageStream << p.x() << (p.y() + fe->underlinePosition().toReal())
+                               << ti.width.toReal() << lw << "re ";
+            if (ti.flags & (QTextItem::StrikeOut)) 
+                *d->pageStream  << p.x() << (p.y() - fe->ascent().toReal()/3.)
+                                << ti.width.toReal() << lw << "re ";
+            if (ti.flags & (QTextItem::Overline)) 
+                *d->pageStream  << p.x() << (p.y() - fe->ascent().toReal())
+                                << ti.width.toReal() << lw << "re ";
+            *d->pageStream << "f\n";
+            d->brush = br;
+        }
         *d->pageStream << "Q\n";
     } else {
         *d->pageStream << "q\n";
         QBrush br = d->brush;
-        bool hp = d->hasPen;
         d->hasPen = false;
-        d->brush = b;
+        d->brush = d->pen.brush();
         setBrush();
         QPaintEngine::drawTextItem(p, textItem);
         *d->pageStream << "Q\n";
         d->brush = br;
-        d->hasPen = hp;
+        d->hasPen = true;
     }
 }
 
