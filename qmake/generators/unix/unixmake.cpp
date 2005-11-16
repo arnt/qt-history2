@@ -180,6 +180,7 @@ UnixMakefileGenerator::init()
                 bundle += ".app";
             if(project->isEmpty("QMAKE_BUNDLE_LOCATION"))
                 project->variables()["QMAKE_BUNDLE_LOCATION"].append("Contents/MacOS");
+            project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + bundle + "/PkgInfo");
         } else if(project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
                   ((!project->isActiveConfig("plugin") && project->isActiveConfig("lib_bundle")) ||
                    (project->isActiveConfig("plugin") && project->isActiveConfig("plugin_bundle")))) {
@@ -200,7 +201,6 @@ UnixMakefileGenerator::init()
         }
         if(!bundle.isEmpty()) {
             project->variables()["QMAKE_BUNDLE_NAME"] = QStringList(bundle);
-            project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + bundle + "/PkgInfo");
             project->variables()["ALL_DEPS"] += project->first("QMAKE_PKGINFO");
         } else {
             project->variables()["QMAKE_BUNDLE_NAME"].clear();
