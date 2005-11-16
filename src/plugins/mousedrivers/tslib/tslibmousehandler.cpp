@@ -49,11 +49,11 @@
 #include "tslibmousehandler.h"
 
 #ifdef QT_QWS_TSLIB
-#include "qfile.h"
-#include "qtextstream.h"
-#include "qscreen.h"
-#include "qsocketnotifier.h"
-#include "qdebug.h"
+#include <QFile>
+#include <QTextStream>
+#include <QScreen>
+#include <QSocketNotifier>
+#include <QDebug>
 
 #include <tslib.h>
 
