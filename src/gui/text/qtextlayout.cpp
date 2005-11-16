@@ -1549,6 +1549,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         gf.num_glyphs = ge - gs;
         gf.glyphs = glyphs + gs;
         gf.chars = eng->layoutData->string.unicode() + start;
+        gf.logClusters = logClusters + start - si.position;
         gf.num_chars = end - start;
         gf.width = 0;
         int g = gs;

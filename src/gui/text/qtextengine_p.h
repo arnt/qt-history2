@@ -187,6 +187,7 @@ public:
     RenderFlags flags;
     int num_chars;
     const QChar *chars;
+    const unsigned short *logClusters;
     const QFont *f;
 
     QGlyphLayout *glyphs;
