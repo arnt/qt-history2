@@ -1068,10 +1068,12 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
         updateClipRegion(state.clipRegion(), state.clipOperation());
     }
     if (flags & DirtyHints) updateRenderHints(state.renderHints());
+#if !defined(QT_NO_XRENDER)
     if (flags & DirtyCompositionMode) {
         d->composition_mode =
             qpainterOpToXrender(state.compositionMode());
     }
+#endif
     d->decidePathFallback();
 }
 
