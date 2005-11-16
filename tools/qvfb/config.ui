@@ -1,6 +1,6 @@
 <ui version="4.0" >
  <author></author>
-  <comment>*********************************************************************
+ <comment>*********************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -19,8 +19,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>750</width>
-    <height>657</height>
+    <width>600</width>
+    <height>650</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -57,6 +57,9 @@
        <property name="title" >
         <string>Size</string>
        </property>
+       <property name="orientation" >
+        <enum>Qt::Vertical</enum>
+       </property>
        <layout class="QVBoxLayout" >
         <property name="margin" >
          <number>11</number>
@@ -67,28 +70,28 @@
         <item>
          <widget class="QRadioButton" name="size_176_220" >
           <property name="text" >
-           <string>176x220 &quot;SmartPhone&quot;</string>
+           <string>176x220 "SmartPhone"</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QRadioButton" name="size_240_320" >
           <property name="text" >
-           <string>240x320 &quot;PDA&quot;</string>
+           <string>240x320 "PDA"</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QRadioButton" name="size_320_240" >
           <property name="text" >
-           <string>320x240 &quot;TV&quot; / &quot;QVGA&quot;</string>
+           <string>320x240 "TV" / "QVGA"</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QRadioButton" name="size_640_480" >
           <property name="text" >
-           <string>640x480 &quot;VGA&quot;</string>
+           <string>640x480 "VGA"</string>
           </property>
          </widget>
         </item>
@@ -117,14 +120,6 @@
           </item>
           <item>
            <widget class="QSpinBox" name="size_width" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>7</hsizetype>
-              <vsizetype>0</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
             <property name="maximum" >
              <number>1280</number>
             </property>
@@ -141,14 +136,6 @@
           </item>
           <item>
            <widget class="QSpinBox" name="size_height" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>7</hsizetype>
-              <vsizetype>0</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
             <property name="maximum" >
              <number>1024</number>
             </property>
@@ -172,6 +159,9 @@
       <widget class="Q3ButtonGroup" name="ButtonGroup2" >
        <property name="title" >
         <string>Depth</string>
+       </property>
+       <property name="orientation" >
+        <enum>Qt::Vertical</enum>
        </property>
        <layout class="QVBoxLayout" >
         <property name="margin" >
@@ -283,7 +273,7 @@
      <property name="sizeHint" >
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>10</height>
       </size>
      </property>
     </spacer>
@@ -293,7 +283,7 @@
      <property name="sizePolicy" >
       <sizepolicy>
        <hsizetype>5</hsizetype>
-       <vsizetype>1</vsizetype>
+       <vsizetype>5</vsizetype>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -301,12 +291,18 @@
      <property name="text" >
       <string>&lt;p>Note that any applications using the virtual framebuffer will be terminated if you change the Size or Depth &lt;i>above&lt;/i>. You may freely modify the Gamma &lt;i>below&lt;/i>.</string>
      </property>
+     <property name="wordWrap" >
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
     <widget class="Q3GroupBox" name="GroupBox1" >
      <property name="title" >
       <string>Gamma</string>
+     </property>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
      </property>
      <layout class="QGridLayout" >
       <property name="margin" >
@@ -1548,13 +1544,6 @@
  <pixmapfunction></pixmapfunction>
  <customwidgets>
   <customwidget>
-   <class>GammaView</class>
-   <extends></extends>
-   <header>gammaview.h</header>
-   <container>0</container>
-   <pixmap></pixmap>
-  </customwidget>
-  <customwidget>
    <class>Q3ButtonGroup</class>
    <extends></extends>
    <header>Qt3Support/Q3ButtonGroup</header>
@@ -1568,7 +1557,47 @@
    <container>1</container>
    <pixmap></pixmap>
   </customwidget>
+  <customwidget>
+   <class>GammaView</class>
+   <extends></extends>
+   <header>gammaview.h</header>
+   <container>0</container>
+   <pixmap></pixmap>
+  </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>size_width</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>size_custom</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>152</x>
+     <y>193</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>94</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>size_height</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>size_custom</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>259</x>
+     <y>196</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>64</x>
+     <y>188</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

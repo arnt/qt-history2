@@ -39,6 +39,7 @@
 #include <QPushButton>
 #include <QTextStream>
 #include <QFile>
+#include <QSettings>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -146,31 +147,78 @@ void Zoomer::zoom(int z)
 
 // =====================================================================
 
-QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWidget *parent,
-	    const char *name, uint flags )
-    : QMainWindow( parent, name, static_cast<Qt::WFlags>(flags) )
+void QVFb::setWidth(int w)
+{
+    QSettings settings;
+    settings.setValue("width", w);
+}
+
+void QVFb::setHeight(int h)
+{
+    QSettings settings;
+    settings.setValue("height", h);
+}
+
+void QVFb::setDepth(int d)
+{
+    QSettings settings;
+    settings.setValue("depth", d);
+}
+
+void QVFb::setRotation(int r)
+{
+    QSettings settings;
+    settings.setValue("rotation", r);
+}
+
+void QVFb::setDisplay(const QString &spec)
+{
+    QSettings settings;
+
+    QRegExp r(":[0-9]+");
+    int m = r.indexIn(spec, 0);
+    int len = r.matchedLength();
+    if (m >= 0) {
+	int displayId = spec.mid(m + 1, len - 1).toInt();
+        settings.setValue("display", displayId);
+    }
+
+    QRegExp rotRegExp("Rot[0-9]+");
+    m = rotRegExp.indexIn(spec, 0);
+    len = r.matchedLength();
+    if (m >= 0) {
+	int rotation = spec.mid(m + 3, len - 3).toInt();
+        setRotation(rotation);
+    }
+
+}
+void QVFb::setSkin(const QString &spec)
+{
+    QSettings settings;
+    settings.setValue("skin", spec);
+}
+
+QVFb::QVFb(QWidget *parent, const char *name, uint flags)
+    : QMainWindow(parent, name, static_cast<Qt::WFlags>(flags)),
+      skin(0), view(0), rateDlg(0), viewMenu(0), config(0), currentSkinIndex(-1),
+      zoomer(0), scroller(0)
 {
     qApp->setQuitOnLastWindowClosed(false);
-    view = 0;
-    scroller = 0;
-    this->skin = 0;
-    currentSkinIndex = -1;
-    findSkins(skin);
-    zoomer = 0;
+
+    QSettings settings;
+    refreshRate = settings.value("refreshRate", 30).toInt();
+    QString skinSpec = settings.value("skin").toString();
+    findSkins(skinSpec);
+    bool cursor = settings.value("cursor", false).toBool();
+    double zoom = settings.value("zoom", 1.0).toDouble();
+
     QPixmap pix(":/res/images/logo.png");
     setWindowIcon( pix );
-    rateDlg = 0;
-    refreshRate = 30;
-#if QT_VERSION >= 0x030000
-    // When compiling with Qt 3 we need to create the menu first to
-    // avoid scroll bars in the main window
-    createMenu( menuBar() );
-    init( display_id, w, h, d, r, skin );
-    enableCursor( true );
-#else
-    init( display_id, w, h, d, r, skin );
-    createMenu( menuBar() );
-#endif
+
+    init();
+    createMenu(menuBar());
+    enableCursor(cursor);
+    setZoom(zoom);
 }
 
 QVFb::~QVFb()
@@ -184,10 +232,17 @@ void QVFb::popupMenu()
     pm->exec(QCursor::pos());
 }
 
-void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& skin_name )
+void QVFb::init()
 {
-    setCaption( QString("Virtual framebuffer %1x%2 %3bpp Display :%4 Rotate %5")
-		    .arg(pw).arg(ph).arg(d).arg(display_id).arg(r) );
+    QSettings settings;
+
+    int display_id = settings.value("display", 0).toInt();
+    int pw = settings.value("width", 0).toInt();
+    int ph = settings.value("height", 0).toInt();
+    int d = settings.value("depth", 32).toInt();
+    int r = settings.value("rotation", 0).toInt();
+    QString skin_name = settings.value("skin").toString();
+
     delete view;
     view = 0;
     delete scroller;
@@ -236,7 +291,7 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 	if ( !pw ) pw = 240;
 	if ( !ph ) ph = 320;
 
-     	if ( currentSkinIndex!=-1 ) {
+     	if (currentSkinIndex != -1) {
 	    clearMask();
 	    reparent( 0, 0, pos(), true );
 	    //unset fixed size:
@@ -249,12 +304,9 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 	scroller->setWidget(view);
 	view->setContentsMargins( 0, 0, 0, 0 );
 	setCentralWidget(scroller);
-#if QT_VERSION >= 0x030000
-	ph += 2;					// avoid scrollbar
-#endif
 	scroller->show();
 	// delete defaultbuttons.conf if it was left behind...
-	unlink(QFileInfo(QString("/tmp/qtembedded-%1/defaultbuttons.conf").arg(view->displayId())).absFilePath().latin1());
+	unlink(qPrintable(QFileInfo(QString("/tmp/qtembedded-%1/defaultbuttons.conf").arg(view->displayId())).absFilePath()));
     }
     view->setRate(refreshRate);
     // Resize QVFb to the new size
@@ -264,16 +316,23 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
     newSize += QSize(20, 35);
 
     resize(newSize);
+
+    setCaption(QString("Virtual framebuffer %1x%2 %3bpp Display :%4 Rotate %5")
+               .arg(view->displayWidth()).arg(view->displayHeight())
+               .arg(d).arg(display_id).arg(r));
 }
 
 void QVFb::enableCursor( bool e )
 {
+    QSettings settings;
+    settings.setValue("cursor", e);
+
     if ( skin && skin->hasCursor() ) {
 	view->setCursor( Qt::BlankCursor );
     } else {
 	view->setCursor( e ? Qt::ArrowCursor : Qt::BlankCursor );
     }
-    viewMenu->setItemChecked( cursorId, e );
+    cursorAction->setChecked(e);
 }
 
 void QVFb::createMenu(QMenuBar *menu)
@@ -306,21 +365,37 @@ QMenu* QVFb::createFileMenu()
 
 QMenu* QVFb::createViewMenu()
 {
-    viewMenu = new QMenu( this );
-    viewMenu->setCheckable( true );
-    cursorId = viewMenu->insertItem( "Show &Cursor", this, SLOT(toggleCursor()) );
-    if ( view )
-	enableCursor(true);
-    viewMenu->insertItem( "&Refresh Rate...", this, SLOT(changeRate()) );
+    viewMenu = new QMenu(this);
+    cursorAction = viewMenu->addAction("Show &Cursor", this, SLOT(toggleCursor()));
+    cursorAction->setCheckable(true);
+
+    viewMenu->addAction("&Refresh Rate...", this, SLOT(changeRate()));
     viewMenu->insertSeparator();
-    viewMenu->insertItem( "Zoom scale &0.5", this, SLOT(setZoomHalf()) );
-    viewMenu->insertItem( "Zoom scale 0.75", this, SLOT(setZoom075()) );
-    viewMenu->insertItem( "Zoom scale &1", this, SLOT(setZoom1()) );
-    viewMenu->insertItem( "Zoom scale &2", this, SLOT(setZoom2()) );
-    viewMenu->insertItem( "Zoom scale &3", this, SLOT(setZoom3()) );
-    viewMenu->insertItem( "Zoom scale &4", this, SLOT(setZoom4()) );
+
+    zoomActions = new QActionGroup(this);
+    QAction *action;
+    action = viewMenu->addAction("Zoom scale &0.5", this, SLOT(setZoomHalf()));
+    action->setCheckable(true);
+    zoomActions->addAction(action);
+    action = viewMenu->addAction("Zoom scale 0.75", this, SLOT(setZoom075()) );
+    action->setCheckable(true);
+    zoomActions->addAction(action);
+    action = viewMenu->addAction("Zoom scale &1", this, SLOT(setZoom1()));
+    action->setCheckable(true);
+    zoomActions->addAction(action);
+    action = viewMenu->addAction("Zoom scale &2", this, SLOT(setZoom2()));
+    action->setCheckable(true);
+    zoomActions->addAction(action);
+    action = viewMenu->addAction("Zoom scale &3", this, SLOT(setZoom3()));
+    action->setCheckable(true);
+    zoomActions->addAction(action);
+    action = viewMenu->addAction("Zoom scale &4", this, SLOT(setZoom4()));
+    action->setCheckable(true);
+    zoomActions->addAction(action);
     viewMenu->insertSeparator();
-    viewMenu->insertItem( "Zoom scale...", this, SLOT(setZoom()) );
+    action = viewMenu->addAction("Zoom scale...", this, SLOT(setZoom()));
+    action->setCheckable(true);
+    zoomActions->addAction(action);
     return viewMenu;
 }
 
@@ -334,6 +409,22 @@ QMenu* QVFb::createHelpMenu()
 
 void QVFb::setZoom(double z)
 {
+    QSettings settings;
+    settings.setValue("zoom", z);
+
+    bool checked = false;
+    QList<QAction*> actions = zoomActions->actions();
+    QString actionText = QString("Zoom scale %1").arg(z);
+    foreach (QAction* action, actions) {
+        if (action->iconText() == actionText) {
+            action->setChecked(true);
+            checked = true;
+            break;
+        }
+    }
+    if (!checked)
+        actions.last()->setChecked(true);
+
     view->setZoom(z,z*skinscaleV/skinscaleH);
     if (skin) {
 	skin->setZoom(z/skinscaleH);
@@ -401,7 +492,7 @@ void QVFb::toggleAnimation()
 
 void QVFb::toggleCursor()
 {
-    enableCursor( !viewMenu->isItemChecked( cursorId ) );
+    enableCursor(cursorAction->isChecked());
 }
 
 void QVFb::changeRate()
@@ -416,6 +507,8 @@ void QVFb::changeRate()
 
 void QVFb::setRate(int i)
 {
+    QSettings settings;
+    settings.setValue("refreshRate", i);
     refreshRate = i;
     view->setRate(i);
 }
@@ -453,6 +546,7 @@ void QVFb::findSkins(const QString &currentSkin)
 
 class Config : public QDialog, public Ui::Config
 {
+    Q_OBJECT
 public:
     Config(QWidget *parent)
         : QDialog(parent)
@@ -460,8 +554,20 @@ public:
         setupUi(this);
         setModal(true);
 
+        connect(size_width, SIGNAL(editingFinished()),
+                this, SLOT(customSizeChanged()));
+        connect(size_height, SIGNAL(editingFinished()),
+                this, SLOT(customSizeChanged()));
         connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
         connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+    }
+
+private slots:
+    void customSizeChanged()
+    {
+        QSettings settings;
+        settings.setValue("customWidth", size_width->value());
+        settings.setValue("customHeight", size_height->value());
     }
 };
 
@@ -475,11 +581,14 @@ void QVFb::configure()
     // Need to block signals, because we connect to animateClick(),
     // since QCheckBox doesn't have setChecked(bool) in 2.x.
     chooseSize(QSize(w,h));
+
     config->skin->insertStringList(skinnames);
     if (currentSkinIndex > 0)
 	config->skin->setCurrentItem(currentSkinIndex);
+
     config->touchScreen->setChecked(view->touchScreenEmulation());
     config->lcdScreen->setChecked(view->lcdScreenEmulation());
+
     config->depth_1->setChecked(view->displayDepth()==1);
     config->depth_4gray->setChecked(view->displayDepth()==4);
     config->depth_8->setChecked(view->displayDepth()==8);
@@ -487,6 +596,7 @@ void QVFb::configure()
     config->depth_16->setChecked(view->displayDepth()==16);
     config->depth_32->setChecked(view->displayDepth()==32);
     connect(config->skin, SIGNAL(activated(int)), this, SLOT(skinConfigChosen(int)));
+
     if ( view->gammaRed() == view->gammaGreen() && view->gammaGreen() == view->gammaBlue() ) {
 	config->gammaslider->setValue(int(view->gammaRed()*400));
 	config->rslider->setValue(100);
@@ -507,7 +617,6 @@ void QVFb::configure()
     double ogr=view->gammaRed(), ogg=view->gammaGreen(), ogb=view->gammaBlue();
     hide();
     if ( config->exec() ) {
-	int id = view->displayId(); // not settable yet
 	if ( config->size_176_220->isChecked() ) {
 	    w=176; h=220;
 	} else if ( config->size_240_320->isChecked() ) {
@@ -530,24 +639,45 @@ void QVFb::configure()
 	else if ( config->depth_12->isChecked() )
 	    d=12;
 	else if ( config->depth_16->isChecked() )
-	    d=16;
+            d=16;
 	else
 	    d=32;
+
+        bool doInit = false;
+        if (w != view->displayWidth()) {
+            setWidth(w);
+            doInit = true;
+        }
+        if (h != view->displayHeight()) {
+            setHeight(h);
+            doInit = true;
+        }
+        if (d != view->displayDepth()) {
+            setDepth(d);
+            doInit = true;
+        }
 	int skinIndex = config->skin->currentItem();
-	if ( w != view->displayWidth() || h != view->displayHeight()
-		|| d != view->displayDepth() || skinIndex != currentSkinIndex ) {
-	    QVFbView::Rotation rot = view->displayRotation();
-	    int r = ((rot == QVFbView::Rot90)  ?  90 :
-		    ((rot == QVFbView::Rot180) ? 180 :
-		    ((rot == QVFbView::Rot270) ? 270 : 0 )));
-	    currentSkinIndex = skinIndex;
-	    init( id, w, h, d, r, skinIndex > 0 ? skinfiles[skinIndex-1] : QString::null );
-	}
-	view->setTouchscreenEmulation( config->touchScreen->isChecked() );
+        if (skinIndex != currentSkinIndex) {
+            setSkin(skinIndex > 0 ? skinfiles[skinIndex-1] : QString());
+            doInit = true;
+        }
+        bool touchEmulation = config->touchScreen->isChecked();
+        if (view->touchScreenEmulation() != touchEmulation) {
+            view->setTouchscreenEmulation(touchEmulation);
+            doInit = true;
+        }
 	bool lcdEmulation = config->lcdScreen->isChecked();
-	view->setLcdScreenEmulation( lcdEmulation );
-	if ( lcdEmulation )
-	    setZoom3();
+        if (view->lcdScreenEmulation() != lcdEmulation) {
+            view->setLcdScreenEmulation(lcdEmulation);
+            doInit = true;
+        }
+
+	if (doInit)
+	    init();
+
+        if (view->lcdScreenEmulation())
+            setZoom3();
+
     } else {
 	view->setGamma(ogr, ogg, ogb);
     }
@@ -558,10 +688,12 @@ void QVFb::configure()
 
 void QVFb::chooseSize(const QSize& sz)
 {
+    QSettings settings;
+
     config->size_width->blockSignals(true);
     config->size_height->blockSignals(true);
-    config->size_width->setValue(sz.width());
-    config->size_height->setValue(sz.height());
+    config->size_width->setValue(settings.value("customWidth", 1024).toInt());
+    config->size_height->setValue(settings.value("customHeight", 768).toInt());
     config->size_width->blockSignals(false);
     config->size_height->blockSignals(false);
     config->size_custom->setChecked(true); // unless changed by settings below
@@ -573,7 +705,8 @@ void QVFb::chooseSize(const QSize& sz)
 
 void QVFb::skinConfigChosen(int i)
 {
-    if ( i ) {
+    if (i > 0) {
+        setSkin(skinfiles[i-1]);
 	chooseSize(Skin::screenSize(skinfiles[i-1]));
     }
 }

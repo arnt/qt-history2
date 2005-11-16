@@ -22,6 +22,8 @@ class QVFbRateDialog;
 class QPopupMenu;
 class QMenuData;
 class Q3FileDialog;
+class QAction;
+class QActionGroup;
 class Config;
 class Skin;
 class QVFb;
@@ -46,8 +48,7 @@ class QVFb: public QMainWindow
 {
     Q_OBJECT
 public:
-    QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWidget *parent = 0,
-		const char *name = 0, uint wflags = 0 );
+    QVFb(QWidget *parent = 0, const char *name = 0, uint wflags = 0);
     ~QVFb();
 
     void enableCursor( bool e );
@@ -78,6 +79,12 @@ protected slots:
 
 public slots:
     void setZoom(double);
+    void setWidth(int w);
+    void setHeight(int h);
+    void setDepth(int d);
+    void setRotation(int r);
+    void setDisplay(const QString &spec);
+    void setSkin(const QString &spec);
 
 protected:
     void createMenu(QMenuBar *menu);
@@ -88,13 +95,16 @@ protected:
 
 private:
     void findSkins(const QString &currentSkin);
-    void init( int display_id, int w, int h, int d, int r, const QString& skin );
+    void init();
     Skin *skin;
     double skinscaleH,skinscaleV;
     QVFbView *view;
     QVFbRateDialog *rateDlg;
+
     QMenu *viewMenu;
-    int cursorId;
+    QAction *cursorAction;
+    QActionGroup *zoomActions;
+
     Config* config;
     QStringList skinnames;
     QStringList skinfiles;
@@ -103,6 +113,7 @@ private:
     QScrollArea* scroller;
 
     int refreshRate;
+
 private slots:
     void setGamma400(int n);
     void setR400(int n);
