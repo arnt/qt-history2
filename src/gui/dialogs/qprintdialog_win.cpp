@@ -238,11 +238,10 @@ int QPrintDialog::exec()
     else
         parent = qApp->activeWindow();
 
-    if (parent) {
-	QEvent e(QEvent::WindowBlocked);
-	QApplication::sendEvent(parent, &e);
-        QApplicationPrivate::enterModal(parent);
-    }
+    QWidget modal_widget;
+    modal_widget.setAttribute(Qt::WA_NoChildEventsForParent, true);
+    modal_widget.setParent(parent, Qt::Window);
+    QApplicationPrivate::enterModal(&modal_widget);
 
     HGLOBAL *tempDevNames = d->ep->createDevNames();
 
@@ -262,11 +261,7 @@ int QPrintDialog::exec()
             result = false;
     });
 
-    if (parent) {
-        QApplicationPrivate::leaveModal(parent);
-        QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(parent, &e);
-    }
+    QApplicationPrivate::leaveModal(&modal_widget);
 
     qt_win_eatMouseMove();
 
