@@ -3,8 +3,6 @@
 
 #TSLIB_INCLUDE = /usr/local/tslib/include
 #TSLIB_LIBS = -L/usr/local/tslib/lib -lts
-TSLIB_INCLUDE = /tslib/include
-TSLIB_LIBS = -L/tslib/lib -lts
 
 # ====================================================
 
