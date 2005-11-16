@@ -334,7 +334,8 @@ void QGLContext::updatePaintDevice()
 #endif
 
         //update drawable
-        if(w->isWindow() && w->isFullScreen()) {
+        if(0 && w->isWindow() && w->isFullScreen()) {
+            aglSetDrawable((AGLContext)d->cx, 0);
             aglSetFullScreen((AGLContext)d->cx, w->width(), w->height(), 0, QApplication::desktop()->screenNumber(w));
             w->hide();
         } else {
