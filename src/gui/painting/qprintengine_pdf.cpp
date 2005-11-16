@@ -395,7 +395,7 @@ QByteArray QPdf::patternForBrush(const QBrush &b)
 #ifdef USE_NATIVE_GRADIENTS
 static void writeTriangleLine(uchar *&data, int xpos, int ypos, int xoff, int yoff, uint rgb, uchar flag, bool alpha)
 {
-    data[0] =  flag; 
+    data[0] =  flag;
     data[1] = (uchar)(xpos >> 16);
     data[2] = (uchar)(xpos >> 8);
     data[3] = (uchar)(xpos >> 0);
@@ -412,7 +412,7 @@ static void writeTriangleLine(uchar *&data, int xpos, int ypos, int xoff, int yo
     }
     xpos += xoff;
     ypos += yoff;
-    data[0] =  flag; 
+    data[0] =  flag;
     data[1] = (uchar)(xpos >> 16);
     data[2] = (uchar)(xpos >> 8);
     data[3] = (uchar)(xpos >> 0);
@@ -438,7 +438,7 @@ QByteArray QPdf::generateLinearGradientShader(const QLinearGradient *gradient, c
     QGradientStops stops = gradient->stops();
     QPointF offset = stop - start;
     QGradient::Spread spread = gradient->spread();
-    
+
     if (gradient->spread() == QGradient::ReflectSpread) {
         offset *= 2;
         for (int i = stops.size() - 2; i >= 0; --i) {
@@ -446,7 +446,7 @@ QByteArray QPdf::generateLinearGradientShader(const QLinearGradient *gradient, c
             stop.first = 2. - stop.first;
             stops.append(stop);
         }
-        for (int i = 0 ; i < stops.size(); ++i) 
+        for (int i = 0 ; i < stops.size(); ++i)
             stops[i].first /= 2.;
     }
 
@@ -497,7 +497,7 @@ QByteArray QPdf::generateLinearGradientShader(const QLinearGradient *gradient, c
     qreal factor_y = qreal(1<<24)/(ymax - ymin);
     int xoff = (int)(orthogonal.x()*factor_x);
     int yoff = (int)(orthogonal.y()*factor_y);
-            
+
     QByteArray triangles;
     triangles.resize(spread == QGradient::PadSpread ? 20*(stops.size()+2) : 20*num*stops.size());
     uchar *data = (uchar *) triangles.data();
@@ -663,7 +663,6 @@ void QPdf::Stroker::strokePath(const QPainterPath &path)
 
 // ------------------------------ Truetype embedding support
 
-typedef qint32 Fixed;
 typedef qint16 F2DOT14;
 typedef quint32 Tag;
 typedef quint16 GlyphID;
@@ -680,7 +679,7 @@ public:
     QTtfStream &operator <<(qint16 v) { qToBigEndian(v, data); data += sizeof(v); return *this; }
     QTtfStream &operator <<(qint32 v) { qToBigEndian(v, data); data += sizeof(v); return *this; }
     QTtfStream &operator <<(qint64 v) { qToBigEndian(v, data); data += sizeof(v); return *this; }
-    
+
     int offset() const { return data - start; }
     void setOffset(int o) { data = start + o; }
     void align4() { while (offset() & 3) { *data = '\0'; ++data; } }
@@ -703,7 +702,7 @@ Q_DECLARE_TYPEINFO(QTtfTable, Q_MOVABLE_TYPE);
 
 
 struct qttf_head_table {
-    Fixed font_revision;
+    qint32 font_revision;
     quint16 flags;
     qint64 created;
     qint64 modified;
@@ -810,9 +809,9 @@ static QTtfTable generateHead(const qttf_head_table &head)
 
     QTtfStream s(t.data);
 
-// Fixed  Table version number  0x00010000 for version 1.0.
-// Fixed  fontRevision  Set by font manufacturer.
-    s << Fixed(0x00010000)
+// qint32  Table version number  0x00010000 for version 1.0.
+// qint32  fontRevision  Set by font manufacturer.
+    s << qint32(0x00010000)
       << head.font_revision
 // quint32  checkSumAdjustment  To compute: set it to 0, sum the entire font as quint32, then store 0xB1B0AFBA - sum.
       << quint32(0)
@@ -880,8 +879,8 @@ static QTtfTable generateHhea(const qttf_hhea_table &hhea)
     t.data.resize(hhea_size);
 
     QTtfStream s(t.data);
-// Fixed  Table version number  0x00010000 for version 1.0.
-    s << Fixed(0x00010000)
+// qint32  Table version number  0x00010000 for version 1.0.
+    s << qint32(0x00010000)
 // qint16  Ascender  Typographic ascent.  (Distance from baseline of highest ascender)
       << hhea.ascender
 // qint16  Descender  Typographic descent.  (Distance from baseline of lowest descender)
@@ -932,8 +931,8 @@ static QTtfTable generateMaxp(const qttf_maxp_table &maxp)
 
     QTtfStream s(t.data);
 
-// Fixed  Table version number  0x00010000 for version 1.0.
-    s << Fixed(0x00010000)
+// qint32  Table version number  0x00010000 for version 1.0.
+    s << qint32(0x00010000)
 // quint16  numGlyphs  The number of glyphs in the font.
       << maxp.numGlyphs
 // quint16  maxPoints  Maximum points in a non-composite glyph.
@@ -1429,7 +1428,7 @@ static QByteArray bindFont(const QList<QTtfTable>& _tables)
     qSort(tables);
 
     QByteArray font;
-    const int header_size = sizeof(Fixed) + 4*sizeof(quint16);
+    const int header_size = sizeof(qint32) + 4*sizeof(quint16);
     const int directory_size = 4*sizeof(quint32)*tables.size();
     font.resize(header_size + directory_size);
 
@@ -1447,12 +1446,12 @@ static QByteArray bindFont(const QList<QTtfTable>& _tables)
         QTtfStream f(font);
 // Offset Table
 // Type  Name  Description
-//   Fixed  sfnt version  0x00010000 for version 1.0.
+//   qint32  sfnt version  0x00010000 for version 1.0.
 //   quint16   numTables  Number of tables.
 //   quint16   searchRange  (Maximum power of 2 <= numTables) x 16.
 //   quint16   entrySelector  Log2(maximum power of 2 <= numTables).
 //   quint16   rangeShift  NumTables x 16-searchRange.
-        f << Fixed(0x00010000)
+        f << qint32(0x00010000)
           << quint16(tables.size())
           << quint16(16*pow)
           << quint16(log2)
@@ -1559,7 +1558,7 @@ QByteArray QPdf::Font::toTruetype() const
     name.family = fontEngine->fontDef.family;
     name.subfamily = QLatin1String("Regular"); // ######
     name.postscript_name = fontEngine->fontDef.family;
-    
+
     uint sumAdvances = 0;
     for (int i = 0; i < glyph_indices.size(); ++i) {
         glyph_t g = glyph_indices.at(i);
@@ -1587,7 +1586,7 @@ QByteArray QPdf::Font::toTruetype() const
         widths[g] = glyph.advanceWidth;
     }
 
-    
+
     QList<QTtfTable> tables = generateGlyphTables(font, glyphs);
     tables.append(generateHead(font.head));
     tables.append(generateHhea(font.hhea));
@@ -1601,7 +1600,7 @@ QByteArray QPdf::Font::toTruetype() const
 QByteArray QPdf::Font::widthArray() const
 {
     Q_ASSERT(!widths.isEmpty());
-    
+
     QFontEngine::Properties properties = fontEngine->properties();
 
     QByteArray width;
@@ -1643,11 +1642,11 @@ QByteArray QPdf::Font::widthArray() const
             // qDebug("    startLinear=%x endnonlinear=%x", startLinear,endnonlinear);
             if (endnonlinear > start) {
                 s << start << "[";
-                for (int i = start; i < endnonlinear; ++i) 
+                for (int i = start; i < endnonlinear; ++i)
                     s << (widths[i]*scale).toInt();
                 s << "]\n";
             }
-            if (startLinear) 
+            if (startLinear)
                 s << startLinear << g - 1 << (widths[startLinear]*scale).toInt() << "\n";
         }
         s << "]\n";
@@ -1674,7 +1673,7 @@ QByteArray QPdf::Font::createToUnicodeMap() const
         QChar ch(uc);
         int nglyphs = 10;
         fontEngine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
-        if (glyphs[0].glyph < (uint)nGlyphs && !reverseMap.at(glyphs[0].glyph)) 
+        if (glyphs[0].glyph < (uint)nGlyphs && !reverseMap.at(glyphs[0].glyph))
             reverseMap[glyphs[0].glyph] = uc;
     }
 
@@ -1689,7 +1688,7 @@ QByteArray QPdf::Font::createToUnicodeMap() const
         "1 begincodespacerange\n"
         "<0000> <FFFF>\n"
         "endcodespacerange\n";
-    
+
     int nranges = 1;
     QByteArray ranges = "<0000> <0000> <0000>\n";
     QPdf::ByteStream s(&ranges);
@@ -1744,7 +1743,7 @@ QByteArray QPdf::Font::createToUnicodeMap() const
                 int len = g - startLinear;
                 int uc_start = reverseMap[startLinear];
                 int uc_end = uc_start + len - 1;
-                if ((uc_end >> 8) != (uc_start >> 8)) 
+                if ((uc_end >> 8) != (uc_start >> 8))
                     len = 256 - (uc_start & 0xff);
                 s << "<" << toHex((ushort)startLinear, buf) << "> <";
                 s << toHex((ushort)(startLinear + len - 1), buf) << "> ";
@@ -2211,7 +2210,7 @@ void QPdfEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
     QBrush b = brush;
     brush = pen.brush();
     setBrush();
-    
+
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
     if (ti.fontEngine->type() == QFontEngine::Multi) {
         QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
@@ -2564,22 +2563,22 @@ void QPdfEnginePrivate::drawTextItem(QPdfEngine *q, const QPointF &p, const QTex
     QVarLengthArray<QFixedPoint> positions;
     QMatrix m;
     m.translate(p.x(), p.y());
-    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, m, ti.flags, 
+    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, m, ti.flags,
                                      glyphs, positions);
 
     if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut|QTextItem::Overline)) {
         qreal lw = fe->lineThickness().toReal();
-        if (ti.flags & (QTextItem::Underline)) 
+        if (ti.flags & (QTextItem::Underline))
             *currentPage << p.x() << (p.y() + fe->underlinePosition().toReal())
                            << ti.width.toReal() << lw << "re ";
-        if (ti.flags & (QTextItem::StrikeOut)) 
+        if (ti.flags & (QTextItem::StrikeOut))
             *currentPage  << p.x() << (p.y() - fe->ascent().toReal()/3.)
                             << ti.width.toReal() << lw << "re ";
-        if (ti.flags & (QTextItem::Overline)) 
+        if (ti.flags & (QTextItem::Overline))
             *currentPage  << p.x() << (p.y() - fe->ascent().toReal())
                             << ti.width.toReal() << lw << "re ";
         *currentPage << "f\n";
-    }    
+    }
     *currentPage << "BT\n"
                  << "/F" << font->object_id << size << "Tf "
                  << "1 0 0 -1 0 0 Tm\n";
@@ -2618,7 +2617,7 @@ void QPdfEnginePrivate::drawTextItem(QPdfEngine *q, const QPointF &p, const QTex
         last = current;
     }
 #endif
-    
+
     *currentPage << "ET\n";
 }
 
@@ -2631,13 +2630,13 @@ int QPdfEnginePrivate::gradientBrush(const QBrush &b, const QMatrix &matrix, int
         return 0;
 
     QMatrix inv = matrix.inverted();
-    QPointF page_rect[4] = { inv.map(QPointF(0, 0)), 
-                             inv.map(QPointF(width_, 0)), 
-                             inv.map(QPointF(0, height_)), 
+    QPointF page_rect[4] = { inv.map(QPointF(0, 0)),
+                             inv.map(QPointF(width_, 0)),
+                             inv.map(QPointF(0, height_)),
                              inv.map(QPointF(width_, height_)) };
 
     bool opaque = b.isOpaque();
-    
+
     QByteArray shader;
     QByteArray alphaShader;
     if (gradient->type() == QGradient::LinearGradient) {
@@ -2694,7 +2693,7 @@ int QPdfEnginePrivate::gradientBrush(const QBrush &b, const QMatrix &matrix, int
             QByteArray content;
             QPdf::ByteStream c(&content);
             c << "/Shader" << alphaShaderObject << "sh\n";
-        
+
             QByteArray form;
             QPdf::ByteStream f(&form);
             f << "<<\n"
@@ -2705,7 +2704,7 @@ int QPdfEnginePrivate::gradientBrush(const QBrush &b, const QMatrix &matrix, int
                 "/Resources <<\n"
                 "/Shading << /Shader" << alphaShaderObject << alphaShaderObject << "0 R >>\n"
                 ">>\n";
-        
+
             f << "/Length " << content.length() << "\n"
                 ">>\n"
                 "stream\n"
@@ -2720,7 +2719,7 @@ int QPdfEnginePrivate::gradientBrush(const QBrush &b, const QMatrix &matrix, int
                     "endobj\n", softMaskFormObject);
         }
         currentPage->graphicStates.append(*gStateObject);
-    }    
+    }
 
     return patternObj;
 }
@@ -2735,7 +2734,7 @@ int QPdfEnginePrivate::addBrushPattern(const QBrush &b, const QMatrix &m, const 
 
     *specifyColor = true;
     *gStateObject = 0;
-    
+
     QMatrix matrix = m;
     matrix.translate(brushOrigin.x(), brushOrigin.y());
     matrix = matrix * QMatrix(1, 0, 0, -1, 0, height_);
@@ -2758,7 +2757,7 @@ int QPdfEnginePrivate::addBrushPattern(const QBrush &b, const QMatrix &m, const 
         QColor rgba = b.color();
         s << "/ca " << rgba.alphaF();
         s << ">>\n";
-        
+
         *gStateObject = addXrefEntry(-1);
         xprintf(brushDef.constData());
         xprintf("endobj\n");
@@ -3118,7 +3117,7 @@ void QPdfEnginePrivate::embedFont(QPdf::Font *font)
 //     ff.open(QFile::WriteOnly);
 //     ff.write(fontData);
 //     ff.close();
-    
+
     int fontDescriptor = requestObject();
     int fontstream = requestObject();
     int cidfont = requestObject();
@@ -3262,10 +3261,10 @@ void QPdfEnginePrivate::writePage()
     xprintf(">>\n");
 
     xprintf("/Font <<\n");
-    for (int i = 0; i < currentPage->fonts.size();++i) 
+    for (int i = 0; i < currentPage->fonts.size();++i)
         xprintf("/F%d %d 0 R\n", currentPage->fonts[i], currentPage->fonts[i]);
     xprintf(">>\n");
-    
+
     xprintf("/XObject <<\n");
     for (int i = 0; i<currentPage->images.size(); ++i) {
         xprintf("/Im%d %d 0 R\n", currentPage->images.at(i), currentPage->images.at(i));
