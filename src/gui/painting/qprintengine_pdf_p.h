@@ -37,6 +37,7 @@
 #include "QtCore/qdatastream.h"
 
 #include "private/qstroker_p.h"
+#include "private/qfontengine_p.h"
 
 // #define USE_NATIVE_GRADIENTS
 
@@ -46,6 +47,7 @@ class QPen;
 class QPointF;
 class QRegion;
 class QFile;
+class QPdfEngine;
 
 const char *qt_real_to_string(qreal val, char *buf);
 const char *qt_int_to_string(int val, char *buf);
@@ -95,6 +97,35 @@ namespace QPdf {
         QStrokerOps *stroker;
     };
 
+    class Font
+    {
+    public:
+        Font(QFontEngine *fe, int obj_id = 0)
+            : object_id(obj_id), fontEngine(fe), nGlyphs(0)
+            { fontEngine->ref.ref(); addGlyph(0); }
+        ~Font() {
+            if (!fontEngine->ref.deref())
+                delete fontEngine;
+        }
+        
+        QByteArray toTruetype() const;
+        QByteArray widthArray() const;
+        QByteArray createToUnicodeMap() const;
+        
+        void addGlyph(int index) {
+            if (!glyph_indices.contains(index))
+                glyph_indices.append(index);
+            nGlyphs = qMax(nGlyphs, index + 1);
+        }
+        const int object_id;
+        QFontEngine *fontEngine;
+        QList<int> glyph_indices;
+        int nGlyphs;
+        mutable QFixed emSquare;
+        mutable QVector<QFixed> widths;
+    };
+    
+
 };
 
 
@@ -107,6 +138,7 @@ public:
     QVector<uint> images;
     QVector<uint> graphicStates;
     QVector<uint> patterns;
+    QVector<uint> fonts;
 
     void streamImage(int w, int h, int object);
 private:
@@ -141,6 +173,8 @@ public:
     int addPenGState(const QPen &pen);
     int addBrushPattern(const QBrush &b, const QMatrix &matrix, const QPointF &brushOrigin, bool *specifyColor, int *gStateObject);
 
+    void drawTextItem(QPdfEngine *q, const QPointF &p, const QTextItemInt &ti);
+
     QPdf::Stroker stroker;
 private:
     Q_DISABLE_COPY(QPdfEnginePrivate)
@@ -151,6 +185,8 @@ private:
 
     void writeInfo();
     void writePageRoot();
+    void writeFonts();
+    void embedFont(QPdf::Font *font);
 
     inline uint requestObject() { return currentObject++; }
 
@@ -178,6 +214,7 @@ private:
     // various PDF objects
     int pageRoot, catalog, info, graphicsState, patternColorSpace;
     QVector<uint> pages;
+    QHash<QFontEngine::FaceId, QPdf::Font *> fonts;
 };
 
 
@@ -200,6 +237,8 @@ public:
                    Qt::ImageConversionFlags flags = Qt::AutoColor);
     void drawTiledPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QPointF & point);
 
+    void drawTextItem(const QPointF &p, const QTextItem &textItem);
+
     void updateState(const QPaintEngineState &state);
     Type type() const;
     // end reimplementations QPaintEngine
@@ -217,7 +256,6 @@ public:
 
     void setPen();
     void setBrush();
-
 
     QRect paperRect() const;
     QRect pageRect() const;
