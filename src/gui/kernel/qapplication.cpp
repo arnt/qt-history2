@@ -1036,10 +1036,18 @@ QStyle *QApplication::style()
             style = QLatin1String("Plastique");                // default style for small devices
 #endif
         }
-        if (!(QApplicationPrivate::app_style = QStyleFactory::create(style)))
-            QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Plastique"));
-        if (!QApplicationPrivate::app_style)
-            qFatal("No %s style available!", qPrintable(style));
+
+        QStyle *&app_style = QApplicationPrivate::app_style;
+        app_style = QStyleFactory::create(style);
+        if (!app_style) {
+            QStringList styles = QStyleFactory::keys();
+            for (int i = 0; i < styles.size(); ++i) {
+                if ((app_style = QStyleFactory::create(styles.at(i))))
+                    break;
+            }
+        }
+        if (!app_style)
+            qFatal("No styles available!");
     }
 
     if (!QApplicationPrivate::sys_pal)
