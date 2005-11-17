@@ -1593,7 +1593,6 @@ QDateTimeEdit::Sections QDateTimeEditPrivate::convertSections(QDateTimeParser::S
 
 QString QDateTimeEditPrivate::getAmPmText(AmPm ap, Case cs) const
 {
-    Q_Q(const QDateTimeEdit);
     if (ap == AmText) {
         return (cs == UpperCase ? QDateTimeEdit::tr("AM") : QDateTimeEdit::tr("am"));
     } else {
