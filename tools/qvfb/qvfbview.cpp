@@ -25,6 +25,7 @@
 #include <QPaintEvent>
 #include <QScrollArea>
 #include <QFile>
+#include <QSettings>
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -46,10 +47,8 @@ QVFbView::QVFbView( int id, int w, int h, int d, Rotation r, QWidget *parent )
     : QWidget( parent ),
 #endif
     viewdepth(d), rsh(0), gsh(0), bsh(0), rmax(15), gmax(15), bmax(15),
-    contentsWidth(w), contentsHeight(h), gred(1.0), ggreen(1.0), gblue(1.0),
-    gammatable(0), refreshRate(30), animation(0),
-    hzm(1.0), vzm(1.0), mView(0),
-    emulateTouchscreen(false), emulateLcdScreen(false), rotation(r)
+    contentsWidth(w), contentsHeight(h), gammatable(0), animation(0),
+    hzm(1.0), vzm(1.0), mView(0), rotation(r)
 {
     int _w = ( rotation & 0x1 ) ? h : w;
     int _h = ( rotation & 0x1 ) ? w : h;
@@ -75,8 +74,18 @@ QVFbView::QVFbView( int id, int w, int h, int d, Rotation r, QWidget *parent )
 
     resize( contentsWidth, contentsHeight );
 
-    setGamma(1.0,1.0,1.0);
-    mView->setRate( 30 );
+    QSettings settings;
+
+    setTouchscreenEmulation(settings.value("view:emulateTouchScreen", false).toBool());
+    setLcdScreenEmulation(settings.value("view:emulateLCDScreen", false).toBool());
+
+    double gr = settings.value("view:gammaRed", 1.0).toDouble();
+    double gg = settings.value("view:gammaGree", 1.0).toDouble();
+    double gb = settings.value("view:gammaBlue", 1.0).toDouble();
+    setGamma(gr, gg, gb);
+
+    refreshRate = settings.value("view:refreshRate", 30).toInt();
+    mView->setRate(refreshRate);
 }
 
 QVFbView::~QVFbView()
@@ -92,11 +101,18 @@ QSize QVFbView::sizeHint() const
 
 void QVFbView::setRate(int i)
 {
+    QSettings settings;
+    settings.setValue("view:refreshRate", i);
     mView->setRate(i);
 }
 
 void QVFbView::setGamma(double gr, double gg, double gb)
 {
+    QSettings settings;
+    settings.setValue("view:gammaRed", gr);
+    settings.setValue("view:gammaGreen", gr);
+    settings.setValue("view:gammaBlue", gr);
+
     if ( viewdepth < 12 )
 	return; // not implemented
 
@@ -254,15 +270,17 @@ void QVFbView::refreshDisplay(const QRect &r)
 
 QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 {
+    static QByteArray buffer;
+
+    const int requiredSize = r.width() * r.height() * 4;
+
     switch ( viewdepth ) {
-      case 12:
-      case 16: {
-	static unsigned char *imgData = 0;
-	if ( !imgData ) {
-	    int bpl = ((mView->width()*32+31)/32)*4;
-	    imgData = new unsigned char [ bpl * mView->height() ];
-	}
-	QImage img( imgData, r.width(), r.height(), 32, 0, 0, QImage::IgnoreEndian );
+    case 12:
+    case 16: {
+        if (requiredSize > buffer.size())
+            buffer.resize(requiredSize);
+        uchar *b = reinterpret_cast<uchar*>(buffer.data());
+	QImage img(b, r.width(), r.height(), 32, 0, 0, QImage::IgnoreEndian );
 	const int rsh = viewdepth == 12 ? 12 : 11;
 	const int gsh = viewdepth == 12 ? 7 : 5;
 	const int bsh = viewdepth == 12 ? 1 : 0;
@@ -281,15 +299,13 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 	}
 	leading = 0;
 	return img;
-      }
-      case 4: {
-	static unsigned char *imgData = 0;
-	if ( !imgData ) {
-	    int bpl = ((mView->width()*8+31)/32)*4;
-	    imgData = new unsigned char [ bpl * mView->height() ];
-	}
-	QImage img( imgData, r.width(), r.height(), 8, mView->clut(), 16,
-		    QImage::IgnoreEndian );
+    }
+    case 4: {
+        if (requiredSize > buffer.size())
+            buffer.resize(requiredSize);
+        uchar *b = reinterpret_cast<uchar*>(buffer.data());
+	QImage img(b, r.width(), r.height(), 8, mView->clut(), 16,
+                   QImage::IgnoreEndian);
 	for ( int row = 0; row < r.height(); row++ ) {
 	    unsigned char *dptr = img.scanLine( row );
 	    const unsigned char *sptr = mView->data() + (r.y()+row)*mView->linestep();
@@ -309,14 +325,12 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 	}
 	leading = 0;
 	return img;
-      }
-      case 24: {
-        static unsigned char *imgData = 0;
-        if (!imgData) {
-            int bpl = mView->width() *4;
-            imgData = new unsigned char[bpl * mView->height()];
-        }
-        QImage img(imgData, r.width(), r.height(), 32, 0, 0, QImage::IgnoreEndian);
+    }
+    case 24: {
+        if (requiredSize > buffer.size())
+            buffer.resize(requiredSize);
+        uchar *b = reinterpret_cast<uchar*>(buffer.data());
+        QImage img(b, r.width(), r.height(), 32, 0, 0, QImage::IgnoreEndian);
         for (int row = 0; row < r.height(); ++row) {
             uchar *dptr = img.scanLine(row);
             const uchar *sptr = mView->data() + (r.y() + row) * mView->linestep();
@@ -330,25 +344,25 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
         }
         leading = 0;
         return img;
-      }
-      case 32: {
+    }
+    case 32: {
 	leading = r.x();
 	return QImage( mView->data() + r.y() * mView->linestep(),
-		    mView->width(), r.height(), mView->depth(), 0,
-		    0, QImage::LittleEndian );
-      }
-      case 8: {
+                       mView->width(), r.height(), mView->depth(), 0,
+                       0, QImage::LittleEndian );
+    }
+    case 8: {
 	leading = r.x();
 	return QImage( mView->data() + r.y() * mView->linestep(),
-		    mView->width(), r.height(), mView->depth(), mView->clut(),
-		    256, QImage::LittleEndian );
-      }
-      case 1: {
+                       mView->width(), r.height(), mView->depth(), mView->clut(),
+                       256, QImage::LittleEndian );
+    }
+    case 1: {
 	leading = r.x();
 	return QImage( mView->data() + r.y() * mView->linestep(),
-		    mView->width(), r.height(), mView->depth(), mView->clut(),
-		    0, QImage::LittleEndian );
-      }
+                       mView->width(), r.height(), mView->depth(), mView->clut(),
+                       0, QImage::LittleEndian );
+    }
     }
     return QImage();
 }
@@ -518,11 +532,15 @@ void QVFbView::wheelEvent( QWheelEvent *e )
 
 void QVFbView::setTouchscreenEmulation( bool b )
 {
+    QSettings settings;
+    settings.value("view:emulateTouchScreen", b);
     emulateTouchscreen = b;
 }
 
 void QVFbView::setLcdScreenEmulation( bool b )
 {
+    QSettings settings;
+    settings.value("view:emulateLCDScreen", b);
     emulateLcdScreen = b;
 }
 
