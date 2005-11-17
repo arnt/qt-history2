@@ -1514,8 +1514,13 @@ void QWidget::setMask(const QRegion &region)
     d->createExtra();
     if (region == d->extra->mask)
         return;
-    if(QWExtra *extra = d->extraData())
-        extra->mask = region;
+#ifndef QT_NO_BACKINGSTORE
+    QRegion parentR;
+    if (!isWindow())
+        parentR = d->extra->mask.isEmpty() ? QRegion(rect()) : d->extra->mask ;
+#endif
+
+    d->extra->mask = region;
 
     // Since SetWindowRegion takes ownership, and we need to translate,
     // we take a copy.
@@ -1529,8 +1534,14 @@ void QWidget::setMask(const QRegion &region)
     }
     OffsetRgn(wr, fleft, ftop);
 #ifndef QT_NO_BACKINGSTORE
-    if (!testAttribute(Qt::WA_PaintOnScreen))
-        update();
+    if (isVisible()) {
+        if (!isWindow()) {
+            parentR += d->extra->mask;
+            parentWidget()->update(parentR.translated(geometry().topLeft()));
+        }
+        if (!testAttribute(Qt::WA_PaintOnScreen))
+            update();
+    }
 #endif
     SetWindowRgn(winId(), wr, true);
 }

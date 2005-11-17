@@ -2322,7 +2322,7 @@ void QWidgetPrivate::fixupDnd()
     QWidget *window = q->window();
     if (X11) {
         bool enableDnd = (window->d_func()->extra && window->d_func()->extra->children_use_dnd)
-                         || window->testAttribute(Qt::WA_AcceptDrops); 
+                         || window->testAttribute(Qt::WA_AcceptDrops);
         X11->dndEnable(q, enableDnd);
     }
 }
@@ -2352,14 +2352,25 @@ void QWidget::setMask(const QRegion& region)
     d->createExtra();
     if (region == d->extra->mask)
         return;
-    if(QWExtra *extra = d->extraData())
-        extra->mask = region;
+#ifndef QT_NO_BACKINGSTORE
+    QRegion parentR;
+    if (!isWindow())
+        parentR = d->extra->mask.isEmpty() ? QRegion(rect()) : d->extra->mask ;
+#endif
+
+    d->extra->mask = region;
 
     XShapeCombineRegion(X11->display, winId(), ShapeBounding, 0, 0,
                         region.handle(), ShapeSet);
 #ifndef QT_NO_BACKINGSTORE
-    if (!testAttribute(Qt::WA_PaintOnScreen))
-        update();
+    if (isVisible()) {
+        if (!isWindow()) {
+            parentR += d->extra->mask;
+            parentWidget()->update(parentR.translated(geometry().topLeft()));
+        }
+        if (!testAttribute(Qt::WA_PaintOnScreen))
+            update();
+    }
 #endif
 }
 
@@ -2394,14 +2405,31 @@ void QWidget::setMask(const QBitmap &bitmap)
 {
     Q_D(QWidget);
     d->createExtra();
-    if(QWExtra *extra = d->extraData())
-        extra->mask = QRegion(bitmap);
+
+#ifndef QT_NO_BACKINGSTORE
+    QRegion parentR;
+    if (!isWindow())
+        parentR = d->extra->mask.isEmpty() ? QRegion(rect()) : d->extra->mask ;
+#endif
+
+    d->extra->mask = QRegion(bitmap);
 
     QBitmap bm = bitmap;
     if (bm.x11Info().screen() != d->xinfo.screen())
         bm.x11SetScreen(d->xinfo.screen());
     XShapeCombineMask(X11->display, winId(), ShapeBounding, 0, 0,
                       bm.handle(), ShapeSet);
+
+#ifndef QT_NO_BACKINGSTORE
+    if (isVisible()) {
+        if (!isWindow()) {
+            parentR += d->extra->mask;
+            parentWidget()->update(parentR.translated(geometry().topLeft()));
+        }
+        if (!testAttribute(Qt::WA_PaintOnScreen))
+            update();
+    }
+#endif
 }
 
 /*!
