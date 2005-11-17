@@ -272,10 +272,6 @@ void QCursorData::update()
             QImage bmi, bmmi;
             bmi = bm->toImage().convertToFormat(QImage::Format_Mono);
             bmmi = bmm->toImage().convertToFormat(QImage::Format_Mono);
-
-            bmi.save("/tmp/foo1.png", "PNG");
-            bmmi.save("/tmp/foo2.png", "PNG");
-
             memset(curs.cp.hcurs->data, 0, 32);
             memset(curs.cp.hcurs->mask, 0, 32);
             uchar *cursdata = reinterpret_cast<uchar *>(curs.cp.hcurs->data);
