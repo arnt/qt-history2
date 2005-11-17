@@ -1199,8 +1199,10 @@ void QSplitter::setRubberBand(int pos)
     QRect r = contentsRect();
     const int rBord = 3; // customizable?
     int hw = handleWidth();
-    if (!d->rubberBand)
+    if (!d->rubberBand) {
+        QBoolBlocker block(d->blockChildAdd);
         d->rubberBand = new QRubberBand(QRubberBand::Line, this);
+    }
     if (d->orient == Qt::Horizontal)
         d->rubberBand->setGeometry(QRect(QPoint(pos + hw / 2 - rBord, r.y()),
                                          QSize(2 * rBord, r.height())));
