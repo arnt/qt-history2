@@ -24,7 +24,9 @@ class QPageSetupDialogPrivate;
 
 class Q_GUI_EXPORT QPageSetupDialog : public QAbstractPageSetupDialog
 {
+    // ### Qt 5: Add Q_OBJECT macro
     Q_DECLARE_PRIVATE(QPageSetupDialog)
+
 public:
     explicit QPageSetupDialog(QPrinter *printer, QWidget *parent = 0);
 

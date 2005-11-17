@@ -345,7 +345,7 @@ QString QAccessibleApplication::actionText(int action, Text text, int child) con
     case Name:
         return QApplication::tr("Activate");
     case Description:
-        return QApplication::tr("Activates the application main widget");
+        return QApplication::tr("Activates the program's main window");
     default:
         break;
     }

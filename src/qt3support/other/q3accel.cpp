@@ -494,7 +494,7 @@ bool Q3AccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
         mainStatusBar = (QStatusBar*) w->window()->child(0, "QStatusBar");
 #endif
 
-    QString message = Q3Accel::tr("Ambiguous \"%1\" not handled").arg((QString)tocheck);
+    QString message = Q3Accel::tr("Ambiguous %1 not handled").arg((QString)tocheck);
     if (clash >= 0 && n > clash) { // pick next  match
         intermediate = QKeySequence();
         currentState = QKeySequence::NoMatch; // Free sequence keylock

@@ -1595,9 +1595,9 @@ QString QDateTimeEditPrivate::getAmPmText(AmPm ap, Case cs) const
 {
     Q_Q(const QDateTimeEdit);
     if (ap == AmText) {
-        return (cs == UpperCase ? q->tr("AM") : q->tr("am"));
+        return (cs == UpperCase ? QDateTimeEdit::tr("AM") : QDateTimeEdit::tr("am"));
     } else {
-        return (cs == UpperCase ? q->tr("PM") : q->tr("pm"));
+        return (cs == UpperCase ? QDateTimeEdit::tr("PM") : QDateTimeEdit::tr("pm"));
     }
 }
 

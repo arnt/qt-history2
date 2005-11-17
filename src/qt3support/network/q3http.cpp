@@ -28,6 +28,7 @@
 #include "private/q3membuf_p.h"
 #include "qevent.h"
 #include "q3url.h"
+#include "qhttp.h"
 
 //#define Q3HTTP_DEBUG
 
@@ -1178,7 +1179,7 @@ void Q3Http::init()
 {
     bytesRead = 0;
     d = new Q3HttpPrivate;
-    d->errorString = tr( "Unknown error" );
+    d->errorString = QHttp::tr( "Unknown error" );
 
     connect( &d->socket, SIGNAL( connected() ),
 	    this, SLOT( slotConnected() ) );
@@ -1375,7 +1376,7 @@ void Q3Http::abort()
     if ( r == 0 )
 	return;
 
-    finishedWithError( tr("Request aborted"), Aborted );
+    finishedWithError( QHttp::tr("Request aborted"), Aborted );
     clearPendingRequests();
     d->socket.clearPendingData();
     close();
@@ -1745,7 +1746,7 @@ void Q3Http::startNextRequest()
 	return;
 
     d->error = NoError;
-    d->errorString = tr( "Unknown error" );
+    d->errorString = QHttp::tr( "Unknown error" );
 
     if ( bytesAvailable() )
 	readAll(); // clear the data
@@ -1756,7 +1757,7 @@ void Q3Http::startNextRequest()
 void Q3Http::sendRequest()
 {
     if ( d->hostname.isNull() ) {
-	finishedWithError( tr("No server set to connect to"), UnknownError );
+	finishedWithError( QHttp::tr("No server set to connect to"), UnknownError );
 	return;
     }
 
@@ -1812,11 +1813,11 @@ void Q3Http::slotClosed()
 	if ( d->response.hasKey( "content-length" ) ) {
 	    // We got Content-Length, so did we get all bytes?
 	    if ( d->bytesDone+bytesAvailable() != d->response.contentLength() ) {
-		finishedWithError( tr("Wrong content length"), WrongContentLength );
+		finishedWithError( QHttp::tr("Wrong content length"), WrongContentLength );
 	    }
 	}
     } else if ( d->state == Connecting || d->state == Sending ) {
-	finishedWithError( tr("Server closed connection unexpectedly"), UnexpectedClose );
+	finishedWithError( QHttp::tr("Server closed connection unexpectedly"), UnexpectedClose );
     }
 
     d->postDevice = 0;
@@ -1854,13 +1855,13 @@ void Q3Http::slotError( int err )
     if ( d->state == Connecting || d->state == Reading || d->state == Sending ) {
 	switch ( err ) {
 	    case Q3Socket::ErrConnectionRefused:
-		finishedWithError( tr("Connection refused"), ConnectionRefused );
+		finishedWithError( QHttp::tr("Connection refused"), ConnectionRefused );
 		break;
 	    case Q3Socket::ErrHostNotFound:
-		finishedWithError( tr("Host %1 not found").arg(d->socket.peerName()), HostNotFound );
+		finishedWithError( QHttp::tr("Host %1 not found").arg(d->socket.peerName()), HostNotFound );
 		break;
 	    default:
-		finishedWithError( tr("HTTP request failed"), UnknownError );
+		finishedWithError( QHttp::tr("HTTP request failed"), UnknownError );
 		break;
 	}
     }
@@ -1929,7 +1930,7 @@ void Q3Http::slotReadyRead()
 #endif
 	// Check header
 	if ( !d->response.isValid() ) {
-	    finishedWithError( tr("Invalid HTTP response header"), InvalidResponseHeader );
+	    finishedWithError( QHttp::tr("Invalid HTTP response header"), InvalidResponseHeader );
 	    close();
 	    return;
 	}
@@ -1969,7 +1970,7 @@ void Q3Http::slotReadyRead()
 			bool ok;
 			d->chunkedSize = sizeString.toInt( &ok, 16 );
 			if ( !ok ) {
-			    finishedWithError( tr("Invalid HTTP chunked body"), WrongContentLength );
+			    finishedWithError( QHttp::tr("Invalid HTTP chunked body"), WrongContentLength );
 			    close();
 			    return;
 			}
@@ -2015,7 +2016,7 @@ void Q3Http::slotReadyRead()
 			char tmp[2];
 			d->socket.readBlock( tmp, 2 );
 			if ( tmp[0] != '\r' || tmp[1] != '\n' ) {
-			    finishedWithError( tr("Invalid HTTP chunked body"), WrongContentLength );
+			    finishedWithError( QHttp::tr("Invalid HTTP chunked body"), WrongContentLength );
 			    close();
 			    return;
 			}
@@ -2308,13 +2309,13 @@ void Q3Http::clientStateChanged( int state )
     if ( url() ) {
 	switch ( (State)state ) {
 	    case Connecting:
-		emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
+		emit connectionStateChanged( ConHostFound, QHttp::tr( "Host %1 found" ).arg( url()->host() ) );
 		break;
 	    case Sending:
-		emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
+		emit connectionStateChanged( ConConnected, QHttp::tr( "Connected to host %1" ).arg( url()->host() ) );
 		break;
 	    case Unconnected:
-		emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
+		emit connectionStateChanged( ConClosed, QHttp::tr( "Connection to %1 closed" ).arg( url()->host() ) );
 		break;
 	    default:
 		break;
@@ -2322,13 +2323,13 @@ void Q3Http::clientStateChanged( int state )
     } else {
 	switch ( (State)state ) {
 	    case Connecting:
-		emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
+		emit connectionStateChanged( ConHostFound, QHttp::tr( "Host found" ) );
 		break;
 	    case Sending:
-		emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
+		emit connectionStateChanged( ConConnected, QHttp::tr( "Connected to host" ) );
 		break;
 	    case Unconnected:
-		emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
+		emit connectionStateChanged( ConClosed, QHttp::tr( "Connection closed" ) );
 		break;
 	    default:
 		break;

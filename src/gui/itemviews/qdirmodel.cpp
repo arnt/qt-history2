@@ -197,14 +197,14 @@ QIcon QFileIconProvider::icon(const QFileInfo &info) const
 QString QFileIconProvider::type(const QFileInfo &info) const
 {
     if (info.isRoot())
-        return QObject::tr("Drive");
+        return QApplication::translate("QFileDialog", "Drive");
     if (info.isFile())
-        return info.suffix() + QLatin1String(" ") + QObject::tr("File");
+        return info.suffix() + QLatin1String(" ") + QApplication::translate("QFileDialog", "File");
     if (info.isDir())
-        return QObject::tr("Directory");
+        return QApplication::translate("QFileDialog", "Directory");
     if (info.isSymLink())
-        return QObject::tr("Symbolic Link");
-    return QObject::tr("Unknown");
+        return QApplication::translate("QFileDialog", "Symbolic Link");
+    return QApplication::translate("QFileDialog", "Unknown");
 }
 
 class QDirModelPrivate : public QAbstractItemModelPrivate
@@ -936,7 +936,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
 {
     Q_D(const QDirModel);
 
-    if (path.isEmpty() || path == QObject::tr("My Computer"))
+    if (path.isEmpty() || path == QCoreApplication::translate("QFileDialog", "My Computer"))
         return QModelIndex();
 
     QString absolutePath = QDir(path).absolutePath();

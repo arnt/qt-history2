@@ -19,6 +19,7 @@
 #include "qlayout.h"
 #include "qprinter.h"
 #include "qpushbutton.h"
+#include "qprintdialog.h"
 
 #include <private/qabstractpagesetupdialog_p.h>
 
@@ -126,18 +127,18 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     frame->setFrameShadow(QFrame::Sunken);
     QGridLayout *frameLayout = new QGridLayout(frame);
 
-    QLabel *pageSizeLabel = new QLabel(tr("Page size:"), frame);
+    QLabel *pageSizeLabel = new QLabel(QPrintDialog::tr("Page size:"), frame);
     d->pageSize = new QComboBox(frame);
     frameLayout->addWidget(pageSizeLabel, 0, 0);
     frameLayout->addWidget(d->pageSize, 0, 1);
 
-    QLabel *orientationLabel = new QLabel(tr("Orientation:"), frame);
+    QLabel *orientationLabel = new QLabel(QPrintDialog::tr("Orientation:"), frame);
     d->orientation = new QComboBox(frame);
     frameLayout->addWidget(orientationLabel, 2, 0);
     frameLayout->addWidget(d->orientation, 2, 1);
 
 #ifdef PSD_ENABLE_PAPERSOURCE
-    QLabel *paperSourceLabel = new QLabel(tr("Paper source:"), frame);
+    QLabel *paperSourceLabel = new QLabel(QPrintDialog::tr("Paper source:"), frame);
     d->paperSource = new QComboBox(frame);
     frameLayout->addWidget(paperSourceLabel, 1, 0);
     frameLayout->addWidget(d->paperSource, 1, 1);
@@ -151,8 +152,8 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     QSpacerItem *buttonSpacer = new QSpacerItem(71, 20, QSizePolicy::Expanding,
                                                 QSizePolicy::Minimum);
-    QPushButton *okButton = new QPushButton(tr("OK"), this);
-    QPushButton *cancelButton = new QPushButton(tr("Cancel"), this);
+    QPushButton *okButton = new QPushButton(QPrintDialog::tr("OK"), this);
+    QPushButton *cancelButton = new QPushButton(QPrintDialog::tr("Cancel"), this);
 
     buttonLayout->addItem(buttonSpacer);
     buttonLayout->addWidget(okButton);
@@ -172,10 +173,9 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     d->paperSource->setCurrentItem(printer->paperSource());
 #endif
 
-    d->orientation->addItem(tr("Portrait"));
-    d->orientation->addItem(tr("Landscape"));
+    d->orientation->addItem(QPrintDialog::tr("Portrait"));
+    d->orientation->addItem(QPrintDialog::tr("Landscape"));
     d->orientation->setCurrentIndex(printer->orientation());
-
 
     connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));

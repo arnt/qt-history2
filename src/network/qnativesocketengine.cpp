@@ -146,13 +146,13 @@ void QNativeSocketEnginePrivate::setError(QAbstractSocket::SocketError error, Er
 
     switch (errorString) {
     case NonBlockingInitFailedErrorString:
-        socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Unable to initialize a non-blocking socket");
+        socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Unable to initialize non-blocking socket");
         break;
     case BroadcastingInitFailedErrorString:
-        socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Unable to initialize broadcasting socket");
+        socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Unable to initialize broadcast socket");
         break;
     case NoIpV6ErrorString:
-        socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Attempt to use an IPv6 socket on a platform with no IPv6 support");
+        socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Attempt to use IPv6 socket on a platform with no IPv6 support");
         break;
     case RemoteHostClosedErrorString:
         socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "The remote host closed the connection");

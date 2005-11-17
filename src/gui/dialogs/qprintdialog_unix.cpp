@@ -873,25 +873,21 @@ QPrintDialog::~QPrintDialog()
 QGroupBox *QPrintDialogPrivate::setupPrinterSettings()
 {
     Q_Q(QPrintDialog);
-    QGroupBox *g = new QGroupBox(q->tr("Printer settings"), q);
-    g->setObjectName(QLatin1String("qt_printdialog_printer_settings"));
+    QGroupBox *g = new QGroupBox(QPrintDialog::tr("Printer settings"), q);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
     colorMode = new QButtonGroup(q);
-    colorMode->setObjectName(QLatin1String("qt_printdialog_buttongroup"));
 
     QObject::connect(colorMode, SIGNAL(buttonClicked(QAbstractButton*)),
                      q, SLOT(colorModeSelected(QAbstractButton*)));
 
-    printColor = new QRadioButton(q->tr("Print in color if available"), g);
-    printColor->setObjectName(QLatin1String("qt_printdialog_color"));
+    printColor = new QRadioButton(QPrintDialog::tr("Print in color if available"), g);
 
     colorMode->addButton(printColor);
     printColor->setChecked(true);
     tll->addWidget(printColor);
 
-    printGray = new QRadioButton(q->tr("Print in grayscale"), g);
-    printGray->setObjectName(QLatin1String("qt_printdialog_grayscale"));
+    printGray = new QRadioButton(QPrintDialog::tr("Print in grayscale"), g);
 
     colorMode->addButton(printGray);
     tll->addWidget(printGray);
@@ -902,18 +898,13 @@ QGroupBox *QPrintDialogPrivate::setupPrinterSettings()
 QGroupBox *QPrintDialogPrivate::setupDestination()
 {
     Q_Q(QPrintDialog);
-    QGroupBox *g = new QGroupBox(q->tr("Print destination"), q);
-    g->setObjectName(QLatin1String("qt_printdialog_print_destination"));
-
+    QGroupBox *g = new QGroupBox(QPrintDialog::tr("Print destination"), q);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
     printerOrFile = new QButtonGroup(q);
-    printerOrFile->setObjectName(QLatin1String("qt_printdialog_printer_or_file"));
-
 
     // printer radio button, list
-    QRadioButton *rb = new QRadioButton(q->tr("Print to printer:"), g);
-    rb->setObjectName(QLatin1String("qt_printdialog_print_to_server"));
+    QRadioButton *rb = new QRadioButton(QPrintDialog::tr("Print to printer:"), g);
 
     tll->addWidget(rb);
     printerOrFile->addButton(rb);
@@ -1035,7 +1026,7 @@ QGroupBox *QPrintDialogPrivate::setupDestination()
     horiz->addWidget(view, 3);
 
     // file radio button, edit/browse
-    printToFileButton = new QRadioButton(q->tr("Print to file:"), g);
+    printToFileButton = new QRadioButton(QPrintDialog::tr("Print to file:"), g);
     tll->addWidget(printToFileButton);
     printerOrFile->addButton(printToFileButton);
 
@@ -1047,7 +1038,7 @@ QGroupBox *QPrintDialogPrivate::setupDestination()
     QObject::connect(fileName, SIGNAL(textChanged(QString)),
                      q, SLOT(fileNameEditChanged(QString)));
     horiz->addWidget(fileName, 1);
-    browse = new QPushButton(q->tr("Browse..."), g);
+    browse = new QPushButton(QPrintDialog::tr("Browse..."), g);
     browse->setAutoDefault(false);
     QObject::connect(browse, SIGNAL(clicked()),
                      q, SLOT(browseClicked()));
@@ -1065,7 +1056,7 @@ QGroupBox *QPrintDialogPrivate::setupDestination()
 QGroupBox *QPrintDialogPrivate::setupOptions()
 {
     Q_Q(QPrintDialog);
-    QGroupBox *g = new QGroupBox(q->tr("Options"), q);
+    QGroupBox *g = new QGroupBox(QPrintDialog::tr("Options"), q);
 
     QBoxLayout *lay = new QBoxLayout(QBoxLayout::LeftToRight, g);
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down);
@@ -1077,22 +1068,22 @@ QGroupBox *QPrintDialogPrivate::setupOptions()
     pageOrder = new QButtonGroup(q);
     QObject::connect(pageOrder, SIGNAL(buttonClicked(QAbstractButton*)), q, SLOT(pageOrderSelected(QAbstractButton*)));
 
-    printAllButton = new QRadioButton(q->tr("Print all"), g);
+    printAllButton = new QRadioButton(QPrintDialog::tr("Print all"), g);
     printRange->addButton(printAllButton);
     tll->addWidget(printAllButton);
 
-    printSelectionButton = new QRadioButton(q->tr("Print selection"), g);
+    printSelectionButton = new QRadioButton(QPrintDialog::tr("Print selection"), g);
     printRange->addButton(printSelectionButton);
     tll->addWidget(printSelectionButton);
 
-    printRangeButton = new QRadioButton(q->tr("Print range"), g);
+    printRangeButton = new QRadioButton(QPrintDialog::tr("Print range"), g);
     printRange->addButton(printRangeButton);
     tll->addWidget(printRangeButton);
 
     QBoxLayout *horiz = new QBoxLayout(QBoxLayout::LeftToRight);
     tll->addLayout(horiz);
 
-    firstPageLabel = new QLabel(q->tr("From page:"), g);
+    firstPageLabel = new QLabel(QPrintDialog::tr("From page:"), g);
     horiz->addSpacing(19);
     horiz->addWidget(firstPageLabel);
 
@@ -1106,7 +1097,7 @@ QGroupBox *QPrintDialogPrivate::setupOptions()
     horiz = new QBoxLayout(QBoxLayout::LeftToRight);
     tll->addLayout(horiz);
 
-    lastPageLabel = new QLabel(q->tr("To page:"), g);
+    lastPageLabel = new QLabel(QPrintDialog::tr("To page:"), g);
     horiz->addSpacing(19);
     horiz->addWidget(lastPageLabel);
 
@@ -1122,12 +1113,12 @@ QGroupBox *QPrintDialogPrivate::setupOptions()
     lay->addLayout(tll);
 
     // print order
-    firstPageFirst = new QRadioButton(q->tr("Print first page first"), g);
+    firstPageFirst = new QRadioButton(QPrintDialog::tr("Print first page first"), g);
     tll->addWidget(firstPageFirst);
     pageOrder->addButton(firstPageFirst);
     firstPageFirst->setChecked(true);
 
-    lastPageFirst = new QRadioButton(q->tr("Print last page first"), g);
+    lastPageFirst = new QRadioButton(QPrintDialog::tr("Print last page first"), g);
     tll->addWidget(lastPageFirst);
     pageOrder->addButton(lastPageFirst);
 
@@ -1138,7 +1129,7 @@ QGroupBox *QPrintDialogPrivate::setupOptions()
     horiz = new QBoxLayout(QBoxLayout::LeftToRight);
     tll->addLayout(horiz);
 
-    QLabel *l = new QLabel(q->tr("Number of copies:"), g);
+    QLabel *l = new QLabel(QPrintDialog::tr("Number of copies:"), g);
     horiz->addWidget(l);
 
     copies = new QSpinBox(g);
@@ -1172,15 +1163,15 @@ void isc(QPrintDialogPrivate *ptr, const QString & text, QPrinter::PageSize ps)
 QGroupBox *QPrintDialogPrivate::setupPaper()
 {
     Q_Q(QPrintDialog);
-    QGroupBox *g = new QGroupBox(q->tr("Paper format"), q);
+    QGroupBox *g = new QGroupBox(QPrintDialog::tr("Paper format"), q);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
     pageSize = QPrinter::A4;
 
     // page orientation
     orientationCombo = new QComboBox(g);
-    orientationCombo->addItem(q->tr("Portrait"));
-    orientationCombo->addItem(q->tr("Landscape"));
+    orientationCombo->addItem(QPrintDialog::tr("Portrait"));
+    orientationCombo->addItem(QPrintDialog::tr("Landscape"));
     tll->addWidget(orientationCombo);
 
     orientation = QPrinter::Portrait;
@@ -1306,7 +1297,7 @@ void QPrintDialogPrivate::browseClicked()
 {
     Q_Q(QPrintDialog);
     QString fn = QFileDialog::getSaveFileName(q, QString(), fileName->text(),
-                                              q->tr("PostScript Files (*.ps);;All Files (*)"));
+                                              QPrintDialog::tr("PostScript Files (*.ps);;All Files (*)"));
     if (!fn.isNull())
         fileName->setText(fn);
 }
@@ -1564,13 +1555,13 @@ void QPrintDialogPrivate::init()
     if (rightalign)
         horiz->addStretch(1);
 
-    ok = new QPushButton(q->tr("OK"), q);
+    ok = new QPushButton(QPrintDialog::tr("OK"), q);
     ok->setDefault(true);
     horiz->addWidget(ok);
     if (! rightalign)
         horiz->addStretch(1);
 
-    QPushButton *cancel = new QPushButton(q->tr("Cancel"), q);
+    QPushButton *cancel = new QPushButton(QPrintDialog::tr("Cancel"), q);
     horiz->addWidget(cancel);
 
     q->connect(ok, SIGNAL(clicked()), q, SLOT(okClicked()));

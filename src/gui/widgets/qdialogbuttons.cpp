@@ -232,7 +232,7 @@ QDialogButtons::createButton(Button b)
                         txt = tr("Cancel All");
                 }
             } else {
-                txt += tr(" to All"); //ick, I can't really do this!!
+                txt = tr("%1 to All").arg(txt); // ick, can't really do this
             }
             ret->setText(txt);
             break; }

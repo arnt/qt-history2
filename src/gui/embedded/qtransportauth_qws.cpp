@@ -109,12 +109,12 @@ static int hmac_md5(
 #define KEY_CACHE_SIZE 10
 
 const char * const errorStrings[] = {
-    QT_TRANSLATE_NOOP( "Transport Auth error",  "pending identity verification" ),
-    QT_TRANSLATE_NOOP( "Transport Auth error",  "message too small to carry auth data" ),
-    QT_TRANSLATE_NOOP( "Transport Auth error",  "cache miss on connection oriented transport"  ),
-    QT_TRANSLATE_NOOP( "Transport Auth error",  "no magic bytes on message"  ),
-    QT_TRANSLATE_NOOP( "Transport Auth error",  "key not found for prog id"  ),
-    QT_TRANSLATE_NOOP( "Transport Auth error",  "authorization key match failed"  )
+    "pending identity verification",
+    "message too small to carry auth data",
+    "cache miss on connection oriented transport",
+    "no magic bytes on message",
+    "key not found for prog id",
+    "authorization key match failed"
 };
 
 const char *QTransportAuth::errorString( const Data &d )

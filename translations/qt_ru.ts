@@ -6,7 +6,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Ambiguous &quot;%1&quot; not handled</source>
+        <source>Ambiguous %1 not handled</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -292,168 +292,168 @@ Check path and filename.</source>
     <name>Q3Ftp</name>
     <message>
         <source>Not connected</source>
-        <translation type="unfinished">Нет соединения</translation>
+        <translation type="obsolete">Нет соединения</translation>
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation type="unfinished">Узел %1 не обнаружен</translation>
+        <translation type="obsolete">Узел %1 не обнаружен</translation>
     </message>
     <message>
         <source>Connection refused to host %1</source>
-        <translation type="unfinished">Отказано в соединении с узлом %1</translation>
+        <translation type="obsolete">Отказано в соединении с узлом %1</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation type="unfinished">Установлено соединение с узлом %1</translation>
+        <translation type="obsolete">Установлено соединение с узлом %1</translation>
     </message>
     <message>
         <source>Connection refused for data connection</source>
-        <translation type="unfinished">Отказано в соединении передачи данных</translation>
+        <translation type="obsolete">Отказано в соединении передачи данных</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">Неизвестная ошибка</translation>
+        <translation type="obsolete">Неизвестная ошибка</translation>
     </message>
     <message>
         <source>Connecting to host failed:
 %1</source>
-        <translation type="unfinished">Ошибка соединения с узлом:
+        <translation type="obsolete">Ошибка соединения с узлом:
 %1</translation>
     </message>
     <message>
         <source>Login failed:
 %1</source>
-        <translation type="unfinished">Ошибка входа в систему:
+        <translation type="obsolete">Ошибка входа в систему:
 %1</translation>
     </message>
     <message>
         <source>Listing directory failed:
 %1</source>
-        <translation type="unfinished">Ошибка просмотра каталога:
+        <translation type="obsolete">Ошибка просмотра каталога:
 %1</translation>
     </message>
     <message>
         <source>Changing directory failed:
 %1</source>
-        <translation type="unfinished">Ошибка смены каталога:
+        <translation type="obsolete">Ошибка смены каталога:
 %1</translation>
     </message>
     <message>
         <source>Downloading file failed:
 %1</source>
-        <translation type="unfinished">Ошибка загрузки файла:
+        <translation type="obsolete">Ошибка загрузки файла:
 %1</translation>
     </message>
     <message>
         <source>Uploading file failed:
 %1</source>
-        <translation type="unfinished">Ошибка отправки файла:
+        <translation type="obsolete">Ошибка отправки файла:
 %1</translation>
     </message>
     <message>
         <source>Removing file failed:
 %1</source>
-        <translation type="unfinished">Ошибка удаления файла:
+        <translation type="obsolete">Ошибка удаления файла:
 %1</translation>
     </message>
     <message>
         <source>Creating directory failed:
 %1</source>
-        <translation type="unfinished">Ошибка создания каталога:
+        <translation type="obsolete">Ошибка создания каталога:
 %1</translation>
     </message>
     <message>
         <source>Removing directory failed:
 %1</source>
-        <translation type="unfinished">Ошибка удаления каталога:
+        <translation type="obsolete">Ошибка удаления каталога:
 %1</translation>
     </message>
     <message>
         <source>Connection closed</source>
-        <translation type="unfinished">Соединение разорвано</translation>
+        <translation type="obsolete">Соединение разорвано</translation>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type="unfinished">Обнаружен узел %1</translation>
+        <translation type="obsolete">Обнаружен узел %1</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="unfinished">Соединение с узлом %1 разорвано</translation>
+        <translation type="obsolete">Соединение с узлом %1 разорвано</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="unfinished">Узел обнаружен</translation>
+        <translation type="obsolete">Узел обнаружен</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="unfinished">Соединение с узлом установлено</translation>
+        <translation type="obsolete">Соединение с узлом установлено</translation>
     </message>
 </context>
 <context>
     <name>Q3Http</name>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">Неизвестная ошибка</translation>
+        <translation type="obsolete">Неизвестная ошибка</translation>
     </message>
     <message>
         <source>Request aborted</source>
-        <translation type="unfinished">Запрос отменен</translation>
+        <translation type="obsolete">Запрос отменен</translation>
     </message>
     <message>
         <source>No server set to connect to</source>
-        <translation type="unfinished">Не выбран сервер для подключения</translation>
+        <translation type="obsolete">Не выбран сервер для подключения</translation>
     </message>
     <message>
         <source>Wrong content length</source>
-        <translation type="unfinished">Неверная длина данных</translation>
+        <translation type="obsolete">Неверная длина данных</translation>
     </message>
     <message>
         <source>Server closed connection unexpectedly</source>
-        <translation type="unfinished">Неожиданный разрыв соединения сервером</translation>
+        <translation type="obsolete">Неожиданный разрыв соединения сервером</translation>
     </message>
     <message>
         <source>Connection refused</source>
-        <translation type="unfinished">Отказано в соединении</translation>
+        <translation type="obsolete">Отказано в соединении</translation>
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation type="unfinished">Узел %1 не обнаружен</translation>
+        <translation type="obsolete">Узел %1 не обнаружен</translation>
     </message>
     <message>
         <source>HTTP request failed</source>
-        <translation type="unfinished">Ошибка HTTP-запроса</translation>
+        <translation type="obsolete">Ошибка HTTP-запроса</translation>
     </message>
     <message>
         <source>Invalid HTTP response header</source>
-        <translation type="unfinished">Получен некорректный HTTP-заголовок</translation>
+        <translation type="obsolete">Получен некорректный HTTP-заголовок</translation>
     </message>
     <message>
         <source>Invalid HTTP chunked body</source>
-        <translation type="unfinished">Некорректный HTTP-ответ</translation>
+        <translation type="obsolete">Некорректный HTTP-ответ</translation>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type="unfinished">Обнаружен узел %1</translation>
+        <translation type="obsolete">Обнаружен узел %1</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation type="unfinished">Установлено соединение с узлом %1</translation>
+        <translation type="obsolete">Установлено соединение с узлом %1</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="unfinished">Соединение с узлом %1 разорвано</translation>
+        <translation type="obsolete">Соединение с узлом %1 разорвано</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="unfinished">Узел обнаружен</translation>
+        <translation type="obsolete">Узел обнаружен</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="unfinished">Соединение с узлом установлено</translation>
+        <translation type="obsolete">Соединение с узлом установлено</translation>
     </message>
     <message>
         <source>Connection closed</source>
-        <translation type="unfinished">Соединение разорвано</translation>
+        <translation type="obsolete">Соединение разорвано</translation>
     </message>
 </context>
 <context>
@@ -976,7 +976,7 @@ to
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Activates the application main widget</source>
+        <source>Activates the program&apos;s main window</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1129,10 +1129,6 @@ to
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> to All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Yes</source>
         <translation type="unfinished">Да</translation>
     </message>
@@ -1167,6 +1163,10 @@ to
     <message>
         <source>Help</source>
         <translation type="unfinished">Справка</translation>
+    </message>
+    <message>
+        <source>%1 to All</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1570,7 +1570,7 @@ Please verify the correct file name was given.</source>
     <message>
         <source>%1
 Directory not found.
-Please verify the correct directory name was given</source>
+Please verify the correct directory name was given.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1828,11 +1828,11 @@ Please verify the correct directory name was given</source>
     <name>QFtp</name>
     <message>
         <source>Host %1 found</source>
-        <translation type="obsolete">Обнаружен узел %1</translation>
+        <translation type="unfinished">Обнаружен узел %1</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="obsolete">Узел обнаружен</translation>
+        <translation type="unfinished">Узел обнаружен</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
@@ -1840,11 +1840,11 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="obsolete">Соединение с узлом установлено</translation>
+        <translation type="unfinished">Соединение с узлом установлено</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="obsolete">Соединение с узлом %1 разорвано</translation>
+        <translation type="unfinished">Соединение с узлом %1 разорвано</translation>
     </message>
     <message>
         <source>Connection closed</source>
@@ -1974,27 +1974,27 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type="obsolete">Обнаружен узел %1</translation>
+        <translation type="unfinished">Обнаружен узел %1</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="obsolete">Узел обнаружен</translation>
+        <translation type="unfinished">Узел обнаружен</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation type="obsolete">Установлено соединение с узлом %1</translation>
+        <translation type="unfinished">Установлено соединение с узлом %1</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="obsolete">Соединение с узлом установлено</translation>
+        <translation type="unfinished">Соединение с узлом установлено</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="obsolete">Соединение с узлом %1 разорвано</translation>
+        <translation type="unfinished">Соединение с узлом %1 разорвано</translation>
     </message>
     <message>
         <source>Connection closed</source>
-        <translation type="obsolete">Соединение разорвано</translation>
+        <translation type="unfinished">Соединение разорвано</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -2279,21 +2279,17 @@ to
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;tt&gt;http://www.trolltech.com/company/model.html&lt;/tt&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QNativeSocketEngine</name>
-    <message>
-        <source>Unable to initialize a non-blocking socket</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to initialize broadcasting socket</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attempt to use an IPv6 socket on a platform with no IPv6 support</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>The remote host closed the connection</source>
         <translation type="unfinished"></translation>
@@ -2370,6 +2366,18 @@ to
         <source>Another socket is already listening on the same port</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to initialize non-blocking socket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to initialize broadcast socket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attempt to use IPv6 socket on a platform with no IPv6 support</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QNetworkProtocol</name>
@@ -2380,10 +2388,6 @@ to
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>My Computer</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>All Files (*)</source>
         <translation type="unfinished">Все файлы (*)</translation>
@@ -2440,32 +2444,20 @@ to
 <context>
     <name>QPageSetupDialog</name>
     <message>
-        <source>Page size:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Orientation:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Paper source:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="obsolete">OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Отмена</translation>
+        <translation type="obsolete">Отмена</translation>
     </message>
     <message>
         <source>Portrait</source>
-        <translation type="unfinished">Портрет</translation>
+        <translation type="obsolete">Портрет</translation>
     </message>
     <message>
         <source>Landscape</source>
-        <translation type="unfinished">Альбом</translation>
+        <translation type="obsolete">Альбом</translation>
     </message>
 </context>
 <context>
@@ -2728,6 +2720,18 @@ to
     </message>
     <message>
         <source>Print selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Page size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Orientation:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paper source:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3883,29 +3887,5 @@ to
 </context>
 <context>
     <name>Transport Auth error</name>
-    <message>
-        <source>pending identity verification</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>message too small to carry auth data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>cache miss on connection oriented transport</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no magic bytes on message</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>key not found for prog id</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>authorization key match failed</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 </TS>

@@ -103,7 +103,7 @@ static QStringList qt_win_make_filters_list(const QString &filter)
     QString f(filter);
 
     if (f.isEmpty())
-        f = QObject::tr("All Files (*.*)");
+        f = QFileDialog::tr("All Files (*.*)");
 
     return qt_make_filter_list(f);
 }
@@ -309,7 +309,7 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
 
     QString title = args.caption;
     if (title.isNull())
-        title = QObject::tr("Open");
+        title = QFileDialog::tr("Open");
 
     DWORD selFilIdx;
 
@@ -388,7 +388,7 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
 
     QString title = args.caption;
     if (title.isNull())
-        title = QObject::tr("Save As");
+        title = QFileDialog::tr("Save As");
 
     DWORD selFilIdx;
 
@@ -468,7 +468,7 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
 
     QString title = args.caption;
     if (title.isNull())
-        title = QObject::tr("Open ");
+        title = QFileDialog::tr("Open ");
 
     DWORD selFilIdx;
 
@@ -622,7 +622,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
         parent = qApp->activeWindow();
     QString title = args.caption;
     if (title.isNull())
-        title = QObject::tr("Select a Directory");
+        title = QFileDialog::tr("Select a Directory");
 
     QWidget modal_widget;
     modal_widget.setAttribute(Qt::WA_NoChildEventsForParent, true);

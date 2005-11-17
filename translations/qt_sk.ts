@@ -6,7 +6,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Ambiguous &quot;%1&quot; not handled</source>
+        <source>Ambiguous %1 not handled</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -292,168 +292,168 @@ Overte cestu a meno súboru.</translation>
     <name>Q3Ftp</name>
     <message>
         <source>Not connected</source>
-        <translation type="unfinished">Nepripojený</translation>
+        <translation type="obsolete">Nepripojený</translation>
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation type="unfinished">Hostiteľ %1 nenájdený</translation>
+        <translation type="obsolete">Hostiteľ %1 nenájdený</translation>
     </message>
     <message>
         <source>Connection refused to host %1</source>
-        <translation type="unfinished">Spojenie s hostiteľom %1 odmietnuté</translation>
+        <translation type="obsolete">Spojenie s hostiteľom %1 odmietnuté</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation type="unfinished">Pripojený k hostiteľovi %1</translation>
+        <translation type="obsolete">Pripojený k hostiteľovi %1</translation>
     </message>
     <message>
         <source>Connection refused for data connection</source>
-        <translation type="unfinished">Dátové spojenie odmietnuté</translation>
+        <translation type="obsolete">Dátové spojenie odmietnuté</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">Neznáma chyba</translation>
+        <translation type="obsolete">Neznáma chyba</translation>
     </message>
     <message>
         <source>Connecting to host failed:
 %1</source>
-        <translation type="unfinished">Spojenie s hostiteľom zlyhalo:
+        <translation type="obsolete">Spojenie s hostiteľom zlyhalo:
 %1</translation>
     </message>
     <message>
         <source>Login failed:
 %1</source>
-        <translation type="unfinished">Prihlásenie zlyhalo:
+        <translation type="obsolete">Prihlásenie zlyhalo:
 %1</translation>
     </message>
     <message>
         <source>Listing directory failed:
 %1</source>
-        <translation type="unfinished">Výpis priečinku zlyhal:
+        <translation type="obsolete">Výpis priečinku zlyhal:
 %1</translation>
     </message>
     <message>
         <source>Changing directory failed:
 %1</source>
-        <translation type="unfinished">Zmena priečinku zlyhala:
+        <translation type="obsolete">Zmena priečinku zlyhala:
 %1</translation>
     </message>
     <message>
         <source>Downloading file failed:
 %1</source>
-        <translation type="unfinished">Stiahnutie súboru zlyhalo:
+        <translation type="obsolete">Stiahnutie súboru zlyhalo:
 %1</translation>
     </message>
     <message>
         <source>Uploading file failed:
 %1</source>
-        <translation type="unfinished">Poslanie súboru zlyhalo:
+        <translation type="obsolete">Poslanie súboru zlyhalo:
 %1</translation>
     </message>
     <message>
         <source>Removing file failed:
 %1</source>
-        <translation type="unfinished">Odstránenie súboru zlyhalo:
+        <translation type="obsolete">Odstránenie súboru zlyhalo:
 %1</translation>
     </message>
     <message>
         <source>Creating directory failed:
 %1</source>
-        <translation type="unfinished">Vytvorenie priečinku zlyhalo:
+        <translation type="obsolete">Vytvorenie priečinku zlyhalo:
 %1</translation>
     </message>
     <message>
         <source>Removing directory failed:
 %1</source>
-        <translation type="unfinished">Odstránenie priečinku zlyhalo:
+        <translation type="obsolete">Odstránenie priečinku zlyhalo:
 %1</translation>
     </message>
     <message>
         <source>Connection closed</source>
-        <translation type="unfinished">Spojenie ukončené</translation>
+        <translation type="obsolete">Spojenie ukončené</translation>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type="unfinished">Hostiteľ %1 nenájdený</translation>
+        <translation type="obsolete">Hostiteľ %1 nenájdený</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="unfinished">Spojenie s %1 ukončené</translation>
+        <translation type="obsolete">Spojenie s %1 ukončené</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="unfinished">Hostiteľ nájdený</translation>
+        <translation type="obsolete">Hostiteľ nájdený</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="unfinished">Pripojený k hostiteľovi</translation>
+        <translation type="obsolete">Pripojený k hostiteľovi</translation>
     </message>
 </context>
 <context>
     <name>Q3Http</name>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">Neznáma chyba</translation>
+        <translation type="obsolete">Neznáma chyba</translation>
     </message>
     <message>
         <source>Request aborted</source>
-        <translation type="unfinished">Požiadavka zrušená</translation>
+        <translation type="obsolete">Požiadavka zrušená</translation>
     </message>
     <message>
         <source>No server set to connect to</source>
-        <translation type="unfinished">Nenastavený server na pripojenie</translation>
+        <translation type="obsolete">Nenastavený server na pripojenie</translation>
     </message>
     <message>
         <source>Wrong content length</source>
-        <translation type="unfinished">Neplatná dĺžka obsahu</translation>
+        <translation type="obsolete">Neplatná dĺžka obsahu</translation>
     </message>
     <message>
         <source>Server closed connection unexpectedly</source>
-        <translation type="unfinished">Server neočakávane ukončil spojenie</translation>
+        <translation type="obsolete">Server neočakávane ukončil spojenie</translation>
     </message>
     <message>
         <source>Connection refused</source>
-        <translation type="unfinished">Spojenie odmietnuté</translation>
+        <translation type="obsolete">Spojenie odmietnuté</translation>
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation type="unfinished">Hostiteľ %1 nenájdený</translation>
+        <translation type="obsolete">Hostiteľ %1 nenájdený</translation>
     </message>
     <message>
         <source>HTTP request failed</source>
-        <translation type="unfinished">Požiadavka HTTP zlyhala</translation>
+        <translation type="obsolete">Požiadavka HTTP zlyhala</translation>
     </message>
     <message>
         <source>Invalid HTTP response header</source>
-        <translation type="unfinished">Neplatná hlavička odpovede HTTP</translation>
+        <translation type="obsolete">Neplatná hlavička odpovede HTTP</translation>
     </message>
     <message>
         <source>Invalid HTTP chunked body</source>
-        <translation type="unfinished">Neplatné časti tela HTTP</translation>
+        <translation type="obsolete">Neplatné časti tela HTTP</translation>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type="unfinished">Hostiteľ %1 nenájdený</translation>
+        <translation type="obsolete">Hostiteľ %1 nenájdený</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation type="unfinished">Pripojený k hostiteľovi %1</translation>
+        <translation type="obsolete">Pripojený k hostiteľovi %1</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="unfinished">Spojenie s %1 ukončené</translation>
+        <translation type="obsolete">Spojenie s %1 ukončené</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="unfinished">Hostiteľ nájdený</translation>
+        <translation type="obsolete">Hostiteľ nájdený</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="unfinished">Pripojený k hostiteľovi</translation>
+        <translation type="obsolete">Pripojený k hostiteľovi</translation>
     </message>
     <message>
         <source>Connection closed</source>
-        <translation type="unfinished">Spojenie ukončené</translation>
+        <translation type="obsolete">Spojenie ukončené</translation>
     </message>
 </context>
 <context>
@@ -976,7 +976,7 @@ na
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Activates the application main widget</source>
+        <source>Activates the program&apos;s main window</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1129,10 +1129,6 @@ na
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> to All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Yes</source>
         <translation type="unfinished">Áno</translation>
     </message>
@@ -1167,6 +1163,10 @@ na
     <message>
         <source>Help</source>
         <translation type="unfinished">Pomocník</translation>
+    </message>
+    <message>
+        <source>%1 to All</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1570,7 +1570,7 @@ Please verify the correct file name was given.</source>
     <message>
         <source>%1
 Directory not found.
-Please verify the correct directory name was given</source>
+Please verify the correct directory name was given.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1828,11 +1828,11 @@ Please verify the correct directory name was given</source>
     <name>QFtp</name>
     <message>
         <source>Host %1 found</source>
-        <translation type="obsolete">Hostiteľ %1 nenájdený</translation>
+        <translation type="unfinished">Hostiteľ %1 nenájdený</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="obsolete">Hostiteľ nájdený</translation>
+        <translation type="unfinished">Hostiteľ nájdený</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
@@ -1840,11 +1840,11 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="obsolete">Pripojený k hostiteľovi</translation>
+        <translation type="unfinished">Pripojený k hostiteľovi</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="obsolete">Spojenie s %1 ukončené</translation>
+        <translation type="unfinished">Spojenie s %1 ukončené</translation>
     </message>
     <message>
         <source>Connection closed</source>
@@ -1974,23 +1974,23 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type="obsolete">Hostiteľ %1 nenájdený</translation>
+        <translation type="unfinished">Hostiteľ %1 nenájdený</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="obsolete">Hostiteľ nájdený</translation>
+        <translation type="unfinished">Hostiteľ nájdený</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation type="obsolete">Pripojený k hostiteľovi %1</translation>
+        <translation type="unfinished">Pripojený k hostiteľovi %1</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="obsolete">Pripojený k hostiteľovi</translation>
+        <translation type="unfinished">Pripojený k hostiteľovi</translation>
     </message>
     <message>
         <source>Connection closed</source>
-        <translation type="obsolete">Spojenie ukončené</translation>
+        <translation type="unfinished">Spojenie ukončené</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -2015,6 +2015,10 @@ Please verify the correct directory name was given</source>
     <message>
         <source>Invalid HTTP chunked body</source>
         <translation>Neplatné časti tela HTTP</translation>
+    </message>
+    <message>
+        <source>Connection to %1 closed</source>
+        <translation type="unfinished">Spojenie s %1 ukončené</translation>
     </message>
 </context>
 <context>
@@ -2287,21 +2291,17 @@ Mac&amp;nbsp;OS&amp;nbsp;X, Linux, a mnohé ďalšie komerčné verzie Unixu.
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;tt&gt;http://www.trolltech.com/company/model.html&lt;/tt&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QNativeSocketEngine</name>
-    <message>
-        <source>Unable to initialize a non-blocking socket</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to initialize broadcasting socket</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attempt to use an IPv6 socket on a platform with no IPv6 support</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>The remote host closed the connection</source>
         <translation type="unfinished"></translation>
@@ -2378,6 +2378,18 @@ Mac&amp;nbsp;OS&amp;nbsp;X, Linux, a mnohé ďalšie komerčné verzie Unixu.
         <source>Another socket is already listening on the same port</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to initialize non-blocking socket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to initialize broadcast socket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attempt to use IPv6 socket on a platform with no IPv6 support</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QNetworkProtocol</name>
@@ -2388,10 +2400,6 @@ Mac&amp;nbsp;OS&amp;nbsp;X, Linux, a mnohé ďalšie komerčné verzie Unixu.
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>My Computer</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>All Files (*)</source>
         <translation type="unfinished">Všetky súbory (*)</translation>
@@ -2448,32 +2456,20 @@ Mac&amp;nbsp;OS&amp;nbsp;X, Linux, a mnohé ďalšie komerčné verzie Unixu.
 <context>
     <name>QPageSetupDialog</name>
     <message>
-        <source>Page size:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Orientation:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Paper source:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="obsolete">OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Zrušiť</translation>
+        <translation type="obsolete">Zrušiť</translation>
     </message>
     <message>
         <source>Portrait</source>
-        <translation type="unfinished">Na výšku</translation>
+        <translation type="obsolete">Na výšku</translation>
     </message>
     <message>
         <source>Landscape</source>
-        <translation type="unfinished">Na šírku</translation>
+        <translation type="obsolete">Na šírku</translation>
     </message>
 </context>
 <context>
@@ -2736,6 +2732,18 @@ Mac&amp;nbsp;OS&amp;nbsp;X, Linux, a mnohé ďalšie komerčné verzie Unixu.
     </message>
     <message>
         <source>Print selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Page size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Orientation:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paper source:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3891,29 +3899,5 @@ Mac&amp;nbsp;OS&amp;nbsp;X, Linux, a mnohé ďalšie komerčné verzie Unixu.
 </context>
 <context>
     <name>Transport Auth error</name>
-    <message>
-        <source>pending identity verification</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>message too small to carry auth data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>cache miss on connection oriented transport</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no magic bytes on message</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>key not found for prog id</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>authorization key match failed</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 </TS>

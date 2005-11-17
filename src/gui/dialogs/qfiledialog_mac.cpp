@@ -80,7 +80,7 @@ static QList<qt_mac_filter_name*> qt_mac_make_filters_list(const QString &filter
 #endif
     QString f(filter);
     if (f.isEmpty())
-        f = QObject::tr("All Files (*)");
+        f = QFileDialog::tr("All Files (*)");
     if (f.isEmpty())
         return QList<qt_mac_filter_name*>();
 /*

@@ -2299,21 +2299,21 @@ void QLineEditPrivate::init(const QString& txt)
     cursor = text.length();
 
 #ifndef QT_NO_MENU
-    actions[UndoAct] = new QAction(q->tr("&Undo") + ACCEL_KEY(Z), q);
+    actions[UndoAct] = new QAction(QLineEdit::tr("&Undo") + ACCEL_KEY(Z), q);
     QObject::connect(actions[UndoAct], SIGNAL(triggered()), q, SLOT(undo()));
-    actions[RedoAct] = new QAction(q->tr("&Redo") + ACCEL_KEY(Y), q);
+    actions[RedoAct] = new QAction(QLineEdit::tr("&Redo") + ACCEL_KEY(Y), q);
     QObject::connect(actions[RedoAct], SIGNAL(triggered()), q, SLOT(redo()));
     //popup->insertSeparator();
-    actions[CutAct] = new QAction(q->tr("Cu&t") + ACCEL_KEY(X), q);
+    actions[CutAct] = new QAction(QLineEdit::tr("Cu&t") + ACCEL_KEY(X), q);
     QObject::connect(actions[CutAct], SIGNAL(triggered()), q, SLOT(cut()));
-    actions[CopyAct] = new QAction(q->tr("&Copy") + ACCEL_KEY(C), q);
+    actions[CopyAct] = new QAction(QLineEdit::tr("&Copy") + ACCEL_KEY(C), q);
     QObject::connect(actions[CopyAct], SIGNAL(triggered()), q, SLOT(copy()));
-    actions[PasteAct] = new QAction(q->tr("&Paste") + ACCEL_KEY(V), q);
+    actions[PasteAct] = new QAction(QLineEdit::tr("&Paste") + ACCEL_KEY(V), q);
     QObject::connect(actions[PasteAct], SIGNAL(triggered()), q, SLOT(paste()));
-    actions[ClearAct] = new QAction(q->tr("Delete"), q);
+    actions[ClearAct] = new QAction(QLineEdit::tr("Delete"), q);
     QObject::connect(actions[ClearAct], SIGNAL(triggered()), q, SLOT(deleteSelected()));
     //popup->insertSeparator();
-    actions[SelectAllAct] = new QAction(q->tr("Select All")
+    actions[SelectAllAct] = new QAction(QLineEdit::tr("Select All")
 #ifndef Q_WS_X11
                                         + ACCEL_KEY(A)
 #endif

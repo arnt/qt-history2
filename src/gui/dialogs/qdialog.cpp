@@ -301,7 +301,7 @@ void QDialog::hideSpecial()
         } else if (!showX && pb->text() == qApp->translate("QMessageBox", mb_texts[QMessageBox::Cancel])) {
             pb->hide();
             showX = true;
-        } else if (!showQ && pb->text() == qApp->tr("Help")) {
+        } else if (!showQ && pb->text() == qApp->translate("QMessageBox", "Help")) {
             pb->hide();
             showQ = true;
         }
@@ -556,7 +556,7 @@ bool QDialog::event(QEvent *e)
         QString bName =
             (e->type() == QEvent::OkRequest)
             ? qApp->translate("QMessageBox", mb_texts[QMessageBox::Ok])
-            : qApp->tr("Help");
+            : qApp->translate("QMessageBox", "Help");
         QList<QPushButton*> list = qFindChildren<QPushButton*>(this);
         for (int i=0; i<list.size(); ++i) {
             QPushButton *pb = list.at(i);

@@ -176,7 +176,7 @@ Q_CORE_EXPORT bool winPostMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 UINT WM_QT_REPAINT = 0;
 static UINT WM95_MOUSEWHEEL = 0;
 
-#if(_WIN32_WINNT < 0x0400)
+#if (_WIN32_WINNT < 0x0400)
 // This struct is defined in winuser.h if the _WIN32_WINNT >= 0x0400 -- in the
 // other cases we have to define it on our own.
 typedef struct tagTRACKMOUSEEVENT {

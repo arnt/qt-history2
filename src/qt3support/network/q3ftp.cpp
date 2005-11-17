@@ -24,9 +24,10 @@
 #include "qregexp.h"
 #include "qtimer.h"
 #include "qfileinfo.h"
-#include "q3ptrdict.h" // binary compatibility
+#include "q3ptrdict.h"
 #include "q3cstring.h"
 #include "qcoreapplication.h"
+#include "qftp.h"
 
 #ifndef QT_NO_TEXTCODEC
 #include "qtextcodec.h"
@@ -34,7 +35,6 @@
 
 //#define Q3FTPPI_DEBUG
 //#define Q3FTPDTP_DEBUG
-
 
 class Q3FtpPI;
 
@@ -649,7 +649,7 @@ bool Q3FtpPI::sendCommands( const QStringList &cmds )
 	return false;
 
     if ( commandSocket.state()!=Q3Socket::Connected || state!=Idle ) {
-	emit error( Q3Ftp::NotConnected, Q3Ftp::tr( "Not connected" ) );
+	emit error( Q3Ftp::NotConnected, QFtp::tr( "Not connected" ) );
 	return true; // there are no pending commands
     }
 
@@ -714,11 +714,11 @@ void Q3FtpPI::error( int e )
     if ( e == Q3Socket::ErrHostNotFound ) {
 	emit connectState( Q3Ftp::Unconnected );
 	emit error( Q3Ftp::HostNotFound,
-		    Q3Ftp::tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
+		    QFtp::tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
     } else if ( e == Q3Socket::ErrConnectionRefused ) {
 	emit connectState( Q3Ftp::Unconnected );
 	emit error( Q3Ftp::ConnectionRefused,
-		    Q3Ftp::tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
+		    QFtp::tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
     }
 }
 
@@ -820,7 +820,7 @@ bool Q3FtpPI::processReply()
 		return true;
 	    } else if ( replyCode[0] == 2 ) {
 		state = Idle;
-		emit finished( Q3Ftp::tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
+		emit finished( QFtp::tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
 		break;
 	    }
 	    // ### error handling
@@ -981,7 +981,7 @@ void Q3FtpPI::dtpConnectState( int s )
 	case Q3FtpDTP::CsHostNotFound:
 	case Q3FtpDTP::CsConnectionRefused:
 	    emit error( Q3Ftp::ConnectionRefused,
-			Q3Ftp::tr( "Connection refused for data connection" ) );
+			QFtp::tr( "Connection refused for data connection" ) );
 	    startNextCmd();
 	    return;
 	default:
@@ -1228,7 +1228,7 @@ Q3Ftp::Q3Ftp( QObject *parent, const char *name ) : Q3NetworkProtocol()
 void Q3Ftp::init()
 {
     Q3FtpPrivate *d = ::d( this );
-    d->errorString = tr( "Unknown error" );
+    d->errorString = QFtp::tr( "Unknown error" );
 
     connect( &d->pi, SIGNAL(connectState(int)),
 	    SLOT(piConnectState(int)) );
@@ -1956,7 +1956,7 @@ void Q3Ftp::startNextCommand()
 	return;
 
     d->error = NoError;
-    d->errorString = tr( "Unknown error" );
+    d->errorString = QFtp::tr( "Unknown error" );
 
     if ( bytesAvailable() )
 	readAll(); // clear the data
@@ -2033,31 +2033,31 @@ void Q3Ftp::piError( int errorCode, const QString &text )
     d->error = (Error)errorCode;
     switch ( currentCommand() ) {
 	case ConnectToHost:
-	    d->errorString = tr( "Connecting to host failed:\n%1" ).arg( text );
+	    d->errorString = QFtp::tr( "Connecting to host failed:\n%1" ).arg( text );
 	    break;
 	case Login:
-	    d->errorString = tr( "Login failed:\n%1" ).arg( text );
+	    d->errorString = QFtp::tr( "Login failed:\n%1" ).arg( text );
 	    break;
 	case List:
-	    d->errorString = tr( "Listing directory failed:\n%1" ).arg( text );
+	    d->errorString = QFtp::tr( "Listing directory failed:\n%1" ).arg( text );
 	    break;
 	case Cd:
-	    d->errorString = tr( "Changing directory failed:\n%1" ).arg( text );
+	    d->errorString = QFtp::tr( "Changing directory failed:\n%1" ).arg( text );
 	    break;
 	case Get:
-	    d->errorString = tr( "Downloading file failed:\n%1" ).arg( text );
+	    d->errorString = QFtp::tr( "Downloading file failed:\n%1" ).arg( text );
 	    break;
 	case Put:
-	    d->errorString = tr( "Uploading file failed:\n%1" ).arg( text );
+	    d->errorString = QFtp::tr( "Uploading file failed:\n%1" ).arg( text );
 	    break;
 	case Remove:
-	    d->errorString = tr( "Removing file failed:\n%1" ).arg( text );
+	    d->errorString = QFtp::tr( "Removing file failed:\n%1" ).arg( text );
 	    break;
 	case Mkdir:
-	    d->errorString = tr( "Creating directory failed:\n%1" ).arg( text );
+	    d->errorString = QFtp::tr( "Creating directory failed:\n%1" ).arg( text );
 	    break;
 	case Rmdir:
-	    d->errorString = tr( "Removing directory failed:\n%1" ).arg( text );
+	    d->errorString = QFtp::tr( "Removing directory failed:\n%1" ).arg( text );
 	    break;
 	default:
 	    d->errorString = text;
@@ -2082,7 +2082,7 @@ void Q3Ftp::piConnectState( int state )
     emit stateChanged( d->state );
     if ( d->close_waitForStateChange ) {
 	d->close_waitForStateChange = false;
-	piFinished( tr( "Connection closed" ) );
+	piFinished( QFtp::tr( "Connection closed" ) );
     }
 }
 
@@ -2321,18 +2321,18 @@ void Q3Ftp::npStateChanged( int state )
 {
     if ( url() ) {
 	if ( state == Connecting )
-	    emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
+	    emit connectionStateChanged( ConHostFound, QFtp::tr( "Host %1 found" ).arg( url()->host() ) );
 	else if ( state == Connected )
-	    emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
+	    emit connectionStateChanged( ConConnected, QFtp::tr( "Connected to host %1" ).arg( url()->host() ) );
 	else if ( state == Unconnected )
-	    emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
+	    emit connectionStateChanged( ConClosed, QFtp::tr( "Connection to %1 closed" ).arg( url()->host() ) );
     } else {
 	if ( state == Connecting )
-	    emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
+	    emit connectionStateChanged( ConHostFound, QFtp::tr( "Host found" ) );
 	else if ( state == Connected )
-	    emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
+	    emit connectionStateChanged( ConConnected, QFtp::tr( "Connected to host" ) );
 	else if ( state == Unconnected )
-	    emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
+	    emit connectionStateChanged( ConClosed, QFtp::tr( "Connection closed" ) );
     }
 }
 

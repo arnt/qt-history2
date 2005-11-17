@@ -6,7 +6,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Ambiguous &quot;%1&quot; not handled</source>
+        <source>Ambiguous %1 not handled</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -287,165 +287,6 @@ Check path and filename.</source>
     </message>
 </context>
 <context>
-    <name>Q3Ftp</name>
-    <message>
-        <source>Not connected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Host %1 not found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection refused to host %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connected to host %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection refused for data connection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unknown error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connecting to host failed:
-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Login failed:
-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Listing directory failed:
-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Changing directory failed:
-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Downloading file failed:
-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Uploading file failed:
-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Removing file failed:
-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creating directory failed:
-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Removing directory failed:
-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection closed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Host %1 found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection to %1 closed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Host found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connected to host</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Q3Http</name>
-    <message>
-        <source>Unknown error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Request aborted</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No server set to connect to</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wrong content length</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Server closed connection unexpectedly</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection refused</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Host %1 not found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP request failed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid HTTP response header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid HTTP chunked body</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Host %1 found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connected to host %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection to %1 closed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Host found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connected to host</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection closed</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>Q3LocalFs</name>
     <message>
         <source>Could not read directory
@@ -657,8 +498,7 @@ to
 <context>
     <name>QApplication</name>
     <message>
-        <source>QT_LAYOUT_DIRECTION</source>
-        <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
+        <source>Activate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -670,11 +510,12 @@ to
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Activate</source>
+        <source>QT_LAYOUT_DIRECTION</source>
+        <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Activates the application main widget</source>
+        <source>Activates the program&apos;s main window</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -782,10 +623,6 @@ to
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> to All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Yes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -821,6 +658,10 @@ to
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 to All</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QDirModel</name>
@@ -844,14 +685,6 @@ to
 <context>
     <name>QErrorMessage</name>
     <message>
-        <source>&amp;Show this message again</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Debug Message:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -863,6 +696,14 @@ to
         <source>Fatal Error:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Show this message again</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;OK</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QFileDialog</name>
@@ -871,7 +712,7 @@ to
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open</source>
+        <source>Directories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -883,7 +724,7 @@ to
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Directories</source>
+        <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -983,7 +824,7 @@ Please verify the correct file name was given.</source>
     <message>
         <source>%1
 Directory not found.
-Please verify the correct directory name was given</source>
+Please verify the correct directory name was given.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1018,6 +859,10 @@ Please verify the correct directory name was given</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Wr&amp;iting System</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1037,19 +882,11 @@ Please verify the correct directory name was given</source>
         <source>Select Font</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Wr&amp;iting System</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>QFtp</name>
     <message>
-        <source>Connected to host %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection closed</source>
+        <source>Not connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1058,6 +895,14 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>Connection refused to host %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connected to host %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connection refused for data connection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1110,11 +955,23 @@ Please verify the correct directory name was given</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Not connected</source>
+        <source>Connection closed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Connection refused for data connection</source>
+        <source>Host %1 found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connection to %1 closed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Host found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connected to host</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1143,22 +1000,6 @@ Please verify the correct directory name was given</source>
 <context>
     <name>QHttp</name>
     <message>
-        <source>Connection refused</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Host %1 not found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wrong content length</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP request failed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Unknown error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1171,7 +1012,23 @@ Please verify the correct directory name was given</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Wrong content length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Server closed connection unexpectedly</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connection refused</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Host %1 not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP request failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1180,6 +1037,30 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>Invalid HTTP chunked body</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Host %1 found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connected to host %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connection to %1 closed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Host found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connected to host</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connection closed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1270,6 +1151,10 @@ Please verify the correct directory name was given</source>
 <context>
     <name>QMessageBox</name>
     <message>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1306,32 +1191,24 @@ Please verify the correct directory name was given</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>About Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Help</source>
+        <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;tt&gt;http://www.trolltech.com/company/model.html&lt;/tt&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QNativeSocketEngine</name>
-    <message>
-        <source>Unable to initialize a non-blocking socket</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to initialize broadcasting socket</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attempt to use an IPv6 socket on a platform with no IPv6 support</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>The remote host closed the connection</source>
         <translation type="unfinished"></translation>
@@ -1408,13 +1285,21 @@ Please verify the correct directory name was given</source>
         <source>Another socket is already listening on the same port</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to initialize non-blocking socket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to initialize broadcast socket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attempt to use IPv6 socket on a platform with no IPv6 support</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>My Computer</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>All Files (*)</source>
         <translation type="unfinished"></translation>
@@ -1469,37 +1354,6 @@ Please verify the correct directory name was given</source>
     </message>
 </context>
 <context>
-    <name>QPageSetupDialog</name>
-    <message>
-        <source>Page size:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Orientation:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Paper source:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Portrait</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Landscape</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>QPrintDialog</name>
     <message>
         <source>locally connected</source>
@@ -1515,126 +1369,6 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>Unknown Location</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A0 (841 x 1189 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A1 (594 x 841 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A2 (420 x 594 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A3 (297 x 420 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A5 (148 x 210 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A6 (105 x 148 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A7 (74 x 105 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A8 (52 x 74 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A9 (37 x 52 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B0 (1000 x 1414 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B1 (707 x 1000 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B2 (500 x 707 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B3 (353 x 500 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B4 (250 x 353 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B6 (125 x 176 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B7 (88 x 125 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B8 (62 x 88 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B9 (44 x 62 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B10 (31 x 44 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>C5E (163 x 229 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DLE (110 x 220 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Folio (210 x 330 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ledger (432 x 279 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tabloid (279 x 432 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>US Common #10 Envelope (105 x 241 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A4 (210 x 297 mm, 8.26 x 11.7 inches)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B5 (176 x 250 mm, 6.93 x 9.84 inches)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Executive (7.5 x 10 inches, 191 x 254 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Legal (8.5 x 14 inches, 216 x 356 mm)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Letter (8.5 x 11 inches, 216 x 279 mm)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1714,6 +1448,126 @@ Please verify the correct directory name was given</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>A0 (841 x 1189 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A1 (594 x 841 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A2 (420 x 594 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A3 (297 x 420 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A4 (210 x 297 mm, 8.26 x 11.7 inches)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A5 (148 x 210 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A6 (105 x 148 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A7 (74 x 105 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A8 (52 x 74 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A9 (37 x 52 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B0 (1000 x 1414 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B1 (707 x 1000 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B2 (500 x 707 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B3 (353 x 500 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B4 (250 x 353 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B5 (176 x 250 mm, 6.93 x 9.84 inches)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B6 (125 x 176 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B7 (88 x 125 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B8 (62 x 88 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B9 (44 x 62 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B10 (31 x 44 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>C5E (163 x 229 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>DLE (110 x 220 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Executive (7.5 x 10 inches, 191 x 254 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Folio (210 x 330 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ledger (432 x 279 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Legal (8.5 x 14 inches, 216 x 356 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Letter (8.5 x 11 inches, 216 x 279 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tabloid (279 x 432 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>US Common #10 Envelope (105 x 241 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>PostScript Files (*.ps);;All Files (*)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1723,6 +1577,18 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Page size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Orientation:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paper source:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2288,11 +2154,11 @@ Please verify the correct directory name was given</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Select All</source>
+        <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete</source>
+        <source>Select All</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2367,10 +2233,6 @@ Please verify the correct directory name was given</source>
 <context>
     <name>QWorkspace</name>
     <message>
-        <source>%1 - [%2]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Restore</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2400,6 +2262,10 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>Sh&amp;ade</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 - [%2]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2511,33 +2377,6 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>error in the text declaration of an external entity</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Transport Auth error</name>
-    <message>
-        <source>pending identity verification</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>message too small to carry auth data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>cache miss on connection oriented transport</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no magic bytes on message</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>key not found for prog id</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>authorization key match failed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

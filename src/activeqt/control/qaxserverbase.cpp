@@ -1650,9 +1650,9 @@ void QAxServerBase::createMenu(QMenuBar *menuBar)
 	else
 	    flags |= MF_STRING;
 
-	if (action->text() == qt.widget->tr("&Edit"))
+	if (action->text() == QCoreApplication::translate(qt.widget->metaObject()->className(), "&Edit"))
 	    edit++;
-	else if (action->text() == qt.widget->tr("&Help"))
+	else if (action->text() == QCoreApplication::translate(qt.widget->metaObject()->className(), "&Help"))
 	    help++;
 	else
 	    object++;

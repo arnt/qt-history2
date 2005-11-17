@@ -500,20 +500,9 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_MSGBOX
 #else
-        *translatedTextAboutQt = q->tr(
+        *translatedTextAboutQt = QMessageBox::tr(
             "<h3>About Qt</h3>"
-#if !defined(QT_OPENSOURCE)
-            "<p>This program uses Qt version %1.</p>"
-#else
-            "<p>This program uses Qt Open Source Edition version %1.</p>"
-            "<p>Qt Open Source Edition is intended for the development "
-            "of Open Source applications. You need a commercial Qt "
-            "license for development of proprietary (closed source) "
-            "applications.</p>"
-            "<p>Please see <tt>http://www.trolltech.com/company/model.html</tt> "
-            "for an overview of Qt licensing.</p>"
-#endif
-            "<p>Qt is a C++ toolkit for cross-platform "
+            "%1<p>Qt is a C++ toolkit for cross-platform "
             "application development.</p>"
             "<p>Qt provides single-source "
             "portability across MS&nbsp;Windows, Mac&nbsp;OS&nbsp;X, "
@@ -521,9 +510,20 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
             " available for embedded devices as Qtopia Core.</p>"
             "<p>Qt is a Trolltech product. See "
             "<tt>http://www.trolltech.com/qt/</tt> for more information.</p>"
-           ).arg(QT_VERSION_STR);
+           )
+#if !defined(QT_OPENSOURCE)
+           .arg(QMessageBox::tr("<p>This program uses Qt version %1.</p>"))
+#else
+           .arg(QMessageBox::tr("<p>This program uses Qt Open Source Edition version %1.</p>"
+                   "<p>Qt Open Source Edition is intended for the development "
+                   "of Open Source applications. You need a commercial Qt "
+                   "license for development of proprietary (closed source) "
+                   "applications.</p>"
+                   "<p>Please see <tt>http://www.trolltech.com/company/model.html</tt> "
+                   "for an overview of Qt licensing.</p>"))
 #endif
-
+           .arg(QT_VERSION_STR);
+#endif
     }
     label = new QLabel(q);
     label->setObjectName(QLatin1String("qt_msgbox_label"));
@@ -585,7 +585,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
         if (i >= numButtons) {
             pb[i] = 0;
         } else {
-            pb[i] = new QPushButton(q->tr(mb_texts[button[i]]), q);
+            pb[i] = new QPushButton(QMessageBox::tr(mb_texts[button[i]]), q);
             pb[i]->setObjectName(mb_texts[button[i]]);
             if (defButton == i) {
                 pb[i]->setDefault(true);

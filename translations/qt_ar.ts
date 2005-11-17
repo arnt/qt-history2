@@ -6,7 +6,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Ambiguous &quot;%1&quot; not handled</source>
+        <source>Ambiguous %1 not handled</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -292,168 +292,168 @@ Check path and filename.</source>
     <name>Q3Ftp</name>
     <message>
         <source>Not connected</source>
-        <translation type="unfinished">غير متصّل</translation>
+        <translation type="obsolete">غير متصّل</translation>
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation type="unfinished">لم يتمّ إيجاد المضيف %1</translation>
+        <translation type="obsolete">لم يتمّ إيجاد المضيف %1</translation>
     </message>
     <message>
         <source>Connection refused to host %1</source>
-        <translation type="unfinished">رفض الوصل بالمضيف %1</translation>
+        <translation type="obsolete">رفض الوصل بالمضيف %1</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation type="unfinished">تمّ وصل المضيف %1</translation>
+        <translation type="obsolete">تمّ وصل المضيف %1</translation>
     </message>
     <message>
         <source>Connection refused for data connection</source>
-        <translation type="unfinished">رفض وصل المعطيات</translation>
+        <translation type="obsolete">رفض وصل المعطيات</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">خطأ مجهول</translation>
+        <translation type="obsolete">خطأ مجهول</translation>
     </message>
     <message>
         <source>Connecting to host failed:
 %1</source>
-        <translation type="unfinished">فشل وصل المضيف:
+        <translation type="obsolete">فشل وصل المضيف:
 %1</translation>
     </message>
     <message>
         <source>Login failed:
 %1</source>
-        <translation type="unfinished">فشل التّسجيل:
+        <translation type="obsolete">فشل التّسجيل:
 %1</translation>
     </message>
     <message>
         <source>Listing directory failed:
 %1</source>
-        <translation type="unfinished">فشلت عمليّة وضع قائمة للدّليل:
+        <translation type="obsolete">فشلت عمليّة وضع قائمة للدّليل:
 %1</translation>
     </message>
     <message>
         <source>Changing directory failed:
 %1</source>
-        <translation type="unfinished">فشلت عمليّة تغيير الدّليل:
+        <translation type="obsolete">فشلت عمليّة تغيير الدّليل:
 %1</translation>
     </message>
     <message>
         <source>Downloading file failed:
 %1</source>
-        <translation type="unfinished">فشلت عمليّة تحميل الملفّ:
+        <translation type="obsolete">فشلت عمليّة تحميل الملفّ:
 %1</translation>
     </message>
     <message>
         <source>Uploading file failed:
 %1</source>
-        <translation type="unfinished">فشلت عمليّة تحميل (بعث) الملفّ:
+        <translation type="obsolete">فشلت عمليّة تحميل (بعث) الملفّ:
 %1</translation>
     </message>
     <message>
         <source>Removing file failed:
 %1</source>
-        <translation type="unfinished">فشلت عمليّة نزع الملفّ:
+        <translation type="obsolete">فشلت عمليّة نزع الملفّ:
 %1</translation>
     </message>
     <message>
         <source>Creating directory failed:
 %1</source>
-        <translation type="unfinished">فشلت عمليّة صنع الدّليل:
+        <translation type="obsolete">فشلت عمليّة صنع الدّليل:
 %1</translation>
     </message>
     <message>
         <source>Removing directory failed:
 %1</source>
-        <translation type="unfinished">فشلت عمليّة نزع الدّليل:
+        <translation type="obsolete">فشلت عمليّة نزع الدّليل:
 %1</translation>
     </message>
     <message>
         <source>Connection closed</source>
-        <translation type="unfinished">وصل مغلق</translation>
+        <translation type="obsolete">وصل مغلق</translation>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type="unfinished">تمّ إيجاد المضيف %1</translation>
+        <translation type="obsolete">تمّ إيجاد المضيف %1</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="unfinished">تمّ إغلاق الوصل بالمضيف %1</translation>
+        <translation type="obsolete">تمّ إغلاق الوصل بالمضيف %1</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="unfinished">تمّ إيجاد المضيف</translation>
+        <translation type="obsolete">تمّ إيجاد المضيف</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="unfinished">تمّ وصل المضيف</translation>
+        <translation type="obsolete">تمّ وصل المضيف</translation>
     </message>
 </context>
 <context>
     <name>Q3Http</name>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">خطأ مجهول</translation>
+        <translation type="obsolete">خطأ مجهول</translation>
     </message>
     <message>
         <source>Request aborted</source>
-        <translation type="unfinished">تمّ إبطال الطّلب</translation>
+        <translation type="obsolete">تمّ إبطال الطّلب</translation>
     </message>
     <message>
         <source>No server set to connect to</source>
-        <translation type="unfinished">ليس هناك أيّ خادم للوصل</translation>
+        <translation type="obsolete">ليس هناك أيّ خادم للوصل</translation>
     </message>
     <message>
         <source>Wrong content length</source>
-        <translation type="unfinished">طول المحتوى خاطئ</translation>
+        <translation type="obsolete">طول المحتوى خاطئ</translation>
     </message>
     <message>
         <source>Server closed connection unexpectedly</source>
-        <translation type="unfinished">الخادم أغلق الوصل بصفة غير متوقّعة</translation>
+        <translation type="obsolete">الخادم أغلق الوصل بصفة غير متوقّعة</translation>
     </message>
     <message>
         <source>Connection refused</source>
-        <translation type="unfinished">رفض الوصل</translation>
+        <translation type="obsolete">رفض الوصل</translation>
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation type="unfinished">لم يتمّ إيجاد المضيف %1</translation>
+        <translation type="obsolete">لم يتمّ إيجاد المضيف %1</translation>
     </message>
     <message>
         <source>HTTP request failed</source>
-        <translation type="unfinished">فشل طلب الHTTP</translation>
+        <translation type="obsolete">فشل طلب الHTTP</translation>
     </message>
     <message>
         <source>Invalid HTTP response header</source>
-        <translation type="unfinished">صديرة استجابة الHTTP غير صالحة</translation>
+        <translation type="obsolete">صديرة استجابة الHTTP غير صالحة</translation>
     </message>
     <message>
         <source>Invalid HTTP chunked body</source>
-        <translation type="unfinished">مقطع HTTP غير صالح</translation>
+        <translation type="obsolete">مقطع HTTP غير صالح</translation>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type="unfinished">تمّ إيجاد المضيف %1</translation>
+        <translation type="obsolete">تمّ إيجاد المضيف %1</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation type="unfinished">تمّ وصل المضيف %1</translation>
+        <translation type="obsolete">تمّ وصل المضيف %1</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="unfinished">تمّ إغلاق الوصل بالمضيف %1</translation>
+        <translation type="obsolete">تمّ إغلاق الوصل بالمضيف %1</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="unfinished">تمّ إيجاد المضيف</translation>
+        <translation type="obsolete">تمّ إيجاد المضيف</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="unfinished">تمّ وصل المضيف</translation>
+        <translation type="obsolete">تمّ وصل المضيف</translation>
     </message>
     <message>
         <source>Connection closed</source>
-        <translation type="unfinished">وصل مغلق</translation>
+        <translation type="obsolete">وصل مغلق</translation>
     </message>
 </context>
 <context>
@@ -976,7 +976,7 @@ to
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Activates the application main widget</source>
+        <source>Activates the program&apos;s main window</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1129,10 +1129,6 @@ to
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> to All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Yes</source>
         <translation type="unfinished">نعم</translation>
     </message>
@@ -1167,6 +1163,10 @@ to
     <message>
         <source>Help</source>
         <translation type="unfinished">مساعدة</translation>
+    </message>
+    <message>
+        <source>%1 to All</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1570,7 +1570,7 @@ Please verify the correct file name was given.</source>
     <message>
         <source>%1
 Directory not found.
-Please verify the correct directory name was given</source>
+Please verify the correct directory name was given.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1828,11 +1828,11 @@ Please verify the correct directory name was given</source>
     <name>QFtp</name>
     <message>
         <source>Host %1 found</source>
-        <translation type="obsolete">تمّ إيجاد المضيف %1</translation>
+        <translation type="unfinished">تمّ إيجاد المضيف %1</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="obsolete">تمّ إيجاد المضيف</translation>
+        <translation type="unfinished">تمّ إيجاد المضيف</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
@@ -1840,11 +1840,11 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="obsolete">تمّ وصل المضيف</translation>
+        <translation type="unfinished">تمّ وصل المضيف</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="obsolete">تمّ إغلاق الوصل بالمضيف %1</translation>
+        <translation type="unfinished">تمّ إغلاق الوصل بالمضيف %1</translation>
     </message>
     <message>
         <source>Connection closed</source>
@@ -1974,27 +1974,27 @@ Please verify the correct directory name was given</source>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type="obsolete">تمّ إيجاد المضيف %1</translation>
+        <translation type="unfinished">تمّ إيجاد المضيف %1</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type="obsolete">تمّ إيجاد المضيف</translation>
+        <translation type="unfinished">تمّ إيجاد المضيف</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation type="obsolete">تمّ وصل المضيف %1</translation>
+        <translation type="unfinished">تمّ وصل المضيف %1</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type="obsolete">تمّ وصل المضيف</translation>
+        <translation type="unfinished">تمّ وصل المضيف</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type="obsolete">تمّ إغلاق الوصل بالمضيف %1</translation>
+        <translation type="unfinished">تمّ إغلاق الوصل بالمضيف %1</translation>
     </message>
     <message>
         <source>Connection closed</source>
-        <translation type="obsolete">وصل مغلق</translation>
+        <translation type="unfinished">وصل مغلق</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -2283,21 +2283,17 @@ to
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;tt&gt;http://www.trolltech.com/company/model.html&lt;/tt&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QNativeSocketEngine</name>
-    <message>
-        <source>Unable to initialize a non-blocking socket</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to initialize broadcasting socket</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attempt to use an IPv6 socket on a platform with no IPv6 support</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>The remote host closed the connection</source>
         <translation type="unfinished"></translation>
@@ -2374,6 +2370,18 @@ to
         <source>Another socket is already listening on the same port</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to initialize non-blocking socket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to initialize broadcast socket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attempt to use IPv6 socket on a platform with no IPv6 support</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QNetworkProtocol</name>
@@ -2384,10 +2392,6 @@ to
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>My Computer</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>All Files (*)</source>
         <translation type="unfinished">جميع الملفّات (*)</translation>
@@ -2444,32 +2448,20 @@ to
 <context>
     <name>QPageSetupDialog</name>
     <message>
-        <source>Page size:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Orientation:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Paper source:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>OK</source>
-        <translation type="unfinished">موافقة</translation>
+        <translation type="obsolete">موافقة</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">إلغاء</translation>
+        <translation type="obsolete">إلغاء</translation>
     </message>
     <message>
         <source>Portrait</source>
-        <translation type="unfinished">صورة</translation>
+        <translation type="obsolete">صورة</translation>
     </message>
     <message>
         <source>Landscape</source>
-        <translation type="unfinished">منظر</translation>
+        <translation type="obsolete">منظر</translation>
     </message>
 </context>
 <context>
@@ -2732,6 +2724,18 @@ to
     </message>
     <message>
         <source>Print selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Page size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Orientation:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paper source:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3883,29 +3887,5 @@ to
 </context>
 <context>
     <name>Transport Auth error</name>
-    <message>
-        <source>pending identity verification</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>message too small to carry auth data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>cache miss on connection oriented transport</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no magic bytes on message</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>key not found for prog id</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>authorization key match failed</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 </TS>

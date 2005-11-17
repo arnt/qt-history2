@@ -22,6 +22,7 @@
 #include <qlineedit.h>
 #include <qspinbox.h>
 #include <limits.h>
+#include <qcoreapplication.h>
 
 /*!
     \class QItemEditorFactory
@@ -84,8 +85,10 @@ void QItemEditorFactory::registerEditor(QVariant::Type type, QItemEditorCreatorB
    creatorMap[type] = creator;
 }
 
-class QDefaultItemEditorFactory: public QItemEditorFactory
+class QDefaultItemEditorFactory : public QItemEditorFactory
 {
+    Q_DECLARE_TR_FUNCTIONS(QDefaultItemEditorFactory)
+
 public:
     inline QDefaultItemEditorFactory() {}
     QWidget *createEditor(QVariant::Type type, QWidget *parent) const;
@@ -99,8 +102,8 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
     case QVariant::Bool: {
         QComboBox *cb = new QComboBox(parent);
         cb->setFrame(false);
-        cb->addItem(QObject::tr("False"));
-        cb->addItem(QObject::tr("True"));
+        cb->addItem(tr("False"));
+        cb->addItem(tr("True"));
         return cb; }
 #endif
 #ifndef QT_NO_SPINBOX

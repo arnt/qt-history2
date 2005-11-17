@@ -929,24 +929,24 @@ QWorkspacePrivate::init()
     toolPopup->setObjectName(QLatin1String("qt_internal_mdi_tool_popup"));
 
     actions[QWorkspacePrivate::RestoreAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarNormalButton)),
-                                                         q->tr("&Restore"), q);
-    actions[QWorkspacePrivate::MoveAct] = new QAction(q->tr("&Move"), q);
-    actions[QWorkspacePrivate::ResizeAct] = new QAction(q->tr("&Size"), q);
+                                                         QWorkspace::tr("&Restore"), q);
+    actions[QWorkspacePrivate::MoveAct] = new QAction(QWorkspace::tr("&Move"), q);
+    actions[QWorkspacePrivate::ResizeAct] = new QAction(QWorkspace::tr("&Size"), q);
     actions[QWorkspacePrivate::MinimizeAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarMinButton)),
-                                                          q->tr("Mi&nimize"), q);
+                                                          QWorkspace::tr("Mi&nimize"), q);
     actions[QWorkspacePrivate::MaximizeAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarMaxButton)),
-                                                          q->tr("Ma&ximize"), q);
+                                                          QWorkspace::tr("Ma&ximize"), q);
     actions[QWorkspacePrivate::CloseAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarCloseButton)),
-                                                          q->tr("&Close")
+                                                          QWorkspace::tr("&Close")
 #ifndef QT_NO_SHORTCUT
                                                           +"\t"+(QString)QKeySequence(Qt::CTRL+Qt::Key_F4)
 #endif
                                                           ,q);
     QObject::connect(actions[QWorkspacePrivate::CloseAct], SIGNAL(triggered()), q, SLOT(closeActiveWindow()));
-    actions[QWorkspacePrivate::StaysOnTopAct] = new QAction(q->tr("Stay on &Top"), q);
+    actions[QWorkspacePrivate::StaysOnTopAct] = new QAction(QWorkspace::tr("Stay on &Top"), q);
     actions[QWorkspacePrivate::StaysOnTopAct]->setChecked(true);
     actions[QWorkspacePrivate::ShadeAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarShadeButton)),
-                                                          q->tr("Sh&ade"), q);
+                                                          QWorkspace::tr("Sh&ade"), q);
 
     QObject::connect(popup, SIGNAL(aboutToShow()), q, SLOT(updateActions()));
     QObject::connect(popup, SIGNAL(triggered(QAction*)), q, SLOT(operationMenuActivated(QAction*)));
@@ -1775,7 +1775,7 @@ void QWorkspacePrivate::showMaximizeControls()
     QString docTitle = maxWindow->windowWidget()->windowTitle();
     if (topTitle.size() && docTitle.size()) {
         inTitleChange = true;
-        q->window()->setWindowTitle(q->tr("%1 - [%2]").arg(topTitle).arg(docTitle));
+        q->window()->setWindowTitle(QWorkspace::tr("%1 - [%2]").arg(topTitle).arg(docTitle));
         inTitleChange = false;
     }
     q->window()->setWindowModified(maxWindow->windowWidget()->isWindowModified());
@@ -1811,7 +1811,7 @@ void QWorkspacePrivate::showMaximizeControls()
                 QToolButton* iconB = new QToolButton(maxcontrols);
                 iconB->setObjectName(QLatin1String("iconify"));
 #ifndef QT_NO_TOOLTIP
-                iconB->setToolTip(q->tr("Minimize"));
+                iconB->setToolTip(QWorkspace::tr("Minimize"));
 #endif
                 l->addWidget(iconB);
                 iconB->setFocusPolicy(Qt::NoFocus);
@@ -1825,7 +1825,7 @@ void QWorkspacePrivate::showMaximizeControls()
             QToolButton* restoreB = new QToolButton(maxcontrols);
             restoreB->setObjectName(QLatin1String("restore"));
 #ifndef QT_NO_TOOLTIP
-            restoreB->setToolTip(q->tr("Restore Down"));
+            restoreB->setToolTip(QWorkspace::tr("Restore Down"));
 #endif
             l->addWidget(restoreB);
             restoreB->setFocusPolicy(Qt::NoFocus);
@@ -1839,7 +1839,7 @@ void QWorkspacePrivate::showMaximizeControls()
             QToolButton* closeB = new QToolButton(maxcontrols);
             closeB->setObjectName(QLatin1String("close"));
 #ifndef QT_NO_TOOLTIP
-            closeB->setToolTip(q->tr("Close"));
+            closeB->setToolTip(QWorkspace::tr("Close"));
 #endif
             l->addWidget(closeB);
             closeB->setFocusPolicy(Qt::NoFocus);
@@ -2022,11 +2022,11 @@ void QWorkspacePrivate::updateActions()
     if (active->shademode) {
         actions[QWorkspacePrivate::ShadeAct]->setIcon(
             QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarUnshadeButton)));
-        actions[QWorkspacePrivate::ShadeAct]->setText(q->tr("&Unshade"));
+        actions[QWorkspacePrivate::ShadeAct]->setText(QWorkspace::tr("&Unshade"));
     } else {
         actions[QWorkspacePrivate::ShadeAct]->setIcon(
             QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarShadeButton)));
-        actions[QWorkspacePrivate::ShadeAct]->setText(q->tr("Sh&ade"));
+        actions[QWorkspacePrivate::ShadeAct]->setText(QWorkspace::tr("Sh&ade"));
     }
     actions[QWorkspacePrivate::StaysOnTopAct]->setEnabled(!active->shademode && canResize);
     actions[QWorkspacePrivate::StaysOnTopAct]->setChecked(
