@@ -148,15 +148,15 @@
     </message>
     <message>
         <source>Symlink to File</source>
-        <translation>Link auf Datei</translation>
+        <translation>Verknüpfung mit Datei</translation>
     </message>
     <message>
         <source>Symlink to Directory</source>
-        <translation>Link auf Verzeichnies</translation>
+        <translation>Verknüpfung mit Verzeichnies</translation>
     </message>
     <message>
         <source>Symlink to Special</source>
-        <translation>Link auf Spezialdatei</translation>
+        <translation>Verknüpfung mit Spezialdatei</translation>
     </message>
     <message>
         <source>File</source>
@@ -232,7 +232,7 @@
     </message>
     <message>
         <source>the symlink</source>
-        <translation>den symbolischen Link</translation>
+        <translation>die Verknüpfung</translation>
     </message>
     <message>
         <source>Delete %1</source>
@@ -2399,98 +2399,98 @@ nach
     </message>
     <message>
         <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;tt&gt;http://www.trolltech.com/company/model.html&lt;/tt&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Dieses Programm verwendet Qt Version %1.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Dieses Programm verwendet Qt Open Source Edition Version %1.&lt;/p&gt;&lt;p&gt;Die Qt Open Source Edition ist bestimmt für die Entwicklung von Open-Source-Programmen. Wenn Sie proprietäre (Closed Source) Software entwickeln brauchen Sie eine komerzielle Qt-Lizenz.&lt;/p&gt;&lt;p&gt;Um mehr über das Lizenzsystem von Qt zu erfahren besuchen Sie die Seite &lt;tt&gt;http://www.trolltech.com/company/model.html&lt;/tt&gt;.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
     <name>QNativeSocketEngine</name>
     <message>
         <source>The remote host closed the connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Der entfernte Rechner schloss die Verbindung</translation>
     </message>
     <message>
         <source>Network operation timed out</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Zeitlimit für die Operation wurde überschritten</translation>
     </message>
     <message>
         <source>Out of resources</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Resourcen verfügbar</translation>
     </message>
     <message>
         <source>Unsupported socket operation</source>
-        <translation type="unfinished"></translation>
+        <translation>Nichtunterstütztes Socket-Kommando</translation>
     </message>
     <message>
         <source>Protocol type not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Protokoll wird nicht unterstützt</translation>
     </message>
     <message>
         <source>Invalid socket descriptor</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Socket-Deskriptor</translation>
     </message>
     <message>
         <source>Network unreachable</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Netzwerk ist nicht erreichbar</translation>
     </message>
     <message>
         <source>Permission denied</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugriff verweigert</translation>
     </message>
     <message>
         <source>Connection timed out</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Zeitlimit für die Verbindung wurde überschritten</translation>
     </message>
     <message>
         <source>Connection refused</source>
-        <translation type="unfinished">Verbindung verweigert</translation>
+        <translation>Verbindung verweigert</translation>
     </message>
     <message>
         <source>The bound address is already in use</source>
-        <translation type="unfinished"></translation>
+        <translation>Die angegebene Adresse ist bereits in Gebrauch</translation>
     </message>
     <message>
         <source>The address is not available</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Adresse ist nicht verfügbar</translation>
     </message>
     <message>
         <source>The address is protected</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Adresse ist geschützt</translation>
     </message>
     <message>
         <source>Datagram was to large to send</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Datagramm war zu groß um gesendet zu werden</translation>
     </message>
     <message>
         <source>Unable to send a message</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Nachricht konnte nicht gesendet werden</translation>
     </message>
     <message>
         <source>Unable to receive a message</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Nachricht konnte nicht empfangen werden</translation>
     </message>
     <message>
         <source>Unable to write</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Schreibvorgang konnte nicht ausgeführt werden</translation>
     </message>
     <message>
         <source>Network error</source>
-        <translation type="unfinished"></translation>
+        <translation>Netzwerkfehler</translation>
     </message>
     <message>
         <source>Another socket is already listening on the same port</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein anderer Socket hört bereits auf denselben Port</translation>
     </message>
     <message>
         <source>Unable to initialize non-blocking socket</source>
-        <translation type="unfinished"></translation>
+        <translation>Der nichtblockierende Socket konnte nicht initialisiert werden</translation>
     </message>
     <message>
         <source>Unable to initialize broadcast socket</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Broadcast-Socket konnte nicht initialisiert werden</translation>
     </message>
     <message>
         <source>Attempt to use IPv6 socket on a platform with no IPv6 support</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde versucht einen IPv6-Socket auf einem System ohne IPv6-Unterstützung zu verwenden</translation>
     </message>
 </context>
 <context>
@@ -2504,55 +2504,55 @@ nach
     <name>QObject</name>
     <message>
         <source>All Files (*)</source>
-        <translation type="unfinished">Alle Dateien (*)</translation>
+        <translation>Alle Dateien (*)</translation>
     </message>
     <message>
         <source>All Files (*.*)</source>
-        <translation type="unfinished">Alle Dateien (*.*)</translation>
+        <translation>Alle Dateien (*.*)</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished">Speichern unter</translation>
+        <translation>Speichern unter</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <source>Select a Directory</source>
-        <translation type="unfinished">Wählen Sie ein Verzeichnis</translation>
+        <translation>Wählen Sie ein Verzeichnis</translation>
     </message>
     <message>
         <source>Drive</source>
-        <translation type="unfinished"></translation>
+        <translation>Laufwerk</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished">Datei</translation>
+        <translation>Datei</translation>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis</translation>
     </message>
     <message>
         <source>Symbolic Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Verknüpfung</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <source>False</source>
-        <translation type="unfinished">Falsch</translation>
+        <translation>Falsch</translation>
     </message>
     <message>
         <source>True</source>
-        <translation type="unfinished">Wahr</translation>
+        <translation>Wahr</translation>
     </message>
 </context>
 <context>
@@ -2594,31 +2594,31 @@ nach
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Printer settings</source>
-        <translation type="unfinished">Drucker-Einstellungen</translation>
+        <translation>Drucker-Einstellungen</translation>
     </message>
     <message>
         <source>Print in color if available</source>
-        <translation type="unfinished">Farbig drucken falls möglich</translation>
+        <translation>Farbig drucken falls möglich</translation>
     </message>
     <message>
         <source>Print in grayscale</source>
-        <translation type="unfinished">Als Graustufen drucken</translation>
+        <translation>Als Graustufen drucken</translation>
     </message>
     <message>
         <source>Print destination</source>
-        <translation type="unfinished">Drucker</translation>
+        <translation>Drucker</translation>
     </message>
     <message>
         <source>Print to printer:</source>
-        <translation type="unfinished">Auf Drucker drucken:</translation>
+        <translation>Auf Drucker drucken:</translation>
     </message>
     <message>
         <source>Printer</source>
@@ -2634,55 +2634,55 @@ nach
     </message>
     <message>
         <source>Print to file:</source>
-        <translation type="unfinished">Drucken in Datei:</translation>
+        <translation>Drucken in Datei:</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Durchsuchen...</translation>
+        <translation>Durchsuchen...</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Optionen</translation>
+        <translation>Optionen</translation>
     </message>
     <message>
         <source>Print all</source>
-        <translation type="unfinished">Alles drucken</translation>
+        <translation>Alles drucken</translation>
     </message>
     <message>
         <source>Print range</source>
-        <translation type="unfinished">Bereich drucken</translation>
+        <translation>Bereich drucken</translation>
     </message>
     <message>
         <source>From page:</source>
-        <translation type="unfinished">Von Seite:</translation>
+        <translation>Von Seite:</translation>
     </message>
     <message>
         <source>To page:</source>
-        <translation type="unfinished">Bis Seite:</translation>
+        <translation>Bis Seite:</translation>
     </message>
     <message>
         <source>Print first page first</source>
-        <translation type="unfinished">Erste Seite zuerst drucken</translation>
+        <translation>Erste Seite zuerst drucken</translation>
     </message>
     <message>
         <source>Print last page first</source>
-        <translation type="unfinished">Letzte Seite zuerst drucken</translation>
+        <translation>Letzte Seite zuerst drucken</translation>
     </message>
     <message>
         <source>Number of copies:</source>
-        <translation type="unfinished">Anzahl der Kopien:</translation>
+        <translation>Anzahl der Kopien:</translation>
     </message>
     <message>
         <source>Paper format</source>
-        <translation type="unfinished">Papierformat</translation>
+        <translation>Papierformat</translation>
     </message>
     <message>
         <source>Portrait</source>
-        <translation type="unfinished">Hochformat</translation>
+        <translation>Hochformat</translation>
     </message>
     <message>
         <source>Landscape</source>
-        <translation type="unfinished">Querformat</translation>
+        <translation>Querformat</translation>
     </message>
     <message>
         <source>A0 (841 x 1189 mm)</source>
@@ -2810,43 +2810,43 @@ nach
     </message>
     <message>
         <source>PostScript Files (*.ps);;All Files (*)</source>
-        <translation type="unfinished">PostScript-Dateien (*.ps);;Alle Dateien (*)</translation>
+        <translation>PostScript-Dateien (*.ps);;Alle Dateien (*)</translation>
     </message>
     <message>
         <source>A4 (210 x 297 mm, 8.26 x 11.7 inches)</source>
-        <translation type="unfinished"></translation>
+        <translation>A4 (210 x 297 mm)</translation>
     </message>
     <message>
         <source>B5 (176 x 250 mm, 6.93 x 9.84 inches)</source>
-        <translation type="unfinished"></translation>
+        <translation>B5 (176 x 250 mm)</translation>
     </message>
     <message>
         <source>Executive (7.5 x 10 inches, 191 x 254 mm)</source>
-        <translation type="unfinished"></translation>
+        <translation>Executive (7,5 x 10 Zoll, 191 x 254 mm)</translation>
     </message>
     <message>
         <source>Legal (8.5 x 14 inches, 216 x 356 mm)</source>
-        <translation type="unfinished"></translation>
+        <translation>Legal (8,5 x 14 Zoll, 216 x 356 mm)</translation>
     </message>
     <message>
         <source>Letter (8.5 x 11 inches, 216 x 279 mm)</source>
-        <translation type="unfinished"></translation>
+        <translation>Letter (8,5 x 11 Zoll, 216 x 279 mm)</translation>
     </message>
     <message>
         <source>Print selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Selektion Drucken</translation>
     </message>
     <message>
         <source>Page size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Seitengröße:</translation>
     </message>
     <message>
         <source>Orientation:</source>
-        <translation type="unfinished"></translation>
+        <translation>Druckausrichtung:</translation>
     </message>
     <message>
         <source>Paper source:</source>
-        <translation type="unfinished"></translation>
+        <translation>Papierquelle:</translation>
     </message>
 </context>
 <context>
@@ -2940,14 +2940,14 @@ nach
     <name>QProcess</name>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">Unbekannter Fehler</translation>
+        <translation>Unbekannter Fehler</translation>
     </message>
 </context>
 <context>
     <name>QProgressBar</name>
     <message>
         <source>%1%</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %</translation>
     </message>
 </context>
 <context>
@@ -3000,429 +3000,429 @@ nach
     <name>QScrollBar</name>
     <message>
         <source>Scroll here</source>
-        <translation type="unfinished"></translation>
+        <translation>Hier scrollen</translation>
     </message>
     <message>
         <source>Left edge</source>
-        <translation type="unfinished"></translation>
+        <translation>Linke Seite</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfang</translation>
     </message>
     <message>
         <source>Right edge</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechte Seite</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Ende</translation>
     </message>
     <message>
         <source>Page left</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Seite nach links</translation>
     </message>
     <message>
         <source>Page up</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Seite nach oben</translation>
     </message>
     <message>
         <source>Page right</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Seite nach rechts</translation>
     </message>
     <message>
         <source>Page down</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Seite nach unten</translation>
     </message>
     <message>
         <source>Scroll left</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach links scrollen</translation>
     </message>
     <message>
         <source>Scroll up</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach oben scrollen</translation>
     </message>
     <message>
         <source>Scroll right</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach rechts scrollen</translation>
     </message>
     <message>
         <source>Scroll down</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach unten scrollen</translation>
     </message>
 </context>
 <context>
     <name>QShortcut</name>
     <message>
         <source>Space</source>
-        <translation type="unfinished">Leertaste</translation>
+        <translation>Leertaste</translation>
     </message>
     <message>
         <source>Esc</source>
-        <translation type="unfinished">Esc</translation>
+        <translation>Esc</translation>
     </message>
     <message>
         <source>Tab</source>
-        <translation type="unfinished">Tab</translation>
+        <translation>Tab</translation>
     </message>
     <message>
         <source>Backtab</source>
-        <translation type="unfinished">Rück-Tab</translation>
+        <translation>Rück-Tab</translation>
     </message>
     <message>
         <source>Backspace</source>
-        <translation type="unfinished">Rücktaste</translation>
+        <translation>Rücktaste</translation>
     </message>
     <message>
         <source>Return</source>
-        <translation type="unfinished">Return</translation>
+        <translation>Return</translation>
     </message>
     <message>
         <source>Enter</source>
-        <translation type="unfinished">Enter</translation>
+        <translation>Enter</translation>
     </message>
     <message>
         <source>Ins</source>
-        <translation type="unfinished">Einfg</translation>
+        <translation>Einfg</translation>
     </message>
     <message>
         <source>Del</source>
-        <translation type="unfinished">Entf</translation>
+        <translation>Entf</translation>
     </message>
     <message>
         <source>Pause</source>
-        <translation type="unfinished">Pause</translation>
+        <translation>Pause</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation type="unfinished">Druck</translation>
+        <translation>Druck</translation>
     </message>
     <message>
         <source>SysReq</source>
-        <translation type="unfinished">SysReq</translation>
+        <translation>SysReq</translation>
     </message>
     <message>
         <source>Home</source>
-        <translation type="unfinished">Pos1</translation>
+        <translation>Pos1</translation>
     </message>
     <message>
         <source>End</source>
-        <translation type="unfinished">Ende</translation>
+        <translation>Ende</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">Links</translation>
+        <translation>Links</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished">Hoch</translation>
+        <translation>Hoch</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">Rechts</translation>
+        <translation>Rechts</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished">Runter</translation>
+        <translation>Runter</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation type="unfinished">Bild aufwärts</translation>
+        <translation>Bild aufwärts</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation type="unfinished">Bild abwärts</translation>
+        <translation>Bild abwärts</translation>
     </message>
     <message>
         <source>CapsLock</source>
-        <translation type="unfinished">Feststelltaste</translation>
+        <translation>Feststelltaste</translation>
     </message>
     <message>
         <source>NumLock</source>
-        <translation type="unfinished">Zahlen-Feststelltaste</translation>
+        <translation>Zahlen-Feststelltaste</translation>
     </message>
     <message>
         <source>ScrollLock</source>
-        <translation type="unfinished">Rollen-Feststelltaste</translation>
+        <translation>Rollen-Feststelltaste</translation>
     </message>
     <message>
         <source>Menu</source>
-        <translation type="unfinished">Menü</translation>
+        <translation>Menü</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="unfinished">Hilfe</translation>
+        <translation>Hilfe</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished">Zurück</translation>
+        <translation>Zurück</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation type="unfinished">Vorwärts</translation>
+        <translation>Vorwärts</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished">Aktualisieren</translation>
+        <translation>Aktualisieren</translation>
     </message>
     <message>
         <source>Volume Down</source>
-        <translation type="unfinished">Lautstärke -</translation>
+        <translation>Lautstärke -</translation>
     </message>
     <message>
         <source>Volume Mute</source>
-        <translation type="unfinished">Ton aus</translation>
+        <translation>Ton aus</translation>
     </message>
     <message>
         <source>Volume Up</source>
-        <translation type="unfinished">Lautstärke +</translation>
+        <translation>Lautstärke +</translation>
     </message>
     <message>
         <source>Bass Boost</source>
-        <translation type="unfinished">Bass Boost</translation>
+        <translation>Bass Boost</translation>
     </message>
     <message>
         <source>Bass Up</source>
-        <translation type="unfinished">Bass +</translation>
+        <translation>Bass +</translation>
     </message>
     <message>
         <source>Bass Down</source>
-        <translation type="unfinished">Bass -</translation>
+        <translation>Bass -</translation>
     </message>
     <message>
         <source>Treble Up</source>
-        <translation type="unfinished">Höhen +</translation>
+        <translation>Höhen +</translation>
     </message>
     <message>
         <source>Treble Down</source>
-        <translation type="unfinished">Höhen -</translation>
+        <translation>Höhen -</translation>
     </message>
     <message>
         <source>Media Play</source>
-        <translation type="unfinished">Wiedergabe</translation>
+        <translation>Wiedergabe</translation>
     </message>
     <message>
         <source>Media Stop</source>
-        <translation type="unfinished">Stopp</translation>
+        <translation>Stopp</translation>
     </message>
     <message>
         <source>Media Previous</source>
-        <translation type="unfinished">Vorheriger</translation>
+        <translation>Vorheriger</translation>
     </message>
     <message>
         <source>Media Next</source>
-        <translation type="unfinished">Nächster</translation>
+        <translation>Nächster</translation>
     </message>
     <message>
         <source>Media Record</source>
-        <translation type="unfinished">Aufzeichnen</translation>
+        <translation>Aufzeichnen</translation>
     </message>
     <message>
         <source>Favorites</source>
-        <translation type="unfinished">Favoriten</translation>
+        <translation>Favoriten</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished">Suchen</translation>
+        <translation>Suchen</translation>
     </message>
     <message>
         <source>Standby</source>
-        <translation type="unfinished">Standby</translation>
+        <translation>Standby</translation>
     </message>
     <message>
         <source>Open URL</source>
-        <translation type="unfinished">Öffne URL</translation>
+        <translation>Öffne URL</translation>
     </message>
     <message>
         <source>Launch Mail</source>
-        <translation type="unfinished">Start Mail</translation>
+        <translation>Start Mail</translation>
     </message>
     <message>
         <source>Launch Media</source>
-        <translation type="unfinished">Start Media Player</translation>
+        <translation>Start Media Player</translation>
     </message>
     <message>
         <source>Launch (0)</source>
-        <translation type="unfinished">Start (0)</translation>
+        <translation>Start (0)</translation>
     </message>
     <message>
         <source>Launch (1)</source>
-        <translation type="unfinished">Start (1)</translation>
+        <translation>Start (1)</translation>
     </message>
     <message>
         <source>Launch (2)</source>
-        <translation type="unfinished">Start (2)</translation>
+        <translation>Start (2)</translation>
     </message>
     <message>
         <source>Launch (3)</source>
-        <translation type="unfinished">Start (3)</translation>
+        <translation>Start (3)</translation>
     </message>
     <message>
         <source>Launch (4)</source>
-        <translation type="unfinished">Start (4)</translation>
+        <translation>Start (4)</translation>
     </message>
     <message>
         <source>Launch (5)</source>
-        <translation type="unfinished">Start (5)</translation>
+        <translation>Start (5)</translation>
     </message>
     <message>
         <source>Launch (6)</source>
-        <translation type="unfinished">Start (6)</translation>
+        <translation>Start (6)</translation>
     </message>
     <message>
         <source>Launch (7)</source>
-        <translation type="unfinished">Start (7)</translation>
+        <translation>Start (7)</translation>
     </message>
     <message>
         <source>Launch (8)</source>
-        <translation type="unfinished">Start (8)</translation>
+        <translation>Start (8)</translation>
     </message>
     <message>
         <source>Launch (9)</source>
-        <translation type="unfinished">Start (9)</translation>
+        <translation>Start (9)</translation>
     </message>
     <message>
         <source>Launch (A)</source>
-        <translation type="unfinished">Start (A)</translation>
+        <translation>Start (A)</translation>
     </message>
     <message>
         <source>Launch (B)</source>
-        <translation type="unfinished">Start (B)</translation>
+        <translation>Start (B)</translation>
     </message>
     <message>
         <source>Launch (C)</source>
-        <translation type="unfinished">Start (C)</translation>
+        <translation>Start (C)</translation>
     </message>
     <message>
         <source>Launch (D)</source>
-        <translation type="unfinished">Start (D)</translation>
+        <translation>Start (D)</translation>
     </message>
     <message>
         <source>Launch (E)</source>
-        <translation type="unfinished">Start (E)</translation>
+        <translation>Start (E)</translation>
     </message>
     <message>
         <source>Launch (F)</source>
-        <translation type="unfinished">Start (F)</translation>
+        <translation>Start (F)</translation>
     </message>
     <message>
         <source>Print Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildschirm drucken</translation>
     </message>
     <message>
         <source>Page Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Bild aufwärts</translation>
     </message>
     <message>
         <source>Page Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Bild abwärts</translation>
     </message>
     <message>
         <source>Caps Lock</source>
-        <translation type="unfinished"></translation>
+        <translation>Feststelltaste</translation>
     </message>
     <message>
         <source>Num Lock</source>
-        <translation type="unfinished"></translation>
+        <translation>Zahlen-Feststelltaste</translation>
     </message>
     <message>
         <source>Number Lock</source>
-        <translation type="unfinished"></translation>
+        <translation>Zahlen-Feststelltaste</translation>
     </message>
     <message>
         <source>Scroll Lock</source>
-        <translation type="unfinished"></translation>
+        <translation>Rollen-Feststelltaste</translation>
     </message>
     <message>
         <source>Insert</source>
-        <translation type="unfinished">Einfügen</translation>
+        <translation>Einfügen</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>Escape</source>
-        <translation type="unfinished"></translation>
+        <translation>Escape</translation>
     </message>
     <message>
         <source>System Request</source>
-        <translation type="unfinished"></translation>
+        <translation>System Request</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswählen</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Ja</translation>
+        <translation>Ja</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished">Nein</translation>
+        <translation>Nein</translation>
     </message>
     <message>
         <source>Context1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontext1</translation>
     </message>
     <message>
         <source>Context2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontext2</translation>
     </message>
     <message>
         <source>Context3</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontext3</translation>
     </message>
     <message>
         <source>Context4</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontext4</translation>
     </message>
     <message>
         <source>Call</source>
-        <translation type="unfinished"></translation>
+        <translation>Anruf</translation>
     </message>
     <message>
         <source>Hangup</source>
-        <translation type="unfinished"></translation>
+        <translation>Auflegen</translation>
     </message>
     <message>
         <source>Flip</source>
-        <translation type="unfinished"></translation>
+        <translation>Umdrehen</translation>
     </message>
     <message>
         <source>Ctrl</source>
-        <translation type="unfinished">Strg</translation>
+        <translation>Strg</translation>
     </message>
     <message>
         <source>Shift</source>
-        <translation type="unfinished">Umschalt</translation>
+        <translation>Umschalt</translation>
     </message>
     <message>
         <source>Alt</source>
-        <translation type="unfinished">Alt</translation>
+        <translation>Alt</translation>
     </message>
     <message>
         <source>Meta</source>
-        <translation type="unfinished">Meta</translation>
+        <translation>Meta</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>F%1</source>
-        <translation type="unfinished">F%1</translation>
+        <translation>F%1</translation>
     </message>
 </context>
 <context>
     <name>QSocks5SocketEngine</name>
     <message>
         <source>Socks5 timeout error connecting to socks server</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Socks5-Verbindung zu einen Socks-Server hat das Zeitlimit überschritten</translation>
     </message>
 </context>
 <context>
@@ -3495,7 +3495,7 @@ nach
     <name>QTcpServer</name>
     <message>
         <source>Socket operation unsupported</source>
-        <translation type="unfinished"></translation>
+        <translation>Nichtunterstütztes Socket-Kommando</translation>
     </message>
 </context>
 <context>
@@ -3530,7 +3530,7 @@ nach
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
 </context>
 <context>
@@ -3575,54 +3575,54 @@ nach
     <name>QUdpSocket</name>
     <message>
         <source>This platform does not support IPv6</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Plattform unterstützt kein IPv6</translation>
     </message>
 </context>
 <context>
     <name>QUnicodeControlCharacterMenu</name>
     <message>
         <source>LRM Left-to-right mark</source>
-        <translation type="unfinished"></translation>
+        <translation>LRM Left-to-right mark</translation>
     </message>
     <message>
         <source>RLM Right-to-left mark</source>
-        <translation type="unfinished"></translation>
+        <translation>RLM Right-to-left mark</translation>
     </message>
     <message>
         <source>ZWJ Zero width joiner</source>
-        <translation type="unfinished"></translation>
+        <translation>ZWJ Zero width joiner</translation>
     </message>
     <message>
         <source>ZWNJ Zero width non-joiner</source>
-        <translation type="unfinished"></translation>
+        <translation>ZWNJ Zero width non-joiner</translation>
     </message>
     <message>
         <source>ZWSP Zero width space</source>
-        <translation type="unfinished"></translation>
+        <translation>ZWSP Zero width space</translation>
     </message>
     <message>
         <source>LRE Start of left-to-right embedding</source>
-        <translation type="unfinished"></translation>
+        <translation>LRE Start of left-to-right embedding</translation>
     </message>
     <message>
         <source>RLE Start of right-to-left embedding</source>
-        <translation type="unfinished"></translation>
+        <translation>RLE Start of right-to-left embedding</translation>
     </message>
     <message>
         <source>LRO Start of left-to-right override</source>
-        <translation type="unfinished"></translation>
+        <translation>LRO Start of left-to-right override</translation>
     </message>
     <message>
         <source>RLO Start of right-to-left override</source>
-        <translation type="unfinished"></translation>
+        <translation>RLO Start of right-to-left override</translation>
     </message>
     <message>
         <source>PDF Pop directional formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF Pop directional formatting</translation>
     </message>
     <message>
         <source>Insert Unicode control character</source>
-        <translation type="unfinished"></translation>
+        <translation>Unicode-Kontrollzeichen einfügen</translation>
     </message>
 </context>
 <context>
@@ -3726,7 +3726,7 @@ nach
     <name>QWhatsThisAction</name>
     <message>
         <source>What&apos;s This?</source>
-        <translation type="unfinished">Direkthilfe</translation>
+        <translation>Direkthilfe</translation>
     </message>
 </context>
 <context>
@@ -3740,7 +3740,7 @@ nach
     <name>QWidget</name>
     <message>
         <source>*</source>
-        <translation type="unfinished"></translation>
+        <translation>*</translation>
     </message>
 </context>
 <context>
@@ -3790,47 +3790,47 @@ nach
     <name>QWorkspace</name>
     <message>
         <source>&amp;Restore</source>
-        <translation type="unfinished">Wieder&amp;herstellen</translation>
+        <translation>Wieder&amp;herstellen</translation>
     </message>
     <message>
         <source>&amp;Move</source>
-        <translation type="unfinished">Ver&amp;schieben</translation>
+        <translation>Ver&amp;schieben</translation>
     </message>
     <message>
         <source>&amp;Size</source>
-        <translation type="unfinished">&amp;Größe ändern</translation>
+        <translation>&amp;Größe ändern</translation>
     </message>
     <message>
         <source>Mi&amp;nimize</source>
-        <translation type="unfinished">M&amp;inimieren</translation>
+        <translation>M&amp;inimieren</translation>
     </message>
     <message>
         <source>Ma&amp;ximize</source>
-        <translation type="unfinished">Ma&amp;ximieren</translation>
+        <translation>Ma&amp;ximieren</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">Schl&amp;ießen</translation>
+        <translation>Schl&amp;ießen</translation>
     </message>
     <message>
         <source>Stay on &amp;Top</source>
-        <translation type="unfinished">Im &amp;Vordergrund bleiben</translation>
+        <translation>Im &amp;Vordergrund bleiben</translation>
     </message>
     <message>
         <source>Minimize</source>
-        <translation type="unfinished">Minimieren</translation>
+        <translation>Minimieren</translation>
     </message>
     <message>
         <source>Restore Down</source>
-        <translation type="unfinished">Wiederherstellen</translation>
+        <translation>Wiederherstellen</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Schließen</translation>
+        <translation>Schließen</translation>
     </message>
     <message>
         <source>Sh&amp;ade</source>
-        <translation type="unfinished">&amp;Aufrollen</translation>
+        <translation>&amp;Aufrollen</translation>
     </message>
     <message>
         <source>%1 - [%2]</source>
@@ -3838,7 +3838,7 @@ nach
     </message>
     <message>
         <source>&amp;Unshade</source>
-        <translation type="unfinished">&amp;Herabrollen</translation>
+        <translation>&amp;Herabrollen</translation>
     </message>
 </context>
 <context>
