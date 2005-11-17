@@ -63,7 +63,7 @@ enum {
     kEventQtRequestWindowChange = 20
 };
 
-class QMacBlockingFunction //implemented in qeventloop_mac.cpp
+class QMacBlockingFunction //implemented in qeventdispatcher_mac.cpp
 {
 private:
     class Object;
