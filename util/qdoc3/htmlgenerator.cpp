@@ -932,14 +932,17 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
 	     "    PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"DTD/xhtml1-strict.dtd\">\n"
 	     "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n";
 
-    if (node && !node->doc().location().isEmpty())
-        out() << "<!-- " << node->doc().location().filePath() << " -->\n";
+    QString shortVersion;
+    if ( project != "Qtopia" ) {
+        if (node && !node->doc().location().isEmpty())
+            out() << "<!-- " << node->doc().location().filePath() << " -->\n";
 
-    QString shortVersion = tre->version();
-    if (shortVersion.count(QChar('.')) == 2)
-        shortVersion.truncate(shortVersion.lastIndexOf(QChar('.')));
-    if (!shortVersion.isEmpty())
-        shortVersion = "Qt " + shortVersion + ": ";
+        shortVersion = tre->version();
+        if (shortVersion.count(QChar('.')) == 2)
+            shortVersion.truncate(shortVersion.lastIndexOf(QChar('.')));
+        if (!shortVersion.isEmpty())
+            shortVersion = "Qt " + shortVersion + ": ";
+    }
 
     out() << "<head>\n"
 	     "    <title>" << shortVersion << protect( title ) << "</title>\n";
