@@ -2565,6 +2565,8 @@ void QPdfEnginePrivate::drawTextItem(QPdfEngine *q, const QPointF &p, const QTex
     m.translate(p.x(), p.y());
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, m, ti.flags,
                                      glyphs, positions);
+    int synthesized = ti.fontEngine->synthesized();
+    qreal stretch = synthesized & QFontEngine::SynthesizedStretch ? ti.fontEngine->fontDef.stretch/100. : 1.;
 
     if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut|QTextItem::Overline)) {
         qreal lw = fe->lineThickness().toReal();
@@ -2581,7 +2583,10 @@ void QPdfEnginePrivate::drawTextItem(QPdfEngine *q, const QPointF &p, const QTex
     }
     *currentPage << "BT\n"
                  << "/F" << font->object_id << size << "Tf "
-                 << "1 0 0 -1 0 0 Tm\n";
+                 << stretch << (synthesized & QFontEngine::SynthesizedItalic
+                                ? "0 .3 -1 0 0 Tm\n"
+                                : "0 0 -1 0 0 Tm\n");
+                     
 
 #if 0
     // #### implement actual text for complex languages
@@ -2606,15 +2611,20 @@ void QPdfEnginePrivate::drawTextItem(QPdfEngine *q, const QPointF &p, const QTex
         pos = end;
     } while (pos < ti.num_chars);
 #else
-    QPointF last;
+    qreal last_x = 0.;
+    qreal last_y = 0.;
     for (int i = 0; i < glyphs.size(); ++i) {
-        QPointF current = positions[i].toPointF();
-        QPointF p = current - last;
+        qreal x = positions[i].x.toReal();
+        qreal y = positions[i].y.toReal();
+        if (synthesized & QFontEngine::SynthesizedItalic)
+            x += .3*y;
+        x /= stretch;
         char buf[5];
-        *currentPage << p.x() << -p.y() << "Td <"
+        *currentPage << x - last_x << last_y - y << "Td <"
                      << toHex((ushort)glyphs[i], buf) << "> Tj\n";
         font->addGlyph(glyphs[i]);
-        last = current;
+        last_x = x;
+        last_y = y;
     }
 #endif
 

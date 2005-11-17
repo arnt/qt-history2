@@ -96,6 +96,12 @@ public:
         int index;
     };
     virtual FaceId faceId() const { return FaceId(); }
+    enum SynthesizedFlags {
+        SynthesizedItalic = 0x1,
+        SynthesizedBold = 0x2,
+        SynthesizedStretch = 0x4
+    };
+    virtual int synthesized() const { return 0; }
 
     /* returns 0 as glyph index for non existant glyphs */
     virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const = 0;

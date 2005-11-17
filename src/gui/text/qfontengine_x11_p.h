@@ -122,6 +122,7 @@ public:
     QFontEngine::FaceId faceId() const { return face_id; }
     QFontEngine::Properties properties() const;
     void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
+    int synthesized() const;
     
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
                       QTextEngine::ShaperFlags flags) const;

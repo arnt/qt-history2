@@ -635,13 +635,11 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     if (FT_IS_SCALABLE(face)) {
         line_thickness =  QFixed::fromFixed(FT_MulFix(face->underline_thickness, face->size->metrics.y_scale));
         underline_position = QFixed::fromFixed(-FT_MulFix(face->underline_position, face->size->metrics.y_scale));
-        int width = fontDef.stretch;
         bool fake_oblique = (fontDef.style != QFont::StyleNormal) && !(face->style_flags & FT_STYLE_FLAG_ITALIC);
-        matrix.xx = 0x10000 * width/100;
         if (fake_oblique)
-            matrix.xy = 0x10000*2/10;
+            matrix.xy = 0x10000*3/10;
         FT_Set_Transform(face, &matrix, 0);
-        if (width != 100 || fake_oblique)
+        if (fake_oblique)
             transform = true;
     } else {
         // copied from QFontEngineQPF
@@ -1528,6 +1526,7 @@ QFontEngine::Properties QFontEngineFT::properties() const
 void QFontEngineFT::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
 {
     FT_Face face = lockFace();
+    FT_Set_Transform(face, 0, 0);
     FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP|FT_LOAD_NO_SCALE);
 
     int left  = face->glyph->metrics.horiBearingX;
@@ -1544,7 +1543,18 @@ void QFontEngineFT::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_me
     p.x = 0;
     p.y = 0;
     addGlyphToPath(face->glyph, p, path, true /* no_scale */);
+    FT_Set_Transform(face, &freetype->matrix, 0);
     unlockFace();
+}
+
+int QFontEngineFT::synthesized() const
+{
+    int s = 0;
+    if ((fontDef.style != QFont::StyleNormal) && !(freetype->face->style_flags & FT_STYLE_FLAG_ITALIC))
+        s = SynthesizedItalic;
+    if (fontDef.stretch != 100 && FT_IS_SCALABLE(freetype->face))
+        s |= SynthesizedStretch;
+    return s;
 }
 
 QOpenType *QFontEngineFT::openType() const
