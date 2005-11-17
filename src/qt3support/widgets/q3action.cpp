@@ -1674,6 +1674,7 @@ bool Q3ActionGroup::addTo(QWidget *w)
                 Q3PopupMenu *menu = new Q3PopupMenu(btn, "qt_actiongroup_menu");
                 btn->setPopupDelay(0);
                 btn->setPopup(menu);
+                btn->setPopupMode(QToolButton::MenuButtonPopup);
 
                 while (it != d->actions.end()) {
                     (*it)->addTo(menu);
