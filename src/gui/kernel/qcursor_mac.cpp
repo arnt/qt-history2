@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <private/qcursor_p.h>
+#include <private/qpixmap_p.h>
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qcursor.h>
@@ -248,6 +249,28 @@ void QCursor::setPos(int x, int y)
     }
 }
 
+QPixmap qt_mac_unmultiplyPixmapAlpha(const QPixmap &pixmap)
+{
+    QPixmap fake_pm = pixmap;
+    fake_pm.detach();
+
+    QPixmapData *pm_data = fake_pm.data;
+    uint numPixels = pm_data->nbytes/4;
+    for (uint i = 0; i < numPixels; ++i ) {
+        int pixel = pm_data->pixels[i];
+        int alpha = qAlpha(pixel);
+        if (alpha == 0)
+            continue;  // avoid div 0 on Intel
+
+        int red   = qRed(pixel) * 255 / alpha;
+        int green = qGreen(pixel) * 255 / alpha;
+        int blue  = qBlue(pixel) * 255 / alpha;
+
+        pm_data->pixels[i] = qRgba(red, green, blue, alpha);
+    }
+    return fake_pm;
+}
+
 void QCursorData::update()
 {
     if(!QCursorData::initialized)
@@ -297,14 +320,14 @@ void QCursorData::update()
             if((hotspot.v = hy) < 0)
                 hotspot.v = 0;
             OSStatus ret;
-
             if (pixmap.isNull()) {
                 ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap(qt_mac_qd_context(bm)),
                                                   GetGWorldPixMap(qt_mac_qd_context(bmm)),
                                                   hotspot, curs.big_cursor_name);
             } else {
-                ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap(qt_mac_qd_context(&pixmap)),
-                                                  0, hotspot, curs.big_cursor_name);
+                ret = QDRegisterNamedPixMapCursor(
+                    GetGWorldPixMap((GWorldPtr)qt_mac_unmultiplyPixmapAlpha(pixmap).macQDHandle()),
+                                      0, hotspot, curs.big_cursor_name);
             }
             if (ret == noErr)
                 type = QCursorData::TYPE_BigCursor;
