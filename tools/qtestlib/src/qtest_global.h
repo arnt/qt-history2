@@ -18,6 +18,8 @@
 
 #ifdef QTEST_EMBED
 # define Q_TESTLIB_EXPORT
+#elif !defined(QT_SHARED)
+# define Q_TESTLIB_EXPORT 
 #else
 # ifdef QTESTLIB_MAKEDLL
 #  define Q_TESTLIB_EXPORT Q_DECL_EXPORT
