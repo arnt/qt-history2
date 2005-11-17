@@ -1,418 +1,17 @@
 <!DOCTYPE TS><TS>
 <context>
-    <name>@default</name>
+    <name>Q3Accel</name>
     <message>
-        <source>OK</source>
-        <translation type="obsolete">OK</translation>
+        <source>%1, %2 not defined</source>
+        <translation>La séquence %1, %2 n&apos;est pas définie</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annuler</translation>
+        <source>Ambiguous %1 not handled</source>
+        <translation>Séquence ambiguë %1 non traitée</translation>
     </message>
 </context>
 <context>
-    <name>QAccel</name>
-    <message>
-        <source>Space</source>
-        <translation>Espace</translation>
-    </message>
-    <message>
-        <source>Esc</source>
-        <translation>Échap</translation>
-    </message>
-    <message>
-        <source>Tab</source>
-        <translation>Tab</translation>
-    </message>
-    <message>
-        <source>Backtab</source>
-        <translation>Tab arr</translation>
-    </message>
-    <message>
-        <source>Backspace</source>
-        <translation>Effacement</translation>
-    </message>
-    <message>
-        <source>Return</source>
-        <translation>Retour</translation>
-    </message>
-    <message>
-        <source>Enter</source>
-        <translation>Entrée</translation>
-    </message>
-    <message>
-        <source>Ins</source>
-        <translation>Inser</translation>
-    </message>
-    <message>
-        <source>Del</source>
-        <translation>Suppr</translation>
-    </message>
-    <message>
-        <source>Pause</source>
-        <translation>Pause</translation>
-    </message>
-    <message>
-        <source>Print</source>
-        <translation>Impr écran</translation>
-    </message>
-    <message>
-        <source>SysReq</source>
-        <translation>Syst</translation>
-    </message>
-    <message>
-        <source>Home</source>
-        <translation>Début</translation>
-    </message>
-    <message>
-        <source>End</source>
-        <translation>Fin</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>Gauche</translation>
-    </message>
-    <message>
-        <source>Up</source>
-        <translation>Haut</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>Droite</translation>
-    </message>
-    <message>
-        <source>Down</source>
-        <translation>Bas</translation>
-    </message>
-    <message>
-        <source>PgUp</source>
-        <translation>Page préc</translation>
-    </message>
-    <message>
-        <source>PgDown</source>
-        <translation>Page suiv</translation>
-    </message>
-    <message>
-        <source>CapsLock</source>
-        <translation>Verr maj</translation>
-    </message>
-    <message>
-        <source>NumLock</source>
-        <translation>Verr num</translation>
-    </message>
-    <message>
-        <source>ScrollLock</source>
-        <translation>Arrêt défil</translation>
-    </message>
-    <message>
-        <source>Ctrl</source>
-        <translation>Ctrl</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation>+</translation>
-    </message>
-    <message>
-        <source>Alt</source>
-        <translation>Alt</translation>
-    </message>
-    <message>
-        <source>Shift</source>
-        <translation>Maj</translation>
-    </message>
-    <message>
-        <source>F%1</source>
-        <translation>F%1</translation>
-    </message>
-    <message>
-        <source>Menu</source>
-        <translation>Menu</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Aide</translation>
-    </message>
-    <message>
-        <source>Back</source>
-        <translation>Précédent (historique)</translation>
-    </message>
-    <message>
-        <source>Forward</source>
-        <translation>Successeur (historique)</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Stop</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation>Rafraîchir</translation>
-    </message>
-    <message>
-        <source>Volume Down</source>
-        <translation>Volume bas</translation>
-    </message>
-    <message>
-        <source>Volume Mute</source>
-        <translation>Volume muet</translation>
-    </message>
-    <message>
-        <source>Volume Up</source>
-        <translation>Volume haut
-</translation>
-    </message>
-    <message>
-        <source>Bass Boost</source>
-        <translation>Graves fort</translation>
-    </message>
-    <message>
-        <source>Bass Up</source>
-        <translation>Graves haut</translation>
-    </message>
-    <message>
-        <source>Bass Down</source>
-        <translation>Graves bas</translation>
-    </message>
-    <message>
-        <source>Treble Up</source>
-        <translation>Aigus haut</translation>
-    </message>
-    <message>
-        <source>Treble Down</source>
-        <translation>Aigus bas</translation>
-    </message>
-    <message>
-        <source>Media Play</source>
-        <translation>Média démarrer</translation>
-    </message>
-    <message>
-        <source>Media Stop</source>
-        <translation>Média arrêt</translation>
-    </message>
-    <message>
-        <source>Media Previous</source>
-        <translation>Média précédent</translation>
-    </message>
-    <message>
-        <source>Media Next</source>
-        <translation>Média suivant</translation>
-    </message>
-    <message>
-        <source>Media Record</source>
-        <translation>Média enregistrer</translation>
-    </message>
-    <message>
-        <source>Favorites</source>
-        <translation>Préférés</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>Recherche</translation>
-    </message>
-    <message>
-        <source>Standby</source>
-        <translation>Attente</translation>
-    </message>
-    <message>
-        <source>Open URL</source>
-        <translation>Ouvrir URL</translation>
-    </message>
-    <message>
-        <source>Launch Mail</source>
-        <translation>Lancer courrier</translation>
-    </message>
-    <message>
-        <source>Launch Media</source>
-        <translation>Lancer média</translation>
-    </message>
-    <message>
-        <source>Launch (0)</source>
-        <translation>Lancer (0)</translation>
-    </message>
-    <message>
-        <source>Launch (1)</source>
-        <translation>Lancer (1)</translation>
-    </message>
-    <message>
-        <source>Launch (2)</source>
-        <translation>Lancer (2)</translation>
-    </message>
-    <message>
-        <source>Launch (3)</source>
-        <translation>Lancer (3)</translation>
-    </message>
-    <message>
-        <source>Launch (4)</source>
-        <translation>Lancer (4)</translation>
-    </message>
-    <message>
-        <source>Launch (5)</source>
-        <translation>Lancer (5)</translation>
-    </message>
-    <message>
-        <source>Launch (6)</source>
-        <translation>Lancer (6)</translation>
-    </message>
-    <message>
-        <source>Launch (7)</source>
-        <translation>Lancer (7)</translation>
-    </message>
-    <message>
-        <source>Launch (8)</source>
-        <translation>Lancer (8)</translation>
-    </message>
-    <message>
-        <source>Launch (9)</source>
-        <translation>Lancer (9)</translation>
-    </message>
-    <message>
-        <source>Launch (A)</source>
-        <translation>Lancer (A)</translation>
-    </message>
-    <message>
-        <source>Launch (B)</source>
-        <translation>Lancer (B)</translation>
-    </message>
-    <message>
-        <source>Launch (C)</source>
-        <translation>Lancer (C)</translation>
-    </message>
-    <message>
-        <source>Launch (D)</source>
-        <translation>Lancer (D)</translation>
-    </message>
-    <message>
-        <source>Launch (E)</source>
-        <translation>Lancer (E)</translation>
-    </message>
-    <message>
-        <source>Launch (F)</source>
-        <translation>Lancer (F)</translation>
-    </message>
-    <message>
-        <source>Meta</source>
-        <translation>Méta</translation>
-    </message>
-</context>
-<context>
-    <name>QApplication</name>
-    <message>
-        <source>QT_LAYOUT_DIRECTION</source>
-        <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
-        <translation>LTR</translation>
-    </message>
-    <message>
-        <source>Executable &apos;%1&apos; requires Qt %2, found Qt %3.</source>
-        <translation>L&apos;exécutable &apos;%1&apos; requiert Qt %2 (Qt %3 présent).</translation>
-    </message>
-    <message>
-        <source>Incompatible Qt Library Error</source>
-        <translation>Erreur: bibliothèque Qt incompatible</translation>
-    </message>
-</context>
-<context>
-    <name>QAquaStyle</name>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-</context>
-<context>
-    <name>QColorDialog</name>
-    <message>
-        <source>Hu&amp;e:</source>
-        <translation>&amp;Teinte :</translation>
-    </message>
-    <message>
-        <source>&amp;Sat:</source>
-        <translation>&amp;Saturation :</translation>
-    </message>
-    <message>
-        <source>&amp;Val:</source>
-        <translation>&amp;Luminance :</translation>
-    </message>
-    <message>
-        <source>&amp;Red:</source>
-        <translation>&amp;Rouge :</translation>
-    </message>
-    <message>
-        <source>&amp;Green:</source>
-        <translation>&amp;Vert :</translation>
-    </message>
-    <message>
-        <source>Bl&amp;ue:</source>
-        <translation>Ble&amp;u :</translation>
-    </message>
-    <message>
-        <source>A&amp;lpha channel:</source>
-        <translation>Canal a&amp;lpha :</translation>
-    </message>
-    <message>
-        <source>&amp;Basic colors</source>
-        <translation>Couleurs de &amp;base</translation>
-    </message>
-    <message>
-        <source>&amp;Custom colors</source>
-        <translation>&amp;Couleurs personnalisées</translation>
-    </message>
-    <message>
-        <source>&amp;Define Custom Colors &gt;&gt;</source>
-        <translation>Définir des &amp;couleurs personnalisées &gt;&gt;</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
-        <source>&amp;Add to Custom Colors</source>
-        <translation>&amp;Ajouter aux couleurs personnalisées</translation>
-    </message>
-    <message>
-        <source>Select color</source>
-        <translation>Sélection d&apos;une couleur</translation>
-    </message>
-</context>
-<context>
-    <name>QDataManager</name>
-    <message>
-        <source>Delete this record?</source>
-        <translation type="obsolete">Supprimer cet enregistrement ?</translation>
-    </message>
-    <message>
-        <source>Yes</source>
-        <translation type="obsolete">Oui</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation type="obsolete">Non</translation>
-    </message>
-    <message>
-        <source>Save edits?</source>
-        <translation type="obsolete">Enregistrer les modifications ?</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annuler</translation>
-    </message>
-    <message>
-        <source>Confirm</source>
-        <translation type="obsolete">Confirmer</translation>
-    </message>
-    <message>
-        <source>Cancel your edits?</source>
-        <translation type="obsolete">Annuler vos modifications ?</translation>
-    </message>
-</context>
-<context>
-    <name>QDataTable</name>
+    <name>Q3DataTable</name>
     <message>
         <source>True</source>
         <translation>Vrai</translation>
@@ -435,37 +34,27 @@
     </message>
 </context>
 <context>
-    <name>QDialog</name>
+    <name>Q3FileDialog</name>
     <message>
-        <source>What&apos;s This?</source>
-        <translation>Qu&apos;est-ce que c&apos;est ?</translation>
-    </message>
-</context>
-<context>
-    <name>QErrorMessage</name>
-    <message>
-        <source>&amp;Show this message again</source>
-        <translation>&amp;Afficher ce message de nouveau</translation>
+        <source>Copy or Move a File</source>
+        <translation>Copie ou déplace un fichier</translation>
     </message>
     <message>
-        <source>&amp;OK</source>
-        <translation>&amp;OK</translation>
+        <source>Read: %1</source>
+        <translation>Lecture : %1</translation>
     </message>
     <message>
-        <source>Debug Message:</source>
-        <translation>Message de débogage:</translation>
+        <source>Write: %1</source>
+        <translation>Écriture : %1</translation>
     </message>
     <message>
-        <source>Warning:</source>
-        <translation>Avertissement:</translation>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
     </message>
     <message>
-        <source>Fatal Error:</source>
-        <translation>Erreur fatale:</translation>
+        <source>All Files (*)</source>
+        <translation>Tous les fichiers (*)</translation>
     </message>
-</context>
-<context>
-    <name>QFileDialog</name>
     <message>
         <source>Name</source>
         <translation>Nom</translation>
@@ -487,12 +76,8 @@
         <translation>Attributs</translation>
     </message>
     <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
+        <source>&amp;OK</source>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Look &amp;in:</source>
@@ -675,8 +260,8 @@
         <translation>Dossiers</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation>Enregistrer</translation>
+        <source>Directory:</source>
+        <translation>Dossier :</translation>
     </message>
     <message>
         <source>Error</source>
@@ -695,10 +280,6 @@ Vérifier le chemin et le nom du fichier.</translation>
         <translation>Tous les fichiers (*.*)</translation>
     </message>
     <message>
-        <source>All Files (*)</source>
-        <translation>Tous les fichiers (*)</translation>
-    </message>
-    <message>
         <source>Open </source>
         <translation>Ouvrir</translation>
     </message>
@@ -706,232 +287,559 @@ Vérifier le chemin et le nom du fichier.</translation>
         <source>Select a Directory</source>
         <translation>Sélectionner un dossier</translation>
     </message>
+</context>
+<context>
+    <name>Q3LocalFs</name>
     <message>
-        <source>Copy or Move a File</source>
-        <translation>Copie ou déplace un fichier</translation>
+        <source>Could not read directory
+%1</source>
+        <translation>Impossible de lire le dossier
+%1</translation>
     </message>
     <message>
-        <source>Read: %1</source>
-        <translation>Lecture : %1</translation>
+        <source>Could not create directory
+%1</source>
+        <translation>Impossible de créer le dossier
+%1</translation>
     </message>
     <message>
-        <source>Write: %1</source>
-        <translation>Écriture : %1</translation>
+        <source>Could not remove file or directory
+%1</source>
+        <translation>Impossible de supprimer le fichier ou dossier
+%1</translation>
     </message>
     <message>
-        <source>Directory:</source>
-        <translation>Dossier:</translation>
+        <source>Could not rename
+%1
+to
+%2</source>
+        <translation>Impossible de renommer
+%1
+en
+%2</translation>
+    </message>
+    <message>
+        <source>Could not open
+%1</source>
+        <translation>Impossible d&apos;ouvrir
+%1</translation>
+    </message>
+    <message>
+        <source>Could not write
+%1</source>
+        <translation>Impossible d&apos;écrire
+%1</translation>
     </message>
 </context>
 <context>
-    <name>QFont</name>
+    <name>Q3MainWindow</name>
     <message>
-        <source>Latin</source>
-        <translation>Latin</translation>
+        <source>Line up</source>
+        <translation>Aligner</translation>
     </message>
     <message>
-        <source>Greek</source>
-        <translation>Grec</translation>
+        <source>Customize...</source>
+        <translation>Personnaliser...</translation>
+    </message>
+</context>
+<context>
+    <name>Q3NetworkProtocol</name>
+    <message>
+        <source>Operation stopped by the user</source>
+        <translation>Opération interrompue par l&apos;utilisateur</translation>
+    </message>
+</context>
+<context>
+    <name>Q3ProgressDialog</name>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+</context>
+<context>
+    <name>Q3TabDialog</name>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
     <message>
-        <source>Cyrillic</source>
-        <translation>Cyrillique</translation>
+        <source>Apply</source>
+        <translation>Appliquer</translation>
     </message>
     <message>
-        <source>Armenian</source>
-        <translation>Arménien</translation>
+        <source>Help</source>
+        <translation>Aide</translation>
     </message>
     <message>
-        <source>Georgian</source>
-        <translation>Géorgien</translation>
+        <source>Defaults</source>
+        <translation>Par défaut</translation>
     </message>
     <message>
-        <source>Runic</source>
-        <translation>Runique</translation>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+</context>
+<context>
+    <name>Q3TextEdit</name>
+    <message>
+        <source>&amp;Undo</source>
+        <translation>&amp;Annuler</translation>
     </message>
     <message>
-        <source>Ogham</source>
-        <translation>Ogham</translation>
+        <source>&amp;Redo</source>
+        <translation>A&amp;nnuler Annuler</translation>
     </message>
     <message>
-        <source>Hebrew</source>
-        <translation>Hébreu</translation>
+        <source>Cu&amp;t</source>
+        <translation>Co&amp;uper</translation>
     </message>
     <message>
-        <source>Arabic</source>
-        <translation>Arabe</translation>
+        <source>&amp;Copy</source>
+        <translation>Cop&amp;ier</translation>
     </message>
     <message>
-        <source>Syriac</source>
-        <translation>Syriaque</translation>
+        <source>&amp;Paste</source>
+        <translation>Co&amp;ller</translation>
     </message>
     <message>
-        <source>Thaana</source>
-        <translation>Thaana</translation>
+        <source>Clear</source>
+        <translation>Effacer</translation>
     </message>
     <message>
-        <source>Devanagari</source>
-        <translation>Devanagari</translation>
+        <source>Select All</source>
+        <translation>Tout sélectionner</translation>
+    </message>
+</context>
+<context>
+    <name>Q3ToolBar</name>
+    <message>
+        <source>More...</source>
+        <translation>Reste...</translation>
+    </message>
+</context>
+<context>
+    <name>Q3UrlOperator</name>
+    <message>
+        <source>The protocol `%1&apos; is not supported</source>
+        <translation>Le protocole &apos;%1&apos; n&apos;est pas géré</translation>
     </message>
     <message>
-        <source>Bengali</source>
-        <translation>Bengali</translation>
+        <source>The protocol `%1&apos; does not support listing directories</source>
+        <translation>Le protocole `%1&apos; ne permet pas de lister les fichiers d&apos;un dossier</translation>
     </message>
     <message>
-        <source>Gurmukhi</source>
-        <translation>Gurmukhi</translation>
+        <source>The protocol `%1&apos; does not support creating new directories</source>
+        <translation>Le protocole `%1&apos; ne permet pas de créer de nouveaux dossiers</translation>
     </message>
     <message>
-        <source>Gujarati</source>
-        <translation>Gujarati</translation>
+        <source>The protocol `%1&apos; does not support removing files or directories</source>
+        <translation>Le protocole `%1&apos; ne permet pas de supprimer des fichiers ou des dossiers</translation>
     </message>
     <message>
-        <source>Oriya</source>
-        <translation>Oriya</translation>
+        <source>The protocol `%1&apos; does not support renaming files or directories</source>
+        <translation>Le protocole `%1&apos; ne permet pas de renommer des fichiers ou des dossiers</translation>
     </message>
     <message>
-        <source>Tamil</source>
-        <translation>Tamoul</translation>
+        <source>The protocol `%1&apos; does not support getting files</source>
+        <translation>Le protocole `%1&apos; ne permet pas de recevoir des fichiers</translation>
     </message>
     <message>
-        <source>Telugu</source>
-        <translation>Telugu</translation>
+        <source>The protocol `%1&apos; does not support putting files</source>
+        <translation>Le protocole `%1&apos; ne permet pas d&apos;envoyer des fichiers</translation>
     </message>
     <message>
-        <source>Kannada</source>
-        <translation>Kannada</translation>
+        <source>The protocol `%1&apos; does not support copying or moving files or directories</source>
+        <translation>Le protocole `%1&apos; ne permet pas de copier ou de déplacer des fichiers</translation>
     </message>
     <message>
-        <source>Malayalam</source>
-        <translation>Malayalam</translation>
+        <source>(unknown)</source>
+        <translation>(inconnu)</translation>
+    </message>
+</context>
+<context>
+    <name>Q3Wizard</name>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Annuler</translation>
     </message>
     <message>
-        <source>Sinhala</source>
-        <translation>Sinhala</translation>
+        <source>&lt; &amp;Back</source>
+        <translation>&lt; &amp;Précédent</translation>
     </message>
     <message>
-        <source>Thai</source>
-        <translation>Thai</translation>
+        <source>&amp;Next &gt;</source>
+        <translation>&amp;Suivant &gt;</translation>
     </message>
     <message>
-        <source>Lao</source>
-        <translation>Lao</translation>
+        <source>&amp;Finish</source>
+        <translation>&amp;Terminer</translation>
     </message>
     <message>
-        <source>Tibetan</source>
-        <translation>Tibétain</translation>
+        <source>&amp;Help</source>
+        <translation>&amp;Aide</translation>
+    </message>
+</context>
+<context>
+    <name>QAbstractSocket</name>
+    <message>
+        <source>Host not found</source>
+        <translation>Hôte introuvable</translation>
     </message>
     <message>
-        <source>Myanmar</source>
-        <translation>Myanmar</translation>
+        <source>Connection refused</source>
+        <translation>Connexion refusée</translation>
     </message>
     <message>
-        <source>Khmer</source>
-        <translation>Khmer</translation>
+        <source>Socket operation timed out</source>
+        <translation>Opération socket expirée</translation>
+    </message>
+</context>
+<context>
+    <name>QAbstractSpinBox</name>
+    <message>
+        <source>&amp;Step up</source>
+        <translation>&amp;Augmenter</translation>
     </message>
     <message>
-        <source>Han</source>
-        <translation>Han</translation>
+        <source>Step &amp;down</source>
+        <translation>&amp;Diminuer</translation>
+    </message>
+</context>
+<context>
+    <name>QApplication</name>
+    <message>
+        <source>QT_LAYOUT_DIRECTION</source>
+        <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
+        <translation>LTR</translation>
     </message>
     <message>
-        <source>Hiragana</source>
-        <translation>Hiragana</translation>
+        <source>Executable &apos;%1&apos; requires Qt %2, found Qt %3.</source>
+        <translation>L&apos;exécutable &apos;%1&apos; requiert Qt %2 (Qt %3 présent).</translation>
     </message>
     <message>
-        <source>Katakana</source>
-        <translation>Katakana</translation>
+        <source>Incompatible Qt Library Error</source>
+        <translation>Erreur : bibliothèque Qt incompatible</translation>
     </message>
     <message>
-        <source>Hangul</source>
-        <translation>Hangul</translation>
+        <source>Activate</source>
+        <translation>Activer</translation>
     </message>
     <message>
-        <source>Bopomofo</source>
-        <translation>Bopomofo</translation>
+        <source>Activates the program&apos;s main window</source>
+        <translation>Active la fenêtre principale du programme</translation>
+    </message>
+</context>
+<context>
+    <name>QColorDialog</name>
+    <message>
+        <source>Hu&amp;e:</source>
+        <translation>&amp;Teinte :</translation>
     </message>
     <message>
-        <source>Yi</source>
-        <translation>Yi</translation>
+        <source>&amp;Sat:</source>
+        <translation>&amp;Saturation :</translation>
     </message>
     <message>
-        <source>Ethiopic</source>
-        <translation>Éthiopien</translation>
+        <source>&amp;Val:</source>
+        <translation>&amp;Luminance :</translation>
     </message>
     <message>
-        <source>Cherokee</source>
-        <translation>Cherokee</translation>
+        <source>&amp;Red:</source>
+        <translation>&amp;Rouge :</translation>
     </message>
     <message>
-        <source>Canadian Aboriginal</source>
-        <translation>Autochtone canadien</translation>
+        <source>&amp;Green:</source>
+        <translation>&amp;Vert :</translation>
     </message>
     <message>
-        <source>Mongolian</source>
-        <translation>Mongol</translation>
+        <source>Bl&amp;ue:</source>
+        <translation>Ble&amp;u :</translation>
     </message>
     <message>
-        <source>Currency Symbols</source>
-        <translation>Symboles monétaires</translation>
+        <source>A&amp;lpha channel:</source>
+        <translation>Canal a&amp;lpha :</translation>
     </message>
     <message>
-        <source>Letterlike Symbols</source>
-        <translation>Symboles semblables aux lettres</translation>
+        <source>&amp;Basic colors</source>
+        <translation>Couleurs de &amp;base</translation>
     </message>
     <message>
-        <source>Number Forms</source>
-        <translation>Formes de nombres</translation>
+        <source>&amp;Custom colors</source>
+        <translation>&amp;Couleurs personnalisées</translation>
     </message>
     <message>
-        <source>Mathematical Operators</source>
-        <translation>Opérateurs mathématiques</translation>
+        <source>&amp;Define Custom Colors &gt;&gt;</source>
+        <translation>Définir des &amp;couleurs personnalisées &gt;&gt;</translation>
     </message>
     <message>
-        <source>Technical Symbols</source>
-        <translation>Symboles techniques</translation>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
     <message>
-        <source>Geometric Symbols</source>
-        <translation>Symboles géométriques</translation>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
     </message>
     <message>
-        <source>Miscellaneous Symbols</source>
-        <translation>Symboles divers</translation>
+        <source>&amp;Add to Custom Colors</source>
+        <translation>&amp;Ajouter aux couleurs personnalisées</translation>
     </message>
     <message>
-        <source>Enclosed and Square</source>
-        <translation>Entourés et carrés</translation>
+        <source>Select color</source>
+        <translation>Sélection d&apos;une couleur</translation>
+    </message>
+</context>
+<context>
+    <name>QDateTimeEdit</name>
+    <message>
+        <source>AM</source>
+        <translation>AM</translation>
     </message>
     <message>
-        <source>Braille</source>
-        <translation>Braille</translation>
+        <source>am</source>
+        <translation>am</translation>
     </message>
     <message>
-        <source>Unicode</source>
-        <translation>Unicode</translation>
+        <source>PM</source>
+        <translation>PM</translation>
     </message>
     <message>
-        <source>Reverse Oblique</source>
-        <translation type="obsolete">Oblique inversé</translation>
+        <source>pm</source>
+        <translation>pm</translation>
+    </message>
+</context>
+<context>
+    <name>QDialog</name>
+    <message>
+        <source>What&apos;s This?</source>
+        <translation>Qu&apos;est-ce que c&apos;est ?</translation>
+    </message>
+</context>
+<context>
+    <name>QDialogButtons</name>
+    <message>
+        <source>Yes to All</source>
+        <translation>Oui à tout</translation>
     </message>
     <message>
-        <source>Reverse Italic</source>
-        <translation type="obsolete">Italique inversé</translation>
+        <source>OK to All</source>
+        <translation>OK à tout</translation>
     </message>
     <message>
-        <source>Other</source>
-        <translation type="obsolete">Autre</translation>
+        <source>No to All</source>
+        <translation>Non à tout</translation>
     </message>
     <message>
-        <source>Oblique</source>
-        <translation type="obsolete">Oblique</translation>
+        <source>Cancel All</source>
+        <translation>Tout annuler</translation>
     </message>
     <message>
-        <source>Italic</source>
-        <translation type="obsolete">Italique</translation>
+        <source>Yes</source>
+        <translation>Oui</translation>
     </message>
     <message>
-        <source>Normal</source>
-        <translation type="obsolete">Normal</translation>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Non</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Appliquer</translation>
+    </message>
+    <message>
+        <source>Ignore</source>
+        <translation>Ignorer</translation>
+    </message>
+    <message>
+        <source>Retry</source>
+        <translation>Réessayer</translation>
+    </message>
+    <message>
+        <source>Abort</source>
+        <translation>Abandonner</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Aide</translation>
+    </message>
+    <message>
+        <source>%1 to All</source>
+        <translation>%1 à tout</translation>
+    </message>
+</context>
+<context>
+    <name>QDirModel</name>
+    <message>
+        <source>Name</source>
+        <translation>Nom</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Taille</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>Modifié</translation>
+    </message>
+</context>
+<context>
+    <name>QErrorMessage</name>
+    <message>
+        <source>&amp;Show this message again</source>
+        <translation>&amp;Afficher ce message de nouveau</translation>
+    </message>
+    <message>
+        <source>&amp;OK</source>
+        <translation>&amp;OK</translation>
+    </message>
+    <message>
+        <source>Debug Message:</source>
+        <translation>Message de débogage:</translation>
+    </message>
+    <message>
+        <source>Warning:</source>
+        <translation>Avertissement:</translation>
+    </message>
+    <message>
+        <source>Fatal Error:</source>
+        <translation>Erreur fatale:</translation>
+    </message>
+</context>
+<context>
+    <name>QFileDialog</name>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Précédent (historique)</translation>
+    </message>
+    <message>
+        <source>Create New Folder</source>
+        <translation>Créer un nouveau dossier</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation>Affichage liste</translation>
+    </message>
+    <message>
+        <source>Detail View</source>
+        <translation>Affichage détaillé</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Ouvrir</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation>&amp;Ouvrir</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation>&amp;Enregistrer</translation>
+    </message>
+    <message>
+        <source>&amp;Rename</source>
+        <translation>&amp;Renommer</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation>Suppri&amp;mer</translation>
+    </message>
+    <message>
+        <source>Sort by &amp;Name</source>
+        <translation>Trier par &amp;nom</translation>
+    </message>
+    <message>
+        <source>Sort by &amp;Size</source>
+        <translation>Trier par ta&amp;ille</translation>
+    </message>
+    <message>
+        <source>Sort by &amp;Date</source>
+        <translation>Trier par &amp;date</translation>
+    </message>
+    <message>
+        <source>&amp;Unsorted</source>
+        <translation>&amp;Non trié</translation>
+    </message>
+    <message>
+        <source>Sort</source>
+        <translation>Tri</translation>
+    </message>
+    <message>
+        <source>Show &amp;hidden files</source>
+        <translation>Afficher les fic&amp;hiers cachés</translation>
+    </message>
+    <message>
+        <source>Directories</source>
+        <translation>Dossiers</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Enregistrer</translation>
+    </message>
+    <message>
+        <source>All Files (*)</source>
+        <translation>Tous les fichiers (*)</translation>
+    </message>
+    <message>
+        <source>%1 already exists.
+Do you want to replace it?</source>
+        <translation>Le fichier %1 existe déjà. Voulez-vous l&apos;écraser ?</translation>
+    </message>
+    <message>
+        <source>%1
+File not found.
+Please verify the correct file name was given.</source>
+        <translation>%1
+Fichier introuvable.
+Veuillez vérifier que le nom du fichier est correct.</translation>
+    </message>
+    <message>
+        <source>My Computer</source>
+        <translation>Mon ordinateur</translation>
+    </message>
+    <message>
+        <source>&amp;Reload</source>
+        <translation>&amp;Recharger</translation>
+    </message>
+    <message>
+        <source>Parent Directory</source>
+        <translation>Dossier parent</translation>
+    </message>
+    <message>
+        <source>Look in:</source>
+        <translation>Chercher dans :</translation>
+    </message>
+    <message>
+        <source>File name:</source>
+        <translation>Nom de fichier :</translation>
+    </message>
+    <message>
+        <source>Files of type:</source>
+        <translation>Fichiers de type :</translation>
+    </message>
+</context>
+<context>
+    <name>QFileDialogPrivate</name>
+    <message>
+        <source>%1
+Directory not found.
+Please verify the correct directory name was given.</source>
+        <translation>%1
+Dossier introuvable.
+Veuillez vérifier que le nom du dossier est correct.</translation>
     </message>
 </context>
 <context>
@@ -961,16 +869,8 @@ Vérifier le chemin et le nom du fichier.</translation>
         <translation>&amp;Souligné</translation>
     </message>
     <message>
-        <source>&amp;Color</source>
-        <translation>&amp;Couleur</translation>
-    </message>
-    <message>
         <source>Sample</source>
         <translation>Exemple</translation>
-    </message>
-    <message>
-        <source>Scr&amp;ipt</source>
-        <translation>Scr&amp;ipt</translation>
     </message>
     <message>
         <source>OK</source>
@@ -991,6 +891,10 @@ Vérifier le chemin et le nom du fichier.</translation>
     <message>
         <source>Select Font</source>
         <translation>Choisir une police</translation>
+    </message>
+    <message>
+        <source>Wr&amp;iting System</source>
+        <translation>&amp;Système d&apos;écriture</translation>
     </message>
 </context>
 <context>
@@ -1020,16 +924,12 @@ Vérifier le chemin et le nom du fichier.</translation>
         <translation>Connexion arrêtée</translation>
     </message>
     <message>
-        <source>Login Incorrect</source>
-        <translation type="obsolete">Informations de connexion incorrectes</translation>
-    </message>
-    <message>
         <source>Host %1 not found</source>
         <translation>Hôte %1 introuvable</translation>
     </message>
     <message>
         <source>Connection refused to host %1</source>
-        <translation>Connection à l&apos;hôte %1 refusée</translation>
+        <translation>Connexion à l&apos;hôte %1 refusée</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -1050,43 +950,43 @@ Vérifier le chemin et le nom du fichier.</translation>
     <message>
         <source>Listing directory failed:
 %1</source>
-        <translation>Échec du listage du dossier:
+        <translation>Échec du listage du dossier :
 %1</translation>
     </message>
     <message>
         <source>Changing directory failed:
 %1</source>
-        <translation>Échec du changement de dossier:
+        <translation>Échec du changement de dossier :
 %1</translation>
     </message>
     <message>
         <source>Downloading file failed:
 %1</source>
-        <translation>Échec du téléchargement du fichier:
+        <translation>Échec du téléchargement du fichier :
 %1</translation>
     </message>
     <message>
         <source>Uploading file failed:
 %1</source>
-        <translation>Échec du télédéchargement:
+        <translation>Échec du télédéchargement :
 %1</translation>
     </message>
     <message>
         <source>Removing file failed:
 %1</source>
-        <translation>Échec de la suppression d&apos;un fichier:
+        <translation>Échec de la suppression d&apos;un fichier :
 %1</translation>
     </message>
     <message>
         <source>Creating directory failed:
 %1</source>
-        <translation>Échec de la création d&apos;un dossier:
+        <translation>Échec de la création d&apos;un dossier :
 %1</translation>
     </message>
     <message>
         <source>Removing directory failed:
 %1</source>
-        <translation>Échec de la suppression d&apos;un dossier:
+        <translation>Échec de la suppression d&apos;un dossier :
 %1</translation>
     </message>
     <message>
@@ -1099,33 +999,25 @@ Vérifier le chemin et le nom du fichier.</translation>
     </message>
 </context>
 <context>
-    <name>QFtpPI</name>
+    <name>QHostInfo</name>
     <message>
-        <source>Not connected</source>
-        <translation type="obsolete">Non connecté</translation>
-    </message>
-    <message>
-        <source>Host %1 not found</source>
-        <translation type="obsolete">Hôte %1 introuvable</translation>
-    </message>
-    <message>
-        <source>Connection refused to host %1</source>
-        <translation type="obsolete">Connecté à l&apos;hôte %1 refusée</translation>
-    </message>
-    <message>
-        <source>Connected to host %1</source>
-        <translation type="obsolete">Connecté à l&apos;hôte %1</translation>
-    </message>
-    <message>
-        <source>Connection refused for data connection</source>
-        <translation type="obsolete">Connexion donnée refusée</translation>
+        <source>Unknown error</source>
+        <translation>Erreur inconnue</translation>
     </message>
 </context>
 <context>
-    <name>QHeader</name>
+    <name>QHostInfoAgent</name>
     <message>
-        <source>%1</source>
-        <translation>%1</translation>
+        <source>Host not found</source>
+        <translation>Hôte introuvable</translation>
+    </message>
+    <message>
+        <source>Unknown address type</source>
+        <translation>Adresse de type inconnu</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation>Erreur inconnue</translation>
     </message>
 </context>
 <context>
@@ -1137,14 +1029,6 @@ Vérifier le chemin et le nom du fichier.</translation>
     <message>
         <source>Host %1 not found</source>
         <translation>Hôte %1 introuvable</translation>
-    </message>
-    <message>
-        <source>Connection closed by %1</source>
-        <translation type="obsolete">Connexion arrêtée par %1</translation>
-    </message>
-    <message>
-        <source>Invalid HTTP reply header</source>
-        <translation type="obsolete">Entête HTTP invalide</translation>
     </message>
     <message>
         <source>Wrong content length</source>
@@ -1204,6 +1088,48 @@ Vérifier le chemin et le nom du fichier.</translation>
     </message>
 </context>
 <context>
+    <name>QIODevice</name>
+    <message>
+        <source>Permission denied</source>
+        <translation>Accès refusé</translation>
+    </message>
+    <message>
+        <source>Too many open files</source>
+        <translation>Trop de fichiers ouverts simultanément</translation>
+    </message>
+    <message>
+        <source>No such file or directory</source>
+        <translation>Aucun fichier ou dossier de ce nom</translation>
+    </message>
+    <message>
+        <source>No space left on device</source>
+        <translation>Aucun espace disponible sur le périphérique</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation>Erreur inconnue</translation>
+    </message>
+</context>
+<context>
+    <name>QInputContext</name>
+    <message>
+        <source>XIM</source>
+        <translation>XIM</translation>
+    </message>
+    <message>
+        <source>XIM input method</source>
+        <translation>Méthode d&apos;entrée XIM</translation>
+    </message>
+    <message>
+        <source>Windows input method</source>
+        <translation>Méthode d&apos;entrée Windows</translation>
+    </message>
+    <message>
+        <source>Mac OS X input method</source>
+        <translation>Méthode d&apos;entrée Mac OS X</translation>
+    </message>
+</context>
+<context>
     <name>QInputDialog</name>
     <message>
         <source>OK</source>
@@ -1216,10 +1142,6 @@ Vérifier le chemin et le nom du fichier.</translation>
 </context>
 <context>
     <name>QLineEdit</name>
-    <message>
-        <source>Clear</source>
-        <translation>Effacer</translation>
-    </message>
     <message>
         <source>Select All</source>
         <translation>Tout sélectionner</translation>
@@ -1244,94 +1166,9 @@ Vérifier le chemin et le nom du fichier.</translation>
         <source>&amp;Paste</source>
         <translation>Co&amp;ller</translation>
     </message>
-</context>
-<context>
-    <name>QLocalFs</name>
     <message>
-        <source>Could not rename
-%1
-to
-%2</source>
-        <translation>Impossible de renommer
-%1
-en
-%2</translation>
-    </message>
-    <message>
-        <source>Could not open
-%1</source>
-        <translation>Impossible d&apos;ouvrir
-%1</translation>
-    </message>
-    <message>
-        <source>Could not write
-%1</source>
-        <translation>Impossible d&apos;écrire
-%1</translation>
-    </message>
-    <message>
-        <source>Could not read directory
-%1</source>
-        <translation>Impossible de lire le dossier
-%1</translation>
-    </message>
-    <message>
-        <source>Could not create directory
-%1</source>
-        <translation>Impossible de créer le dossier
-%1</translation>
-    </message>
-    <message>
-        <source>Could not remove file or directory
-%1</source>
-        <translation>Impossible de supprimer le fichier ou dossier
-%1</translation>
-    </message>
-</context>
-<context>
-    <name>QMainWindow</name>
-    <message>
-        <source>Line up</source>
-        <translation>Aligner</translation>
-    </message>
-    <message>
-        <source>Customize...</source>
-        <translation>Personnaliser...</translation>
-    </message>
-</context>
-<context>
-    <name>QMenuBar</name>
-    <message>
-        <source>About</source>
-        <translation type="unfinished">(TODO: Trouver les termes Mac)</translation>
-    </message>
-    <message>
-        <source>Config</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Preference</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Setting</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Setup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <source>Delete</source>
+        <translation>Supprimer</translation>
     </message>
 </context>
 <context>
@@ -1365,27 +1202,178 @@ en
         <translation>&amp;Ignorer</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This application was created with Qt version %1.&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;</translation>
+        <source>Yes to &amp;All</source>
+        <translation>Oui à &amp;tout</translation>
     </message>
     <message>
-        <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils C++ pour le développement multi-plateforme d&apos;applications graphiques. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11.&lt;br&gt;Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Qt est un produit de Trolltech. Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
+        <source>N&amp;o to All</source>
+        <translation>Non à to&amp;ut</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils C++ pour le développement multi-plateforme d&apos;applications graphiques. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11.&lt;br&gt;Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Qt est un produit de Trolltech. Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
+        <source>About Qt</source>
+        <translation>À propos de Qt</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for multiplatform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation>&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils C++ pour le développement multi-plateforme d&apos;applications graphiques. Qt permet de porter un même code source sur MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux et toutes les versions commerciales majeures.&lt;br&gt;Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Qt est un produit de Trolltech. Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
+        <source>Help</source>
+        <translation>Aide</translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <translation>&lt;h3&gt;À propos de Qt&lt;/h3&gt;%1&lt;p&gt;Qt est une boîte à outils C++ pour le développement multi-plateforme d&apos;applications graphiques.&lt;/p&gt;&lt;p&gt;Qt permet de porter un même source code sur MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux ainsi que les principales versions Unix commerciales. Qt est aussi disponible pour les systèmes embarqués sous le nom de Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt est un produit de Trolltech. Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Ce programme utilise la version %1 de Qt.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;tt&gt;http://www.trolltech.com/company/model.html&lt;/tt&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Ce programme utilise l&apos;édition Open Source de Qt version %1.&lt;/p&gt;&lt;p&gt;L&apos;édition Open Source de Qt est destinée au développement de programmes Open Source. Si vous désirez écrire des applications commerciales (code source fermé), vous devez posséder une licence Qt commerciale.&lt;/p&gt;&lt;p&gt;Veuillez consulter &lt;tt&gt;http://www.trolltech.com/company/model.html&lt;/tt&gt; pour un aperçu des licences applicables à Qt.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
-    <name>QNetworkProtocol</name>
+    <name>QNativeSocketEngine</name>
     <message>
-        <source>Operation stopped by the user</source>
-        <translation>Opération interrompue par l&apos;utilisateur</translation>
+        <source>The remote host closed the connection</source>
+        <translation>L&apos;hôte distant a fermé la connexion</translation>
+    </message>
+    <message>
+        <source>Network operation timed out</source>
+        <translation>L&apos;opération réseau a expiré</translation>
+    </message>
+    <message>
+        <source>Out of resources</source>
+        <translation>Manque de ressources</translation>
+    </message>
+    <message>
+        <source>Unsupported socket operation</source>
+        <translation>Opération socket non supportée</translation>
+    </message>
+    <message>
+        <source>Protocol type not supported</source>
+        <translation>Protocol non géré</translation>
+    </message>
+    <message>
+        <source>Invalid socket descriptor</source>
+        <translation>Descripteur de socket invalide</translation>
+    </message>
+    <message>
+        <source>Network unreachable</source>
+        <translation>Réseau impossible à rejoindre</translation>
+    </message>
+    <message>
+        <source>Permission denied</source>
+        <translation>Accès refusé</translation>
+    </message>
+    <message>
+        <source>Connection timed out</source>
+        <translation>Connexion expirée</translation>
+    </message>
+    <message>
+        <source>Connection refused</source>
+        <translation>Connexion refusée</translation>
+    </message>
+    <message>
+        <source>The bound address is already in use</source>
+        <translation>L&apos;adresse liée est déjà en usage</translation>
+    </message>
+    <message>
+        <source>The address is not available</source>
+        <translation>L&apos;adresse n&apos;est pas disponible</translation>
+    </message>
+    <message>
+        <source>The address is protected</source>
+        <translation>L&apos;adresse est protégée</translation>
+    </message>
+    <message>
+        <source>Datagram was to large to send</source>
+        <translation>Le datagramme est trop gros pour pouvoir être envoyé</translation>
+    </message>
+    <message>
+        <source>Unable to send a message</source>
+        <translation>Impossible d&apos;envoyer un message</translation>
+    </message>
+    <message>
+        <source>Unable to receive a message</source>
+        <translation>Impossible de recevoir un message</translation>
+    </message>
+    <message>
+        <source>Unable to write</source>
+        <translation>Impossible d&apos;écrire</translation>
+    </message>
+    <message>
+        <source>Network error</source>
+        <translation>Erreur réseau</translation>
+    </message>
+    <message>
+        <source>Another socket is already listening on the same port</source>
+        <translation>Un autre socket écoute déjà sur le même port</translation>
+    </message>
+    <message>
+        <source>Unable to initialize non-blocking socket</source>
+        <translation>Impossible d&apos;initialiser le socket asynchrone</translation>
+    </message>
+    <message>
+        <source>Unable to initialize broadcast socket</source>
+        <translation>Impossible d&apos;initialiser le socket broadcast</translation>
+    </message>
+    <message>
+        <source>Attempt to use IPv6 socket on a platform with no IPv6 support</source>
+        <translation>Tentative d&apos;utiliser un socket IPv6 sur une plateforme qui ne supporte pas IPv6</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>All Files (*)</source>
+        <translation>Tous les fichiers (*)</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>Tous les fichiers (*.*)</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Ouvrir</translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation>Enregistrer sous</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation>Ouvrir</translation>
+    </message>
+    <message>
+        <source>Select a Directory</source>
+        <translation>Sélectionner un dossier</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation>Unité</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Fichier</translation>
+    </message>
+    <message>
+        <source>Directory</source>
+        <translation>Dossier</translation>
+    </message>
+    <message>
+        <source>Symbolic Link</source>
+        <translation>Lien symbolique</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Inconnu</translation>
+    </message>
+    <message>
+        <source>False</source>
+        <translation>Faux</translation>
+    </message>
+    <message>
+        <source>True</source>
+        <translation>Vrai</translation>
     </message>
 </context>
 <context>
@@ -1429,18 +1417,6 @@ en
     <message>
         <source>Print to printer:</source>
         <translation>Imprimer avec l&apos;imprimante :</translation>
-    </message>
-    <message>
-        <source>Printer</source>
-        <translation>Imprimante</translation>
-    </message>
-    <message>
-        <source>Host</source>
-        <translation>Hôte</translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation>Commentaire</translation>
     </message>
     <message>
         <source>Print to file:</source>
@@ -1511,10 +1487,6 @@ en
         <translation>A3 (297 x 420 mm)</translation>
     </message>
     <message>
-        <source>A4 (210x297 mm, 8.26x11.7 inches)</source>
-        <translation>A4 (210x297 mm, 8.26x11.7 pouces)</translation>
-    </message>
-    <message>
         <source>A5 (148 x 210 mm)</source>
         <translation>A5 (148 x 210 mm)</translation>
     </message>
@@ -1555,10 +1527,6 @@ en
         <translation>B4 (250 x 353 mm)</translation>
     </message>
     <message>
-        <source>B5 (176 x 250 mm, 6.93x9.84 inches)</source>
-        <translation>B5 (176 x 250 mm, 6.93x9.84 pouces)</translation>
-    </message>
-    <message>
         <source>B6 (125 x 176 mm)</source>
         <translation>B6 (125 x 176 mm)</translation>
     </message>
@@ -1587,24 +1555,12 @@ en
         <translation>DLE (110 x 220 mm)</translation>
     </message>
     <message>
-        <source>Executive (7.5x10 inches, 191x254 mm)</source>
-        <translation>Exécutive (7.5x10 pouces, 191x254 mm)</translation>
-    </message>
-    <message>
         <source>Folio (210 x 330 mm)</source>
         <translation>Folio (210 x 330 mm)</translation>
     </message>
     <message>
         <source>Ledger (432 x 279 mm)</source>
         <translation>Ledger (432 x 279 mm)</translation>
-    </message>
-    <message>
-        <source>Legal (8.5x14 inches, 216x356 mm)</source>
-        <translation>Légal (8.5x14 pouces, 216x356 mm)</translation>
-    </message>
-    <message>
-        <source>Letter (8.5x11 inches, 216x279 mm)</source>
-        <translation>Lettre (8.5x11 pouces, 216x279 mm)</translation>
     </message>
     <message>
         <source>Tabloid (279 x 432 mm)</source>
@@ -1615,16 +1571,62 @@ en
         <translation>US Common #10 Envelope (105 x 241 mm)</translation>
     </message>
     <message>
-        <source>Setup Printer</source>
-        <translation>Configuration de l&apos;impression</translation>
-    </message>
-    <message>
         <source>Aliases: %1</source>
         <translation>Alias : %1</translation>
     </message>
     <message>
         <source>PostScript Files (*.ps);;All Files (*)</source>
         <translation>Fichiers PostScript (*.ps);;Tous les fichiers (*)</translation>
+    </message>
+    <message>
+        <source>A4 (210 x 297 mm, 8.26 x 11.7 inches)</source>
+        <translation>A4 (210 x 297 mm)</translation>
+    </message>
+    <message>
+        <source>B5 (176 x 250 mm, 6.93 x 9.84 inches)</source>
+        <translation>B5 (176 x 250 mm)</translation>
+    </message>
+    <message>
+        <source>Executive (7.5 x 10 inches, 191 x 254 mm)</source>
+        <translation>Executive (7,5 x 10 pouces, 191 x 254 mm)</translation>
+    </message>
+    <message>
+        <source>Legal (8.5 x 14 inches, 216 x 356 mm)</source>
+        <translation>Legal (8.5 x 14 pouces, 216 x 356 mm)</translation>
+    </message>
+    <message>
+        <source>Letter (8.5 x 11 inches, 216 x 279 mm)</source>
+        <translation>Letter (8,5 x 11 pouces, 216 x 279 mm)</translation>
+    </message>
+    <message>
+        <source>Print selection</source>
+        <translation>Imprimer la sélection</translation>
+    </message>
+    <message>
+        <source>Page size:</source>
+        <translation>Dimensions :</translation>
+    </message>
+    <message>
+        <source>Orientation:</source>
+        <translation>Orientation :</translation>
+    </message>
+    <message>
+        <source>Paper source:</source>
+        <translation>Source du papier :</translation>
+    </message>
+</context>
+<context>
+    <name>QProcess</name>
+    <message>
+        <source>Unknown error</source>
+        <translation>Erreur inconnue</translation>
+    </message>
+</context>
+<context>
+    <name>QProgressBar</name>
+    <message>
+        <source>%1%</source>
+        <translation>%1 %</translation>
     </message>
 </context>
 <context>
@@ -1674,6 +1676,436 @@ en
     </message>
 </context>
 <context>
+    <name>QScrollBar</name>
+    <message>
+        <source>Scroll here</source>
+        <translation>Défiler jusqu&apos;ici</translation>
+    </message>
+    <message>
+        <source>Left edge</source>
+        <translation>Extrême gauche</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>En haut</translation>
+    </message>
+    <message>
+        <source>Right edge</source>
+        <translation>Extrême droite</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>En bas</translation>
+    </message>
+    <message>
+        <source>Page left</source>
+        <translation>Page précédente</translation>
+    </message>
+    <message>
+        <source>Page up</source>
+        <translation>Page précédente</translation>
+    </message>
+    <message>
+        <source>Page right</source>
+        <translation>Page suivante</translation>
+    </message>
+    <message>
+        <source>Page down</source>
+        <translation>Page suivante</translation>
+    </message>
+    <message>
+        <source>Scroll left</source>
+        <translation>Défiler vers la gauche</translation>
+    </message>
+    <message>
+        <source>Scroll up</source>
+        <translation>Défiler vers le haut</translation>
+    </message>
+    <message>
+        <source>Scroll right</source>
+        <translation>Défiler vers la droite</translation>
+    </message>
+    <message>
+        <source>Scroll down</source>
+        <translation>Défiler vers le bas</translation>
+    </message>
+</context>
+<context>
+    <name>QShortcut</name>
+    <message>
+        <source>Space</source>
+        <translation>Espace</translation>
+    </message>
+    <message>
+        <source>Esc</source>
+        <translation>Échap</translation>
+    </message>
+    <message>
+        <source>Tab</source>
+        <translation>Tab</translation>
+    </message>
+    <message>
+        <source>Backtab</source>
+        <translation>Tab arr</translation>
+    </message>
+    <message>
+        <source>Backspace</source>
+        <translation>Effacement</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Retour</translation>
+    </message>
+    <message>
+        <source>Enter</source>
+        <translation>Entrée</translation>
+    </message>
+    <message>
+        <source>Ins</source>
+        <translation>Inser</translation>
+    </message>
+    <message>
+        <source>Del</source>
+        <translation>Suppr</translation>
+    </message>
+    <message>
+        <source>Pause</source>
+        <translation>Pause</translation>
+    </message>
+    <message>
+        <source>Print</source>
+        <translation>Impr écran</translation>
+    </message>
+    <message>
+        <source>SysReq</source>
+        <translation>Syst</translation>
+    </message>
+    <message>
+        <source>Home</source>
+        <translation>Début</translation>
+    </message>
+    <message>
+        <source>End</source>
+        <translation>Fin</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Gauche</translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation>Haut</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Droite</translation>
+    </message>
+    <message>
+        <source>Down</source>
+        <translation>Bas</translation>
+    </message>
+    <message>
+        <source>PgUp</source>
+        <translation>Page préc</translation>
+    </message>
+    <message>
+        <source>PgDown</source>
+        <translation>Page suiv</translation>
+    </message>
+    <message>
+        <source>CapsLock</source>
+        <translation>Verr maj</translation>
+    </message>
+    <message>
+        <source>NumLock</source>
+        <translation>Verr num</translation>
+    </message>
+    <message>
+        <source>ScrollLock</source>
+        <translation>Arrêt défil</translation>
+    </message>
+    <message>
+        <source>Menu</source>
+        <translation>Menu</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Aide</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Précédent (historique)</translation>
+    </message>
+    <message>
+        <source>Forward</source>
+        <translation>Successeur (historique)</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation>Rafraîchir</translation>
+    </message>
+    <message>
+        <source>Volume Down</source>
+        <translation>Volume bas</translation>
+    </message>
+    <message>
+        <source>Volume Mute</source>
+        <translation>Volume muet</translation>
+    </message>
+    <message>
+        <source>Volume Up</source>
+        <translation>Volume haut
+</translation>
+    </message>
+    <message>
+        <source>Bass Boost</source>
+        <translation>Graves fort</translation>
+    </message>
+    <message>
+        <source>Bass Up</source>
+        <translation>Graves haut</translation>
+    </message>
+    <message>
+        <source>Bass Down</source>
+        <translation>Graves bas</translation>
+    </message>
+    <message>
+        <source>Treble Up</source>
+        <translation>Aigus haut</translation>
+    </message>
+    <message>
+        <source>Treble Down</source>
+        <translation>Aigus bas</translation>
+    </message>
+    <message>
+        <source>Media Play</source>
+        <translation>Média démarrer</translation>
+    </message>
+    <message>
+        <source>Media Stop</source>
+        <translation>Média arrêt</translation>
+    </message>
+    <message>
+        <source>Media Previous</source>
+        <translation>Média précédent</translation>
+    </message>
+    <message>
+        <source>Media Next</source>
+        <translation>Média suivant</translation>
+    </message>
+    <message>
+        <source>Media Record</source>
+        <translation>Média enregistrer</translation>
+    </message>
+    <message>
+        <source>Favorites</source>
+        <translation>Préférés</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Recherche</translation>
+    </message>
+    <message>
+        <source>Standby</source>
+        <translation>Attente</translation>
+    </message>
+    <message>
+        <source>Open URL</source>
+        <translation>Ouvrir URL</translation>
+    </message>
+    <message>
+        <source>Launch Mail</source>
+        <translation>Lancer courrier</translation>
+    </message>
+    <message>
+        <source>Launch Media</source>
+        <translation>Lancer média</translation>
+    </message>
+    <message>
+        <source>Launch (0)</source>
+        <translation>Lancer (0)</translation>
+    </message>
+    <message>
+        <source>Launch (1)</source>
+        <translation>Lancer (1)</translation>
+    </message>
+    <message>
+        <source>Launch (2)</source>
+        <translation>Lancer (2)</translation>
+    </message>
+    <message>
+        <source>Launch (3)</source>
+        <translation>Lancer (3)</translation>
+    </message>
+    <message>
+        <source>Launch (4)</source>
+        <translation>Lancer (4)</translation>
+    </message>
+    <message>
+        <source>Launch (5)</source>
+        <translation>Lancer (5)</translation>
+    </message>
+    <message>
+        <source>Launch (6)</source>
+        <translation>Lancer (6)</translation>
+    </message>
+    <message>
+        <source>Launch (7)</source>
+        <translation>Lancer (7)</translation>
+    </message>
+    <message>
+        <source>Launch (8)</source>
+        <translation>Lancer (8)</translation>
+    </message>
+    <message>
+        <source>Launch (9)</source>
+        <translation>Lancer (9)</translation>
+    </message>
+    <message>
+        <source>Launch (A)</source>
+        <translation>Lancer (A)</translation>
+    </message>
+    <message>
+        <source>Launch (B)</source>
+        <translation>Lancer (B)</translation>
+    </message>
+    <message>
+        <source>Launch (C)</source>
+        <translation>Lancer (C)</translation>
+    </message>
+    <message>
+        <source>Launch (D)</source>
+        <translation>Lancer (D)</translation>
+    </message>
+    <message>
+        <source>Launch (E)</source>
+        <translation>Lancer (E)</translation>
+    </message>
+    <message>
+        <source>Launch (F)</source>
+        <translation>Lancer (F)</translation>
+    </message>
+    <message>
+        <source>Print Screen</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Page Up</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Page Down</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Caps Lock</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Num Lock</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Number Lock</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Scroll Lock</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Insérer</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Supprimer</translation>
+    </message>
+    <message>
+        <source>Escape</source>
+        <translation>Échapement</translation>
+    </message>
+    <message>
+        <source>System Request</source>
+        <translation>Système</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>Sélectionner</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Oui</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Non</translation>
+    </message>
+    <message>
+        <source>Context1</source>
+        <translation>Contexte1</translation>
+    </message>
+    <message>
+        <source>Context2</source>
+        <translation>Contexte2</translation>
+    </message>
+    <message>
+        <source>Context3</source>
+        <translation>Contexte3</translation>
+    </message>
+    <message>
+        <source>Context4</source>
+        <translation>Contexte4</translation>
+    </message>
+    <message>
+        <source>Call</source>
+        <translation>Appeler</translation>
+    </message>
+    <message>
+        <source>Hangup</source>
+        <translation>Raccrocher</translation>
+    </message>
+    <message>
+        <source>Flip</source>
+        <translation>Retourner</translation>
+    </message>
+    <message>
+        <source>Ctrl</source>
+        <translation>Ctrl</translation>
+    </message>
+    <message>
+        <source>Shift</source>
+        <translation>Maj</translation>
+    </message>
+    <message>
+        <source>Alt</source>
+        <translation>Alt</translation>
+    </message>
+    <message>
+        <source>Meta</source>
+        <translation>Méta</translation>
+    </message>
+    <message>
+        <source>+</source>
+        <translation>+</translation>
+    </message>
+    <message>
+        <source>F%1</source>
+        <translation>F%1</translation>
+    </message>
+</context>
+<context>
+    <name>QSocks5SocketEngine</name>
+    <message>
+        <source>Socks5 timeout error connecting to socks server</source>
+        <translation>Erreur d&apos;expiration socks5 lors de l&apos;établissement d&apos;une connexion au serveur socks</translation>
+    </message>
+</context>
+<context>
     <name>QSql</name>
     <message>
         <source>Delete</source>
@@ -1715,55 +2147,16 @@ en
         <source>Cancel your edits?</source>
         <translation>Annuler vos modifications ?</translation>
     </message>
-    <message>
-        <source>Could not open database connection</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir la connection à la base de donnéees</translation>
-    </message>
-    <message>
-        <source>Could not open database</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir la base de données</translation>
-    </message>
 </context>
 <context>
-    <name>QTDSDriver</name>
+    <name>QTcpServer</name>
     <message>
-        <source>Could not open database connection</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir la connection à la base de donnéees</translation>
-    </message>
-    <message>
-        <source>Could not open database</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir la base de données</translation>
-    </message>
-</context>
-<context>
-    <name>QTabDialog</name>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation>Appliquer</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Aide</translation>
-    </message>
-    <message>
-        <source>Defaults</source>
-        <translation>Par défaut</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
+        <source>Socket operation unsupported</source>
+        <translation>Operation socket non supportée</translation>
     </message>
 </context>
 <context>
     <name>QTextEdit</name>
-    <message>
-        <source>Clear</source>
-        <translation>Effacer</translation>
-    </message>
     <message>
         <source>Select All</source>
         <translation>Tout sélectionner</translation>
@@ -1788,190 +2181,77 @@ en
         <source>&amp;Paste</source>
         <translation>Co&amp;ller</translation>
     </message>
-</context>
-<context>
-    <name>QTitleBar</name>
     <message>
-        <source>System Menu</source>
-        <translation>Menu système</translation>
-    </message>
-    <message>
-        <source>Shade</source>
-        <translation>Enrouler</translation>
-    </message>
-    <message>
-        <source>Unshade</source>
-        <translation>Dérouler</translation>
-    </message>
-    <message>
-        <source>Normalize</source>
-        <translation>Normaliser</translation>
-    </message>
-    <message>
-        <source>Minimize</source>
-        <translation>Réduire</translation>
-    </message>
-    <message>
-        <source>Maximize</source>
-        <translation>Maximiser</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
+        <source>Delete</source>
+        <translation>Supprimer</translation>
     </message>
 </context>
 <context>
-    <name>QToolBar</name>
+    <name>QUdpSocket</name>
     <message>
-        <source>More...</source>
-        <translation>Reste...</translation>
+        <source>This platform does not support IPv6</source>
+        <translation>Cette plateforme ne supporte pas IPv6</translation>
     </message>
 </context>
 <context>
-    <name>QUrlOperator</name>
+    <name>QUnicodeControlCharacterMenu</name>
     <message>
-        <source>The protocol `%1&apos; is not supported</source>
-        <translation>Le protocole &apos;%1&apos; n&apos;est pas géré</translation>
+        <source>LRM Left-to-right mark</source>
+        <translation>LRM Left-to-right mark</translation>
     </message>
     <message>
-        <source>The protocol `%1&apos; does not support listing directories</source>
-        <translation>Le protocole `%1&apos; ne permet pas de lister les fichiers d&apos;un dossier</translation>
+        <source>RLM Right-to-left mark</source>
+        <translation>RLM Right-to-left mark</translation>
     </message>
     <message>
-        <source>The protocol `%1&apos; does not support creating new directories</source>
-        <translation>Le protocole `%1&apos; ne permet pas de créer de nouveaux dossiers</translation>
+        <source>ZWJ Zero width joiner</source>
+        <translation>ZWJ Zero width joiner</translation>
     </message>
     <message>
-        <source>The protocol `%1&apos; does not support removing files or directories</source>
-        <translation>Le protocole `%1&apos; ne permet pas de supprimer des fichiers ou des dossiers</translation>
+        <source>ZWNJ Zero width non-joiner</source>
+        <translation>ZWNJ Zero width non-joiner</translation>
     </message>
     <message>
-        <source>The protocol `%1&apos; does not support renaming files or directories</source>
-        <translation>Le protocole `%1&apos; ne permet pas de renommer des fichiers ou des dossiers</translation>
+        <source>ZWSP Zero width space</source>
+        <translation>ZWSP Zero width space</translation>
     </message>
     <message>
-        <source>The protocol `%1&apos; does not support getting files</source>
-        <translation>Le protocole `%1&apos; ne permet pas de recevoir des fichiers</translation>
+        <source>LRE Start of left-to-right embedding</source>
+        <translation>LRE Start of left-to-right embedding</translation>
     </message>
     <message>
-        <source>The protocol `%1&apos; does not support putting files</source>
-        <translation>Le protocole `%1&apos; ne permet pas d'envoyer des fichiers</translation>
+        <source>RLE Start of right-to-left embedding</source>
+        <translation>RLE Start of right-to-left embedding</translation>
     </message>
     <message>
-        <source>The protocol `%1&apos; does not support copying or moving files or directories</source>
-        <translation>Le protocole `%1&apos; ne permet pas de copier ou de déplacer des fichiers</translation>
+        <source>LRO Start of left-to-right override</source>
+        <translation>LRO Start of left-to-right override</translation>
     </message>
     <message>
-        <source>(unknown)</source>
-        <translation>(inconnu)</translation>
-    </message>
-</context>
-<context>
-    <name>QWSDecoration</name>
-    <message>
-        <source>Windows</source>
-        <translation>Windows</translation>
+        <source>RLO Start of right-to-left override</source>
+        <translation>RLO Start of right-to-left override</translation>
     </message>
     <message>
-        <source>KDE</source>
-        <translation>KDE</translation>
+        <source>PDF Pop directional formatting</source>
+        <translation>PDF Pop directional formatting</translation>
     </message>
     <message>
-        <source>KDE2</source>
-        <translation>KDE2</translation>
-    </message>
-    <message>
-        <source>Hydro</source>
-        <translation>Hydro</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation>Default</translation>
-    </message>
-    <message>
-        <source>&amp;Restore</source>
-        <translation>&amp;Restaurer</translation>
-    </message>
-    <message>
-        <source>&amp;Move</source>
-        <translation>&amp;Déplacer</translation>
-    </message>
-    <message>
-        <source>&amp;Size</source>
-        <translation>&amp;Redimensionner</translation>
-    </message>
-    <message>
-        <source>Mi&amp;nimize</source>
-        <translation>Réd&amp;uire</translation>
-    </message>
-    <message>
-        <source>Ma&amp;ximize</source>
-        <translation>Ma&amp;ximiser</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
-    <message>
-        <source>BeOS</source>
-        <translation>BeOS</translation>
+        <source>Insert Unicode control character</source>
+        <translation>Insérer caractère de contrôle Unicode</translation>
     </message>
 </context>
 <context>
-    <name>QWSManager</name>
+    <name>QWhatsThisAction</name>
     <message>
-        <source>Style</source>
-        <translation type="obsolete">Style</translation>
-    </message>
-</context>
-<context>
-    <name>QWhatsThisButton</name>
-    <message>
-        <source>What&apos;s this?</source>
+        <source>What&apos;s This?</source>
         <translation>Qu&apos;est-ce que c&apos;est ?</translation>
     </message>
 </context>
 <context>
-    <name>QWizard</name>
+    <name>QWidget</name>
     <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annuler</translation>
-    </message>
-    <message>
-        <source>&lt; Back</source>
-        <translation type="obsolete">&lt; Précédent</translation>
-    </message>
-    <message>
-        <source>Next &gt;</source>
-        <translation type="obsolete">Suivant &gt;</translation>
-    </message>
-    <message>
-        <source>Finish</source>
-        <translation type="obsolete">Terminer</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Aide</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Annuler</translation>
-    </message>
-    <message>
-        <source>&lt; &amp;Back</source>
-        <translation>&lt; &amp;Précédent</translation>
-    </message>
-    <message>
-        <source>&amp;Next &gt;</source>
-        <translation>&amp;Suivant &gt;</translation>
-    </message>
-    <message>
-        <source>&amp;Finish</source>
-        <translation>&amp;Terminer</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>&amp;Aide</translation>
+        <source>*</source>
+        <translation>*</translation>
     </message>
 </context>
 <context>
@@ -2122,41 +2402,6 @@ en
     <message>
         <source>standalone declaration expected while reading the XML declaration</source>
         <translation>déclaration autonome attendue dans la déclaration XML</translation>
-    </message>
-</context>
-<context>
-    <name>QtMultiLineEdit</name>
-    <message>
-        <source>Undo</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
-        <source>Redo</source>
-        <translation>Annuler Annuler</translation>
-    </message>
-    <message>
-        <source>Cut</source>
-        <translation>Couper</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Copier</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation>Coller</translation>
-    </message>
-    <message>
-        <source>Paste special...</source>
-        <translation>Collage spécial...</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation>Effacer</translation>
-    </message>
-    <message>
-        <source>Select All</source>
-        <translation>Tout sélectionner</translation>
     </message>
 </context>
 </TS>

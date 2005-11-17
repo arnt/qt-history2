@@ -1,285 +1,959 @@
 <!DOCTYPE TS><TS>
 <context>
-    <name>QAccel</name>
+    <name>Q3Accel</name>
     <message>
-        <source>Space</source>
-        <translation>Space</translation>
+        <source>%1, %2 not defined</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Esc</source>
-        <translation>Esc</translation>
+        <source>Ambiguous &quot;%1&quot; not handled</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Q3DataTable</name>
+    <message>
+        <source>True</source>
+        <translation type="unfinished">True</translation>
     </message>
     <message>
-        <source>Tab</source>
-        <translation>Tab</translation>
+        <source>False</source>
+        <translation type="unfinished">False</translation>
     </message>
     <message>
-        <source>Backtab</source>
-        <translation>Backtab</translation>
+        <source>Insert</source>
+        <translation type="unfinished">Вставить</translation>
     </message>
     <message>
-        <source>Backspace</source>
-        <translation>Backspace</translation>
+        <source>Update</source>
+        <translation type="unfinished">Обновить</translation>
     </message>
     <message>
-        <source>Return</source>
-        <translation>Return</translation>
+        <source>Delete</source>
+        <translation type="unfinished">Удалить</translation>
+    </message>
+</context>
+<context>
+    <name>Q3FileDialog</name>
+    <message>
+        <source>Copy or Move a File</source>
+        <translation type="unfinished">Копировать или переместить файл</translation>
     </message>
     <message>
-        <source>Enter</source>
-        <translation>Enter</translation>
+        <source>Read: %1</source>
+        <translation type="unfinished">Открытие: %1</translation>
     </message>
     <message>
-        <source>Ins</source>
-        <translation>Ins</translation>
+        <source>Write: %1</source>
+        <translation type="unfinished">Запись: %1</translation>
     </message>
     <message>
-        <source>Del</source>
-        <translation>Del</translation>
+        <source>Cancel</source>
+        <translation type="unfinished">Отмена</translation>
     </message>
     <message>
-        <source>Pause</source>
-        <translation>Pause</translation>
+        <source>All Files (*)</source>
+        <translation type="unfinished">Все файлы (*)</translation>
     </message>
     <message>
-        <source>Print</source>
-        <translation>Print</translation>
+        <source>Name</source>
+        <translation type="unfinished">Имя</translation>
     </message>
     <message>
-        <source>SysReq</source>
-        <translation>SysReq</translation>
+        <source>Size</source>
+        <translation type="unfinished">Размер</translation>
     </message>
     <message>
-        <source>Home</source>
-        <translation>Home</translation>
+        <source>Type</source>
+        <translation type="unfinished">Тип</translation>
     </message>
     <message>
-        <source>End</source>
-        <translation>End</translation>
+        <source>Date</source>
+        <translation type="unfinished">Дата</translation>
     </message>
     <message>
-        <source>Left</source>
-        <translation>Left</translation>
+        <source>Attributes</source>
+        <translation type="unfinished">Атрибуты</translation>
     </message>
     <message>
-        <source>Up</source>
-        <translation>Up</translation>
+        <source>&amp;OK</source>
+        <translation type="unfinished">&amp;OK</translation>
     </message>
     <message>
-        <source>Right</source>
-        <translation>Right</translation>
+        <source>Look &amp;in:</source>
+        <translation type="unfinished">&amp;Смотреть в:</translation>
     </message>
     <message>
-        <source>Down</source>
-        <translation>Down</translation>
+        <source>File &amp;name:</source>
+        <translation type="unfinished">&amp;Имя файла:</translation>
     </message>
     <message>
-        <source>PgUp</source>
-        <translation>PgUp</translation>
-    </message>
-    <message>
-        <source>PgDown</source>
-        <translation>PgDown</translation>
-    </message>
-    <message>
-        <source>CapsLock</source>
-        <translation>CapsLock</translation>
-    </message>
-    <message>
-        <source>NumLock</source>
-        <translation>NumLock</translation>
-    </message>
-    <message>
-        <source>ScrollLock</source>
-        <translation>ScrollLock</translation>
-    </message>
-    <message>
-        <source>Ctrl</source>
-        <translation>Ctrl</translation>
-    </message>
-    <message>
-        <source>Alt</source>
-        <translation>Alt</translation>
-    </message>
-    <message>
-        <source>Shift</source>
-        <translation>Shift</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation>+</translation>
-    </message>
-    <message>
-        <source>F%1</source>
-        <translation>F%1</translation>
-    </message>
-    <message>
-        <source>Menu</source>
-        <translation>Меню</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Справка</translation>
+        <source>File &amp;type:</source>
+        <translation type="unfinished">&amp;Тип файла:</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation>Назад</translation>
+        <translation type="unfinished">Назад</translation>
+    </message>
+    <message>
+        <source>One directory up</source>
+        <translation type="unfinished">Вверх на один уровень</translation>
+    </message>
+    <message>
+        <source>Create New Folder</source>
+        <translation type="unfinished">Создать новый каталог</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation type="unfinished">Список</translation>
+    </message>
+    <message>
+        <source>Detail View</source>
+        <translation type="unfinished">Детальный вид</translation>
+    </message>
+    <message>
+        <source>Preview File Info</source>
+        <translation type="unfinished">Предпросмотр информации о файле</translation>
+    </message>
+    <message>
+        <source>Preview File Contents</source>
+        <translation type="unfinished">Предпросмотр содержимого файла</translation>
+    </message>
+    <message>
+        <source>Read-write</source>
+        <translation type="unfinished">Чтение-запись</translation>
+    </message>
+    <message>
+        <source>Read-only</source>
+        <translation type="unfinished">Только чтение</translation>
+    </message>
+    <message>
+        <source>Write-only</source>
+        <translation type="unfinished">Только запись</translation>
+    </message>
+    <message>
+        <source>Inaccessible</source>
+        <translation type="unfinished">Нет доступа</translation>
+    </message>
+    <message>
+        <source>Symlink to File</source>
+        <translation type="unfinished">Ссылка на файл</translation>
+    </message>
+    <message>
+        <source>Symlink to Directory</source>
+        <translation type="unfinished">Ссылка на каталог</translation>
+    </message>
+    <message>
+        <source>Symlink to Special</source>
+        <translation type="unfinished">Ссылка на спецфайл</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation type="unfinished">Файл</translation>
+    </message>
+    <message>
+        <source>Dir</source>
+        <translation type="unfinished">Каталог</translation>
+    </message>
+    <message>
+        <source>Special</source>
+        <translation type="unfinished">Спецфайл</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation type="unfinished">Открыть</translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished">Сохранить как</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="unfinished">&amp;Открыть</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation type="unfinished">&amp;Сохранить</translation>
+    </message>
+    <message>
+        <source>&amp;Rename</source>
+        <translation type="unfinished">&amp;Переименовать</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation type="unfinished">&amp;Удалить</translation>
+    </message>
+    <message>
+        <source>R&amp;eload</source>
+        <translation type="unfinished">О&amp;бновить</translation>
+    </message>
+    <message>
+        <source>Sort by &amp;Name</source>
+        <translation type="unfinished">По &amp;имени</translation>
+    </message>
+    <message>
+        <source>Sort by &amp;Size</source>
+        <translation type="unfinished">По &amp;размеру</translation>
+    </message>
+    <message>
+        <source>Sort by &amp;Date</source>
+        <translation type="unfinished">По &amp;дате</translation>
+    </message>
+    <message>
+        <source>&amp;Unsorted</source>
+        <translation type="unfinished">&amp;Не упорядочивать</translation>
+    </message>
+    <message>
+        <source>Sort</source>
+        <translation type="unfinished">Упорядочить</translation>
+    </message>
+    <message>
+        <source>Show &amp;hidden files</source>
+        <translation type="unfinished">Показать &amp;скрытые файлы</translation>
+    </message>
+    <message>
+        <source>the file</source>
+        <translation type="unfinished">файл</translation>
+    </message>
+    <message>
+        <source>the directory</source>
+        <translation type="unfinished">каталог</translation>
+    </message>
+    <message>
+        <source>the symlink</source>
+        <translation type="unfinished">ссылку</translation>
+    </message>
+    <message>
+        <source>Delete %1</source>
+        <translation type="unfinished">Удалить %1</translation>
+    </message>
+    <message>
+        <source>&lt;qt&gt;Are you sure you wish to delete %1 &quot;%2&quot;?&lt;/qt&gt;</source>
+        <translation type="unfinished">&lt;qt&gt;Вы действительно хотите удалить %1 &quot;%2&quot;?&lt;/qt&gt;</translation>
+    </message>
+    <message>
+        <source>&amp;Yes</source>
+        <translation type="unfinished">&amp;Да</translation>
+    </message>
+    <message>
+        <source>&amp;No</source>
+        <translation type="unfinished">&amp;Нет</translation>
+    </message>
+    <message>
+        <source>New Folder 1</source>
+        <translation type="unfinished">Новый каталог 1</translation>
+    </message>
+    <message>
+        <source>New Folder</source>
+        <translation type="unfinished">Новый каталог</translation>
+    </message>
+    <message>
+        <source>New Folder %1</source>
+        <translation type="unfinished">Новый каталог %1</translation>
+    </message>
+    <message>
+        <source>Find Directory</source>
+        <translation type="unfinished">Найти каталог</translation>
+    </message>
+    <message>
+        <source>Directories</source>
+        <translation type="unfinished">Каталоги</translation>
+    </message>
+    <message>
+        <source>Directory:</source>
+        <translation type="unfinished">Каталог:</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Ошибка</translation>
+    </message>
+    <message>
+        <source>%1
+File not found.
+Check path and filename.</source>
+        <translation type="unfinished">%1
+Файл не найден.
+Проверьте правильность пути и имени файла.</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation type="unfinished">Все файлы (*.*)</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Открыть</translation>
+    </message>
+    <message>
+        <source>Select a Directory</source>
+        <translation type="unfinished">Выбрать каталог</translation>
+    </message>
+</context>
+<context>
+    <name>Q3Ftp</name>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">Нет соединения</translation>
+    </message>
+    <message>
+        <source>Host %1 not found</source>
+        <translation type="unfinished">Узел %1 не обнаружен</translation>
+    </message>
+    <message>
+        <source>Connection refused to host %1</source>
+        <translation type="unfinished">Отказано в соединении с узлом %1</translation>
+    </message>
+    <message>
+        <source>Connected to host %1</source>
+        <translation type="unfinished">Установлено соединение с узлом %1</translation>
+    </message>
+    <message>
+        <source>Connection refused for data connection</source>
+        <translation type="unfinished">Отказано в соединении передачи данных</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished">Неизвестная ошибка</translation>
+    </message>
+    <message>
+        <source>Connecting to host failed:
+%1</source>
+        <translation type="unfinished">Ошибка соединения с узлом:
+%1</translation>
+    </message>
+    <message>
+        <source>Login failed:
+%1</source>
+        <translation type="unfinished">Ошибка входа в систему:
+%1</translation>
+    </message>
+    <message>
+        <source>Listing directory failed:
+%1</source>
+        <translation type="unfinished">Ошибка просмотра каталога:
+%1</translation>
+    </message>
+    <message>
+        <source>Changing directory failed:
+%1</source>
+        <translation type="unfinished">Ошибка смены каталога:
+%1</translation>
+    </message>
+    <message>
+        <source>Downloading file failed:
+%1</source>
+        <translation type="unfinished">Ошибка загрузки файла:
+%1</translation>
+    </message>
+    <message>
+        <source>Uploading file failed:
+%1</source>
+        <translation type="unfinished">Ошибка отправки файла:
+%1</translation>
+    </message>
+    <message>
+        <source>Removing file failed:
+%1</source>
+        <translation type="unfinished">Ошибка удаления файла:
+%1</translation>
+    </message>
+    <message>
+        <source>Creating directory failed:
+%1</source>
+        <translation type="unfinished">Ошибка создания каталога:
+%1</translation>
+    </message>
+    <message>
+        <source>Removing directory failed:
+%1</source>
+        <translation type="unfinished">Ошибка удаления каталога:
+%1</translation>
+    </message>
+    <message>
+        <source>Connection closed</source>
+        <translation type="unfinished">Соединение разорвано</translation>
+    </message>
+    <message>
+        <source>Host %1 found</source>
+        <translation type="unfinished">Обнаружен узел %1</translation>
+    </message>
+    <message>
+        <source>Connection to %1 closed</source>
+        <translation type="unfinished">Соединение с узлом %1 разорвано</translation>
+    </message>
+    <message>
+        <source>Host found</source>
+        <translation type="unfinished">Узел обнаружен</translation>
+    </message>
+    <message>
+        <source>Connected to host</source>
+        <translation type="unfinished">Соединение с узлом установлено</translation>
+    </message>
+</context>
+<context>
+    <name>Q3Http</name>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished">Неизвестная ошибка</translation>
+    </message>
+    <message>
+        <source>Request aborted</source>
+        <translation type="unfinished">Запрос отменен</translation>
+    </message>
+    <message>
+        <source>No server set to connect to</source>
+        <translation type="unfinished">Не выбран сервер для подключения</translation>
+    </message>
+    <message>
+        <source>Wrong content length</source>
+        <translation type="unfinished">Неверная длина данных</translation>
+    </message>
+    <message>
+        <source>Server closed connection unexpectedly</source>
+        <translation type="unfinished">Неожиданный разрыв соединения сервером</translation>
+    </message>
+    <message>
+        <source>Connection refused</source>
+        <translation type="unfinished">Отказано в соединении</translation>
+    </message>
+    <message>
+        <source>Host %1 not found</source>
+        <translation type="unfinished">Узел %1 не обнаружен</translation>
+    </message>
+    <message>
+        <source>HTTP request failed</source>
+        <translation type="unfinished">Ошибка HTTP-запроса</translation>
+    </message>
+    <message>
+        <source>Invalid HTTP response header</source>
+        <translation type="unfinished">Получен некорректный HTTP-заголовок</translation>
+    </message>
+    <message>
+        <source>Invalid HTTP chunked body</source>
+        <translation type="unfinished">Некорректный HTTP-ответ</translation>
+    </message>
+    <message>
+        <source>Host %1 found</source>
+        <translation type="unfinished">Обнаружен узел %1</translation>
+    </message>
+    <message>
+        <source>Connected to host %1</source>
+        <translation type="unfinished">Установлено соединение с узлом %1</translation>
+    </message>
+    <message>
+        <source>Connection to %1 closed</source>
+        <translation type="unfinished">Соединение с узлом %1 разорвано</translation>
+    </message>
+    <message>
+        <source>Host found</source>
+        <translation type="unfinished">Узел обнаружен</translation>
+    </message>
+    <message>
+        <source>Connected to host</source>
+        <translation type="unfinished">Соединение с узлом установлено</translation>
+    </message>
+    <message>
+        <source>Connection closed</source>
+        <translation type="unfinished">Соединение разорвано</translation>
+    </message>
+</context>
+<context>
+    <name>Q3LocalFs</name>
+    <message>
+        <source>Could not read directory
+%1</source>
+        <translation type="unfinished">Невозможно просмотреть каталог
+%1</translation>
+    </message>
+    <message>
+        <source>Could not create directory
+%1</source>
+        <translation type="unfinished">Невозможно создать каталог
+%1</translation>
+    </message>
+    <message>
+        <source>Could not remove file or directory
+%1</source>
+        <translation type="unfinished">Невозможно удалить файл или каталог
+%1</translation>
+    </message>
+    <message>
+        <source>Could not rename
+%1
+to
+%2</source>
+        <translation type="unfinished">Невозможно переименовать
+%1
+в
+%2</translation>
+    </message>
+    <message>
+        <source>Could not open
+%1</source>
+        <translation type="unfinished">Невозможно открыть
+%1</translation>
+    </message>
+    <message>
+        <source>Could not write
+%1</source>
+        <translation type="unfinished">Невозможно записать
+%1</translation>
+    </message>
+</context>
+<context>
+    <name>Q3MainWindow</name>
+    <message>
+        <source>Line up</source>
+        <translation type="unfinished">Выровнять</translation>
+    </message>
+    <message>
+        <source>Customize...</source>
+        <translation type="unfinished">Настроить...</translation>
+    </message>
+</context>
+<context>
+    <name>Q3NetworkProtocol</name>
+    <message>
+        <source>Operation stopped by the user</source>
+        <translation type="unfinished">Операция прервана пользователем</translation>
+    </message>
+</context>
+<context>
+    <name>Q3ProgressDialog</name>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>Q3TabDialog</name>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation type="unfinished">Применить</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="unfinished">Справка</translation>
+    </message>
+    <message>
+        <source>Defaults</source>
+        <translation type="unfinished">По умолчанию</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>Q3TextEdit</name>
+    <message>
+        <source>&amp;Undo</source>
+        <translation type="unfinished">&amp;Отменить</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation type="unfinished">&amp;Повторить</translation>
+    </message>
+    <message>
+        <source>Cu&amp;t</source>
+        <translation type="unfinished">&amp;Вырезать</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type="unfinished">&amp;Копировать</translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation type="unfinished">&amp;Вставить</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation type="unfinished">Очистить</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation type="unfinished">Выделить все</translation>
+    </message>
+</context>
+<context>
+    <name>Q3ToolBar</name>
+    <message>
+        <source>More...</source>
+        <translation type="unfinished">Больше...</translation>
+    </message>
+</context>
+<context>
+    <name>Q3UrlOperator</name>
+    <message>
+        <source>The protocol `%1&apos; is not supported</source>
+        <translation type="unfinished">Протокол `%1&apos; не поддерживается</translation>
+    </message>
+    <message>
+        <source>The protocol `%1&apos; does not support listing directories</source>
+        <translation type="unfinished">Протокол `%1&apos; не поддерживает просмотр каталогов</translation>
+    </message>
+    <message>
+        <source>The protocol `%1&apos; does not support creating new directories</source>
+        <translation type="unfinished">Протокол `%1&apos; не поддерживает создание новых каталогов</translation>
+    </message>
+    <message>
+        <source>The protocol `%1&apos; does not support removing files or directories</source>
+        <translation type="unfinished">Протокол `%1&apos; не поддерживает удаление файлов или каталогов</translation>
+    </message>
+    <message>
+        <source>The protocol `%1&apos; does not support renaming files or directories</source>
+        <translation type="unfinished">Протокол `%1&apos; не поддерживает переименование файлов или каталогов</translation>
+    </message>
+    <message>
+        <source>The protocol `%1&apos; does not support getting files</source>
+        <translation type="unfinished">Протокол `%1&apos; не поддерживает доставку файлов</translation>
+    </message>
+    <message>
+        <source>The protocol `%1&apos; does not support putting files</source>
+        <translation type="unfinished">Протокол `%1&apos; не поддерживает отправку файлов</translation>
+    </message>
+    <message>
+        <source>The protocol `%1&apos; does not support copying or moving files or directories</source>
+        <translation type="unfinished">Протокол `%1&apos; не поддерживает копирование или перемещение файлов и каталогов</translation>
+    </message>
+    <message>
+        <source>(unknown)</source>
+        <translation type="unfinished">(неизвестно)</translation>
+    </message>
+</context>
+<context>
+    <name>Q3Wizard</name>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">&amp;Отмена</translation>
+    </message>
+    <message>
+        <source>&lt; &amp;Back</source>
+        <translation type="unfinished">&lt; &amp;Назад</translation>
+    </message>
+    <message>
+        <source>&amp;Next &gt;</source>
+        <translation type="unfinished">&amp;Вперед &gt;</translation>
+    </message>
+    <message>
+        <source>&amp;Finish</source>
+        <translation type="unfinished">&amp;Финиш</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation type="unfinished">&amp;Справка</translation>
+    </message>
+</context>
+<context>
+    <name>QAbstractSocket</name>
+    <message>
+        <source>Host not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connection refused</source>
+        <translation type="unfinished">Отказано в соединении</translation>
+    </message>
+    <message>
+        <source>Socket operation timed out</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QAbstractSpinBox</name>
+    <message>
+        <source>&amp;Step up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Step &amp;down</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QAccel</name>
+    <message>
+        <source>Space</source>
+        <translation type="obsolete">Space</translation>
+    </message>
+    <message>
+        <source>Esc</source>
+        <translation type="obsolete">Esc</translation>
+    </message>
+    <message>
+        <source>Tab</source>
+        <translation type="obsolete">Tab</translation>
+    </message>
+    <message>
+        <source>Backtab</source>
+        <translation type="obsolete">Backtab</translation>
+    </message>
+    <message>
+        <source>Backspace</source>
+        <translation type="obsolete">Backspace</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation type="obsolete">Return</translation>
+    </message>
+    <message>
+        <source>Enter</source>
+        <translation type="obsolete">Enter</translation>
+    </message>
+    <message>
+        <source>Ins</source>
+        <translation type="obsolete">Ins</translation>
+    </message>
+    <message>
+        <source>Del</source>
+        <translation type="obsolete">Del</translation>
+    </message>
+    <message>
+        <source>Pause</source>
+        <translation type="obsolete">Pause</translation>
+    </message>
+    <message>
+        <source>Print</source>
+        <translation type="obsolete">Print</translation>
+    </message>
+    <message>
+        <source>SysReq</source>
+        <translation type="obsolete">SysReq</translation>
+    </message>
+    <message>
+        <source>Home</source>
+        <translation type="obsolete">Home</translation>
+    </message>
+    <message>
+        <source>End</source>
+        <translation type="obsolete">End</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="obsolete">Left</translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation type="obsolete">Up</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="obsolete">Right</translation>
+    </message>
+    <message>
+        <source>Down</source>
+        <translation type="obsolete">Down</translation>
+    </message>
+    <message>
+        <source>PgUp</source>
+        <translation type="obsolete">PgUp</translation>
+    </message>
+    <message>
+        <source>PgDown</source>
+        <translation type="obsolete">PgDown</translation>
+    </message>
+    <message>
+        <source>CapsLock</source>
+        <translation type="obsolete">CapsLock</translation>
+    </message>
+    <message>
+        <source>NumLock</source>
+        <translation type="obsolete">NumLock</translation>
+    </message>
+    <message>
+        <source>ScrollLock</source>
+        <translation type="obsolete">ScrollLock</translation>
+    </message>
+    <message>
+        <source>Ctrl</source>
+        <translation type="obsolete">Ctrl</translation>
+    </message>
+    <message>
+        <source>Alt</source>
+        <translation type="obsolete">Alt</translation>
+    </message>
+    <message>
+        <source>Shift</source>
+        <translation type="obsolete">Shift</translation>
+    </message>
+    <message>
+        <source>+</source>
+        <translation type="obsolete">+</translation>
+    </message>
+    <message>
+        <source>F%1</source>
+        <translation type="obsolete">F%1</translation>
+    </message>
+    <message>
+        <source>Menu</source>
+        <translation type="obsolete">Меню</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="obsolete">Справка</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation type="obsolete">Назад</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation>Вперед</translation>
+        <translation type="obsolete">Вперед</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation>Стоп</translation>
+        <translation type="obsolete">Стоп</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation>Обновить</translation>
+        <translation type="obsolete">Обновить</translation>
     </message>
     <message>
         <source>Volume Down</source>
-        <translation>Тише</translation>
+        <translation type="obsolete">Тише</translation>
     </message>
     <message>
         <source>Volume Mute</source>
-        <translation>Выключить звук</translation>
+        <translation type="obsolete">Выключить звук</translation>
     </message>
     <message>
         <source>Volume Up</source>
-        <translation>Громче</translation>
+        <translation type="obsolete">Громче</translation>
     </message>
     <message>
         <source>Bass Boost</source>
-        <translation>Bass Boost</translation>
+        <translation type="obsolete">Bass Boost</translation>
     </message>
     <message>
         <source>Bass Up</source>
-        <translation>Bass Up</translation>
+        <translation type="obsolete">Bass Up</translation>
     </message>
     <message>
         <source>Bass Down</source>
-        <translation>Bass Down</translation>
+        <translation type="obsolete">Bass Down</translation>
     </message>
     <message>
         <source>Treble Up</source>
-        <translation>Treble Up</translation>
+        <translation type="obsolete">Treble Up</translation>
     </message>
     <message>
         <source>Treble Down</source>
-        <translation>Treble Down</translation>
+        <translation type="obsolete">Treble Down</translation>
     </message>
     <message>
         <source>Media Play</source>
-        <translation>Воспроизведение</translation>
+        <translation type="obsolete">Воспроизведение</translation>
     </message>
     <message>
         <source>Media Stop</source>
-        <translation>Остановить воспроизведение</translation>
+        <translation type="obsolete">Остановить воспроизведение</translation>
     </message>
     <message>
         <source>Media Previous</source>
-        <translation>Воспроизвести предыдущее</translation>
+        <translation type="obsolete">Воспроизвести предыдущее</translation>
     </message>
     <message>
         <source>Media Next</source>
-        <translation>Воспроизвести следующее</translation>
+        <translation type="obsolete">Воспроизвести следующее</translation>
     </message>
     <message>
         <source>Media Record</source>
-        <translation>Запись</translation>
+        <translation type="obsolete">Запись</translation>
     </message>
     <message>
         <source>Favorites</source>
-        <translation>Избранное</translation>
+        <translation type="obsolete">Избранное</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation>Поиск</translation>
+        <translation type="obsolete">Поиск</translation>
     </message>
     <message>
         <source>Standby</source>
-        <translation>Дежурный режим</translation>
+        <translation type="obsolete">Дежурный режим</translation>
     </message>
     <message>
         <source>Open URL</source>
-        <translation>Открыть URL</translation>
+        <translation type="obsolete">Открыть URL</translation>
     </message>
     <message>
         <source>Launch Mail</source>
-        <translation>Почта</translation>
+        <translation type="obsolete">Почта</translation>
     </message>
     <message>
         <source>Launch Media</source>
-        <translation>Проигрыватель</translation>
+        <translation type="obsolete">Проигрыватель</translation>
     </message>
     <message>
         <source>Launch (0)</source>
-        <translation>Запустить (0)</translation>
+        <translation type="obsolete">Запустить (0)</translation>
     </message>
     <message>
         <source>Launch (1)</source>
-        <translation>Запустить (1)</translation>
+        <translation type="obsolete">Запустить (1)</translation>
     </message>
     <message>
         <source>Launch (2)</source>
-        <translation>Запустить (2)</translation>
+        <translation type="obsolete">Запустить (2)</translation>
     </message>
     <message>
         <source>Launch (3)</source>
-        <translation>Запустить (3)</translation>
+        <translation type="obsolete">Запустить (3)</translation>
     </message>
     <message>
         <source>Launch (4)</source>
-        <translation>Запустить (4)</translation>
+        <translation type="obsolete">Запустить (4)</translation>
     </message>
     <message>
         <source>Launch (5)</source>
-        <translation>Запустить (5)</translation>
+        <translation type="obsolete">Запустить (5)</translation>
     </message>
     <message>
         <source>Launch (6)</source>
-        <translation>Запустить (6)</translation>
+        <translation type="obsolete">Запустить (6)</translation>
     </message>
     <message>
         <source>Launch (7)</source>
-        <translation>Запустить (7)</translation>
+        <translation type="obsolete">Запустить (7)</translation>
     </message>
     <message>
         <source>Launch (8)</source>
-        <translation>Запустить (8)</translation>
+        <translation type="obsolete">Запустить (8)</translation>
     </message>
     <message>
         <source>Launch (9)</source>
-        <translation>Запустить (9)</translation>
+        <translation type="obsolete">Запустить (9)</translation>
     </message>
     <message>
         <source>Launch (A)</source>
-        <translation>Запустить (A)</translation>
+        <translation type="obsolete">Запустить (A)</translation>
     </message>
     <message>
         <source>Launch (B)</source>
-        <translation>Запустить (B)</translation>
+        <translation type="obsolete">Запустить (B)</translation>
     </message>
     <message>
         <source>Launch (C)</source>
-        <translation>Запустить (C)</translation>
+        <translation type="obsolete">Запустить (C)</translation>
     </message>
     <message>
         <source>Launch (D)</source>
-        <translation>Запустить (D)</translation>
+        <translation type="obsolete">Запустить (D)</translation>
     </message>
     <message>
         <source>Launch (E)</source>
-        <translation>Запустить (E)</translation>
+        <translation type="obsolete">Запустить (E)</translation>
     </message>
     <message>
         <source>Launch (F)</source>
-        <translation>Запустить (F)</translation>
+        <translation type="obsolete">Запустить (F)</translation>
     </message>
     <message>
         <source>Meta</source>
-        <translation>Meta</translation>
+        <translation type="obsolete">Meta</translation>
     </message>
 </context>
 <context>
@@ -297,16 +971,31 @@
         <source>Incompatible Qt Library Error</source>
         <translation>Ошибка совместимости библиотеки Qt</translation>
     </message>
+    <message>
+        <source>Activate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Activates the application main widget</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QAquaStyle</name>
     <message>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="obsolete">OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Отмена</translation>
+        <translation type="obsolete">Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>QAxServerBase</name>
+    <message>
+        <source>&amp;Help</source>
+        <translation type="obsolete">&amp;Справка</translation>
     </message>
 </context>
 <context>
@@ -372,23 +1061,42 @@
     <name>QDataTable</name>
     <message>
         <source>True</source>
-        <translation>True</translation>
+        <translation type="obsolete">True</translation>
     </message>
     <message>
         <source>False</source>
-        <translation>False</translation>
+        <translation type="obsolete">False</translation>
     </message>
     <message>
         <source>Insert</source>
-        <translation>Вставить</translation>
+        <translation type="obsolete">Вставить</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation>Обновить</translation>
+        <translation type="obsolete">Обновить</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Удалить</translation>
+        <translation type="obsolete">Удалить</translation>
+    </message>
+</context>
+<context>
+    <name>QDateTimeEdit</name>
+    <message>
+        <source>AM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>am</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pm</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -396,6 +1104,88 @@
     <message>
         <source>What&apos;s This?</source>
         <translation>Что это?</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="obsolete">Справка</translation>
+    </message>
+</context>
+<context>
+    <name>QDialogButtons</name>
+    <message>
+        <source>Yes to All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OK to All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No to All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> to All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="unfinished">Да</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation type="unfinished">Нет</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Отмена</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation type="unfinished">Применить</translation>
+    </message>
+    <message>
+        <source>Ignore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Retry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abort</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="unfinished">Справка</translation>
+    </message>
+</context>
+<context>
+    <name>QDirModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Имя</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Размер</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Тип</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -425,19 +1215,19 @@
     <name>QFileDialog</name>
     <message>
         <source>Copy or Move a File</source>
-        <translation>Копировать или переместить файл</translation>
+        <translation type="obsolete">Копировать или переместить файл</translation>
     </message>
     <message>
         <source>Read: %1</source>
-        <translation>Открытие: %1</translation>
+        <translation type="obsolete">Открытие: %1</translation>
     </message>
     <message>
         <source>Write: %1</source>
-        <translation>Запись: %1</translation>
+        <translation type="obsolete">Запись: %1</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Отмена</translation>
+        <translation type="unfinished">Отмена</translation>
     </message>
     <message>
         <source>All Files (*)</source>
@@ -445,107 +1235,107 @@
     </message>
     <message>
         <source>Name</source>
-        <translation>Имя</translation>
+        <translation type="obsolete">Имя</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>Размер</translation>
+        <translation type="obsolete">Размер</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Тип</translation>
+        <translation type="obsolete">Тип</translation>
     </message>
     <message>
         <source>Date</source>
-        <translation>Дата</translation>
+        <translation type="obsolete">Дата</translation>
     </message>
     <message>
         <source>Attributes</source>
-        <translation>Атрибуты</translation>
+        <translation type="obsolete">Атрибуты</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="obsolete">OK</translation>
     </message>
     <message>
         <source>Look &amp;in:</source>
-        <translation>&amp;Смотреть в:</translation>
+        <translation type="obsolete">&amp;Смотреть в:</translation>
     </message>
     <message>
         <source>File &amp;name:</source>
-        <translation>&amp;Имя файла:</translation>
+        <translation type="obsolete">&amp;Имя файла:</translation>
     </message>
     <message>
         <source>File &amp;type:</source>
-        <translation>&amp;Тип файла:</translation>
+        <translation type="obsolete">&amp;Тип файла:</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation>Назад</translation>
+        <translation type="unfinished">Назад</translation>
     </message>
     <message>
         <source>One directory up</source>
-        <translation>Вверх на один уровень</translation>
+        <translation type="obsolete">Вверх на один уровень</translation>
     </message>
     <message>
         <source>Create New Folder</source>
-        <translation>Создать новый каталог</translation>
+        <translation type="unfinished">Создать новый каталог</translation>
     </message>
     <message>
         <source>List View</source>
-        <translation>Список</translation>
+        <translation type="unfinished">Список</translation>
     </message>
     <message>
         <source>Detail View</source>
-        <translation>Детальный вид</translation>
+        <translation type="unfinished">Детальный вид</translation>
     </message>
     <message>
         <source>Preview File Info</source>
-        <translation>Предпросмотр информации о файле</translation>
+        <translation type="obsolete">Предпросмотр информации о файле</translation>
     </message>
     <message>
         <source>Preview File Contents</source>
-        <translation>Предпросмотр содержимого файла</translation>
+        <translation type="obsolete">Предпросмотр содержимого файла</translation>
     </message>
     <message>
         <source>Read-write</source>
-        <translation>Чтение-запись</translation>
+        <translation type="obsolete">Чтение-запись</translation>
     </message>
     <message>
         <source>Read-only</source>
-        <translation>Только чтение</translation>
+        <translation type="obsolete">Только чтение</translation>
     </message>
     <message>
         <source>Write-only</source>
-        <translation>Только запись</translation>
+        <translation type="obsolete">Только запись</translation>
     </message>
     <message>
         <source>Inaccessible</source>
-        <translation>Нет доступа</translation>
+        <translation type="obsolete">Нет доступа</translation>
     </message>
     <message>
         <source>Symlink to File</source>
-        <translation>Ссылка на файл</translation>
+        <translation type="obsolete">Ссылка на файл</translation>
     </message>
     <message>
         <source>Symlink to Directory</source>
-        <translation>Ссылка на каталог</translation>
+        <translation type="obsolete">Ссылка на каталог</translation>
     </message>
     <message>
         <source>Symlink to Special</source>
-        <translation>Ссылка на спецфайл</translation>
+        <translation type="obsolete">Ссылка на спецфайл</translation>
     </message>
     <message>
         <source>File</source>
-        <translation>Файл</translation>
+        <translation type="obsolete">Файл</translation>
     </message>
     <message>
         <source>Dir</source>
-        <translation>Каталог</translation>
+        <translation type="obsolete">Каталог</translation>
     </message>
     <message>
         <source>Special</source>
-        <translation>Спецфайл</translation>
+        <translation type="obsolete">Спецфайл</translation>
     </message>
     <message>
         <source>Open</source>
@@ -553,7 +1343,7 @@
     </message>
     <message>
         <source>Save As</source>
-        <translation>Сохранить как</translation>
+        <translation type="obsolete">Сохранить как</translation>
     </message>
     <message>
         <source>&amp;Open</source>
@@ -565,83 +1355,83 @@
     </message>
     <message>
         <source>&amp;Rename</source>
-        <translation>&amp;Переименовать</translation>
+        <translation type="unfinished">&amp;Переименовать</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Удалить</translation>
+        <translation type="unfinished">&amp;Удалить</translation>
     </message>
     <message>
         <source>R&amp;eload</source>
-        <translation>О&amp;бновить</translation>
+        <translation type="obsolete">О&amp;бновить</translation>
     </message>
     <message>
         <source>Sort by &amp;Name</source>
-        <translation>По &amp;имени</translation>
+        <translation type="unfinished">По &amp;имени</translation>
     </message>
     <message>
         <source>Sort by &amp;Size</source>
-        <translation>По &amp;размеру</translation>
+        <translation type="unfinished">По &amp;размеру</translation>
     </message>
     <message>
         <source>Sort by &amp;Date</source>
-        <translation>По &amp;дате</translation>
+        <translation type="unfinished">По &amp;дате</translation>
     </message>
     <message>
         <source>&amp;Unsorted</source>
-        <translation>&amp;Не упорядочивать</translation>
+        <translation type="unfinished">&amp;Не упорядочивать</translation>
     </message>
     <message>
         <source>Sort</source>
-        <translation>Упорядочить</translation>
+        <translation type="unfinished">Упорядочить</translation>
     </message>
     <message>
         <source>Show &amp;hidden files</source>
-        <translation>Показать &amp;скрытые файлы</translation>
+        <translation type="unfinished">Показать &amp;скрытые файлы</translation>
     </message>
     <message>
         <source>the file</source>
-        <translation>файл</translation>
+        <translation type="obsolete">файл</translation>
     </message>
     <message>
         <source>the directory</source>
-        <translation>каталог</translation>
+        <translation type="obsolete">каталог</translation>
     </message>
     <message>
         <source>the symlink</source>
-        <translation>ссылку</translation>
+        <translation type="obsolete">ссылку</translation>
     </message>
     <message>
         <source>Delete %1</source>
-        <translation>Удалить %1</translation>
+        <translation type="obsolete">Удалить %1</translation>
     </message>
     <message>
         <source>&lt;qt&gt;Are you sure you wish to delete %1 &quot;%2&quot;?&lt;/qt&gt;</source>
-        <translation>&lt;qt&gt;Вы действительно хотите удалить %1 &quot;%2&quot;?&lt;/qt&gt;</translation>
+        <translation type="obsolete">&lt;qt&gt;Вы действительно хотите удалить %1 &quot;%2&quot;?&lt;/qt&gt;</translation>
     </message>
     <message>
         <source>&amp;Yes</source>
-        <translation>&amp;Да</translation>
+        <translation type="obsolete">&amp;Да</translation>
     </message>
     <message>
         <source>&amp;No</source>
-        <translation>&amp;Нет</translation>
+        <translation type="obsolete">&amp;Нет</translation>
     </message>
     <message>
         <source>New Folder 1</source>
-        <translation>Новый каталог 1</translation>
+        <translation type="obsolete">Новый каталог 1</translation>
     </message>
     <message>
         <source>New Folder</source>
-        <translation>Новый каталог</translation>
+        <translation type="obsolete">Новый каталог</translation>
     </message>
     <message>
         <source>New Folder %1</source>
-        <translation>Новый каталог %1</translation>
+        <translation type="obsolete">Новый каталог %1</translation>
     </message>
     <message>
         <source>Find Directory</source>
-        <translation>Найти каталог</translation>
+        <translation type="obsolete">Найти каталог</translation>
     </message>
     <message>
         <source>Directories</source>
@@ -653,218 +1443,322 @@
     </message>
     <message>
         <source>Error</source>
-        <translation>Ошибка</translation>
+        <translation type="obsolete">Ошибка</translation>
     </message>
     <message>
         <source>%1
 File not found.
 Check path and filename.</source>
-        <translation>%1
+        <translation type="obsolete">%1
 Файл не найден.
 Проверьте правильность пути и имени файла.</translation>
     </message>
     <message>
         <source>All Files (*.*)</source>
-        <translation>Все файлы (*.*)</translation>
+        <translation type="obsolete">Все файлы (*.*)</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation>Открыть</translation>
+        <translation type="obsolete">Открыть</translation>
     </message>
     <message>
         <source>Select a Directory</source>
-        <translation>Выбрать каталог</translation>
+        <translation type="obsolete">Выбрать каталог</translation>
     </message>
     <message>
         <source>Directory:</source>
-        <translation>Каталог:</translation>
+        <translation type="obsolete">Каталог:</translation>
+    </message>
+    <message>
+        <source>%1 already exists.
+Do you want to replace it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1
+File not found.
+Please verify the correct file name was given.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>My Computer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Reload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Look in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Files of type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QFileDialogPrivate</name>
+    <message>
+        <source>Sort</source>
+        <translation type="obsolete">Упорядочить</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="obsolete">&amp;Открыть</translation>
+    </message>
+    <message>
+        <source>&amp;Rename</source>
+        <translation type="obsolete">&amp;Переименовать</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation type="obsolete">&amp;Удалить</translation>
+    </message>
+    <message>
+        <source>Sort by &amp;Name</source>
+        <translation type="obsolete">По &amp;имени</translation>
+    </message>
+    <message>
+        <source>Sort by &amp;Size</source>
+        <translation type="obsolete">По &amp;размеру</translation>
+    </message>
+    <message>
+        <source>Sort by &amp;Date</source>
+        <translation type="obsolete">По &amp;дате</translation>
+    </message>
+    <message>
+        <source>&amp;Unsorted</source>
+        <translation type="obsolete">&amp;Не упорядочивать</translation>
+    </message>
+    <message>
+        <source>Show &amp;hidden files</source>
+        <translation type="obsolete">Показать &amp;скрытые файлы</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation type="obsolete">Назад</translation>
+    </message>
+    <message>
+        <source>Create New Folder</source>
+        <translation type="obsolete">Создать новый каталог</translation>
+    </message>
+    <message>
+        <source>List View</source>
+        <translation type="obsolete">Список</translation>
+    </message>
+    <message>
+        <source>Detail View</source>
+        <translation type="obsolete">Детальный вид</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation type="obsolete">Открыть</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Отмена</translation>
+    </message>
+    <message>
+        <source>%1
+Directory not found.
+Please verify the correct directory name was given</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QFont</name>
     <message>
         <source>Latin</source>
-        <translation>Латинский</translation>
+        <translation type="obsolete">Латинский</translation>
     </message>
     <message>
         <source>Greek</source>
-        <translation>Греческий</translation>
+        <translation type="obsolete">Греческий</translation>
     </message>
     <message>
         <source>Cyrillic</source>
-        <translation>Кириллица</translation>
+        <translation type="obsolete">Кириллица</translation>
     </message>
     <message>
         <source>Armenian</source>
-        <translation>Армянский</translation>
+        <translation type="obsolete">Армянский</translation>
     </message>
     <message>
         <source>Georgian</source>
-        <translation>Грузинский</translation>
+        <translation type="obsolete">Грузинский</translation>
     </message>
     <message>
         <source>Runic</source>
-        <translation>Рунический</translation>
+        <translation type="obsolete">Рунический</translation>
     </message>
     <message>
         <source>Ogham</source>
-        <translation>Огам</translation>
+        <translation type="obsolete">Огам</translation>
     </message>
     <message>
         <source>Hebrew</source>
-        <translation>Иврит</translation>
+        <translation type="obsolete">Иврит</translation>
     </message>
     <message>
         <source>Arabic</source>
-        <translation>Арабский</translation>
+        <translation type="obsolete">Арабский</translation>
     </message>
     <message>
         <source>Syriac</source>
-        <translation>Сирийский</translation>
+        <translation type="obsolete">Сирийский</translation>
     </message>
     <message>
         <source>Thaana</source>
-        <translation>Thaana</translation>
+        <translation type="obsolete">Thaana</translation>
     </message>
     <message>
         <source>Devanagari</source>
-        <translation>Деванагари</translation>
+        <translation type="obsolete">Деванагари</translation>
     </message>
     <message>
         <source>Bengali</source>
-        <translation>Бенгальский</translation>
+        <translation type="obsolete">Бенгальский</translation>
     </message>
     <message>
         <source>Gurmukhi</source>
-        <translation>Gurmukhi</translation>
+        <translation type="obsolete">Gurmukhi</translation>
     </message>
     <message>
         <source>Gujarati</source>
-        <translation>Gujarati</translation>
+        <translation type="obsolete">Gujarati</translation>
     </message>
     <message>
         <source>Oriya</source>
-        <translation>Ория</translation>
+        <translation type="obsolete">Ория</translation>
     </message>
     <message>
         <source>Tamil</source>
-        <translation>Тамильский</translation>
+        <translation type="obsolete">Тамильский</translation>
     </message>
     <message>
         <source>Telugu</source>
-        <translation>Телугу</translation>
+        <translation type="obsolete">Телугу</translation>
     </message>
     <message>
         <source>Kannada</source>
-        <translation>Каннада</translation>
+        <translation type="obsolete">Каннада</translation>
     </message>
     <message>
         <source>Malayalam</source>
-        <translation>Малайялам</translation>
+        <translation type="obsolete">Малайялам</translation>
     </message>
     <message>
         <source>Sinhala</source>
-        <translation>Sinhala</translation>
+        <translation type="obsolete">Sinhala</translation>
     </message>
     <message>
         <source>Thai</source>
-        <translation>Тайский</translation>
+        <translation type="obsolete">Тайский</translation>
     </message>
     <message>
         <source>Lao</source>
-        <translation>Лаосский</translation>
+        <translation type="obsolete">Лаосский</translation>
     </message>
     <message>
         <source>Tibetan</source>
-        <translation>Тибетский</translation>
+        <translation type="obsolete">Тибетский</translation>
     </message>
     <message>
         <source>Myanmar</source>
-        <translation>Myanmar</translation>
+        <translation type="obsolete">Myanmar</translation>
     </message>
     <message>
         <source>Khmer</source>
-        <translation>Кхмерский</translation>
+        <translation type="obsolete">Кхмерский</translation>
     </message>
     <message>
         <source>Han</source>
-        <translation>Han</translation>
+        <translation type="obsolete">Han</translation>
     </message>
     <message>
         <source>Hiragana</source>
-        <translation>Hiragana</translation>
+        <translation type="obsolete">Hiragana</translation>
     </message>
     <message>
         <source>Katakana</source>
-        <translation>Katakana</translation>
+        <translation type="obsolete">Katakana</translation>
     </message>
     <message>
         <source>Hangul</source>
-        <translation>Хангул</translation>
+        <translation type="obsolete">Хангул</translation>
     </message>
     <message>
         <source>Bopomofo</source>
-        <translation>Bopomofo</translation>
+        <translation type="obsolete">Bopomofo</translation>
     </message>
     <message>
         <source>Yi</source>
-        <translation>Yi</translation>
+        <translation type="obsolete">Yi</translation>
     </message>
     <message>
         <source>Ethiopic</source>
-        <translation>Эфиопский</translation>
+        <translation type="obsolete">Эфиопский</translation>
     </message>
     <message>
         <source>Cherokee</source>
-        <translation>Ирокезский</translation>
+        <translation type="obsolete">Ирокезский</translation>
     </message>
     <message>
         <source>Canadian Aboriginal</source>
-        <translation>Канадский аборигенный</translation>
+        <translation type="obsolete">Канадский аборигенный</translation>
     </message>
     <message>
         <source>Mongolian</source>
-        <translation>Монгольский</translation>
+        <translation type="obsolete">Монгольский</translation>
     </message>
     <message>
         <source>Currency Symbols</source>
-        <translation>Валютные символы</translation>
+        <translation type="obsolete">Валютные символы</translation>
     </message>
     <message>
         <source>Letterlike Symbols</source>
-        <translation>Буквенные символы</translation>
+        <translation type="obsolete">Буквенные символы</translation>
     </message>
     <message>
         <source>Number Forms</source>
-        <translation>Числовые знаки</translation>
+        <translation type="obsolete">Числовые знаки</translation>
     </message>
     <message>
         <source>Mathematical Operators</source>
-        <translation>Математические операторы</translation>
+        <translation type="obsolete">Математические операторы</translation>
     </message>
     <message>
         <source>Technical Symbols</source>
-        <translation>Технические символы</translation>
+        <translation type="obsolete">Технические символы</translation>
     </message>
     <message>
         <source>Geometric Symbols</source>
-        <translation>Геометрические символы</translation>
+        <translation type="obsolete">Геометрические символы</translation>
     </message>
     <message>
         <source>Miscellaneous Symbols</source>
-        <translation>Разнообразные символы</translation>
+        <translation type="obsolete">Разнообразные символы</translation>
     </message>
     <message>
         <source>Enclosed and Square</source>
-        <translation>Вложенные символы</translation>
+        <translation type="obsolete">Вложенные символы</translation>
     </message>
     <message>
         <source>Braille</source>
-        <translation>Символы Брайля</translation>
+        <translation type="obsolete">Символы Брайля</translation>
     </message>
     <message>
         <source>Unicode</source>
-        <translation>Уникод</translation>
+        <translation type="obsolete">Уникод</translation>
     </message>
 </context>
 <context>
@@ -895,7 +1789,7 @@ Check path and filename.</source>
     </message>
     <message>
         <source>&amp;Color</source>
-        <translation>&amp;Цвет</translation>
+        <translation type="obsolete">&amp;Цвет</translation>
     </message>
     <message>
         <source>Sample</source>
@@ -903,7 +1797,7 @@ Check path and filename.</source>
     </message>
     <message>
         <source>Scr&amp;ipt</source>
-        <translation>&amp;Набор</translation>
+        <translation type="obsolete">&amp;Набор</translation>
     </message>
     <message>
         <source>OK</source>
@@ -925,16 +1819,20 @@ Check path and filename.</source>
         <source>Select Font</source>
         <translation>Выбрать шрифт</translation>
     </message>
+    <message>
+        <source>Wr&amp;iting System</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QFtp</name>
     <message>
         <source>Host %1 found</source>
-        <translation>Обнаружен узел %1</translation>
+        <translation type="obsolete">Обнаружен узел %1</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation>Узел обнаружен</translation>
+        <translation type="obsolete">Узел обнаружен</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
@@ -942,11 +1840,11 @@ Check path and filename.</source>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation>Соединение с узлом установлено</translation>
+        <translation type="obsolete">Соединение с узлом установлено</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation>Соединение с узлом %1 разорвано</translation>
+        <translation type="obsolete">Соединение с узлом %1 разорвано</translation>
     </message>
     <message>
         <source>Connection closed</source>
@@ -1031,7 +1929,29 @@ Check path and filename.</source>
     <name>QHeader</name>
     <message>
         <source>%1</source>
-        <translation>%1</translation>
+        <translation type="obsolete">%1</translation>
+    </message>
+</context>
+<context>
+    <name>QHostInfo</name>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished">Неизвестная ошибка</translation>
+    </message>
+</context>
+<context>
+    <name>QHostInfoAgent</name>
+    <message>
+        <source>Host not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown address type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished">Неизвестная ошибка</translation>
     </message>
 </context>
 <context>
@@ -1054,27 +1974,27 @@ Check path and filename.</source>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation>Обнаружен узел %1</translation>
+        <translation type="obsolete">Обнаружен узел %1</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation>Узел обнаружен</translation>
+        <translation type="obsolete">Узел обнаружен</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation>Установлено соединение с узлом %1</translation>
+        <translation type="obsolete">Установлено соединение с узлом %1</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation>Соединение с узлом установлено</translation>
+        <translation type="obsolete">Соединение с узлом установлено</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation>Соединение с узлом %1 разорвано</translation>
+        <translation type="obsolete">Соединение с узлом %1 разорвано</translation>
     </message>
     <message>
         <source>Connection closed</source>
-        <translation>Соединение разорвано</translation>
+        <translation type="obsolete">Соединение разорвано</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -1102,6 +2022,48 @@ Check path and filename.</source>
     </message>
 </context>
 <context>
+    <name>QIODevice</name>
+    <message>
+        <source>Permission denied</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Too many open files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No such file or directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No space left on device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished">Неизвестная ошибка</translation>
+    </message>
+</context>
+<context>
+    <name>QInputContext</name>
+    <message>
+        <source>XIM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>XIM input method</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Windows input method</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mac OS X input method</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QInputDialog</name>
     <message>
         <source>OK</source>
@@ -1116,31 +2078,62 @@ Check path and filename.</source>
     <name>QLineEdit</name>
     <message>
         <source>&amp;Undo</source>
-        <translation>&amp;Отменить</translation>
+        <translation type="unfinished">&amp;Отменить</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>&amp;Повторить</translation>
+        <translation type="unfinished">&amp;Повторить</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation>&amp;Вырезать</translation>
+        <translation type="unfinished">&amp;Вырезать</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation>&amp;Копировать</translation>
+        <translation type="unfinished">&amp;Копировать</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation>В&amp;ставить</translation>
+        <translation type="unfinished">В&amp;ставить</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation>Очистить</translation>
+        <translation type="obsolete">Очистить</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation>Выделить все</translation>
+        <translation type="unfinished">Выделить все</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Удалить</translation>
+    </message>
+</context>
+<context>
+    <name>QLineEditPrivate</name>
+    <message>
+        <source>&amp;Undo</source>
+        <translation type="obsolete">&amp;Отменить</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation type="obsolete">&amp;Повторить</translation>
+    </message>
+    <message>
+        <source>Cu&amp;t</source>
+        <translation type="obsolete">&amp;Вырезать</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type="obsolete">&amp;Копировать</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="obsolete">Удалить</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation type="obsolete">Выделить все</translation>
     </message>
 </context>
 <context>
@@ -1150,7 +2143,7 @@ Check path and filename.</source>
 %1
 to
 %2</source>
-        <translation>Невозможно переименовать
+        <translation type="obsolete">Невозможно переименовать
 %1
 в
 %2</translation>
@@ -1158,31 +2151,31 @@ to
     <message>
         <source>Could not open
 %1</source>
-        <translation>Невозможно открыть
+        <translation type="obsolete">Невозможно открыть
 %1</translation>
     </message>
     <message>
         <source>Could not write
 %1</source>
-        <translation>Невозможно записать
+        <translation type="obsolete">Невозможно записать
 %1</translation>
     </message>
     <message>
         <source>Could not read directory
 %1</source>
-        <translation>Невозможно просмотреть каталог
+        <translation type="obsolete">Невозможно просмотреть каталог
 %1</translation>
     </message>
     <message>
         <source>Could not create directory
 %1</source>
-        <translation>Невозможно создать каталог
+        <translation type="obsolete">Невозможно создать каталог
 %1</translation>
     </message>
     <message>
         <source>Could not remove file or directory
 %1</source>
-        <translation>Невозможно удалить файл или каталог
+        <translation type="obsolete">Невозможно удалить файл или каталог
 %1</translation>
     </message>
 </context>
@@ -1190,46 +2183,46 @@ to
     <name>QMainWindow</name>
     <message>
         <source>Line up</source>
-        <translation>Выровнять</translation>
+        <translation type="obsolete">Выровнять</translation>
     </message>
     <message>
         <source>Customize...</source>
-        <translation>Настроить...</translation>
+        <translation type="obsolete">Настроить...</translation>
     </message>
 </context>
 <context>
     <name>QMenuBar</name>
     <message>
         <source>About</source>
-        <translation>О программе</translation>
+        <translation type="obsolete">О программе</translation>
     </message>
     <message>
         <source>Config</source>
-        <translation>Конфигурация</translation>
+        <translation type="obsolete">Конфигурация</translation>
     </message>
     <message>
         <source>Preference</source>
-        <translation>Настройки</translation>
+        <translation type="obsolete">Настройки</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>Параметры</translation>
+        <translation type="obsolete">Параметры</translation>
     </message>
     <message>
         <source>Setting</source>
-        <translation>Настройки</translation>
+        <translation type="obsolete">Настройки</translation>
     </message>
     <message>
         <source>Setup</source>
-        <translation>Настройки</translation>
+        <translation type="obsolete">Настройки</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Выход</translation>
+        <translation type="obsolete">Выход</translation>
     </message>
     <message>
         <source>Exit</source>
-        <translation>Выход</translation>
+        <translation type="obsolete">Выход</translation>
     </message>
 </context>
 <context>
@@ -1264,14 +2257,215 @@ to
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for multiplatform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation>&lt;h3&gt;О Qt&lt;/h3&gt;&lt;p&gt;Эта программа использует Qt версии %1.&lt;/p&gt;&lt;p&gt;Qt - это C++ GUI инструментарий для разработки многоплатформенных приложений.&lt;/p&gt;&lt;p&gt;Qt обеспечивает переносимость на уровне исходного кода между MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux и всеми основными версиями Unix.&lt;br&gt;Qt также доступен для встраиваемых систем.&lt;/p&gt;&lt;p&gt;Qt является продуктом Trolltech. См. &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; для получения более подробной информации.&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;О Qt&lt;/h3&gt;&lt;p&gt;Эта программа использует Qt версии %1.&lt;/p&gt;&lt;p&gt;Qt - это C++ GUI инструментарий для разработки многоплатформенных приложений.&lt;/p&gt;&lt;p&gt;Qt обеспечивает переносимость на уровне исходного кода между MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux и всеми основными версиями Unix.&lt;br&gt;Qt также доступен для встраиваемых систем.&lt;/p&gt;&lt;p&gt;Qt является продуктом Trolltech. См. &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; для получения более подробной информации.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Yes to &amp;All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>N&amp;o to All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>About Qt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="unfinished">Справка</translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QNativeSocketEngine</name>
+    <message>
+        <source>Unable to initialize a non-blocking socket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to initialize broadcasting socket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attempt to use an IPv6 socket on a platform with no IPv6 support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The remote host closed the connection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Network operation timed out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Out of resources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unsupported socket operation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Protocol type not supported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid socket descriptor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Network unreachable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Permission denied</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connection timed out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connection refused</source>
+        <translation type="unfinished">Отказано в соединении</translation>
+    </message>
+    <message>
+        <source>The bound address is already in use</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The address is not available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The address is protected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Datagram was to large to send</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to send a message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to receive a message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to write</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Network error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Another socket is already listening on the same port</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QNetworkProtocol</name>
     <message>
         <source>Operation stopped by the user</source>
-        <translation>Операция прервана пользователем</translation>
+        <translation type="obsolete">Операция прервана пользователем</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>My Computer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Files (*)</source>
+        <translation type="unfinished">Все файлы (*)</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation type="unfinished">Все файлы (*.*)</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation type="unfinished">Открыть</translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished">Сохранить как</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Открыть</translation>
+    </message>
+    <message>
+        <source>Select a Directory</source>
+        <translation type="unfinished">Выбрать каталог</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation type="unfinished">Файл</translation>
+    </message>
+    <message>
+        <source>Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Symbolic Link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>False</source>
+        <translation type="unfinished">False</translation>
+    </message>
+    <message>
+        <source>True</source>
+        <translation type="unfinished">True</translation>
+    </message>
+</context>
+<context>
+    <name>QPageSetupDialog</name>
+    <message>
+        <source>Page size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Orientation:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paper source:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Отмена</translation>
+    </message>
+    <message>
+        <source>Portrait</source>
+        <translation type="unfinished">Портрет</translation>
+    </message>
+    <message>
+        <source>Landscape</source>
+        <translation type="unfinished">Альбом</translation>
     </message>
 </context>
 <context>
@@ -1294,95 +2488,95 @@ to
     </message>
     <message>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Отмена</translation>
+        <translation type="unfinished">Отмена</translation>
     </message>
     <message>
         <source>Printer settings</source>
-        <translation>Настройки печати</translation>
+        <translation type="unfinished">Настройки печати</translation>
     </message>
     <message>
         <source>Print in color if available</source>
-        <translation>Цветная печать</translation>
+        <translation type="unfinished">Цветная печать</translation>
     </message>
     <message>
         <source>Print in grayscale</source>
-        <translation>В оттенках серого</translation>
+        <translation type="unfinished">В оттенках серого</translation>
     </message>
     <message>
         <source>Print destination</source>
-        <translation>Направление печати</translation>
+        <translation type="unfinished">Направление печати</translation>
     </message>
     <message>
         <source>Print to printer:</source>
-        <translation>Печать на принтер:</translation>
+        <translation type="unfinished">Печать на принтер:</translation>
     </message>
     <message>
         <source>Printer</source>
-        <translation>Принтер</translation>
+        <translation type="obsolete">Принтер</translation>
     </message>
     <message>
         <source>Host</source>
-        <translation>Узел</translation>
+        <translation type="obsolete">Узел</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation>Комментарий</translation>
+        <translation type="obsolete">Комментарий</translation>
     </message>
     <message>
         <source>Print to file:</source>
-        <translation>Печать в файл:</translation>
+        <translation type="unfinished">Печать в файл:</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation>Обзор...</translation>
+        <translation type="unfinished">Обзор...</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>Параметры</translation>
+        <translation type="unfinished">Параметры</translation>
     </message>
     <message>
         <source>Print all</source>
-        <translation>Печатать все</translation>
+        <translation type="unfinished">Печатать все</translation>
     </message>
     <message>
         <source>Print range</source>
-        <translation>Печатать диапазон</translation>
+        <translation type="unfinished">Печатать диапазон</translation>
     </message>
     <message>
         <source>From page:</source>
-        <translation>Со страницы:</translation>
+        <translation type="unfinished">Со страницы:</translation>
     </message>
     <message>
         <source>To page:</source>
-        <translation>До страницы:</translation>
+        <translation type="unfinished">До страницы:</translation>
     </message>
     <message>
         <source>Print first page first</source>
-        <translation>Начать с первой страницы</translation>
+        <translation type="unfinished">Начать с первой страницы</translation>
     </message>
     <message>
         <source>Print last page first</source>
-        <translation>Начать с последней страницы</translation>
+        <translation type="unfinished">Начать с последней страницы</translation>
     </message>
     <message>
         <source>Number of copies:</source>
-        <translation>Число копий:</translation>
+        <translation type="unfinished">Число копий:</translation>
     </message>
     <message>
         <source>Paper format</source>
-        <translation>Формат бумаги</translation>
+        <translation type="unfinished">Формат бумаги</translation>
     </message>
     <message>
         <source>Portrait</source>
-        <translation>Портрет</translation>
+        <translation type="unfinished">Портрет</translation>
     </message>
     <message>
         <source>Landscape</source>
-        <translation>Альбом</translation>
+        <translation type="unfinished">Альбом</translation>
     </message>
     <message>
         <source>A0 (841 x 1189 mm)</source>
@@ -1402,7 +2596,7 @@ to
     </message>
     <message>
         <source>A4 (210x297 mm, 8.26x11.7 inches)</source>
-        <translation>A4 (210x297 мм, 8.26x11.7 дюйм)</translation>
+        <translation type="obsolete">A4 (210x297 мм, 8.26x11.7 дюйм)</translation>
     </message>
     <message>
         <source>A5 (148 x 210 mm)</source>
@@ -1446,7 +2640,7 @@ to
     </message>
     <message>
         <source>B5 (176 x 250 mm, 6.93x9.84 inches)</source>
-        <translation>B5 (176x250 мм, 6.93x9.84 дюйм)</translation>
+        <translation type="obsolete">B5 (176x250 мм, 6.93x9.84 дюйм)</translation>
     </message>
     <message>
         <source>B6 (125 x 176 mm)</source>
@@ -1478,7 +2672,7 @@ to
     </message>
     <message>
         <source>Executive (7.5x10 inches, 191x254 mm)</source>
-        <translation>Executive (7.5x10 дюйм, 191x254 мм)</translation>
+        <translation type="obsolete">Executive (7.5x10 дюйм, 191x254 мм)</translation>
     </message>
     <message>
         <source>Folio (210 x 330 mm)</source>
@@ -1490,11 +2684,11 @@ to
     </message>
     <message>
         <source>Legal (8.5x14 inches, 216x356 mm)</source>
-        <translation>Legal (8.5x14 дюйм, 216x356 мм)</translation>
+        <translation type="obsolete">Legal (8.5x14 дюйм, 216x356 мм)</translation>
     </message>
     <message>
         <source>Letter (8.5x11 inches, 216x279 mm)</source>
-        <translation>Letter (8.5x11 дюйм, 216x279 мм)</translation>
+        <translation type="obsolete">Letter (8.5x11 дюйм, 216x279 мм)</translation>
     </message>
     <message>
         <source>Tabloid (279 x 432 mm)</source>
@@ -1506,11 +2700,136 @@ to
     </message>
     <message>
         <source>Setup Printer</source>
-        <translation>Настройки принтера</translation>
+        <translation type="obsolete">Настройки принтера</translation>
     </message>
     <message>
         <source>PostScript Files (*.ps);;All Files (*)</source>
-        <translation>Файлы PostScript (*.ps);;Все файлы (*)</translation>
+        <translation type="unfinished">Файлы PostScript (*.ps);;Все файлы (*)</translation>
+    </message>
+    <message>
+        <source>A4 (210 x 297 mm, 8.26 x 11.7 inches)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B5 (176 x 250 mm, 6.93 x 9.84 inches)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Executive (7.5 x 10 inches, 191 x 254 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Legal (8.5 x 14 inches, 216 x 356 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Letter (8.5 x 11 inches, 216 x 279 mm)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Print selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QPrintDialogPrivate</name>
+    <message>
+        <source>Printer settings</source>
+        <translation type="obsolete">Настройки печати</translation>
+    </message>
+    <message>
+        <source>Print in color if available</source>
+        <translation type="obsolete">Цветная печать</translation>
+    </message>
+    <message>
+        <source>Print in grayscale</source>
+        <translation type="obsolete">В оттенках серого</translation>
+    </message>
+    <message>
+        <source>Print destination</source>
+        <translation type="obsolete">Направление печати</translation>
+    </message>
+    <message>
+        <source>Print to printer:</source>
+        <translation type="obsolete">Печать на принтер:</translation>
+    </message>
+    <message>
+        <source>Print to file:</source>
+        <translation type="obsolete">Печать в файл:</translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation type="obsolete">Обзор...</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation type="obsolete">Параметры</translation>
+    </message>
+    <message>
+        <source>Print all</source>
+        <translation type="obsolete">Печатать все</translation>
+    </message>
+    <message>
+        <source>Print range</source>
+        <translation type="obsolete">Печатать диапазон</translation>
+    </message>
+    <message>
+        <source>From page:</source>
+        <translation type="obsolete">Со страницы:</translation>
+    </message>
+    <message>
+        <source>To page:</source>
+        <translation type="obsolete">До страницы:</translation>
+    </message>
+    <message>
+        <source>Print first page first</source>
+        <translation type="obsolete">Начать с первой страницы</translation>
+    </message>
+    <message>
+        <source>Print last page first</source>
+        <translation type="obsolete">Начать с последней страницы</translation>
+    </message>
+    <message>
+        <source>Number of copies:</source>
+        <translation type="obsolete">Число копий:</translation>
+    </message>
+    <message>
+        <source>Paper format</source>
+        <translation type="obsolete">Формат бумаги</translation>
+    </message>
+    <message>
+        <source>Portrait</source>
+        <translation type="obsolete">Портрет</translation>
+    </message>
+    <message>
+        <source>Landscape</source>
+        <translation type="obsolete">Альбом</translation>
+    </message>
+    <message>
+        <source>PostScript Files (*.ps);;All Files (*)</source>
+        <translation type="obsolete">Файлы PostScript (*.ps);;Все файлы (*)</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="obsolete">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>QProcess</name>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished">Неизвестная ошибка</translation>
+    </message>
+</context>
+<context>
+    <name>QProgressBar</name>
+    <message>
+        <source>%1%</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1560,6 +2879,435 @@ to
     </message>
 </context>
 <context>
+    <name>QScrollBar</name>
+    <message>
+        <source>Scroll here</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left edge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right edge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Page left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Page up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Page right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Page down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scroll left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scroll up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scroll right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scroll down</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QShortcut</name>
+    <message>
+        <source>Space</source>
+        <translation type="unfinished">Space</translation>
+    </message>
+    <message>
+        <source>Esc</source>
+        <translation type="unfinished">Esc</translation>
+    </message>
+    <message>
+        <source>Tab</source>
+        <translation type="unfinished">Tab</translation>
+    </message>
+    <message>
+        <source>Backtab</source>
+        <translation type="unfinished">Backtab</translation>
+    </message>
+    <message>
+        <source>Backspace</source>
+        <translation type="unfinished">Backspace</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation type="unfinished">Return</translation>
+    </message>
+    <message>
+        <source>Enter</source>
+        <translation type="unfinished">Enter</translation>
+    </message>
+    <message>
+        <source>Ins</source>
+        <translation type="unfinished">Ins</translation>
+    </message>
+    <message>
+        <source>Del</source>
+        <translation type="unfinished">Del</translation>
+    </message>
+    <message>
+        <source>Pause</source>
+        <translation type="unfinished">Pause</translation>
+    </message>
+    <message>
+        <source>Print</source>
+        <translation type="unfinished">Print</translation>
+    </message>
+    <message>
+        <source>SysReq</source>
+        <translation type="unfinished">SysReq</translation>
+    </message>
+    <message>
+        <source>Home</source>
+        <translation type="unfinished">Home</translation>
+    </message>
+    <message>
+        <source>End</source>
+        <translation type="unfinished">End</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Left</translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation type="unfinished">Up</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Right</translation>
+    </message>
+    <message>
+        <source>Down</source>
+        <translation type="unfinished">Down</translation>
+    </message>
+    <message>
+        <source>PgUp</source>
+        <translation type="unfinished">PgUp</translation>
+    </message>
+    <message>
+        <source>PgDown</source>
+        <translation type="unfinished">PgDown</translation>
+    </message>
+    <message>
+        <source>CapsLock</source>
+        <translation type="unfinished">CapsLock</translation>
+    </message>
+    <message>
+        <source>NumLock</source>
+        <translation type="unfinished">NumLock</translation>
+    </message>
+    <message>
+        <source>ScrollLock</source>
+        <translation type="unfinished">ScrollLock</translation>
+    </message>
+    <message>
+        <source>Menu</source>
+        <translation type="unfinished">Меню</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="unfinished">Справка</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation type="unfinished">Назад</translation>
+    </message>
+    <message>
+        <source>Forward</source>
+        <translation type="unfinished">Вперед</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished">Стоп</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">Обновить</translation>
+    </message>
+    <message>
+        <source>Volume Down</source>
+        <translation type="unfinished">Тише</translation>
+    </message>
+    <message>
+        <source>Volume Mute</source>
+        <translation type="unfinished">Выключить звук</translation>
+    </message>
+    <message>
+        <source>Volume Up</source>
+        <translation type="unfinished">Громче</translation>
+    </message>
+    <message>
+        <source>Bass Boost</source>
+        <translation type="unfinished">Bass Boost</translation>
+    </message>
+    <message>
+        <source>Bass Up</source>
+        <translation type="unfinished">Bass Up</translation>
+    </message>
+    <message>
+        <source>Bass Down</source>
+        <translation type="unfinished">Bass Down</translation>
+    </message>
+    <message>
+        <source>Treble Up</source>
+        <translation type="unfinished">Treble Up</translation>
+    </message>
+    <message>
+        <source>Treble Down</source>
+        <translation type="unfinished">Treble Down</translation>
+    </message>
+    <message>
+        <source>Media Play</source>
+        <translation type="unfinished">Воспроизведение</translation>
+    </message>
+    <message>
+        <source>Media Stop</source>
+        <translation type="unfinished">Остановить воспроизведение</translation>
+    </message>
+    <message>
+        <source>Media Previous</source>
+        <translation type="unfinished">Воспроизвести предыдущее</translation>
+    </message>
+    <message>
+        <source>Media Next</source>
+        <translation type="unfinished">Воспроизвести следующее</translation>
+    </message>
+    <message>
+        <source>Media Record</source>
+        <translation type="unfinished">Запись</translation>
+    </message>
+    <message>
+        <source>Favorites</source>
+        <translation type="unfinished">Избранное</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished">Поиск</translation>
+    </message>
+    <message>
+        <source>Standby</source>
+        <translation type="unfinished">Дежурный режим</translation>
+    </message>
+    <message>
+        <source>Open URL</source>
+        <translation type="unfinished">Открыть URL</translation>
+    </message>
+    <message>
+        <source>Launch Mail</source>
+        <translation type="unfinished">Почта</translation>
+    </message>
+    <message>
+        <source>Launch Media</source>
+        <translation type="unfinished">Проигрыватель</translation>
+    </message>
+    <message>
+        <source>Launch (0)</source>
+        <translation type="unfinished">Запустить (0)</translation>
+    </message>
+    <message>
+        <source>Launch (1)</source>
+        <translation type="unfinished">Запустить (1)</translation>
+    </message>
+    <message>
+        <source>Launch (2)</source>
+        <translation type="unfinished">Запустить (2)</translation>
+    </message>
+    <message>
+        <source>Launch (3)</source>
+        <translation type="unfinished">Запустить (3)</translation>
+    </message>
+    <message>
+        <source>Launch (4)</source>
+        <translation type="unfinished">Запустить (4)</translation>
+    </message>
+    <message>
+        <source>Launch (5)</source>
+        <translation type="unfinished">Запустить (5)</translation>
+    </message>
+    <message>
+        <source>Launch (6)</source>
+        <translation type="unfinished">Запустить (6)</translation>
+    </message>
+    <message>
+        <source>Launch (7)</source>
+        <translation type="unfinished">Запустить (7)</translation>
+    </message>
+    <message>
+        <source>Launch (8)</source>
+        <translation type="unfinished">Запустить (8)</translation>
+    </message>
+    <message>
+        <source>Launch (9)</source>
+        <translation type="unfinished">Запустить (9)</translation>
+    </message>
+    <message>
+        <source>Launch (A)</source>
+        <translation type="unfinished">Запустить (A)</translation>
+    </message>
+    <message>
+        <source>Launch (B)</source>
+        <translation type="unfinished">Запустить (B)</translation>
+    </message>
+    <message>
+        <source>Launch (C)</source>
+        <translation type="unfinished">Запустить (C)</translation>
+    </message>
+    <message>
+        <source>Launch (D)</source>
+        <translation type="unfinished">Запустить (D)</translation>
+    </message>
+    <message>
+        <source>Launch (E)</source>
+        <translation type="unfinished">Запустить (E)</translation>
+    </message>
+    <message>
+        <source>Launch (F)</source>
+        <translation type="unfinished">Запустить (F)</translation>
+    </message>
+    <message>
+        <source>Print Screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Page Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Page Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caps Lock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Num Lock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number Lock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scroll Lock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation type="unfinished">Вставить</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Удалить</translation>
+    </message>
+    <message>
+        <source>Escape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System Request</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="unfinished">Да</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation type="unfinished">Нет</translation>
+    </message>
+    <message>
+        <source>Context1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Context2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Context3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Context4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Call</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hangup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl</source>
+        <translation type="unfinished">Ctrl</translation>
+    </message>
+    <message>
+        <source>Shift</source>
+        <translation type="unfinished">Shift</translation>
+    </message>
+    <message>
+        <source>Alt</source>
+        <translation type="unfinished">Alt</translation>
+    </message>
+    <message>
+        <source>Meta</source>
+        <translation type="unfinished">Meta</translation>
+    </message>
+    <message>
+        <source>+</source>
+        <translation type="unfinished">+</translation>
+    </message>
+    <message>
+        <source>F%1</source>
+        <translation type="unfinished">F%1</translation>
+    </message>
+</context>
+<context>
+    <name>QSocks5SocketEngine</name>
+    <message>
+        <source>Socks5 timeout error connecting to socks server</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QSql</name>
     <message>
         <source>Delete</source>
@@ -1606,23 +3354,30 @@ to
     <name>QTabDialog</name>
     <message>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="obsolete">OK</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation>Применить</translation>
+        <translation type="obsolete">Применить</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation>Справка</translation>
+        <translation type="obsolete">Справка</translation>
     </message>
     <message>
         <source>Defaults</source>
-        <translation>По умолчанию</translation>
+        <translation type="obsolete">По умолчанию</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Отмена</translation>
+        <translation type="obsolete">Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>QTcpServer</name>
+    <message>
+        <source>Socket operation unsupported</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1649,204 +3404,276 @@ to
     </message>
     <message>
         <source>Clear</source>
-        <translation>Очистить</translation>
+        <translation type="obsolete">Очистить</translation>
     </message>
     <message>
         <source>Select All</source>
         <translation>Выделить все</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Удалить</translation>
     </message>
 </context>
 <context>
     <name>QTitleBar</name>
     <message>
         <source>System Menu</source>
-        <translation>Системное меню</translation>
+        <translation type="obsolete">Системное меню</translation>
     </message>
     <message>
         <source>Shade</source>
-        <translation>Свернуть в заголовок</translation>
+        <translation type="obsolete">Свернуть в заголовок</translation>
     </message>
     <message>
         <source>Unshade</source>
-        <translation>Восстановить из заголовка</translation>
+        <translation type="obsolete">Восстановить из заголовка</translation>
     </message>
     <message>
         <source>Normalize</source>
-        <translation>Восстановить</translation>
+        <translation type="obsolete">Восстановить</translation>
     </message>
     <message>
         <source>Minimize</source>
-        <translation>Свернуть</translation>
+        <translation type="obsolete">Свернуть</translation>
     </message>
     <message>
         <source>Maximize</source>
-        <translation>Развернуть</translation>
+        <translation type="obsolete">Развернуть</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>Закрыть</translation>
+        <translation type="obsolete">Закрыть</translation>
     </message>
 </context>
 <context>
     <name>QToolBar</name>
     <message>
         <source>More...</source>
-        <translation>Больше...</translation>
+        <translation type="obsolete">Больше...</translation>
+    </message>
+</context>
+<context>
+    <name>QUdpSocket</name>
+    <message>
+        <source>This platform does not support IPv6</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QUnicodeControlCharacterMenu</name>
+    <message>
+        <source>LRM Left-to-right mark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RLM Right-to-left mark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ZWJ Zero width joiner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ZWNJ Zero width non-joiner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ZWSP Zero width space</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LRE Start of left-to-right embedding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RLE Start of right-to-left embedding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LRO Start of left-to-right override</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RLO Start of right-to-left override</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PDF Pop directional formatting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert Unicode control character</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QUrlOperator</name>
     <message>
         <source>The protocol `%1&apos; is not supported</source>
-        <translation>Протокол `%1&apos; не поддерживается</translation>
+        <translation type="obsolete">Протокол `%1&apos; не поддерживается</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support listing directories</source>
-        <translation>Протокол `%1&apos; не поддерживает просмотр каталогов</translation>
+        <translation type="obsolete">Протокол `%1&apos; не поддерживает просмотр каталогов</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support creating new directories</source>
-        <translation>Протокол `%1&apos; не поддерживает создание новых каталогов</translation>
+        <translation type="obsolete">Протокол `%1&apos; не поддерживает создание новых каталогов</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support removing files or directories</source>
-        <translation>Протокол `%1&apos; не поддерживает удаление файлов или каталогов</translation>
+        <translation type="obsolete">Протокол `%1&apos; не поддерживает удаление файлов или каталогов</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support renaming files or directories</source>
-        <translation>Протокол `%1&apos; не поддерживает переименование файлов или каталогов</translation>
+        <translation type="obsolete">Протокол `%1&apos; не поддерживает переименование файлов или каталогов</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support getting files</source>
-        <translation>Протокол `%1&apos; не поддерживает доставку файлов</translation>
+        <translation type="obsolete">Протокол `%1&apos; не поддерживает доставку файлов</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support putting files</source>
-        <translation>Протокол `%1&apos; не поддерживает отправку файлов</translation>
+        <translation type="obsolete">Протокол `%1&apos; не поддерживает отправку файлов</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support copying or moving files or directories</source>
-        <translation>Протокол `%1&apos; не поддерживает копирование или перемещение файлов и каталогов</translation>
+        <translation type="obsolete">Протокол `%1&apos; не поддерживает копирование или перемещение файлов и каталогов</translation>
     </message>
     <message>
         <source>(unknown)</source>
-        <translation>(неизвестно)</translation>
+        <translation type="obsolete">(неизвестно)</translation>
     </message>
 </context>
 <context>
     <name>QWSDecoration</name>
     <message>
         <source>&amp;Restore</source>
-        <translation>&amp;Восстановить</translation>
+        <translation type="obsolete">&amp;Восстановить</translation>
     </message>
     <message>
         <source>&amp;Move</source>
-        <translation>&amp;Переместить</translation>
+        <translation type="obsolete">&amp;Переместить</translation>
     </message>
     <message>
         <source>&amp;Size</source>
-        <translation>&amp;Размер</translation>
+        <translation type="obsolete">&amp;Размер</translation>
     </message>
     <message>
         <source>Mi&amp;nimize</source>
-        <translation>&amp;Свернуть</translation>
+        <translation type="obsolete">&amp;Свернуть</translation>
     </message>
     <message>
         <source>Ma&amp;ximize</source>
-        <translation>Р&amp;азвернуть</translation>
+        <translation type="obsolete">Р&amp;азвернуть</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>Закрыть</translation>
+        <translation type="obsolete">Закрыть</translation>
     </message>
     <message>
         <source>Windows</source>
-        <translation>Windows</translation>
+        <translation type="obsolete">Windows</translation>
     </message>
     <message>
         <source>KDE</source>
-        <translation>KDE</translation>
+        <translation type="obsolete">KDE</translation>
     </message>
     <message>
         <source>KDE2</source>
-        <translation>KDE2</translation>
+        <translation type="obsolete">KDE2</translation>
     </message>
     <message>
         <source>BeOS</source>
-        <translation>BeOS</translation>
+        <translation type="obsolete">BeOS</translation>
     </message>
     <message>
         <source>Hydro</source>
-        <translation>Hydro</translation>
+        <translation type="obsolete">Hydro</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation>По умолчанию</translation>
+        <translation type="obsolete">По умолчанию</translation>
+    </message>
+</context>
+<context>
+    <name>QWhatsThisAction</name>
+    <message>
+        <source>What&apos;s This?</source>
+        <translation type="unfinished">Что это?</translation>
     </message>
 </context>
 <context>
     <name>QWhatsThisButton</name>
     <message>
         <source>What&apos;s this?</source>
-        <translation>Что это?</translation>
+        <translation type="obsolete">Что это?</translation>
+    </message>
+</context>
+<context>
+    <name>QWidget</name>
+    <message>
+        <source>*</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QWizard</name>
     <message>
         <source>&amp;Cancel</source>
-        <translation>&amp;Отмена</translation>
+        <translation type="obsolete">&amp;Отмена</translation>
     </message>
     <message>
         <source>&lt; &amp;Back</source>
-        <translation>&lt; &amp;Назад</translation>
+        <translation type="obsolete">&lt; &amp;Назад</translation>
     </message>
     <message>
         <source>&amp;Next &gt;</source>
-        <translation>&amp;Вперед &gt;</translation>
+        <translation type="obsolete">&amp;Вперед &gt;</translation>
     </message>
     <message>
         <source>&amp;Finish</source>
-        <translation>&amp;Финиш</translation>
+        <translation type="obsolete">&amp;Финиш</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation>&amp;Справка</translation>
+        <translation type="obsolete">&amp;Справка</translation>
     </message>
 </context>
 <context>
     <name>QWorkspace</name>
     <message>
         <source>&amp;Restore</source>
-        <translation>&amp;Восстановить</translation>
+        <translation type="unfinished">&amp;Восстановить</translation>
     </message>
     <message>
         <source>&amp;Move</source>
-        <translation>&amp;Переместить</translation>
+        <translation type="unfinished">&amp;Переместить</translation>
     </message>
     <message>
         <source>&amp;Size</source>
-        <translation>&amp;Размер</translation>
+        <translation type="unfinished">&amp;Размер</translation>
     </message>
     <message>
         <source>Mi&amp;nimize</source>
-        <translation>&amp;Свернуть</translation>
+        <translation type="unfinished">&amp;Свернуть</translation>
     </message>
     <message>
         <source>Ma&amp;ximize</source>
-        <translation>Р&amp;азвернуть</translation>
+        <translation type="unfinished">Р&amp;азвернуть</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation>&amp;Закрыть</translation>
+        <translation type="unfinished">&amp;Закрыть</translation>
     </message>
     <message>
         <source>Stay on &amp;Top</source>
-        <translation>Всегда &amp;наверху</translation>
+        <translation type="unfinished">Всегда &amp;наверху</translation>
     </message>
     <message>
         <source>Sh&amp;ade</source>
-        <translation>Свернуть в за&amp;головок</translation>
+        <translation type="unfinished">Свернуть в за&amp;головок</translation>
     </message>
     <message>
         <source>%1 - [%2]</source>
@@ -1854,19 +3681,74 @@ to
     </message>
     <message>
         <source>Minimize</source>
-        <translation>Свернуть</translation>
+        <translation type="unfinished">Свернуть</translation>
     </message>
     <message>
         <source>Restore Down</source>
-        <translation>Восстановить</translation>
+        <translation type="unfinished">Восстановить</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>Закрыть</translation>
+        <translation type="unfinished">Закрыть</translation>
     </message>
     <message>
         <source>&amp;Unshade</source>
-        <translation>Восстановить из за&amp;головка</translation>
+        <translation type="unfinished">Восстановить из за&amp;головка</translation>
+    </message>
+</context>
+<context>
+    <name>QWorkspacePrivate</name>
+    <message>
+        <source>&amp;Restore</source>
+        <translation type="obsolete">&amp;Восстановить</translation>
+    </message>
+    <message>
+        <source>&amp;Move</source>
+        <translation type="obsolete">&amp;Переместить</translation>
+    </message>
+    <message>
+        <source>&amp;Size</source>
+        <translation type="obsolete">&amp;Размер</translation>
+    </message>
+    <message>
+        <source>Mi&amp;nimize</source>
+        <translation type="obsolete">&amp;Свернуть</translation>
+    </message>
+    <message>
+        <source>Ma&amp;ximize</source>
+        <translation type="obsolete">Р&amp;азвернуть</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="obsolete">&amp;Закрыть</translation>
+    </message>
+    <message>
+        <source>Stay on &amp;Top</source>
+        <translation type="obsolete">Всегда &amp;наверху</translation>
+    </message>
+    <message>
+        <source>Sh&amp;ade</source>
+        <translation type="obsolete">Свернуть в за&amp;головок</translation>
+    </message>
+    <message>
+        <source>%1 - [%2]</source>
+        <translation type="obsolete">%1 - [%2]</translation>
+    </message>
+    <message>
+        <source>Minimize</source>
+        <translation type="obsolete">Свернуть</translation>
+    </message>
+    <message>
+        <source>Restore Down</source>
+        <translation type="obsolete">Восстановить</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="obsolete">Закрыть</translation>
+    </message>
+    <message>
+        <source>&amp;Unshade</source>
+        <translation type="obsolete">Восстановить из за&amp;головка</translation>
     </message>
 </context>
 <context>
@@ -1968,35 +3850,62 @@ to
     <name>QtMultiLineEdit</name>
     <message>
         <source>Undo</source>
-        <translation>Отменить</translation>
+        <translation type="obsolete">Отменить</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation>Повторить</translation>
+        <translation type="obsolete">Повторить</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation>Вырезать</translation>
+        <translation type="obsolete">Вырезать</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Копировать</translation>
+        <translation type="obsolete">Копировать</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation>Вставить</translation>
+        <translation type="obsolete">Вставить</translation>
     </message>
     <message>
         <source>Paste special...</source>
-        <translation>Специальная вставка...</translation>
+        <translation type="obsolete">Специальная вставка...</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation>Очистить</translation>
+        <translation type="obsolete">Очистить</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation>Выделить все</translation>
+        <translation type="obsolete">Выделить все</translation>
+    </message>
+</context>
+<context>
+    <name>Transport Auth error</name>
+    <message>
+        <source>pending identity verification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>message too small to carry auth data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>cache miss on connection oriented transport</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no magic bytes on message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>key not found for prog id</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>authorization key match failed</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
