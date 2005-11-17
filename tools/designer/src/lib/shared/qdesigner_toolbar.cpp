@@ -145,7 +145,7 @@ bool QDesignerToolBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
     if ((pos - m_startPosition).manhattanLength() < qApp->startDragDistance())
         return true;
 
-    startDrag(pos);
+    startDrag(m_startPosition);
     m_startPosition = QPoint();
 
     return true;

@@ -351,7 +351,7 @@ bool QDesignerMenuBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
         update();
     }
 
-    startDrag(pos);
+    startDrag(m_startPosition);
     m_startPosition = QPoint();
 
     return true;
