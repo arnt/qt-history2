@@ -41,6 +41,9 @@ public:
     void setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy);
     QScrollBar *horizontalScrollBar() const;
 
+    QWidget *cornerWidget() const;
+    void setCornerWidget(QWidget *corner);
+    
     QWidget *viewport() const;
     QSize maximumViewportSize() const;
 

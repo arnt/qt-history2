@@ -40,6 +40,7 @@ public:
     Qt::ScrollBarPolicy vbarpolicy, hbarpolicy;
 
     QWidget *viewport;
+    QWidget *corner;
     int left, top, right, bottom; // viewport margin
 
     int xoffset, yoffset;
