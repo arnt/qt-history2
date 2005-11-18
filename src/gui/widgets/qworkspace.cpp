@@ -338,7 +338,7 @@ void QWorkspaceTitleBar::contextMenuEvent(QContextMenuEvent *e)
 
 void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
 {
-    Q_D(QWorkspaceTitleBar);
+    Q_D(QWorkspaceTitleBar);        
     if (!d->window) {
         // could have been deleted as part of a double click event on the sysmenu
         return;
@@ -351,7 +351,7 @@ void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
             d->buttonDown = QStyle::SC_None;
             d->pressed = false;
             return;
-        }    
+        }  
         e->accept();
         QStyleOptionTitleBar opt = d->getStyleOption();
         QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
@@ -411,17 +411,12 @@ void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
 void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QWorkspaceTitleBar);
+    e->ignore();
     if ((e->buttons() & Qt::LeftButton) && style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, 0) 
         && !rect().adjusted(5, 5, -5, 0).contains(e->pos()) && !d->pressed) {
         // propagate border events to the QWidgetResizeHandler
-        e->ignore();
         return;
     }
-    if (!e->buttons()) {
-        e->ignore();
-        return;
-    }
-    e->accept();
     switch (d->buttonDown) {
     case QStyle::SC_None:
         if(autoRaise())
@@ -477,6 +472,7 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
             if(d->buttonDown != last_ctrl)
                 repaint();
         }
+        e->accept();
         break;
     default:
         break;
@@ -536,7 +532,9 @@ void QWorkspaceTitleBar::paintEvent(QPaintEvent *)
     }
 
     QStyle::SubControl under_mouse = QStyle::SC_None;
-    if(autoRaise() && underMouse()) {
+    if (d->buttonDown && d->pressed)
+        opt.state |= QStyle::State_Sunken;
+    else if(autoRaise() && underMouse()) {
         under_mouse = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                      mapFromGlobal(QCursor::pos()), this);
         opt.activeSubControls |= under_mouse;

@@ -3276,7 +3276,11 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     
     int res = 0;
     switch (hint) {
-    
+
+    case SH_TitleBar_AutoRaise:
+        res = 1;
+        break;
+
     case SH_SpinControls_DisableOnBounds:
         res = 0;
         break;
