@@ -30,10 +30,10 @@
 #endif
 
 Q_GLOBAL_STATIC(QHostInfoAgent, agent)
-   
+
 //#define QHOSTINFO_DEBUG
 
-/*!         
+/*!
     \class QHostInfo
     \brief The QHostInfo class provides static functions for host name lookups.
 
@@ -139,7 +139,7 @@ static int qt_qhostinfo_newid()
     perform a \e reverse lookup). On success, the resulting QHostInfo will
     contain both the resolved domain name and IP addresses for the host
     name. Example:
-    
+
     \code
         QHostInfo::lookupHost("4.2.2.1",
                               this, SLOT(lookedUp(QHostInfo)));
@@ -273,6 +273,7 @@ void QHostInfoAgent::run()
 		return;
 #endif
             query = queries.takeFirst();
+            pendingQueryId = query->object->lookupId;
         }
 
 #if defined(QHOSTINFO_DEBUG)
@@ -281,9 +282,12 @@ void QHostInfoAgent::run()
 #endif
 
         QHostInfo info = fromName(query->hostName);
-        info.setLookupId(query->object->lookupId);
-        query->object->emitResultsReady(info);
-        query->object = 0;
+        int id = query->object->lookupId;
+        info.setLookupId(id);
+        if (pendingQueryId == id) {
+            query->object->emitResultsReady(info);
+            query->object = 0;
+        }
         delete query;
     }
 }

@@ -75,6 +75,7 @@ public:
         connect(QCoreApplication::instance(), SIGNAL(destroyed(QObject *)), this, SLOT(cleanup()));
         QCoreApplicationPrivate::moveToMainThread(this);
         quit = false;
+        pendingQueryId = -1;
     }
     inline ~QHostInfoAgent()
     { cleanup(); }
@@ -96,10 +97,12 @@ public:
             QHostInfoResult *result = queries.at(i)->object;
             if (result->lookupId == id) {
                 result->disconnect();
-                queries.removeAt(i);
-                break;
-            }                
+                delete queries.takeAt(i);
+                return;
+            }
         }
+        if (pendingQueryId == id)
+            pendingQueryId = -1;
     }
 
 public Q_SLOTS:
@@ -122,6 +125,7 @@ private:
     QMutex mutex;
     QWaitCondition cond;
     bool quit;
+    int pendingQueryId;
 };
 
 class QHostInfoPrivate
