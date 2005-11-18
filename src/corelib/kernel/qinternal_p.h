@@ -28,7 +28,7 @@
 #include "QtCore/qnamespace.h"
 #include "QtCore/qlist.h"
 #include "QtCore/qiodevice.h"
-#include "QtCore/qbytearray.h"
+#include "QtCore/qvector.h"
 
 class QWidget;
 class QPainter;
@@ -42,7 +42,7 @@ public:
                                           curr_buff(0), buff_growth(growth) { }
 
     char *alloc(uint buflen);
-    QByteArray take(uint size);
+    QVector<quint8> take(uint size);
     char *take(uint maxsize, uint *realsize);
     inline void free(uint buflen);
     void push(char c);
@@ -78,14 +78,13 @@ inline char *QCircularBuffer::alloc(uint size)
         off += start_off;
     return buf[curr_buff].data()+off;
 }
-inline QByteArray QCircularBuffer::take(uint size)
+inline QVector<quint8> QCircularBuffer::take(uint size)
 {
     if(size > curr_used) {
         qWarning("Warning: asked to take too much %d [%d]", size, curr_used);
         size = curr_used;
     }
-    QByteArray ret;
-    ret.resize(size);
+    QVector<quint8> ret(size);
     const uint firstBufferSize = qMin(size, buf[start_buff].size() - start_off);
     if(firstBufferSize)
         memcpy(ret.data(), buf[start_buff].constData()+start_off, firstBufferSize);
