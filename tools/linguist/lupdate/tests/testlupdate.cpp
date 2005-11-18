@@ -17,7 +17,8 @@
 TestLUpdate::TestLUpdate()
 {
     childProc = 0;
-    m_cmdLupdate = QLatin1String("lupdate.exe");
+    m_cmdLupdate = QLatin1String("lupdate");
+    m_cmdQMake = QLatin1String("qmake");
 }
 
 TestLUpdate::~TestLUpdate()
@@ -106,4 +107,11 @@ bool TestLUpdate::updateProFile( const QString &pathProFile)
 	args.append(pathProFile);
 
 	return runChild( true, m_cmdLupdate, args );
+}
+
+bool TestLUpdate::qmake()
+{
+    QStringList args;
+    return runChild(true, m_cmdQMake, args);
+
 }

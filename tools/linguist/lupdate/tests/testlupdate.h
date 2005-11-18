@@ -12,11 +12,13 @@ public:
     TestLUpdate();
     virtual ~TestLUpdate();
 
-    void setWorkingDirectory(const QString &workDir);
+    void setWorkingDirectory( const QString &workDir);
     bool updateProFile( const QString &pathProFile);
+    bool qmake();
 
 private:
     QString     m_cmdLupdate;
+    QString     m_cmdQMake;
     QString     m_workDir;
     QProcess	*childProc;
     QStringList env_list;

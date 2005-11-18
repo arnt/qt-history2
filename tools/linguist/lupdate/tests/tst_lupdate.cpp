@@ -34,7 +34,7 @@ void tst_lupdate::parse_data()
     QTest::addColumn<QString>("expectedtsfile");
     
     QTest::newRow("Parse UI file") << QString("parseui/project.pro") << QString() << QString();
-    //QTest::newRow("Merge UI file") << QString("parsecpp/project.pro") << QString() << QString();
+    QTest::newRow("Parse cpp file") << QString("parsecpp/project.pro") << QString() << QString();
 }
 
 void tst_lupdate::parse()
@@ -64,6 +64,7 @@ void tst_lupdate::parse()
         expectedtsfile = m_basePath + expectedtsfile;
     }
 
+    m_lupdate.qmake();
     m_lupdate.updateProFile(inputpro);
     
     QFile file1(generatedtsfile);
@@ -104,7 +105,7 @@ void tst_lupdate::merge_data()
     QTest::addColumn<QString>("expectedtsfile");
     
     QTest::newRow("Merge UI file") << QString("mergeui/project.pro") << QString() << QString();
-    //QTest::newRow("Merge CPP file") << QString("mergecpp/project.pro") << QString() << QString();
+    QTest::newRow("Merge CPP file") << QString("mergecpp/project.pro") << QString() << QString();
 }
 
 void tst_lupdate::merge()
@@ -136,19 +137,12 @@ void tst_lupdate::merge()
     // copy it to a temporary file, since we can't write to a read-only file (usually, its not checked out editable from the depot)
     // This also enables us to run the test many times in a sequence, without changing the input data.
     QString tmpTSFile = generatedtsfile + QLatin1String(".tmp");
-    QFile s(generatedtsfile);
-    QFile d(tmpTSFile);
-    s.open(QIODevice::ReadOnly);
-    d.open(QIODevice::WriteOnly);
-    bool ok = copyFile(s, d);
-    QVERIFY(ok);
-    s.close();
-    d.close();
-
+    // qmake will ensure that the ts.tmp file is created.
+    m_lupdate.qmake();
     m_lupdate.updateProFile(inputpro);
     
     QFile file1(tmpTSFile);
-    ok = file1.open(QIODevice::ReadOnly);
+    bool ok = file1.open(QIODevice::ReadOnly);
     QVERIFY(ok);
     QByteArray data1 = file1.readAll();
     QString str1(data1);
