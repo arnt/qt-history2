@@ -118,7 +118,7 @@
     \o \l{painting/imagecomposition}{Image Composition}
     \o \l{painting/painterpaths}{Painter Paths}\raisedaster
     \o \l{painting/svgviewer}{SVG Viewer}
-    \o \l{painting/transformations}{Transformations}
+    \o \l{painting/transformations}{Transformations}\raisedaster
     \endlist
 
     \section1 Rich Text Examples
@@ -126,7 +126,7 @@
     \list
     \o \l{richtext/calendar}{Calendar}
     \o \l{richtext/orderform}{Order Form}
-    \o \l{richtext/syntaxhighlighter}{Syntax Highlighter}
+    \o \l{richtext/syntaxhighlighter}{Syntax Highlighter}\raisedaster
     \endlist
 
     \section1 Tool Examples
