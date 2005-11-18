@@ -203,6 +203,7 @@ QLayoutItem *QStackedLayout::takeAt(int index)
         return 0;
     QLayoutItem *item = d->list.takeAt(index);
     if (index == d->index) {
+        d->widget = 0;
         if ( d->list.count() > 0 ) {
             int newIndex = (index == d->list.count()) ? index-1 : index;
             setCurrentIndex(newIndex);
