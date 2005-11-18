@@ -21,7 +21,7 @@
     and to provide quality control. The documentation team also writes the
     larger texts, such as the class descriptions that introduce a class
     along with the concepts the class uses, as well as introducing the
-    functions and properties that the class provides. 
+    functions and properties that the class provides.
 
     The documentation focuses on the API rather than the internals, since
     we make great efforts to keep our API consistent and compatible with
@@ -32,7 +32,7 @@
     (over 2,500 printed pages). The overwhelming majority of pages
     document Qt classes. Since developers differ in the way they
     think and work we provide a variety of approaches to navigating the
-    documentation set: 
+    documentation set:
 
     \list
 
@@ -85,7 +85,7 @@
     text (which signifies a cross-reference), the documentation window will
     present the relevant page. You can bookmark pages of particular
     interest and you can click the \gui{Previous} and \gui{Next} toolbar
-    buttons to navigate within the pages you've visited. 
+    buttons to navigate within the pages you've visited.
 
     Although \QA can be used just like a web browser to navigate through
     the Qt documentation set, \QA offers a powerful means of navigation
@@ -100,12 +100,12 @@
     looking for, double click it, (or press \key{Enter}) and the
     documentation window will display the relevant page. You rarely have
     to type in the whole word before \QA finds a match. Note that for some
-    words there may be more than one possible page that is relevant. 
+    words there may be more than one possible page that is relevant.
 
     \QA also provides full text searching for finding specific words in
     the documentation. Documents with the highest occurrences of the word
     that you are looking for appear first, and every occurrence of the
-    word within the documentation is highlighted. 
+    word within the documentation is highlighted.
 
     \omit
     For example, enter 'setenabled' in the 'Look For' line edit.
@@ -116,7 +116,7 @@
     a dialog pops up listing the possible choices. Click the choice you're
     interested in (or move to it using the \key{Up} and \key{Down} arrow
     keys and press \key{Enter}). The relevant page will display in the
-    documentation window. 
+    documentation window.
     \endomit
 
     \QA can be customized by creating profiles, a collection of
@@ -151,7 +151,7 @@
     window. The \gui{Bookmarks} tab has a \gui{New Bookmark}
     button and a \gui{Delete Bookmark} button at the bottom. Click
     \gui{New Bookmark} to bookmark the page that is showing in the
-    documentation window. Click a bookmark in the list, then click 
+    documentation window. Click a bookmark in the list, then click
     \gui{Delete Bookmark} to delete the highlighted bookmark.
     \i The \gui{Search} tab provides full text search of \e all
     the documents. See \l{Full Text Searching} for more information about
@@ -289,21 +289,21 @@
     dialog has four tabs: General Settings, Web Settings, PDF Settings,
     and Profiles. \QA will remember your settings between sessions,
     including window sizes and positions, and which pages you have open.
-    Each of the tabs is discussed as follows: 
+    Each of the tabs is discussed as follows:
 
     \list
     \i General Settings
 
     \img assistant-general.png
 
-    To change the base font used throughout \QA, select a 
-    font type from the Font combobox. To choose a new fixed-width 
-    font, for example, to show code snippets, choose a font type from 
-    the 'Fixed font' combobox. To change the color of hypertext 
-    links, click the 'Link color' color button. Uncheck the 
-    'Underline links' checkbox if you don't want underlined links. 
+    To change the base font used throughout \QA, select a
+    font type from the Font combobox. To choose a new fixed-width
+    font, for example, to show code snippets, choose a font type from
+    the 'Fixed font' combobox. To change the color of hypertext
+    links, click the 'Link color' color button. Uncheck the
+    'Underline links' checkbox if you don't want underlined links.
 
-    \i Web Settings 
+    \i Web Settings
 
     \img assistant-web.png
 
@@ -355,7 +355,7 @@
     \i \c{"deep copy"} -- list all documents that contain the phrase 'deep copy'
     \endlist
 
-    The wildcard (*) character cannot be used within quotes. 
+    The wildcard (*) character cannot be used within quotes.
 
     The list of documents found is ordered according to the number of
     occurrences of the search text they contain, therefore those with the
@@ -384,7 +384,7 @@
     specified below.  To add a content file, type the following command line
     option: \c{-addContentFile docfile}. To remove a content file from the
     default set, type the following command line option:
-    \c{-removeContentFile docfile}. For example: 
+    \c{-removeContentFile docfile}. For example:
 
     \code
     1: > assistant -addContentFile file.dcf
@@ -411,7 +411,7 @@
     \code
     <assistantconfig version="3.2.0">
         <DCF ref="demo.html" icon="handbook.png" imagedir="../img/"
-             title="Development Demo Handbook">
+                title="Development Demo Handbook">
             <section ref="./chap1/chap1.html" title="Chapter1">
                 <section ref="./chap1/section1.html" title="Section1">
     	            <keyword ref="./chap1/section1.html#foo">foo</keyword>
@@ -435,7 +435,7 @@
     \endcode
 
     Sections may be nested as deeply as necessary. All references should
-    be related. 
+    be related.
 
     Note that any \c keyword tags for a given section must appear \e
     before any sections nested within the given section.
@@ -476,7 +476,7 @@
     display when the profile is used. Usually, this is the HTML file which
     contains the documentation's table of contents. This property also
     describes the default location to go to when pressing the home button
-    in \QA's main user interface. The start page is specified relative to 
+    in \QA's main user interface. The start page is specified relative to
     the location of the profile. The property name is \c startpage
 
     \i About Menu Text - This property describes the text that appears in
@@ -498,52 +498,28 @@
     To define a profile, one needs to specify a \QA Document
     Profile, usually abbreviated \c{.adp}. The profile is an extension of
     the Documentation Content File described above. We add a \c profile
-    tag containing \c property tags to the format. 
+    tag containing \c property tags to the format.
 
     An example of a document profile file is shown below:
 
-    \c helpdemo.adp
+    \c simpletextviewer.adp
 
-    \code
-    <assistantconfig version="3.2.0">
-
-        <profile>
-	    <property name="name">HelpExample</property>
-            <property name="title">Help Example</property>
-            <property name="applicationicon">logo.png</property>
-            <property name="startpage">index.html</property>
-            <property name="aboutmenutext">About Help</property>
-            <property name="abouturl">../about.txt</property>
-            <property name="assistantdocs">../../../doc/html</property>
-        </profile>
-
-        <DCF ref="index.html" icon="handbook.png" title="Help example">
-            <section ref="./manual.html" title="How to use this Example">
-                <keyword ref="./manual.html#installdocs">Install Docs</keyword>
-	        <keyword ref="./manual.html#onlydoc">Example Profile</keyword>
-	        <keyword ref="./manual.html#hide">Hide Sidebar</keyword>
-	        <keyword ref="./manual.html#openqabutton">Open</keyword>
-	        <keyword ref="./manual.html#closeqabutton">Close</keyword>
-	        <keyword ref="./manual.html#display">Display</keyword>
-            </section>
-       </DCF>
-
-    </assistantconfig>
-    \endcode
+    \quotefile assistant/simpletextviewer/documentation/simpletextviewer.adp
 
     \section2 Using Profiles
 
     To use a profile, run \QA with the option \c {-profile filename}.
     This will load the profile specified in the file and will customize
     \QA accordingly. For example, to run \QA with the example
-    file above, \c helpdemo.adp, we would run the command as follows:
+    file above, \c simpletextviewer.adp, we would run the command as follows:
 
-    \code 
-    > assistant -profile helpdemo.adp
+    \code
+    > assistant -profile simpletextviewer.adp
     \endcode
 
-    See the HelpDemo example in the Qt distribution for a demonstration
-    on how to use \QA with profiles for your own applications.
+    See the \l {assistant/simpletextviewer}{Simple Text Viewer} example
+    in the Qt distribution for a demonstration on how to use \QA with
+    profiles for your own applications.
 
     \omit
     For small documentation sets, the sidebar may not be necessary. You
