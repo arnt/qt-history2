@@ -507,8 +507,10 @@ void QGroupBox::setChecked(bool b)
             update();
         bool wasToggled = (b != d->checked);
         d->checked = b;
-        if (wasToggled)
+        if (wasToggled) {
             d->setChildrenEnabled(b);
+            emit toggled(b);
+        }
     }
 }
 
