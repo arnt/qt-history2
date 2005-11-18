@@ -1,13 +1,12 @@
 TEMPLATE = app
 LANGUAGE = C++
 
-FORMS += project.ui
+SOURCES += finddialog.cpp
 
-TRANSLATIONS        = project_no.ts
+TRANSLATIONS        += project_no.ts
 
 exists( $$TRANSLATIONS ) {
     win32 : RES = $$system(del $$TRANSLATIONS)
     unix : RES = $$system(rm $$TRANSLATIONS)
 }
-
 
