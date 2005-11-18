@@ -1052,6 +1052,10 @@ void QWidget::setMask(const QRegion& region)
     if (region == d->extra->mask)
         return;
 
+    QRegion parentR;
+    if (!isWindow())
+        parentR = d->extra->mask.isEmpty() ? QRegion(rect()) : d->extra->mask ;
+
     d->extra->mask = region;
 
     if (isVisible()) {
@@ -1072,7 +1076,9 @@ void QWidget::setMask(const QRegion& region)
             }
             d->invalidateBuffer(rect());
         } else {
-            update(); //@@@ ??? should do parent update of oldmask | newmask ....
+            parentR += d->extra->mask;
+            parentWidget()->update(parentR.translated(geometry().topLeft()));
+            update();
         }
     }
 }
