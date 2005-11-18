@@ -150,12 +150,18 @@ void QAbstractScrollAreaPrivate::layoutChildren()
 // move their positions to be alligned with the size grip.
 #ifdef Q_WS_MAC
     // Use small scrollbars for tool windows.
+    const QMacStyle::WidgetSizePolicy hpolicy = QMacStyle::widgetSizePolicy(hbar);
+    const QMacStyle::WidgetSizePolicy vpolicy = QMacStyle::widgetSizePolicy(vbar);
     if (q->window()->windowType() == Qt::Tool) {
-        QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeSmall);
-        QMacStyle::setWidgetSizePolicy(vbar, QMacStyle::SizeSmall);
+        if (hpolicy != QMacStyle::SizeSmall)
+            QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeSmall);
+        if (vpolicy != QMacStyle::SizeSmall)
+            QMacStyle::setWidgetSizePolicy(vbar, QMacStyle::SizeSmall);
     } else {
-        QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeDefault);
-        QMacStyle::setWidgetSizePolicy(vbar, QMacStyle::SizeDefault);
+        if (hpolicy != QMacStyle::SizeDefault)
+            QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeDefault);
+        if (vpolicy != QMacStyle::SizeDefault)
+            QMacStyle::setWidgetSizePolicy(vbar, QMacStyle::SizeDefault);
     }
 
     // Get the size of the size-grip from the style.
