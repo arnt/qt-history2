@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <QtForm>
+#include <QtUiTools>
 #include <QtGui>
 
 int main(int argc, char *argv[])
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    QForm::Loader loader;
+    QUiLoader loader;
 
     QFile file(":/forms/form.ui");
     file.open(QFile::ReadOnly);

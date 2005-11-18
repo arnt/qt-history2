@@ -2,7 +2,7 @@
     \module QtAssistant
     \title QtAssistant Module
     \contentspage Qt's Modules
-    \previouspage QtForm
+    \previouspage QtUiTools
     \nextpage Qt3Support
 
     \brief The QtAssistant module provides a means of launching \QA

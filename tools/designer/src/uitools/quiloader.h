@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QFORMLOADER_H
-#define QFORMLOADER_H
+#ifndef QUILOADER_H
+#define QUILOADER_H
 
 #include <QtCore/QObject>
 
@@ -23,16 +23,12 @@ class QActionGroup;
 class QString;
 class QIODevice;
 
-namespace QForm
-{
-
-class LoaderPrivate;
-
-class Loader: public QObject
+class QUiLoaderPrivate;
+class QUiLoader : public QObject
 {
 public:
-    Loader(QObject *parent = 0);
-    virtual ~Loader();
+    QUiLoader(QObject *parent = 0);
+    virtual ~QUiLoader();
 
     QStringList pluginPaths() const;
     void clearPluginPaths();
@@ -47,10 +43,8 @@ public:
     virtual QAction *createAction(QObject *parent = 0, const QString &name = QString());
 
 private:
-    Q_DECLARE_PRIVATE(Loader)
-    Q_DISABLE_COPY(Loader)
+    Q_DECLARE_PRIVATE(QUiLoader)
+    Q_DISABLE_COPY(QUiLoader)
 };
 
-} // namespace QForm
-
-#endif // QFORMLOADER_H
+#endif // QUILOADER_H

@@ -3,7 +3,7 @@
     \title QtDesigner Module
     \contentspage Qt's Modules
     \previouspage QtXml
-    \nextpage QtForm
+    \nextpage QtUiTools
 
     \brief The QtDesigner module provides classes that allow you to
     create your own custom widget plugins for Qt Designer, and classes
@@ -116,13 +116,13 @@
     run-time, based on \c .ui files created with \QD. This class is
     typically used by custom components and applications that embed
     \QD. Standalone applications that need to dynamically generate
-    user interfaces at run-time use the QForm::Loader class, found in
-    the QtForm module.
+    user interfaces at run-time use the QUiLoader class, found in
+    the QtUiTools module.
 
-    For a complete example using QForm::Loader, see
+    For a complete example using QUiLoader, see
     the \l {designer/calculatorbuilder}{Calculator Builder example}.
 
-    \sa {Qt Designer Manual}, {QtForm Module}
+    \sa {Qt Designer Manual}, {QtUiTools Module}
 */
 
 /*!

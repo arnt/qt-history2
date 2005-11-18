@@ -7,14 +7,14 @@ url                     = http://doc.trolltech.com/4.0
 edition.Console         = QtCore QtNetwork QtSql QtXml QtTest
 edition.Desktop         = QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtXml \
                           QtDesigner QtAssistant Qt3Support QAxContainer \
-                          QAxServer QtForm QtTest
+                          QAxServer QtUiTools QtTest
 edition.DesktopLight    = QtCore QtGui Qt3SupportLight QtTest
 
 language                = Cpp
 headerdirs              = $QTDIR/src \
                           $QTDIR/extensions/activeqt \
                           $QTDIR/tools/assistant/lib \
-                          $QTDIR/tools/designer/src/form \
+                          $QTDIR/tools/designer/src/uitools \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib \
@@ -23,7 +23,7 @@ sourcedirs              = $QTDIR/src \
                           $QTDIR/doc/src \
                           $QTDIR/extensions/activeqt \
                           $QTDIR/tools/assistant/lib \
-                          $QTDIR/tools/designer/src/form \
+                          $QTDIR/tools/designer/src/uitools \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib \

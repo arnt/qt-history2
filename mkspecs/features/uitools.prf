@@ -1,0 +1,11 @@
+QT += xml
+
+# Include the correct version of the UiLoader library
+CONFIG(debug, debug|release) {
+    unix: LIBS += -lQtUiTools_debug
+    else: LIBS += -lQtUiToolsd
+} else {
+    LIBS += -lQtUiTools
+}
+
+INCLUDEPATH += $$QMAKE_INCDIR_QT/QtUiTools

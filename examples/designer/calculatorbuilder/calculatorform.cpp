@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <QtForm>
+#include <QtUiTools>
 #include <QtGui>
 
 #include "calculatorform.h"
@@ -19,7 +19,7 @@
 CalculatorForm::CalculatorForm(QWidget *parent)
     : QWidget(parent)
 {
-    QForm::Loader loader;
+    QUiLoader loader;
 
     QFile file(":/forms/calculatorform.ui");
     file.open(QFile::ReadOnly);

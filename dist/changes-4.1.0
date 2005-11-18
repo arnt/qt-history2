@@ -43,8 +43,8 @@ Qt Designer
 
 - Added support for adding comments to string properties.
 
-- Added new static QtForm library with improved
-  QForm::Loader API for loading designer forms at run-time.
+- Added new static QtUiTools library with improved
+  QUiLoader API for loading designer forms at run-time.
 
 - Added support for namespaces in uic generated code.
 

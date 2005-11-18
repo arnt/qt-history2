@@ -10,8 +10,8 @@
 
   This example uses a form containing the custom widget plugin described in the
   \l{designer/worldtimeclockplugin}{World Time Clock Plugin} example, and
-  dynamically generates a user interface using the QForm::Loader class, part of
-  the QtForm module.
+  dynamically generates a user interface using the QUiLoader class, part of
+  the QtUiTools module.
 
   \section1 Preparation
 
@@ -24,7 +24,7 @@
   \printuntil RESOURCES
 
   By appending \c form to the \c CONFIG declaration, we instruct \c qmake to
-  generate a dependency on the \c libQtForm library containing the QtForm
+  generate a dependency on the \c libQtUiTools library containing the QtUiTools
   classes.
 
   Note that we do not inform \c qmake about any .ui files, and so none will
@@ -43,21 +43,21 @@
 
   Since this example only loads and displays a pre-prepared form, all of the
   work can be done in the main() function. We are using a class from the
-  QtForm library so, in addition to any other Qt classes that are normally
+  QtUiTools library so, in addition to any other Qt classes that are normally
   required to write an application, we must include the appropriate header
   file:
 
   \quotefromfile designer/worldtimeclockbuilder/main.cpp
-  \skipto <QtForm>
+  \skipto <QtUiTools>
   \printline
 
   The main function initializes the resource system with the Q_INIT_RESOURCE()
   macro and constructs an QApplication instance in the usual way:
 
   \skipto int main
-  \printuntil QForm::Loader
+  \printuntil QUiLoader
 
-  We construct a QForm::Loader object to handle the form we want to use.
+  We construct a QUiLoader object to handle the form we want to use.
 
   The form itself is obtained from the resource file system using the path
   defined in the resource file. We use the form loader to load and construct

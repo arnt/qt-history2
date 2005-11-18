@@ -33,7 +33,7 @@ my %modules = ( # path to module name map
             "QtTest" => "$basedir/tools/qtestlib/src",
 	    "QtAssistant" => "$basedir/tools/assistant/lib",
 	    "QtDesigner" => "$basedir/tools/designer/src/lib;",
-	    "QtForm" => "$basedir/tools/designer/src/form;",
+	    "QtUiTools" => "$basedir/tools/designer/src/uitools;",
 );
 #$modules{"QtCore"} .= ";$basedir/mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
 

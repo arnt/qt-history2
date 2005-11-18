@@ -302,9 +302,9 @@ static QString platformNeutralKeySequence(const QKeySequence &ks)
     The QFormBuilder class is typically used by custom components and
     applications that embed \QD. Standalone applications that need to
     dynamically generate user interfaces at run-time use the
-    QForm::Loader class, found in the QtForm module.
+    QUiLoader, found in the QtUiTools module.
 
-    \sa {QtForm Module}
+    \sa {QtUiTools Module}
 */
 
 /*!

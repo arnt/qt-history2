@@ -1,4 +1,4 @@
-CONFIG      += form
+CONFIG      += uitools
 
 HEADERS     = calculatorform.h
 RESOURCES   = calculatorbuilder.qrc

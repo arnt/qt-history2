@@ -108,9 +108,9 @@ static QFormBuilderExtra &extraInfo(QFormBuilder *builder)
     The QFormBuilder class is typically used by custom components and
     applications that embed \QD. Standalone applications that need to
     dynamically generate user interfaces at run-time use the
-    QForm::Loader class, found in the QtForm module.
+    QUiLoader class, found in the QtUiTools module.
 
-    \sa QAbstractFormBuilder, {QtForm Module}
+    \sa QAbstractFormBuilder, {QtUiTools Module}
 */
 
 /*!

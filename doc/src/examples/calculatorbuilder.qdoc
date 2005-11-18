@@ -3,7 +3,7 @@
     \title Calculator Builder Example
 
     The Calculator Builder example shows how to create a user interface from
-    a \QD form at run-time, using the QForm::Loader class.
+    a \QD form at run-time, using the QUiLoader class.
 
     \image calculatorbuilder-example.png
 
@@ -45,12 +45,12 @@
 
     \section1 CalculatorForm Class Implementation
 
-    We will need to use the QForm::Loader class that is provided by the
-    \c libQtForm library, so we first ensure that we include the header
+    We will need to use the QUiLoader class that is provided by the
+    \c libQtUiTools library, so we first ensure that we include the header
     file for the module:
 
     \quotefromfile designer/calculatorbuilder/calculatorform.cpp
-    \skipto QtForm
+    \skipto QtUiTools
     \printline
 
     The constructor uses a form loader object to construct the user

@@ -46,7 +46,7 @@
     \o A \l{QTestLib Manual}{unit testing framework} for Qt applications and
        libraries.
     \o Modules for \l{QtDesigner}{extending \QD} and
-       \l{QtForm}{dynamic user interface building}.
+       \l{QtUiTools}{dynamic user interface building}.
     \o New \l{Proxy Models}{proxy models} to enable view-specific sorting and
        filtering of data displayed using item views.
     \o Support for \l{Installing Qt/Mac}{universal binaries} on Mac OS X.
@@ -103,7 +103,7 @@
     \row    \o \l{QAxServer}    \o ActiveQt server extension
     \row    \o \l{QtAssistant}  \o Classes for launching Qt Assistant
     \row    \o \l{QtDesigner}   \o Classes for extending and embedding Qt Designer
-    \row    \o \l{QtForm}       \o Classes for dynamic GUI generation
+    \row    \o \l{QtUiTools}       \o Classes for dynamic GUI generation
     \row    \o \l{QtTest}       \o Tool classes for unit testing
     \endtable
 

@@ -1,4 +1,4 @@
-CONFIG      += form
+CONFIG      += uitools
 SOURCES     = main.cpp
 RESOURCES   = worldtimeclockbuilder.qrc
 

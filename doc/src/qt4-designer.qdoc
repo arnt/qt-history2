@@ -234,12 +234,12 @@
 
     \section1 Run-Time Support for Forms
 
-    With the Qt 4.1 release, the new QtForm module is introduced to
+    With the Qt 4.1 release, the new QtUiTools module is introduced to
     provide classes handling forms created with \QD.
 
-    Currently the module only contains the QForm::Loader class.
+    Currently the module only contains the QUiLoader class.
 
-    QForm::Loader can be used by standalone applications to
+    QUiLoader can be used by standalone applications to
     dynamically create form-based user interfaces at run-time. This
     library can be statically linked with applications and
     redistributed under the same terms as Qt.
@@ -249,7 +249,7 @@
     \i \inlineimage calculatorbuilder-example.png
     \i \bold{Dynamic Form Creation}
 
-    The QtForm library lets developers dynamically construct user interfaces at
+    The QtUiTools library lets developers dynamically construct user interfaces at
     run-time using the same techniques as \QD. Since forms can contain custom
     widget plugins, the loading mechanism can be customized to search for
     third party or application-specific plugins.

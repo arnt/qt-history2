@@ -377,8 +377,8 @@ QString Node::moduleName() const
 
     if (moduleDir == "corelib")
         return "QtCore";
-    else if (moduleDir == "form")
-        return "QtForm";
+    else if (moduleDir == "uitools")
+        return "QtUiTools";
     else if (moduleDir == "gui")
         return "QtGui";
     else if (moduleDir == "network")

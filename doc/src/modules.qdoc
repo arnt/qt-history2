@@ -16,7 +16,7 @@
     \row \o \l{QtSvg} \o Classes for displaying the contents of SVG files
     \row \o \l{QtXml} \o Classes for handling XML
     \row \o \l{QtDesigner} \o Classes for extending \QD
-    \row \o \l{QtForm} \o Classes for handling \QD forms in applications
+    \row \o \l{QtUiTools} \o Classes for handling \QD forms in applications
     \row \o \l{QtAssistant} \o Support for online help
     \row \o \l{Qt3Support} \o Qt 3 compatibility classes
     \row \o \l{QtTest} \o Tool classes for unit testing
