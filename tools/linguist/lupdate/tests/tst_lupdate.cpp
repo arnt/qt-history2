@@ -1,6 +1,8 @@
 #include <QtTest/QtTest>
 #include "testlupdate.h"
 #include <QtCore/QDir>
+#include <QtCore/QFile>
+
 class tst_lupdate : public QObject
 {
     Q_OBJECT
@@ -81,6 +83,20 @@ void tst_lupdate::parse()
 
 }
 
+static bool copyFile(QFile &src, QFile &dest)
+{
+    char buffer[1024];
+    bool ok = false;
+    qint64 bytesRead;
+    do {
+        bytesRead = src.read(buffer, sizeof(buffer));
+        ok = dest.write(buffer, bytesRead) == bytesRead;
+    } while(bytesRead && ok);
+
+    return ok;
+}
+
+
 void tst_lupdate::merge_data()
 {
     QTest::addColumn<QString>("inputprofile");
@@ -120,12 +136,19 @@ void tst_lupdate::merge()
     // copy it to a temporary file, since we can't write to a read-only file (usually, its not checked out editable from the depot)
     // This also enables us to run the test many times in a sequence, without changing the input data.
     QString tmpTSFile = generatedtsfile + QLatin1String(".tmp");
-    QFile::copy(generatedtsfile, tmpTSFile);
+    QFile s(generatedtsfile);
+    QFile d(tmpTSFile);
+    s.open(QIODevice::ReadOnly);
+    d.open(QIODevice::WriteOnly);
+    bool ok = copyFile(s, d);
+    QVERIFY(ok);
+    s.close();
+    d.close();
 
     m_lupdate.updateProFile(inputpro);
     
     QFile file1(tmpTSFile);
-    bool ok = file1.open(QIODevice::ReadOnly);
+    ok = file1.open(QIODevice::ReadOnly);
     QVERIFY(ok);
     QByteArray data1 = file1.readAll();
     QString str1(data1);
