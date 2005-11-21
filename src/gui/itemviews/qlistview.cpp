@@ -842,21 +842,6 @@ void QListView::paintEvent(QPaintEvent *e)
     const QStyle::State state = option.state;
     const QAbstractItemView::State viewState = this->state();
 
-    // Find the initial value for bPaintAlternateBase
-    bool bPaintAlternateBase = false;   // should only be inverted for *visible* rows
-    if (alternate) {
-        int ypos = e->rect().translated(0, verticalOffset()).top();
-        int v = 0;
-        for (int i = 0;;++i) {
-            if (isRowHidden(i))
-                continue;
-            v += sizeHintForRow(i);
-            if (v > ypos || v == -1)
-                break;
-            bPaintAlternateBase = !bPaintAlternateBase;
-        }
-    }
-
     QVector<QModelIndex>::const_iterator end = toBeRendered.constEnd();
     for (QVector<QModelIndex>::const_iterator it = toBeRendered.constBegin(); it != end; ++it) {
         Q_ASSERT((*it).isValid());
@@ -877,9 +862,8 @@ void QListView::paintEvent(QPaintEvent *e)
             option.state &= ~QStyle::State_MouseOver;
 
         if (alternate) {
-            option.palette.setBrush(QPalette::Base, bPaintAlternateBase ? alternateBrush : baseBrush );
-            painter.fillRect(option.rect, bPaintAlternateBase ? alternateBrush : baseBrush );
-            bPaintAlternateBase = !bPaintAlternateBase;
+            option.palette.setBrush(QPalette::Base, (*it).row() & 1 ? alternateBrush : baseBrush);
+            painter.fillRect(option.rect, (*it).row() & 1 ? alternateBrush : baseBrush);
         }
         delegate->paint(&painter, option, *it);
     }
