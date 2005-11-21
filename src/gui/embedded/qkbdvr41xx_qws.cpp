@@ -59,13 +59,13 @@ QWSVr41xxKeyboardHandler::~QWSVr41xxKeyboardHandler()
 
 QWSVr41xxKbPrivate::QWSVr41xxKbPrivate(QWSVr41xxKeyboardHandler *h, const QString &device) : handler(h)
 {
-    terminalName = device.isEmpty()?"/dev/buttons":device.latin1();
+    terminalName = device.isEmpty()?"/dev/buttons":device.toLatin1();
     buttonFD = -1;
     notifier = 0;
 
     if ((buttonFD = open(terminalName, O_RDWR | O_NDELAY, 0)) < 0)
     {
-        qWarning("Cannot open %s\n", terminalName.latin1());
+        qWarning("Cannot open %s\n", terminalName.toLatin1());
     }
 
     if (buttonFD >= 0) {

@@ -69,7 +69,7 @@ QWSUsbKeyboardHandler::~QWSUsbKeyboardHandler()
 
 QWSUsbKbPrivate::QWSUsbKbPrivate(QWSPC101KeyboardHandler *h, const QString &device) : handler(h)
 {
-    fd = ::open(device.isEmpty()?"/dev/input/event0":device.latin1(),O_RDONLY, 0);
+    fd = ::open(device.isEmpty()?"/dev/input/event0":device.toLatin1(),O_RDONLY, 0);
     if (fd >= 0) {
         QSocketNotifier *notifier;
         notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);

@@ -72,7 +72,7 @@ QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler
         dev = "/dev/tpanel";
 
     if ((mouseFD = open(dev, O_RDONLY)) < 0) {
-        qFatal("Cannot open %s (%s)", dev.latin1(), strerror(errno));
+        qFatal("Cannot open %s (%s)", dev.toLatin1(), strerror(errno));
     } else {
         sleep(1);
     }

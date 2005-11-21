@@ -71,12 +71,12 @@ QWSYopyKeyboardHandler::~QWSYopyKeyboardHandler()
 
 QWSYopyKbPrivate::QWSYopyKbPrivate(QWSYopyKeyboardHandler *h, const QString &device) : handler(h)
 {
-    terminalName = device.isEmpty()?"/dev/tty1":device.latin1();
+    terminalName = device.isEmpty()?"/dev/tty1":device.toLatin1();
     buttonFD = -1;
     notifier = 0;
 
     if ((buttonFD = ::open(terminalName, O_RDWR | O_NDELAY, 0)) < 0) {
-        qFatal("Cannot open %s\n", terminalName.latin1());
+        qFatal("Cannot open %s\n", terminalName.toLatin1());
     } else {
 
        tcsetpgrp(buttonFD, getpgid(0));
