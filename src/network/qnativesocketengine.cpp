@@ -658,6 +658,13 @@ qint64 QNativeSocketEngine::read(char *data, qint64 maxSize)
 void QNativeSocketEngine::close()
 {
     Q_D(QNativeSocketEngine);
+    if (d->readNotifier)
+        d->readNotifier->setEnabled(false);
+    if (d->writeNotifier)
+        d->writeNotifier->setEnabled(false);
+    if (d->exceptNotifier)
+        d->exceptNotifier->setEnabled(false);
+        
     if(d->socketDescriptor != -1) {
         d->nativeClose();
         d->socketDescriptor = -1;
