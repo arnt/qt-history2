@@ -4,8 +4,8 @@
     <name>FindDialog</name>
     <message>
         <location filename="finddialog.cpp" line="57"/>
-        <source>Enter the text you want to find.</source>
-        <translation type="unfinished"></translation>
+        <source>Enter the text you are looking for.</source>
+        <translation type="unfinished">Skriv inn teksten du soker etter</translation>
     </message>
     <message>
         <location filename="finddialog.cpp" line="107"/>
