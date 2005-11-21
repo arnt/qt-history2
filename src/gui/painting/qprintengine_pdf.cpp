@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <QtGui/qprintengine.h>
+
 #ifndef QT_NO_PRINTER
 #include <qiodevice.h>
 #include <qpainter.h>
