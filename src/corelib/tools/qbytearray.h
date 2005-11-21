@@ -242,6 +242,8 @@ public:
     const_iterator constEnd() const;
 
     // stl compatibility
+    typedef const char & const_reference;
+    typedef char & reference;
     void push_back(char c);
     void push_back(const char *c);
     void push_back(const QByteArray &a);
