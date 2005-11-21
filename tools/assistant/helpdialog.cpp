@@ -162,8 +162,9 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
             if (perfectMatch == -1 && (key.startsWith(real, Qt::CaseInsensitive))) {
                 if (goodMatch == -1)
                     goodMatch = list.count() - 1;
-                if (s.length() == key.length())
+                if (real.length() == key.length()){
                     perfectMatch = list.count() - 1;
+                }
             }  else if (perfectMatch > -1 && s == key) {
                 perfectMatch = list.count() - 1;
             }
@@ -173,7 +174,9 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
     int bestMatch = perfectMatch;
     if (bestMatch == -1)
         bestMatch = goodMatch;
-
+    else{
+        qDebug() << "we have a perfect match at " << perfectMatch << list.at(perfectMatch);
+    }
     bestMatch = qMax(0, bestMatch);
     
     // sort the new list
@@ -184,6 +187,7 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
     setStringList(list);
     for (int i = 0; i < list.size(); ++i) {
         if (list.at(i) == match){
+            qDebug() << match << i << bestMatch << list.count();
             bestMatch = i;
             break;
         }
