@@ -1116,6 +1116,7 @@ void VcprojGenerator::initFormFiles()
     vcProject.FormFiles.Guid = _GUIDFormFiles;
 
     vcProject.FormFiles.addFiles(project->variables()["FORMS"]);
+    vcProject.FormFiles.addFiles(project->variables()["FORMS3"]);
 
     vcProject.FormFiles.Project = this;
     vcProject.FormFiles.Config = &(vcProject.Configuration);
