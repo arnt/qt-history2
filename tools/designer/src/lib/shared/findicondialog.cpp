@@ -205,7 +205,8 @@ void FindIconDialog::currentItemChanged(QListWidgetItem *item)
 
 void FindIconDialog::setViewDir(const QString &path)
 {
-    static const QIcon dir_icon(QLatin1String(":/trolltech/formeditor/images/win/fileopen.png"));
+
+    static const QIcon dir_icon(style()->standardPixmap(QStyle::SP_DirClosedIcon));
 
     if (path == m_view_dir.path())
         return;
