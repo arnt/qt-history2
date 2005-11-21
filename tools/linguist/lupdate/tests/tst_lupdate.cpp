@@ -64,6 +64,7 @@ void tst_lupdate::parse()
         expectedtsfile = m_basePath + expectedtsfile;
     }
 
+    // qmake will delete the previous one, to ensure that we don't do any merging....
     m_lupdate.qmake();
     m_lupdate.updateProFile(inputpro);
     
@@ -106,6 +107,7 @@ void tst_lupdate::merge_data()
     
     QTest::newRow("Merge UI file") << QString("mergeui/project.pro") << QString() << QString();
     QTest::newRow("Merge CPP file") << QString("mergecpp/project.pro") << QString() << QString();
+    QTest::newRow("Merge CPP file, obsolete the old and create a new one") << QString("mergecpp_obsolete/project.pro") << QString() << QString();
 }
 
 void tst_lupdate::merge()
