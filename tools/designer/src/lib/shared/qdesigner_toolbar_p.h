@@ -74,6 +74,7 @@ private slots:
     void slotRemoveSelectedAction();
     void slotNewToolBar();
     void slotRemoveToolBar();
+    void slotInsertSeparator();
 
 protected:
     virtual void actionEvent(QActionEvent *event);
@@ -92,6 +93,7 @@ protected:
     void adjustIndicator(const QPoint &pos);
     int findAction(const QPoint &pos) const;
     bool isPassiveWidget(QWidget *widget) const;
+    QAction *createAction(const QString &objectName, bool separator = false);
 
 private:
     QAction *m_sentinel;

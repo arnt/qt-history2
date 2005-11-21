@@ -157,22 +157,26 @@ bool QDesignerToolBar::handleContextMenuEvent(QWidget *, QContextMenuEvent *even
 
     int index = findAction(mapFromGlobal(event->globalPos()));
 
+    QAction *action = actions().at(index);
+    QVariant itemData;
+    qVariantSetValue(itemData, action);
+
     QMenu menu(0);
 
-    QAction *action = actions().at(index);
+    QAction *newSeperatorAct = menu.addAction(tr("Insert Separator"));
+    newSeperatorAct->setData(itemData);
+    connect(newSeperatorAct, SIGNAL(triggered()), this, SLOT(slotInsertSeparator()));
+    menu.addSeparator();
 
     if (action && action != m_sentinel) {
         QAction *a = menu.addAction(tr("Remove action '%1'").arg(action->objectName()));
-        QVariant itemData;
-        qVariantSetValue(itemData, action);
         a->setData(itemData);
 
         connect(a, SIGNAL(triggered()), this, SLOT(slotRemoveSelectedAction()));
 
-        menu.addSeparator();
     }
 
-    QAction *remove_toolbar = menu.addAction(tr("Remove Tool Bar"));
+    QAction *remove_toolbar = menu.addAction(tr("Remove Toolbar '%1'").arg(objectName()));
     connect(remove_toolbar, SIGNAL(triggered()), this, SLOT(slotRemoveToolBar()));
 
     menu.exec(event->globalPos());
@@ -368,6 +372,39 @@ bool QDesignerToolBar::interactive(bool i)
     bool old = m_interactive;
     m_interactive = i;
     return old;
+}
+
+// ### Share me with QDesignerMenu (a.k.a. I'm a copy of it)
+QAction *QDesignerToolBar::createAction(const QString &objectName, bool separator)
+{
+    Q_ASSERT(formWindow() != 0);
+    QDesignerFormWindowInterface *fw = formWindow();
+
+    QAction *action = new QAction(fw);
+    fw->core()->widgetFactory()->initialize(action);
+    if (separator)
+        action->setSeparator(true);
+
+    action->setObjectName(objectName);
+    fw->ensureUniqueObjectName(action);
+
+    AddActionCommand *cmd = new AddActionCommand(fw);
+    cmd->init(action);
+    fw->commandHistory()->push(cmd);
+
+    return action;
+}
+
+void QDesignerToolBar::slotInsertSeparator()
+{
+    QAction *theSender = qobject_cast<QAction*>(sender());
+    QAction *previous = qvariant_cast<QAction *>(theSender->data());
+    formWindow()->beginCommand(tr("Insert Separator"));
+    QAction *action = createAction("separator", true);
+    InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+    cmd->init(this, action, previous);
+    formWindow()->commandHistory()->push(cmd);
+    formWindow()->endCommand();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

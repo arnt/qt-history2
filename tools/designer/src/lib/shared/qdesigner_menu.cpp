@@ -1080,6 +1080,7 @@ void QDesignerMenu::showLineEdit()
     m_editor->setFocus();
 }
 
+// ### Share me with QDesignerToolBar (a.k.a. he's a copy of me)
 QAction *QDesignerMenu::createAction(const QString &objectName, bool separator)
 {
     Q_ASSERT(formWindow() != 0);
