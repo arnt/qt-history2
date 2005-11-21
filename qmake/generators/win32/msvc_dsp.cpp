@@ -137,7 +137,7 @@ bool DspMakefileGenerator::writeDspParts(QTextStream &t)
     listNames = QStringList("HEADERS");
     allListNames += listNames;
     writeFileGroup(t, QStringList("HEADERS"), "Header Files", "h;hpp;hxx;hm;inl");
-    listNames = QString("FORMS|INTERFACES").split("|");
+    listNames = QString("FORMS|INTERFACES|FORMS3").split("|");
     allListNames += listNames;
     writeFileGroup(t, listNames, "Form Files", "ui");
     listNames = QStringList("IMAGES");
@@ -164,7 +164,7 @@ bool DspMakefileGenerator::writeDspParts(QTextStream &t)
          for (QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
             const QStringList &inputs = project->values((*it)+".input");
             for (QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
-                if (!allListNames.contains((*input)))
+                if (!allListNames.contains((*input)) && *input != "UIC3_HEADERS")
                     writeFileGroup(t, QStringList((*input)), (*input) + " Files", "");
             }
         }
@@ -172,7 +172,7 @@ bool DspMakefileGenerator::writeDspParts(QTextStream &t)
 
     project->variables()["SWAPPED_BUILD_STEPS"] = swappedBuildSteps.keys();
 
-    writeFileGroup(t, QString("GENERATED_SOURCES|GENERATED_FILES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
+    writeFileGroup(t, QString("GENERATED_SOURCES|GENERATED_FILES|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
 
     t << "# End Target" << endl;
     t << "# End Project" << endl;
@@ -323,11 +323,17 @@ DspMakefileGenerator::init()
             "# End Special Build Tool\n");
     }
 
-    QStringList &list = project->variables()["FORMS"];
-    for(QStringList::ConstIterator hit = list.begin(); hit != list.end(); ++hit) {
+    QStringList &formList = project->variables()["FORMS"];
+    for(QStringList::ConstIterator hit = formList.begin(); hit != formList.end(); ++hit) {
         if(exists(*hit + ".h"))
             project->variables()["SOURCES"].append(*hit + ".h");
     }
+    QStringList &form3List = project->variables()["FORMS3"];
+    for(QStringList::ConstIterator hit = form3List.begin(); hit != form3List.end(); ++hit) {
+        if(exists(*hit + ".h"))
+            project->variables()["SOURCES"].append(*hit + ".h");
+    }
+
     project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCDSP_LIBS";
 
     // Move some files around //### is this compat?
@@ -474,6 +480,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
             files["HEADERS"] += config->project->variables()["HEADERS"].toSet();
             files["INTERFACES"] += config->project->variables()["INTERFACES"].toSet();
             files["FORMS"] += config->project->variables()["FORMS"].toSet();
+            files["FORMS"] += config->project->variables()["FORMS3"].toSet();
             files["IMAGES"] += config->project->variables()["IMAGES"].toSet();
             files["RC_FILE"] += config->project->variables()["RC_FILE"].toSet();
             files["RESOURCES"] += config->project->variables()["RESOURCES"].toSet();
@@ -487,7 +494,8 @@ bool DspMakefileGenerator::writeProjectMakefile()
                 for (QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
                     const QStringList &inputs = project->values((*it)+".input");
                     for (QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
-                        files[(*input)] += config->project->variables()[(*input)].toSet();
+                        if (*input != "UIC3_HEADERS")
+                            files[(*input)] += config->project->variables()[(*input)].toSet();
                     }
                 }
             }
@@ -503,7 +511,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
         listNames = QStringList("HEADERS");
         allListNames += listNames;
         writeFileGroup(t, listNames, "Header Files", "h;hpp;hxx;hm;inl");
-        listNames = QString("FORMS|INTERFACES").split("|");
+        listNames = QString("FORMS|INTERFACES|FORMS3").split("|");
         allListNames += listNames;
         writeFileGroup(t, listNames, "Form Files", "ui");
         listNames = QStringList("IMAGES");
@@ -536,8 +544,6 @@ bool DspMakefileGenerator::writeProjectMakefile()
 
             DspMakefileGenerator* config = mergedProjects.at(i);
 
-            files["UIC3_HEADERS"] += config->project->variables()["UIC3_HEADERS"].toSet();
-
             config->project->variables()["SWAPPED_BUILD_STEPS"] = config->swappedBuildSteps.keys();
             files["SWAPPED_BUILD_STEPS"] +=  config->project->variables()["SWAPPED_BUILD_STEPS"].toSet();
 
@@ -546,11 +552,10 @@ bool DspMakefileGenerator::writeProjectMakefile()
         }
 
         project->variables()["SWAPPED_BUILD_STEPS"] = QList<QString>::fromSet(files["SWAPPED_BUILD_STEPS"]);
-        project->variables()["UIC3_HEADERS"] = QList<QString>::fromSet(files["UIC3_HEADERS"]);
         project->variables()["GENERATED_SOURCES"] = QList<QString>::fromSet(files["GENERATED_SOURCES"]);
         project->variables()["GENERATED_FILES"] = QList<QString>::fromSet(files["GENERATED_FILES"]);
 
-        writeFileGroup(t, QString("GENERATED_SOURCES|GENERATED_FILES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
+        writeFileGroup(t, QString("GENERATED_SOURCES|GENERATED_FILES|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
     }
     t << endl;
     t << "# End Target" << endl;
