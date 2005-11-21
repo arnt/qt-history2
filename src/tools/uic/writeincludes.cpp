@@ -80,6 +80,8 @@ void WriteIncludes::acceptUI(DomUI *node)
         it.next();
 
         QString header = m_oldHeaderToNewHeader.value(it.key(), it.key());
+        if (header.trimmed().isEmpty())
+            continue;
 
         if (it.value())
             output << "#include <" << header << ">\n";
