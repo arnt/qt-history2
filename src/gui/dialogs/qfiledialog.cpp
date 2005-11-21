@@ -1163,6 +1163,7 @@ void QFileDialogPrivate::updateFileName(const QItemSelection &selection)
 
 void QFileDialogPrivate::autoCompleteFileName(const QString &text)
 {
+    Q_Q(QFileDialog);
     // if we hanve no filename or the last character is '/', then don't autocomplete
     if (text.isEmpty() || text.at(text.length() - 1) == QDir::separator())
         return;
@@ -1171,10 +1172,21 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
     if (text.at(0) == QDir::separator() && text.count(QDir::separator()) < 3)
         return;
 #endif
-    QFileInfo info(toInternal(text));
     // the user is not typing  or the text is a valid file, there is no need for autocompletion
-    if (!fileNameEdit->hasFocus() || info.exists())
+    if (!fileNameEdit->hasFocus())
         return;
+    QFileInfo info(toInternal(text));
+    QFileInfo absoluteInfo;
+    if (info.isAbsolute())
+        absoluteInfo = info;
+    else
+        absoluteInfo = QFileInfo(toInternal(q->directory().absolutePath() + QDir::separator() + text));
+    if (absoluteInfo.exists()) {
+        QModelIndex index = model->index(absoluteInfo.absoluteFilePath());
+        if (index.isValid())
+            treeView->setCurrentIndex(index);
+        return;
+    }
     // if the user is removing text, don't autocomplete
     int key = fileNameEdit->lastKeyPressed();
     if (key == Qt::Key_Delete || key == Qt::Key_Backspace)
