@@ -126,10 +126,8 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
 
         qSort(source_children.begin(), source_children.end(), compare);
 
-        QModelIndex proxy_parent = d->proxy_to_source.key(source_parent); // ### slow
-        void *parent_node = 0;
-        if (proxy_parent.isValid())
-            parent_node = d->proxy_to_source.find(proxy_parent); // get the QMap node, used as uid in the proxy index
+        QModelIndex proxy_parent = d->map_source_to_proxy(source_parent);
+        void *proxy_internal_pointer = d->proxy_internal_pointer(proxy_parent);
 
         // for each proxy_row, go through the source_column (same as proxy columns) and update the mapping
         int source_column_count = sourceModel()->columnCount(source_parent);
@@ -141,12 +139,13 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
                 QModelIndex source_index = sourceModel()->index(source_row, source_column,
                                                                 source_parent);
                 Q_ASSERT(source_index.isValid());
-                QModelIndex old_proxy_index = d->proxy_to_source.key(source_index);
-                QModelIndex new_proxy_index = createIndex(proxy_row, source_column, parent_node);
+                QModelIndex old_proxy_index = d->map_source_to_proxy(source_index);
+                QModelIndex new_proxy_index = createIndex(proxy_row, source_column,
+                                                          proxy_internal_pointer);
                 if (old_proxy_index.isValid()) {                    
                     persistent_from.append(old_proxy_index);
                     persistent_to.append(new_proxy_index);
-                    d->proxy_to_source.remove(old_proxy_index);
+                    d->remove_mapping(old_proxy_index, source_index);
                 }
                 Q_ASSERT(new_proxy_index.isValid());
                 Q_ASSERT(source_index.isValid());
@@ -157,7 +156,7 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
 
         // do the mapping afterwards to avoid problems with looking up new and old indexes
         for (int i = 0; i < map_from.count(); ++i)
-            d->proxy_to_source.insert(map_from.at(i), map_to.at(i));
+            d->insert_mapping(map_from.at(i), map_to.at(i));
 
         map_from.clear();
         map_to.clear();

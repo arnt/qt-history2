@@ -34,7 +34,49 @@ class QMappingProxyModelPrivate : public QAbstractProxyModelPrivate
     Q_DECLARE_PUBLIC(QMappingProxyModel)
 public:
     QMappingProxyModelPrivate() : QAbstractProxyModelPrivate() {}
-    mutable QMap<QModelIndex, QModelIndex> proxy_to_source; // mapping
+
+    inline void insert_mapping(const QModelIndex &proxy_index,
+                               const QModelIndex &source_index) const
+    {
+        proxy_to_source.insert(proxy_index, source_index);
+        source_to_proxy.insert(source_index, proxy_index);
+    }
+
+    inline void remove_mapping(const QModelIndex &proxy_index,
+                               const QModelIndex &source_index) const
+    {
+        proxy_to_source.remove(proxy_index);
+        source_to_proxy.remove(source_index);
+    }
+
+    inline QModelIndex map_proxy_to_source(const QModelIndex &proxy_index) const
+    {
+        return proxy_to_source.value(proxy_index);
+    }
+
+    inline QModelIndex map_source_to_proxy(const QModelIndex &source_index) const
+    {
+        return source_to_proxy.value(source_index);
+    }
+
+    inline void* proxy_internal_pointer(const QModelIndex &proxy_parent) const
+    {
+        return proxy_parent.isValid() ? proxy_to_source.find(proxy_parent) : 0;
+    }
+
+    inline bool is_mapped(const QModelIndex &proxy_index) const
+    {
+        return proxy_to_source.contains(proxy_index);
+    }
+
+    inline void clear_mapping()
+    {
+        proxy_to_source.clear();
+        source_to_proxy.clear();
+    }
+
+    mutable QMap<QModelIndex, QModelIndex> proxy_to_source;
+    mutable QMap<QModelIndex, QModelIndex> source_to_proxy;
 };
 
 #endif // QMAPPINGPROXYMODEL_P_H

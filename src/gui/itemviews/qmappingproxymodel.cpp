@@ -163,18 +163,15 @@ void QMappingProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 QModelIndex QMappingProxyModel::index(int row, int column, const QModelIndex &parent) const
 {
     Q_D(const QMappingProxyModel);
-    void *parent_node = 0;
-    if (parent.isValid())
-        parent_node = d->proxy_to_source.find(parent); // ### slow
-    QModelIndex proxy_index = createIndex(row, column, parent_node);
 
-    if (!d->proxy_to_source.contains(proxy_index)) { // not mapped
-        QModelIndex source_parent = d->proxy_to_source.value(parent);
+    QModelIndex proxy_index = createIndex(row, column, d->proxy_internal_pointer(parent));
+    if (!d->is_mapped(proxy_index)) { // not mapped
+        QModelIndex source_parent = d->map_proxy_to_source(parent);
         QModelIndex source_index = sourceModel()->index(row, column, source_parent);
         Q_ASSERT(proxy_index.isValid());
         Q_ASSERT(source_index.isValid());
-        Q_ASSERT(!d->proxy_to_source.contains(proxy_index));
-        d->proxy_to_source.insert(proxy_index, source_index);
+        Q_ASSERT(!d->is_mapped(proxy_index));
+        d->insert_mapping(proxy_index, source_index);
     }
 
     return proxy_index;
@@ -188,7 +185,7 @@ QModelIndex QMappingProxyModel::parent(const QModelIndex &child) const
     Q_D(const QMappingProxyModel);
     if (child.isValid() && child.internalPointer() != 0) { // is valid and not toplevel
 #if 1
-        QModelIndex source_child = d->proxy_to_source.value(child);
+        QModelIndex source_child = d->map_proxy_to_source(child);
         QModelIndex source_parent = sourceModel()->parent(source_child);
         return proxyIndex(source_parent);
 #else
@@ -208,7 +205,7 @@ int QMappingProxyModel::rowCount(const QModelIndex &parent) const
     Q_D(const QMappingProxyModel);
     QModelIndex source_parent;
     if (parent.isValid()) {
-        source_parent = d->proxy_to_source.value(parent);
+        source_parent = d->map_proxy_to_source(parent);
         Q_ASSERT(source_parent.isValid());
     }
     return sourceModel()->rowCount(source_parent);
@@ -222,7 +219,7 @@ int QMappingProxyModel::columnCount(const QModelIndex &parent) const
     Q_D(const QMappingProxyModel);
     QModelIndex source_parent;
     if (parent.isValid())
-        source_parent = d->proxy_to_source.value(parent);
+        source_parent = d->map_proxy_to_source(parent);
     return sourceModel()->columnCount(source_parent);
 }
 
@@ -234,7 +231,7 @@ bool QMappingProxyModel::hasChildren(const QModelIndex &parent) const
     Q_D(const QMappingProxyModel);
     QModelIndex source_parent;
     if (parent.isValid())
-        source_parent = d->proxy_to_source.value(parent);
+        source_parent = d->map_proxy_to_source(parent);
     return sourceModel()->hasChildren(source_parent);
 }
 
@@ -245,7 +242,7 @@ QVariant QMappingProxyModel::data(const QModelIndex &index, int role) const
 {
     Q_D(const QMappingProxyModel);
     if (index.isValid() && !d->proxy_to_source.isEmpty()) {
-        QModelIndex source_index = d->proxy_to_source.value(index);
+        QModelIndex source_index = d->map_proxy_to_source(index);
         Q_ASSERT(source_index.isValid());
         return sourceModel()->data(source_index, role);
     }
@@ -259,7 +256,7 @@ bool QMappingProxyModel::setData(const QModelIndex &index, const QVariant &value
 {
     Q_D(QMappingProxyModel);
     if (index.isValid()) {
-        QModelIndex source_index = d->proxy_to_source.value(index);
+        QModelIndex source_index = d->map_proxy_to_source(index);
         Q_ASSERT(source_index.isValid());
         return sourceModel()->setData(source_index, value, role);
     }
@@ -274,7 +271,7 @@ QMimeData *QMappingProxyModel::mimeData(const QModelIndexList &indexes) const
     Q_D(const QMappingProxyModel);
     QModelIndexList source_indexes;
     for (int i = 0; i < indexes.count(); ++i)
-        source_indexes << d->proxy_to_source.value(indexes.at(i));
+        source_indexes << d->map_proxy_to_source(indexes.at(i));
     return sourceModel()->mimeData(source_indexes);
 }
 
@@ -286,7 +283,7 @@ bool QMappingProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 {
     Q_D(QMappingProxyModel);
     QModelIndex proxy_index = index(row, column, parent); // will insert the proxy_index in the map
-    QModelIndex source_index = d->proxy_to_source.value(proxy_index);
+    QModelIndex source_index = d->map_proxy_to_source(proxy_index);
     return sourceModel()->dropMimeData(data, action, source_index.row(), source_index.column(),
                                  source_index.parent());
 }
@@ -297,14 +294,14 @@ bool QMappingProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 bool QMappingProxyModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     Q_D(QMappingProxyModel);
-    QModelIndex source_parent = d->proxy_to_source.value(parent);
+    QModelIndex source_parent = d->map_proxy_to_source(parent);
     int source_row;
     int source_row_count = sourceModel()->rowCount(source_parent);
     if (row >= source_row_count) {
         source_row = source_row_count;
     } else {
         QModelIndex proxy_index = index(row, 0, parent); // will insert the proxy_index in the map
-        QModelIndex source_index = d->proxy_to_source.value(proxy_index);
+        QModelIndex source_index = d->map_proxy_to_source(proxy_index);
         source_row = source_index.row();
     }
     return sourceModel()->insertRows(source_row, count, source_parent);
@@ -316,14 +313,14 @@ bool QMappingProxyModel::insertRows(int row, int count, const QModelIndex &paren
 bool QMappingProxyModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
     Q_D(QMappingProxyModel);
-    QModelIndex source_parent = d->proxy_to_source.value(parent);
+    QModelIndex source_parent = d->map_proxy_to_source(parent);
     int source_column;
     int source_column_count = sourceModel()->columnCount(source_parent);
     if (column >= source_column_count) {
         source_column = source_column_count;
     } else {
         QModelIndex proxy_index = index(0, column, parent); // will insert the proxy_index in the map
-        QModelIndex source_index = d->proxy_to_source.value(proxy_index);
+        QModelIndex source_index = d->map_proxy_to_source(proxy_index);
         source_column = source_index.column();
     }
     return sourceModel()->insertColumns(source_column, count, source_parent);
@@ -336,7 +333,7 @@ bool QMappingProxyModel::removeRows(int row, int count, const QModelIndex &paren
 {
     Q_D(QMappingProxyModel);
     QModelIndex proxy_index = index(row, 0, parent); // will insert the proxy_index in the map
-    QModelIndex source_index = d->proxy_to_source.value(proxy_index);
+    QModelIndex source_index = d->map_proxy_to_source(proxy_index);
     return sourceModel()->removeRows(source_index.row(), count, source_index.parent());
 }
 
@@ -347,7 +344,7 @@ bool QMappingProxyModel::removeColumns(int column, int count, const QModelIndex 
 {
     Q_D(QMappingProxyModel);
     QModelIndex proxy_index = index(0, column, parent); // will insert the proxy_index in the map
-    QModelIndex source_index = d->proxy_to_source.value(proxy_index);
+    QModelIndex source_index = d->map_proxy_to_source(proxy_index);
     return sourceModel()->removeColumns(source_index.column(), count, source_index.parent());
 }
 
@@ -359,7 +356,7 @@ void QMappingProxyModel::fetchMore(const QModelIndex &parent)
     Q_D(QMappingProxyModel);
     QModelIndex source_parent;
     if (parent.isValid())
-        source_parent = d->proxy_to_source.value(parent);
+        source_parent = d->map_proxy_to_source(parent);
     sourceModel()->fetchMore(source_parent);
 }
 
@@ -371,7 +368,7 @@ bool QMappingProxyModel::canFetchMore(const QModelIndex &parent) const
     Q_D(const QMappingProxyModel);
     QModelIndex source_parent;
     if (parent.isValid())
-        source_parent = d->proxy_to_source.value(parent);
+        source_parent = d->map_proxy_to_source(parent);
     return sourceModel()->canFetchMore(source_parent);
 }
 
@@ -383,7 +380,7 @@ Qt::ItemFlags QMappingProxyModel::flags(const QModelIndex &index) const
     Q_D(const QMappingProxyModel);
     QModelIndex source_index;
     if (index.isValid())
-        source_index = d->proxy_to_source.value(index);
+        source_index = d->map_proxy_to_source(index);
     return sourceModel()->flags(source_index);
 }
 
@@ -394,7 +391,7 @@ QModelIndex QMappingProxyModel::buddy(const QModelIndex &index) const
 {
     Q_D(const QMappingProxyModel);
     if (index.isValid()) {
-        QModelIndex source_index = d->proxy_to_source.value(index);
+        QModelIndex source_index = d->map_proxy_to_source(index);
         QModelIndex source_buddy = sourceModel()->buddy(source_index);
         return proxyIndex(source_buddy);
     }
@@ -409,7 +406,7 @@ QModelIndexList QMappingProxyModel::match(const QModelIndex &start, int role,
                                           Qt::MatchFlags flags) const
 {
     Q_D(const QMappingProxyModel);
-    QModelIndex source_start = d->proxy_to_source.value(start);
+    QModelIndex source_start = d->map_proxy_to_source(start);
     QModelIndexList result = sourceModel()->match(source_start, role, value, hits, flags);
     for (int i = 0; i < result.count(); ++i)
         result[i] = proxyIndex(result.at(i));
@@ -422,7 +419,7 @@ QModelIndexList QMappingProxyModel::match(const QModelIndex &start, int role,
 QSize QMappingProxyModel::span(const QModelIndex &index) const
 {
     Q_D(const QMappingProxyModel);
-    QModelIndex source_index = d->proxy_to_source.value(index);
+    QModelIndex source_index = d->map_proxy_to_source(index);
     return sourceModel()->span(source_index);
 }
 
@@ -432,7 +429,7 @@ QSize QMappingProxyModel::span(const QModelIndex &index) const
 void QMappingProxyModel::clear()
 {
     Q_D(QMappingProxyModel);
-    d->proxy_to_source.clear();
+    d->clear_mapping();
     reset();
 }
 
@@ -512,7 +509,7 @@ void QMappingProxyModel::sourceRowsAboutToBeRemoved(const QModelIndex &source_pa
     int proxy_start = proxy_index.row();
     int proxy_end = proxy_start + (end - start);
     beginRemoveRows(proxy_parent, proxy_start, proxy_end); // emits signal
-    d->proxy_to_source.remove(proxy_index);
+    d->remove_mapping(proxy_index, source_index);
 }
 
 /*!
@@ -548,7 +545,7 @@ void QMappingProxyModel::sourceColumnsRemoved()
 void QMappingProxyModel::sourceLayoutChanged()
 {
     Q_D(QMappingProxyModel);
-    d->proxy_to_source.clear();
+    d->clear_mapping();
 }
 
 /*!
@@ -562,7 +559,7 @@ QModelIndex QMappingProxyModel::proxyIndex(const QModelIndex &source_index) cons
     if (!source_index.isValid())
         return QModelIndex();
 
-    QModelIndex proxy_index = d->proxy_to_source.key(source_index); // ### slow
+    QModelIndex proxy_index = d->map_source_to_proxy(source_index);
     if (proxy_index.isValid())
         return proxy_index;
 
@@ -583,7 +580,7 @@ QModelIndex QMappingProxyModel::sourceIndex(const QModelIndex &proxy_index) cons
     Q_D(const QMappingProxyModel);
     if (!proxy_index.isValid())
         return QModelIndex();
-    return d->proxy_to_source.value(proxy_index);
+    return d->map_proxy_to_source(proxy_index);
 }
 
 /*!
@@ -595,7 +592,7 @@ void QMappingProxyModel::insertMapping(const QModelIndex &proxy_index,
                                        const QModelIndex &source_index)
 {
     Q_D(QMappingProxyModel);
-    d->proxy_to_source.insert(proxy_index, source_index);
+    d->insert_mapping(proxy_index, source_index);
 }
 
 /*!
@@ -605,7 +602,7 @@ void QMappingProxyModel::insertMapping(const QModelIndex &proxy_index,
 void QMappingProxyModel::removeMapping(const QModelIndex &proxy_index)
 {
     Q_D(QMappingProxyModel);
-    d->proxy_to_source.remove(proxy_index);
+    d->remove_mapping(proxy_index, d->map_proxy_to_source(proxy_index));
 }
 
 /*!
@@ -615,5 +612,5 @@ void QMappingProxyModel::removeMapping(const QModelIndex &proxy_index)
 bool QMappingProxyModel::isMapped(const QModelIndex &proxy_index) const
 {
     Q_D(const QMappingProxyModel);
-    return d->proxy_to_source.contains(proxy_index);
+    return d->is_mapped(proxy_index);
 }

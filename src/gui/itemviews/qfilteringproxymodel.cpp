@@ -99,12 +99,9 @@ QModelIndex QFilteringProxyModel::index(int row, int column, const QModelIndex &
         mapChildren(parent); // filter and map the children of parent, including proxy_index
     if (d->proxy_to_source.isEmpty()) // nothing was mapped
         return QModelIndex();
-    void *parent_node = 0;
-    if (parent.isValid())
-        parent_node = d->proxy_to_source.find(parent); // ### slow
     //Q_ASSERT(row >= 0 && row < rowCount(parent));
     //Q_ASSERT(column >= 0 && column < columnCount(parent));
-    return createIndex(row, column, parent_node);
+    return createIndex(row, column, d->proxy_internal_pointer(parent));
 }
 
 /*!
@@ -141,10 +138,10 @@ void QFilteringProxyModel::mapChildren(const QModelIndex &parent) const
     Q_D(const QFilteringProxyModel);
 
     QModelIndex source_parent;
-    void *parent_node = 0;
+    void *proxy_internal_pointer = 0;
     if (parent.isValid()) {
-        parent_node = d->proxy_to_source.find(parent); // ### slow
-        source_parent = d->proxy_to_source.value(parent);
+        proxy_internal_pointer = d->proxy_internal_pointer(parent);
+        source_parent = d->map_proxy_to_source(parent);
     }
 
     int proxy_row = 0;
@@ -165,11 +162,12 @@ void QFilteringProxyModel::mapChildren(const QModelIndex &parent) const
                 } else if (!filtered_columns.testBit(source_column)) {
                     QModelIndex source_index = d->model->index(source_row, source_column,
                                                                source_parent);
-                    QModelIndex proxy_index = createIndex(proxy_row, proxy_column, parent_node);
+                    QModelIndex proxy_index = createIndex(proxy_row, proxy_column,
+                                                          proxy_internal_pointer);
                     Q_ASSERT(proxy_index.isValid());
                     Q_ASSERT(source_index.isValid());
                     //Q_ASSERT(!proxy_to_source.contains(proxy_index));
-                    d->proxy_to_source.insert(proxy_index, source_index);
+                    d->insert_mapping(proxy_index, source_index);
                     ++proxy_column;
                 }
             }
@@ -206,5 +204,5 @@ void QFilteringProxyModel::sourceLayoutChanged()
 {
     Q_D(QFilteringProxyModel);
     d->filtered_count.clear();
-    d->proxy_to_source.clear();
+    d->clear_mapping();
 }
