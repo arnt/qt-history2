@@ -2284,7 +2284,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             tool.palette = tb->palette;
             if (tb->subControls & SC_TitleBarCloseButton) {
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarCloseButton, widget);
-                down = tb->activeSubControls & SC_TitleBarCloseButton;
+                down = tb->activeSubControls & SC_TitleBarCloseButton && (opt->state & State_Sunken);
                 if ((tb->titleBarFlags & Qt::WindowType_Mask) == Qt::Tool
 #ifndef QT_NO_DOCKWIDGET
                      || qobject_cast<const QDockWidget *>(widget)
@@ -2309,7 +2309,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 && tb->titleBarFlags & Qt::WindowMaximizeButtonHint) {
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarMaxButton, widget);
 
-                down = tb->activeSubControls & SC_TitleBarMaxButton;
+                down = tb->activeSubControls & SC_TitleBarMaxButton && (opt->state & State_Sunken);
                 pm = standardPixmap(SP_TitleBarMaxButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
@@ -2339,7 +2339,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 QStyle::StandardPixmap spixmap = (tb->subControls & SC_TitleBarNormalButton ?
                                                SP_TitleBarNormalButton :
                                                SP_TitleBarMinButton);
-                down = tb->activeSubControls & ctrl;
+                down = tb->activeSubControls & ctrl && (opt->state & State_Sunken);
                 pm = standardPixmap(spixmap, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
@@ -2356,7 +2356,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (tb->subControls & SC_TitleBarShadeButton) {
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarShadeButton, widget);
 
-                down = tb->activeSubControls & SC_TitleBarShadeButton;
+                down = (tb->activeSubControls & SC_TitleBarShadeButton && (opt->state & State_Sunken));
                 pm = standardPixmap(SP_TitleBarShadeButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
@@ -2372,7 +2372,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (tb->subControls & SC_TitleBarUnshadeButton) {
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarUnshadeButton, widget);
 
-                down = tb->activeSubControls & SC_TitleBarUnshadeButton;
+                down = tb->activeSubControls & SC_TitleBarUnshadeButton  && (opt->state & State_Sunken);
                 pm = standardPixmap(SP_TitleBarUnshadeButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
@@ -2388,7 +2388,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 && tb->titleBarFlags & Qt::WindowContextHelpButtonHint) {
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarContextHelpButton, widget);
 
-                down = tb->activeSubControls & SC_TitleBarContextHelpButton;
+                down = tb->activeSubControls & SC_TitleBarContextHelpButton  && (opt->state & State_Sunken);
                 pm = standardPixmap(SP_TitleBarContextHelpButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;

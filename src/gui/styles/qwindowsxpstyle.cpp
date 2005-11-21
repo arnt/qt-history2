@@ -2783,7 +2783,16 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     } else {
                         theme.partId = partId;
                         theme.stateId = stateId;
-                        d->drawBackground(theme);
+                        SIZE sz;        
+                        pGetThemePartSize(theme.handle(), qt_win_display_dc(), theme.partId, theme.stateId, 0, TS_TRUE, &sz);
+                        if (sz.cx == 0 || sz.cy == 0) {
+                            QPixmap pm = standardPixmap(SP_TitleBarMenuButton, tb, widget);
+                            p->save();
+                            drawItemPixmap(p, theme.rect, Qt::AlignCenter, pm);
+                            p->restore();
+                        } else {
+                            d->drawBackground(theme);
+                        }                       
                     }
                 }
 
@@ -3081,25 +3090,51 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
   This function is used by subControlRect to check if a button
   should be drawn for the given subControl given a set of window flags.
 */ 
-static bool buttonHidden(const QStyle::SubControl sc, const uint flags){
-     switch (sc) {
-     case QStyle::SC_TitleBarCloseButton:
-         if ((flags & Qt::WindowSystemMenuHint))
-             return false;
-     case QStyle::SC_TitleBarShadeButton:
-     case QStyle::SC_TitleBarUnshadeButton:
-         if ((flags & Qt::WindowShadeButtonHint))
-             return false;
-     case QStyle::SC_TitleBarMaxButton:
-         if ((flags & Qt::WindowMaximizeButtonHint))
-             return false;
-     case QStyle::SC_TitleBarMinButton:
-     case QStyle::SC_TitleBarNormalButton:
-         if ((flags & Qt::WindowMinimizeButtonHint))
-             return false;
-         return true;
-     }
-     return false;
+static bool buttonVisible(const QStyle::SubControl sc, const QStyleOptionTitleBar *tb){
+ 
+    bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
+    bool isMaximized = tb->titleBarState & Qt::WindowMaximized;
+    const uint flags = tb->titleBarFlags;
+    bool retVal = false;        
+    switch (sc) {
+    case QStyle::SC_TitleBarContextHelpButton:
+        if (flags & Qt::WindowContextHelpButtonHint)
+            retVal = true;
+        break;
+    case QStyle::SC_TitleBarMinButton:
+        if (!isMinimized && (flags & Qt::WindowMinimizeButtonHint))
+            retVal = true;
+        break;
+    case QStyle::SC_TitleBarNormalButton:
+        if (isMinimized && (flags & Qt::WindowMinimizeButtonHint))
+            retVal = true;
+        else if (isMaximized && (flags & Qt::WindowMaximizeButtonHint))
+            retVal = true;
+        break;
+    case QStyle::SC_TitleBarMaxButton:
+        if (!isMaximized && (flags & Qt::WindowMaximizeButtonHint))
+            retVal = true;
+        break;
+    case QStyle::SC_TitleBarShadeButton:
+        if (!isMinimized &&  flags & Qt::WindowShadeButtonHint)
+            retVal = true;
+        break;
+    case QStyle::SC_TitleBarUnshadeButton:
+        if (isMinimized && flags & Qt::WindowShadeButtonHint)
+            retVal = true;
+        break;
+    case QStyle::SC_TitleBarCloseButton:
+        if (flags & Qt::WindowSystemMenuHint)
+            retVal = true;
+        break;
+    case QStyle::SC_TitleBarSysMenu:
+        if (flags & Qt::WindowSystemMenuHint)
+            retVal = true;
+        break;
+    default :
+        retVal = true;
+    }
+    return retVal;
 }
 
 /*!
@@ -3116,7 +3151,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
     switch (cc) {
     case CC_TitleBar:
         if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
-            if (buttonHidden(sc, tb->titleBarFlags))
+            if (!buttonVisible(sc, tb))
                 return rect;
             const bool isToolTitle = false; // widget->testWFlags(Qt::WA_WState_Tool)
             const int height = tb->rect.height();
@@ -3129,7 +3164,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
             const bool maximizeHint = (tb->titleBarFlags & Qt::WindowMaximizeButtonHint) != 0;
             const bool contextHint = (tb->titleBarFlags & Qt::WindowContextHelpButtonHint) != 0;
             const bool shadeHint = (tb->titleBarFlags & Qt::WindowShadeButtonHint) != 0;
-
+            
             switch (sc) {
             case SC_TitleBarLabel:
                 rect = QRect(0, 0, width, height);
@@ -3278,7 +3313,7 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     switch (hint) {
 
     case SH_TitleBar_AutoRaise:
-        res = 1;
+        res = true;
         break;
 
     case SH_SpinControls_DisableOnBounds:
