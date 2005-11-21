@@ -1189,8 +1189,10 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
     }
     // if the user is removing text, don't autocomplete
     int key = fileNameEdit->lastKeyPressed();
-    if (key == Qt::Key_Delete || key == Qt::Key_Backspace)
+    if (key == Qt::Key_Delete || key == Qt::Key_Backspace) {
+        selections->clear();
         return;
+    }
     
     // Save the path part of what the user has typed.
     const QString typedPath = info.path();
