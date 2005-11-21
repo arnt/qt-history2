@@ -213,19 +213,9 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     }
 
     if ( corner ){
-        if ( ! frameContentsOnly ){
-            QRect s = q->contentsRect();
-            QRect r = QStyle::visualRect(opt.direction, opt.rect,
-                    QRect(s.width() - vsbExt + 2,
-                          s.height() - hsbExt + 2,
-                          vsbExt, hsbExt));
-            corner->setGeometry(r);
-        }
-        else{
-            QRect r = QStyle::visualRect(opt.direction, opt.rect,
-                    QRect(q->width()-vsbExt, q->height()-hsbExt, vsbExt, hsbExt));
-            corner->setGeometry(r);
-        }
+        QRect r = QStyle::visualRect(opt.direction, opt.rect,
+                  QRect(q->width()-vsbExt, q->height()-hsbExt, vsbExt, hsbExt));
+        corner->setGeometry(r);
     }
     
     hbar->setVisible(needh);
