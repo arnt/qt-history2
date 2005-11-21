@@ -107,7 +107,9 @@ void tst_lupdate::merge_data()
     
     QTest::newRow("Merge UI file") << QString("mergeui/project.pro") << QString() << QString();
     QTest::newRow("Merge CPP file") << QString("mergecpp/project.pro") << QString() << QString();
-    QTest::newRow("Merge CPP file, obsolete the old and create a new one") << QString("mergecpp_obsolete/project.pro") << QString() << QString();
+    QTest::newRow("mergecpp, (Merge CPP file, obsolete the old and create a new one)") << QString("mergecpp_obsolete/project.pro") << QString() << QString();
+    QTest::newRow("merge_versions. Make sure that we can merge an old ts with a new version ts file.") 
+                    << QString("merge_versions/project.pro") << QString() << QString();
 }
 
 void tst_lupdate::merge()
