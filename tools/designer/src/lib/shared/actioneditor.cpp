@@ -43,6 +43,7 @@ namespace qdesigner_internal {
 
 class ActionFilterWidget: public QWidget
 {
+    Q_OBJECT
 public:
     ActionFilterWidget(ActionEditor *actionEditor, QToolBar *parent)
         : QWidget(parent),
@@ -62,9 +63,23 @@ public:
         l->addWidget(m_editor);
 
         connect(m_editor, SIGNAL(textChanged(QString)), actionEditor, SLOT(setFilter(QString)));
+        m_button = new QPushButton(this);
+        m_button->setIcon(createIconSet(QLatin1String("resetproperty.png")));
+        m_button->setIconSize(QSize(16, 16));
+        m_button->setFlat(true);
+        l->addWidget(m_button);
+        connect(m_button, SIGNAL(clicked()), m_editor, SLOT(clear()));
+        connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(checkButton(QString)));
+    }
+
+private slots:
+    void checkButton(QString text)
+    {
+        m_button->setEnabled(!text.isEmpty());
     }
 
 private:
+    QPushButton *m_button;
     QLineEdit *m_editor;
     ActionEditor *m_actionEditor;
 };
@@ -458,3 +473,5 @@ QString ActionEditor::actionTextToName(const QString &text)
 
 
 } // namespace qdesigner_internal
+
+#include "actioneditor.moc"
