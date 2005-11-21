@@ -37,8 +37,6 @@ public:
 
 public slots:
     void updateWindowTitle(const QString &fileName);
-
-private slots:
     void updateChanged();
 
 protected:

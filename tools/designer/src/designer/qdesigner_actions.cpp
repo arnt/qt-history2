@@ -944,6 +944,11 @@ void QDesignerActions::aboutPlugins()
 
 void QDesignerActions::showFormSettings()
 {
-    FormWindowSettings dlg(core()->formWindowManager()->activeFormWindow());
-    dlg.exec();
+    QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
+    QDesignerFormWindow *window = m_workbench->findFormWindow(formWindow);
+    FormWindowSettings dlg(formWindow);
+    if (dlg.exec() && window) {
+        formWindow->setDirty(true);
+        window->updateChanged();
+    }
 }
