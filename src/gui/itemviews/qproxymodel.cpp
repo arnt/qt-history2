@@ -21,7 +21,7 @@
 /*!
     \class QProxyModel
     \obsolete
-    \brief The QProxyModel class provides support for filtering and sorting data
+    \brief The QProxyModel class provides support for processing data
     passed between another model and a view.
 
     \ingroup model-view
