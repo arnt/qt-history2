@@ -434,22 +434,32 @@ QStringList QFileDialog::selectedFiles() const
         }
     }
 
-    QString editText = d->fileNameEdit->text();
-    QStringList fileNames = editText.split("\"", QString::SkipEmptyParts);
-    for (int j = 0; j < fileNames.count(); ++j) {
-        QString name = d->toInternal(fileNames.at(j));
-        QFileInfo info(name);
-        // if the filename has no suffix, add the default suffix
-        if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf('.') == -1)
-            name += "." + d->defaultSuffix;
-        // a new filename
-        if ((d->fileMode == AnyFile && files.isEmpty())
-            || (d->fileMode == ExistingFile && info.exists())) {
-            if (info.isAbsolute())
-                files.append(name);
-            else
-                files.append(d->toInternal(d->lookInCombo->currentText()
-                                           + QDir::separator() + name));
+    // if we have no selected items, use the name(s) in the lineedit
+    if (files.isEmpty() && !d->fileNameEdit->text().isEmpty()) {
+        QString editText = d->fileNameEdit->text();
+        if (editText.contains('"')) {
+            // " is used to separate files like so: "file1" "file2" "file3" ...
+            // ### need escape character for filenames with quotes (")
+            QStringList tokens = editText.split("\"");
+            for (int i = 0; i < tokens.size(); ++i) {
+                if ((i % 2) == 0)
+                    continue; // Every even token is a separator
+                QString name = d->toInternal(tokens.at(i));
+                QFileInfo info(name);
+                // if the filename has no suffix, add the default suffix
+                if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf('.') == -1)
+                    name += "." + d->defaultSuffix;
+                // a new filename
+                if ((d->fileMode == ExistingFiles) || files.isEmpty()) {
+                    if (info.isAbsolute())
+                        files.append(name);
+                    else
+                        files.append(d->toInternal(d->lookInCombo->currentText()
+                                                   + QDir::separator() + name));
+                }
+            }
+        } else {
+            files.append(editText);
         }
     }
 
@@ -831,6 +841,8 @@ void QFileDialog::accept()
 {
     Q_D(QFileDialog);
     QStringList files = selectedFiles();
+    if (files.isEmpty())
+        return;
     QString fn = d->fileNameEdit->text();
 
     // special case for ".."
@@ -843,18 +855,26 @@ void QFileDialog::accept()
         return;
     }
 
-    // if we have no selected items, use the name in the lineedit
-    if (files.isEmpty())
-        files.append(fn);
-
     switch (d->fileMode) {
     case DirectoryOnly:
-    case Directory:
-        if (QFileInfo(files.first()).isDir()) {
+    case Directory: {
+        QString fn = files.first();
+        QFileInfo info(fn);
+        if (!info.exists())
+            info = QFileInfo(d->getEnvironmentVariable(fn));
+        if (!info.exists()) {
+            QString message = tr("\nFile not found.\nPlease verify the "
+                                 "correct file name was given");
+            QMessageBox::warning(this, d->acceptButton->text(),
+                                 info.fileName() + message);
+            return;
+        }
+        if (info.isDir()) {
             emit filesSelected(files);
             QDialog::accept();
         }
         return;
+    }
     case AnyFile: {
         QString fn = files.first();
         QFileInfo info(fn);
@@ -871,7 +891,8 @@ void QFileDialog::accept()
                                       QMessageBox::Yes, QMessageBox::No)
                  == QMessageBox::Yes)
             QDialog::accept();
-        return;}
+        return;
+    }
     case ExistingFile:
     case ExistingFiles:
         for (int i = 0; i < files.count(); ++i) {
