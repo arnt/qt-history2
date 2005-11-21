@@ -94,7 +94,6 @@ static struct {
     int last_modifiers, last_button;
     EventTime last_time;
 } qt_mac_dblclick = { false, 0, 0, 0, -2 };
-static bool qt_mac_use_qt_scroller_lines = false;
 
 // tablet structure
 static QTabletEvent::PointerType currPointerType = QTabletEvent::UnknownPointer;
@@ -2764,19 +2763,11 @@ int QApplication::keyboardInputInterval()
 
 void QApplication::setWheelScrollLines(int n)
 {
-    qt_mac_use_qt_scroller_lines = true;
     QApplicationPrivate::wheel_scroll_lines = n;
 }
 
 int QApplication::wheelScrollLines()
 {
-    if(!qt_mac_use_qt_scroller_lines) {
-        /* First worked as of 10.3.3 */
-        QSettings appleSettings(QLatin1String("apple.com"));
-        double scroll = appleSettings.value(QLatin1String("com/apple/scrollwheel/scaling"),
-                                           (QApplicationPrivate::wheel_scroll_lines)).toDouble();
-        return scroll ? int(scroll) : 1;
-    }
     return QApplicationPrivate::wheel_scroll_lines;
 }
 
