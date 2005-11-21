@@ -22,7 +22,9 @@
 #include <time.h>
 #include <errno.h>
 #include <fcntl.h>
-
+#ifndef QT_NO_IPV6IFNAME
+#include <net/if.h>
+#endif
 #if defined QNATIVESOCKETENGINE_DEBUG
 #include <qstring.h>
 #include <ctype.h>
