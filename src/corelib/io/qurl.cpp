@@ -485,8 +485,10 @@ static bool QT_FASTCALL _IPv4Address(char **ptr, QByteArray *c)
 
         tmp1 += '.';
 
-        if (!_decOctet(ptr, &tmp1))
+        if (!_decOctet(ptr, &tmp1)) {
+            *ptr = ptrBackup;
             return false;
+        }
     }
 
     *c += tmp1;
