@@ -51,7 +51,7 @@ getQMakeConf()
     close(fname)
     next
 }
-{ print }' $QMAKESPEC/qmake.conf
+{ print }' $tmpSPEC/qmake.conf
 }
 
 #-------------------------------------------------------------------------------
