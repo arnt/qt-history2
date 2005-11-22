@@ -292,7 +292,8 @@ static bool createSvgGlyph(QSvgFont *font, const QXmlAttributes &attributes)
     return true;
 }
 
-
+// this should really be called convertToDefaultCoordinateSystem
+// and convert when type != QSvgHandler::defaultCoordinateSystem
 static qreal convertToPixels(qreal len, bool isX, QSvgHandler::LengthType type)
 {
     QWidgetList widgets = QApplication::topLevelWidgets();
@@ -786,6 +787,9 @@ static bool parseQFont(const QXmlAttributes &attributes,
             QSvgHandler::LengthType type;
             qreal len = parseLength(size, type, handler);
             //len = convertToPixels(len, false, type);
+            // ### org_module.svg shows that font size
+            // seems to be always in px...
+            type  = QSvgHandler::PX;
             if (type == QSvgHandler::PX ||
                 type == QSvgHandler::OTHER)
                 font.setPixelSize(int(len));
@@ -2330,10 +2334,12 @@ static QSvgNode *createSvgNode(QSvgNode *parent,
     }
 
 
-    if (type == QSvgHandler::PT)
+    if (type == QSvgHandler::PT) {
         handler->setDefaultCoordinateSystem(type);
-    else
+    }
+    else {
         handler->setDefaultCoordinateSystem(QSvgHandler::PX);
+    }
 
     return node;
 }
@@ -2364,9 +2370,13 @@ static QSvgNode *createTextNode(QSvgNode *parent,
     //### editable and rotate not handled
     QSvgHandler::LengthType type;
     qreal nx = parseLength(x, type, handler);
-    nx = convertToPixels(nx, true, type);
     qreal ny = parseLength(y, type, handler);
-    ny = convertToPixels(ny, true, type);
+
+    //### not to pixels but to the default coordinate system
+    //    and text should be already in the correct coordinate
+    //    system here
+    //nx = convertToPixels(nx, true, type);
+    //ny = convertToPixels(ny, true, type);
 
     QSvgNode *text = new QSvgText(parent, QPointF(nx, ny));
     return text;
