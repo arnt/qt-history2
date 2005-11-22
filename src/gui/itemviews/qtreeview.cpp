@@ -1966,8 +1966,6 @@ void QTreeViewPrivate::updateHorizontalScrollbar()
 int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
 {
     Q_Q(const QTreeView);
-    if (!rootDecoration)
-        return -1;
     int x = pos.x();
     int column = header->logicalIndexAt(x);
     if (column == -1)
@@ -1982,6 +1980,9 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
     if (!index.isValid() || column != 0
         || cx < (itemIndentation - indent) || cx > itemIndentation)
         return -1; // pos is outside the /ecoration rect
+
+    if (!rootDecoration && index.parent() == q->rootIndex())
+        return -1; // no decoration at root
 
     QRect rect;
     if (q->isRightToLeft())
