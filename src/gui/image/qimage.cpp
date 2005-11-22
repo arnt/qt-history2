@@ -798,7 +798,8 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
     }
 }
 
-#ifdef Q_WS_QWS
+#endif
+#if defined(Q_WS_QWS) || defined(QT3_SUPPORT)
 
 /*!
     Constructs an image that uses an existing memory buffer. The
@@ -846,7 +847,6 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
     }
 }
 #endif // Q_WS_QWS
-#endif
 
 /*!
     Destroys the image and cleans up.
