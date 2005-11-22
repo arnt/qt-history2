@@ -26,7 +26,7 @@
 //
 
 #include <QtCore/qnamespace.h>
-#include <QtCore/qmap.h>
+#include <QtCore/qhash.h>
 #include <QtCore/qpair.h>
 #include <private/qmappingproxymodel_p.h>
 
@@ -37,7 +37,7 @@ class QFilteringProxyModelPrivate : private QMappingProxyModelPrivate
 public:
     QFilteringProxyModelPrivate() : QMappingProxyModelPrivate() {}
     // maps the parent to the  number of filtered rows and columns
-    mutable QMap<QModelIndex, QPair<int,int> > filtered_count;
+    mutable QHash<QModelIndex, QPair<int,int> > filtered_count;
 };
 
 #endif // QFILTERINGPROXYMODEL_P_H

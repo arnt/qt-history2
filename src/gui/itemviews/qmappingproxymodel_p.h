@@ -26,7 +26,7 @@
 //
 //
 
-#include "QtCore/qmap.h"
+#include "QtCore/qhash.h"
 #include "private/qabstractproxymodel_p.h"
 
 class QMappingProxyModelPrivate : public QAbstractProxyModelPrivate
@@ -61,7 +61,7 @@ public:
 
     inline void* proxy_internal_pointer(const QModelIndex &proxy_parent) const
     {
-        return proxy_parent.isValid() ? proxy_to_source.find(proxy_parent) : 0;
+        return proxy_parent.isValid() ? static_cast<void*>(proxy_to_source.find(proxy_parent)) : 0;
     }
 
     inline bool is_mapped(const QModelIndex &proxy_index) const
@@ -75,8 +75,8 @@ public:
         source_to_proxy.clear();
     }
 
-    mutable QMap<QModelIndex, QModelIndex> proxy_to_source;
-    mutable QMap<QModelIndex, QModelIndex> source_to_proxy;
+    mutable QHash<QModelIndex, QModelIndex> proxy_to_source;
+    mutable QHash<QModelIndex, QModelIndex> source_to_proxy;
 };
 
 #endif // QMAPPINGPROXYMODEL_P_H

@@ -124,7 +124,7 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
             source_children.append(source_index);
         }
 
-        qSort(source_children.begin(), source_children.end(), compare);
+        qStableSort(source_children.begin(), source_children.end(), compare);
 
         QModelIndex proxy_parent = d->map_source_to_proxy(source_parent);
         void *proxy_internal_pointer = d->proxy_internal_pointer(proxy_parent);
