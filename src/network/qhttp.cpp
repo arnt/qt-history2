@@ -704,7 +704,7 @@ QStringList QHttpHeader::keys() const
     QStringList keyList;
     QList<QPair<QString, QString> >::ConstIterator it = d->values.constBegin();
     while (it != d->values.constEnd()) {
-        if (keyList.contains((*it).first))
+        if (!keyList.contains((*it).first))
             keyList.append((*it).first);
         ++it;
     }
