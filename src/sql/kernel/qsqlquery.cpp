@@ -863,6 +863,67 @@ bool QSqlQuery::exec()
     return d->sqlResult->exec();
 }
 
+/*! \enum QSqlQuery::BatchExecutionMode
+
+    \value ValuesAsRows - Updates multiple rows. Treats every entry in a QVariantList as a value for updating the next row.
+    \value ValuesAsColumns - Updates a single row. Treats every entry in a QVariantList as a single value of an array type.
+*/
+
+/*!
+    Executes a previously prepared SQL query in a batch. All the bound parameters
+    have to be lists of variants. If the database doesn't support batch executions,
+    the driver will simulate it using conventional exec() calls.
+
+    Example:
+
+    \code
+        QSqlQuery q;
+        q.prepare("insert into myTable values (?, ?)");
+
+        QVariantList ints;
+        ints << 1 << 2 << 3 << 4;
+        q.addBindValue(ints);
+
+        QVariantList names;
+        names << "Harald" << "Boris" << "Trond" << QVariant(QVariant::String);
+        q.addBindValue(names);
+
+        if (!q.execBatch())
+            qDebug() << q.lastError();
+    \endcode
+
+    The example above inserts four new rows into \c myTable:
+
+    \code
+        1  Harald
+        2  Boris
+        3  Trond
+        4  NULL
+    \endcode
+
+    To bind NULL values, a null QVariant has to be added to the bound QVariantList,
+    for example: \c {QVariant(QVariant::String)}
+
+    Note that every bound QVariantList must contain the same amount of variants.
+    Note that the type of the QVariants in a list must not change. For example,
+    you cannot mix integer and string variants within a QVariantList.
+
+    The \a mode parameter indicates how the bound QVariantList will be interpreted.
+    If \a mode is \c ValuesAsRows, every variant within the QVariantList will be
+    interpreted as a value for a new row. \c ValuesAsColumns is a special case
+    for the Oracle driver. In this mode, every entry within a QVariantList will
+    be interpreted as array-value for an IN or OUT value within a stored procedure.
+    Note that this will only work if the IN or OUT value is a table-type consisting
+    of only one column of a basic type, for example
+    \c{TYPE myType IS TABLE OF VARCHAR(64) INDEX BY BINARY_INTEGER;}
+
+    \sa prepare(), bindValue(), addBindValue()
+*/
+bool QSqlQuery::execBatch(BatchExecutionMode mode)
+{
+    return d->sqlResult->execBatch(mode == ValuesAsColumns);
+}
+
 /*!
     Set the placeholder \a placeholder to be bound to value \a val in
     the prepared statement. Note that the placeholder mark (e.g \c{:})

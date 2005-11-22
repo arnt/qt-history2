@@ -69,6 +69,8 @@ public:
 
     // prepared query support
     bool exec();
+    enum BatchExecutionMode { ValuesAsRows, ValuesAsColumns };
+    bool execBatch(BatchExecutionMode mode = ValuesAsRows);
     bool prepare(const QString& query);
     void bindValue(const QString& placeholder, const QVariant& val,
                    QSql::ParamType type = QSql::In);
