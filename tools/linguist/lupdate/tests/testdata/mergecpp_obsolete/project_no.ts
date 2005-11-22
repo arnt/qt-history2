@@ -22,5 +22,9 @@
         <source>Text not found</source>
         <translation type="unfinished"></translation>
     </message>
+    <message><!-- This should be removed in the ts.result file. -->
+        <source>Text not found</source>
+        <translation type="obsolete"></translation>
+    </message>
 </context>
 </TS>
