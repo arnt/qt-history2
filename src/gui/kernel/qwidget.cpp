@@ -6104,7 +6104,7 @@ void QWidget::setLayout(QLayout *l)
     }
     if (layout()) {
         if (layout() != l)
-            qWarning("QWidget::setLayout() : QLayout \"%s\" added to %s \"%s\", which already has a"
+            qWarning("QWidget::setLayout() : Attempting to add QLayout \"%s\" to %s \"%s\", which already has a"
                      " layout", l->objectName().toLocal8Bit().data(), metaObject()->className(),
                      objectName().toLocal8Bit().data());
         return;

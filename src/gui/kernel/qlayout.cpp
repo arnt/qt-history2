@@ -98,10 +98,11 @@ QLayout::QLayout(QLayoutPrivate &dd, QLayout *lay, QWidget *w)
         lay->addItem(this);
     } else if (w) {
         if (w->layout()) {
-            qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
-                     " layout. This may cause memory leaks.",
+            qWarning("Attempting to add QLayout \"%s\" to %s \"%s\", which already has a"
+                     " layout.",
                      qPrintable(QObject::objectName()), w->metaObject()->className(),
                      w->objectName().toLocal8Bit().data());
+            setParent(0);
         } else {
             d->topLevel = true;
             w->d_func()->layout = this;
