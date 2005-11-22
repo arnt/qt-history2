@@ -2559,7 +2559,12 @@ void QPdfEnginePrivate::drawTextItem(QPdfEngine *q, const QPointF &p, const QTex
     if (!currentPage->fonts.contains(font->object_id))
         currentPage->fonts.append(font->object_id);
 
-    int size = ti.fontEngine->fontDef.pixelSize;
+    qreal size;
+#ifdef Q_WS_WIN
+    size = ti.fontEngine->tm.w.tmHeight;
+#else
+    size = ti.fontEngine->fontDef.pixelSize;
+#endif
 
     QVarLengthArray<glyph_t> glyphs;
     QVarLengthArray<QFixedPoint> positions;
@@ -2627,6 +2632,28 @@ void QPdfEnginePrivate::drawTextItem(QPdfEngine *q, const QPointF &p, const QTex
         font->addGlyph(glyphs[i]);
         last_x = x;
         last_y = y;
+    }
+    if (synthesized & QFontEngine::SynthesizedBold) {
+        *currentPage << stretch << (synthesized & QFontEngine::SynthesizedItalic
+                            ? "0 .3 -1 0 0 Tm\n"
+                            : "0 0 -1 0 0 Tm\n");
+        *currentPage << "/Span << /ActualText <> >> BDC\n";
+        last_x = 0.5*fe->lineThickness().toReal();
+        last_y = 0.;
+        for (int i = 0; i < glyphs.size(); ++i) {
+            qreal x = positions[i].x.toReal();
+            qreal y = positions[i].y.toReal();
+            if (synthesized & QFontEngine::SynthesizedItalic)
+                x += .3*y;
+            x /= stretch;
+            char buf[5];
+            *currentPage << x - last_x << last_y - y << "Td <"
+                        << toHex((ushort)glyphs[i], buf) << "> Tj\n";
+            font->addGlyph(glyphs[i]);
+            last_x = x;
+            last_y = y;
+        }
+        *currentPage << "EMC\n";
     }
 #endif
 

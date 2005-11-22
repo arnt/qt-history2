@@ -47,6 +47,33 @@ static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc, QFixed factor);
 static unsigned char *getCMap(HDC hdc, bool &);
 static quint32 getGlyphIndex(unsigned char *table, unsigned int unicode);
 
+#define MAKE_TAG(ch1, ch2, ch3, ch4) (\
+    (((DWORD)(ch4)) << 24) | \
+    (((DWORD)(ch3)) << 16) | \
+    (((DWORD)(ch2)) << 8) | \
+    ((DWORD)(ch1)) \
+   )
+
+static inline quint32 getUInt(unsigned char *p)
+{
+    quint32 val;
+    val = *p++ << 24;
+    val |= *p++ << 16;
+    val |= *p++ << 8;
+    val |= *p;
+
+    return val;
+}
+
+static inline quint16 getUShort(unsigned char *p)
+{
+    quint16 val;
+    val = *p++ << 8;
+    val |= *p;
+
+    return val;
+}
+
 
 HDC   shared_dc            = 0;                // common dc for all fonts
 static HFONT stock_sysfont  = 0;
@@ -72,9 +99,11 @@ QFontEngine::~QFontEngine()
         delete [] cmap;
 }
 
-// ##### get these from windows
 QFixed QFontEngine::lineThickness() const
 {
+    if(lineWidth > 0) 
+        return lineWidth;
+
     // ad hoc algorithm
     int score = fontDef.weight * fontDef.pixelSize;
     int lw = score / 700;
@@ -90,6 +119,14 @@ QFixed QFontEngine::lineThickness() const
 QFixed QFontEngine::underlinePosition() const
 {
     return (lineThickness() * 2 + 3) / 6;
+}
+
+static OUTLINETEXTMETRICA *getOutlineTextMetric(HDC hdc)
+{
+    int size = GetOutlineTextMetricsA(hdc, 0, 0);
+    OUTLINETEXTMETRICA *otm = (OUTLINETEXTMETRICA *)malloc(size);
+    GetOutlineTextMetricsA(hdc, size, otm);
+    return otm;
 }
 
 void QFontEngine::getCMap()
@@ -110,20 +147,17 @@ void QFontEngine::getCMap()
     symbol = symb;
     script_cache = 0;
     designToDevice = 1;
-    unitsPerEm = tm.w.tmHeight;
+    _faceId.index = 0;
     if(cmap) {
-        QT_WA( {
-            OUTLINETEXTMETRICW metric;
-            GetOutlineTextMetricsW(hdc, sizeof(OUTLINETEXTMETRICW), &metric);
-            designToDevice = QFixed((int)metric.otmEMSquare)/int(metric.otmTextMetrics.tmHeight);
-            unitsPerEm = metric.otmEMSquare;
-        }, {
-            OUTLINETEXTMETRICA metric;
-            GetOutlineTextMetricsA(hdc, sizeof(OUTLINETEXTMETRICA), &metric);
-            designToDevice = QFixed((int)metric.otmEMSquare)/int(metric.otmTextMetrics.tmHeight);
-            unitsPerEm = metric.otmEMSquare;
-        } )
+        OUTLINETEXTMETRICA *otm = getOutlineTextMetric(hdc);
+        designToDevice = QFixed((int)otm->otmEMSquare)/int(otm->otmTextMetrics.tmHeight);
+        unitsPerEm = otm->otmEMSquare;
         kerning_pairs = getKerning(hdc, designToDevice);
+        _faceId.filename = (char *)otm + (int)otm->otmpFullName;
+        lineWidth = otm->otmsUnderscoreSize;
+        free(otm);
+    } else {
+        unitsPerEm = tm.w.tmHeight;
     }
 }
 
@@ -230,6 +264,8 @@ QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont
 
     lbearing = SHRT_MIN;
     rbearing = SHRT_MIN;
+    synthesized_flags = -1;
+    lineWidth = -1;
 
     BOOL res;
     QT_WA({
@@ -631,109 +667,118 @@ static inline QPointF qt_to_qpointf(const POINTFX &pt) {
 #define GGO_UNHINTED 0x0100
 #endif
 
-void QFontEngineWin::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs,
-				     QPainterPath *path, QTextItem::RenderFlags)
+static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc, 
+                           QPainterPath *path, glyph_metrics_t *metric = 0)
 {
     MAT2 mat;
     mat.eM11.value = mat.eM22.value = 1;
     mat.eM11.fract = mat.eM22.fract = 0;
     mat.eM21.value = mat.eM12.value = 0;
     mat.eM21.fract = mat.eM12.fract = 0;
+    const uint glyphFormat = GGO_NATIVE | GGO_GLYPH_INDEX | GGO_UNHINTED;
+    GLYPHMETRICS gMetric;
+    memset(&gMetric, 0, sizeof(GLYPHMETRICS));
+    int bufferSize;
+    QT_WA( {
+        bufferSize = GetGlyphOutlineW(hdc, glyph, glyphFormat, &gMetric, 0, 0, &mat);
+    }, {
+        bufferSize = GetGlyphOutlineA(hdc, glyph, glyphFormat, &gMetric, 0, 0, &mat);
+    });
+    if ((DWORD)bufferSize == GDI_ERROR) {
+        qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(1) failed");
+        return;
+    }
 
+    void *dataBuffer = new char[bufferSize];
+    DWORD ret;
+    QT_WA( {
+	ret = GetGlyphOutlineW(hdc, glyph, glyphFormat, &gMetric, bufferSize,
+			    dataBuffer, &mat);
+    }, {
+        ret = GetGlyphOutlineA(hdc, glyph, glyphFormat, &gMetric, bufferSize,
+                                dataBuffer, &mat);
+    } );
+    if (ret == GDI_ERROR) {
+        qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(2) failed");
+        return;
+    }
+
+    if(metric) {
+        *metric = glyph_metrics_t(gMetric.gmptGlyphOrigin.x, -gMetric.gmptGlyphOrigin.y,
+                                  (int)gMetric.gmBlackBoxX, (int)gMetric.gmBlackBoxY, 
+                                  gMetric.gmCellIncX, gMetric.gmCellIncY);
+    }
+
+    int offset = 0;
+    int headerOffset = 0;
+    TTPOLYGONHEADER *ttph = 0;
+
+    QPointF oset = position.toPointF();
+    while (headerOffset < bufferSize) {
+        ttph = (TTPOLYGONHEADER*)((char *)dataBuffer + headerOffset);
+
+        QPointF lastPoint(qt_to_qpointf(ttph->pfxStart));
+        path->moveTo(lastPoint + oset);
+        offset += sizeof(TTPOLYGONHEADER);
+        TTPOLYCURVE *curve;
+        while (offset<int(headerOffset + ttph->cb)) {
+            curve = (TTPOLYCURVE*)((char*)(dataBuffer) + offset);
+            switch (curve->wType) {
+            case TT_PRIM_LINE: {
+                for (int i=0; i<curve->cpfx; ++i) {
+                    QPointF p = qt_to_qpointf(curve->apfx[i]) + oset;
+                    path->lineTo(p);
+                }
+                break;
+            }
+            case TT_PRIM_QSPLINE: {
+                const QPainterPath::Element &elm = path->elementAt(path->elementCount()-1);
+                QPointF prev(elm.x, elm.y);
+                QPointF endPoint;
+                for (int i=0; i<curve->cpfx - 1; ++i) {
+                    QPointF p1 = qt_to_qpointf(curve->apfx[i]) + oset;
+                    QPointF p2 = qt_to_qpointf(curve->apfx[i+1]) + oset;
+                    if (i < curve->cpfx - 2) {
+                        endPoint = QPointF((p1.x() + p2.x()) / 2, (p1.y() + p2.y()) / 2);
+                    } else {
+                        endPoint = p2;
+                    }
+
+                    path->quadTo(p1, endPoint);
+                    prev = endPoint;
+                }
+
+                break;
+            }
+            case TT_PRIM_CSPLINE: {
+                for (int i=0; i<curve->cpfx; ) {
+                    QPointF p2 = qt_to_qpointf(curve->apfx[i++]) + oset;
+                    QPointF p3 = qt_to_qpointf(curve->apfx[i++]) + oset;
+                    QPointF p4 = qt_to_qpointf(curve->apfx[i++]) + oset;
+                    path->cubicTo(p2, p3, p4);
+                }
+                break;
+            }
+            default:
+                qWarning("QFontEngineWin::addOutlineToPath, unhandled switch case");
+            }
+            offset += sizeof(TTPOLYCURVE) + (curve->cpfx-1) * sizeof(POINTFX);
+        }
+        path->closeSubpath();
+        headerOffset += ttph->cb;
+    }
+    delete [] (char*)dataBuffer;
+}
+
+void QFontEngineWin::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs,
+				     QPainterPath *path, QTextItem::RenderFlags)
+{
     HDC hdc = shared_dc;
     SelectObject(hdc, hfont);
     Q_ASSERT(hdc);
-    GLYPHMETRICS gMetric;
-    uint glyphFormat = GGO_NATIVE | GGO_GLYPH_INDEX | GGO_UNHINTED;
 
-    for(int i = 0; i < nglyphs; ++i) {
-        memset(&gMetric, 0, sizeof(GLYPHMETRICS));
-        int bufferSize;
-        QT_WA( {
-            bufferSize = GetGlyphOutlineW(hdc, glyphs[i], glyphFormat, &gMetric, 0, 0, &mat);
-        }, {
-            bufferSize = GetGlyphOutlineA(hdc, glyphs[i], glyphFormat, &gMetric, 0, 0, &mat);
-        });
-        if ((DWORD)bufferSize == GDI_ERROR) {
-            qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(1) failed");
-            return;
-        }
-
-	void *dataBuffer = new char[bufferSize];
-	DWORD ret;
-	QT_WA( {
-	    ret = GetGlyphOutlineW(hdc, glyphs[i], glyphFormat, &gMetric, bufferSize,
-				dataBuffer, &mat);
-	}, {
-            ret = GetGlyphOutlineA(hdc, glyphs[i], glyphFormat, &gMetric, bufferSize,
-                                   dataBuffer, &mat);
-        } );
-
-        if (ret == GDI_ERROR) {
-            qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(2) failed");
-            return;
-        }
-
-        int offset = 0;
-        int headerOffset = 0;
-        TTPOLYGONHEADER *ttph = 0;
-
-	QPointF oset = positions[i].toPointF();
-        while (headerOffset < bufferSize) {
-            ttph = (TTPOLYGONHEADER*)((char *)dataBuffer + headerOffset);
-
-            QPointF lastPoint(qt_to_qpointf(ttph->pfxStart));
-            path->moveTo(lastPoint + oset);
-            offset += sizeof(TTPOLYGONHEADER);
-            TTPOLYCURVE *curve;
-            while (offset<int(headerOffset + ttph->cb)) {
-                curve = (TTPOLYCURVE*)((char*)(dataBuffer) + offset);
-                switch (curve->wType) {
-                case TT_PRIM_LINE: {
-                    for (int i=0; i<curve->cpfx; ++i) {
-                        QPointF p = qt_to_qpointf(curve->apfx[i]) + oset;
-                        path->lineTo(p);
-                    }
-                    break;
-                }
-                case TT_PRIM_QSPLINE: {
-                    const QPainterPath::Element &elm = path->elementAt(path->elementCount()-1);
-                    QPointF prev(elm.x, elm.y);
-                    QPointF endPoint;
-                    for (int i=0; i<curve->cpfx - 1; ++i) {
-                        QPointF p1 = qt_to_qpointf(curve->apfx[i]) + oset;
-                        QPointF p2 = qt_to_qpointf(curve->apfx[i+1]) + oset;
-                        if (i < curve->cpfx - 2) {
-                            endPoint = QPointF((p1.x() + p2.x()) / 2, (p1.y() + p2.y()) / 2);
-                        } else {
-                            endPoint = p2;
-                        }
-
-                        path->quadTo(p1, endPoint);
-                        prev = endPoint;
-                    }
-
-                    break;
-                }
-                case TT_PRIM_CSPLINE: {
-                    for (int i=0; i<curve->cpfx; ) {
-                        QPointF p2 = qt_to_qpointf(curve->apfx[i++]) + oset;
-                        QPointF p3 = qt_to_qpointf(curve->apfx[i++]) + oset;
-                        QPointF p4 = qt_to_qpointf(curve->apfx[i++]) + oset;
-                        path->cubicTo(p2, p3, p4);
-                    }
-                    break;
-                }
-                default:
-                    qWarning("QFontEngineWin::addOutlineToPath, unhandled switch case");
-                }
-                offset += sizeof(TTPOLYCURVE) + (curve->cpfx-1) * sizeof(POINTFX);
-            }
-            path->closeSubpath();
-            headerOffset += ttph->cb;
-        }
-        delete [] (char*)dataBuffer;
-    }
+    for(int i = 0; i < nglyphs; ++i) 
+        addGlyphToPath(glyphs[i], positions[i], hdc, path);
 }
 
 void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
@@ -745,6 +790,81 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
     }
     QFontEngine::addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
 }
+
+QFontEngine::FaceId QFontEngineWin::faceId() const
+{
+    return _faceId;
+}
+#include <qdebug.h>
+
+int QFontEngineWin::synthesized() const
+{
+    if(synthesized_flags == -1) {
+        synthesized_flags = 0;
+        if(ttf) {
+            const DWORD HEAD = MAKE_TAG('h', 'e', 'a', 'd');
+            SelectObject(shared_dc, hfont);
+            uchar data[4];
+            GetFontData(shared_dc, HEAD, 44, &data, 4);
+            USHORT macStyle = getUShort(data);
+            if (tm.w.tmItalic && !(macStyle & 2))
+                synthesized_flags = SynthesizedItalic;
+            if (fontDef.stretch != 100 && ttf)
+                synthesized_flags |= SynthesizedStretch;
+            if (tm.w.tmWeight >= 500 && !(macStyle & 1))
+                synthesized_flags |= SynthesizedBold;
+            //qDebug() << "font is" << _name << 
+            //    "it=" << (macStyle & 2) << fontDef.style << "flags=" << synthesized_flags;
+        }
+    }
+    return synthesized_flags;
+}
+
+QFontEngine::Properties QFontEngineWin::properties() const
+{
+    LOGFONT lf = logfont;
+    lf.lfHeight = unitsPerEm;
+    HFONT hf = CreateFontIndirect(&lf);
+    HGDIOBJ oldfont = SelectObject(shared_dc, hf);
+    OUTLINETEXTMETRICA *otm = getOutlineTextMetric(shared_dc);
+    Properties p;
+    p.emSquare = unitsPerEm;
+    p.italicAngle = otm->otmItalicAngle;
+    p.postscriptName = (char *)otm + (int)otm->otmpFamilyName;
+    p.postscriptName += (char *)otm + (int)otm->otmpStyleName;
+    p.postscriptName.replace(" ","");
+    p.boundingBox = QRectF(otm->otmrcFontBox.left, -otm->otmrcFontBox.top,
+                           otm->otmrcFontBox.right - otm->otmrcFontBox.left,
+                           otm->otmrcFontBox.top - otm->otmrcFontBox.bottom);
+    p.ascent = otm->otmAscent;
+    p.descent = -otm->otmDescent;
+    p.leading = (int)otm->otmLineGap;
+    p.capHeight = 0;
+    p.lineWidth = otm->otmsUnderscoreSize;
+    free(otm);
+    DeleteObject(SelectObject(shared_dc, oldfont));
+    return p;
+}
+
+void QFontEngineWin::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
+{
+    LOGFONT lf = logfont;
+    lf.lfHeight = unitsPerEm;
+    int flags = synthesized();
+    if(flags & SynthesizedItalic)
+        lf.lfItalic = false;
+    lf.lfWidth = 0;
+    HFONT hf = CreateFontIndirect(&lf);
+    HGDIOBJ oldfont = SelectObject(shared_dc, hf);
+    QFixedPoint p;
+    p.x = 0;
+    p.y = 0;
+    addGlyphToPath(glyph, p, shared_dc, path, metrics);
+    DeleteObject(SelectObject(shared_dc, oldfont));
+}
+
+
+
 
 // -------------------------------------- Multi font engine
 
@@ -786,42 +906,13 @@ void QFontEngineMultiWin::loadEngine(int at)
     }
     engines[at] = new QFontEngineWin(fam, hfont, stockFont, lf);
     engines[at]->ref.ref();
+    engines[at]->fontDef = fontDef;
 }
 
 
 // ----------------------------------------------------------------------------
 // True type support methods
 // ----------------------------------------------------------------------------
-
-
-
-
-#define MAKE_TAG(ch1, ch2, ch3, ch4) (\
-    (((DWORD)(ch4)) << 24) | \
-    (((DWORD)(ch3)) << 16) | \
-    (((DWORD)(ch2)) << 8) | \
-    ((DWORD)(ch1)) \
-   )
-
-static inline quint32 getUInt(unsigned char *p)
-{
-    quint32 val;
-    val = *p++ << 24;
-    val |= *p++ << 16;
-    val |= *p++ << 8;
-    val |= *p;
-
-    return val;
-}
-
-static inline quint16 getUShort(unsigned char *p)
-{
-    quint16 val;
-    val = *p++ << 8;
-    val |= *p;
-
-    return val;
-}
 
 static inline void tag_to_string(char *string, quint32 tag)
 {

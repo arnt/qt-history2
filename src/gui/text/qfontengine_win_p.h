@@ -31,6 +31,11 @@ public:
     QFontEngineWin(const QString &name, HFONT, bool, LOGFONT);
     ~QFontEngineWin();
 
+    virtual Properties properties() const;
+    virtual void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
+    virtual FaceId faceId() const;
+    virtual int synthesized() const;
+
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);

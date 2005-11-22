@@ -178,6 +178,9 @@ public:
     QVector<KernPair> kerning_pairs;
     QFixed designToDevice;
     int unitsPerEm;
+    FaceId _faceId;
+    mutable int synthesized_flags;
+    mutable QFixed lineWidth;
 #elif defined(Q_WS_MAC)
     uint kerning : 1;
 #endif // Q_WS_WIN
