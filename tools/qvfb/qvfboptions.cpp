@@ -35,8 +35,12 @@ QVFbOptions::QVFbOptions(int &argc, char **argv)
             i++;
             continue;
         }
-        if (arg == "-mmap" || arg == "-nocursor" || arg == "-defaults") 
+        if (arg == "-mmap" || arg == "-nocursor")
             continue;
+        if (arg == "-defaults") {
+            useDefaults = true;
+            continue;
+        }
         /* error: later, add to 'failed to parse' and continue */
         char * targ = argv[invalidArgs];
         argv[invalidArgs] = argv[i];
@@ -49,11 +53,11 @@ QVFbOptions::QVFbOptions(int &argc, char **argv)
     }
 
     if (useDefaults) {
+        setSkin(QString());
         setWidth(240);
         setHeight(320);
         setDepth(32);
         setZoom(1.0);
-        setSkin(QString());
         setDisplay(0);
         setRotation(0);
     }
@@ -131,6 +135,7 @@ void QVFbOptions::setProtocol(int p)
 void QVFbOptions::setZoom(double z)
 {
     QSettings s;
+    qDebug("set zoom to %f", z);
     s.setValue("zoom", z);
 }
 

@@ -161,14 +161,14 @@ QVFb::QVFb(QWidget *parent, const char *name, uint flags)
     refreshRate = settings.value("refreshRate", 30).toInt();
     QString skinSpec = qvfbOptions->skin();
     findSkins(skinSpec);
-    bool cursor = qvfbOptions->cursor();
-    double zoom = qvfbOptions->zoom();
 
     QPixmap pix(":/res/images/logo.png");
     setWindowIcon( pix );
 
     createMenu(menuBar());
     init();
+    bool cursor = qvfbOptions->cursor();
+    double zoom = qvfbOptions->zoom();
     enableCursor(cursor);
     setZoom(zoom);
 }
