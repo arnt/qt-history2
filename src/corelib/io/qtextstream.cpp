@@ -2549,6 +2549,9 @@ QTextStream &center(QTextStream &stream)
         stream << '\n' << flush;
     \endcode
 
+    Note: On Windows, all '\n' characters are written as '\r\n' if
+    QTextStream's device or string is opened using the QIODevice::Text flag.
+
     \sa flush(), reset(), {QTextStream manipulators}
 */
 QTextStream &endl(QTextStream &stream)
