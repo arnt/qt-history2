@@ -250,6 +250,7 @@ protected:
 private:
 #if defined(Q_WS_QWS) && !defined(QT3_SUPPORT)
     enum Endian { BigEndian, LittleEndian, IgnoreEndian };
+    friend QImage::Format formatFor(int depth, QImage::Endian bitOrder);
     QImage(uchar *data, int w, int h, int depth, int pbl, const QRgb *colortable, int numColors, Endian bitOrder);
 #endif
 
