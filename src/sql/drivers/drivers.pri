@@ -9,7 +9,8 @@ contains(sql-drivers, psql) {
     unix:!contains( LIBS, .*pq.* ):LIBS *= -lpq
 
     win32 {
-        !contains( LIBS, .*pq.* ):LIBS *= -llibpq
+	!win32-g++:!contains( LIBS, .*pq.* ):LIBS *= -llibpq
+    	win32-g++:!contains( LIBS, .*pq.* ):LIBS *= -lpq
         LIBS *= -lws2_32 -ladvapi32
     }
 }
@@ -25,7 +26,8 @@ contains(sql-drivers, mysql) {
     }
     
     win32:!contains(LIBS, .*mysql.*):!contains(LIBS, .*mysqld.*) {
-        LIBS     *= -llibmysql    
+        !win32-g++:LIBS     *= -llibmysql    
+	win32-g++:LIBS	    *= -lmysql
     }    
 }
 
