@@ -799,7 +799,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
 }
 
 #endif
-#if defined(Q_WS_QWS) || defined(QT3_SUPPORT)
+#ifdef Q_WS_QWS
 
 /*!
     Constructs an image that uses an existing memory buffer. The
