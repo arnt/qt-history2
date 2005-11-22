@@ -79,14 +79,15 @@
 #ifndef TMT_SIZINGMARGINS
 #  define TMT_SIZINGMARGINS 3601
 #endif
+#ifndef TMT_GLYPHTYPE
+#  define TMT_GLYPHTYPE 4012
+#endif
+
 #ifndef GT_NONE
 #  define GT_NONE 0
 #endif
 #ifndef GT_IMAGEGLYPH
 #  define GT_IMAGEGLYPH 1
-#endif
-#ifndef TMT_GLYPHTYPE
-#  define TMT_GLYPHTYPE 2
 #endif
 
 // Older Platform SDKs do not have the extended DrawThemeBackgroundEx
@@ -3431,22 +3432,22 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
                     SIZE size;
                     pGetThemePartSize(themeSize.handle(), 0, themeSize.partId, themeSize.stateId, 0, TS_TRUE, &size);
                     QPixmap pm = QPixmap(size.cx, size.cy);
+                    pm.fill(Qt::transparent);
                     QPainter p(&pm);
                     theme.painter = &p;
                     theme.rect = QRect(0, 0, size.cx, size.cy);
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
                     d->drawBackground(theme);
                     d->dockFloat.addPixmap(pm, QIcon::Normal, QIcon::Off);    // Normal
+                    pm.fill(Qt::transparent);
                     theme.stateId = MAXBS_PUSHED;
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
                     d->drawBackground(theme);
                     d->dockFloat.addPixmap(pm, QIcon::Normal, QIcon::On);     // Pressed
+                    pm.fill(Qt::transparent);
                     theme.stateId = MAXBS_HOT;
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
                     d->drawBackground(theme);
                     d->dockFloat.addPixmap(pm, QIcon::Active, QIcon::Off);    // Hover
-                    theme.stateId = MAXBS_DISABLED;
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
+                    pm.fill(Qt::transparent);
+                    theme.stateId = MAXBS_INACTIVE;
                     d->drawBackground(theme);
                     d->dockFloat.addPixmap(pm, QIcon::Disabled, QIcon::Off);  // Disabled
                 }
@@ -3465,25 +3466,25 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
                 XPThemeData theme(0, 0, "WINDOW", WP_SMALLCLOSEBUTTON, CBS_NORMAL);
                 if (theme.isValid()) {
                     SIZE size;
-                    pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
+                    pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);              
                     QPixmap pm = QPixmap(size.cx, size.cy);
+                    pm.fill(Qt::transparent);
                     QPainter p(&pm);
                     theme.painter = &p;
                     theme.partId = WP_CLOSEBUTTON; // ####
                     theme.rect = QRect(0, 0, size.cx, size.cy);
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
                     d->drawBackground(theme);
                     d->dockClose.addPixmap(pm, QIcon::Normal, QIcon::Off);    // Normal
+                    pm.fill(Qt::transparent);
                     theme.stateId = CBS_PUSHED;
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
                     d->drawBackground(theme);
                     d->dockClose.addPixmap(pm, QIcon::Normal, QIcon::On);     // Pressed
+                    pm.fill(Qt::transparent);
                     theme.stateId = CBS_HOT;
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
                     d->drawBackground(theme);
                     d->dockClose.addPixmap(pm, QIcon::Active, QIcon::Off);    // Hover
-                    theme.stateId = CBS_DISABLED;
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
+                    pm.fill(Qt::transparent);
+                    theme.stateId = CBS_INACTIVE;
                     d->drawBackground(theme);
                     d->dockClose.addPixmap(pm, QIcon::Disabled, QIcon::Off);  // Disabled
                 }
@@ -3499,27 +3500,27 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
         {
             if (d->dockFloat.isNull()) {
                 XPThemeData themeSize(0, 0, "WINDOW", WP_SMALLCLOSEBUTTON, CBS_NORMAL);
-                XPThemeData theme(0, 0, "WINDOW", WP_RESTOREBUTTON, MAXBS_NORMAL);
+                XPThemeData theme(0, 0, "WINDOW", WP_RESTOREBUTTON, RBS_NORMAL);
                 if (theme.isValid()) {
                     SIZE size;
                     pGetThemePartSize(themeSize.handle(), 0, themeSize.partId, themeSize.stateId, 0, TS_TRUE, &size);
                     QPixmap pm = QPixmap(size.cx, size.cy);
+                    pm.fill(Qt::transparent);
                     QPainter p(&pm);
                     theme.painter = &p;
                     theme.rect = QRect(0, 0, size.cx, size.cy);
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
                     d->drawBackground(theme);
                     d->dockFloat.addPixmap(pm, QIcon::Normal, QIcon::Off);    // Normal
-                    theme.stateId = MAXBS_PUSHED;
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
+                    pm.fill(Qt::transparent);
+                    theme.stateId = RBS_PUSHED;
                     d->drawBackground(theme);
                     d->dockFloat.addPixmap(pm, QIcon::Normal, QIcon::On);     // Pressed
-                    theme.stateId = MAXBS_HOT;
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
+                    pm.fill(Qt::transparent);
+                    theme.stateId = RBS_HOT;
                     d->drawBackground(theme);
                     d->dockFloat.addPixmap(pm, QIcon::Active, QIcon::Off);    // Hover
-                    theme.stateId = MAXBS_DISABLED;
-                    p.fillRect(pm.rect(), QColor(0xff, 0xff, 0xff, 0xff));
+                    pm.fill(Qt::transparent);
+                    theme.stateId = RBS_INACTIVE;
                     d->drawBackground(theme);
                     d->dockFloat.addPixmap(pm, QIcon::Disabled, QIcon::Off);  // Disabled
                 }
