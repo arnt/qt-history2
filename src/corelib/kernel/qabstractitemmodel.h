@@ -37,6 +37,7 @@ public:
     inline QModelIndex parent() const;
     inline QModelIndex sibling(int row, int column) const;
     inline QModelIndex child(int row, int column) const;
+    inline QVariant data(int role) const;
     inline const QAbstractItemModel *model() const { return m; }
     inline bool isValid() const { return (r >= 0) && (c >= 0) && (m != 0); }
     inline bool operator==(const QModelIndex &other) const
@@ -302,5 +303,8 @@ inline QModelIndex QModelIndex::sibling(int arow, int acolumn) const
 
 inline QModelIndex QModelIndex::child(int arow, int acolumn) const
 { return m ? m->index(arow, acolumn, *this) : QModelIndex(); }
+
+inline QVariant QModelIndex::data(int role) const
+{ return m ? m->data(*this, role) : QVariant(); }
 
 #endif // QABSTRACTITEMMODEL_H

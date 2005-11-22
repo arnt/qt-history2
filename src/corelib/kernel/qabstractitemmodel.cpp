@@ -720,6 +720,12 @@ void QAbstractItemModelPrivate::reset()
 */
 
 /*!
+    \fn QVariant QModelIndex::data(int role) const
+
+    Returns the data for the given \a role for the item referred to by the index.
+*/
+
+/*!
     \fn bool QModelIndex::operator==(const QModelIndex &other) const
 
     Returns true if this model index refers to the same location as
