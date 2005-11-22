@@ -100,7 +100,20 @@
     \sa setWidget()
 */
 QScrollArea::QScrollArea(QWidget *parent)
-    :QAbstractScrollArea(*new QScrollAreaPrivate,parent)
+    : QAbstractScrollArea(*new QScrollAreaPrivate,parent)
+{
+    Q_D(QScrollArea);
+    d->viewport->setBackgroundRole(QPalette::NoRole);
+    d->vbar->setSingleStep(20);
+    d->hbar->setSingleStep(20);
+    d->layoutChildren();
+}
+
+/*!
+    \internal
+*/
+QScrollArea::QScrollArea(QScrollAreaPrivate &dd, QWidget *parent)
+    : QAbstractScrollArea(dd, parent)
 {
     Q_D(QScrollArea);
     d->viewport->setBackgroundRole(QPalette::NoRole);

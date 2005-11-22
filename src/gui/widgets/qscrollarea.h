@@ -43,6 +43,7 @@ public:
     void ensureVisible(int x, int y, int xmargin = 50, int ymargin = 50);
 
 protected:
+    QScrollArea(QScrollAreaPrivate &dd, QWidget *parent = 0);
     bool event(QEvent *);
     bool eventFilter(QObject *, QEvent *);
     void resizeEvent(QResizeEvent *);
