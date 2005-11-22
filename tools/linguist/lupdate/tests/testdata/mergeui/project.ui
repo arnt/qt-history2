@@ -24,10 +24,13 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Qt Assistant - Finn Text</string><!-- changed to uppercase -->
+   <string>Qt Assistant - Find Text</string><!-- changed to uppercase, marked as finished -->
   </property>
   <property name="height" >
-   <string>Finn tekst</string>
+   <string>300px</string>
+  </property>
+  <property name="width" >
+   <string>401 pixels</string><!-- Changed from 400px to 401 pixels, but this is marked as unfinished -->
   </property>
  </widget>
  <tabstops>
