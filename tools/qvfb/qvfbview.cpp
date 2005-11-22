@@ -14,6 +14,7 @@
 #include "qvfbview.h"
 #include "qvfbshmem.h"
 #include "qvfbmmap.h"
+#include "qvfboptions.h"
 
 #include "qanimationwriter.h"
 #include <QApplication>
@@ -38,8 +39,6 @@
 #include <errno.h>
 #include <math.h>
 
-extern int qvfb_protocol;
-
 QVFbView::QVFbView( int id, int w, int h, int d, Rotation r, QWidget *parent )
 #ifdef QVFB_USE_GLWIDGET
     : QGLWidget( parent ),
@@ -53,7 +52,7 @@ QVFbView::QVFbView( int id, int w, int h, int d, Rotation r, QWidget *parent )
     int _w = ( rotation & 0x1 ) ? h : w;
     int _h = ( rotation & 0x1 ) ? w : h;
 
-    switch(qvfb_protocol) {
+    switch(qvfbOptions->protocol()) {
         default:
         case 0:
             mView = new QShMemViewProtocol(id, QSize(_w, _h), d, this);

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qvfb.h"
+#include "qvfboptions.h"
 
 #include <QApplication>
 #include <QRegExp>
@@ -42,31 +43,17 @@ int main( int argc, char *argv[] )
     app.setOrganizationName("Trolltech");
     app.setApplicationName("QVFb");
 
-    QVFb mw;
-    for ( int i = 1; i < argc; i++ ){
-	QString arg = argv[i];
-	if ( arg == "-width" ) {
-	    mw.setWidth(atoi(argv[++i]));
-	} else if ( arg == "-height" ) {
-	    mw.setHeight(atoi(argv[++i]));
-	} else if ( arg == "-skin" ) {
-	    mw.setSkin(argv[++i]);
-	} else if ( arg == "-depth" ) {
-	    mw.setDepth(atoi(argv[++i]));
-	} else if ( arg == "-nocursor" ) {
-	    mw.setCursor(false);
-	} else if ( arg == "-mmap" ) {
-	    qvfb_protocol = 1;
-	} else if ( arg == "-zoom" ) {
-	    mw.setZoom(atof(argv[++i]));
-	} else if ( arg == "-qwsdisplay" ) {
-	    mw.setDisplay(argv[++i]);
-	} else {
-	    printf( "Unknown parameter %s\n", arg.latin1() );
-	    usage( argv[0] );
-	    exit(1);
-	}
+    QVFbOptions(argc, argv);
+
+    if (argc > 1) {
+        // argc and argv hold the failed.
+        
+        printf( "Unknown parameter %s\n", argv[1] );
+        usage( argv[0] );
+        exit(1);
     }
+
+    QVFb mw;
     app.setMainWidget( &mw );
     mw.show();
 

@@ -79,12 +79,6 @@ protected slots:
 
 public slots:
     void setZoom(double);
-    void setWidth(int w);
-    void setHeight(int h);
-    void setDepth(int d);
-    void setRotation(int r);
-    void setDisplay(const QString &spec);
-    void setSkin(const QString &spec);
 
 protected:
     void createMenu(QMenuBar *menu);
