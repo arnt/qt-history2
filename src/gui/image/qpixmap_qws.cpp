@@ -27,40 +27,37 @@
 #include <limits.h>
 
 #include <private/qpaintengine_raster_p.h>
+#include <private/qwidget_p.h>
+#include <private/qbackingstore_p.h>
+
+#include <qdebug.h>
 
 QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 {
-    Q_UNUSED(window);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    Q_UNUSED(w);
-    Q_UNUSED(h);
-
-    qWarning("QPixmap::grabWindow");
-
-    QPixmap pm;
-#if 0
     QWidget *widget = QWidget::find(window);
-    if (widget) {
-        if (w <= 0 || h <= 0) {
-            if (w == 0 || h == 0)
-                return pm;
-            if (w < 0)
-                w = widget->width() - x;
-            if (h < 0)
-                h = widget->height() - y;
-        }
-        pm.resize(w, h);
-        QWSPaintEngine *pe=new QWSPaintEngine;
-        if (pe) {
-            pe->begin(&pm);
-            pe->blt(*widget,0,0,w,h,x,y);
-            pe->end();
-        }
-        delete pe;
-    }
-#endif
-    return pm;
+    if (!widget)
+        return QPixmap();
+
+    QRect grabRect = widget->frameGeometry();
+    if (w < 0)
+        w = grabRect.width() - x;
+    if (h < 0)
+        h = grabRect.height() - y;
+    grabRect &= QRect(x, y, w, h);
+
+    QImage::Endian endian = (QSysInfo::ByteOrder == QSysInfo::LittleEndian ?
+                             QImage::LittleEndian : QImage::BigEndian);
+
+    QWSDisplay::grab(false);
+    QImage img(qt_screen->base(),
+               qt_screen->width(), qt_screen->height(),
+               qt_screen->depth(), qt_screen->linestep(),
+               qt_screen->clut(), qt_screen->numCols(),
+               endian);
+    QPixmap pixmap = fromImage(img.copy(grabRect));
+    QWSDisplay::ungrab();
+
+    return pixmap;
 }
 
 
