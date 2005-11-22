@@ -102,7 +102,7 @@
     \o waitForBytesWritten() blocks until one payload of data has been
     written to the socket.
 
-    \o waitForClosed() blocks until the connection has closed.
+    \o waitForDisconnected() blocks until the connection has closed.
     \endlist
 
     Programming with a blocking socket is radically different from
