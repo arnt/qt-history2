@@ -102,8 +102,8 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
     case QVariant::Bool: {
         QComboBox *cb = new QComboBox(parent);
         cb->setFrame(false);
-        cb->addItem(tr("False"));
-        cb->addItem(tr("True"));
+        cb->addItem(QObject::tr("False"));
+        cb->addItem(QObject::tr("True"));
         return cb; }
 #endif
 #ifndef QT_NO_SPINBOX
