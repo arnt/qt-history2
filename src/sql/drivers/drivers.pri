@@ -97,6 +97,7 @@ contains(sql-drivers, sqlite2) {
 
 contains(sql-drivers, sqlite) {
     !contains( LIBS, .*sqlite3.* ) {
+        CONFIG(release, debug|release):DEFINES *= NDEBUG
         INCLUDEPATH +=  ../3rdparty/sqlite
 
         SOURCES +=      ../3rdparty/sqlite/alter.c \

@@ -5,6 +5,7 @@ SOURCES		= smain.cpp \
 		  ../../../sql/drivers/sqlite/qsql_sqlite.cpp
 
 !contains( LIBS, .*sqlite.* ) {
+    CONFIG(release, debug|release):DEFINES *= NDEBUG
     INCLUDEPATH += ../../../3rdparty/sqlite
 
     SOURCES += ../../../3rdparty/sqlite/alter.c \
