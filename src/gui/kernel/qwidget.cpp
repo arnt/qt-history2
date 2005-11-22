@@ -4878,7 +4878,7 @@ bool QWidget::isAncestorOf(const QWidget *child) const
  *****************************************************************************/
 
 /*!
-    This is the main event handler; it handles event \a e. You can
+    This is the main event handler; it handles event \a event. You can
     reimplement this function in a subclass, but we recommend using
     one of the specialized event handlers instead.
 
@@ -4905,13 +4905,13 @@ bool QWidget::isAncestorOf(const QWidget *child) const
     QObject::event(), QObject::timerEvent()
 */
 
-bool QWidget::event(QEvent *e)
+bool QWidget::event(QEvent *event)
 {
     Q_D(QWidget);
 
     // ignore mouse events when disabled
     if (!isEnabled()) {
-        switch(e->type()) {
+        switch(event->type()) {
         case QEvent::TabletPress:
         case QEvent::TabletRelease:
         case QEvent::TabletMove:
@@ -4928,9 +4928,9 @@ bool QWidget::event(QEvent *e)
             break;
         }
     }
-    switch (e->type()) {
+    switch (event->type()) {
     case QEvent::MouseMove:
-        mouseMoveEvent((QMouseEvent*)e);
+        mouseMoveEvent((QMouseEvent*)event);
         break;
 
     case QEvent::MouseButtonPress:
@@ -4941,33 +4941,33 @@ bool QWidget::event(QEvent *e)
 #if 0
         resetInputContext();
 #endif
-        mousePressEvent((QMouseEvent*)e);
+        mousePressEvent((QMouseEvent*)event);
         break;
 
     case QEvent::MouseButtonRelease:
-        mouseReleaseEvent((QMouseEvent*)e);
+        mouseReleaseEvent((QMouseEvent*)event);
         break;
 
     case QEvent::MouseButtonDblClick:
-        mouseDoubleClickEvent((QMouseEvent*)e);
+        mouseDoubleClickEvent((QMouseEvent*)event);
         break;
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
-        wheelEvent((QWheelEvent*)e);
+        wheelEvent((QWheelEvent*)event);
         break;
 #endif
     case QEvent::TabletMove:
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
-        tabletEvent((QTabletEvent*)e);
+        tabletEvent((QTabletEvent*)event);
         break;
 #ifdef QT3_SUPPORT
     case QEvent::Accel:
-        e->ignore();
+        event->ignore();
         return false;
 #endif
     case QEvent::KeyPress: {
-        QKeyEvent *k = (QKeyEvent *)e;
+        QKeyEvent *k = (QKeyEvent *)event;
         bool res = false;
         if (!(k->modifiers() & (Qt::ControlModifier | Qt::AltModifier))) {
             if (k->key() == Qt::Key_Backtab
@@ -5004,13 +5004,13 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::KeyRelease:
-        keyReleaseEvent((QKeyEvent*)e);
+        keyReleaseEvent((QKeyEvent*)event);
         // fall through
     case QEvent::ShortcutOverride:
         break;
 
     case QEvent::InputMethod:
-        inputMethodEvent((QInputMethodEvent *) e);
+        inputMethodEvent((QInputMethodEvent *) event);
         break;
 
     case QEvent::PolishRequest:
@@ -5037,11 +5037,11 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::FocusIn:
-        focusInEvent((QFocusEvent*)e);
+        focusInEvent((QFocusEvent*)event);
         break;
 
     case QEvent::FocusOut:
-        focusOutEvent((QFocusEvent*)e);
+        focusOutEvent((QFocusEvent*)event);
         break;
 
     case QEvent::Enter:
@@ -5051,7 +5051,7 @@ bool QWidget::event(QEvent *e)
             QApplication::sendEvent(const_cast<QWidget *>(this), &tip);
         }
 #endif
-        enterEvent(e);
+        enterEvent(event);
         break;
 
     case QEvent::Leave:
@@ -5062,7 +5062,7 @@ bool QWidget::event(QEvent *e)
             QApplication::sendEvent(const_cast<QWidget *>(this), &tip);
         }
 #endif
-        leaveEvent(e);
+        leaveEvent(event);
         break;
 
     case QEvent::HoverEnter:
@@ -5074,67 +5074,67 @@ bool QWidget::event(QEvent *e)
         // At this point the event has to be delivered, regardless
         // whether the widget isVisible() or not because it
         // already went through the filters
-        paintEvent((QPaintEvent*)e);
+        paintEvent((QPaintEvent*)event);
         break;
 
     case QEvent::Move:
-        moveEvent((QMoveEvent*)e);
+        moveEvent((QMoveEvent*)event);
         break;
 
     case QEvent::Resize:
-        resizeEvent((QResizeEvent*)e);
+        resizeEvent((QResizeEvent*)event);
         break;
 
     case QEvent::Close:
-        closeEvent((QCloseEvent *)e);
+        closeEvent((QCloseEvent *)event);
         break;
 
     case QEvent::ContextMenu:
         switch (data->context_menu_policy) {
         case Qt::DefaultContextMenu:
-            contextMenuEvent(static_cast<QContextMenuEvent *>(e));
+            contextMenuEvent(static_cast<QContextMenuEvent *>(event));
             break;
         case Qt::CustomContextMenu:
-            emit customContextMenuRequested(static_cast<QContextMenuEvent *>(e)->pos());
+            emit customContextMenuRequested(static_cast<QContextMenuEvent *>(event)->pos());
             break;
 #ifndef QT_NO_MENU
         case Qt::ActionsContextMenu:
             if (d->actions.count()) {
-                QMenu::exec(d->actions, static_cast<QContextMenuEvent *>(e)->globalPos());
+                QMenu::exec(d->actions, static_cast<QContextMenuEvent *>(event)->globalPos());
                 break;
             }
             // fall through
 #endif
         default:
-            e->ignore();
+            event->ignore();
             break;
         }
         break;
 
 #ifndef QT_NO_DRAGANDDROP
     case QEvent::Drop:
-        dropEvent((QDropEvent*) e);
+        dropEvent((QDropEvent*) event);
         break;
 
     case QEvent::DragEnter:
-        dragEnterEvent((QDragEnterEvent*) e);
+        dragEnterEvent((QDragEnterEvent*) event);
         break;
 
     case QEvent::DragMove:
-        dragMoveEvent((QDragMoveEvent*) e);
+        dragMoveEvent((QDragMoveEvent*) event);
         break;
 
     case QEvent::DragLeave:
-        dragLeaveEvent((QDragLeaveEvent*) e);
+        dragLeaveEvent((QDragLeaveEvent*) event);
         break;
 #endif
 
     case QEvent::Show:
-        showEvent((QShowEvent*) e);
+        showEvent((QShowEvent*) event);
         break;
 
     case QEvent::Hide:
-        hideEvent((QHideEvent*) e);
+        hideEvent((QHideEvent*) event);
         break;
 
     case QEvent::ShowWindowRequest:
@@ -5161,13 +5161,13 @@ bool QWidget::event(QEvent *e)
     case QEvent::MouseTrackingChange:
     case QEvent::ParentChange:
     case QEvent::WindowStateChange:
-        changeEvent(e);
+        changeEvent(event);
         break;
 
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate: {
 #ifdef QT3_SUPPORT
-        windowActivationChange(e->type() != QEvent::WindowActivate);
+        windowActivationChange(event->type() != QEvent::WindowActivate);
 #endif
         if (isVisible() && !palette().isEqual(QPalette::Active, QPalette::Inactive))
             update();
@@ -5175,12 +5175,12 @@ bool QWidget::event(QEvent *e)
         for (int i = 0; i < childList.size(); ++i) {
             QWidget *w = qobject_cast<QWidget *>(childList.at(i));
             if (w && w->isVisible() && !w->isWindow())
-                QApplication::sendEvent(w, e);
+                QApplication::sendEvent(w, event);
         }
         break; }
 
     case QEvent::LanguageChange:
-        changeEvent(e);
+        changeEvent(event);
 #ifdef QT3_SUPPORT
         languageChange();
 #endif
@@ -5190,7 +5190,7 @@ bool QWidget::event(QEvent *e)
             QList<QObject*> childList = d->children;
             for (int i = 0; i < childList.size(); ++i) {
                 QObject *o = childList.at(i);
-                QApplication::sendEvent(o, e);
+                QApplication::sendEvent(o, event);
             }
         }
         update();
@@ -5214,7 +5214,7 @@ bool QWidget::event(QEvent *e)
 #endif
 
     case QEvent::UpdateLater:
-        update(static_cast<QUpdateLaterEvent*>(e)->region());
+        update(static_cast<QUpdateLaterEvent*>(event)->region());
         break;
 
     case QEvent::WindowBlocked:
@@ -5229,7 +5229,7 @@ bool QWidget::event(QEvent *e)
                         // QApplication does this for us
                         continue;
                     }
-                    QApplication::sendEvent(o, e);
+                    QApplication::sendEvent(o, event);
                 }
             }
         }
@@ -5237,27 +5237,27 @@ bool QWidget::event(QEvent *e)
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip:
         if (d->toolTip.size() && isActiveWindow())
-            QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
+            QToolTip::showText(static_cast<QHelpEvent*>(event)->globalPos(), d->toolTip, this);
         else
-            e->ignore();
+            event->ignore();
         break;
 #endif
 #ifndef QT_NO_WHATSTHIS
     case QEvent::WhatsThis:
         if (d->whatsThis.size())
-            QWhatsThis::showText(static_cast<QHelpEvent *>(e)->globalPos(), d->whatsThis, this);
+            QWhatsThis::showText(static_cast<QHelpEvent *>(event)->globalPos(), d->whatsThis, this);
         else
-            e->ignore();
+            event->ignore();
         break;
     case QEvent::QueryWhatsThis:
         if (d->whatsThis.isEmpty())
-            e->ignore();
+            event->ignore();
         break;
 #endif
 #ifndef QT_NO_ACCESSIBILITY
     case QEvent::AccessibilityDescription:
     case QEvent::AccessibilityHelp: {
-        QAccessibleEvent *ev = static_cast<QAccessibleEvent *>(e);
+        QAccessibleEvent *ev = static_cast<QAccessibleEvent *>(event);
         if (ev->child())
             return false;
         switch (ev->type()) {
@@ -5286,10 +5286,10 @@ bool QWidget::event(QEvent *e)
     case QEvent::ActionAdded:
     case QEvent::ActionRemoved:
     case QEvent::ActionChanged:
-        actionEvent((QActionEvent*)e);
+        actionEvent((QActionEvent*)event);
         break;
     default:
-        return QObject::event(e);
+        return QObject::event(event);
     }
     return true;
 }
@@ -5298,12 +5298,12 @@ bool QWidget::event(QEvent *e)
   This event handler can be reimplemented to handle state changes.
 
   The state being changed in this event can be retrieved through event \a
-  e.
+  event.
 
 */
-void QWidget::changeEvent(QEvent * e)
+void QWidget::changeEvent(QEvent * event)
 {
-    switch(e->type()) {
+    switch(event->type()) {
     case QEvent::EnabledChange:
         update();
 #ifndef QT_NO_ACCESSIBILITY
@@ -5327,7 +5327,7 @@ void QWidget::changeEvent(QEvent * e)
 }
 
 /*!
-    This event handler, for event \a e, can be reimplemented in a
+    This event handler, for event \a event, can be reimplemented in a
     subclass to receive mouse move events for the widget.
 
     If mouse tracking is switched off, mouse move events only occur if
@@ -5345,13 +5345,13 @@ void QWidget::changeEvent(QEvent * e)
     mouseDoubleClickEvent(), event(), QMouseEvent
 */
 
-void QWidget::mouseMoveEvent(QMouseEvent * e)
+void QWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    e->ignore();
+    event->ignore();
 }
 
 /*!
-    This event handler, for event \a e, can be reimplemented in a
+    This event handler, for event \a event, can be reimplemented in a
     subclass to receive mouse press events for the widget.
 
     If you create new widgets in the mousePressEvent() the
@@ -5367,38 +5367,38 @@ void QWidget::mouseMoveEvent(QMouseEvent * e)
     mouseMoveEvent(), event(), QMouseEvent
 */
 
-void QWidget::mousePressEvent(QMouseEvent *e)
+void QWidget::mousePressEvent(QMouseEvent *event)
 {
-    e->ignore();
+    event->ignore();
     if ((windowType() == Qt::Popup)) {
-        e->accept();
+        event->accept();
         QWidget* w;
         while ((w = qApp->activePopupWidget()) && w != this){
             w->close();
             if (qApp->activePopupWidget() == w) // widget does not want to dissappear
                 w->hide(); // hide at least
         }
-        if (!rect().contains(e->pos())){
+        if (!rect().contains(event->pos())){
             close();
         }
     }
 }
 
 /*!
-    This event handler, for event \a e, can be reimplemented in a
+    This event handler, for event \a event, can be reimplemented in a
     subclass to receive mouse release events for the widget.
 
     \sa mousePressEvent(), mouseDoubleClickEvent(),
     mouseMoveEvent(), event(), QMouseEvent
 */
 
-void QWidget::mouseReleaseEvent(QMouseEvent * e)
+void QWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    e->ignore();
+    event->ignore();
 }
 
 /*!
-    This event handler, for event \a e, can be reimplemented in a
+    This event handler, for event \a event, can be reimplemented in a
     subclass to receive mouse double click events for the widget.
 
     The default implementation generates a normal mouse press event.
@@ -5410,14 +5410,14 @@ void QWidget::mouseReleaseEvent(QMouseEvent * e)
     event(), QMouseEvent
 */
 
-void QWidget::mouseDoubleClickEvent(QMouseEvent *e)
+void QWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    mousePressEvent(e);                        // try mouse press event
+    mousePressEvent(event);                        // try mouse press event
 }
 
 #ifndef QT_NO_WHEELEVENT
 /*!
-    This event handler, for event \a e, can be reimplemented in a
+    This event handler, for event \a event, can be reimplemented in a
     subclass to receive wheel events for the widget.
 
     If you reimplement this handler, it is very important that you
@@ -5430,15 +5430,15 @@ void QWidget::mouseDoubleClickEvent(QMouseEvent *e)
     QWheelEvent
 */
 
-void QWidget::wheelEvent(QWheelEvent *e)
+void QWidget::wheelEvent(QWheelEvent *event)
 {
-    e->ignore();
+    event->ignore();
 }
 #endif
 
 
 /*!
-    This event handler, for event \a e, can be reimplemented in a
+    This event handler, for event \a event, can be reimplemented in a
     subclass to receive tablet events for the widget.
 
     If you reimplement this handler, it is very important that you
@@ -5451,13 +5451,13 @@ void QWidget::wheelEvent(QWheelEvent *e)
     QTabletEvent
 */
 
-void QWidget::tabletEvent(QTabletEvent *e)
+void QWidget::tabletEvent(QTabletEvent *event)
 {
-    e->ignore();
+    event->ignore();
 }
 
 /*!
-    This event handler, for event \a e, can be reimplemented in a
+    This event handler, for event \a event, can be reimplemented in a
     subclass to receive key press events for the widget.
 
     A widget must call setFocusPolicy() to accept focus initially and
@@ -5474,18 +5474,18 @@ void QWidget::tabletEvent(QTabletEvent *e)
     focusInEvent(), focusOutEvent(), event(), QKeyEvent
 */
 
-void QWidget::keyPressEvent(QKeyEvent *e)
+void QWidget::keyPressEvent(QKeyEvent *event)
 {
-    if ((windowType() == Qt::Popup) && e->key() == Qt::Key_Escape) {
-        e->accept();
+    if ((windowType() == Qt::Popup) && event->key() == Qt::Key_Escape) {
+        event->accept();
         close();
     } else {
-        e->ignore();
+        event->ignore();
     }
 }
 
 /*!
-    This event handler, for event \a e, can be reimplemented in a
+    This event handler, for event \a event, can be reimplemented in a
     subclass to receive key release events for the widget.
 
     A widget must \link setFocusPolicy() accept focus\endlink
@@ -5502,9 +5502,9 @@ void QWidget::keyPressEvent(QKeyEvent *e)
     focusInEvent(), focusOutEvent(), event(), QKeyEvent
 */
 
-void QWidget::keyReleaseEvent(QKeyEvent *e)
+void QWidget::keyReleaseEvent(QKeyEvent *event)
 {
-    e->ignore();
+    event->ignore();
 }
 
 /*!
@@ -5696,53 +5696,52 @@ void QWidget::actionEvent(QActionEvent *)
 }
 
 /*!
-    This event handler, for event \a e, can be reimplemented in a
+    This event handler, for event \a event, can be reimplemented in a
     subclass to receive widget close events.
 
     \sa event(), hide(), close(), QCloseEvent
 */
 
-void QWidget::closeEvent(QCloseEvent *e)
+void QWidget::closeEvent(QCloseEvent *event)
 {
-    Q_UNUSED(e);
-    e->accept();
+    event->accept();
 }
 
 
 /*!
-    This event handler, for event \a e, can be reimplemented in a
+    This event handler, for event \a event, can be reimplemented in a
     subclass to receive widget context menu events.
 
     The handler is called when the widget's \l contextMenuPolicy is
     Qt::DefaultContextMenu.
 
-    The default implementation calls e->ignore(), which rejects the
+    The default implementation calls event->ignore(), which rejects the
     context event. See the \l QContextMenuEvent documentation for
     more details.
 
     \sa event(), QContextMenuEvent customContextMenuRequested()
 */
 
-void QWidget::contextMenuEvent(QContextMenuEvent *e)
+void QWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-    e->ignore();
+    event->ignore();
 }
 
 
 /*!
-    This event handler, for event \a e, can be reimplemented in a
+    This event handler, for event \a event, can be reimplemented in a
     subclass to receive Input Method composition events. This handler
     is called when the state of the input method changes.
 
-    The default implementation calls e->ignore(), which rejects the
+    The default implementation calls event->ignore(), which rejects the
     Input Method event. See the \l QInputMethodEvent documentation for more
     details.
 
     \sa event(), QInputMethodEvent
 */
-void QWidget::inputMethodEvent(QInputMethodEvent *e)
+void QWidget::inputMethodEvent(QInputMethodEvent *event)
 {
-    e->ignore();
+    event->ignore();
 }
 
 /*!
