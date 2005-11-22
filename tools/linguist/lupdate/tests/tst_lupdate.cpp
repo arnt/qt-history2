@@ -24,7 +24,6 @@ tst_lupdate::tst_lupdate()
 {
     
     m_basePath = QDir::currentPath() + QLatin1String("/testdata/");
-    m_lupdate.setWorkingDirectory(QDir::currentPath());
 }
 
 void tst_lupdate::parse_data()
@@ -47,10 +46,10 @@ void tst_lupdate::parse()
     if (inputprofile.startsWith("/")) inputprofile.remove(0,1);
     QString inputpro = m_basePath + inputprofile;
 
+    QString casePath = QFileInfo(inputpro).absolutePath();
     // If the testcase did not give a filename, assume that is uses the default filenames.
     if (generatedtsfile.isNull()) {
-        QString base = QFileInfo(inputpro).absolutePath();
-        generatedtsfile = base + QLatin1String("/project_no.ts");
+        generatedtsfile = casePath + QLatin1String("/project_no.ts");
     } else {
         if (generatedtsfile.startsWith("/")) generatedtsfile.remove(0,1);
         generatedtsfile = m_basePath + generatedtsfile;
@@ -65,6 +64,8 @@ void tst_lupdate::parse()
     }
 
     // qmake will delete the previous one, to ensure that we don't do any merging....
+    m_lupdate.setWorkingDirectory(casePath);
+
     m_lupdate.qmake();
     m_lupdate.updateProFile(inputpro);
     
@@ -79,6 +80,9 @@ void tst_lupdate::parse()
     QVERIFY(ok);
     QByteArray data2 = file2.readAll();
     QString str2(data2);
+
+    str1 = str1.replace(QLatin1String("\015\012"), QLatin1String("\n"));
+    str2 = str2.replace(QLatin1String("\015\012"), QLatin1String("\n"));
 
     QCOMPARE(str1, str2);
 
@@ -97,7 +101,6 @@ static bool copyFile(QFile &src, QFile &dest)
 
     return ok;
 }
-
 
 void tst_lupdate::merge_data()
 {
@@ -120,11 +123,11 @@ void tst_lupdate::merge()
 
     if (inputprofile.startsWith("/")) inputprofile.remove(0,1);
     QString inputpro = m_basePath + inputprofile;
+    QString casePath = QFileInfo(inputpro).absolutePath();
 
     // If the testcase did not give a filename, assume that is uses the default filenames.
     if (generatedtsfile.isNull()) {
-        QString base = QFileInfo(inputpro).absolutePath();
-        generatedtsfile = base + QLatin1String("/project_no.ts");
+        generatedtsfile = casePath + QLatin1String("/project_no.ts");
     } else {
         if (generatedtsfile.startsWith("/")) generatedtsfile.remove(0,1);
         generatedtsfile = m_basePath + generatedtsfile;
@@ -141,6 +144,9 @@ void tst_lupdate::merge()
     // copy it to a temporary file, since we can't write to a read-only file (usually, its not checked out editable from the depot)
     // This also enables us to run the test many times in a sequence, without changing the input data.
     QString tmpTSFile = generatedtsfile + QLatin1String(".tmp");
+
+    m_lupdate.setWorkingDirectory(casePath);
+    
     // qmake will ensure that the ts.tmp file is created.
     m_lupdate.qmake();
     m_lupdate.updateProFile(inputpro);
@@ -158,6 +164,9 @@ void tst_lupdate::merge()
     QByteArray data2 = file2.readAll();
     QString str2(data2);
     file2.close();
+
+    str1 = str1.replace(QLatin1String("\015\012"), QLatin1String("\n"));
+    str2 = str2.replace(QLatin1String("\015\012"), QLatin1String("\n"));
 
     QCOMPARE(str1, str2);
 
