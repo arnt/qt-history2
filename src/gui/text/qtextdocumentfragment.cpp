@@ -546,8 +546,8 @@ void QTextHtmlImporter::import()
 
             if (node->isTableCell && !tables.isEmpty()) {
                 Table &t = tables.last();
-                if (t.table) {
-                    cursor.setPosition(t.currentPosition.cell().firstPosition());
+                if (!t.isTextFrame) {
+                    cursor.setPosition(t.currentCell.cell().firstPosition());
                 }
                 hasBlock = true;
 
@@ -688,32 +688,35 @@ bool QTextHtmlImporter::closeTag(int i)
         if (closedNode->id == Html_tr && !tables.isEmpty()) {
             Table &t = tables.last();
 
-            if (t.table) {
+            if (!t.isTextFrame) {
                 ++t.currentRow;
-                while (!t.currentPosition.atEnd() && t.currentPosition.row < t.currentRow)
-                    ++t.currentPosition;
+                while (!t.currentCell.atEnd() && t.currentCell.row < t.currentRow)
+                    ++t.currentCell;
 
-                t.currentRow = t.currentPosition.row;
+                t.currentRow = t.currentCell.row;
             }
 
             blockTagClosed = true;
         } else if (closedNode->id == Html_table && !tables.isEmpty()) {
-            Table &t = tables.last();
-            if (QTextTable *parentTable = qobject_cast<QTextTable *>(t.lastFrame)) {
-                cursor = parentTable->cellAt(t.lastRow, t.lastColumn).lastCursorPosition();
-            } else {
-                cursor = t.lastFrame->lastCursorPosition();
+            tables.resize(tables.size() - 1);
+
+            if (!tables.isEmpty()) {
+                Table &t = tables.last();
+                if (t.isTextFrame) {
+                    cursor = t.frame->lastCursorPosition();
+                } else {
+                    cursor = t.currentCell.cell().lastCursorPosition();
+                }
             }
 
-            tables.resize(tables.size() - 1);
             // we don't need an extra block after tables, so we don't
             // claim to have closed one for the creation of a new one
             // in import()
             blockTagClosed = false;
         } else if (closedNode->isTableCell && !tables.isEmpty()) {
             Table &t = tables.last();
-            if (t.table)
-                ++tables.last().currentPosition;
+            if (!t.isTextFrame)
+                ++tables.last().currentCell;
             blockTagClosed = true;
         } else if (closedNode->isListStart) {
 
@@ -745,7 +748,6 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
 {
     Table table;
     table.columns = 0;
-    table.lastFrame = cursor.currentFrame();
 
     QVector<QTextLength> columnWidths;
     QVector<int> rowSpanCellsPerRow;
@@ -800,7 +802,7 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
 
     QTextFrameFormat fmt;
     const QTextHtmlParserNode &node = at(tableNodeIdx);
-    if (node.isTableFrame) {
+    if (node.isTextFrame) {
         // for plain text frames we set the frame margin
         // for all of top/bottom/left/right, so in the import 
         // here it doesn't matter which one we pick
@@ -828,19 +830,14 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
         fmt.clearBackground();
     fmt.setPosition(QTextFrameFormat::Position(node.cssFloat));
 
-    table.lastFrame = cursor.currentFrame();
-    if (QTextTable *parentTable = qobject_cast<QTextTable *>(table.lastFrame)) {
-        QTextTableCell cell = parentTable->cellAt(cursor);
-        table.lastRow = cell.row();
-        table.lastColumn = cell.column();
-    }
-
-    if (node.isTableFrame) {
-        cursor.insertFrame(fmt);
+    if (node.isTextFrame) {
+        table.frame = cursor.insertFrame(fmt);
+        table.isTextFrame = true;
     } else {
-        table.table = cursor.insertTable(table.rows, table.columns, fmt.toTableFormat());
+        QTextTable *textTable = cursor.insertTable(table.rows, table.columns, fmt.toTableFormat());
+        table.frame = textTable;
 
-        TableIterator it(table.table);
+        TableCellIterator it(textTable);
         foreach (int row, at(tableNodeIdx).children)
             if (at(row).id == Html_tr)
                 foreach (int cell, at(row).children)
@@ -848,12 +845,12 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
                         const QTextHtmlParserNode &c = at(cell);
 
                         if (c.tableCellColSpan > 1 || c.tableCellRowSpan > 1)
-                            table.table->mergeCells(it.row, it.column, c.tableCellRowSpan, c.tableCellColSpan);
+                            textTable->mergeCells(it.row, it.column, c.tableCellRowSpan, c.tableCellColSpan);
 
                         ++it;
                     }
 
-        table.currentPosition = TableIterator(table.table);
+        table.currentCell = TableCellIterator(textTable);
     }
     return table;
 }

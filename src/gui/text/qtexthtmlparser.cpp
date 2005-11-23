@@ -409,7 +409,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       fontItalic(Unspecified), fontUnderline(Unspecified), fontOverline(Unspecified), fontStrikeOut(Unspecified), fontFixedPitch(Unspecified),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), hasFontPixelSize(false), hasFontSizeAdjustment(false),
-      hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), isTableFrame(false), direction(3),
+      hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), isTextFrame(false), direction(3),
       displayMode(QTextHtmlElement::DisplayInline), fontPointSize(-1), fontPixelSize(-1), fontSizeAdjustment(0),
       fontWeight(-1), alignment(0), verticalAlignment(QTextCharFormat::AlignNormal),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
@@ -1410,7 +1410,7 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
         } else if (style.startsWith(QLatin1String("-qt-table-type:"))) {
             const QString s = style.mid(15).trimmed().toLower();
             if (s == QLatin1String("frame"))
-                node->isTableFrame = true;
+                node->isTextFrame = true;
         } else if (style.startsWith(QLatin1String("white-space:"))) {
             const QString s = style.mid(12).trimmed().toLower();
             QTextHtmlParserNode::WhiteSpaceMode ws = stringToWhiteSpaceMode(s);

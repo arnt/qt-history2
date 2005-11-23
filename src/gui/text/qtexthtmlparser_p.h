@@ -170,7 +170,7 @@ struct QTextHtmlParserNode {
     uint hasCssBlockIndent : 1;
     uint hasCssListIndent : 1;
     uint isEmptyParagraph : 1;
-    uint isTableFrame : 1;
+    uint isTextFrame : 1;
     uint direction : 2; // 3 means unset
     uint displayMode : 3; // QTextHtmlElement::DisplayMode
     QString fontFamily;
