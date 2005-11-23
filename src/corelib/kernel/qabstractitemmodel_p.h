@@ -59,6 +59,14 @@ public:
     void columnsRemoved(const QModelIndex &parent, int first, int last);
     void reset();
 
+    inline QModelIndex createIndex(int row, int column, void *data = 0) const {
+        return q_func()->createIndex(row, column, data);
+    }
+    
+    inline QModelIndex createIndex(int row, int column, int id) const {
+        return q_func()->createIndex(row, column, id);
+    }
+
     struct Change {
         Change() : first(-1), last(-1) {}
         Change(const Change &c) : parent(c.parent), first(c.first), last(c.last) {}
