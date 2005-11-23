@@ -658,6 +658,10 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
 
     unlockFace();
 
+    TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(freetype->face, ft_sfnt_os2);
+    if (os2)
+        fsType = os2->fsType;
+
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
         int format = PictStandardA8;
@@ -1424,13 +1428,10 @@ QFixed QFontEngineFT::leading() const
 
 QFixed QFontEngineFT::xHeight() const
 {
-    FT_Face face = lockFace();
-    TT_PCLT *pct = (TT_PCLT *)FT_Get_Sfnt_Table(face, ft_sfnt_pclt);
+    TT_PCLT *pct = (TT_PCLT *)FT_Get_Sfnt_Table(freetype->face, ft_sfnt_pclt);
     if (pct && pct->xHeight) {
-        unlockFace();
-        return QFixed(pct->xHeight*face->size->metrics.y_ppem)/face->units_per_EM;
+        return QFixed(pct->xHeight*freetype->face->size->metrics.y_ppem)/freetype->face->units_per_EM;
     }
-    unlockFace();
     return QFontEngine::xHeight();
 }
 

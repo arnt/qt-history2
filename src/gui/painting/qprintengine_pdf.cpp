@@ -2544,7 +2544,9 @@ void QPdfEnginePrivate::drawTextItem(QPdfEngine *q, const QPointF &p, const QTex
     QFontEngine *fe = ti.fontEngine;
 
     QFontEngine::FaceId face_id = fe->faceId();
-    if (face_id.filename.isEmpty()) {
+    if (face_id.filename.isEmpty()
+        || (fe->fsType & 0x200) /* bitmap embedding only */
+        || (fe->fsType == 2) /* no embedding allowed */) {
         *currentPage << "Q\n";
         q->QPaintEngine::drawTextItem(p, ti);
         *currentPage << "q\n";

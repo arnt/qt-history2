@@ -68,6 +68,7 @@ public:
     inline QFontEngine() {
         ref = 0;
         cache_count = 0;
+        fsType = 0;
 #if defined(Q_WS_WIN)
         script_cache = 0;
         cmap = 0;
@@ -150,6 +151,7 @@ public:
     QFontDef fontDef;
     uint cache_cost; // amount of mem used in kb by the font
     int cache_count;
+    uint fsType;
 
 #ifdef Q_WS_WIN
     int getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
