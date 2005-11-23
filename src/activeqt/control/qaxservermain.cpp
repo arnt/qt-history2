@@ -187,7 +187,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR,
     bool run = true;
     bool runServer = false;
     for (int i = 0; i < cmds.count(); ++i) {
-        QByteArray cmd = cmds.at(i);
+        QByteArray cmd = cmds.at(i).toLower();
         if (cmd == "-activex" || cmd == "/activex" || cmd == "-embedding" || cmd == "/embedding") {
             runServer = true;
         } else if (cmd == "-unregserver" || cmd == "/unregserver") {
