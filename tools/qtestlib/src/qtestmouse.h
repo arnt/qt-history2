@@ -63,13 +63,13 @@ namespace QTest
         switch (action)
         {
             case MousePress:
-                me = QMouseEvent(QEvent::MouseButtonPress, pos, button, button, stateKey);
+                me = QMouseEvent(QEvent::MouseButtonPress, pos, widget->mapToGlobal(pos), button, button, stateKey);
                 break;
             case MouseRelease:
-                me = QMouseEvent(QEvent::MouseButtonRelease, pos, button, 0, stateKey);
+                me = QMouseEvent(QEvent::MouseButtonRelease, pos, widget->mapToGlobal(pos), button, 0, stateKey);
                 break;
             case MouseDClick:
-                me = QMouseEvent(QEvent::MouseButtonDblClick, pos, button, button, stateKey);
+                me = QMouseEvent(QEvent::MouseButtonDblClick, pos, widget->mapToGlobal(pos), button, button, stateKey);
                 break;
             case MouseMove:
                 QCursor::setPos(widget->mapToGlobal(pos));
