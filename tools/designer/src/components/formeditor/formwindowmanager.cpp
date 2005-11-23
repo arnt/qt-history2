@@ -138,7 +138,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
         } break;
 
         case QEvent::WindowActivate: {
-            if (fw->isMainContainer(managedWidget) && activeFormWindow() != fw) {
+            if (e->spontaneous() && fw->isMainContainer(managedWidget) && activeFormWindow() != fw) {
                 setActiveFormWindow(fw);
             }
         } break;
