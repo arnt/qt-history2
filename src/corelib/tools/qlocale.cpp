@@ -2048,16 +2048,6 @@ QLocale QLocale::system()
 */
 
 
-static inline char digitToCLocale(QChar zero, QChar d)
-{
-    if (zero.unicode() <= d.unicode()
-            && zero.unicode() + 10 > d.unicode())
-        return '0' + d.unicode() - zero.unicode();
-
-    qWarning("QLocalePrivate::digitToCLocale(): bad digit: row=%d, cell=%d", d.row(), d.cell());
-    return 0;
-}
-
 static QString qulltoa(qulonglong l, int base, const QLocalePrivate &locale)
 {
     QChar buff[65]; // length of MAX_ULLONG in base 2
