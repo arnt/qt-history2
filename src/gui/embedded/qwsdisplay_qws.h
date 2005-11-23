@@ -118,6 +118,7 @@ public:
     static void setRawMouseEventFilter(void (*filter)(QWSMouseEvent *));
 
 private:
+    friend int qt_fork_qapplication();
     friend class QApplication;
     friend class QCopChannel;
     class Data;

@@ -42,6 +42,7 @@ public:
 
     static void sendLocally( const QString& ch, const QString& msg,
                                const QByteArray &data);
+    static void reregisterAll();
 
     virtual void receive(const QString& msg, const QByteArray &data);
 

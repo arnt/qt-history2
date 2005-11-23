@@ -409,6 +409,9 @@ public:
     }
 #endif
     void init();
+#ifndef QT_NO_QWS_MULTIPROCESS
+    void reinit();
+#endif
     void create()
     {
         QWSCreateCommand cmd;
@@ -454,7 +457,94 @@ public:
     }
 };
 
+#ifndef QT_NO_QWS_MULTIPROCESS
+int qt_fork_qapplication()
+{
+    int rv = ::fork();
+    if(0 == rv)
+        qt_fbdpy->d->reinit();
+    return rv;
+}
+#endif
+
 #include "qthread.h"
+
+class QDesktopWidget;
+extern QDesktopWidget *qt_desktopWidget;
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+void QWSDisplay::Data::reinit()
+{
+    Q_ASSERT(csocket);
+
+    connected_event = 0;
+//    region_ack = 0;
+    mouse_event = 0;
+//    region_event = 0;
+    region_offset_window = 0;
+#ifndef QT_NO_COP
+    qcop_response = 0;
+#endif
+    current_event = 0;
+    mouse_event_count = 0;
+    mouseFilter = 0;
+
+    QString pipe = qws_qtePipeFilename();
+
+    // QWS client
+    QWSSocket * sock2 = new QWSSocket();
+    sock2->connectToLocalFile(pipe);
+    ::dup2(sock2->socketDescriptor(), csocket->socketDescriptor());
+
+    QWSIdentifyCommand cmd;
+    cmd.setId(appName);
+
+#ifndef QT_NO_SXV
+    QTransportAuth *a = QTransportAuth::getInstance();
+    QTransportAuth::Data *d = a->connectTransport(
+            QTransportAuth::UnixStreamSock |
+            QTransportAuth::Trusted,
+            csocket->socketDescriptor());
+    QAuthDevice *ad = a->authBuf( d, csocket );
+
+    cmd.write(ad);
+#else
+    cmd.write(csocket);
+#endif
+
+    // wait for connect confirmation
+    waitForConnection();
+
+    qws_client_id = connected_event->simpleData.clientId;
+
+    // Cleanup all cached ids
+    unused_identifiers.clear();
+    takeId();
+    delete qt_desktopWidget;
+    qt_desktopWidget = 0;
+    qApp->desktop();
+
+    if (!QWSDisplay::initLock(pipe, false))
+        qFatal("Cannot get display lock");
+
+    if (shm.attach(connected_event->simpleData.servershmid)) {
+        QScreen *s = qt_get_screen(qws_display_id, qws_display_spec.constData());
+        sharedRamSize += s->memoryNeeded(qws_display_spec.constData());
+    } else {
+        perror("QWSDisplay::Data::init");
+        qFatal("Client can't attach to main ram memory.");
+    }
+    sharedRam = static_cast<uchar *>(shm.address());
+
+    sharedRamSize -= sizeof(int);
+    qt_last_x = reinterpret_cast<int *>(sharedRam + sharedRamSize);
+    sharedRamSize -= sizeof(int);
+    qt_last_y = reinterpret_cast<int *>(sharedRam + sharedRamSize);
+
+    QCopChannel::reregisterAll();
+    csocket->flush();
+}
+#endif
 
 void QWSDisplay::Data::init()
 {
@@ -754,6 +844,8 @@ void QWSDisplay::Data::offsetPendingExpose(int window, const QPoint &offset)
 
 void QWSDisplay::Data::waitForConnection()
 {
+    connected_event = 0;
+
     fillQueue();
 #ifndef QT_NO_QWS_MULTIPROCESS
     for (int i = 0; i < 5; i++) {

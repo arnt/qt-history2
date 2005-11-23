@@ -117,6 +117,20 @@ void QCopChannel::init(const QString& channel)
 }
 
 /*!
+  \internal
+
+  Resend all channel registrations
+  */
+void QCopChannel::reregisterAll()
+{
+    if(qcopClientMap) 
+        for(QCopClientMap::Iterator iter = qcopClientMap->begin();
+            iter != qcopClientMap->end();
+            ++iter) 
+            qt_fbdpy->registerChannel(iter.key());
+}
+
+/*!
     Destroys the client's end of the channel and notifies the server
     that the client has closed its connection. The server will keep
     the channel open until the last registered client detaches.
