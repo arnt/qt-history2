@@ -22,6 +22,8 @@
 #include <limits.h>
 #include <math.h>
 
+#include <qendian.h>
+
 #include <private/qunicodetables_p.h>
 #include <qbitmap.h>
 
@@ -155,6 +157,7 @@ void QFontEngine::getCMap()
         kerning_pairs = getKerning(hdc, designToDevice);
         _faceId.filename = (char *)otm + (int)otm->otmpFullName;
         lineWidth = otm->otmsUnderscoreSize;
+        fsType = otm->otmfsType;
         free(otm);
     } else {
         unitsPerEm = tm.w.tmHeight;
@@ -863,6 +866,20 @@ void QFontEngineWin::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_m
     DeleteObject(SelectObject(shared_dc, oldfont));
 }
 
+QByteArray QFontEngineWin::getSfntTable(uint tag) const
+{
+    if (!ttf)
+        return QByteArray();
+    SelectObject(shared_dc, hfont);
+    DWORD t = qbswap(tag);
+    int length = GetFontData(shared_dc, t, 0, NULL, 0); 
+    QByteArray table;
+    if(length > 0) {
+        table.resize(length);
+        GetFontData(shared_dc, t, 0, table.data(), length);
+    }
+    return table;
+}
 
 
 

@@ -34,6 +34,7 @@ public:
     virtual Properties properties() const;
     virtual void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
     virtual FaceId faceId() const;
+    QByteArray getSfntTable(uint tag) const;
     virtual int synthesized() const;
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
