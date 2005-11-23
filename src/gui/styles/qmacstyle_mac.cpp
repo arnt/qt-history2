@@ -166,6 +166,14 @@ static inline ThemeTabDirection getTabDirection(QTabBar::Shape shape)
     return ttd;
 }
 
+class QMacStylePrivateObjectWatcher : public QObject
+{
+    Q_OBJECT
+public:
+    QMacStylePrivateObjectWatcher(QObject *p) : QObject(p) {}
+public slots:
+    void destroyedObject(QObject *o);
+};
 
 class QMacStylePrivate : public QObject
 {
@@ -191,7 +199,9 @@ public:
     struct PolicyState {
         static QMap<const QWidget*, QMacStyle::FocusRectPolicy> focusMap;
         static QMap<const QWidget*, QMacStyle::WidgetSizePolicy> sizeMap;
+        static QPointer<QMacStylePrivateObjectWatcher> watcher;
         static void watchObject(const QObject *o);
+        static void stopWatch(const QObject *o);
     };
 
     // HITheme-based functions
@@ -265,17 +275,9 @@ public:
 };
 
 QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height);
+QPointer<QMacStylePrivateObjectWatcher> QMacStylePrivate::PolicyState::watcher;
 QMap<const QWidget*, QMacStyle::FocusRectPolicy> QMacStylePrivate::PolicyState::focusMap;
 QMap<const QWidget*, QMacStyle::WidgetSizePolicy> QMacStylePrivate::PolicyState::sizeMap;
-
-class QMacStylePrivateObjectWatcher : public QObject
-{
-    Q_OBJECT
-public:
-    QMacStylePrivateObjectWatcher(QObject *p) : QObject(p) {}
-public slots:
-    void destroyedObject(QObject *o);
-};
 
 #include "qmacstyle_mac.moc"
 
@@ -1192,10 +1194,14 @@ ThemeDrawState QMacStylePrivate::getDrawState(QStyle::State flags)
 
 void QMacStylePrivate::PolicyState::watchObject(const QObject *o)
 {
-    static QPointer<QMacStylePrivateObjectWatcher> watcher;
     if (!watcher)
         watcher = new QMacStylePrivateObjectWatcher(0);
     QObject::connect(o, SIGNAL(destroyed(QObject*)), watcher, SLOT(destroyedObject(QObject*)));
+}
+
+void QMacStylePrivate::PolicyState::stopWatch(const QObject *o)
+{
+    QObject::disconnect(o, SIGNAL(destroyed(QObject*)), watcher, SLOT(destroyedObject(QObject*)));
 }
 
 void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
@@ -5452,8 +5458,17 @@ QPixmap QMacStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOpt
 */
 void QMacStyle::setFocusRectPolicy(QWidget *w, FocusRectPolicy policy)
 {
-    QMacStylePrivate::PolicyState::focusMap.insert(w, policy);
-    QMacStylePrivate::PolicyState::watchObject(w);
+    bool alreadyIn = QMacStylePrivate::PolicyState::focusMap.contains(w);
+    if (policy == FocusDefault) {
+        if (alreadyIn) {
+            QMacStylePrivate::PolicyState::focusMap.remove(w);
+            QMacStylePrivate::PolicyState::stopWatch(w);
+        }
+    } else {
+        QMacStylePrivate::PolicyState::focusMap.insert(w, policy);
+        if (!alreadyIn)
+            QMacStylePrivate::PolicyState::watchObject(w);
+    }
     if (w->hasFocus()) {
         w->clearFocus();
         w->setFocus();
@@ -5482,8 +5497,17 @@ QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy(const QWidget *w)
 */
 void QMacStyle::setWidgetSizePolicy(const QWidget *w, WidgetSizePolicy policy)
 {
-    QMacStylePrivate::PolicyState::sizeMap.insert(w, policy);
-    QMacStylePrivate::PolicyState::watchObject(w);
+    bool alreadyIn = QMacStylePrivate::PolicyState::sizeMap.contains(w);
+    if (policy == SizeDefault) {
+        if (alreadyIn) {
+            QMacStylePrivate::PolicyState::sizeMap.remove(w);
+            QMacStylePrivate::PolicyState::stopWatch(w);
+        }
+    } else {
+        QMacStylePrivate::PolicyState::sizeMap.insert(w, policy);
+        if (!alreadyIn)
+            QMacStylePrivate::PolicyState::watchObject(w);
+    }
 }
 
 /*!
