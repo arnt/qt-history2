@@ -412,6 +412,7 @@ void QFontEngineXLFD::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *gly
 
 #include FT_OUTLINE_H
 #include FT_TRUETYPE_TABLES_H
+#include FT_TYPE1_TABLES_H
 
 QFontEngineMultiFT::QFontEngineMultiFT(FcFontSet *fs, int s, const QFontDef &request)
     : QFontEngineMulti(fs->nfont), fontSet(fs), screen(s)
@@ -1511,6 +1512,9 @@ QFontEngine::Properties QFontEngineFT::properties() const
         psname.replace(" ", "");
     }
     p.postscriptName = psname;
+    PS_FontInfoRec font_info;
+    if (FT_Get_PS_Font_Info(freetype->face, &font_info) == 0)
+        p.copyright = font_info.notice;
     p.ascent = freetype->face->ascender;
     p.descent = -freetype->face->descender;
     p.leading = freetype->face->height - freetype->face->ascender + freetype->face->descender;
@@ -1546,6 +1550,20 @@ void QFontEngineFT::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_me
     addGlyphToPath(face->glyph, p, path, true /* no_scale */);
     FT_Set_Transform(face, &freetype->matrix, 0);
     unlockFace();
+}
+
+QByteArray QFontEngineFT::getSfntTable(uint tag) const
+{
+    if (!FT_IS_SFNT(freetype->face))
+        return QByteArray();
+    FT_ULong length = 0;
+    FT_Load_Sfnt_Table(freetype->face, tag, 0, 0, &length);
+    QByteArray table;
+    if (length != 0) {
+        table.resize(length);
+        FT_Load_Sfnt_Table(freetype->face, tag, 0, (FT_Byte *)table.data(), &length);
+    }
+    return table;
 }
 
 int QFontEngineFT::synthesized() const

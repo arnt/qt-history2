@@ -80,6 +80,7 @@ public:
     // otherwise in design metrics
     struct Properties {
         QByteArray postscriptName;
+        QByteArray copyright;
         QRectF boundingBox;
         QFixed emSquare;
         QFixed ascent;
@@ -91,6 +92,7 @@ public:
     };
     virtual Properties properties() const;
     virtual void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
+    virtual QByteArray getSfntTable(uint /*tag*/) const { return QByteArray(); }
     
     struct FaceId {
         QByteArray filename;

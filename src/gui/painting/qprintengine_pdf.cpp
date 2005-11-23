@@ -33,6 +33,8 @@
 #include "qprintengine_pdf_p.h"
 #include "private/qdrawhelper_p.h"
 
+//#define FONT_DUMP
+
 // might be helpful for smooth transforms of images
 // Can't use it though, as gs generates completely wrong images if this is true.
 static const bool interpolateImages = false;
@@ -1554,12 +1556,6 @@ QByteArray QPdf::Font::toTruetype() const
     font.maxp.maxComponentDepth = 0;
 
 
-    // name
-    qttf_name_table name;
-    name.copyright = QLatin1String("Converted to TTF by Qt");
-    name.family = fontEngine->fontDef.family;
-    name.subfamily = QLatin1String("Regular"); // ######
-    name.postscript_name = fontEngine->fontDef.family;
 
     uint sumAdvances = 0;
     for (int i = 0; i < glyph_indices.size(); ++i) {
@@ -1593,7 +1589,25 @@ QByteArray QPdf::Font::toTruetype() const
     tables.append(generateHead(font.head));
     tables.append(generateHhea(font.hhea));
     tables.append(generateMaxp(font.maxp));
-    tables.append(generateName(name));
+    // name
+    QTtfTable name_table;
+    name_table.tag = MAKE_TAG("name");
+    name_table.data = fontEngine->getSfntTable(name_table.tag);
+    if (name_table.data.isEmpty()) {
+        qttf_name_table name;
+        name.copyright = properties.copyright;
+        name.family = fontEngine->fontDef.family;
+        name.subfamily = QLatin1String("Regular"); // ######
+        name.postscript_name = properties.postscriptName;
+        name_table = generateName(name);
+    }
+    tables.append(name_table);
+
+    QTtfTable os2;
+    os2.tag = MAKE_TAG("OS/2");
+    os2.data = fontEngine->getSfntTable(os2.tag);
+    if (!os2.data.isEmpty())
+        tables.append(os2);
 
     return bindFont(tables);
 }
@@ -3154,11 +3168,16 @@ void QPdfEnginePrivate::embedFont(QPdf::Font *font)
     //qDebug() << "embedFont" << font->object_id;
     int fontObject = font->object_id;
     QByteArray fontData = font->toTruetype();
-//     QFile ff("font.ttf");
-//     ff.open(QFile::WriteOnly);
-//     ff.write(fontData);
-//     ff.close();
-
+#ifdef FONT_DUMP
+    static int i = 0;
+    QString fileName("font%1.ttf");
+    fileName = fileName.arg(i++);
+    QFile ff(fileName);
+    ff.open(QFile::WriteOnly);
+    ff.write(fontData);
+    ff.close();
+#endif
+    
     int fontDescriptor = requestObject();
     int fontstream = requestObject();
     int cidfont = requestObject();
