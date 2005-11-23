@@ -1071,9 +1071,9 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
         \o Two pixel wide pen
         \o Three pixel wide pen
     \row
-        \o \inlineimage qrect-diagram-one.png
-        \o \inlineimage qrect-diagram-two.png
-        \o \inlineimage qrect-diagram-three.png
+        \o \inlineimage qrectf-diagram-one.png
+        \o \inlineimage qrectf-diagram-two.png
+        \o \inlineimage qrectf-diagram-three.png
     \endtable
 
     A QRectF can be constructed with a set of qreals specifying the
