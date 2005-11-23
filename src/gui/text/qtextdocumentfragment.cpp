@@ -700,13 +700,14 @@ bool QTextHtmlImporter::closeTag(int i)
         } else if (closedNode->id == Html_table && !tables.isEmpty()) {
             tables.resize(tables.size() - 1);
 
-            if (!tables.isEmpty()) {
+            if (tables.isEmpty()) {
+                cursor = doc->rootFrame()->lastCursorPosition();
+            } else {
                 Table &t = tables.last();
-                if (t.isTextFrame) {
+                if (t.isTextFrame)
                     cursor = t.frame->lastCursorPosition();
-                } else {
+                else
                     cursor = t.currentCell.cell().lastCursorPosition();
-                }
             }
 
             // we don't need an extra block after tables, so we don't
