@@ -215,18 +215,25 @@ QPrinter *QAbstractPrintDialog::printer() const
 
     \ingroup dialogs
 
-    It encompasses both the sort of details needed for doing a simple
-    print-out and some print configuration setup.
+    The dialog allows users to change document-related settings, such as the
+    paper size and orientation, type of print (color or grayscale), range of pages,
+    and number of copies to print.
 
-    Typical use of the QPrintDialog is to construct it on a QPrinter
-    object and call exec() to execute it.
+    Controls are also provided to enable users to choose from the printers available,
+    including any configured network printers.
+
+    Typically, QPrintDialog objects are constructed with a QPrinter object, and
+    executed using the exec() function.
 
     \code
     QPrintDialog printDialog(printer, parent);
-    if (printDialog.exec() == QDialog::Accept) {
+    if (printDialog.exec() == QDialog::Accepted) {
         // print ...
     }
     \endcode
+
+    If the dialog is accepted by the user, the QPrinter object is correctly configured
+    for printing.
 
     \table
     \row
