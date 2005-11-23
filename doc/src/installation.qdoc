@@ -64,6 +64,10 @@ The installation procedure is different for the different Qt platforms:
 
     Type \c{./configure -help} to get a list of all available options.
 
+    By default, Qt is configured for installation in the
+    \c{/usr/local/Trolltech/Qt-%VERSION%} directory, but this can be changed
+    by using the \c{-prefix} parameter.
+
     To create the library and compile all the demos, examples, tools,
     and tutorials, type:
 
@@ -78,9 +82,7 @@ The installation procedure is different for the different Qt platforms:
     su -c "make install"
 \endcode
 
-    and enter the root password. Qt is by default installed into
-    \c{/usr/local/Trolltech/Qt-%VERSION%} but this can be changed by using
-    the \c{-prefix} parameter.
+    and enter the root password.
 
     Note that on some systems the make utility is called differently,
     e.g. gmake. The configure script tells you which make utility to
@@ -272,6 +274,10 @@ The installation procedure is different for the different Qt platforms:
     build universal binaries, and also supply a path to the \c{-sdk}
     option if your development machine has a PowerPC CPU.
 
+    By default, Qt is configured for installation in the
+    \c{/usr/local/Trolltech/Qt-%VERSION%} directory, but this can be changed
+    by using the \c{-prefix} parameter.
+
     To create the library and compile all the demos, examples, tools,
     and tutorials, type:
 
@@ -286,9 +292,7 @@ The installation procedure is different for the different Qt platforms:
     su -c "make install"
 \endcode
 
-    and enter the root password. Qt is by default installed into
-    \c{/usr/local/Trolltech/Qt-%VERSION%} but this can be changed by using
-    the \c{-prefix} parameter.
+    and enter the root password.
 
 \o  Environment variables
 
