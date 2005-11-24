@@ -481,10 +481,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
               << "-$(MOVE) $(TARGET) $(DESTDIR)$(TARGETD)" << "\n\t"
               << mkdir_p_asstring("`dirname $(DESTDIR)$(TARGET0)`") << "\n\t"
               << varGlue("QMAKE_LN_SHLIB","-"," "," Versions/" +
-                         project->first("VER_MAJ") + "." + project->first("VER_MIN") +
+                         project->first("VER_MAJ") + ".0" +
                          "/$(TARGET) $(DESTDIR)$(TARGET0)") << "\n\t"
               << "-$(DEL_FILE) " << destdir << "Versions/Current" << "\n\t"
-              << varGlue("QMAKE_LN_SHLIB","-"," ", " " + project->first("VER_MAJ") + "." + project->first("VER_MIN") +
+              << varGlue("QMAKE_LN_SHLIB","-"," ", " " + project->first("VER_MAJ") + ".0" +
                          " " + destdir + "Versions/Current") << "\n\t";
             if(!project->isEmpty("QMAKE_POST_LINK"))
                 t << "\n\t" << var("QMAKE_POST_LINK");
@@ -647,6 +647,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "@$(COPY_FILE) " << icon << " " << dir << endl;
             }
         } else {
+
             t << "@$(DEL_FILE) " << info_plist_out << "\n\t"
               << "@sed "
               << "-e \"s,@LIBRARY@," << var("QMAKE_ORIG_TARGET") << ",g\" "
@@ -665,7 +666,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 QString path = bundle_dir;
                 if(!project->isEmpty(bundle_data[i] + ".version")) {
                     QString version = project->first(bundle_data[i] + ".version") + "/" +
-                                      project->first("VER_MAJ") + "." + project->first("VER_MIN") + "/";
+                                      project->first("VER_MAJ") + ".0/";
                     t << Option::fixPathToLocalOS(path + project->first(bundle_data[i] + ".path")) << ": " << "\n\t"
                       << mkdir_p_asstring(path) << "\n\t"
                       << "@$(SYMLINK) " << version << project->first(bundle_data[i] + ".path") << " " << path << endl;
@@ -911,7 +912,7 @@ void UnixMakefileGenerator::init2()
                                                    bundle_loc + project->first("TARGET"));
             project->variables()["TARGET_x.y"].append(project->first("QMAKE_BUNDLE_NAME") +
                                                       "/Versions/" +
-                                                      project->first("VER_MAJ") + "." + project->first("VER_MIN") +
+                                                      project->first("VER_MAJ") + ".0" +
                                                       bundle_loc + project->first("TARGET"));
         } else if(project->isActiveConfig("plugin")) {
             QString prefix;
@@ -1093,7 +1094,7 @@ void UnixMakefileGenerator::init2()
                         alldeps += Option::fixPathToLocalOS(path + Option::dir_sep +
                                                             project->first(bundle_data[i] + ".path"));
                         path += project->first(bundle_data[i] + ".version") + "/" +
-                                project->first("VER_MAJ") + "." + project->first("VER_MIN") + "/";
+                                project->first("VER_MAJ") + ".0/";
                     }
                     path += project->first(bundle_data[i] + ".path");
                     path = Option::fixPathToLocalOS(path);
