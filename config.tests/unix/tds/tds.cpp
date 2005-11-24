@@ -1,4 +1,4 @@
-#include <sybfont.h>
+#include <sybfront.h>
 #include <sybdb.h>
 
 int main(int, char **)
