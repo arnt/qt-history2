@@ -409,10 +409,15 @@ void QDesignerWorkbench::switchToDockedMode()
         }
 
         dockWidget->setWidget(tw);
-        dockWidget->setVisible(m_visibilities.value(tw, true));
     }
 
     mw->restoreState(settings.mainWindowState(), 2);
+
+    foreach (QDesignerToolWindow *tw, m_toolWindows) {
+        QDockWidget *dockWidget = magicalDockWidget(tw);
+        tw->setVisible(true);
+        dockWidget->setVisible(m_visibilities.value(tw, true));
+    }
 
     foreach (QDesignerFormWindow *fw, m_formWindows)
         m_workspace->addWindow(fw, magicalWindowFlags(fw))->hide();
