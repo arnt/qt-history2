@@ -874,8 +874,8 @@ void VcprojGenerator::initCompilerTool()
     if (usePCH) {
         conf.compiler.UsePrecompiledHeader     = pchUseUsingSpecific;
         conf.compiler.PrecompiledHeaderFile    = "$(IntDir)\\" + precompPch;
-        conf.compiler.PrecompiledHeaderThrough = precompHFilename;
-        conf.compiler.ForcedIncludeFiles       = QStringList(precompHFilename);
+        conf.compiler.PrecompiledHeaderThrough = project->first("PRECOMPILED_HEADER");
+        conf.compiler.ForcedIncludeFiles       = project->values("PRECOMPILED_HEADER");
         // Minimal build option triggers an Internal Compiler Error
         // when used in conjunction with /FI and /Yu, so remove it
         project->variables()["QMAKE_CFLAGS_DEBUG"].removeAll("-Gm");
