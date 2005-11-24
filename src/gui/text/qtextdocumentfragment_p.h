@@ -145,7 +145,7 @@ private:
 
     struct Table
     {
-        Table() : isTextFrame(false), rows(0), columns(0) {}
+        Table() : isTextFrame(false), rows(0), columns(0), currentRow(0) {}
         QPointer<QTextFrame> frame;
         bool isTextFrame;
         int rows;
