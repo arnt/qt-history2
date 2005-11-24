@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
             } else if(opt == "list") {
                 list = true;
             } else if(opt == "version") {
-                fprintf(stderr, "Resource Compiler for Qt version %s\n", QT_VERSION_STR);
+                fprintf(stderr, "Qt Resource Compiler version %s\n", QT_VERSION_STR);
                 return 1;
             } else if(opt == "help" || opt == "h") {
                 helpRequested = true;

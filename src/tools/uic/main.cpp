@@ -22,7 +22,7 @@ static const char *error = 0;
 
 void showHelp(const char *appName)
 {
-    fprintf(stderr, "Qt user interface compiler %s.\n", QT_VERSION_STR);
+    fprintf(stderr, "Qt User Interface Compiler version %s\n", QT_VERSION_STR);
     if (error)
         fprintf(stderr, "%s: %s\n", appName, error);
 
