@@ -492,9 +492,13 @@ void QWSDisplay::Data::reinit()
     QString pipe = qws_qtePipeFilename();
 
     // QWS client
-    QWSSocket * sock2 = new QWSSocket();
-    sock2->connectToLocalFile(pipe);
-    ::dup2(sock2->socketDescriptor(), csocket->socketDescriptor());
+    // Cleanup all cached ids
+    unused_identifiers.clear();
+    delete csocket;
+    csocket = new QWSSocket();
+    QObject::connect(csocket, SIGNAL(disconnected()),
+                     qApp, SLOT(quit()));
+    csocket->connectToLocalFile(pipe);
 
     QWSIdentifyCommand cmd;
     cmd.setId(appName);
@@ -517,9 +521,6 @@ void QWSDisplay::Data::reinit()
 
     qws_client_id = connected_event->simpleData.clientId;
 
-    // Cleanup all cached ids
-    unused_identifiers.clear();
-    takeId();
     delete qt_desktopWidget;
     qt_desktopWidget = 0;
     qApp->desktop();
