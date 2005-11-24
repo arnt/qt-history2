@@ -204,7 +204,7 @@ void QUiLoaderPrivate::setupWidgetMap() const
     For a complete example using the QUiLoader class, see the \l
     {designer/calculatorbuilder}{Calculator Builder} example.
 
-    \sa QForm, QFormBuilder
+    \sa QtUiTools, QFormBuilder
 */
 
 /*!
@@ -233,6 +233,8 @@ QUiLoader::~QUiLoader()
 }
 
 /*!
+    \fn QWidget *QUiLoader::load(QIODevice *device, QWidget *parent)
+
     Loads a form from the given \a device and creates a new widget with the given
     \a parent to hold its contents.
 
@@ -281,14 +283,14 @@ void QUiLoader::addPluginPath(const QString &path)
 }
 
 /*!
-    Creates a new widget with the given \a parent and \a objectName
+    Creates a new widget with the given \a parent and \a name
     using the class specified by \a className. You can use this
     function to create any of the widgets returned by the
     availableWidgets() function.
 
-    The function is also used internally by the Loader class whenever
+    The function is also used internally by the QUiLoader class whenever
     it has to create a widget. For that reason, you can subclass the
-    Loader class and reimplement this function to intervene the
+    QUiLoader class and reimplement this function to intervene the
     process of constructing an user interface or widget.
 
   \sa availableWidgets(), load()
@@ -300,12 +302,12 @@ QWidget *QUiLoader::createWidget(const QString &className, QWidget *parent, cons
 }
 
 /*!
-    Creates a new layout with the given \a parent and \a objectName
+    Creates a new layout with the given \a parent and \a name
     using the class specified by \a className.
 
-    The function is used internally by the Loader class whenever it
+    The function is used internally by the QUiLoader class whenever it
     has to create a layout. For that reason, you can subclass the
-    Loader class and reimplement this function to intervene the
+    QUiLoader class and reimplement this function to intervene the
     process of constructing an user interface or widget.
 
     \sa createWidget(), load()
@@ -317,11 +319,11 @@ QLayout *QUiLoader::createLayout(const QString &className, QObject *parent, cons
 }
 
 /*!
-    Creates a new action group with the given \a parent and \a objectName.
+    Creates a new action group with the given \a parent and \a name.
 
-    The function is used internally by the Loader class whenever it
+    The function is used internally by the QUiLoader class whenever it
     has to create an action group. For that reason, you can subclass
-    the Loader class and reimplement this function to intervene the
+    the QUiLoader class and reimplement this function to intervene the
     process of constructing an user interface or widget.
 
     \sa createAction(), createWidget(), load()
@@ -333,11 +335,11 @@ QActionGroup *QUiLoader::createActionGroup(QObject *parent, const QString &name)
 }
 
 /*!
-    Creates a new action with the given \a parent and \a objectName.
+    Creates a new action with the given \a parent and \a name.
 
-    The function is used internally by the Loader class whenever it
+    The function is used internally by the QUiLoader class whenever it
     has to create an action. For that reason, you can subclass the
-    Loader class and reimplement this function to intervene the
+    QUiLoader class and reimplement this function to intervene the
     process of constructing an user interface or widget.
 
     \sa createActionGroup(), createWidget(), load()
