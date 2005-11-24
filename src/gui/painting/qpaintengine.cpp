@@ -824,3 +824,29 @@ QRegion QPaintEngine::systemClip() const
 {
     return d_func()->systemClip;
 }
+
+/*!
+    \internal
+
+    Sets the target rect for drawing within the backing store. This
+    function should ONLY be used by the backing store.
+*/
+void QPaintEngine::setSystemRect(const QRect &rect)
+{
+    if (isActive()) {
+        qWarning("QPaintEngine::setSystemRect, should not be changed while engine is active");
+        return;
+    }
+    d_func()->systemRect = rect;
+}
+
+/*!
+    \internal
+
+    Retreives the rect for drawing within the backing store. This
+    function should ONLY be used by the backing store.
+ */
+QRect QPaintEngine::systemRect() const
+{
+    return d_func()->systemRect;
+}

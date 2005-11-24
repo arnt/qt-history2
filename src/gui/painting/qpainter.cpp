@@ -886,8 +886,14 @@ bool QPainter::begin(QPaintDevice *pd)
         d->state->deviceFont = d->state->font = QFont(d->state->deviceFont, d->device);
     }
 
-    d->state->ww = d->state->vw = pd->metric(QPaintDevice::PdmWidth);
-    d->state->wh = d->state->vh = pd->metric(QPaintDevice::PdmHeight);
+    QRect systemRect = d->engine->systemRect();
+    if (!systemRect.isEmpty()) {
+        d->state->ww = d->state->vw = systemRect.width();
+        d->state->wh = d->state->vh = systemRect.height();
+    } else {
+        d->state->ww = d->state->vw = pd->metric(QPaintDevice::PdmWidth);
+        d->state->wh = d->state->vh = pd->metric(QPaintDevice::PdmHeight);
+    }
 
     d->redirection_offset += d->engine->coordinateOffset();
 

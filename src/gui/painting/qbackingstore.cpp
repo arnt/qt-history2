@@ -629,6 +629,7 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
 
             QPaintEngine *paintEngine = pdev->paintEngine();
             if (paintEngine) {
+                paintEngine->setSystemRect(q->data->crect);
                 paintEngine->setSystemClip(wrgn);
 
                 //paint the background
@@ -659,6 +660,7 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
 
             //restore
             if (paintEngine) {
+                paintEngine->setSystemRect(QRect());
                 pdev->paintEngine()->setSystemClip(QRegion());
                 QPainter::restoreRedirected(q);
             }
@@ -751,6 +753,7 @@ void QWidget::repaint(const QRegion& rgn)
                 systemClipRgn.translate(-data->wrect.topLeft());
             }
             engine->setSystemClip(systemClipRgn);
+            engine->setSystemRect(data->crect);
         }
 
         d->drawWidget(this, rgn, QPoint(), QWidgetPrivate::DrawAsRoot | QWidgetPrivate::DrawPaintOnScreen);
@@ -771,6 +774,7 @@ void QWidget::repaint(const QRegion& rgn)
             if (!data->wrect.topLeft().isNull())
                 QPainter::restoreRedirected(this);
             engine->setSystemClip(QRegion());
+            engine->setSystemRect(QRect());
         }
 
         if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())

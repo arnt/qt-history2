@@ -41,6 +41,9 @@ public:
     QPaintDevice *pdev;
     QPaintEngine *q_ptr;
     QRegion systemClip;
+
+private:
+    QRect systemRect;
 };
 
 #endif // QPAINTENGINE_P_H
