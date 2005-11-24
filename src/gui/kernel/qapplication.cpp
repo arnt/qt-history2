@@ -1869,46 +1869,52 @@ void QApplication::setActiveWindow(QWidget* act)
     if (QApplicationPrivate::active_window == window)
         return;
 
-    // first the activation/deactivation events
-    QEvent ae(QEvent::ActivationChange);
+    QWidgetList toBeActivated;
+    QWidgetList toBeDeactivated;
+
     if (QApplicationPrivate::active_window) {
-        QWidgetList deacts;
         if (style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, QApplicationPrivate::active_window)) {
             QWidgetList list = topLevelWidgets();
             for (int i = 0; i < list.size(); ++i) {
                 QWidget *w = list.at(i);
                 if (w->isVisible() && w->isActiveWindow())
-                    deacts.append(w);
+                    toBeDeactivated.append(w);
             }
-        } else
-            deacts.append(QApplicationPrivate::active_window);
-        QApplicationPrivate::active_window = 0;
-        QEvent e(QEvent::WindowDeactivate);
-        for(int i = 0; i < deacts.size(); ++i) {
-            QWidget *w = deacts.at(i);
-            sendSpontaneousEvent(w, &e);
-            sendSpontaneousEvent(w, &ae);
+        } else {
+            toBeDeactivated.append(QApplicationPrivate::active_window);
         }
     }
 
     QApplicationPrivate::active_window = window;
+
     if (QApplicationPrivate::active_window) {
-        QEvent e(QEvent::WindowActivate);
-        QWidgetList acts;
         if (style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, QApplicationPrivate::active_window)) {
             QWidgetList list = topLevelWidgets();
             for (int i = 0; i < list.size(); ++i) {
                 QWidget *w = list.at(i);
                 if (w->isVisible() && w->isActiveWindow())
-                    acts.append(w);
+                    toBeActivated.append(w);
             }
-        } else
-            acts.append(QApplicationPrivate::active_window);
-        for (int i = 0; i < acts.size(); ++i) {
-            QWidget *w = acts.at(i);
-            sendSpontaneousEvent(w, &e);
-            sendSpontaneousEvent(w, &ae);
+        } else {
+            toBeActivated.append(QApplicationPrivate::active_window);
         }
+
+    }
+
+    // first the activation/deactivation events
+    QEvent activationChange(QEvent::ActivationChange);
+    QEvent windowActivate(QEvent::WindowActivate);
+    QEvent windowDeactivate(QEvent::WindowActivate);
+    for (int i = 0; i < toBeActivated.size(); ++i) {
+        QWidget *w = toBeActivated.at(i);
+        sendSpontaneousEvent(w, &windowActivate);
+        sendSpontaneousEvent(w, &activationChange);
+    }
+
+    for(int i = 0; i < toBeDeactivated.size(); ++i) {
+        QWidget *w = toBeDeactivated.at(i);
+        sendSpontaneousEvent(w, &windowDeactivate);
+        sendSpontaneousEvent(w, &activationChange);
     }
 
     // then focus events
