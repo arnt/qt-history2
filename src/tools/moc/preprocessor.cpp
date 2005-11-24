@@ -339,7 +339,7 @@ int PP_Expression::logical_OR_expression()
 {
     int value = logical_AND_expression();
     if (test(PP_OROR))
-        return value || logical_OR_expression();
+        return logical_OR_expression() || value;
     return value;
 }
 
@@ -347,7 +347,7 @@ int PP_Expression::logical_AND_expression()
 {
     int value = inclusive_OR_expression();
     if (test(PP_ANDAND))
-        return value && logical_AND_expression();
+        return logical_AND_expression() && value;
     return value;
 }
 
