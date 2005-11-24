@@ -1215,7 +1215,7 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
             d->dropIndicatorPosition = d->position(event->pos(), visualRect(index), 2);
             switch (d->dropIndicatorPosition) {
             case AboveItem:
-                row = index.row();
+                row = index.row() - 1;
                 col = index.column();
                 index = index.parent();
                 break;
@@ -1225,6 +1225,9 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
                 index = index.parent();
                 break;
             case OnItem:
+                row = index.row();
+                col = index.column();
+                index = index.parent();
                 break;
             case OnViewport:
                 break;
