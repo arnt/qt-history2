@@ -176,9 +176,10 @@ void QAbstractItemViewPrivate::init()
     item. Multiple items can be selected by dragging the mouse
     over them.
 
-    \value MultiSelection  When the user selects an item in the usual
+    \value MultiSelection When the user selects an item in the usual
     way, the selection status of that item is toggled and the other
-    items are left alone.
+    items are left alone. Multiple items can be toggled by dragging
+    the mouse over them.
 
     \value NoSelection  Items cannot be selected.
 
