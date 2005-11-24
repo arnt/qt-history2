@@ -119,407 +119,6 @@ static const char *const ps_header =
 "ED/_x ED _x _y m 0 _h RL _w 0 RL 0 _h neg RL h}BD/CLO{gr}BD\n";
 
 
-
-
-
-
-static const char * const agl =
-".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
-"quotesingle\0parenleft\0parenright\0asterisk\0plus\0comma\0hyphen\0period\0"
-"slash\0zero\0one\0two\0three\0four\0five\0six\0seven\0eight\0nine\0colon\0"
-"semicolon\0less\0equal\0greater\0question\0at\0A\0B\0C\0D\0E\0F\0G\0H\0I\0J\0"
-"K\0L\0M\0N\0O\0P\0Q\0R\0S\0T\0U\0V\0W\0X\0Y\0Z\0bracketleft\0backslash\0"
-"bracketright\0asciicircum\0underscore\0grave\0a\0b\0c\0d\0e\0f\0g\0h\0i\0j\0"
-"k\0l\0m\0n\0o\0p\0q\0r\0s\0t\0u\0v\0w\0x\0y\0z\0braceleft\0bar\0braceright\0"
-"asciitilde\0space\0exclamdown\0cent\0sterling\0currency\0yen\0brokenbar\0"
-"section\0dieresis\0copyright\0ordfeminine\0guillemotleft\0logicalnot\0"
-"hyphen\0registered\0macron\0degree\0plusminus\0twosuperior\0threesuperior\0"
-"acute\0mu\0paragraph\0periodcentered\0cedilla\0onesuperior\0ordmasculine\0"
-"guillemotright\0onequarter\0onehalf\0threequarters\0questiondown\0Agrave\0"
-"Aacute\0Acircumflex\0Atilde\0Adieresis\0Aring\0AE\0Ccedilla\0Egrave\0Eacute\0"
-"Ecircumflex\0Edieresis\0Igrave\0Iacute\0Icircumflex\0Idieresis\0Eth\0Ntilde\0"
-"Ograve\0Oacute\0Ocircumflex\0Otilde\0Odieresis\0multiply\0Oslash\0Ugrave\0"
-"Uacute\0Ucircumflex\0Udieresis\0Yacute\0Thorn\0germandbls\0agrave\0aacute\0"
-"acircumflex\0atilde\0adieresis\0aring\0ae\0ccedilla\0egrave\0eacute\0"
-"ecircumflex\0edieresis\0igrave\0iacute\0icircumflex\0idieresis\0eth\0ntilde\0"
-"ograve\0oacute\0ocircumflex\0otilde\0odieresis\0divide\0oslash\0ugrave\0"
-"uacute\0ucircumflex\0udieresis\0yacute\0thorn\0ydieresis\0Amacron\0amacron\0"
-"Abreve\0abreve\0Aogonek\0aogonek\0Cacute\0cacute\0Ccircumflex\0ccircumflex\0"
-"Cdotaccent\0cdotaccent\0Ccaron\0ccaron\0Dcaron\0dcaron\0Dcroat\0dcroat\0"
-"Emacron\0emacron\0Ebreve\0ebreve\0Edotaccent\0edotaccent\0Eogonek\0eogonek\0"
-"Ecaron\0ecaron\0Gcircumflex\0gcircumflex\0Gbreve\0gbreve\0Gdotaccent\0"
-"gdotaccent\0Gcommaaccent\0gcommaaccent\0Hcircumflex\0hcircumflex\0Hbar\0"
-"hbar\0Itilde\0itilde\0Imacron\0imacron\0Ibreve\0ibreve\0Iogonek\0iogonek\0"
-"Idotaccent\0dotlessi\0IJ\0ij\0Jcircumflex\0jcircumflex\0Kcommaaccent\0"
-"kcommaaccent\0kgreenlandic\0Lacute\0lacute\0Lcommaaccent\0lcommaaccent\0"
-"Lcaron\0lcaron\0Ldot\0ldot\0Lslash\0lslash\0Nacute\0nacute\0Ncommaaccent\0"
-"ncommaaccent\0Ncaron\0ncaron\0napostrophe\0Eng\0eng\0Omacron\0omacron\0"
-"Obreve\0obreve\0Ohungarumlaut\0ohungarumlaut\0OE\0oe\0Racute\0racute\0"
-"Rcommaaccent\0rcommaaccent\0Rcaron\0rcaron\0Sacute\0sacute\0Scircumflex\0"
-"scircumflex\0Scedilla\0scedilla\0Scaron\0scaron\0Tcommaaccent\0tcommaaccent\0"
-"Tcaron\0tcaron\0Tbar\0tbar\0Utilde\0utilde\0Umacron\0umacron\0Ubreve\0"
-"ubreve\0Uring\0uring\0Uhungarumlaut\0uhungarumlaut\0Uogonek\0uogonek\0"
-"Wcircumflex\0wcircumflex\0Ycircumflex\0ycircumflex\0Ydieresis\0Zacute\0"
-"zacute\0Zdotaccent\0zdotaccent\0Zcaron\0zcaron\0longs\0florin\0Ohorn\0ohorn\0"
-"Uhorn\0uhorn\0Gcaron\0gcaron\0Aringacute\0aringacute\0AEacute\0aeacute\0"
-"Oslashacute\0oslashacute\0Scommaaccent\0scommaaccent\0Tcommaaccent\0"
-"tcommaaccent\0afii57929\0afii64937\0circumflex\0caron\0macron\0breve\0"
-"dotaccent\0ring\0ogonek\0tilde\0hungarumlaut\0gravecomb\0acutecomb\0"
-"tildecomb\0hookabovecomb\0dotbelowcomb\0tonos\0dieresistonos\0Alphatonos\0"
-"anoteleia\0Epsilontonos\0Etatonos\0Iotatonos\0Omicrontonos\0Upsilontonos\0"
-"Omegatonos\0iotadieresistonos\0Alpha\0Beta\0Gamma\0Delta\0Epsilon\0Zeta\0"
-"Eta\0Theta\0Iota\0Kappa\0Lambda\0Mu\0Nu\0Xi\0Omicron\0Pi\0Rho\0Sigma\0Tau\0"
-"Upsilon\0Phi\0Chi\0Psi\0Omega\0Iotadieresis\0Upsilondieresis\0alphatonos\0"
-"epsilontonos\0etatonos\0iotatonos\0upsilondieresistonos\0alpha\0beta\0gamma\0"
-"delta\0epsilon\0zeta\0eta\0theta\0iota\0kappa\0lambda\0mu\0nu\0xi\0omicron\0"
-"pi\0rho\0sigma1\0sigma\0tau\0upsilon\0phi\0chi\0psi\0omega\0iotadieresis\0"
-"upsilondieresis\0omicrontonos\0upsilontonos\0omegatonos\0theta1\0Upsilon1\0"
-"phi1\0omega1\0afii10023\0afii10051\0afii10052\0afii10053\0afii10054\0"
-"afii10055\0afii10056\0afii10057\0afii10058\0afii10059\0afii10060\0afii10061\0"
-"afii10062\0afii10145\0afii10017\0afii10018\0afii10019\0afii10020\0afii10021\0"
-"afii10022\0afii10024\0afii10025\0afii10026\0afii10027\0afii10028\0afii10029\0"
-"afii10030\0afii10031\0afii10032\0afii10033\0afii10034\0afii10035\0afii10036\0"
-"afii10037\0afii10038\0afii10039\0afii10040\0afii10041\0afii10042\0afii10043\0"
-"afii10044\0afii10045\0afii10046\0afii10047\0afii10048\0afii10049\0afii10065\0"
-"afii10066\0afii10067\0afii10068\0afii10069\0afii10070\0afii10072\0afii10073\0"
-"afii10074\0afii10075\0afii10076\0afii10077\0afii10078\0afii10079\0afii10080\0"
-"afii10081\0afii10082\0afii10083\0afii10084\0afii10085\0afii10086\0afii10087\0"
-"afii10088\0afii10089\0afii10090\0afii10091\0afii10092\0afii10093\0afii10094\0"
-"afii10095\0afii10096\0afii10097\0afii10071\0afii10099\0afii10100\0afii10101\0"
-"afii10102\0afii10103\0afii10104\0afii10105\0afii10106\0afii10107\0afii10108\0"
-"afii10109\0afii10110\0afii10193\0afii10146\0afii10194\0afii10147\0afii10195\0"
-"afii10148\0afii10196\0afii10050\0afii10098\0afii10846\0afii57799\0afii57801\0"
-"afii57800\0afii57802\0afii57793\0afii57794\0afii57795\0afii57798\0afii57797\0"
-"afii57806\0afii57796\0afii57807\0afii57839\0afii57645\0afii57841\0afii57842\0"
-"afii57804\0afii57803\0afii57658\0afii57664\0afii57665\0afii57666\0afii57667\0"
-"afii57668\0afii57669\0afii57670\0afii57671\0afii57672\0afii57673\0afii57674\0"
-"afii57675\0afii57676\0afii57677\0afii57678\0afii57679\0afii57680\0afii57681\0"
-"afii57682\0afii57683\0afii57684\0afii57685\0afii57686\0afii57687\0afii57688\0"
-"afii57689\0afii57690\0afii57716\0afii57717\0afii57718\0afii57388\0afii57403\0"
-"afii57407\0afii57409\0afii57410\0afii57411\0afii57412\0afii57413\0afii57414\0"
-"afii57415\0afii57416\0afii57417\0afii57418\0afii57419\0afii57420\0afii57421\0"
-"afii57422\0afii57423\0afii57424\0afii57425\0afii57426\0afii57427\0afii57428\0"
-"afii57429\0afii57430\0afii57431\0afii57432\0afii57433\0afii57434\0afii57440\0"
-"afii57441\0afii57442\0afii57443\0afii57444\0afii57445\0afii57446\0afii57470\0"
-"afii57448\0afii57449\0afii57450\0afii57451\0afii57452\0afii57453\0afii57454\0"
-"afii57455\0afii57456\0afii57457\0afii57458\0afii57392\0afii57393\0afii57394\0"
-"afii57395\0afii57396\0afii57397\0afii57398\0afii57399\0afii57400\0afii57401\0"
-"afii57381\0afii63167\0afii57511\0afii57506\0afii57507\0afii57512\0afii57513\0"
-"afii57508\0afii57505\0afii57509\0afii57514\0afii57519\0afii57534\0Wgrave\0"
-"wgrave\0Wacute\0wacute\0Wdieresis\0wdieresis\0Ygrave\0ygrave\0afii61664\0"
-"afii301\0afii299\0afii300\0figuredash\0endash\0emdash\0afii00208\0"
-"underscoredbl\0quoteleft\0quoteright\0quotesinglbase\0quotereversed\0"
-"quotedblleft\0quotedblright\0quotedblbase\0dagger\0daggerdbl\0bullet\0"
-"onedotenleader\0twodotenleader\0ellipsis\0afii61573\0afii61574\0afii61575\0"
-"perthousand\0minute\0second\0guilsinglleft\0guilsinglright\0exclamdbl\0"
-"fraction\0zerosuperior\0foursuperior\0fivesuperior\0sixsuperior\0"
-"sevensuperior\0eightsuperior\0ninesuperior\0parenleftsuperior\0"
-"parenrightsuperior\0nsuperior\0zeroinferior\0oneinferior\0twoinferior\0"
-"threeinferior\0fourinferior\0fiveinferior\0sixinferior\0seveninferior\0"
-"eightinferior\0nineinferior\0parenleftinferior\0parenrightinferior\0"
-"colonmonetary\0franc\0lira\0peseta\0afii57636\0dong\0Euro\0afii61248\0"
-"Ifraktur\0afii61289\0afii61352\0weierstrass\0Rfraktur\0prescription\0"
-"trademark\0Omega\0estimated\0aleph\0onethird\0twothirds\0oneeighth\0"
-"threeeighths\0fiveeighths\0seveneighths\0arrowleft\0arrowup\0arrowright\0"
-"arrowdown\0arrowboth\0arrowupdn\0arrowupdnbse\0carriagereturn\0arrowdblleft\0"
-"arrowdblup\0arrowdblright\0arrowdbldown\0arrowdblboth\0universal\0"
-"partialdiff\0existential\0emptyset\0Delta\0gradient\0element\0notelement\0"
-"suchthat\0product\0summation\0minus\0fraction\0asteriskmath\0periodcentered\0"
-"radical\0proportional\0infinity\0orthogonal\0angle\0logicaland\0logicalor\0"
-"intersection\0union\0integral\0therefore\0similar\0congruent\0approxequal\0"
-"notequal\0equivalence\0lessequal\0greaterequal\0propersubset\0"
-"propersuperset\0notsubset\0reflexsubset\0reflexsuperset\0circleplus\0"
-"circlemultiply\0perpendicular\0dotmath\0house\0revlogicalnot\0integraltp\0"
-"integralbt\0angleleft\0angleright\0SF100000\0SF110000\0SF010000\0SF030000\0"
-"SF020000\0SF040000\0SF080000\0SF090000\0SF060000\0SF070000\0SF050000\0"
-"SF430000\0SF240000\0SF510000\0SF520000\0SF390000\0SF220000\0SF210000\0"
-"SF250000\0SF500000\0SF490000\0SF380000\0SF280000\0SF270000\0SF260000\0"
-"SF360000\0SF370000\0SF420000\0SF190000\0SF200000\0SF230000\0SF470000\0"
-"SF480000\0SF410000\0SF450000\0SF460000\0SF400000\0SF540000\0SF530000\0"
-"SF440000\0upblock\0dnblock\0block\0lfblock\0rtblock\0ltshade\0shade\0"
-"dkshade\0filledbox\0H22073\0H18543\0H18551\0filledrect\0triagup\0triagrt\0"
-"triagdn\0triaglf\0lozenge\0circle\0H18533\0invbullet\0invcircle\0openbullet\0"
-"smileface\0invsmileface\0sun\0female\0male\0spade\0club\0heart\0diamond\0"
-"musicalnote\0musicalnotedbl\0copyrightserif\0registerserif\0trademarkserif\0"
-"radicalex\0arrowvertex\0arrowhorizex\0registersans\0copyrightsans\0"
-"trademarksans\0parenlefttp\0parenleftex\0parenleftbt\0bracketlefttp\0"
-"bracketleftex\0bracketleftbt\0bracelefttp\0braceleftmid\0braceleftbt\0"
-"braceex\0integralex\0parenrighttp\0parenrightex\0parenrightbt\0"
-"bracketrighttp\0bracketrightex\0bracketrightbt\0bracerighttp\0bracerightmid\0"
-"bracerightbt\0ff\0fi\0fl\0ffi\0ffl\0afii57705\0afii57694\0afii57695\0"
-;
-
-static const struct { quint16 u; quint16 index; } unicodetoglyph[] = {
-    {0x0000, 0}, {0x0020, 8}, {0x0021, 14}, {0x0022, 21},
-    {0x0023, 30}, {0x0024, 41}, {0x0025, 48}, {0x0026, 56},
-    {0x0027, 66}, {0x0028, 78}, {0x0029, 88}, {0x002A, 99},
-    {0x002B, 108}, {0x002C, 113}, {0x002D, 119}, {0x002E, 126},
-    {0x002F, 133}, {0x0030, 139}, {0x0031, 144}, {0x0032, 148},
-    {0x0033, 152}, {0x0034, 158}, {0x0035, 163}, {0x0036, 168},
-    {0x0037, 172}, {0x0038, 178}, {0x0039, 184}, {0x003A, 189},
-    {0x003B, 195}, {0x003C, 205}, {0x003D, 210}, {0x003E, 216},
-    {0x003F, 224}, {0x0040, 233}, {0x0041, 236}, {0x0042, 238},
-    {0x0043, 240}, {0x0044, 242}, {0x0045, 244}, {0x0046, 246},
-    {0x0047, 248}, {0x0048, 250}, {0x0049, 252}, {0x004A, 254},
-    {0x004B, 256}, {0x004C, 258}, {0x004D, 260}, {0x004E, 262},
-    {0x004F, 264}, {0x0050, 266}, {0x0051, 268}, {0x0052, 270},
-    {0x0053, 272}, {0x0054, 274}, {0x0055, 276}, {0x0056, 278},
-    {0x0057, 280}, {0x0058, 282}, {0x0059, 284}, {0x005A, 286},
-    {0x005B, 288}, {0x005C, 300}, {0x005D, 310}, {0x005E, 323},
-    {0x005F, 335}, {0x0060, 346}, {0x0061, 352}, {0x0062, 354},
-    {0x0063, 356}, {0x0064, 358}, {0x0065, 360}, {0x0066, 362},
-    {0x0067, 364}, {0x0068, 366}, {0x0069, 368}, {0x006A, 370},
-    {0x006B, 372}, {0x006C, 374}, {0x006D, 376}, {0x006E, 378},
-    {0x006F, 380}, {0x0070, 382}, {0x0071, 384}, {0x0072, 386},
-    {0x0073, 388}, {0x0074, 390}, {0x0075, 392}, {0x0076, 394},
-    {0x0077, 396}, {0x0078, 398}, {0x0079, 400}, {0x007A, 402},
-    {0x007B, 404}, {0x007C, 414}, {0x007D, 418}, {0x007E, 429},
-    {0x00A0, 440}, {0x00A1, 446}, {0x00A2, 457}, {0x00A3, 462},
-    {0x00A4, 471}, {0x00A5, 480}, {0x00A6, 484}, {0x00A7, 494},
-    {0x00A8, 502}, {0x00A9, 511}, {0x00AA, 521}, {0x00AB, 533},
-    {0x00AC, 547}, {0x00AD, 558}, {0x00AE, 565}, {0x00AF, 576},
-    {0x00B0, 583}, {0x00B1, 590}, {0x00B2, 600}, {0x00B3, 612},
-    {0x00B4, 626}, {0x00B5, 632}, {0x00B6, 635}, {0x00B7, 645},
-    {0x00B8, 660}, {0x00B9, 668}, {0x00BA, 680}, {0x00BB, 693},
-    {0x00BC, 708}, {0x00BD, 719}, {0x00BE, 727}, {0x00BF, 741},
-    {0x00C0, 754}, {0x00C1, 761}, {0x00C2, 768}, {0x00C3, 780},
-    {0x00C4, 787}, {0x00C5, 797}, {0x00C6, 803}, {0x00C7, 806},
-    {0x00C8, 815}, {0x00C9, 822}, {0x00CA, 829}, {0x00CB, 841},
-    {0x00CC, 851}, {0x00CD, 858}, {0x00CE, 865}, {0x00CF, 877},
-    {0x00D0, 887}, {0x00D1, 891}, {0x00D2, 898}, {0x00D3, 905},
-    {0x00D4, 912}, {0x00D5, 924}, {0x00D6, 931}, {0x00D7, 941},
-    {0x00D8, 950}, {0x00D9, 957}, {0x00DA, 964}, {0x00DB, 971},
-    {0x00DC, 983}, {0x00DD, 993}, {0x00DE, 1000}, {0x00DF, 1006},
-    {0x00E0, 1017}, {0x00E1, 1024}, {0x00E2, 1031}, {0x00E3, 1043},
-    {0x00E4, 1050}, {0x00E5, 1060}, {0x00E6, 1066}, {0x00E7, 1069},
-    {0x00E8, 1078}, {0x00E9, 1085}, {0x00EA, 1092}, {0x00EB, 1104},
-    {0x00EC, 1114}, {0x00ED, 1121}, {0x00EE, 1128}, {0x00EF, 1140},
-    {0x00F0, 1150}, {0x00F1, 1154}, {0x00F2, 1161}, {0x00F3, 1168},
-    {0x00F4, 1175}, {0x00F5, 1187}, {0x00F6, 1194}, {0x00F7, 1204},
-    {0x00F8, 1211}, {0x00F9, 1218}, {0x00FA, 1225}, {0x00FB, 1232},
-    {0x00FC, 1244}, {0x00FD, 1254}, {0x00FE, 1261}, {0x00FF, 1267},
-    {0x0100, 1277}, {0x0101, 1285}, {0x0102, 1293}, {0x0103, 1300},
-    {0x0104, 1307}, {0x0105, 1315}, {0x0106, 1323}, {0x0107, 1330},
-    {0x0108, 1337}, {0x0109, 1349}, {0x010A, 1361}, {0x010B, 1372},
-    {0x010C, 1383}, {0x010D, 1390}, {0x010E, 1397}, {0x010F, 1404},
-    {0x0110, 1411}, {0x0111, 1418}, {0x0112, 1425}, {0x0113, 1433},
-    {0x0114, 1441}, {0x0115, 1448}, {0x0116, 1455}, {0x0117, 1466},
-    {0x0118, 1477}, {0x0119, 1485}, {0x011A, 1493}, {0x011B, 1500},
-    {0x011C, 1507}, {0x011D, 1519}, {0x011E, 1531}, {0x011F, 1538},
-    {0x0120, 1545}, {0x0121, 1556}, {0x0122, 1567}, {0x0123, 1580},
-    {0x0124, 1593}, {0x0125, 1605}, {0x0126, 1617}, {0x0127, 1622},
-    {0x0128, 1627}, {0x0129, 1634}, {0x012A, 1641}, {0x012B, 1649},
-    {0x012C, 1657}, {0x012D, 1664}, {0x012E, 1671}, {0x012F, 1679},
-    {0x0130, 1687}, {0x0131, 1698}, {0x0132, 1707}, {0x0133, 1710},
-    {0x0134, 1713}, {0x0135, 1725}, {0x0136, 1737}, {0x0137, 1750},
-    {0x0138, 1763}, {0x0139, 1776}, {0x013A, 1783}, {0x013B, 1790},
-    {0x013C, 1803}, {0x013D, 1816}, {0x013E, 1823}, {0x013F, 1830},
-    {0x0140, 1835}, {0x0141, 1840}, {0x0142, 1847}, {0x0143, 1854},
-    {0x0144, 1861}, {0x0145, 1868}, {0x0146, 1881}, {0x0147, 1894},
-    {0x0148, 1901}, {0x0149, 1908}, {0x014A, 1920}, {0x014B, 1924},
-    {0x014C, 1928}, {0x014D, 1936}, {0x014E, 1944}, {0x014F, 1951},
-    {0x0150, 1958}, {0x0151, 1972}, {0x0152, 1986}, {0x0153, 1989},
-    {0x0154, 1992}, {0x0155, 1999}, {0x0156, 2006}, {0x0157, 2019},
-    {0x0158, 2032}, {0x0159, 2039}, {0x015A, 2046}, {0x015B, 2053},
-    {0x015C, 2060}, {0x015D, 2072}, {0x015E, 2084}, {0x015F, 2093},
-    {0x0160, 2102}, {0x0161, 2109}, {0x0162, 2116}, {0x0163, 2129},
-    {0x0164, 2142}, {0x0165, 2149}, {0x0166, 2156}, {0x0167, 2161},
-    {0x0168, 2166}, {0x0169, 2173}, {0x016A, 2180}, {0x016B, 2188},
-    {0x016C, 2196}, {0x016D, 2203}, {0x016E, 2210}, {0x016F, 2216},
-    {0x0170, 2222}, {0x0171, 2236}, {0x0172, 2250}, {0x0173, 2258},
-    {0x0174, 2266}, {0x0175, 2278}, {0x0176, 2290}, {0x0177, 2302},
-    {0x0178, 2314}, {0x0179, 2324}, {0x017A, 2331}, {0x017B, 2338},
-    {0x017C, 2349}, {0x017D, 2360}, {0x017E, 2367}, {0x017F, 2374},
-    {0x0192, 2380}, {0x01A0, 2387}, {0x01A1, 2393}, {0x01AF, 2399},
-    {0x01B0, 2405}, {0x01E6, 2411}, {0x01E7, 2418}, {0x01FA, 2425},
-    {0x01FB, 2436}, {0x01FC, 2447}, {0x01FD, 2455}, {0x01FE, 2463},
-    {0x01FF, 2475}, {0x0218, 2487}, {0x0219, 2500}, {0x021A, 2513},
-    {0x021B, 2526}, {0x02BC, 2539}, {0x02BD, 2549}, {0x02C6, 2559},
-    {0x02C7, 2570}, {0x02C9, 2576}, {0x02D8, 2583}, {0x02D9, 2589},
-    {0x02DA, 2599}, {0x02DB, 2604}, {0x02DC, 2611}, {0x02DD, 2617},
-    {0x0300, 2630}, {0x0301, 2640}, {0x0303, 2650}, {0x0309, 2660},
-    {0x0323, 2674}, {0x0384, 2687}, {0x0385, 2693}, {0x0386, 2707},
-    {0x0387, 2718}, {0x0388, 2728}, {0x0389, 2741}, {0x038A, 2750},
-    {0x038C, 2760}, {0x038E, 2773}, {0x038F, 2786}, {0x0390, 2797},
-    {0x0391, 2815}, {0x0392, 2821}, {0x0393, 2826}, {0x0394, 2832},
-    {0x0395, 2838}, {0x0396, 2846}, {0x0397, 2851}, {0x0398, 2855},
-    {0x0399, 2861}, {0x039A, 2866}, {0x039B, 2872}, {0x039C, 2879},
-    {0x039D, 2882}, {0x039E, 2885}, {0x039F, 2888}, {0x03A0, 2896},
-    {0x03A1, 2899}, {0x03A3, 2903}, {0x03A4, 2909}, {0x03A5, 2913},
-    {0x03A6, 2921}, {0x03A7, 2925}, {0x03A8, 2929}, {0x03A9, 2933},
-    {0x03AA, 2939}, {0x03AB, 2952}, {0x03AC, 2968}, {0x03AD, 2979},
-    {0x03AE, 2992}, {0x03AF, 3001}, {0x03B0, 3011}, {0x03B1, 3032},
-    {0x03B2, 3038}, {0x03B3, 3043}, {0x03B4, 3049}, {0x03B5, 3055},
-    {0x03B6, 3063}, {0x03B7, 3068}, {0x03B8, 3072}, {0x03B9, 3078},
-    {0x03BA, 3083}, {0x03BB, 3089}, {0x03BC, 3096}, {0x03BD, 3099},
-    {0x03BE, 3102}, {0x03BF, 3105}, {0x03C0, 3113}, {0x03C1, 3116},
-    {0x03C2, 3120}, {0x03C3, 3127}, {0x03C4, 3133}, {0x03C5, 3137},
-    {0x03C6, 3145}, {0x03C7, 3149}, {0x03C8, 3153}, {0x03C9, 3157},
-    {0x03CA, 3163}, {0x03CB, 3176}, {0x03CC, 3192}, {0x03CD, 3205},
-    {0x03CE, 3218}, {0x03D1, 3229}, {0x03D2, 3236}, {0x03D5, 3245},
-    {0x03D6, 3250}, {0x0401, 3257}, {0x0402, 3267}, {0x0403, 3277},
-    {0x0404, 3287}, {0x0405, 3297}, {0x0406, 3307}, {0x0407, 3317},
-    {0x0408, 3327}, {0x0409, 3337}, {0x040A, 3347}, {0x040B, 3357},
-    {0x040C, 3367}, {0x040E, 3377}, {0x040F, 3387}, {0x0410, 3397},
-    {0x0411, 3407}, {0x0412, 3417}, {0x0413, 3427}, {0x0414, 3437},
-    {0x0415, 3447}, {0x0416, 3457}, {0x0417, 3467}, {0x0418, 3477},
-    {0x0419, 3487}, {0x041A, 3497}, {0x041B, 3507}, {0x041C, 3517},
-    {0x041D, 3527}, {0x041E, 3537}, {0x041F, 3547}, {0x0420, 3557},
-    {0x0421, 3567}, {0x0422, 3577}, {0x0423, 3587}, {0x0424, 3597},
-    {0x0425, 3607}, {0x0426, 3617}, {0x0427, 3627}, {0x0428, 3637},
-    {0x0429, 3647}, {0x042A, 3657}, {0x042B, 3667}, {0x042C, 3677},
-    {0x042D, 3687}, {0x042E, 3697}, {0x042F, 3707}, {0x0430, 3717},
-    {0x0431, 3727}, {0x0432, 3737}, {0x0433, 3747}, {0x0434, 3757},
-    {0x0435, 3767}, {0x0436, 3777}, {0x0437, 3787}, {0x0438, 3797},
-    {0x0439, 3807}, {0x043A, 3817}, {0x043B, 3827}, {0x043C, 3837},
-    {0x043D, 3847}, {0x043E, 3857}, {0x043F, 3867}, {0x0440, 3877},
-    {0x0441, 3887}, {0x0442, 3897}, {0x0443, 3907}, {0x0444, 3917},
-    {0x0445, 3927}, {0x0446, 3937}, {0x0447, 3947}, {0x0448, 3957},
-    {0x0449, 3967}, {0x044A, 3977}, {0x044B, 3987}, {0x044C, 3997},
-    {0x044D, 4007}, {0x044E, 4017}, {0x044F, 4027}, {0x0451, 4037},
-    {0x0452, 4047}, {0x0453, 4057}, {0x0454, 4067}, {0x0455, 4077},
-    {0x0456, 4087}, {0x0457, 4097}, {0x0458, 4107}, {0x0459, 4117},
-    {0x045A, 4127}, {0x045B, 4137}, {0x045C, 4147}, {0x045E, 4157},
-    {0x045F, 4167}, {0x0462, 4177}, {0x0463, 4187}, {0x0472, 4197},
-    {0x0473, 4207}, {0x0474, 4217}, {0x0475, 4227}, {0x0490, 4237},
-    {0x0491, 4247}, {0x04D9, 4257}, {0x05B0, 4267}, {0x05B1, 4277},
-    {0x05B2, 4287}, {0x05B3, 4297}, {0x05B4, 4307}, {0x05B5, 4317},
-    {0x05B6, 4327}, {0x05B7, 4337}, {0x05B8, 4347}, {0x05B9, 4357},
-    {0x05BB, 4367}, {0x05BC, 4377}, {0x05BD, 4387}, {0x05BE, 4397},
-    {0x05BF, 4407}, {0x05C0, 4417}, {0x05C1, 4427}, {0x05C2, 4437},
-    {0x05C3, 4447}, {0x05D0, 4457}, {0x05D1, 4467}, {0x05D2, 4477},
-    {0x05D3, 4487}, {0x05D4, 4497}, {0x05D5, 4507}, {0x05D6, 4517},
-    {0x05D7, 4527}, {0x05D8, 4537}, {0x05D9, 4547}, {0x05DA, 4557},
-    {0x05DB, 4567}, {0x05DC, 4577}, {0x05DD, 4587}, {0x05DE, 4597},
-    {0x05DF, 4607}, {0x05E0, 4617}, {0x05E1, 4627}, {0x05E2, 4637},
-    {0x05E3, 4647}, {0x05E4, 4657}, {0x05E5, 4667}, {0x05E6, 4677},
-    {0x05E7, 4687}, {0x05E8, 4697}, {0x05E9, 4707}, {0x05EA, 4717},
-    {0x05F0, 4727}, {0x05F1, 4737}, {0x05F2, 4747}, {0x060C, 4757},
-    {0x061B, 4767}, {0x061F, 4777}, {0x0621, 4787}, {0x0622, 4797},
-    {0x0623, 4807}, {0x0624, 4817}, {0x0625, 4827}, {0x0626, 4837},
-    {0x0627, 4847}, {0x0628, 4857}, {0x0629, 4867}, {0x062A, 4877},
-    {0x062B, 4887}, {0x062C, 4897}, {0x062D, 4907}, {0x062E, 4917},
-    {0x062F, 4927}, {0x0630, 4937}, {0x0631, 4947}, {0x0632, 4957},
-    {0x0633, 4967}, {0x0634, 4977}, {0x0635, 4987}, {0x0636, 4997},
-    {0x0637, 5007}, {0x0638, 5017}, {0x0639, 5027}, {0x063A, 5037},
-    {0x0640, 5047}, {0x0641, 5057}, {0x0642, 5067}, {0x0643, 5077},
-    {0x0644, 5087}, {0x0645, 5097}, {0x0646, 5107}, {0x0647, 5117},
-    {0x0648, 5127}, {0x0649, 5137}, {0x064A, 5147}, {0x064B, 5157},
-    {0x064C, 5167}, {0x064D, 5177}, {0x064E, 5187}, {0x064F, 5197},
-    {0x0650, 5207}, {0x0651, 5217}, {0x0652, 5227}, {0x0660, 5237},
-    {0x0661, 5247}, {0x0662, 5257}, {0x0663, 5267}, {0x0664, 5277},
-    {0x0665, 5287}, {0x0666, 5297}, {0x0667, 5307}, {0x0668, 5317},
-    {0x0669, 5327}, {0x066A, 5337}, {0x066D, 5347}, {0x0679, 5357},
-    {0x067E, 5367}, {0x0686, 5377}, {0x0688, 5387}, {0x0691, 5397},
-    {0x0698, 5407}, {0x06A4, 5417}, {0x06AF, 5427}, {0x06BA, 5437},
-    {0x06D2, 5447}, {0x06D5, 5457}, {0x1E80, 5467}, {0x1E81, 5474},
-    {0x1E82, 5481}, {0x1E83, 5488}, {0x1E84, 5495}, {0x1E85, 5505},
-    {0x1EF2, 5515}, {0x1EF3, 5522}, {0x200C, 5529}, {0x200D, 5539},
-    {0x200E, 5547}, {0x200F, 5555}, {0x2012, 5563}, {0x2013, 5574},
-    {0x2014, 5581}, {0x2015, 5588}, {0x2017, 5598}, {0x2018, 5612},
-    {0x2019, 5622}, {0x201A, 5633}, {0x201B, 5648}, {0x201C, 5662},
-    {0x201D, 5675}, {0x201E, 5689}, {0x2020, 5702}, {0x2021, 5709},
-    {0x2022, 5719}, {0x2024, 5726}, {0x2025, 5741}, {0x2026, 5756},
-    {0x202C, 5765}, {0x202D, 5775}, {0x202E, 5785}, {0x2030, 5795},
-    {0x2032, 5807}, {0x2033, 5814}, {0x2039, 5821}, {0x203A, 5835},
-    {0x203C, 5850}, {0x2044, 5860}, {0x2070, 5869}, {0x2074, 5882},
-    {0x2075, 5895}, {0x2076, 5908}, {0x2077, 5920}, {0x2078, 5934},
-    {0x2079, 5948}, {0x207D, 5961}, {0x207E, 5979}, {0x207F, 5998},
-    {0x2080, 6008}, {0x2081, 6021}, {0x2082, 6033}, {0x2083, 6045},
-    {0x2084, 6059}, {0x2085, 6072}, {0x2086, 6085}, {0x2087, 6097},
-    {0x2088, 6111}, {0x2089, 6125}, {0x208D, 6138}, {0x208E, 6156},
-    {0x20A1, 6175}, {0x20A3, 6189}, {0x20A4, 6195}, {0x20A7, 6200},
-    {0x20AA, 6207}, {0x20AB, 6217}, {0x20AC, 6222}, {0x2105, 6227},
-    {0x2111, 6237}, {0x2113, 6246}, {0x2116, 6256}, {0x2118, 6266},
-    {0x211C, 6278}, {0x211E, 6287}, {0x2122, 6300}, {0x2126, 6310},
-    {0x212E, 6316}, {0x2135, 6326}, {0x2153, 6332}, {0x2154, 6341},
-    {0x215B, 6351}, {0x215C, 6361}, {0x215D, 6374}, {0x215E, 6386},
-    {0x2190, 6399}, {0x2191, 6409}, {0x2192, 6417}, {0x2193, 6428},
-    {0x2194, 6438}, {0x2195, 6448}, {0x21A8, 6458}, {0x21B5, 6471},
-    {0x21D0, 6486}, {0x21D1, 6499}, {0x21D2, 6510}, {0x21D3, 6524},
-    {0x21D4, 6537}, {0x2200, 6550}, {0x2202, 6560}, {0x2203, 6572},
-    {0x2205, 6584}, {0x2206, 6593}, {0x2207, 6599}, {0x2208, 6608},
-    {0x2209, 6616}, {0x220B, 6627}, {0x220F, 6636}, {0x2211, 6644},
-    {0x2212, 6654}, {0x2215, 6660}, {0x2217, 6669}, {0x2219, 6682},
-    {0x221A, 6697}, {0x221D, 6705}, {0x221E, 6718}, {0x221F, 6727},
-    {0x2220, 6738}, {0x2227, 6744}, {0x2228, 6755}, {0x2229, 6765},
-    {0x222A, 6778}, {0x222B, 6784}, {0x2234, 6793}, {0x223C, 6803},
-    {0x2245, 6811}, {0x2248, 6821}, {0x2260, 6833}, {0x2261, 6842},
-    {0x2264, 6854}, {0x2265, 6864}, {0x2282, 6877}, {0x2283, 6890},
-    {0x2284, 6905}, {0x2286, 6915}, {0x2287, 6928}, {0x2295, 6943},
-    {0x2297, 6954}, {0x22A5, 6969}, {0x22C5, 6983}, {0x2302, 6991},
-    {0x2310, 6997}, {0x2320, 7011}, {0x2321, 7022}, {0x2329, 7033},
-    {0x232A, 7043}, {0x2500, 7054}, {0x2502, 7063}, {0x250C, 7072},
-    {0x2510, 7081}, {0x2514, 7090}, {0x2518, 7099}, {0x251C, 7108},
-    {0x2524, 7117}, {0x252C, 7126}, {0x2534, 7135}, {0x253C, 7144},
-    {0x2550, 7153}, {0x2551, 7162}, {0x2552, 7171}, {0x2553, 7180},
-    {0x2554, 7189}, {0x2555, 7198}, {0x2556, 7207}, {0x2557, 7216},
-    {0x2558, 7225}, {0x2559, 7234}, {0x255A, 7243}, {0x255B, 7252},
-    {0x255C, 7261}, {0x255D, 7270}, {0x255E, 7279}, {0x255F, 7288},
-    {0x2560, 7297}, {0x2561, 7306}, {0x2562, 7315}, {0x2563, 7324},
-    {0x2564, 7333}, {0x2565, 7342}, {0x2566, 7351}, {0x2567, 7360},
-    {0x2568, 7369}, {0x2569, 7378}, {0x256A, 7387}, {0x256B, 7396},
-    {0x256C, 7405}, {0x2580, 7414}, {0x2584, 7422}, {0x2588, 7430},
-    {0x258C, 7436}, {0x2590, 7444}, {0x2591, 7452}, {0x2592, 7460},
-    {0x2593, 7466}, {0x25A0, 7474}, {0x25A1, 7484}, {0x25AA, 7491},
-    {0x25AB, 7498}, {0x25AC, 7505}, {0x25B2, 7516}, {0x25BA, 7524},
-    {0x25BC, 7532}, {0x25C4, 7540}, {0x25CA, 7548}, {0x25CB, 7556},
-    {0x25CF, 7563}, {0x25D8, 7570}, {0x25D9, 7580}, {0x25E6, 7590},
-    {0x263A, 7601}, {0x263B, 7611}, {0x263C, 7624}, {0x2640, 7628},
-    {0x2642, 7635}, {0x2660, 7640}, {0x2663, 7646}, {0x2665, 7651},
-    {0x2666, 7657}, {0x266A, 7665}, {0x266B, 7677}, {0xF6D9, 7692},
-    {0xF6DA, 7707}, {0xF6DB, 7721}, {0xF8E5, 7736}, {0xF8E6, 7746},
-    {0xF8E7, 7758}, {0xF8E8, 7771}, {0xF8E9, 7784}, {0xF8EA, 7798},
-    {0xF8EB, 7812}, {0xF8EC, 7824}, {0xF8ED, 7836}, {0xF8EE, 7848},
-    {0xF8EF, 7862}, {0xF8F0, 7876}, {0xF8F1, 7890}, {0xF8F2, 7902},
-    {0xF8F3, 7915}, {0xF8F4, 7927}, {0xF8F5, 7935}, {0xF8F6, 7946},
-    {0xF8F7, 7959}, {0xF8F8, 7972}, {0xF8F9, 7985}, {0xF8FA, 8000},
-    {0xF8FB, 8015}, {0xF8FC, 8030}, {0xF8FD, 8043}, {0xF8FE, 8057},
-    {0xFB00, 8070}, {0xFB01, 8073}, {0xFB02, 8076}, {0xFB03, 8079},
-    {0xFB04, 8083}, {0xFB1F, 8087}, {0xFB2A, 8097}, {0xFB2B, 8107},
-    {0xFB35, 8117}, {0xFB4B, 8127}, {0xFFFF, 8137}
-};
-
-// This map is used for symbol fonts to get the correct glyph names for the latin range
-static const unsigned short symbol_map[0x100] = {
-    0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
-    0x0008, 0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x000e, 0x000f,
-    0x0010, 0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017,
-    0x0018, 0x0019, 0x001a, 0x001b, 0x001c, 0x001d, 0x001e, 0x001f,
-    0x0020, 0x0021, 0x2200, 0x0023, 0x2203, 0x0025, 0x0026, 0x220b,
-    0x0028, 0x0029, 0x2217, 0x002b, 0x002c, 0x2212, 0x002e, 0x002f,
-    0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037,
-    0x0038, 0x0039, 0x003a, 0x003b, 0x003c, 0x003d, 0x003e, 0x003f,
-
-    0x2245, 0x0391, 0x0392, 0x03a7, 0x0394, 0x0395, 0x03a6, 0x0393,
-    0x0397, 0x0399, 0x03d1, 0x039a, 0x039b, 0x039c, 0x039d, 0x039f,
-    0x03a0, 0x0398, 0x03a1, 0x03a3, 0x03a4, 0x03a5, 0x03c2, 0x03a9,
-    0x039e, 0x03a8, 0x0396, 0x005b, 0x2234, 0x005d, 0x22a5, 0x005f,
-    0xf8e5, 0x03b1, 0x03b2, 0x03c7, 0x03b4, 0x03b5, 0x03c6, 0x03b3,
-    0x03b7, 0x03b9, 0x03d5, 0x03ba, 0x03bb, 0x03bc, 0x03bd, 0x03bf,
-    0x03c0, 0x03b8, 0x03c1, 0x03c3, 0x03c4, 0x03c5, 0x03d6, 0x03c9,
-    0x03be, 0x03c8, 0x03b6, 0x007b, 0x007c, 0x007d, 0x223c, 0x007f,
-
-    0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
-    0x0088, 0x0089, 0x008a, 0x008b, 0x008c, 0x008d, 0x008e, 0x008f,
-    0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
-    0x0098, 0x0099, 0x009a, 0x009b, 0x009c, 0x009d, 0x009e, 0x009f,
-    0x20ac, 0x03d2, 0x2023, 0x2264, 0x2044, 0x221e, 0x0192, 0x2263,
-    0x2666, 0x2665, 0x2660, 0x2194, 0x2190, 0x2191, 0x2192, 0x2193,
-    0x00b0, 0x00b1, 0x2033, 0x2265, 0x00d7, 0x221d, 0x2202, 0x2022,
-    0x00f7, 0x2260, 0x2261, 0x2248, 0x2026, 0xf8e6, 0xf8e7, 0x21b5,
-
-    0x2135, 0x2111, 0x211c, 0x2118, 0x2297, 0x2295, 0x2205, 0x2229,
-    0x222a, 0x2283, 0x2287, 0x2284, 0x2282, 0x2286, 0x2208, 0x2209,
-    0x2220, 0x2207, 0xf6da, 0xf6d9, 0xf6db, 0x220f, 0x221a, 0x22c5,
-    0x00ac, 0x2227, 0x2228, 0x21d4, 0x21d0, 0x21d1, 0x21d2, 0x21d3,
-    0x25ca, 0x2329, 0xf8e8, 0xf8e9, 0xf8ea, 0x2211, 0xf8eb, 0xf8ec,
-    0xf8ed, 0xf8ee, 0xf8ef, 0xf8f0, 0xf8f1, 0xf8f2, 0xf8f3, 0xf8f4,
-    0x0000, 0x232a, 0x222b, 0x2320, 0xf8f5, 0x2321, 0xf8f6, 0xf8f7,
-    0xf8f8, 0xf8f9, 0xf8fa, 0xf8fb, 0xf8fc, 0xf8fd, 0xf8fe, 0x0000,
-};
-
-
 #define MM(n) int((n * 720 + 127) / 254)
 #define IN(n) int(n * 72)
 
@@ -873,11 +472,9 @@ public:
     virtual void drawText(QPdf::ByteStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItemInt &ti);
     virtual unsigned short mapUnicode(unsigned short unicode);
     void downloadMapping(QPdf::ByteStream &s, bool global);
-    QByteArray glyphName(unsigned short glyphindex, bool *glyphSet = 0);
+    virtual QByteArray glyphName(unsigned short glyphindex);
     virtual void restore();
 
-    virtual unsigned short unicode_for_glyph(int glyphindex) { return glyphindex; }
-    virtual unsigned short glyph_for_unicode(unsigned short unicode) { return unicode; }
     unsigned short insertIntoSubset(unsigned short unicode);
     virtual bool embedded() { return false; }
 
@@ -1236,78 +833,9 @@ unsigned short QPSPrintEngineFont::mapUnicode(unsigned short unicode)
 }
 
 
-QByteArray QPSPrintEngineFont::glyphName(unsigned short glyphindex, bool *glyphSet)
+QByteArray QPSPrintEngineFont::glyphName(unsigned short glyphindex)
 {
-    QByteArray glyphname;
-    int l = 0;
-    unsigned short unicode = unicode_for_glyph(glyphindex);
-    if (symbol && unicode < 0x100) {
-        // map from latin1 to symbol
-        unicode = symbol_map[unicode];
-    }
-    if (!unicode && glyphindex) {
-        char buffer[5];
-        glyphname = "gl";
-        glyphname += toHex(glyphindex, buffer);
-    } else {
-        while(unicodetoglyph[l].u < unicode)
-            l++;
-        if (unicodetoglyph[l].u == unicode) {
-            glyphname = agl + unicodetoglyph[l].index;
-            if (glyphSet) {
-                int other = 0;
-                switch (unicode) {
-                    // some glyph names are duplicate in postscript. Make sure we give the
-                    // duplicate a different name to avoid infinite recursion
-                case 0x0394:
-                    other = 0x2206;
-                    break;
-                case 0x03a9:
-                    other = 0x2126;
-                    break;
-                case 0x0162:
-                    other = 0x021a;
-                    break;
-                case 0x2215:
-                    other = 0x2044;
-                    break;
-                case 0x00ad:
-                    other = 0x002d;
-                    break;
-                case 0x02c9:
-                    other = 0x00af;
-                    break;
-                case 0x03bc:
-                    other = 0x00b5;
-                    break;
-                case 0x2219:
-                    other = 0x00b7;
-                    break;
-                case 0x00a0:
-                    other = 0x0020;
-                    break;
-                case 0x0163:
-                    other = 0x021b;
-                    break;
-                default:
-                    break;
-                }
-                if (other) {
-                    int oglyph = glyph_for_unicode(other);
-                    if(oglyph && oglyph != glyphindex && glyphSet[oglyph]) {
-                        char buffer[5];
-                        glyphname = "uni";
-                        glyphname += toHex(unicode, buffer);
-                    }
-                }
-            }
-        } else {
-            char buffer[5];
-            glyphname = "uni";
-            glyphname += toHex(unicode, buffer);
-        }
-    }
-    return glyphname;
+    return QPdf::Font::glyphName(glyphindex, symbol);
 }
 
 void QPSPrintEngineFont::download(QPdf::ByteStream &s, bool global)
@@ -1465,14 +993,11 @@ public:
     ~QPSPrintEngineFontFT();
 
     virtual bool embedded() { return true; }
+    QByteArray glyphName(unsigned short glyphindex);
 private:
     FT_Face face;
-    QVector<ushort> glyph2uni; // to speed up lookups
 
-    void uni2glyphSetup();
     void charproc(int glyph, QPdf::ByteStream& s);
-    unsigned short unicode_for_glyph(int glyphindex);
-    unsigned short glyph_for_unicode(unsigned short unicode);
 };
 
 QPSPrintEngineFontFT::QPSPrintEngineFontFT(QFontEngine *f)
@@ -1483,6 +1008,23 @@ QPSPrintEngineFontFT::QPSPrintEngineFontFT(QFontEngine *f)
 
     psname = FT_Get_Postscript_Name(face);
     replacementList = makePSFontNameList(f, psname);
+}
+
+QByteArray QPSPrintEngineFontFT::glyphName(unsigned short glyphindex)
+{
+    QByteArray glyphname;
+    if (FT_HAS_GLYPH_NAMES(face)) {
+        char name[32];
+        FT_Get_Glyph_Name(face, glyphindex, &name, 32);
+        if (name[0])
+            glyphname = name;
+    }
+    if (glyphname.isEmpty()) {
+        char buffer[5];
+        glyphname = "gl";
+        glyphname += toHex(glyphindex, buffer);
+    } 
+    return glyphname;
 }
 
 void QPSPrintEngineFontFT::download(QPdf::ByteStream& s, bool global)
@@ -1746,30 +1288,6 @@ QPSPrintEngineFontFT::~QPSPrintEngineFontFT()
 {
 }
 
-void QPSPrintEngineFontFT::uni2glyphSetup()
-{
-    glyph2uni.resize(face->num_glyphs);
-    for (int i = 0; i < face->num_glyphs; ++i)
-        glyph2uni[i] = 0;
-
-    for (int i = 0; i < 0xffff; ++i) {
-        int g = FT_Get_Char_Index(face, i);
-        if (g != 0)
-            glyph2uni[g] = i;
-    }
-}
-
-unsigned short QPSPrintEngineFontFT::unicode_for_glyph(int glyphindex)
-{
-    if (glyph2uni.isEmpty())
-        uni2glyphSetup();
-    return glyph2uni[glyphindex];
-}
-
-unsigned short QPSPrintEngineFontFT::glyph_for_unicode(unsigned short unicode)
-{
-    return FT_Get_Char_Index(face, unicode);
-}
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

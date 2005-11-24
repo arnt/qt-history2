@@ -100,7 +100,6 @@ $header = $header."\n\"".$line."\\n\"";
 print "static const char *const ps_header =";
 print $header.";\n\n";
 
-exit;
 close(INPUT);
 
 open(INPUT, 'qpsprinter.agl')

@@ -111,6 +111,8 @@ namespace QPdf {
         QByteArray toTruetype() const;
         QByteArray widthArray() const;
         QByteArray createToUnicodeMap() const;
+
+        static QByteArray glyphName(unsigned short unicode, bool symbol);
         
         void addGlyph(int index) {
             if (!glyph_indices.contains(index))
