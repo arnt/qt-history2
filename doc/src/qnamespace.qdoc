@@ -44,8 +44,6 @@
     \value AlignRight Aligns with the right edge.
     \value AlignHCenter Centers horizontally in the available space.
     \value AlignJustify Justifies the text in the available space.
-	Does not work for everything and may be interpreted as
-	AlignAuto in some cases.
     \omitvalue AlignAuto
 
     The vertical flags are:
