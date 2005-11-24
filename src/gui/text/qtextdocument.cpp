@@ -258,6 +258,16 @@ QTextDocument::QTextDocument(const QString &text, QObject *parent)
 }
 
 /*!
+    \internal
+*/
+QTextDocument::QTextDocument(QTextDocumentPrivate &dd, QObject *parent)
+    : QObject(dd, parent)
+{
+    Q_D(QTextDocument);
+    d->init();
+}
+
+/*!
     Destroys the document.
 */
 QTextDocument::~QTextDocument()

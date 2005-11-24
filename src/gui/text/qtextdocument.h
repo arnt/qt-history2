@@ -183,6 +183,7 @@ protected:
     virtual QTextObject *createObject(const QTextFormat &f);
     virtual QVariant loadResource(int type, const QUrl &name);
 
+    QTextDocument(QTextDocumentPrivate &dd, QObject *parent);
 public:
     QTextDocumentPrivate *docHandle() const;
 private:
