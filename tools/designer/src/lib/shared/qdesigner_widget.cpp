@@ -36,20 +36,19 @@ using namespace qdesigner_internal;
 static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow, QPaintEvent *e, bool needFrame = false)
 {
     QPainter p(widget);
-    // p.setClipRect(e->rect());
 
     p.fillRect(e->rect(), widget->palette().brush(widget->backgroundRole()));
 
     QString grid_name;
     grid_name.sprintf("__qt_designer_grid_%d_%d", formWindow->grid().x(), formWindow->grid().y());
 
-    QPixmap grid;
+    QBitmap grid;
     if (!QPixmapCache::find(grid_name, grid)) {
-        grid = QPixmap(350 + (350 % formWindow->grid().x()), 350 + (350 % formWindow->grid().y()));
-        grid.fill(widget->palette().foreground().color());
-        QBitmap mask(grid.width(), grid.height());
-        mask.fill(Qt::color0);
-        QPainter p(&mask);
+
+        grid = QBitmap(350 + (350 % formWindow->grid().x()), 350 + (350 % formWindow->grid().y()));
+
+        grid.fill(Qt::color0);
+        QPainter p(&grid);
         p.setPen(Qt::color1);
         for (int y = 0; y < grid.width(); y += formWindow->grid().y()) {
             for (int x = 0; x < grid.height(); x += formWindow->grid().x()) {
@@ -57,12 +56,9 @@ static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow,
             }
         }
         p.end();
-        grid.setMask(mask);
-        QImage image = grid.toImage(); // ### workaround
-        grid = QPixmap::fromImage(image);
         QPixmapCache::insert(grid_name, grid);
     }
-
+    p.setPen(widget->palette().foreground().color());
     p.drawTiledPixmap(0, 0, widget->width(), widget->height(), grid);
 
     if (needFrame) {
