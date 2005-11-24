@@ -1511,6 +1511,8 @@ bool QTextEngine::atWordSeparator(int position) const
     const QChar c = layoutData->string.at(position);
     return c == '.'
         || c == ','
+        || c == '?'
+        || c == '!'
         || c == ':'
         || c == ';'
         || c == '-'
