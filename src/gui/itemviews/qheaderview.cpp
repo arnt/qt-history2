@@ -216,12 +216,16 @@ void QHeaderView::setModel(QAbstractItemModel *model)
                                 this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                                 this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
+            QObject::disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                                this, SLOT(sectionsRemoved(QModelIndex,int,int)));
         } else {
             QObject::disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                                 this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                                 this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
-        }
+            QObject::disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                                this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+         }
         QObject::disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
                             this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
     }
@@ -232,11 +236,15 @@ void QHeaderView::setModel(QAbstractItemModel *model)
                              this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                 this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
+            QObject::connect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                this, SLOT(sectionsRemoved(QModelIndex,int,int)));
         } else {
             QObject::connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                              this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                              this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
+            QObject::connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                             this, SLOT(sectionsRemoved(QModelIndex,int,int)));
         }
         QObject::connect(model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
                          this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
@@ -722,7 +730,7 @@ int QHeaderView::visualIndex(int logicalIndex) const
 {
     Q_D(const QHeaderView);
     Q_ASSERT(logicalIndex >= 0);
-
+    
     d->executePostedLayout();
 #if 0 // for debugging
     if (d->visualIndices.isEmpty()) { // nothing has been moved, so we have no mapping
@@ -1159,48 +1167,56 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, 
 void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
                                            int logicalFirst, int logicalLast)
 {
-    Q_D(QHeaderView);
-    if (parent != rootIndex() || !d->model)
+    Q_UNUSED(parent);
+    Q_UNUSED(logicalFirst);
+    Q_UNUSED(logicalLast);
+}
+
+void QHeaderViewPrivate::sectionsRemoved(const QModelIndex &parent,
+                                           int logicalFirst, int logicalLast)
+{
+    Q_Q(QHeaderView);
+    if (parent != q->rootIndex() || !model)
         return; // we only handle changes in the top level
     if (qMin(logicalFirst, logicalLast) < 0
-        || qMax(logicalLast, logicalFirst) >= d->sectionCount)
+        || qMax(logicalLast, logicalFirst) >= sections.count() - 1)
         return; // should could assert here, but since models could emit signals with strange args, we are a bit forgiving
-    int oldCount = this->count();
+    int oldCount = q->count();
     int changeCount = logicalLast - logicalFirst + 1;
-    if (d->visualIndices.isEmpty() && d->logicalIndices.isEmpty()) {
-        int delta = d->sectionPosition.at(logicalLast + 1)
-                    - d->sectionPosition.at(logicalFirst);
-        for (int i = logicalLast + 1; i < d->sectionPosition.count(); ++i)
-            d->sectionPosition[i] -= delta;
-        d->sectionPosition.remove(logicalFirst, changeCount);
+    if (visualIndices.isEmpty() && logicalIndices.isEmpty()) {
+        int delta = sections.at(logicalLast + 1).position
+                    - sections.at(logicalFirst).position;
+        for (int i = logicalLast + 1; i < sections.count(); ++i)
+            sections[i].position -= delta;
+        sections.remove(logicalFirst, changeCount);
         for (int i = logicalFirst; i <= changeCount+logicalFirst; ++i)
-            d->hiddenSectionSize.remove(i);
+            hiddenSectionSize.remove(i);
     } else {
         for (int l = logicalLast; l >= logicalFirst; --l) {
-            int visual = d->visualIndices.at(l);
-            int size = d->sectionPosition.at(visual + 1) - d->sectionPosition.at(visual);
-            for (int v = 0; v < d->sectionPosition.count(); ++v) {
-                if (d->logicalIndex(v) > l)
-                    --(d->logicalIndices[v]);
+            int visual = visualIndices.at(l);
+            int size = sections.at(visual + 1).position - sections.at(visual).position;
+            for (int v = 0; v < sections.count(); ++v) {
+                if (logicalIndex(v) > l)
+                    --(logicalIndices[v]);
                 if (v > visual) {
-                    d->sectionPosition[v] -= size;
-                    int logical = d->logicalIndex(v);
-                    --(d->visualIndices[logical]);
+                    sections[v].position -= size;
+                    int logical = logicalIndex(v);
+                    --(visualIndices[logical]);
                 }
             }
-            d->sectionPosition.remove(visual);
-            d->hiddenSectionSize.remove(l);
-            d->logicalIndices.remove(visual);
-            d->visualIndices.remove(l);
+            sections.remove(visual);
+            hiddenSectionSize.remove(l);
+            logicalIndices.remove(visual);
+            visualIndices.remove(l);
         }
         // ### handle sectionSelection, sectionResizeMode, sectionHidden
     }
     d->sectionCount -= changeCount;
     // if we only have the last section (the "end" position) left, the header is empty
-    if (d->sectionCount <= 0 || d->sectionPosition.count() == 1) // ### for now
-        d->clear();
-    emit sectionCountChanged(oldCount, this->count());
-    d->viewport->update();
+    if (sections.count() == 1)
+        clear();
+    emit q->sectionCountChanged(oldCount, q->count());
+    viewport->update();
 }
 
 /*!
@@ -2170,3 +2186,5 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
 }
 
 #endif // QT_NO_ITEMVIEWS
+
+#include "moc_qheaderview.cpp"
