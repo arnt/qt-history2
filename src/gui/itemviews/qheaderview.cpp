@@ -1179,41 +1179,41 @@ void QHeaderViewPrivate::sectionsRemoved(const QModelIndex &parent,
     if (parent != q->rootIndex() || !model)
         return; // we only handle changes in the top level
     if (qMin(logicalFirst, logicalLast) < 0
-        || qMax(logicalLast, logicalFirst) >= sections.count() - 1)
+        || qMax(logicalLast, logicalFirst) >= sectionCount)
         return; // should could assert here, but since models could emit signals with strange args, we are a bit forgiving
     int oldCount = q->count();
     int changeCount = logicalLast - logicalFirst + 1;
     if (visualIndices.isEmpty() && logicalIndices.isEmpty()) {
-        int delta = sections.at(logicalLast + 1).position
-                    - sections.at(logicalFirst).position;
-        for (int i = logicalLast + 1; i < sections.count(); ++i)
-            sections[i].position -= delta;
-        sections.remove(logicalFirst, changeCount);
+        int delta = sectionPosition.at(logicalLast + 1)
+                    - sectionPosition.at(logicalFirst);
+        for (int i = logicalLast + 1; i < sectionPosition.count(); ++i)
+            sectionPosition[i] -= delta;
+        sectionPosition.remove(logicalFirst, changeCount);
         for (int i = logicalFirst; i <= changeCount+logicalFirst; ++i)
             hiddenSectionSize.remove(i);
     } else {
         for (int l = logicalLast; l >= logicalFirst; --l) {
             int visual = visualIndices.at(l);
-            int size = sections.at(visual + 1).position - sections.at(visual).position;
-            for (int v = 0; v < sections.count(); ++v) {
+            int size = sectionPosition.at(visual + 1) - sectionPosition.at(visual);
+            for (int v = 0; v < sectionPosition.count(); ++v) {
                 if (logicalIndex(v) > l)
                     --(logicalIndices[v]);
                 if (v > visual) {
-                    sections[v].position -= size;
+                    sectionPosition[v] -= size;
                     int logical = logicalIndex(v);
                     --(visualIndices[logical]);
                 }
             }
-            sections.remove(visual);
+            sectionPosition.remove(visual);
             hiddenSectionSize.remove(l);
             logicalIndices.remove(visual);
             visualIndices.remove(l);
         }
         // ### handle sectionSelection, sectionResizeMode, sectionHidden
     }
-    d->sectionCount -= changeCount;
+    sectionCount -= changeCount;
     // if we only have the last section (the "end" position) left, the header is empty
-    if (sections.count() == 1)
+    if (sectionCount <= 0 || sectionPosition.count() == 1) // ### for now
         clear();
     emit q->sectionCountChanged(oldCount, q->count());
     viewport->update();
