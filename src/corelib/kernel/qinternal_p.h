@@ -81,7 +81,7 @@ inline char *QCircularBuffer::alloc(uint size)
 inline QVector<quint8> QCircularBuffer::take(uint size)
 {
     if(size > curr_used) {
-        qWarning("Warning: asked to take too much %d [%d]", size, curr_used);
+        qWarning("Warning: asked to take too much %ud [%ud]", size, curr_used);
         size = curr_used;
     }
     QVector<quint8> ret(size);
@@ -101,7 +101,7 @@ inline char *QCircularBuffer::take(uint size, uint *real_size)
 {
     Q_ASSERT(real_size);
     if(size > curr_used) {
-        qWarning("Warning: asked to take too much %d [%d]", size, curr_used);
+        qWarning("Warning: asked to take too much %ud [%ud]", size, curr_used);
         size = curr_used;
     }
     *real_size = qMin(size, buf[start_buff].size() - start_off);
@@ -111,7 +111,7 @@ inline char *QCircularBuffer::take(uint size, uint *real_size)
 inline void QCircularBuffer::free(uint size)
 {
     if(size > curr_used) {
-        qWarning("Warning: asked to free too much %d [%d]", size, curr_used);
+        qWarning("Warning: asked to free too much %ud [%ud]", size, curr_used);
         size = curr_used;
     }
     curr_used -= size;
