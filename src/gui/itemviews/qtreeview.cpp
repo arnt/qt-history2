@@ -1988,7 +1988,7 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
     if (q->isRightToLeft())
         rect = QRect(position + size - itemIndentation, coordinate(viewItemIndex), indent, itemHeight);
     else
-        rect = QRect(itemIndentation - indent, coordinate(viewItemIndex), indent, itemHeight);
+        rect = QRect(position + itemIndentation - indent, coordinate(viewItemIndex), indent, itemHeight);
     QStyleOption opt;
     opt.initFrom(q);
     opt.rect = rect;
