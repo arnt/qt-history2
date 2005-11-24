@@ -536,6 +536,10 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
     formWindow->resize(g.size());
     formWindow->move(availableGeometry().center() - g.center());
 
+    if (m_workspace) {
+        m_workspace->setActiveWindow(formWindow);
+    }
+
     return formWindow;
 }
 
