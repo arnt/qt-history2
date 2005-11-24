@@ -1629,31 +1629,22 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 /*!
     \fn void QTreeWidget::itemPressed(QTreeWidgetItem *item, int column)
 
-    This signal is emitted when the user presses a mouse button inside the
-    widget. The specified \a item is the item that was clicked, or 0 if no item
-    was clicked.
-    The \a column is the item's column that was clicked, or -1 if
-    no item was clicked.
+    This signal is emitted when the user presses a mouse button inside
+    the widget. The specified \a item is the item that was clicked.
 */
 
 /*!
     \fn void QTreeWidget::itemClicked(QTreeWidgetItem *item, int column)
 
     This signal is emitted when the user clicks inside the widget.
-    The specified \a item is the item that was clicked, or 0 if no item was
-    clicked.
-    The \a column is the item's column that was clicked, or -1 if
-    no item was clicked.
+    The specified \a item is the item that was clicked.
 */
 
 /*!
     \fn void QTreeWidget::itemDoubleClicked(QTreeWidgetItem *item, int column)
 
-    This signal is emitted when the user double clicks inside the widget.
-    The specified \a item is the item that was clicked, or 0 if no item was
-    clicked.
-    The \a column is the item's column that was clicked, or -1 if
-    no item was clicked.
+    This signal is emitted when the user double clicks inside the
+    widget.  The specified \a item is the item that was clicked.
 */
 
 /*!

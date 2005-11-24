@@ -7,7 +7,7 @@ The Qt version 4.1 series is binary compatible with the 4.0.x series.
 Applications compiled for 4.0 will continue to run with 4.1.
 
 ****************************************************************************
-*			    General					   *
+*                           General                                        *
 ****************************************************************************
 
 Qt library
@@ -61,11 +61,12 @@ Qt Designer
 QTestLib
 --------
 
-- Added QTestLib, the Qt Unit Testing Library. See the "QTestLib" chapter
-  in the Qt documentation for more information.
+- Added QTestLib, the Qt Unit Testing Library. See the "QTestLib"
+  chapter in the Qt documentation for more information.
 
 - Users of older versions of QtTestLib can use the updater utility in
-  tools/qtestlib/updater to convert existing autotests to work with QTestLib.
+  tools/qtestlib/updater to convert existing autotests to work with
+  QTestLib.
 
 Boost
 -----
@@ -78,9 +79,9 @@ ActiveQt
 --------
 
 QAxServer now supports mime-type handling - a ActiveX control can be
-registered to handle a certain file extension and mime-type, in which case
-QAxBindable::load and QAxBindable::save can be reimplemented to serialize
-the object.
+registered to handle a certain file extension and mime-type, in which
+case QAxBindable::load and QAxBindable::save can be reimplemented to
+serialize the object.
 
 Build system
 ------------
@@ -91,8 +92,8 @@ Qt 3 to 4 Porting Tool
 ----------------------
 
 Q(V|H)BoxLayout and QGridLayout usage is now ported to use
-Q3(V|H)BoxLayout/Q3GridLayout, to retain the margin/spacing
-behavior as in Qt 3.
+Q3(V|H)BoxLayout/Q3GridLayout, to retain the margin/spacing behavior
+as in Qt 3.
 
 Meta Object Compiler (moc)
 --------------------------
@@ -121,7 +122,7 @@ Sun.
 
 
 ****************************************************************************
-*			   Library					   *
+*                          Library                                         *
 ****************************************************************************
 
 
@@ -147,14 +148,15 @@ New classes
         highlighting rules.
 
 - QAbstractFileEngine
-        A base class for implementing your own file and directory handling
-        back-end for QFile, QFileInfo and QDir.
+        A base class for implementing your own file and directory
+        handling back-end for QFile, QFileInfo and QDir.
 
 - QAbstractFileEngineHandler
         For registering a QAbstractFileEngine subclass with Qt.
 
 - QFSFileEngine
-        The default file engine for regular file and directory access in Qt.
+        The default file engine for regular file and directory access
+        in Qt.
 
 - Q3(H|V)BoxLayout and Q3GridLayout
         Layout classes provided for compatibility that behave the same
@@ -196,7 +198,8 @@ General improvements
 - QMap/QHash
         Fixed operator>>() to read back multiple values associated
         to a same key correctly.
-        Added constFind(), for finding an item without causing a detach.
+        Added constFind(), for finding an item without causing a
+        detach.
 
 - QMap/QHash
         Const-correctness in const_iterator's operator--(int).
@@ -213,13 +216,15 @@ General improvements
 - QMetaType
         Class is now fully reentrant.
         Metatypes can be registered or queried from multiple threads.
-        Added qMetaTypeId<T>(), which returns the meta type ID of T at compile time.
+        Added qMetaTypeId<T>(), which returns the meta type ID of T at
+        compile time.
 
 - QMetaProperty
         Added isResettable().
 
 - QSql
-        Oracle plugin adds support for authentication using external credentials.
+        Oracle plugin adds support for authentication using external
+        credentials.
         Added isValid() to QSqlError.
 
 - QThread
@@ -234,16 +239,16 @@ General improvements
 - QTextDocument
         Added the class QTextBlockUserData and added the possibility
         of storing a state or custom user data in a QTextBlock
-        Added useDesignMetrics property, to enable the use of design metrics for
-        all fonts in a QTextDocument.
+        Added useDesignMetrics property, to enable the use of design
+        metrics for all fonts in a QTextDocument.
 
 - QTextFormat
         Added support for setting the font pixel size.
         Added UserObject to QTextFormat::ObjectTypes enum.
 
 - QMetaType
-        The value of QMetaTypeId<T>::Defined indicates whether a given type T is
-        supported by QMetaType.
+        The value of QMetaTypeId<T>::Defined indicates whether a given
+        type T is supported by QMetaType.
 
 - QAbstractItemView
         Added setIndexWidget() and indexWidget() which makes it
@@ -251,6 +256,8 @@ General improvements
 
         Added a QAbstractItemView::ContiguousSelection mode.
         Added scrollToTop() and scrollToBottom().
+        Changed signals pressed(), clicked() and doubleClicked() to
+        only emit when the index is valid.
 
 - QAbstractItemModel
         Added a SizeHintRole that can be set for each item. The item
@@ -316,9 +323,10 @@ General improvements
         Added support for custom formats in QSettings.
 
 - QTextStream
-        Added status(), setStatus() and resetStatus() for improved error handling.
-        Added read(qint64 maxlen), for reading parts of a text stream into a
-        QString.
+        Added status(), setStatus() and resetStatus() for improved
+        error handling.
+        Added read(qint64 maxlen), for reading parts of a text stream
+        into a QString.
 
 - QTextCursor
         Added support for BlockUnderCursor selection type.
@@ -332,8 +340,8 @@ General improvements
         options.
 
 - QScrollArea
-        Added ensureVisible(), which can scroll the scrollarea to make sure a
-        specific point is visible.
+        Added ensureVisible(), which can scroll the scrollarea to make
+        sure a specific point is visible.
 
 - QDateTime
         Added addMSecs(), which adds a number of milliseconds to the QDateTime.
@@ -353,10 +361,10 @@ General improvements
         Added property tabStopWidth which sets the tab stop width in
         pixels.
         append(const QString &) is now a public slot.
-        Added support for inserting Unicode control characters through the
-        context menu.
-        Added property acceptRichText, for whether or not the text edit
-        accepts rich text insertions by the user.
+        Added support for inserting Unicode control characters through
+        the context menu.
+        Added property acceptRichText, for whether or not the text
+        edit accepts rich text insertions by the user.
         Added overwriteMode property.
 
 - QDataStream
@@ -368,58 +376,60 @@ General improvements
 
 - QImageIOHandler
         The name() function has been obsoleted; use format() instead.
-        Added QImageIOHandler::Animation, for determining if the image format
-        supports animation.
-        Added QImageIOHandler::BackgroundColor, for setting the background
-        color for the image loader.
+        Added QImageIOHandler::Animation, for determining if the image
+        format supports animation.
+        Added QImageIOHandler::BackgroundColor, for setting the
+        background color for the image loader.
 
 - QImageReader
-        Added setBackgroundColor() and backgroundColor(), for setting the
-        background color of an image before it is read.
-        Added supportsAnimation(), for checking if the image format supports
-        animation.
+        Added setBackgroundColor() and backgroundColor(), for setting
+        the background color of an image before it is read.
+        Added supportsAnimation(), for checking if the image format
+        supports animation.
 
 - QImageWriter
         Added support for saving image text.
 
 - QLocale
-        Added dateFormat()/timeFormat() to query the date/time format for the
-        current locale.
-        Added toString() overloads for localized QTime and QDate output.
-        Added decimalPoint(), groupSeparator(), percent(), zeroDigit(),
-        negativeSign() and exponential(), which provide a means to generate
-        custom number formatting.
+        Added dateFormat()/timeFormat() to query the date/time format
+        for the current locale.
+        Added toString() overloads for localized QTime and QDate
+        output.
+        Added decimalPoint(), groupSeparator(), percent(),
+        zeroDigit(), negativeSign() and exponential(), which provide a
+        means to generate custom number formatting.
 
 - QHostInfo
         Added support for reverse name lookups.
 
 - QHostAddress
         Added a QString assignment operator
-        Added convenience functions for initializing from a native sockaddr
-        structure.
+        Added convenience functions for initializing from a native
+        sockaddr structure.
         Added support for the IPv6 scope-id.
 
 - QPrinter
-        Added property "embedFonts" for embedding fonts into the target
-        document.
+        Added property "embedFonts" for embedding fonts into the
+        target document.
         Added support for printing to PDF.
         Added support for custom print and paint engines
 
 - QPrintEngine
-        Added PPK_SuppressSystemPrintStatus, for suppressing the printer
-        progress dialog on Mac OS X.
+        Added PPK_SuppressSystemPrintStatus, for suppressing the
+        printer progress dialog on Mac OS X.
 
 - QKeySequence
-        Added fromString() and toString() for initializing a key sequence
-        from, and exporting a key sequence to a QString.
+        Added fromString() and toString() for initializing a key
+        sequence from, and exporting a key sequence to a QString.
 
 - QUrl
-        Added the port(int) function, which provides a default value for the
-        port if the URL does not define a port.
+        Added the port(int) function, which provides a default value
+        for the port if the URL does not define a port.
         Support for decoding Punycode encoded hostnames in URLs.
-        Made the parser more tolerant for mistakes, and added a ParsingMode
-        flag for selecting strict or tolerant parsing.
-        Added support for the NAMEPREP standard in our i18n domain name support.
+        Made the parser more tolerant for mistakes, and added a
+        ParsingMode flag for selecting strict or tolerant parsing.
+        Added support for the NAMEPREP standard in our i18n domain
+        name support.
 
 - QDir
         Added the filter QDir::NoDotAndDotDot, for the
@@ -430,8 +440,8 @@ General improvements
 
 - QAbstractSocket
         Added slots connectToHostImplementation() and
-        disconnectFromHostImplementation() to provide polymorphic behavior for
-        connectToHost() and disconnectFromHost().
+        disconnectFromHostImplementation() to provide polymorphic
+        behavior for connectToHost() and disconnectFromHost().
 
 - QMenuBar
         Added setActiveAction(), which makes the provided action
@@ -441,23 +451,26 @@ General improvements
         This class has been obsoleted (see QAbstractProxyModel)
 
 - QWidget
-        Now supports three modes of modality: NonModal, WindowModal and
-        ApplicationModal.
-        Added Qt::WindowModality, obsoleted WA_ShowModal and WA_GroupLeader.
-        Added Qt::WA_OpaquePaintEvent widget attribute, obsoleting Qt::WA_NoBackground.
+        Now supports three modes of modality: NonModal, WindowModal
+        and ApplicationModal.
+        Added Qt::WindowModality, obsoleted WA_ShowModal and
+        WA_GroupLeader.
+        Added Qt::WA_OpaquePaintEvent widget attribute, obsoleting
+        Qt::WA_NoBackground.
         Added boolean autoFillBackground property.
         Child widgets now always inherit the contents of their parent.
 
 - QPalette
         Added QPalette::Window (obsoletes Background) and
-              QPalette::WindowText (obsoletes Foreground).
+        QPalette::WindowText (obsoletes Foreground).
 
 - QHttpResponseHeader
-        Added two constructors and the function setStatusLine() for generating
-        a response header.
+        Added two constructors and the function setStatusLine() for
+        generating a response header.
 
 - QBitArray
-        Added count(bool), for counting on and off-bits in a bit array.
+        Added count(bool), for counting on and off-bits in a bit
+        array.
 
 - QVariant
         Added support for QRegExp
@@ -466,46 +479,48 @@ General improvements
         Added the property "regExp".
 
 - QTabBar
-        Added the property "iconSize", for setting the size of the icons on
-        the tabs.
+        Added the property "iconSize", for setting the size of the
+        icons on the tabs.
 
 - QLineEdit
-        Added support for inserting Unicode control characters through the
-        context menu.
+        Added support for inserting Unicode control characters through
+        the context menu.
 
 - QString
         Added toLong() and toULong().
-        Support for std::string conversions with embedded \0 characters.
+        Support for std::string conversions with embedded \0
+        characters.
 
 - QRegion
         Added translate(), like QRect::translated().
 
 - QProcess
-        Added systemEnvironment(), which returns the environment variables
-        of the calling process.
-        Added exitStatus(), and added a new finished() signal which takes the
-        exit status as a parameter.
+        Added systemEnvironment(), which returns the environment
+        variables of the calling process.
+        Added exitStatus(), and added a new finished() signal which
+        takes the exit status as a parameter.
 
 - QComboBox
         Made setCurrentIndex() a slot.
 
 - QFontDataBase
-        Added styleString(), for retrieving the style string from a QFontInfo.
+        Added styleString(), for retrieving the style string from a
+        QFontInfo.
         Added support for Myanmar fonts.
 
 - QFontMetrics
         Added xHeight(), which returns the 'X' height of the font.
 
 - QCoreApplication
-        Added arguments(), which returns a list of command line arguments as a
-        QStringList.
+        Added arguments(), which returns a list of command line
+        arguments as a QStringList.
 
 - QTcpSocket
         Added support for SOCKS5 via setProxy().
 
 - QUdpSocket
-        Added property "bindMode", for binding several sockets to the same
-        address and port.
+        Added property "bindMode", for binding several sockets to the
+        same address and port.
 
 - QPen
         Added support for custom dash pattern styles and miter limits.

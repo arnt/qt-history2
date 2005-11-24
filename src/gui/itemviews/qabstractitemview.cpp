@@ -311,9 +311,9 @@ void QAbstractItemViewPrivate::init()
 /*!
     \fn void QAbstractItemView::pressed(const QModelIndex &index)
 
-    This signal is emitted when a mouse button is pressed. The item the
-    mouse was pressed on is specified by \a index (which may be invalid if
-    the mouse was not pressed on an item).
+    This signal is emitted when a mouse button is pressed. The item
+    the mouse was pressed on is specified by \a index. The signal is
+    only emitted when the index is valid.
 
     \sa activated(), clicked(), doubleClicked(), entered()
 */
@@ -321,9 +321,9 @@ void QAbstractItemViewPrivate::init()
 /*!
     \fn void QAbstractItemView::clicked(const QModelIndex &index)
 
-    This signal is emitted when a mouse button is clicked. The item the
-    mouse was clicked on is specified by \a index (which may be invalid if
-    the mouse was not clicked on an item).
+    This signal is emitted when a mouse button is clicked. The item
+    the mouse was clicked on is specified by \a index. The signal is
+    only emitted when the index is valid.
 
     \sa activated(), doubleClicked(), entered(), pressed()
 */
@@ -332,8 +332,8 @@ void QAbstractItemViewPrivate::init()
     \fn void QAbstractItemView::doubleClicked(const QModelIndex &index)
 
     This signal is emitted when a mouse button is double-clicked. The
-    item the mouse was double-clicked on is specified by \a index (which
-    may be invalid if the mouse was not double-clicked on an item).
+    item the mouse was double-clicked on is specified by \a index.
+    The signal is only emitted when the index is valid.
 */
 
 /*!

@@ -981,23 +981,20 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 /*!
     \fn void QListWidget::itemPressed(QListWidgetItem *item)
 
-    This signal is emitted when a item has been pressed (mouse click
-    and release). The \a item may be 0 if the mouse was not pressed on
-    an item.
+    This signal is emitted when an item has been pressed (mouse click
+    and release).
 */
 
 /*!
     \fn void QListWidget::itemClicked(QListWidgetItem *item)
 
-    This signal is emitted when a mouse button is clicked. The \a item
-    may be 0 if the mouse was not clicked on an item.
+    This signal is emitted when a mouse button is clicked.
 */
 
 /*!
     \fn void QListWidget::itemDoubleClicked(QListWidgetItem *item)
 
-    This signal is emitted when a mouse button is double clicked. The
-    \a item may be 0 if the mouse was not clicked on an item.
+    This signal is emitted when a mouse button is double clicked.
 */
 
 /*!
