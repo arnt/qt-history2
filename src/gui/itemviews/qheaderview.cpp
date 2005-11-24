@@ -1459,6 +1459,8 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 void QHeaderView::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QHeaderView);
+    if (d->state != QHeaderViewPrivate::NoState)
+        return;
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
     int handle = d->sectionHandleAt(pos);
     while (handle > -1 && isSectionHidden(handle)) --handle;
