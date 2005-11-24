@@ -1190,7 +1190,7 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
         return;
 #ifdef Q_OS_WIN
     // autocompleting the <host> part of UNC paths is just too slow
-    if (text.at(0) == QDir::separator() && text.count(QDir::separator()) < 3)
+    if (text.startsWith("\\\\") || text.startsWith("//"))
         return;
 #endif
     // the user is not typing  or the text is a valid file, there is no need for autocompletion
@@ -1267,7 +1267,7 @@ void QFileDialogPrivate::autoCompleteDirectory(const QString &text)
         return;
 #ifdef Q_OS_WIN
     // autocompleting the <host> part of UNC paths is just too slow
-    if (text.at(0) == QDir::separator() && text.count(QDir::separator()) < 3)
+    if (text.startsWith("\\\\") || text.startsWith("//"))
         return;
 #endif
     // if the user is not typing or the text is a valid path, there is no need for autocompletion
