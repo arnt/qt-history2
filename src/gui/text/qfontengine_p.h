@@ -216,6 +216,12 @@ public:
    ~QFontEngineFT();
     FT_Face handle() const;
 
+    QFontEngine::FaceId faceId() const { return face_id; }
+    QFontEngine::Properties properties() const;
+    void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
+    QByteArray getSfntTable(uint tag) const;
+    int synthesized() const;
+    
     QOpenType *openType() const;
     void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
 
@@ -254,6 +260,7 @@ public:
     enum { cmapCacheSize = 0x200 };
     mutable glyph_t cmapCache[cmapCacheSize];
 
+    FaceId face_id;
     friend class QFontDatabase;
     static FT_Library ft_library;
 };

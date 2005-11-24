@@ -662,6 +662,8 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(freetype->face, ft_sfnt_os2);
     if (os2)
         fsType = os2->fsType;
+    if (!FT_IS_SCALABLE(face)) // can't embed non scalable fonts
+        fsType = 2;
 
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
@@ -1515,13 +1517,21 @@ QFontEngine::Properties QFontEngineFT::properties() const
     PS_FontInfoRec font_info;
     if (FT_Get_PS_Font_Info(freetype->face, &font_info) == 0)
         p.copyright = font_info.notice;
-    p.ascent = freetype->face->ascender;
-    p.descent = -freetype->face->descender;
-    p.leading = freetype->face->height - freetype->face->ascender + freetype->face->descender;
-    p.emSquare = freetype->face->units_per_EM;
-    p.boundingBox = QRectF(freetype->face->bbox.xMin, -freetype->face->bbox.yMax,
-                           freetype->face->bbox.xMax - freetype->face->bbox.xMin,
-                           freetype->face->bbox.yMax - freetype->face->bbox.yMin);
+    if (FT_IS_SCALABLE(face)) {
+        p.ascent = face->ascender;
+        p.descent = -face->descender;
+        p.leading = face->height - face->ascender + face->descender;
+        p.emSquare = face->units_per_EM;
+        p.boundingBox = QRectF(face->bbox.xMin, -face->bbox.yMax,
+                               face->bbox.xMax - face->bbox.xMin,
+                               face->bbox.yMax - face->bbox.yMin);
+    } else {
+        p.ascent = QFixed::fromFixed(face->size->metrics.ascender);
+        p.descent = QFixed::fromFixed(-face->size->metrics.descender);
+        p.leading = QFixed::fromFixed(face->size->metrics.height - face->size->metrics.ascender + face->size->metrics.descender);
+        p.emSquare = 1;
+        p.boundingBox = QRectF(-p.ascent.toReal(), 0, (p.ascent + p.descent).toReal(), face->size->metrics.max_advance/64.);
+    }
     p.italicAngle = 0;
     p.capHeight = p.ascent;
     p.lineWidth = freetype->face->underline_thickness;

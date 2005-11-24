@@ -22,6 +22,7 @@ static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bo
     QtFontStyle::Key styleKey;
     styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
     styleKey.weight = weight;
+    styleKey.stretch = 100;
     QtFontFamily *f = db->family(familyname, true);
     //### get lang info from freetype
     for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
@@ -138,6 +139,7 @@ static void initializeDb()
         QtFontStyle::Key styleKey;
         styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
         styleKey.weight = weight;
+        styleKey.stretch = 100;
         QtFontStyle *style = foundry->style(styleKey,  true);
         style->smoothScalable = false;
         style->pixelSize(pointSize, true);
@@ -188,6 +190,44 @@ static inline void load(const QString & = QString(), int = -1)
 {
 }
 
+#if (FREETYPE_MAJOR*10000+FREETYPE_MINOR*100+FREETYPE_PATCH) >= 20105
+#define X_SIZE(face,i) ((face)->available_sizes[i].x_ppem)
+#define Y_SIZE(face,i) ((face)->available_sizes[i].y_ppem)
+#else
+#define X_SIZE(face,i) ((face)->available_sizes[i].width << 6)
+#define Y_SIZE(face,i) ((face)->available_sizes[i].height << 6)
+#endif
+
+static void setSize(FT_Face face, int pixelSize, int stretch)
+{
+    int ysize = pixelSize << 6;
+    int xsize = ysize * stretch / 100;
+
+    /*
+     * Bitmap only faces must match exactly, so find the closest
+     * one (height dominant search)
+     */
+    if (!(face->face_flags & FT_FACE_FLAG_SCALABLE)) {
+        int best = 0;
+        for (int i = 1; i < face->num_fixed_sizes; i++) {
+            if (qAbs(ysize -  Y_SIZE(face,i)) <
+                qAbs (ysize - Y_SIZE(face, best)) ||
+                (qAbs (ysize - Y_SIZE(face, i)) ==
+                 qAbs (ysize - Y_SIZE(face, best)) &&
+                 qAbs (xsize - X_SIZE(face, i)) <
+                 qAbs (xsize - X_SIZE(face, best)))) {
+                best = i;
+            }
+        }
+        xsize = X_SIZE(face, best);
+        ysize = Y_SIZE(face, best);
+    }
+    int err = FT_Set_Char_Size (face, xsize, ysize, 0, 0);
+    if (err) {
+        qDebug("FT_Set_Char_Size failed with error %d", err);
+        Q_ASSERT(!err);
+    }
+}
 
 
 static
@@ -221,16 +261,12 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
             FM_DEBUG("loading font file %s failed, err=%x", file.toLocal8Bit().constData(), err);
             Q_ASSERT(!err);
         }
-        if (face->num_fixed_sizes == 1)
-            pixelSize = face->available_sizes->height;
-        err = FT_Set_Pixel_Sizes(face, pixelSize, pixelSize);
-        if (err) {
-            FM_DEBUG("FT_Set_Pixel_Sizes file %s pixelSize %d failed with error %d", file.toLocal8Bit().constData(), pixelSize, err);
-            Q_ASSERT(!err);
-        }
+        setSize(face, pixelSize, 100);
         FD_DEBUG("setting pixel size to %d", pixelSize);
 
-        QFontEngine *fe = new QFontEngineFT(request, face);
+        QFontEngineFT *fe = new QFontEngineFT(request, face);
+        fe->face_id.filename = file.toLocal8Bit();
+        fe->face_id.index = 0; 
         return fe;
     } else
 #endif // QT_NO_FREETYPE
