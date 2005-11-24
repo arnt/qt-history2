@@ -30,7 +30,7 @@
 #include "private/qframe_p.h"
 
 class QScrollBar;
-class QAbstractScrollAreaPrivate: public QFramePrivate
+class Q_INTERNAL_EXPORT QAbstractScrollAreaPrivate: public QFramePrivate
 {
     Q_DECLARE_PUBLIC(QAbstractScrollArea)
 
