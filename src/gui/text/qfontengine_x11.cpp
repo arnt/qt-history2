@@ -1517,6 +1517,7 @@ QFontEngine::Properties QFontEngineFT::properties() const
     PS_FontInfoRec font_info;
     if (FT_Get_PS_Font_Info(freetype->face, &font_info) == 0)
         p.copyright = font_info.notice;
+    FT_Face face = freetype->face;
     if (FT_IS_SCALABLE(face)) {
         p.ascent = face->ascender;
         p.descent = -face->descender;
