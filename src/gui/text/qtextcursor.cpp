@@ -1144,9 +1144,6 @@ void QTextCursor::select(SelectionType selection)
             movePosition(EndOfLine, KeepAnchor);
             break;
         case WordUnderCursor:
-            if (relativePos == block.length() - 1)
-                break;
-
             movePosition(StartOfWord);
             movePosition(EndOfWord, KeepAnchor);
             break;
