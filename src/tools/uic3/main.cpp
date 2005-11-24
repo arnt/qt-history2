@@ -134,7 +134,7 @@ int main(int argc, char * argv[])
                 ++n; // ignore the next argument
             } else if (opt == "version") {
                 fprintf(stderr,
-                         "User Interface Compiler for Qt version %s\n",
+                         "Qt User Interface Compiler version %s\n",
                          QT_VERSION_STR);
                 return 1;
             } else if (opt == "help") {
@@ -161,7 +161,9 @@ int main(int argc, char * argv[])
     }
 
     if (argc < 2 || error || (!fileName && !imagecollection)) {
-        fprintf(stderr, "Qt user interface compiler\n");
+        fprintf(stderr,
+                 "Qt User Interface Compiler version %s\n",
+                 QT_VERSION_STR);
         if (error)
             fprintf(stderr, "uic: %s\n", error);
 
