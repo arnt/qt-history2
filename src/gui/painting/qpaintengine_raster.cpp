@@ -1064,7 +1064,7 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
     qDebug(" - QRasterPaintEngine::drawRect(), rectCount=%d", rectCount);
 #endif
     Q_D(QRasterPaintEngine);
-    if (!d->antialiased && d->int_xform) {
+    if (!d->antialiased && d->txop <= QPainterPrivate::TxTranslate) {
         int offset_x = int(d->matrix.dx());
         int offset_y = int(d->matrix.dy());
 
