@@ -348,9 +348,18 @@
 /* avoid undefined symbol problems with out-of-line template members */
 #  define Q_OUTOFLINE_TEMPLATE inline
 
+/* The Portland Group C++ compiler is based on EDG and does define __EDG__
+   but the C compiler does not */
+#elif defined(__PGI)
+#  define Q_CC_PGI
+#  if defined(__EDG__)
+#    define Q_CC_EDG
+#  endif
+
 /* Compilers with EDG front end are similar. To detect them we test:
    __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
-   __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002 */
+   __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002
+   and PGI C++ 5.2-4 */
 #elif defined(__EDG) || defined(__EDG__)
 #  define Q_CC_EDG
 /* From the EDG documentation (does not seem to apply to Compaq C++):
@@ -380,10 +389,6 @@
 /* Using the `using' keyword avoids Intel C++ for Linux warnings */
 #  elif defined(__INTEL_COMPILER)
 #    define Q_CC_INTEL
-
-/* The Portland Group compiler is based on EDG and does define __EDG__ */
-#  elif defined(__PGI)
-#    define Q_CC_PGI
 
 /* Never tested! */
 #  elif defined(__ghs)
