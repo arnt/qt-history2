@@ -140,13 +140,32 @@ QString Driver::qtify(const QString &name)
     return qname;
 }
 
+static bool isAnsiCCharacter(const QChar& c)
+{
+    return c.toUpper() >= QLatin1Char('A') && c.toUpper() <= QLatin1Char('Z')
+           || c.isDigit() || c == QLatin1Char('_');
+}
+
 QString Driver::headerFileName(const QString &fileName)
 {
     if (fileName.isEmpty())
         return headerFileName(QLatin1String("noname"));
 
     QFileInfo info(fileName);
-    return info.baseName().toUpper() + QLatin1String("_H");
+    QString baseName = info.baseName();
+    // Transform into a valid C++ identifier
+    if (!baseName.isEmpty() && baseName.at(0).isDigit())
+        baseName.prepend(QLatin1Char('_'));
+    for (int i = 0; i < baseName.size(); ++i) {
+        QChar c = baseName.at(i);
+        if (!isAnsiCCharacter(c)) {
+            // Replace character by its unicode value
+            QString hex = QString::number(c.unicode(), 16);
+            baseName.replace(i, 1, "_" + hex + "_");
+            i += hex.size() + 1;
+        }
+    }
+    return baseName.toUpper() + QLatin1String("_H");
 }
 
 bool Driver::printDependencies(const QString &fileName)
