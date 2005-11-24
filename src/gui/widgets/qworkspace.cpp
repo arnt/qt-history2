@@ -127,8 +127,9 @@ public:
 
 inline int QWorkspaceTitleBarPrivate::titleBarState() const
 {
+    Q_Q(const QWorkspaceTitleBar);
     uint state = window ? window->windowState() : static_cast<Qt::WindowStates>(Qt::WindowNoState);
-    state |= uint(act ? QStyle::State_Active : QStyle::State_None);
+    state |= uint((act && q->isActiveWindow()) ? QStyle::State_Active : QStyle::State_None);
     return (int)state;
 }
 
@@ -317,7 +318,7 @@ void QWorkspaceTitleBar::mousePressEvent(QMouseEvent *e)
         default:
             break;
         }
-        repaint();
+        update();
     } else {
         d->pressed = false;
     }
@@ -338,20 +339,20 @@ void QWorkspaceTitleBar::contextMenuEvent(QContextMenuEvent *e)
 
 void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
 {
-    Q_D(QWorkspaceTitleBar);        
+    Q_D(QWorkspaceTitleBar);
     if (!d->window) {
         // could have been deleted as part of a double click event on the sysmenu
         return;
     }
     if (e->button() == Qt::LeftButton && d->pressed) {
-        if (style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, 0) 
+        if (style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, 0)
             && !rect().adjusted(5, 5, -5, 0).contains(e->pos())) {
             // propagate border events to the QWidgetResizeHandler
             e->ignore();
             d->buttonDown = QStyle::SC_None;
             d->pressed = false;
             return;
-        }  
+        }
         e->accept();
         QStyleOptionTitleBar opt = d->getStyleOption();
         QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
@@ -359,7 +360,7 @@ void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
         d->pressed = false;
         if (ctrl == d->buttonDown) {
             d->buttonDown = QStyle::SC_None;
-            repaint();
+            update();
             switch(ctrl) {
             case QStyle::SC_TitleBarShadeButton:
             case QStyle::SC_TitleBarUnshadeButton:
@@ -393,7 +394,7 @@ void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
             case QStyle::SC_TitleBarCloseButton:
                 if(d->flags & Qt::WindowSystemMenuHint) {
                     d->buttonDown = QStyle::SC_None;
-                    repaint();
+                    update();
                     emit doClose();
                     return;
                 }
@@ -412,7 +413,7 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QWorkspaceTitleBar);
     e->ignore();
-    if ((e->buttons() & Qt::LeftButton) && style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, 0) 
+    if ((e->buttons() & Qt::LeftButton) && style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, 0)
         && !rect().adjusted(5, 5, -5, 0).contains(e->pos()) && !d->pressed) {
         // propagate border events to the QWidgetResizeHandler
         return;
@@ -420,7 +421,7 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
     switch (d->buttonDown) {
     case QStyle::SC_None:
         if(autoRaise())
-            repaint();
+            update();
         break;
     case QStyle::SC_TitleBarSysMenu:
         break;
@@ -436,7 +437,7 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
             d->buttonDown = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
             if (d->buttonDown != last_ctrl)
                 d->buttonDown = QStyle::SC_None;
-            repaint();
+            update();
             d->buttonDown = last_ctrl;
         }
         break;
@@ -470,7 +471,7 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
             QStyle::SubControl last_ctrl = d->buttonDown;
             d->buttonDown = QStyle::SC_None;
             if(d->buttonDown != last_ctrl)
-                repaint();
+                update();
         }
         e->accept();
         break;
@@ -574,14 +575,14 @@ void QWorkspaceTitleBar::leaveEvent(QEvent *)
 {
     Q_D(QWorkspaceTitleBar);
     if(autoRaise() && !d->pressed)
-        repaint();
+        update();
 }
 
 void QWorkspaceTitleBar::enterEvent(QEvent *)
 {
     Q_D(QWorkspaceTitleBar);
     if(autoRaise() && !d->pressed)
-        repaint();
+        update();
     QEvent e(QEvent::Leave);
     QApplication::sendEvent(parentWidget(), &e);
 }
@@ -620,19 +621,18 @@ bool QWorkspaceTitleBar::event(QEvent *e)
     if (d->inevent)
         return QWidget::event(e);
     d->inevent = true;
+    bool result = true;
     if (e->type() == QEvent::ApplicationPaletteChange) {
         d->readColors();
-        return true;
-    } else if (e->type() == QEvent::WindowActivate) {
-        setActive(d->act);
-    } else if (e->type() == QEvent::WindowDeactivate) {
-        bool wasActive = d->act;
-        setActive(false);
-        d->act = wasActive;
+    } else if (e->type() == QEvent::WindowActivate
+               || e->type() == QEvent::WindowDeactivate) {
+        if (d->act)
+            update();
+    } else {
+        result = QWidget::event(e);
     }
-
     d->inevent = false;
-    return QWidget::event(e);
+    return result;
 }
 
 void QWorkspaceTitleBar::setMovable(bool b)
@@ -1082,7 +1082,6 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
     bool wasMaximized = w->isMaximized();
     bool wasMinimized = w->isMinimized();
 #endif
-    bool hasBeenHidden = w->isHidden();
     bool hasSize = w->testAttribute(Qt::WA_Resized);
     int x = w->x();
     int y = w->y();
@@ -1111,7 +1110,6 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
     if (hasPos)
         child->move(x, y);
 
-    w->setHidden(hasBeenHidden);
     return child;
 
 #if 0
@@ -1435,13 +1433,13 @@ void QWorkspace::showEvent(QShowEvent *e)
         d->activateWindow(d->windows.first()->windowWidget());
     }
 
-    // force a frame repaint - this is a workaround for what seems to be a bug
-    // introduced when changing the QWidget::show() implementation. Might be
-    // a windows bug as well though.
-    for (int i = 0; i < d->windows.count(); ++i) {
-	QWorkspaceChild* c = d->windows.at(i);
-        c->update(c->rect());
-    }
+//     // force a frame repaint - this is a workaround for what seems to be a bug
+//     // introduced when changing the QWidget::show() implementation. Might be
+//     // a windows bug as well though.
+//     for (int i = 0; i < d->windows.count(); ++i) {
+// 	QWorkspaceChild* c = d->windows.at(i);
+//         c->update(c->rect());
+//     }
 
     d->updateWorkspace();
 }
@@ -1661,6 +1659,8 @@ bool QWorkspace::event(QEvent *e)
         const char *theSlot = d->shortcutMap.value(se->shortcutId(), 0);
         if (theSlot)
             QMetaObject::invokeMethod(this, theSlot);
+    } else if (e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut){
+        return true;
     }
     return QWidget::event(e);
 }
@@ -2066,8 +2066,8 @@ void QWorkspacePrivate::hideChild(QWorkspaceChild *c)
 {
     Q_Q(QWorkspace);
 
-    bool updatesEnabled = q->updatesEnabled();
-    q->setUpdatesEnabled(false);
+//     bool updatesEnabled = q->updatesEnabled();
+//     q->setUpdatesEnabled(false);
     focus.removeAll(c);
     QRect restore;
     if (maxWindow == c)
@@ -2085,7 +2085,7 @@ void QWorkspacePrivate::hideChild(QWorkspaceChild *c)
     c->hide();
     if (!restore.isEmpty())
         c->setGeometry(restore);
-    q->setUpdatesEnabled(updatesEnabled);
+//     q->setUpdatesEnabled(updatesEnabled);
 }
 
 /*!
@@ -2588,8 +2588,8 @@ void QWorkspaceChild::activate()
 
 bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
 {
-    if (!isActive() && (e->type() == QEvent::MouseButtonPress ||
-        e->type() == QEvent::FocusIn)) {
+    if (!isActive() && o == childWidget && (e->type() == QEvent::MouseButtonPress ||
+                                            e->type() == QEvent::FocusIn)) {
         if (iconw) {
             ((QWorkspace*)parentWidget())->d_func()->normalizeWindow(windowWidget());
             if (iconw) {
@@ -2631,7 +2631,7 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
                 windowWidget()->resize(windowWidget()->maximumSize());
                 windowWidget()->overrideWindowState(Qt::WindowNoState);
                 if (titlebar)
-                    titlebar->repaint();
+                    titlebar->update();
                 break;
             }
             if ((windowWidget()->windowFlags() & Qt::WindowMaximizeButtonHint))
@@ -2687,15 +2687,15 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
         break;
 
     case QEvent::WindowDeactivate:
-        if (titlebar)
-            titlebar->setActive(false);
-        repaint();
+        if (titlebar && titlebar->isActive()) {
+            update();
+        }
         break;
 
     case QEvent::WindowActivate:
-        if (titlebar)
-            titlebar->setActive(act);
-        repaint();
+        if (titlebar && titlebar->isActive()) {
+            update();
+        }
         break;
 
     default:
@@ -2777,7 +2777,7 @@ void QWorkspaceChild::paintEvent(QPaintEvent *)
     opt.lineWidth = style()->pixelMetric(QStyle::PM_MDIFrameWidth, 0, this);
     opt.midLineWidth = 1;
 
-    if (titlebar && titlebar->isActive())
+    if (titlebar && titlebar->isActive() && isActiveWindow())
         opt.state |= QStyle::State_Active;
 
     style()->drawPrimitive(QStyle::PE_FrameWindow, &opt, &p, this);
@@ -2807,7 +2807,7 @@ void QWorkspaceChild::setActive(bool b)
         return;
 
     bool hasFocus = isChildOf(window()->focusWidget(), this);
-    if (act == b && hasFocus)
+    if (act == b && (act == hasFocus))
         return;
 
     act = b;
