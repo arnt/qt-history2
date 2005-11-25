@@ -55,6 +55,12 @@ void FormWindowWidgetStack::setCurrentTool(int index)
     if (m_current_index != -1)
         m_tools.at(m_current_index)->deactivated();
 
+    if (m_current_index > 0) { // we don't hide the form editor
+        QWidget *w = m_tools.at(m_current_index)->editor();
+        if (w != 0)
+            w->hide();
+    }
+
     m_current_index = index;
 
     QDesignerFormWindowToolInterface *tool = m_tools.at(m_current_index);
@@ -64,6 +70,7 @@ void FormWindowWidgetStack::setCurrentTool(int index)
         if (w->rect() != rect())
             w->setGeometry(rect());
         m_tools.at(0)->editor()->raise();
+        w->show();
         w->raise();
     }
 
@@ -118,8 +125,11 @@ void FormWindowWidgetStack::setCurrentTool(QDesignerFormWindowToolInterface *too
 void FormWindowWidgetStack::addTool(QDesignerFormWindowToolInterface *tool)
 {
     QWidget *w = tool->editor();
-    if (w != 0)
+    if (w != 0) {
         w->setParent(this);
+        if (!m_tools.isEmpty()) // we don't hide the form editor
+            w->hide();
+    }
 
     m_tools.append(tool);
 
