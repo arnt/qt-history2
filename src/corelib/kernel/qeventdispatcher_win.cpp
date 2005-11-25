@@ -120,6 +120,8 @@ public:
 
     CRITICAL_SECTION fastTimerCriticalSection;
 
+    UINT WM_QT_SYSTEM_QUEUE_END_MARK;
+
 private:
     mutable HWND m_internalHwnd;
 };
@@ -134,6 +136,12 @@ QEventDispatcherWin32Private::QEventDispatcherWin32Private()
                                           CreateEventA(0, FALSE, FALSE, 0)));
     if (!wakeUpNotifier.handle())
         qWarning("QEventDispatcherWin32Private::QEventDispatcherWin32Private(): Creating wakeup event failed");
+
+    QT_WA({
+        WM_QT_SYSTEM_QUEUE_END_MARK = RegisterWindowMessageW(L"WM_QT_SYSTEM_QUEUE_END_MARK");
+    } , {
+        WM_QT_SYSTEM_QUEUE_END_MARK = RegisterWindowMessageA("WM_QT_SYSTEM_QUEUE_END_MARK");
+    });
 }
 
 QEventDispatcherWin32Private::~QEventDispatcherWin32Private()
@@ -290,8 +298,8 @@ LRESULT CALLBACK qt_internal_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp)
 
         TimerInfo *t = d->timerDict.value(wp);
         if (t) {
-            QTimerEvent *e = new QTimerEvent(t->ind);
-            QCoreApplication::postEvent(t->obj, e);
+            QTimerEvent e(t->ind);
+            QCoreApplication::sendEvent(t->obj, &e);
             TimerInfo *tn = d->timerDict.value(wp);
             if (tn && t == tn) // check it was not deleted or that it is a new TimerInfo
                 tn->pendingEvent = false;
@@ -385,6 +393,11 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
         QThreadData *data = QThreadData::get(thread());
         QCoreApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);    
 
+        // check if there is an end marks in the system queue.
+        MSG msg;
+        bool endPointMarked = winPeekMessage(&msg, d->internalHwnd(), d->WM_QT_SYSTEM_QUEUE_END_MARK,
+                                             d->WM_QT_SYSTEM_QUEUE_END_MARK, PM_NOREMOVE);
+        
         DWORD waitRet = 0;
         HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];
         while (!d->interrupt) {
@@ -426,6 +439,16 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                     if (QCoreApplication::instance())
                         QCoreApplication::instance()->quit();
                     return false;
+                }
+
+                // if we hit an end marker then break out and give the Qt posted events a chance
+                if (msg.hwnd == d->internalHwnd() && msg.message == d->WM_QT_SYSTEM_QUEUE_END_MARK)
+                    break;
+
+                // mark current end point of system message queue so we dont blook out Qt posted events
+                if (!endPointMarked) {
+                    endPointMarked = true;
+                    winPostMessage(d->internalHwnd(), d->WM_QT_SYSTEM_QUEUE_END_MARK, 0, 0);
                 }
 
                 if (!filterEvent(&msg)) {
