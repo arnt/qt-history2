@@ -1216,6 +1216,7 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
 
     QRect area = d->viewport->rect();
     QRect rect = visualRect(index);
+
     if (hint == EnsureVisible && area.contains(rect)) {
         d->setDirtyRegion(rect);
         return;
@@ -1245,7 +1246,8 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     bool rightOf = isRightToLeft()
                    ? rect.left() < area.left()
                    : rect.right() > area.right();
-    if (leftOf) {
+
+    if (leftOf || (rect.width() > area.width())) {
         horizontalScrollBar()->setValue(index.column() * horizontalSteps);
     } else if (rightOf) {
         int c = index.column();

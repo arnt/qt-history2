@@ -657,7 +657,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
                    ? rect.left() < area.left()
                    : rect.right() > area.right();
     int horizontalSteps = horizontalStepsPerItem();
-    if (leftOf) {
+    if (leftOf || (rect.width() > area.width())) {
         horizontalScrollBar()->setValue(index.column() * horizontalSteps);
     } else if (rightOf) {
         int c = index.column();
