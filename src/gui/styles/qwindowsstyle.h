@@ -54,6 +54,11 @@ public:
 
     QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                            const QWidget *widget = 0) const;
+
+protected Q_SLOTS:
+    QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
+                           const QWidget *widget = 0) const;
+
 protected:
     bool eventFilter(QObject *o, QEvent *e);
     void timerEvent(QTimerEvent *event);

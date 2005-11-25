@@ -51,6 +51,11 @@ public:
     int animateTimer;
     QTime startTime;
     int animateStep;    
+    QColor inactiveCaptionText;
+    QColor activeCaptionColor;
+    QColor activeGradientCaptionColor;
+    QColor inactiveCaptionColor;
+    QColor inactiveGradientCaptionColor;
 };
 
 #endif // QT_NO_STYLE_WINDOWS

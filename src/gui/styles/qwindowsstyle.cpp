@@ -208,12 +208,41 @@ QWindowsStyle::~QWindowsStyle()
 {
 }
 
+#ifdef Q_WS_WIN
+static inline QRgb colorref2qrgb(COLORREF col)
+{
+    return qRgb(GetRValue(col), GetGValue(col), GetBValue(col));
+}
+#endif
+
 /*! \reimp */
 void QWindowsStyle::polish(QApplication *app)
 {
+    QWindowsStylePrivate *d = const_cast<QWindowsStylePrivate*>(d_func());
     // We only need the overhead when shortcuts are sometimes hidden
     if (!styleHint(SH_UnderlineShortcut, 0) && app)
         app->installEventFilter(this);
+
+    d->activeCaptionColor = app->palette().highlight().color();
+    d->activeGradientCaptionColor = app->palette().highlight() .color();
+    d->inactiveCaptionColor = app->palette().dark().color();
+    d->inactiveGradientCaptionColor = app->palette().dark().color();
+    d->inactiveCaptionText = app->palette().background().color();
+    
+#if defined(Q_WS_WIN) //fetch native titlebar colors
+    if(app->desktopSettingsAware()){
+        DWORD activeCaption = GetSysColor(COLOR_ACTIVECAPTION);
+        DWORD gradientActiveCaption = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+        DWORD inactiveCaption = GetSysColor(COLOR_INACTIVECAPTION);
+        DWORD gradientInactiveCaption = GetSysColor(COLOR_GRADIENTINACTIVECAPTION);
+        DWORD inactiveCaptionText = GetSysColor(COLOR_INACTIVECAPTIONTEXT);
+        d->activeCaptionColor = colorref2qrgb(activeCaption);
+        d->activeGradientCaptionColor = colorref2qrgb(gradientActiveCaption);
+        d->inactiveCaptionColor = colorref2qrgb(inactiveCaption);
+        d->inactiveGradientCaptionColor = colorref2qrgb(gradientInactiveCaption);
+        d->inactiveCaptionText = colorref2qrgb(inactiveCaptionText);
+    }
+#endif
 }
 
 /*! \reimp */
@@ -350,8 +379,18 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         ret = 24;
         break;
     case PM_DockWidgetTitleMargin:
-        ret = 2;
+        ret = 3;
         break;
+#if defined(Q_WS_WIN)
+    case PM_DockWidgetFrameWidth:
+        ret = GetSystemMetrics(SM_CXFRAME);
+        break;
+#else
+    case PM_DockWidgetFrameWidth:
+        ret = 4;
+        break;
+#endif // Q_WS_WIN
+    break;
 
 #endif // QT_NO_MENU
 
@@ -1009,6 +1048,15 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
 #endif // QT_NO_TOOLBAR
     case PE_FrameButtonTool:
     case PE_PanelButtonTool: {
+        if (w && w->inherits("QDockWidgetTitleButton")) {
+           if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(w->parent()))
+                if (dw->isFloating()){
+                    qDrawWinButton(p, opt->rect.adjusted(1, 1, 0, 0), opt->palette, opt->state & (State_Sunken | State_On),
+                           &opt->palette.button());
+
+                    return;
+                }
+        }
         QBrush fill;
         bool stippled;
         bool panel = (pe == PE_PanelButtonTool);
@@ -1378,6 +1426,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
          popupPal.setColor(QPalette::Midlight, opt->palette.light().color());
          qDrawWinPanel(p, opt->rect, popupPal, opt->state & State_Sunken);
         break; }
+#ifndef QT_NO_DOCKWIDGET
     case PE_IndicatorDockWidgetResizeHandle: {
         QPen oldPen = p->pen();
         p->setPen(opt->palette.light().color());
@@ -1402,6 +1451,13 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         }
         p->setPen(oldPen);
         break; }
+    case PE_FrameDockWidget:
+        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+            drawPrimitive(QStyle::PE_FrameWindow, opt, p, w);
+        }
+    break;
+#endif // QT_NO_DOCKWIDGET
+
     default:
         QCommonStyle::drawPrimitive(pe, opt, p, w);
     }
@@ -2083,26 +2139,65 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         }
         break;
 #endif // QT_NO_PROGRESSBAR
+
 #ifndef QT_NO_DOCKWIDGET
     case CE_DockWidgetTitle:
+        
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
+            Q_D(const QWindowsStyle);
             QRect r = dwOpt->rect;
+            bool floating = false;
+            int menuOffset = 0; //used to center text when floated
+            QColor inactiveCaptionTextColor = d->inactiveCaptionText;
             if (dwOpt->movable) {
                 const QDockWidget *dockWidget = qobject_cast<const QDockWidget *>(widget);
+                QColor left, right;
+                
+                //Titlebar gradient
+                if (dockWidget && dockWidget->isFloating()) {
+                    floating = true;
+                    if (widget && widget->isActiveWindow()) {
+                        left = d->activeCaptionColor;
+                        right = d->activeGradientCaptionColor;
+                    } else {
+                        left = d->inactiveCaptionColor;
+                        right = d->inactiveGradientCaptionColor;
+                    }
+                    menuOffset = 2;
+                    QBrush fillBrush(left);
+                    if (left != right) {
+                        QPoint p1(dwOpt->rect.x(), dwOpt->rect.top() + dwOpt->rect.height()/2);
+                        QPoint p2(dwOpt->rect.right(), dwOpt->rect.top() + dwOpt->rect.height()/2);
+                        QLinearGradient lg(p1, p2);
+                        lg.setColorAt(0, left);
+                        lg.setColorAt(1, right);
+                        fillBrush = lg;
+                    }
+                    p->fillRect(opt->rect.adjusted(0, 0, 0, -3), fillBrush);
+                }
                 p->setPen(dwOpt->palette.color(QPalette::Light));
-                //only draw highlight if the dockwidget is not floating
                 if (!dockWidget || !dockWidget->isFloating()) {
                     p->drawLine(r.topLeft(), r.topRight());
+                    p->setPen(dwOpt->palette.color(QPalette::Dark));
+                    p->drawLine(r.bottomLeft(), r.bottomRight());
                 }
-                p->setPen(dwOpt->palette.color(QPalette::Dark));
-                p->drawLine(r.bottomLeft(), r.bottomRight());
             }
             if (!dwOpt->title.isEmpty()) {
+                QFont oldFont = p->font();
+                if (floating) {
+                    QFont font = oldFont;
+                    font.setBold(true);
+                    p->setFont(font);
+                }
+                QPalette palette = dwOpt->palette;
+                palette.setColor(QPalette::Background, inactiveCaptionTextColor);
+                bool active = dwOpt->state & State_Active;
                 const int indent = p->fontMetrics().descent();
-                drawItemText(p, r.adjusted(indent + 1, 0, -indent - 1, -1),
-                            Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                drawItemText(p, r.adjusted(indent + 1, - menuOffset, -indent - 1, -1),
+                            Qt::AlignLeft | Qt::AlignVCenter, palette,
                             dwOpt->state & State_Enabled, dwOpt->title,
-                            QPalette::Foreground);
+                            floating ? (active ? QPalette::BrightText : QPalette::Background) : QPalette::Foreground);
+                p->setFont(oldFont);
             }
         }
         return;
@@ -2652,3 +2747,18 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     return sz;
 }
 #endif
+
+QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
+                                         const QWidget *widget) const
+{
+    QPixmap iconPixmap = standardPixmap(standardIcon, option, widget);
+    QIcon icon(iconPixmap);
+
+    //Include a translated icon for use with pressed buttons
+    QPixmap pressedIconPixmap(iconPixmap.size());
+    pressedIconPixmap.fill(Qt::transparent);
+    QPainter p(&pressedIconPixmap);
+    p.drawPixmap(1, 1, iconPixmap.size().width(), iconPixmap.size().height(), iconPixmap);
+    icon.setPixmap(pressedIconPixmap, QIcon::Small, QIcon::Normal, QIcon::On);
+    return icon;
+}
