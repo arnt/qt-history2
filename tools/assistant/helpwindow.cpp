@@ -238,18 +238,24 @@ void HelpWindow::openLinkInNewPage(const QString &link)
     openLinkInNewPage();
 }
 
+bool HelpWindow::hasAnchorAt(const QPoint& pos)
+{
+    lastAnchor = anchorAt(pos);
+    if (lastAnchor.isEmpty()) 
+        return false;
+    lastAnchor = source().resolved(lastAnchor).toString();
+    if (lastAnchor.at(0) == QLatin1Char('#')) {
+        QString src = source().toString();
+        int hsh = src.indexOf(QLatin1Char('#'));
+        lastAnchor = (hsh>=0 ? src.left(hsh) : src) + lastAnchor;
+    }
+    return true;
+}
+
 void HelpWindow::contextMenuEvent(QContextMenuEvent *e)
 {
-    const QPoint pos = e->pos();
     QMenu *m = new QMenu(0);
-    lastAnchor = anchorAt(pos);
-    if (!lastAnchor.isEmpty()) {
-        lastAnchor = source().resolved(lastAnchor).toString();
-        if (lastAnchor.at(0) == QLatin1Char('#')) {
-            QString src = source().toString();
-            int hsh = src.indexOf(QLatin1Char('#'));
-            lastAnchor = (hsh>=0 ? src.left(hsh) : src) + lastAnchor;
-        }
+    if (hasAnchorAt(e->pos())) {
         m->addAction(tr("Open Link in New Window\tShift+LMB"),
                        this, SLOT(openLinkInNewWindow()));
         m->addAction(tr("Open Link in New Tab"),
@@ -258,6 +264,15 @@ void HelpWindow::contextMenuEvent(QContextMenuEvent *e)
     mw->setupPopupMenu(m);
     m->exec(e->globalPos());
     delete m;
+}
+
+void HelpWindow::mouseReleaseEvent(QMouseEvent *e)
+{
+    if (e->button() == Qt::MidButton && hasAnchorAt(e->pos())) {
+        openLinkInNewPage();
+        return;
+    }
+    QTextBrowser::mouseReleaseEvent(e);
 }
 
 void HelpWindow::blockScrolling(bool b)

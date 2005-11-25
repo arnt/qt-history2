@@ -45,6 +45,7 @@ signals:
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *e);
+    virtual void mouseReleaseEvent(QMouseEvent *e);
 
 protected slots:
     void ensureCursorVisible();
@@ -58,6 +59,8 @@ private slots:
     bool isKDERunning() const;
 
 private:
+    bool hasAnchorAt(const QPoint& pos);
+
     MainWindow *mw;
     QString lastAnchor;
     bool blockScroll;
