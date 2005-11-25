@@ -117,7 +117,7 @@ bool QWindowsStyle::eventFilter(QObject *o, QEvent *e)
 
             // Repaint all relevant widgets
             for (int pos = 0; pos < l.size(); ++pos)
-                l.at(pos)->repaint();
+                l.at(pos)->update();
         }
         break;
     case QEvent::KeyRelease:
