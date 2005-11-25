@@ -1469,9 +1469,11 @@ private:
         ResolveStored           = 0x00020000,
         Editable		= 0x00040000,
         ResolveEditable         = 0x00080000,
+        User                    = 0x00100000,
+        ResolveUser             = 0x00200000,
         // And our own
-        RequestingEdit          = 0x00100000,
-        Bindable                = 0x00200000
+        RequestingEdit          = 0x10000000,
+        Bindable                = 0x20000000
     };
     enum MemberFlags {
         AccessPrivate = 0x00,
