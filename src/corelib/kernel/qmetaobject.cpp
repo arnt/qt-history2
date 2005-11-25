@@ -113,8 +113,8 @@ enum ProperyFlags  {
     ResolveStored = 0x00020000,
     Editable = 0x00040000,
     ResolveEditable = 0x00080000,
-    User = 0x00160000,
-    ResolveUser = 0x00320000
+    User = 0x00100000,
+    ResolveUser = 0x00200000
 };
 
 enum MethodFlags  {
