@@ -1017,8 +1017,6 @@ void QGLContext::makeCurrent()
 void QGLContext::doneCurrent()
 {
     Q_D(QGLContext);
-    if (currentCtx != this)
-        return;
     currentCtx = 0;
     wglMakeCurrent(0, 0);
     if (d->win && d->dc)
