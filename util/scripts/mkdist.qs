@@ -49,7 +49,6 @@ const tabSize = 4;
 var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^tmake"),
 		       new RegExp("^util"),
-		       new RegExp("^translations"),
 		       new RegExp("^pics"),
 		       new RegExp("^bin/syncqt.bat"),
 		       new RegExp("^src/corelib/eval.pri"),
