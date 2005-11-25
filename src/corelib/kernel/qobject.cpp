@@ -64,8 +64,8 @@ struct QConnection {
     int signal;
     QObject *receiver;
     int method;
-    int inUse:1;
-    int type:31; // 0 == auto, 1 == direct, 2 == queued
+    uint inUse:1;
+    uint type:31; // 0 == auto, 1 == direct, 2 == queued
     int *types;
 };
 Q_DECLARE_TYPEINFO(QConnection, Q_MOVABLE_TYPE);
@@ -2323,8 +2323,8 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     QByteArray method_name;
 #ifndef QT_NO_DEBUG
     int membcode = -1;
-#endif
     bool method_found = false;
+#endif
     if (method) {
         method_name = QMetaObject::normalizedSignature(method);
         method = method_name;
@@ -2365,7 +2365,9 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
                 if (method_index < 0)
                     break;
                 res |= QMetaObject::disconnect(sender, signal_index, receiver, method_index);
+#ifndef QT_NO_DEBUG
                 method_found = true;
+#endif
             } while ((rmeta = rmeta->superClass()));
         }
     } while (signal && (smeta = smeta->superClass()));
