@@ -311,7 +311,6 @@ void WriteInitialization::acceptLayout(DomLayout *node)
     QHash<QString, DomProperty*> properties = propertyMap(node->elementProperty());
 
     bool isGroupBox = false;
-    bool isMainWindow = false;
 
     if (m_widgetChain.top()) {
         QString parentWidget = m_widgetChain.top()->attributeClass();
@@ -350,9 +349,6 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
                 output << option.indent << parent << "->layout()->setMargin(" << margin << ");\n";
             }
-
-        } else if (uic->isMainWindow(parentWidget)) {
-            isMainWindow = true;
         }
     }
 

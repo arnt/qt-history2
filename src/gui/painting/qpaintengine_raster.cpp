@@ -1542,8 +1542,8 @@ void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h)
 void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     QPaintEngine::drawTextItem(p, textItem);
-    return;
 
+#if 0
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 
 #ifdef QT_DEBUG_DRAW
@@ -1574,6 +1574,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     default:
         Q_ASSERT(false);
     }
+#endif
 }
 
 void QRasterPaintEnginePrivate::drawMulti(const QPointF &p, const QTextItem &textItem)
