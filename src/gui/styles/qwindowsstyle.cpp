@@ -35,6 +35,12 @@
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
+#  ifndef COLOR_GRADIENTACTIVECAPTION 
+#    define COLOR_GRADIENTACTIVECAPTION     27
+#  endif
+#  ifndef COLOR_GRADIENTINACTIVECAPTION
+#    define COLOR_GRADIENTINACTIVECAPTION   28
+#  endif
 #endif
 
 #include <limits.h>
