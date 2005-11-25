@@ -1844,8 +1844,9 @@ bool QMetaProperty::isStored(const QObject *object) const
 }
 
 /*!
-    Returns true if the property is user editable for \a object; otherwise returns
-    false.
+    Returns true if this is the property that the user can editable for \a object; 
+    otherwise returns false. I.e. the text property is the user editable property
+    of a QLineEdit.
 
     If no \a object is given, the function returns false if the
     \c{Q_PROPERTY()}'s \c USER attribute is false; otherwise returns
