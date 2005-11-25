@@ -182,6 +182,9 @@ QDesignerFormWindowInterface *ActionEditor::formWindow() const
 
 void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
 {
+    if (formWindow != 0 && formWindow->mainContainer() == 0)
+        formWindow = 0;
+
     // we do NOT rely on this function to update the action editor
     if (m_formWindow == formWindow)
         return;
@@ -204,7 +207,6 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
     }
 
     m_actionNew->setEnabled(true);
-//    m_actionDelete->setEnabled(true);
     m_filterWidget->setEnabled(true);
 
     QList<QAction*> actionList = qFindChildren<QAction*>(formWindow->mainContainer());
