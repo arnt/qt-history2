@@ -4957,7 +4957,6 @@ void QETWidget::translatePaintEvent(const XEvent *event)
     translateBySips(this, paintRect);
     paintRect = d->mapFromWS(paintRect);
 
-    QRect clipRect = d->clipRect();
     QRegion paintRegion = paintRect;
 
     // WARNING: this is O(number_of_events * number_of_matching_events)
