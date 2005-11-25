@@ -89,19 +89,6 @@ void tst_lupdate::parse()
 
 }
 
-static bool copyFile(QFile &src, QFile &dest)
-{
-    char buffer[1024];
-    bool ok = false;
-    qint64 bytesRead;
-    do {
-        bytesRead = src.read(buffer, sizeof(buffer));
-        ok = dest.write(buffer, bytesRead) == bytesRead;
-    } while(bytesRead && ok);
-
-    return ok;
-}
-
 void tst_lupdate::merge_data()
 {
     QTest::addColumn<QString>("inputprofile");

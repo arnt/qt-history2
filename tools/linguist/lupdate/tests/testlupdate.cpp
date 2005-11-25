@@ -74,7 +74,7 @@ bool TestLUpdate::runChild( bool showOutput, const QString &program, const QStri
     return ok;
 }
 
-void TestLUpdate::childReady(int exitCode)
+void TestLUpdate::childReady(int /*exitCode*/)
 {
     if (childProc != 0) {
 	    childHasData();
