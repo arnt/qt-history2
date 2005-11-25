@@ -19,6 +19,21 @@
 #ifndef QT_NO_TREEWIDGET
 
 /*!
+  \class QTreeWidgetItemIterator
+
+  \brief The QTreeWidgetItemIterator class provides a way to iterate over the 
+  items in a QTreeWidget instance, with the possibility to filter out certain
+  nodetypes by passing certain IteratorFlags to the constructor of QTreeWidgetItemIterator.
+
+  The iterator will walk the items in a pre-order traversal order, thus visiting the parent
+  node \e before it continues to the child nodes.
+
+  \ingroup model-view
+
+  \sa QTreeWidget, {Model/View Programming}, QTreeWidgetItem
+*/
+
+/*!
     Constructs an iterator for the same QTreeWidget as \a it. The
     current iterator item is set to point on the current item of \a it.
 */
@@ -31,9 +46,12 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(const QTreeWidgetItemIterator &
 }
 
 /*!
-    Constructs an iterator for the QTreeWidget \a widget. The current
-    iterator item is set to point on the first toplevel item (QTreeWidgetItem)
-    of \a widget.
+    Constructs an iterator for the QTreeWidget \a widget. 
+    The iterator is set to point to the first toplevel 
+    item (QTreeWidgetItem) of \a widget or the next matching item if 
+    the toplevel item doesn't match the flags.
+
+    \sa QTreeWidgetItemIterator::IteratorFlag
 */
 
 QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidget *widget, IteratorFlags flags)
@@ -50,7 +68,7 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidget *widget, IteratorFl
 
 /*!
     Constructs an iterator for the QTreeWidget that contains the \a item
-    using the flags \a flags. The current iterator item is set
+    using the flags \a flags. The iterator is set
     to point to \a item or the next matching item if \a item doesn't
     match the flags.
 
@@ -95,9 +113,9 @@ QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator=(const QTreeWidgetIte
 }
 
 /*!
-    Preincrement. Makes the next item the new current item and returns
-    a reference to the iterator.
-    Sets the current pointer to 0 if the current item is the last item.
+    The prefix ++ operator (++it) advances the iterator to the next matching item 
+    and returns a reference to the resulting iterator.
+    Sets the current pointer to 0 if the current item is the last matching item.
 */
 
 QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator++()
@@ -110,9 +128,9 @@ QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator++()
 }
 
 /*!
-    Predecrement. Makes the previous item the new current item and
-    returns a reference to the iterator.
-    Sets the current pointer to 0 if the current item is the first item.
+    The prefix -- operator (--it) advances the iterator to the previous matching item 
+    and returns a reference to the resulting iterator.
+    Sets the current pointer to 0 if the current item is the first matching item.
 */
 
 QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator--()
@@ -202,37 +220,38 @@ bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
 }
 
 /*!
-  \fn const QTreeWidgetItemIterator operator++(int)
+  \fn const QTreeWidgetItemIterator QTreeWidgetItemIterator::operator++(int)
 
-  Postincrement. Makes the next item the new current item and returns
-  the iterator for the item that \e was the current item.
+  The postfix ++ operator (it++) advances the iterator to the next matching item 
+  and returns an iterator to the previously current item.
 */
 
 /*!
-  \fn QTreeWidgetItemIterator &operator+=(int n)
+  \fn QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator+=(int n)
 
-  Sets the current item to the item \a n positions after the current
-  item. If that item is beyond the last item, the current item pointer is
-  set to 0. Returns the iterator for the current item.
+  Makes the iterator go forward by n matching items. (If n is negative, the iterator goes backward.)
+
+  If the current item is beyond the last item, the current item pointer is
+  set to 0. Returns the resulting iterator.
 */
 
 /*!
-  \fn const QTreeWidgetItemIterator operator--(int)
+  \fn const QTreeWidgetItemIterator QTreeWidgetItemIterator::operator--(int)
 
-  Postdecrement. Makes the previous item the new current item and
-  returns the iterator for the item that \e was the current item.
+  The postfix -- operator (it--) makes the preceding matching item current and returns an iterator to the previously current item.
 */
 
 /*!
-  \fn QTreeWidgetItemIterator &operator-=(int n)
+  \fn QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator-=(int n)
 
-  Sets the current item to the item \a n positions before the
-  current item. If that item is before the first item, the current
-  item is set to 0. Returns the a reference to the iterator.
+  Makes the iterator go back by n matching items. (If n is negative, the iterator goes forward.)
+
+  If the current item is ahead of the last item, the current item pointer is
+  set to 0. Returns the resulting iterator.
 */
 
 /*!
-  \fn QTreeWidgetItem *operator*() const
+  \fn QTreeWidgetItem *QTreeWidgetItemIterator::operator*() const
 
   Dereference operator. Returns a pointer to the current item.
 */
