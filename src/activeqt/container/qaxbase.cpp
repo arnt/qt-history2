@@ -1460,7 +1460,7 @@ private:
         Resettable		= 0x00000004,
         EnumOrFlag		= 0x00000008,
         StdCppSet		= 0x00000100,
-        Override		= 0x00000200,
+//        Override		= 0x00000200,
         Designable		= 0x00001000,
         ResolveDesignable	= 0x00002000,
         Scriptable		= 0x00004000,
@@ -1471,9 +1471,9 @@ private:
         ResolveEditable         = 0x00080000,
         User                    = 0x00100000,
         ResolveUser             = 0x00200000,
-        // And our own
-        RequestingEdit          = 0x10000000,
-        Bindable                = 0x20000000
+        // And our own - don't use the upper byte, as it's used for the property type
+        RequestingEdit          = 0x00400000,
+        Bindable                = 0x00800000
     };
     enum MemberFlags {
         AccessPrivate = 0x00,
@@ -3510,6 +3510,7 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
     case QMetaObject::QueryPropertyDesignable:
     case QMetaObject::QueryPropertyStored:
     case QMetaObject::QueryPropertyEditable:
+    case QMetaObject::QueryPropertyUser:
         id -= mo->propertyCount();
         break;
     }
