@@ -2065,7 +2065,7 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
 
     // You can only drop stuff onto the central widget of a QMainWindow
     // ### generalize to use container extension
-    if (QMainWindow *main_win = qobject_cast<QMainWindow*>(mainContainer())) {
+    if (QMainWindow *main_win = qobject_cast<QMainWindow*>(target)) {
         QPoint main_win_pos = main_win->mapFromGlobal(global_mouse_pos);
         QRect central_wgt_geo = main_win->centralWidget()->geometry();
         if (!central_wgt_geo.contains(main_win_pos)) {

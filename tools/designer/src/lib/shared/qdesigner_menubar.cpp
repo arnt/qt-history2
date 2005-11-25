@@ -71,7 +71,7 @@ QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
     setAcceptDrops(true); // ### fake
 
     m_addMenu = new SpecialMenuAction(this);
-    m_addMenu->setText(tr("<menu>"));
+    m_addMenu->setText(tr("Type Here"));
     addAction(m_addMenu);
 
     QFont italic;
@@ -113,9 +113,12 @@ void QDesignerMenuBar::paintEvent(QPaintEvent *event)
     if (m_dragging || !action)
         return;
 
-    if (hasFocus() || (action->menu() && action->menu()->isVisible())) {
+    if (hasFocus()) {
         QRect g = actionGeometry(action);
         QDesignerMenu::drawSelection(&p, g.adjusted(1, 1, -1, -1));
+    } else if (action->menu() && action->menu()->isVisible()) {
+        QRect g = actionGeometry(action);
+        p.drawRect(g.adjusted(1, 1, -1, -1));
     }
 }
 
@@ -212,7 +215,6 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *, QKeyEvent *e)
 
         case Qt::Key_Enter:
         case Qt::Key_Return:
-        case Qt::Key_F2:
             e->accept();
             enterEditMode();
             return true; // no update
@@ -246,12 +248,16 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *, QKeyEvent *e)
 
         case Qt::Key_Enter:
         case Qt::Key_Return:
-            leaveEditMode(ForceAccept);
-            if (m_lastFocusWidget)
-                m_lastFocusWidget->setFocus();
+            if (!m_editor->text().isEmpty()) {
+                leaveEditMode(ForceAccept);
+                if (m_lastFocusWidget)
+                    m_lastFocusWidget->setFocus();
 
-            m_editor->hide();
-            break;
+                m_editor->hide();
+                showMenu();
+                break;
+            }
+            // fall through
 
         case Qt::Key_Escape:
             update();
@@ -486,6 +492,7 @@ void QDesignerMenuBar::leaveEditMode(LeaveEditMode mode)
     formWindow()->commandHistory()->push(cmd);
 
     formWindow()->endCommand();
+    //moveDown();
 }
 
 void QDesignerMenuBar::showLineEdit()
@@ -505,7 +512,9 @@ void QDesignerMenuBar::showLineEdit()
     m_lastFocusWidget = qApp->focusWidget();
 
     // open edit field for item name
-    m_editor->setText(action->text());
+    QString text = action != m_addMenu ? action->text() : QString();
+
+    m_editor->setText(text);
     m_editor->selectAll();
     m_editor->setGeometry(actionGeometry(action));
     m_editor->show();

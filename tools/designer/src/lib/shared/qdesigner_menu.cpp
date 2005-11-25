@@ -53,11 +53,11 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
     connect(m_adjustSizeTimer, SIGNAL(timeout()), this, SLOT(slotAdjustSizeNow()));
 
     m_addItem = new SpecialMenuAction(this);
-    m_addItem->setText(tr("new action"));
+    m_addItem->setText(tr("Type Here"));
     addAction(m_addItem);
 
     m_addSeparator = new SpecialMenuAction(this);
-    m_addSeparator->setText(tr("new separator"));
+    m_addSeparator->setText(tr("Add Separator"));
     addAction(m_addSeparator);
 
     m_showSubMenuTimer = new QTimer(this);
@@ -90,6 +90,9 @@ bool QDesignerMenu::handleEvent(QWidget *widget, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut) {
         update();
+
+        if (widget == m_editor)
+            return false;
     }
 
     switch (event->type()) {
@@ -229,10 +232,14 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget */*widget*/, QKeyEvent *e)
 
         case Qt::Key_Enter:
         case Qt::Key_Return:
-            leaveEditMode(ForceAccept);
-            m_editor->hide();
-            setFocus();
-            break;
+            if (!m_editor->text().isEmpty()) {
+                leaveEditMode(ForceAccept);
+                m_editor->hide();
+                setFocus();
+                moveDown(false);
+                break;
+            }
+            // fall through
 
         case Qt::Key_Escape:
             m_editor->hide();
@@ -1003,7 +1010,7 @@ void QDesignerMenu::enterEditMode()
 
         formWindow()->endCommand();
 
-        m_currentIndex = realActionCount() - 1;
+        m_currentIndex = actions().indexOf(m_addItem);
         update();
     }
 }
@@ -1073,7 +1080,8 @@ void QDesignerMenu::showLineEdit()
     // open edit field for item name
     setFocus();
 
-    m_editor->setText(action->text());
+    QString text = action != m_addItem ? action->text() : QString();
+    m_editor->setText(text);
     m_editor->selectAll();
     m_editor->setGeometry(actionGeometry(action).adjusted(1, 1, -2, -2));
     m_editor->show();
