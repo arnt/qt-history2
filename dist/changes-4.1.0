@@ -189,7 +189,7 @@ General improvements
 - QByteArray
         Added toLong() and toULong().
 
-- QFileDialog
+- QColorDialog
         Fix shortcut and focus for "Alpha channel" spinbox.
 
 - QLinkedList
@@ -264,8 +264,8 @@ General improvements
         delegate will now check for this value before computing the
         size hint based on other item data.
 
-        Add QModelIndex::operator<() so we are able to use them in
-        QMap and other containers.
+        Add QModelIndex::operator<() so one can use them in QMap and other
+        containers.
 
         Added qHash function for QModelIndex.
 
