@@ -70,7 +70,7 @@ public:
 
     inline QTreeWidgetItem *operator*() const;
 
-protected:
+private:
     bool matchesFlags(const QTreeWidgetItem *item) const;
     QTreeModel *model;
     QTreeWidgetItem *current;
