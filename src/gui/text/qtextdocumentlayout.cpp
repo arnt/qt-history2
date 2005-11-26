@@ -322,6 +322,9 @@ public:
                    QTextBlock bl) const;
     void drawListItem(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                       QTextBlock bl, const QTextCharFormat *selectionFormat) const;
+    void drawTableCell(const QRectF &cellRect, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &cell_context,
+                       QTextTable *table, QTextTableData *td, int r, int c,
+                       QTextBlock *cursorBlockNeedingRepaint, QPointF *cursorBlockOffset) const;
 
     enum HitPoint {
         PointBefore,
@@ -698,6 +701,12 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
             const qreal extraTableHeight = td->padding + td->border + td->cellSpacing // inter cell spacing
                                            + td->margin + td->border + td->padding; // effective table margin
 
+            qreal tableHeaderHeight = 0;
+            const QTextTableFormat format = table->format();
+            const int headerRowCount = qMin(format.headerRowCount(), rows - 1);
+            if (headerRowCount > 0)
+                tableHeaderHeight = td->rowPositions.at(headerRowCount) - td->rowPositions.at(0);
+
             int lastVisibleRow = td->rowPageBreaks.first() - 1;
 
             rect.setHeight(td->rowPositions.at(lastVisibleRow) + td->heights.at(lastVisibleRow) + extraTableHeight);
@@ -710,10 +719,43 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
                 else
                     lastVisibleRow = rows - 1;
 
-                rect.setTop(off.y() + td->rowPositions.at(firstVisibleRow) - extraTableHeight);
+                rect.setTop(off.y() + td->rowPositions.at(firstVisibleRow) - extraTableHeight - tableHeaderHeight);
                 rect.setBottom(off.y() + td->rowPositions.at(lastVisibleRow) + td->heights.at(lastVisibleRow) + extraTableHeight);
 
                 drawFrameDecoration(painter, frame, fd, context.clip, rect);
+
+                for (int r = 0; r < headerRowCount; ++r)
+                    for (int c = 0; c < columns; ++c) {
+                        QTextTableCell cell = table->cellAt(r, c);
+                        QAbstractTextDocumentLayout::PaintContext cell_context = context;
+                        for (int i = 0; i < context.selections.size(); ++i) {
+                            int row_start = selectedTableCells[i * 4];
+                            int col_start = selectedTableCells[i * 4 + 1];
+                            int num_rows = selectedTableCells[i * 4 + 2];
+                            int num_cols = selectedTableCells[i * 4 + 3];
+
+                            if (row_start != -1) {
+                                if (r >= row_start && r < row_start + num_rows
+                                        && c >= col_start && c < col_start + num_cols) {
+                                    cell_context.selections[i].cursor.setPosition(cell.firstPosition());
+                                    cell_context.selections[i].cursor.setPosition(cell.lastPosition(), QTextCursor::KeepAnchor);
+                                } else {
+                                    cell_context.selections[i].cursor.clearSelection();
+                                }
+                            }
+                        }
+                        QRectF cellRect = td->cellRect(cell);
+
+                        cellRect.translate(off);
+
+                        cellRect.translate(0, td->rowPositions.at(firstVisibleRow) - extraTableHeight - tableHeaderHeight);
+
+                        if (cell_context.clip.isValid() && !cellRect.intersects(cell_context.clip))
+                            continue;
+
+                        drawTableCell(cellRect, painter, cell_context, table, td, r, c, &cursorBlockNeedingRepaint,
+                                      &offsetOfRepaintedCursorBlock);
+                    }
             }
         }
 
@@ -742,58 +784,6 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
         for (int r = firstRow; r < lastRow; ++r) {
             for (int c = 0; c < columns; ++c) {
                 QTextTableCell cell = table->cellAt(r, c);
-                int rspan = cell.rowSpan();
-                int cspan = cell.columnSpan();
-                if (rspan != 1) {
-                    int cr = cell.row();
-                    if (cr != r)
-                        continue;
-                }
-                if (cspan != 1) {
-                    int cc = cell.column();
-                    if (cc != c)
-                        continue;
-                }
-
-                QRectF cellRect = td->cellRect(cell);
-
-                cellRect.translate(off);
-                if (context.clip.isValid() && !cellRect.intersects(context.clip))
-                    continue;
-
-                if (fd->border) {
-                    const QBrush oldBrush = painter->brush();
-                    const QPen oldPen = painter->pen();
-
-                    painter->setBrush(Qt::darkGray);
-                    painter->setPen(Qt::NoPen);
-
-                    // top border
-                    painter->drawRect(QRectF(cellRect.left(), cellRect.top() - fd->border,
-                                             cellRect.width() + fd->border, fd->border));
-                    // left border
-                    painter->drawRect(QRectF(cellRect.left() - fd->border, cellRect.top() - fd->border,
-                                             fd->border, cellRect.height() + 2 * fd->border));
-
-                    painter->setBrush(Qt::lightGray);
-
-                    // bottom border
-                    painter->drawRect(QRectF(cellRect.left(), cellRect.top() + cellRect.height(),
-                                             cellRect.width() + fd->border, fd->border));
-                    // right border
-                    painter->drawRect(QRectF(cellRect.left() + cellRect.width(), cellRect.top(),
-                                             fd->border, cellRect.height()));
-
-                    painter->setBrush(oldBrush);
-                    painter->setPen(oldPen);
-                }
-
-                {
-                    const QBrush bg = cell.format().background();
-                    if (bg != Qt::NoBrush)
-                        painter->fillRect(cellRect, bg);
-                }
-
                 QAbstractTextDocumentLayout::PaintContext cell_context = context;
                 for (int i = 0; i < context.selections.size(); ++i) {
                     int row_start = selectedTableCells[i * 4];
@@ -811,14 +801,14 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
                         }
                     }
                 }
-                const QPointF cellPos = off + td->cellPosition(r, c);
+                QRectF cellRect = td->cellRect(cell);
 
-                QTextBlock repaintBlock;
-                drawFlow(cellPos, painter, cell_context, cell.begin(), &repaintBlock);
-                if (repaintBlock.isValid()) {
-                    cursorBlockNeedingRepaint = repaintBlock;
-                    offsetOfRepaintedCursorBlock = cellPos;
-                }
+                cellRect.translate(off);
+                if (cell_context.clip.isValid() && !cellRect.intersects(cell_context.clip))
+                    continue;
+
+                drawTableCell(cellRect, painter, cell_context, table, td, r, c, &cursorBlockNeedingRepaint,
+                              &offsetOfRepaintedCursorBlock);
             }
         }
 
@@ -845,6 +835,67 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
 //     DEC_INDENT;
 
     return;
+}
+
+void QTextDocumentLayoutPrivate::drawTableCell(const QRectF &cellRect, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &cell_context,
+                                               QTextTable *table, QTextTableData *td, int r, int c,
+                                               QTextBlock *cursorBlockNeedingRepaint, QPointF *cursorBlockOffset) const
+{
+    QTextTableCell cell = table->cellAt(r, c);
+    int rspan = cell.rowSpan();
+    int cspan = cell.columnSpan();
+    if (rspan != 1) {
+        int cr = cell.row();
+        if (cr != r)
+            return;
+    }
+    if (cspan != 1) {
+        int cc = cell.column();
+        if (cc != c)
+            return;
+    }
+
+    if (td->border) {
+        const QBrush oldBrush = painter->brush();
+        const QPen oldPen = painter->pen();
+
+        painter->setBrush(Qt::darkGray);
+        painter->setPen(Qt::NoPen);
+
+        // top border
+        painter->drawRect(QRectF(cellRect.left(), cellRect.top() - td->border,
+                    cellRect.width() + td->border, td->border));
+        // left border
+        painter->drawRect(QRectF(cellRect.left() - td->border, cellRect.top() - td->border,
+                    td->border, cellRect.height() + 2 * td->border));
+
+        painter->setBrush(Qt::lightGray);
+
+        // bottom border
+        painter->drawRect(QRectF(cellRect.left(), cellRect.top() + cellRect.height(),
+                    cellRect.width() + td->border, td->border));
+        // right border
+        painter->drawRect(QRectF(cellRect.left() + cellRect.width(), cellRect.top(),
+                    td->border, cellRect.height()));
+
+        painter->setBrush(oldBrush);
+        painter->setPen(oldPen);
+    }
+
+    {
+        const QBrush bg = cell.format().background();
+        if (bg != Qt::NoBrush)
+            painter->fillRect(cellRect, bg);
+    }
+
+    const QPointF cellPos = QPointF(cellRect.left() + td->cellPadding, cellRect.top() + td->cellPadding);
+
+    QTextBlock repaintBlock;
+    drawFlow(cellPos, painter, cell_context, cell.begin(), &repaintBlock);
+    if (repaintBlock.isValid()) {
+        *cursorBlockNeedingRepaint = repaintBlock;
+        *cursorBlockOffset = cellPos;
+    }
 }
 
 void QTextDocumentLayoutPrivate::drawFlow(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
@@ -1952,6 +2003,12 @@ void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, QLayout
 
     td->rowPageBreaks.clear();
 
+    qreal tableHeaderHeight = 0;
+    const QTextTableFormat format = table->format();
+    const int headerRowCount = qMin(format.headerRowCount(), rows - 1);
+    if (headerRowCount > 0)
+        tableHeaderHeight = td->rowPositions.at(headerRowCount) - td->rowPositions.at(0);
+
     // if first row is already taller than the remaining height move the whole table
     // to the next page
     if (td->rowPositions.first() + td->heights.first() + extraTableHeight > pageBottom) {
@@ -1966,8 +2023,9 @@ void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, QLayout
         if (td->rowPositions[r] + offset > pageBottom) {
             offset += pageBottom - td->rowPositions[r - 1] + 2 * layoutStruct->pageMargin;
             offset += extraTableHeight; // make sure there's enough space for the table margin/border
+            offset += tableHeaderHeight;
             layoutStruct->newPage();
-            td->rowPositions[r - 1] = layoutStruct->y + extraTableHeight - td->position.y();
+            td->rowPositions[r - 1] = layoutStruct->y + extraTableHeight + tableHeaderHeight - td->position.y();
 
             td->rowPageBreaks.append(r - 1);
             pageBottom = layoutStruct->pageBottom - td->position.y();

@@ -1685,6 +1685,10 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
     for (int i = 0; i < columns; ++i)
         widthEmittedForColumn[i] = false;
 
+    const int headerRowCount = qMin(format.headerRowCount(), rows);
+    if (headerRowCount > 0)
+        html += QLatin1String("<thead>");
+
     for (int row = 0; row < rows; ++row) {
         html += QLatin1String("<tr>");
 
@@ -1724,6 +1728,8 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
         }
 
         html += QLatin1String("</tr>");
+        if (headerRowCount > 0 && row == headerRowCount - 1)
+            html += QLatin1String("</thead>");
     }
 
     html += QLatin1String("</table>");

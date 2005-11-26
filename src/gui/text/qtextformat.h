@@ -163,6 +163,7 @@ public:
         TableColumnWidthConstraints = 0x4101,
         TableCellSpacing = 0x4102,
         TableCellPadding = 0x4103,
+        TableHeaderRowCount = 0x4104,
 
         // table cell properties
         TableCellRowSpan = 0x4810,
@@ -585,6 +586,11 @@ public:
     inline void setAlignment(Qt::Alignment alignment);
     inline Qt::Alignment alignment() const
     { return QFlag(intProperty(BlockAlignment)); }
+
+    inline void setHeaderRowCount(int count)
+    { setProperty(TableHeaderRowCount, count); }
+    inline int headerRowCount() const
+    { return intProperty(TableHeaderRowCount); }
 };
 
 inline void QTextTableFormat::setColumns(int acolumns)

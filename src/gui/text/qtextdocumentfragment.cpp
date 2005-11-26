@@ -753,6 +753,7 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
     QVector<QTextLength> columnWidths;
     QVector<int> rowSpanCellsPerRow;
 
+    int tableHeaderRowCount = 0;
     QVector<int> rowNodes;
     rowNodes.reserve(at(tableNodeIdx).children.count());
     foreach (int row, at(tableNodeIdx).children)
@@ -764,8 +765,11 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
             case Html_tbody:
             case Html_tfoot:
                 foreach (int potentialRow, at(row).children)
-                    if (at(potentialRow).id == Html_tr)
+                    if (at(potentialRow).id == Html_tr) {
                         rowNodes += potentialRow;
+                        if (at(row).id == Html_thead)
+                            ++tableHeaderRowCount;
+                    }
                 break;
             default: break;
         }
@@ -816,6 +820,7 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
             tableFmt.setAlignment(node.alignment);
         tableFmt.setColumns(table.columns);
         tableFmt.setColumnWidthConstraints(columnWidths);
+        tableFmt.setHeaderRowCount(tableHeaderRowCount);
         fmt = tableFmt;
     }
 

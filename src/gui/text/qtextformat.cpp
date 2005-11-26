@@ -390,6 +390,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value TableColumnWidthConstraints
     \value TableCellSpacing
     \value TableCellPadding
+    \value TableHeaderRowCount
 
     Table cell properties
 
@@ -1944,6 +1945,24 @@ QTextTableFormat::QTextTableFormat()
     Returns the table's alignment.
 
     \sa setAlignment()
+*/
+
+/*!
+    \fn void QTextTableFormat::setHeaderRowCount(int count)
+    \since 4.2
+
+    Declares the first \a count rows of the table as table header.
+    The table header rows get repeated when a table is broken
+    across a page boundary.
+*/
+
+/*!
+    \fn int QTextTableFormat::headerRowCount() const
+    \since 4.2
+
+    Returns the number of rows in the table that define the header.
+
+    \sa setHeaderRowCount()
 */
 
 /*!
