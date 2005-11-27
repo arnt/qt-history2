@@ -841,8 +841,7 @@ static QObject *qChildHelper(const char *objName, const char *inheritsClass,
     depth-first search of the object's children.
 
     If there is no such object, this function returns 0. If there are
-    more than one, the first one found is retured; if you need all of
-    them, use queryList().
+    more than one, the first one found is returned.
 */
 QObject* QObject::child(const char *objName, const char *inheritsClass,
                          bool recursiveSearch) const
