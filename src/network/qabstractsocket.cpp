@@ -1423,14 +1423,14 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
     to be closed:
 
     \code
-        socket->disconnect();
+        socket->disconnectFromHost();
         if (socket->waitForDisconnected(1000))
             qDebug("Disconnected!");
     \endcode
 
     If msecs is -1, this function will not time out.
 
-    \sa disconnect(), close()
+    \sa disconnectFromHost(), close()
 */
 bool QAbstractSocket::waitForDisconnected(int msecs)
 {
@@ -1481,10 +1481,10 @@ bool QAbstractSocket::waitForDisconnected(int msecs)
 
 /*!
     Aborts the current connection and resets the socket. Unlike
-    close(), this function immediately closes the socket, clearing
+    disconnectFromHost(), this function immediately closes the socket, clearing
     any pending data in the write buffer.
 
-    \sa close()
+    \sa disconnectFromHost(), close()
 */
 void QAbstractSocket::abort()
 {
