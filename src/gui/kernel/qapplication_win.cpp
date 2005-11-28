@@ -398,7 +398,8 @@ static void qt_set_windows_resources()
     QApplication::setFont(messageFont, "QMessageBox");
     QApplication::setFont(statusFont, "QTipLabel");
     QApplication::setFont(statusFont, "QStatusBar");
-    QApplication::setFont(titleFont, "QTitleBar");
+    QApplication::setFont(titleFont, "Q3TitleBar");
+    QApplication::setFont(titleFont, "QWorkspaceTitleBar");
     QApplication::setFont(smallTitleFont, "QDockWidgetTitle");
 #else
     LOGFONT lf;
