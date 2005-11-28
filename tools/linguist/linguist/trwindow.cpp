@@ -1791,6 +1791,8 @@ void TrWindow::readConfig()
         if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
             move( r.topLeft() );
         }
+    } else {
+        showMaximized();
     }
 
     restoreState(config.value(keybase + "MainWindowState").toByteArray());
