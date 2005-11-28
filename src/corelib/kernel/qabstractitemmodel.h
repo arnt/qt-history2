@@ -37,7 +37,7 @@ public:
     inline QModelIndex parent() const;
     inline QModelIndex sibling(int row, int column) const;
     inline QModelIndex child(int row, int column) const;
-    inline QVariant data(int role) const;
+    inline QVariant data(int role = Qt::DisplayRole) const;
     inline const QAbstractItemModel *model() const { return m; }
     inline bool isValid() const { return (r >= 0) && (c >= 0) && (m != 0); }
     inline bool operator==(const QModelIndex &other) const
@@ -56,15 +56,6 @@ private:
     const QAbstractItemModel *m;
 };
 Q_DECLARE_TYPEINFO(QModelIndex, Q_MOVABLE_TYPE);
-
-inline QModelIndex::QModelIndex(int arow, int acolumn, void *adata,
-				const QAbstractItemModel *amodel)
-    : r(arow), c(acolumn), p(adata), m(amodel) {}
-
-inline uint qHash(const QModelIndex &index)
-{
-    return uint((index.row() << 4) + index.column() + index.internalId());
-}
 
 #ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
@@ -295,6 +286,10 @@ private:
 
 // inline implementations
 
+inline QModelIndex::QModelIndex(int arow, int acolumn, void *adata,
+                                const QAbstractItemModel *amodel)
+    : r(arow), c(acolumn), p(adata), m(amodel) {}
+
 inline QModelIndex QModelIndex::parent() const
 { return m ? m->parent(*this) : QModelIndex(); }
 
@@ -304,7 +299,10 @@ inline QModelIndex QModelIndex::sibling(int arow, int acolumn) const
 inline QModelIndex QModelIndex::child(int arow, int acolumn) const
 { return m ? m->index(arow, acolumn, *this) : QModelIndex(); }
 
-inline QVariant QModelIndex::data(int role) const
-{ return m ? m->data(*this, role) : QVariant(); }
+inline QVariant QModelIndex::data(int arole) const
+{ return m ? m->data(*this, arole) : QVariant(); }
+
+inline uint qHash(const QModelIndex &index)
+{ return uint((index.row() << 4) + index.column() + index.internalId()); }
 
 #endif // QABSTRACTITEMMODEL_H
