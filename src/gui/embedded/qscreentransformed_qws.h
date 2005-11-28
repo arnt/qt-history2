@@ -21,9 +21,12 @@ QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_TRANSFORMED
 
-//#define QT_TRANS_SCREEN_BASE   QLinuxFbScreen
-#define QT_TRANS_SCREEN_BASE        QVFbScreen
-
+#ifdef QT_NO_QWS_QVFB
+#define QT_TRANS_SCREEN_BASE   QLinuxFbScreen
+#else
+#define QT_TRANS_SCREEN_BASE   QVFbScreen
+#endif
+   
 class QTransformedScreen : public QT_TRANS_SCREEN_BASE
 {
 public:
