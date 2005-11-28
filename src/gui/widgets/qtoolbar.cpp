@@ -303,8 +303,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
     appropriate, a widget can be inserted instead using addWidget() or
     insertWidget(); examples of suitable widgets are QSpinBox,
     QDoubleSpinBox, and QComboBox. When a toolbar button is pressed it
-    emits the actionTriggered() signal. Toolbars may only be added to
-    QMainWindow and QMainWindow subclasses.
+    emits the actionTriggered() signal.
 
     A toolbar can be fixed in place in a particular area (e.g. at the
     top of the window), or it can be movable (isMovable()) between
