@@ -854,6 +854,7 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
         for(int i = 0; i < sel.count(); i++)
             arr[i] = sel[i];
         CFArrayRef cfList = CFArrayCreate(0, (const void **)arr, sel.count(), 0);
+        free(arr);
         SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef,
                           sizeof(cfList), &cfList);
     } else if (CFStringCompare(var, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
@@ -985,6 +986,7 @@ static OSStatus getAllActionNames(EventHandlerCallRef next_ref, EventRef event, 
     }
     QCFType<CFArrayRef> cfList
         = CFArrayCreate(0, (const void **)arr, actCount, 0);
+    free(arr);
     SetEventParameter(event, kEventParamAccessibleActionNames, typeCFTypeRef,
                         sizeof(cfList), &cfList);
     return noErr;
