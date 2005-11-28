@@ -19,8 +19,8 @@ SOURCES        += finddialog.cpp \
         phrase.cpp \
         phrasebookbox.cpp \
         printout.cpp \
-        simtexth.cpp \
         trwindow.cpp \
+        ../shared/simtexth.cpp \
 	../shared/metatranslator.cpp \
 	../shared/translator.cpp
 HEADERS        += finddialog.h \
@@ -33,8 +33,8 @@ HEADERS        += finddialog.h \
         phrase.h \
         phrasebookbox.h \
         printout.h \
-        simtexth.h \
         trwindow.h \
+        ../shared/simtexth.h \
         ../shared/metatranslator.h \
 	../shared/translator.h
 

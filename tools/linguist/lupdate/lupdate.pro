@@ -8,7 +8,9 @@ build_all:!build_pass {
 }
 HEADERS         = ../shared/metatranslator.h \
                   ../shared/translator.h \
-                  ../shared/proparser.h
+                  ../shared/proparser.h \
+                  ../shared/simtexth.h
+
 SOURCES         = fetchtr.cpp \
                   main.cpp \
                   merge.cpp \
@@ -16,7 +18,8 @@ SOURCES         = fetchtr.cpp \
                   sametexth.cpp \
                   ../shared/metatranslator.cpp \
                   ../shared/translator.cpp \
-                  ../shared/proparser.cpp
+                  ../shared/proparser.cpp \
+                  ../shared/simtexth.cpp
 
 TARGET          = lupdate
 INCLUDEPATH     += ../shared
