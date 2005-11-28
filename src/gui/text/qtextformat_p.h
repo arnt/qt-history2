@@ -29,7 +29,7 @@
 #include "QtCore/qvector.h"
 #include "QtCore/qset.h"
 
-class QTextFormatCollection
+class Q_INTERNAL_EXPORT QTextFormatCollection
 {
 public:
     QTextFormatCollection() {}
