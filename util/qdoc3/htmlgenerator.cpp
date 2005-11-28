@@ -560,11 +560,11 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	out() << "</table>\n";
 	break;
     case Atom::TableHeaderLeft:
-	out() << "<tr valign=\"top\" bgcolor=\"#a2c511\">";
+	out() << "<thead><tr valign=\"top\" bgcolor=\"#a2c511\">";
         inTableHeader = true;
         break;
     case Atom::TableHeaderRight:
-	out() << "</tr>\n";
+	out() << "</tr></thead>\n";
         inTableHeader = false;
         break;
     case Atom::TableRowLeft:
