@@ -88,20 +88,9 @@
 
     Operations on items, such as filtering and sorting, are handled by \e{proxy
     models} that allow views to display processed data without having to
-    copy or modify data obtained from a source model. Interview provides a
-    hierarchy of classes to support this approach; most developers will find
-    the following classes useful for many common tasks:
-
-    \list
-    \o QSortingProxyModel sorts items of data from a source model before
-       supplying them to views. Custom sorting functions can be used to
-       provide application-specific sorting behavior.
-    \o QStringFilterModel filters out rows and columns from a source model,
-       only exposing them if items in a given column can be matched by a
-       specified regular expression.
-    \o QFilteringProxyModel can be subclassed to create new models with
-       custom filtering behavior.
-    \endlist
+    copy or modify data obtained from a source model. Interview provides
+    the QSortFilterProxyModel class to allow items of data from a source model
+    to be sorted and filtered before they are supplied to views.
 
     Developers who are familiar with the conventional list, tree, and table
     widgets may find QListWidget, QTreeWidget, and QTableWidget useful.

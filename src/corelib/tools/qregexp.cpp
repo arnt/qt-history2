@@ -671,7 +671,7 @@
     as an argument and split a string accordingly.
 
     \code
-	QStringList field = str.split("\t");
+        QStringList field = str.split("\t");
     \endcode
 
     Here field[0] is the company, field[1] the web address and so on.
@@ -704,7 +704,7 @@
     the position in the string where the match was made (or -1 if
     there was no match).
 
-    \sa QString, QStringList, QRegExpValidator, QStringFilterModel
+    \sa QString, QStringList, QRegExpValidator, QSortFilterProxyModel
 */
 
 const int NumBadChars = 64;

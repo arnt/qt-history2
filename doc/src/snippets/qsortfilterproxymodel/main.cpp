@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 
     QAbstractItemModel *stringListModel = new QStringListModel(numbers, parent);
 
-    QStringFilterModel *filterModel = new QStringFilterModel(parent);
+    QSortFilterProxyModel *filterModel = new QSortFilterProxyModel(parent);
     filterModel->setSourceModel(stringListModel);
 
     QWidget *window = new QWidget;
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     QLineEdit *patternEditor = new QLineEdit;
     QObject::
     connect(patternEditor, SIGNAL(textChanged(const QString &)),
-            filterModel, SLOT(setPattern(const QString &)));
+            filterModel, SLOT(setFilterRegExp(const QString &)));
 
     QVBoxLayout *layout = new QVBoxLayout(window);
     layout->addWidget(filteredView);

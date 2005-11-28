@@ -282,7 +282,7 @@ void QSortFilterProxyModelPrivate::sourceLayoutChanged()
   it supplies to new indexes, corresponding to different locations, for views to use.
   This approach allows a given source model to be restructured as far as views are concerned
   without requiring any transformations on the underlying data.
-  
+
   The default implementation of the filter and sorting functions use the data for the items
   Qt::DisplayRole compare or accept items.
 
@@ -299,7 +299,8 @@ void QSortFilterProxyModelPrivate::sourceLayoutChanged()
   \o QVariant::Time
   \o QVariant::DateTime
   \o QVariant::String
-  
+  \endlist
+
   \sa QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 

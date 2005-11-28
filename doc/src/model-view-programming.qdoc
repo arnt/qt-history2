@@ -1983,13 +1983,12 @@
     \section1 Using Proxy Models
 
     Proxy models can be inserted between an existing model and any number of views.
-    Qt is supplied with standard proxy models, such as QFilteringProxyModel or
-    QSortingProxyModel, that can be subclassed to filter and sort items obtained from
-    the source model. The QStringFilterModel class provides a ready-made proxy model
-    for filtering textual data, and can be used in the following way:
+    Qt is supplied with a standard proxy models, QSortFilterProxyModel, that is usually
+    instantiated and used directly, but can also be subclassed to provide custom filtering
+    and sorting behavior. The QSortFilterProxyModel class can be used in the following way:
 
-    \quotefromfile snippets/qstringfiltermodel/main.cpp
-    \skipto QStringFilterModel
+    \quotefromfile snippets/qsortfilterproxymodel/main.cpp
+    \skipto QSortFilterProxyModel
     \printuntil setSourceModel
     \skipto filteredView
     \printuntil setModel
@@ -1998,10 +1997,9 @@
     any kind of view, and can be shared between views. They can be also be used to
     process the information obtained from other proxy models in a pipeline arrangement.
 
-    The QSortingProxyModel and QStringFilterModel classes are designed to be instantiated
-    and used directly in applications. More specialized proxy models can be created by
-    subclassing the most appropriate base classes and implementing the required logic
-    for filtering, sorting, or any other types of processing operation.
+    The QSortFilterProxyModel class is designed to be instantiated and used directly
+    in applications. More specialized proxy models can be created by subclassing this
+    classes and implementing the required comparison operations.
 
     \section1 Customizing Proxy Models
 
@@ -2012,47 +2010,37 @@
     model indexes provided by the proxy model, and these contain no information about the
     source model or the locations of the original items in that model.
 
-    The QMappingProxyModel provides the infrastructure for index-mapping proxy models,
-    and is subclassed to provide models for two common types of mapping operation:
-    QFilteringProxyModel enables data from a source model to be filtered before being
-    supplied to views, and QSortingProxyModel allows the contents of a source model to
+    QSortFilterProxyModel enables data from a source model to be filtered before
+    being supplied to views, and also allows the contents of a source model to
     be supplied to views as pre-sorted data.
 
     \section2 Custom Filtering Models
 
-    The QStringFilterModel class provides a filtering model that is fairly versatile, and
-    which can be used in a variety of common situations. However, it is expected that
-    developers will want to create new filtering models. As a result, QFilteringProxyModel
-    is designed to be subclassed, and provides a mechanism that enables custom
+    The QSortFilterProxyModel class provides a filtering model that is fairly versatile,
+    and which can be used in a variety of common situations. For advanced users,
+    QSortFilterProxyModel can be subclassed, providing a mechanism that enables custom
     filters to be implemented.
 
-    Subclasses of QFilteringProxyModel should implement two virtual functions that are
+    Subclasses of QSortFilterProxyModel can reimplement two virtual functions that are
     called whenever a model index from the proxy model is requested or used:
 
     \list
-    \o \l{QFilteringProxyModel::filterColumn()}{filterColumn()} is used to filter specific
-       columns from part of the source model.
-    \o \l{QFilteringProxyModel::filterRow()}{filterRow()} is used to filter specific
-       rows from part of the source model.
+    \o \l{QSortFilterProxyModel::filterAcceptsColumn()}{filterAcceptsColumn()} is used to
+       filter specific columns from part of the source model.
+    \o \l{QSortFilterProxyModel::filterAcceptsRow()}{filterAcceptsRow()} is used to filter
+       specific rows from part of the source model.
     \endlist
 
-    The default implementations of the above functions in QFilteringProxyModel
-    return false to disable filtering; reimplementations of these functions return true
-    to filter out rows and columns.
+    The default implementations of the above functions in QSortFilterProxyModel
+    return true to ensure that all items are passed through to views; reimplementations
+    of these functions should return false to filter out individual rows and columns.
 
     \section2 Custom Sorting Models
 
-    Unlike QFilteringProxyModel, the QSortingProxyModel class is designed to be extended
-    rather than subclassed, although it is still possible to use a subclassing approach to
-    create new sorting models.
-
-    QSortingProxyModel instances use Qt's built-in qSort() function to set up mappings
-    between items in the source model and those in the proxy model, allowing a sorted
-    hierarchy of items to be exposed to views without modifying the structure of the
-    source model. qSort() can be used with custom comparison functions, and
-    QSortingProxyModel exposes this functionality via the
-    \l{QSortingProxyModel::setLessThan()}{setLessThan()} and
-    \l{QSortingProxyModel::setGreaterThan()}{setGreaterThan()} functions. The comparison
-    functions specified to setLessThan() and setGreaterThan() are used to sort items of
-    data in ascending and descending order respectively.
+    QSortFilterProxyModel instances use Qt's built-in qStableSort() function to set up
+    mappings between items in the source model and those in the proxy model, allowing a
+    sorted hierarchy of items to be exposed to views without modifying the structure of the
+    source model. To provide custom sorting behavior, reimplement the
+    \l{QSortFilterProxyModel::lessThan()}{lessThan()} function to perform custom
+    comparisons.
 */

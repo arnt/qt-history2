@@ -26,7 +26,7 @@
 
     \ingroup model-view
 
-    If you want to do filtering and sorting, see QFilteringProxyModel and QSortingProxyModel.
+    If you want to do filtering and sorting, see QSortFilterProxyModel.
 
     Proxy models provide a standard model interface that can be used to
     manipulate the data retrieved through an underlying model. They can be used to
