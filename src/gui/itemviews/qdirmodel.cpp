@@ -1294,7 +1294,6 @@ void QDirModelPrivate::savePersistentIndexes()
         QString path = q->filePath(idx);
         saved.append(qMakePair(path, idx.column()));
         persistent.indexes.at(i)->ref.ref(); // save
-        persistent.indexes[i]->index = QModelIndex(); // invalidated
     }
 }
 
