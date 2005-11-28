@@ -419,6 +419,9 @@ void QTableView::scrollContentsBy(int dx, int dy)
             }
         }
         int section = d->horizontalHeader->logicalIndex(visual);
+        // ### this shouldn't really be necessary to test
+        if (section < 0 || section >= d->horizontalHeader->count())
+            return;
         int left = (value % steps) * d->horizontalHeader->sectionSize(section);
         int offset = (left / steps) + d->horizontalHeader->sectionPosition(section);
         if (isRightToLeft())
