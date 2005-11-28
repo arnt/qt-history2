@@ -447,6 +447,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     doGuesses = true;
     canPaste = false;
     topDockWnd = new QDockWidget(parent);
+    topDockWnd->setObjectName("SourceDockWindow");    
     topDockWnd->setAllowedAreas(Qt::AllDockWidgetAreas);
     topDockWnd->setFeatures(QDockWidget::AllDockWidgetFeatures);
     topDockWnd->setWindowTitle(tr("Source text"));
@@ -473,6 +474,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     parent->addDockWidget(Qt::TopDockWidgetArea, topDockWnd);
 
     bottomDockWnd = new QDockWidget(parent);
+    bottomDockWnd->setObjectName("PhrasesDockwidget");
     bottomDockWnd->setAllowedAreas(Qt::AllDockWidgetAreas);
     bottomDockWnd->setFeatures(QDockWidget::AllDockWidgetFeatures);
     bottomDockWnd->setWindowTitle(tr("Phrases"));

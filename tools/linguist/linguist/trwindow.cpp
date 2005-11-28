@@ -181,6 +181,7 @@ TrWindow::TrWindow()
 
     // Set up the Scope dock window
     dwScope = new QDockWidget(this);
+    dwScope->setObjectName("ContextDockWidget");
     dwScope->setAllowedAreas(Qt::AllDockWidgetAreas);
     dwScope->setFeatures(QDockWidget::AllDockWidgetFeatures);
     dwScope->setWindowTitle(tr("Context"));
@@ -1518,26 +1519,31 @@ void TrWindow::onWhatsThis()
 void TrWindow::setupToolBars()
 {
     QToolBar *filet = new QToolBar(this);
+    filet->setObjectName("FileToolbar");
     filet->setWindowTitle(tr("File"));
 	this->addToolBar(filet);
     tbMenu->addAction(filet->toggleViewAction());
 
     QToolBar *editt = new QToolBar(this);
+    editt->setObjectName("EditToolbar");
     editt->setWindowTitle(tr("Edit"));
-	this->addToolBar(editt);
+    this->addToolBar(editt);
     tbMenu->addAction(editt->toggleViewAction());
 
     QToolBar *translationst = new QToolBar(this);
+    translationst->setObjectName("TranslationToolbar");
     translationst->setWindowTitle(tr("Translation"));
 	this->addToolBar(translationst);
     tbMenu->addAction(translationst->toggleViewAction());
 
-    QToolBar *validationt   = new QToolBar(this);
+    QToolBar *validationt = new QToolBar(this);
+    validationt->setObjectName("ValidationToolbar");
     validationt->setWindowTitle(tr("Validation"));
 	this->addToolBar(validationt);
     tbMenu->addAction(validationt->toggleViewAction());
 
     QToolBar *helpt = new QToolBar(this);
+    helpt->setObjectName("HelpToolbar");
     helpt->setWindowTitle(tr("Help"));
 	this->addToolBar(helpt);
     tbMenu->addAction(helpt->toggleViewAction());
@@ -1787,25 +1793,7 @@ void TrWindow::readConfig()
         }
     }
 
-    QDockWidget *dw;
-    dw = static_cast<QDockWidget *>(tv->parent());
-    Qt::DockWidgetArea place;
-    place = static_cast<Qt::DockWidgetArea>(config.value(keybase + "Geometry/ContextwindowInDock",
-        dockWidgetArea(dw)).toInt());
-    if (dockWidgetArea(dw) != place)
-        addDockWidget(place, dw);
-
-    dw = static_cast<QDockWidget *>(stv->parent());
-    place = static_cast<Qt::DockWidgetArea>(config.value(keybase + "Geometry/SourcewindowInDock",
-        dockWidgetArea(dw)).toInt());
-    if (dockWidgetArea(dw) != place)
-        addDockWidget(place, dw);
-
-    dw = static_cast<QDockWidget *>(ptv->parent()->parent());
-    place = static_cast<Qt::DockWidgetArea>(config.value(keybase + "Geometry/PhrasewindowInDock",
-        dockWidgetArea(dw)).toInt());
-    if (dockWidgetArea(dw) != place)
-        addDockWidget(place, dw);
+    restoreState(config.value(keybase + "MainWindowState").toByteArray());
 
     acceleratorsAct->setChecked(config.value(keybase+ "Validators/Accelerator", true).toBool());
     endingPunctuationAct->setChecked(config.value(keybase+ "Validators/EndingPunctuation", true).toBool());
@@ -1819,26 +1807,17 @@ void TrWindow::writeConfig()
     QString keybase(QString::number( (QT_VERSION >> 16) & 0xff ) +
                      "." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
     QSettings config;
-
     config.setValue(keybase + "RecentlyOpenedFiles", recentFiles);
     config.setValue(keybase + "Geometry/MainwindowMaximized", isMaximized());
     config.setValue(keybase + "Geometry/MainwindowX", x());
     config.setValue(keybase + "Geometry/MainwindowY", y());
     config.setValue(keybase + "Geometry/MainwindowWidth", width());
     config.setValue(keybase + "Geometry/MainwindowHeight", height());
-
-    QDockWidget * dw = static_cast<QDockWidget *>(tv->parent());
-    config.setValue(keybase + "Geometry/ContextwindowInDock", dockWidgetArea(dw));
-
-    dw = static_cast<QDockWidget *>(stv->parent());
-    config.setValue(keybase + "Geometry/SourcewindowInDock", dockWidgetArea(dw));
-
-    dw = static_cast<QDockWidget *>(ptv->parent()->parent());
-    config.setValue(keybase + "Geometry/PhrasewindowInDock", dockWidgetArea(dw));
-
+ 
     config.setValue(keybase+ "Validators/Accelerator", acceleratorsAct->isChecked());
     config.setValue(keybase+ "Validators/EndingPunctuation", endingPunctuationAct->isChecked());
     config.setValue(keybase+ "Validators/PhraseMatch", phraseMatchesAct->isChecked());
+    config.setValue(keybase + "MainWindowState", saveState());
 }
 
 void TrWindow::setupRecentFilesMenu()
