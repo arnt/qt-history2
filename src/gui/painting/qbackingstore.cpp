@@ -200,6 +200,39 @@ void qt_syncBackingStore(QRegion rgn, QWidget *widget)
     qt_syncBackingStore(rgn, widget, false);
 }
 
+#ifdef Q_WS_WIN
+void QWidgetBackingStore::blitToScreen(const QRegion &rgn, QWidget *widget)
+{
+    QWidget *tlw = widget->window();
+    if (!widget->isVisible() || !tlw->testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
+        return;
+
+    if (!QWidgetBackingStore::paintOnScreen(widget)) {
+        QWidgetBackingStore *bs = tlw->d_func()->topData()->backingStore;
+        QSize tlwSize = tlw->size();
+        if (!bs || bs->buffer.size() != tlwSize) 
+            return;
+        QRasterPaintEngine *engine = (QRasterPaintEngine*) bs->buffer.paintEngine();
+        HDC engine_dc = engine->getDC();
+        HDC widget_dc = (HDC) widget->d_func()->hd;
+        bool tmp_widget_dc = false;
+        if (!widget_dc) {
+            widget_dc = GetDC(widget->winId());
+            tmp_widget_dc = true;
+        }
+        QPoint wOffset = widget->data->wrect.topLeft();
+        QPoint offset = widget->mapTo(tlw, QPoint());
+        QRect br = rgn.boundingRect();
+        QRect wbr = br.translated(wOffset);
+        BitBlt(widget_dc, wbr.x(), wbr.y(), wbr.width(), wbr.height(),
+               engine_dc, br.x() + offset.x(), br.y() + offset.y(), SRCCOPY);
+        if (tmp_widget_dc)
+            ReleaseDC(widget->winId(), widget_dc);
+        engine->releaseDC(engine_dc);
+    }
+}
+#endif
+
 #if defined(Q_WS_X11)
 void qt_syncBackingStore(QWidget *widget)
 {
@@ -247,7 +280,6 @@ QWidgetBackingStore::QWidgetBackingStore(QWidget *t) : tlw(t)
 #ifdef Q_WS_WIN
                                                      , buffer(t)
 #endif
-                                                     , dirtyBufferSize(false)
 {
 
 }
@@ -479,7 +511,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
             tmp_widget_dc = true;
         }
         QRect br = rgn.boundingRect();
-        QRect wbr = rgn.boundingRect().translated(wOffset);
+        QRect wbr = br.translated(wOffset);
         BitBlt(widget_dc, wbr.x(), wbr.y(), wbr.width(), wbr.height(),
                engine_dc, br.x() + offset.x(), br.y() + offset.y(), SRCCOPY);
         if (tmp_widget_dc)
@@ -541,7 +573,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #else
         QSize tlwSize = tlw->size();
 #endif
-        if (buffer.size() != tlwSize || dirtyBufferSize) {
+        if (buffer.size() != tlwSize) {
 #if defined(Q_WS_X11)
             extern int qt_x11_preferred_pixmap_depth;
             int old_qt_x11_preferred_pixmap_depth = qt_x11_preferred_pixmap_depth;
@@ -573,7 +605,6 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
 #endif
             toClean = QRegion(0, 0, tlw->width(), tlw->height());
-            dirtyBufferSize = false;
         } else {
             toClean = dirty;
         }

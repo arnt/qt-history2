@@ -62,6 +62,9 @@ public:
     inline QPoint topLevelOffset() const { return tlwOffset; }
     static bool paintOnScreen(QWidget * = 0);
     static void copyToScreen(QWidget *, const QRegion &);
+#ifdef Q_WS_WIN
+    static void blitToScreen(const QRegion &rgn, QWidget *w);
+#endif
 private:
     QWidget *tlw;
     QRegion dirty;
@@ -75,7 +78,6 @@ private:
     QPixmap buffer;
 #endif
     QPoint tlwOffset;
-    bool dirtyBufferSize;
 
     static bool isOpaque(const QWidget *widget);
 

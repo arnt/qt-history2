@@ -1681,11 +1681,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 
         case WM_PAINT:                                // paint event
-            result = widget->translatePaintEvent(msg);
-            break;
-
         case WM_ERASEBKGND:                        // erase window background
-            RETURN(true);
+            result = widget->translatePaintEvent(msg);
             break;
 
         case WM_MOVE:                                // move window
@@ -3403,14 +3400,18 @@ bool QETWidget::translatePaintEvent(const MSG &msg)
         d_func()->hd = 0;
         return false;
     }
-    PAINTSTRUCT ps;
-    d_func()->hd = BeginPaint(winId(), &ps);
+    if(msg.message == WM_ERASEBKGND) {
+        QWidgetBackingStore::blitToScreen(rgn, this);
+    } else {
+        PAINTSTRUCT ps;
+        d_func()->hd = BeginPaint(winId(), &ps);
 
-    // Mapping region from system to qt (32 bit) coordinate system.
-    rgn.translate(data->wrect.topLeft());
-    qt_syncBackingStore(rect(), this, (msg.message == WM_QT_REPAINT));
-    d_func()->hd = 0;
-    EndPaint(winId(), &ps);
+        // Mapping region from system to qt (32 bit) coordinate system.
+        rgn.translate(data->wrect.topLeft());
+        qt_syncBackingStore(rgn, this, (msg.message == WM_QT_REPAINT));
+        d_func()->hd = 0;
+        EndPaint(winId(), &ps);
+    }
     return true;
 }
 
