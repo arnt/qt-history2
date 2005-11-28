@@ -1543,6 +1543,7 @@ void AddToolBarCommand::init(QMainWindow *mainWindow)
     m_mainWindow = mainWindow;
     QDesignerFormEditorInterface *core = formWindow()->core();
     m_toolBar = qobject_cast<QToolBar*>(core->widgetFactory()->createWidget("QToolBar", m_mainWindow));
+    m_toolBar->hide();
 }
 
 void AddToolBarCommand::redo()
