@@ -15,7 +15,7 @@
     QCheckBox *box = ...;
     QSignalSpy spy(box, SIGNAL(clicked(bool)));
 
-    // do something that triggeres the signal
+    // do something that triggers the signal
     box->animateClick();
 
     COMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time

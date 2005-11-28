@@ -126,7 +126,7 @@
 
     Runs the \c toUpper test function with all available test data,
     and the \c toInt test function with the testdata called \c
-    zero (if the specified test data don't exists, the associated test
+    zero (if the specified test data doesn't exist, the associated test
     will fail).
 
     \code
@@ -146,6 +146,8 @@
     outputs the possible command line arguments and give some useful help.
     \o \c -functions \BR
     outputs all test functions available in the test.
+    \o \c -o \e filename \BR
+    write output to the specified file, rather than to standard output
     \o \c -v1 \BR
     verbose output; outputs information on entering and exiting test functions.
     \o \c -v2 \BR
@@ -154,6 +156,8 @@
     outputs every signal that gets emitted
     \o \c -xml \BR
     outputs XML formatted results instead of plain text
+    \o \c -lightxml \BR
+    outputs results as a stream of XML tags
     \o \c -eventdelay \e ms \BR
     if no delay is specified for keyboard or mouse simulation
     (\l QTest::keyClick(),
@@ -167,6 +171,8 @@
     simulation.
     \o \c -keyevent-verbose \BR
     output more verbose output for keyboard simulation
+    \o \c -maxwarnings \e number\BR
+    sets the maximum number of warnings to output. 0 for unlimited, defaults to 2000.
     \endlist
 */
 
@@ -522,7 +528,7 @@
     \skipto testGui()
     \printuntil /^\}/
 
-    The TestGui::testString() function will be executed two times,
+    The TestGui::testGui() function will be executed two times,
     once for each entry in the test data that we created in the
     associated TestGui::testGui_data() function.
 

@@ -35,7 +35,7 @@
 #endif
 
 
-/*! 
+/*!
    \namespace QTest
    \inmodule QtTest
 
@@ -224,7 +224,6 @@
 
    If a \l QVERIFY() or \l QCOMPARE() is marked as an expected failure,
    but passes instead, an unexpected pass (XPASS) is written to the test log.
-   Unexpected passes behave exactly as failures, the test will stop executing.
 
    The parameter \a dataIndex describes for which entry in the test data the
    failure is expected. Pass an empty string (\c{""}) if the failure
@@ -1049,7 +1048,7 @@ void QTest::qWarn(const char *message)
     \code
     QDir dir;
 
-    QTest::ignoreMessage(QtWarningMessage, "QDir::mkdir: Empty or null file name(s)");
+    QTest::ignoreMessage(QtWarningMsg, "QDir::mkdir: Empty or null file name(s)");
     dir.mkdir("");
     \endcode
 
