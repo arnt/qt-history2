@@ -81,6 +81,7 @@ void tst_lupdate::parse()
     QByteArray data2 = file2.readAll();
     QString str2(data2);
 
+    // Try to ignore whitespace differences.
     str1 = str1.replace(QLatin1String("\015\012"), QLatin1String("\n"));
     str2 = str2.replace(QLatin1String("\015\012"), QLatin1String("\n"));
 
@@ -98,6 +99,7 @@ void tst_lupdate::merge_data()
     QTest::newRow("Merge UI file") << QString("mergeui/project.pro") << QString() << QString();
     QTest::newRow("Merge CPP file") << QString("mergecpp/project.pro") << QString() << QString();
     QTest::newRow("mergecpp, (Merge CPP file, obsolete the old and create a new one)") << QString("mergecpp_obsolete/project.pro") << QString() << QString();
+    QTest::newRow("mergecpp, (Merge UI file and test similarity tests)") << QString("textsimilarity/project.pro") << QString() << QString();
     QTest::newRow("merge_versions. Make sure that we can merge an old ts with a new version ts file.") 
                     << QString("merge_versions/project.pro") << QString() << QString();
 }
@@ -152,6 +154,7 @@ void tst_lupdate::merge()
     QString str2(data2);
     file2.close();
 
+    // Try to ignore whitespace differences.
     str1 = str1.replace(QLatin1String("\015\012"), QLatin1String("\n"));
     str2 = str2.replace(QLatin1String("\015\012"), QLatin1String("\n"));
 
