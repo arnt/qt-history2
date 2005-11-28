@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET	 = multipleax
 
 CONFIG	+= qt warn_off qaxserver dll
+contains(CONFIG, static):DEFINES += QT_NODLL
 
 SOURCES	 = main.cpp
 HEADERS	 = ax1.h ax2.h
