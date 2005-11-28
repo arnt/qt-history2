@@ -11,4 +11,4 @@ TRANSLATIONS        = project_no.ts.tmp
 #    without reverting the original file again.
 
 win32: RES = $$system(copy /Y project_no.ts $$TRANSLATIONS)
-unix: RES = $$system(cp -f project_no.ts $$TRANSLATIONS)
+unix: RES = $$system(cp -f project_no.ts $$TRANSLATIONS && chmod a+w $$TRANSLATIONS)
