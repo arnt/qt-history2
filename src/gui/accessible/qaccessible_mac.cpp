@@ -381,6 +381,11 @@ static bool isItInteresting(QAccessibleInterface * const interface)
    if (interface->role(0) == QAccessible::Client || // QWidget 
        interface->role(0) == QAccessible::Border )  // QFrame 
         return false; 
+    
+    // It is probably better to access the toolbar buttons directly than having 
+    // to navigate through the toolbar.
+    if (interface->role(0) == QAccessible::ToolBar)
+        return false;
 
     return true;
 }
