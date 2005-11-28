@@ -333,8 +333,11 @@ void WidgetFactory::initialize(QObject *object) const
         QSize sz = widget->sizeHint();
         if (sz.width() <= 0 && sz.height() <= 0)
             widget->setMinimumSize(QSize(16, 16));
+
         widget->setAttribute(Qt::WA_TransparentForMouseEvents, false);
-        widget->setAttribute(Qt::WA_TintedBackground);
+
+        if (!qobject_cast<QDesignerWidget*>(widget))
+            widget->setAttribute(Qt::WA_TintedBackground);
     }
 
     if (qobject_cast<QDockWidget*>(object) || qobject_cast<QToolBar*>(object)) {
