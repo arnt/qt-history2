@@ -38,8 +38,7 @@ using namespace qdesigner_internal;
 
 ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *parent)
     : QDesignerObjectInspectorInterface(parent),
-      m_core(core),
-      m_ignoreNextUpdate(false)
+      m_core(core)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
@@ -108,11 +107,6 @@ bool ObjectInspector::sortEntry(const QObject *a, const QObject *b)
 
 void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 {
-    if (m_ignoreNextUpdate) {
-        m_ignoreNextUpdate = false;
-        return;
-    }
-
     m_formWindow = fw;
 
     if (fw && fw->cursor())
@@ -245,7 +239,6 @@ void ObjectInspector::slotSelectionChanged()
     m_formWindow->clearSelection(false);
 
     QList<QTreeWidgetItem*> items = m_treeWidget->selectedItems();
-    m_ignoreNextUpdate = !items.isEmpty();
 
     foreach (QTreeWidgetItem *item, items) {
         QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
