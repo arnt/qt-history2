@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     unsortedView.setWindowTitle("Unsorted Data");
     unsortedView.show();
 
-    QSortingProxyModel sortingModel;
+    QSortFilterProxyModel sortingModel;
     sortingModel.setSourceModel(&model);
 
     QTreeView sortedView;

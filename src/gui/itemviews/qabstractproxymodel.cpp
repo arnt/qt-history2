@@ -28,11 +28,10 @@
     All standard proxy models are derived from the QAbstractProxyModel class. If you
     need to create a new proxy model class, it is usually better to subclass an existing
     class that provides the closest behavior to the one you want to provide. Proxy models
-    that filter items of data from a source model should be created by subclassing
-    QFilteringProxyModel; those that sort or manipulate the order of items presented to
-    views should be based on QSortingProxyModel.
+    that filter or sort items of data from a source model should be created by using or
+    subclassing QSortFilterProxyModel.
 
-    \sa QMappingProxyModel, QAbstractItemModel, {Model/View Programming}
+    \sa QSortFilterProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 
