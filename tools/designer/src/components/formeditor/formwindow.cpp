@@ -1885,8 +1885,9 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
         }
     }
 
-    if (container == mainContainer())
-        return; // no highlight for the main container;
+    QMainWindow *mw = qobject_cast<QMainWindow*>(mainContainer());
+    if (container == mainContainer() || (mw && mw->centralWidget() && mw->centralWidget() == container))
+        return;
 
     if (mode == Restore) {
         QPair<QPalette, bool> paletteAndFill = palettesBeforeHighlight.take(container);
