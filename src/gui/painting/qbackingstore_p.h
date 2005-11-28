@@ -77,9 +77,11 @@ private:
     QPoint tlwOffset;
     bool dirtyBufferSize;
 
-    bool isOpaque(const QWidget *widget);
+    static bool isOpaque(const QWidget *widget);
 
     void copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool recursive = true);
+
+    static void paintSiblingsRecursive(QPaintDevice *pdev, const QObjectList& children, int index, const QRegion &rgn, const QPoint &offset, int flags);
 
     friend void qt_syncBackingStore(QRegion, QWidget *);
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)

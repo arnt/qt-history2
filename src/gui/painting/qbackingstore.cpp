@@ -95,6 +95,8 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &toBePainted, int 
         widget->setAttribute(Qt::WA_WState_InPaintEvent);
 
 
+    static int i = 0;
+
     //setup the engine
     QPaintEngine *pe = widget->paintEngine();
     if (pe) {
@@ -102,7 +104,22 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &toBePainted, int 
         {
             QPainter p(widget);
             p.setClipRegion(toBePainted);
-            p.fillRect(widget->rect(), Qt::yellow);
+
+            switch (i) {
+            case 0:
+                p.fillRect(widget->rect(), QColor(255,255,0));
+                break;
+            case 1:
+                p.fillRect(widget->rect(), QColor(255,200,55));
+                break;
+            case 2:
+                p.fillRect(widget->rect(), QColor(200,255,55));
+                break;
+            case 3:
+                p.fillRect(widget->rect(), QColor(200,200,0));
+                break;
+            }
+            i = (i+1) & 3;
             p.end();
         }
     }
@@ -447,7 +464,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 #else
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         widget->d_func()->cleanWidget_sys(rgn);
-
+ 
         qt_flushUpdate(widget, rgn);
 
         QPoint wOffset = widget->data->wrect.topLeft();
@@ -494,7 +511,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
         const QObjectList children = widget->children();
         for(int i = 0; i < children.size(); ++i) {
             if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
-                if(!child->isWindow()) {
+                if(!child->isWindow() && child->isVisible()) {
                     if (qRectIntersects(rgn.boundingRect().translated(-child->pos()), child->rect())) {
                         QRegion childRegion(rgn);
                         childRegion.translate(-child->pos());
@@ -597,6 +614,48 @@ bool QWidgetBackingStore::isOpaque(const QWidget *widget)
 }
 
 
+void QWidgetBackingStore::paintSiblingsRecursive(QPaintDevice *pdev, const QObjectList& siblings, int index, const QRegion &rgn,
+                                                 const QPoint &offset, int flags)
+{
+    QWidget *w = 0;
+
+    do {
+        QWidget *x =  qobject_cast<QWidget*>(siblings.at(index));
+        if (x && !x->isWindow() && !x->isHidden() && qRectIntersects(rgn.boundingRect(), x->geometry())) {
+            w = x;
+            break;
+        }
+        --index;
+    } while (index >= 0);
+
+
+    if (!w)
+        return;
+
+    QWExtra *extra = w->d_func()->extraData();
+
+    if (index > 0) {
+        QRegion wr = rgn;
+        if (isOpaque(w)) {
+            if(!extra || extra->mask.isEmpty()) {
+                wr -= w->geometry();
+            } else {
+                wr -= extra->mask.translated(w->pos());
+            }
+        }
+        paintSiblingsRecursive(pdev, siblings, index - 1, wr, offset, flags);
+    }
+    if(w->updatesEnabled()) {
+        QRegion wRegion(rgn & w->geometry());
+        wRegion.translate(-w->pos());
+
+        if(extra && !extra->mask.isEmpty())
+            wRegion &= extra->mask;
+        if(!wRegion.isEmpty())
+            w->d_func()->drawWidget(pdev, wRegion, offset+w->pos(), flags);
+    }
+}
+
 void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QPoint &offset, int flags)
 {
     Q_Q(QWidget);
@@ -685,23 +744,8 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
 
     if (recursive) {
         const QObjectList children = q->children();
-        for(int i = 0; i < children.size(); ++i) {
-            if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
-                if(!child->isWindow() && !child->isHidden() && child->updatesEnabled()) {
-                    if (qRectIntersects(rgn.boundingRect().translated(-child->pos()), child->rect())) {
-                        QRegion childRegion(rgn);
-                        childRegion.translate(-child->pos());
-                        childRegion &= child->rect();
-                        if(QWExtra *extra = child->d_func()->extraData()) {
-                            if(!extra->mask.isEmpty())
-                                childRegion &= extra->mask;
-                        }
-                        if(!childRegion.isEmpty())
-                            child->d_func()->drawWidget(pdev, childRegion, offset+child->pos(), flags & ~DrawAsRoot);
-                    }
-                }
-            }
-        }
+        if (!children.isEmpty())
+            QWidgetBackingStore::paintSiblingsRecursive(pdev, children, children.size()-1, rgn, offset, flags & ~DrawAsRoot);
     }
 }
 
