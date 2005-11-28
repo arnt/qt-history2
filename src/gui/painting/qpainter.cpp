@@ -2954,7 +2954,7 @@ void QPainter::drawPolyline(const QPointF *points, int pointCount)
         printf("QPainter::drawPolyline(), count=%d\n", pointCount);
 #endif
 
-    if (!isActive() || pointCount <= 0)
+    if (!isActive() || pointCount < 2)
         return;
 
     Q_D(QPainter);
@@ -2993,7 +2993,7 @@ void QPainter::drawPolyline(const QPoint *points, int pointCount)
         printf("QPainter::drawPolyline(), count=%d\n", pointCount);
 #endif
 
-    if (!isActive() || pointCount <= 0)
+    if (!isActive() || pointCount < 2)
         return;
 
     Q_D(QPainter);
@@ -3074,7 +3074,7 @@ void QPainter::drawPolygon(const QPointF *points, int pointCount, Qt::FillRule f
         printf("QPainter::drawPolygon(), count=%d\n", pointCount);
 #endif
 
-    if (!isActive() || pointCount <= 0)
+    if (!isActive() || pointCount < 2)
         return;
 
     Q_D(QPainter);
@@ -3107,7 +3107,7 @@ void QPainter::drawPolygon(const QPoint *points, int pointCount, Qt::FillRule fi
         printf("QPainter::drawPolygon(), count=%d\n", pointCount);
 #endif
 
-    if (!isActive() || pointCount <= 0)
+    if (!isActive() || pointCount < 2)
         return;
 
     Q_D(QPainter);
@@ -3190,7 +3190,7 @@ void QPainter::drawConvexPolygon(const QPoint *points, int pointCount)
         printf("QPainter::drawConvexPolygon(), count=%d\n", pointCount);
 #endif
 
-    if (!isActive() || pointCount <= 0)
+    if (!isActive() || pointCount < 2)
         return;
 
     Q_D(QPainter);
@@ -3229,7 +3229,7 @@ void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
         printf("QPainter::drawConvexPolygon(), count=%d\n", pointCount);
 #endif
 
-    if (!isActive() || pointCount <= 0)
+    if (!isActive() || pointCount < 2)
         return;
 
     Q_D(QPainter);
