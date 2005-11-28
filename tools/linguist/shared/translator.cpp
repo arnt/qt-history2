@@ -766,6 +766,11 @@ bool Translator::contains(const char* context, const char* sourceText,
     return !findMessage(context, sourceText, comment).translation().isNull();
 }
 
+bool Translator::contains(const char *context,
+                            const char *comment, const QString &fileName, int lineNumber) const
+{
+    return !findMessage(context, 0, comment, fileName, lineNumber).isNull();
+}
 
 /*!
     Inserts \a message into this message file.
@@ -824,7 +829,8 @@ void Translator::remove(const TranslatorMessage& message)
 */
 
 TranslatorMessage Translator::findMessage(const char *context, const char *sourceText,
-                                          const char *comment) const
+                                          const char *comment,
+                                          const QString &fileName, int lineNumber) const
 {
     if (context == 0)
         context = "";
@@ -832,17 +838,31 @@ TranslatorMessage Translator::findMessage(const char *context, const char *sourc
         sourceText = "";
     if (comment == 0)
         comment = "";
+    
+    QString myFilename = fileName;
+    int myLineNumber = lineNumber;
 
 #ifndef QT_NO_TRANSLATION_BUILDER
     if (!d->messages.isEmpty()) {
         QMap<TranslatorMessage, void *>::const_iterator it;
 
-        it = d->messages.find(TranslatorMessage(context, sourceText, comment));
+        // Either we want to find an item that matches context, sourcetext (and optionally comment)
+        // Or we want to find an item that matches context, filename, linenumber (and optionally comment)
+        it = d->messages.find(TranslatorMessage(context, sourceText, comment, myFilename, myLineNumber));
         if (it != d->messages.constEnd())
             return it.key();
 
         if (comment[0]) {
-            it = d->messages.find(TranslatorMessage(context, sourceText, ""));
+            it = d->messages.find(TranslatorMessage(context, sourceText, "", myFilename, myLineNumber));
+            if (it != d->messages.constEnd())
+                return it.key();
+        }
+        
+        it = d->messages.find(TranslatorMessage(context, "", comment, myFilename, myLineNumber));
+        if (it != d->messages.constEnd())
+            return it.key();
+        if (comment[0]) {
+            it = d->messages.find(TranslatorMessage(context, "", "", myFilename, myLineNumber));
             if (it != d->messages.constEnd())
                 return it.key();
         }
@@ -994,31 +1014,34 @@ QList<TranslatorMessage> Translator::messages() const
 */
 
 TranslatorMessage::TranslatorMessage()
-    : h(0)
+    : m_hash(0), m_fileName(), m_lineNumber(-1)
 {
 }
 
 
 /*!
-    Constructs an translator message with the extended key (\e h, \a
-    context, \a sourceText, \a comment), where \e h is computed from
+    Constructs an translator message with the extended key (\e m_hash, \a
+    context, \a sourceText, \a comment), where \e m_hash is computed from
     \a sourceText and \a comment, and possibly with a \a translation.
 */
 
 TranslatorMessage::TranslatorMessage(const char * context,
                                         const char * sourceText,
                                         const char * comment,
+                                        const QString &fileName,
+                                        int lineNumber,
                                         const QString& translation)
-    : cx(context), st(sourceText), cm(comment), tn(translation)
+    :   m_context(context), m_sourcetext(sourceText), m_comment(comment), 
+        m_translation(translation), m_fileName(fileName), m_lineNumber(lineNumber)
 {
     // 0 means we don't know, "" means empty
-    if (cx == (const char*)0)
-        cx = "";
-    if (st == (const char*)0)
-        st = "";
-    if (cm == (const char*)0)
-        cm = "";
-    h = elfHash(st + cm);
+    if (m_context == (const char*)0)
+        m_context = "";
+    if (m_sourcetext == (const char*)0)
+        m_sourcetext = "";
+    if (m_comment == (const char*)0)
+        m_comment = "";
+    m_hash = elfHash(m_sourcetext + m_comment);
 }
 
 
@@ -1030,7 +1053,7 @@ TranslatorMessage::TranslatorMessage(const char * context,
 */
 
 TranslatorMessage::TranslatorMessage(QDataStream & stream)
-    : h(0)
+    : m_hash(0)
 {
     QString str16;
     char tag;
@@ -1042,43 +1065,43 @@ TranslatorMessage::TranslatorMessage(QDataStream & stream)
             stream.readRawData(&tag, 1);
         switch((Tag)tag) {
         case Tag_End:
-            if (h == 0)
-                h = elfHash(st + cm);
+            if (m_hash == 0)
+                m_hash = elfHash(m_sourcetext + m_comment);
             return;
         case Tag_SourceText16: // obsolete
             stream >> str16;
-            st = str16.toLatin1();
+            m_sourcetext = str16.toLatin1();
             break;
         case Tag_Translation:
-            stream >> tn;
+            stream >> m_translation;
             break;
         case Tag_Context16: // obsolete
             stream >> str16;
-            cx = str16.toLatin1();
+            m_context = str16.toLatin1();
             break;
         case Tag_Hash:
-            stream >> h;
+            stream >> m_hash;
             break;
         case Tag_SourceText:
-            stream >> st;
+            stream >> m_sourcetext;
             break;
         case Tag_Context:
-            stream >> cx;
-            if (cx.isEmpty()) // for compatibility
-                cx = 0;
+            stream >> m_context;
+            if (m_context.isEmpty()) // for compatibility
+                m_context = 0;
             break;
         case Tag_Comment:
-            stream >> cm;
+            stream >> m_comment;
             break;
         case Tag_Obsolete1: // obsolete
             stream >> obs1;
             break;
         default:
-            h = 0;
-            st = 0;
-            cx = 0;
-            cm = 0;
-            tn.clear();
+            m_hash = 0;
+            m_sourcetext = 0;
+            m_context = 0;
+            m_comment = 0;
+            m_translation.clear();
             return;
         }
     }
@@ -1090,9 +1113,10 @@ TranslatorMessage::TranslatorMessage(QDataStream & stream)
 */
 
 TranslatorMessage::TranslatorMessage(const TranslatorMessage & m)
-    : cx(m.cx), st(m.st), cm(m.cm), tn(m.tn)
+    :   m_context(m.m_context), m_sourcetext(m.m_sourcetext), m_comment(m.m_comment), 
+        m_translation(m.m_translation), m_fileName(m.m_fileName), m_lineNumber(m.m_lineNumber)
 {
-    h = m.h;
+    m_hash = m.m_hash;
 }
 
 
@@ -1104,11 +1128,13 @@ TranslatorMessage::TranslatorMessage(const TranslatorMessage & m)
 TranslatorMessage & TranslatorMessage::operator=(
         const TranslatorMessage & m)
 {
-    h = m.h;
-    cx = m.cx;
-    st = m.st;
-    cm = m.cm;
-    tn = m.tn;
+    m_hash = m.m_hash;
+    m_context = m.m_context;
+    m_sourcetext = m.m_sourcetext;
+    m_comment = m.m_comment;
+    m_translation = m.m_translation;
+    m_fileName = m.m_fileName;
+    m_lineNumber = m.m_lineNumber;    
     return *this;
 }
 
@@ -1161,15 +1187,15 @@ TranslatorMessage & TranslatorMessage::operator=(
 /*!
     \enum TranslatorMessage::Prefix
 
-    Let (\e h, \e c, \e s, \e m) be the extended key. The possible
+    Let (\e m_hash, \e c, \e s, \e m) be the extended key. The possible
     prefixes are
 
     \value NoPrefix  no prefix
-    \value Hash  only (\e h)
-    \value HashContext  only (\e h, \e c)
-    \value HashContextSourceText  only (\e h, \e c, \e s)
+    \value Hash  only (\e m_hash)
+    \value HashContext  only (\e m_hash, \e c)
+    \value HashContextSourceText  only (\e m_hash, \e c, \e s)
     \value HashContextSourceTextComment  the whole extended key, (\e
-        h, \e c, \e s, \e m)
+        m_hash, \e c, \e s, \e m)
 
     \sa write() commonPrefix()
 */
@@ -1191,7 +1217,7 @@ void TranslatorMessage::write(QDataStream & stream, bool strip,
 
     tag = (char)Tag_Translation;
     stream.writeRawData(&tag, 1);
-    stream << tn;
+    stream << m_translation;
 
     if (!strip)
         prefix = HashContextSourceTextComment;
@@ -1200,22 +1226,22 @@ void TranslatorMessage::write(QDataStream & stream, bool strip,
     case HashContextSourceTextComment:
         tag = (char)Tag_Comment;
         stream.writeRawData(&tag, 1);
-        stream << cm;
+        stream << m_comment;
         // fall through
     case HashContextSourceText:
         tag = (char)Tag_SourceText;
         stream.writeRawData(&tag, 1);
-        stream << st;
+        stream << m_sourcetext;
         // fall through
     case HashContext:
         tag = (char)Tag_Context;
         stream.writeRawData(&tag, 1);
-        stream << cx;
+        stream << m_context;
         // fall through
     default:
         tag = (char)Tag_Hash;
         stream.writeRawData(&tag, 1);
-        stream << h;
+        stream << m_hash;
     }
 
     tag = (char)Tag_End;
@@ -1238,13 +1264,13 @@ void TranslatorMessage::write(QDataStream & stream, bool strip,
 TranslatorMessage::Prefix TranslatorMessage::commonPrefix(
         const TranslatorMessage& m) const
 {
-    if (h != m.h)
+    if (m_hash != m.m_hash)
         return NoPrefix;
-    if (cx != m.cx)
+    if (m_context != m.m_context)
         return Hash;
-    if (st != m.st)
+    if (m_sourcetext != m.m_sourcetext)
         return HashContext;
-    if (cm != m.cm)
+    if (m_comment != m.m_comment)
         return HashContextSourceText;
     return HashContextSourceTextComment;
 }
@@ -1257,7 +1283,15 @@ TranslatorMessage::Prefix TranslatorMessage::commonPrefix(
 
 bool TranslatorMessage::operator==(const TranslatorMessage& m) const
 {
-    return h == m.h && cx == m.cx && st == m.st && cm == m.cm;
+    bool isHashEq = (m_hash == m.m_hash ? true : false);
+    bool isContextEq = (m_context == m.m_context ? true : false);
+    bool isSourceEq = (m_sourcetext == m.m_sourcetext ? true : false);
+    bool isCommentEq = (m_comment == m.m_comment ? true : false);
+    bool isLocationEq = m_lineNumber == m.m_lineNumber && m_fileName == m.m_fileName;
+    
+    return (isHashEq && isContextEq && isSourceEq && isCommentEq) || // translation can be different, but treat the equal
+            (m_sourcetext.isEmpty() && isContextEq && isCommentEq && isLocationEq) ||
+            0;
 }
 
 
@@ -1277,9 +1311,9 @@ bool TranslatorMessage::operator==(const TranslatorMessage& m) const
 
 bool TranslatorMessage::operator<(const TranslatorMessage& m) const
 {
-    return h != m.h ? h < m.h
-           : (cx != m.cx ? cx < m.cx
-             : (st != m.st ? st < m.st : cm < m.cm));
+    return m_hash != m.m_hash ? m_hash < m.m_hash
+           : (m_context != m.m_context ? m_context < m.m_context
+             : (m_sourcetext != m.m_sourcetext ? m_sourcetext < m.m_sourcetext : m_comment < m.m_comment));
 }
 
 

@@ -31,7 +31,7 @@ extern void fetchtr_ui( const char *fileName, MetaTranslator *tor,
                         const char *defaultContext, bool mustExist );
 
 // defined in merge.cpp
-extern void merge( MetaTranslator *tor, const MetaTranslator *virginTor,
+extern void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTranslator *out,
                    bool verbose );
 
 typedef QList<MetaTranslatorMessage> TML;
@@ -58,26 +58,27 @@ static void updateTsFiles( const MetaTranslator& fetchedTor,
     QStringList::ConstIterator t = tsFileNames.begin();
     while ( t != tsFileNames.end() ) {
         MetaTranslator tor;
+        MetaTranslator out;
         tor.load( *t );
         if ( !codecForTr.isEmpty() )
             tor.setCodec( codecForTr.toLatin1() );
         if ( verbose )
             fprintf( stderr, "Updating '%s'...\n", (*t).toLatin1().data() );
-        merge( &tor, &fetchedTor, verbose );
+        merge( &tor, &fetchedTor, &out, verbose );
         if ( noObsolete )
-            tor.stripObsoleteMessages();
-        tor.stripEmptyContexts();
-		if ( !tor.save(*t) ) {
+            out.stripObsoleteMessages();
+        out.stripEmptyContexts();
+	    if ( !out.save(*t, verbose) ) {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-			char buf[100];
-			strerror_s(buf, sizeof(buf), errno);
-			fprintf( stderr, "lupdate error: Cannot save '%s': %s\n",
+	        char buf[100];
+	        strerror_s(buf, sizeof(buf), errno);
+	        fprintf( stderr, "lupdate error: Cannot save '%s': %s\n",
                      (*t).toLatin1().constData(), buf );
 #else
             fprintf( stderr, "lupdate error: Cannot save '%s': %s\n",
                      (*t).toLatin1().constData(), strerror(errno) );
 #endif
-		}
+	    }
         ++t;
     }
 }

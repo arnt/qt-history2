@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "metatranslator.h"
+#include "simtexth.h"
 #include <stdio.h>
 
 // defined in numberh.cpp
@@ -29,7 +30,7 @@ typedef QList<MetaTranslatorMessage> TML;
   translation yet.
 */
 
-void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
+void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTranslator *outTor, bool verbose )
 {
     int known = 0;
     int neww = 0;
@@ -46,13 +47,42 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
         MetaTranslatorMessage m = *it;
 
         // skip context comment
-        if ( !QByteArray((*it).sourceText()).isEmpty() ) {
-            if ( !virginTor->contains((*it).context(), (*it).sourceText(),
-                                      (*it).comment()) ) {
-                newType = MetaTranslatorMessage::Obsolete;
-                if ( m.type() != MetaTranslatorMessage::Obsolete )
-                    obsoleted++;
+        if ( !QByteArray(m.sourceText()).isEmpty() ) {
+            bool found = false;
+            MetaTranslatorMessage mv = virginTor->find(m.context(), m.sourceText(), m.comment());
+            if ( mv.isNull() ) {
+                mv = virginTor->find(m.context(), m.comment(), m.fileName(), m.lineNumber());
+                if ( mv.isNull() ) {
+                    // did not find it in the virgin, mark it as obsolete
+                    newType = MetaTranslatorMessage::Obsolete;
+                    if ( m.type() != MetaTranslatorMessage::Obsolete )
+                        obsoleted++;
+                } else {
+                    // Do not just accept it if its on the same line number, but different source text.
+                    // Also check if the texts are more or less similar before we consider them to represent the same message...
+                    if (getSimilarityScore(QString(m.sourceText()), mv.sourceText()) >= textSimilarityThreshold) {
+                        // It is just slightly modified, assume that it is the same string
+                        m = MetaTranslatorMessage(m.context(), mv.sourceText(), m.comment(), m.fileName(), m.lineNumber(), m.translation());
+
+                        // Mark it as unfinished. (Since the source text was changed it might require re-translating...)
+                        newType = MetaTranslatorMessage::Unfinished;
+                        found = true;
+                    } else {
+                        // The virgin and vernacular sourceTexts are so different that we could not find it.
+                        newType = MetaTranslatorMessage::Obsolete;
+                        if ( m.type() != MetaTranslatorMessage::Obsolete )
+                            obsoleted++;
+                    }
+                }
             } else {
+                found = true;
+                // Always get the filename and linenumber info from the virgin Translator, in case it has changed location.
+                // This should also enable us to read a file that does not have the <location> element.
+                m.setFileName(mv.fileName());
+                m.setLineNumber(mv.lineNumber());
+            }
+
+            if (found) {
                 switch ( m.type() ) {
                 case MetaTranslatorMessage::Finished:
                 default:
@@ -68,11 +98,8 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
                     neww++;
                 }
             }
-
-            if ( newType != m.type() ) {
-                m.setType( newType );
-                tor->insert( m );
-            }
+            m.setType(newType);
+            outTor->insert(m);
         }
     }
 
@@ -83,10 +110,21 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
     all = virginTor->messages();
 
     for ( it = all.begin(); it != all.end(); ++it ) {
-        if ( !tor->contains((*it).context(), (*it).sourceText(),
-                            (*it).comment()) ) {
-            tor->insert( *it );
-            if ( !QByteArray((*it).sourceText()).isEmpty() )
+        MetaTranslatorMessage mv = *it;
+        bool found = tor->contains(mv.context(), mv.sourceText(), mv.comment());
+        if (!found) {
+            MetaTranslatorMessage m = tor->find(mv.context(), mv.comment(), mv.fileName(), mv.lineNumber());
+            if (!m.isNull()) {
+                if (getSimilarityScore(QString(m.sourceText()), mv.sourceText()) >= textSimilarityThreshold) {
+                    found = true;
+                }
+            } else {
+                found = false;
+            }
+        }
+        if ( !found ) {
+            outTor->insert( mv );
+            if ( !QByteArray(mv.sourceText()).isEmpty() )
                 neww++;
         }
     }
@@ -95,14 +133,14 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
       The same-text heuristic handles cases where a message has an
       obsolete counterpart with a different context or comment.
     */
-    applySameTextHeuristic( tor, verbose );
+    applySameTextHeuristic( outTor, verbose );
 
     /*
       The number heuristic handles cases where a message has an
       obsolete counterpart with mostly numbers differing in the
       source text.
     */
-    applyNumberHeuristic( tor, verbose );
+    applyNumberHeuristic( outTor, verbose );
 
     if ( verbose )
         fprintf( stderr, " %d known, %d new, and %d obsoleted messages\n", known,

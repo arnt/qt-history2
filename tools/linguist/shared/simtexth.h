@@ -14,6 +14,8 @@
 #ifndef SIMTEXTH_H
 #define SIMTEXTH_H
 
+const int textSimilarityThreshold = 190;
+
 #include <QString>
 #include <QList>
 
@@ -36,6 +38,8 @@ inline bool operator!=( const Candidate& c, const Candidate& d ) {
 }
 
 typedef QList<Candidate> CandidateList;
+
+int getSimilarityScore(const QString &str1, const char* str2);
 
 CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 					      const char *text,

@@ -592,7 +592,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
 
                     if ( qualifiedContexts.contains(context) )
                         context = qualifiedContexts[context];
-                    tor->insert( MetaTranslatorMessage(context, text, com,
+                    tor->insert( MetaTranslatorMessage(context, text, com, yyFileName, yyLineNo,
                                                        QString(), utf8) );
 
                     if ( lacks_Q_OBJECT.contains(context) ) {
@@ -621,7 +621,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                        match(Tok_Comma) &&
                        matchEncoding(&utf8) &&
                        match(Tok_RightParen))) )
-                    tor->insert( MetaTranslatorMessage(context, text, com,
+                    tor->insert( MetaTranslatorMessage(context, text, com, yyFileName, yyLineNo,
                                                        QString(), utf8) );
             }
             break;
@@ -648,7 +648,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                 } else {
                     context = com.left( k );
                     com.remove( 0, k + 1 );
-                    tor->insert( MetaTranslatorMessage(context, "", com,
+                    tor->insert( MetaTranslatorMessage(context, "", com, yyFileName, yyLineNo,
                                                        QString(), false) );
                 }
 
@@ -727,7 +727,7 @@ void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
 		}
 #else
     yyInFile = fopen( fileName, "r" );
-	if ( yyInFile == 0 ) {
+    if ( yyInFile == 0 ) {
         if ( mustExist )
             fprintf( stderr,
                      "lupdate error: Cannot open C++ source file '%s': %s\n",
@@ -736,7 +736,7 @@ void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
         return;
     }
 
-	startTokenizer( fileName, getCharFromFile, tor->codecForTr(), QTextCodec::codecForName(codecForSource) );
+    startTokenizer( fileName, getCharFromFile, tor->codecForTr(), QTextCodec::codecForName(codecForSource) );
     parse( tor, 0, defaultContext );
     fclose( yyInFile );
 }
@@ -762,7 +762,7 @@ class UiHandler : public QXmlDefaultHandler
 {
 public:
     UiHandler( MetaTranslator *translator, const char *fileName )
-        : tor( translator ), fname( fileName ), comment( "" ) { }
+        : tor( translator ), fname( fileName ), comment( "" ), m_lineNumber(-1)  { }
 
     virtual bool startElement( const QString& namespaceURI,
                                const QString& localName, const QString& qName,
@@ -772,6 +772,11 @@ public:
     virtual bool characters( const QString& ch );
     virtual bool fatalError( const QXmlParseException& exception );
 
+    virtual void setDocumentLocator(QXmlLocator *locator)
+    {
+        m_locator = locator;
+    }
+    QXmlLocator *m_locator;
 private:
     void flush();
 
@@ -782,7 +787,7 @@ private:
     QString comment;
 
     QString accum;
-
+    int m_lineNumber;
     bool trString;
 };
 
@@ -805,6 +810,7 @@ bool UiHandler::startElement( const QString& /* namespaceURI */,
             trString = false;
         }
     }
+    if (trString) m_lineNumber = m_locator->lineNumber();
     accum.truncate( 0 );
     return true;
 }
@@ -852,8 +858,8 @@ void UiHandler::flush()
 {
     if ( !context.isEmpty() && !source.isEmpty() )
         tor->insert( MetaTranslatorMessage(context.toUtf8(), source.toUtf8(),
-                                           comment.toUtf8(), QString(),
-                                           true) );
+                                           comment.toUtf8(), QString(fname), m_lineNumber,
+                                           QString(), true) );
     source.truncate( 0 );
     comment.truncate( 0 );
 }

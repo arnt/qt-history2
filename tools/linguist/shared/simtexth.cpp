@@ -159,55 +159,64 @@ static inline CoMatrix intersection( const CoMatrix& m, const CoMatrix& n )
     return p;
 }
 
+/**
+ * Checks how similar two strings are.
+ * The return value is the score, and a higher score is more similar than one with a low score.
+ * Linguist considers a score over 190 to be a good match.
+ */
+int getSimilarityScore(const QString &str1, const char* str2)
+{
+    CoMatrix cmTarget( str2 );
+    int targetLen = qstrlen( str2 );
+    CoMatrix cm( str1.toLatin1().constData() );
+    int delta = qAbs( (int) str1.length() - targetLen );
+
+    int score = ( (intersection(cm, cmTarget).worth() + 1) << 10 ) /
+        ( reunion(cm, cmTarget).worth() + (delta << 1) + 1 );
+
+    return score;
+}
+
+
 CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
                         const char *text,
                         int maxCandidates )
 {
     QList<int> scores;
     CandidateList candidates;
-    CoMatrix cmTarget( text );
-    int targetLen = qstrlen( text );
 
     TML all = tor->translatedMessages();
 
     foreach ( MetaTranslatorMessage mtm, all ) {
-    if ( mtm.type() == MetaTranslatorMessage::Unfinished ||
-         mtm.translation().isEmpty() )
-        continue;
+        if ( mtm.type() == MetaTranslatorMessage::Unfinished ||
+             mtm.translation().isEmpty() )
+            continue;
 
-    QString s = tor->toUnicode( mtm.sourceText(), mtm.utf8() );
-    CoMatrix cm( s.toLatin1().constData() );
-    int delta = qAbs( (int) s.length() - targetLen );
+        QString s = tor->toUnicode( mtm.sourceText(), mtm.utf8() );
+        int score = getSimilarityScore(s, text);
 
-    /*
-      Here is the score formula. A comment above contains a
-      discussion on a similar (but simpler) formula.
-    */
-    int score = ( (intersection(cm, cmTarget).worth() + 1) << 10 ) /
-            ( reunion(cm, cmTarget).worth() + (delta << 1) + 1 );
+        if ( (int) candidates.count() == maxCandidates &&
+             score > scores[maxCandidates - 1] )
+            candidates.removeAt( candidates.size()-1 );
+        if ( (int) candidates.count() < maxCandidates && score >= textSimilarityThreshold ) {
+            Candidate cand( s, mtm.translation() );
 
-    if ( (int) candidates.count() == maxCandidates &&
-         score > scores[maxCandidates - 1] )
-        candidates.removeAt( candidates.size()-1 );
-    if ( (int) candidates.count() < maxCandidates && score >= 190 ) {
-        Candidate cand( s, mtm.translation() );
-
-        int i;
-        for ( i = 0; i < (int) candidates.size(); i++ ) {
-        if ( score >= scores.at(i) ) {
-            if ( score == scores.at(i) ) {
-            if ( candidates.at(i) == cand )
-                goto continue_outer_loop;
-            } else {
-            break;
+            int i;
+            for ( i = 0; i < (int) candidates.size(); i++ ) {
+            if ( score >= scores.at(i) ) {
+                if ( score == scores.at(i) ) {
+                    if ( candidates.at(i) == cand )
+                        goto continue_outer_loop;
+                    } else {
+                        break;
+                    }
+                }
             }
+            scores.insert( i, score );
+            candidates.insert( i, cand );
         }
-        }
-        scores.insert( i, score );
-        candidates.insert( i, cand );
-    }
-    continue_outer_loop:
-    ;
+        continue_outer_loop:
+        ;
     }
     return candidates;
 }

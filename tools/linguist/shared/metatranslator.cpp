@@ -58,6 +58,8 @@ private:
     QString source;
     QString comment;
     QString translation;
+    QString m_fileName;
+    int     m_lineNumber;
 
     QString accum;
     int ferrorCount;
@@ -98,6 +100,12 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
             comment.truncate( 0 );
             translation.truncate( 0 );
             messageIsUtf8 = encodingIsUtf8( atts );
+        } else if (qName == QString("location") && inMessage) {
+            bool bOK;
+            int lineNo = atts.value(QString("line")).toInt(&bOK);
+            if (!bOK) lineNo = -1;
+            m_fileName = atts.value(QString("filename"));
+            m_lineNumber = lineNo;
         } else if ( qName == QString("translation") ) {
             for ( int i = 0; i < atts.length(); i++ ) {
                 if ( atts.qName(i) == QString("type") ) {
@@ -132,13 +140,13 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
         } else {
             if ( contextIsUtf8 )
                 tor->insert( MetaTranslatorMessage(context.toUtf8(),
-                             ContextComment,
-                             accum.toUtf8(), QString(), true,
+                             ContextComment, accum.toUtf8(), QString(), 0,
+                             QString(), true,
                              MetaTranslatorMessage::Unfinished) );
             else
                 tor->insert( MetaTranslatorMessage(context.toAscii(),
-                             ContextComment,
-                             accum.toAscii(), QString(), false,
+                             ContextComment, accum.toAscii(), QString(), 0,
+                             QString(), false,
                              MetaTranslatorMessage::Unfinished) );
         }
     } else if ( qName == QString("translation") ) {
@@ -146,12 +154,12 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
     } else if ( qName == QString("message") ) {
         if ( messageIsUtf8 )
             tor->insert( MetaTranslatorMessage(context.toUtf8(), source.toUtf8(),
-                                               comment.toUtf8(), translation,
-                                               true, type) );
+                                            comment.toUtf8(), m_fileName, m_lineNumber, 
+                                            translation, true, type) );
         else
             tor->insert( MetaTranslatorMessage(context.toAscii(), source.toAscii(),
-                                               comment.toAscii(), translation,
-                                               false, type) );
+                                            comment.toAscii(), m_fileName, m_lineNumber, 
+                                            translation, false, type) );
         inMessage = false;
     }
     return true;
@@ -244,9 +252,11 @@ MetaTranslatorMessage::MetaTranslatorMessage()
 MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
                                               const char *sourceText,
                                               const char *comment,
+                                              const QString &fileName,
+                                              int lineNumber,
                                               const QString& translation,
                                               bool utf8, Type type )
-    : TranslatorMessage( context, sourceText, comment, translation ),
+    : TranslatorMessage( context, sourceText, comment, fileName, lineNumber, translation ),
       utfeight( false ), ty( type )
 {
     /*
@@ -358,7 +368,7 @@ bool MetaTranslator::load( const QString& filename )
     return ok;
 }
 
-bool MetaTranslator::save( const QString& filename ) const
+bool MetaTranslator::save( const QString& filename, bool verbose) const
 {
     QFile f( filename );
     if ( !f.open(QIODevice::WriteOnly) )
@@ -367,10 +377,14 @@ bool MetaTranslator::save( const QString& filename ) const
     QTextStream t( &f );
     t.setCodec( QTextCodec::codecForName("ISO-8859-1") );
 
-    t << "<!DOCTYPE TS><TS>\n";
+    //### The xml prolog allows processors to easily detect the correct encoding
+    t << "<?xml version=\"1.0\"";
+    t << " encoding=\"utf-8\"";
+    t << "?>\n<!DOCTYPE TS><TS version=\"1.1\">\n";
     if ( codecName != "ISO-8859-1" )
         t << "<defaultcodec>" << codecName << "</defaultcodec>\n";
     TMM::ConstIterator m = mm.begin();
+    int ObsoletedAndUntranslated = 0;    
     while ( m != mm.end() ) {
         TMMInv inv;
         TMMInv::Iterator i;
@@ -401,20 +415,22 @@ bool MetaTranslator::save( const QString& filename ) const
 
         for ( i = inv.begin(); i != inv.end(); ++i ) {
             // no need for such noise
-            if ( (*i).type() == MetaTranslatorMessage::Obsolete &&
-                 (*i).translation().isEmpty() )
+            if ( (*i).type() == MetaTranslatorMessage::Obsolete && (*i).translation().isEmpty() ) {
+                ++ObsoletedAndUntranslated;
                 continue;
+            }
 
             t << "    <message";
             if ( (*i).utf8() )
                 t << " encoding=\"UTF-8\"";
-            t << ">\n"
-              << "        <source>" << evilBytes( (*i).sourceText(),
-                                                  (*i).utf8() )
+            t << ">\n";
+            MetaTranslatorMessage msg = *i;
+            if (!msg.fileName().isEmpty() && msg.lineNumber() >= 0) 
+                t << "        <location filename=\"" << msg.fileName() << "\" line=\"" << msg.lineNumber() << "\"/>\n";
+            t  << "        <source>" << evilBytes( (*i).sourceText(), (*i).utf8() )
               << "</source>\n";
             if ( !QByteArray((*i).comment()).isEmpty() )
-                t << "        <comment>" << evilBytes( (*i).comment(),
-                                                       (*i).utf8() )
+                t << "        <comment>" << evilBytes( (*i).comment(), (*i).utf8() )
                   << "</comment>\n";
             t << "        <translation";
             if ( (*i).type() == MetaTranslatorMessage::Unfinished )
@@ -429,6 +445,8 @@ bool MetaTranslator::save( const QString& filename ) const
     }
     t << "</TS>\n";
     f.close();
+    if ( verbose )
+        fprintf( stderr, " %d unstranslated obsoleted messages were removed.\n", ObsoletedAndUntranslated );
     return true;
 }
 
@@ -474,7 +492,7 @@ bool MetaTranslator::release( const QString& filename, bool verbose,
                         tor.insert( m.key() );
                     } else {
                         tor.insert( TranslatorMessage(context, sourceText, "",
-                                                       translation) );
+                                                       QString(), -1, translation) );    //filename and lineNumbers will be ignored from now.
                     }
                 }
             }
@@ -493,7 +511,52 @@ bool MetaTranslator::release( const QString& filename, bool verbose,
 bool MetaTranslator::contains( const char *context, const char *sourceText,
                                const char *comment ) const
 {
-    return mm.contains(MetaTranslatorMessage(context, sourceText, comment));
+    return mm.contains(MetaTranslatorMessage(context, sourceText, comment, QString(), 0));
+}
+
+MetaTranslatorMessage MetaTranslator::find( const char *context, const char *sourceText,
+                   const char *comment ) const
+{
+    QList<MetaTranslatorMessage> all = messages();
+    QList<MetaTranslatorMessage>::const_iterator i1;
+    int delta = -1;
+    for (i1 = all.constBegin(); i1 != all.constEnd(); ++i1) {
+        MetaTranslatorMessage m = *i1;
+        delta = qstrcmp(m.context(), context);
+        if (delta == 0) {
+            delta = qstrcmp(m.comment(), comment);
+            if (delta == 0) {
+                delta = QString::compare(m.sourceText(), sourceText);
+                if (delta == 0) return (*i1);
+            }
+        }
+    }
+    return MetaTranslatorMessage();    
+}
+
+MetaTranslatorMessage MetaTranslator::find(const char *context, const char *comment, 
+                                const QString &fileName, int lineNumber) const
+{
+    QList<MetaTranslatorMessage> all = messages();
+    QList<MetaTranslatorMessage>::const_iterator i1;
+    int delta = -1;
+    if (lineNumber >= 0 && !fileName.isEmpty()) {
+        for (i1 = all.constBegin(); i1 != all.constEnd(); ++i1) {
+            MetaTranslatorMessage m = *i1;
+            delta = qstrcmp(m.context(), context);
+            if (delta == 0) {
+                delta = qstrcmp(m.comment(), comment);
+                if (delta == 0) {
+                    delta = QString::compare(m.fileName(), fileName);
+                    if (delta == 0) {
+                        delta = m.lineNumber() - lineNumber;
+                        if (delta == 0) return (*i1);
+                    }
+                }
+            }
+        }
+    }
+    return MetaTranslatorMessage();
 }
 
 void MetaTranslator::insert( const MetaTranslatorMessage& m )
@@ -501,6 +564,7 @@ void MetaTranslator::insert( const MetaTranslatorMessage& m )
     int pos = mm.count();
     if (mm.contains(m)) {
         pos = mm.value(m);
+
         mm.remove(m);
     }
     mm.insert(m, pos);

@@ -379,7 +379,7 @@ void TrWindow::save()
     if (filename.isEmpty())
         return;
 
-    if (tor.save(filename)) {
+    if (tor.save(filename, false)) {
         dirty = false;
         updateCaption();
         statusBar()->showMessage(tr("File saved."), MessageMS);

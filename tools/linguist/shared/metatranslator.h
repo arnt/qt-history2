@@ -28,7 +28,8 @@ public:
 
     MetaTranslatorMessage();
     MetaTranslatorMessage( const char *context, const char *sourceText,
-                           const char *comment,
+                           const char *comment, const QString &fileName,
+                           int lineNumber,
                            const QString& translation = QString(),
                            bool utf8 = false, Type type = Unfinished );
     MetaTranslatorMessage( const MetaTranslatorMessage& m );
@@ -65,13 +66,20 @@ public:
 
     void clear();
     bool load( const QString& filename );
-    bool save( const QString& filename ) const;
+    bool save( const QString& filename, bool verbose ) const;
     bool release( const QString& filename, bool verbose = false,
                   bool ignoreUnfinished = false,
                   Translator::SaveMode mode = Translator::Stripped ) const;
 
     bool contains( const char *context, const char *sourceText,
                    const char *comment ) const;
+                   
+    MetaTranslatorMessage find( const char *context, const char *sourceText,
+                   const char *comment ) const;
+
+    MetaTranslatorMessage find(const char *context, const char *comment, 
+                    const QString &fileName, int lineNumber) const;
+    
     void insert( const MetaTranslatorMessage& m );
 
     void stripObsoleteMessages();
@@ -86,8 +94,8 @@ public:
     QList<MetaTranslatorMessage> translatedMessages() const;
 
 private:
-    typedef QMap<MetaTranslatorMessage, int> TMM;
-    typedef QMap<int, MetaTranslatorMessage> TMMInv;
+    typedef QMap<MetaTranslatorMessage, int> TMM;       // int stores the sequence position.
+    typedef QMap<int, MetaTranslatorMessage> TMMInv;    // Used during save operation. Seems to use the map only the get the sequence order right.
 
     TMM mm;
     QByteArray codecName;
