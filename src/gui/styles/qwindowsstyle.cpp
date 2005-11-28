@@ -2765,6 +2765,6 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
     pressedIconPixmap.fill(Qt::transparent);
     QPainter p(&pressedIconPixmap);
     p.drawPixmap(1, 1, iconPixmap.size().width(), iconPixmap.size().height(), iconPixmap);
-    icon.setPixmap(pressedIconPixmap, QIcon::Small, QIcon::Normal, QIcon::On);
+    icon.addPixmap(pressedIconPixmap, QIcon::Normal, QIcon::On);
     return icon;
 }
