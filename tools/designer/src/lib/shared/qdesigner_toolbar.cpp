@@ -37,16 +37,12 @@ QDesignerToolBar::QDesignerToolBar(QWidget *parent)
     : QToolBar(parent),
       m_interactive(true)
 {
-    m_sentinel = 0;
-
     setContextMenuPolicy(Qt::DefaultContextMenu);
-
     setAcceptDrops(true); // ### fake
 
-    Sentinel *btn = new Sentinel(this);
-    connect(btn, SIGNAL(clicked()), this, SLOT(slotNewToolBar()));
-
-    m_sentinel = addWidget(btn);
+    QWidget *w = new QWidget(this);
+    w->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+    m_sentinel = addWidget(w);
     addAction(m_sentinel);
 
     qApp->installEventFilter(this);
