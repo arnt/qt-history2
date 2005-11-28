@@ -135,7 +135,7 @@ bool QWindowsStyle::eventFilter(QObject *o, QEvent *e)
 #ifndef QT_NO_MENUBAR
             QList<QMenuBar *> l = qFindChildren<QMenuBar *>(widget);
             for (int i = 0; i < l.size(); ++i)
-                l.at(i)->repaint();
+                l.at(i)->update();
 #endif
 	}
 	break;
