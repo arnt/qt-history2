@@ -127,7 +127,7 @@ bool FunctionBlock::exec(const QStringList &args,
     cause_return = false;
 
     //execute
-    vars = place;
+    vars = proj->variables(); // should be place so that local variables can be inherited
     vars["ARGS"] = args;
     for(int i = 0; i < args.count(); i++)
         vars[QString::number(i+1)] = QStringList(args[i]);
