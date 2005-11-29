@@ -974,54 +974,133 @@ static OSStatus getChildAtPoint(EventHandlerCallRef next_ref, EventRef event, QI
     return CallNextEventHandler(next_ref, event);
 }
 
+/*
+    Returns a list of actions the given interface supports.
+    Currently implemented by getting the interface role and deciding based on that.
+*/
+static QList<QAccessible::Action> supportedPredefinedActions(QInterfaceItem *interface)
+{
+    QList<QAccessible::Action> actions;
+    switch (interface->role()) {
+        default:
+            // Most things can be pressed.
+            actions.append(QAccessible::Press);
+        break;
+    }
+        
+    return actions;
+}
+
+/*
+    Translates a predefined QAccessible::Action to a Mac action constant.
+    Returns an empty string if the Qt Actions has no mac equivalent.
+*/
+static QCFString translateAction(const QAccessible::Action action)
+{
+    switch (action) {
+        case QAccessible::Press:
+            return kAXPressAction;
+        break;
+        case QAccessible::Increase:
+            return kAXIncrementAction;
+        break;
+        case QAccessible::Decrease:
+            return kAXDecrementAction;
+        break;
+        case QAccessible::Accept:
+            return kAXConfirmAction;
+        break;
+        case QAccessible::Select:
+            return kAXPickAction;
+        break;
+        case QAccessible::Cancel:
+            return kAXCancelAction;
+        break;
+        default:
+            return QCFString();
+        break;
+    }
+}
+
+/*
+    Translates between a Mac action constant and a QAccessible::Action.
+    Returns QAccessible::Default action if there is no Qt predefined equivalent.
+*/
+static QAccessible::Action translateAction(const CFStringRef actionName)
+{
+    if(CFStringCompare(actionName, kAXPressAction, 0) == kCFCompareEqualTo) {
+        return QAccessible::Press;
+    } else if(CFStringCompare(actionName, kAXIncrementAction, 0) == kCFCompareEqualTo) {
+        return QAccessible::Increase;
+    } else if(CFStringCompare(actionName, kAXDecrementAction, 0) == kCFCompareEqualTo) {
+        return QAccessible::Decrease;
+    } else if(CFStringCompare(actionName, kAXConfirmAction, 0) == kCFCompareEqualTo) {
+        return QAccessible::Accept;
+    } else if(CFStringCompare(actionName, kAXPickAction, 0) == kCFCompareEqualTo) {
+        return QAccessible::Select;
+    } else if(CFStringCompare(actionName, kAXCancelAction, 0) == kCFCompareEqualTo) {
+        return QAccessible::Cancel;
+    } else {
+        return QAccessible::DefaultAction;
+    }
+}
+
+/*
+    Copies the translated names all supported actions for an interface into the kEventParamAccessibleActionNames
+    event parameter.
+*/
 static OSStatus getAllActionNames(EventHandlerCallRef next_ref, EventRef event, QInterfaceItem *interface)
 {
     Q_UNUSED(next_ref);
-    Q_UNUSED(event);
-    const int actCount = interface->userActionCount();
-    CFStringRef *arr = (CFStringRef *)malloc(sizeof(AXUIElementRef) * actCount);
-    for (int i = 0; i < actCount; i++) {
-        QString actName = interface->actionText(i, QAccessible::Name);
-        arr[i] = QCFString::toCFStringRef(actName);
+
+    CFMutableArrayRef actions = 0;
+    GetEventParameter(event, kEventParamAccessibleActionNames, typeCFMutableArrayRef, 0,
+                      sizeof(actions), 0, &actions);
+    
+    // Add supported predefined actions.
+    const QList<QAccessible::Action> predefinedActions = supportedPredefinedActions(interface);
+    for (int i = 0; i < predefinedActions.count(); ++i) {
+        const QCFString action = translateAction(predefinedActions.at(i));
+        if (action != QCFString())
+            qt_mac_append_cf_uniq(actions, action);
     }
-    QCFType<CFArrayRef> cfList
-        = CFArrayCreate(0, (const void **)arr, actCount, 0);
-    free(arr);
-    SetEventParameter(event, kEventParamAccessibleActionNames, typeCFTypeRef,
-                        sizeof(cfList), &cfList);
+    
+    // Add user actions
+    const int actionCount = interface->userActionCount();
+    for (int i = 0; i < actionCount; ++i) {
+        const QString actionName = interface->actionText(i, QAccessible::Name);
+        qt_mac_append_cf_uniq(actions, QCFString::toCFStringRef(actionName));
+    }
+    
     return noErr;
 }
 
+/*
+    Handles the perforNamedAction event.
+*/
 static OSStatus performNamedAction(EventHandlerCallRef next_ref, EventRef event, QInterfaceItem *interface)
 {
     Q_UNUSED(next_ref);
-    Q_UNUSED(event);
 
     CFStringRef act;
     GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, 0,
                       sizeof(act), 0, &act);
-    if(CFStringCompare(act, kAXPressAction, 0) == kCFCompareEqualTo) {
-        interface->doAction(QAccessible::Press, QVariantList());
-    } else if(CFStringCompare(act, kAXIncrementAction, 0) == kCFCompareEqualTo) {
-        interface->doAction(QAccessible::Increase, QVariantList());
-    } else if(CFStringCompare(act, kAXDecrementAction, 0) == kCFCompareEqualTo) {
-        interface->doAction(QAccessible::Decrease, QVariantList());
-    } else if(CFStringCompare(act, kAXConfirmAction, 0) == kCFCompareEqualTo) {
-        interface->doAction(QAccessible::Accept, QVariantList());
-    } else if(CFStringCompare(act, kAXPickAction, 0) == kCFCompareEqualTo) {
-        interface->doAction(QAccessible::Select, QVariantList());
-    } else if(CFStringCompare(act, kAXCancelAction, 0) == kCFCompareEqualTo) {
-        interface->doAction(QAccessible::Cancel, QVariantList());
-    } else {
-        bool found_act = false;
-        const int actCount = interface->userActionCount();
-        const QString qAct = QCFString::toQString(act);
-        for(int i = 0; i < actCount; i++) {
-            if(interface->actionText(i, QAccessible::Name) == qAct) {
-                interface->doAction(i, QVariantList());
-                found_act = true;
-                break;
-            }
+    
+    const QAccessible::Action action = translateAction(act);
+    
+    // Perform built-in action
+    if (action != QAccessible::DefaultAction) {
+        interface->doAction(action, QVariantList());
+        return noErr;
+    } 
+    
+    // Search for user-defined actions and perform it if found.
+    const int actCount = interface->userActionCount();
+    const QString qAct = QCFString::toQString(act);
+    for(int i = 0; i < actCount; i++) {
+        if(interface->actionText(i, QAccessible::Name) == qAct) {
+            interface->doAction(i, QVariantList());
+            break;
         }
     }
     return noErr;
