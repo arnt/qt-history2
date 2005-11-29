@@ -1950,6 +1950,10 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
         QBrush oldBrush = d->brush;
         d->brush = Qt::NoBrush;
 
+        bool flat_pen = d->pen.capStyle() == Qt::FlatCap;
+        if (flat_pen)
+            d->basicStroker.setCapStyle(Qt::SquareCap);
+
         const QPointF *end = points + pointCount;
         while (points < end) {
             QPainterPath path;
@@ -1960,6 +1964,9 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
         }
 
         d->brush = oldBrush;
+
+        if (flat_pen)
+            d->basicStroker.setCapStyle(Qt::FlatCap);
 
     } else {
         if (!d->penData.blend)

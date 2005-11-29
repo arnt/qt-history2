@@ -2031,12 +2031,21 @@ void QPainter::drawPoints(const QPointF *points, int pointCount)
             d->engine->drawPoints(&pt, 1);
         }
     } else {
+        QPen pen = d->state->pen;
+        bool flat_pen = pen.capStyle() == Qt::FlatCap;
+        if (flat_pen) {
+            save();
+            pen.setCapStyle(Qt::SquareCap);
+            setPen(pen);
+        }
         QPainterPath path;
         for (int i=0; i<pointCount; ++i) {
             path.moveTo(points[i].x(), points[i].y());
-            path.lineTo(points[i].x(), points[i].y() + 0.001);
+            path.lineTo(points[i].x() + 0.0001, points[i].y());
         }
         d->draw_helper(path, QPainterPrivate::StrokeDraw);
+        if (flat_pen)
+            restore();
     }
 }
 
@@ -2074,16 +2083,21 @@ void QPainter::drawPoints(const QPoint *points, int pointCount)
             d->engine->drawPoints(&pt, 1);
         }
     } else {
-        save();
-        if (d->state->pen.brush().style() != Qt::NoBrush)
-            setBrush(d->state->pen.brush());
-        else
-            setBrush(d->state->pen.color());
+        QPen pen = d->state->pen;
+        bool flat_pen = (pen.capStyle() == Qt::FlatCap);
+        if (flat_pen) {
+            save();
+            pen.setCapStyle(Qt::SquareCap);
+            setPen(pen);
+        }
         QPainterPath path;
-        for (int i=0; i<pointCount; ++i)
-            path.addRect(points[i].x(), points[i].y(), 1, 1);
-        d->draw_helper(path, QPainterPrivate::FillDraw);
-        restore();
+        for (int i=0; i<pointCount; ++i) {
+            path.moveTo(points[i].x(), points[i].y());
+            path.lineTo(points[i].x() + 0.0001, points[i].y());
+        }
+        d->draw_helper(path, QPainterPrivate::StrokeDraw);
+        if (flat_pen)
+            restore();
     }
 }
 
@@ -2180,7 +2194,9 @@ void QPainter::setPen(const QPen &pen)
         if (currentStyle == Qt::NoPen ||
             (d->state->pen.isSolid() && pen.isSolid()
              && d->state->pen.color() == pen.color()
-             && d->state->pen.widthF() == pen.widthF()))
+             && d->state->pen.widthF() == pen.widthF()
+             && d->state->pen.capStyle() == pen.capStyle()
+             && d->state->pen.joinStyle() == pen.joinStyle()))
             return;
     }
 
