@@ -1004,6 +1004,49 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     }
 }
 
+void QX11PaintEngine::drawPoints(const QPoint *points, int pointCount)
+{
+    Q_ASSERT(points);
+    Q_ASSERT(pointCount);
+    Q_D(QX11PaintEngine);
+
+    if (!d->has_pen)
+        return;
+
+    if (d->use_path_fallback) {
+        const QPoint *end = points + pointCount;
+        while (points < end) {
+            QPainterPath path;
+            path.moveTo(*points);
+            path.lineTo(points->x()+.005, points->y());
+            drawPath(path);
+            ++points;
+        }
+        return;
+    }
+
+    static const int BUF_SIZE = 1024;
+    XPoint xPoints[BUF_SIZE];
+    int i = 0, j = 0;
+    while (i < pointCount) {
+        while (i < pointCount && j < BUF_SIZE) {
+            const QPoint &xformed = d->matrix.map(points[i]);
+            int x = xformed.x();
+            int y = xformed.y();
+            if (x >= SHRT_MIN && y >= SHRT_MIN && x < SHRT_MAX && y < SHRT_MAX) {
+                xPoints[j].x = x;
+                xPoints[j].y = y;
+                ++j;
+            }
+            ++i;
+        }
+        if (j)
+            XDrawPoints(d->dpy, d->hd, d->gc, xPoints, j, CoordModeOrigin);
+
+        j = 0;
+    }
+}
+
 void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
     Q_ASSERT(points);
@@ -1022,14 +1065,28 @@ void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
             drawPath(path);
             ++points;
         }
+        return;
     }
 
-    for (int i = 0; i < pointCount; ++i) {
-        QPointF xformed = d->matrix.map(points[i]);
-        int x = qFloor(xformed.x());
-        int y = qFloor(xformed.y());
-        if (x >= SHRT_MIN && y >= SHRT_MIN && x < SHRT_MAX && y < SHRT_MAX)
-            XDrawPoint(d->dpy, d->hd, d->gc, x, y);
+    static const int BUF_SIZE = 1024;
+    XPoint xPoints[BUF_SIZE];
+    int i = 0, j = 0;
+    while (i < pointCount) {
+        while (i < pointCount && j < BUF_SIZE) {
+            const QPointF &xformed = d->matrix.map(points[i]);
+            int x = qFloor(xformed.x());
+            int y = qFloor(xformed.y());
+            if (x >= SHRT_MIN && y >= SHRT_MIN && x < SHRT_MAX && y < SHRT_MAX) {
+                xPoints[j].x = x;
+                xPoints[j].y = y;
+                ++j;
+            }
+            ++i;
+        }
+        if (j)
+            XDrawPoints(d->dpy, d->hd, d->gc, xPoints, j, CoordModeOrigin);
+
+        j = 0;
     }
 }
 

@@ -69,7 +69,7 @@ public:
     void drawRects(const QRect *rects, int rectCount);
     inline void drawRects(const QRectF *rects, int rectCount) { QPaintEngine::drawRects(rects, rectCount); }
 
-    inline void drawPoints(const QPoint *points, int pointCount) { QPaintEngine::drawPoints(points, pointCount); }
+    void drawPoints(const QPoint *points, int pointCount);
     void drawPoints(const QPointF *points, int pointCount);
 
     void drawEllipse(const QRect &r);
