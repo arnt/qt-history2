@@ -311,7 +311,7 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
         QWidget modal_widg(parent, Qt::Sheet);
         QApplicationPrivate::enterModal(&modal_widg);
         while (g_nav_blocking)
-            qApp->processEvents();
+            qApp->processEvents(QEventLoop::WaitForMoreEvents);
         QApplicationPrivate::leaveModal(&modal_widg);
     }
 
@@ -433,7 +433,7 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
         QWidget modal_widg(parent, Qt::Sheet);
         QApplicationPrivate::enterModal(&modal_widg);
         while (g_nav_blocking)
-            qApp->processEvents();
+            qApp->processEvents(QEventLoop::WaitForMoreEvents);
         QApplicationPrivate::leaveModal(&modal_widg);
     }
 
