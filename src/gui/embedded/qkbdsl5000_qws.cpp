@@ -209,7 +209,7 @@ void QWSSL5000KeyboardHandler::doKey(uchar code)
         else if (code == 0x44) { unicode='V'-'@'; scan=Qt::Key_V; } // Paste
         else if (code == 0x52) { unicode='Z'-'@'; scan=Qt::Key_Z; } // Undo
         if (scan) {
-            processKeyEvent(unicode, scan, Qt::ControlButton, !release, false);
+            processKeyEvent(unicode, scan, Qt::ControlModifier, !release, false);
             return;
         }
     }
@@ -297,9 +297,9 @@ void QWSSL5000KeyboardHandler::doKey(uchar code)
         }
 
         modifiers = 0;
-        if (bAlt) modifiers |= Qt::AltButton;
-        if (bCtrl) modifiers |= Qt::ControlButton;
-        if (bShift) modifiers |= Qt::ShiftButton;
+        if (bAlt) modifiers |= Qt::AltModifier;
+        if (bCtrl) modifiers |= Qt::ControlModifier;
+        if (bShift) modifiers |= Qt::ShiftModifier;
 
         // looks wrong -- WWA
         bool repeat = false;
