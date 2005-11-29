@@ -1,7 +1,6 @@
 TEMPLATE	= subdirs
 SUBDIRS		= linguist \
 		  lrelease \
-		  lupdate \
-		  qm2ts
+		  lupdate
 CONFIG += ordered
 

@@ -36,7 +36,7 @@ copyHeader()
 [ -z "$OUTDIR" ] && exit 1
 
 #copy tools
-for a in qmake uic uic3 rcc moc assistant Linguist Designer qt3to4 rccdump lrelease qm2ts lupdate findtr; do
+for a in qmake uic uic3 rcc moc assistant Linguist Designer qt3to4 rccdump lrelease lupdate findtr; do
     EXE=
     if [ -d "${BINDIR}/bin/${a}.app" ]; then
 	mkdir -p "$OUTDIR/Developer/Applications/Qt/"

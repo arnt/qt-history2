@@ -103,9 +103,6 @@
     lrelease. These tools depend on \e qmake project files. You don't
     have to use \e qmake, though.
 
-    A third tool, \c qm2ts, can be used for converting Qt 2.x message
-    files to \c .ts files.
-
     \section1 Qt Project Files
 
     \l lupdate and \l lrelease depend on information in the application's
