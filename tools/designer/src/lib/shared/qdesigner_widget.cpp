@@ -20,7 +20,6 @@
 #include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QBitmap>
-#include <QtGui/QPixmapCache>
 #include <QtGui/QToolButton>
 #include <QtGui/QPainter>
 #include <QtGui/QApplication>
@@ -39,28 +38,32 @@ static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow,
 
     p.fillRect(e->rect(), widget->palette().brush(widget->backgroundRole()));
 
-    QString grid_name;
-    grid_name.sprintf("__qt_designer_grid_%d_%d", formWindow->grid().x(), formWindow->grid().y());
+    p.setPen(widget->palette().dark().color());
+    int width = widget->width();
+    int height = widget->height();
+    int pointCount = qRound((width/float(formWindow->grid().x()))+.5) * qRound((height/float(formWindow->grid().y()))+.5);
+    static const int BUF_SIZE = 4096;
+    QPoint points[BUF_SIZE];
 
-    QBitmap grid;
-    if (!QPixmapCache::find(grid_name, grid)) {
-
-        grid = QBitmap(350 + (350 % formWindow->grid().x()), 350 + (350 % formWindow->grid().y()));
-
-        grid.fill(Qt::color0);
-        QPainter p(&grid);
-        p.setPen(Qt::color1);
-        for (int y = 0; y < grid.width(); y += formWindow->grid().y()) {
-            for (int x = 0; x < grid.height(); x += formWindow->grid().x()) {
-                p.drawPoint(x, y);
+    int x = 0;
+    int y = 0;
+    int i = 0;
+    while (pointCount > 0) {
+        while (i < pointCount && i < BUF_SIZE) {
+            points[i] = QPoint(x, y);
+            ++i;
+            x += formWindow->grid().x();
+            if (x >= width) {
+                x = 0;
+                y += formWindow->grid().y();
+                if (y > height) // probably never reached..
+                    break;
             }
         }
-        p.end();
-        QPixmapCache::insert(grid_name, grid);
+        p.drawPoints(points, i);
+        pointCount -= i;
+        i = 0;
     }
-    p.setPen(widget->palette().foreground().color());
-    p.drawTiledPixmap(0, 0, widget->width(), widget->height(), grid);
-
     if (needFrame) {
         p.setPen(widget->palette().dark().color());
         p.drawRect(widget->rect());
