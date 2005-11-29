@@ -844,17 +844,16 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
         table.frame = textTable;
 
         TableCellIterator it(textTable);
-        foreach (int row, at(tableNodeIdx).children)
-            if (at(row).id == Html_tr)
-                foreach (int cell, at(row).children)
-                    if (at(cell).isTableCell) {
-                        const QTextHtmlParserNode &c = at(cell);
+        foreach (int row, rowNodes)
+            foreach (int cell, at(row).children)
+            if (at(cell).isTableCell) {
+                const QTextHtmlParserNode &c = at(cell);
 
-                        if (c.tableCellColSpan > 1 || c.tableCellRowSpan > 1)
-                            textTable->mergeCells(it.row, it.column, c.tableCellRowSpan, c.tableCellColSpan);
+                if (c.tableCellColSpan > 1 || c.tableCellRowSpan > 1)
+                    textTable->mergeCells(it.row, it.column, c.tableCellRowSpan, c.tableCellColSpan);
 
-                        ++it;
-                    }
+                ++it;
+            }
 
         table.currentCell = TableCellIterator(textTable);
     }
