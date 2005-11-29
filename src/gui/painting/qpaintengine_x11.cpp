@@ -1013,7 +1013,7 @@ void QX11PaintEngine::drawPoints(const QPoint *points, int pointCount)
     if (!d->has_pen)
         return;
 
-    if (d->use_path_fallback) {
+    if (d->cpen.widthF() > .0f || d->use_path_fallback) {
         const QPoint *end = points + pointCount;
         while (points < end) {
             QPainterPath path;
@@ -1056,7 +1056,7 @@ void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
     if (!d->has_pen)
         return;
 
-    if (d->use_path_fallback) {
+    if (d->cpen.widthF() > .0f || d->use_path_fallback) {
         const QPointF *end = points + pointCount;
         while (points < end) {
             QPainterPath path;
