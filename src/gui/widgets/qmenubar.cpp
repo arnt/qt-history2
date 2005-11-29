@@ -677,6 +677,22 @@ QAction *QMenuBar::addSeparator()
 }
 
 /*!
+    This convenience function creates a new separator action, i.e. an
+    action with QAction::isSeparator() returning true. The function inserts
+    the newly created action into this menubar's list of actions before
+    action \a before and returns it.
+
+    \sa QWidget::insertAction(), addSeparator()
+*/
+QAction *QMenuBar::insertSeparator(QAction *before)
+{
+    QAction *action = new QAction(this);
+    action->setSeparator(true);
+    insertAction(before, action);
+    return action;
+}
+
+/*!
   This convenience function inserts \a menu before action \a before
   and returns the menus menuAction().
 

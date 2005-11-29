@@ -49,6 +49,7 @@ public:
 
 
     QAction *addSeparator();
+    QAction *insertSeparator(QAction *before);
 
     QAction *insertMenu(QAction *before, QMenu *menu);
 
