@@ -5537,7 +5537,6 @@ QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy(const QWidget *w)
     }
     return ret;
 }
-
 /*! \reimp */
 void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                               const QWidget *w) const
@@ -5589,9 +5588,15 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         break;
     case PE_IndicatorToolBarSeparator: {
             QPainterPath path;
-            int xpoint = opt->rect.center().x();
-            path.moveTo(xpoint + 0.5, opt->rect.top());
-            path.lineTo(xpoint + 0.5, opt->rect.bottom());
+            if (opt->state & State_Horizontal) {
+                int xpoint = opt->rect.center().x();
+                path.moveTo(xpoint + 0.5, opt->rect.top());
+                path.lineTo(xpoint + 0.5, opt->rect.bottom());
+            } else {
+                int ypoint = opt->rect.center().y();
+                path.moveTo(opt->rect.left(), ypoint + 0.5);
+                path.lineTo(opt->rect.right(), ypoint + 0.5);
+            }
             QPainterPathStroker theStroker;
             theStroker.setCapStyle(Qt::FlatCap);
             theStroker.setDashPattern(QVector<qreal>() << 1 << 2);
