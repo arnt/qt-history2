@@ -984,9 +984,13 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         // search for the element in the child nodes first
         int row = -1;
         for (int j = parent->children.count() - 1; j >= 0; --j) {
-            QString childFileName = parent->children.at(j).info.fileName();
+            const QFileInfo& fi = parent->children.at(j).info;
+            QString childFileName;
 #ifdef Q_OS_WIN
+            childFileName = idx.isValid() ? fi.fileName() : fi.absoluteFilePath();
             childFileName = childFileName.toLower();
+#else
+            childFileName = fi.fileName();
 #endif
             if (childFileName == element) {
                 row = j;
@@ -1145,7 +1149,7 @@ QString QDirModel::filePath(const QModelIndex &index) const
     if (index.isValid()) {
         QFileInfo fi = fileInfo(index);
         if (d->resolveSymlinks && fi.isSymLink())
-            return QDir(fi.filePath()).canonicalPath();
+            return QFileInfo(fi.filePath()).readLink();
         return QDir::cleanPath(fi.absoluteFilePath());
     }
     return QString(); // root path
@@ -1202,7 +1206,7 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 
 void QDirModelPrivate::init()
 {
-    filters = QDir::TypeMask;
+    filters = QDir::AllEntries;
     sort = QDir::Name;
     nameFilters << QLatin1String("*");
     root.parent = 0;
@@ -1329,12 +1333,7 @@ QFileInfoList QDirModelPrivate::entryInfoList(const QString &path) const
 QStringList QDirModelPrivate::entryList(const QString &path) const
 {
     const QDir dir(path);
-    QStringList sl = dir.entryList(nameFilters, filters, sort);
-    for (int i = 0; i < sl.count(); ++i) {
-        QString fn = sl.at(i);
-        if (fn == QLatin1String(".") || fn == QLatin1String(".."))
-            sl.removeAt(i--);
-    }
+    QStringList sl = dir.entryList(nameFilters, filters | QDir::NoDotAndDotDot, sort);
     return sl;
 }
 
