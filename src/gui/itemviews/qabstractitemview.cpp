@@ -1014,16 +1014,18 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
             emit entered(index);
 #ifndef QT_NO_STATUSTIP
             QString statustip = model()->data(index, Qt::StatusTipRole).toString();
-            if (!statustip.isEmpty()){
+            if (parent() && !statustip.isEmpty()) {
                 QStatusTipEvent tip(statustip);
                 QApplication::sendEvent(parent(), &tip);
             }
 #endif
         } else {
 #ifndef QT_NO_STATUSTIP
-            QString emptyString;
-            QStatusTipEvent tip(emptyString);
-            QApplication::sendEvent(parent(), &tip);
+            if (parent()) {
+                QString emptyString;
+                QStatusTipEvent tip(emptyString);
+                QApplication::sendEvent(parent(), &tip);
+            }
 #endif
             emit viewportEntered();
         }
