@@ -1271,11 +1271,15 @@ extern Q_GUI_EXPORT bool qt_win_ignoreNextMouseReleaseEvent;
 
 HRESULT WINAPI QAxClientSite::EnableModeless(BOOL fEnable)
 {
-    EnableWindow(host->winId(), fEnable);
-    if (!fEnable)
-        QApplicationPrivate::enterModal(host);
-    else
-        QApplicationPrivate::leaveModal(host);
+    EnableWindow(host->window()->winId(), fEnable);
+
+    if (!fEnable) {
+        if (!QApplicationPrivate::isBlockedByModal(host))
+            QApplicationPrivate::enterModal(host);
+    } else {
+        if (QApplicationPrivate::isBlockedByModal(host))
+            QApplicationPrivate::leaveModal(host);
+    }
     qt_win_ignoreNextMouseReleaseEvent = false;
 
     return S_OK;

@@ -2062,6 +2062,10 @@ bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
                 return false;
             w = w->parentWidget();
         }
+#ifdef Q_WS_WIN
+        if (IsChild(modalWidget->winId(), widget->winId()))
+            return false;
+#endif
 
         Qt::WindowModality windowModality = modalWidget->windowModality();
         if (windowModality == Qt::NonModal) {
