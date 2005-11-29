@@ -72,12 +72,12 @@ int main( int argc, char **argv )
                         context = "@default";
                     metator.insert( MetaTranslatorMessage(context,
                                     (*it).sourceText(), (*it).comment(),
-                                    (*it).translation(), false,
+                                    QString(), -1, (*it).translation(), false,
                                     MetaTranslatorMessage::Finished) );
                 }
             }
 
-            if ( !metator.save(g) ) {
+            if ( !metator.save(g, false) ) {
                 fprintf( stderr,
                          "qm2ts warning: For some reason, I cannot save '%s'\n",
                          g.toLatin1().constData() );
