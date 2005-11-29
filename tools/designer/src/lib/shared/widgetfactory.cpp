@@ -336,7 +336,7 @@ void WidgetFactory::initialize(QObject *object) const
 
         widget->setAttribute(Qt::WA_TransparentForMouseEvents, false);
 
-        if (!qobject_cast<QDesignerWidget*>(widget))
+        if (!(qobject_cast<QDesignerWidget*>(widget) || qobject_cast<QDesignerDialog*>(widget)))
             widget->setAttribute(Qt::WA_TintedBackground);
     }
 
