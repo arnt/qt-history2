@@ -256,7 +256,7 @@ QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, in
             val = d->headers.value(section).value(Qt::EditRole);
         if (val.isValid())
             return val;
-        if (d->rec.count() > section)
+        if (role == Qt::DisplayRole && d->rec.count() > section)
             return d->rec.fieldName(section);
     }
     return QAbstractItemModel::headerData(section, orientation, role);
