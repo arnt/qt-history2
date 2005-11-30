@@ -1731,7 +1731,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                     // then we must not do that again because pageBreakInsideTable uses td->rowPositions
                     // which contains already the spacings
                     if (table && !static_cast<QTextTableData *>(data(table))->rowPageBreaks.isEmpty()) {
-                        // layoutStruct->y is already correct, due to the correct page height,
+                        // layoutStruct->y is already correct, due to the correct table height,
                         // but pageBottom needs to be updated, by the newPage() call
                         qreal tmp = layoutStruct->y;
                         layoutStruct->newPage();
