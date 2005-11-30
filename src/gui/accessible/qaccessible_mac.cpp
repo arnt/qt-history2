@@ -254,6 +254,12 @@ public:
     
     inline int userActionCount()
     { return interface->userActionCount(child); }
+    
+    QString className() const 
+    { return interface->object()->metaObject()->className(); }
+
+    bool isHIView() const
+    { return (child == 0); }
 
     QAccessibleInterface *interface;  // The interface that handles this item.
     int child;                        // child id, positive for child items that share an interface with its parent.
@@ -269,6 +275,9 @@ QInterfaceItem::~QInterfaceItem()
 QInterfaceItem *QInterfaceItem::navigate(RelationFlag relation, int entry) const
 { 
     QAccessibleInterface *child_iface = 0;
+    if (relation == QAccessible::Ancestor && entry != 0)
+        return new QInterfaceItem(interface, 0);
+    
     const int status = interface->navigate(relation, entry, &child_iface);
     if (status == -1)
         return 0; // not found;
@@ -766,12 +775,14 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem *interface, 
     return noErr;
 }
 
-static void mapChildrenForInterface(QInterfaceItem * const interface)
+static QList<AXUIElementRef> mapChildrenForInterface(QInterfaceItem * const interface)
 {
+    QList<AXUIElementRef> children;
     const int children_count = interface->childCount();
     for (int i = 0; i < children_count; ++i) {
-        lookupCreateChild(interface, i + 1);
+        children.append(lookupCreateChild(interface, i + 1));
     }    
+    return children;
 }
 
 static void handleStringAttribute(EventRef event, QAccessible::Text text, QInterfaceItem *interface)
@@ -788,6 +799,73 @@ static void handleStringAttribute(EventRef event, QAccessible::Text text, QInter
     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(cfstr), &cfstr);
 }
 
+/*
+    Handles the parent attribute for a interface.
+    There are basically three cases here:
+    1. interface is a HIView and has only HIView children.
+    2. interface is a HIView but has children that is not a HIView
+    3. interface is not a HIView.
+*/
+static OSStatus handleChildrenAttribute(EventHandlerCallRef next_ref, EventRef event, QInterfaceItem *interface)
+{
+    const QList<AXUIElementRef> children = mapChildrenForInterface(interface);
+    const int childCount = children.count();
+        
+    OSStatus err = eventNotHandledErr;
+    if (interface->isHIView())
+        err = CallNextEventHandler(next_ref, event);
+    
+    CFMutableArrayRef array = 0;
+    int arraySize = 0;
+    if (err == noErr) {
+        CFTypeRef obj = 0;
+        err = GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, NULL , sizeof(obj), NULL, &obj);
+        if (err == noErr && obj != 0) {
+            array = (CFMutableArrayRef)obj;
+            arraySize = CFArrayGetCount(array);
+        }
+    }
+    
+    if (array == 0)
+        return err;
+    
+    if (arraySize > 0 || childCount == 0)
+        return noErr;
+    
+    for (int i = 0; i < childCount; ++i)  {
+        qt_mac_append_cf_uniq(array, children.at(i));
+    }
+
+    return noErr;
+}
+
+static OSStatus handleParentAttribute(EventHandlerCallRef next_ref, EventRef event, QInterfaceItem *interface)
+{
+//    qDebug() << "handle parent for " << interface->className();
+    OSStatus err = eventNotHandledErr;
+    if (interface->isHIView()) {
+         err = CallNextEventHandler(next_ref, event);
+    }
+    if (err == noErr)
+        return err;
+    
+    QInterfaceItem *const parentInterface  = interface->navigate(QAccessible::Ancestor, 1);
+    const AXUIElementRef parentElement = accessibleHierarchyManager()->lookup(parentInterface);
+    // ### leak
+    // delete parentInterface;
+    
+    if (parentElement == 0)
+        return eventNotHandledErr;
+
+    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, sizeof(parentElement), &parentElement);
+    return noErr;
+}
+
+static OSStatus handleWindowAttribute(EventHandlerCallRef next_ref, EventRef event, QInterfaceItem *const interface)
+{
+    return CallNextEventHandler(next_ref, event);
+}
+
 static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, QInterfaceItem *interface)
 {
     CFStringRef var;
@@ -795,16 +873,15 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
                               sizeof(var), 0, &var);
 
     if (CFStringCompare(var, kAXChildrenAttribute, 0) == kCFCompareEqualTo) {
-        mapChildrenForInterface(interface);
-        return CallNextEventHandler(next_ref, event);
+        return handleChildrenAttribute(next_ref, event, interface);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     } else if(CFStringCompare(var, kAXTopLevelUIElementAttribute, 0) == kCFCompareEqualTo) {
         return CallNextEventHandler(next_ref, event);
 #endif
     } else if(CFStringCompare(var, kAXWindowAttribute, 0) == kCFCompareEqualTo) {
-        return CallNextEventHandler(next_ref, event);    
+        return handleWindowAttribute(next_ref, event, interface);    
     } else if(CFStringCompare(var, kAXParentAttribute, 0) == kCFCompareEqualTo) {
-        return CallNextEventHandler(next_ref, event);
+        return handleParentAttribute(next_ref, event, interface);
     } else if (CFStringCompare(var, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
         return CallNextEventHandler(next_ref, event);
     } else if (CFStringCompare(var, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
