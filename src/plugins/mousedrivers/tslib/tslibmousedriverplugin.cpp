@@ -59,7 +59,7 @@ QWSMouseHandler* TSLibMouseDriverPlugin::create( const QString& driver)
 
 QStringList TSLibMouseDriverPlugin::keys() const
 {
-    return QStringList() << "TSLib";
+    return QStringList() << "tslib";
 }
 
 Q_EXPORT_STATIC_PLUGIN(TSLibMouseDriverPlugin)
