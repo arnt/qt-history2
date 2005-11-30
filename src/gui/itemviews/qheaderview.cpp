@@ -1991,6 +1991,9 @@ QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) c
     int logicalTop = logicalIndex(top);
     int logicalBottom = logicalIndex(bottom);
 
+    if (logicalTop == -1 || logicalBottom == -1)
+        return QRect();
+
     int topPos = sectionViewportPosition(logicalTop);
     int bottomPos = sectionViewportPosition(logicalBottom) + sectionSize(logicalBottom);
 
