@@ -1391,29 +1391,29 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 } else {
                     // outer border
                     buttonPainter.setPen(borderColor);
-                    buttonPainter.drawLine(pixmapRect.left() + 2, pixmapRect.top(),
-                                           pixmapRect.right() - 2, pixmapRect.top());
-                    buttonPainter.drawLine(pixmapRect.left() + 2, pixmapRect.bottom(),
-                                           pixmapRect.right() - 2, pixmapRect.bottom());
-                    buttonPainter.drawLine(pixmapRect.left(), pixmapRect.top() + 2,
-                                           pixmapRect.left(), pixmapRect.bottom() - 2);
-                    buttonPainter.drawLine(pixmapRect.right(), pixmapRect.top() + 2,
-                                           pixmapRect.right(), pixmapRect.bottom() - 2);
-                    buttonPainter.drawPoint(pixmapRect.left() + 1, pixmapRect.top() + 1);
-                    buttonPainter.drawPoint(pixmapRect.right() - 1, pixmapRect.top() + 1);
-                    buttonPainter.drawPoint(pixmapRect.left() + 1, pixmapRect.bottom() - 1);
-                    buttonPainter.drawPoint(pixmapRect.right() - 1, pixmapRect.bottom() - 1);
+                    buttonPainter.drawLine(pixmapRect.left() + 3, pixmapRect.top() + 1,
+                                           pixmapRect.right() - 3, pixmapRect.top() + 1);
+                    buttonPainter.drawLine(pixmapRect.left() + 3, pixmapRect.bottom() - 1,
+                                           pixmapRect.right() - 3, pixmapRect.bottom() - 1);
+                    buttonPainter.drawLine(pixmapRect.left() + 1, pixmapRect.top() + 3,
+                                           pixmapRect.left() + 1, pixmapRect.bottom() - 3);
+                    buttonPainter.drawLine(pixmapRect.right() - 1, pixmapRect.top() + 3,
+                                           pixmapRect.right() - 1, pixmapRect.bottom() - 3);
+                    buttonPainter.drawPoint(pixmapRect.left() + 2, pixmapRect.top() + 2);
+                    buttonPainter.drawPoint(pixmapRect.right() - 2, pixmapRect.top() + 2);
+                    buttonPainter.drawPoint(pixmapRect.left() + 2, pixmapRect.bottom() - 2);
+                    buttonPainter.drawPoint(pixmapRect.right() - 2, pixmapRect.bottom() - 2);
 
                     // "antialiased" corners
                     buttonPainter.setPen(alphaCornerColor);
-                    buttonPainter.drawPoint(pixmapRect.left() + 1, pixmapRect.top());
-                    buttonPainter.drawPoint(pixmapRect.left() + 1, pixmapRect.bottom());
-                    buttonPainter.drawPoint(pixmapRect.right() - 1, pixmapRect.top());
-                    buttonPainter.drawPoint(pixmapRect.right() - 1, pixmapRect.bottom());
-                    buttonPainter.drawPoint(pixmapRect.left(), pixmapRect.top() + 1);
-                    buttonPainter.drawPoint(pixmapRect.left(), pixmapRect.bottom() - 1);
-                    buttonPainter.drawPoint(pixmapRect.right(), pixmapRect.top() + 1);
-                    buttonPainter.drawPoint(pixmapRect.right(), pixmapRect.bottom() - 1);
+                    buttonPainter.drawPoint(pixmapRect.left() + 2, pixmapRect.top() + 1);
+                    buttonPainter.drawPoint(pixmapRect.left() + 2, pixmapRect.bottom() - 1);
+                    buttonPainter.drawPoint(pixmapRect.right() - 2, pixmapRect.top() + 1);
+                    buttonPainter.drawPoint(pixmapRect.right() - 2, pixmapRect.bottom() - 1);
+                    buttonPainter.drawPoint(pixmapRect.left() + 1, pixmapRect.top() + 2);
+                    buttonPainter.drawPoint(pixmapRect.left() + 1, pixmapRect.bottom() - 2);
+                    buttonPainter.drawPoint(pixmapRect.right() - 1, pixmapRect.top() + 2);
+                    buttonPainter.drawPoint(pixmapRect.right() - 1, pixmapRect.bottom() - 2);
                 }
 
                 // inner border, top and bottom line
@@ -1426,14 +1426,9 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                         buttonPainter.setPen(option->palette.button().color().light(103));
                     }
                 }
-                if (isDefault) {
-                    buttonPainter.drawLine(pixmapRect.left() + 3, pixmapRect.top() + 2,
-                                           pixmapRect.right() - 3, pixmapRect.top() + 2);
-                } else {
-                    buttonPainter.drawLine(pixmapRect.left() + 2, pixmapRect.top() + 1,
-                                           pixmapRect.right() - 2, pixmapRect.top() + 1);
-                }
-
+                buttonPainter.drawLine(pixmapRect.left() + 3, pixmapRect.top() + 2,
+                                       pixmapRect.right() - 3, pixmapRect.top() + 2);
+                
                 if (down) {
                     buttonPainter.setPen(option->palette.button().color().light(96));
                 } else {
@@ -1443,14 +1438,9 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                         buttonPainter.setPen(option->palette.button().color().light(91));
                     }
                 }
-                if (isDefault) {
-                    buttonPainter.drawLine(pixmapRect.left() + 3, pixmapRect.bottom() - 2,
-                                           pixmapRect.right() - 3, pixmapRect.bottom() - 2);
-                } else {
-                    buttonPainter.drawLine(pixmapRect.left() + 2, pixmapRect.bottom() - 1,
-                                           pixmapRect.right() - 2, pixmapRect.bottom() - 1);
-                }
-
+                buttonPainter.drawLine(pixmapRect.left() + 3, pixmapRect.bottom() - 2,
+                                        pixmapRect.right() - 3, pixmapRect.bottom() - 2);
+            
                 QLinearGradient leftGrad(QPoint(pixmapRect.left() + 1, pixmapRect.top() + 2),
                                          QPoint(pixmapRect.left() + 1, pixmapRect.bottom() - 2));
                 QLinearGradient rightGrad(QPoint(pixmapRect.left() + 1, pixmapRect.top() + 2),
@@ -1475,38 +1465,21 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                     rightGrad.setColorAt(1, option->palette.button().color().light(90));
                 }
 
-                if (isDefault) {
-                    buttonPainter.setPen(QPen(QBrush(leftGrad), 1));
-                    buttonPainter.drawLine(pixmapRect.left() + 2, pixmapRect.top() + 3,
-                                           pixmapRect.left() + 2, pixmapRect.bottom() - 3);
-                    buttonPainter.setPen(QPen(QBrush(rightGrad), 1));
-                    buttonPainter.drawLine(pixmapRect.right() - 2, pixmapRect.top() + 3,
-                                           pixmapRect.right() - 2, pixmapRect.bottom() - 3);
-                } else {
-                    buttonPainter.setPen(QPen(QBrush(leftGrad), 1));
-                    buttonPainter.drawLine(pixmapRect.left() + 1, pixmapRect.top() + 2,
-                                           pixmapRect.left() + 1, pixmapRect.bottom() - 2);
-                    buttonPainter.setPen(QPen(QBrush(rightGrad), 1));
-                    buttonPainter.drawLine(pixmapRect.right() - 1, pixmapRect.top() + 2,
-                                           pixmapRect.right() - 1, pixmapRect.bottom() - 2);
-                }
+                buttonPainter.setPen(QPen(QBrush(leftGrad), 1));
+                buttonPainter.drawLine(pixmapRect.left() + 2, pixmapRect.top() + 3,
+                                        pixmapRect.left() + 2, pixmapRect.bottom() - 3);
+                buttonPainter.setPen(QPen(QBrush(rightGrad), 1));
+                buttonPainter.drawLine(pixmapRect.right() - 2, pixmapRect.top() + 3,
+                                       pixmapRect.right() - 2, pixmapRect.bottom() - 3);
 
                 if (!down && hover) {
-                    if (isDefault) {
-                        buttonPainter.setPen(highlightedLightInnerBorderColor);
-                        buttonPainter.drawLine(pixmapRect.left() + 2, pixmapRect.top() + 2,
-                                               pixmapRect.right() - 2, pixmapRect.top() + 2);
-                        buttonPainter.setPen(highlightedLightInnerBorderColor.dark(105));
-                        buttonPainter.drawLine(pixmapRect.left() + 2, pixmapRect.bottom() - 2,
-                                               pixmapRect.right() - 2, pixmapRect.bottom() - 2);
-                    } else {
-                        buttonPainter.setPen(highlightedLightInnerBorderColor);
-                        buttonPainter.drawLine(pixmapRect.left() + 1, pixmapRect.top() + 2,
-                                               pixmapRect.right() - 1, pixmapRect.top() + 2);
-                        buttonPainter.setPen(highlightedLightInnerBorderColor.dark(105));
-                        buttonPainter.drawLine(pixmapRect.left() + 1, pixmapRect.bottom() - 2,
-                                               pixmapRect.right() - 1, pixmapRect.bottom() - 2);
-                    }
+                    buttonPainter.setPen(highlightedLightInnerBorderColor);
+                    buttonPainter.drawLine(pixmapRect.left() + 2, pixmapRect.top() + 3,
+                                            pixmapRect.right() - 2, pixmapRect.top() + 3);
+                    buttonPainter.setPen(highlightedLightInnerBorderColor.dark(105));
+                    buttonPainter.drawLine(pixmapRect.left() + 2, pixmapRect.bottom() - 3,
+                                            pixmapRect.right() - 2, pixmapRect.bottom() - 3);
+                
                 }
                 buttonPainter.end();
                 if (UsePixmapCache)
@@ -4521,6 +4494,7 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
     switch (type) {
     case CT_PushButton:
         newSize.rwidth() += 10;
+        newSize += QSize(2, 2); //ensure room for default rect
         break;
     case CT_RadioButton:
         ++newSize.rheight();
