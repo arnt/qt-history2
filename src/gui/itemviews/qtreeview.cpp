@@ -195,11 +195,11 @@ void QTreeView::setHeader(QHeaderView *header)
         d->header->setModel(model());
 
     connect(d->header, SIGNAL(sectionResized(int,int,int)),
-            this, SLOT(columnResized(int,int,int)),Qt::QueuedConnection);
+            this, SLOT(columnResized(int,int,int)));
     connect(d->header, SIGNAL(sectionMoved(int,int,int)),
-            this, SLOT(columnMoved()),Qt::QueuedConnection);
+            this, SLOT(columnMoved()));
     connect(d->header, SIGNAL(sectionCountChanged(int,int)),
-            this, SLOT(columnCountChanged(int,int)),Qt::QueuedConnection);
+            this, SLOT(columnCountChanged(int,int)));
     connect(d->header, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeColumnToContents(int)));
     connect(d->header, SIGNAL(sectionClicked(int)),
@@ -668,6 +668,33 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
         int a = (-x * horizontalSteps) / (w ? w : 1);
         horizontalScrollBar()->setValue(++c * horizontalSteps + a);
     }
+}
+
+/*!
+  \reimp
+*/
+void QTreeView::timerEvent(QTimerEvent *event)
+{
+    Q_D(QTreeView);
+    if (event->timerId() == d->columnResizeTimerID) {
+        updateGeometries();
+        killTimer(d->columnResizeTimerID);
+        d->columnResizeTimerID = 0;
+        QRect rect;
+        int viewportHeight = d->viewport->height();
+        int viewportWidth = d->viewport->width();
+        for (int i = d->columnsToUpdate.size() - 1; i >= 0; --i) {
+            int column = d->columnsToUpdate.at(i);
+            int x = columnViewportPosition(column);
+            if (isRightToLeft())
+                rect |= QRect(0, 0, x + columnWidth(column), viewportHeight);
+            else
+                rect |= QRect(x, 0, viewportWidth - x, viewportHeight);
+        }
+        d->viewport->update(rect.normalized());
+        d->columnsToUpdate.clear();
+    }
+    QAbstractItemView::timerEvent(event);
 }
 
 /*!
@@ -1238,6 +1265,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
             }
         }
         int section = d->header->logicalIndex(visual);
+        Q_ASSERT(section != -1);
         int left = (value % steps) * d->header->sectionSize(section);
         int offset = (left / steps) + d->header->sectionPosition(section);
         if (isRightToLeft())
@@ -1433,17 +1461,9 @@ void QTreeView::selectAll()
 void QTreeView::columnResized(int column, int /* oldSize */, int /* newSize */)
 {
     Q_D(QTreeView);
-
-    if (column < 0 || column >= d->header->count())
-        return;
-    int x = columnViewportPosition(column);
-    QRect rect;
-    if (isRightToLeft())
-        rect.setRect(0, 0, x + d->header->sectionSize(column), d->viewport->height());
-    else
-        rect.setRect(x, 0, d->viewport->width() - x, d->viewport->height());
-    d->viewport->update(rect.normalized());
-    updateGeometries();
+    d->columnsToUpdate.append(column);
+    if (d->columnResizeTimerID == 0)
+        d->columnResizeTimerID = startTimer(0);
 }
 
 /*!

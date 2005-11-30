@@ -113,6 +113,7 @@ protected:
     QRegion visualRegionForSelection(const QItemSelection &selection) const;
     QModelIndexList selectedIndexes() const;
 
+    void timerEvent(QTimerEvent *event);
     void paintEvent(QPaintEvent *event);
     virtual void drawRow(QPainter *painter,
                          const QStyleOptionViewItem &options,

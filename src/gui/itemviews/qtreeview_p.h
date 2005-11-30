@@ -47,7 +47,9 @@ public:
     QTreeViewPrivate()
         : QAbstractItemViewPrivate(),
           header(0), indent(20), itemHeight(-1),
-          uniformRowHeights(false), rootDecoration(true), itemsExpandable(true), reexpand(-1) { }
+          uniformRowHeights(false), rootDecoration(true),
+          itemsExpandable(true), reexpand(-1),
+          columnResizeTimerID(0) {}
 
     ~QTreeViewPrivate() {}
     void initialize();
@@ -115,6 +117,10 @@ public:
 
     // used for hidden items
     int hiddenItemsCount;
+
+    // used for updating resized columns
+    int columnResizeTimerID;
+    QList<int> columnsToUpdate;
 };
 
 #endif // QT_NO_TREEVIEW
