@@ -22,6 +22,9 @@
         ./configure
 
     Type "./configure -help" to get a list of all available options.
+    Note that you will need to specify -universal if you want to
+    build universal binaries, and also supply a path to the -sdk
+    option if your development machine has a PowerPC CPU.
 
     To create the library and compile all the demos, examples, tools,
     and tutorials, type:

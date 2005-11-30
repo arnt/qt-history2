@@ -37,6 +37,8 @@ Qt library
 
 - Support for OLE verbs and MIME data handling in ActiveQt.
 
+- Support for universal binaries on Mac OS X.
+
 Qt Designer
 -----------
 
