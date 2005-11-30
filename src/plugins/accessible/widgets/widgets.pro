@@ -1,5 +1,6 @@
 TARGET  = qtaccessiblewidgets
 include(../../qpluginbase.pri)
+include (../qaccessiblebase.pri)
 
 DESTDIR  = $$QT_BUILD_TREE/plugins/accessible
 VERSION  = 1.0.0
