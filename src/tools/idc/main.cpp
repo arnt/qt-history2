@@ -203,7 +203,7 @@ int main(int argc, char **argv)
             tlbfile = argv[i];
             tlbfile = tlbfile.trimmed().toLower();            
         } else if (p == "/v" || p == "-v") {
-            fprintf(stdout, "Qt interface definition compiler version 1.0\n");
+            fprintf(stdout, "Qt Interface Definition Compiler version 1.0\n");
             return 0;
         } else if (p == "/regserver" || p == "-regserver") {
             if (!registerServer(input)) {
