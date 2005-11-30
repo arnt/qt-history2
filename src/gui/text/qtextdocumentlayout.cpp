@@ -109,6 +109,7 @@ public:
     QVector<qreal> rowPositions;
     // rows that appear at the top of a page after a page break
     QVector<int> rowPageBreaks;
+    QVector<qreal> rowPositionsBeforePageBreak;
 
     inline qreal cellWidth(int column, int colspan) const
     { return columnPositions.at(column + colspan - 1) + widths.at(column + colspan - 1)
@@ -1443,6 +1444,8 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
             td->maximumWidth += td->maxWidths.at(i) + td->border + cellSpacing + td->border;
     td->maximumWidth += margin - td->border;
 
+    td->rowPositionsBeforePageBreak = td->rowPositions;
+
     td->updateSize();
     td->sizeDirty = false;
 }
@@ -1723,22 +1726,24 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                 layoutStruct->y += cd->size.height();
                 cd->layoutDirty = false;
 
+                if (table) {
+                    QTextTableData *td = static_cast<QTextTableData *>(data(table));
+                    // if the table was previously broken across a page boundary
+                    // (due to lazy layouting) then we need to reset the row positions
+                    // and the table height (from the row positions) and call
+                    // pageBreakInsideTable again.
+                    if (!td->rowPageBreaks.isEmpty()) {
+                        td->rowPageBreaks.clear();
+                        td->rowPositions = td->rowPositionsBeforePageBreak;
+                        td->updateSize();
+                    }
+                }
+
                 if (inRootFrame
                     && cd->position.y() + cd->size.height() > layoutStruct->pageBottom
                    ) {
 
-                    // if the frame is a table and it was previously broken for paged layout
-                    // by an incremental layout run (indicated by a non-empty rowPageBreaks array)
-                    // then we must not do that again because pageBreakInsideTable uses td->rowPositions
-                    // which contains already the spacings
-                    if (table && !static_cast<QTextTableData *>(data(table))->rowPageBreaks.isEmpty()) {
-                        // layoutStruct->y is already correct, due to the correct table height,
-                        // but pageBottom needs to be updated
-                        qreal tmp = layoutStruct->y;
-                        while (layoutStruct->pageBottom < tmp)
-                            layoutStruct->newPage();
-                        layoutStruct->y = tmp;
-                    } else if (table && cd->size.height() > layoutStruct->pageHeight / 2) {
+                    if (table && cd->size.height() > layoutStruct->pageHeight / 2) {
                         pageBreakInsideTable(table, layoutStruct);
                     } else {
                         layoutStruct->newPage();
@@ -1996,7 +2001,7 @@ void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, QLayout
     QTextTableData *td = static_cast<QTextTableData *>(data(table));
     const int rows = table->rows();
     Q_ASSERT(rows > 0);
-    qreal origY = layoutStruct->y - td->size.height();
+    qreal origY = td->position.y();
     // y positions relative to top of table, as rowPositions is relative, too
     qreal pageBottom = layoutStruct->pageBottom - td->position.y();
     // distance from cell content boundary (top or bottom) to end of table (top or bottom)
