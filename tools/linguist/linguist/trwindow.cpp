@@ -1525,6 +1525,7 @@ void TrWindow::setupToolBars()
     tbMenu->addAction(filet->toggleViewAction());
 
     QToolBar *editt = new QToolBar(this);
+    editt->setEnabled(false);
     editt->setObjectName("EditToolbar");
     editt->setWindowTitle(tr("Edit"));
     this->addToolBar(editt);
@@ -1543,6 +1544,7 @@ void TrWindow::setupToolBars()
     tbMenu->addAction(validationt->toggleViewAction());
 
     QToolBar *helpt = new QToolBar(this);
+    helpt->setEnabled(false);
     helpt->setObjectName("HelpToolbar");
     helpt->setWindowTitle(tr("Help"));
 	this->addToolBar(helpt);
