@@ -239,21 +239,21 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     opt.init(q);
     bool down = q->isDown();
     bool checked = q->isChecked();
+
 #ifndef QT_NO_TOOLBAR
-    if (q->parentWidget()
-        && (qobject_cast<const QToolBar *>(q->parentWidget())
+    if (q->parentWidget()) {
 #ifdef QT3_SUPPORT
-            || q->parentWidget()->inherits("Q3ToolBar")
+        if (q->parentWidget()->inherits("Q3ToolBar")) {
+            int iconSize = q->style()->pixelMetric(QStyle::PM_ToolBarIconSize, &opt, q);
+            opt.iconSize = QSize(iconSize, iconSize);
+        } else
 #endif
-            )
-        ) {
-        int iconSize = q->style()->pixelMetric(QStyle::PM_ToolBarIconSize, &opt, q);
-        opt.iconSize = QSize(iconSize, iconSize);
-    } else
-#endif // QT_NO_TOOLBAR
-    {
-        opt.iconSize = q->iconSize();
+            if (QToolBar *toolBar = qobject_cast<QToolBar *>(q->parentWidget())) {
+                opt.iconSize = toolBar->iconSize();
+            }
     }
+#endif // QT_NO_TOOLBAR
+
     opt.text = text;
     opt.icon = icon;
     opt.arrowType = arrowType;
