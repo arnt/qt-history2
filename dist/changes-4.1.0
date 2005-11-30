@@ -547,7 +547,8 @@ X11:
 
 Mac OS X:
 
-- Improved support for the VoiceOver accessibility tool in Mac OS 10.4
+- Added support for universal binaries
+- Improved support for the VoiceOver accessibility tool in Mac OS X 10.4
   and later
 
 
