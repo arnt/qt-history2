@@ -1,2 +1,2 @@
 CONFIG -= incremental_off
-QMAKE_LFLAGS += /incremental:yes
+QMAKE_LFLAGS_DEBUG += /incremental:yes
