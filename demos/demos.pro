@@ -12,7 +12,7 @@ SUBDIRS     = \
         spreadsheet \
         textedit 
 
-!contains(QT_EDITION, Console):SUBDIRS += arthurplugin
+!contains(QT_EDITION, Console):!cross_compile:SUBDIRS += arthurplugin
 
 CONFIG += ordered
 
