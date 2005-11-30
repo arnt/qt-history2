@@ -41,7 +41,7 @@ public:
     quint32 size : 31;
 };
 
-class Q_GUI_EXPORT QFragmentMapData
+class QFragmentMapData
 {
     enum Color { Red, Black };
 public:

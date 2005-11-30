@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qtextdocumentlayout_p.h"
+#include "qtextdocument_p.h"
 #include "qtextimagehandler_p.h"
 #include "qtexttable.h"
 #include "qtextlist.h"

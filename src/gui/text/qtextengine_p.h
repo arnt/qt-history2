@@ -35,8 +35,10 @@
 #include "QtGui/qpaintengine.h"
 #include "QtGui/qtextobject.h"
 #include "QtGui/qtextoption.h"
-#include "private/qtextdocument_p.h"
 #include "QtCore/qset.h"
+#ifndef QT_BUILD_COMPAT_LIB
+#include "private/qtextdocument_p.h"
+#endif
 
 #include <stdlib.h>
 #ifndef Q_OS_TEMP
@@ -482,11 +484,19 @@ public:
 
     int findItem(int strPos) const;
     inline QTextFormatCollection *formats() const {
+#ifdef QT_BUILD_COMPAT_LIB
+        return 0; // Compat should never reference this symbol
+#else
         return block.docHandle()->formatCollection();
+#endif
     }
     QTextCharFormat format(const QScriptItem *si) const;
     inline QAbstractTextDocumentLayout *docLayout() const {
+#ifdef QT_BUILD_COMPAT_LIB
+        return 0; // Compat should never reference this symbol
+#else
         return block.docHandle()->document()->documentLayout();
+#endif
     }
     int formatIndex(const QScriptItem *si) const;
 
