@@ -2009,9 +2009,9 @@ void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, QLayout
     if (headerRowCount > 0)
         tableHeaderHeight = td->rowPositions.at(headerRowCount) - td->rowPositions.at(0);
 
-    // if first row is already taller than the remaining height move the whole table
-    // to the next page
-    if (td->rowPositions.first() + td->heights.first() + extraTableHeight > pageBottom) {
+    // if the header and the first row of data is already taller than the remaining height
+    // move the whole table to the next page
+    if (tableHeaderHeight + td->rowPositions.at(headerRowCount) + td->heights.at(headerRowCount) + extraTableHeight > pageBottom) {
         layoutStruct->newPage();
         origY = layoutStruct->y;
         td->position.setY(layoutStruct->y);
