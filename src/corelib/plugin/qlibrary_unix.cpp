@@ -31,8 +31,7 @@
 
 bool QLibraryPrivate::load_sys()
 {
-    if (QLibrary::isLibrary(fileName))
-        pHnd = (void*)shl_load(QFile::encodeName(fileName), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
+    pHnd = (void*)shl_load(QFile::encodeName(fileName), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
     if (pluginState != IsAPlugin) {
         if (!pHnd)
             pHnd = (void*)shl_load(QFile::encodeName(fileName + ".sl"), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
@@ -95,8 +94,7 @@ bool QLibraryPrivate::load_sys()
         path += QLatin1Char('/');
 
     QStringList suffixes, prefixes("");
-    if (QLibrary::isLibrary(fileName))
-        suffixes << "";
+    suffixes << "";
     if (pluginState != IsAPlugin) {
         prefixes << "lib";
 #if defined(Q_OS_HPUX)

@@ -444,7 +444,11 @@ bool QLibrary::isLibrary(const QString &fileName)
     if (completeSuffix.isEmpty())
         return false;
     QStringList suffixes = completeSuffix.split(QLatin1Char('.'));
+#if defined(Q_OS_WIN32)
+    QString suffix = suffixes.last();
+#else
     QString suffix = suffixes.first();
+#endif
 #if defined(Q_OS_WIN32)
     bool valid = (suffix == "dll");
 #elif defined(Q_OS_DARWIN)
@@ -469,9 +473,6 @@ bool QLibraryPrivate::isPlugin()
 {
     if (pluginState != MightBeAPlugin)
         return pluginState == IsAPlugin;
-
-    if (!QLibrary::isLibrary(fileName))
-        return false;
 
     bool debug = !QLIBRARY_AS_DEBUG;
     QByteArray key;

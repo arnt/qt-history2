@@ -23,13 +23,11 @@ extern QString qt_error_string(int code);
 bool QLibraryPrivate::load_sys()
 {
     QString attempt = fileName;
-    if (QLibrary::isLibrary(fileName)) {
-        QT_WA({
-                pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
-            } , {
-                  pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
-              });
-    }
+    QT_WA({
+            pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
+        } , {
+              pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
+          });
 
     if (pluginState != IsAPlugin) {
         if (!pHnd) {
