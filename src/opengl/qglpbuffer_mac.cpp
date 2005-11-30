@@ -147,7 +147,7 @@ QGLPbuffer::~QGLPbuffer()
 #endif
 }
 
-bool QGLPbuffer::bind(GLuint texture_id)
+bool QGLPbuffer::bindToDynamicTexture(GLuint texture_id)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     Q_D(QGLPbuffer);
@@ -163,9 +163,8 @@ bool QGLPbuffer::bind(GLuint texture_id)
 #endif
 }
 
-bool QGLPbuffer::release()
+void QGLPbuffer::releaseFromDynamicTexture()
 {
-    return false;
 }
 
 bool QGLPbuffer::makeCurrent()
@@ -193,7 +192,7 @@ bool QGLPbuffer::doneCurrent()
 #endif
 }
 
-GLuint QGLPbuffer::generateTexture(GLint)
+GLuint QGLPbuffer::generateDynamicTexture()
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     Q_D(QGLPbuffer);
@@ -210,7 +209,7 @@ GLuint QGLPbuffer::generateTexture(GLint)
 #endif
 }
 
-bool QGLPbuffer::hasPbuffers()
+bool QGLPbuffer::hasOpenGLPbuffers()
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     return true;

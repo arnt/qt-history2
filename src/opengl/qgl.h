@@ -172,8 +172,10 @@ public:
     QGLFormat requestedFormat() const;
     void setFormat(const QGLFormat& format);
 
+    // ### Qt 5: return bools + maybe remove virtuals
     virtual void makeCurrent();
     virtual void doneCurrent();
+
     virtual void swapBuffers() const;
 
     GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D,
@@ -264,6 +266,8 @@ public:
 
     bool isValid() const;
     bool isSharing() const;
+
+    // ### Qt 5.0: return bools
     void makeCurrent();
     void doneCurrent();
 

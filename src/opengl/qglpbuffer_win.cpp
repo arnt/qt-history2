@@ -260,7 +260,7 @@ QGLPbuffer::~QGLPbuffer()
     delete d_ptr;
 }
 
-bool QGLPbuffer::bind(GLuint texture_id)
+bool QGLPbuffer::bindToDynamicTexture(GLuint texture_id)
 {
     Q_D(QGLPbuffer);
     if (d->invalid)
@@ -269,12 +269,12 @@ bool QGLPbuffer::bind(GLuint texture_id)
     return wglBindTexImageARB(d->pbuf, WGL_FRONT_LEFT_ARB);
 }
 
-bool QGLPbuffer::release()
+void QGLPbuffer::releaseFromDynamicTexture()
 {
     Q_D(QGLPbuffer);
     if (d->invalid)
-	return false;
-    return wglReleaseTexImageARB(d->pbuf, WGL_FRONT_LEFT_ARB);
+	return;
+    wglReleaseTexImageARB(d->pbuf, WGL_FRONT_LEFT_ARB);
 }
 
 bool QGLPbuffer::makeCurrent()
@@ -293,7 +293,7 @@ bool QGLPbuffer::doneCurrent()
     return wglMakeCurrent(d->dc, 0);
 }
 
-bool QGLPbuffer::hasPbuffers()
+bool QGLPbuffer::hasOpenGLPbuffers()
 {
     return qt_resolve_pbuffer_extensions();
 }

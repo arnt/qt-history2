@@ -70,23 +70,20 @@
     false otherwise.
  */
 
-/*! \fn GLuint QGLPbuffer::generateTexture(GLint format)
-
+/*!
     This is a convenience function that generates and binds a 2D GL
-    texture that is the same size as the buffer, using \a format as
-    the internal texture format. The default internal format of the
-    generated texture is \c GL_RGBA8. The generated texture id is
-    returned.
+    texture that is the same size as the buffer. The generated texture
+    id is returned.
 */
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
-GLuint QGLPbuffer::generateTexture(GLint format)
+GLuint QGLPbuffer::generateDynamicTexture() const
 {
-    Q_D(QGLPbuffer);
+    Q_D(const QGLPbuffer);
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, d->size.width(), d->size.height(), 0, GL_RGBA, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, d->size.width(), d->size.height(), 0, GL_RGBA, GL_FLOAT, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     return texture;
@@ -117,27 +114,25 @@ GLuint QGLPbuffer::generateTexture(GLint format)
     currently not supported under X11.
 */
 
-/*! \fn bool QGLPbuffer::hasPbuffers()
+/*! \fn bool QGLPbuffer::hasOpenGLPbuffers()
 
     Returns true if pbuffers are supported on this system, otherwise
     false.
  */
 
 
-/*! \fn void QGLPbuffer::copyToTexture(GLuint texture_id, GLint format)
-
+/*!
     This is a convenience function that copies the buffer contents
     (using \c {glCopyTexImage2D()}) into the texture specified with \a
-    texture_id, which has the internal format \a format. The default
-    internal format is \c GL_RGBA8.
+    texture_id.
  */
-void QGLPbuffer::copyToTexture(GLuint texture_id, GLint format)
+void QGLPbuffer::updateDynamicTexture(GLuint texture_id) const
 {
-    Q_D(QGLPbuffer);
+    Q_D(const QGLPbuffer);
     if (d->invalid)
         return;
     glBindTexture(GL_TEXTURE_2D, texture_id);
-    glCopyTexImage2D(GL_TEXTURE_2D, 0, format, 0, 0, d->size.width(), d->size.height(), 0);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 0, 0, d->size.width(), d->size.height(), 0);
 }
 
 /*!
@@ -269,17 +264,16 @@ int QGLPbuffer::metric(PaintDeviceMetric metric) const
     on \a image. The generated texture id is returned and can be used
     in later glBindTexture() calls.
 
-    The \a target parameter specifies the texture target. The \a
-    format parameter sets the internal format for the texture.
+    The \a target parameter specifies the texture target.
 
     Equivalent to calling QGLContext::bindTexture().
 
     \sa deleteTexture()
 */
-GLuint QGLPbuffer::bindTexture(const QImage &image, GLenum target, GLint format)
+GLuint QGLPbuffer::bindTexture(const QImage &image, GLenum target)
 {
     Q_D(QGLPbuffer);
-    return d->qctx->bindTexture(image, target, format);
+    return d->qctx->bindTexture(image, target, GL_RGBA8);
 }
 
 
@@ -291,10 +285,10 @@ GLuint QGLPbuffer::bindTexture(const QImage &image, GLenum target, GLint format)
 
     \sa deleteTexture()
 */
-GLuint QGLPbuffer::bindTexture(const QPixmap &pixmap, GLenum target, GLint format)
+GLuint QGLPbuffer::bindTexture(const QPixmap &pixmap, GLenum target)
 {
     Q_D(QGLPbuffer);
-    return d->qctx->bindTexture(pixmap, target, format);
+    return d->qctx->bindTexture(pixmap, target, GL_RGBA8);
 }
 
 /*! \overload

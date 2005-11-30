@@ -224,18 +224,17 @@ bool QGLPbuffer::doneCurrent()
     return glXMakeContextCurrent(QX11Info::display(), 0, 0, 0);
 }
 
-bool QGLPbuffer::bind(GLuint)
+bool QGLPbuffer::bindToDynamicTexture(GLuint)
 {
     return false;
 }
 
-bool QGLPbuffer::release()
+void QGLPbuffer::releaseFromDynamicTexture()
 {
-    return false;
 }
 
 
-bool QGLPbuffer::hasPbuffers()
+bool QGLPbuffer::hasOpenGLPbuffers()
 {
     return qt_resolve_pbuffer_extensions();
 }

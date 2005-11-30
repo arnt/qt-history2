@@ -34,17 +34,15 @@ public:
     bool makeCurrent();
     bool doneCurrent();
 
-    GLuint generateTexture(GLint format = GL_RGBA8);
-    bool bind(GLuint texture_id);
-    bool release();
+    GLuint generateDynamicTexture() const;
+    bool bindToDynamicTexture(GLuint texture);
+    void releaseFromDynamicTexture();
+    void updateDynamicTexture(GLuint texture_id) const;
 
-    GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D,
-		       GLint format = GL_RGBA8);
-    GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D,
-		       GLint format = GL_RGBA8);
+    GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D);
+    GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D);
     GLuint bindTexture(const QString &fileName);
     void deleteTexture(GLuint texture_id);
-    void copyToTexture(GLuint texture_id, GLint format = GL_RGBA8);
 
     QSize size() const;
     Qt::HANDLE handle() const;
@@ -53,7 +51,8 @@ public:
     QPaintEngine *paintEngine() const;
     QGLFormat format() const;
 
-    static bool hasPbuffers();
+    static bool hasOpenGLPbuffers();
+
 protected:
     int metric(PaintDeviceMetric metric) const;
     int devType() const { return QInternal::Pbuffer; }

@@ -56,6 +56,7 @@ GLWidget::GLWidget(QWidget *parent)
 
 GLWidget::~GLWidget()
 {
+    pbuffer->releaseFromDynamicTexture();
     glDeleteTextures(1, &dynamicTexture);
     glDeleteLists(pbufferList, 1);
     delete pbuffer;
@@ -102,7 +103,7 @@ void GLWidget::paintGL()
 
 #if  defined(Q_WS_X11)
     // rendering directly to a texture is not supported on X11, unfortunately
-    pbuffer->copyToTexture(dynamicTexture);
+    pbuffer->updateDynamicTexture(dynamicTexture);
 #endif
     // ..and use the pbuffer contents as a texture when rendering the
     // background and the bouncing cubes
@@ -221,10 +222,10 @@ void GLWidget::initPbuffer()
     }
     glEndList();
     // generate a texture that has the same size/format as the pbuffer
-    dynamicTexture = pbuffer->generateTexture();
+    dynamicTexture = pbuffer->generateDynamicTexture();
 
     // bind the dynamic texture to the pbuffer - this is a no-op under X11
-    pbuffer->bind(dynamicTexture);
+    pbuffer->bindToDynamicTexture(dynamicTexture);
     makeCurrent();
 }
 
