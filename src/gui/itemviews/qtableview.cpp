@@ -359,11 +359,11 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
         d->horizontalHeader->setModel(model());
 
     connect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
-            this, SLOT(columnResized(int,int,int)), Qt::QueuedConnection);
+            this, SLOT(columnResized(int,int,int)));
     connect(d->horizontalHeader, SIGNAL(sectionMoved(int,int,int)),
-            this, SLOT(columnMoved(int,int,int)), Qt::QueuedConnection);
+            this, SLOT(columnMoved(int,int,int)));
     connect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
-            this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
+            this, SLOT(columnCountChanged(int,int)));
     connect(d->horizontalHeader, SIGNAL(sectionPressed(int)), this, SLOT(selectColumn(int)));
     connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeColumnToContents(int)));
