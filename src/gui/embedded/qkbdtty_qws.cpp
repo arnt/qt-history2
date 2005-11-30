@@ -85,7 +85,7 @@ void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
                                             Qt::KeyboardModifiers modifiers, bool isPress,
                                             bool autoRepeat)
 {
-#if defined(Q_OS_LINUX)
+#if 0//defined(Q_OS_LINUX)
     // Virtual console switching
     int term = 0;
     bool ctrl = modifiers & Qt::ControlModifier;

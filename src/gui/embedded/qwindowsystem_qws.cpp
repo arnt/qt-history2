@@ -2254,6 +2254,11 @@ void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
 */
 void QWSServerPrivate::setWindowRegion(QWSWindow* changingw, QRegion r)
 {
+    if (!changingw) {
+        qWarning("Not implemented in this release");
+        return;
+    }
+
     if (changingw->requested_region == r)
         return;
     QRegion oldRegion(changingw->requested_region);
