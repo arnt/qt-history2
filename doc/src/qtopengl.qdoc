@@ -51,12 +51,12 @@
 
     When you install Qt for X11, the configure script will autodetect if
     OpenGL headers and libraries are installed on your system, and if so,
-    it will include the Qt OpenGL module in the Qt library. (If your
+    it will include the QtOpenGL module in the Qt library. (If your
     OpenGL headers or libraries are placed in a non-standard directory,
-    you may need to change the QMAKE_INCDIR_OPENGL and/or
-    QMAKE_LIBDIR_OPENGL in the config file for your system).
+    you may need to change the \c QMAKE_INCDIR_OPENGL and/or
+    \c QMAKE_LIBDIR_OPENGL in the config file for your system).
 
-    When you install Qt for Windows and Mac OS X, the Qt OpenGL
+    When you install Qt for Windows and Mac OS X, the QtOpenGL
     module is always included. X11 users might like to read the notes
     on overlays below.
 
