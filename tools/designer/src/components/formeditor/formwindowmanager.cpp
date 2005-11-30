@@ -147,6 +147,15 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             fw->repaintSelection();
         } break;
 
+        case QEvent::KeyPress: {
+            QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+            if (ke->key() == Qt::Key_Escape) {
+                ke->accept();
+                return true;
+            }
+        }
+        // don't break...
+
         default: {
             if (fw->handleEvent(widget, managedWidget, e)) {
                 return true;
