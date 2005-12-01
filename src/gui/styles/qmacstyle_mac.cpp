@@ -2317,35 +2317,38 @@ QRect QMacStylePrivate::HIThemeSubElementRect(QStyle::SubElement sr, const QStyl
                       int(qMin(qAbs(btn->rect.height() - 2 * outRect.origin.y), outRect.size.height)));
         }
         break;
-    case QStyle::SE_HeaderLabel: {
-        HIRect inRect = CGRectMake(opt->rect.x(), opt->rect.y(),
-                                   opt->rect.width(), opt->rect.height());
-        HIRect outRect;
-        HIThemeButtonDrawInfo bdi;
-        bdi.version = qt_mac_hitheme_version;
-        bdi.state = kThemeStateActive;
-        bdi.value = kThemeButtonOff;
-        int xpos = opt->rect.x() + 6;
-        int width = opt->rect.width() - 10;
-        if (!isTreeView(widget)) {
-            bdi.kind = kThemeBevelButton;
-        } else {
-            bdi.kind = kThemeListHeaderButton;
-            if (opt->direction == Qt::RightToLeft) {
-                xpos = opt->rect.x() + 15;
-                width = opt->rect.width() - 20;
+    case QStyle::SE_HeaderLabel:
+        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
+            HIRect inRect = CGRectMake(opt->rect.x(), opt->rect.y(),
+                                       opt->rect.width(), opt->rect.height());
+            HIRect outRect;
+            HIThemeButtonDrawInfo bdi;
+            bdi.version = qt_mac_hitheme_version;
+            bdi.state = kThemeStateActive;
+            bdi.value = kThemeButtonOff;
+            int xpos = opt->rect.x() + 6;
+            int width = opt->rect.width() - 10;
+            if (!isTreeView(widget)) {
+                bdi.kind = kThemeBevelButton;
             } else {
-                width = opt->rect.width() - 22;
+                bdi.kind = kThemeListHeaderButton;
+                if (opt->direction == Qt::RightToLeft) {
+                    xpos = opt->rect.x() + 15;
+                    width = opt->rect.width() - 20;
+                } else {
+                    if (header->sortIndicator != QStyleOptionHeader::None)
+                        width = opt->rect.width() - 22;
+                }
             }
-        }
 
-        bdi.adornment = kThemeAdornmentNone;
-        HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
-        r.setRect(xpos, int(outRect.origin.y - 1), width,
-                  int(qMin(qAbs(opt->rect.height() - 2 * outRect.origin.y), outRect.size.height)));
-        r = QStyle::visualRect(opt->direction, opt->rect, r);
+            bdi.adornment = kThemeAdornmentNone;
+            HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
+            r.setRect(xpos, int(outRect.origin.y - 1), width,
+                      int(qMin(qAbs(opt->rect.height() - 2 * outRect.origin.y),
+                               outRect.size.height)));
+            r = QStyle::visualRect(opt->direction, opt->rect, r);
+        }
         break;
-    }
     case QStyle::SE_ProgressBarGroove:
     case QStyle::SE_ProgressBarLabel:
         break;
