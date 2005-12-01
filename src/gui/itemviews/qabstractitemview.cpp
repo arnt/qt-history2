@@ -1073,10 +1073,10 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
     if (state() == EditingState)
         return;
 
-    if (selectionModel() && state() == DragSelectingState)
-        selectionModel()->select(index, selectionCommand(index, event));
-
     setState(NoState);
+
+    if (selectionModel())
+        selectionModel()->select(index, selectionCommand(index, event));
 
     if (index == d_func()->pressedIndex && index.isValid()) {
         // signal handlers may change the model
@@ -2326,9 +2326,9 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(const QM
     case NoSelection: // Never update selection model
         return QItemSelectionModel::NoUpdate;
     case SingleSelection: // ClearAndSelect on valid index otherwise NoUpdate
-        if (index.isValid())
-            return QItemSelectionModel::ClearAndSelect|d->selectionBehaviorFlags();
-        return QItemSelectionModel::NoUpdate;
+        if (!index.isValid() || (event && event->type() == QEvent::MouseButtonRelease))
+            return QItemSelectionModel::NoUpdate;
+        return QItemSelectionModel::ClearAndSelect|d->selectionBehaviorFlags();
     case MultiSelection:
         return d->multiSelectionCommand(index, event);
     case ExtendedSelection:
