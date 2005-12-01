@@ -655,7 +655,6 @@ void HelpDialog::showIndexTopic()
             emit showLink(link);
     }
 
-    indexModel->publish();
     ui.listIndex->setCurrentIndex(indexModel->index(indexModel->stringList().indexOf(description)));
     ui.listIndex->scrollTo(ui.listIndex->currentIndex(), QAbstractItemView::PositionAtTop);
 }
