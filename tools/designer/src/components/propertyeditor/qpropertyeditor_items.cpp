@@ -35,6 +35,7 @@
 
 #include <QtCore/qdebug.h>
 #include <limits.h>
+#include <math.h>
 
 using namespace qdesigner_internal;
 
