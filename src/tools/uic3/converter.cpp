@@ -340,7 +340,6 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
                                        bool isActionGroup)
 {
     QString objectName;
-    bool hasMenuText = false;
 
     QMutableListIterator<DomProperty*> it(properties);
     while (it.hasNext()) {
@@ -356,7 +355,6 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
             delete prop;
             it.remove();
         } else if (name == QLatin1String("menuText")) {
-            hasMenuText = true;
             prop->setAttributeName("text");
         } else if (name == QLatin1String("text")) {
             prop->setAttributeName("iconText");
@@ -443,8 +441,6 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
     QList<DomLayout*> ui_layout_list;
     QList<DomActionRef*> ui_action_list;
     QList<DomWidget*> ui_mainwindow_child_list;
-
-    bool needPolish = false;
 
     createProperties(w, &ui_property_list, className);
     createAttributes(w, &ui_attribute_list, className);
@@ -550,12 +546,6 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             ui_item_list.append(item);
         }
 
-        QString s = getClassName(e);
-        if (s == QLatin1String("QDataTable") || s == QLatin1String("QDataBrowser")) {
-            if (isFrameworkCodeGenerated(e))
-                 needPolish = true;
-        }
-
         e = e.nextSibling().toElement();
     }
 
@@ -603,7 +593,6 @@ DomLayout *Ui3Reader::createLayout(const QDomElement &w)
     createProperties(w, &ui_property_list, className);
     createAttributes(w, &ui_attribute_list, className);
 
-    bool needPolish = false;
     QDomElement e = w.firstChild().toElement();
     while (!e.isNull()) {
         QString t = e.tagName().toLower();
@@ -615,13 +604,6 @@ DomLayout *Ui3Reader::createLayout(const QDomElement &w)
             DomLayoutItem *lay_item = createLayoutItem(e);
             Q_ASSERT(lay_item != 0);
             ui_item_list.append(lay_item);
-        }
-
-        QString s = getClassName(e);
-        if (s == QLatin1String("QDataTable")
-                 || s == QLatin1String("QDataBrowser")) {
-            if (isFrameworkCodeGenerated(e))
-                 needPolish = true;
         }
 
         e = e.nextSibling().toElement();

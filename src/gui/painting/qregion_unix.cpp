@@ -2082,7 +2082,7 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
             UnionRectWithRegion(&xr, region, *region); \
         }
 
-    const uint zero = 0;
+    const uchar zero = 0;
     bool little = image.format() == QImage::Format_MonoLSB;
 
     int x,
@@ -2090,7 +2090,7 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
     for (y = 0; y < image.height(); ++y) {
         uchar *line = image.scanLine(y);
         int w = image.width();
-        uchar all=zero;
+        uchar all = zero;
         int prev1 = -1;
         for (x = 0; x < w;) {
             uchar byte = line[x / 8];

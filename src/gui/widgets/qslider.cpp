@@ -24,9 +24,6 @@
 #include "private/qabstractslider_p.h"
 #include "qdebug.h"
 
-static const int thresholdTime = 300;
-static const int repeatTime = 100;
-
 class QSliderPrivate : public QAbstractSliderPrivate
 {
     Q_DECLARE_PUBLIC(QSlider)

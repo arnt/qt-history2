@@ -167,7 +167,7 @@ extern "C" {
 		delete [] str;
 
 	    if (drawstruct->chg_length < 0)
-		data->text.replace(drawstruct->chg_first, UINT_MAX, s);
+		data->text.replace(drawstruct->chg_first, INT_MAX, s);
 	    else
 		data->text.replace(drawstruct->chg_first, drawstruct->chg_length, s);
 

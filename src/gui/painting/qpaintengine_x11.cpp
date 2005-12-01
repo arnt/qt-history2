@@ -1468,10 +1468,10 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
     int clippedCount = 0;
     qt_float_point *clippedPoints = 0;
 
+#ifndef QT_NO_XRENDER
     //can change if we switch to pen if gcMode != BrushGC
     bool has_fill_texture = has_texture;
     bool has_fill_pattern = has_pattern;
-#ifndef QT_NO_XRENDER
     ::Picture src;
 #endif
     QBrush fill;
@@ -1504,7 +1504,7 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
     polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
                                &clippedPoints, &clippedCount);
 
-#if !defined(QT_NO_XRENDER)
+#ifndef QT_NO_XRENDER
     bool antialias = render_hints & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush && !has_fill_pattern &&
         (has_fill_texture || antialias || fill.color().alpha() != 255))
@@ -1713,7 +1713,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 
     QPixmap::x11SetDefaultScreen(pixmap.x11Info().screen());
 
-#if !defined(QT_NO_XRENDER)
+#ifndef QT_NO_XRENDER
     ::Picture src_pict = pixmap.data->picture;
     if (src_pict && d->picture) {
         if (pixmap.data->d == 1 && (d->has_alpha_pen || d->bg_brush != Qt::NoBrush)) {
@@ -1902,7 +1902,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     int sy = qRound(p.y());
 
     Q_D(QX11PaintEngine);
-#if !defined(QT_NO_XRENDER)
+#ifndef QT_NO_XRENDER
     if (X11->use_xrender && d->picture && pixmap.x11PictureHandle()) {
         // this is essentially qt_draw_tile(), inlined for
         // the XRenderComposite call
