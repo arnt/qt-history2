@@ -127,7 +127,11 @@ bool FunctionBlock::exec(const QStringList &args,
     cause_return = false;
 
     //execute
+#if 0
     vars = proj->variables(); // should be place so that local variables can be inherited
+#else
+    vars = place;
+#endif
     vars["ARGS"] = args;
     for(int i = 0; i < args.count(); i++)
         vars[QString::number(i+1)] = QStringList(args[i]);
@@ -1713,11 +1717,23 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         }
         break; }
     case E_EVAL: {
-        for(QStringList::ConstIterator arg_it = args.begin();
-            arg_it != args.end(); ++arg_it) {
-            if(!ret.isEmpty())
-                ret += Option::field_sep;
-            ret += place[(*arg_it)].join(QString(Option::field_sep));
+        if(args.count() < 1 || args.count() > 2) {
+            fprintf(stderr, "%s:%d: eval(variable) requires one argument.\n",
+                    parser.file.toLatin1().constData(), parser.line_no);
+
+        } else {
+            const QMap<QString, QStringList> *source = &place;
+            if(args.count() == 2) {
+                if(args.at(1) == "Global") {
+                    source = &vars;
+                } else if(args.at(1) == "Local") {
+                    source = &place;
+                } else {
+                    fprintf(stderr, "%s:%d: unexpected source to eval.\n", parser.file.toLatin1().constData(),
+                            parser.line_no);
+                }
+            }
+            ret += source->value(args.at(0)).join(QString(Option::field_sep));
         }
         break; }
     case E_LIST: {
