@@ -20,6 +20,9 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 #include <private/qwidget_p.h>
+#ifdef Q_WS_MAC
+#include <private/qt_mac_p.h>
+#endif
 
 class QSplashScreenPrivate : public QWidgetPrivate
 {
@@ -142,7 +145,6 @@ void QSplashScreen::mousePressEvent(QMouseEvent *)
 {
     hide();
 }
-
 /*!
     This overrides QWidget::repaint(). It differs from the standard
     repaint function in that it also calls QApplication::flush() to
@@ -152,7 +154,15 @@ void QSplashScreen::mousePressEvent(QMouseEvent *)
 void QSplashScreen::repaint()
 {
     d_func()->drawContents();
+#ifndef Q_WS_MAC
     QWidget::repaint();
+#else
+# if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+    OSStatus (*HIViewRender_ptr)(HIViewRef) = HIViewRender; // workaround for gcc warning
+    if(HIViewRender_ptr)
+        (*HIViewRender_ptr)((HIViewRef)window()->winId()); //yes the top level!!
+# endif
+#endif
     QApplication::flush();
 }
 

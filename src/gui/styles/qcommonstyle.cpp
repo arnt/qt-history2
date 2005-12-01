@@ -1478,7 +1478,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
     case SE_CheckBoxIndicator:
         {
             int h = pixelMetric(PM_IndicatorHeight, opt, widget);
-            r.setRect(0, (opt->rect.height() - h) / 2,
+            r.setRect(opt->rect.x(), opt->rect.y() + ((opt->rect.height() - h) / 2),
                       pixelMetric(PM_IndicatorWidth, opt, widget), h);
             r = visualRect(opt->direction, opt->rect, r);
         }
@@ -1529,7 +1529,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
     case SE_RadioButtonIndicator:
         {
             int h = pixelMetric(PM_ExclusiveIndicatorHeight, opt, widget);
-            r.setRect(0, (opt->rect.height() - h) / 2,
+            r.setRect(opt->rect.x(), opt->rect.y() + ((opt->rect.height() - h) / 2),
                     pixelMetric(PM_ExclusiveIndicatorWidth, opt, widget), h);
             r = visualRect(opt->direction, opt->rect, r);
         }
@@ -2008,6 +2008,9 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     interval = 1;
                 int fudge = len / 2;
                 int pos;
+                // Since there is no subrect for tickmarks do a translation here.
+                p->save();
+                p->translate(slider->rect.x(), slider->rect.y());
                 p->setPen(slider->palette.foreground().color());
                 int v = slider->minimum;
                 while (v <= slider->maximum) {
@@ -2028,6 +2031,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     }
                     v += interval;
                 }
+                p->restore();
             }
         }
         break;
@@ -2326,13 +2330,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if ((tb->subControls & SC_TitleBarNormalButton
                  || tb->subControls & SC_TitleBarMinButton)
                 && tb->titleBarFlags & Qt::WindowMinimizeButtonHint) {
-               
-                if (tb->subControls & SC_TitleBarNormalButton)         
-                    ir = subControlRect(CC_TitleBar, tb, SC_TitleBarNormalButton, widget);                              
+                if (tb->subControls & SC_TitleBarNormalButton)
+                    ir = subControlRect(CC_TitleBar, tb, SC_TitleBarNormalButton, widget);
                 else {
-                    ir = subControlRect(CC_TitleBar, tb, SC_TitleBarMinButton, widget);                              
+                    ir = subControlRect(CC_TitleBar, tb, SC_TitleBarMinButton, widget);
                 }
-                
                 QStyle::SubControl ctrl = (tb->subControls & SC_TitleBarNormalButton ?
                                            SC_TitleBarNormalButton :
                                            SC_TitleBarMinButton);
@@ -2700,15 +2702,17 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                                                                 : slider->rect.height()) - len,
                                                     slider->upsideDown);
                 if (horizontal)
-                    ret.setRect(sliderPos, tickOffset, len, thickness);
+                    ret.setRect(slider->rect.x() + sliderPos, slider->rect.y() + tickOffset, len, thickness);
                 else
-                    ret.setRect(tickOffset, sliderPos, thickness, len);
+                    ret.setRect(slider->rect.x() + tickOffset, slider->rect.y() + sliderPos, thickness, len);
                 break; }
             case SC_SliderGroove:
                 if (slider->orientation == Qt::Horizontal)
-                    ret.setRect(0, tickOffset, slider->rect.width(), thickness);
+                    ret.setRect(slider->rect.x(), slider->rect.y() + tickOffset,
+                                slider->rect.width(), thickness);
                 else
-                    ret.setRect(tickOffset, 0, thickness, slider->rect.height());
+                    ret.setRect(slider->rect.x() + tickOffset, slider->rect.y(),
+                                thickness, slider->rect.height());
                 break;
             default:
                 break;
@@ -2859,8 +2863,8 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
-            int x = 0,
-                y = 0,
+            int x = cb->rect.x(),
+                y = cb->rect.y(),
                 wi = cb->rect.width(),
                 he = cb->rect.height();
             int xpos = x;
