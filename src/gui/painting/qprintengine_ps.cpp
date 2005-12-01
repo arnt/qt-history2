@@ -1023,7 +1023,7 @@ QByteArray QPSPrintEngineFontFT::glyphName(unsigned short glyphindex)
         char buffer[5];
         glyphname = "gl";
         glyphname += toHex(glyphindex, buffer);
-    } 
+    }
     return glyphname;
 }
 
@@ -2796,13 +2796,13 @@ void QPSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
             QFontEngine *fe = ti.fontEngine;
             qreal lw = fe->lineThickness().toReal();
             *d->pageStream << "NP ";
-            if (ti.flags & (QTextItem::Underline)) 
+            if (ti.flags & (QTextItem::Underline))
                 *d->pageStream << p.x() << (p.y() + fe->underlinePosition().toReal())
                                << ti.width.toReal() << lw << "re ";
-            if (ti.flags & (QTextItem::StrikeOut)) 
-                *d->pageStream  << p.x() << (p.y() - fe->ascent().toReal()/3.)
+            if (ti.flags & (QTextItem::StrikeOut))
+                *d->pageStream  << p.x() << (p.y() - fe->ascent().toReal()/qreal(3.))
                                 << ti.width.toReal() << lw << "re ";
-            if (ti.flags & (QTextItem::Overline)) 
+            if (ti.flags & (QTextItem::Overline))
                 *d->pageStream  << p.x() << (p.y() - fe->ascent().toReal())
                                 << ti.width.toReal() << lw << "re ";
             *d->pageStream << "f\n";
