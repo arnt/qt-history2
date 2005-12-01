@@ -210,7 +210,7 @@ void QWidgetBackingStore::blitToScreen(const QRegion &rgn, QWidget *widget)
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         QWidgetBackingStore *bs = tlw->d_func()->topData()->backingStore;
         QSize tlwSize = tlw->size();
-        if (!bs || bs->buffer.size() != tlwSize) 
+        if (!bs || bs->buffer.size() != tlwSize)
             return;
         QRasterPaintEngine *engine = (QRasterPaintEngine*) bs->buffer.paintEngine();
         HDC engine_dc = engine->getDC();
@@ -496,7 +496,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 #else
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         widget->d_func()->cleanWidget_sys(rgn);
- 
+
         qt_flushUpdate(widget, rgn);
 
         QPoint wOffset = widget->data->wrect.topLeft();
@@ -525,6 +525,13 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
         if (!wOffset.isNull())
             wrgn.translate(-wOffset);
         QRect wbr = wrgn.boundingRect();
+
+        if (br.right() + offset.x() >= buffer.size().width() || br.bottom() + offset.y() >= buffer.size().height()) {
+//             QRegion dirty = rgn - QRect(-offset, buffer.size());
+//             qDebug() << dirty;
+            widget->d_func()->dirtyWidget_sys(rgn - QRect(-offset, buffer.size()));
+        }
+
         int num;
         XRectangle *rects = (XRectangle *)qt_getClipRects(wrgn, num);
 //         qDebug() << "XSetClipRectangles";
