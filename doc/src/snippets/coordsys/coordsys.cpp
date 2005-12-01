@@ -19,10 +19,12 @@ MyWidget::MyWidget()
 void MyWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    painter.setPen(Qt::darkGray);
-    painter.drawRect(1, 2, 4, 3);
-    painter.setPen(Qt::lightGray);
-    painter.drawLine(9, 2, 7, 7);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(Qt::darkGreen);
+    painter.drawRect(1, 2, 6, 4);
+
+    //painter.setPen(Qt::darkGray);
+    //painter.drawLine(2, 8, 6, 2);
 }
 
 int main(int argc, char *argv[])
