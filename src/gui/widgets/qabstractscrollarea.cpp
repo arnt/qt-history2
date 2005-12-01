@@ -148,7 +148,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         extra = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth) * 2;
 
     bool haveCornerObject = (corner != 0);
-    
+
 // If the scrollbars are at the very right and bottom of the window we
 // move their positions to be alligned with the size grip.
 #ifdef Q_OS_MAC
@@ -183,7 +183,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         if (needh) {
             frameRect.setBottom(frameRect.bottom() - hsbExt - extra);
             hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
-                        QRect(0, frameRect.bottom() + 1 + extra, 
+                        QRect(0, frameRect.bottom() + 1 + extra,
                             frameRect.width() + 1 - ((haveCornerObject && !needv)?vsbExt:0) -(needv?(vsbExt):0), hsbExt)));
         }
         if (needv) {
@@ -205,7 +205,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         }
         if (needv) {
             vr.setRight(vr.right() - vsbExt);
-            vbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, 
+            vbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
                         QRect(vr.right() + 1, vr.top(),
                               vsbExt, vr.height() - ((haveCornerObject && !needh)?hsbExt:0))));
         }
@@ -217,7 +217,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
                   QRect(q->width()-vsbExt, q->height()-hsbExt, vsbExt, hsbExt));
         corner->setGeometry(r);
     }
-    
+
     hbar->setVisible(needh);
     vbar->setVisible(needv);
     vr.adjust(left, top, -right, -bottom);
@@ -402,7 +402,7 @@ void QAbstractScrollArea::setCornerWidget(QWidget *corner)
         }
 
         d->layoutChildren();
-        if ( corner ) 
+        if ( corner )
             corner->show();
     }
 }
@@ -510,6 +510,7 @@ bool QAbstractScrollArea::viewportEvent(QEvent *e)
                 return QApplication::sendEvent(d->hbar, e);
             return QApplication::sendEvent(d->vbar, e);
         }
+        return true;
 #endif
     default:
         break;
