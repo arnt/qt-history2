@@ -19,11 +19,11 @@
 #include <private/qgl_p.h>
 #include <qdebug.h>
 
-QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
-    : d_ptr(new QGLPbufferPrivate)
+QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+    : d_ptr(new QGLPixelBufferPrivate)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    Q_D(QGLPbuffer);
+    Q_D(QGLPixelBuffer);
 
     GLint attribs[40], i=0;
     attribs[i++] = AGL_RGBA;
@@ -66,7 +66,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
 
     AGLPixelFormat format = aglChoosePixelFormat(0, 0, attribs);
     if (!format) {
-	qWarning("QGLPbuffer: Unable to find a pixel format (AGL error %d).",
+	qWarning("QGLPixelBuffer: Unable to find a pixel format (AGL error %d).",
 		 (int) aglGetError());
     }
 
@@ -107,19 +107,19 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
 	share = d->share_ctx = static_cast<AGLContext>(shareWidget->d_func()->glcx->d_func()->cx);
     d->ctx = aglCreateContext(format, share);
     if (!d->ctx) {
-	qWarning("QGLPbuffer: Unable to create a context (AGL error %d).",
+	qWarning("QGLPixelBuffer: Unable to create a context (AGL error %d).",
 		 (int) aglGetError());
 	return;
     }
 
     if (!aglCreatePBuffer(size.width(), size.height(), GL_TEXTURE_2D, GL_RGBA, 0, &d->pbuf)) {
-	qWarning("QGLPbuffer: Unable to create a pbuffer (AGL error %d).",
+	qWarning("QGLPixelBuffer: Unable to create a pbuffer (AGL error %d).",
 		 (int) aglGetError());
 	return;
     }
 
     if (!aglSetPBuffer(d->ctx, d->pbuf, 0, 0, 0)) {
-	qWarning("QGLPbuffer: Unable to set pbuffer (AGL error %d).",
+	qWarning("QGLPixelBuffer: Unable to set pbuffer (AGL error %d).",
 		 (int) aglGetError());
 	return;
     }
@@ -135,10 +135,10 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
 #endif
 }
 
-QGLPbuffer::~QGLPbuffer()
+QGLPixelBuffer::~QGLPixelBuffer()
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    Q_D(QGLPbuffer);
+    Q_D(QGLPixelBuffer);
     aglSetCurrentContext(0);
     aglDestroyContext(d->ctx);
     aglDestroyPBuffer(d->pbuf);
@@ -147,10 +147,10 @@ QGLPbuffer::~QGLPbuffer()
 #endif
 }
 
-bool QGLPbuffer::bindToDynamicTexture(GLuint texture_id)
+bool QGLPixelBuffer::bindToDynamicTexture(GLuint texture_id)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    Q_D(QGLPbuffer);
+    Q_D(QGLPixelBuffer);
     if (d->invalid || !d->share_ctx)
 	return false;
     aglSetCurrentContext(d->share_ctx);
@@ -163,14 +163,14 @@ bool QGLPbuffer::bindToDynamicTexture(GLuint texture_id)
 #endif
 }
 
-void QGLPbuffer::releaseFromDynamicTexture()
+void QGLPixelBuffer::releaseFromDynamicTexture()
 {
 }
 
-bool QGLPbuffer::makeCurrent()
+bool QGLPixelBuffer::makeCurrent()
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    Q_D(QGLPbuffer);
+    Q_D(QGLPixelBuffer);
     if (d->invalid)
         return false;
 
@@ -180,10 +180,10 @@ bool QGLPbuffer::makeCurrent()
 #endif
 }
 
-bool QGLPbuffer::doneCurrent()
+bool QGLPixelBuffer::doneCurrent()
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    Q_D(QGLPbuffer);
+    Q_D(QGLPixelBuffer);
     if (d->invalid)
         return false;
     return aglSetCurrentContext(0);
@@ -192,10 +192,10 @@ bool QGLPbuffer::doneCurrent()
 #endif
 }
 
-GLuint QGLPbuffer::generateDynamicTexture() const
+GLuint QGLPixelBuffer::generateDynamicTexture() const
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    Q_D(const QGLPbuffer);
+    Q_D(const QGLPixelBuffer);
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -209,7 +209,7 @@ GLuint QGLPbuffer::generateDynamicTexture() const
 #endif
 }
 
-bool QGLPbuffer::hasOpenGLPbuffers()
+bool QGLPixelBuffer::hasOpenGLPbuffers()
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     return true;

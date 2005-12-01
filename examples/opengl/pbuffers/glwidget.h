@@ -36,6 +36,6 @@ private:
     GLuint cubeTexture;
     int timerId;
 
-    QGLPbuffer *pbuffer;
+    QGLPixelBuffer *pbuffer;
 };
 

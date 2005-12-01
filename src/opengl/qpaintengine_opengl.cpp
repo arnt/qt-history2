@@ -173,7 +173,7 @@ public:
 
 private:
     QGLWidget *widget;
-    QGLPbuffer *buffer;
+    QGLPixelBuffer *buffer;
 };
 
 void QGLDrawable::setDevice(QPaintDevice *pdev)
@@ -181,7 +181,7 @@ void QGLDrawable::setDevice(QPaintDevice *pdev)
     if (pdev->devType() == QInternal::Widget)
         widget = static_cast<QGLWidget *>(pdev);
     else if (pdev->devType() == QInternal::Pbuffer)
-        buffer = static_cast<QGLPbuffer *>(pdev);
+        buffer = static_cast<QGLPixelBuffer *>(pdev);
 }
 
 inline void QGLDrawable::setAutoBufferSwap(bool enable)

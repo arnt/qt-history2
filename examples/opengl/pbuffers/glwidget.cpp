@@ -49,7 +49,7 @@ GLWidget::GLWidget(QWidget *parent)
   : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
     // create the pbuffer
-    pbuffer = new QGLPbuffer(QSize(512, 512), format(), this);
+    pbuffer = new QGLPixelBuffer(QSize(512, 512), format(), this);
     timerId = startTimer(20);
     setWindowTitle(tr("OpenGL pbuffers"));
 }

@@ -79,13 +79,13 @@ static bool qt_resolve_pbuffer_extensions()
     return resolved;
 }
 
-QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
-    : d_ptr(new QGLPbufferPrivate)
+QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+    : d_ptr(new QGLPixelBufferPrivate)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLPixelBuffer);
 
     if (!qt_resolve_pbuffer_extensions()) {
-        qWarning("QGLPbuffer: pbuffers are not supported on this system.");
+        qWarning("QGLPixelBuffer: pbuffers are not supported on this system.");
         return;
     }
 
@@ -185,7 +185,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
             d->size = size;
             d->invalid = false;
         } else {
-            qWarning("QGLPbuffer: Unable to create a pbuffer/context - giving up.");
+            qWarning("QGLPixelBuffer: Unable to create a pbuffer/context - giving up.");
         }
 
         // cleanup
@@ -194,47 +194,47 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
         XFree(configs);
         d->qctx = new QGLContext(f);
     } else {
-        qWarning("QGLPbuffer: Unable to find a context/format match - giving up.");
+        qWarning("QGLPixelBuffer: Unable to find a context/format match - giving up.");
         return;
     }
 }
 
-QGLPbuffer::~QGLPbuffer()
+QGLPixelBuffer::~QGLPixelBuffer()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLPixelBuffer);
     glXDestroyContext(QX11Info::display(), d->ctx);
     glXDestroyPbuffer(QX11Info::display(), d->pbuf);
     delete d->qctx;
     delete d_ptr;
 }
 
-bool QGLPbuffer::makeCurrent()
+bool QGLPixelBuffer::makeCurrent()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLPixelBuffer);
     if (d->invalid)
         return false;
     return glXMakeContextCurrent(QX11Info::display(), d->pbuf, d->pbuf, d->ctx);
 }
 
-bool QGLPbuffer::doneCurrent()
+bool QGLPixelBuffer::doneCurrent()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLPixelBuffer);
     if (d->invalid)
         return false;
     return glXMakeContextCurrent(QX11Info::display(), 0, 0, 0);
 }
 
-bool QGLPbuffer::bindToDynamicTexture(GLuint)
+bool QGLPixelBuffer::bindToDynamicTexture(GLuint)
 {
     return false;
 }
 
-void QGLPbuffer::releaseFromDynamicTexture()
+void QGLPixelBuffer::releaseFromDynamicTexture()
 {
 }
 
 
-bool QGLPbuffer::hasOpenGLPbuffers()
+bool QGLPixelBuffer::hasOpenGLPbuffers()
 {
     return qt_resolve_pbuffer_extensions();
 }

@@ -11,24 +11,23 @@
 **
 ****************************************************************************/
 
-#ifndef QGLPBUFFER_H
-#define QGLPBUFFER_H
+#ifndef QGLPIXELBUFFER_H
+#define QGLPIXELBUFFER_H
 
 #include <QtOpenGL/qgl.h>
 #include <QtGui/qpaintdevice.h>
 
 QT_MODULE(OpenGL)
 
-class QGLPbufferPrivate;
+class QGLPixelBufferPrivate;
 
-class Q_OPENGL_EXPORT QGLPbuffer : public QPaintDevice
+class Q_OPENGL_EXPORT QGLPixelBuffer : public QPaintDevice
 {
-    Q_DECLARE_PRIVATE(QGLPbuffer)
+    Q_DECLARE_PRIVATE(QGLPixelBuffer)
 public:
-    QGLPbuffer(const QSize &size,
-               const QGLFormat &format = QGLFormat::defaultFormat(),
-               QGLWidget *shareWidget = 0);
-    virtual ~QGLPbuffer();
+    QGLPixelBuffer(const QSize &size, const QGLFormat &format = QGLFormat::defaultFormat(),
+                   QGLWidget *shareWidget = 0);
+    virtual ~QGLPixelBuffer();
 
     bool isValid() const;
     bool makeCurrent();
@@ -58,9 +57,9 @@ protected:
     int devType() const { return QInternal::Pbuffer; }
 
 private:
-    Q_DISABLE_COPY(QGLPbuffer)
-    QGLPbufferPrivate *d_ptr;
+    Q_DISABLE_COPY(QGLPixelBuffer)
+    QGLPixelBufferPrivate *d_ptr;
     friend class QGLDrawable;
 };
 
-#endif // QGLPBUFFER_H
+#endif // QGLPIXELBUFFER_H
