@@ -278,8 +278,8 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
             GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, 0,
                               sizeof(wcode), 0, &wcode);
             RgnHandle rgn;
-            GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
-                              sizeof(rgn), NULL, &rgn);
+            GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, 0,
+                              sizeof(rgn), 0, &rgn);
             if(QWidgetPrivate::qt_widget_rgn(qt_mac_find_window(window), wcode, rgn, false))
                 SetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, sizeof(rgn), &rgn);
         } else {
@@ -335,7 +335,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
 }
 
 // widget events
-static HIObjectClassRef widget_class = NULL;
+static HIObjectClassRef widget_class = 0;
 static CFStringRef kObjectQWidget = CFSTR("com.trolltech.qt.widget");
 static EventTypeSpec widget_events[] = {
     { kEventClassHIObject, kEventHIObjectConstruct },
@@ -373,7 +373,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
         if(ekind == kEventHIObjectConstruct) {
             HIViewRef view;
             if(GetEventParameter(event, kEventParamHIObjectInstance, typeHIObjectRef,
-                                 NULL, sizeof(view), NULL, &view) == noErr) {
+                                 0, sizeof(view), 0, &view) == noErr) {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                 if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3)
                     HIViewChangeFeatures(view, kHIViewAllowsSubviews, 0);
@@ -389,14 +389,14 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
         QWidget *widget = 0;
         HIViewRef hiview = 0;
         if(GetEventParameter(event, kEventParamDirectObject, typeControlRef,
-                             NULL, sizeof(hiview), NULL, &hiview) == noErr)
+                             0, sizeof(hiview), 0, &hiview) == noErr)
             widget = QWidget::find((WId)hiview);
         if(ekind == kEventControlDraw) {
             if(widget) {
                 //requested rgn
                 widget->d_func()->clp_serial++;
                 RgnHandle rgn;
-                GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL, sizeof(rgn), NULL, &rgn);
+                GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, 0, sizeof(rgn), 0, &rgn);
                 QRegion qrgn(qt_mac_convert_mac_region(rgn));
 
                 //get widget region
@@ -412,7 +412,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 //update qd port
                 GrafPtr old_qdref = 0;
                 GDHandle old_device = 0;
-                if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, NULL, sizeof(old_qdref), NULL, &old_qdref) != noErr)
+                if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, 0, sizeof(old_qdref), 0, &old_qdref) != noErr)
                     GetGWorld(&old_qdref, &old_device); //just use the global port..
                 if(old_qdref)
                     widget->d_func()->hd = old_qdref;
@@ -451,7 +451,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         engine->setSystemClip(qrgn);
 
                     //handle the erase
-                    if (engine && !widget->testAttribute(Qt::WA_NoSystemBackground) 
+                    if (engine && !widget->testAttribute(Qt::WA_NoSystemBackground)
                         && (widget->isWindow() || widget->autoFillBackground()) || widget->testAttribute(Qt::WA_TintedBackground)) {
                         if (!redirectionOffset.isNull())
                             QPainter::setRedirected(widget, widget, redirectionOffset);
@@ -523,8 +523,8 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 #endif
                     ) {
                     RgnHandle rgn;
-                    GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, NULL,
-                                      sizeof(rgn), NULL, &rgn);
+                    GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, 0,
+                                      sizeof(rgn), 0, &rgn);
                     SetRectRgn(rgn, 0, 0, widget->width(), widget->height());
                     if(QWidgetPrivate::qt_widget_rgn(widget, kWindowStructureRgn, rgn, false))
                         handled_event = true;
@@ -537,7 +537,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
             if(widget) {
                 //these are really handled in qdnd_mac.cpp just to modularize the code a little..
                 DragRef drag;
-                GetEventParameter(event, kEventParamDragRef, typeDragRef, NULL, sizeof(drag), NULL, &drag);
+                GetEventParameter(event, kEventParamDragRef, typeDragRef, 0, sizeof(drag), 0, &drag);
                 if(widget->d_func()->qt_mac_dnd_event(ekind, drag)) {
                     drag_allowed = true;
                     handled_event = true;
@@ -565,18 +565,17 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 static HIViewRef qt_mac_create_widget(HIViewRef parent)
 {
     if(!widget_class) {
-        if(HIObjectRegisterSubclass(kObjectQWidget, kHIViewClassID, 0, make_widget_eventUPP(),
-                                    GetEventTypeCount(widget_events), widget_events,
-                                    NULL, &widget_class) != noErr)
+        OSStatus err = HIObjectRegisterSubclass(kObjectQWidget, kHIViewClassID, 0, make_widget_eventUPP(),
+                                                GetEventTypeCount(widget_events), widget_events,
+                                                0, &widget_class);
+        if (err && err != hiObjectClassExistsErr)
             qWarning("That cannot happen!!! %d", __LINE__);
     }
     HIViewRef ret = 0;
-    if(widget_class) {
-        if(HIObjectCreate(kObjectQWidget, 0, (HIObjectRef*)&ret) != noErr)
-            qWarning("That cannot happen!!! %d", __LINE__);
-        if(ret)
-            HIViewAddSubview(parent, ret);
-    }
+    if(HIObjectCreate(kObjectQWidget, 0, (HIObjectRef*)&ret) != noErr)
+        qWarning("That cannot happen!!! %d", __LINE__);
+    if(ret)
+        HIViewAddSubview(parent, ret);
     return ret;
 }
 
@@ -735,7 +734,7 @@ bool QWidgetPrivate::qt_recreate_root_win() {
     WindowPtr old_root_win = qt_root_win;
     HIViewRef old_root_hiview = HIViewGetRoot(qt_root_win);
     //recreate
-    qt_root_win = NULL;
+    qt_root_win = 0;
     qt_create_root_win();
     if(qt_root_win_widgets) {
         if(HIViewRef root_hiview = HIViewGetRoot(qt_root_win)) {
@@ -1086,7 +1085,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if(extra && !extra->mask.isEmpty())
            ReshapeCustomWindow(window);
         if((q->windowType() == Qt::Popup) || (q->windowType() == Qt::Tool))
-            SetWindowModality(window, kWindowModalityNone, NULL);
+            SetWindowModality(window, kWindowModalityNone, 0);
         if(qt_mac_is_macsheet(q))
             q->setWindowOpacity(0.70);
         else if(qt_mac_is_macdrawer(q))
