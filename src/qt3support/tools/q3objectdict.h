@@ -23,7 +23,7 @@ QT_MODULE(Qt3SupportLight)
 // The object dictionary is a collection of QMetaObjects
 //
 
-class Q_COMPAT_EXPORT Q3ObjectDictionary : public Q3AsciiDict<QMetaObject>
+class Q3ObjectDictionary : public Q3AsciiDict<QMetaObject>
 {
 public:
     Q3ObjectDictionary(int size=17,bool cs=true,bool ck=true)

@@ -18,7 +18,7 @@
 
 QT_MODULE(Qt3SupportLight)
 
-class Q_COMPAT_EXPORT Q3BoxLayout : public QBoxLayout
+class Q3BoxLayout : public QBoxLayout
 {
 public:
     inline explicit Q3BoxLayout(Direction dir, QWidget *parent = 0)
@@ -39,7 +39,7 @@ private:
     Q_DISABLE_COPY(Q3BoxLayout)
 };
 
-class Q_COMPAT_EXPORT Q3HBoxLayout : public Q3BoxLayout
+class Q3HBoxLayout : public Q3BoxLayout
 {
 public:
     inline Q3HBoxLayout() : Q3BoxLayout(LeftToRight) {}
@@ -61,7 +61,7 @@ private:
     Q_DISABLE_COPY(Q3HBoxLayout)
 };
 
-class Q_COMPAT_EXPORT Q3VBoxLayout : public Q3BoxLayout
+class Q3VBoxLayout : public Q3BoxLayout
 {
 public:
     inline Q3VBoxLayout() : Q3BoxLayout(TopToBottom) {}

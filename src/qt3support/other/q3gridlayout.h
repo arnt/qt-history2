@@ -18,7 +18,7 @@
 
 QT_MODULE(Qt3SupportLight)
 
-class Q_COMPAT_EXPORT Q3GridLayout : public QGridLayout
+class Q3GridLayout : public QGridLayout
 {
 public:
     inline explicit Q3GridLayout(QWidget *parent)

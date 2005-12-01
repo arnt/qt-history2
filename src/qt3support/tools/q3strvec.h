@@ -20,7 +20,7 @@
 
 QT_MODULE(Qt3SupportLight)
 
-class Q_COMPAT_EXPORT Q3StrVec : public Q3PtrVector<char>
+class Q3StrVec : public Q3PtrVector<char>
 {
 public:
     Q3StrVec()  { dc = true; }
@@ -42,7 +42,7 @@ private:
 };
 
 
-class Q_COMPAT_EXPORT Q3StrIVec : public Q3StrVec	// case insensitive string vec
+class Q3StrIVec : public Q3StrVec	// case insensitive string vec
 {
 public:
     Q3StrIVec() {}
