@@ -128,7 +128,7 @@ if [ -f $relpath/LICENSE.Qtopia ]; then
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Licensee="Qtopia"
     Edition="Qtopia"
-    QT_EDITION="Qt_EDITION_DESKTOP"
+    QT_EDITION="QT_EDITION_DESKTOP"
 elif [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     # Open Source edition - may only be used under the terms of the QPL or GPL.
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
