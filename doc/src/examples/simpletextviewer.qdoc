@@ -1,0 +1,271 @@
+/*!
+    \example assistant/simpletextviewer
+    \title Simple Text Viewer Example
+
+    The Simple Text Viewer example shows how you can make Qt Assistant
+    act as a customized help tool for your application using the
+    QAssistantClient class combined with a \l
+    {assistant-manual.html#profiles}{Qt Assistant Document Profile}.
+
+    \image simpletextviewer-example.png
+
+    The Simple Text Viewer application allows the user to select and
+    view existing files.
+
+    The application provides its own custom documentation that is
+    available through the \gui Help menu in the main window's menubar
+    and through the \gui Help button in the application's find file
+    dialog. The documentation files are located in a separate \c
+    documentation subdirectory.
+
+    The example consists of two classes:
+
+    \list
+        \o \c MainWindow is the main application window.
+        \o \c FindFileDialog allows the user to search for
+           files using wildcard matching.
+    \endlist
+
+    First we will take a look at how the QAssistantClient is
+    implemented in the \c MainWindow class. At the same time we will
+    see how we can make the Qt Assistant display custom documentation
+    using the Qt Assistant Document Profile (\c .adp) format. Then we
+    will review the \c FindFileDialog class.
+
+    Note that we will only comment on the parts of the implementation
+    that are relevant to the main issue, that is making Qt Assistant
+    act as a customized help-tool for our Simple Text Viewer
+    application.
+
+    \section1 MainWindow Class Definition
+
+    \image simpletextviewer-mainwindow.png
+
+    The \c MainWindow class provides the main application window with
+    two menus: The \gui File menu lets the user open and view an
+    existing file while the \gui Help menu provides information about
+    the application and about Qt, and lets the user open Qt Assistant
+    displaying the application's documentation. Here is the relevant
+    parts of the \c MainWindow class definition:
+
+    \quotefromfile assistant/simpletextviewer/mainwindow.h
+    \skipto QAssistantClient *
+    \printline QAssistantClient
+
+    To use Qt Assistant as an application's help tool, we must provide
+    the application with a QAssistantClient object. An instance of the
+    QAssistantClient class enables the application to open or close Qt
+    Assistant whenever it is required. The object only interacts with
+    the particular Qt Assistant instance associated with it (i.e. it
+    is a one to one relationship between a QAssistantClient object and
+    an instance of the Qt Assistant application).
+
+    Note that the QAssistantClient class is not included in the Qt
+    library. To use it you must add \c {CONFIG += assistant} to your
+    pro file.
+
+    \quotefromfile assistant/simpletextviewer/mainwindow.h
+    \skipto initializeAssistant
+    \printline initializeAssistant
+
+    We declare the private \c initializeAssistant() function to create
+    and initialize the application's QAssistantClient object. It is a
+    convenience function used when constructing the main window
+    widget.
+
+    \quotefromfile assistant/simpletextviewer/mainwindow.h
+    \skipto assistant
+    \printline assistant
+
+    To facilitate the \gui {Open Assistant} menu entry in the \gui
+    Help menu we declare a private \c assistant() slot which will open
+    the application's instance of Qt Assistant on user requests.
+
+    \skipto closeEvent
+    \printline closeEvent
+
+    Finally, we must reimplement the protected QWidget::closeEvent()
+    event handler to ensure that the application's Qt Assistant
+    instance is properly closed before we terminate the application.
+
+    \section1 MainWindow Class Implementation
+
+    The \c MainWindow constructor is straight forward. We create the
+    required actions and menus, and initialize the application's
+    QAssistantClient object:
+
+    \quotefromfile assistant/simpletextviewer/mainwindow.cpp
+    \skipto MainWindow
+    \printuntil /^\}/
+
+    When the user select the \gui {Open Assistant} entry in the main
+    window's \gui Help menu, it triggers the \c assistant() slot.
+
+    \quotefromfile assistant/simpletextviewer/mainwindow.cpp
+    \skipto assistant()
+    \printuntil /^\}/
+
+    In this slot we use the QAssistantClient::showPage() function to
+    make Qt Assistant show the documentation's index page. This
+    function also brings the Qt Assistant application to the
+    foreground if it is hidden.
+
+    In our example, the application's documentation is located in a
+    subdirectory in the Simple Text Viewer example's directory. We use
+    QLibraryInfo::location() to determine the location of Qt's example
+    path (\l
+    {QLibraryInfo::LibraryLocation}{QLibraryInfo::ExamplesPath}), and
+    add the proper suffix specifying the index file of the
+    documentation.
+
+    The documentation set can be altered using the command line
+    arguments that are passed to Qt Assistant when it is
+    launched. When started without any options, Qt Assistant displays
+    a default set of documentation. When Qt is installed, the default
+    documentation set in Qt Assistant contains the Qt reference
+    documentation as well as the tools that come with Qt, such as Qt
+    Designer and \c qmake.
+
+    In our example, we replace the default documentation set with our
+    custom documentation in the \c initializeAssistant() function
+    called from the constructor:
+
+    \skipto ::initializeAssistant()
+    \printuntil /^\}/
+
+    First we create the QAssistantClient object, then we set the
+    command line arguments that are applied when Qt Assistant is
+    started, using the QAssistantClient::setArguments() function: The
+    \c {-profile documentation/simpletextviewer.adp} arguments tell Qt
+    Assistant to use the documentation set specified by the given \c
+    .adp file. The \c .adp file extension is an abbreviation for \l
+    {assistant-manual.html#profiles}{Qt Assistant Document Profile}.
+
+    \table
+    \header \o Qt Assistant Document Profile
+    \row \o
+    The \l {assistant-manual.html#profiles}{Qt Assistant Document
+    Profile} is an extension of the \l
+    {assistant-manual.html#documentation-content-file-format}{Documentation
+    Content File}.
+
+    Documentation can be added or removed from Qt Assistant by adding
+    and removing the content files. A documentation content file must
+    contain the documentation's table of contents and all important
+    keywords for the index. See the \l {assistant-manual.html}{Qt
+    Assistant Manual} for a more detailed description of how to write
+    and use documentation contents file for Qt Assistant.
+
+    The \l {assistant-manual.html#profiles}{Qt Assistant Document
+    Profile} adds a profile tag, containing property tags, to the
+    format. Using a profile, the documentation writer can change
+    several of Qt Assistant's properties, for example its window title
+    and start page.
+
+    \raw HTML
+    <H4><center>/documentation/simpletextviewer.adp</center></H4>
+    \endraw
+
+    \include assistant/simpletextviewer/documentation/simpletextviewer.adp
+
+    The \c simpletextviewer.adp file quoted above, describes the
+    Simple Text Viewer application's documentation and consists of two
+    sections: One enclosed by the \c profile tag, and another
+    delimited by the \c DCF (Documentation Content File) tag. The
+    latter section describes the documentation content, and defines
+    the keywords that appear in the \gui Index tab in Qt Assistant's
+    sidebar. The \c profile section describes the properties of our
+    application's instance of Qt Assistant. Within the profile tag you
+    might, for example, want to set the \c startpage which is the page
+    that Qt Assistant displays by default, the \c assistantdocs which
+    describes the location of the documentation (relative to the
+    location of the \c .adp file) used when the user requests help
+    from the \gui Search tab, and the \c title property used to
+    specify a window title for Qt Assistant.
+
+    \endtable
+
+    \quotefromfile assistant/simpletextviewer/mainwindow.cpp
+    \skipto open()
+    \printuntil /^\}/
+
+    When the user choose the \gui Open entry in the \gui File menu, it
+    triggers the \c open() slot which will pop up a find file
+    dialog. We have two options of providing help during the dialog's
+    execution: We can either create a new QAssistantClient object
+    within the dialog, or pass the current object to its
+    constructor. By choosing the latter solution, we delimit the
+    number of running Qt Assistant instances to one.
+
+    Along with the QAssistantClient object, we also pass the current
+    QTextEdit object to the \c FindFileDialog contructor to be able to
+    display the selected file. Then we call the newly created dialog's
+    \l {QDialog::exec()}{exec()} function, showing the dialog as a \l
+    {Modal Dialogs}{modal dialog} (i.e. blocking until the user closes
+    the dialog).
+
+    \quotefromfile assistant/simpletextviewer/mainwindow.cpp
+    \skipto closeEvent
+    \printuntil /^\}/
+
+    When launching Qt Assistant using the QAssistantClient, the
+    application is run in its own process. For that reason we must
+    reimplement the QWidget::closeEvent() event handler to ensure that
+    the Qt Assistant process is terminated properly before we close
+    the application.
+
+    \section1 FindFileDialog Class Definition
+
+    \image simpletextviewer-findfiledialog.png
+
+    The Simple Text Viewer application provides a find file dialog
+    allowing the user to search for files using wildcard matching. The
+    search is performed within the specified directory, and the user
+    is given an option to browse the existing file system to find the
+    relevant directory.
+
+    \quotefromfile assistant/simpletextviewer/findfiledialog.h
+    \skipto help
+    \printline help
+    \dots
+    \skipto helpButton
+    \printline helpButton
+
+    The relevant members to observe in the \c FindFileDialog class
+    definition is the private \c help() slot and the associated
+    private \c helpButton. The slot is connected to the button's \l
+    {QAbstractButton::clicked()}{clicked()} signal, and brings the
+    current Qt Assistant instance to the foreground showing the
+    documentation for the dialog.
+
+    \section1 FindFileDialog Class Implementation
+
+    \quotefromfile assistant/simpletextviewer/findfiledialog.cpp
+    \skipto FindFileDialog
+    \printuntil currentEditor
+    \dots
+    \skipto /^\}/
+    \printline /^\}/
+
+    In the constructor we save the references to the QAssistantClient
+    and QTextEdit objects passed as arguments. The QAssistantClient
+    object will be used in the \c FindFileDialog's \c help() slot as
+    we will see shortly, while the QTextEdit will be used in the
+    dialog's \c openFile() slot to display the chosen file.
+
+    \skipto help()
+    \printuntil /^\}/
+
+    The \c help() slot is called when the user clicks the \gui Help
+    button in the dialog. It brings the current Qt Assistant instance
+    to the foreground and shows the application's manual page, using
+    the QAssistantClient::showPage() function.
+
+    \section1 Summary
+
+    In order to make Qt Assistant act as a customized help tool for
+    your application, you must provide your application with a
+    QAssistantClient object in addition to a \l
+    {assistant-manual.html#profiles}{Qt Assistant Document Profile}
+    (\c .adp file) and documentation for the application.
+*/
