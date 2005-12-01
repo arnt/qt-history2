@@ -4126,7 +4126,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 } else {
                     QStyleOptionButton buttonOption;
                     buttonOption.QStyleOption::operator=(*comboBox);
-                    buttonOption.rect = rect;
+                    buttonOption.rect = rect.adjusted(-1, -1, 1, 1);
                     buttonOption.state = comboBox->state & (State_Enabled | State_MouseOver);
                     if (sunken) {
                         buttonOption.state |= State_Sunken;
