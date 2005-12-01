@@ -1886,6 +1886,8 @@ if [ -z "$QT_INSTALL_PREFIX" ]; then
     if [ "$Edition" = "Trolltech" ]; then
         # At Trolltech, we use sandboxed builds by default
 	QT_INSTALL_PREFIX="$outpath"
+    elif [ "$PLATFORM_QWS" = "yes" ]; then
+        QT_INSTALL_PREFIX="/usr/local/Trolltech/QtopiaCore-${QT_VERSION}"
     else
         # the default install prefix is /usr/local/Trolltech/Qt-$QT_VERSION
         QT_INSTALL_PREFIX="/usr/local/Trolltech/Qt-${QT_VERSION}"
