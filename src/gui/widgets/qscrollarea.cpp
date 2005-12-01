@@ -267,7 +267,8 @@ bool QScrollArea::eventFilter(QObject *o, QEvent *e)
         }
     }
 #endif
-    if (o == d->widget && e->type() == QEvent::Resize) {
+    if (o == d->widget &&
+        (e->type() == QEvent::Resize || e->type() == QEvent::LayoutRequest)) {
         d->updateScrollBars();
         d->widget->move(-d->hbar->value(), -d->vbar->value());
 	}
@@ -393,30 +394,30 @@ bool QScrollArea::focusNextPrevChild(bool next)
     \code
         QScrollArea sa;
         sa.setBackgroundRole(QPalette::Dark);
-        sa.setWidget(childWidget);                     
+        sa.setWidget(childWidget);
         sa.show();
 
         sa.setFocus();
         sa.ensureVisible(640, 480, 10, 10);
 
         qapp.exec();
-    \endcode    
+    \endcode
 */
 void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
 {
-    Q_D(QScrollArea);   
-        
+    Q_D(QScrollArea);
+
     if (x < d->hbar->value() - xmargin){
         d->hbar->setValue(qMax(0, x - xmargin));
     } else if (x > d->hbar->value() + d->viewport->width() - xmargin) {
         d->hbar->setValue(qMin(x - d->viewport->width() + xmargin, d->hbar->maximum()));
     }
-    
+
     if (y < d->vbar->value() - ymargin){
         d->vbar->setValue(qMax(0, y - ymargin));
     } else if (y > d->vbar->value() + d->viewport->height() - ymargin) {
         d->vbar->setValue(qMin(y - d->viewport->height() + ymargin, d->vbar->maximum()));
-    }                   
+    }
 }
 
 #endif // QT_NO_SCROLLAREA
