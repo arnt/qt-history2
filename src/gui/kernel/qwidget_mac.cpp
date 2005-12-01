@@ -464,7 +464,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         p.setClipRegion(qrgn);
                         widget->d_func()->paintBackground(&p, rr, widget->isWindow());
                         if (widget->testAttribute(Qt::WA_TintedBackground)) {
-                            QColor tint = widget->palette().window();
+                            QColor tint = widget->palette().window().color();
                             tint.setAlphaF(.6);
                             p.fillRect(rr, tint);
                         }

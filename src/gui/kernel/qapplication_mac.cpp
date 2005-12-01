@@ -1047,7 +1047,7 @@ static QWidget *qt_mac_recursive_widgetAt(QWidget *widget, int x, int y)
                          wx2=wx+kid->width(), wy2=wy+kid->height();
 		if(x >= wx && y >= wy && x < wx2 && y < wy2) {
                     const QRegion mask = kid->mask();
-		    if(!mask.isNull() && !mask.contains(QPoint(x-wx, y-wy)))
+		    if(!mask.isEmpty() && !mask.contains(QPoint(x-wx, y-wy)))
 			continue;
 		    return qt_mac_recursive_widgetAt(kid, x-wx, y-wy);
 		}
