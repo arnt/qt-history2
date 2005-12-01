@@ -24,8 +24,8 @@
 #include "qpen.h"
 #include "qvarlengtharray.h"
 #include <private/qpainter_p.h>
-#include <qglpbuffer.h>
-#include <private/qglpbuffer_p.h>
+#include <qglpixelbuffer.h>
+#include <private/qglpixelbuffer_p.h>
 #include <private/qstroker_p.h>
 #include <private/qbezier_p.h>
 
