@@ -1,5 +1,5 @@
 #
-# PowerPC arch files
+# PowerPC architecture
 #
 
 ARCH_CPP=$$QT_SOURCE_TREE/src/corelib/arch/powerpc
@@ -15,4 +15,3 @@ HEADERS += $$ARCH_H/qatomic.h
         SOURCES += $$ARCH_CPP/qatomic32.s
     }
 }
-

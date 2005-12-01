@@ -1,5 +1,5 @@
 #
-# HP PA-RISC arch files
+# HP PA-RISC architecture
 #
 
 ARCH_CPP=$$QT_SOURCE_TREE/src/corelib/arch/parisc
@@ -10,4 +10,3 @@ DEPENDPATH += $$ARCH_CPP;$$ARCH_H
 HEADERS += $$ARCH_H/qatomic.h
 SOURCES += $$ARCH_CPP/q_ldcw.s \
 	   $$ARCH_CPP/qatomic.cpp
-

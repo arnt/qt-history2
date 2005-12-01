@@ -1,5 +1,5 @@
 #
-# Mac OS X arch files
+# Mac OS X architecture
 #
 
 ARCH_CPP=$$QT_SOURCE_TREE/src/corelib/arch/macosx
@@ -13,4 +13,3 @@ HEADERS += $$ARCH_H/qatomic.h
    contains($$list($$system(uname -m)), x86):SOURCES += $$ARCH_CPP/../i386/qatomic.s
    else:SOURCES += $$ARCH_CPP/qatomic32_ppc.s
 }
-

@@ -1,5 +1,5 @@
 # 
-# i386 specific files
+# i386 architecture
 #
 
 ARCH_CPP=$$QT_SOURCE_TREE/src/corelib/arch/i386

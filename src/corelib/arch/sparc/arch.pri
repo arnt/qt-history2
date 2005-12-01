@@ -1,5 +1,5 @@
 #
-# SPARC arch files
+# SPARC architecture
 #
 
 ARCH_CPP=$$QT_SOURCE_TREE/src/corelib/arch/sparc
@@ -11,4 +11,3 @@ HEADERS += $$ARCH_H/qatomic.h
 
 *-64:SOURCES += $$ARCH_CPP/qatomic64.s
 else:SOURCES += $$ARCH_CPP/qatomic32.s
-

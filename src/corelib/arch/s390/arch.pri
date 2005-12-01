@@ -1,5 +1,5 @@
 #
-# 's390' architecture
+# S390 architecture
 #
 
 ARCH_CPP=$$QT_SOURCE_TREE/src/corelib/arch/s390
