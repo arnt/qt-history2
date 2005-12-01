@@ -271,7 +271,7 @@ bool QScrollArea::eventFilter(QObject *o, QEvent *e)
         (e->type() == QEvent::Resize || e->type() == QEvent::LayoutRequest)) {
         d->updateScrollBars();
         d->widget->move(-d->hbar->value(), -d->vbar->value());
-	}
+    }
     return false;
 }
 
@@ -385,9 +385,12 @@ bool QScrollArea::focusNextPrevChild(bool next)
     \a ymargin. If the specified point cannot be reached, the contents are scrolled to
     the nearest valid position. The default value for both margins is 50 pixels.
 
-    \bold{Note:} If you call this function before entering an event loop, make sure that
-    you have set the focus on the QScrollArea widget; otherwise, the viewport will be
-    scrolled back to its old position.
+    \bold{Note:} A scroll area automatically ensures the visibility of
+    any child widget of the scrolled form that gets focus. This can
+    conflict with calling this function, e.g. when you call it before
+    entering the event loop. To avoid having the viewport scroll to a
+    different position, you can set the focus on the QScrollArea
+    widget itself as shown in the example.
 
     Example:
 
