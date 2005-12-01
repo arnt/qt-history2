@@ -192,10 +192,10 @@ bool QGLPbuffer::doneCurrent()
 #endif
 }
 
-GLuint QGLPbuffer::generateDynamicTexture()
+GLuint QGLPbuffer::generateDynamicTexture() const
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    Q_D(QGLPbuffer);
+    Q_D(const QGLPbuffer);
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
