@@ -87,6 +87,9 @@ struct QAccessibleTextBinding {
     { { QAccessible::PageTabList, kAXTabGroupRole, false },
       { -1, 0, false }
     },
+    { { QAccessible::PageTab, kAXRadioButtonRole, false },
+      { -1, 0, false }
+    },
     { { QAccessible::ButtonMenu, kAXMenuButtonRole, false },
       { -1, 0, false }
     },
@@ -577,38 +580,46 @@ AXUIElementRef QAccessibleHierarchyManager::createElementForInterface(QInterface
         return 0;
     
     HIObjectRef hiobj = 0;
-    QObject * const object = interface.object();
-    if (object && qobjectToInterfaces.contains(object) == false) 
-        connect(object, SIGNAL(destroyed()), SLOT(objectDestroyed()));
-        
-    QWidget * const widget = qobject_cast<QWidget * const>(object);
-    if (widget)
-        hiobj = (HIObjectRef)widget->winId();
+    if (interface.id() == 0) {
+        QObject * const object = interface.object();
+        if (object && qobjectToInterfaces.contains(object) == false) 
+            connect(object, SIGNAL(destroyed()), SLOT(objectDestroyed()));
+            
+        QWidget * const widget = qobject_cast<QWidget * const>(object);
+        if (widget)
+            hiobj = (HIObjectRef)widget->winId();
 
-    if (!hiobj) {
-        qDebug() << "creating hiobj";
-        if (HIObjectCreate(kObjectQtAccessibility, 0, &hiobj) != noErr) {
-            qDebug() << "qaccessible_mac: Failed to create Qt accessibility HIObject";
-            return 0;
-        }    
-    }
-    
-    // If the interface is not interesting to the accessibility user we disable
-    // accessibility for it it. This means that it won't show up for the user, 
-    // but it is still a part of the hierarcy.
-    // This also gets rid of the "empty_widget" created in QEventDispatcherMac::processEvents().
-    
-    HIObjectSetAccessibilityIgnored(hiobj, !isItInteresting(interface));
-    
-    // Install accessibility event handler on object
-    if (!accessibilityEventHandlerUPP)
-        accessibilityEventHandlerUPP = NewEventHandlerUPP(accessibilityEventHandler);
+        if (!hiobj) {
+            qDebug() << "creating hiobj";
+            if (HIObjectCreate(kObjectQtAccessibility, 0, &hiobj) != noErr) {
+                qDebug() << "qaccessible_mac: Failed to create Qt accessibility HIObject";
+                return 0;
+            }    
+        }
         
-    OSErr err = InstallHIObjectEventHandler(hiobj, accessibilityEventHandlerUPP,
-                                        GetEventTypeCount(accessibilityEvents),
-                                        accessibilityEvents, 0, 0);        
-    if (err) 
-        qDebug() << "qaccessible_mac: Could not install accessibility event handler"; 
+        // If the interface is not interesting to the accessibility user we disable
+        // accessibility for it it. This means that it won't show up for the user, 
+        // but it is still a part of the hierarcy.
+        // This also gets rid of the "empty_widget" created in QEventDispatcherMac::processEvents().
+        HIObjectSetAccessibilityIgnored(hiobj, !isItInteresting(interface));
+        
+        
+        // Install accessibility event handler on object
+        if (!accessibilityEventHandlerUPP)
+            accessibilityEventHandlerUPP = NewEventHandlerUPP(accessibilityEventHandler);
+            
+        OSErr err = InstallHIObjectEventHandler(hiobj, accessibilityEventHandlerUPP,
+                                            GetEventTypeCount(accessibilityEvents),
+                                            accessibilityEvents, 0, 0);        
+        if (err) 
+            qDebug() << "qaccessible_mac: Could not install accessibility event handler"; 
+    } else {
+        const QAXUIElement element = lookup(QInterfaceItem(interface, 0));
+        if (element.isValid())
+            hiobj = element.object();
+        else
+            qDebug() << "no HIObject found";
+    }
     return AXUIElementCreateWithHIObjectAndIdentifier(hiobj, interface.id()); 
 }
 
@@ -794,6 +805,7 @@ static CFStringRef macRoleForQtRole(QAccessible::Role role)
         ++i;
         testRole = text_bindings[i][0].qt;
     }
+
     return kAXUnknownRole;
 }
 
@@ -1045,21 +1057,14 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
     } else if (CFStringCompare(var, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
         return CallNextEventHandler(next_ref, event);
     } else  if (CFStringCompare(var, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
-        CFStringRef role = kAXUnknownRole;
-        for (int r = 0; text_bindings[r][0].qt != -1; r++) {
-            if (interface.role() == (QAccessible::Role)text_bindings[r][0].qt) {
-                role = text_bindings[r][0].mac;
-                break;
-            }
-        }
-        
+        CFStringRef role = macRoleForQtRole(interface.role());
         QWidget * const widget = qobject_cast<QWidget *>(interface.object()); 
         if (role == kAXUnknownRole && widget && widget->isWindow())
             role = kAXWindowRole;
-        
+
         SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef,
                           sizeof(role), &role);
-    
+
     } else if (CFStringCompare(var, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
         Boolean val = !((interface.state() & QAccessible::Unavailable));
         SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean,
