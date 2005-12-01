@@ -1073,10 +1073,10 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
     if (state() == EditingState)
         return;
 
-    setState(NoState);
-
-    if (selectionModel())
+    if (selectionModel() && state() == DragSelectingState)
         selectionModel()->select(index, selectionCommand(index, event));
+
+    setState(NoState);
 
     if (index == d_func()->pressedIndex && index.isValid()) {
         // signal handlers may change the model
