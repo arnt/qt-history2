@@ -21,10 +21,9 @@ class QStackedLayoutPrivate : public QLayoutPrivate
 {
     Q_DECLARE_PUBLIC(QStackedLayout)
 public:
-    QStackedLayoutPrivate() : index(-1), widget(0) {}
+    QStackedLayoutPrivate() : index(-1) {}
     QList<QLayoutItem *> list;
     int index;
-    QWidget *widget;
 };
 
 /*!
@@ -175,9 +174,11 @@ int QStackedLayout::insertWidget(int index, QWidget *widget)
     QWidgetItem *wi = new QWidgetItem(widget);
     d->list.insert(index, wi);
     invalidate();
-    if ((d->index < 0) || (index == d->index)) {
+    if (d->index < 0) {
         setCurrentIndex(index);
     } else {
+        if (index <= d->index)
+            ++d->index;
         widget->hide();
         widget->lower();
     }
@@ -203,13 +204,10 @@ QLayoutItem *QStackedLayout::takeAt(int index)
         return 0;
     QLayoutItem *item = d->list.takeAt(index);
     if (index == d->index) {
-        d->widget = 0;
+        d->index = -1;
         if ( d->list.count() > 0 ) {
             int newIndex = (index == d->list.count()) ? index-1 : index;
             setCurrentIndex(newIndex);
-        } else {
-            d->index = -1;
-            d->widget = 0;
         }
     } else if (index < d->index) {
         --d->index;
@@ -243,7 +241,6 @@ void QStackedLayout::setCurrentIndex(int index)
     }
 
     d->index = index;
-    d->widget = next;
     next->raise();
     next->show();
 
@@ -313,7 +310,7 @@ void QStackedLayout::setCurrentWidget(QWidget *widget)
 QWidget *QStackedLayout::currentWidget() const
 {
     Q_D(const QStackedLayout);
-    return d->widget;
+    return d->index >= 0 ? d->list.at(d->index)->widget() : 0;
 }
 
 /*!
