@@ -733,11 +733,24 @@ void WriteInitialization::writeProperties(const QString &varName,
                             .arg(po->elementX()).arg(po->elementY());
             break;
         }
+        case DomProperty::PointF: {
+            DomPointF *pof = p->elementPointF();
+            propertyValue = QString::fromLatin1("QPointF(%1, %2)")
+                            .arg(pof->elementX()).arg(pof->elementY());
+            break;
+        }
         case DomProperty::Rect: {
             DomRect *r = p->elementRect();
             propertyValue = QString::fromLatin1("QRect(%1, %2, %3, %4)")
                             .arg(r->elementX()).arg(r->elementY())
                             .arg(r->elementWidth()).arg(r->elementHeight());
+            break;
+        }
+        case DomProperty::RectF: {
+            DomRectF *rf = p->elementRectF();
+            propertyValue = QString::fromLatin1("QRectF(%1, %2, %3, %4)")
+                            .arg(rf->elementX()).arg(rf->elementY())
+                            .arg(rf->elementWidth()).arg(rf->elementHeight());
             break;
         }
         case DomProperty::SizePolicy: {
@@ -764,6 +777,12 @@ void WriteInitialization::writeProperties(const QString &varName,
                              .arg(s->elementWidth()).arg(s->elementHeight());
             break;
         }
+        case DomProperty::SizeF: {
+             DomSizeF *sf = p->elementSizeF();
+              propertyValue = QString::fromLatin1("QSizeF(%1, %2)")
+                             .arg(sf->elementWidth()).arg(sf->elementHeight());
+            break;
+        }
         case DomProperty::String: {
             if (propertyName == QLatin1String("objectName")) {
                 QString v = p->elementString()->text();
@@ -786,12 +805,21 @@ void WriteInitialization::writeProperties(const QString &varName,
         case DomProperty::Number:
             propertyValue = QString::number(p->elementNumber());
             break;
+        case DomProperty::LongLong:
+            propertyValue = QString::number(p->elementLongLong());
+            break;
         case DomProperty::Float:
             propertyValue = QString::number(p->elementFloat());
             break;
         case DomProperty::Double:
             propertyValue = QString::number(p->elementDouble());
             break;
+        case DomProperty::Char: {
+            DomChar *c = p->elementChar();
+            propertyValue = QString::fromLatin1("QChar(%1)")
+                            .arg(c->elementUnicode());
+            break;
+        }
         case DomProperty::Date: {
             DomDate *d = p->elementDate();
             propertyValue = QString::fromLatin1("QDate(%1, %2, %3)")
@@ -829,6 +857,12 @@ void WriteInitialization::writeProperties(const QString &varName,
             }
             break;
 
+        case DomProperty::Url: {
+            DomUrl* u = p->elementUrl();
+            propertyValue = QString::fromLatin1("QUrl(%1)")
+                            .arg(fixString(u->elementString()->text()));
+            break;
+        }
         case DomProperty::Unknown:
             break;
         }

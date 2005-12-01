@@ -20,6 +20,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QQueue>
+#include <QtCore/QUrl>
 
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
@@ -739,15 +740,33 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         v = QVariant(pt);
     } break;
 
+    case DomProperty::PointF: {
+        DomPointF *pointf = p->elementPointF();
+        QPointF pt(pointf->elementX(), pointf->elementY());
+        v = QVariant(pt);
+    } break;
+
     case DomProperty::Size: {
         DomSize *size = p->elementSize();
         QSize sz(size->elementWidth(), size->elementHeight());
         v = QVariant(sz);
     } break;
 
+    case DomProperty::SizeF: {
+        DomSizeF *sizef = p->elementSizeF();
+        QSizeF sz(sizef->elementWidth(), sizef->elementHeight());
+        v = QVariant(sz);
+    } break;
+
     case DomProperty::Rect: {
         DomRect *rc = p->elementRect();
         QRect g(rc->elementX(), rc->elementY(), rc->elementWidth(), rc->elementHeight());
+        v = QVariant(g);
+    } break;
+
+    case DomProperty::RectF: {
+        DomRectF *rcf = p->elementRectF();
+        QRectF g(rcf->elementX(), rcf->elementY(), rcf->elementWidth(), rcf->elementHeight());
         v = QVariant(g);
     } break;
 
@@ -763,8 +782,18 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         v = p->elementNumber();
     } break;
 
+    case DomProperty::LongLong: {
+        v = p->elementLongLong();
+    } break;
+
     case DomProperty::Double: {
         v = p->elementDouble();
+    } break;
+
+    case DomProperty::Char: {
+        DomChar *character = p->elementChar();
+        QChar c(character->elementUnicode());
+        v = qVariantFromValue(c);
     } break;
 
     case DomProperty::Color: {
@@ -811,6 +840,12 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
 
         QDateTime dt(d, tm);
         v = QVariant(dt);
+    } break;
+
+    case DomProperty::Url: {
+        DomUrl *url = p->elementUrl();
+        QUrl u(url->elementString()->text());
+        v = QVariant(u);
     } break;
 
     case DomProperty::Pixmap:
@@ -1273,6 +1308,14 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             dom_prop->setElementNumber(v.toUInt());
         } break;
 
+        case QVariant::LongLong: {
+            dom_prop->setElementLongLong(v.toLongLong());
+        } break;
+
+        case QVariant::ULongLong: {
+            dom_prop->setElementLongLong(v.toULongLong());
+        } break;
+
         case QVariant::Double: {
             dom_prop->setElementDouble(v.toDouble());
         } break;
@@ -1281,12 +1324,27 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             dom_prop->setElementBool(v.toBool() ? QLatin1String("true") : QLatin1String("false"));
         } break;
 
+        case QVariant::Char: {
+            DomChar *ch = new DomChar();
+            QChar character = v.toChar();
+            ch->setElementUnicode(character.unicode());
+            dom_prop->setElementChar(ch);
+        } break;
+
         case QVariant::Point: {
             DomPoint *pt = new DomPoint();
             QPoint point = v.toPoint();
             pt->setElementX(point.x());
             pt->setElementY(point.y());
             dom_prop->setElementPoint(pt);
+        } break;
+
+        case QVariant::PointF: {
+            DomPointF *ptf = new DomPointF();
+            QPointF pointf = v.toPointF();
+            ptf->setElementX(pointf.x());
+            ptf->setElementY(pointf.y());
+            dom_prop->setElementPointF(ptf);
         } break;
 
         case QVariant::Color: {
@@ -1306,6 +1364,14 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             dom_prop->setElementSize(sz);
         } break;
 
+        case QVariant::SizeF: {
+            DomSizeF *szf = new DomSizeF();
+            QSizeF sizef = v.toSizeF();
+            szf->setElementWidth(sizef.width());
+            szf->setElementHeight(sizef.height());
+            dom_prop->setElementSizeF(szf);
+        } break;
+
         case QVariant::Rect: {
             DomRect *rc = new DomRect();
             QRect rect = v.toRect();
@@ -1314,6 +1380,16 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             rc->setElementWidth(rect.width());
             rc->setElementHeight(rect.height());
             dom_prop->setElementRect(rc);
+        } break;
+
+        case QVariant::RectF: {
+            DomRectF *rcf = new DomRectF();
+            QRectF rectf = v.toRectF();
+            rcf->setElementX(rectf.x());
+            rcf->setElementY(rectf.y());
+            rcf->setElementWidth(rectf.width());
+            rcf->setElementHeight(rectf.height());
+            dom_prop->setElementRectF(rcf);
         } break;
 
         case QVariant::Font: {
@@ -1381,6 +1457,17 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             dom->setElementSecond(time.second());
 
             dom_prop->setElementTime(dom);
+        } break;
+
+        case QVariant::Url: {
+            DomUrl *dom = new DomUrl();
+            QUrl url = v.toUrl();
+
+            DomString *str = new DomString();
+            str->setText(url.toString());
+            dom->setElementString(str);
+
+            dom_prop->setElementUrl(dom);
         } break;
 
         case QVariant::Pixmap:

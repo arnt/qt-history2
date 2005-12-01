@@ -3811,6 +3811,7 @@ void DomResourcePixmap::clear(bool clear_all)
     if (clear_all) {
     m_text = QString();
     m_has_attr_resource = false;
+    m_has_attr_alias = false;
     }
 
 }
@@ -3818,6 +3819,7 @@ void DomResourcePixmap::clear(bool clear_all)
 DomResourcePixmap::DomResourcePixmap()
 {
     m_has_attr_resource = false;
+    m_has_attr_alias = false;
 }
 
 DomResourcePixmap::~DomResourcePixmap()
@@ -3828,6 +3830,8 @@ void DomResourcePixmap::read(const QDomElement &node)
 {
     if (node.hasAttribute(QLatin1String("resource")))
         setAttributeResource(node.attribute(QLatin1String("resource")));
+    if (node.hasAttribute(QLatin1String("alias")))
+        setAttributeAlias(node.attribute(QLatin1String("alias")));
 
     for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
         if (!n.isElement())
@@ -3851,6 +3855,9 @@ QDomElement DomResourcePixmap::write(QDomDocument &doc, const QString &tagName)
 
     if (hasAttributeResource())
         e.setAttribute(QLatin1String("resource"), attributeResource());
+
+    if (hasAttributeAlias())
+        e.setAttribute(QLatin1String("alias"), attributeAlias());
 
     if (!m_text.isEmpty())
         e.appendChild(doc.createTextNode(m_text));
@@ -3918,6 +3925,390 @@ QDomElement DomString::write(QDomDocument &doc, const QString &tagName)
     return e;
 }
 
+void DomPointF::clear(bool clear_all)
+{
+
+    if (clear_all) {
+    m_text = QString();
+    }
+
+    m_x = 0;
+    m_y = 0;
+}
+
+DomPointF::DomPointF()
+{
+    m_x = 0;
+    m_y = 0;
+}
+
+DomPointF::~DomPointF()
+{
+}
+
+void DomPointF::read(const QDomElement &node)
+{
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("x")) {
+            setElementX(e.text().toDouble());
+            continue;
+        }
+        if (tag == QLatin1String("y")) {
+            setElementY(e.text().toDouble());
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomPointF::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("pointf") : tagName.toLower());
+
+    QDomElement child;
+
+    child = doc.createElement(QLatin1String("x"));
+    child.appendChild(doc.createTextNode(QString::number(m_x)));
+    e.appendChild(child);
+
+    child = doc.createElement(QLatin1String("y"));
+    child.appendChild(doc.createTextNode(QString::number(m_y)));
+    e.appendChild(child);
+
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomPointF::setElementX(double a)
+{
+    m_x = a;
+}
+
+void DomPointF::setElementY(double a)
+{
+    m_y = a;
+}
+
+void DomRectF::clear(bool clear_all)
+{
+
+    if (clear_all) {
+    m_text = QString();
+    }
+
+    m_x = 0;
+    m_y = 0;
+    m_width = 0;
+    m_height = 0;
+}
+
+DomRectF::DomRectF()
+{
+    m_x = 0;
+    m_y = 0;
+    m_width = 0;
+    m_height = 0;
+}
+
+DomRectF::~DomRectF()
+{
+}
+
+void DomRectF::read(const QDomElement &node)
+{
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("x")) {
+            setElementX(e.text().toDouble());
+            continue;
+        }
+        if (tag == QLatin1String("y")) {
+            setElementY(e.text().toDouble());
+            continue;
+        }
+        if (tag == QLatin1String("width")) {
+            setElementWidth(e.text().toDouble());
+            continue;
+        }
+        if (tag == QLatin1String("height")) {
+            setElementHeight(e.text().toDouble());
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomRectF::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("rectf") : tagName.toLower());
+
+    QDomElement child;
+
+    child = doc.createElement(QLatin1String("x"));
+    child.appendChild(doc.createTextNode(QString::number(m_x)));
+    e.appendChild(child);
+
+    child = doc.createElement(QLatin1String("y"));
+    child.appendChild(doc.createTextNode(QString::number(m_y)));
+    e.appendChild(child);
+
+    child = doc.createElement(QLatin1String("width"));
+    child.appendChild(doc.createTextNode(QString::number(m_width)));
+    e.appendChild(child);
+
+    child = doc.createElement(QLatin1String("height"));
+    child.appendChild(doc.createTextNode(QString::number(m_height)));
+    e.appendChild(child);
+
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomRectF::setElementX(double a)
+{
+    m_x = a;
+}
+
+void DomRectF::setElementY(double a)
+{
+    m_y = a;
+}
+
+void DomRectF::setElementWidth(double a)
+{
+    m_width = a;
+}
+
+void DomRectF::setElementHeight(double a)
+{
+    m_height = a;
+}
+
+void DomSizeF::clear(bool clear_all)
+{
+
+    if (clear_all) {
+    m_text = QString();
+    }
+
+    m_width = 0;
+    m_height = 0;
+}
+
+DomSizeF::DomSizeF()
+{
+    m_width = 0;
+    m_height = 0;
+}
+
+DomSizeF::~DomSizeF()
+{
+}
+
+void DomSizeF::read(const QDomElement &node)
+{
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("width")) {
+            setElementWidth(e.text().toDouble());
+            continue;
+        }
+        if (tag == QLatin1String("height")) {
+            setElementHeight(e.text().toDouble());
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomSizeF::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("sizef") : tagName.toLower());
+
+    QDomElement child;
+
+    child = doc.createElement(QLatin1String("width"));
+    child.appendChild(doc.createTextNode(QString::number(m_width)));
+    e.appendChild(child);
+
+    child = doc.createElement(QLatin1String("height"));
+    child.appendChild(doc.createTextNode(QString::number(m_height)));
+    e.appendChild(child);
+
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomSizeF::setElementWidth(double a)
+{
+    m_width = a;
+}
+
+void DomSizeF::setElementHeight(double a)
+{
+    m_height = a;
+}
+
+void DomChar::clear(bool clear_all)
+{
+
+    if (clear_all) {
+    m_text = QString();
+    }
+
+    m_unicode = 0;
+}
+
+DomChar::DomChar()
+{
+    m_unicode = 0;
+}
+
+DomChar::~DomChar()
+{
+}
+
+void DomChar::read(const QDomElement &node)
+{
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("unicode")) {
+            setElementUnicode(e.text().toInt());
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomChar::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("char") : tagName.toLower());
+
+    QDomElement child;
+
+    child = doc.createElement(QLatin1String("unicode"));
+    child.appendChild(doc.createTextNode(QString::number(m_unicode)));
+    e.appendChild(child);
+
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomChar::setElementUnicode(int a)
+{
+    m_unicode = a;
+}
+
+void DomUrl::clear(bool clear_all)
+{
+    delete m_string;
+
+    if (clear_all) {
+    m_text = QString();
+    }
+
+    m_string = 0;
+}
+
+DomUrl::DomUrl()
+{
+    m_string = 0;
+}
+
+DomUrl::~DomUrl()
+{
+    delete m_string;
+}
+
+void DomUrl::read(const QDomElement &node)
+{
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("string")) {
+            DomString *v = new DomString();
+            v->read(e);
+            setElementString(v);
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomUrl::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("url") : tagName.toLower());
+
+    QDomElement child;
+
+    if (m_string != 0)
+        e.appendChild(m_string->write(doc, QLatin1String("string")));
+
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomUrl::setElementString(DomString* a)
+{
+    delete m_string;
+    m_string = a;
+}
+
 void DomProperty::clear(bool clear_all)
 {
     delete m_color;
@@ -3934,6 +4325,11 @@ void DomProperty::clear(bool clear_all)
     delete m_date;
     delete m_time;
     delete m_dateTime;
+    delete m_pointf;
+    delete m_rectf;
+    delete m_sizef;
+    delete m_char;
+    delete m_url;
 
     if (clear_all) {
     m_text = QString();
@@ -3962,6 +4358,12 @@ void DomProperty::clear(bool clear_all)
     m_date = 0;
     m_time = 0;
     m_dateTime = 0;
+    m_pointf = 0;
+    m_rectf = 0;
+    m_sizef = 0;
+    m_longlong = 0;
+    m_char = 0;
+    m_url = 0;
 }
 
 DomProperty::DomProperty()
@@ -3989,6 +4391,12 @@ DomProperty::DomProperty()
     m_date = 0;
     m_time = 0;
     m_dateTime = 0;
+    m_pointf = 0;
+    m_rectf = 0;
+    m_sizef = 0;
+    m_longlong = 0;
+    m_char = 0;
+    m_url = 0;
 }
 
 DomProperty::~DomProperty()
@@ -4007,6 +4415,11 @@ DomProperty::~DomProperty()
     delete m_date;
     delete m_time;
     delete m_dateTime;
+    delete m_pointf;
+    delete m_rectf;
+    delete m_sizef;
+    delete m_char;
+    delete m_url;
 }
 
 void DomProperty::read(const QDomElement &node)
@@ -4135,6 +4548,40 @@ void DomProperty::read(const QDomElement &node)
             DomDateTime *v = new DomDateTime();
             v->read(e);
             setElementDateTime(v);
+            continue;
+        }
+        if (tag == QLatin1String("pointf")) {
+            DomPointF *v = new DomPointF();
+            v->read(e);
+            setElementPointF(v);
+            continue;
+        }
+        if (tag == QLatin1String("rectf")) {
+            DomRectF *v = new DomRectF();
+            v->read(e);
+            setElementRectF(v);
+            continue;
+        }
+        if (tag == QLatin1String("sizef")) {
+            DomSizeF *v = new DomSizeF();
+            v->read(e);
+            setElementSizeF(v);
+            continue;
+        }
+        if (tag == QLatin1String("longlong")) {
+            setElementLongLong(e.text().toLongLong());
+            continue;
+        }
+        if (tag == QLatin1String("char")) {
+            DomChar *v = new DomChar();
+            v->read(e);
+            setElementChar(v);
+            continue;
+        }
+        if (tag == QLatin1String("url")) {
+            DomUrl *v = new DomUrl();
+            v->read(e);
+            setElementUrl(v);
             continue;
         }
     }
@@ -4327,6 +4774,53 @@ QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
             }
             break;
         }
+        case PointF: {
+            DomPointF* v = elementPointF();
+            if (v != 0) {
+                QDomElement child = v->write(doc, QLatin1String("pointf"));
+                e.appendChild(child);
+            }
+            break;
+        }
+        case RectF: {
+            DomRectF* v = elementRectF();
+            if (v != 0) {
+                QDomElement child = v->write(doc, QLatin1String("rectf"));
+                e.appendChild(child);
+            }
+            break;
+        }
+        case SizeF: {
+            DomSizeF* v = elementSizeF();
+            if (v != 0) {
+                QDomElement child = v->write(doc, QLatin1String("sizef"));
+                e.appendChild(child);
+            }
+            break;
+        }
+        case LongLong: {
+            QDomElement child = doc.createElement(QLatin1String("longlong"));
+            QDomText text = doc.createTextNode(QString::number(elementLongLong()));
+            child.appendChild(text);
+            e.appendChild(child);
+            break;
+        }
+        case Char: {
+            DomChar* v = elementChar();
+            if (v != 0) {
+                QDomElement child = v->write(doc, QLatin1String("char"));
+                e.appendChild(child);
+            }
+            break;
+        }
+        case Url: {
+            DomUrl* v = elementUrl();
+            if (v != 0) {
+                QDomElement child = v->write(doc, QLatin1String("url"));
+                e.appendChild(child);
+            }
+            break;
+        }
         default:
             break;
     }
@@ -4488,6 +4982,48 @@ void DomProperty::setElementDateTime(DomDateTime* a)
     clear(false);
     m_kind = DateTime;
     m_dateTime = a;
+}
+
+void DomProperty::setElementPointF(DomPointF* a)
+{
+    clear(false);
+    m_kind = PointF;
+    m_pointf = a;
+}
+
+void DomProperty::setElementRectF(DomRectF* a)
+{
+    clear(false);
+    m_kind = RectF;
+    m_rectf = a;
+}
+
+void DomProperty::setElementSizeF(DomSizeF* a)
+{
+    clear(false);
+    m_kind = SizeF;
+    m_sizef = a;
+}
+
+void DomProperty::setElementLongLong(qlonglong a)
+{
+    clear(false);
+    m_kind = LongLong;
+    m_longlong = a;
+}
+
+void DomProperty::setElementChar(DomChar* a)
+{
+    clear(false);
+    m_kind = Char;
+    m_char = a;
+}
+
+void DomProperty::setElementUrl(DomUrl* a)
+{
+    clear(false);
+    m_kind = Url;
+    m_url = a;
 }
 
 void DomConnections::clear(bool clear_all)

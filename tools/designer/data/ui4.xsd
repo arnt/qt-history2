@@ -343,6 +343,41 @@
                 <xs:attribute name="comment" type="xs:string" />
         </xs:complexType>
 
+        <xs:complexType name="PointF">
+                <xs:sequence>
+                        <xs:element name="x" type="xs:double" />
+                        <xs:element name="y" type="xs:double" />
+                </xs:sequence>
+        </xs:complexType>
+
+        <xs:complexType name="RectF">
+                <xs:sequence>
+                        <xs:element name="x" type="xs:double" />
+                        <xs:element name="y" type="xs:double" />
+                        <xs:element name="width" type="xs:double" />
+                        <xs:element name="height" type="xs:double" />
+                </xs:sequence>
+        </xs:complexType>
+
+        <xs:complexType name="SizeF">
+                <xs:sequence>
+                        <xs:element name="width" type="xs:double" />
+                        <xs:element name="height" type="xs:double" />
+                </xs:sequence>
+        </xs:complexType>
+
+        <xs:complexType name="Char">
+                <xs:sequence>
+                        <xs:element name="unicode" type="xs:integer" />
+                </xs:sequence>
+        </xs:complexType>
+
+        <xs:complexType name="Url">
+                <xs:sequence>
+                        <xs:element name="string" type="String" />
+                </xs:sequence>
+        </xs:complexType>
+
         <xs:complexType name="Property">
                 <xs:choice>
                         <xs:element name="bool" type="xs:string" />
@@ -367,6 +402,12 @@
                         <xs:element name="date" type="Date" />
                         <xs:element name="time" type="Time" />
                         <xs:element name="dateTime" type="DateTime" />
+                        <xs:element name="pointf" type="PointF" />
+                        <xs:element name="rectf" type="RectF" />
+                        <xs:element name="sizef" type="SizeF" />
+                        <xs:element name="longlong" type="xs:longlong" />
+                        <xs:element name="char" type="Char" />
+                        <xs:element name="url" type="Url" />
                 </xs:choice>
                 <xs:attribute name="name" type="xs:string" />
                 <xs:attribute name="stdset" type="xs:integer" />

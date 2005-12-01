@@ -14,9 +14,9 @@
 #ifndef UI4_H
 #define UI4_H
 
-#include <QList>
-#include <QString>
-#include <QStringList>
+#include <QtCore/QList>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 class QDomDocument;
 class QDomElement;
@@ -86,6 +86,11 @@ class DomDateTime;
 class DomStringList;
 class DomResourcePixmap;
 class DomString;
+class DomPointF;
+class DomRectF;
+class DomSizeF;
+class DomChar;
+class DomUrl;
 class DomProperty;
 class DomConnections;
 class DomConnection;
@@ -1637,6 +1642,11 @@ public:
     inline void setAttributeResource(const QString& a) { m_attr_resource = a; m_has_attr_resource = true; }
     inline void clearAttributeResource() { m_has_attr_resource = false; }
 
+    inline bool hasAttributeAlias() { return m_has_attr_alias; }
+    inline QString attributeAlias() { return m_attr_alias; }
+    inline void setAttributeAlias(const QString& a) { m_attr_alias = a; m_has_attr_alias = true; }
+    inline void clearAttributeAlias() { m_has_attr_alias = false; }
+
     // child element accessors
 private:
     QString m_text;
@@ -1645,6 +1655,9 @@ private:
     // attribute data
     QString m_attr_resource;
     bool m_has_attr_resource;
+
+    QString m_attr_alias;
+    bool m_has_attr_alias;
 
     // child element data
 
@@ -1691,6 +1704,161 @@ private:
     void operator = (const DomString&other);
 };
 
+class QT_UI4_EXPORT DomPointF {
+public:
+    DomPointF();
+    ~DomPointF();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    // child element accessors
+    inline double elementX() { return m_x; }
+    void setElementX(double a);
+
+    inline double elementY() { return m_y; }
+    void setElementY(double a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    // child element data
+    double m_x;
+    double m_y;
+
+    DomPointF(const DomPointF &other);
+    void operator = (const DomPointF&other);
+};
+
+class QT_UI4_EXPORT DomRectF {
+public:
+    DomRectF();
+    ~DomRectF();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    // child element accessors
+    inline double elementX() { return m_x; }
+    void setElementX(double a);
+
+    inline double elementY() { return m_y; }
+    void setElementY(double a);
+
+    inline double elementWidth() { return m_width; }
+    void setElementWidth(double a);
+
+    inline double elementHeight() { return m_height; }
+    void setElementHeight(double a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    // child element data
+    double m_x;
+    double m_y;
+    double m_width;
+    double m_height;
+
+    DomRectF(const DomRectF &other);
+    void operator = (const DomRectF&other);
+};
+
+class QT_UI4_EXPORT DomSizeF {
+public:
+    DomSizeF();
+    ~DomSizeF();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    // child element accessors
+    inline double elementWidth() { return m_width; }
+    void setElementWidth(double a);
+
+    inline double elementHeight() { return m_height; }
+    void setElementHeight(double a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    // child element data
+    double m_width;
+    double m_height;
+
+    DomSizeF(const DomSizeF &other);
+    void operator = (const DomSizeF&other);
+};
+
+class QT_UI4_EXPORT DomChar {
+public:
+    DomChar();
+    ~DomChar();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    // child element accessors
+    inline int elementUnicode() { return m_unicode; }
+    void setElementUnicode(int a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    // child element data
+    int m_unicode;
+
+    DomChar(const DomChar &other);
+    void operator = (const DomChar&other);
+};
+
+class QT_UI4_EXPORT DomUrl {
+public:
+    DomUrl();
+    ~DomUrl();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    // child element accessors
+    inline DomString* elementString() { return m_string; }
+    void setElementString(DomString* a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    // child element data
+    DomString* m_string;
+
+    DomUrl(const DomUrl &other);
+    void operator = (const DomUrl&other);
+};
+
 class QT_UI4_EXPORT DomProperty {
 public:
     DomProperty();
@@ -1713,7 +1881,7 @@ public:
     inline void clearAttributeStdset() { m_has_attr_stdset = false; }
 
     // child element accessors
-    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, SizePolicy, Size, String, StringList, Number, Float, Double, Date, Time, DateTime };
+    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, SizePolicy, Size, String, StringList, Number, Float, Double, Date, Time, DateTime, PointF, RectF, SizeF, LongLong, Char, Url };
     inline Kind kind() { return m_kind; }
 
     inline QString elementBool() { return m_bool; }
@@ -1782,6 +1950,24 @@ public:
     inline DomDateTime* elementDateTime() { return m_dateTime; }
     void setElementDateTime(DomDateTime* a);
 
+    inline DomPointF* elementPointF() { return m_pointf; }
+    void setElementPointF(DomPointF* a);
+
+    inline DomRectF* elementRectF() { return m_rectf; }
+    void setElementRectF(DomRectF* a);
+
+    inline DomSizeF* elementSizeF() { return m_sizef; }
+    void setElementSizeF(DomSizeF* a);
+
+    inline qlonglong elementLongLong() { return m_longlong; }
+    void setElementLongLong(qlonglong a);
+
+    inline DomChar* elementChar() { return m_char; }
+    void setElementChar(DomChar* a);
+
+    inline DomUrl* elementUrl() { return m_url; }
+    void setElementUrl(DomUrl* a);
+
 private:
     QString m_text;
     void clear(bool clear_all = true);
@@ -1817,6 +2003,12 @@ private:
     DomDate* m_date;
     DomTime* m_time;
     DomDateTime* m_dateTime;
+    DomPointF* m_pointf;
+    DomRectF* m_rectf;
+    DomSizeF* m_sizef;
+    qlonglong m_longlong;
+    DomChar* m_char;
+    DomUrl* m_url;
 
     DomProperty(const DomProperty &other);
     void operator = (const DomProperty&other);

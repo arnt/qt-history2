@@ -20,6 +20,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QMap>
 #include <QtCore/QDateTime>
+#include <QtCore/QUrl>
 
 #include <QtGui/QCursor>
 #include <QtGui/QPalette>
@@ -262,10 +263,59 @@ public:
     void updateValue(QWidget *editor);
 };
 
+class QT_PROPERTYEDITOR_EXPORT LongLongProperty: public AbstractProperty<qlonglong>
+{
+public:
+    LongLongProperty(qlonglong value, const QString &name);
+
+    void setValue(const QVariant &value);
+    QString toString() const;
+
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+};
+
 class QT_PROPERTYEDITOR_EXPORT DoubleProperty: public AbstractProperty<double>
 {
 public:
     DoubleProperty(double value, const QString &name);
+
+    void setValue(const QVariant &value);
+    QString toString() const;
+
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+};
+
+class QT_PROPERTYEDITOR_EXPORT SpinBoxDoubleProperty: public AbstractProperty<double>
+{
+public:
+    SpinBoxDoubleProperty(double value, const QString &name);
+
+    QString specialValue() const;
+    void setSpecialValue(const QString &specialValue);
+
+    void setRange(double low, double hi);
+
+    void setValue(const QVariant &value);
+    QString toString() const;
+
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+
+private:
+    QString m_specialValue;
+    double m_low;
+    double m_hi;
+};
+
+class QT_PROPERTYEDITOR_EXPORT CharProperty: public AbstractProperty<QChar>
+{
+public:
+    CharProperty(QChar value, const QString &name);
 
     void setValue(const QVariant &value);
     QString toString() const;
@@ -375,10 +425,28 @@ public:
     void setValue(const QVariant &value);
 };
 
+class QT_PROPERTYEDITOR_EXPORT PointFProperty: public AbstractPropertyGroup
+{
+public:
+    PointFProperty(const QPointF &value, const QString &name);
+
+    QVariant value() const;
+    void setValue(const QVariant &value);
+};
+
 class QT_PROPERTYEDITOR_EXPORT SizeProperty: public AbstractPropertyGroup
 {
 public:
     SizeProperty(const QSize &value, const QString &name);
+
+    QVariant value() const;
+    void setValue(const QVariant &value);
+};
+
+class QT_PROPERTYEDITOR_EXPORT SizeFProperty: public AbstractPropertyGroup
+{
+public:
+    SizeFProperty(const QSizeF &value, const QString &name);
 
     QVariant value() const;
     void setValue(const QVariant &value);
@@ -397,6 +465,15 @@ class QT_PROPERTYEDITOR_EXPORT RectProperty: public AbstractPropertyGroup
 {
 public:
     RectProperty(const QRect &value, const QString &name);
+
+    QVariant value() const;
+    void setValue(const QVariant &value);
+};
+
+class QT_PROPERTYEDITOR_EXPORT RectFProperty: public AbstractPropertyGroup
+{
+public:
+    RectFProperty(const QRectF &value, const QString &name);
 
     QVariant value() const;
     void setValue(const QVariant &value);
@@ -507,6 +584,23 @@ public:
     void updateValue(QWidget *editor);
 
     QWidget *m_selectedWidget;
+};
+
+class QT_PROPERTYEDITOR_EXPORT UrlProperty: public AbstractPropertyGroup
+{
+public:
+    UrlProperty(const QUrl &value, const QString &name);
+
+    QVariant value() const;
+    void setValue(const QVariant &value);
+    QString toString() const;
+
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+
+private:
+    QUrl m_value;
 };
 
 }  // namespace qdesigner_internal

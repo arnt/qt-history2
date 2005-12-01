@@ -163,15 +163,21 @@ void TreeWalker::acceptProperty(DomProperty *property)
         case DomProperty::IconSet:
         case DomProperty::Palette:
         case DomProperty::Point:
+        case DomProperty::PointF:
         case DomProperty::Rect:
+        case DomProperty::RectF:
         case DomProperty::Set:
         case DomProperty::SizePolicy:
         case DomProperty::Size:
+        case DomProperty::SizeF:
         case DomProperty::String:
         case DomProperty::Number:
+        case DomProperty::LongLong:
+        case DomProperty::Char:
         case DomProperty::Date:
         case DomProperty::Time:
         case DomProperty::DateTime:
+        case DomProperty::Url:
         case DomProperty::Unknown:
         case DomProperty::StringList:
         case DomProperty::Float:

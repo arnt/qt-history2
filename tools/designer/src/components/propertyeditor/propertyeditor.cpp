@@ -497,8 +497,17 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             case QVariant::UInt:
                 p = new IntProperty(value.toUInt(), pname);
                 break;
+            case QVariant::LongLong:
+                p = new LongLongProperty(value.toLongLong(), pname);
+                break;
+            case QVariant::ULongLong:
+                p = new LongLongProperty(value.toULongLong(), pname);
+                break;
             case QVariant::Double:
                 p = new DoubleProperty(value.toDouble(), pname);
+                break;
+            case QVariant::Char:
+                p = new CharProperty(value.toChar(), pname);
                 break;
             case QVariant::Bool:
                 p = new BoolProperty(value.toBool(), pname);
@@ -524,11 +533,20 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             case QVariant::Size:
                 p = new SizeProperty(value.toSize(), pname);
                 break;
+            case QVariant::SizeF:
+                p = new SizeFProperty(value.toSizeF(), pname);
+                break;
             case QVariant::Point:
                 p = new PointProperty(value.toPoint(), pname);
                 break;
+            case QVariant::PointF:
+                p = new PointFProperty(value.toPointF(), pname);
+                break;
             case QVariant::Rect:
                 p = new RectProperty(value.toRect(), pname);
+                break;
+            case QVariant::RectF:
+                p = new RectFProperty(value.toRectF(), pname);
                 break;
             case QVariant::Icon:
                 p = new IconProperty(m_core, qvariant_cast<QIcon>(value), pname);
@@ -563,6 +581,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             case QVariant::Palette:
                 p = new PaletteProperty(qvariant_cast<QPalette>(value),
                                 qobject_cast<QWidget *>(object), pname);
+                break;
+            case QVariant::Url:
+                p = new UrlProperty(value.toUrl(), pname);
                 break;
             default:
                 // ### qWarning() << "property" << pname << "with type" << value.type() << "not supported yet!";
