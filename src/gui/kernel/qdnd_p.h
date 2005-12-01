@@ -155,6 +155,11 @@ public:
     static OSErr qt_mac_send_handler(FlavorType, void *, DragItemRef, DragRef); //qdnd_mac.cpp
 #endif
 
+#ifdef Q_WS_X11
+    QPixmap xdndMimeTransferedPixmap[2];
+    int xdndMimeTransferedPixmapIndex;
+#endif
+
 private:
     QPixmap *pm_cursor;
     int n_cursor;

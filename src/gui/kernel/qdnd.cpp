@@ -267,6 +267,9 @@ QDragManager::QDragManager()
     eventLoop = 0;
     dropData = new QDropData();
     currentDropTarget = 0;
+#ifdef Q_WS_X11
+    xdndMimeTransferedPixmapIndex = 0;
+#endif
 }
 
 

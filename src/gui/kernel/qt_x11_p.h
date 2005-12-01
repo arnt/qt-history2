@@ -240,7 +240,7 @@ struct QX11InfoData {
     int subpixel;
 };
 
-
+class QMimeData;
 
 struct QX11Data;
 extern QX11Data *qt_x11Data;
@@ -268,6 +268,14 @@ struct QX11Data
     static bool xdndHandleBadwindow();
     QByteArray xdndAtomToString(Atom a);
     Atom xdndStringToAtom(const char *);
+
+    QString xdndMimeAtomToString(Atom a);
+    Atom xdndMimeStringToAtom(const QString &mimeType);
+    QStringList xdndMimeFormatsForAtom(Atom a);
+    bool xdndMimeDataForAtom(Atom a, QMimeData *mimeData, QByteArray *data, Atom *atomFormat, int *dataFormat);
+    QList<Atom> xdndMimeAtomsForFormat(const QString &format);
+    QByteArray xdndMimeConvertToFormat(Atom a, const QByteArray &data, const QString &format);
+    Atom xdndMimeAtomForFormat(const QString &format, const QList<Atom> &atoms);
 
     // from qmotifdnd_x11.cpp
     void motifdndHandle(QWidget *, const XEvent *, bool);
