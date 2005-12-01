@@ -48,8 +48,8 @@
     \sa {opengl/pbuffers}{Pbuffers Example}
 */
 
-#include <qglpbuffer.h>
-#include <private/qglpbuffer_p.h>
+#include <qglpixelbuffer.h>
+#include <private/qglpixelbuffer_p.h>
 #include <private/qpaintengine_opengl_p.h>
 #include <qimage.h>
 

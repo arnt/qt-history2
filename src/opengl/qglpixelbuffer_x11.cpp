@@ -20,8 +20,8 @@
 #include <GL/glx.h>
 #include <qimage.h>
 
-#include "qglpbuffer.h"
-#include "qglpbuffer_p.h"
+#include "qglpixelbuffer.h"
+#include "qglpixelbuffer_p.h"
 
 #ifndef GLX_VERSION_1_3
 #define GLX_RGBA_BIT            0x00000002
