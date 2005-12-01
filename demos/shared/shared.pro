@@ -22,4 +22,5 @@ RESOURCES += shared.qrc
 target.path = $$[QT_INSTALL_DEMOS]/shared
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.pri images
 sources.path = $$[QT_INSTALL_DEMOS]/shared
-INSTALLS += target sources
+INSTALLS += sources
+!cross_compile:INSTALLS += target
