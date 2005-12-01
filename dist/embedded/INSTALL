@@ -1,35 +1,92 @@
-			  INSTALLING Qt/Embedded
+                          INSTALLING Qtopia Core Version %VERSION%.
 
+1.  If you have the commercial edition of Qtopia Core, install your
+    license file as $HOME/.qt-license.
 
-This installation procedure is written for Linux. It may need to be
-modified for other platforms.
- 
-Unpack the archive if you have not done so already:
+    For the open source version you do not need a license file.
 
-cd <anywhere>
-gunzip qt-embedded-commercial-%VERSION%.tar.gz    # uncompress the archive
-tar xf qt-embedded-commercial-%VERSION%.tar       # unpack it
+2.  Unpack the archive if you have not done so already:
 
-This document assumes that the archive is installed as ~/qt-embedded-%VERSION%
+        cd /tmp
+        gunzip %DISTNAME%.tar.gz        # uncompress the archive
+        tar xvf %DISTNAME%.tar          # unpack it
 
-Compile the Qt/Embedded library and examples:
+    This creates the directory /tmp/%DISTNAME% containing the files
+    from the archive. We only support the GNU version of the tar
+    archiving utility. Note that on some systems it is called gtar.
 
-cd ~/qt-embedded-%VERSION%
-./configure
-make
+3.  Building
 
-You will require a working Linux framebuffer to use Qt/Embedded.
+    To configure the Qtopia Core library for your deployment
+    architecture, type:
 
-See the HTML documentation in doc/html for detailed installation
-instructions.
+        cd /tmp/%DISTNAME%
+        ./configure -embedded [architecture]
 
-Note for cross-compilation:
+    Typical architectures are x86 and arm. Type "./configure -help" to
+    get a list of all available options.
 
-Certain tools such as uic run on the host machine and therefore have
-to be built natively. The uic tool requires a native Qt library. The
-easiest way to do this is to use the uic binary from Qt/X11. Simply copy
-path-to-qt-x11/bin/uic to path-to-qt-embedded/bin/uic. You can then
-provide an -embedded argument to configure to continue the
-cross-platform build process following the procedures detailed in the
-HTML documentation.  It is also possible to use the uic binary from a
-separate native build of Qt/Embedded.
+    To create the library and compile all the demos, examples, tools,
+    and tutorials, type:
+
+        make
+
+    To install the library, demos, examples, tools, and tutorials,
+    type:
+
+        su -c "make install"
+
+    and enter the root password. Qtopia Core is by default installed
+    into /usr/local/Trolltech/QtopiaCore-%VERSION% but this can be
+    changed by using the -prefix parameter.
+
+    Note that on some systems the make utility is called differently,
+    e.g. gmake. The configure script tells you which make utility to
+    use.
+
+4.  Environment variables
+
+    In order to use Qtopia Core, some environment variables needs to
+    be extended.
+
+        PATH    - to locate qmake, moc and other Qtopia Core tools
+
+    This is done like this:
+
+    In .profile (if your shell is bash, ksh, zsh or sh), add the
+    following lines:
+
+        PATH=/usr/local/Trolltech/QtopiaCore-%VERSION%/bin:$PATH
+        export PATH
+
+    In .login (in case your shell is csh or tcsh), add the following line:
+
+        setenv PATH /usr/local/Trolltech/QtopiaCore-%VERSION%/bin:$PATH
+
+    If you use a different shell, please modify your environment
+    variables accordingly.
+
+    For compilers that do not support rpath you must also extended the
+    LD_LIBRARY_PATH environment variable to include
+    /usr/local/Trolltech/QtopiaCore-%VERSION%/lib. On Linux with GCC
+    this step is not needed.
+
+5.  That's all. Qtopia Core is now installed.
+
+    Qtopia Core needs to run on a framebuffer. You can either use the
+    Linux framebuffer or the Qt Virtual Framebuffer (qvfb). For a
+    description of how to install qvfb please consult the
+    documentation at:
+
+	http://doc.trolltech.com/4.1/emb-qvfb.html
+
+    Please note that qvfb requires a Qt/X11 installation.
+
+    For more information on how to get started with Qtopia Core have a
+    look at:
+
+        http://doc.trolltech.com/4.1/how-to-learn-qt.html
+        http://doc.trolltech.com/4.1/tutorial.html
+        http://www.trolltech.com/developer
+
+    We hope you will enjoy using Qtopia Core. Good luck!
