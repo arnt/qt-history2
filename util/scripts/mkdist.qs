@@ -9,7 +9,7 @@ const qdocCommand = qdocDir + "/qdoc3";
 
 const outputDir = System.getenv("PWD");
 
-const validPlatforms = ["win", "x11", "mac", "embedded"];
+const validPlatforms = ["win", "x11", "mac", "core"];
 const validLicenses = ["opensource", "commercial", "preview", "eval"];
 const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
@@ -141,23 +141,23 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("^LICENSE.QPL"),
 			  new RegExp("\\.qws") ];
 
-platformRemove["embedded"] = [ new RegExp("^gif"),
-			       new RegExp("^doc/src"),
-			       new RegExp("^src/winmain"),
-			       new RegExp("^qmake/Makefile$"),
-			       new RegExp("^qmake/Makefile.win32-g++"),
-			       new RegExp("_win"),
-			       new RegExp("_wce"),
-			       new RegExp("_mac"),
-			       new RegExp("^src/plugins/styles/mac"),
-			       new RegExp("^src/activeqt"),
-			       new RegExp("^tools/activeqt"),
-			       new RegExp("^tools/designer/src/plugins/activeqt"),
-			       new RegExp("^examples/activeqt"),
-			       new RegExp("_qnx4"),
-			       new RegExp("_qnx6"),
-			       new RegExp("^LICENSE.QPL"),
-			       new RegExp("^configure.exe") ];
+platformRemove["core"] = [ new RegExp("^gif"),
+			   new RegExp("^doc/src"),
+			   new RegExp("^src/winmain"),
+			   new RegExp("^qmake/Makefile$"),
+			   new RegExp("^qmake/Makefile.win32-g++"),
+			   new RegExp("_win"),
+			   new RegExp("_wce"),
+			   new RegExp("_mac"),
+			   new RegExp("^src/plugins/styles/mac"),
+			   new RegExp("^src/activeqt"),
+			   new RegExp("^tools/activeqt"),
+			   new RegExp("^tools/designer/src/plugins/activeqt"),
+			   new RegExp("^examples/activeqt"),
+			   new RegExp("_qnx4"),
+			   new RegExp("_qnx6"),
+			   new RegExp("^LICENSE.QPL"),
+			   new RegExp("^configure.exe") ];
 
 var licenseRemove = new Array();
 
@@ -246,7 +246,7 @@ for (var p in validPlatforms) {
 	var platform = validPlatforms[p];
 	var license = validLicenses[l];
 	if (options[platform] && options[license] &&
-	    (license != "eval" || (platform == "x11" || platform == "embedded"))) {
+	    (license != "eval" || (platform == "x11" || platform == "core"))) {
 	    print("Packaging %1-%2...".arg(platform).arg(license));
 	    indentation+=tabSize;
 	    
@@ -256,6 +256,8 @@ for (var p in validPlatforms) {
 		.arg(platform)
 		.arg(license)
 		.arg(options["version"]);
+	    if (platform == "core")
+		platName = platName.replace("qt-core", "qtopia-core");
 	    var platDir = distDir + "/" + platName;
 	    execute(["cp", "-r", checkoutDir, platDir]);
 	    
@@ -811,6 +813,9 @@ function cleanup()
  */
 function copyDist(packageDir, platform, license)
 {
+    if (platform == "core")
+	platform = "embedded";
+
     var platformFiles = getFileList(packageDir + "/dist/" + platform);
     var licenseFiles = getFileList(packageDir + "/dist/" + license);
 
@@ -936,8 +941,8 @@ function qdoc(packageDir, platform, license)
     var qdocDefines = "-Dopensourceedition";
     if (license != "opensource")
 	qdocDefines = "-Ddesktopedition";
-    if (platform == "embedded")
-	qdocDefines += " -Dqtopiacore";
+    if (platform == "core")
+	qdocDefines = "-Dqtopiacore";
 
     execute([qdocCommand, qdocConfigFile, qdocDefines]);
 }
