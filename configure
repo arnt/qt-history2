@@ -2163,6 +2163,8 @@ fi
                          By default none of the SQL drivers are built,
                          even if they are auto-detected.
 
+    -no-qt3support       Disables the Qt 3 support functionality.
+
     -platform target ... The operating system and compiler you are building
                          on ($PLATFORM).
 
