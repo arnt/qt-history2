@@ -481,10 +481,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
               << "-$(MOVE) $(TARGET) $(DESTDIR)$(TARGETD)" << "\n\t"
               << mkdir_p_asstring("`dirname $(DESTDIR)$(TARGET0)`") << "\n\t"
               << varGlue("QMAKE_LN_SHLIB","-"," "," Versions/" +
-                         project->first("VER_MAJ") + ".0" +
-                         "/$(TARGET) $(DESTDIR)$(TARGET0)") << "\n\t"
+                         project->first("VER_MAJ") + "/$(TARGET) $(DESTDIR)$(TARGET0)") << "\n\t"
               << "-$(DEL_FILE) " << destdir << "Versions/Current" << "\n\t"
-              << varGlue("QMAKE_LN_SHLIB","-"," ", " " + project->first("VER_MAJ") + ".0" +
+              << varGlue("QMAKE_LN_SHLIB","-"," ", " " + project->first("VER_MAJ") +
                          " " + destdir + "Versions/Current") << "\n\t";
             if(!project->isEmpty("QMAKE_POST_LINK"))
                 t << "\n\t" << var("QMAKE_POST_LINK");
@@ -647,7 +646,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "@$(COPY_FILE) " << icon << " " << dir << endl;
             }
         } else {
-
             t << "@$(DEL_FILE) " << info_plist_out << "\n\t"
               << "@sed "
               << "-e \"s,@LIBRARY@," << var("QMAKE_ORIG_TARGET") << ",g\" "
@@ -666,7 +664,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 QString path = bundle_dir;
                 if(!project->isEmpty(bundle_data[i] + ".version")) {
                     QString version = project->first(bundle_data[i] + ".version") + "/" +
-                                      project->first("VER_MAJ") + ".0/";
+                                      project->first("VER_MAJ") + "/";
                     t << Option::fixPathToLocalOS(path + project->first(bundle_data[i] + ".path")) << ": " << "\n\t"
                       << mkdir_p_asstring(path) << "\n\t"
                       << "@$(SYMLINK) " << version << project->first(bundle_data[i] + ".path") << " " << path << endl;
@@ -1094,7 +1092,7 @@ void UnixMakefileGenerator::init2()
                         alldeps += Option::fixPathToLocalOS(path + Option::dir_sep +
                                                             project->first(bundle_data[i] + ".path"));
                         path += project->first(bundle_data[i] + ".version") + "/" +
-                                project->first("VER_MAJ") + ".0/";
+                                project->first("VER_MAJ") + "/";
                     }
                     path += project->first(bundle_data[i] + ".path");
                     path = Option::fixPathToLocalOS(path);
