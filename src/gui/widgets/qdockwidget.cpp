@@ -33,6 +33,9 @@
 #include "qdockwidget_p.h"
 #include "qdockwidgetlayout_p.h"
 #include "qmainwindowlayout_p.h"
+#ifdef Q_WS_MAC
+#include <qmacstyle_mac.h>
+#endif
 
 
 static inline bool hasFeature(QDockWidget *dockwidget, QDockWidget::DockWidgetFeature feature)
@@ -247,8 +250,8 @@ void QDockWidgetPrivate::updateButtons()
 void QDockWidgetPrivate::relayout()
 {
     Q_Q(QDockWidget);
-    int fw = q->isFloating() ? q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth) : 0;
-    int mw = q->style()->pixelMetric(QStyle::PM_DockWidgetTitleMargin);
+    int fw = q->isFloating() ? q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, q) : 0;
+    int mw = q->style()->pixelMetric(QStyle::PM_DockWidgetTitleMargin, 0, q);
     QSize closeSize = closeButton ? closeButton->sizeHint() : QSize(0,0);
     QSize floatSize = floatButton ? floatButton->sizeHint() : QSize(0,0);
 
@@ -256,7 +259,17 @@ void QDockWidgetPrivate::relayout()
     int minHeight = qMax(closeSize.width(), closeSize.height()) + 2 * mw;
     minHeight = qMax(minHeight, qMax(floatSize.width(), floatSize.height()));
     minHeight += 2; // Allow 1px frame around title area with buttons inside
-    minHeight = qMax(minHeight, q->fontMetrics().lineSpacing() + 2 + 2 * mw) - fw; //Ensure 2 px margin around font
+#ifdef Q_WS_MAC
+    if (qobject_cast<QMacStyle *>(q->style())) {
+        extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
+        QFont font = qt_app_fonts_hash()->value("QToolButton", q->font());
+        QFontMetrics fm(font);
+        minHeight = qMax(minHeight, fm.lineSpacing() + 2 + 2 * mw) - fw; //Ensure 2 px margin around font
+    } else
+#endif
+    {
+        minHeight = qMax(minHeight, q->fontMetrics().lineSpacing() + 2 + 2 * mw) - fw; //Ensure 2 px margin around font
+    }
     titleArea = QRect(QPoint(fw, fw),
                       QSize(q->rect().width() - (fw * 2), minHeight));
     int posX = titleArea.right();

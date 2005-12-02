@@ -5183,6 +5183,13 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         break; }
     case PM_MDIFrameWidth:
         ret = 1;
+        break;
+    case PM_DockWidgetFrameWidth:
+        ret = 0;
+        break;
+    case PM_DockWidgetTitleMargin:
+        ret = 0;
+        break;
     default:
         ret = QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
@@ -5841,6 +5848,48 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             }
         }
         break;
+    case CE_DockWidgetTitle:
+        if (const QDockWidget *dockWidget = qobject_cast<const QDockWidget *>(w)) {
+            bool floating = dockWidget->isFloating();
+            if (floating) {
+                ThemeDrawState tds = d->getDrawState(opt->state);
+                HIThemeWindowDrawInfo wdi;
+                wdi.version = qt_mac_hitheme_version;
+                wdi.state = tds;
+                wdi.windowType = kThemeUtilityWindow;
+                wdi.titleHeight = opt->rect.height();
+                wdi.titleWidth = opt->rect.width();
+                wdi.attributes = kThemeWindowHasTitleText;
+
+                HIRect titleBarRect;
+                HIRect tmpRect = qt_hirectForQRect(opt->rect, p);
+                {
+                    QCFType<HIShapeRef> titleRegion;
+                    QRect newr = opt->rect.adjusted(0, 0, 2, 0);
+                    HIThemeGetWindowShape(&tmpRect, &wdi, kWindowTitleBarRgn, &titleRegion);
+                    HIShapeGetBounds(titleRegion, &tmpRect);
+                    newr.translate(newr.x() - int(tmpRect.origin.x), newr.y() - int(tmpRect.origin.y));
+                    titleBarRect = qt_hirectForQRect(newr, p);
+                }
+                QMacCGContext cg(p);
+                HIThemeDrawWindowFrame(&titleBarRect, &wdi, cg, kHIThemeOrientationNormal, 0);
+            }
+        }
+
+        // Draw the text...
+        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
+            if (!dwOpt->title.isEmpty()) {
+                QFont oldFont = p->font();
+                p->setFont(qt_app_fonts_hash()->value("QToolButton", p->font()));
+                const int indent = p->fontMetrics().descent();
+                drawItemText(p, dwOpt->rect.adjusted(indent + 1, 1, -indent - 1, -1),
+                              Qt::AlignCenter, dwOpt->palette,
+                              dwOpt->state & State_Enabled, dwOpt->title,
+                              QPalette::Foreground);
+                p->setFont(oldFont);
+            }
+        }
+        break;
     default:
         if (d->useHITheme)
             d->HIThemeDrawControl(ce, opt, p, w);
@@ -6257,7 +6306,6 @@ void QMacStyle::drawItemText(QPainter *p, const QRect &r, int flags, const QPale
 }
 
 #endif
-
 
 /*!
   \reimp
