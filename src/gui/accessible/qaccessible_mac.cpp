@@ -324,9 +324,9 @@ QInterfaceItem::QInterfaceItem(QInterfaceItem other, int child)
 }
 
 QInterfaceItem::QInterfaceItem(const QInterfaceItem &other)
+:base(other.base)
+,child(other.child)
 {
-    base = other.base;
-    child = other.child;
     ++base->refCount;
 }
 
@@ -335,20 +335,29 @@ void QInterfaceItem::operator=(const QInterfaceItem &other)
     if (other == *this)
         return;
 
+    child = other.child;
+    
     if (base != 0 && --base->refCount == 0)
         delete base;
     
     base = other.base;
-    ++base->refCount;
+    if (base != 0)
+        ++base->refCount;
 }
 
 bool QInterfaceItem::operator==(const QInterfaceItem &other) const
 {
+    if (isValid() == false || other.isValid() == false) {
+
+        return (isValid() && other.isValid());
+    }
     return (object() == other.object() && id() == other.id());
 }
 
 uint qHash(QInterfaceItem item)
 {
+    if (item.isValid() == false)
+        return 0;
     return qHash(item.object()) + qHash(item.id());
 }
 
@@ -363,10 +372,10 @@ QInterfaceItem::~QInterfaceItem()
 
 QInterfaceItem QInterfaceItem::navigate(RelationFlag relation, int entry) const
 { 
-    QAccessibleInterface *child_iface = 0;
-    if (relation == QAccessible::Ancestor && entry != 0)
+    if (relation == QAccessible::Ancestor && child != 0)
         return QInterfaceItem(*this, 0);
     
+    QAccessibleInterface *child_iface = 0;
     const int status = base->interface->navigate(relation, entry, &child_iface);
     if (status == -1)
         return QInterfaceItem(); // not found;
@@ -1030,10 +1039,49 @@ static OSStatus handleParentAttribute(EventHandlerCallRef next_ref, EventRef eve
     return noErr;
 }
 
+/*
+    Returns the top-level window for an interface, which is the closest ancestor interface that 
+    has the Window role, but is not a sheet or a drawer.
+*/
 static OSStatus handleWindowAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
 {
-    Q_UNUSED(interface)
-    return CallNextEventHandler(next_ref, event);
+    if (interface.isHIView())
+        return CallNextEventHandler(next_ref, event);
+    
+    QInterfaceItem current = interface;
+    while (current.isValid()) {
+        QWidget *const widget = static_cast<QWidget*>(current.object());
+        if (current.role() == QAccessible::Window && widget
+            && !qt_mac_is_macdrawer(widget) && !qt_mac_is_macsheet(widget)) {
+            break;
+        }
+        
+        // If we reach an InterfaceItem that is a HiView we can hand of the search to
+        // the system event handler. This is the common case.
+        if (current.isHIView()) {
+            CFTypeRef value = 0;
+            const AXUIElementRef element = accessibleHierarchyManager()->lookup(current);
+            AXError err = AXUIElementCopyAttributeValue(element, kAXWindowAttribute, &value);
+            if (err)
+                return eventNotHandledErr;
+            
+            SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef,
+                                      sizeof(value), &value);
+            return noErr;
+        }
+        current = current.navigate(QAccessible::Ancestor, 1);
+    }
+
+    if (current.isValid() == false)
+        return eventNotHandledErr;
+    
+    const AXUIElementRef element = accessibleHierarchyManager()->lookup(current);
+    if (element == 0)
+        return eventNotHandledErr;
+
+    return SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef,
+                                      sizeof(element), &element);
+    return noErr;
 }
 
 static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, QInterfaceItem interface)
