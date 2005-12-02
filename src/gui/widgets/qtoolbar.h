@@ -90,6 +90,8 @@ public:
     QSize iconSize() const;
     Qt::ToolButtonStyle toolButtonStyle() const;
 
+    QWidget *widgetForAction(QAction *action) const;
+
 public Q_SLOTS:
     void setIconSize(const QSize &iconSize);
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);

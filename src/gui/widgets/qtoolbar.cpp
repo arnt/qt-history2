@@ -1065,6 +1065,21 @@ QAction *QToolBar::toggleViewAction() const
     Use windowTitle() instead.
 */
 
+/*!
+    Returns the widget associated with the specified \a action.
+
+    \sa QToolBar::addWidget
+*/
+QWidget* QToolBar::widgetForAction(QAction *action) const
+{
+    Q_D(const QToolBar);
+
+    int index = d->indexOf(action);
+    if (index < 0 || index >= d->items.size())
+        return 0;
+
+    return d->items.at(index).widget;
+}
 
 #include "moc_qtoolbar.cpp"
 #endif // QT_NO_TOOLBAR
