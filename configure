@@ -80,10 +80,10 @@ if [ -f $relpath/src/gui/kernel/qapplication_mac.cpp ] && [ -d /System/Library/F
     # ~ this is the internal edition and Qt/Mac sources exist
     PLATFORM_MAC=maybe
 elif [ -f $relpath/src/gui/kernel/qapplication_qws.cpp ]; then
-    # Qt/Embedded
+    # Qtopia Core
     # ~ src/gui/base/qapplication_qws.cpp is present
     # ~ this is the free or commercial edition
-    # ~ this is the internal edition and Qt/Embedded is explicitly enabled
+    # ~ this is the internal edition and Qtopia Core is explicitly enabled
     PLATFORM_QWS=maybe
 fi
 
@@ -262,17 +262,19 @@ EOF
     fi
 
     # verify that we are licensed to use Qt on this platform
+    LICENSE_EXTENSION=
     if [ "$PLATFORM_QWS" = "yes" ]; then
         case $PlatformCode in
 	4|8|V|P|G|Q|2|B)
-            # Qt/Embedded
+            LICENSE_EXTENSION="-QTOPIACORE"
+            # Qtopia Core
             ;;
         *)
             echo
-            echo "You are not licensed for the Qt/Embedded platform."
+            echo "You are not licensed for Qtopia Core."
             echo
             echo "Please contact sales@trolltech.com to upgrade your license"
-            echo "to include the Qt/Embedded platform, or install the"
+            echo "to include Qtopia Core, or install the"
             echo "Qt Open Source Edition if you intend to develop free software."
             exit 1
             ;;
@@ -312,7 +314,7 @@ EOF
         # US
         case "$LicenseType" in
         Commercial)
-            cp -f $relpath/.LICENSE-US $outpath/LICENSE
+            cp -f $relpath/.LICENSE${LICENSE_EXTENSION}-US $outpath/LICENSE
             ;;
         Evaluation)
             cp -f $relpath/.LICENSE-EVALUATION-US $outpath/LICENSE
@@ -329,7 +331,7 @@ EOF
         # non-US
         case "$LicenseType" in
         Commercial)
-            cp -f $relpath/.LICENSE $outpath/LICENSE
+            cp -f $relpath/.LICENSE${LICENSE_EXTENSION} $outpath/LICENSE
             ;;
         Evaluation)
             cp -f $relpath/.LICENSE-EVALUATION $outpath/LICENSE
@@ -360,7 +362,7 @@ EOF
 fi
 
 if [ "$PLATFORM_QWS" = "yes" ]; then
-    Platform="Qt/Embedded"
+    Platform="Qtopia Core"
 elif [ "$PLATFORM_MAC" = "yes" ]; then
     Platform="Qt/Mac"
 else
@@ -728,7 +730,7 @@ while [ "$#" -gt 0 ]; do
                 PLATFORM_QWS=yes
             fi
         else
-            echo "No license exists to enable Qt/Embedded. Disabling."
+            echo "No license exists to enable Qtopia Core. Disabling."
             CFG_EMBEDDED=no
         fi
         ;;
@@ -1430,7 +1432,7 @@ if [ "$CFG_EMBEDDED" != "no" ]; then
         fi
         ;;
     *)
-        echo "Qt/Embedded is not supported on this platform. Disabling."
+        echo "Qtopia Core is not supported on this platform. Disabling."
         CFG_EMBEDDED=no
         PLATFORM_QWS=no
         ;;
@@ -1901,7 +1903,7 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     CFG_GFX_PLUGINS_AVAILABLE=`find $relpath/src/plugins/gfxdrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
     CFG_GFX_AVAILABLE=`echo $CFG_GFX_PLUGINS_AVAILABLE $CFG_GFX_AVAILABLE`
     CFG_GFX_OFF=`echo $CFG_GFX_AVAILABLE` # assume all off
-    # No OpenGL for Qt/Embedded
+    # No OpenGL for Qtopia Core
     if [ "$CFG_OPENGL" = "auto" ]; then
         CFG_OPENGL=no
     fi
@@ -2370,7 +2372,7 @@ fi
 if [ "$PLATFORM_QWS" = "yes" ]; then
     cat << EOF
 
-Qt/Embedded only:
+Qtopia Core only:
 
     -xplatform target .. The target platform when cross-compiling.
 
@@ -2384,8 +2386,8 @@ Qt/Embedded only:
                          cross-compiling, otherwise the host
                          endianness will be used.
 
-    -no-freetype ....... Qt/Embedded only: do not compile in FreeType2 support.
- *  -freetype .......... Qt/Embedded only: add FreeType2 font support.
+    -no-freetype ....... Qtopia Core only: do not compile in FreeType2 support.
+ *  -freetype .......... Qtopia Core only: add FreeType2 font support.
 
     -qconfig local ..... Use src/corelib/global/qconfig-local.h rather than the
                          default ($CFG_QCONFIG).
