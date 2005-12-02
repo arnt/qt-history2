@@ -434,7 +434,8 @@ bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &paren
 bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
     Q_D(QStandardItemModel);
-    if (count < 1 || column < 0 || (column + count) > columnCount(parent))
+    // The implimentation of this class means you can't have columns without rows.
+    if (count < 1 || column < 0 || (column + count) > columnCount(parent) || rowCount(parent) == 0)
         return false;
 
     beginRemoveColumns(parent, column, column + count - 1);
