@@ -198,6 +198,7 @@ static inline void load(const QString & = QString(), int = -1)
 #define Y_SIZE(face,i) ((face)->available_sizes[i].height << 6)
 #endif
 
+#ifndef QT_NO_FREETYPE
 static void setSize(FT_Face face, int pixelSize, int stretch)
 {
     int ysize = pixelSize << 6;
@@ -228,7 +229,7 @@ static void setSize(FT_Face face, int pixelSize, int stretch)
         Q_ASSERT(!err);
     }
 }
-
+#endif
 
 static
 QFontEngine *loadEngine(int script, const QFontPrivate *fp,
