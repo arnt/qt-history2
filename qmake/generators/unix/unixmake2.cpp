@@ -481,9 +481,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
               << "-$(MOVE) $(TARGET) $(DESTDIR)$(TARGETD)" << "\n\t"
               << mkdir_p_asstring("`dirname $(DESTDIR)$(TARGET0)`") << "\n\t"
               << varGlue("QMAKE_LN_SHLIB","-"," "," Versions/" +
-                         project->first("VER_MAJ") + "/$(TARGET) $(DESTDIR)$(TARGET0)") << "\n\t"
+                         project->first("QMAKE_FRAMEWORK_VERSION") +
+                         "/$(TARGET) $(DESTDIR)$(TARGET0)") << "\n\t"
               << "-$(DEL_FILE) " << destdir << "Versions/Current" << "\n\t"
-              << varGlue("QMAKE_LN_SHLIB","-"," ", " " + project->first("VER_MAJ") +
+              << varGlue("QMAKE_LN_SHLIB","-"," ", " " + project->first("QMAKE_FRAMEWORK_VERSION") +
                          " " + destdir + "Versions/Current") << "\n\t";
             if(!project->isEmpty("QMAKE_POST_LINK"))
                 t << "\n\t" << var("QMAKE_POST_LINK");
@@ -664,7 +665,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 QString path = bundle_dir;
                 if(!project->isEmpty(bundle_data[i] + ".version")) {
                     QString version = project->first(bundle_data[i] + ".version") + "/" +
-                                      project->first("VER_MAJ") + "/";
+                                      project->first("QMAKE_FRAMEWORK_VERSION") + "/";
                     t << Option::fixPathToLocalOS(path + project->first(bundle_data[i] + ".path")) << ": " << "\n\t"
                       << mkdir_p_asstring(path) << "\n\t"
                       << "@$(SYMLINK) " << version << project->first(bundle_data[i] + ".path") << " " << path << endl;
@@ -870,6 +871,8 @@ void UnixMakefileGenerator::init2()
     project->variables()["VER_MAJ"].append(l[0]);
     project->variables()["VER_MIN"].append(l[1]);
     project->variables()["VER_PAT"].append(l[2]);
+    if(project->isEmpty("QMAKE_FRAMEWORK_VERSION"))
+        project->variables()["QMAKE_FRAMEWORK_VERSION"].append(project->variables()["VER_MAJ"].first());
 
     if (!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
         if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
@@ -1092,7 +1095,7 @@ void UnixMakefileGenerator::init2()
                         alldeps += Option::fixPathToLocalOS(path + Option::dir_sep +
                                                             project->first(bundle_data[i] + ".path"));
                         path += project->first(bundle_data[i] + ".version") + "/" +
-                                project->first("VER_MAJ") + "/";
+                                project->first("QMAKE_FRAMEWORK_VERSION") + "/";
                     }
                     path += project->first(bundle_data[i] + ".path");
                     path = Option::fixPathToLocalOS(path);

@@ -1193,7 +1193,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
               << project->first("VER_MIN")  << "\";" << "\n";
         if(project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
            project->isActiveConfig("lib_bundle"))
-            t << "FRAMEWORK_VERSION = \"" << project->first("VER_MAJ") << "\";" << "\n";
+            t << "FRAMEWORK_VERSION = \"" << project->first("QMAKE_FRAMEWORK_VERSION") << "\";" << "\n";
     }
     if(!project->isEmpty("COMPAT_VERSION"))
         t << "\t\t\t\t" << "DYLIB_COMPATIBILITY_VERSION = \"" << project->first("COMPAT_VERSION") << "\";" << "\n";

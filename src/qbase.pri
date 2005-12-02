@@ -39,6 +39,7 @@ contains(QT_CONFIG, largefile):CONFIG += largefile
 
 #mac frameworks
 mac:!static:contains(QT_CONFIG, qt_framework) {
+   #QMAKE_FRAMEWORK_VERSION = 4.0
    QMAKE_FRAMEWORK_BUNDLE_NAME = $$TARGET
    CONFIG += lib_bundle qt_no_framework_direct_includes qt_framework
    CONFIG(debug, debug|release) {
