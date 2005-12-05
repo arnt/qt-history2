@@ -221,6 +221,12 @@
     \o \l{linguist/trollprint}{Troll Print}\raisedaster
     \endlist
 
+    \section1 Qt Assistant Examples
+
+    \list
+    \o \l{assistant/simpletextviewer}{Simple Text Viewer}\raisedaster
+    \endlist
+
     \section1 ActiveQt Examples
 
     \list

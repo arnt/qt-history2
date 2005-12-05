@@ -1,5 +1,6 @@
 TEMPLATE      = subdirs
-SUBDIRS       = dialogs \
+SUBDIRS       = assistant \
+                dialogs \
                 draganddrop \
                 itemviews \
                 layouts \
