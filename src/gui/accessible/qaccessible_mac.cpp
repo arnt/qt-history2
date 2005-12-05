@@ -256,8 +256,26 @@ public:
     inline QString actionText (int action, Text text) const 
     { return base->interface->actionText(action, text, child); }
     
+    int childAt(int x, int y) const
+    { 
+        int foundChild = base->interface->childAt(x, y);
+        if (child == 0)
+            return foundChild;
+        
+        if (foundChild == -1)
+            return -1;
+ 
+        if (foundChild == child)
+            return 0;
+        return -1;
+    }
+    
     inline int childCount() const
-    { return base->interface->childCount(); }
+    { 
+        if (child != 0)
+            return 0;
+        return base->interface->childCount();
+    }
     
     inline void doAction(int action, const QVariantList &params = QVariantList())
     { base->interface->doAction(action, child, params); }
@@ -267,6 +285,9 @@ public:
     inline QObject * object() const
     { return base->interface->object(); } 
         
+    inline QRect rect() const
+    { return base->interface->rect(child); } 
+    
     inline Role role() const
     { return base->interface->role(child); }
     
@@ -374,6 +395,9 @@ QInterfaceItem QInterfaceItem::navigate(RelationFlag relation, int entry) const
 { 
     if (relation == QAccessible::Ancestor && child != 0)
         return QInterfaceItem(*this, 0);
+
+    if (relation == QAccessible::Child && child != 0)
+        return QInterfaceItem();
     
     QAccessibleInterface *child_iface = 0;
     const int status = base->interface->navigate(relation, entry, &child_iface);
@@ -645,11 +669,15 @@ void QAccessibleHierarchyManager::addElementInterfacePair(AXUIElementRef element
 
 QInterfaceItem QAccessibleHierarchyManager::lookup(const AXUIElementRef element)
 {
+    if (element == 0)
+        return QInterfaceItem();
     return elementToInterface.value(element);
 }
 
 AXUIElementRef QAccessibleHierarchyManager::lookup(const QInterfaceItem interface)
 {
+    if (interface.isValid() == false)
+        return 0;
     return interfaceToElement.value(interface).element();
 }
 
@@ -711,7 +739,9 @@ static inline AXUIElementRef getAccessibleObjectParameter(EventRef event)
 static AXUIElementRef lookupCreateChild(const QInterfaceItem interface, const int childIndex)
 {
     const QInterfaceItem child_iface = interface.navigate(QAccessible::Child, childIndex);
-    
+    if (child_iface.isValid() == false)
+        return 0;
+        
     AXUIElementRef childElement = accessibleHierarchyManager()->lookup(child_iface);
     if (!childElement) {
         childElement = accessibleHierarchyManager()->createElementForInterface(child_iface);
@@ -941,6 +971,7 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, E
     qt_mac_append_cf_uniq(attrs, kAXSizeAttribute);
     qt_mac_append_cf_uniq(attrs, kAXRoleAttribute);
     qt_mac_append_cf_uniq(attrs, kAXEnabledAttribute);
+    qt_mac_append_cf_uniq(attrs, kAXWindowAttribute);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     qt_mac_append_cf_uniq(attrs, kAXTopLevelUIElementAttribute);
 #endif
@@ -1039,20 +1070,41 @@ static OSStatus handleParentAttribute(EventHandlerCallRef next_ref, EventRef eve
     return noErr;
 }
 
+struct IsWindowTest
+{
+    static inline bool test(const QInterfaceItem interface)
+    { 
+        return (interface.role() == QAccessible::Window);
+    }
+};
+
+struct IsWindowAndNotDrawerOrSheetTest
+{
+    static inline bool test(const QInterfaceItem interface)
+    { 
+        QWidget * const widget = qobject_cast<QWidget*>(interface.object());
+        return (interface.role() == QAccessible::Window &&
+                widget && widget->isWindow() && 
+                !qt_mac_is_macdrawer(widget) &&
+                !qt_mac_is_macsheet(widget));
+    }
+};
+
 /*
-    Returns the top-level window for an interface, which is the closest ancestor interface that 
-    has the Window role, but is not a sheet or a drawer.
+    Navigates up the childs ancestor hierachy until a QAccessibleInterface that
+    passes the Test is found.
 */
-static OSStatus handleWindowAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
+template <typename TestType>
+OSStatus navigateAncestors(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface, CFStringRef attribute)
 {
     if (interface.isHIView())
         return CallNextEventHandler(next_ref, event);
-    
+
     QInterfaceItem current = interface;
+    AXUIElementRef element = 0;
     while (current.isValid()) {
-        QWidget *const widget = static_cast<QWidget*>(current.object());
-        if (current.role() == QAccessible::Window && widget
-            && !qt_mac_is_macdrawer(widget) && !qt_mac_is_macsheet(widget)) {
+        if (TestType::test(interface)) {
+            element = accessibleHierarchyManager()->lookup(current);
             break;
         }
         
@@ -1060,27 +1112,70 @@ static OSStatus handleWindowAttribute(EventHandlerCallRef next_ref, EventRef eve
         // the system event handler. This is the common case.
         if (current.isHIView()) {
             CFTypeRef value = 0;
-            const AXUIElementRef element = accessibleHierarchyManager()->lookup(current);
-            AXError err = AXUIElementCopyAttributeValue(element, kAXWindowAttribute, &value);
-            if (err)
-                return eventNotHandledErr;
-            
-            SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef,
-                                      sizeof(value), &value);
-            return noErr;
+            const AXUIElementRef currentElement = accessibleHierarchyManager()->lookup(current);
+            AXError err = AXUIElementCopyAttributeValue(currentElement, attribute, &value);
+            if (err == noErr)
+                element = (AXUIElementRef)value;
+            break;
         }
-        current = current.navigate(QAccessible::Ancestor, 1);
+        
+        QInterfaceItem next = current.navigate(QAccessible::Ancestor, 1);
+        if (next == current) 
+            break;
+        current = next;
     }
 
-    if (current.isValid() == false)
-        return eventNotHandledErr;
-    
-    const AXUIElementRef element = accessibleHierarchyManager()->lookup(current);
     if (element == 0)
         return eventNotHandledErr;
 
-    return SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef,
+    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef,
                                       sizeof(element), &element);
+    return noErr;
+}
+
+/*
+    Returns the top-level window for an interface, which is the closest ancestor interface that 
+    has the Window role, but is not a sheet or a drawer.
+*/
+static OSStatus handleWindowAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
+{
+    return navigateAncestors<IsWindowAndNotDrawerOrSheetTest>(next_ref, event, interface, kAXWindowAttribute);
+}
+
+/*
+    Returns the top-level window for an interface, which is the closest ancestor interface that 
+    has the Window role. (Can also be a sheet or a drawer)
+*/
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+static OSStatus handleTopLevelUIElementAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
+{
+    return navigateAncestors<IsWindowTest>(next_ref, event, interface, kAXTopLevelUIElementAttribute);
+}
+#endif
+
+static OSStatus handlePositionAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
+{
+    if (interface.isHIView())
+        return CallNextEventHandler(next_ref, event);
+
+    QPoint qpoint(interface.rect().topLeft());
+    HIPoint point;
+    point.x = qpoint.x();
+    point.y = qpoint.y();
+    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeHIPoint, sizeof(point), &point);
+    return noErr;
+}
+
+static OSStatus handleSizeAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
+{
+    if (interface.isHIView())
+        return CallNextEventHandler(next_ref, event);
+
+    QSize qSize(interface.rect().size());
+    HISize size;
+    size.width = qSize.width();
+    size.height = qSize.height();
+    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeHISize, sizeof(size), &size);
     return noErr;
 }
 
@@ -1094,16 +1189,16 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
         return handleChildrenAttribute(next_ref, event, interface);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     } else if(CFStringCompare(var, kAXTopLevelUIElementAttribute, 0) == kCFCompareEqualTo) {
-        return CallNextEventHandler(next_ref, event);
+        return handleTopLevelUIElementAttribute(next_ref, event, interface);
 #endif
     } else if(CFStringCompare(var, kAXWindowAttribute, 0) == kCFCompareEqualTo) {
-        return handleWindowAttribute(next_ref, event, interface);    
+        return handleWindowAttribute(next_ref, event, interface);
     } else if(CFStringCompare(var, kAXParentAttribute, 0) == kCFCompareEqualTo) {
         return handleParentAttribute(next_ref, event, interface);
     } else if (CFStringCompare(var, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
-        return CallNextEventHandler(next_ref, event);
+        return handlePositionAttribute(next_ref, event, interface);
     } else if (CFStringCompare(var, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
-        return CallNextEventHandler(next_ref, event);
+        return handleSizeAttribute(next_ref, event, interface);
     } else  if (CFStringCompare(var, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
         CFStringRef role = macRoleForQtRole(interface.role());
         QWidget * const widget = qobject_cast<QWidget *>(interface.object()); 
@@ -1256,9 +1351,24 @@ static OSStatus isNamedAttributeSettable(EventRef event, QInterfaceItem interfac
 
 static OSStatus getChildAtPoint(EventHandlerCallRef next_ref, EventRef event, QInterfaceItem interface)
 {
-    if (interface.isValid())
-        mapChildrenForInterface(interface);
-    return CallNextEventHandler(next_ref, event);
+    if (interface.isValid() == false)
+        return eventNotHandledErr;
+    
+    mapChildrenForInterface(interface);
+ 
+    Point where;
+    GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0, sizeof(where), 0, &where);
+    const int child = interface.childAt(where.h, where.v);
+    
+    if(child == -1)
+        return eventNotHandledErr;
+    
+    const AXUIElementRef element = lookupCreateChild(interface, child);
+
+    SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef,
+                                  sizeof(element), &element);
+    
+    return noErr;
 }
 
 /*
