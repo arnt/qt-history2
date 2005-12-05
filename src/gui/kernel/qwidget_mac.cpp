@@ -198,6 +198,18 @@ static WindowGroupRef qt_mac_get_stays_on_top_group()
     return qt_mac_stays_on_top_group;
 }
 
+void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
+{
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_2)
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2) {
+        if(o)
+            HIViewChangeFeatures((HIViewRef)w->winId(), kHIViewFeatureIsOpaque, 0);
+        else
+            HIViewChangeFeatures((HIViewRef)w->winId(), 0, kHIViewFeatureIsOpaque);
+    }
+#endif
+}
+
 void qt_mac_update_ignore_mouseevents(QWidget *w)
 {
     if(w->isWindow()) {
@@ -418,9 +430,11 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     widget->d_func()->hd = old_qdref;
 
 #ifdef DEBUG_WIDGET_PAINT
-                qDebug("asked to draw %p [%s::%s] %p", hiview, widget->metaObject()->className(),
-                       widget->objectName().local8Bit(),
-                       (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1));
+                qDebug("asked to draw %p [%s::%s] %p [%d]", hiview, widget->metaObject()->className(),
+                       widget->objectName().local8Bit().data(),
+                       (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1),
+                       HIViewIsCompositingEnabled(hiview));
+#if 0
                 QVector<QRect> region_rects = qrgn.rects();
                 qDebug("Region! %d", region_rects.count());
                 for(int i = 0; i < region_rects.count(); i++)
@@ -431,6 +445,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 for(int i = 0; i < region_rects.count(); i++)
                     qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(),
                            region_rects[i].width(), region_rects[i].height());
+#endif
 #endif
                 if (widget->isVisible() && widget->updatesEnabled()) { //process the actual paint event.
                     if(widget->testAttribute(Qt::WA_WState_InPaintEvent))
@@ -528,8 +543,8 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     SetRectRgn(rgn, 0, 0, widget->width(), widget->height());
                     if(QWidgetPrivate::qt_widget_rgn(widget, kWindowStructureRgn, rgn, false))
                         handled_event = true;
-                } else if (part == kControlOpaqueMetaPart) {
-                    if (widget->d_func()->isOpaque()) {
+                } else if(part == kControlOpaqueMetaPart) {
+                    if(widget->d_func()->isOpaque()) {
                         RgnHandle rgn;
                         GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, 0,
                                           sizeof(RgnHandle), 0, &rgn);

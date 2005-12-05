@@ -317,6 +317,7 @@ void QWidget::setAutoFillBackground(bool enabled)
 
     d->extra->autoFillBackground = enabled;
     update();
+    d->updateIsOpaque();
 }
 
 /*!
@@ -1353,6 +1354,15 @@ bool QWidgetPrivate::hasBackground() const
                  || (QPalette::ColorRole(bg_role) != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
     }
     return false;
+}
+
+void QWidgetPrivate::updateIsOpaque()
+{
+    Q_Q(QWidget);
+#ifdef Q_WS_MAC
+    extern void qt_mac_set_widget_is_opaque(QWidget*, bool); //qwidget_mac.cpp
+    qt_mac_set_widget_is_opaque(q, isOpaque());
+#endif
 }
 
 bool QWidgetPrivate::isOpaque() const
@@ -2987,6 +2997,7 @@ void QWidget::setBackgroundRole(QPalette::ColorRole role)
     d->bg_role = role;
     d->updateSystemBackground();
     d->propagatePaletteChange();
+    d->updateIsOpaque();
 }
 
 /*!
@@ -3097,6 +3108,7 @@ void QWidgetPrivate::setPalette_helper(const QPalette &palette)
     updateSystemBackground();
     propagatePaletteChange();
     q->update();
+    updateIsOpaque();
 }
 
 
@@ -6589,6 +6601,10 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         else
             d->high_attributes[int_off] &= ~(1<<(x-(int_off*8*sizeof(uint))));
     }
+
+    if(attribute == Qt::WA_OpaquePaintEvent || attribute == Qt::WA_PaintOnScreen || attribute == Qt::WA_NoSystemBackground)
+        d->updateIsOpaque();
+
     switch (attribute) {
 
 #ifndef QT_NO_DRAGANDDROP
