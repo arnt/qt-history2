@@ -217,7 +217,10 @@ void RichTextEditor::setFontPointSize(double d)
 
 void RichTextEditor::setText(const QString &text)
 {
-    setHtml(text);
+    if (Qt::mightBeRichText(text))
+        setHtml(text);
+    else
+        setPlainText(text);
 }
 
 void RichTextEditor::setDefaultFont(const QFont &font)
