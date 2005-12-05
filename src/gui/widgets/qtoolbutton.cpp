@@ -250,6 +250,8 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
 #endif
             if (QToolBar *toolBar = qobject_cast<QToolBar *>(q->parentWidget())) {
                 opt.iconSize = toolBar->iconSize();
+            } else {
+                opt.iconSize = q->iconSize();
             }
     }
 #endif // QT_NO_TOOLBAR
