@@ -25,6 +25,9 @@
 #include <QStyle>
 #include <QTimer>
 #include <QStackedWidget>
+#include <QTimer>
+#include <QTextBlock>
+#include <QKeyEvent>
 
 TabbedBrowser::TabbedBrowser(MainWindow *parent)
     : QWidget(parent)
@@ -128,6 +131,9 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
     connect(win, SIGNAL(sourceChanged(QUrl)), this, SLOT(sourceChanged()));
 
     ui.tab->cornerWidget(Qt::TopRightCorner)->setEnabled(ui.tab->count() > 1);
+	win->installEventFilter(this);
+	win->viewport()->installEventFilter(this);
+    ui.editFind->installEventFilter(this);
     return win;
 }
 
@@ -205,6 +211,19 @@ void TabbedBrowser::init()
     QObject::connect(closeTabButton, SIGNAL(clicked()), this, SLOT(closeTab()));
     closeTabButton->setToolTip(tr("Close page"));
     closeTabButton->setEnabled(false);
+
+	QObject::connect(ui.toolClose, SIGNAL(clicked()), ui.frameFind, SLOT(hide()));
+	QObject::connect(ui.toolPrevious, SIGNAL(clicked()), this, SLOT(findPrevious()));
+	QObject::connect(ui.toolNext, SIGNAL(clicked()), this, SLOT(findNext()));
+	QObject::connect(ui.editFind, SIGNAL(returnPressed()), this, SLOT(findNext()));
+	QObject::connect(ui.editFind, SIGNAL(textEdited(const QString&)),
+				     this, SLOT(find(QString)));
+	ui.frameFind->setVisible(false);
+	ui.labelWrapped->setVisible(false);
+	autoHideTimer = new QTimer(this);
+	autoHideTimer->setInterval(5000);
+	autoHideTimer->setSingleShot(true);
+	QObject::connect(autoHideTimer, SIGNAL(timeout()), ui.frameFind, SLOT(hide()));
 }
 
 void TabbedBrowser::updateTitle(const QString &title)
@@ -283,6 +302,9 @@ void TabbedBrowser::sourceChanged()
     if (docTitle.startsWith("Qt 4.0: "))
         docTitle = docTitle.mid(8);
     setTitle(win, docTitle);
+	ui.frameFind->hide();
+    ui.labelWrapped->hide();
+	win->setTextCursor(win->cursorForPosition(QPoint(0, 0)));
 }
 
 void TabbedBrowser::setTitle(HelpWindow *win, const QString &title)
@@ -290,4 +312,122 @@ void TabbedBrowser::setTitle(HelpWindow *win, const QString &title)
     ui.tab->setTabText(ui.tab->indexOf(win), reduceLabelLength(title));
     if (win == currentBrowser())
         mainWindow()->setWindowTitle(Config::configuration()->title() + QLatin1String(" - ") + title);
+}
+
+void TabbedBrowser::keyPressEvent(QKeyEvent *e)
+{
+	int key = e->key();
+	QString ttf = ui.editFind->text();
+	QString text = e->text();
+
+	if (ui.frameFind->isVisible()) {
+		switch (key) {
+		case Qt::Key_Escape:
+			ui.frameFind->hide();
+            ui.labelWrapped->hide();
+			return;
+		case Qt::Key_Backspace:
+			ttf.chop(1);
+			break;
+		case Qt::Key_Return:
+        case Qt::Key_Enter:
+			// Return/Enter key events are not accepted by QLineEdit
+			return;
+		default:
+			if (text.isEmpty())
+				return QWidget::keyPressEvent(e);
+			ttf += text;
+		}
+	} else {
+		if (text.isEmpty() || text[0].isSpace() || !text[0].isPrint())
+			return QWidget::keyPressEvent(e);
+		ttf = text;
+		ui.frameFind->show();
+	}
+
+	ui.editFind->setText(ttf);
+	find(ttf, false, false);
+}
+
+void TabbedBrowser::findNext()
+{
+	find(ui.editFind->text(), true, false);
+}
+
+void TabbedBrowser::findPrevious()
+{
+	find(ui.editFind->text(), false, true);
+}
+
+void TabbedBrowser::find()
+{
+	ui.frameFind->show();
+	ui.editFind->setFocus(Qt::ShortcutFocusReason);
+	ui.editFind->selectAll();
+	autoHideTimer->stop();
+}
+
+void TabbedBrowser::find(QString ttf, bool forward, bool backward)
+{
+	HelpWindow *browser = currentBrowser();
+	QTextDocument *doc = browser->document();
+	QString oldText = ui.editFind->text();
+	QTextCursor c = browser->textCursor();
+	QTextDocument::FindFlags options;
+	QPalette p = ui.editFind->palette();
+	p.setColor(QPalette::Active, QPalette::Base, Qt::white);
+
+	if (c.hasSelection())
+		c.setPosition(forward ? c.position() : c.anchor(), QTextCursor::MoveAnchor);
+
+	QTextCursor newCursor = c;
+
+	if (!ttf.isEmpty()) {
+		if (backward)
+			options |= QTextDocument::FindBackward;
+
+		if (ui.checkCase->isChecked())
+			options |= QTextDocument::FindCaseSensitively;
+
+		if (ui.checkWholeWords->isChecked())
+			options |= QTextDocument::FindWholeWords;
+
+		newCursor = doc->find(ttf, c, options);
+		ui.labelWrapped->hide();
+
+		if (newCursor.isNull()) {
+			QTextCursor ac(doc);
+			ac.movePosition(options & QTextDocument::FindBackward 
+							? QTextCursor::End : QTextCursor::Start);
+			newCursor = doc->find(ttf, ac, options);
+			if (newCursor.isNull()) {
+				p.setColor(QPalette::Active, QPalette::Base, QColor(255, 102, 102));
+				newCursor = c;
+			} else
+				ui.labelWrapped->show();
+		}
+	}
+
+	if (!ui.frameFind->isVisible())
+		ui.frameFind->show();
+	browser->setTextCursor(newCursor);
+	ui.editFind->setPalette(p);
+	if (!ui.editFind->hasFocus())
+		autoHideTimer->start();
+}
+
+bool TabbedBrowser::eventFilter(QObject *o, QEvent *e)
+{
+    if (o == ui.editFind) {
+        if (e->type() == QEvent::FocusIn && autoHideTimer->isActive())
+            autoHideTimer->stop();
+    } else if (e->type() == QEvent::KeyPress && ui.frameFind->isVisible()) { // assume textbrowser
+		QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+		if (ke->key() == Qt::Key_Space) {
+			keyPressEvent(ke);
+			return true;
+		}
+	}
+
+	return QWidget::eventFilter(o, e);
 }

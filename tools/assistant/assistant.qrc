@@ -17,5 +17,7 @@
   <file>images/assistant-128.png</file>
   <file>images/addtab.png</file>
   <file>images/closetab.png</file>
+  <file>images/close.png</file>
+  <file>images/wrap.png</file>
 </qresource>
 </RCC>

@@ -12,8 +12,7 @@ QT            += xml network
 PROJECTNAME        = Assistant
 DESTDIR            = ../../bin
 
-FORMS += finddialog.ui \
-        helpdialog.ui \
+FORMS += helpdialog.ui \
         mainwindow.ui \
         settingsdialog.ui \
         tabbedbrowser.ui \
@@ -27,7 +26,6 @@ SOURCES += main.cpp \
         index.cpp \
         profile.cpp \
         config.cpp \
-        finddialog.cpp \
         helpdialog.cpp \
         mainwindow.cpp \
         tabbedbrowser.cpp
@@ -38,7 +36,6 @@ HEADERS        += helpwindow.h \
         settingsdialog.h \
         index.h \
         profile.h \
-        finddialog.h \
         helpdialog.h \
         mainwindow.h \
         tabbedbrowser.h \

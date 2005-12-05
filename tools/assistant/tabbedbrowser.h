@@ -20,6 +20,7 @@ class MainWindow;
 class HelpWindow;
 class QStyleSheet;
 class QMimeSourceFactory;
+class QTimer;
 
 class TabbedBrowser : public QWidget
 {
@@ -37,6 +38,10 @@ public:
     HelpWindow* createHelpWindow(const QString &);
 
     void setTitle(HelpWindow*, const QString &);
+
+protected:
+	void keyPressEvent(QKeyEvent *);
+	bool eventFilter(QObject *o, QEvent *e);
 
 public slots:
     void init();
@@ -58,6 +63,13 @@ public slots:
     void copy();
     void closeTab();
     void sourceChanged();
+	
+	void find();
+	void findNext();
+	void findPrevious();
+
+private slots:
+	void find(QString, bool forward = false, bool backward = false);
 
 private:
     Ui::TabbedBrowser ui;
@@ -67,6 +79,7 @@ private:
     QString fixedFontFam;
     QColor lnkColor;
     bool underlineLnk;
+	QTimer *autoHideTimer;
 };
 
 #endif // TABBEDBROWSER_H

@@ -39,6 +39,9 @@ public:
     bool isBackwardAvailable() const { return backAvail; }
     bool isForwardAvailable() const { return fwdAvail; }
 
+public slots:
+	void followSelectedLink();
+
 signals:
     void chooseWebBrowser();
     void choosePDFReader();

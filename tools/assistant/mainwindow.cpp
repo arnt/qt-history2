@@ -14,7 +14,6 @@
 #include "mainwindow.h"
 #include "tabbedbrowser.h"
 #include "helpdialog.h"
-#include "finddialog.h"
 #include "settingsdialog.h"
 #include "config.h"
 
@@ -158,8 +157,10 @@ void MainWindow::setup()
     ui.viewMenu->addAction(viewsAction);
 
     helpDock->tabWidget()->setCurrentIndex(config->sideBarPage());
-
-    qApp->restoreOverrideCursor();
+    QObject::connect(ui.actionEditFind, SIGNAL(triggered()), tabs, SLOT(find()));
+    QObject::connect(ui.actionEditFindNext, SIGNAL(triggered()), tabs, SLOT(findNext()));
+    QObject::connect(ui.actionEditFindPrev, SIGNAL(triggered()), tabs, SLOT(findPrevious()));
+	qApp->restoreOverrideCursor();
     ui.actionGoPrevious->setEnabled(false);
     ui.actionGoNext->setEnabled(false);
 }
@@ -285,34 +286,6 @@ void MainWindow::on_actionAboutApplication_triggered()
 void MainWindow::on_actionAboutAssistant_triggered()
 {
     about();
-}
-
-void MainWindow::on_actionEditFind_triggered()
-{
-    if (!findDialog)
-        findDialog = new FindDialog(this);
-    findDialog->reset();
-    findDialog->show();
-    findDialog->raise();
-    findDialog->activateWindow();
-}
-
-void MainWindow::on_actionEditFindAgain_triggered()
-{
-    if (!findDialog || !findDialog->hasFindExpression()) {
-        on_actionEditFind_triggered();
-        return;
-    }
-    findDialog->doFind(true);
-}
-
-void MainWindow::on_actionEditFindAgainPrev_triggered()
-{
-    if (!findDialog || !findDialog->hasFindExpression()) {
-        on_actionEditFind_triggered();
-        return;
-    }
-    findDialog->doFind(false);
 }
 
 void MainWindow::on_actionGoHome_triggered()
@@ -508,7 +481,7 @@ void MainWindow::saveSettings()
     config->setGeometry(QRect(x(), y(), width(), height()));
     config->setMaximized(isMaximized());
     config->setMainWindowState(saveState());
-
+    
     // Create list of the tab urls
     QStringList lst;
     QList<HelpWindow*> browsers = tabs->browsers();

@@ -295,7 +295,10 @@ void HelpWindow::mousePressEvent(QMouseEvent *e)
 void HelpWindow::keyPressEvent(QKeyEvent *e)
 {
     shiftPressed = e->modifiers() & Qt::ShiftModifier;
-    QTextBrowser::keyPressEvent(e);
+	if (e->key() == Qt::Key_Return)
+		followSelectedLink();
+	else
+		QTextBrowser::keyPressEvent(e);
 }
 
 void HelpWindow::updateForward(bool fwd)
@@ -311,4 +314,33 @@ void HelpWindow::updateBackward(bool back)
 bool HelpWindow::isKDERunning() const
 {
     return !qgetenv("KDE_FULL_SESSION").isEmpty();
+}
+
+void HelpWindow::followSelectedLink()
+{
+	QTextCursor c = textCursor();
+    QTextBlock b = c.block();
+
+    for (QTextBlock::iterator it = b.begin(); it != b.end(); ++it) {
+        QTextFragment f = it.fragment();
+        QTextCharFormat cf = f.charFormat();
+		if (f.position() > c.position())
+			break;
+		if (f.position() + f.length() < c.anchor())
+			continue;
+        if (!cf.isAnchor())
+            continue;
+        QString anchor = cf.anchorHref();
+        if (anchor.isEmpty())
+            continue;
+		QUrl url = source();	
+        anchor = url.resolved(anchor).toString();
+        if (anchor.at(0) == QLatin1Char('#')) {
+            QString src = url.toString();
+            int hsh = src.indexOf(QLatin1Char('#'));
+            anchor = (hsh>=0 ? src.left(hsh) : src) + anchor;
+        }
+        setSource(anchor);
+        return;
+    }
 }
