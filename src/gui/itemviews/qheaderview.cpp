@@ -681,6 +681,7 @@ int QHeaderView::hiddenSectionCount() const
 void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
 {
     Q_D(QHeaderView);
+    d->executePostedLayout();
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
     if (hide && d->isVisualIndexHidden(visual))
