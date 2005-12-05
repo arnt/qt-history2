@@ -16,7 +16,7 @@
 
 #include <QtCore/qglobal.h>
 
-#if defined(Q_CC_GNU)
+#if defined(Q_CC_GNU) || defined(Q_CC_INTEL)
 
 inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 {
@@ -95,7 +95,8 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 extern "C" {
     int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
     int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
-}
+} // extern "C"
+
 inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
 {
     return q_atomic_test_and_set_int(ptr, expected, newval);

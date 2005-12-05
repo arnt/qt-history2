@@ -97,6 +97,16 @@ extern "C" {
     Q_CORE_EXPORT void *q_atomic_set_ptr(volatile void *ptr, void *newval);
 } // extern "C"
 
+inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
+{
+    return q_atomic_test_and_set_int(ptr, expected, newval);
+}
+
+inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
+{
+    return q_atomic_test_and_set_int(ptr, expected, newval);
+}
+
 #endif
 
 #endif // I386_QATOMIC_H
