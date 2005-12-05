@@ -528,6 +528,17 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     SetRectRgn(rgn, 0, 0, widget->width(), widget->height());
                     if(QWidgetPrivate::qt_widget_rgn(widget, kWindowStructureRgn, rgn, false))
                         handled_event = true;
+                } else if (part == kControlOpaqueMetaPart) {
+                    if (widget->d_func()->isOpaque()) {
+                        RgnHandle rgn;
+                        GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, 0,
+                                          sizeof(RgnHandle), 0, &rgn);
+                        SetRectRgn(rgn, 0, 0, widget->width(), widget->height());
+                        QWidgetPrivate::qt_widget_rgn(widget, kWindowStructureRgn, rgn, false);
+                        SetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle,
+                                sizeof(RgnHandle), &rgn);
+                        handled_event = true;
+                    }
                 }
             }
         } else if(ekind == kEventControlDragEnter || ekind == kEventControlDragWithin ||
