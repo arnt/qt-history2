@@ -403,6 +403,7 @@ void QFSFileEnginePrivate::init()
 #endif
 int QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 {
+    flags |= _O_NOINHERIT;  // Do not inherit file handles.
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 	QT_WA({
 		int fd;
