@@ -47,9 +47,9 @@ void MainWindow::about()
 
 void MainWindow::assistant()
 {
-//  assistantClient->showPage(QLibraryInfo::location(QLibraryInfo::ExamplesPath) +
-//                            "assistant/simpletextviewer/documentation/index.html");
-    assistantClient->showPage("/home/vkarlsen/dev/research/newexamples/assistant/simpletextviewer/documentation/index.html");
+    assistantClient->showPage(QLibraryInfo::location(QLibraryInfo::ExamplesPath) +
+                                              QDir::separator() +
+                                              "assistant/simpletextviewer/documentation/index.html");
 }
 
 void MainWindow::open()
