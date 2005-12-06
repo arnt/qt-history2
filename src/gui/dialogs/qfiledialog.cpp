@@ -459,7 +459,16 @@ QStringList QFileDialog::selectedFiles() const
                 }
             }
         } else {
-            files.append(editText);
+            QString name = editText;
+            QFileInfo info(name);
+            // if the filename has no suffix, add the default suffix
+            if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf('.') == -1)
+                name += "." + d->defaultSuffix;
+            if (info.isAbsolute())
+                files.append(name);
+            else
+                files.append(d->toInternal(d->lookInCombo->currentText()
+                                           + QDir::separator() + name));
         }
     }
 
