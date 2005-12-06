@@ -1276,12 +1276,14 @@ found:
            line.descent.toReal(), line.textWidth.toReal(), spaceData.width.toReal());
     LB_DEBUG("        : '%s'", eng->layoutData->string.mid(line.from, line.length).toUtf8().data());
 
-    if (eng->option.wrapMode() == QTextOption::ManualWrap || eng->option.wrapMode() == QTextOption::NoWrap)
+    if (eng->option.wrapMode() == QTextOption::ManualWrap || eng->option.wrapMode() == QTextOption::NoWrap) {
         eng->minWidth = qMax(eng->minWidth, line.textWidth);
-    else
+        eng->maxWidth = qMax(eng->maxWidth, line.textWidth);
+    } else {
         eng->minWidth = qMax(eng->minWidth, minw);
+        eng->maxWidth += line.textWidth;
+    }
 
-    eng->maxWidth += line.textWidth;
     if (line.textWidth > 0 && item < eng->layoutData->items.size())
         eng->maxWidth += spaceData.textWidth;
     if (eng->option.flags() & QTextOption::IncludeTrailingSpaces)
