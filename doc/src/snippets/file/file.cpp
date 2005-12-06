@@ -16,7 +16,7 @@ static void noStream_snippet()
         return;
 
     while (!file.atEnd()) {
-        QByteArray line = in.readLine();
+        QByteArray line = file.readLine();
         process_line(line);
     }
 }
@@ -51,7 +51,7 @@ static void writeTextStream_snippet()
         return;
 
     QDataStream out(&file);
-    out << 
+    out << "The magic number is: " << 49 << "\n";
 }
 
 
