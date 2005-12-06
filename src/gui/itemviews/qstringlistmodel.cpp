@@ -186,7 +186,9 @@ bool QStringListModel::insertRows(int row, int count, const QModelIndex &parent)
 bool QStringListModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     Q_UNUSED(parent);
-
+    if (count == 0)
+        return false;
+    
     beginRemoveRows(QModelIndex(), row, row + count - 1);
 
     for (int r = 0; r < count; ++r)
