@@ -3398,13 +3398,6 @@ const QByteArray & QUrlPrivate::normalized()
     return encodedNormalized;
 }
 
-
-/*!
-    \fn QUrl::QUrl(QUrlPrivate &d)
-
-    \internal
-*/
-
 /*!
     Constructs a URL by parsing \a url. \a url is assumed to be in human
     readable representation, with no percent encoding. QUrl will automatically

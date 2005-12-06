@@ -194,8 +194,6 @@ protected:
     inline QT3_SUPPORT void reset() { clear(); }
 #endif
 
-    QUrl(QUrlPrivate &d);
-
 private:
     QUrlPrivate *d;
 };
