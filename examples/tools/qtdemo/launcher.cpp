@@ -59,6 +59,7 @@ Launcher::Launcher(QWidget *parent)
     addAction(exitAction);
 
     slideshowTimer = new QTimer(this);
+    slideshowTimer->setInterval(5000);
     resizeTimer = new QTimer(this);
     resizeTimer->setSingleShot(true);
     connect(resizeTimer, SIGNAL(timeout()), this, SLOT(redisplayWindow()));
@@ -844,7 +845,7 @@ void Launcher::showExampleSummary(const QString &example)
                     this, SLOT(updateExampleSummary()));
 
             slideshowFrame = 0;
-            slideshowTimer->start(5000);
+            slideshowTimer->start();
         }
     }
 
