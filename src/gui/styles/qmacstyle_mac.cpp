@@ -5190,6 +5190,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case PM_DockWidgetTitleMargin:
         ret = 0;
         break;
+    case PM_ToolBarHandleExtent:
+        ret = 11;
+        break;
     default:
         ret = QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
@@ -5200,7 +5203,11 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
 /*! \reimp */
 QPalette QMacStyle::standardPalette() const
 {
-    return QWindowsStyle::standardPalette();
+    QPalette pal = QWindowsStyle::standardPalette();
+    pal.setColor(QPalette::Disabled, QPalette::Dark, QColor(191, 191, 191));
+    pal.setColor(QPalette::Active, QPalette::Dark, QColor(191, 191, 191));
+    pal.setColor(QPalette::Inactive, QPalette::Dark, QColor(191, 191, 191));
+    return pal;
 }
 
 /*! \reimp */
@@ -5408,6 +5415,7 @@ QPixmap QMacStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixm
     return QWindowsStyle::generatedIconPixmap(iconMode, pixmap, opt);
 }
 
+
 /*! \reimp */
 QPixmap QMacStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                   const QWidget *widget) const
@@ -5459,6 +5467,21 @@ QPixmap QMacStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOpt
     case SP_FileLinkIcon:
     case SP_FileIcon:
         iconType = kGenericDocumentIcon;
+        break;
+    case SP_ToolBarHorizontalExtensionButton:
+    case SP_ToolBarVerticalExtensionButton: {
+        QPixmap pixmap(qt_mac_toolbar_ext);
+        if (standardPixmap == SP_ToolBarVerticalExtensionButton) {
+            QPixmap pix2(pixmap.height(), pixmap.width());
+            pix2.fill(Qt::transparent);
+            QPainter p(&pix2);
+            p.translate(pix2.width(), 0);
+            p.rotate(90);
+            p.drawPixmap(0, 0, pixmap);
+            return pix2;
+        }
+        return pixmap;
+        }
         break;
     default:
         break;
@@ -5642,6 +5665,46 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         break;
     case PE_FrameWindow:
         break;
+    case PE_IndicatorDockWidgetResizeHandle:
+        drawControl(CE_Splitter, opt, p, w);
+        break;
+    case PE_IndicatorToolBarHandle: {
+            p->save();
+            QPainterPath path;
+            int x = opt->rect.x() + 3;
+            int y = opt->rect.y() + 2;
+            static const int RectHeight = 2;
+            if (opt->state & QStyle::State_Horizontal) {
+                while (y < opt->rect.height() - RectHeight) {
+                    path.moveTo(x, y);
+                    path.addRect(x, y, RectHeight, RectHeight);
+                    y += 6;
+                }
+            } else {
+                while (x < opt->rect.width() - RectHeight) {
+                    path.moveTo(x, y);
+                    path.addRect(x, y, RectHeight, RectHeight);
+                    x += 6;
+                }
+            }
+            p->setPen(Qt::NoPen);
+            QColor dark = opt->palette.dark();
+            dark.setAlphaF(0.75);
+            QColor light = opt->palette.light();
+            light.setAlphaF(0.6);
+            p->fillPath(path, light);
+            p->save();
+            p->translate(1, 1);
+            p->fillPath(path, dark);
+            p->restore();
+            p->translate(3, 3);
+            p->fillPath(path, light);
+            p->translate(1, 1);
+            p->fillPath(path, dark);
+            p->restore();
+
+            break;
+        }
     default:
         if (d->useHITheme)
             d->HIThemeDrawPrimitive(pe, opt, p, w);
