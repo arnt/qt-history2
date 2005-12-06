@@ -12,7 +12,6 @@
 
 /F  {setfont} BD
 /RL {rlineto} BD
-/NP {newpath} BD
 /CM {currentmatrix} BD
 /SM {setmatrix} BD
 /TR {translate} BD
@@ -43,7 +42,7 @@
 
 /W  {clip} BD
 /W* {eoclip} BD
-/n {} BD
+/n {newpath} BD
 % ENDUNCOMPRESSED: Warning: leave this line in. 
 % Everything before this line will be left untouched by the compression
 
@@ -62,9 +61,10 @@
 } bind def
 
 /S {
-    gsave
-      PCol SC stroke
-    grestore
+  gsave
+    PCol SC stroke
+  grestore
+  newpath
 } BD
 
 % PDF text operators
@@ -302,10 +302,10 @@
 } bind def
 
 % more PDF operators
-/f { /WFi true def BF } bind def
-/f* { /WFi false def BF } bind def
-/B { /WFi true def BF S } bind def
-/B* { /WFi false def BF S } bind def
+/f { /WFi true def BF newpath } bind def
+/f* { /WFi false def BF newpath } bind def
+/B { /WFi true def BF S newpath } bind def
+/B* { /WFi false def BF S newpath } bind def
 
 /BC {                                % PdcSetBkColor [[R G B]]
   /BkCol exch def
@@ -402,6 +402,7 @@
   /C save def
   pageinit
   q
+  newpath
 } bind def
 
 %% end of page

@@ -69,19 +69,19 @@ void qt_generate_epsf(bool b)
 
 static const char *const ps_header =
 "/BD{bind def}bind def/d2{dup dup}BD/ED{exch def}BD/D0{0 ED}BD/F{setfont}BD\n"
-"/RL{rlineto}BD/NP{newpath}BD/CM{currentmatrix}BD/SM{setmatrix}BD/TR\n"
-"{translate}BD/SD{setdash}BD/SC{aload pop setrgbcolor}BD/CR{currentfile read\n"
-"pop}BD/i{index}BD/scs{setcolorspace}BD/DB{dict dup begin}BD/DE{end def}BD/ie\n"
-"{ifelse}BD/gs{gsave}BD/gr{grestore}BD/w{setlinewidth}BD/d{setdash}BD/J\n"
-"{setlinecap}BD/j{setlinejoin}BD/scn{3 array astore/BCol exch def}BD/SCN{3\n"
-"array astore/PCol exch def}BD/cm{6 array astore concat}BD/m{moveto}BD/l\n"
-"{lineto}BD/c{curveto}BD/h{closepath}BD/W{clip}BD/W*{eoclip}BD/n{}BD/q{gsave\n"
-"10 dict begin}BD/Q{end grestore}BD/re{4 2 roll m dup 0 exch RL exch 0 RL 0\n"
-"exch neg RL h}BD/S{gs PCol SC stroke gr}BD/BT{gsave 10 dict begin/_m matrix\n"
-"CM def}BD/ET{end grestore}BD/Tf{/_fs ED findfont[_fs 0 0 _fs 0 0]makefont F}\n"
-"BD/Tm{6 array astore concat}BD/Td{translate}BD/Tj{0 0 m show}BD/BSt 0 def\n"
-"/LWi 0 def/WFi false def/BCol[1 1 1]def/PCol[0 0 0]def/BkCol[1 1 1]def/BDArr\n"
-"[0.94 0.88 0.63 0.50 0.37 0.12 0.06]def/defM matrix def/level3{\n"
+"/RL{rlineto}BD/CM{currentmatrix}BD/SM{setmatrix}BD/TR{translate}BD/SD\n"
+"{setdash}BD/SC{aload pop setrgbcolor}BD/CR{currentfile read pop}BD/i{index}\n"
+"BD/scs{setcolorspace}BD/DB{dict dup begin}BD/DE{end def}BD/ie{ifelse}BD/gs\n"
+"{gsave}BD/gr{grestore}BD/w{setlinewidth}BD/d{setdash}BD/J{setlinecap}BD/j\n"
+"{setlinejoin}BD/scn{3 array astore/BCol exch def}BD/SCN{3 array astore/PCol\n"
+"exch def}BD/cm{6 array astore concat}BD/m{moveto}BD/l{lineto}BD/c{curveto}BD\n"
+"/h{closepath}BD/W{clip}BD/W*{eoclip}BD/n{newpath}BD/q{gsave 10 dict begin}BD\n"
+"/Q{end grestore}BD/re{4 2 roll m dup 0 exch RL exch 0 RL 0 exch neg RL h}BD\n"
+"/S{gs PCol SC stroke gr n}BD/BT{gsave 10 dict begin/_m matrix CM def}BD/ET\n"
+"{end grestore}BD/Tf{/_fs ED findfont[_fs 0 0 _fs 0 0]makefont F}BD/Tm{6\n"
+"array astore concat}BD/Td{translate}BD/Tj{0 0 m show}BD/BDC{pop pop}BD/EMC{}\n"
+"BD/BSt 0 def/LWi 0 def/WFi false def/BCol[1 1 1]def/PCol[0 0 0]def/BkCol[1 1\n"
+"1]def/BDArr[0.94 0.88 0.63 0.50 0.37 0.12 0.06]def/defM matrix def/level3{\n"
 "/languagelevel where{pop languagelevel 3 ge}{false}ie}BD/QCIgray D0/QCIcolor\n"
 "D0/QCIindex D0/QCI{/colorimage where{pop false 3 colorimage}{exec/QCIcolor\n"
 "ED/QCIgray QCIcolor length 3 idiv string def 0 1 QCIcolor length 3 idiv 1\n"
@@ -98,23 +98,24 @@ static const char *const ps_header =
 "BDArr BSt 2 sub get/_sc ED BCol{1. exch sub _sc mul 1. exch sub}forall 3\n"
 "array astore SC WFi{fill}{eofill}ie}if BSt 9 ge BSt 14 le and{WFi{W}{W*}ie\n"
 "pathbbox 3 i 3 i TR 4 2 roll 3 2 roll exch sub/_h ED sub/_w ED BCol SC 0.3 w\n"
-"NP BSt 9 eq BSt 11 eq or{0 4 _h{dup 0 exch m _w exch l}for}if BSt 10 eq BSt\n"
+"n BSt 9 eq BSt 11 eq or{0 4 _h{dup 0 exch m _w exch l}for}if BSt 10 eq BSt\n"
 "11 eq or{0 4 _w{dup 0 m _h l}for}if BSt 12 eq BSt 14 eq or{_w _h gt{0 6 _w\n"
 "_h add{dup 0 m _h sub _h l}for}{0 6 _w _h add{dup 0 exch m _w sub _w exch l}\n"
 "for}ie}if BSt 13 eq BSt 14 eq or{_w _h gt{0 6 _w _h add{dup _h m _h sub 0 l}\n"
 "for}{0 6 _w _h add{dup _w exch m _w sub 0 exch l}for}ie}if S}if BSt 15 eq{}\n"
-"if BSt 24 eq{}if gr}BD/f{/WFi true def BF}BD/f*{/WFi false def BF}BD/B{/WFi\n"
-"true def BF S}BD/B*{/WFi false def BF S}BD/BC{/BkCol ED}BD/BR{/BCol ED/BSt\n"
-"ED}BD/NB{0[0 0 0]BR}BD/PE{setlinejoin setlinecap/PCol ED/LWi ED/PSt ED PCol\n"
-"SC}BD/P1{1 0 3 2 roll 0 0 PE}BD/ST{defM SM concat}BD/MF{true exch true exch{\n"
-"exch pop exch pop dup 0 get dup findfont dup/FontName get 3 -1 roll eq{exit}\n"
-"if}forall exch dup 1 get/fxscale ED 2 get/fslant ED exch/fencoding ED[\n"
-"fxscale 0 fslant 1 0 0]makefont fencoding false eq{}{dup maxlength dict\n"
-"begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding fencoding def\n"
-"currentdict end}ie definefont pop}BD/MFEmb{findfont dup length dict begin{1\n"
-"i/FID ne{def}{pop pop}ifelse}forall/Encoding ED currentdict end definefont\n"
-"pop}BD/QI{/C save def pageinit q}BD/QP{Q C restore showpage}BD/SPD{\n"
-"/setpagedevice where{<< 3 1 roll >> setpagedevice}{pop pop}ie}BD\n";
+"if BSt 24 eq{}if gr}BD/f{/WFi true def BF n}BD/f*{/WFi false def BF n}BD/B{\n"
+"/WFi true def BF S n}BD/B*{/WFi false def BF S n}BD/BC{/BkCol ED}BD/BR{/BCol\n"
+"ED/BSt ED}BD/NB{0[0 0 0]BR}BD/PE{setlinejoin setlinecap/PCol ED/LWi ED/PSt\n"
+"ED PCol SC}BD/P1{1 0 3 2 roll 0 0 PE}BD/ST{defM SM concat}BD/MF{true exch\n"
+"true exch{exch pop exch pop dup 0 get dup findfont dup/FontName get 3 -1\n"
+"roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get/fslant ED exch\n"
+"/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false eq{}{dup\n"
+"maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
+"fencoding def currentdict end}ie definefont pop}BD/MFEmb{findfont dup length\n"
+"dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding ED currentdict end\n"
+"definefont pop}BD/QI{/C save def pageinit q n}BD/QP{Q C restore showpage}BD\n"
+"/SPD{/setpagedevice where{<< 3 1 roll >> setpagedevice}{pop pop}ie}BD\n";
+
 
 
 #define MM(n) int((n * 720 + 127) / 254)
@@ -639,7 +640,6 @@ void QPSPrintEnginePrivate::drawTextItem(QPSPrintEngine *q, const QPointF &p, co
     qreal stretch = synthesized & QFontEngine::SynthesizedStretch ? ti.fontEngine->fontDef.stretch/100. : 1.;
 
     if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut|QTextItem::Overline)) {
-        *currentPage << "NP ";
         qreal lw = fe->lineThickness().toReal();
         if (ti.flags & (QTextItem::Underline))
             *currentPage << p.x() << (p.y() + fe->underlinePosition().toReal())
@@ -792,7 +792,7 @@ enum format {
     Runlength,
     DCT
 };
-static const char *filters[3] const = {
+static const char *const filters[3] = {
     " ",
     "/RunLengthDecode filter ",
     "/DCTDecode filter "
@@ -1749,18 +1749,17 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
         *d->currentPage << "q\n";
         setPen();
         *d->currentPage << QPdf::generateMatrix(d->stroker.matrix);
-        *d->currentPage << "NP " << QPdf::generatePath(p, QMatrix(), d->hasBrush ? QPdf::FillAndStrokePath : QPdf::StrokePath);
+        *d->currentPage << QPdf::generatePath(p, QMatrix(), d->hasBrush ? QPdf::FillAndStrokePath : QPdf::StrokePath);
         *d->currentPage << "Q\n";
     } else {
         if (d->hasBrush) {
-            *d->currentPage << "NP " << QPdf::generatePath(p, d->stroker.matrix, QPdf::FillPath);
+            *d->currentPage << QPdf::generatePath(p, d->stroker.matrix, QPdf::FillPath);
         }
         if (d->hasPen) {
             *d->currentPage << "q\n";
             QBrush b = d->brush;
             d->brush = d->pen.brush();
             setBrush();
-            *d->currentPage << "NP ";
             d->stroker.strokePath(p);
             *d->currentPage << "Q\n";
             d->brush = b;
