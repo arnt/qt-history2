@@ -2155,6 +2155,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 case CE_DockWidgetTitle:
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
         {
+            bool isActive = dwOpt->state & State_Active;
             QRect r = option->rect.adjusted(0, 2, -1, -3);
             if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget)){
                 if (!dw->isFloating()){
@@ -2171,7 +2172,7 @@ case CE_DockWidgetTitle:
                 }
             }
             name = "WINDOW";
-            if (dwOpt->state & State_Active)
+            if (isActive)
                 stateId = CS_ACTIVE;
             else
                 stateId = CS_INACTIVE;
@@ -2210,11 +2211,23 @@ case CE_DockWidgetTitle:
                 indent += pxIco.width() + 1;
             }
             if (!dwOpt->title.isEmpty()) {
-                p->setPen(Qt::white);
                 QFont oldFont = p->font();
                 QFont titleFont = oldFont;
                 titleFont.setBold(true);
                 p->setFont(titleFont);
+                if (isActive) {
+                    COLORREF textShadowRef;
+                    pGetThemeColor(theme.handle(), WP_CAPTION, CS_ACTIVE, TMT_TEXTSHADOWCOLOR, &textShadowRef);
+                    QColor textShadow = qRgb(GetRValue(textShadowRef), GetGValue(textShadowRef), GetBValue(textShadowRef));
+                    p->setPen(textShadow);
+                    drawItemText(p, rect.adjusted(indent + 2,
+                                                  rect.bottom() - p->fontMetrics().lineSpacing() - 3,
+                                                  - (2 * iconSize),
+                                                  - 1),
+                                 Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                                 dwOpt->state & State_Enabled, dwOpt->title);
+                }
+                p->setPen(isActive ? dwOpt->palette.highlightedText() : d->inactiveCaptionText);
                 drawItemText(p, rect.adjusted(indent + 1, rect.bottom() - p->fontMetrics().lineSpacing() - 4,
                                               - (2 * iconSize), -1),
                              Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
@@ -2759,15 +2772,23 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
                     theme.partId = partId;
                     theme.stateId = stateId;
-                    d->drawBackground(theme);
-
+                    // Using a native buffer here always (never direct), so that ClearType is handled correctly by Qt,
+                    // as the textrender buffer needs to know the pixel data in the doublebuffer.
+                    d->drawBackgroundThruNativeBuffer(theme); 
                     QRect ir = subControlRect(CC_TitleBar, tb, SC_TitleBarLabel, widget);
 
+                    if(isActive) {
+                        COLORREF textShadowRef;
+                        pGetThemeColor(theme.handle(), WP_CAPTION, CS_ACTIVE, TMT_TEXTSHADOWCOLOR, &textShadowRef);
+                        QColor textShadow = qRgb(GetRValue(textShadowRef), GetGValue(textShadowRef), GetBValue(textShadowRef));
+                        p->setPen(textShadow);
+                        p->drawText(ir.x() + 3, ir.y() + 2, ir.width() - 1, ir.height(),
+                                    Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine, tb->text);
+                    }
                     p->setPen(tb->palette.highlightedText().color());
-                    p->drawText(ir.x() + 2, ir.y(), ir.width() - 2, ir.height(),
+                    p->drawText(ir.x() + 2, ir.y() + 1, ir.width() - 2, ir.height(),
                                 Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine, tb->text);
                 }
-
                 if (sub & SC_TitleBarSysMenu && tb->titleBarFlags & Qt::WindowSystemMenuHint) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarSysMenu, widget);
                     partId = WP_SYSBUTTON;
