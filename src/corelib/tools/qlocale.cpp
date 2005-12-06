@@ -2050,8 +2050,8 @@ QLocale QLocale::system()
 
 static QString qulltoa(qulonglong l, int base, const QLocalePrivate &locale)
 {
-    QChar buff[65]; // length of MAX_ULLONG in base 2
-    QChar *p = buff + 65;
+    ushort buff[65]; // length of MAX_ULLONG in base 2
+    ushort *p = buff + 65;
 
     if (base != 10 || locale.zero().unicode() == '0') {
         while (l != 0) {
@@ -2077,7 +2077,7 @@ static QString qulltoa(qulonglong l, int base, const QLocalePrivate &locale)
         }
     }
 
-    return QString(p, 65 - (p - buff));
+    return QString(reinterpret_cast<QChar *>(p), 65 - (p - buff));
 }
 
 static QString qlltoa(qlonglong l, int base, const QLocalePrivate &locale)
