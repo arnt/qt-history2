@@ -884,7 +884,7 @@ bool QIBaseResult::exec()
             case SQL_INT64:
                 if (d->inda->sqlvar[para].sqlscale < 0)
                     *((qint64*)d->inda->sqlvar[para].sqldata) =
-                        qint64(val.toDouble() * pow(10, d->inda->sqlvar[para].sqlscale * -1));
+                        qint64(val.toDouble() * pow(10.0, d->inda->sqlvar[para].sqlscale * -1));
                 else
                     *((qint64*)d->inda->sqlvar[para].sqldata) = val.toLongLong();
                 break;
@@ -995,7 +995,7 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
             break;
         case SQL_INT64:
             if (d->sqlda->sqlvar[i].sqlscale < 0)
-                row[idx] = *(qint64*)buf * pow(10, d->sqlda->sqlvar[i].sqlscale);
+                row[idx] = *(qint64*)buf * pow(10.0, d->sqlda->sqlvar[i].sqlscale);
             else
                 row[idx] = QVariant(*(qint64*)buf);
             break;
