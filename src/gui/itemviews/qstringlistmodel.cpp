@@ -73,13 +73,17 @@ QStringListModel::QStringListModel(const QStringList &strings, QObject *parent)
     number of items in the model's internal string list.
 
     The optional \a parent argument is used in most models to specify the
-    parent of the rows to be counted. In this model, the parent is ignored.
+    parent of the rows to be counted. Because this is a list if a 
+    valid parent is specified the result will always be 0.
 
     \sa insertRows(), removeRows(), QAbstractItemModel::rowCount()
 */
 
-int QStringListModel::rowCount(const QModelIndex &/*parent*/) const
+int QStringListModel::rowCount(const QModelIndex &parent) const
 {
+    if (parent.isValid())
+        return 0;
+    
     return lst.count();
 }
 

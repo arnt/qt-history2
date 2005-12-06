@@ -396,7 +396,8 @@ QDirModel::~QDirModel()
 QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent) const
 {
     Q_D(const QDirModel);
-    if (column < 0 || column >= 4 || row < 0 || row >= rowCount(parent)) // does lazy population
+    if (column < 0 || column >= 4 || row < 0 || row >= rowCount(parent)
+                   || parent.column() > 0) // does lazy population
         return QModelIndex();
 
     QDirModelPrivate::QDirNode *n = d->node(row, parent.isValid() ? d->node(parent) : 0);
@@ -438,6 +439,9 @@ QModelIndex QDirModel::parent(const QModelIndex &child) const
 int QDirModel::rowCount(const QModelIndex &parent) const
 {
     Q_D(const QDirModel);
+    if (parent.column() > 0)
+        return 0;
+        
     if (!parent.isValid()) {
         if (!d->root.populated) // lazy population
             d->populate(&d->root);
@@ -454,8 +458,10 @@ int QDirModel::rowCount(const QModelIndex &parent) const
 
 */
 
-int QDirModel::columnCount(const QModelIndex &) const
+int QDirModel::columnCount(const QModelIndex &parent) const
 {
+    if (parent.column() > 0)
+        return 0;
     return 4;
 }
 
@@ -553,6 +559,9 @@ QVariant QDirModel::headerData(int section, Qt::Orientation orientation, int rol
 bool QDirModel::hasChildren(const QModelIndex &parent) const
 {
     Q_D(const QDirModel);
+    if (parent.column() > 0)
+        return false;
+    
     if (!parent.isValid()) // the invalid index is the "My Computer" item
         return true; // the drives
     QDirModelPrivate::QDirNode *p = d->node(parent);
@@ -1029,11 +1038,11 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         }
 
         Q_ASSERT(row >= 0);
-        idx = index(row, column, idx); // will check row and lazily populate
+        idx = index(row, 0, idx); // will check row and lazily populate
         Q_ASSERT(idx.isValid());
     }
 
-    return idx;
+    return idx.sibling(idx.row(), column);
 }
 
 /*!
