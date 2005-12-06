@@ -694,6 +694,7 @@ HIObjectRef QAccessibleHierarchyManager::lookup(QObject * const object)
 Q_GLOBAL_STATIC(QAccessibleHierarchyManager, accessibleHierarchyManager)
 
 // Debug output helpers:
+/*
 static QString nameForEventKind(UInt32 kind)
 {
     switch(kind) {
@@ -708,7 +709,7 @@ static QString nameForEventKind(UInt32 kind)
         break;
     };
 }
-
+*/
 static bool qt_mac_append_cf_uniq(CFMutableArrayRef array, CFTypeRef value)
 {
     CFRange range;
@@ -895,14 +896,16 @@ static int textForRoleAndAttribute(QAccessible::Role role, CFStringRef attribute
 /*
     Returns the label (buddy) interface for interface, or 0 if it has none.
 */
+/*
 static QInterfaceItem findLabel(QInterfaceItem interface)
 {
     return interface.navigate(QAccessible::Label, 1);
 }
-
+*/
 /*
     Returns a list of interfaces this interface labels, or an empty list if it doesn't label any.
 */
+/*
 static QList<QInterfaceItem> findLabelled(QInterfaceItem interface)
 {
     QList<QInterfaceItem> interfaceList;
@@ -915,7 +918,7 @@ static QList<QInterfaceItem> findLabelled(QInterfaceItem interface)
     }
     return interfaceList;
 }
-
+*/
 /*
     Tests if the given QInterfaceItem has data for a mac attribute.
 */
@@ -938,6 +941,12 @@ static bool supportsAttribute(CFStringRef attribute, QInterfaceItem interface)
     return false;
 }
 
+static void appendIfSupported(CFMutableArrayRef array, CFStringRef attribute, const QInterfaceItem interface)
+{
+    if (supportsAttribute(attribute, interface))
+        qt_mac_append_cf_uniq(array, attribute);
+}
+
 static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, EventHandlerCallRef next_ref)
 {
     OSStatus err = CallNextEventHandler(next_ref, event);
@@ -950,22 +959,15 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, E
     if (!attrs)
         return eventNotHandledErr;
     
-    if (supportsAttribute(kAXTitleAttribute, interface))
-        qt_mac_append_cf_uniq(attrs, kAXTitleAttribute);
-    if (supportsAttribute(kAXValueAttribute, interface))
-        qt_mac_append_cf_uniq(attrs, kAXValueAttribute);
+    appendIfSupported(attrs, kAXTitleAttribute, interface);
+    appendIfSupported(attrs, kAXValueAttribute, interface);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-    if (supportsAttribute(kAXDescriptionAttribute, interface))
-        qt_mac_append_cf_uniq(attrs, kAXDescriptionAttribute);
-    if (supportsAttribute(kAXLinkedUIElementsAttribute, interface))
-        qt_mac_append_cf_uniq(attrs, kAXLinkedUIElementsAttribute);
+    appendIfSupported(attrs, kAXDescriptionAttribute, interface);
+    appendIfSupported(attrs, kAXLinkedUIElementsAttribute, interface);
 #endif
-    if (supportsAttribute(kAXHelpAttribute, interface))
-        qt_mac_append_cf_uniq(attrs, kAXHelpAttribute);
-    if (supportsAttribute(kAXTitleUIElementAttribute, interface))
-        qt_mac_append_cf_uniq(attrs, kAXTitleUIElementAttribute);
-    if (supportsAttribute(kAXChildrenAttribute, interface))
-        qt_mac_append_cf_uniq(attrs, kAXChildrenAttribute);
+    appendIfSupported(attrs, kAXHelpAttribute, interface);
+    appendIfSupported(attrs, kAXTitleUIElementAttribute, interface);
+    appendIfSupported(attrs, kAXChildrenAttribute, interface);
     
     qt_mac_append_cf_uniq(attrs, kAXPositionAttribute);
     qt_mac_append_cf_uniq(attrs, kAXSizeAttribute);
@@ -975,15 +977,23 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, E
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     qt_mac_append_cf_uniq(attrs, kAXTopLevelUIElementAttribute);
 #endif
-    if (interface.role() == QAccessible::Window) {
-        qt_mac_append_cf_uniq(attrs, kAXMainAttribute);
-        qt_mac_append_cf_uniq(attrs, kAXMinimizedAttribute);
-        qt_mac_append_cf_uniq(attrs, kAXCloseButtonAttribute);
-        qt_mac_append_cf_uniq(attrs, kAXZoomButtonAttribute);
-        qt_mac_append_cf_uniq(attrs, kAXMinimizeButtonAttribute);
-        qt_mac_append_cf_uniq(attrs, kAXToolbarButtonAttribute);
-        qt_mac_append_cf_uniq(attrs, kAXGrowAreaAttribute);
+    switch (interface.role())  {
+        case QAccessible::Window:
+            qt_mac_append_cf_uniq(attrs, kAXMainAttribute);
+            qt_mac_append_cf_uniq(attrs, kAXMinimizedAttribute);
+            qt_mac_append_cf_uniq(attrs, kAXCloseButtonAttribute);
+            qt_mac_append_cf_uniq(attrs, kAXZoomButtonAttribute);
+            qt_mac_append_cf_uniq(attrs, kAXMinimizeButtonAttribute);
+            qt_mac_append_cf_uniq(attrs, kAXToolbarButtonAttribute);
+            qt_mac_append_cf_uniq(attrs, kAXGrowAreaAttribute);
+        break;
+        case QAccessible::PageTabList:
+            qt_mac_append_cf_uniq(attrs, kAXTabsAttribute);
+        break;
+        default:
+        break;
     }
+   
     return noErr;
 }
 
@@ -1153,6 +1163,28 @@ static OSStatus handleTopLevelUIElementAttribute(EventHandlerCallRef next_ref, E
 }
 #endif
 
+/*
+    Returns the tab buttons for an interface. To do this we look for children with the QAccessible::PageTab role.
+*/
+static OSStatus handleTabsAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
+{
+    Q_UNUSED(next_ref);
+    CFMutableArrayRef array = CFArrayCreateMutable( 0, 0, 0);
+
+    const int numChildren = interface.childCount();
+    for (int i = 1; i < numChildren + 1; ++i) {
+        QInterfaceItem child = interface.navigate(QAccessible::Child, i);
+        if (child.isValid() && child.role() == QAccessible::PageTab)
+             qt_mac_append_cf_uniq(array, lookupCreateChild(interface, i));
+    }
+    
+    OSStatus err = SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFArrayRef, sizeof(array), &array);
+    CFRelease(array);
+    if (err)
+        return eventNotHandledErr;
+    return noErr;
+}
+
 static OSStatus handlePositionAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
 {
     if (interface.isHIView())
@@ -1318,6 +1350,8 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
         handleStringAttribute(event, text, interface);
     } else if (CFStringCompare(var, kAXTitleUIElementAttribute, 0) == kCFCompareEqualTo) {
         return CallNextEventHandler(next_ref, event); 
+    } else if (CFStringCompare(var, kAXTabsAttribute, 0) == kCFCompareEqualTo) {
+        return handleTabsAttribute(next_ref, event, interface);
     } else {
         return CallNextEventHandler(next_ref, event); 
     }
@@ -1351,11 +1385,12 @@ static OSStatus isNamedAttributeSettable(EventRef event, QInterfaceItem interfac
 
 static OSStatus getChildAtPoint(EventHandlerCallRef next_ref, EventRef event, QInterfaceItem interface)
 {
+    Q_UNUSED(next_ref);
     if (interface.isValid() == false)
         return eventNotHandledErr;
-    
+
     mapChildrenForInterface(interface);
- 
+
     Point where;
     GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0, sizeof(where), 0, &where);
     const int child = interface.childAt(where.h, where.v);
