@@ -913,7 +913,7 @@ void UnixMakefileGenerator::init2()
                                                    bundle_loc + project->first("TARGET"));
             project->variables()["TARGET_x.y"].append(project->first("QMAKE_BUNDLE_NAME") +
                                                       "/Versions/" +
-                                                      project->first("VER_MAJ") + ".0" +
+                                                      project->first("VER_MAJ") +
                                                       bundle_loc + project->first("TARGET"));
         } else if(project->isActiveConfig("plugin")) {
             QString prefix;
