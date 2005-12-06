@@ -1461,7 +1461,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
             eng->shape(item);
 
         if (si.isObject || si.isTab) {
-            if (eng->block.docHandle() &&
+            if (eng->hasFormats() &&
                 (!selection || (si.position < selection->start + selection->length
                                 && si.position + si_len > selection->start))) {
                 p->save();
@@ -1473,7 +1473,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                     width = eng->nextTab(&si, x - pos_x) - (x - pos_x);
                 }
                 setPenAndDrawBackground(p, pen, format, QRectF(x.toReal(), (y - line.ascent).toReal(), width.toReal(), line.height().toReal()));
-                if (si.isObject) {
+                if (si.isObject && eng->block.docHandle()) {
                     QRectF itemRect(x.toReal(), (y-si.ascent).toReal(), width.toReal(), si.height().toReal());
                     eng->docLayout()->drawInlineObject(p, itemRect,
                                                        QTextInlineObject(item, eng),
