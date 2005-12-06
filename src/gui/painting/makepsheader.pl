@@ -101,6 +101,7 @@ print "static const char *const ps_header =";
 print $header.";\n\n";
 
 close(INPUT);
+exit;
 
 open(INPUT, 'qpsprinter.agl')
   or die "Can't open qpsprinter.ps";

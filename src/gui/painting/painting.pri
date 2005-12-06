@@ -136,6 +136,6 @@ embedded {
 CONFIG += pdf
 pdf {
     DEFINES += QT_PDF_SUPPORT
-    SOURCES += painting/qprintengine_pdf.cpp
-    HEADERS += painting/qprintengine_pdf_p.h
+    SOURCES += painting/qprintengine_pdf.cpp painting/qpdf.cpp
+    HEADERS += painting/qprintengine_pdf_p.h painting/qpdf_p.h
 }

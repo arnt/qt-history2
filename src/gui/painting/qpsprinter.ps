@@ -67,6 +67,21 @@
     grestore
 } BD
 
+% PDF text operators
+/BT {gsave 10 dict begin /_m matrix currentmatrix def} BD
+/ET {end grestore} BD
+/Tf {
+  /_fs exch def
+  findfont
+  [ _fs 0 0 _fs 0 0 ]  
+  makefont
+  setfont
+} BD
+/Tm {6 array astore concat} BD
+/Td {translate} BD
+/Tj {0 0 moveto show} BD
+/BDC {pop pop} BD
+/EMC {} BD
 
 % old operators
 
@@ -381,48 +396,6 @@
   definefont pop
 } bind def
 
-% DF: define font
-% used to get a scaled version of an already loaded font
-%
-%    newname pointsize fontmame DF -
-/DF {
-  findfont
-  % get the fontsize on top of the stack and define font matrix
-  /_fs 3 -1 roll def [ _fs 0 0 _fs -1 mul 0 0 ]  
-  makefont
-  def
-} bind def
-
-/XYT {  % [string [x/y displacement array] width x y]
-  PCol SC
-  moveto % pops x y
-
-  /xyshow where { % interpreter has xyshow
-    pop pop
-    xyshow
-  } { % use ashow
-    exch pop % string cwidth
-    1 index % string cwidth string
-    dup length 2 div exch % string cwidth length string     !have to divide by 2 since we use unicode!
-    stringwidth pop % string cwidth length pwidth
-    3 -1 roll % string length pwidth cwidth
-    exch sub exch div % string extraperchar
-    exch 0 exch % extraperchar 0 string
-    ashow
-  } ifelse
-} bind def
-
-/AT {
-  PCol SC
-  moveto % pops x y
-  1 index % string cwidth string
-  dup length 2 div exch % string cwidth length string     !have to divide by 2 since we use unicode!
-  stringwidth pop % string cwidth length pwidth
-  3 -1 roll % string length pwidth cwidth
-  exch sub exch div % string extraperchar
-  exch 0 exch % extraperchar 0 string
-  ashow
-} bind def
 
 %% start of page
 /QI {
@@ -447,22 +420,3 @@
     setpagedevice
   } { pop pop } ifelse
 } bind def
-
-/CLS {
-  gsave
-  newpath
-} bind def
-
-/ACR {                                       % add clip rect
-  /_h exch def /_w exch def /_y exch def /_x exch def
-  _x _y moveto
-  0 _h rlineto
-  _w 0 rlineto
-  0 _h neg rlineto
-  closepath
-} bind def
-
-/CLO {                               % clipping off
-  grestore                         % restore top of page state
-} bind def
-
