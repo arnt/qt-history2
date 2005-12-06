@@ -381,10 +381,7 @@ ProjectGenerator::addFile(QString file)
     QString where;
     for(int cppit = 0; cppit < Option::cpp_ext.size(); ++cppit) {
         if(file.endsWith(Option::cpp_ext[cppit])) {
-            if(exists(file.left(file.length() - Option::cpp_ext[cppit].length()) + Option::ui_ext))
-                return false;
-            else
-                where = "SOURCES";
+            where = "SOURCES";
             break;
         }
     }
