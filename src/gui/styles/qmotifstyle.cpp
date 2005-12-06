@@ -1025,7 +1025,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             }
             const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, opt, widget);
             int u = rect.width() / unit_width;
-            int p_v = pb->progress;
+            int p_v = pb->progress - pb->minimum;
             int t_s = qMax(0, pb->maximum - pb->minimum);
             if (u > 0 && pb->progress >= INT_MAX / u && t_s >= u) {
                 // scale down to something usable.

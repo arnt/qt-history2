@@ -854,7 +854,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             if (!vertical) {
                 QPalette::ColorRole textRole = QPalette::NoRole;
                 if ((pb->textAlignment & Qt::AlignCenter) && pb->textVisible
-                    && pb->progress * 2 >= pb->maximum) {
+                    && ((pb->progress - pb->minimum) * 2 >= (pb->maximum - pb->minimum))) {
                     textRole = QPalette::HighlightedText;
                 }
                 drawItemText(p, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->palette,
@@ -895,7 +895,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             int w = rect.width() - 2 * fw;
             if (pb->minimum == 0 && pb->maximum == 0) {
                 // draw busy indicator
-                int x = pb->progress % (w * 2);
+                int x = (pb->progress - pb->minimum) % (w * 2);
                 if (x > w)
                     x = 2 * w - x;
                 x = reverse ? rect.right() - x : x + rect.x();
@@ -908,8 +908,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     u = (rect.width() + unit_width / 3) / unit_width;
                 else
                     u = w / unit_width;
-                int p_v = pb->progress;
-                int t_s = pb->maximum ? pb->maximum : 1;
+                int p_v = pb->progress - pb->minimum;
+                int t_s = pb->maximum - pb->minimum ? pb->maximum - pb->minimum : 1;
 
                 if (u > 0 && p_v >= INT_MAX / u && t_s >= u) {
                     // scale down to something usable.
