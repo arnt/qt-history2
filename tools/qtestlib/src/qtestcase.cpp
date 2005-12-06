@@ -915,7 +915,7 @@ void *fetchData(QTestData *data, const char *tagName, int typeId)
 */
 int QTest::qExec(QObject *testObject, int argc, char **argv)
 {
-#ifndef QT_NO_EXCEPTION
+#ifndef QT_NO_EXCEPTIONS
     try {
 #endif
 
@@ -966,7 +966,7 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
     QTestResult::setCurrentTestFunction(0);
     delete gTable; gTable = 0;
 
-#ifndef QT_NO_EXCEPTION
+#ifndef QT_NO_EXCEPTIONS
     } catch (...) {
         QTestResult::addFailure("Caught unhandled exception", __FILE__, __LINE__);
         if (QTestResult::currentTestFunction()) {
