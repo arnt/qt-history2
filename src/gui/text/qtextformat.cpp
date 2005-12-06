@@ -357,16 +357,19 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
 
     \value FontFamily
     \value FontPointSize
-    \value FontSizeAdjustment
+    \omitvalue FontSizeAdjustment
+    \value FontSizeIncrement
     \value FontWeight
     \value FontItalic
     \value FontUnderline
     \value FontOverline
     \value FontStrikeOut
     \value FontFixedPitch
+    \value FontPixelSize
 
     \value TextUnderlineColor
     \value TextVerticalAlignment
+    \value TextOutline
 
     \value IsAnchor
     \value AnchorHref
@@ -403,8 +406,6 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value ImageWidth
     \value ImageHeight
 
-    \omitvalue DocumentFragmentMark
-
     \value UserProperty
 */
 
@@ -414,6 +415,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value NoObject
     \value ImageObject
     \value TableObject
+    \value UserObject The first object that can be used for application-specific purposes.
 */
 
 /*!
@@ -1149,6 +1151,20 @@ QTextCharFormat::QTextCharFormat() : QTextFormat(CharFormat) {}
     returns false.
 
     \sa font()
+*/
+
+
+/*!
+    \fn QPen QTextCharFormat::textOutline() const
+
+    Returns the pen used to draw the outlines of characters in this format.
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setTextOutline(const QPen &pen)
+
+    Sets the pen used to draw the outlines of characters to the given \a pen.
 */
 
 
