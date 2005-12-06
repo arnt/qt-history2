@@ -499,12 +499,12 @@ void QPainterPrivate::updateState(QPainterState *newState)
 
     QPainter provides functions to draw most primitives: drawPoint(),
     drawPoints(), drawLine(), drawRect(), drawRoundRect(),
-    drawEllipse(), drawArc(), drawPie(), drawChord(),
-    drawLineSegments(), drawPolyline(), drawPolygon(),
-    drawConvexPolygon() and drawCubicBezier().  The two convenience
-    functions, drawRects() and drawLines(), draw the given number of
-    rectangles or lines in the given array of \l {QRect}{QRects} or \l
-    {QLine}{QLines} using the current pen and brush.
+    drawEllipse(), drawArc(), drawPie(), drawChord(), drawPolyline(),
+    drawPolygon(), drawConvexPolygon() and drawCubicBezier().  The two
+    convenience functions, drawRects() and drawLines(), draw the given
+    number of rectangles or lines in the given array of \l
+    {QRect}{QRects} or \l {QLine}{QLines} using the current pen and
+    brush.
 
     The QPainter class also provides the fillRect() function which
     fills the given QRect, with the given QBrush, and the eraseRect()
@@ -1664,7 +1664,7 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
     \i rotate()
     \endlist
 
-    They operate on the painter's worldMatrix() and are implemented like this:
+    They operate on the painter's matrix() and are implemented like this:
 
     \code
         void QPainter::rotate(qreal angle)
@@ -2381,15 +2381,26 @@ void QPainter::drawPoints(const QPoint *points, int pointCount)
 */
 
 /*!
-    \fn void QPainter::drawPoints(const QPolygon &points, int index,
-    int npoints)
+    \fn void QPainter::drawPoints(const QPolygon &polygon, int index,
+    int count)
 
     \overload
-
     \compat
 
-    Draws \a npoints points in the vector \a points starting on \a index
+    Draws \a count points in the vector \a polygon starting on \a index
     using the current pen.
+
+    Use drawPoints() combined with QPolygon::constData() instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawPoints(polygon, index, count);
+    \newcode
+        int pointCount = (count == -1) ?  polygon.size() - index : count;
+
+        QPainter painter(this);
+        painter.drawPoints(polygon.constData() + index, pointCount);
+    \endcode
 */
 
 /*!
@@ -3065,15 +3076,25 @@ void QPainter::drawChord(const QRectF &r, int a, int alen)
 
 #ifdef QT3_SUPPORT
 /*!
-    Draws \a nlines separate lines from points defined in \a a,
-    starting at \a{a}\e{[index]} (\a index defaults to 0). If \a nlines is
-    -1 (the default) all points until the end of the array are used
-    (i.e. (a.size()-index)/2 lines are drawn).
+    \fn void QPainter::drawLineSegments(const QPolygon &polygon, int
+    index, int count)
 
-    Draws the 1st line from \a{a}\e{[index]} to \a{a}\e{[index + 1]}. Draws the
-    2nd line from \a{a}\e{[index + 2]} to \a{a}\e{[index + 3]} etc.
+    Draws \a count separate lines from points defined by the \a
+    polygon, starting at \a{polygon}\e{[index]} (\a index defaults to
+    0). If \a count is -1 (the default) all points until the end of
+    the array are used.
 
-    \sa drawPolyline(), drawPolygon(), QPen
+    Use drawLines() combined with QPolygon::constData() instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawLineSegments(polygon, index, count);
+    \newcode
+        int lineCount = (count == -1) ?  (polygon.size() - index) / 2  : count;
+
+        QPainter painter(this);
+        painter.drawLines(polygon.constData() + index * 2, lineCount);
+    \endcode
 */
 
 void QPainter::drawLineSegments(const QPolygon &a, int index, int nlines)
@@ -3375,15 +3396,26 @@ void QPainter::drawPolyline(const QPoint *points, int pointCount)
 }
 
 /*!
-    \fn void QPainter::drawPolyline(const QPolygon &points, int index, int
-    npoints)
+    \fn void QPainter::drawPolyline(const QPolygon &polygon, int index, int
+    count)
 
     \overload
-
     \compat
 
-    Draws the polyline defined by the \a npoints points of the given \a points
-    starting at \a index. (\a index defaults to 0.)
+    Draws the polyline defined by the \a count lines of the given \a
+    polygon starting at \a index (\a index defaults to 0).
+
+    Use drawPolyline() combined with QPolygon::constData() instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawPolyline(polygon, index, count);
+    \newcode
+        int pointCount = (count == -1) ?  polygon.size() - index : count;
+
+        QPainter painter(this);
+        painter.drawPolyline(polygon.constData() + index, pointCount);
+    \endcode
 */
 
 /*!
@@ -3497,21 +3529,43 @@ void QPainter::drawPolygon(const QPoint *points, int pointCount, Qt::FillRule fi
     d->engine->drawPolygon(points, pointCount, QPaintEngine::PolygonDrawMode(fillRule));
 }
 
-/*! \fn void QPainter::drawPolygon(const QPolygonF &points, bool winding, int index = 0,
-                                   int npoints = -1)
+/*! \fn void QPainter::drawPolygon(const QPolygonF &polygon, bool winding, int index = 0,
+                                   int count = -1)
     \compat
     \overload
 
-    Draws the polygon defined by the given \a points.
+    Use drawPolygon() combined with QPolygonF::constData() instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawPolygon(polygon, winding, index, count);
+    \newcode
+        int pointCount = (count == -1) ?  polygon.size() - index : count;
+        int fillRule = winding ? Qt::WindingFill : Qt::OddEvenFill;
+
+        QPainter painter(this);
+        painter.drawPolygon( polygon.constData() + index, pointCount, fillRule);
+    \endcode
 */
 
-/*! \fn void QPainter::drawPolygon(const QPolygon &points, bool winding,
-                                   int index = 0, int npoints = -1)
+/*! \fn void QPainter::drawPolygon(const QPolygon &polygon, bool winding,
+                                   int index = 0, int count = -1)
 
     \compat
     \overload
 
-    Draws the polygon defined by the given \a points.
+    Use drawPolygon() combined with QPolygon::constData() instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawPolygon(polygon, winding, index, count);
+    \newcode
+        int pointCount = (count == -1) ?  polygon.size() - index : count;
+        int fillRule = winding ? Qt::WindingFill : Qt::OddEvenFill;
+
+        QPainter painter(this);
+        painter.drawPolygon( polygon.constData() + index, pointCount, fillRule);
+    \endcode
 */
 
 /*! \fn void QPainter::drawPolygon(const QPolygonF &points, Qt::FillRule fillRule)
@@ -3591,24 +3645,44 @@ void QPainter::drawPolygon(const QPoint *points, int pointCount, Qt::FillRule fi
 
 /*!
     \fn void QPainter::drawConvexPolygon(const QPolygonF &polygon, int
-    index, int npoints)
+    index, int count)
 
     \compat
     \overload
 
-    Draws the convex polygon defined by \a polygon using the current
-    pen and brush.
+    Use drawConvexPolygon() combined with QPolygonF::constData()
+    instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawConvexPolygon(polygon, index, count);
+    \newcode
+        int pointCount = (count == -1) ?  polygon.size() - index : count;
+
+        QPainter painter(this);
+        painter.drawConvexPolygon(polygon.constData() + index, pointCount);
+    \endcode
 */
 
 /*!
     \fn void QPainter::drawConvexPolygon(const QPolygon &polygon, int
-    index, int npoints)
+    index, int count)
 
     \compat
     \overload
 
-    Draws the convex polygon defined by \a polygon using the current
-    pen and brush.
+    Use drawConvexPolygon() combined with QPolygon::constData()
+    instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawConvexPolygon(polygon, index, count);
+    \newcode
+        int pointCount = (count == -1) ?  polygon.size() - index : count;
+
+        QPainter painter(this);
+        painter.drawConvexPolygon(polygon.constData() + index, pointCount);
+    \endcode
 */
 
 void QPainter::drawConvexPolygon(const QPoint *points, int pointCount)
@@ -4850,7 +4924,15 @@ void QPainter::setViewTransformEnabled(bool enable)
 #ifdef QT3_SUPPORT
 
 /*!
-    Use QMatrix::dx() instead.
+    Use the world matrix() combined with QMatrix::dx() instead.
+
+    \oldcode
+        QPainter painter(this);
+        qreal x = painter.translationX();
+    \newcode
+        QPainter painter(this);
+        qreal x = painter.matrix().dx();
+    \endcode
 */
 qreal QPainter::translationX() const
 {
@@ -4859,7 +4941,15 @@ qreal QPainter::translationX() const
 }
 
 /*!
-    Use QMatrix::dy() instead.
+    Use the world matrix() combined with QMatrix::dy() instead.
+
+    \oldcode
+        QPainter painter(this);
+        qreal y = painter.translationY();
+    \newcode
+        QPainter painter(this);
+        qreal y = painter.matrix().dy();
+    \endcode
 */
 qreal QPainter::translationY() const
 {
@@ -4885,7 +4975,9 @@ void QPainter::map(int x, int y, int *rx, int *ry) const
 }
 
 /*!
-    Use \a p * matrix() instead.
+    \fn QPoint QPainter::xForm(const QPoint &point) const
+
+    Use \a point * matrix() instead.
 */
 
 QPoint QPainter::xForm(const QPoint &p) const
@@ -4898,9 +4990,10 @@ QPoint QPainter::xForm(const QPoint &p) const
 
 
 /*!
+    \fn QRect QPainter::xForm(const QRect &rectangle) const
     \overload
 
-    Use \a r * matrix() instead.
+    Use \a rectangle * matrix() instead.
 */
 
 QRect QPainter::xForm(const QRect &r) const
@@ -4912,9 +5005,10 @@ QRect QPainter::xForm(const QRect &r) const
 }
 
 /*!
+    \fn QPolygon QPainter::xForm(const QPolygon &polygon) const
     \overload
 
-    Use \a a * matrix() instead.
+    Use \a polygon * matrix() instead.
 */
 
 QPolygon QPainter::xForm(const QPolygon &a) const
@@ -4926,12 +5020,18 @@ QPolygon QPainter::xForm(const QPolygon &a) const
 }
 
 /*!
+    \fn QPolygon QPainter::xForm(const QPolygon &polygon, int index, int count) const
     \overload
 
-    Use \a av * matrix() instead.
+    Use matrix() combined with QPolygon::mid() instead.
 
-    If \a index and \a npoints are specified, you will need to create
-    a sub-QPolygon before you can apply the transformation.
+    \oldcode
+        QPainter painter(this);
+        QPolygon transformed = painter.xForm(polygon, index, count)
+    \newcode
+        QPainter painter(this);
+        QPolygon transformed = polygon.mid(index, count) * painter.matrix();
+    \endcode
 */
 
 QPolygon QPainter::xForm(const QPolygon &av, int index, int npoints) const
@@ -4944,9 +5044,18 @@ QPolygon QPainter::xForm(const QPolygon &av, int index, int npoints) const
 }
 
 /*!
+    \fn QPoint QPainter::xFormDev(const QPoint &point) const
     \overload
 
-    Use \a p * matrix().inverted() instead.
+    Use  matrix() combined with QMatrix::inverted() instead.
+
+    \oldcode
+        QPainter painter(this);
+        QPoint transformed = painter.xFormDev(point);
+    \newcode
+        QPainter painter(this);
+        QPoint transformed = point * painter.matrix().inverted();
+    \endcode
 */
 
 QPoint QPainter::xFormDev(const QPoint &p) const
@@ -4962,7 +5071,18 @@ QPoint QPainter::xFormDev(const QPoint &p) const
 }
 
 /*!
-    Use \a r * matrix().inverted() instead.
+    \fn QPoint QPainter::xFormDev(const QRect &rectangle) const
+    \overload
+
+    Use  matrix() combined with QMatrix::inverted() instead.
+
+    \oldcode
+        QPainter painter(this);
+        QRect transformed = painter.xFormDev(rectangle);
+    \newcode
+        QPainter painter(this);
+        QRect transformed = rectangle * painter.matrix().inverted();
+    \endcode
 */
 
 QRect QPainter::xFormDev(const QRect &r)  const
@@ -4980,7 +5100,18 @@ QRect QPainter::xFormDev(const QRect &r)  const
 /*!
     \overload
 
-    Use \a a * matrix().inverted() instead.
+    \fn QPoint QPainter::xFormDev(const QPolygon &polygon) const
+    \overload
+
+    Use  matrix() combined with QMatrix::inverted() instead.
+
+    \oldcode
+        QPainter painter(this);
+        QPolygon transformed = painter.xFormDev(rectangle);
+    \newcode
+        QPainter painter(this);
+        QPolygon transformed = polygon * painter.matrix().inverted();
+    \endcode
 */
 
 QPolygon QPainter::xFormDev(const QPolygon &a) const
@@ -4996,12 +5127,18 @@ QPolygon QPainter::xFormDev(const QPolygon &a) const
 }
 
 /*!
+    \fn QPolygon QPainter::xFormDev(const QPolygon &polygon, int index, int count) const
     \overload
 
-    Use \a ad * matrix().inverted() instead.
+    Use matrix() combined with QPolygon::mid() and QMatrix::inverted() instead.
 
-    If \a index and \a npoints are specified, you will need to create
-    a sub-QPolygon before you can apply the transformation.
+    \oldcode
+        QPainter painter(this);
+        QPolygon transformed = painter.xFormDev(polygon, index, count);
+    \newcode
+        QPainter painter(this);
+        QPolygon transformed = polygon.mid(index, count) * painter.matrix().inverted();
+    \endcode
 */
 
 QPolygon QPainter::xFormDev(const QPolygon &ad, int index, int npoints) const
@@ -5020,11 +5157,28 @@ QPolygon QPainter::xFormDev(const QPolygon &ad, int index, int npoints) const
 }
 
 /*!
-    Draws a cubic Bezier curve defined by the control points in \a a,
-    starting at \a{a}\e{[index]} (\a index defaults to 0).
+    \fn void QPainter::drawCubicBezier(const QPolygon &controlPoints, int index)
 
-    Control points after \a{a}\e{[index + 3]} are ignored. Nothing happens
-    if there aren't enough control points.
+    Draws a cubic Bezier curve defined by the \a controlPoints,
+    starting at \a{controlPoints}\e{[index]} (\a index defaults to 0).
+    Points after \a{controlPoints}\e{[index + 3]} are ignored. Nothing
+    happens if there aren't enough control points.
+
+    Use strokePath() instead.
+
+    \oldcode
+             QPainter painter(this);
+             painter.drawCubicBezier(controlPoints, index)
+    \newcode
+             QPainterPath path;
+             path.moveTo(controlPoints.at(index));
+             path.cubicTo(controlPoints.at(index+1),
+                                 controlPoints.at(index+2),
+                                 controlPoints.at(index+3));
+
+             QPainter painter(this);
+             painter.strokePath(path, painter.pen());
+    \endcode
 */
 void QPainter::drawCubicBezier(const QPolygon &a, int index)
 {
@@ -5063,9 +5217,9 @@ typedef QList<QPaintDeviceRedirection> QPaintDeviceRedirectionList;
 Q_GLOBAL_STATIC(QPaintDeviceRedirectionList, globalRedirections)
 
 /*!
-    Redirects all paint commands for the given paint \a device, to \a
-    replacement paint devicet. The optional point \a offset defines an
-    offset within the source device. After painting you must call
+    Redirects all paint commands for the given paint \a device, to the
+    \a replacement device. The optional point \a offset defines
+    an offset within the source device. After painting you must call
     restoreRedirected().
 
     In general, you'll probably find that calling
@@ -5450,40 +5604,97 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 /*!
     \fn const QColor &QPainter::backgroundColor() const
 
-    Use background().color() instead.
+    Use background() and QBrush::color() instead.
+
+    \oldcode
+        QColor myColor = backgroundColor();
+    \newcode
+        QColor myColor = background().color();
+    \endcode
+
+    Note that the background can be a complex brush such as a texture
+    or a gradient.
 */
 
 /*!
-    \fn void QPainter::drawText(int x, int y, const QString &text, int pos, int len)
+    \fn void QPainter::drawText(int x, int y, const QString &text, int pos, int length)
     \compat
 
-    Use drawText(x, y, text.mid(pos, len)) instead.
+    Use drawText() combined with QString::mid() instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawText(x, y, text, pos, length);
+    \newcode
+        QPainter painter(this);
+        painter.drawText(x, y, text.mid(pos, length));
+    \endcode
 */
 
 /*!
-    \fn void QPainter::drawText(const QPoint &p, const QString &text, int pos, int len)
+    \fn void QPainter::drawText(const QPoint &point, const QString &text, int pos, int length)
     \compat
 
-    Use drawText(p, text.mid(pos, len)) instead.
+    Use drawText() combined with QString::mid() instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawText(point, text, pos, length);
+    \newcode
+        QPainter painter(this);
+        painter.drawText(point, text.mid(pos, length));
+    \endcode
 */
 
 /*!
-    \fn void QPainter::drawText(int x, int y, const QString &text, int len)
+    \fn void QPainter::drawText(int x, int y, const QString &text, int length)
     \compat
 
-    Use drawText(x, y, text.left(len)) instead.
+    Use drawText() combined with QString::left() instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawText(x, y, text, length);
+    \newcode
+        QPainter painter(this);
+        painter.drawText(x, y, text.left(length));
+    \endcode
 */
 
 /*!
-    \fn void QPainter::drawText(const QPoint &p, const QString &s, int len)
+    \fn void QPainter::drawText(const QPoint &point, const QString &text, int length)
     \compat
 
-    Use drawText(p, text.left(len)) instead.
+    Use drawText() combined with QString::left() instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawText(point, text, length);
+    \newcode
+        QPainter painter(this);
+        painter.drawText(point, text.left(length));
+    \endcode
 */
 
 /*!
-    \fn bool QPainter::begin(QPaintDevice *pdev, const QWidget *init)
+    \fn bool QPainter::begin(QPaintDevice *device, const QWidget *init)
     \compat
+
+    Use begin() instead.
+
+    If the paint \a device is a QWidget, QPainter is initialized after
+    the widget's settings automatically. Otherwise, you must call the
+    initFrom() function to initialize the painters pen, background and
+    font to the same as any given widget.
+
+    \oldcode
+        QPainter painter(this);
+        painter.begin(device, init);
+    \newcode
+        QPainter painter(this);
+        painter.begin(device);
+        painter.initFrom(init);
+    \endcode
 */
 
 /*!
@@ -5604,41 +5815,72 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-    \fn QRect QPainter::boundingRect(const QRect &rect, int flags,
-                                     const QString &text, int len)
+    \fn QRect QPainter::boundingRect(const QRect &rectangle, int flags,
+                                     const QString &text, int length)
     \compat
+
+    Returns the bounding rectangle for the given \a length of the \a
+    text constrained by the provided \a rectangle.
+
+    Use boundingRect() combined with QString::left() instead.
+
+    \oldcode
+        QRect rectangle = boundingRect(rect, flags, text, length);
+    \newcode
+        QRect rectangle = boundingRect(rect, flags, text.left(length));
+    \endcode
 */
 
 /*!
-    \fn void QPainter::drawText(const QRect &r, int flags, const QString &str,
-                                int len, QRect *br)
+    \fn void QPainter::drawText(const QRect &rectangle, int flags, const QString &text,
+                                int length, QRect *br)
     \compat
+
+    Use drawText() combined with QString::left() instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawText(rectangle, flags, text, length, br );
+    \newcode
+        QPainter painter(this);
+        painter.drawText(rectangle, flags, text.left(length), br );
+    \endcode
 */
 
 /*!
-    \fn QRect QPainter::boundingRect(int x, int y, int w, int h, int flags,
-                                     const QString &text, int len);
+    \fn QRect QPainter::boundingRect(int x, int y, int width, int height, int flags,
+                                     const QString &text, int length);
 
     \compat
 
-    Returns the bounding rectangle of the first \a len characters of
-    the given \a text constrained by the rectangle that begins at
-    point (\a{x}, \a{y}) with width \a w and height \a h.
+    Returns the bounding rectangle for the given \a length of the \a
+    text constrained by the rectangle that begins at point (\a{x},
+    \a{y}) with the given \a width and \a height.
+
+    Use boundingRect() combined with QString::left() instead.
+
+    \oldcode
+        QRect rectangle = boundingRect(x, y, width, height, flags, text, length);
+    \newcode
+        QRect rectangle = boundingRect(x, y, width, height, flags, text.left(length));
+    \endcode
 */
 
 /*!
-    \fn void QPainter::drawText(int x, int y, int w, int h, int flags,
-                                const QString &str, int len, QRect *br)
+    \fn void QPainter::drawText(int x, int y, int width, int height, int flags,
+                                const QString &text, int length, QRect *br)
 
     \compat
 
-    Draws the string \a str within the rectangle with origin (\a{x},
-    \a{y}), width \a w and height \a h. If \a len is -1 (the default)
-    all the text is drawn, otherwise only the first \a len characters
-    are drawn. The flags that are given in the \a flags parameter are
-    \l{Qt::AlignmentFlag}s and \l{Qt::TextFlag}s OR'd together. \a br
-    (if not null) is set to the actual bounding rectangle of the
-    output.
+    Use drawText() combined with QString::left() instead.
+
+    \oldcode
+        QPainter painter(this);
+        painter.drawText(x, y, width, height, flags, text, length, br );
+    \newcode
+        QPainter painter(this);
+        painter.drawText(x, y, width, height, flags, text.left(length), br );
+    \endcode
 */
 
 
