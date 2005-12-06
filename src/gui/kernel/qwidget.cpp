@@ -1358,8 +1358,8 @@ bool QWidgetPrivate::hasBackground() const
 
 void QWidgetPrivate::updateIsOpaque()
 {
-    Q_Q(QWidget);
 #ifdef Q_WS_MAC
+    Q_Q(QWidget);
     extern void qt_mac_set_widget_is_opaque(QWidget*, bool); //qwidget_mac.cpp
     qt_mac_set_widget_is_opaque(q, isOpaque());
 #endif
@@ -3846,7 +3846,7 @@ bool QWidget::isActiveWindow() const
 #if defined(Q_WS_WIN32)
     HWND active = GetActiveWindow();
     return active == tlw->winId() || ::IsChild(active, tlw->winId());
-#else 
+#else
     return false;
 #endif
 }
