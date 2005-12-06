@@ -45,7 +45,15 @@
   also be inserted in the usual way with the insertRows() function, and
   removed with removeRows(). The contents of the string list can be
   retrieved with the stringList() convenience function.
-
+    
+    An example usage of QStringListModel:
+    \code
+        QStringListModel *model = new QStringListModel();
+        QStringList list;
+        list << "a" << "b" << "c";
+        model->setStringList(list);
+    \endcode
+    
   \sa QAbstractListModel, QAbstractItemModel, {Model/View Programming}
 */
 
