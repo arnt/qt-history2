@@ -189,9 +189,10 @@ licenseRemove["opensource"] = [ new RegExp("^src/activeqt"),
 
 licenseRemove["preview"] = licenseRemove["opensource"];
 
-var skipTagReplace = [ new RegExp("examples/tools/codecs/encodedfiles/"),
+var binaryFileList = [ new RegExp("examples/tools/codecs/encodedfiles/utf-16.txt"),
+		       new RegExp("examples/tools/codecs/encodedfiles/utf-16be.txt"),
+		       new RegExp("examples/tools/codecs/encodedfiles/utf-16le.txt"),
                        new RegExp("tools/designer/src/designer/extra/names.txt") ];
-
 
 var finalRemove = [ new RegExp("^dist") ];
 
@@ -975,14 +976,7 @@ function replaceTags(packageDir, fileList, replace, doMapping)
     for (var i in fileList) {
 	fileName = fileList[i];
 	absFileName = packageDir + "/" + fileName;
-	var skipFile = false;
-        for (var r in skipTagReplace) {
-            if (absFileName.find(skipTagReplace[r]) != -1) {
-                skipFile = true;
-		break;
-	    }
-	}
-	if (!skipFile && File.isFile(absFileName) && !binaryFile(absFileName)) {
+	if (File.isFile(absFileName) && !binaryFile(absFileName)) {
 	    //only replace for non binary files
 	    content = File.read(absFileName);
 	    for (var i in replace)
@@ -1047,6 +1041,9 @@ function warning(text)
 function binaryFile(fileName)
 {
     if (File.exists(fileName) && File.isFile(fileName)) {
+        for (var r in binaryFileList)
+            if (fileName.find(binaryFileList[r]) != -1)
+		return true;
 	var file = new File(fileName);
 	if (file.executable) {
 	    file.open(File.ReadOnly);
