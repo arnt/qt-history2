@@ -983,6 +983,8 @@ QAbstractItemModel::~QAbstractItemModel()
     Returns the sibling at \a row and \a column for the item at \a
     index or an invalid QModelIndex if there is no sibling.
 
+    sibling is just a conveniance function that finds the parent and calls model.index(\row, \column, parent);
+
     \a row, \a column, and \a index.
 */
 
@@ -2119,7 +2121,10 @@ int QAbstractListModel::columnCount(const QModelIndex &) const
 
 bool QAbstractListModel::hasChildren(const QModelIndex &parent) const
 {
-    return !parent.isValid();
+    if (parent.isValid())
+        return false;
+    
+    return rowCount() > 0;
 }
 
 /*!
