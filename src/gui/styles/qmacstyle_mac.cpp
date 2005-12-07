@@ -1376,10 +1376,15 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
         pal.setBrush(QPalette::All, QPalette::Background, background);
         pal.setBrush(QPalette::All, QPalette::Button, background);
         w->setPalette(pal);
-    } else if (QRubberBand *rubber = qobject_cast<QRubberBand*>(w)) {
-        rubber->setWindowOpacity(0.25);
     }
+
     q->QWindowsStyle::polish(w);
+
+    if (QRubberBand *rubber = qobject_cast<QRubberBand*>(w)) {
+        rubber->setWindowOpacity(0.25);
+        rubber->setAttribute(Qt::WA_PaintOnScreen, false);
+        rubber->setAttribute(Qt::WA_NoSystemBackground, false);
+    }
 #else
     Q_UNUSED(w);
 #endif
