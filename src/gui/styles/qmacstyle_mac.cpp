@@ -5872,7 +5872,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 QIcon::State state = QIcon::Off;
                 if (btn->state & State_On)
                     state = QIcon::On;
-                QPixmap pixmap = btn->icon.pixmap(pixelMetric(PM_SmallIconSize), mode, state);
+                QPixmap pixmap = btn->icon.pixmap(btn->iconSize, mode, state);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 QPoint btl = br.isEmpty() ? QPoint(btn->rect.center().x() + pixw / 2 + 2, btn->rect.center().y())
