@@ -762,11 +762,6 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
     Q_D(QOpenGLPaintEngine);
     if (d->dashStroker)
         delete d->dashStroker;
-
-    if (d->grad_palette) {
-        glBindTexture(GL_TEXTURE_1D, 0);
-        glDeleteTextures(1, &d->grad_palette);
-    }
 }
 
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
