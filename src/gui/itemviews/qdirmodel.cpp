@@ -1052,8 +1052,11 @@ QModelIndex QDirModel::index(const QString &path, int column) const
 
 bool QDirModel::isDir(const QModelIndex &index) const
 {
+    Q_D(const QDirModel);
     Q_ASSERT(index.isValid());
-    QDirModelPrivate::QDirNode *node = d_func()->node(index);
+    QDirModelPrivate::QDirNode *node = d->node(index);
+    if (node->info.isSymLink() && !d->resolveSymlinks)
+        return false;
     return node->info.isDir();
 }
 
@@ -1284,14 +1287,7 @@ void QDirModelPrivate::refresh(QDirNode *parent)
 
     for (int i = 0; i < infoList.count(); ++i) {
         (*nodes)[i].parent = parent;
-        if (resolveSymlinks && infoList.at(i).isSymLink()) {
-            QString link = infoList.at(i).readLink();
-            if (link.at(link.size() - 1) == QDir::separator())
-                link.chop(1);
-            (*nodes)[i].info = QFileInfo(link);
-        } else {
-            (*nodes)[i].info = infoList.at(i);
-        }
+        (*nodes)[i].info = infoList.at(i);
         if (nodes->at(i).children.count() > 0)
             refresh(&(*nodes)[i]);
     }
@@ -1330,20 +1326,15 @@ void QDirModelPrivate::restorePersistentIndexes()
 QFileInfoList QDirModelPrivate::entryInfoList(const QString &path) const
 {
     const QDir dir(path);
-    QFileInfoList fil = dir.entryInfoList(nameFilters, filters, sort);
-    for (int i = 0; i < fil.count(); ++i) {
-        QString fn = fil.at(i).fileName();
-        if (fn == QLatin1String(".") || fn == QLatin1String(".."))
-            fil.removeAt(i--);
-    }
-    return fil;
+    // FIXME: When symlinks are not resolved, links will still show up when we have a name filters
+    return dir.entryInfoList(nameFilters, filters | QDir::NoDotAndDotDot, sort);
 }
 
 QStringList QDirModelPrivate::entryList(const QString &path) const
 {
     const QDir dir(path);
-    QStringList sl = dir.entryList(nameFilters, filters | QDir::NoDotAndDotDot, sort);
-    return sl;
+    // FIXME: When symlinks are not resolved, links will still show up when we have a name filters
+    return dir.entryList(nameFilters, filters | QDir::NoDotAndDotDot, sort);
 }
 
 QString QDirModelPrivate::name(const QModelIndex &index) const
