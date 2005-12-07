@@ -206,8 +206,11 @@ void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
             HIViewChangeFeatures((HIViewRef)w->winId(), kHIViewFeatureIsOpaque, 0);
         else
             HIViewChangeFeatures((HIViewRef)w->winId(), 0, kHIViewFeatureIsOpaque);
-    }
+    } else
 #endif
+    {
+        HIViewRegionChanged((HIViewRef)w->winId(), kControlOpaqueMetaPart);
+    }
 }
 
 void qt_mac_update_ignore_mouseevents(QWidget *w)
