@@ -1410,7 +1410,7 @@ Q_LONG Q3Http::readBlock( char *data, Q_ULONG maxlen )
 #endif
 	return -1;
     }
-    if ( maxlen >= d->rba.size() )
+    if ( maxlen >= (Q_ULONG)d->rba.size() )
 	maxlen = d->rba.size();
     d->rba.consumeBytes( maxlen, data );
 
