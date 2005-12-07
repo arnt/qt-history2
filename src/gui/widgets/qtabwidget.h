@@ -106,6 +106,7 @@ protected:
     void setTabBar(QTabBar *);
     QTabBar* tabBar() const;
     void changeEvent(QEvent *);
+    bool event(QEvent *);
 
 #ifdef QT3_SUPPORT
 public:

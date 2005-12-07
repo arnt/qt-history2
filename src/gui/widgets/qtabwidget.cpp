@@ -773,6 +773,16 @@ void QTabWidget::setTabShape(TabShape s)
 /*!
     \reimp
  */
+bool QTabWidget::event(QEvent *ev)
+{
+    if (ev->type() == QEvent::LayoutRequest)
+        setUpLayout();
+    return QWidget::event(ev);
+}
+
+/*!
+    \reimp
+ */
 void QTabWidget::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange)
