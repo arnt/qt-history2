@@ -2,8 +2,10 @@
     \example itemviews/sortingmodel
     \title Sorting Model Example
 
-    The Sorting Model example shows how to use a mapping proxy model with a source
+    The Sorting Model example shows how to use a proxy model with a source
     model to present both sorted and unsorted data to views.
+
+    \image sortingmodel-example.png
 
     \omit
     Sort the "top-level" child items of the real parent according to the
