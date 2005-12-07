@@ -264,7 +264,7 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
 QWidget* WidgetFactory::containerOfWidget(QWidget *w) const
 {
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(w))
-        return promoted->child();
+        return containerOfWidget(promoted->child());
     else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), w))
         return container->widget(container->currentIndex());
 
