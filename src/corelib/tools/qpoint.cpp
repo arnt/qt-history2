@@ -408,8 +408,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 /*!
     \fn QPointF::QPointF(const QPoint &point)
 
-    Copy constructor. Constructs a point using the values of the \a point
-    specified.
+    Constructs a copy of the given \a point.
 */
 
 /*!

@@ -456,7 +456,7 @@ QDebug operator<<(QDebug dbg, const QPolygon &a)
 /*!
     \fn QPolygonF::QPolygonF(const QPolygonF &other)
 
-    Copy constructor. Constructs a copy of the \a other polygon.
+    Constructs a copy of the \a other polygon.
 */
 
 /*!
