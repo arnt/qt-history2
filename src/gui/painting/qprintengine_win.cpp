@@ -720,6 +720,37 @@ void QWin32PrintEnginePrivate::fillPath_dev(const QPainterPath &path, const QCol
     DeleteObject(SelectObject(hdc, old_brush));
 }
 
+void QWin32PrintEnginePrivate::strokePath_dev(const QPainterPath &path, const QColor &color,
+                                              Qt::PenStyle penStyle)
+{
+    composeGdiPath(path);
+    
+    int gdiPenStyle;
+    switch (penStyle) 
+    {
+    case Qt::DashLine:
+        gdiPenStyle = PS_DASH;
+        break;
+    case Qt::DashDotLine:
+        gdiPenStyle = PS_DASHDOT;
+        break;
+    case Qt::DashDotDotLine:
+        gdiPenStyle = PS_DASHDOTDOT;
+        break;
+    case Qt::DotLine:
+        gdiPenStyle = PS_DOT;
+        break;
+    default:
+        gdiPenStyle = PS_SOLID;
+        break;
+    };
+
+    HPEN pen = CreatePen(gdiPenStyle, 0, RGB(color.red(), color.green(), color.blue()));
+    HGDIOBJ old_pen = SelectObject(hdc, pen);
+    StrokePath(hdc);
+    DeleteObject(SelectObject(hdc, old_pen));
+}
+
 
 void QWin32PrintEnginePrivate::fillPath(const QPainterPath &path, const QColor &color)
 {
@@ -738,17 +769,17 @@ void QWin32PrintEnginePrivate::strokePath(const QPainterPath &path, const QColor
 
     qreal width = pen.widthF();
     if (width == 0) {
-        stroker.setWidth(1);
-        stroke = stroker.createStroke(path * matrix);
+        // We do not support custom dash patterns for stroked paths with solid colored, cosmetic pens
+        strokePath_dev(path * matrix, color, pen.style());
     } else {
         stroker.setWidth(width);
         stroke = stroker.createStroke(path) * matrix;
+        if (stroke.isEmpty())
+            return;
+
+        fillPath_dev(stroke, color);
     }
 
-    if (stroke.isEmpty())
-        return;
-
-    fillPath_dev(stroke, color);
 }
 
 

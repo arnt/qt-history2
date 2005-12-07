@@ -154,6 +154,7 @@ public:
 
     void composeGdiPath(const QPainterPath &path);
     void fillPath_dev(const QPainterPath &path, const QColor &color);
+    void strokePath_dev(const QPainterPath &path, const QColor &color, Qt::PenStyle penStyle);
 
     void updateOrigin();
 
