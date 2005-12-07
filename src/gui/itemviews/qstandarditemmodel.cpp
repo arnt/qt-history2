@@ -58,6 +58,9 @@
         }
     \endcode
 
+    The current implementation of QStandardItemModel only supports adding
+    children index's to the first column.
+    
     \sa {Model/View Programming}, QAbstractItemModel,
         {itemviews/simpletreemodel}{Simple Tree Model} example
 */
@@ -138,6 +141,9 @@ QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
 int QStandardItemModel::rowCount(const QModelIndex &parent) const
 {
     Q_D(const QStandardItemModel);
+    if (parent.column() > 0)
+        return 0;
+    
     QStdModelRow *modelRow = d->containedRow(parent, true);
     if (modelRow)
         return modelRow->childrenRows.count();
@@ -154,6 +160,9 @@ int QStandardItemModel::rowCount(const QModelIndex &parent) const
 int QStandardItemModel::columnCount(const QModelIndex &parent) const
 {
     Q_D(const QStandardItemModel);
+    if (parent.column() > 0)
+        return 0;
+
     QStdModelRow *modelRow = d->containedRow(parent, true);
     if (modelRow)
         return modelRow->childrenColumns;
@@ -172,6 +181,9 @@ int QStandardItemModel::columnCount(const QModelIndex &parent) const
 bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
 {
     Q_D(const QStandardItemModel);
+    if (parent.column() > 0)
+        return false;
+        
     if (parent.isValid()) {
         QStdModelRow *modelRow = d->containedRow(parent, true);
         if (modelRow)
@@ -302,7 +314,7 @@ bool QStandardItemModel::setHeaderData(int section, Qt::Orientation orientation,
 bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     Q_D(QStandardItemModel);
-    if (count < 1)
+    if (count < 1 || parent.column() > 0)
         return false;
 
     QVector<QStdModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, true)->childrenRows
@@ -344,7 +356,7 @@ bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &paren
 bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
     Q_D(QStandardItemModel);
-    if (count < 1)
+    if (count < 1 || parent.column() > 0)
         return false;
 
     if (column < 0)
