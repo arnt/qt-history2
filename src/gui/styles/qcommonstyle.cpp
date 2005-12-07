@@ -1650,6 +1650,11 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         r.setRect(opt->rect.x() + margin, opt->rect.y() + margin,
                   opt->rect.width() - margin * 2, opt->rect.height() - margin * 2);
 
+        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
+            // Subtract width needed for arrow, if there is one
+            if (header->sortIndicator != QStyleOptionHeader::None)
+                r.setWidth(r.width() - (opt->rect.height() / 2) - (margin * 2));
+        }
         r = visualRect(opt->direction, opt->rect, r);
         break; }
     case SE_HeaderArrow: {
