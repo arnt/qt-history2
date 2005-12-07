@@ -214,6 +214,7 @@ class QDirModelPrivate : public QAbstractItemModelPrivate
 public:
     struct QDirNode
     {
+        ~QDirNode() { children.clear(); }
         QDirNode *parent;
         QFileInfo info;
         QIcon icon; // cache the icon
@@ -771,6 +772,7 @@ void QDirModel::setNameFilters(const QStringList &filters)
 
     endRemoveRows();
     d->restorePersistentIndexes();
+    emit layoutChanged();
 }
 
 /*!
@@ -804,6 +806,7 @@ void QDirModel::setFilter(QDir::Filters filters)
 
     endRemoveRows();
     d->restorePersistentIndexes();
+    emit layoutChanged();
 }
 
 /*!
@@ -836,6 +839,7 @@ void QDirModel::setSorting(QDir::SortFlags sort)
 
     endRemoveRows();
     d->restorePersistentIndexes();
+    emit layoutChanged();
 }
 
 /*!
@@ -933,6 +937,7 @@ void QDirModel::refresh(const QModelIndex &parent)
 
     endRemoveRows();
     d->restorePersistentIndexes();
+    emit layoutChanged();
 }
 
 /*!
@@ -1309,12 +1314,15 @@ void QDirModelPrivate::savePersistentIndexes()
 void QDirModelPrivate::restorePersistentIndexes()
 {
     Q_Q(QDirModel);
-    const QList<QPersistentModelIndexData*> indexes = persistent.indexes;
     QList<QPersistentModelIndexData*> deleteList;
-    for (int i = 0; i < indexes.count(); ++i) {
-        persistent.indexes[i]->index = q->index(saved.at(i).first, saved.at(i).second);
-        if (!persistent.indexes.at(i)->ref.deref()) // if we have no other references
-            deleteList.append(indexes.at(i)); // make sure we delete it
+    Q_ASSERT(persistent.indexes.count() == saved.count());
+    for (int i = 0; i < persistent.indexes.count(); ++i) {
+        if (!persistent.indexes.at(i)->ref.deref()) { // if we have no other references
+            deleteList.append(persistent.indexes.at(i)); // make sure we delete it
+        } else {
+            QModelIndex index = q->index(saved.at(i).first, saved.at(i).second);
+            persistent.indexes[i]->index = q->index(saved.at(i).first, saved.at(i).second);
+        }
     }
     saved.clear();
     while (!deleteList.isEmpty()) {

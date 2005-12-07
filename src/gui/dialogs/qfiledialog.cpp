@@ -1146,9 +1146,6 @@ void QFileDialogPrivate::useFilter(const QString &filter)
     }
     
     model->setNameFilters(filters);
-    // FIXME: workaroud for problem in rowsRemoved()/rowsInserted()
-    listView->doItemsLayout();
-    treeView->doItemsLayout();
 }
 
 /*!
