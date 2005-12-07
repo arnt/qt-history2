@@ -1283,13 +1283,15 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
                                       ? LineDrawIncludeLastPixel
                                       : LineDrawNormal);
 
+        int m11 = int(d->matrix.m11());
+        int m22 = int(d->matrix.m22());
         int dx = int(d->matrix.dx());
         int dy = int(d->matrix.dy());
 
         // Draw the all the line segments.
         for (int i=1; i<pointCount; ++i) {
-            drawLine_midpoint_i(points[i-1].x() + dx, points[i-1].y() + dy,
-                                points[i].x() + dx, points[i].y() + dy,
+            drawLine_midpoint_i(points[i-1].x() * m11 + dx, points[i-1].y() * m22 + dy,
+                                points[i].x() * m11 + dx, points[i].y() * m22 + dy,
                                 d->penData.blend, &d->penData,
                                 i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
                                 devRect);
@@ -1297,8 +1299,8 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
 
         // Polygons are implicitly closed.
         if (needs_closing) {
-            drawLine_midpoint_i(points[pointCount-1].x() + dx, points[pointCount-1].y() + dy,
-                                points[0].x() + dx, points[0].y() + dy,
+            drawLine_midpoint_i(points[pointCount-1].x() * m11 + dx, points[pointCount-1].y() * m22 + dy,
+                                points[0].x() * m11 + dx, points[0].y() * m22 + dy,
                                 d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
                                 devRect);
         }
