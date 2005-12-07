@@ -610,6 +610,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
                                                 -d->deviceRect.x(),
                                                 -d->deviceRect.y());
         }
+        gccaps &= ~PaintOutsidePaintEvent;
     }
 #if defined(Q_WS_QWS)
     else if (device->devType() == QInternal::Pixmap) {
