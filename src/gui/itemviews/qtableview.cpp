@@ -540,7 +540,10 @@ void QTableView::paintEvent(QPaintEvent *event)
             alternateBase = (top & 1) && alternate;
         }
 
-        Q_ASSERT(top >= 0 && top <= bottom);
+        // ### changed back to an ASSERT in 4.1.1
+        if(!(top >= 0 && top <= bottom))
+            continue;
+
         // do the actual painting
         for (int v = top; v <= bottom; ++v) {
             int row = verticalHeader->logicalIndex(v);
