@@ -2475,6 +2475,10 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 /*!
     \variable QStyleOptionComboBox::popupRect
     \brief The popup rectangle for the combobox.
+
+    This variable is currently unused, you can safely ignore it,
+
+    \sa SC_ComboBoxListBoxPopup
 */
 
 /*!
