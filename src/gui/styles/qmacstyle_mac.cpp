@@ -5765,7 +5765,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 // If it's a table, use the bright text instead.
                 textRole = QPalette::BrightText;
             }
-            drawItemText(p, textr, Qt::AlignVCenter, header->palette,
+            drawItemText(p, textr, header->textAlignment | Qt::AlignVCenter, header->palette,
                          header->state & QStyle::State_Enabled, header->text, textRole);
         }
         break;
