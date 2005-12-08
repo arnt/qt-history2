@@ -718,8 +718,8 @@ Ideas for other sections:
     \contentspage richtext.html Contents
     \previouspage Common Rich Text Editing Tasks
 
-    The following table lists the HTML tags supported by Qt's \l{rich
-    text}{Rich Text Processing} engine:
+    The following table lists the HTML tags supported by Qt's
+    \l{Rich Text Processing}{rich text} engine:
 
     \table
     \header \o Tag
