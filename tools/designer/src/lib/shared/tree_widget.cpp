@@ -37,11 +37,17 @@ public:
     {
         QItemDelegate::paint(painter, option, index);
 
+        QPen savedPen = painter->pen();
+        QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &option));
+        painter->setPen(QPen(color));
+
         painter->drawLine(option.rect.x(), option.rect.bottom(),
                             option.rect.right(), option.rect.bottom());
 
         painter->drawLine(option.rect.right(), option.rect.y(),
                             option.rect.right(), option.rect.bottom());
+
+        painter->setPen(savedPen);
     }
 
     virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -103,7 +109,11 @@ void TreeWidget::drawBranches(QPainter *painter, const QRect &rect, const QModel
 
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &option, painter, this);
     }
+    QPen savedPen = painter->pen();
+    QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &option));
+    painter->setPen(QPen(color));
     painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom());
+    painter->setPen(savedPen);
 }
 
 } // namespace qdesigner_internal

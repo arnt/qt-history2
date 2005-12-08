@@ -120,7 +120,11 @@ void QPropertyEditor::drawBranches(QPainter *painter, const QRect &rect, const Q
             opt.state |= QStyle::State_Open;
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
+    QPen savedPen = painter->pen();
+    QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &opt));
+    painter->setPen(QPen(color));
     painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom());
+    painter->setPen(savedPen);
 }
 
 void QPropertyEditor::keyPressEvent(QKeyEvent *ev)
