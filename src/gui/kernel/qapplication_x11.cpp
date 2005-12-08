@@ -5073,6 +5073,18 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
             cr.setSize(newSize);
             data->crect = cr;
 
+            uint old_state = data->window_state;
+            if (!qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
+                && !qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ)))
+                data->window_state &= ~Qt::WindowMaximized;
+            if (!qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN)))
+                data->window_state &= ~Qt::WindowFullScreen;
+            
+            if (old_state != data->window_state) {
+                QWindowStateChangeEvent e(old_state);
+                QApplication::sendEvent(this, &e);
+            }
+
             if (isVisible()) {
                 QResizeEvent e(newSize, oldSize);
                 QApplication::sendSpontaneousEvent(this, &e);
