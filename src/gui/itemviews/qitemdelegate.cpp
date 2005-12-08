@@ -154,8 +154,6 @@ void QItemDelegate::paint(QPainter *painter,
                           const QModelIndex &index) const
 {
     Q_ASSERT(index.isValid());
-    const QAbstractItemModel *model = index.model();
-    Q_ASSERT(model);
 
     QStyleOptionViewItem opt = option;
 
@@ -164,31 +162,31 @@ void QItemDelegate::paint(QPainter *painter,
                                      ? QPalette::Active : QPalette::Disabled);
 
     // set font
-    QVariant value = model->data(index, Qt::FontRole);
+    QVariant value = index.data(Qt::FontRole);
     if (value.isValid())
         opt.font = qvariant_cast<QFont>(value);
 
     // set text alignment
-    value = model->data(index, Qt::TextAlignmentRole);
+    value = index.data(Qt::TextAlignmentRole);
     if (value.isValid())
         opt.displayAlignment = QFlag(value.toInt());
 
     // set text color
-    value = model->data(index, Qt::TextColorRole);
+    value = index.data(Qt::TextColorRole);
     if (value.isValid() && qvariant_cast<QColor>(value).isValid())
         opt.palette.setColor(QPalette::Text, qvariant_cast<QColor>(value));
 
     // do layout
 
     // decoration
-    value = model->data(index, Qt::DecorationRole);
+    value = index.data(Qt::DecorationRole);
     QPixmap pixmap = decoration(opt, value);
     QRect pixmapRect = (pixmap.isNull() ? QRect(0, 0, 0, 0)
                         : QRect(QPoint(0, 0), option.decorationSize));
 
     // display
     QRect textRect;
-    QString text = model->data(index, Qt::DisplayRole).toString();
+    QString text = index.data(Qt::DisplayRole).toString();
     if (!text.isEmpty())
     {
         if (!text.contains(QLatin1Char('\n'))) {
@@ -203,7 +201,7 @@ void QItemDelegate::paint(QPainter *painter,
     }
 
     // check
-    value = model->data(index, Qt::CheckStateRole);
+    value = index.data(Qt::CheckStateRole);
     QRect checkRect = check(opt, opt.rect, value);
     Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
 
@@ -215,7 +213,7 @@ void QItemDelegate::paint(QPainter *painter,
                                   ? QPalette::Normal : QPalette::Disabled;
         painter->fillRect(option.rect, option.palette.brush(cg, QPalette::Highlight));
     } else {
-        value = model->data(index, Qt::BackgroundColorRole);
+        value = index.data(Qt::BackgroundColorRole);
         if (value.isValid() && qvariant_cast<QColor>(value).isValid())
             painter->fillRect(option.rect, qvariant_cast<QColor>(value));
     }
@@ -241,16 +239,14 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
     Q_ASSERT(index.isValid());
-    const QAbstractItemModel *model = index.model();
-    Q_ASSERT(model);
 
-    QVariant value = model->data(index, Qt::SizeHintRole);
+    QVariant value = index.data(Qt::SizeHintRole);
     if (value.isValid())
         return qvariant_cast<QSize>(value);
 
     // display
-    value = model->data(index, Qt::FontRole);
-    QString text = model->data(index, Qt::DisplayRole).toString();
+    value = index.data(Qt::FontRole);
+    QString text = index.data(Qt::DisplayRole).toString();
     QRect textRect;
     QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
     if (!text.contains(QLatin1Char('\n'))) {
@@ -265,12 +261,12 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
     // decoration
     QRect pixmapRect;
-    if (model->data(index, Qt::DecorationRole).isValid())
+    if (index.data(Qt::DecorationRole).isValid())
         pixmapRect = QRect(0, 0, option.decorationSize.width(),
                            option.decorationSize.height());
 
     // checkbox
-    QRect checkRect = check(option, textRect, model->data(index, Qt::CheckStateRole));
+    QRect checkRect = check(option, textRect, index.data(Qt::CheckStateRole));
 
     doLayout(option, &checkRect, &pixmapRect, &textRect, true);
 
@@ -350,13 +346,11 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
 {
     if (editor) {
         Q_ASSERT(index.isValid());
-        const QAbstractItemModel *model = index.model();
-        Q_ASSERT(model);
-        QPixmap pixmap = decoration(option, model->data(index, Qt::DecorationRole));
-        QString text = model->data(index, Qt::EditRole).toString();
+        QPixmap pixmap = decoration(option, index.data(Qt::DecorationRole));
+        QString text = index.data(Qt::EditRole).toString();
         QRect pixmapRect = pixmap.rect();
         QRect textRect(0, 0, editor->fontMetrics().width(text), editor->fontMetrics().lineSpacing());
-        QRect checkRect = check(option, textRect, model->data(index, Qt::CheckStateRole));
+        QRect checkRect = check(option, textRect, index.data(Qt::CheckStateRole));
         QStyleOptionViewItem opt = option;
         opt.showDecorationSelected = true; // let the editor take up all available space
         doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
@@ -787,7 +781,7 @@ bool QItemDelegate::editorEvent(QEvent *event,
         return false;
 
     // check if the event happened in the right place
-    QVariant value = model->data(index, Qt::CheckStateRole);
+    QVariant value = index.data(Qt::CheckStateRole);
     QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignLeft | Qt::AlignVCenter,
                                           check(option, option.rect, value).size(),
                                           QRect(option.rect.x(), option.rect.y(),
