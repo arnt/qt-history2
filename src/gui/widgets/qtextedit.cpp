@@ -1540,6 +1540,8 @@ void QTextEdit::setPlainText(const QString &text)
     removed. The input text is interpreted as rich text in html format.
 
     Note that the undo/redo history is cleared by calling setHtml().
+
+    \sa {Supported HTML Subset}
 */
 
 void QTextEdit::setHtml(const QString &text)

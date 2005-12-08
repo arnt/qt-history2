@@ -30,6 +30,7 @@ This document is divided up into chapters for convenient reference:
    text documents can be edited using the cursor-based interface.
 \i \l{Common Rich Text Editing Tasks} examines some
    common tasks that involve reading or manipulating rich text documents.
+\i \l{Supported HTML Subset} lists the HTML tags supported by QTextDocument.
 \endlist
 
 See also the list of \l{Text Related Classes}.
@@ -391,7 +392,7 @@ undo process.
 Multiple cursors can be used to simultaneously edit the same document,
 although only one will be visible to the user in a QTextEdit widget.
 The QTextDocument ensures that each cursor writes text correctly and
-does not interfere with any of the others. 
+does not interfere with any of the others.
 
 \omit
 \quotefromfile snippets/textdocument-cursors/main.cpp
@@ -597,6 +598,7 @@ The method used to derive this name is described in
 \page richtext-common-tasks.html
 \contentspage richtext.html Contents
 \previouspage The QTextCursor Interface
+\nextpage Supported HTML Subset
 
 \title Common Rich Text Editing Tasks
 
@@ -707,4 +709,253 @@ Ideas for other sections:
  * Hiding QTextBlock elements.
  * Changing the word wrapping mode in QTextEdit. Custom word wrapping?
 \endomit
+*/
+
+/*!
+    \page richtext-html-subset.html
+    \title Supported HTML Subset
+
+    \contentspage richtext.html Contents
+    \previouspage Common Rich Text Editing Tasks
+
+    The following table lists the HTML tags supported by Qt's \l{rich
+    text}{Rich Text Processing} engine:
+
+    \table
+    \header \o Tag
+            \o Description
+            \o Comment
+    \row    \o \c a
+            \o Anchor or link
+            \o Supports the \c href and \c name attributes.
+    \row    \o \c address
+            \o Address
+            \o
+    \row    \o \c b
+            \o Bold
+            \o
+    \row    \o \c big
+            \o Larger font
+            \o
+    \row    \o \c blockquote
+            \o Indented paragraph
+            \o
+    \row    \o \c body
+            \o Document body
+            \o Supports the \c bgcolor attribute, which
+                                   can be a Qt
+                                   \l{QColor::setNamedColor()}{color name}
+                                   or a \c #RRGGBB color specification.
+    \row    \o \c br
+            \o Line break
+            \o
+    \row    \o \c center
+            \o Centered paragraph
+            \o
+    \row    \o \c cite
+            \o Inline citation
+            \o Same as \c i.
+    \row    \o \c code
+            \o Code
+            \o Same as \c tt.
+    \row    \o \c dd
+            \o Definition data
+            \o
+    \row    \o \c dfn
+            \o Definition
+            \o Same as \c i.
+    \row    \o \c div
+            \o Document division
+            \o Supports the standard \l{block attributes}.
+    \row    \o \c dl
+            \o Definition list
+            \o Supports the standard \l{block attributes}.
+    \row    \o \c dt
+            \o Definition term
+            \o Supports the standard \l{block attributes}.
+    \row    \o \c em
+            \o Emphasized
+            \o Same as \c i.
+    \row    \o \c font
+            \o Font size, family, and/or color
+            \o Supports the following attributes:
+                                   \c size, \c face, and \c color (Qt
+                                   \l{QColor::setNamedColor()}{color
+                                   names} or \c #RRGGBB).
+    \row    \o \c h1
+            \o Level 1 heading
+            \o Supports the standard \l{block attributes}.
+    \row    \o \c h2
+            \o Level 2 heading
+            \o Supports the standard \l{block attributes}.
+    \row    \o \c h3
+            \o Level 3 heading
+            \o Supports the standard \l{block attributes}.
+    \row    \o \c h4
+            \o Level 4 heading
+            \o Supports the standard \l{block attributes}.
+    \row    \o \c h5
+            \o Level 5 heading
+            \o Supports the standard \l{block attributes}.
+    \row    \o \c h6
+            \o Level 6 heading
+            \o Supports the standard \l{block attributes}.
+    \row    \o \c head
+            \o Document header
+            \o
+    \row    \o \c hr
+            \o Horizontal line
+            \o Supports the \c width attribute, which can
+                                   be specified as an absolute or
+                                   relative (\c %) value.
+    \row    \o \c html
+            \o HTML document
+            \o
+    \row    \o \c i
+            \o Italic
+            \o
+    \row    \o \c img
+            \o Image
+            \o Supports the \c src, \c source
+                                   (for Qt 3 compatibility), \c
+                                   width, and \c height attributes.
+    \row    \o \c kbd
+            \o User-entered text
+            \o
+    \row    \o \c meta
+            \o Meta-information
+            \o If a text encoding is specified
+                                   using the \c{meta} tag, it is
+                                   picked up by Qt::codecForHtml().
+                                   Likewise, if an encoding is
+                                   specified to
+                                   QTextDocument::toHtml(), the
+                                   encoding is stored using a \c meta
+                                   tag, for example:
+
+    \code
+        <meta http-equiv="Content-Type" content="text/html; charset=EUC-JP" />
+    \endcode
+
+    \row    \o \c li
+            \o List item
+            \o
+    \row    \o \c nobr
+            \o Non-breakable text
+            \o
+    \row    \o \c ol
+            \o Ordered list
+            \o Supports the standard \l{list attributes}.
+    \row    \o \c p
+            \o Paragraph
+            \o Left-aligned by default. Supports the standard
+               \l{block attributes}.
+    \row    \o \c pre
+            \o Preformated text
+            \o
+    \row    \o \c qt
+            \o Qt rich-text document
+            \o Synonym for \c html. Provided for compatibility with
+               earlier versions of Qt.
+    \row    \o \c s
+            \o Strikethrough
+            \o
+    \row    \o \c samp
+            \o Sample code
+            \o Same as \c tt.
+    \row    \o \c small
+            \o Small font
+            \o
+    \row    \o \c span
+            \o Grouped elements
+            \o
+    \row    \o \c strong
+            \o Strong
+            \o Same as \c b.
+    \row    \o \c sub
+            \o Subscript
+            \o
+    \row    \o \c sup
+            \o Superscript
+            \o
+    \row    \o \c table
+            \o Table
+            \o Supports the following attributes: \c border,
+                                   \c bgcolor (Qt \l{QColor::setNamedColor()}{color names}
+                                   or \c #RRGGBB), \c cellspacing, \c cellpadding,
+                                   \c width (absolute or relative), and \c height.
+    \row    \o \c tbody
+            \o Table body
+            \o Does nothing.
+    \row    \o \c td
+            \o Table data cell
+            \o Supports the standard \l{table cell attributes}.
+    \row    \o \c tfoot
+            \o Table footer
+            \o Does nothing.
+    \row    \o \c th
+            \o Table header cell
+            \o Supports the standard \l{table cell attributes}.
+    \row    \o \c thead
+            \o Table header
+\omit
+            \o If the \c thead tag is specified,
+                                   it is used when printing tables
+                                   that span multiple pages.
+\endomit
+            \o Does nothing.
+    \row    \o \c title
+            \o Document title
+            \o The value specified using the \c
+                                   title tag is available through
+                                   QTextDocument::metaInformation().
+    \row    \o \c tr
+            \o Table row
+            \o Supports the \c bgcolor attribute, which
+                                   can be a Qt
+                                   \l{QColor::setNamedColor()}{color name}
+                                   or a \c #RRGGBB color specification.
+    \row    \o \c tt
+            \o Typewrite font
+            \o
+    \row    \o \c u
+            \o Underlined
+            \o
+    \row    \o \c ul
+            \o Unordered list
+            \o Supports the standard \l{list attributes}.
+    \row    \o \c var
+            \o Variable
+            \o Same as \c i.
+    \endtable
+
+    \section1 Block Attributes
+
+    The following attributes are supported by the \c div, \c dl, \c
+    dt, \c h1, \c h2, \c h3, \c h4, \c h5, \c h6, \c p tags:
+
+    \list
+    \o \c align (\c left, \c right, \c center, \c justify)
+    \o \c dir (\c ltr, \c rtl)
+    \endlist
+
+    \section1 List Attributes
+
+    The following attribute is supported by the \c ol and \c ul tags:
+
+    \list
+    \o \c type (\c 1, \c a, \c A, \c square, \c disc, \c circle)
+    \endlist
+
+    \section1 Table Cell Attributes
+
+    The following attributes are supported by the \c td and \c th
+    tags:
+
+    \list
+    \o \c width (absolute, relative, or no-value)
+    \o \c bgcolor (Qt \l{QColor::setNamedColor()}{color names} or \c #RRGGBB)
+    \o \c colspan
+    \o \c rowspan
+    \endlist
 */

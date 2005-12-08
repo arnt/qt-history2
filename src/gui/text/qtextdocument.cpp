@@ -557,7 +557,7 @@ void QTextDocument::setPlainText(const QString &text)
     "<b>bold</b> text" will produce text where the first word has a font
     weight that gives it a bold appearance: "\bold{bold} text".
 
-    \sa setPlainText()
+    \sa setPlainText(), {Supported HTML Subset}
 */
 void QTextDocument::setHtml(const QString &html)
 {
@@ -1802,6 +1802,8 @@ void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
     If you later on convert the returned html string into a byte array for
     transmission over a network or when saving to disk you should specify
     the encoding you're going to use for the conversion to a byte array here.
+
+    \sa {Supported HTML Subset}
 */
 QString QTextDocument::toHtml(const QByteArray &encoding) const
 {
