@@ -1617,7 +1617,7 @@ void QWidget::setWindowOpacity(qreal level)
         SetWindowLongA(winId(), GWL_EXSTYLE, wl & ~Q_WS_EX_LAYERED);
     }
 
-    bool exposeTrick = (level != 1.0) && isVisible();
+    bool exposeTrick = (level != 1.0) && (d->topData()->opacity == 1.0) && isVisible();
     if (exposeTrick)
         d->hide_sys(); // Work around Windows (non-)expose bug
     (*ptrSetLayeredWindowAttributes)(winId(), 0, (int)(level * 255), Q_LWA_ALPHA);
