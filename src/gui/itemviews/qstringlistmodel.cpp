@@ -161,6 +161,8 @@ bool QStringListModel::setData(const QModelIndex &index, const QVariant &value, 
 bool QStringListModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     Q_UNUSED(parent);
+    if (count < 1 || row < 0 || row > rowCount(parent))
+        return false;
 
     beginInsertRows(QModelIndex(), row, row + count - 1);
 

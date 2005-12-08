@@ -314,7 +314,7 @@ bool QStandardItemModel::setHeaderData(int section, Qt::Orientation orientation,
 bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     Q_D(QStandardItemModel);
-    if (count < 1 || parent.column() > 0)
+    if (count < 1 || row < 0 || row > rowCount(parent) || parent.column() > 0)
         return false;
 
     QVector<QStdModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, true)->childrenRows
@@ -356,7 +356,7 @@ bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &paren
 bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
     Q_D(QStandardItemModel);
-    if (count < 1 || parent.column() > 0)
+    if (count < 1 || column < 0 || column > columnCount(parent) || parent.column() > 0)
         return false;
 
     if (column < 0)
