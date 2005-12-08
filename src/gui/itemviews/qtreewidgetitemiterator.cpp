@@ -20,15 +20,16 @@
 
 /*!
   \class QTreeWidgetItemIterator
-
+  \ingroup model-view
   \brief The QTreeWidgetItemIterator class provides a way to iterate over the 
-  items in a QTreeWidget instance, with the possibility to filter out certain
-  nodetypes by passing certain IteratorFlags to the constructor of QTreeWidgetItemIterator.
+  items in a QTreeWidget instance.
 
   The iterator will walk the items in a pre-order traversal order, thus visiting the parent
   node \e before it continues to the child nodes.
 
-  \ingroup model-view
+  It is possible to filter out certain types of node by passing certain
+  \l{IteratorFlag}{flags} to the constructor of QTreeWidgetItemIterator.
+
 
   \sa QTreeWidget, {Model/View Programming}, QTreeWidgetItem
 */
