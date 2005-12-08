@@ -1038,6 +1038,8 @@ QModelIndex QDirModel::index(const QString &path, int column) const
 
         // we _still_ couldn't find the path element, we create a new node since we _know_ that the path is valid
         if (row == -1) {
+            if (!parent->populated)
+                d->populate(parent);
             d->appendChild(parent, parent->info.absoluteFilePath() + "/" + element);
             row = parent->children.count() - 1;
         }
@@ -1045,9 +1047,12 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         Q_ASSERT(row >= 0);
         idx = index(row, 0, idx); // will check row and lazily populate
         Q_ASSERT(idx.isValid());
-    }
 
-    return idx.sibling(idx.row(), column);
+    }
+        
+    if (column != 0)
+        return idx.sibling(idx.row(), column);
+    return idx;
 }
 
 /*!
