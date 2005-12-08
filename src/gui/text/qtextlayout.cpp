@@ -1608,11 +1608,11 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         QFont f = eng->font(si);
         gf.fontEngine = f.d->engineForScript(si.analysis.script);
         gf.f = &f;
-        if (f.d->underline)
+        if (f.d->underline || chf.fontUnderline())
             gf.flags |= QTextItem::Underline;
-        if (f.d->overline)
+        if (f.d->overline || chf.fontOverline())
             gf.flags |= QTextItem::Overline;
-        if (f.d->strikeOut)
+        if (f.d->strikeOut || chf.fontStrikeOut())
             gf.flags |= QTextItem::StrikeOut;
         Q_ASSERT(gf.fontEngine);
 
