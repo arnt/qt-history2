@@ -717,24 +717,11 @@ bool QWidgetPrivate::qt_mac_update_sizer(QWidget *w, int up=0)
     return true;
 }
 
-static QList<QWidget *> *qt_root_win_widgets=0;
 static WindowPtr qt_root_win = 0;
 void QWidgetPrivate::qt_clean_root_win()
 {
     if(!qt_root_win)
         return;
-    if(qt_root_win_widgets) {
-        if(HIViewRef root_hiview = HIViewGetRoot(qt_root_win)) {
-            for(int i = 0; i < qt_root_win_widgets->count(); i++) {
-                QWidget *w = qt_root_win_widgets->at(i);
-                if((HIViewRef)w->winId() == root_hiview)
-                    w->d_func()->setWinId(0); //at least now we'll just crash
-            }
-        }
-        qt_root_win_widgets->clear();
-        delete qt_root_win_widgets;
-        qt_root_win_widgets = 0;
-    }
     ReleaseWindow(qt_root_win);
     qt_root_win = 0;
 }
@@ -765,15 +752,6 @@ bool QWidgetPrivate::qt_recreate_root_win() {
     //recreate
     qt_root_win = 0;
     qt_create_root_win();
-    if(qt_root_win_widgets) {
-        if(HIViewRef root_hiview = HIViewGetRoot(qt_root_win)) {
-            for(int i = 0; i < qt_root_win_widgets->count(); i++) { //reset points
-                QWidget *w = qt_root_win_widgets->at(i);
-                if((HIViewRef)w->winId() == old_root_hiview)
-                    w->d_func()->setWinId((WId)root_hiview);
-            }
-        }
-    }
     //cleanup old window
     old_root_hiview = 0;
     ReleaseWindow(old_root_win);
@@ -921,10 +899,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     } else if(desktop) {                        // desktop widget
         if(!qt_root_win)
             QWidgetPrivate::qt_create_root_win();
-        if(qt_root_win_widgets) {
-            qt_root_win_widgets = new QList<QWidget*>;
-            qt_root_win_widgets->append(q);
-        }
         if(HIViewRef hiview = HIViewGetRoot(qt_root_win)) {
             CFRetain((HIViewRef)hiview);
             setWinId((WId)hiview);
@@ -1156,8 +1130,6 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     Q_D(QWidget);
     d->deactivateWidgetCleanup();
     qt_mac_event_release(this);
-    if((windowType() == Qt::Desktop) && destroyWindow && qt_root_win_widgets)
-        qt_root_win_widgets->removeAll(this);
     if(testAttribute(Qt::WA_WState_Created)) {
         setAttribute(Qt::WA_WState_Created, false);
         QObjectList chldrn = children();
