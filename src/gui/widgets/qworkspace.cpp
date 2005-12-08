@@ -357,10 +357,13 @@ void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
         QStyleOptionTitleBar opt = d->getStyleOption();
         QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                                  e->pos(), this);
-        d->pressed = false;
+
+        if (d->pressed) {
+            update();
+            d->pressed = false;
+        }
         if (ctrl == d->buttonDown) {
             d->buttonDown = QStyle::SC_None;
-            update();
             switch(ctrl) {
             case QStyle::SC_TitleBarShadeButton:
             case QStyle::SC_TitleBarUnshadeButton:
@@ -394,7 +397,6 @@ void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
             case QStyle::SC_TitleBarCloseButton:
                 if(d->flags & Qt::WindowSystemMenuHint) {
                     d->buttonDown = QStyle::SC_None;
-                    update();
                     emit doClose();
                     return;
                 }
