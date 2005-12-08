@@ -818,7 +818,7 @@ void QTextEditPrivate::deleteSelected()
     FixedColumnWidth with the pixels or columns specified with
     setLineWrapColumnOrWidth(). If you use word wrap to the widget's width
     \l WidgetWidth, you can specify whether to break on whitespace or
-    anywhere with setWrapPolicy().
+    anywhere with setWordWrapMode().
 
     The find() function can be used to find and select a given string
     within the text.
