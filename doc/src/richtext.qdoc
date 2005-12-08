@@ -898,12 +898,8 @@ Ideas for other sections:
             \o Supports the standard \l{table cell attributes}.
     \row    \o \c thead
             \o Table header
-\omit
-            \o If the \c thead tag is specified,
-                                   it is used when printing tables
-                                   that span multiple pages.
-\endomit
-            \o Does nothing.
+            \o If the \c thead tag is specified, it is used when printing tables
+               that span multiple pages.
     \row    \o \c title
             \o Document title
             \o The value specified using the \c
