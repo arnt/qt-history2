@@ -1396,6 +1396,9 @@ QString QTextStream::readAll()
     The returned line has no trailing end-of-line characters, so
     calling QString::trimmed() is unnecessary.
 
+    If the stream has read to the end of the file, atEnd() will return
+    true.
+
     \sa readAll()
 */
 QString QTextStream::readLine(qint64 maxlen)
