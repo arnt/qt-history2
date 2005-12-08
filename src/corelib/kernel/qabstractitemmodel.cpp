@@ -454,7 +454,6 @@ void QAbstractItemModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
 {
     QList<int> persistent_moved;
     QList<int> persistent_invalidated;
-
     // find the persistent indexes that are affected by the change, either by being in the removed subtree
     // or by being on the same level and below the removed rows
     for (int position = 0; position < persistent.indexes.count(); ++position) {
@@ -528,7 +527,6 @@ void QAbstractItemModelPrivate::columnsAboutToBeRemoved(const QModelIndex &paren
 {
     QList<int> persistent_moved;
     QList<int> persistent_invalidated;
-
     // find the persistent indexes that are affected by the change, either by being in the removed subtree
     // or by being on the same level and to the right of the removed columns
     for (int position = 0; position < persistent.indexes.count(); ++position) {
@@ -2116,17 +2114,14 @@ QModelIndex QAbstractListModel::parent(const QModelIndex &) const
     \sa rowCount()
 */
 
-int QAbstractListModel::columnCount(const QModelIndex &) const
+int QAbstractListModel::columnCount(const QModelIndex &parent) const
 {
-    return 1;
+    return parent.isValid() ? 0 : 1;
 }
 
 bool QAbstractListModel::hasChildren(const QModelIndex &parent) const
 {
-    if (parent.isValid())
-        return false;
-    
-    return rowCount() > 0;
+    return parent.isValid() ? false : (rowCount() > 0);
 }
 
 /*!
