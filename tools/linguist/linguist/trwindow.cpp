@@ -858,6 +858,7 @@ void TrWindow::updateCaption()
     acceleratorsAct->setEnabled(enable);
     endingPunctuationAct->setEnabled(enable);
     phraseMatchesAct->setEnabled(enable);
+    placeMarkersAct->setEnabled(enable);
     revertSortingAct->setEnabled(enable);
 
     if (filename.isEmpty())
@@ -1407,6 +1408,10 @@ void TrWindow::setupMenuBar()
         this, SLOT(revalidate()));
     phraseMatchesAct->setCheckable(true);
     phraseMatchesAct->setChecked(true);
+    placeMarkersAct = validationp->addAction(QIcon(rsrcString + "/phrase.png"), tr("&Place marker matches"),
+        this, SLOT(revalidate()));
+    placeMarkersAct->setCheckable(true);
+    placeMarkersAct->setChecked(true);
 
     // View menu
     revertSortingAct = viewp->addAction(tr("&Revert Sorting"),
@@ -1481,7 +1486,7 @@ void TrWindow::setupMenuBar()
         " of ending punctuation."));
     phraseMatchesAct->setWhatsThis(tr("Toggle checking that phrase"
         " suggestions are used."));
-
+    placeMarkersAct->setWhatsThis(tr("Toggle validity checks of place markers."));
     revertSortingAct->setWhatsThis(tr("Sort the items back in the same order"
         " as in the message file."));
 
@@ -1574,6 +1579,7 @@ void TrWindow::setupToolBars()
     validationt->addAction(acceleratorsAct);
     validationt->addAction(endingPunctuationAct);
     validationt->addAction(phraseMatchesAct);
+    validationt->addAction(placeMarkersAct);
 
     helpt->addAction(whatsThisAct);
 }
@@ -1767,6 +1773,52 @@ bool TrWindow::danger( const QString& source, const QString& translation,
             }
         }
     }
+
+    if (placeMarkersAct->isChecked()) {
+        // Stores the occurence count of the place markers in the vector placeMarkerIndexes.
+        // i.e. the occurence count of %1 is stored at placeMarkerIndexes[1], 
+        // count of %2 is stored at placeMarkerIndexes[2] etc.
+        // In the first pass, it counts all place markers in the sourcetext.
+        // In the second pass it (de)counts all place markers in the translation.
+        // When finished, all elements should have returned to a count of 0, if not there is a mismatch
+        // between place markers in the source text and the translation text.
+        QVector<int> placeMarkerIndexes;
+        for (int pass = 0; pass < 2; ++pass) {
+            const QChar *uc_begin = source.unicode();
+            const QChar *uc_end = uc_begin + source.length();
+            if (pass == 1) {
+                uc_begin = translation.unicode();
+                uc_end = uc_begin + translation.length();
+            }
+            const QChar *c = uc_begin;
+            while (c < uc_end) {
+                if (c->unicode() == '%') {
+                    const QChar *escape_start = ++c;
+                    while (c->isDigit()) ++c;
+                    const QChar *escape_end = c;
+                    bool ok = true;
+                    int markerIndex = QString::fromRawData(escape_start, escape_end - escape_start).toInt(&ok);
+                    if (ok) {
+                        if (markerIndex >= placeMarkerIndexes.size()) {
+                            placeMarkerIndexes.resize(markerIndex + 1);
+                        }
+                        placeMarkerIndexes[markerIndex]+= (pass == 0 ? 1 : -1);
+                    }
+                }
+                ++c;
+            }
+        }
+
+        for (int i = 0; i < placeMarkerIndexes.size(); ++i) {
+            if (placeMarkerIndexes.at(i) != 0) {
+                if (verbose)
+                    statusBar()->showMessage(tr("Translation does not refer"
+                        " to the same place markers as in the source text."), ErrorMS);
+                return true;
+
+            }
+        }        
+    }
     if (verbose)
         statusBar()->clearMessage();
 
@@ -1802,6 +1854,7 @@ void TrWindow::readConfig()
     acceleratorsAct->setChecked(config.value(keybase+ "Validators/Accelerator", true).toBool());
     endingPunctuationAct->setChecked(config.value(keybase+ "Validators/EndingPunctuation", true).toBool());
     phraseMatchesAct->setChecked(config.value(keybase+ "Validators/PhraseMatch", true).toBool());
+    placeMarkersAct->setChecked(config.value(keybase+ "Validators/PlaceMarkers", true).toBool());
 
     QApplication::sendPostedEvents();
 }
@@ -1821,6 +1874,7 @@ void TrWindow::writeConfig()
     config.setValue(keybase+ "Validators/Accelerator", acceleratorsAct->isChecked());
     config.setValue(keybase+ "Validators/EndingPunctuation", endingPunctuationAct->isChecked());
     config.setValue(keybase+ "Validators/PhraseMatch", phraseMatchesAct->isChecked());
+    config.setValue(keybase+ "Validators/PlaceMarkers", placeMarkersAct->isChecked());
     config.setValue(keybase + "MainWindowState", saveState());
 }
 

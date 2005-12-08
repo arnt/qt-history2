@@ -214,6 +214,7 @@ private:
     QAction *acceleratorsAct;
     QAction *endingPunctuationAct;
     QAction *phraseMatchesAct;
+    QAction *placeMarkersAct;
     QAction *revertSortingAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
