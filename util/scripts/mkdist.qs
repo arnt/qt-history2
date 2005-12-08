@@ -956,6 +956,10 @@ function defaultTags(platform, license, platName)
     var replace = new Array();
     replace[startDate.getYear().toString()] = /\$THISYEAR\$/g;
     replace[options["version"]] = /\%VERSION\%/g;
+    if (platform == "core")
+	replace["Qtopia Core (Qt for embedded Linux)"] = /\%PRODUCTLONG\%/g;
+    else
+	replace["Qt"] = /\%PRODUCTLONG\%/g;
     replace["#define QT_VERSION_STR   \"" + options["version"] + "\""] =
 	/#\s*define\s+QT_VERSION_STR\s+\"([^\"]+)\"*/g;
     replace["#define QT_PACKAGEDATE_STR \"" + startDate.toString().left(10) + "\""] =
