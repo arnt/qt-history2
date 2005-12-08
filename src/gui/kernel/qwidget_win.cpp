@@ -1195,9 +1195,10 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
     if (outsideRange)
         return;
 
+    bool jump = (data.wrect != wrect);
+    data.wrect = wrect;
 
     // and now recursively for all children...
-    data.wrect = wrect;
     for (int i = 0; i < children.size(); ++i) {
         QObject *object = children.at(i);
         if (object->isWidgetType()) {
@@ -1215,6 +1216,9 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
         q->setAttribute(Qt::WA_Mapped);
         ShowWindow(q->winId(), SW_SHOWNOACTIVATE);
     }
+
+    if (jump)
+        InvalidateRect(q->winId(), 0, false);
 
 }
 

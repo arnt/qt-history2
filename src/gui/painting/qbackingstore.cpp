@@ -201,6 +201,12 @@ void qt_syncBackingStore(QRegion rgn, QWidget *widget)
 }
 
 #ifdef Q_WS_WIN
+
+/*
+   Used by QETWidget::translatePaintEvent and expects rgn to be in
+   windowing system coordinates.
+ */
+
 void QWidgetBackingStore::blitToScreen(const QRegion &rgn, QWidget *widget)
 {
     QWidget *tlw = widget->window();
@@ -220,12 +226,13 @@ void QWidgetBackingStore::blitToScreen(const QRegion &rgn, QWidget *widget)
             widget_dc = GetDC(widget->winId());
             tmp_widget_dc = true;
         }
-        QPoint wOffset = widget->data->wrect.topLeft();
+        // The position of widget relative to top level's top left
         QPoint offset = widget->mapTo(tlw, QPoint());
         QRect br = rgn.boundingRect();
-        QRect wbr = br.translated(wOffset);
-        BitBlt(widget_dc, wbr.x(), wbr.y(), wbr.width(), wbr.height(),
-               engine_dc, br.x() + offset.x(), br.y() + offset.y(), SRCCOPY);
+        QRect qbounds = widget->d_func()->mapFromWS(br);
+
+        BitBlt(widget_dc, br.x(), br.y(), br.width(), br.height(),
+               engine_dc, qbounds.x() + offset.x(), qbounds.y() + offset.y(), SRCCOPY);
         if (tmp_widget_dc)
             ReleaseDC(widget->winId(), widget_dc);
         engine->releaseDC(engine_dc);
@@ -515,7 +522,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
             tmp_widget_dc = true;
         }
         QRect br = rgn.boundingRect();
-        QRect wbr = br.translated(wOffset);
+        QRect wbr = br.translated(-wOffset);
         BitBlt(widget_dc, wbr.x(), wbr.y(), wbr.width(), wbr.height(),
                engine_dc, br.x() + offset.x(), br.y() + offset.y(), SRCCOPY);
         if (tmp_widget_dc)
