@@ -22,6 +22,7 @@
 #include <QtCore/qtextstream.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qvector.h>
+#include <QtCore/qset.h>
 
 QT_MODULE(Core)
 
@@ -100,6 +101,7 @@ inline QDebug operator<<(QDebug debug, const QList<T> &list)
 template <typename T>
 inline QDebug operator<<(QDebug debug, const QVector<T> &vec)
 {
+    debug.nospace() << "QVector";
     return operator<<(debug, vec.toList());
 }
 
@@ -131,6 +133,13 @@ inline QDebug operator<<(QDebug debug, const QPair<T1, T2> &pair)
 {
     debug.nospace() << "QPair(" << pair.first << "," << pair.second << ")";
     return debug.space();
+}
+
+template <typename T>
+inline QDebug operator<<(QDebug debug, const QSet<T> &set)
+{
+    debug.nospace() << "QSet";
+    return operator<<(debug, set.toList());
 }
 
 inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(QtDebugMsg); }
