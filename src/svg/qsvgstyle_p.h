@@ -92,10 +92,18 @@ private:
 class QSvgFillStyle : public QSvgStyleProperty
 {
 public:
-    QSvgFillStyle(const QBrush &brush);
+    QSvgFillStyle(const QBrush &brush, bool fromColor=false);
     virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
+
+    //### hack that would be a lot better handled by
+    //having a default QSvgColorStyle element and handling it
+    //correctly in qsvghandler
+    bool fromColor() const
+    {
+        return m_fromColor;
+    }
 
     const QBrush & qbrush() const
     {
@@ -109,6 +117,8 @@ private:
     //int m_fillRule;
 
     QBrush m_oldFill;
+
+    bool m_fromColor;
 };
 
 class QSvgViewportFillStyle : public QSvgStyleProperty

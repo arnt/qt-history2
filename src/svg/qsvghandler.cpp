@@ -344,7 +344,7 @@ static void parseColor(QSvgNode *node,
     QString opacity  = attributes.value("color-opacity");
     QColor color;
     if (constructColor(colorStr, opacity, color)) {
-        QSvgStyleProperty *prop = new QSvgFillStyle(QBrush(color));
+        QSvgStyleProperty *prop = new QSvgFillStyle(QBrush(color), true);
         node->appendStyleProperty(prop, QString());
         // SVG 1.1 Conformance test painting-fill-02-t.svg
         // makes it seem color only sets the fill not the stroke
@@ -1368,7 +1368,7 @@ static bool parseDefaultTextStyle(QSvgNode *node,
     QString anchor = attrs.value("text-anchor");
     QTextCharFormat format;
     QFont font;
-    QBrush brush;
+    QBrush brush(QColor(0, 0, 0));
     if (!initial) {
         font = textNode->topFormat().font();
         brush = textNode->topFormat().foreground();
@@ -1388,11 +1388,12 @@ static bool parseDefaultTextStyle(QSvgNode *node,
     if (initial) {
         QSvgFillStyle *fillStyle = static_cast<QSvgFillStyle*>(
             node->styleProperty(QSvgStyleProperty::FILL));
-        if (fillStyle)
-            fillStyle->qbrush();
+        if (fillStyle  && !fillStyle->fromColor()) {
+            brush = fillStyle->qbrush();
+        }
     }
     if (parseQBrush(attrs, node, brush, handler) || initial) {
-        if (brush.style() != Qt::NoBrush)
+        if (brush.style() != Qt::NoBrush || initial)
             format.setForeground(brush);
     }
 

@@ -41,8 +41,8 @@ void QSvgQualityStyle::revert(QPainter *)
 
 }
 
-QSvgFillStyle::QSvgFillStyle(const QBrush &brush)
-    : m_fill(brush)
+QSvgFillStyle::QSvgFillStyle(const QBrush &brush, bool fromColor)
+    : m_fill(brush), m_fromColor(fromColor)
 {
 }
 
