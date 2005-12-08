@@ -441,6 +441,11 @@ void QItemDelegate::drawCheck(QPainter *painter,
     QApplication::style()->drawPrimitive(QStyle::PE_IndicatorViewItemCheck, &opt, painter);
 }
 
+/*!
+    Renders the item background for the given \a index,
+    using the given \a painter and style \a option, using the
+    given \a state.
+*/
 
 void QItemDelegate::drawBackground(QPainter *painter,
                                    const QStyleOptionViewItem &option,
