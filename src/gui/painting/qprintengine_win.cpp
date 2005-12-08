@@ -581,36 +581,26 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     HDC hbitmap_hdc = CreateCompatibleDC(qt_win_display_dc());
     HGDIOBJ null_bitmap = SelectObject(hbitmap_hdc, hbitmap);
 
-    int tx = qRound((targetRect.x() + d->origin_x) * d->stretch_x);
-    int ty = qRound((targetRect.y() + d->origin_y) * d->stretch_y);
+    QPointF topLeft = targetRect.topLeft() * d->painterMatrix;
+    int tx = qRound((topLeft.x() + d->origin_x) * d->stretch_x);
+    int ty = qRound((topLeft.y() + d->origin_y) * d->stretch_y);
     int tw = qRound(pixmap.width() * d->stretch_x);
     int th = qRound(pixmap.height() * d->stretch_y);
-
-    tx += d->painterMatrix.dx() * d->stretch_x;
-    ty += d->painterMatrix.dy() * d->stretch_y;
 
     xform_offset_x *= d->stretch_x;
     xform_offset_y *= d->stretch_y;
 
-    HRGN old_region = 0;
-    bool clip_was_changed = false;
+    int dc_state = SaveDC(d->hdc);
+
     if (pixmap.hasAlpha()) {
         QPainterPath clipMask;
         clipMask.addRegion(QRegion(pixmap.mask()));
         clipMask = clipMask * QMatrix(d->stretch_x, 0, 0, d->stretch_y,
                                       tx - xform_offset_x, ty - xform_offset_y);
         if (!clipMask.isEmpty()) {
-            old_region = CreateRectRgn(0, 0, 1, 1);
-            int get_clip = GetClipRgn(d->hdc, old_region);
-            if (get_clip == -1) {
-                qErrnoWarning("QWin32PrintEngine::drawPixmap(), failed to get old clip");
-            } else {
-                clip_was_changed = true;
-                int clip_op = get_clip == 0 ? RGN_COPY : RGN_AND;
-                d->composeGdiPath(clipMask);
-                if (!SelectClipPath(d->hdc, clip_op))
-                    qErrnoWarning("QWin32PrintEngine::drawPixmap(), failed to set mask");
-            }
+            d->composeGdiPath(clipMask);
+            if (!SelectClipPath(d->hdc, RGN_AND))
+                qErrnoWarning("QWin32PrintEngine::drawPixmap(), failed to set mask");
         }
     }
 
@@ -620,29 +610,11 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
                     hbitmap_hdc, 0, 0, pixmap.width(), pixmap.height(), SRCCOPY))
         qErrnoWarning("QWin32PrintEngine::drawPixmap, StretchBlt failed");
 
-
-//     const BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
-//                                0,                 // BlendFlags, must be zero
-//                                255,               // SourceConstantAlpha, we use pr pixel
-//                                AC_SRC_ALPHA       // AlphaFormat
-//     };
-
-//     if (!qAlphaBlend(d->hdc, tx, ty, tw, th, hbitmap_hdc, sx, sy, sw, sh, bf)) {
-//         qWarning("QWin32PrintEngine::drawPixmap(), alpha blending was successful...");
-//     }
-
     SelectObject(hbitmap_hdc, null_bitmap);
     DeleteObject(hbitmap);
     DeleteDC(hbitmap_hdc);
 
-    if (clip_was_changed) {
-        // Restore the old region, note that a null region in GDI means no clip,
-        // so if we did change, but didn't have a region this will just work
-        ExtSelectClipRgn(d->hdc, old_region, RGN_COPY);
-    }
-
-    if (old_region != 0)
-        DeleteObject(old_region);
+    RestoreDC(d->hdc, dc_state);
 }
 
 
@@ -724,9 +696,9 @@ void QWin32PrintEnginePrivate::strokePath_dev(const QPainterPath &path, const QC
                                               Qt::PenStyle penStyle)
 {
     composeGdiPath(path);
-    
+
     int gdiPenStyle;
-    switch (penStyle) 
+    switch (penStyle)
     {
     case Qt::DashLine:
         gdiPenStyle = PS_DASH;
