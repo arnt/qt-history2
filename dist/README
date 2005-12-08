@@ -1,12 +1,12 @@
-This is Qt version %VERSION%.
+This is %PRODUCTLONG% version %VERSION%.
 
-Qt is a comprehensive cross-platform C++ application framework. Qt 4.0
+Qt is a comprehensive cross-platform C++ application framework. Qt 4.1
 introduces new features and many improvements over the 3.x series. See
-http://doc.trolltech.com/4.0/qt4-intro.html for details.
+http://doc.trolltech.com/4.1/qt4-intro.html for details.
 
 The Qt 4.x series is not binary compatible or source compatible with
 the 3.x series. For more information on porting from Qt 3 to Qt 4, see
-http://doc.trolltech.com/4.0/porting4.html.
+http://doc.trolltech.com/4.1/porting4.html.
 
 
 INSTALLING Qt
@@ -15,10 +15,10 @@ On Windows and Mac OS X, if you want to install the precompiled binary
 packages, simply launch the package and follow the instructions in the
 installation wizard.
 
-On Mac OS X, the binary package requires Mac OS X 10.4.x (Tiger) and GCC 4.0 to
-develop applications. Its applications will run on Mac OS X 10.3.9 and above. If
-you develop with another compiler/version of OS X, please use the source package
-instead.
+On Mac OS X, the binary package requires Mac OS X 10.4.x (Tiger) and
+GCC 4.0 to develop applications. Its applications will run on Mac OS X
+10.3.9 and above. If you develop with another compiler/version of OS
+X, please use the source package instead.
 
 If you have a source package (a .tar.gz, .tar.bz2, or .zip file),
 follow the instructions in the INSTALL file.
@@ -36,8 +36,8 @@ REFERENCE DOCUMENTATION
 
 The Qt reference documentation is available locally in Qt's doc/html
 directory. You can use Qt Assistant to view it; to launch Assistant,
-type 'assistant' on the command line or use the Start menu. On Mac
-OS X, you can find it in /Developer/Applications/Qt.  The latest
+type 'assistant' on the command line or use the Start menu. On Mac OS
+X, you can find it in /Developer/Applications/Qt.  The latest
 documentation is available at http://doc.trolltech.com/.
 
 
@@ -85,7 +85,7 @@ Console Edition licensees may use the classes contained in the QtCore,
 QtNetwork, QtSql and QtXml modules.
 
 For a full listing of the contents of each module, please refer to 
-http://doc.trolltech.com/4.0/modules.html.
+http://doc.trolltech.com/4.1/modules.html.
 
 
 HOW TO REPORT A BUG
