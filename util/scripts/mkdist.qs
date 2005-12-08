@@ -185,6 +185,7 @@ licenseRemove["opensource"] = [ new RegExp("^src/activeqt"),
 				new RegExp("^mkspecs/win32-msvc.net"),
 				new RegExp("^qmake/generators/mac/metrowerks"),
 				new RegExp("^mkspecs/macx-mwerks"),
+				new RegExp("^README.qws"),
 				new RegExp("^README-QT.TXT") ];
 
 licenseRemove["preview"] = licenseRemove["opensource"];
