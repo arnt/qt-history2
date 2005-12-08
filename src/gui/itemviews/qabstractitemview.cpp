@@ -620,8 +620,6 @@ void QAbstractItemView::reset()
     QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it) {
         QWidget *editor = it.value();
-        QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
-                            this, SLOT(editorDestroyed(QObject*)));
         editor->hide();
         d->releaseEditor(editor);
     }
@@ -1546,12 +1544,13 @@ void QAbstractItemView::updateEditorGeometries()
             it.value()->show();
         else
             it.value()->hide();
-        if (it.key().isValid()) {
+        if (it.key().isValid() && option.rect.isValid()) {
             itemDelegate()->updateEditorGeometry(it.value(), option, it.key());
             ++it;
-        } else {
-            // remove editors in deleted indexes
-            d->releaseEditor(it.value());
+        } else if (!it.key().isValid()) {
+            // remove editors of deleted indexes
+            if (it.value())
+                d->releaseEditor(it.value());
             it = d->editors.erase(it);
         }
     }
@@ -1615,8 +1614,6 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
     Q_D(QAbstractItemView);
     if (editor && !d->persistent.contains(editor)) { // if the editor is not persistent, remove it
         setState(NoState);
-        QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
-                            this, SLOT(editorDestroyed(QObject*)));
         QModelIndex index = d->editors.key(editor);
         d->editors.remove(index);
         d->releaseEditor(editor);
@@ -1667,10 +1664,11 @@ void QAbstractItemView::commitData(QWidget *editor)
 */
 void QAbstractItemView::editorDestroyed(QObject *editor)
 {
+    Q_D(QAbstractItemView);
     QWidget *w = ::qobject_cast<QWidget*>(editor);
     QPersistentModelIndex key = d_func()->editors.key(w);
-    d_func()->editors.remove(key);
-    d_func()->persistent.removeAll(w);
+    d->editors.remove(key);
+    d->persistent.removeAll(w);
     if (state() == EditingState)
         setState(NoState);
 }

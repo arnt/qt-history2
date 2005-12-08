@@ -106,6 +106,8 @@ public:
 #endif
 
     inline void releaseEditor(QWidget *editor) const {
+        QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
+                            q_func(), SLOT(editorDestroyed(QObject*)));
         editor->removeEventFilter(delegate);
         editor->hide(); // change the focus to the next widget
         QTimer::singleShot(0, editor, SLOT(deleteLater())); // delete even later
