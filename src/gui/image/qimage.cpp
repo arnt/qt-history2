@@ -283,6 +283,10 @@ QImageData::~QImageData()
     There are functions to convert between QImage and QPixmap:
     QPixmap::convertToImage() and QPixmap::convertFromImage().
 
+    QImage supports basic pixel-based painting operations and, because it
+    is a QPaintDevice subclass, QPainter can be used to draw directly onto
+    images.
+
     QImage supports a number of \link QImage::Format formats\endlink. These
     include monochrome images, 8-bit images, and 32-bit images with an optional
     alpha channel. Monochrome and 8-bit images are index-based and use a
