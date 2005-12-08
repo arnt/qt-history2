@@ -803,6 +803,7 @@ void QSortFilterProxyModel::clear()
   \o QVariant::Time
   \o QVariant::DateTime
   \o QVariant::String
+  \endlist
 */
 bool QSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
