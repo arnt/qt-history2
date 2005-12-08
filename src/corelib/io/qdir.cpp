@@ -1002,6 +1002,7 @@ QDir::SortFlags QDir::sorting() const
     \value DirsLast Put the files first, then the directories.
     \value Reversed  Reverse the sort order.
     \value IgnoreCase  Sort case-insensitively.
+    \value LocaleAware Sort items appropriately using the current locale settings.
 
     \omitvalue SortByMask
     \omitvalue DefaultSort

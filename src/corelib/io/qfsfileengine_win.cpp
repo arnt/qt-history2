@@ -790,7 +790,12 @@ bool QFSFileEngine::setCurrentPath(const QString &path)
 }
 
 /*!
-    Returns the current path of the file engine.
+    Returns the canonicalized form of the current path used by the file
+    engine for the drive specified by \a fileName.
+
+    On Windows, each drive has its own current directory, so a different
+    path is returned for file names that include different drive names
+    (e.g. A: or C:).
 
     \sa setCurrentPath()
 */
