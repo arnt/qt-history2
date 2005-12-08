@@ -67,7 +67,7 @@ static QString fixFilenameForMakefileOutput(const QString &in)
         }
         return out;
 #endif
-    } 
+    }
     return in;
 }
 
@@ -287,7 +287,7 @@ MakefileGenerator::findFilesInVPATH(QStringList l, uchar flags, const QString &v
         bool remove_file = false;
         QString &val = l[val_it];
         if(!val.isEmpty()) {
-            QString file = val;
+            QString file = fixEnvVariables(val);
             if(!(flags & VPATH_NoFixify))
                 file = fileFixify(file, qmake_getpwd(), Option::output_dir);
             if (file.at(0) == '\"' && file.at(file.length() - 1) == '\"')
