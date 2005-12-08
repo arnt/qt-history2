@@ -402,7 +402,7 @@ static void parseBrush(QSvgNode *node,
 
 static void parseQPen(QPen &pen, QSvgNode *node,
                       const QXmlAttributes &attributes,
-                      QSvgHandler *)
+                      QSvgHandler *handler)
 {
     QString value = attributes.value("stroke");
     QString dashArray  = attributes.value("stroke-dasharray");
@@ -452,9 +452,16 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                 pen.setStyle(Qt::SolidLine);
             }
             if (!width.isEmpty()) {
-                pen.setWidthF(width.toDouble());
-//                 if (miterlimit.isEmpty())
-//                     pen.setMiterLimit(pen.miterLimit()/pen.widthF());
+                QSvgHandler::LengthType lt;
+                qreal widthF = parseLength(width, lt, handler);
+                //### fixme
+                if (!widthF) {
+                    pen.setStyle(Qt::NoPen);
+                    return;
+                }
+                pen.setWidthF(widthF);
+                if (miterlimit.isEmpty())
+                    pen.setMiterLimit(pen.miterLimit()/pen.widthF());
             }
             qreal penw = pen.widthF();
 
@@ -605,7 +612,7 @@ static QMatrix parseTransformationMatrix(const QString &value)
 
 static void parsePen(QSvgNode *node,
                      const QXmlAttributes &attributes,
-                     QSvgHandler *)
+                     QSvgHandler *handler)
 {
     QString value = attributes.value("stroke");
     QString dashArray  = attributes.value("stroke-dasharray");
@@ -662,7 +669,14 @@ static void parsePen(QSvgNode *node,
                 pen.setStyle(Qt::SolidLine);
             }
             if (!width.isEmpty()) {
-                pen.setWidthF(width.toDouble());
+                QSvgHandler::LengthType lt;
+                qreal widthF = parseLength(width, lt, handler);
+                //### fixme
+                if (!widthF) {
+                    pen.setStyle(Qt::NoPen);
+                    return;
+                }
+                pen.setWidthF(widthF);
                 if (miterlimit.isEmpty())
                     pen.setMiterLimit(pen.miterLimit()/pen.widthF());
             }
