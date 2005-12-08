@@ -233,8 +233,6 @@ QUiLoader::~QUiLoader()
 }
 
 /*!
-    \fn QWidget *QUiLoader::load(QIODevice *device, QWidget *parent)
-
     Loads a form from the given \a device and creates a new widget with the given
     \a parentWidget to hold its contents.
 
