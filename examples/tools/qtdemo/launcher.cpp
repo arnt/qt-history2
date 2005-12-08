@@ -152,15 +152,15 @@ bool Launcher::setup()
     return true;
 }
 
-void Launcher::findDescriptionAndImages(const QString &exampleName,
+void Launcher::findDescriptionAndImages(const QString &uniqueName,
                                         const QString &docName)
 {
     if (documentationDir.exists(docName)) {
-        documentPaths[exampleName] = \
+        exampleDetails[uniqueName]["document path"] = \
             documentationDir.absoluteFilePath(docName);
 
         QDomDocument exampleDoc;
-        QFile exampleFile(documentPaths[exampleName]);
+        QFile exampleFile(exampleDetails[uniqueName]["document path"]);
         exampleDoc.setContent(&exampleFile);
 
         QDomNodeList paragraphs = exampleDoc.elementsByTagName("p");
@@ -171,9 +171,10 @@ void Launcher::findDescriptionAndImages(const QString &exampleName,
             description = readExampleDescription(descriptionNode);
 
             if (description.indexOf(QRegExp(QString(
-                "((The|This) )?(%1 )?.*(example|demo)").arg(exampleName),
+                "((The|This) )?(%1 )?.*(example|demo)").arg(
+                    exampleDetails[uniqueName]["name"]),
                 Qt::CaseInsensitive)) != -1) {
-                exampleDescriptions[exampleName] = description;
+                exampleDetails[uniqueName]["description"] = description;
                 break;
             }
         }
@@ -189,7 +190,7 @@ void Launcher::findDescriptionAndImages(const QString &exampleName,
         }
 
         if (imageFiles.size() > 0)
-            imagePaths[exampleName] = imageFiles;
+            imagePaths[uniqueName] = imageFiles;
     }
 }
 
@@ -233,9 +234,12 @@ int Launcher::readInfo(const QString &resource, const QDir &dir)
                 QString exampleName = element.attribute("name");
                 QString exampleFileName = element.attribute("filename");
                 QString exampleDirName = element.attribute("dirname");
-                QString exampleColor = element.attribute("color", "#f0f0f0");
 
                 examples[categoryName].append(exampleName);
+
+                QString uniqueName = categoryName+"-"+exampleName;
+                exampleOptions[uniqueName] = QMap<QString,QString>();
+                exampleDetails[uniqueName] = QMap<QString,QString>();
 
                 QString docName;
                 if (!categoryDocName.isEmpty())
@@ -243,8 +247,11 @@ int Launcher::readInfo(const QString &resource, const QDir &dir)
                 else
                     docName = categoryDirName+"-"+exampleFileName+".html";
 
-                exampleColors[categoryName+"-"+exampleName] = exampleColor;
-                findDescriptionAndImages(categoryName+"-"+exampleName, docName);
+                exampleDetails[uniqueName]["name"] = exampleName;
+                findDescriptionAndImages(uniqueName, docName);
+
+                exampleOptions[uniqueName]["changedirectory"] = element.attribute("changedirectory", "true");
+                exampleOptions[uniqueName]["color"] = element.attribute("color", "#f0f0f0");
 
                 if (!exampleDirName.isEmpty() && !exampleDir.cd(exampleDirName))
                     continue;
@@ -254,8 +261,10 @@ int Launcher::readInfo(const QString &resource, const QDir &dir)
 
                 if (exampleDir.cd(exampleFileName)) {
                     QString examplePath = findExecutable(exampleDir);
-                    if (!examplePath.isNull())
-                        examplePaths[categoryName+"-"+exampleName] = QPair<QString,QString>(exampleDir.absolutePath(), examplePath);
+                    if (!examplePath.isNull()) {
+                        exampleDetails[uniqueName]["absolute path"] = exampleDir.absolutePath();
+                        exampleDetails[uniqueName]["path"] = examplePath;
+                    }
                 }
             }
 
@@ -370,9 +379,9 @@ QString Launcher::readExampleDescription(const QDomNode &parentNode) const
     return description;
 }
 
-void Launcher::launchExample(const QString &example)
+void Launcher::launchExample(const QString &uniqueName)
 {
-    if (runningExamples.contains(example))
+    if (runningExamples.contains(uniqueName))
         return;
 
     QProcess *process = new QProcess(this);
@@ -386,10 +395,13 @@ void Launcher::launchExample(const QString &example)
     process->setEnvironment(QStringList(newpath));
 #endif
 
-    runningExamples.append(example);
-    runningProcesses[process] = example;
-    process->setWorkingDirectory(examplePaths[example].first);
-    process->start(examplePaths[example].second);
+    runningExamples.append(uniqueName);
+    runningProcesses[process] = uniqueName;
+
+    if (exampleOptions[uniqueName]["changedirectory"] == "true")
+        process->setWorkingDirectory(exampleDetails[uniqueName]["absolute path"]);
+
+    process->start(exampleDetails[uniqueName]["path"]);
 
     if (process->state() == QProcess::Starting)
         slideshowTimer->stop();
@@ -726,16 +738,17 @@ void Launcher::showExamples(const QString &category)
 
     foreach (QString example, examples[currentCategory]) {
 
+        QString uniqueName = currentCategory+"-"+example;
         QPainterPath path;
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
         DisplayShape *background = new PanelShape(path,
-            QBrush(exampleColors[currentCategory+"-"+example]),
+            QBrush(QColor(exampleOptions[uniqueName]["color"])),
             QBrush(QColor("#e0e0ff")),
             Qt::NoPen, startPosition,
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
 
-        background->setMetaData("example", example);
+        background->setMetaData("example", uniqueName);
         background->setInteractive(true);
         background->setTarget(QPointF(2*horizontalMargin,
                                       background->position().y()));
@@ -778,24 +791,25 @@ void Launcher::showExamples(const QString &category)
                            width()-4*horizontalMargin, textHeight));
 }
 
-void Launcher::showExampleDocumentation(const QString &example)
+void Launcher::showExampleDocumentation(const QString &uniqueName)
 {
     disconnect(display, SIGNAL(displayEmpty()), this, 0);
-    currentExample = example;
+    currentExample = uniqueName;
 
-    assistant->showPage(documentPaths[example]);
+    assistant->showPage(exampleDetails[uniqueName]["document path"]);
 }
 
-void Launcher::showExampleSummary(const QString &example)
+void Launcher::showExampleSummary(const QString &uniqueName)
 {
     newPage();
     fadeShapes();
-    currentExample = currentCategory+"-"+example;
+    currentExample = uniqueName;
 
     qreal horizontalMargin = 0.025*width();
     qreal verticalMargin = 0.025*height();
 
-    DisplayShape *newTitle = addTitle(example, verticalMargin);
+    DisplayShape *newTitle = addTitle(exampleDetails[currentExample]["name"],
+                                      verticalMargin);
     DisplayShape *titleBackground = addTitleBackground(newTitle);
 
     qreal topMargin = 2*verticalMargin + titleBackground->rect().bottom();
@@ -809,9 +823,9 @@ void Launcher::showExampleSummary(const QString &example)
     qreal leftMargin = 3*horizontalMargin;
     qreal rightMargin = width() - 3*horizontalMargin;
 
-    if (exampleDescriptions.contains(currentExample)) {
+    if (exampleDetails[currentExample].contains("description")) {
         DocumentShape *description = new DocumentShape(
-            exampleDescriptions[currentExample], documentFont,
+            exampleDetails[currentExample]["description"], documentFont,
             QPointF(leftMargin, topMargin),
             QSizeF(rightMargin-leftMargin, space), 0);
 
@@ -888,7 +902,7 @@ void Launcher::showExampleSummary(const QString &example)
         leftMargin = buttonBackground->rect().right();
     }
 
-    if (examplePaths.contains(currentExample)) {
+    if (exampleDetails[currentExample].contains("absolute path")) {
 
         DisplayShape *launchCaption = new TitleShape(tr("Launch"),
             font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize,
@@ -933,7 +947,7 @@ void Launcher::showExampleSummary(const QString &example)
         rightMargin = background->rect().left();
     }
 
-    if (documentPaths.contains(currentExample)) {
+    if (exampleDetails[currentExample].contains("document path")) {
 
         DisplayShape *documentCaption = new TitleShape(tr("Show Documentation"),
             font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize,

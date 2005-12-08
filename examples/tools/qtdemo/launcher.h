@@ -38,11 +38,11 @@ public:
 public slots:
     void enableLaunching();
     void executeAction(const QString &action);
-    void launchExample(const QString &example);
+    void launchExample(const QString &uniqueName);
     void showCategories();
-    void showExampleDocumentation(const QString &example);
+    void showExampleDocumentation(const QString &uniqueName);
     void showExamples(const QString &category);
-    void showExampleSummary(const QString &example);
+    void showExampleSummary(const QString &uniqueName);
     void showParentPage();
     void updateExampleSummary();
 
@@ -94,12 +94,10 @@ private:
     QImage qtLogo;
     QImage trolltechLogo;
     QMap<QString,QColor> categoryColors;
-    QMap<QString,QColor> exampleColors;
     QMap<QProcess*,QString> runningProcesses;
     QMap<QString,QString> categoryDescriptions;
-    QMap<QString,QString> exampleDescriptions;
-    QMap<QString,QString> documentPaths;
-    QMap<QString,QPair<QString,QString> > examplePaths;
+    QMap<QString,QMap<QString,QString> > exampleOptions;
+    QMap<QString,QMap<QString,QString> > exampleDetails;
     QMap<QString,QStringList> examples;
     QMap<QString,QStringList> imagePaths;
     QString currentCategory;

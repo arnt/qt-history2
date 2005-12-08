@@ -107,8 +107,10 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
     QPainter painter;
     painter.begin(this);
     painter.fillRect(event->rect(), Qt::white);
-    foreach (DisplayShape *shape, shapes)
-        shape->paint(&painter);
+    foreach (DisplayShape *shape, shapes) {
+        if (shape->rect().intersects(event->rect()))
+            shape->paint(&painter);
+    }
     painter.end();
 }
 
