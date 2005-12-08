@@ -103,8 +103,8 @@ QSvgStyleProperty * QSvgStructureNode::scopeStyle(const QString &id) const
         QSvgStyleProperty *prop = group->styleProperty(id);
         if (prop)
             return prop;
-        QList<QSvgStructureNode*>::const_iterator itr = group->m_linkedScopes.begin();
-        while (itr != group->m_linkedScopes.end()) {
+        QList<QSvgStructureNode*>::const_iterator itr = group->m_linkedScopes.constBegin();
+        while (itr != group->m_linkedScopes.constEnd()) {
             prop = (*itr)->styleProperty(id);
             if (prop)
                 return prop;
@@ -139,8 +139,8 @@ void QSvgSwitch::draw(QPainter *p)
 
             bool okToRender = true;
             if (!features.isEmpty()) {
-                QStringList::const_iterator sitr = features.begin();
-                for (; sitr != features.end(); ++sitr) {
+                QStringList::const_iterator sitr = features.constBegin();
+                for (; sitr != features.constEnd(); ++sitr) {
                     if (!m_features.contains(*sitr)) {
                         okToRender = false;
                         break;
@@ -149,8 +149,8 @@ void QSvgSwitch::draw(QPainter *p)
             }
 
             if (okToRender && !extensions.isEmpty()) {
-                QStringList::const_iterator sitr = extensions.begin();
-                for (; sitr != extensions.end(); ++sitr) {
+                QStringList::const_iterator sitr = extensions.constBegin();
+                for (; sitr != extensions.constEnd(); ++sitr) {
                     if (!m_extensions.contains(*sitr)) {
                         okToRender = false;
                         break;
@@ -159,9 +159,9 @@ void QSvgSwitch::draw(QPainter *p)
             }
 
             if (okToRender && !languages.isEmpty()) {
-                QStringList::const_iterator sitr = languages.begin();
+                QStringList::const_iterator sitr = languages.constBegin();
                 okToRender = false;
-                for (; sitr != languages.end(); ++sitr) {
+                for (; sitr != languages.constEnd(); ++sitr) {
                     if ((*sitr).startsWith(m_systemLanguagePrefix)) {
                         okToRender = true;
                         break;

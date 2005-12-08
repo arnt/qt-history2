@@ -45,8 +45,8 @@ void QSvgFont::draw(QPainter *p, const QPointF &point, const QString &str, qreal
     pen.setWidthF(penWidth);
     p->setPen(pen);
 
-    QString::const_iterator itr = str.begin();
-    for ( ; itr != str.end(); ++itr) {
+    QString::const_iterator itr = str.constBegin();
+    for ( ; itr != str.constEnd(); ++itr) {
         QChar unicode = *itr;
         if (!m_glyphs.contains(*itr)) {
             unicode = 0;

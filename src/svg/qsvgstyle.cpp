@@ -162,8 +162,8 @@ void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
         QColor color = p->brush().color();
         if (!color.isValid())
             color = p->pen().color();
-        QList<qreal>::const_iterator itr = m_resolvePoints.begin();
-        for (; itr != m_resolvePoints.end(); ++itr) {
+        QList<qreal>::const_iterator itr = m_resolvePoints.constBegin();
+        for (; itr != m_resolvePoints.constEnd(); ++itr) {
             //qDebug()<<"resolving "<<(*itr)<<" to "<<color;
             m_gradient->setColorAt(*itr, color);
         }
@@ -319,7 +319,7 @@ void QSvgStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *node)
     //_after_ the original object transformations
     if (!animateTransforms.isEmpty()) {
         QList<QSvgAnimateTransform*>::const_iterator itr;
-        for (itr = animateTransforms.begin(); itr != animateTransforms.end();
+        for (itr = animateTransforms.constBegin(); itr != animateTransforms.constEnd();
              ++itr) {
             (*itr)->apply(p, rect, node);
         }
@@ -360,10 +360,10 @@ void QSvgStyle::revert(QPainter *p)
     //the native transforms
     if (!animateTransforms.isEmpty()) {
         QList<QSvgAnimateTransform*>::const_iterator itr;
-        itr = animateTransforms.begin();
+        itr = animateTransforms.constBegin();
         //only need to rever the first one because that
         //one has the original world matrix for the primitve
-        if (itr != animateTransforms.end()) {
+        if (itr != animateTransforms.constEnd()) {
             (*itr)->revert(p);
         }
     }

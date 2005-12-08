@@ -47,9 +47,9 @@ static QString xmlSimplify(const QString &str)
     if (dummy.trimmed().isEmpty())
         return QString();
     QString temp;
-    QString::const_iterator itr = dummy.begin();
+    QString::const_iterator itr = dummy.constBegin();
     bool wasSpace = false;
-    for (;itr != dummy.end(); ++itr) {
+    for (;itr != dummy.constEnd(); ++itr) {
         if ((*itr).isSpace()) {
             if (wasSpace || !(*itr).isPrint()) {
                 continue;
@@ -143,7 +143,7 @@ static QList<qreal> parsePercentageList(QString::const_iterator &itr)
 
 static QString idFromUrl(const QString &url)
 {
-    QString::const_iterator itr = url.begin();
+    QString::const_iterator itr = url.constBegin();
     while ((*itr).isSpace())
         ++itr;
     if ((*itr) == '(')
@@ -190,7 +190,7 @@ static bool resolveColor(const QString &colorStr, QColor &color)
         color = colors[colorStrTr];
         return color.isValid();
     } else if (colorStr.startsWith("rgb(")) {
-        QString::const_iterator itr = colorStr.begin();
+        QString::const_iterator itr = colorStr.constBegin();
         ++itr; ++itr; ++itr; ++itr;
         QString::const_iterator itr_back = itr;
         QList<qreal> compo = parseNumbersList(itr);
@@ -487,7 +487,7 @@ static void parseQPen(QPen &pen, QSvgNode *node,
             }
 
             if (!dashArray.isEmpty()) {
-                QString::const_iterator itr = dashArray.begin();
+                QString::const_iterator itr = dashArray.constBegin();
                 QList<qreal> dashes = parseNumbersList(itr);
                 QVector<qreal> vec(dashes.size());
 
@@ -507,9 +507,9 @@ static void parseQPen(QPen &pen, QSvgNode *node,
 static QMatrix parseTransformationMatrix(const QString &value)
 {
     QMatrix matrix;
-    QString::const_iterator itr = value.begin();
+    QString::const_iterator itr = value.constBegin();
 
-    while (itr != value.end()) {
+    while (itr != value.constEnd()) {
         if ((*itr) == 'm') {  //matrix
             QString temp("m");
             int remains = 6;
@@ -604,7 +604,7 @@ static QMatrix parseTransformationMatrix(const QString &value)
                    (*itr) == '\n') {
             ++itr;
         }
-        if (itr != value.end())
+        if (itr != value.constEnd())
             ++itr;
     }
     return matrix;
@@ -701,7 +701,7 @@ static void parsePen(QSvgNode *node,
 
             qreal penw = pen.widthF();
             if (!dashArray.isEmpty()) {
-                QString::const_iterator itr = dashArray.begin();
+                QString::const_iterator itr = dashArray.constBegin();
                 QList<qreal> dashes = parseNumbersList(itr);
                 QVector<qreal> vec(dashes.size());
 
@@ -1070,14 +1070,14 @@ static void pathArc(QPainterPath &path,
 
 static bool parsePathDataFast(const QString &data, QPainterPath &path)
 {
-    QString::const_iterator itr = data.begin();
+    QString::const_iterator itr = data.constBegin();
     qreal x0 = 0, y0 = 0;              // starting point
     qreal x = 0, y = 0;                // current point
     char lastMode = 0;
     QChar pathElem;
     QPointF ctrlPt;
 
-    while (itr != data.end()) {
+    while (itr != data.constEnd()) {
         while ((*itr).isSpace())
             ++itr;
         pathElem = *itr;
@@ -1551,7 +1551,7 @@ static bool parseAnimateColorNode(QSvgNode *parent,
     } else {
         QStringList str = valuesStr.split(';');
         QStringList::const_iterator itr;
-        for (itr = str.begin(); itr != str.end(); ++itr) {
+        for (itr = str.constBegin(); itr != str.constEnd(); ++itr) {
             QColor color;
             constructColor(*itr, QString(), color);
             colors.append(color);
@@ -1611,26 +1611,26 @@ static bool parseAnimateTransformNode(QSvgNode *parent,
 
     QList<qreal> vals;
     if (values.isEmpty()) {
-        QString::const_iterator itr = fromStr.begin();
+        QString::const_iterator itr = fromStr.constBegin();
         QList<qreal> lst = parseNumbersList(itr);
         while (lst.count() < 3)
             lst.append(0.0);
         vals << lst;
 
-        itr = toStr.begin();
+        itr = toStr.constBegin();
         lst = parseNumbersList(itr);
         while (lst.count() < 3)
             lst.append(0.0);
         vals << lst;
     } else {
-        QString::const_iterator itr = values.begin();
-        while (itr != values.end()) {
+        QString::const_iterator itr = values.constBegin();
+        while (itr != values.constEnd()) {
             QList<qreal> tmpVals = parseNumbersList(itr);
             while (tmpVals.count() < 3)
                 tmpVals.append(0.0);
 
             vals << tmpVals;
-            if (itr == values.end())
+            if (itr == values.constEnd())
                 break;
             ++itr;
         }
@@ -2072,12 +2072,12 @@ static QSvgNode *createPolygonNode(QSvgNode *parent,
     QString pointsStr  = attributes.value("points");
 
     //same QPolygon parsing is in createPolylineNode
-    QString::const_iterator sitr = pointsStr.begin();
+    QString::const_iterator sitr = pointsStr.constBegin();
     QList<qreal> points = parseNumbersList(sitr);
     QPolygonF poly(points.count()/2);
     int i = 0;
-    QList<qreal>::const_iterator itr = points.begin();
-    while (itr != points.end()) {
+    QList<qreal>::const_iterator itr = points.constBegin();
+    while (itr != points.constEnd()) {
         qreal one = *itr; ++itr;
         qreal two = *itr; ++itr;
         poly[i] = QPointF(one, two);
@@ -2094,12 +2094,12 @@ static QSvgNode *createPolylineNode(QSvgNode *parent,
     QString pointsStr  = attributes.value("points");
 
     //same QPolygon parsing is in createPolygonNode
-    QString::const_iterator sitr = pointsStr.begin();
+    QString::const_iterator sitr = pointsStr.constBegin();
     QList<qreal> points = parseNumbersList(sitr);
     QPolygonF poly(points.count()/2);
     int i = 0;
-    QList<qreal>::const_iterator itr = points.begin();
-    while (itr != points.end()) {
+    QList<qreal>::const_iterator itr = points.constBegin();
+    while (itr != points.constEnd()) {
         qreal one = *itr; ++itr;
         qreal two = *itr; ++itr;
         poly[i] = QPointF(one, two);
