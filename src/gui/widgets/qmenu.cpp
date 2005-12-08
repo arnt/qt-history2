@@ -56,7 +56,7 @@ public:
 
         setParent(p, Qt::Window | Qt::Tool);
 	setAttribute(Qt::WA_DeleteOnClose, true);
-        p->setWindowTitle(p->windowTitle());
+        setWindowTitle(p->windowTitle());
         setEnabled(p->isEnabled());
         QObject::connect(this, SIGNAL(activated(int)), p, SIGNAL(activated(int)));
         QObject::connect(this, SIGNAL(highlighted(int)), p, SIGNAL(highlighted(int)));
