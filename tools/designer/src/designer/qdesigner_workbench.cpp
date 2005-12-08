@@ -658,6 +658,12 @@ void QDesignerWorkbench::saveSettings() const
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         settings.saveGeometryFor(tw);
     }
+    if (m_mode == DockedMode) {
+        if (qFindChild<QWorkspace *>(qDesigner->mainWindow())) {
+            settings.saveGeometryFor(qDesigner->mainWindow());
+            settings.setValue(qDesigner->mainWindow()->objectName() + QLatin1String("/visible"), false);
+        }
+    }
 }
 
 bool QDesignerWorkbench::readInForm(const QString &fileName) const

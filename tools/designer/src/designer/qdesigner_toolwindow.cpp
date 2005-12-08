@@ -104,14 +104,8 @@ void QDesignerToolWindow::closeEvent(QCloseEvent *ev)
 {
     if (m_saveSettings) {
         ev->setAccepted(workbench()->handleClose());
-        if (ev->isAccepted() && qDesigner->mainWindow() == this) {
-            if (qFindChild<QWorkspace *>(this)) {
-                QDesignerSettings settings;
-                settings.saveGeometryFor(this);
-                settings.setValue(objectName() + QLatin1String("/visible"), false);
-            }
+        if (ev->isAccepted() && qDesigner->mainWindow() == this)
             QMetaObject::invokeMethod(qDesigner, "quit", Qt::QueuedConnection);  // We're going down!
-        }
     } else {
         QMainWindow::closeEvent(ev);
     }
