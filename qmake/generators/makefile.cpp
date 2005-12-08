@@ -2770,6 +2770,12 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
     //do the fixin'
     const QString pwd = qmake_getpwd() + "/";
     QString orig_file = ret;
+    if(ret.startsWith(QLatin1Char('~'))) {
+        if(ret.startsWith(QLatin1String("~/")))
+            ret = QDir::homePath() + Option::dir_sep + ret.mid(1);
+        else
+            warn_msg(WarnLogic, "Unable to expand ~ in %s", ret.toLatin1().constData());
+    }
     if(fix == FileFixifyAbsolute || (fix == FileFixifyDefault && project->isActiveConfig("no_fixpath"))) {
         if(fix == FileFixifyAbsolute && QDir::isRelativePath(ret)) //already absolute
             ret.prepend(pwd);
