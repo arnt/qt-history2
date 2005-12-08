@@ -288,5 +288,16 @@ void QSignalMapper::map(QObject *sender)
     \sa setMapping()
 */
 
+/*!
+    \fn void QSignalMapper::mapped(QObject *object)
+    \overload
+
+    This signal is emitted when map() is signalled from an object that
+    has an object mapping set. The object provided by the map is passed in
+    \a object.
+
+    \sa setMapping()
+*/
+
 #include "moc_qsignalmapper.cpp"
 #endif // QT_NO_SIGNALMAPPER

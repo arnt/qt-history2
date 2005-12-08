@@ -980,12 +980,14 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn QModelIndex QAbstractItemModel::sibling(int row, int column, const QModelIndex &index) const
 
-    Returns the sibling at \a row and \a column for the item at \a
-    index or an invalid QModelIndex if there is no sibling.
+    Returns the sibling at \a row and \a column for the item at \a index, or
+    an invalid QModelIndex if there is no sibling at that location.
 
-    sibling is just a conveniance function that finds the parent and calls model.index(\row, \column, parent);
+    sibling() is just a convenience function that finds the item's parent, and
+    uses it to retrieve the index of the child item in the specified \a row
+    and \a column.
 
-    \a row, \a column, and \a index.
+    \sa row(), column(), index()
 */
 
 

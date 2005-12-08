@@ -599,17 +599,10 @@ bool QBrush::operator==(const QBrush &b) const
     Returns the brush's color.
 */
 
-/*!
-    \fn inline double QPainter::translationX() const
-    \internal
-*/
-
-/*!
-    \fn inline double QPainter::translationY() const
-    \internal
-*/
-
 #ifndef QT_NO_DEBUG_STREAM
+/*!
+  \internal
+*/
 QDebug operator<<(QDebug dbg, const QBrush &b)
 {
 #ifndef Q_BROKEN_DEBUG_STREAM
@@ -903,6 +896,10 @@ bool QGradient::operator==(const QGradient &gradient) const
     return stops() == gradient.stops();
 }
 
+/*!
+    Returns true if the gradient is the same as the other \a gradient
+    specified; otherwise returns false.
+*/
 bool QGradient::operator==(const QGradient &gradient)
 {
     return const_cast<const QGradient *>(this)->operator==(gradient);
