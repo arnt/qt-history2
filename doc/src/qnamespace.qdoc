@@ -795,7 +795,7 @@
     \value WA_MouseTracking Indicates that the widget has mouse tracking
     enabled. See QWidget::mouseTracking.
 
-    \value WA_GroupLeader  \e{This attribute has been deprecated.} Use QWidget::windowModality instead.
+    \value WA_GroupLeader
         Makes this window a group leader. A group
         leader should \e not have a parent (i.e. it should be a
         top-level window). Any decendant windows (direct or indirect)
