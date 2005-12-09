@@ -381,9 +381,12 @@ struct QWSMouseEvent;
 
 typedef QMap<int, QWSCursor*> QWSCursorMap;
 
+class QWSClientPrivate;
+
 class Q_GUI_EXPORT QWSClient : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWSClient)
 public:
     QWSClient(QObject* parent, QTcpSocket *, int id);
     ~QWSClient();
@@ -422,6 +425,8 @@ private:
     uint isClosed : 1;
     QString id;
     int cid;
+
+    friend class QWSServerPrivate;
 };
 
 #endif // QWINDOWSYSTEM_QWS_H

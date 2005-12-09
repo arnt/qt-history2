@@ -38,7 +38,7 @@ public:
     void attach(int shmid, QSize size);
     void detach();
 
-    void lock(bool write=false);
+    void lock();
     void unlock();
 
     QPixmap *pixmap() { return &pix; }

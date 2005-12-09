@@ -124,6 +124,10 @@ private:
     class Data;
     Data *d;
 
+    friend class QWSBackingStore;
+    static void lockClient();
+    static void unlockClient();
+
     int getPropertyLen;
     char *getPropertyData;
     static QLock *lock;

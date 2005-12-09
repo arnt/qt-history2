@@ -337,7 +337,7 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
     if (!QRect(QPoint(0,0), buffer.size()).contains(boundingRect)) {
         return;
     }
-    buffer.lock(true);
+    buffer.lock();
     buffer.blit(bsrect, pos + QPoint(dx,dy));
     buffer.unlock();
 #endif

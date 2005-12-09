@@ -38,6 +38,7 @@
 #include "qscreen_qws.h"
 #include "qcopchannel_qws.h"
 #include "private/qlock_p.h"
+#include "private/qwslock_p.h"
 //#include "qmemorymanager_qws.h"
 #include "qwsmanager_qws.h"
 //#include "qwsregionmanager_qws.h"
@@ -286,6 +287,7 @@ public:
             QObject::connect(csocket, SIGNAL(disconnected()),
                               qApp, SLOT(quit()));
         }
+        clientLock = 0;
 #endif
         init();
     }
@@ -305,6 +307,8 @@ public:
             csocket->flush(); // may be pending QCop message, eg.
             delete csocket;
         }
+        delete clientLock;
+        clientLock = 0;
 #endif
         delete connected_event;
         delete mouse_event;
@@ -314,6 +318,11 @@ public:
         delete qcop_response;
 #endif
     }
+
+    static QWSLock *clientLock;
+    static void lockClient()   { if (clientLock) clientLock->lock(); }
+    static void unlockClient() { if (clientLock) clientLock->unlock(); }
+    static void waitClient()   { if (clientLock) clientLock->wait(); }
 
     void flush()
     {
@@ -416,7 +425,7 @@ public:
     {
         QWSCreateCommand cmd;
 #ifndef QT_NO_QWS_MULTIPROCESS
-        if  (csocket)
+        if (csocket)
             cmd.write(csocket);
         else
 #endif
@@ -433,6 +442,19 @@ public:
             qt_server_enqueue(&cmd);
     }
 
+    void sendSynchronousCommand(QWSCommand & cmd)
+    {
+#ifndef QT_NO_QWS_MULTIPROCESS
+        if  (csocket) {
+            lockClient();
+            cmd.write(csocket);
+            flush();
+            waitClient();
+        } else {
+#endif
+            qt_server_enqueue(&cmd);
+        }
+    }
 
     QWSEvent *readMore();
 
@@ -456,6 +478,18 @@ public:
         mouseFilter = filter;
     }
 };
+
+QWSLock* QWSDisplay::Data::clientLock = 0;
+
+void QWSDisplay::lockClient()
+{
+    Data::lockClient();
+}
+
+void QWSDisplay::unlockClient()
+{
+    Data::unlockClient();
+}
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 int qt_fork_qapplication()
@@ -570,8 +604,10 @@ void QWSDisplay::Data::init()
         // QWS client
         csocket->connectToLocalFile(pipe);
 
+        QWSDisplay::Data::clientLock = new QWSLock();
+
         QWSIdentifyCommand cmd;
-        cmd.setId(appName);
+        cmd.setId(appName, QWSDisplay::Data::clientLock->id());
 #ifndef QT_NO_SXV
         QTransportAuth *a = QTransportAuth::getInstance();
         QTransportAuth::Data *d = a->connectTransport(
@@ -633,7 +669,7 @@ void QWSDisplay::Data::init()
         memset(sharedRam,0,sharedRamSize);
 
         QWSIdentifyCommand cmd;
-        cmd.setId(appName);
+        cmd.setId(appName, -1);
         qt_server_enqueue(&cmd);
     }
     setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
@@ -1061,9 +1097,8 @@ void QWSDisplay::setAltitude(int winId, int alt, bool fixed)
     if (d->directServerConnection()) {
         qwsServer->d_func()->set_altitude(&cmd);
     } else {
-        d->sendCommand(cmd);
+        d->sendSynchronousCommand(cmd);
     }
-//    d->waitForRegionAck();
 }
 
 void QWSDisplay::setOpacity(int winId, int opacity)
@@ -1094,7 +1129,7 @@ void QWSDisplay::requestFocus(int winId, bool get)
 void QWSDisplay::setIdentity(const QString &appName)
 {
     QWSIdentifyCommand cmd;
-    cmd.setId(appName);
+    cmd.setId(appName, -1);
     if (d->directServerConnection())
         qwsServer->d_func()->set_identity(&cmd);
     else
@@ -1158,7 +1193,7 @@ void QWSDisplay::repaintRegion(int winId, bool opaque, QRegion r)
         cmd.simpleData.opaque = opaque;
         cmd.simpleData.nrectangles = ra.count();
         cmd.setData(reinterpret_cast<char *>(ra.data()), ra.count() * sizeof(QRect), false);
-        d->sendCommand(cmd);
+        d->sendSynchronousCommand(cmd);
     }
 }
 
@@ -1173,10 +1208,9 @@ void QWSDisplay::moveRegion(int winId, int dx, int dy)
     if (d->directServerConnection()) {
         qwsServer->d_func()->move_region(&cmd);
     } else {
-        d->sendCommand(cmd);
+        d->sendSynchronousCommand(cmd);
     }
 //    d->offsetPendingExpose(winId, QPoint(cmd.simpleData.dx, cmd.simpleData.dy));
-//    d->waitForRegionAck();
 }
 
 void QWSDisplay::destroyRegion(int winId)

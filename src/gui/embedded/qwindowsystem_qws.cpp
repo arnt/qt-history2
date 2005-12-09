@@ -30,6 +30,7 @@
 #include "qscreen_qws.h"
 #include "qwindowdefs.h"
 #include "private/qlock_p.h"
+#include "qwslock_p.h"
 #include "qfile.h"
 #include "qtimer.h"
 #include "qpen.h"
@@ -324,9 +325,65 @@ QWSWindow::~QWSWindow()
  * Class: QWSClient
  *
  *********************************************************************/
+
+class QWSClientPrivate : public QObjectPrivate
+{
+    Q_DECLARE_PUBLIC(QWSClient)
+
+public:
+    QWSClientPrivate();
+    ~QWSClientPrivate();
+
+    void setLock(int key);
+    void lock();
+    void unlock();
+
+private:
+#ifndef QT_NO_QWS_MULTIPROCESS
+    QWSLock *clientLock;
+#endif // QT_NO_QWS_MULTIPROCESS
+};
+
+QWSClientPrivate::QWSClientPrivate()
+{
+#ifndef QT_NO_QWS_MULTIPROCESS
+    clientLock = 0;
+#endif
+}
+
+QWSClientPrivate::~QWSClientPrivate()
+{
+#ifndef QT_NO_QWS_MULTIPROCESS
+    delete clientLock;
+#endif
+}
+
+void QWSClientPrivate::setLock(int id)
+{
+#ifndef QT_NO_QWS_MULTIPROCESS
+    clientLock = new QWSLock(id);
+#endif
+}
+
+void QWSClientPrivate::lock()
+{
+#ifndef QT_NO_QWS_MULTIPROCESS
+     if (clientLock)
+         clientLock->lock();
+#endif
+}
+
+void QWSClientPrivate::unlock()
+{
+#ifndef QT_NO_QWS_MULTIPROCESS
+    if (clientLock)
+        clientLock->unlock();
+#endif
+}
+
 //always use frame buffer
 QWSClient::QWSClient(QObject* parent, QTcpSocket* sock, int id)
-    : QObject(parent), command(0), cid(id)
+    : QObject(*new QWSClientPrivate, parent), command(0), cid(id)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     csocket = 0;
@@ -1005,6 +1062,7 @@ void QWSServerPrivate::doClient(QWSClient *client)
             break;
         case QWSCommand::RegionMove:
             invokeRegionMove((QWSRegionMoveCommand*)cs->command, cs->client);
+            cs->client->d_func()->unlock();
             break;
         case QWSCommand::RegionDestroy:
             invokeRegionDestroy((QWSRegionDestroyCommand*)cs->command, cs->client);
@@ -1032,6 +1090,7 @@ void QWSServerPrivate::doClient(QWSClient *client)
         case QWSCommand::ChangeAltitude:
             invokeSetAltitude((QWSChangeAltitudeCommand*)cs->command,
                                cs->client);
+            cs->client->d_func()->unlock();
             break;
         case QWSCommand::SetOpacity:
             invokeSetOpacity((QWSSetOpacityCommand*)cs->command,
@@ -1089,6 +1148,7 @@ void QWSServerPrivate::doClient(QWSClient *client)
         case QWSCommand::RepaintRegion:
             invokeRepaintRegion((QWSRepaintRegionCommand*)cs->command,
                                 cs->client);
+            cs->client->d_func()->unlock();
             break;
         }
         delete cs;
@@ -1685,6 +1745,10 @@ void QWSServer::sendPropertyNotifyEvent(int property, int state)
 void QWSServerPrivate::invokeIdentify(const QWSIdentifyCommand *cmd, QWSClient *client)
 {
     client->setIdentity(cmd->id);
+#ifndef QT_NO_QWS_MULTIPROCESS
+    if (client->clientId() > 0)
+        client->d_func()->setLock(cmd->simpleData.idLock);
+#endif
 }
 
 void QWSServerPrivate::invokeCreate(QWSCreateCommand *, QWSClient *client)

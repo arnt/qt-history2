@@ -146,15 +146,17 @@ struct QWSIdentifyCommand : public QWSCommand
         id = QString(reinterpret_cast<const QChar*>(d), simpleData.idLen);
     }
 
-    void setId(const QString& i)
+    void setId(const QString& i, int lock)
     {
         id = i;
         simpleData.idLen = id.length();
+        simpleData.idLock = lock;
         setData(reinterpret_cast<const char*>(id.unicode()), simpleData.idLen*2, true);
     }
 
     struct SimpleData {
         int idLen;
+        int idLock;
     } simpleData;
     QString id;
 };

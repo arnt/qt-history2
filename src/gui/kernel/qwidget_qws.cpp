@@ -679,17 +679,14 @@ void QWSBackingStore::attach(int id, QSize s)
 #endif
 }
 
-
-// TODO: one lock per buffer (or client)
-// also: no need to lock in server
-void QWSBackingStore::lock(bool write)
+void QWSBackingStore::lock()
 {
-    QWSDisplay::grab(write);
+    QWSDisplay::lockClient();
 }
 
 void QWSBackingStore::unlock()
 {
-    QWSDisplay::ungrab();
+    QWSDisplay::unlockClient();
 }
 
 void QWidgetPrivate::show_sys()

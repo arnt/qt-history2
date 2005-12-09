@@ -26,7 +26,8 @@ embedded {
                     embedded/qtransportauth_qws.h \
                     embedded/qtransportauth_qws_p.h \
 		    embedded/qwssocket_qws.h \
-		    embedded/qwsutils_qws.h
+		    embedded/qwslock_p.h \
+		    embedded/qwsutils_qws.h 
 
 	 !mac:SOURCES += embedded/qsoundqss_qws.cpp
          SOURCES +=  \
@@ -44,6 +45,7 @@ embedded {
 		    embedded/qwsmanager_qws.cpp \
 		    embedded/qwsproperty_qws.cpp \
                     embedded/qtransportauth_qws.cpp \
+		    embedded/qwslock.cpp \
 		    embedded/qwssocket_qws.cpp
 
 	contains(QT_CONFIG, ft) {
