@@ -17,7 +17,7 @@
 #include <QMap>
 #include <QString>
 
-QMap<QString, QString> proFileTagMap( const QString& text );
+bool proFileTagMap( const QString& text, QMap<QString, QString> *ret );
 QStringList tokenizeFileNames(const QString &fileNames);
 
 #endif

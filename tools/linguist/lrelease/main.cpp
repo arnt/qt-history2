@@ -169,27 +169,29 @@ int main( int argc, char **argv )
             QString oldDir = QDir::currentPath();
             QDir::setCurrent( QFileInfo(argv[i]).path() );
 
-            QMap<QString, QString> tagMap = proFileTagMap( fullText );
-            QMap<QString, QString>::Iterator it;
+            QMap<QString, QString> tagMap;
+            if (proFileTagMap( fullText, &tagMap )) {
+                QMap<QString, QString>::Iterator it;
 
-            for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
-                QStringList toks = it.value().split(' ');
-                QStringList::Iterator t;
+                for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
+                    QStringList toks = it.value().split(' ');
+                    QStringList::Iterator t;
 
-                for ( t = toks.begin(); t != toks.end(); ++t ) {
-                    if ( it.key() == QString("TRANSLATIONS") ) {
-                        metTranslations = true;
-                        releaseTsFile( *t, verbose, ignoreUnfinished,
-                                       trimmed );
+                    for ( t = toks.begin(); t != toks.end(); ++t ) {
+                        if ( it.key() == QString("TRANSLATIONS") ) {
+                            metTranslations = true;
+                            releaseTsFile( *t, verbose, ignoreUnfinished,
+                                           trimmed );
+                        }
                     }
                 }
+                if ( !metTranslations )
+                    fprintf( stderr,
+                             "lrelease warning: Met no 'TRANSLATIONS' entry in"
+                             " project file '%s'\n",
+                             argv[i] );
+                QDir::setCurrent( oldDir );
             }
-            if ( !metTranslations )
-                fprintf( stderr,
-                         "lrelease warning: Met no 'TRANSLATIONS' entry in"
-                         " project file '%s'\n",
-                         argv[i] );
-            QDir::setCurrent( oldDir );
         }
     }
 
