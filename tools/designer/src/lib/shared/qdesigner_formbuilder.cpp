@@ -13,6 +13,7 @@
 
 #include "qdesigner_formbuilder_p.h"
 #include "qdesigner_widget_p.h"
+#include "qdesigner_promotedwidget_p.h"
 
 // sdk
 #include <QtDesigner/extrainfo.h>
@@ -141,5 +142,11 @@ QWidget *QDesignerFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
     return widget;
 }
 
+QLayout *QDesignerFormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
+{
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
+        parentWidget = promoted->child();
+    return QFormBuilder::create(ui_layout, layout, parentWidget);
+}
 
 } // namespace qdesigner_internal
