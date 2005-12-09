@@ -65,7 +65,7 @@ QWSSocket::~QWSSocket()
 {
 }
 
-void QWSSocket::connectToLocalFile(const QString &file)
+bool QWSSocket::connectToLocalFile(const QString &file)
 {
     // create socket
     int s = ::socket(PF_LOCAL, SOCK_STREAM, 0);
@@ -82,7 +82,9 @@ void QWSSocket::connectToLocalFile(const QString &file)
         perror( "QWSSocket::connectToLocalFile connection refused ");
         ::close(s);
         emit error(ConnectionRefusedError);
+        return false;
     }
+    return true;
 }
 
 

@@ -28,7 +28,7 @@ public:
     explicit QWSSocket(QObject *parent=0);
     ~QWSSocket();
 
-    void connectToLocalFile(const QString &file);
+    bool connectToLocalFile(const QString &file);
 
 private:
     Q_DISABLE_COPY(QWSSocket)
