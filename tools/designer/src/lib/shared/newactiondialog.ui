@@ -36,7 +36,10 @@
      <item row="0" column="0" >
       <widget class="QLabel" name="label" >
        <property name="text" >
-        <string>Text:</string>
+        <string>&amp;Text:</string>
+       </property>
+       <property name="buddy" >
+        <cstring>editActionText</cstring>
        </property>
       </widget>
      </item>
@@ -83,14 +86,20 @@
      <item row="2" column="0" >
       <widget class="QLabel" name="label_2" >
        <property name="text" >
-        <string>Icon:</string>
+        <string>&amp;Icon:</string>
+       </property>
+       <property name="buddy" >
+        <cstring>iconButton</cstring>
        </property>
       </widget>
      </item>
      <item row="1" column="0" >
       <widget class="QLabel" name="label_3" >
        <property name="text" >
-        <string>Object name:</string>
+        <string>Object &amp;name:</string>
+       </property>
+       <property name="buddy" >
+        <cstring>editObjectName</cstring>
        </property>
       </widget>
      </item>
@@ -164,6 +173,9 @@
  <pixmapfunction></pixmapfunction>
  <tabstops>
   <tabstop>editActionText</tabstop>
+  <tabstop>editObjectName</tabstop>
+  <tabstop>iconButton</tabstop>
+  <tabstop>removeIconButton</tabstop>
   <tabstop>okButton</tabstop>
   <tabstop>cancelButton</tabstop>
  </tabstops>
