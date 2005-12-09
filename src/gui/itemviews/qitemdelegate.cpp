@@ -37,7 +37,7 @@ void qt_format_text(const QFont&, const QRectF&,
                     int, const QString&, QRectF *,
                     int, int*, int, QPainter*);
 
-static const int textMargin = 1;
+static const int textMargin = 3;
 
 class QItemDelegatePrivate : public QObjectPrivate
 {
