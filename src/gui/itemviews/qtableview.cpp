@@ -46,109 +46,18 @@ void QTableViewPrivate::init()
 void QTableViewPrivate::updateVerticalScrollbar()
 {
     Q_Q(QTableView);
-
-    int count = verticalHeader->count();
-    // if the header is out of sync we have to relayout
-    if (model && count != model->rowCount(root)) {
-        verticalHeader->doItemsLayout();
-        count = verticalHeader->count();
-    }
-
     int height = viewport->height();
-    // if we have no viewport or no rows, there is nothing to do
-    if (!model || height <= 0 || count <= 0) {
-        q->verticalScrollBar()->setRange(0, 0);
-        return;
-    }
-
-    // count how many items are visible in the viewport
-    int top = qMax(verticalHeader->visualIndexAt(0), 0); // ### log n
-    while (verticalHeader->isSectionHidden(verticalHeader->logicalIndex(top)))
-        ++top;
-    Q_ASSERT(top >= 0);
-    int visibleCount = 0;
-    int y = 0;
-    for (int section = top; section < count && y < height; ++section) {
-        int logicalIndex = verticalHeader->logicalIndex(section);
-        if (!verticalHeader->isSectionHidden(logicalIndex)) {
-            y += verticalHeader->sectionSize(logicalIndex);
-            ++visibleCount;
-        }
-    }
-    q->verticalScrollBar()->setPageStep(visibleCount * verticalStepsPerItem);
-
-    // the scrollbar range is tne total number of items minus the items that are already visible
-    int hidden = verticalHeader->hiddenSectionCount();
-    int max = (count - visibleCount - hidden) * verticalStepsPerItem;
-    if (y > height) { // if only part of an item is visible
-        int sectionSize = verticalHeader->sectionSize(top);
-        Q_ASSERT(sectionSize > 0);
-        max += (((y - height) * verticalStepsPerItem) / sectionSize) + 1;
-    }
-    q->verticalScrollBar()->setRange(0, max);
-
-    if (q->verticalScrollBar()->value() == max) {
-        int newOffset = 0;
-        int oldOffset = verticalHeader->offset();
-        if (verticalHeader->length() >= viewport->height())
-            newOffset = verticalHeader->length() - viewport->height() - 1;
-        verticalHeader->setOffset(newOffset);
-        scrollContentsBy(0, oldOffset - newOffset);
-    }
+    q->verticalScrollBar()->setPageStep(height);
+    q->verticalScrollBar()->setRange(0, verticalHeader->length() - height);
 }
 
 void QTableViewPrivate::updateHorizontalScrollbar()
 {
     Q_Q(QTableView);
-
-    int count = horizontalHeader->count();
-    // if the header is out of sync we have to relayout
-    if (model && count != model->columnCount(root)) {
-        horizontalHeader->doItemsLayout();
-        count = horizontalHeader->count();
-    }
-
     int width = viewport->width();
-    // if we have no viewport or no columns, there is nothing to do
-    if (!model || width <= 0 || count <= 0) {
-        q->horizontalScrollBar()->setRange(0, 0);
-        return;
-    }
+    q->horizontalScrollBar()->setPageStep(width);
+    q->horizontalScrollBar()->setRange(0, horizontalHeader->length() - width);
 
-    // count how many items are visible in the viewport
-    int left = qMax(horizontalHeader->visualIndexAt(0), 0); // ### log n
-    while (horizontalHeader->isSectionHidden(horizontalHeader->logicalIndex(left)))
-        ++left;
-    Q_ASSERT(left >= 0);
-    int visibleCount = 0;
-    int x = 0;
-    for (int section = left; section < count && x < width; ++section) {
-        int logicalIndex = horizontalHeader->logicalIndex(section);
-        if (!horizontalHeader->isSectionHidden(logicalIndex)) {
-            x += horizontalHeader->sectionSize(logicalIndex);
-            ++visibleCount;
-        }
-    }
-    q->horizontalScrollBar()->setPageStep(visibleCount * horizontalStepsPerItem);
-
-    // the scrollbar range is tne total number of items minus the items that are already visible
-    int hidden = horizontalHeader->hiddenSectionCount();
-    int max = (count - visibleCount - hidden) * horizontalStepsPerItem;
-    if (x > width) { // if only part of an item is visible
-        int sectionSize = horizontalHeader->sectionSize(left);
-        Q_ASSERT(sectionSize > 0);
-        max += (((x - width) * horizontalStepsPerItem) / sectionSize) + 1;
-    }
-    q->horizontalScrollBar()->setRange(0, max);
-
-    if (q->horizontalScrollBar()->value() == max) {
-        int newOffset = 0;
-        int oldOffset = horizontalHeader->offset();
-        if (horizontalHeader->length() >= viewport->width())
-            newOffset = horizontalHeader->length() - viewport->width() - 1;
-        horizontalHeader->setOffset(newOffset);
-        scrollContentsBy(oldOffset - newOffset, 0);
-    }
 }
 
 /*!
@@ -188,17 +97,6 @@ void QTableViewPrivate::trimHiddenSelections(QItemSelectionRange *range) const
     QModelIndex bottomRight = model->index(bottom, right, range->parent());
     QModelIndex topLeft = model->index(top, left, range->parent());
     *range = QItemSelectionRange(topLeft, bottomRight);
-}
-
-int QTableViewPrivate::firstVisualIndex(int y) const
-{
-    int top = q_func()->verticalScrollBar()->value() / verticalStepsPerItem;
-    int row = verticalHeader->logicalIndex(top);
-    const int bottom = verticalHeader->count() - 1;
-    for (int v = verticalHeader->sectionViewportPosition(row);
-         (v += verticalHeader->sectionSize(row)) < y && top < bottom; ++top)
-        row = verticalHeader->logicalIndex(top);
-    return top;
 }
 
 /*!
@@ -405,51 +303,8 @@ void QTableView::setVerticalHeader(QHeaderView *header)
 void QTableView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QTableView);
-
-    if (dx) { // horizontal
-        int value = horizontalScrollBar()->value();
-        int steps = horizontalStepsPerItem();
-        int visual = value / steps;
-        if (d->horizontalHeader->sectionsHidden()) {
-            for (int i = 0; i <= visual; ++i) { // hidden sections to the left
-                if (d->horizontalHeader->isSectionHidden(i)) {
-                    value += steps;
-                    ++visual;
-                }
-            }
-        }
-        int section = d->horizontalHeader->logicalIndex(visual);
-        // ### this shouldn't really be necessary to test
-        if (section < 0 || section >= d->horizontalHeader->count())
-            return;
-        int left = (value % steps) * d->horizontalHeader->sectionSize(section);
-        int offset = (left / steps) + d->horizontalHeader->sectionPosition(section);
-        if (isRightToLeft())
-            dx = offset - d->horizontalHeader->offset();
-        else
-            dx = d->horizontalHeader->offset() - offset;
-        d->horizontalHeader->setOffset(offset);
-    }
-
-    if (dy) { // vertical
-        int value = verticalScrollBar()->value();
-        int steps = verticalStepsPerItem();
-        int visual = value / steps;
-        if (d->verticalHeader->sectionsHidden()) {
-            for (int i = 0; i <= visual; ++i) { // hidden sections above
-                if (d->verticalHeader->isSectionHidden(i)) {
-                    value += steps;
-                    ++visual;
-                }
-            }
-        }
-        int section = d->verticalHeader->logicalIndex(visual);
-        int above = (value % steps) * d->verticalHeader->sectionSize(section);
-        int offset = (above / steps) + d->verticalHeader->sectionPosition(section);
-        dy = d->verticalHeader->offset() - offset;
-        d->verticalHeader->setOffset(offset);
-    }
-
+    if (dx) d->horizontalHeader->setOffset(horizontalScrollBar()->value());
+    if (dy) d->verticalHeader->setOffset(verticalScrollBar()->value());
     d->scrollContentsBy(dx, dy);
 }
 
@@ -536,13 +391,11 @@ void QTableView::paintEvent(QPaintEvent *event)
                     alternateBase = !alternateBase;
             }
         } else {
-            top = d->firstVisualIndex(area.top());
+            top = verticalHeader->visualIndexAt(area.top());
             alternateBase = (top & 1) && alternate;
         }
 
-        // ### changed back to an ASSERT in 4.1.1
-        if(!(top >= 0 && top <= bottom))
-            continue;
+        Q_ASSERT(top >= 0 && top <= bottom);
 
         // do the actual painting
         for (int v = top; v <= bottom; ++v) {
@@ -950,9 +803,12 @@ void QTableView::updateGeometries()
 
     int verticalLeft = reverse ? vg.right() : (vg.left() - width);
     d->verticalHeader->setGeometry(verticalLeft, vg.top(), width, vg.height());
+    d->horizontalHeader->setOffset(horizontalScrollBar()->value());
+    
 
     int horizontalTop = vg.top() - height;
     d->horizontalHeader->setGeometry(vg.left(), horizontalTop, vg.width(), height);
+    d->verticalHeader->setOffset(verticalScrollBar()->value());
 
     if (d->model) {
         d->updateVerticalScrollbar();
@@ -1228,41 +1084,13 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
         return;
     }
 
-    // vertical
-    int verticalSteps = verticalStepsPerItem();
-    bool above = (hint == EnsureVisible && rect.top() < area.top());
-    bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
-    if (hint == PositionAtTop || above) {
-        verticalScrollBar()->setValue(index.row() * verticalSteps);
-    } else if (hint == PositionAtBottom || below) {
-        int r = index.row();
-        int y = area.height();
-        while (y > 0 && r > 0)
-            y -= rowHeight(r--);
-        int h = rowHeight(r);
-        int a = (-y * verticalSteps) / (h ? h : 1);
-        verticalScrollBar()->setValue(++r * verticalSteps + a);
-    }
-
-    // horizontal
-    int horizontalSteps = horizontalStepsPerItem();
-    bool leftOf = isRightToLeft()
-                  ? rect.right() > area.right()
-                  : rect.left() < area.left();
-    bool rightOf = isRightToLeft()
-                   ? rect.left() < area.left()
-                   : rect.right() > area.right();
-
-    if (leftOf || (rect.width() > area.width())) {
-        horizontalScrollBar()->setValue(index.column() * horizontalSteps);
-    } else if (rightOf) {
-        int c = index.column();
-        int x = area.width();
-        while (x > 0 && c > 0)
-            x -= columnWidth(c--);
-        int w = columnWidth(c);
-        int a = (-x * horizontalSteps) / (w ? w : 1);
-        horizontalScrollBar()->setValue(++c * horizontalSteps + a);
+    horizontalScrollBar()->setValue(d->horizontalHeader->sectionPosition(index.column()));
+    if (hint == PositionAtBottom) {
+        int pos = d->verticalHeader->sectionPosition(index.row());
+        int size = d->verticalHeader->sectionSize(index.row());
+        verticalScrollBar()->setValue(pos - d->viewport->height() + size);
+    } else {
+        verticalScrollBar()->setValue(d->verticalHeader->sectionPosition(index.row()));
     }
 
     d->setDirtyRegion(visualRect(index));
@@ -1304,7 +1132,12 @@ void QTableView::columnResized(int column, int, int)
 void QTableView::timerEvent(QTimerEvent *event)
 {
     Q_D(QTableView);
-    if (event->timerId() == d->columnResizeTimerID){
+
+    if (event->timerId() == d->columnResizeTimerID) {
+        updateGeometries();
+        killTimer(d->columnResizeTimerID);
+        d->columnResizeTimerID = 0;
+
         QRect rect;
         int viewportHeight = d->viewport->height();
         int viewportWidth = d->viewport->width();
@@ -1312,18 +1145,20 @@ void QTableView::timerEvent(QTimerEvent *event)
             int column = d->columnsToUpdate.at(i);
             int x = columnViewportPosition(column);
             if (isRightToLeft())
-                rect|=QRect(0, 0, x + columnWidth(column), viewportHeight);
+                rect |= QRect(0, 0, x + columnWidth(column), viewportHeight);
             else
-                rect|=QRect(x, 0, viewportWidth - x, viewportHeight);
+                rect |= QRect(x, 0, viewportWidth - x, viewportHeight);
         }
 
-        updateGeometries();
         d->viewport->update(rect.normalized());
         d->columnsToUpdate.clear();
-        killTimer(d->columnResizeTimerID);
-        d->columnResizeTimerID = 0;
     }
-    if (event->timerId() == d->rowResizeTimerID){
+    
+    if (event->timerId() == d->rowResizeTimerID) {
+        updateGeometries();
+        killTimer(d->rowResizeTimerID);
+        d->rowResizeTimerID = 0;
+        
         int viewportHeight = d->viewport->height();
         int viewportWidth = d->viewport->width();
         int top = viewportHeight;
@@ -1332,12 +1167,10 @@ void QTableView::timerEvent(QTimerEvent *event)
             top = qMin(top, y);
         }
 
-        updateGeometries();
         d->viewport->update(QRect(0, top, viewportWidth, viewportHeight - top));
-        d->rowsToUpdate.clear();
-        killTimer(d->rowResizeTimerID);
-        d->rowResizeTimerID = 0;
+        d->rowsToUpdate.clear();        
     }
+
     QAbstractItemView::timerEvent(event);
 }
 
@@ -1552,8 +1385,6 @@ void QTableView::sortByColumn(int column)
 */
 void QTableView::verticalScrollbarAction(int action)
 {
-    Q_D(QTableView);
-    d->updateVerticalScrollbar();
     QAbstractItemView::verticalScrollbarAction(action);
 }
 
@@ -1562,8 +1393,6 @@ void QTableView::verticalScrollbarAction(int action)
 */
 void QTableView::horizontalScrollbarAction(int action)
 {
-    Q_D(QTableView);
-    d->updateHorizontalScrollbar();
     QAbstractItemView::horizontalScrollbarAction(action);
 }
 

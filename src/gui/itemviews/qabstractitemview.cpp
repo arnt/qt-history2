@@ -1679,6 +1679,9 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
     This is the number of steps used by the horizontal scrollbar to
     represent the width of an item.
 
+    Note that if the view has a horizontal header, the item steps
+    will be ignored and the header section size will be used instead.
+
     \sa horizontalStepsPerItem() setVerticalStepsPerItem()
 */
 void QAbstractItemView::setHorizontalStepsPerItem(int steps)
@@ -1702,6 +1705,9 @@ int QAbstractItemView::horizontalStepsPerItem() const
 
     This is the number of steps used by the vertical scrollbar to
     represent the height of an item.
+
+    Note that if the view has a vertical header, the item steps
+    will be ignored and the header section size will be used instead.
 
     \sa verticalStepsPerItem() setHorizontalStepsPerItem()
 */

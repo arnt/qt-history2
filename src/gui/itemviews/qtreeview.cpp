@@ -650,24 +650,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
     }
 
     // horizontal
-    bool leftOf = isRightToLeft()
-                  ? rect.right() > area.right()
-                  : rect.left() < area.left();
-    bool rightOf = isRightToLeft()
-                   ? rect.left() < area.left()
-                   : rect.right() > area.right();
-    int horizontalSteps = horizontalStepsPerItem();
-    if (leftOf || (rect.width() > area.width())) {
-        horizontalScrollBar()->setValue(index.column() * horizontalSteps);
-    } else if (rightOf) {
-        int c = index.column();
-        int x = area.width();
-        while (x > 0 && c > 0)
-            x -= columnWidth(c--);
-        int w = columnWidth(c);
-        int a = (-x * horizontalSteps) / (w ? w : 1);
-        horizontalScrollBar()->setValue(++c * horizontalSteps + a);
-    }
+    horizontalScrollBar()->setValue(d->header->sectionPosition(index.column()));
 }
 
 /*!
@@ -1252,29 +1235,8 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         return;
     }
 
-    if (dx) {
-        int value = horizontalScrollBar()->value();
-        int steps = horizontalStepsPerItem();
-        int visual = value / steps;
-        if (d->header->sectionsHidden()) {
-            for (int i = 0; i <= visual; ++i) { // hidden sections to the left
-                if (d->header->isSectionHidden(i)) {
-                    value += steps;
-                    ++visual;
-                }
-            }
-        }
-        int section = d->header->logicalIndex(visual);
-        Q_ASSERT(section != -1);
-        int left = (value % steps) * d->header->sectionSize(section);
-        int offset = (left / steps) + d->header->sectionPosition(section);
-        if (isRightToLeft())
-            dx = offset - d->header->offset();
-        else
-            dx = d->header->offset() - offset;
-        d->header->setOffset(offset);
-    }
-
+    if (dx)
+        d->header->setOffset(horizontalScrollBar()->value());
     if (dy) {
         int steps = verticalStepsPerItem();
         int currentScrollbarValue = verticalScrollBar()->value();
@@ -1479,6 +1441,7 @@ void QTreeView::updateGeometries()
     QRect vg = d->viewport->geometry();
     QRect geometryRect(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
     d->header->setGeometry(geometryRect);
+    d->header->setOffset(horizontalScrollBar()->value());
 
     // make sure that the header sections are resized, even if the header is hidden
     if (d->header->isHidden()
@@ -1583,8 +1546,11 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     QAbstractItemDelegate *delegate = itemDelegate();
     for (int column = start; column <= end; ++column) {
         QModelIndex idx = index.sibling(index.row(), column);
-        if (idx.isValid() )
+        if (idx.isValid()) {
+            if (QWidget *editor = d->editors.value(idx, 0))
+                height = qMax(height, editor->sizeHint().height());
             height = qMax(height, delegate->sizeHint(option, idx).height());
+        }
     }
 
     return height;
@@ -1595,8 +1561,6 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 */
 void QTreeView::horizontalScrollbarAction(int action)
 {
-    Q_D(QTreeView);
-    d->updateHorizontalScrollbar();
     QAbstractItemView::horizontalScrollbarAction(action);
 }
 
@@ -1932,55 +1896,9 @@ void QTreeViewPrivate::updateVerticalScrollbar()
 void QTreeViewPrivate::updateHorizontalScrollbar()
 {
     Q_Q(QTreeView);
-
-    int count = header->count();
-    // if the header is out of sync we have to relayout
-    if (model && count != model->columnCount(root)) {
-        header->doItemsLayout();
-        count = header->count();
-    }
-
     int width = viewport->width();
-    // if we have no viewport or no columns, there is nothing to do
-    if (!model || width <= 0 || count <= 0) {
-        q->horizontalScrollBar()->setRange(0, 0);
-        return;
-    }
-
-    // count how many items are visible in the viewport
-    int left = qMax(header->visualIndexAt(0), 0); // ### log n
-    while (header->isSectionHidden(header->logicalIndex(left)))
-        ++left;
-    Q_ASSERT(left >= 0);
-    int visibleCount = 0;
-    int x = 0;
-    for (int section = left; section < count && x < width; ++section) {
-        int logicalIndex = header->logicalIndex(section);
-        if (!header->isSectionHidden(logicalIndex)) {
-            x += header->sectionSize(logicalIndex);
-            ++visibleCount;
-        }
-    }
-    q->horizontalScrollBar()->setPageStep(visibleCount * horizontalStepsPerItem);
-
-    // the scrollbar range is tne total number of items minus the items that are already visible
-    int hidden = header->hiddenSectionCount();
-    int max = (count - visibleCount - hidden) * horizontalStepsPerItem;
-    if (x > width) { // if only part of an item is visible
-        int sectionSize = header->sectionSize(left);
-        Q_ASSERT(sectionSize > 0);
-        max += (((x - width) * horizontalStepsPerItem) / sectionSize) + 1;
-    }
-    q->horizontalScrollBar()->setRange(0, max);
-
-    if (q->horizontalScrollBar()->value() == max) {
-        int newOffset = 0;
-        int oldOffset = header->offset();
-        if (header->length() >= viewport->width())
-            newOffset = header->length() - viewport->width() - 1;
-        header->setOffset(newOffset);
-        scrollContentsBy(oldOffset - newOffset, 0);
-    }
+    q->horizontalScrollBar()->setPageStep(width);
+    q->horizontalScrollBar()->setRange(0, header->length() - width);
 }
 
 int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
