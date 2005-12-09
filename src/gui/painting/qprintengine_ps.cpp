@@ -77,40 +77,40 @@ static const char *const ps_header =
 "exch def}BD/cm{6 array astore concat}BD/m{moveto}BD/l{lineto}BD/c{curveto}BD\n"
 "/h{closepath}BD/W{clip}BD/W*{eoclip}BD/n{newpath}BD/q{gsave 10 dict begin}BD\n"
 "/Q{end grestore}BD/re{4 2 roll m dup 0 exch RL exch 0 RL 0 exch neg RL h}BD\n"
-"/S{gs PCol SC stroke gr n}BD/BT{gsave 10 dict begin/_m matrix CM def}BD/ET\n"
-"{end grestore}BD/Tf{/_fs ED findfont[_fs 0 0 _fs 0 0]makefont F}BD/Tm{6\n"
-"array astore concat}BD/Td{translate}BD/Tj{0 0 m show}BD/BDC{pop pop}BD/EMC{}\n"
-"BD/BSt 0 def/LWi 0 def/WFi false def/BCol[1 1 1]def/PCol[0 0 0]def/BkCol[1 1\n"
-"1]def/BDArr[0.94 0.88 0.63 0.50 0.37 0.12 0.06]def/defM matrix def/level3{\n"
-"/languagelevel where{pop languagelevel 3 ge}{false}ie}BD/QCIgray D0/QCIcolor\n"
-"D0/QCIindex D0/QCI{/colorimage where{pop false 3 colorimage}{exec/QCIcolor\n"
-"ED/QCIgray QCIcolor length 3 idiv string def 0 1 QCIcolor length 3 idiv 1\n"
-"sub{/QCIindex ED/_x QCIindex 3 mul def QCIgray QCIindex QCIcolor _x get 0.30\n"
-"mul QCIcolor _x 1 add get 0.59 mul QCIcolor _x 2 add get 0.11 mul add add\n"
-"cvi put}for QCIgray image}ie}BD/di{gs TR 1 i 1 eq{pop pop false 3 1 roll\n"
-"BCol SC imagemask}{dup false ne{level3}{false}ie{/_ma ED 8 eq{/_dc[0 1]def\n"
-"/DeviceGray}{/_dc[0 1 0 1 0 1]def/DeviceRGB}ie scs/_im ED/_mt ED/_h ED/_w ED\n"
-"<</ImageType 3/DataDict <</ImageType 1/Width _w/Height _h/ImageMatrix _mt\n"
-"/DataSource _im/BitsPerComponent 8/Decode _dc >>/MaskDict <</ImageType 1\n"
-"/Width _w/Height _h/ImageMatrix _mt/DataSource _ma/BitsPerComponent 1/Decode\n"
-"[0 1]>>/InterleaveType 3 >> image}{pop 8 4 1 roll 8 eq{image}{QCI}ie}ie}ie\n"
-"gr}BD/BF{gs BSt 1 eq{BCol SC WFi{fill}{eofill}ie}if BSt 2 ge BSt 8 le and{\n"
-"BDArr BSt 2 sub get/_sc ED BCol{1. exch sub _sc mul 1. exch sub}forall 3\n"
-"array astore SC WFi{fill}{eofill}ie}if BSt 9 ge BSt 14 le and{WFi{W}{W*}ie\n"
-"pathbbox 3 i 3 i TR 4 2 roll 3 2 roll exch sub/_h ED sub/_w ED BCol SC 0.3 w\n"
-"n BSt 9 eq BSt 11 eq or{0 4 _h{dup 0 exch m _w exch l}for}if BSt 10 eq BSt\n"
-"11 eq or{0 4 _w{dup 0 m _h l}for}if BSt 12 eq BSt 14 eq or{_w _h gt{0 6 _w\n"
-"_h add{dup 0 m _h sub _h l}for}{0 6 _w _h add{dup 0 exch m _w sub _w exch l}\n"
-"for}ie}if BSt 13 eq BSt 14 eq or{_w _h gt{0 6 _w _h add{dup _h m _h sub 0 l}\n"
-"for}{0 6 _w _h add{dup _w exch m _w sub 0 exch l}for}ie}if S}if BSt 15 eq{}\n"
-"if BSt 24 eq{}if gr}BD/f{/WFi true def BF n}BD/f*{/WFi false def BF n}BD/B{\n"
-"/WFi true def BF S n}BD/B*{/WFi false def BF S n}BD/BC{/BkCol ED}BD/BR{/BCol\n"
-"ED/BSt ED}BD/NB{0[0 0 0]BR}BD/PE{setlinejoin setlinecap/PCol ED/LWi ED/PSt\n"
-"ED PCol SC}BD/P1{1 0 3 2 roll 0 0 PE}BD/ST{defM SM concat}BD/MF{true exch\n"
-"true exch{exch pop exch pop dup 0 get dup findfont dup/FontName get 3 -1\n"
-"roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get/fslant ED exch\n"
-"/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false eq{}{dup\n"
-"maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
+"/S{gs PCol SC stroke gr n}BD/BT{gsave 10 dict begin/_m matrix CM def BCol\n"
+"SC}BD/ET{end grestore}BD/Tf{/_fs ED findfont[_fs 0 0 _fs 0 0]makefont F}BD\n"
+"/Tm{6 array astore concat}BD/Td{translate}BD/Tj{0 0 m show}BD/BDC{pop pop}BD\n"
+"/EMC{}BD/BSt 0 def/LWi 0 def/WFi false def/BCol[1 1 1]def/PCol[0 0 0]def\n"
+"/BkCol[1 1 1]def/BDArr[0.94 0.88 0.63 0.50 0.37 0.12 0.06]def/defM matrix\n"
+"def/level3{/languagelevel where{pop languagelevel 3 ge}{false}ie}BD/QCIgray\n"
+"D0/QCIcolor D0/QCIindex D0/QCI{/colorimage where{pop false 3 colorimage}{\n"
+"exec/QCIcolor ED/QCIgray QCIcolor length 3 idiv string def 0 1 QCIcolor\n"
+"length 3 idiv 1 sub{/QCIindex ED/_x QCIindex 3 mul def QCIgray QCIindex\n"
+"QCIcolor _x get 0.30 mul QCIcolor _x 1 add get 0.59 mul QCIcolor _x 2 add\n"
+"get 0.11 mul add add cvi put}for QCIgray image}ie}BD/di{gs TR 1 i 1 eq{pop\n"
+"pop false 3 1 roll BCol SC imagemask}{dup false ne{level3}{false}ie{/_ma ED\n"
+"8 eq{/_dc[0 1]def/DeviceGray}{/_dc[0 1 0 1 0 1]def/DeviceRGB}ie scs/_im ED\n"
+"/_mt ED/_h ED/_w ED <</ImageType 3/DataDict <</ImageType 1/Width _w/Height\n"
+"_h/ImageMatrix _mt/DataSource _im/BitsPerComponent 8/Decode _dc >>/MaskDict\n"
+"<</ImageType 1/Width _w/Height _h/ImageMatrix _mt/DataSource _ma\n"
+"/BitsPerComponent 1/Decode[0 1]>>/InterleaveType 3 >> image}{pop 8 4 1 roll\n"
+"8 eq{image}{QCI}ie}ie}ie gr}BD/BF{gs BSt 1 eq{BCol SC WFi{fill}{eofill}ie}if\n"
+"BSt 2 ge BSt 8 le and{BDArr BSt 2 sub get/_sc ED BCol{1. exch sub _sc mul 1.\n"
+"exch sub}forall 3 array astore SC WFi{fill}{eofill}ie}if BSt 9 ge BSt 14 le\n"
+"and{WFi{W}{W*}ie pathbbox 3 i 3 i TR 4 2 roll 3 2 roll exch sub/_h ED sub/_w\n"
+"ED BCol SC 0.3 w n BSt 9 eq BSt 11 eq or{0 4 _h{dup 0 exch m _w exch l}for}\n"
+"if BSt 10 eq BSt 11 eq or{0 4 _w{dup 0 m _h l}for}if BSt 12 eq BSt 14 eq or{\n"
+"_w _h gt{0 6 _w _h add{dup 0 m _h sub _h l}for}{0 6 _w _h add{dup 0 exch m\n"
+"_w sub _w exch l}for}ie}if BSt 13 eq BSt 14 eq or{_w _h gt{0 6 _w _h add{dup\n"
+"_h m _h sub 0 l}for}{0 6 _w _h add{dup _w exch m _w sub 0 exch l}for}ie}if S\n"
+"}if BSt 15 eq{}if BSt 24 eq{}if gr}BD/f{/WFi true def BF n}BD/f*{/WFi false\n"
+"def BF n}BD/B{/WFi true def BF S n}BD/B*{/WFi false def BF S n}BD/BC{/BkCol\n"
+"ED}BD/BR{/BCol ED/BSt ED}BD/NB{0[0 0 0]BR}BD/PE{setlinejoin setlinecap/PCol\n"
+"ED/LWi ED/PSt ED PCol SC}BD/P1{1 0 3 2 roll 0 0 PE}BD/ST{defM SM concat}BD\n"
+"/MF{true exch true exch{exch pop exch pop dup 0 get dup findfont dup\n"
+"/FontName get 3 -1 roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get\n"
+"/fslant ED exch/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false\n"
+"eq{}{dup maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
 "fencoding def currentdict end}ie definefont pop}BD/MFEmb{findfont dup length\n"
 "dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding ED currentdict end\n"
 "definefont pop}BD/QI{/C save def pageinit q n}BD/QP{Q C restore showpage}BD\n"
@@ -430,8 +430,6 @@ public:
 
     QPdf::Stroker stroker;
 
-    QStringList fontpath;
-
     bool        collate;
     int         copies;
     QString printerName;
@@ -590,10 +588,6 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
     embedFonts = settings.value(QLatin1String("embedFonts"), true).toBool();
 #else
     embedFonts = true;
-#endif
-#if defined(Q_WS_X11) && defined(QT_NO_FONTCONFIG)
-    if (!X11->use_xrender)
-        fontpath = ::fontPath();
 #endif
 }
 

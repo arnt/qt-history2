@@ -1620,7 +1620,9 @@ static void checkRanges(QPdf::ByteStream &ts, QByteArray &ranges, int &nranges)
 QVector<int> QPdf::Font::getReverseMap() const
 {
     QVector<int> reverseMap;
-    reverseMap.resize(nGlyphs());
+    reverseMap.resize(0x10000);
+    for (uint i = 0; i < 0x10000; ++i)
+        reverseMap[i] = 0;
     QGlyphLayout glyphs[10];
     for (uint uc = 0; uc < 0x10000; ++uc) {
         QChar ch(uc);
