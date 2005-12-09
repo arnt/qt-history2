@@ -1356,14 +1356,6 @@ bool QWidgetPrivate::hasBackground() const
     }
     return false;
 }
-void QWidgetPrivate::updateIsOpaque()
-{
-#ifdef Q_WS_MAC
-    Q_Q(QWidget);
-    extern void qt_mac_set_widget_is_opaque(QWidget*, bool); //qwidget_mac.cpp
-    qt_mac_set_widget_is_opaque(q, isOpaque());
-#endif
-}
 
 void QWidgetPrivate::updateIsOpaque()
 {
