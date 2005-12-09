@@ -127,7 +127,7 @@ QVariant QPrinterModel::data(const QModelIndex &index, int role) const
 
 QVariant QPrinterModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Horizontal) {
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         const char *name = 0;
         switch(section) {
         case 0:
