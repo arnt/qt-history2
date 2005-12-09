@@ -1655,13 +1655,14 @@ void QWidgetPrivate::show_sys()
             top->normalGeometry = normalRect;
             // internalSetGeometry() clears the maximized flag... make sure we set it back
             data.window_state = data.window_state | Qt::WindowMaximized;
-
+            q->setAttribute(Qt::WA_Mapped);
             return;
         }
 
         if (q->isFullScreen() && !qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
             XMapWindow(X11->display, q->winId());
             qt_x11_wait_for_window_manager(q);
+            q->setAttribute(Qt::WA_Mapped);
             return;
         }
     }
