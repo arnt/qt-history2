@@ -1349,7 +1349,7 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
             q->deleteTexture(id);
         }
     }
-    return bindTexture(image, target, format, key, clean);
+    return bindTexture(image, target, format, key, qt_image_id(image), clean);
 }
 
 /*! \internal */
@@ -1367,7 +1367,7 @@ GLuint QGLContextPrivate::bindTexture(const QPixmap &pixmap, GLenum target, GLin
             q->deleteTexture(id);
         }
     }
-    return bindTexture(pixmap.toImage(), target, format, key, clean);
+    return bindTexture(pixmap.toImage(), target, format, key, qt_pixmap_id(pixmap), clean);
 }
 
 /*!
