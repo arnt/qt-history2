@@ -200,17 +200,22 @@ static WindowGroupRef qt_mac_get_stays_on_top_group()
 
 void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
 {
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_2)
-    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2) {
-        if(o)
-            HIViewChangeFeatures((HIViewRef)w->winId(), kHIViewFeatureIsOpaque, 0);
-        else
-            HIViewChangeFeatures((HIViewRef)w->winId(), 0, kHIViewFeatureIsOpaque);
-    } else
-#endif
-    {
-        HIViewRegionChanged((HIViewRef)w->winId(), kControlOpaqueMetaPart);
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+        HIViewFeatures bits;
+        HIViewRef hiview = HIViewRef(w->winId());
+        HIViewGetFeatures(hiview, &bits);
+        if ((bits & kHIViewFeatureIsOpaque) == o)
+            return;
+        if(o) {
+            HIViewChangeFeatures(hiview, kHIViewFeatureIsOpaque, 0);
+        } else {
+            HIViewChangeFeatures(hiview, 0, kHIViewFeatureIsOpaque);
+        }
     }
+#endif
+    if (w->isVisible())
+        HIViewReshapeStructure((HIViewRef)w->winId());
 }
 
 void qt_mac_update_ignore_mouseevents(QWidget *w)
