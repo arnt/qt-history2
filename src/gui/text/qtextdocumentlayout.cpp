@@ -74,7 +74,7 @@ public:
     bool sizeDirty;
     bool layoutDirty;
 
-    QList<QTextFrame *> floats;
+    QList<QPointer<QTextFrame> > floats;
 };
 
 struct QLayoutStruct {
@@ -2134,7 +2134,7 @@ static void markFrames(QTextFrame *current, int from, int oldLength, int length)
     QTextFrameData *fd = data(current);
     for (int i = 0; i < fd->floats.size(); ++i) {
         QTextFrame *f = fd->floats[i];
-        if (!f->parentFrame()) {
+        if (!f) {
             // float got removed in editing operation
             fd->floats.removeAt(i);
             --i;
