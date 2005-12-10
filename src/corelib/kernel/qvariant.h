@@ -93,6 +93,7 @@ class Q_CORE_EXPORT QVariant
         PointF = 26,
 	RegExp = 27,
 
+        // value 62 is internally reserved
 #ifdef QT3_SUPPORT
         ColorGroup = 63,
 #endif
@@ -163,6 +164,7 @@ class Q_CORE_EXPORT QVariant
     QVariant(const QUrl &url);
     QVariant(const QLocale &locale);
     QVariant(const QRegExp &regExp);
+    QVariant(Qt::GlobalColor color);
 
     QVariant& operator=(const QVariant &other);
 

@@ -102,6 +102,14 @@ static void construct(QVariant::Private *x, const void *copy)
         v_construct<QCursor>(x, copy);
         break;
 #endif
+    case 62: {
+        // small 'trick' to let a QVariant(Qt::blue) create a variant
+        // of type QColor
+        x->type = QVariant::Color;
+        QColor color(*reinterpret_cast<const Qt::GlobalColor *>(copy));
+        v_construct<QColor>(x, &color);
+        break;
+    }
     default:
         qcoreVariantHandler()->construct(x, copy);
         return;
