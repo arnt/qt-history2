@@ -160,7 +160,9 @@ bool proFileTagMap( const QString& text, QMap<QString, QString> *ret )
                         after = qgetenv(invocation.toLocal8Bit().constData());
                         if (after.isEmpty()) {
                             fprintf( stderr, "error: lupdate encountered project file functionality that is currently not supported.\n"
-                                "You might want to consider using directories as input instead of a project file.\n");
+                                "You might want to consider using directories as input instead of a project file.\n"
+                                "Try the following syntax:\n"
+                                "   lupdate mypath -ts myproject.ts'\n");
                             return false;
                         }
                     }

@@ -274,7 +274,7 @@ int main( int argc, char **argv )
                         extensions.replace(',', QLatin1String(",*."));
                         extensionsNameFilters = extensions.split(',');
                     }
-                    QDir::Filters filters = QDir::Files;
+                    QDir::Filters filters = QDir::Files | QDir::Filter::NoSymLinks;
                     QFileInfoList fileinfolist;
                     recursiveFileInfoList(dir, extensionsNameFilters, filters, true, &fileinfolist);
                     QFileInfoList::iterator ii;
