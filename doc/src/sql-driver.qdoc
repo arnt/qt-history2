@@ -189,7 +189,7 @@
     \section3 BLOB/LOB Support
 
     Binary Large Objects (BLOBs) can be read and written, but be aware
-    that this process may require a lot of memory. You should use a forward 
+    that this process may require a lot of memory. You should use a forward
     only query to select LOB fields (see QSqlQuery::setForwardOnly()).
 
     Inserting BLOBs should be done using either a prepared query where the
@@ -506,7 +506,7 @@
     multiple transactions. If you try to read/write on a resource from different
     transactions, your application might freeze until one transaction commits
     or rolls back. The Qt SQLite driver will retry to write to a locked resource
-    until it runs into a timeout (see \c{QSQLITE_BUSY_TIMEOUT} 
+    until it runs into a timeout (see \c{QSQLITE_BUSY_TIMEOUT}
     at QSqlDatabase::setConnectOptions()).
 
     SQLite has no support for types, every value is treated as character data.
@@ -548,7 +548,7 @@
 
     Note that InterBase requires you to specify the full path to the
     database file, no matter whether it is stored locally or on another
-    server. 
+    server.
 
     \code
         db.setHostName("MyServer");
@@ -609,7 +609,7 @@
         plugins with a static build.
     \i Ensure that the plugin is in the correct directory. You can use
         QApplication::libraryPaths() to determine where Qt looks for plugins.
-    \i Ensure that the client libraries of the DBMS are available on the 
+    \i Ensure that the client libraries of the DBMS are available on the
         system. On Unix, run the command \c{ldd} and pass the name of the
         plugin as parameter, for example \c{ldd libqsqlmysql.so}. You will
         get a warning if any of the client libraries couldn't be found.
@@ -661,11 +661,11 @@
 
     QSqlDriver and QSqlResult are closely connected. When implementing a
     Qt SQL driver, both of these classes must to be subclassed and the
-    abstract virtual methods in each class must be implemented. 
+    abstract virtual methods in each class must be implemented.
 
     To implement a Qt SQL driver as a plugin (so that it is
     recognized and loaded by the Qt library at runtime), the driver
-    must use the Q_EXPORT_PLUGIN() macro. Read \l{How to Create Qt
+    must use the Q_EXPORT_PLUGIN2() macro. Read \l{How to Create Qt
     Plugins} for more information on this. You can also check out how
     this is done in the SQL plugins that are provided with Qt in
     \c{QTDIR/src/plugins/sqldrivers} and \c{QTDIR/src/sql/drivers}.

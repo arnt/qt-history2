@@ -99,7 +99,7 @@
             }
         };
 
-        Q_EXPORT_PLUGIN(MyStylePlugin)
+        Q_EXPORT_PLUGIN2(MyStylePlugin)
     \endcode
 
     (Note that QStylePlugin is case-insensitive, and the lower-case
@@ -175,7 +175,7 @@
        interfaces that the plugin wants to provide.
     \o Use the Q_INTERFACES() macro to tell Qt's \l{meta-object
        system} about the interfaces.
-    \o Export the plugin using the Q_EXPORT_PLUGIN() macro.
+    \o Export the plugin using the Q_EXPORT_PLUGIN2() macro.
     \o Build the plugin using an suitable \c .pro file.
     \endlist
 

@@ -151,6 +151,6 @@
             return 0;
         }
 
-        Q_EXPORT_PLUGIN(MyFactory)
+        Q_EXPORT_PLUGIN2(MyFactory)
     \endcode
 */
