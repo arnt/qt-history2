@@ -174,8 +174,8 @@ void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &option));
     painter->setPen(QPen(color));
     if (index.column() == 1 || !property->isSeparator()) {
-        painter->drawLine(option.rect.right(), option.rect.y(),
-                option.rect.right(), option.rect.bottom());
+        int right = (option.direction == Qt::LeftToRight) ? option.rect.right() : option.rect.left();
+        painter->drawLine(right, option.rect.y(), right, option.rect.bottom());
     }
     painter->drawLine(option.rect.x(), option.rect.bottom(),
             option.rect.right(), option.rect.bottom());

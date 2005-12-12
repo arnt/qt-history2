@@ -44,8 +44,8 @@ public:
         painter->drawLine(option.rect.x(), option.rect.bottom(),
                             option.rect.right(), option.rect.bottom());
 
-        painter->drawLine(option.rect.right(), option.rect.y(),
-                            option.rect.right(), option.rect.bottom());
+        int right = (option.direction == Qt::LeftToRight) ? option.rect.right() : option.rect.left();
+        painter->drawLine(right, option.rect.y(), right, option.rect.bottom());
 
         painter->setPen(savedPen);
     }
