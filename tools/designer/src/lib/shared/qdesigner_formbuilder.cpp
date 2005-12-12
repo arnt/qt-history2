@@ -133,6 +133,8 @@ DomWidget *QDesignerFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
 
 QWidget *QDesignerFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
+        parentWidget = promoted->child();
     QWidget *widget = QFormBuilder::create(ui_widget, parentWidget);
 
     if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(m_core->extensionManager(), widget)) {
