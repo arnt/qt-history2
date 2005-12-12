@@ -58,25 +58,37 @@ QTextCursorPrivate::~QTextCursorPrivate()
 
 QTextCursorPrivate::AdjustResult QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRemoved, QTextUndoCommand::Operation op)
 {
+    QTextCursorPrivate::AdjustResult result = QTextCursorPrivate::CursorMoved;
     // not(!) <= , so that inserting text adjusts the cursor correctly
     if (position < positionOfChange ||
-        (position == positionOfChange && op == QTextUndoCommand::KeepCursor))
-        return CursorUnchanged;
-
-    if (charsAddedOrRemoved < 0 && position < positionOfChange - charsAddedOrRemoved)
-        position = positionOfChange;
-    else
-        position += charsAddedOrRemoved;
-    if (charsAddedOrRemoved < 0 && anchor < positionOfChange - charsAddedOrRemoved) {
-        anchor = positionOfChange;
-        adjusted_anchor = positionOfChange;
+        (position == positionOfChange && op == QTextUndoCommand::KeepCursor)) {
+        result = CursorUnchanged;
     } else {
-        anchor += charsAddedOrRemoved;
-        adjusted_anchor += charsAddedOrRemoved;
+        if (charsAddedOrRemoved < 0 && position < positionOfChange - charsAddedOrRemoved)
+            position = positionOfChange;
+        else
+            position += charsAddedOrRemoved;
+        
+        currentCharFormat = -1;
     }
-    currentCharFormat = -1;
-
-    return CursorMoved;
+    
+    if (anchor >= positionOfChange
+        && (anchor != positionOfChange || op != QTextUndoCommand::KeepCursor)) {
+        if (charsAddedOrRemoved < 0 && anchor < positionOfChange - charsAddedOrRemoved)
+            anchor = positionOfChange;
+        else
+            anchor += charsAddedOrRemoved;
+    }
+    
+    if (adjusted_anchor >= positionOfChange
+        && (adjusted_anchor != positionOfChange || op != QTextUndoCommand::KeepCursor)) {
+        if (charsAddedOrRemoved < 0 && adjusted_anchor < positionOfChange - charsAddedOrRemoved)
+            adjusted_anchor = positionOfChange;
+        else
+            adjusted_anchor += charsAddedOrRemoved;
+    }
+    
+    return result;
 }
 
 void QTextCursorPrivate::setX()
