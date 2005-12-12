@@ -295,9 +295,15 @@ General improvements
         Added State_ReadOnly, which is enabled for read-only widgets.
 
         Renamed QStyleOption::init() to initFrom().
-        - QGroupBox is now completely stylable (QStyleOptionGroupBox)
+        - QGroupBox is now completely stylable (QStyleOptionGroupBox).
+        - QToolBar is now stylable according to its position in the
+          toolbar dock area (QStyleOptionToolBar).
         - Indeterminate (busy) progress bars are now animated properly
           in all styles.
+        - By popular request, the default toolbar icon size
+          (PM_ToolBarIconSize) in Windows and Plastique styles has
+          been changed to 24 x 24 (instead of 16 x 16 in Windows and
+          32 x 32 in Plastique).
 
         Added PM_DockWidgetTitleMargin as pixel metric.
 
