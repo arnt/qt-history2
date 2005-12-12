@@ -26,11 +26,11 @@
 
     Writing a SQL plugin is achieved by subclassing this base class,
     reimplementing the pure virtual functions keys() and create(), and
-    exporting the class with the Q_EXPORT_PLUGIN() macro. See the SQL
+    exporting the class with the Q_EXPORT_PLUGIN2() macro. See the SQL
     plugins that come with Qt for example implementations (in the
     \c{plugins/src/sqldrivers} subdirectory of the source
     distribution).
-    
+
     \sa {How to Create Qt Plugins}
 */
 
@@ -57,7 +57,7 @@
 
 /*!
     Constructs a SQL driver plugin and sets the parent to \a parent.
-    This is invoked automatically by the Q_EXPORT_PLUGIN() macro.
+    This is invoked automatically by the Q_EXPORT_PLUGIN2() macro.
 */
 
 QSqlDriverPlugin::QSqlDriverPlugin(QObject *parent)

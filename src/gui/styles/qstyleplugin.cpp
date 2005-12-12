@@ -26,7 +26,7 @@
 
     Writing a style plugin is achieved by subclassing this base class,
     reimplementing the pure virtual functions keys() and create(), and
-    exporting the class with the Q_EXPORT_PLUGIN() macro.
+    exporting the class with the Q_EXPORT_PLUGIN2() macro.
 
     \sa {How to Create Qt Plugins}
 */
@@ -60,7 +60,7 @@
 
 /*!
     Constructs a style plugin with parent \a parent. This is invoked automatically by the
-    Q_EXPORT_PLUGIN() macro.
+    Q_EXPORT_PLUGIN2() macro.
 */
 QStylePlugin::QStylePlugin(QObject *parent)
     : QObject(parent)

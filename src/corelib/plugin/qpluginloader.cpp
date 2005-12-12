@@ -93,7 +93,7 @@
         Q_DECLARE_INTERFACE(Foo::MyInterface, "org.examples.MyInterface")
     \endcode
 
-    \sa Q_INTERFACES(), Q_EXPORT_PLUGIN(), {How to Create Qt Plugins}
+    \sa Q_INTERFACES(), Q_EXPORT_PLUGIN2(), {How to Create Qt Plugins}
 */
 
 /*!
@@ -101,7 +101,7 @@
     \relates QPluginLoader
     \obsolete
 
-    Use Q_EXPORT_PLUGIN2 instead. This macro is equivalent to
+    Use Q_EXPORT_PLUGIN2() instead. This macro is equivalent to
     Q_EXPORT_PLUGIN2(\a ClassName, \a ClassName).
 */
 
