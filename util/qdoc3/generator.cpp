@@ -732,7 +732,6 @@ void Generator::generateOverload( const Node *node, CodeMarker *marker )
     Text text;
     text << Atom::ParaLeft
 	 << "This is an overloaded member function, provided for convenience."
-	 << " It behaves essentially like the above function."
 	 << Atom::ParaRight;
     generateText( text, node, marker );
 }
