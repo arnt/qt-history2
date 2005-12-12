@@ -160,7 +160,7 @@ int main( int argc, char **argv )
                 fprintf( stderr, "The -extensions option should be followed by an extension list.");
                 return 1;
             }
-            extensions = QString(QLatin1String(argv[i]));            
+            extensions = QString(QLatin1String(argv[i]));
             continue;
         }
 
@@ -274,7 +274,7 @@ int main( int argc, char **argv )
                         extensions.replace(',', QLatin1String(",*."));
                         extensionsNameFilters = extensions.split(',');
                     }
-                    QDir::Filters filters = QDir::Files | QDir::Filter::NoSymLinks;
+                    QDir::Filters filters = QDir::Files | QDir::NoSymLinks;
                     QFileInfoList fileinfolist;
                     recursiveFileInfoList(dir, extensionsNameFilters, filters, true, &fileinfolist);
                     QFileInfoList::iterator ii;
