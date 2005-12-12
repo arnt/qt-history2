@@ -1625,6 +1625,9 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
 
     QMenu *popup = new QMenu(this);
 
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(w))
+        w = promoted->child();
+
     if (qobject_cast<QDesignerTabWidget*>(w)) {
         QDesignerTabWidget *tabWidget = static_cast<QDesignerTabWidget*>(w);
         if (tabWidget->count()) {
