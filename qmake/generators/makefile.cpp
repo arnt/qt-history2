@@ -2353,8 +2353,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             if(!directory.isEmpty() && !directory.endsWith(Option::dir_sep))
                directory += Option::dir_sep;
             QString out, in = fileFixify(directory + subtarget->profile, directory);
-            if(subtarget->makefile != "$(MAKEFILE)")
-                out = " -o " + subtarget->makefile;
+            out = " -o " + subtarget->makefile;
             if(in.startsWith(directory))
                 in = in.mid(directory.length());
             t << mkfile << ": " << "\n\t";
@@ -2380,10 +2379,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             }
         }
 
-        //don't need the makefile arg if it isn't changed
-        QString makefilein;
-        if(subtarget->makefile != "$(MAKEFILE)")
-            makefilein = " -f " + subtarget->makefile;
+        QString makefilein = " -f " + subtarget->makefile;
 
         { //actually compile
             QString cdin, cdout;
