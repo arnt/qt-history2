@@ -79,6 +79,24 @@ static int ucstrcmp(const QString &as, const QString &bs)
     return a->unicode() - b->unicode();
 }
 
+static int ucstricmp(const QString &as, const QString &bs)
+{
+    const QChar *a = as.unicode();
+    const QChar *b = bs.unicode();
+    if (a == b)
+        return 0;
+    if (a == 0)
+        return 1;
+    if (b == 0)
+        return -1;
+    int l=qMin(as.length(),bs.length());
+    while (l-- && ::lower(*a) == ::lower(*b))
+        a++,b++;
+    if (l==-1)
+        return (as.length()-bs.length());
+    return ::lower(*a).unicode() - ::lower(*b).unicode();
+}
+
 static int ucstrncmp(const QChar *a, const QChar *b, int l)
 {
     while (l-- && *a == *b)
@@ -3872,24 +3890,47 @@ QString& QString::fill(QChar ch, int size)
 */
 
 /*!
-    \fn int QString::compare(const QString & s1, const QString & s2)
+    \fn int QString::compare(const QString & s1, const QString & s2, Qt::CaseSensitivity cs)
+    \since 4.2
 
-    Lexically compares \a s1 with \a s2 and returns an integer less
-    than, equal to, or greater than zero if \a s1 is less than, equal
-    to, or greater than \a s2.
+    Compares \a s1 with \a s2 and returns an integer less than, equal to, or greater 
+    than zero if \a s1 is less than, equal to, or greater than \a s2.
 
-    The comparison is based exclusively on the numeric Unicode values
-    of the characters and is very fast, but is not what a human would
-    expect. Consider sorting user-visible strings with
-    localeAwareCompare().
+    If \a cs is Qt::CaseSensitive, the comparison is case sensitive; 
+    otherwise the comparison is case insensitive.
+
+    Case sensitive comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would expect. 
+    Consider sorting user-visible strings with localeAwareCompare().
 
     \code
-        int x = QString::compare("auto", "auto");   // x == 0
-        int y = QString::compare("auto", "car");    // y < 0
-        int z = QString::compare("car", "auto");    // z > 0
+        int x = QString::compare("aUtO", "AuTo", Qt::CaseInsensitive);  // x == 0
+        int y = QString::compare("auto", "Car", Qt::CaseSensitive);     // y > 0
+        int z = QString::compare("auto", "Car", Qt::CaseInsensitive);   // z < 0
     \endcode
 
     \sa localeAwareCompare(), operator==(), operator<(), operator>()
+*/
+
+/*!
+    \fn int QString::compare(const QString & s1, const QString & s2)
+
+    \overload
+
+    Performs a case sensitive compare of \a s1 and \a s2
+*/
+
+/*!
+    \fn int compare(const QString& s1, const QLatin1String &s2,  
+                    Qt::CaseSensitivity cs = Qt::caseeSensitive)
+    \since 4.2
+*/
+
+/*!
+    /fn int compare(const QLatin1String& s1, const QString &s2, 
+                    Qt::CaseSensitivity cs = Qt::CaseSensitive)
+
+    \since 4.2
 */
 
 /*!
@@ -3902,6 +3943,41 @@ int QString::compare(const QString &other) const
     return ucstrcmp(*this, other);
 }
 
+/*!
+    \overload
+    \since 4.2
+    Same as compare(*this, \a other, \a cs).
+*/
+int QString::compare(const QString &other, Qt::CaseSensitivity cs) const
+{
+    return (cs == Qt::CaseSensitive) ? ucstrcmp(*this, other) : ucstricmp(*this, other);
+}
+
+/*!
+    \overload
+    \since 4.2
+*/
+int QString::compare(const QLatin1String &other, Qt::CaseSensitivity cs) const
+{
+    const ushort *uc = d->data;
+    const ushort *e = uc + d->size;
+    const uchar *c = (uchar *)other.latin1();
+
+    if (!c)
+        return d->size;
+   
+    if (cs == Qt::CaseSensitive) {
+        while (uc != e && *c && *uc == *c)
+            uc++, c++;
+
+        return *uc - *c;
+    } else {
+        while (uc != e && *c && QUnicodeTables::lower(*uc) == QUnicodeTables::lower(*c))
+            uc++, c++;
+
+        return QUnicodeTables::lower(*uc) - QUnicodeTables::lower(*c);
+    }
+}
 
 /*!
     \fn int QString::localeAwareCompare(const QString & s1, const QString & s2)

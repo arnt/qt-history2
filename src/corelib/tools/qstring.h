@@ -238,9 +238,25 @@ public:
     QString &setUnicode(const QChar *unicode, int size);
     inline QString &setUtf16(const ushort *utf16, int size);
 
+    // ### Qt 5: merge these two functions
     int compare(const QString &s) const;
+    int compare(const QString &s, Qt::CaseSensitivity cs) const;
+    
+    int compare(const QLatin1String &other, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    
+    // ### Qt 5: merge these two functions
     static inline int compare(const QString &s1, const QString &s2)
     { return s1.compare(s2); }
+    static inline int compare(const QString &s1, const QString &s2, Qt::CaseSensitivity cs)
+    { return s1.compare(s2, cs); }
+    
+    static inline int compare(const QString& s1, const QLatin1String &s2, 
+                              Qt::CaseSensitivity cs = Qt::CaseSensitive)
+    { return s1.compare(s2, cs); }
+    static inline int compare(const QLatin1String& s1, const QString &s2, 
+                              Qt::CaseSensitivity cs = Qt::CaseSensitive)
+    { return -s2.compare(s1, cs); }
+
     int localeAwareCompare(const QString& s) const;
     static int localeAwareCompare(const QString& s1, const QString& s2)
     { return s1.localeAwareCompare(s2); }
