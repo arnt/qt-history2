@@ -1540,9 +1540,9 @@ bool QDir::remove(const QString &fileName)
     true if successful; otherwise returns false.
 
     On most file systems, rename() fails only if \a oldName does not
-    exist or if \a newName and \a oldName are not on the same
-    partition. On Windows, rename() will fail if \a newName already
-    exists. However, there are also other reasons why rename() can
+    exist, if \a newName and \a oldName are not on the same
+    partition or if a file with the new name already exists.
+    However, there are also other reasons why rename() can
     fail. For example, on at least one file system rename() fails if
     \a newName points to an open file.
 */

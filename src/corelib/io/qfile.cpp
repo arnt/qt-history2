@@ -575,6 +575,11 @@ QFile::remove(const QString &fileName)
     Renames the file currently specified by fileName() to \a newName.
     Returns true if successful; otherwise returns false.
 
+    On most file systems, rename() fails only if \a oldName does not
+    exist, if \a newName and the file are not on the same
+    partition or if a file with the new name already exists.
+    However, there are also other reasons why rename() can fail.
+
     The file is closed before it is renamed.
 
     \sa setFileName()
@@ -588,6 +593,8 @@ QFile::rename(const QString &newName)
         qWarning("QFile::rename: Empty or null file name");
         return false;
     }
+    if (QFile(newName).exists())
+        return false;
     close();
     if(error() == QFile::NoError) {
         if(fileEngine()->rename(newName)) {
@@ -626,6 +633,13 @@ QFile::rename(const QString &newName)
 
     Renames the file \a oldName to \a newName. Returns true if
     successful; otherwise returns false.
+
+    On most file systems, rename() fails only if \a oldName does not
+    exist, if \a newName and \a oldName are not on the same
+    partition or if a file with the new name already exists.
+    However, there are also other reasons why rename() can
+    fail. For example, on at least one file system rename() fails if
+    \a newName points to an open file.
 
     \sa rename()
 */
