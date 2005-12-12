@@ -1104,10 +1104,10 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
     Q_D(QX11PaintEngine);
     QPaintEngine::DirtyFlags flags = state.state();
     if (flags & DirtyTransform) updateMatrix(state.matrix());
-    if (flags & DirtyPen) updatePen(state.pen());
-    if (flags & (DirtyBrush | DirtyBrushOrigin)) updateBrush(state.brush(), state.brushOrigin());
     if (flags & (DirtyBackground | DirtyBackgroundMode))
         updateBackground(state.backgroundMode(), state.backgroundBrush());
+    if (flags & DirtyPen) updatePen(state.pen());
+    if (flags & (DirtyBrush | DirtyBrushOrigin)) updateBrush(state.brush(), state.brushOrigin());
     if (flags & DirtyFont) updateFont(state.font());
 
     if (state.state() & DirtyClipEnabled) {

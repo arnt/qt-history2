@@ -875,6 +875,14 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         updateMatrix(state.matrix());
     }
 
+    if (flags & DirtyBackgroundMode) {
+        d->rasterBuffer->opaqueBackground = (state.backgroundMode() == Qt::OpaqueMode);
+    }
+
+    if (flags & DirtyBackground) {
+        d->rasterBuffer->bgBrush = state.backgroundBrush();
+    }
+
     if (flags & DirtyPen) {
         update_fast_pen = true;
         d->pen = state.pen();
@@ -910,14 +918,6 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyBrushOrigin) {
         d->brushOffset = state.brushOrigin();
         d->brushData.setupMatrix(d->brushMatrix(), d->txop, d->bilinear);
-    }
-
-    if (flags & DirtyBackgroundMode) {
-        d->rasterBuffer->opaqueBackground = (state.backgroundMode() == Qt::OpaqueMode);
-    }
-
-    if (flags & DirtyBackground) {
-        d->rasterBuffer->bgBrush = state.backgroundBrush();
     }
 
     if (flags & DirtyClipEnabled) {
