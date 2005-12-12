@@ -2044,7 +2044,7 @@ if [ "$OPT_HELP" = "yes" ]; then
         LFSY="*"
         LFSN=" "
     fi
-    if [ "$CFG_STL" = "auto" ]; then
+    if [ "$CFG_STL" = "auto" ] || [ "$CFG_STL" = "yes" ]; then
         SHY="*"
         SHN=" "
     else
@@ -2055,7 +2055,7 @@ if [ "$OPT_HELP" = "yes" ]; then
         I6Y="*"
         I6N=" "
     fi
-    if [ "$CFG_PRECOMPILE" = "auto" ]; then
+    if [ "$CFG_PRECOMPILE" = "auto" ] || [ "$CFG_PRECOMPILE" = "no" ]; then
         PHY=" "
         PHN="*"
     else
