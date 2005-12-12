@@ -1326,6 +1326,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             pixmapPainter.setBackgroundMode(Qt::OpaqueMode);
             pixmapPainter.drawRect(0, 0, tiledPixmap.width(), tiledPixmap.height());
             pixmapPainter.end();
+            // ### workaround for borked XRENDER
+            tiledPixmap = QPixmap::fromImage(tiledPixmap.toImage());
 
             p->save();
             QRect r = opt->rect;
