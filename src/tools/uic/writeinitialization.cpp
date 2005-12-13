@@ -1139,10 +1139,8 @@ void WriteInitialization::initializeTreeWidgetItems(const QString &className, co
                            << pixCall(p) << ");\n";
         }
 
-        if (item->elementItem().size()) {
-            refreshOut << option.indent << varName << "->setItemExpanded(" << itemName << ", " << "true);\n";
+        if (item->elementItem().size())
             initializeTreeWidgetItems(className, itemName, item->elementItem());
-        }
     }
 }
 
