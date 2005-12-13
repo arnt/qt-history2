@@ -922,7 +922,14 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         QByteArray pname = p->attributeName().toUtf8();
         int index = meta->indexOfProperty(pname);
         if (index == -1) {
-            qWarning() << "property" << pname << "is not supported";
+            // ### special-casing for Line (QFrame) -- fix for 4.2
+            if (!qstrcmp(meta->className(), "QFrame")
+                && (pname == QLatin1String("orientation"))) {
+                v = (p->elementEnum() == QLatin1String("Qt::Horizontal"))
+                    ? QFrame::HLine : QFrame::VLine;
+            } else {
+                qWarning() << "property" << pname << "is not supported";
+            }
             break;
         }
 
