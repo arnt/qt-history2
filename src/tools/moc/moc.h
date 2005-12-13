@@ -43,6 +43,7 @@ struct ArgumentDef
     ArgumentDef() : isDefault(false) {}
     Type type;
     QByteArray rightType, normalizedType, name;
+    QByteArray typeNameForCast; // type name to be used in cast from void * in metacall
     bool isDefault;
 };
 
@@ -183,5 +184,12 @@ public:
 
 
 QByteArray normalizeType(const char *s, bool fixScope = false);
+
+inline QByteArray noRef(const QByteArray &type)
+{
+    if (type.endsWith('&'))
+        return type.left(type.length()-1);
+    return type;
+}
 
 #endif // MOC_H

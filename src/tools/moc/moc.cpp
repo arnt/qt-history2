@@ -306,13 +306,15 @@ void Moc::parseFunctionArguments(FunctionDef *def)
             break;
         if (test(IDENTIFIER))
             arg.name = lexem();
-        if (test(LBRACK))
+        while (test(LBRACK)) {
             arg.rightType += lexemUntil(RBRACK);
+        }
         if (test(CONST) || test(VOLATILE)) {
             arg.rightType += ' ';
             arg.rightType += lexem();
         }
         arg.normalizedType = normalizeType(arg.type.name + ' ' + arg.rightType);
+        arg.typeNameForCast = normalizeType(noRef(arg.type.name) + "(*)" + arg.rightType);
         if (test(EQ))
             arg.isDefault = true;
         def->arguments += arg;
