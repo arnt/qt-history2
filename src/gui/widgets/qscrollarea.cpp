@@ -438,7 +438,6 @@ void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
 }
 
 
-#if QT_VERSION >= 0x040200
 /*
     \property QScrollArea::alignment
     \brief the alignment of the scroll area's widget
@@ -456,6 +455,5 @@ Qt::Alignment QScrollArea::alignment() const
     Q_D(const QScrollArea);
     return d->alignment;
 }
-#endif
 
 #endif // QT_NO_SCROLLAREA
