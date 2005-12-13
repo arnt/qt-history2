@@ -35,14 +35,13 @@ class QScrollAreaPrivate: public QAbstractScrollAreaPrivate
     Q_DECLARE_PUBLIC(QScrollArea)
 
 public:
-    QScrollAreaPrivate(): resizable(false)
-    {
-    }
-
+    QScrollAreaPrivate(): resizable(false), alignment(0){}
     void updateScrollBars();
+    void updateWidgetPosition();
     QPointer<QWidget> widget;
     mutable QSize widgetSize;
     bool resizable;
+    Qt::Alignment alignment;
 };
 
 #endif

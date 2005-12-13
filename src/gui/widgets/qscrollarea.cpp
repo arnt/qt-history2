@@ -18,8 +18,10 @@
 
 #include "qscrollbar.h"
 #include "qlayout.h"
+#include "qstyle.h"
 #include "qapplication.h"
 #include "private/qlayoutengine_p.h"
+
 
 /*!
     \class QScrollArea
@@ -74,9 +76,10 @@
     scroll bars' values whenever the scroll area's contents change,
     using the QScrollBar::setValue() function.
 
-    You can retrieve the child widget usning the widget()
-    function. The view can be made to be resizable with the
-    setWidgetResizable() function.
+    You can retrieve the child widget using the widget() function. The
+    view can be made to be resizable with the setWidgetResizable()
+    function. The alignment of the widget can be specified with
+    setAlignment().
 
     When using a scroll area to display the contents of a custom
     widget, it is important to ensure that the
@@ -131,6 +134,16 @@ QScrollArea::~QScrollArea()
 {
 }
 
+void QScrollAreaPrivate::updateWidgetPosition()
+{
+    Q_Q(QScrollArea);
+    Qt::LayoutDirection dir = q->layoutDirection();
+    QRect scrolled = QStyle::visualRect(dir, viewport->rect(), QRect(QPoint(-hbar->value(), -vbar->value()), widget->size()));
+    QRect aligned = QStyle::alignedRect(dir, alignment, widget->size(), viewport->rect());
+    widget->move(widget->width() < viewport->width() ? aligned.x() : scrolled.x(),
+                 widget->height() < viewport->height() ? aligned.y() : scrolled.y());
+}
+
 void QScrollAreaPrivate::updateScrollBars()
 {
     Q_Q(QScrollArea);
@@ -153,6 +166,8 @@ void QScrollAreaPrivate::updateScrollBars()
     hbar->setPageStep(p.width());
     vbar->setRange(0, v.height() - p.height());
     vbar->setPageStep(p.height());
+    updateWidgetPosition();
+
 }
 
 /*!
@@ -190,8 +205,6 @@ void QScrollArea::setWidget(QWidget *w)
     d->vbar->setValue(0);
     if (w->parentWidget() != d->viewport)
         w->setParent(d->viewport);
-    else
-        w->move(0,0);
      if (!w->testAttribute(Qt::WA_Resized))
          w->resize(w->sizeHint());
     d->widget = w;
@@ -282,8 +295,7 @@ void QScrollArea::resizeEvent(QResizeEvent *)
 {
     Q_D(QScrollArea);
     d->updateScrollBars();
-    if (d->widget)
-        d->widget->move(-d->hbar->value(), -d->vbar->value());
+
 }
 
 
@@ -294,7 +306,7 @@ void QScrollArea::scrollContentsBy(int, int)
     Q_D(QScrollArea);
     if (!d->widget)
         return;
-    d->widget->move(-d->hbar->value(), -d->vbar->value());
+    d->updateWidgetPosition();
 }
 
 
@@ -410,10 +422,12 @@ void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
 {
     Q_D(QScrollArea);
 
-    if (x < d->hbar->value() - xmargin){
-        d->hbar->setValue(qMax(0, x - xmargin));
-    } else if (x > d->hbar->value() + d->viewport->width() - xmargin) {
-        d->hbar->setValue(qMin(x - d->viewport->width() + xmargin, d->hbar->maximum()));
+    int logicalX = QStyle::visualPos(layoutDirection(), d->viewport->rect(), QPoint(x, y)).x();
+
+    if (logicalX < d->hbar->value() - xmargin){
+        d->hbar->setValue(qMax(0, logicalX - xmargin));
+    } else if (logicalX > d->hbar->value() + d->viewport->width() - xmargin) {
+        d->hbar->setValue(qMin(logicalX - d->viewport->width() + xmargin, d->hbar->maximum()));
     }
 
     if (y < d->vbar->value() - ymargin){
@@ -422,5 +436,26 @@ void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
         d->vbar->setValue(qMin(y - d->viewport->height() + ymargin, d->vbar->maximum()));
     }
 }
+
+
+#if QT_VERSION >= 0x040200
+/*
+    \property QScrollArea::alignment
+    \brief the alignment of the scroll area's widget
+*/
+
+void QScrollArea::setAlignment(Qt::Alignment alignment)
+{
+    Q_D(QScrollArea);
+    d->alignment = alignment;
+    d->updateWidgetPosition();
+}
+
+Qt::Alignment QScrollArea::alignment() const
+{
+    Q_D(const QScrollArea);
+    return d->alignment;
+}
+#endif
 
 #endif // QT_NO_SCROLLAREA

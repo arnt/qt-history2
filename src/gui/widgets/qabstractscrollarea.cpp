@@ -710,9 +710,22 @@ void QAbstractScrollArea::dropEvent(QDropEvent *)
 #endif
 
 /*!
-    Scrolls the viewport's contents by \a dx, \a dy.
+    This virtual handler is called when the scroll bars are moved by
+    \a dx, \a dy, and consequently the viewport's contents should be
+    scrolled accordingly.
 
-    The default implementation simply updates the entire viewport().
+    The default implementation simply calls update() on the entire
+    viewport(), subclasses can reimplement this handler for
+    optimization purposes, or - like QScrollArea - to move a contents
+    widget. The paramters \a dx and \a dy are there for convenience,
+    so that the class knows how much should be scrolled (useful
+    e.g. when doing pixel-shifts). You may just as well ignore these
+    values and scroll directly to the position the scroll bars
+    indicate.
+
+    Calling this function in order to scroll programmatically is an
+    error, use the scroll bars instead (e.g. by calling
+    QScrollBar::setValue() directly).
 */
 void QAbstractScrollArea::scrollContentsBy(int, int)
 {
