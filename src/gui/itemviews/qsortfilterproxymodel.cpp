@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qsortfilterproxymodel.h"
+#include "qitemselectionmodel.h"
 #include <qsize.h>
 #include <qdebug.h>
 #include <qdatetime.h>
@@ -883,6 +884,22 @@ QModelIndex QSortFilterProxyModel::mapFromSource(const QModelIndex &sourceIndex)
 {
     Q_D(const QSortFilterProxyModel);
     return d->source_to_proxy(sourceIndex);
+}
+
+/*!
+  \reimp
+*/
+QItemSelection QSortFilterProxyModel::mapSelectionToSource(const QItemSelection &proxySelection) const
+{
+    return QAbstractProxyModel::mapSelectionToSource(proxySelection);
+}
+
+/*!
+  \reimp
+*/
+QItemSelection QSortFilterProxyModel::mapSelectionFromSource(const QItemSelection &sourceSelection) const
+{
+    return QAbstractProxyModel::mapSelectionFromSource(sourceSelection);
 }
 
 #include "moc_qsortfilterproxymodel.cpp"

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qabstractproxymodel.h"
+#include "qitemselectionmodel.h"
 #include <private/qabstractproxymodel_p.h>
 
 /*!
@@ -102,4 +103,41 @@ void QAbstractProxyModel::revert()
 {
     Q_D(QAbstractProxyModel);
     d->model->revert();
+}
+
+
+/*!
+  \fn QModelIndex QSortFilterProxyModel::mapToSource(const QModelIndex &proxyIndex) const
+
+  Reimplement this method to map proxy indexes to source indexes. 
+*/
+
+/*!
+  \fn QModelIndex mapFromSource(const QModelIndex &sourceIndex) const
+
+  Reimplement this method to map source indexes to proxy indexes. 
+*/
+
+/*!
+  Reimplement this method to map proxy selections to source selections. 
+ */
+QItemSelection QAbstractProxyModel::mapSelectionToSource(const QItemSelection &proxySelection) const
+{
+    QModelIndexList proxyIndexes = proxySelection.indexes();
+    QItemSelection sourceSelection;
+    for (int i = 0; i < proxyIndexes.size(); ++i) 
+        sourceSelection << QItemSelectionRange(mapToSource(proxyIndexes.at(i)));
+    return sourceSelection;
+}
+
+/*!
+  Reimplement this method to map source selections to proxy selections. 
+*/
+QItemSelection QAbstractProxyModel::mapSelectionFromSource(const QItemSelection &sourceSelection) const
+{
+    QModelIndexList sourceIndexes = sourceSelection.indexes();
+    QItemSelection proxySelection;
+    for (int i = 0; i < sourceIndexes.size(); ++i) 
+        proxySelection << QItemSelectionRange(mapFromSource(sourceIndexes.at(i)));
+    return proxySelection;
 }

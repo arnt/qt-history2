@@ -42,6 +42,9 @@ public:
     QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
     QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
 
+    QItemSelection mapSelectionToSource(const QItemSelection &proxySelection) const;
+    QItemSelection mapSelectionFromSource(const QItemSelection &sourceSelection) const;
+    
     QRegExp filterRegExp() const;
     void setFilterRegExp(const QRegExp &regExp);
 

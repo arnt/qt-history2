@@ -19,6 +19,7 @@
 QT_MODULE(Gui)
 
 class QAbstractProxyModelPrivate;
+class QItemSelection;
 
 class Q_GUI_EXPORT QAbstractProxyModel : public QAbstractItemModel
 {
@@ -30,6 +31,12 @@ public:
 
     virtual void setSourceModel(QAbstractItemModel *sourceModel);
     QAbstractItemModel *sourceModel() const;
+
+    virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const = 0;
+    virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const = 0;
+
+    virtual QItemSelection mapSelectionToSource(const QItemSelection &selection) const;
+    virtual QItemSelection mapSelectionFromSource(const QItemSelection &selection) const;
 
     bool submit();
     void revert();
