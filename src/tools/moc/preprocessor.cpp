@@ -627,6 +627,8 @@ bool PP_Expression::primary_expression_lookup()
     return (t == PP_IDENTIFIER
             || t == PP_INTEGER_LITERAL
             || t == PP_FLOATING_LITERAL
+            || t == PP_MOC_TRUE
+            || t == PP_MOC_FALSE
             || t == PP_LPAREN);
 }
 
