@@ -551,6 +551,7 @@ static void parseFontName(const QString &name, QString &foundry, QString &family
 
 struct QtFontDesc
 {
+    inline QtFontDesc() : family(0), foundry(0), style(0), size(0), encoding(0) {}
     QtFontFamily *family;
     QtFontFoundry *foundry;
     QtFontStyle *style;
