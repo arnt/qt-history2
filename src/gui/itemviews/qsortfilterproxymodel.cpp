@@ -810,7 +810,6 @@ bool QSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
 {
     QVariant l = (left.model() ? left.model()->data(left, Qt::DisplayRole) : QVariant());
     QVariant r = (right.model() ? right.model()->data(right, Qt::DisplayRole) : QVariant());
-    Q_ASSERT(l.type() == r.type());
     switch (l.type()) {
     case QVariant::Int:
         return l.toInt() < r.toInt();
