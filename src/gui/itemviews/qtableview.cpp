@@ -377,6 +377,8 @@ void QTableView::paintEvent(QPaintEvent *event)
         // get the vertical start and end sections (visual indexes)
         int bottom = verticalHeader->visualIndexAt(area.bottom());
         bottom = (bottom == -1 ? d->model->rowCount(rootIndex()) - 1 : bottom);
+        if (bottom == -1)
+            return; // empty model
 
         int top = 0;
         bool alternateBase = false;
