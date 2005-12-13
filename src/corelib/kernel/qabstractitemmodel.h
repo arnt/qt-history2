@@ -84,6 +84,7 @@ public:
     QModelIndex parent() const;
     QModelIndex sibling(int row, int column) const;
     QModelIndex child(int row, int column) const;
+    QVariant data(int role = Qt::DisplayRole) const;
     const QAbstractItemModel *model() const;
     bool isValid() const;
 private:

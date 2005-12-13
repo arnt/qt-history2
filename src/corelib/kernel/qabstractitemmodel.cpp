@@ -49,6 +49,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
 void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 {
     Q_ASSERT(data);
+    Q_ASSERT(data->ref == 0);
     QAbstractItemModel *model = const_cast<QAbstractItemModel*>(data->model);
     // a valid persistent model index with a null model pointer can only happen if the model was destroyed
     if (model) {
@@ -328,6 +329,16 @@ QModelIndex QPersistentModelIndex::child(int row, int column) const
     if (d)
         return d->index.child(row, column);
     return QModelIndex();
+}
+
+/*
+  Returns the data for the given \a role for the item referred to by the index.
+*/
+QVariant QPersistentModelIndex::data(int role) const
+{
+    if (d)
+        return d->index.data(role);
+    return QVariant();
 }
 
 /*!
