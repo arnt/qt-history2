@@ -125,6 +125,7 @@ Q_SIGNALS:
     QT_MOC_COMPAT void selected(int);
 #endif
 
+    friend class QAccessibleTabBar;
 private:
     Q_DISABLE_COPY(QTabBar)
     Q_DECLARE_PRIVATE(QTabBar)

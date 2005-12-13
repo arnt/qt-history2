@@ -15,13 +15,10 @@
 #include "qbitmap.h"
 #include "qcursor.h"
 #include "qevent.h"
-#include "qicon.h"
 #include "qpainter.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
-#include "qtabbar.h"
 #include "qtabwidget.h"
-#include "qtoolbutton.h"
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qstylepainter.h"
@@ -31,68 +28,9 @@
 #endif
 
 #include "qdebug.h"
-#include "private/qwidget_p.h"
+#include "private/qtabbar_p.h"
 
 #ifndef QT_NO_TABBAR
-
-class QTabBarPrivate  : public QWidgetPrivate
-{
-    Q_DECLARE_PUBLIC(QTabBar)
-public:
-    QTabBarPrivate()
-        :currentIndex(-1), pressedIndex(-1),
-         shape(QTabBar::RoundedNorth),
-         layoutDirty(false), drawBase(true), scrollOffset(0){}
-
-    int currentIndex;
-    int pressedIndex;
-    QTabBar::Shape shape;
-    bool layoutDirty;
-    bool drawBase;
-    int scrollOffset;
-
-    struct Tab {
-        inline Tab():enabled(true), shortcutId(0){}
-        inline Tab(const QIcon &ico, const QString &txt):enabled(true), shortcutId(0), text(txt), icon(ico){}
-        bool enabled;
-        int shortcutId;
-        QString text;
-#ifndef QT_NO_TOOLTIP
-        QString toolTip;
-#endif
-#ifndef QT_NO_WHATSTHIS
-        QString whatsThis;
-#endif
-        QIcon icon;
-        QRect rect;
-        QColor textColor;
-        QVariant data;
-    };
-    QList<Tab> tabList;
-
-    void init();
-    int extraWidth() const;
-
-    Tab *at(int index);
-    const Tab *at(int index) const;
-
-    int indexAtPos(const QPoint &p) const;
-
-    inline bool validIndex(int index) const { return index >= 0 && index < tabList.count(); }
-
-    QToolButton* rightB; // right or bottom
-    QToolButton* leftB; // left or top
-    void scrollTabs(); // private slot
-    QRect hoverRect;
-
-    void refresh();
-    void layoutTabs();
-
-    void makeVisible(int index);
-    QStyleOptionTabV2 getStyleOption(int tab) const;
-    QSize iconSize;
-};
-
 
 QStyleOptionTabV2 QTabBarPrivate::getStyleOption(int tab) const
 {

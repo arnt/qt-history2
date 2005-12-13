@@ -45,6 +45,7 @@ HEADERS += \
         widgets/qstackedwidget.h \
         widgets/qstatusbar.h \
         widgets/qtabbar.h \
+        widgets/qtabbar_p.h \
         widgets/qtabwidget.h \
         widgets/qtextedit.h \
         widgets/qtextedit_p.h \

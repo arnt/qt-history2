@@ -25,6 +25,7 @@
 #include <qstyleoption.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
+#include <private/qtabbar_p.h>
 
 #ifndef QT_NO_ACCESSIBILITY
 
@@ -154,10 +155,11 @@ QAbstractButton *QAccessibleTabBar::button(int child) const
 {
     if (child <= tabBar()->count())
         return 0;
+    QTabBarPrivate * const tabBarPrivate = tabBar()->d_func();
     if (child - tabBar()->count() == 1)
-        return qFindChild<QAbstractButton*>(tabBar(), "qt_left_btn");
+        return tabBarPrivate->leftB;
     if (child - tabBar()->count() == 2)
-        return qFindChild<QAbstractButton*>(tabBar(), "qt_right_btn");
+        return tabBarPrivate->rightB;
     Q_ASSERT(false);
     return 0;
 }
