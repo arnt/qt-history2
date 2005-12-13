@@ -60,8 +60,7 @@ static const Keyword pp_keywords[] = {
     { "\t", "PP_WHITESPACE" },
     { "//", "PP_CPP_COMMENT" },
     { "/*", "PP_C_COMMENT" },
-    { "signals", "PP_QT_SIGNALS" },
-    { "slots", "PP_QT_SLOTS" },
+    { "\\", "PP_BACKSLASH" },
     { 0, "PP_NOTOKEN"}
 };
 
@@ -198,8 +197,8 @@ static const Keyword keywords[] = {
     { "Q_INTERFACES", "Q_INTERFACES_TOKEN" },
     { "signals", "SIGNALS" },
     { "slots", "SLOTS" },
-    { "Q_SIGNALS", "SIGNALS" },
-    { "Q_SLOTS", "SLOTS" },
+    { "Q_SIGNALS", "Q_SIGNALS_TOKEN" },
+    { "Q_SLOTS", "Q_SLOTS_TOKEN" },
     { "Q_PRIVATE_SLOT", "Q_PRIVATE_SLOT_TOKEN" },
 
     { "\n", "NEWLINE" },
@@ -208,9 +207,9 @@ static const Keyword keywords[] = {
     { " ", "WHITESPACE" },
     { "\t", "WHITESPACE" },
     { "#", "HASH" },
-    { "#moc_include_begin", "MOC_INCLUDE_BEGIN" },
-    { "#moc_include_end", "MOC_INCLUDE_END" },
-    { "#moc_next_is_identifier", "MOC_NEXT_IS_IDENTIFIER" },
+    { "\\", "BACKSLASH" },
+    { "//", "CPP_COMMENT" },
+    { "/*", "C_COMMENT" },
     { 0, "NOTOKEN"}
 };
 

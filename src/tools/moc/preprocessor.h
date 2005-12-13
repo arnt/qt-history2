@@ -14,23 +14,48 @@
 #ifndef PREPROCESSOR_H
 #define PREPROCESSOR_H
 
-#include "symbols.h"
+#include "parser.h"
 #include <QList>
-#include <QMap>
 #include <QSet>
 #include <stdio.h>
 
-typedef QMap<QByteArray,QByteArray> Macros;
+struct Macro
+{
+    Symbols symbols;
+};
 
-class Preprocessor
+#ifdef USE_LEXEM_STORE
+typedef QByteArray MacroName;
+#else
+typedef SubArray MacroName;
+#endif
+typedef QHash<MacroName, Macro> Macros;
+typedef QVector<MacroName> MacroSafeSet;
+
+
+class Preprocessor : public Parser
 {
 public:
-    static bool onlyPreprocess;
-    static QByteArray protocol;
-    static QList<QByteArray> includes;
-    static QSet<QByteArray> preprocessedIncludes;
-    static Macros macros;
-    static QByteArray preprocessed(const QByteArray &filename, FILE *file);
+    Preprocessor(){}
+    static bool preprocessOnly;
+    QList<QByteArray> includes;
+    QSet<QByteArray> preprocessedIncludes;
+    Macros macros;
+    Symbols preprocessed(const QByteArray &filename, FILE *file);
+
+
+    void skipUntilEndif();
+    bool skipBranch();
+
+    void substituteMacro(const MacroName &macro, Symbols &substituted, MacroSafeSet safeset = MacroSafeSet());
+    void substituteUntilNewline(Symbols &substituted, MacroSafeSet safeset = MacroSafeSet());
+
+    int evaluateCondition();
+
+
+private:
+    void preprocess(const QByteArray &filename, Symbols &preprocessed);
 };
+
 
 #endif // PREPROCESSOR_H

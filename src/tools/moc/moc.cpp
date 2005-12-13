@@ -16,8 +16,6 @@
 #include "qdatetime.h"
 #include "utils.h"
 #include "outputrevision.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 // WARNING: a copy of this function is in qmetaobject.cpp
 static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixScope = false, bool adjustConst = true)
@@ -138,93 +136,6 @@ QByteArray normalizeType(const char *s, bool fixScope)
     if (buf != stackbuf)
         delete [] buf;
     return result;
-}
-
-static const char *error_msg = 0;
-
-#ifdef Q_CC_MSVC
-#define ErrorFormatString "%s(%d): "
-#else
-#define ErrorFormatString "%s:%d: "
-#endif
-
-void Moc::error(int rollback) {
-    index -= rollback;
-    error();
-}
-void Moc::error(const char *msg) {
-    if (msg || error_msg)
-        qWarning(ErrorFormatString "Error: %s",
-               currentFilenames.top().constData(), symbol().lineNum, msg?msg:error_msg);
-    else
-        qWarning(ErrorFormatString "Parse error at \"%s\"",
-               currentFilenames.top().constData(), symbol().lineNum, symbol().lexem().data());
-    exit(EXIT_FAILURE);
-}
-
-void Moc::warning(const char *msg) {
-    if (displayWarnings && msg)
-        fprintf(stderr, ErrorFormatString "Warning: %s\n",
-                filename.constData(), qMax(0, symbol().lineNum), msg);
-}
-
-bool Moc::until(Token target) {
-    int braceCount = 0;
-    int brackCount = 0;
-    int parenCount = 0;
-    int angleCount = 0;
-    if (index) {
-        switch(symbols.at(index-1).token) {
-        case LBRACE: ++braceCount; break;
-        case LBRACK: ++brackCount; break;
-        case LPAREN: ++parenCount; break;
-        case LANGLE: ++angleCount; break;
-        default: ;
-        }
-    }
-    while (index < symbols.size()) {
-        Token t = symbols.at(index++).token;
-        switch (t) {
-        case LBRACE: ++braceCount; break;
-        case RBRACE: --braceCount; break;
-        case LBRACK: ++brackCount; break;
-        case RBRACK: --brackCount; break;
-        case LPAREN: ++parenCount; break;
-        case RPAREN: --parenCount; break;
-        case LANGLE: ++angleCount; break;
-        case RANGLE: --angleCount; break;
-        default: break;
-        }
-        if (t == target
-            && braceCount <= 0
-            && brackCount <= 0
-            && parenCount <= 0
-            && (target != RANGLE || angleCount <= 0))
-            return true;
-
-        if (braceCount < 0 || brackCount < 0 || parenCount < 0
-            || (target == RANGLE && angleCount < 0)) {
-            --index;
-            break;
-        }
-    }
-    return false;
-}
-
-QByteArray Moc::lexemUntil(Token target)
-{
-    int from = index;
-    until(target);
-    QByteArray s;
-    while (from <= index) {
-        QByteArray n = symbols.at(from++-1).lexem();
-        if (s.size() && n.size()
-            && is_ident_char(s.at(s.size()-1))
-            && is_ident_char(n.at(0)))
-            s += ' ';
-        s += n;
-    }
-    return s;
 }
 
 bool Moc::parseClassHead(ClassDef *def)
@@ -538,8 +449,6 @@ bool Moc::parseMaybeFunction(FunctionDef *def)
 
 void Moc::parse()
 {
-    currentFilenames.push(filename);
-
     QList<NamespaceDef> namespaceList;
     bool templateClass = false;
     while (hasNext()) {
@@ -573,7 +482,6 @@ void Moc::parse()
                 templateClass = true;
                 break;
             case MOC_INCLUDE_BEGIN:
-                next(STRING_LITERAL);
                 currentFilenames.push(symbol().unquotedLexem());
                 break;
             case MOC_INCLUDE_END:
@@ -603,17 +511,17 @@ void Moc::parse()
                 switch ((t = next())) {
                 case PRIVATE:
                     access = FunctionDef::Private;
-                    if (test(SIGNALS))
+                    if (test(Q_SIGNALS_TOKEN))
                         error("Signals cannot have access specifier");
                     break;
                 case PROTECTED:
                     access = FunctionDef::Protected;
-                    if (test(SIGNALS))
+                    if (test(Q_SIGNALS_TOKEN))
                         error("Signals cannot have access specifier");
                     break;
                 case PUBLIC:
                     access = FunctionDef::Public;
-                    if (test(SIGNALS))
+                    if (test(Q_SIGNALS_TOKEN))
                         error("Signals cannot have access specifier");
                     break;
                 case CLASS: {
@@ -626,10 +534,10 @@ void Moc::parse()
                         }
                     }
                 } break;
-                case SIGNALS:
+                case Q_SIGNALS_TOKEN:
                     parseSignals(&def);
                     break;
-                case SLOTS:
+                case Q_SLOTS_TOKEN:
                     switch (lookup(-1)) {
                     case PUBLIC:
                     case PROTECTED:
@@ -790,8 +698,8 @@ void Moc::parseSlots(ClassDef *def, FunctionDef::Access access)
         case PUBLIC:
         case PROTECTED:
         case PRIVATE:
-        case SIGNALS:
-        case SLOTS:
+        case Q_SIGNALS_TOKEN:
+        case Q_SLOTS_TOKEN:
             prev();
             return;
         case SEMIC:
@@ -825,8 +733,8 @@ void Moc::parseSignals(ClassDef *def)
         case PUBLIC:
         case PROTECTED:
         case PRIVATE:
-        case SIGNALS:
-        case SLOTS:
+        case Q_SIGNALS_TOKEN:
+        case Q_SLOTS_TOKEN:
             prev();
             return;
         case SEMIC:
@@ -1045,7 +953,7 @@ void Moc::parseDeclareInterface()
     next(COMMA);
     QByteArray iid;
     if (test(STRING_LITERAL)) {
-        iid = symbol().lexem();
+        iid = lexem();
     } else {
         next(IDENTIFIER);
         iid = lexem();
