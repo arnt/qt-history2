@@ -1985,7 +1985,9 @@ QModelIndex QAbstractTableModel::parent(const QModelIndex &) const
 
 bool QAbstractTableModel::hasChildren(const QModelIndex &parent) const
 {
-    return !parent.isValid();
+    if (parent.isValid())
+        return false;
+    return rowCount() > 0 && columnCount() > 0;
 }
 
 /*!
