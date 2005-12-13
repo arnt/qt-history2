@@ -237,6 +237,8 @@ nextfile:
         settings.insert("COPY_PHASE_STRIP", (as_release ? "YES" : "NO"));
         if(as_release)
             settings.insert("GCC_GENERATE_DEBUGGING_SYMBOLS", "NO");
+        if(project->isActiveConfig("sdk") && !project->isEmpty("QMAKE_MAC_SDK"))
+            settings.insert("SDKROOT", project->first("QMAKE_MAC_SDK"));
         QString name;
         if(pbVersion >= 42)
             name = (as_release ? "Release" : "Debug");
@@ -1210,6 +1212,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     else
         t << "\t\t\t\t" << "SYMROOT = \"" << qmake_getpwd() << "\";" << "\n";
 #endif
+    t << "\t\t\t\t" << "ARCHS = \""<< QString(project->isActiveConfig("x86") ? "x86 " : "")
+      << QString(project->isActiveConfig("x86") ? "ppc" : "") << "\";" << "\n";
     if(project->first("TEMPLATE") == "app") {
         if(pbVersion < 38 && !project->isActiveConfig("console"))
             t << "\t\t\t\t" << "WRAPPER_SUFFIX = app;" << "\n";
