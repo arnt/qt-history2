@@ -674,9 +674,12 @@ void PropertyEditor::setPropertyValue(const QString &name, const QVariant &value
         return;
 
     if (IProperty *p = propertyByName(m_editor->initialInput(), name)) {
-        p->setValue(value);
+        if (p->value() != value)
+            p->setValue(value);
+
         p->setChanged(changed);
         p->setDirty(false);
+
         m_editor->editorModel()->refresh(p);
     }
 }
