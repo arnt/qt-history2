@@ -1876,7 +1876,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
     return r;
 }
 
-static qreal angle(const QPoint &p1, const QPoint &p2)
+static qreal angle(const QPointF &p1, const QPointF &p2)
 {
     static const qreal rad_factor = 180.0 / Q_PI;
     qreal _angle = 0.0;
@@ -1919,7 +1919,7 @@ static int calcBigLineSize(int radius)
 }
 
 #ifndef QT_NO_SLIDER
-static QPolygon calcArrow(const QStyleOptionSlider *dial, qreal &a)
+static QPolygonF calcArrow(const QStyleOptionSlider *dial, qreal &a)
 {
     int width = dial->rect.width();
     int height = dial->rect.height();
@@ -1943,19 +1943,19 @@ static QPolygon calcArrow(const QStyleOptionSlider *dial, qreal &a)
     if (back < 1)
         back = 1;
 
-    QPolygon arrow(3);
-    arrow[0] = QPoint(int(0.5 + xc + len * qCos(a)),
-                      int(0.5 + yc - len * qSin(a)));
-    arrow[1] = QPoint(int(0.5 + xc + back * qCos(a + Q_PI * 5 / 6)),
-                      int(0.5 + yc - back * qSin(a + Q_PI * 5 / 6)));
-    arrow[2] = QPoint(int(0.5 + xc + back * qCos(a - Q_PI * 5 / 6)),
-                      int(0.5 + yc - back * qSin(a - Q_PI * 5 / 6)));
+    QPolygonF arrow(3);
+    arrow[0] = QPointF(0.5 + xc + len * qCos(a),
+                       0.5 + yc - len * qSin(a));
+    arrow[1] = QPointF(0.5 + xc + back * qCos(a + Q_PI * 5 / 6),
+                       0.5 + yc - back * qSin(a + Q_PI * 5 / 6));
+    arrow[2] = QPointF(0.5 + xc + back * qCos(a - Q_PI * 5 / 6),
+                       0.5 + yc - back * qSin(a - Q_PI * 5 / 6));
     return arrow;
 }
 
-static QPolygon calcLines(const QStyleOptionSlider *dial, const QWidget *)
+static QPolygonF calcLines(const QStyleOptionSlider *dial, const QWidget *)
 {
-    QPolygon poly;
+    QPolygonF poly;
     int width = dial->rect.width();
     int height = dial->rect.height();
     qreal r = qMin(width, height) / 2.0;
@@ -1973,13 +1973,13 @@ static QPolygon calcLines(const QStyleOptionSlider *dial, const QWidget *)
         qreal s = qSin(angle);
         qreal c = qCos(angle);
         if (i == 0 || (((ns * i) % dial->pageStep) == 0)) {
-            poly[2 * i] = QPoint(int(xc + (r - bigLineSize) * c),
-                    int(yc - (r - bigLineSize) * s));
-            poly[2 * i + 1] = QPoint(int(xc + r * c), int(yc - r * s));
+            poly[2 * i] = QPointF(xc + (r - bigLineSize) * c,
+                                  yc - (r - bigLineSize) * s);
+            poly[2 * i + 1] = QPointF(xc + r * c, yc - r * s);
         } else {
-            poly[2 * i] = QPoint(int(xc + (r - 1 - smallLineSize) * c),
-                    int(yc - (r - 1 - smallLineSize) * s));
-            poly[2 * i + 1] = QPoint(int(xc + (r - 1) * c), int(yc -(r - 1) * s));
+            poly[2 * i] = QPointF(xc + (r - 1 - smallLineSize) * c,
+                                  yc - (r - 1 - smallLineSize) * s);
+            poly[2 * i + 1] = QPointF(xc + (r - 1) * c, yc -(r - 1) * s);
         }
     }
     return poly;
@@ -2461,13 +2461,13 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             p->drawArc(br, 240 * 16, 180 * 16);
 
             qreal a;
-            QPolygon arrow(calcArrow(dial, a));
+            QPolygonF arrow(calcArrow(dial, a));
 
             p->setPen(Qt::NoPen);
             p->setBrush(pal.button());
             p->drawPolygon(arrow);
 
-            a = angle(QPoint(width / 2, height / 2), arrow[0]);
+            a = angle(QPointF(width / 2, height / 2), arrow[0]);
             p->setBrush(Qt::NoBrush);
 
             if (a <= 0 || a > 200) {
