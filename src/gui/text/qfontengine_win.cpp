@@ -671,14 +671,17 @@ static inline QPointF qt_to_qpointf(const POINTFX &pt) {
 #endif
 
 static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc, 
-                           QPainterPath *path, glyph_metrics_t *metric = 0)
+                           QPainterPath *path, bool ttf, glyph_metrics_t *metric = 0)
 {
     MAT2 mat;
     mat.eM11.value = mat.eM22.value = 1;
     mat.eM11.fract = mat.eM22.fract = 0;
     mat.eM21.value = mat.eM12.value = 0;
     mat.eM21.fract = mat.eM12.fract = 0;
-    const uint glyphFormat = GGO_NATIVE | GGO_GLYPH_INDEX | GGO_UNHINTED;
+    uint glyphFormat = GGO_NATIVE | GGO_UNHINTED;
+    if (ttf)
+        glyphFormat |= GGO_GLYPH_INDEX; 
+
     GLYPHMETRICS gMetric;
     memset(&gMetric, 0, sizeof(GLYPHMETRICS));
     int bufferSize;
@@ -781,7 +784,7 @@ void QFontEngineWin::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, in
     Q_ASSERT(hdc);
 
     for(int i = 0; i < nglyphs; ++i) 
-        addGlyphToPath(glyphs[i], positions[i], hdc, path);
+        addGlyphToPath(glyphs[i], positions[i], hdc, path, ttf);
 }
 
 void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
@@ -862,7 +865,7 @@ void QFontEngineWin::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_m
     QFixedPoint p;
     p.x = 0;
     p.y = 0;
-    addGlyphToPath(glyph, p, shared_dc, path, metrics);
+    addGlyphToPath(glyph, p, shared_dc, path, ttf, metrics);
     DeleteObject(SelectObject(shared_dc, oldfont));
 }
 
