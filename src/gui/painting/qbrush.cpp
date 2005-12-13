@@ -89,37 +89,84 @@ struct QGradientBrushData : public QBrushData
 
 
 /*!
-    \class QBrush qbrush.h
+    \class QBrush
 
-    \brief The QBrush class defines the fill pattern of shapes drawn by a QPainter.
+    \brief The QBrush class defines the fill pattern of shapes drawn
+    by QPainter.
 
     \ingroup multimedia
     \ingroup shared
 
-    A brush has a style and a color. One of the brush styles is a
-    custom pattern, which is defined by a QPixmap.
+    A brush has a style, a color, a gradient and a texture.
 
-    The brush style defines the fill pattern. The default brush style
-    is Qt::NoBrush (depending on how you construct a brush). This style
-    tells the painter to not fill shapes. The standard style for
-    filling is Qt::SolidPattern.
+    The brush style() defines the fill pattern using the
+    Qt::BrushStyle enum. The default brush style is Qt::NoBrush
+    (depending on how you construct a brush). This style tells the
+    painter to not fill shapes. The standard style for filling is
+    Qt::SolidPattern. The style can be set when the brush is created
+    using the appropiate constructor, and in addition the setStyle()
+    function provides means for altering the style once the brush is
+    constructed.
 
-    The brush color defines the color of the fill pattern. The QColor
-    documentation lists the predefined colors.
+    \image brush-styles.png Brush Styles
 
-    Use the QPen class for specifying line/outline styles.
+    The brush color() defines the color of the fill pattern. The color
+    can either be one of Qt's predefined colors, Qt::GlobalColor, or
+    any other custom QColor. The currently set color can be retrieved
+    and altered using the color() and setColor() functions,
+    respectively.
 
-    Example:
-    \quotefromfile snippets/brush/brush.cpp
-    \skipto BRUSH
-    \skipto QPainter
-    \printuntil end()
+    The gradient() defines the gradient fill used when the current
+    style is either Qt::LinearGradientPattern,
+    Qt::RadialGradientPattern or Qt::ConicalGradient Pattern. The
+    gradient can only be set when constructing the brush, while the
+    texture() can be set using the appropiate constructor or by using
+    the setTexture() function. The texture() defines the pixmap used
+    when the current style is Qt::TexturePattern.
 
-    See the Qt::BrushStyle for a complete list of brush styles.
+    Note that applying setTexture() makes style() ==
+    Qt::TexturePattern, independently of previous style
+    settings. Also, calling setColor() will not make a difference if
+    the style is a gradient. The same is the case if the style is
+    Qt::TexturePattern style unless the current texture is a QBitmap.
 
-    \img brush-styles.png Brush Styles
+    The isOpaque() function returns true if the brush is fully opaque
+    otherwise false. A brush is considered opaque if:
 
-    \sa QPainter, QPainter::setBrush(), QPainter::setBrushOrigin()
+    \list
+    \o The alpha component of the color() is 255.
+    \o Its texture() does not an alpha channel and is not a QBitmap.
+    \o The colors in the gradient() all have an alpha component that is 255.
+    \endlist
+
+    \table 100%
+    \row
+    \o \inlineimage brush-outline.png Outlines
+    \o
+
+    To specify the style and color of lines and outlines, use the
+    QPainter's \l {QPen}{pen} combined with Qt::PenStyle and
+    Qt::GlobalColor:
+
+    \code
+        QPainter painter(this);
+
+        painter.setBrush(Qt::cyan);
+        painter.setPen(Qt::darkCyan);
+        painter.drawRect(0, 0, 100,100);
+
+        painter.setBrush(Qt::NoBrush);
+        painter.setPen(Qt::darkGreen);
+        painter.drawRect(40, 40, 100, 100);
+    \endcode
+
+    Note that, by default, QPainter renders the outline (using the
+    currently set pen) when drawing shapes. Use \l {Qt::NoPen}{\c
+    painter.setPen(Qt::NoPen)} to disable this behavior.
+
+    \endtable
+
+    \sa Qt::BrushStyle, QPainter, QColor
 */
 
 class QBrushStatic
@@ -184,8 +231,8 @@ void QBrush::init(const QColor &color, Qt::BrushStyle style)
 }
 
 /*!
-    Constructs a default black brush with the style Qt::NoBrush (this brush will
-    not fill shapes).
+    Constructs a default black brush with the style Qt::NoBrush
+    (i.e. this brush will not fill shapes).
 */
 
 QBrush::QBrush()
@@ -196,7 +243,10 @@ QBrush::QBrush()
 }
 
 /*!
-    Constructs a brush with a black color and a pixmap set to \a pixmap.
+    Constructs a brush with a black color and a texture set to the
+    given \a pixmap. The style is set to Qt::TexturePattern.
+
+    \sa setTexture()
 */
 
 QBrush::QBrush(const QPixmap &pixmap)
@@ -208,7 +258,7 @@ QBrush::QBrush(const QPixmap &pixmap)
 }
 
 /*!
-    Constructs a black brush with the style \a style.
+    Constructs a black brush with the given \a style.
 
     \sa setStyle()
 */
@@ -219,7 +269,7 @@ QBrush::QBrush(Qt::BrushStyle style)
 }
 
 /*!
-    Constructs a brush with the color \a color and the style \a style.
+    Constructs a brush with the given \a color and \a style.
 
     \sa setColor(), setStyle()
 */
@@ -229,8 +279,10 @@ QBrush::QBrush(const QColor &color, Qt::BrushStyle style)
     init(color, style);
 }
 
-/*! \overload
-    Constructs a brush with the color \a color and the style \a style.
+/*!
+    \fn QBrush::QBrush(Qt::GlobalColor color, Qt::BrushStyle style)
+
+    Constructs a brush with the given \a color and \a style.
 
     \sa setColor(), setStyle()
 */
@@ -240,10 +292,11 @@ QBrush::QBrush(Qt::GlobalColor color, Qt::BrushStyle style)
 }
 
 /*!
-    Constructs a brush with the color \a color and a custom pattern
+    Constructs a brush with the given \a color and the custom pattern
     stored in \a pixmap.
 
-    The color will only have an effect for QBitmaps.
+    The style is set to Qt::TexturePattern. The color will only have
+    an effect for QBitmaps.
 
     \sa setColor(), setPixmap()
 */
@@ -254,11 +307,13 @@ QBrush::QBrush(const QColor &color, const QPixmap &pixmap)
     setTexture(pixmap);
 }
 
-/*! \overload
-    Constructs a brush with the color \a color and a custom pattern
+/*!
+
+    Constructs a brush with the given \a color and the custom pattern
     stored in \a pixmap.
 
-    The color will only have an effect for QBitmaps.
+    The style is set to Qt::TexturePattern. The color will only have
+    an effect for QBitmaps.
 
     \sa setColor(), setPixmap()
 */
@@ -280,6 +335,10 @@ QBrush::QBrush(const QBrush &other)
 
 /*!
     Constructs a brush based on the given \a gradient.
+
+    The brush style is set to the corresponding gradient style (either
+    Qt::LinearGradientPattern, Qt::RadialGradientPattern or
+    Qt::ConicalGradientPattern).
 */
 QBrush::QBrush(const QGradient &gradient)
 {
@@ -358,7 +417,10 @@ void QBrush::detach(Qt::BrushStyle newStyle)
 
 
 /*!
-    Assigns \a b to this brush and returns a reference to this brush.
+    \fn QBrush &QBrush::operator=(const QBrush &brush)
+
+    Assigns the given \a brush to \e this brush and returns a
+    reference to \e this brush.
 */
 
 QBrush &QBrush::operator=(const QBrush &b)
@@ -413,9 +475,15 @@ void QBrush::setStyle(Qt::BrushStyle style)
 */
 
 /*!
-    Sets the brush color to \a c.
+    \fn void QBrush::setColor(const QColor &color)
 
-    \sa color(), setStyle()
+    Sets the brush color to the given \a color.
+
+    Note that calling setColor() will not make a difference if the
+    style is a gradient. The same is the case if the style is
+    Qt::TexturePattern style unless the current texture is a QBitmap.
+
+    \sa color()
 */
 
 void QBrush::setColor(const QColor &c)
@@ -425,9 +493,10 @@ void QBrush::setColor(const QColor &c)
 }
 
 /*!
-    \fn void QBrush::setColor(Qt::GlobalColor c)
-
+    \fn void QBrush::setColor(Qt::GlobalColor color)
     \overload
+
+    Sets the brush color to the given \a color.
 */
 
 
@@ -438,18 +507,17 @@ void QBrush::setColor(const QColor &c)
 
     \compat
 
-    Sets a custom pattern for this brush. Use setTexture() instead.
+    Sets a custom pattern for this brush.
 
-    \sa setTexture()
+    Use setTexture() instead.
 */
 
 /*!
     \fn QPixmap *QBrush::pixmap() const
 
-    Returns a pointer to the custom brush pattern, or 0 if no custom
-    brush pattern has been set.
+    Returns a pointer to the custom brush pattern.
 
-    \sa setPixmap()
+    Use texture() instead.
 */
 QPixmap *QBrush::pixmap() const
 {
@@ -466,7 +534,7 @@ QPixmap *QBrush::pixmap() const
     Returns the custom brush pattern, or a null pixmap if no custom brush pattern
     has been set.
 
-    \sa setPixmap()
+    \sa setTexture()
 */
 QPixmap QBrush::texture() const
 {
@@ -479,9 +547,9 @@ QPixmap QBrush::texture() const
     Qt::TexturePattern.
 
     The current brush color will only have an effect for monochrome
-    pixmaps, i.e. for QPixmap::depth() == 1.
+    pixmaps, i.e. for QPixmap::depth() == 1 (\l {QBitmap}{QBitmaps}).
 
-    \sa pixmap(), color()
+    \sa texture()
 */
 
 void QBrush::setTexture(const QPixmap &pixmap)
@@ -546,10 +614,10 @@ bool QBrush::isOpaque() const
 
 
 /*!
-    \fn bool QBrush::operator!=(const QBrush &b) const
+    \fn bool QBrush::operator!=(const QBrush &brush) const
 
-    Returns true if the brush is different from \a b; otherwise
-    returns false.
+    Returns true if the brush is different from the given \a brush;
+    otherwise returns false.
 
     Two brushes are different if they have different styles, colors or
     pixmaps.
@@ -558,8 +626,10 @@ bool QBrush::isOpaque() const
 */
 
 /*!
-    Returns true if the brush is equal to \a b; otherwise returns
-    false.
+    \fn bool QBrush::operator==(const QBrush &brush) const
+
+    Returns true if the brush is equal to the given \a brush;
+    otherwise returns false.
 
     Two brushes are equal if they have equal styles, colors and
     pixmaps.
@@ -597,6 +667,8 @@ bool QBrush::operator==(const QBrush &b) const
     \fn QBrush::operator const QColor&() const
 
     Returns the brush's color.
+
+    Use color() instead.
 */
 
 #ifndef QT_NO_DEBUG_STREAM
@@ -621,12 +693,13 @@ QDebug operator<<(QDebug dbg, const QBrush &b)
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QBrush &brush)
     \relates QBrush
 
-    Writes the brush \a b to the stream \a s and returns a reference
-    to the stream.
+    Writes the given \a brush to the given \a stream and returns a
+    reference to the \a stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator<<(QDataStream &s, const QBrush &b)
@@ -657,12 +730,13 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QBrush &brush)
     \relates QBrush
 
-    Reads the brush \a b from the stream \a s and returns a reference
-    to the stream.
+    Reads the given \a brush from the given \a stream and returns a
+    reference to the \a stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator>>(QDataStream &s, QBrush &b)
@@ -727,7 +801,7 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
 
 
 /*!
-    \class QGradient qbrush.h
+    \class QGradient
 
     \brief The QGradient class is used in combination with QBrush to
     specify gradient fills.
