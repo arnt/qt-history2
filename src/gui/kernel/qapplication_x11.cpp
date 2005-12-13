@@ -3761,31 +3761,48 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
             if (deviceType == QTabletEvent::XFreeEraser) {
                 deviceType = QTabletEvent::Stylus;
                 pointerType = QTabletEvent::Eraser;
+            } else if (deviceType == QTabletEvent::Stylus) {
+                pointerType = QTabletEvent::Pen;
             }
             // qDebug() << ((XDevice*)t.device)->device_id;
             break;
         }
     }
 
+    uint hibyte1;  // ID
+    uint hibyte2;  // Serial # part 1
+    uint hibyte3;  // Serial # part 2
     if (motion) {
-        xTilt = short(motion->axis_data[3]);
-        yTilt = short(motion->axis_data[4]);
+        hibyte1 = (motion->axis_data[3] & 0xffff0000) >> 16;
+        hibyte2 = (motion->axis_data[4] & 0xffff0000) >> 16;
+        hibyte3 = (motion->axis_data[5] & 0xffff0000) >> 16;
+        xTilt = short(motion->axis_data[3] & 0xffff);
+        yTilt = short(motion->axis_data[4] & 0xffff);
         pressure = motion->axis_data[2];
         modifiers = translateModifiers(motion->state);
         hiRes = tablet->scaleCoord(motion->axis_data[0], motion->axis_data[1],
                                     screenArea.x(), screenArea.width(),
                                     screenArea.y(), screenArea.height());
     } else {
-        xTilt = short(button->axis_data[3]);
-        yTilt = short(button->axis_data[4]);
+        hibyte1 = (button->axis_data[3] & 0xffff0000) >> 16;
+        hibyte2 = (button->axis_data[4] & 0xffff0000) >> 16;
+        hibyte3 = (button->axis_data[5] & 0xffff0000) >> 16;
+        xTilt = short(button->axis_data[3] & 0xffff);
+        yTilt = short(button->axis_data[4] & 0xffff);
         pressure = button->axis_data[2];
         hiRes = tablet->scaleCoord(button->axis_data[0], button->axis_data[1],
                                     screenArea.x(), screenArea.width(),
                                     screenArea.y(), screenArea.height());
         modifiers = translateModifiers(button->state);
     }
-    // The only way to get these Ids is to scan the XFree86 log, which I'm not going to do.
-    uid = -1;
+    // There are newer drivers out that do report the serial number.
+    // But the older ones  will have values of 0xffff or 0;
+    if (hibyte1 == 0 || hibyte1 == 0xffff) {
+        uid = -1;
+    } else {
+        uid = hibyte1;
+        uid = (uid << 24) | ((hibyte2 << 16) | hibyte3);
+    }
 #endif
     QTabletEvent e(t, curr, global, hiRes,
                    deviceType, pointerType,
