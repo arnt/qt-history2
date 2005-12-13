@@ -2099,6 +2099,7 @@ void QTableWidget::removeColumn(int column)
 
 /*!
   Removes all items and selections in the view.
+  The table dimentions stay the same.
 */
 
 void QTableWidget::clear()
