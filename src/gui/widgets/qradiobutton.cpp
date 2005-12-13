@@ -160,7 +160,7 @@ void QRadioButton::mouseMoveEvent(QMouseEvent *e)
         bool hit = false;
         if (underMouse())
             hit = hitButton(e->pos());
-        
+
         if (hit != d->hovering) {
             update();
             d->hovering = hit;
@@ -178,6 +178,12 @@ void QRadioButton::paintEvent(QPaintEvent *)
     QStylePainter p(this);
     QStyleOptionButton opt = getStyleOption(this, d->hovering);
     p.drawControl(QStyle::CE_RadioButton, opt);
+}
+
+/*! \reimp */
+bool QRadioButton::event(QEvent *e)
+{
+    return QAbstractButton::event(e);
 }
 
 #ifdef QT3_SUPPORT

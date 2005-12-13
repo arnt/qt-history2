@@ -220,6 +220,7 @@ Q_SIGNALS:
     void itemSelectionChanged();
 
 protected:
+    bool event(QEvent *e);
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QList<QListWidgetItem*> items) const;
 #ifndef QT_NO_DRAGANDDROP

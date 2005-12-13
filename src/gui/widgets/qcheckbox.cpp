@@ -285,6 +285,14 @@ void QCheckBox::nextCheckState()
     }
 }
 
+/*!
+    \reimp
+*/
+bool QCheckBox::event(QEvent *e)
+{
+    return QAbstractButton::event(e);
+}
+
 #ifdef QT3_SUPPORT
 /*!
     Use one of the constructors that doesn't take the \a name

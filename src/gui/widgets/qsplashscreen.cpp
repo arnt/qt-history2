@@ -283,4 +283,10 @@ void QSplashScreen::drawContents(QPainter *painter)
     Use clearMessage() instead.
 */
 
+/*! \reimp */
+bool QSplashScreen::event(QEvent *e)
+{
+    return QWidget::event(e);
+}
+
 #endif //QT_NO_SPLASHSCREEN

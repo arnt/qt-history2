@@ -593,4 +593,8 @@ void QFrame::changeEvent(QEvent *ev)
     QWidget::changeEvent(ev);
 }
 
-
+/*! \reimp */
+bool QFrame::event(QEvent *e)
+{
+    return QWidget::event(e);
+}

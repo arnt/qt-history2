@@ -52,6 +52,7 @@ public Q_SLOTS:
     void setWrapping(bool on);
 
 protected:
+    bool event(QEvent *e);
     void resizeEvent(QResizeEvent *re);
     void paintEvent(QPaintEvent *pe);
 

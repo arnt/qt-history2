@@ -31,6 +31,7 @@ public:
     QSize sizeHint() const;
 
 protected:
+    bool event(QEvent *e);
     bool hitButton(const QPoint &) const;
     void paintEvent(QPaintEvent *);
     void mouseMoveEvent(QMouseEvent *);

@@ -2374,7 +2374,11 @@ void QTreeWidget::setModel(QAbstractItemModel *model)
     QTreeView::setModel(model);
 }
 
-
+/* \reimp */
+bool QTreeWidget::event(QEvent *e)
+{
+    return QTreeView::event(e);
+}
 
 #include "moc_qtreewidget.cpp"
 #endif // QT_NO_TREEWIDGET

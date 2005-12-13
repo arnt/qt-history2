@@ -1211,5 +1211,10 @@ QSize QLCDNumber::sizeHint() const
     return QSize(10 + 9 * (numDigits() + (smallDecimalPoint() ? 0 : 1)), 23);
 }
 
+/*! \reimp */
+bool QLCDNumber::event(QEvent *e)
+{
+    return QFrame::event(e);
+}
 
 #endif // QT_NO_LCDNUMBER

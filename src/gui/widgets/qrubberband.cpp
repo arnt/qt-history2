@@ -302,4 +302,10 @@ void QRubberBand::setGeometry(const QRect &geom)
     The geometry is specified in the parent widget's coordinate system.
 */
 
+/*! \reimp */
+bool QRubberBand::event(QEvent *e)
+{
+    return QWidget::event(e);
+}
+
 #endif // QT_NO_RUBBERBAND

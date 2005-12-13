@@ -745,6 +745,14 @@ void QAbstractSlider::changeEvent(QEvent *ev)
     }
 }
 
+/*!
+    \reimp
+*/
+bool QAbstractSlider::event(QEvent *e)
+{
+    return QWidget::event(e);
+}
+
 /*! \fn int QAbstractSlider::minValue() const
 
     Use minimum() instead.

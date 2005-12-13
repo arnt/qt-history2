@@ -81,6 +81,7 @@ Q_SIGNALS:
     void overflow();
 
 protected:
+    bool event(QEvent *e);
     void paintEvent(QPaintEvent *);
 
 public:

@@ -139,7 +139,7 @@ bool QProgressBarPrivate::repaintRequired() const
     \since 4.1
     \enum QProgressBar::Direction
     \brief Specifies the reading direction of the \l text for vertical progress bars.
-    
+
     \value TopToBottom The text is rotated 90 degrees clockwise.
     \value BottomToTop The text is rotated 90 degrees counter-clockwise.
 
@@ -368,13 +368,13 @@ QString QProgressBar::text() const
         return QString();
 
     int totalSteps = d->maximum - d->minimum;
-    
-    // If max and min are equal and we get this far, it means that the 
+
+    // If max and min are equal and we get this far, it means that the
     // progress bar has one step and that we are on that step. Return
-    // 100% here in order to avoid division by zero further down.  
+    // 100% here in order to avoid division by zero further down.
     if (totalSteps == 0)
         return tr("%1%").arg(100);
-    
+
     int progress = d->value - d->minimum;
     // Get the values down to something usable.
     if (totalSteps > INT_MAX / 1000) {
@@ -465,4 +465,10 @@ QProgressBar::Direction QProgressBar::textDirection()
     return d->textDirection;
 }
 
-#endif
+/*! \reimp */
+bool QProgressBar::event(QEvent *e)
+{
+    return QWidget::event(e);
+}
+
+#endif // QT_NO_PROGRESSBAR

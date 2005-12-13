@@ -43,6 +43,7 @@ Q_SIGNALS:
     void stateChanged(int);
 
 protected:
+    bool event(QEvent *e);
     bool hitButton(const QPoint &pos) const;
     void checkStateSet();
     void nextCheckState();

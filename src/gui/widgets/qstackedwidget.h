@@ -51,6 +51,8 @@ Q_SIGNALS:
     void currentChanged(int);
     void widgetRemoved(int index);
 
+protected:
+    bool event(QEvent *e);
 
 private:
     Q_DISABLE_COPY(QStackedWidget)

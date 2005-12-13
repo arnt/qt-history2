@@ -75,6 +75,7 @@ Q_SIGNALS:
     void valueChanged(int value);
 
 protected:
+    bool event(QEvent *e);
     void paintEvent(QPaintEvent *);
 
 private:

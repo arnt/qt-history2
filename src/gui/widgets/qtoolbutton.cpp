@@ -943,6 +943,12 @@ void QToolButton::nextCheckState()
         d->defaultAction->trigger();
 }
 
+/*! \reimp */
+bool QToolButton::event(QEvent *e)
+{
+    return QAbstractButton::event(e);
+}
+
 /*! \internal
  */
 QToolButton::QToolButton(QToolButtonPrivate &dd, QWidget *parent)

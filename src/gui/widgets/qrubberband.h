@@ -45,7 +45,7 @@ public:
     { resize(s.width(), s.height()); }
 
 protected:
-
+    bool event(QEvent *e);
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
     void showEvent(QShowEvent *);

@@ -989,7 +989,7 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
     QByteArray data;
     QUrl resolved = name;
     if (!isAbsoluteFileName(name.toLocalFile()))
-        resolved = source().resolved(name);    
+        resolved = source().resolved(name);
     QString fileName = d->findFile(resolved);
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
@@ -1000,6 +1000,12 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
     }
 
     return data;
+}
+
+/*! \reimp */
+bool QTextBrowser::event(QEvent *e)
+{
+    return QTextEdit::event(e);
 }
 
 #include "moc_qtextbrowser.cpp"

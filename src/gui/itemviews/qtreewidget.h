@@ -264,6 +264,7 @@ Q_SIGNALS:
     void itemSelectionChanged();
 
 protected:
+    bool event(QEvent *e);
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QList<QTreeWidgetItem*> items) const;
     virtual bool dropMimeData(QTreeWidgetItem *parent, int index,

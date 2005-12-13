@@ -1263,6 +1263,12 @@ bool QListView::uniformItemSizes() const
     return d->uniformItemSizes;
 }
 
+/* \reimp */
+bool QListView::event(QEvent *e)
+{
+    return QAbstractItemView::event(e);
+}
+
 /*
  * private object implementation
  */

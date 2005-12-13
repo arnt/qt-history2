@@ -1513,4 +1513,10 @@ static bool isIntermediateValueHelper(qint64 num, qint64 min, qint64 max, qint64
     return false;
 }
 
+/*! \reimp */
+bool QSpinBox::event(QEvent *e)
+{
+    return QAbstractSpinBox::event(e);
+}
+
 #endif // QT_NO_SPINBOX

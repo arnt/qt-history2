@@ -49,6 +49,7 @@ Q_SIGNALS:
     void messageChanged(const QString &message);
 
 protected:
+    bool event(QEvent *e);
     virtual void drawContents(QPainter *painter);
     void mousePressEvent(QMouseEvent *);
 

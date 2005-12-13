@@ -93,8 +93,10 @@ public:
 protected:
     QListView(QListViewPrivate &, QWidget *parent = 0);
 
+    bool event(QEvent *e);
+
     void scrollContentsBy(int dx, int dy);
- 
+
     void resizeContents(int width, int height);
     QSize contentsSize() const;
 

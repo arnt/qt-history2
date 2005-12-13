@@ -71,6 +71,7 @@ public:
 #endif
 
 protected:
+    bool event(QEvent *e);
     virtual QValidator::State validate(QString &input, int &pos) const;
     virtual int valueFromText(const QString &text) const;
     virtual QString textFromValue(int v) const;

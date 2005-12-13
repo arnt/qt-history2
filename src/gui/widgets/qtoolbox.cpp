@@ -755,6 +755,11 @@ void QToolBox::itemRemoved(int index)
     Use widget() instead.
 */
 
+/*! \reimp */
+bool QToolBox::event(QEvent *e)
+{
+    return QFrame::event(e);
+}
 
 #include "moc_qtoolbox.cpp"
 

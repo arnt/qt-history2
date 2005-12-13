@@ -435,6 +435,14 @@ QSize QDial::sizeHint() const
 }
 
 /*!
+  \reimp
+*/
+bool QDial::event(QEvent *e)
+{
+    return QAbstractSlider::event(e);
+}
+
+/*!
     \fn void QDial::dialPressed();
 
     Use QAbstractSlider::sliderPressed() instead.

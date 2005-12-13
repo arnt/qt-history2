@@ -56,6 +56,7 @@ public Q_SLOTS:
 #endif
 
 protected:
+    bool event(QEvent *e);
     void paintEvent(QPaintEvent *);
     void keyPressEvent(QKeyEvent *);
     void focusInEvent(QFocusEvent *);

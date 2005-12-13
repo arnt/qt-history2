@@ -2207,5 +2207,11 @@ void QTableWidget::setModel(QAbstractItemModel *model)
     QTableView::setModel(model);
 }
 
+/* \reimp */
+bool QTableWidget::event(QEvent *e)
+{
+    return QTableView::event(e);
+}
+
 #include "moc_qtablewidget.cpp"
 #endif // QT_NO_TABLEWIDGET

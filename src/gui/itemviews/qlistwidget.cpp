@@ -1502,5 +1502,11 @@ void QListWidget::setModel(QAbstractItemModel *model)
     QListView::setModel(model);
 }
 
+/* \reimp */
+bool QListWidget::event(QEvent *e)
+{
+    return QListView::event(e);
+}
+
 #include "moc_qlistwidget.cpp"
 #endif // QT_NO_LISTWIDGET

@@ -91,6 +91,7 @@ public:
     void setFrameRect(const QRect &);
 
 protected:
+    bool event(QEvent *e);
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
     void drawFrame(QPainter *);

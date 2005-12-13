@@ -60,6 +60,7 @@ Q_SIGNALS:
     void anchorClicked(const QUrl &);
 
 protected:
+    bool event(QEvent *e);
     virtual void keyPressEvent(QKeyEvent *ev);
     virtual void mouseMoveEvent(QMouseEvent *ev);
     virtual void mousePressEvent(QMouseEvent *ev);

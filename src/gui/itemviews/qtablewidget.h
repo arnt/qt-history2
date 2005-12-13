@@ -271,6 +271,7 @@ Q_SIGNALS:
     void currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn);
 
 protected:
+    bool event(QEvent *e);
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QList<QTableWidgetItem*> items) const;
     virtual bool dropMimeData(int row, int column, const QMimeData *data, Qt::DropAction action);

@@ -77,6 +77,7 @@ Q_SIGNALS:
 
 protected:
     QToolButton(QToolButtonPrivate &, QWidget* parent);
+    bool event(QEvent *e);
     void mousePressEvent(QMouseEvent *);
     void paintEvent(QPaintEvent *);
     void actionEvent(QActionEvent *);
