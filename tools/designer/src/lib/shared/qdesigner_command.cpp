@@ -112,15 +112,8 @@ bool QDesignerFormWindowCommand::hasLayout(QWidget *widget) const
     return false;
 }
 
-void QDesignerFormWindowCommand::checkObjectName(QObject *object)
+void QDesignerFormWindowCommand::checkObjectName(QObject *)
 {
-    if (object->objectName().isEmpty())
-        qWarning("invalid object name");
-
-    QDesignerFormEditorInterface *core = formWindow()->core();
-    if (QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(object)) {
-        item->setName(object->objectName());
-    }
 }
 
 void QDesignerFormWindowCommand::updateBuddies(const QString &old_name,
@@ -146,15 +139,6 @@ void QDesignerFormWindowCommand::updateBuddies(const QString &old_name,
 void QDesignerFormWindowCommand::checkSelection(QWidget *widget)
 {
     Q_UNUSED(widget);
-
-#if 0 // ### port me
-    QDesignerFormEditorInterface *core = formWindow()->core();
-
-    formWindow()->updateSelection(widget);
-
-    if (LayoutInfo::layoutType(core, widget) != LayoutInfo::NoLayout)
-        formWindow()->updateChildSelections(widget);
-#endif
 }
 
 void QDesignerFormWindowCommand::checkParent(QWidget *widget, QWidget *parentWidget)
