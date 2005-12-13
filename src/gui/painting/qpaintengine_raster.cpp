@@ -921,9 +921,30 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     }
 
     if (flags & DirtyClipEnabled) {
-        d->rasterBuffer->clipEnabled = state.isClipEnabled();
-        d->penData.adjustSpanMethods();
-        d->brushData.adjustSpanMethods();
+        if (state.isClipEnabled() != d->rasterBuffer->clipEnabled) {
+            d->rasterBuffer->clipEnabled = state.isClipEnabled();
+
+            // The tricky case... When we disable clipping we still do
+            // system clip so we need to rasterize the system clip and
+            // replace the current clip with it. Since people might
+            // choose to set clipping to true later on we have to the
+            // current one (in disabled_clip).
+            if (!d->baseClip.isEmpty()) {
+                if (!d->rasterBuffer->clipEnabled) {
+                    Q_ASSERT(!d->rasterBuffer->disabled_clip);
+                    d->rasterBuffer->disabled_clip = d->rasterBuffer->clip;
+                    d->rasterBuffer->clip = 0;
+                    updateClipPath(QPainterPath(), Qt::NoClip);
+                } else {
+                    Q_ASSERT(d->rasterBuffer->disabled_clip);
+                    d->rasterBuffer->resetClip();
+                    d->rasterBuffer->clip = d->rasterBuffer->disabled_clip;
+                    d->rasterBuffer->disabled_clip = 0;
+                }
+            }
+            d->penData.adjustSpanMethods();
+            d->brushData.adjustSpanMethods();
+        }
     }
 
     if (flags & DirtyClipPath) {
@@ -2420,6 +2441,7 @@ void QRasterBuffer::init()
 {
     clipEnabled = false;
     opaqueBackground = false;
+    disabled_clip = 0;
 
     compositionMode = QPainter::CompositionMode_SourceOver;
     delete clip;

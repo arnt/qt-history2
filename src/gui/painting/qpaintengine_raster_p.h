@@ -118,9 +118,9 @@ private:
     void init();
 
 #if defined(Q_WS_WIN)
-    bool drawTextInFontBuffer(const QRect &devRect, int xmin, int ymin, int xmax, 
+    bool drawTextInFontBuffer(const QRect &devRect, int xmin, int ymin, int xmax,
         int ymax, const QTextItem &textItem, bool clearType, qreal leftBearingReserve);
-#endif    
+#endif
 };
 
 
@@ -243,7 +243,16 @@ class QRasterBuffer
 {
 public:
 #if defined(Q_WS_WIN)
-    QRasterBuffer() : clip(0), m_hdc(0), m_bitmap(0), m_width(0), m_height(0), m_buffer(0){ init(); }
+    QRasterBuffer()
+        : clip(0),
+          m_hdc(0),
+          m_bitmap(0),
+          m_width(0),
+          m_height(0),
+          m_buffer(0)
+    {
+        init();
+    }
 
     HDC hdc() const { return m_hdc; }
 #elif defined(Q_WS_X11)
@@ -287,6 +296,7 @@ public:
     uchar *buffer() const { return m_buffer; }
 
     QClipData *clip;
+    QClipData *disabled_clip;
     bool clipEnabled;
     bool opaqueBackground;
 
