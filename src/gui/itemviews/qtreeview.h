@@ -56,6 +56,7 @@ public:
 
     int columnViewportPosition(int column) const;
     int columnWidth(int column) const;
+    void setColumnWidth(int column, int width);
     int columnAt(int x) const;
 
     bool isColumnHidden(int column) const;

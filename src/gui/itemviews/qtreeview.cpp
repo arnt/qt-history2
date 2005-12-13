@@ -298,11 +298,24 @@ int QTreeView::columnViewportPosition(int column) const
   Returns the width of the \a column.
 
   \sa resizeColumnToContents()
+  \sa setColumnWidth()
 */
 int QTreeView::columnWidth(int column) const
 {
     Q_D(const QTreeView);
     return d->header->sectionSize(column);
+}
+
+/*!
+  Sets the width of the \a column to \width.
+
+  \sa columnWidth()
+  \sa resizeColumnToContents()
+*/
+void QTreeView::setColumnWidth(int column, int width)
+{
+    Q_D(QTreeView);
+    d->header->setSectionSize(column, width);
 }
 
 /*!
@@ -1375,6 +1388,9 @@ void QTreeView::columnCountChanged(int, int)
 
 /*!
   Resizes the \a column given to the size of its contents.
+
+  \sa columnWidth()
+  \sa setColumnWidth()
 */
 void QTreeView::resizeColumnToContents(int column)
 {
