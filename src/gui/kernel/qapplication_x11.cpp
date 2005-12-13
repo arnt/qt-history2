@@ -3661,6 +3661,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
 
             }
             motion = (reinterpret_cast<const XDeviceMotionEvent*>(&xinputMotionEvent));
+            break;
         }
         t = QEvent::TabletMove;
         global = QPoint(motion->x_root, motion->y_root);
