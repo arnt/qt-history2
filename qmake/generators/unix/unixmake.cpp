@@ -164,7 +164,8 @@ UnixMakefileGenerator::init()
 
     MakefileGenerator::init();
 
-    if(project->isActiveConfig("macx") && !project->isEmpty("TARGET") && !project->isActiveConfig("compile_libtool")) {
+    if(project->isActiveConfig("macx") && !project->isEmpty("TARGET") && !project->isActiveConfig("compile_libtool") &&
+       ((project->isActiveConfig("build_pass") || project->isEmpty("BUILDS")))) {
         QString bundle;
         if(project->isActiveConfig("bundle") && !project->isEmpty("QMAKE_BUNDLE_EXTENSION")) {
             bundle = project->first("TARGET");
