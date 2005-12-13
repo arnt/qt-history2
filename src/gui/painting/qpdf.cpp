@@ -906,17 +906,17 @@ static QTtfTable generateMaxp(const qttf_maxp_table &maxp)
     return t;
 }
 
-struct NameRecord {
+struct QTtfNameRecord {
     quint16 nameId;
     QString value;
 };
 
-static QTtfTable generateName(const QList<NameRecord> &name);
+static QTtfTable generateName(const QList<QTtfNameRecord> &name);
 
 static QTtfTable generateName(const qttf_name_table &name)
 {
-    QList<NameRecord> list;
-    NameRecord rec;
+    QList<QTtfNameRecord> list;
+    QTtfNameRecord rec;
     rec.nameId = 0;
     rec.value = name.copyright;
     list.append(rec);
@@ -939,7 +939,7 @@ static QTtfTable generateName(const qttf_name_table &name)
 }
 
 // ####### should probably generate Macintosh/Roman name entries as well
-static QTtfTable generateName(const QList<NameRecord> &name)
+static QTtfTable generateName(const QList<QTtfNameRecord> &name)
 {
     const int char_size = 2;
 
