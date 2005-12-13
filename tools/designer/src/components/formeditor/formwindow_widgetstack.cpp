@@ -17,6 +17,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/qevent.h>
 #include <QtGui/QAction>
+#include <QtGui/QHBoxLayout>
 
 #include <QtCore/qdebug.h>
 
@@ -26,6 +27,9 @@ FormWindowWidgetStack::FormWindowWidgetStack(QWidget *parent)
     : QWidget(parent),
       m_current_index(-1)
 {
+    QHBoxLayout *l = new QHBoxLayout(this);
+    l->setMargin(0);
+    l->setSpacing(0);
 }
 
 FormWindowWidgetStack::~FormWindowWidgetStack()
@@ -103,12 +107,7 @@ void FormWindowWidgetStack::setSenderAsCurrentTool()
 
 int FormWindowWidgetStack::indexOf(QDesignerFormWindowToolInterface *tool) const
 {
-    for (int i = 0; i < m_tools.size(); ++i) {
-        if (m_tools.at(i) == tool)
-            return i;
-    }
-
-    return -1;
+    return m_tools.indexOf(tool);
 }
 
 void FormWindowWidgetStack::setCurrentTool(QDesignerFormWindowToolInterface *tool)
@@ -124,9 +123,13 @@ void FormWindowWidgetStack::setCurrentTool(QDesignerFormWindowToolInterface *too
 
 void FormWindowWidgetStack::addTool(QDesignerFormWindowToolInterface *tool)
 {
-    QWidget *w = tool->editor();
-    if (w != 0) {
+    if (QWidget *w = tool->editor()) {
         w->setParent(this);
+
+        if (layout()->isEmpty())
+            layout()->addWidget(w);
+
+
         if (!m_tools.isEmpty()) // we don't hide the form editor
             w->hide();
     }
@@ -167,3 +170,28 @@ int FormWindowWidgetStack::currentIndex() const
 {
     return m_current_index;
 }
+
+QWidget *FormWindowWidgetStack::defaultEditor() const
+{
+    if (m_tools.isEmpty())
+        return 0;
+
+    return m_tools.at(0)->editor();
+}
+
+QSize FormWindowWidgetStack::sizeHint() const
+{
+    if (QWidget *editor = defaultEditor())
+        return editor->sizeHint();
+
+    return QWidget::sizeHint();
+}
+
+QSize FormWindowWidgetStack::minimumSizeHint() const
+{
+    if (QWidget *editor = defaultEditor())
+        return editor->minimumSizeHint();
+
+    return QWidget::minimumSizeHint();
+}
+

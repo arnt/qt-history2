@@ -35,6 +35,9 @@ public:
     int currentIndex() const;
     int indexOf(QDesignerFormWindowToolInterface *tool) const;
 
+    virtual QSize sizeHint() const;
+    virtual QSize minimumSizeHint() const;
+
 signals:
     void currentToolChanged(int index);
 
@@ -46,6 +49,8 @@ public slots:
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
+
+    QWidget *defaultEditor() const;
 
 private:
     QList<QDesignerFormWindowToolInterface*> m_tools;
