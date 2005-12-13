@@ -402,7 +402,7 @@ QColor::QColor(QRgb color)
 */
 
 /*!
-    Returns the name of the color in the format "#AARRGGBB"; i.e. a "#"
+    Returns the name of the color in the format "#RRGGBB"; i.e. a "#"
     character followed by three two-digit hexadecimal numbers.
 
     \sa setNamedColor()
@@ -1829,15 +1829,18 @@ void QColor::invalidate()
 #ifdef QT3_SUPPORT
 
 /*!
-    Returns the pixel value.
+    Returns the pixel value used by the underlying window system to
+    refer to a color.
 
-    This value is used by the underlying window system to refer to a
-    color. It can be thought of as an index into the display
-    hardware's color table, but the value is an arbitrary 32-bit
-    value.
+    Use QColorMap::pixel() instead.
 
-    The \a screen parameter is only used under X11 to specify the X11
-    screen.
+    \oldcode
+        QColor myColor;
+        uint pixel = myColor.pixel(screen);
+    \newcode
+        QColormap cmap = QColormap::instance(screen);
+        uint pixel  = cmap.pixel(*this);
+    \endcode
 */
 uint QColor::pixel(int screen) const
 {
@@ -2025,7 +2028,11 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \overload
     \relates QColor
 
-    Returns a gray value (0 to 255) from the given RGBA quadruplet \a rgb.
+    Returns a gray value (0 to 255) from the given RGBA quadruplet \a
+    rgb.
+
+    The gray value is calculated using the formula (R * 11 + G *
+    16 + B * 5)/32.  Note that the alpha-channel is ignored.
 */
 
 /*!
