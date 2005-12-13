@@ -124,7 +124,10 @@ private:
 
         inline TableCellIterator &operator++() {
             do {
-                column += table->cellAt(row, column).columnSpan();
+                const QTextTableCell cell = table->cellAt(row, column);
+                if (!cell.isValid())
+                    break;
+                column += cell.columnSpan();
                 if (column >= table->columns()) {
                     column = 0;
                     ++row;

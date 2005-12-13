@@ -547,7 +547,9 @@ void QTextHtmlImporter::import()
             if (node->isTableCell && !tables.isEmpty()) {
                 Table &t = tables.last();
                 if (!t.isTextFrame) {
-                    cursor.setPosition(t.currentCell.cell().firstPosition());
+                    const QTextTableCell cell = t.currentCell.cell();
+                    if (cell.isValid())
+                        cursor.setPosition(cell.firstPosition());
                 }
                 hasBlock = true;
 
@@ -690,10 +692,10 @@ bool QTextHtmlImporter::closeTag(int i)
 
             if (!t.isTextFrame) {
                 ++t.currentRow;
+                
+                // for broken html with rowspans but missing tr tags
                 while (!t.currentCell.atEnd() && t.currentCell.row < t.currentRow)
                     ++t.currentCell;
-
-                t.currentRow = t.currentCell.row;
             }
 
             blockTagClosed = true;
