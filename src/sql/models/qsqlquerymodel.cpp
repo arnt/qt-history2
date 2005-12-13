@@ -197,10 +197,10 @@ bool QSqlQueryModel::canFetchMore(const QModelIndex &parent) const
 
     \sa canFetchMore(), QSqlDriver::hasFeature()
  */
-int QSqlQueryModel::rowCount(const QModelIndex &) const
+int QSqlQueryModel::rowCount(const QModelIndex &index) const
 {
     Q_D(const QSqlQueryModel);
-    return d->bottom.row() + 1;
+    return index.isValid() ? 0 : d->bottom.row() + 1;
 }
 
 /*! \reimp

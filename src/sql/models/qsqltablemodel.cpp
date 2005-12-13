@@ -1081,9 +1081,13 @@ bool QSqlTableModel::insertRecord(int row, const QSqlRecord &record)
 
 /*! \reimp
 */
-int QSqlTableModel::rowCount(const QModelIndex &) const
+int QSqlTableModel::rowCount(const QModelIndex &parent) const
 {
     Q_D(const QSqlTableModel);
+
+    if (parent.isValid())
+        return 0;
+
     int rc = QSqlQueryModel::rowCount();
     if (d->strategy == OnManualSubmit) {
         for (QSqlTableModelPrivate::CacheMap::ConstIterator it = d->cache.constBegin();
