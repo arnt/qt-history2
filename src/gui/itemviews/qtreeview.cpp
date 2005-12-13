@@ -315,7 +315,7 @@ int QTreeView::columnWidth(int column) const
 void QTreeView::setColumnWidth(int column, int width)
 {
     Q_D(QTreeView);
-    d->header->setSectionSize(column, width);
+    d->header->resizeSection(column, width);
 }
 
 /*!
