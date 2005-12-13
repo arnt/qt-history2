@@ -39,13 +39,14 @@ class QPushButtonPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QPushButton)
 public:
-    QPushButtonPrivate():autoDefault(true), defaultButton(false), flat(false){}
+    enum AutoDefaultValue {Off = 0, On = 1, Auto = 2};
+    QPushButtonPrivate():autoDefault(Auto), defaultButton(false), flat(false){}
     void init();
     void popupPressed();
     QStyleOptionButton getStyleOption() const;
-    QDialog *dialogParent();
+    QDialog *dialogParent() const;
     QPointer<QMenu> menu;
-    uint autoDefault : 1;
+    uint autoDefault : 2; 
     uint defaultButton : 1;
     uint flat : 1;
 };
@@ -248,14 +249,14 @@ QPushButton::~QPushButton()
 {
 }
 
-QDialog *QPushButtonPrivate::dialogParent()
+QDialog *QPushButtonPrivate::dialogParent() const
 {
-    Q_Q(QPushButton);
-    QWidget *p = q;
+    Q_Q(const QPushButton);
+    const QWidget *p = q;
     while (p && !p->isWindow()) {
         p = p->parentWidget();
-        if (QDialog *dialog = qobject_cast<QDialog*>(p))
-            return dialog;
+        if (const QDialog *dialog = qobject_cast<const QDialog *>(p))
+            return const_cast<QDialog *>(dialog);
     }
     return 0;
 }
@@ -263,7 +264,6 @@ QDialog *QPushButtonPrivate::dialogParent()
 void QPushButtonPrivate::init()
 {
     Q_Q(QPushButton);
-    autoDefault = (dialogParent() != 0);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
@@ -279,7 +279,7 @@ QStyleOptionButton QPushButtonPrivate::getStyleOption() const
     if (menu)
         opt.features |= QStyleOptionButton::HasMenu;
 #endif
-    if (autoDefault || defaultButton)
+    if (q->autoDefault() || defaultButton)
         opt.features |= QStyleOptionButton::AutoDefaultButton;
     if (defaultButton)
         opt.features |= QStyleOptionButton::DefaultButton;
@@ -298,9 +298,10 @@ QStyleOptionButton QPushButtonPrivate::getStyleOption() const
 void QPushButton::setAutoDefault(bool enable)
 {
     Q_D(QPushButton);
-    if (d->autoDefault == enable)
+    uint state = enable ? QPushButtonPrivate::On : QPushButtonPrivate::Off;
+    if (d->autoDefault != QPushButtonPrivate::Auto && d->autoDefault == state)
         return;
-    d->autoDefault = enable;
+    d->autoDefault = state;
     update();
     updateGeometry();
 }
@@ -308,6 +309,8 @@ void QPushButton::setAutoDefault(bool enable)
 bool QPushButton::autoDefault() const
 {
     Q_D(const QPushButton);
+    if(d->autoDefault == QPushButtonPrivate::Auto)
+        return ( d->dialogParent() != 0 );
     return d->autoDefault;
 }
 
@@ -391,7 +394,7 @@ void QPushButton::keyPressEvent(QKeyEvent *e)
     switch (e->key()) {
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        if (d->autoDefault || d->defaultButton) {
+        if (autoDefault() || d->defaultButton) {
             click();
             break;
         }
@@ -407,7 +410,7 @@ void QPushButton::keyPressEvent(QKeyEvent *e)
 void QPushButton::focusInEvent(QFocusEvent *e)
 {
     Q_D(QPushButton);
-    if (e->reason() != Qt::PopupFocusReason && d->autoDefault && !d->defaultButton) {
+    if (e->reason() != Qt::PopupFocusReason && autoDefault() && !d->defaultButton) {
         d->defaultButton = true;
         QDialog *dlg = qobject_cast<QDialog*>(window());
         if (dlg)
@@ -422,7 +425,7 @@ void QPushButton::focusInEvent(QFocusEvent *e)
 void QPushButton::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QPushButton);
-    if (e->reason() != Qt::PopupFocusReason && d->autoDefault && d->defaultButton) {
+    if (e->reason() != Qt::PopupFocusReason && autoDefault() && d->defaultButton) {
         QDialog *dlg = qobject_cast<QDialog*>(window());
         if (dlg)
             dlg->d_func()->setDefault(0);
