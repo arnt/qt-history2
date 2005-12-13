@@ -15,6 +15,9 @@ StyleWidget::StyleWidget(QWidget *parent)
 void StyleWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
+    QFont font = painter.font();
+    font.setPointSize(9);
+    painter.setFont(font);
     painter.setPen(Qt::NoPen);
     painter.setRenderHint(QPainter::Antialiasing);
 
