@@ -2772,6 +2772,18 @@ void QTextEdit::setAcceptRichText(bool accept)
 void QTextEdit::setExtraSelections(const QList<ExtraSelection> &selections)
 {
     Q_D(QTextEdit);
+    if (selections.count() == d->extraSelections.count()) {
+        bool needUpdate = false;
+        for (int i = 0; i < selections.count(); ++i)
+            if (selections.at(i).cursor != d->extraSelections.at(i).cursor
+                || selections.at(i).format != d->extraSelections.at(i).format) {
+                needUpdate = true;
+                break;
+            }
+        if (!needUpdate)
+            return;
+    }
+
     d->extraSelections.resize(selections.count());
     for (int i = 0; i < selections.count(); ++i) {
         d->extraSelections[i].cursor = selections.at(i).cursor;
