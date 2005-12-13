@@ -1537,22 +1537,23 @@ void QAbstractItemView::updateEditorGeometries()
 {
     Q_D(QAbstractItemView);
     QStyleOptionViewItem option = viewOptions();
-    QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
-    while (it != d->editors.end()) {
+    QMap<QPersistentModelIndex, QWidget*> editors = d->editors;
+    QMap<QPersistentModelIndex, QWidget*>::iterator it = editors.begin();
+    while (it != editors.end()) {
+        Q_ASSERT(it.value());
         option.rect = visualRect(it.key());
         if (option.rect.isValid())
             it.value()->show();
         else
             it.value()->hide();
-        if (it.key().isValid() && option.rect.isValid()) {
-            itemDelegate()->updateEditorGeometry(it.value(), option, it.key());
-            ++it;
-        } else if (!it.key().isValid()) {
-            // remove editors of deleted indexes
-            if (it.value())
-                d->releaseEditor(it.value());
-            it = d->editors.erase(it);
+        if (it.key().isValid()) {
+            if (option.rect.isValid())
+                itemDelegate()->updateEditorGeometry(it.value(), option, it.key());
+        } else {
+            d->releaseEditor(it.value());
+            d->editors.remove(it.key());
         }
+        ++it;
     }
 }
 
