@@ -293,6 +293,28 @@ VCCLCompilerTool::VCCLCompilerTool()
 {
 }
 
+/*
+ * Some values for the attribute UsePrecompiledHeader have changed from VS 2003 to VS 2005,
+ * see the following chart, so we need a function that transforms those values if we are
+ * using NET2005:
+ * 
+ * Meaning                      2003    2005
+ * -----------------------------------------
+ * Don't use PCH                0       0
+ * Create PCH (/Yc)             1       1
+ * Automatically generate (/YX) 2       (seems that it was removed)
+ * Use specific PCH (/Yu)       3       2
+ *
+ */
+inline XmlOutput::xml_output xformUsePrecompiledHeaderForNET2005(pchOption whatPch, DotNET compilerVersion)
+{
+    if (compilerVersion == NET2005) {
+        if (whatPch ==  pchGenerateAuto) whatPch = (pchOption)0;
+        if (whatPch ==  pchUseUsingSpecific) whatPch = (pchOption)2;
+    }
+    return attrE(_UsePrecompiledHeader, whatPch);
+}
+
 XmlOutput &operator<<(XmlOutput &xml, const VCCLCompilerTool &tool)
 {
     return xml
@@ -354,7 +376,7 @@ XmlOutput &operator<<(XmlOutput &xml, const VCCLCompilerTool &tool)
             << attrT(_TurnOffAssemblyGeneration, tool.TurnOffAssemblyGeneration)
             << attrT(_UndefineAllPreprocessorDefinitions, tool.UndefineAllPreprocessorDefinitions)
             << attrX(_UndefinePreprocessorDefinitions, tool.UndefinePreprocessorDefinitions)
-            << (!tool.PrecompiledHeaderFile.isEmpty() || !tool.PrecompiledHeaderThrough.isEmpty() ? attrE(_UsePrecompiledHeader, tool.UsePrecompiledHeader) : noxml())
+            << (!tool.PrecompiledHeaderFile.isEmpty() || !tool.PrecompiledHeaderThrough.isEmpty() ? xformUsePrecompiledHeaderForNET2005(tool.UsePrecompiledHeader, tool.config->CompilerVersion) : noxml())
             << attrT(_WarnAsError, tool.WarnAsError)
             << attrE(_WarningLevel, tool.WarningLevel, /*ifNot*/ warningLevelUnknown)
             << attrT(_WholeProgramOptimization, tool.WholeProgramOptimization)
@@ -766,10 +788,14 @@ bool VCCLCompilerTool::parseOption(const char* option)
             break;
         case 'c':
             if(third == ':') {
+                const char *c = option + 4;
+                // Go to the end of the option
+                while ( *c != '\0' && *c != ' ' && *c != '-')
+                    ++c;
                 if(fourth == 'f')
-                    ForceConformanceInForLoopScope = _True;
+                    ForceConformanceInForLoopScope = ((*c) == '-' ? _False : _True);
                 else if(fourth == 'w')
-                    TreatWChar_tAsBuiltInType = _True;
+                    TreatWChar_tAsBuiltInType = ((*c) == '-' ? _False : _True);
                 else
                     found = false;
             } else {
