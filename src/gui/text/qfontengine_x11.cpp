@@ -456,8 +456,11 @@ static QStringList fontPath()
     return fontpath;
 }
 
-static QString fontFile(const QByteArray &xname)
+static QFontEngine::FaceId fontFile(const QByteArray &xname, QFreetypeFace **freetype, int *synth)
 {
+    *freetype = 0;
+    *synth = 0;
+    
     QByteArray searchname = xname.toLower();
     int pos = 0;
     int minus = 0;
@@ -465,7 +468,9 @@ static QString fontFile(const QByteArray &xname)
         ++minus;
     searchname = searchname.left(pos);
     QStringList fontpath = ::fontPath();
-    QString fontfilename;
+    QFontEngine::FaceId face_id;
+    face_id.index = 0;
+
     for (QStringList::ConstIterator it = fontpath.constBegin(); it != fontpath.constEnd(); ++it) {
         if ((*it).left(1) != "/")
             continue; // not a path name, a font server
@@ -490,23 +495,31 @@ static QString fontFile(const QByteArray &xname)
                 if (!mapping.toLower().contains(searchname))
                     continue;
                 int index = mapping.indexOf(' ');
-                QString ffn = mapping.mid(0,index);
+                QByteArray ffn = mapping.mid(0,index);
                 // remove the most common bitmap formats
                 if(ffn.contains(".pcf") || ffn.contains(".bdf") || ffn.contains(".spd") || ffn.contains(".phont"))
                     continue;
-                fontfilename = (*it) + QString("/") + ffn;
-                if (QFile::exists(fontfilename)) {
-                    // ############ check if scalable
-                    goto end;
+                int colon = ffn.lastIndexOf(':');
+                if (colon != -1) {
+                    QByteArray s = ffn.left(colon);
+                    ffn = ffn.mid(colon + 1);
+                    if (s.contains("ds="))
+                        *synth |= QFontEngine::SynthesizedBold;
+                    if (s.contains("ai="))
+                        *synth |= QFontEngine::SynthesizedItalic;
                 }
-                fontfilename = QString();
+                face_id.filename = (*it).toLocal8Bit() + '/' + ffn;
+                *freetype = QFreetypeFace::getFace(face_id);
+                if (*freetype)
+                    goto end;
+                face_id.filename = 0;
             }
             fontmap.close();
         }
     }
 end:
-    //qDebug("fontfile for %s is %s", searchname.data(), fontfilename.toLocal8Bit().data());
-    return fontfilename;
+    //qDebug("fontfile for %s is %s synth=%d", searchname.data(), face_id.filename.data(), *synth);
+    return face_id;
 }
 
 // defined in qfontdatabase_x11.cpp
@@ -547,6 +560,7 @@ QFontEngineXLFD::QFontEngineXLFD(XFontStruct *fs, const QByteArray &name, int mi
     rbearing = SHRT_MIN;
     face_id.index = -1;
     freetype = 0;
+    synth = 0;
 }
 
 QFontEngineXLFD::~QFontEngineXLFD()
@@ -822,11 +836,9 @@ void QFontEngineXLFD::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *gly
 QFontEngine::FaceId QFontEngineXLFD::faceId() const
 {
     if (face_id.index == -1) {
-        face_id.index = 0;
-        face_id.filename = ::fontFile(_name).toLocal8Bit();
+        face_id = ::fontFile(_name, &freetype, &synth);
         if (_codec)
             face_id.encoding = _codec->mibEnum();
-        freetype = QFreetypeFace::getFace(face_id);
     }
     return face_id;
 }
@@ -884,7 +896,7 @@ QByteArray QFontEngineXLFD::getSfntTable(uint tag) const
 
 int QFontEngineXLFD::synthesized() const
 {
-    return 0;
+    return synth;
 }
 
 FT_Face QFontEngineXLFD::non_locked_face() const
