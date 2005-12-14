@@ -798,17 +798,20 @@ static void qParseArgs(int argc, char *argv[])
     }
 }
 
-
+/*!
+    Call init(), slot_data(), slot(), slot(), slot()..., cleanup() 
+    If data is set then it is the only test that is performed
+ */
 static bool qInvokeTestMethod(const char *slotName, const char *data=0)
 {
     QTEST_ASSERT(slotName);
 
-    char cur[512];
+    char member[512];
     QTestTable table;
 
-    char *sl = qstrdup(slotName);
-    sl[strlen(sl) - 2] = '\0';
-    QTestResult::setCurrentTestFunction(sl);
+    char *slot = qstrdup(slotName);
+    slot[strlen(slot) - 2] = '\0';
+    QTestResult::setCurrentTestFunction(slot);
 
     const QTestTable *gTable = QTestTable::globalTestTable();
     const int globalDataCount = gTable->dataCount();
@@ -819,8 +822,8 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
 
         if (curGlobalDataIndex == 0) {
             QTestResult::setCurrentTestLocation(QTestResult::DataFunc);
-            QTest::qt_snprintf(cur, 512, "%s_data", sl);
-            QMetaObject::invokeMethod(QTest::currentTestObject, cur, Qt::DirectConnection);
+            QTest::qt_snprintf(member, 512, "%s_data", slot);
+            QMetaObject::invokeMethod(QTest::currentTestObject, member, Qt::DirectConnection);
         }
 
         bool foundFunction = false;
@@ -838,7 +841,7 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
                         break;
 
                     QTestResult::setCurrentTestLocation(QTestResult::Func);
-                    if (!QMetaObject::invokeMethod(QTest::currentTestObject, sl,
+                    if (!QMetaObject::invokeMethod(QTest::currentTestObject, slot,
                                                   Qt::DirectConnection)) {
                         QTestResult::addFailure("Unable to execute slot", __FILE__, __LINE__);
                         break;
@@ -873,7 +876,7 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
     } while (curGlobalDataIndex < globalDataCount);
 
     QTestResult::finishedCurrentTestFunction();
-    delete[] sl;
+    delete[] slot;
 
     return true;
 }
@@ -927,10 +930,10 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
     QTEST_ASSERT(!currentTestObject);
     currentTestObject = testObject;
 
-    const QMetaObject *mo = testObject->metaObject();
-    QTEST_ASSERT(mo);
+    const QMetaObject *metaObject = testObject->metaObject();
+    QTEST_ASSERT(metaObject);
 
-    QTestResult::setCurrentTestObject(mo->className());
+    QTestResult::setCurrentTestObject(metaObject->className());
     qParseArgs(argc, argv);
 
     QTestLog::startLogging();
@@ -947,15 +950,15 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
 
         if (lastTestFuncIdx >= 0) {
             for (int i = 0; i <= lastTestFuncIdx; ++i) {
-                qInvokeTestMethod(mo->method(testFuncs[i].function).signature(), testFuncs[i].data);
+                qInvokeTestMethod(metaObject->method(testFuncs[i].function).signature(), testFuncs[i].data);
             }
         } else {
-            int sc = mo->methodCount();
-            for (int i = 0; i < sc; ++i) {
-                QMetaMethod sl = mo->method(i);
-                if (!isValidSlot(sl))
+            int methodCount = metaObject->methodCount();
+            for (int i = 0; i < methodCount; ++i) {
+                QMetaMethod slotMethod = metaObject->method(i);
+                if (!isValidSlot(slotMethod))
                     continue;
-                qInvokeTestMethod(sl.signature());
+                qInvokeTestMethod(slotMethod.signature());
             }
         }
 
