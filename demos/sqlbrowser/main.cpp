@@ -25,8 +25,8 @@ void addConnectionsFromCommandline(const QStringList &args, Browser *browser)
             qWarning("Invalid URL: %s", qPrintable(args.at(i)));
             continue;
         }
-        QSqlError err = browser->addConnection(url.scheme(), url.host(), url.path(), url.userName(),
-                                               url.password(), url.port(-1));
+        QSqlError err = browser->addConnection(url.scheme(), url.path().mid(1), url.host(),
+                                               url.userName(), url.password(), url.port(-1));
         if (err.type() != QSqlError::NoError)
             qDebug() << "Unable to open connection:" << err;
     }
