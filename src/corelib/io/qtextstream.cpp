@@ -1396,8 +1396,11 @@ QString QTextStream::readAll()
     The returned line has no trailing end-of-line characters, so
     calling QString::trimmed() is unnecessary.
 
-    If the stream has read to the end of the file, atEnd() will return
-    true.
+    If the stream has read to the end of the file, the returned string
+    will be a null string - see QString::isNull(). Empty lines are
+    represented by empty, but non-null strings - see QString::isEmpty().
+
+    You can also explicitly test for the end of the file using atEnd().
 
     \sa readAll()
 */
