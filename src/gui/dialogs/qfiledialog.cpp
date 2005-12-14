@@ -1397,12 +1397,23 @@ void QFileDialogPrivate::renameCurrent()
 
 void QFileDialogPrivate::deleteCurrent()
 {
-    // FIXME: should we delete all selected indexes ?
     QModelIndex index = selections->currentIndex();
-    if(!index.isValid())
+    if (!index.isValid() || model->isReadOnly())
         return;
-    if (model->isReadOnly())
+    
+    QString fileName = model->fileName(index);
+    if (!model->fileInfo(index).isWritable()
+        && (QMessageBox::warning(q_func(), q_func()->windowTitle(),
+                                tr("'%1' is write protected.\nDo you want to delete it anyway?")
+                                .arg(fileName),
+                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No))
         return;
+    else if (QMessageBox::warning(q_func(), q_func()->windowTitle(),
+                                  tr("Are sure you want to delete '%1'?")
+                                  .arg(fileName),
+                                  QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        return;
+
     if (model->isDir(index))
         model->rmdir(index);
     else
