@@ -1,7 +1,8 @@
 Qt COMMERCIAL LICENSE AGREEMENT
-Agreement version 2.10
+Agreement version 3.0 
 
 IMPORTANT-READ CAREFULLY: 
+
 1. This Trolltech End-User License Agreement ("Agreement") is a legal
 agreement between you (either an individual or a legal entity)
 ("Licensee") and Trolltech Inc. ("Trolltech") for the Trolltech
@@ -92,20 +93,51 @@ of a Third Party Library may require appropriate licensing from such
 third parties.
 
 GENERAL TERMS THAT APPLY TO APPLICATIONS AND REDISTRIBUTABLES
-10. Trolltech grants Licensee a nonexclusive, royalty-free right to
+10. a) Trolltech grants Licensee a nonexclusive, royalty-free right to
 reproduce and distribute the object code form of certain portions of
 the Licensed Software ("Redistributables"), as specified in Appendix
-1, for execution on any operating system of a type listed in the
-License Certificate ("Platforms"). Copies of Redistributables may only
-be distributed with and for the sole purpose of executing Applications
-permitted under this Agreement that Licensee has created using the
-Licensed Software. Licensee may not distribute, transfer, assign or
-otherwise dispose of Redistributables, solely or as a part of an
-Application, its source code, in binary/compiled, or in any other form
-if such action is a part of a joint software and hardware
-distribution, except as provided by a separate distribution agreement
-with Trolltech. Under no circumstances may any copies of
-Redistributables be distributed separately.
+1, Section 1, for execution on any operating system of a type listed
+in the License Certificate ("Platforms"). Copies of Redistributables
+may only be distributed with and for the sole purpose of executing
+Applications permitted under this Agreement that Licensee has created
+using the Licensed Software. Under no circumstances may any copies of
+Redistributables be distributed separately. This Agreement does not
+give Licensee any rights to distribute any of the parts of the
+Licensed Software listed in Appendix 1, Section 2, neither as a whole
+nor as parts or snippets of code.
+
+b) Licensee may not distribute, transfer, assign or otherwise dispose
+of Redistributables, solely or as part of an Application, its source
+code, in binary/compiled form, or in any other form, if such action is
+part of a joint software and hardware distribution, except as set
+forth below or provided by a separate runtime distribution license
+with Trolltech or one of its authorized distributors. A joint hardware
+and software distribution shall be defined as either: (i) distribution
+of a hardware device that includes the Licensed Software; or (ii)
+distribution of the Licensed Software onto a device designed to
+facilitate the installation of the Licensed Software onto the same
+device and where the core functionality of the device will depend on
+the Licensed Software.
+
+c) If the combination of the Licensed Software and hardware and/or
+software ("Product"), in the final working end-user configuration
+either (i) relies on Apple OS X ® or Windows 98/ME/2000/2003/ XP/Vista
+® (however not including embedded versions of these, e.g XP Embedded)
+as an integral part of and foundation for its functionality; or (ii)
+is a workstation, server, desktop computer or notebook computer
+relying on a complete 3rd party desktop environment such as KDE or
+GNOME as an integral part of and foundation for its functionality; or
+(iii) only depends on modules in the Licensed Software's Console
+edition (Qt Core, Database, Network, XML) and is not dependent on a
+window system (such as the X Windows system or similar) to operate; or
+(iv) requires a permanent mains power supply for normal operation; or
+(v) does not lose core functionality when the Licensed Software is
+removed, then Licensee is hereby granted an exception from the
+requirement for a runtime distribution license agreement.
+
+d) In all instances not covered above, Licensee shall contact
+Trolltech or one of Trolltech's authorized distributors to obtain a
+distribution license agreement.
 
 11. The license granted in this Agreement for Licensee to create
 Applications and distribute them and the Redistributables (if any) to
@@ -227,10 +259,10 @@ Agreement.
 applicable laws and regulations relating to the Licensed Software in
 the United States and in other countries in which Licensee uses or
 modifies the Licensed Software. Without limiting the generality of the
-foregoing, Licensee shall not export, reexport, disclose or distribute
-any of the Licensed Software in violation of any applicable laws or
-regulations, including the export laws and regulations of the United
-States, and shall comply with all such laws and regulations.
+foregoing, Licensee shall not export, re-export, disclose or
+distribute any of the Licensed Software in violation of any applicable
+laws or regulations, including the export laws and regulations of the
+United States, and shall comply with all such laws and regulations.
 
 21. Entire Agreement: This Agreement constitutes the complete
 agreement between the parties and supersedes all prior or
@@ -258,21 +290,25 @@ from state to state and from country to country. Trolltech reserves
 all rights not specifically granted in this Agreement.
 
 
-
 Appendix 1:
-Parts of the Licensed Software that are permitted for distribution
-("Redistributables"):
 
+1. Parts of the Licensed Software that are permitted for distribution
+("Redistributables"):
 - The Licensed Software's main and plug-in libraries in object code
   form
+- The Licensed Software's configuration tool ("qtconfig")
 - The Licensed Software's help tool in object code/executable form
   ("Qt Assistant")
-- The Licensed Software's translator tool in object code/executable
-  form ("Qt Linguist")
+- The Licensed Software's internationalization tools in object
+  code/executable form ("Qt Linguist", "lupdate", "lrelease")
 
-Parts of the Licensed Software that are not permitted for distribution
-include, but are not limited to:
+2. Parts of the Licensed Software that are not permitted for
+distribution include, but are not limited to:
 
 - The Licensed Software's source code and header files
 - The Licensed Software's documentation
 - The Licensed Software's designer tool ("Qt Designer")
+- The Licensed Software's tool for writing makefiles ("qmake")
+- The Licensed Software's Meta Object Compiler ("moc")
+- The Licensed Software's User Interface Compiler ("uic")
+- The Licensed Software's Resource Compiler ("rcc")
