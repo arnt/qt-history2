@@ -536,6 +536,11 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
                     menu.color(QPalette::Active, QPalette::Foreground));
     menu.setColor(QPalette::Inactive, QPalette::ButtonText,
                     menu.color(QPalette::Active, QPalette::ButtonText));
+    menu.setColor(QPalette::Inactive, QPalette::Highlight,
+                    menu.color(QPalette::Active, QPalette::Highlight));
+    menu.setColor(QPalette::Inactive, QPalette::HighlightedText, 
+                    menu.color(QPalette::Active, QPalette::HighlightedText));
+
     if (QSysInfo::WindowsVersion != QSysInfo::WV_NT && QSysInfo::WindowsVersion != QSysInfo::WV_95)
         menu.setColor(QPalette::Inactive, QPalette::ButtonText,
                         pal.color(QPalette::Inactive, QPalette::Dark));
