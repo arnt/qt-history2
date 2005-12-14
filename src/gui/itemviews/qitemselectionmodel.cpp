@@ -432,6 +432,9 @@ void QItemSelection::merge(const QItemSelection &other, QItemSelectionModel::Sel
 void QItemSelection::split(const QItemSelectionRange &range,
                            const QItemSelectionRange &other, QItemSelection *result)
 {
+    if (range.parent() != other.parent())
+        return;
+    
     QModelIndex parent = other.parent();
     int top = range.top();
     int left = range.left();
