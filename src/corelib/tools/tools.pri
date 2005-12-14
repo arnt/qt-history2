@@ -78,4 +78,4 @@ contains(QT_CONFIG, zlib) {
 #  win32:LIBS += libz.lib
 }
 
-
+unix:LIBS += -lm
