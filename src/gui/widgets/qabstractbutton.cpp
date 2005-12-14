@@ -305,7 +305,7 @@ void QAbstractButtonPrivate::notifyChecked()
         QAbstractButton *previous = group->d_func()->checkedButton;
         group->d_func()->checkedButton = q;
         if (group->d_func()->exclusive && previous && previous != q)
-            previous->setChecked(false);
+            previous->nextCheckState();
     } else
 #endif
     if (autoExclusive) {
