@@ -239,8 +239,10 @@ void QSvgText::draw(QPainter *p)
             if (m_textAlignment == Qt::AlignHCenter) {
                 px = m_coord.x() - w / 2;
             }
-            else if (m_textAlignment == Qt::AlignRight)
+            else if (m_textAlignment == Qt::AlignRight) {
                 px = m_coord.x() - w;
+        }
+            initial = false;
         }
     }
     tl.endLayout();
