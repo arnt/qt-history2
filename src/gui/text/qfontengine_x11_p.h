@@ -85,6 +85,7 @@ public:
     { return _fs; }
 
     FT_Face non_locked_face() const;
+    glyph_t glyphIndexToFreetypeGlyphIndex(glyph_t g) const;
 
 private:
     XFontStruct *_fs;
@@ -94,6 +95,7 @@ private:
     int lbearing, rbearing;
     mutable QFontEngine::FaceId face_id;
     mutable QFreetypeFace *freetype;
+    mutable int synth;
 };
 
 #ifndef QT_NO_FONTCONFIG

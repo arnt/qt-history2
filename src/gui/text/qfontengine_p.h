@@ -95,8 +95,10 @@ public:
     virtual QByteArray getSfntTable(uint /*tag*/) const { return QByteArray(); }
     
     struct FaceId {
+        FaceId() : index(0), encoding(0) {}
         QByteArray filename;
         int index;
+        int encoding;
     };
     virtual FaceId faceId() const { return FaceId(); }
     enum SynthesizedFlags {
@@ -188,12 +190,12 @@ public:
 
 inline bool operator ==(const QFontEngine::FaceId &f1, const QFontEngine::FaceId &f2)
 {
-    return f1.index == f2.index && f1.filename == f2.filename;
+    return (f1.index == f2.index) && (f1.encoding == f2.encoding) && (f1.filename == f2.filename);
 }
 
 inline uint qHash(const QFontEngine::FaceId &f)
 {
-    return qHash(f.index) + qHash(f.filename);
+    return qHash((f.index << 16) + f.encoding) + qHash(f.filename);
 }
 
 

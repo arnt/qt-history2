@@ -1883,8 +1883,13 @@ QByteArray QPdf::Font::glyphName(unsigned int glyph, const QVector<int> reverseM
 
     char name[32];
     name[0] = 0;
-    if (face && FT_HAS_GLYPH_NAMES(face))
+    if (face && FT_HAS_GLYPH_NAMES(face)) {
+#if defined(Q_WS_X11)
+        if (fontEngine->type() == QFontEngine::XLFD) 
+            glyphIndex = static_cast<QFontEngineXLFD *>(fontEngine)->glyphIndexToFreetypeGlyphIndex(glyphIndex);
+#endif
         FT_Get_Glyph_Name(face, glyphIndex, &name, 32);
+    }
     if (name[0])
         s << "/" << name;
     else
@@ -1898,6 +1903,16 @@ QByteArray QPdf::Font::glyphName(unsigned int glyph, const QVector<int> reverseM
         s << "/gl" << (int)glyphIndex;
     }
     return ba;
+}
+
+int QPdf::Font::addGlyph(int index)
+{
+    int idx = glyph_indices.indexOf(index);
+    if (idx < 0) {
+        idx = glyph_indices.size();
+        glyph_indices.append(index);
+    }
+    return idx;
 }
 
 QByteArray QPdf::Font::toType1() const

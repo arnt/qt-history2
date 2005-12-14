@@ -824,6 +824,8 @@ QFontEngine::FaceId QFontEngineXLFD::faceId() const
     if (face_id.index == -1) {
         face_id.index = 0;
         face_id.filename = ::fontFile(_name).toLocal8Bit();
+        if (_codec)
+            face_id.encoding = _codec->mibEnum();
         freetype = QFreetypeFace::getFace(face_id);
     }
     return face_id;
@@ -850,7 +852,7 @@ void QFontEngineXLFD::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_
 
     FT_Face face = freetype->face;
     FT_Set_Transform(face, 0, 0);
-    glyph = FT_Get_Char_Index(face, glyph);
+    glyph = glyphIndexToFreetypeGlyphIndex(glyph);
     FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP|FT_LOAD_NO_SCALE);
 
     int left  = face->glyph->metrics.horiBearingX;
@@ -888,6 +890,28 @@ int QFontEngineXLFD::synthesized() const
 FT_Face QFontEngineXLFD::non_locked_face() const
 {
     return freetype ? freetype->face : 0;
+}
+
+glyph_t QFontEngineXLFD::glyphIndexToFreetypeGlyphIndex(glyph_t g) const
+{
+    if (_codec) {
+        QTextCodec::ConverterState state;
+        state.flags = QTextCodec::ConvertInvalidToNull;
+        uchar data[2];
+        int l = 1;
+        if (g > 255) {
+            data[0] = (g >> 8);
+            data[1] = (g & 255);
+            l = 2;
+        } else {
+            data[0] = g;
+        }
+        QString s = _codec->toUnicode((char *)data, l, &state);
+        Q_ASSERT(s.length() == 1);
+        g = s.at(0).unicode();
+    }
+    g = FT_Get_Char_Index(freetype->face, g);
+    return g;
 }
 
 #ifndef QT_NO_FONTCONFIG

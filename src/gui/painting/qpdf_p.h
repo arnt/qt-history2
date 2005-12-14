@@ -73,14 +73,7 @@ namespace QPdf {
 
         static QByteArray glyphName(unsigned short unicode, bool symbol);
 
-        int addGlyph(int index) {
-            int idx = glyph_indices.indexOf(index);
-            if (idx < 0) {
-                idx = glyph_indices.size();
-                glyph_indices.append(index);
-            }
-            return idx;
-        }
+        int addGlyph(int index);
         const int object_id;
         QFontEngine *fontEngine;
         QList<int> glyph_indices;
