@@ -451,6 +451,7 @@ static void parseQPen(QPen &pen, QSvgNode *node,
             }
             if (!width.isEmpty()) {
                 QSvgHandler::LengthType lt;
+                qreal oldWidth = pen.widthF();
                 qreal widthF = parseLength(width, lt, handler);
                 //### fixme
                 if (!widthF) {
@@ -458,8 +459,9 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                     return;
                 }
                 pen.setWidthF(widthF);
-                if (miterlimit.isEmpty())
-                    pen.setMiterLimit(pen.miterLimit()/pen.widthF());
+                if (miterlimit.isEmpty()) {
+                    pen.setMiterLimit(qreal(pen.miterLimit() * oldWidth)/pen.widthF());
+                }
             }
             qreal penw = pen.widthF();
 
@@ -621,7 +623,8 @@ static void parsePen(QSvgNode *node,
     QString opacity    = attributes.value("stroke-opacity");
     QString width      = attributes.value("stroke-width");
     QString myId       = attributes.value("id");
-    if (!value.isEmpty() || !width.isEmpty()) {
+    if (!value.isEmpty() || !width.isEmpty() || !linecap.isEmpty() ||
+        linejoin.isEmpty()) {
         if (value != QLatin1String("none")) {
             QSvgStrokeStyle *inherited =
                 static_cast<QSvgStrokeStyle*>(node->parent()->styleProperty(
@@ -668,6 +671,7 @@ static void parsePen(QSvgNode *node,
             }
             if (!width.isEmpty()) {
                 QSvgHandler::LengthType lt;
+                qreal oldWidth = pen.widthF();
                 qreal widthF = parseLength(width, lt, handler);
                 //### fixme
                 if (!widthF) {
@@ -675,8 +679,9 @@ static void parsePen(QSvgNode *node,
                     return;
                 }
                 pen.setWidthF(widthF);
-                if (miterlimit.isEmpty())
-                    pen.setMiterLimit(pen.miterLimit()/pen.widthF());
+                if (miterlimit.isEmpty()) {
+                    pen.setMiterLimit(qreal(pen.miterLimit() * oldWidth)/pen.widthF());
+                }
             }
 
             if (!linejoin.isEmpty()) {

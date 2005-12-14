@@ -241,7 +241,7 @@ void QSvgText::draw(QPainter *p)
             }
             else if (m_textAlignment == Qt::AlignRight) {
                 px = m_coord.x() - w;
-        }
+            }
             initial = false;
         }
     }
