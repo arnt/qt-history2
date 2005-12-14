@@ -136,7 +136,7 @@ public:
     virtual QValidator::State validate(QString& input, int& pos) const;
 
     void setRegExp(const QRegExp& rx);
-    inline const QRegExp& regExp() const { return r; }
+    const QRegExp& regExp() const { return r; } // ### make inline for 5.0
 
 #ifdef QT3_SUPPORT
 public:
