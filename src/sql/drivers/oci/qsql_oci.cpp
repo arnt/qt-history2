@@ -953,6 +953,10 @@ int QOCIResultPrivate::readPiecewise(QVector<QVariant> &values, int index)
 
 struct QOCIBatchColumn
 {
+    inline QOCIBatchColumn()
+        : bindh(0), bindAs(0), maxLen(0), recordCount(0),
+          data(0), lengths(0), indicators(0), maxarr_len(0), curelep(0) {}
+
     OCIBind* bindh;
     ub2 bindAs;
     ub4 maxLen;
@@ -1008,9 +1012,7 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues
         if (boundValues.at(i).type() != QVariant::List) {
 
             // not a list - create a deep-copy of the single value
-            QOCIBatchColumn nullCol = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             QOCIBatchColumn &singleCol = columns[i];
-            singleCol = nullCol;
             singleCol.indicators = new sb2[1];
             *singleCol.indicators = boundValues.at(i).isNull() ? -1 : 0;
 
@@ -1029,8 +1031,6 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues
         QOCIBatchColumn &col = columns[i];
         col.recordCount = boundValues.at(i).toList().count();
 
-        col.maxLen = 0;
-        col.data = 0;
         col.lengths = new ub2[col.recordCount];
         col.indicators = new sb2[col.recordCount];
         col.maxarr_len = col.recordCount;
