@@ -3,6 +3,7 @@ Up=SmartPhoneWithButtons.png
 Down=SmartPhoneWithButtons-pressed.png
 Screen=90 107 176 208
 Areas=24
+
 "1"        0x0031 138 459 149 473 142 483 120 484 102 477 95 464 99 457 121 454
 "2"        0x0032 153 467 202 492
 "3"        0x0033 258 457 260 470 243 483 215 484 207 474 218 460 248 453

@@ -4,6 +4,7 @@ Down=pda_down.png
 Screen=42 59 176 220 
 Cursor=finger.png 20 20
 Areas=10
+
 "Power"	     0x100a  117  21  141 42
 "Context1"   0xffe2   43 284  74 315
 "Call"	     0xffe8   74 284 104 315 
