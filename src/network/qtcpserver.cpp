@@ -439,6 +439,9 @@ bool QTcpServer::hasPendingConnections() const
     destroyed. It is still a good idea to delete the object
     explicitly when you are done with it, to avoid wasting memory.
 
+    0 is returned if this function is called when there are no pending
+    connections.
+
     \sa hasPendingConnections()
 */
 QTcpSocket *QTcpServer::nextPendingConnection()
