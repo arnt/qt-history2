@@ -1494,6 +1494,14 @@ QStringList QProcess::systemEnvironment()
     return tmp;
 }
 
+/*
+    \typedef Q_PID
+
+    Typedef for the identifiers used to represent processes on the underlying
+    platform. On Unix, this corresponds to \l qint64; on Windows, it
+    corresponds to \c{_PROCESS_INFORMATION*}.
+*/
+
 #include "moc_qprocess.cpp"
 
 #endif // QT_NO_PROCESS
