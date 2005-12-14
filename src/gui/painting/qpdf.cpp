@@ -1858,6 +1858,9 @@ static FT_Face ft_face(const QFontEngine *engine)
     if (engine->type() == QFontEngine::Freetype) {
         const QFontEngineFT *ft = static_cast<const QFontEngineFT *>(engine);
         return ft->non_locked_face();
+    } else if (engine->type() == QFontEngine::XLFD) {
+        const QFontEngineXLFD *xlfd = static_cast<const QFontEngineXLFD *>(engine);
+        return xlfd->non_locked_face();
     }
 #endif
 #ifdef Q_WS_QWS
@@ -1880,7 +1883,7 @@ QByteArray QPdf::Font::glyphName(unsigned int glyph, const QVector<int> reverseM
 
     char name[32];
     name[0] = 0;
-    if (FT_HAS_GLYPH_NAMES(face))
+    if (face && FT_HAS_GLYPH_NAMES(face))
         FT_Get_Glyph_Name(face, glyphIndex, &name, 32);
     if (name[0])
         s << "/" << name;

@@ -20,6 +20,31 @@
 
 #include <math.h>
 
+
+#ifndef Q_WS_WIN
+QFontEngine::~QFontEngine()
+{
+}
+
+QFixed QFontEngine::lineThickness() const
+{
+    // ad hoc algorithm
+    int score = fontDef.weight * fontDef.pixelSize;
+    int lw = score / 700;
+
+    // looks better with thicker line for small pointsizes
+    if (lw < 2 && score >= 1050) lw = 2;
+    if (lw == 0) lw = 1;
+
+    return lw;
+}
+
+QFixed QFontEngine::underlinePosition() const
+{
+    return ((lineThickness() * 2) + 3) / 6;
+}
+#endif
+
 QFixed QFontEngine::xHeight() const
 {
     QGlyphLayout glyphs[8];

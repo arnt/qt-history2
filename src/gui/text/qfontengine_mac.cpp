@@ -36,30 +36,6 @@
 #endif
 
 
-//Generic engine
-QFontEngine::~QFontEngine()
-{
-}
-
-QFixed QFontEngine::lineThickness() const
-{
-  // ad hoc algorithm
-  int score = fontDef.pixelSize * fontDef.weight;
-  int lth = score / 700;
-
-  // looks better with thicker line for small pointsizes
-  if(lth < 2 && score >= 1050)
-      lth = 2;
-  else if(lth == 0)
-      lth = 1;
-  return lth;
-}
-
-QFixed QFontEngine::underlinePosition() const
-{
-  return ((lineThickness() * 2) + 3) / 6;
-}
-
 struct QATSUStyle {
     ATSUStyle style;
     QColor rgb;

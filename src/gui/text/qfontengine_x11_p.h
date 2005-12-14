@@ -24,8 +24,16 @@
 //
 // We mean it.
 //
-
 #include <private/qt_x11_p.h>
+#ifndef QT_NO_FONTCONFIG
+#include <fontconfig/fontconfig.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#endif
+
+struct QFreetypeFace;
+
+// --------------------------------------------------------------------------
 
 class QFontEngineMultiXLFD : public QFontEngineMulti
 {
@@ -47,6 +55,12 @@ public:
     QFontEngineXLFD(XFontStruct *f, const QByteArray &name, int mib);
     ~QFontEngineXLFD();
 
+    QFontEngine::FaceId faceId() const;
+    QFontEngine::Properties properties() const;
+    void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
+    QByteArray getSfntTable(uint tag) const;
+    int synthesized() const;
+    
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
                       QTextEngine::ShaperFlags flags) const;
 
@@ -69,7 +83,8 @@ public:
 
     inline XFontStruct *fontStruct() const
     { return _fs; }
-    int cmap() const;
+
+    FT_Face non_locked_face() const;
 
 private:
     XFontStruct *_fs;
@@ -77,13 +92,11 @@ private:
     QTextCodec *_codec;
     int _cmap;
     int lbearing, rbearing;
+    mutable QFontEngine::FaceId face_id;
+    mutable QFreetypeFace *freetype;
 };
 
 #ifndef QT_NO_FONTCONFIG
-
-#include <fontconfig/fontconfig.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 class Q_GUI_EXPORT QFontEngineMultiFT : public QFontEngineMulti
 {
@@ -96,21 +109,6 @@ public:
 private:
     FcFontSet *fontSet;
     int screen;
-};
-
-struct QFreetypeFace {
-    QAtomic ref;
-    QAtomic lock;
-    FT_Face face;
-    FcCharSet *charset;
-    int xsize; // 26.6
-    int ysize; // 26.6
-    FT_Matrix matrix;
-    FT_CharMap unicode_map;
-    FT_CharMap symbol_map;
-
-    enum { cmapCacheSize = 0x200 };
-    glyph_t cmapCache[cmapCacheSize];
 };
 
 class Q_GUI_EXPORT QFontEngineFT : public QFontEngine
@@ -162,13 +160,10 @@ public:
     FT_Face lockFace() const;
     void unlockFace() const;
 
-    FT_Face non_locked_face() const { return freetype->face; }
+    FT_Face non_locked_face() const;
     bool drawAsOutline() const { return outline_drawing; }
     bool invalid() const { return xsize == 0 && ysize == 0; }
 private:
-    void computeSize();
-
-    static QHash<QFontEngine::FaceId, QFreetypeFace *> *freetypeFaces;
     QFreetypeFace *freetype;
     QFontEngine::FaceId face_id;
 
