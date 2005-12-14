@@ -1978,7 +1978,8 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int star
     if (selectionMode() == SingleSelection && current.isValid() &&
         current.row() >= start && current.row() <= end)
     {
-        if (model()->rowCount(parent) < end - start + 1) { // no more children
+        int totalToRemove = end - start + 1;
+        if (model()->rowCount(parent) =< totalToRemove) { // no more children
             if (parent.isValid())
                 setCurrentIndex(parent);
         } else {
