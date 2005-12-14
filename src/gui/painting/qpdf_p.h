@@ -3,6 +3,7 @@
 #include "QtCore/qvector.h"
 #include "private/qstroker_p.h"
 #include "private/qfontengine_p.h"
+#include "QtGui/qprinter.h"
 
 const char *qt_real_to_string(qreal val, char *buf);
 const char *qt_int_to_string(int val, char *buf);
@@ -92,4 +93,11 @@ namespace QPdf {
 
     const char *toHex(ushort u, char *buffer);
     const char *toHex(uchar u, char *buffer);    
+
+
+    struct PaperSize {
+        int width, height;
+    };
+    PaperSize paperSize(QPrinter::PageSize pageSize);
+    const char *paperSizeToString(QPrinter::PageSize pageSize);
 };

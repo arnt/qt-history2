@@ -81,83 +81,41 @@ static const char *const ps_header =
 "SC}BD/ET{end grestore}BD/Tf{/_fs ED findfont[_fs 0 0 _fs 0 0]makefont F}BD\n"
 "/Tm{6 array astore concat}BD/Td{translate}BD/Tj{0 0 m show}BD/BDC{pop pop}BD\n"
 "/EMC{}BD/BSt 0 def/LWi 0 def/WFi false def/BCol[1 1 1]def/PCol[0 0 0]def\n"
-"/BkCol[1 1 1]def/BDArr[0.94 0.88 0.63 0.50 0.37 0.12 0.06]def/defM matrix\n"
-"def/level3{/languagelevel where{pop languagelevel 3 ge}{false}ie}BD/QCIgray\n"
-"D0/QCIcolor D0/QCIindex D0/QCI{/colorimage where{pop false 3 colorimage}{\n"
-"exec/QCIcolor ED/QCIgray QCIcolor length 3 idiv string def 0 1 QCIcolor\n"
-"length 3 idiv 1 sub{/QCIindex ED/_x QCIindex 3 mul def QCIgray QCIindex\n"
-"QCIcolor _x get 0.30 mul QCIcolor _x 1 add get 0.59 mul QCIcolor _x 2 add\n"
-"get 0.11 mul add add cvi put}for QCIgray image}ie}BD/di{gs TR 1 i 1 eq{pop\n"
-"pop false 3 1 roll BCol SC imagemask}{dup false ne{level3}{false}ie{/_ma ED\n"
-"8 eq{/_dc[0 1]def/DeviceGray}{/_dc[0 1 0 1 0 1]def/DeviceRGB}ie scs/_im ED\n"
-"/_mt ED/_h ED/_w ED <</ImageType 3/DataDict <</ImageType 1/Width _w/Height\n"
-"_h/ImageMatrix _mt/DataSource _im/BitsPerComponent 8/Decode _dc >>/MaskDict\n"
-"<</ImageType 1/Width _w/Height _h/ImageMatrix _mt/DataSource _ma\n"
-"/BitsPerComponent 1/Decode[0 1]>>/InterleaveType 3 >> image}{pop 8 4 1 roll\n"
-"8 eq{image}{QCI}ie}ie}ie gr}BD/BF{gs BSt 1 eq{BCol SC WFi{fill}{eofill}ie}if\n"
-"BSt 2 ge BSt 8 le and{BDArr BSt 2 sub get/_sc ED BCol{1. exch sub _sc mul 1.\n"
-"exch sub}forall 3 array astore SC WFi{fill}{eofill}ie}if BSt 9 ge BSt 14 le\n"
-"and{WFi{W}{W*}ie pathbbox 3 i 3 i TR 4 2 roll 3 2 roll exch sub/_h ED sub/_w\n"
-"ED BCol SC 0.3 w n BSt 9 eq BSt 11 eq or{0 4 _h{dup 0 exch m _w exch l}for}\n"
-"if BSt 10 eq BSt 11 eq or{0 4 _w{dup 0 m _h l}for}if BSt 12 eq BSt 14 eq or{\n"
-"_w _h gt{0 6 _w _h add{dup 0 m _h sub _h l}for}{0 6 _w _h add{dup 0 exch m\n"
-"_w sub _w exch l}for}ie}if BSt 13 eq BSt 14 eq or{_w _h gt{0 6 _w _h add{dup\n"
-"_h m _h sub 0 l}for}{0 6 _w _h add{dup _w exch m _w sub 0 exch l}for}ie}if S\n"
-"}if BSt 15 eq{}if BSt 24 eq{}if gr}BD/f{/WFi true def BF n}BD/f*{/WFi false\n"
-"def BF n}BD/B{/WFi true def BF S n}BD/B*{/WFi false def BF S n}BD/BC{/BkCol\n"
-"ED}BD/BR{/BCol ED/BSt ED}BD/NB{0[0 0 0]BR}BD/PE{setlinejoin setlinecap/PCol\n"
-"ED/LWi ED/PSt ED PCol SC}BD/P1{1 0 3 2 roll 0 0 PE}BD/ST{defM SM concat}BD\n"
-"/MF{true exch true exch{exch pop exch pop dup 0 get dup findfont dup\n"
-"/FontName get 3 -1 roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get\n"
-"/fslant ED exch/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false\n"
-"eq{}{dup maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
-"fencoding def currentdict end}ie definefont pop}BD/MFEmb{findfont dup length\n"
-"dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding ED currentdict end\n"
-"definefont pop}BD/QI{/C save def pageinit q n}BD/QP{Q C restore showpage}BD\n"
-"/SPD{/setpagedevice where{<< 3 1 roll >> setpagedevice}{pop pop}ie}BD\n";
+"/BDArr[0.94 0.88 0.63 0.50 0.37 0.12 0.06]def/defM matrix def/level3{\n"
+"/languagelevel where{pop languagelevel 3 ge}{false}ie}BD/QCIgray D0/QCIcolor\n"
+"D0/QCIindex D0/QCI{/colorimage where{pop false 3 colorimage}{exec/QCIcolor\n"
+"ED/QCIgray QCIcolor length 3 idiv string def 0 1 QCIcolor length 3 idiv 1\n"
+"sub{/QCIindex ED/_x QCIindex 3 mul def QCIgray QCIindex QCIcolor _x get 0.30\n"
+"mul QCIcolor _x 1 add get 0.59 mul QCIcolor _x 2 add get 0.11 mul add add\n"
+"cvi put}for QCIgray image}ie}BD/di{gs TR 1 i 1 eq{pop pop false 3 1 roll\n"
+"BCol SC imagemask}{dup false ne{level3}{false}ie{/_ma ED 8 eq{/_dc[0 1]def\n"
+"/DeviceGray}{/_dc[0 1 0 1 0 1]def/DeviceRGB}ie scs/_im ED/_mt ED/_h ED/_w ED\n"
+"<</ImageType 3/DataDict <</ImageType 1/Width _w/Height _h/ImageMatrix _mt\n"
+"/DataSource _im/BitsPerComponent 8/Decode _dc >>/MaskDict <</ImageType 1\n"
+"/Width _w/Height _h/ImageMatrix _mt/DataSource _ma/BitsPerComponent 1/Decode\n"
+"[0 1]>>/InterleaveType 3 >> image}{pop 8 4 1 roll 8 eq{image}{QCI}ie}ie}ie\n"
+"gr}BD/BF{gs BSt 1 eq{BCol SC WFi{fill}{eofill}ie}if BSt 2 ge BSt 8 le and{\n"
+"BDArr BSt 2 sub get/_sc ED BCol{1. exch sub _sc mul 1. exch sub}forall 3\n"
+"array astore SC WFi{fill}{eofill}ie}if BSt 9 ge BSt 14 le and{WFi{W}{W*}ie\n"
+"pathbbox 3 i 3 i TR 4 2 roll 3 2 roll exch sub/_h ED sub/_w ED BCol SC 0.3 w\n"
+"n BSt 9 eq BSt 11 eq or{0 4 _h{dup 0 exch m _w exch l}for}if BSt 10 eq BSt\n"
+"11 eq or{0 4 _w{dup 0 m _h l}for}if BSt 12 eq BSt 14 eq or{_w _h gt{0 6 _w\n"
+"_h add{dup 0 m _h sub _h l}for}{0 6 _w _h add{dup 0 exch m _w sub _w exch l}\n"
+"for}ie}if BSt 13 eq BSt 14 eq or{_w _h gt{0 6 _w _h add{dup _h m _h sub 0 l}\n"
+"for}{0 6 _w _h add{dup _w exch m _w sub 0 exch l}for}ie}if S}if BSt 15 eq{}\n"
+"if BSt 24 eq{}if gr}BD/f{/WFi true def BF n}BD/f*{/WFi false def BF n}BD/B{\n"
+"/WFi true def BF S n}BD/B*{/WFi false def BF S n}BD/MF{true exch true exch{\n"
+"exch pop exch pop dup 0 get dup findfont dup/FontName get 3 -1 roll eq{exit}\n"
+"if}forall exch dup 1 get/fxscale ED 2 get/fslant ED exch/fencoding ED[\n"
+"fxscale 0 fslant 1 0 0]makefont fencoding false eq{}{dup maxlength dict\n"
+"begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding fencoding def\n"
+"currentdict end}ie definefont pop}BD/MFEmb{findfont dup length dict begin{1\n"
+"i/FID ne{def}{pop pop}ifelse}forall/Encoding ED currentdict end definefont\n"
+"pop}BD/QI{/C save def pageinit q n}BD/QP{Q C restore showpage}BD/SPD{\n"
+"/setpagedevice where{<< 3 1 roll >> setpagedevice}{pop pop}ie}BD\n";
 
 
 
-#define MM(n) int((n * 720 + 127) / 254)
-#define IN(n) int(n * 72)
-
-struct PaperSize {
-    int width, height;
-};
-
-static const PaperSize paperSizes[QPrinter::NPageSize] =
-{
-    {  MM(210), MM(297) },      // A4
-    {  MM(176), MM(250) },      // B5
-    {  IN(8.5), IN(11) },       // Letter
-    {  IN(8.5), IN(14) },       // Legal
-    {  IN(7.5), IN(10) },       // Executive
-    {  MM(841), MM(1189) },     // A0
-    {  MM(594), MM(841) },      // A1
-    {  MM(420), MM(594) },      // A2
-    {  MM(297), MM(420) },      // A3
-    {  MM(148), MM(210) },      // A5
-    {  MM(105), MM(148) },      // A6
-    {  MM(74), MM(105)},        // A7
-    {  MM(52), MM(74) },        // A8
-    {  MM(37), MM(52) },        // A9
-    {  MM(1000), MM(1414) },    // B0
-    {  MM(707), MM(1000) },     // B1
-    {  MM(31), MM(44) },        // B10
-    {  MM(500), MM(707) },      // B2
-    {  MM(353), MM(500) },      // B3
-    {  MM(250), MM(353) },      // B4
-    {  MM(125), MM(176) },      // B6
-    {  MM(88), MM(125) },       // B7
-    {  MM(62), MM(88) },        // B8
-    {  MM(44), MM(62) },        // B9
-    {  MM(162),    MM(229) },   // C5E
-    {  IN(4.125),  IN(9.5) },   // Comm10E
-    {  MM(110),    MM(220) },   // DLE
-    {  IN(8.5),    IN(13) },    // Folio
-    {  IN(17),     IN(11) },    // Ledger
-    {  IN(11),     IN(17) }     // Tabloid
-};
 
 
 #if 0
@@ -1037,14 +995,6 @@ QPSPrintEngine::~QPSPrintEngine()
         ::close(d->fd);
 }
 
-static const char * const psToStr[QPrinter::NPageSize+1] =
-{
-    "A4", "B5", "Letter", "Legal", "Executive",
-    "A0", "A1", "A2", "A3", "A5", "A6", "A7", "A8", "A9", "B0", "B1",
-    "B10", "B2", "B3", "B4", "B6", "B7", "B8", "B9", "C5E", "Comm10E",
-    "DLE", "Folio", "Ledger", "Tabloid", 0
-};
-
 static void closeAllOpenFds()
 {
     // hack time... getting the maximum number of open
@@ -1142,12 +1092,12 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
                 for (i = 0; i < lphack.size(); ++i)
                     lpargs[i+1] = (char *)lphack.at(i).constData();
 #ifndef Q_OS_OSF
-                if (psToStr[d->pageSize]) {
+                if (QPdf::paperSizeToString(d->pageSize)) {
                     lpargs[++i] = "-o";
-                    lpargs[++i] = (char *)psToStr[d->pageSize];
+                    lpargs[++i] = (char *)QPdf::paperSizeToString(d->pageSize);
                     lpargs[++i] = "-o";
                     media = "media=";
-                    media += psToStr[d->pageSize];
+                    media += QPdf::paperSizeToString(d->pageSize);
                     lpargs[++i] = (char *)media.constData();
                 }
 #endif
@@ -1674,7 +1624,7 @@ bool QPSPrintEngine::abort()
 
 QRect QPSPrintEnginePrivate::paperRect() const
 {
-    PaperSize s = paperSizes[pageSize];
+    QPdf::PaperSize s = QPdf::paperSize(pageSize);
     int w = qRound(s.width*resolution/72.);
     int h = qRound(s.height*resolution/72.);
     if (orientation == QPrinter::Portrait)

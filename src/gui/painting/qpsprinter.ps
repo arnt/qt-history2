@@ -91,7 +91,6 @@
 
 /BCol  [ 1 1 1 ] def                   % brush color
 /PCol  [ 0 0 0 ] def                   % pen color
-/BkCol [ 1 1 1 ] def                   % background color
 /BDArr [                             % Brush dense patterns
   0.94
   0.88
@@ -307,34 +306,6 @@
 /B { /WFi true def BF S newpath } bind def
 /B* { /WFi false def BF S newpath } bind def
 
-/BC {                                % PdcSetBkColor [[R G B]]
-  /BkCol exch def
-} bind def
-
-/BR {                                % PdcSetBrush [style [R G B]]
-  /BCol exch def /BSt exch def
-} bind def
-
-/NB {                                % set nobrush
-  0 [0 0 0] BR
-} bind def
-
-/PE {                                % PdcSetPen [style width R G B Cap Join]
-  setlinejoin setlinecap
-  /PCol exch def
-  /LWi exch def
-  /PSt exch def
-  PCol SC
-} bind def
-
-/P1 {                                % PdcSetPen [R G B]
-  1 0 3 2 roll 0 0 PE
-} bind def
-
-/ST {                                % SET TRANSFORM [matrix]
-  defM setmatrix
-  concat
-} bind def
 
 %% Font handling
 

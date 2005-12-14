@@ -2287,3 +2287,57 @@ const char *QPdf::toHex(uchar u, char *buffer)
     return buffer;
 }
 
+#define MM(n) int((n * 720 + 127) / 254)
+#define IN(n) int(n * 72)
+
+static const QPdf::PaperSize paperSizes[QPrinter::NPageSize] =
+{
+    {  MM(210), MM(297) },      // A4
+    {  MM(176), MM(250) },      // B5
+    {  IN(8.5), IN(11) },       // Letter
+    {  IN(8.5), IN(14) },       // Legal
+    {  IN(7.5), IN(10) },       // Executive
+    {  MM(841), MM(1189) },     // A0
+    {  MM(594), MM(841) },      // A1
+    {  MM(420), MM(594) },      // A2
+    {  MM(297), MM(420) },      // A3
+    {  MM(148), MM(210) },      // A5
+    {  MM(105), MM(148) },      // A6
+    {  MM(74), MM(105)},        // A7
+    {  MM(52), MM(74) },        // A8
+    {  MM(37), MM(52) },        // A9
+    {  MM(1000), MM(1414) },    // B0
+    {  MM(707), MM(1000) },     // B1
+    {  MM(31), MM(44) },        // B10
+    {  MM(500), MM(707) },      // B2
+    {  MM(353), MM(500) },      // B3
+    {  MM(250), MM(353) },      // B4
+    {  MM(125), MM(176) },      // B6
+    {  MM(88), MM(125) },       // B7
+    {  MM(62), MM(88) },        // B8
+    {  MM(44), MM(62) },        // B9
+    {  MM(162),    MM(229) },   // C5E
+    {  IN(4.125),  IN(9.5) },   // Comm10E
+    {  MM(110),    MM(220) },   // DLE
+    {  IN(8.5),    IN(13) },    // Folio
+    {  IN(17),     IN(11) },    // Ledger
+    {  IN(11),     IN(17) }     // Tabloid
+};
+
+static const char * const psToStr[QPrinter::NPageSize+1] =
+{
+    "A4", "B5", "Letter", "Legal", "Executive",
+    "A0", "A1", "A2", "A3", "A5", "A6", "A7", "A8", "A9", "B0", "B1",
+    "B10", "B2", "B3", "B4", "B6", "B7", "B8", "B9", "C5E", "Comm10E",
+    "DLE", "Folio", "Ledger", "Tabloid", 0
+};
+
+QPdf::PaperSize QPdf::paperSize(QPrinter::PageSize pageSize)
+{
+    return paperSizes[pageSize];
+}
+
+const char *QPdf::paperSizeToString(QPrinter::PageSize pageSize)
+{
+    return psToStr[pageSize];
+}
