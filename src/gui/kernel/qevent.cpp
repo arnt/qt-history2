@@ -1781,9 +1781,20 @@ QTabletEvent::~QTabletEvent()
     to differentiate between multiple devices being used at the same
     time on the tablet.
 
+    Support of this feature is dependent on the tablet.
+
     Values for the same device may vary from OS to OS.
 
-    It is possible to generate a unique ID for any Wacom device.
+    Later versions of the Wacom driver for Linux will now report
+    the ID information. If you have a tablet that supports unique ID
+    and are not getting the information on Linux, consider upgrading
+    your driver.
+
+    As of Qt 4.2, the unique ID is the same regardless of the orientation
+    of the pen. Earlier versions would report a different value when using
+    the eraser-end versus the pen-end of the stylus on some OS's.
+
+    \sa pointerType
 */
 
 /*!
