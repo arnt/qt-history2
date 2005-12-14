@@ -222,5 +222,10 @@ enum Token {
     PP_BACKSLASH = BACKSLASH
 };
 
+// for debugging only
+#if defined(DEBUG_MOC)
+const char *tokenTypeName(Token t);
+#endif
+
 typedef Token PP_Token;
 #endif // TOKEN_H

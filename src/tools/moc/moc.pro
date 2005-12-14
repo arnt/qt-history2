@@ -29,7 +29,8 @@ SOURCES =  moc.cpp \
            preprocessor.cpp \
            main.cpp \
            generator.cpp \
-           parser.cpp
+           parser.cpp \
+           token.cpp
 
 # Qt tools needed to link moc
 SOURCES	+= ../../corelib/global/qglobal.cpp \
