@@ -3234,7 +3234,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect FontConfig support
     if [ "$CFG_FONTCONFIG" != "no" ]; then
-	mkdir -p $outpath/config.tests/x11
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/fontconfig "FontConfig" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
 	    CFG_FONTCONFIG=yes
 	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=-lfreetype -lfontconfig \$\$QMAKE_LIBS_X11\""
@@ -3251,6 +3250,15 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	fi
     fi
 
+    # need freetype even when building without fontconfig
+    if [ "$CFG_FONTCONFIG" != "yes" ]; then
+        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/freetype "FreeType" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
+            QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=-lfreetype \$\$QMAKE_LIBS_X11\""
+        else
+            QT_CONFIG="$QT_CONFIG freetype"
+        fi
+    fi
+    
     # auto-detect Session Management support
     if [ "$CFG_SM" = "auto" ]; then
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/sm "Session Management" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
@@ -3619,7 +3627,7 @@ fi
 [ "$CFG_CUPS" = "yes" ] && QT_CONFIG="$QT_CONFIG cups"
 [ "$CFG_NAS" = "system" ] && QT_CONFIG="$QT_CONFIG nas"
 
-[ "$CFG_QWS_FREETYPE" = "yes" -a "x$CFG_EMBEDDED" != "xno" ] && QT_CONFIG="$QT_CONFIG ft"
+[ "$CFG_QWS_FREETYPE" = "yes" -a "x$CFG_EMBEDDED" != "xno" ] && QT_CONFIG="$QT_CONFIG freetype"
 if [ "$PLATFORM_X11" = "yes" ]; then
     [ "$CFG_SM" = "yes" ] && QT_CONFIG="$QT_CONFIG x11sm"
 
@@ -3792,7 +3800,7 @@ esac
 #     ipv6
 #
 #     X11     : x11sm xinerama xcursor xrandr xrender fontconfig xkb
-#     Embedded: embedded ft
+#     Embedded: embedded freetype
 #
 ALL_OPTIONS="stl"
 BUILD_CONFIG=

@@ -93,6 +93,64 @@ embedded {
 	contains(QT_CONFIG,ft):CONFIG += have_freetype
 }
 
+x11|embedded {
+        contains(QT_CONFIG, freetype) {
+	    SOURCES += \
+		../3rdparty/freetype/builds/unix/ftsystem.c \
+		../3rdparty/freetype/src/base/ftbase.c \
+		../3rdparty/freetype/src/base/ftbbox.c \
+		../3rdparty/freetype/src/base/ftdebug.c \
+		../3rdparty/freetype/src/base/ftglyph.c \
+		../3rdparty/freetype/src/base/ftinit.c \
+		../3rdparty/freetype/src/base/ftmm.c \
+                ../3rdparty/freetype/src/base/ftbitmap.c\
+		../3rdparty/freetype/src/bdf/bdf.c \
+		../3rdparty/freetype/src/cache/ftcache.c \
+		../3rdparty/freetype/src/cff/cff.c \
+		../3rdparty/freetype/src/cid/type1cid.c \
+		../3rdparty/freetype/src/gzip/ftgzip.c \
+		../3rdparty/freetype/src/pcf/pcf.c \
+		../3rdparty/freetype/src/pfr/pfr.c \
+		../3rdparty/freetype/src/psaux/psaux.c \
+		../3rdparty/freetype/src/pshinter/pshinter.c \
+		../3rdparty/freetype/src/psnames/psmodule.c \
+		../3rdparty/freetype/src/raster/raster.c \
+		../3rdparty/freetype/src/sfnt/sfnt.c \
+		../3rdparty/freetype/src/smooth/smooth.c \
+		../3rdparty/freetype/src/truetype/truetype.c \
+		../3rdparty/freetype/src/type1/type1.c \
+		../3rdparty/freetype/src/type42/type42.c \
+		../3rdparty/freetype/src/winfonts/winfnt.c \
+		../3rdparty/freetype/src/lzw/ftlzw.c\
+                ../3rdparty/freetype/src/otvalid/otvalid.c\
+                ../3rdparty/freetype/src/otvalid/otvbase.c\
+                ../3rdparty/freetype/src/otvalid/otvgdef.c\
+                ../3rdparty/freetype/src/otvalid/otvjstf.c\
+                ../3rdparty/freetype/src/otvalid/otvcommn.c\
+                ../3rdparty/freetype/src/otvalid/otvgpos.c\
+                ../3rdparty/freetype/src/otvalid/otvgsub.c\
+                ../3rdparty/freetype/src/otvalid/otvmod.c\
+                ../3rdparty/freetype/src/autofit/afangles.c\
+                ../3rdparty/freetype/src/autofit/afglobal.c\
+                ../3rdparty/freetype/src/autofit/aflatin.c\
+                ../3rdparty/freetype/src/autofit/afmodule.c\
+                ../3rdparty/freetype/src/autofit/afdummy.c\
+                ../3rdparty/freetype/src/autofit/afhints.c\
+                ../3rdparty/freetype/src/autofit/afloader.c\
+                ../3rdparty/freetype/src/autofit/autofit.c
+
+	    INCLUDEPATH += \
+		../3rdparty/freetype/src \
+		../3rdparty/freetype/include \
+		../3rdparty/freetype/builds/unix
+
+	    DEFINES += FT_CONFIG_OPTION_SYSTEM_ZLIB
+        } else {
+            # pull in the proper freetype2 include directory
+            include($$QT_SOURCE_TREE/config.tests/x11/fontconfig/fontconfig.pri)
+        }
+}
+
 have_freetype {
 	INCLUDEPATH += ../3rdparty/opentype
 	HEADERS += text/qopentype_p.h
