@@ -147,7 +147,7 @@ void ChangeProperties::on_buttonSet_clicked()
     }
  
     Q_ASSERT(activex->setProperty(prop.toLatin1(), value));
-    setControl(activex);
+    updateProperties();
     listProperties->setCurrentItem(listProperties->findItems(prop, Qt::MatchExactly).at(0));
 }
 
@@ -165,7 +165,7 @@ void ChangeProperties::updateProperties()
 {
     bool hasControl = activex && !activex->isNull();
     tabWidget->setEnabled(hasControl);
-    
+
     listProperties->clear();
     listEditRequests->clear();
     if (hasControl) {
@@ -225,11 +225,18 @@ void ChangeProperties::updateProperties()
 		break;
 	    }
 
-//	    if (property.testFlags(PropRequesting)) { ###
+            bool requesting = false;
+#if 0
+            {
+                void *argv[] = { &requesting };
+                activex->qt_metacall(QMetaObject::Call(0x10000000) /*RequestingEdit*/, i, argv);
+            }
+#endif
+            if (requesting) {
 		QTreeWidgetItem *check = new QTreeWidgetItem(listEditRequests);
                 check->setText(0, property.name());
                 check->setCheckState(0, activex->propertyWritable(property.name()) ? Qt::Checked : Qt::Unchecked);
-//	    }
+	    }
 	}
 	listProperties->setCurrentItem(listProperties->topLevelItem(0));
     } else {
