@@ -3800,7 +3800,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
     if (hibyte1 == 0 || hibyte1 == 0xffff) {
         uid = -1;
     } else {
-        uid = hibyte1;
+        uid = hibyte1 & 0x0f06;
         uid = (uid << 24) | ((hibyte2 << 16) | hibyte3);
     }
 #endif

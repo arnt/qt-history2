@@ -3216,7 +3216,7 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
             csr_physid;
         ptrWTInfo(WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_TYPE, &csr_type);
         ptrWTInfo(WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_PHYSID, &csr_physid);
-        qint64 llId = csr_type;
+        qint64 llId = csr_type & 0x0F06;
         llId = (llId << 24) | csr_physid;
         switch (csr_type & 0x0F06) {
         case 0x0802:
