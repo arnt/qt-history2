@@ -19,8 +19,9 @@
 #include "qapplication.h"
 #include <qdebug.h>
 #include <private/qtextengine_p.h>
-
 #include <qvarlengtharray.h>
+
+#include <math.h>
 
 qreal QTextItem::descent() const
 {
@@ -476,7 +477,13 @@ void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, co
 void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
                              Qt::ImageConversionFlags flags)
 {
-    QImage im = image.depth() == 1 ? image.convertToFormat(QImage::Format_RGB32) : image;
+    QRectF baseSize(0, 0, image.width(), image.height());
+    QImage im = image;
+    if (baseSize != sr)
+        im = im.copy((int)floor(sr.x()), (int)floor(sr.y()),
+                     (int)ceil(sr.width()), (int)ceil(sr.height()));
+    if (im.depth() == 1)
+        im = im.convertToFormat(QImage::Format_RGB32);
     QPixmap pm = QPixmap::fromImage(im, flags);
     drawPixmap(r, pm, sr);
 }
