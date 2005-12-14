@@ -463,7 +463,7 @@ static QSqlField qMakeFieldInfo(const QODBCPrivate* p, int i )
     QSqlField f(qColName, type);
     f.setSqlType(colType);
     f.setLength(colSize == 0 ? -1 : int(colSize));
-    f.setPrecision(colScale == 0 ? -1 : int(colSize));
+    f.setPrecision(colScale == 0 ? -1 : int(colScale));
     if (nullable == SQL_NO_NULLS)
         f.setRequired(true);
     else if (nullable == SQL_NULLABLE)
