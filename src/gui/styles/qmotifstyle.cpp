@@ -113,7 +113,8 @@ QMotifStyle::~QMotifStyle()
 }
 
 /*
-Animate indeterminate progressbars only when visible
+  \internal
+  Animate indeterminate progressbars only when visible
 */
 bool QMotifStyle::eventFilter(QObject *o, QEvent *e)
 {

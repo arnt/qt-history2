@@ -3282,6 +3282,12 @@ void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
 }
 
 /*!
+    \fn void QTextEdit::moveCursor(CursorAction action, bool select)
+
+    Use the QTextCursor() class instead.
+*/
+
+/*!
     Executes keyboard action \a action.
 
     Use the QTextCursor API instead.

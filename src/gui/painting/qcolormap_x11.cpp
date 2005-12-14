@@ -626,3 +626,10 @@ const QVector<QColor> QColormap::colormap() const
     Returns an handle to the HPALETTE used by this colormap.  If no
     HPALETTE is being used, this function returns zero.
 */
+
+/*!
+    \fn QColormap &QColormap::operator=(const QColormap &colormap)
+
+    Assigns the given \a colormap to \e this color map and returns
+    a reference to \e this color map.
+*/

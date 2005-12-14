@@ -184,6 +184,11 @@ void QButtonGroup::setExclusive(bool exclusive)
     d->exclusive = exclusive;
 }
 
+/*!
+    Adds the given \a button to the end of the group's internal list of buttons.
+
+    \sa removeButton()
+*/
 void QButtonGroup::addButton(QAbstractButton *button)
 {
     addButton(button, -1);
