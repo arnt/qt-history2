@@ -617,7 +617,7 @@ QModelIndex QAbstractItemView::currentIndex() const
 void QAbstractItemView::reset()
 {
     Q_D(QAbstractItemView);
-    QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
+    QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it) {
         QWidget *editor = it.value();
         editor->hide();
@@ -1524,7 +1524,7 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
 */
 void QAbstractItemView::updateEditorData()
 {
-    QMap<QPersistentModelIndex, QWidget*>::iterator it = d_func()->editors.begin();
+    QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d_func()->editors.begin();
     for (; it != d_func()->editors.end(); ++it)
         if (it.value() && it.key().isValid())
             itemDelegate()->setEditorData(it.value(), it.key());
@@ -1537,20 +1537,20 @@ void QAbstractItemView::updateEditorGeometries()
 {
     Q_D(QAbstractItemView);
     QStyleOptionViewItem option = viewOptions();
-    QMap<QPersistentModelIndex, QWidget*> editors = d->editors;
-    QMap<QPersistentModelIndex, QWidget*>::iterator it = editors.begin();
+    const QMap<QPersistentModelIndex, QPointer<QWidget> > editors = d->editors;
+    QMap<QPersistentModelIndex, QPointer<QWidget> >::const_iterator it = editors.begin();
     while (it != editors.end()) {
-        Q_ASSERT(it.value());
-        option.rect = visualRect(it.key());
-        if (option.rect.isValid())
-            it.value()->show();
-        else
-            it.value()->hide();
-        if (it.key().isValid()) {
-            if (option.rect.isValid())
+        if (it.key().isValid() && it.value()) {
+            option.rect = visualRect(it.key());
+            if (option.rect.isValid()) {
+                it.value()->show();
                 itemDelegate()->updateEditorGeometry(it.value(), option, it.key());
+            } else {
+                it.value()->hide();
+            }
         } else {
-            d->releaseEditor(it.value());
+            if (it.value())
+                d->releaseEditor(it.value());
             d->editors.remove(it.key());
         }
         ++it;
@@ -1989,7 +1989,7 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int star
     }
 
     // Remove all affected editors; this is more efficient than waiting for updateGeometries() to clean out editors for invalid indexes
-    QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
+    QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
     while (it != d->editors.end()) {
         QModelIndex index = it.key();
         if (index.row() <= start && index.row() >= end && model()->parent(index) == parent) {
@@ -2042,7 +2042,7 @@ void QAbstractItemViewPrivate::columnsAboutToBeRemoved(const QModelIndex &parent
     }
 
     // Remove all affected editors; this is more efficient than waiting for updateGeometries() to clean out editors for invalid indexes
-    QMap<QPersistentModelIndex, QWidget*>::iterator it = editors.begin();
+    QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = editors.begin();
     while (it != editors.end()) {
         QModelIndex index = it.key();
         if (index.column() <= start && index.column() >= end && model->parent(index) == parent) {

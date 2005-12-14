@@ -157,7 +157,7 @@ public:
     QAbstractItemView::SelectionMode selectionMode;
     QAbstractItemView::SelectionBehavior selectionBehavior;
 
-    QMap<QPersistentModelIndex, QWidget*> editors;
+    QMap<QPersistentModelIndex, QPointer<QWidget> > editors;
     QList<QWidget*> persistent;
 
     QPersistentModelIndex enteredIndex;
