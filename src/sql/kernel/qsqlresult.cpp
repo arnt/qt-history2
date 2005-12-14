@@ -868,6 +868,7 @@ bool QSqlResult::execBatch(bool arrayBind)
 {
     if (driver()->hasFeature(QSqlDriver::BatchOperations)) {
         virtual_hook(BatchOperation, &arrayBind);
+        d->resetBindCount();
         return d->error.type() == QSqlError::NoError;
     } else {
         QVector<QVariant> values = d->values;
