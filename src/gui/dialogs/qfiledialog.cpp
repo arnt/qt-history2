@@ -1356,7 +1356,17 @@ void QFileDialogPrivate::createDirectory()
     QModelIndex parent = rootIndex();
     listView->clearSelection();
 
-    QModelIndex index = model->mkdir(parent, "New Folder");
+    QString folderName = "New Folder";
+    QString prefix = q_func()->directory().absolutePath() + QDir::separator();
+    QModelIndex existingIndex = model->index(prefix + folderName);
+    if (existingIndex.isValid()) {
+        qlonglong suffix = 2;
+        while (existingIndex.isValid()) {
+            folderName = "New Folder " + QString::number(suffix++);
+            existingIndex = model->index(prefix + folderName);
+        }
+    }
+    QModelIndex index = model->mkdir(parent, folderName);
     if (!index.isValid())
         return;
     listView->setCurrentIndex(index);
