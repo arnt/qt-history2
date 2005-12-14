@@ -672,3 +672,13 @@ QSvgStyleProperty::Type QSvgAnimateColor::type() const
 {
     return ANIMATE_COLOR;
 }
+
+QString QSvgFontStyle::textAnchor() const
+{
+    return m_textAnchor;
+}
+
+void QSvgFontStyle::setTextAnchor(const QString &anchor)
+{
+    m_textAnchor = anchor;
+}

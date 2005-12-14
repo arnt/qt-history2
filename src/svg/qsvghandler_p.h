@@ -34,6 +34,7 @@ class QSvgTinyDocument;
 class QXmlAttributes;
 class QSvgStyleProperty;
 class QSvgHandler;
+class QColor;
 
 typedef QSvgNode *(*FactoryMethod)(QSvgNode *,
                                    const QXmlAttributes &,
@@ -71,6 +72,9 @@ public:
     void setDefaultCoordinateSystem(LengthType type);
     LengthType defaultCoordinateSystem() const;
 
+    void pushColor(const QColor &color);
+    QColor currentColor() const;
+
 public:
     bool startElement(const QString &namespaceURI, const QString &localName,
                       const QString &qName, const QXmlAttributes &attributes);
@@ -98,6 +102,9 @@ private:
     QSvgStyleProperty *m_style;
 
     LengthType m_defaultCoords;
+
+    QStack<QColor> m_colorStack;
+    QStack<int>    m_colorTagCount;
 private:
     static QHash<QString, FactoryMethod> s_groupFactory;
     static QHash<QString, FactoryMethod> s_graphicsFactory;
