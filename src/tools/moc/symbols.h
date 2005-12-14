@@ -91,9 +91,9 @@ struct Symbol
 
     inline Symbol() : lineNum(-1),token(NOTOKEN), from(0),len(-1) {}
     inline Symbol(int lineNum, Token token):
-        lineNum(lineNum), token(token){}
+        lineNum(lineNum), token(token), from(0), len(-1) {}
     inline Symbol(int lineNum, Token token, const QByteArray &lexem):
-        lineNum(lineNum), token(token),lex(lexem){}
+        lineNum(lineNum), token(token), lex(lexem), from(0) { len = lex.size(); }
     inline Symbol(int lineNum, Token token, const QByteArray &lexem, int from, int len):
         lineNum(lineNum), token(token),lex(lexem),from(from), len(len){}
     int lineNum;
