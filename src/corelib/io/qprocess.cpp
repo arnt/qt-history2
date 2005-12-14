@@ -1323,6 +1323,16 @@ static QStringList parseCombinedArgString(const QString &program)
         process.start("dir \"My Documents\"");
     \endcode
 
+    Note that, on Windows, quotes need to be both escaped and quoted.
+    For example, the above code would be specified in the following
+    way to ensure that \c{"My Documents"} is used as the argument to
+    the \c dir executable:
+
+    \code
+        QProcess process;
+        process.start("dir \"\"\"My Documents\"\"\"");
+    \endcode
+
     The OpenMode is set to \a mode.
 */
 void QProcess::start(const QString &program, OpenMode mode)
