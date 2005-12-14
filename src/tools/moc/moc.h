@@ -180,6 +180,8 @@ public:
 
     void parseFunctionArguments(FunctionDef *def);
 
+    QByteArray lexemUntil(Token);
+    bool until(Token);
 };
 
 

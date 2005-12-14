@@ -54,6 +54,8 @@ public:
 
 
 private:
+    void until(Token);
+
     void preprocess(const QByteArray &filename, Symbols &preprocessed);
 };
 

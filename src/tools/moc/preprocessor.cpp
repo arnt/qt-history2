@@ -57,8 +57,6 @@ bool Preprocessor::skipBranch()
         }
         ++index;
     }
-    // PP statements have to end with a newline
-    until(PP_NEWLINE);
     return (index < symbols.size() - 1);
 }
 
@@ -746,9 +744,11 @@ void Preprocessor::preprocess(const QByteArray &filename, Symbols &preprocessed)
             while (!evaluateCondition()) {
                 if (!skipBranch())
                     break;
-                token = lookup();
-                if (token != PP_ELIF)
+                if (test(PP_ELIF)) {
+                } else {
+                    until(PP_NEWLINE);
                     break;
+                }
             }
             continue;
         case PP_ELIF:
@@ -789,14 +789,30 @@ Symbols Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
 
 #if 0
     for (int j = 0; j < symbols.size(); ++j)
-        qDebug("line %d: %s(%d)",
+        fprintf(stderr, "line %d: %s(%s)\n",
                symbols[j].lineNum,
                symbols[j].lexem().constData(),
-               symbols[j].token);
+               tokenTypeName(symbols[j].token));
 #endif
 
     // phase 2: preprocess conditions and substitute macros
     Symbols result;
     preprocess(filename, result);
+
+#if 0
+    for (int j = 0; j < result.size(); ++j)
+        fprintf(stderr, "line %d: %s(%s)\n",
+               result[j].lineNum,
+               result[j].lexem().constData(),
+               tokenTypeName(result[j].token));
+#endif
+
     return result;
 }
+
+void Preprocessor::until(Token t)
+{
+    while(hasNext() && next() != t)
+        ;
+}
+

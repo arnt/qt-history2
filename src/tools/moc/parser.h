@@ -32,9 +32,6 @@ public:
     bool test(Token);
     void next(Token);
     void next(Token, const char *msg);
-    bool until(Token);
-    QByteArray lexemUntil(Token);
-    QByteArray lexemUntilExclusive(Token);
     inline void prev() {--index;}
     inline Token lookup(int k = 1);
     inline const Symbol &symbol_lookup(int k = 1) { return symbols.at(index-1+k);}
