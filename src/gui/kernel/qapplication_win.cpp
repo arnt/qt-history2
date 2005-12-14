@@ -2154,9 +2154,7 @@ bool qt_try_modal(QWidget *widget, MSG *msg, int& ret)
 
     bool block_event = false;
 #ifndef Q_OS_TEMP
-    if (type == WM_NCHITTEST) {
-        block_event = true;
-    } else
+    if (type != WM_NCHITTEST)
 #endif
         if ((type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
              type == WM_MOUSEWHEEL || type == (int)WM95_MOUSEWHEEL ||
@@ -2165,24 +2163,24 @@ bool qt_try_modal(QWidget *widget, MSG *msg, int& ret)
 #ifndef Q_OS_TEMP
             || type == WM_NCMOUSEMOVE
 #endif
-               ) {
-      if (type == WM_MOUSEMOVE
+         ) {
+            if (type == WM_MOUSEMOVE
 #ifndef Q_OS_TEMP
-          || type == WM_NCMOUSEMOVE
+                 || type == WM_NCMOUSEMOVE
 #endif
-                       ) {
-        QCursor *c = qt_grab_cursor();
-        if (!c)
-            c = QApplication::overrideCursor();
-        if (c)                                // application cursor defined
-            SetCursor(c->handle());
-        else
-            SetCursor(QCursor(Qt::ArrowCursor).handle());
-      }
-      block_event = true;
-    } else if (type == WM_CLOSE) {
-        block_event = true;
-    }
+            ) {
+                QCursor *c = qt_grab_cursor();
+                if (!c)
+                    c = QApplication::overrideCursor();
+                if (c)                                // application cursor defined
+                    SetCursor(c->handle());
+                else
+                    SetCursor(QCursor(Qt::ArrowCursor).handle());
+            }
+            block_event = true;
+        } else if (type == WM_CLOSE) {
+            block_event = true;
+        }
 #ifndef Q_OS_TEMP
     else if (type == WM_MOUSEACTIVATE || type == WM_NCLBUTTONDOWN){
         if (!top->isActiveWindow()) {
