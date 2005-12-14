@@ -1066,6 +1066,9 @@ void QTabBar::paintEvent(QPaintEvent *)
     QStyleOptionTab selectedTab;
     for (int i = 0; i < d->tabList.count(); ++i) {
         QStyleOptionTabV2 tab = d->getStyleOption(i);
+        if (!(tab.state & QStyle::State_Enabled)) {
+            tab.palette.setCurrentColorGroup(QPalette::Disabled);
+        }
         // If this tab is partially obscured, make a note of it so that we can pass the information
         // along when we draw the tear.
         if ((!verticalTabs && (!rtl && tab.rect.left() < 0) || (rtl && tab.rect.right() > width()))
