@@ -1148,22 +1148,25 @@ QString QMYSQLDriver::formatValue(const QSqlField &field, bool trimStrings) cons
         r = QLatin1String("NULL");
     } else {
         switch(field.type()) {
-        case QVariant::ByteArray: {
-
-            const QByteArray ba = field.value().toByteArray();
-            // buffer has to be at least length*2+1 bytes
-            char* buffer = new char[ba.size() * 2 + 1];
-            int escapedSize = int(mysql_escape_string(buffer, ba.data(), ba.size()));
-            r.reserve(escapedSize + 3);
-            r.append(QLatin1Char('\'')).append(d->tc->toUnicode(buffer)).append(QLatin1Char('\''));
-            delete[] buffer;
-        }
-        break;
         case QVariant::String:
             // Escape '\' characters
             r = QSqlDriver::formatValue(field, trimStrings);
             r.replace(QLatin1String("\\"), QLatin1String("\\\\"));
             break;
+        case QVariant::ByteArray:
+            if (isOpen()) {
+                const QByteArray ba = field.value().toByteArray();
+                // buffer has to be at least length*2+1 bytes
+                char* buffer = new char[ba.size() * 2 + 1];
+                int escapedSize = int(mysql_escape_string(buffer, ba.data(), ba.size()));
+                r.reserve(escapedSize + 3);
+                r.append(QLatin1Char('\'')).append(d->tc->toUnicode(buffer)).append(QLatin1Char('\''));
+                delete[] buffer;
+                break;
+            } else {
+                qWarning("QMYSQLDriver::formatValue: Database not open");
+            }
+            // fall through
         default:
             r = QSqlDriver::formatValue(field, trimStrings);
         }
