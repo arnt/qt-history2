@@ -48,6 +48,7 @@ struct {
     {NET2002, "MSVC.NET 2002 (7.0)", "Software\\Wow6432Node\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir"},
 #else
     {NET2005, "MSVC.NET 2005 (8.0)", "Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir"},
+    {NET2005, "MSVC 2005 Express Edition(8.0)", "Software\\Microsoft\\VCExpress\\8.0\\Setup\\VC\\ProductDir"},
     {NET2003, "MSVC.NET 2003 (7.1)", "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir"},
     {NET2002, "MSVC.NET 2002 (7.0)", "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir"},
 #endif
