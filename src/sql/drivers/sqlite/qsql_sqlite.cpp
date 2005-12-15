@@ -254,6 +254,7 @@ bool QSQLiteResult::exec()
     d->skippedStatus = false;
     d->skipRow = false;
     clearValues();
+    setLastError(QSqlError());
 
     int res = sqlite3_reset(d->stmt);
     if (res != SQLITE_OK) {
@@ -311,7 +312,7 @@ bool QSQLiteResult::exec()
     d->skippedStatus = d->fetchNext(cache(), 0, true);
     setSelect(!d->rInf.isEmpty());
     setActive(true);
-    return true;
+    return !lastError().isValid();
 }
 
 bool QSQLiteResult::gotoNext(QSqlCachedResult::ValueCache& row, int idx)
