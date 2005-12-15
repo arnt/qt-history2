@@ -246,6 +246,7 @@ public:
     QString time(const QModelIndex &index) const;
 
     void appendChild(QDirModelPrivate::QDirNode *parent, const QString &path) const;
+    static QFileInfo resolvedInfo(QFileInfo info);
 
     inline QDirNode *node(const QModelIndex &index) const;
     inline void populate(QDirNode *parent) const;
@@ -570,10 +571,6 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
 
     if (!p->parent) // it's a drive
         return true;
-
-    // If parent is a symlink and we are not resolving symlinks then it does not have children.
-    if (!d->resolveSymlinks && p->info.isSymLink())
-        return false;
 
     if (d->lazyChildCount) { // optimization that only checks for children if the node has been populated
         if (p->populated)
@@ -1065,8 +1062,6 @@ bool QDirModel::isDir(const QModelIndex &index) const
     Q_D(const QDirModel);
     Q_ASSERT(index.isValid());
     QDirModelPrivate::QDirNode *node = d->node(index);
-    if (node->info.isSymLink() && !d->resolveSymlinks)
-        return false;
     return node->info.isDir();
 }
 
@@ -1171,7 +1166,7 @@ QString QDirModel::filePath(const QModelIndex &index) const
     if (index.isValid()) {
         QFileInfo fi = fileInfo(index);
         if (d->resolveSymlinks && fi.isSymLink())
-            fi = QFileInfo(fi.filePath()).readLink();
+            fi = d->resolvedInfo(fi);
         return QDir::cleanPath(fi.absoluteFilePath());
     }
     return QString(); // root path
@@ -1185,11 +1180,14 @@ QString QDirModel::filePath(const QModelIndex &index) const
 
 QString QDirModel::fileName(const QModelIndex &index) const
 {
+    Q_D(const QDirModel);
     if (!index.isValid())
         return QString();
     QFileInfo info = fileInfo(index);
     if (info.isRoot())
         return info.absoluteFilePath();
+    if (d->resolveSymlinks && info.isSymLink())
+        info = d->resolvedInfo(info);
     return info.fileName();
 }
 
@@ -1262,7 +1260,7 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
         parent = 0;
         infoList = QDir::drives();
     } else if (parent->info.isDir()) {
-        if (resolveSymlinks && parent->info.isSymLink()) {
+        if (parent->info.isSymLink()) {
             QString link = parent->info.readLink();
             if (link.at(link.size() - 1) == QDir::separator())
                 link.chop(1);
@@ -1339,14 +1337,12 @@ void QDirModelPrivate::restorePersistentIndexes()
 QFileInfoList QDirModelPrivate::entryInfoList(const QString &path) const
 {
     const QDir dir(path);
-    // FIXME: When symlinks are not resolved, links will still show up when we have a name filters
     return dir.entryInfoList(nameFilters, filters | QDir::NoDotAndDotDot, sort);
 }
 
 QStringList QDirModelPrivate::entryList(const QString &path) const
 {
     const QDir dir(path);
-    // FIXME: When symlinks are not resolved, links will still show up when we have a name filters
     return dir.entryList(nameFilters, filters | QDir::NoDotAndDotDot, sort);
 }
 
@@ -1402,4 +1398,20 @@ void QDirModelPrivate::appendChild(QDirModelPrivate::QDirNode *parent, const QSt
     parent->children.append(node);
 }
 
+QFileInfo QDirModelPrivate::resolvedInfo(QFileInfo info)
+{
+#ifdef Q_OS_WIN
+    // On windows, we cannot create a shortcut to a shortcut.
+    return QFileInfo(info.readLink());
+#else
+    QStringList paths;
+    do {
+        info.setFile(info.readLink());
+        if (paths.contains(info.absoluteFilePath()))
+            return QFileInfo();
+        paths.append(info.absoluteFilePath());
+    } while (info.isSymLink());
+    return info;
+#endif
+}
 #endif // QT_NO_DIRMODEL

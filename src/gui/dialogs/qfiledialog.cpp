@@ -878,7 +878,7 @@ void QFileDialog::accept()
                                  info.fileName() + message);
             return;
         }
-        if (info.isDir() && (!info.isSymLink() || d->model->resolveSymlinks())) {
+        if (info.isDir()) {
             emit filesSelected(files);
             QDialog::accept();
         }
@@ -887,7 +887,7 @@ void QFileDialog::accept()
     case AnyFile: {
         QString fn = files.first();
         QFileInfo info(fn);
-        if (info.isDir() && (!info.isSymLink() || d->model->resolveSymlinks())) {
+        if (info.isDir()) {
             setDirectory(info.absoluteFilePath());
             return;
         }
@@ -915,7 +915,7 @@ void QFileDialog::accept()
                                      message.arg(info.fileName()));
                 return;
             }
-            if (info.isDir() && (!info.isSymLink() || d->model->resolveSymlinks())) {
+            if (info.isDir()) {
                 setDirectory(info.absoluteFilePath());
                 return;
             }
@@ -1844,10 +1844,7 @@ void QFileDialogPrivate::setDirFilter(QDir::Filters filters)
 QDir::Filters QFileDialogPrivate::filterForMode(QFileDialog::FileMode mode)
 {
     QDir::Filters f = QDir::Drives | QDir::AllDirs;
-    if (mode == QFileDialog::DirectoryOnly) {
-        if (!model->resolveSymlinks())
-            f |= QDir::NoSymLinks;
-    } else
+    if (mode != QFileDialog::DirectoryOnly)
         f |= QDir::Files;
     return f;
 }
