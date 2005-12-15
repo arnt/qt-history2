@@ -61,7 +61,8 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 
 #include <limits.h>
 
-#define innerMargin 1
+#define verticalMargin 1
+#define horizontalMargin 2
 
 QStyleOptionFrame QLineEditPrivate::getStyleOption() const
 {
@@ -528,8 +529,8 @@ QSize QLineEdit::sizeHint() const
     Q_D(const QLineEdit);
     ensurePolished();
     QFontMetrics fm(font());
-    int h = qMax(fm.lineSpacing(), 14) + 2*innerMargin;
-    int w = fm.width('x') * 17; // "some"
+    int h = qMax(fm.lineSpacing(), 14) + 2*verticalMargin;
+    int w = fm.width('x') * 17 + 2*horizontalMargin; // "some"
     int m = d->frame ? style()->pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
     QStyleOptionFrame opt;
     opt.rect = rect();
@@ -551,7 +552,7 @@ QSize QLineEdit::minimumSizeHint() const
     Q_D(const QLineEdit);
     ensurePolished();
     QFontMetrics fm = fontMetrics();
-    int h = fm.height() + qMax(2*innerMargin, fm.leading());
+    int h = fm.height() + qMax(2*horizontalMargin, fm.leading());
     int w = fm.maxWidth();
     int m = d->frame ? style()->pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
     return QSize(w + (2 * m), h + (2 * m));
@@ -907,7 +908,7 @@ void QLineEdit::setEdited(bool on) { setModified(on); }
 int QLineEdit::characterAt(int xpos, QChar *chr) const
 {
     Q_D(const QLineEdit);
-    int pos = d->xToPos(xpos + contentsRect().x() - d->hscroll + innerMargin);
+    int pos = d->xToPos(xpos + contentsRect().x() - d->hscroll + horizontalMargin);
     if (chr && pos < (int) d->text.length())
         *chr = d->text.at(pos);
     return pos;
@@ -2008,8 +2009,8 @@ void QLineEdit::paintEvent(QPaintEvent *)
     }
     
     QFontMetrics fm = fontMetrics();
-    QRect lineRect(r.x() + innerMargin, r.y() + (r.height() - fm.height() + 1) / 2,
-                    r.width() - 2*innerMargin, fm.height());
+    QRect lineRect(r.x() + horizontalMargin, r.y() + (r.height() - fm.height() + 1) / 2,
+                    r.width() - 2*horizontalMargin, fm.height());
     QTextLine line = d->textLayout.lineAt(0);
 
     // locate cursor position
@@ -2069,7 +2070,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
         }
         selections.append(o);
     }
-
+    
     // Asian users see an IM selection text as cursor on candidate
     // selection phase of input method, so the ordinary cursor should be
     // invisible if we have a preedit string.
@@ -2350,7 +2351,7 @@ void QLineEditPrivate::updateTextLayout()
 int QLineEditPrivate::xToPosInternal(int x, QTextLine::CursorPosition betweenOrOn) const
 {
     Q_Q(const QLineEdit);
-    x-= q->contentsRect().x() - hscroll + innerMargin;
+    x-= q->contentsRect().x() - hscroll + horizontalMargin;
     QTextLine l = textLayout.lineAt(0);
     if (x >= 0 && x < l.naturalTextWidth())
         return l.xToCursor(x, betweenOrOn);
@@ -2370,7 +2371,7 @@ QRect QLineEditPrivate::cursorRect() const
     Q_Q(const QLineEdit);
     QRect cr = q->contentsRect();
     int frameWidth = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    int cix = cr.x() + frameWidth - hscroll + innerMargin;
+    int cix = cr.x() + frameWidth - hscroll + horizontalMargin;
     QTextLine l = textLayout.lineAt(0);
     cix += qRound(l.cursorToX(cursor));
     int ch = qMin(cr.height(), q->fontMetrics().height() + 1);

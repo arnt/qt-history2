@@ -1407,9 +1407,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 else
                     editRect.translate(cb->iconSize.width() + 4, 0);
             }
-
             if (!cb->currentText.isEmpty() && !cb->editable) {
-                drawItemText(p, editRect, Qt::AlignLeft | Qt::AlignVCenter, cb->palette,
+                drawItemText(p, editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, cb->palette,
                              cb->state & State_Enabled, cb->currentText);
             }
             p->restore();
@@ -3413,7 +3412,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     case CT_ComboBox:
         if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             int fw = cmb->frame ? pixelMetric(PM_ComboBoxFrameWidth, opt, widget) * 2 : 0;
-            sz = QSize(sz.width() + fw + 21, sz.height() + fw);
+            sz = QSize(sz.width() + fw + 23, sz.height() + fw);
         }
         break;
 #endif // QT_NO_COMBOBOX
