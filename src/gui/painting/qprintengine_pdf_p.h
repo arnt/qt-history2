@@ -38,6 +38,7 @@
 
 #include "private/qfontengine_p.h"
 #include "private/qpdf_p.h"
+#include "private/qpaintengine_p.h"
 
 // #define USE_NATIVE_GRADIENTS
 
@@ -66,80 +67,11 @@ private:
     QByteArray data;
 };
 
-class QPdfEnginePrivate
-{
-public:
-    QPdfEnginePrivate();
-    ~QPdfEnginePrivate();
-
-    QPdfPage* currentPage;
-    void newPage();
-    void setDimensions(int w, int h){width_ = w; height_ = h;}
-
-    QString title, creator, author;
-
-    void setDevice(QIODevice*);
-    void unsetDevice();
-    int width() const {return width_;}
-    int height() const {return height_;}
-
-    void writeHeader();
-    void writeTail();
-
-    QPrinter::PageOrder pageOrder;
-    QPrinter::Orientation orientation;
-    bool fullPage;
-
-    int addImage(const QImage &image, bool *bitmap);
-    int addBrushPattern(const QBrush &b, const QMatrix &matrix, const QPointF &brushOrigin, bool *specifyColor, int *gStateObject);
-
-    void drawTextItem(QPdfEngine *q, const QPointF &p, const QTextItemInt &ti);
-
-    QPdf::Stroker stroker;
-private:
-    Q_DISABLE_COPY(QPdfEnginePrivate)
-
-#ifdef USE_NATIVE_GRADIENTS
-    int gradientBrush(const QBrush &b, const QMatrix &matrix, int *gStateObject);
-#endif
-
-    void writeInfo();
-    void writePageRoot();
-    void writeFonts();
-    void embedFont(QFontSubset *font);
-
-    inline uint requestObject() { return currentObject++; }
-
-    QVector<int> xrefPositions;
-    int width_, height_;
-    QDataStream* stream;
-    int streampos;
-
-    int writeImage(const QByteArray &data, int width, int height, int depth,
-                   int maskObject, int softMaskObject);
-    void writePage();
-
-    int addXrefEntry(int object, bool printostr = true);
-    void xprintf(const char* fmt, ...);
-    inline void write(const QByteArray &data) {
-        stream->writeRawData(data.constData(), data.size());
-        streampos += data.size();
-    }
-
-    int writeCompressed(const char *src, int len);
-    inline int writeCompressed(const QByteArray &data) { return writeCompressed(data.constData(), data.length()); }
-
-    int currentObject;
-
-    // various PDF objects
-    int pageRoot, catalog, info, graphicsState, patternColorSpace;
-    QVector<uint> pages;
-    QHash<QFontEngine::FaceId, QFontSubset *> fonts;
-};
-
+class QPdfEnginePrivate;
 
 class QPdfEngine : public QPaintEngine, public QPrintEngine
 {
+    Q_DECLARE_PRIVATE(QPdfEngine)
 public:
     QPdfEngine();
     virtual ~QPdfEngine();
@@ -188,13 +120,85 @@ public:
 
 private:
     Q_DISABLE_COPY(QPdfEngine)
-    QPdfEnginePrivate *d;
 
     QPrinter::PageSize pagesize_;
 
     QIODevice* device_;
     QFile* outFile_;
+};
 
+class QPdfEnginePrivate : public QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QPdfEngine)
+public:
+    QPdfEnginePrivate();
+    ~QPdfEnginePrivate();
+
+    QPdfPage* currentPage;
+    void newPage();
+    void setDimensions(int w, int h){width_ = w; height_ = h;}
+
+    QString title, creator, author;
+
+    void setDevice(QIODevice*);
+    void unsetDevice();
+    int width() const {return width_;}
+    int height() const {return height_;}
+
+    void writeHeader();
+    void writeTail();
+
+    QPrinter::PageOrder pageOrder;
+    QPrinter::Orientation orientation;
+    bool fullPage;
+
+    int addImage(const QImage &image, bool *bitmap);
+    int addBrushPattern(const QMatrix &matrix, bool *specifyColor, int *gStateObject);
+
+    void drawTextItem(QPdfEngine *q, const QPointF &p, const QTextItemInt &ti);
+
+    QPdf::Stroker stroker;
+private:
+    Q_DISABLE_COPY(QPdfEnginePrivate)
+
+#ifdef USE_NATIVE_GRADIENTS
+    int gradientBrush(const QBrush &b, const QMatrix &matrix, int *gStateObject);
+#endif
+
+    void writeInfo();
+    void writePageRoot();
+    void writeFonts();
+    void embedFont(QFontSubset *font);
+
+    inline uint requestObject() { return currentObject++; }
+
+    QVector<int> xrefPositions;
+    int width_, height_;
+    QDataStream* stream;
+    int streampos;
+
+    int writeImage(const QByteArray &data, int width, int height, int depth,
+                   int maskObject, int softMaskObject);
+    void writePage();
+
+    int addXrefEntry(int object, bool printostr = true);
+    void xprintf(const char* fmt, ...);
+    inline void write(const QByteArray &data) {
+        stream->writeRawData(data.constData(), data.size());
+        streampos += data.size();
+    }
+
+    int writeCompressed(const char *src, int len);
+    inline int writeCompressed(const QByteArray &data) { return writeCompressed(data.constData(), data.length()); }
+
+    int currentObject;
+
+    // various PDF objects
+    int pageRoot, catalog, info, graphicsState, patternColorSpace;
+    QVector<uint> pages;
+    QHash<QFontEngine::FaceId, QFontSubset *> fonts;
+
+    // state
     Qt::BGMode backgroundMode;
     QBrush backgroundBrush;
     QPointF brushOrigin;
@@ -206,6 +210,7 @@ private:
     bool hasPen;
     bool hasBrush;
 };
+
 
 #endif // QT_NO_PRINTER
 #endif // QPRINTENGINE_PDF_P_H
