@@ -24,7 +24,7 @@ MOC_DIR         = tmp
 DESTDIR = ../../../lib
 DLLDESTDIR = ../../../bin
 isEmpty(QT_MAJOR_VERSION) {
-   VERSION=4.1.0
+   VERSION=4.2.0
 } else {
    VERSION=$${QT_MAJOR_VERSION}.$${QT_MINOR_VERSION}.$${QT_PATCH_VERSION}
 }
