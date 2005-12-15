@@ -338,78 +338,8 @@ static QByteArray wrapDSC(const QByteArray &str)
 
 // ----------------------------- Internal class declarations -----------------------------
 
-class QPSPrintEnginePrivate : public QPaintEnginePrivate {
-public:
-    QPSPrintEnginePrivate(QPrinter::PrinterMode m);
-    ~QPSPrintEnginePrivate();
-
-    void emitHeader(bool finished);
-    void emitPages();
-    void drawImage(qreal x, qreal y, qreal w, qreal h, const QImage &img, const QImage &mask);
-    void flushPage(bool last = false);
-    QRect paperRect() const;
-    QRect pageRect() const;
-    QRegion getClip();
-
-    void drawTextItem(QPSPrintEngine *q, const QPointF &p, const QTextItemInt &ti);
-
-    inline int requestObject() { return ++object; }
-    int object;
-
-    int         pageCount;
-    bool        epsf;
-    QByteArray     fontsUsed;
-
-    // the device the output is in the end streamed to.
-    QIODevice *outDevice;
-    int fd;
-
-    // stores the descriptions of the n first pages.
-    QByteArray buffer;
-    // buffer for the current page. Needed because we might have page fonts.
-    QByteArray pageBuffer;
-    QPdf::ByteStream *currentPage;
-
-    QHash<QFontEngine::FaceId, QFontSubset *> fonts;
-    bool firstPage;
-
-    QRect boundingBox;
-
-    Qt::BGMode backgroundMode;
-    QBrush backgroundBrush;
-    QPointF brushOrigin;
-    QBrush brush;
-    QPen pen;
-    QList<QPainterPath> clips;
-    bool clipEnabled;
-    bool allClipped;
-    bool hasPen;
-    bool hasBrush;
-
-    QPdf::Stroker stroker;
-
-    bool        collate;
-    int         copies;
-    QString printerName;
-    QString outputFileName;
-    QString selectionOption;
-    QString printProgram;
-    QString title;
-    QString creator;
-    QPrinter::Orientation orientation;
-    QPrinter::PageSize pageSize;
-    QPrinter::PageOrder pageOrder;
-    int resolution;
-    QPrinter::ColorMode colorMode;
-    bool fullPage;
-    QPrinter::PaperSource paperSource;
-    QPrinter::PrinterState printerState;
-    bool embedFonts;
-};
-
-
 QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
-    : object(0), outDevice(0), fd(-1), currentPage(0),
+    : outDevice(0), fd(-1), 
       collate(false), copies(1), orientation(QPrinter::Portrait),
       pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::Color),
       fullPage(false), printerState(QPrinter::Idle)
@@ -436,107 +366,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
 
 QPSPrintEnginePrivate::~QPSPrintEnginePrivate()
 {
-    qDeleteAll(fonts);
-    delete currentPage;
 }
-
-void QPSPrintEnginePrivate::drawTextItem(QPSPrintEngine *q, const QPointF &p, const QTextItemInt &ti)
-{
-    QFontEngine *fe = ti.fontEngine;
-
-    QFontEngine::FaceId face_id = fe->faceId();
-    if (face_id.filename.isEmpty()) {
-        *currentPage << "Q\n";
-        q->QPaintEngine::drawTextItem(p, ti);
-        *currentPage << "q\n";
-        return;
-    }
-
-    QFontSubset *font = fonts.value(face_id, 0);
-    if (!font)
-        font = new QFontSubset(fe, requestObject());
-    fonts.insert(face_id, font);
-
-//     if (!currentPage->fonts.contains(font->object_id))
-//         currentPage->fonts.append(font->object_id);
-
-    qreal size;
-#ifdef Q_WS_WIN
-    size = ti.fontEngine->tm.w.tmHeight;
-#else
-    size = ti.fontEngine->fontDef.pixelSize;
-#endif
-
-    QVarLengthArray<glyph_t> glyphs;
-    QVarLengthArray<QFixedPoint> positions;
-    QMatrix m;
-    m.translate(p.x(), p.y());
-    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, m, ti.flags,
-                                     glyphs, positions);
-    int synthesized = ti.fontEngine->synthesized();
-    qreal stretch = synthesized & QFontEngine::SynthesizedStretch ? ti.fontEngine->fontDef.stretch/100. : 1.;
-
-    if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut|QTextItem::Overline)) {
-        qreal lw = fe->lineThickness().toReal();
-        if (ti.flags & (QTextItem::Underline))
-            *currentPage << p.x() << (p.y() + fe->underlinePosition().toReal())
-                           << ti.width.toReal() << lw << "re ";
-        if (ti.flags & (QTextItem::StrikeOut))
-            *currentPage  << p.x() << (p.y() - fe->ascent().toReal()/3.)
-                            << ti.width.toReal() << lw << "re ";
-        if (ti.flags & (QTextItem::Overline))
-            *currentPage  << p.x() << (p.y() - fe->ascent().toReal())
-                            << ti.width.toReal() << lw << "re ";
-        *currentPage << "f\n";
-    }
-    *currentPage << "BT\n"
-                 << "/F" << font->object_id << size << "Tf "
-                 << stretch << (synthesized & QFontEngine::SynthesizedItalic
-                                ? "0 .3 -1 0 0 Tm\n"
-                                : "0 0 -1 0 0 Tm\n");
-
-
-    qreal last_x = 0.;
-    qreal last_y = 0.;
-    for (int i = 0; i < glyphs.size(); ++i) {
-        qreal x = positions[i].x.toReal();
-        qreal y = positions[i].y.toReal();
-        if (synthesized & QFontEngine::SynthesizedItalic)
-            x += .3*y;
-        x /= stretch;
-        char buf[5];
-        int g = font->addGlyph(glyphs[i]);
-        *currentPage << x - last_x << last_y - y << "Td <"
-                     << QPdf::toHex((ushort)g, buf) << "> Tj\n";
-        last_x = x;
-        last_y = y;
-    }
-    if (synthesized & QFontEngine::SynthesizedBold) {
-        *currentPage << stretch << (synthesized & QFontEngine::SynthesizedItalic
-                            ? "0 .3 -1 0 0 Tm\n"
-                            : "0 0 -1 0 0 Tm\n");
-        *currentPage << "/Span << /ActualText <> >> BDC\n";
-        last_x = 0.5*fe->lineThickness().toReal();
-        last_y = 0.;
-        for (int i = 0; i < glyphs.size(); ++i) {
-            qreal x = positions[i].x.toReal();
-            qreal y = positions[i].y.toReal();
-            if (synthesized & QFontEngine::SynthesizedItalic)
-                x += .3*y;
-            x /= stretch;
-            char buf[5];
-            int g = font->addGlyph(glyphs[i]);
-            *currentPage << x - last_x << last_y - y << "Td <"
-                        << QPdf::toHex((ushort)g, buf) << "> Tj\n";
-            last_x = x;
-            last_y = y;
-        }
-        *currentPage << "EMC\n";
-    }
-
-    *currentPage << "ET\n";
-}
-
 
 static void ps_r7(QPdf::ByteStream& stream, const char * s, int l)
 {
@@ -925,15 +755,14 @@ const int max_in_memory_size = 2000000;
 
 void QPSPrintEnginePrivate::flushPage(bool last)
 {
-    if (!last && pageBuffer.isEmpty())
+    if (!last && currentPage->content().isEmpty())
         return;
     QPdf::ByteStream s(&buffer);
     s << "%%Page: "
       << pageCount << pageCount << "\n"
       << "QI\n"
-      << pageBuffer
+      << currentPage->content()
       << "\nQP\n";
-    pageBuffer = QByteArray();
     if (last) { // ############## || buffer.size() > max_in_memory_size) {
 //        qDebug("emiting header at page %d", pageCount);
         if (!outDevice)
@@ -946,13 +775,13 @@ void QPSPrintEnginePrivate::flushPage(bool last)
 // ================ PSPrinter class ========================
 
 QPSPrintEngine::QPSPrintEngine(QPrinter::PrinterMode m)
-    : QPaintEngine(*(new QPSPrintEnginePrivate(m)),
-                   PrimitiveTransform
-                   | PatternTransform
-                   | PixmapTransform
-                   | PainterPaths
-                   | PatternBrush
-       )
+    : QPdfBaseEngine(*(new QPSPrintEnginePrivate(m)),
+                     PrimitiveTransform
+                     | PatternTransform
+                     | PixmapTransform
+                     | PainterPaths
+                     | PatternBrush
+        )
 {
 }
 
@@ -1182,150 +1011,6 @@ bool QPSPrintEngine::end()
     return true;
 }
 
-
-void QPSPrintEngine::updateState(const QPaintEngineState &state)
-{
-    Q_D(QPSPrintEngine);
-    QPaintEngine::DirtyFlags flags = state.state();
-
-    if (flags & DirtyTransform)
-        d->stroker.matrix = state.matrix();
-
-    if (flags & DirtyPen) {
-        d->pen = state.pen();
-        d->hasPen = (d->pen != Qt::NoPen);
-        d->stroker.setPen(d->pen);
-    }
-    if (flags & DirtyBrush) {
-        d->brush = state.brush();
-        d->hasBrush = (d->brush != Qt::NoBrush);
-    }
-    if (flags & DirtyBrushOrigin) {
-        d->brushOrigin = state.brushOrigin();
-        flags |= DirtyBrush;
-    }
-
-    if (flags & DirtyBackground)
-        d->backgroundBrush = state.backgroundBrush();
-    if (flags & DirtyBackgroundMode)
-        d->backgroundMode = state.backgroundMode();
-
-    bool ce = d->clipEnabled;
-    if (flags & DirtyClipEnabled)
-        d->clipEnabled = state.isClipEnabled();
-    if (flags & DirtyClipPath)
-        updateClipPath(state.clipPath(), state.clipOperation());
-    if (flags & DirtyClipRegion) {
-        QPainterPath path;
-        QVector<QRect> rects = state.clipRegion().rects();
-        for (int i = 0; i < rects.size(); ++i)
-            path.addRect(rects.at(i));
-        updateClipPath(path, state.clipOperation());
-        flags |= DirtyClipPath;
-    }
-
-    if (ce != d->clipEnabled)
-        flags |= DirtyClipPath;
-    else if (!d->clipEnabled)
-        flags &= ~DirtyClipPath;
-
-    if (flags & DirtyClipPath) {
-        *d->currentPage << "Q q\n";
-        flags |= DirtyPen|DirtyBrush;
-    }
-
-    if (flags & DirtyClipPath) {
-        d->allClipped = false;
-        if (d->clipEnabled && !d->clips.isEmpty()) {
-            for (int i = 0; i < d->clips.size(); ++i) {
-                if (d->clips.at(i).isEmpty()) {
-                    d->allClipped = true;
-                    break;
-                }
-            }
-            if (!d->allClipped) {
-                for (int i = 0; i < d->clips.size(); ++i) {
-                    *d->currentPage << QPdf::generatePath(d->clips.at(i), QMatrix(), QPdf::ClipPath);
-                }
-            }
-        }
-    }
-
-    if (flags & DirtyBrush)
-        setBrush();
-}
-
-void QPSPrintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperation op)
-{
-    Q_D(QPSPrintEngine);
-    QPainterPath path = d->stroker.matrix.map(p);
-    //qDebug() << "updateClipPath: " << matrix << p.boundingRect() << path.boundingRect();
-
-    if (op == Qt::NoClip) {
-        d->clipEnabled = false;
-    } else if (op == Qt::ReplaceClip) {
-        d->clips.clear();
-        d->clips.append(path);
-    } else if (op == Qt::IntersectClip) {
-        d->clips.append(path);
-    } else { // UniteClip
-        // ask the painter for the current clipping path. that's the easiest solution
-        path = painter()->clipPath();
-        path = d->stroker.matrix.map(path);
-        d->clips.clear();
-        d->clips.append(path);
-    }
-}
-
-void QPSPrintEngine::setPen()
-{
-    Q_D(QPSPrintEngine);
-    QBrush b = d->pen.brush();
-    Q_ASSERT(b.style() == Qt::SolidPattern && b.isOpaque());
-
-    QColor rgba = b.color();
-    *d->currentPage << rgba.redF()
-                   << rgba.greenF()
-                   << rgba.blueF()
-                   << "SCN\n";
-
-    *d->currentPage << d->pen.widthF() << "w ";
-
-    int pdfCapStyle = 0;
-    switch(d->pen.capStyle()) {
-    case Qt::FlatCap:
-        pdfCapStyle = 0;
-        break;
-    case Qt::SquareCap:
-        pdfCapStyle = 2;
-        break;
-    case Qt::RoundCap:
-        pdfCapStyle = 1;
-        break;
-    default:
-        break;
-    }
-    *d->currentPage << pdfCapStyle << "J ";
-
-    int pdfJoinStyle = 0;
-    switch(d->pen.joinStyle()) {
-    case Qt::MiterJoin:
-        pdfJoinStyle = 0;
-        break;
-    case Qt::BevelJoin:
-        pdfJoinStyle = 2;
-        break;
-    case Qt::RoundJoin:
-        pdfJoinStyle = 1;
-        break;
-    default:
-        break;
-    }
-    *d->currentPage << pdfJoinStyle << "j ";
-
-    *d->currentPage << QPdf::generateDashes(d->pen) << " 0 d\n";
-}
-
 void QPSPrintEngine::setBrush()
 {
     Q_D(QPSPrintEngine);
@@ -1351,57 +1036,6 @@ void QPSPrintEngine::setBrush()
                     << rgba.blueF()
                     << "scn\n";
     *d->currentPage << "/BSt " << d->brush.style() << "def\n";
-}
-
-
-
-void QPSPrintEngine::drawLines(const QLineF *lines, int lineCount)
-{
-    if (!lines || !lineCount)
-        return;
-
-    QPainterPath p;
-    for (int i=0; i!=lineCount;++i) {
-        p.moveTo(lines[i].p1());
-        p.lineTo(lines[i].p2());
-    }
-    drawPath(p);
-}
-
-void QPSPrintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
-{
-    if (!points || !pointCount)
-        return;
-    Q_D(QPSPrintEngine);
-
-    QPainterPath p;
-
-    bool hb = d->hasBrush;
-
-    switch(mode) {
-    case OddEvenMode:
-        p.setFillRule(Qt::OddEvenFill);
-        break;
-    case ConvexMode:
-    case WindingMode:
-        p.setFillRule(Qt::WindingFill);
-        break;
-    case PolylineMode:
-        d->hasBrush = false;
-        break;
-    default:
-        break;
-    }
-
-    p.moveTo(points[0]);
-    for (int i = 1; i < pointCount; ++i)
-        p.lineTo(points[i]);
-
-    if (mode != PolylineMode)
-        p.closeSubpath();
-    drawPath(p);
-
-    d->hasBrush = hb;
 }
 
 void QPSPrintEngine::drawImageInternal(const QRectF &r, QImage image, bool bitmap)
@@ -1457,86 +1091,6 @@ void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF
     drawImageInternal(r, img, true);
 }
 
-void QPSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
-{
-    Q_D(QPSPrintEngine);
-    if (!d->hasPen || (d->clipEnabled && d->allClipped))
-        return;
-
-    *d->currentPage << "q " << QPdf::generateMatrix(d->stroker.matrix);
-
-    bool hp = d->hasPen;
-    d->hasPen = false;
-    QBrush b = d->brush;
-    d->brush = d->pen.brush();
-    setBrush();
-
-    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
-    if (ti.fontEngine->type() == QFontEngine::Multi) {
-        QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
-        QGlyphLayout *glyphs = ti.glyphs;
-        int which = glyphs[0].glyph >> 24;
-
-        qreal x = p.x();
-        qreal y = p.y();
-
-        int start = 0;
-        int end, i;
-        for (end = 0; end < ti.num_glyphs; ++end) {
-            const int e = glyphs[end].glyph >> 24;
-            if (e == which)
-                continue;
-
-            // set the high byte to zero
-            for (i = start; i < end; ++i)
-                glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
-
-            // draw the text
-            QTextItemInt ti2 = ti;
-            ti2.glyphs = ti.glyphs + start;
-            ti2.num_glyphs = end - start;
-            ti2.fontEngine = multi->engine(which);
-            ti2.f = ti.f;
-            d->drawTextItem(this, QPointF(x, y), ti2);
-
-            QFixed xadd;
-            // reset the high byte for all glyphs and advance to the next sub-string
-            const int hi = which << 24;
-            for (i = start; i < end; ++i) {
-                glyphs[i].glyph = hi | glyphs[i].glyph;
-                xadd += glyphs[i].advance.x;
-            }
-            x += xadd.toReal();
-
-            // change engine
-            start = end;
-            which = e;
-        }
-
-        // set the high byte to zero
-        for (i = start; i < end; ++i)
-            glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
-
-        // draw the text
-        QTextItemInt ti2 = ti;
-        ti2.glyphs = ti.glyphs + start;
-        ti2.num_glyphs = end - start;
-        ti2.fontEngine = multi->engine(which);
-        ti2.f = ti.f;
-        d->drawTextItem(this, QPointF(x,y), ti2);
-
-        // reset the high byte for all glyphs
-        const int hi = which << 24;
-        for (i = start; i < end; ++i)
-            glyphs[i].glyph = hi | glyphs[i].glyph;
-    } else {
-        d->drawTextItem(this, p, ti);
-    }
-    d->hasPen = hp;
-    d->brush = b;
-    *d->currentPage << "Q\n";
-}
-
 void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p)
 {
     Q_D(QPSPrintEngine);
@@ -1567,36 +1121,6 @@ void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, con
 
 }
 
-void QPSPrintEngine::drawPath(const QPainterPath &p)
-{
-    Q_D(QPSPrintEngine);
-    if (d->clipEnabled && d->allClipped)
-        return;
-    QBrush penBrush = d->pen.brush();
-    if (d->hasPen && penBrush == Qt::SolidPattern && penBrush.isOpaque()) {
-        // draw strokes natively in this case for better output
-        *d->currentPage << "q\n";
-        setPen();
-        *d->currentPage << QPdf::generateMatrix(d->stroker.matrix);
-        *d->currentPage << QPdf::generatePath(p, QMatrix(), d->hasBrush ? QPdf::FillAndStrokePath : QPdf::StrokePath);
-        *d->currentPage << "Q\n";
-    } else {
-        if (d->hasBrush) {
-            *d->currentPage << QPdf::generatePath(p, d->stroker.matrix, QPdf::FillPath);
-        }
-        if (d->hasPen) {
-            *d->currentPage << "q\n";
-            QBrush b = d->brush;
-            d->brush = d->pen.brush();
-            setBrush();
-            d->stroker.strokePath(p);
-            *d->currentPage << "Q\n";
-            d->brush = b;
-        }
-    }
-}
-
-
 bool QPSPrintEngine::newPage()
 {
     Q_D(QPSPrintEngine);
@@ -1608,9 +1132,8 @@ bool QPSPrintEngine::newPage()
     d->firstPage = false;
     ignoreSigPipe(false);
 
-    d->pageBuffer = QByteArray();
     delete d->currentPage;
-    d->currentPage = new QPdf::ByteStream(&d->pageBuffer);
+    d->currentPage = new QPdfPage;
     d->stroker.stream = d->currentPage;
 
     return true;

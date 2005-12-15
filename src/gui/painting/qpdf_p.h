@@ -31,6 +31,8 @@
 #include "private/qfontengine_p.h"
 #include "QtGui/qprinter.h"
 #include "private/qfontsubset_p.h"
+#include "private/qpaintengine_p.h"
+#include "qprintengine.h"
 
 const char *qt_real_to_string(qreal val, char *buf);
 const char *qt_int_to_string(int val, char *buf);
@@ -93,6 +95,80 @@ namespace QPdf {
     const char *paperSizeToString(QPrinter::PageSize pageSize);
 };
 
+
+class QPdfPage : public QPdf::ByteStream
+{
+public:
+    QPdfPage();
+    QByteArray content() { return data; }
+
+    QVector<uint> images;
+    QVector<uint> graphicStates;
+    QVector<uint> patterns;
+    QVector<uint> fonts;
+
+    void streamImage(int w, int h, int object);
+private:
+    QByteArray data;
+};
+
+
+class QPdfBaseEnginePrivate;
+
+class QPdfBaseEngine : public QPaintEngine, public QPrintEngine
+{
+    Q_DECLARE_PRIVATE(QPdfBaseEngine)
+public:
+    QPdfBaseEngine(QPdfBaseEnginePrivate &d, PaintEngineFeatures f);
+    ~QPdfBaseEngine() {}
+
+    // reimplementations QPaintEngine
+    void drawPoints(const QPointF *points, int pointCount);
+    void drawLines(const QLineF *lines, int lineCount);
+    void drawRects(const QRectF *rects, int rectCount);
+    void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
+    void drawPath (const QPainterPath & path);
+
+    void drawTextItem(const QPointF &p, const QTextItem &textItem);
+
+    void updateState(const QPaintEngineState &state);
+    // end reimplementations QPaintEngine
+
+    void setPen();
+    virtual void setBrush() = 0;
+
+private:
+    void updateClipPath(const QPainterPath & path, Qt::ClipOperation op);
+};
+
+class QPdfBaseEnginePrivate : public QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QPdfBaseEngine)
+public:
+    QPdfBaseEnginePrivate();
+    ~QPdfBaseEnginePrivate();
+    
+    void drawTextItem(const QPointF &p, const QTextItemInt &ti);
+    inline uint requestObject() { return currentObject++; }
+
+    int currentObject;
+
+    QPdfPage* currentPage;
+    QPdf::Stroker stroker;
+
+    Qt::BGMode backgroundMode;
+    QBrush backgroundBrush;
+    QPointF brushOrigin;
+    QBrush brush;
+    QPen pen;
+    QList<QPainterPath> clips;
+    bool clipEnabled;
+    bool allClipped;
+    bool hasPen;
+    bool hasBrush;
+
+    QHash<QFontEngine::FaceId, QFontSubset *> fonts;
+};
 
 #endif
 

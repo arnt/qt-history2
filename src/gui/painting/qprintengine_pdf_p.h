@@ -50,26 +50,9 @@ class QRegion;
 class QFile;
 class QPdfEngine;
 
-
-class QPdfPage : public QPdf::ByteStream
-{
-public:
-    QPdfPage();
-    QByteArray content() { return data; }
-
-    QVector<uint> images;
-    QVector<uint> graphicStates;
-    QVector<uint> patterns;
-    QVector<uint> fonts;
-
-    void streamImage(int w, int h, int object);
-private:
-    QByteArray data;
-};
-
 class QPdfEnginePrivate;
 
-class QPdfEngine : public QPaintEngine, public QPrintEngine
+class QPdfEngine : public QPdfBaseEngine
 {
     Q_DECLARE_PRIVATE(QPdfEngine)
 public:
@@ -79,19 +62,11 @@ public:
     // reimplementations QPaintEngine
     bool begin(QPaintDevice *pdev);
     bool end();
-    void drawPoints(const QPointF *points, int pointCount);
-    void drawLines(const QLineF *lines, int lineCount);
-    void drawRects(const QRectF *rects, int rectCount);
-    void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
-    void drawPath (const QPainterPath & path);
     void drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QRectF & sr);
     void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
                    Qt::ImageConversionFlags flags = Qt::AutoColor);
     void drawTiledPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QPointF & point);
 
-    void drawTextItem(const QPointF &p, const QTextItem &textItem);
-
-    void updateState(const QPaintEngineState &state);
     Type type() const;
     // end reimplementations QPaintEngine
 
@@ -104,9 +79,6 @@ public:
     QPrinter::PrinterState printerState() const {return QPrinter::Idle;}
     // end reimplementations QPrintEngine
 
-    void updateClipPath(const QPainterPath & path, Qt::ClipOperation op);
-
-    void setPen();
     void setBrush();
 
     QRect paperRect() const;
@@ -127,14 +99,13 @@ private:
     QFile* outFile_;
 };
 
-class QPdfEnginePrivate : public QPaintEnginePrivate
+class QPdfEnginePrivate : public QPdfBaseEnginePrivate
 {
     Q_DECLARE_PUBLIC(QPdfEngine)
 public:
     QPdfEnginePrivate();
     ~QPdfEnginePrivate();
 
-    QPdfPage* currentPage;
     void newPage();
     void setDimensions(int w, int h){width_ = w; height_ = h;}
 
@@ -155,9 +126,6 @@ public:
     int addImage(const QImage &image, bool *bitmap);
     int addBrushPattern(const QMatrix &matrix, bool *specifyColor, int *gStateObject);
 
-    void drawTextItem(QPdfEngine *q, const QPointF &p, const QTextItemInt &ti);
-
-    QPdf::Stroker stroker;
 private:
     Q_DISABLE_COPY(QPdfEnginePrivate)
 
@@ -169,8 +137,6 @@ private:
     void writePageRoot();
     void writeFonts();
     void embedFont(QFontSubset *font);
-
-    inline uint requestObject() { return currentObject++; }
 
     QVector<int> xrefPositions;
     int width_, height_;
@@ -191,24 +157,9 @@ private:
     int writeCompressed(const char *src, int len);
     inline int writeCompressed(const QByteArray &data) { return writeCompressed(data.constData(), data.length()); }
 
-    int currentObject;
-
     // various PDF objects
     int pageRoot, catalog, info, graphicsState, patternColorSpace;
     QVector<uint> pages;
-    QHash<QFontEngine::FaceId, QFontSubset *> fonts;
-
-    // state
-    Qt::BGMode backgroundMode;
-    QBrush backgroundBrush;
-    QPointF brushOrigin;
-    QBrush brush;
-    QPen pen;
-    QList<QPainterPath> clips;
-    bool clipEnabled;
-    bool allClipped;
-    bool hasPen;
-    bool hasBrush;
 };
 
 

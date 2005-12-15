@@ -28,13 +28,12 @@
 
 #ifndef QT_NO_PRINTER
 
-#include "QtGui/qpaintengine.h"
-#include "QtGui/qprintengine.h"
+#include "private/qpdf_p.h"
 
 class QPrinter;
 class QPSPrintEnginePrivate;
 
-class QPSPrintEngine : public QPaintEngine, public QPrintEngine
+class QPSPrintEngine : public QPdfBaseEngine
 {
     Q_DECLARE_PRIVATE(QPSPrintEngine)
 public:
@@ -46,15 +45,7 @@ public:
     virtual bool begin(QPaintDevice *pdev);
     virtual bool end();
 
-    void updateState(const QPaintEngineState &state);
-
-    void setPen();
     void setBrush();
-    void updateClipPath(const QPainterPath &p, Qt::ClipOperation op);
-
-    virtual void drawLines(const QLineF *lines, int lineCount);
-    virtual void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
-    virtual void drawPath(const QPainterPath &);
 
     virtual void drawImage(const QRectF &r, const QImage &img, const QRectF &sr, Qt::ImageConversionFlags);
     virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
@@ -62,8 +53,6 @@ public:
 
     virtual void drawImageInternal(const QRectF &r, QImage img, bool bitmap);
     
-    virtual void drawTextItem(const QPointF &p, const QTextItem &textItem);
-
     virtual QPaintEngine::Type type() const { return QPaintEngine::PostScript; }
 
     // Printer stuff...
@@ -82,6 +71,55 @@ public:
 private:
     Q_DISABLE_COPY(QPSPrintEngine)
 };
+
+
+class QPSPrintEnginePrivate : public QPdfBaseEnginePrivate {
+public:
+    QPSPrintEnginePrivate(QPrinter::PrinterMode m);
+    ~QPSPrintEnginePrivate();
+
+    void emitHeader(bool finished);
+    void emitPages();
+    void drawImage(qreal x, qreal y, qreal w, qreal h, const QImage &img, const QImage &mask);
+    void flushPage(bool last = false);
+    QRect paperRect() const;
+    QRect pageRect() const;
+
+    int         pageCount;
+    bool        epsf;
+    QByteArray     fontsUsed;
+
+    // the device the output is in the end streamed to.
+    QIODevice *outDevice;
+    int fd;
+
+    // stores the descriptions of the n first pages.
+    QByteArray buffer;
+
+    bool firstPage;
+
+    QRect boundingBox;
+
+    bool        collate;
+    int         copies;
+    QString printerName;
+    QString outputFileName;
+    QString selectionOption;
+    QString printProgram;
+    QString title;
+    QString creator;
+    QPrinter::Orientation orientation;
+    QPrinter::PageSize pageSize;
+    QPrinter::PageOrder pageOrder;
+    int resolution;
+    QPrinter::ColorMode colorMode;
+    bool fullPage;
+    QPrinter::PaperSource paperSource;
+    QPrinter::PrinterState printerState;
+    bool embedFonts;
+};
+
+
 
 #endif // QT_NO_PRINTER
 

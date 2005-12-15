@@ -754,3 +754,481 @@ const char *QPdf::paperSizeToString(QPrinter::PageSize pageSize)
 {
     return psToStr[pageSize];
 }
+
+
+// -------------------------- base engine, shared code between PS and PDF -----------------------
+
+QPdfBaseEngine::QPdfBaseEngine(QPdfBaseEnginePrivate &d, PaintEngineFeatures f)
+    : QPaintEngine(d, f)
+{
+}
+
+void QPdfBaseEngine::drawPoints (const QPointF *points, int pointCount)
+{
+    Q_D(QPdfBaseEngine);
+    if (!points || !d->hasPen)
+        return;
+
+    QPainterPath p;
+    for (int i=0; i!=pointCount;++i) {
+        p.moveTo(points[i]);
+        p.lineTo(points[i] + QPointF(0, 0.001));
+    }
+    drawPath(p);
+}
+
+void QPdfBaseEngine::drawLines (const QLineF *lines, int lineCount)
+{
+    if (!lines)
+        return;
+
+    QPainterPath p;
+    for (int i=0; i!=lineCount;++i) {
+        p.moveTo(lines[i].p1());
+        p.lineTo(lines[i].p2());
+    }
+    drawPath(p);
+}
+
+void QPdfBaseEngine::drawRects (const QRectF *rects, int rectCount)
+{
+    if (!rects)
+        return;
+
+    QPainterPath p;
+    for (int i=0; i!=rectCount; ++i) {
+        p.addRect(rects[i]);
+    }
+    drawPath(p);
+}
+
+void QPdfBaseEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
+{
+    if (!points || !pointCount)
+        return;
+    Q_D(QPdfBaseEngine);
+    
+    bool hb = d->hasBrush;
+    QPainterPath p;
+
+    switch(mode) {
+    case OddEvenMode:
+        p.setFillRule(Qt::OddEvenFill);
+        break;
+    case ConvexMode:
+    case WindingMode:
+        p.setFillRule(Qt::WindingFill);
+        break;
+    case PolylineMode:
+        d->hasBrush = false;
+        break;
+    default:
+        break;
+    }
+
+    p.moveTo(points[0]);
+    for (int i = 1; i < pointCount; ++i)
+        p.lineTo(points[i]);
+
+    if (mode != PolylineMode)
+        p.closeSubpath();
+    drawPath(p);
+
+    d->hasBrush = hb;
+}
+
+void QPdfBaseEngine::drawPath (const QPainterPath &p)
+{
+    Q_D(QPdfBaseEngine);
+    if (d->clipEnabled && d->allClipped)
+        return;
+
+    QBrush penBrush = d->pen.brush();
+    if (d->hasPen && penBrush == Qt::SolidPattern && penBrush.isOpaque()) {
+        // draw strokes natively in this case for better output
+        *d->currentPage << "q\n";
+        setPen();
+        *d->currentPage << QPdf::generateMatrix(d->stroker.matrix);
+        *d->currentPage << QPdf::generatePath(p, QMatrix(), d->hasBrush ? QPdf::FillAndStrokePath : QPdf::StrokePath);
+        *d->currentPage << "Q\n";
+    } else {
+        if (d->hasBrush) {
+            *d->currentPage << QPdf::generatePath(p, d->stroker.matrix, QPdf::FillPath);
+        }
+        if (d->hasPen) {
+            *d->currentPage << "q\n";
+            QBrush b = d->brush;
+            d->brush = d->pen.brush();
+            setBrush();
+            d->stroker.strokePath(p);
+            *d->currentPage << "Q\n";
+            d->brush = b;
+        }
+    }
+}
+
+void QPdfBaseEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
+{
+    Q_D(QPdfBaseEngine);
+    
+    if (!d->hasPen || (d->clipEnabled && d->allClipped))
+        return;
+
+    *d->currentPage << "q " << QPdf::generateMatrix(d->stroker.matrix);
+
+    bool hp = d->hasPen;
+    d->hasPen = false;
+    QBrush b = d->brush;
+    d->brush = d->pen.brush();
+    setBrush();
+
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+    if (ti.fontEngine->type() == QFontEngine::Multi) {
+        QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
+        QGlyphLayout *glyphs = ti.glyphs;
+        int which = glyphs[0].glyph >> 24;
+
+        qreal x = p.x();
+        qreal y = p.y();
+
+        int start = 0;
+        int end, i;
+        for (end = 0; end < ti.num_glyphs; ++end) {
+            const int e = glyphs[end].glyph >> 24;
+            if (e == which)
+                continue;
+
+            // set the high byte to zero
+            for (i = start; i < end; ++i)
+                glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
+
+            // draw the text
+            QTextItemInt ti2 = ti;
+            ti2.glyphs = ti.glyphs + start;
+            ti2.num_glyphs = end - start;
+            ti2.fontEngine = multi->engine(which);
+            ti2.f = ti.f;
+            d->drawTextItem(QPointF(x, y), ti2);
+
+            QFixed xadd;
+            // reset the high byte for all glyphs and advance to the next sub-string
+            const int hi = which << 24;
+            for (i = start; i < end; ++i) {
+                glyphs[i].glyph = hi | glyphs[i].glyph;
+                xadd += glyphs[i].advance.x;
+            }
+            x += xadd.toReal();
+
+            // change engine
+            start = end;
+            which = e;
+        }
+
+        // set the high byte to zero
+        for (i = start; i < end; ++i)
+            glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
+
+        // draw the text
+        QTextItemInt ti2 = ti;
+        ti2.glyphs = ti.glyphs + start;
+        ti2.num_glyphs = end - start;
+        ti2.fontEngine = multi->engine(which);
+        ti2.f = ti.f;
+        d->drawTextItem(QPointF(x,y), ti2);
+
+        // reset the high byte for all glyphs
+        const int hi = which << 24;
+        for (i = start; i < end; ++i)
+            glyphs[i].glyph = hi | glyphs[i].glyph;
+    } else {
+        d->drawTextItem(p, ti);
+    }
+    d->hasPen = hp;
+    d->brush = b;
+    *d->currentPage << "Q\n";
+}
+
+
+void QPdfBaseEngine::updateState(const QPaintEngineState &state)
+{
+    Q_D(QPdfBaseEngine);
+    QPaintEngine::DirtyFlags flags = state.state();
+
+    if (flags & DirtyTransform)
+        d->stroker.matrix = state.matrix();
+
+    if (flags & DirtyPen) {
+        d->pen = state.pen();
+        d->hasPen = d->pen != Qt::NoPen;
+        d->stroker.setPen(d->pen);
+    }
+    if (flags & DirtyBrush) {
+        d->brush = state.brush();
+        d->hasBrush = d->brush != Qt::NoBrush;
+    }
+    if (flags & DirtyBrushOrigin) {
+        d->brushOrigin = state.brushOrigin();
+        flags |= DirtyBrush;
+    }
+
+    if (flags & DirtyBackground)
+        d->backgroundBrush = state.backgroundBrush();
+    if (flags & DirtyBackgroundMode)
+        d->backgroundMode = state.backgroundMode();
+
+    bool ce = d->clipEnabled;
+    if (flags & DirtyClipEnabled)
+        d->clipEnabled = state.isClipEnabled();
+    if (flags & DirtyClipPath)
+        updateClipPath(state.clipPath(), state.clipOperation());
+    if (flags & DirtyClipRegion) {
+        QPainterPath path;
+        QVector<QRect> rects = state.clipRegion().rects();
+        for (int i = 0; i < rects.size(); ++i)
+            path.addRect(rects.at(i));
+        updateClipPath(path, state.clipOperation());
+        flags |= DirtyClipPath;
+    }
+
+    if (ce != d->clipEnabled)
+        flags |= DirtyClipPath;
+    else if (!d->clipEnabled)
+        flags &= ~DirtyClipPath;
+
+    if (flags & DirtyClipPath) {
+        *d->currentPage << "Q q\n";
+        flags |= DirtyPen|DirtyBrush;
+    }
+
+    if (flags & DirtyClipPath) {
+        d->allClipped = false;
+        if (d->clipEnabled && !d->clips.isEmpty()) {
+            for (int i = 0; i < d->clips.size(); ++i) {
+                if (d->clips.at(i).isEmpty()) {
+                    d->allClipped = true;
+                    break;
+                }
+            }
+            if (!d->allClipped) {
+                for (int i = 0; i < d->clips.size(); ++i) {
+                    *d->currentPage << QPdf::generatePath(d->clips.at(i), QMatrix(), QPdf::ClipPath);
+                }
+            }
+        }
+    }
+
+    if (flags & DirtyBrush)
+        setBrush();
+}
+
+void QPdfBaseEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperation op)
+{
+    Q_D(QPdfBaseEngine);
+    QPainterPath path = d->stroker.matrix.map(p);
+    //qDebug() << "updateClipPath: " << matrix << p.boundingRect() << path.boundingRect();
+
+    if (op == Qt::NoClip) {
+        d->clipEnabled = false;
+    } else if (op == Qt::ReplaceClip) {
+        d->clips.clear();
+        d->clips.append(path);
+    } else if (op == Qt::IntersectClip) {
+        d->clips.append(path);
+    } else { // UniteClip
+        // ask the painter for the current clipping path. that's the easiest solution
+        path = painter()->clipPath();
+        path = d->stroker.matrix.map(path);
+        d->clips.clear();
+        d->clips.append(path);
+    }
+}
+
+void QPdfBaseEngine::setPen()
+{
+    Q_D(QPdfBaseEngine);
+    QBrush b = d->pen.brush();
+    Q_ASSERT(b.style() == Qt::SolidPattern && b.isOpaque());
+
+    QColor rgba = b.color();
+    *d->currentPage << rgba.redF()
+                   << rgba.greenF()
+                   << rgba.blueF()
+                   << "SCN\n";
+
+    *d->currentPage << d->pen.widthF() << "w ";
+
+    int pdfCapStyle = 0;
+    switch(d->pen.capStyle()) {
+    case Qt::FlatCap:
+        pdfCapStyle = 0;
+        break;
+    case Qt::SquareCap:
+        pdfCapStyle = 2;
+        break;
+    case Qt::RoundCap:
+        pdfCapStyle = 1;
+        break;
+    default:
+        break;
+    }
+    *d->currentPage << pdfCapStyle << "J ";
+
+    int pdfJoinStyle = 0;
+    switch(d->pen.joinStyle()) {
+    case Qt::MiterJoin:
+        pdfJoinStyle = 0;
+        break;
+    case Qt::BevelJoin:
+        pdfJoinStyle = 2;
+        break;
+    case Qt::RoundJoin:
+        pdfJoinStyle = 1;
+        break;
+    default:
+        break;
+    }
+    *d->currentPage << pdfJoinStyle << "j ";
+
+    *d->currentPage << QPdf::generateDashes(d->pen) << " 0 d\n";
+}
+
+QPdfBaseEnginePrivate::QPdfBaseEnginePrivate()
+{
+    currentObject = 1;
+    
+    currentPage = new QPdfPage;
+    stroker.stream = currentPage;
+
+    backgroundMode = Qt::TransparentMode;
+}
+
+QPdfBaseEnginePrivate::~QPdfBaseEnginePrivate()
+{
+    qDeleteAll(fonts);
+    delete currentPage;
+}
+
+void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &ti)
+{
+    Q_Q(QPdfBaseEngine);
+    
+    QFontEngine *fe = ti.fontEngine;
+
+    QFontEngine::FaceId face_id = fe->faceId();
+    if (face_id.filename.isEmpty()
+        || (fe->fsType & 0x200) /* bitmap embedding only */
+        || (fe->fsType == 2) /* no embedding allowed */) {
+        *currentPage << "Q\n";
+        q->QPaintEngine::drawTextItem(p, ti);
+        *currentPage << "q\n";
+        return;
+    }
+
+    QFontSubset *font = fonts.value(face_id, 0);
+    if (!font)
+        font = new QFontSubset(fe, requestObject());
+    fonts.insert(face_id, font);
+
+    if (!currentPage->fonts.contains(font->object_id))
+        currentPage->fonts.append(font->object_id);
+
+    qreal size;
+#ifdef Q_WS_WIN
+    size = ti.fontEngine->tm.w.tmHeight;
+#else
+    size = ti.fontEngine->fontDef.pixelSize;
+#endif
+
+    QVarLengthArray<glyph_t> glyphs;
+    QVarLengthArray<QFixedPoint> positions;
+    QMatrix m;
+    m.translate(p.x(), p.y());
+    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, m, ti.flags,
+                                     glyphs, positions);
+    int synthesized = ti.fontEngine->synthesized();
+    qreal stretch = synthesized & QFontEngine::SynthesizedStretch ? ti.fontEngine->fontDef.stretch/100. : 1.;
+
+    if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut|QTextItem::Overline)) {
+        qreal lw = fe->lineThickness().toReal();
+        if (ti.flags & (QTextItem::Underline))
+            *currentPage << p.x() << (p.y() + fe->underlinePosition().toReal())
+                           << ti.width.toReal() << lw << "re ";
+        if (ti.flags & (QTextItem::StrikeOut))
+            *currentPage  << p.x() << (p.y() - fe->ascent().toReal()/qreal(3.))
+                            << ti.width.toReal() << lw << "re ";
+        if (ti.flags & (QTextItem::Overline))
+            *currentPage  << p.x() << (p.y() - fe->ascent().toReal())
+                            << ti.width.toReal() << lw << "re ";
+        *currentPage << "f\n";
+    }
+    *currentPage << "BT\n"
+                 << "/F" << font->object_id << size << "Tf "
+                 << stretch << (synthesized & QFontEngine::SynthesizedItalic
+                                ? "0 .3 -1 0 0 Tm\n"
+                                : "0 0 -1 0 0 Tm\n");
+
+
+#if 0
+    // #### implement actual text for complex languages
+    const unsigned short *logClusters = ti.logClusters;
+    int pos = 0;
+    do {
+        int end = pos + 1;
+        while (end < ti.num_chars && logClusters[end] == logClusters[pos])
+            ++end;
+        *currentPage << "/Span << /ActualText <FEFF";
+        for (int i = pos; i < end; ++i) {
+            s << toHex((ushort)ti.chars[i].unicode(), buf);
+        }
+        *currentPage << "> >>\n"
+            "BDC\n"
+            "<";
+        int ge = end == ti.num_chars ? ti.num_glyphs : logClusters[end];
+        for (int gs = logClusters[pos]; gs < ge; ++gs)
+            *currentPage << toHex((ushort)ti.glyphs[gs].glyph, buf);
+        *currentPage << "> Tj\n"
+            "EMC\n";
+        pos = end;
+    } while (pos < ti.num_chars);
+#else
+    qreal last_x = 0.;
+    qreal last_y = 0.;
+    for (int i = 0; i < glyphs.size(); ++i) {
+        qreal x = positions[i].x.toReal();
+        qreal y = positions[i].y.toReal();
+        if (synthesized & QFontEngine::SynthesizedItalic)
+            x += .3*y;
+        x /= stretch;
+        char buf[5];
+        int g = font->addGlyph(glyphs[i]);
+        *currentPage << x - last_x << last_y - y << "Td <"
+                     << QPdf::toHex((ushort)g, buf) << "> Tj\n";
+        last_x = x;
+        last_y = y;
+    }
+    if (synthesized & QFontEngine::SynthesizedBold) {
+        *currentPage << stretch << (synthesized & QFontEngine::SynthesizedItalic
+                            ? "0 .3 -1 0 0 Tm\n"
+                            : "0 0 -1 0 0 Tm\n");
+        *currentPage << "/Span << /ActualText <> >> BDC\n";
+        last_x = 0.5*fe->lineThickness().toReal();
+        last_y = 0.;
+        for (int i = 0; i < glyphs.size(); ++i) {
+            qreal x = positions[i].x.toReal();
+            qreal y = positions[i].y.toReal();
+            if (synthesized & QFontEngine::SynthesizedItalic)
+                x += .3*y;
+            x /= stretch;
+            char buf[5];
+            int g = font->addGlyph(glyphs[i]);
+            *currentPage << x - last_x << last_y - y << "Td <"
+                        << QPdf::toHex((ushort)g, buf) << "> Tj\n";
+            last_x = x;
+            last_y = y;
+        }
+        *currentPage << "EMC\n";
+    }
+#endif
+
+    *currentPage << "ET\n";
+}
