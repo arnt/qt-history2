@@ -310,9 +310,14 @@ bool QSQLiteResult::exec()
         }
     }
     d->skippedStatus = d->fetchNext(cache(), 0, true);
+    if (lastError().isValid()) {
+        setSelect(false);
+        setActive(false);
+        return false;
+    }
     setSelect(!d->rInf.isEmpty());
     setActive(true);
-    return !lastError().isValid();
+    return true;
 }
 
 bool QSQLiteResult::gotoNext(QSqlCachedResult::ValueCache& row, int idx)
