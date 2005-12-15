@@ -237,8 +237,16 @@ QAccessible::State QAccessibleTabBar::state(int child) const
 
     if (child > tb->count()) {
         QWidget *bt = button(child);
-        if (bt && !bt->isEnabled())
+        if (!bt)
+            return st;
+        if (bt->isEnabled() == false)
             st |= Unavailable;
+        if (bt->isVisible() == false)
+            st |= Invisible;
+        if (bt->focusPolicy() != Qt::NoFocus && bt->isActiveWindow())
+            st |= Focusable;
+        if (bt->hasFocus())
+            st |= Focused;
         return st;
     }
 
