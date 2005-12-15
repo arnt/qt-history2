@@ -397,9 +397,11 @@ bool DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
             outdir = file.fileName() + QDir::separator();
     }
     if(!outdir.isEmpty() || file.fileName().isEmpty()) {
-        if(!project->isEmpty("QMAKE_DSP_PROJECT_NAME"))
+        if (!project->isEmpty("QMAKE_DSP_PROJECT_NAME"))
             file.setFileName(outdir + project->first("QMAKE_DSP_PROJECT_NAME") + project->first("DSP_EXTENSION"));
-        else
+        else if (!project->isEmpty("MAKEFILE"))
+            file.setFileName(outdir + project->first("MAKEFILE") + project->first("DSP_EXTENSION"));
+        else 
             file.setFileName(outdir + project->first("QMAKE_ORIG_TARGET") + project->first("DSP_EXTENSION"));
     }
     if(QDir::isRelativePath(file.fileName())) {
