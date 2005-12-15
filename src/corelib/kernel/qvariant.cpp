@@ -2498,9 +2498,8 @@ bool QVariant::cmp(const QVariant &v) const
 {
     QVariant v2 = v;
     if (d.type != v2.d.type) {
-        if (!v2.canConvert(Type(d.type)))
+        if (!v2.canConvert(Type(d.type)) || !v2.convert(Type(d.type)))
             return false;
-        v2.convert(Type(d.type));
     }
     return handler->compare(&d, &v2.d);
 }
