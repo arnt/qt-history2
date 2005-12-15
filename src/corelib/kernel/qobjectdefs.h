@@ -29,7 +29,7 @@ class QByteArray;
 // The following macros are our "extensions" to C++
 // They are used, strictly speaking, only by the moc.
 
-#ifndef Q_MOC_RUN
+#ifndef QT_MOC_CPP
 # if defined(QT_NO_KEYWORDS)
 #  define QT_NO_EMIT
 # else
@@ -89,13 +89,12 @@ private:
 public: \
     static const QMetaObject staticMetaObject; \
 private:
-#else // Q_MOC_RUN
+#else // QT_MOC_CPP
 #define slots slots
 #define signals signals
 #define Q_SLOTS Q_SLOTS
 #define Q_SIGNALS Q_SIGNALS
 #define Q_CLASSINFO(name, value) Q_CLASSINFO(name, value)
-#define Q_INTERFACES(x) Q_INTERFACES(x)
 #define Q_PROPERTY(text) Q_PROPERTY(text)
 #define Q_OVERRIDE(text) Q_OVERRIDE(text)
 #define Q_ENUMS(x) Q_ENUMS(x)
@@ -111,7 +110,7 @@ private:
 #define Q_GADGET Q_GADGET
 #define Q_SCRIPTABLE Q_SCRIPTABLE
 #define Q_INVOKABLE Q_INVOKABLE
-#endif //Q_MOC_RUN
+#endif //QT_MOC_CPP
 
 // macro for onaming members
 #ifdef METHOD

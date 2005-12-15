@@ -324,11 +324,6 @@ inline QList<T> qFindChildren(const QObject *o, const QRegExp &re)
 
 #endif
 
-#ifdef Q_MOC_RUN
-# define Q_DECLARE_INTERFACE(IFace, IId) Q_DECLARE_INTERFACE(IFace, IId)
-#endif // Q_MOC_RUN
-
-
 template <class T> inline T qobject_cast_helper(QObject *object, T)
 { return static_cast<T>(((T)0)->staticMetaObject.cast(object)); }
 
@@ -343,13 +338,11 @@ template <class T>
 inline T qobject_cast(const QObject *object)
 { return qobject_cast_helper<T>(object, T(0)); }
 
-#ifndef Q_MOC_RUN
-#  define Q_DECLARE_INTERFACE(IFace, IId) \
-    template <> inline IFace *qobject_cast_helper<IFace *>(QObject *object, IFace *) \
-    { return (IFace *)(object ? object->qt_metacast(IId) : 0); } \
-    template <> inline IFace *qobject_cast_helper<IFace *>(const QObject *object, IFace *) \
-    { return (IFace *)(object ? const_cast<QObject *>(object)->qt_metacast(IId) : 0); }
-#endif // Q_MOC_RUN
+#define Q_DECLARE_INTERFACE(IFace, IId) \
+template <> inline IFace *qobject_cast_helper<IFace *>(QObject *object, IFace *) \
+{ return (IFace *)(object ? object->qt_metacast(IId) : 0); } \
+template <> inline IFace *qobject_cast_helper<IFace *>(const QObject *object, IFace *) \
+{ return (IFace *)(object ? const_cast<QObject *>(object)->qt_metacast(IId) : 0); }
 
 #else
 
@@ -386,13 +379,11 @@ inline T qobject_cast(const QObject *object)
 { return static_cast<T>(const_cast<const QObject *>(reinterpret_cast<T>(0)->staticMetaObject.cast(const_cast<QObject *>(object)))); }
 
 
-#ifndef Q_MOC_RUN
-#  define Q_DECLARE_INTERFACE(IFace, IId) \
-    template <> inline IFace *qobject_cast<IFace *>(QObject *object) \
-    { return reinterpret_cast<IFace *>((object ? object->qt_metacast(IId) : 0)); } \
-    template <> inline IFace *qobject_cast<IFace *>(const QObject *object) \
-    { return reinterpret_cast<IFace *>((object ? const_cast<QObject *>(object)->qt_metacast(IId) : 0)); }
-#endif // Q_MOC_RUN
+#define Q_DECLARE_INTERFACE(IFace, IId) \
+template <> inline IFace *qobject_cast<IFace *>(QObject *object) \
+{ return reinterpret_cast<IFace *>((object ? object->qt_metacast(IId) : 0)); } \
+template <> inline IFace *qobject_cast<IFace *>(const QObject *object) \
+{ return reinterpret_cast<IFace *>((object ? const_cast<QObject *>(object)->qt_metacast(IId) : 0)); }
 
 #endif
 
