@@ -19,7 +19,7 @@
 #ifdef QTEST_EMBED
 # define Q_TESTLIB_EXPORT
 #elif !defined(QT_SHARED)
-# define Q_TESTLIB_EXPORT 
+# define Q_TESTLIB_EXPORT
 #else
 # ifdef QTESTLIB_MAKEDLL
 #  define Q_TESTLIB_EXPORT Q_DECL_EXPORT
@@ -32,8 +32,8 @@
 # define QTEST_NO_SPECIALIZATIONS
 #endif
 
-#define QTEST_VERSION     0x040100
-#define QTEST_VERSION_STR "4.1.0"
+#define QTEST_VERSION     0x040200
+#define QTEST_VERSION_STR "4.2.0"
 
 namespace QTest
 {
