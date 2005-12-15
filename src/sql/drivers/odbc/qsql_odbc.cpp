@@ -1024,7 +1024,7 @@ bool QODBCResult::exec()
     QList<QByteArray> tmpStorage; // holds temporary buffers
     QVarLengthArray<QSQLLEN, 32> indicators(boundValues().count());
 
-    memset(indicators.data(), 0, indicators.size());
+    memset(indicators.data(), 0, indicators.size() * sizeof(QSQLLEN));
     setActive(false);
     setAt(QSql::BeforeFirstRow);
     d->rInf.clear();

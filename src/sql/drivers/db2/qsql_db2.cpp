@@ -568,7 +568,7 @@ bool QDB2Result::exec()
     QList<QByteArray> tmpStorage; // holds temporary ptrs
     QVarLengthArray<SQLINTEGER, 32> indicators(boundValues().count());
 
-    memset(indicators.data(), 0, indicators.size());
+    memset(indicators.data(), 0, indicators.size() * sizeof(SQLINTEGER));
     setActive(false);
     setAt(QSql::BeforeFirstRow);
     SQLRETURN r;
