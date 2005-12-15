@@ -227,6 +227,7 @@ bool QMYSQLResultPrivate::bindInValues()
     fields.resize(mysql_num_fields(meta));
 
     inBinds = new MYSQL_BIND[fields.size()];
+    memset(inBinds, 0, fields.size() * sizeof(MYSQL_BIND));
 
     MYSQL_FIELD *fieldInfo;
 
