@@ -962,6 +962,7 @@ bool qSharedBuild()
     \value WV_2000  Windows 2000
     \value WV_XP    Windows XP
     \value WV_2003  Windows Server 2003
+    \value WV_VISTA Windows Vista
 
     CE-based versions:
 
