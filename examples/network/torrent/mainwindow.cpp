@@ -159,6 +159,10 @@ MainWindow::MainWindow(QWidget *parent)
             this, SLOT(pauseTorrent()));
     connect(removeTorrentAction, SIGNAL(triggered()),
             this, SLOT(removeTorrent()));
+    connect(upActionTool, SIGNAL(triggered(bool)),
+            this, SLOT(moveTorrentUp()));
+    connect(downActionTool, SIGNAL(triggered(bool)),
+            this, SLOT(moveTorrentDown()));
 
     // Load settings and start
     setWindowTitle(tr("Torrent Client"));
@@ -268,8 +272,8 @@ void MainWindow::removeTorrent()
     client->stop();
 
     // Remove the row from the view.
-    jobs.removeAt(row);
     delete torrentView->takeTopLevelItem(row);
+    jobs.removeAt(row);
     setActionsEnabled();
 
     saveChanges = true;
