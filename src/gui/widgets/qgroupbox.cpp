@@ -565,7 +565,7 @@ void QGroupBox::mousePressEvent(QMouseEvent *event)
     QStyleOptionGroupBox box = d->getStyleOption();
     d->pressedControl = style()->hitTestComplexControl(QStyle::CC_GroupBox, &box,
                                                        event->pos(), this);
-    if (d->pressedControl == QStyle::SC_GroupBoxCheckBox)
+    if (d->pressedControl & (QStyle::SC_GroupBoxCheckBox | QStyle::SC_GroupBoxLabel))
         update(style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxCheckBox, this));
 }
 
