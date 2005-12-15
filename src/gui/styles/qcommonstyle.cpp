@@ -2530,8 +2530,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 frame.rect = subControlRect(CC_GroupBox, opt, SC_GroupBoxFrame, widget);
                 p->save();
                 QRegion region(groupBox->rect);
-                region -= QRect(QPoint(checkBoxRect.left() - 4, checkBoxRect.top()),
-                                  QPoint(textRect.right(), textRect.bottom()));
+                bool ltr = groupBox->direction == Qt::LeftToRight;
+                region -= checkBoxRect.unite(textRect).adjusted(ltr ? -4 : 0, 0, ltr ? 0 : 4, 0);
                 p->setClipRegion(region);
                 drawPrimitive(PE_FrameGroupBox, &frame, p, widget);
                 p->restore();
@@ -3027,6 +3027,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 ret.moveTop((fontMetrics.height() - indicatorHeight) / 2);
                 ret.moveLeft(ret.left() + 3);
             }
+            ret = visualRect(groupBox->direction, groupBox->rect, ret);
         }
         break;
 #endif // QT_NO_GROUPBOX

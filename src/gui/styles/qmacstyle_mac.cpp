@@ -6190,6 +6190,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                     ret.setWidth(pixelMetric(PM_IndicatorWidth, opt, w));
                     ret.setHeight(indicatorHeight);
                 }
+                ret = visualRect(groupBox->direction, groupBox->rect, ret);
                 break;
             }
             case SC_GroupBoxFrame:
