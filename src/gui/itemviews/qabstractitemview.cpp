@@ -1079,9 +1079,9 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
     if (index == d_func()->pressedIndex && index.isValid()) {
         // signal handlers may change the model
         QPersistentModelIndex persistent = index;
+        emit clicked(persistent);
         if (edit(persistent, NoEditTriggers, event)) // send event to delegate
             return;
-        emit clicked(persistent);
         if (style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
             emit activated(persistent);
     }
