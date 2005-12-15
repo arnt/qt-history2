@@ -1267,7 +1267,7 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
         AXUIElementRef *arr = (AXUIElementRef *)malloc(sizeof(AXUIElementRef) * sel.count());
         for(int i = 0; i < sel.count(); i++)
             arr[i] = sel[i];
-        CFArrayRef cfList = CFArrayCreate(0, (const void **)arr, sel.count(), 0);
+        QCFType<CFArrayRef> cfList = CFArrayCreate(0, (const void **)arr, sel.count(), 0);
         free(arr);
         SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef,
                           sizeof(cfList), &cfList);
