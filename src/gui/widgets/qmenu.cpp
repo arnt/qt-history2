@@ -850,7 +850,6 @@ QMenu::QMenu(QWidget *parent)
 #ifndef QT_NO_WHATSTHIS
     setAttribute(Qt::WA_CustomWhatsThis);
 #endif
-    setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(style()->styleHint(QStyle::SH_Menu_MouseTracking, 0, this));
     if (style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
         d->scroll = new QMenuPrivate::QMenuScroller;
@@ -876,7 +875,6 @@ QMenu::QMenu(const QString &title, QWidget *parent)
 #ifndef QT_NO_WHATSTHIS
     setAttribute(Qt::WA_CustomWhatsThis);
 #endif
-    setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(style()->styleHint(QStyle::SH_Menu_MouseTracking));
     if (style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
         d->scroll = new QMenuPrivate::QMenuScroller;
