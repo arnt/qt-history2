@@ -1475,8 +1475,9 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             noBorder = true;
             QBrush bg;
             bool usePalette = false;
+            bool isEnabled = flags & State_Enabled;
             uint resolve_mask = panel->palette.resolve();
-            if (flags & State_Enabled) {
+            if (isEnabled) {
                 stateId = ETS_NORMAL;
                 if (resolve_mask & (1 << QPalette::Base)) {
                     // Base color is set for this widget, so use it
@@ -1500,12 +1501,34 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
                     QWindowsStyle::drawPrimitive(pe, option, p, widget);
                     return;
                 }
-                theme.mirrorHorizontally = hMirrored;
-                theme.mirrorVertically = vMirrored;
-                theme.noBorder = noBorder;
-                theme.noContent = noContent;
-                theme.rotate = rotate;
-                d->drawBackground(theme);
+                int bgType;
+                pGetThemeEnumValue( theme.handle(), 
+                                    partId, 
+                                    stateId, 
+                                    TMT_BGTYPE, 
+                                    &bgType);
+                if( bgType == BT_IMAGEFILE ) {            
+                    theme.mirrorHorizontally = hMirrored;
+                    theme.mirrorVertically = vMirrored;
+                    theme.noBorder = noBorder;
+                    theme.noContent = noContent;
+                    theme.rotate = rotate;
+                    d->drawBackground(theme);
+                } else {
+                    QBrush fillColor = option->palette.brush(QPalette::Base);
+
+                    if (!isEnabled) {
+	                PROPERTYORIGIN origin = PO_NOTFOUND;
+	                pGetThemePropertyOrigin(theme.handle(), theme.partId, theme.stateId, TMT_FILLCOLOR, &origin);
+	                // Use only if the fill property comes from our part
+	                if ((origin == PO_PART || origin == PO_STATE)) {
+                            COLORREF bgRef;
+                            pGetThemeColor(theme.handle(), partId, stateId, TMT_FILLCOLOR, &bgRef);
+                            fillColor = QBrush(qRgb(GetRValue(bgRef), GetGValue(bgRef), GetBValue(bgRef)));
+                        }
+                    }
+                    p->fillRect(option->rect, fillColor);
+                }
             }
 
             if (panel->lineWidth > 0)
