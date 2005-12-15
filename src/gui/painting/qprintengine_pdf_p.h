@@ -91,7 +91,6 @@ public:
     bool fullPage;
 
     int addImage(const QImage &image, bool *bitmap);
-    int addPenGState(const QPen &pen);
     int addBrushPattern(const QBrush &b, const QMatrix &matrix, const QPointF &brushOrigin, bool *specifyColor, int *gStateObject);
 
     void drawTextItem(QPdfEngine *q, const QPointF &p, const QTextItemInt &ti);
@@ -107,7 +106,7 @@ private:
     void writeInfo();
     void writePageRoot();
     void writeFonts();
-    void embedFont(QPdf::Font *font);
+    void embedFont(QFontSubset *font);
 
     inline uint requestObject() { return currentObject++; }
 
@@ -135,7 +134,7 @@ private:
     // various PDF objects
     int pageRoot, catalog, info, graphicsState, patternColorSpace;
     QVector<uint> pages;
-    QHash<QFontEngine::FaceId, QPdf::Font *> fonts;
+    QHash<QFontEngine::FaceId, QFontSubset *> fonts;
 };
 
 

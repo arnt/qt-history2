@@ -651,10 +651,6 @@ void QPdfEngine::setPen()
     *d->currentPage << pdfJoinStyle << "j ";
 
     *d->currentPage << QPdf::generateDashes(pen) << " 0 d\n";
-
-    int penObj = d->addPenGState(pen);
-    if (penObj)
-        *d->currentPage << "/GState" << penObj << "gs\n";
 }
 
 void QPdfEngine::setBrush()
@@ -752,27 +748,6 @@ QPdfEnginePrivate::~QPdfEnginePrivate()
     delete stream;
 }
 
-
-int QPdfEnginePrivate::addPenGState(const QPen &pen)
-{
-    QColor rgba = pen.color();
-    if (rgba.alphaF() == 1.)
-        return 0;
-    QByteArray penDef;
-    QPdf::ByteStream s(&penDef);
-    s << "<<";
-    if (rgba.alphaF() < 1.)
-        s << "/CA " << rgba.alphaF();
-    s << ">>\n";
-
-    int penObj = addXrefEntry(-1);
-    xprintf(penDef.constData());
-    xprintf("endobj\n");
-
-    currentPage->graphicStates.append(penObj);
-    return penObj;
-}
-
 void QPdfEnginePrivate::drawTextItem(QPdfEngine *q, const QPointF &p, const QTextItemInt &ti)
 {
     QFontEngine *fe = ti.fontEngine;
@@ -787,9 +762,9 @@ void QPdfEnginePrivate::drawTextItem(QPdfEngine *q, const QPointF &p, const QTex
         return;
     }
 
-    QPdf::Font *font = fonts.value(face_id, 0);
+    QFontSubset *font = fonts.value(face_id, 0);
     if (!font)
-        font = new QPdf::Font(fe, requestObject());
+        font = new QFontSubset(fe, requestObject());
     fonts.insert(face_id, font);
 
     if (!currentPage->fonts.contains(font->object_id))
@@ -1383,7 +1358,7 @@ void QPdfEnginePrivate::writePageRoot()
 }
 
 
-void QPdfEnginePrivate::embedFont(QPdf::Font *font)
+void QPdfEnginePrivate::embedFont(QFontSubset *font)
 {
     //qDebug() << "embedFont" << font->object_id;
     int fontObject = font->object_id;
@@ -1491,7 +1466,7 @@ void QPdfEnginePrivate::embedFont(QPdf::Font *font)
 
 void QPdfEnginePrivate::writeFonts()
 {
-    for (QHash<QFontEngine::FaceId, QPdf::Font *>::iterator it = fonts.begin(); it != fonts.constEnd(); ++it) {
+    for (QHash<QFontEngine::FaceId, QFontSubset *>::iterator it = fonts.begin(); it != fonts.constEnd(); ++it) {
         embedFont(*it);
         delete *it;
     }

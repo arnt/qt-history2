@@ -370,7 +370,7 @@ public:
     QByteArray pageBuffer;
     QPdf::ByteStream *currentPage;
 
-    QHash<QFontEngine::FaceId, QPdf::Font *> fonts;
+    QHash<QFontEngine::FaceId, QFontSubset *> fonts;
     bool firstPage;
 
     QRect boundingBox;
@@ -452,9 +452,9 @@ void QPSPrintEnginePrivate::drawTextItem(QPSPrintEngine *q, const QPointF &p, co
         return;
     }
 
-    QPdf::Font *font = fonts.value(face_id, 0);
+    QFontSubset *font = fonts.value(face_id, 0);
     if (!font)
-        font = new QPdf::Font(fe, requestObject());
+        font = new QFontSubset(fe, requestObject());
     fonts.insert(face_id, font);
 
 //     if (!currentPage->fonts.contains(font->object_id))
@@ -906,7 +906,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
 void QPSPrintEnginePrivate::emitPages()
 {
     // ############# fix fonts for huge documents
-    for (QHash<QFontEngine::FaceId, QPdf::Font *>::Iterator it = fonts.begin(); it != fonts.end(); ++it)
+    for (QHash<QFontEngine::FaceId, QFontSubset *>::Iterator it = fonts.begin(); it != fonts.end(); ++it)
         outDevice->write((*it)->toType1());
 
     outDevice->write(buffer);
