@@ -1796,6 +1796,8 @@ QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
 */
 int QAbstractItemView::sizeHintForRow(int row) const
 {
+    Q_D(const QAbstractItemView);
+        
     Q_ASSERT(row >= 0);
     if(!model() || row >= model()->rowCount())
         return -1;
@@ -1808,6 +1810,8 @@ int QAbstractItemView::sizeHintForRow(int row) const
     QModelIndex index;
     for (int c = 0; c < colCount; ++c) {
         index = model()->index(row, c, rootIndex());
+        if (QWidget *editor = d->editors.value(index))
+            height = qMax(height, editor->sizeHint().height());
         height = qMax(height, delegate->sizeHint(option, index).height());
     }
     return height;
@@ -1818,6 +1822,8 @@ int QAbstractItemView::sizeHintForRow(int row) const
 */
 int QAbstractItemView::sizeHintForColumn(int column) const
 {
+    Q_D(const QAbstractItemView);
+
     Q_ASSERT(column >= 0);
     if(!model() || column >= model()->columnCount())
         return -1;
@@ -1830,6 +1836,8 @@ int QAbstractItemView::sizeHintForColumn(int column) const
     QModelIndex index;
     for (int r = 0; r < rows; ++r) {
         index = model()->index(r, column, rootIndex());
+        if (QWidget *editor = d->editors.value(index))
+            width = qMax(width, editor->sizeHint().width());
         width = qMax(width, delegate->sizeHint(option, index).width());
     }
     return width;
