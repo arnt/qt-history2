@@ -7,7 +7,7 @@
 # ====================================================
 
 isEmpty(TSLIB_INCLUDE) | isEmpty(TSLIB_LIBS) {
-	warning(Please edit tslibmousehandler.pro to spesify the location)
+	warning(Please edit tslibmousehandler.pro to specify the location)
 	warning(of tslib headers and libraries.)
 	isEmpty(TSLIB_INCLUDE): error(Empty TSLIB_INCLUDE)
 	isEmpty(TSLIB_LIBS): error(Empty TSLIB_LIBS)
