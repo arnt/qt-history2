@@ -57,7 +57,9 @@ ProjectGenerator::init()
 
     //figure out target
     if(Option::output.fileName() == "-")
-        v["TARGET"] = QStringList("unknown");
+        v["TARGET_ASSIGN"] = QStringList("unknown");
+    else
+        v["TARGET_ASSIGN"] = QStringList(QFileInfo(Option::output).baseName());
 
     //the scary stuff
     if(project->first("TEMPLATE_ASSIGN") != "subdirs") {
@@ -334,7 +336,7 @@ ProjectGenerator::writeMakefile(QTextStream &t)
         t << endl << "# Directories" << "\n"
           << getWritableVar("SUBDIRS");
     } else {
-        t << getWritableVar("TARGET")
+        t << getWritableVar("TARGET_ASSIGN")
           << getWritableVar("CONFIG", false)
           << getWritableVar("CONFIG_REMOVE", false)
           << getWritableVar("DEPENDPATH")
