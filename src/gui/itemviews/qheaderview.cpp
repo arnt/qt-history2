@@ -311,9 +311,7 @@ void QHeaderView::setOffset(int o)
 int QHeaderView::length() const
 {
     Q_D(const QHeaderView);
-    if (!d->sectionPosition.isEmpty())
-        return d->sectionPosition.last();
-    return 0;
+    return d->sectionPositionAt(d->sectionCount); // last section position
 }
 
 /*!
@@ -374,9 +372,8 @@ int QHeaderView::visualIndexAt(int position) const
     int end = count - 1;
     int visual = (end + 1) / 2;
 
-    const QVector<int> sectionPosition = d->sectionPosition;
     while (end - start > 0) {
-        if (sectionPosition.at(visual) > position)
+        if (d->sectionPositionAt(visual) > position)
             end = visual - 1;
         else
             start = visual;
@@ -385,7 +382,7 @@ int QHeaderView::visualIndexAt(int position) const
 
     while (d->isVisualIndexHidden(visual) && visual < count)
         ++visual;
-    if (visual >= count || (visual == end && sectionPosition.at(end + 1) < position))
+    if (visual >= count || (visual == end && d->sectionPositionAt(end + 1) < position))
         return -1;
     return visual;
 }
@@ -411,11 +408,8 @@ int QHeaderView::sectionSize(int logicalIndex) const
     if (isSectionHidden(logicalIndex))
         return 0;
     int visual = visualIndex(logicalIndex);
-
-    if (visual == -1)
-        return 0;
-
-    return d->sectionPosition.at(visual + 1) - d->sectionPosition.at(visual);
+    Q_ASSERT(visual != -1);
+    return d->sectionSizeAt(visual);
 }
 
 /*!
@@ -429,7 +423,7 @@ int QHeaderView::sectionPosition(int logicalIndex) const
     Q_D(const QHeaderView);
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    return d->sectionPosition.at(visual);
+    return d->sectionPositionAt(visual);
 }
 
 /*!
@@ -491,7 +485,7 @@ void QHeaderView::moveSection(int from, int to)
     }
 
     // if we haven't moved anything previously, initialize the indices array
-    int count = d->sectionPosition.count(); // ## for now
+    int count = d->sectionPositionCount();
     if (d->visualIndices.count() != count || d->logicalIndices.count() != count) {
         d->visualIndices.resize(count);
         d->logicalIndices.resize(count);
@@ -501,7 +495,6 @@ void QHeaderView::moveSection(int from, int to)
         }
     }
 
-    int *positions = d->sectionPosition.data();
     QBitArray sectionHidden = d->sectionHidden;
     int *visualIndices = d->visualIndices.data();
     int *logicalIndices = d->logicalIndices.data();
@@ -512,9 +505,9 @@ void QHeaderView::moveSection(int from, int to)
 
     // move sections and indices
     if (to > from) {
-        sizes[to - from] = positions[from + 1] - positions[from];
+        sizes[to - from] = d->sectionSizeAt(from);
         while (visual < to) {
-            sizes[visual - from] = positions[visual + 2] - positions[visual + 1];
+            sizes[visual - from] = d->sectionSizeAt(visual + 1);
             if (!sectionHidden.isEmpty())
                 sectionHidden.setBit(visual, sectionHidden.testBit(visual + 1));
             visualIndices[logicalIndices[visual + 1]] = visual;
@@ -522,9 +515,9 @@ void QHeaderView::moveSection(int from, int to)
             ++visual;
         }
     } else {
-        sizes[0] = positions[from + 1] - positions[from];
+        sizes[0] = d->sectionSizeAt(from);
         while (visual > to) {
-            sizes[visual - to] = positions[visual] - positions[visual - 1];
+            sizes[visual - to] = d->sectionSizeAt(visual - 1);
             if (!sectionHidden.isEmpty())
                 sectionHidden.setBit(visual, sectionHidden.testBit(visual - 1));
             visualIndices[logicalIndices[visual - 1]] = visual;
@@ -540,14 +533,17 @@ void QHeaderView::moveSection(int from, int to)
     logicalIndices[to] = logical;
 
     // move "pixel" positions
-    if (to > from) {
-        for (visual = from; visual <= to; ++visual)
-            positions[visual + 1] = positions[visual] + sizes[visual - from];
-    } else {
-        for (visual = to; visual <= from; ++visual)
-            positions[visual + 1] = positions[visual] + sizes[visual - to];
+    if (!d->sectionPosition.isEmpty()) {
+        int *positions = d->sectionPosition.data();
+        if (to > from) {
+            for (visual = from; visual <= to; ++visual)
+                positions[visual + 1] = positions[visual] + sizes[visual - from];
+        } else {
+            for (visual = to; visual <= from; ++visual)
+                positions[visual + 1] = positions[visual] + sizes[visual - to];
+        }
     }
-
+    
     d->viewport->update();
     emit sectionMoved(logical, from, to);
 }
@@ -572,28 +568,8 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
     int diff = size - oldSize;
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    int *positions = d->sectionPosition.data() + visual + 1;
-    int num = d->sectionPosition.size() - visual - 1;
-
-    while (num >= 4) {
-        positions[0] += diff;
-        positions[1] += diff;
-        positions[2] += diff;
-        positions[3] += diff;
-        positions += 4;
-        num -= 4;
-    }
-
-    if (num > 0) {
-        positions[0] += diff;
-        if (num > 1) {
-            positions[1] += diff;
-            if (num > 2) {
-                positions[2] += diff;
-            }
-        }
-    }
-
+    d->movePositions(visual + 1, diff);
+    
     int w = d->viewport->width();
     int h = d->viewport->height();
     int pos = sectionViewportPosition(logicalIndex);
@@ -1185,8 +1161,8 @@ void QHeaderViewPrivate::sectionsRemoved(const QModelIndex &parent,
     int oldCount = q->count();
     int changeCount = logicalLast - logicalFirst + 1;
     if (visualIndices.isEmpty() && logicalIndices.isEmpty()) {
-        int delta = sectionPosition.at(logicalLast + 1)
-                    - sectionPosition.at(logicalFirst);
+        int delta = sectionPositionAt(logicalLast + 1)
+                    - sectionPositionAt(logicalFirst);
         for (int i = logicalLast + 1; i < sectionPosition.count(); ++i)
             sectionPosition[i] -= delta;
         sectionPosition.remove(logicalFirst, changeCount);
@@ -1195,7 +1171,7 @@ void QHeaderViewPrivate::sectionsRemoved(const QModelIndex &parent,
     } else {
         for (int l = logicalLast; l >= logicalFirst; --l) {
             int visual = visualIndices.at(l);
-            int size = sectionPosition.at(visual + 1) - sectionPosition.at(visual);
+            int size = sectionPositionAt(visual + 1) - sectionPositionAt(visual);
             for (int v = 0; v < sectionPosition.count(); ++v) {
                 if (logicalIndex(v) > l)
                     --(logicalIndices[v]);
@@ -1264,7 +1240,6 @@ void QHeaderView::initializeSections(int start, int end)
     int oldCount = count();
     end += 1; // one past the last item, so we get the end position of the last section
     d->sectionCount = end;
-    d->sectionPosition.resize(end + 1);
     
     if (!d->logicalIndices.isEmpty() && start > 0) {
         d->logicalIndices.resize(end + 1);
@@ -1275,45 +1250,12 @@ void QHeaderView::initializeSections(int start, int end)
         }
     }
 
-    int pos = (start > 0 ? d->sectionPosition.at(start) : 0);
-    int *positions = d->sectionPosition.data() + start;
-    int num = end - start + 1;
-    int size = d->defaultSectionSize;
-
-    // set resize mode
     if (d->globalResizeMode == Stretch)
-        d->stretchSections += num;
+        d->stretchSections += (end - start + 1);
 
-    // unroll loop - to initialize the arrays as fast as possible
-    while (num >= 4) {
+//    if (!d->logicalIndices.isEmpty() && start > 0)
+        d->initializePositions(start, end);
 
-        positions[0] = pos;
-        pos += size;
-
-        positions[1] = pos;
-        pos += size;
-
-        positions[2] = pos;
-        pos += size;
-
-        positions[3] = pos;
-        pos += size;
-
-        positions += 4;
-        num -= 4;
-    }
-    if (num > 0) {
-        positions[0] = pos;
-        pos += size;
-        if (num > 1) {
-            positions[1] = pos;
-            pos += size;
-            if (num > 2) {
-                positions[2] = pos;
-                pos += size;
-            }
-        }
-    }
     emit sectionCountChanged(oldCount, count());
     d->viewport->update();
 }
@@ -2167,7 +2109,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
     int hint = stretchSecs > 0 ? stretchSize / stretchSecs : 0;
     int stretchSectionSize = qMax(hint, minimum);
     for (int i = 0; i < count; ++i) {
-        int oldSize = sectionPosition.at(i + 1) - sectionPosition.at(i);
+        int oldSize = sectionPositionAt(i + 1) - sectionPositionAt(i);
         sectionPosition[i] = position;
         if (isVisualIndexHidden(i))
             continue;
@@ -2181,12 +2123,73 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
             position += section_sizes.front();
             section_sizes.removeFirst();
         }
-        int newSize = position - sectionPosition.at(i);
+        int newSize = position - sectionPositionAt(i);
         if (newSize != oldSize)
             emit q->sectionResized(i, oldSize, newSize);
     }
     sectionPosition[count] = position;
     viewport->update();
+}
+
+void QHeaderViewPrivate::initializePositions(int start, int end)
+{
+    sectionPosition.resize(end + 1);
+    int pos = (start > 0 ? sectionPositionAt(start) : 0);
+    int *positions = sectionPosition.data() + start;
+    int size = defaultSectionSize;
+    int num = end - start + 1;
+
+    // unroll loop - to initialize the arrays as fast as possible
+    while (num >= 4) {
+        positions[0] = pos;
+        pos += size;
+        positions[1] = pos;
+        pos += size;
+        positions[2] = pos;
+        pos += size;
+        positions[3] = pos;
+        pos += size;
+        positions += 4;
+        num -= 4;
+    }
+    if (num > 0) {
+        positions[0] = pos;
+        pos += size;
+        if (num > 1) {
+            positions[1] = pos;
+            pos += size;
+            if (num > 2) {
+                positions[2] = pos;
+                pos += size;
+            }
+        }
+    }
+}
+
+void QHeaderViewPrivate::movePositions(int start, int delta)
+{
+//     if (visual >= d->sectionPosition.count())
+//         d->sectionPosition
+    int *positions = sectionPosition.data() + start;
+    int num = (sectionPosition.count() - 1) - start + 1;
+
+    while (num >= 4) {
+        positions[0] += delta;
+        positions[1] += delta;
+        positions[2] += delta;
+        positions[3] += delta;
+        positions += 4;
+        num -= 4;
+    }
+    if (num > 0) {
+        positions[0] += delta;
+        if (num > 1) {
+            positions[1] += delta;
+            if (num > 2) {
+                positions[2] += delta;
+            }
+        }
+    }
 }
 
 #endif // QT_NO_ITEMVIEWS

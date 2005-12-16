@@ -101,7 +101,22 @@ public:
                 ? globalResizeMode : sectionResizeMode.at(visual));
     }
 
-    void clear() {
+    inline int sectionPositionCount() const {
+        return sectionCount + 1; // to make the code a bit more readable
+    }
+
+    inline int sectionPositionAt(int visual) const {
+        return (sectionPosition.count() <= visual
+                ? defaultSectionSize * visual : sectionPosition.at(visual));
+    }
+
+    inline int sectionSizeAt(int visual) const {
+        Q_ASSERT(visual >= 0 && visual < sectionCount);
+        return (sectionPosition.count() <= visual ? defaultSectionSize
+                : sectionPosition.at(visual + 1) - sectionPosition.at(visual));
+    }
+
+    inline void clear() {
         sectionCount = 0;
         sectionResizeMode.clear();
         sectionPosition.clear();
@@ -113,6 +128,8 @@ public:
     }
 
     QStyleOptionHeader getStyleOption() const;
+    void initializePositions(int start, int end);
+    void movePositions(int start, int delta);
 
     enum State { NoState, ResizeSection, MoveSection } state;
 
