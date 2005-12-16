@@ -695,7 +695,9 @@ QFileInfo::completeBaseName() const
     Q_D(const QFileInfo);
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->getFileName(QAbstractFileEngine::BaseName).section(QLatin1Char('.'), 0, -2);
+    QString name = d->getFileName(QAbstractFileEngine::BaseName);
+    int index = name.lastIndexOf(QLatin1Char('.'));
+    return (index == -1) ? name : name.left(index);
 }
 
 /*!
