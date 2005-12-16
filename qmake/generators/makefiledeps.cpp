@@ -503,7 +503,8 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
             int keyword_len = 0;
             const char *keyword = buffer+x;
             while(x+keyword_len < buffer_len) {
-                if((*(buffer+x+keyword_len) == ' ' || *(buffer+x+keyword_len) == '\t')) {
+                if(((*(buffer+x+keyword_len) < 'a' || *(buffer+x+keyword_len) > 'z')) &&
+                   *(buffer+x+keyword_len) != '_') {
                     for(x+=keyword_len; //skip spaces after keyword
                         x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t');
                         x++);
