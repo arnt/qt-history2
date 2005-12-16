@@ -23,6 +23,9 @@
 #ifndef QT_NO_STYLE_PLASTIQUE
 #include "qplastiquestyle.h"
 #endif
+#ifndef QT_NO_STYLE_CLEANLOOKS
+#include "qcleanlooksstyle.h"
+#endif
 #ifndef QT_NO_STYLE_WINDOWSXP
 #include "qwindowsxpstyle.h"
 #endif
@@ -66,7 +69,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     plugin (see \l QStylePlugin).
 
     QStyleFactory::keys() returns a list of valid keys, typically
-    including "windows", "motif", "cde", and "plastique".
+    including "windows", "motif", "cde", "plastique", and "cleanlooks".
     Depending on the platform, "windowsxp" and "macintosh" may be
     available.
 
@@ -106,6 +109,11 @@ QStyle *QStyleFactory::create(const QString& key)
 #ifndef QT_NO_STYLE_PLASTIQUE
     if (style == "plastique")
         ret = new QPlastiqueStyle;
+    else
+#endif
+#ifndef QT_NO_STYLE_CLEANLOOKS
+    if (style == "cleanlooks")
+        ret = new QCleanLooksStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_MAC
@@ -160,6 +168,10 @@ QStringList QStyleFactory::keys()
 #ifndef QT_NO_STYLE_PLASTIQUE
     if (!list.contains("Plastique"))
         list << "Plastique";
+#endif
+#ifndef QT_NO_STYLE_CLEANLOOKS
+    if (!list.contains("CleanLooks"))
+        list << "CleanLooks";
 #endif
 #ifndef QT_NO_STYLE_MAC
     QString mstyle = "Macintosh";

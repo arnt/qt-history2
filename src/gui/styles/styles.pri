@@ -74,6 +74,18 @@ contains( styles, plastique ) {
 } else {
 	DEFINES += QT_NO_STYLE_PLASTIQUE
 }
+
+contains( styles, cleanlooks ) {
+	HEADERS += styles/qcleanlooksstyle.h
+	SOURCES += styles/qcleanlooksstyle.cpp
+	!contains( styles, windows ) {
+		message( cleanlooks requires windows )
+		styles += windows
+		DEFINES+= QT_STYLE_WINDOWS
+	}
+} else {
+	DEFINES += QT_NO_STYLE_CLEANLOOKS
+}
 				
 contains( styles, windows ) {
 	HEADERS += styles/qwindowsstyle.h

@@ -378,7 +378,7 @@ echo
 # initalize variables
 #-------------------------------------------------------------------------------
 
-QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif plastique windows\""
+QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif plastique cleanlooks windows\""
 QMAKE_VARS="$QMAKE_VARS \"decorations += default windows styled\""
 if [ "$Edition" = "Trolltech" ]; then
     QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty um\" \"mouse-drivers += pc linuxtp\"" # adjust below as well
