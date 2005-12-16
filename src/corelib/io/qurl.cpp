@@ -4033,11 +4033,18 @@ QList<QPair<QString, QString> > QUrl::queryItems() const
 
     QList<QPair<QString, QString> > itemMap;
 
-    QList<QByteArray> items = d->query.split(d->pairDelimiter);
-    for (int i = 0; i < items.count(); ++i) {
-        QList<QByteArray> keyValuePair = items.at(i).split(d->valueDelimiter);
-        itemMap += qMakePair(QUrl::fromPercentEncoding(keyValuePair.at(0)),
-                             QUrl::fromPercentEncoding(keyValuePair.at(1)));
+    if (!d->query.isEmpty()) {
+        QList<QByteArray> items = d->query.split(d->pairDelimiter);
+        for (int i = 0; i < items.count(); ++i) {
+            QList<QByteArray> keyValuePair = items.at(i).split(d->valueDelimiter);
+            if (keyValuePair.size() == 1) {
+                itemMap += qMakePair(QUrl::fromPercentEncoding(keyValuePair.at(0)),
+                                     QString());
+            } else if (keyValuePair.size() == 2) {
+                itemMap += qMakePair(QUrl::fromPercentEncoding(keyValuePair.at(0)),
+                                     QUrl::fromPercentEncoding(keyValuePair.at(1)));
+            }
+        }
     }
 
     return itemMap;
