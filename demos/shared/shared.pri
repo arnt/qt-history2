@@ -14,4 +14,8 @@ contains(CONFIG, debug_and_release_target) {
     LIBS += -L$$SHARED_FOLDER
 }
 
-LIBS += -ldemo_shared
+hpux-acc* {
+    LIBS += $$SHARED_FOLDER/libdemo_shared.a
+} else {
+    LIBS += -ldemo_shared
+}
