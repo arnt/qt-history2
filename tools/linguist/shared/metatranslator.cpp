@@ -354,8 +354,6 @@ bool MetaTranslator::load( const QString& filename )
     QXmlSimpleReader reader;
     reader.setFeature( "http://xml.org/sax/features/namespaces", false );
     reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
-    reader.setFeature( "http://trolltech.com/xml/features/report-whitespace"
-                       "-only-CharData", false );
     QXmlDefaultHandler *hand = new TsHandler( this );
     reader.setContentHandler( hand );
     reader.setErrorHandler( hand );
