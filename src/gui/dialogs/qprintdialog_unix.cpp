@@ -43,6 +43,7 @@
 #include "qabstractitemmodel.h"
 #include "qtreeview.h"
 #include "qheaderview.h"
+#include "qmessagebox.h"
 #include "qdebug.h"
 
 #if !defined(QT_NO_CUPS) || !defined(QT_NO_NIS)
@@ -1246,6 +1247,7 @@ void QPrintDialogPrivate::printerOrFileSelected(QAbstractButton *b)
             fileName->setText(cur);
             fileName->setCursorPosition(cur.length());
             fileName->selectAll();
+            fileName->setModified(true); // confirm overwrite when OK clicked
         }
         browse->setEnabled(true);
         fileName->setEnabled(true);
@@ -1298,14 +1300,25 @@ void QPrintDialogPrivate::browseClicked()
     Q_Q(QPrintDialog);
     QString fn = QFileDialog::getSaveFileName(q, QString(), fileName->text(),
                                               QPrintDialog::tr("PostScript Files (*.ps);;All Files (*)"));
-    if (!fn.isNull())
+    if (!fn.isNull()) {
         fileName->setText(fn);
+        fileName->setModified(false); // no need to confirm overwrite when OK clicked
+    }
 }
 
 
 void QPrintDialogPrivate::okClicked()
 {
     Q_Q(QPrintDialog);
+    if (outputToFile && fileName->isModified() && QFileInfo(fileName->text()).exists()) {
+        int confirm = QMessageBox::warning(
+            q, q->windowTitle(),
+            q->tr("%1 already exists.\nDo you want to overwrite it?")
+            .arg(fileName->text()),
+            QMessageBox::Yes, QMessageBox::No);
+        if (confirm == QMessageBox::No)
+            return;
+    }
     lastPage->interpretText();
     firstPage->interpretText();
     copies->interpretText();
