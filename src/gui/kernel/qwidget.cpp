@@ -2343,7 +2343,7 @@ QRect QWidget::childrenRect() const
 
     Hidden children are excluded.
 
-    \sa childrenRect() geometry()
+    \sa childrenRect() geometry() mask()
 */
 
 QRegion QWidget::childrenRegion() const
@@ -2357,7 +2357,7 @@ QRegion QWidget::childrenRegion() const
             if (mask.isEmpty())
                 r |= w->geometry();
             else
-                r |= mask;
+                r |= mask.translated(w->pos());
         }
     }
     return r;
