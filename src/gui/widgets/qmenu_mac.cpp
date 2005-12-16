@@ -245,35 +245,45 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
     action->action->activate(action_e);
 
     //now walk up firing for each "caused" widget (like in the platform independant menu)
-    while(menu) {
-        //fire
-        QWidget *widget = 0;
-        GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget);
-        if(QMenu *qmenu = ::qobject_cast<QMenu*>(widget)) {
-            if(action_e == QAction::Trigger) {
-                emit qmenu->triggered(action->action);
-            } else if(action_e == QAction::Hover) {
-                emit qmenu->hovered(action->action);
-            }
-        } else if(QMenuBar *qmenubar = ::qobject_cast<QMenuBar*>(widget)) {
-            if(action_e == QAction::Trigger) {
-                emit qmenubar->triggered(action->action);
-            } else if(action_e == QAction::Hover) {
-                emit qmenubar->hovered(action->action);
-            }
-            break; //nothing more..
-        }
-
-        //walk up
-        QWidget *caused = 0;
-        if(GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), 0, &caused) != noErr)
-            break;
+    QWidget *caused = 0;
+    if(GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), 0, &caused) == noErr) {
+        MenuRef caused_menu = 0;
         if(QMenu *qmenu2 = ::qobject_cast<QMenu*>(caused))
-            menu = qmenu2->macMenu();
+            caused_menu = qmenu2->macMenu();
         else if(QMenuBar *qmenubar2 = ::qobject_cast<QMenuBar*>(caused))
-            menu = qmenubar2->macMenu();
+            caused_menu = qmenubar2->macMenu();
         else
-            menu = 0;
+            caused_menu = 0;
+        while(caused_menu) {
+            //fire
+            QWidget *widget = 0;
+            GetMenuItemProperty(caused_menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget);
+            if(QMenu *qmenu = ::qobject_cast<QMenu*>(widget)) {
+                if(action_e == QAction::Trigger) {
+                    emit qmenu->triggered(action->action);
+                } else if(action_e == QAction::Hover) {
+                    emit qmenu->hovered(action->action);
+                }
+            } else if(QMenuBar *qmenubar = ::qobject_cast<QMenuBar*>(widget)) {
+                if(action_e == QAction::Trigger) {
+                    emit qmenubar->triggered(action->action);
+                } else if(action_e == QAction::Hover) {
+                    emit qmenubar->hovered(action->action);
+                }
+                break; //nothing more..
+            }
+
+            //walk up
+            if(GetMenuItemProperty(caused_menu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget,
+                                   sizeof(caused), 0, &caused) != noErr)
+                break;
+            if(QMenu *qmenu2 = ::qobject_cast<QMenu*>(caused))
+                caused_menu = qmenu2->macMenu();
+            else if(QMenuBar *qmenubar2 = ::qobject_cast<QMenuBar*>(caused))
+                caused_menu = qmenubar2->macMenu();
+            else
+                caused_menu = 0;
+        }
     }
     if(action_e == QAction::Trigger)
         HiliteMenu(0);
