@@ -477,7 +477,7 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
                                sizeof(action), &action);
     } else {
         qt_mac_command_set_enabled(action->menu, action->command, !QApplicationPrivate::modalState());
-        SetMenuCommandProperty(0, action->command, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
+        SetMenuCommandProperty(action->menu, action->command, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
     }
     syncAction(action);
 }
@@ -855,6 +855,11 @@ void QMenuBarPrivate::macDestroyMenuBar()
     QWidget *tlw = q->window();
     menubars()->remove(tlw);
     mac_menubar = 0;
+
+    if(qt_mac_current_menubar.qmenubar == q) {
+        extern void qt_event_request_menubarupdate(); //qapplication_mac.cpp
+        qt_event_request_menubarupdate();
+    }
 }
 
 MenuRef QMenuBarPrivate::macMenu()
