@@ -835,14 +835,14 @@ int QFontMetrics::lineWidth() const
     \sa QFont QFontInfo QFontDatabase
 */
 
-/*!
+/*! \internal
     \fn QFontMetricsF::QFontMetricsF(const QFontMetrics &fontMetrics)
 
     Constructs a font metrics object with floating point precision
     from the given \a fontMetrics object.
 */
 
-/*!
+/*! \internal
     \fn QFontMetricsF &QFontMetricsF::operator=(const QFontMetrics &fontMetrics)
 
     Assigns \a fontMetrics to this font metrics object.

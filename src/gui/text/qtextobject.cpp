@@ -47,12 +47,6 @@
 */
 
 /*!
-    \fn int QTextObject::formatType() const
-
-    \internal
-*/
-
-/*!
     \fn QTextObject::QTextObject(QTextDocument *document)
 
     Creates a new QTextObject for the given \a document.

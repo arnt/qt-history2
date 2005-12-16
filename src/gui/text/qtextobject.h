@@ -39,7 +39,6 @@ protected:
     void setFormat(const QTextFormat &format);
 
 public:
-    int formatType() const;
     QTextFormat format() const;
     int formatIndex() const;
 

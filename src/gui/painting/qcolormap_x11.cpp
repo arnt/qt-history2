@@ -627,9 +627,11 @@ const QVector<QColor> QColormap::colormap() const
     HPALETTE is being used, this function returns zero.
 */
 
-/*!
+
+/*! \internal
     \fn QColormap &QColormap::operator=(const QColormap &colormap)
 
     Assigns the given \a colormap to \e this color map and returns
     a reference to \e this color map.
 */
+

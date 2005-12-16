@@ -100,12 +100,12 @@ class Q_GUI_EXPORT QFontMetricsF
 public:
     QFontMetricsF(const QFont &);
     QFontMetricsF(const QFont &, QPaintDevice *pd);
-    QFontMetricsF(const QFontMetrics &);
+//    QFontMetricsF(const QFontMetrics &);
     QFontMetricsF(const QFontMetricsF &);
     ~QFontMetricsF();
 
     QFontMetricsF &operator=(const QFontMetricsF &);
-    QFontMetricsF &operator=(const QFontMetrics &);
+//    QFontMetricsF &operator=(const QFontMetrics &);
 
     qreal ascent() const;
     qreal descent() const;
@@ -117,7 +117,7 @@ public:
     qreal maxWidth() const;
 
     qreal xHeight() const;
-    
+
     bool inFont(QChar) const;
 
     qreal leftBearing(QChar) const;
