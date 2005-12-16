@@ -13,6 +13,11 @@
 
   The Plastique style is provided by QPlastiqueStyle.
 
+  \row \i \inlineimage cleanlooks-tabwidget.png
+  \i \bold{\l{gallery-cleanlooks.html}{CleanLooks Style Widget Gallery}}
+
+  The CleanLooks style is provided by QCleanLooksStyle.
+
   \row \i \inlineimage windowsxp-tabwidget.png
   \i \bold{\l{gallery-windowsxp.html}{Windows XP Style Widget Gallery}}
 
