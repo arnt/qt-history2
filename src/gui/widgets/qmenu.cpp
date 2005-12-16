@@ -1654,6 +1654,8 @@ void QMenu::mousePressEvent(QMouseEvent *e)
          if (d->noReplayFor
              && QRect(d->noReplayFor->mapToGlobal(QPoint()), d->noReplayFor->size()).contains(e->globalPos()))
              setAttribute(Qt::WA_NoMouseReplay);
+         if (d->eventLoop) // synchronous operation
+             d->syncAction = 0;
         d->hideUpToMenuBar();
         return;
     }
@@ -1678,8 +1680,8 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
     for(QWidget *caused = this; caused;) {
         if (QMenu *m = qobject_cast<QMenu*>(caused)) {
             caused = m->d_func()->causedPopup.widget;
-            if (m->d_func()->eventLoop && (!action || action->isEnabled())) // synchronous operation
-                m->d_func()->syncAction = action;
+            if (m->d_func()->eventLoop) // synchronous operation
+                m->d_func()->syncAction = d->currentAction;
         } else {
             break;
         }
