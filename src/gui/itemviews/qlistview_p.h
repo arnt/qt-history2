@@ -192,6 +192,7 @@ public:
     int column;
     bool uniformItemSizes;
     mutable QSize cachedItemSize;
+    int batchSize;
 };
 
 #endif // QT_NO_LISTVIEW

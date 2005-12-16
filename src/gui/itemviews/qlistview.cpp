@@ -111,7 +111,8 @@
   \enum QListView::LayoutMode
 
   \value SinglePass The items are laid out all at once.
-  \value Batched The items are laid out in batches of 100 items.
+  \value Batched The items are laid out in batches of \l batchSize items.
+  \sa batchSize
 */
 
 /*!
@@ -258,7 +259,7 @@ QListView::ResizeMode QListView::resizeMode() const
 
     This property holds the layout mode for the items. When the mode
     is \l SinglePass (the default), the items are laid out all in one go.
-    When the mode is \l Batched, the items are laid out in batches of 100
+    When the mode is \l Batched, the items are laid out in batches of \l batchSize
     items, while processing events. This makes it possible to
     instantly view and interact with the visible items while the rest
     are being laid out.
@@ -297,6 +298,32 @@ int QListView::spacing() const
 {
     Q_D(const QListView);
     return d->spacing;
+}
+
+/*!
+    \property QListView::batchSize
+    \brief the number of items laid out in each batch if \l layoutMode is
+    set to \l Batched
+
+    The default value is 100.
+
+    \since 4.2
+*/
+
+void QListView::setBatchSize(int batchSize)
+{
+    Q_D(QListView);
+    if (batchSize <= 0) {
+        qWarning("Invalid batchSize (%d)", batchSize);
+        return;
+    }
+    d->batchSize = batchSize;
+}
+
+int QListView::batchSize() const
+{
+    Q_D(const QListView);
+    return d->batchSize;
 }
 
 /*!
@@ -622,7 +649,7 @@ void QListView::timerEvent(QTimerEvent *e)
         doItemsLayout();          // so we set the state to expanding to avoid
         setState(NoState);        // triggering another layout
     } else if (e->timerId() == d->batchLayoutTimer.timerId()) {
-        if (d->doItemsLayout(100)) { // layout is done
+        if (d->doItemsLayout(d->batchSize)) { // layout is done
             d->batchLayoutTimer.stop();
             updateGeometries();
             d->viewport->update();
@@ -1281,7 +1308,8 @@ QListViewPrivate::QListViewPrivate()
       batchSavedDeltaSeg(0),
       batchSavedPosition(0),
       column(0),
-      uniformItemSizes(false)
+      uniformItemSizes(false),
+      batchSize(100)
 {}
 
 void QListViewPrivate::prepareItemsLayout()

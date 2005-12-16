@@ -36,6 +36,7 @@ class Q_GUI_EXPORT QListView : public QAbstractItemView
     Q_PROPERTY(ViewMode viewMode READ viewMode WRITE setViewMode)
     Q_PROPERTY(int modelColumn READ modelColumn WRITE setModelColumn)
     Q_PROPERTY(bool uniformItemSizes READ uniformItemSizes WRITE setUniformItemSizes)
+    Q_PROPERTY(int batchSize READ batchSize WRITE setBatchSize)
 
 public:
     enum Movement { Static, Free, Snap };
@@ -64,6 +65,9 @@ public:
 
     void setSpacing(int space);
     int spacing() const;
+
+    void setBatchSize(int batchSize);
+    int batchSize() const;
 
     void setGridSize(const QSize &size);
     QSize gridSize() const;
