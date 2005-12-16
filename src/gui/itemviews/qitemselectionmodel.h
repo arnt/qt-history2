@@ -118,6 +118,8 @@ public:
     bool rowIntersectsSelection(int row, const QModelIndex &parent) const;
     bool columnIntersectsSelection(int column, const QModelIndex &parent) const;
 
+    bool hasSelection() const;
+
     QModelIndexList selectedIndexes() const;
     const QItemSelection selection() const;
 

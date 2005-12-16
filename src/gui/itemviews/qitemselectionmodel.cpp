@@ -953,6 +953,16 @@ bool QItemSelectionModel::columnIntersectsSelection(int column, const QModelInde
 }
 
 /*!
+  Returns true if the selection model contains any selection ranges;
+  otherwise returns false.
+*/
+bool QItemSelectionModel::hasSelection() const
+{
+    Q_D(const QItemSelectionModel);
+    return !(d->ranges.isEmpty() && d->currentSelection.isEmpty());
+}
+
+/*!
   Returns a list of all selected model item indexes. The list contains no
   duplicates, and is not sorted.
 */
