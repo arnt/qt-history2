@@ -1163,27 +1163,30 @@ void QHeaderViewPrivate::sectionsRemoved(const QModelIndex &parent,
     int oldCount = q->count();
     int changeCount = logicalLast - logicalFirst + 1;
     if (visualIndices.isEmpty() && logicalIndices.isEmpty()) {
-        int delta = sectionPositionAt(logicalLast + 1)
-                    - sectionPositionAt(logicalFirst);
-        for (int i = logicalLast + 1; i < sectionPosition.count(); ++i)
-            sectionPosition[i] -= delta;
-        sectionPosition.remove(logicalFirst, changeCount);
+        if (!sectionPosition.isEmpty()) { // we have resized sections
+            int delta = sectionPositionAt(logicalLast + 1)
+                        - sectionPositionAt(logicalFirst);
+            movePositions(logicalLast + 1, -delta);
+            sectionPosition.remove(logicalFirst, changeCount);
+        }
         for (int i = logicalFirst; i <= changeCount+logicalFirst; ++i)
             hiddenSectionSize.remove(i);
     } else {
         for (int l = logicalLast; l >= logicalFirst; --l) {
             int visual = visualIndices.at(l);
-            int size = sectionPositionAt(visual + 1) - sectionPositionAt(visual);
-            for (int v = 0; v < sectionPosition.count(); ++v) {
-                if (logicalIndex(v) > l)
+            int size = sectionSizeAt(visual);
+            for (int v = 0; v < sectionPositionCount(); ++v) {
+                if (logicalIndex(v) > l) // no need to move the positions before l
                     --(logicalIndices[v]);
                 if (v > visual) {
-                    sectionPosition[v] -= size;
+                    if (!sectionPosition.isEmpty()) // we have resized sections
+                        sectionPosition[v] -= size;
                     int logical = logicalIndex(v);
                     --(visualIndices[logical]);
                 }
             }
-            sectionPosition.remove(visual);
+            if (!sectionPosition.isEmpty()) // we have resized sections
+                sectionPosition.remove(visual);
             hiddenSectionSize.remove(l);
             logicalIndices.remove(visual);
             visualIndices.remove(l);
@@ -1255,7 +1258,7 @@ void QHeaderView::initializeSections(int start, int end)
     if (d->globalResizeMode == Stretch)
         d->stretchSections += (end - start + 1);
 
-//    if (!d->logicalIndices.isEmpty() && start > 0)
+    if (!d->sectionPosition.isEmpty() && start > 0)
         d->initializePositions(start, end + 1);
 
     emit sectionCountChanged(oldCount, count());
@@ -1365,7 +1368,6 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         return;
 
     d->prepareSectionSelected(); // clear and resize the bit array
-    const QVector<int> sectionPosition = d->sectionPosition;
 
     QRect rect;
     int logical;

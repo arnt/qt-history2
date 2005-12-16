@@ -66,9 +66,10 @@ public:
     void sectionsRemoved(const QModelIndex &,int,int);
 
     bool isSectionSelected(int section) const;
+
     inline void prepareSectionSelected() {
-        if (sectionSelected.count() != sectionPosition.count() * 2)
-            sectionSelected.fill(false, sectionPosition.count() * 2);
+        if (sectionSelected.count() != sectionCount * 2)
+            sectionSelected.fill(false, sectionCount * 2);
         else sectionSelected.fill(false);
     }
 
@@ -140,7 +141,7 @@ public:
     bool sortIndicatorShown;
 
     mutable QVector<QHeaderView::ResizeMode> sectionResizeMode;
-    mutable QVector<int> sectionPosition; // uses visual index                              // ### not optimized
+    mutable QVector<int> sectionPosition; // uses visual index
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
     mutable QVector<int> logicalIndices; // logicalIndex = row or column in the model
     mutable QBitArray sectionSelected;
