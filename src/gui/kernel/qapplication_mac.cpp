@@ -623,7 +623,9 @@ void qt_event_activate_timer_callbk(EventLoopTimerRef r, void *)
     qt_event_remove_activate();
     if(r == otc && !request_activate_pending.widget.isNull()) {
         const QWidget *tlw = request_activate_pending.widget->window();
-        if(tlw->isVisible() && !(tlw->windowType() == Qt::Desktop) && !(tlw->windowType() == Qt::Popup) && !(tlw->windowType() == Qt::Tool)) {
+        Qt::WindowType wt = tlw->windowType();
+        if(tlw->isVisible()
+               && ((wt != Qt::Desktop && wt != Qt::Popup && wt != Qt::Tool) || tlw->isModal())) {
             CreateEvent(0, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
                         kEventAttributeUserEvent, &request_activate_pending.event);
             PostEventToQueue(GetMainEventQueue(), request_activate_pending.event, kEventPriorityHigh);
