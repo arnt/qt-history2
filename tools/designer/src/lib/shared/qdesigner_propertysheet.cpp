@@ -107,6 +107,9 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     if (qobject_cast<QDialog*>(object)) {
         createFakeProperty(QLatin1String("modal"));
     }
+    if (qobject_cast<QDockWidget*>(object)) {
+        createFakeProperty(QLatin1String("floating"));
+    }
 }
 
 QDesignerPropertySheet::~QDesignerPropertySheet()
