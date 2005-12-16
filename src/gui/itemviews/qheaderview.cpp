@@ -565,10 +565,12 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 
     d->executePostedLayout();
 
-    int diff = size - oldSize;
+    if (d->sectionPosition.isEmpty()) // the first time we resize
+        d->initializePositions(0, d->sectionCount + 1);
+
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    d->movePositions(visual + 1, diff);
+    d->movePositions(visual + 1, size - oldSize);
     
     int w = d->viewport->width();
     int h = d->viewport->height();
@@ -741,7 +743,7 @@ int QHeaderView::visualIndex(int logicalIndex) const
 int QHeaderView::logicalIndex(int visualIndex) const
 {
     Q_D(const QHeaderView);
-    if (visualIndex < 0 || visualIndex >= d->sectionPosition.count()) // ### for now
+    if (visualIndex < 0 || visualIndex >= d->sectionPositionCount())
         return -1;
     return d->logicalIndex(visualIndex);
 }
@@ -1254,7 +1256,7 @@ void QHeaderView::initializeSections(int start, int end)
         d->stretchSections += (end - start + 1);
 
 //    if (!d->logicalIndices.isEmpty() && start > 0)
-        d->initializePositions(start, end);
+        d->initializePositions(start, end + 1);
 
     emit sectionCountChanged(oldCount, count());
     d->viewport->update();
@@ -2051,15 +2053,15 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
 {
     Q_Q(QHeaderView);
 
-    if (sectionPosition.isEmpty())
+    if (sectionCount == 0)
         return;
 
-    QList<int> section_sizes;
-    int count = qMax(sectionCount, 0);
+    if (sectionPosition.isEmpty()) // the first time we resize
+        initializePositions(0, sectionCount + 1);
 
     int last = -1;
     if (stretchLastSection && !useGlobalMode) {
-        for (int i = count - 1; i >= 0; --i) {
+        for (int i = sectionCount - 1; i >= 0; --i) {
             if (!isVisualIndexHidden(i)) {
                 last = i;
                 break;
@@ -2067,11 +2069,12 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         }
     }
 
+    QList<int> section_sizes;
     int stretchSize = (orientation == Qt::Horizontal ? viewport->width() : viewport->height());
     int stretchSecs = 0;
     int secSize = 0;
     QHeaderView::ResizeMode mode;
-    for (int i = 0; i < count; ++i) {
+    for (int i = 0; i < sectionCount; ++i) {
         if (isVisualIndexHidden(i))
             continue;
         if (useGlobalMode)
@@ -2082,11 +2085,11 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
             ++stretchSecs;
             continue;
         }
-        int logicalIndex = q->logicalIndex(i);
         if (mode == QHeaderView::Interactive) {
-            secSize = q->sectionSize(logicalIndex);
+            secSize = sectionSizeAt(i);
         } else { // mode == QHeaderView::Custom
             // FIXME: this is a bit hacky; see if we can find a cleaner solution
+            int logicalIndex = q->logicalIndex(i);
             QAbstractItemView *par = ::qobject_cast<QAbstractItemView*>(q->parent());
             if (orientation == Qt::Horizontal) {
                 if (par)
@@ -2108,8 +2111,9 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
                   : qMax(strut.height(), q->fontMetrics().height());
     int hint = stretchSecs > 0 ? stretchSize / stretchSecs : 0;
     int stretchSectionSize = qMax(hint, minimum);
-    for (int i = 0; i < count; ++i) {
-        int oldSize = sectionPositionAt(i + 1) - sectionPositionAt(i);
+    // at this point the sectionPosition vector should be initialized
+    for (int i = 0; i < sectionCount; ++i) {
+        int oldSize = sectionSizeAt(i);
         sectionPosition[i] = position;
         if (isVisualIndexHidden(i))
             continue;
@@ -2127,18 +2131,24 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         if (newSize != oldSize)
             emit q->sectionResized(i, oldSize, newSize);
     }
-    sectionPosition[count] = position;
+    sectionPosition[sectionCount] = position;
     viewport->update();
 }
 
 void QHeaderViewPrivate::initializePositions(int start, int end)
 {
+    // note that (end == sectionCount + 1)
     sectionPosition.resize(end + 1);
     int pos = (start > 0 ? sectionPositionAt(start) : 0);
-    int *positions = sectionPosition.data() + start;
     int size = defaultSectionSize;
-    int num = end - start + 1;
-
+#if 1
+    for (int i = start; i <= end; ++i) {
+        sectionPosition[i] = pos;
+        pos += size;
+    }
+#else
+    int num = end - start;
+    int *positions = sectionPosition.data() + start;
     // unroll loop - to initialize the arrays as fast as possible
     while (num >= 4) {
         positions[0] = pos;
@@ -2164,15 +2174,18 @@ void QHeaderViewPrivate::initializePositions(int start, int end)
             }
         }
     }
+#endif
 }
 
 void QHeaderViewPrivate::movePositions(int start, int delta)
 {
-//     if (visual >= d->sectionPosition.count())
-//         d->sectionPosition
+    Q_ASSERT(start < sectionPosition.count());
+#if 1
+    for (int i = start ; i < sectionPosition.count(); ++i)
+        sectionPosition[i] += delta;
+#else
     int *positions = sectionPosition.data() + start;
     int num = (sectionPosition.count() - 1) - start + 1;
-
     while (num >= 4) {
         positions[0] += delta;
         positions[1] += delta;
@@ -2190,6 +2203,7 @@ void QHeaderViewPrivate::movePositions(int start, int delta)
             }
         }
     }
+#endif
 }
 
 #endif // QT_NO_ITEMVIEWS
