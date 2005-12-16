@@ -41,7 +41,7 @@ public:
 struct fb_cmap;
 struct fb_var_screeninfo;
 struct fb_fix_screeninfo;
-class QLinuxFbScreen : public QScreen
+class Q_GUI_EXPORT QLinuxFbScreen : public QScreen
 {
 public:
     explicit QLinuxFbScreen(int display_id);

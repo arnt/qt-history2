@@ -19,7 +19,7 @@
 
 QT_MODULE(Gui)
 
-class QWSPointerCalibrationData
+class Q_GUI_EXPORT QWSPointerCalibrationData
 {
 public:
     enum Location { TopLeft = 0, BottomLeft = 1, BottomRight = 2, TopRight = 3,
@@ -28,7 +28,7 @@ public:
     QPoint screenPoints[5];
 };
 
-class QWSMouseHandler
+class Q_GUI_EXPORT QWSMouseHandler
 {
 public:
     explicit QWSMouseHandler(const QString &driver = QString(),
@@ -51,7 +51,7 @@ protected:
 };
 
 
-class QWSCalibratedMouseHandler : public QWSMouseHandler
+class Q_GUI_EXPORT QWSCalibratedMouseHandler : public QWSMouseHandler
 {
 public:
     explicit QWSCalibratedMouseHandler(const QString &driver = QString(),

@@ -23,7 +23,7 @@ QT_MODULE(Gui)
 class QWSClient;
 class QCopChannelPrivate;
 
-class QCopChannel : public QObject
+class Q_GUI_EXPORT QCopChannel : public QObject
 {
     Q_OBJECT
 public:

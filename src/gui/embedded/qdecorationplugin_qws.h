@@ -21,7 +21,7 @@ QT_MODULE(Gui)
 
 class QDecoration;
 
-struct QDecorationFactoryInterface : public QFactoryInterface
+struct Q_GUI_EXPORT QDecorationFactoryInterface : public QFactoryInterface
 {
     virtual QDecoration *create(const QString &key) = 0;
 };
@@ -29,7 +29,7 @@ struct QDecorationFactoryInterface : public QFactoryInterface
 #define QDecorationFactoryInterface_iid "com.trolltech.Qt.QDecorationFactoryInterface"
 Q_DECLARE_INTERFACE(QDecorationFactoryInterface, QDecorationFactoryInterface_iid)
 
-class QDecorationPlugin : public QObject, public QDecorationFactoryInterface
+class Q_GUI_EXPORT QDecorationPlugin : public QObject, public QDecorationFactoryInterface
 {
     Q_OBJECT
     Q_INTERFACES(QDecorationFactoryInterface:QFactoryInterface)

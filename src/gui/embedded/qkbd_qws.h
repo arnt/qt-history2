@@ -22,7 +22,7 @@ QT_MODULE(Gui)
 
 class QWSKbPrivate;
 
-class QWSKeyboardHandler
+class  Q_GUI_EXPORT QWSKeyboardHandler
 {
 public:
     QWSKeyboardHandler();

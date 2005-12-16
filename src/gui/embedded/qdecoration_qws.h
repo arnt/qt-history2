@@ -36,7 +36,7 @@ public:
 /*
  Implements decoration styles
 */
-class QDecoration
+class Q_GUI_EXPORT QDecoration
 {
 public:
     QDecoration() {}
@@ -76,7 +76,7 @@ public:
     virtual void buildSysMenu(QWidget *widget, QMenu *menu);
     void menuTriggered(QWidget *widget, QAction *action);
 #endif
-    
+
     static void startMove(QWidget *widget);
     static void startResize(QWidget *widget);
 

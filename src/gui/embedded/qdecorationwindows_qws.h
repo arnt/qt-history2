@@ -20,7 +20,7 @@ QT_MODULE(Gui)
 
 #if !defined(QT_NO_QWS_DECORATION_WINDOWS) || defined(QT_PLUGIN)
 
-class QDecorationWindows : public QDecorationDefault
+class Q_GUI_EXPORT QDecorationWindows : public QDecorationDefault
 {
 public:
     QDecorationWindows();

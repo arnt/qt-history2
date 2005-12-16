@@ -20,7 +20,7 @@ QT_MODULE(Gui)
 
 class QDecoration;
 
-class QDecorationFactory
+class Q_GUI_EXPORT QDecorationFactory
 {
 public:
     static QStringList keys();

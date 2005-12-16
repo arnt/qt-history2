@@ -24,7 +24,7 @@ QT_MODULE(Gui)
 #define BORDER_WIDTH  4
 #define BOTTOM_BORDER_WIDTH BORDER_WIDTH
 
-class QDecorationDefault : public QDecoration
+class Q_GUI_EXPORT QDecorationDefault : public QDecoration
 {
 public:
     QDecorationDefault();

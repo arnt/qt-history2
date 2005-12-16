@@ -95,7 +95,7 @@ const int SourcePixmap=1;
 
 extern bool qt_sw_cursor;
 
-class QScreenCursor
+class Q_GUI_EXPORT QScreenCursor
 {
 public:
     QScreenCursor();
@@ -147,7 +147,7 @@ public:
 class QScreen;
 typedef void(*ClearCacheFunc)(QScreen *obj, int);
 
-class QScreen {
+class Q_GUI_EXPORT QScreen {
 
 public:
 

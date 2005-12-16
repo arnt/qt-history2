@@ -31,7 +31,7 @@ class QRegion;
 class QMouseEvent;
 class QWSManagerPrivate;
 
-class QWSManager : public QObject
+class Q_GUI_EXPORT QWSManager : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWSManager)
