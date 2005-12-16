@@ -98,6 +98,8 @@ void MessageEditor::visualizeBackTabs(const QString &text, QTextEdit *te)
             if (i == 0 || i == text.length() - 1 || text[i - 1].isSpace() ||
                 text[i + 1].isSpace())
             {
+                tc.insertText(plainText, defFormat);
+                plainText.clear();
                 blueFormat.setProperty(QTextFormat::UserProperty, ch);
                 tc.insertText(QString("("), blueFormat);
                 blueFormat.setProperty(QTextFormat::UserProperty, -1);
