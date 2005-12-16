@@ -68,7 +68,9 @@ public:
     bool isSectionSelected(int section) const;
 
     inline void prepareSectionSelected() {
-        if (sectionSelected.count() != sectionCount * 2)
+        if (!selectionModel->hasSelection())
+            sectionSelected.clear();
+        else if (sectionSelected.count() != sectionCount * 2)
             sectionSelected.fill(false, sectionCount * 2);
         else sectionSelected.fill(false);
     }

@@ -2036,9 +2036,9 @@ QStyleOptionHeader QHeaderViewPrivate::getStyleOption() const
 bool QHeaderViewPrivate::isSectionSelected(int section) const
 {
     Q_Q(const QHeaderView);
-    if (section < 0 || section >= sectionCount)
-        return false;
     int i = section * 2;
+    if (i < 0 || i >= sectionSelected.count())
+        return false;
     if (sectionSelected.testBit(i)) // if the value was cached
         return sectionSelected.testBit(i + 1);
     bool s = false;
