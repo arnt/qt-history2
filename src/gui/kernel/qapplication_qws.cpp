@@ -535,7 +535,7 @@ void QWSDisplay::Data::reinit()
     csocket->connectToLocalFile(pipe);
 
     QWSIdentifyCommand cmd;
-    cmd.setId(appName);
+    cmd.setId(appName, QWSDisplay::Data::clientLock->id());
 
 #ifndef QT_NO_SXV
     QTransportAuth *a = QTransportAuth::getInstance();
