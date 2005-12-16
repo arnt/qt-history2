@@ -1832,7 +1832,7 @@ void QColor::invalidate()
     Returns the pixel value used by the underlying window system to
     refer to a color.
 
-    Use QColorMap::pixel() instead.
+    Use QColormap::pixel() instead.
 
     \oldcode
         QColor myColor;
