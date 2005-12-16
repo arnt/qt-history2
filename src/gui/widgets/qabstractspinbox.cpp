@@ -972,6 +972,8 @@ void QAbstractSpinBox::hideEvent(QHideEvent *e)
 {
     Q_D(QAbstractSpinBox);
     d->reset();
+    if (d->pendingEmit)
+        d->interpret(EmitIfChanged);
     QWidget::hideEvent(e);
 }
 
