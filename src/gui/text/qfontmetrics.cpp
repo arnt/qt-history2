@@ -835,18 +835,27 @@ int QFontMetrics::lineWidth() const
     \sa QFont QFontInfo QFontDatabase
 */
 
-/*! \internal
+/*! \since 4.2
     \fn QFontMetricsF::QFontMetricsF(const QFontMetrics &fontMetrics)
 
     Constructs a font metrics object with floating point precision
     from the given \a fontMetrics object.
 */
+QFontMetricsF::QFontMetricsF(const QFontMetrics &fontMetrics)
+    : d(fontMetrics.d)
+{
+    d->ref.ref();
+}
 
-/*! \internal
+/*! \since 4.2
     \fn QFontMetricsF &QFontMetricsF::operator=(const QFontMetrics &fontMetrics)
 
     Assigns \a fontMetrics to this font metrics object.
 */
+QFontMetricsF &QFontMetricsF::operator=(const QFontMetrics &fontMetrics)
+{
+    qAtomicAssign(d, fontMetrics.d); return *this;
+}
 
 /*!
     Constructs a font metrics object for \a font.

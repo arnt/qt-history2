@@ -90,6 +90,7 @@ private:
 #if defined(Q_WS_MAC)
     friend class QFontPrivate;
 #endif
+    friend class QFontMetricsF;
 
     QFontPrivate *d;
 };
@@ -100,12 +101,12 @@ class Q_GUI_EXPORT QFontMetricsF
 public:
     QFontMetricsF(const QFont &);
     QFontMetricsF(const QFont &, QPaintDevice *pd);
-//    QFontMetricsF(const QFontMetrics &);
+    QFontMetricsF(const QFontMetrics &);
     QFontMetricsF(const QFontMetricsF &);
     ~QFontMetricsF();
 
     QFontMetricsF &operator=(const QFontMetricsF &);
-//    QFontMetricsF &operator=(const QFontMetrics &);
+    QFontMetricsF &operator=(const QFontMetrics &);
 
     qreal ascent() const;
     qreal descent() const;

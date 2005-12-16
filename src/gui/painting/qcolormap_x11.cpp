@@ -24,12 +24,12 @@ class QColormapPrivate
 {
 public:
     QColormapPrivate()
-        : mode(QColormap::Direct), depth(0),
+        : ref(1), mode(QColormap::Direct), depth(0),
           colormap(0), defaultColormap(true),
           visual(0), defaultVisual(true),
           r_max(0), g_max(0), b_max(0),
           r_shift(0), g_shift(0), b_shift(0)
-    { ref = 0; }
+    {}
 
     QAtomic ref;
 
@@ -520,7 +520,7 @@ QColormap QColormap::instance(int screen)
 */
 QColormap::QColormap()
     : d(new QColormapPrivate)
-{ d->ref = 1; }
+{}
 
 /*!
     Constructs a copy of another \a colormap.
@@ -628,10 +628,15 @@ const QVector<QColor> QColormap::colormap() const
 */
 
 
-/*! \internal
+/*! \since 4.2
     \fn QColormap &QColormap::operator=(const QColormap &colormap)
 
     Assigns the given \a colormap to \e this color map and returns
     a reference to \e this color map.
 */
+QColormap &QColormap::operator=(const QColormap &colormap)
+{
+    qAtomicAssign(d, colormap.d);
+    return *this;
+}
 

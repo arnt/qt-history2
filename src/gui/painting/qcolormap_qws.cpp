@@ -21,7 +21,7 @@ class QColormapPrivate
 {
 public:
     inline QColormapPrivate()
-        : ref(0), mode(QColormap::Direct), depth(0), numcolors(0)
+        : ref(1), mode(QColormap::Direct), depth(0), numcolors(0)
     { }
 
     QAtomic ref;
@@ -36,7 +36,6 @@ static QColormapPrivate *screenMap = 0;
 void QColormap::initialize()
 {
     screenMap = new QColormapPrivate;
-    screenMap->ref = 1;
 
     screenMap->depth = QPaintDevice::qwsDisplay()->depth();
     if (screenMap->depth < 8) {
@@ -149,3 +148,7 @@ const QVector<QColor> QColormap::colormap() const
 {
     return QVector<QColor>();
 }
+
+QColormap &QColormap::operator=(const QColormap &colormap)
+{ qAtomicAssign(d, colormap.d); return *this }
+

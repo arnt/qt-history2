@@ -20,7 +20,7 @@ class QColormapPrivate
 {
 public:
     inline QColormapPrivate()
-        : ref(0), mode(QColormap::Direct), depth(0), hpal(0)
+        : ref(1), mode(QColormap::Direct), depth(0), hpal(0)
     { }
 
     QAtomic ref;
@@ -40,7 +40,6 @@ void QColormap::initialize()
     HDC dc = qt_win_display_dc();
 
     screenMap = new QColormapPrivate;
-    screenMap ->ref = 1;
     screenMap->depth = GetDeviceCaps(dc, BITSPIXEL);
 
     screenMap->numcolors = -1;
@@ -156,3 +155,7 @@ HPALETTE QColormap::hPal()
 
 const QVector<QColor> QColormap::colormap() const
 { return d->palette; }
+
+QColormap &QColormap::operator=(const QColormap &colormap)
+{ qAtomicAssign(d, colormap.d); return *this; }
+

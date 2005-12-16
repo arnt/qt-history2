@@ -19,7 +19,7 @@ class QColormapPrivate
 {
 public:
     inline QColormapPrivate()
-        : ref(0)
+        : ref(1)
     { }
 
     QAtomic ref;
@@ -43,7 +43,7 @@ QColormap QColormap::instance(int)
 }
 
 QColormap::QColormap() : d(new QColormapPrivate)
-{ d->ref = 1; }
+{}
 
 QColormap::QColormap(const QColormap &colormap) :d (colormap.d)
 { d->ref.ref(); }
@@ -75,3 +75,6 @@ const QColor QColormap::colorAt(uint pixel) const
 
 const QVector<QColor> QColormap::colormap() const
 { return QVector<QColor>(); }
+
+QColormap &QColormap::operator=(const QColormap &colormap)
+{ qAtomicAssign(d, colormap.d); return *this; }
