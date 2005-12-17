@@ -150,5 +150,5 @@ const QVector<QColor> QColormap::colormap() const
 }
 
 QColormap &QColormap::operator=(const QColormap &colormap)
-{ qAtomicAssign(d, colormap.d); return *this }
+{ qAtomicAssign(d, colormap.d); return *this; }
 
