@@ -415,6 +415,8 @@ void PieView::scrollTo(const QModelIndex &index, ScrollHint)
         verticalScrollBar()->setValue(
             verticalScrollBar()->value() + qMin(
                 rect.bottom() - area.bottom(), rect.top() - area.top()));
+
+    update();
 }
 
 /*
@@ -466,6 +468,7 @@ void PieView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlag
     }
 
     selectionRect = rect;
+    update();
 }
 
 void PieView::updateGeometries()

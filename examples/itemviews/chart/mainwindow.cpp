@@ -11,13 +11,6 @@
 **
 ****************************************************************************/
 
-/*
-  mainwindow.cpp
-
-  A minimal subclass of QTableView with slots to allow the selection model
-  to be monitored.
-*/
-
 #include <QtGui>
 
 #include "pieview.h"
