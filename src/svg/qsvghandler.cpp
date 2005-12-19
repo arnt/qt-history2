@@ -385,6 +385,9 @@ static void parseBrush(QSvgNode *node,
         } else if (value != QLatin1String("none")) {
             QString opacity = attributes.value("fill-opacity");
             QString fillRule = attributes.value("fill-rule");
+
+            if (opacity.isEmpty())
+                opacity = attributes.value("opacity");
             QColor color;
             if (constructColor(value, opacity, color, handler)) {
                 QSvgStyleProperty *prop = new QSvgFillStyle(QBrush(color));
@@ -411,6 +414,10 @@ static void parseQPen(QPen &pen, QSvgNode *node,
     QString opacity    = attributes.value("stroke-opacity");
     QString width      = attributes.value("stroke-width");
     QString myId       = attributes.value("id");
+
+    if (opacity.isEmpty())
+        opacity = attributes.value("opacity");
+
     if (!value.isEmpty() || !width.isEmpty()) {
         if (value != QLatin1String("none")) {
             if (!value.isEmpty()) {
@@ -451,7 +458,6 @@ static void parseQPen(QPen &pen, QSvgNode *node,
             }
             if (!width.isEmpty()) {
                 QSvgHandler::LengthType lt;
-                qreal oldWidth = pen.widthF();
                 qreal widthF = parseLength(width, lt, handler);
                 //### fixme
                 if (!widthF) {
@@ -459,9 +465,6 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                     return;
                 }
                 pen.setWidthF(widthF);
-                if (miterlimit.isEmpty()) {
-                    pen.setMiterLimit(qreal(pen.miterLimit() * oldWidth)/pen.widthF());
-                }
             }
             qreal penw = pen.widthF();
 
@@ -474,7 +477,7 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                     pen.setJoinStyle(Qt::BevelJoin);
             }
             if (!miterlimit.isEmpty()) {
-                pen.setMiterLimit(miterlimit.toDouble()/penw);
+                pen.setMiterLimit(miterlimit.toDouble()/2);
             }
 
             if (!linecap.isEmpty()) {
@@ -623,6 +626,10 @@ static void parsePen(QSvgNode *node,
     QString opacity    = attributes.value("stroke-opacity");
     QString width      = attributes.value("stroke-width");
     QString myId       = attributes.value("id");
+
+    if (opacity.isEmpty())
+        opacity = attributes.value("opacity");
+
     if (!value.isEmpty() || !width.isEmpty() || !linecap.isEmpty() ||
         linejoin.isEmpty()) {
         if (value != QLatin1String("none")) {
@@ -671,7 +678,6 @@ static void parsePen(QSvgNode *node,
             }
             if (!width.isEmpty()) {
                 QSvgHandler::LengthType lt;
-                qreal oldWidth = pen.widthF();
                 qreal widthF = parseLength(width, lt, handler);
                 //### fixme
                 if (!widthF) {
@@ -731,6 +737,10 @@ static bool parseQBrush(const QXmlAttributes &attributes, QSvgNode *node,
 {
     QString value = attributes.value("fill");
     QString opacity = attributes.value("fill-opacity");
+
+    if (opacity.isEmpty())
+        opacity = attributes.value("opacity");
+
     QColor color;
     if (!value.isEmpty() || !opacity.isEmpty()) {
         if (value.startsWith("url")) {
@@ -2254,6 +2264,10 @@ static QSvgStyleProperty *createSolidColorNode(QSvgNode *parent,
     Q_UNUSED(parent); Q_UNUSED(attributes);
     QString solidColorStr = attributes.value("solid-color");
     QString solidOpacityStr = attributes.value("solid-opacity");
+
+    if (solidOpacityStr.isEmpty())
+        solidOpacityStr = attributes.value("opacity");
+
     QColor color;
     if (!constructColor(solidColorStr, solidOpacityStr, color, handler))
         return 0;
