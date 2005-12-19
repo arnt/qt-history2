@@ -83,6 +83,8 @@ struct QFreetypeFace
     enum { cmapCacheSize = 0x200 };
     glyph_t cmapCache[cmapCacheSize];
 
+    int fsType() const;
+
 private:
     QFreetypeFace() {}
     ~QFreetypeFace() {}
@@ -92,6 +94,17 @@ private:
 
 static FT_Library library = 0;
 static QHash<QFontEngine::FaceId, QFreetypeFace *> *freetypeFaces = 0;
+
+int QFreetypeFace::fsType() const
+{
+    int fsType = 0;
+    TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(face, ft_sfnt_os2);
+    if (os2)
+        fsType = os2->fsType;
+    if (!FT_IS_SCALABLE(face)) // can't embed non scalable fonts
+        fsType = 2;
+    return fsType;
+}
 
 QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
 {
@@ -839,6 +852,8 @@ QFontEngine::FaceId QFontEngineXLFD::faceId() const
         face_id = ::fontFile(_name, &freetype, &synth);
         if (_codec)
             face_id.encoding = _codec->mibEnum();
+        if (freetype) 
+            const_cast<QFontEngineXLFD *>(this)->fsType = freetype->fsType();
     }
     return face_id;
 }
@@ -1069,11 +1084,7 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
 
     unlockFace();
 
-    TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(freetype->face, ft_sfnt_os2);
-    if (os2)
-        fsType = os2->fsType;
-    if (!FT_IS_SCALABLE(face)) // can't embed non scalable fonts
-        fsType = 2;
+    fsType = freetype->fsType();
 
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
