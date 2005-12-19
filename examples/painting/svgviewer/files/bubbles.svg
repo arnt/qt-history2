@@ -34,11 +34,11 @@
         <stop offset="0%" stop-color="#ffffee" />
         <stop offset="100%" stop-color="#ccccaa" />
       </radialGradient>
-      <radialGradient id="surface" gradientUnits="userSpaceOnUse"
-                      cx="-100" cy="200" r="350" fx="-100" fy="200">
+      <linearGradient id="surface" gradientUnits="userSpaceOnUse"
+                      x1="-100" y1="200" x2="400" y2="200">
         <stop offset="0%" stop-color="#ffffcc" />
-        <stop offset="100%" stop-color="#aaaa77" />
-      </radialGradient>
+        <stop offset="100%" stop-color="#aabbaa" />
+      </linearGradient>
 
       <!-- Create radial gradients for each circle to make them look like
            spheres. -->
