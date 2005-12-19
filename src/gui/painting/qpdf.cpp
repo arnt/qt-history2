@@ -12,6 +12,8 @@
 ****************************************************************************/
 #include "qpdf_p.h"
 
+#ifndef QT_NO_PRINTER
+
 /* also adds a space at the end of the number */
 const char *qt_real_to_string(qreal val, char *buf) {
     const char *ret = buf;
@@ -1232,3 +1234,6 @@ void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &t
 
     *currentPage << "ET\n";
 }
+
+#endif
+

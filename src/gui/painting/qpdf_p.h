@@ -34,6 +34,8 @@
 #include "private/qpaintengine_p.h"
 #include "qprintengine.h"
 
+#ifndef QT_NO_PRINTER
+
 const char *qt_real_to_string(qreal val, char *buf);
 const char *qt_int_to_string(int val, char *buf);
 
@@ -170,5 +172,6 @@ public:
     QHash<QFontEngine::FaceId, QFontSubset *> fonts;
 };
 
+#endif
 #endif
 

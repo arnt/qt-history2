@@ -3193,7 +3193,9 @@ void QCleanLooksStyle::polish(QWidget *widget)
         || qobject_cast<QComboBox *>(widget)
         || qobject_cast<QProgressBar *>(widget)
         || qobject_cast<QScrollBar *>(widget)
+#ifndef QT_NO_SPLITTER
         || qobject_cast<QSplitterHandle *>(widget)
+#endif
         || qobject_cast<QSlider *>(widget)
         || (widget->inherits("QDockSeparator"))
         || (widget->inherits("QDockWidgetSeparator"))

@@ -15,6 +15,7 @@
 #include <qpainterpath.h>
 #include "private/qpdf_p.h"
 
+#ifndef QT_NO_PRINTER
 
 static const char * const agl =
 ".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
@@ -1626,4 +1627,6 @@ QByteArray QFontSubset::toType1() const
 
     return font;
 }
+
+#endif
 

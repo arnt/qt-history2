@@ -27,6 +27,8 @@
 
 #include "private/qfontengine_p.h"
 
+#ifndef QT_NO_PRINTER
+
 class QFontSubset
 {
 public:
@@ -56,5 +58,5 @@ public:
     mutable QVector<QFixed> widths;
 };
 
-
+#endif
 #endif
