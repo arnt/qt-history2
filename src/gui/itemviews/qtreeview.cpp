@@ -191,6 +191,7 @@ void QTreeView::setHeader(QHeaderView *header)
     Q_D(QTreeView);
     delete d->header;
     d->header = header;
+    d->header->setParent(this);
     if (!d->header->model())
         d->header->setModel(model());
 

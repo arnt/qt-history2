@@ -253,6 +253,7 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
     Q_ASSERT(header);
     delete d->horizontalHeader;
     d->horizontalHeader = header;
+    d->horizontalHeader->setParent(this);
     if (!d->horizontalHeader->model())
         d->horizontalHeader->setModel(model());
 
@@ -280,6 +281,7 @@ void QTableView::setVerticalHeader(QHeaderView *header)
     Q_ASSERT(header);
     delete d->verticalHeader;
     d->verticalHeader = header;
+    d->verticalHeader->setParent(this);
     if (!d->verticalHeader->model())
         d->verticalHeader->setModel(model());
 
