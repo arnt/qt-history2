@@ -4370,7 +4370,7 @@ fi
 [ "$CFG_SQL_psql" != "no" ] && echo "PostgreSQL support .. $CFG_SQL_psql"
 [ "$CFG_SQL_odbc" != "no" ] && echo "ODBC support ........ $CFG_SQL_odbc"
 [ "$CFG_SQL_oci" != "no" ] && echo "OCI support ......... $CFG_SQL_oci"
-[ "$CFG_SQL_tds" != "no" ] && echo "TDS support ......... $CCFG_SQL_tds"
+[ "$CFG_SQL_tds" != "no" ] && echo "TDS support ......... $CFG_SQL_tds"
 [ "$CFG_SQL_db2" != "no" ] && echo "DB2 support ......... $CFG_SQL_db2"
 [ "$CFG_SQL_ibase" != "no" ] && echo "InterBase support ... $CFG_SQL_ibase"
 [ "$CFG_SQL_sqlite2" != "no" ] && echo "SQLite 2 support .... $CFG_SQL_sqlite2"
