@@ -31,13 +31,13 @@ MainWindow::MainWindow()
     QMenu *rendererMenu = new QMenu(tr("&Renderer"), this);
     nativeAction = rendererMenu->addAction(tr("&Native"));
     nativeAction->setCheckable(true);
+    nativeAction->setChecked(true);
     #ifndef QT_NO_OPENGL
     glAction = rendererMenu->addAction(tr("&OpenGL"));
     glAction->setCheckable(true);
     #endif
     imageAction = rendererMenu->addAction(tr("&Image"));
     imageAction->setCheckable(true);
-    imageAction->setChecked(true);
 
     QActionGroup *rendererGroup = new QActionGroup(this);
     rendererGroup->addAction(nativeAction);
