@@ -2415,7 +2415,7 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
         return true;
 
     static bool symbols_init = false;
-    enum { LSQUARE, RSQUARE, LCURLY, RCURLY, LPAREN, RPAREN, DOLLAR, SLASH, UNDERSCORE, DOT };
+    enum { LSQUARE, RSQUARE, LCURLY, RCURLY, LPAREN, RPAREN, DOLLAR, SLASH, UNDERSCORE, DOT, NSYMBOLS };
     static ushort symbols[10];
     if(!symbols_init) {
         symbols_init = true;
@@ -2445,14 +2445,19 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
         unicode = (str_data+i)->unicode();
         const int start_var = i;
         if(unicode == symbols[SLASH]) {
-            if(*(str_data+i+1) == symbols[DOLLAR]) {
-                i++;
-                if(!(replaced++))
-                    ret = str.left(start_var);
-                ret.append(str.at(i));
-            } else if(replaced) {
-                ret.append(QChar(unicode));
+            bool escape = false;
+            for(int s = 0; s < NSYMBOLS; ++s) {
+                if(*(str_data+i+1) == symbols[s]) {
+                    i++;
+                    escape = true;
+                    if(!(replaced++))
+                        ret = str.left(start_var);
+                    ret.append(str.at(i));
+                    break;
+                }
             }
+            if(!escape && replaced)
+                ret.append(QChar(unicode));
             continue;
         }
         if(unicode == symbols[DOLLAR] && str_len > i+2) {
