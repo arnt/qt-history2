@@ -86,7 +86,6 @@
 % old operators
 
 /BSt 0 def                             % brush style
-/LWi 0 def                             % line width
 /WFi false def                 % winding fill
 
 /BCol  [ 1 1 1 ] def                   % brush color
@@ -100,7 +99,6 @@
   0.12 
   0.06 
 ] def
-/defM matrix def
 
 % -- level3 true/false
 /level3 {
@@ -353,20 +351,6 @@
   } ifelse
   definefont pop
 } bind def
-
-% an embedded font. This is used for the base fonts of the composite font used later on.
-/MFEmb {                             % newname encoding fontname
-  findfont dup length dict 
-  begin
-    {
-      1 index /FID ne
-      {def}{pop pop}ifelse
-    } forall
-    /Encoding exch def currentdict 
-  end
-  definefont pop
-} bind def
-
 
 %% start of page
 /QI {

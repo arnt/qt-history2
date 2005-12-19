@@ -344,6 +344,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
       pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::Color),
       fullPage(false), printerState(QPrinter::Idle)
 {
+    postscript = true;
     backgroundMode = Qt::TransparentMode;
 
     firstPage = true;
@@ -712,10 +713,10 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     if (orientation == QPrinter::Portrait) {
         s << "% " << printer->widthMM() << "*" << printer->heightMM()
           << "mm (portrait)\n0 " << height*scale
-          << "translate " << scale << "-" << scale << "scale/defM matrix CM def } def\n";
+          << "translate " << scale << "-" << scale << "scale } def\n";
     } else {
         s << "% " << printer->heightMM() << "*" << printer->widthMM()
-          << " mm (landscape)\n 90 rotate " << scale << "-" << scale << "scale/defM matrix CM def } def\n";
+          << " mm (landscape)\n 90 rotate " << scale << "-" << scale << "scale } def\n";
     }
     s << "%%EndProlog\n";
 

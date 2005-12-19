@@ -1096,6 +1096,7 @@ void QPdfBaseEngine::setPen()
 
 QPdfBaseEnginePrivate::QPdfBaseEnginePrivate()
 {
+    postscript = false;
     currentObject = 1;
     
     currentPage = new QPdfPage;
@@ -1117,18 +1118,23 @@ void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &t
     QFontEngine *fe = ti.fontEngine;
 
     QFontEngine::FaceId face_id = fe->faceId();
+    bool noEmbed = false;
     if (face_id.filename.isEmpty()
-        || (fe->fsType & 0x200) /* bitmap embedding only */
-        || (fe->fsType == 2) /* no embedding allowed */) {
+        || (!postscript && ((fe->fsType & 0x200) /* bitmap embedding only */
+                            || (fe->fsType == 2) /* no embedding allowed */))) {
         *currentPage << "Q\n";
         q->QPaintEngine::drawTextItem(p, ti);
         *currentPage << "q\n";
-        return;
+        if (face_id.filename.isEmpty())
+            return;
+        noEmbed = true;
     }
 
     QFontSubset *font = fonts.value(face_id, 0);
-    if (!font)
+    if (!font) {
         font = new QFontSubset(fe, requestObject());
+        font->noEmbed = noEmbed;
+    }
     fonts.insert(face_id, font);
 
     if (!currentPage->fonts.contains(font->object_id))

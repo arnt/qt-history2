@@ -1142,6 +1142,8 @@ static QTtfGlyph generateGlyph(int index, const QPainterPath &path, qreal advanc
         //qDebug("glyph %d is empty", index);
         lsb = 0;
         glyph.xMin = glyph.xMax = glyph.yMin = glyph.yMax = 0;
+        glyph.numContours = 0;
+        glyph.numPoints = 0;
         return glyph;
     }
 
@@ -1381,6 +1383,11 @@ QByteArray QFontSubset::toTruetype() const
         QPainterPath path;
         glyph_metrics_t metric;
         fontEngine->getUnscaledGlyph(g, &path, &metric);
+        if (noEmbed) {
+            path = QPainterPath();
+            if (g == 0) 
+                path.addRect(QRectF(0, 0, 1000, 1000));
+        }
         QTtfGlyph glyph = generateGlyph(i, path, metric.xoff.toReal(), metric.x.toReal(), properties.emSquare.toReal());
 
         font.head.xMin = qMin(font.head.xMin, glyph.xMin);
@@ -1409,10 +1416,14 @@ QByteArray QFontSubset::toTruetype() const
     // name
     QTtfTable name_table;
     name_table.tag = MAKE_TAG("name");
-    name_table.data = fontEngine->getSfntTable(name_table.tag);
+    if (!noEmbed)
+        name_table.data = fontEngine->getSfntTable(name_table.tag);
     if (name_table.data.isEmpty()) {
         qttf_name_table name;
-        name.copyright = properties.copyright;
+        if (noEmbed) 
+            name.copyright = "Fake font";
+        else
+            name.copyright = properties.copyright;
         name.family = fontEngine->fontDef.family;
         name.subfamily = QLatin1String("Regular"); // ######
         name.postscript_name = properties.postscriptName;
@@ -1420,12 +1431,14 @@ QByteArray QFontSubset::toTruetype() const
     }
     tables.append(name_table);
 
-    QTtfTable os2;
-    os2.tag = MAKE_TAG("OS/2");
-    os2.data = fontEngine->getSfntTable(os2.tag);
-    if (!os2.data.isEmpty())
-        tables.append(os2);
-
+    if (!noEmbed) {
+        QTtfTable os2;
+        os2.tag = MAKE_TAG("OS/2");
+        os2.data = fontEngine->getSfntTable(os2.tag);
+        if (!os2.data.isEmpty())
+            tables.append(os2);
+    }
+    
     return bindFont(tables);
 }
 
@@ -1565,9 +1578,8 @@ QByteArray QFontSubset::toType1() const
 
     QByteArray id = QByteArray::number(object_id);
     s << "/F" << id << "-Base <<\n"
-        // ### fontinfo dict
-        // #### correct name
-        //"/FontName (" << properties.postscriptName << ") def\n"
+        "/FontName (" << properties.postscriptName << ") def\n"
+        "/FontInfo <</FsType " << (int)fontEngine->fsType << ">>\n"
         "/FontType 1\n"
         "/PaintType 0\n"
         "/FontMatrix [.001 0 0 .001 0 0]\n"

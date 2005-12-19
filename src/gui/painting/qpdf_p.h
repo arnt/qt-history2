@@ -153,6 +153,7 @@ public:
     void drawTextItem(const QPointF &p, const QTextItemInt &ti);
     inline uint requestObject() { return currentObject++; }
 
+    bool postscript;
     int currentObject;
 
     QPdfPage* currentPage;

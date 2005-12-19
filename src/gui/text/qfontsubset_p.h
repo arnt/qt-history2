@@ -33,7 +33,7 @@ class QFontSubset
 {
 public:
     QFontSubset(QFontEngine *fe, int obj_id = 0)
-        : object_id(obj_id), fontEngine(fe)
+        : object_id(obj_id), noEmbed(false), fontEngine(fe)
         { fontEngine->ref.ref(); addGlyph(0); }
     ~QFontSubset() {
         if (!fontEngine->ref.deref())
@@ -51,6 +51,7 @@ public:
 
     int addGlyph(int index);
     const int object_id;
+    bool noEmbed;
     QFontEngine *fontEngine;
     QList<int> glyph_indices;
     int nGlyphs() const { return glyph_indices.size(); }
