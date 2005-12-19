@@ -13,7 +13,6 @@
 
 #include <QtGui/qprintengine.h>
 
-#ifndef QT_NO_PRINTER
 #include <qiodevice.h>
 #include <qpainter.h>
 #include <qbitmap.h>
@@ -22,6 +21,7 @@
 #include <qfile.h>
 #include <qdebug.h>
 
+#ifndef QT_NO_PRINTER
 #include <time.h>
 #include <limits.h>
 #include <math.h>
