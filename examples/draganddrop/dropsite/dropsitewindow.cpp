@@ -13,31 +13,32 @@
 
 #include <QtGui>
 
+#include "droparea.h"
 #include "dropsitewindow.h"
 
 DropSiteWindow::DropSiteWindow()
 {
-    abstractLabel = new QLabel(tr("The Drop Site example accepts drops from "
-                                  "other applications, and displays the MIME "
-                                  "formats provided by the drag object."));
+    abstractLabel = new QLabel(tr("This example accepts drags from other "
+                                  "applications and displays the MIME types "
+                                  "provided by the drag object."));
     abstractLabel->setWordWrap(true);
     abstractLabel->adjustSize();
 
-    dropSiteWidget = new DropSiteWidget;
-    connect(dropSiteWidget, SIGNAL(changed(const QMimeData *)),
-            this, SLOT(updateSupportedFormats(const QMimeData *)));
+    dropArea = new DropArea;
+    connect(dropArea, SIGNAL(changed(const QMimeData *)),
+            this, SLOT(updateFormatsTable(const QMimeData *)));
 
-    supportedFormats = new QTableWidget(0, 2);
+    formatsTable = new QTableWidget(0, 2);
     QStringList labels;
     labels << tr("Format") << tr("Content");
-    supportedFormats->setHorizontalHeaderLabels(labels);
-    supportedFormats->horizontalHeader()->setStretchLastSection(true);
+    formatsTable->setHorizontalHeaderLabels(labels);
+    formatsTable->horizontalHeader()->setStretchLastSection(true);
 
     quitButton = new QPushButton(tr("Quit"));
     connect(quitButton, SIGNAL(pressed()), this, SLOT(close()));
 
     clearButton = new QPushButton(tr("Clear"));
-    connect(clearButton, SIGNAL(pressed()), dropSiteWidget, SLOT(clear()));
+    connect(clearButton, SIGNAL(pressed()), dropArea, SLOT(clear()));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch();
@@ -47,8 +48,8 @@ DropSiteWindow::DropSiteWindow()
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(abstractLabel);
-    mainLayout->addWidget(dropSiteWidget);
-    mainLayout->addWidget(supportedFormats);
+    mainLayout->addWidget(dropArea);
+    mainLayout->addWidget(formatsTable);
     mainLayout->addLayout(buttonLayout);
     setLayout(mainLayout);
 
@@ -56,17 +57,16 @@ DropSiteWindow::DropSiteWindow()
     setWindowTitle(tr("Drop Site"));
 }
 
-void DropSiteWindow::updateSupportedFormats(const QMimeData *mimeData)
+void DropSiteWindow::updateFormatsTable(const QMimeData *mimeData)
 {
-    supportedFormats->setRowCount(0);
+    formatsTable->setRowCount(0);
 
     if (!mimeData)
         return;
 
     QStringList formats = mimeData->formats();
 
-    foreach (QString format, formats)
-    {
+    foreach (QString format, formats) {
         QTableWidgetItem *formatItem = new QTableWidgetItem(format);
         formatItem->setFlags(Qt::ItemIsEnabled);
         formatItem->setTextAlignment(Qt::AlignTop);
@@ -77,8 +77,7 @@ void DropSiteWindow::updateSupportedFormats(const QMimeData *mimeData)
         qApp->processEvents();
 
         if (format.startsWith("text/")) {
-            text = dropSiteWidget->extractText(data, format)
-                                  .simplified();
+            text = dropArea->extractText(data, format).simplified();
         } else {
             for (int i = 0; i < data.size() && i < 32; ++i) {
                 QString hex = QString("%1").arg(data[i], 2, 16, QChar('0'))
@@ -90,14 +89,14 @@ void DropSiteWindow::updateSupportedFormats(const QMimeData *mimeData)
         QTableWidgetItem *dataItem = new QTableWidgetItem(text);
         dataItem->setFlags(Qt::ItemIsEnabled);
 
-        int row = supportedFormats->rowCount();
-        supportedFormats->insertRow(row);
-        supportedFormats->setItem(row, 0, formatItem);
-        supportedFormats->setItem(row, 1, dataItem);
+        int row = formatsTable->rowCount();
+        formatsTable->insertRow(row);
+        formatsTable->setItem(row, 0, formatItem);
+        formatsTable->setItem(row, 1, dataItem);
 
         QTableWidgetItem *index = new QTableWidgetItem(tr("%1").arg(row + 1));
-        supportedFormats->setVerticalHeaderItem(row, index);
+        formatsTable->setVerticalHeaderItem(row, index);
     }
 
-    supportedFormats->resizeColumnToContents(0);
+    formatsTable->resizeColumnToContents(0);
 }

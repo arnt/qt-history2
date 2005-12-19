@@ -13,31 +13,31 @@
 
 #include <QtGui>
 
-#include "dropsitewidget.h"
-#include "dropsitewindow.h"
+#include "droparea.h"
 
-DropSiteWidget::DropSiteWidget(QWidget *parent)
+DropArea::DropArea(QWidget *parent)
     : QLabel(parent)
 {
     setMinimumSize(200, 200);
     setFrameStyle(QFrame::Sunken | QFrame::StyledPanel);
     setAcceptDrops(true);
+    setAutoFillBackground(true);
     setBackgroundRole(QPalette::Dark);
 
     setText(tr("<drop content>"));
     setAlignment(Qt::AlignCenter);
 }
 
-void DropSiteWidget::dragEnterEvent(QDragEnterEvent *event)
+void DropArea::dragEnterEvent(QDragEnterEvent *event)
 {
     setText(tr("<drop content>"));
-    setBackgroundRole(QPalette::Light);
+    setBackgroundRole(QPalette::Highlight);
 
     event->acceptProposedAction();
     emit changed(event->mimeData());
 }
 
-void DropSiteWidget::dropEvent(QDropEvent *event)
+void DropArea::dropEvent(QDropEvent *event)
 {
     const QMimeData *mimeData = event->mimeData();
     QStringList formats = mimeData->formats();
@@ -64,13 +64,13 @@ void DropSiteWidget::dropEvent(QDropEvent *event)
     event->acceptProposedAction();
 }
 
-void DropSiteWidget::dragLeaveEvent(QDragLeaveEvent *event)
+void DropArea::dragLeaveEvent(QDragLeaveEvent *event)
 {
     clear();
     event->accept();
 }
 
-void DropSiteWidget::clear()
+void DropArea::clear()
 {
     setText(tr("<drop content>"));
     setBackgroundRole(QPalette::Dark);
@@ -78,7 +78,7 @@ void DropSiteWidget::clear()
     emit changed();
 }
 
-QPixmap DropSiteWidget::extractPixmap(const QByteArray &data,
+QPixmap DropArea::extractPixmap(const QByteArray &data,
                                       const QString &format)
 {
     QList<QByteArray> imageFormats = QImageReader::supportedImageFormats();
@@ -93,8 +93,7 @@ QPixmap DropSiteWidget::extractPixmap(const QByteArray &data,
     return pixmap;
 }
 
-QString DropSiteWidget::extractText(const QByteArray &data,
-                                    const QString &format)
+QString DropArea::extractText(const QByteArray &data, const QString &format)
 {
     QString text;
 

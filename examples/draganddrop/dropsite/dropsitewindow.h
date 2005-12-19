@@ -19,7 +19,6 @@
 class QLabel;
 class QMimeData;
 class QPushButton;
-class QStringList;
 class QTableWidget;
 class DropArea;
 
@@ -31,12 +30,12 @@ public:
     DropSiteWindow();
 
 public slots:
-    void updateSupportedFormats(const QMimeData *mimeData = 0);
+    void updateFormatsTable(const QMimeData *mimeData);
 
 private:
-    DropSiteWidget *dropSiteWidget;
+    DropArea *dropArea;
     QLabel *abstractLabel;
-    QTableWidget *supportedFormats;
+    QTableWidget *formatsTable;
 
     QPushButton *clearButton;
     QPushButton *quitButton;

@@ -25,8 +25,7 @@ class DropArea : public QLabel
 public:
     DropArea(QWidget *parent = 0);
 
-    QPixmap extractPixmap(const QByteArray &data,
-                          const QString &format);
+    QPixmap extractPixmap(const QByteArray &data, const QString &format);
     QString extractText(const QByteArray &data, const QString &format);
 
 public slots:
