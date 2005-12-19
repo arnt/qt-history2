@@ -1462,7 +1462,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
 QPainter::RenderHints
 QCoreGraphicsPaintEngine::supportedRenderHints() const
 {
-    return QPainter::RenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
+    return QPainter::RenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 }
 
 void
@@ -1470,6 +1470,8 @@ QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     Q_D(QCoreGraphicsPaintEngine);
     CGContextSetShouldAntialias(d->hd, hints & QPainter::Antialiasing);
+    CGContextSetInterpolationQuality(d->hd, (hints & QPainter::SmoothPixmapTransform) ?
+                                     kCGInterpolationDefault : kCGInterpolationNone);
     CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
 }
 
