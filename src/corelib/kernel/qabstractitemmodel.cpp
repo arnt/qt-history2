@@ -135,6 +135,8 @@ QPersistentModelIndex::~QPersistentModelIndex()
 /*!
   Returns true if this persistent model index is equal to the \a other
   persistent model index, otherwist returns false.
+  Note that all values in the persistent model index are used when comparing
+  with another persistent model index.
 */
 
 bool QPersistentModelIndex::operator==(const QPersistentModelIndex &other) const
@@ -209,6 +211,8 @@ QPersistentModelIndex::operator const QModelIndex&() const
 
     Returns true if this persistent model index refers to the same location as
     the \a other model index; otherwise returns false.
+    Note that all values in the persistent model index are used when comparing
+    with another model index.
 */
 
 bool QPersistentModelIndex::operator==(const QModelIndex &other) const
@@ -739,6 +743,8 @@ void QAbstractItemModelPrivate::reset()
 
     Returns true if this model index refers to the same location as
     the \a other model index; otherwise returns false.
+    Note that all values in the model index are used when comparing
+    with another model index.
 */
 
 
