@@ -286,11 +286,11 @@ void QTableView::setVerticalHeader(QHeaderView *header)
         d->verticalHeader->setModel(model());
 
     connect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
-            this, SLOT(rowResized(int,int,int)), Qt::QueuedConnection);
+            this, SLOT(rowResized(int,int,int)));
     connect(d->verticalHeader, SIGNAL(sectionMoved(int,int,int)),
-            this, SLOT(rowMoved(int,int,int)), Qt::QueuedConnection);
+            this, SLOT(rowMoved(int,int,int)));
     connect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
-            this, SLOT(rowCountChanged(int,int)), Qt::QueuedConnection);
+            this, SLOT(rowCountChanged(int,int)));
     connect(d->verticalHeader, SIGNAL(sectionPressed(int)), this, SLOT(selectRow(int)));
     connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeRowToContents(int)));
