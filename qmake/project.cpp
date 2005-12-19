@@ -2447,7 +2447,7 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
         if(unicode == symbols[SLASH]) {
             bool escape = false;
             for(int s = 0; s < NSYMBOLS; ++s) {
-                if(*(str_data+i+1) == symbols[s]) {
+                if(s != DOT && *(str_data+i+1) == symbols[s]) {
                     i++;
                     escape = true;
                     if(!(replaced++))
