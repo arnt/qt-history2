@@ -503,6 +503,32 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     return ret;
 }
 
+class QMakeProjectEnv
+{
+    QStringList envs;
+    void init(const QMap<QString, QStringList> &values) {
+#ifdef Q_OS_UNIX
+        for(QMap<QString, QStringList>::ConstIterator it = values.begin(); it != values.end(); ++it) {
+            const QString var = it.key(), val = it.value().join(" ");
+            if(!var.startsWith(".")) {
+                const QString env_var = Option::sysenv_mod + var;
+                if(!setenv(env_var.toAscii().constData(), val.toAscii().constData(), 1))
+                    envs.append(env_var);
+            }
+        }
+#endif
+    }
+public:
+    QMakeProjectEnv(QMakeProject *p) { init(p->variables()); }
+    QMakeProjectEnv(const QMap<QString, QStringList> &variables) { init(variables); }
+    ~QMakeProjectEnv() {
+#ifdef Q_OS_UNIX
+            for(QStringList::ConstIterator it = envs.begin();it != envs.end(); ++it)
+                unsetenv((*it).toAscii().constData());
+#endif
+    }
+};
+
 QMakeProject::~QMakeProject()
 {
     if(own_prop)
@@ -1853,13 +1879,8 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             fprintf(stderr, "%s:%d system(execut) requires one argument.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
         } else {
-#ifdef Q_OS_UNIX
-            for(QMap<QString, QStringList>::ConstIterator it = place.begin();
-                it != place.end(); ++it) {
-                if(!it.key().startsWith("."))
-                    putenv(const_cast<char*>(QString(Option::sysenv_mod + it.key() + '=' + it.value().join(" ")).toAscii().constData()));
-            }
-#endif
+            QMakeProjectEnv env(place);
+
             char buff[256];
             FILE *proc = QT_POPEN(args[0].toLatin1(), "r");
             bool singleLine = true;
@@ -1876,14 +1897,6 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
                 buff[read_in] = '\0';
                 ret += buff;
             }
-#ifdef Q_OS_UNIX
-            for(QMap<QString, QStringList>::ConstIterator it = place.begin();
-                it != place.end(); ++it) {
-                if(!it.key().startsWith("."))
-                    putenv(const_cast<char*>(QString(Option::sysenv_mod
-                                                     + it.key()).toAscii().constData()));
-            }
-#endif
         }
         break; }
     case E_UNIQUE: {
@@ -2125,21 +2138,8 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
                     parser.line_no);
             return false;
         }
-#ifdef Q_OS_UNIX
-        for(QMap<QString, QStringList>::ConstIterator it = place.begin();
-            it != place.end(); ++it) {
-            if(!it.key().startsWith("."))
-                putenv((Option::sysenv_mod + it.key() + '=' + it.value().join(" ")).toAscii().data());
-        }
-#endif
+        QMakeProjectEnv env(place);
         bool ret = system(args.first().toLatin1().constData()) == 0;
-#ifdef Q_OS_UNIX
-        for(QMap<QString, QStringList>::ConstIterator it = place.begin();
-            it != place.end(); ++it) {
-            if(!it.key().startsWith("."))
-                putenv((Option::sysenv_mod + it.key()).toAscii().data());
-        }
-#endif
         return ret;
     } else if(func == "return") {
         if(function_blocks.isEmpty()) {
