@@ -11,18 +11,16 @@
 
     \code
         cd <anywhere>
-        gunzip qt-embedded-commercial-VERSION.tar.gz    # uncompress the archive
-        tar xf qt-embedded-commercial-VERSION.tar       # unpack it
+        gunzip qtopia-core-commercial-src-%VERSION%.tar.gz    # uncompress the archive
+        tar xf qtopia-core-commercial-src-%VERSION%.tar       # unpack it
     \endcode
 
-    Replace \c VERSION with the Qtopia Core version number throughout.
-
-    This document assumes that the archive is installed as \c{~/qt-embedded-commercial-VERSION}.
+    This document assumes that the archive is installed as \c{~/qtopia-core-commercial-src-%VERSION%}.
     \i Compile the Qtopia Core library and examples.
 
     \code
-        cd ~/qt-embedded-commercial-VERSION
-        export QTDIR=~/qt-embedded-commercial-VERSION
+        cd ~/qtopia-core-commercial-src-%VERSION%
+        export QTDIR=~/qtopia-core-commercial-src-%VERSION%
         ./configure
         make
     \endcode
