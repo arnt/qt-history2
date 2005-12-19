@@ -365,6 +365,7 @@ void QScrollBarPrivate::init()
         sp.transpose();
     q->setSizePolicy(sp);
     q->setAttribute(Qt::WA_WState_OwnSizePolicy, false);
+    q->setAttribute(Qt::WA_OpaquePaintEvent);
 }
 
 /*! \reimp */
