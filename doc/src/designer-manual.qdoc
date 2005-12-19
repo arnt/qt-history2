@@ -1949,8 +1949,8 @@ without having to write code themselves.
     \QD widget plugins:
 
     \code
-        target.path = $$[QT_INSTALL_PLUGINS]/designer
-        INSTALLS += target
+    target.path = $$[QT_INSTALL_PLUGINS]/designer
+    INSTALLS += target
     \endcode
 
     The \c $[QT_INSTALL_PLUGINS] variable is a placeholder to the location of the
