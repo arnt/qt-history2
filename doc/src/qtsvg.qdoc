@@ -10,13 +10,13 @@
   files.
 
   Scalable Vector Graphics (SVG) is a language for describing two-dimensional
-  graphics and graphical applications in XML.  SVG 1.1 is a W3C Recommendation
+  graphics and graphical applications in XML. SVG 1.1 is a W3C Recommendation
   and forms the core of the current SVG developments in Qt. SVG 1.2 is the
   specification currently being developed by the \l{SVG Working Group}, and it
-  is \l{http://www.w3.org/TR/SVG12/}{available in draft form}. The SVG Mobile
-  Profiles (SVG Basic and SVG Tiny) are aimed at resource-limited devices and
-  are part of the 3GPP platform for third generation mobile phones. You can read
-  more about SVG at \l{About SVG}.
+  is \l{http://www.w3.org/TR/SVG12/}{available in draft form}.
+  The \l{Mobile SVG Profiles} (SVG Basic and SVG Tiny) are aimed at
+  resource-limited devices and are part of the 3GPP platform for third generation
+  mobile phones. You can read more about SVG at \l{About SVG}.
 
   \tableofcontents
 

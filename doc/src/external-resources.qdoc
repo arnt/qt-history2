@@ -51,6 +51,14 @@
 */
 
 /*!
+    \externalpage http://www.w3.org/TR/SVGMobile/
+    \title Mobile SVG Profiles
+    \omit
+    Mobile SVG Profiles: SVG Tiny and SVG Basic
+    \endomit
+*/
+
+/*!
     \externalpage http://www.trolltech.com/products/qtopia/
     \title Qtopia
 */
