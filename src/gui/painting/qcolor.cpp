@@ -481,7 +481,7 @@ QStringList QColor::colorNames()
     Note that the components can be retrieved individually using the
     hueF(), saturationF(), valueF() and alphaF() functions.
 
-    \sa setHsv() and {QColor#The HSV Color Model}{The HSV Color Model}
+    \sa setHsv() {QColor#The HSV Color Model}{The HSV Color Model}
 */
 void QColor::getHsvF(qreal *h, qreal *s, qreal *v, qreal *a) const
 {
@@ -1482,7 +1482,7 @@ QColor QColor::fromHsv(int h, int s, int v, int a)
 
     All the values must be in the range 0.0-1.0.
 
-    \sa toHsvF(), fromHsv(), isValid(), {QColor#The HSV Color
+    \sa toHsv(), fromHsv(), isValid(), {QColor#The HSV Color
     Model}{The HSV Color Model}
 */
 QColor QColor::fromHsvF(qreal h, qreal s, qreal v, qreal a)
