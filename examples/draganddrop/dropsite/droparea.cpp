@@ -20,12 +20,10 @@ DropArea::DropArea(QWidget *parent)
 {
     setMinimumSize(200, 200);
     setFrameStyle(QFrame::Sunken | QFrame::StyledPanel);
+    setAlignment(Qt::AlignCenter);
     setAcceptDrops(true);
     setAutoFillBackground(true);
-    setBackgroundRole(QPalette::Dark);
-
-    setText(tr("<drop content>"));
-    setAlignment(Qt::AlignCenter);
+    clear();
 }
 
 void DropArea::dragEnterEvent(QDragEnterEvent *event)
