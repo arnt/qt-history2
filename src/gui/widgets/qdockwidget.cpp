@@ -625,7 +625,7 @@ QDockWidget::~QDockWidget()
 QWidget *QDockWidget::widget() const
 {
     Q_D(const QDockWidget);
-    return d->item ? d->item->widget() : 0;
+    return d->widget;
 }
 
 /*!
@@ -636,15 +636,15 @@ QWidget *QDockWidget::widget() const
 void QDockWidget::setWidget(QWidget *widget)
 {
     Q_D(QDockWidget);
-    if (d->item) {
-        d->box->removeItem(d->item);
-        delete d->item;
-        d->item = 0;
-    }
-    if (widget) {
-        d->item = new QDockWidgetItem(widget);
+
+    if (d->widget)
+        d->box->removeWidget(d->widget);
+
+    d->widget = widget;
+
+    if (d->widget) {
         d->box->addChildWidget(widget);
-        d->box->insertItem(1, d->item);
+        d->box->insertItem(1, new QDockWidgetItem(d->widget));
     }
 }
 
@@ -826,6 +826,10 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::MouseButtonRelease:
         d->mouseReleaseEvent(static_cast<QMouseEvent *>(event));
         return true;
+    case QEvent::ChildRemoved:
+        if (d->widget == static_cast<QChildEvent *>(event)->child())
+            d->widget = 0;
+        break;
     default:
         break;
     }
