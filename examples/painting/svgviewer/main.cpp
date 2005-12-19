@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     if (argc == 2)
         window.openFile(argv[1]);
     else
-        window.openFile(":/files/cubic.svg");
+        window.openFile(":/files/bubbles.svg");
     window.show();
     return app.exec();
 }
