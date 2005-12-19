@@ -25,8 +25,9 @@ class DropSiteWidget : public QLabel
 
 public:
     DropSiteWidget(QWidget *parent = 0);
-    QPixmap createPixmap(QByteArray data, QString format);
-    QString createPlainText(QByteArray data, QString format);
+    QPixmap extractPixmap(const QByteArray &data,
+                          const QString &format);
+    QString extractText(const QByteArray &data, const QString &format);
 
 public slots:
     void clear();

@@ -42,21 +42,21 @@ void DropSiteWidget::dropEvent(QDropEvent *event)
     const QMimeData *mimeData = event->mimeData();
     QStringList formats = mimeData->formats();
 
-    foreach (QString format, formats)
-    {
+    foreach (QString format, formats) {
         if (format.startsWith("image/")) {
-            QPixmap pixmap = createPixmap(mimeData->data(format), format);
+            QPixmap pixmap = extractPixmap(mimeData->data(format), format);
             if (!pixmap.isNull()) {
                 setPixmap(pixmap);
                 break;
             }
-        }
-        QString text = createPlainText(mimeData->data(format), format);
-        if (!text.isEmpty()) {
-            setText(text);
-            break;
+        } else if (format.startsWith("text/")) {
+            QString text = extractText(mimeData->data(format), format);
+            if (!text.isEmpty()) {
+                setText(text);
+                break;
+            }
         } else {
-            setText(tr("No supported format"));
+            setText(tr("Cannot display format"));
         }
     }
 
@@ -78,7 +78,8 @@ void DropSiteWidget::clear()
     emit changed();
 }
 
-QPixmap DropSiteWidget::createPixmap(QByteArray data, QString format)
+QPixmap DropSiteWidget::extractPixmap(const QByteArray &data,
+                                      const QString &format)
 {
     QList<QByteArray> imageFormats = QImageReader::supportedImageFormats();
     QPixmap pixmap;
@@ -92,20 +93,18 @@ QPixmap DropSiteWidget::createPixmap(QByteArray data, QString format)
     return pixmap;
 }
 
-QString DropSiteWidget::createPlainText(QByteArray data, QString format)
+QString DropSiteWidget::extractText(const QByteArray &data,
+                                    const QString &format)
 {
-    QString text = "";
+    QString text;
 
-    if (format.startsWith("text/plain")) {
-        text.append(QString(data));
-    } else if (format.startsWith("text/plain;")) {
-        int index = format.indexOf('=');
-        if (index > 0) {
-            QTextCodec *codec = QTextCodec::codecForName(format.mid(index + 1).toAscii());
-            text.append(QString(codec->toUnicode(data)));
-        }
+    int index = format.indexOf("charset=");
+    if (index != -1) {
+        QTextCodec *codec = QTextCodec::codecForName(format.mid(8).toAscii());
+        if (codec)
+            text = codec->toUnicode(data);
+    } else {
+        text = QString::fromUtf8(data);
     }
     return text;
 }
-
-

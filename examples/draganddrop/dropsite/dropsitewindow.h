@@ -22,20 +22,16 @@ class QMimeData;
 class QPushButton;
 class QStringList;
 class QTableWidget;
-class QVBoxLayout;
 
 class DropSiteWindow : public QWidget
 {
     Q_OBJECT
 
 public:
-    DropSiteWindow(QWidget *parent = 0);
+    DropSiteWindow();
 
 public slots:
     void updateSupportedFormats(const QMimeData *mimeData = 0);
-
-protected:
-    void resizeEvent(QResizeEvent *event);
 
 private:
     DropSiteWidget *dropSiteWidget;
@@ -44,7 +40,6 @@ private:
 
     QPushButton *clearButton;
     QPushButton *quitButton;
-    QVBoxLayout *layout;
 };
 
 #endif

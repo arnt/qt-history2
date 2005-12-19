@@ -15,18 +15,17 @@
 
 #include "dropsitewindow.h"
 
-DropSiteWindow::DropSiteWindow(QWidget *parent)
-    : QWidget(parent)
+DropSiteWindow::DropSiteWindow()
 {
-    abstractLabel = new QLabel(tr("The Drop Site example accepts drops from other "
-                                  "applications, and displays the MIME formats "
-                                  "provided by the drag object."));
+    abstractLabel = new QLabel(tr("The Drop Site example accepts drops from "
+                                  "other applications, and displays the MIME "
+                                  "formats provided by the drag object."));
     abstractLabel->setWordWrap(true);
     abstractLabel->adjustSize();
 
     dropSiteWidget = new DropSiteWidget;
-    connect(dropSiteWidget, SIGNAL(changed(const QMimeData*)),
-            this, SLOT(updateSupportedFormats(const QMimeData*)));
+    connect(dropSiteWidget, SIGNAL(changed(const QMimeData *)),
+            this, SLOT(updateSupportedFormats(const QMimeData *)));
 
     supportedFormats = new QTableWidget(0, 2);
     QStringList labels;
@@ -46,21 +45,15 @@ DropSiteWindow::DropSiteWindow(QWidget *parent)
     buttonLayout->addWidget(quitButton);
     buttonLayout->addStretch();
 
-    layout = new QVBoxLayout;
-    layout->addWidget(abstractLabel);
-    layout->addWidget(dropSiteWidget);
-    layout->addWidget(supportedFormats);
-    layout->addLayout(buttonLayout);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(abstractLabel);
+    mainLayout->addWidget(dropSiteWidget);
+    mainLayout->addWidget(supportedFormats);
+    mainLayout->addLayout(buttonLayout);
+    setLayout(mainLayout);
 
-    setLayout(layout);
     setMinimumSize(350, 500);
     setWindowTitle(tr("Drop Site"));
-}
-
-void DropSiteWindow::resizeEvent(QResizeEvent *event)
-{
-    supportedFormats->resizeColumnToContents(0);
-    QWidget::resizeEvent(event);
 }
 
 void DropSiteWindow::updateSupportedFormats(const QMimeData *mimeData)
@@ -79,22 +72,22 @@ void DropSiteWindow::updateSupportedFormats(const QMimeData *mimeData)
         formatItem->setTextAlignment(Qt::AlignTop);
 
         QByteArray data = mimeData->data(format);
-        QTableWidgetItem *dataItem;
+        QString text;
 
-        QString text = dropSiteWidget->createPlainText(data, format);
         qApp->processEvents();
-        if (!text.isEmpty()) {
-            dataItem = new QTableWidgetItem(text);
+
+        if (format.startsWith("text/")) {
+            text = dropSiteWidget->extractText(data, format)
+                                  .simplified();
         } else {
-            QString hexdata = "";
-            foreach (uint byte, data) {
-                if (hexdata.length() < 128) {
-                    QString hex = QString("%1").arg(byte, 2, 16, QLatin1Char('0')).toUpper();
-                    hexdata.append(hex + " ");
-                }
+            for (int i = 0; i < data.size() && i < 32; ++i) {
+                QString hex = QString("%1").arg(data[i], 2, 16, QChar('0'))
+                                           .toUpper();
+                text.append(hex + " ");
             }
-            dataItem = new QTableWidgetItem(hexdata);
         }
+
+        QTableWidgetItem *dataItem = new QTableWidgetItem(text);
         dataItem->setFlags(Qt::ItemIsEnabled);
 
         int row = supportedFormats->rowCount();
