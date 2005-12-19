@@ -38,7 +38,7 @@
 
 static bool parsePathDataFast(const QString &data, QPainterPath &path);
 
-static QPen defaultPen(Qt::black, 1, Qt::SolidLine,
+static QPen defaultPen(Qt::black, 1, Qt::NoPen,
                        Qt::FlatCap, Qt::MiterJoin);
 
 static QString xmlSimplify(const QString &str)
@@ -679,9 +679,6 @@ static void parsePen(QSvgNode *node,
                     return;
                 }
                 pen.setWidthF(widthF);
-                if (miterlimit.isEmpty()) {
-                    pen.setMiterLimit(qreal(pen.miterLimit() * oldWidth)/pen.widthF());
-                }
             }
 
             if (!linejoin.isEmpty()) {
@@ -716,7 +713,7 @@ static void parsePen(QSvgNode *node,
                 pen.setDashPattern(vec);
             }
             if (!miterlimit.isEmpty()) {
-                pen.setMiterLimit(miterlimit.toDouble()/penw);
+                pen.setMiterLimit(miterlimit.toDouble() / 2);
             }
 
             node->appendStyleProperty(new QSvgStrokeStyle(pen), myId);
@@ -2485,7 +2482,7 @@ QSvgHandler::QSvgHandler()
     : m_doc(0), m_style(0), m_defaultCoords(PX)
 {
     if (s_groupFactory.isEmpty()) {
-        defaultPen.setMiterLimit(4);
+        defaultPen.setMiterLimit(2);
         init();
     }
 }
