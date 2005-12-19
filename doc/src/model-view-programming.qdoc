@@ -1800,7 +1800,6 @@
     The result is a list widget which allows the items to be copied around within
     the view, and even lets the user drag items between views containing the same
     type of data. In both situations, the items are copied rather than moved.
-    To move items around
 
     \section1 Using Model/View Classes
 
