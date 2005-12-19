@@ -11,20 +11,20 @@
 **
 ****************************************************************************/
 
-#ifndef DROPSITEWIDGET_H
-#define DROPSITEWIDGET_H
+#ifndef DROPAREA_H
+#define DROPAREA_H
 
 #include <QLabel>
-#include <QMimeData>
 
-class QDropEvent;
+class QMimeData;
 
-class DropSiteWidget : public QLabel
+class DropArea : public QLabel
 {
     Q_OBJECT
 
 public:
-    DropSiteWidget(QWidget *parent = 0);
+    DropArea(QWidget *parent = 0);
+
     QPixmap extractPixmap(const QByteArray &data,
                           const QString &format);
     QString extractText(const QByteArray &data, const QString &format);

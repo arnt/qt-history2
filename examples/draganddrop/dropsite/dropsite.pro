@@ -1,6 +1,6 @@
-HEADERS = dropsitewidget.h \
+HEADERS = droparea.h \
           dropsitewindow.h
-SOURCES = dropsitewidget.cpp \
+SOURCES = droparea.cpp \
           dropsitewindow.cpp \
           main.cpp
 

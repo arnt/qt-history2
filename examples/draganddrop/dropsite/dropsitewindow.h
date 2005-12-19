@@ -15,13 +15,13 @@
 #define DROPSITEWINDOW_H
 
 #include <QWidget>
-#include "dropsitewidget.h"
 
 class QLabel;
 class QMimeData;
 class QPushButton;
 class QStringList;
 class QTableWidget;
+class DropArea;
 
 class DropSiteWindow : public QWidget
 {
