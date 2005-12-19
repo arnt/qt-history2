@@ -90,12 +90,12 @@ struct QGradientBrushData : public QBrushData
 
 /*!
     \class QBrush
+    \ingroup multimedia
+    \ingroup shared
 
     \brief The QBrush class defines the fill pattern of shapes drawn
     by QPainter.
 
-    \ingroup multimedia
-    \ingroup shared
 
     A brush has a style, a color, a gradient and a texture.
 
@@ -802,19 +802,48 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
 
 /*!
     \class QGradient
+    \ingroup multimedia
 
     \brief The QGradient class is used in combination with QBrush to
     specify gradient fills.
 
-    Qt currently supports three types of gradient fills: linear,
-    radial and conical. Each of these is represented by a subclass of
-    QGradient: QLinearGradient, QRadialGradient and QConicalGradient.
+    Qt currently supports three types of gradient fills:
 
-    The colors in a gradient is defined using stop points, which is a
-    position and a color. The set of stop points describes how the
-    gradient area should be filled. A diagonal linear gradient from
-    black at (100, 100) to white at (200, 200) could be specified like
-    this:
+    \list
+    \o \e Linear gradients interpolate colors between start and end points.
+    \o \e Radial gradients interpolate colors between a focal point and end
+        points on a circle surrounding it.
+    \o \e Conical gradients interpolate colors around a center point.
+    \endlist
+
+    A gradient's type can be retrieved using the type() function.
+    Each of the types is represented by a subclass of QGradient:
+
+    \table
+    \row
+    \o \inlineimage qgradient-linear.png
+    \o \inlineimage qgradient-radial.png
+    \o \inlineimage qgradient-conical.png
+    \header
+    \o QLinearGradient
+    \o QRadialGradient
+    \o QConicalGradient
+    \endtable
+
+    The colors in a gradient is defined using stop points of the
+    QGradientStop type, i.e. a position and a color.  Use the
+    setColorAt() function to define a single stop
+    point. Alternatively, use the setStops() function to define
+    several stop points in one go. Note that the latter function \e
+    replaces the current set of stop points.
+
+    It is the gradient's complete set of stop points (accessible
+    through the stops() function) that describes how the gradient area
+    should be filled. If no stop points have been specified, a
+    gradient of black at 0 to white at 1 is used.
+
+    A diagonal linear gradient from black at (100, 100) to white at
+    (200, 200) could be specified like this:
 
     \quotefromfile snippets/brush/brush.cpp
     \skipto LINEAR
@@ -830,11 +859,33 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
     \skipto QRadialGradient
     \printuntil Qt::green
 
-    It is possible to repeat or reflect the gradient outside the area
-    by specifiying spread. The default is to pad the outside area with
-    the color at the closest stop point.
+    It is possible to repeat or reflect the gradient outside its area
+    by specifiying the \l {QGradient::Spread}{spread method} using the
+    setSpread() function. The default is to pad the outside area with
+    the color at the closest stop point. The currently set \l
+    {QGradient::Spread}{spread method} can be retrieved using the
+    spread() function. The QGradient::Spread enum defines three
+    different methods:
 
-    \sa QLinearGradient, QRadialGradient, QConicalGradient
+    \table
+    \row
+    \o \inlineimage qradialgradient-pad.png
+    \o \inlineimage qradialgradient-repeat.png
+    \o \inlineimage qradialgradient-reflect.png
+    \row
+    \o \l {QGradient::PadSpread}{PadSpread}
+    \o \l {QGradient::RepeatSpread}{RepeatSpread}
+    \o \l {QGradient::ReflectSpread}{ReflectSpread}
+    \endtable
+
+    Note that the setSpread() function only has effect for linear and
+    radial gradients. The reason is that the conical gradient is
+    closed by definition, i.e. the \e conical gradient fills the
+    entire circle from 0 - 360 degrees, while the boundary of a radial
+    or a linear gradient can be specified through its radius or final
+    stop points, respectively.
+
+    \sa {demos/gradients}{The Gradients Demo}, QBrush
 */
 
 /*!
@@ -850,34 +901,46 @@ QGradient::QGradient()
 
     Specifies the type of gradient.
 
-    \value LinearGradient The gradient is a linear gradient.
-    \value RadialGradient The gradient is a radial gradient.
-    \value ConicalGradient The gradient is a conical gradient.
+    \value LinearGradient  Interpolates colors between start and end points
+    (QLinearGradient).
+
+    \value RadialGradient Interpolate colors between a focal point and end
+    points on a circle surrounding it (QRadialGradient).
+
+    \value ConicalGradient Interpolate colors around a center point (QConicalGradient).
     \value NoGradient No gradient is used.
+
+    \sa type()
 */
 
 /*!
     \enum QGradient::Spread
 
-    Specifies how the areas outside the gradient area should be
+    Specifies how the area outside the gradient area should be
     filled.
 
-    \value PadSpread The areas are filled with the closes stop
+    \value PadSpread The area is filled with the closest stop
     color. This is the default.
 
-    \value RepeatSpread The gradient repeats outside the gradient
+    \value RepeatSpread The gradient  is repeated outside the gradient
     area.
 
     \value ReflectSpread The gradient is reflected outside the
     gradient area.
+
+    \sa spread(), setSpread()
 */
 
 /*!
     \fn void QGradient::setSpread(Spread method)
 
     Specifies the spread \a method that should be used for this
-    gradient. This function only has effect for linear and
-    radial gradients.
+    gradient.
+
+    Note that this function only has effect for linear and radial
+    gradients.
+
+    \sa spread()
 */
 
 /*!
@@ -885,6 +948,8 @@ QGradient::QGradient()
 
     Returns the spread method use by this gradient. The default is
     PadSpread.
+
+    \sa setSpread()
 */
 
 /*!
@@ -894,8 +959,12 @@ QGradient::QGradient()
 */
 
 /*!
-    Sets another stop point at the relative position \a pos with
-    color \a color. The position \a pos must be in the range 0 to 1.
+    \fn void QGradient::setColorAt(qreal position, const QColor &color)
+
+    Creates a stop point at the given \a position with the given \a
+    color. The given \a position must be in the range 0 to 1.
+
+    \sa setStops(), stops()
 */
 
 void QGradient::setColorAt(qreal pos, const QColor &color)
@@ -911,9 +980,13 @@ void QGradient::setColorAt(qreal pos, const QColor &color)
 }
 
 /*!
-    Replaces the current set of stop points with \a stops. The
-    positions of the stop points must be in the range 0 to 1 and must be
-    sorted with the lowest point first.
+    \fn void QGradient::setStops(const QGradientStops &stopPoints)
+
+    Replaces the current set of stop points with the given \a
+    stopPoints. The positions of the points must be in the range 0 to
+    1, and must be sorted with the lowest point first.
+
+    \sa setColorAt(), stops()
 */
 void QGradient::setStops(const QGradientStops &stops)
 {
@@ -924,10 +997,12 @@ void QGradient::setStops(const QGradientStops &stops)
 
 
 /*!
-    Returns the stops for this gradient.
+    Returns the stop points for this gradient.
 
-    If no stops have been specified a gradient of black at 0 to white
+    If no stop points have been specified, a gradient of black at 0 to white
     at 1 is used.
+
+    \sa setStops(), setColorAt()
 */
 QGradientStops QGradient::stops() const
 {
@@ -981,19 +1056,51 @@ bool QGradient::operator==(const QGradient &gradient)
 
 
 /*!
-    \class QLinearGradient qbrush.h
+    \class QLinearGradient
+    \ingroup multimedia
 
     \brief The QLinearGradient class is used in combination with QBrush to
     specify a linear gradient brush.
 
-    \sa QBrush
+    Linear gradients interpolate colors between start and end
+    points. Outside these points the gradient is either padded,
+    reflected or repeated depending on the currently set \l
+    {QGradient::Spread}{spread} method:
+
+    \table
+    \row
+    \o \inlineimage qlineargradient-pad.png
+    \o \inlineimage qlineargradient-reflect.png
+    \o \inlineimage qlineargradient-repeat.png
+    \row
+    \o \l {QGradient::PadSpread}{PadSpread} (default)
+    \o \l {QGradient::ReflectSpread}{ReflectSpread}
+    \o \l {QGradient::RepeatSpread}{RepeatSpread}
+    \endtable
+
+    The colors in a gradient is defined using stop points of the
+    QGradientStop type, i.e. a position and a color. Use the
+    QGradient::setColorAt() or the QGradient::setStops() function to
+    define the stop points. It is the gradient's complete set of stop
+    points that describes how the gradient area should be filled. If
+    no stop points have been specified, a gradient of black at 0 to
+    white at 1 is used.
+
+    In addition to the functions inherited from QGradient, the
+    QLinearGradient class provides the finalStop() function which
+    returns the final stop point of the gradient, and the start()
+    function returning the start point of the gradient.
+
+    \sa QRadialGradient, QConicalGradient, {demos/gradients}{The
+    Gradients Demo}
 */
 
 
 /*!
-    Constructs a linear gradient with interpolation area between \a
-    start and \a finalStop. The positions \a start and \a finalStop
-    are specified using logical coordinates.
+    Constructs a linear gradient with interpolation area between the
+    given \a start point and \a finalStop.
+
+    \sa QGradient::setColorAt(), QGradient::setStops()
 */
 QLinearGradient::QLinearGradient(const QPointF &start, const QPointF &finalStop)
 {
@@ -1006,11 +1113,12 @@ QLinearGradient::QLinearGradient(const QPointF &start, const QPointF &finalStop)
 }
 
 /*!
-    \overload
+    \fn QLinearGradient::QLinearGradient(qreal x1, qreal y1, qreal x2, qreal y2)
 
-    Constructs a linear gradient with interpolation area between \a
-    xStart, \a yStart and \a xFinalStop, \a yFinalStop. The positions
-    are specified using logical coordinates.
+    Constructs a linear gradient with interpolation area between (\a
+    x1, \a y1) and (\a x2, \a y2).
+
+    \sa QGradient::setColorAt(), QGradient::setStops()
 */
 QLinearGradient::QLinearGradient(qreal xStart, qreal yStart, qreal xFinalStop, qreal yFinalStop)
 {
@@ -1024,8 +1132,9 @@ QLinearGradient::QLinearGradient(qreal xStart, qreal yStart, qreal xFinalStop, q
 
 
 /*!
-    Returns the start point of this linear gradient in logical
-    coordinates.
+    Returns the start point of this linear gradient in logical coordinates.
+
+    \sa QGradient::stops()
 */
 
 QPointF QLinearGradient::start() const
@@ -1036,8 +1145,9 @@ QPointF QLinearGradient::start() const
 
 
 /*!
-    Returns the final stop point of this linear gradient in logical
-    coordinates.
+    Returns the final stop point of this linear gradient in logical coordinates.
+
+    \sa QGradient::stops()
 */
 
 QPointF QLinearGradient::finalStop() const
@@ -1049,10 +1159,42 @@ QPointF QLinearGradient::finalStop() const
 
 /*!
     \class QRadialGradient
+    \ingroup multimedia
+
     \brief The QRadialGradient class is used in combination with QBrush to
     specify a radial gradient brush.
 
-    \sa QBrush
+    Radial gradients interpolate colors between a focal point and end
+    points on a circle surrounding it. Outside the end points the
+    gradient is either padded, reflected or repeated depending on the
+    currently set \l {QGradient::Spread}{spread} method:
+
+    \table
+    \row
+    \o \inlineimage qradialgradient-pad.png
+    \o \inlineimage qradialgradient-reflect.png
+    \o \inlineimage qradialgradient-repeat.png
+    \row
+    \o \l {QGradient::PadSpread}{PadSpread} (default)
+    \o \l {QGradient::ReflectSpread}{ReflectSpread}
+    \o \l {QGradient::RepeatSpread}{RepeatSpread}
+    \endtable
+
+    The colors in a gradient is defined using stop points of the
+    QGradientStop type, i.e. a position and a color. Use the
+    QGradient::setColorAt() or the QGradient::setStops() function to
+    define the stop points. It is the gradient's complete set of stop
+    points that describes how the gradient area should be filled.  If
+    no stop points have been specified, a gradient of black at 0 to
+    white at 1 is used.
+
+    In addition to the functions inherited from QGradient, the
+    QRadialGradient class provides the center(), focalPoint() and
+    radius() functions returning the gradient's center, focal point
+    and radius respectively.
+
+    \sa QLinearGradient, QConicalGradient, {demos/gradients}{The
+    Gradients Demo}
 */
 
 static QPointF qt_radial_gradient_adapt_focal_point(const QPointF &center,
@@ -1069,11 +1211,14 @@ static QPointF qt_radial_gradient_adapt_focal_point(const QPointF &center,
 }
 
 /*!
-    Constructs a radial gradient centered at \a center with radius \a
-    radius.  The \a focalPoint can be used to define the focal point
-    of the gradient inside the circle.
+    Constructs a radial gradient with the given \a center, \a
+    radius and \a focalPoint.
 
-    The default focalPoint is the circle center.
+    The default focalPoint is the circle center. If the \a focalPoint
+    is outside the circle defined by the given \a center and \a
+    radius, it is clamped to the circle's boundary.
+
+    \sa QGradient::setColorAt(), QGradient::setStops()
 */
 
 QRadialGradient::QRadialGradient(const QPointF &center, qreal radius, const QPointF &focalPoint)
@@ -1092,11 +1237,14 @@ QRadialGradient::QRadialGradient(const QPointF &center, qreal radius, const QPoi
 
 
 /*!
-    Constructs a radial gradient centered at \a cx, \a cy with radius
-    \a radius.  The focal point \a fx, \a fy can be used to define the
-    focal point of the gradient inside the circle.
+    Constructs a radial gradient with the given center (\a cx, \a cy),
+    \a radius and focal point (\a fx, \a fy).
 
-    The default focalPoint is the circle center.
+    The default focal point is the circle center. If the focal point
+    is outside the circle defined by the given center and \a radius,
+    it is clamped to the circle's boundary.
+
+    \sa QGradient::setColorAt(), QGradient::setStops()
 */
 
 QRadialGradient::QRadialGradient(qreal cx, qreal cy, qreal radius, qreal fx, qreal fy)
@@ -1118,6 +1266,8 @@ QRadialGradient::QRadialGradient(qreal cx, qreal cy, qreal radius, qreal fx, qre
 
 /*!
     Returns the center of this radial gradient in logical coordinates.
+
+    \sa QGradient::stops()
 */
 
 QPointF QRadialGradient::center() const
@@ -1129,6 +1279,8 @@ QPointF QRadialGradient::center() const
 
 /*!
     Returns the radius of the radial gradient in logical coordinates.
+
+    \sa QGradient::stops()
 */
 
 qreal QRadialGradient::radius() const
@@ -1141,6 +1293,8 @@ qreal QRadialGradient::radius() const
 /*!
     Returns the focal point of this radial gradient in logical
     coordinates.
+
+    \sa QGradient::stops()
 */
 
 QPointF QRadialGradient::focalPoint() const
@@ -1151,18 +1305,47 @@ QPointF QRadialGradient::focalPoint() const
 
 
 /*!
-    \class QConicalGradient qbrush.h
+    \class QConicalGradient
+    \ingroup multimedia
 
     \brief The QConicalGradient class is used in combination with QBrush to
     specify a conical gradient brush.
 
-    \sa QBrush
+    Conical gradients interpolate interpolate colors counter-clockwise
+    around a center point.
+
+    \image qconicalgradient
+
+    The colors in a gradient is defined using stop points of the
+    QGradientStop type, i.e. a position and a color. Use the
+    QGradient::setColorAt() or the QGradient::setStops() function to
+    define the stop points. It is the gradient's complete set of stop
+    points that describes how the gradient area should be filled. If
+    no stop points have been specified, a gradient of black at 0 to
+    white at 1 is used.
+
+    In addition to the functions inherited from QGradient, the
+    QConicalGradient class provides the angle() and center() functions
+    returning the start angle and center of the gradient.
+
+    Note that the setSpread() function has no effect for conical
+    gradients. The reason is that the conical gradient is closed by
+    definition, i.e. the conical gradient fills the entire circle from
+    0 - 360 degrees, while the boundary of a radial or a linear
+    gradient can be specified through its radius or final stop points,
+    respectively.
+
+    \sa QLinearGradient, QRadialGradient, {demos/gradients}{The
+    Gradients Demo}
 */
 
 
 /*!
-    Constructs a conical centered at \a center and starting at
-    \a angle. The angle is specified in degrees between 0 and 360.
+    Constructs a conical with the given \a center, starting the
+    interpolation at the given \a angle. The \a angle must be specified in
+    degrees between 0 and 360.
+
+    \sa setColorAt(), setStops()
 */
 
 QConicalGradient::QConicalGradient(const QPointF &center, qreal angle)
@@ -1176,8 +1359,11 @@ QConicalGradient::QConicalGradient(const QPointF &center, qreal angle)
 
 
 /*!
-    Constructs a conical centered at \a cx, \a cy and starting at
-    \a angle. The angle is specified in degrees between 0 and 360.
+    Constructs a conical with the given center (\a cx, \a cy),
+    starting the interpolation at the given \a angle. The angle must
+    be specified in degrees between 0 and 360.
+
+    \sa setColorAt(), setStops()
 */
 
 QConicalGradient::QConicalGradient(qreal cx, qreal cy, qreal angle)
@@ -1192,6 +1378,8 @@ QConicalGradient::QConicalGradient(qreal cx, qreal cy, qreal angle)
 
 /*!
     Returns the center of the conical gradient in logical coordinates
+
+    \sa stops()
 */
 
 QPointF QConicalGradient::center() const
@@ -1203,6 +1391,8 @@ QPointF QConicalGradient::center() const
 
 /*!
     Returns the start angle of the conical gradient in logical coordinates
+
+    \sa stops()
 */
 
 qreal QConicalGradient::angle() const
@@ -1215,7 +1405,7 @@ qreal QConicalGradient::angle() const
     \typedef QGradientStop
     \relates QGradient
 
-    Typedef for QPair<qreal, QColor>.
+    Typedef for QPair<\l qreal, QColor>.
 */
 
 /*!
