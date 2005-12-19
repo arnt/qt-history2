@@ -777,6 +777,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     setDirty(QPaintEngine::DirtyPen);
     setDirty(QPaintEngine::DirtyBrush);
     setDirty(QPaintEngine::DirtyBackground);
+    setDirty(QPaintEngine::DirtyCompositionMode);
 
     return true;
 }
