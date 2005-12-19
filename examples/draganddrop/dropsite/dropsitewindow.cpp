@@ -28,9 +28,12 @@ DropSiteWindow::DropSiteWindow()
     connect(dropArea, SIGNAL(changed(const QMimeData *)),
             this, SLOT(updateFormatsTable(const QMimeData *)));
 
-    formatsTable = new QTableWidget(0, 2);
     QStringList labels;
     labels << tr("Format") << tr("Content");
+
+    formatsTable = new QTableWidget;
+    formatsTable->setColumnCount(2);
+    formatsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     formatsTable->setHorizontalHeaderLabels(labels);
     formatsTable->horizontalHeader()->setStretchLastSection(true);
 
@@ -60,17 +63,10 @@ DropSiteWindow::DropSiteWindow()
 void DropSiteWindow::updateFormatsTable(const QMimeData *mimeData)
 {
     formatsTable->setRowCount(0);
-
     if (!mimeData)
         return;
 
-    QStringList formats = mimeData->formats();
-
-    foreach (QString format, formats) {
-        QTableWidgetItem *formatItem = new QTableWidgetItem(format);
-        formatItem->setFlags(Qt::ItemIsEnabled);
-        formatItem->setTextAlignment(Qt::AlignTop);
-
+    foreach (QString format, mimeData->formats()) {
         QByteArray data = mimeData->data(format);
         QString text;
 
@@ -80,19 +76,17 @@ void DropSiteWindow::updateFormatsTable(const QMimeData *mimeData)
             text = dropArea->extractText(data, format).simplified();
         } else {
             for (int i = 0; i < data.size() && i < 32; ++i) {
-                QString hex = QString("%1").arg(data[i], 2, 16, QChar('0'))
+                QString hex = QString("%1").arg(uchar(data[i]), 2, 16,
+                                                QChar('0'))
                                            .toUpper();
                 text.append(hex + " ");
             }
         }
 
-        QTableWidgetItem *dataItem = new QTableWidgetItem(text);
-        dataItem->setFlags(Qt::ItemIsEnabled);
-
         int row = formatsTable->rowCount();
         formatsTable->insertRow(row);
-        formatsTable->setItem(row, 0, formatItem);
-        formatsTable->setItem(row, 1, dataItem);
+        formatsTable->setItem(row, 0, new QTableWidgetItem(format));
+        formatsTable->setItem(row, 1, new QTableWidgetItem(text));
 
         QTableWidgetItem *index = new QTableWidgetItem(tr("%1").arg(row + 1));
         formatsTable->setVerticalHeaderItem(row, index);
