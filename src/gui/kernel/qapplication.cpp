@@ -2176,8 +2176,8 @@ bool QApplicationPrivate::tryModalHelper(QWidget *widget, QWidget **rettop)
     if (rettop)
         *rettop = top;
 
-    widget = widget->window();
-    if (qApp->activePopupWidget() == widget)
+    // the active popup widget always gets the input event
+    if (qApp->activePopupWidget())
         return true;
 
 #ifdef Q_WS_MAC
@@ -2186,7 +2186,7 @@ bool QApplicationPrivate::tryModalHelper(QWidget *widget, QWidget **rettop)
         *rettop = top;
 #endif
 
-    return !isBlockedByModal(widget);
+    return !isBlockedByModal(widget->window());
 }
 
 
