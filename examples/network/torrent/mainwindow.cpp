@@ -604,7 +604,7 @@ void MainWindow::about()
 
     QDialog about(this);
     about.setModal(true);
-    about.setWindowTitle("About Torrent Client");
+    about.setWindowTitle(tr("About Torrent Client"));
     about.setLayout(mainLayout);
 
     connect(quitButton, SIGNAL(clicked()), &about, SLOT(close()));
