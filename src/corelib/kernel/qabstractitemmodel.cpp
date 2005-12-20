@@ -1002,7 +1002,7 @@ QAbstractItemModel::~QAbstractItemModel()
     uses it to retrieve the index of the child item in the specified \a row
     and \a column.
 
-    \sa row(), column(), index()
+    \sa index(), QModelIndex::row(), QModelIndex::column()
 */
 
 

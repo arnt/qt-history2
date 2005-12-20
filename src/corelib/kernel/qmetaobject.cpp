@@ -1732,7 +1732,12 @@ bool QMetaProperty::reset(QObject *object) const
     return true;
 }
 
+/*!
+    Returns true if this property can be reset to a default value; otherwise
+    returns false.
 
+    \sa reset()
+*/
 bool QMetaProperty::isResettable() const
 {
     if (!mobj)
