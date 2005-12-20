@@ -105,15 +105,6 @@ void recursiveFileInfoList(const QDir &dir, const QStringList &nameFilters, QDir
     }
 }
 
-QString relativePath(const QString &absolutePath, const QString &currentPath)
-{
-    QString cur = currentPath.isNull() ? QDir::currentPath() : currentPath;
-    QString ret = absolutePath;
-    ret.remove(currentPath, Qt::CaseInsensitive);
-    if (ret.startsWith(QChar('\\')) || ret.startsWith(QChar('/'))) ret.remove(0,1);
-    return ret;
-}
-
 int main( int argc, char **argv )
 {
     QString defaultContext = "@default";
@@ -280,7 +271,7 @@ int main( int argc, char **argv )
                     QFileInfoList::iterator ii;
                     QByteArray fn;
                     for (ii = fileinfolist.begin(); ii != fileinfolist.end(); ++ii) {
-                        fn = relativePath(ii->filePath(), oldDir).toLatin1();
+                        fn = ii->filePath().toLatin1();
 #ifdef LINGUIST_DEBUG
                         fprintf(stderr, "%s\n", fn.data());
 #endif
@@ -292,11 +283,11 @@ int main( int argc, char **argv )
                     }
                 }else{
                     if ( QString(argv[i]).toLower().endsWith(".ui") ) {
-                        fetchtr_ui( fi.fileName().toAscii(), &fetchedTor, defaultContext.toAscii(), true );
-                        fetchtr_cpp( fi.fileName().toAscii() + ".h", &fetchedTor,
+                        fetchtr_ui( fi.filePath().toAscii(), &fetchedTor, defaultContext.toAscii(), true );
+                        fetchtr_cpp( fi.filePath().toAscii() + ".h", &fetchedTor,
                                      defaultContext.toAscii(), false, codecForSource );
                     } else {
-                        fetchtr_cpp( fi.fileName().toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
+                        fetchtr_cpp( fi.filePath().toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
                     }
                 }
             }
