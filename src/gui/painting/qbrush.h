@@ -192,8 +192,11 @@ public:
 class Q_GUI_EXPORT QRadialGradient : public QGradient
 {
 public:
-    QRadialGradient(const QPointF &center, qreal radius, const QPointF &focalPoint = QPointF());
-    QRadialGradient(qreal cx, qreal cy, qreal radius, qreal fx=0, qreal fy=0);
+    QRadialGradient(const QPointF &center, qreal radius, const QPointF &focalPoint);
+    QRadialGradient(qreal cx, qreal cy, qreal radius, qreal fx, qreal fy);
+
+    QRadialGradient(const QPointF &center, qreal radius);
+    QRadialGradient(qreal cx, qreal cy, qreal radius);
 
     QPointF center() const;
     QPointF focalPoint() const;

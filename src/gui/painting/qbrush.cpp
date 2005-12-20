@@ -1214,10 +1214,6 @@ static QPointF qt_radial_gradient_adapt_focal_point(const QPointF &center,
     Constructs a radial gradient with the given \a center, \a
     radius and \a focalPoint.
 
-    The default focalPoint is the circle center. If the \a focalPoint
-    is outside the circle defined by the given \a center and \a
-    radius, it is clamped to the circle's boundary.
-
     \sa QGradient::setColorAt(), QGradient::setStops()
 */
 
@@ -1234,15 +1230,27 @@ QRadialGradient::QRadialGradient(const QPointF &center, qreal radius, const QPoi
     m_data.radial.fy = adapted_focal.y();
 }
 
+/*!
+    Constructs a radial gradient with the given \a center, \a
+    radius and the focal point in the circle center.
+
+    \sa QGradient::setColorAt(), QGradient::setStops()
+*/
+QRadialGradient::QRadialGradient(const QPointF &center, qreal radius)
+{
+    m_type = RadialGradient;
+    m_spread = PadSpread;
+    m_data.radial.cx = center.x();
+    m_data.radial.cy = center.y();
+    m_data.radial.radius = radius;
+    m_data.radial.fx = center.x();
+    m_data.radial.fy = center.y();
+}
 
 
 /*!
     Constructs a radial gradient with the given center (\a cx, \a cy),
     \a radius and focal point (\a fx, \a fy).
-
-    The default focal point is the circle center. If the focal point
-    is outside the circle defined by the given center and \a radius,
-    it is clamped to the circle's boundary.
 
     \sa QGradient::setColorAt(), QGradient::setStops()
 */
@@ -1261,6 +1269,23 @@ QRadialGradient::QRadialGradient(qreal cx, qreal cy, qreal radius, qreal fx, qre
 
     m_data.radial.fx = adapted_focal.x();
     m_data.radial.fy = adapted_focal.y();
+}
+
+/*!
+    Constructs a radial gradient with the given \a center, \a
+    radius and the focal point in the circle center.
+
+     \sa QGradient::setColorAt(), QGradient::setStops()
+ */
+QRadialGradient::QRadialGradient(qreal cx, qreal cy, qreal radius)
+{
+    m_type = RadialGradient;
+    m_spread = PadSpread;
+    m_data.radial.cx = cx;
+    m_data.radial.cy = cy;
+    m_data.radial.radius = radius;
+    m_data.radial.fx = cx;
+    m_data.radial.fy = cy;
 }
 
 
