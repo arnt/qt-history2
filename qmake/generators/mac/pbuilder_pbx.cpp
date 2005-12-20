@@ -728,7 +728,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     if(!project->isActiveConfig("staticlib")) { //DUMP LIBRARIES
         QStringList &libdirs = project->variables()["QMAKE_PBX_LIBPATHS"];
-        QString libs[] = { "QMAKE_LFLAGS", "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString() };
+        QString libs[] = { "QMAKE_LFLAGS", "QMAKE_LIBDIR_FLAGS", "QMAKE_FRAMEWORKDIR_FLAGS", "QMAKE_LIBS", QString() };
         for(int i = 0; !libs[i].isNull(); i++) {
             tmp = project->variables()[libs[i]];
             for(int x = 0; x < tmp.count();) {
@@ -1114,7 +1114,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "buildSettings = {" << "\n"
       << "\t\t\t\t" << "CC = \"" << fixListForOutput("QMAKE_CC") << "\";" << "\n"
       << "\t\t\t\t" << "CPLUSPLUS = \"" << fixListForOutput("QMAKE_CXX") << "\";" << "\n"
-      << "\t\t\t\t" << "FRAMEWORK_SEARCH_PATHS = \"\";" << "\n"
       << "\t\t\t\t" << "HEADER_SEARCH_PATHS = \"" << fixListForOutput("INCLUDEPATH") << " " << fixForOutput(specdir()) << "\";" << "\n"
       << "\t\t\t\t" << "LIBRARY_SEARCH_PATHS = \"" << var("QMAKE_PBX_LIBPATHS") << "\";" << "\n"
       << "\t\t\t\t" << "OPTIMIZATION_CFLAGS = \"\";" << "\n"
@@ -1195,7 +1194,14 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
               << project->first("VER_MIN")  << "\";" << "\n";
         if(project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
            project->isActiveConfig("lib_bundle"))
-            t << "FRAMEWORK_VERSION = \"" << project->first("QMAKE_FRAMEWORK_VERSION") << "\";" << "\n";
+            t << "\t\t\t\t" << "FRAMEWORK_VERSION = \"" << project->first("QMAKE_FRAMEWORK_VERSION") << "\";" << "\n";
+    }
+    if(!project->isEmpty("QMAKE_FRAMEWORKDIR")) {
+        t << "\t\t\t\t" << "FRAMEWORK_SEARCH_PATHS = (" << "\n";
+        const QStringList &fwdirs = project->values("QMAKE_FRAMEWORKDIR");
+        for(QStringList::ConstIterator it = fwdirs.begin(); it != fwdirs.end(); ++it)
+            t << "\t\t\t\t\t" << (*it) << "," << "\n";
+        t << "\t\t\t\t" << ");" << "\n";
     }
     if(!project->isEmpty("COMPAT_VERSION"))
         t << "\t\t\t\t" << "DYLIB_COMPATIBILITY_VERSION = \"" << project->first("COMPAT_VERSION") << "\";" << "\n";

@@ -92,8 +92,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "DEFINES       = "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
       << varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CFLAGS        = " << var("QMAKE_CFLAGS") << " $(DEFINES)" << endl;
-    t << "CXXFLAGS      = " << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
+    t << "CFLAGS        = " << var("QMAKE_CFLAGS") << " " << var("QMAKE_FRAMEWORKDIR_FLAGS") << " $(DEFINES)" << endl;
+    t << "CXXFLAGS      = " << var("QMAKE_CXXFLAGS") << " " << var("QMAKE_FRAMEWORKDIR_FLAGS") << " $(DEFINES)" << endl;
     t << "LEXFLAGS      = " << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS     = " << var("QMAKE_YACCFLAGS") << endl;
     t << "INCPATH       = " << "-I" << specdir();
@@ -108,7 +108,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isActiveConfig("staticlib")) {
         t << "LINK          = " << var("QMAKE_LINK") << endl;
         t << "LFLAGS        = " << var("QMAKE_LFLAGS") << endl;
-        t << "LIBS          = " << "$(SUBLIBS) " << var("QMAKE_LIBDIR_FLAGS") << " " << var("QMAKE_LIBS") << endl;
+        t << "LIBS          = " << "$(SUBLIBS) " << var("QMAKE_FRAMEWORKDIR_FLAGS") << " "
+          << var("QMAKE_LIBDIR_FLAGS") << " " << var("QMAKE_LIBS") << endl;
     }
 
     t << "AR            = " << var("QMAKE_AR") << endl;
