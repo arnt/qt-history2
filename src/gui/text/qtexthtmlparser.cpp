@@ -719,7 +719,10 @@ void QTextHtmlParser::parseTag()
     // handle comments and other exclamation mark declarations
     if (hasPrefix(QLatin1Char('!'))) {
         parseExclamationTag();
-        eatSpace();
+        if (nodes.last().wsm != QTextHtmlParserNode::WhiteSpacePre
+            && nodes.last().wsm != QTextHtmlParserNode::WhiteSpacePreWrap
+            && !textEditMode)
+            eatSpace();
         return;
     }
 
