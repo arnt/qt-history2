@@ -1278,17 +1278,17 @@ void QHeaderView::currentChanged(const QModelIndex &current, const QModelIndex &
     Q_D(QHeaderView);
 
     if (d->orientation == Qt::Horizontal && current.column() != old.column()) {
-        if (old.isValid())
+        if (old.isValid() && old.parent() == rootIndex())
             d->setDirtyRegion(QRect(sectionViewportPosition(old.column()), 0,
                                     sectionSize(old.column()), d->viewport->height()));
-        if (current.isValid())
+        if (current.isValid() && current.parent() == rootIndex())
             d->setDirtyRegion(QRect(sectionViewportPosition(current.column()), 0,
                                     sectionSize(current.column()), d->viewport->height()));
     } else if (d->orientation == Qt::Vertical && current.row() != old.row()) {
-        if (old.isValid())
+        if (old.isValid() && old.parent() == rootIndex())
             d->setDirtyRegion(QRect(0, sectionViewportPosition(old.row()),
                                     d->viewport->width(), sectionSize(old.row())));
-        if (current.isValid())
+        if (current.isValid() && current.parent() == rootIndex())
             d->setDirtyRegion(QRect(0, sectionViewportPosition(current.row()),
                                     d->viewport->width(), sectionSize(current.row())));
     }
