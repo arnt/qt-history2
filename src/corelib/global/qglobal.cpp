@@ -1005,6 +1005,42 @@ bool qSharedBuild()
 */
 
 /*!
+    \macro Q_WS_MAC
+    \relates <QtGlobal>
+
+    Defined on Mac OS X.
+
+    \sa Q_WS_WIN, Q_WS_X11, Q_WS_QWS
+*/
+
+/*!
+    \macro Q_WS_WIN
+    \relates <QtGlobal>
+
+    Defined on Windows.
+
+    \sa Q_WS_MAC, Q_WS_X11, Q_WS_QWS
+*/
+
+/*!
+    \macro Q_WS_X11
+    \relates <QtGlobal>
+
+    Defined on X11.
+
+    \sa Q_WS_MAC, Q_WS_WIN, Q_WS_QWS
+*/
+
+/*!
+    \macro Q_WS_QWS
+    \relates <QtGlobal>
+
+    Defined on Qtopia Core.
+
+    \sa Q_WS_MAC, Q_WS_WIN, Q_WS_X11
+*/
+
+/*!
     \macro Q_OS_DARWIN
     \relates <QtGlobal>
 
