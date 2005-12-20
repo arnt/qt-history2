@@ -214,6 +214,7 @@ class QDirModelPrivate : public QAbstractItemModelPrivate
 public:
     struct QDirNode
     {
+        QDirNode() : parent(0), populated(false) {}
         ~QDirNode() { children.clear(); }
         QDirNode *parent;
         QFileInfo info;
