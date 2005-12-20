@@ -387,7 +387,7 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
             QWSServerPrivate::sendQCopEvent(cl, "", ans, data, true);
             return;
         } else if (msg == "detach()") {
-            QByteArray c;
+            QString c;
             QDataStream s(data);
             s >> c;
             Q_ASSERT(qcopServerMap);
