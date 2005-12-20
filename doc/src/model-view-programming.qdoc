@@ -199,7 +199,6 @@
     \o \l{itemviews/simpletreemodel}{Simple Tree Model}
     \o \l{itemviews/chart}{Chart}
     \endlist
-
 */
 
 /*!
@@ -273,12 +272,11 @@
     In the above example, we neglected to mention how to handle selections
     of items. This subject is covered in more detail in the chapter on
     \l{Handling Selections in Item Views}. Before examining how selections
-    are handled, you may find it useful to read the
-    \l{Model Classes}{next chapter} and the concepts used in the model/view
-    framework.
-    */
+    are handled, you may find it useful to read the \l{Model Classes} chapter
+    which describes the concepts used in the model/view framework.
+*/
 
-    /*!
+/*!
     \page model-view-model.html
     \contentspage model-view-programming.html Contents
     \previouspage Using Models and Views
@@ -541,9 +539,9 @@
     \section1 Further Reading
 
     New models can be created by implementing the standard interface provided
-    by QAbstractItemModel. In the \l{Creating New Models}{next chapter}, we
-    will demonstrate this by creating a convenient ready-to-use model for
-    holding lists of strings.
+    by QAbstractItemModel. In the \l{Creating New Models} chapter, we will
+    demonstrate this by creating a convenient ready-to-use model for holding
+    lists of strings.
 */
 
 /*!
@@ -918,10 +916,9 @@
     Delegates do not have to emit these hints, but those that do not will
     be less integrated into applications, and will be less usable than
     those that emit hints to support common editing actions.
+*/
 
-    */
-
-    /*!
+/*!
     \page model-view-selection.html
     \contentspage model-view-programming.html Contents
     \previouspage View Classes
@@ -1191,7 +1188,6 @@
     \l{QAbstractItemModel::hasChildren()}{hasChildren()} function is used to
     determine whether any given item is the parent of another level of
     items.
-
 */
 
 /*!
@@ -1466,12 +1462,12 @@
 
     \section1 Next Steps
 
-    We can display the data provided by this model using the \l QListView
-    class to present the model's items in the form of a vertical list. For
-    the string list model, this view also provides a default editor so that
-    the items can be manipulated. We examine the possibilities made
-    available by the standard view classes in the chapter on
-    \l{View Classes}.
+    We can display the data provided by this model, or any other model, using
+    the \l QListView class to present the model's items in the form of a vertical
+    list.
+    For the string list model, this view also provides a default editor so that
+    the items can be manipulated. We examine the possibilities made available by
+    the standard view classes in the chapter on \l{View Classes}.
 */
 
 /*!
@@ -2042,4 +2038,85 @@
     source model. To provide custom sorting behavior, reimplement the
     \l{QSortFilterProxyModel::lessThan()}{lessThan()} function to perform custom
     comparisons.
+*/
+
+/*!
+    \page model-view-model-subclasses.html
+
+    \title Model Subclasses
+
+    \tableofcontents
+
+    \section1 Introduction
+
+    Model subclasses need to provide implementations of many of the virtual functions
+    defined in the QAbstractItemModel base class. The number of these functions that need
+    to be implemented depends on the type of the model - whether it supplies views with
+    a simple list, a table, or a complex hierarchy of items. Models that inherit from
+    QAbstractListModel and QAbstractTableModel can take advantage of the default
+    implementations of functions provided by those classes. Models that expose items
+    of data in tree-like structures must provide implementations for many of the
+    virtual functions in QAbstractItemModel.
+
+    The functions that a model author needs to implement can be divided into three
+    groups:
+
+    \list
+    \o \bold{Item data handling:} All models need to implement functions to enable views and
+       delegates to query the dimensions of the model, examine items, and retrieve data.
+    \o \bold{Navigation and index creation:} Hierarchical models need to provide functions
+       that views can call to navigate the tree-like structures they expose, and obtain
+       model indexes for items.
+    \o \bold{Drag and drop support and MIME type handling:} Models inherit functions that
+       control the way internal and external drag and drop operations are performed. These
+       include functions to describe item data in terms of MIME types that other components
+       and applications can understand.
+    \endlist
+
+    These are described in detail in the following sections.
+
+
+    \section1 Item Data Handling
+
+    Models can provide varying levels of access to the data they provide: They can be
+    simple read-only components, some models may support resizing operations, and
+    others may allow items to be edited.
+
+    \list
+    \o \bold{Item data handling:} All models need to implement functions to enable views and
+       delegates to query the dimensions of the model, examine items, and retrieve data.
+       \list
+       \o To provide read-only access to list and table models, the QAbstractItemModel::flags(),
+          QAbstractItemModel::data(), QAbstractItemModel::headerData(), and
+          QAbstractItemModel::rowCount() functions must be implemented. Table models and
+          hierarchical models also need to provide a QAbstractItemModel::columnCount()
+          implementation.
+       \o Editable models must ensure that the QAbstractItemModel::flags() implementation
+          returns an appropriate set of flags for items, and provide
+          QAbstractItemModel::setData() and QAbstractItemModel::setHeaderData() functions.
+       \o To enable the dimensions of a model to be changed, the
+          QAbstractItemModel::insertRows() and QAbstractItemModel::removeRows() functions
+          must be implemented. Table models and hierarchical models also need to provide
+          QAbstractItemModel::insertColumns() and QAbstractItemModel::removeColumns()
+          implementations.
+       \endlist
+    \o \bold{Navigation and index creation:} Hierarchical models need to provide functions
+       that views can call to navigate the tree-like structures they expose, and obtain
+       model indexes for items.
+       \list
+       \o Since the structure exposed to views is determined by the underlying data
+          structure, it is up to each model subclass to create its own model indexes
+          by providing an implementation of QAbstractItemModel::index(). Given a
+          model index for a parent item, this function allows view and delegates to
+          access children of that item.
+       \o Hierarchical models must also provide an implementation of the
+          QAbstractItemModel::parent() function to enable views to access the parent
+          item of any given child.
+       \o Both these functions use the QAbstractItemModel::createIndex() factory
+          function to generate indexes for other components to use. It is normal for
+          models to supply some unique identifier to this function to ensure that
+          the model index can be re-associated with its corresponding item later on.
+       \endlist
+    \o \bold{Drag and drop support and MIME data handling:} 
+    \endlist
 */
