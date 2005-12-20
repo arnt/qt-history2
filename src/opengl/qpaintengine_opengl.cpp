@@ -1194,15 +1194,28 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
         if (d->has_pen) {
             d->setGradientOps(d->pen_brush_style);
             glColor4ubv(d->pen_color);
-            d->beginPath(QPaintEngine::WindingMode);
-            d->stroker->begin(d);
-            d->stroker->moveTo(qt_real_to_fixed(left), qt_real_to_fixed(top));
-            d->stroker->lineTo(qt_real_to_fixed(right), qt_real_to_fixed(top));
-            d->stroker->lineTo(qt_real_to_fixed(right), qt_real_to_fixed(bottom));
-            d->stroker->lineTo(qt_real_to_fixed(left), qt_real_to_fixed(bottom));
-            d->stroker->lineTo(qt_real_to_fixed(left), qt_real_to_fixed(top));
-            d->stroker->end();
-            d->endPath();
+            if (d->has_fast_pen) {
+                glColor4ubv(d->pen_color);
+                glBegin(GL_LINE_STRIP);
+                {
+                    glVertex2d(left, top);
+                    glVertex2d(right, top);
+                    glVertex2d(right, bottom);
+                    glVertex2d(left, bottom);
+                    glVertex2d(left, top);
+                }
+                glEnd();
+            } else {
+                d->beginPath(QPaintEngine::WindingMode);
+                d->stroker->begin(d);
+                d->stroker->moveTo(qt_real_to_fixed(left), qt_real_to_fixed(top));
+                d->stroker->lineTo(qt_real_to_fixed(right), qt_real_to_fixed(top));
+                d->stroker->lineTo(qt_real_to_fixed(right), qt_real_to_fixed(bottom));
+                d->stroker->lineTo(qt_real_to_fixed(left), qt_real_to_fixed(bottom));
+                d->stroker->lineTo(qt_real_to_fixed(left), qt_real_to_fixed(top));
+                d->stroker->end();
+                d->endPath();
+            }
         }
     }
 }
