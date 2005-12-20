@@ -371,6 +371,8 @@ bool QTreeView::isRowHidden(int row, const QModelIndex &parent) const
 void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
 {
     Q_D(QTreeView);
+    if (!model())
+        return;
     QModelIndex index = model()->index(row, 0, parent);
     if (!index.isValid())
         return;
