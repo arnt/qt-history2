@@ -1391,7 +1391,18 @@ void QDirModelPrivate::appendChild(QDirModelPrivate::QDirNode *parent, const QSt
     node.parent = (parent == &root ? 0 : parent);
     node.info = QFileInfo(path);
     node.info.setCaching(true);
+
+    // The following append(node) may reallocate the vector, thus
+    // we need to update the pointers to the childnodes parent.
+    QDirModelPrivate *that = const_cast<QDirModelPrivate *>(this);
+    that->savePersistentIndexes();
     parent->children.append(node);
+    for (int i = 0; i < parent->children.count(); ++i) {
+        QDirNode *childNode = &parent->children[i];
+        for (int j = 0; j < childNode->children.count(); ++j)
+            childNode->children[j].parent = childNode;
+    }
+    that->restorePersistentIndexes();
 }
 
 QFileInfo QDirModelPrivate::resolvedInfo(QFileInfo info)
