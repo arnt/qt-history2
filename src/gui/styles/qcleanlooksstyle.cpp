@@ -1878,7 +1878,7 @@ QPalette QCleanLooksStyle::standardPalette () const
     QColor button = backGround;
     palette.setBrush(QPalette::Button, button);
 
-    QColor shadow = dark.dark(140);
+    QColor shadow = dark.dark(135);
     palette.setBrush(QPalette::Shadow, shadow);
     palette.setBrush(QPalette::Disabled, QPalette::Shadow, shadow.light(150));
     palette.setBrush(QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
@@ -1891,7 +1891,7 @@ QPalette QCleanLooksStyle::standardPalette () const
 void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                          QPainter *painter, const QWidget *widget) const
 {
-    QColor borderColor = option->palette.dark().color();
+    QColor borderColor = option->palette.dark().color().light(110);
     QColor alphaCornerColor;
     if (widget) {
         // ### backgroundrole/foregroundrole should be part of the style option
@@ -2644,7 +2644,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     subButton = QImage(qt_scrollbar_button_up);
                 }
                 subButton.setColor(1, alphaCornerColor.rgba());
-                subButton.setColor(2, option->palette.shadow().color().rgba());
+                subButton.setColor(2, option->palette.shadow().color().light(110).rgba());
                 if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken) {
                     subButton.setColor(3, gradientStopColor.dark(140).rgba());
                     subButton.setColor(4, gradientStopColor.dark(120).rgba());
@@ -2696,7 +2696,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         addButton = QImage(qt_scrollbar_button_down);
                     }
                     addButton.setColor(1, alphaCornerColor.rgba());
-                    addButton.setColor(2, option->palette.shadow().color().rgba());
+                    addButton.setColor(2, option->palette.shadow().color().light(110).rgba());
                     if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken) {
                         addButton.setColor(3, gradientStopColor.dark(140).rgba());
                         addButton.setColor(4, gradientStopColor.dark(120).rgba());
