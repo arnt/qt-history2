@@ -5686,7 +5686,7 @@ bool QSessionManager::allowsInteraction()
 
     if (sm_interactStyle == SmInteractStyleAny) {
         sm_waitingForInteraction =  SmcInteractRequest(smcConnection, SmDialogNormal,
-                                                        sm_interactCallback, (SmPointer*) this);
+                                                        sm_interactCallback, (SmPointer*) d);
     }
     if (sm_waitingForInteraction) {
         QEventLoop eventLoop;
@@ -5715,7 +5715,7 @@ bool QSessionManager::allowsErrorInteraction()
 
     if (sm_interactStyle == SmInteractStyleAny || sm_interactStyle == SmInteractStyleErrors) {
         sm_waitingForInteraction =  SmcInteractRequest(smcConnection, SmDialogError,
-                                                        sm_interactCallback, (SmPointer*) this);
+                                                        sm_interactCallback, (SmPointer*) d);
     }
     if (sm_waitingForInteraction) {
         QEventLoop eventLoop;
