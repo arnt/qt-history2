@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
     QTreeView unsortedView;
     unsortedView.setModel(&model);
-    unsortedView.setWindowTitle("Unsorted Data");
+    unsortedView.setWindowTitle(QObject::tr("Unsorted Data"));
     unsortedView.show();
 
     QSortFilterProxyModel sortingModel;
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
     QTreeView sortedView;
     sortedView.setModel(&sortingModel);
-    sortedView.setWindowTitle("Sorted Data");
+    sortedView.setWindowTitle(QObject::tr("Sorted Data"));
     sortedView.header()->setSortIndicator(1, Qt::AscendingOrder);
     sortedView.header()->setSortIndicatorShown(true);
     sortedView.header()->setClickable(true);

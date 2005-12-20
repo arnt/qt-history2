@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
     QTreeView view;
     view.setModel(&model);
-    view.setWindowTitle("Simple Tree Model");
+    view.setWindowTitle(QObject::tr("Simple Tree Model"));
     view.show();
     return app.exec();
 }

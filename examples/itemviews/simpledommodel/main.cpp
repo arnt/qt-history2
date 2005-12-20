@@ -11,13 +11,6 @@
 **
 ****************************************************************************/
 
-/*
-  main.cpp
-
-  A simple example that shows how a single model can be shared between
-  multiple views.
-*/
-
 #include <QApplication>
 
 #include "mainwindow.h"

@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    tableView.setWindowTitle("Spin Box Delegate");
+    tableView.setWindowTitle(QObject::tr("Spin Box Delegate"));
     tableView.show();
     return app.exec();
 }

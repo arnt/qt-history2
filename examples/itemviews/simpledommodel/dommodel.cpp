@@ -11,12 +11,6 @@
 **
 ****************************************************************************/
 
-/*
-    model.cpp
-
-    Provides a DOM model for use in various examples.
-*/
-
 #include <QtGui>
 #include <QtXml>
 

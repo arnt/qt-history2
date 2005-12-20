@@ -31,7 +31,7 @@ MainWindow::MainWindow() : QMainWindow(), model(0)
     view->setModel(model);
 
     setCentralWidget(view);
-    setWindowTitle("Simple DOM Model");
+    setWindowTitle(tr("Simple DOM Model"));
 }
 
 void MainWindow::openFile()
