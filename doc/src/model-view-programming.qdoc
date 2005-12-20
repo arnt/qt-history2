@@ -186,6 +186,8 @@
       \tableofcontents{1 Using Drag and Drop with Item Views}
     \o \l{Proxy Models}
       \tableofcontents{1 Proxy Models}
+    \o \l{Model Subclassing Reference}
+      \tableofcontents{1 Model Subclassing Reference}
     \endlist
 
     See also the list of \l{Model/View Classes}.
@@ -1226,6 +1228,9 @@
     For an example of a more complex model, see the
     \l{itemviews/simpletreemodel}{Simple Tree Model} example.
 
+    The requirements of QAbstractItemModel subclasses is described in more
+    detail in the \l{Model Subclassing Reference} document.
+
     \section1 Designing a Model
 
     When creating a new model for an existing data structure, it is important
@@ -1468,6 +1473,11 @@
     For the string list model, this view also provides a default editor so that
     the items can be manipulated. We examine the possibilities made available by
     the standard view classes in the chapter on \l{View Classes}.
+
+    The \l{Model Subclassing Reference} document discusses the requirements of
+    QAbstractItemModel subclasses in more detail, and provides a guide to the
+    virtual functions that must be implemented to enable various features in
+    different types of models.
 */
 
 /*!
@@ -2041,9 +2051,9 @@
 */
 
 /*!
-    \page model-view-model-subclasses.html
+    \page model-view-model-subclassing.html
 
-    \title Model Subclasses
+    \title Model Subclassing Reference
 
     \tableofcontents
 
@@ -2082,41 +2092,137 @@
     simple read-only components, some models may support resizing operations, and
     others may allow items to be edited.
 
-    \list
-    \o \bold{Item data handling:} All models need to implement functions to enable views and
-       delegates to query the dimensions of the model, examine items, and retrieve data.
-       \list
-       \o To provide read-only access to list and table models, the QAbstractItemModel::flags(),
-          QAbstractItemModel::data(), QAbstractItemModel::headerData(), and
-          QAbstractItemModel::rowCount() functions must be implemented. Table models and
-          hierarchical models also need to provide a QAbstractItemModel::columnCount()
-          implementation.
-       \o Editable models must ensure that the QAbstractItemModel::flags() implementation
-          returns an appropriate set of flags for items, and provide
-          QAbstractItemModel::setData() and QAbstractItemModel::setHeaderData() functions.
-       \o To enable the dimensions of a model to be changed, the
-          QAbstractItemModel::insertRows() and QAbstractItemModel::removeRows() functions
-          must be implemented. Table models and hierarchical models also need to provide
-          QAbstractItemModel::insertColumns() and QAbstractItemModel::removeColumns()
-          implementations.
-       \endlist
-    \o \bold{Navigation and index creation:} Hierarchical models need to provide functions
-       that views can call to navigate the tree-like structures they expose, and obtain
-       model indexes for items.
-       \list
-       \o Since the structure exposed to views is determined by the underlying data
-          structure, it is up to each model subclass to create its own model indexes
-          by providing an implementation of QAbstractItemModel::index(). Given a
-          model index for a parent item, this function allows view and delegates to
-          access children of that item.
-       \o Hierarchical models must also provide an implementation of the
-          QAbstractItemModel::parent() function to enable views to access the parent
-          item of any given child.
-       \o Both these functions use the QAbstractItemModel::createIndex() factory
-          function to generate indexes for other components to use. It is normal for
-          models to supply some unique identifier to this function to ensure that
-          the model index can be re-associated with its corresponding item later on.
-       \endlist
-    \o \bold{Drag and drop support and MIME data handling:} 
-    \endlist
+    \section2 Read-Only Access
+
+    To provide read-only access to data provided by a model, the following functions
+    \e{must} be implemented in the model's subclass:
+
+    \table 90%
+    \row \o \l{QAbstractItemModel::flags()}{flags()}
+         \o Used by other components to obtain information about each item provided by
+            the model. In many models, the combination of flags should include
+            Qt::ItemIsEnabled and Qt::ItemIsSelectable.
+    \row \o \l{QAbstractItemModel::data()}{data()}
+         \o Used to supply item data to views and delegates. Generally, models only
+            need to supply data for Qt::DisplayRole and any application-specific user
+            roles, but it is also good practice to provide data for Qt::ToolTipRole,
+            Qt::AccessibleTextRole, and Qt::AccessibleDescriptionRole.
+    \row \o \l{QAbstractItemModel::headerData()}{headerData()}
+         \o Provides views with information to show in their headers. The information is
+            only retrieved by views that can display header information.
+    \row \o \l{QAbstractItemModel::rowCount()}{rowCount()}
+         \o Provides the number of rows of data exposed by the model.
+    \endtable
+
+    These four functions must be implemented in all types of model, including list models
+    (QAbstractListModel subclasses) and table models (QAbstractTableModel subclasses).
+
+    Additionally, the following functions \e{must} be implemented in direct subclasses
+    of QAbstractTableModel and QAbstractItemModel:
+
+    \table 90%
+    \row \o \l{QAbstractItemModel::columnCount()}{columnCount()}
+         \o Provides the number of columns of data exposed by the model. List models do not
+            provide this function because it is already implemented in QAbstractListModel.
+    \endtable
+
+    \section2 Editable Items
+
+    Editable models allow items of data to be modified, and may also provide
+    functions to allow rows and columns to be inserted and removed. To enable
+    editing, the following functions must be implemented correctly:
+
+    \table 90%
+    \row \o \l{QAbstractItemModel::flags()}{flags()}
+         \o Must return an appropriate combination of flags for each item. In particular,
+            the value returned by this function must include \l{Qt::ItemIsEditable} in
+            addition to the values applied to items in a read-only model.
+    \row \o \l{QAbstractItemModel::setData()}{setData()}
+         \o Used to modify the item of data associated with a specified model index.
+            To be able to accept user input, provided by user interface elements, this
+            function must handle data associated with Qt::EditRole.
+            The implementation may also accept data associated with many different kinds of
+            roles specified by Qt::ItemDataRole.
+    \row \o \l{QAbstractItemModel::setHeaderData()}{setHeaderData()}
+         \o Used to modify horizontal and vertical header information.
+    \endtable
+
+    \section2 Resizable Models
+
+    All types of model can support the insertion and removal of rows. Table models
+    and hierarchical models can also support the insertion and removal of columns.
+    It is important to notify other components about changes to the model's dimensions
+    both \e before and \e after they occur. As a result, the following functions
+    can be implemented to allow the model to be resized, but implementations must
+    ensure that the appropriate functions are called to notify attached views and
+    delegates:
+
+    \table 90%
+    \row \o \l{QAbstractItemModel::insertRows()}{insertRows()}
+         \o Used to add new rows and items of data to all types of model.
+            Implementations must call beginInsertRows() \e before inserting new rows
+            into any underlying data structures, and call endInsertRows() 
+            \e{immediately afterwards}.
+    \row \o \l{QAbstractItemModel::removeRows()}{removeRows()}
+         \o Used to remove rows and the items of data they contain from all types of model.
+            Implementations must call beginInsertColumns() \e before inserting new
+            columns into any underlying data structures, and call endInsertColumns()
+            \e{immediately afterwards}.
+    \row \o \l{QAbstractItemModel::insertColumns()}{insertColumns()}
+         \o Used to add new columns and items of data to table models and hierarchical models.
+            Implementations must call beginRemoveRows() \e before rows are removed
+            from any underlying data structures, and call endRemoveRows()
+            \e{immediately afterwards}.
+    \row \o \l{QAbstractItemModel::removeColumns()}{removeColumns()}
+         \o Used to remove columns and the items of data they contain from table models and
+            hierarchical models.
+            Implementations must call beginRemoveColumns() \e before columns are
+            removed from any underlying data structures, and call endRemoveColumns()
+            \e{immediately afterwards}.
+    \endtable
+
+    Generally, these functions should return true if the operation was successful.
+    However, there may be cases where the operation only partly succeeded; for example,
+    if less than the specified number of rows could be inserted. In such cases, the
+    model should return false to indicate failure to enable any attached components to
+    handle the situation.
+
+    The signals emitted by the functions called in implementations of the resizing
+    API give attached components the chance to take action before any data becomes
+    unavailable. The encapsulation of insert and remove operations with begin and end
+    functions also enable the model to manage
+    \l{QPersistentModelIndex}{persistent model indexes} correctly.
+
+    \section1 Navigation and Model Index Creation
+
+    Hierarchical models need to provide functions that views can call to navigate the
+    tree-like structures they expose, and obtain model indexes for items.
+
+    \section2 Parents and Children
+
+    Since the structure exposed to views is determined by the underlying data
+    structure, it is up to each model subclass to create its own model indexes
+    by providing implementations of the following functions:
+
+    \table 90%
+    \row \o \l{QAbstractItemModel::index()}{index()}
+         \o Given a model index for a parent item, this function allows views and delegates
+            to access children of that item. If no valid child item can be found that
+            corresponds to the specified row, column, and parent model index, the function
+            must return QModelIndex() - an invalid model index.
+    \row \o \l{QAbstractItemModel::parent()}{parent()}
+         \o Provides a model index corresponding to the parent of any given child item.
+            If the model index specified corresponds to a top-level item in the model, or if
+            there is no valid parent item in the model, the function must return
+            QModelIndex() - an invalid model index.
+    \endtable
+
+    Both the above functions use the \l{QAbstractItemModel::createIndex()}{createIndex()}
+    factory function to generate indexes for other components to use. It is normal for
+    models to supply some unique identifier to this function to ensure that
+    the model index can be re-associated with its corresponding item later on.
+
+    \section1 Drag and Drop Support and MIME Type Handling
+
+    ...
 */
