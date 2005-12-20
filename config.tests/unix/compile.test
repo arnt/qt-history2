@@ -17,7 +17,7 @@ PARAMS=$@
 for PARAM in $PARAMS; do
     PREFIX=`echo $PARAM | sed 's/^\(..\).*/\1/'`
     case $PREFIX in
-    -L)
+    -L|-l)
 	LIBPATH="$LIBPATH $PARAM"
 	;;
     -I)
