@@ -38,24 +38,17 @@ void DropArea::dragEnterEvent(QDragEnterEvent *event)
 void DropArea::dropEvent(QDropEvent *event)
 {
     const QMimeData *mimeData = event->mimeData();
-    QStringList formats = mimeData->formats();
 
-    foreach (QString format, formats) {
-        if (format.startsWith("image/")) {
-            QPixmap pixmap = extractPixmap(mimeData->data(format), format);
-            if (!pixmap.isNull()) {
-                setPixmap(pixmap);
-                break;
-            }
-        } else if (format.startsWith("text/")) {
-            QString text = extractText(mimeData->data(format), format);
-            if (!text.isEmpty()) {
-                setText(text);
-                break;
-            }
-        } else {
-            setText(tr("Cannot display format"));
-        }
+    if (mimeData->hasImage()) {
+        setPixmap(qvariant_cast<QPixmap>(mimeData->imageData()));
+    } else if (mimeData->hasHtml()) {
+        setText(mimeData->html());
+        setTextFormat(Qt::RichText);
+    } else if (mimeData->hasText()) {
+        setText(mimeData->text());    
+        setTextFormat(Qt::PlainText);
+    } else {
+        setText(tr("Cannot display data"));
     }
 
     setBackgroundRole(QPalette::Dark);
@@ -76,8 +69,7 @@ void DropArea::clear()
     emit changed();
 }
 
-QPixmap DropArea::extractPixmap(const QByteArray &data,
-                                      const QString &format)
+QPixmap DropArea::extractPixmap(const QByteArray &data, const QString &format)
 {
     QList<QByteArray> imageFormats = QImageReader::supportedImageFormats();
     QPixmap pixmap;
