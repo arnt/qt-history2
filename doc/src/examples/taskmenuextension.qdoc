@@ -69,7 +69,6 @@
     \quotefromfile designer/taskmenuextension/taskmenuextension.pro
     \printline TEMPLATE
     \printline CONFIG
-    \printline DESTDIR
 
     The \c TEMPLATE variable's value makes \c qmake create the custom
     widget as a library. Later, we will ensure that the widget will be
@@ -91,15 +90,11 @@
     When Qt is configured to build in both debug and release modes,
     \QD will be built in release mode.  When this occurs, it is
     necessary to ensure that plugins are also built in release
-    mode. For that reason you might have to add a \c release value to
-    your \c CONFIG variable. Otherwise, if a plugin is built in a mode
+    mode. For that reason we add the \c debug_and_release value to
+    the \c CONFIG variable. Otherwise, if a plugin is built in a mode
     that is incompatible with \QD, it won't be loaded and
     installed. For more information about plugins, see the \l {How to
     Create Qt Plugins} documentation.
-
-    The \c DESTDIR variable's value makes \c qmake install the plugin
-    alongside the other \QD widget plugins which is useful for testing
-    purposes.
 
     \skipto HEADERS
     \printuntil tictactoetaskmenu.cpp
@@ -110,6 +105,19 @@
     particular example we also provide implementations of the task
     menu extension and the extension factory as well as a dialog
     implementation.
+
+    It is important to ensure that the plugin is installed in a location that
+    is searched by \QD. We do this by specifying a target path for the project
+    and adding it to the list of items to install:
+
+    \code
+        target.path = $$[QT_INSTALL_PLUGINS]/designer
+        INSTALLS += target
+    \endcode
+
+    The task menu extension is created as a library, and will be installed
+    alongside the other \QD plugins when the project is installed (using
+    \c{make install} or an equivalent installation procedure).
 
     \section1 TicTacToePlugin Class Definition
 

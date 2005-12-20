@@ -41,9 +41,11 @@
         INSTALLS += target
     \endcode
 
-    The custom widget is created as a library. Later, we will ensure
-    that it will be recognized as a plugin by \QD by using the
-    Q_EXPORT_PLUGIN2() macro to export the relevant widget information.
+    The custom widget is created as a library, and will be installed
+    alongside the other \QD plugins when the project is installed (using
+    \c{make install} or an equivalent installation procedure).
+    Later, we will ensure that it is recognized as a plugin by \QD by using
+    the Q_EXPORT_PLUGIN2() macro to export the relevant widget information.
 
     \section1 AnalogClock Class Definition and Implementation
 
