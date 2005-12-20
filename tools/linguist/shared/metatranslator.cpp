@@ -423,11 +423,8 @@ bool MetaTranslator::save( const QString& filename, bool verbose) const
                 t << " encoding=\"UTF-8\"";
             t << ">\n";
             MetaTranslatorMessage msg = *i;
-            if (!msg.fileName().isEmpty() && msg.lineNumber() >= 0) {
-                QFileInfo fi(msg.fileName());
-                t << "        <location filename=\"" << fi.fileName() << "\" line=\"" << msg.lineNumber() << "\"/>\n";
-            }
-            
+            if (!msg.fileName().isEmpty() && msg.lineNumber() >= 0) 
+                t << "        <location filename=\"" << msg.fileName() << "\" line=\"" << msg.lineNumber() << "\"/>\n";
             t  << "        <source>" << evilBytes( (*i).sourceText(), (*i).utf8() )
               << "</source>\n";
             if ( !QByteArray((*i).comment()).isEmpty() )

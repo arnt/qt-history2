@@ -270,8 +270,10 @@ int main( int argc, char **argv )
                     recursiveFileInfoList(dir, extensionsNameFilters, filters, true, &fileinfolist);
                     QFileInfoList::iterator ii;
                     QByteArray fn;
+                    QDir baseDir(oldDir);
                     for (ii = fileinfolist.begin(); ii != fileinfolist.end(); ++ii) {
-                        fn = ii->filePath().toLatin1();
+                        // Make sure the path separator is stored with '/' in the ts file
+                        fn = baseDir.relativeFilePath(ii->filePath()).replace('\\','/').toLatin1();
 #ifdef LINGUIST_DEBUG
                         fprintf(stderr, "%s\n", fn.data());
 #endif
