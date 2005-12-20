@@ -264,7 +264,8 @@ public:
     QFileIconProvider *iconProvider;
     QFileIconProvider defaultProvider;
 
-    QList< QPair<QString,int> > saved;
+    QList< QPair<QString,int> > savedPaths;
+    QList< QPersistentModelIndex > savedPersistentIndexes;
 };
 
 QDirModelPrivate::QDirNode *QDirModelPrivate::node(const QModelIndex &index) const
@@ -1305,34 +1306,28 @@ void QDirModelPrivate::refresh(QDirNode *parent)
 void QDirModelPrivate::savePersistentIndexes()
 {
     Q_Q(QDirModel);
-    saved.clear();
+    savedPaths.clear();
     const QList<QPersistentModelIndexData*> indexes = persistent.indexes;
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex idx = indexes.at(i)->index;
         QString path = q->filePath(idx);
-        saved.append(qMakePair(path, idx.column()));
-        persistent.indexes.at(i)->ref.ref(); // save
+        savedPaths.append(qMakePair(path, idx.column()));
+        savedPersistentIndexes.append(idx); // make sure the ref  >= 1
     }
 }
 
 void QDirModelPrivate::restorePersistentIndexes()
 {
     Q_Q(QDirModel);
-    QList<QPersistentModelIndexData*> deleteList;
-    Q_ASSERT(persistent.indexes.count() == saved.count());
+    Q_ASSERT(persistent.indexes.count() == savedPaths.count());
     for (int i = 0; i < persistent.indexes.count(); ++i) {
-        if (!persistent.indexes.at(i)->ref.deref()) { // if we have no other references
-            deleteList.append(persistent.indexes.at(i)); // make sure we delete it
-        } else {
-            QModelIndex index = q->index(saved.at(i).first, saved.at(i).second);
-            persistent.indexes[i]->index = q->index(saved.at(i).first, saved.at(i).second);
-        }
+        QModelIndex index = q->index(savedPaths.at(i).first,
+                                     savedPaths.at(i).second);
+        persistent.indexes[i]->index = q->index(savedPaths.at(i).first,
+                                                savedPaths.at(i).second);
     }
-    saved.clear();
-    while (!deleteList.isEmpty()) {
-        QPersistentModelIndexData::destroy(deleteList.last());
-        deleteList.removeLast();
-    }
+    savedPersistentIndexes.clear();
+    savedPaths.clear();
 }
 
 QFileInfoList QDirModelPrivate::entryInfoList(const QString &path) const
