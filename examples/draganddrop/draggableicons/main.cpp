@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     horizontalLayout->addWidget(new DragWidget);
 
     mainWidget.setLayout(horizontalLayout);
-    mainWidget.setWindowTitle("Draggable Icons");
+    mainWidget.setWindowTitle(QObject::tr("Draggable Icons"));
     mainWidget.show();
 
     return app.exec();
