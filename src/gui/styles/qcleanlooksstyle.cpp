@@ -3113,7 +3113,7 @@ int QCleanLooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
         ret = 24;
         break;
     case PM_ScrollBarExtent:
-        ret = 15;
+        ret = 16;
         break;
     case PM_SliderThickness:
         ret = 16;
