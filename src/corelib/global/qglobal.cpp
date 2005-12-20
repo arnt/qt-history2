@@ -1397,36 +1397,6 @@ bool qSharedBuild()
     Defined for Mac OS 9.
 */
 
-/*!
-    \macro Q_OS_QWS
-    \relates <QtGlobal>
-
-    Defined for Qtopia Core.
-*/
-
-/*!
-    \macro Q_OS_X11
-    \relates <QtGlobal>
-
-    Defined for the X Window System.
-*/
-
-/*!
-    \macro Q_OS_PM
-    \relates <QtGlobal>
-    \internal
-
-    Defined for unsupported.
-*/
-
-/*!
-    \macro Q_OS_WIN16
-    \relates <QtGlobal>
-    \internal
-
-    Defined for unsupported.
-*/
-
 #if !defined(Q_BYTE_ORDER) && defined(QT_BUILD_QMAKE)
 // needed to bootstrap qmake
 static const unsigned int qt_one = 1;
