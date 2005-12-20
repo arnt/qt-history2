@@ -174,9 +174,6 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
     int bestMatch = perfectMatch;
     if (bestMatch == -1)
         bestMatch = goodMatch;
-    else{
-        qDebug() << "we have a perfect match at " << perfectMatch << list.at(perfectMatch);
-    }
     bestMatch = qMax(0, bestMatch);
     
     // sort the new list
@@ -187,7 +184,6 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
     setStringList(list);
     for (int i = 0; i < list.size(); ++i) {
         if (list.at(i) == match){
-            qDebug() << match << i << bestMatch << list.count();
             bestMatch = i;
             break;
         }
