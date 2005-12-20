@@ -930,6 +930,8 @@ enum { OpenTypeCount = sizeof(openType) / sizeof(const char *) };
 
 static void loadFontConfig()
 {
+    Q_ASSERT_X(X11, "QFontDatabase",
+               "A QApplication object needs to be constructed before FontConfig is used.");
     if (!X11->has_fontconfig)
         return;
 
