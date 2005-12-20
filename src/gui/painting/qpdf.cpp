@@ -702,41 +702,41 @@ const char *QPdf::toHex(uchar u, char *buffer)
     return buffer;
 }
 
-#define MM(n) int((n * 720 + 127) / 254)
-#define IN(n) int(n * 72)
+#define Q_MM(n) int((n * 720 + 127) / 254)
+#define Q_IN(n) int(n * 72)
 
 static const QPdf::PaperSize paperSizes[QPrinter::NPageSize] =
 {
-    {  MM(210), MM(297) },      // A4
-    {  MM(176), MM(250) },      // B5
-    {  IN(8.5), IN(11) },       // Letter
-    {  IN(8.5), IN(14) },       // Legal
-    {  IN(7.5), IN(10) },       // Executive
-    {  MM(841), MM(1189) },     // A0
-    {  MM(594), MM(841) },      // A1
-    {  MM(420), MM(594) },      // A2
-    {  MM(297), MM(420) },      // A3
-    {  MM(148), MM(210) },      // A5
-    {  MM(105), MM(148) },      // A6
-    {  MM(74), MM(105)},        // A7
-    {  MM(52), MM(74) },        // A8
-    {  MM(37), MM(52) },        // A9
-    {  MM(1000), MM(1414) },    // B0
-    {  MM(707), MM(1000) },     // B1
-    {  MM(31), MM(44) },        // B10
-    {  MM(500), MM(707) },      // B2
-    {  MM(353), MM(500) },      // B3
-    {  MM(250), MM(353) },      // B4
-    {  MM(125), MM(176) },      // B6
-    {  MM(88), MM(125) },       // B7
-    {  MM(62), MM(88) },        // B8
-    {  MM(44), MM(62) },        // B9
-    {  MM(162),    MM(229) },   // C5E
-    {  IN(4.125),  IN(9.5) },   // Comm10E
-    {  MM(110),    MM(220) },   // DLE
-    {  IN(8.5),    IN(13) },    // Folio
-    {  IN(17),     IN(11) },    // Ledger
-    {  IN(11),     IN(17) }     // Tabloid
+    {  Q_MM(210), Q_MM(297) },      // A4
+    {  Q_MM(176), Q_MM(250) },      // B5
+    {  Q_IN(8.5), Q_IN(11) },       // Letter
+    {  Q_IN(8.5), Q_IN(14) },       // Legal
+    {  Q_IN(7.5), Q_IN(10) },       // Executive
+    {  Q_MM(841), Q_MM(1189) },     // A0
+    {  Q_MM(594), Q_MM(841) },      // A1
+    {  Q_MM(420), Q_MM(594) },      // A2
+    {  Q_MM(297), Q_MM(420) },      // A3
+    {  Q_MM(148), Q_MM(210) },      // A5
+    {  Q_MM(105), Q_MM(148) },      // A6
+    {  Q_MM(74), Q_MM(105)},        // A7
+    {  Q_MM(52), Q_MM(74) },        // A8
+    {  Q_MM(37), Q_MM(52) },        // A9
+    {  Q_MM(1000), Q_MM(1414) },    // B0
+    {  Q_MM(707), Q_MM(1000) },     // B1
+    {  Q_MM(31), Q_MM(44) },        // B10
+    {  Q_MM(500), Q_MM(707) },      // B2
+    {  Q_MM(353), Q_MM(500) },      // B3
+    {  Q_MM(250), Q_MM(353) },      // B4
+    {  Q_MM(125), Q_MM(176) },      // B6
+    {  Q_MM(88), Q_MM(125) },       // B7
+    {  Q_MM(62), Q_MM(88) },        // B8
+    {  Q_MM(44), Q_MM(62) },        // B9
+    {  Q_MM(162),    Q_MM(229) },   // C5E
+    {  Q_IN(4.125),  Q_IN(9.5) },   // Comm10E
+    {  Q_MM(110),    Q_MM(220) },   // DLE
+    {  Q_IN(8.5),    Q_IN(13) },    // Folio
+    {  Q_IN(17),     Q_IN(11) },    // Ledger
+    {  Q_IN(11),     Q_IN(17) }     // Tabloid
 };
 
 static const char * const psToStr[QPrinter::NPageSize+1] =
@@ -809,7 +809,7 @@ void QPdfBaseEngine::drawPolygon(const QPointF *points, int pointCount, PolygonD
     if (!points || !pointCount)
         return;
     Q_D(QPdfBaseEngine);
-    
+
     bool hb = d->hasBrush;
     QPainterPath p;
 
@@ -872,7 +872,7 @@ void QPdfBaseEngine::drawPath (const QPainterPath &p)
 void QPdfBaseEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     Q_D(QPdfBaseEngine);
-    
+
     if (!d->hasPen || (d->clipEnabled && d->allClipped))
         return;
 
@@ -1098,7 +1098,7 @@ QPdfBaseEnginePrivate::QPdfBaseEnginePrivate()
 {
     postscript = false;
     currentObject = 1;
-    
+
     currentPage = new QPdfPage;
     stroker.stream = currentPage;
 
@@ -1114,7 +1114,7 @@ QPdfBaseEnginePrivate::~QPdfBaseEnginePrivate()
 void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &ti)
 {
     Q_Q(QPdfBaseEngine);
-    
+
     QFontEngine *fe = ti.fontEngine;
 
     QFontEngine::FaceId face_id = fe->faceId();
