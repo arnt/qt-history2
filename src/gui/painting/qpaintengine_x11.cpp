@@ -1518,18 +1518,19 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
                 traps.reserve(128);
                 qt_tesselate_polygon(&traps, (QPointF *)clippedPoints, clippedCount,
                                      mode == QPaintEngine::WindingMode);
-
-                if (has_fill_pattern || has_fill_texture) {
-                    x_offset = qRound(XFixedToDouble(traps.at(0).left.p1.x) - bg_origin.x());
-                    y_offset = qRound(XFixedToDouble(traps.at(0).left.p1.y) - bg_origin.y());
+                if (traps.size() > 0) {
+                    if (has_fill_pattern || has_fill_texture) {
+                        x_offset = qRound(XFixedToDouble(traps.at(0).left.p1.x) - bg_origin.x());
+                        y_offset = qRound(XFixedToDouble(traps.at(0).left.p1.y) - bg_origin.y());
+                    }
+                    XRenderPictureAttributes attrs;
+                    attrs.poly_edge = antialias ? PolyEdgeSmooth : PolyEdgeSharp;
+                    XRenderChangePicture(dpy, picture, CPPolyEdge, &attrs);
+                    XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
+                                               antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
+                                               x_offset, y_offset,
+                                               traps.constData(), traps.size());
                 }
-                XRenderPictureAttributes attrs;
-                attrs.poly_edge = antialias ? PolyEdgeSmooth : PolyEdgeSharp;
-                XRenderChangePicture(dpy, picture, CPPolyEdge, &attrs);
-                XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
-                                           antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
-                                           x_offset, y_offset,
-                                           traps.constData(), traps.size());
             }
         }
     } else
