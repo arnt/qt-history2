@@ -398,43 +398,27 @@ static const char * const qt_cleanlooks_checkbox_checked[] = {
 static void qt_cleanlooks_draw_gradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
                                         const QColor &gradientStop, Direction direction = TopDown)
 {
-    QString gradientName;
-    gradientName.sprintf("%dx%d-%x-%x", rect.width(), rect.height(), gradientStart.rgba(), gradientStop.rgba());
-    QPixmap cache;
-    if (!UsePixmapCache || !QPixmapCache::find(gradientName, cache)) {
-        cache = QPixmap(rect.size());
-        cache.fill(Qt::transparent);
-        QPainter cachePainter(&cache);
-        QRect pixmapRect(0, 0, rect.width(), rect.height());
-        int x = pixmapRect.center().x();
-        int y = pixmapRect.center().y();
+        int x = rect.center().x();
+        int y = rect.center().y();
         QLinearGradient *gradient;
         switch(direction) {
             case FromLeft:
-                gradient = new QLinearGradient(pixmapRect.left(), y, pixmapRect.right(), y);
+                gradient = new QLinearGradient(rect.left(), y, rect.right(), y);
                 break;
             case FromRight:
-                gradient = new QLinearGradient(pixmapRect.right(), y, pixmapRect.left(), y);
-                break;
-            case TopDown:
-                gradient = new QLinearGradient(x, pixmapRect.top(), x, pixmapRect.bottom());
+                gradient = new QLinearGradient(rect.right(), y, rect.left(), y);
                 break;
             case BottomUp:
-                gradient = new QLinearGradient(x, pixmapRect.bottom(), x, pixmapRect.top());
+                gradient = new QLinearGradient(x, rect.bottom(), x, rect.top());
+            case TopDown:
             default:
-                return;
+                gradient = new QLinearGradient(x, rect.top(), x, rect.bottom());
                 break;
         }
         gradient->setColorAt(0, gradientStart);
         gradient->setColorAt(1, gradientStop);
-        cachePainter.fillRect(pixmapRect, *gradient);
-        cachePainter.end();
-        if (UsePixmapCache)
-            QPixmapCache::insert(gradientName, cache);
+        painter->fillRect(rect, *gradient);
         delete gradient;
-
-    }
-    painter->drawPixmap(rect, cache);
 }
 
 static QString uniqueName(const QString &key, const QStyleOption *option, const QSize &size)
@@ -743,8 +727,6 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
             painter->drawLine(option->rect.bottomLeft() + QPoint(2, 0),
                               option->rect.bottomRight() - QPoint(2, 0));
         }
-        break;
-    case PE_FrameGroupBox:
         break;
     case PE_IndicatorCheckBox:
         painter->save();
@@ -2499,6 +2481,8 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             bool horizontal = scrollBar->orientation == Qt::Horizontal;
             bool sunken = scrollBar->state & State_Sunken;
 
+            painter->fillRect(option->rect, option->palette.background());
+
             QRect rect = scrollBar->rect;
             QRect scrollBarSubLine = subControlRect(control, scrollBar, SC_ScrollBarSubLine, widget);
             QRect scrollBarAddLine = subControlRect(control, scrollBar, SC_ScrollBarAddLine, widget);
@@ -2635,20 +2619,21 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             if (scrollBar->subControls & SC_ScrollBarSubLine) {
                 //int scrollBarExtent = pixelMetric(PM_ScrollBarExtent, option, widget);
                 QRect pixmapRect = scrollBarSubLine;
-                if (isEnabled) {
+                if (isEnabled ) {
+                    QRect fillRect = pixmapRect.adjusted(1, 1, -1, -1);
                     // Gradients
                     if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken) {
                         qt_cleanlooks_draw_gradient(painter,
-                                                    QRect(pixmapRect.left() + 2, pixmapRect.top() + 2,
-                                                          pixmapRect.right() - 3, pixmapRect.bottom() - 3),
-                                                    gradientStartColor,
-                                                    gradientStopColor);
+                                                    QRect(fillRect),
+                                                    gradientStopColor.dark(120),
+                                                    gradientStopColor.dark(120), 
+                                                    horizontal ? TopDown : FromLeft);
                     } else {
                         qt_cleanlooks_draw_gradient(painter,
-                                                    QRect(pixmapRect.left() + 2, pixmapRect.top() + 2,
-                                                          pixmapRect.right() - 3, pixmapRect.bottom() - 3),
+                                                    QRect(fillRect),
                                                     gradientStartColor.light(105),
-                                                    gradientStopColor);
+                                                    gradientStopColor, 
+                                                    horizontal ? TopDown : FromLeft);
                     }
                 }
                 // Details
@@ -2661,8 +2646,8 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 subButton.setColor(1, alphaCornerColor.rgba());
                 subButton.setColor(2, option->palette.shadow().color().rgba());
                 if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken) {
-                    subButton.setColor(3, gradientStopColor.rgba());
-                    subButton.setColor(4, gradientStopColor.rgba());
+                    subButton.setColor(3, gradientStopColor.dark(140).rgba());
+                    subButton.setColor(4, gradientStopColor.dark(120).rgba());
                 } else {
                     subButton.setColor(3, gradientStartColor.light(105).rgba());
                     subButton.setColor(4, gradientStopColor.rgba());
@@ -2675,28 +2660,34 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     QImage arrow(reverse ? qt_scrollbar_button_arrow_right : qt_scrollbar_button_arrow_left);
                     arrow.setColor(1, scrollBar->palette.foreground().color().rgba());
 
-                    if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken) {
-                        painter->drawImage(QPoint(pixmapRect.left() + 6, pixmapRect.top() + 5), arrow);
-                    } else {
-                        painter->drawImage(QPoint(pixmapRect.left() + 5, pixmapRect.top() + 4), arrow);
-                    }
+                    painter->drawImage(QPoint(pixmapRect.left() + 5, pixmapRect.top() + 4), arrow);
                 } else {
                     QImage arrow(qt_scrollbar_button_arrow_up);
                     arrow.setColor(1, scrollBar->palette.foreground().color().rgba());
-
-                    if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken) {
-                        painter->drawImage(QPoint(pixmapRect.left() + 5, pixmapRect.top() + 7), arrow);
-                    } else {
-                        painter->drawImage(QPoint(pixmapRect.left() + 4, pixmapRect.top() + 6), arrow);
-                    }
+                    painter->drawImage(QPoint(pixmapRect.left() + 4, pixmapRect.top() + 6), arrow);
                 }
 
                 // The AddLine (down/right) button
                 if (scrollBar->subControls & SC_ScrollBarAddLine) {
                     QString addLinePixmapName = uniqueName("scrollbar_addline", option, QSize(16, 16));
-
                     QRect pixmapRect = scrollBarAddLine;
-
+                    if (isEnabled) {
+                        QRect fillRect = pixmapRect.adjusted(1, 1, -1, -1);
+                        // Gradients
+                        if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken) {
+                            qt_cleanlooks_draw_gradient(painter,
+                                                        fillRect,
+                                                        gradientStopColor.dark(120),
+                                                        gradientStopColor.dark(120),
+                                                        horizontal ? TopDown: FromLeft);
+                        } else {
+                            qt_cleanlooks_draw_gradient(painter,
+                                                        fillRect,
+                                                        gradientStartColor.light(105),
+                                                        gradientStopColor,
+                                                        horizontal ? TopDown : FromLeft);
+                        }
+                    }
                     // Details
                     QImage addButton;
                     if (horizontal) {
@@ -2707,8 +2698,8 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     addButton.setColor(1, alphaCornerColor.rgba());
                     addButton.setColor(2, option->palette.shadow().color().rgba());
                     if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken) {
-                        addButton.setColor(3, gradientStopColor.rgba());
-                        addButton.setColor(4, gradientStopColor.rgba());
+                        addButton.setColor(3, gradientStopColor.dark(140).rgba());
+                        addButton.setColor(4, gradientStopColor.dark(120).rgba());
                     } else {
                         addButton.setColor(3, gradientStartColor.light(105).rgba());
                         addButton.setColor(4, gradientStopColor.rgba());
@@ -2879,6 +2870,26 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
         if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
             QRect textRect = subControlRect(CC_GroupBox, groupBox, SC_GroupBoxLabel, widget);
             QRect checkBoxRect = subControlRect(CC_GroupBox, groupBox, SC_GroupBoxCheckBox, widget);
+            bool flat = groupBox->features & QStyleOptionFrameV2::Flat;
+
+            if(!flat) {
+                if (groupBox->subControls & QStyle::SC_GroupBoxFrame) {
+                    QStyleOptionFrameV2 frame;
+                    frame.QStyleOption::operator=(*groupBox);
+                    frame.features = groupBox->features;
+                    frame.lineWidth = groupBox->lineWidth;
+                    frame.midLineWidth = groupBox->midLineWidth;
+                    frame.rect = subControlRect(CC_GroupBox, option, SC_GroupBoxFrame, widget);
+                    painter->save();
+                    QRegion region(groupBox->rect);
+                    bool ltr = groupBox->direction == Qt::LeftToRight;
+                    region -= checkBoxRect.unite(textRect).adjusted(ltr ? -4 : 0, 0, ltr ? 0 : 4, 0);
+                    painter->setClipRegion(region);
+                    frame.palette.setBrush(QPalette::Dark, option->palette.mid().color().light(110));
+                    drawPrimitive(PE_FrameGroupBox, &frame, painter);
+                    painter->restore();
+                }
+            } 
             // Draw title
             if ((groupBox->subControls & QStyle::SC_GroupBoxLabel) && !groupBox->text.isEmpty()) {
                 if (!groupBox->text.isEmpty()) {
@@ -2888,21 +2899,24 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     int alignment = int(groupBox->textAlignment);
                     if (!styleHint(QStyle::SH_UnderlineShortcut, option, widget))
                         alignment |= Qt::TextHideMnemonic;
-                    QFont font = painter->font();
-                    font.setBold(true);
-                    painter->setFont(font);
-                    if (groupBox->subControls & SC_GroupBoxCheckBox) {
-                        textRect.adjust(checkBoxRect.right() + 4, 0, checkBoxRect.right() + 4, 0);
+                    if (flat) {
+                        QFont font = painter->font();
+                        font.setBold(true);
+                        painter->setFont(font);
+                        if (groupBox->subControls & SC_GroupBoxCheckBox) {
+                            textRect.adjust(checkBoxRect.right() + 4, 0, checkBoxRect.right() + 4, 0);
+                        }
                     }
+                   
                     painter->drawText(textRect, Qt::TextShowMnemonic | Qt::AlignLeft| alignment, groupBox->text);
                 }
-            }
-            // Draw checkbox
-            if (groupBox->subControls & SC_GroupBoxCheckBox) {
-                QStyleOptionButton box;
-                box.QStyleOption::operator=(*groupBox);
-                box.rect = checkBoxRect;
-                drawPrimitive(PE_IndicatorCheckBox, &box, painter, widget);
+                // Draw checkbox
+                if (groupBox->subControls & SC_GroupBoxCheckBox) {
+                    QStyleOptionButton box;
+                    box.QStyleOption::operator=(*groupBox);
+                    box.rect = checkBoxRect;
+                    drawPrimitive(PE_IndicatorCheckBox, &box, painter, widget);
+                }
             }
         }
         painter->restore();
@@ -3292,7 +3306,7 @@ QRect QCleanLooksStyle::subControlRect(ComplexControl control, const QStyleOptio
             int topMargin = 0;
             int topHeight = 0;
             int verticalAlignment = styleHint(SH_GroupBox_TextLabelVerticalAlignment, groupBox, widget);
-
+            bool flat = groupBox->features & QStyleOptionFrameV2::Flat;
             if (!groupBox->text.isEmpty()) {
                 topHeight = groupBox->fontMetrics.height();
                 if (verticalAlignment & Qt::AlignVCenter)
@@ -3302,28 +3316,36 @@ QRect QCleanLooksStyle::subControlRect(ComplexControl control, const QStyleOptio
             }
             QRect frameRect = groupBox->rect;
             frameRect.setTop(topMargin);
-            if (subControl == SC_GroupBoxContents) {
+            if (subControl == SC_GroupBoxFrame) {
+                return rect;
+            }
+            else if (subControl == SC_GroupBoxContents) {
                 int margin = 0;
                 int leftMarginExtension = 16;
                 rect = frameRect.adjusted(leftMarginExtension + margin, margin + topHeight, -margin, -margin);
                 break;
             }
-            //Prepare metrics for a bold font
-            QFont font = widget->font();
-            font.setBold(true);
-            QFontMetrics fontMetrics(font);
-            if (const QGroupBox *groupBoxWidget = qobject_cast<const QGroupBox *>(widget)) {
-                QSize textRect = fontMetrics.boundingRect(groupBoxWidget->title()).size();
-                if (subControl == SC_GroupBoxCheckBox) {
-                    int indicatorHeight = pixelMetric(PM_IndicatorHeight, option, widget);
-                    rect.setWidth(pixelMetric(PM_IndicatorWidth, option, widget));
-                    rect.setHeight(indicatorHeight);
-                    rect.moveTop((fontMetrics.height() - indicatorHeight) / 2 + 2);
-                } else if (subControl == SC_GroupBoxLabel) {
-                    rect.setSize(textRect);
+            if(flat) {
+                if (const QGroupBox *groupBoxWidget = qobject_cast<const QGroupBox *>(widget)) {
+                    //Prepare metrics for a bold font
+                    QFont font = widget->font();
+                    font.setBold(true);
+                    QFontMetrics fontMetrics(font);
+                  
+                    QSize textRect = fontMetrics.boundingRect(groupBoxWidget->title()).size() + QSize(2, 0);
+                    if (subControl == SC_GroupBoxCheckBox) {
+                        int indicatorWidth = pixelMetric(PM_IndicatorWidth, option, widget);
+                        int indicatorHeight = pixelMetric(PM_IndicatorHeight, option, widget);
+                        rect.setWidth(indicatorWidth);
+                        rect.setHeight(indicatorHeight);
+                        rect.moveTop((fontMetrics.height() - indicatorHeight) / 2 + 2);
+                    } else if (subControl == SC_GroupBoxLabel) {
+                        rect.setSize(textRect);
+                    }
                 }
             }
         }
+        return rect;
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         switch (subControl) {
