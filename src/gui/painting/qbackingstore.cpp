@@ -38,6 +38,15 @@
 
 extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); // qapplication_xxx.cpp
 
+static bool qt_enable_backingstore = true;
+#ifdef Q_WS_X11
+// for compatibility with Qt 4.0
+Q_GUI_EXPORT void qt_x11_set_global_double_buffer(bool enable)
+{
+    qt_enable_backingstore = enable;
+}
+#endif
+
 bool QWidgetBackingStore::paintOnScreen(QWidget *w)
 {
 #if defined(Q_WS_QWS) || defined(Q_WS_MAC)
@@ -53,12 +62,12 @@ bool QWidgetBackingStore::paintOnScreen(QWidget *w)
     if(checked_env == -1)
         checked_env = (qgetenv("QT_ONSCREEN_PAINT") == "1") ? 1 : 0;
 
-    return (checked_env == 1);
+    return checked_env == 1 || !qt_enable_backingstore;
 #endif
 }
 
 #ifdef Q_WS_QWS
-static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec)
+static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec, bool)
 {
     static int yWinId = 0;
 
@@ -83,11 +92,11 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec)
 }
 
 #else
-static void qt_showYellowThing(QWidget *widget, const QRegion &toBePainted, int msec)
+static void qt_showYellowThing(QWidget *widget, const QRegion &toBePainted, int msec, bool unclipped)
 {
     //flags to fool painter
     bool paintUnclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
-    if (!QWidgetBackingStore::paintOnScreen(widget))
+    if (unclipped && !QWidgetBackingStore::paintOnScreen(widget))
         widget->setAttribute(Qt::WA_PaintUnclipped);
 
     bool setFlag = widget && !widget->testAttribute(Qt::WA_WState_InPaintEvent);
@@ -159,7 +168,7 @@ static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
     if (checked_env == 0)
         return false;
 
-    qt_showYellowThing(widget, toBePainted, checked_env*10);
+    qt_showYellowThing(widget, toBePainted, checked_env*10, true);
 
     return true;
 }
@@ -180,7 +189,7 @@ static bool qt_flushUpdate(QWidget *widget, const QRegion &rgn)
     if (checked_env == 0)
         return false;
 
-    qt_showYellowThing(widget, rgn, checked_env*10);
+    qt_showYellowThing(widget, rgn, checked_env*10, false);
 
     return true;
 }
@@ -748,7 +757,8 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
                     QPainter p(q);
                     paintBackground(&p, toBePainted.boundingRect(), asRoot || onScreen);
                 }
-                if (q->testAttribute(Qt::WA_TintedBackground)) {
+                if (q->testAttribute(Qt::WA_TintedBackground)
+                    && !onScreen && !asRoot && !isOpaque() ) {
                     QPainter p(q);
                     QColor tint = q->palette().window().color();
                     tint.setAlphaF(.6);
@@ -821,17 +831,19 @@ void QWidget::repaint(const QRegion& rgn)
 
     if (!isVisible() || !updatesEnabled() || rgn.isEmpty())
         return;
+    Q_D(QWidget);
 //    qDebug() << "repaint" << this << rgn;
     if (!QWidgetBackingStore::paintOnScreen(this)) {
         QWidget *tlw = window();
         QTLWExtra* x = tlw->d_func()->topData();
-        x->backingStore->dirtyRegion(rgn, this);
-        x->backingStore->cleanRegion(rgn, this);
+        QRegion wrgn(rgn);
+        d->subtractOpaqueChildren(wrgn, rect(), QPoint());
+        x->backingStore->dirtyRegion(wrgn, this);
+        x->backingStore->cleanRegion(wrgn, this);
     }
 #ifndef Q_WS_QWS
 // QWS doesn't support paint-on-screen
     else {
-        Q_D(QWidget);
         d->cleanWidget_sys(rgn);
         //     qDebug() << "QWidget::repaint paintOnScreen" << this << "region" << rgn;
       qt_flushPaint(this, rgn);
@@ -896,7 +908,10 @@ void QWidget::update(const QRegion& rgn)
     } else {
         QWidget *tlw = window();
         QTLWExtra* x = tlw->d_func()->topData();
-        x->backingStore->dirtyRegion(rgn, this);
+        QRegion wrgn(rgn);
+        d_func()->subtractOpaqueChildren(wrgn, rect(), QPoint());
+
+        x->backingStore->dirtyRegion(wrgn, this);
     }
 }
 
