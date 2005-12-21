@@ -17,21 +17,22 @@
 #include <qpainter.h>
 #include <qstyleoption.h>
 #include <qdebug.h>
-#include <QPixmapCache>
-#include <QMainWindow>
-#include <QPainterPath>
-#include <QPushButton>
+#include <QApplication>
 #include <QComboBox>
-#include <QProgressBar>
-#include <QScrollBar>
-#include <QSlider>
+#include <QDockWidget>
+#include <QMainWindow>
 #include <QMenuBar>
 #include <QMenu>
 #include <QFont>
 #include <QGroupBox>
+#include <QPainterPath>
+#include <QPushButton>
+#include <QPixmapCache>
+#include <QProgressBar>
+#include <QScrollBar>
+#include <QSpinBox>
+#include <QSlider>
 #include <QSplitter>
-#include <QDockWidget>
-#include <QApplication>
 
 static const bool UsePixmapCache = true;
 
@@ -254,6 +255,22 @@ static const char * const qt_scrollbar_button_arrow_down[] = {
     " ***** ",
     "  ***  ",
     "   *   "};
+
+static const char * const qt_spinbox_button_arrow_down[] = {
+    "5 3 2 1",
+    "   c None",
+    "*  c #BFBFBF",
+    "*****",
+    " *** ",
+    "  *  "};
+
+static const char * const qt_spinbox_button_arrow_up[] = {
+    "5 3 2 1",
+    "   c None",
+    "*  c #BFBFBF",
+    "  *  ",
+    " *** ",
+    "*****"};
 
 static const char * const qt_scrollbar_button_left[] = {
     "16 16 6 1",
@@ -807,8 +824,6 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
 
             QColor highlightedGradientStartColor = option->palette.button().color().light(107);
             QColor highlightedGradientStopColor = buttonShadow.light(107);
-            //QColor gradientStartColor = option->palette.button().color().light(108);
-            //QColor gradientStopColor = buttonShadow;
             QColor gradientStartColor = option->palette.button().color().light(108);
             QColor gradientStopColor = mergedColors(option->palette.button().color().dark(108), option->palette.dark().color().light(140), 70);
 
@@ -1901,8 +1916,11 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
     }
     QColor grooveColor = mergedColors(option->palette.dark().color(), option->palette.button().color(),60).light(105);
     QColor gripShadow = grooveColor.dark(110);
-    QColor gradientStartColor = option->palette.button().color().light(110);
-    QColor gradientStopColor = mergedColors(option->palette.button().color(), option->palette.dark().color().light(140), 70);
+    QColor buttonShadow = option->palette.button().color().dark(110);
+
+    QColor gradientStartColor = option->palette.button().color().light(108);
+    QColor gradientStopColor = mergedColors(option->palette.button().color().dark(108), option->palette.dark().color().light(140), 70);
+    
     QColor highlightedGradientStartColor = option->palette.button().color();
     QColor highlightedGradientStopColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 85);
 
@@ -1931,6 +1949,38 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 bool downIsActive = (spinBox->activeSubControls == SC_SpinBoxDown);
 
                 QRect rect = pixmapRect;
+                QStyleOptionSpinBox spinBoxCopy = *spinBox;
+                spinBoxCopy.rect = pixmapRect;
+                QRect upRect = subControlRect(CC_SpinBox, &spinBoxCopy, SC_SpinBoxUp, widget);
+                QRect downRect = subControlRect(CC_SpinBox, &spinBoxCopy, SC_SpinBoxDown, widget);
+                if (spinBox->direction == Qt::RightToLeft) {
+                }
+                if (isEnabled) {
+                    // gradients
+                    QRect buttonRect = upRect.unite(downRect);
+                    qt_cleanlooks_draw_gradient(&cachePainter, buttonRect,
+                                            gradientStartColor,
+                                            gradientStopColor);
+                    if(upIsActive) {
+                        if (sunken) {
+                            cachePainter.fillRect(upRect.adjusted(1, 1, -1, 0), gradientStopColor.dark(110));
+                        } else if (hover) {
+                            qt_cleanlooks_draw_gradient(&cachePainter, upRect.adjusted(1, 1, -1, -1),
+                                                    gradientStartColor.light(120),
+                                                    gradientStopColor.light(120));
+                        }
+                    }
+                    if(downIsActive) {
+                        if (sunken) {
+                            cachePainter.fillRect(downRect.adjusted(1, 0, -1, -1), gradientStopColor.dark(110));
+
+                        } else if (hover) {
+                                qt_cleanlooks_draw_gradient(&cachePainter, downRect.adjusted(1, 1, -1, -1),
+                                                        gradientStartColor.light(120),
+                                                        gradientStopColor.light(120));
+                        }
+                    }
+                }
 
                 // Draw a line edit
                 QStyleOptionFrame lineEdit;
@@ -1938,225 +1988,35 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 lineEdit.rect = pixmapRect;
                 drawPrimitive(PE_FrameLineEdit, &lineEdit, &cachePainter, widget);
 
-                QStyleOptionSpinBox spinBoxCopy = *spinBox;
-                spinBoxCopy.rect = pixmapRect;
-                QRect upRect = subControlRect(CC_SpinBox, &spinBoxCopy, SC_SpinBoxUp, widget);
-                QRect downRect = subControlRect(CC_SpinBox, &spinBoxCopy, SC_SpinBoxDown, widget);
-
-                if (isEnabled) {
-                    // gradients
-                    if (upIsActive && sunken) {
-                        cachePainter.fillRect(upRect.adjusted(1, 1, -1, 0), gradientStopColor);
-                    } else {
-                        if (focus) {
-                            qt_cleanlooks_draw_gradient(&cachePainter, upRect.adjusted(2, 2, -2, -2),
-                                                       highlightedGradientStartColor,
-                                                       highlightedGradientStopColor);
-                        } else {
-                            qt_cleanlooks_draw_gradient(&cachePainter, upRect.adjusted(2, 2, -2, -2),
-                                                       gradientStartColor,
-                                                       gradientStopColor);
-                        }
-                    }
-
-                    if (downIsActive && sunken) {
-                        cachePainter.fillRect(downRect.adjusted(1, 0, -1, -1), gradientStopColor);
-                    } else {
-                        if (focus) {
-                            qt_cleanlooks_draw_gradient(&cachePainter, downRect.adjusted(2, 1, -2, -2),
-                                                       highlightedGradientStartColor,
-                                                       highlightedGradientStopColor);
-                        } else {
-                            qt_cleanlooks_draw_gradient(&cachePainter, downRect.adjusted(2, 1, -2, -2),
-                                                       gradientStartColor,
-                                                       gradientStopColor);
-                        }
-                    }
-                } else {
-                    cachePainter.fillRect(upRect.adjusted(1, 1, -1, 0), option->palette.background());
-                    cachePainter.fillRect(downRect.adjusted(1, 0, -1, -1), option->palette.background());
-                }
-
                 // outline the up/down buttons
                 cachePainter.setPen(borderColor);
                 if (spinBox->direction == Qt::RightToLeft) {
-                    upRect.translate(-2, 0);
-                    downRect.translate(-2, 0);
-                }
-                cachePainter.drawLine(upRect.left(), upRect.top(), upRect.left(), downRect.bottom());
-                cachePainter.drawLine(upRect.left(), upRect.top(), upRect.left(), downRect.bottom());
-                cachePainter.drawLine(upRect.left(), upRect.bottom(), upRect.right(), upRect.bottom());
-                cachePainter.drawLine(upRect.left(), upRect.top(), upRect.right() - 2, upRect.top());
-                cachePainter.drawLine(upRect.left(), upRect.bottom(), upRect.right() - 2, upRect.bottom());
-                cachePainter.drawLine(upRect.right(), upRect.top() + 2, upRect.right(), upRect.bottom() - 1);
-                cachePainter.drawLine(downRect.right(), downRect.top(), downRect.right(), downRect.bottom() - 2);
-                cachePainter.drawLine(downRect.left(), downRect.bottom(), downRect.right() - 2, downRect.bottom());
-                cachePainter.drawPoint(upRect.right() - 1, upRect.top() + 1);
-                cachePainter.drawPoint(downRect.right() - 1, downRect.bottom() - 1);
-                cachePainter.setPen(alphaCornerColor);
-                cachePainter.drawPoint(upRect.right() - 1, upRect.top());
-                cachePainter.drawPoint(upRect.right(), upRect.top() + 1);
-                cachePainter.drawPoint(downRect.right() - 1, downRect.bottom());
-                cachePainter.drawPoint(downRect.right(), downRect.bottom() - 1);
-
-
-                // draw the line to the left of the buttons for shading against the
-                // base of the line edit
-                if (focus) {
-                    cachePainter.setPen(option->palette.highlight().color().light(101));
+                    cachePainter.drawLine(upRect.right(), upRect.top(), upRect.right(), downRect.bottom());
+                    cachePainter.setPen(option->palette.light().color().light());
+                    cachePainter.drawLine(upRect.right() - 1, upRect.top() + 1, upRect.right() - 1, downRect.bottom() - 1);
                 } else {
-                    cachePainter.setPen(option->palette.button().color().light(101));
+                    cachePainter.drawLine(upRect.left(), upRect.top(), upRect.left(), downRect.bottom());
+                    cachePainter.setPen(option->palette.light().color().light());
+                    cachePainter.drawLine(upRect.left() + 1, upRect.top() + 1, upRect.left() + 1, downRect.bottom() - 1);
                 }
-                if (spinBox->direction == Qt::RightToLeft) {
-                    cachePainter.drawLine(upRect.right() + 1, upRect.top() + 2,
-                                          upRect.right() + 1, downRect.bottom() - 2);
+                
+                if(upIsActive && sunken) {
+                    cachePainter.setPen(gradientStopColor.dark(130));
+                    cachePainter.drawLine(upRect.left() + 1, upRect.top() + 1, upRect.left() + 1, upRect.bottom() - 1);
+                    cachePainter.drawLine(upRect.left() + 1, upRect.top() + 1, upRect.right() - 1, upRect.top() + 1);
                 } else {
-                    cachePainter.drawLine(upRect.left() - 1, upRect.top() + 2,
-                                          upRect.left() - 1, downRect.bottom() - 2);
+                    cachePainter.setPen(borderColor);
+                    cachePainter.drawLine(upRect.bottomLeft() + QPoint(3, 0), upRect.bottomRight()- QPoint(3, 0));
                 }
-
-                // Button bevels
-                if (hover && upIsActive && !sunken) {
-                    cachePainter.setPen(highlightedDarkInnerBorderColor);
+                if(downIsActive && sunken) {
+                    cachePainter.setPen(gradientStopColor.dark(130));
+                    cachePainter.drawLine(downRect.left() + 1, downRect.top() + 1, downRect.left() + 1, downRect.bottom() - 1);
+                    cachePainter.drawLine(downRect.left() + 1, downRect.top() + 1, downRect.right() - 1, downRect.top() + 1);
                 } else {
-                    if (sunken && upIsActive) {
-                        cachePainter.setPen(option->palette.button().color().light(89));
-                    } else {
-                        cachePainter.setPen(gradientStartColor.light(105));
-                    }
+                    cachePainter.setPen(option->palette.light().color().light());
+                    cachePainter.drawLine(downRect.topLeft() + QPoint(3, 0), downRect.topRight() - QPoint(3, 0));
                 }
-                if (spinBox->direction == Qt::RightToLeft) {
-                    cachePainter.drawLine(upRect.right() - 1, upRect.top() + 1,
-                                          upRect.left() + 2, upRect.top() + 1);
-                    cachePainter.drawLine(upRect.left() + 1, upRect.top() + 2,
-                                          upRect.left() + 1, upRect.bottom() - 1);
-                } else {
-                    cachePainter.drawLine(upRect.left() + 1, upRect.top() + 1,
-                                          upRect.right() - 2, upRect.top() + 1);
-                    cachePainter.drawLine(upRect.left() + 1, upRect.top() + 2,
-                                          upRect.left() + 1, upRect.bottom() - 2);
-                }
-
-                if (hover && upIsActive && !sunken) {
-                    cachePainter.setPen(highlightedDarkInnerBorderColor.dark(105));
-                } else {
-                    if (sunken && upIsActive) {
-                        cachePainter.setPen(option->palette.button().color().light(96));
-                    } else {
-                        cachePainter.setPen(gradientStopColor.dark(105));
-                    }
-                }
-                if (spinBox->direction == Qt::RightToLeft) {
-                    cachePainter.drawLine(upRect.right() - 1, upRect.bottom() - 1,
-                                          upRect.left() + 2, upRect.bottom() - 1);
-                    cachePainter.drawLine(upRect.right() - 1, upRect.top() + 2,
-                                          upRect.right() - 1, upRect.bottom() - 2);
-                } else {
-                    cachePainter.drawLine(upRect.left() + 1, upRect.bottom() - 1,
-                                          upRect.right() - 2, upRect.bottom() - 1);
-                    cachePainter.drawLine(upRect.right() - 1, upRect.top() + 2,
-                                          upRect.right() - 1, upRect.bottom() - 1);
-                }
-
-                if (hover && downIsActive && !sunken) {
-                    cachePainter.setPen(highlightedDarkInnerBorderColor);
-                } else {
-                    if (sunken && downIsActive) {
-                        cachePainter.setPen(option->palette.button().color().light(89));
-                    } else {
-                        cachePainter.setPen(gradientStartColor.light(105));
-                    }
-                }
-                if (spinBox->direction == Qt::RightToLeft) {
-                    cachePainter.drawLine(downRect.right() - 1, downRect.top() + 1,
-                                          downRect.left() + 1, downRect.top() + 1);
-                    cachePainter.drawLine(downRect.left() + 1, downRect.top() + 2,
-                                          downRect.left() + 1, downRect.bottom() - 2);
-                } else {
-                    cachePainter.drawLine(downRect.left() + 1, downRect.top() + 1,
-                                          downRect.right() - 1, downRect.top() + 1);
-                    cachePainter.drawLine(downRect.left() + 1, downRect.top() + 2,
-                                          downRect.left() + 1, downRect.bottom() - 1);
-                }
-
-                if (hover && downIsActive && !sunken) {
-                    cachePainter.setPen(highlightedDarkInnerBorderColor.dark(105));
-                } else {
-                    if (sunken && downIsActive) {
-                        cachePainter.setPen(option->palette.button().color().light(96));
-                    } else {
-                        cachePainter.setPen(gradientStopColor.dark(105));
-                    }
-                }
-                if (spinBox->direction == Qt::RightToLeft) {
-                    cachePainter.drawLine(downRect.right() - 1, downRect.bottom() - 1,
-                                          downRect.left() + 2, downRect.bottom() - 1);
-                    cachePainter.drawLine(downRect.right() - 1, downRect.top() + 2,
-                                          downRect.right() - 1, downRect.bottom() - 1);
-                } else {
-                    cachePainter.drawLine(downRect.left() + 1, downRect.bottom() - 1,
-                                          downRect.right() - 2, downRect.bottom() - 1);
-                    cachePainter.drawLine(downRect.right() - 1, downRect.top() + 2,
-                                          downRect.right() - 1, downRect.bottom() - 2);
-                }
-
-                if (hover) {
-                    if (upIsActive && !sunken) {
-                        cachePainter.setPen(highlightedLightInnerBorderColor);
-                        if (spinBox->direction == Qt::RightToLeft) {
-                            cachePainter.drawLine(upRect.right() - 2, upRect.top() + 2,
-                                                  upRect.left() + 2, upRect.top() + 2);
-                            cachePainter.drawLine(upRect.right() - 2, upRect.top() + 3,
-                                                  upRect.right() - 2, upRect.bottom() - 3);
-                        } else {
-                            cachePainter.drawLine(upRect.left() + 2, upRect.top() + 2,
-                                                  upRect.right() - 2, upRect.top() + 2);
-                            cachePainter.drawLine(upRect.left() + 2, upRect.top() + 3,
-                                                  upRect.left() + 2, upRect.bottom() - 3);
-                        }
-                        cachePainter.setPen(highlightedLightInnerBorderColor.dark(105));
-                        if (spinBox->direction == Qt::RightToLeft) {
-                            cachePainter.drawLine(upRect.right() - 2, upRect.bottom() - 2,
-                                                  upRect.left() + 2, upRect.bottom() - 2);
-                            cachePainter.drawLine(upRect.left() + 2, upRect.top() + 3,
-                                                  upRect.left() + 2, upRect.bottom() - 3);
-                        } else {
-                            cachePainter.drawLine(upRect.left() + 2, upRect.bottom() - 2,
-                                                  upRect.right() - 2, upRect.bottom() - 2);
-                            cachePainter.drawLine(upRect.right() - 2, upRect.top() + 3,
-                                                  upRect.right() - 2, upRect.bottom() - 3);
-                        }
-
-                    }
-                    if (downIsActive && !sunken) {
-                        cachePainter.setPen(highlightedLightInnerBorderColor);
-                        if (spinBox->direction == Qt::RightToLeft) {
-                            cachePainter.drawLine(downRect.right() - 2, downRect.top() + 2,
-                                                  downRect.left() + 2, downRect.top() + 2);
-                            cachePainter.drawLine(downRect.right() - 2, downRect.top() + 3,
-                                                  downRect.right() - 2, downRect.bottom() - 3);
-                        } else {
-                            cachePainter.drawLine(downRect.left() + 2, downRect.top() + 2,
-                                                  downRect.right() - 2, downRect.top() + 2);
-                            cachePainter.drawLine(downRect.left() + 2, downRect.top() + 3,
-                                                  downRect.left() + 2, downRect.bottom() - 3);
-                        }
-
-                        cachePainter.setPen(highlightedLightInnerBorderColor.dark(105));
-                        if (spinBox->direction == Qt::RightToLeft) {
-                            cachePainter.drawLine(downRect.right() - 2, downRect.bottom() - 2,
-                                                  downRect.left() + 2, downRect.bottom() - 2);
-                            cachePainter.drawLine(downRect.left() + 2, downRect.top() + 3,
-                                                  downRect.left() + 2, downRect.bottom() - 3);
-                        } else {
-                            cachePainter.drawLine(downRect.left() + 2, downRect.bottom() - 2,
-                                                  downRect.right() - 2, downRect.bottom() - 2);
-                            cachePainter.drawLine(downRect.right() - 2, downRect.top() + 3,
-                                                  downRect.right() - 2, downRect.bottom() - 3);
-                        }
-                    }
-                }
-
+                
                 if (spinBox->buttonSymbols == QAbstractSpinBox::PlusMinus) {
                     int centerX = upRect.center().x();
                     int centerY = upRect.center().y();
@@ -2180,28 +2040,20 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     }
                 } else {
                     // arrows
-                    QImage upArrow(qt_scrollbar_button_arrow_up);
+                    QImage upArrow(qt_spinbox_button_arrow_up);
                     upArrow.setColor(1, spinBox->palette.foreground().color().rgba());
-                    if (spinBox->activeSubControls == SC_SpinBoxUp && sunken) {
-                        cachePainter.drawImage(1 + upRect.center().x() - upArrow.width() / 2,
-                                               1 + upRect.center().y() - upArrow.height() / 2,
-                                               upArrow);
-                    } else {
-                        cachePainter.drawImage(upRect.center().x() - upArrow.width() / 2,
-                                               upRect.center().y() - upArrow.height() / 2,
-                                               upArrow);
-                    }
-                    QImage downArrow(qt_scrollbar_button_arrow_down);
+                    
+                    cachePainter.drawImage(upRect.center().x() - upArrow.width() / 2,
+                                            upRect.center().y() - upArrow.height() / 2,
+                                            upArrow);
+                
+                    QImage downArrow(qt_spinbox_button_arrow_down);
                     downArrow.setColor(1, spinBox->palette.foreground().color().rgba());
-                    if (spinBox->activeSubControls == SC_SpinBoxDown && sunken) {
-                        cachePainter.drawImage(1 + downRect.center().x() - downArrow.width() / 2,
-                                               2 + downRect.center().y() - downArrow.height() / 2,
-                                               downArrow);
-                    } else {
-                        cachePainter.drawImage(downRect.center().x() - downArrow.width() / 2,
-                                               1 + downRect.center().y() - downArrow.height() / 2,
-                                               downArrow);
-                    }
+                    
+                    cachePainter.drawImage(downRect.center().x() - downArrow.width() / 2,
+                                            downRect.center().y() - downArrow.height() / 2,
+                                            downArrow);
+                
                 }
                 cachePainter.end();
                 if (UsePixmapCache)
@@ -2492,14 +2344,13 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             // paint groove
             if (scrollBar->subControls & SC_ScrollBarGroove) {
                 painter->setBrush(grooveColor);
+                painter->setPen(Qt::NoPen);
                 if (horizontal) {
-                    grooveRect.adjust(-1, 0, 1, 0);
                     painter->drawRect(grooveRect);
                     painter->setPen(borderColor);
                     painter->drawLine(grooveRect.topLeft(), grooveRect.topRight());
                     painter->drawLine(grooveRect.bottomLeft(), grooveRect.bottomRight());
                 } else {
-                    grooveRect.adjust(0, -1, 0, 1);
                     painter->drawRect(grooveRect);
                     painter->setPen(borderColor);
                     painter->drawLine(grooveRect.topLeft(), grooveRect.bottomLeft());
@@ -3113,7 +2964,7 @@ int QCleanLooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
         ret = 24;
         break;
     case PM_ScrollBarExtent:
-        ret = 16;
+        ret = 15;
         break;
     case PM_SliderThickness:
         ret = 16;
@@ -3161,6 +3012,7 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         newSize += QSize(0, 4);
         break;
     case CT_LineEdit:
+    case CT_SpinBox:
         newSize += QSize(0, 1);
         break;
     case CT_PushButton:
@@ -3203,14 +3055,15 @@ void QCleanLooksStyle::polish(QWidget *widget)
    font.setFamily("bitstream vera sans");
    widget->setFont(font);
 */
-    if (qobject_cast<QPushButton *>(widget)
+    if (qobject_cast<QAbstractButton*>(widget)
         || qobject_cast<QComboBox *>(widget)
         || qobject_cast<QProgressBar *>(widget)
         || qobject_cast<QScrollBar *>(widget)
 #ifndef QT_NO_SPLITTER
         || qobject_cast<QSplitterHandle *>(widget)
 #endif
-        || qobject_cast<QSlider *>(widget)
+        || qobject_cast<QAbstractSlider *>(widget)
+        || qobject_cast<QAbstractSpinBox *>(widget)
         || (widget->inherits("QDockSeparator"))
         || (widget->inherits("QDockWidgetSeparator"))
         ) {
@@ -3290,16 +3143,38 @@ QRect QCleanLooksStyle::subControlRect(ComplexControl control, const QStyleOptio
         break;
 #endif // QT_NO_SLIDER
     case CC_ScrollBar:
-        return QWindowsStyle::subControlRect(control, option, subControl, widget);
         break;
+#ifndef QT_NO_SPINBOX
     case CC_SpinBox:
-        if (subControl == SC_SpinBoxUp) {
-            rect.adjust(0, - 1, 2, 1);
-        } else if (subControl == SC_SpinBoxDown) {
-            rect.adjust(0, 0, 2, 2);
+        if (const QStyleOptionSpinBox *spinbox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
+            QSize bs;
+            int fw = spinbox->frame ? pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget) : 0;
+            bs.setHeight(qMax(8, spinbox->rect.height()/2 - fw));
+            bs.setWidth(14);
+            int y = fw;
+            int x, lx, rx;
+            x = spinbox->rect.width() - y - bs.width() + 2;
+            lx = fw;
+            rx = x - fw;
+            switch (subControl) {
+            case SC_SpinBoxUp:
+                rect = QRect(x, y - 1, bs.width(), bs.height() + 1);
+                break;
+            case SC_SpinBoxDown:
+                rect = QRect(x, y + bs.height(), bs.width(), bs.height());
+                break;
+            case SC_SpinBoxEditField:
+                rect = QRect(lx, fw, rx, spinbox->rect.height() - 2*fw);
+                break;
+            case SC_SpinBoxFrame:
+                rect = spinbox->rect;
+            default:
+                break;
+            }
+            rect = visualRect(spinbox->direction, spinbox->rect, rect);
         }
-    return rect;
-    break;
+        break;
+#endif // Qt_NO_SPINBOX
 #ifndef QT_NO_GROUPBOX
     case CC_GroupBox:
         if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
