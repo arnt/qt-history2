@@ -381,11 +381,11 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	} else if ( atom->string() == ATOM_LIST_VALUE ) {
             threeColumnEnumValueTable = isThreeColumnEnumValueTable(atom);
             if (threeColumnEnumValueTable) {
-	        out() << "<table border=\"1\" cellpadding=\"2\" cellspacing=\"1\" width=\"100%\">\n"
+	        out() << "<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"1\" width=\"100%\">\n"
                          "<tr><th width=\"25%\">Constant</th><th width=\"15%\">Value</th>"
                          "<th width=\"60%\">Description</th></tr>\n";
             } else {
-                out() << "<table border=\"1\" cellpadding=\"2\" cellspacing=\"1\" width=\"40%\">\n"
+                out() << "<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"1\" width=\"40%\">\n"
                       << "<tr><th width=\"60%\">Constant</th><th width=\"40%\">Value</th></tr>\n";
             }
 	} else {
@@ -465,7 +465,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	} else if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "</dl>\n";
 	} else if ( atom->string() == ATOM_LIST_VALUE ) {
-	    out() << "</table>\n";
+	    out() << "</table></p>\n";
 	} else {
 	    out() << "</ol>\n";
 	}
