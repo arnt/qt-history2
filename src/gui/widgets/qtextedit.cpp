@@ -3399,15 +3399,13 @@ void QTextEdit::append(const QString &text)
     if (!d->doc->isEmpty())
         cursor.insertBlock(d->cursor.blockFormat(), d->cursor.charFormat());
 
-    QTextDocumentFragment fragment;
-    if (f == Qt::PlainText)
-        fragment = QTextDocumentFragment::fromPlainText(text);
-    else
-        fragment = QTextDocumentFragment::fromHtml(text);
-
     // preserve the char format
     QTextCharFormat oldCharFormat = d->cursor.charFormat();
-    cursor.insertFragment(fragment);
+    if (f == Qt::PlainText) {
+        cursor.insertText(text);
+    } else {
+        cursor.insertFragment(QTextDocumentFragment::fromHtml(text));
+    }
     if (!d->cursor.hasSelection())
         d->cursor.setCharFormat(oldCharFormat);
 
