@@ -590,6 +590,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->mono_surface = false;
     d->fast_pen = true;
     d->int_xform = true;
+    d->compositionMode = QPainter::CompositionMode_SourceOver;
 
     d->rasterBuffer->init();
 
