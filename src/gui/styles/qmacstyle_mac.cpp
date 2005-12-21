@@ -341,9 +341,27 @@ static inline const QRect qt_qrectForHIRect(const HIRect &hirect)
                  QSize(int(hirect.size.width), int(hirect.size.height)));
 }
 
+static inline bool qt_mac_is_opaque(const QWidget *w)
+{
+    if (w->testAttribute(Qt::WA_OpaquePaintEvent)
+        || w->testAttribute(Qt::WA_PaintOnScreen)
+        || w->testAttribute(Qt::WA_NoSystemBackground))
+        return true;
+
+    if (!w->autoFillBackground())
+        return false;
+
+    const QPalette &pal = w->palette();
+    QPalette::ColorRole bg = w->backgroundRole();
+    QBrush bgBrush = pal.brush(bg);
+    return bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque();
+}
+
 static inline bool qt_mac_is_metal(const QWidget *w)
 {
     for (; w; w = w->parentWidget()) {
+        if (qt_mac_is_opaque(w))
+            break;
         if (w->testAttribute(Qt::WA_MacMetalStyle))
             return true;
         if (w->isWindow())
