@@ -357,6 +357,7 @@ Qt::PenJoinStyle QStroker::joinForJoinMode(LineJoinMode mode)
 {
     if (mode == FlatJoin) return Qt::BevelJoin;
     else if (mode == MiterJoin) return Qt::MiterJoin;
+    else if (mode == SvgMiterJoin) return Qt::SvgMiterJoin;
     else return Qt::RoundJoin;
 }
 
@@ -364,6 +365,7 @@ QStroker::LineJoinMode QStroker::joinModeForJoin(Qt::PenJoinStyle joinStyle)
 {
     if (joinStyle == Qt::BevelJoin) return FlatJoin;
     else if (joinStyle == Qt::MiterJoin) return MiterJoin;
+    else if (joinStyle == Qt::SvgMiterJoin) return SvgMiterJoin;
     else return RoundJoin;
 }
 
@@ -537,6 +539,16 @@ void QStroker::joinPoints(qfixed focal_x, qfixed focal_y, const QLineF &nextLine
                         qt_real_to_fixed(l1.y2()),
                         qt_real_to_fixed(l1.x1()),
                         qt_real_to_fixed(l1.y1()));
+        } else if (join == SvgMiterJoin) {
+            QLineF miterLine(QPointF(qt_fixed_to_real(focal_x),
+                                     qt_fixed_to_real(focal_y)), isect);
+            if (miterLine.length() > qt_fixed_to_real(m_strokeWidth * m_miterLimit) / 2) {
+                emitLineTo(qt_real_to_fixed(nextLine.x1()),
+                           qt_real_to_fixed(nextLine.y1()));
+            } else {
+                emitLineTo(qt_real_to_fixed(isect.x()), qt_real_to_fixed(isect.y()));
+                emitLineTo(qt_real_to_fixed(nextLine.x1()), qt_real_to_fixed(nextLine.y1()));
+            }
         } else {
             qFatal("QStroker::joinPoints(), bad join style...");
         }

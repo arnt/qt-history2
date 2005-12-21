@@ -845,7 +845,8 @@ public:
         MiterJoin = 0x00,
         BevelJoin = 0x40,
         RoundJoin = 0x80,
-        MPenJoinStyle = 0xc0
+        SvgMiterJoin = 0x100,
+        MPenJoinStyle = 0x1c0
     };
 
     enum BrushStyle { // brush style

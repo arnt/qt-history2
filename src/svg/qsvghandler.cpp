@@ -39,7 +39,7 @@
 static bool parsePathDataFast(const QString &data, QPainterPath &path);
 
 static QPen defaultPen(Qt::black, 1, Qt::NoPen,
-                       Qt::FlatCap, Qt::MiterJoin);
+                       Qt::FlatCap, Qt::SvgMiterJoin);
 
 static QString xmlSimplify(const QString &str)
 {
@@ -470,14 +470,14 @@ static void parseQPen(QPen &pen, QSvgNode *node,
 
             if (!linejoin.isEmpty()) {
                 if (linejoin == "miter")
-                    pen.setJoinStyle(Qt::MiterJoin);
+                    pen.setJoinStyle(Qt::SvgMiterJoin);
                 else if (linejoin == "round")
                     pen.setJoinStyle(Qt::RoundJoin);
                 else if (linejoin == "bevel")
                     pen.setJoinStyle(Qt::BevelJoin);
             }
             if (!miterlimit.isEmpty()) {
-                pen.setMiterLimit(miterlimit.toDouble()/2);
+                pen.setMiterLimit(miterlimit.toDouble());
             }
 
             if (!linecap.isEmpty()) {
@@ -689,7 +689,7 @@ static void parsePen(QSvgNode *node,
 
             if (!linejoin.isEmpty()) {
                 if (linejoin == "miter")
-                    pen.setJoinStyle(Qt::MiterJoin);
+                    pen.setJoinStyle(Qt::SvgMiterJoin);
                 else if (linejoin == "round")
                     pen.setJoinStyle(Qt::RoundJoin);
                 else if (linejoin == "bevel")
@@ -719,7 +719,7 @@ static void parsePen(QSvgNode *node,
                 pen.setDashPattern(vec);
             }
             if (!miterlimit.isEmpty()) {
-                pen.setMiterLimit(miterlimit.toDouble() / 2);
+                pen.setMiterLimit(miterlimit.toDouble());
             }
 
             node->appendStyleProperty(new QSvgStrokeStyle(pen), myId);
@@ -2496,7 +2496,7 @@ QSvgHandler::QSvgHandler()
     : m_doc(0), m_style(0), m_defaultCoords(PX)
 {
     if (s_groupFactory.isEmpty()) {
-        defaultPen.setMiterLimit(2);
+        defaultPen.setMiterLimit(4);
         init();
     }
 }
