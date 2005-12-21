@@ -872,8 +872,8 @@
     \row \o \c QCanvasView \o Q3CanvasView
     \endtable
 
-    Qt 4.1 is expected to provide a replacement module for these
-    classes, based on Qt 4's powerful new 2D paint system.
+    A replacement module for these classes, based on Qt 4's powerful
+    painting system, is planned for release as part of Qt 4.2.
 
     \section1 QColor
 
