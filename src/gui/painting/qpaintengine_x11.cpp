@@ -740,6 +740,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->render_hints = 0;
     d->txop = QPainterPrivate::TxNone;
     d->use_path_fallback = false;
+    d->composition_mode = PictOpOver;
     d->xlibMaxLinePoints = 32762; // a safe number used to avoid, call to XMaxRequestSize(d->dpy) - 3;
 
     // Set up the polygon clipper. Note: This will only work in
@@ -777,7 +778,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     setDirty(QPaintEngine::DirtyPen);
     setDirty(QPaintEngine::DirtyBrush);
     setDirty(QPaintEngine::DirtyBackground);
-    setDirty(QPaintEngine::DirtyCompositionMode);
 
     return true;
 }
