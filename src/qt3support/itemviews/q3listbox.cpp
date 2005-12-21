@@ -40,7 +40,7 @@ class Q3ListBoxPrivate
 public:
     Q3ListBoxPrivate(Q3ListBox *lb):
         head(0), last(0), cache(0), cacheIndex(-1), current(0),
-        highlighted(0), columnPos(1), rowPos(1), rowPosCache(0),
+        highlighted(0), tmpCurrent(0), columnPos(1), rowPos(1), rowPosCache(0),
         columnPosOne(0), rowMode(Q3ListBox::FixedNumber),
         columnMode(Q3ListBox::FixedNumber), numRows(1), numColumns(1),
         currentRow(0), currentColumn(0),
