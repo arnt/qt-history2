@@ -233,7 +233,26 @@
     \enum Qt::PenStyle
 
     This enum type defines the pen styles that can be drawn using
-    QPainter. The styles are
+    QPainter. The styles are:
+
+    \table
+    \row
+    \o \inlineimage qpen-solid.png
+    \o \inlineimage qpen-dash.png
+    \o \inlineimage qpen-dot.png
+    \row
+    \o Qt::SolidLine
+    \o Qt::DashLine
+    \o Qt::DotLine
+    \row
+    \o \inlineimage qpen-dashdot.png
+    \o \inlineimage qpen-dashdotdot.png
+    \o \inlineimage qpen-custom.png
+    \row
+    \o Qt::DashDotLine
+    \o Qt::DashDotDotLine
+    \o Qt::CustomDashLine
+    \endtable
 
     \value NoPen  no line at all. For example, QPainter::drawRect()
     fills but does not draw any boundary line.
@@ -248,8 +267,6 @@
 
     \omitvalue MPenStyle
 
-    \image pen-styles.png Pen Styles
-
     \sa QPen
 */
 
@@ -259,14 +276,23 @@
     This enum type defines the pen cap styles supported by Qt, i.e.
     the line end caps that can be drawn using QPainter.
 
+    \table
+    \row
+    \o \inlineimage qpen-square.png
+    \o \inlineimage qpen-flat.png
+    \o \inlineimage qpen-roundcap.png
+    \row
+    \o Qt::SquareCap
+    \o Qt::FlatCap
+    \o Qt::RoundCap
+    \endtable
+
     \value FlatCap  a square line end that does not cover the end
 	point of the line.
     \value SquareCap  a square line end that covers the end point and
 	extends beyond it by half the line width.
     \value RoundCap  a rounded line end.
     \omitvalue MPenCapStyle
-
-    \image pen-cap-styles.png Pen Cap Styles
 
     \sa QPen
 */
@@ -278,19 +304,33 @@
     which joins between two connected lines can be drawn using
     QPainter.
 
+    \table
+    \row
+    \o \inlineimage qpen-bevel.png
+    \o \inlineimage qpen-miter.png
+    \o \inlineimage qpen-roundjoin.png
+    \row
+    \o Qt::BevelJoin
+    \o Qt::MiterJoin
+    \o Qt::RoundJoin
+    \endtable
+
     \value MiterJoin  The outer edges of the lines are extended to
 	meet at an angle, and this area is filled.
     \value BevelJoin  The triangular notch between the two lines is filled.
     \value RoundJoin  A circular arc between the two lines is filled.
     \omitvalue MPenJoinStyle
 
-    \image pen-join-styles.png Pen Join Styles
-
     \sa QPen
 */
 
 /*!
     \enum Qt::BrushStyle
+
+    This enum type defines the brush styles supported by Qt, i.e. the
+    fill pattern of shapes drawn using QPainter.
+
+    \image brush-styles.png Brush Styles
 
     \value NoBrush  No brush pattern.
     \value SolidPattern  Uniform color.
@@ -313,8 +353,6 @@
     \value TexturePattern  Custom pattern (see QBrush::setTexture()).
 
     \omitvalue CustomPattern
-
-    \image brush-styles.png Brush Styles
 
     \sa QBrush
 */
