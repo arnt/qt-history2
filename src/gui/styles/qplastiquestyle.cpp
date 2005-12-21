@@ -1244,6 +1244,15 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         }
         break;
 #endif // QT_NO_MAINWINDOW
+    case PE_IndicatorHeaderArrow: {
+        bool usedAntialiasing = painter->renderHints() & QPainter::Antialiasing;
+        if (!usedAntialiasing)
+            painter->setRenderHint(QPainter::Antialiasing);
+        QWindowsStyle::drawPrimitive(element, option, painter, widget);
+        if (!usedAntialiasing)
+            painter->setRenderHint(QPainter::Antialiasing, false);
+        break;
+    }
     case PE_PanelButtonTool:
         // Draws a tool button (f.ex., in QToolBar and QTabBar)
         if ((option->state & State_Enabled) || !(option->state & State_AutoRaise))
