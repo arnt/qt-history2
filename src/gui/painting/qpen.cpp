@@ -19,56 +19,198 @@
 #include <qdebug.h>
 
 /*!
-    \class QPen qpen.h
-    \brief The QPen class defines how a QPainter should draw lines and outlines
-    of shapes.
-
+    \class QPen
     \ingroup multimedia
     \ingroup shared
     \mainclass
 
-    A pen has a style, width, brush, cap style and join style.
+    \brief The QPen class defines how a QPainter should draw lines and outlines
+    of shapes.
 
-    The pen style defines the line type. The default pen style is
-    Qt::SolidLine. Setting the style to Qt::NoPen tells the painter to
-    not draw lines or outlines.
+    A pen has a style(), width(), brush(), capStyle() and joinStyle().
 
-    The pen brush defines the fill of lines and text. The default pen
-    is a solid black brush. The QColor documentation lists predefined
-    colors.
+    The pen style defines the line type. The brush is used to fill
+    strokes generated with the pen. Use the QBrush class to specify
+    fill styles.  The cap style determines the line end caps that can
+    be drawn using QPainter, while the join style describes how joins
+    between two lines are drawn. The pen width can be specified in
+    both integer (width()) and floating point (widthF()) precision. A
+    line width of zero indicates a cosmetic pen.  This means that the
+    pen width is always drawn one pixel wide, independent of the \l
+    {QPainter#Coordinate Transformations}{transformation} set on the
+    painter.
 
-    The cap style defines how the end points of lines are drawn. The
-    join style defines how the joins between two lines are drawn when
-    multiple connected lines are drawn (QPainter::drawPolyline()
-    etc.). The cap and join styles only apply to wide lines, i.e. when
-    the width is 1 or greater.
+    The various settings can easily be modified using the
+    corresponding setStyle(), setWidth(), setBrush(), setCapStyle()
+    and setJoinStyle() functions (note that the painter's pen must be
+    reset when altering the pen's properties).
 
-    Use the QBrush class to specify fill styles.
+    For example:
 
-    Since Qt 4.1 it is possible to specify a custom dash pattern in
-    QPen using setDashPattern().
+    \code
+        QPainter painter(this);
+        QPen pen(Qt::green, 3, Qt::DashDotLine, Qt::RoundCap. Qt::RoundJoin);
+        painter.setPen(pen);
+    \endcode
 
-    Example:
-    \quotefromfile snippets/brush/brush.cpp
-    \skipto PEN
-    \skipto QPainter
-    \printuntil end
+    which is equivalent to
 
-    See the \l Qt::PenStyle enum type for a complete list of pen
-    styles.
+    \code
+        QPainter painter(this);
+        QPen pen();  // creates a default pen
 
-    Whether or not end points are drawn when the pen width is zero or one
-    depends on the cap style. Using SquareCap (the default) or
-    RoundCap they are drawn, using FlatCap they are not drawn.
+        pen.setStyle(Qt::DashDotLine);
+        pen.setWidth(3);
+        pen.setBrush(Qt::green);
+        pen.setCapStyle(Qt::RoundCap);
+        pen.setJoinStyle(Qt::RoundJoin);
 
-    A pen's color(), brush(), width(), style(), capStyle() and
-    joinStyle() can be set in the constructor or later with
-    setColor(), setWidth(), setStyle(), setCapStyle() and
-    setJoinStyle(). Pens may also be compared and streamed.
+        painter.setPen(pen);
+    \endcode
 
-    \img pen-styles.png Pen styles
+    The default pen is a solid black brush with 0 width, square
+    cap style (Qt::SquareCap), and  bevel join style (Qt::BevelJoin).
 
-    \sa QPainter, QPainter::setPen()
+    In addition QPen provides the color() and setColor()
+    convenience functions to extract and set the color of the pen's
+    brush, respectively. Pens may also be compared and streamed.
+
+    \tableofcontents
+
+    \section1 Pen Style
+
+    Qt provides several built-in styles represented by the
+    Qt::PenStyle enum:
+
+    \table
+    \row
+    \o \inlineimage qpen-solid.png
+    \o \inlineimage qpen-dash.png
+    \o \inlineimage qpen-dot.png
+    \row
+    \o Qt::SolidLine
+    \o Qt::DashLine
+    \o Qt::DotLine
+    \row
+    \o \inlineimage qpen-dashdot.png
+    \o \inlineimage qpen-dashdotdot.png
+    \o \inlineimage qpen-custom.png
+    \row
+    \o Qt::DashDotLine
+    \o Qt::DashDotDotLine
+    \o Qt::CustomDashLine
+    \endtable
+
+    Simply use the setStyle() function to convert the pen style to
+    either of the built-in styles, except the Qt::CustomDashLine style
+    which we will come back to shortly. Setting the style to Qt::NoPen
+    tells the painter to not draw lines or outlines. The default pen
+    style is Qt::SolidLine.
+
+    Since Qt 4.1 it is also possible to specify a custom dash pattern
+    using the setDashPattern() function which implicitly converts the
+    style of the pen to Qt::CustomDashLine. The pattern argument, a
+    QVector, must be specified as an even number of \l qreal entries
+    where the entries 1, 3, 5... are the dashes and 2, 4, 6... are the
+    spaces. For example, the custom pattern shown above is created
+    using the following code:
+
+    \code
+    QPen pen;
+    QVector<qreal> dashes;
+    qreal space = 4;
+
+    dashes << 1 << space << 3 << space << 9 << space
+               << 27 << space << 9;
+
+    pen.setDashPattern(dashes);
+    \endcode
+
+    Note that the dash pattern is specified in units of the pens
+    width, e.g. a dash of length 5 in width 10 is 50 pixels long.
+
+    The currently set dash pattern can be retrieved using the
+    dashPattern() function. Use the isSolid() function to determine
+    whether the pen has a solid fill, or not.
+
+    \section1 Cap Style
+
+    The cap style defines how the end points of lines are drawn using
+    QPainter.  The cap style only apply to wide lines, i.e. when the
+    width is 1 or greater. The Qt::PenCapStyle enum provides the
+    following styles:
+
+    \table
+    \row
+    \o \inlineimage qpen-square.png
+    \o \inlineimage qpen-flat.png
+    \o \inlineimage qpen-roundcap.png
+    \row
+    \o Qt::SquareCap
+    \o Qt::FlatCap
+    \o Qt::RoundCap
+    \endtable
+
+    The Qt::SquareCap style is a square line end that covers the end
+    point and extends beyond it by half the line width. The
+    Qt::FlatCap style is a square line end that does not cover the end
+    point of the line. And the Qt::RoundCap style is a rounded line
+    end covering the end point.
+
+    The default is Qt::SquareCap.
+
+    Whether or not end points are drawn when the pen width is 0 or 1
+    depends on the cap style. Using Qt::SquareCap or Qt::RoundCap they
+    are drawn, using Qt::FlatCap they are not drawn.
+
+    \section1 Join Style
+
+    The join style defines how joins between two connected lines can
+    be drawn using QPainter. The join style only apply to wide lines,
+    i.e. when the width is 1 or greater. The Qt::PenJoinStyle enum
+    provides the following styles:
+
+    \table
+    \row
+    \o \inlineimage qpen-bevel.png
+    \o \inlineimage qpen-miter.png
+    \o \inlineimage qpen-roundjoin.png
+    \row
+    \o Qt::BevelJoin
+    \o Qt::MiterJoin
+    \o Qt::RoundJoin
+    \endtable
+
+    The Qt::BevelJoin style fills the triangular notch between the two
+    lines. The Qt::MiterJoin style extends the lines to meet at an
+    angle. And the Qt::RoundJoin style fills a circular arc between
+    the two lines.
+
+    The default is Qt::BevelJoin.
+
+    \image qpen-miterlimit.png
+
+    When the Qt::MiterJoin style is applied, it is possible to use the
+    setMiterLimit() function to specify how far the miter join can
+    extend from the join point. The miterLimit() is used to reduce
+    artifacts between line joins where the lines are close to
+    parallel.
+
+    The miterLimit() must be specified in units of the pens width,
+    e.g. a miter limit of 5 in width 10 is 50 pixels long. The
+    default miter limit is 2, i.e. twice the pen width in pixels.
+
+    \table 100%
+    \row
+    \o \inlineimage qpen-demo.png
+    \o \bold {\l {demos/pathstroke}{The Path Stroking Demo}}
+
+    The Path Stroking demo shows Qt's built-in dash patterns and shows
+    how custom patterns can be used to extend the range of available
+    patterns.
+    \endtable
+
+    \sa QPainter, QBrush, {demos/pathstroke}{The Path Stroking Demo}
 */
 
 class QPenPrivate {
@@ -155,7 +297,7 @@ QPen::QPen()
 }
 
 /*!
-    Constructs a black pen with 0 width and style \a style.
+    Constructs a black pen with 0 width and the given \a style.
 
     \sa setStyle()
 */
@@ -172,7 +314,7 @@ QPen::QPen(Qt::PenStyle style)
 
 
 /*!
-    Constructs a pen of color \a color with 0 width.
+    Constructs a pen with 0 width and the given \a color.
 
     \sa setBrush(), setColor()
 */
@@ -184,11 +326,12 @@ QPen::QPen(const QColor &color)
 
 
 /*!
-    Constructs a pen with the specified brush \a brush and width \a
-    width.  The pen style is set to \a s, the pen cap style to \a c
-    and the pen join style to \a j.
+    \fn QPen::QPen(const QBrush &brush, qreal width, Qt::PenStyle style, Qt::PenCapStyle cap, Qt::PenJoinStyle join)
 
-    \sa setWidth(), setStyle(), setBrush()
+    Constructs a pen with the specified \a brush, \a width, pen \a style,
+    \a cap style and \a join style.
+
+    \sa setBrush(), setWidth(), setStyle(),  setCapStyle(), setJoinStyle()
 */
 
 QPen::QPen(const QBrush &brush, qreal width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j)
@@ -197,7 +340,9 @@ QPen::QPen(const QBrush &brush, qreal width, Qt::PenStyle s, Qt::PenCapStyle c, 
 }
 
 /*!
-    Constructs a pen that is a copy of \a p.
+    \fn QPen::QPen(const QPen &pen)
+
+    Constructs a pen that is a copy of the given \a pen.
 */
 
 QPen::QPen(const QPen &p)
@@ -243,7 +388,10 @@ void QPen::detach()
 
 
 /*!
-    Assigns \a p to this pen and returns a reference to this pen.
+    \fn QPen &QPen::operator=(const QPen &pen)
+
+    Assigns the given \a pen to this pen and returns a reference to
+    this pen.
 */
 
 QPen &QPen::operator=(const QPen &p)
@@ -253,7 +401,7 @@ QPen &QPen::operator=(const QPen &p)
 }
 
 /*!
-   Returns the pen as a QVariant
+   Returns the pen as a QVariant.
 */
 QPen::operator QVariant() const
 {
@@ -265,7 +413,7 @@ QPen::operator QVariant() const
 
     Returns the pen style.
 
-    \sa setStyle()
+    \sa setStyle(), {QPen#Pen Style}{Pen Style}
 */
 
 Qt::PenStyle QPen::style() const
@@ -274,12 +422,16 @@ Qt::PenStyle QPen::style() const
 }
 
 /*!
-    Sets the pen style to \a s.
+    \fn void QPen::setStyle(Qt::PenStyle style)
 
-    See the \l Qt::PenStyle documentation for a list of all the
-    styles.
+    Sets the pen style to the given \a style.
 
-    \sa style()
+    See the \l Qt::PenStyle documentation for a list of the available
+    styles. Since Qt 4.1 it is also possible to specify a custom dash
+    pattern using the setDashPattern() function which implicitly
+    converts the style of the pen to Qt::CustomDashLine.
+
+    \sa style(), {QPen#Pen Style}{Pen Style}
 */
 
 void QPen::setStyle(Qt::PenStyle s)
@@ -292,6 +444,8 @@ void QPen::setStyle(Qt::PenStyle s)
 
 /*!
     Returns the dash pattern of this pen.
+
+    \sa style(), isSolid()
  */
 QVector<qreal> QPen::dashPattern() const
 {
@@ -323,18 +477,34 @@ QVector<qreal> QPen::dashPattern() const
 }
 
 /*!
-    Sets the dash pattern for this pen to \a pattern. This implicitly
-    converts the style of the pen to Qt::CustomDashLine.
+    Sets the dash pattern for this pen to the given \a pattern. This
+    implicitly converts the style of the pen to Qt::CustomDashLine.
 
     The pattern must be specified as an even number of entries where
     the entries 1, 3, 5... are the dashes and 2, 4, 6... are the
-    spaces.
+    spaces. For example:
+
+    \table 100%
+    \row
+    \o \inlineimage qpen-custom.png
+    \o
+    \code
+    QPen pen;
+    QVector<qreal> dashes;
+    qreal space = 4;
+    dashes << 1 << space << 3 << space << 9 << space
+               << 27 << space << 9;
+    pen.setDashPattern(dashes);
+    \endcode
+    \endtable
 
     The dash pattern is specified in units of the pens width, e.g. a
     dash of length 5 in width 10 is 50 pixels long. Each dash is also
     subject to cap styles so a dash of 1 with square cap set will
     extend 0.5 pixels out in each direction resulting in a total width
     of 2.
+
+    \sa setStyle(), dashPattern()
  */
 void QPen::setDashPattern(const QVector<qreal> &pattern)
 {
@@ -351,8 +521,10 @@ void QPen::setDashPattern(const QVector<qreal> &pattern)
 }
 
 /*!
-    Returns the miter limit of the pen. The miter limt is only
+    Returns the miter limit of the pen. The miter limit is only
     relevant when the join style is set to Qt::MiterJoin.
+
+    \sa setMiterLimit(),  {QPen#Join Style}{Join Style}
 */
 qreal QPen::miterLimit() const
 {
@@ -360,14 +532,20 @@ qreal QPen::miterLimit() const
 }
 
 /*!
-    Sets the miter limit of this pen to \a limit.
+    Sets the miter limit of this pen to the given \a limit.
+
+    \image qpen-miterlimit.png
 
     The miter limit describes how far a miter join can extend from the
     join point. This is used to reduce artifacts between line joins
     where the lines are close to parallel.
 
     This value does only have effect when the pen style is set to
-    Qt::MiterJoin. The value is specified in units of the pens width.
+    Qt::MiterJoin. The value is specified in units of the pen's width,
+    e.g. a miter limit of 5 in width 10 is 50 pixels long. The default
+    miter limit is 2, i.e. twice the pen width in pixels.
+
+    \sa miterLimit(), setJoinStyle(), {QPen#Join Style}{Join Style}
 */
 void QPen::setMiterLimit(qreal limit)
 {
@@ -379,9 +557,9 @@ void QPen::setMiterLimit(qreal limit)
 /*!
     \fn qreal QPen::width() const
 
-    Returns the pen width with integer preceision.
+    Returns the pen width with integer precision.
 
-    \sa setWidth()
+    \sa setWidth(), widthF()
 */
 
 int QPen::width() const
@@ -404,15 +582,16 @@ qreal QPen::widthF() const
 /*!
     \fn QPen::setWidth(int width)
 
-    Sets the pen width to \a width
+    Sets the pen width to the given  \a width with integer point precision.
 
-    A line width of zero indicates cosmetic pen. This means that the
-    pen width is always drawn one pixel wide, independent of the
-    transformation set on the painter.
+    A line width of zero indicates a cosmetic pen. This means that the
+    pen width is always drawn one pixel wide, independent of the \l
+    {QPainter::coordinate Transformations}{transformation} set on the
+    painter.
 
     Setting a pen width with a negative value is not supported.
 
-    \sa setWidthF() width()
+    \sa setWidthF(), width()
 */
 void QPen::setWidth(int width)
 {
@@ -425,9 +604,14 @@ void QPen::setWidth(int width)
 }
 
 /*!
-    Sets the pen width to \a width.
+    Sets the pen width to the given \a width with floating point precision.
 
-    \overload
+    A line width of zero indicates a cosmetic pen. This means that the
+    pen width is always drawn one pixel wide, independent of the \l
+    {QPainter::coordinate Transformations}{transformation} on the
+    painter.
+
+    Setting a pen width with a negative value is not supported.
 
     \sa setWidth() widthF()
 */
@@ -446,7 +630,7 @@ void QPen::setWidthF(qreal width)
 /*!
     Returns the pen's cap style.
 
-    \sa setCapStyle()
+    \sa setCapStyle(), {QPen#Cap Style}{Cap Style}
 */
 Qt::PenCapStyle QPen::capStyle() const
 {
@@ -454,13 +638,12 @@ Qt::PenCapStyle QPen::capStyle() const
 }
 
 /*!
-    Sets the pen's cap style to \a c.
+    \fn void QPen::setCapStyle(Qt::PenCapStyle style)
 
-    The default value is Qt::SquareCap.
+    Sets the pen's cap style to the given \a style. The default value
+    is Qt::SquareCap.
 
-    \img pen-cap-styles.png Pen Cap Styles
-
-    \sa capStyle()
+    \sa capStyle(), {QPen#Cap Style}{Cap Style}
 */
 
 void QPen::setCapStyle(Qt::PenCapStyle c)
@@ -474,7 +657,7 @@ void QPen::setCapStyle(Qt::PenCapStyle c)
 /*!
     Returns the pen's join style.
 
-    \sa setJoinStyle()
+    \sa setJoinStyle(),  {QPen#Join Style}{Join Style}
 */
 Qt::PenJoinStyle QPen::joinStyle() const
 {
@@ -482,13 +665,12 @@ Qt::PenJoinStyle QPen::joinStyle() const
 }
 
 /*!
-    Sets the pen's join style to \a j.
+    \fn void QPen::setJoinStyle(Qt::PenJoinStyle style)
 
-    The default value is Qt::BevelJoin.
+    Sets the pen's join style to the given \a style. The default value
+    is Qt::BevelJoin.
 
-    \img pen-join-styles.png Pen Join Styles
-
-    \sa joinStyle()
+    \sa joinStyle(), {QPen#Join Style}{Join Style}
 */
 
 void QPen::setJoinStyle(Qt::PenJoinStyle j)
@@ -502,9 +684,9 @@ void QPen::setJoinStyle(Qt::PenJoinStyle j)
 /*!
     \fn const QColor &QPen::color() const
 
-    Returns the pen color.
+    Returns the color of this pen's brush.
 
-    \sa setColor()
+    \sa brush(), setColor()
 */
 QColor QPen::color() const
 {
@@ -512,9 +694,11 @@ QColor QPen::color() const
 }
 
 /*!
-    Sets the pen color to \a c.
+    \fn void QPen::setColor(const QColor &color)
 
-    \sa color()
+    Sets the color of this pen's brush to the given \a color.
+
+    \sa setBrush(), color()
 */
 
 void QPen::setColor(const QColor &c)
@@ -536,6 +720,8 @@ QBrush QPen::brush() const
 /*!
     Sets the brush used to fill strokes generated with this pen to the given
     \a brush.
+
+    \sa brush(), setColor()
 */
 void QPen::setBrush(const QBrush &brush)
 {
@@ -545,7 +731,9 @@ void QPen::setBrush(const QBrush &brush)
 
 
 /*!
-    Returns true if the pen has a solid fill
+    Returns true if the pen has a solid fill, otherwise false.
+
+    \sa style(), dashPattern()
 */
 bool QPen::isSolid() const
 {
@@ -554,21 +742,21 @@ bool QPen::isSolid() const
 
 
 /*!
-    \fn bool QPen::operator!=(const QPen &p) const
+    \fn bool QPen::operator!=(const QPen &pen) const
 
-    Returns true if the pen is different from \a p; otherwise returns
-    false.
-
-    Two pens are different if they have different styles, widths or
-    colors.
+    Returns true if the pen is different from the given \a pen;
+    otherwise false. Two pens are different if they have different
+    styles, widths or colors.
 
     \sa operator==()
 */
 
 /*!
-    Returns true if the pen is equal to \a p; otherwise returns false.
+    \fn bool QPen::operator==(const QPen &pen) const
 
-    Two pens are equal if they have equal styles, widths and colors.
+    Returns true if the pen is equal to the given \a pen; otherwise
+    false. Two pens are equal if they have equal styles, widths and
+    colors.
 
     \sa operator!=()
 */
@@ -603,12 +791,13 @@ bool QPen::isDetached()
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QPen &pen)
     \relates QPen
 
-    Writes the pen \a p to the stream \a s and returns a reference to
-    the stream.
+    Writes the given \a pen to the given \a stream and returns a reference to
+    the \a stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator<<(QDataStream &s, const QPen &p)
@@ -631,12 +820,13 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QPen &pen)
     \relates QPen
 
-    Reads a pen from the stream \a s into \a p and returns a reference
-    to the stream.
+    Reads a pen from the given \a stream into the given \a pen and
+    returns a reference to the \a stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator>>(QDataStream &s, QPen &p)
