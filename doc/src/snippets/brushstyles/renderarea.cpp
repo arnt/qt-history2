@@ -6,6 +6,7 @@ RenderArea::RenderArea(QBrush *brush, QWidget *parent)
         : QWidget(parent)
 {
     currentBrush = brush;
+    setAutoFillBackground(true);
     setBackgroundRole(QPalette::Base);
 }
 

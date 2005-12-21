@@ -92,6 +92,8 @@ StyleWidget::StyleWidget(QWidget *parent)
     layout->addWidget(textureLabel, 13, 0, 1, 3);
 
     setLayout(layout);
+    setAutoFillBackground(true);
+    setBackgroundRole(QPalette::Base);
     setWindowTitle(tr("Brush Styles"));
     resize(430, 605);
 }
