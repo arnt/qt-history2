@@ -76,6 +76,8 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     }
     vbox->addWidget(input);
     vbox->addStretch(1);
+    
+    label->setBuddy(input);
 
     QHBoxLayout *hbox = new QHBoxLayout;
     vbox->addLayout(hbox, Qt::AlignRight);
