@@ -596,7 +596,7 @@ MakefileGenerator::init()
             if(tmp_out.indexOf("$") == -1) {
                 if(!verifyExtraCompiler((*it), QString())) //verify
                     continue;
-                QString out = Option::fixPathToTargetOS(tmp_out, false);
+                QString out = fileFixify(tmp_out, Option::output_dir, Option::output_dir);
                 if(project->variables().contains((*it) + ".variable_out")) {
                     const QStringList &var_out = project->variables().value((*it) + ".variable_out");
                     for(int i = 0; i < var_out.size(); ++i) {
@@ -628,7 +628,7 @@ MakefileGenerator::init()
                     if(!verifyExtraCompiler((*it), in)) //verify
                         continue;
                     QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString());
-                    out = Option::fixPathToTargetOS(out, false);
+                    out = fileFixify(out, Option::output_dir, Option::output_dir);
                     if(project->variables().contains((*it) + ".variable_out")) {
                         const QStringList &var_out = project->variables().value((*it) + ".variable_out");
                         for(int i = 0; i < var_out.size(); ++i) {
