@@ -61,34 +61,7 @@
     and the numColors() function returns the number of different
     colors available for the paint device.
 
-    Together with the QPainter and QPaintEngine classes, QPaintDevice
-    form the basis for Qt's paint system, Arthur. QPainter is the
-    class used to perform drawing operations. QPaintDevice represents
-    a device that can be painted on using a QPainter. QPaintEngine
-    provides the interface that the painter uses to draw onto
-    different types of devices.
-
-    \image coordinatesystem-transformations.png
-
-    When drawing with QPainter, we specify points using logical
-    coordinates which then are converted into the physical coordinates
-    of the paint device.
-
-    The mapping of the logical coordinates to the physical coordinates
-    are handled by QPainter's world transformation \l
-    {QPainter::matrix()}{matrix()}, and QPainter's \l
-    {QPainter::viewport()}{viewport()} and \l
-    {QPainter::window()}{window()}. The viewport represents the
-    physical coordinates specifying an arbitrary rectangle. The
-    "window" describes the same rectangle in logical coordinates.  By
-    default the logical and physical coordinate systems coincide, and
-    are equivalent to the paint device's rectangle. Using
-    window-viewport conversion you can make the logical coordinate
-    system fit your preferences. The mechanism can also be used to
-    make the drawing code independent of the paint device. For more
-    information, see \l {The Coordinate System} documentation.
-
-    \sa QPaintEngine, QPainter
+    \sa QPaintEngine, QPainter, {The Coordinate System}
 */
 
 /*!
