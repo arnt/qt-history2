@@ -38,6 +38,7 @@
 
 #include "private/qobject_p.h"
 #include "qwindowsystem_qws.h"
+#include "Qt/qbrush.h"
 
 class QWSServerPrivate : public QObjectPrivate {
     friend class QCopChannel;
@@ -63,8 +64,8 @@ public:
     qDeleteAll(windows);
     windows.clear();
 
-    delete bgBrush;
-    bgBrush = 0;
+    //KMK delete bgBrush;
+    //KMK bgBrush = 0;
     }
     QTime screensavertime;
     QTimer* screensavertimer;
