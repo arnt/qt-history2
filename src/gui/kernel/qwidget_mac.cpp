@@ -1124,9 +1124,12 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     if(HIViewRef destroy_hiview = (HIViewRef)destroyid) {
         WindowPtr window = q->isWindow() ? qt_mac_window_for(destroy_hiview) : 0;
-        CFRelease(destroy_hiview);
-        if(window)
+        if(window) {
             ReleaseWindow(window);
+        } else {
+            HIViewRemoveFromSuperview(destroy_hiview);
+            CFRelease(destroy_hiview);
+        }
     }
 }
 
@@ -1159,10 +1162,12 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
                 RemoveEventHandler(d->window_event);
             if(HIViewRef hiview = (HIViewRef)winId()) {
                 WindowPtr window = isWindow() ? qt_mac_window_for(hiview) : 0;
-                CFRelease(hiview);
                 if(window) {
                     RemoveWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget);
                     ReleaseWindow(window);
+                } else {
+                   HIViewRemoveFromSuperview(hiview);
+                   CFRelease(hiview);
                 }
             }
         }
@@ -1243,10 +1248,12 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         RemoveEventHandler(old_window_event);
     if(old_id) { //don't need old window anymore
         WindowPtr window = (oldtlw == q) ? qt_mac_window_for(old_id) : 0;
-        HIViewRemoveFromSuperview(old_id);
-        CFRelease(old_id);
-        if(window)
+        if(window) {
             ReleaseWindow(window);
+        } else {
+            HIViewRemoveFromSuperview(old_id);
+            CFRelease(old_id);
+        }
     }
     qt_event_request_window_change();
 }
