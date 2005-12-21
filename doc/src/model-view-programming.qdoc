@@ -2061,14 +2061,14 @@
 
     Model subclasses need to provide implementations of many of the virtual functions
     defined in the QAbstractItemModel base class. The number of these functions that need
-    to be implemented depends on the type of the model - whether it supplies views with
+    to be implemented depends on the type of model - whether it supplies views with
     a simple list, a table, or a complex hierarchy of items. Models that inherit from
     QAbstractListModel and QAbstractTableModel can take advantage of the default
     implementations of functions provided by those classes. Models that expose items
     of data in tree-like structures must provide implementations for many of the
     virtual functions in QAbstractItemModel.
 
-    The functions that a model author needs to implement can be divided into three
+    The functions that need to be implemented in a model subclass can be divided into three
     groups:
 
     \list
@@ -2078,12 +2078,12 @@
        that views can call to navigate the tree-like structures they expose, and obtain
        model indexes for items.
     \o \bold{Drag and drop support and MIME type handling:} Models inherit functions that
-       control the way internal and external drag and drop operations are performed. These
-       include functions to describe item data in terms of MIME types that other components
-       and applications can understand.
+       control the way that internal and external drag and drop operations are performed.
+       These functions allow items of data to be described in terms of MIME types that
+       other components and applications can understand.
     \endlist
 
-    These are described in detail in the following sections.
+    Each of these groups are described in detail in the following sections.
 
 
     \section1 Item Data Handling
@@ -2160,24 +2160,32 @@
     \table 90%
     \row \o \l{QAbstractItemModel::insertRows()}{insertRows()}
          \o Used to add new rows and items of data to all types of model.
-            Implementations must call beginInsertRows() \e before inserting new rows
-            into any underlying data structures, and call endInsertRows() 
+            Implementations must call
+            \l{QAbstractItemModel::beginInsertRows()}{beginInsertRows()} \e before
+            inserting new rows into any underlying data structures, and call
+            \l{QAbstractItemModel::endInsertRows()}{endInsertRows()}
             \e{immediately afterwards}.
     \row \o \l{QAbstractItemModel::removeRows()}{removeRows()}
          \o Used to remove rows and the items of data they contain from all types of model.
-            Implementations must call beginInsertColumns() \e before inserting new
-            columns into any underlying data structures, and call endInsertColumns()
+            Implementations must call
+            \l{QAbstractItemModel::beginInsertColumns()}{beginInsertColumns()}
+            \e before inserting new columns into any underlying data structures, and call
+            \l{QAbstractItemModel::endInsertColumns()}{endInsertColumns()}
             \e{immediately afterwards}.
     \row \o \l{QAbstractItemModel::insertColumns()}{insertColumns()}
          \o Used to add new columns and items of data to table models and hierarchical models.
-            Implementations must call beginRemoveRows() \e before rows are removed
-            from any underlying data structures, and call endRemoveRows()
+            Implementations must call
+            \l{QAbstractItemModel::beginRemoveRows()}{beginRemoveRows()} \e before
+            rows are removed from any underlying data structures, and call
+            \l{QAbstractItemModel::endRemoveRows()}{endRemoveRows()}
             \e{immediately afterwards}.
     \row \o \l{QAbstractItemModel::removeColumns()}{removeColumns()}
          \o Used to remove columns and the items of data they contain from table models and
             hierarchical models.
-            Implementations must call beginRemoveColumns() \e before columns are
-            removed from any underlying data structures, and call endRemoveColumns()
+            Implementations must call
+            \l{QAbstractItemModel::beginRemoveColumns()}{beginRemoveColumns()}
+            \e before columns are removed from any underlying data structures, and call
+            \l{QAbstractItemModel::endRemoveColumns()}{endRemoveColumns()}
             \e{immediately afterwards}.
     \endtable
 
