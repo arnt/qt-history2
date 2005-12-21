@@ -780,7 +780,7 @@ static EventTypeSpec app_events[] = {
     { kEventClassWindow, kEventWindowDeactivated },
     { kEventClassWindow, kEventWindowShown },
     { kEventClassWindow, kEventWindowHidden },
-    { kEventClassWindow, kEventWindowBoundsChanged },
+    { kEventClassWindow, kEventWindowBoundsChanging },
     { kEventClassWindow, kEventWindowExpanded },
 
     { kEventClassMouse, kEventMouseWheelMoved },
@@ -2386,7 +2386,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             widget->setWindowState((widget->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
             QShowEvent qse;
             QApplication::sendSpontaneousEvent(widget, &qse);
-        } else if(ekind == kEventWindowBoundsChanged) {
+        } else if(ekind == kEventWindowBoundsChanging) {
             //implicitly removes the maximized bit
             if((widget->windowState() & Qt::WindowMaximized) &&
                IsWindowInStandardState((WindowPtr)widget->handle(), 0, 0))
