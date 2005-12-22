@@ -1171,14 +1171,21 @@ void QFileDialogPrivate::updateFileName(const QItemSelection &selection)
         else
             ++it;
     }
+    bool stripDirs = false;
+    if (fileMode != QFileDialog::DirectoryOnly && fileMode != QFileDialog::Directory)
+        stripDirs = true;  // when selecting files, strip out the directories
+
     bool addQuotes = indexes.count() > 1;
     for (int i = 0; i < indexes.count(); ++i) {
         QString name = model->data(indexes.at(i)).toString();
+        if (stripDirs && model->isDir(indexes[i]))
+            continue;
         if (addQuotes) text.append("\"");
         text.append(name);
         if (addQuotes) text.append("\" ");
     }
-    fileNameEdit->setText(text);
+    if (!text.isEmpty())
+        fileNameEdit->setText(text);
 }
 
 /*!
@@ -1807,17 +1814,14 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
 
 void QFileDialogPrivate::setRootIndex(const QModelIndex &index)
 {
+    Q_Q(QFileDialog);
     bool block = selections->blockSignals(true);
     selections->clear();
-    fileNameEdit->clear();
     listView->setRootIndex(index);
     treeView->setRootIndex(index);
     treeView->resizeColumnToContents(0);
     selections->blockSignals(block);
-    if (listView->hasFocus() || treeView->hasFocus()) // user is navigating in the views
-        treeView->setCurrentIndex(model->index(0, 0, index));
-    else // user is using the line edit or the combobox
-        treeView->setCurrentIndex(QModelIndex());
+    q->selectFile(fileNameEdit->text());
 }
 
 QModelIndex QFileDialogPrivate::rootIndex() const
