@@ -424,12 +424,12 @@ CFG_GFX_OFF=""
 if [ "$Edition" = "Trolltech" ]; then
     CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx um"
     CFG_KBD_ON="tty um"    #default, see QMAKE_VARS above
-    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx"
+    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib"
     CFG_MOUSE_ON="pc linuxtp"   #default, see QMAKE_VARS above
 else
     CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx"
     CFG_KBD_ON="tty"    #default, see QMAKE_VARS above
-    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx"
+    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib"
     CFG_MOUSE_ON="pc linuxtp"   #default, see QMAKE_VARS above
 fi
 
@@ -1895,8 +1895,10 @@ fi
 
 #x11 tests are done after qmake is built
 
-# embedded graphics
+# embedded 
 if [ "$PLATFORM_QWS" = "yes" ]; then
+
+    # graphics
     CFG_GFX_PLUGINS_AVAILABLE=`find $relpath/src/plugins/gfxdrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
     CFG_GFX_AVAILABLE=`echo $CFG_GFX_PLUGINS_AVAILABLE $CFG_GFX_AVAILABLE`
     CFG_GFX_OFF=`echo $CFG_GFX_AVAILABLE` # assume all off
@@ -1904,6 +1906,19 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     if [ "$CFG_OPENGL" = "auto" ]; then
         CFG_OPENGL=no
     fi
+
+    # mouse drivers
+    for mouse in ${CFG_MOUSE_ON}; do
+	if [ "${mouse}" = "tslib" ] && [ "${CFG_CONFIGURE_EXIT_ON_ERROR}" = "yes" ]; then
+	    if ! $unixtests/tslib.test "${XQMAKESPEC}" "${I_FLAGS}" "${L_FLAGS}" "${OPT_VERBOSE}"; then
+		echo "The tslib functionality test failed!"
+		echo " You might need to add additional include and library search paths"
+		echo " by passing the -I and -L switches to $0."
+		exit 1
+	    fi
+	fi
+    done
+
 fi # QWS
 
 #-------------------------------------------------------------------------------

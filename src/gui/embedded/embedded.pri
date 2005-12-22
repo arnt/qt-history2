@@ -27,7 +27,7 @@ embedded {
                     embedded/qtransportauth_qws_p.h \
 		    embedded/qwssocket_qws.h \
 		    embedded/qwslock_p.h \
-		    embedded/qwsutils_qws.h 
+		    embedded/qwsutils_qws.h
 
 	 !mac:SOURCES += embedded/qsoundqss_qws.cpp
          SOURCES +=  \
@@ -190,5 +190,11 @@ embedded {
 	contains( mouse-drivers, yopy ) {
 		HEADERS +=embedded/qmouseyopy_qws.h
 		SOURCES +=embedded/qmouseyopy_qws.cpp
+	}
+	
+	contains( mouse-drivers, tslib ) {
+		LIBS += -lts
+		HEADERS +=embedded/qmousetslib_qws.h
+		SOURCES +=embedded/qmousetslib_qws.cpp
 	}
 }

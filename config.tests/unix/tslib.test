@@ -1,0 +1,31 @@
+#!/bin/sh
+
+FVISIBILITY_SUPPORT=no
+XPLATFORM=`basename $1`
+XCONFIG=$1/qmake.conf
+IFLAGS=$2
+LFLAGS=$3
+VERBOSE=$4
+
+
+cat >>tslib.c << EOF
+#include <tslib.h>
+int main() 
+{ 
+    ts_open("foo", 0); 
+    return 0; 
+}
+EOF
+
+COMPILER=`grep QMAKE_CC $XCONFIG | sed "s,.*= *,,"`
+$COMPILER $IFLAGS $LFLAGS -o tslib tslib.c -lts >/dev/null 2>&1 && TSLIB_SUPPORT=yes
+rm -f tslib.c tslib
+
+# done
+if [ "$TSLIB_SUPPORT" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "tslib support disabled."
+    exit 1
+else
+    [ "$VERBOSE" = "yes" ] && echo "tslib support enabled."
+    exit 0
+fi
