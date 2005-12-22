@@ -35,6 +35,8 @@
     \brief The QWSTslibMouseHandler provides mouse events from the Universal
     Touch screen Library, tslib.
 
+    \ingroup qws
+
     To be able to compile this mouse handler, Qtopia Core must be configured
     with -qt-mouse-tslib. In addition, the tslib headers and libraries must
     be present in the build environment. Use -I and -L with configure if

@@ -18,6 +18,37 @@
 #include "qtextstream.h"
 #include "qfile.h"
 #include "qdebug.h"
+
+/*!
+    \class QWSPointerCalibrationData
+    \brief Container for data used in calibration of a mouse handler.
+
+    \ingroup qws
+
+    A calibration program should create an instance of this class, fill the
+    devPoints and screenPoints with corresponding device and screen
+    coordinates, and pass it to a an instance of a QWSCalibratedMouseHandler.
+*/
+
+/*!
+    \variable QWSPointerCalibrationData::devPoints
+    \brief This array contains raw device coordinates for each value of
+    Location.
+*/
+
+/*!
+    \variable QWSPointerCalibrationData::screenPoints
+    \brief This array contains logical screen coordinates for each value of
+    Location.
+*/
+
+/*!
+    \enum QWSPointerCalibrationData::Location
+
+    Specifies the logical position of the values stored in devPoints and
+    screenPoints.
+*/
+
 /*!
     \class QWSMouseHandler qwsmouse_qws.h
     \brief The QWSMouseHandler class is a mouse driver for Qtopia Core.
