@@ -57,7 +57,7 @@ static const int windowsCheckMarkWidth   = 12; // checkmarks width on windows
 /* XPM */
 static const char * const dock_widget_close_xpm[] = {
     "15 15 7 1",
-    " 	c #EAE4DF",
+    " 	c None",
     ".	c #D5CFCB",
     "+	c #8F8B88",
     "@	c #6C6A67",
@@ -94,7 +94,7 @@ static const char * const qt_cleanlooks_arrow_xpm[] = {
 
 static const char * const dock_widget_restore_xpm[] = {
     "15 15 7 1",
-    " 	c #EAE4DF",
+    " 	c None",
     ".	c #D5CFCB",
     "+	c #8F8B88",
     "@	c #6C6A67",
@@ -3040,7 +3040,7 @@ void QCleanLooksStyle::polish(QApplication *app)
 
     // ### should we always use the standard palette, even on Windows
     // ### and Mac OS X?
-    app->setPalette(standardPalette());
+    //app->setPalette(standardPalette());
 }
 
 /*!
@@ -3195,9 +3195,11 @@ QRect QCleanLooksStyle::subControlRect(ComplexControl control, const QStyleOptio
                 return rect;
             }
             else if (subControl == SC_GroupBoxContents) {
-                int margin = 0;
-                int leftMarginExtension = 16;
-                rect = frameRect.adjusted(leftMarginExtension + margin, margin + topHeight, -margin, -margin);
+                if( flat ) {
+                    int margin = 0;
+                    int leftMarginExtension = 16;
+                    rect = frameRect.adjusted(leftMarginExtension + margin, margin + topHeight, -margin, -margin);
+                }
                 break;
             }
             if(flat) {
