@@ -1437,7 +1437,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 }
                 buttonPainter.drawLine(pixmapRect.left() + 3, pixmapRect.top() + 2,
                                        pixmapRect.right() - 3, pixmapRect.top() + 2);
-                
+
                 if (down) {
                     buttonPainter.setPen(option->palette.button().color().light(96));
                 } else {
@@ -1449,7 +1449,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 }
                 buttonPainter.drawLine(pixmapRect.left() + 3, pixmapRect.bottom() - 2,
                                         pixmapRect.right() - 3, pixmapRect.bottom() - 2);
-            
+
                 QLinearGradient leftGrad(QPoint(pixmapRect.left() + 1, pixmapRect.top() + 2),
                                          QPoint(pixmapRect.left() + 1, pixmapRect.bottom() - 2));
                 QLinearGradient rightGrad(QPoint(pixmapRect.left() + 1, pixmapRect.top() + 2),
@@ -1488,7 +1488,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                     buttonPainter.setPen(highlightedLightInnerBorderColor.dark(105));
                     buttonPainter.drawLine(pixmapRect.left() + 2, pixmapRect.bottom() - 3,
                                             pixmapRect.right() - 2, pixmapRect.bottom() - 3);
-                
+
                 }
                 buttonPainter.end();
                 if (UsePixmapCache)
@@ -2915,7 +2915,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
             // Find text width and title rect
             int textWidth = option->fontMetrics.width(dockWidget->title);
-            int margin = 2;
+            int margin = 4;
             QRect titleRect = visualRect(dockWidget->direction, dockWidget->rect,
                                          dockWidget->rect.adjusted(margin, 0, -margin * 2 - 26, 0));
 
@@ -2933,7 +2933,8 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             int nchunks = leftSide.width() / handle.width();
             int indent = (leftSide.width() - (nchunks * handle.width())) / 2;
             for (int i = 0; i < nchunks; ++i) {
-                painter->drawImage(QPoint(leftSide.left() + indent + i * handle.width(), leftSide.top() + 3),
+                painter->drawImage(QPoint(leftSide.left() + indent + i * handle.width(),
+                                          leftSide.center().y() - handle.height() / 2),
                                    handle);
             }
 
@@ -2942,7 +2943,8 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             nchunks = rightSide.width() / handle.width();
             indent = (rightSide.width() - (nchunks * handle.width())) / 2;
             for (int j = 0; j < nchunks; ++j) {
-                painter->drawImage(QPoint(rightSide.left() + indent + j * handle.width(), rightSide.top() + 3),
+                painter->drawImage(QPoint(rightSide.left() + indent + j * handle.width(),
+                                          rightSide.center().y() - handle.height() / 2),
                                    handle);
             }
 

@@ -279,7 +279,7 @@ void QDockWidgetPrivate::relayout()
         closeButton->setGeometry(QStyle::visualRect(
 				    qApp->layoutDirection(),
                                     titleArea, QRect(posX - closeSize.width() - mw,
-                                    titleArea.bottom() - closeSize.height() - mw,
+                                    titleArea.center().y() - closeSize.height() / 2,
                                     closeSize.width(), closeSize.height())));
         posX -= closeSize.width() + 1;
     }
@@ -289,7 +289,7 @@ void QDockWidgetPrivate::relayout()
         floatButton->setGeometry(QStyle::visualRect(
 				    qApp->layoutDirection(),
                                     titleArea, QRect(posX - floatSize.width() - mw,
-                                    titleArea.bottom() - floatSize.height() - mw,
+                                    titleArea.center().y() - floatSize.height() / 2,
                                     floatSize.width(), floatSize.height())));
         posX -= floatSize.width() + 1;
     }
