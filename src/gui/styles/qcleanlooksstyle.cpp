@@ -1942,7 +1942,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 QPainter cachePainter(&cache);
 
                 bool isEnabled = (spinBox->state & State_Enabled);
-                bool focus = isEnabled && (spinBox->state & State_HasFocus);
+                //bool focus = isEnabled && (spinBox->state & State_HasFocus);
                 bool hover = isEnabled && (spinBox->state & State_MouseOver);
                 bool sunken = (spinBox->state & State_Sunken);
                 bool upIsActive = (spinBox->activeSubControls == SC_SpinBoxUp);
@@ -3040,7 +3040,7 @@ void QCleanLooksStyle::polish(QApplication *app)
 
     // ### should we always use the standard palette, even on Windows
     // ### and Mac OS X?
-    //app->setPalette(standardPalette());
+    app->setPalette(standardPalette());
 }
 
 /*!
