@@ -274,12 +274,22 @@ void QDockWidgetPrivate::relayout()
                       QSize(q->rect().width() - (fw * 2), minHeight));
     int posX = titleArea.right();
 
+    QPoint buttonOffset(0, 0);
+#ifdef Q_OS_WIN    
+    //### Fix this properly in Qt 4.2
+    if (q->style()->inherits("QWindowsXPStyle")) {
+        if(q->isFloating())
+            buttonOffset = QPoint(2, -1);
+        else 
+            buttonOffset = QPoint(0, 1);
+    }
+#endif
     if (closeButton) {
         //### Fix this properly in Qt 4.2
         closeButton->setGeometry(QStyle::visualRect(
 				    qApp->layoutDirection(),
-                                    titleArea, QRect(posX - closeSize.width() - mw,
-                                    titleArea.center().y() - closeSize.height() / 2,
+                                    titleArea, QRect(posX - closeSize.width() - mw + buttonOffset.x(),
+                                    titleArea.center().y() - closeSize.height() / 2 + + buttonOffset.y(),
                                     closeSize.width(), closeSize.height())));
         posX -= closeSize.width() + 1;
     }
@@ -288,8 +298,8 @@ void QDockWidgetPrivate::relayout()
         //### Fix this properly in Qt 4.2
         floatButton->setGeometry(QStyle::visualRect(
 				    qApp->layoutDirection(),
-                                    titleArea, QRect(posX - floatSize.width() - mw,
-                                    titleArea.center().y() - floatSize.height() / 2,
+                                    titleArea, QRect(posX - floatSize.width() - mw + buttonOffset.x(),
+                                    titleArea.center().y() - floatSize.height() / 2 + buttonOffset.y(),
                                     floatSize.width(), floatSize.height())));
         posX -= floatSize.width() + 1;
     }
