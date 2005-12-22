@@ -358,6 +358,10 @@ void QFileDialog::setDirectory(const QString &directory)
 {
     Q_D(QFileDialog);
     QModelIndex index = d->model->index(directory);
+    if (!index.isValid())
+        return;
+    if (!d->model->isDir(index))
+        index = index.parent(); // try the directory that contains the valid file
     d->setRootIndex(index);
     d->updateButtons(index);
 }
@@ -1515,8 +1519,9 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     QObject::connect(selections, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                      q, SLOT(currentChanged(QModelIndex)));
 
-
-    QModelIndex current = directory.isEmpty() ? QModelIndex() : model->index(directory);
+    QModelIndex current = model->index(directory);
+    if (current.isValid() && !model->isDir(current))
+        current = current.parent(); // try the directory that contains the valid file
 
     setupActions();
     setupListView(current, grid);
@@ -1540,8 +1545,10 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
 
     // if it is not already in the list, insert the current directory
     QString currentPath = toNative(model->filePath(current));
+    if (currentPath.isEmpty())
+        currentPath = QObject::tr("My Computer");
     int item = lookInCombo->findText(currentPath);
-    if (item < 0 && currentPath.count()) {
+    if (item < 0) {
         lookInCombo->addItem(model->fileIcon(current), currentPath);
         item = lookInCombo->findText(currentPath);
     }
