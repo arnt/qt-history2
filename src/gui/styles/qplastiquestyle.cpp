@@ -2307,6 +2307,9 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         break;
     case CE_ProgressBarContents:
         if (const QStyleOptionProgressBar *bar = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
+            if (bar->progress == -1)
+                break;
+
             painter->save();
             QRect rect = bar->rect;
             bool vertical = false;
