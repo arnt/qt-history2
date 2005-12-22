@@ -47,6 +47,13 @@
 
     Specifies the logical position of the values stored in devPoints and
     screenPoints.
+
+   \value TopLeft      Index of the top left corner of the screen.
+   \value BottomLeft   Index of the bottom left corner of the screen.
+   \value BottomRight  Index of the bottom right corner of the screen.
+   \value TopRight     Index of the top right corner of the screen.
+   \value Center       Index of the center of the screen.
+   \value LastLocation Last index in the pointer arrays.
 */
 
 /*!
