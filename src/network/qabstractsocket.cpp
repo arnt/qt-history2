@@ -1856,6 +1856,12 @@ qint64 QAbstractSocket::readBufferSize() const
     want to protect your socket against receiving too much data,
     which may eventually cause your application to run out of memory.
 
+    Only QTcpSocket uses QAbstractSocket's internal buffer; QUdpSocket
+    does not use any buffering at all, but rather relies on the
+    implicit buffering provided by the operating system.
+    Because of this, calling this function on QUdpSocket has no
+    effect.
+    
     \sa readBufferSize(), read()
 */
 void QAbstractSocket::setReadBufferSize(qint64 size)
