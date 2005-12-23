@@ -375,7 +375,7 @@ inline T QList<T>::takeLast()
 { T t = last(); removeLast(); return t; }
 
 template <typename T>
-void QList<T>::append(const T &t)
+Q_OUTOFLINE_TEMPLATE void QList<T>::append(const T &t)
 {
     detach();
     if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) {
