@@ -212,6 +212,7 @@ void QScrollArea::setWidget(QWidget *w)
     w->installEventFilter(this);
     d->widgetSize = QSize();
     d->updateScrollBars();
+    d->widget->show();
 
 }
 
