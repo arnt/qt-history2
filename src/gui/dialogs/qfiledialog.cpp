@@ -1546,7 +1546,7 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     // if it is not already in the list, insert the current directory
     QString currentPath = toNative(model->filePath(current));
     if (currentPath.isEmpty())
-        currentPath = QObject::tr("My Computer");
+        currentPath = QFileDialog::tr("My Computer");
     int item = lookInCombo->findText(currentPath);
     if (item < 0) {
         lookInCombo->addItem(model->fileIcon(current), currentPath);
