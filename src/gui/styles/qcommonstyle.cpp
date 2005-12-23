@@ -1964,6 +1964,8 @@ static QPolygonF calcLines(const QStyleOptionSlider *dial, const QWidget *)
     qreal yc = height / 2.0;
     int ns = dial->tickInterval;
     int notches = (dial->maximum + ns - 1 - dial->minimum) / ns;
+    if (notches <= 0)
+        return poly;
     poly.resize(2 + 2 * notches);
     int smallLineSize = bigLineSize / 2;
     for (int i = 0; i <= notches; ++i) {
