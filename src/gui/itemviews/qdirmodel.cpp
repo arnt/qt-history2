@@ -1413,7 +1413,11 @@ QFileInfo QDirModelPrivate::resolvedInfo(QFileInfo info)
 #else
     QStringList paths;
     do {
-        info.setFile(info.readLink());
+        QFileInfo link(info.readLink());
+        if (link.isRelative())
+            info.setFile(info.absolutePath(), link.filePath());
+        else
+            info = link;
         if (paths.contains(info.absoluteFilePath()))
             return QFileInfo();
         paths.append(info.absoluteFilePath());
