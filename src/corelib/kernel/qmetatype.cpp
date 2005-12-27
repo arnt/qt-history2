@@ -107,10 +107,10 @@
 
 /*!
     \class QMetaType
-    \brief The QMetaType class manages named types in the meta object system.
+    \brief The QMetaType class manages named types in the meta-object system.
 
     \ingroup objectmodel
-    \reentrant
+    \threadsafe
 
     The class is used as a helper to marshall types in QVariant and
     in queued signals and slots connections. It associates a type
@@ -125,7 +125,7 @@
 
     \code
         int id = QMetaType::type("MyClass");
-        if (id != 0) {
+        if (id != -1) {
             void *myClassPtr = QMetaType::construct(id);
             ...
             QMetaType::destroy(id, myClassPtr);
@@ -136,6 +136,12 @@
     The Q_DECLARE_METATYPE() macro can be used to register a type at
     compile time. This is required to use the type as custom type in
     QVariant.
+
+    If we want the stream operators \c operator<<() and \c
+    operator>>() to work on QVariant objects that store custom types,
+    the custom type must provide \c operator<<() and \c operator>>()
+    operators and register them using
+    qRegisterMetaTypeStreamOperators().
 
     \sa Q_DECLARE_METATYPE(), QVariant::setValue(), QVariant::value(), QVariant::fromValue()
 */
@@ -171,9 +177,9 @@ class QCustomTypeInfo
 {
 public:
 #ifndef QT_NO_DATASTREAM
-    QCustomTypeInfo() : typeName(0, '\0'), constr(0), destr(0), saveOp(0), loadOp(0)
-#else
     QCustomTypeInfo() : typeName(0, '\0'), constr(0), destr(0)
+#else
+    , saveOp(0), loadOp(0)
 #endif
     {}
     inline void setData(const char *tname, QMetaType::Constructor cp, QMetaType::Destructor de)
@@ -199,7 +205,7 @@ Q_GLOBAL_STATIC(QReadWriteLock, customTypesLock)
 
 #ifndef QT_NO_DATASTREAM
 /*! \internal
- */
+*/
 void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveOp,
                                         LoadOperator loadOp)
 {
@@ -216,8 +222,6 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
 #endif
 
 /*!
-    \threadsafe
-
     Returns the type name associated with the given \a type, or 0 if no
     matching type was found. The returned pointer must not be deleted.
 
@@ -299,8 +303,6 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
 }
 
 /*!
-    \threadsafe
-
     Returns true if the custom datatype with ID \a type is registered;
     otherwise returns false.
 
@@ -315,8 +317,6 @@ bool QMetaType::isRegistered(int type)
 }
 
 /*!
-    \threadsafe
-
     Returns a handle to the type called \a typeName, or 0 if there is
     no such type.
 
@@ -329,7 +329,17 @@ int QMetaType::type(const char *typeName)
 }
 
 #ifndef QT_NO_DATASTREAM
-/*! \internal
+/*!
+    Writes the object pointed to by \a data with the ID \a type to
+    the given \a stream. The type must have been registered with
+    qRegisterMetaType() and qRegisterMetaTypeStreamOperators()
+    beforehand.
+
+    Normally, you should not need to call this function directly.
+    Instead, use QVariant's \c operator<<(), which relies on save()
+    to stream custom types.
+
+    \sa load(), qRegisterMetaTypeStreamOperators()
 */
 bool QMetaType::save(QDataStream &stream, int type, const void *data)
 {
@@ -352,8 +362,18 @@ bool QMetaType::save(QDataStream &stream, int type, const void *data)
     return true;
 }
 
-/*! \internal
- */
+/*!
+    Reads the object of the specified \a type from the given \a
+    stream into \a data. The type must have been registered with
+    qRegisterMetaType() and qRegisterMetaTypeStreamOperators()
+    beforehand.
+
+    Normally, you should not need to call this function directly.
+    Instead, use QVariant's \c operator>>(), which relies on load()
+    to stream custom types.
+
+    \sa save(), qRegisterMetaTypeStreamOperators()
+*/
 bool QMetaType::load(QDataStream &stream, int type, void *data)
 {
     // FIXME - also stream simple types?
@@ -554,7 +574,7 @@ void QMetaType::destroy(int type, void *data)
 }
 
 /*!
-    \fn int qRegisterMetaType(const char *typeName, T *dummy = 0)
+    \fn int qRegisterMetaType(const char *typeName)
     \relates QMetaType
     \threadsafe
 
@@ -572,10 +592,34 @@ void QMetaType::destroy(int type, void *data)
         qRegisterMetaType<MyClass>("MyClass");
     \endcode
 
-    You don't need to pass any value for the \a dummy parameter. It
-    is there because of an MSVC 6 limitation.
+    \sa qRegisterMetaTypeStreamOperators(), QMetaType::isRegistered(),
+        Q_DECLARE_METATYPE()
+*/
 
-    \sa QMetaType::isRegistered(), Q_DECLARE_METATYPE()
+/*!
+    \fn int qRegisterMetaTypeStreamOperators(const char *typeName)
+    \relates QMetaType
+    \threadsafe
+
+    Registers the stream operators for the type \c{T} called \a
+    typeName.
+
+    Afterward, the type can be streamed using QMetaType::load() and
+    QMetaType::save(). These functions are used when streaming a
+    QVariant.
+
+    \code
+        qRegisterMetaTypeStreamOperator<MyClass>("MyClass");
+    \endcode
+
+    The stream operators should have the following signatures:
+
+    \code
+        QDataStream &operator<<(QDataStream &out, const MyClass &myObj);
+        QDataStream &operator>>(QDataStream &in, MyClass &myObj);
+    \endcode
+
+    \sa qRegisterMetaType(), QMetaType::isRegistered(), Q_DECLARE_METATYPE()
 */
 
 /*! \typedef QMetaType::Destructor
@@ -591,27 +635,26 @@ void QMetaType::destroy(int type, void *data)
     \internal
 */
 
-/*! \fn int qMetaTypeId(T *dummy = 0)
+/*! \fn int qMetaTypeId()
     \relates QMetaType
-    \since 4.1
     \threadsafe
+    \since 4.1
 
     Returns the meta type id of type \c T at compile time. If the
     type was not declared with Q_DECLARE_METATYPE(), compilation will
-    fail. The \a dummy parameter never has to be specified out, it's a
-    workaround for compiler limitations.
+    fail.
 
     Typical usage:
 
     \code
-        int id = qMetaTypeId<QString>(); // id is now QMetaType::QString
-        id = qMetaTypeId<MyStruct>(); // compile error if MyStruct not declared
+        int id = qMetaTypeId<QString>();    // id is now QMetaType::QString
+        id = qMetaTypeId<MyStruct>();       // compile error if MyStruct not declared
     \endcode
 
-    QMetaType::type() returns the same id as qMetaTypeId(), but does a
-    lookup at runtime based on the name of the type. QMetaType::type() is
-    a bit slower, but compilation succeeds if a type is not registered.
+    QMetaType::type() returns the same ID as qMetaTypeId(), but does
+    a lookup at runtime based on the name of the type.
+    QMetaType::type() is a bit slower, but compilation succeeds if a
+    type is not registered.
 
     \sa Q_DECLARE_METATYPE(), QMetaType::type()
 */
-
