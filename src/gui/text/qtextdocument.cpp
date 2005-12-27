@@ -93,9 +93,18 @@ bool Qt::mightBeRichText(const QString& text)
 }
 
 /*!
-  Auxiliary function. Converts the plain text string \a plain to a
-  rich text formatted string with any HTML meta-characters escaped.
- */
+    Converts the plain text string \a plain to a
+    HTML string with HTML metacharacters \c{<},
+    \c{>}, and \c{&} replaced by HTML entities.
+
+    Example:
+
+    \code
+        QString plain = "#include <QtCore>"
+	QString html = Qt::escape(plain);
+	// html == "#include &lt;QtCore&gt;"
+    \endcode
+*/
 QString Qt::escape(const QString& plain)
 {
     QString rich;
