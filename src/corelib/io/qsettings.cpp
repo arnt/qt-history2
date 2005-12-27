@@ -1756,7 +1756,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
     Because QVariant is part of the \l QtCore library, it cannot provide
     conversion functions to data types such as QColor, QImage, and
     QPixmap, which are part of \l QtGui. In other words, there is no
-    \c QVariant::toColor() function.
+    \c toColor(), \c toImage(), or \c toPixmap() functions in QVariant.
 
     Instead, you can use the QVariant::value() or the qVariantValue()
     template function. For example:
@@ -1775,6 +1775,9 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
         QColor color = palette().background().color();
         settings.setValue("DataPump/bgcolor", color);
     \endcode
+
+    Custom types registered using qRegisterMetaType() and
+    qRegisterMetaTypeStreamOperators() can be stored using QSettings.
 
     \section1 Key Syntax
 
