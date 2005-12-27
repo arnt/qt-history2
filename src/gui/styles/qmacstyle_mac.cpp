@@ -916,7 +916,7 @@ QMacStylePrivate::QMacStylePrivate(QMacStyle *style)
 bool QMacStylePrivate::animatable(QMacStylePrivate::Animates as, const QWidget *w) const
 {
     if (as == AquaPushButton) {
-        if (static_cast<const QPushButton *>(w) == defaultButton) {
+        if (static_cast<const QPushButton *>(w) == defaultButton && w->window()->isActiveWindow()) {
             return true;
         }
     } else if (as == AquaProgressBar) {
@@ -1231,10 +1231,10 @@ void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
 void QMacStylePrivate::timerEvent(QTimerEvent *)
 {
     int animated = 0;
-    if (defaultButton && defaultButton->isEnabled() && defaultButton->isVisibleTo(0)
-       && (defaultButton->isDefault()
-           || (defaultButton->autoDefault() && defaultButton->hasFocus()))
-       && doAnimate(AquaPushButton)) {
+    if (defaultButton && defaultButton->isEnabled() && defaultButton->window()->isActiveWindow()
+        && defaultButton->isVisibleTo(0) && (defaultButton->isDefault()
+        || (defaultButton->autoDefault() && defaultButton->hasFocus()))
+        && doAnimate(AquaPushButton)) {
         ++animated;
         defaultButton->update();
     }
