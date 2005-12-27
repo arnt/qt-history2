@@ -54,7 +54,9 @@
     QWidget) while heightMM() returns the height of the device in
     millimeters. Similiarily, the width() and widthMM() functions
     return the width of the device in default coordinate system units
-    and in millimeters, respectively.
+    and in millimeters, respectively. Alternatively, the protected
+    metric() function can be used to retrieve the metric information
+    by specifying the desired PaintDeviceMetric as argument.
 
     Finally, the logicalDpiX() and logicalDpiY() functions return the
     horizontal and vertical resolution of the device in dots per inch,
@@ -67,7 +69,38 @@
 /*!
     \enum QPaintDevice::PaintDeviceMetric
 
-    \internal
+    Describes the various metrics of a paint device.
+
+    \value PdmWidth The width of the paint device in default
+    coordinate system units (e.g. pixels for QPixmap and QWidget). See
+    also width().
+
+    \value PdmHeight The height of the paint device in default
+    coordinate system units (e.g. pixels for QPixmap and QWidget). See
+    also height().
+
+    \value PdmWidthMM The width of the paint device in millimeters. See
+    also widthMM().
+
+    \value PdmHeightMM  The height of the paint device in millimeters. See
+    also heightMM().
+
+    \value PdmNumColors The number of different colors available for
+    the paint device. See also numColors().
+
+    \value PdmDepth The bit depth (number of bit planes) of the paint
+    device. See also depth().
+
+    \value PdmDpiX The horizontal resolution of the device in dots per
+    inch. See also logicalDpiX().
+
+    \value PdmDpiY  The vertical resolution of the device in dots per inch. See
+    also logicalDpiY().
+
+    \value PdmPhysicalDpiX
+    \value PdmPhysicalDpiY
+
+    \sa metric()
 */
 
 /*!
@@ -153,10 +186,11 @@ const Q_GUI_EXPORT QX11Info *qt_x11Info(const QPaintDevice *pd)
 }
 
 /*!
-    \internal
+    \fn int QPaintDevice::metric(PaintDeviceMetric metric) const
 
-    Internal virtual function that returns paint device metrics.
+    Returns the metric information for  the given paint device \a metric.
 
+    \sa PaintDeviceMetric
 */
 
 int QPaintDevice::metric(PaintDeviceMetric) const
