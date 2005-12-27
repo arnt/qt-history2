@@ -586,7 +586,7 @@ qreal QPen::widthF() const
 
     A line width of zero indicates a cosmetic pen. This means that the
     pen width is always drawn one pixel wide, independent of the \l
-    {QPainter::coordinate Transformations}{transformation} set on the
+    {QPainter#Coordinate Transformations}{transformation} set on the
     painter.
 
     Setting a pen width with a negative value is not supported.
@@ -608,7 +608,7 @@ void QPen::setWidth(int width)
 
     A line width of zero indicates a cosmetic pen. This means that the
     pen width is always drawn one pixel wide, independent of the \l
-    {QPainter::coordinate Transformations}{transformation} on the
+    {QPainter#Coordinate Transformations}{transformation} on the
     painter.
 
     Setting a pen width with a negative value is not supported.
