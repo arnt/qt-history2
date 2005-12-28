@@ -1,24 +1,31 @@
-#!/bin/sh
+#!/usr/bin/env python
 
-cat > "$2/Developer/Examples/Qt/.qmake.cache" << EOF
-#nothing anymore...
-EOF
+import os, sys, grp
 
-for file in `find "$2/Developer/Examples/Qt"`; do
-    case $file in
-    *.pro)
-        cd `dirname $file`
-        base=`basename $file`
-        #echo "/usr/bin/qmake -spec macx-g++ "$base" [$file]"
-        #/usr/bin/qmake -spec macx-g++ "$base"
-        echo "/usr/bin/qmake -spec macx-xcode "$base" [$file]" >&2
-        /usr/bin/qmake -spec macx-xcode "$base"
-    ;;
-    esac
-     chgrp admin "$file"
-     if [ -d "$file" ] || [ -x "$file" ]; then
-         chmod 775 "$file"
-     elif [ -x "$file" ]; then
-         chmod 664 "$file"
-     fi
-done
+startPath = os.path.join(sys.argv[2], "Developer/Examples/Qt")
+qmakeCache = open(os.path.join(startPath, ".qmake.cache"), "w")
+qmakeCache.write("#nothing anymore...")
+qmakeCache.close()
+adminGid = grp.getgrnam('admin')[2]
+
+# Generate Xcode projects for everything and make things
+# writeable to the admin users
+for root, dirs, files in os.walk(startPath, topdown = False):
+    for name in files:
+        fullName = os.path.join(root, name)
+        currUid = os.stat(fullName).st_uid
+        if name.endswith(".pro"):
+            os.chdir(os.path.dirname(fullName))
+            print "/usr/bin/qmake -spec macx-xcode %s [%s]" % (name, fullName)
+            sys.stdout.flush() # To make the logger update in a timely fashion
+            os.system('/usr/bin/qmake -spec macx-xcode "%s"' % (name))
+        os.chown(fullName, currUid, adminGid)
+        if os.access(fullName, os.X_OK):
+            os.chmod(fullName, 0775)
+        elif os.access(fullName, os.W_OK):
+            os.chmod(fullName, 0664)
+    for name in dirs:
+        fullName = os.path.join(root, name)
+        currUid = os.stat(fullName).st_uid
+        os.chown(fullName, currUid, adminGid)
+        os.chmod(fullName, 0775)
