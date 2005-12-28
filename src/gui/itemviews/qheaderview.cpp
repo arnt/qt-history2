@@ -291,11 +291,14 @@ int QHeaderView::offset() const
     \sa offset()
 */
 
-void QHeaderView::setOffset(int o)
+void QHeaderView::setOffset(int newOffset)
 {
     Q_D(QHeaderView);
-    int ndelta = d->offset - o;
-    d->offset = o;
+    if (d->offset == newOffset)
+        return;
+
+    int ndelta = d->offset - newOffset;
+    d->offset = newOffset;
     if (d->orientation == Qt::Horizontal)
         d->viewport->scroll(isRightToLeft() ? -ndelta : ndelta, 0);
     else
