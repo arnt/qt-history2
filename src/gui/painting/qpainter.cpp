@@ -397,10 +397,9 @@ void QPainterPrivate::updateState(QPainterState *newState)
     drawing. For example:
 
     \code
-    void SimpleExampleWidget::paintEvent()
+    void SimpleExampleWidget::paintEvent(QPaintEvent *)
     {
         QPainter painter(this);
-
         painter.setPen(Qt::blue);
         painter.setFont(QFont("Arial", 30));
         painter.drawText(rect(), Qt::AlignCenter, "Qt");

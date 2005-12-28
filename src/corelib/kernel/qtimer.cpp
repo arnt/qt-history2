@@ -283,7 +283,7 @@ void QSingleShotTimer::timerEvent(QTimerEvent *)
     \endcode
 
     This sample program automatically terminates after 10 minutes
-    (600000 milliseconds).
+    (600,000 milliseconds).
 
     The \a receiver is the receiving object and the \a member is the
     slot. The time interval is \a msec milliseconds.

@@ -3064,6 +3064,7 @@ void QSettings::setPath(Format format, Scope scope, const QString &path)
 
 /*!
     \since 4.1
+    \threadsafe
 
     Registers a custom storage format. On success, returns a special
     Format value that can then be passed to the QSettings constuctor.

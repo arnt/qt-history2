@@ -1,3 +1,4 @@
+    * \variable array
     * Added support for parameterless macros (e.g. \macro Q_OBJECT).
     * Made qdoc stricter regarding the data types (e.g. can't use \enum to document a typedef).
     * Parse QT_MODULE() macro and generate proper warnings for the various editions.

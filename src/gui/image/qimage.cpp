@@ -294,7 +294,7 @@ QImageData::~QImageData()
 
     An entry in the color table is an RGB triplet encoded as an \c qRgb
     value. Use the color() function to obtain an entry from the table,
-    and the qRed(), qGreen(), and qBlue() functions (\c qcolor.h) to access
+    and the qRed(), qGreen(), and qBlue() functions to access
     the components. The qRgb() function is used to make an RGB triplet
     suitable for use with the setColor() function.
 

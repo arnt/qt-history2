@@ -215,25 +215,25 @@ QPrinter *QAbstractPrintDialog::printer() const
 
     \ingroup dialogs
 
-    The dialog allows users to change document-related settings, such as the
-    paper size and orientation, type of print (color or grayscale), range of pages,
-    and number of copies to print.
+    The dialog allows users to change document-related settings, such
+    as the paper size and orientation, type of print (color or
+    grayscale), range of pages, and number of copies to print.
 
-    Controls are also provided to enable users to choose from the printers available,
-    including any configured network printers.
+    Controls are also provided to enable users to choose from the
+    printers available, including any configured network printers.
 
-    Typically, QPrintDialog objects are constructed with a QPrinter object, and
-    executed using the exec() function.
+    Typically, QPrintDialog objects are constructed with a QPrinter
+    object, and executed using the exec() function.
 
     \code
-    QPrintDialog printDialog(printer, parent);
-    if (printDialog.exec() == QDialog::Accepted) {
-        // print ...
-    }
+        QPrintDialog printDialog(printer, parent);
+        if (printDialog.exec() == QDialog::Accepted) {
+            // print ...
+        }
     \endcode
 
-    If the dialog is accepted by the user, the QPrinter object is correctly configured
-    for printing.
+    If the dialog is accepted by the user, the QPrinter object is
+    correctly configured for printing.
 
     \table
     \row
@@ -241,6 +241,12 @@ QPrinter *QAbstractPrintDialog::printer() const
     \row
     \o A printer dialog in Plastique style
     \endtable
+
+    On Windows and Mac OS X, the native print dialog is used, which
+    means that some QWidget and QDialog properties set on the dialog
+    won't be respected.
+
+    \sa QPageSizeDialog, QPrinter
 */
 
 /*!

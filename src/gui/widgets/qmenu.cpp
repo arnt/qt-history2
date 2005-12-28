@@ -809,9 +809,9 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 
     When inserting action items you usually specify a receiver and a
     slot. The receiver will be notifed whenever the item is
-    triggered(). In addition, QMenu provides two signals, activated()
-    and highlighted(), which signal the QAction that was triggered
-    from the menu.
+    \l{QAction::triggered()}{triggered()}. In addition, QMenu provides
+    two signals, activated() and highlighted(), which signal the
+    QAction that was triggered from the menu.
 
     You clear a menu with clear() and remove individual action items
     with removeAction().
@@ -933,9 +933,9 @@ QAction *QMenu::addAction(const QIcon &icon, const QString &text)
 
     This convenience function creates a new action with the text \a
     text and an optional shortcut \a shortcut. The action's
-    triggered() signal is connected to the \a receiver's \a member
-    slot. The function adds the newly created action to the menu's
-    list of actions and returns it.
+    \l{QAction::triggered()}{triggered()} signal is connected to the
+    \a receiver's \a member slot. The function adds the newly created
+    action to the menu's list of actions and returns it.
 
     \sa QWidget::addAction()
 */
@@ -955,9 +955,9 @@ QAction *QMenu::addAction(const QString &text, const QObject *receiver, const ch
 
     This convenience function creates a new action with an \a icon and
     some \a text and an optional shortcut \a shortcut. The action's
-    triggered() signal is connected to the \a member slot of the \a
-    receiver object. The function adds the newly created action to the
-    menu's list of actions, and returns it.
+    \l{QAction::triggered()}{triggered()} signal is connected to the
+    \a member slot of the \a receiver object. The function adds the
+    newly created action to the menu's list of actions, and returns it.
 
     \sa QWidget::addAction()
 */
@@ -2241,7 +2241,8 @@ void QMenu::internalDelayedPopup()
     This signal is emitted when a menu action is triggered; \a action
     is the action that caused the signal to be emitted.
 
-    Normally, you connect each menu action's triggered() signal to its
+    Normally, you connect each menu action's
+    \l{QAction::triggered()}{triggered()} signal to its
     own custom slot, but sometimes you will want to connect several
     actions to a single slot, for example, when you have a group of
     closely related actions, such as "left justify", "center", "right

@@ -6625,3 +6625,32 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 
     Use toAscii().constData() instead.
 */
+
+/*!
+    \class QConstString
+    \brief The QConstString is a wrapper for constant Unicode string data.
+    \compat
+
+    In Qt 4, QConstString is replaced by QString::fromRawData(), a
+    static function that constructs a QString object based on Unicode
+    string data.
+
+    Because QString::fromRawData() has slightly more stringent
+    constranints than QConstString had in Qt 3, the new QConstString
+    class takes a deep copy of the string data.
+
+    \sa QString::fromRawData()
+*/
+
+/*!
+    \fn QConstString::QConstString(const QChar *unicode, int size)
+
+    Use QString(\a unicode, \a size) or
+    QString::fromRawData(\a unicode, \a size) instead.
+*/
+
+/*!
+    \fn const QString &QConstString::string() const
+
+    Returns \c *this. Not necessary in Qt 4.
+*/

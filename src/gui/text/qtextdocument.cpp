@@ -39,6 +39,8 @@
     mainly checks whether there is something that looks like a tag
     before the first line break. Although the result may be correct
     for common cases, there is no guarantee.
+
+    This function is defined in the \c <QTextDocument> header file.
 */
 bool Qt::mightBeRichText(const QString& text)
 {
@@ -93,9 +95,9 @@ bool Qt::mightBeRichText(const QString& text)
 }
 
 /*!
-    Converts the plain text string \a plain to a
-    HTML string with HTML metacharacters \c{<},
-    \c{>}, and \c{&} replaced by HTML entities.
+    Converts the plain text string \a plain to a HTML string with
+    HTML metacharacters \c{<}, \c{>}, and \c{&} replaced by HTML
+    entities.
 
     Example:
 
@@ -104,6 +106,10 @@ bool Qt::mightBeRichText(const QString& text)
 	QString html = Qt::escape(plain);
 	// html == "#include &lt;QtCore&gt;"
     \endcode
+
+    This function is defined in the \c <QTextDocument> header file.
+
+    \sa convertFromPlainText(), mightBeRichText()
 */
 QString Qt::escape(const QString& plain)
 {
@@ -125,15 +131,14 @@ QString Qt::escape(const QString& plain)
 /*!
     \fn QString Qt::convertFromPlainText(const QString &plain, WhiteSpaceMode mode)
 
-    Auxiliary function. Converts the plain text string \a plain to a
-    rich text formatted paragraph while preserving most of its look.
+    Converts the plain text string \a plain to an HTML-formatted
+    paragraph while preserving most of its look.
 
-    \a mode defines the whitespace mode. Possible values are
-    QStyleSheetItem::WhiteSpacePre (no wrapping, all whitespaces
-    preserved) and QStyleSheetItem::WhiteSpaceNormal (wrapping,
-    simplified whitespaces).
+    \a mode defines how whitespace is handled.
 
-    \sa escape()
+    This function is defined in the \c <QTextDocument> header file.
+
+    \sa escape(), mightBeRichText()
 */
 QString Qt::convertFromPlainText(const QString &plain, Qt::WhiteSpaceMode mode)
 {
@@ -185,7 +190,9 @@ QString Qt::convertFromPlainText(const QString &plain, Qt::WhiteSpaceMode mode)
 
 #ifndef QT_NO_TEXTCODEC
 /*!
-  \internal
+    \internal
+
+    This function is defined in the \c <QTextDocument> header file.
 */
 QTextCodec *Qt::codecForHtml(const QByteArray &ba)
 {
@@ -852,10 +859,10 @@ QFont QTextDocument::defaultFont() const
 
     This signal is emitted whenever the content of the document
     changes in a way that affects the modification state. If \a
-    changed is true if the document has been modified; otherwise it is
+    changed is true, the document has been modified; otherwise it is
     false.
 
-    For example calling setModified(false) on a document and then
+    For example, calling setModified(false) on a document and then
     inserting text causes the signal to get emitted. If you undo that
     operation, causing the document to return to its original
     unmodified state, the signal will get emitted again.

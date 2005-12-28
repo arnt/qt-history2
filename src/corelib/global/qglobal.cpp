@@ -1383,20 +1383,6 @@ bool qSharedBuild()
     Optimizing C++ Compilers.
 */
 
-/*!
-    \macro Q_OS_MACX
-    \relates <QtGlobal>
-
-    Defined for Mac OS X.
-*/
-
-/*!
-    \macro Q_OS_MAC9
-    \relates <QtGlobal>
-
-    Defined for Mac OS 9.
-*/
-
 #if !defined(Q_BYTE_ORDER) && defined(QT_BUILD_QMAKE)
 // needed to bootstrap qmake
 static const unsigned int qt_one = 1;

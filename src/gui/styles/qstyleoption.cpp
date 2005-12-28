@@ -44,7 +44,7 @@
     QStyleOption subclass to paint a push button:
 
     \code
-        void MyPushButton::paintEvent()
+        void MyPushButton::paintEvent(QPaintEvent *)
         {
             QStyleOptionButton option;
             option.initFrom(this);

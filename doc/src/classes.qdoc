@@ -4,7 +4,8 @@
 
     This is a list of all Qt classes excluding the \l{Qt 3
     compatibility classes}. For a shorter list that only includes the
-    most frequently used classes, see \l{Qt's Main Classes}.
+    most frequently used classes, see \l{Qt's Main Classes} and
+    the \l{http://doc.trolltech.com/extras/qt41-class-chart.pdf}{Qt 4.1 Class Chart (PDF)}.
 
     \generatelist classes
 
