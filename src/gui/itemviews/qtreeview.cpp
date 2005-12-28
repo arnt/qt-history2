@@ -1784,15 +1784,23 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
     // search in visible items first and below
     int t = itemAt(q->verticalScrollBar()->value());
     t = t > 100 ? t - 100 : 0; // start 100 items above the visible area
+    
+    QModelIndex parent = index.parent();
     for (int i = t; i < viewItems.count(); ++i)
-        if (viewItems.at(i).index.row() == index.row() &&
-            viewItems.at(i).index.internalId() == index.internalId()) // ignore column
-            return i;
+        if (viewItems.at(i).index.row() == index.row()) {
+            if (viewItems.at(i).index.internalId() == index.internalId()) // ignore column
+                return i;
+            if (viewItems.at(i).index.parent() == parent) // ignore column
+                return i;
+        }
     // search from top to first visible
     for (int j = 0; j < t; ++j)
-        if (viewItems.at(j).index.row() == index.row() &&
-            viewItems.at(j).index.internalId() == index.internalId()) // ignore column
-            return j;
+        if (viewItems.at(j).index.row() == index.row()) {
+            if (viewItems.at(j).index.internalId() == index.internalId()) // ignore column
+                return j;
+            if (viewItems.at(j).index.parent() == parent) // ignore column
+                return j;
+        }
     // nothing found
     return -1;
 }
