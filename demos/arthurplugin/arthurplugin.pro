@@ -8,11 +8,11 @@ DESTDIR     = $$QT_BUILD_TREE/plugins/designer
 SHARED_FOLDER = ../shared
 include(../shared/shared.pri)
 
-DEMO_DEFORM_DIR = $$QTDIR/demos/deform
-DEMO_AFFINE_DIR = $$QTDIR/demos/affine
-DEMO_GRADIENT_DIR = $$QTDIR/demos/gradients
-DEMO_STROKE_DIR = $$QTDIR/demos/pathstroke
-DEMO_COMPOSITION_DIR = $$QTDIR/demos/composition
+DEMO_DEFORM_DIR = ../deform
+DEMO_AFFINE_DIR = ../affine
+DEMO_GRADIENT_DIR = ../gradients
+DEMO_STROKE_DIR = ../pathstroke
+DEMO_COMPOSITION_DIR = ../composition
 
 INCLUDEPATH += $$DEMO_DEFORM_DIR $$DEMO_AFFINE_DIR $$DEMO_GRADIENT_DIR $$DEMO_STROKE_DIR $$DEMO_COMPOSITION_DIR
 
