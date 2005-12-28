@@ -273,8 +273,7 @@ void QSortFilterProxyModelPrivate::sourceHeaderDataChanged(Qt::Orientation orien
 void QSortFilterProxyModelPrivate::sourceLayoutChanged()
 {
     Q_Q(QSortFilterProxyModel);
-    qDeleteAll(source_index_mapping);
-    source_index_mapping.clear();
+    // All internal structures are deleted in clear()
     q->reset();
 }
 
