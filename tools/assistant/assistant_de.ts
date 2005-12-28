@@ -1,4 +1,4 @@
-﻿<!DOCTYPE TS><TS>
+<!DOCTYPE TS><TS>
 <context>
     <name>Assistant</name>
     <message>
@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>&amp;Find:</source>
-        <translation>&amp;Suchen:</translation>
+        <translation type="obsolete">&amp;Suchen:</translation>
     </message>
     <message>
         <source>&amp;Find</source>
@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>Close</source>
-        <translation>Schließen</translation>
+        <translation type="obsolete">Schließen</translation>
     </message>
     <message>
         <source>&amp;Direction</source>
@@ -45,7 +45,7 @@
     </message>
     <message>
         <source>Forwar&amp;d</source>
-        <translation>&amp;Vorwärts</translation>
+        <translation type="obsolete">&amp;Vorwärts</translation>
     </message>
     <message>
         <source>&amp;Backward</source>
@@ -82,6 +82,26 @@
     <message>
         <source>Text not found</source>
         <translation>Text nicht gefunden</translation>
+    </message>
+    <message>
+        <source>Fo&amp;rward</source>
+        <translation>Vo&amp;rwärts</translation>
+    </message>
+    <message>
+        <source>F&amp;ind:</source>
+        <translation>Su&amp;chen:</translation>
+    </message>
+    <message>
+        <source>C&amp;lose</source>
+        <translation>Sch&amp;ließen</translation>
+    </message>
+    <message>
+        <source>Alt+L</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Alt+F</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -120,7 +140,7 @@
     </message>
     <message>
         <source>Open Link in Current Window</source>
-        <translation>Öffne Link im aktuellen Fenster</translation>
+        <translation type="obsolete">Öffne Link im aktuellen Fenster</translation>
     </message>
     <message>
         <source>Open Link in New Window</source>
@@ -179,6 +199,31 @@ Skipping file.</source>
     <message>
         <source>The closing quotation mark is missing.</source>
         <translation>Das schließende Anführungszeichen fehlt.</translation>
+    </message>
+    <message>
+        <source>Open Link in Current Tab</source>
+        <translation>Link im Aktuellen Tab öffnen</translation>
+    </message>
+    <message>
+        <source>Open Link in New Tab</source>
+        <translation>Link in einem neuen Tab öffnen</translation>
+    </message>
+    <message>
+        <source>Failed to load keyword index file
+Assistant will not work!</source>
+        <translation>Die Indexdatei konnte nicht geladen werden.
+Der Assistent ist nicht einsatzbereit!</translation>
+    </message>
+    <message>
+        <source>Documentation file %1 is not compatible!
+Skipping file.</source>
+        <translation>Dokumentation %1 ist nicht kompatibel! Datei wird übersprungen.</translation>
+    </message>
+    <message>
+        <source>Failed to save fulltext search index
+Assistant will not work!</source>
+        <translation>Der Index für die Volltextsuche konnte nicht gespeichert werden.
+Der Assistent ist nicht einsatzbereit!</translation>
     </message>
 </context>
 <context>
@@ -370,7 +415,37 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Qt Assistant by Trolltech - %1%2</source>
-        <translation>Qt Assistant von Trolltech - %1%2</translation>
+        <translation type="obsolete">Qt Assistant von Trolltech - %1%2</translation>
+    </message>
+    <message>
+        <source>No PDF Viewer has been specified
+Please use the settings dialog to specify one!
+</source>
+        <translation>Es wurde kein PDF Betrachter angegeben.
+Bitte diesen im Menue Einstellungen festlegen!
+</translation>
+    </message>
+    <message>
+        <source>Qt Assistant is unable to start the PDF Viewer
+
+%1
+
+Please make sure that the executable exists and is located at
+the specified location.</source>
+        <translation>Der Qt Assistent konnte den PDF betrachter
+%1 nicht laden.
+Bitte überprüfen Sie, das dieser an der angegeben Stelle existiert.</translation>
+    </message>
+    <message>
+        <source>Open Link in New Tab</source>
+        <translation>Link in einenm neuen Tab öffnen</translation>
+    </message>
+</context>
+<context>
+    <name>Index</name>
+    <message>
+        <source>Untitled</source>
+        <translation>Unbenannt</translation>
     </message>
 </context>
 <context>
@@ -441,19 +516,19 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>About</source>
-        <translation>Über</translation>
+        <translation type="obsolete">Über</translation>
     </message>
     <message>
         <source>About Qt</source>
-        <translation>Über Qt</translation>
+        <translation type="obsolete">Über Qt</translation>
     </message>
     <message>
         <source>Qt Class Reference</source>
-        <translation>Qt Klassenreferenz</translation>
+        <translation type="obsolete">Qt Klassenreferenz</translation>
     </message>
     <message>
         <source>Qt Designer Manual</source>
-        <translation>Qt Designer Handbuch</translation>
+        <translation type="obsolete">Qt Designer Handbuch</translation>
     </message>
     <message>
         <source>Zoom in</source>
@@ -473,11 +548,11 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Qt Linguist Manual</source>
-        <translation>Qt Linguist Handbuch</translation>
+        <translation type="obsolete">Qt Linguist Handbuch</translation>
     </message>
     <message>
         <source>&amp;Settings</source>
-        <translation>&amp;Einstellungen</translation>
+        <translation type="obsolete">&amp;Einstellungen</translation>
     </message>
     <message>
         <source>&amp;Settings...</source>
@@ -610,15 +685,15 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Display further information about Qt.</source>
-        <translation>Zeigt weitere Informationen zu Qt an.</translation>
+        <translation type="obsolete">Zeigt weitere Informationen zu Qt an.</translation>
     </message>
     <message>
         <source>Display the Qt Reference Documentation.</source>
-        <translation>Zeigt die Qt Referenzdokumentation an.</translation>
+        <translation type="obsolete">Zeigt die Qt Referenzdokumentation an.</translation>
     </message>
     <message>
         <source>Display the Qt Designer manual.</source>
-        <translation>Zeigt das Qt Designer Handbuch an.</translation>
+        <translation type="obsolete">Zeigt das Qt Designer Handbuch an.</translation>
     </message>
     <message>
         <source>Zoom in on the document, i.e. increase the font size.</source>
@@ -638,7 +713,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Display the Guide to the Qt Translation Tools.</source>
-        <translation>Zeigt die Anleitung zu den Qt Übersetzungswerkzeugen an.</translation>
+        <translation type="obsolete">Zeigt die Anleitung zu den Qt Übersetzungswerkzeugen an.</translation>
     </message>
     <message>
         <source>Open the settings dialog.</source>
@@ -666,7 +741,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Display the Qt Assistant manual.</source>
-        <translation>Zeigt das Qt Assistant Handbuch an.</translation>
+        <translation type="obsolete">Zeigt das Qt Assistant Handbuch an.</translation>
     </message>
     <message>
         <source>F1</source>
@@ -696,38 +771,134 @@ Please use the settings dialog to specify one!
         <source>Initializing Qt Assistant...</source>
         <translation>Initialisiere Qt Assistant...</translation>
     </message>
+    <message>
+        <source>Go</source>
+        <translation>Gehe zu</translation>
+    </message>
+    <message>
+        <source>Find &amp;Next</source>
+        <translation>&amp;Nächste finden</translation>
+    </message>
+    <message>
+        <source>Find Next</source>
+        <translation>Nächste finden</translation>
+    </message>
+    <message>
+        <source>F3</source>
+        <translation>F3</translation>
+    </message>
+    <message>
+        <source>Find &amp;Previous</source>
+        <translation>&amp;Vorigen finden</translation>
+    </message>
+    <message>
+        <source>Find Previous</source>
+        <translation>Vorigen finden</translation>
+    </message>
+    <message>
+        <source>Shift+F3</source>
+        <translation>Umschalt+F3</translation>
+    </message>
+    <message>
+        <source>About Qt Assistant</source>
+        <translation>Über den Qt Assistent</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation>Einstellungen</translation>
+    </message>
+    <message>
+        <source>Add Bookmark</source>
+        <translation>Lesezeichen einfügen</translation>
+    </message>
+    <message>
+        <source>Add Tab</source>
+        <translation>Tab einfügen</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+N</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Next Tab</source>
+        <translation>Nächster Tab</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+Right</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Previous Tab</source>
+        <translation>Voriger Tab</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+Left</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Close Tab</source>
+        <translation>Tab schließen</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+Q</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Failed to open about application contents in file: &apos;%1&apos;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Failed to open link: &apos;%1&apos;</source>
+        <translation>Der Link &apos;%1&apos; konnte nicht geöffnet werden</translation>
+    </message>
+    <message>
+        <source>&lt;div align=&quot;center&quot;&gt;&lt;h1&gt;The page could not be found!&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</source>
+        <translation>&lt;div align=&quot;Hauptseite nicht gefunden!&lt;/h1&gt;</translation>
+    </message>
+    <message>
+        <source>Error...</source>
+        <translation>Fehler ...</translation>
+    </message>
 </context>
 <context>
     <name>SettingsDialog</name>
     <message>
         <source>all</source>
-        <translation>Alle</translation>
+        <translation type="obsolete">Alle</translation>
     </message>
     <message>
         <source>Qt Assistant - Add Documentation</source>
-        <translation>Qt Assistant - Hinzufügen von Dokumentation</translation>
+        <translation type="obsolete">Qt Assistant - Hinzufügen von Dokumentation</translation>
     </message>
     <message>
         <source>Qt Assistant</source>
-        <translation>Qt Assistant</translation>
+        <translation type="obsolete">Qt Assistant</translation>
     </message>
     <message>
         <source>Parse Error</source>
-        <translation>Syntaxfehler</translation>
+        <translation type="obsolete">Syntaxfehler</translation>
     </message>
     <message>
         <source>This item can not be deleted!</source>
-        <translation>Dieser Eintrag kann nicht gelöscht werden!</translation>
+        <translation type="obsolete">Dieser Eintrag kann nicht gelöscht werden!</translation>
     </message>
     <message>
         <source>This branch is not empty!
 Firstly, all contents have to be removed.</source>
-        <translation>Dieser Zweig ist nicht leer!
+        <translation type="obsolete">Dieser Zweig ist nicht leer!
 Es müssen zuerst alle Inhalte gelöscht werden.</translation>
     </message>
     <message>
         <source>Qt Assistant - Set Web Browser</source>
         <translation>Qt Assistant - Setze Webbrowser</translation>
+    </message>
+    <message>
+        <source>Qt Assistant - Set PDF Browser</source>
+        <translation>Qt Assistent - Setze PDF Betrachter</translation>
+    </message>
+    <message>
+        <source>Qt Assistant - Set Homepage</source>
+        <translation>Qt Assistent - Setzte Startseite</translation>
     </message>
 </context>
 <context>
@@ -766,7 +937,7 @@ Es müssen zuerst alle Inhalte gelöscht werden.</translation>
     </message>
     <message>
         <source>General</source>
-        <translation>Allgemein</translation>
+        <translation type="obsolete">Allgemein</translation>
     </message>
     <message>
         <source>Fix&amp;ed font:</source>
@@ -782,11 +953,11 @@ Es müssen zuerst alle Inhalte gelöscht werden.</translation>
     </message>
     <message>
         <source>Web</source>
-        <translation>Web</translation>
+        <translation type="obsolete">Web</translation>
     </message>
     <message>
         <source>&amp;Web Browser Application:</source>
-        <translation>&amp;Webbrowser Anwendung:</translation>
+        <translation type="obsolete">&amp;Webbrowser Anwendung:</translation>
     </message>
     <message>
         <source>...</source>
@@ -794,27 +965,27 @@ Es müssen zuerst alle Inhalte gelöscht werden.</translation>
     </message>
     <message>
         <source>Documentation</source>
-        <translation>Dokumentation</translation>
+        <translation type="obsolete">Dokumentation</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Lösche</translation>
+        <translation type="obsolete">&amp;Lösche</translation>
     </message>
     <message>
         <source>&amp;Add...</source>
-        <translation>&amp;Hinzufügen...</translation>
+        <translation type="obsolete">&amp;Hinzufügen...</translation>
     </message>
     <message>
         <source>Categories</source>
-        <translation>Kategorien</translation>
+        <translation type="obsolete">Kategorien</translation>
     </message>
     <message>
         <source>Category &amp;Name:</source>
-        <translation>Kategorie&amp;name:</translation>
+        <translation type="obsolete">Kategorie&amp;name:</translation>
     </message>
     <message>
         <source>&amp;Add</source>
-        <translation>&amp;Hinzufügen</translation>
+        <translation type="obsolete">&amp;Hinzufügen</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -823,6 +994,49 @@ Es müssen zuerst alle Inhalte gelöscht werden.</translation>
     <message>
         <source>&amp;Cancel</source>
         <translation>&amp;Abbrechen</translation>
+    </message>
+    <message>
+        <source>&amp;General</source>
+        <translation>&amp;Haupt</translation>
+    </message>
+    <message>
+        <source>&amp;Web</source>
+        <translation>&amp;Web</translation>
+    </message>
+    <message>
+        <source>Web &amp;Browser Application:</source>
+        <translation>Web&amp;browser:</translation>
+    </message>
+    <message>
+        <source>&amp;Home page</source>
+        <translation>&amp;Startseite</translation>
+    </message>
+    <message>
+        <source>&amp;PDF</source>
+        <translation>&amp;PDF</translation>
+    </message>
+    <message>
+        <source>PDF &amp;Application</source>
+        <translation>PDF &amp;Betrachter</translation>
+    </message>
+</context>
+<context>
+    <name>TabbedBrowser</name>
+    <message>
+        <source>TabbedBrowser</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Untitled</source>
+        <translation>Unbenannt</translation>
+    </message>
+    <message>
+        <source>Add page</source>
+        <translation>Seite einfügen</translation>
+    </message>
+    <message>
+        <source>Close page</source>
+        <translation>Seite schließen</translation>
     </message>
 </context>
 <context>
