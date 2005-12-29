@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTESTSPONTANEEVENT_P_H
-#define QTESTSPONTANEEVENT_P_H
+#ifndef QTESTSPONTANEEVENT_H
+#define QTESTSPONTANEEVENT_H
 
 #include <QtCore/qcoreevent.h>
 
