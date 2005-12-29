@@ -500,7 +500,7 @@ bool MetaTranslator::release( const QString& filename, bool verbose,
     bool saved = tor.save( filename, mode );
     if ( saved && verbose )
         fprintf( stderr,
-                 " %d finished, %d unfinished and %d untranslated messages\n",
+                 " %d finished, %d unfinished, and %d untranslated messages\n",
                  finished, unfinished, untranslated );
 
     return saved;
