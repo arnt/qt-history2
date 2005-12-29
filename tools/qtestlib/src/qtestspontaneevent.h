@@ -16,6 +16,11 @@
 
 #include <QtCore/qcoreevent.h>
 
+#if 0
+// inform syncqt
+#pragma qt_no_master_include
+#endif
+
 #ifndef QTEST_NO_SIZEOF_CHECK
 template <int>
 class QEventSizeOfChecker
