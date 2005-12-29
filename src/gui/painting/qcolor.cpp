@@ -64,7 +64,7 @@
     or a color name (such as "blue"), to the setNamedColor() function.
     The color names are taken from the SVG 1.0 color names. The name()
     function returns the name of the color in the format
-    "#AARRGGBB. Colors can also be set using setRgb(), setHsv() and
+    #AARRGGBB. Colors can also be set using setRgb(), setHsv() and
     setCmyk(). To get a lighter or darker color use the light() and
     dark() functions respectively.
 
@@ -1962,7 +1962,7 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \fn int qRed(QRgb rgb)
     \relates QColor
 
-    Returns the red component of the RGBA quadruplet \a rgb.
+    Returns the red component of the ARGB quadruplet \a rgb.
 
     \sa qRgb(), QColor::red()
 */
@@ -1971,7 +1971,7 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \fn int qGreen(QRgb rgb)
     \relates QColor
 
-    Returns the green component of the RGBA quadruplet \a rgb.
+    Returns the green component of the ARGB quadruplet \a rgb.
 
     \sa qRgb(), QColor::green()
 */
@@ -1980,7 +1980,7 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \fn int qBlue(QRgb rgb)
     \relates QColor
 
-    Returns the blue component of the RGBA quadruplet \a rgb.
+    Returns the blue component of the ARGB quadruplet \a rgb.
 
     \sa qRgb(), QColor::blue()
 */
@@ -1989,7 +1989,7 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \fn int qAlpha(QRgb rgba)
     \relates QColor
 
-    Returns the alpha component of the RGBA quadruplet \a rgba.
+    Returns the alpha component of the ARGB quadruplet \a rgba.
 
     \sa qRgb(), QColor::alpha()
 */
@@ -1998,7 +1998,7 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \fn QRgb qRgb(int r, int g, int b)
     \relates QColor
 
-    Returns the RGB triplet (\a{r}, \a{g}, \a{b}).
+    Returns the ARGB quadruplet (255, \a{r}, \a{g}, \a{b}).
 
     \sa qRgba(), qRed(), qGreen(), qBlue()
 */
@@ -2007,7 +2007,7 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \fn QRgb qRgba(int r, int g, int b, int a)
     \relates QColor
 
-    Returns the RGBA quadruplet (\a{r}, \a{g}, \a{b}, \a{a}).
+    Returns the ARGB quadruplet (\a{a}, \a{r}, \a{g}, \a{b}).
 
     \sa qRgb(), qRed(), qGreen(), qBlue()
 */
@@ -2028,7 +2028,7 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \overload
     \relates QColor
 
-    Returns a gray value (0 to 255) from the given RGBA quadruplet \a
+    Returns a gray value (0 to 255) from the given ARGB quadruplet \a
     rgb.
 
     The gray value is calculated using the formula (R * 11 + G *
@@ -2067,12 +2067,13 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \typedef QRgb
     \relates QColor
 
-    An RGB value quadruplet (r, g, b, a) equivalent to an unsigned
-    int.
+    An ARGB quadruplet on the format #AARRGGBB, equivalent to an
+    unsigned int.
 
-    Note that the type also holds a value for the alpha-channel
-    (a). For more information, see the \l {QColor#Alpha-Blended
-    Drawing}{Alpha-Blended Drawing} section.
+    Note that the type also holds a value for the alpha-channel. The
+    default alpha channel is \c ff, i.e opaque. For more information,
+    see the \l {QColor#Alpha-Blended Drawing}{Alpha-Blended Drawing}
+    section.
 
     \sa QColor::rgb(), QColor::rgba()
 */
