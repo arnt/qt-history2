@@ -512,7 +512,7 @@ class QMakeProjectEnv
             const QString var = it.key(), val = it.value().join(" ");
             if(!var.startsWith(".")) {
                 const QString env_var = Option::sysenv_mod + var;
-                if(!setenv(env_var.toAscii().constData(), val.toAscii().constData(), 1))
+                if(!putenv(QString(env_var + "=" + val).toAscii().data()))
                     envs.append(env_var);
             }
         }
@@ -523,8 +523,9 @@ public:
     QMakeProjectEnv(const QMap<QString, QStringList> &variables) { init(variables); }
     ~QMakeProjectEnv() {
 #ifdef Q_OS_UNIX
-            for(QStringList::ConstIterator it = envs.begin();it != envs.end(); ++it)
-                unsetenv((*it).toAscii().constData());
+        for(QStringList::ConstIterator it = envs.begin();it != envs.end(); ++it) {
+            putenv(QString(*it + "=").toAscii().data());
+        }
 #endif
     }
 };
