@@ -21,7 +21,9 @@
 
 /*!
     \class QWSPointerCalibrationData
-    \brief Container for data used in calibration of a mouse handler.
+
+    \brief The QWSPointerCalibrationData class is a container for data
+    used in calibration of a mouse handler.
 
     \ingroup qws
 

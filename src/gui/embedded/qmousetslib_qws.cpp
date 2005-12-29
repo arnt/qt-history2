@@ -32,8 +32,8 @@
 /*!
     \class QWSTslibMouseHandler
 
-    \brief The QWSTslibMouseHandler provides mouse events from the Universal
-    Touch screen Library, tslib.
+    \brief The QWSTslibMouseHandler class provides mouse events from
+    the Universal Touch screen Library, tslib.
 
     \ingroup qws
 
