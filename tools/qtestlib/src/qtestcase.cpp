@@ -799,7 +799,7 @@ static void qParseArgs(int argc, char *argv[])
 }
 
 /*!
-    Call init(), slot_data(), slot(), slot(), slot()..., cleanup() 
+    Call init(), slot_data(), slot(), slot(), slot()..., cleanup()
     If data is set then it is the only test that is performed
  */
 static bool qInvokeTestMethod(const char *slotName, const char *data=0)
@@ -861,7 +861,6 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
                 ++curDataIndex;
             } while (curDataIndex < dataCount);
         }
-        QTest::skipCurrentTest = false;
 
         if (data && !foundFunction) {
             printf("Unknown testdata for function %s: '%s'\n", slotName, data);
@@ -875,6 +874,7 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
         ++curGlobalDataIndex;
     } while (curGlobalDataIndex < globalDataCount);
 
+    QTest::skipCurrentTest = false;
     QTestResult::finishedCurrentTestFunction();
     delete[] slot;
 
@@ -950,7 +950,9 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
 
         if (lastTestFuncIdx >= 0) {
             for (int i = 0; i <= lastTestFuncIdx; ++i) {
-                qInvokeTestMethod(metaObject->method(testFuncs[i].function).signature(), testFuncs[i].data);
+                if (!qInvokeTestMethod(metaObject->method(testFuncs[i].function).signature(),
+                                       testFuncs[i].data))
+                    break;
             }
         } else {
             int methodCount = metaObject->methodCount();
@@ -958,7 +960,8 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
                 QMetaMethod slotMethod = metaObject->method(i);
                 if (!isValidSlot(slotMethod))
                     continue;
-                qInvokeTestMethod(slotMethod.signature());
+                if (!qInvokeTestMethod(slotMethod.signature()))
+                    break;
             }
         }
 
