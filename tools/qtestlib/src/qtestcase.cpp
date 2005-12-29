@@ -824,6 +824,12 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
             QTestResult::setCurrentTestLocation(QTestResult::DataFunc);
             QTest::qt_snprintf(member, 512, "%s_data", slot);
             QMetaObject::invokeMethod(QTest::currentTestObject, member, Qt::DirectConnection);
+            // if we encounter a SkipAll in the _data slot, we skip the whole
+            // testfunction, no matter how much global data exists
+            if (QTest::skipCurrentTest) {
+                QTestResult::setCurrentGlobalTestData(0);
+                break;
+            }
         }
 
         bool foundFunction = false;
@@ -861,6 +867,7 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
                 ++curDataIndex;
             } while (curDataIndex < dataCount);
         }
+        QTest::skipCurrentTest = false;
 
         if (data && !foundFunction) {
             printf("Unknown testdata for function %s: '%s'\n", slotName, data);
