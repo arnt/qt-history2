@@ -22,7 +22,7 @@
 #include <QtTest/qtest_global.h>
 #include <QtTest/qtestassert.h>
 #include <QtTest/qtestsystem.h>
-#include <QtTest/private/qtestspontaneevent_p.h>
+#include <QtTest/qtestspontaneevent.h>
 
 #include <QtCore/qpoint.h>
 #include <QtCore/qstring.h>
