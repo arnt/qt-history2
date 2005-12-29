@@ -176,9 +176,8 @@ static const struct { const char * typeName; int type; } types[] = {
 class QCustomTypeInfo
 {
 public:
-#ifndef QT_NO_DATASTREAM
     QCustomTypeInfo() : typeName(0, '\0'), constr(0), destr(0)
-#else
+#ifndef QT_NO_DATASTREAM
     , saveOp(0), loadOp(0)
 #endif
     {}
