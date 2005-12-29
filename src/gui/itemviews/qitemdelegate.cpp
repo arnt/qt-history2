@@ -232,17 +232,13 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
                                      const QModelIndex &index) const
 {
     Q_D(const QItemDelegate);
-
     if (!index.isValid())
         return 0;
-    QVariant::Type t = index.model()->data(index, Qt::EditRole).type();
+    QVariant::Type t = index.data(Qt::EditRole).type();
     const QItemEditorFactory *factory = d->f;
     if (factory == 0)
         factory = QItemEditorFactory::defaultFactory();
-    QWidget *w = factory->createEditor(t, parent);
-    if (w)
-        w->installEventFilter(const_cast<QItemDelegate *>(this));
-    return w;
+    return factory->createEditor(t, parent);
 }
 
 /*!
@@ -254,7 +250,7 @@ void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) con
 {
 #ifndef QT_NO_PROPERTIES
     Q_D(const QItemDelegate);
-    QVariant v = index.model()->data(index, Qt::EditRole);
+    QVariant v = index.data(Qt::EditRole);
     QByteArray n = d->editorFactory()->valuePropertyName(v.type());
     if (!n.isEmpty())
         editor->setProperty(n, v);

@@ -2544,6 +2544,7 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
     if (!w) {
         w = q->itemDelegate()->createEditor(viewport, options, index);
         if (w) {
+            w->installEventFilter(q->itemDelegate());
             QObject::connect(w, SIGNAL(destroyed(QObject*)), q, SLOT(editorDestroyed(QObject*)));
             q->itemDelegate()->setEditorData(w, index);
             q->itemDelegate()->updateEditorGeometry(w, options, index);
