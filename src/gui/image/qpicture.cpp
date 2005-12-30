@@ -52,7 +52,7 @@
     \quotefromfile snippets/picture/picture.cpp
     \skipto RECORD
     \skipto QPicture
-    printuntil save
+    \printuntil save
 
     Example of how to replay a picture:
     \quotefromfile snippets/picture/picture.cpp
