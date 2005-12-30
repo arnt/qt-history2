@@ -469,17 +469,29 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, 
 /*!
     \fn int QWheelEvent::delta() const
 
-    Returns the distance that the wheel is rotated, given in
-    multiples or divisions of \c WHEEL_DELTA. A positive value
-    indicates that the wheel was rotated forwards away from the
-    user; a negative value indicates that the wheel was rotated
-    backwards toward the user.
+    Returns the distance that the wheel is rotated, in eights of a
+    degree. A positive value indicates that the wheel was rotated
+    forwards away from the user; a negative value indicates that the
+    wheel was rotated backwards toward the user.
 
-    The \c WHEEL_DELTA constant was defined to be 120 by the wheel
-    mouse vendors to allow finer-resolution wheels to be built in
-    the future, such as a freely rotating wheel with no notches.
-    The expectation is that such a device would send more messages
-    per rotation, but with a smaller value in each message.
+    Most mouse types work in steps of 15 degrees, in which case the
+    delta value is a multiple of 120 (== 15 * 8).
+
+    Example:
+
+    \code
+        void MyWidget::wheelEvent(QWheelEvent *event)
+        {
+            int numDegrees = event->delta() / 8;
+            int numSteps = numDegrees / 15;
+
+            if (event->orientation() == Qt::Horizontal) {
+                scrollHorizontally(numSteps);
+            } else {
+                scrollVertically(numSteps);
+            }
+        }
+    \endcode
 */
 
 /*!
