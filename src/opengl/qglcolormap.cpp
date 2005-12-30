@@ -136,6 +136,8 @@ QGLColormap & QGLColormap::operator=(const QGLColormap &map)
 
 /*!
     \fn void QGLColormap::detach()
+    \internal
+
     Detaches this QGLColormap from the shared block.
 */
 
