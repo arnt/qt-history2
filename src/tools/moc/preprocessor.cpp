@@ -557,7 +557,6 @@ int PP_Expression::multiplicative_expression()
     switch (next()) {
     case PP_STAR:
         return value * multiplicative_expression();
-        return value % multiplicative_expression();
     case PP_PERCENT:
     {
         int remainder = multiplicative_expression();
