@@ -1441,7 +1441,7 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
 {
     QModelIndexList result;
     uint matchType = flags & 0x0F;
-    bool caseSensitive = flags & Qt::MatchCaseSensitive;
+    Qt::CaseSensitivity cs = flags & Qt::MatchCaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive;
     bool recurse = flags & Qt::MatchRecursive;
     bool wrap = flags & Qt::MatchWrap;
     bool allHits = (hits == -1);
@@ -1462,34 +1462,33 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
                 if (value == v)
                     result.append(idx);
             } else { // QString based matching
-                if (text.isEmpty()) { // lazy conversion
+                if (text.isEmpty()) // lazy conversion
                     text = value.toString();
-                    if (!caseSensitive)
-                        text = text.toLower();
-                }
                 QString t = v.toString();
-                if (!caseSensitive)
-                    t = t.toLower();
                 switch (matchType) {
                 case Qt::MatchRegExp:
-                    if (QRegExp(text).exactMatch(t))
+                    if (QRegExp(text, cs).exactMatch(t))
                         result.append(idx);
                     break;
                 case Qt::MatchWildcard:
-                    if (QRegExp(text, Qt::CaseSensitive, QRegExp::Wildcard).exactMatch(t))
+                    if (QRegExp(text, cs, QRegExp::Wildcard).exactMatch(t))
                         result.append(idx);
                     break;
                 case Qt::MatchStartsWith:
-                    if (t.startsWith(text))
+                    if (t.startsWith(text, cs))
                         result.append(idx);
                     break;
                 case Qt::MatchEndsWith:
-                    if (t.endsWith(text))
+                    if (t.endsWith(text, cs))
+                        result.append(idx);
+                    break;
+                case Qt::MatchFixedString:
+                    if (t.compare(text, cs) == 0)
                         result.append(idx);
                     break;
                 case Qt::MatchContains:
                 default:
-                    if (t.contains(text))
+                    if (t.contains(text, cs))
                         result.append(idx);
                 }
             }

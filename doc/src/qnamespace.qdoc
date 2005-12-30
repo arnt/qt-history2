@@ -1962,7 +1962,8 @@
     This enum describes the type of matches that can be used when searching
     for items in a model.
 
-    \value MatchExactly   The value matches the item exactly.
+    \value MatchExactly   Performs a QVariant based matching.
+    \value MatchFixedString Performs QString based exact matching.
     \value MatchContains  The value is contained in the item.
     \value MatchStartsWith  The value matches the start of the item.
     \value MatchEndsWith   The value matches the end of the item.

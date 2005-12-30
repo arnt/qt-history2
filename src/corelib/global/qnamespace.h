@@ -1258,6 +1258,7 @@ public:
         MatchEndsWith = 3,
         MatchRegExp = 4,
         MatchWildcard = 5,
+        MatchFixedString = 8,
         MatchCaseSensitive = 16,
         MatchWrap = 32,
         MatchRecursive = 64
