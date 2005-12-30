@@ -43,6 +43,8 @@
 #include <math.h>
 #include <limits.h>
 
+#ifndef QT_NO_FONTCONFIG
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
@@ -367,6 +369,7 @@ static void addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPainterPat
 }
 
 
+#endif // QT_NO_FONTCONFIG
 
 
 // ------------------------------------------------------------------
@@ -397,6 +400,8 @@ void QFontEngineMultiXLFD::loadEngine(int at)
 // ------------------------------------------------------------------
 // Xlfd font engine
 // ------------------------------------------------------------------
+
+#ifndef QT_NO_FONTCONFIG
 
 static QStringList *qt_fontpath = 0;
 
@@ -535,6 +540,8 @@ end:
     return face_id;
 }
 
+#endif // QT_NO_FONTCONFIG
+
 // defined in qfontdatabase_x11.cpp
 extern int qt_mib_for_xlfd_encoding(const char *encoding);
 extern int qt_xlfd_encoding_id(const char *encoding);
@@ -580,8 +587,10 @@ QFontEngineXLFD::~QFontEngineXLFD()
 {
     XFreeFont(QX11Info::display(), _fs);
     _fs = 0;
+#ifndef QT_NO_FONTCONFIG
     if (freetype)
         freetype->release(face_id);
+#endif
 }
 
 bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
@@ -729,7 +738,6 @@ glyph_metrics_t QFontEngineXLFD::boundingBox(glyph_t glyph)
     return gm;
 }
 
-
 QFixed QFontEngineXLFD::ascent() const
 {
     return _fs->ascent;
@@ -848,6 +856,7 @@ void QFontEngineXLFD::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *gly
 
 QFontEngine::FaceId QFontEngineXLFD::faceId() const
 {
+#ifndef QT_NO_FONTCONFIG
     if (face_id.index == -1) {
         face_id = ::fontFile(_name, &freetype, &synth);
         if (_codec)
@@ -855,6 +864,7 @@ QFontEngine::FaceId QFontEngineXLFD::faceId() const
         if (freetype) 
             const_cast<QFontEngineXLFD *>(this)->fsType = freetype->fsType();
     }
+#endif
     return face_id;
 }
 
@@ -863,10 +873,14 @@ QFontEngine::Properties QFontEngineXLFD::properties() const
     if (face_id.index == -1)
         (void)faceId();
     
+#ifndef QT_NO_FONTCONFIG
     if (freetype)
         return freetype->properties();
+#endif
     return Properties();
 }
+
+#ifndef QT_NO_FONTCONFIG
 
 void QFontEngineXLFD::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
 {
@@ -900,19 +914,28 @@ void QFontEngineXLFD::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_
     freetype->unlock();
 }
 
+#endif // QT_NO_FONTCONFIG
+
 QByteArray QFontEngineXLFD::getSfntTable(uint tag) const
 {
+#ifndef QT_NO_FONTCONFIG
     if (face_id.index == -1)
         (void)faceId();
     if (!freetype)
         return QByteArray();
     return freetype->getSfntTable(tag);
+#else
+    Q_UNUSED(tag);
+    return QByteArray();
+#endif
 }
 
 int QFontEngineXLFD::synthesized() const
 {
     return synth;
 }
+
+#ifndef QT_NO_FONTCONFIG
 
 FT_Face QFontEngineXLFD::non_locked_face() const
 {
@@ -940,8 +963,6 @@ glyph_t QFontEngineXLFD::glyphIndexToFreetypeGlyphIndex(glyph_t g) const
     g = FT_Get_Char_Index(freetype->face, g);
     return g;
 }
-
-#ifndef QT_NO_FONTCONFIG
 
 // ------------------------------------------------------------------
 // Multi FT engine

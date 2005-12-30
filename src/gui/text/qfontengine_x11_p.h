@@ -57,7 +57,9 @@ public:
 
     QFontEngine::FaceId faceId() const;
     QFontEngine::Properties properties() const;
+#ifndef QT_NO_FONTCONFIG
     void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
+#endif
     QByteArray getSfntTable(uint tag) const;
     int synthesized() const;
     
@@ -84,8 +86,10 @@ public:
     inline XFontStruct *fontStruct() const
     { return _fs; }
 
+#ifndef QT_NO_FONTCONFIG
     FT_Face non_locked_face() const;
     glyph_t glyphIndexToFreetypeGlyphIndex(glyph_t g) const;
+#endif
 
 private:
     XFontStruct *_fs;
