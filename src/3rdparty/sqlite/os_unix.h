@@ -43,6 +43,8 @@
 # define _LARGEFILE_SOURCE 1
 #endif
 
+#include <QtCore/qconfig.h>
+
 /*
 ** standard include files.
 */
@@ -57,7 +59,7 @@
 ** Posix threads and SQLITE_W32_THREADS is defined if we are
 ** synchronizing using Win32 threads.
 */
-#if defined(THREADSAFE) && THREADSAFE
+#ifndef QT_NO_THREAD
 # include <pthread.h>
 # define SQLITE_UNIX_THREADS 1
 #endif

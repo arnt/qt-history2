@@ -22,10 +22,12 @@
 # include <sys/cygwin.h>
 #endif
 
+#include <QtCore/qconfig.h>
+
 /*
 ** Macros used to determine whether or not to use threads.
 */
-#if defined(THREADSAFE) && THREADSAFE
+#ifndef QT_NO_THREAD
 # define SQLITE_W32_THREADS 1
 #endif
 
