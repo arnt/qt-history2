@@ -187,7 +187,7 @@ UnixMakefileGenerator::init()
                 bundle += ".app";
             if(project->isEmpty("QMAKE_BUNDLE_LOCATION"))
                 project->variables()["QMAKE_BUNDLE_LOCATION"].append("Contents/MacOS");
-            project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + bundle + "/Contents/PkgInfo");
+            project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + bundle + "/PkgInfo");
         } else if(project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
                   ((!project->isActiveConfig("plugin") && project->isActiveConfig("lib_bundle")) ||
                    (project->isActiveConfig("plugin") && project->isActiveConfig("plugin_bundle")))) {
