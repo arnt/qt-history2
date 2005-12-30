@@ -1129,7 +1129,7 @@ void QWSDisplay::requestFocus(int winId, bool get)
 void QWSDisplay::setIdentity(const QString &appName)
 {
     QWSIdentifyCommand cmd;
-    cmd.setId(appName, -1);
+    cmd.setId(appName, QWSDisplay::Data::clientLock ? QWSDisplay::Data::clientLock->id() : -1 );
     if (d->directServerConnection())
         qwsServer->d_func()->set_identity(&cmd);
     else
