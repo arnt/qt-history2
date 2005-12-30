@@ -947,7 +947,7 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
 
     QTestResult::setCurrentTestFunction("initTestCase");
     QTestResult::setCurrentTestLocation(QTestResult::DataFunc);
-    QTestTable *gTable = QTestTable::globalTestTable();
+    QTestTable::globalTestTable();
     QMetaObject::invokeMethod(testObject, "initTestCase_data", Qt::DirectConnection);
 
     if (!QTest::skipCurrentTest) {
@@ -977,7 +977,7 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
     }
     QTestResult::finishedCurrentTestFunction();
     QTestResult::setCurrentTestFunction(0);
-    delete gTable; gTable = 0;
+    QTestTable::clearGlobalTestTable();
 
 #ifndef QT_NO_EXCEPTIONS
     } catch (...) {

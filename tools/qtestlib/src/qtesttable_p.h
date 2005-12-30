@@ -39,6 +39,7 @@ public:
 
     static QTestTable *globalTestTable();
     static QTestTable *currentTestTable();
+    static void clearGlobalTestTable();
 
 private:
     Q_DISABLE_COPY(QTestTable)
