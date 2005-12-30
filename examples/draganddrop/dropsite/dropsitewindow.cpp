@@ -67,6 +67,10 @@ void DropSiteWindow::updateFormatsTable(const QMimeData *mimeData)
         return;
 
     foreach (QString format, mimeData->formats()) {
+        QTableWidgetItem *formatItem = new QTableWidgetItem(format);
+        formatItem->setFlags(Qt::ItemIsEnabled);
+        formatItem->setTextAlignment(Qt::AlignTop | Qt::AlignLeft);
+
         QByteArray data = mimeData->data(format);
         QString text;
 
@@ -87,9 +91,6 @@ void DropSiteWindow::updateFormatsTable(const QMimeData *mimeData)
         formatsTable->insertRow(row);
         formatsTable->setItem(row, 0, new QTableWidgetItem(format));
         formatsTable->setItem(row, 1, new QTableWidgetItem(text));
-
-        QTableWidgetItem *index = new QTableWidgetItem(tr("%1").arg(row + 1));
-        formatsTable->setVerticalHeaderItem(row, index);
     }
 
     formatsTable->resizeColumnToContents(0);

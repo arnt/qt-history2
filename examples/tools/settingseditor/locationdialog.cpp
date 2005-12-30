@@ -160,9 +160,6 @@ void LocationDialog::updateLocationsTable()
             int row = locationsTable->rowCount();
             locationsTable->setRowCount(row + 1);
 
-            QTableWidgetItem *headerItem = new QTableWidgetItem;
-            headerItem->setText(QString::number(row + 1));
-
             QTableWidgetItem *item0 = new QTableWidgetItem;
             item0->setText(settings.fileName());
 
@@ -187,7 +184,6 @@ void LocationDialog::updateLocationsTable()
                 item1->setFlags(item1->flags() & ~Qt::ItemIsEnabled);
             }
 
-            locationsTable->setVerticalHeaderItem(row, headerItem);
             locationsTable->setItem(row, 0, item0);
             locationsTable->setItem(row, 1, item1);
         }

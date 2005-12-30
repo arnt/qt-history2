@@ -88,15 +88,15 @@ QStringList Window::findFiles(const QDir &directory, const QStringList &files,
 {
     QProgressDialog progressDialog(this);
     progressDialog.setCancelButtonText(tr("&Cancel"));
-    progressDialog.setRange(0, files.count());
+    progressDialog.setRange(0, files.size());
     progressDialog.setWindowTitle(tr("Find Files"));
 
     QStringList foundFiles;
 
-    for (int i = 0; i < files.count(); ++i) {
+    for (int i = 0; i < files.size(); ++i) {
         progressDialog.setValue(i);
         progressDialog.setLabelText(tr("Searching file number %1 of %2...")
-                              .arg(i).arg(files.count()));
+                                    .arg(i).arg(files.size()));
         qApp->processEvents();
 
         if (progressDialog.wasCanceled())
@@ -123,15 +123,15 @@ QStringList Window::findFiles(const QDir &directory, const QStringList &files,
 
 void Window::showFiles(const QDir &directory, const QStringList &files)
 {
-    for (int i = 0; i < files.count(); ++i) {
+    for (int i = 0; i < files.size(); ++i) {
         QFile file(directory.absoluteFilePath(files[i]));
         qint64 size = QFileInfo(file).size();
 
         QTableWidgetItem *fileNameItem = new QTableWidgetItem(files[i]);
         fileNameItem->setFlags(Qt::ItemIsEnabled);
-        QTableWidgetItem *sizeItem = new QTableWidgetItem(QString("%1 KB")
+        QTableWidgetItem *sizeItem = new QTableWidgetItem(tr("%1 KB")
                                              .arg(int((size + 1023) / 1024)));
-        sizeItem->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
+        sizeItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
         sizeItem->setFlags(Qt::ItemIsEnabled);
 
         int row = filesTable->rowCount();
@@ -139,7 +139,7 @@ void Window::showFiles(const QDir &directory, const QStringList &files)
         filesTable->setItem(row, 0, fileNameItem);
         filesTable->setItem(row, 1, sizeItem);
     }
-    filesFoundLabel->setText(tr("%1 file(s) found").arg(files.count()));
+    filesFoundLabel->setText(tr("%1 file(s) found").arg(files.size()));
 }
 
 QPushButton *Window::createButton(const QString &text, const char *member)
@@ -168,4 +168,3 @@ void Window::createFilesTable()
     filesTable->verticalHeader()->hide();
     filesTable->setShowGrid(false);
 }
-

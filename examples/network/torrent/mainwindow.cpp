@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
+#include <QtGui>
+
 #include "addtorrentdialog.h"
 #include "mainwindow.h"
 #include "ratecontroller.h"
 #include "torrentclient.h"
-
-#include <QtGui>
 
 // TorrentView extends QTreeWidget to allow drag and drop.
 class TorrentView : public QTreeWidget
