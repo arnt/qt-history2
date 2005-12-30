@@ -622,7 +622,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     Q_D(QTreeView);
 
-    if (!model())
+    if (!model() || !index.isValid())
         return;
 
     // Expand all parents if the parent(s) of the node are not expanded.
@@ -1239,6 +1239,9 @@ QModelIndexList QTreeView::selectedIndexes() const
 void QTreeView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QTreeView);
+
+    if (d->viewItems.isEmpty())
+        return;
 
     // guestimate the number of items in the viewport
     int viewCount = d->viewport->height() / d->itemHeight;
