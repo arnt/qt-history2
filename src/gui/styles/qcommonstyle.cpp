@@ -3015,6 +3015,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             int tw = fontMetrics.size(Qt::TextShowMnemonic, groupBox->text + QLatin1Char(' ')).width();
             int marg = (groupBox->features & QStyleOptionFrameV2::Flat) ? 0 : 8;
             ret = groupBox->rect.adjusted(marg, 1, -marg, 0);
+            ret.setHeight(h);
             QRect labelRect = alignedRect(groupBox->direction, groupBox->textAlignment,
                                           QSize(tw, h), ret);
 
