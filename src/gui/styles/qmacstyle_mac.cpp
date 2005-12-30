@@ -6177,22 +6177,28 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 ret = groupBox->rect.adjusted(margin, 0, -margin, 0);
                 ret.setHeight(h);
 
+                QRect labelRect = alignedRect(groupBox->direction, groupBox->textAlignment,
+                                              QSize(tw, h), ret);
+                int indicatorWidth = pixelMetric(PM_IndicatorWidth, opt, w);
+                bool rtl = groupBox->direction == Qt::RightToLeft;
                 if (sc == SC_GroupBoxLabel) {
                     if (checkable) {
-                        ret.setLeft(ret.left() + pixelMetric(PM_IndicatorWidth, opt, w) + 1);
+                        int newSum = indicatorWidth + 1;
+                        int newLeft = labelRect.left() + (rtl ? -newSum : newSum);
+                        labelRect.moveLeft(newLeft);
                     } else {
-                        ret.moveTop(5);
-                        ret.setLeft(ret.left() + 3);
+                        int newLeft = labelRect.left() + (rtl ? -3 : 3);
+                        labelRect.moveLeft(newLeft);
+                        labelRect.moveTop(labelRect.top() + 5);
                     }
-                    ret.setWidth(tw);
+                    ret = labelRect;
                 }
 
                 if (sc == SC_GroupBoxCheckBox) {
-                    int indicatorHeight = pixelMetric(PM_IndicatorHeight, opt, w);
-                    ret.setWidth(pixelMetric(PM_IndicatorWidth, opt, w));
-                    ret.setHeight(indicatorHeight);
+                    int left = rtl ? labelRect.right() - indicatorWidth : labelRect.left();
+                    ret.setRect(left, ret.top(),
+                                indicatorWidth, pixelMetric(PM_IndicatorHeight, opt, w));
                 }
-                ret = visualRect(groupBox->direction, groupBox->rect, ret);
                 break;
             }
             case SC_GroupBoxFrame:

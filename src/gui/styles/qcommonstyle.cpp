@@ -2533,7 +2533,10 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->save();
                 QRegion region(groupBox->rect);
                 bool ltr = groupBox->direction == Qt::LeftToRight;
-                region -= checkBoxRect.unite(textRect).adjusted(ltr ? -4 : 0, 0, ltr ? 0 : 4, 0);
+                QRect finalRect = checkBoxRect.unite(textRect);
+                if (groupBox->subControls & QStyle::SC_GroupBoxCheckBox)
+                    finalRect.adjust(ltr ? -4 : 0, 0, ltr ? 0 : 4, 0);
+                region -= finalRect;
                 p->setClipRegion(region);
                 drawPrimitive(PE_FrameGroupBox, &frame, p, widget);
                 p->restore();
@@ -3012,24 +3015,32 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             int tw = fontMetrics.size(Qt::TextShowMnemonic, groupBox->text + QLatin1Char(' ')).width();
             int marg = (groupBox->features & QStyleOptionFrameV2::Flat) ? 0 : 8;
             ret = groupBox->rect.adjusted(marg, 1, -marg, 0);
+            QRect labelRect = alignedRect(groupBox->direction, groupBox->textAlignment,
+                                          QSize(tw, h), ret);
 
-            if (sc == SC_GroupBoxLabel) {
-                if (groupBox->subControls & QStyle::SC_GroupBoxCheckBox) {
-                    ret.setLeft(ret.left() + pixelMetric(PM_IndicatorWidth, opt, widget)
-                                + pixelMetric(PM_CheckBoxLabelSpacing, opt, widget));
-                }
-                ret.setWidth(tw);
+            int indicatorWidth = pixelMetric(PM_IndicatorWidth, opt, widget);
+            int checkSpacing = pixelMetric(PM_CheckBoxLabelSpacing, opt, widget);
+            bool hasCheckBox = groupBox->subControls & QStyle::SC_GroupBoxCheckBox;
+            bool rtl = groupBox->direction == Qt::RightToLeft;
+            if (hasCheckBox) {
+                if (!rtl)
+                    labelRect.moveLeft(labelRect.left() + indicatorWidth + checkSpacing - 1);
+                else
+                    labelRect.moveLeft(labelRect.left() - indicatorWidth - checkSpacing + 1);
             }
-            ret.setHeight(h);
+
+            if (sc == SC_GroupBoxLabel)
+                ret = labelRect;
 
             if (sc == SC_GroupBoxCheckBox) {
+                // Hmm... since I used alignedRect, I can't use visual rect down here.
                 int indicatorHeight = pixelMetric(PM_IndicatorHeight, opt, widget);
-                ret.setWidth(pixelMetric(PM_IndicatorWidth, opt, widget));
-                ret.setHeight(indicatorHeight);
-                ret.moveTop((fontMetrics.height() - indicatorHeight) / 2);
-                ret.moveLeft(ret.left() + 3);
+                int left = rtl ? labelRect.right() - indicatorWidth : labelRect.left();
+                if (hasCheckBox)
+                    left += rtl ? indicatorWidth + checkSpacing - 1 : -(indicatorWidth + checkSpacing) + 3;
+                ret.setRect(left, ret.top() + (fontMetrics.height() - indicatorHeight) / 2,
+                        indicatorWidth, indicatorHeight);
             }
-            ret = visualRect(groupBox->direction, groupBox->rect, ret);
         }
         break;
 #endif // QT_NO_GROUPBOX
