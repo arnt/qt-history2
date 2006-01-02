@@ -82,6 +82,18 @@
 #ifndef TMT_GLYPHTYPE
 #  define TMT_GLYPHTYPE 4012
 #endif
+#ifndef TMT_BGTYPE
+#  define TMT_BGTYPE 4001
+#endif
+#ifndef BT_IMAGEFILE
+#  define BT_IMAGEFILE 0
+#endif
+#ifndef TMT_FILLCOLOR
+#  define TMT_FILLCOLOR 3802
+#endif
+#ifndef TMT_TEXTSHADOWCOLOR
+#  define TMT_TEXTSHADOWCOLOR 3818
+#endif
 
 #ifndef GT_NONE
 #  define GT_NONE 0
@@ -2250,7 +2262,7 @@ case CE_DockWidgetTitle:
                                  Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                                  dwOpt->state & State_Enabled, dwOpt->title);
                 }
-                p->setPen(isActive ? dwOpt->palette.highlightedText() : d->inactiveCaptionText);
+                p->setPen(isActive ? dwOpt->palette.highlightedText().color() : d->inactiveCaptionText);
                 drawItemText(p, rect.adjusted(indent + 1, rect.bottom() - p->fontMetrics().lineSpacing() - 4,
                                               - (2 * iconSize), -1),
                              Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
