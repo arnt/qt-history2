@@ -131,14 +131,14 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         GLenum err = aglGetError();
         if(err == AGL_BAD_MATCH || err == AGL_BAD_CONTEXT) {
             if(shareContext && shareContext->d_func()->cx) {
-                qWarning("QOpenGL: context sharing mismatch!");
+                qWarning("QGLContext::chooseContext(): Context sharing mismatch!");
                 if(!(ctx = aglCreateContext(fmt, 0)))
                     return false;
                 shareContext = 0;
             }
         }
         if(!ctx) {
-            qWarning("QOpenGL: unable to create QGLContext");
+            qWarning("QGLContext::chooseContext(): Unable to create QGLContext");
             return false;
         }
     }
@@ -268,7 +268,7 @@ void QGLContext::makeCurrent()
 {
     Q_D(QGLContext);
     if(!d->valid) {
-        qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
+        qWarning("QGLContext::makeCurrent(): Cannot make invalid context current");
         return;
     }
     aglSetCurrentContext((AGLContext)d->cx);
@@ -374,7 +374,7 @@ void QGLContext::updatePaintDevice()
         aglSetOffScreen((AGLContext)d->cx, pm->width(), pm->height(),
                         GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
     } else {
-        qWarning("not sure how to render opengl on this device!!");
+        qWarning("QGLContext::updatePaintDevice(): Not sure how to render OpenGL on this device!");
     }
     aglUpdateContext((AGLContext)d->cx);
 }
@@ -425,7 +425,7 @@ uint QGLContext::colorIndex(const QColor&c) const
                 break;
         if(ret == 256) {
             ret = -1;
-            qWarning("whoa, that's no good..");
+            qWarning("QGLContext::colorIndex(): Internal error!");
         } else {
             cmap[ret] = c;
 
