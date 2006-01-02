@@ -740,7 +740,9 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->render_hints = 0;
     d->txop = QPainterPrivate::TxNone;
     d->use_path_fallback = false;
+#if !defined(QT_NO_XRENDER)
     d->composition_mode = PictOpOver;
+#endif
     d->xlibMaxLinePoints = 32762; // a safe number used to avoid, call to XMaxRequestSize(d->dpy) - 3;
 
     // Set up the polygon clipper. Note: This will only work in
