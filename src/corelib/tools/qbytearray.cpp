@@ -1504,9 +1504,8 @@ static inline QByteArray &qbytearray_insert(QByteArray *ba,
     if (pos > oldsize)
         ::memset(dst + oldsize, 0x20, pos - oldsize);
     else
-        ::memmove(dst + pos + len, dst + pos,
-                  (oldsize - pos) * sizeof(char));
-    memcpy(dst + pos, arr, len * sizeof(char));
+        ::memmove(dst + pos + len, dst + pos, oldsize - pos);
+    memcpy(dst + pos, arr, len);
     return *ba;
 }
 
@@ -2916,7 +2915,7 @@ QByteArray QByteArray::leftJustified(int width, char fill, bool truncate) const
     if (padlen > 0) {
         result.resize(len+padlen);
         if (len)
-            memcpy(result.d->data, d->data, sizeof(char)*len);
+            memcpy(result.d->data, d->data, len);
         memset(result.d->data+len, fill, padlen);
     } else {
         if (truncate)
