@@ -567,8 +567,6 @@ void QTextEditPrivate::adjustScrollbars()
     if (ignoreAutomaticScrollbarAdjustement)
         return;
     
-    const bool atBottom = vbar->value() >= vbar->maximum();
-
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
 
     const QSize viewportSize = viewport->size();
@@ -589,9 +587,6 @@ void QTextEditPrivate::adjustScrollbars()
 
     vbar->setRange(0, docSize.height() - viewportSize.height());
     vbar->setPageStep(viewportSize.height());
-    
-    if (atBottom)
-        vbar->setValue(vbar->maximum());
 }
 #endif
 
