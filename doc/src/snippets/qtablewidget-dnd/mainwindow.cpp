@@ -51,7 +51,7 @@ void MainWindow::setupTableItems()
     for (int row = 0; row < tableWidget->rowCount()-1; ++row) {
         for (int column = 0; column < tableWidget->columnCount(); ++column) {
     QTableWidgetItem *newItem = new QTableWidgetItem(tr("%1").arg(
-        pow(row, column+1)));
+        pow((float)row, (float)column+1)));
     tableWidget->setItem(row, column, newItem);
         }
     }
