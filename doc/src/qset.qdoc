@@ -651,10 +651,10 @@
     Example:
 
     \code
-        QSet<double> set;
+        QSet<QString> set;
         set << "red" << "green" << "blue" << ... << "black";
 
-        QList<double> list = set.toList();
+        QList<QString> list = set.toList();
         qSort(list);
     \endcode
 
