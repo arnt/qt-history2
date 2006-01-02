@@ -116,6 +116,10 @@ public:
 
     void deleteSelected();
 
+    void undo();
+    void redo();
+    void setCursorAfterUndoRedo(int undoPosition, int charsAdded, int charsRemoved);
+    
     QRect rectForPosition(int position) const;
     QRect selectionRect() const;
 

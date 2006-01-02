@@ -754,6 +754,38 @@ void QTextEditPrivate::deleteSelected()
     cursor.removeSelectedText();
 }
 
+void QTextEditPrivate::undo()
+{
+    Q_Q(QTextEdit);
+    QObject::connect(doc, SIGNAL(contentsChange(int, int, int)),
+                     q, SLOT(setCursorAfterUndoRedo(int, int, int)));
+    doc->undo();
+    QObject::disconnect(doc, SIGNAL(contentsChange(int, int, int)),
+                        q, SLOT(setCursorAfterUndoRedo(int, int, int)));
+    q->ensureCursorVisible();
+}
+
+void QTextEditPrivate::redo()
+{
+    Q_Q(QTextEdit);
+    QObject::connect(doc, SIGNAL(contentsChange(int, int, int)),
+                     q, SLOT(setCursorAfterUndoRedo(int, int, int)));
+    doc->redo();
+    QObject::disconnect(doc, SIGNAL(contentsChange(int, int, int)),
+                        q, SLOT(setCursorAfterUndoRedo(int, int, int)));    
+    q->ensureCursorVisible();
+}
+
+void QTextEditPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRemoved*/, int charsAdded)
+{
+    if (cursor.isNull())
+        return;
+
+    cursor.setPosition(undoPosition + charsAdded);
+    // don't call ensureCursorVisible here but wait until the text is layouted, which will
+    // be the case in QTextEdit::undo() after calling undo() on the document.
+}
+
 /*!
     \class QTextEdit
     \brief The QTextEdit class provides a widget that is used to edit and display
@@ -1648,9 +1680,9 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
         switch( e->key() ) {
         case Qt::Key_Z:
             if (e->modifiers() & Qt::ShiftModifier)
-                d->doc->redo();
+                d->redo();
             else
-                d->doc->undo();
+                d->undo();
             break;
         case Qt::Key_Y:
             d->doc->redo();
@@ -1692,9 +1724,9 @@ process:
 #if defined(Q_WS_WIN)
         if (e->modifiers() & Qt::AltModifier) {
             if (e->modifiers() & Qt::ShiftModifier)
-                document()->redo();
+                d->redo();
             else
-                document()->undo();
+                d->undo();
         } else
 #endif
         {
@@ -2591,9 +2623,9 @@ QMenu *QTextEdit::createStandardContextMenu()
     QAction *a;
 
     if (!d->readOnly) {
-        a = menu->addAction(tr("&Undo") + ACCEL_KEY(Z), d->doc, SLOT(undo()));
+        a = menu->addAction(tr("&Undo") + ACCEL_KEY(Z), this, SLOT(undo()));
         a->setEnabled(d->doc->isUndoAvailable());
-        a = menu->addAction(tr("&Redo") + ACCEL_KEY(Y), d->doc, SLOT(redo()));
+        a = menu->addAction(tr("&Redo") + ACCEL_KEY(Y), this, SLOT(redo()));
         a->setEnabled(d->doc->isRedoAvailable());
         menu->addSeparator();
 

@@ -333,11 +333,13 @@ public:
 public Q_SLOTS:
     inline QT_MOC_COMPAT void setModified(bool m = true)
     { document()->setModified(m); }
-    inline QT_MOC_COMPAT void undo() const
+public:
+    inline QT3_SUPPORT void undo() const
     { document()->undo(); }
-    inline QT_MOC_COMPAT void redo() const
+    inline QT3_SUPPORT void redo() const
     { document()->redo(); }
 
+public Q_SLOTS:
     inline QT_MOC_COMPAT void setColor(const QColor &c)
     { setTextColor(c); }
 
@@ -350,6 +352,9 @@ private:
     Q_PRIVATE_SLOT(d_func(), void adjustScrollbars())
     Q_PRIVATE_SLOT(d_func(), void emitCursorPosChanged(const QTextCursor &))
     Q_PRIVATE_SLOT(d_func(), void deleteSelected())
+    Q_PRIVATE_SLOT(d_func(), void undo())
+    Q_PRIVATE_SLOT(d_func(), void redo())
+    Q_PRIVATE_SLOT(d_func(), void setCursorAfterUndoRedo(int, int, int))
 };
 
 #endif // QT_NO_TEXTEDIT
