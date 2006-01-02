@@ -300,7 +300,7 @@ QWidget *FormWindow::findTargetContainer(QWidget *widget) const
     return mainContainer();
 }
 
-bool FormWindow::handleMousePressEvent(QWidget */*widget*/, QWidget *managedWidget, QMouseEvent *e)
+bool FormWindow::handleMousePressEvent(QWidget * /*widget*/, QWidget *managedWidget, QMouseEvent *e)
 {
     startPos = QPoint();
     e->accept();
