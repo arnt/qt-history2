@@ -977,6 +977,8 @@ int QTableView::columnWidth(int column) const
 
 /*!
     Returns true if the given \a row is hidden; otherwise returns false.
+    
+    \sa setRowHidden
 */
 bool QTableView::isRowHidden(int row) const
 {
@@ -984,7 +986,7 @@ bool QTableView::isRowHidden(int row) const
 }
 
 /*!
-  If \a hide is true \a row will be hidden, otherwise it will be shown.
+    If \a hide is true \a row will be hidden, otherwise it will be shown.
 */
 void QTableView::setRowHidden(int row, bool hide)
 {
@@ -993,6 +995,8 @@ void QTableView::setRowHidden(int row, bool hide)
 
 /*!
     Returns true if the given \a column is hidden; otherwise returns false.
+
+    \sa setColumnHidden
 */
 bool QTableView::isColumnHidden(int column) const
 {
@@ -1056,13 +1060,14 @@ void QTableView::setGridStyle(Qt::PenStyle style)
 */
 QRect QTableView::visualRect(const QModelIndex &index) const
 {
-    if (!index.isValid() || index.parent() != rootIndex() || isIndexHidden(index) )
+    if (!index.isValid() || !isVisible() || index.parent() != rootIndex() || isIndexHidden(index) )
         return QRect();
+    
     d_func()->executePostedLayout();
 
-    int i = showGrid() ? 1 : 0;
+    const int i = showGrid() ? 1 : 0;
     return QRect(columnViewportPosition(index.column()), rowViewportPosition(index.row()),
-                 columnWidth(index.column()) - i, rowHeight(index.row()) - i);
+                 columnWidth(index.column()) - i,        rowHeight(index.row()) - i);
 }
 
 /*!
