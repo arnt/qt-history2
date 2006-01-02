@@ -243,7 +243,7 @@ void QWSTslibMouseHandlerPrivate::calibrate(const QWSPointerCalibrationData *dat
 }
 
 /*!
-  \reimp
+    \internal
 */
 QWSTslibMouseHandler::QWSTslibMouseHandler(const QString &,
                                            const QString &device)
@@ -252,7 +252,7 @@ QWSTslibMouseHandler::QWSTslibMouseHandler(const QString &,
 }
 
 /*!
-    \reimp
+    \internal
 */
 QWSTslibMouseHandler::~QWSTslibMouseHandler()
 {
