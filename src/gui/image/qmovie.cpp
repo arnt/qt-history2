@@ -216,6 +216,7 @@ public:
 
     // private slots
     void loadNextFrame();
+    void loadNextFrame(bool starting);
 
     QImageReader *reader;
     int speed;
@@ -417,10 +418,14 @@ bool QMoviePrivate::next()
  */
 void QMoviePrivate::loadNextFrame()
 {
+    loadNextFrame(false);
+}
+
+void QMoviePrivate::loadNextFrame(bool starting)
+{
     Q_Q(QMovie);
     if (next()) {
-        // Frame was read successfully
-        if (movieState == QMovie::NotRunning) {
+        if (starting && movieState == QMovie::NotRunning) {
             enterState(QMovie::Running);
             emit q->started();
         }
@@ -433,26 +438,23 @@ void QMoviePrivate::loadNextFrame()
         emit q->updated(frameRect);
         emit q->frameChanged(currentFrameNumber);
 
-        nextImageTimer.start(nextDelay);
-        return;
+        if (movieState == QMovie::Running)
+            nextImageTimer.start(nextDelay);
     } else {
         // Could not read another frame
         if (!isDone()) {
             emit q->error(reader->error());
-            if (movieState != QMovie::NotRunning) {
-                enterState(QMovie::NotRunning);
-                emit q->finished();
-                return;
-            }
+        }
+
+        // Graceful finish
+        if (movieState != QMovie::Paused) {
+            nextFrameNumber = 0;
+            isFirstIteration = true;
+            playCounter = -1;
+            enterState(QMovie::NotRunning);
+            emit q->finished();
         }
     }
-
-    // Graceful finish
-    nextFrameNumber = 0;
-    isFirstIteration = true;
-    playCounter = -1;
-    enterState(QMovie::NotRunning);
-    emit q->finished();
 }
 
 /*!
@@ -895,7 +897,7 @@ void QMovie::start()
 {
     Q_D(QMovie);
     if (d->movieState == NotRunning) {
-        d->loadNextFrame();
+        d->loadNextFrame(true);
     } else if (d->movieState == Paused) {
         setPaused(false);
     }
