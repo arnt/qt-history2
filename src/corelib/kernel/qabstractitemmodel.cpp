@@ -1023,7 +1023,7 @@ QAbstractItemModel::~QAbstractItemModel()
 
     This signal is emitted whenever the data in an existing item
     changes. The affected items are those between \a topLeft and \a
-    bottomRight inclusive.
+    bottomRight inclusive (of the same parent).
 
     \sa headerDataChanged(), setData(), layoutChanged()
 */
@@ -1506,7 +1506,9 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
 }
 
 /*!
-  Returns the row and column span of the item represented by \a index.
+    Returns the row and column span of the item represented by \a index.
+
+    Note: span is not used currently, but will be in the future.
 */
 
 QSize QAbstractItemModel::span(const QModelIndex &) const
