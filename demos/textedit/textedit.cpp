@@ -75,8 +75,8 @@ TextEdit::TextEdit(QWidget *parent)
     actionUndo->setEnabled(textEdit->document()->isUndoAvailable());
     actionRedo->setEnabled(textEdit->document()->isRedoAvailable());
 
-    connect(actionUndo, SIGNAL(triggered()), textEdit->document(), SLOT(undo()));
-    connect(actionRedo, SIGNAL(triggered()), textEdit->document(), SLOT(redo()));
+    connect(actionUndo, SIGNAL(triggered()), textEdit, SLOT(undo()));
+    connect(actionRedo, SIGNAL(triggered()), textEdit, SLOT(redo()));
 
     actionCut->setEnabled(false);
     actionCopy->setEnabled(false);
