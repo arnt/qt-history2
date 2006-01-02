@@ -119,7 +119,7 @@ struct Item
      { return TokenEngine::TokenSection(); }
 
 protected:
-    //using the defualt constructor for an item is
+    //using the default constructor for an item is
     //only allowded for subclasses.
     Item() {};
 };

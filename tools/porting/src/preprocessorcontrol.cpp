@@ -352,7 +352,7 @@ QByteArray defaultDefines =
 Rpp::DefineMap *defaultMacros(PreprocessorCache &cache)
 {
     DefineMap *defineMap = new DefineMap();
-    //write out defualt macros to a temp file
+    //write out default macros to a temp file
     QTemporaryFile tempfile;
     tempfile.open();
     tempfile.write(defaultDefines);
