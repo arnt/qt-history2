@@ -27,39 +27,44 @@
 
     \ingroup qws
 
-    A calibration program should create an instance of this class, fill the
-    devPoints and screenPoints with corresponding device and screen
-    coordinates, and pass it to a an instance of a QWSCalibratedMouseHandler.
+    QWSPointerCalibrationData stores device and screen coordinates in
+    the devPoints and screenPoints variables, respectively.
+
+    A calibration program should create an instance of this class,
+    fill the devPoints and screenPoints variables with its device and
+    screen coordinates, and pass the QWSPointerCalibrationData object
+    to a an instance of the QWSMouseHandler class using the
+    QWSMouseHandler::calibrate() function.
+
+    \sa QWSMouseHandler
 */
 
 /*!
     \variable QWSPointerCalibrationData::devPoints
-    \brief This array contains raw device coordinates for each value of
-    Location.
+    \brief the raw device coordinates for each value of the Location enum.
 */
 
 /*!
     \variable QWSPointerCalibrationData::screenPoints
-    \brief This array contains logical screen coordinates for each value of
-    Location.
+    \brief the logical screen coordinates for each value of the Location enum.
 */
 
 /*!
     \enum QWSPointerCalibrationData::Location
 
-    Specifies the logical position of the values stored in devPoints and
-    screenPoints.
+    This enum describes logical positions specified by the values
+    stored in the devPoints and screenPoints variables.
 
-   \value TopLeft      Index of the top left corner of the screen.
-   \value BottomLeft   Index of the bottom left corner of the screen.
-   \value BottomRight  Index of the bottom right corner of the screen.
-   \value TopRight     Index of the top right corner of the screen.
-   \value Center       Index of the center of the screen.
-   \value LastLocation Last index in the pointer arrays.
+    \value TopLeft           Index of the top left corner of the screen.
+    \value BottomLeft     Index of the bottom left corner of the screen.
+    \value BottomRight   Index of the bottom right corner of the screen.
+    \value TopRight         Index of the top right corner of the screen.
+    \value Center            Index of the center of the screen.
+    \value LastLocation   Last index in the pointer arrays.
 */
 
 /*!
-    \class QWSMouseHandler qwsmouse_qws.h
+    \class QWSMouseHandler
     \brief The QWSMouseHandler class is a mouse driver for Qtopia Core.
 
     \ingroup qws
