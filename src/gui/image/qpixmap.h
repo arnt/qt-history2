@@ -206,7 +206,6 @@ private:
 
 Q_DECLARE_SHARED(QPixmap)
 
-
 inline QPixmap QPixmap::copy(int ax, int ay, int awidth, int aheight) const
 {
     return copy(QRect(ax, ay, awidth, aheight));
