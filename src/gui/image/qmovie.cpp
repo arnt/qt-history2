@@ -451,7 +451,7 @@ void QMoviePrivate::loadNextFrame()
     nextFrameNumber = 0;
     isFirstIteration = true;
     playCounter = -1;
-    enterState(movieState);
+    enterState(QMovie::NotRunning);
     emit q->finished();
 }
 
@@ -885,17 +885,20 @@ int QMovie::speed() const
     Starts the movie. QMovie will enter \l Running state, and start emitting
     updated() and resized() as the movie progresses.
 
-    If QMovie is already in the \l Running state, this function does
-    nothing.
+    If QMovie is in the \l Paused state, this function is equivalent
+    to calling setPaused(false). If QMovie is already in the \l
+    Running state, this function does nothing.
 
     \sa stop(), setPaused()
 */
 void QMovie::start()
 {
     Q_D(QMovie);
-    if (d->movieState == Running)
-        return;
-    d->loadNextFrame();
+    if (d->movieState == NotRunning) {
+        d->loadNextFrame();
+    } else if (d->movieState == Paused) {
+        setPaused(false);
+    }
 }
 
 /*!
@@ -906,7 +909,7 @@ void QMovie::start()
     If QMovie is already in the \l NotRunning state, this function
     does nothing.
 
-    \sa start()
+    \sa start(), setPaused()
 */
 void QMovie::stop()
 {
