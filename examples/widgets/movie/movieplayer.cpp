@@ -21,11 +21,11 @@ MoviePlayer::MoviePlayer(QWidget *parent)
     movie = new QMovie(this);
     movie->setCacheMode(QMovie::CacheAll);
 
-    movieLabel = new QLabel;
-    movieLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    movieLabel->setBackgroundRole(QPalette::Base);
-    movieLabel->setText(tr("No movie loaded"));
+    movieLabel = new QLabel(tr("No movie loaded"));
     movieLabel->setAlignment(Qt::AlignCenter);
+    movieLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    movieLabel->setBackgroundRole(QPalette::Dark);
+    movieLabel->setAutoFillBackground(true);
 
     currentMovieDirectory = "movies";
 
@@ -42,7 +42,6 @@ MoviePlayer::MoviePlayer(QWidget *parent)
 
     mainLayout = new QVBoxLayout;
     mainLayout->addWidget(movieLabel);
-    mainLayout->addWidget(fitCheckBox);
     mainLayout->addLayout(controlsLayout);
     mainLayout->addLayout(buttonsLayout);
     setLayout(mainLayout);
@@ -66,7 +65,6 @@ void MoviePlayer::open()
         movieLabel->setMovie(movie);
         movie->setFileName(fileName);
         movie->start();
-        frameSlider->setMaximum(0);
 
         updateFrameSlider();
     }
@@ -98,8 +96,8 @@ void MoviePlayer::createControls()
     frameLabel = new QLabel(tr("Current frame:"));
 
     frameSlider = new QSlider(Qt::Horizontal);
-    frameSlider->setRange(0, 0);
     frameSlider->setTickPosition(QSlider::TicksBelow);
+    frameSlider->setTickInterval(10);
 
     speedLabel = new QLabel(tr("Speed:"));
 
@@ -109,7 +107,7 @@ void MoviePlayer::createControls()
     speedSpinBox->setSuffix(tr("%"));
 
     controlsLayout = new QGridLayout;
-    controlsLayout->addWidget(fitCheckBox, 0, 0);
+    controlsLayout->addWidget(fitCheckBox, 0, 0, 1, 2);
     controlsLayout->addWidget(frameLabel, 1, 0);
     controlsLayout->addWidget(frameSlider, 1, 1, 1, 2);
     controlsLayout->addWidget(speedLabel, 2, 0);
@@ -163,17 +161,19 @@ void MoviePlayer::createButtons()
 
 void MoviePlayer::updateFrameSlider()
 {
-    int numFrames = movie->frameCount();
-    if (numFrames == 0) {
-        numFrames = movie->currentFrameNumber();
-        frameSlider->setTickInterval(100000000);
+    bool hasFrames = (movie->currentFrameNumber() >= 0);
+
+    if (hasFrames) {
+        if (movie->frameCount() > 0) {
+            frameSlider->setMaximum(movie->frameCount() - 1);
+        } else {
+            if (movie->currentFrameNumber() > frameSlider->maximum())
+                frameSlider->setMaximum(movie->currentFrameNumber());
+        }
+        frameSlider->setValue(movie->currentFrameNumber());
     } else {
-        frameSlider->setTickInterval(0);
+        frameSlider->setMaximum(0);
     }
-
-    frameLabel->setEnabled(numFrames > 0);
-    frameSlider->setEnabled(numFrames > 0);
-
-    frameSlider->setMaximum(numFrames);
-    frameSlider->setValue(movie->currentFrameNumber());
+    frameLabel->setEnabled(hasFrames);
+    frameSlider->setEnabled(hasFrames);
 }
