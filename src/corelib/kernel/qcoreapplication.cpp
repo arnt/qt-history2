@@ -1559,6 +1559,8 @@ QString QCoreApplication::applicationName()
 
 #ifndef QT_NO_LIBRARY
 
+Q_GLOBAL_STATIC(QMutex, libraryPathMutex)
+
 /*!
     Returns a list of paths that the application will search when
     dynamically loading libraries.
@@ -1585,6 +1587,7 @@ QStringList QCoreApplication::libraryPaths()
 {
     if (!self)
         return QStringList();
+    QMutexLocker locker(libraryPathMutex());
     if (!self->d_func()->app_libpaths) {
         QStringList *app_libpaths = self->d_func()->app_libpaths = new QStringList;
         QString installPathPlugins =  QLibraryInfo::location(QLibraryInfo::PluginsPath);
