@@ -846,7 +846,7 @@ QImage::QImage(const QString &fileName, const char *format)
     be useful, for example, if you want to ensure that all
     user-visible strings go through QObject::tr().
 
-    \sa QString::fromAscii(), isNull(), {QImage#{Reading and Writing
+    \sa QString::fromAscii(), isNull(), {QImage#Reading and Writing
     Image Files}{Reading and Writing Image Files}
 */
 QImage::QImage(const char *fileName, const char *format)
@@ -916,7 +916,7 @@ QImage::QImage(const char * const xpm[])
     Constructs a shallow copy of the given \a image.
 
     For more information about shallow copies, see the \l {Implicit
-    Data Shearing} documentation.
+    Data Sharing} documentation.
 
     \sa copy()
 */
@@ -1108,7 +1108,7 @@ QImage::~QImage()
     returns a reference to this image.
 
     For more information about shallow copies, see the \l {Implicit
-    Data Shearing} documentation.
+    Data Sharing} documentation.
 
     \sa copy(), QImage()
 */
