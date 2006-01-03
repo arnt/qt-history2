@@ -13,6 +13,8 @@
 
 #include "qmousebus_qws.h"
 
+#ifndef QT_NO_QWS_MOUSE_BUS
+
 #include "qwindowsystem_qws.h"
 #include "qsocketnotifier.h"
 
@@ -200,3 +202,4 @@ void QWSBusMouseHandlerPrivate::readMouseData()
 }
 
 #include "qmousebus_qws.moc"
+#endif // QT_NO_QWS_MOUSE_BUS
