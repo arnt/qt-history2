@@ -1382,8 +1382,7 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
                               sizeof(val), &val);
         }
     } else if (CFStringCompare(var, kAXSubroleAttribute, 0) == kCFCompareEqualTo) {
-        SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef,
-                          sizeof(kAXUnknownSubrole), kAXUnknownSubrole);
+        return CallNextEventHandler(next_ref, event);
     } else if (CFStringCompare(var, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
         const QAccessible::Role qtRole = interface.role();
