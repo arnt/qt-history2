@@ -58,10 +58,14 @@
     metric() function can be used to retrieve the metric information
     by specifying the desired PaintDeviceMetric as argument.
 
-    Finally, the logicalDpiX() and logicalDpiY() functions return the
-    horizontal and vertical resolution of the device in dots per inch,
-    and the numColors() function returns the number of different
-    colors available for the paint device.
+    The logicalDpiX() and logicalDpiY() functions return the
+    horizontal and vertical resolution of the device in dots per
+    inch. The physicalDpiX() and physicalDpiY() functions also return
+    the resolution of the device in dots per inch, but note that if
+    the logical and vertical resolution differ, the corresponding
+    QPaintEngine must handle the mapping. Finally, the numColors()
+    function returns the number of different colors available for the
+    paint device.
 
     \sa QPaintEngine, QPainter, {The Coordinate System}
 */
@@ -97,8 +101,11 @@
     \value PdmDpiY  The vertical resolution of the device in dots per inch. See
     also logicalDpiY().
 
-    \value PdmPhysicalDpiX
-    \value PdmPhysicalDpiY
+    \value PdmPhysicalDpiX The horizontal resolution of the device in
+    dots per inch. See also physicalDpiX().
+
+    \value PdmPhysicalDpiY The vertical resolution of the device in
+    dots per inch. See also physicalDpiY().
 
     \sa metric()
 */
@@ -586,7 +593,10 @@ int QPaintDevice::x11AppDpiY(int screen)
     the same as could be computed from widthMM(), but it varies on
     Windows.
 
-    \sa logicalDpiY()
+    Note that if the logicalDpiX() doesn't equal the physicalDpiX(),
+    the corresponding QPaintEngine must handle the resolution mapping.
+
+    \sa logicalDpiY(), physicalDpiX()
 */
 
 /*!
@@ -597,15 +607,31 @@ int QPaintDevice::x11AppDpiY(int screen)
     the same as could be computed from heightMM(), but it varies on
     Windows.
 
-    \sa logicalDpiX()
+    Note that if the logicalDpiY() doesn't equal the physicalDpiY(),
+    the corresponding QPaintEngine must handle the resolution mapping.
+
+    \sa  logicalDpiX(), physicalDpiY()
 */
 
 /*!
     \fn int QPaintDevice::physicalDpiX() const
-    \internal
+
+    Returns the horizontal resolution of the device in dots per inch.
+
+    Note that if the physicalDpiX() doesn't equal the logicalDpiX(),
+    the corresponding QPaintEngine must handle the resolution mapping.
+
+    \sa  physicalDpiY(),  logicalDpiX()
 */
+
 /*!
     \fn int QPaintDevice::physicalDpiY() const
-    \internal
+
+    Returns the horizontal resolution of the device in dots per inch.
+
+    Note that if the physicalDpiY() doesn't equal the logicalDpiY(),
+    the corresponding QPaintEngine must handle the resolution mapping.
+
+    \sa  physicalDpiX(),  logicalDpiY()
 */
 
