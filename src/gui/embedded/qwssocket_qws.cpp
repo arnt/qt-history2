@@ -79,7 +79,7 @@ bool QWSSocket::connectToLocalFile(const QString &file)
     if (r == 0) {
         setSocketDescriptor(s);
     } else {
-        perror( "QWSSocket::connectToLocalFile connection refused ");
+        perror("QWSSocket::connectToLocalFile could not connect:");
         ::close(s);
         emit error(ConnectionRefusedError);
         return false;
