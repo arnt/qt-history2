@@ -55,9 +55,8 @@ MoviePlayer::MoviePlayer(QWidget *parent)
 
 void MoviePlayer::open()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Select a Movie"),
-                                                    currentMovieDirectory,
-                                                    tr("Movies (*)")); // ###
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open a Movie"),
+                               currentMovieDirectory);
     if (!fileName.isEmpty()) {
         currentMovieDirectory = QFileInfo(fileName).path();
 
@@ -78,6 +77,25 @@ void MoviePlayer::goToFrame(int frame)
 void MoviePlayer::fitToWindow()
 {
     movieLabel->setScaledContents(fitCheckBox->isChecked());
+}
+
+void MoviePlayer::updateFrameSlider()
+{
+    bool hasFrames = (movie->currentFrameNumber() >= 0);
+
+    if (hasFrames) {
+        if (movie->frameCount() > 0) {
+            frameSlider->setMaximum(movie->frameCount() - 1);
+        } else {
+            if (movie->currentFrameNumber() > frameSlider->maximum())
+                frameSlider->setMaximum(movie->currentFrameNumber());
+        }
+        frameSlider->setValue(movie->currentFrameNumber());
+    } else {
+        frameSlider->setMaximum(0);
+    }
+    frameLabel->setEnabled(hasFrames);
+    frameSlider->setEnabled(hasFrames);
 }
 
 void MoviePlayer::updateButtons()
@@ -157,23 +175,4 @@ void MoviePlayer::createButtons()
     buttonsLayout->addWidget(stopButton);
     buttonsLayout->addWidget(quitButton);
     buttonsLayout->addStretch();
-}
-
-void MoviePlayer::updateFrameSlider()
-{
-    bool hasFrames = (movie->currentFrameNumber() >= 0);
-
-    if (hasFrames) {
-        if (movie->frameCount() > 0) {
-            frameSlider->setMaximum(movie->frameCount() - 1);
-        } else {
-            if (movie->currentFrameNumber() > frameSlider->maximum())
-                frameSlider->setMaximum(movie->currentFrameNumber());
-        }
-        frameSlider->setValue(movie->currentFrameNumber());
-    } else {
-        frameSlider->setMaximum(0);
-    }
-    frameLabel->setEnabled(hasFrames);
-    frameSlider->setEnabled(hasFrames);
 }
