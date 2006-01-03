@@ -58,7 +58,13 @@ static PRINTDLGA *qt_win_make_PRINTDLGA(QWidget *parent, QPrintDialogPrivate *d,
     memset(pd, 0, sizeof(PRINTDLGA));
     pd->lStructSize = sizeof(PRINTDLGA);
 
-    pd->hDevMode = d->ep->devMode;
+    int size = sizeof(DEVMODEA) + d->ep->devModeA()->dmDriverExtra;
+    pd->hDevMode = GlobalAlloc(GHND, size);
+    {
+        void *dest = GlobalLock(pd->hDevMode);
+        memcpy(dest, d->ep->devMode, size);
+        GlobalUnlock(pd->hDevMode);
+    }
     pd->hDevNames  = tempDevNames;
 
     pd->Flags = PD_RETURNDC;
@@ -135,7 +141,13 @@ static PRINTDLGW *qt_win_make_PRINTDLGW(QWidget *parent, QPrintDialogPrivate *d,
     memset(pd, 0, sizeof(PRINTDLGW));
     pd->lStructSize = sizeof(PRINTDLGW);
 
-    pd->hDevMode = d->ep->devMode;
+    int size = sizeof(DEVMODEW) + d->ep->devModeW()->dmDriverExtra;
+    pd->hDevMode = GlobalAlloc(GHND, size);
+    {
+        void *dest = GlobalLock(pd->hDevMode);
+        memcpy(dest, d->ep->devMode, size);
+        GlobalUnlock(pd->hDevMode);
+    }
     pd->hDevNames  = tempDevNames;
 
     pd->Flags = PD_RETURNDC;
