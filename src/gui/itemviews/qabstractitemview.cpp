@@ -442,6 +442,13 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
     d->model = model;
 
     if (d->model) {
+        // These asserts do basic sanity checking of the model
+        
+        // A model should return the same index, including its internal id/pointer.
+        Q_ASSERT(model->index(0,0) == model->index(0,0));
+        // The parent of a top level index should be invalid.
+        Q_ASSERT(model->index(0,0).parent() == QModelIndex());
+
         connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(dataChanged(QModelIndex,QModelIndex)));
         connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
