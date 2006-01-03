@@ -66,6 +66,7 @@ void MoviePlayer::open()
         movie->start();
 
         updateFrameSlider();
+        updateButtons();
     }
 }
 
@@ -100,7 +101,7 @@ void MoviePlayer::updateFrameSlider()
 
 void MoviePlayer::updateButtons()
 {
-    playButton->setEnabled(movie->isValid()
+    playButton->setEnabled(movie->isValid() && movie->frameCount() != 1
                            && movie->state() == QMovie::NotRunning);
     pauseButton->setEnabled(movie->state() != QMovie::NotRunning);
     pauseButton->setChecked(movie->state() == QMovie::Paused);
