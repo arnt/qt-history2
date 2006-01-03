@@ -189,7 +189,20 @@ void QTextDocumentPrivate::clear()
     QList<QTextCursorPrivate *>oldCursors = cursors;
     cursors.clear();
     changedCursors.clear();
+
+    QMap<int, QTextObject *>::Iterator objectIt = objects.begin();
+    while (objectIt != objects.end()) {
+        if (*objectIt != frame) {
+            delete *objectIt;
+            objectIt = objects.erase(objectIt);
+        } else {
+            ++objectIt;
+        }
+    }
+    // also clear out the remaining root frame pointer
+    // (we're going to delete the object further down)
     objects.clear();
+
     docConfig = QTextDocumentConfig();
     undoState = 0;
     truncateUndoStack();
