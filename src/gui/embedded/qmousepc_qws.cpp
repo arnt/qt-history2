@@ -581,6 +581,9 @@ void QWSPcMouseHandlerPrivate::openDevices()
         }
         if (fd >= 0)
             notify(fd);
+	    else
+                qCritical("Error opening mouse device '%s': %s",
+                          dev.constData(), strerror(errno));
     } else {
         // Try automatically
         fd = open("/dev/psaux", O_RDWR | O_NDELAY);

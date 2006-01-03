@@ -161,7 +161,7 @@ QWSTtyKbPrivate::QWSTtyKbPrivate(QWSPC101KeyboardHandler *h, const QString &devi
         vtQws = vtStat.v_active;
 #endif
     } else {
-        qDebug("Cannot open keyboard");
+        qCritical("Cannot open keyboard: %s", strerror(errno));
     }
 
 }
