@@ -348,6 +348,7 @@ private:
 #include "QtCore/qcache.h"
 
 struct QATSUStyle;
+struct QATSUGlyphInfo;
 class QFontEngineMac : public QFontEngine
 {
     mutable ATSUTextLayout mTextLayout;
@@ -355,6 +356,7 @@ class QFontEngineMac : public QFontEngine
     enum { widthCacheSize = 0x500 };
     mutable int widthCache[widthCacheSize];
     QATSUStyle *getFontStyle() const;
+    mutable QCache<QString, QATSUGlyphInfo> glyphCache;
 
 public:
     ATSFontFamilyRef familyref;

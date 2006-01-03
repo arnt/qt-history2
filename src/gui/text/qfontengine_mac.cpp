@@ -35,7 +35,6 @@
 #define FixedToQFixed(a) QFixed::fromFixed((a) >> 10)
 #endif
 
-
 struct QATSUStyle {
     ATSUStyle style;
     QColor rgb;
@@ -55,6 +54,8 @@ QFontEngineMac::QFontEngineMac() : QFontEngine(), mTextLayout(0), internal_fi(0)
 {
     memset(widthCache, 0, sizeof(widthCache));
     cache_cost = 0;
+
+    glyphCache.setMaxCost(300);
 }
 
 QFontEngineMac::~QFontEngineMac()
@@ -86,8 +87,9 @@ QFontEngineMac::recalcAdvances(int numGlyphs, QGlyphLayout *glyphs,
         return;
 
     QVarLengthArray<QChar> str(numGlyphs);
+    QChar *data = str.data();
     for(int i = 0; i < numGlyphs; ++i)
-        str[i] = ushort(glyphs[i].glyph);
+        data[i] = ushort(glyphs[i].glyph);
     QFixed *advances = 0;
     doTextTask(str.constData(), 0, numGlyphs, numGlyphs, ADVANCES, 0, 0, 0, (void**)&advances);
     if(advances) { //try using "correct" advances
@@ -394,6 +396,26 @@ static void cleanupAdvancesBuffer() {
     advances_buffer_len = 0;
 }
 
+struct QATSUGlyphInfo
+{
+    QATSUGlyphInfo()
+        : glyphArray(0)
+    {
+        left = right = bottom = top = -1;
+    }
+
+    ~QATSUGlyphInfo() {
+        delete [] glyphArray;
+        glyphArray = 0;
+    }
+    ATSUGlyphInfoArray *glyphArray;
+    ATSUTextMeasurement left,
+                        right,
+                        bottom,
+                        top;
+};
+
+
 #define QFixedToFixed(x) ((x).value() << 10)
 int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task,
                                QFixed x, QFixed y, QPaintEngine *p, void **data) const
@@ -486,6 +508,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     Q_UNUSED(len);
 
     OSStatus e;
+
     if (!mTextLayout) {
         e = ATSUCreateTextLayout(&mTextLayout);
         if (e != noErr) {
@@ -603,12 +626,13 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         ATSUFontID fid;
         UniCharArrayOffset off;
         UniCharCount off_len;
-        if (ATSUMatchFontsToText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &fid, &off,
-                                 &off_len) != kATSUFontsNotMatched)
+        if (ATSUMatchFontsToText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &fid,
+                                 &off, &off_len) != kATSUFontsNotMatched)
             ret = 1;
     } else if((task & WIDTH) && !ret) {
         ATSUTextMeasurement left=0, right=0, bottom=0, top=0;
-        ATSUGetUnjustifiedBounds(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &left, &right, &bottom, &top);
+        ATSUGetUnjustifiedBounds(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd,
+                                 &left, &right, &bottom, &top);
         ret = FixRound(right-left);
         if(use_len == 1 && s->unicode() < widthCacheSize && ret < 0x100)
             widthCache[s->unicode()] = ret ? ret : -777; //mark so that 0 is cached..
@@ -616,12 +640,25 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 #if 1
     if(task & ADVANCES) {
         Q_ASSERT(data);
-        QVarLengthArray<ATSUGlyphInfoArray> info(use_len);
-        ByteCount size = sizeof(ATSUGlyphInfoArray) * use_len;
-        OSStatus err = ATSUGetGlyphInfo(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &size, info.data());
+        OSStatus err = noErr;
+
+        QString checkStr = QString::fromRawData(s + pos, use_len);
+        QATSUGlyphInfo *glyphInfo = glyphCache.object(checkStr);
+        if (!glyphInfo) {
+            glyphInfo = new QATSUGlyphInfo();
+            QString copy(checkStr.unicode(), checkStr.length());
+            glyphCache.insert(copy, glyphInfo);
+        }
+
+        if (!glyphInfo->glyphArray) {
+            glyphInfo->glyphArray = new ATSUGlyphInfoArray[use_len];
+            ByteCount size = sizeof(ATSUGlyphInfoArray) * use_len;
+            err = ATSUGetGlyphInfo(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd,
+                                   &size, glyphInfo->glyphArray);
+        }
         if(err == noErr) {
             //sanity
-            Q_ASSERT(info[0].numGlyphs == (uint)use_len);
+            Q_ASSERT(glyphInfo->glyphArray[0].numGlyphs == (uint)use_len);
             if(!advances_buffer || use_len > advances_buffer_len) {
                 advances_buffer_len = use_len;
                 if(!advances_buffer) {
@@ -635,25 +672,31 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             //calculate the positions
             int last = 0;
             for(int i = 0; i < use_len-1; ++i) {
-                advances_buffer[i] = info[0].glyphs[i+1].screenX - last;
+                advances_buffer[i] = glyphInfo->glyphArray[0].glyphs[i+1].screenX - last;
 #ifdef DEBUG_ADVANCES
-                qDebug("%d [%d]) %d(%d)::%f::%d::%d -- %f", i, (s+pos+i)->latin1(), info[0].glyphs[i+1].screenX, last,
-                       info[0].glyphs[i+1].idealX, (int)info[0].glyphs[i+1].charIndex,
-                       (int)info[0].glyphs[i+1].layoutFlags, advances_buffer[i]);
+                qDebug("%d [%d]) %d(%d)::%f::%d::%d -- %f", i, (s+pos+i)->latin1(), glyphInfo->glyphArray[0].glyphs[i+1].screenX, last,
+                       glyphInfo->glyphArray[0].glyphs[i+1].idealX, (int)glyphInfo->glyphArray[0].glyphs[i+1].charIndex,
+                       (int)glyphInfo->glyphArray[0].glyphs[i+1].glyphInfo, advances_buffer[i]);
 #endif
-                last = info[0].glyphs[i+1].screenX;
+                last = glyphInfo->glyphArray[0].glyphs[i+1].screenX;
             }
 
             //calculate the final width
-            ATSUTextMeasurement left=0, right=0, bottom=0, top=0;
-            if(use_len > 1 && !last)
-                ATSUGetUnjustifiedBounds(mTextLayout, use_len-2, 2, &left, &right, &bottom, &top);
-            else
-                ATSUGetUnjustifiedBounds(mTextLayout, use_len-1, 1, &left, &right, &bottom, &top);
+            if (glyphInfo->left == -1) {
+                if(use_len > 1 && !last)
+                    ATSUGetUnjustifiedBounds(mTextLayout, use_len-2, 2,
+                                             &glyphInfo->left, &glyphInfo->right,
+                                             &glyphInfo->bottom,
+                                             &glyphInfo->top);
+                else
+                    ATSUGetUnjustifiedBounds(mTextLayout, use_len-1, 1, &glyphInfo->left,
+                                             &glyphInfo->right, &glyphInfo->bottom,
+                                             &glyphInfo->top);
 #ifdef DEBUG_ADVANCES
-            qDebug("Last %d) %f-%f == %f", use_len-1, FixedToQFixed(right), FixedToQFixed(left), FixedToQFixed(right-left));
+                qDebug("Last %d) %f-%f == %f", use_len-1, FixedToQFixed(glyphInfo->right), FixedToQFixed(glyphInfo->left), FixedToQFixed(glyphInfo->right-glyphInfo->left));
 #endif
-            advances_buffer[use_len-1] = FixedToQFixed(right-left);
+            }
+            advances_buffer[use_len-1] = FixedToQFixed(glyphInfo->right-glyphInfo->left);
 
             //finally make sure surrogates are in Qt order..
             for(int i = 0; i < use_len-1; ++i) {
