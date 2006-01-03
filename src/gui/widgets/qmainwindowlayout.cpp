@@ -454,7 +454,7 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
 {
 #ifndef QT_NO_TOOLBAR
     // save toolbar state
-    stream << (uchar) ToolBarStateMarker;
+    stream << (uchar) ToolBarStateMarkerEx;
     stream << tb_layout_info.size(); // number of toolbar lines
     if (!tb_layout_info.isEmpty()) {
         for (int line = 0; line < tb_layout_info.size(); ++line) {
@@ -469,6 +469,7 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
                 stream << info.pos;
                 stream << info.size;
                 stream << info.offset;
+                stream << info.user_pos;
             }
         }
     }
@@ -507,7 +508,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     // restore toolbar layout
     uchar tmarker;
     stream >> tmarker;
-    if (tmarker != ToolBarStateMarker)
+    if (tmarker != ToolBarStateMarker && tmarker != ToolBarStateMarkerEx)
         return false;
 
     int lines;
@@ -528,6 +529,8 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
             stream >> info.pos;
             stream >> info.size;
             stream >> info.offset;
+            if (tmarker == ToolBarStateMarkerEx)
+                stream >> info.user_pos;
 
             // find toolbar
             QToolBar *toolbar = 0;
