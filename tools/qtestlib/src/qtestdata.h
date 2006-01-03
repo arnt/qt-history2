@@ -44,7 +44,7 @@ private:
 template<typename T>
 QTestData &operator<<(QTestData &data, const T &value)
 {
-    data.append(QMetaTypeId<T>::qt_metatype_id(), &value);
+    data.append(qMetaTypeId<T>(), &value);
     return data;
 }
 
