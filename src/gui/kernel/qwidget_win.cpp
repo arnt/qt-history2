@@ -1261,40 +1261,43 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         data.window_state &= ~Qt::WindowMaximized;
 
     if (data.window_state & Qt::WindowFullScreen) {
-        // We need to update these flags when we remove the full screen state
-        // or the frame will not be updated
-        UINT style = topData()->savedFlags;
-        if (q->isVisible())
-            style |= WS_VISIBLE;
-        SetWindowLongA(q->winId(), GWL_STYLE, style);
-
-        UINT swpf = SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE;
-        if (data.window_state & Qt::WindowActive)
-            swpf |= SWP_NOACTIVATE;
-        SetWindowPos(q->winId(), 0, 0, 0, 0, 0, swpf);
-
-        // We also need to update the frame strut, but since updateFrameStrut
-        // just returns when the window is hidden we need to do this explicitly.
-        // More pasted code, ick.
-        RECT  fr, cr;
-        GetWindowRect(q->winId(), &fr);
-        GetClientRect(q->winId(), &cr);
-
-        POINT pt;
-        pt.x = 0;
-        pt.y = 0;
-
-        ClientToScreen(q->winId(), &pt);
-        q->data->crect = QRect(QPoint(pt.x, pt.y),
-                            QPoint(pt.x + cr.right, pt.y + cr.bottom));
-
         QTLWExtra *top = topData();
-        top->ftop = data.crect.top() - fr.top;
-        top->fleft = data.crect.left() - fr.left;
-        top->fbottom = fr.bottom - data.crect.bottom();
-        top->fright = fr.right - data.crect.right();
 
+        if (q->isWindow()) {
+            // We need to update these flags when we remove the full screen state
+            // or the frame will not be updated
+            UINT style = top->savedFlags;
+            if (q->isVisible())
+                style |= WS_VISIBLE;
+            SetWindowLongA(q->winId(), GWL_STYLE, style);
+
+            UINT swpf = SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE;
+            if (data.window_state & Qt::WindowActive)
+                swpf |= SWP_NOACTIVATE;
+            SetWindowPos(q->winId(), 0, 0, 0, 0, 0, swpf);
+
+            // We also need to update the frame strut, but since updateFrameStrut
+            // just returns when the window is hidden we need to do this explicitly.
+            // More pasted code, ick.
+            RECT  fr, cr;
+            GetWindowRect(q->winId(), &fr);
+            GetClientRect(q->winId(), &cr);
+
+            POINT pt;
+            pt.x = 0;
+            pt.y = 0;
+
+            ClientToScreen(q->winId(), &pt);
+            q->data->crect = QRect(QPoint(pt.x, pt.y),
+                                   QPoint(pt.x + cr.right, pt.y + cr.bottom));
+
+            top->ftop = data.crect.top() - fr.top;
+            top->fleft = data.crect.left() - fr.left;
+            top->fbottom = fr.bottom - data.crect.bottom();
+            top->fright = fr.right - data.crect.right();
+        }
         data.window_state &= ~Qt::WindowFullScreen;
+        topData()->savedFlags = 0;
     }
 
     if (q->testAttribute(Qt::WA_WState_ConfigPending)) {        // processing config event
