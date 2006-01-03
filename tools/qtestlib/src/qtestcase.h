@@ -251,7 +251,7 @@ namespace QTest
                      const char *expected, const char *file, int line)
     {
         return qCompare(actual, *static_cast<const T *>(QTest::qElementData(elementName,
-                       QMetaTypeId<T>::qt_metatype_id())), actualStr, expected, file, line);
+                       qMetaTypeId<T>())), actualStr, expected, file, line);
     }
 }
 
