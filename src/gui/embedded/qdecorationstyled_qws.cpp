@@ -110,7 +110,9 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
 
         if (isActive)
             opt.state |= QStyle::State_Active;
-        painter->fillRect(br, pal.background());
+        painter->setCompositionMode(QPainter::CompositionMode_Source);
+        painter->fillRect(br, pal.window());
+        painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
         style->drawPrimitive(QStyle::PE_FrameWindow, &opt, painter, widget);
         painter->restore();
 

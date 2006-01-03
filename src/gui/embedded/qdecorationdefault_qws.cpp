@@ -553,9 +553,11 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
             painter->setClipRegion(oldClipRegion - r);
         }
         QRect br = QDecoration::region(widget).boundingRect();
+        painter->setCompositionMode(QPainter::CompositionMode_Source);
         qDrawWinPanel(painter, br.x(), br.y(), br.width(),
                     br.height(), pal, false,
                     &pal.brush(QPalette::Background));
+        painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
         handled |= true;
     }
 
@@ -572,9 +574,11 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
             titlePen   = pal.color(QPalette::Text);
         }
 
+        painter->setCompositionMode(QPainter::CompositionMode_Source);
         qDrawShadePanel(painter,
                         titleRect.x(), titleRect.y(), titleRect.width(), titleRect.height(),
                         pal, true, 1, &titleBrush);
+        painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
 
         painter->setPen(titlePen);
         painter->setFont(widget->font());
@@ -626,7 +630,9 @@ void QDecorationDefault::paintButton(QPainter *painter, const QWidget *widget,
     QRect brect(QDecoration::region(widget, buttonRegion).boundingRect());
 
     if (state & QDecoration::Pressed) {
+        painter->setCompositionMode(QPainter::CompositionMode_Source);
         qDrawWinPanel(painter, brect, pal, true, &pal.brush(QPalette::Background));
+        painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
         ++xoff;
         ++yoff;
     } else {
