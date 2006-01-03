@@ -229,7 +229,8 @@ public:
     QRect hoverRect;
     QPersistentModelIndex currentIndex;
     QPersistentModelIndex root;
-    Qt::CaseSensitivity autoCompletionCaseSensitivity;
+    Qt::CaseSensitivity caseSensitivity;
+    bool caseSensitivitySet;
     int indexBeforeChange;
 };
 

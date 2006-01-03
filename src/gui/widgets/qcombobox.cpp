@@ -46,7 +46,8 @@ QComboBoxPrivate::QComboBoxPrivate()
       modelColumn(0),
       arrowState(QStyle::State_None),
       hoverControl(QStyle::SC_None),
-      autoCompletionCaseSensitivity(Qt::CaseInsensitive),
+      caseSensitivity(Qt::CaseInsensitive),
+      caseSensitivitySet(false),
       indexBeforeChange(-1)
 {
 }
@@ -737,7 +738,10 @@ void QComboBoxPrivate::returnPressed()
         // check for duplicates (if not enabled) and quit
         int index = -1;
         if (!duplicatesEnabled) {
-            index = q->findText(text);
+            Qt::MatchFlags flags = Qt::MatchFixedString;
+            if (q->caseSensitivity() == Qt::CaseSensitive)
+                flags |= Qt::MatchCaseSensitive;
+            index = q->findText(text, flags);
             if (index != -1) {
                 q->setCurrentIndex(index);
                 emitActivated(currentIndex);
@@ -780,6 +784,7 @@ void QComboBoxPrivate::returnPressed()
 */
 void QComboBoxPrivate::complete()
 {
+    Q_Q(QComboBox);
     if (skipCompletion || !lineEdit || !autoCompletion) {
         skipCompletion = false;
         return;
@@ -787,16 +792,16 @@ void QComboBoxPrivate::complete()
     QString text = lineEdit->text();
     if (!text.isEmpty()) {
         Qt::MatchFlags flags(Qt::MatchWrap|Qt::MatchStartsWith);
-        if (autoCompletionCaseSensitivity == Qt::CaseSensitive)
+        if (q->caseSensitivity() == Qt::CaseSensitive)
             flags |= Qt::MatchCaseSensitive;
         QModelIndexList list = model->match(currentIndex, Qt::EditRole, text, 1, flags);
         if (!list.count())
             return;
         QString completed = model->data(list.first(), Qt::EditRole).toString();
-        int start = completed.length();
-        int length = text.length() - start; // negative length
-        lineEdit->setText(completed);
-        lineEdit->setSelection(start, length);
+        QString extra = completed.mid(text.length());
+        skipCompletion = true; // avoid recursion
+        lineEdit->setText(text + extra);
+        lineEdit->setSelection(text.length() + extra.length(), -extra.length());
     }
 }
 
@@ -933,7 +938,12 @@ void QComboBox::setAutoCompletion(bool enable)
 
 /*!
     \property QComboBox::autoCompletionCaseSensitivity
-    \brief the case-sensitive property used in auto-completion
+    \brief whether string comparisons are case-sensitive or case-insensitive for auto-completion
+    \obsolete
+
+    By default, this property is Qt::CaseInsensitive.
+
+    Use caseSensitivity instead.
 
     \sa autoCompletion
 */
@@ -941,13 +951,49 @@ void QComboBox::setAutoCompletion(bool enable)
 Qt::CaseSensitivity QComboBox::autoCompletionCaseSensitivity() const
 {
     Q_D(const QComboBox);
-    return d->autoCompletionCaseSensitivity;
+    return d->caseSensitivity;
 }
 
 void QComboBox::setAutoCompletionCaseSensitivity(Qt::CaseSensitivity sensitivity)
 {
     Q_D(QComboBox);
-    d->autoCompletionCaseSensitivity = sensitivity;
+    d->caseSensitivity = sensitivity;
+}
+
+/*!
+    \property QComboBox::caseSensitivity
+    \brief whether string comparisons are case-sensitive or case-insensitive
+    \since 4.2
+
+    Case sensitivity affects both auto-completion and duplicate handling.
+
+    For compatibility with previous versions of Qt, the default value of the property
+    depends on whether auto-completion is enabled. If autoCompletion is true, this
+    property has the same value as the (obsolete) autoCompletionCaseSensitivity property
+    (Qt::CaseInsensitive by default); if autoCompletion is false, this property defaults
+    to Qt::CaseSensitive.
+
+    \sa autoCompletion, duplicatesEnabled
+*/
+
+Qt::CaseSensitivity QComboBox::caseSensitivity() const
+{
+    Q_D(const QComboBox);
+    if (!d->caseSensitivitySet) {
+        // Compute default to best match pre-4.2 behaviour
+        if (d->autoCompletion && d->caseSensitivity == Qt::CaseInsensitive)
+            return Qt::CaseInsensitive;
+        else
+            return Qt::CaseSensitive;
+    }
+    return d->caseSensitivity;
+}
+
+void QComboBox::setCaseSensitivity(Qt::CaseSensitivity sensitivity)
+{
+    Q_D(QComboBox);
+    d->caseSensitivity = sensitivity;
+    d->caseSensitivitySet = true;
 }
 
 /*!
@@ -1359,15 +1405,17 @@ void QComboBox::setCurrentIndex(int index)
         return;
     QModelIndex mi = model()->index(index, d->modelColumn, rootModelIndex());
 
-    if (mi == d->currentIndex)
-        return;
-    d->currentIndex = QPersistentModelIndex(mi);
-    if (d->lineEdit) {
+    bool indexChanged = (mi != d->currentIndex);
+    if (indexChanged)
+        d->currentIndex = QPersistentModelIndex(mi);
+    if (d->lineEdit && d->lineEdit->text() != itemText(d->currentIndex.row())) {
         d->lineEdit->setText(itemText(d->currentIndex.row()));
         d->updateLineEditGeometry();
     }
-    update();
-    d->emitCurrentIndexChanged(d->currentIndex.row());
+    if (indexChanged) {
+        update();
+        d->emitCurrentIndexChanged(d->currentIndex.row());
+    }
 }
 
 /*!

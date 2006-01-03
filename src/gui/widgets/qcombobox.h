@@ -45,6 +45,7 @@ class Q_GUI_EXPORT QComboBox : public QWidget
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(bool autoCompletion READ autoCompletion WRITE setAutoCompletion)
     Q_PROPERTY(Qt::CaseSensitivity autoCompletionCaseSensitivity READ autoCompletionCaseSensitivity WRITE setAutoCompletionCaseSensitivity)
+    Q_PROPERTY(Qt::CaseSensitivity caseSensitivity READ caseSensitivity WRITE setCaseSensitivity)
     Q_PROPERTY(bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled)
     Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
     Q_PROPERTY(bool modelColumn READ modelColumn WRITE setModelColumn)
@@ -65,6 +66,9 @@ public:
 
     Qt::CaseSensitivity autoCompletionCaseSensitivity() const;
     void setAutoCompletionCaseSensitivity(Qt::CaseSensitivity sensitivity);
+
+    Qt::CaseSensitivity caseSensitivity() const;
+    void setCaseSensitivity(Qt::CaseSensitivity sensitivity);
 
     bool duplicatesEnabled() const;
     void setDuplicatesEnabled(bool enable);
