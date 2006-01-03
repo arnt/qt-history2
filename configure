@@ -1749,7 +1749,7 @@ else
         ARCH=i386
         ;;
     *:*:x86_64|*:*:amd64)
-        if [ "$PLATFORM" = "linux-g++32" ]; then
+        if [ "$PLATFORM" = "linux-g++-32" ]; then
             if [ "$OPT_VERBOSE" = "yes" ]; then
                 echo "    32 bit on 64-bit AMD 80x86 (i386)"
             fi
