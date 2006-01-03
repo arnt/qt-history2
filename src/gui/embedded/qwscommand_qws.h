@@ -25,6 +25,7 @@
 #include <QtGui/qfont.h>
 #include <QtCore/qdatastream.h>
 #include <QtCore/qvariant.h>
+#include "qwslock_p.h"
 
 QT_MODULE(Gui)
 
@@ -46,7 +47,6 @@ bool qws_read_command(QIODevice *socket, char *&simpleData, int &simpleLen, char
  * QWSCommand base class - only use derived classes from that
  *
  *********************************************************************/
-
 
 struct QWSProtocolItem
 {
@@ -163,8 +163,10 @@ struct QWSIdentifyCommand : public QWSCommand
 
 struct QWSCreateCommand : public QWSCommand
 {
-    QWSCreateCommand() :
-        QWSCommand(QWSCommand::Create, 0, 0) {}
+    QWSCreateCommand(int n = 1) :
+        QWSCommand(QWSCommand::Create, sizeof(count),
+                   reinterpret_cast<char *>(&count)), count(n) {}
+    int count;
 };
 
 struct QWSRegionNameCommand : public QWSCommand
@@ -226,7 +228,7 @@ struct QWSRegionCommand : public QWSCommand
     enum WindowType {Transparent=0, Opaque=1, OnScreen=2};
     struct SimpleData {
         int windowid;
-        int shmid;
+        quint64 shmid;
         uint windowtype:8;
         int nrectangles;
     } simpleData;

@@ -20,6 +20,7 @@
 #include <QtGui/qwindowdefs.h>
 #include <QtGui/private/qlock_p.h>
 #include <QtCore/qlist.h>
+#include <QtGui/private/qwslock_p.h>
 
 QT_MODULE(Gui)
 
@@ -125,8 +126,10 @@ private:
     Data *d;
 
     friend class QWSBackingStore;
-    static void lockClient();
-    static void unlockClient();
+    static bool lockClient(QWSLock::LockType, int timeout = -1);
+    static void unlockClient(QWSLock::LockType);
+    static bool waitClient(QWSLock::LockType, int timeout = -1);
+    static QWSLock* getClientLock();
 
     int getPropertyLen;
     char *getPropertyData;

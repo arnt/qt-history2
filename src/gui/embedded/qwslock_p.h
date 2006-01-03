@@ -4,17 +4,22 @@
 class QWSLock
 {
 public:
+    enum LockType { BackingStore, Communication };
+
     QWSLock();
-    QWSLock(int id);
+    QWSLock(int lockId);
     ~QWSLock();
-    bool lock(int timeout = -1);
-    bool isLocked();
-    void unlock();
-    void wait();
-    int id() { return semId; }
+
+    bool lock(LockType type, int timeout = -1);
+    void unlock(LockType type);
+    bool wait(LockType type, int timeout = -1);
+    int id() const { return semId; }
 
 private:
     int semId;
+    int lockCount[2];
+
+    bool hasLock(LockType type);
 };
 
 #endif // QWSLOCK_H

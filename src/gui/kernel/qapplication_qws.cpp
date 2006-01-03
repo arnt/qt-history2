@@ -320,9 +320,26 @@ public:
     }
 
     static QWSLock *clientLock;
-    static void lockClient()   { if (clientLock) clientLock->lock(); }
-    static void unlockClient() { if (clientLock) clientLock->unlock(); }
-    static void waitClient()   { if (clientLock) clientLock->wait(); }
+
+    static bool lockClient(QWSLock::LockType type, int timeout = -1)
+    {
+        return !clientLock || clientLock->lock(type, timeout);
+    }
+
+    static void unlockClient(QWSLock::LockType type)
+    {
+        if (clientLock) clientLock->unlock(type);
+    }
+
+    static bool waitClient(QWSLock::LockType type, int timeout = -1)
+    {
+        return !clientLock || clientLock->wait(type, timeout);
+    }
+
+    static QWSLock* getClientLock()
+    {
+        return clientLock;
+    }
 
     void flush()
     {
@@ -403,6 +420,7 @@ public:
     bool directServerConnection() { return true; }
 #endif
     void fillQueue();
+    void connectToPipe();
     void waitForConnection();
 //    void waitForRegionAck();
     void waitForCreation();
@@ -421,15 +439,10 @@ public:
 #ifndef QT_NO_QWS_MULTIPROCESS
     void reinit();
 #endif
-    void create()
+    void create(int n = 1)
     {
-        QWSCreateCommand cmd;
-#ifndef QT_NO_QWS_MULTIPROCESS
-        if (csocket)
-            cmd.write(csocket);
-        else
-#endif
-            qt_server_enqueue(&cmd);
+        QWSCreateCommand cmd(n);
+        sendCommand(cmd);
     }
 
     void sendCommand(QWSCommand & cmd)
@@ -446,31 +459,24 @@ public:
     {
 #ifndef QT_NO_QWS_MULTIPROCESS
         if  (csocket) {
-            lockClient();
+            lockClient(QWSLock::Communication);
             cmd.write(csocket);
             flush();
-            waitClient();
-        } else {
+            waitClient(QWSLock::Communication);
+        } else
 #endif
             qt_server_enqueue(&cmd);
-        }
     }
 
     QWSEvent *readMore();
 
     int takeId()
     {
-        // top up bag
-        create();
-        if (!unused_identifiers.count()) {
-            // We have to wait!
-            for (int o=0; o<30; o++)
-                create();
+        if (unused_identifiers.count() == 10)
+            create(15);
+        if (unused_identifiers.count() == 0)
             waitForCreation();
-        }
-        int i = unused_identifiers.first();
-        unused_identifiers.removeFirst();
-        return i;
+        return unused_identifiers.takeFirst();
     }
 
     void setMouseFilter(void (*filter)(QWSMouseEvent*))
@@ -481,14 +487,24 @@ public:
 
 QWSLock* QWSDisplay::Data::clientLock = 0;
 
-void QWSDisplay::lockClient()
+bool QWSDisplay::lockClient(QWSLock::LockType type, int timeout)
 {
-    Data::lockClient();
+    return Data::lockClient(type, timeout);
 }
 
-void QWSDisplay::unlockClient()
+void QWSDisplay::unlockClient(QWSLock::LockType type)
 {
-    Data::unlockClient();
+    Data::unlockClient(type);
+}
+
+bool QWSDisplay::waitClient(QWSLock::LockType type, int timeout)
+{
+    return Data::waitClient(type, timeout);
+}
+
+QWSLock* QWSDisplay::getClientLock()
+{
+    return Data::getClientLock();
 }
 
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -602,7 +618,8 @@ void QWSDisplay::Data::init()
 #ifndef QT_NO_QWS_MULTIPROCESS
     if (csocket)    {
         // QWS client
-        csocket->connectToLocalFile(pipe);
+
+        connectToPipe();
 
         QWSDisplay::Data::clientLock = new QWSLock();
 
@@ -621,7 +638,7 @@ void QWSDisplay::Data::init()
         cmd.write(csocket);
 #endif
 
-        // wait for connect confirmation
+        // create(30); // not necessary, server will send ids anyway
         waitForConnection();
 
         qws_client_id = connected_event->simpleData.clientId;
@@ -645,6 +662,7 @@ void QWSDisplay::Data::init()
     } else
 #endif
     {
+        create(30);
 
         // QWS server
         if (!QWSDisplay::initLock(pipe, true))
@@ -669,7 +687,6 @@ void QWSDisplay::Data::init()
         memset(sharedRam,0,sharedRamSize);
 
         QWSIdentifyCommand cmd;
-        cmd.setId(appName, -1);
         qt_server_enqueue(&cmd);
     }
     setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
@@ -751,7 +768,10 @@ void QWSDisplay::Data::fillQueue()
             return;
         } else if (e->type == QWSEvent::Creation) {
             QWSCreationEvent *ce = static_cast<QWSCreationEvent*>(e);
-            unused_identifiers.append(ce->simpleData.objectid);
+            int id = ce->simpleData.objectid;
+            int count = ce->simpleData.count;
+            for (int i = 0; i < count; ++i)
+                unused_identifiers.append(id++);
             delete e;
         } else if (e->type == QWSEvent::Mouse) {
             if (!qt_screen) {
@@ -820,7 +840,7 @@ void QWSDisplay::Data::fillQueue()
                         r2.setRects(region_event->rectangles,
                                 region_event->simpleData.nrectangles);
                         QRegion ur(r1 + r2);
-                        region_event->setData(reinterpret_cast<char *>(ur.rects().data()),
+                        region_event->setData(reinterpret_cast<const char *>(ur.rects().constData()),
                                 ur.rects().count() * sizeof(QRect), true);
                         region_event->simpleData.nrectangles = ur.rects().count();
                         delete e;
@@ -879,33 +899,40 @@ void QWSDisplay::Data::offsetPendingExpose(int window, const QPoint &offset)
 }
 #endif
 
+void QWSDisplay::Data::connectToPipe()
+{
+    Q_ASSERT(csocket);
+
+    const QString pipe = qws_qtePipeFilename();
+    int i = 0;
+    while (!csocket->connectToLocalFile(pipe)) {
+        if (++i > 5) {
+            qWarning("No Qtopia Core server appears to be running.");
+            qWarning("If you want to run this program as a server,");
+            qWarning("add the \"-qws\" command-line option.");
+            exit(1);
+        }
+        sleep(1);
+    }
+}
+
 void QWSDisplay::Data::waitForConnection()
 {
     connected_event = 0;
 
-    fillQueue();
 #ifndef QT_NO_QWS_MULTIPROCESS
     for (int i = 0; i < 5; i++) {
         fillQueue();
         if (connected_event)
             return;
-        if (csocket) {
-            csocket->flush();
-            csocket->waitForReadyRead(2000);
-//            qDebug( "waitForReadyRead %d bytesAvailable %lld", i, csocket->bytesAvailable() );
-        }
-        usleep(50000);
-        //sleep(1);
-        fillQueue();
+        csocket->flush();
+        csocket->waitForReadyRead(1000);
     }
-#else
-    if (connected_event)
-        return;
+
+    csocket->flush();
+    if (!connected_event)
+        qFatal("Did not receive a connection event from the qws server");
 #endif
-    qWarning("No Qtopia Core server appears to be running.");
-    qWarning("If you want to run this program as a server,");
-    qWarning("add the \"-qws\" command-line option.");
-    exit(1);
 }
 
 #if 0
@@ -932,15 +959,15 @@ void QWSDisplay::Data::waitForRegionAck()
 void QWSDisplay::Data::waitForCreation()
 {
     fillQueue();
-    while (unused_identifiers.count() == 0) {
 #ifndef QT_NO_QWS_MULTIPROCESS
+    while (unused_identifiers.count() == 0) {
         if (csocket) {
             csocket->flush();
             csocket->waitForReadyRead(1000);
         }
-#endif
         fillQueue();
     }
+#endif
 }
 
 #ifndef QT_NO_COP
@@ -1036,8 +1063,7 @@ void QWSDisplay::setProperty(int winId, int property, int mode, const QByteArray
     cmd.simpleData.windowid = winId;
     cmd.simpleData.property = property;
     cmd.simpleData.mode = mode;
-    QByteArray f___ = data; //#########
-    cmd.setData(f___.data(), f___.size());
+    cmd.setData(data.constData(), data.size());
     d->sendCommand(cmd);
 }
 
@@ -1166,8 +1192,9 @@ void QWSDisplay::requestRegion(int winId, int shmid, int windowtype, QRegion r)
         cmd.simpleData.windowtype = windowtype;
         cmd.simpleData.shmid = shmid;
         cmd.simpleData.nrectangles = ra.count();
-        cmd.setData(reinterpret_cast<char *>(ra.data()), ra.count() * sizeof(QRect), false);
-        d->sendCommand(cmd);
+        cmd.setData(reinterpret_cast<const char *>(r.rects().constData()),
+                    ra.count() * sizeof(QRect), false);
+        d->sendSynchronousCommand(cmd);
     }
 
     // if (!r.isEmpty())
@@ -1192,7 +1219,9 @@ void QWSDisplay::repaintRegion(int winId, bool opaque, QRegion r)
         cmd.simpleData.windowid = winId;
         cmd.simpleData.opaque = opaque;
         cmd.simpleData.nrectangles = ra.count();
-        cmd.setData(reinterpret_cast<char *>(ra.data()), ra.count() * sizeof(QRect), false);
+        cmd.setData(reinterpret_cast<const char *>(ra.constData()),
+                    ra.count() * sizeof(QRect), false);
+
         d->sendSynchronousCommand(cmd);
     }
 }

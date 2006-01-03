@@ -130,6 +130,7 @@ struct QWSCreationEvent : QWSEvent {
               reinterpret_cast<char*>(&simpleData)) {}
     struct SimpleData {
         int objectid;
+        int count;
     } simpleData;
 };
 

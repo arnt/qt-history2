@@ -82,8 +82,6 @@
 
 #include "qwindowsystem_p.h"
 
-//#include <qdebug.h>
-
 #define EXTERNAL_SOUND_SERVER
 
 extern void qt_qws_set_max_window_rect(const QRect& r);
@@ -122,10 +120,12 @@ static int qws_keyModifiers = 0;
 static QWSWindow *keyboardGrabber;
 static bool keyboardGrabbing;
 
-static int get_object_id()
+static int get_object_id(int count = 1)
 {
     static int next=1000;
-    return next++;
+    int n = next;
+    next += count;
+    return n;
 }
 #ifndef QT_NO_QWS_INPUTMETHODS
 static QWSInputMethod *current_IM = 0;
@@ -334,14 +334,14 @@ public:
     QWSClientPrivate();
     ~QWSClientPrivate();
 
-    void setLock(int key);
-    void lock();
-    void unlock();
+    void setLockId(int id);
+    void unlockCommunication();
 
 private:
 #ifndef QT_NO_QWS_MULTIPROCESS
     QWSLock *clientLock;
-#endif // QT_NO_QWS_MULTIPROCESS
+#endif
+    friend class QWSServerPrivate;
 };
 
 QWSClientPrivate::QWSClientPrivate()
@@ -358,26 +358,18 @@ QWSClientPrivate::~QWSClientPrivate()
 #endif
 }
 
-void QWSClientPrivate::setLock(int id)
+void QWSClientPrivate::setLockId(int id)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     clientLock = new QWSLock(id);
 #endif
 }
 
-void QWSClientPrivate::lock()
-{
-#ifndef QT_NO_QWS_MULTIPROCESS
-     if (clientLock)
-         clientLock->lock();
-#endif
-}
-
-void QWSClientPrivate::unlock()
+void QWSClientPrivate::unlockCommunication()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     if (clientLock)
-        clientLock->unlock();
+        clientLock->unlock(QWSLock::Communication);
 #endif
 }
 
@@ -865,9 +857,8 @@ void QWSServerPrivate::newConnection()
             client->sendMaxWindowRectEvent();
 
         // pre-provide some object id's
-        for (int i=0; i<20 && clientMap.contains(socket); i++)
-            invokeCreate(0, client);
-
+        QWSCreateCommand cmd(30);
+        invokeCreate(&cmd, client);
     }
 }
 /*!
@@ -1059,10 +1050,11 @@ void QWSServerPrivate::doClient(QWSClient *client)
             break;
         case QWSCommand::Region:
             invokeRegion((QWSRegionCommand*)cs->command, cs->client);
+            cs->client->d_func()->unlockCommunication();
             break;
         case QWSCommand::RegionMove:
             invokeRegionMove((QWSRegionMoveCommand*)cs->command, cs->client);
-            cs->client->d_func()->unlock();
+            cs->client->d_func()->unlockCommunication();
             break;
         case QWSCommand::RegionDestroy:
             invokeRegionDestroy((QWSRegionDestroyCommand*)cs->command, cs->client);
@@ -1090,7 +1082,7 @@ void QWSServerPrivate::doClient(QWSClient *client)
         case QWSCommand::ChangeAltitude:
             invokeSetAltitude((QWSChangeAltitudeCommand*)cs->command,
                                cs->client);
-            cs->client->d_func()->unlock();
+            cs->client->d_func()->unlockCommunication();
             break;
         case QWSCommand::SetOpacity:
             invokeSetOpacity((QWSSetOpacityCommand*)cs->command,
@@ -1148,7 +1140,7 @@ void QWSServerPrivate::doClient(QWSClient *client)
         case QWSCommand::RepaintRegion:
             invokeRepaintRegion((QWSRepaintRegionCommand*)cs->command,
                                 cs->client);
-            cs->client->d_func()->unlock();
+            cs->client->d_func()->unlockCommunication();
             break;
         }
         delete cs;
@@ -1747,14 +1739,15 @@ void QWSServerPrivate::invokeIdentify(const QWSIdentifyCommand *cmd, QWSClient *
     client->setIdentity(cmd->id);
 #ifndef QT_NO_QWS_MULTIPROCESS
     if (client->clientId() > 0)
-        client->d_func()->setLock(cmd->simpleData.idLock);
+        client->d_func()->setLockId(cmd->simpleData.idLock);
 #endif
 }
 
-void QWSServerPrivate::invokeCreate(QWSCreateCommand *, QWSClient *client)
+void QWSServerPrivate::invokeCreate(QWSCreateCommand *cmd, QWSClient *client)
 {
     QWSCreationEvent event;
-    event.simpleData.objectid = get_object_id();
+    event.simpleData.objectid = get_object_id(cmd->count);
+    event.simpleData.count = cmd->count;
     client->sendEvent(&event);
 }
 
@@ -2537,7 +2530,7 @@ void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
     exposeRegion(region, level);
 }
 
-void QWSServerPrivate::request_region(int wid, int shmid, int windowtype, QRegion region, QWSWindow *changingw)
+void QWSServerPrivate::request_region(int wid, quint64 shmid, int windowtype, QRegion region, QWSWindow *changingw)
 {
     Q_Q(QWSServer);
     if (!changingw)
@@ -2574,7 +2567,16 @@ void QWSServerPrivate::request_region(int wid, int shmid, int windowtype, QRegio
         }
         changingw->client()->sendRegionEvent(wid, region, 0);
     } else {
-        changingw->backingStore()->attach(shmid, region.boundingRect().size());
+        QWSBackingStore *backingStore = changingw->backingStore();
+        QWSClient *client = changingw->client();
+
+        if (client->clientId() == 0) {
+            backingStore->setMemory(shmid, region.boundingRect().size());
+        } else {
+            backingStore->attach(shmid, region.boundingRect().size());
+            backingStore->setLock(changingw->client()->d_func()->clientLock);
+        }
+
         changingw->opaque = windowtype != QWSRegionCommand::Transparent;
 
         setWindowRegion(changingw, region);

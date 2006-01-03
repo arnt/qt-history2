@@ -29,6 +29,7 @@
 #include "qwsmanager_qws.h"
 #include <private/qwsmanager_p.h>
 #include <private/qbackingstore_p.h>
+#include <private/qwslock_p.h>
 #include "qpaintengine.h"
 
 #include "qdebug.h"
@@ -55,6 +56,14 @@ static int takeLocalId()
 {
     static int n=-1000;
     return --n;
+}
+
+class QWSServer;
+extern QWSServer *qwsServer;
+
+static inline bool isServerProcess()
+{
+    return (qwsServer != 0);
 }
 
 /*****************************************************************************
@@ -554,7 +563,6 @@ void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
 void QWidgetPrivate::blitToScreen(const QRegion &globalrgn)
 {
     Q_Q(QWidget);
-//    qDebug("QWidgetPrivate::bltToScreen");
     QWidget *win = q->window();
     QBrush bgBrush = win->palette().brush(win->backgroundRole());
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
@@ -565,6 +573,9 @@ void QWidgetPrivate::blitToScreen(const QRegion &globalrgn)
 
 QWSBackingStore::QWSBackingStore()
 {
+    isServerSideBackingStore = false;
+    memLock = 0;
+    ownsMemory = false;
 }
 
 QWSBackingStore::~QWSBackingStore()
@@ -583,32 +594,32 @@ void QWSBackingStore::blit(const QRect &r, const QPoint &p)
 
     if (r.top() < p.y()) {
         // backwards vertically
-        src = (uint*)shm.address() + r.bottom()*lineskip + r.left();
-        dest = (uint*)shm.address() + (p.y()+r.height()-1)*lineskip + p.x();
+        src = reinterpret_cast<uint*>(mem) + r.bottom()*lineskip + r.left();
+        dest = reinterpret_cast<uint*>(mem) + (p.y()+r.height()-1)*lineskip + p.x();
         lineskip = -lineskip;
     } else {
-        src = (uint*)shm.address() + r.top()*lineskip + r.left();
-        dest = (uint*)shm.address() + p.y()*lineskip + p.x();
+        src = reinterpret_cast<uint*>(mem) + r.top()*lineskip + r.left();
+        dest = reinterpret_cast<uint*>(mem) + p.y()*lineskip + p.x();
     }
 
     const int w = r.width();
     int h = r.height();
     const int bytes = w * sizeof(uint);
-    if (r.left() < p.x()) {
-        do {
-            // backwards horizontally
-            ::memmove(dest, src, bytes);
-            dest += lineskip;
-            src += lineskip;
-        } while (--h);
-    } else {
-        do {
-            // backwards horizontally
-            ::memcpy(dest, src, bytes);
-            dest += lineskip;
-            src += lineskip;
-        } while (--h);
-    }
+    lock();
+    do {
+        ::memmove(dest, src, bytes);
+        dest += lineskip;
+        src += lineskip;
+    } while (--h);
+    unlock();
+}
+
+quint64 QWSBackingStore::memoryId() const
+{
+    if (isServerSideBackingStore)
+        return reinterpret_cast<quint64>(mem);
+    else
+        return static_cast<quint64>(shm.id());
 }
 
 void QWSBackingStore::detach()
@@ -617,7 +628,13 @@ void QWSBackingStore::detach()
     qDebug() << "QWSBackingStore::detach shmid" << shmid << "shmaddr" << shm.address();
 #endif
     pix = QPixmap();
-    shm.detach();
+    if (isServerSideBackingStore) {
+        if (ownsMemory)
+            delete[] mem;
+    } else {
+        shm.detach();
+    }
+    mem = 0;
 }
 
 void QWSBackingStore::create(QSize s)
@@ -635,12 +652,20 @@ void QWSBackingStore::create(QSize s)
     int extradatasize = 0;//2 * sizeof(int); //store height and width ???
     int datasize = 4 * s.width() * s.height() + extradatasize; //### hardcoded 32bpp
 
-    if (!shm.create(datasize)) {
-        perror("QWSBackingStore::create allocating shared memory");
-        qFatal("Error creating shared memory of size %d", datasize);
+    if (isServerProcess()) { // I'm the server process
+        mem = new uchar[s.width() * s.height() * sizeof(uint)];
+        isServerSideBackingStore = true;
+        ownsMemory = true;
+    } else {
+        if (!shm.create(datasize + sizeof(int))) {
+            perror("QWSBackingStore::create allocating shared memory");
+            qFatal("Error creating shared memory of size %d", datasize);
+        }
+        mem = static_cast<uchar*>(shm.address());
+        memLock = QWSDisplay::getClientLock();
     }
 
-    QImage img(static_cast<uchar*>(shm.address())+extradatasize, s.width(), s.height(),
+    QImage img(mem + extradatasize, s.width(), s.height(),
                QImage::Format_ARGB32_Premultiplied);
     pix = QPixmap::fromImage(img);
 #ifdef QT_SHAREDMEM_DEBUG
@@ -670,8 +695,11 @@ void QWSBackingStore::attach(int id, QSize s)
                  id, s.width() * s.height());
         return;
     }
+
+    mem = static_cast<uchar*>(shm.address());
+
     int extradatasize = 0;
-    QImage img(static_cast<uchar*>(shm.address())+extradatasize, s.width(), s.height(),
+    QImage img(mem + extradatasize, s.width(), s.height(),
                QImage::Format_ARGB32_Premultiplied);
     pix = QPixmap::fromImage(img);
 #ifdef QT_SHAREDMEM_DEBUG
@@ -679,14 +707,38 @@ void QWSBackingStore::attach(int id, QSize s)
 #endif
 }
 
-void QWSBackingStore::lock()
+void QWSBackingStore::setMemory(quint64 address, const QSize &s)
 {
-    QWSDisplay::lockClient();
+    mem = reinterpret_cast<uchar*>(address);
+    QImage img(mem, s.width(), s.height(),
+               QImage::Format_ARGB32_Premultiplied);
+    pix = QPixmap::fromImage(img);
+    isServerSideBackingStore = true;
+}
+
+bool QWSBackingStore::lock(int timeout)
+{
+    return !memLock || memLock->lock(QWSLock::BackingStore, timeout);
 }
 
 void QWSBackingStore::unlock()
 {
-    QWSDisplay::unlockClient();
+    if (memLock)
+        memLock->unlock(QWSLock::BackingStore);
+}
+
+bool QWSBackingStore::wait(int timeout)
+{
+    return !memLock || memLock->wait(QWSLock::BackingStore, timeout);
+}
+
+/*!
+    Set the lock to be used for backingstore synchronization.
+    The backingstore will not take ownership of the lock.
+*/
+void QWSBackingStore::setLock(QWSLock *l)
+{
+    memLock = l;
 }
 
 void QWidgetPrivate::show_sys()
@@ -947,8 +999,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             q->setAttribute(Qt::WA_PendingResizeEvent, true);
     }
 
-    if (!inTransaction)
-        topextra->inPaintTransaction = false;
+    topextra->inPaintTransaction = inTransaction;
 }
 
 void QWidgetPrivate::setConstraints_sys()

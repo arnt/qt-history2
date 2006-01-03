@@ -28,6 +28,8 @@
 #include <qpixmap.h>
 #include <private/qsharedmemory_p.h>
 
+class QWSLock;
+
 class QWSBackingStore
 {
 public:
@@ -37,21 +39,30 @@ public:
     void create(QSize size);
     void attach(int shmid, QSize size);
     void detach();
+    void setMemory(quint64 address, const QSize &size);
 
-    void lock();
+    bool lock(int timeout = -1);
     void unlock();
+    bool wait(int timeout = -1);
+    void setLock(QWSLock *l);
 
     QPixmap *pixmap() { return &pix; }
 
     void blit(const QRect &src, const QPoint &dest);
 
-    int memoryId() const { return shm.id(); }
+    quint64 memoryId() const;
     QSize size() const { return pix.size(); }
 
     bool isNull() const { return pix.isNull(); }
 private:
     QPixmap pix;
     QSharedMemory shm;
+    uchar *mem;
+
+    int isServerSideBackingStore : 1;
+    int ownsMemory : 1;
+
+    QWSLock *memLock;
 };
 
 #endif // QWIDGET_QWS_P_H

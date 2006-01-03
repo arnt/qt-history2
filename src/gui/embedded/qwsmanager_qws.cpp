@@ -338,7 +338,69 @@ void QWSManager::handleMove(QPoint g)
 
 void QWSManager::paintEvent(QPaintEvent *)
 {
-    repaintRegion(QDecoration::All, QDecoration::Normal);
+     Q_D(QWSManager);
+     d->dirtyRegion(QDecoration::All, QDecoration::Normal);
+}
+
+void QWSManagerPrivate::dirtyRegion(int decorationRegion,
+                                    QDecoration::DecorationState state)
+{
+    if (decorationRegion == QDecoration::All) {
+        dirtyRegions.clear();
+        dirtyStates.clear();
+    }
+    int i = dirtyRegions.indexOf(decorationRegion);
+    if (i >= 0) {
+        dirtyRegions.removeAt(i);
+        dirtyStates.removeAt(i);
+    }
+
+    dirtyRegions.append(decorationRegion);
+    dirtyStates.append(state);
+
+    QTLWExtra *topextra = managed->d_func()->extra->topextra;
+    QWidgetBackingStore *bs = topextra->backingStore;
+    const QRect clipRect = managed->rect().translated(bs->topLevelOffset());
+    QDecoration &dec = QApplication::qwsDecoration();
+    QRegion clipRegion = dec.region(managed, clipRect, decorationRegion);
+    clipRegion.translate(-bs->topLevelOffset());
+    bs->dirtyRegion(clipRegion, managed);
+}
+
+/*!
+    \internal
+
+    Paints all the dirty regions into \a pixmap.
+    Returns the regions that have been repainted.
+*/
+QRegion QWSManagerPrivate::paint(QPixmap *pixmap)
+{
+    if (dirtyRegions.empty())
+        return QRegion();
+
+    QTLWExtra *topextra = managed->d_func()->extra->topextra;
+    Q_ASSERT(topextra && topextra->backingStore);
+    QWidgetBackingStore *bs = topextra->backingStore;
+
+    const QRect clipRect = managed->rect().translated(bs->topLevelOffset());
+    QDecoration &dec = QApplication::qwsDecoration();
+
+    QRegion updated;
+    QPainter painter(pixmap);
+    painter.translate(bs->topLevelOffset());
+    for (int i = 0; i < dirtyRegions.size(); ++i) {
+        int region = dirtyRegions.takeFirst();
+        QDecoration::DecorationState state = dirtyStates.takeFirst();
+
+        QRegion clipRegion = dec.region(managed, clipRect, region);
+        clipRegion.translate(-bs->topLevelOffset());
+        painter.setClipRegion(clipRegion);
+
+        dec.paint(&painter, managed, region, state);
+        updated += clipRegion;
+    }
+    painter.end();
+    return updated;
 }
 
 bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationState state)
@@ -353,11 +415,14 @@ bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationSta
 
     QTLWExtra *topextra = managed->d_func()->extra->topextra;
     QPixmap *buf = 0;
-     if (topextra->backingStore)
-         buf = topextra->backingStore->backingPixmap();
+    if (topextra->backingStore) {
+        topextra->backingStore->buffer.lock();
+        buf = topextra->backingStore->backingPixmap();
+    }
     if (!buf || buf->isNull()) {
 //        qDebug("QWSManager::doPaint empty buf");
         managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
+        topextra->backingStore->buffer.unlock();
         return false;
     }
     QPainter painter;
@@ -374,6 +439,7 @@ bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationSta
 
     result = dec.paint(&painter, managed, decorationRegion, state);
     painter.end();
+    topextra->backingStore->buffer.unlock();
 
     managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
     return result;
@@ -382,14 +448,15 @@ bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationSta
 bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationState state)
 {
     Q_D(QWSManager);
-    //### lock backing store
-    bool result = d->doPaint(decorationRegion, state);
-    //### unlock
-//    QTLWExtra *topextra = d->managed->d_func()->extra->topextra;
-    QDecoration &dec = QApplication::qwsDecoration();
-    //### copies too much, but we don't know here what has actually been changed
-    if (result)
-        d->managed->d_func()->blitToScreen(dec.region(d->managed, d->managed->geometry()));
+
+    bool result =  d->doPaint(decorationRegion, state);
+
+    if (result) {
+        QDecoration &dec = QApplication::qwsDecoration();
+        QRegion reg = dec.region(d->managed, d->managed->geometry(),
+                                 decorationRegion);
+        d->managed->d_func()->blitToScreen(reg);
+    }
     return result;
 }
 

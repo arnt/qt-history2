@@ -19,12 +19,14 @@
 #include "private/qwidget_qws_p.h"
 #include "qcolor.h"
 #include "qpixmap.h"
+#include "qwsdisplay_qws.h"
 #include <private/qdrawhelper_p.h>
 #include <private/qpaintengine_raster_p.h>
 #include <private/qpainter_p.h>
 #include <qdebug.h>
 
 static const bool simple_8bpp_alloc = true; //### 8bpp support not done
+static const int max_lock_time = -1; // infinite
 
 #ifndef QT_NO_QWS_CURSOR
 bool qt_sw_cursor=false;
@@ -715,6 +717,8 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
     }
     if (!func)
         return;
+
+    QWSDisplay::grab();
     for (int i = 0; i < rects.size(); ++i) {
         QRect r = rects.at(i) & bound;
         data.w = r.width();
@@ -727,6 +731,7 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
         data.dy = r.y();
         func(&data);
     }
+    QWSDisplay::ungrab();
 }
 
 /*!
@@ -738,11 +743,13 @@ void QScreen::blit(QWSWindow *win, const QRegion &clip)
     if (!bs || bs->isNull())
         return;
     QPixmap *pm = bs->pixmap();
-    bs->lock();
-    QImage img = pm->toImage();
-    QRegion rgn = clip & win->requestedRegion();
-    blit(img, win->requestedRegion().boundingRect().topLeft(), rgn);
-    bs->unlock();
+    bool locked = bs->lock(max_lock_time);
+    if (locked) {
+        QImage img = pm->toImage();
+        QRegion rgn = clip & win->requestedRegion();
+        blit(img, win->requestedRegion().boundingRect().topLeft(), rgn);
+        bs->unlock();
+    }
 }
 
 
@@ -813,6 +820,8 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
     }
     if (!func)
         return;
+
+    QWSDisplay::grab();
     for (int i = 0; i < rects.size(); ++i) {
         QRect r = rects.at(i) & bound;
         data.w = r.width();
@@ -823,6 +832,7 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
         data.y = r.y();
         func(&data);
     }
+    QWSDisplay::ungrab();
 }
 
 
@@ -867,7 +877,9 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
     if (win)
         blendRegion &= win->requestedRegion();
     if (!blendRegion.isEmpty()) {
+
         QPoint off = blend.boundingRect().topLeft();
+        bool locked = false;
 
         QRasterBuffer rb;
         rb.prepare(&blendbuffer);
@@ -883,6 +895,9 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             opacity = win->opacity();
             if (!win->backingStore() || win->backingStore()->isNull())
                 return;
+            locked = win->backingStore()->lock(max_lock_time);
+            if (!locked)
+                return;
             QPixmap *pm = win->backingStore()->pixmap();
             img = pm->toImage();
             QPoint winoff = off - win->requestedRegion().boundingRect().topLeft();
@@ -891,11 +906,18 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             spanData.dx = winoff.x();
             spanData.dy = winoff.y();
         }
-        if (!spanData.blend)
+        if (!spanData.blend) {
+            if (locked)
+                win->backingStore()->unlock();
             return;
+        }
 
-        if (win)
-            win->backingStore()->lock();
+        if (win && !locked) {
+            locked = win->backingStore()->lock(max_lock_time);
+            if (!locked)
+                return;
+        }
+
         const QVector<QRect> rects = blendRegion.rects();
         const int nspans = 256;
         QT_FT_Span spans[nspans];
@@ -919,7 +941,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             }
         }
 
-        if (win)
+        if (locked)
             win->backingStore()->unlock();
     }
 }

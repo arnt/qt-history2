@@ -30,6 +30,8 @@
 
 #ifndef QT_NO_QWS_MANAGER
 
+#include "QtCore/qhash.h"
+
 class QWidget;
 class QMenu;
 
@@ -74,6 +76,13 @@ public:
     bool newCachedRegion(const QPoint &pos);
     int cachedRegionAt()
     { return cached_region.regionType; }
+
+    void dirtyRegion(int decorationRegion,
+                     QDecoration::DecorationState state);
+    QRegion paint(QPixmap *pixmap);
+
+    QList<int> dirtyRegions;
+    QList<QDecoration::DecorationState> dirtyStates;
 };
 
 #endif // QT_NO_QWS_MANAGER

@@ -29,6 +29,7 @@
 #include <qwsdisplay_qws.h>
 #include <qapplication.h>
 #include <qwsmanager_qws.h>
+#include <private/qwsmanager_p.h>
 #include <unistd.h>
 #endif
 
@@ -346,9 +347,7 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
     if (!QRect(QPoint(0,0), buffer.size()).contains(boundingRect)) {
         return;
     }
-    buffer.lock();
     buffer.blit(bsrect, pos + QPoint(dx,dy));
-    buffer.unlock();
 #endif
 }
 
@@ -590,6 +589,9 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
     if (!widget->isVisible() || !widget->updatesEnabled() || !tlw->testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
         return;
 
+#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
+    QTLWExtra *topextra = tlw->d_func()->extra->topextra;
+#endif
     if(!QWidgetBackingStore::paintOnScreen(widget)) {
         QRegion toClean;
 
@@ -624,36 +626,50 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             buffer.create(tlwSize);
             QBrush bgBrush = tlw->palette().brush(tlw->backgroundRole());
             bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
-            QWidget::qwsDisplay()->requestRegion(tlw->data->winid, buffer.memoryId(), opaque, tlwRegion);
-            QTLWExtra *topextra = tlw->d_func()->extra->topextra;
+            QWidget::qwsDisplay()->requestRegion(tlw->data->winid,
+                                                 buffer.memoryId(),
+                                                 opaque, tlwRegion);
+
 #ifndef QT_NO_QWS_MANAGER
             if (topextra->qwsManager)
-                QApplication::postEvent(topextra->qwsManager, new QPaintEvent(tlwFrame));
+                topextra->qwsManager->d_func()->dirtyRegion(QDecoration::All,
+                                                            QDecoration::Normal);
 #endif
-#endif
-            toClean = QRegion(0, 0, tlw->width(), tlw->height());
+#endif // Q_WS_QWS
+                toClean = QRegion(0, 0, tlw->width(), tlw->height());
         } else {
             toClean = dirty;
         }
 
+#ifdef Q_WS_QWS
+        buffer.lock();
+#endif
         if(!toClean.isEmpty()) {
             dirty -= toClean;
             if (tlw->updatesEnabled()) {
 #ifdef Q_WS_QWS
-                buffer.lock();
                 tlw->d_func()->drawWidget(buffer.pixmap(), toClean, tlwOffset);
-                buffer.unlock();
 #else
                 tlw->d_func()->drawWidget(&buffer, toClean, tlwOffset);
 #endif
             }
         }
+
         QRegion toFlush = rgn;
-        toFlush.translate(widget->mapTo(tlw, QPoint()));
-        if (recursiveCopyToScreen)
+#ifdef Q_WS_QWS
+#ifndef QT_NO_QWS_MANAGER
+        if (topextra->qwsManager)
+            toFlush += topextra->qwsManager->d_func()->paint(buffer.pixmap());
+#endif
+        buffer.unlock();
+#endif // Q_WS_QWS
+
+        if (recursiveCopyToScreen) {
+            toFlush.translate(widget->mapTo(tlw, QPoint()));
             copyToScreen(toFlush, tlw, tlwOffset, recursiveCopyToScreen);
-        else
-            copyToScreen(rgn, widget, widget->mapTo(tlw, QPoint()), false);
+        } else {
+            copyToScreen(toFlush, widget, widget->mapTo(tlw, QPoint()), false);
+        }
     }
 }
 

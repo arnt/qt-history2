@@ -91,7 +91,7 @@ private:
 #endif
     friend class QWidgetPrivate;
     friend class QWidget;
-
+    friend class QWSManagerPrivate;
 };
 
 #endif // QBACKINGSTORE_P_H
