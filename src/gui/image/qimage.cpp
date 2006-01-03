@@ -269,97 +269,65 @@ QImageData::~QImageData()
 
 /*!
     \class QImage
-    \brief The QImage class provides a hardware-independent pixmap
-    that allows direct access to the pixel data, and can be used as a
-    paint device.
 
     \ingroup multimedia
     \ingroup shared
     \mainclass
 
-    Qt provides two classes for handling image data: QImage and QPixmap.
-    QImage is designed and optimized for I/O, and for direct pixel
-    access/manipulation. QPixmap is designed and optimized for drawing.
-    There are functions to convert between QImage and QPixmap:
-    QPixmap::convertToImage() and QPixmap::convertFromImage().
+    \brief The QImage class provides a hardware-independent image
+    representation that allows direct access to the pixel data, and
+    can be used as a paint device.
 
-    QImage supports basic pixel-based painting operations and, because it
-    is a QPaintDevice subclass, QPainter can be used to draw directly onto
-    images.
+    Qt provides four classes for handling image data: QImage, QPixmap,
+    QBitmap and QPicture.  QImage is designed and optimized for I/O,
+    and for direct pixel access and manipulation, while QPixmap is
+    designed and optimized for showing images on screen. QBitmap is
+    only a convenience class that inherits QPixmap, ensuring a
+    depth of 1. Finally, the QPicture class is a paint device that
+    records and replays QPainter commands.
 
-    QImage supports a number of \link QImage::Format formats\endlink. These
-    include monochrome images, 8-bit images, and 32-bit images with an optional
-    alpha channel. Monochrome and 8-bit images are index-based and use a
-    color lookup table, while 32-bit images use RGB or ARGB values.
+    Because QImage is a QPaintDevice subclass, QPainter can be used to
+    draw directly onto images.  When using QPainter on a QImage, the
+    painting can be performed in another thread than the current GUI
+    thread, that is except rendering text (because QFont is GUI
+    dependent). To render text in another thread, the text must first
+    be derived as a QPainterPath in the GUI thread.
 
-    An entry in the color table is an RGB triplet encoded as an \c qRgb
-    value. Use the color() function to obtain an entry from the table,
-    and the qRed(), qGreen(), and qBlue() functions to access
-    the components. The qRgb() function is used to make an RGB triplet
-    suitable for use with the setColor() function.
+    The QImage class supports several image formats described by the
+    \l Format enum. These include monochrome, 8-bit, 32-bit and
+    alpha-blended images which are available in all versions of Qt
+    4.x. In addition, QImage supports several formats that are
+    specific to \l {Qtopia Core}.
 
-    Monochrome images have a color table with at most two
-    colors. There are two different types of monochrome images: big endian (MSB first) or
-    little endian (LSB first) bit order. To access a single bit you
-    must do some bit shifts:
+    QImage provides a collection of functions that can be used to
+    obtain a variety of information about the image. There are also
+    several functions that enables transformation of the image.
 
-    \quotefromfile snippets/image/image.cpp
-    \skipto BIT
-    \skipto QImage
-    \printuntil 7));
+    QImage objects can be passed around by value since the QImage
+    class uses \l{Implicit Data Sharing}{implicit data
+    sharing}. QImage objects can also be streamed and compared.
 
-    If this looks complicated, you can convert the monochrome image to an 8-bit indexed
-    image using convertToFormat().  8-bit images are much easier to work with than
-    1-bit images because they have a single byte per pixel:
+    \tableofcontents
 
-    \quotefromfile snippets/image/image.cpp
-    \skipto 8-BIT
-    \skipto QImage
-    \printuntil scanLine
+    \section1 Reading and Writing Image Files
 
-    32-bit images have no color table; instead, each pixel contains
-    an ARGB value. 24 bits contain the RGB value; the most
-    significant byte is reserved for the alpha buffer.
+    QImage provides several ways of loading an image file: The file
+    can be loaded when constructing the QImage object, or by using the
+    load() or loadFromData() functions later on. QImage also provides
+    the static fromData() function, constructing a QImage from the
+    given data.  When loading an image, the file name can either refer
+    to an actual file on disk or to one of the application's embedded
+    resources. See \l{The Qt Resource System} overview for details
+    on how to embed images and other resource files in the
+    application's executable.
 
-    \skipto 32-BIT
-    \skipto QImage
-    \printuntil qRgb
+    Simply call the save() function to save a QImage object.
 
-    In Qtopia Core, scanlines are aligned to the pixel depth and may
-    be padded to any degree, while on all other platforms, the
-    scanlines are 32-bit aligned for all depths. The constructor
-    taking a \c{uchar*} argument always expects 32-bit aligned data.
-    In Qtopia Core, an additional constructor allows the number of
-    bytes-per-line to be specified.
-
-    Pixel colors are retrieved with pixel() and set with setPixel().
-
-    QImage supports a variety of functions that can be used to obtain
-    information about the image. width(), height(), dotsPerMeterX(), and
-    dotsPerMeterY() provide information about the image size and resolution.
-    The depth(), numColors(), isGrayscale(), and colorTable() functions
-    provide information about the color depth and available color components
-    used to store the image data.
-
-    It is possible to determine whether a color image can be safely
-    converted to a grayscale image by using the allGray() function. The
-    format(), bytesPerLine(), and numBytes() functions provide low-level
-    information about the data stored in the image.
-
-    QImage also supports a number of functions for creating a new
-    image that is a transformed version of the original. For example,
-    convertToFormat(), createAlphaMask(), createHeuristicMask(), mirrored(), scaled(), rgbSwapped()
-    and transformed(). There are also functions for changing attributes of
-    an image in-place, for example, setAlphaChannel(), setColor(),
-    setDotsPerMeterX() and setDotsPerMeterY() and setNumColors().
-
-    Images can be loaded and saved in the supported file formats.
-    Images are saved to a file with save(). Images are loaded from a
-    file with load() (or in the constructor) or from an array of data
-    with loadFromData(). The lists of supported formats are available
-    from QImageReader::supportedImageFormats() and
-    QImageWriter::supportedImageFormats(). By default, Qt supports
-    the following formats:
+    The complete list of supported file formats are available through
+    the QImageReader::supportedImageFormats() and
+    QImageWriter::supportedImageFormats() functions. New file formats
+    can be added as plugins. By default, Qt supports the following
+    formats:
 
     \table
     \header \o Format \o Description                      \o Qt's support
@@ -379,28 +347,266 @@ QImageData::~QImageData()
     configure script or check the appropriate option in the graphical
     installer.)
 
-    When loading an image, the file name can be either refer to an
-    actual file on disk or to one of the application's embedded
-    resources. See the \l{resources.html}{Resource System} overview
-    for details on how to embed images and other resource files in
-    the application's executable.
+    \section1 Image Information
 
-    Strings of text may be added to images using setText().
+    QImage provides a collection of functions that can be used to
+    obtain a variety of information about the image:
 
-    The QImage class uses \l{shclass.html}{implicit sharing}, so you
-    can pass QImage objects around by value.
+    \table
+    \header
+    \o \o Available Functions
 
-    New image formats can be added as \link plugins-howto.html
-    plugins\endlink.
+    \row
+    \o Geometry
+    \o
 
-    \sa QImageReader, QImageWriter, QPixmap, QColor, {shclass.html}{Shared Classes}
+    The size(), width(), height(), dotsPerMeterX(), and
+    dotsPerMeterY() functions provide information about the image size
+    and aspect ratio.
+
+    The rect() function returns the image's enclosing rectangle. The
+    valid() function tells if a given pair of coordinates is within
+    this rectangle. The offset() function returns the number of pixels
+    by which the image is intended to be offset by when positioned
+    relative to other images, which also can be manipulated using the
+    setOffset() function.
+
+    \row
+    \o Colors
+    \o
+
+    The color of a pixel can be retrieved by passing its coordinates
+    to the pixel() function.  The pixel() function returns the color
+    as a QRgb value indepedent of the image's format.
+
+    In case of monochrome and 8-bit images, the numColors() and
+    colorTable() functions provide information about the color
+    components used to store the image data: The colorTable() function
+    returns the image's entire color table. To obtain a single entry,
+    use the pixelIndex() function to retrieve the pixel index for a
+    given pair of coordinates, then use the color() function to
+    retrieve the color.
+
+    The hasAlphaChannel() function tells if the image has an alpha
+    channel at all (i.e. whether it is is opaque or not). The
+    allGray() and isGrayscale() functions tell whether an image's
+    colors are all shades of gray.
+
+    See also the \l {QImage#Pixel Manipulation}{Pixel Manipulation}
+    and \l {QImage#Image Transformations}{Image Transformations}
+    sections.
+
+    \row
+    \o Text
+    \o
+
+    The text() function returns the image text associated with the
+    given text key. An image's text keys can be retrieved using the
+    textKeys() function. Use the setText() function to alter an
+    image's text.
+
+    \row
+    \o Low-level information
+    \o
+    The depth() function returns the depth of the image. The supported
+    depths are 1 (monochrome), 8 and 32 (for more information see the
+    \l {QImage#Image Formats}{Image Formats} section).
+
+    The format(), bytesPerLine(), and numBytes() functions provide
+    low-level information about the data stored in the image.
+
+    The serialNumber() function returns a number that uniquely
+    identifies the contents of this QImage object.
+    \endtable
+
+    \section1 Pixel Manipulation
+
+    The functions used to manipulate an image's pixels depend on the
+    image format. The reason is that monochrome and 8-bit images are
+    index-based and use a color lookup table, while 32-bit images
+    store ARGB values directly. For more information on image formats,
+    see the \l {Image Formats} section.
+
+    In case of a 32-bit image, the setPixel() function can be used to
+    alter the color of the pixel at the given coordinates to any other
+    color specified as an ARGB quadruplet. To make a suitable QRgb
+    value, use the qRgb() (adding a default alpha component to the
+    given RGB values, i.e. creating an opaque color) or qRgba()
+    function. For example:
+
+    \table
+    \row
+    \o \inlineimage qimage-32bit_scaled.png
+    \o
+    \code
+        QImage image(3, 3, QImage::Format_RGB32);
+        QRgb value;
+
+        value = qRgb(189, 149, 39); // 0xffbd9527
+        image.setPixel(1, 1, value);
+
+        value = qRgb(122, 163, 39); // 0xff7aa327
+        image.setPixel(0, 1, value);
+        image.setPixel(1, 0, value);
+
+        value = qRgb(237, 187, 51); // 0xffedba31
+        image.setPixel(2, 1, value);
+    \endcode
+    \header
+    \o {2,1}32-bit
+    \endtable
+
+    In case of a 8-bit and monchrome images , the pixel value is only
+    an index from the image's color table. So the setPixel() function
+    can only be used to alter the color of the pixel at the given
+    coordinates to a predefined color from the image's color table,
+    i.e. it can only change the pixel's index value. To alter or add a
+    color to an image's color table, use the setColor() function.
+
+    An entry in the color table is an ARGB quadruplet encoded as an
+    QRgb value. Use the qRgb() and qRgba() functions to make a
+    suitable QRgb value for use with the setColor() function. For
+    example:
+
+    \table
+    \row
+    \o \inlineimage qimage-8bit_scaled.png
+    \o
+    \code
+        QImage image(3, 3, QImage::Format_Indexed8);
+        QRgb value;
+
+        value = qRgb(122, 163, 39); // 0xff7aa327
+        image.setColor(0, value);
+
+        value = qRgb(237, 187, 51); // 0xffedba31
+        image.setColor(1, value);
+
+        value = qRgb(189, 149, 39); // 0xffbd9527
+        image.setColor(2, value);
+
+        image.setPixel(0, 1, 0);
+        image.setPixel(1, 0, 0);
+        image.setPixel(1, 1, 2);
+        image.setPixel(2, 1, 1);
+    \endcode
+    \header
+    \o {2,1} 8-bit
+    \endtable
+
+    QImage also provide the scanLine() function which returns a
+    pointer to the pixel data at the scanline with the given index,
+    and the bits() function which returns a pointer to the first pixel
+    data (this is equivalent to \c scanLine(0)).
+
+    \section1 Image Formats
+
+    Each pixel stored in a QImage is represented by an integer. The
+    size of the integer varies depending on the format. QImage
+    supports several image formats described by the \l Format
+    enum. The monochrome (1-bit), 8-bit and 32-bit images are
+    available in all versions of Qt. In addition Qtopia Core also
+    supports 2-bit, 4-bit, and 16-bit images. For more information
+    about the Qtopia specific formats, see the documentation of the \l
+    Format enum.
+
+    Monochrome images are stored using 1-bit indexes into a color table
+    with at most two colors. There are two different types of
+    monochrome images: big endian (MSB first) or little endian (LSB
+    first) bit order.
+
+    8-bit images are stored using 8-bit indexes into a color table,
+    i.e.  they have a single byte per pixel. The color table is a
+    QVector<QRgb>, and the QRgb typedef is equivalent to an unsigned
+    int containing an ARGB quadruplet on the format 0xAARRGGBB.
+
+    32-bit images have no color table; instead, each pixel contains an
+    QRgb value. There are three different types of 32-bit images
+    storing RGB (i.e. 0xffRRGGBB), ARGB and premultiplied ARGB
+    values respectively. In the premultiplied format the red, green,
+    and blue channels are multiplied by the alpha component divided by
+    255.
+
+    An image's format can be retrieved using the format()
+    function. Use the convertToFormat() functions to convert an image
+    into another format. The allGray() and isGrayscale() functions
+    tell whether a color image can safely be converted to a grayscale
+    image.
+
+    \section1 Image Transformations
+
+    QImage supports a number of functions for creating a new image
+    that is a transformed version of the original: The
+    createAlphaMask() function builds and returns a 1-bpp mask from
+    the alpha buffer in this image, and the createHeuristicMask()
+    function creates and returns a 1-bpp heuristic mask for this
+    image. The latter function works by selecting a color from one of
+    the corners, then chipping away pixels of that color starting at
+    all the edges.
+
+    The mirrored() function returns a mirror of the image in the
+    desired direction, the scaled() returns a copy of the image scaled
+    to a rectangle of the desired measures, the rgbSwapped() fucntion
+    constructs a BGR image from a RGB image, and the alphaChannel()
+    function constructs an image from this image's alpha channel.
+
+    The scaledToWidth() and scaledToHeight() functions return scaled
+    copies of the image.
+
+    The transformed() function returns a copy of the image that is
+    transformed with the given transformation matrix and
+    transformation mode: Internally, the transformation matrix is
+    adjusted to compensate for unwanted translation,
+    i.e. transformed() returns the smallest image containing all
+    transformed points of the original image. The static trueMatrix()
+    function returns the actual matrix used for transforming the
+    image.
+
+    There are also functions for changing attributes of an image
+    in-place:
+
+    \table
+    \header \o Function \o Description
+    \row
+    \o setAlphaChannel()
+    \o Sets the alpha channel of the image.
+    \row
+    \o setDotsPerMeterX()
+    \o Defines the aspect ratio by setting the number of pixels that fit
+    horizontally in a physical meter.
+    \row
+    \o setDotsPerMeterY()
+    \o Defines the aspect ratio by setting the number of pixels that fit
+    vertically in a physical meter.
+    \row
+    \o fill()
+    \o Fills the entire image with the given pixel value.
+    \row
+    \o invertPixels()
+    \o Inverts all pixel values in the image using the given InvertMode value.
+    \row
+    \o setColorTable()
+    \o Sets the color table used to translate color indexes. Only
+    monochrome and 8-bit formats.
+    \row
+    \o setNumColors()
+    \o Resizes the color table. Only monochrome and 8-bit formats.
+
+    \endtable
+
+    \sa QImageReader, QImageWriter, QPixmap
 */
 
 /*!
     \enum QImage::Endian
+    \compat
 
     This enum type is used to describe the endianness of the CPU and
     graphics hardware. It is provided here for compatibility with earlier versions of Qt.
+
+    Use the \l Format enum instead. The \l Format enum specify the
+    endianess for monchrome formats, but for other formats the
+    endianess is not relevant.
 
     \value IgnoreEndian  Endianness does not matter. Useful for some
                          operations that are independent of endianness.
@@ -418,6 +624,8 @@ QImageData::~QImageData()
                         channel unchanged.
 
     \value InvertRgba   Invert all channels, including the alpha channel.
+
+    \sa invertPixels()
 */
 
 /*!
@@ -431,8 +639,6 @@ QImageData::~QImageData()
     \value Format_MonoLSB   The image is stored using 1-bit per pixel. Bytes are
                             packed with the less significant bit (LSB) first.
     \value Format_Indexed8  The image is stored using 8-bit indexes into a colormap.
-                            Note that you will also need to call setNumColors() with
-                            a value of 256 before setting any of the colors in the index.
     \value Format_RGB32     The image is stored using a 32-bit RGB format (0xffRRGGBB).
     \value Format_ARGB32    The image is stored using a 32-bit ARGB format (0xAARRGGBB).
     \value Format_ARGB32_Premultiplied  The image is stored using a premultiplied 32-bit
@@ -543,7 +749,8 @@ QImage::QImage()
 }
 
 /*!
-    Constructs an image with \a width, \a height in format \a format.
+    Constructs an image with the given \a width, \a height and \a
+    format.
 */
 QImage::QImage(int width, int height, Format format)
     : QPaintDevice()
@@ -552,7 +759,7 @@ QImage::QImage(int width, int height, Format format)
 }
 
 /*!
-    Constructs an image with \a size in format \a format.
+    Constructs an image with the given \a size and \a format.
 */
 QImage::QImage(const QSize &size, Format format)
     : QPaintDevice()
@@ -561,12 +768,13 @@ QImage::QImage(const QSize &size, Format format)
 }
 
 /*!
-    Constructs an image \a width pixels wide, \a height pixels high with a
-    format of \a format, that uses an existing memory buffer, \a
-    data. The buffer must remain valid throughout the life of the
-    QImage. The image does not delete the buffer at destruction.
+    Constructs an image with the given \a width, \a height and \a
+    format, that uses an existing memory buffer, \a data. The \a width
+    and \a height must be specified in pixels, and that \a data must
+    be 32-bit aligned.
 
-    Note that \a data must be 32-bit aligned.
+    The buffer must remain valid throughout the life of the
+    QImage. The image does not delete the buffer at destruction.
 
     If the image is in an indexed color format, set the color table
     for the image using setColorTable().
@@ -592,27 +800,22 @@ QImage::QImage(uchar* data, int width, int height, Format format)
 }
 
 /*!
-    Constructs an image and tries to load the image from the file \a
-    fileName.
+    Constructs an image and tries to load the image from the file with
+    the given \a fileName.
 
-    If \a format is specified, the loader attempts to read the image
-    using the specified format. If \a format is not specified (which
-    is the default), the loader probes the file for a header to
-    guess the file format.
+    The loader attempts to read the image using the specified \a
+    format. If the \a format is not specified (which is the default),
+    the loader probes the file for a header to guess the file format.
 
-    If the loading of the image failed, this object is a \link
-    isNull() null\endlink image.
+    If the loading of the image failed, this object is a null image.
 
-    The QImageReader documentation lists the supported image formats and
-    explains how to add extra formats.
-
-    The file name can be either refer to an actual file on disk or to
-    one of the application's embedded resources. See the
-    \l{resources.html}{Resource System} overview for details on how
-    to embed images and other resource files in the application's
+    The file name can either refer to an actual file on disk or to one
+    of the application's embedded resources. See the
+    \l{resources.html}{Resource System} overview for details on how to
+    embed images and other resource files in the application's
     executable.
 
-    \sa load(), isNull(), QImageReader
+    \sa isNull(), {QImage#Reading and Writing Image Files}{Reading and Writing Image Files}
 */
 
 QImage::QImage(const QString &fileName, const char *format)
@@ -623,33 +826,28 @@ QImage::QImage(const QString &fileName, const char *format)
 }
 
 /*!
-    \overload
-    Constructs an image and tries to load the image from the file \a
-    fileName.
+    Constructs an image and tries to load the image from the file with
+    the given \a fileName.
 
-    If \a format is specified, the loader attempts to read the image
-    using the specified format. If \a format is not specified (which
-    is the default), the loader probes the files for a header to
-    guess the file format.
+    The loader attempts to read the image using the specified \a
+    format. If the \a format is not specified (which is the default),
+    the loader probes the file for a header to guess the file format.
 
-    If the loading of the image failed, this object is a \link
-    isNull() null\endlink image.
+    If the loading of the image failed, this object is a null image.
 
-    The QImageReader documentation lists the supported image formats and
-    explains how to add extra formats.
-
-    The file name can be either refer to an actual file on disk or to
-    one of the application's embedded resources. See the
-    \l{resources.html}{Resource System} overview for details on how
-    to embed images and other resource files in the application's
+    The file name can either refer to an actual file on disk or to one
+    of the application's embedded resources. See the
+    \l{resources.html}{Resource System} overview for details on how to
+    embed images and other resource files in the application's
     executable.
 
     You can disable this constructor by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
+    QT_NO_CAST_FROM_ASCII when you compile your applications. This can
+    be useful, for example, if you want to ensure that all
+    user-visible strings go through QObject::tr().
 
-    \sa QString::fromAscii(), load(), isNull(), QImageReader
+    \sa QString::fromAscii(), isNull(), {QImage#{Reading and Writing
+    Image Files}{Reading and Writing Image Files}
 */
 QImage::QImage(const char *fileName, const char *format)
     : QPaintDevice()
@@ -665,9 +863,10 @@ QImage::QImage(const char *fileName, const char *format)
 extern bool qt_read_xpm_image_or_array(QIODevice *device, const char * const *source, QImage &image);
 
 /*!
-    Constructs an image from \a xpm, which must be a valid XPM image.
+    Constructs an image from the given \a xpm image.
 
-    Errors are silently ignored.
+    Make sure that the image is a valid XPM image. Errors are silently
+    ignored.
 
     Note that it's possible to squeeze the XPM variable a little bit
     by using an unusual declaration:
@@ -699,7 +898,7 @@ QImage::QImage(const char * const xpm[])
 /*!
     \fn QImage::QImage(const QByteArray &data)
 
-    Use QImage::fromData(\a data) instead.
+    Use the static fromData() function instead.
 
     \oldcode
         QByteArray data;
@@ -714,7 +913,12 @@ QImage::QImage(const char * const xpm[])
 
 
 /*!
-    Constructs a \link shclass.html shallow copy\endlink of \a image.
+    Constructs a shallow copy of the given \a image.
+
+    For more information about shallow copies, see the \l {Implicit
+    Data Shearing} documentation.
+
+    \sa copy()
 */
 
 QImage::QImage(const QImage &image)
@@ -727,13 +931,25 @@ QImage::QImage(const QImage &image)
 
 #ifdef QT3_SUPPORT
 /*!
-    Constructs an image with \a w width, \a h height, \a depth bits
-    per pixel, \a numColors colors and bit order \a bitOrder.
+    \fn QImage::QImage(int width, int height, int depth, int numColors, Endian bitOrder)
 
-    Using this constructor is the same as first constructing a null
-    image and then calling the create() function.
+    Constructs an image with the given \a width, \a height, \a depth,
+    \a numColors colors and \a bitOrder.
 
-    \sa create()
+    Use the constructor that accepts a width, a height and a format
+    (i.e. specifying the depth and bit order), in combination with the
+    setNumColors() function, instead.
+
+    \oldcode
+        QImage image(width, height, depth, numColors);
+    \newcode
+        QImage image(width, height, format);
+
+        // For 8 bit images the default number of colors is 256. If
+        // another number of colors is required it can be specified
+        // using the setNumColors() function.
+        image.setNumColors(numColors);
+    \endcode
 */
 
 QImage::QImage(int w, int h, int depth, int numColors, Endian bitOrder)
@@ -743,13 +959,25 @@ QImage::QImage(int w, int h, int depth, int numColors, Endian bitOrder)
 }
 
 /*!
-    Constructs an image with size \a size pixels, depth \a depth bits,
-    \a numColors and \a bitOrder endianness.
+    Constructs an image with the given \a size, \a depth, \a numColors
+    and \a bitOrder.
 
-    Using this constructor is the same as first constructing a null
-    image and then calling the create() function.
+    Use the constructor that accepts a size and a format
+    (i.e. specifying the depth and bit order), in combination with the
+    setNumColors() function, instead.
 
-    \sa create()
+    \oldcode
+        QSize mySize(width, height);
+        QImage image(mySize, depth, numColors);
+    \newcode
+        QSize mySize(width, height);
+        QImage image(mySize, format);
+
+        // For 8 bit images the default number of colors is 256. If
+        // another number of colors is required it can be specified
+        // using the setNumColors() function.
+        image.setNumColors(numColors);
+    \endcode
 */
 QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
     : QPaintDevice()
@@ -758,17 +986,29 @@ QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
 }
 
 /*!
-    Constructs an image \a w pixels wide, \a h pixels high with a
-    color depth of \a depth, that uses an existing memory buffer, \a
-    data. The buffer must remain valid throughout the life of the
-    QImage. The image does not delete the buffer at destruction.
+    \fn QImage::QImage(uchar* data, int width, int height, int depth, const QRgb* colortable, int numColors, Endian bitOrder)
 
-    If \a colortable is 0, a color table sufficient for \a numColors
-    will be allocated (and destructed later).
+    Constructs an image with the given \a width, \a height, depth, \a
+    colortable, \a numColors and \a bitOrder, that uses an existing
+    memory buffer, \a data.
 
-    Note that \a data must be 32-bit aligned.
+    Use the constructor that accepts a uchar pointer, a width, a
+    height and a format (i.e. specifying the depth and bit order), in
+    combination with the setColorTable() function, instead.
 
-    The endianness is given in \a bitOrder.
+    \oldcode
+        uchar *myData;
+        QRgb *myColorTable;
+
+        QImage image(myData, width, height, depth,
+                               myColorTable, numColors, IgnoreEndian);
+    \newcode
+        uchar *myData;
+        QVector<QRgb> myColorTable;
+
+        QImage image(myData, width, height, format);
+        image.setColorTable(myColorTable);
+    \endcode
 */
 QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int numColors, Endian bitOrder)
     : QPaintDevice()
@@ -806,19 +1046,17 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
 #ifdef Q_WS_QWS
 
 /*!
-    Constructs an image that uses an existing memory buffer. The
-    buffer must remain valid for the life of the QImage. The image
-    does not delete the buffer at destruction. The buffer is passed as
-    \a data. The image's width is \a w and its height is \a h. The
-    color depth is \a depth. \a bpl specifies the number of bytes per
-    line.
+    \fn QImage::QImage(uchar* data, int width, int height, int depth, int bytesPerLine, const QRgb* colortable, int numColors, Endian bitOrder)
 
-    If \a colortable is 0, a color table sufficient for \a numColors
-    will be allocated (and destructed later).
-
-    The endianness is specified by \a bitOrder.
+    Constructs an image with the given \a width, \a height, \a depth,
+    \a bytesPerLine, \a colortable, \a numColors and \a bitOrder, that
+    uses an existing memory buffer, \a data. The image does not delete
+    the buffer at destruction.
 
     \warning This constructor is only available in Qtopia Core.
+
+    The data has to be 32-bit aligned, so it's no longer possible to specify
+    a custom \a bytesPerLine.
 */
 QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colortable, int numColors, Endian bitOrder)
     : QPaintDevice()
@@ -866,10 +1104,13 @@ QImage::~QImage()
 }
 
 /*!
-    Assigns a \link shclass.html shallow copy\endlink of \a image to
-    this image and returns a reference to this image.
+    Assigns a shallow copy of the given \a image to this image and
+    returns a reference to this image.
 
-    \sa copy()
+    For more information about shallow copies, see the \l {Implicit
+    Data Shearing} documentation.
+
+    \sa copy(), QImage()
 */
 
 QImage &QImage::operator=(const QImage &image)
@@ -892,7 +1133,7 @@ int QImage::devType() const
 }
 
 /*!
-   Returns the image as a QVariant
+   Returns the image as a QVariant.
 */
 QImage::operator QVariant() const
 {
@@ -900,14 +1141,15 @@ QImage::operator QVariant() const
 }
 
 /*!
-    Detaches from shared image d and makes sure that this image is
-    the only one referring to the data.
+    \internal
 
     If multiple images share common data, this image makes a copy of
-    the data and detaches itself from the sharing mechanism.
+    the data and detaches itself from the sharing mechanism, making
+    sure that this image is the only one referring to the data.
+
     Nothing is done if there is just a single reference.
 
-    \sa copy()
+    \sa copy(), isDetached(), {Implicit Data Sharing}
 */
 
 void QImage::detach()
@@ -919,25 +1161,34 @@ void QImage::detach()
 
 
 /*!
-    \fn inline QImage QImage::copy(int x, int y, int w, int h) const
+    \fn QImage QImage::copy(int x, int y, int width, int height) const
     \overload
 
-    Returns a sub-area of the image.
+    The returned image is copied from the position (\a x, \a y) in
+    this image, and will always have the given \a width and \a height.
+    In areas beyond this image, pixels are set to 0.
 
-    The returned image is always \a w by \a h pixels in size, and is
-    copied from position \a x, \a y in this image. In areas beyond
-    this image pixels are filled with pixel 0.
 */
 
 /*!
-    \overload
+    \fn QImage QImage::copy(const QRect& rectangle) const
 
-    Returns a sub-area of the image.
+    Returns a sub-area of the image as a new image.
 
-    The returned image always has the size of the rectangle \a r. In
-    areas beyond this image pixels are filled with pixel 0.
+    The returned image is copied from the position (\a
+    {rectangle}.x(), \a{rectangle}.y()) in this image, and will always
+    have the size of the given \a rectangle.
 
-    If \a r is a null rectangle the entire image is copied.
+    In areas beyond this image, pixels are set to 0. For 32-bit RGB
+    images, this means black; for 32-bit ARGB images, this means
+    transparent black; for 8-bit images, this means the color with
+    index 0 in the color table which can be anything; for 1-bit
+    images, this means Qt::color0.
+
+    If the given \a rectangle is a null rectangle the entire image is
+    copied.
+
+    \sa QImage()
 */
 QImage QImage::copy(const QRect& r) const
 {
@@ -1072,7 +1323,7 @@ bool QImage::isNull() const
 
     Returns the width of the image.
 
-    \sa height() size() rect()
+    \sa {QImage#Image Information}{Image Information}
 */
 int QImage::width() const
 {
@@ -1084,7 +1335,7 @@ int QImage::width() const
 
     Returns the height of the image.
 
-    \sa width() size() rect()
+    \sa {QImage#Image Information}{Image Information}
 */
 int QImage::height() const
 {
@@ -1094,9 +1345,9 @@ int QImage::height() const
 /*!
     \fn QSize QImage::size() const
 
-    Returns the size of the image, i.e. its width and height.
+    Returns the size of the image, i.e. its width() and height().
 
-    \sa width() height() rect()
+    \sa {QImage#Image Information}{Image Information}
 */
 QSize QImage::size() const
 {
@@ -1109,7 +1360,7 @@ QSize QImage::size() const
     Returns the enclosing rectangle (0, 0, width(), height()) of the
     image.
 
-    \sa width() height() size()
+    \sa {QImage#Image Information}{Image Information}
 */
 QRect QImage::rect() const
 {
@@ -1124,7 +1375,9 @@ QRect QImage::rect() const
 
     The supported depths are 1, 8 and 32.
 
-    \sa convertToFormat()
+    \sa convertToFormat(), {QImage#Image Formats}{Image Formats},
+    {QImage#Image Information}{Image Information}
+
 */
 int QImage::depth() const
 {
@@ -1138,9 +1391,9 @@ int QImage::depth() const
 
     Notice that numColors() returns 0 for 32-bpp images because these
     images do not use color tables, but instead encode pixel values as
-    RGB triplets.
+    ARGB quadruplets.
 
-    \sa setNumColors() colorTable()
+    \sa setNumColors(), {QImage#Image Information}{Image Information}
 */
 int QImage::numColors() const
 {
@@ -1152,23 +1405,20 @@ int QImage::numColors() const
 /*!
     \fn QImage::Endian QImage::bitOrder() const
 
-    Returns the bit order for the image.
-
-    If it is a 1-bpp image, this function returns either
-    QImage::BigEndian or QImage::LittleEndian.
-
-    If it is not a 1-bpp image, this function returns
+    Returns the bit order for the image. If it is a 1-bpp image, this
+    function returns either QImage::BigEndian or
+    QImage::LittleEndian. Otherwise, this function returns
     QImage::IgnoreEndian.
 
-    \sa depth()
+    Use the format() function instead for the monochrome formats. For
+    non-monochrome formats the bit order is irrelevant.
 */
 
 /*!
-    Returns a pointer to the scanline pointer table.
+    Returns a pointer to the scanline pointer table. This is the
+    beginning of the data block for the image.
 
-    This is the beginning of the data block for the image.
-
-    \sa bits() scanLine()
+    Use the bits() or scanLine() function instead.
 */
 uchar **QImage::jumpTable()
 {
@@ -1211,8 +1461,11 @@ const uchar * const *QImage::jumpTable() const
 #endif
 
 /*!
-    Sets the color table used to translate color indexes to RGB values
-    to the specified \a colors.
+    Sets the color table used to translate color indexes to QRgb
+    values, to the specified \a colors.
+
+    \sa colorTable(), setColor(), {QImage#Image Transformations}{Image
+    Transformations}
 */
 void QImage::setColorTable(const QVector<QRgb> colors)
 {
@@ -1225,10 +1478,10 @@ void QImage::setColorTable(const QVector<QRgb> colors)
 }
 
 /*!
-    Returns the color table of the image, or an empty list of
-    the image does not have a color table
+    Returns a list of the colors contained in the image's color table,
+    or an empty list if the image does not have a color table
 
-    \sa numColors()
+    \sa setColorTable(), numColors(), color()
 */
 QVector<QRgb> QImage::colorTable() const
 {
@@ -1239,7 +1492,8 @@ QVector<QRgb> QImage::colorTable() const
 /*!
     Returns the number of bytes occupied by the image data.
 
-    \sa bytesPerLine() bits()
+    \sa bytesPerLine(), bits(), {QImage#Image Information}{Image
+    Information}
 */
 int QImage::numBytes() const
 {
@@ -1247,10 +1501,11 @@ int QImage::numBytes() const
 }
 
 /*!
-    Returns the number of bytes per image scanline. This is equivalent
-    to numBytes()/height().
+    Returns the number of bytes per image scanline.
 
-    \sa numBytes() scanLine()
+    This is equivalent to numBytes()/ height().
+
+    \sa scanLine()
 */
 int QImage::bytesPerLine() const
 {
@@ -1262,10 +1517,12 @@ int QImage::bytesPerLine() const
     Returns the color in the color table at index \a i. The first
     color is at index 0.
 
-    A color value is an RGB triplet. Use the qRed(), qGreen(), and qBlue()
-    functions to get the color value components.
+    The colors in an image's color table are specified as ARGB
+    quadruplets (QRgb). Use the qAlpha(), qRed(), qGreen(), and
+    qBlue() functions to get the color value components.
 
-    \sa setColor() numColors() QColor
+    \sa setColor(), pixelIndex(), {QImage#Pixel Manipulation}{Pixel
+    Manipulation}
 */
 QRgb QImage::color(int i) const
 {
@@ -1274,15 +1531,15 @@ QRgb QImage::color(int i) const
 }
 
 /*!
-    Sets a color in the color table at index \a i to \a c.
+    \fn void QImage::setColor(int index, QRgb colorValue)
 
-    A color value is an RGB triplet. Use the qRed(), qGreen(), and qBlue()
-    functions to get the color value components.
+    Sets the color at the given \a index in the color table, to the
+    given to \a colorValue.
 
-    Note that, for images in \c Format_Indexed8 format, you will first need to call
-    setNumColors() with a value of 256 before using this function.
+    The color value is an ARGB quadruplet.
 
-    \sa color(), setNumColors(), numColors()
+    \sa color(), setColorTable(), {QImage#Pixel Manipulation}{Pixel
+    Manipulation}
 */
 void QImage::setColor(int i, QRgb c)
 {
@@ -1305,7 +1562,8 @@ void QImage::setColor(int i, QRgb c)
     the underlying platform. Use qRed(), qGreen(), qBlue(), and
     qAlpha() to access the pixels.
 
-    \sa bytesPerLine() bits() jumpTable()
+    \sa bytesPerLine(), bits(), {QImage#Pixel Manipulation}{Pixel
+    Manipulation}
 */
 uchar *QImage::scanLine(int i)
 {
@@ -1328,7 +1586,7 @@ const uchar *QImage::scanLine(int i) const
     Returns a pointer to the first pixel data. This is equivalent to
     scanLine(0).
 
-    \sa numBytes() scanLine() jumpTable()
+    \sa scanLine(), numBytes()
 */
 uchar *QImage::bits()
 {
@@ -1349,26 +1607,38 @@ const uchar *QImage::bits() const
 
 
 /*!
-  \fn void QImage::reset()
+    \fn void QImage::reset()
 
     Resets all image parameters and deallocates the image data.
+
+    Assign a null image instead.
+
+    \oldcode
+        QImage image;
+        image.reset();
+    \newcode
+        QImage image;
+        image = QImage();
+    \endcode
 */
 
 /*!
-    Fills the entire image with the pixel value \a pixel.
+    \fn void QImage::fill(uint pixelValue)
 
-    If the \link depth() depth\endlink of this image is 1, only the
-    lowest bit is used. If you say fill(0), fill(2), etc., the image
-    is filled with 0s. If you say fill(1), fill(3), etc., the image is
-    filled with 1s. If the depth is 8, the lowest 8 bits are used.
+    Fills the entire image with the given \a pixelValue.
+
+    If the depth of this image is 1, only the lowest bit is used. If
+    you say fill(0), fill(2), etc., the image is filled with 0s. If
+    you say fill(1), fill(3), etc., the image is filled with 1s. If
+    the depth is 8, the lowest 8 bits are used.
 
     Note: QImage::pixel() returns the color of the pixel at the given
-    coordinates; QColor::pixel() returns the pixel value of the
+    coordinates while QColor::pixel() returns the pixel value of the
     underlying window system (essentially an index value), so normally
     you will want to use QImage::pixel() to use a color from an
     existing image or QColor::rgb() to use a specific color.
 
-    \sa invertPixels() depth() hasAlphaBuffer() create()
+    \sa depth(), {QImage#Image Transformations}{Image Transformations}
 */
 
 void QImage::fill(uint pixel)
@@ -1404,18 +1674,17 @@ void QImage::fill(uint pixel)
 /*!
     Inverts all pixel values in the image.
 
-    The default \a mode is InvertRgb, which leaves the alpha channel
-    unchanged.
+    The given invert \a mode only have a meaning when the image's
+    depth is 32. The default \a mode is InvertRgb, which leaves the
+    alpha channel unchanged. If the \a mode is InvertRgba, the alpha
+    bits are also inverted.
 
-    If the depth is 32 and the \a mode is InvertRgba, the alpha bits
-    are also inverted, otherwise they are left unchanged. If the depth
-    is \e not 32, the argument \a mode has no meaning.
+    Inverting an 8-bit image means to replace all pixels using color
+    index \e i with a pixel using color index 255 minus \e i. The same
+    is the case for a 1-bit image. Note that the color table is \e not
+    changed.
 
-    Note that inverting an 8-bit image means to replace all pixels
-    using color index \e i with a pixel using color index 255 minus \e
-    i. Similarly for a 1-bit image. The color table is not changed.
-
-    \sa fill() depth() hasAlphaBuffer()
+    \sa {QImage#Image Transformations}{Image Transformations}
 */
 
 void QImage::invertPixels(InvertMode mode)
@@ -1455,7 +1724,8 @@ void QImage::invertPixels(InvertMode mode)
     Determines the host computer byte order. Returns
     QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
 
-    \sa systemBitOrder()
+    This function is no longer relevant for QImage. Use QSysInfo
+    instead.
 */
 
 // Windows defines these
@@ -1470,12 +1740,13 @@ void QImage::invertPixels(InvertMode mode)
 #endif
 
 /*!
-    Resizes the color table to \a numColors colors.
+    Resizes the color table to contain \a numColors entries.
 
-    If the color table is expanded all the extra colors will be set to
-    black (RGB 0,0,0).
+    If the color table is expanded, all the extra colors will be set to
+    transparent (i.e qRgba(0, 0, 0, 0)).
 
-    \sa numColors() color() setColor() colorTable()
+    \sa numColors(), colorTable(), {QImage#Image
+    Transformations}{Image Transformations}
 */
 
 void QImage::setNumColors(int numColors)
@@ -1497,7 +1768,9 @@ void QImage::setNumColors(int numColors)
 }
 
 /*!
-  returns the format of the image.
+    Returns the format of the image.
+
+    \sa {QImage#Image Formats}{Image Formats}
 */
 QImage::Format QImage::format() const
 {
@@ -1510,7 +1783,8 @@ QImage::Format QImage::format() const
     Returns true if alpha buffer mode is enabled; otherwise returns
     false.
 
-    \sa setAlphaBuffer()
+    Use the hasAlphaChannel() function instead.
+
 */
 bool QImage::hasAlphaBuffer() const
 {
@@ -1519,24 +1793,13 @@ bool QImage::hasAlphaBuffer() const
 
 /*!
     Enables alpha buffer mode if \a enable is true, otherwise disables
-    it. The default setting is disabled.
+    it. The alpha buffer is used to set a mask when a QImage is
+    translated to a QPixmap.
 
-    An 8-bpp image has 8-bit pixels. A pixel is an index into the
-    \link color() color table\endlink, which contains 32-bit color
-    values. In a 32-bpp image, the 32-bit pixels are the color values.
-
-    This 32-bit value is encoded as follows: The lower 24 bits are
-    used for the red, green, and blue components. The upper 8 bits
-    contain the alpha component.
-
-    The alpha component specifies the transparency of a pixel. 0 means
-    completely transparent and 255 means opaque. The alpha component
-    is ignored if you do not enable alpha buffer mode.
-
-    The alpha buffer is used to set a mask when a QImage is translated
-    to a QPixmap.
-
-    \sa hasAlphaBuffer() createAlphaMask()
+    If a monochrome or indexed 8-bit image has alpha channels in their
+    color tables they will automatically detect that they have an
+    alpha channel, so this function is not required.  To force alpha
+    channels on 32-bit images, use the convertToFormat() function.
 */
 
 void QImage::setAlphaBuffer(bool enable)
@@ -1569,14 +1832,11 @@ void QImage::setAlphaBuffer(bool enable)
     \a bitOrder must be QImage::IgnoreEndian.
 
     This function allocates a color table and a buffer for the image
-    data. The image data is not initialized.
+    data. The image data is not initialized. The image buffer is
+    allocated as a single block that consists of a table of scanLine()
+    pointers (jumpTable()) and the image data (bits()).
 
-    The image buffer is allocated as a single block that consists of a
-    table of \link scanLine() scanline\endlink pointers (jumpTable())
-    and the image data (bits()).
-
-    \sa fill() width() height() depth() numColors() bitOrder()
-    jumpTable() scanLine() bits() bytesPerLine() numBytes()
+    Use a QImage constructor instead.
 */
 bool QImage::create(int width, int height, int depth, int numColors, Endian bitOrder)
 {
@@ -1591,6 +1851,8 @@ bool QImage::create(int width, int height, int depth, int numColors, Endian bitO
     \overload
 
     The width and height are specified in the \a size argument.
+
+    Use a QImage constructor instead.
 */
 bool QImage::create(const QSize& size, int depth, int numColors, QImage::Endian bitOrder)
 {
@@ -2742,8 +3004,10 @@ static const Image_Converter converter_map[Num_Image_Formats][Num_Image_Formats]
 /*!
     Returns a copy of the image in the given \a format.
 
-    The image conversion flags specified by \a flags control how the image
-    data is handled during the conversion process.
+    The specified image conversion \a flags control how the image data
+    is handled during the conversion process.
+
+    \sa {QImage#Image Format}{Image Format}
 */
 QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) const
 {
@@ -2785,11 +3049,10 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
 }
 
 /*!
-    Returns a copy of the image converted to the given \a format, using
-    a color table specified by \a colorTable.
+    \overload
 
-    The image conversion flags specified by \a flags control how the image
-    data is handled during the conversion process.
+    Returns a copy of the image converted to the given \a format,
+    using the specified \a colorTable.
 */
 QImage QImage::convertToFormat(Format format, const QVector<QRgb> &colorTable, Qt::ImageConversionFlags flags) const
 {
@@ -2810,20 +3073,16 @@ QImage QImage::convertToFormat(Format format, const QVector<QRgb> &colorTable, Q
 
 #ifdef QT3_SUPPORT
 /*!
-    Converts the depth (bpp) of the image to \a depth and returns the
-    converted image. The original image is not changed.
+    Converts the depth (bpp) of the image to the given \a depth and
+    returns the converted image. The original image is not changed.
+    Returns this image if \a depth is equal to the image depth, or a
+    null image if this image cannot be converted. The \a depth
+    argument must be 1, 8 or 32. If the image needs to be modified to
+    fit in a lower-resolution result (e.g. converting from 32-bit to
+    8-bit), use the \a flags to specify how you'd prefer this to
+    happen.
 
-    The \a depth argument must be 1, 8 or 32.
-
-    Returns \c *this if \a depth is equal to the image depth, or a
-    \link isNull() null\endlink image if this image cannot be
-    converted.
-
-    If the image needs to be modified to fit in a lower-resolution
-    result (e.g. converting from 32-bit to 8-bit), use the \a
-    flags to specify how you'd prefer this to happen.
-
-    \sa depth() isNull()
+    Use the convertToFormat() function instead.
 */
 
 QImage QImage::convertDepth(int depth, Qt::ImageConversionFlags flags) const
@@ -2837,10 +3096,8 @@ QImage QImage::convertDepth(int depth, Qt::ImageConversionFlags flags) const
 #endif
 
 /*!
-    Returns true if (\a x, \a y) is a valid coordinate in the image;
-    otherwise returns false.
-
-    \sa width() height() pixelIndex()
+    Returns true if (\a x, \a y) is valid coordinates within the
+    image; otherwise returns false.
 */
 
 bool QImage::valid(int x, int y) const
@@ -2853,11 +3110,11 @@ bool QImage::valid(int x, int y) const
 /*!
     Returns the pixel index at the given coordinates.
 
-    If (\a x, \a y) is not \link valid() valid\endlink, or if the
-    image is not a paletted image (depth() \> 8), the results are
-    undefined.
+    If (\a x, \a y) is not valid, or if the image is not a paletted
+    image (depth() > 8), the results are undefined.
 
-    \sa valid() depth()
+    \sa valid(), depth(), {QImage#Pixel Manipulation}{Pixel
+    Manipulation}
 */
 
 int QImage::pixelIndex(int x, int y) const
@@ -2882,12 +3139,12 @@ int QImage::pixelIndex(int x, int y) const
 
 
 /*!
-    Returns the color of the pixel at the coordinates (\a x, \a y).
+    Returns the color of the pixel at the given  coordinates.
 
-    If (\a x, \a y) is not \link valid() on the image\endlink, the
-    results are undefined.
+    If (\a x, \a y) is not valid, the results are undefined.
 
-    \sa setPixel() qRed() qGreen() qBlue() valid()
+    \sa setPixel(), valid(), {QImage#Pixel Manipulation}{Pixel
+    Manipulation}
 */
 
 QRgb QImage::pixel(int x, int y) const
@@ -2918,13 +3175,15 @@ QRgb QImage::pixel(int x, int y) const
     Sets the pixel index or color at the coordinates (\a x, \a y) to
     \a index_or_rgb.
 
-    If (\a x, \a y) is not \link valid() valid\endlink, the result is
-    undefined.
+    If the image's format is either monochrome or 8-bit, the given \a
+    index_or_rgb value must be an index in the image's color table,
+    otherwise the parameter must be a QRgb value.
 
-    If the image is a paletted image (depth() \<= 8) and \a
-    index_or_rgb \>= numColors(), the result is undefined.
+    If (\a x, \a y) is not valid coordinates in the image, or if \a
+    index_or_rgb >= numColors() in the case of monochrome and 8-bit
+    images, the result is undefined.
 
-    \sa pixelIndex() pixel() qRgb() qRgba() valid()
+    \sa pixel(), {QImage#Pixel Manipulation}{Pixel Manipulation}
 */
 
 void QImage::setPixel(int x, int y, uint index_or_rgb)
@@ -2964,14 +3223,13 @@ void QImage::setPixel(int x, int y, uint index_or_rgb)
 
 #ifdef QT3_SUPPORT
 /*!
-    Converts the bit order of the image to \a bitOrder and returns the
-    converted image. The original image is not changed.
+    Converts the bit order of the image to the given \a bitOrder and
+    returns the converted image. The original image is not changed.
+    Returns this image if the given \a bitOrder is equal to the image
+    current bit order, or a null image if this image cannot be
+    converted.
 
-    Returns \c *this if the \a bitOrder is equal to the image bit
-    order, or a \link isNull() null\endlink image if this image cannot
-    be converted.
-
-    \sa bitOrder() systemBitOrder() isNull()
+    Use convertToFormat() instead.
 */
 
 QImage QImage::convertBitOrder(Endian bitOrder) const
@@ -3001,9 +3259,9 @@ QImage QImage::convertBitOrder(Endian bitOrder) const
 /*!
     Returns true if all the colors in the image are shades of gray
     (i.e. their red, green and blue components are equal); otherwise
-    returns false.
+    false.
 
-    This function is slow for large 32-bit images.
+    Note that this function is slow for large 32-bit images.
 
     \sa isGrayscale()
 */
@@ -3032,10 +3290,10 @@ bool QImage::allGray() const
     For 32-bit images, this function is equivalent to allGray().
 
     For 8-bpp images, this function returns true if color(i) is
-    QRgb(i,i,i) for all indexes of the color table; otherwise returns
-    false.
+    QRgb(i, i, i) for all indexes of the color table; otherwise
+    returns false.
 
-    \sa allGray() depth()
+    \sa allGray(), {QImage#Image Formats}{Image Formats}
 */
 bool QImage::isGrayscale() const
 {
@@ -3059,47 +3317,69 @@ bool QImage::isGrayscale() const
 /*!
     \fn QImage QImage::smoothScale(int width, int height, Qt::AspectRatioMode mode) const
 
-    Use scaled(\a width, \a height, \a mode, Qt::SmoothTransformation) instead.
+    Use scaled() instead.
+
+    \oldcode
+        QImage image;
+        image.smoothScale(width, height, mode);
+    \newcode
+        QImage image;
+        image.scaled(width, height, mode, Qt::SmoothTransformation);
+    \endcode
 */
 
 /*!
     \fn QImage QImage::smoothScale(const QSize &size, Qt::AspectRatioMode mode) const
     \overload
 
-    Use scaled(\a size, \a mode, Qt::SmoothTransformation) instead.
+    Use scaled() instead.
+
+    \oldcode
+        QImage image;
+        image.smoothScale(size, mode);
+    \newcode
+        QImage image;
+        image.scaled(size, mode, Qt::SmoothTransformation);
+    \endcode
 */
 
 /*!
-    \fn QImage QImage::scaled(int w, int h, Qt::AspectRatioMode aspectRatioMode,
+    \fn QImage QImage::scaled(int width, int height, Qt::AspectRatioMode aspectRatioMode,
+                             Qt::TransformationMode transformMode) const
+    \overload
+
+    Returns a copy of the image scaled to a rectangle with the given
+    \a width and \a height according to the given \a aspectRatioMode
+    and \a transformMode.
+
+    If either the \a width or the \a height is zero or negative, this
+    function returns a null image.
+*/
+
+/*!
+    \fn QImage QImage::scaled(const QSize &size, Qt::AspectRatioMode aspectRatioMode,
                              Qt::TransformationMode transformMode) const
 
-    Returns a copy of the image scaled to a rectangle of width \a w
-    and height \a h according to \a aspectRatioMode and \a transformMode.
+    Returns a copy of the image scaled to a rectangle defined by the
+    given \a size according to the given \a aspectRatioMode and \a
+    transformMode.
+
+    \image qimage-scaling.png
 
     \list
     \i If \a aspectRatioMode is Qt::IgnoreAspectRatio, the image
-       is scaled to (\a w, \a h).
+       is scaled to \a size.
     \i If \a aspectRatioMode is Qt::KeepAspectRatio, the image is
-       scaled to a rectangle as large as possible inside (\a w, \a
-       h), preserving the aspect ratio.
+       scaled to a rectangle as large as possible inside \a size, preserving the aspect ratio.
     \i If \a aspectRatioMode is Qt::KeepAspectRatioByExpanding,
        the image is scaled to a rectangle as small as possible
-       outside (\a w, \a h), preserving the aspect ratio.
+       outside \a size, preserving the aspect ratio.
     \endlist
 
-    If either the width \a w or the height \a h is zero or negative,
-    this function returns a \l{isNull()}{null} image.
+    If the given \a size is empty, this function returns a null image.
 
-    \sa scaledToWidth(), scaledToHeight(), transformed()
-*/
-
-/*!
-    \fn QImage QImage::scaled(const QSize &size, Qt::AspectRatioMode aspectMode, Qt::TransformationMode transformMode) const
-
-    \overload
-
-    Scales the image to the given \a size, using the aspect ratio and
-    transformation modes specified by \a aspectMode and \a transformMode.
+    \sa isNull(), {QImage#Image Transformations}{Image
+    Transformations}
 */
 QImage QImage::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::TransformationMode mode) const
 {
@@ -3123,14 +3403,18 @@ QImage QImage::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Transf
 }
 
 /*!
-    Returns a scaled copy of the image with a width of \a w pixels using
-    the specified transformation \a mode. This function automatically
-    calculates the height of the image so that its aspect ratio is preserved.
+    \fn QImage QImage::scaledToWidth(int width, Qt::TransformationMode mode) const
 
-    If \a w is 0 or negative a \link isNull() null\endlink image is
-    returned.
+    Returns a scaled copy of the image. The returned image is scaled
+    to the given \a width using the specified transformation \a
+    mode.
 
-    \sa scaled(), scaledToHeight(), transformed()
+    This function automatically calculates the height of the image so
+    that its aspect ratio is preserved.
+
+    If the given \a width is 0 or negative, a null image is returned.
+
+    \sa {QImage#Image Transformations}{Image Transformations}
 */
 QImage QImage::scaledToWidth(int w, Qt::TransformationMode mode) const
 {
@@ -3148,15 +3432,18 @@ QImage QImage::scaledToWidth(int w, Qt::TransformationMode mode) const
 }
 
 /*!
-    Returns a scaled copy of the image with a height of \a h pixels
-    using a transformation specified by \a mode.
+    \fn QImage QImage::scaledToHeight(int height, Qt::TransformationMode mode) const
+
+    Returns a scaled copy of the image. The returned image is scaled
+    to the given \a height using the specified transformation \a
+    mode.
+
     This function automatically calculates the width of the image so that
     the ratio of the image is preserved.
 
-    If \a h is 0 or negative a \link isNull() null\endlink image is
-    returned.
+    If the given \a height is 0 or negative, a null image is returned.
 
-    \sa scaled(), scaledToWidth(), transformed()
+    \sa {QImage#Image Transformations}{Image Transformations}
 */
 QImage QImage::scaledToHeight(int h, Qt::TransformationMode mode) const
 {
@@ -3175,18 +3462,20 @@ QImage QImage::scaledToHeight(int h, Qt::TransformationMode mode) const
 
 
 /*!
-    Returns the actual matrix used for transforming a image with \a w
-    width and \a h height and matrix \a matrix.
+    \fn QMatrix QImage::trueMatrix(const QMatrix &matrix, int width, int height)
 
-    When transforming a image with transformed(), the transformation matrix
-    is internally adjusted to compensate for unwanted translation,
-    i.e. transformed() returns the smallest image containing all
-    transformed points of the original image.
+    Returns the actual matrix used for transforming an image with the
+    given \a width, \a height and \a matrix.
 
+    When transforming an image using the transformed() function, the
+    transformation matrix is internally adjusted to compensate for
+    unwanted translation, i.e. transformed() returns the smallest
+    image containing all transformed points of the original image.
     This function returns the modified matrix, which maps points
     correctly from the original image into the new image.
 
-    \sa transformed(), QMatrix
+    \sa transformed(), {QImage#Image Transformations}{Image
+    Transformations}
 */
 QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 {
@@ -3225,15 +3514,17 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 }
 
 /*!
-    Returns a copy of the image that is transformed with the transformation
-    matrix specified by \a matrix and using the transformation mode specified
-    by \a mode.
+    Returns a copy of the image that is transformed using the given
+    transformation \a matrix and transformation \a mode.
 
     The transformation \a matrix is internally adjusted to compensate
-    for unwanted translation; i.e. the image produced is the smallest image
-    that contains all the transformed points of the original image.
+    for unwanted translation; i.e. the image produced is the smallest
+    image that contains all the transformed points of the original
+    image. Use the trueMatrix() function to retrieve the actual matrix
+    used for transforming an image
 
-    \sa scaled(), QPixmap::transformed(), QPixmap::trueMatrix(), QMatrix
+    \sa trueMatrix(), {QImage#Image Transformations}{Image
+    Transformations}
 */
 QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
@@ -3336,16 +3627,20 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
 
 /*!
     Builds and returns a 1-bpp mask from the alpha buffer in this
-    image. Returns a \link isNull() null\endlink image if the image is
-    of format RGB32.
+    image. Returns a null image if the image's format is
+    QImage::Format_RGB32.
 
-    See QPixmap::convertFromImage() for a description of the \a
-    flags argument.
+    The \a flags argument is a bitwise-OR of the
+    Qt::ImageConversionFlags, and controls the conversion
+    process. Passing 0 for flags sets all the default options.
 
-    The returned image has little-endian bit order, which you can
-    convert to big-endian using convertToFormat().
+    The returned image has little-endian bit order (i.e. the image's
+    format is QImage::Format_MonoLSB), which you can convert to
+    big-endian (QImage::Format_Mono) using the convertToFormat()
+    function.
 
-    \sa createHeuristicMask()
+    \sa createHeuristicMask(), {QImage#Image Transformations}{Image
+    Transformations}
 */
 QImage QImage::createAlphaMask(Qt::ImageConversionFlags flags) const
 {
@@ -3365,23 +3660,27 @@ QImage QImage::createAlphaMask(Qt::ImageConversionFlags flags) const
 
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
 /*!
-    Creates and returns a 1-bpp heuristic mask for this image. It
-    works by selecting a color from one of the corners, then chipping
-    away pixels of that color starting at all the edges.
+    Creates and returns a 1-bpp heuristic mask for this image.
 
+    The function works by selecting a color from one of the corners,
+    then chipping away pixels of that color starting at all the edges.
     The four corners vote for which color is to be masked away. In
     case of a draw (this generally means that this function is not
     applicable to the image), the result is arbitrary.
 
-    The returned image has little-endian bit order, which you can
-    convert to big-endian using convertToFormat().
+    The returned image has little-endian bit order (i.e. the image's
+    format is QImage::Format_MonoLSB), which you can convert to
+    big-endian (QImage::Format_Mono) using the convertToFormat()
+    function.
 
-    If \a clipTight is true (the default) the mask is just large enough to cover the
-    pixels; otherwise, the mask is larger than the data pixels.
+    If \a clipTight is true (the default) the mask is just large
+    enough to cover the pixels; otherwise, the mask is larger than the
+    data pixels.
 
-    This function disregards the alpha buffer.
+    Note that this function disregards the alpha buffer.
 
-    \sa createAlphaMask()
+    \sa createAlphaMask(), {QImage#Image Transformations}{Image
+    Transformations}
 */
 
 QImage QImage::createHeuristicMask(bool clipTight) const
@@ -3483,27 +3782,19 @@ QImage QImage::createHeuristicMask(bool clipTight) const
 */
 
 /*!
-  \fn QImage QImage::mirror(bool horizontal, bool vertical) const
+    \fn QImage QImage::mirror(bool horizontal, bool vertical) const
 
-    \overload
-
-    Returns a mirror of the image, mirrored in the horizontal and/or
-    the vertical direction depending on whether \a horizontal and \a
-    vertical are set to true or false. The original image is not
-    changed.
-
-    \sa scaled()
+    Use mirrored() instead.
 */
 
 /*!
-    \overload
-
     Returns a mirror of the image, mirrored in the horizontal and/or
     the vertical direction depending on whether \a horizontal and \a
-    vertical are set to true or false. The original image is not
-    changed.
+    vertical are set to true or false.
 
-    \sa scaled()
+    Note that the original image is not changed.
+
+    \sa {QImage#Image Transformations}{Image Transformations}
 */
 QImage QImage::mirrored(bool horizontal, bool vertical) const
 {
@@ -3585,17 +3876,25 @@ QImage QImage::mirrored(bool horizontal, bool vertical) const
 }
 
 /*!
-  \fn QImage QImage::swapRGB() const
+    \fn QImage QImage::swapRGB() const
 
+    Use rgbSwapped() instead.
+
+    \omit
     Returns a QImage in which the values of the red and blue
     components of all pixels have been swapped, effectively converting
-    an RGB image to a BGR image. The original QImage is not changed.
+    an RGB image to an BGR image. The original QImage is not changed.
+    \endomit
 */
 
 /*!
     Returns a QImage in which the values of the red and blue
     components of all pixels have been swapped, effectively converting
-    an RGB image to a BGR image. The original QImage is not changed.
+    an RGB image to an BGR image.
+
+    The original QImage is not changed.
+
+    \sa {QImage#Image Transformations}{Image Transformations}
 */
 QImage QImage::rgbSwapped() const
 {
@@ -3626,25 +3925,21 @@ QImage QImage::rgbSwapped() const
 }
 
 /*!
-    Loads an image from the file \a fileName. Returns true if the
-    image was successfully loaded; otherwise returns false.
+    Loads an image from the file with the given \a fileName. Returns
+    true if the image was successfully loaded; otherwise returns
+    false.
 
-    If \a format is specified, the loader attempts to read the image
-    using the specified format. If \a format is not specified (which
-    is the default), the loader probes the file for a header to
-    guess the file format.
+    The loader attempts to read the image using the specified \a
+    format. If the \a format is not specified (which is the default),
+    the loader probes the file for a header to guess the file format.
 
-    The QImageReader documentation lists the supported image formats and
-    explains how to add extra formats.
-
-    The file name can either refer to an actual file on disk or to
-    one of the application's embedded resources. See the
-    \l{resources.html}{Resource System} overview for details on how
-    to embed images and other resource files in the application's
+    The file name can either refer to an actual file on disk or to one
+    of the application's embedded resources. See the
+    \l{resources.html}{Resource System} overview for details on how to
+    embed images and other resource files in the application's
     executable.
 
-    \sa loadFromData(), save(), QImageReader::imageFormat(), QPixmap::load(),
-    QImageReader
+    \sa {QImage#Reading and Writing Image Files}{Reading and Writing Image Files}
 */
 
 bool QImage::load(const QString &fileName, const char* format)
@@ -3663,9 +3958,8 @@ bool QImage::load(const QString &fileName, const char* format)
 /*!
     \overload
 
-    This function reads a QImage from the QIODevice, \a device. This
-    can be used, for example, to load an image directly into a
-    QByteArray.
+    This function reads a QImage from the given \a device. This can,
+    for example, be used to load an image directly into a QByteArray.
 */
 
 bool QImage::load(QIODevice* device, const char* format)
@@ -3679,20 +3973,17 @@ bool QImage::load(QIODevice* device, const char* format)
 }
 
 /*!
-    Loads an image from the first \a len bytes of binary data in \a
+    \fn bool QImage::loadFromData(const uchar *data, int len, const char *format)
+
+    Loads an image from the first \a len bytes of the given binary \a
     data. Returns true if the image was successfully loaded; otherwise
     returns false.
 
-    If \a format is specified, the loader attempts to read the image
-    using the specified format. If \a format is not specified (which
-    is the default), the loader probes the file for a header to
-    guess the file format.
+    The loader attempts to read the image using the specified
+    format. If the \a format is not specified (which is the default),
+    the loader probes the file for a header to guess the file format.
 
-    The QImageReader documentation lists the supported image formats and
-    explains how to add extra formats.
-
-    \sa load(), save(), QImageReader::imageFormat(), QPixmap::loadFromData(),
-    QImageReader
+    \sa {QImage#Reading and Writing Image Files}{Reading and Writing Image Files}
 */
 
 bool QImage::loadFromData(const uchar *data, int len, const char *format)
@@ -3706,30 +3997,26 @@ bool QImage::loadFromData(const uchar *data, int len, const char *format)
 }
 
 /*!
-  \fn bool QImage::loadFromData(const QByteArray &data, const char *format)
+    \fn bool QImage::loadFromData(const QByteArray &data, const char *format)
 
     \overload
 
-    Loads an image from the QByteArray \a data.
+    Loads an image from the given QByteArray \a data.
 */
 
 /*!
     \fn QImage QImage::fromData(const uchar *data, int size, const char *format)
 
-    Constructs a QImage from the first \a size bytes of binary data
-    in \a data. If the loading of the image failed, this object is a \link
-    isNull() null\endlink image.
+    Constructs a QImage from the first \a size bytes of the given
+    binary \a data. the loader attempts to read the image using the
+    specified \a format. If the \a format is not specified (which is
+    the default), the loader probes the file for a header to guess the
+    file format.
 
-    If \a format is specified, the loader attempts to read the image
-    using the specified format. If \a format is not specified (which
-    is the default), the loader probes the file for a header to
-    guess the file format.
+    If the loading of the image failed, this object is a null image.
 
-    The QImageReader documentation lists the supported image formats and
-    explains how to add extra formats.
-
-    \sa load(), save(), QImageReader::imageFormat(), QPixmap::loadFromData(),
-    QImageReader
+    \sa load(), save(), {QImage#Reading and Writing Image
+    Files}{Reading and Writing Image Files}
 */
 QImage QImage::fromData(const uchar *data, int size, const char *format)
 {
@@ -3745,21 +4032,22 @@ QImage QImage::fromData(const uchar *data, int size, const char *format)
 
     \overload
 
-    Loads an image from the QByteArray \a data.
+    Loads an image from the given QByteArray \a data.
 */
 
 /*!
-    Saves the image to the file \a fileName, using the image file
-    format \a format and a quality factor of \a quality. \a quality
-    must be in the range 0 to 100 or -1. Specify 0 to obtain small
-    compressed files, 100 for large uncompressed files, and -1 (the
-    default) to use the default settings.
+    Saves the image to the file with the given \a fileName, using the
+    given image file \a format and \a quality factor.
+
+    The \a quality factor must be in the range 0 to 100 or -1. Specify
+    0 to obtain small compressed files, 100 for large uncompressed
+    files, and -1 (the default) to use the default settings.
 
     Returns true if the image was successfully saved; otherwise
     returns false.
 
-    \sa load(), loadFromData(), QImageReader::imageFormat(), QPixmap::save(),
-    QImageReader
+    \sa {QImage#Reading and Writing Image Files}{Reading and Writing
+    Image Files}
 */
 bool QImage::save(const QString &fileName, const char *format, int quality) const
 {
@@ -3772,8 +4060,9 @@ bool QImage::save(const QString &fileName, const char *format, int quality) cons
 /*!
     \overload
 
-    This function writes a QImage to the QIODevice, \a device. This
-    can be used, for example, to save an image directly into a
+    This function writes a QImage to the given \a device.
+
+    This can, for example, be used to save an image directly into a
     QByteArray:
 
     \quotefromfile snippets/image/image.cpp
@@ -3807,15 +4096,14 @@ bool QImageData::doImageIO(const QImage *image, QImageWriter *writer, int qualit
  *****************************************************************************/
 #if !defined(QT_NO_DATASTREAM)
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QImage &image)
     \relates QImage
 
-    Writes the image \a image to the stream \a s as a PNG image, or as a
-    BMP image if the stream's version is 1.
+    Writes the given \a image to the given \a stream as a PNG image,
+    or as a BMP image if the stream's version is 1. Note that writing
+    the stream to a file will not produce a valid image file.
 
-    Note that writing the stream to a file will not produce a valid image file.
-
-    \sa QImage::save()
-    \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa QImage::save(), {Format of the QDataStream Operators}
 */
 
 QDataStream &operator<<(QDataStream &s, const QImage &image)
@@ -3835,12 +4123,13 @@ QDataStream &operator<<(QDataStream &s, const QImage &image)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QImage &image)
     \relates QImage
 
-    Reads an image from the stream \a s and stores it in \a image.
+    Reads an image from the given \a stream and stores it in the given
+    \a image.
 
-    \sa QImage::load()
-    \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa QImage::load(), {Format of the QDataStream Operators}
 */
 
 QDataStream &operator>>(QDataStream &s, QImage &image)
@@ -3861,13 +4150,16 @@ QDataStream &operator>>(QDataStream &s, QImage &image)
 
 #ifdef QT3_SUPPORT
 /*!
-    Returns an image with depth \a d, using the \a palette_count
-    colors pointed to by \a palette. If \a d is 1 or 8, the returned
-    image will have its color table ordered the same as \a palette.
+    \fn QImage QImage::convertDepthWithPalette(int depth, QRgb* palette, int palette_count, Qt::ImageConversionFlags flags) const
+
+    Returns an image with the given \a depth, using the \a
+    palette_count colors pointed to by \a palette. If \a depth is 1 or
+    8, the returned image will have its color table ordered in the
+    same way as \a palette.
 
     If the image needs to be modified to fit in a lower-resolution
-    result (e.g. converting from 32-bit to 8-bit), use the \a
-    flags to specify how you'd prefer this to happen.
+    result (e.g. converting from 32-bit to 8-bit), use the \a flags to
+    specify how you'd prefer this to happen.
 
     Note: currently no closest-color search is made. If colors are
     found that are not in the palette, the palette may not be used at
@@ -3875,6 +4167,9 @@ QDataStream &operator>>(QDataStream &s, QImage &image)
     change in future implementations.
 
     Currently inefficient for non-32-bit images.
+
+    Use the convertToFormat() function in combination with the
+    setColorTable() function instead.
 */
 QImage QImage::convertDepthWithPalette(int d, QRgb* palette, int palette_count, Qt::ImageConversionFlags flags) const
 {
@@ -3893,17 +4188,16 @@ QImage QImage::convertDepthWithPalette(int d, QRgb* palette, int palette_count, 
     \a flags if it is incompatible with the destination
     (\a dst).
 
-    \a sx, \a sy is the top-left pixel in \a src, \a dx, \a dy
-    is the top-left position in \a dst and \a sw, \a sh is the
-    size of the copied block.
-
-    The copying is clipped if areas outside \a src or \a dst are
-    specified.
-
-    If \a sw is -1, it is adjusted to src->width(). Similarly, if \a
-    sh is -1, it is adjusted to src->height().
+    \a sx, \a sy is the top-left pixel in \a src, \a dx, \a dy is the
+    top-left position in \a dst and \a sw, \a sh is the size of the
+    copied block. The copying is clipped if areas outside \a src or \a
+    dst are specified. If \a sw is -1, it is adjusted to
+    src->width(). Similarly, if \a sh is -1, it is adjusted to
+    src->height().
 
     Currently inefficient for non 32-bit images.
+
+    Use copy() or QPainter::drawImage() instead.
 */
 void bitBlt(QImage *dst, int dx, int dy, const QImage *src, int sx, int sy, int sw, int sh,
             Qt::ImageConversionFlags flags)
@@ -3916,10 +4210,14 @@ void bitBlt(QImage *dst, int dx, int dy, const QImage *src, int sx, int sy, int 
 #endif
 
 /*!
-    Returns true if this image and image \a i have the same contents;
-    otherwise returns false. The comparison can be slow, unless there
-    is some obvious difference (e.g. different size or format), in which
-    case the function will return quickly.
+    \fn bool QImage::operator==(const QImage & image) const
+
+    Returns true if this image and the given \a image have the same
+    contents; otherwise returns false.
+
+    The comparison can be slow, unless there is some obvious
+    difference (e.g. different size or format), in which case the
+    function will return quickly.
 
     \sa operator=()
 */
@@ -3968,10 +4266,14 @@ bool QImage::operator==(const QImage & i) const
 
 
 /*!
-    Returns true if this image and image \a i have different contents;
-    otherwise returns false. The comparison can be slow, unless there
-    is some obvious difference, such as different widths, in which
-    case the function will return quickly.
+    \fn bool QImage::operator!=(const QImage & image) const
+
+    Returns true if this image and the given \a image have different
+    contents; otherwise returns false.
+
+    The comparison can be slow, unless there is some obvious
+    difference, such as different widths, in which case the function
+    will return quickly.
 
     \sa operator=()
 */
@@ -3986,10 +4288,11 @@ bool QImage::operator!=(const QImage & i) const
 
 /*!
     Returns the number of pixels that fit horizontally in a physical
-    meter. This and dotsPerMeterY() define the intended scale and
-    aspect ratio of the image.
+    meter. Together with dotsPerMeterY(), this number defines the
+    intended scale and aspect ratio of the image.
 
-    \sa setDotsPerMeterX()
+    \sa setDotsPerMeterX(), {QImage#Image Information}{Image
+    Information}
 */
 int QImage::dotsPerMeterX() const
 {
@@ -3998,10 +4301,11 @@ int QImage::dotsPerMeterX() const
 
 /*!
     Returns the number of pixels that fit vertically in a physical
-    meter. This and dotsPerMeterX() define the intended scale and
-    aspect ratio of the image.
+    meter. Together with dotsPerMeterX(), this number defines the
+    intended scale and aspect ratio of the image.
 
-    \sa setDotsPerMeterY()
+    \sa setDotsPerMeterY(), {QImage#Image Information}{Image
+    Information}
 */
 int QImage::dotsPerMeterY() const
 {
@@ -4009,7 +4313,14 @@ int QImage::dotsPerMeterY() const
 }
 
 /*!
-    Sets the value returned by dotsPerMeterX() to \a x.
+    Sets the number of pixels that fit horizontally in a physical
+    meter, to \a x.
+
+    Together with dotsPerMeterY(), this number defines the intended
+    scale and aspect ratio of the image.
+
+    \sa dotsPerMeterX(), {QImage#Image Information}{Image
+    Information}
 */
 void QImage::setDotsPerMeterX(int x)
 {
@@ -4020,7 +4331,14 @@ void QImage::setDotsPerMeterX(int x)
 }
 
 /*!
-    Sets the value returned by dotsPerMeterY() to \a y.
+    Sets the number of pixels that fit vertically in a physical meter,
+    to \a y.
+
+    Together with dotsPerMeterX(), this number defines the intended
+    scale and aspect ratio of the image.
+
+    \sa dotsPerMeterY(), {QImage#Image Information}{Image
+    Information}
 */
 void QImage::setDotsPerMeterY(int y)
 {
@@ -4035,6 +4353,8 @@ void QImage::setDotsPerMeterY(int y)
 
     Returns the number of pixels by which the image is intended to be
     offset by when positioning relative to other images.
+
+    \sa setOffset(), {QImage#Image Information}{Image Information}
 */
 QPoint QImage::offset() const
 {
@@ -4043,7 +4363,12 @@ QPoint QImage::offset() const
 
 
 /*!
-    Sets the value returned by offset() to \a p.
+    \fn void QImage::setOffset(const QPoint& offset)
+
+    Sets the the number of pixels by which the image is intended to be
+    offset by when positioning relative to other images, to \a offset.
+
+    \sa offset(), {QImage#Image Information}{Image Information}
 */
 void QImage::setOffset(const QPoint& p)
 {
@@ -4055,11 +4380,12 @@ void QImage::setOffset(const QPoint& p)
 #ifndef QT_NO_IMAGE_TEXT
 
 /*!
-    Returns the text keys for this image. You can use
-    these keys with text() to list the image text for
-    a certain key.
+    Returns the text keys for this image.
 
-    \sa text(), setText(), QImageReader::textKeys()
+    You can use these keys with text() to list the image text for a
+    certain key.
+
+    \sa text()
 */
 QStringList QImage::textKeys() const
 {
@@ -4067,13 +4393,11 @@ QStringList QImage::textKeys() const
 }
 
 /*!
-    Returns the image text associated with \a key. If
-    \a key is an empty string, the whole image text is
+    Returns the image text associated with the given \a key. If the
+    specified \a key is an empty string, the whole image text is
     returned, with each key-text pair separated by a newline.
 
-    You can also set the image text by calling setText().
-
-    \sa textKeys(), setText()
+    \sa setText(), textKeys()
 */
 QString QImage::text(const QString &key) const
 {
@@ -4093,15 +4417,19 @@ QString QImage::text(const QString &key) const
 }
 
 /*!
-    Sets the image text \a value with the key \a key. If you
-    just want to store a single text block (i.e., a "comment"
-    or just a description), you can either pass an empty key,
-    or use a generic key like "Description".
+    \fn void QImage::setText(const QString &key, const QString &text)
+
+    Sets the image text to the given \a text and associate it with the
+    given \a key.
+
+    If you just want to store a single text block (i.e., a "comment"
+    or just a description), you can either pass an empty key, or use a
+    generic key like "Description".
 
     The image text is embedded into the image data when you
     call save() or QImageWriter::write().
 
-    \sa text(), QImageWriter::setText()
+    \sa text(), textKeys()
 */
 void QImage::setText(const QString &key, const QString &value)
 {
@@ -4110,10 +4438,11 @@ void QImage::setText(const QString &key, const QString &value)
 }
 
 /*!
+    \fn QString QImage::text(const char* key, const char* language) const
     \obsolete
 
-    Returns the string recorded for the keyword \a key in language \a
-    lang, or in a default language if \a lang is 0.
+    Returns the text recorded for the given \a key in the given \a
+    language, or in a default language if \a language is 0.
 */
 QString QImage::text(const char* key, const char* lang) const
 {
@@ -4121,10 +4450,11 @@ QString QImage::text(const char* key, const char* lang) const
 }
 
 /*!
+    \fn QString QImage::text(const QImageTextKeyLang& keywordAndLanguage) const
     \overload
     \obsolete
 
-    Returns the string recorded for the keyword and language \a kl.
+    Returns the text recorded for the given \a keywordAndLanguage.
 */
 QString QImage::text(const QImageTextKeyLang& kl) const
 {
@@ -4132,22 +4462,11 @@ QString QImage::text(const QImageTextKeyLang& kl) const
 }
 
 /*!
+    \obsolete
+
     Returns the language identifiers for which some texts are
-    recorded.
-
-    Note that if you want to iterate over the list, you should iterate
-    over a copy, e.g.
-
-    \code
-        QStringList list = myImage.textLanguages();
-        QStringList::Iterator it = list.begin();
-        while(it != list.end()) {
-            myProcessing(*it);
-            ++it;
-        }
-    \endcode
-
-    \sa textList() text() setText() textKeys()
+    recorded. Note that if you want to iterate over the list, you
+    should iterate over a copy.
 */
 QStringList QImage::textLanguages() const
 {
@@ -4158,7 +4477,7 @@ QStringList QImage::textLanguages() const
     \obsolete
 
     Returns a list of QImageTextKeyLang objects that enumerate all the
-    texts key/language pairs set by setText() for this image.
+    texts key/language pairs set for this image.
 */
 QList<QImageTextKeyLang> QImage::textList() const
 {
@@ -4166,15 +4485,22 @@ QList<QImageTextKeyLang> QImage::textList() const
 }
 
 /*!
+    \fn void QImage::setText(const char* key, const char* language, const QString& text)
     \obsolete
 
-    Records string \a s for the keyword \a key. The \a key should be
+    Sets the image text to the given \a text and associate it with the
+    given \a key. The text is recorded in the specified \a language,
+    or in a default language if \a language is 0.
+
+    \omit
+    Records string \a  for the keyword \a key. The \a key should be
     a portable keyword recognizable by other software - some suggested
     values can be found in
     \l{http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#C.Anc-text}
     {the PNG specification}. \a s can be any text. \a lang should
     specify the language code (see
     \l{http://www.rfc-editor.org/rfc/rfc1766.txt}{RFC 1766}) or 0.
+    \endomit
 */
 void QImage::setText(const char* key, const char* lang, const QString& s)
 {
@@ -4202,7 +4528,8 @@ void QImage::setText(const char* key, const char* lang, const QString& s)
     Determines the bit order of the display hardware. Returns
     QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
 
-    \sa systemByteOrder()
+    This function is no longer relevant for QImage. Use QSysInfo
+    instead.
 */
 
 
@@ -4227,6 +4554,8 @@ QPaintEngine *QImage::paintEngine() const
 
 
 /*!
+    \reimp
+
     Returns the size for the specified \a metric on the device.
 */
 int QImage::metric(PaintDeviceMetric metric) const
@@ -4467,17 +4796,30 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
 /*!
     \fn QImage QImage::xForm(const QMatrix &matrix) const
 
-    Use transform(\a matrix) instead.
+    Use transformed() instead.
+
+    \oldcode
+        QImage image;
+        ...
+        image.xForm(matrix);
+    \newcode
+        QImage image;
+        ...
+        image.transformed(matrix);
+    \endcode
 */
 
 /*!
     Returns a number that uniquely identifies the contents of this
-    QImage object. This means that multiple QImage objects can have
-    the same serial number as long as they refer to the same contents.
+    QImage object.
 
-    A null image always have a serial number of 0.
+    This means that multiple QImage objects can only have the same
+    serial number as long as they refer to the same contents. A null
+    image has always a serial number of 0.
 
-    An example of where this is useful is for caching QImages.
+    The serial number is useful is when caching QImages.
+
+    \sa {QImage#Image Information}{Image Information}
 */
 
 int QImage::serialNumber() const
@@ -4489,9 +4831,11 @@ int QImage::serialNumber() const
 }
 
 /*!
+    \internal
+
     Returns true if the image is detached; otherwise returns false.
 
-    \sa detach()
+    \sa detach(), {Implicit Data Sharing}
 */
 
 bool QImage::isDetached() const
@@ -4501,15 +4845,18 @@ bool QImage::isDetached() const
 
 
 /*!
-    Sets the alpha channel of this image to \a alphaChannel.
+    Sets the alpha channel of this image to the given \a alphaChannel.
 
     If \a alphaChannel is an 8 bit grayscale image, the intensity
     values are written into this buffer directly. Otherwise, \a
     alphaChannel is converted to 32 bit and the intensity of the RGB
     pixel values is used.
 
-    The image will be converted to the format
-    Format_ARGB32_Premultiplied if the function succeeds.
+    Note that the image will be converted to the
+    Format_ARGB32_Premultiplied format if the function succeeds.
+
+    \sa alphaChannel(), {QImage#Image Transformations}{Image
+    Transformations}, {QImage#Image Formats}{Image Formats}
 */
 
 void QImage::setAlphaChannel(const QImage &alphaChannel)
@@ -4578,6 +4925,9 @@ void QImage::setAlphaChannel(const QImage &alphaChannel)
 /*!
     Extracts the alpha channel from this image as an 8 bit gray scale
     image and returns it.
+
+    \sa setAlphaChannel(), {QImage#Image Transformations}{Image
+    Transformations}
 */
 
 QImage QImage::alphaChannel() const
@@ -4631,7 +4981,11 @@ QImage QImage::alphaChannel() const
 }
 
 /*!
-    Returns true if the image has an alpha channel.
+    Returns true if the image has an alpha channel different from \c
+    ff (i.e. opaque); otherwise false.
+
+    \sa alphaChannel(), {QImage#Image Transformations}{Image
+    Transformations}
 */
 bool QImage::hasAlphaChannel() const
 {
@@ -4660,14 +5014,14 @@ inline QImage::Endian QImage::systemBitOrder()
     \fn QImage QImage::copy(const QRect &rect, Qt::ImageConversionFlags flags) const
     \compat
 
-    Use copy() and convertToFormat() instead.
+    Use copy() instead.
 */
 
 /*!
     \fn QImage QImage::copy(int x, int y, int w, int h, Qt::ImageConversionFlags flags) const
     \compat
 
-    Use copy() and convertToFormat() instead.
+    Use copy() instead.
 */
 
 /*!
