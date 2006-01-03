@@ -423,19 +423,16 @@ void QWSProtocolItem::copyFrom(const QWSProtocolItem *item) {
 }
 
 void QWSProtocolItem::setData(const char *data, int len, bool allocateMem) {
-    if (!data && !len) {
+    if (deleteRaw)
+        delete [] rawDataPtr;
+    if (!data || len <= 0) {
         rawDataPtr = 0;
         rawLen = 0;
         return;
     }
-    if (len < 0)
-        return;
-    if (deleteRaw)
-        delete [] rawDataPtr;
     if (allocateMem) {
         rawDataPtr = new char[len];
-        if (data)
-            memcpy(rawDataPtr, data, len);
+        memcpy(rawDataPtr, data, len);
         deleteRaw = true;
     } else {
         rawDataPtr = const_cast<char *>(data);
@@ -539,3 +536,4 @@ QWSCommand *QWSCommand::factory(int type)
     }
     return command;
 }
+
