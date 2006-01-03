@@ -104,7 +104,7 @@ void QSyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int c
 
     QTextBlock endBlock;
     if (charsAdded > 0)
-        endBlock = doc->findBlock(from + charsAdded);
+        endBlock = doc->findBlock(from + charsAdded - 1);
     else
         endBlock = block;
 
