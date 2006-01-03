@@ -738,6 +738,11 @@ bool QTextHtmlImporter::closeTag(int i)
                    || closedNode->id == Html_h6
                   ) {
             blockTagClosed = true;
+        } else if (closedNode->id == Html_p) {
+            // blockTagClosed may result in the creation of a
+            // new block
+            if (!closedNode->text.isEmpty())
+                blockTagClosed = true;
         }
 
         closedNode = &at(closedNode->parent);
