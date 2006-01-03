@@ -22,8 +22,8 @@
 class QTestEventLoop : public QObject
 {
 public:
-    inline QTestEventLoop(QObject *parent = 0)
-        : QObject(parent), inLoop(false), _timeout(false), timerId(-1), loop(0) {}
+    inline QTestEventLoop(QObject *aParent = 0)
+        : QObject(aParent), inLoop(false), _timeout(false), timerId(-1), loop(0) {}
     inline void enterLoop(int secs);
     inline void exitLoop();
 
