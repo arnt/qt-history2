@@ -869,7 +869,7 @@ void QTextEditPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRemov
     \row \i PageDown        \i Moves one (viewport) page down.
     \row \i Home        \i Moves to the beginning of the text.
     \row \i End                \i Moves to the end of the text.
-    \row \i Shift+Wheel
+    \row \i Alt+Wheel
          \i Scrolls the page horizontally (the Wheel is the mouse wheel).
     \row \i Ctrl+Wheel        \i Zooms the text.
     \endtable
@@ -946,7 +946,7 @@ void QTextEditPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRemov
     \row \i Ctrl+Home \i Moves the cursor to the beginning of the text.
     \row \i End \i Moves the cursor to the end of the line.
     \row \i Ctrl+End \i Moves the cursor to the end of the text.
-    \row \i Shift+Wheel \i Scrolls the page horizontally (the Wheel is the mouse wheel).
+    \row \i Alt+Wheel \i Scrolls the page horizontally (the Wheel is the mouse wheel).
     \row \i Ctrl+Wheel \i Zooms the text.
     \endtable
 
