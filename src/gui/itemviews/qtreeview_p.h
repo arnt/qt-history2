@@ -49,7 +49,7 @@ public:
           header(0), indent(20), itemHeight(-1),
           uniformRowHeights(false), rootDecoration(true),
           itemsExpandable(true), reexpand(-1),
-          columnResizeTimerID(0) {}
+          columnResizeTimerID(0), lastViewedItem(0) {}
 
     ~QTreeViewPrivate() {}
     void initialize();
@@ -98,6 +98,7 @@ public:
     int indent;
 
     mutable QVector<QTreeViewItem> viewItems;
+    mutable int lastViewedItem;
     int itemHeight; // this is just a number; contentsHeight() / numItems
     bool uniformRowHeights; // used when all rows have the same height
     bool rootDecoration;

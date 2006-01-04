@@ -154,33 +154,75 @@ void QItemDelegate::paint(QPainter *painter,
                           const QModelIndex &index) const
 {
     Q_ASSERT(index.isValid());
-    QStyleOptionViewItem opt = setOptions(index, option);
+
+    QStyleOptionViewItem opt = option;
+
+    // Set color group
+    opt.palette.setCurrentColorGroup(option.state & QStyle::State_Enabled
+                                     ? QPalette::Active : QPalette::Disabled);
+
+    // set font
+    QVariant value = index.data(Qt::FontRole);
+    if (value.isValid())
+        opt.font = qvariant_cast<QFont>(value);
+
+    // set text alignment
+    value = index.data(Qt::TextAlignmentRole);
+    if (value.isValid())
+        opt.displayAlignment = QFlag(value.toInt());
+
+    // set text color
+    value = index.data(Qt::TextColorRole);
+    if (value.isValid() && qvariant_cast<QColor>(value).isValid())
+        opt.palette.setColor(QPalette::Text, qvariant_cast<QColor>(value));
 
     // do layout
 
-    QPixmap pixmap = decoration(opt, index.data(Qt::DecorationRole));
+    // decoration
+    value = index.data(Qt::DecorationRole);
+    QPixmap pixmap = decoration(opt, value);
     QRect pixmapRect = (pixmap.isNull() ? QRect(0, 0, 0, 0)
                         : QRect(QPoint(0, 0), option.decorationSize));
 
+    // display
+    QRect textRect;
     QString text = index.data(Qt::DisplayRole).toString();
-    QRect textRect = textRectangle(painter, opt.rect, opt.font, text);
+    if (!text.isEmpty())
+    {
+        if (!text.contains(QLatin1Char('\n'))) {
+            QFontMetrics fontMetrics(opt.font);
+            textRect = QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
+        } else {
+            QRectF result;
+            qt_format_text(opt.font, option.rect, Qt::TextDontPrint|Qt::TextDontClip,
+                       text, &result, 0, 0, 0, painter);
+            textRect = result.toRect();
+        }
+    }
 
-    QVariant value = index.data(Qt::CheckStateRole);
+    // check
+    value = index.data(Qt::CheckStateRole);
     QRect checkRect = check(opt, opt.rect, value);
     Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
 
     doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
 
+    // draw the background color
+    if (option.showDecorationSelected && (option.state & QStyle::State_Selected)) {
+        QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
+                                  ? QPalette::Normal : QPalette::Disabled;
+        painter->fillRect(option.rect, option.palette.brush(cg, QPalette::Highlight));
+    } else {
+        value = index.data(Qt::BackgroundColorRole);
+        if (value.isValid() && qvariant_cast<QColor>(value).isValid())
+            painter->fillRect(option.rect, qvariant_cast<QColor>(value));
+    }
+
     // draw the item
-
-    drawBackground(painter, opt, index);
-
     if (checkRect.isValid())
         drawCheck(painter, opt, checkRect, checkState);
-
     if (pixmapRect.isValid())
         drawDecoration(painter, opt, pixmapRect, pixmap);
-
     if (!text.isEmpty()) {
         drawDisplay(painter, opt, textRect, text);
         drawFocus(painter, opt, textRect);
@@ -202,16 +244,35 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     if (value.isValid())
         return qvariant_cast<QSize>(value);
 
-    QString text = index.data(Qt::DisplayRole).toString();
+    // display
     value = index.data(Qt::FontRole);
+    QRect textRect;
     QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
-    QRect textRect = textRectangle(0, option.rect, fnt, text);
+    // In qt 4.2 there will be a proper option in QStyleOptionViewItem
+    // Not calling fontMetrics.width speeds up the code _significatly_
+    if (option.rect.width() == -1) {
+        QFontMetrics fontMetrics(fnt);
+        textRect = QRect(0, 0, 0, fontMetrics.lineSpacing());
+    } else {
+        QString text = index.data(Qt::DisplayRole).toString();
+        if (!text.contains(QLatin1Char('\n'))) {
+            QFontMetrics fontMetrics(fnt);
+            textRect = QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
+        } else {
+            QRectF result;
+            qt_format_text(fnt, option.rect, Qt::TextDontPrint|Qt::TextDontClip,
+                       text, &result, 0, 0, 0, 0);
+            textRect = result.toRect();
+        }
+    }
 
+    // decoration
     QRect pixmapRect;
     if (index.data(Qt::DecorationRole).isValid())
         pixmapRect = QRect(0, 0, option.decorationSize.width(),
                            option.decorationSize.height());
 
+    // checkbox
     QRect checkRect = check(option, textRect, index.data(Qt::CheckStateRole));
 
     doLayout(option, &checkRect, &pixmapRect, &textRect, true);
@@ -438,28 +499,6 @@ void QItemDelegate::drawCheck(QPainter *painter,
 }
 
 /*!
-    Renders the item background for the given \a index,
-    using the given \a painter and style \a option, using the
-    given \a state.
-*/
-
-void QItemDelegate::drawBackground(QPainter *painter,
-                                   const QStyleOptionViewItem &option,
-                                   const QModelIndex &index) const
-{
-    if (option.showDecorationSelected && (option.state & QStyle::State_Selected)) {
-        QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
-                                  ? QPalette::Normal : QPalette::Disabled;
-        painter->fillRect(option.rect, option.palette.brush(cg, QPalette::Highlight));
-    } else {
-        QVariant value = index.data(Qt::BackgroundColorRole);
-        if (value.isValid() && qvariant_cast<QColor>(value).isValid())
-            painter->fillRect(option.rect, qvariant_cast<QColor>(value));
-    }
-}
-
-
-/*!
     \internal
 */
 
@@ -650,6 +689,7 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
 /*!
   \internal
 */
+
 QRect QItemDelegate::check(const QStyleOptionViewItem &option,
                            const QRect &bounding, const QVariant &value) const
 {
@@ -660,24 +700,6 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
         return QApplication::style()->subElementRect(QStyle::SE_ViewItemCheckIndicator, &opt);
     }
     return QRect();
-}
-
-/*!
-  \internal
-*/
-QRect QItemDelegate::textRectangle(QPainter *painter, const QRect &rect,
-                                   const QFont &font, const QString &text) const
-{
-    if (text.isEmpty())
-        return QRect();
-    if (!text.contains(QLatin1Char('\n'))) {
-        QFontMetrics fontMetrics(font);
-        return QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
-    }
-    QRectF result;
-    qt_format_text(font, rect, Qt::TextDontPrint|Qt::TextDontClip,
-                   text, &result, 0, 0, 0, painter);
-    return result.toRect();
 }
 
 /*!
@@ -773,37 +795,6 @@ bool QItemDelegate::editorEvent(QEvent *event,
     }
 
     return false;
-}
-
-/*!
-  \internal
-*/
-
-QStyleOptionViewItem QItemDelegate::setOptions(const QModelIndex &index,
-                                               const QStyleOptionViewItem &option) const
-{
-    QStyleOptionViewItem opt = option;
-
-    // Set color group
-    opt.palette.setCurrentColorGroup(option.state & QStyle::State_Enabled
-                                     ? QPalette::Active : QPalette::Disabled);
-
-    // set font
-    QVariant value = index.data(Qt::FontRole);
-    if (value.isValid())
-        opt.font = qvariant_cast<QFont>(value);
-
-    // set text alignment
-    value = index.data(Qt::TextAlignmentRole);
-    if (value.isValid())
-        opt.displayAlignment = QFlag(value.toInt());
-
-    // set text color
-    value = index.data(Qt::TextColorRole);
-    if (value.isValid() && qvariant_cast<QColor>(value).isValid())
-        opt.palette.setColor(QPalette::Text, qvariant_cast<QColor>(value));
-
-    return opt;
 }
 
 #endif // QT_NO_ITEMVIEWS

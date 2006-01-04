@@ -400,14 +400,24 @@ void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
     Q_D(QTreeView);
     if (!model())
         return;
+    
     // set the height to be 0, so we get a new sizehint next time we ask for the row height
-    QModelIndex top = model()->sibling(topLeft.row(), 0, topLeft);
-    QModelIndex bottom = model()->sibling(bottomRight.row(), 0, bottomRight);
+    QModelIndex top = (topLeft.column() == 0) ? topLeft : model()->sibling(topLeft.row(), 0, topLeft);
     int topViewIndex = d->viewIndex(top);
-    int bottomViewIndex = d->viewIndex(bottom);
-    if (topViewIndex >= 0)
+    if (topViewIndex == -1)
+        return;
+    
+    if (topLeft == bottomRight) {
+        d->viewItems[topViewIndex].height = 0;
+    }
+    else {
+        QModelIndex bottom = (bottomRight.column() == 0) 
+            ? bottomRight : model()->sibling(bottomRight.row(), 0, bottomRight);
+        int bottomViewIndex = d->viewIndex(bottom);
         for (int i = topViewIndex; i <= bottomViewIndex; ++i)
             d->viewItems[i].height = 0;
+    }
+    
     QAbstractItemView::dataChanged(topLeft, bottomRight);
 }
 
@@ -595,11 +605,13 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
 
     d->executePostedLayout();
 
-    int x = columnViewportPosition(index.column());
-    int w = columnWidth(index.column());
     int vi = d->viewIndex(index);
     if (vi < 0)
         return QRect();
+    
+    int x = columnViewportPosition(index.column());
+    int w = columnWidth(index.column());
+    
     if (index.column() == 0) {
         int i = d->indentation(vi);
         x += i;
@@ -1565,6 +1577,8 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 
     int height = -1;
     QStyleOptionViewItem option = viewOptions();
+    // This is temporary hack to speed up the function and will go away in 4.2
+    option.rect.setWidth(-1);
     QAbstractItemDelegate *delegate = itemDelegate();
     for (int column = start; column <= end; ++column) {
         QModelIndex idx = index.sibling(index.row(), column);
@@ -1783,27 +1797,46 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
     if (!index.isValid())
         return -1;
 
+    int totalCount = viewItems.count();
+    QModelIndex parent = index.parent();
+    
+    // A quick check near the last item to see if we are just incrimenting
+    int start = lastViewedItem > 2 ? lastViewedItem - 2 : 0;
+    int end = lastViewedItem < totalCount - 2 ? lastViewedItem + 2 : totalCount;
+    for (int i = start; i < end; ++i) {
+        const QModelIndex idx = viewItems.at(i).index;
+        if (idx.row() == index.row()) {
+            if (idx.internalId() == index.internalId() || idx.parent() == parent) {// ignore column
+                lastViewedItem = i;
+                return i;
+            }
+        }
+    }
+
     // NOTE: this function is slow if the item is outside the visible area
     // search in visible items first and below
     int t = itemAt(q->verticalScrollBar()->value());
     t = t > 100 ? t - 100 : 0; // start 100 items above the visible area
-    
-    QModelIndex parent = index.parent();
-    for (int i = t; i < viewItems.count(); ++i)
-        if (viewItems.at(i).index.row() == index.row()) {
-            if (viewItems.at(i).index.internalId() == index.internalId()) // ignore column
+   
+    for (int i = t; i < totalCount; ++i) {
+        const QModelIndex idx = viewItems.at(i).index;
+        if (idx.row() == index.row()) {
+            if (idx.internalId() == index.internalId() || idx.parent() == parent) {// ignore column
+                lastViewedItem = i;
                 return i;
-            if (viewItems.at(i).index.parent() == parent) // ignore column
-                return i;
+            }
         }
+    }
     // search from top to first visible
-    for (int j = 0; j < t; ++j)
-        if (viewItems.at(j).index.row() == index.row()) {
-            if (viewItems.at(j).index.internalId() == index.internalId()) // ignore column
+    for (int j = 0; j < t; ++j) {
+        const QModelIndex idx = viewItems.at(j).index;
+        if (idx.row() == index.row()) {
+            if (idx.internalId() == index.internalId() || idx.parent() == parent) { // ignore column
+                lastViewedItem = j;
                 return j;
-            if (viewItems.at(j).index.parent() == parent) // ignore column
-                return j;
+            }
         }
+    }
     // nothing found
     return -1;
 }
