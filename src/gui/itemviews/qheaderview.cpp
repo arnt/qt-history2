@@ -410,6 +410,7 @@ int QHeaderView::sectionSize(int logicalIndex) const
     Q_D(const QHeaderView);
     if (isSectionHidden(logicalIndex))
         return 0;
+    
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
     return d->sectionSizeAt(visual);
@@ -780,7 +781,7 @@ bool QHeaderView::isMovable() const
 /*!
     If \a clickable is true, the header will respond to single clicks.
 
-    \sa isClickable()
+    \sa isClickable() showSortIndicator()
 */
 
 void QHeaderView::setClickable(bool clickable)
@@ -890,6 +891,8 @@ int QHeaderView::stretchSectionCount() const
 /*!
   \property QHeaderView::showSortIndicator
   \brief whether the sort indicator is shown
+
+  \sa setClickable()
 */
 
 void QHeaderView::setSortIndicatorShown(bool show)
