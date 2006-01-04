@@ -2135,7 +2135,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
             section_sizes.removeFirst();
         }
 
-        Q_ASSERT(newSectionLength > 0);
+        //Q_ASSERT(newSectionLength > 0);
         if (previousSectionLength != newSectionLength && i > 0) {
             int spanLength = (i - spanStartSection) * previousSectionLength;
             createSectionSpan(spanStartSection, i - 1, spanLength);
