@@ -46,10 +46,10 @@ public:
 
     QTreeViewPrivate()
         : QAbstractItemViewPrivate(),
-          header(0), indent(20), itemHeight(-1),
+          header(0), indent(20), lastViewedItem(0), itemHeight(-1), 
           uniformRowHeights(false), rootDecoration(true),
           itemsExpandable(true), reexpand(-1),
-          columnResizeTimerID(0), lastViewedItem(0) {}
+          columnResizeTimerID(0)  {}
 
     ~QTreeViewPrivate() {}
     void initialize();
