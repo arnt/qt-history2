@@ -582,8 +582,8 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     HGDIOBJ null_bitmap = SelectObject(hbitmap_hdc, hbitmap);
 
     QPointF topLeft = targetRect.topLeft() * d->painterMatrix;
-    int tx = qRound((topLeft.x() + d->origin_x) * d->stretch_x);
-    int ty = qRound((topLeft.y() + d->origin_y) * d->stretch_y);
+    int tx = qRound(topLeft.x() * d->stretch_x + d->origin_x);
+    int ty = qRound(topLeft.y() * d->stretch_x + d->origin_y);
     int tw = qRound(pixmap.width() * d->stretch_x);
     int th = qRound(pixmap.height() * d->stretch_y);
 
@@ -1144,11 +1144,19 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
         d->initialize();
         break;
 
-    case PPK_Resolution:
-        d->resolution = value.toInt();
-        d->stretch_x = d->resolution / double(d->dpi_display);
-        d->stretch_y = d->resolution / double(d->dpi_display);
-        // ### matrix update?
+    case PPK_Resolution: 
+        {
+            int oldRes = d->resolution;
+            d->resolution = value.toInt();
+
+            if (d->mode == QPrinter::ScreenResolution) {
+                d->stretch_x = d->resolution / double(d->dpi_display);
+                d->stretch_y = d->resolution / double(d->dpi_display);
+            } else {
+                d->stretch_x = d->stretch_x * double(oldRes) / double(d->resolution);
+                d->stretch_y = d->stretch_y * double(oldRes) / double(d->resolution);
+            }
+        }
         break;
 
     case PPK_SelectionOption:
