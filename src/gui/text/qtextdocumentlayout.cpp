@@ -1571,17 +1571,10 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
         QTextFrame *c = children.at(i);
         QTextFrameData *cd = data(c);
         if (cd->sizeDirty) {
-//            QSizeF oldsize = cd->size;
             layoutFrame(c, layoutFrom, layoutTo);
-//             if (oldsize != cd->size)
-//                 fullLayout = true;
-            newContentsWidth = qMax(newContentsWidth, cd->size.width());
         }
+        newContentsWidth = qMax(newContentsWidth, cd->size.width());
     }
-    // #### might need to relayout everything
-//     if (fd->contentsWidth != newContentsWidth) {
-//         ;
-//     }
 
     qreal margin = fd->margin + fd->border;
     QLayoutStruct layoutStruct;
