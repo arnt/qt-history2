@@ -1520,7 +1520,7 @@ int QTreeView::sizeHintForColumn(int column) const
     const QVector<QTreeViewItem> viewItems = d->viewItems;
     int v = verticalScrollBar()->value();
     int h = viewport()->height();
-    int i = d->itemAt(v);
+    int i = qMax(d->itemAt(v), 0);
     int c = viewItems.count();
     int s = d->height(i);
     int y = d->topItemDelta(v, s);
