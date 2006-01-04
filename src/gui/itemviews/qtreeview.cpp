@@ -398,26 +398,30 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
 void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     Q_D(QTreeView);
+
     if (!model())
         return;
+
+    // Set the height to be 0, so we get a new sizehint next time we ask for the row height
     
-    // set the height to be 0, so we get a new sizehint next time we ask for the row height
-    QModelIndex top = (topLeft.column() == 0) ? topLeft : model()->sibling(topLeft.row(), 0, topLeft);
+    QModelIndex top = (topLeft.column() == 0)
+                      ? topLeft
+                      : model()->sibling(topLeft.row(), 0, topLeft);
     int topViewIndex = d->viewIndex(top);
-    if (topViewIndex == -1)
-        return;
     
-    if (topLeft == bottomRight) {
-        d->viewItems[topViewIndex].height = 0;
+    if (topViewIndex != -1) {
+        if (topLeft == bottomRight) {
+            d->viewItems[topViewIndex].height = 0;
+        } else {
+            QModelIndex bottom = (bottomRight.column() == 0) 
+                                 ? bottomRight
+                                 : model()->sibling(bottomRight.row(), 0, bottomRight);
+            int bottomViewIndex = d->viewIndex(bottom);
+            for (int i = topViewIndex; i <= bottomViewIndex; ++i)
+                d->viewItems[i].height = 0;
+        }
     }
-    else {
-        QModelIndex bottom = (bottomRight.column() == 0) 
-            ? bottomRight : model()->sibling(bottomRight.row(), 0, bottomRight);
-        int bottomViewIndex = d->viewIndex(bottom);
-        for (int i = topViewIndex; i <= bottomViewIndex; ++i)
-            d->viewItems[i].height = 0;
-    }
-    
+
     QAbstractItemView::dataChanged(topLeft, bottomRight);
 }
 
