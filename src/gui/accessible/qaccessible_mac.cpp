@@ -608,11 +608,6 @@ static bool isItInteresting(const QInterfaceItem interface)
     if (!object)
         return false; 
     
-    // Not widget = boring.
-    const QWidget *widget = qobject_cast<const QWidget *>(object);
-    if (!widget)
-        return false; 
-    
     const QString className = object->metaObject()->className();
     
     // VoiceOver focusing on tool tips can be confusing. The contents of the
@@ -621,14 +616,17 @@ static bool isItInteresting(const QInterfaceItem interface)
     if (className == QLatin1String("QTipLabel"))
         return false; 
     
-    // Some roles are not interesting:
-   if (interface.role() == QAccessible::Client || // QWidget 
-       interface.role() == QAccessible::Border )  // QFrame 
+   const QAccessible::Role role = interface.role();
+   
+   // Some roles are not interesting:
+   if (role == QAccessible::Client ||    // QWidget 
+       role == QAccessible::Border ||    // QFrame 
+       role == QAccessible::Application) // We use the system-provided application element.
         return false; 
     
     // It is probably better to access the toolbar buttons directly than having 
     // to navigate through the toolbar.
-    if (interface.role() == QAccessible::ToolBar)
+    if (role == QAccessible::ToolBar)
         return false;
     
     // Mac accessibility does not have an attribute that corresponds to the Invisible state,
