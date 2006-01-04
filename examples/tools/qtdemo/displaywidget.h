@@ -53,6 +53,13 @@ private:
     bool updatesEnabled;
     QList<DisplayShape*> shapes;
     QBasicTimer timer;
+
+#if defined(Q_WS_X11)
+    int numFrames;
+    int frameTime;
+    int avgRate;
+    bool testDrawSpeed;
+#endif
 };
 
 #endif

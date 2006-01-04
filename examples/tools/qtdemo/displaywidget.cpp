@@ -13,12 +13,23 @@
 
 #include <QtGui>
 
+#if defined(Q_WS_X11)
+#include <QTime>
+#include <private/qt_x11_p.h>
+#endif
+
 #include "displayshape.h"
 #include "displaywidget.h"
 
 DisplayWidget::DisplayWidget(QWidget *parent)
     : QWidget(parent)
 {
+#if defined(Q_WS_X11)
+    frameTime = 0;
+    avgRate = 0;
+    numFrames = 0;
+    testDrawSpeed = true;
+#endif
     empty = true;
     emptying = false;
 
@@ -104,6 +115,12 @@ void DisplayWidget::mousePressEvent(QMouseEvent *event)
 
 void DisplayWidget::paintEvent(QPaintEvent *event)
 {
+#if defined(Q_WS_X11)
+    QTime renderTime;
+    if (testDrawSpeed)
+        renderTime.restart();
+#endif
+
     QPainter painter;
     painter.begin(this);
     painter.fillRect(event->rect(), Qt::white);
@@ -112,6 +129,31 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
             shape->paint(&painter);
     }
     painter.end();
+
+#if defined(Q_WS_X11)
+    if (testDrawSpeed) {
+        numFrames++;
+        frameTime += renderTime.elapsed();
+        avgRate = frameTime/numFrames;
+        if (numFrames > 20) {
+            if (avgRate > 20 && X11->use_xrender) {
+                timer.stop();
+                int result = QMessageBox::question(this,
+                                                   QObject::tr("Disable XRender?"),
+                                                   QObject::tr("Your XRender implementation does not appear to be accelerated.\n"
+                                                               "This may cause this demo to run very slowly.\n"
+                                                               "Do you wish to turn XRender support off in this demo to improve\n"
+                                                               "the frame rate?"),
+                                                   QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
+
+                if (result == QMessageBox::Yes)
+                    X11->use_xrender = false;
+                enableUpdates();
+            }
+            testDrawSpeed = false;
+        }
+    }
+#endif
 }
 
 void DisplayWidget::reset()
