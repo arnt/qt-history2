@@ -583,7 +583,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
 
     QPointF topLeft = targetRect.topLeft() * d->painterMatrix;
     int tx = qRound(topLeft.x() * d->stretch_x + d->origin_x);
-    int ty = qRound(topLeft.y() * d->stretch_x + d->origin_y);
+    int ty = qRound(topLeft.y() * d->stretch_y + d->origin_y);
     int tw = qRound(pixmap.width() * d->stretch_x);
     int th = qRound(pixmap.height() * d->stretch_y);
 
