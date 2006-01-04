@@ -1229,8 +1229,12 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 
 /*!
     Handles the \a data supplied by a drag and drop operation that ended with
-    the given \a action over the row in the model specified by the \a row,
-    \a column, and the \a parent index.
+    the given \a action.
+    Note that the coordinates given by row, column and parent are the coordinates where
+    the data should be inserted, so it is the responsibility of the view to 
+    transform the drop coordinates to the correct model coordinates.
+    (For instance, a drop action on an item in a QTreeView can result in one of these actions:
+    insert a child of the item or insert a sibling of the item)
 
     \sa supportedDropActions()
 */
