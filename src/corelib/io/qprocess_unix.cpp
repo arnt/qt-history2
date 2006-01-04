@@ -961,11 +961,11 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
                 ::execv(argv[0], argv);
             }
 
-            ::exit(1);
+            ::_exit(1);
         }
 
         ::chdir("/");
-        ::exit(1);
+        ::_exit(1);
     }
     int result;
     return (waitpid(childPid, &result, 0) && WIFEXITED(result));
