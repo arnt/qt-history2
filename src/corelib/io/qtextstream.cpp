@@ -602,6 +602,7 @@ bool QTextStreamPrivate::scan(const QChar **ptr, int *length, int maxlen, TokenD
     int startOffset = device ? readBufferOffset : stringOffset;
     QChar lastChar;
 
+    bool canStillReadFromDevice = true;
     do {
         int endOffset;
         const QChar *chPtr;
@@ -634,14 +635,14 @@ bool QTextStreamPrivate::scan(const QChar **ptr, int *length, int maxlen, TokenD
         }
     } while (!foundToken
              && (!maxlen || totalSize < maxlen)
-             && (device && fillReadBuffer()));
+             && (device && (canStillReadFromDevice = fillReadBuffer())));
 
     // if the token was not found, but we reached the end of input,
     // then we accept what we got. if we are not at the end of input,
     // we return false.
     if (!foundToken && (totalSize == 0
                         || (string && stringOffset + totalSize < string->size())
-                        || (device && !device->atEnd()))) {
+                        || (device && !device->atEnd() && canStillReadFromDevice))) {
 #if defined (QTEXTSTREAM_DEBUG)
         qDebug("QTextStreamPrivate::scan() did not find the token.");
 #endif
@@ -787,8 +788,11 @@ inline bool QTextStreamPrivate::putString(const QString &s)
     }
 
 #if defined (QTEXTSTREAM_DEBUG)
+    QByteArray a = s.toUtf8();
+    QByteArray b = tmp.toUtf8();
     qDebug("QTextStreamPrivate::putString(\"%s\") calls write(\"%s\")",
-           s.toLatin1().constData(), tmp.toLatin1().constData());
+           qt_prettyDebug(a.constData(), a.size(), qMax(16, a.size())).constData(),
+           qt_prettyDebug(b.constData(), b.size(), qMax(16, b.size())).constData());
 #endif
     return write(tmp);
 }
