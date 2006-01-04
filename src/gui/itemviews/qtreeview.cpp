@@ -604,7 +604,7 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
 
-    if (!index.isValid() || !isVisible() || isIndexHidden(index))
+    if (!index.isValid() || isIndexHidden(index))
         return QRect();
 
     d->executePostedLayout();

@@ -1062,7 +1062,7 @@ void QTableView::setGridStyle(Qt::PenStyle style)
 */
 QRect QTableView::visualRect(const QModelIndex &index) const
 {
-    if (!index.isValid() || !isVisible() || index.parent() != rootIndex() || isIndexHidden(index) )
+    if (!index.isValid() ||index.parent() != rootIndex() || isIndexHidden(index) )
         return QRect();
     
     d_func()->executePostedLayout();
