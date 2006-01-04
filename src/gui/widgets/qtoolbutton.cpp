@@ -586,7 +586,6 @@ QIcon QToolButton::offIconSet() const
   \obsolete
 
   Use setIcon() instead.
-
 */
 void QToolButton::setOnIconSet(const QIcon& set)
 {
@@ -595,7 +594,7 @@ void QToolButton::setOnIconSet(const QIcon& set)
       ### Get rid of all qWarning in this file in 4.0.
       Also consider inlining the obsolete functions then.
     */
-    qWarning("QToolButton::setOnIconSet(): This function is not supported"
+    qWarning("QToolButton::setOnIconSet: This function is not supported"
               " anymore");
 }
 
@@ -603,7 +602,6 @@ void QToolButton::setOnIconSet(const QIcon& set)
   \obsolete
 
   Use setIcon() instead.
-
 */
 void QToolButton::setOffIconSet(const QIcon& set)
 {
@@ -627,7 +625,7 @@ void QToolButton::setOffIconSet(const QIcon& set)
 void QToolButton::setIconSet(const QIcon & set, bool /* on */)
 {
     QAbstractButton::setIcon(set);
-    qWarning("QToolButton::setIconSet(): 'on' parameter ignored");
+    qWarning("QToolButton::setIconSet: Parameter 'on' ignored");
 }
 
 /*! \overload
@@ -718,7 +716,7 @@ void QToolButtonPrivate::popupTimerDone()
     if(menu) {
         actualMenu = menu;
         if (q->actions().size() > 1)
-            qWarning("QToolButton: menu in setMenu() overriding actions set in addAction!");
+            qWarning("QToolButton: Menu in setMenu() overriding actions set in addAction!");
     } else {
         actualMenu = new QMenu(q);
         QList<QAction*> actions = q->actions();
