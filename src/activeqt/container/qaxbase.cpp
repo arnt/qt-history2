@@ -992,7 +992,7 @@ bool QAxBase::setControl(const QString &c)
     if (!initialize(&d->ptr))
         d->initialized = true;
     if (isNull()) {
-        qWarning("QAxBase::setControl: requested control %s could not be instantiated.", c.toLatin1().data());
+        qWarning("QAxBase::setControl: requested control %s could not be instantiated", c.toLatin1().data());
         clear();
         return false;
     }
@@ -1606,7 +1606,7 @@ private:
             // fall through
         case QVariant::UserType:
             if (QMetaType::type(prop.first) == -1)
-                qWarning("Unsupported property type: %s", prop.first.data());
+                qWarning("QAxBase: Unsupported property type: %s", prop.first.data());
             break;
         default:
             prop.second |= vartype << 24;
@@ -1876,7 +1876,7 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
     return typeName;
 }
 
-#define VT_UNHANDLED(x) case VT_##x: qWarning("Unhandled Type %s", #x); str = #x; break;
+#define VT_UNHANDLED(x) case VT_##x: qWarning("QAxBase: Unhandled type %s", #x); str = #x; break;
 
 QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *info, const QByteArray &function)
 {
@@ -3188,14 +3188,14 @@ static bool checkHRESULT(HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QStr
     case S_OK:
         return true;
     case DISP_E_BADPARAMCOUNT:
-        qWarning("QAxBase: Error calling IDispatch member %s: Bad parameter count.", name.toLatin1().data());
+        qWarning("QAxBase: Error calling IDispatch member %s: Bad parameter count", name.toLatin1().data());
         return false;
     case DISP_E_BADVARTYPE:
-        qWarning("QAxBase: Error calling IDispatch member %s: Bad variant type.", name.toLatin1().data());
+        qWarning("QAxBase: Error calling IDispatch member %s: Bad variant type", name.toLatin1().data());
         return false;
     case DISP_E_EXCEPTION:
         {
-            qWarning("QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name.toLatin1().data());
+            qWarning("QAxBase: Error calling IDispatch member %s: Exception thrown by server", name.toLatin1().data());
             const QMetaObject *mo = that->metaObject();
             int exceptionSignal = mo->indexOfSignal("exception(int,QString,QString,QString)");
             if (exceptionSignal >= 0) {
@@ -3217,31 +3217,31 @@ static bool checkHRESULT(HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QStr
         }
         return false;
     case DISP_E_MEMBERNOTFOUND:
-        qWarning("QAxBase: Error calling IDispatch member %s: Member not found.", name.toLatin1().data());
+        qWarning("QAxBase: Error calling IDispatch member %s: Member not found", name.toLatin1().data());
         return false;
     case DISP_E_NONAMEDARGS:
-        qWarning("QAxBase: Error calling IDispatch member %s: No named arguments.", name.toLatin1().data());
+        qWarning("QAxBase: Error calling IDispatch member %s: No named arguments", name.toLatin1().data());
         return false;
     case DISP_E_OVERFLOW:
-        qWarning("QAxBase: Error calling IDispatch member %s: Overflow.", name.toLatin1().data());
+        qWarning("QAxBase: Error calling IDispatch member %s: Overflow", name.toLatin1().data());
         return false;
     case DISP_E_PARAMNOTFOUND:
-        qWarning("QAxBase: Error calling IDispatch member %s: Parameter %d not found.", name.toLatin1().data(), argerr);
+        qWarning("QAxBase: Error calling IDispatch member %s: Parameter %d not found", name.toLatin1().data(), argerr);
         return false;
     case DISP_E_TYPEMISMATCH:
-        qWarning("QAxBase: Error calling IDispatch member %s: Type mismatch in parameter %d.", name.toLatin1().data(), argerr);
+        qWarning("QAxBase: Error calling IDispatch member %s: Type mismatch in parameter %d", name.toLatin1().data(), argerr);
         return false;
     case DISP_E_UNKNOWNINTERFACE:
-        qWarning("QAxBase: Error calling IDispatch member %s: Unknown interface.", name.toLatin1().data());
+        qWarning("QAxBase: Error calling IDispatch member %s: Unknown interface", name.toLatin1().data());
         return false;
     case DISP_E_UNKNOWNLCID:
-        qWarning("QAxBase: Error calling IDispatch member %s: Unknown locale ID.", name.toLatin1().data());
+        qWarning("QAxBase: Error calling IDispatch member %s: Unknown locale ID", name.toLatin1().data());
         return false;
     case DISP_E_PARAMNOTOPTIONAL:
-        qWarning("QAxBase: Error calling IDispatch member %s: Non-optional parameter missing.", name.toLatin1().data());
+        qWarning("QAxBase: Error calling IDispatch member %s: Non-optional parameter missing", name.toLatin1().data());
         return false;
     default:
-        qWarning("QAxBase: Error calling IDispatch member %s: Unknown error.", name.toLatin1().data());
+        qWarning("QAxBase: Error calling IDispatch member %s: Unknown error", name.toLatin1().data());
         return false;
     }
 }
@@ -3350,7 +3350,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
 
             QVariantToVARIANT(qvar, arg, proptype);
             if (arg.vt == VT_EMPTY || arg.vt == VT_ERROR) {
-                qWarning("QAxBase::setProperty(): Unhandled property type %s", prop.typeName());
+                qWarning("QAxBase::setProperty: Unhandled property type %s", prop.typeName());
                 break;
             }
         }
@@ -3484,7 +3484,7 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
 {
     const QMetaObject *mo = metaObject();
     if (isNull() && mo->property(id + mo->propertyOffset()).name() != QByteArray("control")) {
-        qWarning("QAxBase::qt_metacall: Object is not initialized, or initialization failed!");
+        qWarning("QAxBase::qt_metacall: Object is not initialized, or initialization failed");
         return id;
     }
 
@@ -3558,13 +3558,13 @@ static void qax_noSuchFunction(int disptype, const QByteArray &name, const QByte
 bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &vars, QByteArray &type)
 {
     if (isNull()) {
-        qWarning("QAxBase::dynamicCallHelper: Object is not initialized, or initialization failed!");
+        qWarning("QAxBase::dynamicCallHelper: Object is not initialized, or initialization failed");
         return false;
     }
 
     IDispatch *disp = d->dispatch();
     if (!disp) {
-        qWarning("QAxBase::dynamicCallHelper: Object does not support automation!");
+        qWarning("QAxBase::dynamicCallHelper: Object does not support automation");
         return false;
     }
 
@@ -4001,7 +4001,7 @@ QAxObject *QAxBase::querySubObject(const char *name, QList<QVariant> &vars)
 #ifdef QT_CHECK_STATE
         {
             const char *coclass = metaObject()->classInfo(metaObject()->indexOfClassInfo("CoClass")).value();
-            qWarning("QAxBase::querySubObject: %s: error calling function or property in %s (%s)"
+            qWarning("QAxBase::querySubObject: %s: Error calling function or property in %s (%s)"
                 , name, control().toLatin1().data(), coclass ? coclass: "unknown");
         }
 #endif
@@ -4010,7 +4010,7 @@ QAxObject *QAxBase::querySubObject(const char *name, QList<QVariant> &vars)
 #ifdef QT_CHECK_STATE
         {
             const char *coclass = metaObject()->classInfo(metaObject()->indexOfClassInfo("CoClass")).value();
-            qWarning("QAxBase::querySubObject: %s: method or property is not of interface type in %s (%s)"
+            qWarning("QAxBase::querySubObject: %s: Method or property is not of interface type in %s (%s)"
                 , name, control().toLatin1().data(), coclass ? coclass: "unknown");
         }
 #endif

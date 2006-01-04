@@ -381,10 +381,10 @@ QAxScriptEngine::QAxScriptEngine(const QString &language, QAxScript *script)
 {
 #ifdef QT_CHECK_STATE
     if (language.isEmpty())
-        qWarning("QAxScriptEngine without language created!");
+        qWarning("QAxScriptEngine: created without language");
     
     if (!script_code)
-        qWarning("QAxScriptEngine without script created!");
+        qWarning("QAxScriptEngine: created without script");
 #endif
     setObjectName("QAxScriptEngine_" + language);
     disableClassInfo();
@@ -1100,8 +1100,8 @@ QVariant QAxScriptManager::call(const QString &function, const QVariant &var1,
     QAxScript *s = script(function);
     if (!s) {
 #ifdef QT_CHECK_STATE
-        qWarning("QAxScriptManager::call(%s): No script provides this function, or the function\n"
-            "\tis provided through an engine that does not support introspection.", function.latin1());
+        qWarning("QAxScriptManager::call: No script provides function %s, or this function\n"
+            "\tis provided through an engine that does not support introspection", function.latin1());
 #endif
         return QVariant();
     }
@@ -1119,8 +1119,8 @@ QVariant QAxScriptManager::call(const QString &function, QList<QVariant> &argume
     QAxScript *s = script(function);
     if (!s) {
 #ifdef QT_CHECK_STATE
-        qWarning("QAxScriptManager::call(%s): No script provides this function, or the function\n"
-            "\tis provided through an engine that does not support introspection.", function.latin1());
+        qWarning("QAxScriptManager::call: No script provides function %s, or this function\n"
+            "\tis provided through an engine that does not support introspection", function.latin1());
 #endif
         return QVariant();
     }

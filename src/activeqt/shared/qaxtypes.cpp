@@ -655,7 +655,7 @@ bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeN
 //        qVariantGet(var, *(void**)data, typeName);
         break;
     default:
-        qWarning("QVariantToVoidStar: Unhandled QVariant type.");
+        qWarning("QVariantToVoidStar: Unhandled QVariant type");
         return false;
     }
     

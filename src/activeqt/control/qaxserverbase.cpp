@@ -1812,62 +1812,62 @@ static bool checkHRESULT(HRESULT hres)
 	return true;
     case DISP_E_BADPARAMCOUNT:
 #if defined(QT_CHECK_STATE)
-	qWarning("QAxBase: Error calling IDispatch member %s: Bad parameter count.", name);
+	qWarning("QAxBase: Error calling IDispatch member %s: Bad parameter count", name);
 #endif
 	return false;
     case DISP_E_BADVARTYPE:
 #if defined(QT_CHECK_STATE)
-	qWarning("QAxBase: Error calling IDispatch member %s: Bad variant type.", name);
+	qWarning("QAxBase: Error calling IDispatch member %s: Bad variant type", name);
 #endif
 	return false;
     case DISP_E_EXCEPTION:
 #if defined(QT_CHECK_STATE)
-	    qWarning("QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name);
+	    qWarning("QAxBase: Error calling IDispatch member %s: Exception thrown by server", name);
 #endif
 	return false;
     case DISP_E_MEMBERNOTFOUND:
 #if defined(QT_CHECK_STATE)
-	qWarning("QAxBase: Error calling IDispatch member %s: Member not found.", name);
+	qWarning("QAxBase: Error calling IDispatch member %s: Member not found", name);
 #endif
 	return false;
     case DISP_E_NONAMEDARGS:
 #if defined(QT_CHECK_STATE)
-	qWarning("QAxBase: Error calling IDispatch member %s: No named arguments.", name);
+	qWarning("QAxBase: Error calling IDispatch member %s: No named arguments", name);
 #endif
 	return false;
     case DISP_E_OVERFLOW:
 #if defined(QT_CHECK_STATE)
-	qWarning("QAxBase: Error calling IDispatch member %s: Overflow.", name);
+	qWarning("QAxBase: Error calling IDispatch member %s: Overflow", name);
 #endif
 	return false;
     case DISP_E_PARAMNOTFOUND:
 #if defined(QT_CHECK_STATE)
-	qWarning("QAxBase: Error calling IDispatch member %s: Parameter not found.", name);
+	qWarning("QAxBase: Error calling IDispatch member %s: Parameter not found", name);
 #endif
 	return false;
     case DISP_E_TYPEMISMATCH:
 #if defined(QT_CHECK_STATE)
-	qWarning("QAxBase: Error calling IDispatch member %s: Type mismatch.", name);
+	qWarning("QAxBase: Error calling IDispatch member %s: Type mismatch", name);
 #endif
 	return false;
     case DISP_E_UNKNOWNINTERFACE:
 #if defined(QT_CHECK_STATE)
-	qWarning("QAxBase: Error calling IDispatch member %s: Unknown interface.", name);
+	qWarning("QAxBase: Error calling IDispatch member %s: Unknown interface", name);
 #endif
 	return false;
     case DISP_E_UNKNOWNLCID:
 #if defined(QT_CHECK_STATE)
-	qWarning("QAxBase: Error calling IDispatch member %s: Unknown locale ID.", name);
+	qWarning("QAxBase: Error calling IDispatch member %s: Unknown locale ID", name);
 #endif
 	return false;
     case DISP_E_PARAMNOTOPTIONAL:
 #if defined(QT_CHECK_STATE)
-	qWarning("QAxBase: Error calling IDispatch member %s: Non-optional parameter missing.", name);
+	qWarning("QAxBase: Error calling IDispatch member %s: Non-optional parameter missing", name);
 #endif
 	return false;
     default:
 #if defined(QT_CHECK_STATE)
-	qWarning("QAxBase: Error calling IDispatch member %s: Unknown error.", name);
+	qWarning("QAxBase: Error calling IDispatch member %s: Unknown error", name);
 #endif
 	return false;
     }
@@ -1973,7 +1973,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 	break;
     }
     if (pcount && !argv) {
-	qWarning("Internal Error: missing %d arguments in qt_metacall", pcount);
+	qWarning("QAxServerBase::qt_metacall: Missing %d arguments", pcount);
 	return false;
     }
     if (eventId == -1)

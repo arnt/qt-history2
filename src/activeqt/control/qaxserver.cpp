@@ -106,7 +106,7 @@ QString qAxInit()
 void qAxCleanup()
 {
     if (!initCount)
-        qWarning("qAxInit/Cleanup mismatch.");
+        qWarning("qAxInit/qAxCleanup mismatch");
     
     if (--initCount)
         return;
