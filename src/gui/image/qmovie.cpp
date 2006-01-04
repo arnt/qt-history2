@@ -492,6 +492,10 @@ bool QMoviePrivate::isValid() const
 */
 bool QMoviePrivate::jumpToFrame(int frameNumber)
 {
+    if (frameNumber < 0)
+        return false;
+    if (currentFrameNumber == frameNumber)
+        return true;
     nextFrameNumber = frameNumber;
     if (movieState == QMovie::Running)
         nextImageTimer.stop();
