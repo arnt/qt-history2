@@ -396,6 +396,8 @@ void QTableView::paintEvent(QPaintEvent *event)
             }
         } else {
             top = verticalHeader->visualIndexAt(area.top());
+            if (top == -1)
+                return; // no visible rows inside area
             alternateBase = (top & 1) && alternate;
         }
 
