@@ -2606,7 +2606,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             QRect checkRect(option->rect.left() + 7, option->rect.center().y() - 6, 13, 13);
             checkRect = visualRect(menuItem->direction, menuItem->rect, checkRect);
             if (checkable) {
-                if (menuItem->checkType & QStyleOptionMenuItem::Exclusive) {
+                if (menuItem->checkType & QStyleOptionMenuItem::Exclusive && menuItem->icon.isNull()) {
                     // Radio button
                     QImage image(qt_plastique_radio);
                     image.setColor(0, borderColor.rgba());
@@ -2657,8 +2657,8 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                         }
                     } else if (checked) {
                         int iconSize = qMax(menuItem->maxIconWidth, 20);
-                        QRect sunkenRect(option->rect.left() + 2,
-                                         option->rect.top() + (option->rect.height() - iconSize) / 2,
+                        QRect sunkenRect(option->rect.left() + 1,
+                                         option->rect.top() + (option->rect.height() - iconSize) / 2 + 1,
                                          iconSize, iconSize);
                         sunkenRect = visualRect(menuItem->direction, menuItem->rect, sunkenRect);
 
