@@ -23,7 +23,7 @@ QMutexPrivate::QMutexPrivate(QMutex::RecursionMode mode)
                          CreateEventA(0, FALSE, FALSE, 0)))
 {
     if (!event)
-        qWarning("QMutexPrivate::QMutexPrivate(): Creating event failed");
+        qWarning("QMutexPrivate::QMutexPrivate: Cannot create event");
 }
 
 QMutexPrivate::~QMutexPrivate()
@@ -35,7 +35,7 @@ ulong QMutexPrivate::self()
 void QMutexPrivate::wait()
 { 
     if (WaitForSingleObject(event, INFINITE) != WAIT_OBJECT_0)
-        qWarning("QMutexPrivate::wait(): Waiting on event failed");
+        qWarning("QMutexPrivate::wait: Waiting on event failed");
 }
 
 void QMutexPrivate::wakeUp()

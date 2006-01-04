@@ -252,7 +252,7 @@ bool QThread::wait(unsigned long time)
     QMutexLocker locker(&d->mutex);
 
     if (d->id == GetCurrentThreadId()) {
-        qWarning("Thread tried to wait on itself");
+        qWarning("QThread::wait: Thread tried to wait on itself");
         return false;
     }
     if (d->finished || !d->running)
@@ -313,7 +313,7 @@ void QThread::setPriority(Priority priority)
     Q_D(QThread);
     QMutexLocker locker(&d->mutex);
     if (!d->running) {
-        qWarning("QThread::setPriority(): cannot set priority, thread is not running");
+        qWarning("QThread::setPriority: Cannot set priority, thread is not running");
         return;
     }
 
@@ -362,11 +362,11 @@ void QThread::setPriority(Priority priority)
 
     case InheritPriority:
     default:
-        qWarning("QThread::setPriority(): argument cannot be InheritPriority");
+        qWarning("QThread::setPriority: Argument cannot be InheritPriority");
         return;
     }
 
     if (!SetThreadPriority(d->handle, prio)) {
-        qErrnoWarning("QThread::start: Failed to set thread priority");
+        qErrnoWarning("QThread::setPriority: Failed to set thread priority");
     }
 }

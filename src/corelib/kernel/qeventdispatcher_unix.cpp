@@ -217,7 +217,7 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
                     if (ret == -1 && errno == EBADF) {
                         // disable the invalid socket notifier
                         static const char *t[] = { "Read", "Write", "Exception" };
-                        qWarning("QSocketNotifier: invalid socket %d and type '%s', disabling...",
+                        qWarning("QSocketNotifier: Invalid socket %d and type '%s', disabling...",
                                  sn->fd, t[type]);
                         sn->obj->setEnabled(false);
                     }
@@ -491,7 +491,7 @@ void QEventDispatcherUNIX::registerSocketNotifier(QSocketNotifier *notifier)
         if (p->fd < sockfd)
             break;
         if (p->fd == sockfd) {
-            static const char *t[] = { "read", "write", "exception" };
+            static const char *t[] = { "Read", "Write", "Exception" };
             qWarning("QSocketNotifier: Multiple socket notifiers for "
                       "same socket %d and type %s", sockfd, t[type]);
         }

@@ -46,19 +46,19 @@ ulong QMutexPrivate::self()
 
 void QMutexPrivate::wait()
 {
-    report_error(pthread_mutex_lock(&mutex), "QMutex::lock()", "mutex lock");
+    report_error(pthread_mutex_lock(&mutex), "QMutex::lock", "mutex lock");
     while (!wakeup)
-        report_error(pthread_cond_wait(&cond, &mutex), "QMutex::lock()", "cv wait");
+        report_error(pthread_cond_wait(&cond, &mutex), "QMutex::lock", "cv wait");
     wakeup = false;
-    report_error(pthread_mutex_unlock(&mutex), "QMutex::lock()", "mutex unlock");
+    report_error(pthread_mutex_unlock(&mutex), "QMutex::lock", "mutex unlock");
 }
 
 void QMutexPrivate::wakeUp()
 {
-    report_error(pthread_mutex_lock(&mutex), "QMutex::unlock()", "mutex lock");
+    report_error(pthread_mutex_lock(&mutex), "QMutex::unlock", "mutex lock");
     wakeup = true;
-    report_error(pthread_cond_signal(&cond), "QMutex::unlock()", "cv signal");
-    report_error(pthread_mutex_unlock(&mutex), "QMutex::unlock()", "mutex unlock");
+    report_error(pthread_cond_signal(&cond), "QMutex::unlock", "cv signal");
+    report_error(pthread_mutex_unlock(&mutex), "QMutex::unlock", "mutex unlock");
 }
 
 #endif // QT_NO_THREAD

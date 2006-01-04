@@ -107,7 +107,7 @@ QWaitCondition::QWaitCondition()
 QWaitCondition::~QWaitCondition()
 {
     if (!d->queue.isEmpty()) {
-        qWarning("QWaitCondition: destroyed while threads are still waiting");
+        qWarning("QWaitCondition: Destroyed while threads are still waiting");
         qDeleteAll(d->queue);
     }
 
@@ -121,7 +121,7 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
         return false;
 
     if (mutex->d->recursive) {
-        qWarning("QWaitCondition::wait: Cannot wait on recursive mutexes.");
+        qWarning("QWaitCondition::wait: Cannot wait on recursive mutexes");
         return false;
     }
     return d->wait(mutex, time);

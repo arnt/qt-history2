@@ -175,7 +175,7 @@ void QMutex::lock()
     if (sentinel != 0) {
         if (!d->recursive || d->owner != self) {
             if (d->owner == self) {
-                qWarning("QMutex::lock(): Deadlock detected in thread %ld", d->owner);
+                qWarning("QMutex::lock: Deadlock detected in thread %ld", d->owner);
             }
 
             // didn't get the lock, wait for it
@@ -187,7 +187,7 @@ void QMutex::lock()
     }
     d->owner = self;
     ++d->count;
-    Q_ASSERT_X(d->count != 0, "QMutex::lock()", "Overflow in recursion counter");
+    Q_ASSERT_X(d->count != 0, "QMutex::lock", "Overflow in recursion counter");
 }
 
 /*!

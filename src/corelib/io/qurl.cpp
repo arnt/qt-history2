@@ -3823,7 +3823,7 @@ void QUrl::setPort(int port)
     QURL_UNSETFLAG(d->stateFlags, QUrlPrivate::Validated | QUrlPrivate::Normalized);
 
     if (port < 0 || port > 65535) {
-        qWarning("QUrl::setPort() called with out of range port");
+        qWarning("QUrl::setPort: Out of range");
         port = -1;
         return;
     }

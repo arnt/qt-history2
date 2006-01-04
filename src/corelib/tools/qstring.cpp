@@ -3136,7 +3136,7 @@ QByteArray qt_winQString2MB(const QChar *ch, int uclen)
         } else {
 #ifndef QT_NO_DEBUG
             // Fail.
-            qWarning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF-8)",
+            qWarning("WideCharToMultiByte: Cannot convert multibyte text (error %d): %s (UTF-8)",
                 r, QString(ch, uclen).toLocal8Bit().data());
 #endif
             break;
@@ -3161,7 +3161,7 @@ QString qt_winMB2QString(const char *mb, int mblen)
         int r = GetLastError();
         if (r == ERROR_INSUFFICIENT_BUFFER) {
             if (wc != wc_auto) {
-                qWarning("Size changed in MultiByteToWideChar");
+                qWarning("MultiByteToWideChar: Size changed");
                 break;
             } else {
                 wclen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED,
@@ -3171,7 +3171,7 @@ QString qt_winMB2QString(const char *mb, int mblen)
             }
         } else {
             // Fail.
-            qWarning("MultiByteToWideChar cannot convert multibyte text");
+            qWarning("MultiByteToWideChar: Cannot convert multibyte text");
             break;
         }
     }
@@ -4703,7 +4703,7 @@ quint64 QString::toULongLong(bool *ok, int base) const
 {
 #if defined(QT_CHECK_RANGE)
     if (base != 0 && (base < 2 || base > 36)) {
-        qWarning("QString::toULongLong: Invalid base %d", base);
+        qWarning("QString::toULongLong: Invalid base (%d)", base);
         base = 10;
     }
 #endif
@@ -5089,7 +5089,7 @@ QString &QString::setNum(qlonglong n, int base)
 {
 #if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
-        qWarning("QString::setNum: Invalid base %d", base);
+        qWarning("QString::setNum: Invalid base (%d)", base);
         base = 10;
     }
 #endif
@@ -5105,7 +5105,7 @@ QString &QString::setNum(qulonglong n, int base)
 {
 #if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
-        qWarning("QString::setNum: Invalid base %d", base);
+        qWarning("QString::setNum: Invalid base (%d)", base);
         base = 10;
     }
 #endif
@@ -5619,7 +5619,7 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     ArgEscapeData d = findArgEscapes(*this);
 
     if (d.occurrences == 0) {
-        qWarning("QString::arg(): Argument missing: %s, %s", toLocal8Bit().data(),
+        qWarning("QString::arg: Argument missing: %s, %s", toLocal8Bit().data(),
                   a.toLocal8Bit().data());
         return *this;
     }
@@ -5754,7 +5754,7 @@ QString QString::arg(qlonglong a, int fieldWidth, int base, const QChar &fillCha
     ArgEscapeData d = findArgEscapes(*this);
 
     if (d.occurrences == 0) {
-        qWarning("QString::arg(): Argument missing: %s, %lld", toLocal8Bit().data(), a);
+        qWarning("QString::arg: Argument missing: %s, %lld", toLocal8Bit().data(), a);
         return *this;
     }
 
@@ -5783,7 +5783,7 @@ QString QString::arg(qulonglong a, int fieldWidth, int base, const QChar &fillCh
     ArgEscapeData d = findArgEscapes(*this);
 
     if (d.occurrences == 0) {
-        qWarning("QString::arg(): Argument missing: %s, %llu", toLocal8Bit().data(), a);
+        qWarning("QString::arg: Argument missing: %s, %llu", toLocal8Bit().data(), a);
         return *this;
     }
 
@@ -5879,7 +5879,7 @@ QString QString::arg(double a, int fieldWidth, char fmt, int prec, const QChar &
     ArgEscapeData d = findArgEscapes(*this);
 
     if (d.occurrences == 0) {
-        qWarning("QString::arg(): Argument missing: %s, %g", toLocal8Bit().data(), a);
+        qWarning("QString::arg: Argument missing: %s, %g", toLocal8Bit().data(), a);
         return *this;
     }
 
@@ -5953,7 +5953,7 @@ QString QString::multiArg(int numArgs, const QString **args) const
         } while (lastDigit < 10 && digitUsed[lastDigit] == 0);
 
         if (lastDigit == 10) {
-            qWarning("QString::arg(): Argument missing: %s, %s", toLocal8Bit().data(), args[i]->toLocal8Bit().data());
+            qWarning("QString::arg: Argument missing: %s, %s", toLocal8Bit().data(), args[i]->toLocal8Bit().data());
             numArgs = i;
             lastDigit = 9;
             break;

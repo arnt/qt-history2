@@ -22,7 +22,7 @@
 #define CHECK_MAXLEN(function, returnType) \
     do { \
         if (maxSize < 0) { \
-            qWarning("QIODevice::"#function" called with maxSize < 0"); \
+            qWarning("QIODevice::"#function": Called with maxSize < 0"); \
             return returnType; \
         } \
     } while (0)
@@ -30,7 +30,7 @@
 #define CHECK_WRITABLE(function, returnType) \
    do { \
        if ((d->openMode & WriteOnly) == 0) { \
-           qWarning("QIODevice::"#function" called on a ReadOnly device"); \
+           qWarning("QIODevice::"#function": ReadOnly device"); \
            return returnType; \
        } \
    } while (0)
@@ -38,7 +38,7 @@
 #define CHECK_READABLE(function, returnType) \
    do { \
        if ((d->openMode & ReadOnly) == 0) { \
-           qWarning("QIODevice::"#function" called on a WriteOnly device"); \
+           qWarning("QIODevice::"#function": WriteOnly device"); \
            return returnType; \
        } \
    } while (0)
@@ -734,7 +734,7 @@ qint64 QIODevice::readLine(char *data, qint64 maxSize)
 {
     Q_D(QIODevice);
     if (maxSize < 2) {
-        qWarning("QIODevice::readLine() called with maxSize < 2");
+        qWarning("QIODevice::readLine: Called with maxSize < 2");
         return qint64(-1);
     }
 

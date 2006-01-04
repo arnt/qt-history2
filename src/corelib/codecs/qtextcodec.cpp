@@ -292,7 +292,7 @@ static QTextCodec * ru_RU_hack(const char * i) {
     } else {
         // something else again... let's assume... *throws dice*
         ru_RU_codec = QTextCodec::codecForName("KOI8-R");
-        qWarning("QTextCodec: using KOI8-R, probe failed (%02x %02x %s)",
+        qWarning("QTextCodec: Using KOI8-R, probe failed (%02x %02x %s)",
                   koi8r, latin5, i);
     }
     setlocale(LC_CTYPE, origlocale);
@@ -664,7 +664,7 @@ QTextCodec::QTextCodec()
 QTextCodec::~QTextCodec()
 {
     if (!destroying_is_ok)
-        qWarning("QTextCodec::~QTextCodec() called by application");
+        qWarning("QTextCodec::~QTextCodec: Called by application");
     if (all)
         all->removeAll(this);
 }

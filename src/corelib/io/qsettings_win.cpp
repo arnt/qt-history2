@@ -143,7 +143,7 @@ static HKEY createOrOpenKey(HKEY parentHandle, REGSAM perms, const QString &rSub
     if (res == ERROR_SUCCESS)
         return resultHandle;
 
-    //qWarning("QSettings: failed to create subkey \"%s\": %s",
+    //qWarning("QSettings: Failed to create subkey \"%s\": %s",
     //        rSubKey.toLatin1().data(), errorCodeToString(res).toLatin1().data());
 
     return 0;
@@ -545,7 +545,7 @@ bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QVa
         }
 
         default:
-            qWarning("QSettings: unknown data %d type in windows registry", static_cast<int>(dataType));
+            qWarning("QSettings: Unknown data %d type in Windows registry", static_cast<int>(dataType));
             if (value != 0)
                 *value = QVariant();
             break;
@@ -576,7 +576,7 @@ QWinSettingsPrivate::~QWinSettingsPrivate()
             res = RegDeleteKeyA(writeHandle(), emptyKey.toLocal8Bit());
         } );
         if (res != ERROR_SUCCESS) {
-            qWarning("QSettings: failed to delete key \"%s\": %s",
+            qWarning("QSettings: Failed to delete key \"%s\": %s",
                     regList.at(0).key().toLatin1().data(), errorCodeToString(res).toLatin1().data());
         }
     }

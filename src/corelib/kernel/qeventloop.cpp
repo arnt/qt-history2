@@ -81,9 +81,9 @@ QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate, parent)
 {
     if (!QCoreApplication::instance())
-        qWarning("QEventLoop cannot be used without QApplication");
+        qWarning("QEventLoop: Cannot be used without QApplication");
     else if (!thread())
-        qWarning("QEventLoop can only be used with threads started with QThread");
+        qWarning("QEventLoop: Can only be used with threads started with QThread");
 }
 
 /*!

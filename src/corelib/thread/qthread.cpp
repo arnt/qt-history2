@@ -22,7 +22,6 @@
 
 #include "qthread_p.h"
 
-
 /*
   QThreadData
 */
@@ -251,7 +250,7 @@ QThread::~QThread()
     {
         QMutexLocker locker(&d->mutex);
         if (d->running && !d->finished)
-            qWarning("QThread object destroyed while thread is still running.");
+            qWarning("QThread: Destroyed while thread is still running");
     }
 
     QThreadIdHash *idHash = threadIdHash();

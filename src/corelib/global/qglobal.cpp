@@ -1524,7 +1524,7 @@ static QSysInfo::WinVersion winVersion()
         } else if (osver.dwMinorVersion == 2) {
             winver = QSysInfo::WV_2003;
         } else {
-            qWarning("Untested Windows version detected!");
+            qWarning("Qt: Untested Windows version detected!");
             winver = QSysInfo::WV_NT_based;
         }
     }

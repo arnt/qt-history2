@@ -79,7 +79,7 @@ QFilePrivate::openExternalFile(int flags, FILE *fh)
     fe->setFileName(fileName);
     fileEngine = fe;
     if (flags & QIODevice::Unbuffered)
-        qWarning("QFile::open() QIODevice::Unbuffered is incompatible with FILE *; ignoring");
+        qWarning("QFile::open: QIODevice::Unbuffered is incompatible with FILE *; ignoring");
     return fe->open(QIODevice::OpenMode(flags & ~QIODevice::Unbuffered), fh);
 }
 
@@ -360,7 +360,7 @@ QFile::setFileName(const QString &name)
 {
     Q_D(QFile);
     if (isOpen()) {
-        qWarning("QFile::setFileName: file is already opened");
+        qWarning("QFile::setFileName: File is already opened");
         close();
     }
     if(d->fileEngine) { //get a new file engine later

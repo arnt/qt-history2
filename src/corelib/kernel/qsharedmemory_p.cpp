@@ -18,7 +18,6 @@
 #include <sys/shm.h>
 
 
-
 QSharedMemory::QSharedMemory()
     : shmBase(0), shmSize(0), character(0),  shmId(-1), key(-1)
 {

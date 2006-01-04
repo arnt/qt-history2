@@ -618,7 +618,7 @@ QObject::~QObject()
     Q_D(QObject);
     if (d->wasDeleted) {
 #if defined(QT_DEBUG)
-        qWarning("Double QObject deletion detected");
+        qWarning("QObject: Double deletion detected");
 #endif
         return;
     }
@@ -1305,18 +1305,18 @@ int QObject::startTimer(int interval)
     Q_D(QObject);
     QThread *thr = thread();
     if (!thr && d->thread != 0) {
-        qWarning("QTimer can only be used with a valid thread");
+        qWarning("QObject::startTimer: QTimer can only be used with a valid thread");
         return 0;
     }
     if (interval < 0) {
-        qWarning("QTimer cannot have a negative interval");
+        qWarning("QObject::startTimer: QTimer cannot have a negative interval");
         return 0;
     }
 
     d->pendTimer = true;                                // set timer flag
     QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thr);
     if (!eventDispatcher) {
-        qWarning("QTimer can only be used with threads started with QThread");
+        qWarning("QObject::startTimer: QTimer can only be used with threads started with QThread");
         return 0;
     }
     return eventDispatcher->registerTimer(interval, this);
@@ -1336,7 +1336,7 @@ void QObject::killTimer(int id)
     Q_D(QObject);
     QThread *thr = thread();
     if (!thr && d->thread != 0) {
-        qWarning("QTimer can only be used with a valid thread");
+        qWarning("QObject::killTimer: QTimer can only be used with a valid thread");
         return;
     }
 
@@ -2106,7 +2106,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
 
     if (sender == 0 || receiver == 0 || signal == 0 || method == 0) {
 #ifndef QT_NO_DEBUG
-        qWarning("Object::connect: Cannot connect %s::%s to %s::%s",
+        qWarning("QObject::connect: Cannot connect %s::%s to %s::%s",
                  sender ? sender->metaObject()->className() : "(null)",
                  signal ? signal+1 : "(null)",
                  receiver ? receiver->metaObject()->className() : "(null)",
@@ -2179,7 +2179,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
     }
 #ifndef QT_NO_DEBUG
     if (!QMetaObject::checkConnectArgs(signal, method)) {
-        qWarning("Object::connect: Incompatible sender/receiver arguments"
+        qWarning("QObject::connect: Incompatible sender/receiver arguments"
                  "\n\t%s::%s --> %s::%s",
                  sender->metaObject()->className(), signal,
                  receiver->metaObject()->className(), method);
@@ -2199,9 +2199,9 @@ bool QObject::connect(const QObject *sender, const char *signal,
         if (warnCompat) {
             if(smethod.attributes() & QMetaMethod::Compatibility) {
                 if (!(rmethod.attributes() & QMetaMethod::Compatibility))
-                    qWarning("Object::connect: Connecting from COMPAT signal (%s::%s).", smeta->className(), signal);
+                    qWarning("QObject::connect: Connecting from COMPAT signal (%s::%s)", smeta->className(), signal);
             } else if(rmethod.attributes() & QMetaMethod::Compatibility && membcode != QSIGNAL_CODE) {
-                qWarning("Object::connect: Connecting from %s::%s to COMPAT slot (%s::%s).",
+                qWarning("QObject::connect: Connecting from %s::%s to COMPAT slot (%s::%s)",
                          smeta->className(), signal, rmeta->className(), method);
             }
         }
@@ -2557,7 +2557,7 @@ void QMetaObject::connectSlotsByName(QObject *o)
             while (mo->method(i + 1).attributes() & QMetaMethod::Cloned)
                   ++i;
         } else if (!(mo->method(i).attributes() & QMetaMethod::Cloned)) {
-            qWarning("QMetaObject::connectSlotsByName(): No matching signal for %s", slot);
+            qWarning("QMetaObject::connectSlotsByName: No matching signal for %s", slot);
         }
     }
 }
@@ -2737,7 +2737,7 @@ bool QObject::setProperty(const char *name, const QVariant &value)
     QMetaProperty p = meta->property(id);
 #ifndef QT_NO_DEBUG
     if (!p.isWritable())
-        qWarning("%s::setProperty(\"%s\", value) failed: property invalid,"
+        qWarning("%s::setProperty: Property \"%s\" invalid,"
                  " read-only or does not exist", metaObject()->className(), name);
 #endif
     return p.write(this, value);
@@ -2763,8 +2763,7 @@ QVariant QObject::property(const char *name) const
     QMetaProperty p = meta->property(id);
 #ifndef QT_NO_DEBUG
     if (!p.isReadable())
-        qWarning("%s::property(\"%s\") failed:"
-                 " property invalid or does not exist",
+        qWarning("%s::property: Property \"%s\" invalid or does not exist",
                  metaObject()->className(), name);
 #endif
     return p.read(this);

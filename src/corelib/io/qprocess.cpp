@@ -673,7 +673,7 @@ QProcess::~QProcess()
 {
     Q_D(QProcess);
     if (d->processState != NotRunning) {
-        qWarning("QProcess object destroyed while process is still running.");
+        qWarning("QProcess: Destroyed while process is still running.");
         kill();
         waitForFinished();
     }
@@ -1236,7 +1236,7 @@ void QProcess::start(const QString &program, const QStringList &arguments, OpenM
 {
     Q_D(QProcess);
     if (d->processState != NotRunning) {
-        qWarning("QProcess::start() called when a process is already running.");
+        qWarning("QProcess::start: Process is already running");
         return;
     }
 

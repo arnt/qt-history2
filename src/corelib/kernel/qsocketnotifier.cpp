@@ -100,7 +100,7 @@ QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent)
 
     QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
     if (!eventDispatcher) {
-        qWarning("QSocketNotifier can only be used with threads started with QThread");
+        qWarning("QSocketNotifier: Can only be used with threads started with QThread");
     } else {
         eventDispatcher->registerSocketNotifier(this);
     }
@@ -137,7 +137,7 @@ QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent,
 
     QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
     if (!eventDispatcher) {
-        qWarning("QSocketNotifier can only be used with threads started with QThread");
+        qWarning("QSocketNotifier: Can only be used with threads started with QThread");
     } else {
         eventDispatcher->registerSocketNotifier(this);
     }

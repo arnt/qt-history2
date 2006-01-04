@@ -232,7 +232,7 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
         }
     }
     if(closedir(dir) != 0) {
-        qWarning("QDir::readDirEntries: Cannot close the directory: %s", d->file.toLocal8Bit().data());
+        qWarning("QDir::readDirEntries: Cannot close  directory: %s", d->file.toLocal8Bit().data());
     }
     return ret;
 }

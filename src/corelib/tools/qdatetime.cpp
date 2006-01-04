@@ -3797,7 +3797,7 @@ int QDateTimeParser::sectionMaxSize(Section s, int count) const
 
     case Internal:
     case TimeSectionMask:
-    case DateSectionMask: qWarning("Invalid section %s", sectionName(s).toLatin1().constData());
+    case DateSectionMask: qWarning("QDateTimeParser::sectionMaxSize: Invalid section %s", sectionName(s).toLatin1().constData());
     }
     return -1;
 }
@@ -4817,7 +4817,7 @@ int QDateTimeParser::dateTimeCompare(const QVariant &arg1, const QVariant &arg2)
 {
     if ((arg1.type() == QVariant::Time && arg2.type() == QVariant::Date)
         || (arg1.type() == QVariant::Date && arg2.type() == QVariant::Time)) {
-        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
+        qWarning("QDateTimeParser::dateTimeCompare: Different types (%s vs. %s)",
                  arg1.typeName(), arg2.typeName());
     }
     switch (arg2.type()) {
@@ -4848,8 +4848,8 @@ int QDateTimeParser::dateTimeCompare(const QVariant &arg1, const QVariant &arg2)
         }
     default: break;
     }
-    qWarning("%s:%d Not supported types (%s, %s). This should not happen",
-             __FILE__, __LINE__, arg1.typeName(), arg2.typeName());
+    qWarning("QDateTimeParser::dateTimeCompare: Unsupported types (%s, %s)",
+             arg1.typeName(), arg2.typeName());
 
     return -2;
 }

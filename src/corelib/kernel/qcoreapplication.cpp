@@ -60,7 +60,7 @@ bool QCoreApplicationPrivate::checkInstance(const char *function)
 {
     bool b = (QCoreApplication::self != 0);
     if (!b)
-        qWarning("QApplication::%s() failed: please instantiate the QApplication object first.", function);
+        qWarning("QApplication::%s: Please instantiate the QApplication object first", function);
     return b;
 }
 
@@ -637,12 +637,12 @@ int QCoreApplication::exec()
         return -1;
     QThread *currentThread = QThread::currentThread();
     if (currentThread != self->thread()) {
-        qWarning("QApplication::exec() failed: must be called from the main thread.");
+        qWarning("QCoreApplication::exec: Must be called from the main thread");
         return -1;
     }
     QThreadData *data = QThreadData::get(currentThread);
     if (!data->eventLoops.isEmpty()) {
-        qWarning("QApplication::exec() failed: the event loop is already running.");
+        qWarning("QCoreApplication::exec: The event loop is already running");
         return -1;
     }
     data->quitNow = false;
@@ -1069,7 +1069,7 @@ void QCoreApplicationPrivate::removePostedEvent(QEvent * event)
 
     if (data->postEventList.size() == 0) {
 #if defined(QT_DEBUG)
-        qDebug("QCoreApplication::removePostedEvent: %p %d is posted: impossible",
+        qDebug("QCoreApplication::removePostedEvent: Internal error: %p %d is posted",
                 (void*)event, event->type());
         return;
 #endif
@@ -1079,7 +1079,7 @@ void QCoreApplicationPrivate::removePostedEvent(QEvent * event)
         const QPostEvent & pe = data->postEventList.at(i);
         if (pe.event == event) {
 #ifndef QT_NO_DEBUG
-            qWarning("QEvent: Warning: event of type %d deleted while posted to %s %s",
+            qWarning("QCoreApplication::removePostedEvent: Event of type %d deleted while posted to %s %s",
                      event->type(),
                      pe.receiver ? pe.receiver->metaObject()->className() : "null",
                      pe.receiver ? pe.receiver->objectName().toLocal8Bit().data() : "object");
@@ -1299,7 +1299,7 @@ QString QCoreApplication::translate(const char *context, const char *sourceText,
 QString QCoreApplication::applicationDirPath()
 {
     if (!self) {
-        qWarning("QApplication::applicationDirPath() failed: please instantiate the QApplication object first");
+        qWarning("QCoreApplication::applicationDirPath: Please instantiate the QApplication object first");
         return QString();
     }
     return QFileInfo(applicationFilePath()).path();
@@ -1321,7 +1321,7 @@ QString QCoreApplication::applicationDirPath()
 QString QCoreApplication::applicationFilePath()
 {
     if (!self) {
-        qWarning("QApplication::applicationFilePath() failed: please instantiate the QApplication object first");
+        qWarning("QCoreApplication::applicationFilePath: Please instantiate the QApplication object first");
         return QString();
     }
 #if defined( Q_WS_WIN )
@@ -1398,7 +1398,7 @@ QString QCoreApplication::applicationFilePath()
 int QCoreApplication::argc()
 {
     if (!self) {
-        qWarning("QApplication::argc() failed: please instantiate the QApplication object first");
+        qWarning("QCoreApplication::argc: Please instantiate the QApplication object first");
         return 0;
     }
     return self->d_func()->argc;
@@ -1413,7 +1413,7 @@ int QCoreApplication::argc()
 char **QCoreApplication::argv()
 {
     if (!self) {
-        qWarning("QApplication::argv() failed: please instantiate the QApplication object first");
+        qWarning("QCoreApplication::argv: Please instantiate the QApplication object first");
         return 0;
     }
     return self->d_func()->argv;
@@ -1445,7 +1445,7 @@ QStringList QCoreApplication::arguments()
     QStringList list;
 
     if (!self) {
-        qWarning("QApplication::arguments() failed: please instantiate the QApplication object first");
+        qWarning("QCoreApplication::arguments: Please instantiate the QApplication object first");
         return list;
     }
 #ifdef Q_OS_WIN
@@ -1819,7 +1819,7 @@ int QCoreApplication::enter_loop()
 {
     QThread *currentThread = QThread::currentThread();
     if (currentThread != mainThread()) {
-        qWarning("QApplication::enter_loop() failed: must be called from the main thread.");
+        qWarning("QCoreApplication::enter_loop: Must be called from the main thread");
         return -1;
     }
     QEventLoop eventLoop;
@@ -1836,7 +1836,7 @@ void QCoreApplication::exit_loop()
 {
     QThread *currentThread = QThread::currentThread();
     if (currentThread != mainThread()) {
-        qWarning("QApplication::exit_loop() failed: must be called from the main thread.");
+        qWarning("QCoreApplication::exit_loop: Must be called from the main thread");
         return;
     }
     QThreadData *data = QThreadData::get(currentThread);

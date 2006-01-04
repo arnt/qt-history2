@@ -292,7 +292,7 @@ QResourceInfo::loadResource(const QString &path)
             if(related.isEmpty())
                 container = res.isContainer(path);
             else if(res.isContainer(path) != container)
-                qWarning("Resource [%s] has both data and children!", file.toLatin1().constData());
+                qWarning("QResource: Resource [%s] has both data and children!", file.toLatin1().constData());
             related.append(res);
         }
     }
@@ -503,7 +503,7 @@ bool QResourceFileEngine::open(QIODevice::OpenMode flags)
 {
     Q_D(QResourceFileEngine);
     if (d->resource.fileName().isEmpty()) {
-        qWarning("QFSFileEngine::open: No file name specified");
+        qWarning("QResourceFileEngine::open: Missing file name");
         return false;
     }
     if(flags & QIODevice::WriteOnly)

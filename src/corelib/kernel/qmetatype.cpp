@@ -289,7 +289,7 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
 
     if (idx) {
         if (idx < User) {
-            qWarning("cannot re-register basic type '%s'", typeName);
+            qWarning("QMetaType: Cannot re-register basic type '%s'", typeName);
             return -1;
         }
         (*ct)[idx - User].setData(constructor, destructor);

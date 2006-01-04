@@ -974,7 +974,7 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
     } else {
         if (ret.data()) {
             qWarning("QMetaObject::invokeMethod: Unable to invoke methods with return values in queued "
-                     "connections.");
+                     "connections");
             return false;
         }
         int nargs = 1; // include return type

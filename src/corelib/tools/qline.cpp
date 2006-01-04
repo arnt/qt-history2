@@ -459,7 +459,7 @@ QLineF QLineF::unitVector() const
 
 #ifndef QT_NO_DEBUG
     if (qAbs(f.length() - 1) >= 0.001)
-        qWarning("QLine::unitVector(), new line does not have length of 1");
+        qWarning("QLine::unitVector: New line does not have unit length");
 #endif
 
     return f;

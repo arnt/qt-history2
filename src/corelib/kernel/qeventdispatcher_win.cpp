@@ -135,7 +135,7 @@ QEventDispatcherWin32Private::QEventDispatcherWin32Private()
     wakeUpNotifier.setHandle(QT_WA_INLINE(CreateEventW(0, FALSE, FALSE, 0),
                                           CreateEventA(0, FALSE, FALSE, 0)));
     if (!wakeUpNotifier.handle())
-        qWarning("QEventDispatcherWin32Private::QEventDispatcherWin32Private(): Creating wakeup event failed");
+        qWarning("QEventDispatcher: Creating QEventDispatcherWin32Private wakeup event failed");
 
     QT_WA({
         WM_QT_SYSTEM_QUEUE_END_MARK = RegisterWindowMessageW(L"WM_QT_SYSTEM_QUEUE_END_MARK");
@@ -346,7 +346,7 @@ static HWND qt_create_internal_window(const QEventDispatcherWin32 *eventDispatch
 #endif
 
     if (!wnd) {
-        qWarning("Failed to create QEventDispatcherWin32 internal window: %d\n", (int)GetLastError());
+        qWarning("QEventDispatcher: Failed to create QEventDispatcherWin32 internal window: %d\n", (int)GetLastError());
     }
     return wnd;
 }
@@ -504,7 +504,7 @@ bool QEventDispatcherWin32::hasPendingEvents()
 void QEventDispatcherWin32::registerSocketNotifier(QSocketNotifier *notifier)
 {
     if (notifier == 0 || notifier->socket() < 0 || notifier->type() < 0 || notifier->type() > 2) {
-        qWarning("SocketNotifier: Internal error");
+        qWarning("QSocketNotifier: Internal error");
         return;
     }
 
@@ -519,7 +519,7 @@ void QEventDispatcherWin32::registerSocketNotifier(QSocketNotifier *notifier)
         return; // after sn_cleanup, don't reinitialize.
 
     if (dict->contains(socket)) {
-        const char *t[] = { "read", "write", "exception" };
+        const char *t[] = { "Read", "Write", "Exception" };
         qWarning("QSocketNotifier: Multiple socket notifiers for "
                     "same socket %d and type %s", socket, t[type]);
     }
@@ -560,7 +560,7 @@ void QEventDispatcherWin32::registerSocketNotifier(QSocketNotifier *notifier)
 void QEventDispatcherWin32::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
     if (notifier == 0 || notifier->socket() < 0 || notifier->type() < 0 || notifier->type() > 2) {
-        qWarning("SocketNotifier: Internal error");
+        qWarning("QSocketNotifier: Internal error");
         return;
     }
 
@@ -724,7 +724,7 @@ bool QEventDispatcherWin32::registerEventNotifier(QWinEventNotifier *notifier)
         return true;
 
     if (d->winEventNotifierList.count() >= MAXIMUM_WAIT_OBJECTS - 2) {
-        qWarning("QWinEventNotifier: Can not have more then %d enabled at one time", MAXIMUM_WAIT_OBJECTS - 2);
+        qWarning("QWinEventNotifier: Cannot have more than %d enabled at one time", MAXIMUM_WAIT_OBJECTS - 2);
         return false;
     }
     d->winEventNotifierList.append(notifier);
