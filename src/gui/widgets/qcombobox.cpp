@@ -122,6 +122,58 @@ QStyle::SubControl QComboBoxPrivate::newHoverControl(const QPoint &pos)
     return hoverControl;
 }
 
+QSize QComboBoxPrivate::recomputeSizeHint(QSize &sh) const
+{
+    Q_Q(const QComboBox);
+    if (!sh.isValid()) {
+        // find out if we have any icons
+        bool hasIcon = false;
+        int count = q->count();
+        for (int i = 0; i < count && !hasIcon; ++i) {
+            if (!q->itemIcon(i).isNull())
+                hasIcon = true;
+        }
+
+        // height
+        const QFontMetrics &fm = q->fontMetrics();
+        sh.setHeight(qMax(fm.lineSpacing(), 14) + 2);
+
+        QSize iconSize;
+        if (hasIcon) {
+            iconSize = q->iconSize();
+            sh.setHeight(qMax(sh.height(), iconSize.height() + 2));
+        }
+
+        // text width
+        if (&sh == &sizeHint || minimumContentsLength == 0) {
+            switch (sizeAdjustPolicy) {
+            case QComboBox::AdjustToContents:
+            case QComboBox::AdjustToContentsOnFirstShow:
+                if (q->count() == 0) {
+                    sh.rwidth() = 7 * fm.width(QLatin1Char('x'));
+                } else {
+                    for (int i = 0; i < count; ++i)
+                        sh.setWidth(qMax(sh.width(), fm.width(q->itemText(i))));
+                }
+                break;
+            case QComboBox::AdjustToMinimumContentsLength:
+            default:
+                ;
+            }
+        }
+        if (minimumContentsLength > 0)
+            sh.setWidth(qMax(sh.width(), minimumContentsLength * fmwidth(QLatin1Char('X'))));
+
+        // add icon width
+        sh.setWidth(sh.width() + (hasIcon ? iconSize.width() + 4 : 0));
+
+        // add style and strut values
+        QStyleOptionComboBox opt = getStyleOption();
+        sh = q->style()->sizeFromContents(QStyle::CT_ComboBox, &opt, sh, q);
+    }
+    return sh.expandedTo(QApplication::globalStrut());
+}
+
 QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView, QComboBox *parent)
     : QFrame(parent, Qt::Popup), combo(parent), view(0), top(0), bottom(0)
 {
@@ -404,12 +456,12 @@ QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
 /*!
     \enum QComboBox::SizeAdjustPolicy
 
-    This enum specifies how the size of the QComboBox should adjust
-    when new content is added or content changes.
+    This enum specifies how the size hint of the QComboBox should
+    adjust when new content is added or content changes.
 
-    \value AdjustToContents              The combobox will always adjust to the contens
+    \value AdjustToContents              The combobox will always adjust to the contents
     \value AdjustToContentsOnFirstShow   The combobox will adjust to its contents the first time it is show.
-    \value AdjustToMinimumContentsLength The combobox only adjusts to the \l minimumContentsLength
+    \value AdjustToMinimumContentsLength Use AdjustToContents or AdjustToContentsOnFirstShow instead.
 */
 
 /*!
@@ -561,7 +613,7 @@ void QComboBoxPrivate::init()
     Q_Q(QComboBox);
     q->setModel(new QStandardItemModel(0, 1, q));
     q->setFocusPolicy(Qt::WheelFocus);
-    q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    q->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 }
 
 QComboBoxPrivateContainer* QComboBoxPrivate::viewContainer()
@@ -1093,11 +1145,12 @@ void QComboBox::setSizeAdjustPolicy(QComboBox::SizeAdjustPolicy policy)
 
 /*!
     \property QComboBox::minimumContentsLength
-    \brief the value describing the minimum number of characters that
-    will fit into the combobox.
+    \brief the minimum number of characters that should fit into the combobox.
 
-    This value is ignored if \l AdjustToMinimumContentsLength is not
-    set. The default value is 0.
+    The default value is 0.
+
+    If this property is set to a positive value, the
+    minimumSizeHint() and sizeHint() take it into account.
 
     \sa sizeAdjustPolicy
 */
@@ -1116,7 +1169,8 @@ void QComboBox::setMinimumContentsLength(int characters)
 
     d->minimumContentsLength = characters;
 
-    if (d->sizeAdjustPolicy == AdjustToMinimumContentsLength) {
+    if (d->sizeAdjustPolicy == AdjustToContents
+            || d->sizeAdjustPolicy == AdjustToMinimumContentsLength) {
         d->sizeHint = QSize();
         updateGeometry();
     }
@@ -1623,7 +1677,8 @@ void QComboBox::setView(QAbstractItemView *itemView)
 */
 QSize QComboBox::minimumSizeHint() const
 {
-    return sizeHint();
+    Q_D(const QComboBox);
+    return d->recomputeSizeHint(d->minimumSizeHint);
 }
 
 /*!
@@ -1636,48 +1691,7 @@ QSize QComboBox::minimumSizeHint() const
 QSize QComboBox::sizeHint() const
 {
     Q_D(const QComboBox);
-    if (d->sizeHint.isValid())
-        return d->sizeHint.expandedTo(QApplication::globalStrut());
-
-    // find out if we have any icons
-    bool hasIcon = false;
-    for (int i = 0; i < count() && !hasIcon; ++i) {
-        if (!itemIcon(i).isNull())
-            hasIcon = true;
-    }
-
-    // height
-    const QFontMetrics &fm = fontMetrics();
-    d->sizeHint.setHeight(qMax(fm.lineSpacing(), 14) + 2);
-    if (hasIcon)
-        d->sizeHint.setHeight(qMax(d->sizeHint.height(), iconSize().height() + 2));
-
-    // text width
-    switch (d->sizeAdjustPolicy) {
-    case AdjustToContents:
-    case AdjustToContentsOnFirstShow:
-        if (count() == 0) {
-            d->sizeHint.rwidth() = 7 * fm.width(QChar('x'));
-        } else {
-            for (int i = 0; i < count(); ++i) {
-                d->sizeHint.setWidth(qMax(d->sizeHint.width(), fm.width(itemText(i))));
-            }
-        }
-        break;
-    case AdjustToMinimumContentsLength:
-        d->sizeHint.setWidth(d->minimumContentsLength*fm.width('X'));
-        break;
-    default:
-        break;
-    }
-
-    // add icon width
-    d->sizeHint.setWidth(d->sizeHint.width() + (hasIcon ? iconSize().width() + 4 : 0));
-
-    // add style and strut values
-    QStyleOptionComboBox opt = d->getStyleOption();
-    d->sizeHint = style()->sizeFromContents(QStyle::CT_ComboBox, &opt, d->sizeHint, this);
-    return d->sizeHint.expandedTo(QApplication::globalStrut());
+    return d->recomputeSizeHint(d->sizeHint);
 }
 
 /*!

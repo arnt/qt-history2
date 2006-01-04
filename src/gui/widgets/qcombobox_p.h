@@ -179,7 +179,7 @@ private:
     QPalette pal;
 };
 
-class QComboBoxPrivate: public QWidgetPrivate
+class QComboBoxPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QComboBox)
 public:
@@ -206,6 +206,7 @@ public:
     void updateArrow(QStyle::StateFlag state);
     bool updateHoverControl(const QPoint &pos);
     QStyle::SubControl newHoverControl(const QPoint &pos);
+    QSize recomputeSizeHint(QSize &sh) const;
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
@@ -223,6 +224,7 @@ public:
     int maxVisibleItems;
     int maxCount;
     int modelColumn;
+    mutable QSize minimumSizeHint;
     mutable QSize sizeHint;
     QStyle::StateFlag arrowState;
     QStyle::SubControl hoverControl;
