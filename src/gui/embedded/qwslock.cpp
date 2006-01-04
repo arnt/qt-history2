@@ -9,6 +9,7 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/time.h>
+#include <time.h>
 #include <linux/version.h>
 #include <unistd.h>
 
