@@ -670,6 +670,13 @@ QRect QItemDelegate::textRectangle(QPainter *painter, const QRect &rect,
 {
     if (text.isEmpty())
         return QRect();
+
+    // In qt 4.2 there will be a proper option in QStyleOptionViewItem for rect.width()
+    if (rect.width() == -1) {
+        QFontMetrics fontMetrics(font);
+        return QRect(0, 0, 0, fontMetrics.lineSpacing());
+    }
+
     if (!text.contains(QLatin1Char('\n'))) {
         QFontMetrics fontMetrics(font);
         return QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
