@@ -1479,7 +1479,7 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
 #endif
     QBrush fill;
     GC fill_gc;
-    if (gcMode == QX11PaintEnginePrivate::BrushGC) {
+    if (gcMode == BrushGC) {
         fill = cbrush;
         fill_gc = gc_brush;
 #ifndef QT_NO_XRENDER
@@ -1510,7 +1510,8 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
 #ifndef QT_NO_XRENDER
     bool antialias = render_hints & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush && !has_fill_pattern &&
-        (has_fill_texture || antialias || fill.color().alpha() != 255))
+        (has_fill_texture || antialias || fill.color().alpha() != 255
+         || has_alpha_pen != has_alpha_brush))
     {
         if (picture) {
             if (clippedCount > 0) {
@@ -1636,6 +1637,12 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     Q_D(QX11PaintEngine);
     if (path.isEmpty())
         return;
+    bool adjust_coords = d->has_alpha_pen && !(d->render_hints & QPainter::Antialiasing);
+    QMatrix old_matrix = d->matrix;
+    if (adjust_coords) {
+        d->matrix = QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(), d->matrix.m22(),
+                            d->matrix.dx() + 0.5f, d->matrix.dy() + 0.5f);
+    }
     if (d->has_brush)
         d->fillPath(path, QX11PaintEnginePrivate::BrushGC, true);
 
@@ -1654,11 +1661,7 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
         QPainterPath stroke;
         qreal width = d->cpen.widthF();
         QPolygonF poly;
-        QMatrix old_matrix = d->matrix;
-        bool adjust_coords = d->has_alpha_pen && !(d->render_hints & QPainter::Antialiasing);
         // necessary to get aliased alphablended primitives to be drawn correctly
-        if (adjust_coords)
-            d->matrix.translate(0.5f, 0.5f);
         if (width == 0) {
             stroker.setWidth(1);
             stroke = stroker.createStroke(path * d->matrix);
@@ -1674,14 +1677,14 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
             stroke.setFillRule(Qt::WindingFill);
             d->fillPath(stroke, QX11PaintEnginePrivate::PenGC, true);
         }
-        if (adjust_coords)
-            d->matrix = old_matrix;
     } else if (d->has_pen) {
         // if we have a pen width of 0 - use XDrawLine() for speed
         QList<QPolygonF> polys = path.toSubpathPolygons(d->matrix);
         for (int i = 0; i < polys.size(); ++i)
             d->strokePolygon_dev(polys.at(i).data(), polys.at(i).size(), false);
     }
+    if (adjust_coords)
+        d->matrix = old_matrix;
 }
 
 void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &_sr)
