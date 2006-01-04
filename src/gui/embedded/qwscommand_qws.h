@@ -134,7 +134,11 @@ struct QWSIdentifyCommand : public QWSCommand
 {
     QWSIdentifyCommand() :
         QWSCommand(QWSCommand::Identify,
-                   sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
+                   sizeof(simpleData), reinterpret_cast<char *>(&simpleData))
+    {
+        simpleData.idLen = 0;
+        simpleData.idLock = -1;
+    }
 
     void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
