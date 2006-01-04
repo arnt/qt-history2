@@ -389,6 +389,10 @@ bool QMoviePrivate::next()
     if (info.isEndMarker()) {
         // We reached the end of the animation.
         if (isFirstIteration) {
+            if (nextFrameNumber == 0) {
+                // No frames could be read at all (error).
+                return false;
+            }
             // End of first iteration. Initialize play counter
             playCounter = reader->loopCount();
             isFirstIteration = false;
