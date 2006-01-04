@@ -40,7 +40,8 @@ public:
             : ref(1), fileEngine(0), cache_enabled(1)
         { clear(); }
         inline Data(const Data &copy)
-            : ref(1), fileEngine(0), fileName(copy.fileName)
+            : ref(1), fileEngine(QAbstractFileEngine::create(copy.fileName)),
+              fileName(copy.fileName)
         { clear(); }
         inline ~Data() { delete fileEngine; }
         inline void clear() {
