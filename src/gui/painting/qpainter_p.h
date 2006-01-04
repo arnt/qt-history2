@@ -99,7 +99,8 @@ class QPainterPrivate
     Q_DECLARE_PUBLIC(QPainter)
 public:
     QPainterPrivate(QPainter *painter)
-        : q_ptr(painter), txinv(0), device(0), engine(0)
+        : q_ptr(painter), txinv(0), device(0)
+        , original_device(0), engine(0)
     {
         states.push_back(new QPainterState());
         state = states.back();
@@ -147,6 +148,7 @@ public:
     }
 
     QPaintDevice *device;
+    QPaintDevice *original_device;
     QPaintEngine *engine;
 };
 

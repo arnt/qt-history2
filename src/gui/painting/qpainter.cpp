@@ -854,7 +854,7 @@ QPainter::~QPainter()
 QPaintDevice *QPainter::device() const
 {
     Q_D(const QPainter);
-    return d->device;
+    return d->original_device;
 }
 
 /*!
@@ -1041,7 +1041,7 @@ bool QPainter::begin(QPaintDevice *pd)
     // Ensure fresh painter state
     d->state->init(d->state->painter);
 
-    QPaintDevice *originalDevice = pd;
+    d->original_device = pd;
     QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
 
     if (rpd) {
@@ -1116,8 +1116,8 @@ bool QPainter::begin(QPaintDevice *pd)
 
     // Copy painter properties from original paint device,
     // required for QPixmap::grabWidget()
-    if (originalDevice->devType() == QInternal::Widget) {
-        QWidget *widget = static_cast<QWidget *>(originalDevice);
+    if (d->original_device->devType() == QInternal::Widget) {
+        QWidget *widget = static_cast<QWidget *>(d->original_device);
         initFrom(widget);
     } else {
         d->state->layoutDirection = QApplication::layoutDirection();
