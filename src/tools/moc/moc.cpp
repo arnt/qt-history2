@@ -262,10 +262,12 @@ Type Moc::parseType()
                     type.name += ' ';
             }
         }
-        if (test(SCOPE))
+        if (test(SCOPE)) {
             type.name += lexem();
-        else
+            type.isScoped = true;
+        } else {
             break;
+        }
     }
     while (test(CONST) || test(VOLATILE) || test(SIGNED) || test(UNSIGNED)
            || test(STAR) || test(AND)) {
@@ -323,7 +325,8 @@ void Moc::parseFunctionArguments(FunctionDef *def)
     }
 }
 
-void Moc::parseFunction(FunctionDef *def, bool inMacro)
+// returns false if the function should be ignored
+bool Moc::parseFunction(FunctionDef *def, bool inMacro)
 {
     def->isVirtual = test(VIRTUAL);
     while (test(INLINE) || test(STATIC))
@@ -336,8 +339,10 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
         else
             error();
     }
+    bool scopedFunctionName = false;
     if (test(LPAREN)) {
         def->name = def->type.name;
+        scopedFunctionName = def->type.isScoped;
         def->type = Type("int");
     } else {
         Type tempType = parseType();;
@@ -362,8 +367,9 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
         }
         next(LPAREN, "Not a signal or slot declaration");
         def->name = tempType.name;
+        scopedFunctionName = tempType.isScoped;
     }
-
+    
     // we don't support references as return types, it's too dangerous
     if (def->type.referenceType == Type::Reference)
         def->type = Type("void");
@@ -396,6 +402,15 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
         else
             error();
     }
+
+    if (scopedFunctionName) {
+        QByteArray msg("Function declaration ");
+        msg += def->name;
+        msg += " contains extra qualification. Ignoring as signal or slot.";
+        warning(msg.constData());
+        return false;
+    }
+    return true;
 }
 
 // like parseFunction, but never aborts with an error
@@ -404,8 +419,10 @@ bool Moc::parseMaybeFunction(FunctionDef *def)
     def->type = parseType();
     if (def->type.name.isEmpty())
         return false;
+    bool scopedFunctionName = false;    
     if (test(LPAREN)) {
         def->name = def->type.name;
+        scopedFunctionName = def->type.isScoped;
         def->type = Type("int");
     } else {
         Type tempType = parseType();;
@@ -431,6 +448,7 @@ bool Moc::parseMaybeFunction(FunctionDef *def)
         if (!test(LPAREN))
             return false;
         def->name = tempType.name;
+        scopedFunctionName = tempType.isScoped;
     }
 
     // we don't support references as return types, it's too dangerous
@@ -445,6 +463,14 @@ bool Moc::parseMaybeFunction(FunctionDef *def)
             return false;
     }
     def->isConst = test(CONST);
+    if (scopedFunctionName
+        && (def->isSignal || def->isSlot || def->isInvokable)) {
+        QByteArray msg("parsemaybe: Function declaration ");
+        msg += def->name;
+        msg += " contains extra qualification. Ignoring as signal or slot.";
+        warning(msg.constData());
+        return false;
+    }
     return true;
 }
 
@@ -717,7 +743,8 @@ void Moc::parseSlots(ClassDef *def, FunctionDef::Access access)
 
         FunctionDef funcDef;
         funcDef.access = access;
-        parseFunction(&funcDef);
+        if (!parseFunction(&funcDef))
+            continue;
         def->slotList += funcDef;
         while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
             funcDef.wasCloned = true;

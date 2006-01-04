@@ -25,10 +25,11 @@ struct Type
 {
     enum ReferenceType { NoReference, Reference, Pointer };
 
-    inline Type() : isVolatile(false), referenceType(NoReference) {}
+    inline Type() : isVolatile(false), isScoped(false), referenceType(NoReference) {}
     inline explicit Type(const QByteArray &_name) : name(_name), isVolatile(false), referenceType(NoReference) {}
     QByteArray name;
     bool isVolatile;
+    bool isScoped;
     ReferenceType referenceType;
 };
 
@@ -165,7 +166,7 @@ public:
 
     bool parseEnum(EnumDef *def);
 
-    void parseFunction(FunctionDef *def, bool inMacro = false);
+    bool parseFunction(FunctionDef *def, bool inMacro = false);
     bool parseMaybeFunction(FunctionDef *def);
 
     void parseSlots(ClassDef *def, FunctionDef::Access access);
