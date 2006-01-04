@@ -47,7 +47,7 @@ QAccessibleHeader::QAccessibleHeader(QWidget *w)
 : QAccessibleWidget(w)
 {
     Q_ASSERT(header());
-    addControllingSignal("sectionClicked(int, Qt::ButtonState)");
+    addControllingSignal("sectionClicked(int)");
 }
 
 /*! Returns the QHeaderView. */
