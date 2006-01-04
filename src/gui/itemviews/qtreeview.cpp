@@ -1327,18 +1327,7 @@ void QTreeView::reexpand()
 void QTreeView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     Q_D(QTreeView);
-
-    if (isVisible()) {
-        d->relayout(parent);
-        if (parent.isValid() && parent.column() == 0) {
-            QRect rect = visualRect(parent);
-            rect.setLeft(columnViewportPosition(parent.column()));
-            d->viewport->update(rect);
-        }
-    } else {
-        d->doDelayedItemsLayout();
-    }
-
+    d->doDelayedItemsLayout();
     QAbstractItemView::rowsInserted(parent, start, end);
 }
 
