@@ -208,6 +208,7 @@ public:
     int frameCount() const;
     bool jumpToNextFrame();
     QFrameInfo infoForFrame(int frameNumber);
+    void reset();
 
     inline void enterState(QMovie::MovieState newState) {
         movieState = newState;
@@ -247,6 +248,23 @@ QMoviePrivate::QMoviePrivate(QMovie *qq)
 {
     q_ptr = qq;
     nextImageTimer.setSingleShot(true);
+}
+
+/*! \internal
+ */
+void QMoviePrivate::reset()
+{
+    nextImageTimer.stop();
+    if (reader->device())
+        initialDevicePos = reader->device()->pos();
+    currentFrameNumber = -1;
+    nextFrameNumber = 0;
+    greatestFrameNumber = -1;
+    nextDelay = 0;
+    playCounter = -1;
+    haveReadAll = false;
+    isFirstIteration = true;
+    frameMap.clear();
 }
 
 /*! \internal
@@ -570,7 +588,7 @@ void QMovie::setDevice(QIODevice *device)
 {
     Q_D(QMovie);
     d->reader->setDevice(device);
-    d->initialDevicePos = device->pos();
+    d->reset();
 }
 
 /*!
@@ -595,6 +613,7 @@ void QMovie::setFileName(const QString &fileName)
 {
     Q_D(QMovie);
     d->reader->setFileName(fileName);
+    d->reset();
 }
 
 /*!
