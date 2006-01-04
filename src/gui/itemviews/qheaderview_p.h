@@ -49,6 +49,7 @@ public:
           target(-1),
           pressed(-1),
           hover(-1),
+          length(0),
           sectionCount(0),
           movableSections(false),
           clickableSections(false),
@@ -104,35 +105,9 @@ public:
                 ? globalResizeMode : sectionResizeMode.at(visual));
     }
 
-    inline int sectionPositionCount() const {
-        return sectionCount + 1; // to make the code a bit more readable
-    }
-
-    inline int sectionPositionAt(int visual) const {
-        return (sectionPosition.count() <= visual
-                ? defaultSectionSize * visual : sectionPosition.at(visual));
-    }
-
-    inline int sectionSizeAt(int visual) const {
-        Q_ASSERT(visual >= 0 && visual < sectionCount);
-        return (sectionPosition.count() <= visual ? defaultSectionSize
-                : sectionPosition.at(visual + 1) - sectionPosition.at(visual));
-    }
-
-    inline void clear() {
-        sectionCount = 0;
-        sectionResizeMode.clear();
-        sectionPosition.clear();
-        visualIndices.clear();
-        logicalIndices.clear();
-        sectionSelected.clear();
-        sectionHidden.clear();
-        hiddenSectionSize.clear();
-    }
-
     QStyleOptionHeader getStyleOption() const;
-    void initializePositions(int start, int end);
-    void movePositions(int start, int delta);
+
+    void clear();
 
     enum State { NoState, ResizeSection, MoveSection } state;
 
@@ -143,19 +118,19 @@ public:
     bool sortIndicatorShown;
 
     mutable QVector<QHeaderView::ResizeMode> sectionResizeMode;
-    mutable QVector<int> sectionPosition; // uses visual index
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
     mutable QVector<int> logicalIndices; // logicalIndex = row or column in the model
     mutable QBitArray sectionSelected;
     mutable QBitArray sectionHidden;
     mutable QHash<int, int> hiddenSectionSize; // from logical index to section size
-
+    
     int lastPos;
     int firstPos;
     int section; // used for resizing and moving sections
     int target;
     int pressed;
     int hover;
+    int length;
     int sectionCount;
     bool movableSections;
     bool clickableSections;
@@ -167,6 +142,39 @@ public:
     Qt::Alignment defaultAlignment;
     QLabel *sectionIndicator;
     QHeaderView::ResizeMode globalResizeMode;
+
+    // header section spans
+    
+    struct SectionSpan {
+        int size;
+        int count;
+        inline SectionSpan() : size(0), count(0) {}
+        inline SectionSpan(int length, int sections) : size(length), count(sections) {}
+        inline int sectionSize() const { return size / count; }
+    };
+
+    QVector<SectionSpan> sectionSpans;
+
+    void createSectionSpan(int start, int end, int size);
+    void removeSectionsFromSpans(int start, int end);
+
+    inline int headerSectionCount() const { // for debugging
+        int count = 0;
+        for (int i = 0; i < sectionSpans.count(); ++i)
+            count += sectionSpans.at(i).count;
+        return count;
+    }
+
+    inline int headerLength() const { // for debugging
+        int len = 0;
+        for (int i = 0; i < sectionSpans.count(); ++i)
+            len += sectionSpans.at(i).size;
+        return len;
+    }
+
+    int headerSectionSize(int visual) const;
+    int headerSectionPosition(int visual) const;
+    int headerVisualIndexAt(int position) const;
 };
 
 #endif // QT_NO_ITEMVIEWS

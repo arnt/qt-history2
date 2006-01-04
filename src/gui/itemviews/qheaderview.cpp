@@ -296,7 +296,6 @@ void QHeaderView::setOffset(int newOffset)
     Q_D(QHeaderView);
     if (d->offset == newOffset)
         return;
-
     int ndelta = d->offset - newOffset;
     d->offset = newOffset;
     if (d->orientation == Qt::Horizontal)
@@ -314,7 +313,8 @@ void QHeaderView::setOffset(int newOffset)
 int QHeaderView::length() const
 {
     Q_D(const QHeaderView);
-    return d->sectionPositionAt(d->sectionCount); // last section position
+    Q_ASSERT(d->headerLength() == d->length);
+    return d->length;
 }
 
 /*!
@@ -362,7 +362,7 @@ int QHeaderView::visualIndexAt(int position) const
 {
     Q_D(const QHeaderView);
     d->executePostedLayout();
-    int count = this->count();
+    int count = d->sectionCount;
     if (count < 1)
         return -1;
     if (d->reverse())
@@ -370,22 +370,10 @@ int QHeaderView::visualIndexAt(int position) const
     position += d->offset;
     if (position < 0 || position > length())
         return -1;
-
-    int start = 0;
-    int end = count - 1;
-    int visual = (end + 1) / 2;
-
-    while (end - start > 0) {
-        if (d->sectionPositionAt(visual) > position)
-            end = visual - 1;
-        else
-            start = visual;
-        visual = (start + end + 1) / 2;
-    }
-
+    int visual = d->headerVisualIndexAt(position);
     while (d->isVisualIndexHidden(visual) && visual < count)
         ++visual;
-    if (visual >= count || (visual == end && d->sectionPositionAt(end + 1) < position))
+    if (visual >= count)
         return -1;
     return visual;
 }
@@ -398,7 +386,9 @@ int QHeaderView::visualIndexAt(int position) const
 
 int QHeaderView::logicalIndexAt(int position) const
 {
-    return logicalIndex(visualIndexAt(position));
+    if (position >= 0 && position < length())
+        return logicalIndex(visualIndexAt(position));
+    return -1;
 }
 
 /*!
@@ -410,10 +400,9 @@ int QHeaderView::sectionSize(int logicalIndex) const
     Q_D(const QHeaderView);
     if (isSectionHidden(logicalIndex))
         return 0;
-    
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    return d->sectionSizeAt(visual);
+    return d->headerSectionSize(visual);
 }
 
 /*!
@@ -427,7 +416,7 @@ int QHeaderView::sectionPosition(int logicalIndex) const
     Q_D(const QHeaderView);
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    return d->sectionPositionAt(visual);
+    return d->headerSectionPosition(visual);
 }
 
 /*!
@@ -480,7 +469,7 @@ void QHeaderView::moveSection(int from, int to)
     d->executePostedLayout();
     Q_ASSERT(from >= 0 && from < d->sectionCount);
     Q_ASSERT(to >= 0 && to < d->sectionCount);
-
+    
     if (from == to) {
         int logical = logicalIndex(from);
         Q_ASSERT(logical != -1);
@@ -488,8 +477,10 @@ void QHeaderView::moveSection(int from, int to)
         return;
     }
 
+    //int oldHeaderLength = length(); // ### for debugging; remove later
+
     // if we haven't moved anything previously, initialize the indices array
-    int count = d->sectionPositionCount();
+    int count = d->sectionCount;
     if (d->visualIndices.count() != count || d->logicalIndices.count() != count) {
         d->visualIndices.resize(count);
         d->logicalIndices.resize(count);
@@ -509,9 +500,9 @@ void QHeaderView::moveSection(int from, int to)
 
     // move sections and indices
     if (to > from) {
-        sizes[to - from] = d->sectionSizeAt(from);
+        sizes[to - from] = d->headerSectionSize(from);
         while (visual < to) {
-            sizes[visual - from] = d->sectionSizeAt(visual + 1);
+            sizes[visual - from] = d->headerSectionSize(visual + 1);
             if (!sectionHidden.isEmpty())
                 sectionHidden.setBit(visual, sectionHidden.testBit(visual + 1));
             visualIndices[logicalIndices[visual + 1]] = visual;
@@ -519,9 +510,9 @@ void QHeaderView::moveSection(int from, int to)
             ++visual;
         }
     } else {
-        sizes[0] = d->sectionSizeAt(from);
+        sizes[0] = d->headerSectionSize(from);
         while (visual > to) {
-            sizes[visual - to] = d->sectionSizeAt(visual - 1);
+            sizes[visual - to] = d->headerSectionSize(visual - 1);
             if (!sectionHidden.isEmpty())
                 sectionHidden.setBit(visual, sectionHidden.testBit(visual - 1));
             visualIndices[logicalIndices[visual - 1]] = visual;
@@ -536,17 +527,22 @@ void QHeaderView::moveSection(int from, int to)
     visualIndices[logical] = to;
     logicalIndices[to] = logical;
 
-    // move "pixel" positions
-    if (!d->sectionPosition.isEmpty()) {
-        int *positions = d->sectionPosition.data();
-        if (to > from) {
-            for (visual = from; visual <= to; ++visual)
-                positions[visual + 1] = positions[visual] + sizes[visual - from];
-        } else {
-            for (visual = to; visual <= from; ++visual)
-                positions[visual + 1] = positions[visual] + sizes[visual - to];
+    //Q_ASSERT(oldHeaderLength == length());
+    // move sizes
+    // ### check for spans of section sizes here
+    if (to > from) {
+        for (visual = from; visual <= to; ++visual) {
+            int size = sizes[visual - from];
+            d->createSectionSpan(visual, visual, size);
+        }
+    } else {
+        for (visual = to; visual <= from; ++visual) {
+            int size = sizes[visual - to];
+            d->createSectionSpan(visual, visual, size);
         }
     }
+    //Q_ASSERT(d->headerLength() == length());
+    //Q_ASSERT(oldHeaderLength == length());
     
     d->viewport->update();
     emit sectionMoved(logical, from, to);
@@ -569,12 +565,9 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 
     d->executePostedLayout();
 
-    if (d->sectionPosition.isEmpty()) // the first time we resize
-        d->initializePositions(0, d->sectionCount + 1);
-
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    d->movePositions(visual + 1, size - oldSize);
+    d->createSectionSpan(visual, visual, size);
     
     int w = d->viewport->width();
     int h = d->viewport->height();
@@ -698,6 +691,7 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
 int QHeaderView::count() const
 {
     Q_D(const QHeaderView);
+    //Q_ASSERT(d->sectionCount == d->headerSectionCount());
     return d->sectionCount;
 }
 
@@ -713,28 +707,16 @@ int QHeaderView::visualIndex(int logicalIndex) const
 {
     Q_D(const QHeaderView);
     Q_ASSERT(logicalIndex >= 0);
-    
     d->executePostedLayout();
-#if 0 // for debugging
-    if (d->visualIndices.isEmpty()) { // nothing has been moved, so we have no mapping
-        Q_ASSERT(logicalIndex >= 0 && logicalIndex < d->sectionCount);
-        return logicalIndex;
-    } // the logical index was outside the vector, so it is obviously wrong
-    Q_ASSERT(logicalIndex >= 0 && logicalIndex < d->visualIndices.count() - 1);
-    int visual = d->visualIndices.at(logicalIndex);
-    Q_ASSERT(visual < d->sectionCount);
-    return visual;
-#else
     if (d->visualIndices.isEmpty()) { // nothing has been moved, so we have no mapping
         if (logicalIndex < d->sectionCount)
             return logicalIndex;
-    } else if (logicalIndex < d->visualIndices.count() - 1) {
+    } else if (logicalIndex < d->visualIndices.count()) {
         int visual = d->visualIndices.at(logicalIndex);
         Q_ASSERT(visual < d->sectionCount);
         return visual;
     }
     return -1;
-#endif
 }
 
 /*!
@@ -747,7 +729,7 @@ int QHeaderView::visualIndex(int logicalIndex) const
 int QHeaderView::logicalIndex(int visualIndex) const
 {
     Q_D(const QHeaderView);
-    if (visualIndex < 0 || visualIndex >= d->sectionPositionCount())
+    if (visualIndex < 0 || visualIndex >= d->sectionCount)
         return -1;
     return d->logicalIndex(visualIndex);
 }
@@ -903,8 +885,7 @@ void QHeaderView::setSortIndicatorShown(bool show)
     if (sortIndicatorSection() < 0 || sortIndicatorSection() > count())
         return;
 
-    if (d->sectionPosition.size() > sortIndicatorSection()
-        && d->visualIndexResizeMode(sortIndicatorSection()) == Custom) {
+    if (d->visualIndexResizeMode(sortIndicatorSection()) == Custom) {
         resizeSections();
         d->viewport->update();
     }
@@ -993,7 +974,7 @@ void QHeaderView::setStretchLastSection(bool stretch)
     if (stretch)
         resizeSections();
     else if (count())
-        resizeSection(count() - 1, d->defaultSectionSize);
+        resizeSection(count() -1, d->defaultSectionSize);
 }
 
 /*!
@@ -1140,10 +1121,12 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, 
     Q_D(QHeaderView);
     if (parent != rootIndex() || !d->model)
         return; // we only handle changes in the top level
+    int lastSection;
     if (d->orientation == Qt::Horizontal)
-        initializeSections(logicalFirst, qMax(d->model->columnCount(rootIndex()) - 1, 0));
+        lastSection = qMax(d->model->columnCount(rootIndex()) - 1, 0);
     else
-        initializeSections(logicalFirst, qMax(d->model->rowCount(rootIndex()) - 1, 0));
+        lastSection = qMax(d->model->rowCount(rootIndex()) -  1, 0);
+    initializeSections(logicalFirst, lastSection);
 }
 
 /*!
@@ -1173,39 +1156,33 @@ void QHeaderViewPrivate::sectionsRemoved(const QModelIndex &parent,
     int oldCount = q->count();
     int changeCount = logicalLast - logicalFirst + 1;
     if (visualIndices.isEmpty() && logicalIndices.isEmpty()) {
-        if (!sectionPosition.isEmpty()) { // we have resized sections
-            int delta = sectionPositionAt(logicalLast + 1)
-                        - sectionPositionAt(logicalFirst);
-            movePositions(logicalLast + 1, -delta);
-            sectionPosition.remove(logicalFirst, changeCount);
-        }
         for (int i = logicalFirst; i <= changeCount+logicalFirst; ++i)
             hiddenSectionSize.remove(i);
+        //Q_ASSERT(headerSectionCount() == sectionCount);
+        removeSectionsFromSpans(logicalFirst, logicalLast);
     } else {
         for (int l = logicalLast; l >= logicalFirst; --l) {
             int visual = visualIndices.at(l);
-            int size = sectionSizeAt(visual);
-            for (int v = 0; v < sectionPositionCount(); ++v) {
+            for (int v = 0; v < sectionCount; ++v) {
                 if (logicalIndex(v) > l) // no need to move the positions before l
                     --(logicalIndices[v]);
                 if (v > visual) {
-                    if (!sectionPosition.isEmpty()) // we have resized sections
-                        sectionPosition[v] -= size;
                     int logical = logicalIndex(v);
                     --(visualIndices[logical]);
                 }
             }
-            if (!sectionPosition.isEmpty()) // we have resized sections
-                sectionPosition.remove(visual);
             hiddenSectionSize.remove(l);
             logicalIndices.remove(visual);
             visualIndices.remove(l);
+            //Q_ASSERT(headerSectionCount() == sectionCount);
+            removeSectionsFromSpans(visual, visual);
         }
         // ### handle sectionSelection, sectionResizeMode, sectionHidden
     }
     sectionCount -= changeCount;
+
     // if we only have the last section (the "end" position) left, the header is empty
-    if (sectionCount <= 0 || sectionPosition.count() == 1) // ### for now
+    if (sectionCount <= 0)
         clear();
     emit q->sectionCountChanged(oldCount, q->count());
     viewport->update();
@@ -1218,26 +1195,28 @@ void QHeaderViewPrivate::sectionsRemoved(const QModelIndex &parent,
 void QHeaderView::initializeSections()
 {
     Q_D(QHeaderView);
-    if (!model())
+    if (!model()) {
+        d->clear();
         return;
+    }
     if (d->orientation == Qt::Horizontal) {
         int c = model()->columnCount(rootIndex());
         if (c == 0) {
             int oldCount = count();
             d->clear();
             emit sectionCountChanged(oldCount, 0);
+        } else if (c != count() && c > 0) {
+            initializeSections(0, c - 1);
         }
-        else if (c != count() && c != 0)
-            initializeSections(0, qMax(c - 1, 0));
     } else {
         int r = model()->rowCount(rootIndex());
         if (r == 0) {
             int oldCount = count();
             d->clear();
             emit sectionCountChanged(oldCount, 0);
+        } else if (r != count() && r > 0) {
+            initializeSections(0, r - 1);
         }
-        else if (r != count() && r != 0)
-            initializeSections(0, qMax(r - 1, 0));
     }
 }
 
@@ -1252,26 +1231,25 @@ void QHeaderView::initializeSections(int start, int end)
     Q_ASSERT(start >= 0);
     Q_ASSERT(end >= 0);
 
-    int oldCount = count();
-    end += 1; // one past the last item, so we get the end position of the last section
-    d->sectionCount = end;
+    int oldCount = d->sectionCount;
+    d->sectionCount = end + 1;
     
     if (!d->logicalIndices.isEmpty() && start > 0) {
-        d->logicalIndices.resize(end + 1);
-        d->visualIndices.resize(end + 1);
-        for (int i = start; i < end; ++i){
+        d->logicalIndices.resize(d->sectionCount);
+        d->visualIndices.resize(d->sectionCount);
+        for (int i = start; i < d->sectionCount; ++i){
             d->logicalIndices[i] = i;
             d->visualIndices[i] = i;
         }
     }
 
     if (d->globalResizeMode == Stretch)
-        d->stretchSections += (end - start + 1);
+        d->stretchSections = d->sectionCount;
 
-    if (!d->sectionPosition.isEmpty() && start > 0)
-        d->initializePositions(start, end + 1);
+    d->createSectionSpan(start, end, (end - start + 1) * d->defaultSectionSize);
+    //Q_ASSERT(d->headerLength() == d->length);
 
-    emit sectionCountChanged(oldCount, count());
+    emit sectionCountChanged(oldCount,  d->sectionCount);
     d->viewport->update();
 }
 
@@ -1345,7 +1323,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 {
     Q_D(QHeaderView);
 
-    if (d->model == 0)
+    if (d->model == 0 || count() == 0)
         return;
 
     QPainter painter(d->viewport);
@@ -1353,13 +1331,14 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     QRect area = e->rect();
     area.translate(offset);
 
-    int start, end;
+    int start = -1;
+    int end = -1;
     if (orientation() == Qt::Horizontal) {
         start = visualIndexAt(area.left());
-        end = visualIndexAt(area.right() - 1);
+        end = visualIndexAt(area.right());
     } else {
         start = visualIndexAt(area.top());
-        end = visualIndexAt(area.bottom() - 1);
+        end = visualIndexAt(area.bottom());
     }
 
     if (d->reverse()) {
@@ -1373,9 +1352,6 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     int tmp = start;
     start = qMin(start, end);
     end = qMax(tmp, end);
-
-    if (count() == 0)
-        return;
 
     d->prepareSectionSelected(); // clear and resize the bit array
 
@@ -2072,9 +2048,6 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
     if (sectionCount == 0)
         return;
 
-    if (sectionPosition.isEmpty()) // the first time we resize
-        initializePositions(0, sectionCount + 1);
-
     // If stretchLastSection, find it
     int stretchSection = -1;
     if (stretchLastSection && !useGlobalMode) {
@@ -2093,7 +2066,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
     for (int i = 0; i < sectionCount; ++i) {
         if (isVisualIndexHidden(i))
             continue;
-        
+
         QHeaderView::ResizeMode resizeMode;
         if (useGlobalMode)
             resizeMode = globalMode;
@@ -2108,23 +2081,24 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         // because it isn't stretch determine its width and remove that from lengthToStrech
         int sectionSize = 0;
         if (resizeMode == QHeaderView::Interactive) {
-            sectionSize = sectionSizeAt(i);
+            sectionSize = headerSectionSize(i);//sectionSizeAt(i);
         } else { // resizeMode == QHeaderView::Custom
             QAbstractItemView *parent = ::qobject_cast<QAbstractItemView*>(q->parent());
             if (parent)
-                sectionSize = (orientation == Qt::Horizontal) ? parent->sizeHintForColumn(i) : parent->sizeHintForRow(i);
+                sectionSize = (orientation == Qt::Horizontal
+                               ? parent->sizeHintForColumn(i)
+                               : parent->sizeHintForRow(i));
             int logicalIndex = q->logicalIndex(i);
             sectionSize = qMax(sectionSize, q->sectionSizeHint(logicalIndex));
         }
         section_sizes.append(sectionSize);
         lengthToStrech -= sectionSize;
     }
-
    
     // Calculate the new length for all of the stretched sections
     int stretchSectionLength = 0;
     int pixelReminder = 0;
-    if ( numberOfStretchedSections > 0 ) {
+    if (numberOfStretchedSections > 0) {
         QSize strut = QApplication::globalStrut();
         int minimumLength = orientation == Qt::Horizontal
                   ? qMax(strut.width(), q->fontMetrics().maxWidth())
@@ -2134,11 +2108,11 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         pixelReminder = lengthToStrech % numberOfStretchedSections;
     }
 
+    int spanStartSection = 0;
+    int previousSectionLength = 0;
+
     // set the position of each section along the total length
-    int position = 0;
-    // at this point the sectionPosition vector should be initialized
     for (int i = 0; i < sectionCount; ++i) {
-        sectionPosition[i] = position;
         if (isVisualIndexHidden(i))
             continue;
         
@@ -2148,94 +2122,252 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         else
             resizeMode = (i == stretchSection ? QHeaderView::Stretch : visualIndexResizeMode(i));
 
-        int oldLength = sectionSizeAt(i);
+        int oldSectionLength = headerSectionSize(i);
+        int newSectionLength = -1;
         if (resizeMode == QHeaderView::Stretch) {
-            position += stretchSectionLength;
+            newSectionLength = stretchSectionLength;
             if (pixelReminder) {
-                position += pixelReminder;
+                newSectionLength += pixelReminder;
                 pixelReminder = 0;
-            }   
-        } else {  // resizeMode == QHeaderView::Custom
-            position += section_sizes.front();
+            }
+        } else { // resizeMode == QHeaderView::Custom
+            newSectionLength = section_sizes.front();
             section_sizes.removeFirst();
         }
-        int newLength = position - sectionPositionAt(i);
-        if (newLength != oldLength)
-            emit q->sectionResized(i, oldLength, newLength);
+
+        Q_ASSERT(newSectionLength > 0);
+        if (previousSectionLength != newSectionLength && i > 0) {
+            int spanLength = (i - spanStartSection) * previousSectionLength;
+            createSectionSpan(spanStartSection, i - 1, spanLength);
+            //Q_ASSERT(headerLength() == length);
+            spanStartSection = i;
+        }
+
+        if (newSectionLength != oldSectionLength)
+            emit q->sectionResized(i, oldSectionLength, newSectionLength);
+
+        previousSectionLength = newSectionLength;
     }
-    sectionPosition[sectionCount] = position;
+
+    createSectionSpan(spanStartSection, sectionCount - 1,
+                      (sectionCount - spanStartSection) * previousSectionLength);
+    //Q_ASSERT(headerLength() == length);
+
     viewport->update();
 }
 
-void QHeaderViewPrivate::initializePositions(int start, int end)
+void QHeaderViewPrivate::createSectionSpan(int start, int end, int size)
 {
-    // note that (end == sectionCount + 1)
-    sectionPosition.resize(end + 1);
-    int pos = (start > 0 ? sectionPositionAt(start) : 0);
-    int size = defaultSectionSize;
-#if 1
-    for (int i = start; i <= end; ++i) {
-        sectionPosition[i] = pos;
-        pos += size;
-    }
-#else
-    int num = end - start;
-    int *positions = sectionPosition.data() + start;
-    // unroll loop - to initialize the arrays as fast as possible
-    while (num >= 4) {
-        positions[0] = pos;
-        pos += size;
-        positions[1] = pos;
-        pos += size;
-        positions[2] = pos;
-        pos += size;
-        positions[3] = pos;
-        pos += size;
-        positions += 4;
-        num -= 4;
-    }
-    if (num > 0) {
-        positions[0] = pos;
-        pos += size;
-        if (num > 1) {
-            positions[1] = pos;
-            pos += size;
-            if (num > 2) {
-                positions[2] = pos;
-                pos += size;
+    // ### the code for merging spans does not merge at all opertuneties
+    // ### what if the number of sections is reduced ?
+    
+    SectionSpan span(size, (end - start) + 1);
+    int start_section = 0;
+    QList<int> spansToRemove;
+    for (int i = 0; i < sectionSpans.count(); ++i) {
+        int end_section = start_section + sectionSpans.at(i).count - 1;
+        int section_count = sectionSpans.at(i).count;
+        if (start <= start_section && end > end_section) {
+            // the existing span is entirely coveded by the new span
+            spansToRemove.append(i);
+        } else if (start < start_section && end >= end_section) {
+            // the existing span is entirely coveded by the new span
+            spansToRemove.append(i);
+        } else if (start == start_section && end == end_section) {
+            // the new span is covered by an existin span
+            length -= sectionSpans.at(i).size;
+            length += size;
+            sectionSpans[i].size = size;
+            // ### check if we can merge the section with any of its neighbours
+            return;
+        } else if (start > start_section && end < end_section) {
+            if (sectionSpans.at(i).sectionSize() == span.sectionSize())
+                return;
+            // the new span is in the middle of the old span, so we have to split it
+            length -= sectionSpans.at(i).size;
+            int section_size = sectionSpans.at(i).sectionSize();
+            int span_count = sectionSpans.at(i).count;
+            // first span
+            int first_span_count = start - start_section;
+            int first_span_size = section_size * first_span_count;
+            sectionSpans[i].count = first_span_count;
+            sectionSpans[i].size = first_span_size;
+            length += first_span_size;
+            // middle span
+            int mid_span_count = span.count;
+            int mid_span_size = span.size;
+            sectionSpans.insert(i + 1, span);
+            length += mid_span_size;
+            // last span
+            int last_span_count = end_section - end;
+            int last_span_size = section_size * last_span_count;
+            sectionSpans.insert(i + 2, SectionSpan(last_span_size, last_span_count));
+            length += last_span_size;
+            Q_ASSERT(span_count == first_span_count + mid_span_count + last_span_count);
+            return;
+        } else if (start > start_section && start <= end_section && end >= end_section) {
+            // the new span covers the last part of the existing span
+            length -= sectionSpans.at(i).size;
+            int removed_count = (end_section - start + 1);
+            int span_count = sectionSpans.at(i).count - removed_count;
+            int section_size = sectionSpans.at(i).sectionSize();
+            int span_size = section_size * span_count;
+            sectionSpans[i].count = span_count;
+            sectionSpans[i].size = span_size;
+            length += span_size;
+            if (end == end_section) {
+                sectionSpans.insert(i + 1, span); // insert after
+                length += span.size;
+                return;
             }
+        } else if (end < end_section && end >= start_section && start <= start_section) {
+            // the new span covers the first part of the existing span
+            length -= sectionSpans.at(i).size;
+            int removed_count = (end - start_section + 1);
+            int section_size = sectionSpans.at(i).sectionSize();
+            int span_count = sectionSpans.at(i).count - removed_count;
+            int span_size = section_size * span_count;
+            sectionSpans[i].count = span_count;
+            sectionSpans[i].size = span_size;
+            length += span_size;
+            sectionSpans.insert(i, span); // insert before
+            length += span.size;
+            return;
         }
+        start_section += section_count;
     }
-#endif
+
+    // ### adding and removing _ sections_  in addition to spans
+    // ### add some more checks here
+
+    if (spansToRemove.isEmpty()) {
+        if (!sectionSpans.isEmpty() && sectionSpans.last().sectionSize() == span.sectionSize()) {
+            length += span.size;
+            int last = sectionSpans.count() - 1;
+            sectionSpans[last].count += span.count;
+            sectionSpans[last].size += span.size;
+        } else {
+            length += span.size;
+            sectionSpans.append(span);
+        }
+    } else {
+        for (int i = spansToRemove.count() - 1; i >= 0; --i) {
+            int s = spansToRemove.at(i);
+            length -= sectionSpans.at(s).size;
+            sectionSpans.remove(s);
+        }
+        length += span.size;
+        sectionSpans.insert(spansToRemove.first(), span);
+    }
 }
 
-void QHeaderViewPrivate::movePositions(int start, int delta)
+void QHeaderViewPrivate::removeSectionsFromSpans(int start, int end)
 {
-    Q_ASSERT(start < sectionPosition.count());
-#if 1
-    for (int i = start ; i < sectionPosition.count(); ++i)
-        sectionPosition[i] += delta;
-#else
-    int *positions = sectionPosition.data() + start;
-    int num = (sectionPosition.count() - 1) - start + 1;
-    while (num >= 4) {
-        positions[0] += delta;
-        positions[1] += delta;
-        positions[2] += delta;
-        positions[3] += delta;
-        positions += 4;
-        num -= 4;
-    }
-    if (num > 0) {
-        positions[0] += delta;
-        if (num > 1) {
-            positions[1] += delta;
-            if (num > 2) {
-                positions[2] += delta;
-            }
+    // remove sections
+    int start_section = 0;
+    QList<int> spansToRemove;
+    for (int i = 0; i < sectionSpans.count(); ++i) {
+        int end_section = start_section + sectionSpans.at(i).count - 1;
+        int section_size = sectionSpans.at(i).sectionSize();
+        int section_count = sectionSpans.at(i).count;
+        if (start <= start_section && end >= end_section) {
+            // the change covers the entire span
+            spansToRemove.append(i);
+            if (end == end_section)
+                break;
+        } else if (start > start_section && end < end_section) {
+            // all the removed sections are inside the span
+            int change = (end - start + 1);
+            sectionSpans[i].count -= change;
+            sectionSpans[i].size = section_size * sectionSpans.at(i).count;
+            length -= (change * section_size);
+            break;
+        } else if (start >= start_section && start <= end_section) {
+            // the some of the removed sections are inside the span,at the end
+            int change = qMin(end_section - start + 1, end - start + 1);
+            sectionSpans[i].count -= change;
+            sectionSpans[i].size = section_size * sectionSpans.at(i).count;
+            start += change;
+            length -= (change * section_size);
+            // the change affects several spans
+        } else if (end >= start_section && end <= end_section) {
+            // the some of the removed sections are inside the span, at the begining
+            int change = qMin((end - start_section + 1), end - start + 1);
+            sectionSpans[i].count -= change;
+            sectionSpans[i].size = section_size * sectionSpans.at(i).count;
+            length -= (change * section_size);
+            break;
         }
+        start_section += section_count;
     }
-#endif
+
+    for (int i = spansToRemove.count() - 1; i >= 0; --i) {
+        int s = spansToRemove.at(i);
+        length -= sectionSpans.at(s).size;
+        sectionSpans.remove(s);
+        // ### merge remaining spans
+    }
+}
+
+void QHeaderViewPrivate::clear()
+{
+    length = 0;
+    sectionCount = 0;
+    sectionResizeMode.clear();
+    visualIndices.clear();
+    logicalIndices.clear();
+    sectionSelected.clear();
+    sectionHidden.clear();
+    hiddenSectionSize.clear();
+    sectionSpans.clear();
+}
+
+int QHeaderViewPrivate::headerSectionSize(int visual) const
+{
+    // ### stupid iteration; use binary search
+    int section_start = 0;
+    for (int i = 0; i < sectionSpans.count(); ++i) {
+        int section_end = section_start + sectionSpans.at(i).count - 1;
+        if (visual >= section_start && visual <= section_end)
+            return sectionSpans.at(i).sectionSize();
+        section_start = section_end + 1;
+    }
+    return -1;
+}
+
+int QHeaderViewPrivate::headerSectionPosition(int visual) const
+{
+    // ### stupid iteration; use binary search
+    int section_start = 0;
+    int span_position = 0;
+    for (int i = 0; i < sectionSpans.count(); ++i) {
+        int section_end = section_start + sectionSpans.at(i).count - 1;
+        if (visual >= section_start && visual <= section_end)
+            return span_position + (visual - section_start) * sectionSpans.at(i).sectionSize();
+        section_start = section_end + 1;
+        span_position += sectionSpans.at(i).size;
+    }
+    return -1;
+}
+
+int QHeaderViewPrivate::headerVisualIndexAt(int position) const
+{
+    // ### stupid iteration; use binary search
+    int span_start_section = 0;
+    int span_position = 0;
+    for (int i = 0; i < sectionSpans.count(); ++i) {
+        int next_span_start_section = span_start_section + sectionSpans.at(i).count;
+        int next_span_position = span_position + sectionSpans.at(i).size;
+        if (position == span_position)
+            return span_start_section;// spans with no size
+        if (position > span_position && position < next_span_position) {
+            int position_in_span = position - span_position;
+            return span_start_section + (position_in_span / sectionSpans.at(i).sectionSize());
+        }
+        span_start_section = next_span_start_section;
+        span_position = next_span_position;
+    }
+    return -1;
 }
 
 #endif // QT_NO_ITEMVIEWS
