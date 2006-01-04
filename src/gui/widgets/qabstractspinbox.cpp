@@ -1671,8 +1671,8 @@ QVariant operator+(const QVariant &arg1, const QVariant &arg2)
 {
     QVariant ret;
     if (arg1.type() != arg2.type())
-        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
-                 arg1.typeName(), arg2.typeName());
+        qWarning("QAbstractSpinBox: Internal error: Different types (%s vs %s) (%s:%d)",
+                 arg1.typeName(), arg2.typeName(), __FILE__, __LINE__);
     switch (arg1.type()) {
     case QVariant::Int: ret = QVariant(arg1.toInt() + arg2.toInt()); break;
     case QVariant::Double: ret = QVariant(arg1.toDouble() + arg2.toDouble()); break;
@@ -1697,8 +1697,8 @@ QVariant operator-(const QVariant &arg1, const QVariant &arg2)
 {
     QVariant ret;
     if (arg1.type() != arg2.type())
-        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
-                 arg1.typeName(), arg2.typeName());
+        qWarning("QAbstractSpinBox: Internal error: Different types (%s vs %s) (%s:%d)",
+                 arg1.typeName(), arg2.typeName(), __FILE__, __LINE__);
     switch (arg1.type()) {
     case QVariant::Int: ret = QVariant(arg1.toInt() - arg2.toInt()); break;
     case QVariant::Double: ret = QVariant(arg1.toDouble() - arg2.toDouble()); break;

@@ -535,12 +535,12 @@ static DndTargetsTable TargetsTable(Display *display)
                              &type, &format, &size, &bytes_after,
                              (unsigned char **) &target_prop) != Success) ||
         type == XNone) {
-        qWarning("QMotifDND: cannot get property on motif window");
+        qWarning("QMotifDND: Cannot get property on Motif window");
         return 0;
     }
 
     if (target_prop->protocol_version != DND_PROTOCOL_VERSION) {
-        qWarning("QMotifDND: protocol mismatch");
+        qWarning("QMotifDND: Protocol mismatch");
     }
 
     if (target_prop->byte_order != DndByteOrder()) {

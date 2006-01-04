@@ -393,7 +393,7 @@ static inline QUnicodeTables::Script scriptForWinLanguage(DWORD langid)
 {
     QUnicodeTables::Script script = langid < 0x80 ? (QUnicodeTables::Script)script_for_win_language[langid] : QUnicodeTables::Common;
     // if (script == QUnicodeTables::Common)
-    //     qWarning("Qt Uniscribe support: Encountered unhandled language id %x", (unsigned int)langid);
+    //     qWarning("QTextEngine: Uniscribe support internal error: Encountered unhandled language %x", (unsigned int)langid);
     return script;
 }
 
@@ -408,7 +408,7 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, QBidiCont
 
     if (start > stop) {
         // #### the algorithm is currently not really safe against this. Still needs fixing.
-//         qWarning("Bidi: appendItems() internal error");
+//         qWarning("QTextEngine: BiDi internal error in uspAppendItems()");
         return;
     }
 

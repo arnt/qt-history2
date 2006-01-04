@@ -145,8 +145,8 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
                     }
                 }
                 if (!widget) {
-                    qWarning("QMainWindow::restoreState(): cannot find a QDockWidget with "
-                             "matching 'objectName' (looking for '%s').",
+                    qWarning("QMainWindow::restoreState: Cannot find a QDockWidget with "
+                             "matching 'objectName' (looking for '%s')",
                              objectName.toLocal8Bit().constData());
                     // discard size/position data for unknown widget
                     QDockWidgetLayoutInfo info(0);
@@ -209,13 +209,13 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
 
 int QDockWidgetLayout::count() const
 {
-    qWarning("QDockWidgetLayout::count() is wrong");
+    qWarning("QDockWidgetLayout::count: Should not be called");
     return layout_info.count();
 }
 
 QLayoutItem *QDockWidgetLayout::itemAt(int index) const
 {
-    VDEBUG("QDockWidgetLayout::itemAt: index %d (%d)", index, layout_info.count());
+    VDEBUG("QDockWidgetLayout::itemAt: Index %d (%d)", index, layout_info.count());
 
     int x = 0;
     for (int i = 0; i < layout_info.count(); ++i) {

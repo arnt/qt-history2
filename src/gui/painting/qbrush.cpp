@@ -970,7 +970,7 @@ QGradient::QGradient()
 void QGradient::setColorAt(qreal pos, const QColor &color)
 {
     if (pos > 1 || pos < 0) {
-        qWarning("QGradient::setColorAt(), colors positions must be specified in the range 0 to 1");
+        qWarning("QGradient::setColorAt: Color position must be specified in the range 0 to 1");
         return;
     }
 

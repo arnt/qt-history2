@@ -184,7 +184,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
            y+rect.height() > dh - (q->style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q) * 2)) {
             ncols--;
             if (ncols < 0)
-                qWarning("QMenu: Column mismatch calculation. %d", ncols);
+                qWarning("QMenu: Column calculation mismatch (%d)", ncols);
             x += max_column_width + hmargin;
             y = vmargin;
         }
@@ -247,7 +247,7 @@ void QMenuPrivate::hideUpToMenuBar()
                     m->hide();
                 m->d_func()->setCurrentAction(0);
             } else {
-                qWarning("not possible..");
+                qWarning("QMenu: Internal error");
                 caused = 0;
             }
         }

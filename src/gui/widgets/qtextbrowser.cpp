@@ -169,7 +169,7 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
 #endif
         }
         if (txt.isEmpty())
-            qWarning("QTextBrowser: no document for %s", url.toString().toLatin1().constData());
+            qWarning("QTextBrowser: No document for %s", url.toString().toLatin1().constData());
 
         if (q->isVisible()) {
             QString firstTag = txt.left(txt.indexOf('>') + 1);
@@ -996,7 +996,7 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
         data = f.readAll();
         f.close();
     } else {
-        qWarning("QTextBrowser: cannot open '%s' for reading", fileName.toLocal8Bit().data());
+        qWarning("QTextBrowser: Cannot open '%s' for reading", fileName.toLocal8Bit().data());
     }
 
     return data;

@@ -200,7 +200,7 @@ int QMacMimeAnyMime::registerMimeType(const QString &mime)
 {
     if(!mime_registry.contains(mime)) {
         if(!loadMimeRegistry()) {
-            qWarning("That shouldn't happen!");
+            qWarning("QMime: Internal error");
             return 0;
         }
         if(!mime_registry.contains(mime)) {
@@ -245,7 +245,7 @@ int QMacMimeAnyMime::registerMimeType(const QString &mime)
                     return ret;
                 }
             }
-            qWarning("This cannot really happen!!!");
+            qWarning("QMime: Internal error");
             return 0;
         }
     }
@@ -305,7 +305,7 @@ bool QMacMimeAnyMime::loadMimeRegistry()
                 global.close();
             }
             if(!openMimeRegistry(false, QIODevice::ReadWrite, library_file)) {
-                qWarning("Failure to open mime resources %s -- %s", library_file.fileName().toLatin1().constData(),
+                qWarning("QMacMimeAnyMime: Failure to open mime resources %s -- %s", library_file.fileName().toLatin1().constData(),
                          library_file.errorString().toLatin1().constData());
                 return false;
             }
@@ -324,13 +324,13 @@ int QMacMimeAnyMime::registerMimeType(const QString &mime)
 {
     if(!mime_registry.contains(mime)) {
         if(!loadMimeRegistry()) {
-            qWarning("That shouldn't happen!");
+            qWarning("QMacMimeAnyMime: Internal error");
             return 0;
         }
         if(!mime_registry.contains(mime)) {
             if(!library_file.isOpen()) {
                 if(!library_file.open(QIODevice::WriteOnly)) {
-                    qWarning("Failure to open %s -- %s", library_file.fileName().toLatin1().constData(),
+                    qWarning("QMacMimeAnyMime: Failure to open %s -- %s", library_file.fileName().toLatin1().constData(),
                              library_file.errorString().toLatin1().constData());
                     return false;
                 }
@@ -400,7 +400,7 @@ bool QMacMimeAnyMime::canConvert(const QString &mime, int flav)
 QVariant QMacMimeAnyMime::convertToMime(const QString &, QList<QByteArray> data, int)
 {
     if(data.count() > 1)
-        qWarning("QMacMimeAnyMime: cannot handle multiple member data");
+        qWarning("QMacMimeAnyMime: Cannot handle multiple member data");
     return data.first();
 }
 
@@ -477,7 +477,7 @@ bool QMacMimeText::canConvert(const QString &mime, int flav)
 QVariant QMacMimeText::convertToMime(const QString &, QList<QByteArray> data, int)
 {
     if(data.count() > 1)
-        qWarning("QMacMimeText: cannot handle multiple member data");
+        qWarning("QMacMimeText: Cannot handle multiple member data");
     const QByteArray &firstData = data.first();
     return QVariant(QString::fromUtf8(firstData, firstData.size()));
 }
@@ -546,7 +546,7 @@ bool QMacMimeImage::canConvert(const QString &mime, int flav)
 QVariant QMacMimeImage::convertToMime(const QString &mime, QList<QByteArray> data, int flav)
 {
     if(data.count() > 1)
-        qWarning("QMacMimeAnyMime: cannot handle multiple member data");
+        qWarning("QMacMimeAnyMime: Cannot handle multiple member data");
     QVariant ret;
     if(mime != QLatin1String("application/x-qt-image") || flav != kScrapFlavorTypePicture)
         return ret;

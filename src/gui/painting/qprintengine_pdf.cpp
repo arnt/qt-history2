@@ -763,7 +763,7 @@ int QPdfEnginePrivate::writeCompressed(const char *src, int len)
         if (Z_OK == ::compress(dest, &destLen, (const Bytef*) src, (uLongf)len)) {
             stream->writeRawData((const char*)dest, destLen);
         } else {
-            qWarning("QPdfStream::writeCompressed(): compress error");
+            qWarning("QPdfStream::writeCompressed: Error in compress()");
             destLen = 0;
         }
         delete [] dest;

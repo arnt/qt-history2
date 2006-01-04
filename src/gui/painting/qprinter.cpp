@@ -38,7 +38,7 @@
 
 #define ABORT_IF_ACTIVE(location) \
     if (d->printEngine->printerState() == QPrinter::Active) { \
-        qWarning("%s, cannot be changed while printer is active", location); \
+        qWarning("%s: Cannot be changed while printer is active", location); \
         return; \
     }
 
@@ -487,7 +487,7 @@ QString QPrinter::printerName() const
 void QPrinter::setPrinterName(const QString &name)
 {
     Q_D(QPrinter);
-    ABORT_IF_ACTIVE("QPrinter::setPrinterName()");
+    ABORT_IF_ACTIVE("QPrinter::setPrinterName");
     d->printEngine->setProperty(QPrintEngine::PPK_PrinterName, name);
 }
 
@@ -543,7 +543,7 @@ QString QPrinter::outputFileName() const
 void QPrinter::setOutputFileName(const QString &fileName)
 {
     Q_D(QPrinter);
-    ABORT_IF_ACTIVE("QPrinter::setOutputFileName()");
+    ABORT_IF_ACTIVE("QPrinter::setOutputFileName");
     d->printEngine->setProperty(QPrintEngine::PPK_OutputFileName, fileName);
 }
 
@@ -578,7 +578,7 @@ QString QPrinter::printProgram() const
 void QPrinter::setPrintProgram(const QString &printProg)
 {
     Q_D(QPrinter);
-    ABORT_IF_ACTIVE("QPrinter::setPrintProgram()");
+    ABORT_IF_ACTIVE("QPrinter::setPrintProgram");
     d->printEngine->setProperty(QPrintEngine::PPK_PrinterProgram, printProg);
 }
 
@@ -601,7 +601,7 @@ QString QPrinter::docName() const
 void QPrinter::setDocName(const QString &name)
 {
     Q_D(QPrinter);
-    ABORT_IF_ACTIVE("QPrinter::setDocName()");
+    ABORT_IF_ACTIVE("QPrinter::setDocName");
     d->printEngine->setProperty(QPrintEngine::PPK_DocumentName, name);
 }
 
@@ -699,9 +699,9 @@ QPrinter::PageSize QPrinter::pageSize() const
 void QPrinter::setPageSize(PageSize newPageSize)
 {
     Q_D(QPrinter);
-    ABORT_IF_ACTIVE("QPrinter::setPageSize()");
+    ABORT_IF_ACTIVE("QPrinter::setPageSize");
     if (newPageSize > NPageSize) {
-        qWarning("QPrinter::SetPageSize: illegal page size %d", newPageSize);
+        qWarning("QPrinter::SetPageSize: Illegal page size %d", newPageSize);
         return;
     }
     d->printEngine->setProperty(QPrintEngine::PPK_PageSize, newPageSize);
@@ -721,7 +721,7 @@ void QPrinter::setPageSize(PageSize newPageSize)
 void QPrinter::setPageOrder(PageOrder pageOrder)
 {
     Q_D(QPrinter);
-    ABORT_IF_ACTIVE("QPrinter::setPageOrder()");
+    ABORT_IF_ACTIVE("QPrinter::setPageOrder");
     d->printEngine->setProperty(QPrintEngine::PPK_PageOrder, pageOrder);
 }
 
@@ -749,7 +749,7 @@ QPrinter::PageOrder QPrinter::pageOrder() const
 void QPrinter::setColorMode(ColorMode newColorMode)
 {
     Q_D(QPrinter);
-    ABORT_IF_ACTIVE("QPrinter::setColorMode()");
+    ABORT_IF_ACTIVE("QPrinter::setColorMode");
     d->printEngine->setProperty(QPrintEngine::PPK_ColorMode, newColorMode);
 }
 
@@ -800,7 +800,7 @@ int QPrinter::numCopies() const
 void QPrinter::setNumCopies(int numCopies)
 {
     Q_D(QPrinter);
-    ABORT_IF_ACTIVE("QPrinter::setNumCopies()");
+    ABORT_IF_ACTIVE("QPrinter::setNumCopies");
     d->printEngine->setProperty(QPrintEngine::PPK_NumberOfCopies, numCopies);
 }
 
@@ -833,7 +833,7 @@ bool QPrinter::collateCopies() const
 void QPrinter::setCollateCopies(bool collate)
 {
     Q_D(QPrinter);
-    ABORT_IF_ACTIVE("QPrinter::setCollateCopies()");
+    ABORT_IF_ACTIVE("QPrinter::setCollateCopies");
     d->printEngine->setProperty(QPrintEngine::PPK_CollateCopies, collate);
 }
 
@@ -898,7 +898,7 @@ bool QPrinter::fullPage() const
 void QPrinter::setResolution(int dpi)
 {
     Q_D(QPrinter);
-    ABORT_IF_ACTIVE("QPrinter::setResolution()");
+    ABORT_IF_ACTIVE("QPrinter::setResolution");
     d->printEngine->setProperty(QPrintEngine::PPK_Resolution, dpi);
 }
 
@@ -1041,7 +1041,7 @@ QPrintEngine *QPrinter::printEngine() const
 void QPrinter::setWinPageSize(int pageSize)
 {
     Q_D(QPrinter);
-    ABORT_IF_ACTIVE("QPrinter::setWinPageSize()");
+    ABORT_IF_ACTIVE("QPrinter::setWinPageSize");
     d->printEngine->setProperty(QPrintEngine::PPK_WindowsPageSize, pageSize);
 }
 

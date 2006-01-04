@@ -75,7 +75,7 @@ void QFontPrivate::load(int script)
 {
     // sanity checks
     if (!QFontCache::instance)
-        qWarning("Must construct a QApplication before a QFont");
+        qWarning("QFont: Must construct a QApplication before a QFont");
     Q_ASSERT(script >= 0 && script < QUnicodeTables::ScriptCount);
     Q_UNUSED(script);
 

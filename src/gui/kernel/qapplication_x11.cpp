@@ -1702,7 +1702,7 @@ void qt_init(QApplicationPrivate *priv, int,
 
             devices = XListInputDevices(X11->display, &ndev);
             if (!devices) {
-                qWarning("Failed to get list of devices");
+                qWarning("QApplication: Failed to get list of devices");
                 ndev = -1;
             }
             QTabletEvent::TabletDevice deviceType;
@@ -1732,7 +1732,7 @@ void qt_init(QApplicationPrivate *priv, int,
                     dev = XOpenDevice(X11->display, devs->id);
 
                     if (!dev) {
-                        qWarning("Failed to open device");
+                        qWarning("QApplication: Failed to open device");
                         continue;
                     }
 
@@ -2108,8 +2108,8 @@ void QApplication::setMainWidget(QWidget *mainWidget)
 {
 #ifndef QT_NO_DEBUG
     if (mainWidget && mainWidget->parentWidget() && mainWidget->isWindow())
-        qWarning("QApplication::setMainWidget(): New main widget (%s/%s) "
-                  "has a parent!",
+        qWarning("QApplication::setMainWidget: New main widget (%s/%s) "
+                  "has a parent",
                   mainWidget->metaObject()->className(), mainWidget->objectName().toLocal8Bit().constData());
 #endif
     QApplicationPrivate::main_widget = mainWidget;
@@ -5641,7 +5641,7 @@ QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
 
     QString error = QString::fromLocal8Bit(cerror);
     if (!smcConnection) {
-        qWarning("Session management error: %s", qPrintable(error));
+        qWarning("Qt: Session management error: %s", qPrintable(error));
     }
     else {
         sm_receiver = new QSmSocketReceiver(IceConnectionNumber(SmcGetIceConnection(smcConnection)));

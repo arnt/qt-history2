@@ -69,7 +69,7 @@ public:
             ce.type = QPainterPath::CurveToDataElement;
             break;
         default:
-            qWarning("QSubpathReverseIterator::next(), unhandled case, %d", ce.type);
+            qWarning("QSubpathReverseIterator::next: Case %d unhandled", ce.type);
             break;
         }
         --m_pos;
@@ -713,7 +713,7 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
 #ifndef QT_NO_DEBUG
     if (qIsNan(rect.x()) || qIsNan(rect.y()) || qIsNan(rect.width()) || qIsNan(rect.height())
         || qIsNan(startAngle) || qIsNan(sweepLength))
-        qWarning("QPainterPath::arcTo(): adding arc where a parameter is nan, results are undefined.");
+        qWarning("QPainterPath::arcTo: Adding arc where a parameter is NaN, results are undefined");
 #endif
     *point_count = 0;
 

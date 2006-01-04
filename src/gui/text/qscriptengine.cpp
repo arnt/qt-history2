@@ -41,7 +41,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
 {
     int nmarks = glast - gfrom;
     if (nmarks <= 0) {
-        qWarning("positionCluster: no marks to position!");
+        qWarning("Qt: No marks to position in positionCluster()");
         return;
     }
 

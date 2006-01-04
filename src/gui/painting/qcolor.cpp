@@ -448,7 +448,7 @@ void QColor::setNamedColor(const QString &name)
         if (qt_get_hex_rgb(n, &rgb)) {
             setRgb(rgb);
         } else {
-            qWarning("QColor::setNamedColor: could not parse color '%s'", n.constData());
+            qWarning("QColor::setNamedColor: Could not parse color '%s'", n.constData());
             invalidate();
         }
         return;
@@ -458,7 +458,7 @@ void QColor::setNamedColor(const QString &name)
     if (qt_get_named_rgb(n, &rgb)) {
         setRgb(rgb);
     } else {
-        qWarning("QColor::setNamedColor: unknown color name '%s'", n.constData());
+        qWarning("QColor::setNamedColor: Unknown color name '%s'", n.constData());
         invalidate();
     }
 }
@@ -545,7 +545,7 @@ void QColor::setHsvF(qreal h, qreal s, qreal v, qreal a)
         || (s < 0.0 || s > 1.0)
         || (v < 0.0 || v > 1.0)
         || (a < 0.0 || a > 1.0)) {
-        qWarning("QColor::setHsv: HSV parameters out of range");
+        qWarning("QColor::setHsvF: HSV parameters out of range");
         return;
     }
 
@@ -664,7 +664,7 @@ void QColor::setRgbF(qreal r, qreal g, qreal b, qreal a)
         || g < 0.0 || g > 1.0
         || b < 0.0 || b > 1.0
         || a < 0.0 || a > 1.0) {
-        qWarning("QColor::setRgb: RGB parameter(s) out of range");
+        qWarning("QColor::setRgbF: RGB parameters out of range");
         invalidate();
         return;
     }
@@ -688,7 +688,7 @@ void QColor::setRgbF(qreal r, qreal g, qreal b, qreal a)
 void QColor::setRgb(int r, int g, int b, int a)
 {
     if ((uint)r > 255 || (uint)g > 255 || (uint)b > 255 || (uint)a > 255) {
-        qWarning("QColor::setRgb: RGB parameter(s) out of range");
+        qWarning("QColor::setRgb: RGB parameters out of range");
         invalidate();
         return;
     }
@@ -1399,7 +1399,7 @@ QColor QColor::fromRgb(int r, int g, int b, int a)
         || g < 0 || g > 255
         || b < 0 || b > 255
         || a < 0 || a > 255) {
-        qWarning("QColor::fromRgb: RGB paramaters out of range");
+        qWarning("QColor::fromRgb: RGB parameters out of range");
         return QColor();
     }
 
@@ -1428,7 +1428,7 @@ QColor QColor::fromRgbF(qreal r, qreal g, qreal b, qreal a)
         || g < 0.0 || g > 1.0
         || b < 0.0 || b > 1.0
         || a < 0.0 || a > 1.0) {
-        qWarning("QColor::fromRgb: RGB paramaters out of range");
+        qWarning("QColor::fromRgbF: RGB parameters out of range");
         return QColor();
     }
 
@@ -1491,7 +1491,7 @@ QColor QColor::fromHsvF(qreal h, qreal s, qreal v, qreal a)
         || (s < 0.0 || s > 1.0)
         || (v < 0.0 || v > 1.0)
         || (a < 0.0 || a > 1.0)) {
-        qWarning("QColor::fromHsv: HSV parameters out of range");
+        qWarning("QColor::fromHsvF: HSV parameters out of range");
         return QColor();
     }
 
@@ -1579,7 +1579,7 @@ void QColor::setCmyk(int c, int m, int y, int k, int a)
         || y < 0 || y > 255
         || k < 0 || k > 255
         || a < 0 || a > 255) {
-        qWarning("QColor::setCmyk: CMYK paramaters out of range");
+        qWarning("QColor::setCmyk: CMYK parameters out of range");
         return;
     }
 
@@ -1609,7 +1609,7 @@ void QColor::setCmykF(qreal c, qreal m, qreal y, qreal k, qreal a)
         || y < 0.0 || y > 1.0
         || k < 0.0 || k > 1.0
         || a < 0.0 || a > 1.0) {
-        qWarning("QColor::setCmyk: CMYK paramaters out of range");
+        qWarning("QColor::setCmykF: CMYK parameters out of range");
         return;
     }
 
@@ -1639,7 +1639,7 @@ QColor QColor::fromCmyk(int c, int m, int y, int k, int a)
         || y < 0 || y > 255
         || k < 0 || k > 255
         || a < 0 || a > 255) {
-        qWarning("QColor::fromCmyk: CMYK paramaters out of range");
+        qWarning("QColor::fromCmyk: CMYK parameters out of range");
         return QColor();
     }
 
@@ -1673,7 +1673,7 @@ QColor QColor::fromCmykF(qreal c, qreal m, qreal y, qreal k, qreal a)
         || y < 0.0 || y > 1.0
         || k < 0.0 || k > 1.0
         || a < 0.0 || a > 1.0) {
-        qWarning("QColor::fromCmyk: CMYK paramaters out of range");
+        qWarning("QColor::fromCmykF: CMYK parameters out of range");
         return QColor();
     }
 

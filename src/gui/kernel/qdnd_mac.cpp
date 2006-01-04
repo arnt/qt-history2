@@ -300,7 +300,7 @@ QVariant QDropData::retrieveData_sys(const QString &mime, QVariant::Type) const
             for(int i = 1; i <= cnt_items; i++) {
                 ItemReference ref = 0;
                 if(GetDragItemReferenceNumber(qt_mac_current_dragRef, i, &ref)) {
-                    qWarning("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
+                    qWarning("Qt: Internal error (%s:%d)", __FILE__, __LINE__);
                     return QByteArray();
                 }
                 if(GetFlavorDataSize(qt_mac_current_dragRef, ref, flav, &flavorsize) == noErr) {
@@ -540,7 +540,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
 Qt::DropAction QDragManager::drag(QDrag *o)
 {
     if(qt_mac_in_drag) {     //just make sure..
-        qWarning("Qt: internal: WH0A, unexpected condition reached.");
+        qWarning("Qt: Internal error: WH0A, unexpected condition reached");
         return Qt::IgnoreAction;
     }
     if(object == o)

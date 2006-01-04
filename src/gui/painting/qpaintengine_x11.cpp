@@ -415,7 +415,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 	}
         if (aet.size()%2 != 0) {
 #ifndef QT_NO_DEBUG
-            qWarning("QX11PaintEngine: aet out of sync - this should not happen.");
+            qWarning("QX11PaintEngine: Internal error: aet out of sync");
 #endif
             return;
         }
@@ -720,8 +720,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->scrn = d->xinfo->screen(); // get screen variable
 
     if (isActive()) {                         // already active painting
-        qWarning("QX11PaintEngine::begin: Painter is already active."
-                 "\n\tYou must end() the painter before a second begin()");
+        qWarning("QX11PaintEngine::begin: Painter already active");
         return false;
     }
 

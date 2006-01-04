@@ -227,7 +227,7 @@ static bool qt_x11_incr_event_filter(void *message, long *result)
 */
 static void qt_xclb_incr_timeout(void)
 {
-    qWarning("QClipboard: timed out while sending data");
+    qWarning("QClipboard: Timed out while sending data");
 
     while (transactions)
         delete *transactions->begin();
@@ -788,7 +788,7 @@ bool QClipboard::event(QEvent *e)
                     pending_timer_id = QApplication::clipboard()->startTimer(0);
             }
         } else {
-            qWarning("QClipboard: Unknown SelectionClear event received.");
+            qWarning("QClipboard: Unknown SelectionClear event received");
             return false;
         }
         break;
@@ -834,13 +834,13 @@ bool QClipboard::event(QEvent *e)
             } else if (req->selection == ATOM(CLIPBOARD)) {
                 d = clipboardData();
             } else {
-                qWarning("QClipboard: unknown selection '%lx'", req->selection);
+                qWarning("QClipboard: Unknown selection '%lx'", req->selection);
                 XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
                 break;
             }
 
             if (! d->source()) {
-                qWarning("QClipboard: cannot transfer data, no data available");
+                qWarning("QClipboard: Cannot transfer data, no data available");
                 XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
                 break;
             }
@@ -905,7 +905,7 @@ bool QClipboard::event(QEvent *e)
                                         PropModeReplace, (uchar *) &d->timestamp, 1);
                         ret = property;
                     } else {
-                        qWarning("QClipboard: invalid data timestamp");
+                        qWarning("QClipboard: Invalid data timestamp");
                     }
                 } else if (target == xa_targets) {
                     ret = send_targets_selection(d, req->requestor, property);
@@ -968,7 +968,7 @@ QClipboardWatcher::QClipboardWatcher(QClipboard::Mode mode)
         break;
 
     default:
-        qWarning("QClipboardWatcher: internal error, unknown clipboard mode");
+        qWarning("QClipboardWatcher: Internal error: Unknown clipboard mode");
         break;
     }
 
@@ -989,7 +989,7 @@ bool QClipboardWatcher::empty() const
     Window win = XGetSelectionOwner(dpy, atom);
 
     if(win == requestor->winId()) {
-        qWarning("QClipboardWatcher::empty: internal error, app owns the selection");
+        qWarning("QClipboardWatcher::empty: Internal error: Application owns the selection");
         return true;
     }
 
@@ -1160,7 +1160,7 @@ void QClipboard::setMimeData(QMimeData* src, Mode mode)
         break;
 
     default:
-        qWarning("QClipboard::data: invalid mode '%d'", mode);
+        qWarning("QClipboard::data: Invalid mode '%d'", mode);
         return;
     }
 

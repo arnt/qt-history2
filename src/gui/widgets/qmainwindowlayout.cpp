@@ -543,7 +543,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
                 }
             }
             if (!toolbar) {
-                qWarning("QMainWindow::restoreState(): cannot find a QToolBar with "
+                qWarning("QMainWindow::restoreState: Cannot find a QToolBar with "
                          "matching 'objectName' (looking for '%s').",
                          objectName.toLocal8Bit().constData());
                 continue;
@@ -724,7 +724,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
 
 int QMainWindowLayout::count() const
 {
-    qWarning("QMainWindowLayout::count()");
+    qWarning("QMainWindowLayout::count: ?");
     return 10; //#################################################
 }
 
@@ -1563,7 +1563,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 }
 
 void QMainWindowLayout::addItem(QLayoutItem *)
-{ qWarning("QMainWindowLayout: please use the public QMainWindow API instead."); }
+{ qWarning("QMainWindowLayout::addItem: Please use the public QMainWindow API instead"); }
 
 QSize QMainWindowLayout::sizeHint() const
 {

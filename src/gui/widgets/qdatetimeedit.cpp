@@ -1160,7 +1160,7 @@ int QDateTimeEditPrivate::closestSection(int pos, bool forward) const
             return i;
         }
     }
-    qWarning("closestSection return NoSection. This should not happen");
+    qWarning("QDateTimeEdit: Internal Error: closestSection returned NoSection");
     return NoSectionIndex;
 }
 
@@ -1208,7 +1208,7 @@ void QDateTimeEditPrivate::clearSection(int index)
     QString t = edit->text();
     const int pos = sectionPos(index);
     if (pos == -1) {
-        qWarning("%s:%d this is unexpected", __FILE__, __LINE__);
+        qWarning("QDateTimeEdit: Internal error (%s:%d)", __FILE__, __LINE__);
         return;
     }
     const int size = sectionSize(index);

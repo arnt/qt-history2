@@ -941,7 +941,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
 {
     // sanity checks
     if (!QFontCache::instance)
-        qWarning("Must construct a QApplication before a QFont");
+        qWarning("QFontDatabase::load: Must construct QApplication first");
     Q_ASSERT(script >= 0 && script < QUnicodeTables::ScriptCount);
 
     if (!privateDb()->count)

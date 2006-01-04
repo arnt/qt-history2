@@ -54,7 +54,7 @@ void
 QDialogButtons::init(quint32 buttons, Qt::Orientation orient)
 {
     if(buttons == All) {
-        qWarning("QDialogButtons: cannot specify All by itself!");
+        qWarning("QDialogButtons::init: Cannot specify All by itself!");
         buttons = None;
     }
     d = new QDialogButtonsPrivate;
@@ -148,7 +148,7 @@ void
 QDialogButtons::setDefaultButton(Button button)
 {
     if(!((int)(d->visible & button) == button)) {
-        qWarning("QDialogButtons: Button '%d' is not visible (so cannot be default)", button);
+        qWarning("QDialogButtons::setDefaultButton: Button '%d' is not visible (so cannot be default)", button);
         return;
     }
     if(d->def != button) {

@@ -532,7 +532,7 @@ void QTextLayout::beginLayout()
 {
 #ifndef QT_NO_DEBUG
     if (d->layoutData && d->layoutData->inLayout) {
-        qWarning("QTextLayout::beginLayout() called while doing layout");
+        qWarning("QTextLayout::beginLayout: Called while already doing layout");
         return;
     }
 #endif
@@ -548,7 +548,7 @@ void QTextLayout::endLayout()
 {
 #ifndef QT_NO_DEBUG
     if (!d->layoutData || !d->layoutData->inLayout) {
-        qWarning("QTextLayout::endLayout() called without beginLayout()");
+        qWarning("QTextLayout::endLayout: Called without beginLayout()");
         return;
     }
 #endif
@@ -666,7 +666,7 @@ QTextLine QTextLayout::createLine()
 {
 #ifndef QT_NO_DEBUG
     if (!d->layoutData || !d->layoutData->inLayout) {
-        qWarning("QTextLayout::createLine() called without layouting");
+        qWarning("QTextLayout::createLine: Called without layouting");
         return QTextLine();
     }
 #endif

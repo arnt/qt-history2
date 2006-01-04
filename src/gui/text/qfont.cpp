@@ -411,7 +411,7 @@ QFontEngineData::~QFontEngineData()
 void qt_font_tread_test()
 {
     if (QApplication::instance() && QThread::currentThread() != QApplication::instance()->thread())
-        qWarning("QFont: It is not safe to use text and fonts outside the gui thread");
+        qWarning("QFont: It is not safe to use text and fonts outside the GUI thread");
 }
 
 /*!
@@ -1099,7 +1099,7 @@ int QFont::stretch() const
 void QFont::setStretch(int factor)
 {
     if (factor < 1 || factor > 4000) {
-        qWarning("QFont::setStretch(): parameter '%d' out of range", factor);
+        qWarning("QFont::setStretch: Parameter '%d' out of range", factor);
         return;
     }
 
@@ -1596,7 +1596,7 @@ bool QFont::fromString(const QString &descrip)
 
     int count = l.count();
     if (!count || (count > 2 && count < 9) || count > 11) {
-        qWarning("QFont::fromString: invalid description '%s'",
+        qWarning("QFont::fromString: Invalid description '%s'",
                  descrip.isEmpty() ? "(empty)" : descrip.toLatin1().data());
         return false;
     }

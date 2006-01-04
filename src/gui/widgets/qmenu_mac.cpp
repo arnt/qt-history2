@@ -159,7 +159,7 @@ void qt_mac_clear_menubar()
         SetRootMenu(clear_menu);
         ReleaseMenu(clear_menu);
     } else {
-        qWarning("Unknown error! %s:%d", __FILE__, __LINE__);
+        qWarning("QMenu: Internal error at %s:%d", __FILE__, __LINE__);
     }
     ClearMenuBar();
     qt_mac_command_set_enabled(0, kHICommandPreferences, false);
@@ -406,7 +406,7 @@ static MenuRef qt_mac_create_menu(QWidget *w)
         qt_mac_create_menu_event_handler();
         SetMenuItemProperty(ret, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(w), &w);
     } else {
-        qWarning("This really cannot happen!!");
+        qWarning("QMenu: Internal error");
     }
     return ret;
 }
@@ -814,7 +814,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
         if(release_submenu) //no pointers to it
             ReleaseMenu(submenu);
     } else {
-        qWarning("QMenu: No MenuRef created for popup menu!");
+        qWarning("QMenu: No MenuRef created for popup menu");
     }
 }
 

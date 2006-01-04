@@ -751,7 +751,7 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
         if (!onScreen || alsoOnScreen) {
             //update the "in paint event" flag
             if (q->testAttribute(Qt::WA_WState_InPaintEvent))
-                qWarning("QWidget::repaint: recursive repaint detected.");
+                qWarning("QWidget::repaint: Recursive repaint detected");
             q->setAttribute(Qt::WA_WState_InPaintEvent);
 
             //clip away the new area
@@ -800,7 +800,7 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
             }
             q->setAttribute(Qt::WA_WState_InPaintEvent, false);
             if(!q->testAttribute(Qt::WA_PaintOutsidePaintEvent) && q->paintingActive())
-                qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
+                qWarning("QWidget::repaint: It is dangerous to leave painters active on a widget outside of the PaintEvent");
 
             if (flushed)
                 qt_unflushPaint(q, toBePainted);
@@ -899,7 +899,7 @@ void QWidget::repaint(const QRegion& rgn)
         }
 
         if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())
-            qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
+            qWarning("QWidget::repaint: It is dangerous to leave painters active on a widget outside of the PaintEvent");
     }
 #endif //Q_WS_QWS
 }

@@ -482,7 +482,7 @@ QVariant QInternalMimeData::retrieveData(const QString &mimeType, QVariant::Type
                       qreal(colBuf[3]) / qreal(0xFFFF));
             data = c;
         } else {
-            qWarning("Invalid color format");
+            qWarning("Qt: Invalid color format");
         }
     } else if (data.type() != type && data.type() == QVariant::ByteArray) {
         // try to use mime data's internal conversion stuf.

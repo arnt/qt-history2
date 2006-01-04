@@ -91,8 +91,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QQuickDrawPaintEngine);
     if(isActive()) {                         // already active painting
-        qWarning("QQuickDrawPaintEngine::begin: Painter is already active."
-                  "\n\tYou must end() the painter before a second begin()");
+        qWarning("QQuickDrawPaintEngine::begin: Painter already active");
         return false;
     }
 
@@ -1041,8 +1040,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QCoreGraphicsPaintEngine);
     if(isActive()) {                         // already active painting
-        qWarning("QCoreGraphicsPaintEngine::begin: Painter is already active."
-                "\n\tYou must end() the painter before a second begin()");
+        qWarning("QCoreGraphicsPaintEngine::begin: Painter already active");
         return false;
     }
 
@@ -1579,7 +1577,7 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
 #endif
     } else if(bs == Qt::RadialGradientPattern || bs == Qt::ConicalGradientPattern) {
 #ifdef QMAC_NATIVE_GRADIENTS
-        qWarning("Unhandled gradient! %d", (int)bs);
+        qWarning("QCoreGraphicsPaintEngine: Unhandled gradient %d", (int)bs);
 #endif
     } else if(bs != Qt::SolidPattern && bs != Qt::NoBrush) {
         int width = 0, height = 0;

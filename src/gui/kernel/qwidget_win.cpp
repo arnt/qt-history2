@@ -119,7 +119,7 @@ static void qt_tablet_init()
         // make sure we have WinTab
         if (!ptrWTInfo(0, 0, NULL)) {
 #ifdef TABLET_DEBUG
-            qWarning("Wintab services not available");
+            qWarning("QWidget: Wintab services not available");
 #endif
             return;
         }
@@ -147,7 +147,7 @@ static void qt_tablet_init()
 #endif
         if (!qt_tablet_context) {
 #ifdef TABLET_DEBUG
-            qWarning("Failed to open the tablet");
+            qWarning("QWidget: Failed to open the tablet");
 #endif
             return;
         }

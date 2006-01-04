@@ -256,7 +256,7 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
         if(ret == noErr) {
             ret = SetWindowBounds(*w, kWindowContentRgn, geo);
             if(ret != noErr)
-                qWarning("%s:%d This error shouldn't really ever happen!!!", __FILE__, __LINE__);
+                qWarning("QWidget: Internal error (%s:%d)", __FILE__, __LINE__);
         }
     } else {
         ret = CreateNewWindow(wclass, wattr, geo, w);
@@ -457,7 +457,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 #endif
                 if (widget->isVisible() && widget->updatesEnabled()) { //process the actual paint event.
                     if(widget->testAttribute(Qt::WA_WState_InPaintEvent))
-                        qWarning("QWidget::repaint: recursive repaint detected.");
+                        qWarning("QWidget::repaint: Recursive repaint detected");
 
 
                     QPoint redirectionOffset(0, 0);
@@ -515,7 +515,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 
                     widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
                     if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
-                        qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
+                        qWarning("QWidget: It is dangerous to leave painters active on a widget outside of the PaintEvent");
                 }
                 SetGWorld(old_qdref, old_device); //restore the state..
 
@@ -603,11 +603,11 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
                                                 GetEventTypeCount(widget_events), widget_events,
                                                 0, &widget_class);
         if (err && err != hiObjectClassExistsErr)
-            qWarning("That cannot happen!!! %d", __LINE__);
+            qWarning("QWidget: Internal error (%d)", __LINE__);
     }
     HIViewRef ret = 0;
     if(HIObjectCreate(kObjectQWidget, 0, (HIObjectRef*)&ret) != noErr)
-        qWarning("That cannot happen!!! %d", __LINE__);
+        qWarning("QWidget: Internal error (%d)", __LINE__);
     if(ret)
         HIViewAddSubview(parent, ret);
     return ret;
@@ -1043,11 +1043,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
         WindowRef window = 0;
         if(OSStatus ret = qt_mac_create_window(wclass, wattr, &r, &window))
-            qWarning("Qt: internal: %s:%d If you reach this error please contact Trolltech and include the\n"
+            qWarning("QWidget: Internal error: %s:%d: If you reach this error please contact Trolltech and include the\n"
                    "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
         QWidget *me = q;
         if(SetWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget, sizeof(me), &me) != noErr)
-            qWarning("Qt: internal: %s:%d This should not happen!", __FILE__, __LINE__); //no real way to recover
+            qWarning("Qt:Internal error (%s:%d)", __FILE__, __LINE__); //no real way to recover
         if(!desktop) { //setup an event callback handler on the window
             SetAutomaticControlDragTrackingEnabledForWindow(window, true);
             InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
@@ -1104,7 +1104,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if(err == errUnknownControl)
             window_hiview = HIViewGetRoot(window);
         else if(err != noErr)
-            qWarning("That cannot happen! %d [%ld]", __LINE__, err);
+            qWarning("QWidget: Internal error: %d [%ld]", __LINE__, err);
         if(HIViewRef hiview = qt_mac_create_widget(window_hiview)) {
             Rect win_rect;
             GetWindowBounds(qt_mac_window_for(window_hiview), kWindowContentRgn, &win_rect);
@@ -2031,7 +2031,7 @@ int QWidget::metric(PaintDeviceMetric m) const
         ScreenRes(&dpix, &dpiy);
         return dpiy; }
     default: //leave this so the compiler complains when new ones are added
-        qWarning("Qt: QWidget::metric unhandled parameter %d", m);
+        qWarning("QWidget::metric: Unhandled parameter %d", m);
         return QPaintDevice::metric(m);
     }
     return 0;

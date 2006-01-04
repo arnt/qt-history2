@@ -811,7 +811,7 @@ static void ignoreSigPipe(bool b)
             return; // not ignoring sigpipe
 
         if (sigaction(SIGPIPE, users_sigpipe_handler, 0) == -1)
-            qWarning("QPSPrintEngine: could not restore SIGPIPE handler");
+            qWarning("QPSPrintEngine: Could not restore SIGPIPE handler");
 
         delete users_sigpipe_handler;
         users_sigpipe_handler = 0;
@@ -866,7 +866,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
             pr = d->printerName;
         int fds[2];
         if (pipe(fds) != 0) {
-            qWarning("QPSPrinter: could not open pipe to print");
+            qWarning("QPSPrinter: Could not open pipe to print");
             return false;
         }
 

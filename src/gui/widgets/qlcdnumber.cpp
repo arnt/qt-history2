@@ -1020,8 +1020,7 @@ void QLCDNumberPrivate::drawSegment(const QPoint &pos, char segmentNo, QPainter 
             LINETO(0,0);
             break;
         default :
-            qWarning("QLCDNumber::drawSegment: (%s) Internal error."
-                     "  Illegal segment id: %d\n",
+            qWarning("QLCDNumber::drawSegment: (%s) Illegal segment id: %d\n",
                      q->objectName().toLocal8Bit().constData(), segmentNo);
         }
         // End exact copy
@@ -1154,8 +1153,7 @@ void QLCDNumberPrivate::drawSegment(const QPoint &pos, char segmentNo, QPainter 
             LINETO(0,0);
             break;
         default :
-            qWarning("QLCDNumber::drawSegment: (%s) Internal error."
-                     "  Illegal segment id: %d\n",
+            qWarning("QLCDNumber::drawSegment: (%s) Illegal segment id: %d\n",
                      q->objectName().toLocal8Bit().constData(), segmentNo);
         }
 

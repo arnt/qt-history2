@@ -2730,12 +2730,12 @@ bool QApplication::qwsEventFilter(QWSEvent *)
 void QApplication::qwsSetCustomColors(QRgb *colorTable, int start, int numColors)
 {
     if (start < 0 || start > 39) {
-        qWarning("QApplication::qwsSetCustomColors - start < 0 || start > 39");
+        qWarning("QApplication::qwsSetCustomColors: start < 0 || start > 39");
         return;
     }
     if (start + numColors > 40) {
         numColors = 40 - start;
-        qWarning("QApplication::qwsSetCustomColors - too many colors");
+        qWarning("QApplication::qwsSetCustomColors: Too many colors");
     }
     start += 216;
     for (int i = 0; i < numColors; i++) {

@@ -120,7 +120,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, QBidiContro
 
     if (start > stop) {
         // #### the algorithm is currently not really safe against this. Still needs fixing.
-//         qWarning("Bidi: appendItems() internal error");
+//         qWarning("QTextEngine: BiDi internal error in qAppendItems()");
         return;
     }
 

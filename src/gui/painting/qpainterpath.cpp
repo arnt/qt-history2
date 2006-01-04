@@ -325,7 +325,7 @@ void QPainterPath::moveTo(const QPointF &p)
 #endif
 #ifndef QT_NO_DEBUG
     if (qIsNan(p.x()) || qIsNan(p.y()))
-        qWarning("QPainterPath::moveTo(): adding point where x or y is nan, results are undefined.");
+        qWarning("QPainterPath::moveTo: Adding point where x or y is NaN, results are undefined");
 #endif
     ensureData();
     detach();
@@ -369,7 +369,7 @@ void QPainterPath::lineTo(const QPointF &p)
 #endif
 #ifndef QT_NO_DEBUG
     if (qIsNan(p.x()) || qIsNan(p.y()))
-        qWarning("QPainterPath::lineTo(): adding point where x or y is nan, results are undefined.");
+        qWarning("QPainterPath::lineTo: Adding point where x or y is NaN, results are undefined");
 #endif
     ensureData();
     detach();
@@ -412,7 +412,7 @@ void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &
 #ifndef QT_NO_DEBUG
     if (qIsNan(c1.x()) || qIsNan(c1.y()) || qIsNan(c2.x()) || qIsNan(c2.y())
         || qIsNan(e.x()) || qIsNan(e.y()))
-        qWarning("QPainterPath::cubicTo(): adding point where x or y is nan, results are undefined.");
+        qWarning("QPainterPath::cubicTo: Adding point where x or y is NaN, results are undefined");
 #endif
     ensureData();
     detach();
@@ -462,7 +462,7 @@ void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
 #endif
 #ifndef QT_NO_DEBUG
     if (qIsNan(c.x()) || qIsNan(c.y()) || qIsNan(e.x()) || qIsNan(e.y()))
-        qWarning("QPainterPath::quadTo(): adding point where x or y is nan, results are undefined.");
+        qWarning("QPainterPath::quadTo: Adding point where x or y is NaN, results are undefined");
 #endif
     ensureData();
     detach();
@@ -533,7 +533,7 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
 #ifndef QT_NO_DEBUG
     if (qIsNan(rect.x()) || qIsNan(rect.y()) || qIsNan(rect.width()) || qIsNan(rect.height())
         || qIsNan(startAngle) || qIsNan(sweepLength))
-        qWarning("QPainterPath::arcTo(): adding arc where a parameter is nan, results are undefined.");
+        qWarning("QPainterPath::arcTo: Adding arc where a parameter is NaN, results are undefined");
 #endif
     if (rect.isNull())
         return;
@@ -590,7 +590,7 @@ void QPainterPath::addRect(const QRectF &r)
 {
 #ifndef QT_NO_DEBUG
     if (qIsNan(r.x()) || qIsNan(r.y()) || qIsNan(r.width()) || qIsNan(r.height()))
-        qWarning("QPainterPath::addRect(): adding rect where a parameter is nan, results are undefined.");
+        qWarning("QPainterPath::addRect: Adding rect where a parameter is NaN, results are undefined");
 #endif
     if (r.isNull())
         return;
@@ -655,7 +655,7 @@ void QPainterPath::addEllipse(const QRectF &boundingRect)
 #ifndef QT_NO_DEBUG
     if (qIsNan(boundingRect.x()) || qIsNan(boundingRect.y())
         || qIsNan(boundingRect.width()) || qIsNan(boundingRect.height()))
-        qWarning("QPainterPath::addEllipse(): adding ellipse where a parameter is nan, results are undefined.");
+        qWarning("QPainterPath::addEllipse: Adding ellipse where a parameter is NaN, results are undefined");
 #endif
     if (boundingRect.isNull())
         return;
@@ -1753,7 +1753,7 @@ QDataStream &operator>>(QDataStream &s, QPainterPath &p)
         Q_ASSERT(type >= 0 && type <= 3);
 #ifndef QT_NO_DEBUG
         if (qIsNan(x) || qIsNan(y))
-            qWarning("operator>>(): adding a nan element to path, results are undefined.");
+            qWarning("QDataStream::operator>>: Adding a NaN element to path, results are undefined");
 #endif
         QPainterPath::Element elm = { x, y, QPainterPath::ElementType(type) };
         p.d_func()->elements.append(elm);

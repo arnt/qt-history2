@@ -976,7 +976,7 @@ QWidget::~QWidget()
     Q_D(QWidget);
 #if defined (QT_CHECK_STATE)
     if (paintingActive())
-        qWarning("%s (%s): deleted while being painted", className(), name());
+        qWarning("QWidget: %s (%s) deleted while being painted", className(), name());
 #endif
 
     // force acceptDrops false before winId is destroyed.
@@ -1893,7 +1893,7 @@ void QWidget::addActions(QList<QAction*> actions)
 void QWidget::insertAction(QAction *before, QAction *action)
 {
     if(!action) {
-        qWarning("Attempt to insert null action!");
+        qWarning("QWidget::insertAction: Attempt to insert null action");
         return;
     }
 
@@ -3507,7 +3507,7 @@ void QWidget::setFocusProxy(QWidget * w)
 
     for (QWidget* fp  = w; fp; fp = fp->focusProxy()) {
         if (fp == this) {
-            qWarning("%s (%s): already in focus proxy chain", metaObject()->className(), objectName().toLocal8Bit().constData());
+            qWarning("QWidget: %s (%s) already in focus proxy chain", metaObject()->className(), objectName().toLocal8Bit().constData());
             return;
         }
     }
@@ -6112,12 +6112,12 @@ QLayout *QWidget::layout() const
 void QWidget::setLayout(QLayout *l)
 {
     if (!l) {
-        qWarning("cannot set layout to 0");
+        qWarning("QWidget::setLayout: Cannot set layout to 0");
         return;
     }
     if (layout()) {
         if (layout() != l)
-            qWarning("QWidget::setLayout() : Attempting to add QLayout \"%s\" to %s \"%s\", which already has a"
+            qWarning("QWidget::setLayout: Attempting to add QLayout \"%s\" to %s \"%s\", which already has a"
                      " layout", l->objectName().toLocal8Bit().data(), metaObject()->className(),
                      objectName().toLocal8Bit().data());
         return;
@@ -6781,7 +6781,7 @@ void QWidget::setWindowModified(bool mod)
     setAttribute(Qt::WA_WindowModified, mod);
 
     if (!windowTitle().contains(QLatin1String("[*]")) && mod)
-        qWarning("QWidget::setWindowModified: The window title does not contain a '[*]' placeholder!");
+        qWarning("QWidget::setWindowModified: The window title does not contain a '[*]' placeholder");
     d->setWindowTitle_helper(windowTitle());
     d->setWindowIconText_helper(windowIconText());
 #ifdef Q_WS_MAC

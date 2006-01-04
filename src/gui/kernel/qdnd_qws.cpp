@@ -168,7 +168,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
         case QEvent::MouseMove:
         {
             if (!object) { //#### this should not happen
-                qWarning("QDragManager::eventFilter() no object");
+                qWarning("QDragManager::eventFilter: No object");
                 return true;
             }
 

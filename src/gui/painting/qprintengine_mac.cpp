@@ -42,7 +42,7 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
                                                                   false);
         if (PMSessionSetDestination(d->session, d->settings, kPMDestinationFile,
                                     kPMDocumentFormatPDF, outFile) != noErr) {
-            qWarning("problem setting file [%s]", d->outputFilename.toUtf8().constData());
+            qWarning("QMacPrintEngine::begin: Problem setting file [%s]", d->outputFilename.toUtf8().constData());
             return false;
         }
     }
@@ -203,7 +203,7 @@ QList<QVariant> QMacPrintEnginePrivate::supportedResolutions() const
                     resolutions.append(QVariant(int(res.hRes)));
             }
         } else {
-            qWarning("QMacPrintEngine::supportedResolutions() unexpected error: %ld", status);
+            qWarning("QMacPrintEngine::supportedResolutions: Unexpected error: %ld", status);
         }
     }
     return resolutions;
@@ -221,7 +221,7 @@ bool QMacPrintEngine::newPage()
     OSStatus err = d->suppressStatus ? PMSessionEndPageNoDialog(d->session)
                                      : PMSessionEndPage(d->session);
     if (err != noErr)  {
-        qWarning("QMacPrintEngine::newPage: Cannot end current page. %ld", err);
+        qWarning("QMacPrintEngine::newPage: Cannot end current page: %ld", err);
         d->state = QPrinter::Error;
         return false;
     }
@@ -416,7 +416,7 @@ bool QMacPrintEnginePrivate::newPage_helper()
         OSStatus err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
                                                    reinterpret_cast<void **>(&cgContext));
         if(err != noErr) {
-            qWarning("QMacPrintEngine::newPage: Cannot retrieve CoreGraphics context. %ld", err);
+            qWarning("QMacPrintEngine::newPage: Cannot retrieve CoreGraphics context: %ld", err);
             state = QPrinter::Error;
             return false;
         }
@@ -432,7 +432,7 @@ bool QMacPrintEnginePrivate::newPage_helper()
         OSStatus err = PMSessionGetGraphicsContext(session, kPMGraphicsContextQuickdraw,
                                                    reinterpret_cast<void **>(&qdHandle));
         if(err != noErr) {
-            qWarning("QMacPrintEngine::newPage: Cannot retrieve QuickDraw context. %ld", err);
+            qWarning("QMacPrintEngine::newPage: Cannot retrieve QuickDraw context: %ld", err);
             state = QPrinter::Error;
             return false;
         }
@@ -553,7 +553,7 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
     case PPK_PrinterName: {
         OSStatus status = PMSessionSetCurrentPrinter(d->session, QCFString(value.toString()));
         if (status == noErr)
-            qWarning("QMacPrintEngine::setPrinterName: Error setting printer %ld", status);
+            qWarning("QMacPrintEngine::setPrinterName: Error setting printer: %ld", status);
         break; }
     case PPK_SuppressSystemPrintStatus:
         d->suppressStatus = value.toBool();
@@ -629,7 +629,7 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
         QCFType<CFArrayRef> printerList;
         OSStatus status = PMSessionCreatePrinterList(d->session, &printerList, &currIndex, &unused);
         if (status != noErr)
-            qWarning("QMacPrintEngine::printerName: Problem getting list of printers %ld", status);
+            qWarning("QMacPrintEngine::printerName: Problem getting list of printers: %ld", status);
         if (printerList)
             ret = QCFString::toQString(static_cast<CFStringRef>(CFArrayGetValueAtIndex(printerList,
                                                                                        currIndex)));

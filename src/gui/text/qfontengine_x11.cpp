@@ -1448,7 +1448,7 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
             }
         }
     } else {
-        qWarning("glyph neither outline nor bitmap");
+        qWarning("QFontEngine: Glyph neither outline nor bitmap");
         return 0;
     }
 

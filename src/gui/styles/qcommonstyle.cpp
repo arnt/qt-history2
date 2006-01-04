@@ -2569,7 +2569,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
         break;
 #endif // QT_NO_GROUPBOX
     default:
-        qWarning("drawComplexControl control not handled %d", cc);
+        qWarning("QCommonStyle::drawComplexControl: Control %d not handled", cc);
     }
 }
 
@@ -2683,7 +2683,7 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
         break;
 #endif // QT_NO_GROUPBOX
     default:
-        qWarning("QCommonStyle::hitTestComplexControl case not handled %d", cc);
+        qWarning("QCommonStyle::hitTestComplexControl: Case %d not handled", cc);
     }
     return sc;
 }
@@ -3046,7 +3046,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
         break;
 #endif // QT_NO_GROUPBOX
     default:
-        qWarning("QCommonStyle::subControlRect case not handled %d", cc);
+        qWarning("QCommonStyle::subControlRect: Case %d not handled", cc);
     }
     return ret;
 }

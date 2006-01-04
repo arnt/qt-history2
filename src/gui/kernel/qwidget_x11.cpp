@@ -1193,7 +1193,7 @@ void QWidget::grabMouse()
                 status == GrabFrozen      ? "\"GrabFrozen\"" :
                 status == GrabInvalidTime ? "\"GrabInvalidTime\"" :
                 "<?>";
-            qWarning("Grabbing the mouse failed with %s", s);
+            qWarning("QWidget::grabMouse: Failed with %s", s);
         }
 #endif
         mouseGrb = this;
@@ -1235,7 +1235,7 @@ void QWidget::grabMouse(const QCursor &cursor)
                 status == GrabFrozen      ? "\"GrabFrozen\"" :
                 status == GrabInvalidTime ? "\"GrabInvalidTime\"" :
                                             "<?>";
-            qWarning("Grabbing the mouse failed with %s", s);
+            qWarning("QWidget::grabMouse: Failed with %s", s);
         }
 #endif
         mouseGrb = this;
@@ -2476,7 +2476,7 @@ void QWidgetPrivate::updateFrameStrut() const
             XFree(c);
 
         if (! p) {
-            qWarning("QWidget::updateFrameStrut(): ERROR - no parent");
+            qWarning("QWidget::updateFrameStrut: No parent");
             return;
         }
 

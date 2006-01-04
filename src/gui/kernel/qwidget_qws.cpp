@@ -691,7 +691,7 @@ void QWSBackingStore::attach(int id, QSize s)
     }
     if (!shm.attach(id)) {
         perror("QWSBackingStore::attach attaching to shared memory");
-        qWarning("Error attaching to shared memory 0x%x of size %d",
+        qWarning("QWSBackingStore::attach: Error attaching to shared memory 0x%x of size %d",
                  id, s.width() * s.height());
         return;
     }
@@ -1205,7 +1205,7 @@ qreal QWidget::windowOpacity() const
 */
 QPaintEngine *QWidget::paintEngine() const
 {
-    qWarning("QWidget::paintEngine() should no longer be called");
+    qWarning("QWidget::paintEngine: Should no longer be called");
     return 0; //##### @@@
 //     if (!qt_widget_paintengine) {
 //         qt_widget_paintengine = new QRasterPaintEngine();

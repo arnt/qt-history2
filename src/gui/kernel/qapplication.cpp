@@ -656,7 +656,7 @@ QApplication::QApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap)
     // ... no command line.
 
     if (! dpy)
-        qWarning("QApplication: invalid Display* argument.");
+        qWarning("QApplication: Invalid Display* argument");
 
     qt_init(d, GuiClient, dpy, visual, colormap);
 
@@ -690,7 +690,7 @@ QApplication::QApplication(Display *dpy, int &argc, char **argv,
     qt_is_gui_used = true;
 
     if (! dpy)
-        qWarning("QApplication: invalid Display* argument.");
+        qWarning("QApplication: Invalid Display* argument");
     qt_init(d, GuiClient, dpy, visual, colormap);
 
     d->process_cmdline();

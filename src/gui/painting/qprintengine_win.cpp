@@ -812,7 +812,7 @@ void QWin32PrintEnginePrivate::queryDefault()
 			  reinterpret_cast<wchar_t *>(buffer), 256);
 	output = QString::fromUtf16(buffer);
 	if (output == noPrinters) { // no printers
-	    qWarning("System has no default printer, are any printers installed?");
+	    qWarning("QPrinter: System has no default printer, are any printers installed?");
 	    return;
 	}
     }, {
@@ -820,7 +820,7 @@ void QWin32PrintEnginePrivate::queryDefault()
 	GetProfileStringA("windows", "device", noPrinters.toLatin1(), buffer, 256);
         output = QString::fromLocal8Bit(buffer);
 	if (output == noPrinters) { // no printers
-	    qWarning("System has no default printer, are any printers installed?");
+	    qWarning("QPrinter: System has no default printer, are any printers installed?");
 	    return;
 	}
     });
@@ -1048,7 +1048,7 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 
     case PPK_DocumentName:
         if (isActive()) {
-            qWarning("Cannot change document name while printing is active");
+            qWarning("QWin32PrintEngine: Cannot change document name while printing is active");
             return;
         }
         d->docName = value.toString();
@@ -1081,7 +1081,7 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 
     case PPK_OutputFileName:
         if (isActive()) {
-            qWarning("QWin32PrintEngine: cannot change filename while printing");
+            qWarning("QWin32PrintEngine: Cannot change filename while printing");
         } else {
             d->fileName = value.toString();
             d->printToFile = !value.toString().isEmpty();

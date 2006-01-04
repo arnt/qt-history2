@@ -230,7 +230,7 @@ static short qt_mac_window_at(int x, int y, QWidget **w=0)
             *w = qt_mac_find_window(wp);
 #if 0
             if(!*w)
-                qWarning("Qt: qt_mac_window_at: Couldn't find %d",(int)wp);
+                qWarning("QApplication: qt_mac_window_at: Couldn't find %d",(int)wp);
 #endif
         } else {
             *w = 0;

@@ -58,7 +58,7 @@ static void initializeDb()
     fn += "/lib/fonts/fontdir";
     FILE* fontdef=fopen(fn.toLocal8Bit().constData(),"r");
     if(!fontdef) {
-        qWarning("Cannot find font definition file %s - is Qt installed correctly?",
+        qWarning("QFontDatabase: Cannot find font definition file %s - is Qt installed correctly?",
                fn.toLocal8Bit().constData());
         exit(1);
         //return;
