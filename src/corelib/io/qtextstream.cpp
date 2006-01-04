@@ -1009,6 +1009,12 @@ bool QTextStream::seek(qint64 pos)
         d->readBuffer.clear();
         d->readBufferOffset = 0;
         d->endOfBufferState.clear();
+
+#ifndef QT_NO_TEXTCODEC
+        // Reset the codec converter states.
+        ::resetCodecConverterState(&d->readConverterState);
+        ::resetCodecConverterState(&d->writeConverterState);
+#endif
         return true;
     }
 
