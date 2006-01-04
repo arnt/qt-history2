@@ -842,7 +842,7 @@ QAccessible::State QAccessibleWidget::state(int child) const
     if (child)
         return Normal;
 
-    int state = Normal;
+    QAccessible::State state = Normal;
 
     QWidget *w = widget();
     if (w->testAttribute(Qt::WA_WState_Hidden))
@@ -854,14 +854,13 @@ QAccessible::State QAccessibleWidget::state(int child) const
     if (!w->isEnabled())
         state |= Unavailable;
     if (w->isWindow()) {
-        state |= Window;
         if (w->windowFlags() & Qt::WindowSystemMenuHint)
             state |= Movable;
         if (w->minimumSize() != w->maximumSize())
             state |= Sizeable;
     }
 
-    return (State)state;
+    return state;
 }
 
 #endif //QT_NO_ACCESSIBILITY
