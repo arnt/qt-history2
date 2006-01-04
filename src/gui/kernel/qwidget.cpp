@@ -4561,6 +4561,10 @@ void QWidgetPrivate::hideChildren(bool spontaneous)
             QApplication::sendSpontaneousEvent(widget, &e);
         else
             QApplication::sendEvent(widget, &e);
+#ifndef QT_NO_ACCESSIBILITY
+        if (!spontaneous)
+            QAccessible::updateAccessibility(widget, 0, QAccessible::ObjectHide);
+#endif
     }
 }
 

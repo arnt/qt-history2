@@ -845,7 +845,7 @@ QAccessible::State QAccessibleWidget::state(int child) const
     QAccessible::State state = Normal;
 
     QWidget *w = widget();
-    if (w->testAttribute(Qt::WA_WState_Hidden))
+    if (w->testAttribute(Qt::WA_WState_Visible) == false)
         state |= Invisible;
     if (w->focusPolicy() != Qt::NoFocus && w->isActiveWindow())
         state |= Focusable;
