@@ -1473,6 +1473,7 @@ void QImage::setColorTable(const QVector<QRgb> colors)
         return;
     detach();
     d->colortable = colors;
+    d->has_alpha_clut = false;
     for (int i = 0; i < d->colortable.size(); ++i)
         d->has_alpha_clut |= (qAlpha(d->colortable.at(i)) != 255);
 }
