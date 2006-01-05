@@ -154,13 +154,13 @@ QSize QTransformedScreen::mapToDevice(const QSize &s) const
     switch (trans) {
     case None:
     case Rot180:
-        return s;
         break;
     case Rot90:
     case Rot270:
         return QSize(s.height(), s.width());
         break;
     }
+    return s;
 }
 
 QSize QTransformedScreen::mapFromDevice(const QSize &s) const
@@ -168,13 +168,13 @@ QSize QTransformedScreen::mapFromDevice(const QSize &s) const
     switch (trans) {
     case None:
     case Rot180:
-        return s;
         break;
     case Rot90:
     case Rot270:
         return QSize(s.height(), s.width());
         break;
     }
+        return s;
 }
 
 QPoint QTransformedScreen::mapToDevice(const QPoint &p, const QSize &s) const

@@ -236,6 +236,11 @@ void QWSManager::handleMove(QPoint g)
 {
     Q_D(QWSManager);
     // don't allow dragging to where the user probably cannot click!
+
+
+    qDebug() << "QWSManager::handleMove" << g;
+
+
     extern QRect qt_maxWindowRect;
     if (qt_maxWindowRect.isValid()) {
         if (g.x() < qt_maxWindowRect.x())

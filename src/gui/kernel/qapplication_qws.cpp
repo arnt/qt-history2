@@ -817,9 +817,8 @@ void QWSDisplay::Data::fillQueue()
                     qDebug("fillQueue %s (%d,%d), state %x win %d count %d", action,
                            me->simpleData.x_root, me->simpleData.y_root, me->simpleData.state,
                            me->window(), mouse_event_count);
-#endif
-
                 mouse_event_count++;
+#endif
             }
 #if 0
         } else if (e->type == QWSEvent::RegionModified) {

@@ -13,7 +13,7 @@
 
 #include "qwscommand_qws.h"
 
-// #define QWSCOMMAND_DEBUG 1 // Uncomment to debug client/server communication
+ #define QWSCOMMAND_DEBUG 1 // Uncomment to debug client/server communication
 
 #ifdef QWSCOMMAND_DEBUG
 # include <qdebug.h>
@@ -311,8 +311,8 @@ void qws_write_command(QIODevice *socket, int type, char *simpleData, int simple
                        char *rawData, int rawLen)
 {
 #ifdef QWSCOMMAND_DEBUG
-    if (simpleLen) qDebug() << "WRITE simpleData " << QWSHexDump(simpleData, simpleLen);
-    if (rawLen > 0) qDebug() << "WRITE rawData " << QWSHexDump(rawData, rawLen);
+    //   if (simpleLen) qDebug() << "WRITE simpleData " << QWSHexDump(simpleData, simpleLen);
+//    if (rawLen > 0) qDebug() << "WRITE rawData " << QWSHexDump(rawData, rawLen);
 #endif
     qws_write_uint(socket, type);
     qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
@@ -335,6 +335,8 @@ void qws_write_command(QIODevice *socket, int type, char *simpleData, int simple
 bool qws_read_command(QIODevice *socket, char *&simpleData, int &simpleLen,
                       char *&rawData, int &rawLen, int &bytesRead)
 {
+
+    qDebug() << "qws_read_command bytesAvailable" << socket->bytesAvailable();
     // read rawLen
     if (rawLen == -1) {
         rawLen = qws_read_uint(socket);

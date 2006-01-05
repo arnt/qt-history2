@@ -137,10 +137,14 @@ QEventDispatcherUNIXPrivate::~QEventDispatcherUNIXPrivate()
     qDeleteAll(timerList);
 }
 
+
+//#define NEW_AND_STRANGE_CODE
+
 int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, timeval *timeout)
 {
     Q_Q(QEventDispatcherUNIX);
 
+#ifndef NEW_AND_STRANGE_CODE
     // Process timers and socket notifiers - the common UNIX stuff
     int highest = 0;
     FD_ZERO(&sn_vec[0].select_fds);
@@ -160,8 +164,29 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
     FD_SET(thread_pipe[0], &sn_vec[0].select_fds);
     highest = qMax(highest, thread_pipe[0]);
 
+#endif
     int nsel;
     do {
+#ifdef NEW_AND_STRANGE_CODE
+        // Process timers and socket notifiers - the common UNIX stuff
+        int highest = 0;
+        FD_ZERO(&sn_vec[0].select_fds);
+        FD_ZERO(&sn_vec[1].select_fds);
+        FD_ZERO(&sn_vec[2].select_fds);
+        if (! (flags & QEventLoop::ExcludeSocketNotifiers) && (sn_highest >= 0)) {
+            // return the highest fd we can wait for input on
+            if (!sn_vec[0].list.isEmpty())
+                sn_vec[0].select_fds = sn_vec[0].enabled_fds;
+            if (!sn_vec[1].list.isEmpty())
+                sn_vec[1].select_fds = sn_vec[1].enabled_fds;
+            if (!sn_vec[2].list.isEmpty())
+                sn_vec[2].select_fds = sn_vec[2].enabled_fds;
+            highest = sn_highest;
+        }
+
+        FD_SET(thread_pipe[0], &sn_vec[0].select_fds);
+        highest = qMax(highest, thread_pipe[0]);
+#endif
         if (mainThread) {
             while (signal_received) {
                 signal_received = 0;
@@ -343,8 +368,9 @@ int QEventDispatcherUNIX::select(int nfds, fd_set *readfds, fd_set *writefds, fd
                                  timeval *timeout)
 {
     Q_D(QEventDispatcherUNIX);
+#ifndef NEW_AND_STRANGE_CODE
     if (timeout) {
-        // handle the case where select returns with a timeout, too
+         // handle the case where select returns with a timeout, too
         // soon.
         timeval tvStart = d->watchtime;
         timeval tvCurrent = tvStart;
@@ -359,7 +385,7 @@ int QEventDispatcherUNIX::select(int nfds, fd_set *readfds, fd_set *writefds, fd
 
         return nsel;
     }
-
+#endif
     return ::select(nfds, readfds, writefds, exceptfds, timeout);
 }
 
