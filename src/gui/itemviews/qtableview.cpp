@@ -349,7 +349,7 @@ void QTableView::paintEvent(QPaintEvent *event)
     QPainter painter(d->viewport);
 
     // if there's nothing to do, clear the area and return
-    if (horizontalHeader->count() == 0 || verticalHeader->count() == 0) {
+    if (!model() || horizontalHeader->count() == 0 || verticalHeader->count() == 0) {
         painter.fillRect(event->rect(), option.palette.brush(QPalette::Base));
         return;
     }
