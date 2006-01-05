@@ -1470,10 +1470,9 @@ void QTreeView::updateGeometries()
     QRect geometryRect(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
     d->header->setGeometry(geometryRect);
     d->header->setOffset(horizontalScrollBar()->value());
-    d->header->viewport()->setGeometry(geometryRect);
-    QMetaObject::invokeMethod(d->header, "updateGeometries");
+    if (d->header->isHidden())
+        QMetaObject::invokeMethod(d->header, "updateGeometries");
 
-    // update scrollbars
     if (model()) {
         d->updateVerticalScrollbar();
         d->updateHorizontalScrollbar();

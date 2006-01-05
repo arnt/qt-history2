@@ -809,12 +809,15 @@ void QTableView::updateGeometries()
 
     int verticalLeft = reverse ? vg.right() : (vg.left() - width);
     d->verticalHeader->setGeometry(verticalLeft, vg.top(), width, vg.height());
-    d->horizontalHeader->setOffset(horizontalScrollBar()->value());
+    if (d->verticalHeader->isHidden())
+        QMetaObject::invokeMethod(d->verticalHeader, "updateGeometries");
+    d->verticalHeader->setOffset(verticalScrollBar()->value());
     
-
     int horizontalTop = vg.top() - height;
     d->horizontalHeader->setGeometry(vg.left(), horizontalTop, vg.width(), height);
-    d->verticalHeader->setOffset(verticalScrollBar()->value());
+    if (d->horizontalHeader->isHidden())
+        QMetaObject::invokeMethod(d->horizontalHeader, "updateGeometries");
+    d->horizontalHeader->setOffset(horizontalScrollBar()->value());
 
     if (d->model) {
         d->updateVerticalScrollbar();
