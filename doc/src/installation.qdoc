@@ -289,7 +289,7 @@ The installation procedure is different for the different Qt platforms:
     type:
 
 \code
-    su -c "make install"
+    sudo make install
 \endcode
 
     and enter the root password.
