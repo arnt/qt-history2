@@ -1256,6 +1256,9 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QTreeView);
 
+    if (dx)
+        d->header->setOffset(horizontalScrollBar()->value());
+        
     if (d->viewItems.isEmpty())
         return;
 
@@ -1270,8 +1273,6 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         return;
     }
 
-    if (dx)
-        d->header->setOffset(horizontalScrollBar()->value());
     if (dy) {
         int steps = verticalStepsPerItem();
         int currentScrollbarValue = verticalScrollBar()->value();
