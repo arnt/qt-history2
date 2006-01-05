@@ -573,11 +573,9 @@ QFile::remove(const QString &fileName)
     Renames the file currently specified by fileName() to \a newName.
     Returns true if successful; otherwise returns false.
 
-    On most file systems, rename() fails only if \a oldName does not
-    exist, if \a newName and the file are not on the same
-    partition or if a file with the new name already exists.
-    However, there are also other reasons why rename() can fail.
-
+    If a file with the name \a newName already exists, rename() returns false
+    (i.e., QFile will not overwrite it).
+    
     The file is closed before it is renamed.
 
     \sa setFileName()
@@ -591,8 +589,12 @@ QFile::rename(const QString &newName)
         qWarning("QFile::rename: Empty or null file name");
         return false;
     }
-    if (QFile(newName).exists())
+    if (QFile(newName).exists()) {
+        // ### Race condition. If a file is moved in after this, it /will/ be
+        // overwritten. On Unix, the proper solution is to use hardlinks:
+        // return ::link(old, new) && ::remove(old);
         return false;
+    }
     close();
     if(error() == QFile::NoError) {
         if(fileEngine()->rename(newName)) {
@@ -632,12 +634,8 @@ QFile::rename(const QString &newName)
     Renames the file \a oldName to \a newName. Returns true if
     successful; otherwise returns false.
 
-    On most file systems, rename() fails only if \a oldName does not
-    exist, if \a newName and \a oldName are not on the same
-    partition or if a file with the new name already exists.
-    However, there are also other reasons why rename() can
-    fail. For example, on at least one file system rename() fails if
-    \a newName points to an open file.
+    If a file with the name \a newName already exists, rename() returns false
+    (i.e., QFile will not overwrite it).
 
     \sa rename()
 */
@@ -694,6 +692,9 @@ QFile::link(const QString &oldName, const QString &newName)
 /*!
     Copies the file currently specified by fileName() to \a newName.
     Returns true if successful; otherwise returns false.
+
+    If a file with the name \a newName already exists, copy() returns false
+    (i.e., QFile will not overwrite it).
 
     The file is closed before it is copied.
 
@@ -759,6 +760,9 @@ QFile::copy(const QString &newName)
 
     Copies the file \a fileName to \a newName. Returns true if successful;
     otherwise returns false.
+
+    If a file with the name \a newName already exists, copy() returns false
+    (i.e., QFile will not overwrite it).
 
     \sa rename()
 */
