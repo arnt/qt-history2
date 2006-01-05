@@ -1395,6 +1395,7 @@ void QTreeView::columnCountChanged(int, int)
 {
     if (isVisible())
         updateGeometries();
+	viewport()->update();
 }
 
 /*!
