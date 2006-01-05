@@ -292,6 +292,71 @@ bool QTreeModel::setData(const QModelIndex &index, const QVariant &value, int ro
 /*!
   \internal
   \reimp
+*/
+bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+	beginInsertRows(parent, row, row + count - 1);
+    if (parent.isValid()) {
+	    while (count > 0) {
+            QTreeWidgetItem *it = item(parent);
+			QTreeWidgetItem *newitem = new QTreeWidgetItem();
+			newitem->setFlags(newitem->flags() | Qt::ItemIsDropEnabled);
+			newitem->view = qobject_cast<QTreeWidget *>(QObject::parent());
+			newitem->model = this;
+			newitem->par = it;
+			it->children.insert(row++, newitem);
+			--count;
+		}
+    } else {
+	    while (count > 0) {
+			QTreeWidgetItem *newitem = new QTreeWidgetItem();
+			newitem->setFlags(newitem->flags() | Qt::ItemIsDropEnabled);
+			newitem->view = qobject_cast<QTreeWidget *>(QObject::parent());
+			newitem->model = this;
+		    tree.insert(row++, newitem);
+			--count;
+        }
+    }
+    endInsertRows();
+    return true;
+}
+
+/*!
+  \internal
+  \reimp
+*/
+bool QTreeModel::insertColumns(int column, int count, const QModelIndex &parent)
+{
+    beginInsertColumns(parent, column, column + count - 1);
+	int oldCount = columnCount(parent);
+	column = qBound(0, column, oldCount);
+
+	header->values.resize(oldCount + count);
+    for (int i = oldCount; i < oldCount + count; ++i) 
+        header->values[i].append(QWidgetItemData(Qt::DisplayRole, QString::number(i)));
+
+	// the stack holds the last row position in the tree before we 
+	// advanced down to a child node. This enables us to backtrack efficiently.
+	QStack<QTreeWidgetItem*> itemstack;
+	itemstack.push(0);
+	while (!itemstack.isEmpty()) {
+		QTreeWidgetItem *par = itemstack.pop();
+		QList<QTreeWidgetItem*> children = par ? par->children : tree;
+		for (int row = 0; row < children.count(); ++row) {
+			QTreeWidgetItem *child = children.at(row);
+			if (child->children.count()) 
+				itemstack.push(child);
+
+			child->values.insert(column, count, QVector<QWidgetItemData>());
+		}
+	}
+    endInsertColumns();
+    return true;
+}
+
+/*!
+  \internal
+  \reimp
 
   Returns the header data corresponding to the given header \a section,
   \a orientation and data \a role.
@@ -497,6 +562,7 @@ void QTreeModel::beginInsertItems(QTreeWidgetItem *parent, int row, int count)
     beginInsertRows(index(parent, 0), row, row + count - 1);
 }
 
+//### walks in a depth-first order (children before siblings)
 QTreeWidgetItem* QTreeModel::walk(const QTreeWidgetItem *current)
 {
     Q_ASSERT(current);

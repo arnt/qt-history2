@@ -74,6 +74,9 @@ public:
 
     void insertListInTopLevel(int row, const QList<QTreeWidgetItem*> &items);
 
+    bool insertRows(int row, int count, const QModelIndex &);
+    bool insertColumns(int column, int count, const QModelIndex &);
+
     // dnd
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
