@@ -383,6 +383,8 @@ qint64 QFSFileEngine::read(char *data, qint64 len)
                         if (readByte != -1) {
                             *data = uchar(readByte);
                             readBytes += 1;
+                        } else {
+                            break;
                         }
                     }
                 }

@@ -572,7 +572,7 @@ bool QAbstractSocketPrivate::flush()
     }
 
     int nextSize = writeBuffer.nextDataBlockSize();
-    char *ptr = writeBuffer.readPointer();
+    const char *ptr = writeBuffer.readPointer();
 
     // Attempt to write it all in one chunk.
     qint64 written = socketEngine->write(ptr, nextSize);
@@ -840,8 +840,12 @@ bool QAbstractSocketPrivate::readFromSocket()
     char *ptr = readBuffer.reserve(bytesToRead);
     qint64 readBytes = socketEngine->read(ptr, bytesToRead);
     if (readBytes > 0)
-        readBuffer.truncate((int) (bytesToRead - readBytes));
-
+        readBuffer.chop((int) (bytesToRead - readBytes));
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocketPrivate::readFromSocket() got %d bytes, buffer size = %d",
+           int(readBytes), readBuffer.size());
+#endif
+    
     if (!socketEngine->isValid()) {
         socketError = socketEngine->error();
         q->setErrorString(socketEngine->errorString());
@@ -1127,9 +1131,10 @@ bool QAbstractSocket::canReadLine() const
 {
     bool hasLine = d_func()->readBuffer.canReadLine();
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::canReadLine() == %s", hasLine ? "true" : "false");
+    qDebug("QAbstractSocket::canReadLine() == %s, buffer size = %d, size = %d", hasLine ? "true" : "false",
+           d_func()->readBuffer.size(), d_func()->buffer.size());
 #endif
-    return hasLine;
+    return hasLine || QIODevice::canReadLine();
 }
 
 /*!
@@ -1547,6 +1552,7 @@ bool QAbstractSocket::flush()
 qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
 {
     Q_D(QAbstractSocket);
+
     if (!d->isBuffered) {
         qint64 readBytes = d->socketEngine->read(data, maxSize);
         if (readBytes < 0) {
@@ -1580,7 +1586,7 @@ qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
     qint64 bytesToRead = qMin(qint64(d->readBuffer.size()), maxSize);
     qint64 readSoFar = 0;
     while (readSoFar < bytesToRead) {
-        char *ptr = d->readBuffer.readPointer();
+        const char *ptr = d->readBuffer.readPointer();
         int bytesToReadFromThisBlock = qMin(int(bytesToRead - readSoFar),
                                             d->readBuffer.nextDataBlockSize());
         memcpy(data + readSoFar, ptr, bytesToReadFromThisBlock);

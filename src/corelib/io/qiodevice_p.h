@@ -29,6 +29,7 @@
 #include "QtCore/qbytearray.h"
 #include "QtCore/qobjectdefs.h"
 #include "QtCore/qstring.h"
+#include "private/qringbuffer_p.h"
 #ifndef QT_NO_QOBJECT
 #include "private/qobject_p.h"
 #endif
@@ -47,7 +48,8 @@ public:
     QIODevice::OpenMode openMode;
     QString errorString;
 
-    QByteArray ungetBuffer;
+    QRingBuffer buffer;
+    qint64 pos;
 
 #ifdef QT_NO_QOBJECT
     QIODevice *q_ptr;

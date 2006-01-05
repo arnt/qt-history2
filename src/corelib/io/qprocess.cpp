@@ -14,6 +14,7 @@
 //#define QPROCESS_DEBUG
 
 #if defined QPROCESS_DEBUG
+#include <qdebug.h>
 #include <qstring.h>
 #include <ctype.h>
 
@@ -445,6 +446,9 @@ bool QProcessPrivate::canReadStandardOutput()
         if (standardReadSocketNotifier)
             standardReadSocketNotifier->setEnabled(false);
         destroyPipe(standardReadPipe);
+#if defined QPROCESS_DEBUG
+        qDebug("QProcessPrivate::canReadStandardOutput(), 0 bytes available");
+#endif
         return false;
     }
 
@@ -454,14 +458,22 @@ bool QProcessPrivate::canReadStandardOutput()
         processError = QProcess::ReadError;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, QLatin1String("Error reading from process")));
         emit q->error(processError);
+#if defined QPROCESS_DEBUG
+        qDebug("QProcessPrivate::canReadStandardOutput(), failed to read from the process");
+#endif
         return false;
     }
+#if defined QPROCESS_DEBUG
+    qDebug("QProcessPrivate::canReadStandardOutput(), read %d bytes from the process' output",
+            int(readBytes));
+#endif
+
     if (standardOutputClosed) {
-        outputReadBuffer.truncate(readBytes);
+        outputReadBuffer.chop(readBytes);
         return false;
     }
 
-    outputReadBuffer.truncate(available - readBytes);
+    outputReadBuffer.chop(available - readBytes);
 
     bool didRead = false;
     if (readBytes == 0) {
@@ -501,11 +513,11 @@ bool QProcessPrivate::canReadStandardError()
         return false;
     }
     if (standardErrorClosed) {
-        errorReadBuffer.truncate(readBytes);
+        errorReadBuffer.chop(readBytes);
         return false;
     }
 
-    errorReadBuffer.truncate(available - readBytes);
+    errorReadBuffer.chop(available - readBytes);
 
     bool didRead = false;
     if (readBytes == 0) {
@@ -528,15 +540,15 @@ bool QProcessPrivate::canReadStandardError()
 bool QProcessPrivate::canWrite()
 {
     Q_Q(QProcess);
-#if defined QPROCESS_DEBUG
-    qDebug("QProcessPrivate::canWrite()");
-#endif
-
     if (writeSocketNotifier)
         writeSocketNotifier->setEnabled(false);
 
-    if (writeBuffer.isEmpty())
+    if (writeBuffer.isEmpty()) {
+#if defined QPROCESS_DEBUG
+        qDebug("QProcessPrivate::canWrite(), not writing anything (empty write buffer).");
+#endif
         return false;
+    }
 
     qint64 written = writeToStdin(writeBuffer.readPointer(),
                                       writeBuffer.nextDataBlockSize());
@@ -544,9 +556,16 @@ bool QProcessPrivate::canWrite()
         destroyPipe(writePipe);
         processError = QProcess::WriteError;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, QLatin1String("Error writing to process")));
+#if defined QPROCESS_DEBUG
+        qDebug("QProcessPrivate::canWrite(), failed to write (%s)", strerror(errno));
+#endif
         emit q->error(processError);
         return false;
     }
+
+#if defined QPROCESS_DEBUG
+    qDebug("QProcessPrivate::canWrite(), wrote %d bytes to the process input", int(written));
+#endif
 
     writeBuffer.free(written);
     if (!emittedBytesWritten) {
@@ -646,7 +665,6 @@ void QProcessPrivate::closeWriteChannel()
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::closeWriteChannel()");
 #endif
-
     if (writeSocketNotifier) {
         writeSocketNotifier->setEnabled(false);
         delete writeSocketNotifier;
@@ -743,7 +761,7 @@ void QProcess::setReadChannel(ProcessChannel channel)
 {
     Q_D(QProcess);
     if (d->processChannel != channel)
-        d->ungetBuffer.clear();
+        d->buffer.clear();
     d->processChannel = channel;
 }
 
@@ -797,7 +815,6 @@ void QProcess::closeWriteChannel()
     d->writeChannelClosing = true;
     if (d->writeBuffer.isEmpty())
         d->closeWriteChannel();
-
 }
 
 /*!
@@ -847,7 +864,7 @@ bool QProcess::canReadLine() const
     const QRingBuffer *readBuffer = (d->processChannel == QProcess::StandardError)
                                     ? &d->errorReadBuffer
                                     : &d->outputReadBuffer;
-    return readBuffer->canReadLine();
+    return readBuffer->canReadLine() || QIODevice::canReadLine();
 }
 
 /*!
@@ -1138,7 +1155,7 @@ qint64 QProcess::readData(char *data, qint64 maxlen)
     qint64 bytesToRead = qint64(qMin(readBuffer->size(), (int)maxlen));
     qint64 readSoFar = 0;
     while (readSoFar < bytesToRead) {
-        char *ptr = readBuffer->readPointer();
+        const char *ptr = readBuffer->readPointer();
         int bytesToReadFromThisBlock = qMin<qint64>(bytesToRead - readSoFar,
                                             readBuffer->nextDataBlockSize());
         memcpy(data + readSoFar, ptr, bytesToReadFromThisBlock);
@@ -1240,6 +1257,10 @@ void QProcess::start(const QString &program, const QStringList &arguments, OpenM
         return;
     }
 
+#if defined QPROCESS_DEBUG
+    qDebug() << "QProcess::start(" << program << "," << arguments << "," << mode << ")";
+#endif
+    
     d->outputReadBuffer.clear();
     d->errorReadBuffer.clear();
     setOpenMode(mode);

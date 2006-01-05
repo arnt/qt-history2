@@ -15,7 +15,6 @@
 
 #ifndef QT_NO_DATETIMEEDIT
 
-#include <private/qinternal_p.h>
 #include <private/q3richtext_p.h>
 #include "qevent.h"
 #include "q3rangecontrol.h"

@@ -27,7 +27,6 @@
 
 #include "QtCore/qabstractfileengine.h"
 #include "private/qiodevice_p.h"
-#include "private/qinternal_p.h"
 
 class QFilePrivate : public QIODevicePrivate
 {

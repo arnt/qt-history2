@@ -19,7 +19,6 @@ HEADERS += \
 	kernel/qtimer.h \
 	kernel/qtranslator.h \
         kernel/qvariant.h \
-	kernel/qinternal_p.h \
 	kernel/qabstracteventdispatcher_p.h \
 	kernel/qcoreapplication_p.h \
 	kernel/qobjectcleanuphandler.h \
@@ -31,7 +30,6 @@ SOURCES += \
         kernel/qabstractitemmodel.cpp \
 	kernel/qbasictimer.cpp \
 	kernel/qeventloop.cpp \
-	kernel/qinternal.cpp \
 	kernel/qcoreapplication.cpp \
 	kernel/qcoreevent.cpp \
 	kernel/qmetaobject.cpp \

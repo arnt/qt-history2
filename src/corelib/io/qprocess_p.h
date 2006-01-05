@@ -27,7 +27,7 @@
 
 #include "QtCore/qprocess.h"
 #include "QtCore/qstringlist.h"
-#include "private/qinternal_p.h"
+#include "private/qringbuffer_p.h"
 #include "private/qiodevice_p.h"
 
 #ifdef Q_OS_WIN

@@ -21,7 +21,6 @@
 #include "qdatastream.h"
 #include "qbuffer.h"
 #include "qapplication.h"
-#include <private/qinternal_p.h>
 #include "qevent.h"
 #include "qfile.h"
 #include "qfileinfo.h"

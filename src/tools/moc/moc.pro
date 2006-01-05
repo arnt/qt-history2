@@ -42,7 +42,6 @@ SOURCES	+= ../../corelib/global/qglobal.cpp \
 	   ../../corelib/io/qiodevice.cpp	\
 	   ../../corelib/io/qtemporaryfile.cpp \
 	   ../../corelib/io/qtextstream.cpp \
-	   ../../corelib/kernel/qinternal.cpp \
 	   ../../corelib/tools/qbytearraymatcher.cpp \
 	   ../../corelib/tools/qchar.cpp		\
 	   ../../corelib/tools/qdatetime.cpp	\

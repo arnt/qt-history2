@@ -26,7 +26,7 @@
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qbuffer.h"
-#include "private/qinternal_p.h"
+#include "private/qringbuffer_p.h"
 #include "qcoreevent.h"
 #include "qurl.h"
 

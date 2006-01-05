@@ -78,9 +78,7 @@ QFilePrivate::openExternalFile(int flags, FILE *fh)
     QFSFileEngine *fe = new QFSFileEngine;
     fe->setFileName(fileName);
     fileEngine = fe;
-    if (flags & QIODevice::Unbuffered)
-        qWarning("QFile::open: QIODevice::Unbuffered is incompatible with FILE *; ignoring");
-    return fe->open(QIODevice::OpenMode(flags & ~QIODevice::Unbuffered), fh);
+    return fe->open(QIODevice::OpenMode(flags), fh);
 }
 
 void
@@ -811,6 +809,8 @@ bool QFile::open(OpenMode mode)
     }
     if (fileEngine()->open(mode)) {
         setOpenMode(mode);
+        if (mode & Append)
+            seek(size());
         return true;
     }
     QFile::FileError err = fileEngine()->error();
@@ -869,6 +869,13 @@ bool QFile::open(FILE *fh, OpenMode mode)
     }
     if(d->openExternalFile(mode, fh)) {
         setOpenMode(mode);
+        if (mode & Append) {
+            seek(size());
+        } else {
+            long pos = ftell(fh);
+            if (pos != -1)
+                seek(pos);
+        }
         return true;
     }
     return false;
@@ -915,6 +922,8 @@ bool QFile::open(int fd, OpenMode mode)
     }
     if(d->openExternalFile(mode, fd)) {
         setOpenMode(mode);
+        if (mode & Append)
+            seek(size());
         return true;
     }
     return false;
@@ -970,7 +979,7 @@ QFile::resize(qint64 sz)
 {
     Q_D(QFile);
     if (fileEngine()->pos() > sz)
-        fileEngine()->seek(sz);
+        seek(sz);
     if(fileEngine()->setSize(sz)) {
         unsetError();
         return true;
@@ -1096,9 +1105,7 @@ qint64 QFile::size() const
 
 qint64 QFile::pos() const
 {
-    if (!isOpen())
-        return 0;
-    return fileEngine()->pos();
+    return QIODevice::pos();
 }
 
 /*!
@@ -1109,7 +1116,7 @@ bool QFile::atEnd() const
 {
     if (!isOpen())
         return true;
-    return QIODevice::atEnd();
+    return QIODevice::atEnd() || (isSequential() && bytesAvailable() == 0);
 }
 
 /*!
@@ -1124,13 +1131,15 @@ bool QFile::seek(qint64 off)
         return false;
     }
 
-    QIODevice::seek(off);
-    if(!fileEngine()->seek(off)) {
-        QFile::FileError err = fileEngine()->error();
-        if(err == QFile::UnspecifiedError)
-            err = QFile::PositionError;
-        d->setError(err, fileEngine()->errorString());
-        return false;
+    if (off != d->pos) {
+        QIODevice::seek(off);
+        if (!fileEngine()->seek(off)) {
+            QFile::FileError err = fileEngine()->error();
+            if(err == QFile::UnspecifiedError)
+                err = QFile::PositionError;
+            d->setError(err, fileEngine()->errorString());
+            return false;
+        }
     }
     unsetError();
     return true;

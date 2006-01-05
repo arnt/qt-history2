@@ -34,7 +34,6 @@
 #include "qtimer.h"
 #include "qtooltip.h"
 #include "qdebug.h"
-#include <private/qinternal_p.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif

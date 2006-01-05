@@ -22,7 +22,6 @@
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qstylepainter.h"
-#include <private/qinternal_p.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif

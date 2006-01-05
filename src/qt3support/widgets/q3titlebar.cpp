@@ -33,7 +33,6 @@
 #endif
 
 #include "private/qapplication_p.h"
-#include "private/qinternal_p.h"
 #include "private/q3titlebar_p.h"
 #include "private/qwidget_p.h"
 

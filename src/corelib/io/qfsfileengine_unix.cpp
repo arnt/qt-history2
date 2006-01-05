@@ -66,6 +66,7 @@ qint64 QFSFileEngine::size() const
     Q_D(const QFSFileEngine);
     QT_STATBUF st;
     int ret = 0;
+    const_cast<QFSFileEngine *>(this)->flush();
     if(d->fd != -1)
         ret = QT_FSTAT(d->fd, &st);
     else

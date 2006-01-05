@@ -39,7 +39,6 @@
 #include "private/qcursor_p.h"
 #include "private/qmath_p.h"
 #include "private/qapplication_p.h"
-#include "private/qinternal_p.h"
 #include "private/qbackingstore_p.h"
 #include "qdebug.h"
 
