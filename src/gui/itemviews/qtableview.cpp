@@ -816,6 +816,12 @@ void QTableView::updateGeometries()
     d->horizontalHeader->setGeometry(vg.left(), horizontalTop, vg.width(), height);
     d->verticalHeader->setOffset(verticalScrollBar()->value());
 
+    d->horizontalHeader->viewport()->setGeometry(vg);
+    QMetaObject::invokeMethod(d->horizontalHeader, "updateGeometries");
+
+    d->verticalHeader->viewport()->setGeometry(vg);
+    QMetaObject::invokeMethod(d->verticalHeader, "updateGeometries");
+
     if (d->model) {
         d->updateVerticalScrollbar();
         d->updateHorizontalScrollbar();
