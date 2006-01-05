@@ -535,11 +535,11 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
 
     int bottom = model()->rowCount(rootIndex()) - 1;
     // make sure that bottom is the bottommost *visible* row
-    while (isRowHidden(bottom) && bottom >= 0) --bottom;
+    while (bottom >= 0 && isRowHidden(bottom)) --bottom;
 
     int right = model()->columnCount(rootIndex()) - 1;
     // make sure that right is the rightmost *visible* column
-    while (isColumnHidden(right) && right >= 0) --right;
+    while (right >= 0 && isColumnHidden(right)) --right;
 
     if (bottom == -1 || right == -1)
         return QModelIndex(); // model is empty
