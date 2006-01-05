@@ -335,8 +335,9 @@ bool QTreeModel::insertColumns(int column, int count, const QModelIndex &parent)
     for (int i = oldCount; i < oldCount + count; ++i) 
         header->values[i].append(QWidgetItemData(Qt::DisplayRole, QString::number(i)));
 
-	// the stack holds the last row position in the tree before we 
-	// advanced down to a child node. This enables us to backtrack efficiently.
+	// We pop the stack and process all children of the item popped.
+	// For each item that has children we push it to the stack, which then later will
+	// be popped and processed.
 	QStack<QTreeWidgetItem*> itemstack;
 	itemstack.push(0);
 	while (!itemstack.isEmpty()) {
