@@ -468,6 +468,36 @@ QAccessible::Role QAccessibleSlider::role(int child) const
     }
 }
 
+/*! \reimp */
+QAccessible::State QAccessibleSlider::state(int child) const
+{
+    const State parentState = QAccessibleWidget::state(0);
+    
+    if (child == 0)
+        return parentState;
+    
+    // Inherit the Invisible state from parent.
+    State state = parentState & QAccessible::Invisible;
+
+    // Disable left/right if we are at the minimum/maximum.
+    const QSlider * const slider = QAccessibleSlider::slider();
+    switch (child) {
+    case PageLeft:
+        if (slider->value() <= slider->minimum())
+            state |= Unavailable;
+        break;
+    case PageRight:
+        if (slider->value() >= slider->maximum())
+            state |= Unavailable;
+        break;
+    case Position:
+    default:
+        break;
+    }
+
+    return state;
+}
+
 /*!
     \fn int QAccessibleSlider::defaultAction(int child) const
 
