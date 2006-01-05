@@ -1292,6 +1292,8 @@ int QPrinter::fromPage() const
 {
 #if defined(QT3_SUPPORT) && !defined(QT_NO_PRINTDIALOG)
     Q_D(const QPrinter);
+    if (d->outputFormat == QPrinter::PdfFormat)
+        return 0;
     if (!d->printDialog)
         const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     return const_cast<QPrinter*>(this)->d_func()->printDialog->fromPage();
@@ -1318,6 +1320,8 @@ int QPrinter::toPage() const
 {
 #if defined(QT3_SUPPORT) && !defined(QT_NO_PRINTDIALOG)
     Q_D(const QPrinter);
+    if (d->outputFormat == QPrinter::PdfFormat)
+        return 0;
     if (!d->printDialog)
         const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     return const_cast<QPrinter*>(this)->d_func()->printDialog->toPage();
@@ -1347,6 +1351,8 @@ void QPrinter::setFromTo(int from, int to)
 {
 #if defined(QT3_SUPPORT) && !defined(QT_NO_PRINTDIALOG)
     Q_D(QPrinter);
+    if (d->outputFormat == QPrinter::PdfFormat)
+        return;
     if (!d->printDialog)
         const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     d->printDialog->setFromTo(from, to);
