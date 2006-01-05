@@ -360,7 +360,9 @@ HRESULT UpdateRegistry(BOOL bRegister)
         delete qApp;
 
     qAxCleanup();
-    return S_OK;
+    if (settings.status() == QSettings::NoError)
+        return S_OK;
+    return SELFREG_E_CLASS;
 }
 
 /////////////////////////////////////////////////////////////////////////////
