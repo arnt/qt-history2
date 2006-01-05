@@ -1241,7 +1241,11 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
 
     case PPK_PageRect:
         {
-            value = QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPageRect);
+            QRect rect(QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPageRect));
+            if (property(PPK_Orientation) == QPrinter::Portrait)
+                value = rect;
+            else
+                value = QRect(rect.top(), rect.left(), rect.height(), rect.width());
         }
         break;
 
@@ -1259,7 +1263,11 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
 
     case PPK_PaperRect:
         {
-            value = QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPaperRect);
+            QRect rect(QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPaperRect));
+            if (property(PPK_Orientation) == QPrinter::Portrait)
+                value = rect;
+            else
+                value = QRect(rect.top(), rect.left(), rect.height(), rect.width());            
         }
         break;
 
