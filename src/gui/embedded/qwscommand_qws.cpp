@@ -13,7 +13,7 @@
 
 #include "qwscommand_qws.h"
 
- #define QWSCOMMAND_DEBUG 1 // Uncomment to debug client/server communication
+// #define QWSCOMMAND_DEBUG 1 // Uncomment to debug client/server communication
 
 #ifdef QWSCOMMAND_DEBUG
 # include <qdebug.h>
@@ -336,7 +336,6 @@ bool qws_read_command(QIODevice *socket, char *&simpleData, int &simpleLen,
                       char *&rawData, int &rawLen, int &bytesRead)
 {
 
-    qDebug() << "qws_read_command bytesAvailable" << socket->bytesAvailable();
     // read rawLen
     if (rawLen == -1) {
         rawLen = qws_read_uint(socket);
