@@ -809,6 +809,12 @@ void QTextHtmlParser::parseCloseTag()
     while (p && at(p).tag != tag)
         p = at(p).parent;
 
+    // simply ignore the tag if we can't find
+    // a corresponding open node, for broken
+    // html such as <font>blah</font></font>
+    if (!p)
+        return;
+
     newNode(at(p).parent);
     resolveNode();
 }
