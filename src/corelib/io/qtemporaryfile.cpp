@@ -34,6 +34,8 @@ public:
     ~QTemporaryFileEngine();
 
     bool open(QIODevice::OpenMode flags);
+    bool remove();
+    bool close();
 };
 
 QTemporaryFileEngine::~QTemporaryFileEngine()
@@ -77,7 +79,22 @@ bool QTemporaryFileEngine::open(QIODevice::OpenMode)
     return false;
 }
 
+bool QTemporaryFileEngine::remove()
+{
+    Q_D(QFSFileEngine);
+    bool removed = QFSFileEngine::remove();
+    d->file.clear();
+    return removed;
+}
 
+bool QTemporaryFileEngine::close()
+{
+    // Don't close the file, just seek to the front.
+    seek(0);
+    setError(QFile::UnspecifiedError, QString());
+    return true;
+}
+ 
 //************* QTemporaryFilePrivate
 class QTemporaryFilePrivate : public QFilePrivate
 {
@@ -112,16 +129,32 @@ QTemporaryFilePrivate::~QTemporaryFilePrivate()
     \ingroup io
     \mainclass
 
-    QTemporaryFile is an I/O device that will get its input/output
-    from the local disk. The filename for the temporary file will be
-    guaranteed to be unique once the file is opened and will
-    subsequently be removed upon destruction of the QTemporaryFile
-    object.
+    QTemporaryFile is used to create unique temporary files safely. The file
+    itself is created by calling open(). The name of the temporary file is
+    guaranteed to be unique (i.e., you are guaranteed to not overwrite an
+    existing file), and the file will subsequently be removed upon destruction
+    of the QTemporaryFile object. This is an important technique that avoids
+    data corruption for applications that store data in temporary files. The
+    file name is either auto-generated, or created based on a template, which
+    is passed to QTemporaryFile's constructor.
 
-    A temporary file will have some static part of the name and some
-    part that is calculated to be unique. The default filename qt_temp
-    will be placed into the temporary path as returned by
-    QDir::tempPath().
+    Example:
+
+    \code
+        QTemporaryFile *file = new QTemporaryFile;
+        if (file->open(QFile::ReadWrite)) {
+            // file->fileName() now contains the unique file name
+        }
+        delete file; // also removes the temporary file
+    \endcode
+
+    Reopening a QTemporaryFile after calling close() is safe. For as long as
+    the QTemporaryFile object itself is not destroyed, the unique temporary
+    file will exist and be kept open internally by QTemporaryFile.
+
+    A temporary file will have some static part of the name and some part that
+    is calculated to be unique. The default filename qt_temp will be placed
+    into the temporary path as returned by QDir::tempPath().
 
     \sa QDir::tempPath(), QFile
 */
@@ -143,7 +176,8 @@ QTemporaryFile::QTemporaryFile(const QString &templateName)
 
 #else
 /*!
-    Constructs a QTemporaryFile with no name.
+    Constructs a QTemporaryFile in QDir::tempPath(), using the file template
+    "qt_temp.XXXXXX".
 
     \sa setFileTemplate()
 */
@@ -156,10 +190,9 @@ QTemporaryFile::QTemporaryFile()
 
 /*!
     Constructs a QTemporaryFile with a template filename of \a
-    templateName. Upon opening the temporary file this will be used to
-    create a unique filename. If the \a templateName does end in
-    XXXXXX it will automatically be appended and used as the dynamic
-    portion of the filename.
+    templateName. Upon opening the temporary file this will be used to create
+    a unique filename. If the \a templateName does end in XXXXXX it will
+    automatically be appended and used as the dynamic portion of the filename.
 
     \sa open(), fileTemplate()
 */
@@ -363,11 +396,19 @@ QAbstractFileEngine *QTemporaryFile::fileEngine() const
 
 /*!
    \reimp
-*/
 
+    Creates a unique file name for the temporary file, and opens it.  You can
+    get the unique name later by calling fileName(). The file is guaranteed to
+    have been created by this function (i.e., it has never existed before).
+*/
 bool QTemporaryFile::open(OpenMode flags)
 {
     Q_D(QTemporaryFile);
+    if (!d->fileName.isEmpty()) {
+        setOpenMode(flags);
+        return true;
+    }
+    
     if (QFile::open(flags)) {
         d->fileName = d->fileEngine->fileName(QAbstractFileEngine::DefaultName);
         return true;
