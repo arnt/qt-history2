@@ -580,7 +580,7 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
             r.setRect(pos, 0, w - pos, h);
     else
         r.setRect(0, pos, w, h - pos);
-    if (d->stretchSections || d->stretchLastSection) {
+    if (d->hasAutoResizeSections()) {
         resizeSections();
         r = d->viewport->rect();
     }
@@ -669,7 +669,7 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
             d->sectionHidden.resize(count());
         d->sectionHidden.setBit(visual, true);
         // A bit of a hack because resizeSection has to called before hiding FIXME
-        if (isVisible() && (d->stretchSections || d->stretchLastSection))
+        if (isVisible() && d->hasAutoResizeSections())
             resizeSections(); // changes because of the new/old hiddne
     } else if (d->isVisualIndexHidden(visual)) {
         int size = d->hiddenSectionSize.value(logicalIndex, d->defaultSectionSize);
@@ -810,9 +810,10 @@ void QHeaderView::setResizeMode(ResizeMode mode)
     Q_D(QHeaderView);
     initializeSections();
     d->stretchSections = (mode == Stretch ? count() : 0);
+    d->customSections =  (mode == Custom ? count() : 0);
     d->globalResizeMode = mode;
     d->sectionResizeMode.clear();
-    if (isVisible() && (d->stretchSections || d->stretchLastSection))
+    if (isVisible() && d->hasAutoResizeSections())
         resizeSections(); // section sizes may change as a result of the new mode
 }
 
@@ -832,12 +833,17 @@ void QHeaderView::setResizeMode(int logicalIndex, ResizeMode mode)
         d->sectionResizeMode.fill(d->globalResizeMode, d->sectionCount);
     ResizeMode old = d->sectionResizeMode.at(visual);
     d->sectionResizeMode[visual] = mode;
+    
     if (mode == Stretch && old != Stretch)
         ++d->stretchSections;
-    if (mode != Stretch && old == Stretch)
+    else if (mode == Custom && old != Custom)
+        ++d->customSections;
+    else if (mode != Stretch && old == Stretch)
         --d->stretchSections;
+    else if (mode != Custom && old == Custom)
+        --d->customSections;
     
-    if (isVisible() && (d->stretchSections || d->stretchLastSection))
+    if (isVisible() && d->hasAutoResizeSections())
         resizeSections(); // section sizes may change as a result of the new mode
 }
 
@@ -1245,6 +1251,8 @@ void QHeaderView::initializeSections(int start, int end)
 
     if (d->globalResizeMode == Stretch)
         d->stretchSections = d->sectionCount;
+    else if (d->globalResizeMode == Custom)
+        d->customSections = d->sectionCount;
 
     d->createSectionSpan(start, end, (end - start + 1) * d->defaultSectionSize);
     //Q_ASSERT(d->headerLength() == d->length);
@@ -1747,7 +1755,7 @@ int QHeaderView::verticalOffset() const
 void QHeaderView::updateGeometries()
 {
     Q_D(QHeaderView);
-    if (d->stretchSections || d->stretchLastSection)
+    if (d->hasAutoResizeSections())
         resizeSections();
 }
 

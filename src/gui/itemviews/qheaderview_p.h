@@ -56,6 +56,7 @@ public:
           highlightSelected(false),
           stretchLastSection(false),
           stretchSections(0),
+          customSections(0),
           sectionIndicatorOffset(0),
           sectionIndicator(0),
           globalResizeMode(QHeaderView::Interactive) {}
@@ -104,6 +105,10 @@ public:
         return (sectionResizeMode.count() <= visual
                 ? globalResizeMode : sectionResizeMode.at(visual));
     }
+    
+    inline bool hasAutoResizeSections() const {
+        return stretchSections || stretchLastSection || customSections;
+    }
 
     QStyleOptionHeader getStyleOption() const;
 
@@ -137,6 +142,7 @@ public:
     bool highlightSelected;
     bool stretchLastSection;
     int stretchSections;
+    int customSections;
     int sectionIndicatorOffset;
     int defaultSectionSize;
     Qt::Alignment defaultAlignment;
