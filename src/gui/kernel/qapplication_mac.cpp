@@ -2190,6 +2190,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         break;
     }
     case kEventClassKeyboard: {
+        if (qApp->inputContext() && qApp->inputContext()->isComposing()) {
+            handled_event = false;
+            break;
+        }
         // unfortunatly modifiers changed event looks quite different, so I have a separate
         // code path
         if(ekind == kEventRawKeyModifiersChanged) {
