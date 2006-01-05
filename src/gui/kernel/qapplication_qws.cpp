@@ -375,6 +375,8 @@ private:
 
     QWSConnectedEvent* connected_event;
     QWSMouseEvent* mouse_event;
+    int mouse_state;
+    int mouse_winid;
 //    QWSRegionModifiedEvent *region_event;
 //    QWSRegionModifiedEvent *region_ack;
     QPoint region_offset;
@@ -384,7 +386,9 @@ private:
 #endif
     QWSEvent* current_event;
     QList<int> unused_identifiers;
+#ifdef QAPPLICATION_EXTRA_DEBUG
     int mouse_event_count;
+#endif
     void (*mouseFilter)(QWSMouseEvent *);
 
     enum { VariableEvent=-1 };
@@ -401,7 +405,9 @@ public:
         } else if (mouse_event) {
             r = mouse_event;
             mouse_event = 0;
+#ifdef QAPPLICATION_EXTRA_DEBUG
             mouse_event_count = 0;
+#endif
 #if 0
         } else {
             r = region_event;
@@ -602,13 +608,17 @@ void QWSDisplay::Data::init()
     connected_event = 0;
 //    region_ack = 0;
     mouse_event = 0;
+    mouse_state = -1;
+    mouse_winid = 0;
 //    region_event = 0;
     region_offset_window = 0;
 #ifndef QT_NO_COP
     qcop_response = 0;
 #endif
     current_event = 0;
+#ifdef QAPPLICATION_EXTRA_DEBUG
     mouse_event_count = 0;
+#endif
     mouseFilter = 0;
 
     QString pipe = qws_qtePipeFilename();
@@ -784,38 +794,29 @@ void QWSDisplay::Data::fillQueue()
                 static const char *defaultAction= "INITIAL";
                 const char * action = defaultAction;
 #endif
-                if (mouse_event) {
-                    if ((mouse_event->window() != e->window ()
-                          || mouse_event->simpleData.state !=
-                          me->simpleData.state)) {
-                        queue.append(mouse_event);
+                delete mouse_event;
+                if (mouse_winid != me->window ()
+                    || mouse_state != me->simpleData.state) {
+                        queue.append(me);
+                        mouse_winid = me->window();
+                        mouse_state = me->simpleData.state;
+                        mouse_event = 0;
+#ifdef QAPPLICATION_EXTRA_DEBUG
                         mouse_event_count = 0;
-#ifdef QAPPLICATION_EXTRA_DEBUG
-                        action = "CHANGE";
+                        action = "ENQUEUE";
 #endif
-                    } else if (mouse_event_count == 1) {
-                        // make sure the position of the press is not
-                        // compressed away.
-                        queue.append(mouse_event);
+                } else {
 #ifdef QAPPLICATION_EXTRA_DEBUG
-                        action = "POSITION";
-#endif
-                    } else {
-                        delete mouse_event;
-#ifdef QAPPLICATION_EXTRA_DEBUG
+                    if (mouse_event)
                         action = "COMPRESS";
 #endif
-                    }
+                    mouse_event = me;
                 }
-                QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
-                QPoint p(me->simpleData.x_root, me->simpleData.y_root);
-                me->simpleData.x_root = p.x();
-                me->simpleData.y_root = p.y();
-                mouse_event = me;
 #ifdef QAPPLICATION_EXTRA_DEBUG
                 if (me->simpleData.state !=0 || action != defaultAction || mouse_event_count != 0)
                     qDebug("fillQueue %s (%d,%d), state %x win %d count %d", action,
-                           p.x(), p.y(), me->simpleData.state, me->window(), mouse_event_count);
+                           me->simpleData.x_root, me->simpleData.y_root, me->simpleData.state,
+                           me->window(), mouse_event_count);
 #endif
 
                 mouse_event_count++;
