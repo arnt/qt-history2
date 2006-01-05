@@ -627,7 +627,7 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
     }
     if (!path.isEmpty()) {
         painter()->save();
-        painter()->setRenderHint(QPainter::Antialiasing, true);
+        painter()->setRenderHint(QPainter::Antialiasing, bool(painter()->renderHints() & QPainter::TextAntialiasing));
         painter()->setBrush(state->pen().brush());
         painter()->setPen(Qt::NoPen);
         painter()->drawPath(path);

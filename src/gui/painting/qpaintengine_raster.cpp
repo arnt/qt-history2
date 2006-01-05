@@ -1823,6 +1823,11 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     if (!d->penData.blend)
         return;
 
+    if (d->txop >= QPainterPrivate::TxScale) {
+        QPaintEngine::drawTextItem(p, textItem);
+        return;
+    }
+
     bool clearType = false;
     QT_WA({
         UINT result;
@@ -1843,13 +1848,6 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     clearType = clearType && (d->penData.type == QSpanData::Solid)
         && d->deviceDepth == 32 && qAlpha(d->penData.solid.color) == 255;
 
-    if (d->txop >= QPainterPrivate::TxScale) {
-        bool antialiased = d->antialiased;
-        d->antialiased = true;
-        QPaintEngine::drawTextItem(p, textItem);
-        d->antialiased = antialiased;
-        return;
-    }
 
     QFixed x_buffering = ti.ascent;
 
