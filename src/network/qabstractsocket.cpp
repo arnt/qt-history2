@@ -1518,8 +1518,24 @@ bool QAbstractSocket::isSequential() const
 
 /*! \reimp
 
-    Returns true if the socket connection is closed, and no more data is
-    available for reading; otherwise returns false.
+     Returns true if no more data is currently
+     available for reading; otherwise returns false.
+
+     This function is most commonly used when reading data from the
+     socket in a loop. For example:
+ 
+     \code
+         // This slot is connected to QAbstractSocket::readyRead()
+         void SocketClass::readyReadSlot()
+         {
+             while (!socket.atEnd()) {
+                 QByteArray data = socket.read(100);
+                 ....
+             }
+         }
+     \endcode
+ 
+     \sa bytesAvailable(), readyRead()
  */
 bool QAbstractSocket::atEnd() const
 {
