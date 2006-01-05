@@ -32,7 +32,6 @@ extern bool qt_sendSpontaneousEvent(QObject*, QEvent*);
 static QTextFormat qt_mac_compose_format()
 {
     QTextCharFormat ret;
-    ret.setFontItalic(true);
     ret.setFontUnderline(true);
     return ret;
 }
