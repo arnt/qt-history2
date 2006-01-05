@@ -111,17 +111,6 @@ public:
         return q_func()->createIndex(row, column, const_cast<void *>(p));
     }
 
-    inline Mapping *index_to_mapping(const QModelIndex &proxy_parent) const
-    {
-        if (!proxy_parent.isValid())
-            return create_mapping(QModelIndex()).value();
-        QMap<QModelIndex, QSortFilterProxyModelPrivate::Mapping *>::const_iterator it
-            = index_to_iterator(proxy_parent); // parent should be mapped already
-        QSortFilterProxyModelPrivate::Mapping *m = it.value();
-        Q_ASSERT(m);
-        return m;
-    }
-
     void sourceDataChanged(const QModelIndex &source_top_left,
                            const QModelIndex &source_bottom_right);
     void sourceHeaderDataChanged(Qt::Orientation orientation, int start, int end);
@@ -455,7 +444,7 @@ bool QSortFilterProxyModel::hasChildren(const QModelIndex &parent) const
     QModelIndex source_parent = d->proxy_to_source(parent);
     if (!d->model->hasChildren(source_parent))
         return false;
-    QSortFilterProxyModelPrivate::Mapping *m = d->index_to_mapping(parent);
+    QSortFilterProxyModelPrivate::Mapping *m = d->create_mapping(source_parent).value();
     return m->source_rows.count() != 0 && m->source_columns.count() != 0;
 }
 
