@@ -629,9 +629,11 @@ static bool isItInteresting(const QInterfaceItem interface)
     if (role == QAccessible::ToolBar)
         return false;
     
-    // Mac accessibility does not have an attribute that corresponds to the Invisible state,
-    // so we disable the interface here. 
-    if (interface.state() & QAccessible::Invisible)
+    // Mac accessibility does not have an attribute that corresponds to the Invisible/Offscreen
+    // state, so we disable the interface here. 
+    const QAccessible::State state = interface.state();
+    if (state & QAccessible::Invisible ||
+        state & QAccessible::Offscreen )
         return false;
     
     return true;
@@ -1790,6 +1792,16 @@ void QAccessible::updateAccessibility(QObject *object, int child, Event reason)
         // QAccessible::Invisible state bit is set.
         const QInterfaceItem interface = accessibleHierarchyManager()->lookup(element.element());
         HIObjectSetAccessibilityIgnored(element.object(), !isItInteresting(interface));
+        
+        // If the interface manages its own children, also check if we should ignore those.
+        for (int i = 1; i <= interface.childCount(); ++i) {
+            const QInterfaceItem childInterface = interface.navigate(QAccessible::Child, i);
+            if (childInterface.isValid() && childInterface.isHIView() == false) {
+                const AXUIElementRef element = accessibleHierarchyManager()->lookup(childInterface);
+                if (element)
+                    HIObjectSetAccessibilityIgnored(AXUIElementGetHIObject(element), !isItInteresting(childInterface));
+            }
+        }
     } else if(reason == Focus) {
         if(object && object->isWidgetType()) {
             QWidget *w = static_cast<QWidget*>(object);
