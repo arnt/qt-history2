@@ -2053,6 +2053,8 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
 {
     Q_Q(QHeaderView);
 
+    executePostedLayout();
+
     if (sectionCount == 0)
         return;
 
