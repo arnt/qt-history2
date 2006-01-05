@@ -200,8 +200,8 @@ static WindowGroupRef qt_mac_get_stays_on_top_group()
 
 void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
 {
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
         HIViewFeatures bits;
         HIViewRef hiview = HIViewRef(w->winId());
         HIViewGetFeatures(hiview, &bits);
