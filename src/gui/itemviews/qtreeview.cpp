@@ -1470,13 +1470,8 @@ void QTreeView::updateGeometries()
     QRect geometryRect(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
     d->header->setGeometry(geometryRect);
     d->header->setOffset(horizontalScrollBar()->value());
-
-    // make sure that the header sections are resized, even if the header is hidden
-    if (d->header->isHidden()
-        && (d->header->stretchSectionCount() || d->header->stretchLastSection())) {
-        d->header->viewport()->setGeometry(geometryRect);
-        QMetaObject::invokeMethod(d->header, "resizeSections");
-    }
+    d->header->viewport()->setGeometry(geometryRect);
+    QMetaObject::invokeMethod(d->header, "updateGeometries");
 
     // update scrollbars
     if (model()) {
