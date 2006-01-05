@@ -50,6 +50,43 @@
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
 
+class QTextEditMimeData : public QMimeData
+{
+public:
+    inline QTextEditMimeData(const QTextDocumentFragment &aFragment) : fragment(aFragment) {}
+
+    virtual QStringList formats() const;
+protected:
+    virtual QVariant retrieveData(const QString &mimeType, QVariant::Type type) const;
+private:
+    void setup() const;
+
+    mutable QTextDocumentFragment fragment;
+};
+
+QStringList QTextEditMimeData::formats() const
+{
+    if (!fragment.isEmpty())
+        return QStringList() << "text/plain" << "text/html";
+    else
+        return QMimeData::formats();
+}
+
+QVariant QTextEditMimeData::retrieveData(const QString &mimeType, QVariant::Type type) const
+{
+    if (!fragment.isEmpty())
+        setup();
+    return QMimeData::retrieveData(mimeType, type);
+}
+
+void QTextEditMimeData::setup() const
+{
+    QTextEditMimeData *that = const_cast<QTextEditMimeData *>(this);
+    that->setHtml(fragment.toHtml());
+    that->setText(fragment.toPlainText());
+    fragment = QTextDocumentFragment();
+}
+
 // could go into QTextCursor...
 static QTextLine currentTextLine(const QTextCursor &cursor)
 {
@@ -593,11 +630,12 @@ void QTextEditPrivate::adjustScrollbars()
 #ifndef QT_NO_CLIPBOARD
 void QTextEditPrivate::setClipboardSelection()
 {
-    if (!cursor.hasSelection())
+    QClipboard *clipboard = QApplication::clipboard();
+    if (!cursor.hasSelection() || !clipboard->supportsSelection())
         return;
     Q_Q(QTextEdit);
     QMimeData *data = q->createMimeDataFromSelection();
-    QApplication::clipboard()->setMimeData(data, QClipboard::Selection);
+    clipboard->setMimeData(data, QClipboard::Selection);
 }
 #endif
 
@@ -2857,13 +2895,7 @@ QMimeData *QTextEdit::createMimeDataFromSelection() const
 {
     Q_D(const QTextEdit);
     const QTextDocumentFragment fragment(d->cursor);
-    QMimeData *data = new QMimeData;
-
-    data->setHtml(fragment.toHtml());
-
-    QString txt = fragment.toPlainText();
-    data->setText(txt);
-    return data;
+    return new QTextEditMimeData(fragment);
 }
 
 /*!
