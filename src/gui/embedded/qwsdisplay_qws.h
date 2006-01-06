@@ -45,7 +45,7 @@ public:
 #define QT_QWS_PROPERTY_WINDOWNAME 998
 #define QT_QWS_PROPERTY_MARKEDTEXT 997
 
-class QWSDisplay
+class Q_GUI_EXPORT QWSDisplay
 {
 public:
     QWSDisplay();

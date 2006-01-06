@@ -102,7 +102,7 @@ bool qws_shared_memory = false;
 bool qws_sw_cursor = true;
 bool qws_accel = true;            // ### never set
 QByteArray qws_display_spec(":0");
-int qws_display_id = 0;
+Q_GUI_EXPORT int qws_display_id = 0;
 int qws_client_id = 0;
 QWidget *qt_pressGrab = 0;
 QWidget *qt_mouseGrb = 0;
@@ -200,7 +200,7 @@ static const char *mwTitle = 0;                  // main widget title
 //static bool mwIconic = false;                  // main widget iconified
 
 static bool app_do_modal = false;                // modal mode
-QWSDisplay *qt_fbdpy = 0;                        // QWS `display'
+Q_GUI_EXPORT QWSDisplay *qt_fbdpy = 0;                        // QWS `display'
 QLock *QWSDisplay::lock = 0;
 
 static int mouseButtonPressed = 0;               // last mouse button pressed
