@@ -184,6 +184,8 @@ public:
 
     QString mergePaths(const QString &relativePath) const;
 
+    static QString removeDotsFromPath(const QString &path);
+
     enum ParseOptions {
         ParseAndSet,
         ParseOnly
@@ -3064,8 +3066,97 @@ QString QUrlPrivate::mergePaths(const QString &relativePath) const
     return newPath;
 }
 
-// resides in qfsfileengine_unix.cpp because of moc boot strapping
-extern QString qt_removeDotsFromPath(const QString &dottedPath);
+
+/*
+    From http://www.ietf.org/rfc/rfc3986.txt, 5.2.4: Remove dot segments
+
+    Removes unnecessary ../ and ./ from the path. Used for normalizing
+    the URL.
+*/
+QString QUrlPrivate::removeDotsFromPath(const QString &dottedPath)
+{
+    // The input buffer is initialized with the now-appended path
+    // components and the output buffer is initialized to the empty
+    // string.
+    QString origPath = dottedPath;
+    QString path;
+    path.reserve(origPath.length());
+
+    const QLatin1String Dot(".");
+    const QLatin1Char Slash('/');
+    const QLatin1String DotDot("..");
+    const QLatin1String DotSlash("./");
+    const QLatin1String SlashDot("/.");
+    const QLatin1String DotDotSlash("../");
+    const QLatin1String SlashDotSlash("/./");
+    const QLatin1String SlashDotDotSlash("/../");
+    const QLatin1String SlashDotDot("/..");
+
+    // While the input buffer is not empty, loop:
+    while (!origPath.isEmpty()) {
+
+        // If the input buffer begins with a prefix of "../" or "./",
+        // then remove that prefix from the input buffer;
+        if (origPath.startsWith(DotSlash)) {
+            origPath.remove(0, 2);
+        } else if (origPath.startsWith(DotDotSlash)) {
+            origPath.remove(0, 3);
+        } else {
+            // otherwise, if the input buffer begins with a prefix of
+            // "/./" or "/.", where "." is a complete path segment,
+            // then replace that prefix with "/" in the input buffer;
+            if (origPath.startsWith(SlashDotSlash)) {
+                origPath.remove(0, 2);
+            } else if (origPath == SlashDot) {
+                origPath = Slash;
+            } else {
+                // otherwise, if the input buffer begins with a prefix
+                // of "/../" or "/..", where ".." is a complete path
+                // segment, then replace that prefix with "/" in the
+                // input buffer and remove the last //segment and its
+                // preceding "/" (if any) from the output buffer;
+                if (origPath.startsWith(SlashDotDotSlash)) {
+                    origPath.remove(0, 3);
+                    if (path.contains(Slash))
+                        path.truncate(path.lastIndexOf(Slash));
+                } else if (origPath == SlashDotDot) {
+                    origPath = Slash;
+                    if (path.contains(Slash))
+                        path.truncate(path.lastIndexOf(Slash));
+                } else {
+                    // otherwise, if the input buffer consists only of
+                    // "." or "..", then remove that from the input
+                    // buffer;
+                    if (origPath == Dot || origPath == DotDot) {
+                        origPath.clear();
+                    } else {
+                        // otherwise move the first path segment in
+                        // the input buffer to the end of the output
+                        // buffer, including the initial "/" character
+                        // (if any) and any subsequent characters up
+                        // to, but not including, the next "/"
+                        // character or the end of the input buffer.
+                        int index = origPath.indexOf(Slash);
+                        if (index == 0) {
+                            path += Slash;
+                            origPath.remove(0, 1);
+                            index = origPath.indexOf(Slash);
+                        }
+                        if (index != -1) {
+                            path += origPath.left(index);
+                            origPath.remove(0, index);
+                        } else {
+                            path += origPath;
+                            origPath.clear();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return path;
+}
 
 void QUrlPrivate::validate() const
 {
@@ -3291,7 +3382,7 @@ const QByteArray & QUrlPrivate::normalized()
     tmp.scheme = tmp.scheme.toLower();
     tmp.host = tmp.host.toLower();
     if (!tmp.scheme.isEmpty()) // relative test
-        tmp.path = qt_removeDotsFromPath(tmp.path);
+        tmp.path = QUrlPrivate::removeDotsFromPath(tmp.path);
 
     int qLen = tmp.query.length();
     for (int i = 0; i < qLen; i++) {
@@ -4150,13 +4241,13 @@ QUrl QUrl::resolved(const QUrl &relative) const
         t.setScheme(r.scheme());
         t.setAuthority(r.authority());
         t.setPath(r.path());
-        t.d->path = qt_removeDotsFromPath(t.d->path);
+        t.d->path = QUrlPrivate::removeDotsFromPath(t.d->path);
         t.setEncodedQuery(r.encodedQuery());
     } else {
         if (!r.authority().isEmpty()) {
             t.setAuthority(r.authority());
             t.setPath(r.path());
-            t.d->path = qt_removeDotsFromPath(t.d->path);
+            t.d->path = QUrlPrivate::removeDotsFromPath(t.d->path);
             t.setEncodedQuery(r.encodedQuery());
         } else {
             if (r.path().isEmpty()) {
@@ -4168,10 +4259,10 @@ QUrl QUrl::resolved(const QUrl &relative) const
             } else {
                 if (r.path().startsWith(QLatin1Char('/'))) {
                     t.setPath(r.path());
-                    t.d->path = qt_removeDotsFromPath(t.d->path);
+                    t.d->path = QUrlPrivate::removeDotsFromPath(t.d->path);
                 } else {
                     t.setPath(d->mergePaths(r.path()));
-                    t.d->path = qt_removeDotsFromPath(t.d->path);
+                    t.d->path = QUrlPrivate::removeDotsFromPath(t.d->path);
                 }
                 t.setEncodedQuery(r.encodedQuery());
             }
