@@ -50,7 +50,6 @@ QTOBJS= \
 	qglobal.o \
 	qhash.o \
 	qiodevice.o \
-	qinternal.o \
 	qlistdata.o \
 	qlocale.o \
 	qmap.o \
@@ -104,9 +103,6 @@ qtextstream.o: ..\src\corelib\io\qtextstream.cpp
 
 qiodevice.o: ..\src\corelib\io\qiodevice.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qiodevice.cpp
-
-qinternal.o: ..\src\corelib\kernel\qinternal.cpp
-	$(CXX) $(CXXFLAGS) ..\src\corelib\kernel\qinternal.cpp
 
 qglobal.o: ..\src\corelib\global\qglobal.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\global\qglobal.cpp
