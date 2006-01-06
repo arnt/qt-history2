@@ -62,7 +62,7 @@
     children index's to the first column.
 
     \sa {Model/View Programming}, QAbstractItemModel,
-        {itemviews/simpletreemodel}{Simple Tree Model} example
+        {itemviews/simpletreemodel}{Simple Tree Model example}
 */
 
 /*!
