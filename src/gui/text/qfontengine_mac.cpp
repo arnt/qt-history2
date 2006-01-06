@@ -202,9 +202,14 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
         pState->painter()->setBrush(pState->pen().color());
         pState->painter()->setPen(Qt::NoPen);
         const qreal lw = lineThickness().toReal();
-        if(si.flags & QTextItem::Underline)
+        if(si.flags & QTextItem::Underline) {
+            QBrush anotherOldBrush = pState->painter()->brush();
+            if (si.underlineColor.isValid())
+                pState->painter()->setBrush(si.underlineColor);
             pState->painter()->drawRect(QRectF(req_x, req_y + underlinePosition().toReal(),
                                                si.width.toReal(), lw));
+            pState->painter()->setBrush(anotherOldBrush);
+        }
         if(si.flags & QTextItem::Overline)
             pState->painter()->drawRect(QRectF(req_x, req_y - (ascent() + 1).toReal(),
                                         si.width.toReal(), lw));

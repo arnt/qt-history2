@@ -191,6 +191,7 @@ public:
     const QChar *chars;
     const unsigned short *logClusters;
     const QFont *f;
+    QColor underlineColor;
 
     QGlyphLayout *glyphs;
     int num_glyphs;

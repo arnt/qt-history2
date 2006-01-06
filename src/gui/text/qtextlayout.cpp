@@ -1512,6 +1512,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                         gf.width = width;
                         gf.fontEngine = f.d->engineForScript(si.analysis.script);
                         gf.f = &f;
+                        gf.underlineColor = format.underlineColor();
 
                         p->drawTextItem(QPointF(x.toReal(), y.toReal()), gf);
                     }
@@ -1614,6 +1615,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
             gf.flags |= QTextItem::Overline;
         if (f.d->strikeOut || chf.fontStrikeOut())
             gf.flags |= QTextItem::StrikeOut;
+        gf.underlineColor = chf.underlineColor();
         Q_ASSERT(gf.fontEngine);
 
         if (eng->underlinePositions) {
