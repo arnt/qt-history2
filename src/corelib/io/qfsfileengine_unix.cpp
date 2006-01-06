@@ -560,8 +560,13 @@ QString QFSFileEngine::fileName(FileName file) const
                 ret += QFile::decodeName(QByteArray(s));
 
                 extern QString qt_removeDotsFromPath(const QString &dottedPath);
-                if (!ret.startsWith(QLatin1Char('/')))
-                    ret.prepend(QDir::currentPath() + QLatin1Char('/'));
+                if (!ret.startsWith(QLatin1Char('/'))) {
+                    if (d->file.startsWith(QLatin1Char('/'))) {
+                        ret.prepend(d->file.left(d->file.lastIndexOf('/')) + QLatin1Char('/'));
+                    } else {
+                        ret.prepend(QDir::currentPath() + QLatin1Char('/'));
+                    }
+                }
                 ret = qt_removeDotsFromPath(ret);
                 if (ret.endsWith(QLatin1Char('/')))
                     ret.chop(1);
