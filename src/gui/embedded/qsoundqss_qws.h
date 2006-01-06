@@ -30,7 +30,7 @@ QT_MODULE(Gui)
 
 class QWSSoundServerPrivate;
 
-class QWSSoundServer : public QObject {
+class Q_GUI_EXPORT QWSSoundServer : public QObject {
     Q_OBJECT
 public:
     explicit QWSSoundServer(QObject *parent=0);
@@ -51,7 +51,7 @@ private:
 };
 
 #ifndef QT_NO_QWS_SOUNDSERVER
-class QWSSoundClient : public QWSSocket {
+class Q_GUI_EXPORT QWSSoundClient : public QWSSocket {
     Q_OBJECT
 public:
 
