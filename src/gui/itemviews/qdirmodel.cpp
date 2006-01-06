@@ -227,6 +227,7 @@ public:
         : resolveSymlinks(true),
           readOnly(true),
           lazyChildCount(false),
+          allowAppendChild(true),
           iconProvider(&defaultProvider)
     { }
 
@@ -256,6 +257,7 @@ public:
     bool resolveSymlinks;
     bool readOnly;
     bool lazyChildCount;
+    bool allowAppendChild;
 
     QDir::Filters filters;
     QDir::SortFlags sort;
@@ -765,10 +767,8 @@ void QDirModel::setNameFilters(const QStringList &filters)
 
     d->savePersistentIndexes();
     beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
-
     d->nameFilters = filters;
     d->clear(&d->root); // clear model
-
     endRemoveRows();
     d->restorePersistentIndexes();
     emit layoutChanged();
@@ -798,12 +798,10 @@ void QDirModel::setFilter(QDir::Filters filters)
     Q_D(QDirModel);
 
     d->savePersistentIndexes();
-    beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
 
     d->filters = filters;
     d->clear(&d->root); // clear model
 
-    endRemoveRows();
     d->restorePersistentIndexes();
     emit layoutChanged();
 }
@@ -976,7 +974,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         for (; r < d->root.children.count(); ++r)
             if (d->root.children.at(r).info.fileName() == host)
                 break;
-        if (r >= d->root.children.count())
+        if (r >= d->root.children.count() && d->allowAppendChild)
             d->appendChild(&d->root, QLatin1String("//") + host);
         idx = index(r, 0, QModelIndex());
         pathElements.pop_front();
@@ -1037,6 +1035,8 @@ QModelIndex QDirModel::index(const QString &path, int column) const
 
         // we _still_ couldn't find the path element, we create a new node since we _know_ that the path is valid
         if (row == -1) {
+            if (!d->allowAppendChild)
+                return QModelIndex();
             if (!parent->populated)
                 d->populate(parent);
             d->appendChild(parent, parent->info.absoluteFilePath() + "/" + element);
@@ -1319,15 +1319,17 @@ void QDirModelPrivate::savePersistentIndexes()
 void QDirModelPrivate::restorePersistentIndexes()
 {
     Q_Q(QDirModel);
+    bool allow = allowAppendChild;    allowAppendChild = false;
     Q_ASSERT(persistent.indexes.count() == savedPaths.count());
     for (int i = 0; i < persistent.indexes.count(); ++i) {
         QModelIndex index = q->index(savedPaths.at(i).first,
                                      savedPaths.at(i).second);
-        persistent.indexes[i]->index = q->index(savedPaths.at(i).first,
-                                                savedPaths.at(i).second);
+        persistent.indexes.at(i)->index = index;
     }
+    Q_ASSERT(persistent.indexes.count() == savedPaths.count());
     savedPersistentIndexes.clear();
     savedPaths.clear();
+    allowAppendChild = allow;
 }
 
 QFileInfoList QDirModelPrivate::entryInfoList(const QString &path) const
