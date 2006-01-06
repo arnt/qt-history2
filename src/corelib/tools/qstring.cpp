@@ -4249,13 +4249,13 @@ QString QString::toUpper() const
     The format string supports most of the conversion specifiers
     provided by printf() in the standard C++ library. It doesn't
     honor the length modifiers (e.g. \c h for \c short, \c ll for
-    \c{long long}). If you need those, use the standard sprintf()
+    \c{long long}). If you need those, use the standard snprintf()
     function instead:
 
     \code
-        char buf[BufSize];
-        ::sprintf(buf, "%lld", 123456789LL);
-        QString str = QString::fromAscii(buf);
+        char buf[BufSize];
+        ::snprintf(buf, BufSize, "%lld", 123456789LL);
+        QString str = QString::fromAscii(buf);
     \endcode
 
     \warning We do not recommend using QString::sprintf() in new Qt
