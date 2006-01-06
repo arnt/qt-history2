@@ -542,7 +542,9 @@ void QWSDisplay::Data::reinit()
     qcop_response = 0;
 #endif
     current_event = 0;
+#ifdef QAPPLICATION_EXTRA_DEBUG
     mouse_event_count = 0;
+#endif
     mouseFilter = 0;
 
     QString pipe = qws_qtePipeFilename();
