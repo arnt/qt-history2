@@ -143,7 +143,7 @@ public:
             return -1;
         char c = *readPointer();
         free(1);
-        return c;
+        return int(uchar(c));
     }
 
     inline void putChar(char c) {
