@@ -82,8 +82,8 @@ QPixmap QPixmap::grabWindow(WId winId, int x, int y, int w, int h )
 */
 
 /*!
-    Creates a \c HBITMAP equivalent to the QPixmap, based on the
-    given \a format, and returns the \c HBITMAP handle.
+    Creates a \c HBITMAP equivalent to the QPixmap, based on the given
+    \a format. Returns the \c HBITMAP handle.
 
     It is the caller's responsibility to free the \c HBITMAP data
     after use.
@@ -135,10 +135,13 @@ HBITMAP QPixmap::toWinHBITMAP(HBitmapFormat format) const
 }
 
 /*!
-    Returns a QPixmap that is equivalent to the given \a bitmap
-    which has the specified \a format.
+    Returns a QPixmap that is equivalent to the given \a bitmap. The
+    conversion is based on the specified \a format.
 
-    \sa toWinHBITMAP()
+    \warning This function is only available on Windows.
+
+    \sa toWinHBITMAP(), {QPixmap#Pixmap Conversion}{Pixmap Conversion}
+
 */
 QPixmap QPixmap::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
 {
@@ -146,7 +149,7 @@ QPixmap QPixmap::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
     BITMAP bitmap_info;
     memset(&bitmap_info, 0, sizeof(BITMAP));
 
-    int res; 
+    int res;
     QT_WA({
         res = GetObjectW(bitmap, sizeof(BITMAP), &bitmap_info);
     } , {
