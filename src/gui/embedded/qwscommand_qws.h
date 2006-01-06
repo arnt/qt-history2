@@ -25,7 +25,7 @@
 #include <QtGui/qfont.h>
 #include <QtCore/qdatastream.h>
 #include <QtCore/qvariant.h>
-#include "qwslock_p.h"
+#include "private/qwidget_qws_p.h"
 
 QT_MODULE(Gui)
 
@@ -232,7 +232,7 @@ struct QWSRegionCommand : public QWSCommand
     enum WindowType {Transparent=0, Opaque=1, OnScreen=2};
     struct SimpleData {
         int windowid;
-        quint64 shmid;
+        QWSBackingStore::MemId memoryid;
         uint windowtype:8;
         int nrectangles;
     } simpleData;

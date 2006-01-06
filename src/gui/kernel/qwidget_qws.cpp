@@ -614,18 +614,18 @@ void QWSBackingStore::blit(const QRect &r, const QPoint &p)
     unlock();
 }
 
-quint64 QWSBackingStore::memoryId() const
+QWSBackingStore::MemId QWSBackingStore::memoryId() const
 {
     if (isServerSideBackingStore)
-        return reinterpret_cast<quint64>(mem);
+        return mem;
     else
-        return static_cast<quint64>(shm.id());
+        return shm.id();
 }
 
 void QWSBackingStore::detach()
 {
 #ifdef QT_SHAREDMEM_DEBUG
-    qDebug() << "QWSBackingStore::detach shmid" << shmid << "shmaddr" << shm.address();
+    qDebug() << "QWSBackingStore::detach shmid" << shm.id() << "shmaddr" << shm.address();
 #endif
     pix = QPixmap();
     if (isServerSideBackingStore) {
@@ -673,7 +673,7 @@ void QWSBackingStore::create(QSize s)
 #endif
 }
 
-void QWSBackingStore::attach(int id, QSize s)
+void QWSBackingStore::attach(MemId id, QSize s)
 {
     if (shm.id() == id && s == size())
         return;
@@ -692,7 +692,7 @@ void QWSBackingStore::attach(int id, QSize s)
     if (!shm.attach(id)) {
         perror("QWSBackingStore::attach attaching to shared memory");
         qWarning("QWSBackingStore::attach: Error attaching to shared memory 0x%x of size %d",
-                 id, s.width() * s.height());
+                 int(id), s.width() * s.height());
         return;
     }
 
@@ -707,9 +707,9 @@ void QWSBackingStore::attach(int id, QSize s)
 #endif
 }
 
-void QWSBackingStore::setMemory(quint64 address, const QSize &s)
+void QWSBackingStore::setMemory(MemId id, const QSize &s)
 {
-    mem = reinterpret_cast<uchar*>(address);
+    mem = id;
     QImage img(mem, s.width(), s.height(),
                QImage::Format_ARGB32_Premultiplied);
     pix = QPixmap::fromImage(img);

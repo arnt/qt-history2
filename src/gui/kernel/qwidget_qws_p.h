@@ -33,13 +33,25 @@ class QWSLock;
 class QWSBackingStore
 {
 public:
+    union MemId
+    {
+        MemId() {}
+        MemId(int id) { shmid = id; }
+        MemId(uchar *addr) { address = addr; }
+        operator uchar* () { return address; }
+        operator int () { return shmid; }
+
+        uchar *address;
+        int shmid;
+    };
+
     QWSBackingStore();
     ~QWSBackingStore();
 
     void create(QSize size);
-    void attach(int shmid, QSize size);
+    void attach(MemId id, QSize size);
     void detach();
-    void setMemory(quint64 address, const QSize &size);
+    void setMemory(MemId id, const QSize &size);
 
     bool lock(int timeout = -1);
     void unlock();
@@ -50,7 +62,7 @@ public:
 
     void blit(const QRect &src, const QPoint &dest);
 
-    quint64 memoryId() const;
+    MemId memoryId() const;
     QSize size() const { return pix.size(); }
 
     bool isNull() const { return pix.isNull(); }

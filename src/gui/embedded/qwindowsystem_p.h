@@ -37,6 +37,7 @@
 //
 
 #include "private/qobject_p.h"
+#include "private/qwidget_qws_p.h"
 #include "qwindowsystem_qws.h"
 #include "qbrush.h"
 
@@ -89,7 +90,8 @@ private:
     void set_altitude(const QWSChangeAltitudeCommand *);
     void set_opacity(const QWSSetOpacityCommand *);
     void request_focus(const QWSRequestFocusCommand *);
-    void request_region(int winId, quint64 shmid, int windowtype, QRegion, QWSWindow* =0);
+    void request_region(int winId, QWSBackingStore::MemId memId,
+                        int windowtype, QRegion, QWSWindow* = 0);
     void repaint_region(int winId, bool opaque, QRegion);
     void destroy_region(const QWSRegionDestroyCommand *);
     void name_region(const QWSRegionNameCommand *);

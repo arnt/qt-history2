@@ -1173,10 +1173,11 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
         d->sendCommand(cmd);
 }
 
-void QWSDisplay::requestRegion(int winId, int shmid, int windowtype, QRegion r)
+void QWSDisplay::requestRegion(int winId, QWSBackingStore::MemId memId,
+                               int windowtype, QRegion r)
 {
     if (d->directServerConnection()) {
-        qwsServer->d_func()->request_region(winId, shmid, windowtype, r);
+        qwsServer->d_func()->request_region(winId, memId, windowtype, r);
     } else {
         QVector<QRect> ra = r.rects();
 
@@ -1190,7 +1191,7 @@ void QWSDisplay::requestRegion(int winId, int shmid, int windowtype, QRegion r)
         QWSRegionCommand cmd;
         cmd.simpleData.windowid = winId;
         cmd.simpleData.windowtype = windowtype;
-        cmd.simpleData.shmid = shmid;
+        cmd.simpleData.memoryid = memId;
         cmd.simpleData.nrectangles = ra.count();
         cmd.setData(reinterpret_cast<const char *>(r.rects().constData()),
                     ra.count() * sizeof(QRect), false);

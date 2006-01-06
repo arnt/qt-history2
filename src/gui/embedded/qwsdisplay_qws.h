@@ -21,6 +21,7 @@
 #include <QtGui/private/qlock_p.h>
 #include <QtCore/qlist.h>
 #include <QtGui/private/qwslock_p.h>
+#include <QtGui/private/qwidget_qws_p.h>
 
 QT_MODULE(Gui)
 
@@ -75,7 +76,7 @@ public:
 
     void setIdentity(const QString &appName);
     void nameRegion(int winId, const QString& n, const QString &c);
-    void requestRegion(int winId, int shmid, int windowtype, QRegion);
+    void requestRegion(int winId, QWSBackingStore::MemId memId, int windowtype, QRegion);
     void repaintRegion(int winId, bool opaque, QRegion);
     void moveRegion(int winId, int dx, int dy);
     void destroyRegion(int winId);

@@ -1782,7 +1782,8 @@ void QWSServerPrivate::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
     QRegion region;
     region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);
 
-    request_region(cmd->simpleData.windowid, cmd->simpleData.shmid, cmd->simpleData.windowtype, region, changingw);
+    request_region(cmd->simpleData.windowid, cmd->simpleData.memoryid,
+                   cmd->simpleData.windowtype, region, changingw);
 }
 
 void QWSServerPrivate::invokeRegionMove(const QWSRegionMoveCommand *cmd, QWSClient *client)
@@ -2530,7 +2531,9 @@ void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
     exposeRegion(region, level);
 }
 
-void QWSServerPrivate::request_region(int wid, quint64 shmid, int windowtype, QRegion region, QWSWindow *changingw)
+void QWSServerPrivate::request_region(int wid, QWSBackingStore::MemId mid,
+                                      int windowtype, QRegion region,
+                                      QWSWindow *changingw)
 {
     Q_Q(QWSServer);
     if (!changingw)
@@ -2571,9 +2574,9 @@ void QWSServerPrivate::request_region(int wid, quint64 shmid, int windowtype, QR
         QWSClient *client = changingw->client();
 
         if (client->clientId() == 0) {
-            backingStore->setMemory(shmid, region.boundingRect().size());
+            backingStore->setMemory(mid, region.boundingRect().size());
         } else {
-            backingStore->attach(shmid, region.boundingRect().size());
+            backingStore->attach(mid, region.boundingRect().size());
             backingStore->setLock(changingw->client()->d_func()->clientLock);
         }
 
