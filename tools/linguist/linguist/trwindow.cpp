@@ -1833,21 +1833,17 @@ void TrWindow::readConfig()
 
     QRect r( pos(), size() );
     recentFiles = config.value(keybase + "RecentlyOpenedFiles").toStringList();
-    if ( !config.value(keybase + "Geometry/MainwindowMaximized", false).toBool()) {
-        r.setX(config.value(keybase + "Geometry/MainwindowX", r.x()).toInt());
-        r.setY(config.value(keybase + "Geometry/MainwindowY", r.y()).toInt());
-        r.setWidth(config.value(keybase + "Geometry/MainwindowWidth", r.width()).toInt());
-        r.setHeight(config.value(keybase + "Geometry/MainwindowHeight", r.height()).toInt());
+    r.setX(config.value(keybase + "Geometry/MainwindowX", r.x()).toInt());
+    r.setY(config.value(keybase + "Geometry/MainwindowY", r.y()).toInt());
+    r.setWidth(config.value(keybase + "Geometry/MainwindowWidth", r.width()).toInt());
+    r.setHeight(config.value(keybase + "Geometry/MainwindowHeight", r.height()).toInt());
+    if (!r.intersects(QApplication::desktop()->geometry()))
+        r.moveTopLeft(QApplication::desktop()->availableGeometry().topLeft());
 
-        QRect desk = QApplication::desktop()->geometry();
-        QRect inter = desk.intersect(r);
-        resize( r.size() );
-        if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
-            move( r.topLeft() );
-        }
-    } else {
-        showMaximized();
-    }
+    if (r.isValid()) {
+        resize(r.size());
+        move(r.topLeft());
+    } 
 
     restoreState(config.value(keybase + "MainWindowState").toByteArray());
 
@@ -1866,10 +1862,10 @@ void TrWindow::writeConfig()
     QSettings config;
     config.setValue(keybase + "RecentlyOpenedFiles", recentFiles);
     config.setValue(keybase + "Geometry/MainwindowMaximized", isMaximized());
-    config.setValue(keybase + "Geometry/MainwindowX", x());
-    config.setValue(keybase + "Geometry/MainwindowY", y());
-    config.setValue(keybase + "Geometry/MainwindowWidth", width());
-    config.setValue(keybase + "Geometry/MainwindowHeight", height());
+    config.setValue(keybase + "Geometry/MainwindowX", normalGeometry().x());
+    config.setValue(keybase + "Geometry/MainwindowY", normalGeometry().y());
+    config.setValue(keybase + "Geometry/MainwindowWidth", normalGeometry().width());
+    config.setValue(keybase + "Geometry/MainwindowHeight", normalGeometry().height());
  
     config.setValue(keybase+ "Validators/Accelerator", acceleratorsAct->isChecked());
     config.setValue(keybase+ "Validators/EndingPunctuation", endingPunctuationAct->isChecked());

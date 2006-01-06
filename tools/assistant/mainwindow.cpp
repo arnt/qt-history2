@@ -78,12 +78,10 @@ MainWindow::MainWindow()
     // read geometry configuration
     setupGoActions();
 
-    if (!config->isMaximized()) {
-        QRect geom = config->geometry();
-        if(geom.isValid()) {
-            resize(geom.size());
-            move(geom.topLeft());
-        }
+    QRect geom = config->geometry();
+    if(geom.isValid()) {
+        resize(geom.size());
+        move(geom.topLeft());
     }
 
     restoreState(config->mainWindowState());
@@ -478,7 +476,7 @@ void MainWindow::saveSettings()
     Config *config = Config::configuration();
 
     config->setSideBarPage(helpDock->tabWidget()->currentIndex());
-    config->setGeometry(QRect(x(), y(), width(), height()));
+    config->setGeometry(normalGeometry());
     config->setMaximized(isMaximized());
     config->setMainWindowState(saveState());
     
