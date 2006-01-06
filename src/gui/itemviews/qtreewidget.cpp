@@ -801,7 +801,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 
     Returns the icon that is displayed in the specified \a column.
 
-    \sa setIcon()
+    \sa setIcon(), {QAbstractItemView::iconSize}{iconSize}
 */
 
 /*!
@@ -809,7 +809,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 
     Sets the icon to be displayed in the given \a column to \a icon.
 
-    \sa icon() setText()
+    \sa icon(), setText(), {QAbstractItemView::iconSize}{iconSize}
 */
 
 /*!

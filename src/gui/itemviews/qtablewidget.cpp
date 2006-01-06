@@ -849,7 +849,7 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 
     Returns the item's icon.
 
-    \sa setIcon()
+    \sa setIcon(), {QAbstractItemView::iconSize}{iconSize}
 */
 
 /*!
@@ -857,7 +857,7 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 
     Sets the item's icon to the \a icon specified.
 
-    \sa icon() setText()
+    \sa icon(), setText(), {QAbstractItemView::iconSize}{iconSize}
 */
 
 /*!

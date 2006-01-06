@@ -651,7 +651,7 @@ QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
 
     Returns the list item's icon.
 
-    \sa setIcon()
+    \sa setIcon(), {QAbstractItemView::iconSize}{iconSize}
 */
 
 /*!
@@ -750,7 +750,7 @@ QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
 
     Sets the icon for the list item to the given \a icon.
 
-    \sa icon()
+    \sa icon(), text(), {QAbstractItemView::iconSize}{iconSize}
 */
 
 /*!
