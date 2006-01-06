@@ -130,12 +130,16 @@ GLuint GLWidget::makeObject()
         { { -1, -1, +1 }, { +1, -1, +1 }, { +1, +1, +1 }, { -1, +1, +1 } }
     };
 
+
+    GLuint textures[6];
+    for (int j=0; j < 6; ++j)
+        textures[j] = bindTexture(QPixmap(QString(":/images/side%1.png").arg(j + 1)),
+                                  GL_TEXTURE_2D);
+
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
-
     for (int i = 0; i < 6; ++i) {
-        bindTexture(QPixmap(QString(":/images/side%1.png").arg(i + 1)));
-
+        glBindTexture(GL_TEXTURE_2D, textures[i]);
         glBegin(GL_QUADS);
         for (int j = 0; j < 4; ++j) {
             glTexCoord2d(j == 0 || j == 3, j == 0 || j == 1);
