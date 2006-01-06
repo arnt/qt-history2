@@ -46,7 +46,6 @@ Window::Window()
 
     QPainterPath piePath;
     piePath.moveTo(50.0, 50.0);
-    piePath.lineTo(65.0, 32.6795);
     piePath.arcTo(20.0, 30.0, 60.0, 40.0, 60.0, 240.0);
     piePath.closeSubpath();
 
