@@ -623,9 +623,9 @@ qint64 QIODevice::read(char *data, qint64 maxSize)
                 d->buffer.ungetChar(c);
             } else {
                 if (data)
-                    *data = char(uchar(chint));
+                    *data = c;
                 ++d->pos;
-                return true;
+                return qint64(1);
             }
         }
     }
@@ -742,7 +742,7 @@ QByteArray QIODevice::read(qint64 maxSize)
 
     Reads all available data from the device, and returns it as a
     QByteArray.
-    
+
     This function has no way of reporting errors; returning an empty
     QByteArray() can mean either that no data was currently available
     for reading, or that an error occurred.
