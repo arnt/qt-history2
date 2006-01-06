@@ -387,10 +387,10 @@ QImageData::~QImageData()
     given pair of coordinates, then use the color() function to
     retrieve the color.
 
-    The hasAlphaChannel() function tells if the image has an alpha
-    channel at all (i.e. whether it is is opaque or not). The
-    allGray() and isGrayscale() functions tell whether an image's
-    colors are all shades of gray.
+    The hasAlphaChannel() function tells if the image's format
+    respects the alpha channel, or not. The allGray() and
+    isGrayscale() functions tell whether an image's colors are all
+    shades of gray.
 
     See also the \l {QImage#Pixel Manipulation}{Pixel Manipulation}
     and \l {QImage#Image Transformations}{Image Transformations}
@@ -1309,7 +1309,7 @@ QImage QImage::copy(const QRect& r) const
 /*!
     \fn bool QImage::isNull() const
 
-    Returns true if it is a null image; otherwise returns false.
+    Returns true if it is a null image, otherwise returns false.
 
     A null image has all parameters set to zero and no allocated data.
 */
@@ -4444,6 +4444,11 @@ void QImage::setText(const QString &key, const QString &value)
 
     Returns the text recorded for the given \a key in the given \a
     language, or in a default language if \a language is 0.
+
+    Use text() instead.
+
+    The language the text is recorded in is no longer relevant since
+    the text is always set using QString and UTF-8 representation.
 */
 QString QImage::text(const char* key, const char* lang) const
 {
@@ -4456,6 +4461,11 @@ QString QImage::text(const char* key, const char* lang) const
     \obsolete
 
     Returns the text recorded for the given \a keywordAndLanguage.
+
+    Use text() instead.
+
+    The language the text is recorded in is no longer relevant since
+    the text is always set using QString and UTF-8 representation.
 */
 QString QImage::text(const QImageTextKeyLang& kl) const
 {
@@ -4468,6 +4478,9 @@ QString QImage::text(const QImageTextKeyLang& kl) const
     Returns the language identifiers for which some texts are
     recorded. Note that if you want to iterate over the list, you
     should iterate over a copy.
+
+    The language the text is recorded in is no longer relevant since
+    the text is always set using QString and UTF-8 representation.
 */
 QStringList QImage::textLanguages() const
 {
@@ -4479,6 +4492,11 @@ QStringList QImage::textLanguages() const
 
     Returns a list of QImageTextKeyLang objects that enumerate all the
     texts key/language pairs set for this image.
+
+    Use textKeys() instead.
+
+    The language the text is recorded in is no longer relevant since
+    the text is always set using QString and UTF-8 representation.
 */
 QList<QImageTextKeyLang> QImage::textList() const
 {
@@ -4492,6 +4510,11 @@ QList<QImageTextKeyLang> QImage::textList() const
     Sets the image text to the given \a text and associate it with the
     given \a key. The text is recorded in the specified \a language,
     or in a default language if \a language is 0.
+
+    Use setText() instead.
+
+    The language the text is recorded in is no longer relevant since
+    the text is always set using QString and UTF-8 representation.
 
     \omit
     Records string \a  for the keyword \a key. The \a key should be
@@ -4927,8 +4950,8 @@ void QImage::setAlphaChannel(const QImage &alphaChannel)
     Extracts the alpha channel from this image as an 8 bit gray scale
     image and returns it.
 
-    \sa setAlphaChannel(), {QImage#Image Transformations}{Image
-    Transformations}
+    \sa setAlphaChannel(), hasAlphaChannel(), {QImage#Image
+    Transformations}{Image Transformations}
 */
 
 QImage QImage::alphaChannel() const
@@ -4982,11 +5005,10 @@ QImage QImage::alphaChannel() const
 }
 
 /*!
-    Returns true if the image has an alpha channel different from \c
-    ff (i.e. opaque); otherwise false.
+    Returns true if the image has a format that respects the alpha
+    channel, otherwise returns false.
 
-    \sa alphaChannel(), {QImage#Image Transformations}{Image
-    Transformations}
+    \sa alphaChannel(), {QImage#Image Information}{Image Information}
 */
 bool QImage::hasAlphaChannel() const
 {
