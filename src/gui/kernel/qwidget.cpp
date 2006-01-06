@@ -1386,15 +1386,14 @@ bool QWidgetPrivate::isOpaque() const
 /*!
     \fn void QPixmap::fill(const QWidget *widget, const QPoint &offset)
 
-    Fills the pixmap with the \a widget's background color or pixmap.
+    Fills the pixmap with the \a widget's background color or pixmap
+    according to the given offset.
 
-    The \a offset point is an offset in the widget.
-
-    The point \a offset is a point in the widget's coordinate
-    system. The pixmap's top-left pixel will be mapped to the point \a
-    offset in the widget. This is significant if the widget has a
-    background pixmap; otherwise the pixmap will simply be filled with
-    the background color of the widget.
+    The QPoint \a offset defines a point in widget coordinates to
+    which the pixmap's top-left pixel will be mapped to. This is only
+    significant if the widget has a background pixmap; otherwise the
+    pixmap will simply be filled with the background color of the
+    widget.
 */
 
 void QPixmap::fill( const QWidget *widget, const QPoint &off )
