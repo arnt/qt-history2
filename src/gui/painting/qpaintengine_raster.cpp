@@ -610,6 +610,10 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     d->rasterBuffer->init();
 
+#if defined(Q_WS_WIN)
+    d->fontRasterBuffer->setupHDC(d->clear_type_text);
+#endif
+
     d->deviceRect = QRect(0, 0, device->width(), device->height());
 
 
@@ -1783,14 +1787,20 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
         }
 
         // Draw the text item
-        COLORREF cf = RGB(qRed(penColor), qGreen(penColor), qBlue(penColor));
-        SelectObject(d->fontRasterBuffer->hdc(), CreateSolidBrush(cf));
-        SelectObject(d->fontRasterBuffer->hdc(), CreatePen(PS_SOLID, 1, cf));
-        SetTextColor(d->fontRasterBuffer->hdc(), cf);
+        if (clearType) {
+            COLORREF cf = RGB(qRed(penColor), qGreen(penColor), qBlue(penColor));
+            SelectObject(d->fontRasterBuffer->hdc(), CreateSolidBrush(cf));
+            SelectObject(d->fontRasterBuffer->hdc(), CreatePen(PS_SOLID, 1, cf));
+            SetTextColor(d->fontRasterBuffer->hdc(), cf);
+        }
+
         qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti,
-            d->fontRasterBuffer->hdc());
-        DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(HOLLOW_BRUSH)));
-        DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(BLACK_PEN)));
+                          d->fontRasterBuffer->hdc());
+
+        if (clearType) {
+            DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(NULL_BRUSH)));
+            DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(BLACK_PEN)));
+        }
 
         // Clean up alpha channel
         if (clearType) {
@@ -2477,6 +2487,17 @@ void QRasterBuffer::init()
     bgBrush = Qt::white;
 }
 
+
+#if defined(Q_WS_WIN)
+void QRasterBuffer::setupHDC(bool clear_type)
+{
+    if (!clear_type) {
+        SelectObject(m_hdc, GetStockObject(BLACK_BRUSH));
+        SelectObject(m_hdc, GetStockObject(BLACK_PEN));
+        SetTextColor(m_hdc, RGB(0, 0, 0));
+    }
+}
+#endif
 
 void QRasterBuffer::prepare(int w, int h)
 {

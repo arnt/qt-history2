@@ -279,6 +279,10 @@ public:
     void prepare(int w, int h);
     void prepareBuffer(int w, int h);
 
+#ifdef Q_WS_WIN
+    void setupHDC(bool clear_type);
+#endif
+
     void resetBuffer(int val=0);
 
     uchar *scanLine(int y) { Q_ASSERT(y>=0); Q_ASSERT(y<m_height); return m_buffer + y * bytes_per_line; }
