@@ -1902,14 +1902,15 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     int viewHeight = viewport->height();
     int itemCount = viewItems.count();
 
+    if (viewHeight <= 0) {
+        q->verticalScrollBar()->setRange(0, 0);
+        return;
+    }
+
     // set page step size
     int verticalScrollBarValue = q->verticalScrollBar()->value();
     int itemsInViewport = 0;
     if (uniformRowHeights) {
-        if (itemHeight <= 0) {
-            q->verticalScrollBar()->setRange(0, 0);
-            return;
-        }
         itemsInViewport = viewHeight / itemHeight;
     } else {
         int topItemInViewport = itemAt(verticalScrollBarValue);
