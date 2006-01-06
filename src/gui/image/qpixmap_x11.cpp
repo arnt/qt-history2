@@ -2052,7 +2052,7 @@ bool QPixmap::hasAlphaChannel() const
 
     \warning This function is only available on X11.
 
-    \sa {Pixmap#Pixmap Information}{Pixmap Information}
+    \sa {QPixmap#Pixmap Information}{Pixmap Information}
 */
 const QX11Info &QPixmap::x11Info() const
 {
@@ -2077,7 +2077,7 @@ QPaintEngine *QPixmap::paintEngine() const
 
     \warning This function is only available on X11.
 
-    \sa {Pixmap#Pixmap Information}{Pixmap Information}
+    \sa {QPixmap#Pixmap Information}{Pixmap Information}
 */
 
 Qt::HANDLE QPixmap::x11PictureHandle() const
