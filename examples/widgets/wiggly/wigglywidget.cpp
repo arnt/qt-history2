@@ -19,6 +19,7 @@ WigglyWidget::WigglyWidget(QWidget *parent)
     : QWidget(parent)
 {
     setBackgroundRole(QPalette::Midlight);
+    setAutoFillBackground(true);
 
     QFont newFont = font();
     newFont.setPointSize(newFont.pointSize() + 20);
