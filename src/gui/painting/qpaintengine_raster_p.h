@@ -159,6 +159,7 @@ public:
     QRasterBuffer *rasterBuffer;
 #ifdef Q_WS_WIN
     QRasterBuffer *fontRasterBuffer;
+    uint clear_type_text : 1;
 #endif
 
     QPainterPath baseClip;

@@ -591,6 +591,23 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->fast_pen = true;
     d->int_xform = true;
 
+#if defined(Q_WS_WIN)
+    d->clear_type_text = false;
+    QT_WA({
+        UINT result;
+        BOOL ok;
+        ok = SystemParametersInfoW(SPI_GETFONTSMOOTHINGTYPE, 0, &result, 0);
+        if (ok)
+            d->clear_type_text = (result == FE_FONTSMOOTHINGCLEARTYPE);
+    }, {
+        UINT result;
+        BOOL ok;
+        ok = SystemParametersInfoA(SPI_GETFONTSMOOTHINGTYPE, 0, &result, 0);
+        if (ok)
+            d->clear_type_text = (result == FE_FONTSMOOTHINGCLEARTYPE);
+    });
+#endif
+
     d->rasterBuffer->init();
 
     d->deviceRect = QRect(0, 0, device->width(), device->height());
@@ -1828,25 +1845,12 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         return;
     }
 
-    bool clearType = false;
-    QT_WA({
-        UINT result;
-        BOOL ok;
-        ok = SystemParametersInfoW(SPI_GETFONTSMOOTHINGTYPE, 0, &result, 0);
-        if (ok)
-            clearType = (result == FE_FONTSMOOTHINGCLEARTYPE);
-    }, {
-        UINT result;
-        BOOL ok;
-        ok = SystemParametersInfoA(SPI_GETFONTSMOOTHINGTYPE, 0, &result, 0);
-        if (ok)
-            clearType = (result == FE_FONTSMOOTHINGCLEARTYPE);
-    });
-
     // Only support cleartype for solid pens, 32 bit target buffers and when the pen color is
     // opaque
-    clearType = clearType && (d->penData.type == QSpanData::Solid)
-        && d->deviceDepth == 32 && qAlpha(d->penData.solid.color) == 255;
+    bool clearType = d->clear_type_text
+                     && d->penData.type == QSpanData::Solid
+                     && d->deviceDepth == 32
+                     &&  qAlpha(d->penData.solid.color) == 255;
 
 
     QFixed x_buffering = ti.ascent;
@@ -1873,8 +1877,8 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         return;
 
     // Fill the font raster buffer with text
-    clearType = drawTextInFontBuffer(devRect, xmin, ymin, xmax, ymax, textItem, clearType,
-        leftBearingReserve);
+    clearType = drawTextInFontBuffer(devRect, xmin, ymin, xmax, ymax, textItem,
+                                     clearType, leftBearingReserve);
 
     const int NSPANS = 256;
     QSpan spans[NSPANS];
@@ -1915,7 +1919,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         data.dy = -devRect.y();
         data.adjustSpanMethods();
         fillRect(QRect(xmin, ymin, xmax - xmin, ymax - ymin), &data);
-    } else {
+    } else if (d->clear_type_text) {
         for (int y=ymin; y<ymax; ++y) {
             QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
             // Generate spans for this y coord
@@ -1929,6 +1933,31 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
                 // extend span until we find a different one.
                 while (x < xmax && qGray(scanline[x]) == prev) ++x;
+                span.len = x - span.x;
+
+                if (current == NSPANS) {
+                    d->penData.blend(current, spans, &d->penData);
+                    current = 0;
+                }
+                spans[current++] = span;
+            }
+        }
+    } else {
+        // For the noncleartype/grayscale text we can look at only one color component,
+        // and save a bit of qGray effort...
+        for (int y=ymin; y<ymax; ++y) {
+            QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
+            // Generate spans for this y coord
+            for (int x = xmin; x<xmax; ) {
+                // Skip those with 0 coverage (black on white so inverted)
+                while (x < xmax && qBlue(scanline[x]) == 255) ++x;
+                if (x >= xmax) break;
+
+                int prev = qBlue(scanline[x]);
+                QT_FT_Span span = { x, 0, y, 255 - prev };
+
+                // extend span until we find a different one.
+                while (x < xmax && qBlue(scanline[x]) == prev) ++x;
                 span.len = x - span.x;
 
                 if (current == NSPANS) {
