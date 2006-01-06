@@ -4590,19 +4590,19 @@ int QImage::metric(PaintDeviceMetric metric) const
         break;
 
     case PdmDpiX:
-        return (int)(d->dpmx * 0.0254);
+        return qRound(d->dpmx * 0.0254);
         break;
 
     case PdmDpiY:
-        return (int)(d->dpmy * 0.0254);
+        return qRound(d->dpmy * 0.0254);
         break;
 
     case PdmPhysicalDpiX:
-        return (int)(d->dpmx * 0.0254);
+        return qRound(d->dpmx * 0.0254);
         break;
 
     case PdmPhysicalDpiY:
-        return (int)(d->dpmy * 0.0254);
+        return qRound(d->dpmy * 0.0254);
         break;
 
     default:
