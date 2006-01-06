@@ -597,9 +597,14 @@ QAbstractItemView::SelectionBehavior QAbstractItemView::selectionBehavior() cons
 }
 
 /*!
-    Sets the current item to be the itm at \a index.
+    Sets the current item to be the item at \a index.
+    Depending on the current selection mode, the item may also be selected.
 
-    \sa currentIndex()
+    To set an item as the current item without selecting it, call
+
+    \c{selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);}
+
+    \sa currentIndex(), setSelectionMode(), selectionMode()
 */
 void QAbstractItemView::setCurrentIndex(const QModelIndex &index)
 {
