@@ -30,9 +30,9 @@ static const int max_lock_time = -1; // infinite
 
 #ifndef QT_NO_QWS_CURSOR
 bool qt_sw_cursor=false;
-QScreenCursor * qt_screencursor=0;
+Q_GUI_EXPORT QScreenCursor * qt_screencursor = 0;
 #endif
-QScreen * qt_screen=0;
+Q_GUI_EXPORT QScreen * qt_screen = 0;
 
 ClearCacheFunc QScreen::clearCacheFunc = 0;
 
