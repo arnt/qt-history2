@@ -493,12 +493,12 @@ QFile::exists(const QString &fileName)
 /*!
     \overload
 
-    Returns the name a symlink (or shortcut on Windows) points to, or
-    a an empty string if the object isn't a symbolic link.
+    Returns the absolute path of the file or directory a symlink (or shortcut
+    on Windows) points to, or a an empty string if the object isn't a symbolic
+    link.
 
     This name may not represent an existing file; it is only a string.
-    QFile::exists() returns true if the symlink points to an
-    existing file.
+    QFile::exists() returns true if the symlink points to an existing file.
 
     \sa fileName() setFileName()
 */
@@ -510,13 +510,12 @@ QFile::readLink() const
 }
 
 /*!
-    Returns the filename referred to by the symlink (or shortcut on Windows)
-    specified by \a fileName, or returns an empty string if the \a fileName
-    does not correspond to a symbolic link.
+    Returns the absolute path of the file or directory referred to by the
+    symlink (or shortcut on Windows) specified by \a fileName, or returns an
+    empty string if the \a fileName does not correspond to a symbolic link.
 
     This name may not represent an existing file; it is only a string.
-    QFile::exists() returns true if the symlink points to an
-    existing file.
+    QFile::exists() returns true if the symlink points to an existing file.
 */
 
 QString

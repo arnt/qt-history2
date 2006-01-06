@@ -918,8 +918,9 @@ QFileInfo::isRoot() const
 }
 
 /*!
-    Returns the name a symlink (or shortcut on Windows) points to, or
-    a an empty string if the object isn't a symbolic link.
+    Returns the absolute path to the file or directory a symlink (or shortcut
+    on Windows) points to, or a an empty string if the object isn't a symbolic
+    link.
 
     This name may not represent an existing file; it is only a string.
     QFileInfo::exists() returns true if the symlink points to an
