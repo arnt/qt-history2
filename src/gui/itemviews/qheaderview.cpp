@@ -1662,12 +1662,12 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     // the section position
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    if (visual == 0)
-        opt.position = QStyleOptionHeader::Beginning;
-    else if (visual == count())
-        opt.position = QStyleOptionHeader::End;
-    else if (count() == 1)
+    if (count() == 1)
         opt.position = QStyleOptionHeader::OnlyOneSection;
+    else if (visual == 0)
+        opt.position = QStyleOptionHeader::Beginning;
+    else if (visual == count() - 1)
+        opt.position = QStyleOptionHeader::End;
     else
         opt.position = QStyleOptionHeader::Middle;
     opt.orientation = d->orientation;
