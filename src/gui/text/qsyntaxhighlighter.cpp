@@ -32,8 +32,6 @@ public:
 
     QPointer<QTextDocument> doc;
 
-    void reformatDocument();
-
     void reformatBlocks(int from, int charsRemoved, int charsAdded);
     void reformatBlock(QTextBlock block);
 
@@ -41,18 +39,6 @@ public:
     QVector<QTextCharFormat> formatChanges;
     QTextBlock currentBlock;
 };
-
-void QSyntaxHighlighterPrivate::reformatDocument()
-{
-    if (!doc)
-        return;
-
-    QTextCursor cursor(doc);
-    cursor.beginEditBlock();
-    cursor.movePosition(QTextCursor::End);
-    reformatBlocks(0, 0, cursor.position());
-    cursor.endEditBlock();
-}
 
 void QSyntaxHighlighterPrivate::applyFormatChanges()
 {
@@ -330,7 +316,7 @@ void QSyntaxHighlighter::setDocument(QTextDocument *doc)
     if (d->doc) {
         connect(d->doc, SIGNAL(contentsChange(int, int, int)),
                 this, SLOT(reformatBlocks(int, int, int)));
-        QTimer::singleShot(0, this, SLOT(reformatDocument()));
+        QTimer::singleShot(0, this, SLOT(rehighlight()));
     }
 }
 
@@ -342,6 +328,22 @@ QTextDocument *QSyntaxHighlighter::document() const
 {
     Q_D(const QSyntaxHighlighter);
     return d->doc;
+}
+
+/*!
+    Redoes the highlighting of the whole document.
+*/
+void QSyntaxHighlighter::rehighlight()
+{
+    Q_D(QSyntaxHighlighter);
+    if (!d->doc)
+        return;
+
+    QTextCursor cursor(d->doc);
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::End);
+    d->reformatBlocks(0, 0, cursor.position());
+    cursor.endEditBlock();
 }
 
 /*!
