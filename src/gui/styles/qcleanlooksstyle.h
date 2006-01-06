@@ -46,7 +46,10 @@ public:
 
     void polish(QWidget *widget);
     void polish(QApplication *app);
+    void polish(QPalette &pal);
     void unpolish(QWidget *widget);
+    void unpolish(QApplication *app);
+
     QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                            const QWidget *widget = 0) const;
     void drawItemText(QPainter *painter, const QRect &rect,

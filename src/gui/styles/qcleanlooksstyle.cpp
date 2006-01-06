@@ -3040,7 +3040,7 @@ void QCleanLooksStyle::polish(QApplication *app)
 
     // ### should we always use the standard palette, even on Windows
     // ### and Mac OS X?
-    app->setPalette(standardPalette());
+    //app->setPalette(standardPalette());   
 }
 
 /*!
@@ -3074,11 +3074,26 @@ void QCleanLooksStyle::polish(QWidget *widget)
 /*!
   \reimp
 */
+void QCleanLooksStyle::polish(QPalette &pal)
+{
+    QWindowsStyle::polish(pal);
+}
+
+/*!
+  \reimp
+*/
 void QCleanLooksStyle::unpolish(QWidget *widget)
 {
     Q_UNUSED(widget);
 }
 
+/*!
+  \reimp
+*/
+void QCleanLooksStyle::unpolish(QApplication *app)
+{
+    QWindowsStyle::unpolish(app);
+}
 
 /*!
   \reimp
