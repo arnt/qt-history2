@@ -47,20 +47,20 @@
 
     An example usage of QStandardItemModel to create a tree:
     \code
-        QStandardItemModel *model = new QStandardItemModel();
-        QModelIndex parent;
-        for (int i = 0; i < 4; ++i) {
-            parent = model->index(0, 0, parent);
-            model->insertRows(0, 1, parent);
-            model->insertColumns(0, 1, parent);
-            QModelIndex index = model->index(0, 0, parent);
-            model->setData(index, i);
-        }
+            QStandardItemModel *model = new QStandardItemModel();
+            QModelIndex parent;
+            for (int i = 0; i < 4; ++i) {
+                parent = model->index(0, 0, parent);
+                model->insertRows(0, 1, parent);
+                model->insertColumns(0, 1, parent);
+                QModelIndex index = model->index(0, 0, parent);
+                model->setData(index, i);
+            }
     \endcode
 
     The current implementation of QStandardItemModel only supports adding
     children index's to the first column.
-    
+
     \sa {Model/View Programming}, QAbstractItemModel,
         {itemviews/simpletreemodel}{Simple Tree Model} example
 */
