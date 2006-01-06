@@ -75,4 +75,5 @@
 #define WM_MOUSEWHEEL 0x020A
 #endif
 
+#define ETO_PDY 0x2000
 #endif // QT_WINDOWS_H

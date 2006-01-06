@@ -3119,17 +3119,35 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
             x += w.toReal();
         } else {
             QVarLengthArray<QFixedPoint> positions;
-            QVarLengthArray<glyph_t> glyphs;
+            QVarLengthArray<glyph_t> _glyphs;
             QMatrix matrix;
             matrix.translate(p.x(), p.y());
-            ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+            ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, _glyphs, positions);
 
-            int i = 0;
-            while(i < glyphs.size()) {
-                wchar_t g = glyphs[i];
-                ExtTextOutW(hdc, qRound(positions[i].x), qRound(positions[i].y), options, 0,
-                            convertToText ? convertedGlyphs + i : &g, 1, 0);
-                ++i;
+            bool outputEntireItem = QT_WA_INLINE(ti.num_glyphs > 0, false);
+                       
+            if (outputEntireItem) {
+                options |= ETO_PDY;
+                QVarLengthArray<INT> glyphDistances(ti.num_glyphs * 2);
+                QVarLengthArray<wchar_t> g(ti.num_glyphs);
+                for (int i=0; i<ti.num_glyphs - 1; ++i) {
+                    glyphDistances[i * 2] = qRound(positions[i + 1].x) - qRound(positions[i].x);
+                    glyphDistances[i * 2 + 1] = qRound(positions[i + 1].y) - qRound(positions[i].y);
+                    g[i] = _glyphs[i];
+                }            
+                glyphDistances[(ti.num_glyphs - 1) * 2] = 0;
+                glyphDistances[(ti.num_glyphs - 1) * 2 + 1] = 0;               
+                g[ti.num_glyphs - 1] = _glyphs[ti.num_glyphs - 1];
+                ExtTextOutW(hdc, qRound(positions[0].x), qRound(positions[0].y), options, 0, 
+                            convertToText ? convertedGlyphs : g.data(), ti.num_glyphs, glyphDistances.data());
+            } else {
+                int i = 0;
+                while(i < _glyphs.size()) {
+                    wchar_t g = _glyphs[i];
+                    ExtTextOutW(hdc, qRound(positions[i].x), qRound(positions[i].y), options, 0,
+                                convertToText ? convertedGlyphs + i : &g, 1, 0);
+                    ++i;
+                }
             }
         }
     }
