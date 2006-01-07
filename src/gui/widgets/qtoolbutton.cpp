@@ -590,12 +590,6 @@ QIcon QToolButton::offIconSet() const
 void QToolButton::setOnIconSet(const QIcon& set)
 {
     setIcon(set);
-    /*
-      ### Get rid of all qWarning in this file in 4.0.
-      Also consider inlining the obsolete functions then.
-    */
-    qWarning("QToolButton::setOnIconSet: This function is not supported"
-              " anymore");
 }
 
 /*!
@@ -625,7 +619,6 @@ void QToolButton::setOffIconSet(const QIcon& set)
 void QToolButton::setIconSet(const QIcon & set, bool /* on */)
 {
     QAbstractButton::setIcon(set);
-    qWarning("QToolButton::setIconSet: Parameter 'on' ignored");
 }
 
 /*! \overload
