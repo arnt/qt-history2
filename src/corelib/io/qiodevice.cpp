@@ -966,6 +966,10 @@ qint64 QIODevice::write(const char *data, qint64 maxSize)
     CHECK_OPEN(write, qint64(-1));
     CHECK_WRITABLE(write, qint64(-1));
     CHECK_MAXLEN(write, qint64(-1));
+    
+    // Make sure the device is positioned correctly.
+    if (!isSequential() && !seek(d->pos))
+        return qint64(-1);
 
 #ifdef Q_OS_WIN
     if (d->openMode & Text) {
@@ -1054,9 +1058,7 @@ void QIODevice::ungetChar(char c)
     CHECK_OPEN(write, Q_VOID);
     CHECK_READABLE(read, Q_VOID);
     d->buffer.ungetChar(c);
-    QRingBuffer buf = d->buffer;
-    seek(d->pos - 1);
-    d->buffer = buf;
+    --d->pos;
 }
 
 /*!

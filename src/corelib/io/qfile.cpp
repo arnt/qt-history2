@@ -1134,15 +1134,13 @@ bool QFile::seek(qint64 off)
         return false;
     }
 
-    if (off != d->pos) {
-        QIODevice::seek(off);
-        if (!fileEngine()->seek(off)) {
-            QFile::FileError err = fileEngine()->error();
-            if(err == QFile::UnspecifiedError)
-                err = QFile::PositionError;
-            d->setError(err, fileEngine()->errorString());
-            return false;
-        }
+    QIODevice::seek(off);
+    if (!fileEngine()->seek(off)) {
+        QFile::FileError err = fileEngine()->error();
+        if(err == QFile::UnspecifiedError)
+            err = QFile::PositionError;
+        d->setError(err, fileEngine()->errorString());
+        return false;
     }
     unsetError();
     return true;
