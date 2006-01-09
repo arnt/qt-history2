@@ -326,15 +326,28 @@ int QHeaderView::length() const
 QSize QHeaderView::sizeHint() const
 {
     Q_D(const QHeaderView);
-
     if (d->model == 0 || count() < 1)
         return QSize(0, 0);
-    // ###: we should check all sections (slow)
-    QSize firstHint = sectionSizeFromContents(logicalIndex(0));
-    QSize lastHint = sectionSizeFromContents(logicalIndex(count() - 1));
-    int width = qMax(firstHint.width(), lastHint.width());
-    int height = qMax(firstHint.height(), lastHint.height());
-    return QSize(width, height);
+    if (d->cachedSizeHint.isValid())
+        return d->cachedSizeHint;
+    int width = 0;
+    int height = 0;
+    // get size hint for the first n sections
+    int c = qMin(count(), 100);
+    for (int i = 0; i < c; ++i) {
+        QSize hint = sectionSizeFromContents(i);
+        width = qMax(hint.width(), width);
+        height = qMax(hint.height(), height);
+    }
+    // get size hint for the last n sections
+    c = qMax(count() - 100, c);
+    for (int j = count() - 1; j >= c; --j) {
+        QSize hint = sectionSizeFromContents(j);
+        width = qMax(hint.width(), width);
+        height = qMax(hint.height(), height);
+    }
+    d->cachedSizeHint = QSize(width, height);
+    return d->cachedSizeHint;
 }
 
 /*!
@@ -564,6 +577,7 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
         return;
 
     d->executePostedLayout();
+    d->invalidateCachedSizeHint();
 
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
@@ -813,7 +827,7 @@ void QHeaderView::setResizeMode(ResizeMode mode)
     d->customSections =  (mode == Custom ? count() : 0);
     d->globalResizeMode = mode;
     d->sectionResizeMode.clear();
-    if (/*isVisible() && */d->hasAutoResizeSections())
+    if (d->hasAutoResizeSections())
         resizeSections(); // section sizes may change as a result of the new mode
 }
 
@@ -843,7 +857,7 @@ void QHeaderView::setResizeMode(int logicalIndex, ResizeMode mode)
     else if (mode != Custom && old == Custom)
         --d->customSections;
     
-    if (/*isVisible() && */d->hasAutoResizeSections())
+    if (d->hasAutoResizeSections())
         resizeSections(); // section sizes may change as a result of the new mode
 }
 
@@ -1133,6 +1147,7 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, 
     else
         lastSection = qMax(d->model->rowCount(rootIndex()) -  1, 0);
     initializeSections(logicalFirst, lastSection);
+    d->invalidateCachedSizeHint();
 }
 
 /*!
@@ -1190,6 +1205,7 @@ void QHeaderViewPrivate::sectionsRemoved(const QModelIndex &parent,
     // if we only have the last section (the "end" position) left, the header is empty
     if (sectionCount <= 0)
         clear();
+    invalidateCachedSizeHint();
     emit q->sectionCountChanged(oldCount, q->count());
     viewport->update();
 }
@@ -1775,12 +1791,11 @@ void QHeaderView::scrollContentsBy(int dx, int dy)
 /*!
   \reimp
   \internal
-
-  Empty implementation because the header doesn't show QModelIndex items.
 */
 void QHeaderView::dataChanged(const QModelIndex &, const QModelIndex &)
 {
-    // do nothing
+    Q_D(QHeaderView);
+    d->invalidateCachedSizeHint();
 }
 
 /*!
@@ -2056,9 +2071,9 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
     Q_Q(QHeaderView);
 
     executePostedLayout();
-
     if (sectionCount == 0)
         return;
+    invalidateCachedSizeHint();
 
     // If stretchLastSection, find it
     int stretchSection = -1;

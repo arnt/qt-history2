@@ -114,6 +114,9 @@ public:
 
     void clear();
 
+    inline void invalidateCachedSizeHint() const
+        { cachedSizeHint = QSize(); }
+
     enum State { NoState, ResizeSection, MoveSection } state;
 
     int offset;
@@ -128,6 +131,7 @@ public:
     mutable QBitArray sectionSelected;
     mutable QBitArray sectionHidden;
     mutable QHash<int, int> hiddenSectionSize; // from logical index to section size
+    mutable QSize cachedSizeHint;
     
     int lastPos;
     int firstPos;
