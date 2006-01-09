@@ -444,8 +444,8 @@ int QMacMimeText::flavor(int index)
 int QMacMimeText::flavorFor(const QString &mime)
 {
     if(mime == QLatin1String("text/plain"))
-        return kScrapFlavorTypeText;
-    int i = mime.indexOf("charset=");
+        return kScrapFlavorTypeUnicode;
+    int i = mime.indexOf(QLatin1String("charset="));
     if(i >= 0) {
         QString cs(mime.mid(i+8));
         i = cs.indexOf(";");
@@ -463,9 +463,9 @@ int QMacMimeText::flavorFor(const QString &mime)
 QString QMacMimeText::mimeFor(int flav)
 {
     if(flav == kScrapFlavorTypeText)
-        return QString("text/plain");
+        return QLatin1String("text/plain");
     else if(flav == kScrapFlavorTypeUnicode)
-        return QString("text/plain;charset=ISO-10646-UCS-2");
+        return QLatin1String("text/plain;charset=ISO-10646-UCS-2");
     return QString();
 }
 
@@ -474,12 +474,29 @@ bool QMacMimeText::canConvert(const QString &mime, int flav)
     return flav && flavorFor(mime) == flav;
 }
 
-QVariant QMacMimeText::convertToMime(const QString &, QList<QByteArray> data, int)
+QVariant QMacMimeText::convertToMime(const QString &mimetype, QList<QByteArray> data, int flavor)
 {
     if(data.count() > 1)
         qWarning("QMacMimeText: Cannot handle multiple member data");
     const QByteArray &firstData = data.first();
-    return QVariant(QString::fromUtf8(firstData, firstData.size()));
+    // I can only handle two types (system and unicode) so deal with them that way
+    QVariant ret;
+    switch (flavor) {
+    case kScrapFlavorTypeText: {
+        QCFString str(CFStringCreateWithBytes(kCFAllocatorDefault,
+                                             reinterpret_cast<const UInt8 *>(firstData.constData()),
+                                             firstData.size(), CFStringGetSystemEncoding(), false));
+        ret = QString(str);
+        break; }
+    case kScrapFlavorTypeUnicode:
+        ret = QString::fromUtf16(reinterpret_cast<const ushort *>(firstData.constData()),
+                                 firstData.size() / sizeof(ushort));
+        break;
+    default:
+        qWarning("QMime::convertToMime: unhandled mimetype: %s", qPrintable(mimetype));
+        break;
+    }
+    return ret;
 }
 
 QList<QByteArray> QMacMimeText::convertFromMime(const QString &, QVariant data, int flavor)

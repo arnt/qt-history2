@@ -170,6 +170,11 @@ QVariant QClipboardWatcher::retrieveData(const QString &format, QVariant::Type) 
         QMacMime *c = (*it);
         int flav = c->flavorFor(format);
         if(flav) {
+            // Handle text/plain a little differently. Try handling Unicode first.
+            if (flav = kScrapFlavorTypeText && GetScrapFlavorSize(scrap, kScrapFlavorTypeUnicode, &flavorsize) == noErr) {
+                flav = kScrapFlavorTypeUnicode;
+            }
+
             if(GetScrapFlavorSize(scrap, flav, &flavorsize) == noErr) {
                 QByteArray buffer(flavorsize, 0);
                 GetScrapFlavorData(scrap, flav, &flavorsize, buffer.data());
