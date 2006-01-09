@@ -747,7 +747,6 @@ void generateManualRules()
     addNeedHeaderRule("QPixmap");
     addNeedHeaderRule("QTranslator");
     addNeedHeaderRule("QLabel");
-    addNeedHeaderRule("QImageIO");
     addNeedHeaderRule("QListBoxItem");
     addNeedHeaderRule("Q3Action");
     addNeedHeaderRule("Q3ActionGroup");
