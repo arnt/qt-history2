@@ -4235,7 +4235,13 @@ int QDateTimeParser::findMonth(const QString &str1, int startMonth, int sectionI
                                   : &QDate::longMonthName;
 
     for (int month=startMonth; month<=12; ++month) {
-        QString str2 = nameFunction(month).toLower();
+            for (int attempt=0; attempt<(sn.count == 3 ? 2 : 1); ++attempt) {
+                QString str2;
+                if (attempt == 0) {
+                    str2 = nameFunction(month).toLower();
+                } else {
+                    str2 = QString::fromAscii(qt_shortMonthNames[month - 1]).toLower();
+                }
 
         if (str1.startsWith(str2)) {
             if (used) {
@@ -4273,6 +4279,7 @@ int QDateTimeParser::findMonth(const QString &str1, int startMonth, int sectionI
             return month;
         }
     }
+        }
         if (usedMonth && bestMatch != -1)
             *usedMonth = nameFunction(bestMatch);
 
