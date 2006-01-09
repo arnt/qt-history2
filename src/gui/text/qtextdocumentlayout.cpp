@@ -78,7 +78,10 @@ public:
 };
 
 struct QLayoutStruct {
-    QLayoutStruct() : widthUsed(0), minimumWidth(0), maximumWidth(INT_MAX), fullLayout(false), pageHeight(0.0), pageBottom(0.0), pageMargin(0.0) {}
+    QLayoutStruct() : widthUsed(0), minimumWidth(0), maximumWidth(INT_MAX),
+                      fullLayout(false), pageHeight(0.0),
+                      pageBottom(0.0), pageMargin(0.0)
+    {}
     QTextFrame *frame;
     qreal x_left;
     qreal x_right;
@@ -91,6 +94,7 @@ struct QLayoutStruct {
     qreal pageHeight;
     qreal pageBottom;
     qreal pageMargin;
+    QRectF updateRect;
 
     inline void newPage()
     { pageBottom += pageHeight; y = pageBottom - pageHeight + 2 * pageMargin; }
@@ -342,13 +346,13 @@ public:
     QLayoutStruct layoutCell(QTextTable *t, const QTextTableCell &cell, qreal width,
                             int layoutFrom, int layoutTo);
     void setCellPosition(QTextTable *t, const QTextTableCell &cell, const QPointF &pos);
-    void layoutTable(QTextTable *t, int layoutFrom, int layoutTo);
+    QRectF layoutTable(QTextTable *t, int layoutFrom, int layoutTo);
 
     void positionFloat(QTextFrame *frame, QTextLine *currentLine = 0);
 
     // calls the next one
-    void layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo);
-    void layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, qreal frameWidth, qreal frameHeight);
+    QRectF layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo);
+    QRectF layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, qreal frameWidth, qreal frameHeight);
 
     void layoutBlock(const QTextBlock &bl, QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo,
                      const QTextBlock &previousBlock);
@@ -1201,7 +1205,7 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
     return layoutStruct;
 }
 
-void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, int layoutTo)
+QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, int layoutTo)
 {
     LDEBUG << "layoutTable";
     QTextTableData *td = static_cast<QTextTableData *>(data(table));
@@ -1448,6 +1452,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
 
     td->updateSize();
     td->sizeDirty = false;
+    return QRectF(); // invalid rect -> update everything
 }
 
 void QTextDocumentLayoutPrivate::positionFloat(QTextFrame *frame, QTextLine *currentLine)
@@ -1496,7 +1501,7 @@ void QTextDocumentLayoutPrivate::positionFloat(QTextFrame *frame, QTextLine *cur
     fd->layoutDirty = false;
 }
 
-void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo)
+QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo)
 {
     LDEBUG << "layoutFrame (pre)";
     Q_ASSERT(data(f)->sizeDirty);
@@ -1514,10 +1519,10 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     QTextLength height = fformat.height();
     qreal h = height.value(pd ? pd->contentsHeight : -1);
 
-    layoutFrame(f, layoutFrom, layoutTo, width, h);
+    return layoutFrame(f, layoutFrom, layoutTo, width, h);
 }
 
-void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, qreal frameWidth, qreal frameHeight)
+QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, qreal frameWidth, qreal frameHeight)
 {
     LDEBUG << "layoutFrame from=" << layoutFrom << "to=" << layoutTo;
     Q_Q(QTextDocumentLayout);
@@ -1553,12 +1558,11 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
         if (iface)
             fd->size = iface->intrinsicSize(q->document(), startPos - 1, format).toSize();
         fd->sizeDirty = false;
-        return;
+        return QRectF();
     }
 
     if (QTextTable *table = qobject_cast<QTextTable *>(f)) {
-        layoutTable(table, layoutFrom, layoutTo);
-        return;
+        return layoutTable(table, layoutFrom, layoutTo);
     }
 
     // needed for child frames with a minimum width that is
@@ -1586,6 +1590,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     layoutStruct.minimumWidth = 0;
     layoutStruct.maximumWidth = INT_MAX;
     layoutStruct.fullLayout = fd->contentsWidth != newContentsWidth;
+    layoutStruct.updateRect = QRectF(QPointF(0, 0), QSizeF(INT_MAX, INT_MAX));
     LDEBUG << "layoutStruct: x_left" << layoutStruct.x_left << "x_right" << layoutStruct.x_right
            << "fullLayout" << layoutStruct.fullLayout;
 
@@ -1609,6 +1614,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
                  : fd->contentsHeight + 2*margin;
     fd->size = QSizeF(fd->contentsWidth + 2*margin, height);
     fd->sizeDirty = false;
+    return layoutStruct.updateRect;
 }
 
 void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStruct *layoutStruct,
@@ -1860,6 +1866,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
 
     const qreal indent = this->indent(bl);
 
+    const QPointF oldPosition = tl->position();
     tl->setPosition(QPointF(layoutStruct->x_left, layoutStruct->y));
     const QRectF tlBoundingRect = tl->boundingRect();
 
@@ -1972,6 +1979,21 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
             QTextLine line = tl->lineAt(i);
             layoutStruct->widthUsed
                 = qMax(layoutStruct->widthUsed, line.x() + tl->lineAt(i).naturalTextWidth());
+        }
+        if (layoutStruct->updateRect.isValid()) {
+            if (layoutFrom >= bl.position() + bl.length()) {
+                // if our height didn't change and the change in the document is
+                // in one of the later paragraphs, then we don't need to repaint
+                // this one
+                layoutStruct->updateRect.setTop(qMax(layoutStruct->updateRect.top(), layoutStruct->y));
+            } else if (layoutTo < bl.position()
+                       && oldPosition == tl->position()) {
+                // if the change in the document happened earlier in the document
+                // and our position did /not/ change because none of the earlier paragraphs
+                // or frames changed their height, then we don't need to repaint
+                // this one
+                layoutStruct->updateRect.setBottom(qMin(layoutStruct->updateRect.bottom(), tl->position().y()));
+            }
         }
     }
 
@@ -2151,6 +2173,8 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     if (pageSize.isNull() || !pageSize.isValid())
         return;
 
+    QRectF updateRect;
+
     const QSizeF oldSize = dynamicDocumentSize();
     const int oldPageCount = dynamicPageCount();
 
@@ -2178,7 +2202,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
         d->layoutStep();
     } else {
         d->ensureLayoutedByPosition(from);
-        doLayout(from, oldLength, length);
+        updateRect = doLayout(from, oldLength, length);
     }
 
     if (!d->layoutTimer.isActive() && d->currentLazyLayoutPosition != -1)
@@ -2193,10 +2217,15 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
         emit pageCountChanged(newPageCount);
     }
     
-    emit update();
+    if (!updateRect.isValid()) {
+        // don't use the frame size, it might have shrunken
+        updateRect = QRectF(QPointF(0, 0), QSizeF(INT_MAX, INT_MAX));
+    }
+    
+    emit update(updateRect);
 }
 
-void QTextDocumentLayout::doLayout(int from, int oldLength, int length)
+QRectF QTextDocumentLayout::doLayout(int from, int oldLength, int length)
 {
     Q_D(QTextDocumentLayout);
 
@@ -2205,15 +2234,19 @@ void QTextDocumentLayout::doLayout(int from, int oldLength, int length)
     // mark all frames between f_start and f_end as dirty
     markFrames(document()->rootFrame(), from, oldLength, length);
 
+    QRectF updateRect;
+
     QTextFrame *root = document()->rootFrame();
     if(data(root)->sizeDirty)
-        d->layoutFrame(root, from, from + length);
+        updateRect = d->layoutFrame(root, from, from + length);
     data(root)->layoutDirty = false;
 
     if (d->currentLazyLayoutPosition == -1)
         layoutFinished();
     else if (d->showLayoutProgress)
         d->sizeChangedTimer.start(0, this);
+    
+    return updateRect;
 }
 
 int QTextDocumentLayout::hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const

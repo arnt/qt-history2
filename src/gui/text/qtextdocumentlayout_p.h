@@ -80,7 +80,7 @@ protected:
                           int posInDocument, const QTextFormat &format);
     virtual void timerEvent(QTimerEvent *e);
 private:
-    void doLayout(int from, int oldLength, int length);
+    QRectF doLayout(int from, int oldLength, int length);
     void layoutFinished();
 };
 
