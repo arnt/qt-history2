@@ -20,6 +20,51 @@
 #include <QDir>
 #include <QFileInfo>
 
+static QByteArray cleaned(const QByteArray &input)
+{
+    QByteArray result;
+    result.reserve(input.size());
+    const char *data = input;
+    char *output = result.data();
+
+    int newlines = 0;
+    while (*data) {
+        while (*data && is_space(*data))
+            ++data;
+        bool takeLine = (*data == '#');
+        if (*data == '%' && *(data+1) == ':') {
+            takeLine = true;
+            ++data;
+        }
+        if (takeLine) {
+            *output = '#';
+            ++output;
+            do ++data; while (*data && is_space(*data));
+        }
+        while (*data) {
+            if (*data == '\\' && *(data+1) == '\n') {
+                ++newlines;
+                data += 2;
+                continue;
+            }
+            *output = *data;
+            ++output;
+            if (*data == '\n') {
+                while (newlines) {
+                    *output = '\n';
+                    ++output;
+                    --newlines;
+                }
+                ++data;
+                break;
+            }
+            ++data;
+        }
+    }
+    result.resize(output - result.constData());
+    return result;
+}
+
 bool Preprocessor::preprocessOnly = false;
 void Preprocessor::skipUntilEndif()
 {
@@ -685,13 +730,16 @@ void Preprocessor::preprocess(const QByteArray &filename, Symbols &preprocessed)
             Symbols saveSymbols = symbols;
             int saveIndex = index;
 
-            // phase 1: tokenize for the preprocessor
+            // phase 1: get rid of backslash-newlines
+            input = cleaned(input);
+
+            // phase 2: tokenize for the preprocessor
             symbols = tokenize(input);
             input.clear();
 
             index = 0;
 
-            // phase 2: preprocess conditions and substitute macros
+            // phase 3: preprocess conditions and substitute macros
             preprocessed += Symbol(0, MOC_INCLUDE_BEGIN, include);
             preprocess(include, preprocessed);
             preprocessed += Symbol(lineNum, MOC_INCLUDE_END, include);
@@ -782,8 +830,11 @@ Symbols Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
     QByteArray input = qfile.readAll();
     if (input.isEmpty())
         return symbols;
+    
+    // phase 1: get rid of backslash-newlines
+    input = cleaned(input);
 
-    // phase 1: tokenize for the preprocessor
+    // phase 2: tokenize for the preprocessor
     symbols = tokenize(input);
 
 #if 0
@@ -794,7 +845,7 @@ Symbols Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
                tokenTypeName(symbols[j].token));
 #endif
 
-    // phase 2: preprocess conditions and substitute macros
+    // phase 3: preprocess conditions and substitute macros
     Symbols result;
     preprocess(filename, result);
 
