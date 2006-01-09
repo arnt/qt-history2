@@ -3842,9 +3842,9 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         ip.translate(new_rect.x() - xmin, new_rect.y() - ymin);
 
         // Set the current world matrix, combined with pixel alignment.
-        ip.setMatrix(QImage::trueMatrix(d->state->matrix, w, h), true);
+        ip.setMatrix(QImage::trueMatrix(d->state->matrix, (int) w, (int) h), true);
 
-        ip.drawPixmap(0, 0, w, h, pm, sx, sy, sw, sh);
+        ip.drawPixmap(QRectF(0, 0, w, h), pm, QRectF(sx, sy, sw, sh));
         ip.end();
 
         d->engine->drawPixmap(QRectF(xmin, ymin, source.width(), source.height()),
