@@ -467,7 +467,7 @@ public:
         if  (csocket) {
             lockClient(QWSLock::Communication);
             cmd.write(csocket);
-            flush();
+            csocket->waitForBytesWritten();
             waitClient(QWSLock::Communication);
         } else
 #endif
