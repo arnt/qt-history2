@@ -1073,8 +1073,8 @@ void QWidgetPrivate::setWindowIcon_sys(bool forceReset)
     }
 
     QIcon icon = q->windowIcon();
-    if (!icon.isNull()) {
-        QSize size = icon.actualSize(QSize(64, 64));
+    QSize size = icon.actualSize(QSize(64, 64));
+    if (!icon.isNull() && !size.isEmpty()) {
         QPixmap pixmap = icon.pixmap(size);
 
         // set the _NET_WM_ICON property
