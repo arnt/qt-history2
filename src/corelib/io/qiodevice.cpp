@@ -553,7 +553,6 @@ bool QIODevice::seek(qint64 pos)
 #endif
 
     qint64 offset = pos - d->pos;
-    printf("\toffset = %d\n", int(offset));
     d->pos = pos;
     d->devicePos = pos;
     
