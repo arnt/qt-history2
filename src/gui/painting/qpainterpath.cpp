@@ -105,71 +105,289 @@ static void qt_debug_path(const QPainterPath &path)
 
 /*!
     \class QPainterPath
+    \ingroup multimedia
+
     \brief The QPainterPath class provides a container for painting operations,
     enabling graphical shapes to be constructed and reused.
 
     A painter path is an object composed of a number of graphical
     building blocks, such as rectangles, ellipses, lines, and curves.
-    A painter path can be used for filling, outlining, and clipping.
-    The main advantage of painter paths over normal drawing
-    operations is that complex shapes only need to be created once,
-    but they can be drawn many times using only calls to
-    QPainter::drawPath().
+    Building blocks can be joined in closed subpaths, for example as a
+    rectangle or an ellipse. A closed path has coinciding start and
+    end points. Or they can exist independently as unclosed subpaths,
+    such as lines and curves.
 
-    Building blocks can be joined in closed subpaths, such as a
-    rectangle or an ellipse, or they can exist independently as unclosed
-    subpaths. Note that unclosed paths will not be filled.
+     A QPainterPath object can be used for filling, outlining, and
+     clipping. The main advantage of painter paths over normal drawing
+     operations is that complex shapes only need to be created once,
+     but they can be drawn many times using only calls to the
+     QPainter::drawPath() function.
 
-    Below is a code snippet that shows how a path can be used. The
-    painter in this case has a pen width of 3 and a light blue brush.
-    The painter path is initially empty when constructed.
-    We first add a rectangle, which becomes a closed subpath.  We
-    then add two bezier curves, and finally draw the entire path.
+    QPainterPath provides a collection of functions that can be used
+    to obtain information about the path and its elements. In addition
+    it is possible to reverse the order of the elements using the
+    toReversed() function. There are also several functions to convert
+    this painter path object into a polygon representation.
+
+    \tableofcontents
+
+    \section1 Composing a QPainterPath
+
+    A QPainterPath object can be constructed as an empty path, with a
+    given start point, or as a copy of another QPainterPath object.
+    Once created, lines and curves can be added to the path using the
+    lineTo(), arcTo(), cubicTo() and quadTo() functions. The lines and
+    curves stretch from the currentPosition() to the position passed
+    as argument.
+
+    The currentPosition() of the QPainterPath object is always the end
+    position of the last subpath that was added (or the initial start
+    point). Use the moveTo() function to move the currentPosition()
+    without adding a component. The moveTo() function implicitly
+    starts a new subpath, and closes the previous one.  Another way of
+    starting a new subpath is to call the closeSubpath() function
+    which closes the current path by adding a line from the
+    currentPosition() back to the path's start position. Note that the
+    new path will have (0, 0) as its initial currentPosition().
+
+    QPainterPath class also provides several convenience functions to
+    add closed subpaths to a painter path: addEllipse(), addPath(),
+    addRect(), addRegion() and addText(). The addPolygon() function
+    adds an \e unclosed subpath. In fact, these functions are all
+    collections of moveTo(), lineTo() and cubicTo() operations.
+
+    In addition, a path can be added to the current path using the
+    connectPath() function. But note that this function will connect
+    the last element of the current path to the first element of given
+    one by adding a line.
+
+    Below is a code snippet that shows how a QPainterPath object can
+    be used:
+
+    \table 100%
+    \row
+    \o \inlineimage qpainterpath-construction.png
+    \o
+    \code
+        QPainterPath path;
+        path.addRect(20, 20, 60, 60);
+
+        path.moveTo(0, 0);
+        path.cubicTo(99, 0,  50, 50,  99, 99);
+        path.cubicTo(0, 99,  50, 50,  0, 0);
+
+        QPainter painter(this);
+        painter.fillRect(0, 0, 100, 100, Qt::white);
+        painter.setPen(QPen(QColor(79, 106, 25), 1, Qt::SolidLine,
+                            Qt::FlatCap, Qt::MiterJoin));
+        painter.setBrush(QColor(122, 163, 39));
+
+        painter.drawPath(path);
+    \endcode
+    \endtable
+
+    The painter path is initially empty when constructed. We first add
+    a rectangle, which is a closed subpath. Then we add two bezier
+    curves which together form a closed subpath even though they are
+    not closed individually. Finally we draw the entire path. The path
+    is filled using the default fill rule, Qt::OddEvenFill. Qt
+    provides two methods for filling paths:
 
     \table
     \row
-    \i \inlineimage qpainterpath-example.png
-    \i \quotefromfile snippets/painterpath/painterpath.cpp
-    \skipto PATH
-    \skipto QPainterPath
-    \printuntil drawPath
+    \o \inlineimage qt-fillrule-oddeven.png
+    \o \inlineimage qt-fillrule-winding.png
+    \header
+    \o Qt::OddEvenFill
+    \o Qt::WindingFill
     \endtable
 
-    \sa QPainter QRegion QPolygonF QRectF QPointF
+    See the Qt::Fillrule documentation for the definition of the
+    rules. A painter path's currently set fill rule can be retrieved
+    using the fillRule() function, and altered using the setFillRule()
+    function.
+
+    \section1 QPainterPath Information
+
+    The QPainterPath class provides a collection of functions that
+    returns information about the path and its elements.
+
+    The currentPosition() function returns the end point of the last
+    subpath that was added (or the initial start point). The
+    elementAt() function can be used to retrieve the various subpath
+    elements, the \e number of elements can be retrieved using the
+    elementCount() function, and the isEmpty() function tells whether
+    this QPainterPath object contains any elements at all.
+
+    The controlPointRect() function returns the rectangle containing
+    all the points and control points in this path. This function is
+    significantly faster to compute than the exact boundingRect()
+    which returns the bounding rectangle of this painter path with
+    floating point precision.
+
+    Finally, QPainterPath provides the contains() function which can
+    be used to determine whether a given point or rectangle is inside
+    the path, and the intersects() function which determines if any of
+    the points inside a given rectangle also are inside this path.
+
+    \section1 QPainterPath Conversion
+
+    For compatibilty reasons, it might be required to simplify the
+    representation of a painter path: QPainterPath provides the
+    toFillPolygon(), toFillPolygons() and toSubpathPolygons()
+    functions which convert the painter path into a polygon. The
+    toFillPolygon() returns the painter path as one single polygon,
+    while the two latter functions return a list of polygons.
+
+    The toFillPolygons() and toSubpathPolygons() functions are
+    provided because it is usually faster to draw several small
+    polygons than to draw one large polygon, even though the total
+    number of points drawn is the same. The difference between the two
+    is the \e number of polygons they return: The toSubpathPolygons()
+    creates one polygon for each subpath regardless of intersecting
+    subpaths (i.e. overlapping bounding rectangles), while the
+    toFillPolygons() functions creates only one polygon for
+    overlapping subpaths.
+
+    The toFillPolygon() and toFillPolygons() functions first convert
+    all the subpaths to polygons, then uses a rewinding technique to
+    make sure that overlapping subpaths can be filled using the
+    correct fill rule. Note that rewinding inserts additional lines in
+    the polygon so the outline of the fill polygon does not match the
+    outline of the path.
+
+    \section1 Examples
+
+    Qt provides the \l {painting/painterpaths}{Painter Paths Example}
+    and the \l {demos/deform}{Vector Deformation Demo} which are
+    located in Qt's example and demo directories respectively.
+
+    The \l {painting/painterpaths}{Painter Paths Example} shows how
+    painter paths can be used to build complex shapes for rendering
+    and lets the user experiment with the filling and stroking.  The
+    \l {demos/deform}{Vector Deformation Demo} shows how to use
+    QPainterPath to draw text.
+
+    \table
+    \row
+    \o \inlineimage qpainterpath-example.png
+    \o \inlineimage qpainterpath-demo.png
+    \header
+    \o \l {painting/painterpaths}{Painter Paths Example}
+    \o \l {demos/deform}{Vector Deformation Demo}
+    \endtable
+
+    \sa QPainter, QRegion, QPolygonF, QRectF, QPointF, QLineF
 */
 
 /*!
     \enum QPainterPath::ElementType
-    \internal
 
     This enum describes the types of elements used to connect vertices
     in subpaths.
 
-    \value MoveToElement      A new line begins at the element.
-    \value LineToElement      A line is used to connect the previous element to
-                              the new current element.
-    \value CurveToElement     A curve is used to connect the previous element to
-                              the new current element.
-    \value CurveToDataElement Provides extra data required to describe a curve in
-                              a \c CurveToElement element.
+    Note that elements added as closed subpaths using the
+    addEllipse(), addPath(), addPolygon(), addRect(), addRegion() and
+    addText() convenience functions, is actually added to the path as
+    a collection of separate elements using the moveTo(), lineTo() and
+    cubicTo() functions.
+
+    \value MoveToElement          A new subpath. See also moveTo().
+    \value LineToElement            A line. See also lineTo().
+    \value CurveToElement         A curve. See also cubicTo() and quadTo().
+    \value CurveToDataElement  The extra data required to describe a curve in
+                                               a CurveToElement element.
+
+    \sa elementAt(),  elementCount()
 */
 
 /*!
     \class QPainterPath::Element
+
+    \brief The QPainterPath::Element class specifies the position and
+    type of a subpath.
+
+    Once a QPainterPath object is constructed, subpaths like lines and
+    curves can be added to the path (creating
+    QPainterPath::LineToElement and QPainterPath::CurveToElement
+    components).
+
+    The lines and curves stretch from the currentPosition() to the
+    position passed as argument. The currentPosition() of the
+    QPainterPath object is always the end position of the last subpath
+    that was added (or the initial start point). The moveTo() function
+    can be used to move the currentPosition() without adding a line or
+    curve, creating a QPainterPath::MoveToElement component.
+
+    \sa QPainterPath
+*/
+
+/*!
+    \variable QPainterPath::Element::x
+    \brief the x coordinate of the element's position.
+
+    \sa {operator QPointF()}
+*/
+
+/*!
+    \variable QPainterPath::Element::y
+    \brief the y coordinate of the element's position.
+
+    \sa {operator QPointF()}
+*/
+
+/*!
+    \variable QPainterPath::Element::type
+    \brief the type of element
+
+    \sa isCurveTo(), isLineTo(), isMoveTo()
+*/
+
+/*!
+    \fn bool QPainterPath::Element::operator== ( const Element & e ) const
     \internal
+*/
+
+/*!
+    \fn bool QPainterPath::Element::isCurveTo () const
+
+    Returns true if the element is a curve, otherwise returns false.
+
+    \sa type, QPainterPath::CurveToElement
+*/
+
+/*!
+    \fn bool QPainterPath::Element::isLineTo () const
+
+    Returns true if the element is a line, otherwise returns false.
+
+    \sa type, QPainterPath::LineToElement
+*/
+
+/*!
+    \fn bool QPainterPath::Element::isMoveTo () const
+
+    Returns true if the element is moving the current position,
+    otherwise returns false.
+
+    \sa type, QPainterPath::MoveToElement
+*/
+
+/*!
+    \fn QPainterPath::Element::operator QPointF () const
+
+    Returns the element's position.
+
+    \sa x, y
 */
 
 /*!
     \fn void QPainterPath::addEllipse(qreal x, qreal y, qreal width, qreal height)
     \overload
 
-    Creates an ellipse within a bounding rectangle defined by its top-left
+    Creates an ellipse within the bounding rectangle defined by its top-left
     corner at (\a x, \a y), \a width and \a height, and adds it to the
-    painter path.
-
-    If the current subpath is closed, a new subpath is started. The ellipse
-    is composed of a clockwise curve, starting and finishing at zero degrees
-    (the 3 o'clock position).
+    painter path as a closed subpath.
 */
 
 /*!
@@ -179,20 +397,22 @@ static void qt_debug_path(const QPainterPath &path)
     Adds the given \a text to this path as a set of closed subpaths created
     from the \a font supplied. The subpaths are positioned so that the left
     end of the text's baseline lies at the point specified by (\a x, \a y).
-
-    \sa QPainter::drawText()
 */
 
 /*!
     \fn int QPainterPath::elementCount() const
 
     Returns the number of path elements in the painter path.
+
+    \sa ElementType, elementAt(), isEmpty()
 */
 
 /*!
     \fn const QPainterPath::Element &QPainterPath::elementAt(int index) const
 
     Returns the element at the given \a index in the painter path.
+
+    \sa ElementType, elementCount(), isEmpty()
 */
 
 /*###
@@ -203,7 +423,7 @@ static void qt_debug_path(const QPainterPath &path)
 */
 
 /*!
-    Constructs a new empty QPainterPath.
+    Constructs an empty QPainterPath object.
 */
 QPainterPath::QPainterPath()
     : d_ptr(0)
@@ -211,8 +431,11 @@ QPainterPath::QPainterPath()
 }
 
 /*!
-    Creates a new painter path that is a copy of the \a other painter
-    path.
+    \fn QPainterPath::QPainterPath(const QPainterPath &path)
+
+    Creates a QPainterPath object that is a copy of the given \a path.
+
+    \sa operator=()
 */
 QPainterPath::QPainterPath(const QPainterPath &other)
     : d_ptr(other.d_ptr)
@@ -222,7 +445,8 @@ QPainterPath::QPainterPath(const QPainterPath &other)
 }
 
 /*!
-    Creates a new painter path with \a startPoint as starting poing
+    Creates a QPainterPath object with the given \a startPoint as its
+    current position.
 */
 
 QPainterPath::QPainterPath(const QPointF &startPoint)
@@ -259,7 +483,11 @@ void QPainterPath::ensureData_helper()
 }
 
 /*!
-    Assigns the \a other painter path to this painter path.
+    \fn QPainterPath &QPainterPath::operator=(const QPainterPath &path)
+
+    Assigns the given \a path to this painter path.
+
+    \sa QPainterPath()
 */
 QPainterPath &QPainterPath::operator=(const QPainterPath &other)
 {
@@ -274,7 +502,7 @@ QPainterPath &QPainterPath::operator=(const QPainterPath &other)
 }
 
 /*!
-    Destroys the painter path.
+    Destroys this QPainterPath object.
 */
 QPainterPath::~QPainterPath()
 {
@@ -284,10 +512,14 @@ QPainterPath::~QPainterPath()
 
 /*!
     Closes the current subpath by drawing a line to the beginning of
-    the subpath. If the subpath does not contain any elements, the
-    function does nothing. A new subpath is automatically begun when
-    the current subpath is closed. The current point of the new path
-    is (0, 0).
+    the subpath, automatically starting a new path. The current point
+    of the new path is (0, 0).
+
+    If the subpath does not contain any elements, this function does
+    nothing.
+
+    \sa moveTo(), {QPainterPath#Composing a QPainterPath}{Composing
+    a QPainterPath}
  */
 void QPainterPath::closeSubpath()
 {
@@ -306,17 +538,18 @@ void QPainterPath::closeSubpath()
 
     \overload
 
-    Moves the current point to (\a{x}, \a{y}). Moving the current
-    point will also start a new subpath. The previously current path
-    will not be closed implicitly before the new one is started.
+    Moves the current position to (\a{x}, \a{y}) and starts a new
+    subpath, implicitly closing the previous path.
 */
 
 /*!
     \fn void QPainterPath::moveTo(const QPointF &point)
 
-    Moves the current point to the given \a point. Moving the current
-    point will also start a new subpath. The previously current path
-    will not be closed implicitly before the new one is started.
+    Moves the current point to the given \a point, implicitly starting
+    a new subpath and closing the previous one.
+
+    \sa closeSubpath(), {QPainterPath#Composing a
+    QPainterPath}{Composing a QPainterPath}
 */
 void QPainterPath::moveTo(const QPointF &p)
 {
@@ -350,17 +583,19 @@ void QPainterPath::moveTo(const QPointF &p)
 
     \overload
 
-    Draws a line from the current point to the point at (\a{x}, \a{y}).
-    After the line is drawn, the current point is updated to be at the
-    end point of the line.
+    Draws a line from the current position to the point (\a{x},
+    \a{y}).
 */
 
 /*!
     \fn void QPainterPath::lineTo(const QPointF &endPoint)
 
-    Adds a straight line from the current point to the given \a endPoint.
-    After the line is drawn, the current point is updated to be at the
-    end point of the line.
+    Adds a straight line from the current position to the given \a
+    endPoint.  After the line is drawn, the current position is updated
+    to be at the end point of the line.
+
+    \sa addPolygon(), addRect(), {QPainterPath#Composing a
+    QPainterPath}{Composing a QPainterPath}
  */
 void QPainterPath::lineTo(const QPointF &p)
 {
@@ -384,24 +619,46 @@ void QPainterPath::lineTo(const QPointF &p)
 }
 
 /*!
-    \fn void QPainterPath::cubicTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x,
-                                   qreal ctrlPt2y, qreal endPtx, qreal endPty);
+    \fn void QPainterPath::cubicTo(qreal c1X, qreal c1Y, qreal c2X,
+    qreal c2Y, qreal endPointX, qreal endPointY);
 
     \overload
 
-    Adds a Bezier curve between the current point and the endpoint
-    (\a{endPtx}, \a{endPty}) with control points specified by
-    (\a{ctrlPt1x}, \a{ctrlPt1y}) and (\a{ctrlPt2x}, \a{ctrlPt2y}).
-    After the curve is added, the current point is updated to be at
-    the end point of the curve.
+    Adds a cubic Bezier curve between the current position and the end
+    point (\a{endPointX}, \a{endPointY}) with control points specified
+    by (\a{c1X}, \a{c1Y}) and (\a{c2X}, \a{c2Y}).
 */
 
 /*!
     \fn void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &endPoint)
 
-    Adds a Bezier curve between the current point and \a endPoint with control
-    points specified by \a c1, and \a c2. After the curve is added, the current
-    point is updated to be at the end point of the curve.
+    Adds a cubic Bezier curve between the current position and the
+    given \a endPoint using the control points specified by \a c1, and
+    \a c2.
+
+    After the curve is added, the current position is updated to be at
+    the end point of the curve.
+
+    \table 100%
+    \row
+    \o \inlineimage qpainterpath-cubicto.png
+    \o
+    \code
+        QLinearGradient myGradient;
+        QPen myPen;
+
+        QPainterPath myPath;
+        myPath.cubicto(c1, c2, endPoint);
+
+        QPainter painter(this);
+        painter.setBrush(myGradient);
+        painter.setPen(myPen);
+        painter.drawPath(myPath);
+    \endcode
+    \endtable
+
+    \sa quadTo(), {QPainterPath#Composing a QPainterPath}{Composing
+    a QPainterPath}
 */
 void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &e)
 {
@@ -435,24 +692,26 @@ void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &
 }
 
 /*!
-    \fn void QPainterPath::quadTo(qreal ctrlPtx, qreal ctrlPty, qreal endPtx, qreal endPty);
+    \fn void QPainterPath::quadTo(qreal cx, qreal cy, qreal endPointX, qreal endPointY);
 
     \overload
 
     Adds a quadratic Bezier curve between the current point and the endpoint
-    (\a{endPtx}, \a{endPty}) with the control point specified by
-    (\a{ctrlPtx}, \a{ctrlPty}).
-    After the curve is added, the current point is updated to be at
-    the end point of the curve.
+    (\a{endPointX}, \a{endPointY}) with the control point specified by
+    (\a{cx}, \a{cy}).
 */
 
 /*!
     \fn void QPainterPath::quadTo(const QPointF &c, const QPointF &endPoint)
 
-    Adds a quadratic Bezier curve between the current point and \a
-    endPoint with control point specified by \a c. After the curve is
-    added, the current point is updated to be at the end point of the
-    curve.
+    Adds a quadratic Bezier curve between the current position and the
+    given \a endPoint with the control point specified by \a c.
+
+    After the curve is added, the current point is updated to be at
+    the end point of the curve.
+
+    \sa cubicTo(), {QPainterPath#Composing a QPainterPath}{Composing a
+    QPainterPath}
 */
 void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
 {
@@ -488,41 +747,53 @@ void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
 
     \overload
 
-    The arc's lies within the rectangle given by the point (\a{x},
-    \a{y}), \a width and \a height, beginning at \a startAngle and
-    extending \a sweepLength degrees counter-clockwise. Angles are
-    specified in degrees. Clockwise arcs can be specified using
-    negative angles.
+    Creates an arc that occupies the rectangle QRectF(\a x, \a y, \a
+    width, \a height), beginning at the specified \a startAngle and
+    extending \a sweepLength degrees counter-clockwise.
 
-    This function connects the current point to the starting point of
-    the arc if they are not already connected.
-
-    \sa QPainter::drawArc()
 */
 
 /*!
     \fn void QPainterPath::arcTo(const QRectF &rectangle, qreal startAngle, qreal sweepLength)
 
     Creates an arc that occupies the given \a rectangle, beginning at
-    \a startAngle and extending \a sweepLength degrees counter-clockwise.
-    Angles are specified in degrees. Clockwise arcs can be specified using
-    negative angles.
+    the specified \a startAngle and extending \a sweepLength degrees
+    counter-clockwise.
 
-    This function connects the current point to the starting point of
-    the arc if they are not already connected.
+    Angles are specified in degrees. Clockwise arcs can be specified
+    using negative angles.
 
-    Example:
+    Note that this function connects the starting point of the arc to
+    the current position if they are not already connected. After the
+    arc has been added, the current position is the last point in
+    arc. To draw a line back to the first point, use the
+    closeSubpath() function.
+
+    \table 100%
+    \row
+    \o \inlineimage qpainterpath-arcto.png
+    \o
     \code
-        QPainterPath path;
-        QRect boundingRect(10, 10, 70, 100);
-        path.moveTo(boundingRect.center());
-        path.arcTo(boundingRect, 50, 100);
-        path.closeSubpath();
+        QLinearGradient myGradient;
+        QPen myPen;
+
+        QPointF center, startPoint;
+
+        QPainterPath myPath;
+        myPath.moveTo(center);
+        myPath.arcTo(boundingRect, startAngle,
+                     sweepLength);
+
+        QPainter painter(this);
+        painter.setBrush(myGradient);
+        painter.setPen(myPen);
+        painter.drawPath(myPath);
     \endcode
+    \endtable
 
-    \image draw_pie.png An pie-shaped path
-
-    \sa addEllipse(), QPainter::drawArc(), QPainter::drawPie()
+    \sa addEllipse(), QPainter::drawArc(), QPainter::drawPie(),
+    {QPainterPath#Composing a QPainterPath}{Composing a
+    QPainterPath}
 */
 void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength)
 {
@@ -574,17 +845,39 @@ QPointF QPainterPath::currentPosition() const
     \overload
 
     Adds a rectangle at position (\a{x}, \a{y}), with the given \a
-    width and \a height. The rectangle is added as a clockwise set of
-    lines. Current position after the rect has been added is (\a{x}, \a{y}).
+    width and \a height, as a closed subpath.
 */
 
 /*!
     \fn void QPainterPath::addRect(const QRectF &rectangle)
 
-    Adds the \a rectangle to this path as a closed subpath. The
-    rectangle is added as a clockwise set of lines. The painter path's
-    current position after the rect has been added is at the top-left
-    corner of the rectangle.
+    Adds the given \a rectangle to this path as a closed subpath.
+
+    The \a rectangle is added as a clockwise set of lines. The painter
+    path's current position after the \a rectangle has been added is
+    at the top-left corner of the rectangle.
+
+    \table 100%
+    \row
+    \o \inlineimage qpainterpath-addrectangle.png
+    \o
+    \code
+        QLinearGradient myGradient;
+        QPen myPen;
+        QRectF myRectangle;
+
+        QPainterPath myPath;
+        myPath.addRect(myRectangle);
+
+        QPainter painter(this);
+        painter.setBrush(myGradient);
+        painter.setPen(myPen);
+        painter.drawPath(myPath);
+    \endcode
+    \endtable
+
+    \sa addRegion(), lineTo(), {QPainterPath#Composing a
+    QPainterPath}{Composing a QPainterPath}
 */
 void QPainterPath::addRect(const QRectF &r)
 {
@@ -611,8 +904,33 @@ void QPainterPath::addRect(const QRectF &r)
 }
 
 /*!
-    Adds the \a polygon to path as a new subpath. Current position
-    after the polygon has been added is the last point in \a polygon.
+    Adds the given \a polygon to the path as an (unclosed) subpath.
+
+    Note that the current position after the polygon has been added,
+    is the last point in \a polygon. To draw a line back to the first
+    point, use the closeSubpath() function.
+
+    \table 100%
+    \row
+    \o \inlineimage qpainterpath-addpolygon.png
+    \o
+    \code
+        QLinearGradient myGradient;
+        QPen myPen;
+        QPolygonF myPolygon;
+
+        QPainterPath myPath;
+        myPath.addPolygon(myPolygon);
+
+        QPainter painter(this);
+        painter.setBrush(myGradient);
+        painter.setPen(myPen);
+        painter.drawPath(myPath);
+    \endcode
+    \endtable
+
+    \sa lineTo(), {QPainterPath#Composing a QPainterPath}{Composing
+    a QPainterPath}
 */
 void QPainterPath::addPolygon(const QPolygonF &polygon)
 {
@@ -632,23 +950,35 @@ void QPainterPath::addPolygon(const QPolygonF &polygon)
 }
 
 /*!
-    Creates an ellipse within the bounding rectangle specified by
-    \a boundingRect and adds it to the painter path.
+    \fn void QPainterPath::addEllipse(const QRectF &boundingRectangle)
 
-    If the current subpath is closed, a new subpath is started. The ellipse
-    is composed of a clockwise curve, starting and finishing at zero degrees
-    (the 3 o'clock position).
+    Creates an ellipse within the the specified \a boundingRectangle
+    and adds it to the painter path as a closed subpath.
 
-    Example:
+    The ellipse is composed of a clockwise curve, starting and
+    finishing at zero degrees (the 3 o'clock position).
 
+    \table 100%
+    \row
+    \o \inlineimage qpainterpath-addellipse.png
+    \o
     \code
-        QPainterPath path;
-        path.addEllipse(10, 10, 70, 100);
+        QLinearGradient myGradient;
+        QPen myPen;
+        QRectF boundingRectangle;
+
+        QPainterPath myPath;
+        myPath.addEllipse(boundingRectangle);
+
+        QPainter painter(this);
+        painter.setBrush(myGradient);
+        painter.setPen(myPen);
+        painter.drawPath(myPath);
     \endcode
+    \endtable
 
-    \image draw_ellipse.png An elliptic path
-
-    \sa arcTo(), QPainter::drawEllipse()
+    \sa arcTo(), QPainter::drawEllipse(), {QPainterPath#Composing a
+    QPainterPath}{Composing a QPainterPath}
 */
 void QPainterPath::addEllipse(const QRectF &boundingRect)
 {
@@ -681,13 +1011,33 @@ void QPainterPath::addEllipse(const QRectF &boundingRect)
 /*!
     \fn void QPainterPath::addText(const QPointF &point, const QFont &font, const QString &text)
 
-    Adds the given \a text to this path as a set of closed subpaths created
-    from the \a font supplied. The subpaths are positioned so that the left
-    end of the text's baseline lies at the \a point specified.
+    Adds the given \a text to this path as a set of closed subpaths
+    created from the \a font supplied. The subpaths are positioned so
+    that the left end of the text's baseline lies at the specified \a
+    point.
 
-    \img qpainterpath-addtext.png
+    \table 100%
+    \row
+    \o \inlineimage qpainterpath-addtext.png
+    \o
+    \code
+        QLinearGradient myGradient;
+        QPen myPen;
+        QFont myFont;
+        QPointF baseline(x, y);
 
-    \sa QPainter::drawText()
+        QPainterPath myPath;
+        myPath.addText(baseline, myFont, tr("Qt"));
+
+        QPainter painter(this);
+        painter.setBrush(myGradient);
+        painter.setPen(myPen);
+        painter.drawPath(myPath);
+    \endcode
+    \endtable
+
+    \sa QPainter::drawText(), {QPainterPath#Composing a
+    QPainterPath}{Composing a QPainterPath}
 */
 void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &text)
 {
@@ -750,8 +1100,12 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
 }
 
 /*!
+    \fn void QPainterPath::addPath(const QPainterPath &path)
 
-  Adds the path \a other to this path.
+    Adds the given \a path to \e this path as a closed subpath.
+
+    \sa connectPath(), {QPainterPath#Composing a
+    QPainterPath}{Composing a QPainterPath}
 */
 void QPainterPath::addPath(const QPainterPath &other)
 {
@@ -776,10 +1130,13 @@ void QPainterPath::addPath(const QPainterPath &other)
 
 
 /*!
-    Adds the path \a other to this path by connecting the last
-    element of this to the first element of \a other.
+    \fn void QPainterPath::connectPath(const QPainterPath &path)
 
-    \sa addPath()
+    Connects the given \a path to \e this path by adding a line from the
+    last element of this path to the first element of the given path.
+
+    \sa addPath(), {QPainterPath#Composing a QPainterPath}{Composing
+    a QPainterPath}
 */
 void QPainterPath::connectPath(const QPainterPath &other)
 {
@@ -805,8 +1162,11 @@ void QPainterPath::connectPath(const QPainterPath &other)
 }
 
 /*!
-    Adds the region \a region to the path. This is done by
-    adding each rectangle in the region as a separate subpath.
+    Adds the given \a region to the path by adding each rectangle in
+    the region as a separate closed subpath.
+
+    \sa addRect(), {QPainterPath#Composing a QPainterPath}{Composing
+    a QPainterPath}
 */
 void QPainterPath::addRegion(const QRegion &region)
 {
@@ -821,10 +1181,9 @@ void QPainterPath::addRegion(const QRegion &region)
 
 
 /*!
-    Returns the fill rule of the painter path. The default fill rule
-    is Qt::OddEvenFill.
+    Returns the painter path's currently set fill rule.
 
-    \sa Qt::FillRule setFillRule()
+    \sa setFillRule()
 */
 Qt::FillRule QPainterPath::fillRule() const
 {
@@ -834,7 +1193,17 @@ Qt::FillRule QPainterPath::fillRule() const
 /*!
     \fn void QPainterPath::setFillRule(Qt::FillRule fillRule)
 
-    Sets the fill rule of the painter path to \a fillRule.
+    Sets the fill rule of the painter path to the given \a
+    fillRule. Qt provides two methods for filling paths:
+
+    \table
+    \row
+    \o \inlineimage qt-fillrule-oddeven.png
+    \o \inlineimage qt-fillrule-winding.png
+    \header
+    \o Qt::OddEvenFill (default)
+    \o Qt::WindingFill
+    \endtable
 
     \sa fillRule()
 */
@@ -941,7 +1310,7 @@ static QRectF qt_painterpath_bezier_extrema(const QBezier &b)
     Returns the bounding rectangle of this painter path as a rectangle with
     floating point precision.
 
-    This function is costly. You may consider using controlPointRect() instead.
+    \sa controlPointRect()
 */
 QRectF QPainterPath::boundingRect() const
 {
@@ -987,13 +1356,14 @@ QRectF QPainterPath::boundingRect() const
 }
 
 /*!
-
-    Returns the rectangle containing the all the points and control
-    points in this path. This rectangle is always at least as large
-    as and will always include the boundingRect().
+    Returns the rectangle containing all the points and control points
+    in this path.
 
     This function is significantly faster to compute than the exact
-    boundingRect();
+    boundingRect(), and the returned rectangle is always a superset of
+    the rectangle returned by boundingRect().
+
+    \sa boundingRect()
 */
 QRectF QPainterPath::controlPointRect() const
 {
@@ -1016,13 +1386,21 @@ QRectF QPainterPath::controlPointRect() const
 
 
 /*!
-  \fn bool QPainterPath::isEmpty() const
+    \fn bool QPainterPath::isEmpty() const
 
-    Returns true if there are no elements in this path.
+    Returns true if there are no elements in this path, otherwise
+    returns false.
+
+    \sa elementCount()
 */
 
 /*!
-    Creates a reversed copy of this path and returns it
+    Creates and returns a reversed copy of the path.
+
+    It is the order of the elements that is reversed: If a
+    QPainterPath is composed by calling the moveTo(), lineTo() and
+    cubicTo() functions in the specified order, the reversed copy is
+    composed by calling cubicTo(), lineTo() and moveTo().
 */
 QPainterPath QPainterPath::toReversed() const
 {
@@ -1068,9 +1446,16 @@ QPainterPath QPainterPath::toReversed() const
 
 
 /*!
-    Returns the painter path as a list of polygons. One polygon is
-    created for each subpath. The polygons are transformed using the
-    transformation matrix \a matrix.
+    Converts the path into a list of polygons using the given
+    transformation \a matrix, and returns the list.
+
+    This function creates one polygon for each subpath regardless of
+    intersecting subpaths (i.e. overlapping bounding rectangles). To
+    make sure that such overlapping subpaths are filled correctly, use
+    the toFillPolygons() function instead.
+
+    \sa toFillPolygons(), toFillPolygon(), {QPainterPath#QPainterPath
+    Conversion}{QPainterPath Conversion}
 */
 QList<QPolygonF> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
 {
@@ -1117,19 +1502,19 @@ QList<QPolygonF> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
 }
 
 /*!
-    Returns the painter path as one polygon that can be used for
-    filling. This polygon is created by first converting all subpaths
-    to polygons, then using a rewinding technique to make sure that
-    overlapping subpaths can be filled using the correct fill rule.
+    Converts the path into a polygon using the given transformation \a
+    matrix, and returns the polygon.
 
-    The polygon is transformed using the transformation matrix \a
-    matrix.
+    The polygon is created by first converting all subpaths to
+    polygons, then using a rewinding technique to make sure that
+    overlapping subpaths can be filled using the correct fill rule.
 
     Note that rewinding inserts addition lines in the polygon so
     the outline of the fill polygon does not match the outline of
     the path.
 
-    \sa toSubpathPolygons(), toFillPolygons()
+    \sa toSubpathPolygons(), toFillPolygons(),
+    {QPainterPath#QPainterPath Conversion}{QPainterPath Conversion}
 */
 QPolygonF QPainterPath::toFillPolygon(const QMatrix &matrix) const
 {
@@ -1150,18 +1535,26 @@ QPolygonF QPainterPath::toFillPolygon(const QMatrix &matrix) const
 }
 
 /*!
-    Returns the path as a list of polygons. The polygons are
-    transformed using the transformation matrix \a matrix.
+    Converts the path into a list of polygons using the given
+    transformation \a matrix, and returns the list.
 
-    This function differs from toSubpathPolygons() and toFillPolygon()
-    in that it creates one rewinded polygon for all subpaths that have
+    The function differs from the toFillPolygon() function in that it
+    creates several polygons. It is provided because it is usually
+    faster to draw several small polygons than to draw one large
+    polygon, even though the total number of points drawn is the same.
+
+    The toFillPolygons() function differs from the toSubpathPolygons()
+    function in that it create only polygon for subpaths that have
     overlapping bounding rectangles.
 
-    This function is provided, because it is usually faster to draw
-    several small polygons than to draw one large polygon, even though
-    the total number of points drawn is the same.
+    Like the toFillPolygon() function, this function uses a rewinding
+    technique to make sure that overlapping subpaths can be filled
+    using the correct fill rule. Note that rewinding inserts addition
+    lines in the polygons so the outline of the fill polygon does not
+    match the outline of the path.
 
-    \sa toSubpathPolygons(), toFillPolygon()
+    \sa toSubpathPolygons(), toFillPolygon(),
+    {QPainterPath#QPainterPath Conversion}{QPainterPath Conversion}
 */
 
 // #define QPP_FILLPOLYGONS_DEBUG
@@ -1317,8 +1710,12 @@ static void qt_painterpath_isect_curve(const QBezier &bezier, const QPointF &pt,
 }
 
 /*!
-    Returns true if the point \a pt is contained by the path; otherwise
+    \fn bool QPainterPath::contains(const QPointF &point) const
+
+    Returns true if the given \a point is inside the path, otherwise
     returns false.
+
+    \sa intersects()
 */
 bool QPainterPath::contains(const QPointF &pt) const
 {
@@ -1553,8 +1950,12 @@ static bool qt_painterpath_check_crossing(const QPainterPath *path, const QRectF
 }
 
 /*!
-    Returns true if any point in rect \a rect is inside the path; otherwise
-    returns false.
+    \fn bool QPainterPath::intersects(const QRectF &rectangle) const
+
+    Returns true if any point in the given \a rectangle is inside the
+    path; otherwise returns false.
+
+    \sa contains()
 */
 bool QPainterPath::intersects(const QRectF &rect) const
 {
@@ -1583,8 +1984,11 @@ bool QPainterPath::intersects(const QRectF &rect) const
 
 
 /*!
-    Returns true if the rect \a rect is inside the path; otherwise
-    returns false.
+    \fn bool QPainterPath::contains(const QRectF &rectangle) const
+    \overload
+
+    Returns true if the given \a rectangle is inside the path,
+    otherwise returns false.
 */
 bool QPainterPath::contains(const QRectF &rect) const
 {
@@ -1662,10 +2066,12 @@ bool QPainterPath::contains(const QRectF &rect) const
 
 
 /*!
-    Returns true if this painterpath is equal to \a path.
+    Returns true if this painterpath is equal to the given \a path.
 
-    Comparing paths may involve a per element comparison which
-    can be slow for complex paths.
+    Note that comparing paths may involve a per element comparison
+    which can be slow for complex paths.
+
+    \sa operator!=()
 */
 
 bool QPainterPath::operator==(const QPainterPath &path) const
@@ -1682,10 +2088,12 @@ bool QPainterPath::operator==(const QPainterPath &path) const
 }
 
 /*!
-    Returns true if this painterpath differs from \a path.
+    Returns true if this painter path differs from the given \a path.
 
-    Comparing paths may involve a per element comparison which
-    can be slow for complex paths.
+    Note that comparing paths may involve a per element comparison
+    which can be slow for complex paths.
+
+    \sa operator==()
 */
 
 bool QPainterPath::operator!=(const QPainterPath &path) const
@@ -1698,10 +2106,10 @@ bool QPainterPath::operator!=(const QPainterPath &path) const
     \fn QDataStream &operator<<(QDataStream &stream, const QPainterPath &path)
     \relates QPainterPath
 
-    Writes the painter path specified by \a path to the given \a stream, and
-    returns a reference to the stream.
+    Writes the given painter \a path to the given \a stream, and
+    returns a reference to the \a stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 QDataStream &operator<<(QDataStream &s, const QPainterPath &p)
 {
@@ -1726,9 +2134,9 @@ QDataStream &operator<<(QDataStream &s, const QPainterPath &p)
     \relates QPainterPath
 
     Reads a painter path from the given \a stream into the specified \a path,
-    and returns a reference to the stream.
+    and returns a reference to the \a stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 QDataStream &operator>>(QDataStream &s, QPainterPath &p)
 {

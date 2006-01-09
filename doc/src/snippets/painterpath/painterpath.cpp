@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 
     painter.save();
     painter.translate(0.5, 0.5);
-    painter.setPen(QPen(QColor(79, 106, 25), 3, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+    painter.setPen(QPen(QColor(79, 106, 25), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
     painter.setBrush(QColor(122, 163, 39));
     painter.setRenderHint(QPainter::Antialiasing);
 
