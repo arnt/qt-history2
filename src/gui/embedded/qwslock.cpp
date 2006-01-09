@@ -52,7 +52,7 @@ QWSLock::~QWSLock()
     semctl(semId, 0, IPC_RMID, 0);
 }
 
-static bool forceLock(int semId, int semNum, int timeout)
+static bool forceLock(int semId, int semNum, int)
 {
     int ret;
     do {
@@ -65,32 +65,7 @@ static bool forceLock(int semId, int semNum, int timeout)
         if (semNum == QWSLock::BackingStore)
             sops.sem_flg |= SEM_UNDO;
 
-        if (timeout >= 0) {
-#if defined(LINUX_VERSION_CODE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,22))
-            const struct timespec t = {0, timeout * 1000};
-            ret = semtimedop(semId, &sops, 1, &t);
-#else
-            sops.sem_flg = IPC_NOWAIT;
-
-            struct timeval start;
-            gettimeofday(&start, 0);
-
-            do {
-                ret = semop(semId, &sops, 1);
-                if (ret == -1 && errno == EAGAIN) {
-                    struct timeval now;
-                    gettimeofday(&now, 0);
-                    if ((now.tv_sec - start.tv_sec) * 1000*1000
-                        + (now.tv_usec - start.tv_usec) >= timeout)
-                        break;
-                    struct timespec sleeptime = {0, 1000 * 1000}; // 1msec
-                    nanosleep(&sleeptime, 0);
-                }
-            } while (ret == -1 && errno == EAGAIN);
-#endif
-        } else {
-            ret = semop(semId, &sops, 1);
-        }
+        ret = semop(semId, &sops, 1);
         if (ret == -1 && errno != EINTR)
             qDebug("QWSLock::lock: %s", strerror(errno));
     } while (ret == -1 && errno == EINTR);
