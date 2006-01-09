@@ -3202,6 +3202,8 @@ QString QString::fromLocal8Bit(const char *str, int size)
 {
     if (!str)
         return QString();
+    if (size == 0 || (!*str && size < 0))
+        return QLatin1String("");
 #if defined(Q_OS_WIN32)
     if(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
         return qt_winMB2QString(str, size);
