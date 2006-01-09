@@ -1154,9 +1154,11 @@ QImage::operator QVariant() const
 
 void QImage::detach()
 {
-    ++d->detach_no;
-    if (d && d->ref != 1)
-        *this = copy();
+    if (d) {
+        ++d->detach_no;
+        if (d->ref != 1)
+            *this = copy();
+    }
 }
 
 
