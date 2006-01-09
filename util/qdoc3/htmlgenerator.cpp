@@ -546,18 +546,18 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         }
 	if (!atom->string().isEmpty()) {
             if (atom->string().contains("%"))
-                out() << "<table width=\"" << atom->string() << "\" "
+                out() << "<p><table width=\"" << atom->string() << "\" "
                       << "align=\"center\" cellpadding=\"2\" "
                       << "cellspacing=\"1\" border=\"0\">\n";
             else
-                out() << "<table align=\"center\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">\n";
+                out() << "<p><table align=\"center\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">\n";
         } else {
-            out() << "<table align=\"center\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">\n";
+            out() << "<p><table align=\"center\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">\n";
         }
         numTableRows = 0;
 	break;
     case Atom::TableRight:
-	out() << "</table>\n";
+	out() << "</table></p>\n";
 	break;
     case Atom::TableHeaderLeft:
 	out() << "<thead><tr valign=\"top\" bgcolor=\"#a2c511\">";
@@ -1124,7 +1124,7 @@ void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker
     QString tdTag;
     if (numColumns > 1) {
         tdTag = "<td width=\"" + QString::number((100 + numColumns - 1) / numColumns) + "%\">";
-        out() << "<table width=\"100%\">\n<tr valign=\"top\">" << tdTag << "\n";
+        out() << "<p><table width=\"100%\">\n<tr valign=\"top\">" << tdTag << "\n";
     }
 
     // disable nested links in table of contents
@@ -1171,7 +1171,7 @@ void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker
     }
 
     if (numColumns > 1)
-        out() << "</td></tr></table>\n";
+        out() << "</td></tr></table></p>\n";
 
     inContents = false;
     inLink = false;
@@ -1650,7 +1650,7 @@ void HtmlGenerator::generateSectionList(const Section& section, const Node *rela
 	    twoColumn = ( section.members.count() >= 5 );
 	}
 	if ( twoColumn )
-	    out() << "<table width=\"100%\" border=\"0\" cellpadding=\"0\""
+	    out() << "<p><table width=\"100%\" border=\"0\" cellpadding=\"0\""
 		     " cellspacing=\"0\">\n"
 		  << "<tr><td width=\"45%\" valign=\"top\">";
 	out() << "<ul>\n";
@@ -1680,7 +1680,7 @@ void HtmlGenerator::generateSectionList(const Section& section, const Node *rela
 	}
 	out() << "</ul>\n";
 	if ( twoColumn )
-	    out() << "</td></tr>\n</table>\n";
+	    out() << "</td></tr>\n</table></p>\n";
     }
 
     if (style == CodeMarker::Summary && !section.inherited.isEmpty()) {
