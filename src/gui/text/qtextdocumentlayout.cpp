@@ -1162,6 +1162,14 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
     layoutStruct.y = 0;
     layoutStruct.x_left = 0;
     layoutStruct.x_right = width;
+    // we get called with different widths all the time (for example for figuring
+    // out the min/max widths), so we always have to do the full layout ;(
+    // also when for example in a table layoutFrom/layoutTo affect only one cell,
+    // making that one cell grow the available width of the other cells may change
+    // (shrink) and therefore when layoutCell gets called for them they have to
+    // be relayouted, even if layoutFrom/layoutTo is not in their range. Hence
+    // this line:
+    layoutStruct.fullLayout = true;
 
     QList<QTextFrame *> floats;
 
