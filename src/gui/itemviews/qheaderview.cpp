@@ -640,6 +640,7 @@ bool QHeaderView::isSectionHidden(int logicalIndex) const
 {
     Q_D(const QHeaderView);
     Q_ASSERT(logicalIndex >= 0);
+    d->executePostedLayout();
     if (logicalIndex >= d->sectionHidden.count())
         return false; // there are no hidden sections
     int visual = visualIndex(logicalIndex);
