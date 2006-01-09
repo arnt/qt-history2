@@ -30,7 +30,7 @@ for(QTLIB, $$list($$TMPLIBS)) {
 QT = $$QT_ORDERED
 
 #specific module settings
-!isEmpty(QT_BUILD_TREE):QMAKE_LIBDIR += $$QT_BUILD_TREE/lib
+!isEmpty(QT_BUILD_TREE):QMAKE_LIBDIR = $$QT_BUILD_TREE/lib $$QMAKE_LIBDIR #as above, prepending prevents us from picking up "stale" libs
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
 for(QTLIB, $$list($$lower($$unique(QT)))) {
    qlib_style = 
