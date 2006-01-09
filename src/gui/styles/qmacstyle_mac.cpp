@@ -6343,8 +6343,11 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     case CT_ComboBox:
         sz.rwidth() += 37;
         break;
-    case CT_GroupBox:
-        sz += QSize(8, 8);
+    case CT_Menu:
+        // Hmm... the size is too big on the bottom, but I don't have anyway to correct
+        // this in QMenu, so correct it here.
+        sz.rheight() -= 4;
+        break;
     default:
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, widget);
     }
