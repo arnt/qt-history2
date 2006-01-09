@@ -3813,35 +3813,43 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 
     if (d->state->txop > QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
-        QPixmap source;
-        if(sx != 0 || sy != 0 || sw != pm.width() || sh != pm.height()) {
-            source = pm.copy(qRound(sx), qRound(sy), qRound(sw), qRound(sh));
-        } else {
-            source = pm;
-        }
 
-        QMatrix mat(d->state->matrix);
-        qreal scalex = w / sw;
-        qreal scaley = h / sh;
-        mat = QMatrix(scalex, 0, 0, scaley, 0, 0) * mat;
-        mat = QPixmap::trueMatrix(mat, qRound(sw), qRound(sh));
-        QPixmap pmx = source.transformed(mat,
-                                         (d->state->renderHints & SmoothPixmapTransform)
-                                         ? Qt::SmoothTransformation
-                                         : Qt::FastTransformation);
-        if (pmx.isNull())                        // xformed into nothing
-            return;
-        d->state->matrix.map(x, y, &x, &y);        // compute position of pixmap
-        qreal dx, dy;
-        mat.map(0, 0, &dx, &dy);
-        if (pmx.depth() == 1) {
-            save();
-            setClipRect(QRectF(r.x(), r.y(), w, h), Qt::IntersectClip);
-        }
-        d->engine->drawPixmap(QRectF(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
-                              QRectF(0, 0, pmx.width(), pmx.height()));
-        if (pmx.depth() == 1)
-            restore();
+        QRectF new_rect = d->state->matrix.mapRect(QRectF(x, y, w, h));
+
+        int xmin = (int) floor(new_rect.x());
+        int ymin = (int) floor(new_rect.y());
+        int xmax = (int) ceil(new_rect.x() + new_rect.width());
+        int ymax = (int) ceil(new_rect.y() + new_rect.height());
+
+        QImage::Format format = (d->state->txop > QPainterPrivate::TxScale
+                                 || pm.hasAlpha()
+                                 || pm.depth() == 1)
+                                ? QImage::Format_ARGB32_Premultiplied
+                                : QImage::Format_RGB32;
+
+        QImage source(xmax - xmin, ymax - ymin, format);
+        source.fill(0);
+
+        QPainter ip(&source);
+        // set required properties
+        ip.setBackgroundMode(d->state->bgMode);
+        ip.setPen(d->state->pen);
+        ip.setBackground(d->state->bgBrush);
+        ip.setRenderHint(QPainter::SmoothPixmapTransform,
+                         d->state->renderHints & QPainter::SmoothPixmapTransform);
+
+        // Pixel align
+        ip.translate(new_rect.x() - xmin, new_rect.y() - ymin);
+
+        // Set the current world matrix, combined with pixel alignment.
+        ip.setMatrix(QImage::trueMatrix(d->state->matrix, w, h), true);
+
+        ip.drawPixmap(0, 0, w, h, pm, sx, sy, sw, sh);
+        ip.end();
+
+        d->engine->drawPixmap(QRectF(xmin, ymin, source.width(), source.height()),
+                              QPixmap::fromImage(source),
+                              QRectF(0, 0, source.width(), source.height()));
     } else {
         if (!d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
             x += qRound(d->state->matrix.dx());
