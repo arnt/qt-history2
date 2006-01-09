@@ -277,7 +277,7 @@ static void qt_debug_path(const QPainterPath &path)
     \o \l {demos/deform}{Vector Deformation Demo}
     \endtable
 
-    \sa QPainter, QRegion, QPolygonF, QRectF, QPointF, QLineF
+    \sa QPainter, QRegion
 */
 
 /*!
