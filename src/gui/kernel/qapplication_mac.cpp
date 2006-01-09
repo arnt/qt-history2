@@ -793,7 +793,6 @@ static EventTypeSpec app_events[] = {
 
     { kEventClassApplication, kEventAppActivated },
     { kEventClassApplication, kEventAppDeactivated },
-    { kEventClassApplication, kEventAppAvailableWindowBoundsChanged },
 
     { kEventClassKeyboard, kEventRawKeyModifiersChanged },
     { kEventClassKeyboard, kEventRawKeyRepeat },
@@ -2499,18 +2498,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QApplication::sendSpontaneousEvent(app, &ev);
             }
             app->setActiveWindow(0);
-        } else if (ekind == kEventAppAvailableWindowBoundsChanged) {
-            UInt32 reason;
-            GetEventParameter(event, kEventParamReason, typeUInt32, 0, sizeof(reason), 0, &reason);
-            if (reason == kAvailBoundsChangedForDisplay) {
-                // The size of the display has changed, recreate the desktop widget (or bad things happen)
-                extern QDesktopWidget *qt_desktopWidget; // qapplication.cpp
-                delete qt_desktopWidget;
-                qt_desktopWidget = 0;
-                app->desktop();
-                // ### It might be nice to pass this along to the developer so
-                // that they can handle it too...
-            }
         } else {
             handled_event = false;
         }

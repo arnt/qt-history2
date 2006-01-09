@@ -35,20 +35,28 @@ public:
 
     QVector<GDHandle> devs;
     QVector<QRect> rects;
+    static void readScreenInformation(QVector<GDHandle> &devices, QVector<QRect> &screenRects, int &screenCount);
 };
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 {
     appScreen = screenCount = 0;
-    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g))
-        screenCount++;
-    devs.resize(screenCount);
-    rects.resize(screenCount);
+    readScreenInformation(devs, rects, screenCount);
+
+}
+
+void QDesktopWidgetPrivate::readScreenInformation(QVector<GDHandle> &devices, QVector<QRect> &screenRects, int &screenCount)
+{
+    screenCount = 0;
+    for (GDHandle g = GetMainDevice(); g; g = GetNextDevice(g))
+        ++screenCount;
+    devices.resize(screenCount);
+    screenRects.resize(screenCount);
     int i = 0;
-    for(GDHandle g = GetMainDevice(); i < screenCount && g; g = GetNextDevice(g), i++) {
-        devs[i] = g;
+    for (GDHandle g = GetMainDevice(); i < screenCount && g; g = GetNextDevice(g), ++i) {
+        devices[i] = g;
         Rect r = (*g)->gdRect;
-        rects[i] = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+        screenRects[i] = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
     }
 }
 
@@ -139,11 +147,18 @@ int QDesktopWidget::screenNumber(const QPoint &point) const
 void QDesktopWidget::resizeEvent(QResizeEvent *)
 {
     Q_D(QDesktopWidget);
-    QDesktopWidgetPrivate *old_d = d;
-    d_ptr = new QDesktopWidgetPrivate;
-    for(int i = 0; i < d->screenCount; i++) {
-        if(i > old_d->screenCount || d->rects[i] != old_d->rects[i])
+    int oldScreenCount = d->screenCount;
+    QVector<QRect> oldRects = d->rects;
+
+    QVector<GDHandle> newDevs;
+    QVector<QRect> newRects;
+    int newScreenCount;
+    QDesktopWidgetPrivate::readScreenInformation(newDevs, newRects, newScreenCount);
+    for (int i = 0; i < newScreenCount; ++i) {
+        if (i > oldScreenCount || newRects.at(i) != oldRects.at(i))
             emit resized(i);
     }
-    delete old_d;
+    d->screenCount = newScreenCount;
+    d->devs = newDevs;
+    d->rects = newRects;
 }
