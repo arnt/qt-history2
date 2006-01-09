@@ -1008,12 +1008,15 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
         int column = d->header->logicalIndexAt(event->x());
         QPersistentModelIndex persistent = index.sibling(index.row(), column);
         emit doubleClicked(persistent);
+        d->executePostedLayout();
 
-        if (edit(persistent, DoubleClicked, event) || state() != NoState)
+        if (edit(persistent, oubleClicked, event) || state() != NoState)
             return; // the double click triggered editing
 
-        if (!style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
+        if (!style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick)) {
             emit activated(persistent);
+            d->executePostedLayout();
+        }
 
         if (d->itemsExpandable && model()->hasChildren(d->viewItems.at(i).index)) {
             if (d->viewItems.at(i).expanded) {
