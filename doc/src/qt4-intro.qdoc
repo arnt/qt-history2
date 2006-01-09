@@ -34,9 +34,9 @@
     Qt 4 also includes the new \l{The New Qt Designer}{\QD} user interface design
     tool.
 
-    \section2 What's New in Qt 4.1
+    \section2 What's New in Qt 4.2
 
-    Qt 4.1 extends Qt 4's new technologies with the following features:
+    Qt 4.2 extends Qt 4's new technologies with the following features:
 
     \list
     \o Integrated support for rendering
@@ -57,10 +57,13 @@
     \o Support for \l{QNetworkProxy}{network proxy} servers using the SOCKS5
        protocol.
     \o Support for OLE verbs and MIME data handling in \l{ActiveQt}.
+    \o The \l{QCleanLooksStyle}{CleanLooks} widget style, designed to resemble
+       the ClearLooks style for GTK+ applications, enables Qt applications to
+       fit in with non-Qt applications on suitably-configured GNOME desktops.
     \endlist
 
     For more information about improvements in the current release, see
-    the \l{http://www.trolltech.com/developer/changes/changes-4.1.0.html}
+    the \l{http://www.trolltech.com/developer/changes/changes-4.2.0.html}
     {detailed list of changes}.
 
     \section1 Significant Improvements
