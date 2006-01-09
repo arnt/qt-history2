@@ -1980,7 +1980,8 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
             layoutStruct->widthUsed
                 = qMax(layoutStruct->widthUsed, line.x() + tl->lineAt(i).naturalTextWidth());
         }
-        if (layoutStruct->updateRect.isValid()) {
+        if (layoutStruct->updateRect.isValid()
+            && bl.length() > 1) {
             if (layoutFrom >= bl.position() + bl.length()) {
                 // if our height didn't change and the change in the document is
                 // in one of the later paragraphs, then we don't need to repaint
@@ -2216,12 +2217,12 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
         if (oldPageCount != newPageCount)
         emit pageCountChanged(newPageCount);
     }
-    
+
     if (!updateRect.isValid()) {
         // don't use the frame size, it might have shrunken
         updateRect = QRectF(QPointF(0, 0), QSizeF(INT_MAX, INT_MAX));
     }
-    
+
     emit update(updateRect);
 }
 
