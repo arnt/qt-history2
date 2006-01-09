@@ -4459,12 +4459,20 @@ void QWidget::setVisible(bool visible)
 #ifdef QT3_SUPPORT
         QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 #endif
-        if (!isWindow() && parentWidget()->d_func()->layout)
-            parentWidget()->d_func()->layout->activate();
         // activate our layout before we and our children become visible
         if (d->layout)
             d->layout->activate();
 
+        if (!isWindow()) {
+            QWidget *parent = parentWidget();
+            while (parent && parent->d_func()->layout) {
+                parent->d_func()->layout->activate();
+                if (parent->isWindow())
+                    break;
+                parent = parent->parentWidget();
+            }
+        }
+        
         // adjust size if necessary
         if (!wasResized
             && (isWindow() || !parentWidget()->d_func()->layout))  {
