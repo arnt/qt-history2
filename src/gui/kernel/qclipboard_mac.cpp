@@ -171,7 +171,8 @@ QVariant QClipboardWatcher::retrieveData(const QString &format, QVariant::Type) 
         int flav = c->flavorFor(format);
         if(flav) {
             // Handle text/plain a little differently. Try handling Unicode first.
-            if (flav = kScrapFlavorTypeText && GetScrapFlavorSize(scrap, kScrapFlavorTypeUnicode, &flavorsize) == noErr) {
+            if (flav == kScrapFlavorTypeText
+                    && GetScrapFlavorSize(scrap, kScrapFlavorTypeUnicode, &flavorsize) == noErr) {
                 flav = kScrapFlavorTypeUnicode;
             }
 
