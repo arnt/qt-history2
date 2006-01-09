@@ -342,7 +342,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
     : outDevice(0), fd(-1), 
       collate(false), copies(1), orientation(QPrinter::Portrait),
       pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::Color),
-      fullPage(false), printerState(QPrinter::Idle)
+      fullPage(false), printerState(QPrinter::Idle), pid(0)
 {
     postscript = true;
     backgroundMode = Qt::TransparentMode;
@@ -870,8 +870,8 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
             return false;
         }
 
-        pid_t pid = fork();
-        if (pid == 0) {       // child process
+        d->pid = fork();
+        if (d->pid == 0) {       // child process
             // if possible, exit quickly, so the actual lp/lpr
             // becomes a child of init, and ::waitpid() is
             // guaranteed not to wait.
@@ -1009,6 +1009,11 @@ bool QPSPrintEngine::end()
     setActive(false);
     d->pdev = 0;
 
+    if (d->pid) {
+        (void)::waitpid(d->pid, 0, 0);
+        d->pid = 0;
+    }
+    
     return true;
 }
 

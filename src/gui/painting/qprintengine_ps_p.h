@@ -117,6 +117,8 @@ public:
     QPrinter::PaperSource paperSource;
     QPrinter::PrinterState printerState;
     bool embedFonts;
+
+    int pid;
 };
 
 
