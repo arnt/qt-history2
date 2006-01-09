@@ -53,6 +53,13 @@ public:
                 && br.row() >= index.row() && br.column() >= index.column());
     }
 
+    inline bool contains(int row, int column, const QModelIndex &parent) const
+    {
+        return (this->parent() == parent
+                && tl.row() <= row && tl.column() <= column
+                && br.row() >= row && br.column() >= column);
+    }
+
     bool intersects(const QItemSelectionRange &other) const;
     QItemSelectionRange intersect(const QItemSelectionRange &other) const;
 

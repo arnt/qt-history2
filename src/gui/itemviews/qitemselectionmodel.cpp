@@ -830,17 +830,15 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
                         return false;
     }
     // add ranges and currentSelection and check through them all
-    QModelIndex index;
     QList<QItemSelectionRange>::const_iterator it;
     QList<QItemSelectionRange> joined = d->ranges;
     if (d->currentSelection.count())
         joined += d->currentSelection;
     int colCount = model()->columnCount(parent);
-    for (int i = 0; i < colCount; ++i) {
-        index = model()->index(row, i, parent);
+    for (int column = 0; column < colCount; ++column) {
         for (it = joined.begin(); it != joined.end(); ++it)
-            if ((*it).contains(index)) {
-                i = (*it).right();
+            if ((*it).contains(row, column, parent)) {
+                column = (*it).right();
                 break;
             }
         if (it == joined.end())
@@ -888,17 +886,15 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
         }
     }
     // add ranges and currentSelection and check through them all
-    QModelIndex index;
     QList<QItemSelectionRange>::const_iterator it;
     QList<QItemSelectionRange> joined = d->ranges;
     if (d->currentSelection.count())
         joined += d->currentSelection;
     int rowCount = model()->rowCount(parent);
-    for (int i = 0; i < rowCount; ++i) {
-         index = model()->index(i, column, parent);
+    for (int row = 0; row < rowCount; ++row) {
          for (it = joined.begin(); it != joined.end(); ++it) {
-             if ((*it).contains(index)) {
-                 i = (*it).bottom();
+             if ((*it).contains(row, column, parent)) {
+                 row = (*it).bottom();
                  break;
              }
          }
