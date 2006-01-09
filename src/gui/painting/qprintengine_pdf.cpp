@@ -661,7 +661,7 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap)
         data.resize(bytesPerLine * h);
         char *rawdata = data.data();
         for (int y = 0; y < h; ++y) {
-            memcpy(rawdata, image.scanLine(y), bytesPerLine * sizeof(char));
+            memcpy(rawdata, image.scanLine(y), bytesPerLine);
             rawdata += bytesPerLine;
         }
         return writeImage(data, w, h, d, 0, 0);
@@ -744,7 +744,7 @@ void QPdfEnginePrivate::xprintf(const char* fmt, ...)
 
     va_list args;
     va_start(args, fmt);
-    int bufsize = vsprintf(buf, fmt, args);
+    int bufsize = qvsnprintf(buf, msize, fmt, args);
 
     Q_ASSERT(bufsize<msize);
 

@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
 #include "private/qxbmhandler_p.h"
 
 #ifndef QT_NO_IMAGEFORMAT_XBM
@@ -148,21 +149,14 @@ static bool write_xbm_image(const QImage &sourceImage, QIODevice *device, const 
     int	       h = image.height();
     int	       i;
     QString    s = fileName; // get file base name
-    char *buf = new char[s.length() + 100];
+    int        msize = s.length() + 100;
+    char *buf = new char[msize];
 
-#if defined(_MSC_VER) && _MSC_VER >= 1400
-	sprintf_s(buf, s.length() + 100, "#define %s_width %d\n", s.toAscii().data(), w);
+    qsnprintf(buf, msize, "#define %s_width %d\n", s.toAscii().data(), w);
     device->write(buf, qstrlen(buf));
-    sprintf_s(buf, s.length() + 100, "#define %s_height %d\n", s.toAscii().data(), h);
+    qsnprintf(buf, msize, "#define %s_height %d\n", s.toAscii().data(), h);
     device->write(buf, qstrlen(buf));
-    sprintf_s(buf, s.length() + 100, "static char %s_bits[] = {\n ", s.toAscii().data());
-#else
-	sprintf(buf, "#define %s_width %d\n", s.toAscii().data(), w);
-    device->write(buf, qstrlen(buf));
-    sprintf(buf, "#define %s_height %d\n", s.toAscii().data(), h);
-    device->write(buf, qstrlen(buf));
-    sprintf(buf, "static char %s_bits[] = {\n ", s.toAscii().data());
-#endif
+    qsnprintf(buf, msize, "static char %s_bits[] = {\n ", s.toAscii().data());
     device->write(buf, qstrlen(buf));
 
     if (image.format() != QImage::Format_MonoLSB)
@@ -209,7 +203,7 @@ static bool write_xbm_image(const QImage &sourceImage, QIODevice *device, const 
         }
     }
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-	strcpy_s(p, sizeof(" };\n"), " };\n");
+    strcpy_s(p, sizeof(" };\n"), " };\n");
 #else
     strcpy(p, " };\n");
 #endif

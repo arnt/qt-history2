@@ -5,6 +5,7 @@ on target platforms. */
 #define _HPUX_SOURCE
 #endif
 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <net/if.h>
 
