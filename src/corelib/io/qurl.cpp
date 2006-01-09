@@ -103,13 +103,16 @@
     replaced with "%20". If a decoded URL contains "%20", this will be
     replaced with a single space before the URL is parsed.
 
-    \o Single "%" characters: Any occurrances of a percent character "%" not
+    \o Single "%" characters: Any occurrences of a percent character "%" not
     followed by exactly two hexadecimal characters (e.g., "13% coverage.html")
     will be replaced by "%25".
 
     \o Non-US-ASCII characters: An encoded URL should only contain US-ASCII
     characters. In TolerantMode, characters outside this range are
     automatically percent-encoded.
+
+    \o Any occurence of "[" and "]" following the host part of the
+    URL is percent-encoded.
 
     \endlist
 */
@@ -3547,14 +3550,43 @@ void QUrl::setUrl(const QString &url, ParsingMode parsingMode)
 {
     // escape all reserved characters and delimiters
     // reserved      = gen-delims / sub-delims
-    QString tmp = url;
-    if (parsingMode == TolerantMode) {
-        // Allow %20 in the QString variant
-        tmp.replace(QLatin1String("%20"), QLatin1String(" "));
-        // Replace stray % with %25
-        tmp.replace(QLatin1String("%([^0-9a-fA-F][^0-9a-fA-F])"), QLatin1String("%25\\1"));
+    if (parsingMode != TolerantMode) {
+        setEncodedUrl(QUrl::toPercentEncoding(url, ":/?#[]@!$&'()*+,;="), parsingMode);
+        return;
     }
-    setEncodedUrl(QUrl::toPercentEncoding(tmp, ":/?#[]@!$&'()*+,;="), parsingMode);
+
+    // Tolerant preprocessing
+    QString tmp = url;
+
+    // Allow %20 in the QString variant
+    tmp.replace(QLatin1String("%20"), QLatin1String(" "));
+    // Replace stray % with %25
+    tmp.replace(QLatin1String("%([^0-9a-fA-F][^0-9a-fA-F])"), QLatin1String("%25\\1"));
+
+    // Percent-encode unsafe ASCII characters after host part
+    int start = tmp.indexOf(QLatin1String("//"));
+    if (start != -1) {
+        // Has host part, find delimiter
+        start += 2; // skip "//"
+        int hostEnd = tmp.indexOf(QLatin1Char('/'), start);
+        if (hostEnd == -1)
+            hostEnd = tmp.indexOf(QLatin1Char('#'), start);
+        if (hostEnd == -1)
+            hostEnd = tmp.indexOf(QLatin1Char('?'), start);
+        start = (hostEnd == -1) ? -1 : hostEnd + 1;
+    } else {
+        start = 0; // Has no host part
+    }
+    QByteArray encodedUrl;
+    if (start != -1) {
+        QString hostPart = tmp.left(start);
+        QString otherPart = tmp.mid(start);
+        encodedUrl = QUrl::toPercentEncoding(hostPart, ":/?#[]@!$&'()*+,;=")
+                   + QUrl::toPercentEncoding(otherPart, ":/?#@!$&'()*+,;=");
+    } else {
+        encodedUrl = QUrl::toPercentEncoding(tmp, ":/?#[]@!$&'()*+,;=");
+    }
+    setEncodedUrl(encodedUrl, parsingMode);
 }
 
 /*!
