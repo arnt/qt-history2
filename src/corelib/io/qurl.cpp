@@ -3298,6 +3298,8 @@ void QUrlPrivate::clear()
     encodedOriginal.clear();
 
     isValid = false;
+    hasQuery = false;
+    hasFragment = false;
 
     valueDelimiter = '=';
     pairDelimiter = '&';
