@@ -356,7 +356,7 @@ QRectF QMatrix::mapRect(const QRectF &rect) const
         ymin = qMin(ymin, y);
         xmax = qMax(xmax, x);
         ymax = qMax(ymax, y);
-        MAPDOUBLE(rect.x() + rect.width(), rect.y() + rect.width(), x, y);
+        MAPDOUBLE(rect.x() + rect.width(), rect.y() + rect.height(), x, y);
         xmin = qMin(xmin, x);
         ymin = qMin(ymin, y);
         xmax = qMax(xmax, x);
