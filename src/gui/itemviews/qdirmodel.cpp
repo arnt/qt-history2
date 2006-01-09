@@ -924,7 +924,7 @@ void QDirModel::refresh(const QModelIndex &parent)
 {
     Q_D(QDirModel);
 
-    QDirModelPrivate::QDirNode *p = d->node(parent);
+    QDirModelPrivate::QDirNode *p = parent.isValid() ? d->node(parent) : 0;
     QDirModelPrivate::QDirNode *n = (p ? p : &(d->root));
 
     d->savePersistentIndexes();
