@@ -68,11 +68,21 @@ public:
 
     inline int height(int item) const {
         if (uniformRowHeights) return itemHeight;
-        if (viewItems.at(item).height == 0 && viewItems.at(item).index.isValid())
-            viewItems[item].height = q_func()->indexRowSizeHint(viewItems.at(item).index);
-        return viewItems.at(item).height;
+        const QModelIndex index = viewItems.at(item).index;
+        int height = viewItems.at(item).height;
+        if (height <= 0 && index.isValid()) {
+            height = q_func()->indexRowSizeHint(index);
+            viewItems[item].height = height;
+        }
+        return height;
     }
 
+    inline void invalidateHeightCache(int item) const {
+        int height = viewItems.at(item).height;
+        if (uniformRowHeights || height <= 0) return;
+        viewItems[item].height = -height;
+    }
+        
     int indentation(int item) const;
     int coordinate(int item) const;
     int item(int coordinate) const;

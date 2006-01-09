@@ -402,26 +402,32 @@ void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
     if (!model())
         return;
 
-    // Set the height to be 0, so we get a new sizehint next time we ask for the row height
+    // refresh the height cache here; we don't really loose anything by getting the size hint,
+    // since QAbstractItemView::dataChanged() will get the visualRect for the items anyway
     
-    QModelIndex top = (topLeft.column() == 0)
-                      ? topLeft
+    QModelIndex top = (topLeft.column() == 0) ? topLeft
                       : model()->sibling(topLeft.row(), 0, topLeft);
     int topViewIndex = d->viewIndex(top);
-    
+    bool sizeChanged = false; 
     if (topViewIndex != -1) {
         if (topLeft == bottomRight) {
-            d->viewItems[topViewIndex].height = 0;
+            int oldHeight = d->height(topViewIndex);
+            d->invalidateHeightCache(topViewIndex);
+            sizeChanged = (oldHeight != d->height(topViewIndex));
         } else {
-            QModelIndex bottom = (bottomRight.column() == 0) 
-                                 ? bottomRight
+            QModelIndex bottom = (bottomRight.column() == 0) ? bottomRight
                                  : model()->sibling(bottomRight.row(), 0, bottomRight);
             int bottomViewIndex = d->viewIndex(bottom);
-            for (int i = topViewIndex; i <= bottomViewIndex; ++i)
-                d->viewItems[i].height = 0;
+            for (int i = topViewIndex; i <= bottomViewIndex; ++i) {
+                int oldHeight = d->height(i);
+                d->invalidateHeightCache(i);
+                sizeChanged |= (oldHeight != d->height(i));
+            }
         }
     }
 
+    if (sizeChanged)
+        d->viewport->update();
     QAbstractItemView::dataChanged(topLeft, bottomRight);
 }
 
@@ -770,7 +776,7 @@ void QTreeView::paintEvent(QPaintEvent *event)
                 option.state = state | (viewItems.at(i).expanded
                                         ? QStyle::State_Open : QStyle::State_None);
                 if (alternate)
-                    option.palette.setBrush(QPalette::Base, i & 1 ? alternateBrush : baseBrush );
+                    option.palette.setBrush(QPalette::Base, i & 1 ? alternateBrush : baseBrush);
                 d->current = i;
                 drawRow(&painter, option, viewItems.at(i).index);
             }
@@ -1977,9 +1983,11 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
 
     QRect rect;
     if (q->isRightToLeft())
-        rect = QRect(position + size - itemIndentation, coordinate(viewItemIndex), indent, itemHeight);
+        rect = QRect(position + size - itemIndentation, coordinate(viewItemIndex),
+                     indent, itemHeight);
     else
-        rect = QRect(position + itemIndentation - indent, coordinate(viewItemIndex), indent, itemHeight);
+        rect = QRect(position + itemIndentation - indent, coordinate(viewItemIndex),
+                     indent, itemHeight);
     QStyleOption opt;
     opt.initFrom(q);
     opt.rect = rect;
