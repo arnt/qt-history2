@@ -205,8 +205,8 @@ void QScrollArea::setWidget(QWidget *w)
     d->vbar->setValue(0);
     if (w->parentWidget() != d->viewport)
         w->setParent(d->viewport);
-     if (!w->testAttribute(Qt::WA_Resized))
-         w->resize(w->sizeHint());
+    if (!w->testAttribute(Qt::WA_Resized))
+        w->resize(w->sizeHint());        
     d->widget = w;
     d->widget->setAutoFillBackground(true);
     w->installEventFilter(this);
@@ -238,7 +238,7 @@ QWidget *QScrollArea::takeWidget()
 bool QScrollArea::event(QEvent *e)
 {
     Q_D(QScrollArea);
-    if (e->type() == QEvent::StyleChange) {
+    if (e->type() == QEvent::StyleChange || e->type() == QEvent::LayoutRequest) {
         d->updateScrollBars();
     }
 #ifdef QT_KEYPAD_NAVIGATION
@@ -281,11 +281,11 @@ bool QScrollArea::eventFilter(QObject *o, QEvent *e)
         }
     }
 #endif
-    if (o == d->widget &&
-        (e->type() == QEvent::Resize || e->type() == QEvent::LayoutRequest)) {
+    if (o == d->widget && e->type() == QEvent::Resize) {
         d->updateScrollBars();
         d->widget->move(-d->hbar->value(), -d->vbar->value());
     }
+    
     return false;
 }
 

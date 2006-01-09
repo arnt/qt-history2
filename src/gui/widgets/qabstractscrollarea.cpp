@@ -503,6 +503,8 @@ bool QAbstractScrollArea::viewportEvent(QEvent *e)
     case QEvent::DragLeave:
 #endif
         return QFrame::event(e);
+    case QEvent::LayoutRequest:
+        return event(e);
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
         if (!QFrame::event(e) || !e->isAccepted()) {
