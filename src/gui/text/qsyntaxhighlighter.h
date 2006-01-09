@@ -44,7 +44,7 @@ public:
     void setDocument(QTextDocument *doc);
     QTextDocument *document() const;
 
-public slots:
+public Q_SLOTS:
     void rehighlight();
 
 protected:
