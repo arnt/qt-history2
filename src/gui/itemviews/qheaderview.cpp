@@ -1433,7 +1433,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 void QHeaderView::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QHeaderView);
-    if (d->state != QHeaderViewPrivate::NoState)
+    if (d->state != QHeaderViewPrivate::NoState || e->button() != Qt::LeftButton)
         return;
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
     int handle = d->sectionHandleAt(pos);
