@@ -1787,7 +1787,7 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
         }
 
         // Draw the text item
-        if (clearType) {
+        if (d->clear_type_text) {
             COLORREF cf = RGB(qRed(penColor), qGreen(penColor), qBlue(penColor));
             SelectObject(d->fontRasterBuffer->hdc(), CreateSolidBrush(cf));
             SelectObject(d->fontRasterBuffer->hdc(), CreatePen(PS_SOLID, 1, cf));
@@ -1797,7 +1797,7 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
         qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti,
                           d->fontRasterBuffer->hdc());
 
-        if (clearType) {
+        if (d->clear_type_text) {
             DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(NULL_BRUSH)));
             DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(BLACK_PEN)));
         }
@@ -3146,7 +3146,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
             ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, _glyphs, positions);
 
             bool outputEntireItem = QT_WA_INLINE(ti.num_glyphs > 0, false);
-                       
+
             if (outputEntireItem) {
                 options |= ETO_PDY;
                 QVarLengthArray<INT> glyphDistances(ti.num_glyphs * 2);
@@ -3155,11 +3155,11 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                     glyphDistances[i * 2] = qRound(positions[i + 1].x) - qRound(positions[i].x);
                     glyphDistances[i * 2 + 1] = qRound(positions[i + 1].y) - qRound(positions[i].y);
                     g[i] = _glyphs[i];
-                }            
+                }
                 glyphDistances[(ti.num_glyphs - 1) * 2] = 0;
-                glyphDistances[(ti.num_glyphs - 1) * 2 + 1] = 0;               
+                glyphDistances[(ti.num_glyphs - 1) * 2 + 1] = 0;
                 g[ti.num_glyphs - 1] = _glyphs[ti.num_glyphs - 1];
-                ExtTextOutW(hdc, qRound(positions[0].x), qRound(positions[0].y), options, 0, 
+                ExtTextOutW(hdc, qRound(positions[0].x), qRound(positions[0].y), options, 0,
                             convertToText ? convertedGlyphs : g.data(), ti.num_glyphs, glyphDistances.data());
             } else {
                 int i = 0;
