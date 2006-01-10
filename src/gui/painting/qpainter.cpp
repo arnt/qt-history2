@@ -1353,9 +1353,10 @@ void QPainter::setBrushOrigin(const QPointF &p)
     pixel is reduced by the alpha of the destination pixel. This mode
     is the inverse of CompositionMode_SourceAtop.
 
-    \value CompositionMode_Xor The source which alpha reduced with the
-    inverse of the destination is merged with the destination which
-    alpha is reduced by the inverse of the source.
+    \value CompositionMode_Xor The source, which alpha is reduced with
+    the inverse of the destination alpha, is merged with the
+    destination, which alpha is reduced by the inverse of the source
+    alpha. CompositionMode_Xor is not the same as the bitwise Xor.
 
     \sa compositionMode(), setCompositionMode(), {QPainter#Composition
     Modes}{Composition Modes}
