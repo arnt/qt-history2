@@ -928,12 +928,12 @@ void QTextDocumentLayoutPrivate::drawFlow(const QPointF &offset, QPainter *paint
 
             // if we're past what is already layouted then we're better off
             // not trying to draw things that may not be positioned correctly yet
-            if (currentPosInDoc > checkPoints.last().positionInFrame)
+            if (currentPosInDoc >= checkPoints.last().positionInFrame)
                 break;
 
             if (lastVisibleCheckPoint != checkPoints.end()
                 && context.clip.isValid()
-                && currentPosInDoc > lastVisibleCheckPoint->positionInFrame
+                && currentPosInDoc >= lastVisibleCheckPoint->positionInFrame
                )
                 break;
         }
