@@ -33,6 +33,7 @@ Qt {
     Q_FLAGS(Orientations)
     Q_FLAGS(DockWidgetAreas)
     Q_ENUMS(DockWidgetArea)
+    Q_ENUMS(TextElideMode)
 public:
 #endif
     enum GlobalColor {
