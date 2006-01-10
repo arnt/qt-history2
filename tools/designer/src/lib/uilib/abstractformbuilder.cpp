@@ -1497,6 +1497,9 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             else
                 qrc_path = workingDirectory().relativeFilePath(qrc_path);
 
+			icon_path = icon_path.replace(QLatin1Char('\\'), QLatin1Char('/'));
+			qrc_path = qrc_path.replace(QLatin1Char('\\'), QLatin1Char('/'));
+
             r->setText(icon_path);
             if (!qrc_path.isEmpty())
                 r->setAttributeResource(qrc_path);
