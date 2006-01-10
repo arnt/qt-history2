@@ -248,13 +248,13 @@ HRESULT UpdateRegistry(BOOL bRegister)
                 if (insertable)
                     settings.setValue("/CLSID/" + classId + "/Insertable/.", QVariant());
                 if (file.right(3).toLower() == "dll")
-                    settings.setValue("/CLSID/" + classId + "/InProcServer32/.", file);
+                    settings.setValue("/CLSID/" + classId + "/InProcServer32/.", "\"" + file + "\"");
                 else
-                    settings.setValue("/CLSID/" + classId + "/LocalServer32/.", file + " -activex");
+                    settings.setValue("/CLSID/" + classId + "/LocalServer32/.", "\"" + file + "\" -activex");
                 settings.setValue("/CLSID/" + classId + "/MiscStatus/.", control ? "1" : "0");
                 settings.setValue("/CLSID/" + classId + "/MiscStatus/1/.", QString::number(olemisc));
                 settings.setValue("/CLSID/" + classId + "/Programmable/.", QVariant());
-                settings.setValue("/CLSID/" + classId + "/ToolboxBitmap32/.", file + ", 101");
+                settings.setValue("/CLSID/" + classId + "/ToolboxBitmap32/.", "\"" + file + "\", 101");
                 settings.setValue("/CLSID/" + classId + "/TypeLib/.", libId);
                 settings.setValue("/CLSID/" + classId + "/Version/.", classVersion);
                 settings.setValue("/CLSID/" + classId + "/VersionIndependentProgID/.", module + "." + className);
