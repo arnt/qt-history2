@@ -716,7 +716,10 @@ foreach (@modules_to_sync) {
 			#find out all the places it goes..
 			my @headers;
 			if ($public_header) {
-			    @headers = ( "$out_basedir/include/Qt/$header", "$out_basedir/include/$lib/$header" );
+			    @headers = ( "$out_basedir/include/$lib/$header" );
+			    push @headers, "$out_basedir/include/Qt/$header"
+			      if ("$subdir" =~ /^$basedir\/src/);
+			    
 			    foreach(@classes) {
 				my $class = "$_";
 				my $header_base = basename($header);
