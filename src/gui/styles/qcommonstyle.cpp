@@ -1973,7 +1973,7 @@ static QPolygonF calcLines(const QStyleOptionSlider *dial, const QWidget *)
             : (Q_PI * 8 - i * 10 * Q_PI / notches) / 6;
         qreal s = qSin(angle);
         qreal c = qCos(angle);
-        if (i == 0 || (((ns * i) % dial->pageStep) == 0)) {
+        if (i == 0 || (((ns * i) % (dial->pageStep ? dial->pageStep : 1)) == 0)) {
             poly[2 * i] = QPointF(xc + (r - bigLineSize) * c,
                                   yc - (r - bigLineSize) * s);
             poly[2 * i + 1] = QPointF(xc + r * c, yc - r * s);

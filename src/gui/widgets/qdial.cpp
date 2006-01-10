@@ -362,7 +362,7 @@ int QDial::notchSize() const
     if (d->maximum > d->minimum + d->pageStep)
         l = (int)(0.5 + l * d->pageStep / (d->maximum - d->minimum));
     // length of a singleStep arc
-    l = l * d->singleStep / d->pageStep;
+    l = l * d->singleStep / (d->pageStep ? d->pageStep : 1);
     if (l < 1)
         l = 1;
     // how many times singleStep can be draw in d->target pixels
