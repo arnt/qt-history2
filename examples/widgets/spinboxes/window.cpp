@@ -92,7 +92,7 @@ void Window::createDateTimeEdits()
     QLabel *formatLabel = new QLabel(tr("Format string for the meeting date "
                                         "and time:"));
     QComboBox *formatComboBox = new QComboBox;
-    formatComboBox->addItem("yyyy-MM-dd hh:mm:ss (zzz ms)");
+    formatComboBox->addItem("yyyy-MM-dd hh:mm:ss (zzz 'ms')");
     formatComboBox->addItem("hh:mm:ss MM/dd/yyyy");
     formatComboBox->addItem("hh:mm:ss dd/MM/yyyy");
     formatComboBox->addItem("hh:mm:ss");
