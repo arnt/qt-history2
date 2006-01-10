@@ -756,7 +756,9 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
 
                         cellRect.translate(0, td->rowPositions.at(firstVisibleRow) - extraTableHeight - tableHeaderHeight);
 
-                        if (cell_context.clip.isValid() && !cellRect.intersects(cell_context.clip))
+                        // we draw the right/bottom border at left() + width(), so for the clipping test
+                        // we have to enlarge the cell rect by one pixel in both directions
+                        if (cell_context.clip.isValid() && !cellRect.adjusted(0, 0, 1, 1).intersects(cell_context.clip))
                             continue;
 
                         drawTableCell(cellRect, painter, cell_context, table, td, r, c, &cursorBlockNeedingRepaint,
@@ -810,7 +812,9 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
                 QRectF cellRect = td->cellRect(cell);
 
                 cellRect.translate(off);
-                if (cell_context.clip.isValid() && !cellRect.intersects(cell_context.clip))
+                // we draw the right/bottom border at left() + width(), so for the clipping test
+                // we have to enlarge the cell rect by one pixel in both directions
+                if (cell_context.clip.isValid() && !cellRect.adjusted(0, 0, 1, 1).intersects(cell_context.clip))
                     continue;
 
                 drawTableCell(cellRect, painter, cell_context, table, td, r, c, &cursorBlockNeedingRepaint,
