@@ -1497,16 +1497,16 @@ void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
     }
 
     if (p && q->maxPage()) {
-        firstPage->setMinimum(q->minPage());
-        firstPage->setMaximum(q->maxPage());
-        lastPage->setMinimum(q->minPage());
-        lastPage->setMaximum(q->maxPage());
-        if (q->fromPage() || q->toPage()) {
-            setFirstPage(q->fromPage());
-            setLastPage(q->toPage());
-            firstPage->setValue(q->fromPage());
-            lastPage->setValue(q->toPage());
+        int from = q->minPage();
+        int to = q->maxPage();
+        if (q->printRange() == QPrintDialog::PageRange) {
+            from = q->fromPage();
+            to = q->toPage();
         }
+        firstPage->setRange(q->minPage(), to);
+        lastPage->setRange(from, q->maxPage());
+        firstPage->setValue(from);
+        lastPage->setValue(to);
     }
 }
 
@@ -1523,6 +1523,8 @@ void QPrintDialogPrivate::fileNameEditChanged(const QString &text)
 
 int QPrintDialog::exec()
 {
+    Q_D(QPrintDialog);
+    setPrinter(d->printer, true);
     return QDialog::exec();
 }
 
