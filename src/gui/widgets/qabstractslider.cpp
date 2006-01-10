@@ -201,10 +201,13 @@ QAbstractSliderPrivate::~QAbstractSliderPrivate()
 void QAbstractSlider::setRange(int min, int max)
 {
     Q_D(QAbstractSlider);
+    int oldMin = d->minimum;
+    int oldMax = d->maximum;
     d->minimum = min;
     d->maximum = qMax(min, max);
     sliderChange(SliderRangeChange);
-    emit rangeChanged(d->minimum, d->maximum);
+    if (oldMin != d->minimum || oldMax != d->maximum)
+        emit rangeChanged(d->minimum, d->maximum);
     setValue(d->value); // re-bound
 }
 
