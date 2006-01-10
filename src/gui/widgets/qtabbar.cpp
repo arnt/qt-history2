@@ -413,6 +413,7 @@ void QTabBarPrivate::refresh()
         layoutDirty = true;
     } else {
         layoutTabs();
+        makeVisible(currentIndex);
         q->update();
         q->updateGeometry();
     }
