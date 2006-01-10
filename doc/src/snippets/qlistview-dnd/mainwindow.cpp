@@ -14,7 +14,7 @@ MainWindow::MainWindow()
 
 //  For convenient quoting:
 QListView *listView = new QListView(this);
-listView->setSelectionMode(QAbstractItemView::SingleSelection);
+listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 listView->setDragEnabled(true);
 listView->setAcceptDrops(true);
 listView->setDropIndicatorShown(true);

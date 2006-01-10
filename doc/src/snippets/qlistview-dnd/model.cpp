@@ -32,7 +32,7 @@ bool DragDropListModel::dropMimeData(const QMimeData *data,
     if (action == Qt::IgnoreAction)
         return true;
 
-    if (!data->hasFormat("text/plain"))
+    if (!data->hasFormat("application/vnd.text.list"))
         return false;
 
     if (column > 0)
@@ -45,7 +45,7 @@ bool DragDropListModel::dropMimeData(const QMimeData *data,
     else
         beginRow = parent.row();
 
-    QByteArray encodedData = data->data("text/plain");
+    QByteArray encodedData = data->data("application/vnd.text.list");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
     QStringList newItems;
     int rows = 0;
@@ -61,6 +61,7 @@ bool DragDropListModel::dropMimeData(const QMimeData *data,
     foreach (QString text, newItems) {
         QModelIndex idx = index(beginRow, 0, QModelIndex());
         setData(idx, text);
+        beginRow++;
     }
 
     return true;
@@ -90,14 +91,14 @@ QMimeData *DragDropListModel::mimeData(const QModelIndexList &indexes) const
         }
     }
 
-    mimeData->setData("text/plain", encodedData);
+    mimeData->setData("application/vnd.text.list", encodedData);
     return mimeData;
 }
 
 QStringList DragDropListModel::mimeTypes() const
 {
     QStringList types;
-    types << "text/plain";
+    types << "application/vnd.text.list";
     return types;
 }
 
