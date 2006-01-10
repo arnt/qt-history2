@@ -19,6 +19,7 @@
 #include "qpointer.h"
 #include "qapplication.h"
 #include "qmainwindow.h"
+#include "qtextdocument.h"
 #include "qdebug.h"
 
 #include <private/qt_mac_p.h>
@@ -1083,9 +1084,15 @@ static QList<AXUIElementRef> mapChildrenForInterface(const QInterfaceItem interf
 
 static void handleStringAttribute(EventRef event, QAccessible::Text text, QInterfaceItem interface)
 {
-    const QString str = interface.text(text);
+    QString str = interface.text(text);
     if (str.isEmpty())
         return;
+    
+    // Remove any html markup from the text string, or VoiceOver will read the html tags.
+    static QTextDocument document;
+    document.setHtml(str);
+    str = document.toPlainText();
+    
     CFStringRef cfstr = QCFString::toCFStringRef(str);
     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(cfstr), &cfstr);
 }
