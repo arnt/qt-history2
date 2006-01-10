@@ -1262,7 +1262,7 @@ void Q3DateEdit::stepUp()
         }
     }
     if (accepted) {
-        d->changed = true;
+        d->changed = false;
         emit valueChanged(date());
     }
     d->ed->repaint(d->ed->rect());
@@ -1295,7 +1295,7 @@ void Q3DateEdit::stepDown()
         }
     }
     if (accepted) {
-        d->changed = true;
+        d->changed = false;
         emit valueChanged(date());
     }
     d->ed->repaint(d->ed->rect());
@@ -1521,7 +1521,7 @@ void Q3DateEdit::addNumber(int sec, int num)
         }
     }
     if (accepted) {
-        d->changed = true;
+        d->changed = false;
         emit valueChanged(date());
     }
     d->overwrite = overwrite;
@@ -2096,7 +2096,7 @@ void Q3TimeEdit::stepUp()
         break;
     }
     if (accepted) {
-        d->changed = true;
+        d->changed = false;
         emit valueChanged(time());
     }
     d->ed->repaint(d->ed->rect());
@@ -2143,7 +2143,7 @@ void Q3TimeEdit::stepDown()
         break;
     }
     if (accepted) {
-        d->changed = true;
+        d->changed = false;
         emit valueChanged(time());
     }
     d->ed->repaint(d->ed->rect());
@@ -2423,7 +2423,7 @@ void Q3TimeEdit::addNumber(int sec, int num)
     default:
         break;
     }
-    d->changed = accepted;
+    d->changed = !accepted;
     if (accepted)
         emit valueChanged(time());
     d->overwrite = overwrite;
