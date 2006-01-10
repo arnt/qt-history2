@@ -364,8 +364,8 @@ void QWSManagerPrivate::dirtyRegion(int decorationRegion,
     const QRect clipRect = managed->rect().translated(bs->topLevelOffset());
     QDecoration &dec = QApplication::qwsDecoration();
     QRegion clipRegion = dec.region(managed, clipRect, decorationRegion);
-    clipRegion.translate(-bs->topLevelOffset());
-    bs->dirtyRegion(clipRegion, managed);
+
+    managed->d_func()->dirtyWidget_sys(clipRegion);
 }
 
 /*!
@@ -404,61 +404,12 @@ QRegion QWSManagerPrivate::paint(QPixmap *pixmap)
     return updated;
 }
 
-bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationState state)
-{
-    bool result = false;
-    if (!managed->isVisible())
-        return result;
-    QDecoration &dec = QApplication::qwsDecoration();
-    if (managed->testAttribute(Qt::WA_WState_InPaintEvent))
-        qWarning("QWSManager::paintEvent() recursive paint event detected");
-//    d->managed->setAttribute(Qt::WA_WState_InPaintEvent);
-
-    QTLWExtra *topextra = managed->d_func()->extra->topextra;
-    QPixmap *buf = 0;
-    if (topextra->backingStore) {
-        topextra->backingStore->buffer.lock();
-        buf = topextra->backingStore->backingPixmap();
-    }
-    if (!buf || buf->isNull()) {
-//        qDebug("QWSManager::doPaint empty buf");
-        managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
-        topextra->backingStore->buffer.unlock();
-        return false;
-    }
-    QPainter painter;
-    painter.begin(buf);
-    QRegion clipRgn = dec.region(managed, managed->rect().translated(topextra->backingStore->topLevelOffset() ));
-#if 0
-    qDebug() << "QWSManagerPrivate::doPaint"
-             << "rect" << managed->rect()
-             << "backingStoreOffset" << topextra->backingStore->topLevelOffset()
-             << "clipRgn" << clipRgn;
-#endif
-    painter.setClipRegion(clipRgn);
-    painter.translate(topextra->backingStore->topLevelOffset());
-
-    result = dec.paint(&painter, managed, decorationRegion, state);
-    painter.end();
-    topextra->backingStore->buffer.unlock();
-
-    managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
-    return result;
-}
-
 bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationState state)
 {
     Q_D(QWSManager);
 
-    bool result =  d->doPaint(decorationRegion, state);
-
-    if (result) {
-        QDecoration &dec = QApplication::qwsDecoration();
-        QRegion reg = dec.region(d->managed, d->managed->geometry(),
-                                 decorationRegion);
-        d->managed->d_func()->blitToScreen(reg);
-    }
-    return result;
+    d->dirtyRegion(decorationRegion, state);
+    return true;
 }
 
 void QWSManager::menu(const QPoint &pos)

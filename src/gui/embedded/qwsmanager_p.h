@@ -41,9 +41,6 @@ class QWSManagerPrivate : public QObjectPrivate
 public:
     QWSManagerPrivate();
 
-    bool doPaint(int decorationRegion = QDecoration::All, QDecoration::DecorationState state = QDecoration::Normal);
-
-
     int activeRegion;
     QWidget *managed;
     QMenu *popup;
