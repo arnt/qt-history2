@@ -1067,13 +1067,14 @@ QString QTextBlock::text() const
 
     const QString buffer = p->buffer();
     QString text;
+    text.reserve(length());
 
     const int pos = position();
     QTextDocumentPrivate::FragmentIterator it = p->find(pos);
     QTextDocumentPrivate::FragmentIterator end = p->find(pos + length() - 1); // -1 to omit the block separator char
     for (; it != end; ++it) {
         const QTextFragmentData * const frag = it.value();
-        text += QString(buffer.constData() + frag->stringPosition, frag->size);
+        text += QString::fromRawData(buffer.constData() + frag->stringPosition, frag->size);
     }
 
     return text;
