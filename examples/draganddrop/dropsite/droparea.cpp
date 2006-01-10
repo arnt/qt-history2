@@ -82,18 +82,3 @@ QPixmap DropArea::extractPixmap(const QByteArray &data, const QString &format)
     }
     return pixmap;
 }
-
-QString DropArea::extractText(const QByteArray &data, const QString &format)
-{
-    QString text;
-
-    int index = format.indexOf("charset=");
-    if (index != -1) {
-        QTextCodec *codec = QTextCodec::codecForName(format.mid(8).toAscii());
-        if (codec)
-            text = codec->toUnicode(data);
-    } else {
-        text = QString::fromUtf8(data);
-    }
-    return text;
-}

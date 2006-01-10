@@ -71,14 +71,16 @@ void DropSiteWindow::updateFormatsTable(const QMimeData *mimeData)
         formatItem->setFlags(Qt::ItemIsEnabled);
         formatItem->setTextAlignment(Qt::AlignTop | Qt::AlignLeft);
 
-        QByteArray data = mimeData->data(format);
         QString text;
 
         qApp->processEvents();
 
-        if (format.startsWith("text/")) {
-            text = dropArea->extractText(data, format).simplified();
+        if (format == "text/plain") {
+            text = mimeData->text().simplified();
+        } else if (format == "text/html") {
+            text = mimeData->html().simplified();
         } else {
+            QByteArray data = mimeData->data(format);
             for (int i = 0; i < data.size() && i < 32; ++i) {
                 QString hex = QString("%1").arg(uchar(data[i]), 2, 16,
                                                 QChar('0'))
