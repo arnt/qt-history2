@@ -1012,6 +1012,27 @@ QWSDisplay::~QWSDisplay()
     delete lock;
     lock = 0;
 }
+
+bool QWSDisplay::grabbed()
+{
+    return lock->locked();
+}
+
+void QWSDisplay::grab()
+{
+    lock->lock(QLock::Read);
+}
+
+void QWSDisplay::grab(bool write)
+{
+    lock->lock(write ? QLock::Write : QLock::Read);
+
+}
+void QWSDisplay::ungrab()
+{
+    lock->unlock();
+}
+
 #if 0
 QWSRegionManager *QWSDisplay::regionManager() const
 {
