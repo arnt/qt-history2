@@ -73,8 +73,6 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
                       pal.color(QPalette::Inactive, QPalette::Background));
     }
 
-    QRegion oldClipRegion = painter->clipRegion();
-
     Qt::WindowFlags flags = widget->windowFlags();
     bool hasBorder = !widget->isMaximized();
     bool hasTitle = flags & Qt::WindowTitleHint;
@@ -96,30 +94,34 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
     int titleExtra = noTitleBorder ? borderWidth : 0;
 
     if ((paintAll || decorationRegion & Borders) && state == Normal && hasBorder) {
-        painter->save();
+        QRegion newClip = painter->clipRegion();
         if (hasTitle) { // reduce flicker
             QRect rect(widget->rect());
             QRect r(rect.left() - titleExtra, rect.top() - titleHeight,
                     rect.width() + 2 * titleExtra, titleHeight);
-            painter->setClipRegion(oldClipRegion - r);
+            newClip -= r;
         }
-        QRect br = QDecoration::region(widget).boundingRect();
+        if (!newClip.isEmpty()) {
+            QRect br = QDecoration::region(widget).boundingRect();
+            painter->save();
+            painter->setClipRegion(newClip);
 
-        QStyleOptionFrame opt;
-        opt.palette = pal;
-        opt.rect = br;
-	opt.lineWidth = borderWidth;
+            QStyleOptionFrame opt;
+            opt.palette = pal;
+            opt.rect = br;
+            opt.lineWidth = borderWidth;
 
-        if (isActive)
-            opt.state |= QStyle::State_Active;
-        painter->setCompositionMode(QPainter::CompositionMode_Source);
-        painter->fillRect(br, pal.window());
-        painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
-        style->drawPrimitive(QStyle::PE_FrameWindow, &opt, painter, widget);
-        painter->restore();
+            if (isActive)
+                opt.state |= QStyle::State_Active;
+            painter->setCompositionMode(QPainter::CompositionMode_Source);
+            painter->fillRect(br, pal.window());
+            painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+            style->drawPrimitive(QStyle::PE_FrameWindow, &opt, painter, widget);
+            painter->restore();
 
-        decorationRegion &= (~Borders);
-        handled |= true;
+            decorationRegion &= (~Borders);
+            handled |= true;
+        }
     }
 
     if (hasTitle) {
