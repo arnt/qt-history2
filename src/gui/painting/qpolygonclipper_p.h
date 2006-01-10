@@ -266,8 +266,10 @@ public:
         if (closePolygon && clipped->size() > 0) {
             // close clipped polygon
             if (clipped->at(0).x != clipped->at(clipped->size()-1).x ||
-                clipped->at(0).y != clipped->at(clipped->size()-1).y)
-                clipped->add(clipped->at(0));
+                clipped->at(0).y != clipped->at(clipped->size()-1).y) {
+                OutType ot = clipped->at(0);
+                clipped->add(ot);
+            }
         }
         *outCount = clipped->size();
         *outPoints = clipped->data();
