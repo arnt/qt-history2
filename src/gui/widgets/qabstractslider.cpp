@@ -640,6 +640,7 @@ void QAbstractSlider::sliderChange(SliderChange)
 void QAbstractSlider::wheelEvent(QWheelEvent * e)
 {
     Q_D(QAbstractSlider);
+    e->ignore();
     if (e->orientation() != d->orientation && !rect().contains(e->pos()))
         return;
 
@@ -656,11 +657,16 @@ void QAbstractSlider::wheelEvent(QWheelEvent * e)
     offset += e->delta() * step / 120;
     if (d->invertedControls)
         offset = -offset;
+
     if (qAbs(offset) < 1)
         return;
+
+    int prevValue = d->value;
     setValue(d->value + int(offset));
-    offset -= int(offset);
-    e->accept();
+    if (prevValue != d->value) {
+        e->accept();
+        offset -= int(offset);
+    }
 }
 #endif
 /*!
