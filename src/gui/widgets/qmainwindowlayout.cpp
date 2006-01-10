@@ -464,7 +464,12 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
             for (int i = 0; i < lineInfo.list.size(); ++i) {
                 const ToolBarLayoutInfo &info = lineInfo.list.at(i);
                 QWidget *widget = info.item->widget();
-                stream << widget->objectName();
+                QString objectName = widget->objectName();
+                if (objectName.isEmpty()) {
+                    qWarning("QMainWindow::saveState(): 'objectName' not set for QToolBar %p '%s'",
+                             widget, widget->windowTitle().toLocal8Bit().constData());
+                }
+                stream << objectName;
                 stream << (uchar) !widget->isHidden();
                 stream << info.pos;
                 stream << info.size;
@@ -531,6 +536,11 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
             stream >> info.offset;
             if (tmarker == ToolBarStateMarkerEx)
                 stream >> info.user_pos;
+
+            if (objectName.isEmpty()) {
+                qWarning("QMainWindow::restoreState: Cannot restore a QToolBar with an empty 'objectName'");
+                continue;
+            }
 
             // find toolbar
             QToolBar *toolbar = 0;

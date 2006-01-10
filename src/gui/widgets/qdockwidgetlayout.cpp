@@ -79,7 +79,12 @@ void QDockWidgetLayout::saveState(QDataStream &stream) const
             const QDockWidget * const widget =
                 qobject_cast<QDockWidget *>(info.item->widget());
             stream << (uchar) WidgetMarker;
-            stream << widget->objectName();
+            QString objectName = widget->objectName();
+            if (objectName.isEmpty()) {
+                qWarning("QMainWindow::saveState(): 'objectName' not set for QDockWidget %p '%s'",
+                         widget, widget->windowTitle().toLocal8Bit().constData());
+            }
+            stream << objectName;
             uchar flags = 0;
             if (!widget->isHidden())
                 flags |= StateFlagVisible;
@@ -135,6 +140,18 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
                 stream >> objectName;
                 uchar flags;
                 stream >> flags;
+
+                if (objectName.isEmpty()) {
+                    qWarning("QMainWindow::restoreState: Cannot restore "
+                             "a QDockWidget with an empty 'objectName'");
+                    // discard size/position data for unknown widget
+                    QDockWidgetLayoutInfo info(0);
+                    stream >> info.cur_pos;
+                    stream >> info.cur_size;
+                    stream >> info.min_size;
+                    stream >> info.max_size;
+                    continue;
+                }
 
                 // find widget
                 QDockWidget *widget = 0;

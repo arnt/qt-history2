@@ -708,12 +708,14 @@ QByteArray QMainWindow::saveState(int version) const
 */
 bool QMainWindow::restoreState(const QByteArray &state, int version)
 {
+    if (state.isEmpty())
+        return false;
     QByteArray sd = state;
     QDataStream stream(&sd, QIODevice::ReadOnly);
     int marker, v;
     stream >> marker;
     stream >> v;
-    if (marker != QMainWindowLayout::VersionMarker || v != version)
+    if (stream.status() != QDataStream::Ok || marker != QMainWindowLayout::VersionMarker || v != version)
         return false;
     bool restored = d_func()->layout->restoreState(stream);
     if (isVisible())
