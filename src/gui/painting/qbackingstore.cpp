@@ -611,8 +611,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             buffer = QPixmap(tlwSize);
             qt_x11_preferred_pixmap_depth = old_qt_x11_preferred_pixmap_depth;
 #elif defined(Q_WS_WIN)
-            if (buffer.paintEngine())
-                ((QRasterPaintEngine *)buffer.paintEngine())->releaseBuffer();
+            releaseBuffer();
 #elif defined(Q_WS_QWS)
             QRegion tlwRegion = tlwFrame;
             tlwOffset = tlw->geometry().topLeft() - tlwFrame.topLeft();
@@ -679,8 +678,13 @@ void QWidgetBackingStore::releaseBuffer()
     buffer.detach();
     QWidget::qwsDisplay()->requestRegion(tlw->data->winid, 0, true, QRegion(0));
 }
+#elif defined(Q_WS_WIN)
+void QWidgetBackingStore::releaseBuffer()
+{ 
+    if (buffer.paintEngine())
+        ((QRasterPaintEngine *)buffer.paintEngine())->releaseBuffer();
+}
 #endif
-
 
 bool QWidgetBackingStore::isOpaque(const QWidget *widget)
 {

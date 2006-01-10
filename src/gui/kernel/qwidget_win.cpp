@@ -999,6 +999,8 @@ void QWidgetPrivate::hide_sys()
     ShowWindow(q->winId(), SW_HIDE);
     if(!q->isWindow())
         invalidateBuffer(q->rect());
+    else if (!QWidgetBackingStore::paintOnScreen(q)) 
+        extra->topextra->backingStore->releaseBuffer(); // release backing store buffer on hide
 }
 
 

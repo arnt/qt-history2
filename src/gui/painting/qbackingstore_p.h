@@ -56,6 +56,8 @@ public:
     QPixmap backingPixmap() const { return buffer; }
 #elif defined(Q_WS_QWS)
     QPixmap *backingPixmap()  { return buffer.pixmap(); }
+#endif
+#if defined (Q_WS_QWS) || defined (Q_WS_WIN)
     void releaseBuffer();
 #endif
 
