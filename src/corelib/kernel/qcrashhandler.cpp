@@ -30,6 +30,8 @@
 
 #include "qplatformdefs.h"
 #include "private/qcrashhandler_p.h"
+#include "qbytearray.h" // for qvsnprintf()
+
 #include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
