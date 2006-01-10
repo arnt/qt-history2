@@ -2050,7 +2050,7 @@ QRect QTextEditPrivate::rectForPosition(int position) const
 
 QRect QTextEditPrivate::selectionRect() const
 {
-    QRect r = rectForPosition(cursor.position());
+    QRect r = rectForPosition(cursor.selectionStart());
 
     if (cursor.hasComplexSelection() && cursor.currentTable()) {
         QTextTable *table = cursor.currentTable();
@@ -2098,8 +2098,8 @@ QRect QTextEditPrivate::selectionRect() const
         r = tableSelRect.toRect();
         */
     } else if (cursor.hasSelection()) {
-        const int position = cursor.position();
-        const int anchor = cursor.anchor();
+        const int position = cursor.selectionStart();
+        const int anchor = cursor.selectionEnd();
         const QTextBlock posBlock = doc->findBlock(position);
         const QTextBlock anchorBlock = doc->findBlock(anchor);
         if (posBlock == anchorBlock && posBlock.layout()->lineCount()) {
@@ -2112,7 +2112,7 @@ QRect QTextEditPrivate::selectionRect() const
             }
             r.translate(doc->documentLayout()->blockBoundingRect(posBlock).topLeft().toPoint());
         } else {
-            QRect anchorRect = rectForPosition(cursor.anchor());
+            QRect anchorRect = rectForPosition(cursor.selectionEnd());
             r |= anchorRect;
             QRect frameRect(doc->documentLayout()->frameBoundingRect(cursor.currentFrame()).toRect());
             r.setLeft(frameRect.left());
