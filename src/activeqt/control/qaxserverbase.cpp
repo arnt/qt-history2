@@ -1267,9 +1267,9 @@ bool QAxServerBase::internalCreate()
 		::SetWindowLongA(qt.widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
 	    });
 	}
-    qt.widget->setAttribute(Qt::WA_QuitOnClose, false);
-	qt.widget->setGeometry(rcPos.left, rcPos.top, rcPos.right-rcPos.left, rcPos.bottom-rcPos.top);
-	updateGeometry();
+        qt.widget->setAttribute(Qt::WA_QuitOnClose, false);
+        qt.widget->setGeometry(rcPos.left, rcPos.top, rcPos.right-rcPos.left, rcPos.bottom-rcPos.top);
+        updateGeometry();
     }
 
     internalConnect();
@@ -1779,7 +1779,6 @@ void QAxServerBase::updateGeometry()
 
     QSize sizeHint = qt.widget->sizeHint();
     if (sizeHint.isValid()) {
-
 	sizeExtent.cx = MAP_PIX_TO_LOGHIM(sizeHint.width(), qt.widget->logicalDpiX());
 	sizeExtent.cy = MAP_PIX_TO_LOGHIM(sizeHint.height(), qt.widget->logicalDpiY());
     }
@@ -3573,21 +3572,23 @@ HRESULT QAxServerBase::internalActivate()
     OnAmbientPropertyChange(DISPID_AMBIENT_USERMODE);
 
     if (isWidget) {
-	HWND hwndParent;
-	if (m_spInPlaceSite->GetWindow(&hwndParent) == S_OK) {
-	    m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
-
-	    if (m_hWndCD) {
-		::ShowWindow(m_hWndCD, SW_SHOW);
-		if (!::IsChild(m_hWndCD, ::GetFocus()) && qt.widget->focusPolicy() != Qt::NoFocus)
-		    ::SetFocus(m_hWndCD);
-	    } else {
-		create(hwndParent, rcPos);
-	    }
-
-	    if (!qt.widget->testAttribute(Qt::WA_Resized))
-		SetObjectRects(&rcPos, &rcClip);
-	}
+        HWND hwndParent;
+        if (m_spInPlaceSite->GetWindow(&hwndParent) == S_OK) {
+            m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
+            
+            if (m_hWndCD) {
+                ::ShowWindow(m_hWndCD, SW_SHOW);
+                if (!::IsChild(m_hWndCD, ::GetFocus()) && qt.widget->focusPolicy() != Qt::NoFocus)
+                    ::SetFocus(m_hWndCD);
+            } else {
+                create(hwndParent, rcPos);
+            }
+            sizeExtent.cx = MAP_PIX_TO_LOGHIM(rcPos.right - rcPos.left, qt.widget->logicalDpiX());
+            sizeExtent.cy = MAP_PIX_TO_LOGHIM(rcPos.bottom - rcPos.top, qt.widget->logicalDpiY());
+            
+            if (!qt.widget->testAttribute(Qt::WA_Resized))
+                SetObjectRects(&rcPos, &rcClip);
+        }
 
 	// Gone active by now, take care of UIACTIVATE
 	canTakeFocus = qt.widget->focusPolicy() != Qt::NoFocus && !inDesignMode;
