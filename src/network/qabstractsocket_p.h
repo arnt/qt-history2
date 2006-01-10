@@ -80,6 +80,9 @@ public:
     void setupSocketNotifiers();
     bool readFromSocket();
 
+#ifdef Q_OS_LINUX
+    qint64 addToBytesAvailable;
+#endif
     qint64 readBufferMaxSize;
     QRingBuffer readBuffer;
     QRingBuffer writeBuffer;

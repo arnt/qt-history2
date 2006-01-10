@@ -828,6 +828,10 @@ bool QAbstractSocketPrivate::readFromSocket()
     Q_Q(QAbstractSocket);
     // Find how many bytes we can read from the socket layer.
     qint64 bytesToRead = socketEngine->bytesAvailable();
+#ifdef Q_OS_LINUX
+    if (bytesToRead > 0) // ### See setSocketDescriptor()
+        bytesToRead += addToBytesAvailable;
+#endif    
     if (readBufferMaxSize && bytesToRead > (readBufferMaxSize - readBuffer.size()))
         bytesToRead = readBufferMaxSize - readBuffer.size();
 
@@ -982,6 +986,10 @@ void QAbstractSocket::connectToHostImplementation(const QString &hostName, quint
     d->localAddress.clear();
     d->peerAddress.clear();
     d->peerName = hostName;
+#ifdef Q_OS_LINUX
+    // ### See setSocketDescriptor().
+    d->addToBytesAvailable = 0;
+#endif
     if (d->hostLookupId != -1) {
         QHostInfo::abortHostLookup(d->hostLookupId);
         d->hostLookupId = -1;
@@ -1196,6 +1204,17 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState sock
     d->peerPort = d->socketEngine->peerPort();
     d->localAddress = d->socketEngine->localAddress();
     d->peerAddress = d->socketEngine->peerAddress();
+
+#ifdef Q_OS_LINUX
+    // ### This is a workaround for certain broken Linux kernels, when using
+    // QTcpSocket with a Unix domain socket. It was introduced around 2.6.9,
+    // and fixed at some point after that.
+    // http://archive.linux-usenet.com/index-t-73300.html
+    // We can provide a better workaround for this: readFromSocket() can loop
+    // while reading, but this must happen without triggering an implicit
+    // close because of reading after the socket has closed.
+    d->addToBytesAvailable = 4096;
+#endif
 
     return true;
 }
