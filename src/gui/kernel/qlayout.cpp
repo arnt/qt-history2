@@ -939,7 +939,7 @@ bool QLayout::activate()
     QWidget *mw = static_cast<QWidget*>(parent());
     if (mw == 0) {
         qWarning("QLayout::activate: %s \"%s\" does not have a main widget",
-                  QObject::metaObject()->className(), QObject::objectName().toLocal8Bit().data());
+                 QObject::metaObject()->className(), QObject::objectName().toLocal8Bit().data());
         return false;
     }
     activateRecursiveHelper(this);
@@ -962,10 +962,10 @@ bool QLayout::activate()
         mw->setMinimumSize(totalMinimumSize());
         mw->setMaximumSize(totalMaximumSize());
         break;
-    case SetDefaultConstraint:
+    case SetDefaultConstraint: {
+        bool widthSet = explMin & Qt::Horizontal;
+        bool heightSet = explMin & Qt::Vertical;
         if (mw->isWindow()) {
-            bool widthSet = explMin & Qt::Horizontal;
-            bool heightSet = explMin & Qt::Vertical;
             QSize ms = totalMinimumSize();
             if (widthSet)
                 ms.setWidth(mw->minimumSize().width());
@@ -981,8 +981,16 @@ bool QLayout::activate()
                 }
             }
             mw->setMinimumSize(ms);
+        } else if (!widthSet || !heightSet) {
+            QSize ms = mw->minimumSize();
+            if (!widthSet)
+                ms.setWidth(0);
+            if (!heightSet)
+                ms.setHeight(0);
+            mw->setMinimumSize(ms);
         }
         break;
+    }
     case SetNoConstraint:
         break;
     }
