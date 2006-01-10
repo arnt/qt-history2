@@ -25,6 +25,7 @@
 #include <qstyleoption.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
+#include <qdebug.h>
 #include <private/qtabbar_p.h>
 
 #ifndef QT_NO_ACCESSIBILITY
@@ -262,11 +263,14 @@ QAccessible::State QAccessibleTabBar::state(int child) const
 }
 
 /*! \reimp */
-bool QAccessibleTabBar::doAction(int, int child, const QVariantList &)
+bool QAccessibleTabBar::doAction(int action, int child, const QVariantList &)
 {
     if (!child)
         return false;
 
+    if (action != QAccessible::DefaultAction && action != QAccessible::Press)
+        return false;
+    
     if (child > tabBar()->count()) {
         QAbstractButton *bt = button(child);
         if (!bt->isEnabled())
