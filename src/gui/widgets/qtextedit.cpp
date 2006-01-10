@@ -82,7 +82,9 @@ QVariant QTextEditMimeData::retrieveData(const QString &mimeType, QVariant::Type
 void QTextEditMimeData::setup() const
 {
     QTextEditMimeData *that = const_cast<QTextEditMimeData *>(this);
-    that->setHtml(fragment.toHtml());
+    QString html = fragment.toHtml();
+    html.replace("<head>", "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");
+    that->setData(QLatin1String("text/html"), html.toUtf8());
     that->setText(fragment.toPlainText());
     fragment = QTextDocumentFragment();
 }
@@ -2932,7 +2934,8 @@ void QTextEdit::insertFromMimeData(const QMimeData *source)
     bool hasData = false;
     QTextDocumentFragment fragment;
     if (source->hasFormat("application/x-qrichtext") && d->acceptRichText) {
-        fragment = QTextDocumentFragment::fromHtml(source->data("application/x-qrichtext"));
+        // x-qrichtext is always UTF-8 (taken from Qt3 since we don't use it anymore).
+        fragment = QTextDocumentFragment::fromHtml(QString::fromUtf8(source->data("application/x-qrichtext")));
         hasData = true;
     } else if (source->hasHtml() && d->acceptRichText) {
         fragment = QTextDocumentFragment::fromHtml(source->html());

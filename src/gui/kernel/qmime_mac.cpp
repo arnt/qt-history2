@@ -397,17 +397,27 @@ bool QMacMimeAnyMime::canConvert(const QString &mime, int flav)
     return false;
 }
 
-QVariant QMacMimeAnyMime::convertToMime(const QString &, QList<QByteArray> data, int)
+QVariant QMacMimeAnyMime::convertToMime(const QString &mime, QList<QByteArray> data, int)
 {
     if(data.count() > 1)
         qWarning("QMacMimeAnyMime: Cannot handle multiple member data");
-    return data.first();
+    QVariant ret;
+    if (mime == "text/plain") {
+        ret = QString::fromUtf8(data.first());
+    } else {
+        ret = data.first();
+    }
+    return ret;
 }
 
-QList<QByteArray> QMacMimeAnyMime::convertFromMime(const QString &, QVariant data, int)
+QList<QByteArray> QMacMimeAnyMime::convertFromMime(const QString &mime, QVariant data, int)
 {
     QList<QByteArray> ret;
-    ret.append(data.toByteArray());
+    if (mime == "text/plain") {
+        ret.append(data.toString().toUtf8());
+    } else {
+        ret.append(data.toByteArray());
+    }
     return ret;
 }
 
