@@ -193,7 +193,7 @@ private:
 
     Q3Socket commandSocket;
     QString replyText;
-    char replyCode[3];
+    signed char replyCode[3];
     State state;
     AbortState abortState;
     QStringList pendingCommands;
@@ -837,7 +837,7 @@ bool Q3FtpPI::processReply()
             }
 #else
             state = table[replyCode[0] - 1];
-#endif            
+#endif
 	    break;
 	default:
 	    // ### spontaneous message
