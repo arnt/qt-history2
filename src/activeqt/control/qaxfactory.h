@@ -152,7 +152,7 @@ public:
     : QAxFactory(libId, appId)
     {}
     
-    const QMetaObject *metaObject(const QString &key) const { return &T::staticMetaObject; }
+    const QMetaObject *metaObject(const QString &) const { return &T::staticMetaObject; }
     QStringList featureList() const { return QStringList(QString(T::staticMetaObject.className())); }
     QObject *createObject(const QString &key)
     {
