@@ -1300,18 +1300,14 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         if (qApp->type() == QApplication::Tty)
             break;
         if (qt_desktopWidget) {
-            int x = GetSystemMetrics(76);
-            int y = GetSystemMetrics(77);
-            QMoveEvent mv(QPoint(x, y), qt_desktopWidget->pos());
-            QApplication::sendEvent(qt_desktopWidget, &mv);
-            x = GetSystemMetrics(78);
-            y = GetSystemMetrics(79);
-            if (QSize(x, y) == qt_desktopWidget->size()) {
+            qt_desktopWidget->move(GetSystemMetrics(76), GetSystemMetrics(77));
+            QSize sz(GetSystemMetrics(78), GetSystemMetrics(79));
+            if (sz == qt_desktopWidget->size()) {
                  // a screen resized without changing size of the virtual desktop
-                QResizeEvent rs(QSize(x, y), qt_desktopWidget->size());
+                QResizeEvent rs(sz, qt_desktopWidget->size());
                 QApplication::sendEvent(qt_desktopWidget, &rs);
             } else {
-                qt_desktopWidget->resize(x, y);
+                qt_desktopWidget->resize(sz);
             }
         }
         break;

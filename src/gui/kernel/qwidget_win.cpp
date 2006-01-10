@@ -1306,7 +1306,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         qWinRequestConfig(q->winId(), isMove ? 2 : 1, x, y, w, h);
     } else {
         q->setAttribute(Qt::WA_WState_ConfigPending);
-        if (q->isWindow()) {
+        if (q->windowType() == Qt::Desktop) {
+            data.crect.setRect(x, y, w, h);
+        } else if (q->isWindow()) {
             QRect fr(q->frameGeometry());
             if (extra) {
                 fr.setLeft(fr.left() + x - data.crect.left());
