@@ -22,7 +22,7 @@
 #include <propertyeditor/propertyeditor.h>
 #include <objectinspector/objectinspector.h>
 #include <taskmenu/taskmenu_component.h>
-#include <resourceeditor.h>
+#include <resourceeditor_p.h>
 #include <signalsloteditor/signalsloteditorwindow.h>
 
 #include <buddyeditor/buddyeditor_plugin.h>

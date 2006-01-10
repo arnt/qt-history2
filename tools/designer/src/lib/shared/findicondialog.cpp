@@ -14,7 +14,7 @@
 #include "resourcefile_p.h"
 #include "findicondialog_p.h"
 #include "ui_findicondialog.h"
-#include "resourceeditor.h"
+#include "resourceeditor_p.h"
 
 #include <QtDesigner/abstractformwindow.h>
 #include <QtDesigner/abstractformeditor.h>

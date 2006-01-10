@@ -39,7 +39,7 @@
 #include <iconloader_p.h>
 
 #include "ui_resourceeditor.h"
-#include "resourceeditor.h"
+#include "resourceeditor_p.h"
 
 #define COMBO_EMPTY_DATA 0
 #define COMBO_NEW_DATA 1

@@ -51,7 +51,7 @@ HEADERS += \
     $$PWD/actionprovider_p.h \
     $$PWD/orderdialog_p.h \
     $$PWD/newactiondialog_p.h \
-    $$PWD/resourceeditor.h
+    $$PWD/resourceeditor_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
