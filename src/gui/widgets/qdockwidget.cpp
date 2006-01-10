@@ -275,12 +275,12 @@ void QDockWidgetPrivate::relayout()
     int posX = titleArea.right();
 
     QPoint buttonOffset(0, 0);
-#ifdef Q_OS_WIN    
+#ifdef Q_OS_WIN
     //### Fix this properly in Qt 4.2
     if (q->style()->inherits("QWindowsXPStyle")) {
         if(q->isFloating())
             buttonOffset = QPoint(2, -1);
-        else 
+        else
             buttonOffset = QPoint(0, 1);
     }
 #endif
@@ -355,6 +355,8 @@ void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
     if (!::hasFeature(q, QDockWidget::DockWidgetMovable))
         return;
 
+    if (!q->parentWidget())
+        return;
     QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
     if (!layout)
         return;
