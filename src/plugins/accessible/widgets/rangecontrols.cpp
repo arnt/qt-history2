@@ -330,6 +330,38 @@ QAccessible::Role QAccessibleScrollBar::role(int child) const
 }
 
 /*! \reimp */
+QAccessible::State QAccessibleScrollBar::state(int child) const
+{
+    const State parentState = QAccessibleWidget::state(0);
+    
+    if (child == 0)
+        return parentState;
+    
+    // Inherit the Invisible state from parent.
+    State state = parentState & QAccessible::Invisible;
+
+    // Disable left/right if we are at the minimum/maximum.
+    const QScrollBar * const scrollBar = QAccessibleScrollBar::scrollBar();
+    switch (child) {
+    case LineUp:
+    case PageUp:
+        if (scrollBar->value() <= scrollBar->minimum())
+            state |= Unavailable;
+        break;
+    case LineDown:
+    case PageDown:
+        if (scrollBar->value() >= scrollBar->maximum())
+            state |= Unavailable;
+        break;
+    case Position:
+    default:
+        break;
+    }
+
+    return state;
+}
+
+/*! \reimp */
 bool QAccessibleScrollBar::doAction(int /*action*/, int /*child*/, const QVariantList &/*params*/)
 {
 /*
