@@ -1815,6 +1815,8 @@ int QTreeWidget::columnCount() const
 void QTreeWidget::setColumnCount(int columns)
 {
     Q_D(QTreeWidget);
+    if (columns < 0)
+        return;
     d->model()->setColumnCount(columns);
 }
 

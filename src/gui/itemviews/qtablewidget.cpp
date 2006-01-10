@@ -1515,6 +1515,8 @@ QTableWidget::~QTableWidget()
 void QTableWidget::setRowCount(int rows)
 {
     Q_D(QTableWidget);
+    if (rows < 0)
+        return;
     d->model()->setRowCount(rows);
 }
 
@@ -1538,6 +1540,8 @@ int QTableWidget::rowCount() const
 void QTableWidget::setColumnCount(int columns)
 {
     Q_D(QTableWidget);
+    if (columns < 0)
+        return;
     d->model()->setColumnCount(columns);
 }
 
