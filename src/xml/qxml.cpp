@@ -1254,6 +1254,11 @@ void QXmlInputSource::reset()
 */
 QString QXmlInputSource::data() const
 {
+    if (d->nextReturnedEndOfData) {
+        QXmlInputSource *that = const_cast<QXmlInputSource*>(this);
+        that->d->nextReturnedEndOfData = false;
+        that->fetchData();
+    }
     return d->str;
 }
 
