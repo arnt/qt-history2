@@ -78,6 +78,7 @@ public:
 
     QString defaultDateFormat, defaultTimeFormat;
     Qt::LayoutDirection layoutDirection;
+    mutable QVariant conflictGuard;
 };
 
 // --- QDateTimeEdit ---
@@ -1263,10 +1264,12 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*posit
     input = tmp.input;
     state = *reinterpret_cast<QValidator::State *>(&tmp.state);
     if (state == QValidator::Acceptable) {
-        if (tmp.conflicts) {
+        if (tmp.conflicts && conflictGuard != tmp.value) {
+            conflictGuard = tmp.value;
             clearCache();
             input = textFromValue(tmp.value);
             updateCache(tmp.value, input);
+            conflictGuard.clear();
         } else {
             cachedText = input;
             cachedState = state;
