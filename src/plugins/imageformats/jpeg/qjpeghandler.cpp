@@ -425,6 +425,7 @@ inline my_jpeg_destination_mgr::my_jpeg_destination_mgr(QIODevice *device)
 
 static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int sourceQuality)
 {
+    bool success = false;
     QImage image = sourceImage;
 
     struct jpeg_compress_struct cinfo;
@@ -560,11 +561,15 @@ static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int s
 
         jpeg_finish_compress(&cinfo);
         jpeg_destroy_compress(&cinfo);
+        success = true;
+    } else {
+        jpeg_destroy_compress(&cinfo);
+        success = false;
     }
 
     delete iod_dest;
     delete [] row_pointer[0];
-    return true;
+    return success;
 }
 
 QJpegHandler::QJpegHandler()

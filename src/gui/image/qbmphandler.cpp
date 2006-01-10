@@ -488,6 +488,8 @@ bool Q_GUI_EXPORT qt_write_dib(QDataStream &s, QImage image)
     int        bpl = image.bytesPerLine();
 
     QIODevice* d = s.device();
+    if (!d->isWritable())
+        return false;
 
     if (image.depth() == 8 && image.numColors() <= 16) {
         bpl_bmp = (((bpl+1)/2+3)/4)*4;
@@ -520,6 +522,8 @@ bool Q_GUI_EXPORT qt_write_dib(QDataStream &s, QImage image)
     bi.biClrUsed       = image.numColors();
     bi.biClrImportant  = image.numColors();
     s << bi;                                        // write info header
+    if (s.status() != QDataStream::Ok)
+        return false;
 
     if (image.depth() != 32) {                // write color table
         uchar *color_table = new uchar[4*image.numColors()];
@@ -531,7 +535,10 @@ bool Q_GUI_EXPORT qt_write_dib(QDataStream &s, QImage image)
             *rgb++ = qRed  (c[i]);
             *rgb++ = 0;
         }
-        d->write((char *)color_table, 4*image.numColors());
+        if (d->write((char *)color_table, 4*image.numColors()) == -1) {
+            delete [] color_table;
+            return false;
+        }
         delete [] color_table;
     }
 
@@ -547,9 +554,11 @@ bool Q_GUI_EXPORT qt_write_dib(QDataStream &s, QImage image)
         char padding[4];
 #endif
         for (y=image.height()-1; y>=0; y--) {
-            d->write((char*)image.scanLine(y), bpl);
+            if (d->write((char*)image.scanLine(y), bpl) == -1)
+                return false;
 #ifdef Q_WS_QWS
-            d->write(padding, pad);
+            if (d->write(padding, pad) == -1)
+                return false;
 #endif
         }
         return true;

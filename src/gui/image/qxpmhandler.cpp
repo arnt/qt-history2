@@ -1044,8 +1044,11 @@ static const char* xpm_color_name(int cpp, int index)
 
 
 // write XPM image data
-static void write_xpm_image(const QImage &sourceImage, QIODevice *device, const QString &fileName)
+static bool write_xpm_image(const QImage &sourceImage, QIODevice *device, const QString &fileName)
 {
+    if (!device->isWritable())
+        return false;
+
     QImage image;
     if (sourceImage.depth() != 32)
         image = sourceImage.convertToFormat(QImage::Format_RGB32);
@@ -1124,6 +1127,7 @@ static void write_xpm_image(const QImage &sourceImage, QIODevice *device, const 
         s << "," << endl << "\"" << line << "\"";
     }
     s << "};" << endl;
+    return (s.status() == QTextStream::Ok);
 }
 
 QXpmHandler::QXpmHandler()
@@ -1191,8 +1195,7 @@ bool QXpmHandler::read(QImage *image)
 
 bool QXpmHandler::write(const QImage &image)
 {
-    write_xpm_image(image, device(), fileName);
-    return !image.isNull();
+    return write_xpm_image(image, device(), fileName);
 }
 
 bool QXpmHandler::supportsOption(ImageOption option) const
