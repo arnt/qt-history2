@@ -672,7 +672,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     
     QString topclass = qAxFactory()->exposeToSuperClass(className);
     if (topclass.isEmpty())
-        topclass = "Qt";
+        topclass = "QObject";
     bool hasStockEvents = qAxFactory()->hasStockEvents(className);
     
     const QMetaObject *pmo = mo;
@@ -762,7 +762,17 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         out << "\t\tBusyCursor\t= " << Qt::BusyCursor << endl;
         out << "\t};" << endl << endl;
     }
-    
+    if (!enums.contains("FocusPolicy")) {
+        enums.append("FocusPolicy");
+        out << "\tenum FocusPolicy {" << endl;
+        out << "\t\tNoFocus             = " << Qt::NoFocus << "," << endl;
+        out << "\t\tTabFocus            = " << Qt::TabFocus << "," << endl;
+        out << "\t\tClickFocus          = " << Qt::ClickFocus << "," << endl;
+        out << "\t\tStrongFocus         = " << Qt::StrongFocus << "," << endl;
+        out << "\t\tWheelFocus          = " << Qt::WheelFocus << endl;
+        out << "\t};" << endl << endl;
+    }
+
     out << endl;
     out << "\t[" << endl;
     out << "\t\tuuid(" << interfaceID << ")," << endl;
