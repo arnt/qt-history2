@@ -57,17 +57,6 @@ MainWindow *TabbedBrowser::mainWindow() const
     return static_cast<MainWindow*>(parentWidget());
 }
 
-static QString reduceLabelLength( const QString &s )
-{
-    int maxLength = 16;
-    QString str = s;
-    if ( str.length() < maxLength )
-        return str;
-    str = str.left( maxLength - 3 );
-    str += QLatin1String("...");
-    return str;
-}
-
 void TabbedBrowser::forward()
 {
     currentBrowser()->forward();
@@ -119,7 +108,7 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
     win->setFrameStyle(QFrame::NoFrame);
     win->setPalette(palette());
     win->setSearchPaths(Config::configuration()->mimePaths());
-    ui.tab->addTab(win, reduceLabelLength(title));
+    ui.tab->addTab(win, title);
     connect(win, SIGNAL(highlighted(QString)),
              (const QObject*) (mainWin->statusBar()), SLOT(showMessage(QString)));
     connect(win, SIGNAL(chooseWebBrowser()), mainWin, SLOT(showWebBrowserSettings()));
@@ -299,8 +288,11 @@ void TabbedBrowser::sourceChanged()
         docTitle = QLatin1String("...");
     // Make the classname in the title a bit more visible (otherwise
     // we just see the "Qt 4.0 : Q..." which isn't really helpful ;-)
-    if (docTitle.startsWith("Qt 4.0: "))
-        docTitle = docTitle.mid(8);
+    QString qtTitle = "Qt " + QString::number( (QT_VERSION >> 16) & 0xff )
+        + QLatin1String(".") + QString::number( (QT_VERSION >> 8) & 0xff )
+        + ": ";
+    if (docTitle.startsWith(qtTitle))
+        docTitle = docTitle.mid(qtTitle.length());
     setTitle(win, docTitle);
 	ui.frameFind->hide();
     ui.labelWrapped->hide();
@@ -309,7 +301,7 @@ void TabbedBrowser::sourceChanged()
 
 void TabbedBrowser::setTitle(HelpWindow *win, const QString &title)
 {
-    ui.tab->setTabText(ui.tab->indexOf(win), reduceLabelLength(title));
+    ui.tab->setTabText(ui.tab->indexOf(win), title);
     if (win == currentBrowser())
         mainWindow()->setWindowTitle(Config::configuration()->title() + QLatin1String(" - ") + title);
 }
