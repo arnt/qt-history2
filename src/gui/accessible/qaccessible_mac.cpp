@@ -316,6 +316,9 @@ public:
     inline bool isValid() const 
     { return (base != 0); }
 
+    QInterfaceItem parent() const
+    { return navigate(QAccessible::Ancestor, 0); }
+
 protected:
     QInterfaceItemBase *base;
     int child;
@@ -1046,6 +1049,11 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, E
         case QAccessible::PageTabList:
             qt_mac_append_cf_uniq(attrs, kAXTabsAttribute);
         break;
+        case QAccessible::RadioButton:
+        case QAccessible::CheckBox:
+            qt_mac_append_cf_uniq(attrs, kAXMinValueAttribute);
+            qt_mac_append_cf_uniq(attrs, kAXMaxValueAttribute);
+        break;
         default:
         break;
     }
@@ -1068,12 +1076,7 @@ static QList<AXUIElementRef> mapChildrenForInterface(const QInterfaceItem interf
 
 static void handleStringAttribute(EventRef event, QAccessible::Text text, QInterfaceItem interface)
 {
-    QString str;
-    if (text == QAccessible::Value)
-        str = getValue(interface);
-    else
-        str = interface.text(text);
-    
+    const QString str = interface.text(text);
     if (str.isEmpty())
         return;
     CFStringRef cfstr = QCFString::toCFStringRef(str);
@@ -1405,7 +1408,12 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
     } else if (CFStringCompare(var, kAXValueAttribute, 0) == kCFCompareEqualTo) {
         const QAccessible::Role role = interface.role();
         const QAccessible::Text text = (QAccessible::Text)textForRoleAndAttribute(role, var);
-        handleStringAttribute(event, text, interface);
+        if (role == QAccessible::CheckBox || role == QAccessible::RadioButton) {
+            int value = buttonValue(interface);
+            SetEventParameter(event, kEventParamAccessibleAttributeValue, typeUInt32, sizeof(value), &value);
+        } else {
+            handleStringAttribute(event, text, interface);
+        }
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     } else if (CFStringCompare(var, kAXDescriptionAttribute, 0) == kCFCompareEqualTo) {
         const QAccessible::Role role = interface.role();
@@ -1422,6 +1430,20 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
         return CallNextEventHandler(next_ref, event); 
     } else if (CFStringCompare(var, kAXTabsAttribute, 0) == kCFCompareEqualTo) {
         return handleTabsAttribute(next_ref, event, interface);
+    } else if (CFStringCompare(var, kAXMinValueAttribute, 0) == kCFCompareEqualTo) {
+        if (interface.role() == QAccessible::RadioButton || interface.role() == QAccessible::CheckBox) {
+            uint value = 0;
+            SetEventParameter(event, kEventParamAccessibleAttributeValue, typeUInt32, sizeof(value), &value);
+        } else {
+            return CallNextEventHandler(next_ref, event); 
+        }
+    } else if (CFStringCompare(var, kAXMaxValueAttribute, 0) == kCFCompareEqualTo) {
+        if (interface.role() == QAccessible::RadioButton || interface.role() == QAccessible::CheckBox) {
+            uint value = 2;
+            SetEventParameter(event, kEventParamAccessibleAttributeValue, typeUInt32, sizeof(value), &value);
+        } else {
+            return CallNextEventHandler(next_ref, event); 
+        }
     } else {
         return CallNextEventHandler(next_ref, event); 
     }
