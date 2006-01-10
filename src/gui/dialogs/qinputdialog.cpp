@@ -218,6 +218,7 @@ QString QInputDialog::getText(QWidget *parent, const QString &title, const QStri
     le->setText(text);
     le->setEchoMode(mode);
     le->setFocus();
+    le->selectAll();
 
     QString result;
     bool accepted = (dlg.exec() == QDialog::Accepted);
