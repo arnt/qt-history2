@@ -35,6 +35,8 @@ int QDecorationStyled::titleBarHeight(const QWidget *widget)
     QStyleOptionTitleBar opt;
     opt.subControls = QStyle::SC_TitleBarLabel
                       | QStyle::SC_TitleBarSysMenu
+                      | QStyle::SC_TitleBarNormalButton
+                      | QStyle::SC_TitleBarContextHelpButton
                       | QStyle::SC_TitleBarMinButton
                       | QStyle::SC_TitleBarMaxButton
                       | QStyle::SC_TitleBarCloseButton;
