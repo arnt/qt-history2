@@ -1572,6 +1572,7 @@ void QPrintDialogPrivate::init()
 
     ok = new QPushButton(QPrintDialog::tr("OK"), q);
     ok->setDefault(true);
+    ok->setEnabled(printers.count() != 0);
     horiz->addWidget(ok);
     if (! rightalign)
         horiz->addStretch(1);
