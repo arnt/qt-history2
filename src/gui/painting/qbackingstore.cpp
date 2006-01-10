@@ -495,7 +495,13 @@ void QWidgetBackingStore::copyToScreen(QWidget *widget, const QRegion &rgn)
     topextra->backingStore->copyToScreen(rgn, widget, offset, false);
 }
 
-
+/**
+ * Copies the contents of the backingstore into the screen area of \a widget.
+ * \a offset is the position of \a widget relative to the top level widget.
+ * \a rgn is the region to be updated in \a widget coordinates.
+ * \a recursive indicates that the widget should recursivly call copyToScreen
+ * for all child widgets.
+ */
 void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool recursive)
 {
     if (rgn.isEmpty())
@@ -521,6 +527,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
         QPoint wOffset = widget->data->wrect.topLeft();
 
 #if defined(Q_WS_WIN)
+#if 0
         QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
         HDC engine_dc = engine->getDC();
         HDC widget_dc = (HDC) widget->d_func()->hd;
@@ -535,7 +542,32 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
                engine_dc, br.x() + offset.x(), br.y() + offset.y(), SRCCOPY);
         if (tmp_widget_dc)
             ReleaseDC(widget->winId(), widget_dc);
+#else
+        recursive = false;
+
+        // Fetch source device context.
+        QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
+        HDC engine_dc = engine->getDC();
+
+        // Fetch target device context.
+        QWidget *window = widget->window();
+        HDC window_dc = GetWindowDC(widget->window()->winId());
+
+        int frame_x = window->geometry().x() - window->x();
+        int frame_y = window->geometry().y() - window->y();
+
+        // The rect in the backingstore to update.
+        QRect br = rgn.boundingRect().translated(offset);
+
+        // Copy backingstore to screen, offsetting for the widget's frame.
+        BitBlt(window_dc, br.x() + frame_x, br.y() + frame_y, br.width(), br.height(),
+               engine_dc, br.x(), br.y(), SRCCOPY);
+
+        // Clean up
+        ReleaseDC(widget->window()->winId(), window_dc);
         engine->releaseDC(engine_dc);
+#endif
+
 #elif defined(Q_WS_X11)
         extern void *qt_getClipRects(const QRegion &r, int &num); // in qpaintengine_x11.cpp
         GC gc = XCreateGC(X11->display, buffer.handle(), 0, 0);
