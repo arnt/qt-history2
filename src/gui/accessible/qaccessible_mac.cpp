@@ -115,6 +115,8 @@ struct QAccessibleTextBinding {
       { -1, 0, false }
     },
     { { QAccessible::StaticText, kAXStaticTextRole, false },
+      { QAccessible::Name, kAXValueAttribute, false },
+      { QAccessible::Name, kAXDescriptionAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::Table, kAXTableRole, false },
@@ -976,6 +978,11 @@ static QList<QInterfaceItem> findLabelled(QInterfaceItem interface)
 static bool supportsAttribute(CFStringRef attribute, QInterfaceItem interface)
 {
     const int text = textForRoleAndAttribute(interface.role(), attribute);
+ 
+    // Special case: Static texts don't have a title.
+    if (interface.role() == QAccessible::StaticText && attribute == kAXTitleAttribute)
+        return false;
+    
     // Return true if we the attribute matched a QAccessible::Role and we get text for that role from the interface.
     if (text != -1) {
         if (text == QAccessible::Value) // Special case for Value, see getValue()
