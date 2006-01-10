@@ -621,7 +621,8 @@ static bool isItInteresting(const QInterfaceItem interface)
    // Some roles are not interesting:
    if (role == QAccessible::Client ||    // QWidget 
        role == QAccessible::Border ||    // QFrame 
-       role == QAccessible::Application) // We use the system-provided application element.
+       role == QAccessible::Application || // We use the system-provided application element.
+       role == QAccessible::MenuItem)      // The system also provides the menu items.
         return false; 
     
     // It is probably better to access the toolbar buttons directly than having 
