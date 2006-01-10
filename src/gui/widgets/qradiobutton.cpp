@@ -89,7 +89,7 @@ static void qRadioButtonInit(QRadioButton *button)
 */
 
 QRadioButton::QRadioButton(QWidget *parent)
-        : QAbstractButton(*new QRadioButtonPrivate, parent)
+    : QAbstractButton(*new QRadioButtonPrivate, parent)
 {
     qRadioButtonInit(this);
 }
@@ -101,7 +101,7 @@ QRadioButton::QRadioButton(QWidget *parent)
 */
 
 QRadioButton::QRadioButton(const QString &text, QWidget *parent)
-        : QAbstractButton(*new QRadioButtonPrivate, parent)
+    : QAbstractButton(*new QRadioButtonPrivate, parent)
 {
     qRadioButtonInit(this);
     setText(text);
@@ -192,7 +192,7 @@ bool QRadioButton::event(QEvent *e)
     argument and then use setObjectName() instead.
 */
 QRadioButton::QRadioButton(QWidget *parent, const char* name)
-    :QAbstractButton(parent)
+    : QAbstractButton(*new QRadioButtonPrivate, parent)
 {
     setObjectName(QString::fromAscii(name));
     qRadioButtonInit(this);
@@ -203,7 +203,7 @@ QRadioButton::QRadioButton(QWidget *parent, const char* name)
     argument and then use setObjectName() instead.
 */
 QRadioButton::QRadioButton(const QString &text, QWidget *parent, const char* name)
-    :QAbstractButton(parent)
+    : QAbstractButton(*new QRadioButtonPrivate, parent)
 {
     setObjectName(QString::fromAscii(name));
     qRadioButtonInit(this);
