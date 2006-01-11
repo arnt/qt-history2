@@ -148,6 +148,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     QT_MOC_COMPAT void currentChanged(QWidget *);
+    QT_MOC_COMPAT void selected(const QString&);
 #endif // QT3_SUPPORT
 
 private:

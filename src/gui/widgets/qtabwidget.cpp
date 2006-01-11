@@ -573,6 +573,7 @@ void QTabWidgetPrivate::showTab(int index)
         stack->setCurrentIndex(index);
         emit q->currentChanged(index);
 #ifdef QT3_SUPPORT
+        emit q->selected(q->tabText(index));
         emit q->currentChanged(stack->widget(index));
 #endif
     }

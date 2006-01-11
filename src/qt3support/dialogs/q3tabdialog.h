@@ -94,9 +94,6 @@ Q_SIGNALS:
     void currentChanged(QWidget *);
     void selected(const QString&); // obsolete
 
-private Q_SLOTS:
-    void emitSelected(int index);
-
 private:
     void setSizes();
     void setUpLayout();
