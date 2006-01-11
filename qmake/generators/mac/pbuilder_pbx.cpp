@@ -1218,8 +1218,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     else
         t << "\t\t\t\t" << "SYMROOT = \"" << qmake_getpwd() << "\";" << "\n";
 #endif
-    t << "\t\t\t\t" << "ARCHS = \""<< QString(project->isActiveConfig("x86") ? "x86 " : "")
-      << QString(project->isActiveConfig("x86") ? "ppc" : "") << "\";" << "\n";
+    t << "\t\t\t\t" << "ARCHS = \"" << QString(project->isActiveConfig("x86") ? "i386 " : "")
+                                    << QString(project->isActiveConfig("ppc") ? "ppc" : "") << "\";" << "\n";
     if(project->first("TEMPLATE") == "app") {
         if(pbVersion < 38 && !project->isActiveConfig("console"))
             t << "\t\t\t\t" << "WRAPPER_SUFFIX = app;" << "\n";
@@ -1336,6 +1336,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         settings.insert("GCC_GENERATE_DEBUGGING_SYMBOLS", as_release ? "NO" : "YES");
         if(!as_release)
             settings.insert("GCC_OPTIMIZATION_LEVEL", "0");
+
+        if(project->isActiveConfig("sdk") && !project->isEmpty("QMAKE_MAC_SDK"))
+                settings.insert("SDKROOT", project->first("QMAKE_MAC_SDK"));
 
         QString name;
         if(pbVersion >= 42)
