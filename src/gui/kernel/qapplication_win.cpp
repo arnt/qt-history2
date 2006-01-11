@@ -1938,7 +1938,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             }
             result = false;
             break;
-        case WM_GETTEXT: {
+        case WM_GETTEXT: 
+            if (!widget->isWindow()) {
                 int ret = 0;
                 QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(widget);
                 if (acc) {
