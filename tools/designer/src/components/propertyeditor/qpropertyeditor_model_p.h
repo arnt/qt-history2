@@ -31,6 +31,7 @@ public:
 
     inline QModelIndex indexOf(IProperty *property, int column = 0) const
     {
+        Q_ASSERT(property);
         if (property == m_initialInput)
             return createIndex(0, column, m_initialInput);
 
