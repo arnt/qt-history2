@@ -702,7 +702,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     Q_D(QX11PaintEngine);
     d->pdev = pdev;
     d->xinfo = qt_x11Info(pdev);
-    d->hd = qt_x11Handle(pdev);
 #ifndef QT_NO_XRENDER
     if (pdev->devType() == QInternal::Widget) {
         d->picture = (::Picture)static_cast<const QWidget *>(pdev)->x11PictureHandle();
@@ -715,6 +714,8 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 #else
     d->picture = 0;
 #endif
+    d->hd = qt_x11Handle(pdev);
+
     Q_ASSERT(d->xinfo != 0);
     d->dpy = d->xinfo->display(); // get display variable
     d->scrn = d->xinfo->screen(); // get screen variable
