@@ -138,7 +138,6 @@ public:
 
 #ifdef QT3_SUPPORT
     static QT3_SUPPORT QTime currentTime(Qt::TimeSpec spec);
-    static QT3_SUPPORT QDate currentDate(Qt::TimeSpec spec);
 #endif
 
     void start();
