@@ -50,7 +50,7 @@
          \o \c QT_NO_ASYNC_IO, \c QT_NO_ASYNC_IMAGE_IO
 
     \header \i31 Fonts
-    \row \o \c QT_NO_TRUETYPE
+    \row \o \c QT_NO_FREETYPE
          \o TrueType (TTF and TTC) font file format, only used by Qtopia Core.
          \o
     \row \o \c QT_NO_BDF
