@@ -163,11 +163,11 @@
     \endtable
 
     You should also ensure that the linker will use the correct linker
-    path by adding:
+    path by adding the following line to your application's project file:
+
     \code
         QMAKE_LFLAGS += -L$$[QT_INSTALL_PLUGINS]/imageformats
     \endcode
-    To your .pro file.
 
     \sa {How to Create Qt Plugins}, {Using qmake}
 */
@@ -356,13 +356,18 @@ QString QPluginLoader::fileName() const
 typedef QList<QtPluginInstanceFunction> StaticInstanceFunctionList;
 Q_GLOBAL_STATIC(StaticInstanceFunctionList, staticInstanceFunctionList)
 
+/*!
+    \relates QPluginLoader
+
+    Registers the given \a function with the plugin loader.
+*/
 void Q_CORE_EXPORT qRegisterStaticPluginInstanceFunction(QtPluginInstanceFunction function)
 {
     staticInstanceFunctionList()->append(function);
 }
 
 /*!
-
+    Returns a list of static plugin instances held by the plugin loader.
 */
 QObjectList QPluginLoader::staticInstances()
 {
