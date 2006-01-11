@@ -53,9 +53,9 @@ public:
                 && br.row() >= index.row() && br.column() >= index.column());
     }
 
-    inline bool contains(int row, int column, const QModelIndex &parent) const
+    inline bool contains(int row, int column, const QModelIndex &parentIndex) const
     {
-        return (this->parent() == parent
+        return (parent() == parentIndex
                 && tl.row() <= row && tl.column() <= column
                 && br.row() >= row && br.column() >= column);
     }
