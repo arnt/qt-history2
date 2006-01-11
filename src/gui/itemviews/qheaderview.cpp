@@ -2114,8 +2114,8 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
             QAbstractItemView *parent = ::qobject_cast<QAbstractItemView*>(q->parent());
             if (parent)
                 sectionSize = (orientation == Qt::Horizontal
-                               ? parent->sizeHintForColumn(i)
-                               : parent->sizeHintForRow(i));
+                               ? parent->sizeHintForColumn(logicalIndex)
+                               : parent->sizeHintForRow(logicalIndex));
             int logicalIndex = q->logicalIndex(i);
             sectionSize = qMax(sectionSize, q->sectionSizeHint(logicalIndex));
         }
