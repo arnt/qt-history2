@@ -205,6 +205,7 @@ Type Moc::parseType()
 {
     Type type;
     bool hasSignedOrUnsigned = false;
+    bool isVoid = false;
     for (;;) {
         switch (next()) {
             case SIGNED:
@@ -249,6 +250,7 @@ Type Moc::parseType()
         case VOID:
         case BOOL:
             type.name += lexem();
+            isVoid |= (lookup(0) == VOID);
             break;
         default:
             prev();
@@ -277,6 +279,10 @@ Type Moc::parseType()
             type.referenceType = Type::Reference;
         else if (lookup(0) == STAR)
             type.referenceType = Type::Pointer;
+    }
+    // transform stupid things like 'const void' or 'void const' into 'void'
+    if (isVoid) {
+        type.name = "void";
     }
     return type;
 }
