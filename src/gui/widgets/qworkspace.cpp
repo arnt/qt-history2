@@ -103,12 +103,13 @@ public:
 #ifndef QT_NO_TOOLTIP
         toolTip(0),
 #endif
-        act(0), window(0), movable(1), pressed(0), autoraise(0), inevent(0)
+        lastControl(QStyle::SC_None), act(0), window(0), movable(1), pressed(0), autoraise(0), inevent(0)
     {
     }
 
     Qt::WFlags flags;
     QStyle::SubControl buttonDown;
+    QStyle::SubControl lastControl;
     QPoint moveOffset;
 #ifndef QT_NO_TOOLTIP
     QToolTip *toolTip;
@@ -149,6 +150,7 @@ QStyleOptionTitleBar QWorkspaceTitleBarPrivate::getStyleOption() const
     opt.activeSubControls = QStyle::SC_None;
     opt.titleBarState = titleBarState();
     opt.titleBarFlags = flags;
+    opt.state &= ~QStyle::State_MouseOver;
     return opt;
 }
 
@@ -420,30 +422,20 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
         // propagate border events to the QWidgetResizeHandler
         return;
     }
+    
+    QStyleOptionTitleBar opt = d->getStyleOption();
+    QStyle::SubControl under_mouse = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
+                                                                    e->pos(), this);
+    if(under_mouse != d->lastControl) {
+        d->lastControl = under_mouse;
+        update();
+    }
+
     switch (d->buttonDown) {
     case QStyle::SC_None:
-        if(autoRaise())
-            update();
         break;
     case QStyle::SC_TitleBarSysMenu:
         break;
-    case QStyle::SC_TitleBarShadeButton:
-    case QStyle::SC_TitleBarUnshadeButton:
-    case QStyle::SC_TitleBarNormalButton:
-    case QStyle::SC_TitleBarMinButton:
-    case QStyle::SC_TitleBarMaxButton:
-    case QStyle::SC_TitleBarCloseButton:
-        {
-            QStyle::SubControl last_ctrl = d->buttonDown;
-            QStyleOptionTitleBar opt = d->getStyleOption();
-            d->buttonDown = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
-            if (d->buttonDown != last_ctrl)
-                d->buttonDown = QStyle::SC_None;
-            update();
-            d->buttonDown = last_ctrl;
-        }
-        break;
-
     case QStyle::SC_TitleBarLabel:
         if (d->buttonDown == QStyle::SC_TitleBarLabel && d->movable && d->pressed) {
             if ((d->moveOffset - mapToParent(e->pos())).manhattanLength() >= 4) {
@@ -469,12 +461,7 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
                 if (!parentWidget()->isMaximized())
                     parentWidget()->move(pp);
             }
-        } else {
-            QStyle::SubControl last_ctrl = d->buttonDown;
-            d->buttonDown = QStyle::SC_None;
-            if(d->buttonDown != last_ctrl)
-                update();
-        }
+        } 
         e->accept();
         break;
     default:
@@ -535,12 +522,12 @@ void QWorkspaceTitleBar::paintEvent(QPaintEvent *)
     }
 
     QStyle::SubControl under_mouse = QStyle::SC_None;
-    if (d->buttonDown && d->pressed)
-        opt.state |= QStyle::State_Sunken;
-    else if(autoRaise() && underMouse()) {
-        under_mouse = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
+    under_mouse = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                      mapFromGlobal(QCursor::pos()), this);
-        opt.activeSubControls |= under_mouse;
+    if ((d->buttonDown == under_mouse) && d->pressed) {
+        opt.state |= QStyle::State_Sunken;
+    } else if( autoRaise() && under_mouse != QStyle::SC_None && !d->pressed) {
+        opt.activeSubControls = under_mouse;
         opt.state |= QStyle::State_MouseOver;
     }
     opt.palette.setCurrentColorGroup(usesActiveColor() ? QPalette::Active : QPalette::Inactive);
@@ -576,6 +563,7 @@ void QWorkspaceTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
 void QWorkspaceTitleBar::leaveEvent(QEvent *)
 {
     Q_D(QWorkspaceTitleBar);
+    d->lastControl = QStyle::SC_None;
     if(autoRaise() && !d->pressed)
         update();
 }
