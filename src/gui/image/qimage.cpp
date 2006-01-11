@@ -1698,7 +1698,7 @@ void QImage::invertPixels(InvertMode mode)
     detach();
     if (depth() != 32) {
         // number of used bytes pr line
-        int bpl = (d->width + 7) * d->depth / 8;
+        int bpl = (d->width * d->depth + 7) / 8;
         int pad = d->bytes_per_line - bpl;
         uchar *sl = d->data;
         for (int y=0; y<d->height; ++y) {
