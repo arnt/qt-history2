@@ -22,6 +22,7 @@ class QVFbRateDialog;
 class QPopupMenu;
 class QMenuData;
 class Q3FileDialog;
+class QAction;
 class Config;
 class Skin;
 class QVFb;
@@ -94,7 +95,7 @@ private:
     QVFbView *view;
     QVFbRateDialog *rateDlg;
     QMenu *viewMenu;
-    int cursorId;
+    QAction *cursorAction;
     Config* config;
     QStringList skinnames;
     QStringList skinfiles;

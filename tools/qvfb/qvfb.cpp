@@ -273,7 +273,7 @@ void QVFb::enableCursor( bool e )
     } else {
 	view->setCursor( e ? Qt::ArrowCursor : Qt::BlankCursor );
     }
-    viewMenu->setItemChecked( cursorId, e );
+    cursorAction->setChecked( e );
 }
 
 void QVFb::createMenu(QMenuBar *menu)
@@ -308,7 +308,9 @@ QMenu* QVFb::createViewMenu()
 {
     viewMenu = new QMenu( this );
     viewMenu->setCheckable( true );
-    cursorId = viewMenu->insertItem( "Show &Cursor", this, SLOT(toggleCursor()) );
+    cursorAction = viewMenu->addAction( "Show &Cursor", this,
+                                        SLOT(toggleCursor()) );
+    cursorAction->setCheckable(true);
     if ( view )
 	enableCursor(true);
     viewMenu->insertItem( "&Refresh Rate...", this, SLOT(changeRate()) );
@@ -401,7 +403,7 @@ void QVFb::toggleAnimation()
 
 void QVFb::toggleCursor()
 {
-    enableCursor( !viewMenu->isItemChecked( cursorId ) );
+    enableCursor(cursorAction->isChecked());
 }
 
 void QVFb::changeRate()
