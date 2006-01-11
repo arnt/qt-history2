@@ -186,8 +186,6 @@ void QVFb::popupMenu()
 
 void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& skin_name )
 {
-    setCaption( QString("Virtual framebuffer %1x%2 %3bpp Display :%4 Rotate %5")
-		    .arg(pw).arg(ph).arg(d).arg(display_id).arg(r) );
     delete view;
     view = 0;
     delete scroller;
@@ -264,6 +262,10 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
     newSize += QSize(20, 35);
 
     resize(newSize);
+
+    setCaption(QString("Virtual framebuffer %1x%2 %3bpp Display :%4 Rotate %5")
+               .arg(view->displayWidth()).arg(view->displayHeight())
+               .arg(d).arg(display_id).arg(r));
 }
 
 void QVFb::enableCursor( bool e )
