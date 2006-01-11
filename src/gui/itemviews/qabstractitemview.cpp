@@ -37,6 +37,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         selectionModel(0),
         selectionMode(QAbstractItemView::ExtendedSelection),
         selectionBehavior(QAbstractItemView::SelectItems),
+        pressedModifiers(Qt::NoModifier),
+        pressedPosition(QPoint(-1, -1)),
         state(QAbstractItemView::NoState),
         editTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed),
         tabKeyNavigation(false),
@@ -963,12 +965,15 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
     d->pressedIndex = index;
     d->pressedModifiers = event->modifiers();
     QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
-    if (index.isValid())
-        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     QPoint offset(horizontalOffset(), verticalOffset());
     if ((command & QItemSelectionModel::Current) == 0)
         d->pressedPosition = pos + offset;
 
+    if (d->pressedPosition == QPoint(-1, -1))
+        d->pressedPosition = visualRect(selectionModel()->currentIndex()).center() + offset;
+    if (index.isValid())
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+    
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalized(), command);
 
@@ -1077,6 +1082,9 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
 */
 void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_D(QAbstractItemView);
+    d->pressedPosition = QPoint(-1, -1);
+
     QPoint pos = event->pos();
     QModelIndex index = indexAt(pos);
 
@@ -1087,7 +1095,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 
     if (selectionModel())
         selectionModel()->select(index, selectionCommand(index, event));
-
+    
     if (index == d_func()->pressedIndex && index.isValid()) {
         // signal handlers may change the model
         QPersistentModelIndex persistent = index;
