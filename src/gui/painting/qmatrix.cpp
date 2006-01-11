@@ -21,38 +21,95 @@
 #include <limits.h>
 
 /*!
-    \class QMatrix qmatrix.h
+    \class QMatrix
     \brief The QMatrix class specifies 2D transformations of a
     coordinate system.
 
     \ingroup multimedia
 
-    The standard coordinate system of a \link QPaintDevice paint
-    device\endlink has the origin located at the top-left position. \e
-    x values increase to the right; \e y values increase downward.
-
-    This coordinate system is the default for the QPainter, which
-    renders graphics in a paint device. A user-defined coordinate
-    system can be specified by setting a QMatrix for the painter.
-
-    Example:
-    \quotefromfile snippets/matrix/matrix.cpp
-    \skipto PAINT
-    \skipto paintEvent
-    \printuntil }
-
     A matrix specifies how to translate, scale, shear or rotate the
-    graphics; the actual transformation is performed by the drawing
-    routines in QPainter and by QPixmap::xForm().
+    coordinate system, and is typically used when rendering graphics.
 
-    The QMatrix class contains a 3x3 matrix of the form:
-    \table
-    \row \i m11 \i m12 \i 0
-    \row \i m21 \i m22 \i 0
-    \row \i dx  \i dy  \i 1
+    A QMatrix object can be built using the setMatrix(), scale(),
+    rotate(), translate() and shear() functions.  Alternatively, it
+    can be built by applying \l {QMatrix#Basic Matrix
+    Operations}{basic matrix operations}. The matrix can also be
+    defined when constructed, and it can be reset to the identity
+    matrix (the default) using the reset() function.
+
+    The QMatrix class supports mapping of graphic primitives: A given
+    point, line, polygon, region, or painter path can be mapped to the
+    coordinate system defined by \e this matrix using the map()
+    function. In case of a rectangle, its coordinates can be
+    transformed using the mapRect() function. A rectangle can also be
+    transformed into a \e polygon (mapped to the coordinate system
+    defined by \e this matrix), using the mapToPolygon() function.
+
+    QMatrix provides the isIdentity() function which returns true if
+    the matrix is the identity matrix, and the isInvertible() function
+    which returns true if the matrix is non-singular (i.e. AB = BA =
+    I). The inverted() function returns an inverted copy of \e this
+    matrix if it is invertible (otherwise it returns the identity
+    matrix). In addition, QMatrix provides the det() function
+    returning the matrix's determinant.
+
+    Finally, the QMatrix class supports matrix multiplication, and
+    objects of the class can be streamed as well as compared.
+
+    \tableofcontents
+
+    \section1 Rendering Graphics
+
+    When rendering graphics, the matrix defines the transformations
+    but the actual transformation is performed by the drawing routines
+    in QPainter.
+
+    By default, QPainter operates on the associated device's own
+    coordinate system.  The standard coordinate system of a
+    QPaintDevice has its origin located at the top-left position. The
+    \e x values increase to the right; \e y values increase
+    downward. For a complete description, see the \l {The Coordinate
+    System}{coordinate system} documentation.
+
+    QPainter has functions to translate, scale, shear and rotate the
+    coordinate system without using a QMatrix. For example:
+
+    \table 100%
+    \row
+    \o \inlineimage qmatrix-simpletransformation
+    \o
+    \quotefromfile snippets/matrix/matrix.cpp
+    \skipto SimpleTransformation::paintEvent
+    \printuntil }
     \endtable
 
-    A matrix transforms a point in the plane to another point:
+    Although these functions are very convenient, it can be more
+    efficient to build a QMatrix and call QPainter::setMatrix() if you
+    want to perform more than a single transform operation. For
+    example:
+
+    \table 100%
+    \row
+    \o \inlineimage qmatrix-combinedtransformation.png
+    \o
+    \quotefromfile snippets/matrix/matrix.cpp
+    \skipto CombinedTransformation::paintEvent
+    \printuntil }
+    \endtable
+
+    \section1 Basic Matrix Operations
+
+    \image qmatrix-representation.png
+
+    A QMatrix object contains a 3 x 3 matrix.  The \c dx and \c dy
+    elements specify horizontal and vertical translation. The \c m11
+    and \c m22 elements specify horizontal and vertical scaling. And
+    finally, the \c m21 and \c m12 elements specify horizontal and
+    vertical \e shearing.
+
+    QMatrix transforms a point in the plane to another point using the
+    following formulas:
+
     \code
         x' = m11*x + m21*y + dx
         y' = m22*y + m12*x + dy
@@ -60,56 +117,41 @@
 
     The point \e (x, y) is the original point, and \e (x', y') is the
     transformed point. \e (x', y') can be transformed back to \e (x,
-    y) by performing the same operation on the \link
-    QMatrix::inverted() inverted matrix\endlink.
+    y) by performing the same operation on the inverted() matrix.
 
-    The elements \e dx and \e dy specify horizontal and vertical
-    translation. The elements \e m11 and \e m22 specify horizontal and
-    vertical scaling. The elements \e m12 and \e m21 specify
-    horizontal and vertical shearing.
+    The various matrix elements can be set when constructing the
+    matrix, or by using the setMatrix() function later on. They also
+    be manipulated using the translate(), rotate(), scale() and
+    shear() convenience functions, The currently set values can be
+    retrieved using the m11(), m12(), m21(), m22(), dx() and dy()
+    functions.
 
-    The identity matrix has \e m11 and \e m22 set to 1; all others are
-    set to 0. This matrix maps a point to itself.
+    Translation is the simplest transformation. Setting \c dx and \c
+    dy will move the coordinate system \c dx units along the X axis
+    and \c dy units along the Y axis.  Scaling can be done by setting
+    \c m11 and \c m22. For example, setting \c m11 to 2 and \c m22 to
+    1.5 will double the height and increase the width by 50%.  The
+    identity matrix has \c m11 and \c m22 set to 1 (all others are set
+    to 0) mapping a point to itself. Shearing is controlled by \c m12
+    and \c m21. Setting these elements to values different from zero
+    will twist the coordinate system. Rotation is achieved by
+    carefully setting both the shearing factors and the scaling
+    factors.
 
-    Translation is the simplest transformation. Setting \e dx and \e
-    dy will move the coordinate system \e dx units along the X axis
-    and \e dy units along the Y axis.
+    Here's the combined transformations example using basic matrix
+    operations:
 
-    Scaling can be done by setting \e m11 and \e m22. For example,
-    setting \e m11 to 2 and \e m22 to 1.5 will double the height and
-    increase the width by 50%.
-
-    Shearing is controlled by \e m12 and \e m21. Setting these
-    elements to values different from zero will twist the coordinate
-    system.
-
-    Rotation is achieved by carefully setting both the shearing
-    factors and the scaling factors. The QMatrix also has a function
-    that sets \link rotate() rotation \endlink directly.
-
-    QMatrix lets you combine transformations like this:
+    \table 100%
+    \row
+    \o \inlineimage qmatrix-combinedtransformation.png
+    \o
     \quotefromfile snippets/matrix/matrix.cpp
-    \skipto COMBINE
-    \skipto QMatrix
-    \printuntil scale
+    \skipto BasicOperations::paintEvent
+    \printuntil }
+    \endtable
 
-    Here's the same example using basic matrix operations:
-    \quotefromfile snippets/matrix/matrix.cpp
-    \skipto OPERATIONS
-    \skipto double
-    \printuntil combine
-
-    The matrix can also be transformed using the map() functions, and
-    transformed points, rectangles, etc., can be obtained using map(),
-    mapRect(), mapToRegion(), and mapToPolygon() functions.
-
-    \l QPainter has functions to translate, scale, shear and rotate the
-    coordinate system without using a QMatrix. Although these
-    functions are very convenient, it can be more efficient to build a
-    QMatrix and call QPainter::setMatrix() if you want to perform
-    more than a single transform operation.
-
-    \sa QPainter::setMatrix(), QPixmap::xForm()
+    \sa QPainter, {The Coordinate System}, {demo/affine}{Affine
+    Transformations Demo}
 */
 
 
@@ -135,8 +177,12 @@
  *****************************************************************************/
 
 /*!
-    Constructs an identity matrix. All elements are set to zero except
-    \e m11 and \e m22 (scaling), which are set to 1.
+    Constructs an identity matrix.
+
+    All elements are set to zero except \c m11 and \c m22 (specifying
+    the scale), which are set to 1.
+
+    \sa reset()
 */
 
 QMatrix::QMatrix()
@@ -148,6 +194,8 @@ QMatrix::QMatrix()
 /*!
     Constructs a matrix with the elements, \a m11, \a m12, \a m21, \a
     m22, \a dx and \a dy.
+
+    \sa setMatrix()
 */
 
 QMatrix::QMatrix(qreal m11, qreal m12, qreal m21, qreal m22,
@@ -159,7 +207,8 @@ QMatrix::QMatrix(qreal m11, qreal m12, qreal m21, qreal m22,
 }
 
 
-/*! Constructs a matrix with the elements from the matrix \a matrix
+/*!
+     Constructs a matrix that is a copy of the given \a matrix.
  */
 QMatrix::QMatrix(const QMatrix &matrix)
 {
@@ -169,6 +218,13 @@ QMatrix::QMatrix(const QMatrix &matrix)
 /*!
     Sets the matrix elements to the specified values, \a m11, \a m12,
     \a m21, \a m22, \a dx and \a dy.
+
+    Note that this function replaces the previous values. QMatrix
+    provide the translate(), rotate(), scale() and shear() convenience
+    functions to manipulate the various matrix elements based on the
+    currently defined coordinate system.
+
+    \sa QMatrix()
 */
 
 void QMatrix::setMatrix(qreal m11, qreal m12, qreal m21, qreal m22,
@@ -183,48 +239,74 @@ void QMatrix::setMatrix(qreal m11, qreal m12, qreal m21, qreal m22,
 /*!
     \fn qreal QMatrix::m11() const
 
-    Returns the X scaling factor.
+    Returns the horizontal scaling factor.
+
+    \sa scale(), {QMatrix#Basic Matrix Operations}{Basic Matrix
+    Operations}
 */
 
 /*!
     \fn qreal QMatrix::m12() const
 
     Returns the vertical shearing factor.
+
+    \sa shear(), {QMatrix#Basic Matrix Operations}{Basic Matrix
+    Operations}
 */
 
 /*!
     \fn qreal QMatrix::m21() const
 
     Returns the horizontal shearing factor.
+
+    \sa shear(), {QMatrix#Basic Matrix Operations}{Basic Matrix
+    Operations}
 */
 
 /*!
     \fn qreal QMatrix::m22() const
 
-    Returns the Y scaling factor.
+    Returns the vertical scaling factor.
+
+    \sa scale(), {QMatrix#Basic Matrix Operations}{Basic Matrix
+    Operations}
 */
 
 /*!
     \fn qreal QMatrix::dx() const
 
-    Returns the horizontal translation.
+    Returns the horizontal translation factor.
+
+    \sa translate(), {QMatrix#Basic Matrix Operations}{Basic Matrix
+    Operations}
 */
 
 /*!
     \fn qreal QMatrix::dy() const
 
-    Returns the vertical translation.
+    Returns the vertical translation factor.
+
+    \sa translate(), {QMatrix#Basic Matrix Operations}{Basic Matrix
+    Operations}
 */
 
 
 /*!
-    Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the
-    following formulas:
+    Maps the given coordinates \a x and \a y into the coordinate
+    system defined by this matrix. The resulting values are put in *\a
+    tx and *\a ty, respectively.
+
+    The coordinates are transformed using the following formulas:
 
     \code
-        *tx = m11*x + m21*y + dx
-        *ty = m22*y + m12*x + dy
+        x' = m11*x + m21*y + dx
+        y' = m22*y + m12*x + dy
     \endcode
+
+    The point (x, y) is the original point, and (x', y') is the
+    transformed point.
+
+    \sa {QMatrix#Basic Matrix Operations}{Basic Matrix Operations}
 */
 
 void QMatrix::map(qreal x, qreal y, qreal *tx, qreal *ty) const
@@ -237,12 +319,10 @@ void QMatrix::map(qreal x, qreal y, qreal *tx, qreal *ty) const
 /*!
     \overload
 
-    Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the formulas:
-
-    \code
-        *tx = m11*x + m21*y + dx  (rounded to the nearest integer)
-        *ty = m22*y + m12*x + dy  (rounded to the nearest integer)
-    \endcode
+    Maps the given coordinates \a x and \a y into the coordinate
+    system defined by this matrix. The resulting values are put in *\a
+    tx and *\a ty, respectively. Note that the transformed coordinates
+    are rounded to the nearest integer.
 */
 
 void QMatrix::map(int x, int y, int *tx, int *ty) const
@@ -250,19 +330,6 @@ void QMatrix::map(int x, int y, int *tx, int *ty) const
     MAPINT(x, y, *tx, *ty);
 }
 
-
-
-/*!
-    Returns the transformed rectangle \a rect rounded to the neares integer.
-
-    The bounding rectangle is returned if rotation or shearing has
-    been specified.
-
-    If you need to know the exact region \a rect maps to use \l
-    operator*().
-
-    \sa operator*()
-*/
 QRect QMatrix::mapRect(const QRect &rect) const
 {
     QRect result;
@@ -316,15 +383,26 @@ QRect QMatrix::mapRect(const QRect &rect) const
 }
 
 /*!
-    Returns the transformed rectangle \a rect.
+    \fn QRectF QMatrix::mapRect(const QRectF &rectangle) const
 
-    The bounding rectangle is returned if rotation or shearing has
-    been specified.
+    Creates and returns a QRectF object that is a copy of the given \a
+    rectangle, mapped into the coordinate system defined by this
+    matrix.
 
-    If you need to know the exact region \a rect maps to use \l
-    operator*().
+    The rectangle's coordinates are transformed using the following
+    formulas:
 
-    \sa operator*()
+    \code
+        x' = m11*x + m21*y + dx
+        y' = m22*y + m12*x + dy
+    \endcode
+
+    If rotation or shearing has been specified, this function returns
+    the \e bounding rectangle. To retrieve the exact region the given
+    \a rectangle maps to, use the mapToPolygon() function instead.
+
+    \sa mapToPolygon(), {QMatrix#Basic Matrix Operations}{Basic Matrix
+    Operations}
 */
 QRectF QMatrix::mapRect(const QRectF &rect) const
 {
@@ -371,25 +449,26 @@ QRectF QMatrix::mapRect(const QRectF &rect) const
     return result;
 }
 
-
 /*!
-    \fn QPoint operator*(const QPoint &p, const QMatrix &m)
-
-    \relates QMatrix
-
-    This is the same as \a{m}.mapRect(\a{p}).
-*/
-
-/*!
+    \fn QRect QMatrix::mapRect(const QRect &rectangle) const
     \overload
 
-    Transforms \a p to using these formulas:
-
-    \code
-        retx = m11*px + m21*py + dx  (rounded to the nearest integer)
-        rety = m22*py + m12*px + dy  (rounded to the nearest integer)
-    \endcode
+    Creates and returns a QRect object that is a copy of the given \a
+    rectangle, mapped into the coordinate system defined by this
+    matrix. Note that the transformed coordinates are rounded to the
+    nearest integer.
 */
+
+
+/*!
+    \fn QPoint operator*(const QPoint &point, const QMatrix &matrix)
+    \relates QMatrix
+
+    This is the same as \a{matrix}.map(\a{point}).
+
+    \sa QMatrix::map()
+*/
+
 QPoint QMatrix::map(const QPoint &p) const
 {
     qreal fx = p.x();
@@ -399,24 +478,20 @@ QPoint QMatrix::map(const QPoint &p) const
 }
 
 /*!
-  \fn QPointF operator*(const QPointF &p, const QMatrix &m)
+    \fn QPointF operator*(const QPointF &point, const QMatrix &matrix)
+    \relates QMatrix
 
-  \relates QMatrix
+    Same as \a{matrix}.map(\a{point}).
 
-  Same as \a{m}.map(\a{p}).
-
-  \sa QMatrix::map()
+    \sa QMatrix::map()
 */
 
 /*!
     \overload
 
-    Transforms \a point using these formulas:
-
-    \code
-        retx = m11*px + m21*py + dx
-        rety = m22*py + m12*px + dy
-    \endcode
+    Creates and returns a QPointF object that is a copy of the given
+    \a point, mapped into the coordinate system defined by this
+    matrix.
 */
 QPointF QMatrix::map(const QPointF &point) const
 {
@@ -426,14 +501,38 @@ QPointF QMatrix::map(const QPointF &point) const
 }
 
 /*!
+    \fn QPoint QMatrix::map(const QPoint &point) const
     \overload
 
-    Transforms both ends of \a line using these formulas:
+    Creates and returns a QPoint object that is a copy of the given \a
+    point, mapped into the coordinate system defined by this
+    matrix. Note that the transformed coordinates are rounded to the
+    nearest integer.
+*/
 
-    \code
-        retx = m11 * px + m21 * py + dx
-        rety = m22 * py + m12 * px + dy
-    \endcode
+/*!
+    \fn QLineF operator*(const QLineF &line, const QMatrix &matrix)
+    \relates QMatrix
+
+    This is the same as \a{matrix}.map(\a{line}).
+
+    \sa QMatrix::map()
+*/
+
+/*!
+    \fn QLine operator*(const QLine &line, const QMatrix &matrix)
+    \relates QMatrix
+
+    This is the same as \a{matrix}.map(\a{line}).
+
+    \sa QMatrix::map()
+*/
+
+/*!
+    \overload
+
+    Creates and returns a QLineF object that is a copy of the given \a
+    line, mapped into the coordinate system defined by this matrix.
 */
 QLineF QMatrix::map(const QLineF &line) const
 {
@@ -443,12 +542,10 @@ QLineF QMatrix::map(const QLineF &line) const
 /*!
     \overload
 
-    Transforms both ends of \a line using these formulas:
-
-    \code
-        retx = m11 * px + m21 * py + dx (rounded to the nearest integer)
-        rety = m22 * py + m12 * px + dy (rounded to the nearest integer)
-    \endcode
+    Creates and returns a QLine object that is a copy of the given \a
+    line, mapped into the coordinate system defined by this matrix.
+    Note that the transformed coordinates are rounded to the nearest
+    integer.
 */
 QLine QMatrix::map(const QLine &line) const
 {
@@ -456,20 +553,23 @@ QLine QMatrix::map(const QLine &line) const
 }
 
 /*!
-    \fn QPolygon operator*(const QPolygon &a, const QMatrix &m)
-
+    \fn QPolygonF operator *(const QPolygonF &polygon, const QMatrix &matrix)
     \relates QMatrix
 
-    This is the same as \a{m}.mapRect(\a{a}).
+    This is the same as \a{matrix}.map(\a{polygon}).
 
-    \sa QMatrix::mapRect()
+    \sa QMatrix::map()
 */
 
 /*!
-    \overload
+    \fn QPolygon operator*(const QPolygon &polygon, const QMatrix &matrix)
+    \relates QMatrix
 
-    Returns the point array \a a transformed by calling map for each point.
+    This is the same as \a{matrix}.map(\a{polygon}).
+
+    \sa QMatrix::map()
 */
+
 QPolygon QMatrix::map(const QPolygon &a) const
 {
     int size = a.size();
@@ -529,9 +629,12 @@ QPolygon QMatrix::map(const QPolygon &a) const
 }
 
 /*!
+    \fn QPolygonF QMatrix::map(const QPolygonF &polygon) const
     \overload
 
-    Returns the point array \a a transformed by calling map for each point.
+    Creates and returns a QPolygonF object that is a copy of the given
+    \a polygon, mapped into the coordinate system defined by this
+    matrix.
 */
 QPolygonF QMatrix::map(const QPolygonF &a) const
 {
@@ -547,21 +650,32 @@ QPolygonF QMatrix::map(const QPolygonF &a) const
 }
 
 /*!
-    \fn QRegion operator*(const QRegion &r, const QMatrix &m)
+    \fn QPolygon QMatrix::map(const QPolygon &polygon) const
+    \overload
 
-    \relates QMatrix
-
-    This is the same as \a{m}.mapRect(\a{r}).
-
-    \sa QMatrix::mapRect()
+    Creates and returns a QPolygon object that is a copy of the given
+    \a polygon, mapped into the coordinate system defined by this
+    matrix. Note that the transformed coordinates are rounded to the
+    nearest integer.
 */
 
 /*!
+    \fn QRegion operator*(const QRegion &region, const QMatrix &matrix)
+    \relates QMatrix
+
+    This is the same as \a{matrix}.map(\a{region}).
+
+    \sa QMatrix::map()
+*/
+
+/*!
+    \fn QRegion QMatrix::map(const QRegion &region) const
     \overload
 
-    Transforms the region \a r.
+    Creates and returns a QRegion object that is a copy of the given
+    \a region, mapped into the coordinate system defined by this matrix.
 
-    Calling this method can be rather expensive, if rotations or
+    Calling this method can be rather expensive if rotations or
     shearing are used.
 */
 QRegion QMatrix::map(const QRegion &r) const
@@ -581,9 +695,20 @@ QRegion QMatrix::map(const QRegion &r) const
 }
 
 /*!
+    \fn QPainterPath operator *(const QPainterPath &path, const QMatrix &matrix)
+    \relates QMatrix
+
+    This is the same as \a{matrix}.map(\a{path}).
+
+    \sa QMatrix::map()
+*/
+
+/*!
     \overload
 
-    Transforms the painter path \a path.
+    Creates and returns a QPainterPath object that is a copy of the
+    given \a path, mapped into the coordinate system defined by this
+    matrix.
 */
 QPainterPath QMatrix::map(const QPainterPath &path) const
 {
@@ -620,19 +745,13 @@ QPainterPath QMatrix::map(const QPainterPath &path) const
 }
 
 /*!
-    \fn QRegion QMatrix::mapToRegion(const QRect &rect) const
+    \fn QRegion QMatrix::mapToRegion(const QRect &rectangle) const
 
-    Returns the transformed rectangle \a rect.
+    Returns the transformed rectangle \a rectangle as a QRegion
+    object. A rectangle which has been rotated or sheared may result
+    in a non-rectangular region being returned.
 
-    A rectangle which has been rotated or sheared may result in a
-    non-rectangular region being returned.
-
-    Calling this method can be expensive, if rotations or shearing are
-    used. If you just need to know the bounding rectangle of the
-    returned region, use mapRect() which is a lot faster than this
-    function.
-
-    \sa QMatrix::mapRect()
+    Use the mapToPolygon() or map() function instead.
 */
 #ifdef QT3_SUPPORT
 QRegion QMatrix::mapToRegion(const QRect &rect) const
@@ -662,12 +781,27 @@ QRegion QMatrix::mapToRegion(const QRect &rect) const
 }
 #endif
 /*!
-    Returns the transformed rectangle \a rect as a polygon.
+    \fn QPolygon QMatrix::mapToPolygon(const QRect &rectangle) const
 
-    Polygons and rectangles behave slightly differently
-    when transformed (due to integer rounding), so
-    \c{matrix.map(QPolygon(rect))} is not always the same as
-    \c{matrix.mapToPolygon(rect)}.
+    Creates and returns a QPolygon representation of the given \a
+    rectangle, mapped into the coordinate system defined by this
+    matrix.
+
+    The rectangle's coordinates are transformed using the following
+    formulas:
+
+    \code
+        x' = m11*x + m21*y + dx
+        y' = m22*y + m12*x + dy
+    \endcode
+
+    Polygons and rectangles behave slightly differently when
+    transformed (due to integer rounding), so
+    \c{matrix.map(QPolygon(rectangle))} is not always the same as
+    \c{matrix.mapToPolygon(rectangle)}.
+
+    \sa mapRect(), {QMatrix#Basic Matrix Operations}{Basic Matrix
+    Operations}
 */
 QPolygon QMatrix::mapToPolygon(const QRect &rect) const
 {
@@ -717,12 +851,12 @@ QPolygon QMatrix::mapToPolygon(const QRect &rect) const
 }
 
 /*!
-    Resets the matrix to an identity matrix.
+    Resets the matrix to an identity matrix, i.e. all elements are set
+    to zero, except \c m11 and \c m22 (specifying the scale) which are
+    set to 1.
 
-    All elements are set to zero, except \e m11 and \e m22 (scaling)
-    which are set to 1.
-
-    \sa isIdentity()
+    \sa QMatrix(), isIdentity(), {QMatrix#Basic Matrix
+    Operations}{Basic Matrix Operations}
 */
 
 void QMatrix::reset()
@@ -732,20 +866,19 @@ void QMatrix::reset()
 }
 
 /*!
-  \fn bool QMatrix::isIdentity() const
+    \fn bool QMatrix::isIdentity() const
 
-    Returns true if the matrix is the identity matrix; otherwise returns false.
+    Returns true if the matrix is the identity matrix, otherwise
+    returns false.
 
     \sa reset()
 */
 
 /*!
     Moves the coordinate system \a dx along the x axis and \a dy along
-    the y axis.
+    the y axis, and returns a reference to the matrix.
 
-    Returns a reference to the matrix.
-
-    \sa scale(), shear(), rotate()
+    \sa setMatrix()
 */
 
 QMatrix &QMatrix::translate(qreal dx, qreal dy)
@@ -756,12 +889,12 @@ QMatrix &QMatrix::translate(qreal dx, qreal dy)
 }
 
 /*!
-    Scales the coordinate system unit by \a sx horizontally and \a sy
-    vertically.
+    \fn QMatrix &QMatrix::scale(qreal sx, qreal sy)
 
-    Returns a reference to the matrix.
+    Scales the coordinate system by \a sx horizontally and \a sy
+    vertically, and returns a reference to the matrix.
 
-    \sa translate(), shear(), rotate()
+    \sa setMatrix()
 */
 
 QMatrix &QMatrix::scale(qreal sx, qreal sy)
@@ -775,11 +908,9 @@ QMatrix &QMatrix::scale(qreal sx, qreal sy)
 
 /*!
     Shears the coordinate system by \a sh horizontally and \a sv
-    vertically.
+    vertically, and returns a reference to the matrix.
 
-    Returns a reference to the matrix.
-
-    \sa translate(), scale(), rotate()
+    \sa setMatrix()
 */
 
 QMatrix &QMatrix::shear(qreal sh, qreal sv)
@@ -798,7 +929,10 @@ QMatrix &QMatrix::shear(qreal sh, qreal sv)
 const qreal deg2rad = qreal(0.017453292519943295769);        // pi/180
 
 /*!
-    Rotates the coordinate system \a a degrees counterclockwise.
+    \fn QMatrix &QMatrix::rotate(qreal degrees)
+
+    Rotates the coordinate system the given \a degrees
+    counterclockwise.
 
     Note that if you apply a QMatrix to a point defined in widget
     coordinates, the direction of the rotation will be clockwise
@@ -806,7 +940,7 @@ const qreal deg2rad = qreal(0.017453292519943295769);        // pi/180
 
     Returns a reference to the matrix.
 
-    \sa translate(), scale(), shear()
+    \sa setMatrix()
 */
 
 QMatrix &QMatrix::rotate(qreal a)
@@ -836,7 +970,7 @@ QMatrix &QMatrix::rotate(qreal a)
 /*!
     \fn bool QMatrix::isInvertible() const
 
-    Returns true if the matrix is invertible; otherwise returns false.
+    Returns true if the matrix is invertible, otherwise returns false.
 
     \sa inverted()
 */
@@ -850,18 +984,18 @@ QMatrix &QMatrix::rotate(qreal a)
 /*!
     \fn QMatrix QMatrix::invert(bool *invertible) const
 
-    Call inverted(\a invertible) instead.
+    Returns an inverted copy of this matrix.
+
+    Use the inverted() function instead.
 */
 
 /*!
-    Returns the inverted matrix.
+    Returns an inverted copy of this matrix.
 
-    If the matrix is singular (not invertible), the identity matrix is
-    returned.
-
-    If \a invertible is not 0: the value of \c{*}\a{invertible} is set
-    to true if the matrix is invertible; otherwise \c{*}\a{invertible}
-    is set to false.
+    If the matrix is singular (not invertible), the returned matrix is
+    the identity matrix. If \a invertible is valid (i.e. not 0), its
+    value is set to true if the matrix is invertible, otherwise it is
+    set to false.
 
     \sa isInvertible()
 */
@@ -889,7 +1023,10 @@ QMatrix QMatrix::inverted(bool *invertible) const
 
 
 /*!
-    Returns true if this matrix is equal to \a m; otherwise returns false.
+    \fn bool QMatrix::operator==(const QMatrix &matrix) const
+
+    Returns true if this matrix is equal to the given \a matrix,
+    otherwise returns false.
 */
 
 bool QMatrix::operator==(const QMatrix &m) const
@@ -903,7 +1040,10 @@ bool QMatrix::operator==(const QMatrix &m) const
 }
 
 /*!
-    Returns true if this matrix is not equal to \a m; otherwise returns false.
+    \fn bool QMatrix::operator!=(const QMatrix &matrix) const
+
+    Returns true if this matrix is not equal to the given \a matrix,
+    otherwise returns false.
 */
 
 bool QMatrix::operator!=(const QMatrix &m) const
@@ -917,7 +1057,11 @@ bool QMatrix::operator!=(const QMatrix &m) const
 }
 
 /*!
-    Returns the result of multiplying this matrix by matrix \a m.
+    \fn QMatrix &QMatrix::operator *=(const QMatrix &matrix)
+    \overload
+
+    Returns the result of multiplying this matrix by the given \a
+    matrix.
 */
 
 QMatrix &QMatrix::operator *=(const QMatrix &m)
@@ -937,9 +1081,10 @@ QMatrix &QMatrix::operator *=(const QMatrix &m)
 }
 
 /*!
-    \overload
+    \fn QMatrix QMatrix::operator *(const QMatrix &matrix) const
 
-    Returns the product of \e this * \a m.
+    Returns the result of multiplying this matrix by the given \a
+    matrix.
 
     Note that matrix multiplication is not commutative, i.e. a*b !=
     b*a.
@@ -953,7 +1098,7 @@ QMatrix QMatrix::operator *(const QMatrix &m) const
 }
 
 /*!
-    Assigns matrix \a matrix's values to this matrix.
+    Assigns the given \a matrix's values to this matrix.
 */
 QMatrix &QMatrix::operator=(const QMatrix &matrix)
 {
@@ -977,12 +1122,13 @@ Q_GUI_EXPORT QPainterPath operator *(const QPainterPath &p, const QMatrix &m)
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QMatrix &matrix)
     \relates QMatrix
 
-    Writes the matrix \a m to the stream \a s and returns a reference
-    to the stream.
+    Writes the given \a matrix to the given \a stream and returns a
+    reference to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator<<(QDataStream &s, const QMatrix &m)
@@ -1002,12 +1148,13 @@ QDataStream &operator<<(QDataStream &s, const QMatrix &m)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QMatrix &matrix)
     \relates QMatrix
 
-    Reads the matrix \a m from the stream \a s and returns a reference
-    to the stream.
+    Reads the given \a matrix from the given \a stream and returns a
+    reference to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator>>(QDataStream &s, QMatrix &m)
@@ -1048,10 +1195,13 @@ QDebug operator<<(QDebug dbg, const QMatrix &m)
 #endif
 
 /*!
+    \fn QRect QMatrix::map(const QRect &rect) const
     \compat
 
-    \fn QRect QMatrix::map(const QRect &rect) const
+    Creates and returns a QRect object that is a copy of the given
+    rectangle, mapped into the coordinate system defined by this
+    matrix.
 
-    Use mapRect() instead.
+    Use the mapRect() function instead.
 */
 

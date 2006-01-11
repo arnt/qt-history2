@@ -1,45 +1,94 @@
 #include <QtGui>
 #include <cmath>
 
-class MyWidget : public QWidget
+class SimpleTransformation : public QWidget
 {
     void paintEvent(QPaintEvent *);
 };
 
-// PAINT
-void MyWidget::paintEvent(QPaintEvent *)
+void SimpleTransformation::paintEvent(QPaintEvent *)
 {
-    QPainter p;                   // our painter
-    QMatrix m;                    // our transformation matrix
-    m.rotate(22.5);               // rotated coordinate system
-    p.begin(this);                // start painting
-    p.setMatrix(m);               // use rotated coordinate system
-    p.drawText(30,20, "detator"); // draw rotated text at 30,20
-    p.end();                      // painting done
+    QPainter painter(this);
+    painter.setPen(QPen(Qt::blue, 1, Qt::DashLine));
+    painter.drawRect(0, 0, 100, 100);
+
+    painter.rotate(45);
+
+    painter.setFont(QFont("Helvetica", 24));
+    painter.setPen(QPen(Qt::black, 1));
+    painter.drawText(20, 10, "QMatrix");
 }
 
+class CombinedTransformation : public QWidget
+{
+    void paintEvent(QPaintEvent *);
+};
 
-int main()
+void CombinedTransformation::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.setPen(QPen(Qt::blue, 1, Qt::DashLine));
+    painter.drawRect(0, 0, 100, 100);
+
+    QMatrix matrix;
+    matrix.translate(50, 50);
+    matrix.rotate(45);
+    matrix.scale(0.5, 1.0);
+    painter.setMatrix(matrix);
+
+    painter.setFont(QFont("Helvetica", 24));
+    painter.setPen(QPen(Qt::black, 1));
+    painter.drawText(20, 10, "QMatrix");
+}
+
+class BasicOperations : public QWidget
+{
+    void paintEvent(QPaintEvent *);
+};
+
+void BasicOperations::paintEvent(QPaintEvent *)
 {
     double pi = 3.14;
-    {
-        // COMBINE
-        QMatrix m;            // identity matrix
-        m.translate(10, -20); // first translate (10,-20)
-        m.rotate(25);         // then rotate 25 degrees
-        m.scale(1.2, 0.7);    // finally scale it
-    }
-    {
-        // OPERATIONS
-        double a    = pi/180 * 25;         // convert 25 to radians
-        double sina = sin(a);
-        double cosa = cos(a);
-        QMatrix m1(1, 0, 0, 1, 10, -20);   // translation matrix
-        QMatrix m2(cosa, sina,             // rotation matrix
-                    -sina, cosa, 0, 0);
-        QMatrix m3(1.2, 0, 0, 0.7, 0, 0);  // scaling matrix
-        QMatrix m;
-        m = m3 * m2 * m1;                  // combine all transformations
-    }
-    return 0;
+
+    double a    = pi/180 * 45.0;
+    double sina = sin(a);
+    double cosa = cos(a);
+
+    QMatrix translationMatrix(1, 0, 0, 1, 50.0, 50.0);
+    QMatrix rotationMatrix(cosa, sina, -sina, cosa, 0, 0);
+    QMatrix scalingMatrix(0.5, 0, 0, 1.0, 0, 0);
+
+    QMatrix matrix;
+    matrix =  scalingMatrix * rotationMatrix * translationMatrix;
+
+    QPainter painter(this);
+    painter.setPen(QPen(Qt::blue, 1, Qt::DashLine));
+    painter.drawRect(0, 0, 100, 100);
+
+    painter.setMatrix(matrix);
+
+    painter.setFont(QFont("Helvetica", 24));
+    painter.setPen(QPen(Qt::black, 1));
+    painter.drawText(20, 10, "QMatrix");
+}
+
+int main(int argc, char **argv)
+{
+    QApplication app(argc, argv);
+
+    QWidget widget;
+
+    SimpleTransformation *simpleWidget = new SimpleTransformation;
+    CombinedTransformation *combinedWidget = new CombinedTransformation;
+    BasicOperations *basicWidget = new BasicOperations;
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(simpleWidget);
+    layout->addWidget(combinedWidget);
+    layout->addWidget(basicWidget);
+    widget.setLayout(layout);
+
+    widget.show();
+    widget.resize(130, 350);
+    return app.exec();
 }
