@@ -150,7 +150,7 @@
     \printuntil }
     \endtable
 
-    \sa QPainter, {The Coordinate System}, {demo/affine}{Affine
+    \sa QPainter, {The Coordinate System}, {demos/affine}{Affine
     Transformations Demo}
 */
 
