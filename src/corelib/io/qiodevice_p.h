@@ -51,6 +51,7 @@ public:
     QRingBuffer buffer;
     qint64 pos;
     qint64 devicePos;
+    bool baseReadLineDataCalled;
 
 #ifdef QT_NO_QOBJECT
     QIODevice *q_ptr;

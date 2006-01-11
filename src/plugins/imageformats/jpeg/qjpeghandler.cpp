@@ -138,7 +138,8 @@ static
 void qt_term_source(j_decompress_ptr cinfo)
 {
     my_jpeg_source_mgr* src = (my_jpeg_source_mgr*)cinfo->src;
-    src->device->seek(src->device->pos() - src->bytes_in_buffer);
+    if (!src->device->isSequential())
+        src->device->seek(src->device->pos() - src->bytes_in_buffer);
 }
 
 #if defined(Q_C_CALLBACKS)

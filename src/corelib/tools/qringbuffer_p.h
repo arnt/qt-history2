@@ -240,7 +240,9 @@ public:
 
     inline int readLine(char *data, int maxLength) {
         int index = indexOf('\n');
-        if (index == -1 || maxLength <= 0)
+        if (index == -1)
+            return read(data, maxLength);
+        if (maxLength <= 0)
             return -1;
 
         int readSoFar = 0;

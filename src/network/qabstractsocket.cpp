@@ -1558,7 +1558,7 @@ bool QAbstractSocket::isSequential() const
  */
 bool QAbstractSocket::atEnd() const
 {
-    return !isOpen() || d_func()->readBuffer.isEmpty();
+    return QIODevice::atEnd() && (!isOpen() || d_func()->readBuffer.isEmpty());
 }
 
 /*!
