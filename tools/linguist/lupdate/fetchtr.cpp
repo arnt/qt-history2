@@ -58,7 +58,7 @@ enum { Tok_Eof, Tok_class, Tok_namespace, Tok_return, Tok_tr,
        Tok_trUtf8, Tok_translate, Tok_Q_OBJECT, Tok_Ident,
        Tok_Comment, Tok_String, Tok_Arrow, Tok_Colon,
        Tok_Gulbrandsen, Tok_LeftBrace, Tok_RightBrace, Tok_LeftParen,
-       Tok_RightParen, Tok_Comma, Tok_Semicolon };
+       Tok_RightParen, Tok_Comma, Tok_Semicolon, Tok_Integer };
 
 /*
   The tokenizer maintains the following global variables. The names
@@ -72,6 +72,7 @@ static char yyComment[65536];
 static size_t yyCommentLen;
 static char yyString[65536];
 static size_t yyStringLen;
+static qlonglong yyInteger;
 static QStack<int> yySavedBraceDepth;
 static QStack<int> yySavedParenDepth;
 static int yyBraceDepth;
@@ -460,6 +461,34 @@ static int getToken()
             case ';':
                 yyCh = getChar();
                 return Tok_Semicolon;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                {
+                    QByteArray ba;
+                    ba+=yyCh;
+                    yyCh = getChar();
+                    bool hex = yyCh == 'x';
+                    if ( hex ) {
+                        ba+=yyCh;
+                        yyCh = getChar();
+                    }
+                    while ( (hex ? isxdigit(yyCh) : isdigit(yyCh)) ) {
+                        ba+=yyCh;
+                        yyCh = getChar();
+                    }
+                    bool ok;
+                    yyInteger = ba.toLongLong(&ok);
+                    if (ok) return Tok_Integer;
+                    break;
+                } 
             default:
                 yyCh = getChar();
             }
@@ -513,6 +542,24 @@ static bool matchEncoding( bool *utf8 )
     } else {
         return false;
     }
+}
+
+static bool matchInteger( qlonglong *number)
+{
+    bool matches = (yyTok == Tok_Integer);
+    if (matches) {
+        yyTok = getToken();
+        *number = yyInteger;
+    }
+    return matches;
+}
+
+static bool matchStringOrNull(QByteArray *s)
+{
+    bool matches = matchString(s);
+    qlonglong num = 0;
+    if (!matches) matches = matchInteger(&num);
+    return matches && num == 0;
 }
 
 static void parse( MetaTranslator *tor, const char *initialContext, const char *defaultContext )
@@ -579,7 +626,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
             if ( match(Tok_LeftParen) && matchString(&text) ) {
                 com = "";
                 if ( match(Tok_RightParen) || (match(Tok_Comma) &&
-                        matchString(&com) && match(Tok_RightParen)) ) {
+                        matchStringOrNull(&com) && match(Tok_RightParen)) ) {
                     if ( prefix.isNull() ) {
                         context = functionContext;
                         if ( !namespaces.isEmpty() )
@@ -613,10 +660,10 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                  matchString(&context) &&
                  match(Tok_Comma) &&
                  matchString(&text) ) {
-                com = "";
-                if ( match(Tok_RightParen) ||
+                 com = "";
+                 if ( match(Tok_RightParen) ||
                      (match(Tok_Comma) &&
-                      matchString(&com) &&
+                      matchStringOrNull(&com) &&
                       (match(Tok_RightParen) ||
                        match(Tok_Comma) &&
                        matchEncoding(&utf8) &&
