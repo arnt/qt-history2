@@ -1966,7 +1966,7 @@ void Q3IconViewItem::paintItem(QPainter *p, const QColorGroup &cg)
             p2.fillRect(pix->rect(), Qt::white);
             p2.drawPixmap(0, 0, *pix);
             p2.end();
-            buffer->setMask(mask);
+
             p2.begin(buffer);
 #if defined(Q_WS_X11)
             p2.fillRect(pix->rect(), QBrush(cg.highlight(), Qt::Dense4Pattern));
@@ -1979,6 +1979,8 @@ void Q3IconViewItem::paintItem(QPainter *p, const QColorGroup &cg)
             }
 #endif
             p2.end();
+            buffer->setMask(mask);
+
             QRect cr = pix->rect();
             if (textOnBottom)
                 p->drawPixmap(x() + (width() - dim) / 2, y(), *buffer, 0, 0,
