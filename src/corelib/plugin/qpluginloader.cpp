@@ -145,7 +145,7 @@
 
     \code
         TEMPLATE      = app
-        QTPLUGIN     += jpeg gif mng    # image formats
+        QTPLUGIN     += qjpeg qgif qmng    # image formats
         QTPLUGIN     += cn tw           # codecs
     \endcode
 
@@ -155,12 +155,19 @@
     \header
     \i Plugin name  \i Type         \i Description         \i QTPLUGIN entry
     \row
-    \i \c qjpeg     \i Image format \i The JPEG image format \i jpeg
+    \i \c qjpeg     \i Image format \i The JPEG image format \i qjpeg
     \row
-    \i \c qgif      \i Image format \i The GIF image format \i gif
+    \i \c qgif      \i Image format \i The GIF image format \i qgif
     \row
-    \i \c qmng      \i Image format \i The MNG image format \i mng
+    \i \c qmng      \i Image format \i The MNG image format \i qmng
     \endtable
+
+    You should also ensure that the linker will use the correct linker
+    path by adding:
+    \code
+        QMAKE_LFLAGS += -L$$[QT_INSTALL_PLUGINS]/imageformats
+    \endcode
+    To your .pro file.
 
     \sa {How to Create Qt Plugins}, {Using qmake}
 */
