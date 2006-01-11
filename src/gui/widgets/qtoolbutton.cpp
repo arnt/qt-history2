@@ -239,6 +239,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     opt.init(q);
     bool down = q->isDown();
     bool checked = q->isChecked();
+    bool forceNoText = false;
 
 #ifndef QT_NO_TOOLBAR
     if (q->parentWidget()) {
@@ -246,6 +247,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         if (q->parentWidget()->inherits("Q3ToolBar")) {
             int iconSize = q->style()->pixelMetric(QStyle::PM_ToolBarIconSize, &opt, q);
             opt.iconSize = QSize(iconSize, iconSize);
+            forceNoText = toolButtonStyle == Qt::ToolButtonIconOnly;
         } else
 #endif
             if (QToolBar *toolBar = qobject_cast<QToolBar *>(q->parentWidget())) {
@@ -256,7 +258,8 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     }
 #endif // QT_NO_TOOLBAR
 
-    opt.text = text;
+    if (!forceNoText)
+        opt.text = text;
     opt.icon = icon;
     opt.arrowType = arrowType;
     if (down)
@@ -290,7 +293,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     if (popupMode == QToolButton::DelayedPopup)
         opt.features |= QStyleOptionToolButton::PopupDelay;
     opt.toolButtonStyle = toolButtonStyle;
-    if (icon.isNull() && arrowType == Qt::NoArrow) {
+    if (icon.isNull() && arrowType == Qt::NoArrow && !forceNoText) {
         if (!text.isEmpty())
             opt.toolButtonStyle = Qt::ToolButtonTextOnly;
         else if (opt.toolButtonStyle != Qt::ToolButtonTextOnly)

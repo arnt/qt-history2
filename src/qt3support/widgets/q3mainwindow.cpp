@@ -1589,6 +1589,7 @@ void Q3MainWindow::setUsesTextLabel(bool enable)
     QObjectList l = queryList("QLayout");
     for (int i = 0; i < l.size(); ++i)
             static_cast<QLayout *>(l.at(i))->activate();
+    triggerLayout(false);
 }
 
 
