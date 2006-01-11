@@ -1640,6 +1640,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 result = false;
                 break;
             case SC_MAXIMIZE:
+                if(widget->isWindow())
+                    widget->topData()->normalGeometry = widget->geometry();
             case SC_RESTORE:
                 window_state_change = true;
                 if (widget->isMinimized()) {
