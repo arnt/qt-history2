@@ -2189,7 +2189,8 @@ void QPixmapData::convertToARGB32()
     XFreePixmap(X11->display, hd);
     if (x11_mask) {
         XFreePixmap(X11->display, x11_mask);
-        XRenderFreePicture(X11->display, mask_picture);
+        if (mask_picture)
+            XRenderFreePicture(X11->display, mask_picture);
         x11_mask = 0;
         mask_picture = 0;
     }
