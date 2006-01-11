@@ -2822,7 +2822,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             QApplicationPrivate::dispatchEnterLeave(widget, 0);
 
         QApplicationPrivate::dispatchEnterLeave(enter, widget);
-        if (enter) {
+        if (enter && QApplicationPrivate::tryModalHelper(enter, 0)) {
             curWin = enter->winId();
             static_cast<QETWidget *>(enter)->translateMouseEvent(&ev); //we don't get MotionNotify, emulate it
         } else {
