@@ -106,6 +106,8 @@ public:
     void catchDeadChildren();
     void add(int pid, QProcess *process);
     void remove(QProcess *process);
+    void lock();
+    void unlock();
 
 private:
     QMutex mutex;
@@ -223,8 +225,6 @@ static int qt_qprocess_nextId()
 
 void QProcessManager::add(int pid, QProcess *process)
 {
-    QMutexLocker locker(&mutex);
-
 #if defined (QPROCESS_DEBUG)
     qDebug() << "QProcessManager::add() adding pid" << pid << "process" << process;
 #endif
@@ -256,6 +256,16 @@ void QProcessManager::remove(QProcess *process)
     
     children.remove(serial);
     delete info;
+}
+
+void QProcessManager::lock()
+{
+    mutex.lock();
+}
+
+void QProcessManager::unlock()
+{
+    mutex.unlock();
 }
 
 static void qt_create_pipe(int *pipe)
@@ -346,28 +356,14 @@ void QProcessPrivate::startProcess()
     processState = QProcess::Starting;
     emit q->stateChanged(processState);
 
-    // Create a pipe to stall the child process until its pid has been
-    // registered by QProcessManager.
-    int waitForParentPipe[2] = {-1, -1};
-    qt_create_pipe(waitForParentPipe);
-
     QByteArray encodedProg = QFile::encodeName(program);
-
+    processManager()->lock();
     if ((pid = (Q_PID) fork()) == 0) {
-        char c;
-        read(waitForParentPipe[0], &c, 1);
-        close(waitForParentPipe[0]);
-        close(waitForParentPipe[1]);
-
         execChild(encodedProg);
         ::_exit(-1);
     }
-
     processManager()->add(pid, q);
-    write(waitForParentPipe[1], "", 1);
-
-    ::close(waitForParentPipe[1]);
-    ::close(waitForParentPipe[0]);
+    processManager()->unlock();
 
     // parent
     ::close(childStartedPipe[1]);
