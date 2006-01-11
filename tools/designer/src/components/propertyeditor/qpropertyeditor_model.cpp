@@ -151,7 +151,7 @@ QString QPropertyEditorModel::columnText(int col) const
 
 void QPropertyEditorModel::refreshHelper(IProperty *property)
 {
-    Q_ASSERT(property)
+    Q_ASSERT(property);
     QModelIndex index0 = indexOf(property, 0);
     QModelIndex index1 = indexOf(property, 1);
     emit dataChanged(index0, index1);
@@ -159,7 +159,7 @@ void QPropertyEditorModel::refreshHelper(IProperty *property)
 
 void QPropertyEditorModel::refresh(IProperty *property)
 {
-    Q_ASSERT(property)
+    Q_ASSERT(property);
 
     refreshHelper(property);
 
@@ -211,7 +211,7 @@ QVariant QPropertyEditorModel::headerData(int section, Qt::Orientation orientati
 
 Qt::ItemFlags QPropertyEditorModel::flags(const QModelIndex &index) const
 {
-    Q_ASSERT(index.isValid())
+    Q_ASSERT(index.isValid());
 
     Qt::ItemFlags foo = QAbstractItemModel::flags(index);
     if (isEditable(index))
