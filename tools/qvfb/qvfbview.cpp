@@ -254,15 +254,17 @@ void QVFbView::refreshDisplay(const QRect &r)
 
 QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 {
+    static QByteArray buffer;
+
+    const int requiredSize = r.width() * r.height() * 4;
+
     switch ( viewdepth ) {
-      case 12:
-      case 16: {
-	static unsigned char *imgData = 0;
-	if ( !imgData ) {
-	    int bpl = ((mView->width()*32+31)/32)*4;
-	    imgData = new unsigned char [ bpl * mView->height() ];
-	}
-	QImage img( imgData, r.width(), r.height(), 32, 0, 0, QImage::IgnoreEndian );
+    case 12:
+    case 16: {
+        if (requiredSize > buffer.size())
+            buffer.resize(requiredSize);
+        uchar *b = reinterpret_cast<uchar*>(buffer.data());
+	QImage img(b, r.width(), r.height(), 32, 0, 0, QImage::IgnoreEndian);
 	const int rsh = viewdepth == 12 ? 12 : 11;
 	const int gsh = viewdepth == 12 ? 7 : 5;
 	const int bsh = viewdepth == 12 ? 1 : 0;
@@ -281,15 +283,13 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 	}
 	leading = 0;
 	return img;
-      }
-      case 4: {
-	static unsigned char *imgData = 0;
-	if ( !imgData ) {
-	    int bpl = ((mView->width()*8+31)/32)*4;
-	    imgData = new unsigned char [ bpl * mView->height() ];
-	}
-	QImage img( imgData, r.width(), r.height(), 8, mView->clut(), 16,
-		    QImage::IgnoreEndian );
+    }
+    case 4: {
+        if (requiredSize > buffer.size())
+            buffer.resize(requiredSize);
+        uchar *b = reinterpret_cast<uchar*>(buffer.data());
+	QImage img(b, r.width(), r.height(), 8, mView->clut(), 16,
+                   QImage::IgnoreEndian);
 	for ( int row = 0; row < r.height(); row++ ) {
 	    unsigned char *dptr = img.scanLine( row );
 	    const unsigned char *sptr = mView->data() + (r.y()+row)*mView->linestep();
@@ -309,8 +309,8 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 	}
 	leading = 0;
 	return img;
-      }
-      case 24: {
+    }
+    case 24: {
         static unsigned char *imgData = 0;
         if (!imgData) {
             int bpl = mView->width() *4;
@@ -330,25 +330,25 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
         }
         leading = 0;
         return img;
-      }
-      case 32: {
+    }
+    case 32: {
 	leading = r.x();
 	return QImage( mView->data() + r.y() * mView->linestep(),
-		    mView->width(), r.height(), mView->depth(), 0,
-		    0, QImage::LittleEndian );
-      }
-      case 8: {
+                       mView->width(), r.height(), mView->depth(), 0,
+                       0, QImage::LittleEndian );
+    }
+    case 8: {
 	leading = r.x();
 	return QImage( mView->data() + r.y() * mView->linestep(),
-		    mView->width(), r.height(), mView->depth(), mView->clut(),
-		    256, QImage::LittleEndian );
-      }
-      case 1: {
+                       mView->width(), r.height(), mView->depth(), mView->clut(),
+                       256, QImage::LittleEndian );
+    }
+    case 1: {
 	leading = r.x();
 	return QImage( mView->data() + r.y() * mView->linestep(),
-		    mView->width(), r.height(), mView->depth(), mView->clut(),
-		    0, QImage::LittleEndian );
-      }
+                       mView->width(), r.height(), mView->depth(), mView->clut(),
+                       0, QImage::LittleEndian );
+    }
     }
     return QImage();
 }
