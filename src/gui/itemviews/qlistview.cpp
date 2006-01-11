@@ -419,6 +419,8 @@ void QListView::clearPropertyFlags()
 
 /*!
   Returns true if the \a row is hidden, otherwise returns false.
+
+  \sa setRowHidden
 */
 
 bool QListView::isRowHidden(int row) const
@@ -446,6 +448,9 @@ void QListView::setRowHidden(int row, bool hide)
 */
 QRect QListView::visualRect(const QModelIndex &index) const
 {
+    if (!index.isValid() || isIndexHidden(index))
+        return QRect();
+    
     Q_D(const QListView);
     d->executePostedLayout();
     return d->mapToViewport(rectForIndex(index));
