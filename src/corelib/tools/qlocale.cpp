@@ -359,7 +359,7 @@ static QString winIso639LangName()
     if (!lang_code.isEmpty()) {
         const char *endptr;
         bool ok;
-	QByteArray latin1_lang_code = lang_code.toLatin1();
+        QByteArray latin1_lang_code = lang_code.toLatin1();
         int i = qstrtoull(latin1_lang_code, &endptr, 16, &ok);
         if (ok && *endptr == '\0') {
             switch (i) {
@@ -1074,7 +1074,12 @@ QLocale::QLocale(const QString &name)
                 && uc[2] != QLatin1Char('@'))
             break;
 
-        lang = codeToLanguage(name.mid(0, 2));
+        QString lang_code = name.mid(0, 2);
+        // CLDR has changed the code for Bokmal from "no" to "nb". We want to support
+        // both, but we have no alias mechanism in the database.
+        if (lang_code == QLatin1String("nb"))
+            lang_code = QLatin1String("no");
+        lang = codeToLanguage(lang_code);
         if (lang == C)
             break;
 
