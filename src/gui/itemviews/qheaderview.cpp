@@ -2111,12 +2111,12 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         if (resizeMode == QHeaderView::Interactive) {
             sectionSize = headerSectionSize(i);//sectionSizeAt(i);
         } else { // resizeMode == QHeaderView::Custom
+            int logicalIndex = q->logicalIndex(i);
             QAbstractItemView *parent = ::qobject_cast<QAbstractItemView*>(q->parent());
             if (parent)
                 sectionSize = (orientation == Qt::Horizontal
                                ? parent->sizeHintForColumn(logicalIndex)
                                : parent->sizeHintForRow(logicalIndex));
-            int logicalIndex = q->logicalIndex(i);
             sectionSize = qMax(sectionSize, q->sectionSizeHint(logicalIndex));
         }
         section_sizes.append(sectionSize);
