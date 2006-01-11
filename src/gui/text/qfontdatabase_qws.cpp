@@ -224,6 +224,12 @@ static void setSize(FT_Face face, int pixelSize, int stretch)
         ysize = Y_SIZE(face, best);
     }
     int err = FT_Set_Char_Size (face, xsize, ysize, 0, 0);
+
+    if (err && !(face->face_flags & FT_FACE_FLAG_SCALABLE) && ysize == 0 && face->num_fixed_sizes >= 1) {
+        // work around FT 2.1.10 problem with BDF without PIXEL_SIZE property
+        err = FT_Set_Pixel_Sizes(face, face->available_sizes[0].width, face->available_sizes[0].height);
+    }
+
     if (err) {
         qDebug("FT_Set_Char_Size failed with error %d", err);
         Q_ASSERT(!err);
@@ -267,7 +273,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 
         QFontEngineFT *fe = new QFontEngineFT(request, face);
         fe->face_id.filename = file.toLocal8Bit();
-        fe->face_id.index = 0; 
+        fe->face_id.index = 0;
         return fe;
     } else
 #endif // QT_NO_FREETYPE
