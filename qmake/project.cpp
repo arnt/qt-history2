@@ -1158,32 +1158,33 @@ QMakeProject::read(uchar cmd)
             }
         }
         if(cmd & ReadConf) {             // parse mkspec
+            QString qmakespec = fixEnvVariables(Option::mkfile::qmakespec);
             QStringList mkspec_roots = qmake_mkspec_paths();
-            debug_msg(2, "Looking for mkspec %s in (%s)", Option::mkfile::qmakespec.toLatin1().constData(),
+            debug_msg(2, "Looking for mkspec %s in (%s)", qmakespec.toLatin1().constData(),
                       mkspec_roots.join("::").toLatin1().constData());
-            if(Option::mkfile::qmakespec.isEmpty()) {
+            if(qmakespec.isEmpty()) {
                 for(QStringList::ConstIterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
                     QString mkspec = (*it) + QDir::separator() + "default";
                     QFileInfo default_info(mkspec);
                     if(default_info.exists() && default_info.isSymLink()) {
-                        Option::mkfile::qmakespec = mkspec;
+                        qmakespec = mkspec;
                         break;
                     }
                 }
-                if(Option::mkfile::qmakespec.isEmpty()) {
+                if(qmakespec.isEmpty()) {
                     fprintf(stderr, "QMAKESPEC has not been set, so configuration cannot be deduced.\n");
                     return false;
                 }
             }
 
-            if(QDir::isRelativePath(Option::mkfile::qmakespec) &&
-               !QFile::exists(Option::mkfile::qmakespec+"/qmake.conf")) {
+            if(QDir::isRelativePath(qmakespec) &&
+               !QFile::exists(qmakespec+"/qmake.conf")) {
                 bool found_mkspec = false;
                 for(QStringList::ConstIterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
-                    QString mkspec = (*it) + QDir::separator() + Option::mkfile::qmakespec;
+                    QString mkspec = (*it) + QDir::separator() + qmakespec;
                     if(QFile::exists(mkspec)) {
                         found_mkspec = true;
-                        Option::mkfile::qmakespec = mkspec;
+                        Option::mkfile::qmakespec = qmakespec = mkspec;
                         break;
                     }
                 }
@@ -1195,12 +1196,12 @@ QMakeProject::read(uchar cmd)
             }
 
             // parse qmake configuration
-            while(Option::mkfile::qmakespec.endsWith(QString(QChar(QDir::separator()))))
-                Option::mkfile::qmakespec.truncate(Option::mkfile::qmakespec.length()-1);
-            QString spec = Option::mkfile::qmakespec + QDir::separator() + "qmake.conf";
+            while(qmakespec.endsWith(QString(QChar(QDir::separator()))))
+                qmakespec.truncate(qmakespec.length()-1);
+            QString spec = qmakespec + QDir::separator() + "qmake.conf";
             if(!QFile::exists(spec) &&
-               QFile::exists(Option::mkfile::qmakespec + QDir::separator() + "tmake.conf"))
-                spec = Option::mkfile::qmakespec + QDir::separator() + "tmake.conf";
+               QFile::exists(qmakespec + QDir::separator() + "tmake.conf"))
+                spec = qmakespec + QDir::separator() + "tmake.conf";
             debug_msg(1, "QMAKESPEC conf: reading %s", spec.toLatin1().constData());
             if(!read(spec, base_vars)) {
                 fprintf(stderr, "Failure to read QMAKESPEC conf file %s.\n", spec.toLatin1().constData());
