@@ -1156,6 +1156,8 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
     Sets the \a role data for the item at \a index to \a value.
     Returns true if successful; otherwise returns false.
 
+    The dataChanged() signal should be emited when successful. 
+    
     The base class implementation returns false. This function and
     data() must be reimplemented for editable models.
 
