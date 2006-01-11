@@ -1177,6 +1177,8 @@ QListWidgetItem *QListWidget::currentItem() const
 
 /*!
   Sets the current item to \a item.
+
+  Depending on the current selection mode, the item may also be selected.
 */
 void QListWidget::setCurrentItem(QListWidgetItem *item)
 {
@@ -1187,6 +1189,8 @@ void QListWidget::setCurrentItem(QListWidgetItem *item)
 /*!
   \property QListWidget::currentRow
   \brief the row of the current item.
+
+  Depending on the current selection mode, the row may also be selected.
 */
 
 int QListWidget::currentRow() const

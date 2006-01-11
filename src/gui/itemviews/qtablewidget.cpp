@@ -1765,6 +1765,8 @@ QTableWidgetItem *QTableWidget::currentItem() const
 /*!
     Sets the current item to \a item.
 
+    Depending on the current selection mode, the item may also be selected.
+
     \sa currentItem(), setCurrentCell()
 */
 void QTableWidget::setCurrentItem(QTableWidgetItem *item)
@@ -1778,6 +1780,8 @@ void QTableWidget::setCurrentItem(QTableWidgetItem *item)
 
     Sets the current cell to be the cell at position (\a row, \a
     column).
+
+    Depending on the current selection mode, the cell may also be selected.
 
     \sa setCurrentItem(), currentRow(), currentColumn()
 */
