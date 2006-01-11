@@ -4997,7 +4997,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         break;
 
     case QStyle::PM_MenuDesktopFrameWidth:
-        ret = 15;
+        ret = 5;
         break;
 
     case PM_CheckBoxLabelSpacing:

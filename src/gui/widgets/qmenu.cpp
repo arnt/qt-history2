@@ -1313,18 +1313,18 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
             pos.setX(pos.x()-size.width());
         if (pos.x()+size.width() > screen.right())
             pos.setX(mouse.x()-size.width());
-        if (pos.y()+size.height() > screen.bottom() - (desktopFrame * 2))
-            pos.setY(mouse.y()-size.height());
+        if (pos.y() + size.height() > screen.bottom() - desktopFrame)
+            pos.setY(mouse.y() - (size.height() + desktopFrame));
         if (pos.x() < screen.left())
             pos.setX(mouse.x());
         if (pos.y() < screen.top() + desktopFrame)
             pos.setY(screen.top() + desktopFrame);
     }
-    if (d->scroll && pos.y()+size.height() > screen.height()-(desktopFrame*2)) {
+    if (d->scroll && pos.y()+size.height() > screen.bottom() - desktopFrame) {
         d->scroll->scrollFlags |= uint(QMenuPrivate::QMenuScroller::ScrollDown);
         size.setHeight(screen.bottom()-desktopFrame-pos.y());
     } else {
-        if(pos.y()+size.height() > screen.height())
+        if(pos.y()+size.height() > screen.bottom())
             pos.setY(desktopFrame+screen.top()+(screen.height()-desktopFrame-size.height()));
         else if(pos.y() < screen.top())
             pos.setY(screen.top());
