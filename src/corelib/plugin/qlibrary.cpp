@@ -459,6 +459,9 @@ bool QLibrary::isLibrary(const QString &fileName)
     bool valid = (suffix == "sl");
 #elif defined(Q_OS_UNIX)
     bool valid = (suffix == "so");
+#elif defined(Q_OS_AIX)
+	bool valid = (suffix == "a"
+			|| suffix == "so");
 #else
     bool valid = false;
 #endif
