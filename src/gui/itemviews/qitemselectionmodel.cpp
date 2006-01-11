@@ -838,7 +838,7 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
     for (int column = 0; column < colCount; ++column) {
         for (it = joined.begin(); it != joined.end(); ++it)
             if ((*it).contains(row, column, parent)) {
-                column = (*it).right();
+                column = qMax(column, (*it).right()); 
                 break;
             }
         if (it == joined.end())
@@ -894,7 +894,7 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
     for (int row = 0; row < rowCount; ++row) {
          for (it = joined.begin(); it != joined.end(); ++it) {
              if ((*it).contains(row, column, parent)) {
-                 row = (*it).bottom();
+                 row = qMax(row, (*it).bottom());
                  break;
              }
          }
