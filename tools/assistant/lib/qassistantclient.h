@@ -18,7 +18,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
 
-#include <QtNetwork/QTcpSocket>
+class QTcpSocket;
 
 class QAssistantClient : public QObject
 {
@@ -48,7 +48,7 @@ private Q_SLOTS:
     void socketConnectionClosed();
     void readPort();
     void procError(QProcess::ProcessError err);
-    void socketError(QAbstractSocket::SocketError err);
+    void socketError();
     void readStdError();
 
 private:

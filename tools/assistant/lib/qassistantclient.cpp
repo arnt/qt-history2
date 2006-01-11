@@ -182,7 +182,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
     connect( socket, SIGNAL(disconnected()),
             SLOT(socketConnectionClosed()) );
     connect( socket, SIGNAL(error(QAbstractSocket::SocketError)),
-             SLOT(socketError(QAbstractSocket::SocketError)) );
+             SLOT(socketError()) );
     opened = false;
     proc = new QProcess( this );
     port = 0;
@@ -346,8 +346,9 @@ void QAssistantClient::socketConnectionClosed()
     emit assistantClosed();
 }
 
-void QAssistantClient::socketError(QAbstractSocket::SocketError err)
+void QAssistantClient::socketError()
 {
+    QAbstractSocket::SocketError err = socket->error();
     if (err == QTcpSocket::ConnectionRefusedError)
         emit error( tr( "Could not connect to Assistant: Connection refused" ) );
     else if (err == QTcpSocket::HostNotFoundError)
