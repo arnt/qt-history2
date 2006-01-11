@@ -281,7 +281,7 @@ Type Moc::parseType()
             type.referenceType = Type::Pointer;
     }
     // transform stupid things like 'const void' or 'void const' into 'void'
-    if (isVoid) {
+    if (isVoid && type.referenceType == Type::NoReference) {
         type.name = "void";
     }
     return type;
