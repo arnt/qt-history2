@@ -100,10 +100,11 @@ class QWorkspaceTitleBarPrivate : public QWidgetPrivate
 public:
     QWorkspaceTitleBarPrivate()
         :
+        lastControl(QStyle::SC_None), 
 #ifndef QT_NO_TOOLTIP
         toolTip(0),
 #endif
-        lastControl(QStyle::SC_None), act(0), window(0), movable(1), pressed(0), autoraise(0), inevent(0)
+        act(0), window(0), movable(1), pressed(0), autoraise(0), inevent(0)
     {
     }
 
