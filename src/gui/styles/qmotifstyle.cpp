@@ -905,6 +905,13 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 p->setBrushOrigin(p->brushOrigin());
                 drawPrimitive(PE_PanelButtonCommand, &newOpt, p, widget);
             }
+            if (btn->features & QStyleOptionButton::HasMenu) {
+                int mbi = pixelMetric(PM_MenuButtonIndicator, btn, widget);
+                QRect ir = btn->rect;
+                QStyleOptionButton newBtn = *btn;
+                newBtn.rect = QRect(ir.right() - mbi - 3, ir.y() + 4,  mbi, ir.height() - 8);
+                drawPrimitive(PE_IndicatorArrowDown, &newBtn, p, widget);
+            }
             break;
         }
 
@@ -1788,6 +1795,12 @@ int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
         ret = 2; // really ugly, but Motif
         break;
 
+    case PM_MenuButtonIndicator:
+        if (!opt)
+            ret = 12;
+        else
+            ret = qMax(12, (opt->rect.height() - 4) / 3);
+        break;
     default:
         ret =  QCommonStyle::pixelMetric(pm, opt, widget);
         break;

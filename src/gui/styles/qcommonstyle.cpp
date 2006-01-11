@@ -3107,10 +3107,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_MenuButtonIndicator:
-        if (!opt)
-            ret = 12;
-        else
-            ret = qMax(12, (opt->rect.height() - 4) / 3);
+        ret = 12;
         break;
 
     case PM_ButtonShiftHorizontal:
