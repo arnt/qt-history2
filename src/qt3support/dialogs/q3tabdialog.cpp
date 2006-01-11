@@ -150,7 +150,7 @@ Q3TabDialog::Q3TabDialog(QWidget *parent, const char *name, bool modal, Qt::WFla
     Q_CHECK_PTR(d);
 
     d->tw = new QTabWidget(this, "tab widget");
-    connect (d->tw, SIGNAL (selected(const QString&)), this, SIGNAL(selected(const QString&)));
+    connect (d->tw, SIGNAL(currentChanged(int)), this, SLOT(emitSelected(int)));
     connect (d->tw, SIGNAL (currentChanged(QWidget*)), this, SIGNAL(currentChanged(QWidget*)));
 
     d->ok = new QPushButton(this, "ok");
@@ -747,6 +747,17 @@ void Q3TabDialog::setCancelButton()
     setCancelButton(tr("Cancel"));
 }
 
+
+/*!
+    \internal
+
+    Workaround to emit selected() since the qt3support signal is
+    missing from QTabWidget
+*/
+void Q3TabDialog::emitSelected(int index)
+{
+    emit selected(d->tw->tabText(index));
+}
 
 /*!  Sets up the layout manager for the tab dialog.
 
