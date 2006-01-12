@@ -161,8 +161,6 @@ void QPropertyEditorModel::refresh(IProperty *property)
 {
     Q_ASSERT(property);
 
-    refreshHelper(property);
-
     // Refresh everyone up to the root
 
     IProperty *prop = property;
