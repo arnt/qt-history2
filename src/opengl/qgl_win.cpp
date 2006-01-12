@@ -1073,7 +1073,6 @@ uint QGLContext::colorIndex(const QColor& c) const
 
 void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 {
-    Q_D(QGLContext);
     if (!isValid())
         return;
 
