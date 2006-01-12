@@ -24,6 +24,7 @@ public:
 protected:
     void parseNameUse(CodeModel::NameUse *);
     void parseMember(CodeModel::Member *member);
+    void parseFunctionMember(CodeModel::FunctionMember *member);
 
     void createNameTypeAttribute(CodeModel::Member *member);
     void createNameTypeAttribute(CodeModel::NameUse *nameUse);

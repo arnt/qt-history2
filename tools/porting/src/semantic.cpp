@@ -501,12 +501,8 @@ void Semantic::parseFunctionDefinition(FunctionDefinitionAST *ast)
     if (!d->declaratorId())
         return;
 
-
-    // Check if function already has been declared, if not then this is also a declaration.
+    parseFunctionDeclaration(funSpec, storageSpec, typeSpec, initDeclarator);
     CodeModel::FunctionMember *method = functionLookup(currentScope.top(), d);
-    if (!method)
-        parseFunctionDeclaration(funSpec, storageSpec, typeSpec, initDeclarator);
-    method = functionLookup(currentScope.top(), d);
 
     if(!method) {
         emit error("Error in Semantic::parseFunctionDefinition: Could not find declaration for function definition");
