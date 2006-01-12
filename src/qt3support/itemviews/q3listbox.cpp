@@ -792,6 +792,7 @@ Q3ListBox::Q3ListBox(QWidget *parent, const char *name, Qt::WFlags f)
     viewport()->setBackgroundRole(QPalette::Base);
     viewport()->setFocusProxy(this);
     viewport()->setFocusPolicy(Qt::WheelFocus);
+    setFocusPolicy(Qt::WheelFocus);
 }
 
 

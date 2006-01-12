@@ -2697,6 +2697,7 @@ void Q3ListView::init()
 
     viewport()->setFocusProxy(this);
     viewport()->setFocusPolicy(Qt::WheelFocus);
+    setFocusPolicy(Qt::WheelFocus);
     viewport()->setBackgroundRole(QPalette::Base);
 }
 

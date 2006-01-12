@@ -2749,6 +2749,7 @@ Q3IconView::Q3IconView(QWidget *parent, const char *name, Qt::WFlags f)
     viewport()->setBackgroundRole(QPalette::Base);
     viewport()->setFocusProxy(this);
     viewport()->setFocusPolicy(Qt::WheelFocus);
+    setFocusPolicy(Qt::WheelFocus);
 
 #if 0
     d->toolTip = new Q3IconViewToolTip(viewport(), this);

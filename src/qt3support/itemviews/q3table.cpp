@@ -2034,7 +2034,8 @@ void Q3Table::init(int rows, int cols)
     enableClipper(qt_table_clipper_enabled);
 
     viewport()->setFocusProxy(this);
-    viewport()->setFocusPolicy(WheelFocus);
+    viewport()->setFocusPolicy(Qt::WheelFocus);
+    setFocusPolicy(Qt::WheelFocus);
 
     viewport()->setBackgroundMode(PaletteBase);
     setBackgroundMode(PaletteBackground, PaletteBase);

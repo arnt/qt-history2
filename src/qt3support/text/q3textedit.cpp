@@ -974,6 +974,7 @@ void Q3TextEdit::init()
 
     viewport()->setFocusProxy(this);
     viewport()->setFocusPolicy(Qt::WheelFocus);
+    setFocusPolicy(Qt::WheelFocus);
     setInputMethodEnabled(true);
     viewport()->installEventFilter(this);
     connect(this, SIGNAL(horizontalSliderReleased()), this, SLOT(sliderReleased()));
