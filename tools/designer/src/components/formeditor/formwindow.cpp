@@ -1296,7 +1296,7 @@ void FormWindow::breakLayout(QWidget *w)
         if (!w || w == this)
             break;
 
-        if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout
+        if (LayoutInfo::layoutType(m_core, core()->widgetFactory()->containerOfWidget(w)) != LayoutInfo::NoLayout
                 && core()->widgetDataBase()->isContainer(w, false)) {
 
             if (BreakLayoutCommand *cmd = breakLayoutCommand(w)) {
