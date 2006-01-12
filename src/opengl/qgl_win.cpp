@@ -806,7 +806,8 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
             iAttributes[i++] = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
         }
         int si = 0;
-        if (d->glFormat.sampleBuffers()) {
+        bool trySampleBuffers = QGLExtensions::glExtensions & QGLExtensions::SampleBuffers;
+        if (trySampleBuffers && d->glFormat.sampleBuffers()) {
             iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB;
             iAttributes[i++] = TRUE;
             iAttributes[i++] = WGL_SAMPLES_ARB;
@@ -818,7 +819,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
         do {
             valid = wglChoosePixelFormatARB(pdc, iAttributes.constData(), 0, 1,
                                             &pixelFormat, &numFormats);
-            if ((!valid || numFormats < 1) && d->glFormat.sampleBuffers())
+            if (trySampleBuffers  && (!valid || numFormats < 1) && d->glFormat.sampleBuffers())
                 iAttributes[si] /= 2; // try different no. samples - we aim for the best one
             else
                 break;
