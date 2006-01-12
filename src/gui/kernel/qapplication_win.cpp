@@ -1961,6 +1961,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 }
                 RETURN(ret);
             }
+            result = false;
             break;
 #endif
         case WT_PACKET:
