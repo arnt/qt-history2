@@ -32,56 +32,57 @@ Highlighter::Highlighter(QTextDocument *parent)
                     << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
                     << "\\bvoid\\b" << "\\bvolatile\\b";
     foreach (QString pattern, keywordPatterns)
-        mappings[pattern] = keywordFormat;
+        mappings.append(Entry(pattern, keywordFormat));
 
     classFormat.setFontWeight(QFont::Bold);
     classFormat.setForeground(Qt::darkMagenta);
-    mappings["\\bQ[A-Za-z]+\\b"] = classFormat;
+    mappings.append(Entry("\\bQ[A-Za-z]+\\b", classFormat));
 
     singleLineCommentFormat.setForeground(Qt::red);
-    mappings["//[^\n]*"] = singleLineCommentFormat;
+    mappings.append(Entry("//[^\n]*", singleLineCommentFormat));
 
     multiLineCommentFormat.setForeground(Qt::red);
 
     quotationFormat.setForeground(Qt::darkGreen);
-    mappings["\".*\""] = quotationFormat;
+    mappings.append(Entry("\".*\"", quotationFormat));
 
     functionFormat.setFontItalic(true);
     functionFormat.setForeground(Qt::blue);
-    mappings["\\b[A-Za-z0-9_]+(?=\\()"] = functionFormat;
+    mappings.append(Entry("\\b[A-Za-z0-9_]+(?=\\()", functionFormat));
+
+    commentStartExpression = QRegExp("/\\*");
+    commentEndExpression = QRegExp("\\*/");
 }
 
 void Highlighter::highlightBlock(const QString &text)
 {
-    foreach (QString pattern, mappings.keys()) {
-        QRegExp expression(pattern);
+    foreach (Entry entry, mappings) {
+        QRegExp expression(entry.pattern);
         int index = text.indexOf(expression);
         while (index >= 0) {
             int length = expression.matchedLength();
-            setFormat(index, length, mappings[pattern]);
+            setFormat(index, length, entry.format);
             index = text.indexOf(expression, index + length);
         }
     }
     setCurrentBlockState(0);
 
-    QRegExp startExpression( "/\\*");
-    QRegExp endExpression("\\*/");
-
     int startIndex = 0;
     if (previousBlockState() != 1)
-        startIndex = text.indexOf(startExpression);
+        startIndex = text.indexOf(commentStartExpression);
 
     while (startIndex >= 0) {
-       int endIndex = text.indexOf(endExpression, startIndex);
+       int endIndex = text.indexOf(commentEndExpression, startIndex);
        int commentLength;
        if (endIndex == -1) {
            setCurrentBlockState(1);
            commentLength = text.length() - startIndex;
        } else {
            commentLength = endIndex - startIndex
-                           + endExpression.matchedLength();
+                           + commentEndExpression.matchedLength();
        }
        setFormat(startIndex, commentLength, multiLineCommentFormat);
-       startIndex = text.indexOf(startExpression, startIndex + commentLength);
+       startIndex = text.indexOf(commentStartExpression,
+                                 startIndex + commentLength);
     }
 }

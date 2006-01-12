@@ -32,7 +32,19 @@ protected:
     void highlightBlock(const QString &text);
 
 private:
-    QHash<QString,QTextCharFormat> mappings;
+    struct Entry
+    {
+        inline Entry() {}
+        inline Entry(const QString &patt, const QTextCharFormat &fmt)
+            : pattern(patt), format(fmt)
+        {}
+        QRegExp pattern;
+        QTextCharFormat format;
+    };
+    QVector<Entry> mappings;
+
+    QRegExp commentStartExpression;
+    QRegExp commentEndExpression;
 
     QTextCharFormat keywordFormat;
     QTextCharFormat classFormat;
