@@ -4575,13 +4575,13 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     //
     if (key < 128 || (key < 256 && (!qt_input_mapper || qt_input_mapper->mibEnum()==4))) {
         code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
-    } else if (text.length() == 1 && text.unicode()->unicode() > 0x1f && text.unicode()->unicode() != 0x7f && !(key >= XK_dead_grave && key <= XK_dead_horn)) {
-        code = text.unicode()->toUpper().unicode();
     } else if (key >= XK_F1 && key <= XK_F35) {
         code = Qt::Key_F1 + ((int)key - XK_F1);        // function keys
     } else if (key >= XK_KP_0 && key <= XK_KP_9) {
         code = Qt::Key_0 + ((int)key - XK_KP_0);        // numeric keypad keys
         modifiers |= Qt::KeypadModifier;
+    } else if (text.length() == 1 && text.unicode()->unicode() > 0x1f && text.unicode()->unicode() != 0x7f && !(key >= XK_dead_grave && key <= XK_dead_horn)) {
+        code = text.unicode()->toUpper().unicode();
     } else {
         int i = 0;                                // any other keys
         while (KeyTbl[i]) {
