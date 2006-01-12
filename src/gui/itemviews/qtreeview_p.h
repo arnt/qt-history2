@@ -36,7 +36,7 @@ struct QTreeViewItem
     uint expanded : 1;
     uint total : 30; // total number of children visible (+ hidden children)
     uint level : 16; // indentation
-    uint height : 16; // row height
+    int height : 16; // row height
 };
 
 class QTreeViewPrivate: public QAbstractItemViewPrivate
@@ -67,13 +67,17 @@ public:
         { return (++item >= viewItems.count() ? viewItems.count() - 1 : item); }
 
     inline int height(int item) const {
-        if (uniformRowHeights) return itemHeight;
+        if (uniformRowHeights)
+            return itemHeight;
+        
         const QModelIndex index = viewItems.at(item).index;
         int height = viewItems.at(item).height;
         if (height <= 0 && index.isValid()) {
             height = q_func()->indexRowSizeHint(index);
             viewItems[item].height = height;
         }
+        if (!index.isValid() || height < 0)
+            return 0;
         return height;
     }
 
