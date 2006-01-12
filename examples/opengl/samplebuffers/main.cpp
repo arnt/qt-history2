@@ -23,13 +23,21 @@ int main(int argc, char **argv)
     f.setSampleBuffers(true);
     QGLFormat::setDefaultFormat(f);
     if (!QGLFormat::hasOpenGL()) {
-	QMessageBox::information(0, "OpenGL samplebuffers", 
+	QMessageBox::information(0, "OpenGL samplebuffers",
 				 "This system does not support OpenGL.",
 				 QMessageBox::Ok);
         return 0;
     }
 
     GLWidget widget(0);
+
+    if (!widget.format().sampleBuffers()) {
+	QMessageBox::information(0, "OpenGL samplebuffers",
+				 "This system does not have sample buffer support.",
+				 QMessageBox::Ok);
+        return 0;
+    }
+
     widget.resize(640, 480);
     widget.show();
 
