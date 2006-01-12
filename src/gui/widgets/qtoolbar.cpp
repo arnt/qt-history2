@@ -775,6 +775,14 @@ void QToolBar::actionEvent(QActionEvent *event)
                        "QToolBar", "widgets cannot be inserted multiple times");
 
             QToolBarItem item = d->createItem(action);
+            bool visible = item.action->isVisible();
+            if (widgetAction && widgetAction->parentWidget() != this) {
+                // reparent the action and its widget to this toolbar
+                widgetAction->setParent(this);
+                widgetAction->widget()->setParent(this);
+            }
+            // make sure the layout doesn't show() the widget too soon
+            item.widget->hide();
             if (event->before()) {
                 int index = d->indexOf(event->before());
                 Q_ASSERT_X(index >= 0 && index < d->items.size(), "QToolBar::insertAction",
@@ -785,7 +793,7 @@ void QToolBar::actionEvent(QActionEvent *event)
                 d->items.append(item);
                 qobject_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
             }
-            item.widget->setVisible(item.action->isVisible());
+            item.widget->setVisible(visible);
             QApplication::postEvent(this, new QResizeEvent(size(), size()));
             break;
         }
