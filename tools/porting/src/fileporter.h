@@ -44,15 +44,17 @@ private:
     QSet<QByteArray> m_usedQtModules;
 };
 
-class IncludeDirectiveReplace : public Rpp::RppTreeWalker
+class PreprocessReplace : public Rpp::RppTreeWalker
 {
 public:
-    IncludeDirectiveReplace(const Rpp::Source *source, const QHash<QByteArray, QByteArray> &headerReplacements);
+    PreprocessReplace(const Rpp::Source *source, const QHash<QByteArray, QByteArray> &headerReplacements);
     TextReplacements getReplacements();
 private:
     void evaluateIncludeDirective(const Rpp::IncludeDirective *directive);
+    void evaluateText(const Rpp::Text *textLine);
     const QHash<QByteArray, QByteArray> headerReplacements;
     TextReplacements replacements;
+    
 };
 
 class IncludeDirectiveAnalyzer : public Rpp::RppTreeWalker

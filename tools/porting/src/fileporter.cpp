@@ -50,8 +50,8 @@ void FilePorter::port(QString fileName)
 
     // Get include directive replacements.
     const Rpp::Source * source = preprocessorCache.sourceTree(fileName);
-    IncludeDirectiveReplace includeDirectiveReplace(source, PortingRules::instance()->getHeaderReplacements());
-    TextReplacements sourceReplacements = includeDirectiveReplace.getReplacements();
+    PreprocessReplace preprocessReplace(source, PortingRules::instance()->getHeaderReplacements());
+    TextReplacements sourceReplacements = preprocessReplace.getReplacements();
 
     // Get token replacements.
     sourceReplacements += replaceToken.getTokenTextReplacements(sourceTokens);
@@ -162,21 +162,21 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents)
     return fileContents;
 }
 
-IncludeDirectiveReplace::IncludeDirectiveReplace(const Rpp::Source *source, const QHash<QByteArray, QByteArray> &headerReplacements)
+PreprocessReplace::PreprocessReplace(const Rpp::Source *source, const QHash<QByteArray, QByteArray> &headerReplacements)
 :headerReplacements(headerReplacements)
 {
     // Walk preprocessor tree.
     evaluateItem(source);
 }
 
-TextReplacements IncludeDirectiveReplace::getReplacements()
+TextReplacements PreprocessReplace::getReplacements()
 {
     return replacements;
 }
 /*
     Replaces headers no longer present with support headers.
 */
-void IncludeDirectiveReplace::evaluateIncludeDirective(const Rpp::IncludeDirective *directive)
+void PreprocessReplace::evaluateIncludeDirective(const Rpp::IncludeDirective *directive)
 {
     const QByteArray headerPathName = directive->filename();
     const TokenEngine::TokenList headerPathTokens = directive->filenameTokens();
@@ -204,6 +204,33 @@ void IncludeDirectiveReplace::evaluateIncludeDirective(const Rpp::IncludeDirecti
         const int startPos = endPos - length;
         replacements.insert(replacement, startPos, length);
         addLogSourceEntry(headerFileName + " -> " + replacement, headerPathTokens.tokenContainer(0), headerPathTokens.containerIndex(0));
+    }
+}
+
+/*
+    Replace line comments containing MOC_SKIP_BEGIN with #ifdef Q_MOC_RUN and MOC_SKIP_END with #endif
+*/
+void PreprocessReplace::evaluateText(const Rpp::Text *textLine)
+{
+    if (textLine->count() < 1)
+        return;
+ 
+    const TokenEngine::TokenContainer container = textLine->text().tokenContainer(0);
+    foreach(Rpp::Token *token, textLine->tokenList()) {
+        if (token->toLineComment()) {
+            const int tokenIndex = token->index();
+            const QByteArray text = container.text(tokenIndex);
+            const TokenEngine::Token containerToken = container.token(tokenIndex);
+           
+            if (text.contains("MOC_SKIP_BEGIN")) {
+                replacements.insert("#ifndef Q_MOC_RUN", containerToken.start, containerToken.length);
+                addLogSourceEntry("MOC_SKIP_BEGIN -> #ifndef Q_MOC_RUN", container, tokenIndex);
+            }        
+            if (text.contains("MOC_SKIP_END")) {
+                replacements.insert("#endif", containerToken.start, containerToken.length);
+                addLogSourceEntry("MOC_SKIP_END -> #endif", container, tokenIndex);
+            }
+        }
     }
 }
 
