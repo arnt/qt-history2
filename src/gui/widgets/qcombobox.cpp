@@ -231,9 +231,9 @@ void QComboBoxPrivateContainer::updateScrollers()
         return;
 
     QStyleOptionComboBox opt = comboStyleOption();
-    if (!combo->isEditable() &&
-        combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo) &&
+    if (combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo) &&
         view->verticalScrollBar()->minimum() < view->verticalScrollBar()->maximum()) {
+
         bool needTop = view->verticalScrollBar()->value()
                        > (view->verticalScrollBar()->minimum() + spacing());
         bool needBottom = view->verticalScrollBar()->value()
@@ -303,8 +303,7 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
     view->viewport()->installEventFilter(this);
     QStyleOptionComboBox opt = comboStyleOption();
 #ifndef QT_NO_SCROLLBAR
-    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo)
-        && !combo->isEditable())
+    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo))
         view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 #endif
     if (style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
@@ -625,7 +624,7 @@ QComboBoxPrivateContainer* QComboBoxPrivate::viewContainer()
     container = new QComboBoxPrivateContainer(new QComboBoxListView(), q);
     container->itemView()->setModel(model);
     QStyleOptionComboBox opt = getStyleOption();
-    if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q) && !q->isEditable())
+    if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q))
         q->setItemDelegate(new QComboMenuDelegate(container->itemView(), q));
     container->setLayoutDirection(Qt::LayoutDirection(
                                     q->style()->styleHint(QStyle::SH_ComboBox_LayoutDirection,
@@ -1731,10 +1730,19 @@ void QComboBox::showPopup()
     //### do horizontally as well
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
         listRect.moveTopLeft(above);
-        listRect.moveTop(listRect.top() - view()->visualRect(view()->currentIndex()).top());
-        if (listRect.top() < screen.top())
-            listRect.moveTopLeft(below);
-        listRect.setBottom(qMin(screen.bottom(), listRect.bottom()));
+        QRect currentItemRect = view()->visualRect(view()->currentIndex());
+        if (listRect.height() < screen.height()) {
+            listRect.moveTop(listRect.top() - currentItemRect.top());
+        } else {
+            if ((listRect.top() - currentItemRect.top()) < screen.top()) {
+                listRect.setTop(screen.top());
+                int valueToScroll = itemHeight * view()->currentIndex().row() - aboveHeight + 3;
+                view()->verticalScrollBar()->setValue(valueToScroll);
+            } else {
+                listRect.moveTop(listRect.top() - currentItemRect.top());
+            }
+            listRect.setBottom(qMin(listRect.bottom(), screen.bottom()));
+        }
     } else if (listRect.height() <= belowHeight) {
         listRect.moveTopLeft(below);
     } else if (listRect.height() <= aboveHeight) {
