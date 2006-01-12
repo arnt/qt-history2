@@ -100,7 +100,7 @@ class QWorkspaceTitleBarPrivate : public QWidgetPrivate
 public:
     QWorkspaceTitleBarPrivate()
         :
-        lastControl(QStyle::SC_None), 
+        lastControl(QStyle::SC_None),
 #ifndef QT_NO_TOOLTIP
         toolTip(0),
 #endif
@@ -423,7 +423,7 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
         // propagate border events to the QWidgetResizeHandler
         return;
     }
-    
+
     QStyleOptionTitleBar opt = d->getStyleOption();
     QStyle::SubControl under_mouse = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                                     e->pos(), this);
@@ -462,7 +462,7 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
                 if (!parentWidget()->isMaximized())
                     parentWidget()->move(pp);
             }
-        } 
+        }
         e->accept();
         break;
     default:
@@ -780,8 +780,6 @@ protected:
     void resizeEvent(QResizeEvent *);
     void moveEvent(QMoveEvent *);
     bool eventFilter(QObject *, QEvent *);
-
-    bool focusNextPrevChild(bool);
 
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
@@ -2579,8 +2577,8 @@ void QWorkspaceChild::activate()
 
 bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
 {
-    if (!isActive() && o == childWidget && (e->type() == QEvent::MouseButtonPress ||
-                                            e->type() == QEvent::FocusIn)) {
+    if (!isActive()
+        && (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::FocusIn)) {
         if (iconw) {
             ((QWorkspace*)parentWidget())->d_func()->normalizeWindow(windowWidget());
             if (iconw) {
@@ -2694,33 +2692,6 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
     }
 
     return QWidget::eventFilter(o, e);
-}
-
-bool QWorkspaceChild::focusNextPrevChild(bool next)
-{
-    extern Q_GUI_EXPORT bool qt_tab_all_widgets;
-    uint focus_flag = qt_tab_all_widgets ? Qt::TabFocus : Qt::StrongFocus;
-
-    QWidget *f = focusWidget();
-    if (!f)
-        f = this;
-
-    QWidget *w = f;
-    QWidget *test = f->nextInFocusChain();
-    while (test != f) {
-        if ((test->focusPolicy() & focus_flag) == focus_flag
-            && !(test->focusProxy()) && test->isVisibleTo(this)
-            && test->isEnabled() && isAncestorOf(w)) {
-            w = test;
-            if (next)
-                break;
-        }
-        test = test->nextInFocusChain();
-    }
-    if (w == f)
-        return false;
-    w->setFocus();
-    return true;
 }
 
 void QWorkspaceChild::childEvent(QChildEvent* e)

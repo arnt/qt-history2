@@ -3744,7 +3744,8 @@ void QWidget::clearFocus()
 bool QWidget::focusNextPrevChild(bool next)
 {
     QWidget* p = parentWidget();
-    if (!isWindow() && p)
+    bool isSubWindow = (windowType() == Qt::SubWindow);
+    if (!isWindow() && !isSubWindow && p)
         return p->focusNextPrevChild(next);
 
     extern bool qt_tab_all_widgets;
@@ -3759,7 +3760,8 @@ bool QWidget::focusNextPrevChild(bool next)
     while (test && test != f) {
         if ((test->focusPolicy() & focus_flag) == focus_flag
             && !(test->d_func()->extra && test->d_func()->extra->focus_proxy)
-            && test->isVisibleTo(this) && test->isEnabled()) {
+            && test->isVisibleTo(this) && test->isEnabled()
+            && (!isSubWindow || isAncestorOf(test))) {
             w = test;
             if (next)
                 break;
@@ -4472,7 +4474,7 @@ void QWidget::setVisible(bool visible)
                 parent = parent->parentWidget();
             }
         }
-        
+
         // adjust size if necessary
         if (!wasResized
             && (isWindow() || !parentWidget()->d_func()->layout))  {
