@@ -32,7 +32,7 @@
 
 class QSocks5SocketEnginePrivate;
 
-class QSocks5SocketEngine : public QAbstractSocketEngine
+class Q_INTERNAL_EXPORT QSocks5SocketEngine : public QAbstractSocketEngine
 {
     Q_OBJECT
 public:
@@ -233,7 +233,7 @@ public:
     void emitWriteNotification();
 };
 
-class QSocks5SocketEngineHandler : public QSocketEngineHandler
+class Q_INTERNAL_EXPORT QSocks5SocketEngineHandler : public QSocketEngineHandler
 {
 public:
     virtual QAbstractSocketEngine *createSocketEngine(const QHostAddress &address, QAbstractSocket::SocketType socketType, QObject *parent);
