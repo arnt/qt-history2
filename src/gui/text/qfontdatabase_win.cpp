@@ -589,20 +589,20 @@ void QFontPrivate::initFontInfo()
 
 static const char *other_tryFonts[] = {
     "Arial",
-    "MS Mincho",
-    "Batang",
+    "MS UI Gothic",
+    "Gulim",
     "SimSun",
-    "MingLiU",
+    "PMingLiU",
     "Arial Unicode MS",
     0
 };
 
 static const char *jp_tryFonts [] = {
-    "MS Mincho",
+    "MS UI Gothic",
     "Arial",
-    "Batang",
+    "Gulim",
     "SimSun",
-    "MingLiU",
+    "PMingLiU",
     "Arial Unicode MS",
     0
 };
@@ -610,29 +610,29 @@ static const char *jp_tryFonts [] = {
 static const char *ch_CN_tryFonts [] = {
     "SimSun",
     "Arial",
-    "MingLiU",
-    "Batang",
-    "MS Mincho",
+    "PMingLiU",
+    "Gulim",
+    "MS UI Gothic",
     "Arial Unicode MS",
     0
 };
 
 static const char *ch_TW_tryFonts [] = {
-    "MingLiU",
+    "PMingLiU",
     "Arial",
     "SimSun",
-    "Batang",
-    "MS Mincho",
+    "Gulim",
+    "MS UI Gothic",
     "Arial Unicode MS",
     0
 };
 
 static const char *kr_tryFonts[] = {
-    "Batang",
+    "Gulim",
     "Arial",
-    "MingLiU",
+    "PMingLiU",
     "SimSun",
-    "MS Mincho",
+    "MS UI Gothic",
     "Arial Unicode MS",
     0
 };
