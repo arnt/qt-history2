@@ -840,9 +840,8 @@ void LayoutCommand::undo()
         deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), p);
     }
 
-    delete deco; // release the extension
-
     m_layout->undoLayout();
+    delete deco; // release the extension
 
     // ### generalize (put in function)
     if (!m_layoutBase && lb != 0 && !(qobject_cast<QLayoutWidget*>(lb) || qobject_cast<QSplitter*>(lb))) {
@@ -902,10 +901,9 @@ void BreakLayoutCommand::redo()
     if (!deco && hasLayout(p))
         deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), p);
 
-    delete deco; // release the extension
-
     formWindow()->clearSelection(false);
     m_layout->breakLayout();
+    delete deco; // release the extension
 
     foreach (QWidget *widget, m_widgets) {
         widget->resize(widget->size().expandedTo(QSize(16, 16)));
