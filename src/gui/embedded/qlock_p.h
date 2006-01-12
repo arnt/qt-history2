@@ -29,7 +29,7 @@
 
 class QLockData;
 
-class QLock
+class Q_GUI_EXPORT QLock
 {
 public:
     QLock(const QString &filename, char id, bool create = false);
@@ -51,7 +51,7 @@ private:
 // Nice class for ensuring the lock is released.
 // Just create one on the stack and the lock is automatically released
 // when QLockHandle is destructed.
-class QLockHandle
+class Q_GUI_EXPORT QLockHandle
 {
 public:
     QLockHandle(QLock *l, QLock::Type type) : qlock(l) { qlock->lock(type); }
