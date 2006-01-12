@@ -392,7 +392,7 @@ void QDockWidgetLayout::setGeometry(const QRect &rect)
                 ls.minimumSize = pick(orientation, info.item->minimumSize());
                 ls.maximumSize = pick(orientation, info.item->maximumSize());
 
-                 if (canGrow(orientation, sp)) {
+                if (canGrow(orientation, sp)) {
                     ls.sizeHint = ls.minimumSize;
                     ls.stretch = info.cur_size == -1
                                  ? pick(orientation, info.item->sizeHint())
@@ -400,8 +400,8 @@ void QDockWidgetLayout::setGeometry(const QRect &rect)
                     ls.expansive = true;
                 } else {
                     ls.sizeHint = info.cur_size == -1
-                                 ? pick(orientation, info.item->sizeHint())
-                                 : info.cur_size;
+                                  ? pick(orientation, info.item->sizeHint())
+                                  : info.cur_size;
                 }
             }
 
@@ -455,8 +455,8 @@ void QDockWidgetLayout::setGeometry(const QRect &rect)
 
         QRect vr = QStyle::visualRect(QApplication::layoutDirection(),
                                       rect, ((orientation == Qt::Horizontal)
-                                           ? QRect(rect.x() + ls.pos, rect.y(), ls.size, rect.height())
-                                           : QRect(rect.x(), rect.y() + ls.pos, rect.width(), ls.size)));
+                                             ? QRect(rect.x() + ls.pos, rect.y(), ls.size, rect.height())
+                                             : QRect(rect.x(), rect.y() + ls.pos, rect.width(), ls.size)));
 	info.item->setGeometry(vr);
     }
 
@@ -1398,34 +1398,53 @@ void QDockWidgetLayout::split(QDockWidget *existing, QDockWidget *with, Qt::Dock
     Q_ASSERT(relayout_type == QInternal::RelayoutNormal);
     relayout_type = QInternal::RelayoutDropped;
 
-    int save_size = info.cur_size;
-    layout->removeWidget(existing);
-    // note: info is invalid from now on
+    const Qt::Orientation howToSplit = ((area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea)
+                                        ? Qt::Horizontal
+                                        : Qt::Vertical);
+    if (orientation == howToSplit) {
+        // don't nest, just split save_size between the 2 dock widgets
+        const int separator_extent =
+            parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
+        int each_size = qMax(info.cur_size - separator_extent, 0) / 2;
 
-    // create a nested window dock in place of the current widget
-    QDockWidgetLayout *nestedLayout =
-        new QDockWidgetLayout(area, orientation == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
-    nestedLayout->setParent(layout);
-    nestedLayout->setObjectName(objectName() + "_nestedLayout");
-    layout->insert(which / 2, nestedLayout).cur_size = save_size;
-    layout->invalidate();
+        int at = which;
+        if (area == Qt::RightDockWidgetArea || area == Qt::BottomDockWidgetArea)
+            at += 2;
 
-    switch (area) {
-    case Qt::LeftDockWidgetArea:
-    case Qt::TopDockWidgetArea:
-        nestedLayout->addWidget(with);
-        nestedLayout->addWidget(existing);
-        break;
+        addChildWidget(with);
+        insert(at, new QWidgetItem(with)).cur_size
+            = const_cast<QDockWidgetLayoutInfo &>(info).cur_size
+            = each_size;
+    } else {
+        // create a nested window dock in place of the current widget
+        QDockWidgetLayout *nestedLayout =
+            new QDockWidgetLayout(area, orientation == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
+        nestedLayout->setParent(layout);
+        nestedLayout->setObjectName(objectName() + "_nestedLayout");
 
-    case Qt::RightDockWidgetArea:
-    case Qt::BottomDockWidgetArea:
-        nestedLayout->addWidget(existing);
-        nestedLayout->addWidget(with);
-        break;
+        int save_size = info.cur_size;
+        layout->removeWidget(existing);
+        // note: info is invalid from now on
+        layout->insert(which / 2, nestedLayout).cur_size = save_size;
+        layout->invalidate();
 
-    default:
-        Q_ASSERT_X(false, "QDockWidgetLayout", "internal error");
-        break;
+        switch (area) {
+        case Qt::LeftDockWidgetArea:
+        case Qt::TopDockWidgetArea:
+            nestedLayout->addWidget(with);
+            nestedLayout->addWidget(existing);
+            break;
+
+        case Qt::RightDockWidgetArea:
+        case Qt::BottomDockWidgetArea:
+            nestedLayout->addWidget(existing);
+            nestedLayout->addWidget(with);
+            break;
+
+        default:
+            Q_ASSERT_X(false, "QDockWidgetLayout", "internal error");
+            break;
+        }
     }
 
     layout->relayout_type = QInternal::RelayoutNormal;
