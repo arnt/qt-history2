@@ -537,7 +537,7 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
                     menu.color(QPalette::Active, QPalette::ButtonText));
     menu.setColor(QPalette::Inactive, QPalette::Highlight,
                     menu.color(QPalette::Active, QPalette::Highlight));
-    menu.setColor(QPalette::Inactive, QPalette::HighlightedText, 
+    menu.setColor(QPalette::Inactive, QPalette::HighlightedText,
                     menu.color(QPalette::Active, QPalette::HighlightedText));
 
     if (QSysInfo::WindowsVersion != QSysInfo::WV_NT && QSysInfo::WindowsVersion != QSysInfo::WV_95)
@@ -1719,7 +1719,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 while ((popup=QApplication::activePopupWidget()) && maxiter--)
                     popup->close();
             }
-            
+
             // If we are a tool with no child or us that accepts focus then reject
             // the activation
             if (LOWORD(wParam) == WA_ACTIVE && widget->windowType() == Qt::Tool) {
@@ -1735,7 +1735,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             // WM_ACTIVATEAPP handles the "true" false case, as this is only when the application
             // looses focus. Doing it here would result in the widget getting focus to not know
             // where it got it from; it would simply get a 0 value as the old focus widget.
-            if (LOWORD(wParam) != WA_INACTIVE) 
+            if (LOWORD(wParam) != WA_INACTIVE)
                 qApp->winFocus(widget, true);
 
             // Windows tries to activate a modally blocked window.
@@ -1759,7 +1759,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                                 QWidget *fw = w;
                                 while ((fw = fw->nextInFocusChain()) != w && fw->focusPolicy() == Qt::NoFocus)
                                     ;
-                                if (fw != w) 
+                                if (fw != w)
                                    break;
                                 QWidget *pw = w->parentWidget();
                                 while (pw) {
@@ -1938,7 +1938,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             }
             result = false;
             break;
-        case WM_GETTEXT: 
+        case WM_GETTEXT:
             if (!widget->isWindow()) {
                 int ret = 0;
                 QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(widget);
@@ -2533,7 +2533,8 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         pos = mapFromGlobal(QPoint(gpos.x, gpos.y));
 
         if (type == QEvent::MouseButtonPress || type == QEvent::MouseButtonDblClick) {        // mouse button pressed
-            qt_button_down = childAt(pos);
+            QWidget *tlw = window();
+            qt_button_down = tlw->childAt(mapTo(tlw, pos));
             if (!qt_button_down)
                 qt_button_down = this;
         }
