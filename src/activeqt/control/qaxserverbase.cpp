@@ -839,7 +839,7 @@ public:
 	    if (iid != IID_IUnknown)
 		return CLASS_E_NOAGGREGATION;
 	    const QMetaObject *mo = qAxFactory()->metaObject(className);
-	    if (mo && QString(mo->classInfo(mo->indexOfClassInfo("Aggregatable")).value()) == "no")
+	    if (mo && !qstricmp(mo->classInfo(mo->indexOfClassInfo("Aggregatable")).value(), "no"))
 		return CLASS_E_NOAGGREGATION;
 	}
 
@@ -1110,7 +1110,7 @@ void QAxServerBase::registerActiveObject(IUnknown *object)
 	return;
 
     const QMetaObject *mo = qt.object->metaObject();
-    if (mo->classInfo(mo->indexOfClassInfo("RegisterObject")).value() == "yes")
+    if (!qstricmp(mo->classInfo(mo->indexOfClassInfo("RegisterObject")).value(), "yes"))
 	RegisterActiveObject(object, qAxFactory()->classID(class_name), ACTIVEOBJECT_WEAK, &ole_ref);
 }
 

@@ -218,7 +218,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
                 QString classVersion = mo ? QString(mo->classInfo(mo->indexOfClassInfo("Version")).value()) : QString();
                 if (classVersion.isNull())
                     classVersion = "1.0";
-                bool insertable = mo && QString(mo->classInfo(mo->indexOfClassInfo("Insertable")).value()) == "yes";
+                bool insertable = mo && !qstricmp(mo->classInfo(mo->indexOfClassInfo("Insertable")).value(), "yes");
                 bool control = object->isWidgetType();
                 const QString classMajorVersion = classVersion.left(classVersion.indexOf("."));
                 uint olemisc = OLEMISC_SETCLIENTSITEFIRST
