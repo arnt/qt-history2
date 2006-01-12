@@ -69,7 +69,6 @@ public:
     inline int height(int item) const {
         if (uniformRowHeights)
             return itemHeight;
-        
         const QModelIndex index = viewItems.at(item).index;
         int height = viewItems.at(item).height;
         if (height <= 0 && index.isValid()) {
@@ -82,9 +81,7 @@ public:
     }
 
     inline void invalidateHeightCache(int item) const {
-        int height = viewItems.at(item).height;
-        if (uniformRowHeights || height <= 0) return;
-        viewItems[item].height = -height;
+        viewItems[item].height = 0;
     }
         
     int indentation(int item) const;
