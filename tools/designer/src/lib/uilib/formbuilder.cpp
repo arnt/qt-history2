@@ -256,6 +256,15 @@ QWidget *QFormBuilder::widgetByName(QWidget *topLevel, const QString &name)
     return qFindChild<QWidget*>(topLevel, name);
 }
 
+static QObject *objectByName(QWidget *topLevel, const QString &name)
+{
+    Q_ASSERT(topLevel);
+    if (topLevel->objectName() == name)
+        return topLevel;
+
+    return qFindChild<QObject*>(topLevel, name);
+}
+
 /*!
     \internal
 */
@@ -268,8 +277,8 @@ void QFormBuilder::createConnections(DomConnections *ui_connections, QWidget *wi
 
     QList<DomConnection*> connections = ui_connections->elementConnection();
     foreach (DomConnection *c, connections) {
-        QWidget *sender = widgetByName(widget, c->elementSender());
-        QWidget *receiver = widgetByName(widget, c->elementReceiver());
+        QObject *sender = objectByName(widget, c->elementSender());
+        QObject *receiver = objectByName(widget, c->elementReceiver());
         if (!sender || !receiver)
             continue;
 
