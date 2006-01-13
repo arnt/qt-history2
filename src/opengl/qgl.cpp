@@ -2513,11 +2513,6 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
     else
         success = false;
 
-#if defined(Q_WS_WIN)
-    glFlush();
-    pm = QPixmap::fromWinHBITMAP(d->glcx->d_func()->hbitmap);
-#endif
-
     delete d->glcx;
     d->glcx = ocx;
 

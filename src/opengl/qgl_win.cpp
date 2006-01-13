@@ -1020,6 +1020,10 @@ void QGLContext::doneCurrent()
     Q_D(QGLContext);
     currentCtx = 0;
     wglMakeCurrent(0, 0);
+    if (deviceIsPixmap() && d->hbitmap) {
+        QPixmap *pm = static_cast<QPixmap *>(d->paintDevice);
+        *pm = QPixmap::fromWinHBITMAP(d->hbitmap);
+    }
     if (d->win && d->dc)
         ReleaseDC(d->win, d->dc);
     d->dc = 0;
