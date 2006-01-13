@@ -2270,7 +2270,7 @@ QByteArray qgetenv(const char *varName)
     \relates <QtGlobal>
 
     Returns \a str as a \c{const char *}. This is equivalent to
-    \a{str}.toAscii().constData().
+    \a{str}.toLocal8bit().constData().
 
     Example:
 
