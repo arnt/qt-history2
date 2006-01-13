@@ -1222,7 +1222,7 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
         absoluteInfo = QFileInfo(toInternal(q->directory().absolutePath() + QDir::separator() + text));
     if (absoluteInfo.exists()) {
         QModelIndex index = model->index(absoluteInfo.absoluteFilePath());
-        if (index.isValid())
+        if (index.isValid()) 
             treeView->setCurrentIndex(index);
         return;
     }
@@ -1395,10 +1395,12 @@ void QFileDialogPrivate::createDirectory()
 
 void QFileDialogPrivate::renameCurrent()
 {
+    QModelIndex index = selections->currentIndex();
+    index = index.sibling(index.row(), 0);
     if (viewMode() == QFileDialog::List)
-        listView->edit(selections->currentIndex());
+        listView->edit(index);
     else
-        treeView->edit(selections->currentIndex());
+        treeView->edit(index);
 }
 
 /*!
@@ -1410,6 +1412,7 @@ void QFileDialogPrivate::renameCurrent()
 void QFileDialogPrivate::deleteCurrent()
 {
     QModelIndex index = selections->currentIndex();
+    index = index.sibling(index.row(), 0);
     if (!index.isValid() || model->isReadOnly())
         return;
     
