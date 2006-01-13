@@ -2164,7 +2164,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
     case CE_MenuBarItem:
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option))
         {
-            if (mbi->state == QStyleOptionMenuItem::DefaultItem)
+            if (mbi->menuItemType == QStyleOptionMenuItem::DefaultItem)
                 break;
 
             bool act = mbi->state & State_Selected;
