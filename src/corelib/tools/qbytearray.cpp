@@ -3149,7 +3149,7 @@ long QByteArray::toLong(bool *ok, int base) const
 ulong QByteArray::toULong(bool *ok, int base) const
 {
     qulonglong v = toULongLong(ok, base);
-    if (v > LONG_MAX) {
+    if (v > ULONG_MAX) {
         if (ok)
             *ok = false;
         v = 0;
