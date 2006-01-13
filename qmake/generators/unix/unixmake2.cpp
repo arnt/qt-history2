@@ -613,7 +613,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     if(!project->first("QMAKE_PKGINFO").isEmpty()) {
         QString pkginfo = project->first("QMAKE_PKGINFO");
-        QString destdir = project->first("DESTDIR") + project->first("QMAKE_BUNDLE_NAME");
+        QString destdir = project->first("DESTDIR") + project->first("QMAKE_BUNDLE_NAME") + "/Contents";
         t << pkginfo << ": " << "\n\t";
         if(!destdir.isEmpty())
             t << mkdir_p_asstring(destdir) << "\n\t";
