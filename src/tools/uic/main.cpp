@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
     int arg = 1;
     while (arg < argc) {
-        QString opt = QString::fromUtf8(argv[arg]);
+        QString opt = QString::fromLocal8Bit(argv[arg]);
         if (opt == QLatin1String("-h") || opt == QLatin1String("-help")) {
             showHelp(argv[0]);
             return 0;
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
     QString inputFile;
     if (fileName)
-        inputFile = QString::fromUtf8(fileName);
+        inputFile = QString::fromLocal8Bit(fileName);
     else
         driver.option().headerProtection = false;
 
