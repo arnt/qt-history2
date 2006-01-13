@@ -4133,16 +4133,22 @@ QRect QWidget::contentsRect() const
 }
 
 
+
 /*!
   \fn void QWidget::customContextMenuRequested(const QPoint &pos)
 
   This signal is emitted when the widget's \l contextMenuPolicy is
   Qt::CustomContextMenu, and the user has requested a context menu on
-  the widget. The position \a pos is the position of the request in
-  widget coordinates.
+  the widget. The position \a pos is the position of the context menu
+  event that the widget receives. Normally this is in widget
+  coordinates. The exception to this rule is QAbstractScrollArea and
+  its subclasses that map the context menu event to coordinates of the
+  \link QAbstractScrollArea::viewport() viewport() \endlink .
+
 
   \sa mapToGlobal() QMenu contextMenuPolicy
 */
+
 
 /*!
     \property QWidget::contextMenuPolicy
