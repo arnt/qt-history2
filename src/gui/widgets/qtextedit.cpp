@@ -2228,7 +2228,8 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
 
             if (d->cursor.hasSelection()
                 && cursorPos >= d->cursor.selectionStart()
-                && cursorPos <= d->cursor.selectionEnd()) {
+                && cursorPos <= d->cursor.selectionEnd()
+                && d->doc->documentLayout()->hitTest(pos, Qt::ExactHit) != -1) {
 #ifndef QT_NO_DRAGANDDROP
                 d->mightStartDrag = true;
                 d->dragStartPos = e->globalPos();
