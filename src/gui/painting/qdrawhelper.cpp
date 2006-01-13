@@ -2088,7 +2088,7 @@ DrawHelper qDrawHelper[DrawHelper::Layout_Count] =
 
 
 
-#if defined(QT_HAVE_SSE) && (!defined(__APPLE__) || defined(__i386__))
+#if (defined(QT_HAVE_SSE) && (!defined(__APPLE__) || defined(__i386__))) || defined(QT_HAVE_IWMMXT)
 
 enum CPUFeatures {
     None = 0,

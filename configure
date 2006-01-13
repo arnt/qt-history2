@@ -455,6 +455,7 @@ CFG_USER_BUILD_KEY=
 CFG_ACCESSIBILITY=auto
 CFG_QT3SUPPORT=yes
 CFG_ENDIAN=auto
+CFG_IWMMXT=no
 CFG_GETADDRINFO=auto
 CFG_IPV6IFNAME=auto
 CFG_RPATH=yes
@@ -598,6 +599,9 @@ while [ "$#" -gt 0 ]; do
             VAL=$1
         fi
         ;;
+    -iwmmxt)
+	CFG_IWMMXT="yes"
+	;;
     -*-endian)
         VAR=endian
         VAL=`echo $1 | sed "s,^-\(.*\)-.*,\1,"`
@@ -1858,6 +1862,15 @@ else
     CFG_HAVE_SSE=yes
 fi
 
+# check iwmmxt support
+if [ "$CFG_IWMMXT" = "yes" ]; then
+    if ! $unixtests/iwmmxt.test $XQMAKESPEC $OPT_VERBOSE; then
+        echo "The iwmmxt functionality test failed!"
+	echo " Please make sure your compiler supports iwmmxt intrinsics!"
+	exit 1
+    fi
+fi
+
 #auto-detect GNU make support
 if [ "$CFG_USE_GNUMAKE" = "auto" ] && $MAKE -v | grep "GNU Make" >/dev/null 2>&1; then
    CFG_USE_GNUMAKE=yes
@@ -2433,6 +2446,9 @@ Qtopia Core only:
     -no-mouse-<driver> . Disable mouse <driver> entirely.
 
                          Possible values for <driver>: [ pc bus linuxtp yopy vr41xx ]
+
+    -iwmmxt............. Compile using the iWMMXt instruction set 
+                         (available on some XScale CPUs).
 
 EOF
 fi
@@ -3578,6 +3594,7 @@ fi
 [ "$CFG_REDUCE_EXPORTS" = "yes" ] && QT_CONFIG="$QT_CONFIG reduce_exports"
 [ "$CFG_PRECOMPILE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
 [ "$CFG_HAVE_SSE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sse"
+[ "$CFG_IWMMXT" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG iwmmxt"
 [ "$CFG_UNIVERSAL_BINARY" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x86 ppc"
 if [ "$CFG_IPV6" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG ipv6"

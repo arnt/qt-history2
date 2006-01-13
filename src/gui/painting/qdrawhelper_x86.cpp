@@ -14,7 +14,7 @@
 #include <private/qdrawhelper_p.h>
 #include <private/qpaintengine_raster_p.h>
 
-#if defined(QT_HAVE_SSE) && (!defined(__APPLE__) || defined(__i386__))
+#if (defined(QT_HAVE_SSE) && (!defined(__APPLE__) || defined(__i386__))) || defined(QT_HAVE_IWMMXT)
 
 #ifdef Q_CC_GNU
 #  include <mmintrin.h>
