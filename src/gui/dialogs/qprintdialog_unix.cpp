@@ -169,6 +169,7 @@ public:
     QRadioButton *printAllButton;
     QRadioButton *printRangeButton;
     QRadioButton *printSelectionButton;
+    QRadioButton *printToPrinterButton;
     QRadioButton *printToFileButton;
     QComboBox *orientationCombo, *sizeCombo;
 
@@ -905,11 +906,11 @@ QGroupBox *QPrintDialogPrivate::setupDestination()
     printerOrFile = new QButtonGroup(q);
 
     // printer radio button, list
-    QRadioButton *rb = new QRadioButton(QPrintDialog::tr("Print to printer:"), g);
+    printToPrinterButton = new QRadioButton(QPrintDialog::tr("Print to printer:"), g);
 
-    tll->addWidget(rb);
-    printerOrFile->addButton(rb);
-    rb->setChecked(true);
+    tll->addWidget(printToPrinterButton);
+    printerOrFile->addButton(printToPrinterButton);
+    printToPrinterButton->setChecked(true);
     outputToFile = false;
 
     QBoxLayout *horiz = new QBoxLayout(QBoxLayout::LeftToRight);
@@ -1424,8 +1425,14 @@ void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
     if (p && pickUpSettings) {
         // top to botton in the old dialog.
         // printer or file
-        if (!p->outputFileName().isEmpty())
+        outputToFile = !p->outputFileName().isEmpty() && q->isOptionEnabled(QPrintDialog::PrintToFile);
+        if (outputToFile)
             printToFileButton->setChecked(true);
+        else
+            printToPrinterButton->setChecked(true);
+        browse->setEnabled(outputToFile);
+        fileName->setEnabled(outputToFile);
+        view->setEnabled(!outputToFile);
 
         // printer name
         if (!p->printerName().isEmpty()) {
@@ -1445,6 +1452,7 @@ void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
         // file name
         printToFileButton->setEnabled(q->isOptionEnabled(QPrintDialog::PrintToFile));
         fileName->setText(p->outputFileName());
+        fileName->setModified(!fileName->text().isEmpty());
 
         // orientation
         orientationCombo->setCurrentIndex((int)p->orientation());
