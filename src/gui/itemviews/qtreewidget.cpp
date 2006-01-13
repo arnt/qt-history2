@@ -331,7 +331,7 @@ bool QTreeModel::insertColumns(int column, int count, const QModelIndex &parent)
 	column = qBound(0, column, oldCount);
 
 	header->values.resize(oldCount + count);
-    for (int i = oldCount; i < oldCount + count; ++i) 
+    for (int i = oldCount; i < oldCount + count; ++i)
         header->values[i].append(QWidgetItemData(Qt::DisplayRole, QString::number(i)));
 
 	// We pop the stack and process all children of the item popped.
@@ -344,7 +344,7 @@ bool QTreeModel::insertColumns(int column, int count, const QModelIndex &parent)
 		QList<QTreeWidgetItem*> children = par ? par->children : tree;
 		for (int row = 0; row < children.count(); ++row) {
 			QTreeWidgetItem *child = children.at(row);
-			if (child->children.count()) 
+			if (child->children.count())
 				itemstack.push(child);
 
 			child->values.insert(column, count, QVector<QWidgetItemData>());
@@ -1768,7 +1768,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
-    setModel(new QTreeModel(0, this));
+    QTreeView::setModel(new QTreeModel(0, this));
     // view signals
     connect(this, SIGNAL(pressed(QModelIndex)), SLOT(emitItemPressed(QModelIndex)));
     connect(this, SIGNAL(clicked(QModelIndex)), SLOT(emitItemClicked(QModelIndex)));
@@ -2439,9 +2439,9 @@ QTreeWidgetItem *QTreeWidget::itemFromIndex(const QModelIndex &index) const
   \reimp
 */
 
-void QTreeWidget::setModel(QAbstractItemModel *model)
+void QTreeWidget::setModel(QAbstractItemModel */*model*/)
 {
-    QTreeView::setModel(model);
+    qFatal("QTreeWidget::setModel() - Changing the model of the QTreeWidget is not allowed.");
 }
 
 /* \reimp */

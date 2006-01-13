@@ -1662,12 +1662,18 @@ QAbstractItemView *QComboBox::view() const
 /*!
   Sets the view to be used in the combobox popup to the given \a
   itemView. The combobox takes ownership of the view.
+
+  Note: If you want to use the convenience views (like QListWidget,
+  QTableWidget or QTreeWidget), make sure to call setModel() on the
+  combobox with the convenience widgets model before calling this
+  function.
 */
 void QComboBox::setView(QAbstractItemView *itemView)
 {
     Q_D(QComboBox);
     Q_ASSERT(itemView);
-    itemView->setModel(d->model);
+    if (itemView->model() != d->model)
+        itemView->setModel(d->model);
     d->viewContainer()->setItemView(itemView);
 }
 

@@ -1483,7 +1483,7 @@ QTableWidget::QTableWidget(QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
     Q_D(QTableWidget);
-    setModel(new QTableModel(0, 0, this));
+    QTableView::setModel(new QTableModel(0, 0, this));
     d->setup();
 }
 
@@ -1494,7 +1494,7 @@ QTableWidget::QTableWidget(int rows, int columns, QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
     Q_D(QTableWidget);
-    setModel(new QTableModel(rows, columns, this));
+    QTableView::setModel(new QTableModel(rows, columns, this));
     d->setup();
 }
 
@@ -2210,9 +2210,9 @@ QTableWidgetItem *QTableWidget::itemFromIndex(const QModelIndex &index) const
 /*!
     \internal
 */
-void QTableWidget::setModel(QAbstractItemModel *model)
+void QTableWidget::setModel(QAbstractItemModel */*model*/)
 {
-    QTableView::setModel(model);
+    qFatal("QTableWidget::setModel() - Changing the model of the QTableWidget is not allowed.");
 }
 
 /* \reimp */

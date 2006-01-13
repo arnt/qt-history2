@@ -835,7 +835,7 @@ public:
 void QListWidgetPrivate::setup()
 {
     Q_Q(QListWidget);
-    q->setModel(new QListModel(q));
+    q->QListView::setModel(new QListModel(q));
     // view signals
     QObject::connect(q, SIGNAL(pressed(QModelIndex)), q, SLOT(emitItemPressed(QModelIndex)));
     QObject::connect(q, SIGNAL(clicked(QModelIndex)), q, SLOT(emitItemClicked(QModelIndex)));
@@ -1501,9 +1501,9 @@ QListWidgetItem *QListWidget::itemFromIndex(const QModelIndex &index) const
 /*!
   \internal
 */
-void QListWidget::setModel(QAbstractItemModel *model)
+void QListWidget::setModel(QAbstractItemModel */*model*/)
 {
-    QListView::setModel(model);
+    qFatal("QListWidget::setModel() - Changing the model of the QListWidget is not allowed.");
 }
 
 /* \reimp */
