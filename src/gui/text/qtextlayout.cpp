@@ -310,6 +310,7 @@ QTextLayout::QTextLayout(const QString& text, const QFont &font, QPaintDevice *p
 }
 
 /*!
+    \internal
     Constructs a text layout to lay out the given \a block.
 */
 QTextLayout::QTextLayout(const QTextBlock &block)
