@@ -1288,7 +1288,15 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         int sy = y;
         int s = sw / 3;
 
-        if (opt->direction == Qt::RightToLeft) {
+        Qt::Corner corner;
+        if (const QStyleOptionSizeGrip *sgOpt = qstyleoption_cast<const QStyleOptionSizeGrip *>(opt))
+            corner = sgOpt->corner;
+        else if (opt->direction == Qt::RightToLeft)
+            corner = Qt::BottomLeftCorner;
+        else
+            corner = Qt::BottomRightCorner;
+
+        if (corner == Qt::BottomLeftCorner) {
             sx = x + sw;
             for (int i = 0; i < 4; ++i) {
                 p->setPen(QPen(opt->palette.light().color(), 1));
@@ -1300,7 +1308,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 sx -= s;
                 sy += s;
             }
-        } else {
+        } else if (corner == Qt::BottomRightCorner) {
             for (int i = 0; i < 4; ++i) {
                 p->setPen(QPen(opt->palette.light().color(), 1));
                 p->drawLine(sx - 1, sw, sw, sy - 1);
@@ -1308,6 +1316,29 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 p->drawLine(sx, sw, sw, sy);
                 p->setPen(QPen(opt->palette.dark().color(), 1));
                 p->drawLine(sx + 1, sw, sw, sy + 1);
+                sx += s;
+                sy += s;
+            }
+        } else if (corner == Qt::TopRightCorner) {
+            sy = y + sw;
+            for (int i = 0; i < 4; ++i) {
+                p->setPen(QPen(opt->palette.light().color(), 1));
+                p->drawLine(sx - 1, y, sw, sy + 1);
+                p->setPen(QPen(opt->palette.dark().color(), 1));
+                p->drawLine(sx, y, sw, sy);
+                p->setPen(QPen(opt->palette.dark().color(), 1));
+                p->drawLine(sx + 1, y, sw, sy - 1);
+                sx += s;
+                sy -= s;
+            }
+        } else if (corner == Qt::TopLeftCorner) {
+            for (int i = 0; i < 4; ++i) {
+                p->setPen(QPen(opt->palette.light().color(), 1));
+                p->drawLine(x, sy - 1, sx - 1, y);
+                p->setPen(QPen(opt->palette.dark().color(), 1));
+                p->drawLine(x, sy, sx, y);
+                p->setPen(QPen(opt->palette.dark().color(), 1));
+                p->drawLine(x, sy + 1, sx + 1, y);
                 sx += s;
                 sy += s;
             }

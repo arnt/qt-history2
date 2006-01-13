@@ -2958,6 +2958,36 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 
 #endif // QT_NO_TABBAR
 
+#ifndef QT_NO_SIZEGRIP
+/*!
+    Constructs a QStyleOptionSizeGrip
+*/
+QStyleOptionSizeGrip::QStyleOptionSizeGrip()
+    : QStyleOptionComplex(Version, Type), corner(Qt::BottomRightCorner)
+{
+}
+
+/*!
+    \fn QStyleOptionSizeGrip::QStyleOptionSizeGrip(const QStyleOptionSizeGrip &other)
+    \since 4.2
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \internal
+*/
+QStyleOptionSizeGrip::QStyleOptionSizeGrip(int version)
+    : QStyleOptionComplex(version, Type), corner(Qt::BottomRightCorner)
+{
+}
+
+/*!
+    \variable QStyleOptionSizeGrip::corner
+
+    The corner in which the size grip is located
+*/
+#endif // QT_NO_SIZEGRIP
+
 /*!
     \class QStyleHintReturn
     \brief The QStyleHintReturn class provides style hints that return more

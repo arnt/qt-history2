@@ -38,6 +38,7 @@ public:
     QSize s;
     int d;
     bool hiddenByUser;
+    bool atBottom;
 };
 
 static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
@@ -60,6 +61,12 @@ static QWidget* qt_sizegrip_workspace(QWidget* w)
     return w;
 }
 
+static bool qt_sizegrip_atBottom(QWidget* sg)
+{
+    QWidget *tlw = qt_sizegrip_topLevelWidget(sg);
+    printf("%i %i\n", tlw->mapFromGlobal(sg->mapToGlobal(QPoint(0, 0))).y(), tlw->height() / 2);
+    return tlw->mapFromGlobal(sg->mapToGlobal(QPoint(0, 0))).y() >= (tlw->height() / 2);
+}
 
 /*!
     \class QSizeGrip qsizegrip.h
@@ -122,9 +129,10 @@ void QSizeGripPrivate::init()
 {
     Q_Q(QSizeGrip);
     hiddenByUser = false;
+    atBottom = qt_sizegrip_atBottom(q);
 #ifndef QT_NO_CURSOR
 #ifndef Q_WS_MAC
-    q->setCursor(q->isRightToLeft() ? Qt::SizeBDiagCursor : Qt::SizeFDiagCursor);
+    q->setCursor(q->isRightToLeft() ^ atBottom ? Qt::SizeFDiagCursor : Qt::SizeBDiagCursor);
 #endif
 #endif
     q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
@@ -175,9 +183,24 @@ QSize QSizeGrip::sizeHint() const
 void QSizeGrip::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
+    Q_D(QSizeGrip);
+    if (d->p.isNull()) { // update "bottomness" unless we are resizing
+#ifndef QT_NO_CURSOR
+#ifndef Q_WS_MAC
+        if (qt_sizegrip_atBottom(this) != d->atBottom) {
+            d->atBottom = !d->atBottom;
+            setCursor(isRightToLeft() ^ d->atBottom ? Qt::SizeFDiagCursor : Qt::SizeBDiagCursor);
+        }
+#endif
+#endif
+    }
     QPainter painter(this);
-    QStyleOption opt(0);
+    QStyleOptionSizeGrip opt;
     opt.init(this);
+    if (isRightToLeft())
+        opt.corner = d->atBottom ? Qt::BottomLeftCorner : Qt::TopLeftCorner;
+    else
+        opt.corner = d->atBottom ? Qt::BottomRightCorner : Qt::TopRightCorner;
     style()->drawControl(QStyle::CE_SizeGrip, &opt, &painter, this);
 }
 
@@ -218,31 +241,34 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
         np = ws->mapToGlobal(tmp);
     }
 
-    int w;
-    int h = np.y() - d->p.y() + d->s.height();
+    QSize ns;
+    if (d->atBottom)
+        ns.rheight() = np.y() - d->p.y() + d->s.height();
+    else
+        ns.rheight() = d->s.height() - (np.y() - d->p.y());
 
     if (isRightToLeft())
-        w = d->s.width() - (np.x() - d->p.x());
+        ns.rwidth() = d->s.width() - (np.x() - d->p.x());
     else
-        w = np.x() - d->p.x() + d->s.width();
+        ns.rwidth() = np.x() - d->p.x() + d->s.width();
 
-    if (w < 1)
-        w = 1;
-    if (h < 1)
-        h = 1;
-    QSize ms(tlw->minimumSize());
-    ms = ms.expandedTo(minimumSize());
-    if (w < ms.width())
-        w = ms.width();
-    if (h < ms.height())
-        h = ms.height();
+    ns = ns.expandedTo(tlw->minimumSize()).expandedTo(tlw->minimumSizeHint()).boundedTo(tlw->maximumSize());
 
-    if (isRightToLeft()) {
-        tlw->resize(w, h);
-        if (tlw->size() == QSize(w, h))
-            tlw->move(tlw->x() + (np.x() - d->p.x()), tlw->y());
+    QRect g = tlw->geometry();
+    if (d->atBottom) {
+        if (isRightToLeft()) {
+            tlw->setGeometry(g.right() - ns.width() + 1, g.y(), ns.width(), ns.height());
+            int width = tlw->width();
+            if (width != ns.width()) // check if the platform was able to set the requested geometry
+                tlw->setGeometry(g.right() - width + 1, g.y(), width, tlw->height());
+        } else
+            tlw->resize(ns);
     } else {
-        tlw->resize(w, h);
+        if (isRightToLeft())
+            tlw->setGeometry(g.right() - ns.width() + 1, g.bottom() - ns.height() + 1, 
+                             ns.width(), ns.height());
+        else
+            tlw->setGeometry(g.x(), g.bottom() - ns.height() + 1, ns.width(), ns.height());
     }
 #ifdef Q_WS_WIN
     MSG msg;
@@ -250,11 +276,6 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
       ;
 #endif
     QApplication::syncX();
-
-    if (isRightToLeft() && tlw->size() == QSize(w,h)) {
-        d->s.rwidth() = tlw->size().width();
-        d->p.rx() = np.x();
-    }
 }
 
 /*! \reimp */
@@ -285,6 +306,7 @@ bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
 /*! \reimp */
 bool QSizeGrip::event(QEvent *e)
 {
+    Q_D(QSizeGrip);
 #if defined(Q_WS_MAC)
     switch(e->type()) {
     case QEvent::Hide:
@@ -300,6 +322,11 @@ bool QSizeGrip::event(QEvent *e)
         break;
     }
 #endif
+    switch(e->type()) {
+        case QEvent::MouseButtonRelease:
+            d->p = QPoint();
+            break;
+    }
     return QWidget::event(e);
 }
 

@@ -36,7 +36,7 @@ public:
                       SO_TabBarBase, SO_RubberBand, SO_ToolBar,
 
                       SO_Complex = 0xf0000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
-                      SO_Q3ListView, SO_TitleBar, SO_GroupBox,
+                      SO_Q3ListView, SO_TitleBar, SO_GroupBox, SO_SizeGrip,
                     
                       SO_CustomBase = 0xf00,
                       SO_ComplexCustomBase = 0xf000000
@@ -632,6 +632,20 @@ public:
     QStyleOptionGroupBox(const QStyleOptionGroupBox &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 protected:
     QStyleOptionGroupBox(int version);
+};
+
+class Q_GUI_EXPORT QStyleOptionSizeGrip : public QStyleOptionComplex
+{
+public:
+    enum { Type = SO_SizeGrip };
+    enum { Version = 1 };
+
+    Qt::Corner corner;
+
+    QStyleOptionSizeGrip();
+    QStyleOptionSizeGrip(const QStyleOptionSizeGrip &other) : QStyleOptionComplex(Version, Type) { *this = other; }
+protected:
+    QStyleOptionSizeGrip(int version);
 };
 
 template <typename T>

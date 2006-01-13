@@ -42,7 +42,7 @@ public:
     QScrollBar *horizontalScrollBar() const;
 
     QWidget *cornerWidget() const;
-    void setCornerWidget(QWidget *corner);
+    void setCornerWidget(QWidget *widget, Qt::Corner corner = Qt::BottomRightCorner);
     
     QWidget *viewport() const;
     QSize maximumViewportSize() const;

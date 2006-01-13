@@ -1852,10 +1852,24 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             XPThemeData theme(0, p, name, partId, 0);
             pGetThemePartSize(theme.handle(), 0, partId, 0, 0, TS_TRUE, &sz);
             --sz.cy;
-            if ((hMirrored = qApp->reverseLayout()))
-                rect = QRect(rect.left() + 1, rect.bottom() - sz.cy, sz.cx, sz.cy);
-            else
-                rect = QRect(rect.right() - sz.cx, rect.bottom() - sz.cy, sz.cx, sz.cy);
+            if (const QStyleOptionSizeGrip *sg = qstyleoption_cast<const QStyleOptionSizeGrip *>(option)) {
+                switch (sg->corner) {
+                    case Qt::BottomRightCorner:
+                        rect = QRect(rect.right() - sz.cx, rect.bottom() - sz.cy, sz.cx, sz.cy);
+                        break;
+                    case Qt::BottomLeftCorner:
+                        rect = QRect(rect.left() + 1, rect.bottom() - sz.cy, sz.cx, sz.cy);
+                        hMirrored = true;
+                        break;
+                    case Qt::TopRightCorner:
+                        rect = QRect(rect.right() - sz.cx, rect.top() + 1, sz.cx, sz.cy);
+                        vMirrored = true;
+                        break;
+                    case Qt::TopLeftCorner:
+                        rect = QRect(rect.left() + 1, rect.top() + 1, sz.cx, sz.cy);
+                        hMirrored = vMirrored = true;
+                }
+            }
         }
         break;
 

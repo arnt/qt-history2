@@ -98,7 +98,7 @@ bool QAbstractScrollAreaViewport::event(QEvent *e) {
 
 QAbstractScrollAreaPrivate::QAbstractScrollAreaPrivate()
     :hbar(0), vbar(0), vbarpolicy(Qt::ScrollBarAsNeeded), hbarpolicy(Qt::ScrollBarAsNeeded),
-     viewport(0), corner(0), left(0), top(0), right(0), bottom(0),
+     viewport(0), cornerWidget(0), corner(Qt::BottomRightCorner), left(0), top(0), right(0), bottom(0),
      xoffset(0), yoffset(0)
 {
 }
@@ -147,7 +147,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     if (frameContentsOnly)
         extra = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth) * 2;
 
-    bool haveCornerObject = (corner != 0);
+    bool hasCornerWidget = (cornerWidget != 0);
 
 // If the scrollbars are at the very right and bottom of the window we
 // move their positions to be alligned with the size grip.
@@ -176,7 +176,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     const QPoint offset = windowBottomRight - scrollAreaBottomRight;
 
     if (offset.manhattanLength() < sizeGripSize)
-        haveCornerObject = true;
+        hasCornerWidget = true;
 #endif
     if (frameContentsOnly) {
         QRect frameRect = vr;
@@ -184,13 +184,13 @@ void QAbstractScrollAreaPrivate::layoutChildren()
             frameRect.setBottom(frameRect.bottom() - hsbExt - extra);
             hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
                         QRect(0, frameRect.bottom() + 1 + extra,
-                            frameRect.width() + 1 - ((haveCornerObject && !needv)?vsbExt:0) -(needv?(vsbExt):0), hsbExt)));
+                            frameRect.width() + 1 - ((hasCornerWidget && !needv)?vsbExt:0) -(needv?(vsbExt):0), hsbExt)));
         }
         if (needv) {
             frameRect.setRight(frameRect.right() - vsbExt - extra);
             vbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
-                        QRect(frameRect.right() + 1 + extra, 0,
-                            vsbExt, frameRect.height() + 1 - ((haveCornerObject && !needh)?(hsbExt): - extra))));
+                        QRect(frameRect.right() + 1 + extra, (corner != Qt::BottomRightCorner ? vsbExt : 0),
+                            vsbExt, frameRect.height() + 1 - ((hasCornerWidget && !needh)?(hsbExt): - extra))));
         }
         q->setFrameRect(QStyle::visualRect(opt.direction, opt.rect, frameRect));
         vr = q->contentsRect();
@@ -201,21 +201,21 @@ void QAbstractScrollAreaPrivate::layoutChildren()
             vr.setBottom(vr.bottom() - hsbExt);
             hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
                         QRect(vr.left(), vr.bottom() + 1,
-                              vr.width() - (needv?vsbExt:0) - ((haveCornerObject && !needv)?vsbExt:0), hsbExt)));
+                              vr.width() - (needv?vsbExt:0) - ((hasCornerWidget && !needv)?vsbExt:0), hsbExt)));
         }
         if (needv) {
             vr.setRight(vr.right() - vsbExt);
             vbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
-                        QRect(vr.right() + 1, vr.top(),
-                              vsbExt, vr.height() - ((haveCornerObject && !needh)?hsbExt:0))));
+                        QRect(vr.right() + 1, vr.top() + (corner != Qt::BottomRightCorner ? vsbExt :0),
+                              vsbExt, vr.height() - ((hasCornerWidget && !needh)?hsbExt:0))));
         }
         vr = QStyle::visualRect(opt.direction, opt.rect, vr);
     }
 
-    if ( corner ){
+    if (cornerWidget){
         QRect r = QStyle::visualRect(opt.direction, opt.rect,
-                  QRect(q->width()-vsbExt, q->height()-hsbExt, vsbExt, hsbExt));
-        corner->setGeometry(r);
+                  QRect(q->width()-vsbExt, corner != Qt::BottomRightCorner ? 0:q->height()-hsbExt, vsbExt, hsbExt));
+        cornerWidget->setGeometry(r);
     }
 
     hbar->setVisible(needh);
@@ -362,7 +362,7 @@ QScrollBar *QAbstractScrollArea::horizontalScrollBar() const
 QWidget *QAbstractScrollArea::cornerWidget() const
 {
     Q_D(const QAbstractScrollArea);
-    return d->corner;
+    return d->cornerWidget;
 }
 
 /*!
@@ -388,22 +388,26 @@ QWidget *QAbstractScrollArea::cornerWidget() const
 
     \sa setVScrollBarMode(), setHScrollBarMode()
 */
-void QAbstractScrollArea::setCornerWidget(QWidget *corner)
+void QAbstractScrollArea::setCornerWidget(QWidget *widget, Qt::Corner corner)
 {
     Q_D(QAbstractScrollArea);
-    QWidget* oldcorner = d->corner;
-    if (oldcorner != corner) {
-        if (oldcorner)
-            oldcorner->hide();
+    QWidget* oldWidget = d->cornerWidget;
+    if (oldWidget != widget) {
+        if (oldWidget)
+            oldWidget->hide();
+        d->cornerWidget = widget;
         d->corner = corner;
 
-        if ( corner && corner->parentWidget() != this ) {
-            corner->setParent( this );
+        if (widget && widget->parentWidget() != this) {
+            widget->setParent( this );
         }
 
         d->layoutChildren();
-        if ( corner )
-            corner->show();
+        if (widget)
+            widget->show();
+    } else {
+        d->corner = corner;
+        d->layoutChildren();
     }
 }
 
