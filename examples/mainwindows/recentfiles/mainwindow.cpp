@@ -112,11 +112,6 @@ void MainWindow::createActions()
                 this, SLOT(openRecentFile()));
     }
 
-    exitAct = new QAction(tr("&Close"), this);
-    exitAct->setShortcut(tr("Ctrl+W"));
-    exitAct->setStatusTip(tr("Close this window"));
-    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
-
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application"));
