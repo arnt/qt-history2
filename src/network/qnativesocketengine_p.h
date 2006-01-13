@@ -30,7 +30,7 @@
 
 class QNativeSocketEnginePrivate;
 
-class QNativeSocketEngine : public QAbstractSocketEngine
+class Q_INTERNAL_EXPORT QNativeSocketEngine : public QAbstractSocketEngine
 {
     Q_OBJECT
 public:
