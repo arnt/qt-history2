@@ -134,20 +134,22 @@ bool QFSFileEngine::rmdir(const QString &name, bool recurseParentDirectories) co
 QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
     Q_D(const QFSFileEngine);
-    const bool doDirs     = (filters & (QDir::Dirs | QDir::AllDirs)) != 0;
-    const bool doFiles    = (filters & QDir::Files) != 0;
-    const bool doSymLinks = (filters & QDir::NoSymLinks) == 0;
-    const bool doReadable = (filters & QDir::Readable) != 0;
-    const bool doWritable = (filters & QDir::Writable) != 0;
-    const bool doExecable = (filters & QDir::Executable) != 0;
-    const bool doHidden   = (filters & QDir::Hidden) != 0;
-    const bool doSystem   = (filters & QDir::System) != 0;
-
     QStringList ret;
     DIR *dir = opendir(QFile::encodeName(d->file));
     if(!dir)
         return ret; // cannot read the directory
 
+    const bool filterTypes = (filters & (QDir::TypeMask & ~QDir::NoSymLinks)) || (filters & QDir::AllDirs);
+    const bool filterPermissions = (filters & QDir::PermissionMask);
+    const bool skipDirs     = filterTypes && !(filters & (QDir::Dirs | QDir::AllDirs));
+    const bool skipFiles    = filterTypes && !(filters & QDir::Files);
+    const bool skipSymlinks = (filters & QDir::NoSymLinks);
+    const bool skipReadable = filterPermissions && !(filters & QDir::Readable);
+    const bool skipWritable = filterPermissions && !(filters & QDir::Writable);
+    const bool skipExecable = filterPermissions && !(filters & QDir::Executable);
+    const bool skipHidden   = !(filters & QDir::Hidden);
+    const bool addSystem    = (filters & QDir::System);
+    
 #ifndef QT_NO_REGEXP
     QList<QRegExp> filterRegExps;
 #endif
@@ -196,6 +198,7 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
     {
         QString fn = QFile::decodeName(QByteArray(file->d_name));
         fi.setFile(d->file + QLatin1Char('/') + fn);
+
         if(!((filters & QDir::AllDirs) && fi.isDir())) {
             bool matched = false;
 #ifndef QT_NO_REGEXP
@@ -212,27 +215,34 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
                     break;
                 }
             }
-            if(!matched)
+            if (!matched)
                 continue;
         }
-        if  ((doDirs && fi.isDir()) || (doFiles && fi.isFile()) ||
-              (doSystem && (!fi.isFile() && !fi.isDir())) ||
-              (doSymLinks && fi.isSymLink())) {
-            if((filters & QDir::PermissionMask) != 0)
-                if((doReadable && !fi.isReadable()) ||
-                     (doWritable && !fi.isWritable()) ||
-                     (doExecable && !fi.isExecutable()))
-                    continue;
-            if (!doSymLinks && fi.isSymLink() || !doFiles && fi.isFile() || !doDirs && fi.isDir())
-                continue;
-            if (filters & QDir::NoDotAndDotDot && (fn == QLatin1String(".") || fn == QLatin1String("..")))
-                continue;
-            if(!doHidden && fn.at(0) == QLatin1Char('.') && fn.length() > 1 && fn != QLatin1String(".."))
-                continue;
+        if (!filters || filters == QDir::AllEntries) {
             ret.append(fn);
+            continue;
         }
+        if ((filters & QDir::NoDotAndDotDot) && ((fn == QLatin1String(".") || fn == QLatin1String(".."))))
+            continue;
+        
+        bool disableDirFilters = (filters & QDir::AllDirs) != 0;
+        if ((skipHidden && fn.at(0) == QLatin1Char('.') && fn.length() > 1 && fn != QLatin1String(".."))
+            || (!disableDirFilters && skipDirs && fi.isDir())
+            || (skipFiles && (fi.isFile() || !fi.exists()))
+            || (!disableDirFilters && skipReadable && fi.isReadable())
+            || (!disableDirFilters && skipWritable && fi.isWritable())
+            || (!disableDirFilters && skipExecable && fi.isExecutable())
+            || (!disableDirFilters && skipSymlinks && fi.isSymLink())) {
+            continue;
+        }
+
+        bool isSystemFile = fi.exists() && !fi.isFile() && !fi.isDir() && !fi.isSymLink();
+        if (addSystem && isSystemFile)
+            ret.append(fn);
+        else if (!addSystem && !isSystemFile)
+            ret.append(fn);
     }
-    if(closedir(dir) != 0) {
+    if (closedir(dir) != 0) {
         qWarning("QDir::readDirEntries: Cannot close  directory: %s", d->file.toLocal8Bit().data());
     }
     return ret;
@@ -302,31 +312,40 @@ bool QFSFileEnginePrivate::doStat() const
 {
     if (tried_stat == 0) {
         QFSFileEnginePrivate *that = const_cast<QFSFileEnginePrivate*>(this);
-	that->tried_stat = 1;
-	that->could_stat = 1;
         if (fd != -1) {
-            that->could_stat = !QT_FSTAT(fd, &st);
+            that->could_stat = (QT_FSTAT(fd, &st) == 0);
         } else {
-            const QByteArray file = QFile::encodeName(this->file);
-            if (QT_LSTAT(file, &st) == 0)
-                that->isSymLink = S_ISLNK(st.st_mode);
-            else
-                that->isSymLink = false;
-            that->could_stat = !QT_STAT(file, &st);
+            that->could_stat = (QT_STAT(QFile::encodeName(file), &st) == 0);
         }
+	that->tried_stat = 1;
     }
-    return could_stat || isSymLink;
+    return could_stat;
+}
+
+bool QFSFileEnginePrivate::isSymlink() const
+{
+    if (need_lstat) {
+        QFSFileEnginePrivate *that = const_cast<QFSFileEnginePrivate *>(this);
+        that->need_lstat = false;
+        that->is_link = (QT_LSTAT(QFile::encodeName(file), &st) == 0) ? S_ISLNK(st.st_mode) : false;
+    }
+    return is_link;
 }
 
 QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
 {
     Q_D(const QFSFileEngine);
     // Force a stat, so that we're guaranteed to get up-to-date results
-    d->tried_stat = 0;
+    if (type & ExistsFlag)
+        d->tried_stat = 0;
+    if ((type & LinkType) || (type & ExistsFlag))
+        d->need_lstat = 1;
 
     QAbstractFileEngine::FileFlags ret = 0;
-    if(!d->doStat())
+    bool exists = d->doStat();
+    if (!exists && !d->isSymlink())
         return ret;
+
     if(type & PermsMask) {
         if(d->st.st_mode & S_IRUSR)
             ret |= ReadOwnerPerm;
@@ -369,7 +388,7 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
         if(!foundAlias)
 #endif
         {
-            if(d->isSymLink)//(d->st.st_mode & S_IFMT) == S_IFLNK)
+            if ((type & LinkType) && d->isSymlink())
                 ret |= LinkType;
             if((d->st.st_mode & S_IFMT) == S_IFREG)
                 ret |= FileType;
@@ -378,7 +397,9 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
         }
     }
     if(type & FlagsMask) {
-        ret |= QAbstractFileEngine::FileFlags(ExistsFlag | LocalDiskFlag);
+        ret |= LocalDiskFlag;
+        if (exists)
+            ret |= ExistsFlag;
         if(fileName(BaseName)[0] == QLatin1Char('.'))
             ret |= HiddenFlag;
         if(d->file == QLatin1String("/"))
@@ -544,7 +565,7 @@ QString QFSFileEngine::fileName(FileName file) const
             return fileName(AbsolutePathName);
         return fileName(AbsoluteName);
     } else if(file == LinkName) {
-        if(d->doStat() && d->isSymLink) {
+        if (d->isSymlink()) {
             char s[PATH_MAX+1];
             int len = readlink(QFile::encodeName(d->file), s, PATH_MAX);
             if(len > 0) {

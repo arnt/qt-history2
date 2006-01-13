@@ -59,9 +59,11 @@ public:
         mutable qint64 fileSize;
         mutable QDateTime fileTimes[3];
         mutable uint fileFlags;
-        mutable uchar cachedFlags;
-        inline bool getCachedFlag(uchar c) const { return cache_enabled ? (cachedFlags&c) : 0; }
-        inline void setCachedFlag(uchar c) { if(cache_enabled) cachedFlags |= c; }
+        mutable uint cachedFlags;
+        inline bool getCachedFlag(uint c) const
+        { return cache_enabled ? (cachedFlags & c) : 0; }
+        inline void setCachedFlag(uint c)
+        { if (cache_enabled) cachedFlags |= c; }
     } *data;
     inline void reset() {
         detach();
@@ -116,22 +118,22 @@ QFileInfoPrivate::getFileName(QAbstractFileEngine::FileName name) const
 uint
 QFileInfoPrivate::getFileFlags(QAbstractFileEngine::FileFlags request) const
 {
-    QAbstractFileEngine::FileFlags flags = 0;
-    if((request & QAbstractFileEngine::TypesMask) && !data->getCachedFlag(CachedTypes)) {
-        data->setCachedFlag(CachedTypes);
-        flags |= QAbstractFileEngine::TypesMask;
+    QAbstractFileEngine::FileFlags flags = QAbstractFileEngine::FileInfoAll;
+    if (!data->getCachedFlag(request)) {
+        // Unless we need to know if it's a symlink or if the file exists, we
+        // fetch all info.
+        if ((request & QAbstractFileEngine::LinkType) == 0)
+            flags &= ~QAbstractFileEngine::LinkType;
+        if ((request & QAbstractFileEngine::ExistsFlag) == 0)
+            flags &= ~QAbstractFileEngine::ExistsFlag;
+
+        flags = data->fileEngine->fileFlags(flags);
+        data->setCachedFlag(flags);
+        data->fileFlags |= flags;
+    } else {
+        flags = QAbstractFileEngine::FileFlags(data->cachedFlags);
     }
-    if((request & QAbstractFileEngine::PermsMask) && !data->getCachedFlag(CachedPerms)) {
-        data->setCachedFlag(CachedPerms);
-        flags |= QAbstractFileEngine::PermsMask;
-    }
-    if((request & QAbstractFileEngine::FlagsMask) && !data->getCachedFlag(CachedFlags)) {
-        data->setCachedFlag(CachedFlags);
-        flags |= QAbstractFileEngine::FlagsMask;
-    }
-    if(flags)
-        data->fileFlags |= (data->fileEngine->fileFlags(flags) & flags);
-    return data->fileFlags & request;
+    return flags & request;
 }
 
 QDateTime

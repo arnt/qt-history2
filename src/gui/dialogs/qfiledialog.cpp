@@ -361,7 +361,7 @@ void QFileDialog::setDirectory(const QString &directory)
     if (!index.isValid())
         return;
     if (!d->model->isDir(index))
-        index = index.parent(); // try the directory that contains the valid file
+        return;
     d->setRootIndex(index);
     d->updateButtons(index);
 }
@@ -1150,6 +1150,7 @@ void QFileDialogPrivate::useFilter(const QString &filter)
     }
     
     model->setNameFilters(filters);
+    model->refresh(rootIndex());
 }
 
 /*!
@@ -1498,6 +1499,8 @@ void QFileDialogPrivate::currentChanged(const QModelIndex &index)
     emit q_func()->currentChanged(model->filePath(index));
 }
 
+extern void qt_setDirModelShouldNotStat(QDirModelPrivate *modelPrivate);
+
 void QFileDialogPrivate::setup(const QString &directory, const QStringList &nameFilter)
 {
     Q_Q(QFileDialog);
@@ -1509,6 +1512,7 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     QDir::SortFlags sort = QDir::SortFlags(QDir::Name|QDir::LocaleAware|QDir::IgnoreCase|QDir::DirsFirst);
     QStringList cleanedFilter = qt_clean_filter_list(nameFilter.first());
     model = new QDirModel(cleanedFilter, filters, sort, q);
+    qt_setDirModelShouldNotStat(model->d_func());
     model->setReadOnly(false);
     model->setLazyChildCount(true);
 
@@ -1540,8 +1544,7 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     }
 
     // insert the home path
-    QModelIndex home = model->index(QDir::homePath()); // home
-    lookInCombo->addItem(model->fileIcon(home), toNative(QDir::homePath()));
+    lookInCombo->addItem(model->iconProvider()->icon(QFileIconProvider::Folder), toNative(QDir::homePath()));
 
     // if it is not already in the list, insert the current directory
     QString currentPath = toNative(model->filePath(current));
@@ -1822,6 +1825,7 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
 void QFileDialogPrivate::setRootIndex(const QModelIndex &index)
 {
     Q_Q(QFileDialog);
+    model->refresh(index);
     bool block = selections->blockSignals(true);
     selections->clear();
     listView->setRootIndex(index);
@@ -1844,12 +1848,14 @@ void QFileDialogPrivate::setDirSorting(QDir::SortFlags sort)
     sortByDateAction->setChecked(sortBy == QDir::Time);
     unsortedAction->setChecked(sortBy == QDir::Unsorted);
     model->setSorting(sort);
+    model->refresh(rootIndex());
 }
 
 void QFileDialogPrivate::setDirFilter(QDir::Filters filters)
 {
     showHiddenAction->setChecked(filters & QDir::Hidden);
     model->setFilter(filters);
+    model->refresh(rootIndex());
 }
 
 QDir::Filters QFileDialogPrivate::filterForMode(QFileDialog::FileMode mode)

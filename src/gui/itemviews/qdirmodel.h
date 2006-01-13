@@ -127,6 +127,7 @@ public:
 
 protected:
     QDirModel(QDirModelPrivate &, QObject *parent = 0);
+    friend class QFileDialogPrivate;
 
 private:
     Q_DECLARE_PRIVATE(QDirModel)

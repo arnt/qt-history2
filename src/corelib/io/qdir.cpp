@@ -19,7 +19,6 @@
 #include "qstring.h"
 #include "qregexp.h"
 #include "qvector.h"
-#include "qdebug.h"
 
 #include <stdlib.h>
 
@@ -176,15 +175,11 @@ static int qt_cmp_si(const void *n1, const void *n2)
     QDirSortItem* f1 = (QDirSortItem*)n1;
     QDirSortItem* f2 = (QDirSortItem*)n2;
 
-    if ( qt_cmp_si_sort_flags & (QDir::DirsFirst|QDir::DirsLast) ) { // optimization
-	if (f1->item.isDir() != f2->item.isDir()) {
-	    if (qt_cmp_si_sort_flags & QDir::DirsFirst)
-		return f1->item.isDir() ? -1 : 1;
-	    if (qt_cmp_si_sort_flags & QDir::DirsLast)
-		return f1->item.isDir() ? 1 : -1;
-	}
-    }
-
+    if ((qt_cmp_si_sort_flags & QDir::DirsFirst) && (f1->item.isDir() != f2->item.isDir()))
+        return f1->item.isDir() ? -1 : 1;
+    if ((qt_cmp_si_sort_flags & QDir::DirsLast) && (f1->item.isDir() != f2->item.isDir()))
+        return f1->item.isDir() ? 1 : -1;
+    
     int r = 0;
     int sortBy = (qt_cmp_si_sort_flags & QDir::SortByMask)
                  | (qt_cmp_si_sort_flags & QDir::Type);
@@ -1147,7 +1142,8 @@ QStringList QDir::entryList(const QStringList &nameFilters, Filters filters,
         d->updateFileLists();
         return d->data->files;
     }
-    QStringList l = d->data->fileEngine->entryList(filters, nameFilters), ret;
+    QStringList l = d->data->fileEngine->entryList(filters, nameFilters);
+    QStringList ret;
     d->sortFileList(sort, l, &ret, 0);
     return ret;
 }
