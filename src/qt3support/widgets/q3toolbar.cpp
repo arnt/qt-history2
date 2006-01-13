@@ -670,6 +670,26 @@ void Q3ToolBar::resizeEvent(QResizeEvent *e)
     checkForExtension(e->size());
 }
 
+static void updateWidget(QWidget *w, QAction *a)
+{
+    w->setVisible(a->isVisible());
+    w->setEnabled(a->isEnabled());
+
+    QToolButton *btn = qobject_cast<QToolButton *>(w);
+    if (btn) {
+        btn->setIcon(a->icon());
+        btn->setText(a->iconText());
+        bool checkable = a->isCheckable();
+        btn->setToggleButton(checkable);
+        if (checkable)
+            btn->setOn(a->isOn());
+
+        btn->setWhatsThis(a->whatsThis());
+        btn->setToolTip(a->toolTip());
+    }
+}
+
+#include <qdebug.h>
 /*!
     \internal
 
@@ -685,10 +705,7 @@ void Q3ToolBar::actionEvent(QActionEvent *e)
             w = new Q3ToolBarSeparator(orientation(), this, "toolbar separator");
         } else {
             QToolButton* btn = new QToolButton(this);
-            btn->setToggleButton(a->isCheckable());
-            QIcon icon = a->icon();
-            if (!icon.isNull())
-                btn->setIconSet(icon);
+            
             connect(btn, SIGNAL(clicked()), a, SIGNAL(triggered()));
             connect(btn, SIGNAL(clicked()), a, SIGNAL(activated()));
             connect(btn, SIGNAL(toggled(bool)), a, SLOT(setChecked(bool)));
@@ -699,6 +716,7 @@ void Q3ToolBar::actionEvent(QActionEvent *e)
 // #endif
 
             w = btn;
+            updateWidget(w, a);
         }
         d->actions.insert(a, w);
     } else if (e->type() == QEvent::ActionRemoved) {
@@ -707,14 +725,8 @@ void Q3ToolBar::actionEvent(QActionEvent *e)
     } else if (e->type() == QEvent::ActionChanged) {
         QAction *a = e->action();
         QWidget *w = d->actions.value(a);
-        if (w) {
-            w->setShown(a->isVisible());
-            w->setEnabled(a->isEnabled());
-
-            QToolButton *tb = qobject_cast<QToolButton *>(w);
-            if (tb)
-                tb->setIconSet(a->icon());
-        }
+        if (w) 
+            updateWidget(w, a);
     }
 }
 
