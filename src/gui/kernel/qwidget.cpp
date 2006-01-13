@@ -1229,7 +1229,7 @@ void QWidgetPrivate::setUpdatesEnabled_helper(bool enable)
     Qt::WidgetAttribute attribute = enable ? Qt::WA_ForceUpdatesDisabled : Qt::WA_UpdatesDisabled;
     for (int i = 0; i < children.size(); ++i) {
         QWidget *w = qobject_cast<QWidget *>(children.at(i));
-        if (w && !w->testAttribute(attribute))
+        if (w && !w->isWindow() && !w->testAttribute(attribute))
             w->d_func()->setUpdatesEnabled_helper(enable);
     }
 }
