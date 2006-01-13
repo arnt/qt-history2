@@ -294,27 +294,15 @@ bool QTreeModel::setData(const QModelIndex &index, const QVariant &value, int ro
 */
 bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-	beginInsertRows(parent, row, row + count - 1);
-    if (parent.isValid()) {
-	    while (count > 0) {
-            QTreeWidgetItem *it = item(parent);
-			QTreeWidgetItem *newitem = new QTreeWidgetItem();
-			newitem->setFlags(newitem->flags() | Qt::ItemIsDropEnabled);
-			newitem->view = qobject_cast<QTreeWidget *>(QObject::parent());
-			newitem->model = this;
-			newitem->par = it;
-			it->children.insert(row++, newitem);
-			--count;
-		}
-    } else {
-	    while (count > 0) {
-			QTreeWidgetItem *newitem = new QTreeWidgetItem();
-			newitem->setFlags(newitem->flags() | Qt::ItemIsDropEnabled);
-			newitem->view = qobject_cast<QTreeWidget *>(QObject::parent());
-			newitem->model = this;
-		    tree.insert(row++, newitem);
-			--count;
-        }
+    beginInsertRows(parent, row, row + count - 1);
+    while (count > 0) {
+        QTreeWidgetItem *par = item(parent);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->view = qobject_cast<QTreeWidget*>(QObject::parent());
+        item->model = this;
+        item->par = par;
+        par->children.insert(row++, item);
+        --count;
     }
     endInsertRows();
     return true;
@@ -327,29 +315,26 @@ bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 bool QTreeModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
     beginInsertColumns(parent, column, column + count - 1);
-	int oldCount = columnCount(parent);
-	column = qBound(0, column, oldCount);
 
-	header->values.resize(oldCount + count);
+    int oldCount = columnCount(parent);
+    column = qBound(0, column, oldCount);
+    header->values.resize(oldCount + count);
     for (int i = oldCount; i < oldCount + count; ++i)
         header->values[i].append(QWidgetItemData(Qt::DisplayRole, QString::number(i)));
 
-	// We pop the stack and process all children of the item popped.
-	// For each item that has children we push it to the stack, which then later will
-	// be popped and processed.
-	QStack<QTreeWidgetItem*> itemstack;
-	itemstack.push(0);
-	while (!itemstack.isEmpty()) {
-		QTreeWidgetItem *par = itemstack.pop();
-		QList<QTreeWidgetItem*> children = par ? par->children : tree;
-		for (int row = 0; row < children.count(); ++row) {
-			QTreeWidgetItem *child = children.at(row);
-			if (child->children.count())
-				itemstack.push(child);
+    QStack<QTreeWidgetItem*> itemstack;
+    itemstack.push(0);
+    while (!itemstack.isEmpty()) {
+        QTreeWidgetItem *par = itemstack.pop();
+        QList<QTreeWidgetItem*> children = par ? par->children : tree;
+        for (int row = 0; row < children.count(); ++row) {
+            QTreeWidgetItem *child = children.at(row);
+            if (child->children.count()) 
+                itemstack.push(child);            
+            child->values.insert(column, count, QVector<QWidgetItemData>());
+        }
+    }
 
-			child->values.insert(column, count, QVector<QWidgetItemData>());
-		}
-	}
     endInsertColumns();
     return true;
 }
@@ -1002,7 +987,8 @@ QTreeWidgetItem::QTreeWidgetItem(int type)
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
-                |Qt::ItemIsDragEnabled)
+                |Qt::ItemIsDragEnabled
+                |Qt::ItemIsDropEnabled)
 {
 }
 
@@ -1020,7 +1006,8 @@ QTreeWidgetItem::QTreeWidgetItem(const QStringList &strings, int type)
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
-                |Qt::ItemIsDragEnabled)
+                |Qt::ItemIsDragEnabled
+                |Qt::ItemIsDropEnabled)
 {
     for (int i = 0; i < strings.count(); ++i)
         setText(i, strings.at(i));
