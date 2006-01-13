@@ -1112,7 +1112,7 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
         engine = fnt.d->engineForScript(script);
 #if defined(Q_WS_WIN)
         if (engine->type() == QFontEngine::Box)
-            engine = fond.d->engineForScript(QUnicodeTables::Common);
+            engine = fnt.d->engineForScript(QUnicodeTables::Common);
 #endif
     } else {
         QTextCharFormat f = format(&si);
@@ -1129,14 +1129,14 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
         engine = font.d->engineForScript(script);
 #if defined(Q_WS_WIN)
         if (engine->type() == QFontEngine::Box)
-            engine = fond.d->engineForScript(QUnicodeTables::Common);
+            engine = font.d->engineForScript(QUnicodeTables::Common);
 #endif
         if (f.verticalAlignment() != QTextCharFormat::AlignNormal) {
             font.setPointSize((font.pointSize() * 2) / 3);
             scaledEngine = font.d->engineForScript(script);
 #if defined(Q_WS_WIN)
             if (scaledEngine->type() == QFontEngine::Box)
-                scaledEngine = fond.d->engineForScript(QUnicodeTables::Common);
+                scaledEngine = font.d->engineForScript(QUnicodeTables::Common);
 #endif
         }
     }
