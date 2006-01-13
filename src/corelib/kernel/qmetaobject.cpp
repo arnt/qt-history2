@@ -1634,8 +1634,8 @@ QVariant QMetaProperty::read(const QObject *object) const
 
     int  t = QVariant::Int;
     if (!isEnumType()) {
-    int handle = priv(mobj->d.data)->propertyData + 3*idx;
-    int flags = mobj->d.data[handle + 2];
+        int handle = priv(mobj->d.data)->propertyData + 3*idx;
+        int flags = mobj->d.data[handle + 2];
         const char *typeName = mobj->d.stringdata + mobj->d.data[handle + 1];
         t = (flags >> 24);
         if (t == QVariant::Invalid)
@@ -1654,8 +1654,8 @@ QVariant QMetaProperty::read(const QObject *object) const
         argv[0] = value.data();
     }
     const_cast<QObject*>(object)->qt_metacall(QMetaObject::ReadProperty,
-                     idx + mobj->propertyOffset(),
-                     argv);
+                                              idx + mobj->propertyOffset(),
+                                              argv);
     if (t != int(QVariant::LastType) && argv[0] != value.data())
         return QVariant((QVariant::Type)t, argv[0]);
     return value;
@@ -1849,7 +1849,7 @@ bool QMetaProperty::isStored(const QObject *object) const
 }
 
 /*!
-    Returns true if this is the property that the user can editable for \a object; 
+    Returns true if this is the property that the user can editable for \a object;
     otherwise returns false. I.e. the text property is the user editable property
     of a QLineEdit.
 
