@@ -2141,10 +2141,15 @@
          \o Used to modify the item of data associated with a specified model index.
             To be able to accept user input, provided by user interface elements, this
             function must handle data associated with Qt::EditRole.
-            The implementation may also accept data associated with many different kinds of
-            roles specified by Qt::ItemDataRole.
+            The implementation may also accept data associated with many different kinds
+            of roles specified by Qt::ItemDataRole. After changing the item of data,
+            models must emit the \l{QAbstractItemModel::dataChanged()}{dataChanged()}
+            signal to inform other components of the change.
     \row \o \l{QAbstractItemModel::setHeaderData()}{setHeaderData()}
-         \o Used to modify horizontal and vertical header information.
+         \o Used to modify horizontal and vertical header information. After changing
+            the item of data, models must emit the
+            \l{QAbstractItemModel::headerDataChanged()}{headerDataChanged()}
+            signal to inform other components of the change.
     \endtable
 
     \section2 Resizable Models
@@ -2200,6 +2205,12 @@
     unavailable. The encapsulation of insert and remove operations with begin and end
     functions also enable the model to manage
     \l{QPersistentModelIndex}{persistent model indexes} correctly.
+
+    Normally, the begin and end functions are capable of informing other components
+    about changes to the model's underlying structure. For more complex changes to the
+    model's structure, perhaps involving internal reorganization or sorting of data,
+    it is necessary to emit the \l{QAbstractItemModel::layoutChanged()}{layoutChanged()}
+    signal to cause any attached views to be updated.
 
     \section1 Navigation and Model Index Creation
 

@@ -952,8 +952,8 @@ void QAbstractItemModelPrivate::reset()
     received by a view, it should update the layout of items to reflect this
     change.
 
-    When subclassing QAbstractItemModel or QProxyModel, ensure that you emit
-    this signal if you change the order of items or alter the structure of
+    When subclassing QAbstractItemModel or QAbstractProxyModel, ensure that you
+    emit this signal if you change the order of items or alter the structure of
     the data you expose to views.
 
     \sa dataChanged(), headerDataChanged(), reset()
@@ -1147,8 +1147,8 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
     Sets the \a role data for the item at \a index to \a value.
     Returns true if successful; otherwise returns false.
 
-    The dataChanged() signal should be emited when successful. 
-    
+    The dataChanged() signal should be emitted if the data was successfully set.
+
     The base class implementation returns false. This function and
     data() must be reimplemented for editable models.
 
