@@ -1419,7 +1419,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
         case QVariant::KeySequence: {
             DomString *s = new DomString();
 #ifndef Q_WS_MAC
-            s->setText(qvariant_cast<QKeySequence>(v));
+            s->setText(qvariant_cast<QKeySequence>(v).toString(QKeySequence::PortableText));
 #else
             s->setText(platformNeutralKeySequence(qvariant_cast<QKeySequence>(v)));
 #endif
