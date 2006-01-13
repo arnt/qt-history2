@@ -1591,6 +1591,9 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
             p->setClipRect(rect, Qt::IntersectClip);
         }
 
+        QFont f = eng->font(si);
+        gf.fontEngine = f.d->engineForScript(si.analysis.script);
+        gf.f = &f;
         QTextCharFormat chf;
         if (eng->hasFormats() || selection) {
             chf = eng->format(&si);
@@ -1601,14 +1604,14 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                                                         gf.width.toReal(), line.height().toReal()));
 
             QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
-            if (valign == QTextCharFormat::AlignSubScript)
-                itemBaseLine += (si.ascent + si.descent + 1) / 6;
-            else if (valign == QTextCharFormat::AlignSuperScript)
-                itemBaseLine -= (si.ascent + si.descent + 1) / 2;
+            if (valign != QTextCharFormat::AlignNormal) {
+                QFixed height = gf.fontEngine->ascent() + gf.fontEngine->descent();
+                if (valign == QTextCharFormat::AlignSubScript)
+                    itemBaseLine += height / 6;
+                else if (valign == QTextCharFormat::AlignSuperScript)
+                    itemBaseLine -= height / 2;
+            }
         }
-        QFont f = eng->font(si);
-        gf.fontEngine = f.d->engineForScript(si.analysis.script);
-        gf.f = &f;
         if (f.d->underline || chf.fontUnderline())
             gf.flags |= QTextItem::Underline;
         if (f.d->overline || chf.fontOverline())

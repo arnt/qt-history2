@@ -23,10 +23,7 @@ void QTextEngine::shapeText(int item) const
 
     si.glyph_data_offset = layoutData->used;
 
-    QFontEngine *font = fontEngine(si);
-
-    si.ascent = font->ascent();
-    si.descent = font->descent();
+    QFontEngine *font = fontEngine(si, &si.ascent, &si.descent);
 
     QShaperItem shaper_item;
     shaper_item.script = si.analysis.script;

@@ -467,7 +467,7 @@ public:
         return end - si->position;
     }
 
-    QFontEngine *fontEngine(const QScriptItem &si) const;
+    QFontEngine *fontEngine(const QScriptItem &si, QFixed *ascent = 0, QFixed *descent = 0) const;
     QFont font(const QScriptItem &si) const;
     inline QFont font() const { return fnt; }
 
