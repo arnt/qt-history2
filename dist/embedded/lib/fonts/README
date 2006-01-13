@@ -20,4 +20,7 @@ The fonts here are generated from various sources:
     verdana*      - MS Verdana TTF font
                     - Latin-1 characters (about 250 characters)
 
+    wenquanyi*    - Chinese character font distributed on
+                    http://wqy.sourceforge.net/en                
+    
 Each font is provided in all 4 rotated forms (plain, _t5, _t10, _t15).
