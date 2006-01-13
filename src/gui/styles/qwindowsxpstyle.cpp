@@ -36,6 +36,7 @@
 #include <qpushbutton.h>
 #include <qtoolbar.h>
 #include <qdockwidget.h>
+#include <qlabel.h>
 
 #include <qt_windows.h>
 // Uncomment define below to build debug assisting code, and output
@@ -3369,14 +3370,15 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     int res = 0;
     switch (hint) {
 
-    case SH_TitleBar_AutoRaise:
-        res = true;
+    case SH_EtchDisabledText:
+        res = (qobject_cast<const QLabel*>(widget) != 0);
         break;
 
     case SH_SpinControls_DisableOnBounds:
         res = 0;
         break;
 
+    case SH_TitleBar_AutoRaise:
     case SH_TitleBar_NoBorder:
         res = 1;
         break;
