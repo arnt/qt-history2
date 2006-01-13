@@ -756,14 +756,20 @@ void QTextHtmlParser::parseTag()
 
     resolveParent();
     resolveNode();
+    QColor inheritedNodeColor = node->color;
+    node->color = QColor();
     // _need_ at least one space after the tag name, otherwise there can't be attributes
     if (pos < len && txt.at(pos).isSpace())
         parseAttributes();
 
     // special handling for anchors with href attribute (hyperlinks)
     if (node->isAnchor && !node->anchorHref.isEmpty()) {
-        node->fontUnderline = On; // ####
-        node->color = Qt::blue; // ####
+        node->fontUnderline = On; // #### remove 4.2
+        if (!node->color.isValid())
+            node->color = Qt::blue; // #### remove 4.2
+    } else {
+        if (!node->color.isValid())
+            node->color = inheritedNodeColor;
     }
 
     // finish tag
