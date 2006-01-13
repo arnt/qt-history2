@@ -2074,12 +2074,12 @@ Qt::DockWidgetArea QMainWindowLayout::locateDockWidget(QDockWidget *dockwidget,
 }
 
 QRect QMainWindowLayout::placeDockWidget(QDockWidget *dockwidget,
-                                         const QRect &_r,
+                                         const QRect &__r,
                                          const QPoint &mouse)
 {
+
     DEBUG("QMainWindowLayout::placeDockWidget");
 
-    QRect r = QStyle::visualRect(QApplication::layoutDirection(), geometry(), _r);
     Qt::DockWidgetArea area = locateDockWidget(dockwidget, mouse);
     QRect target;
 
@@ -2088,12 +2088,25 @@ QRect QMainWindowLayout::placeDockWidget(QDockWidget *dockwidget,
         return target;
     }
 
+    QRect _r = __r;
+    Qt::DockWidgetArea currentArea = dockWidgetArea(dockwidget);
+    if (((currentArea == Qt::LeftDockWidgetArea || currentArea == Qt::RightDockWidgetArea)
+         && (area == Qt::TopDockWidgetArea || area == Qt::BottomDockWidgetArea))
+        || ((currentArea == Qt::TopDockWidgetArea || currentArea == Qt::BottomDockWidgetArea)
+            && (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea))) {
+        // changing area, reset to size hint
+        _r.setSize(dockwidget->sizeHint());
+        _r.moveCenter(QPoint(mouse.x(), _r.y()));
+    }
+    QRect r = QStyle::visualRect(QApplication::layoutDirection(), geometry(), _r);
+
     // if there is a window dock layout already here, forward the place
     const int pos = positionForArea(area);
     if (layout_info[pos].item && !layout_info[pos].item->isEmpty()) {
         DEBUG("  forwarding...");
         QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(layout_info[pos].item->layout());
         Q_ASSERT(l != 0);
+
         target = l->place(dockwidget, _r, mouse);
         DEBUG("END of QMainWindowLayout::placeDockWidget (forwarded)");
         return target;
@@ -2135,11 +2148,10 @@ QRect QMainWindowLayout::placeDockWidget(QDockWidget *dockwidget,
 }
 
 void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
-                                        const QRect &_r,
-                                        const QPoint &mouse)
+                                       const QRect &__r,
+                                       const QPoint &mouse)
 {
     DEBUG("QMainWindowLayout::dropDockWidget");
-    QRect r = QStyle::visualRect(QApplication::layoutDirection(), geometry(), _r);
 
     Qt::DockWidgetArea area = locateDockWidget(dockwidget, mouse);
 
@@ -2147,6 +2159,18 @@ void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
         DEBUG() << "END of QMainWindowLayout::dropDockWidget (failed to place)";
         return;
     }
+
+    QRect _r = __r;
+    Qt::DockWidgetArea currentArea = dockWidgetArea(dockwidget);
+    if (((currentArea == Qt::LeftDockWidgetArea || currentArea == Qt::RightDockWidgetArea)
+         && (area == Qt::TopDockWidgetArea || area == Qt::BottomDockWidgetArea))
+        || ((currentArea == Qt::TopDockWidgetArea || currentArea == Qt::BottomDockWidgetArea)
+            && (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea))) {
+        // changing area, reset to size hint
+        _r.setSize(dockwidget->sizeHint());
+        _r.moveCenter(QPoint(mouse.x(), _r.y()));
+    }
+    QRect r = QStyle::visualRect(QApplication::layoutDirection(), geometry(), _r);
 
     // if there is a window dock layout already here, forward the drop
     const int pos = positionForArea(area);
