@@ -5300,7 +5300,7 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
     QRectF r(_r);
 
     bool dontclip  = (tf & Qt::TextDontClip);
-    bool wordwrap  = (tf & Qt::TextWordWrap);
+    bool wordwrap  = (tf & Qt::TextWordWrap) || (tf & Qt::TextWrapAnywhere);
     bool singleline = (tf & Qt::TextSingleLine);
     bool showmnemonic = (tf & Qt::TextShowMnemonic);
     bool hidemnmemonic = (tf & Qt::TextHideMnemonic);
@@ -5389,6 +5389,8 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
 
     QStackTextEngine engine(text, fnt);
     engine.option.setTextDirection(layout_direction);
+    if (tf & Qt::TextWrapAnywhere)
+        engine.option.setWrapMode(QTextOption::WrapAnywhere);
     QTextLayout textLayout(&engine);
     textLayout.setCacheEnabled(true);
     textLayout.engine()->underlinePositions = underlinePositions;
