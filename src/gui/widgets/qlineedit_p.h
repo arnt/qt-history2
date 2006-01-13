@@ -43,7 +43,8 @@ public:
           dragEnabled(0), contextMenuEnabled(1), alignment(Qt::AlignLeading),
           echoMode(0), textDirty(0), selDirty(0), validInput(1),
           ascent(0), maxLength(32767), hscroll(0), lastCursorPos(-1), maskData(0),
-          modifiedState(0), undoState(0), selstart(0), selend(0), userInput(false)
+          modifiedState(0), undoState(0), selstart(0), selend(0), userInput(false),
+          emitingEditingFinished(false)
         {}
     ~QLineEditPrivate()
     {
@@ -77,7 +78,7 @@ public:
 #ifndef QT_NO_MENU
     QAction *actions[NCountActs];
 #endif
-    
+
     inline void emitCursorPositionChanged();
     bool sendMouseEventToInputContext(QMouseEvent *e);
 
@@ -174,6 +175,7 @@ public:
     void clipboardChanged();
     void deleteSelected();
     bool userInput;
+    bool emitingEditingFinished;
 
 #ifdef QT_KEYPAD_NAVIGATION
     QBasicTimer deleteAllTimer; // keypad navigation

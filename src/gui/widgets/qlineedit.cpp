@@ -1548,7 +1548,9 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
         if (hasAcceptableInput()) {
             emit returnPressed();
+            d->emitingEditingFinished = true;
             emit editingFinished();
+            d->emitingEditingFinished = false;
         }
 #ifndef QT_NO_VALIDATOR
         else {
@@ -1562,7 +1564,9 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
                 if (v && (textCopy != d->text || cursorCopy != d->cursor))
                     d->setText(textCopy, cursorCopy);
                 emit returnPressed();
+                d->emitingEditingFinished = true;
                 emit editingFinished();
+                d->emitingEditingFinished = false;
             }
         }
 #endif
@@ -1973,7 +1977,8 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
     d->cursorTimer = 0;
     if (e->reason() != Qt::PopupFocusReason
         && !(QApplication::activePopupWidget() && QApplication::activePopupWidget()->parentWidget() == this)) {
-        emit editingFinished();
+        if (!d->emitingEditingFinished)
+            emit editingFinished();
 #ifdef QT3_SUPPORT
         emit lostFocus();
 #endif
@@ -2006,7 +2011,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
         r.adjust(frameWidth, frameWidth, -frameWidth, -frameWidth);
         p.setClipRect(r);
     }
-    
+
     QFontMetrics fm = fontMetrics();
     QRect lineRect(r.x() + horizontalMargin, r.y() + (r.height() - fm.height() + 1) / 2,
                     r.width() - 2*horizontalMargin, fm.height());
@@ -2069,7 +2074,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
         }
         selections.append(o);
     }
-    
+
     // Asian users see an IM selection text as cursor on candidate
     // selection phase of input method, so the ordinary cursor should be
     // invisible if we have a preedit string.
