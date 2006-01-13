@@ -3422,8 +3422,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 mouseButtonPressTime = event->xbutton.time;
             }
             mouseButtonPressed = button;        // save event params for
-            mouseXPos = pos.x();                // future double click tests
-            mouseYPos = pos.y();
+            mouseXPos = event->xbutton.x;                // future double click tests
+            mouseYPos = event->xbutton.y;
             mouseGlobalXPos = globalPos.x();
             mouseGlobalYPos = globalPos.y();
         } else {                                // mouse button released
