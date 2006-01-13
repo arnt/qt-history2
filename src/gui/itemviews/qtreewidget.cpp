@@ -283,7 +283,6 @@ bool QTreeModel::setData(const QModelIndex &index, const QVariant &value, int ro
     QTreeWidgetItem *itm = item(index);
     if (itm) {
         itm->setData(index.column(), role, value);
-        emit dataChanged(index, index);
         return true;
     }
     return false;
