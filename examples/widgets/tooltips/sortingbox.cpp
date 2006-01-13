@@ -65,6 +65,8 @@ bool SortingBox::event(QEvent *event)
         int index = itemAt(helpEvent->pos());
         if (index != -1)
             QToolTip::showText(helpEvent->globalPos(), shapeItems[index].toolTip());
+        else
+            QToolTip::showText(helpEvent->globalPos(), "");
     }
     return QWidget::event(event);
 }
