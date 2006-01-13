@@ -45,8 +45,6 @@ class Q_CORE_EXPORT QAbstractItemModelPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QAbstractItemModel)
 
 public:
-    ~QAbstractItemModelPrivate();
-
     void removePersistentIndexData(QPersistentModelIndexData *data);
     void invalidate(int position);
     void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
@@ -65,6 +63,15 @@ public:
     
     inline QModelIndex createIndex(int row, int column, int id) const {
         return q_func()->createIndex(row, column, id);
+    }
+
+    inline void invalidatePersistentIndexes() {
+        QList<QPersistentModelIndexData*>::iterator it = persistent.indexes.begin();
+        for (; it != persistent.indexes.end(); ++it) {
+            Q_ASSERT((*it));
+            (*it)->index = QModelIndex();
+            (*it)->model = 0;
+        }
     }
 
     struct Change {

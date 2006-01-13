@@ -72,6 +72,7 @@ public:
     QListViewPrivate();
     ~QListViewPrivate() {}
 
+    void clear();
     void prepareItemsLayout();
 
     QPoint initStaticLayout(const QRect &bounds, int spacing, int first);

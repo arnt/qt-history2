@@ -394,16 +394,6 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 }
 #endif
 
-QAbstractItemModelPrivate::~QAbstractItemModelPrivate()
-{
-    QList<QPersistentModelIndexData*>::iterator it = persistent.indexes.begin();
-    for (; it != persistent.indexes.end(); ++it) {
-        Q_ASSERT((*it));
-        (*it)->index = QModelIndex();
-        (*it)->model = 0;
-    }
-}
-
 void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexData *data)
 {
     int data_index = persistent.indexes.indexOf(data);
@@ -990,6 +980,7 @@ QAbstractItemModel::QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *p
 */
 QAbstractItemModel::~QAbstractItemModel()
 {
+    d_func()->invalidatePersistentIndexes();
 }
 
 /*!

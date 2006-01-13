@@ -503,8 +503,7 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
 void QListView::reset()
 {
     Q_D(QListView);
-    d->prepareItemsLayout();
-    d->hiddenRows.clear();
+    d->clear();
     QAbstractItemView::reset();
 }
 
@@ -609,7 +608,7 @@ void QListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     // if the parent is above rootIndex() in the tree, nothing will happen
     QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
     d->doDelayedItemsLayout();
-    d->prepareItemsLayout(); // cleanup
+    d->clear();
 }
 
 /*!
@@ -1317,14 +1316,25 @@ QListViewPrivate::QListViewPrivate()
       batchSize(100)
 {}
 
-void QListViewPrivate::prepareItemsLayout()
+void QListViewPrivate::clear()
 {
-    Q_Q(QListView);
+    hiddenRows.clear();
     // initialization of data structs
     batchStartRow = 0;
     batchSavedPosition = 0;
     batchSavedDeltaSeg = 0;
     cachedItemSize = QSize();
+    tree.destroy();
+    items.clear();
+    flowPositions.clear();
+    segmentPositions.clear();
+    segmentStartRows.clear();
+}
+
+void QListViewPrivate::prepareItemsLayout()
+{
+    Q_Q(QListView);
+    clear();
     layoutBounds = viewport->rect();
 
     if (resizeMode == QListView::Adjust) {
@@ -1340,16 +1350,9 @@ void QListViewPrivate::prepareItemsLayout()
         rowCount = 0; // no contents
     if (movement == QListView::Static) {
         flowPositions.resize(rowCount);
-        tree.destroy();
-	items.clear();
     } else {
-        flowPositions.clear();
-        tree.destroy(); // clear out all items and leaves
-	items.clear();
         tree.create(qMax(rowCount - hiddenRows.count(), 0));
     }
-    segmentPositions.clear();
-    segmentStartRows.clear();
 }
 
 QPoint QListViewPrivate::initStaticLayout(const QRect &bounds, int spacing, int first)
