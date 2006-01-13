@@ -219,7 +219,7 @@ protected:
     virtual QMenu *createPopupMenu(QWidget *w);
     virtual void resizeEvent(QResizeEvent *e);
 
-    void insertWidget(QWidget *w, const QRect &rect, QWidget *target);
+    void insertWidget(QWidget *w, const QRect &rect, QWidget *target, bool already_in_form = false);
 
 private slots:
     void selectionChangedTimerDone();

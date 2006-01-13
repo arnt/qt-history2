@@ -388,7 +388,7 @@ InsertWidgetCommand::InsertWidgetCommand(QDesignerFormWindowInterface *formWindo
 {
 }
 
-void InsertWidgetCommand::init(QWidget *widget)
+void InsertWidgetCommand::init(QWidget *widget, bool already_in_form)
 {
     m_widget = widget;
 
@@ -400,6 +400,19 @@ void InsertWidgetCommand::init(QWidget *widget)
 
     m_insertMode = deco ? deco->currentInsertMode() : QDesignerLayoutDecorationExtension::InsertWidgetMode;
     m_cell = deco ? deco->currentCell() : qMakePair(0, 0);
+    m_widgetWasManaged = already_in_form;
+}
+
+static void recursiveUpdate(QWidget *w)
+{
+    w->update();
+
+    const QObjectList &l = w->children();
+    QObjectList::const_iterator it = l.begin();
+    for (; it != l.end(); ++it) {
+        if (QWidget *w = qobject_cast<QWidget*>(*it))
+            recursiveUpdate(w);
+    }
 }
 
 void InsertWidgetCommand::redo()
@@ -428,9 +441,15 @@ void InsertWidgetCommand::redo()
         deco->insertWidget(m_widget, m_cell);
     }
 
-    formWindow()->manageWidget(m_widget);
+    if (!m_widgetWasManaged)
+        formWindow()->manageWidget(m_widget);
     m_widget->show();
     formWindow()->emitSelectionChanged();
+
+    if (parentWidget && parentWidget->layout()) {
+        recursiveUpdate(parentWidget);
+        parentWidget->layout()->invalidate();
+    }
 }
 
 void InsertWidgetCommand::undo()
@@ -445,8 +464,10 @@ void InsertWidgetCommand::undo()
         deco->simplify();
     }
 
-    formWindow()->unmanageWidget(m_widget);
-    m_widget->hide();
+    if (!m_widgetWasManaged) {
+        formWindow()->unmanageWidget(m_widget);
+        m_widget->hide();
+    }
     formWindow()->emitSelectionChanged();
 }
 
