@@ -1152,7 +1152,6 @@ void WriteInitialization::initializeQ3Table(DomWidget *w)
 
     // columns
     QList<DomColumn*> columns = w->elementColumn();
-    output << option.indent << varName << "->setNumCols(" << columns.size() << ");\n";
 
     for (int i=0; i<columns.size(); ++i) {
         DomColumn *column = columns.at(i);
@@ -1170,8 +1169,6 @@ void WriteInitialization::initializeQ3Table(DomWidget *w)
 
     // rows
     QList<DomRow*> rows = w->elementRow();
-    refreshOut << option.indent << varName << "->setNumRows(" << rows.size() << ");\n";
-
     for (int i=0; i<rows.size(); ++i) {
         DomRow *row = rows.at(i);
 
