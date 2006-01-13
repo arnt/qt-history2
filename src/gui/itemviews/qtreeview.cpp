@@ -67,7 +67,8 @@
     The amount of indentation used to indicate levels of hierarchy is
     controlled by the \l indentation property.
 
-    Headers in a tree view are constructed using the QHeaderView class.
+    Headers in a tree view are constructed using the QHeaderView class
+    and can be hidden using header()->hide();
 
     \omit
     Describe the expanding/collapsing concept if not covered elsewhere.

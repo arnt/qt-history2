@@ -124,7 +124,8 @@ void QTableViewPrivate::trimHiddenSelections(QItemSelectionRange *range) const
     verticalHeader() function, and a horizontal header that is available
     through the horizontalHeader() function. The height of each row in the
     table can be found by using rowHeight(); similarly, the width of
-    columns can be found using columnWidth().
+    columns can be found using columnWidth().  They are both just QWidgets
+    so you can hide either of them using their hide() functions.
 
     Rows and columns can be hidden and shown with hideRow(), hideColumn(),
     showRow(), and showColumn(). They can be selected with selectRow()
