@@ -552,8 +552,10 @@ void QFileDialog::selectFilter(const QString &filter)
 {
     Q_D(QFileDialog);
     int i = d->fileTypeCombo->findText(filter);
-    if (i >= 0)
-        d->fileTypeCombo->setCurrentIndex(i);
+    if (i >= 0) {
+        d->fileTypeCombo->setCurrentIndex(i); // emits currentIndexChanged, but we connect to activated
+        d->useFilter(d->fileTypeCombo->currentText()); // so we make sure that useFilter gets called
+    }
 }
 
 /*!
