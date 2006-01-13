@@ -16,6 +16,7 @@
 #include <private/qpaintengine_mac_p.h>
 #include <qpainterpath.h>
 #include <qpixmapcache.h>
+#include <private/qpaintengine_raster_p.h>
 #include <private/qprintengine_mac_p.h>
 #include <qprinter.h>
 #include <qstack.h>
@@ -57,9 +58,12 @@ QMacCGContext::QMacCGContext(QPainter *p)
     QPaintEngine *pe = p->paintEngine();
     if(pe->type() == QPaintEngine::MacPrinter)
         pe = static_cast<QMacPrintEngine*>(pe)->paintEngine();
-    Q_ASSERT(pe->type() == QPaintEngine::CoreGraphics);
     pe->syncState();
-    context = static_cast<QCoreGraphicsPaintEngine*>(pe)->handle();
+    context = 0;
+    if(pe->type() == QPaintEngine::CoreGraphics)
+        context = static_cast<QCoreGraphicsPaintEngine*>(pe)->handle();
+    else if(pe->type() == QPaintEngine::Raster)
+        context = static_cast<QRasterPaintEngine*>(pe)->macCGContext();
     CGContextRetain(context);
 }
 
@@ -849,7 +853,6 @@ static void qt_mac_clip_cg_reset(CGContextRef hd)
     //setup xforms
     CGAffineTransform old_xform = CGContextGetCTM(hd);
     CGContextConcatCTM(hd, CGAffineTransformInvert(old_xform));
-    CGContextConcatCTM(hd, CGAffineTransformIdentity);
 
     //do the clip reset
     QRect qrect = QRect(0, 0, 99999, 999999);
@@ -906,7 +909,7 @@ static CGMutablePathRef qt_mac_compose_path(const QPainterPath &p, float off=0)
     return ret;
 }
 
-static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt, CGAffineTransform *orig_xform)
+void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt, CGAffineTransform *orig_xform)
 {
     CGAffineTransform old_xform = CGAffineTransformIdentity;
     if(orig_xform) { //setup xforms

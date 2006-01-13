@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+//#define QT_RASTER_PAINTENGINE
 
 #include "qpixmap.h"
 #include "qpixmap_p.h"
@@ -21,9 +22,8 @@
 #include <private/qdrawhelper_p.h>
 #ifdef QT_RASTER_PAINTENGINE
 #  include <private/qpaintengine_raster_p.h>
-#else
-#  include <private/qpaintengine_mac_p.h>
 #endif
+#include <private/qpaintengine_mac_p.h>
 #include <private/qt_mac_p.h>
 
 #include <limits.h>
@@ -222,7 +222,7 @@ QImage QPixmap::toImage() const
     int h = data->h;
     QImage::Format format = QImage::Format_MonoLSB;
     if(data->d != 1) //Doesn't support index color modes
-        format = (data->has_alpha ? QImage::Format_ARGB32 :
+        format = (data->has_alpha ? QImage::Format_ARGB32_Premultiplied :
                   QImage::Format_RGB32);
 
     QImage image(w, h, format);
@@ -861,7 +861,10 @@ QPaintEngine *QPixmap::paintEngine() const
 {
     if (!data->paintEngine) {
 #ifdef QT_RASTER_PAINTENGINE
-        data->paintEngine = new QRasterPaintEngine();
+        if(qgetenv("QT_MAC_USE_COREGRAPHICS").isNull())
+            data->paintEngine = new QRasterPaintEngine();
+        else
+            data->paintEngine = new QCoreGraphicsPaintEngine();
 #else
 #if !defined(QMAC_NO_COREGRAPHICS)
         if(qgetenv("QT_MAC_USE_QUICKDRAW").isNull())

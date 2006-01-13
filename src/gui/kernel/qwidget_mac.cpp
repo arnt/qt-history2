@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+//#define QT_RASTER_PAINTENGINE
 
 #include <private/qt_mac_p.h>
 
@@ -23,9 +24,8 @@
 #include "qlayout.h"
 #ifdef QT_RASTER_PAINTENGINE
 # include <private/qpaintengine_raster_p.h>
-#else
-# include <private/qpaintengine_mac_p.h>
 #endif
+#include <private/qpaintengine_mac_p.h>
 #include "qpainter.h"
 #include "qstack.h"
 #include "qstyle.h"
@@ -508,6 +508,11 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     QApplication::sendSpontaneousEvent(widget, &e);
                     if (!redirectionOffset.isNull())
                         QPainter::restoreRedirected(widget);
+#ifdef QT_RASTER_PAINTENGINE
+                    if(engine->type() == QPaintEngine::Raster)
+                        static_cast<QRasterPaintEngine*>(engine)->flush(widget,
+                                                                        qrgn.boundingRect().topLeft());
+#endif
 
                     //cleanup
                     if (engine)
@@ -2149,15 +2154,17 @@ QPaintEngine *QWidget::paintEngine() const
     QPaintEngine *&pe = engineHandler()->engine;
 #ifdef QT_RASTER_PAINTENGINE
     if (!pe) {
-        pe = new QRasterPaintEngine();
-        pe->setFlushOnEnd(false);
+        if(qgetenv("QT_MAC_USE_COREGRAPHICS").isNull())
+            pe = new QRasterPaintEngine();
+        else
+            pe = new QCoreGraphicsPaintEngine();
     }
-
     if (pe->isActive()) {
-        QRasterPaintEngine *extraEngine = new QRasterPaintEngine();
-        extraEngine->setAutoDestruct(true);
-        extraEngine->setFlushOnEnd(false);
-        return extraEngine;
+        QPaintEngine *engine =
+            qgetenv("QT_MAC_USE_COREGRAPHICS").isNull()
+            ? (QPaintEngine*)new QRasterPaintEngine() : (QPaintEngine*)new QCoreGraphicsPaintEngine();
+        engine->setAutoDestruct(true);
+        return engine;
     }
 #else
     if (!pe) {

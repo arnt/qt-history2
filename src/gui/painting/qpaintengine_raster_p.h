@@ -98,6 +98,10 @@ public:
     void saveBuffer(const QString &s) const;
 #endif
 
+#ifdef Q_WS_MAC
+    CGContextRef macCGContext() const;
+#endif
+
 #ifdef Q_WS_WIN
     HDC getDC() const;
     void releaseDC(HDC hdc) const;
@@ -261,10 +265,12 @@ public:
 #elif defined(Q_WS_QWS)
     QRasterBuffer() : clip(0), m_width(0), m_height(0), m_buffer(0) { init(); }
 #elif defined(Q_WS_MAC)
-    QRasterBuffer() : m_data(0), clip(0), m_width(0), m_height(0), m_buffer(0) { init(); }
+    QRasterBuffer() : m_ctx(0), m_data(0), clip(0), m_width(0), m_height(0), m_buffer(0) { init(); }
 # if defined(QMAC_NO_COREGRAPHICS)
     GWorldPtr m_data;
 # else
+    CGContextRef macCGContext() const;
+    mutable CGContextRef m_ctx;
     CGImageRef m_data;
 #endif
 #endif
@@ -273,7 +279,7 @@ public:
     void init();
 
     void prepare(QImage *image);
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     void prepare(QPixmap *pix);
 #endif
     void prepare(int w, int h);

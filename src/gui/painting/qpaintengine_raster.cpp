@@ -660,6 +660,16 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         device = &data->image;
         isBitmap = pixmap->depth() == 1;
     }
+#elif defined(Q_WS_MAC)
+    if (device->devType() == QInternal::Pixmap) {
+        QPixmap *pixmap = static_cast<QPixmap *>(device);
+        if (pixmap->isNull()) {
+            qWarning("Cannot paint on a null pixmap");
+            return false;
+        }
+        d->rasterBuffer->prepare(pixmap);
+        isBitmap = pixmap->depth() == 1;
+    }
 #endif
 
     if (device->devType() == QInternal::Image) {
@@ -838,14 +848,18 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
 #  ifdef QMAC_NO_COREGRAPHICS
 #    warning "unhandled"
 #  else
-    extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
     extern CGContextRef qt_mac_cg_context(const QPaintDevice *); //qpaintdevice_mac.cpp
-
+    extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *, CGAffineTransform *); //qpaintengine_mac.cpp
     if(CGContextRef ctx = qt_mac_cg_context(device)) {
-        CGRect rect = CGRectMake(d->deviceRect.x(), d->deviceRect.y(),
-                                 d->deviceRect.width(), d->deviceRect.height());
-        HIViewDrawCGImage(ctx, &rect, d->rasterBuffer->m_data); //top left
+        qt_mac_clip_cg(ctx, systemClip(), 0, 0);
+        const CGRect source = CGRectMake(0, 0, d->deviceRect.width(), d->deviceRect.height());
+        CGImageRef subimage = CGImageCreateWithImageInRect(d->rasterBuffer->m_data, source);
+
+        const CGRect dest = CGRectMake(offset.x(), offset.y(),
+                                       d->deviceRect.width(), d->deviceRect.height());
+        HIViewDrawCGImage(ctx, &dest, subimage); //top left
         CGContextRelease(ctx);
+        CGImageRelease(subimage);
     }
 #  endif
     Q_UNUSED(offset);
@@ -1361,7 +1375,6 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
 
     Q_D(QRasterPaintEngine);
 
-    QImage image;
     if (pixmap.depth() == 1) {
         if (d->txop <= QPainterPrivate::TxTranslate
             && !d->rasterBuffer->opaqueBackground
@@ -1370,12 +1383,22 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
             d->drawBitmap(r.topLeft() + QPointF(d->matrix.dx(), d->matrix.dy()), pixmap, &d->penData);
             return;
         } else {
-            image = d->rasterBuffer->colorizeBitmap(pixmap.toImage(), d->pen.color());
+            drawImage(r, d->rasterBuffer->colorizeBitmap(pixmap.toImage(), d->pen.color()), sr);
         }
     } else {
-        image = qt_map_to_32bit(pixmap);
+#if defined(Q_WS_MAC) && 0
+        if(CGContextRef ctx = macCGContext()) {
+            const CGRect source = CGRectMake(sr.x(), sr.y(), sr.width(), sr.height());
+            CGImageRef subimage = CGImageCreateWithImageInRect(pixmap.data->cg_data, source);
+            const CGRect dest = CGRectMake(r.x(), r.y(), r.width(), r.height());
+            HIViewDrawCGImage(ctx, &dest, subimage); //top left
+            CGImageRelease(subimage);
+        } else
+#endif
+            drawImage(r, qt_map_to_32bit(pixmap), sr);
+
     }
-    drawImage(r, image, sr);
+
 }
 
 void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
@@ -2157,6 +2180,15 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
     }
 }
 
+#ifdef Q_WS_MAC
+CGContextRef
+QRasterPaintEngine::macCGContext() const
+{
+    Q_D(const QRasterPaintEngine);
+    return d->rasterBuffer->macCGContext();
+}
+#endif
+
 #ifdef Q_WS_WIN
 HDC QRasterPaintEngine::getDC() const
 {
@@ -2464,6 +2496,17 @@ QRasterBuffer::~QRasterBuffer()
 {
     delete clip;
 
+#if defined (Q_WS_MAC)
+    if(m_ctx) {
+        CGContextRelease(m_ctx);
+        m_ctx = 0;
+    }
+    if(m_data) {
+        CGImageRelease(m_data);
+        m_data = 0;
+    }
+#endif
+
 #if defined (Q_WS_WIN)
     if (m_bitmap || m_hdc) {
         Q_ASSERT(m_hdc);
@@ -2488,6 +2531,33 @@ void QRasterBuffer::init()
 }
 
 
+#if defined(Q_WS_MAC)
+CGContextRef
+QRasterBuffer::macCGContext() const
+{
+    if(!m_ctx && m_data) {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+        uint flags = CGImageGetAlphaInfo(m_data);
+        CGBitmapInfo (*CGImageGetBitmapInfo_ptr)(CGImageRef) = CGImageGetBitmapInfo;
+        if(CGImageGetBitmapInfo_ptr)
+            flags |= (*CGImageGetBitmapInfo_ptr)(m_data);
+#else
+        CGImageAlphaInfo flags = CGImageGetAlphaInfo(m_data);
+#endif
+        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+        m_ctx = CGBitmapContextCreate(m_buffer, m_width, m_height, 8, m_width * 4, colorspace,
+                                      flags);
+        CGColorSpaceRelease(colorspace);
+        if(!m_ctx)
+            qWarning("QPaintDevice: Unable to create context for rasterbuffer (%d/%d)",
+                     m_width, m_height);
+        CGContextTranslateCTM(m_ctx, 0, m_height);
+        CGContextScaleCTM(m_ctx, 1, -1);
+    }
+    return m_ctx;
+}
+#endif
+
 #if defined(Q_WS_WIN)
 void QRasterBuffer::setupHDC(bool clear_type)
 {
@@ -2501,8 +2571,12 @@ void QRasterBuffer::setupHDC(bool clear_type)
 
 void QRasterBuffer::prepare(int w, int h)
 {
-    if (w<=m_width && h<=m_height)
+    if (w<=m_width && h<=m_height) {
+#ifdef Q_WS_MAC
+        memset(m_buffer, 0, m_width*h*sizeof(uint));
+#endif
         return;
+    }
 
     prepareBuffer(w, h);
 
@@ -2581,7 +2655,7 @@ void QRasterBuffer::prepareBuffer(int width, int height)
 void QRasterBuffer::prepareBuffer(int width, int height)
 {
     delete[] m_buffer;
-    m_buffer = new uchar[width*height];
+    m_buffer = new uchar[width*height*sizeof(uint)];
     memset(m_buffer, 255, width*height*sizeof(uint));
 }
 #elif defined(Q_WS_MAC)
@@ -2590,21 +2664,47 @@ static void qt_mac_raster_data_free(void *memory, const void *, size_t)
     free(memory);
 }
 
+void QRasterBuffer::prepare(QPixmap *pixmap)
+{
+    QPixmapData *data = pixmap->data;
+    m_width = data->w;
+    m_height = data->h;
+    m_buffer = (uchar *)data->pixels;
+    bytes_per_line = data->nbytes / data->h;
+    m_data = data->cg_data;
+    CGImageRetain(m_data);
+}
+
 void QRasterBuffer::prepareBuffer(int width, int height)
 {
     m_buffer = new uchar[width*height*sizeof(uint)];
-    memset(m_buffer, 255, width*height*sizeof(uint));
+    memset(m_buffer, 0, width*height*sizeof(uint));
 
 #ifdef QMAC_NO_COREGRAPHICS
 # warning "Unhandled!!"
 #else
-    if (m_data)
+    if (m_data) {
         CGImageRelease(m_data);
+        m_data = 0;
+    }
+    if (m_ctx) {
+        CGContextRelease(m_ctx);
+        m_ctx = 0;
+    }
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    CGDataProviderRef provider = CGDataProviderCreateWithData(m_buffer, m_buffer, width*height,
+    CGDataProviderRef provider = CGDataProviderCreateWithData(m_buffer, m_buffer, width*height*sizeof(uint),
                                                               qt_mac_raster_data_free);
-    m_data = CGImageCreate(width, height, 8, 32, width, colorspace,
-                           kCGImageAlphaFirst, provider, 0, 0, kCGRenderingIntentDefault);
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    uint cgflags = kCGImageAlphaPremultipliedFirst;
+#ifdef kCGBitmapByteOrder32Host //only needed because CGImage.h added symbols in the minor version
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4)
+        cgflags |= kCGBitmapByteOrder32Host;
+#endif
+#else
+    CGImageAlphaInfo cgflags = kCGImageAlphaPremultipliedFirst;
+#endif
+    m_data = CGImageCreate(width, height, 8, 32, width*4, colorspace,
+                           cgflags, provider, 0, 0, kCGRenderingIntentDefault);
     CGColorSpaceRelease(colorspace);
     CGDataProviderRelease(provider);
 #endif
