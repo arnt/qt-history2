@@ -2242,6 +2242,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
     }
 
     if (d->readOnly) {
+        emit cursorPositionChanged();
         d->selectionChanged();
     } else {
         ensureCursorVisible();
@@ -2302,6 +2303,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
     if (d->readOnly) {
         const QPoint pos = d->mapToContents(e->pos());
         d->ensureVisible(QRect(pos, QSize(1, 1)));
+        emit cursorPositionChanged();
         d->selectionChanged();
     } else {
         ensureCursorVisible();
