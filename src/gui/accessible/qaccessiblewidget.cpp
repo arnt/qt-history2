@@ -24,13 +24,13 @@
 
 #include <math.h>
 
-static QWidgetList childWidgets(const QWidget *widget)
+static QList<QWidget*> childWidgets(const QWidget *widget)
 {
-    QObjectList list = widget->children();
-    QWidgetList widgets;
+    QList<QObject*> list = widget->children();
+    QList<QWidget*> widgets;
     for (int i = 0; i < list.size(); ++i) {
         QWidget *w = qobject_cast<QWidget *>(list.at(i));
-        if (w)
+        if (w && !w->isWindow())
             widgets.append(w);
     }
     return widgets;

@@ -35,6 +35,7 @@ public:
     Role role(int child) const;
     State state(int child) const;
 
+    QString actionText(int action, QAccessible::Text text, int child) const;
     bool doAction(int action, int child, const QVariantList &params);
 
 protected:
@@ -56,6 +57,7 @@ public:
     Role role(int child) const;
     State state(int child) const;
 
+    QString actionText(int action, QAccessible::Text text, int child) const;
     bool doAction(int action, int child, const QVariantList &params);
 
 protected:

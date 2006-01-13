@@ -136,15 +136,36 @@ QAccessible::State QAccessibleMenu::state(int child) const
     return s;
 }
 
-bool QAccessibleMenu::doAction(int /*act*/, int child, const QVariantList &)
+QString QAccessibleMenu::actionText(int action, QAccessible::Text text, int child) const
 {
-    if (!child)
+    if (action == QAccessible::DefaultAction && child && text == QAccessible::Name) {
+        QAction *a = menu()->actions().value(child-1, 0);
+        if (!a || a->isSeparator())
+            return QString();
+        if (a->menu()) {
+            if (a->menu()->isVisible())
+                return QMenu::tr("Close");
+            return QMenu::tr("Open");
+        }
+        return QMenu::tr("Execute");
+     }
+
+    return QAccessibleWidget::actionText(action, text, child);
+}
+
+bool QAccessibleMenu::doAction(int act, int child, const QVariantList &)
+{
+    if (!child || act != QAccessible::DefaultAction)
         return false;
 
-    QAction *action = menu()->actions()[child-1];
+    QAction *action = menu()->actions().value(child-1, 0);
     if (!action || !action->isEnabled())
         return false;
-    action->activate(QAction::Trigger);
+
+    if (action->menu() && action->menu()->isVisible())
+        action->menu()->hide();
+    else
+        menu()->setActiveAction(action);
     return true;
 }
 
@@ -227,7 +248,7 @@ QString QAccessibleMenuBar::text(Text t, int child) const
     QString str;
 
     if(child) {
-        if (QAction *action = menuBar()->actions().value(child, 0)) {
+        if (QAction *action = menuBar()->actions().value(child - 1, 0)) {
             switch (t) {
             case Name:
                 return qt_accStripAmp(action->text());
@@ -261,7 +282,7 @@ QAccessible::State QAccessibleMenuBar::state(int child) const
     if (!child)
         return s;
 
-    QAction *action = menuBar()->actions()[child-1];
+    QAction *action = menuBar()->actions().value(child-1, 0);
     if (!action)
         return s;
 
@@ -275,15 +296,35 @@ QAccessible::State QAccessibleMenuBar::state(int child) const
     return s;
 }
 
-bool QAccessibleMenuBar::doAction(int /*act*/, int child, const QVariantList &)
+QString QAccessibleMenuBar::actionText(int action, QAccessible::Text text, int child) const
 {
-    if (!child)
+    if (action == QAccessible::DefaultAction && child && text == QAccessible::Name) {
+        QAction *a = menuBar()->actions().value(child-1, 0);
+        if (!a || a->isSeparator())
+            return QString();
+        if (a->menu()) {
+            if (a->menu()->isVisible())
+                return QMenu::tr("Close");
+            return QMenu::tr("Open");
+        }
+        return QMenu::tr("Execute");
+    }
+
+    return QAccessibleWidget::actionText(action, text, child);
+}
+
+bool QAccessibleMenuBar::doAction(int act, int child, const QVariantList &)
+{
+    if (act != !child)
         return false;
 
-    QAction *action = menuBar()->actions()[child-1];
+    QAction *action = menuBar()->actions().value(child-1, 0);
     if (!action || !action->isEnabled())
         return false;
-    action->activate(QAction::Trigger);
+    if (action->menu() && action->menu()->isVisible())
+        action->menu()->hide();
+    else
+        menuBar()->setActiveAction(action);
     return true;
 }
 
