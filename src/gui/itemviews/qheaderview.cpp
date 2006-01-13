@@ -2154,9 +2154,9 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         int newSectionLength = -1;
         if (resizeMode == QHeaderView::Stretch) {
             newSectionLength = stretchSectionLength;
-            if (pixelReminder) {
-                newSectionLength += pixelReminder;
-                pixelReminder = 0;
+            if (pixelReminder > 0) {
+                newSectionLength += 1;
+                --pixelReminder;
             }
         } else { // resizeMode == QHeaderView::Custom
             newSectionLength = section_sizes.front();
