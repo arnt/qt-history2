@@ -1609,11 +1609,11 @@ QWorkspaceChild* QWorkspacePrivate::findChild(QWidget* w)
 }
 
 /*!
-    Returns a list of all child windows. If \a order is CreationOrder
-    (the default), the windows are listed in the order in which they
-    were inserted into the workspace. If \a order is StackingOrder,
-    the windows are listed in their stacking order, with the topmost
-    window as the last item in the list.
+    Returns a list of all visible or minimized child windows. If \a
+    order is CreationOrder (the default), the windows are listed in
+    the order in which they were inserted into the workspace. If \a
+    order is StackingOrder, the windows are listed in their stacking
+    order, with the topmost window as the last item in the list.
 */
 QWidgetList QWorkspace::windowList(WindowOrder order) const
 {
