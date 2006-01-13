@@ -230,14 +230,14 @@ Qt::LayoutDirection QTextInlineObject::textDirection() const
     \code
         int leading = fontMetrics.leading();
         int height = 0;
-        int widthUsed = 0;
+        qreal widthUsed = 0;
         textLayout.beginLayout();
         while (1) {
             QTextLine line = textLayout.createLine();
             if (!line.isValid())
                 break;
 
-            line.layout(lineWidth);
+            line.setLineWidth(lineWidth);
             height += leading;
             line.setPosition(QPoint(0, height));
             height += line.height();
