@@ -64,7 +64,6 @@ static QWidget* qt_sizegrip_workspace(QWidget* w)
 static bool qt_sizegrip_atBottom(QWidget* sg)
 {
     QWidget *tlw = qt_sizegrip_topLevelWidget(sg);
-    printf("%i %i\n", tlw->mapFromGlobal(sg->mapToGlobal(QPoint(0, 0))).y(), tlw->height() / 2);
     return tlw->mapFromGlobal(sg->mapToGlobal(QPoint(0, 0))).y() >= (tlw->height() / 2);
 }
 
