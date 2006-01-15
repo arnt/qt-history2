@@ -967,13 +967,10 @@ void QTreeView::mousePressEvent(QMouseEvent *event)
     if (i == -1) {
         QAbstractItemView::mousePressEvent(event);
     } else if (itemsExpandable() && model()->hasChildren(d->viewItems.at(i).index)) {
-        if (d->viewItems.at(i).expanded) {
-            setState(CollapsingState);
+        if (d->viewItems.at(i).expanded)
             d->collapse(i);
-        } else {
-            setState(ExpandingState);
+        else
             d->expand(i);
-        }
         updateGeometries();
         viewport()->update();
     }
@@ -1018,13 +1015,10 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
 
         d->executePostedLayout(); // we need to make sure viewItems is updated
         if (d->itemsExpandable && model()->hasChildren(d->viewItems.at(i).index)) {
-            if (d->viewItems.at(i).expanded) {
-                setState(ExpandingState);
+            if (d->viewItems.at(i).expanded)
                 d->collapse(i);
-            } else {
-                setState(CollapsingState);
+            else
                 d->expand(i);
-            }
             updateGeometries();
             viewport()->update();
         }
@@ -1627,6 +1621,8 @@ void QTreeViewPrivate::expand(int i, bool emitSignal)
     if (!model || i == -1 || viewItems.at(i).expanded)
         return;
 
+    q->setState(QAbstractItemView::ExpandingState);
+
     QModelIndex index = viewItems.at(i).index;
     expandedIndexes.append(index);
 
@@ -1637,6 +1633,8 @@ void QTreeViewPrivate::expand(int i, bool emitSignal)
     if (model->hasChildren(index))
         reexpandChildren(index, emitSignal);
 
+    q->setState(QAbstractItemView::NoState);
+        
     if (emitSignal)
         emit q->expanded(index);
 }
@@ -1647,6 +1645,8 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
 
     if (!model || item == -1 || expandedIndexes.isEmpty())
         return;
+
+    q->setState(QAbstractItemView::CollapsingState);
 
     int total = viewItems.at(item).total;
     QModelIndex modelIndex = viewItems.at(item).index;
@@ -1664,6 +1664,8 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
         index = viewIndex(parent);
     }
     viewItems.remove(item + 1, total); // collapse
+
+    q->setState(QAbstractItemView::NoState);
 
     if (emitSignal)
         emit q->collapsed(modelIndex);
