@@ -968,10 +968,10 @@ void QTreeView::mousePressEvent(QMouseEvent *event)
         QAbstractItemView::mousePressEvent(event);
     } else if (itemsExpandable() && model()->hasChildren(d->viewItems.at(i).index)) {
         if (d->viewItems.at(i).expanded) {
-            setState(ExpandingState);
+            setState(CollapsingState);
             d->collapse(i);
         } else {
-            setState(CollapsingState);
+            setState(ExpandingState);
             d->expand(i);
         }
         updateGeometries();
