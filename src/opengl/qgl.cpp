@@ -2452,6 +2452,8 @@ void QGLWidget::paintEvent(QPaintEvent *)
     If \a useContext is true, this method will try to be more
     efficient by using the existing GL context to render the pixmap.
     The default is false. Only use true if you understand the risks.
+    Note that under Windows a temporary context has to be created
+    and usage of the \e useContext parameter is not supported.
 
     Overlays are not rendered onto the pixmap.
 
