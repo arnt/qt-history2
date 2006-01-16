@@ -357,25 +357,21 @@ QPixmapData::~QPixmapData()
 
 
 /*!
-    \internal
-
-    This is a special-purpose function that detaches the pixmap from
-    shared pixmap data.
+    Detaches the pixmap from shared pixmap data.
 
     A pixmap is automatically detached by Qt whenever its contents are
-    about to change. This is done in all QPixmap member functions that
-    modify the pixmap (fill(), convertFromImage(), load(),
-    etc.), and in QPainter::begin() on a pixmap.
+    about to change. This is done in almost all QPixmap member
+    functions that modify the pixmap (fill(), convertFromImage(),
+    load(), etc.), and in QPainter::begin() on a pixmap.
 
-    It is possible to modify a pixmap without letting Qt know. You can
-    first obtain the system-dependent handle() and then call
-    system-specific functions (for instance, BitBlt under Windows)
-    that modify the pixmap contents. In such cases, you can call
-    detach() to cut the pixmap loose from other pixmaps that share
-    data with this one.
+    There are two exceptions in which detach() must be called
+    explicitly, that is when calling the handle() or the
+    x11PictureHandle() function (only available on X11). Otherwise,
+    any modifications done using system calls, will be performed on
+    the shared data.
 
-    detach() returns immediately if there is just a single reference
-    or if the pixmap has not been initialized yet.
+    The detach() function returns immediately if there is just a
+    single reference or if the pixmap has not been initialized yet.
 */
 
 void QPixmap::detach()

@@ -839,8 +839,14 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
 /*!
     Returns the pixmap's handle to the device context.
 
-    \warning This function is X11-specific; using it is
-    non-portable.
+    Note that, since QPixmap make use of \l {Implicit Data
+    Sharing}{implicit data sharing}, the detach() function must be
+    called explicitly to ensure that only \e this pixmap's data is
+    modified if the pixmap data is shared.
+
+    \warning This function is X11 specific; using it is non-portable.
+
+    \sa detach()
 */
 
 Qt::HANDLE QPixmap::handle() const
