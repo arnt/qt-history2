@@ -117,13 +117,36 @@ void **QListData::insert(int i)
         return prepend();
     if (i >= d->end - d->begin)
         return append();
-    if (d->end + 1 > d->alloc)
-        realloc(grow(d->alloc + 1));
-    i += d->begin;
-    ::memmove(d->array + i + 1, d->array + i,
-               (d->end-i) * sizeof(void*));
-    d->end++;
-    return d->array + i;
+
+    bool leftward = false;
+    int size = d->end - d->begin;
+
+    if (d->begin == 0) {
+        if (d->end == d->alloc) {
+            // If the array is full, we expand it and move some items rightward
+            realloc(grow(d->alloc + 1));
+        } else {
+            // If there is free space at the end of the array, we move some items rightward
+        }
+    } else {
+        if (d->end == d->alloc) {
+            // If there is free space at the beginning of the array, we move some items leftward
+            leftward = true;
+        } else {
+            // If there is free space at both ends, we move as few items as possible
+            leftward = (i < size - i);
+        }
+    }
+
+    if (leftward) {
+        --d->begin;
+        ::memmove(d->array + d->begin, d->array + d->begin + 1, i * sizeof(void *));
+    } else {
+        ::memmove(d->array + d->begin + i + 1, d->array + d->begin + i,
+                  (size - i) * sizeof(void *));
+        ++d->end;
+    }
+    return d->array + d->begin + i;
 }
 
 void QListData::remove(int i)
