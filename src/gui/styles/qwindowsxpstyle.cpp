@@ -3347,6 +3347,12 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
     case CT_Menu:
         sz -= QSize(1,2);
         break;
+#ifndef QT_NO_MENUBAR
+    case CT_MenuBarItem:
+        if (!sz.isEmpty())
+            sz += QSize(windowsItemHMargin * 5 + 1, 6);
+        break;
+#endif
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(option))
         {
@@ -3357,12 +3363,11 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
             }
         }     
         // Otherwise, fall through
-
     case CT_ToolButton:
         if (const QStyleOptionToolButton *toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option))
         {
                 return sz += QSize(6,9);
-        }     
+        }
         // Otherwise, fall through
     default:
         sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
