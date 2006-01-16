@@ -21,7 +21,7 @@
     \keyword i18n
 
     The internationalization of an application is the process of making
-    the application usable by people in countries other than one's own. 
+    the application usable by people in countries other than one's own.
 
     \tableofcontents
 
@@ -372,11 +372,11 @@
             QApplication app(argc, argv);
 
             QTranslator qtTranslator;
-            qtTranslator.load("qt_" + QLocale::system());
+            qtTranslator.load("qt_" + QLocale::system().name());
             app.installTranslator(&qtTranslator);
 
             QTranslator myappTranslator;
-            myappTranslator.load("myapp_" + QLocale::system());
+            myappTranslator.load("myapp_" + QLocale::system().name());
             app.installTranslator(&myappTranslator);
 
             ...
