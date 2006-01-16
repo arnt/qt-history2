@@ -129,9 +129,6 @@ void QDesignerIntegration::updateSelection()
     if (formWindow)
         selection = formWindow->cursor()->selectedWidget(0);
 
-    if (QDesignerObjectInspectorInterface *objectInspector = core()->objectInspector())
-        objectInspector->setFormWindow(formWindow);
-
     if (QDesignerActionEditorInterface *actionEditor = core()->actionEditor())
         actionEditor->setFormWindow(formWindow);
 
@@ -139,6 +136,9 @@ void QDesignerIntegration::updateSelection()
         propertyEditor->setObject(selection);
         propertyEditor->setEnabled(formWindow && formWindow->cursor()->selectedWidgetCount() == 1);
     }
+    if (QDesignerObjectInspectorInterface *objectInspector = core()->objectInspector())
+        objectInspector->setFormWindow(formWindow);
+
 }
 
 void QDesignerIntegration::activateWidget(QWidget *widget)
