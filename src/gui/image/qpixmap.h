@@ -136,7 +136,7 @@ public:
     Qt::HANDLE x11PictureHandle() const;
 #endif
 
-#if !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     Qt::HANDLE handle() const;
 #endif
 

@@ -835,11 +835,11 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
 */
 
 
-#if !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 /*!
     Returns the pixmap's handle to the device context.
 
-    \warning This function is Windows-specific; using it is
+    \warning This function is X11-specific; using it is
     non-portable.
 */
 
