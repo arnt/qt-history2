@@ -49,9 +49,8 @@ void FindFileDialog::browse()
 
 void FindFileDialog::help()
 {
-//  currentAssistantClient->showPage(QLibraryInfo::location(QLibraryInfo::ExamplesPath) +
-//                                   "assistant/simpletextviewer/documentation/filedialog.html");
-    currentAssistantClient->showPage("/home/vkarlsen/dev/research/newexamples/assistant/simpletextviewer/documentation/filedialog.html");
+    currentAssistantClient->showPage(QLibraryInfo::location(QLibraryInfo::ExamplesPath) +
+            QDir::separator() +  "assistant/simpletextviewer/documentation/filedialog.html");
 }
 
 void FindFileDialog::openFile(int row, int column)
