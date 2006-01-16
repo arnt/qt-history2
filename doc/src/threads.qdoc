@@ -338,7 +338,7 @@
     \o With \l{Qt::DirectConnection}{direct connections}, the
        slot gets called immediately when the signal is emitted. The
        slot is executed in the thread that emitted the signal (which
-       is not necessarliy the thread where the receiver object
+       is not necessarily the thread where the receiver object
        lives).
 
     \o With \l{Qt::QueuedConnection}{queued connections}, the
