@@ -1228,10 +1228,12 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             doRestore = true;
         }
         if (pe == PE_Q3CheckListIndicator || pe == PE_IndicatorViewItemCheck) {
-            if (opt->state & State_Enabled)
-                p->setPen(QPen(opt->palette.text().color(), 1));
-            else
-                p->setPen(QPen(opt->palette.dark().color(), 1));
+            const QStyleOptionViewItem *itemViewOpt = qstyleoption_cast<const QStyleOptionViewItem *>(opt);
+            p->setPen(itemViewOpt
+                      && itemViewOpt->showDecorationSelected
+                      && opt->state & State_Selected
+                        ? opt->palette.highlightedText().color()
+                        : opt->palette.text().color());
             if (opt->state & State_NoChange)
                 p->setBrush(opt->palette.brush(QPalette::Button));
             p->drawRect(opt->rect.x() + 1, opt->rect.y() + 1, 11, 11);

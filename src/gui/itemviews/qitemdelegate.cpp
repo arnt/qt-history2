@@ -417,8 +417,7 @@ void QItemDelegate::drawCheck(QPainter *painter,
     if (!rect.isValid())
         return;
 
-    QStyleOptionViewItem opt;
-    opt.QStyleOption::operator=(option);
+    QStyleOptionViewItem opt(option);
     opt.rect = rect;
     opt.state = opt.state & ~QStyle::State_HasFocus;
 
