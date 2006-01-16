@@ -1629,9 +1629,10 @@ void QAbstractItemView::horizontalScrollbarAction(int)
 
 void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
 {
-    // close the editor
     Q_D(QAbstractItemView);
-    if (editor && !d->persistent.contains(editor)) { // if the editor is not persistent, remove it
+
+    // Close the editor
+    if (editor && !d->persistent.contains(editor)) {
         setState(NoState);
         QModelIndex index = d->editors.key(editor);
         d->editors.remove(index);
@@ -2122,7 +2123,10 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
         QWidget *editor = d->editors.value(buddy);
         if (editor) {
             commitData(editor);
-            closeEditor(editor, QAbstractItemDelegate::NoHint);
+            if (current.row() != previous.row())
+                closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
+            else
+                closeEditor(editor, QAbstractItemDelegate::NoHint);
         }
         d->setDirtyRegion(visualRect(previous));
         d->updateDirtyRegion();
