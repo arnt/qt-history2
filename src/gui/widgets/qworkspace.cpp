@@ -785,6 +785,8 @@ protected:
     void changeEvent(QEvent *);
 
 private:
+    void updateMask();
+
     Q_DISABLE_COPY(QWorkspaceChild)
 
     QWidget *childWidget;
@@ -2498,13 +2500,7 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
     QRect r = contentsRect();
     QRect cr;
 
-    QStyleOptionTitleBar titleBarOptions;
-    titleBarOptions.rect = rect();
-    titleBarOptions.titleBarFlags = childWidget->windowFlags();
-    titleBarOptions.titleBarState = childWidget->windowState();
-    QStyleHintReturnMask mask;
-    if (style()->styleHint(QStyle::SH_WindowFrame_Mask, &titleBarOptions, this, &mask))
-        setMask(mask.region);
+    updateMask();
 
     if (titlebar) {
         int th = titlebar->sizeHint().height();
@@ -2759,6 +2755,7 @@ void QWorkspaceChild::changeEvent(QEvent *ev)
                 frame->resize(196, 20);
             }
         }
+        updateMask();
     }
     QWidget::changeEvent(ev);
 }
@@ -2827,6 +2824,35 @@ bool QWorkspaceChild::isWindowOrIconVisible() const
     return childWidget && (!isHidden()  || (iconw && !iconw->isHidden()));
 }
 
+void QWorkspaceChild::updateMask()
+{
+    QStyleOptionTitleBar titleBarOptions;
+    titleBarOptions.rect = rect();
+    titleBarOptions.titleBarFlags = windowFlags();
+    titleBarOptions.titleBarState = windowState();
+    
+    QStyleHintReturnMask frameMask;
+    if (style()->styleHint(QStyle::SH_WindowFrame_Mask, &titleBarOptions, this, &frameMask)) {
+        setMask(frameMask.region);
+    } else if (!mask().isEmpty()) {
+        clearMask();
+    }
+
+    if (iconw) {
+        QFrame *frame = qobject_cast<QFrame *>(iconw->parentWidget());
+        Q_ASSERT(frame);
+
+        titleBarOptions.rect = frame->rect();
+        titleBarOptions.titleBarFlags = frame->windowFlags();
+        titleBarOptions.titleBarState = frame->windowState() | Qt::WindowMinimized;
+        if (style()->styleHint(QStyle::SH_WindowFrame_Mask, &titleBarOptions, frame, &frameMask)) {
+            frame->setMask(frameMask.region);
+        } else if (!frame->mask().isEmpty()) {
+            frame->clearMask();
+        }
+    }
+}
+
 QWidget* QWorkspaceChild::iconWidget() const
 {
     if (!iconw) {
@@ -2848,15 +2874,8 @@ QWidget* QWorkspaceChild::iconWidget() const
             frame->resize(iconSize, th);
         }
 
-        QStyleOptionTitleBar titleBarOptions;
-        titleBarOptions.rect = frame->rect();
-        titleBarOptions.titleBarFlags = frame->windowFlags();
-        titleBarOptions.titleBarState = frame->windowState() | Qt::WindowMinimized;
-        QStyleHintReturnMask mask;
-        if (style()->styleHint(QStyle::SH_WindowFrame_Mask, &titleBarOptions, frame, &mask))
-            frame->setMask(mask.region);
-
         that->iconw = tb;
+        that->updateMask();
         iconw->setActive(isActive());
 
         connect(iconw, SIGNAL(doActivate()),
