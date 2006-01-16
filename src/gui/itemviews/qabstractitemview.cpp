@@ -1307,7 +1307,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         return;
 
 #ifdef QT_KEYPAD_NAVIGATION
-    switch( event->key() ) {
+    switch(event->key()) {
     case Qt::Key_Select:
         if (QApplication::keypadNavigationEnabled()) {
             if (!hasEditFocus()) {
@@ -1405,6 +1405,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         selectionModel()->select(currentIndex(), selectionCommand(currentIndex(), event));
         break;
 #ifdef Q_WS_MAC
+    case Qt::Key_Enter:
     case Qt::Key_Return:
         if (!edit(currentIndex(), EditKeyPressed, event))
             event->ignore();
@@ -1418,6 +1419,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         if (!edit(currentIndex(), EditKeyPressed, event))
             event->ignore();
         break;
+    case Qt::Key_Enter:
     case Qt::Key_Return:
     case Qt::Key_Select:
         emit activated(currentIndex());
