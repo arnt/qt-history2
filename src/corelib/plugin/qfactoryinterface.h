@@ -19,7 +19,7 @@
 
 QT_MODULE(Core)
 
-struct QFactoryInterface
+struct Q_CORE_EXPORT QFactoryInterface
 {
     virtual ~QFactoryInterface() {}
     virtual QStringList keys() const = 0;
