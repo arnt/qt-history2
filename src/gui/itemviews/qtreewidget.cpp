@@ -301,7 +301,10 @@ bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
         item->view = qobject_cast<QTreeWidget*>(QObject::parent());
         item->model = this;
         item->par = par;
-        par->children.insert(row++, item);
+        if (par)
+            par->children.insert(row++, item);
+        else
+            tree.insert(row++, item);
         --count;
     }
     endInsertRows();
