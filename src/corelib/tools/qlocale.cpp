@@ -1017,6 +1017,16 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 */
 
 /*!
+    \enum QLocale::FormatType
+
+    This enum describes the types of format that can be used when
+    converting QDate and QTime objects to strings.
+
+    \value LongFormat
+    \value ShortFormat
+*/
+
+/*!
     \fn bool QLocale::operator==(const QLocale &other) const
 
     Returns true if the QLocale object is the same as the \a other
@@ -1551,9 +1561,9 @@ static QString readEscapedFormatString(const QString &format, int *idx)
 }
 
 /*!
-    Returns a localized string representation of \a date. If \a format is specified,
-    the string is formatted according to it. If \a format is an empty strig (the
-    default value), something happens, but I'm not certain what it is.
+    Returns a localized string representation of the given \a date in the
+    specified \a format.
+    If \a format is an empty string, an empty string is returned.
 */
 
 QString QLocale::toString(const QDate &date, const QString &format) const
@@ -1646,6 +1656,10 @@ QString QLocale::toString(const QDate &date, const QString &format) const
     return result;
 }
 
+/*!
+    Returns a localized string representation of the given \a date according
+    to the specified \a format.
+*/
 QString QLocale::toString(const QDate &date, FormatType format) const
 {
     QString format_str = dateFormat(format);
@@ -1672,6 +1686,11 @@ static bool timeFormatContainsAP(const QString &format)
     return false;
 }
 
+/*!
+    Returns a localized string representation of the given \a time according
+    to the specified \a format.
+    If \a format is an empty string, an empty string is returned.
+*/
 QString QLocale::toString(const QTime &time, const QString &format) const
 {
     QString result;
@@ -1783,6 +1802,10 @@ QString QLocale::toString(const QTime &time, const QString &format) const
     return result;
 }
 
+/*!
+    Returns a localized string representation of the given \a time in the
+    specified \a format.
+*/
 QString QLocale::toString(const QTime &time, FormatType format) const
 {
     QString format_str = timeFormat(format);
