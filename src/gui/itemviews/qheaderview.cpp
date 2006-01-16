@@ -428,7 +428,10 @@ int QHeaderView::sectionPosition(int logicalIndex) const
 {
     Q_D(const QHeaderView);
     int visual = visualIndex(logicalIndex);
-    Q_ASSERT(visual != -1);
+    // in some cases users may change the selections
+    // before we have a chance to do the layout
+    if (visual == -1)
+        return -1;
     return d->headerSectionPosition(visual);
 }
 
@@ -1886,8 +1889,6 @@ void QHeaderView::setSelection(const QRect&, QItemSelectionModel::SelectionFlags
 
 /*!
     \internal
-
-    Empty implementation because the header doesn't have selections.
 */
 
 QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) const
@@ -1906,9 +1907,11 @@ QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) c
                 continue; // we only know about toplevel items and we don't want invalid ranges
             // FIXME an item inside the range may be the leftmost or rightmost
             rangeLeft = visualIndex(r.left());
-            Q_ASSERT(rangeLeft != -1);
+            if (rangeLeft == -1) // in some cases users may change the selections
+                continue;        // before we have a chance to do the layout
             rangeRight = visualIndex(r.right());
-            Q_ASSERT(rangeRight != -1);
+            if (rangeRight == -1) // in some cases users may change the selections
+                continue;         // before we have a chance to do the layout
             if (rangeLeft < left)
                 left = rangeLeft;
             if (rangeRight > right)
@@ -1938,9 +1941,11 @@ QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) c
             continue; // we only know about toplevel items
         // FIXME an item inside the range may be the leftmost or rightmost
         rangeTop = visualIndex(r.top());
-        Q_ASSERT(rangeTop != -1);
+        if (rangeTop == -1) // in some cases users may change the selections
+            continue;       // before we have a chance to do the layout
         rangeBottom = visualIndex(r.bottom());
-        Q_ASSERT(rangeBottom != -1);
+        if (rangeBottom == -1) // in some cases users may change the selections
+            continue;          // before we have a chance to do the layout
         if (rangeTop < top)
             top = rangeTop;
         if (rangeBottom > bottom)
