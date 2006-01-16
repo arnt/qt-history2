@@ -211,7 +211,7 @@ static QT_FT_Long QT_FT_MulDiv(QT_FT_Long  a, QT_FT_Long  b, QT_FT_Long  c)
 #define Raster_Err_Neg_Height   -3
 #define Raster_Err_Invalid      -4
 #define Raster_Err_Unsupported  -5
-
+#define Raster_Err_OutOfMemory  -6
 
 
 #ifndef QT_FT_MEM_SET
@@ -2135,7 +2135,7 @@ Render_Single_Pass( TRaster_Instance*  raster, Bool  flipped )
             if ( ras.band_top >= 7 || k < i )
             {
                 ras.band_top = 0;
-                ras.error    = Raster_Err_Invalid;
+                ras.error    = Raster_Err_OutOfMemory;
 
                 return ras.error;
             }

@@ -70,7 +70,6 @@
 #define qt_swap_int(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
 #define qt_swap_qreal(x, y) { qreal tmp = (x); (x) = (y); (y) = tmp; }
 
-
 #ifdef Q_WS_WIN
 void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
                        bool convertToText = false);
@@ -516,7 +515,7 @@ void QRasterPaintEngine::init()
 {
     Q_D(QRasterPaintEngine);
 
-    d->rasterPoolSize = 255 * 255;
+    d->rasterPoolSize = 4096;
     d->rasterPoolBase =
 #if defined(Q_WS_WIN64)
         (unsigned char *) _aligned_malloc(d->rasterPoolSize, __alignof(void*));
@@ -2408,22 +2407,53 @@ void QRasterPaintEnginePrivate::rasterize(QT_FT_Outline *outline,
     rasterParams.user = data;
     rasterParams.clip_box = clip_box;
 
-    if (antialiased) {
-        rasterParams.flags |= (QT_FT_RASTER_FLAG_AA | QT_FT_RASTER_FLAG_DIRECT);
-        rasterParams.gray_spans = callback;
-        int error = qt_ft_grays_raster.raster_render(*grayRaster, &rasterParams);
-        if (error) {
-            printf("QRasterPaintEnginePrivate::rasterize(), gray raster failed: %d\n", error);
+    bool done = false;
+    int error;
+
+    while (!done) {
+
+        if (antialiased) {
+            rasterParams.flags |= (QT_FT_RASTER_FLAG_AA | QT_FT_RASTER_FLAG_DIRECT);
+            rasterParams.gray_spans = callback;
+            error = qt_ft_grays_raster.raster_render(*grayRaster, &rasterParams);
+        } else {
+            rasterParams.flags |= QT_FT_RASTER_FLAG_DIRECT;
+            rasterParams.black_spans = callback;
+            error = qt_ft_standard_raster.raster_render(*blackRaster, &rasterParams);
         }
-    } else {
-        rasterParams.flags |= QT_FT_RASTER_FLAG_DIRECT;
-        rasterParams.black_spans = callback;
-        int error = qt_ft_standard_raster.raster_render(*blackRaster, &rasterParams);
-        if (error) {
-            qWarning("QRasterPaintEnginePrivate::rasterize(), black raster failed: %d", error);
+
+        // Out of memory, reallocate some more and try again...
+        if (error == -6) { // -6 is Result_err_OutOfMemory
+            int new_size = rasterPoolSize * 2;
+            if (new_size > 1024 * 1024) {
+                qWarning("QPainter: Rasterization of primitive failed");
+                return;
+            }
+
+#if defined(Q_WS_WIN64)
+            _aligned_free(rasterPoolBase);
+#else
+            free(rasterPoolBase);
+#endif
+
+            rasterPoolSize = new_size;
+            rasterPoolBase =
+#if defined(Q_WS_WIN64)
+                (unsigned char *) _aligned_malloc(rasterPoolSize, __alignof(void*));
+#else
+            (unsigned char *) malloc(rasterPoolSize);
+#endif
+
+            qt_ft_grays_raster.raster_new(0, grayRaster);
+            qt_ft_grays_raster.raster_reset(*grayRaster, rasterPoolBase, rasterPoolSize);
+
+            qt_ft_standard_raster.raster_new(0, blackRaster);
+            qt_ft_standard_raster.raster_reset(*blackRaster, rasterPoolBase, rasterPoolSize);
+
+        } else {
+            done = true;
         }
     }
-
 }
 
 
