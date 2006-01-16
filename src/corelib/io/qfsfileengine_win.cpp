@@ -407,7 +407,9 @@ int QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 	QT_WA({
 		int fd;
-		_wsopen_s(&fd, (TCHAR*)fileName.utf16(), flags, _SH_DENYNO, _S_IREAD | _S_IWRITE);
+        // Note that it is not documented that _wsopen_s will accept a path with the '\\?\' prefix,
+        // but _wsopen_s eventually calls CreateFile with the same fileName argument.
+		_wsopen_s(&fd, (TCHAR*)QFSFileEnginePrivate::longFileName(fileName).utf16(), flags, _SH_DENYNO, _S_IREAD | _S_IWRITE);
 		return fd;
 	} , {
 		int fd;
