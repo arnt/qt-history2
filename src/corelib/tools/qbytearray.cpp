@@ -2910,7 +2910,7 @@ QByteArray QByteArray::trimmed() const
 QByteArray QByteArray::leftJustified(int width, char fill, bool truncate) const
 {
     QByteArray result;
-    int len = qstrlen(d->data);
+    int len = d->size;
     int padlen = width - len;
     if (padlen > 0) {
         result.resize(len+padlen);
@@ -2950,7 +2950,7 @@ QByteArray QByteArray::leftJustified(int width, char fill, bool truncate) const
 QByteArray QByteArray::rightJustified(int width, char fill, bool truncate) const
 {
     QByteArray result;
-    int len = qstrlen(d->data);
+    int len = d->size;
     int padlen = width - len;
     if (padlen > 0) {
         result.resize(len+padlen);
