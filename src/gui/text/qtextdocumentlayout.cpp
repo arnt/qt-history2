@@ -2480,9 +2480,18 @@ QRectF QTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
 {
     QPointF pos;
     d_func()->ensureLayoutFinished();
+    const int framePos = frame->firstPosition();
     QTextFrame *f = frame;
     while (f) {
-        pos += data(f)->position;
+        QTextFrameData *fd = data(f);
+        pos += fd->position;
+        
+        if (QTextTable *table = qobject_cast<QTextTable *>(f)) {
+            QTextTableCell cell = table->cellAt(framePos);
+            if (cell.isValid())
+                pos += static_cast<QTextTableData *>(fd)->cellPosition(cell.row(), cell.column());
+        }
+        
         f = f->parentFrame();
     }
     return QRectF(pos, data(frame)->size);
