@@ -1532,7 +1532,7 @@ void QPrintDialogPrivate::fileNameEditChanged(const QString &text)
 int QPrintDialog::exec()
 {
     Q_D(QPrintDialog);
-    setPrinter(d->printer, true);
+    d->setPrinter(d->printer, true);
     return QDialog::exec();
 }
 
