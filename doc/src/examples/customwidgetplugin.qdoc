@@ -42,10 +42,16 @@
     \endcode
 
     The custom widget is created as a library, and will be installed
-    alongside the other \QD plugins when the project is installed (using
-    \c{make install} or an equivalent installation procedure).
-    Later, we will ensure that it is recognized as a plugin by \QD by using
-    the Q_EXPORT_PLUGIN2() macro to export the relevant widget information.
+    alongside the other \QD plugins when the project is installed
+    (using \c{make install} or an equivalent installation procedure).
+    Later, we will ensure that it is recognized as a plugin by \QD by
+    using the Q_EXPORT_PLUGIN2() macro to export the relevant widget
+    information.
+
+    Note that if you want the plugins to appear in a Visual Studio
+    integration, you must copy the library into the plugin directory
+    in the install path of the integration (for an example, see
+    C:/program files/trolltech as/visual studio integration/plugins).
 
     \section1 AnalogClock Class Definition and Implementation
 

@@ -156,4 +156,25 @@
     The header and source files for the widget are declared in the
     usual way, and in addition we provide an implementation of the
     plugin interface so that \QD can use the custom widget.
+
+    It is important to ensure that the plugin is installed in a location that
+    is searched by \QD. We do this by specifying a target path for the project
+    and adding it to the list of items to install:
+
+    \code
+        target.path = $$[QT_INSTALL_PLUGINS]/designer
+        INSTALLS += target
+    \endcode
+
+    The custom widget is created as a library, and will be installed
+    alongside the other \QD plugins when the project is installed
+    (using \c{make install} or an equivalent installation procedure).
+    Later, we will ensure that it is recognized as a plugin by \QD by
+    using the Q_EXPORT_PLUGIN2() macro to export the relevant widget
+    information.
+
+    Note that if you want the plugins to appear in a Visual Studio
+    integration, you must copy the library into the plugin directory
+    in the install path of the integration (for an example, see
+    C:/program files/trolltech as/visual studio integration/plugins).
 */

@@ -119,6 +119,11 @@
     alongside the other \QD plugins when the project is installed (using
     \c{make install} or an equivalent installation procedure).
 
+    Note that if you want the plugins to appear in a Visual Studio
+    integration, you must copy the library into the plugin directory
+    in the install path of the integration (for an example, see
+    C:/program files/trolltech as/visual studio integration/plugins).
+
     \section1 TicTacToePlugin Class Definition
 
     The \c TicTacToePlugin class exposes \c the TicTacToe class to
