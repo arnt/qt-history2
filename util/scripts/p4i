@@ -35,6 +35,7 @@ $targetBranch{"qtest-stable"} = "main";
 $targetBranch{"support-stable"} = "main";
 $targetBranch{"support-main"} = "stable";
 $targetBranch{"autotests-3"} = "main";
+$targetBranch{"hooligan-main"} = "stable";
 
 open( P4, "$P4 -V |") || die "$0: Couldn't exec $P4: $!\n";
 $line = <P4>;
