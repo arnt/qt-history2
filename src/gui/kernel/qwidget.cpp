@@ -94,25 +94,6 @@ QWidgetPrivate::~QWidgetPrivate()
         deleteExtra();
 }
 
-/*!
-    \internal
-    This is an internal function, you should never call this.
-
-    This function is called to remove focus from associated input
-    context.
-
-    \sa QInputContext::unsetFocus()
- */
-void QWidgetPrivate::unfocusInputContext()
-{
-#ifndef QT_NO_IM
-    Q_Q(QWidget);
-    QInputContext *qic = q->inputContext();
-    if ( qic ) {
-	qic->setFocusWidget( 0 );
-    }
-#endif // QT_NO_IM
-}
 
 /*!
     \internal
@@ -206,17 +187,8 @@ void QWidget::setInputContext(QInputContext *context)
 
 
 /*!
-    This function is called when text widgets need to be neutral state to
-    execute text operations properly. See qlineedit.cpp and qtextedit.cpp as
-    example.
-
-    Ordinary reset that along with changing focus to another widget,
-    moving the cursor, etc, is implicitly handled via
-    unfocusInputContext() because whether reset or not when such
-    situation is a responsibility of input methods. So we delegate the
-    responsibility to the input context via unfocusInputContext(). See
-    'Preedit preservation' section of the class description of
-    QInputContext for further information.
+    This function can be called on the widget that currently has focus
+    to reset the input method operating on it.
 
     \sa QInputContext, QInputContext::reset()
 */
@@ -3603,27 +3575,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
     }
 
     if (f->isActiveWindow()) {
-        QWidget *prev = QApplication::focusWidget();
-        if (prev) {
-	    // This part is never executed when Q_WS_X11? Preceding XFocusOut
-	    // had already reset focus_widget when received XFocusIn
-
-	    // Don't reset input context explicitly here. Whether reset or not
-	    // when focusing out is a responsibility of input methods. So we
-	    // delegate the responsibility to input context via
-	    // unfocusInputContext(). See 'Preedit preservation' section of
-	    // QInputContext.
-            if (prev != f) {
-#if !defined(Q_WS_MAC)
-		prev->d_func()->unfocusInputContext();
-#else
-		prev->resetInputContext();
-#endif
-	    }
-        }
-
         QApplicationPrivate::setFocusWidget(f, reason);
-        f->d_func()->focusInputContext();
 
 #if defined(Q_WS_MAC)
         extern WindowPtr qt_mac_window_for(const QWidget *w); //qwidget_mac.cpp
@@ -3677,7 +3629,6 @@ void QWidget::clearFocus()
     if (hasFocus()) {
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
         Q_D(QWidget);
-	d->unfocusInputContext();
 #endif
         QApplicationPrivate::setFocusWidget(0, Qt::OtherFocusReason);
 #if defined(Q_WS_WIN)

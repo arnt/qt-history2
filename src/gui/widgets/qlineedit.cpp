@@ -40,7 +40,7 @@
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)
 #ifndef QT_NO_IM
 #include "qinputcontext.h"
 #include "qlist.h"
@@ -1827,8 +1827,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
 */
 bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
 {
-    // ##### currently X11 only
-#if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined QT_NO_IM
+#if (defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)) && !defined QT_NO_IM
     Q_Q(QLineEdit);
     if ( composeMode() ) {
 	int tmp_cursor = xToPosInternal( e->pos().x(), QTextLine::CursorOnCharacter );
@@ -1965,14 +1964,16 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
 void QLineEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QLineEdit);
-    if (e->reason() != Qt::ActiveWindowFocusReason &&
-         e->reason() != Qt::PopupFocusReason)
+    Qt::FocusReason reason = e->reason();
+    if (reason != Qt::ActiveWindowFocusReason &&
+        reason != Qt::PopupFocusReason)
         deselect();
+
     d->setCursorVisible(false);
     if (d->cursorTimer > 0)
         killTimer(d->cursorTimer);
     d->cursorTimer = 0;
-    if (e->reason() != Qt::PopupFocusReason
+    if (reason != Qt::PopupFocusReason
         && !(QApplication::activePopupWidget() && QApplication::activePopupWidget()->parentWidget() == this)) {
         if (!d->emitingEditingFinished)
             emit editingFinished();

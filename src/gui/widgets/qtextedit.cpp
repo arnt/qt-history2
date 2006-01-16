@@ -39,7 +39,7 @@
 #include <qvariant.h>
 #include <qurl.h>
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)
 #include <qinputcontext.h>
 #endif
 
@@ -2209,7 +2209,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
         if (cursorPos == -1)
             return;
 
-#if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined(QT_NO_IM)
+#if (defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)) && !defined(QT_NO_IM)
         QTextLayout *layout = d->cursor.block().layout();
         if (!layout->preeditAreaText().isEmpty()) {
             inputContext()->mouseHandler(cursorPos - d->cursor.position(), e);
@@ -2602,7 +2602,8 @@ void QTextEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QTextEdit);
     d->setBlinkingCursorEnabled(false);
-    if (e->reason() != Qt::PopupFocusReason)
+    Qt::FocusReason reason = e->reason();
+    if (reason != Qt::PopupFocusReason)
         d->cursorOn = false;
     QAbstractScrollArea::focusOutEvent(e);
 }

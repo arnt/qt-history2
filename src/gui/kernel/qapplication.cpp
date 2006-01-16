@@ -1622,6 +1622,15 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
             && qt_in_tab_key_event)
             focus->window()->setAttribute(Qt::WA_KeyboardFocusChange);
         QWidget *prev = focus_widget;
+
+        if (prev && reason != Qt::PopupFocusReason && reason != Qt::MenuBarFocusReason) {
+            QInputContext *qic = prev->inputContext();
+            if(qic) {
+                qic->reset();
+                qic->setFocusWidget(0);
+            }
+        }
+
         focus_widget = focus;
 
         if (reason != Qt::NoFocusReason) {
@@ -1639,6 +1648,9 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
                 QApplication::sendEvent(prev->style(), &out);
             }
             if(focus && QApplicationPrivate::focus_widget == focus) {
+                QInputContext *qic = focus->inputContext();
+                if ( qic ) 
+	            qic->setFocusWidget( focus_widget );
                 QFocusEvent in(QEvent::FocusIn, reason);
                 QApplication::sendEvent(focus, &in);
                 QApplication::sendEvent(focus->style(), &in);
@@ -1919,7 +1931,6 @@ void QApplication::setActiveWindow(QWidget* act)
 
     // then focus events
     if (!QApplicationPrivate::active_window && QApplicationPrivate::focus_widget) {
-	focusWidget()->d_func()->unfocusInputContext();
         QApplicationPrivate::setFocusWidget(0, Qt::ActiveWindowFocusReason);
     } else if (QApplicationPrivate::active_window) {
         QWidget *w = QApplicationPrivate::active_window->focusWidget();

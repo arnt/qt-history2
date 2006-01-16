@@ -210,7 +210,6 @@ public:
     void setWindowIcon_sys(bool forceReset = false);
 
     void focusInputContext();
-    void unfocusInputContext();
 
 #if defined(Q_WS_X11)
     void checkChildrenDnd();

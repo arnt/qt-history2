@@ -623,9 +623,11 @@ bool QWinInputContext::isComposing() const
     return imeComposition && !imeComposition->isEmpty();
 }
 
-void QWinInputContext::mouseHandler(int /*x*/, QMouseEvent * /*event*/)
+void QWinInputContext::mouseHandler(int pos, QMouseEvent *)
 {
-    // #### implement me!
+    if (pos < 0 || pos > imeComposition->length())
+        reset();
+    // ##### handle mouse position
 }
 
 QString QWinInputContext::language()
