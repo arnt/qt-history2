@@ -670,25 +670,6 @@ void Q3ToolBar::resizeEvent(QResizeEvent *e)
     checkForExtension(e->size());
 }
 
-static void updateWidget(QWidget *w, QAction *a)
-{
-    w->setVisible(a->isVisible());
-    w->setEnabled(a->isEnabled());
-
-    QToolButton *btn = qobject_cast<QToolButton *>(w);
-    if (btn) {
-        btn->setIcon(a->icon());
-        btn->setText(a->iconText());
-        bool checkable = a->isCheckable();
-        btn->setToggleButton(checkable);
-        if (checkable)
-            btn->setOn(a->isOn());
-
-        btn->setWhatsThis(a->whatsThis());
-        btn->setToolTip(a->toolTip());
-    }
-}
-
 #include <qdebug.h>
 /*!
     \internal
@@ -705,28 +686,13 @@ void Q3ToolBar::actionEvent(QActionEvent *e)
             w = new Q3ToolBarSeparator(orientation(), this, "toolbar separator");
         } else {
             QToolButton* btn = new QToolButton(this);
-            
-            connect(btn, SIGNAL(clicked()), a, SIGNAL(triggered()));
-            connect(btn, SIGNAL(clicked()), a, SIGNAL(activated()));
-            connect(btn, SIGNAL(toggled(bool)), a, SLOT(setChecked(bool)));
-            connect(a, SIGNAL(toggled(bool)), btn, SLOT(setChecked(bool)));
-// #ifndef QT_NO_TOOLTIP
-//         connect(&(d->tipGroup), SIGNAL(showTip(QString)), this, SLOT(showStatusText(QString)));
-//         connect(&(d->tipGroup), SIGNAL(removeTip()), this, SLOT(clearStatusText()));
-// #endif
-
-            w = btn;
-            updateWidget(w, a);
+            btn->setDefaultAction(a);
+            w = btn;            
         }
         d->actions.insert(a, w);
     } else if (e->type() == QEvent::ActionRemoved) {
         QAction *a = e->action();
         delete d->actions.take(a);
-    } else if (e->type() == QEvent::ActionChanged) {
-        QAction *a = e->action();
-        QWidget *w = d->actions.value(a);
-        if (w) 
-            updateWidget(w, a);
     }
 }
 
