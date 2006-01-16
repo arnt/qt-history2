@@ -2819,12 +2819,14 @@ static qulonglong qstrtoull(const char *nptr, const char **endptr, register int 
             acc += c;
         }
     }
-    if (any < 0) {
+    if (any == 0) {
+        if (ok != 0)
+            *ok = false;
+    } else if (any < 0) {
         acc = ULLONG_MAX;
         if (ok != 0)
             *ok = false;
-    }
-    else if (neg)
+    }else if (neg)
         acc = (~acc) + 1;
     if (endptr != 0)
         *endptr = (any ? s - 1 : nptr);
