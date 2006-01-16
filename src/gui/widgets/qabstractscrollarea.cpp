@@ -529,8 +529,10 @@ bool QAbstractScrollArea::viewportEvent(QEvent *e)
 
     This event handler can be reimplemented in a subclass to receive
     resize events (passed in \a event), for the viewport() widget.
+
     When resizeEvent() is called, the viewport already has its new
-    geometry. The old size is accessible through
+    geometry: Its new size is accessible through the
+    QResizeEvent::size() function, and the old size through
     QResizeEvent::oldSize().
 
     \sa QWidget::resizeEvent()
