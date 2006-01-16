@@ -662,7 +662,7 @@ QFile::link(const QString &linkName)
         qWarning("QFile::link: Empty or null file name");
         return false;
     }
-    QFileInfo fi(newName);
+    QFileInfo fi(linkName);
     if(fileEngine()->link(fi.absoluteFilePath())) {
         unsetError();
         return true;
@@ -685,7 +685,7 @@ QFile::link(const QString &linkName)
 bool
 QFile::link(const QString &fileName, const QString &linkName)
 {
-    return QFile(oldName).link(linkName);
+    return QFile(fileName).link(linkName);
 }
 
 /*!
