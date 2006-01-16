@@ -359,14 +359,8 @@ typedef struct  TBand_
 
 typedef struct TRaster_Instance_  TRaster_Instance;
 
-
-#ifdef HIGH_REPCISION
-#define precision_bits 10
+#define precision_bits 8
 #define precision_step 128
-#else
-#define precision_bits 6
-#define precision_step 32
-#endif
 #define precision (1 << precision_bits)
 #define precision_shift (precision_bits - Pixel_Bits)
 
