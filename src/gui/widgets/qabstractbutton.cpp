@@ -603,6 +603,9 @@ By default, the button is not checkable.
 void QAbstractButton::setCheckable(bool checkable)
 {
     Q_D(QAbstractButton);
+    if (d->checkable == checkable)
+        return;
+    
     d->checkable = checkable;
     d->checked = false;
 }
