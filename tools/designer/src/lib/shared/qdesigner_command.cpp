@@ -2239,7 +2239,7 @@ void ChangeListContentsCommand::changeContents(QComboBox *comboBox,
     QListIterator<QPair<QString, QIcon> > it(itemsState);
     while (it.hasNext()) {
         QPair<QString, QIcon> pair = it.next();
-        comboBox->addItem(pair.first);
+        comboBox->addItem(pair.second, pair.first);
         comboBox->setItemData(comboBox->count() - 1, pair.second);
     }
 }
