@@ -135,6 +135,7 @@ elif [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Licensee="Open Source"
     Edition="OpenSource"
+    EditionString="Open Source"
     QT_EDITION="QT_EDITION_OPENSOURCE"
 elif [ -f $relpath/LICENSE.PREVIEW ]; then
     # tech preview
@@ -219,6 +220,7 @@ EOF
             ;;
         L)
             Edition="DesktopLight"
+            EditionString="Desktop Light"
             QT_EDITION="QT_EDITION_DESKTOPLIGHT"
             ;;
         R)
@@ -371,7 +373,7 @@ else
 fi
 
 echo
-echo "This is the $Platform $Edition Edition."
+echo "This is the $Platform ${EditionString-$Edition} Edition."
 echo
 
 #-------------------------------------------------------------------------------
