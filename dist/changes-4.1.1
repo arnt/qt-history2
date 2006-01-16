@@ -19,6 +19,12 @@ Applications compiled for 4.0 will continue to run with 4.1.
 General improvements
 --------------------
 
+- QVariant
+        the QVariant(const char *) constructor is now unavailable when
+        QT_NO_CAST_TO_ASCII is set. Otherwise, it uses QString::fromAscii
+        to convert the const char * to a unicode QString to prevent
+        loss of information.
+
 - QXmlSimpleReader
 	A significant (approx. 50x) speedup in QXmlSimpleReader when
 	parsing documents which contain internal or external entities.

@@ -1401,16 +1401,20 @@ QVariant::QVariant(QDataStream &s)
 /*!
   \fn QVariant::QVariant(const char *val)
 
-    Constructs a new variant with a C-string value of \a val if \a val
-    is non-null. The variant creates a deep copy of \a val.
+    Constructs a new variant with a string value of \a val.
+    The variant creates a deep copy of \a val, using the encoding
+    set by QTextCodec::setCodecForCStrings().
 
-    If \a val is null, the resulting variant has type Invalid.
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications.
+
+    \sa QTextCodec::setCodecForCStrings()
 */
 
 
 QVariant::QVariant(const char *val)
 {
-    QString s = QString::fromLatin1(val);
+    QString s = QString::fromAscii(val);
     create(String, &s);
 }
 

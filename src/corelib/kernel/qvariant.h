@@ -138,7 +138,9 @@ class Q_CORE_EXPORT QVariant
     QVariant(qulonglong ull);
     QVariant(bool b);
     QVariant(double d);
+#ifndef QT_NO_CAST_FROM_ASCII
     QVariant(const char *str);
+#endif
 
     QVariant(const QByteArray &bytearray);
     QVariant(const QBitArray &bitarray);
@@ -359,6 +361,10 @@ protected:
     bool cmp(const QVariant &other) const;
 
 private:
+#ifdef QT_NO_CAST_FROM_ASCII
+    // force compile error when implicit conversion is not wanted
+    inline QVariant(const char *) { Q_ASSERT(false); }
+#endif
 #ifndef QT3_SUPPORT
     // force compile error, prevent QVariant(QVariant::Type, int) to be called
     inline QVariant(bool, int) { Q_ASSERT(false); }
