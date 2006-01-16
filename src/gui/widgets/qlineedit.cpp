@@ -1966,10 +1966,7 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QLineEdit);
     if (e->reason() != Qt::ActiveWindowFocusReason &&
-         e->reason() != Qt::PopupFocusReason
-         && !(e->reason() == Qt::MouseFocusReason
-            && QApplication::activePopupWidget()
-            && QApplication::activePopupWidget()->parentWidget() == this))
+         e->reason() != Qt::PopupFocusReason)
         deselect();
     d->setCursorVisible(false);
     if (d->cursorTimer > 0)
