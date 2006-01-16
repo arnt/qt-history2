@@ -646,8 +646,8 @@ QFile::rename(const QString &oldName, const QString &newName)
 }
 
 /*!
-    Creates a link from the file currently specified by fileName() to
-    \a newName. What a link is depends on the underlying filesystem
+    Creates a link named \a linkName that points to the file currently specified by fileName(). 
+    What a link is depends on the underlying filesystem
     (be it a shortcut on Windows or a symbolic link on Unix). Returns
     true if successful; otherwise returns false.
 
@@ -655,7 +655,7 @@ QFile::rename(const QString &oldName, const QString &newName)
 */
 
 bool
-QFile::link(const QString &newName)
+QFile::link(const QString &linkName)
 {
     Q_D(QFile);
     if (d->fileName.isEmpty()) {
@@ -674,7 +674,7 @@ QFile::link(const QString &newName)
 /*!
     \overload
 
-    Creates a link from \a oldName to \a newName. What a link is
+    Creates a link named \a linkName that points to the file \a fileName. What a link is
     depends on the underlying filesystem (be it a shortcut on Windows
     or a symbolic link on Unix). Returns true if successful; otherwise
     returns false.
@@ -683,9 +683,9 @@ QFile::link(const QString &newName)
 */
 
 bool
-QFile::link(const QString &oldName, const QString &newName)
+QFile::link(const QString &fileName, const QString &linkName)
 {
-    return QFile(oldName).link(newName);
+    return QFile(oldName).link(linkName);
 }
 
 /*!
