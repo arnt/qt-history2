@@ -461,7 +461,9 @@ QPixmap QPixmap::alphaChannel() const
 /*!
     \fn void QPixmap::setAlphaChannel(const QPixmap &alphaChannel)
 
-    Sets the alpha channel of this pixmap to the given \a alphaChannel.
+    Sets the alpha channel of this pixmap to the given \a alphaChannel
+    by converting the \a alphaChannel into 32 bit and using the
+    intensity of the RGB pixel values.
 
     \sa alphaChannel(), {QPixmap#Pixmap Transformations}{Pixmap
     Transformations}
