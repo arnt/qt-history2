@@ -2210,7 +2210,7 @@ QTableWidgetItem *QTableWidget::itemFromIndex(const QModelIndex &index) const
 /*!
     \internal
 */
-void QTableWidget::setModel(QAbstractItemModel */*model*/)
+void QTableWidget::setModel(QAbstractItemModel * /*model*/)
 {
     qFatal("QTableWidget::setModel() - Changing the model of the QTableWidget is not allowed.");
 }

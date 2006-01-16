@@ -1501,7 +1501,7 @@ QListWidgetItem *QListWidget::itemFromIndex(const QModelIndex &index) const
 /*!
   \internal
 */
-void QListWidget::setModel(QAbstractItemModel */*model*/)
+void QListWidget::setModel(QAbstractItemModel * /*model*/)
 {
     qFatal("QListWidget::setModel() - Changing the model of the QListWidget is not allowed.");
 }

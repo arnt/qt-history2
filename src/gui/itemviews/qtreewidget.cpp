@@ -329,8 +329,8 @@ bool QTreeModel::insertColumns(int column, int count, const QModelIndex &parent)
         QList<QTreeWidgetItem*> children = par ? par->children : tree;
         for (int row = 0; row < children.count(); ++row) {
             QTreeWidgetItem *child = children.at(row);
-            if (child->children.count()) 
-                itemstack.push(child);            
+            if (child->children.count())
+                itemstack.push(child);
             child->values.insert(column, count, QVector<QWidgetItemData>());
         }
     }
@@ -2006,7 +2006,7 @@ int QTreeWidget::currentColumn() const
   Sets the current \a item in the tree widget.
 
   Depending on the current selection mode, the item may also be selected.
-      
+
   \sa currentItem()
 */
 void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
@@ -2426,7 +2426,7 @@ QTreeWidgetItem *QTreeWidget::itemFromIndex(const QModelIndex &index) const
   \reimp
 */
 
-void QTreeWidget::setModel(QAbstractItemModel */*model*/)
+void QTreeWidget::setModel(QAbstractItemModel * /*model*/)
 {
     qFatal("QTreeWidget::setModel() - Changing the model of the QTreeWidget is not allowed.");
 }
