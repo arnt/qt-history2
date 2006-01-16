@@ -2503,7 +2503,6 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
     fmt.setDoubleBuffer(false);                // We don't need dbl buf
 
     QGLContext* ocx = d->glcx;
-    bool wasCurrent = (QGLContext::currentContext() == ocx);
     ocx->doneCurrent();
     d->glcx = new QGLContext(fmt, &pm);
     d->glcx->create();
@@ -2516,8 +2515,7 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
     delete d->glcx;
     d->glcx = ocx;
 
-    if (wasCurrent)
-        ocx->makeCurrent();
+    ocx->makeCurrent();
 
     if (success) {
 #if defined(Q_WS_X11)
@@ -2641,7 +2639,7 @@ void QGLWidget::glDraw()
 /*!
     Convenience function for specifying a drawing color to OpenGL.
     Calls glColor4 (in RGBA mode) or glIndex (in color-index mode)
-    with the color \a c. Applies to the current GL context.
+    with the color \a c. Applies to this widgets GL context.
 
     \sa qglClearColor(), QGLContext::currentContext(), QColor
 */
@@ -2649,9 +2647,8 @@ void QGLWidget::glDraw()
 void QGLWidget::qglColor(const QColor& c) const
 {
     Q_D(const QGLWidget);
-    const QGLContext* ctx = QGLContext::currentContext();
-    if (ctx) {
-        if (ctx->format().rgba())
+    if (d->glcx) {
+        if (d->glcx->format().rgba())
             glColor4ub(c.red(), c.green(), c.blue(), c.alpha());
         else if (!d->cmap.isEmpty()) { // QGLColormap in use?
             int i = d->cmap.find(c.rgb());
@@ -2659,14 +2656,14 @@ void QGLWidget::qglColor(const QColor& c) const
                 i = d->cmap.findNearest(c.rgb());
             glIndexi(i);
         } else
-            glIndexi(ctx->colorIndex(c));
+            glIndexi(d->glcx->colorIndex(c));
     }
 }
 
 /*!
     Convenience function for specifying the clearing color to OpenGL.
     Calls glClearColor (in RGBA mode) or glClearIndex (in color-index
-    mode) with the color \a c. Applies to the current GL context.
+    mode) with the color \a c. Applies to this widgets GL context.
 
     \sa qglColor(), QGLContext::currentContext(), QColor
 */
@@ -2674,9 +2671,8 @@ void QGLWidget::qglColor(const QColor& c) const
 void QGLWidget::qglClearColor(const QColor& c) const
 {
     Q_D(const QGLWidget);
-    const QGLContext* ctx = QGLContext::currentContext();
-    if (ctx) {
-        if (ctx->format().rgba())
+    if (d->glcx) {
+        if (d->glcx->format().rgba())
             glClearColor((GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
                           (GLfloat)c.blue() / 255.0, (GLfloat) c.alpha() / 255.0);
         else if (!d->cmap.isEmpty()) { // QGLColormap in use?
@@ -2685,7 +2681,7 @@ void QGLWidget::qglClearColor(const QColor& c) const
                 i = d->cmap.findNearest(c.rgb());
             glClearIndex(i);
         } else
-            glClearIndex(ctx->colorIndex(c));
+            glClearIndex(d->glcx->colorIndex(c));
     }
 }
 
