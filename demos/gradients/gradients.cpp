@@ -29,6 +29,7 @@ ShadeWidget::ShadeWidget(ShadeType type, QWidget *parent)
         pmp.end();
         QPalette pal = palette();
         pal.setBrush(backgroundRole(), QBrush(pm));
+        setAutoFillBackground(true);
         setPalette(pal);
 
     } else {
