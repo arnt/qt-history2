@@ -414,7 +414,10 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
             QDesignerContainerExtension *c = 0;
             c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), current->parentWidget());
 
-            if (LayoutInfo::isWidgetLaidout(core(), current)) {
+            if (!isManaged(current)) {
+                current = current->parentWidget();
+                continue;
+            } else if (LayoutInfo::isWidgetLaidout(core(), current)) {
                 current = current->parentWidget();
                 continue;
             } else if (isPageOfContainerWidget(current)) {
