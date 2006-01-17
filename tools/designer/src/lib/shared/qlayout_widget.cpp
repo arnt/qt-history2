@@ -892,8 +892,7 @@ int QLayoutWidget::layoutMargin() const
     if (layout())
         return layout()->margin() - 1;
 
-    qWarning("unknown margin!");
-    return 0 - 1;
+    return -1;
 }
 
 void QLayoutWidget::setLayoutMargin(int layoutMargin)
@@ -911,7 +910,6 @@ int QLayoutWidget::layoutSpacing() const
     if (layout())
         return layout()->spacing();
 
-    qWarning("unknown spacing!");
     return 0;
 }
 
