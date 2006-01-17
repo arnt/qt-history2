@@ -531,7 +531,7 @@ static bool matchString( QByteArray *s )
 static bool matchEncoding( bool *utf8 )
 {
     if ( yyTok == Tok_Ident ) {
-        if ( strcmp(yyIdent, "QApplication") == 0 ) {
+        if ( strcmp(yyIdent, "QApplication") == 0 || strcmp(yyIdent, "QCoreApplication") == 0) {
             yyTok = getToken();
             if ( yyTok == Tok_Gulbrandsen )
                 yyTok = getToken();
