@@ -701,12 +701,16 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
         break;
     case VT_I1|VT_BYREF:
         var = *arg.pcVal;
+        if (typeName == "char")
+            type = QVariant::Int;
         break;
     case VT_I2:
         var = arg.iVal;
         break;
     case VT_I2|VT_BYREF:
         var = *arg.piVal;
+        if (typeName == "short")
+            type = QVariant::Int;
         break;
     case VT_I4:
         if (type == QVariant::Color || (!type && typeName == "QColor"))
