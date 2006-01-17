@@ -427,8 +427,9 @@ RoleEditor::RoleEditor(QWidget *parent)
 
     m_label = new QLabel(this);
     layout->addWidget(m_label);
-    m_label->setBackgroundRole(QPalette::Base);
-    m_label->setIndent(1); // ### hardcode it should have the same value of textMargin in QItemDelegate
+    m_label->setAutoFillBackground(true);
+    m_label->setIndent(3); // ### hardcode it should have the same value of textMargin in QItemDelegate
+    setFocusProxy(m_label);
 
     QToolButton *button = new QToolButton(this);
     button->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -446,12 +447,11 @@ void RoleEditor::setLabel(const QString &label)
 
 void RoleEditor::setEdited(bool on)
 {
+    QFont font;
     if (on == true) {
-        QFont font = m_label->font();
         font.setBold(on);
-        m_label->setFont(font);
-    } else
-        m_label->setFont(QFont());
+    }
+    m_label->setFont(font);
     m_edited = on;
 }
 
