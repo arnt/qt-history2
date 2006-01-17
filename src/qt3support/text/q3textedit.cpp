@@ -4571,9 +4571,17 @@ void Q3TextEdit::append(const QString &text)
     cursor->gotoEnd();
     if (cursor->index() > 0)
         cursor->splitAndInsertEmptyParagraph();
+    Q3TextCursor oldCursor2 = *cursor;
 
     if (f == Qt::PlainText) {
         cursor->insert(text, true);
+        if (doc->useFormatCollection() && !doc->preProcessor() &&
+            currentFormat != cursor->paragraph()->at( cursor->index() )->format()) {
+            doc->setSelectionStart( Q3TextDocument::Temp, oldCursor2 );
+            doc->setSelectionEnd( Q3TextDocument::Temp, *cursor );
+            doc->setFormat( Q3TextDocument::Temp, currentFormat, Q3TextFormat::Format );
+            doc->removeSelection( Q3TextDocument::Temp );
+        }
     } else {
         cursor->paragraph()->setListItem(false);
         cursor->paragraph()->setListDepth(0);
