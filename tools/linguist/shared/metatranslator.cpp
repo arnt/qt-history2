@@ -285,8 +285,20 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
                 i++;
             }
         }
+
+        if ( !utfeight && context != 0 ) {
+            int i = 0;
+            while ( context[i] != '\0' ) {
+                if ( (uchar) context[i] >= 0x80 ) {
+                    utfeight = true;
+                    break;
+                }
+                i++;
+            }
+        }
     }
 }
+
 
 MetaTranslatorMessage::MetaTranslatorMessage( const MetaTranslatorMessage& m )
     : TranslatorMessage( m ), utfeight( m.utfeight ), ty( m.ty )
