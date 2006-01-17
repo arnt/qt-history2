@@ -1269,7 +1269,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
     int maxDeltaY = verticalStepsPerItem() * qMin(d->viewItems.count(), viewCount);
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
-    if (qAbs(dy) > qAbs(maxDeltaY)) {
+    if (qAbs(dy) > qAbs(maxDeltaY) && d->editors.isEmpty()) {
         verticalScrollBar()->repaint();
         d->viewport->update();
         return;
@@ -1754,9 +1754,7 @@ int QTreeViewPrivate::coordinate(int item) const
             ++viewItemIndex;
         }
         // item is below the viewport - estimated y
-        int i = itemAt(scrollbarValue);
-        Q_ASSERT(i != -1);
-        return y + (itemHeight * (item - i));
+        return y + (itemHeight * (item - viewItemIndex));
     }
     // item is above the viewport - estimated y
     return y - (itemHeight * (viewItemIndex - item));
