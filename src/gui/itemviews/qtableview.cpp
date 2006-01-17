@@ -487,6 +487,9 @@ QModelIndex QTableView::indexAt(const QPoint &pos) const
 /*!
     Returns the horizontal offset of the items in the table view.
 
+    Note that the table view uses the horizontal header section
+    positions to determine the positions of columns in the view.
+
     \sa verticalOffset()
 */
 int QTableView::horizontalOffset() const
@@ -496,6 +499,9 @@ int QTableView::horizontalOffset() const
 
 /*!
     Returns the vertical offset of the items in the table view.
+
+    Note that the table view uses the vertical header section
+    positions to determine the positions of rows in the view.
 
     \sa horizontalOffset()
 */
