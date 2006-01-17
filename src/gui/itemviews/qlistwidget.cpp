@@ -204,6 +204,9 @@ bool QListModel::setData(const QModelIndex &index, const QVariant &value, int ro
 
 bool QListModel::insertRows(int row, int count, const QModelIndex &)
 {
+    if (count < 1 || row < 0 || row > rowCount())
+        return false;
+
     beginInsertRows(QModelIndex(), row, row + count - 1);
     QListWidget *view = ::qobject_cast<QListWidget*>(QObject::parent());
     QListWidgetItem *itm = 0;
@@ -228,6 +231,9 @@ bool QListModel::insertRows(int row, int count, const QModelIndex &)
 
 bool QListModel::removeRows(int row, int count, const QModelIndex &)
 {
+    if (count < 1 || row < 0 || (row + count) > rowCount())
+        return false;
+
     if (row >= 0 && row < rowCount()) {
         beginRemoveRows(QModelIndex(), row, row + count - 1);
         QListWidgetItem *itm = 0;
