@@ -382,4 +382,9 @@
     above.
     \endlegalese
     \omit NOTE: The copyright notice is from qmotifdnd_x11.cpp. \endomit
+
+    Note: The Motif Drag \& Drop Protocol only allows receivers to
+    request data in response to a QDropEvent. If you attempt to
+    request data in response to e.g. a QDragMoveEvent, an empty
+    QByteArray is returned.  
 */

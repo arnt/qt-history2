@@ -658,7 +658,8 @@ QByteArray QX11Data::motifdndObtainData(const char *mimeType)
 {
     QByteArray result;
 
-    Q_ASSERT(Dnd_selection != 0);
+    if (Dnd_selection == 0)
+        return result;
 
     // try to convert the selection to the requested property
     // qDebug("trying to convert to '%s'", mimeType);
