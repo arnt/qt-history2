@@ -42,7 +42,7 @@ public:
 #endif
     void actionTriggered();
     QStyleOptionToolButton getStyleOption() const;
-    QPointer<QMenu> menu; //the menu set by the user (setMenu)
+    QPointer<QAction> menuAction; //the menu set by the user (setMenu)
     QBasicTimer popupTimer;
     int delay;
     Qt::ArrowType arrowType;
@@ -61,7 +61,7 @@ public:
 bool QToolButtonPrivate::hasMenu() const
 {
     Q_Q(const QToolButton);
-    return (menu || q->actions().size() > (defaultAction ? 1 : 0));
+    return ((menuAction && menuAction->menu()) || q->actions().size() > (defaultAction ? 1 : 0));
 }
 #endif
 
@@ -208,9 +208,6 @@ void QToolButtonPrivate::init()
 {
     Q_Q(QToolButton);
     delay = q->style()->styleHint(QStyle::SH_ToolButton_PopupDelay, 0, q);
-#ifndef QT_NO_MENU
-    menu = 0;
-#endif
     defaultAction = 0;
 #ifndef QT_NO_TOOLBAR
     if (qobject_cast<QToolBar*>(q->parentWidget()))
@@ -465,13 +462,12 @@ void QToolButton::actionEvent(QActionEvent *event)
         connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
         break;
     case QEvent::ActionRemoved:
-        if (d->defaultAction == action) {
+        if (d->defaultAction == action)
             d->defaultAction = 0;
 #ifndef QT_NO_MENU
-            if (action->menu() == d->menu)
-                d->menu = 0;
+        if (action == d->menuAction)
+            d->menuAction = 0;
 #endif
-        }
         action->disconnect(this);
         break;
     default:
@@ -654,7 +650,14 @@ QIcon QToolButton::iconSet(bool /* on */) const
 void QToolButton::setMenu(QMenu* menu)
 {
     Q_D(QToolButton);
-    d->menu = menu;
+
+    if (d->menuAction)
+        removeAction(d->menuAction);
+
+    if (menu) {
+        d->menuAction = menu->menuAction();
+        addAction(d->menuAction);
+    }
     update();
 }
 
@@ -666,7 +669,9 @@ void QToolButton::setMenu(QMenu* menu)
 QMenu* QToolButton::menu() const
 {
     Q_D(const QToolButton);
-    return d->menu;
+    if (d->menuAction)
+        return d->menuAction->menu();
+    return 0;
 }
 
 /*!
@@ -709,12 +714,16 @@ void QToolButtonPrivate::popupTimerDone()
 
     menuButtonDown = true;
     QPointer<QMenu> actualMenu;
-    if(menu) {
-        actualMenu = menu;
+    bool mustDeleteActualMenu = false;
+    if(menuAction) {
+        actualMenu = menuAction->menu();
         if (q->actions().size() > 1)
             qWarning("QToolButton: Menu in setMenu() overriding actions set in addAction!");
+    } else if (defaultAction && defaultAction->menu()) {
+        actualMenu = defaultAction->menu();
     } else {
         actualMenu = new QMenu(q);
+        mustDeleteActualMenu = true;
         QList<QAction*> actions = q->actions();
         for(int i = 0; i < actions.size(); i++)
             actualMenu->addAction(actions.at(i));
@@ -767,7 +776,7 @@ void QToolButtonPrivate::popupTimerDone()
     QPointer<QToolButton> that = q;
     actualMenu->setNoReplayFor(q);
     actualMenu->exec(p);
-    if (actualMenu != menu)
+    if (mustDeleteActualMenu)
         delete actualMenu;
     if (!that)
         return;
@@ -877,10 +886,6 @@ bool QToolButton::autoRaise() const
 void QToolButton::setDefaultAction(QAction *action)
 {
     Q_D(QToolButton);
-#ifndef QT_NO_MENU
-    if (d->defaultAction && d->menu == d->defaultAction->menu())
-        d->menu = 0;
-#endif
     d->defaultAction = action;
     if (!action)
         return;
@@ -898,11 +903,10 @@ void QToolButton::setDefaultAction(QAction *action)
     setWhatsThis(action->whatsThis());
 #endif
 #ifndef QT_NO_MENU
-    if (QMenu *menu = action->menu()) {
+    if (action->menu()) {
         // new 'default' popup mode defined introduced by tool bar. We
         // should have changed QToolButton's default instead.
         setPopupMode(QToolButton::MenuButtonPopup);
-        setMenu(menu);
     }
 #endif
     setCheckable(action->isCheckable());
