@@ -205,12 +205,12 @@ void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
         HIViewFeatures bits;
         HIViewRef hiview = HIViewRef(w->winId());
         HIViewGetFeatures(hiview, &bits);
-        if ((bits & kHIViewFeatureIsOpaque) == o)
+        if ((bits & kHIViewIsOpaque) == o)
             return;
         if(o) {
-            HIViewChangeFeatures(hiview, kHIViewFeatureIsOpaque, 0);
+            HIViewChangeFeatures(hiview, kHIViewIsOpaque, 0);
         } else {
-            HIViewChangeFeatures(hiview, 0, kHIViewFeatureIsOpaque);
+            HIViewChangeFeatures(hiview, 0, kHIViewIsOpaque);
         }
     }
 #endif
