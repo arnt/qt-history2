@@ -72,6 +72,7 @@ void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, con
                      || matrix.m21() != 0.
                      || matrix.m22() != 1.;
 
+    int current = 0;
     if (flags & QTextItem::RightToLeft) {
         int i = nglyphs;
         int totalKashidas = 0;
@@ -84,8 +85,11 @@ void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, con
         glyphs_out.resize(nglyphs+totalKashidas);
         
         i = 0;
-        int current = 0;
         while(i < nglyphs) {
+            if (glyphs[i].attributes.dontPrint) {
+                ++i;
+                continue;
+            }
             xpos -= glyphs[i].advance.x;
             ypos -= glyphs[i].advance.y;
 
@@ -133,6 +137,10 @@ void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, con
         glyphs_out.resize(nglyphs);
         int i = 0;
         while (i < nglyphs) {
+            if (glyphs[i].attributes.dontPrint) {
+                ++i;
+                continue;
+            }
             QFixed gpos_x = xpos + glyphs[i].offset.x;
             QFixed gpos_y = ypos + glyphs[i].offset.y;
             if (transform) {
@@ -141,14 +149,17 @@ void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, con
                 gpos_x = QFixed::fromReal(gpos.x());
                 gpos_y = QFixed::fromReal(gpos.y());
             }
-            positions[i].x = gpos_x;
-            positions[i].y = gpos_y;
-            glyphs_out[i] = glyphs[i].glyph;
+            positions[current].x = gpos_x;
+            positions[current].y = gpos_y;
+            glyphs_out[current] = glyphs[i].glyph;
             xpos += glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6);
             ypos += glyphs[i].advance.y;
             ++i;
+            ++current;
         }
     }
+    positions.resize(current);
+    glyphs_out.resize(current);
     Q_ASSERT(positions.size() == glyphs_out.size());
 }
 

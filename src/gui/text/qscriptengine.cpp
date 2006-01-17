@@ -258,6 +258,9 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
             glyphs[pos].attributes = glyphs[pos-1].attributes;
             ++pos;
         }
+        // hide soft-hyphens by default
+        if (uc[i].unicode() == 0x00ad)
+            glyphs[pos].attributes.dontPrint = true;
         const QUnicodeTables::Properties *prop = QUnicodeTables::properties(uc[i].unicode());
         int cat = prop->category;
         if (cat != QChar::Mark_NonSpacing) {
