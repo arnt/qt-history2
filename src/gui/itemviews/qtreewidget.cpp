@@ -1236,10 +1236,16 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {
     // special case for check state in tristate
-    if (role == Qt::CheckStateRole
-        && (itemFlags & Qt::ItemIsTristate))
-        for (int i = 0; i < children.count(); ++i)
-            children.at(i)->setData(column, role, value);
+    if ((role == Qt::CheckStateRole) && (itemFlags & Qt::ItemIsTristate)) {
+        for (int i = 0; i < children.count(); ++i) {
+            QTreeWidgetItem *child = children.at(i);
+            if (child->data(column, role).isValid()) {// has a CheckState
+                child->par = 0; // a little hack to avoid multiple dataChanged signals
+                child->setData(column, role, value);
+                child->par = this;
+            }
+        }
+    }
     // set the item data
     role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     if (column >= values.count())
@@ -1255,8 +1261,11 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     }
     if (!found)
         values[column].append(QWidgetItemData(role, value));
-    if (model)
+    if (model) {
         model->emitDataChanged(this, column);
+        if (role == Qt::CheckStateRole && par && par->itemFlags & Qt::ItemIsTristate)
+            model->emitDataChanged(par, column);
+    }
 }
 
 /*!
@@ -1266,8 +1275,9 @@ QVariant QTreeWidgetItem::data(int column, int role) const
 {
     // special case for check state in tristate
     if (role == Qt::CheckStateRole
-        && (itemFlags & Qt::ItemIsTristate) && children.count())
+        && (itemFlags & Qt::ItemIsTristate) && children.count()) {
         return childrenCheckState(column);
+    }
     // return the item data
     role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     if (column >= 0 && column < values.size()) {
@@ -1499,14 +1509,24 @@ void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
 QVariant QTreeWidgetItem::childrenCheckState(int column) const
 {
     int checkedChildrenCount = 0;
+    int uncheckedChildrenCount = 0;
+    int validChildrenCount = 0;
     for (int i = 0; i < children.count(); ++i) {
         QVariant value = children.at(i)->data(column, Qt::CheckStateRole);
-        if (static_cast<Qt::CheckState>(value.toInt()) != Qt::Unchecked)
-            ++checkedChildrenCount;
+        if (!value.isValid())
+            continue;
+        Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
+        if (checkState == Qt::Unchecked)
+            ++uncheckedChildrenCount;
+        else
+            ++checkedChildrenCount; // includes partially checked items
+        ++validChildrenCount;
     }
-    if (checkedChildrenCount == children.count())
+    if (checkedChildrenCount + uncheckedChildrenCount == 0)
+        return QVariant(); // value was not defined
+    if (checkedChildrenCount == validChildrenCount)
         return Qt::Checked;
-    if (checkedChildrenCount == 0)
+    if (uncheckedChildrenCount == validChildrenCount)
         return Qt::Unchecked;
     return Qt::PartiallyChecked;
 }
