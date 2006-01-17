@@ -29,6 +29,7 @@
 #ifndef QT_NO_PRINTER
 
 #include "private/qpdf_p.h"
+#include "qplatformdefs.h"
 
 class QPrinter;
 class QPSPrintEnginePrivate;
@@ -118,10 +119,8 @@ public:
     QPrinter::PrinterState printerState;
     bool embedFonts;
 
-    int pid;
+    pid_t pid;
 };
-
-
 
 #endif // QT_NO_PRINTER
 
