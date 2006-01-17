@@ -1305,13 +1305,12 @@ void QDirModelPrivate::restorePersistentIndexes()
     Q_Q(QDirModel);
     bool allow = allowAppendChild;
     allowAppendChild = false;
-    Q_ASSERT(persistent.indexes.count() == savedPaths.count());
     for (int i = 0; i < persistent.indexes.count(); ++i) {
-        QModelIndex index = q->index(savedPaths.at(i).first,
-                                     savedPaths.at(i).second);
+        QModelIndex index;
+        if (i < savedPaths.count())
+            index = q->index(savedPaths.at(i).first, savedPaths.at(i).second);
         persistent.indexes.at(i)->index = index;
     }
-    Q_ASSERT(persistent.indexes.count() == savedPaths.count());
     savedPersistentIndexes.clear();
     savedPaths.clear();
     allowAppendChild = allow;
