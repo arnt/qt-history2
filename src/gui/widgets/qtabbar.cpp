@@ -591,6 +591,7 @@ void QTabBar::setTabEnabled(int index, bool enabled)
     Q_D(QTabBar);
     if (QTabBarPrivate::Tab *tab = d->at(index)) {
         tab->enabled = enabled;
+        setShortcutEnabled(tab->shortcutId, enabled);
         update();
         if (!enabled && index == d->currentIndex)
             setCurrentIndex(d->validIndex(index+1)?index+1:0);
@@ -623,6 +624,7 @@ void QTabBar::setTabText(int index, const QString &text)
 #ifndef QT_NO_SHORTCUT
         releaseShortcut(tab->shortcutId);
         tab->shortcutId = grabShortcut(QKeySequence::mnemonic(text));
+        setShortcutEnabled(tab->shortcutId, tab->enabled);
 #endif
         d->refresh();
     }
