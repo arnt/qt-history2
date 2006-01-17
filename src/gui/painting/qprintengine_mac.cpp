@@ -630,10 +630,12 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
         OSStatus status = PMSessionCreatePrinterList(d->session, &printerList, &currIndex, &unused);
         if (status != noErr)
             qWarning("QMacPrintEngine::printerName: Problem getting list of printers: %ld", status);
-        if (printerList)
-            ret = QCFString::toQString(static_cast<CFStringRef>(CFArrayGetValueAtIndex(printerList,
-                                                                                       currIndex)));
-        break; }
+        if (printerList && currIndex < CFArrayGetCount(printerList)) {
+            const CFStringRef name = static_cast<CFStringRef>(CFArrayGetValueAtIndex(printerList, currIndex));
+            if (name)
+                ret = QCFString::toQString(name);
+        }
+		break; }
     case PPK_Resolution: // ###
         break;
     case PPK_SupportedResolutions:
