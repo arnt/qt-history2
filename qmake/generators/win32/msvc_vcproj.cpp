@@ -354,6 +354,8 @@ bool VcprojGenerator::writeProjectMakefile()
         XmlOutput xmlOut(t);
         xmlOut << mergedProject;
         return true;
+    } else if(project->first("TEMPLATE") == "vcsubdirs") {
+        return writeMakefile(t);
     }
     return false;
 }
