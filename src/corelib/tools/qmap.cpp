@@ -569,6 +569,10 @@ void QMapData::dump()
     were inserted with insertMulti(), or unite() was used), also
     occur multiple times in the list.
 
+    To obtain a list of unique keys, where each key from the map only
+    occurs once, use an intermediate QSet object to filter out
+    duplicates.
+
     The order is guaranteed to be the same as that used by values().
 
     \sa values(), key()
