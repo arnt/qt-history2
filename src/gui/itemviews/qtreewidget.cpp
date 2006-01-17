@@ -294,6 +294,9 @@ bool QTreeModel::setData(const QModelIndex &index, const QVariant &value, int ro
 */
 bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 {
+    if (count < 1 || row < 0 || row > rowCount(parent) || parent.column() > 0)
+        return false;
+
     beginInsertRows(parent, row, row + count - 1);
     while (count > 0) {
         QTreeWidgetItem *par = item(parent);
@@ -317,6 +320,9 @@ bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 */
 bool QTreeModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
+    if (count < 1 || column < 0 || column > columnCount(parent) || parent.column() > 0)
+        return false;
+
     beginInsertColumns(parent, column, column + count - 1);
 
     int oldCount = columnCount(parent);
@@ -1634,12 +1640,12 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 
   In its simplest form, a tree widget can be constructed in the following way:
 
-  \quotefile snippets/qtreewidget-using/mainwindow.h
-  \skipto QTreeWidget *
-  \printuntil QTreeWidget *
-  \quotefile snippets/qtreewidget-using/mainwindow.cpp
-  \skipto treeWidget = new
-  \printuntil treeWidget = new
+  \code
+    QTreeWidget *treeWidget = new QTreeWidget();
+    treeWidget->setColumnCount(1);
+    for (int i = 0; i < 10; ++i)
+        new QTreeWidgetItem(treeWidget, QStringList(QString("item: %1").arg(i)));
+  \endcode
 
   Before items can be added to the tree widget, the number of columns must
   be set with setColumnCount(). This allows each item to have one or more
