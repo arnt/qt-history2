@@ -1816,7 +1816,7 @@ QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
     This function is used in views with a vertical header to find the size hint for
     a header section based on the contents of the given \a row.
 
-    \sa sizeHintForColumn
+    \sa sizeHintForColumn()
 */
 int QAbstractItemView::sizeHintForRow(int row) const
 {
@@ -1847,7 +1847,7 @@ int QAbstractItemView::sizeHintForRow(int row) const
     This function is used in views with a horizontal header to find the size hint for
     a header section based on the contents of the given \a column.
 
-    \sa sizeHintForRow
+    \sa sizeHintForRow()
 */
 int QAbstractItemView::sizeHintForColumn(int column) const
 {
