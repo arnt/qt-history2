@@ -598,14 +598,11 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
     Q_D(const QDirModel);
     if (parent.column() > 0)
         return false;
-    
+
     if (!parent.isValid()) // the invalid index is the "My Computer" item
         return true; // the drives
     QDirModelPrivate::QDirNode *p = d->node(parent);
     Q_ASSERT(p);
-
-    if (!p->parent) // it's a drive
-        return true;
 
     if (d->lazyChildCount) // optimization that only checks for children if the node has been populated
         return p->info.isDir();
