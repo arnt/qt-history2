@@ -91,7 +91,7 @@ struct QProcessInfo {
     QProcess *process;
     int deathPipe;
     int exitResult;
-    int pid;
+    pid_t pid;
     int serialNumber;
 };
 
@@ -104,7 +104,7 @@ public:
 
     void run();
     void catchDeadChildren();
-    void add(int pid, QProcess *process);
+    void add(pid_t pid, QProcess *process);
     void remove(QProcess *process);
     void lock();
     void unlock();
@@ -223,7 +223,7 @@ static int qt_qprocess_nextId()
     return id;
 }
 
-void QProcessManager::add(int pid, QProcess *process)
+void QProcessManager::add(pid_t pid, QProcess *process)
 {
 #if defined (QPROCESS_DEBUG)
     qDebug() << "QProcessManager::add() adding pid" << pid << "process" << process;
@@ -358,11 +358,13 @@ void QProcessPrivate::startProcess()
 
     QByteArray encodedProg = QFile::encodeName(program);
     processManager()->lock();
-    if ((pid = (Q_PID) fork()) == 0) {
+    pid_t childPid = fork();
+    if (childPid == 0) {
         execChild(encodedProg);
         ::_exit(-1);
     }
-    processManager()->add(pid, q);
+    processManager()->add(childPid, q);
+    pid = Q_PID(childPid);
     processManager()->unlock();
 
     // parent
@@ -903,7 +905,7 @@ bool QProcessPrivate::waitForDeadChild()
     
     // check if our process is dead
     int exitStatus;
-    pid_t waitResult = waitpid(pid, &exitStatus, WNOHANG);
+    pid_t waitResult = waitpid(pid_t(pid), &exitStatus, WNOHANG);
     if (waitResult > 0) {
         processManager()->remove(q);
         crashed = !WIFEXITED(exitStatus);
