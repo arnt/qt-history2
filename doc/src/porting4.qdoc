@@ -3711,7 +3711,7 @@
         QValueList::end() instead.
 
         \oldcode
-        for (QValueList<T>::iterator i = list.fromLast(); i != list.end(); ++i)
+        for (QValueList<T>::iterator i = list.fromLast(); i != list.begin(); --i)
             do_something(*i);
         \newcode
         QLinkedList<T>::iterator i = list.end();
