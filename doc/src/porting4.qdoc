@@ -3422,6 +3422,10 @@
     For example, at() returns the string, not an iterator. See the
     \l{#qvaluelist.section}{section on QValueList} for details.
 
+    The static QStringList::split() function for splitting strings into
+    lists of smaller strings has been replaced by QString::split(),
+    which returns a QStringList.
+
     \section1 QStyle
 
     The QStyle API has been overhauled and improved. Most of the information on
