@@ -930,7 +930,7 @@ void QLayout::update()
 bool QLayout::activate()
 {
     Q_D(QLayout);
-    if (!parent())
+    if (!d->enabled || !parent())
         return false;
     if (!d->topLevel)
         return static_cast<QLayout*>(parent())->activate();
