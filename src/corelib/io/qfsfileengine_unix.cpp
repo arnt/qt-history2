@@ -142,13 +142,13 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
     if (filters == QDir::NoFilter)
         filters = QDir::AllEntries | QDir::Hidden | QDir::System;
     
-    const bool filterPermissions = (filters & QDir::PermissionMask);
+    const bool filterPermissions = ((filters & QDir::PermissionMask) && (filters & QDir::PermissionMask) != QDir::PermissionMask);
     const bool skipDirs     = !(filters & (QDir::Dirs | QDir::AllDirs));
     const bool skipFiles    = !(filters & QDir::Files);
     const bool skipSymlinks = (filters & QDir::NoSymLinks);
-    const bool skipReadable = filterPermissions && !(filters & QDir::Readable);
-    const bool skipWritable = filterPermissions && !(filters & QDir::Writable);
-    const bool skipExecable = filterPermissions && !(filters & QDir::Executable);
+    const bool doReadable   = !filterPermissions || (filters & QDir::Readable);
+    const bool doWritable   = !filterPermissions || (filters & QDir::Writable);
+    const bool doExecutable = !filterPermissions || (filters & QDir::Executable);
     const bool includeHidden = (filters & QDir::Hidden);
     const bool includeSystem = (filters & QDir::System);
     
@@ -220,31 +220,38 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
             if (!matched)
                 continue;
         }
-        if (!filters || filters == QDir::AllEntries) {
-            ret.append(fn);
-            continue;
-        }
         if ((filters & QDir::NoDotAndDotDot) && ((fn == QLatin1String(".") || fn == QLatin1String(".."))))
             continue;
+        bool isHidden = (fn.at(0) == QLatin1Char('.') && fn.length() > 1 && fn != QLatin1String(".."));
+        if (!includeHidden && isHidden)
+            continue;
 
-        bool disableDirFilters = (filters & QDir::AllDirs) != 0;
-        if ((!disableDirFilters && skipDirs && fi.isDir())
-            || (skipFiles && (fi.isFile() || !fi.exists()))
-            || (!disableDirFilters && skipReadable && fi.isReadable())
-            || (!disableDirFilters && skipWritable && fi.isWritable())
-            || (!disableDirFilters && skipExecable && fi.isExecutable())
-            || (!disableDirFilters && skipSymlinks && fi.isSymLink())) {
+        bool alwaysShow = (filters & QDir::TypeMask) == 0
+                          && ((isHidden && includeHidden)
+                              || (includeSystem && ((fi.exists() && !fi.isFile() && !fi.isDir() && !fi.isSymLink())
+                                                    || (!fi.exists() && fi.isSymLink()))));
+
+        // Skip files and directories
+        if ((filters & QDir::AllDirs) == 0 && skipDirs && fi.isDir()) {
+            if (!alwaysShow)
+                continue;
+        }
+        if ((skipFiles && (fi.isFile() || !fi.exists()))
+            || (skipSymlinks && fi.isSymLink())) {
+            if (!alwaysShow)
+                continue;
+        }
+        if (filterPermissions
+            && !((doReadable && fi.isReadable())
+                 || (doWritable && fi.isWritable())
+                 || (doExecutable && fi.isExecutable()))) {
+            continue;
+        }
+        if (!includeSystem && ((fi.exists() && !fi.isFile() && !fi.isDir() && !fi.isSymLink())
+                               || (!fi.exists() && fi.isSymLink()))) {
             continue;
         }
         
-        bool isHidden = (fn.at(0) == QLatin1Char('.') && fn.length() > 1 && fn != QLatin1String(".."));
-        if (isHidden && !includeHidden)
-            continue;
-
-        bool isSystemFile = fi.exists() && !fi.isFile() && !fi.isDir() && !fi.isSymLink();
-        if (isSystemFile && !includeSystem)
-            continue;
-
         ret.append(fn);
     }
     if (closedir(dir) != 0) {
@@ -343,7 +350,7 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
     // Force a stat, so that we're guaranteed to get up-to-date results
     if (type & ExistsFlag)
         d->tried_stat = 0;
-    if ((type & LinkType) || (type & ExistsFlag))
+    if ((type & LinkType) || (type & ExistsFlag) || (type & PermsMask))
         d->need_lstat = 1;
 
     QAbstractFileEngine::FileFlags ret = 0;
@@ -351,7 +358,7 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
     if (!exists && !d->isSymlink())
         return ret;
 
-    if(type & PermsMask) {
+    if (exists && (type & PermsMask)) {
         if(d->st.st_mode & S_IRUSR)
             ret |= ReadOwnerPerm;
         if(d->st.st_mode & S_IWUSR)

@@ -56,6 +56,7 @@ QFSFileEnginePrivate::QFSFileEnginePrivate() : QAbstractFileEnginePrivate()
 {
     sequential = 0;
     tried_stat = 0;
+    need_lstat = 0;
     fd = -1;
     fh = 0;
     lastIOCommand = IOFlushCommand;
