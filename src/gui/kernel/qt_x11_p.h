@@ -44,6 +44,12 @@
 
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+#ifdef index
+# undef index
+#endif
+#ifdef rindex
+# undef rindex
+#endif
 #include <X11/Xatom.h>
 
 //#define QT_NO_SHAPE
