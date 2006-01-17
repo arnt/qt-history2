@@ -965,6 +965,8 @@ void Q3DockWindow::init()
     dockWindowData = 0;
     lastPos = QPoint(-1, -1);
     lastSize = QSize(-1, -1);
+    stretchable[Qt::Horizontal] = false;
+    stretchable[Qt::Vertical] = false;
 
     widgetResizeHandler = new QWidgetResizeHandler(this);
     widgetResizeHandler->setMovingEnabled(false);
@@ -1042,8 +1044,6 @@ void Q3DockWindow::init()
     }
 
     updateGui();
-    stretchable[Qt::Horizontal] = false;
-    stretchable[Qt::Vertical] = false;
 
     connect(titleBar, SIGNAL(doubleClicked()), this, SLOT(dock()));
     connect(verHandle, SIGNAL(doubleClicked()), this, SLOT(undock()));
