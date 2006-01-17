@@ -101,10 +101,11 @@ QString Driver::unique(const QString &instanceName, const QString &className)
         int id = 1;
         name = instanceName;
         name.replace(QRegExp(QLatin1String("[^a-zA-Z_0-9]")), QLatin1String("_"));
+        QString base = name;
 
         while (m_nameRepository.contains(name)) {
             alreadyUsed = true;
-            name = instanceName + QString::number(id++);
+            name = base + QString::number(id++);
         }
     } else if (className.size()) {
         name = unique(qtify(className));
