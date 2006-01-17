@@ -47,11 +47,17 @@
     that is common to all GUI styles provided and shipped as part of
     Qt.
 
-    All the functions are full documented in \l{QStyle}, although the
+    Since QCommonStyle inherits QStyle, all of its functions are fully documented
+    in the QStyle documentation.
+    \omit
+    , although the
     extra functions that QCommonStyle provides, e.g.
     drawComplexControl(), drawControl(), drawPrimitive(),
     hitTestComplexControl(), subControlRect(), sizeFromContents(), and
     subElementRect() are documented here.
+    \endomit
+
+    \sa QStyle, QMotifStyle, QWindowsStyle
 */
 
 /*!
