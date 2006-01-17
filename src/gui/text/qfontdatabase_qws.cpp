@@ -190,6 +190,8 @@ static inline void load(const QString & = QString(), int = -1)
 {
 }
 
+#ifndef QT_NO_FREETYPE
+
 #if (FREETYPE_MAJOR*10000+FREETYPE_MINOR*100+FREETYPE_PATCH) >= 20105
 #define X_SIZE(face,i) ((face)->available_sizes[i].x_ppem)
 #define Y_SIZE(face,i) ((face)->available_sizes[i].y_ppem)
@@ -236,6 +238,7 @@ static void setSize(FT_Face face, int pixelSize, int stretch)
     }
 }
 #endif
+#endif // QT_NO_FREETYPE
 
 static
 QFontEngine *loadEngine(int script, const QFontPrivate *fp,
