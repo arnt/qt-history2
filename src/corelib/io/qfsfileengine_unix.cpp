@@ -139,16 +139,18 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
     if(!dir)
         return ret; // cannot read the directory
 
-    const bool filterTypes = (filters & (QDir::TypeMask & ~QDir::NoSymLinks)) || (filters & QDir::AllDirs);
+    if (filters == QDir::NoFilter)
+        filters = QDir::AllEntries | QDir::Hidden | QDir::System;
+    
     const bool filterPermissions = (filters & QDir::PermissionMask);
-    const bool skipDirs     = filterTypes && !(filters & (QDir::Dirs | QDir::AllDirs));
-    const bool skipFiles    = filterTypes && !(filters & QDir::Files);
+    const bool skipDirs     = !(filters & (QDir::Dirs | QDir::AllDirs));
+    const bool skipFiles    = !(filters & QDir::Files);
     const bool skipSymlinks = (filters & QDir::NoSymLinks);
     const bool skipReadable = filterPermissions && !(filters & QDir::Readable);
     const bool skipWritable = filterPermissions && !(filters & QDir::Writable);
     const bool skipExecable = filterPermissions && !(filters & QDir::Executable);
-    const bool skipHidden   = !(filters & QDir::Hidden);
-    const bool addSystem    = (filters & QDir::System);
+    const bool includeHidden = (filters & QDir::Hidden);
+    const bool includeSystem = (filters & QDir::System);
     
 #ifndef QT_NO_REGEXP
     QList<QRegExp> filterRegExps;
@@ -224,10 +226,9 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
         }
         if ((filters & QDir::NoDotAndDotDot) && ((fn == QLatin1String(".") || fn == QLatin1String(".."))))
             continue;
-        
+
         bool disableDirFilters = (filters & QDir::AllDirs) != 0;
-        if ((skipHidden && fn.at(0) == QLatin1Char('.') && fn.length() > 1 && fn != QLatin1String(".."))
-            || (!disableDirFilters && skipDirs && fi.isDir())
+        if ((!disableDirFilters && skipDirs && fi.isDir())
             || (skipFiles && (fi.isFile() || !fi.exists()))
             || (!disableDirFilters && skipReadable && fi.isReadable())
             || (!disableDirFilters && skipWritable && fi.isWritable())
@@ -235,12 +236,16 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
             || (!disableDirFilters && skipSymlinks && fi.isSymLink())) {
             continue;
         }
+        
+        bool isHidden = (fn.at(0) == QLatin1Char('.') && fn.length() > 1 && fn != QLatin1String(".."));
+        if (isHidden && !includeHidden)
+            continue;
 
         bool isSystemFile = fi.exists() && !fi.isFile() && !fi.isDir() && !fi.isSymLink();
-        if (addSystem && isSystemFile)
-            ret.append(fn);
-        else if (!addSystem && !isSystemFile)
-            ret.append(fn);
+        if (isSystemFile && !includeSystem)
+            continue;
+
+        ret.append(fn);
     }
     if (closedir(dir) != 0) {
         qWarning("QDir::readDirEntries: Cannot close  directory: %s", d->file.toLocal8Bit().data());
