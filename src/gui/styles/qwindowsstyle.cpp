@@ -35,7 +35,7 @@
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
-#  ifndef COLOR_GRADIENTACTIVECAPTION 
+#  ifndef COLOR_GRADIENTACTIVECAPTION
 #    define COLOR_GRADIENTACTIVECAPTION     27
 #  endif
 #  ifndef COLOR_GRADIENTINACTIVECAPTION
@@ -234,7 +234,7 @@ void QWindowsStyle::polish(QApplication *app)
     d->inactiveCaptionColor = app->palette().dark().color();
     d->inactiveGradientCaptionColor = app->palette().dark().color();
     d->inactiveCaptionText = app->palette().background().color();
-    
+
 #if defined(Q_WS_WIN) //fetch native titlebar colors
     if(app->desktopSettingsAware()){
         DWORD activeCaption = GetSysColor(COLOR_ACTIVECAPTION);
@@ -1054,6 +1054,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
 #endif // QT_NO_TOOLBAR
     case PE_FrameButtonTool:
     case PE_PanelButtonTool: {
+#ifndef QT_NO_DOCKWIDGET
         if (w && w->inherits("QDockWidgetTitleButton")) {
            if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(w->parent()))
                 if (dw->isFloating()){
@@ -1063,6 +1064,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                     return;
                 }
         }
+#endif // QT_NO_DOCKWIDGET
         QBrush fill;
         bool stippled;
         bool panel = (pe == PE_PanelButtonTool);
@@ -2150,7 +2152,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
 #ifndef QT_NO_DOCKWIDGET
     case CE_DockWidgetTitle:
-        
+
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
             Q_D(const QWindowsStyle);
             QRect r = dwOpt->rect;
@@ -2160,7 +2162,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             if (dwOpt->movable) {
                 const QDockWidget *dockWidget = qobject_cast<const QDockWidget *>(widget);
                 QColor left, right;
-                
+
                 //Titlebar gradient
                 if (dockWidget && dockWidget->isFloating()) {
                     floating = true;
