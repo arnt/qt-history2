@@ -612,7 +612,7 @@ foreach (@modules_to_sync) {
 	    while(<F>) {
 		my $line = $_;
 		chomp $line;
-		if($line =~ /^ *QT *\+?= *(.*)/) {
+		if($line =~ /^ *QT *\+?= *([^\r\n]*)/) {
 		    foreach(split(/ /, "$1")) {
 			$master_contents .= "#include <QtCore/QtCore>\n" if("$_" eq "core");
 			$master_contents .= "#include <QtGui/QtGui>\n" if("$_" eq "gui");
