@@ -134,10 +134,9 @@ QTableModel::~QTableModel()
 
 bool QTableModel::insertRows(int row, int count, const QModelIndex &)
 {
-    if (row < 0)
-        row = 0;
-    else if (row > vertical.count())
-        row = vertical.count();
+    if (count < 1 || row < 0 || row > vertical.count())
+        return false;
+
     beginInsertRows(QModelIndex(), row, row + count - 1);
     int rc = vertical.count();
     int cc = horizontal.count();
@@ -152,10 +151,9 @@ bool QTableModel::insertRows(int row, int count, const QModelIndex &)
 
 bool QTableModel::insertColumns(int column, int count, const QModelIndex &)
 {
-    if (column < 0)
-        column = 0;
-    else if (column > horizontal.count())
-        column = horizontal.count();
+    if (count < 1 || column < 0 || column > horizontal.count())
+        return false;
+
     beginInsertColumns(QModelIndex(), column, column + count - 1);
     int rc = vertical.count();
     int cc = horizontal.count();
@@ -171,57 +169,57 @@ bool QTableModel::insertColumns(int column, int count, const QModelIndex &)
 
 bool QTableModel::removeRows(int row, int count, const QModelIndex &)
 {
-    if (row >= 0 && row < vertical.count()) {
-        beginRemoveRows(QModelIndex(), row, row + count - 1);
-        int i = tableIndex(row, 0);
-        int n = count * columnCount();
-        QTableWidgetItem *oldItem = 0;
-        for (int j=i; j<n+i; ++j) {
+    if (count < 1 || row < 0 || row + count > vertical.count())
+        return false;
+
+    beginRemoveRows(QModelIndex(), row, row + count - 1);
+    int i = tableIndex(row, 0);
+    int n = count * columnCount();
+    QTableWidgetItem *oldItem = 0;
+    for (int j=i; j<n+i; ++j) {
+        oldItem = table.at(j);
+        if (oldItem)
+            oldItem->model = 0;
+        delete oldItem;
+    }
+    table.remove(qMax(i, 0), n);
+    for (int v=row; v<row+count; ++v) {
+        oldItem = vertical.at(v);
+        if (oldItem)
+            oldItem->model = 0;
+        delete oldItem;
+    }
+    vertical.remove(row, count);
+    endRemoveRows();
+    return true;
+}
+
+bool QTableModel::removeColumns(int column, int count, const QModelIndex &)
+{
+    if (count < 1 || column < 0 || column + count >  horizontal.count())
+        return false;
+
+    beginRemoveColumns(QModelIndex(), column, column + count - 1);
+    QTableWidgetItem *oldItem = 0;
+    for (int row = rowCount() - 1; row >= 0; --row) {
+        int i = tableIndex(row, column);
+        for (int j=i; j<i+count; ++j) {
             oldItem = table.at(j);
             if (oldItem)
                 oldItem->model = 0;
             delete oldItem;
         }
-        table.remove(qMax(i, 0), n);
-        for (int v=row; v<row+count; ++v) {
-            oldItem = vertical.at(v);
-            if (oldItem)
-                oldItem->model = 0;
-            delete oldItem;
-        }
-        vertical.remove(row, count);
-        endRemoveRows();
-        return true;
+        table.remove(i, count);
     }
-    return false;
-}
-
-bool QTableModel::removeColumns(int column, int count, const QModelIndex &)
-{
-    if (column >= 0 && column < horizontal.count()) {
-        beginRemoveColumns(QModelIndex(), column, column + count - 1);
-        QTableWidgetItem *oldItem = 0;
-        for (int row = rowCount() - 1; row >= 0; --row) {
-            int i = tableIndex(row, column);
-            for (int j=i; j<i+count; ++j) {
-                oldItem = table.at(j);
-                if (oldItem)
-                    oldItem->model = 0;
-                delete oldItem;
-            }
-            table.remove(i, count);
-        }
-        for (int h=column; h<column+count; ++h) {
-            oldItem = horizontal.at(h);
-            if (oldItem)
-                oldItem->model = 0;
-            delete oldItem;
-        }
-        horizontal.remove(column, count);
-        endRemoveColumns();
-        return true;
+    for (int h=column; h<column+count; ++h) {
+        oldItem = horizontal.at(h);
+        if (oldItem)
+            oldItem->model = 0;
+        delete oldItem;
     }
-    return false;
+    horizontal.remove(column, count);
+    endRemoveColumns();
+    return true;
 }
 
 void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
