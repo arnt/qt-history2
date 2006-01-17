@@ -1311,6 +1311,12 @@ QWidget *QListWidget::itemWidget(QListWidgetItem *item) const
     \since 4.1
 
     Sets the \a widget to be displayed in the give \a item.
+
+    This function should only be used to display static content in the place of a list
+    widget item. If you want to display custom dynamic content or implement a custom
+    editor widget, use QListView and subclass QItemDelegate instead.
+
+    \sa {Delegate Classes}
 */
 void QListWidget::setItemWidget(QListWidgetItem *item, QWidget *widget)
 {

@@ -2156,8 +2156,6 @@ void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
   \since 4.1
 
   Returns the widget displayed in the cell specified by \a item and the given \a column.
-
-  \sa setItemWidget()
 */
 QWidget *QTreeWidget::itemWidget(QTreeWidgetItem *item, int column) const
 {
@@ -2172,7 +2170,11 @@ QWidget *QTreeWidget::itemWidget(QTreeWidgetItem *item, int column) const
 
   Sets the \a widget to be displayed in the cell specified by \a item and the given \a column.
 
-  \sa itemWidget()
+  This function should only be used to display static content in the place of a tree
+  widget item. If you want to display custom dynamic content or implement a custom
+  editor widget, use QTreeView and subclass QItemDelegate instead.
+
+  \sa {Delegate Classes}
 */
 void QTreeWidget::setItemWidget(QTreeWidgetItem *item, int column, QWidget *widget)
 {
