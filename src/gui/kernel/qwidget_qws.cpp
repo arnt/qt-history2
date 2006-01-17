@@ -1189,7 +1189,7 @@ void QWidget::setWindowOpacity(qreal level)
     level = qMin<qreal>(qMax(level, qreal(0.0)), qreal(1.0));
     uchar opacity = uchar(level * 255);
     d->topData()->opacity = opacity;
-    if (isWindow() && isVisible())
+    if (isWindow())
         qwsDisplay()->setOpacity(data->winid, opacity);
 }
 
