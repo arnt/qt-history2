@@ -146,10 +146,13 @@ QEventDispatcherWin32Private::QEventDispatcherWin32Private()
 
 QEventDispatcherWin32Private::~QEventDispatcherWin32Private()
 {
+    extern HINSTANCE qWinAppInst();
     wakeUpNotifier.setEnabled(false);
     CloseHandle(wakeUpNotifier.handle());
     if (m_internalHwnd)
         DestroyWindow(m_internalHwnd);
+    QByteArray className = "QEventDispatcherWin32_Internal_Widget" + QByteArray::number((Q_LLONG)qt_internal_proc);
+    UnregisterClassA(className.constData(), qWinAppInst());
     DeleteCriticalSection(&fastTimerCriticalSection);
 }
 
