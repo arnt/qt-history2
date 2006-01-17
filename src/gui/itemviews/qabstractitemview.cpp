@@ -1812,6 +1812,11 @@ QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
 /*!
     Returns the height size hint for the specified \a row or -1 if
     there is no model.
+
+    This function is used in views with a vertical header to find the size hint for
+    a header section based on the contents of the given \a row.
+
+    \sa sizeHintForColumn
 */
 int QAbstractItemView::sizeHintForRow(int row) const
 {
@@ -1838,6 +1843,11 @@ int QAbstractItemView::sizeHintForRow(int row) const
 
 /*!
     Returns the width size hint for the specified \a column or -1 if there is no model.
+
+    This function is used in views with a horizontal header to find the size hint for
+    a header section based on the contents of the given \a column.
+
+    \sa sizeHintForRow
 */
 int QAbstractItemView::sizeHintForColumn(int column) const
 {
