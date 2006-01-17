@@ -661,18 +661,37 @@ void Configure::parseCmdLine()
 #endif
     }
 
-    if( dictionary[ "QMAKESPEC" ].endsWith( "-msvc" ) ||
-	dictionary[ "QMAKESPEC" ].endsWith( ".net" ) ||
-	dictionary[ "QMAKESPEC" ].endsWith( "-icc" ) ||
-        dictionary[ "QMAKESPEC" ].endsWith( "-msvc2005" )) {
-	dictionary[ "MAKE" ] = "nmake";
- 	dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32";
-    } else if ( dictionary[ "QMAKESPEC" ] == QString( "win32-g++" ) ) {
-	dictionary[ "MAKE" ] = "mingw32-make";
-    	dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32-g++";
+    // Ensure that QMAKESPEC exists in the mkspecs folder
+    QDir mkspec_dir = qtDir + "\\mkspecs";
+    QStringList mkspecs = mkspec_dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
+    
+    if (dictionary["QMAKESPEC"].toLower() == "features"
+        || !mkspecs.contains(dictionary["QMAKESPEC"], Qt::CaseInsensitive)) {
+        dictionary[ "HELP" ] = "yes";
+        if (dictionary ["QMAKESPEC_FROM"] == "commandline") {
+            cout << "Invalid option \"" << dictionary["QMAKESPEC"] << "\" for -platform." << endl;
+        } else if (dictionary ["QMAKESPEC_FROM"] == "env") {
+            cout << "QMAKESPEC environment variable is set to \"" << dictionary["QMAKESPEC"]
+                 << "\" which is not a supported platform" << endl;
+        } else { // was autodetected from environment
+            cout << "Unable to detect the platform from environment. Use -platform command line"
+                    "argument or set the QMAKESPEC environment variable and run configure again" << endl;
+        }
+        cout << "See the README file for a list of supported operating systems and compilers." << endl;
     } else {
-	dictionary[ "MAKE" ] = "make";
-	dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32";
+        if( dictionary[ "QMAKESPEC" ].endsWith( "-msvc" ) ||
+            dictionary[ "QMAKESPEC" ].endsWith( ".net" ) ||
+            dictionary[ "QMAKESPEC" ].endsWith( "-icc" ) ||
+            dictionary[ "QMAKESPEC" ].endsWith( "-msvc2005" )) {
+            dictionary[ "MAKE" ] = "nmake";
+            dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32";
+        } else if ( dictionary[ "QMAKESPEC" ] == QString( "win32-g++" ) ) {
+            dictionary[ "MAKE" ] = "mingw32-make";
+            dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32-g++";
+        } else {
+            dictionary[ "MAKE" ] = "make";
+            dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32";
+        }
     }
 
 #if !defined(EVAL)
