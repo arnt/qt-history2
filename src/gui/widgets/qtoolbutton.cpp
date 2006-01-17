@@ -886,6 +886,7 @@ bool QToolButton::autoRaise() const
 void QToolButton::setDefaultAction(QAction *action)
 {
     Q_D(QToolButton);
+    bool hadMenu = d->hasMenu();
     d->defaultAction = action;
     if (!action)
         return;
@@ -903,9 +904,10 @@ void QToolButton::setDefaultAction(QAction *action)
     setWhatsThis(action->whatsThis());
 #endif
 #ifndef QT_NO_MENU
-    if (action->menu()) {
+    if (action->menu() && !hadMenu) {
         // new 'default' popup mode defined introduced by tool bar. We
-        // should have changed QToolButton's default instead.
+        // should have changed QToolButton's default instead. Do that
+        // in 4.2.
         setPopupMode(QToolButton::MenuButtonPopup);
     }
 #endif
