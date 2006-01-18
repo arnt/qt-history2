@@ -14,7 +14,7 @@
 #include "qwsinputcontext_p.h"
 #include "qwsdisplay_qws.h"
 #include "qwsevent_qws.h"
-#include "qwscommand_qws.h"
+#include "private/qwscommand_qws_p.h"
 #include "qwindowsystem_qws.h"
 #include "qevent.h"
 #include "qtextformat.h"

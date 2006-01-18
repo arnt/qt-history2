@@ -17,7 +17,7 @@
 #include "private/qobject_p.h"
 #include "private/qapplication_p.h"
 #include "qwsdisplay_qws.h"
-#include "qwscommand_qws.h"
+#include "qwscommand_qws_p.h"
 #include "qwidget.h"
 
 #ifdef Q_WS_QWS

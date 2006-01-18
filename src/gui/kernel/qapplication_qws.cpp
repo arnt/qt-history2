@@ -33,7 +33,7 @@
 #include "qtransportauth_qws.h"
 #include "private/qtransportauth_qws_p.h"
 #include "qwsevent_qws.h"
-#include "qwscommand_qws.h"
+#include "private/qwscommand_qws_p.h"
 #include "qwsproperty_qws.h"
 #include "qscreen_qws.h"
 #include "qcopchannel_qws.h"
@@ -46,6 +46,7 @@
 #include "private/qwindowsystem_p.h"
 
 #include "qwsdisplay_qws.h"
+#include "private/qwsdisplay_qws_p.h"
 #include "private/qwsinputcontext_p.h"
 #include "qfile.h"
 #include "qhash.h"
@@ -275,243 +276,175 @@ void qt_server_enqueue(const QWSCommand *command)
     outgoing.append(copy);
 }
 
-class QWSDisplay::Data {
-public:
-    Data(QObject* parent, bool singleProcess = false)
-    {
+QWSDisplay::Data::Data(QObject* parent, bool singleProcess)
+{
 #ifndef QT_NO_QWS_MULTIPROCESS
-        if (singleProcess)
-            csocket = 0;
-        else {
-            csocket = new QWSSocket(parent);
-            QObject::connect(csocket, SIGNAL(disconnected()),
-                              qApp, SLOT(quit()));
-        }
-        clientLock = 0;
-#endif
-        init();
+    if (singleProcess)
+        csocket = 0;
+    else {
+        csocket = new QWSSocket(parent);
+        QObject::connect(csocket, SIGNAL(disconnected()),
+                         qApp, SLOT(quit()));
     }
+    clientLock = 0;
+#endif
+    init();
+}
 
-    ~Data()
-    {
+QWSDisplay::Data::~Data()
+{
 //        delete rgnMan; rgnMan = 0;
 //        delete memorymanager; memorymanager = 0;
-        qt_screen->disconnect();
-        delete qt_screen; qt_screen = 0;
+    qt_screen->disconnect();
+    delete qt_screen; qt_screen = 0;
 #ifndef QT_NO_QWS_CURSOR
-        delete qt_screencursor; qt_screencursor = 0;
+    delete qt_screencursor; qt_screencursor = 0;
 #endif
 #ifndef QT_NO_QWS_MULTIPROCESS
-        shm.detach();
-        if (csocket) {
-            csocket->flush(); // may be pending QCop message, eg.
-            delete csocket;
-        }
-        delete clientLock;
-        clientLock = 0;
+    shm.detach();
+    if (csocket) {
+        csocket->flush(); // may be pending QCop message, eg.
+        delete csocket;
+    }
+    delete clientLock;
+    clientLock = 0;
 #endif
-        delete connected_event;
-        delete mouse_event;
-        delete current_event;
-        qDeleteAll(queue);
+    delete connected_event;
+    delete mouse_event;
+    delete current_event;
+    qDeleteAll(queue);
 #ifndef QT_NO_COP
-        delete qcop_response;
+    delete qcop_response;
 #endif
-    }
+}
 
-    static QWSLock *clientLock;
+bool QWSDisplay::Data::lockClient(QWSLock::LockType type, int timeout)
+{
+    return !clientLock || clientLock->lock(type, timeout);
+}
 
-    static bool lockClient(QWSLock::LockType type, int timeout = -1)
-    {
-        return !clientLock || clientLock->lock(type, timeout);
-    }
+void QWSDisplay::Data::unlockClient(QWSLock::LockType type)
+{
+    if (clientLock) clientLock->unlock(type);
+}
 
-    static void unlockClient(QWSLock::LockType type)
-    {
-        if (clientLock) clientLock->unlock(type);
-    }
+bool QWSDisplay::Data::waitClient(QWSLock::LockType type, int timeout)
+{
+    return !clientLock || clientLock->wait(type, timeout);
+}
 
-    static bool waitClient(QWSLock::LockType type, int timeout = -1)
-    {
-        return !clientLock || clientLock->wait(type, timeout);
-    }
+QWSLock* QWSDisplay::Data::getClientLock()
+{
+    return clientLock;
+}
 
-    static QWSLock* getClientLock()
-    {
-        return clientLock;
-    }
-
-    void flush()
-    {
+void QWSDisplay::Data::flush()
+{
 #ifndef QT_NO_QWS_MULTIPROCESS
-        if (csocket)
-            csocket->flush();
+    if (csocket)
+        csocket->flush();
 #endif
-    }
-
-    //####public data members
-
-//    QWSRegionManager *rgnMan;
-    uchar *sharedRam;
-#if !defined(Q_NO_QSHM) && !defined(QT_NO_QWS_MULTIPROCESS)
-    QSharedMemory shm;
-#endif
-    int sharedRamSize;
-
-private:
-#ifndef QT_NO_QWS_MULTIPROCESS
-    QWSSocket *csocket;
-#endif
-    QList<QWSEvent*> queue;
+}
 
 #if 0
-    void debugQueue() {
-            for (int i = 0; i < queue.size(); ++i) {
-                QWSEvent *e = queue.at(i);
-                qDebug( "   ev %d type %d sl %d rl %d", i, e->type, e->simpleLen, e->rawLen);
-            }
+void QWSDisplay::Data::debugQueue() {
+    for (int i = 0; i < queue.size(); ++i) {
+        QWSEvent *e = queue.at(i);
+        qDebug( "   ev %d type %d sl %d rl %d", i, e->type, e->simpleLen, e->rawLen);
     }
+}
 #endif
 
-    QWSConnectedEvent* connected_event;
-    QWSMouseEvent* mouse_event;
-    int mouse_state;
-    int mouse_winid;
-//    QWSRegionModifiedEvent *region_event;
-//    QWSRegionModifiedEvent *region_ack;
-    QPoint region_offset;
-    int region_offset_window;
-#ifndef QT_NO_COP
-    QWSQCopMessageEvent *qcop_response;
-#endif
-    QWSEvent* current_event;
-    QList<int> unused_identifiers;
+bool QWSDisplay::Data::queueNotEmpty()
+{
+    return mouse_event/*||region_event*/||queue.count() > 0;
+}
+QWSEvent* QWSDisplay::Data::dequeue()
+{
+    QWSEvent *r=0;
+    if (queue.count()) {
+        r = queue.first(); queue.removeFirst();
+    } else if (mouse_event) {
+        r = mouse_event;
+        mouse_event = 0;
 #ifdef QAPPLICATION_EXTRA_DEBUG
-    int mouse_event_count;
-#endif
-    void (*mouseFilter)(QWSMouseEvent *);
-
-    enum { VariableEvent=-1 };
-public:
-    bool queueNotEmpty()
-    {
-        return mouse_event/*||region_event*/||queue.count() > 0;
-    }
-    QWSEvent *dequeue()
-    {
-        QWSEvent *r=0;
-        if (queue.count()) {
-            r = queue.first(); queue.removeFirst();
-        } else if (mouse_event) {
-            r = mouse_event;
-            mouse_event = 0;
-#ifdef QAPPLICATION_EXTRA_DEBUG
-            mouse_event_count = 0;
+        mouse_event_count = 0;
 #endif
 #if 0
-        } else {
-            r = region_event;
-            region_event = 0;
+    } else {
+        r = region_event;
+        region_event = 0;
 #endif
-        }
-        return r;
     }
+    return r;
+}
 
-    QWSEvent *peek() {
-        return queue.first();
-    }
+QWSEvent* QWSDisplay::Data::peek()
+{
+    return queue.first();
+}
+
+bool QWSDisplay::Data::directServerConnection()
+{
 #ifndef QT_NO_QWS_MULTIPROCESS
-    bool directServerConnection() { return csocket == 0; }
+    return csocket == 0;
 #else
-    bool directServerConnection() { return true; }
+    return true;
 #endif
-    void fillQueue();
-    void connectToPipe();
-    void waitForConnection();
-//    void waitForRegionAck();
-    void waitForCreation();
-#ifndef QT_NO_COP
-    void waitForQCopResponse();
-#endif
+}
+
 #if 0
-    void offsetPendingExpose(int, const QPoint &);
-    void translateExpose(QWSRegionModifiedEvent *re, const QPoint &p)
-    {
-        for (int i = 0; i < re->simpleData.nrectangles; i++)
-            re->rectangles[i].translate(p.x(), p.y());
-    }
+void QWSDisplay::Data::offsetPendingExpose(int, const QPoint &);
+void QWSDisplay::Data::translateExpose(QWSRegionModifiedEvent *re, const QPoint &p)
+{
+    for (int i = 0; i < re->simpleData.nrectangles; i++)
+        re->rectangles[i].translate(p.x(), p.y());
+}
 #endif
-    void init();
+void QWSDisplay::Data::create(int n)
+{
+    QWSCreateCommand cmd(n);
+    sendCommand(cmd);
+}
+
+void QWSDisplay::Data::sendCommand(QWSCommand & cmd)
+{
 #ifndef QT_NO_QWS_MULTIPROCESS
-    void reinit();
+    if  (csocket)
+        cmd.write(csocket);
+    else
 #endif
-    void create(int n = 1)
-    {
-        QWSCreateCommand cmd(n);
-        sendCommand(cmd);
-    }
+        qt_server_enqueue(&cmd);
+}
 
-    void sendCommand(QWSCommand & cmd)
-    {
+void QWSDisplay::Data::sendSynchronousCommand(QWSCommand & cmd)
+{
 #ifndef QT_NO_QWS_MULTIPROCESS
-        if  (csocket)
-            cmd.write(csocket);
-        else
+    if  (csocket) {
+        lockClient(QWSLock::Communication);
+        cmd.write(csocket);
+        csocket->waitForBytesWritten();
+        waitClient(QWSLock::Communication);
+    } else
 #endif
-            qt_server_enqueue(&cmd);
-    }
+        qt_server_enqueue(&cmd);
+}
 
-    void sendSynchronousCommand(QWSCommand & cmd)
-    {
-#ifndef QT_NO_QWS_MULTIPROCESS
-        if  (csocket) {
-            lockClient(QWSLock::Communication);
-            cmd.write(csocket);
-            csocket->waitForBytesWritten();
-            waitClient(QWSLock::Communication);
-        } else
-#endif
-            qt_server_enqueue(&cmd);
-    }
+int QWSDisplay::Data::takeId()
+{
+    if (unused_identifiers.count() == 10)
+        create(15);
+    if (unused_identifiers.count() == 0)
+        waitForCreation();
+    return unused_identifiers.takeFirst();
+}
 
-    QWSEvent *readMore();
-
-    int takeId()
-    {
-        if (unused_identifiers.count() == 10)
-            create(15);
-        if (unused_identifiers.count() == 0)
-            waitForCreation();
-        return unused_identifiers.takeFirst();
-    }
-
-    void setMouseFilter(void (*filter)(QWSMouseEvent*))
-    {
-        mouseFilter = filter;
-    }
-};
+void QWSDisplay::Data::setMouseFilter(void (*filter)(QWSMouseEvent*))
+{
+    mouseFilter = filter;
+}
 
 QWSLock* QWSDisplay::Data::clientLock = 0;
-
-bool QWSDisplay::lockClient(QWSLock::LockType type, int timeout)
-{
-    return Data::lockClient(type, timeout);
-}
-
-void QWSDisplay::unlockClient(QWSLock::LockType type)
-{
-    Data::unlockClient(type);
-}
-
-bool QWSDisplay::waitClient(QWSLock::LockType type, int timeout)
-{
-    return Data::waitClient(type, timeout);
-}
-
-QWSLock* QWSDisplay::getClientLock()
-{
-    return Data::getClientLock();
-}
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 int qt_fork_qapplication()
@@ -522,8 +455,6 @@ int qt_fork_qapplication()
     return rv;
 }
 #endif
-
-#include "qthread.h"
 
 class QDesktopWidget;
 extern QDesktopWidget *qt_desktopWidget;
@@ -1196,7 +1127,7 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
         d->sendCommand(cmd);
 }
 
-void QWSDisplay::requestRegion(int winId, QWSBackingStore::MemId memId,
+void QWSDisplay::requestRegion(int winId, QWSMemId memId,
                                int windowtype, QRegion r)
 {
     if (d->directServerConnection()) {

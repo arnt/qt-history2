@@ -14,7 +14,6 @@
 #ifndef QWINDOWSYSTEM_QWS_H
 #define QWINDOWSYSTEM_QWS_H
 
-#include <QtGui/qwsproperty_qws.h>
 #include <QtGui/qwsevent_qws.h>
 #include <QtGui/qkbd_qws.h>
 #include <QtGui/qregion.h>
@@ -263,11 +262,6 @@ public:
     static QList<QWSInternalWindowInfo*> * windowList();
 
     void sendPropertyNotifyEvent(int property, int state);
-#ifndef QT_NO_QWS_PROPERTIES
-//###    QWSPropertyManager *manager() {
-//###        return &propertyManager;
-//###    }
-#endif
 
     static QPoint mousePosition;
 
@@ -382,6 +376,8 @@ struct QWSMouseEvent;
 typedef QMap<int, QWSCursor*> QWSCursorMap;
 
 class QWSClientPrivate;
+class QWSCommand;
+class QWSConvertSelectionCommand;
 
 class Q_GUI_EXPORT QWSClient : public QObject
 {

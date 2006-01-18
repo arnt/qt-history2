@@ -25,6 +25,7 @@
 #include "qdesktopwidget.h"
 
 #include "qwsdisplay_qws.h"
+#include "private/qwsdisplay_qws_p.h"
 #include "qscreen_qws.h"
 #include "qwsmanager_qws.h"
 #include <private/qwsmanager_p.h>
@@ -614,7 +615,7 @@ void QWSBackingStore::blit(const QRect &r, const QPoint &p)
     unlock();
 }
 
-QWSBackingStore::MemId QWSBackingStore::memoryId() const
+QWSMemId QWSBackingStore::memoryId() const
 {
     if (isServerSideBackingStore)
         return mem;
@@ -662,7 +663,7 @@ void QWSBackingStore::create(QSize s)
             qFatal("Error creating shared memory of size %d", datasize);
         }
         mem = static_cast<uchar*>(shm.address());
-        memLock = QWSDisplay::getClientLock();
+        memLock = QWSDisplay::Data::getClientLock();
     }
 
     QImage img(mem + extradatasize, s.width(), s.height(),
@@ -673,7 +674,7 @@ void QWSBackingStore::create(QSize s)
 #endif
 }
 
-void QWSBackingStore::attach(MemId id, QSize s)
+void QWSBackingStore::attach(QWSMemId id, QSize s)
 {
     if (shm.id() == id && s == size())
         return;
@@ -707,7 +708,7 @@ void QWSBackingStore::attach(MemId id, QSize s)
 #endif
 }
 
-void QWSBackingStore::setMemory(MemId id, const QSize &s)
+void QWSBackingStore::setMemory(QWSMemId id, const QSize &s)
 {
     mem = id;
     QImage img(mem, s.width(), s.height(),

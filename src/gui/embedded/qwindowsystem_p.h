@@ -40,6 +40,9 @@
 #include "private/qwidget_qws_p.h"
 #include "qwindowsystem_qws.h"
 #include "qbrush.h"
+#include "qwsproperty_qws.h"
+#include "qwscommand_qws_p.h"
+#include "qwsmemid_qws.h"
 
 class QWSServerPrivate : public QObjectPrivate {
     friend class QCopChannel;
@@ -90,7 +93,7 @@ private:
     void set_altitude(const QWSChangeAltitudeCommand *);
     void set_opacity(const QWSSetOpacityCommand *);
     void request_focus(const QWSRequestFocusCommand *);
-    void request_region(int winId, QWSBackingStore::MemId memId,
+    void request_region(int winId, QWSMemId memId,
                         int windowtype, QRegion, QWSWindow* = 0);
     void repaint_region(int winId, bool opaque, QRegion);
     void destroy_region(const QWSRegionDestroyCommand *);

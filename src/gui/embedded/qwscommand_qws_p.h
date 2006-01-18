@@ -11,8 +11,19 @@
 **
 ****************************************************************************/
 
-#ifndef QWSCOMMAND_QWS_H
-#define QWSCOMMAND_QWS_H
+#ifndef QWSCOMMAND_QWS_P_H
+#define QWSCOMMAND_QWS_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
 // When reading commands "off the wire" in the server, the rawLen is read
 // and then that many bytes are allocated.  If the rawLen is corrupted (or
@@ -25,7 +36,9 @@
 #include <QtGui/qfont.h>
 #include <QtCore/qdatastream.h>
 #include <QtCore/qvariant.h>
+#include "qwsprotocolitem_qws.h"
 #include "private/qwidget_qws_p.h"
+#include "qwsmemid_qws.h"
 
 QT_MODULE(Gui)
 
@@ -42,42 +55,6 @@ class QRect;
 void qws_write_command(QIODevice *socket, int type, char *simpleData, int simpleLen, char *rawData, int rawLen);
 bool qws_read_command(QIODevice *socket, char *&simpleData, int &simpleLen, char *&rawData, int &rawLen, int &bytesRead);
 #endif
-/*********************************************************************
- *
- * QWSCommand base class - only use derived classes from that
- *
- *********************************************************************/
-
-struct QWSProtocolItem
-{
-    // ctor - dtor
-    QWSProtocolItem(int t, int len, char *ptr) : type(t),
-        simpleLen(len), rawLen(-1), deleteRaw(false), simpleDataPtr(ptr),
-        rawDataPtr(0), bytesRead(0) { }
-    virtual ~QWSProtocolItem();
-
-
-    // data
-    int type;
-    int simpleLen;
-    int rawLen;
-    bool deleteRaw;
-
-    // functions
-#ifndef QT_NO_QWS_MULTIPROCESS
-    void write(QIODevice *s);
-    bool read(QIODevice *s);
-#endif
-    void copyFrom(const QWSProtocolItem *item);
-
-    virtual void setData(const char *data, int len, bool allocateMem = true);
-
-    char *simpleDataPtr;
-    char *rawDataPtr;
-    // temp variables
-    int bytesRead;
-};
-
 
 struct QWSCommand : QWSProtocolItem
 {
@@ -232,7 +209,7 @@ struct QWSRegionCommand : public QWSCommand
     enum WindowType {Transparent=0, Opaque=1, OnScreen=2};
     struct SimpleData {
         int windowid;
-        QWSBackingStore::MemId memoryid;
+        QWSMemId memoryid;
         uint windowtype:8;
         int nrectangles;
     } simpleData;
@@ -637,4 +614,4 @@ struct QWSIMUpdateCommand: public QWSCommand
 
 #endif
 
-#endif // QWSCOMMAND_QWS_H
+#endif // QWSCOMMAND_QWS_P_H

@@ -18,10 +18,8 @@
 #include <QtCore/qbytearray.h>
 #include <QtGui/qregion.h>
 #include <QtGui/qwindowdefs.h>
-#include <QtGui/private/qlock_p.h>
 #include <QtCore/qlist.h>
-#include <QtGui/private/qwslock_p.h>
-#include <QtGui/private/qwidget_qws_p.h>
+#include "qwsmemid_qws.h"
 
 QT_MODULE(Gui)
 
@@ -29,6 +27,7 @@ class QWSEvent;
 class QWSMouseEvent;
 class QWSQCopMessageEvent;
 class QVariant;
+class QLock;
 
 class QWSWindowInfo
 {
@@ -76,7 +75,7 @@ public:
 
     void setIdentity(const QString &appName);
     void nameRegion(int winId, const QString& n, const QString &c);
-    void requestRegion(int winId, QWSBackingStore::MemId memId, int windowtype, QRegion);
+    void requestRegion(int winId, QWSMemId memId, int windowtype, QRegion);
     void repaintRegion(int winId, bool opaque, QRegion);
     void moveRegion(int winId, int dx, int dy);
     void destroyRegion(int winId);
@@ -126,11 +125,6 @@ private:
     Data *d;
 
     friend class QWSBackingStore;
-    static bool lockClient(QWSLock::LockType, int timeout = -1);
-    static void unlockClient(QWSLock::LockType);
-    static bool waitClient(QWSLock::LockType, int timeout = -1);
-    static QWSLock* getClientLock();
-
     int getPropertyLen;
     char *getPropertyData;
     static QLock *lock;

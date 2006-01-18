@@ -13,7 +13,7 @@
 
 #include "qwindowsystem_qws.h"
 #include "qwsevent_qws.h"
-#include "qwscommand_qws.h"
+#include "qwscommand_qws_p.h"
 #include "qtransportauth_qws_p.h"
 #include "qwsutils_qws.h"
 #include "qwscursor_qws.h"
@@ -2531,7 +2531,7 @@ void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
     exposeRegion(region, level);
 }
 
-void QWSServerPrivate::request_region(int wid, QWSBackingStore::MemId mid,
+void QWSServerPrivate::request_region(int wid, QWSMemId mid,
                                       int windowtype, QRegion region,
                                       QWSWindow *changingw)
 {

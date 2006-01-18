@@ -15,7 +15,7 @@
 #define QWSEVENT_QWS_H
 
 #include <QtGui/qwsutils_qws.h>
-#include <QtGui/qwscommand_qws.h> //QWSProtocolItem lives there, for now
+#include <QtGui/qwsprotocolitem_qws.h>
 #include <QtCore/qrect.h>
 
 QT_MODULE(Gui)

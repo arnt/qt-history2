@@ -26,6 +26,7 @@
 //
 
 #include <qpixmap.h>
+#include <qwsmemid_qws.h>
 #include <private/qsharedmemory_p.h>
 
 class QWSLock;
@@ -33,25 +34,13 @@ class QWSLock;
 class QWSBackingStore
 {
 public:
-    union MemId
-    {
-        MemId() {}
-        MemId(int id) { shmid = id; }
-        MemId(uchar *addr) { address = addr; }
-        operator uchar* () { return address; }
-        operator int () { return shmid; }
-
-        uchar *address;
-        int shmid;
-    };
-
     QWSBackingStore();
     ~QWSBackingStore();
 
     void create(QSize size);
-    void attach(MemId id, QSize size);
+    void attach(QWSMemId id, QSize size);
     void detach();
-    void setMemory(MemId id, const QSize &size);
+    void setMemory(QWSMemId id, const QSize &size);
 
     bool lock(int timeout = -1);
     void unlock();
@@ -62,7 +51,7 @@ public:
 
     void blit(const QRect &src, const QPoint &dest);
 
-    MemId memoryId() const;
+    QWSMemId memoryId() const;
     QSize size() const { return pix.size(); }
 
     bool isNull() const { return pix.isNull(); }

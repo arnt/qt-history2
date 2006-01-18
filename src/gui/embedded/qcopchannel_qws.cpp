@@ -16,7 +16,7 @@
 #ifndef QT_NO_COP
 
 #include "qwsdisplay_qws.h"
-#include "qwscommand_qws.h"
+#include "qwscommand_qws_p.h"
 #include "qwindowsystem_qws.h"
 #include "qwindowsystem_p.h"
 #include "qlist.h"
