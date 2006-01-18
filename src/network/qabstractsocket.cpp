@@ -517,7 +517,7 @@ bool QAbstractSocketPrivate::canReadNotification()
 bool QAbstractSocketPrivate::canWriteNotification()
 {
 #if defined (Q_OS_WIN)
-    if (socketEngine->isWriteNotificationEnabled())
+    if (socketEngine && socketEngine->isWriteNotificationEnabled())
         socketEngine->setWriteNotificationEnabled(false);
 #endif
 
@@ -537,7 +537,7 @@ bool QAbstractSocketPrivate::canWriteNotification()
     int tmp = writeBuffer.size();
     flush();
 
-    if ( socketEngine ) {
+    if (socketEngine) {
 #if defined (Q_OS_WIN)
 	if (!writeBuffer.isEmpty())
 	    socketEngine->setWriteNotificationEnabled(true);
