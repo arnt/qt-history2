@@ -157,6 +157,7 @@ bool QTipLabel::eventFilter(QObject *, QEvent *e)
     case QEvent::MouseButtonDblClick:
     case QEvent::FocusIn:
     case QEvent::FocusOut:
+    case QEvent::Wheel:
         hideTip();
     default:
         ;
