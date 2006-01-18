@@ -184,7 +184,10 @@ QHeaderView *QTreeView::header() const
 }
 
 /*!
-  Sets the \a header for the tree view.
+    Sets the header for the tree view, to the given \a header.
+
+    The view takes ownership over the given \a header and deletes it
+    when a new header is set.
 */
 void QTreeView::setHeader(QHeaderView *header)
 {
@@ -405,11 +408,11 @@ void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
 
     // refresh the height cache here; we don't really loose anything by getting the size hint,
     // since QAbstractItemView::dataChanged() will get the visualRect for the items anyway
-    
+
     QModelIndex top = (topLeft.column() == 0) ? topLeft
                       : model()->sibling(topLeft.row(), 0, topLeft);
     int topViewIndex = d->viewIndex(top);
-    bool sizeChanged = false; 
+    bool sizeChanged = false;
     if (topViewIndex != -1) {
         if (topLeft == bottomRight) {
             int oldHeight = d->height(topViewIndex);
@@ -619,10 +622,10 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
     int vi = d->viewIndex(index);
     if (vi < 0)
         return QRect();
-    
+
     int x = columnViewportPosition(index.column());
     int w = columnWidth(index.column());
-    
+
     if (index.column() == 0) {
         int i = d->indentation(vi);
         x += i;
@@ -1268,7 +1271,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 
     if (dx)
         d->header->setOffset(horizontalScrollBar()->value());
-        
+
     if (d->viewItems.isEmpty())
         return;
 
@@ -1642,7 +1645,7 @@ void QTreeViewPrivate::expand(int i, bool emitSignal)
         reexpandChildren(index, emitSignal);
 
     q->setState(QAbstractItemView::NoState);
-        
+
     if (emitSignal)
         emit q->expanded(index);
 }
@@ -1825,7 +1828,7 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
 
     int totalCount = viewItems.count();
     QModelIndex parent = index.parent();
-    
+
     // A quick check near the last item to see if we are just incrimenting
     int start = lastViewedItem > 2 ? lastViewedItem - 2 : 0;
     int end = lastViewedItem < totalCount - 2 ? lastViewedItem + 2 : totalCount;
@@ -1843,7 +1846,7 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
     // search in visible items first and below
     int t = itemAt(q->verticalScrollBar()->value());
     t = t > 100 ? t - 100 : 0; // start 100 items above the visible area
-   
+
     for (int i = t; i < totalCount; ++i) {
         const QModelIndex idx = viewItems.at(i).index;
         if (idx.row() == index.row()) {
