@@ -469,11 +469,12 @@ void QTreeView::expand(const QModelIndex &index)
         return;
     int i = d->viewIndex(index);
     if (i != -1) { // is visible
-        d->expand(i);
+        d->expand(i, true);
         updateGeometries();
         viewport()->update();
     } else {
         d->expandedIndexes.append(index);
+        emit expanded(index);
     }
 }
 
@@ -489,13 +490,15 @@ void QTreeView::collapse(const QModelIndex &index)
         return;
     int i = d->viewIndex(index);
     if (i != -1) { // is visible
-        d->collapse(i);
+        d->collapse(i, true);
         updateGeometries();
         viewport()->update();
     } else {
-        i = d->expandedIndexes.indexOf(index);
-        if (i != -1)
+        int i = d->expandedIndexes.indexOf(index);
+        if (i != -1) {
             d->expandedIndexes.remove(i);
+            emit collapsed(index);
+        }
     }
 }
 
@@ -971,9 +974,9 @@ void QTreeView::mousePressEvent(QMouseEvent *event)
         QAbstractItemView::mousePressEvent(event);
     } else if (itemsExpandable() && model()->hasChildren(d->viewItems.at(i).index)) {
         if (d->viewItems.at(i).expanded)
-            d->collapse(i);
+            d->collapse(i, true);
         else
-            d->expand(i);
+            d->expand(i, true);
         updateGeometries();
         viewport()->update();
     }
@@ -1019,9 +1022,9 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
         d->executePostedLayout(); // we need to make sure viewItems is updated
         if (d->itemsExpandable && model()->hasChildren(d->viewItems.at(i).index)) {
             if (d->viewItems.at(i).expanded)
-                d->collapse(i);
+                d->collapse(i, true);
             else
-                d->expand(i);
+                d->expand(i, true);
             updateGeometries();
             viewport()->update();
         }
@@ -1159,13 +1162,13 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
         return d->modelIndex(d->above(vi));
     case MoveLeft:
         if (d->viewItems.at(vi).expanded && d->itemsExpandable)
-            d->collapse(vi);
+            d->collapse(vi, true);
         updateGeometries();
         viewport()->update();
         break;
     case MoveRight:
         if (!d->viewItems.at(vi).expanded && d->itemsExpandable)
-            d->expand(vi);
+            d->expand(vi, true);
         updateGeometries();
         viewport()->update();
         break;
@@ -1326,12 +1329,7 @@ void QTreeView::columnMoved()
 */
 void QTreeView::reexpand()
 {
-    Q_D(QTreeView);
-    if (d->reexpand == -1)
-        return;
-    d->expand(d->reexpand);
-    d->reexpand = -1;
-    viewport()->update();
+    // do nothing
 }
 
 /*!
@@ -1357,18 +1355,19 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
 
     setState(CollapsingState);
 
-    // collapse all children
-    for (int i = start; i <= end; ++i)
-        collapse(model()->index(i, 0, parent));
-
-    // collapse parent
-    int p = d->viewIndex(parent);
-    if (p >= 0) {
-        d->collapse(p);
-    } else {
-        d->reexpand = -1;
+    if (!parent.isValid()) {
         d->viewItems.clear();
         d->doDelayedItemsLayout();
+        return;
+    }
+
+    // collapse the parent
+    bool expanded = isExpanded(parent);
+    d->expandParent.push(expanded);
+    if (expanded) {
+        int p = d->viewIndex(parent);
+        if (p != -1)
+            d->collapse(p, false);
     }
 
     QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
@@ -1385,17 +1384,24 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
     Q_UNUSED(start);
     Q_UNUSED(end);
     Q_D(QTreeView);
+    if (d->viewItems.isEmpty())
+        return;
 
-    // collapse parent
-    int p = d->viewIndex(parent);
-    if (p >= 0) {
-        d->expand(p, false);
-        viewport()->update();
-    } else {
-        //expand(parent);
-        d->reexpand = -1;
+    if (!parent.isValid()) {
         d->viewItems.clear();
         d->doDelayedItemsLayout();
+        return;
+    }
+
+    bool expanded = d->expandParent.pop();
+    if (expanded) {
+        int p = d->viewIndex(parent);
+        if (p != -1) { // item is visible
+            d->expand(p, false);
+            d->viewport->update();
+        } else if (!d->expandedIndexes.contains(parent)) {
+            d->expandedIndexes.append(parent);
+        }
     }
 
     setState(NoState);
@@ -1642,7 +1648,7 @@ void QTreeViewPrivate::expand(int i, bool emitSignal)
 
     // make sure we expand children that were previously expanded
     if (model->hasChildren(index))
-        reexpandChildren(index, emitSignal);
+        reexpandChildren(index);
 
     q->setState(QAbstractItemView::NoState);
 
@@ -1662,8 +1668,10 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
     int total = viewItems.at(item).total;
     QModelIndex modelIndex = viewItems.at(item).index;
     int index = expandedIndexes.indexOf(modelIndex);
-    if (index >= 0)
-        expandedIndexes.remove(index);
+    if (index == -1 || viewItems.at(item).expanded == false)
+        return; // nothing to do
+
+    expandedIndexes.remove(index);
     viewItems[item].expanded = false;
 
     index = item;
@@ -1678,8 +1686,10 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
 
     q->setState(QAbstractItemView::NoState);
 
-    if (emitSignal)
+    if (emitSignal) {
+        qDebug() << "emitting collased for" << modelIndex;
         emit q->collapsed(modelIndex);
+    }
 }
 
 void QTreeViewPrivate::layout(int i)
@@ -1911,7 +1921,7 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
     }
 }
 
-void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent, bool)
+void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent)
 {
     if (!model)
         return;
@@ -1931,7 +1941,7 @@ void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent, bool)
                 continue;
             int k = expandedIndexes.indexOf(index);
             expandedIndexes.remove(k);
-            expand(v);
+            expand(v, false);
         }
     }
 }

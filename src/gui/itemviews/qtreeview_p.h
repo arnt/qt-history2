@@ -48,14 +48,14 @@ public:
         : QAbstractItemViewPrivate(),
           header(0), indent(20), lastViewedItem(0), itemHeight(-1), 
           uniformRowHeights(false), rootDecoration(true),
-          itemsExpandable(true), reexpand(-1),
+          itemsExpandable(true),
           columnResizeTimerID(0)  {}
 
     ~QTreeViewPrivate() {}
     void initialize();
 
-    void expand(int item, bool emitSignal = true);
-    void collapse(int item, bool emitSignal = true);
+    void expand(int item, bool emitSignal);
+    void collapse(int item, bool emitSignal);
     void layout(int item);
 
     int pageUp(int item) const;
@@ -96,7 +96,7 @@ public:
     int columnAt(int x) const;
 
     void relayout(const QModelIndex &parent);
-    void reexpandChildren(const QModelIndex &parent, bool emitSignal = true);
+    void reexpandChildren(const QModelIndex &parent);
 
     void updateVerticalScrollbar();
     void updateHorizontalScrollbar();
@@ -122,7 +122,7 @@ public:
 
     // used when expanding and closing items
     QVector<QPersistentModelIndex> expandedIndexes;
-    int reexpand;
+    QStack<bool> expandParent;
 
     // used when hiding and showing items
     QVector<QPersistentModelIndex> hiddenIndexes;
