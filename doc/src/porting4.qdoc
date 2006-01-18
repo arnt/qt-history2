@@ -3125,10 +3125,15 @@
 
     \section1 QSlider
 
-    The QSlider::sliderStart() and QSlider::sliderRect() functons
+    The QSlider::sliderStart() and QSlider::sliderRect() functions
     have been removed. You can retrieve this information using
     QAbstractSlider::sliderPosition() and
     QStyle::querySubControlMetrics(), respectively.
+
+    In addition, the direction of a vertical QSlider has changed,
+    i.e. the bottom is now the minimum, and the top the maximum. You
+    can use the QAbstractSlider::invertedAppearance property to
+    control this behavior.
 
     See \l{#properties}{Properties} for a list of QSlider properties
     in Qt 3 that have changed in Qt 4.
