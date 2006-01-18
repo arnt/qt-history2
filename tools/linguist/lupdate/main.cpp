@@ -36,6 +36,8 @@ extern void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, M
 
 typedef QList<MetaTranslatorMessage> TML;
 
+static const char *g_defaultExtensions = "ui,c,c++,cc,cpp,cxx,ch,h,h++,hh,hpp,hxx";
+
 static void printUsage()
 {
     fprintf( stderr, "Usage:\n"
@@ -48,11 +50,11 @@ static void printUsage()
              "    -extensions <ext>[,<ext>]...\n"
              "           Process files with the given extensions only.\n"
              "           The extension list must be separated with commas, not with whitespace.\n"
-             "           Default: 'cpp,h,ui'.\n"
+             "           Default: '%s'.\n"
              "    -verbose\n"
              "           Explain what is being done.\n"
              "    -version\n"
-             "           Display the version of lupdate and exit.\n");
+             "           Display the version of lupdate and exit.\n", g_defaultExtensions);
 }
 
 static void updateTsFiles( const MetaTranslator& fetchedTor,
@@ -120,7 +122,7 @@ int main( int argc, char **argv )
     bool standardSyntax = true;
     bool metTsFlag = false;
 
-    QString extensions = QLatin1String("cpp,h,ui");
+    QString extensions = QLatin1String(g_defaultExtensions);
     QStringList extensionsNameFilters;
     int i;
 
