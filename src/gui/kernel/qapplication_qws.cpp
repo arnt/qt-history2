@@ -832,6 +832,7 @@ void QWSDisplay::Data::offsetPendingExpose(int window, const QPoint &offset)
 }
 #endif
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 void QWSDisplay::Data::connectToPipe()
 {
     Q_ASSERT(csocket);
@@ -853,7 +854,6 @@ void QWSDisplay::Data::waitForConnection()
 {
     connected_event = 0;
 
-#ifndef QT_NO_QWS_MULTIPROCESS
     for (int i = 0; i < 5; i++) {
         fillQueue();
         if (connected_event)
@@ -865,7 +865,6 @@ void QWSDisplay::Data::waitForConnection()
     csocket->flush();
     if (!connected_event)
         qFatal("Did not receive a connection event from the qws server");
-#endif
 }
 
 #if 0
@@ -888,6 +887,7 @@ void QWSDisplay::Data::waitForRegionAck()
     region_ack = 0;
 }
 #endif
+#endif // QT_NO_QWS_MULTIPROCESS
 
 void QWSDisplay::Data::waitForCreation()
 {

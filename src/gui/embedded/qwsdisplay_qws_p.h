@@ -43,15 +43,13 @@ public:
     QWSEvent *dequeue();
     QWSEvent *peek();
 
-#ifndef QT_NO_QWS_MULTIPROCESS
     bool directServerConnection();
-#else
-    bool directServerConnection();
-#endif
     void fillQueue();
+#ifndef QT_NO_MULTIPROCESS
     void connectToPipe();
     void waitForConnection();
 //    void waitForRegionAck();
+#endif
     void waitForCreation();
 #ifndef QT_NO_COP
     void waitForQCopResponse();

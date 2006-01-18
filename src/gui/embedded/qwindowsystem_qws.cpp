@@ -2575,9 +2575,11 @@ void QWSServerPrivate::request_region(int wid, QWSMemId mid,
 
         if (client->clientId() == 0) {
             backingStore->setMemory(mid, region.boundingRect().size());
+#ifndef QT_NO_QWS_MULTIPROCESS
         } else {
             backingStore->attach(mid, region.boundingRect().size());
             backingStore->setLock(changingw->client()->d_func()->clientLock);
+#endif
         }
 
         changingw->opaque = windowtype != QWSRegionCommand::Transparent;
