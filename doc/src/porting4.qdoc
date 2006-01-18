@@ -331,6 +331,7 @@
     \row \o QMenuBar::separator \o QMenuBar::separator() \o QMenuBar::setSeparator()
     \row \o QPushButton::menuButton \o QPushButton::isMenuButton() \o N/A
     \row \o QTabWidget::margin \o QTabWidget::margin() \o QTabWidget::setMargin()
+    \row \o QTextEdit::textFormat \o QTextEdit::textFormat() \o QTextEdit::setTextFormat()
     \row \o QWidget::backgroundBrush \o QWidget::backgroundBrush() \o N/A
     \row \o QWidget::backgroundMode \o QWidget::backgroundMode() \o QWidget::setBackgroundMode()
     \row \o QWidget::backgroundOrigin \o QWidget::backgroundOrigin() \o QWidget::setBackgroundOrigin()
