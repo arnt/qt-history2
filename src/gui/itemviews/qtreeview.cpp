@@ -1028,15 +1028,16 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
 /*!
   \reimp
 */
-QModelIndex QTreeView::indexAt(const QPoint &p) const
+QModelIndex QTreeView::indexAt(const QPoint &point) const
 {
     Q_D(const QTreeView);
     d->executePostedLayout();
-    int vi = d->item(p.y());
-    QModelIndex mi = d->modelIndex(vi);
-    int c = d->columnAt(p.x());
-    if (mi.isValid() && c >= 0)
-        return model()->sibling(mi.row(), c, mi);
+    
+    int visualIndex = d->item(point.y());
+    QModelIndex idx = d->modelIndex(visualIndex);
+    int column = d->columnAt(point.x());
+    if (idx.isValid() && column >= 0)
+        return model()->sibling(idx.row(), column, idx);
     return QModelIndex();
 }
 
@@ -1744,6 +1745,11 @@ int QTreeViewPrivate::indentation(int i) const
     return level * indent;
 }
 
+/*!
+ * \internal
+ * @return the y coordinate for item
+ * Note: if this is ever changed to not estimate then update item()
+ */
 int QTreeViewPrivate::coordinate(int item) const
 {
     Q_Q(const QTreeView);
@@ -1767,32 +1773,52 @@ int QTreeViewPrivate::coordinate(int item) const
     return y - (itemHeight * (viewItemIndex - item));
 }
 
-int QTreeViewPrivate::item(int coordinate) const
+/*!
+ * \internal
+ * @return the visual index at \a coordinate or -1
+ * @see modelIndex()
+ */
+int QTreeViewPrivate::item(int yCoordinate) const
 {
     Q_Q(const QTreeView);
     int scrollbarValue = q->verticalScrollBar()->value();
     int viewItemIndex = itemAt(scrollbarValue);
     if (viewItemIndex < 0) // couldn't find first visible item
         return -1;
+
     int viewItemHeight = height(viewItemIndex);
     int viewportHeight = viewport->height();
     int y = topItemDelta(scrollbarValue, viewItemHeight);
-    if (coordinate >= y) {
+    if (yCoordinate >= y) {
         // search for item in viewport
         while (y < viewportHeight && viewItemIndex < viewItems.count()) {
             y += height(viewItemIndex);
-            if (coordinate < y)
+            if (yCoordinate < y)
                 return viewItemIndex;
             ++viewItemIndex;
         }
     }
     if (itemHeight <= 0)
         return -1;
-    // item is above the viewport - give estimated coordinate
-    int coordAndDelta = coordinate - y;
-    int indexFromTop = ((coordAndDelta << 8) / itemHeight) >> 8; // avoid rounding problem
-    int i = viewItemIndex + indexFromTop;
-    return i < 0 || i >= viewItems.count() ? -1 : i;
+
+    // item is above the viewport - find via binary search
+    // If coordinate() is ever changed to not estimate
+    // the value then change this to just walk the tree
+    int left = 0;
+    int right = viewItems.count();
+    while (left <= right) {
+        int value = (left + right) >> 1;
+        int h = coordinate(value);
+        if (yCoordinate >= h && yCoordinate < h + height(value))
+            return value;
+
+        if (yCoordinate < h)
+            right = value - 1;
+        else
+            left = value + 1;
+    }
+
+    return -1;
 }
 
 int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
