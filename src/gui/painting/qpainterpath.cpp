@@ -117,11 +117,12 @@ static void qt_debug_path(const QPainterPath &path)
     end points. Or they can exist independently as unclosed subpaths,
     such as lines and curves.
 
-     A QPainterPath object can be used for filling, outlining, and
-     clipping. The main advantage of painter paths over normal drawing
-     operations is that complex shapes only need to be created once,
-     but they can be drawn many times using only calls to the
-     QPainter::drawPath() function.
+    A QPainterPath object can be used for filling, outlining, and
+    clipping. To generate fillable outlines for a given painter path,
+    use the QPainterPathStroker class.  The main advantage of painter
+    paths over normal drawing operations is that complex shapes only
+    need to be created once; then they can be drawn many times using
+    only calls to the QPainter::drawPath() function.
 
     QPainterPath provides a collection of functions that can be used
     to obtain information about the path and its elements. In addition
@@ -277,7 +278,7 @@ static void qt_debug_path(const QPainterPath &path)
     \o \l {demos/deform}{Vector Deformation Demo}
     \endtable
 
-    \sa QPainter, QRegion
+    \sa QPainterPathStroker, QPainter, QRegion
 */
 
 /*!
