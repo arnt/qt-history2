@@ -942,6 +942,10 @@ void QDirModel::refresh(const QModelIndex &parent)
     Q_D(QDirModel);
 
     QDirModelPrivate::QDirNode *n = parent.isValid() ? d->node(parent) : &(d->root);
+    if (n->children.count() == 0) {
+        n->stat = true;
+        return;
+    }
 
     d->savePersistentIndexes();
     beginRemoveRows(parent, 0, n->children.count() - 1);
