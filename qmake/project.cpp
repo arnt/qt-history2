@@ -84,6 +84,7 @@ bool ParsableBlock::eval(QMakeProject *p, QMap<QString, QStringList> &place)
 {
     //save state
     parser_info pi = ::parser;
+    const int block_count = p->scope_blocks.count();
 
     //execute
     bool ret = true;
@@ -95,6 +96,8 @@ bool ParsableBlock::eval(QMakeProject *p, QMap<QString, QStringList> &place)
 
     //restore state
     ::parser = pi;
+    while(p->scope_blocks.count() > block_count)
+        p->scope_blocks.pop();
     return ret;
 }
 
@@ -910,8 +913,8 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
         else
             next_block.else_status = ScopeBlock::TestFound;
         scope_blocks.push(next_block);
-        debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d).", parser.file.toLatin1().constData(),
-                  parser.line_no, scope_blocks.count(), scope_failed);
+        debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d). [%s]", parser.file.toLatin1().constData(),
+                  parser.line_no, scope_blocks.count(), scope_failed, s.toLatin1().constData());
     } else if(iterator) {
         iterator->parser.append(var+QString(d));
         bool ret = iterator->exec(this, place);
@@ -1099,12 +1102,12 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
         ret = read(t, place);
         if(!using_stdin)
             qfile.close();
-        parser = pi;
+    }
+    if(scope_blocks.count() != 1) {
+        qmake_error_msg("Unterminated conditional block at end of file");
+        ret = false;
     }
     parser = pi;
-    if(scope_blocks.count() != 1)
-        warn_msg(WarnParser, "%s: Unterminated conditional at end of file.",
-                 file.toLatin1().constData());
     qmake_setpwd(oldpwd);
     return ret;
 }
