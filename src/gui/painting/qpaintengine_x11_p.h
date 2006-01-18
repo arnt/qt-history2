@@ -92,7 +92,6 @@ public:
 protected:
     QX11PaintEngine(QX11PaintEnginePrivate &dptr);
 
-    void drawMulti(const QPointF &p, const QTextItemInt &si);
     void drawBox(const QPointF &p, const QTextItemInt &si);
     void drawXLFD(const QPointF &p, const QTextItemInt &si);
 #ifndef QT_NO_FONTCONFIG

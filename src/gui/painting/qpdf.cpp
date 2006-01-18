@@ -885,66 +885,8 @@ void QPdfBaseEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
     setBrush();
 
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
-    if (ti.fontEngine->type() == QFontEngine::Multi) {
-        QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
-        QGlyphLayout *glyphs = ti.glyphs;
-        int which = glyphs[0].glyph >> 24;
-
-        qreal x = p.x();
-        qreal y = p.y();
-
-        int start = 0;
-        int end, i;
-        for (end = 0; end < ti.num_glyphs; ++end) {
-            const int e = glyphs[end].glyph >> 24;
-            if (e == which)
-                continue;
-
-            // set the high byte to zero
-            for (i = start; i < end; ++i)
-                glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
-
-            // draw the text
-            QTextItemInt ti2 = ti;
-            ti2.glyphs = ti.glyphs + start;
-            ti2.num_glyphs = end - start;
-            ti2.fontEngine = multi->engine(which);
-            ti2.f = ti.f;
-            d->drawTextItem(QPointF(x, y), ti2);
-
-            QFixed xadd;
-            // reset the high byte for all glyphs and advance to the next sub-string
-            const int hi = which << 24;
-            for (i = start; i < end; ++i) {
-                glyphs[i].glyph = hi | glyphs[i].glyph;
-                xadd += glyphs[i].advance.x;
-            }
-            x += xadd.toReal();
-
-            // change engine
-            start = end;
-            which = e;
-        }
-
-        // set the high byte to zero
-        for (i = start; i < end; ++i)
-            glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
-
-        // draw the text
-        QTextItemInt ti2 = ti;
-        ti2.glyphs = ti.glyphs + start;
-        ti2.num_glyphs = end - start;
-        ti2.fontEngine = multi->engine(which);
-        ti2.f = ti.f;
-        d->drawTextItem(QPointF(x,y), ti2);
-
-        // reset the high byte for all glyphs
-        const int hi = which << 24;
-        for (i = start; i < end; ++i)
-            glyphs[i].glyph = hi | glyphs[i].glyph;
-    } else {
-        d->drawTextItem(p, ti);
-    }
+    Q_ASSERT(ti.fontEngine->type() != QFontEngine::Multi);
+    d->drawTextItem(p, ti);
     d->hasPen = hp;
     d->brush = b;
     *d->currentPage << "Q\n";

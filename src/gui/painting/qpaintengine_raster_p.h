@@ -147,11 +147,6 @@ public:
         m.translate(brushOffset.x(), brushOffset.y());
         return m;
     }
-#ifdef Q_WS_X11
-    void drawMulti(const QPointF &p, const QTextItem &textItem);
-    void drawBox(const QPointF &p, const QTextItem &textItem);
-    void drawXLFD(const QPointF &p, const QTextItem &textItem);
-#endif
 
     QPointF brushOffset;
     QBrush brush;

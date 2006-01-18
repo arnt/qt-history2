@@ -1980,9 +1980,6 @@ void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 
     switch(ti.fontEngine->type()) {
-    case QFontEngine::Multi:
-        drawMulti(p, ti);
-        break;
     case QFontEngine::Box:
         drawBox(p, ti);
         break;
@@ -1999,76 +1996,6 @@ void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
     }
 }
 
-void QX11PaintEngine::drawMulti(const QPointF &p, const QTextItemInt &ti)
-{
-    QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
-
-    if (!ti.num_glyphs) {
-        if (ti.flags) {
-            QTextItemInt ti2 = ti;
-            ti2.fontEngine = multi->engine(0);
-            ti2.f = ti.f;
-            drawTextItem(p, ti2);
-        }
-        return;
-    }
-
-    QGlyphLayout *glyphs = ti.glyphs;
-    int which = glyphs[0].glyph >> 24;
-
-    qreal x = p.x();
-    qreal y = p.y();
-
-    int start = 0;
-    int end, i;
-    for (end = 0; end < ti.num_glyphs; ++end) {
-        const int e = glyphs[end].glyph >> 24;
-        if (e == which)
-            continue;
-
-        // set the high byte to zero
-        for (i = start; i < end; ++i)
-            glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
-
-        // draw the text
-        QTextItemInt ti2 = ti;
-        ti2.glyphs = ti.glyphs + start;
-        ti2.num_glyphs = end - start;
-        ti2.fontEngine = multi->engine(which);
-        ti2.f = ti.f;
-        drawTextItem(QPointF(x, y), ti2);
-
-        QFixed xadd;
-        // reset the high byte for all glyphs and advance to the next sub-string
-        const int hi = which << 24;
-        for (i = start; i < end; ++i) {
-            glyphs[i].glyph = hi | glyphs[i].glyph;
-            xadd += glyphs[i].advance.x;
-        }
-        x += xadd.toReal();
-
-        // change engine
-        start = end;
-        which = e;
-    }
-
-    // set the high byte to zero
-    for (i = start; i < end; ++i)
-        glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
-
-    // draw the text
-    QTextItemInt ti2 = ti;
-    ti2.glyphs = ti.glyphs + start;
-    ti2.num_glyphs = end - start;
-    ti2.fontEngine = multi->engine(which);
-    ti2.f = ti.f;
-    drawTextItem(QPointF(x,y), ti2);
-
-    // reset the high byte for all glyphs
-    const int hi = which << 24;
-    for (i = start; i < end; ++i)
-        glyphs[i].glyph = hi | glyphs[i].glyph;
-}
 
 void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
 {
