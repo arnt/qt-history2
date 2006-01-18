@@ -744,7 +744,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             y = height - y;
 #endif
         }
-        if (qAbs(x) > SHRT_MAX || qAbs(y) > SHRT_MAX) { //bound to 16bit
+        while (qAbs(x) > SHRT_MAX || qAbs(y) > SHRT_MAX) { //bound to 16bit
             const float tx = newMatrix.tx, ty = newMatrix.ty;
             newMatrix = CGAffineTransformTranslate(newMatrix, -tx, ty);
             x += QFixed::fromReal(tx);
