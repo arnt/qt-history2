@@ -986,6 +986,8 @@ void QFontEngineQPF::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemIn
 
     for(int i = 0; i < si.num_glyphs; i++) {
         const QGlyphLayout *g = glyphs + (si.flags & QTextItem::RightToLeft ? -i : i);
+        if ( g->attributes.dontPrint )
+            continue;
         const QPFGlyph *glyph = d->tree->get(g->glyph);
         if (!glyph)
             continue;
