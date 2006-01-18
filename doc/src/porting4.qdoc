@@ -1909,10 +1909,11 @@
     \row \o QIODevice::ungetch(int) \o Renamed QIODevice::ungetChar() and simulated using an internal unget buffer.
     \endtable
 
-    The \c IO_xxx flags have been revised. Most of them have been
-    elimiated, because errors are best handled by the actual
-    QIODevice subclasses than through the base classes. The file
-    access flags, such as \c IO_ReadOnly and \c IO_WriteOnly, have
+    The \c IO_xxx flags have been revised, and the protected setFlags()
+    function removed. Most of the flags have been
+    eliminated because errors are best handled by implementing certain
+    functions in QIODevice subclasses rather than through the base classes.
+    The file access flags, such as \c IO_ReadOnly and \c IO_WriteOnly, have
     been moved to the QIODevice class to avoid polluting the global
     namespace. The table below shows the correspondence between the
     Qt 3 \c IO_xxx flags and the Qt 4 API:
