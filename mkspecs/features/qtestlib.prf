@@ -6,4 +6,4 @@ CONFIG(debug, debug|release) {
 
 CONFIG += console
 
-INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtTest
+INCLUDEPATH = $$[QT_INSTALL_HEADERS]/QtTest $$INCLUDEPATH

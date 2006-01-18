@@ -4,4 +4,4 @@ debug {
 } else {
       LIBS += -lQtAssistantClient
 }
-INCLUDEPATH += $$QMAKE_INCDIR_QT/QtAssistant
+INCLUDEPATH = $$QMAKE_INCDIR_QT/QtAssistant $$INCLUDEPATH
