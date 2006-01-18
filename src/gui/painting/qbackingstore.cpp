@@ -527,7 +527,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
         QPoint wOffset = widget->data->wrect.topLeft();
 
 #if defined(Q_WS_WIN)
-#if 0
+#if 1
         QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
         HDC engine_dc = engine->getDC();
         HDC widget_dc = (HDC) widget->d_func()->hd;
@@ -712,7 +712,7 @@ void QWidgetBackingStore::releaseBuffer()
 }
 #elif defined(Q_WS_WIN)
 void QWidgetBackingStore::releaseBuffer()
-{ 
+{
     if (buffer.paintEngine())
         ((QRasterPaintEngine *)buffer.paintEngine())->releaseBuffer();
 }
