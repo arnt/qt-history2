@@ -39,7 +39,7 @@
     setWidget(). For example:
 
     \code
-        QLabel imageLabel = new QLabel;
+        QLabel *imageLabel = new QLabel;
         QImage image("happyguy.png");
         imageLabel->setPixmap(QPixmap::fromImage(image));
 
@@ -206,7 +206,7 @@ void QScrollArea::setWidget(QWidget *w)
     if (w->parentWidget() != d->viewport)
         w->setParent(d->viewport);
     if (!w->testAttribute(Qt::WA_Resized))
-        w->resize(w->sizeHint());        
+        w->resize(w->sizeHint());
     d->widget = w;
     d->widget->setAutoFillBackground(true);
     w->installEventFilter(this);
@@ -285,7 +285,7 @@ bool QScrollArea::eventFilter(QObject *o, QEvent *e)
         d->updateScrollBars();
         d->widget->move(-d->hbar->value(), -d->vbar->value());
     }
-    
+
     return false;
 }
 
