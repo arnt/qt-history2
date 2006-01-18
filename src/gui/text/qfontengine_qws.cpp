@@ -211,7 +211,7 @@ void QFontEngineFT::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemInt
     matrix.translate(_x, _y);
     QFixed x = QFixed::fromReal(matrix.dx());
     QFixed y = QFixed::fromReal(matrix.dy());
-    
+
     if (ti.flags) {
         int lw = qRound(lineThickness());
         lw = qMax(1, lw);
@@ -266,9 +266,9 @@ glyph_metrics_t QFontEngineFT::boundingBox(glyph_t glyph)
 static void addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPainterPath *path, bool no_scale = false)
 {
     qreal factor = no_scale ? 1. : 1./64.;
-    
+
     QPointF cp = point.toPointF();
-        
+
     // convert the outline to a painter path
     int i = 0;
     for (int c = 0; c < g->outline.n_contours; ++c) {
@@ -319,7 +319,7 @@ static void addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPainterPat
                     c[3] = c[2];
                     c[2] = (2*c[1] + c[3])/3;
                     c[1] = (2*c[1] + c[0])/3;
-                } 
+                }
                 break;
             }
 //                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
@@ -957,53 +957,43 @@ void QFontEngineQPF::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemIn
 {
     QPaintEngineState *pState = p->state;
     QRasterPaintEngine *paintEngine = static_cast<QRasterPaintEngine*>(p);
-//###    Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
-    if (1) { //### p->painterState()->txop == QPainterPrivate::TxTranslate) {
-        QPointF tmpPt(_x, _y);
-        tmpPt = tmpPt * pState->matrix();
-        _x = tmpPt.x();
-        _y = tmpPt.y();
-    }
 
-    QFixed x = QFixed::fromReal(_x);
-    QFixed y = QFixed::fromReal(_y);
+    QMatrix matrix = pState->matrix();
+    matrix.translate(_x, _y);
+    QFixed x = QFixed::fromReal(matrix.dx());
+    QFixed y = QFixed::fromReal(matrix.dy());
 
-    if(si.width != 0 && si.flags != 0) {
+    if (si.flags) {
         int lw = qRound(lineThickness());
         lw = qMax(1, lw);
-        if(si.flags & QTextItem::Underline)
-            paintEngine->qwsFillRect(qRound(x), qRound(y + underlinePosition()), qRound(si.width), lw);
-        if(si.flags & QTextItem::Overline)
-            paintEngine->qwsFillRect(qRound(x), qRound(y - (ascent() + 1)), qRound(si.width), lw);
-        if(si.flags & QTextItem::StrikeOut)
-            paintEngine->qwsFillRect(qRound(x), qRound(y - (ascent() / 3)), qRound(si.width), lw);
+        if(si.width != 0 && si.flags != 0) {
+            if(si.flags & QTextItem::Underline)
+                paintEngine->qwsFillRect(qRound(x), qRound(y + underlinePosition()), qRound(si.width), lw);
+            if(si.flags & QTextItem::Overline)
+                paintEngine->qwsFillRect(qRound(x), qRound(y - (ascent() + 1)), qRound(si.width), lw);
+            if(si.flags & QTextItem::StrikeOut)
+                paintEngine->qwsFillRect(qRound(x), qRound(y - (ascent() / 3)), qRound(si.width), lw);
+        }
     }
 
-    QGlyphLayout *glyphs = si.glyphs;
+    QVarLengthArray<QFixedPoint> positions;
+    QVarLengthArray<glyph_t> glyphs;
+    getGlyphPositions(si.glyphs, si.num_glyphs, matrix, si.flags, glyphs, positions);
 
-    if (si.flags & QTextItem::RightToLeft)
-        glyphs += si.num_glyphs - 1;
-
-    for(int i = 0; i < si.num_glyphs; i++) {
-        const QGlyphLayout *g = glyphs + (si.flags & QTextItem::RightToLeft ? -i : i);
-        if ( g->attributes.dontPrint )
-            continue;
-        const QPFGlyph *glyph = d->tree->get(g->glyph);
+    for(int i = 0; i < glyphs.size(); i++) {
+        const QPFGlyph *glyph = d->tree->get(glyphs[i]);
         if (!glyph)
             continue;
-        int myw = glyph->metrics->width;
-        int myh = glyph->metrics->height;
-        int myx = qRound(x + g->offset.x + glyph->metrics->bearingx);
-        int myy = qRound(y + g->offset.y - glyph->metrics->bearingy);
 
 
         int mono = !(d->fm.flags & FM_SMOOTH);
         int bpl = glyph->metrics->linestep;
 
-        if(myw != 0 && myh != 0 && bpl != 0) {
-            paintEngine->alphaPenBlt(glyph->data, bpl, mono, myx,myy,myw,myh);
-        }
-        x += qRound(g->advance.x);
+        if(glyph->data)
+            paintEngine->alphaPenBlt(glyph->data, bpl, mono,
+                                     qRound(positions[i].x) + glyph->metrics->bearingx,
+                                     qRound(positions[i].y) - glyph->metrics->bearingy,
+                                     glyph->metrics->width,glyph->metrics->height);
     }
 }
 
