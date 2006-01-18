@@ -10,5 +10,5 @@ HEADERS += qmultiinputcontext.h \
 SOURCES += qmultiinputcontext.cpp \
            qmultiinputcontextplugin.cpp
 
-target.path += $$plugins.path/inputmethods
+target.path += $$[QT_INSTALL_PLUGINS]/inputmethods
 INSTALLS    += target
