@@ -61,6 +61,7 @@ public:
     void translateExpose(QWSRegionModifiedEvent *re, const QPoint &p);
 #endif
     void init();
+    void reinit();
     void create(int n = 1);
 
     void sendCommand(QWSCommand & cmd);
