@@ -1218,8 +1218,19 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     else
         t << "\t\t\t\t" << "SYMROOT = \"" << qmake_getpwd() << "\";" << "\n";
 #endif
-    t << "\t\t\t\t" << "ARCHS = \"" << QString(project->isActiveConfig("x86") ? "i386 " : "")
-                                    << QString(project->isActiveConfig("ppc") ? "ppc" : "") << "\";" << "\n";
+    {
+        QString archs;
+        if(project->isActiveConfig("x86"))
+            archs += "i386";
+        if(project->isActiveConfig("ppc")) {
+            if(!archs.isEmpty())
+                archs += " ";
+            archs += "ppc";
+        }
+        if(!archs.isEmpty())
+            t << "\t\t\t\t" << "ARCHS = \"" << archs << "\";" << "\n";
+
+    }
     if(project->first("TEMPLATE") == "app") {
         if(pbVersion < 38 && !project->isActiveConfig("console"))
             t << "\t\t\t\t" << "WRAPPER_SUFFIX = app;" << "\n";
