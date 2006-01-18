@@ -47,9 +47,12 @@ public:
     static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);
     static void initialize();
     static void cleanup();
+protected:
+    void mouseHandler(int pos, QMouseEvent *);
 private:
     bool composing;
     TSMDocumentID id;
+    QString currentText;
 };
 
 #endif // QMACINPUTCONTEXT_P_H

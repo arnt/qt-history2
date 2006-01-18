@@ -39,9 +39,7 @@
 #include <qvariant.h>
 #include <qurl.h>
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)
 #include <qinputcontext.h>
-#endif
 
 #ifndef QT_NO_SHORTCUT
 #include <qkeysequence.h>
@@ -2219,7 +2217,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
         if (cursorPos == -1)
             return;
 
-#if (defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)) && !defined(QT_NO_IM)
+#if !defined(QT_NO_IM)
         QTextLayout *layout = d->cursor.block().layout();
         if (!layout->preeditAreaText().isEmpty()) {
             inputContext()->mouseHandler(cursorPos - d->cursor.position(), e);

@@ -40,11 +40,9 @@
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
-#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)
 #ifndef QT_NO_IM
 #include "qinputcontext.h"
 #include "qlist.h"
-#endif
 #endif
 
 #ifndef QT_NO_SHORTCUT
@@ -1827,7 +1825,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
 */
 bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
 {
-#if (defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)) && !defined QT_NO_IM
+#if !defined QT_NO_IM
     Q_Q(QLineEdit);
     if ( composeMode() ) {
 	int tmp_cursor = xToPosInternal( e->pos().x(), QTextLine::CursorOnCharacter );
@@ -2235,7 +2233,7 @@ QMenu *QLineEdit::createStandardContextMenu()
     popup->addAction(d->actions[QLineEditPrivate::ClearAct]);
     popup->addSeparator();
     popup->addAction(d->actions[QLineEditPrivate::SelectAllAct]);
-#if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined(QT_NO_IM)
+#if !defined(QT_NO_IM)
     QInputContext *qic = inputContext();
     if (qic) {
         QList<QAction *> imActions = qic->actions();

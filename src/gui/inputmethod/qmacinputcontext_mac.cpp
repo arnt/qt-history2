@@ -43,6 +43,15 @@ QString QMacInputContext::language()
     return QString();
 }
 
+void QMacInputContext::mouseHandler(int pos, QMouseEvent *)
+{
+    if (!composing)
+        return;
+    if (pos < 0 || pos > currentText.length())
+        reset();
+    // ##### handle mouse position
+}
+
 void QMacInputContext::reset()
 {
     composing = false;
@@ -147,6 +156,7 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
             if(fixed_length == -1 || fixed_length == (long)unilen) {
                 QInputMethodEvent e;
                 e.setCommitString(text);
+                context->currentText = QString();
                 qt_sendSpontaneousEvent(context->focusWidget(), &e);
                 handled_event = true;
                 context->reset();
@@ -167,6 +177,7 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
                                                           qFixedLength, text.length()-qFixedLength,
                                                           qt_mac_compose_format());
                     QInputMethodEvent e(text, attrs);
+                    context->currentText = text;
                     e.setCommitString(text.left(qFixedLength), 0, qFixedLength);
                     qt_sendSpontaneousEvent(widget, &e);
                     handled_event = true;
@@ -193,22 +204,25 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
                     if (!highlight.isEmpty()) {
                         TextRangeArray *data = highlight.data();
                         for (int i = 0; i < data->fNumOfRanges; ++i) {
+                            int start = data->fRange[i].fStart / sizeof(UniChar);
+                            int len = (data->fRange[i].fEnd - data->fRange[i].fStart) / sizeof(UniChar);
+                            if (data->fRange[i].fHiliteStyle == kCaretPosition) {
+                                attrs << QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, start, 0, QVariant());
+                                continue;
+                            }
                             QTextCharFormat format;
                             format.setFontUnderline(true);
-                            if (data->fRange[i].fHiliteStyle == kCaretPosition)
-                                continue;
-                            else if (data->fRange[i].fHiliteStyle == kConvertedText)
+                            if (data->fRange[i].fHiliteStyle == kConvertedText)
                                 format.setUnderlineColor(Qt::gray);
                             else
                                 format.setUnderlineColor(Qt::black);
-                            int start = data->fRange[i].fStart / sizeof(UniChar);
-                            int len = (data->fRange[i].fEnd - data->fRange[i].fStart) / sizeof(UniChar);
                             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, start, len, format);
                         }
                     } else {
                         attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
                                 0, text.length(), qt_mac_compose_format());
                     }
+                    context->currentText = text;
                     QInputMethodEvent e(text, attrs);
                     qt_sendSpontaneousEvent(widget, &e);
                     handled_event = true;
