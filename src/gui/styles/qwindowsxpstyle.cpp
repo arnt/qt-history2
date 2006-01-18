@@ -298,7 +298,7 @@ class QWindowsXPStylePrivate : public QWindowsStylePrivate
     Q_DECLARE_PUBLIC(QWindowsXPStyle)
 public:
     QWindowsXPStylePrivate()
-        : QWindowsStylePrivate(), bufferDC(0), bufferBitmap(0), nullBitmap(0),
+        : QWindowsStylePrivate(), hasInitColors(false), bufferDC(0), bufferBitmap(0), nullBitmap(0),
           bufferPixels(0), bufferW(0), bufferH(0)
     { init(); }
 
@@ -335,6 +335,8 @@ public:
     QRgb groupBoxTextColor;
     QRgb groupBoxTextColorDisabled;
     QRgb sliderTickColor;
+    bool hasInitColors;
+
     static QMap<QString,HTHEME> *handleMap;
 
     QIcon dockFloat, dockClose;
@@ -442,7 +444,8 @@ bool QWindowsXPStylePrivate::useXP(bool update)
 { 
     if (!update)
         return use_xp;
-    return (use_xp = resolveSymbols() && pIsThemeActive() && pIsAppThemed());
+    return (use_xp = resolveSymbols() && pIsThemeActive()
+            && (pIsAppThemed() || !QApplication::instance()));
 }
 
 /* \internal
@@ -1245,20 +1248,8 @@ void QWindowsXPStyle::unpolish(QApplication *app)
 void QWindowsXPStyle::polish(QApplication *app)
 {
     QWindowsStyle::polish(app);
-    Q_D(QWindowsXPStyle);
     if (!QWindowsXPStylePrivate::useXP())
         return;
-
-    // Get text color for groupbox labels
-    COLORREF cref;
-    XPThemeData theme(0, 0, "BUTTON", 0, 0);
-    pGetThemeColor(theme.handle(), BP_GROUPBOX, GBS_NORMAL, TMT_TEXTCOLOR, &cref);
-    d->groupBoxTextColor = qRgb(GetRValue(cref), GetGValue(cref), GetBValue(cref));
-    pGetThemeColor(theme.handle(), BP_GROUPBOX, GBS_DISABLED, TMT_TEXTCOLOR, &cref);
-    d->groupBoxTextColorDisabled = qRgb(GetRValue(cref), GetGValue(cref), GetBValue(cref));
-    // Where does this color come from?
-    //pGetThemeColor(theme.handle(), TKP_TICS, TSS_NORMAL, TMT_COLOR, &cref);
-    d->sliderTickColor = qRgb(165, 162, 148);
 }
 
 /*! \reimp */
@@ -1284,6 +1275,21 @@ void QWindowsXPStyle::polish(QWidget *widget)
     if (qobject_cast<QStackedWidget*>(widget) &&
                qobject_cast<QTabWidget*>(widget->parent()))
         widget->parentWidget()->setAttribute(Qt::WA_ContentsPropagated);
+
+    Q_D(QWindowsXPStyle);
+    if (!d->hasInitColors) {
+        // Get text color for groupbox labels
+        COLORREF cref;
+        XPThemeData theme(0, 0, "BUTTON", 0, 0);
+        pGetThemeColor(theme.handle(), BP_GROUPBOX, GBS_NORMAL, TMT_TEXTCOLOR, &cref);
+        d->groupBoxTextColor = qRgb(GetRValue(cref), GetGValue(cref), GetBValue(cref));
+        pGetThemeColor(theme.handle(), BP_GROUPBOX, GBS_DISABLED, TMT_TEXTCOLOR, &cref);
+        d->groupBoxTextColorDisabled = qRgb(GetRValue(cref), GetGValue(cref), GetBValue(cref));
+        // Where does this color come from?
+        //pGetThemeColor(theme.handle(), TKP_TICS, TSS_NORMAL, TMT_COLOR, &cref);
+        d->sliderTickColor = qRgb(165, 162, 148);
+        d->hasInitColors = true;
+    }
 }
 
 /*! \reimp */
