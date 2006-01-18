@@ -955,8 +955,10 @@ QProcess::ProcessState QProcess::state() const
 
     \code
         QProcess process;
-        process.setEnvironment(QProcess::systemEnvironment()
-                               << "TMPDIR=C:\\MyApp\\temp");
+        QStringList env = QProcess::systemEnvironment();
+        env << "TMPDIR=C:\\MyApp\\temp"; // Add an environment variable
+        env.replaceInStrings(QRegExp("^PATH=(.*)", false), "PATH=\\1;C:\\Bin"); // Add Bin to PATH
+        process.setEnvironment(env);
         process.start("myapp");
     \endcode
 
