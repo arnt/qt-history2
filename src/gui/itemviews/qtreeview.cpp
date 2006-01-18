@@ -1746,10 +1746,10 @@ int QTreeViewPrivate::indentation(int i) const
 }
 
 /*!
- * \internal
- * @return the y coordinate for item
- * Note: if this is ever changed to not estimate then update item()
- */
+  \internal
+  Returns the y coordinate for item
+  Note: if this is ever changed to not estimate then update item()
+*/
 int QTreeViewPrivate::coordinate(int item) const
 {
     Q_Q(const QTreeView);
@@ -1774,10 +1774,10 @@ int QTreeViewPrivate::coordinate(int item) const
 }
 
 /*!
- * \internal
- * @return the visual index at \a coordinate or -1
- * @see modelIndex()
- */
+  \internal
+  Returns the visual index at \a coordinate or -1
+  \sa modelIndex()
+*/
 int QTreeViewPrivate::item(int yCoordinate) const
 {
     Q_Q(const QTreeView);
