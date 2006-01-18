@@ -6195,12 +6195,13 @@ QWidget *QWidget::childAt(const QPoint &p) const
         if (w && !w->isWindow() && !w->isHidden() && w->geometry().contains(p)) {
             if (w->testAttribute(Qt::WA_TransparentForMouseEvents))
                 continue;
-            if (QWidget *t = w->childAt(p.x() - w->x(), p.y() - w->y()))
+            QPoint childPoint = w->mapFromParent(p);
+            if (QWidget *t = w->childAt(childPoint))
                 return t;
             // if WMouseNoMask is set the widget mask is ignored, if
             // the widget has no mask then the WMouseNoMask flag has no
             // effect
-            if (w->testAttribute(Qt::WA_MouseNoMask) || w->mask().contains(p)
+            if (w->testAttribute(Qt::WA_MouseNoMask) || w->mask().contains(childPoint)
                 || w->mask().isEmpty())
                 return w;
         }
