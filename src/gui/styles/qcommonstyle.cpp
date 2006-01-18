@@ -2468,7 +2468,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             p->save();
 
             // avoid dithering
-            if (p->device()->paintEngine()->hasFeature(QPaintEngine::Antialiasing))
+            if (p->paintEngine()->hasFeature(QPaintEngine::Antialiasing))
                 p->setRenderHint(QPainter::Antialiasing);
 
             int width = dial->rect.width();
