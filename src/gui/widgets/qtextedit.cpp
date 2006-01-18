@@ -539,7 +539,10 @@ void QTextEditPrivate::repaintContents(const QRectF &contentsRect)
 void QTextEditPrivate::repaintCursor()
 {
     Q_Q(const QTextEdit);
-    viewport->update(q->cursorRect());
+    QRect r = q->cursorRect();
+    if (preeditCursor >= 0)
+        r = doc->documentLayout()->blockBoundingRect(cursor.block()).toRect();
+    viewport->update(r);
 }
 
 void QTextEditPrivate::selectionChanged()
@@ -2140,8 +2143,15 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     QAbstractTextDocumentLayout::PaintContext ctx;
     ctx.selections = extraSelections;
     ctx.palette = q->palette();
-    if (cursorOn && q->isEnabled())
+    
+    if (cursorOn && q->isEnabled()) {
         ctx.cursorPosition = cursor.position();
+        if (preeditCursor == -2)
+            ctx.cursorPosition = -1;
+        else if (preeditCursor != -1) 
+            ctx.cursorPosition = - (preeditCursor + 2);
+    }
+    
     if (!dndFeedbackCursor.isNull())
         ctx.cursorPosition = dndFeedbackCursor.position();
     if (cursor.hasSelection()) {
@@ -2526,17 +2536,20 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
     QTextLayout *layout = block.layout();
     layout->setPreeditArea(d->cursor.position() - block.position(), e->preeditString());
     QList<QTextLayout::FormatRange> overrides;
+    d->preeditCursor = e->preeditString().isEmpty() ? -1 : -2;
     for (int i = 0; i < e->attributes().size(); ++i) {
         const QInputMethodEvent::Attribute &a = e->attributes().at(i);
-        if (a.type != QInputMethodEvent::TextFormat)
-            continue;
-        QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
-        if (f.isValid()) {
-            QTextLayout::FormatRange o;
-            o.start = a.start + d->cursor.position() - block.position();
-            o.length = a.length;
-            o.format = f;
-            overrides.append(o);
+        if (a.type == QInputMethodEvent::Cursor) {
+            d->preeditCursor = a.start;
+        } else if (a.type == QInputMethodEvent::TextFormat) {
+            QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
+            if (f.isValid()) {
+                QTextLayout::FormatRange o;
+                o.start = a.start + d->cursor.position() - block.position();
+                o.length = a.length;
+                o.format = f;
+                overrides.append(o);
+            }
         }
     }
     layout->setAdditionalFormats(overrides);

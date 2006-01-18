@@ -977,13 +977,6 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
 
     QTextBlockFormat blockFormat = bl.blockFormat();
 
-    int cursor = context.cursorPosition;
-
-    if (bl.contains(cursor))
-        cursor -= bl.position();
-    else
-        cursor = -1;
-
     QBrush bg = blockFormat.background();
     if (bg != Qt::NoBrush)
         painter->fillRect(r, bg);
@@ -1015,8 +1008,16 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
     painter->setPen(context.palette.color(QPalette::Text));
 
     tl->draw(painter, offset, selections, context.clip);
-    if (cursor >= 0 && tl->preeditAreaText().isEmpty())
-        tl->drawCursor(painter, offset, cursor);
+
+    if ((context.cursorPosition >= blpos && context.cursorPosition < blpos + bllen)
+        || (context.cursorPosition < -1 && !tl->preeditAreaText().isEmpty())) {
+        int cpos = context.cursorPosition;
+        if (cpos < -1)
+            cpos = tl->preeditAreaPosition() - (cpos + 2);
+        else
+            cpos -= blpos;
+        tl->drawCursor(painter, offset, cpos);
+    }
 
     if (blockFormat.hasProperty(QTextFormat::BlockTrailingHorizontalRulerWidth)) {
         const qreal width = blockFormat.lengthProperty(QTextFormat::BlockTrailingHorizontalRulerWidth).value(r.width());

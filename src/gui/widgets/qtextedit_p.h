@@ -53,7 +53,8 @@ public:
           lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
           preferRichText(false),
           overwriteMode(false),
-          acceptRichText(true)
+          acceptRichText(true),
+          preeditCursor(-1)
     {}
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
@@ -174,6 +175,8 @@ public:
 
     bool overwriteMode;
     bool acceptRichText;
+
+    int preeditCursor;
 
     QVector<QAbstractTextDocumentLayout::Selection> extraSelections;
 };
