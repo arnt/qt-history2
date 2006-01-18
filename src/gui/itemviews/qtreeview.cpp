@@ -1804,21 +1804,17 @@ int QTreeViewPrivate::item(int yCoordinate) const
     // item is above the viewport - find via binary search
     // If coordinate() is ever changed to not estimate
     // the value then change this to just walk the tree
-    int left = 0;
-    int right = viewItems.count();
-    while (left <= right) {
-        int value = (left + right) >> 1;
-        int h = coordinate(value);
-        if (yCoordinate >= h && yCoordinate < h + height(value))
-            return value;
-
-        if (yCoordinate < h)
-            right = value - 1;
+    int start = 0;
+    int end = viewItems.count();
+    int i = (start + end + 1) >> 1;
+    while (end - start > 0) {
+        if (yCoordinate > coordinate(i))
+            end = i - 1;
         else
-            left = value + 1;
+            start = i;
+        i = (start + end + 1) >> 1;
     }
-
-    return -1;
+    return i;
 }
 
 int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
