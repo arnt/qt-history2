@@ -1808,7 +1808,7 @@ int QTreeViewPrivate::item(int yCoordinate) const
     int end = viewItems.count();
     int i = (start + end + 1) >> 1;
     while (end - start > 0) {
-        if (yCoordinate > coordinate(i))
+        if (yCoordinate < coordinate(i))
             end = i - 1;
         else
             start = i;
