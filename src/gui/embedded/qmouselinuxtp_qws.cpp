@@ -30,11 +30,6 @@
 #include <errno.h>
 #include <termios.h>
 
-#if defined(QT_QWS_ZYLONITE)
-#include "tslib.h"
-#endif
-
-
 #if defined(QT_QWS_IPAQ)
  #define QT_QWS_IPAQ_RAW
  typedef struct {
@@ -66,22 +61,12 @@
   #define QT_QWS_TP_JITTER_LIMIT 2
  #endif
 #else // not IPAQ, not SHARP
- #if defined(QT_QWS_ZYLONITE)
-  typedef struct {
-    unsigned int     dummy1;
-    unsigned int     dummy2;
-    unsigned short   type;
-    unsigned short   code;
-    unsigned int     value;
-  } TS_EVENT;
- #else
   typedef struct {
     unsigned short pressure;
     unsigned short x;
     unsigned short y;
     unsigned short pad;
   } TS_EVENT;
- #endif
 #endif
 
 #ifndef QT_QWS_TP_SAMPLE_SIZE
@@ -119,10 +104,6 @@ private:
     QPoint oldmouse;
     QPoint oldTotalMousePos;
     bool waspressed;
-#if defined(QT_QWS_ZYLONITE)
-    int xsum,ysum,samplesX,samplesY;
-    bool state;
-#endif
     QPolygon samples;
     int currSample;
     int lastSample;
@@ -178,20 +159,10 @@ QWSLinuxTPMouseHandlerPrivate::QWSLinuxTPMouseHandlerPrivate(QWSLinuxTPMouseHand
        return;
     }
 # else
-# if defined(QT_QWS_ZYLONITE)
-    xsum = ysum = samplesX = samplesY = 0;
-    state=false;
-    if ((mouseFD = open("/dev/input/event2", O_RDONLY | O_NDELAY)) < 0) {
-        qWarning("Cannot open /dev/input/event2 (%s)", strerror(errno));
-        return;
-     } else
-        qWarning("Opened /dev/input/event2 as touchscreen input");
-# else
     if ((mouseFD = open("/dev/ts", O_RDONLY | O_NDELAY)) < 0) {
         qWarning("Cannot open /dev/ts (%s)", strerror(errno));
         return;
      }
-# endif
 #endif
 #endif
     mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read,
@@ -240,36 +211,6 @@ void QWSLinuxTPMouseHandlerPrivate::readMouseData()
     TS_EVENT *data;
     int idx = 0;
 
-#if defined(QT_QWS_ZYLONITE)
-    const int maxsamples=2;
-    while (mouseIdx-idx >= (int)sizeof(TS_EVENT)) {
-        uchar *mb = mouseBuf+idx;
-        data = (TS_EVENT *) mb;
-        if(data->code == 0) {
-          // x value
-          xsum = xsum + data->value;
-          samplesX++;
-        } else if(data->code == 1) {
-          // y value
-          ysum = ysum + data->value;
-          samplesY++;
-        }
-        //qWarning("samplesX=%d, samplesY=%d",samplesX,samplesY);
-        if(samplesX >= maxsamples && samplesY >= maxsamples) {
-          QPoint pos((int)(xsum/samplesX), (int)(ysum/samplesY));
-          samplesX=samplesY=xsum=ysum=0;
-          oldmouse = handler->transform( pos );
-          qWarning("Mouse Down : x=%d, y=%d",oldmouse.x(),oldmouse.y());
-          emit handler->mouseChanged( oldmouse, Qt::LeftButton);
-        }
-        if(data->code == 24) {
-          // Removed pen from screen
-          qWarning("Mouse Up : x=%d, y=%d",oldmouse.x(),oldmouse.y());
-          emit handler->mouseChanged( oldmouse, 0);
-        }
-        idx += sizeof(TS_EVENT);
-    }
-#else
     // perhaps we shouldn't be reading EVERY SAMPLE.
     while (mouseIdx-idx >= (int)sizeof(TS_EVENT)) {
         uchar *mb = mouseBuf+idx;
@@ -280,7 +221,6 @@ void QWSLinuxTPMouseHandlerPrivate::readMouseData()
             samples[currSample] = QPoint(1000 - data->x, data->y);
 #else
             samples[currSample] = QPoint(data->x, data->y);
-#endif
 
             numSamples++;
             if (numSamples >= QT_QWS_TP_MINIMUM_SAMPLES) {
