@@ -3422,7 +3422,7 @@ void QTextEdit::setText(const QString &text)
     Q_D(QTextEdit);
     if (d->textFormat == Qt::AutoText)
         d->textFormat = Qt::mightBeRichText(text) ? Qt::RichText : Qt::PlainText;
-    if (d->textFormat == Qt::RichText)
+    if (d->textFormat == Qt::RichText || d->textFormat == Qt::LogText)
         setHtml(text);
     else
         setPlainText(text);
@@ -3434,7 +3434,7 @@ void QTextEdit::setText(const QString &text)
 QString QTextEdit::text() const
 {
     Q_D(const QTextEdit);
-    if (d->textFormat == Qt::RichText || (d->textFormat == Qt::AutoText && d->preferRichText))
+    if (d->textFormat == Qt::RichText || d->textFormat == Qt::LogText || (d->textFormat == Qt::AutoText && d->preferRichText))
         return d->doc->toHtml();
     else
         return d->doc->toPlainText();
