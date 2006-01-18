@@ -421,9 +421,8 @@ QAbstractItemView::~QAbstractItemView()
 
 /*!
   Sets the \a model for the view to present.
-  \omit
+
   This function will also create and set a new selection model.
-  \endomit
 */
 void QAbstractItemView::setModel(QAbstractItemModel *model)
 {
