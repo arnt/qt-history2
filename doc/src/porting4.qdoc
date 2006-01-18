@@ -1471,6 +1471,13 @@
     replaced by the QMimeData class. See the class documentation for
     details.
 
+    Note that the Q3DragObject::DragCopyOrMove drag and drop mode is
+    interpreted differently to Qt 3's QDragObject::DragCopyOrMove mode.
+    In Qt 3, a move operation was performed by default, and the user had
+    to hold down the \key{Ctrl} key to perform a copy operation.
+    In Qt 4, a copy operation is performed by default; the user has to
+    hold down the \key{Shift} key to perform a move operation.
+
     \section1 QDropSite
 
     The \c QDropSite class has been renamed Q3DropSite and moved to

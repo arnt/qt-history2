@@ -297,8 +297,9 @@ void Q3DragObject::dragLink()
     \value DragCopy        The data is copied.
     \value DragMove        The data is moved.
     \value DragLink        The data is linked.
-    \value DragCopyOrMove  The user chooses the mode by using a
-                           control key to switch from the default.
+    \value DragCopyOrMove  The user chooses the mode by using the
+                           \key{Shift} key to switch from the default
+                           copy mode to move mode.
 */
 
 
