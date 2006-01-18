@@ -1539,7 +1539,7 @@ void QAbstractItemModel::revert()
   Returns the data for the given \a role and \a section in the header
   with the specified \a orientation.
 
-  \sa Qt::ItemDataRole, setHeaderData()
+  \sa Qt::ItemDataRole, setHeaderData(), QHeaderView
 */
 
 QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation, int role) const
