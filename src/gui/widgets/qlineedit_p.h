@@ -38,7 +38,7 @@ class QLineEditPrivate : public QWidgetPrivate
 public:
 
     QLineEditPrivate()
-        : cursor(0), cursorTimer(0), frame(1),
+        : cursor(0), preeditCursor(0), cursorTimer(0), frame(1),
           cursorVisible(0), separator(0), readOnly(0),
           dragEnabled(0), contextMenuEnabled(1), alignment(Qt::AlignLeading),
           echoMode(0), textDirty(0), selDirty(0), validInput(1),
@@ -55,6 +55,7 @@ public:
 
     QString text;
     int cursor;
+    int preeditCursor;
     int cursorTimer; // -1 for non blinking cursor.
     QPoint tripleClick;
     QBasicTimer tripleClickTimer;

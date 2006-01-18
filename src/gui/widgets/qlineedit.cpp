@@ -1882,18 +1882,21 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
     d->cursor = c;
 
     d->textLayout.setPreeditArea(d->cursor, e->preeditString());
+    d->preeditCursor = e->preeditString().isEmpty() ? 0 : -1;
     QList<QTextLayout::FormatRange> formats;
     for (int i = 0; i < e->attributes().size(); ++i) {
         const QInputMethodEvent::Attribute &a = e->attributes().at(i);
-        if (a.type != QInputMethodEvent::TextFormat)
-            continue;
-        QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
-        if (f.isValid()) {
-            QTextLayout::FormatRange o;
-            o.start = a.start + d->cursor;
-            o.length = a.length;
-            o.format = f;
-            formats.append(o);
+        if (a.type == QInputMethodEvent::Cursor) {
+            d->preeditCursor = a.start;
+        } else if (a.type == QInputMethodEvent::TextFormat) {
+            QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
+            if (f.isValid()) {
+                QTextLayout::FormatRange o;
+                o.start = a.start + d->cursor;
+                o.length = a.length;
+                o.format = f;
+                formats.append(o);
+            }
         }
     }
     d->textLayout.setAdditionalFormats(formats);
@@ -2074,10 +2077,9 @@ void QLineEdit::paintEvent(QPaintEvent *)
     // Asian users see an IM selection text as cursor on candidate
     // selection phase of input method, so the ordinary cursor should be
     // invisible if we have a preedit string.
-    bool showCursor = (d->cursorVisible && !supressCursor && !d->textLayout.preeditAreaText().length());
     d->textLayout.draw(&p, topLeft, selections, r);
-    if (showCursor && d->textLayout.preeditAreaText().isEmpty())
-        d->textLayout.drawCursor(&p, topLeft, d->cursor);
+    if (d->cursorVisible && !supressCursor && d->preeditCursor != -1)
+        d->textLayout.drawCursor(&p, topLeft, d->cursor + d->preeditCursor);
 
 }
 
@@ -2373,7 +2375,10 @@ QRect QLineEditPrivate::cursorRect() const
     int frameWidth = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     int cix = cr.x() + frameWidth - hscroll + horizontalMargin;
     QTextLine l = textLayout.lineAt(0);
-    cix += qRound(l.cursorToX(cursor));
+    int c = cursor;
+    if (preeditCursor != -1)
+        c += preeditCursor;
+    cix += qRound(l.cursorToX(c));
     int ch = qMin(cr.height(), q->fontMetrics().height() + 1);
     return QRect(cix-5, cr.y() + (cr.height() -  ch) / 2, 10, ch);
 }
