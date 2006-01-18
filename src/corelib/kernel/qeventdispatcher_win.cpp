@@ -38,7 +38,6 @@ struct TimerInfo {                              // internal timer info
     QObject *obj;                               // - object to receive events
     int    type;                                // GDI timer, fast multimedia timer or zero timer
     QEventDispatcherWin32Private *dispatcher;
-    bool pendingEvent;                          // needed to stop adding timer events from the fast timer if there is already a event pending
     int fastInd;                                // id of fast timer
 
     enum TimerType
@@ -120,8 +119,6 @@ public:
 
     CRITICAL_SECTION fastTimerCriticalSection;
 
-    UINT WM_QT_SYSTEM_QUEUE_END_MARK;
-
 private:
     mutable HWND m_internalHwnd;
 };
@@ -136,12 +133,6 @@ QEventDispatcherWin32Private::QEventDispatcherWin32Private()
                                           CreateEventA(0, FALSE, FALSE, 0)));
     if (!wakeUpNotifier.handle())
         qWarning("QEventDispatcher: Creating QEventDispatcherWin32Private wakeup event failed");
-
-    QT_WA({
-        WM_QT_SYSTEM_QUEUE_END_MARK = RegisterWindowMessageW(L"WM_QT_SYSTEM_QUEUE_END_MARK");
-    } , {
-        WM_QT_SYSTEM_QUEUE_END_MARK = RegisterWindowMessageA("WM_QT_SYSTEM_QUEUE_END_MARK");
-    });
 }
 
 QEventDispatcherWin32Private::~QEventDispatcherWin32Private()
@@ -204,16 +195,7 @@ void WINAPI CALLBACK qt_fast_timer_proc(uint timerId, uint /*reserved*/, DWORD_P
         delete t;
         return;
     }
-    if (!t->pendingEvent) {
-        t->pendingEvent = true;
-
-        QT_WA({
-            PostMessageW(t->dispatcher->internalHwnd(), WM_TIMER, WPARAM(t->ind), 0);
-        }, {
-            PostMessageA(t->dispatcher->internalHwnd(), WM_TIMER, WPARAM(t->ind), 0);
-        });
-
-    }
+    QCoreApplication::postEvent(t->obj, new QTimerEvent(t->ind));
     LeaveCriticalSection(&t->dispatcher->fastTimerCriticalSection);
 }
 
@@ -303,9 +285,6 @@ LRESULT CALLBACK qt_internal_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp)
         if (t) {
             QTimerEvent e(t->ind);
             QCoreApplication::sendEvent(t->obj, &e);
-            TimerInfo *tn = d->timerDict.value(wp);
-            if (tn && t == tn) // check it was not deleted or that it is a new TimerInfo
-                tn->pendingEvent = false;
         }
         return 0;
     }
@@ -393,14 +372,8 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     bool canWait;
     bool retVal = false;
     do {
-        QThreadData *data = QThreadData::get(thread());
-        QCoreApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);    
+        QCoreApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
 
-        // check if there is an end marks in the system queue.
-        MSG msg;
-        bool endPointMarked = winPeekMessage(&msg, d->internalHwnd(), d->WM_QT_SYSTEM_QUEUE_END_MARK,
-                                             d->WM_QT_SYSTEM_QUEUE_END_MARK, PM_NOREMOVE);
-        
         DWORD waitRet = 0;
         HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];
         while (!d->interrupt) {
@@ -443,17 +416,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                         QCoreApplication::instance()->quit();
                     return false;
                 }
-
-                // if we hit an end marker then break out and give the Qt posted events a chance
-                if (msg.hwnd == d->internalHwnd() && msg.message == d->WM_QT_SYSTEM_QUEUE_END_MARK)
-                    break;
-
-                // mark current end point of system message queue so we dont blook out Qt posted events
-                if (!endPointMarked) {
-                    endPointMarked = true;
-                    winPostMessage(d->internalHwnd(), d->WM_QT_SYSTEM_QUEUE_END_MARK, 0, 0);
-                }
-
+                
                 if (!filterEvent(&msg)) {
                     TranslateMessage(&msg);
                     QT_WA({
@@ -472,6 +435,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
         }
 
         // still nothing - wait for message or signalled objects
+        QThreadData *data = QThreadData::get(thread());
         canWait = (!retVal
                    && data->canWait
                    && !d->interrupt
@@ -616,7 +580,6 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
     t->obj  = object;
     t->dispatcher = 0;
     t->type = ::TimerInfo::Normal;
-    t->pendingEvent = false;
     t->fastInd = 0;
 
     int ok = 0;
