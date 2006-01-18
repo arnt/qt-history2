@@ -1170,8 +1170,7 @@ QTreeWidgetItem::~QTreeWidgetItem()
     } else if (model) {
         if (this == model->header) {
             model->header = 0;
-        }
-        else {
+        } else {
             int i = model->tree.indexOf(this);
             model->beginRemoveItems(0, i, 1);
             model->tree.takeAt(i);
@@ -1372,6 +1371,8 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 {
     // FIXME: here we have a problem;
     // the user could build up a tree and then insert the root in the view
+    if (index < 0 || index > children.count() || child == 0)
+        return;
     Q_ASSERT(!child->view || !child->model || !child->par);
     if (model) model->beginInsertItems(this, index, 1);
     if (view && model) {
@@ -1865,6 +1866,8 @@ int QTreeWidget::topLevelItemCount() const
 void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
 {
     Q_D(QTreeWidget);
+    if (index < 0 || index > d->model()->tree.count() || item == 0)
+        return;
     Q_ASSERT(!item->view || !item->model || !item->par);
     QStack<QTreeWidgetItem*> stack;
     stack.push(item);
