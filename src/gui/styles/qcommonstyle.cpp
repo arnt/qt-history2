@@ -1255,7 +1255,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 QPixmap pixmap(tr.size());
                 pixmap.fill(Qt::transparent);
                 QPainter pixPainter(&pixmap);
-                drawItemText(&pixPainter, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
+                drawItemText(&pixPainter, pixmap.rect(), alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
                 drawItemPixmap(p,tr,alignment,pixmap);
                 p->restore();
             } else {
