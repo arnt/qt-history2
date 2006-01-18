@@ -591,7 +591,9 @@ void QTabBar::setTabEnabled(int index, bool enabled)
     Q_D(QTabBar);
     if (QTabBarPrivate::Tab *tab = d->at(index)) {
         tab->enabled = enabled;
+#ifndef QT_NO_SHORTCUT
         setShortcutEnabled(tab->shortcutId, enabled);
+#endif
         update();
         if (!enabled && index == d->currentIndex)
             setCurrentIndex(d->validIndex(index+1)?index+1:0);
