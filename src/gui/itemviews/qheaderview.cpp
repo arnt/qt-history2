@@ -1097,6 +1097,8 @@ void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirs
     Q_ASSERT(logicalFirst < count());
     Q_ASSERT(logicalLast < count());
 
+    d->invalidateCachedSizeHint();
+
     if (orientation == Qt::Horizontal) {
         int left = sectionViewportPosition(logicalFirst);
         int right = sectionViewportPosition(logicalLast);
