@@ -1,9 +1,8 @@
-TEMPLATE = lib
 TARGET   = qimsw-multi
+include(../../qpluginbase.pri)
+CONFIG      += warn_on
 
-CONFIG      += qt plugin
 DESTDIR = $$QT_BUILD_TREE/plugins/inputmethods
-#INCLUDEPATH += .
 
 HEADERS += qmultiinputcontext.h \
            qmultiinputcontextplugin.h
