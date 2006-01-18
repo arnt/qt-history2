@@ -1582,7 +1582,7 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
         QModelIndex idx = index.sibling(index.row(), column);
         if (idx.isValid()) {
             if (QWidget *editor = d->editors.value(idx, 0))
-                height = qMax(height, editor->sizeHint().height());
+                height = qMax(height, editor->size().height());
             height = qMax(height, delegate->sizeHint(option, idx).height());
         }
     }

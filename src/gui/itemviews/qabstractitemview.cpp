@@ -1835,7 +1835,7 @@ int QAbstractItemView::sizeHintForRow(int row) const
     for (int c = 0; c < colCount; ++c) {
         index = model()->index(row, c, rootIndex());
         if (QWidget *editor = d->editors.value(index))
-            height = qMax(height, editor->sizeHint().height());
+            height = qMax(height, editor->size().height());
         height = qMax(height, delegate->sizeHint(option, index).height());
     }
     return height;
