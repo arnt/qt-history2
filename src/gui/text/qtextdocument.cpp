@@ -1362,14 +1362,16 @@ void QTextHtmlExporter::emitTextLength(const char *attribute, const QTextLength 
         html += QLatin1String("\"");
 }
 
-void QTextHtmlExporter::emitAlignment(Qt::Alignment alignment)
+void QTextHtmlExporter::emitAlignment(Qt::Alignment align)
 {
-    switch (alignment & Qt::AlignHorizontal_Mask) {
-        case Qt::AlignLeft: break;
-        case Qt::AlignRight: html += QLatin1String(" align='right'"); break;
-        case Qt::AlignHCenter: html += QLatin1String(" align='center'"); break;
-        case Qt::AlignJustify: html += QLatin1String(" align='justify'"); break;
-    }
+    if (align & Qt::AlignLeft)
+        return;
+    else if (align & Qt::AlignRight)
+        html += QLatin1String(" align=\"right\"");
+    else if (align & Qt::AlignHCenter)
+        html += QLatin1String(" align=\"center\"");
+    else if (align & Qt::AlignJustify)
+        html += QLatin1String(" align=\"justify\"");
 }
 
 void QTextHtmlExporter::emitFloatStyle(QTextFrameFormat::Position pos, StyleMode mode)
