@@ -1686,10 +1686,8 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
 
     q->setState(QAbstractItemView::NoState);
 
-    if (emitSignal) {
-        qDebug() << "emitting collased for" << modelIndex;
+    if (emitSignal)
         emit q->collapsed(modelIndex);
-    }
 }
 
 void QTreeViewPrivate::layout(int i)
