@@ -454,10 +454,18 @@ QMetaCallEvent::~QMetaCallEvent()
 
     QObjects can receive events through event() and filter the events
     of other objects. See installEventFilter() and eventFilter() for
-    details. A convenience handler, childEvent(), can be
-    reimplemented to catch child events. Events are delivered in the
-    thread in which the object was created; see \l{Thread Support in
-    Qt} and thread() for details.
+    details. A convenience handler, childEvent(), can be reimplemented
+    to catch child events.
+
+    Events are delivered in the thread in which the object was
+    created; see \l{Thread Support in Qt} and thread() for details.
+    Note that for QObjects that are created before QApplication,
+    thread() returns zero. This means that the main thread will only
+    handle posted events for these objects; other event processing is
+    not done at all for objects with no thread. Use the
+    moveToThread() function to change the thread affinity for an
+    object and its children (the object cannot be moved if it has a
+    parent).
 
     Last but not least, QObject provides the basic timer support in
     Qt; see QTimer for high-level support for timers.

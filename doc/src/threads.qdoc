@@ -278,6 +278,14 @@
     event loop. The thread in which a QObject lives is available using
     QObject::thread().
 
+    Note that for QObjects that are created before QApplication,
+    QObject::thread() returns zero. This means that the main thread
+    will only handle posted events for these objects; other event
+    processing is not done at all for objects with no thread. Use the
+    QObject::moveToThread() function to change the thread affinity for
+    an object and its children (the object cannot be moved if it has a
+    parent).
+
     Calling \c delete on a QObject from another thread than the
     thread where it is created (or accessing the object in other
     ways) is unsafe unless you can guarantee that the object isn't
