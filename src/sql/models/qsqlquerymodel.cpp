@@ -53,7 +53,8 @@ void QSqlQueryModelPrivate::prefetch(int limit)
             || oldAt == QSql::BeforeFirst
 #endif
             )) {
-        q->beginInsertRows(QModelIndex(), oldBottom.row(), newBottom.row());
+        q->beginInsertRows(QModelIndex(), oldBottom.row() == -1 ? 0 : oldBottom.row(),
+                           newBottom.row());
         bottom = newBottom;
         q->endInsertRows();
     } else {
