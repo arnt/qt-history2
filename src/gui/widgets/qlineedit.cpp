@@ -1882,12 +1882,14 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
     d->cursor = c;
 
     d->textLayout.setPreeditArea(d->cursor, e->preeditString());
-    d->preeditCursor = e->preeditString().isEmpty() ? 0 : -1;
+    d->preeditCursor = e->preeditString().length();
+    d->hideCursor = false;
     QList<QTextLayout::FormatRange> formats;
     for (int i = 0; i < e->attributes().size(); ++i) {
         const QInputMethodEvent::Attribute &a = e->attributes().at(i);
         if (a.type == QInputMethodEvent::Cursor) {
             d->preeditCursor = a.start;
+            d->hideCursor = !a.length;
         } else if (a.type == QInputMethodEvent::TextFormat) {
             QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
             if (f.isValid()) {
@@ -2016,8 +2018,11 @@ void QLineEdit::paintEvent(QPaintEvent *)
                     r.width() - 2*horizontalMargin, fm.height());
     QTextLine line = d->textLayout.lineAt(0);
 
+    int cursor = d->cursor;
+    if (d->preeditCursor != -1)
+        cursor += d->preeditCursor;
     // locate cursor position
-    int cix = qRound(line.cursorToX(d->cursor));
+    int cix = qRound(line.cursorToX(cursor));
 
     // horizontal scrolling
     int minLB = qMax(0, -fm.minLeftBearing());
@@ -2053,7 +2058,6 @@ void QLineEdit::paintEvent(QPaintEvent *)
 
     // draw text, selections and cursors
     p.setPen(pal.text().color());
-    bool supressCursor = d->readOnly;
 
     QVector<QTextLayout::FormatRange> selections;
     if (d->selstart < d->selend || (d->cursorVisible && d->maskData)) {
@@ -2078,8 +2082,8 @@ void QLineEdit::paintEvent(QPaintEvent *)
     // selection phase of input method, so the ordinary cursor should be
     // invisible if we have a preedit string.
     d->textLayout.draw(&p, topLeft, selections, r);
-    if (d->cursorVisible && !supressCursor && d->preeditCursor != -1)
-        d->textLayout.drawCursor(&p, topLeft, d->cursor + d->preeditCursor);
+    if (d->cursorVisible && !d->readOnly && !d->hideCursor)
+        d->textLayout.drawCursor(&p, topLeft, cursor);
 
 }
 

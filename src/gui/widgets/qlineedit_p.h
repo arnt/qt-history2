@@ -39,7 +39,7 @@ public:
 
     QLineEditPrivate()
         : cursor(0), preeditCursor(0), cursorTimer(0), frame(1),
-          cursorVisible(0), separator(0), readOnly(0),
+          cursorVisible(0), hideCursor(false), separator(0), readOnly(0),
           dragEnabled(0), contextMenuEnabled(1), alignment(Qt::AlignLeading),
           echoMode(0), textDirty(0), selDirty(0), validInput(1),
           ascent(0), maxLength(32767), hscroll(0), lastCursorPos(-1), maskData(0),
@@ -61,6 +61,7 @@ public:
     QBasicTimer tripleClickTimer;
     uint frame : 1;
     uint cursorVisible : 1;
+    uint hideCursor : 1; // used to hide the cursor inside preedit areas
     uint separator : 1;
     uint readOnly : 1;
     uint dragEnabled : 1;

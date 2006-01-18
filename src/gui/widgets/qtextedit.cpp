@@ -537,10 +537,7 @@ void QTextEditPrivate::repaintContents(const QRectF &contentsRect)
 void QTextEditPrivate::repaintCursor()
 {
     Q_Q(const QTextEdit);
-    QRect r = q->cursorRect();
-    if (preeditCursor >= 0)
-        r = doc->documentLayout()->blockBoundingRect(cursor.block()).toRect();
-    viewport->update(r);
+    viewport->update(q->cursorRect());
 }
 
 void QTextEditPrivate::selectionChanged()
@@ -2042,7 +2039,14 @@ QRect QTextEditPrivate::rectForPosition(int position) const
     const QAbstractTextDocumentLayout *docLayout = doc->documentLayout();
     const QTextLayout *layout = block.layout();
     const QPointF layoutPos = docLayout->blockBoundingRect(block).topLeft();
-    const int relativePos = position - block.position();
+    int relativePos = position - block.position();
+    if (preeditCursor != 0) {
+        int preeditPos = layout->preeditAreaPosition();
+        if (relativePos == preeditPos)
+            relativePos += preeditCursor;
+        else if (relativePos > preeditPos)
+            relativePos += layout->preeditAreaText().length();
+    }
     QTextLine line = layout->lineForTextPosition(relativePos);
 
     QRect r;
@@ -2148,11 +2152,12 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     ctx.palette = q->palette();
     
     if (cursorOn && q->isEnabled()) {
-        ctx.cursorPosition = cursor.position();
-        if (preeditCursor == -2)
+        if (hideCursor)
             ctx.cursorPosition = -1;
-        else if (preeditCursor != -1) 
+        else if (preeditCursor != 0) 
             ctx.cursorPosition = - (preeditCursor + 2);
+        else
+            ctx.cursorPosition = cursor.position();
     }
     
     if (!dndFeedbackCursor.isNull())
@@ -2539,11 +2544,13 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
     QTextLayout *layout = block.layout();
     layout->setPreeditArea(d->cursor.position() - block.position(), e->preeditString());
     QList<QTextLayout::FormatRange> overrides;
-    d->preeditCursor = e->preeditString().isEmpty() ? -1 : -2;
+    d->preeditCursor = e->preeditString().length();
+    d->hideCursor = false;
     for (int i = 0; i < e->attributes().size(); ++i) {
         const QInputMethodEvent::Attribute &a = e->attributes().at(i);
         if (a.type == QInputMethodEvent::Cursor) {
             d->preeditCursor = a.start;
+            d->hideCursor = !a.length;
         } else if (a.type == QInputMethodEvent::TextFormat) {
             QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
             if (f.isValid()) {

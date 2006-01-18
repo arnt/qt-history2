@@ -1377,12 +1377,14 @@ Qt::ButtonState QContextMenuEvent::state() const
     honour the backgroundColor, textColor and fontUnderline properties
     of the format.
 
-    \value Cursor
-    If set, a cursor should be shown inside the preedit string at
-    position start. If value is a QVariant of type QColor this color
-    will be used for rendering the cursor, otherwise the color of the
+    \value Cursor If set, a cursor should be shown inside the preedit
+    string at position start. The length variable determines whether
+    the cursor is visible or not. If the length is 0 the cursor is
+    invisible. If value is a QVariant of type QColor this color will
+    be used for rendering the cursor, otherwise the color of the
     surrounding text will be used. There should be at most one Cursor
-    attribute per event. If several are specified the behaviour is undefined.
+    attribute per event. If several are specified the behaviour is
+    undefined.
 
     \value Language
     The variant contains a QLocale object specifying the language of a

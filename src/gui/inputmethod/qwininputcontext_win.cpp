@@ -571,8 +571,7 @@ bool QWinInputContext::composition(LPARAM lParam)
                attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, selStart + selLength,
                                             imeComposition->length() - selStart - selLength,
                                             standardFormat(PreeditFormat));
-		   if(selLength == 0)
-               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, imePosition, 0, QVariant());
+           attrs << QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, imePosition, selLength ? 0 : 1, QVariant());
 
            QInputMethodEvent e(*imeComposition, attrs);
            result = qt_sendSpontaneousEvent(fw, &e);

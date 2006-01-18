@@ -230,8 +230,7 @@ extern "C" {
             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
                                                   selstart + sellen, data->text.length() - selstart - sellen,
                                                   qic->standardFormat(QInputContext::PreeditFormat));
-        if (!sellen)
-            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, cursor, 0, QVariant());
+        attrs << QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, cursor, sellen ? 0 : 1, QVariant());
         QInputMethodEvent e(data->text, attrs);
 	qic->sendEvent(e);
 

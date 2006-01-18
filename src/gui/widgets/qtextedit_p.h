@@ -54,7 +54,7 @@ public:
           preferRichText(false),
           overwriteMode(false),
           acceptRichText(true),
-          preeditCursor(-1)
+          preeditCursor(0), hideCursor(false)
     {}
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
@@ -177,6 +177,7 @@ public:
     bool acceptRichText;
 
     int preeditCursor;
+    bool hideCursor; // used to hide the cursor in the preedit area
 
     QVector<QAbstractTextDocumentLayout::Selection> extraSelections;
 };
