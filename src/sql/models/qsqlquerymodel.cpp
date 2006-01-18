@@ -298,7 +298,7 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
         memset(d->colOffsets.data(), 0, d->colOffsets.size() * sizeof(int));
     }
 
-    beginRemoveRows(QModelIndex(), 0, d->bottom.row());
+    beginRemoveRows(QModelIndex(), 0, qMax(d->bottom.row(), 0));
 
     d->bottom = QModelIndex();
     d->error = QSqlError();

@@ -1680,6 +1680,8 @@ bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &pare
 */
 void QAbstractItemModel::beginInsertRows(const QModelIndex &parent, int first, int last)
 {
+    Q_ASSERT(first >= 0);
+    Q_ASSERT(last >= first);
     Q_D(QAbstractItemModel);
     d->changes.push(QAbstractItemModelPrivate::Change(parent, first, last));
     emit rowsAboutToBeInserted(parent, first, last);
@@ -1718,6 +1720,8 @@ void QAbstractItemModel::endInsertRows()
 */
 void QAbstractItemModel::beginRemoveRows(const QModelIndex &parent, int first, int last)
 {
+    Q_ASSERT(first >= 0);
+    Q_ASSERT(last >= first);
     Q_D(QAbstractItemModel);
     d->changes.push(QAbstractItemModelPrivate::Change(parent, first, last));
     emit rowsAboutToBeRemoved(parent, first, last);
@@ -1756,6 +1760,8 @@ void QAbstractItemModel::endRemoveRows()
 */
 void QAbstractItemModel::beginInsertColumns(const QModelIndex &parent, int first, int last)
 {
+    Q_ASSERT(first >= 0);
+    Q_ASSERT(last >= first);
     Q_D(QAbstractItemModel);
     d->changes.push(QAbstractItemModelPrivate::Change(parent, first, last));
     emit columnsAboutToBeInserted(parent, first, last);
@@ -1794,6 +1800,8 @@ void QAbstractItemModel::endInsertColumns()
 */
 void QAbstractItemModel::beginRemoveColumns(const QModelIndex &parent, int first, int last)
 {
+    Q_ASSERT(first >= 0);
+    Q_ASSERT(last >= first);
     Q_D(QAbstractItemModel);
     d->changes.push(QAbstractItemModelPrivate::Change(parent, first, last));
     emit columnsAboutToBeRemoved(parent, first, last);
