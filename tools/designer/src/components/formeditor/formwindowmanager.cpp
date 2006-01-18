@@ -516,7 +516,7 @@ void FormWindowManager::slotUpdateActions()
         pasteAvailable = qApp->clipboard()->mimeData() && qApp->clipboard()->mimeData()->hasText();
 
         m_activeFormWindow->simplifySelection(&simplifiedSelection);
-        if (simplifiedSelection.isEmpty())
+        if (simplifiedSelection.isEmpty() && m_activeFormWindow->mainContainer())
             simplifiedSelection.append(m_activeFormWindow->mainContainer());
 
         foreach (QWidget *widget, simplifiedSelection) {
