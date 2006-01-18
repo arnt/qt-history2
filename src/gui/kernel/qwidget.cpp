@@ -1012,16 +1012,14 @@ int QWidgetPrivate::maxInstances = 0;     // Maximum number of widget instances
 void QWidgetPrivate::setWinId(WId id)                // set widget identifier
 {
     Q_Q(QWidget);
-    if (!mapper)                                // mapper destroyed
-        return;
-    if (data.winid)
+    if (mapper && data.winid)
         mapper->remove(data.winid);
 
     data.winid = id;
 #if defined(Q_WS_X11)
     hd = id; // X11: hd == ident
 #endif
-    if (id)
+    if (mapper && id)
         mapper->insert(data.winid, q);
 }
 
