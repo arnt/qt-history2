@@ -557,21 +557,23 @@ bool QWinInputContext::composition(LPARAM lParam)
                 selStart = 0;
                 selLength = imeComposition->length();
             }
-
-           if (selLength != 0)
-                imePosition = selStart;
+			if(selLength == 0)
+				selStart = 0;
 
            QList<QInputMethodEvent::Attribute> attrs;
-           if (imePosition > 0)
-               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, 0, imePosition,
+           if (selStart > 0)
+               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, 0, selStart,
                                             standardFormat(PreeditFormat));
            if (selLength)
-               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, imePosition, selLength,
+               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, selStart, selLength,
                                             standardFormat(SelectionFormat));
-           if (imePosition + selLength < imeComposition->length())
-               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, imePosition + selLength,
-                                            imeComposition->length() - imePosition - selLength,
+           if (selStart + selLength < imeComposition->length())
+               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, selStart + selLength,
+                                            imeComposition->length() - selStart - selLength,
                                             standardFormat(PreeditFormat));
+		   if(selLength == 0)
+               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, imePosition, 0, QVariant());
+
            QInputMethodEvent e(*imeComposition, attrs);
            result = qt_sendSpontaneousEvent(fw, &e);
         }
