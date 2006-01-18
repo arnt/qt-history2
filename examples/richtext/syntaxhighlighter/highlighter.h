@@ -32,16 +32,12 @@ protected:
     void highlightBlock(const QString &text);
 
 private:
-    struct Entry
+    struct HighlightingRule
     {
-        inline Entry() {}
-        inline Entry(const QString &patt, const QTextCharFormat &fmt)
-            : pattern(patt), format(fmt)
-        {}
         QRegExp pattern;
         QTextCharFormat format;
     };
-    QVector<Entry> mappings;
+    QVector<HighlightingRule> highlightingRules;
 
     QRegExp commentStartExpression;
     QRegExp commentEndExpression;

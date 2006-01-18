@@ -18,6 +18,8 @@
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
+    HighlightingRule rule;
+
     keywordFormat.setForeground(Qt::darkBlue);
     keywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
@@ -31,24 +33,35 @@ Highlighter::Highlighter(QTextDocument *parent)
                     << "\\btemplate\\b" << "\\btypedef\\b" << "\\btypename\\b"
                     << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
                     << "\\bvoid\\b" << "\\bvolatile\\b";
-    foreach (QString pattern, keywordPatterns)
-        mappings.append(Entry(pattern, keywordFormat));
+    foreach (QString pattern, keywordPatterns) {
+        rule.pattern = QRegExp(pattern);
+        rule.format = keywordFormat;
+        highlightingRules.append(rule);
+    }
 
     classFormat.setFontWeight(QFont::Bold);
     classFormat.setForeground(Qt::darkMagenta);
-    mappings.append(Entry("\\bQ[A-Za-z]+\\b", classFormat));
+    rule.pattern = QRegExp("\\bQ[A-Za-z]+\\b");
+    rule.format = classFormat;
+    highlightingRules.append(rule);
 
     singleLineCommentFormat.setForeground(Qt::red);
-    mappings.append(Entry("//[^\n]*", singleLineCommentFormat));
+    rule.pattern = QRegExp("//[^\n]*");
+    rule.format = singleLineCommentFormat;
+    highlightingRules.append(rule);
 
     multiLineCommentFormat.setForeground(Qt::red);
 
     quotationFormat.setForeground(Qt::darkGreen);
-    mappings.append(Entry("\".*\"", quotationFormat));
+    rule.pattern = QRegExp("\".*\"");
+    rule.format = quotationFormat;
+    highlightingRules.append(rule);
 
     functionFormat.setFontItalic(true);
     functionFormat.setForeground(Qt::blue);
-    mappings.append(Entry("\\b[A-Za-z0-9_]+(?=\\()", functionFormat));
+    rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
+    rule.format = functionFormat;
+    highlightingRules.append(rule);
 
     commentStartExpression = QRegExp("/\\*");
     commentEndExpression = QRegExp("\\*/");
@@ -56,12 +69,12 @@ Highlighter::Highlighter(QTextDocument *parent)
 
 void Highlighter::highlightBlock(const QString &text)
 {
-    foreach (Entry entry, mappings) {
-        QRegExp expression(entry.pattern);
+    foreach (HighlightingRule rule, highlightingRules) {
+        QRegExp expression(rule.pattern);
         int index = text.indexOf(expression);
         while (index >= 0) {
             int length = expression.matchedLength();
-            setFormat(index, length, entry.format);
+            setFormat(index, length, rule.format);
             index = text.indexOf(expression, index + length);
         }
     }
@@ -83,6 +96,6 @@ void Highlighter::highlightBlock(const QString &text)
        }
        setFormat(startIndex, commentLength, multiLineCommentFormat);
        startIndex = text.indexOf(commentStartExpression,
-                                 startIndex + commentLength);
+                                               startIndex + commentLength);
     }
 }
