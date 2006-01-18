@@ -3625,9 +3625,6 @@ void QWidget::clearFocus()
         w = w->isWindow() ? 0 : w->parentWidget();
     }
     if (hasFocus()) {
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
-        Q_D(QWidget);
-#endif
         QApplicationPrivate::setFocusWidget(0, Qt::OtherFocusReason);
 #if defined(Q_WS_WIN)
         if (!(windowType() == Qt::Popup) && GetFocus() == winId())
