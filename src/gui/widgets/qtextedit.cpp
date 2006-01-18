@@ -606,7 +606,7 @@ void QTextEditPrivate::adjustScrollbars()
 {
     if (ignoreAutomaticScrollbarAdjustement)
         return;
-    
+
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
 
     const QSize viewportSize = viewport->size();
@@ -813,7 +813,7 @@ void QTextEditPrivate::redo()
                      q, SLOT(setCursorAfterUndoRedo(int, int, int)));
     doc->redo();
     QObject::disconnect(doc, SIGNAL(contentsChange(int, int, int)),
-                        q, SLOT(setCursorAfterUndoRedo(int, int, int)));    
+                        q, SLOT(setCursorAfterUndoRedo(int, int, int)));
     q->ensureCursorVisible();
 }
 
@@ -1419,6 +1419,11 @@ void QTextEdit::copy()
     current cursor position.
 
     If there is no text in the clipboard nothing happens.
+
+    To change the behavior of this function, i.e. to modify what
+    QTextEdit can paste and how it is being pasted, reimplement the
+    virtual canInsertFromMimeData() and insertFromMimeData()
+    functions.
 
     \sa cut() copy()
 */
