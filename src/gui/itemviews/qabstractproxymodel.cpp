@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qabstractproxymodel.h"
+
+#ifndef QT_NO_PROXYMODEL
+
 #include "qitemselectionmodel.h"
 #include <private/qabstractproxymodel_p.h>
 
@@ -73,7 +76,7 @@ void QAbstractProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 {
     Q_D(QAbstractProxyModel);
     if (sourceModel)
-        d->model = sourceModel;        
+        d->model = sourceModel;
     else
         d->model = &d->empty;
 }
@@ -109,35 +112,37 @@ void QAbstractProxyModel::revert()
 /*!
   \fn QModelIndex QSortFilterProxyModel::mapToSource(const QModelIndex &proxyIndex) const
 
-  Reimplement this method to map proxy indexes to source indexes. 
+  Reimplement this method to map proxy indexes to source indexes.
 */
 
 /*!
   \fn QModelIndex mapFromSource(const QModelIndex &sourceIndex) const
 
-  Reimplement this method to map source indexes to proxy indexes. 
+  Reimplement this method to map source indexes to proxy indexes.
 */
 
 /*!
-  Reimplement this method to map proxy selections to source selections. 
+  Reimplement this method to map proxy selections to source selections.
  */
 QItemSelection QAbstractProxyModel::mapSelectionToSource(const QItemSelection &proxySelection) const
 {
     QModelIndexList proxyIndexes = proxySelection.indexes();
     QItemSelection sourceSelection;
-    for (int i = 0; i < proxyIndexes.size(); ++i) 
+    for (int i = 0; i < proxyIndexes.size(); ++i)
         sourceSelection << QItemSelectionRange(mapToSource(proxyIndexes.at(i)));
     return sourceSelection;
 }
 
 /*!
-  Reimplement this method to map source selections to proxy selections. 
+  Reimplement this method to map source selections to proxy selections.
 */
 QItemSelection QAbstractProxyModel::mapSelectionFromSource(const QItemSelection &sourceSelection) const
 {
     QModelIndexList sourceIndexes = sourceSelection.indexes();
     QItemSelection proxySelection;
-    for (int i = 0; i < sourceIndexes.size(); ++i) 
+    for (int i = 0; i < sourceIndexes.size(); ++i)
         proxySelection << QItemSelectionRange(mapFromSource(sourceIndexes.at(i)));
     return proxySelection;
 }
+
+#endif // QT_NO_PROXYMODEL

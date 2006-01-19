@@ -297,7 +297,7 @@
 #endif
 
 // Secure Execution Environment (experimental)
-#if !defined(QT_NO_SXV) && (defined(QT_NO_MULTIPROCESS))
+#if !defined(QT_NO_SXV) && (defined(QT_NO_QWS_MULTIPROCESS))
 #define QT_NO_SXV
 #endif
 
@@ -396,7 +396,7 @@
 #define QT_NO_LISTVIEW
 #endif
 
-// QProxyModel
+// QAbstractProxyModel
 #if !defined(QT_NO_PROXYMODEL) && (defined(QT_NO_ITEMVIEWS))
 #define QT_NO_PROXYMODEL
 #endif
@@ -449,6 +449,11 @@
 // Menu bars
 #if !defined(QT_NO_MENUBAR) && (defined(QT_NO_MENU) || defined(QT_NO_TOOLBUTTON))
 #define QT_NO_MENUBAR
+#endif
+
+// QSortFilterProxyModel
+#if !defined(QT_NO_SORTFILTERPROXYMODEL) && (defined(QT_NO_PROXYMODEL))
+#define QT_NO_SORTFILTERPROXYMODEL
 #endif
 
 // QTableWidget

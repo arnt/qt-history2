@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qsortfilterproxymodel.h"
+
+#ifndef QT_NO_SORTFILTERPROXYMODEL
+
 #include "qitemselectionmodel.h"
 #include <qsize.h>
 #include <qdebug.h>
@@ -48,7 +51,7 @@ public:
                                           const QAbstractItemModel *source,
                                           const QSortFilterProxyModel *proxy)
         : sort_column(column), source_parent(parent), source_model(source), proxy_model(proxy) {}
-    
+
     inline bool operator()(int r1, int r2) const
     {
         QModelIndex i1 = source_model->index(r1, sort_column, source_parent);
@@ -918,3 +921,5 @@ QItemSelection QSortFilterProxyModel::mapSelectionFromSource(const QItemSelectio
 }
 
 #include "moc_qsortfilterproxymodel.cpp"
+
+#endif // QT_NO_SORTFILTERPROXYMODEL

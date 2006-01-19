@@ -15,6 +15,9 @@
 #define QSORTFILTERPROXYMODEL_H
 
 #include <QtGui/qabstractproxymodel.h>
+
+#ifndef QT_NO_SORTFILTERPROXYMODEL
+
 #include <QtCore/qregexp.h>
 
 QT_MODULE(Gui)
@@ -44,7 +47,7 @@ public:
 
     QItemSelection mapSelectionToSource(const QItemSelection &proxySelection) const;
     QItemSelection mapSelectionFromSource(const QItemSelection &sourceSelection) const;
-    
+
     QRegExp filterRegExp() const;
     void setFilterRegExp(const QRegExp &regExp);
 
@@ -71,7 +74,7 @@ public:
 #else
     using QObject::parent;
 #endif
-    
+
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &child) const;
 
@@ -84,7 +87,7 @@ public:
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
-    
+
     QMimeData *mimeData(const QModelIndexList &indexes) const;
     bool dropMimeData(const QMimeData *data, Qt::DropAction action,
                       int row, int column, const QModelIndex &parent);
@@ -115,4 +118,5 @@ private:
     Q_PRIVATE_SLOT(d_func(), void clear())
 };
 
+#endif // QT_NO_SORTFILTERPROXYMODEL
 #endif // QSORTFILTERPROXYMODEL_H

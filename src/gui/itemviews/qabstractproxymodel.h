@@ -18,6 +18,8 @@
 
 QT_MODULE(Gui)
 
+#ifndef QT_NO_PROXYMODEL
+
 class QAbstractProxyModelPrivate;
 class QItemSelection;
 
@@ -43,10 +45,11 @@ public:
 
 protected:
     QAbstractProxyModel(QAbstractProxyModelPrivate &, QObject *parent);
-    
+
 private:
     Q_DECLARE_PRIVATE(QAbstractProxyModel)
     Q_DISABLE_COPY(QAbstractProxyModel)
 };
 
+#endif // QT_NO_PROXYMODEL
 #endif // QABSTRACTPROXYMODEL_H

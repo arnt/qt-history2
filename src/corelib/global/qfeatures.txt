@@ -445,7 +445,13 @@ SeeAlso: ???
 Feature: PROXYMODEL
 Section: ItemViews
 Requires: ITEMVIEWS
-Name: QProxyModel
+Name: QAbstractProxyModel
+SeeAlso: ???
+
+Feature: SORTFILTERPROXYMODEL
+Section: ItemViews
+Requires: PROXYMODEL
+Name: QSortFilterProxyModel
 SeeAlso: ???
 
 Feature: STRINGLISTMODEL
@@ -794,6 +800,6 @@ SeeAlso: ???
 
 Feature: SXV
 Section: Qt/Embedded-specific
-Requires: MULTIPROCESS
+Requires: QWS_MULTIPROCESS
 Name: Secure Execution Environment (experimental)
 SeeAlso: ???
