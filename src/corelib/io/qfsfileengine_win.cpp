@@ -1305,7 +1305,9 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
     Q_D(const QFSFileEngine);
     QAbstractFileEngine::FileFlags ret = 0;
     // Force a stat, so that we're guaranteed to get up-to-date results
-    d->tried_stat = 0;
+    if (type & QAbstractFileEngine::FileFlag(0x1000000)) { // QDir::Refresh
+        d->tried_stat = 0;
+    }
     
     if (type & PermsMask) {
         ret |= d->getPermissions();

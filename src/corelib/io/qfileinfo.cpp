@@ -124,11 +124,9 @@ QFileInfoPrivate::getFileFlags(QAbstractFileEngine::FileFlags request) const
         // fetch all info.
         if ((request & QAbstractFileEngine::LinkType) == 0)
             flags &= ~QAbstractFileEngine::LinkType;
-        if ((request & QAbstractFileEngine::ExistsFlag) == 0)
-            flags &= ~QAbstractFileEngine::ExistsFlag;
 
         flags = data->fileEngine->fileFlags(flags);
-        data->setCachedFlag(request);
+        data->setCachedFlag(flags | request);
         data->fileFlags |= uint(flags);
     } else {
         flags = QAbstractFileEngine::FileFlags(data->fileFlags & request);

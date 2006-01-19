@@ -476,7 +476,9 @@ QFile::setDecodingFunction(DecoderFn f)
 bool
 QFile::exists() const
 {
-    return (fileEngine()->fileFlags(QAbstractFileEngine::FlagsMask) & QAbstractFileEngine::ExistsFlag);
+    // 0x1000000 = QAbstractFileEngine::Refresh, forcing an update
+    return (fileEngine()->fileFlags(QAbstractFileEngine::FlagsMask
+                                    | QAbstractFileEngine::FileFlag(0x1000000)) & QAbstractFileEngine::ExistsFlag);
 }
 
 /*!

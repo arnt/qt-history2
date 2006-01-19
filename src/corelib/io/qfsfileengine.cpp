@@ -57,7 +57,8 @@ QFSFileEnginePrivate::QFSFileEnginePrivate() : QAbstractFileEnginePrivate()
     sequential = 0;
     tried_stat = 0;
 #ifdef Q_OS_UNIX
-    need_lstat = 0;
+    need_lstat = 1;
+    is_link = 0;
 #endif
     fd = -1;
     fh = 0;

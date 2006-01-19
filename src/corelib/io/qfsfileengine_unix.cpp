@@ -345,11 +345,11 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
 {
     Q_D(const QFSFileEngine);
     // Force a stat, so that we're guaranteed to get up-to-date results
-    if (type & ExistsFlag)
+    if (type & QAbstractFileEngine::FileFlag(0x1000000)) { // QDir::Refresh
         d->tried_stat = 0;
-    if ((type & LinkType) || (type & ExistsFlag) || (type & PermsMask))
         d->need_lstat = 1;
-
+    }
+    
     QAbstractFileEngine::FileFlags ret = 0;
     bool exists = d->doStat();
     if (!exists && !d->isSymlink())
