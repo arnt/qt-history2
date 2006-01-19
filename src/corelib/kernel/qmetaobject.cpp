@@ -739,7 +739,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
         } else if (strncmp("long", t+9, 4) == 0
                    // preserve '[unsigned] long long'
                    && (strlen(t + 9 + 4) < 5
-                       || strcmp(t + 9 + 4, " long") != 0
+                       || strncmp(t + 9 + 4, " long", 5) != 0
                       )
                   ) {
             t += 9+4;
