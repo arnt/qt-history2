@@ -66,7 +66,7 @@ public:
 
     void clear();
     bool load( const QString& filename );
-    bool save( const QString& filename, bool verbose ) const;
+    bool save( const QString& filename ) const;
     bool release( const QString& filename, bool verbose = false,
                   bool ignoreUnfinished = false,
                   Translator::SaveMode mode = Translator::Stripped ) const;
