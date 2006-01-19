@@ -2141,7 +2141,9 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
 
 #ifndef QT_NO_XRENDER
-    if (X11->use_xrender) {
+    if (X11->use_xrender
+        && !(d->pdev->devType() == QInternal::Pixmap
+             && static_cast<const QPixmap *>(d->pdev)->data->type == QPixmap::BitmapType)) {
         int nGlyphs = 0;
         GlyphSet glyphSet = ft->glyphSet;
         const QColor &pen = d->cpen.color();
