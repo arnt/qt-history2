@@ -888,6 +888,8 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
     }
     if(key == Qt::Key_Tab) //means right
         key = Qt::Key_Right;
+    else if(key == Qt::Key_Backtab) //means left
+        key = Qt::Key_Left;
 
     bool key_consumed = false;
     switch(key) {
