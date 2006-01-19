@@ -1703,10 +1703,13 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     \fn void QTreeWidget::itemActivated(QTreeWidgetItem *item, int column)
 
     This signal is emitted when the user activates an item by single-
-    or double-clicking (depending on the platform) or pressing a
-    special key (e.g., \key Enter). The specified \a item is the item
-    that was clicked, or 0 if no item was clicked. The \a column is
-    the item's column that was clicked, or -1 if no item was clicked.
+    or double-clicking (depending on the platform, i.e. on the
+    QStyle::SH_ItemView_ActivateItemOnSingleClick style hint) or
+    pressing a special key (e.g., \key Enter).
+
+    The specified \a item is the item that was clicked, or 0 if no
+    item was clicked. The \a column is the item's column that was
+    clicked, or -1 if no item was clicked.
 */
 
 /*!
