@@ -50,11 +50,11 @@ class QLinkedList
 
 public:
     inline QLinkedList() : d(&QLinkedListData::shared_null) { d->ref.ref(); }
-    inline QLinkedList(const QLinkedList &l) : d(l.d) { d->ref.ref(); if (!d->sharable) detach(); }
+    inline QLinkedList(const QLinkedList<T> &l) : d(l.d) { d->ref.ref(); if (!d->sharable) detach(); }
     ~QLinkedList();
-    QLinkedList<T> &operator=(const QLinkedList &);
-    bool operator==(const QLinkedList &l) const;
-    inline bool operator!=(const QLinkedList &l) const { return !(*this == l); }
+    QLinkedList<T> &operator=(const QLinkedList<T> &);
+    bool operator==(const QLinkedList<T> &l) const;
+    inline bool operator!=(const QLinkedList<T> &l) const { return !(*this == l); }
 
     inline int size() const { return d->size; }
     inline void detach()
@@ -201,11 +201,11 @@ public:
 #endif
 
     // comfort
-    QLinkedList &operator+=(const QLinkedList &l);
-    QLinkedList operator+(const QLinkedList &l) const;
-    inline QLinkedList &operator+=(const T &t) { append(t); return *this; }
-    inline QLinkedList &operator<< (const T &t) { append(t); return *this; }
-    inline QLinkedList &operator<<(const QLinkedList &l) { *this += l; return *this; }
+    QLinkedList<T> &operator+=(const QLinkedList<T> &l);
+    QLinkedList<T> operator+(const QLinkedList<T> &l) const;
+    inline QLinkedList<T> &operator+=(const T &t) { append(t); return *this; }
+    inline QLinkedList<T> &operator<< (const T &t) { append(t); return *this; }
+    inline QLinkedList<T> &operator<<(const QLinkedList<T> &l) { *this += l; return *this; }
 
 private:
     void detach_helper();

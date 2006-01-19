@@ -75,11 +75,11 @@ class QList
 
 public:
     inline QList() : d(&QListData::shared_null) { d->ref.ref(); }
-    inline QList(const QList &l) : d(l.d) { d->ref.ref(); if (!d->sharable) detach_helper(); }
+    inline QList(const QList<T> &l) : d(l.d) { d->ref.ref(); if (!d->sharable) detach_helper(); }
     ~QList();
-    QList &operator=(const QList &l);
-    bool operator==(const QList &l) const;
-    inline bool operator!=(const QList &l) const { return !(*this == l); }
+    QList<T> &operator=(const QList<T> &l);
+    bool operator==(const QList<T> &l) const;
+    inline bool operator!=(const QList<T> &l) const { return !(*this == l); }
 
     inline int size() const { return p.size(); }
 
@@ -250,14 +250,14 @@ public:
 #endif
 
     // comfort
-    QList &operator+=(const QList &l);
-    inline QList operator+(const QList &l) const
+    QList<T> &operator+=(const QList<T> &l);
+    inline QList<T> operator+(const QList<T> &l) const
     { QList n = *this; n += l; return n; }
-    inline QList &operator+=(const T &t)
+    inline QList<T> &operator+=(const T &t)
     { append(t); return *this; }
-    inline QList &operator<< (const T &t)
+    inline QList<T> &operator<< (const T &t)
     { append(t); return *this; }
-    inline QList &operator<<(const QList &l)
+    inline QList<T> &operator<<(const QList<T> &l)
     { *this += l; return *this; }
 
     QVector<T> toVector() const;

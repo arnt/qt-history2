@@ -25,7 +25,7 @@ class QVarLengthArray
 public:
     inline explicit QVarLengthArray(int size = 0);
 
-    inline QVarLengthArray(const QVarLengthArray &other)
+    inline QVarLengthArray(const QVarLengthArray<T, Prealloc> &other)
         : a(Prealloc), s(0), ptr(reinterpret_cast<T *>(array))
     {
         append(other.constData(), other.size());
@@ -40,7 +40,7 @@ public:
         if (ptr != reinterpret_cast<T *>(array))
             qFree(ptr);
     }
-    inline QVarLengthArray &operator=(const QVarLengthArray &other)
+    inline QVarLengthArray<T, Prealloc> &operator=(const QVarLengthArray<T, Prealloc> &other)
     {
         if (this != &other) {
             clear();

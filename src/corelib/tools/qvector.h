@@ -60,11 +60,11 @@ public:
     inline QVector() : p(&QVectorData::shared_null) { d->ref.ref(); }
     explicit QVector(int size);
     QVector(int size, const T &t);
-    inline QVector(const QVector &v) : d(v.d) { d->ref.ref(); if (!d->sharable) detach_helper(); }
+    inline QVector(const QVector<T> &v) : d(v.d) { d->ref.ref(); if (!d->sharable) detach_helper(); }
     inline ~QVector() { if (!d) return; if (!d->ref.deref()) free(d); }
-    QVector &operator=(const QVector &v);
-    bool operator==(const QVector &v) const;
-    inline bool operator!=(const QVector &v) const { return !(*this == v); }
+    QVector<T> &operator=(const QVector<T> &v);
+    bool operator==(const QVector<T> &v) const;
+    inline bool operator!=(const QVector<T> &v) const { return !(*this == v); }
 
     inline int size() const { return d->size; }
 
@@ -96,7 +96,7 @@ public:
     void remove(int i);
     void remove(int i, int n);
 
-    QVector &fill(const T &t, int size = -1);
+    QVector<T> &fill(const T &t, int size = -1);
 
     int indexOf(const T &t, int from = 0) const;
     int lastIndexOf(const T &t, int from = -1) const;
@@ -154,14 +154,14 @@ public:
     inline const_reference back() const { return last(); }
 
     // comfort
-    QVector &operator+=(const QVector &l);
-    inline QVector operator+(const QVector &l) const
+    QVector<T> &operator+=(const QVector<T> &l);
+    inline QVector<T> operator+(const QVector<T> &l) const
     { QVector n = *this; n += l; return n; }
-    inline QVector &operator+=(const T &t)
+    inline QVector<T> &operator+=(const T &t)
     { append(t); return *this; }
-    inline QVector &operator<< (const T &t)
+    inline QVector<T> &operator<< (const T &t)
     { append(t); return *this; }
-    inline QVector &operator<<(const QVector &l)
+    inline QVector<T> &operator<<(const QVector<T> &l)
     { *this += l; return *this; }
 
     QList<T> toList() const;
