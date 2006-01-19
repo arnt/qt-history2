@@ -1270,12 +1270,12 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent,
             if (stat)
                 infoList = entryInfoList(link);
             else
-                infoList = QDir(link).entryInfoList(nameFilters);
+                infoList = QDir(link).entryInfoList(nameFilters, QDir::AllEntries | QDir::System);
         } else {
             if (stat)
                 infoList = entryInfoList(parent->info.absoluteFilePath());
             else
-                infoList = QDir(parent->info.absoluteFilePath()).entryInfoList(nameFilters);
+                infoList = QDir(parent->info.absoluteFilePath()).entryInfoList(nameFilters, QDir::AllEntries | QDir::System);
         }
     }
 
