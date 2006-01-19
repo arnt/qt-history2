@@ -139,9 +139,6 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
     if(!dir)
         return ret; // cannot read the directory
 
-    if (filters == QDir::NoFilter)
-        filters = QDir::AllEntries | QDir::Hidden | QDir::System;
-    
     const bool filterPermissions = ((filters & QDir::PermissionMask) && (filters & QDir::PermissionMask) != QDir::PermissionMask);
     const bool skipDirs     = !(filters & (QDir::Dirs | QDir::AllDirs));
     const bool skipFiles    = !(filters & QDir::Files);
