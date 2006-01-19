@@ -192,8 +192,10 @@ static QString translationAttempt( const QString& oldTranslation,
   For example, if "TeX 3.0" is translated as "XeT 3.0" and "TeX 3.1"
   has no translation, "XeT 3.1" is added to the translator and is
   marked Unfinished.
+
+  Returns the number of additional messages that this heuristic translated.
 */
-void applyNumberHeuristic( MetaTranslator *tor, bool verbose )
+int applyNumberHeuristic( MetaTranslator *tor )
 {
     TMM translated, untranslated;
     TMM::Iterator t, u;
@@ -222,7 +224,5 @@ void applyNumberHeuristic( MetaTranslator *tor, bool verbose )
             inserted++;
         }
     }
-    if ( verbose && inserted != 0 )
-        fprintf( stderr, " number heuristic provided %d translation%s\n",
-                 inserted, inserted == 1 ? "" : "s" );
+    return inserted;
 }

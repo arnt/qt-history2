@@ -378,7 +378,7 @@ bool MetaTranslator::load( const QString& filename )
     return ok;
 }
 
-bool MetaTranslator::save( const QString& filename, bool verbose) const
+bool MetaTranslator::save( const QString& filename) const
 {
     QFile f( filename );
     if ( !f.open(QIODevice::WriteOnly) )
@@ -394,7 +394,6 @@ bool MetaTranslator::save( const QString& filename, bool verbose) const
     if ( codecName != "ISO-8859-1" )
         t << "<defaultcodec>" << codecName << "</defaultcodec>\n";
     TMM::ConstIterator m = mm.begin();
-    int ObsoletedAndUntranslated = 0;    
     while ( m != mm.end() ) {
         TMMInv inv;
         TMMInv::Iterator i;
@@ -424,17 +423,16 @@ bool MetaTranslator::save( const QString& filename, bool verbose) const
               << "</comment>\n";
 
         for ( i = inv.begin(); i != inv.end(); ++i ) {
+            MetaTranslatorMessage msg = *i;
             // no need for such noise
-            if ( (*i).type() == MetaTranslatorMessage::Obsolete && (*i).translation().isEmpty() ) {
-                ++ObsoletedAndUntranslated;
+            if ( msg.type() == MetaTranslatorMessage::Obsolete && msg.translation().isEmpty() ) {
                 continue;
             }
 
             t << "    <message";
-            if ( (*i).utf8() )
+            if ( msg.utf8() )
                 t << " encoding=\"UTF-8\"";
             t << ">\n";
-            MetaTranslatorMessage msg = *i;
             if (!msg.fileName().isEmpty() && msg.lineNumber() >= 0) 
                 t << "        <location filename=\"" << msg.fileName() << "\" line=\"" << msg.lineNumber() << "\"/>\n";
             t  << "        <source>" << evilBytes( (*i).sourceText(), (*i).utf8() )
@@ -455,8 +453,6 @@ bool MetaTranslator::save( const QString& filename, bool verbose) const
     }
     t << "</TS>\n";
     f.close();
-    if ( verbose )
-        fprintf( stderr, " %d unstranslated obsoleted messages were removed.\n", ObsoletedAndUntranslated );
     return true;
 }
 
@@ -471,50 +467,55 @@ bool MetaTranslator::release( const QString& filename, bool verbose,
     TMM::ConstIterator m;
 
     for ( m = mm.begin(); m != mm.end(); ++m ) {
-        if ( m.key().type() != MetaTranslatorMessage::Obsolete ) {
-            if ( m.key().translation().isEmpty() ) {
-                untranslated++;
-            } else {
-                if ( m.key().type() == MetaTranslatorMessage::Unfinished )
+        MetaTranslatorMessage::Type typ = m.key().type();
+        if ( typ != MetaTranslatorMessage::Obsolete ) {
+            if ( typ == MetaTranslatorMessage::Unfinished ) {
+                if (m.key().translation().isEmpty()) {
+                    untranslated++;
+                } else {
                     unfinished++;
-                else
-                    finished++;
+                }
+            } else {
+                finished++;
+            }
+            QByteArray context = m.key().context();
+            QByteArray sourceText = m.key().sourceText();
+            QByteArray comment = m.key().comment();
+            QString translation = m.key().translation();
 
-                QByteArray context = m.key().context();
-                QByteArray sourceText = m.key().sourceText();
-                QByteArray comment = m.key().comment();
-                QString translation = m.key().translation();
-
-                if ( !ignoreUnfinished
-                     || m.key().type() != MetaTranslatorMessage::Unfinished ) {
-                    /*
-                      Drop the comment in (context, sourceText, comment),
-                      unless the context is empty,
-                      unless (context, sourceText, "") already exists or
-                      unless we already dropped the comment of (context,
-                      sourceText, comment0).
-                    */
-                    if ( comment.isEmpty()
-                         || context.isEmpty()
-                         || contains(context, sourceText, "")
-                         || !tor.findMessage(context, sourceText, "").translation()
-                                .isNull() ) {
-                        tor.insert( m.key() );
-                    } else {
-                        tor.insert( TranslatorMessage(context, sourceText, "",
-                                                       QString(), -1, translation) );    //filename and lineNumbers will be ignored from now.
-                    }
+            if ( !ignoreUnfinished
+                || typ != MetaTranslatorMessage::Unfinished ) {
+                /*
+                  Drop the comment in (context, sourceText, comment),
+                  unless the context is empty,
+                  unless (context, sourceText, "") already exists or
+                  unless we already dropped the comment of (context,
+                  sourceText, comment0).
+                */
+                if ( comment.isEmpty()
+                     || context.isEmpty()
+                     || contains(context, sourceText, "")
+                     || !tor.findMessage(context, sourceText, "").translation()
+                            .isNull() ) {
+                    tor.insert( m.key() );
+                } else {
+                    tor.insert( TranslatorMessage(context, sourceText, "",
+                                                   QString(), -1, translation) );    //filename and lineNumbers will be ignored from now.
                 }
             }
         }
     }
 
     bool saved = tor.save( filename, mode );
-    if ( saved && verbose )
+    if ( saved && verbose ) {
+        int generatedCount = finished + unfinished;
         fprintf( stderr,
-                 " %d finished, %d unfinished, and %d untranslated messages\n",
-                 finished, unfinished, untranslated );
-
+            "    Generated %d translation%s (%d finished and %d unfinished)\n",
+            generatedCount, generatedCount == 1 ? "" : "s", finished, unfinished);
+        if (untranslated)
+            fprintf( stderr, "    Ignored %d untranslated source text%s\n", 
+                untranslated, untranslated == 1 ? "" : "s");
+    }
     return saved;
 }
 

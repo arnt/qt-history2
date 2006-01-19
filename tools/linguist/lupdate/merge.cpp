@@ -16,9 +16,9 @@
 #include <stdio.h>
 
 // defined in numberh.cpp
-extern void applyNumberHeuristic( MetaTranslator *tor, bool verbose );
+extern int applyNumberHeuristic( MetaTranslator *tor );
 // defined in sametexth.cpp
-extern void applySameTextHeuristic( MetaTranslator *tor, bool verbose );
+extern int applySameTextHeuristic( MetaTranslator *tor );
 
 typedef QList<MetaTranslatorMessage> TML;
 
@@ -30,11 +30,12 @@ typedef QList<MetaTranslatorMessage> TML;
   translation yet.
 */
 
-void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTranslator *outTor, bool verbose )
+void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTranslator *outTor, bool verbose, bool noObsolete )
 {
     int known = 0;
     int neww = 0;
     int obsoleted = 0;
+    int UntranslatedObsoleted = 0;
     TML all = tor->messages();
     TML::Iterator it;
 
@@ -80,6 +81,10 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
                 // This should also enable us to read a file that does not have the <location> element.
                 m.setFileName(mv.fileName());
                 m.setLineNumber(mv.lineNumber());
+            }
+
+            if (newType == MetaTranslatorMessage::Obsolete && m.translation().isEmpty()) {
+                ++UntranslatedObsoleted;
             }
 
             if (found) {
@@ -133,16 +138,41 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
       The same-text heuristic handles cases where a message has an
       obsolete counterpart with a different context or comment.
     */
-    applySameTextHeuristic( outTor, verbose );
+    int sameTextHeuristicCount = applySameTextHeuristic( outTor );
 
     /*
       The number heuristic handles cases where a message has an
       obsolete counterpart with mostly numbers differing in the
       source text.
     */
-    applyNumberHeuristic( outTor, verbose );
+    int sameNumberHeuristicCount = applyNumberHeuristic( outTor );
 
-    if ( verbose )
-        fprintf( stderr, " %d known, %d new, and %d obsoleted messages\n", known,
-                 neww, obsoleted );
+    if ( verbose ) {
+        int totalFound = neww + known;
+        fprintf( stderr, "    Found %d source text%s (%d new and %d already existing)\n",
+            totalFound, totalFound == 1 ? "" : "s", neww, known);
+
+        if (obsoleted) {
+            if (noObsolete) {
+                fprintf( stderr, "    Removed %d obsolete entr%s\n", 
+                obsoleted, obsoleted == 1 ? "y" : "ies" );
+            } else {
+                int total = obsoleted - UntranslatedObsoleted;
+                fprintf( stderr, "    Kept %d obsolete translation%s\n", 
+                total, total == 1 ? "" : "s" );
+
+                fprintf( stderr, "    Removed %d obsolete untranslated entr%s\n", 
+                UntranslatedObsoleted, UntranslatedObsoleted == 1 ? "y" : "ies" );
+
+            }
+        }
+
+        if (sameNumberHeuristicCount) 
+            fprintf( stderr, "    Number heuristic provided %d translation%s\n", 
+            sameNumberHeuristicCount, sameNumberHeuristicCount == 1 ? "" : "s" );
+        if (sameTextHeuristicCount) 
+            fprintf( stderr, "    Same-text heuristic provided %d translation%s\n", 
+            sameTextHeuristicCount, sameTextHeuristicCount == 1 ? "" : "s" );
+
+    }
 }

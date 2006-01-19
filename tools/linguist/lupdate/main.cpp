@@ -32,7 +32,7 @@ extern void fetchtr_ui( const char *fileName, MetaTranslator *tor,
 
 // defined in merge.cpp
 extern void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTranslator *out,
-                   bool verbose );
+                   bool verbose, bool noObsolete );
 
 typedef QList<MetaTranslatorMessage> TML;
 
@@ -70,11 +70,11 @@ static void updateTsFiles( const MetaTranslator& fetchedTor,
             tor.setCodec( codecForTr.toLatin1() );
         if ( verbose )
             fprintf( stderr, "Updating '%s'...\n", (*t).toLatin1().data() );
-        merge( &tor, &fetchedTor, &out, verbose );
+        merge( &tor, &fetchedTor, &out, verbose, noObsolete );
         if ( noObsolete )
             out.stripObsoleteMessages();
         out.stripEmptyContexts();
-	    if ( !out.save(*t, verbose) ) {
+	    if ( !out.save(*t) ) {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 	        char buf[100];
 	        strerror_s(buf, sizeof(buf), errno);
