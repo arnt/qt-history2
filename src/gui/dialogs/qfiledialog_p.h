@@ -129,7 +129,7 @@ public:
     bool confirmOverwrite;
     QString defaultSuffix;
 
-    QList<QPersistentModelIndex> history;
+    QStringList history;
 
     QComboBox *lookInCombo;
     QFileDialogLineEdit *fileNameEdit;

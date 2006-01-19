@@ -731,18 +731,14 @@ QString QFileDialog::defaultSuffix() const
 void QFileDialog::setHistory(const QStringList &paths)
 {
     Q_D(QFileDialog);
-    QList<QPersistentModelIndex> history;
     QStringList::const_iterator it = paths.constBegin();
     for (; it != paths.constEnd(); ++it) {
         QModelIndex index = d->model->index(*it);
-        if (index.isValid()) {
-            history << QPersistentModelIndex(index);
-            QIcon icn = d->model->fileIcon(index);
-            d->lookInCombo->addItem(icn, *it);
-        }
+        QIcon icn = d->model->fileIcon(index);
+        d->lookInCombo->addItem(icn, *it);
     }
-    d->history = history;
-    d->backButton->setEnabled(!history.isEmpty());
+    d->history = paths;
+    d->backButton->setEnabled(!d->history.isEmpty());
 }
 
 /*!
@@ -751,11 +747,7 @@ void QFileDialog::setHistory(const QStringList &paths)
 QStringList QFileDialog::history() const
 {
     Q_D(const QFileDialog);
-    QStringList paths;
-    QList<QPersistentModelIndex>::const_iterator it = d->history.constBegin();
-    for (; it != d->history.constEnd(); ++it)
-        paths << d->model->filePath(*it);
-    return paths;
+    return d->history;
 }
 
 /*!
@@ -989,8 +981,9 @@ void QFileDialogPrivate::reload()
 void QFileDialogPrivate::navigateToPrevious()
 {
     if (!history.isEmpty()) {
-        QModelIndex root = history.back();
+        QString path = history.back();
         history.pop_back();
+        QModelIndex root = model->index(path);
         setRootIndex(root);
         updateButtons(root);
     }
@@ -1005,8 +998,9 @@ void QFileDialogPrivate::navigateToPrevious()
 
 void QFileDialogPrivate::navigateToParent()
 {
-    QModelIndex index = rootIndex();
-    history.push_back(index);
+    QPersistentModelIndex index = rootIndex();
+    QString path = model->filePath(index);
+    history.push_back(path);
     QModelIndex parent = model->parent(index);
     setRootIndex(parent);
     updateButtons(parent);
@@ -1023,10 +1017,12 @@ void QFileDialogPrivate::enterDirectory(const QModelIndex &index)
 {
     Q_Q(QFileDialog);
     // if it is "My Computer" or a directory, enter it
-    if (!index.isValid() || model->isDir(index)) {
-        history.push_back(rootIndex());
-        setRootIndex(index);
-        updateButtons(index);
+    QPersistentModelIndex persistent(index);
+    if (!persistent.isValid() || model->isDir(persistent)) {
+        QString path = model->filePath(rootIndex());
+        history.push_back(path);
+        setRootIndex(persistent);
+        updateButtons(persistent);
     } else {
         q->accept();
     }
@@ -1042,10 +1038,9 @@ void QFileDialogPrivate::enterDirectory(const QModelIndex &index)
 void QFileDialogPrivate::enterDirectory(const QString &path)
 {
     Q_Q(QFileDialog);
-    QModelIndex index = model->index(path);
-    if (!index.isValid()) {
+    QPersistentModelIndex index = model->index(path);
+    if (!index.isValid())
         index = model->index(getEnvironmentVariable(path));
-    }
 
     if (index.isValid() || path.isEmpty() || path == QFileDialog::tr("My Computer")) {
         enterDirectory(index);
@@ -1661,7 +1656,6 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
     treeView->setModel(model);
     treeView->setSelectionModel(selections);
     treeView->setSelectionMode(selectionMode(fileMode));
-    treeView->setRootIndex(current);
 
     treeView->viewport()->setAcceptDrops(true);
     treeView->setRootIsDecorated(false);
@@ -1670,10 +1664,11 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
     treeView->header()->setSortIndicator(0, Qt::AscendingOrder);
     treeView->header()->setSortIndicatorShown(true);
     treeView->header()->setClickable(true);
-    treeView->hide();
+    treeView->header()->resizeSection(0, 165); // this si the same size as Stretch ((530 - (100 * 2)) / 2)
     treeView->setEditTriggers(QAbstractItemView::EditKeyPressed);
-    treeView->resizeColumnToContents(0);
     treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    treeView->setRootIndex(current);
+    treeView->hide();
 
     grid->addWidget(treeView, 1, 0, 1, 6);
 
@@ -1830,12 +1825,11 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
 void QFileDialogPrivate::setRootIndex(const QModelIndex &index)
 {
     Q_Q(QFileDialog);
-    model->refresh(index);
     bool block = selections->blockSignals(true);
     selections->clear();
     listView->setRootIndex(index);
     treeView->setRootIndex(index);
-    treeView->resizeColumnToContents(0);
+    model->refresh(index);
     selections->blockSignals(block);
     q->selectFile(fileNameEdit->text());
 }
