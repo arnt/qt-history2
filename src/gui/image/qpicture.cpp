@@ -42,10 +42,18 @@
     platform-independent format. They are sometimes referred to as meta-files.
 
     Qt pictures use a proprietary binary format. Unlike native picture
-    (meta-file) formats on many window systems, Qt pictures have no limitations
-    regarding their contents. Everything that can be painted on a widget or
-    pixmap (e.g., fonts, pixmaps, regions, transformed graphics, etc.)
-    can also be stored in a picture.
+    (meta-file) formats on many window systems, Qt pictures have no
+    limitations regarding their contents. Everything that can be
+    painted on a widget or pixmap (e.g., fonts, pixmaps, regions,
+    transformed graphics, etc.)  can also be stored in a picture.
+
+    QPicture is resolution independent, i.e. a QPicture can be
+    displayed on different devices (for example svg, pdf, ps, printer
+    and screen) looking the same. This is, for instance, needed for
+    WYSIWYG print preview. QPicture always runs in 72 dpi, and
+    scales the painter to match differences in resolution depending
+    on the window system.
+
     QPicture is an \link shclass.html implicitly shared\endlink class.
 
     Example of how to record a picture:
