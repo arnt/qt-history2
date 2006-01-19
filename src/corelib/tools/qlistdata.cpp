@@ -391,7 +391,7 @@ void **QListData::erase(void **xi)
     Constructs an empty list.
 */
 
-/*! \fn QList::QList(const QList &other)
+/*! \fn QList::QList(const QList<T> &other)
 
     Constructs a copy of \a other.
 
@@ -409,13 +409,13 @@ void **QListData::erase(void **xi)
     iterators of this list become invalid.
 */
 
-/*! \fn QList &QList::operator=(const QList &other)
+/*! \fn QList<T> &QList::operator=(const QList<T> &other)
 
     Assigns \a other to this list and returns a reference to this
     list.
 */
 
-/*! \fn bool QList::operator==(const QList &other) const
+/*! \fn bool QList::operator==(const QList<T> &other) const
 
     Returns true if \a other is equal to this list; otherwise returns
     false.
@@ -429,7 +429,7 @@ void **QListData::erase(void **xi)
     \sa operator!=()
 */
 
-/*! \fn bool QList::operator!=(const QList &other) const
+/*! \fn bool QList::operator!=(const QList<T> &other) const
 
     Returns true if \a other is not equal to this list; otherwise
     returns false.
@@ -993,7 +993,7 @@ void **QListData::erase(void **xi)
     to isEmpty().
 */
 
-/*! \fn QList &QList::operator+=(const QList &other)
+/*! \fn QList<T> &QList::operator+=(const QList<T> &other)
 
     Appends the items of the \a other list to this list and returns a
     reference to this list.
@@ -1010,7 +1010,7 @@ void **QListData::erase(void **xi)
     \sa append(), operator<<()
 */
 
-/*! \fn QList QList::operator+(const QList &other) const
+/*! \fn QList<T> QList::operator+(const QList<T> &other) const
 
     Returns a list that contains all the items in this list followed
     by all the items in the \a other list.
@@ -1018,7 +1018,7 @@ void **QListData::erase(void **xi)
     \sa operator+=()
 */
 
-/*! \fn QList &QList::operator<<(const QList &other)
+/*! \fn QList<T> &QList::operator<<(const QList<T> &other)
 
     Appends the items of the \a other list to this list and returns a
     reference to this list.

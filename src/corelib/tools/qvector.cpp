@@ -217,7 +217,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \sa resize(), fill()
 */
 
-/*! \fn QVector::QVector(const QVector &other)
+/*! \fn QVector::QVector(const QVector<T> &other)
 
     Constructs a copy of \a other.
 
@@ -234,13 +234,13 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     Destroys the vector.
 */
 
-/*! \fn QVector &QVector::operator=(const QVector &other)
+/*! \fn QVector<T> &QVector::operator=(const QVector<T> &other)
 
     Assigns \a other to this vector and returns a reference to this
     vector.
 */
 
-/*! \fn bool QVector::operator==(const QVector &other) const
+/*! \fn bool QVector::operator==(const QVector<T> &other) const
 
     Returns true if \a other is equal to this vector; otherwise
     returns false.
@@ -254,7 +254,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \sa operator!=()
 */
 
-/*! \fn bool QVector::operator!=(const QVector &other) const
+/*! \fn bool QVector::operator!=(const QVector<T> &other) const
 
     Returns true if \a other is not equal to this vector; otherwise
     returns false.
@@ -801,7 +801,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     to isEmpty().
 */
 
-/*! \fn QVector &QVector::operator+=(const QVector &other)
+/*! \fn QVector<T> &QVector::operator+=(const QVector<T> &other)
 
     Appends the items of the \a other vector to this vector and
     returns a reference to this vector.
@@ -818,7 +818,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \sa append(), operator<<()
 */
 
-/*! \fn QVector QVector::operator+(const QVector &other) const
+/*! \fn QVector<T> QVector::operator+(const QVector<T> &other) const
 
     Returns a vector that contains all the items in this vector
     followed by all the items in the \a other vector.
@@ -826,7 +826,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \sa operator+=()
 */
 
-/*! \fn QVector &QVector::operator<<(const T &value)
+/*! \fn QVector<T> &QVector::operator<<(const T &value)
 
     Appends \a value to the vector and returns a reference to this
     vector.
@@ -834,7 +834,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \sa append(), operator+=()
 */
 
-/*! \fn QVector &QVector::operator<<(const QVector &other)
+/*! \fn QVector<T> &QVector::operator<<(const QVector<T> &other)
 
     Appends \a other to the vector and returns a reference to the
     vector.
