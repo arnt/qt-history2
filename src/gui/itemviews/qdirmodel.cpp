@@ -942,20 +942,19 @@ void QDirModel::refresh(const QModelIndex &parent)
     Q_D(QDirModel);
 
     QDirModelPrivate::QDirNode *n = parent.isValid() ? d->node(parent) : &(d->root);
-    if (n->children.count() == 0) {
-        n->stat = true;
+
+    int rows = n->children.count();
+    if (rows == 0) {
+        n->stat = true; // make sure that next time we read all the info
         return;
     }
-
+        
     d->savePersistentIndexes();
-    beginRemoveRows(parent, 0, n->children.count() - 1);
-
+    beginRemoveRows(parent, 0, rows - 1);
     n->stat = true; // make sure that next time we read all the info
     d->clear(n);
-
     endRemoveRows();
     d->restorePersistentIndexes();
-    emit layoutChanged();
 }
 
 /*!
@@ -1335,17 +1334,18 @@ QStringList QDirModelPrivate::entryList(const QString &path) const
 QString QDirModelPrivate::name(const QModelIndex &index) const
 {
     const QDirNode *n = node(index);
-    if (n->info.isRoot()) {
-        QString name = n->info.absoluteFilePath();
+    const QFileInfo info = n->info;
+    if (info.isRoot()) {
+        QString name = info.absoluteFilePath();
 #ifdef Q_OS_WIN
         if (name.startsWith(QLatin1Char('/'))) // UNC host
-            return n->info.fileName();
+            return info.fileName();
         if (name.endsWith(QLatin1Char('/')))
             name.chop(1);
 #endif
         return name;
     }
-    return n->info.fileName();
+    return info.fileName();
 }
 
 QString QDirModelPrivate::size(const QModelIndex &index) const
