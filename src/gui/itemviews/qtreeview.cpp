@@ -1355,7 +1355,7 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
 
     setState(CollapsingState);
 
-    if (!parent.isValid()) {
+    if (parent == rootIndex()) {
         d->viewItems.clear();
         d->doDelayedItemsLayout();
         return;
@@ -1384,10 +1384,11 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
     Q_UNUSED(start);
     Q_UNUSED(end);
     Q_D(QTreeView);
+    
     if (d->viewItems.isEmpty())
         return;
 
-    if (!parent.isValid()) {
+    if (parent == rootIndex()) {
         d->viewItems.clear();
         d->doDelayedItemsLayout();
         return;
@@ -1538,7 +1539,8 @@ int QTreeView::sizeHintForColumn(int column) const
     while (y < h && i < c) {
         Q_ASSERT(i != -1);
         index = viewItems.at(i).index;
-        index = model()->sibling(index.row(), column, index);
+        if (index.column() != column)
+            index = index.sibling(index.row(), column);
         size = delegate->sizeHint(option, index);
         w = qMax(w, size.width() + (column == 0 ? d->indentation(i) : 0));
         y += size.height();
