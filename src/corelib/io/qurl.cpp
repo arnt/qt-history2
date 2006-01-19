@@ -2874,9 +2874,6 @@ static bool isBidirectionalL(const QChar &ch)
           || (uc >= 0x100000 && uc <= 0x10FFFD)*/;
 }
 
-/*!
-    \internal
-*/
 QString Q_INTERNAL_EXPORT qt_nameprep(const QString &source)
 {
     // Characters commonly mapped to nothing are simply removed
