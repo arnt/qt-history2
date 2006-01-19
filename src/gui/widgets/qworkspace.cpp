@@ -1557,7 +1557,8 @@ void QWorkspacePrivate::maximizeWindow(QWidget* w)
         if (oldMaxWindow) {
             oldMaxWindow->setGeometry(maxRestore);
             oldMaxWindow->overrideWindowState(Qt::WindowNoState);
-            oldMaxWindow->windowWidget()->overrideWindowState(Qt::WindowNoState);
+            if(oldMaxWindow->windowWidget())
+                oldMaxWindow->windowWidget()->overrideWindowState(Qt::WindowNoState);
         }
         maxRestore = r;
     }
