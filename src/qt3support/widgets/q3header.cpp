@@ -33,6 +33,7 @@ public:
         sizes.resize(n);
         positions.resize(n);
         labels.resize(n);
+        nullStringLabels.resize(n);
         icons.resize(n);
         i2s.resize(n);
         s2i.resize(n);
@@ -78,6 +79,7 @@ public:
 
     QBitArray           clicks;
     QBitArray           resize;
+    QBitArray           nullStringLabels;
     uint move : 1;
     uint clicks_default : 1; // default value for new clicks bits
     uint resize_default : 1; // default value for new resize bits
@@ -960,6 +962,7 @@ void Q3Header::setLabel(int section, const QString &s, int size)
     if (section < 0 || section >= count())
         return;
     d->labels[section] = s;
+    d->nullStringLabels.setBit(section, s.isNull());
 
     setSectionSizeAndHeight(section, size);
 
@@ -981,7 +984,9 @@ QString Q3Header::label(int section) const
     if (section < 0 || section >= count())
         return QString();
     QString l = d->labels.value(section);
-    if (!l.isNull() || qt_qheader_label_return_null_strings)
+    if (!l.isNull())
+        return l;
+    if (d->nullStringLabels.testBit(section) || qt_qheader_label_return_null_strings)
         return l;
     else
         return QString::number(section + 1);
@@ -1034,6 +1039,8 @@ void Q3Header::removeLabel(int section)
         d->sizes[i] = d->sizes[i+1];
         d->labels[i] = d->labels[i+1];
         d->labels[i+1] = QString();
+        d->nullStringLabels[i] = d->nullStringLabels[i+1];
+        d->nullStringLabels[i+1] = 0;
         d->icons[i] = d->icons[i+1];
         d->icons[i+1] = 0;
     }
@@ -1041,6 +1048,7 @@ void Q3Header::removeLabel(int section)
     d->sizes.resize(n);
     d->positions.resize(n);
     d->labels.resize(n);
+    d->nullStringLabels.resize(n);
     d->icons.resize(n);
 
     for (i = section; i < n; ++i)
@@ -1083,7 +1091,7 @@ QSize Q3Header::sectionSizeHint(int section, const QFontMetrics& fm) const
 
     QRect bound;
     QString label = d->labels[section];
-    if (!label.isNull()) {
+    if (!label.isNull() || d->nullStringLabels.testBit(section)) {
         int lines = label.count('\n') + 1;
         int w = 0;
         if (lines > 1) {
@@ -1152,6 +1160,7 @@ int Q3Header::addLabel(const QString &s, int size)
         d->icons.resize(n);
     if ((int)d->sizes.size() < n ) {
         d->labels.resize(n);
+        d->nullStringLabels.resize(n);
         d->sizes.resize(n);
         d->positions.resize(n);
         d->i2s.resize(n);
@@ -1160,8 +1169,10 @@ int Q3Header::addLabel(const QString &s, int size)
         d->resize.resize(n);
     }
     int section = d->count - 1;
-    if (!d->is_a_table_header || !s.isNull())
+    if (!d->is_a_table_header || !s.isNull()) {
         d->labels.insert(section, s);
+        d->nullStringLabels.setBit(section, s.isNull());
+    }
 
     if (size >= 0 && s.isNull() && d->is_a_table_header) {
         d->sizes[section] = size;
@@ -1190,6 +1201,7 @@ void Q3Header::resizeArrays(int size)
 {
     d->icons.resize(size);
     d->labels.resize(size);
+    d->nullStringLabels.resize(size);
     d->sizes.resize(size);
     d->positions.resize(size);
     d->i2s.resize(size);
