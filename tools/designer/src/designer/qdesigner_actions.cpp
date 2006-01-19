@@ -873,8 +873,16 @@ void QDesignerActions::showHelp(const QString &url)
     if (!m_assistantClient)
         m_assistantClient
             = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
-    m_assistantClient->showPage(QLibraryInfo::location(QLibraryInfo::DocumentationPath)
-                                + QLatin1String("/html/") + url);
+
+    QString filePath = QLibraryInfo::location(QLibraryInfo::DocumentationPath)
+                                + QLatin1String("/html/") + url;
+
+    if (!QFile::exists(filePath)) {
+        filePath = QLibraryInfo::location(QLibraryInfo::DocumentationPath)
+                                + QLatin1String("/html/designer-manual.html");
+    }
+
+    m_assistantClient->showPage(filePath);
 }
 
 void QDesignerActions::aboutDesigner()
@@ -924,10 +932,22 @@ void QDesignerActions::showWidgetSpecificHelp()
         className = dbi->name();
     }
 
+    // ### generalize using the Widget Data Base
+    if (className == QLatin1String("Line"))
+        className = QLatin1String("QFrame");
+    else if (className == QLatin1String("Spacer"))
+        className = QLatin1String("QSpacerItem");
+    else if (className == QLatin1String("QLayoutWidget"))
+        className = QLatin1String("QLayout");
+
     QString url = className.toLower();
+
+    // special case
     url += QLatin1String(".html");
+
     if (!currentPropertyName.isEmpty())
         url += QLatin1Char('#') + currentPropertyName;
+
     showHelp(url);
 }
 
