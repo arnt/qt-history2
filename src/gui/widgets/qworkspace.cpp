@@ -2001,12 +2001,14 @@ void QWorkspacePrivate::updateActions()
         actions[QWorkspacePrivate::MoveAct]->setEnabled(false);
         actions[QWorkspacePrivate::ResizeAct]->setEnabled(false);
         actions[QWorkspacePrivate::MaximizeAct]->setEnabled(false);
+        actions[QWorkspacePrivate::RestoreAct]->setEnabled(true);
     } else if (active->isVisible()){
         actions[QWorkspacePrivate::RestoreAct]->setEnabled(false);
     } else {
         actions[QWorkspacePrivate::MoveAct]->setEnabled(false);
         actions[QWorkspacePrivate::ResizeAct]->setEnabled(false);
         actions[QWorkspacePrivate::MinimizeAct]->setEnabled(false);
+        actions[QWorkspacePrivate::RestoreAct]->setEnabled(true);
     }
     if (active->shademode) {
         actions[QWorkspacePrivate::ShadeAct]->setIcon(
