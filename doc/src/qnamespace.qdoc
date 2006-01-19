@@ -848,15 +848,15 @@
 
     \value WA_WindowPropagation Makes a toplevel window inherit font and palette from its parent.
 
-    \value WA_InputMethodEnabled
-    \value WA_InputMethodTransparent
-    \value WA_MacNoClickThrough
-    \value WA_MouseNoMask
-    \value WA_NoMousePropagation
-    \value WA_RightToLeft
-    \value WA_SetLayoutDirection
+    \value WA_InputMethodEnabled Enables input methods for asian languages. Must be set when creating custom text editing widgets.
+    \value WA_MacNoClickThrough Indicates that the window is only activated when clicked.
+    \value WA_MouseNoMask Makes the widget receive mouse events for the entire widget regardless of the currently set mask.
+    \value WA_NoMousePropagation Prohibits mouse events from being propagated to the widget's parent.
+    \value WA_RightToLeft Indicates that the layout direction for the widget is right to left.
     \value WA_ShowModal \e{This attribute has been deprecated.} Use QWidget::windowModality instead.
 
+    \omitvalue WA_SetLayoutDirection
+    \omitvalue WA_InputMethodTransparent
     \omitvalue WA_WState_CompressKeys
     \omitvalue WA_WState_ConfigPending
     \omitvalue WA_WState_Created
