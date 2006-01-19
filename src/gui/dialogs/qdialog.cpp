@@ -352,9 +352,6 @@ void QDialog::setResult(int r)
     Users cannot interact with any other window in the same
     application until they close the dialog.
 
-    Note that exec() ignores the value of the QWidget::windowModality
-    property and always pops up dialogs as Qt::ApplicationModal.
-
   \sa show(), result()
 */
 
