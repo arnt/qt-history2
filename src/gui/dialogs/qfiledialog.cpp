@@ -1794,6 +1794,7 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
     // filetype
     fileTypeCombo = new QComboBox(q);
     fileTypeCombo->setDuplicatesEnabled(false);
+    fileTypeCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
     fileTypeCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     QObject::connect(fileTypeCombo, SIGNAL(activated(QString)), q, SLOT(useFilter(QString)));
     grid->addWidget(fileTypeCombo, 3, 1, 1, 3);
