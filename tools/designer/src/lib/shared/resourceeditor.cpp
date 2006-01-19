@@ -636,16 +636,21 @@ void ResourceEditor::updateQrcStack()
         delete w;
     }
 
+    bool empty_list = true;
     QStringList qrc_file_list;
     if (m_form != 0) {
         qrc_file_list = m_form->resourceFiles();
-        foreach (QString qrc_file, qrc_file_list)
-            addView(qrc_file);
+        foreach (QString qrc_file, qrc_file_list) {
+            if (QFile::exists(qrc_file)) {
+                addView(qrc_file);
+                empty_list = false;
+            }
+        }
     }
 
     m_qrc_combo->addItem(QIcon(), tr("New..."), QVariant(COMBO_NEW_DATA));
     m_qrc_combo->addItem(QIcon(), tr("Open..."), QVariant(COMBO_OPEN_DATA));
-    if (qrc_file_list.isEmpty())
+    if (empty_list)
         insertEmptyComboItem();
 
     updateUi();
