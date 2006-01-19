@@ -194,6 +194,7 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
     item.width = metrics.width;
     item.chars = 0;
     item.num_chars = 0;
+    item.logClusters = 0;
     item.glyphs = const_cast<QGlyphLayout *>(glyphs);
     item.num_glyphs = numGlyphs;
     item.fontEngine = this;

@@ -4095,6 +4095,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
         gf.chars = engine.layoutData->string.unicode() + si.position;
         gf.num_chars = engine.length(item);
         gf.width = si.width;
+        gf.logClusters = engine.logClusters(&si);
 
         drawTextItem(QPointF(x.toReal(), p.y()), gf);
 
@@ -4338,6 +4339,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
     qreal x = p.x();
     qreal y = p.y();
 
+    int logClusterOffset = ti.logClusters[0];
     int start = 0;
     int end, i;
     for (end = 0; end < ti.num_glyphs; ++end) {
@@ -4350,18 +4352,17 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
         ti2.glyphs = ti.glyphs + start;
         ti2.num_glyphs = end - start;
         ti2.fontEngine = multi->engine(which);
-        ti2.f = ti.f;
-       
-        ti2.chars = ti.chars;
-        while (ti.logClusters[ti2.chars - ti.chars] < start)
-            ++ti2.chars;
+
+        if (ti.logClusters && ti.chars) {
+            while (ti.logClusters[ti2.chars - ti.chars] - logClusterOffset < start)
+                ++ti2.chars;
         
-        ti2.logClusters = ti.logClusters + (ti2.chars - ti.chars);
+            ti2.logClusters += (ti2.chars - ti.chars);
         
-        ti2.num_chars = 0;
-        while (ti2.logClusters[ti2.num_chars] < end - start)
-            ++ti2.num_chars;
-        
+            ti2.num_chars = 0;
+            while (ti2.logClusters[ti2.num_chars] - logClusterOffset < end)
+                ++ti2.num_chars;
+        }        
         ti2.width = 0;
         // set the high byte to zero and calc the width
         for (i = start; i < end; ++i) {
@@ -4390,18 +4391,17 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
     ti2.glyphs = ti.glyphs + start;
     ti2.num_glyphs = end - start;
     ti2.fontEngine = multi->engine(which);
-    ti2.f = ti.f;
 
-    ti2.chars = ti.chars;
-    while (ti.logClusters[ti2.chars - ti.chars] < start)
-        ++ti2.chars;
+    if (ti.logClusters && ti.chars) {
+        while (ti.logClusters[ti2.chars - ti.chars] - logClusterOffset < start)
+            ++ti2.chars;
         
-    ti2.logClusters = ti.logClusters + (ti2.chars - ti.chars);
+        ti2.logClusters += (ti2.chars - ti.chars);
         
-    ti2.num_chars = 0;
-    while (ti2.logClusters[ti2.num_chars] < end - start)
-        ++ti2.num_chars;
-    
+        ti2.num_chars = 0;
+        while (ti2.logClusters[ti2.num_chars] - logClusterOffset < end)
+            ++ti2.num_chars;
+    }    
     ti2.width = 0;
     // set the high byte to zero and calc the width
     for (i = start; i < end; ++i) {

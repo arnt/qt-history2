@@ -1413,6 +1413,7 @@ static void drawMenuText(QPainter *p, QFixed x, QFixed y, const QScriptItem &si,
             gf.glyphs = glyphs + gs;
             gf.num_chars = stmp - start;
             gf.chars = eng->layoutData->string.unicode() + start;
+            gf.logClusters = logClusters + start - si.position;
             w = 0;
             while (gs < gtmp) {
                 w += (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].space_18d6)) * !glyphs[gs].attributes.dontPrint;
