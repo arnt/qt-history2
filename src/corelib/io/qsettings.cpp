@@ -608,10 +608,22 @@ void QSettingsPrivate::iniChopTrailingSpaces(QString *str)
 
 void QSettingsPrivate::iniEscapedStringList(const QStringList &strs, QByteArray &result)
 {
-    for (int i = 0; i < strs.size(); ++i) {
-        if (i != 0)
-            result += ", ";
-        iniEscapedString(strs.at(i), result);
+    if (strs.isEmpty()) {
+        /*
+            We need to distinguish between empty lists and one-item
+            lists that contain an empty string. Ideally, we'd have a
+            @EmptyList() symbol but that would break compatibility
+            with Qt 4.0. @Invalid() stands for QVariant(), and
+            QVariant().toStringList() returns an empty QStringList,
+            so we're in good shape.
+        */
+        result += "@Invalid()";
+    } else {
+        for (int i = 0; i < strs.size(); ++i) {
+            if (i != 0)
+                result += ", ";
+            iniEscapedString(strs.at(i), result);
+        }
     }
 }
 
