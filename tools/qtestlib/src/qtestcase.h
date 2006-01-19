@@ -212,7 +212,7 @@ namespace QTest
 #ifndef QTEST_NO_SPECIALIZATIONS
     template<>
 #endif
-    inline bool qCompare(const char *t1, const char *t2, const char *actual,
+    inline bool qCompare<char>(const char *t1, const char *t2, const char *actual,
                                        const char *expected, const char *file, int line)
     {
         return compare_string_helper(t1, t2, actual, expected, file, line);
@@ -220,7 +220,7 @@ namespace QTest
 #ifndef QTEST_NO_SPECIALIZATIONS
     template<>
 #endif
-    inline bool qCompare(char *t1, char *t2, const char *actual, const char *expected,
+    inline bool qCompare<char>(char *t1, char *t2, const char *actual, const char *expected,
                         const char *file, int line)
     {
         return compare_string_helper(t1, t2, actual, expected, file, line);
