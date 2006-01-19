@@ -98,10 +98,11 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
                not do this on Windows since double clicks are lost due
                to the grab (see change 198463).
             */
+            if (e->spontaneous())
 #  if !defined(QT_NO_CURSOR)
-            widget->grabMouse(widget->cursor());
+                widget->grabMouse(widget->cursor());
 #  else
-            widget->grabMouse();
+                widget->grabMouse();
 #  endif // QT_NO_CURSOR
 #endif // Q_WS_X11
             emit activate();
