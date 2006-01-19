@@ -279,8 +279,8 @@ void QHashData::destroyAndFree()
 
 void QHashData::dump()
 {
-    qDebug("Hash data (ref = %d, size = %d, nodeSize = %d, userNumBits = %d,
-            numBits = %d, numBuckets = %d)", int(ref), size, nodeSize, userNumBits, numBits,
+    qDebug("Hash data (ref = %d, size = %d, nodeSize = %d, userNumBits = %d, numBits = %d, numBuckets = %d)",
+            int(ref), size, nodeSize, userNumBits, numBits,
             numBuckets);
     qDebug("    %p (fakeNode = %p)", this, fakeNext);
     for (int i = 0; i < numBuckets; ++i) {
