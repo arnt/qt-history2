@@ -112,7 +112,7 @@ signals:
     void selected(int row, int col);
 
 protected:
-    virtual void paintCell(QPainter *, int row, int col);
+    virtual void paintCell(QPainter *, int row, int col, const QRect&);
     virtual void paintCellContents(QPainter *, int row, int col, const QRect&);
 
     void mousePressEvent(QMouseEvent*);
@@ -156,6 +156,7 @@ void QWellArray::paintEvent(QPaintEvent *e)
 
     QPainter painter(this);
     QPainter *p = &painter;
+    QRect rect(0, 0, cellWidth(), cellHeight());
 
 
     if (collast < 0 || collast >= ncols)
@@ -175,9 +176,9 @@ void QWellArray::paintEvent(QPaintEvent *e)
             // get position and width of column c
             int colp = columnX(c);
             // Translate painter and draw the cell
-            p->translate(colp, rowp);
-            paintCell(p, r, c);
-            p->translate(-colp, -rowp);
+            rect.translate(colp, rowp);
+            paintCell(p, r, c, rect);
+            rect.translate(-colp, -rowp);
         }
     }
 
@@ -210,18 +211,16 @@ QSize QWellArray::sizeHint() const
 }
 
 
-void QWellArray::paintCell(QPainter* p, int row, int col)
+void QWellArray::paintCell(QPainter* p, int row, int col, const QRect &rect)
 {
-    int w = cellWidth();                        // width of cell in pixels
-    int h = cellHeight();                        // height of cell in pixels
-    int b = 3;
+    int b = 3; //margin
 
     const QPalette & g = palette();
     QStyleOptionFrame opt;
     int dfw = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     opt.lineWidth = dfw;
     opt.midLineWidth = 1;
-    opt.rect.setRect(b, b, w - 2 * b, h - 2 * b);
+    opt.rect = rect.adjusted(b, b, -b, -b);
     opt.palette = g;
     opt.state = QStyle::State_Enabled | QStyle::State_Sunken;
     style()->drawPrimitive(QStyle::PE_Frame, &opt, p, this);
@@ -231,13 +230,12 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
         if (hasFocus()) {
             QStyleOptionFocusRect opt;
             opt.palette = g;
-            opt.rect.setRect(0, 0, w, h);
-            opt.state = QStyle::State_None;
+            opt.rect = rect;
+            opt.state = QStyle::State_None | QStyle::State_KeyboardFocusChange;
             style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, this);
         }
     }
-    QRect cr(b, b, w - 2*b, h - 2*b);
-    paintCellContents(p, row, col, cr);
+    paintCellContents(p, row, col, opt.rect.adjusted(dfw, dfw, -dfw, -dfw));
 }
 
 /*!
