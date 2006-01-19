@@ -1056,7 +1056,7 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 
     This signal is emitted whenever the selection changes.
 
-    \sa selectedItems() isItemSelected()
+    \sa selectedItems() isItemSelected() currentItemChanged()
 */
 
 /*!

@@ -598,7 +598,7 @@ void QItemSelectionModel::select(const QModelIndex &index, QItemSelectionModel::
    model item index is replaced by the \a current index as the selection's
    current item.
 
-   \sa currentIndex() setCurrentIndex()
+   \sa currentIndex() setCurrentIndex() selectionChanged()
 */
 
 /*!
@@ -626,7 +626,9 @@ void QItemSelectionModel::select(const QModelIndex &index, QItemSelectionModel::
     selection is represented as an item selection of \a deselected items and
     an item selection of \a selected items.
 
-    \sa select()
+    Note the that the current index changes independently from the selection.
+
+    \sa select() currentChanged()
 */
 
 /*!
