@@ -941,6 +941,9 @@ void QAbstractItemModelPrivate::reset()
     indicates whether the horizontal or vertical header has changed. The
     sections in the header from the \a first to the \a last need to be updated.
 
+    Note that this signal must be emitted explicitly when
+    reimplementing the setHeaderData() function.
+
     \sa headerData(), setHeaderData(), dataChanged()
 */
 
@@ -1015,6 +1018,9 @@ QAbstractItemModel::~QAbstractItemModel()
     This signal is emitted whenever the data in an existing item
     changes. The affected items are those between \a topLeft and \a
     bottomRight inclusive (of the same parent).
+
+    Note that this signal must be emitted explicitly when
+    reimplementing the setData() function.
 
     \sa headerDataChanged(), setData(), layoutChanged()
 */
@@ -1150,7 +1156,9 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
     The dataChanged() signal should be emitted if the data was successfully set.
 
     The base class implementation returns false. This function and
-    data() must be reimplemented for editable models.
+    data() must be reimplemented for editable models. Note that the
+    dataChanged() signal must be emitted explicitly when
+    reimplementing this function.
 
     \sa Qt::ItemDataRole, data(), itemData()
 */
@@ -1224,7 +1232,7 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
     Handles the \a data supplied by a drag and drop operation that ended with
     the given \a action.
     Note that the coordinates given by row, column and parent are the coordinates where
-    the data should be inserted, so it is the responsibility of the view to 
+    the data should be inserted, so it is the responsibility of the view to
     transform the drop coordinates to the correct model coordinates.
     (For instance, a drop action on an item in a QTreeView can result in one of these actions:
     insert a child of the item or insert a sibling of the item)
@@ -1282,9 +1290,9 @@ Qt::DropActions QAbstractItemModel::supportedDropActions() const
 
   The base class implementation does nothing and returns false.
 
-  If you implement your own model, you can reimplement this function if you
-  want to support insertions. Alternatively, you can provide you own API for
-  altering the data.
+  If you implement your own model, you can reimplement this function
+  if you want to support insertions. Alternatively, you can provide
+  you own API for altering the data.
 */
 bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
 {
@@ -1306,9 +1314,9 @@ bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
 
   The base class implementation does nothing and returns false.
 
-  If you implement your own model, you can reimplement this function if you
-  want to support insertions. Alternatively, you can provide you own API for
-  altering the data.
+  If you implement your own model, you can reimplement this function
+  if you want to support insertions. Alternatively, you can provide
+  you own API for altering the data.
 */
 bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
 {
@@ -1322,9 +1330,9 @@ bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
 
     The base class implementation does nothing and returns false.
 
-    If you implement your own model, you can reimplement this function if you
-    want to support removing. Alternatively, you can provide you own API for
-    altering the data.
+    If you implement your own model, you can reimplement this function
+    if you want to support removing. Alternatively, you can provide
+    you own API for altering the data.
 
     \sa removeRow(), removeColumns(), insertColumns()
 */
@@ -1340,9 +1348,9 @@ bool QAbstractItemModel::removeRows(int, int, const QModelIndex &)
 
     The base class implementation does nothing and returns false.
 
-    If you implement your own model, you can reimplement this function if you
-    want to support removing. Alternatively, you can provide you own API for
-    altering the data.
+    If you implement your own model, you can reimplement this function
+    if you want to support removing. Alternatively, you can provide
+    you own API for altering the data.
 
     \sa removeColumn(), removeRows(), insertColumns()
 */
@@ -1555,6 +1563,9 @@ QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation
 /*!
   Sets the \a role for the header \a section to \a value.
   The \a orientation gives the orientation of the header.
+
+  Note that the headerDataChanged() signal must be emitted explicitly
+  when reimplementing this function.
 
   \sa headerData()
 */
@@ -1867,7 +1878,7 @@ void QAbstractItemModel::changePersistentIndex(const QModelIndex &from, const QM
 
 /*!
   \since 4.1
-      
+
   Changes the QPersistentModelIndexes that is equal to the indexes in the given \a from
   model index list to the given \a to model index list.
 
