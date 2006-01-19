@@ -874,9 +874,9 @@ bool QAbstractItemView::event(QEvent *event)
 /*!
     \fn bool QAbstractItemView::viewportEvent(QEvent *event)
 
-    This function is used to handle tool tips, status tips, and What's
-    This? mode, if the given \a event is a QEvent::ToolTip, a
-    QEvent::WhatsThis, or a QEvent::StatusTip. It passes all other
+    This function is used to handle tool tips, and What's
+    This? mode, if the given \a event is a QEvent::ToolTip,or a
+    QEvent::WhatsThis. It passes all other
     events on to its base class viewportEvent() handler.
 */
 bool QAbstractItemView::viewportEvent(QEvent *event)
