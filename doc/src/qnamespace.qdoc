@@ -761,7 +761,7 @@
     directly onto the screen. Widgets with this attribute set do not
     participate in composition management, i.e. they cannot be
     semi-transparent or shine through semi-transparent overlapping
-    widgets. This is not supported on Mac OS X. The flag is set or
+    widgets. This is only supported on X11. The flag is set or
     cleared by the widget's author. This flag is required for
     rendering outside of Qt's paint system, e.g. should you want to
     use native X11 painting primitives.
