@@ -274,6 +274,54 @@ void QHashData::destroyAndFree()
     delete this;
 }
 
+#ifdef QT_QHASH_DEBUG
+#include <qstring.h>
+
+void QHashData::dump()
+{
+    qDebug("Hash data (ref = %d, size = %d, nodeSize = %d, userNumBits = %d,
+            numBits = %d, numBuckets = %d)", int(ref), size, nodeSize, userNumBits, numBits,
+            numBuckets);
+    qDebug("    %p (fakeNode = %p)", this, fakeNext);
+    for (int i = 0; i < numBuckets; ++i) {
+        QString line;
+        Node *n = buckets[i];
+        if (n != reinterpret_cast<Node *>(this)) {
+            line.sprintf("%d:", i);
+            while (n != reinterpret_cast<Node *>(this)) {
+                line += QString().sprintf(" -> [%p]", n);
+                if (!n) {
+                    line += " (CORRUPT)";
+                    break;
+                }
+                n = n->next;
+            }
+            qDebug(qPrintable(line));
+        }
+    }
+}
+
+void QHashData::checkSanity()
+{
+    if (fakeNext)
+        qFatal("Fake next isn't 0");
+
+    for (int i = 0; i < numBuckets; ++i) {
+        Node *n = buckets[i];
+        Node *p = n;
+        if (!n)
+            qFatal("%d: Bucket entry is 0", i);
+        if (n != reinterpret_cast<Node *>(this)) {
+            while (n != reinterpret_cast<Node *>(this)) {
+                if (!n->next)
+                    qFatal("%d: Next of %p is 0, should be %p", i, n, this);
+                n = n->next;
+            }
+        }
+    }
+}
+#endif
+
 /*!
     \class QHash
     \brief The QHash class is a template class that provides a hash-table-based dictionary.

@@ -19,6 +19,7 @@
 #include <QtCore/qiterator.h>
 #include <QtCore/qlist.h>
 
+#undef QT_QHASH_DEBUG
 QT_MODULE(Core)
 
 class QByteArray;
@@ -86,6 +87,10 @@ struct Q_CORE_EXPORT QHashData
     void rehash(int hint);
     void destroyAndFree();
     Node *firstNode();
+#ifdef QT_QHASH_DEBUG
+    void dump();
+    void checkSanity();
+#endif
     static Node *nextNode(Node *node);
     static Node *previousNode(Node *node);
 
@@ -361,6 +366,11 @@ public:
 
     // STL compatibility
     inline bool empty() const { return isEmpty(); }
+
+#ifdef QT_QHASH_DEBUG
+    inline void dump() const { d->dump(); }
+    inline void checkSanity() const { d->checkSanity(); }
+#endif
 
 private:
     void detach_helper();
@@ -727,6 +737,7 @@ Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::Node **QHash<Key, T>::findNode(cons
 
     if (d->numBuckets) {
         node = reinterpret_cast<Node **>(&d->buckets[h % d->numBuckets]);
+        Q_ASSERT(*node == e || (*node)->next);
         while (*node != e && !(*node)->same_key(h, akey))
             node = &(*node)->next;
     } else {

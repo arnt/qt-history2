@@ -23,6 +23,7 @@
 #endif
 
 #include <new>
+#undef QT_MAP_DEBUG
 
 QT_MODULE(Core)
 
@@ -305,6 +306,10 @@ public:
 
     // STL compatibility
     inline bool empty() const { return isEmpty(); }
+
+#ifdef QT_QMAP_DEBUG
+    inline void dump() const { d->dump(); }
+#endif
 
 private:
     void detach_helper();

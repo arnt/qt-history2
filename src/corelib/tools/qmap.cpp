@@ -105,7 +105,7 @@ void QMapData::node_delete(Node *update[], int offset, Node *node)
 uint QMapData::adjust_ptr(Node *node)
 {
     if (node == reinterpret_cast<Node *>(this)) {
-        return (uint)0xFFFFFFFF;
+       return (uint)0xDEADBEEF;
     } else {
         return (uint)node;
     }
