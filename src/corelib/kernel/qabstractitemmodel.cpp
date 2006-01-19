@@ -823,12 +823,16 @@ void QAbstractItemModelPrivate::reset()
     \section1 Subclassing
 
     When subclassing QAbstractItemModel, at the very least you must
-    implement index(), parent(), rowCount(), columnCount(), and data().
-    To enable editing in your model, you must also implement setData(),
-    and reimplement flags() to ensure that \c ItemIsEditable is returned.
+    implement index(), parent(), rowCount(), columnCount(), and
+    data(). To enable editing in your model, you must also implement
+    setData(), and reimplement flags() to ensure that \c
+    ItemIsEditable is returned.  You can also reimplement headerData()
+    and setHeaderData() to control the way the headers for your model
+    are presented.
 
-    You can also reimplement headerData() and setHeaderData() to control
-    the way the headers for your model are presented.
+    Note that the dataChanged() and headerDataChanged() signals must
+    be emitted explicitly when reimplementing the setData() and
+    setHeaderData() functions, respectively.
 
     Custom models need to create model indexes for other components to use.
     To do this, call createIndex() with suitable row and column numbers for
