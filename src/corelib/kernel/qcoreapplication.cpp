@@ -1586,6 +1586,9 @@ QStringList QCoreApplication::libraryPaths()
 {
     if (!self)
         return QStringList();
+    if (self->d_func()->app_libpaths)
+        return *self->d_func()->app_libpaths;
+
     QMutexLocker locker(libraryPathMutex());
     if (!self->d_func()->app_libpaths) {
         QStringList *app_libpaths = self->d_func()->app_libpaths = new QStringList;
