@@ -17,15 +17,8 @@
 /*! \group installation
 \title Installation
 
-The installation procedure is different for the different Qt platforms:
-
-\list
- \o \l{Installing Qt/X11}{Qt/X11}
- \o \l{Installing Qt/Windows}{Qt/Windows}
- \o \l{Installing Qt/Mac}{Qt/Mac}
- \o \l{Installing Qtopia Core}{Qtopia Core (Qt for embedded Linux)}
-\endlist
-
+The installation procedure is different for the different Qt platforms.
+Please follow the instructions for your platform from the following list.
 */
 
 /*! \page install-x11.html
