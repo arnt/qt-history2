@@ -606,7 +606,9 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 
     QPainterPath path;
+    QPainterPath effects;
     path.setFillRule(Qt::WindingFill);
+    effects.setFillRule(Qt::WindingFill);
     if (ti.num_glyphs)
         ti.fontEngine->addOutlineToPath(p.x(), p.y(), ti.glyphs, ti.num_glyphs, &path, ti.flags);
     if (ti.flags) {
@@ -614,15 +616,15 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
         const qreal lw = fe->lineThickness().toReal();
         if (ti.flags & QTextItem::Underline) {
             qreal pos = fe->underlinePosition().toReal();
-            path.addRect(p.x(), p.y() + pos, ti.width.toReal(), lw);
+            effects.addRect(p.x(), p.y() + pos, ti.width.toReal(), lw);
         }
         if (ti.flags & QTextItem::Overline) {
             qreal pos = fe->ascent().toReal() + 1;
-            path.addRect(p.x(), p.y() - pos, ti.width.toReal(), lw);
+            effects.addRect(p.x(), p.y() - pos, ti.width.toReal(), lw);
         }
         if (ti.flags & QTextItem::StrikeOut) {
             qreal pos = fe->ascent().toReal() / 3;
-            path.addRect(p.x(), p.y() - pos, ti.width.toReal(), lw);
+            effects.addRect(p.x(), p.y() - pos, ti.width.toReal(), lw);
         }
     }
     if (!path.isEmpty()) {
@@ -631,6 +633,7 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
         painter()->setBrush(state->pen().brush());
         painter()->setPen(Qt::NoPen);
         painter()->drawPath(path);
+        painter()->drawPath(effects);
         painter()->restore();
     }
 }
