@@ -31,7 +31,9 @@
     type is used in a QVariant.
 
     Q_DECLARE_METATYPE() doesn't actually register the
-    type; you must still use qRegisterMetaType() for that.
+    type; you must still use qRegisterMetaType() for that,
+    particularly if you intend to use the type in signal and
+    slot connections.
 
     This example shows a typical use case of Q_DECLARE_METATYPE():
 
