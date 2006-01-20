@@ -1,6 +1,7 @@
 /*!
     \page emb-performance.html
     \title Qtopia Core Performance Tuning
+    \ingroup qtopia-core
 
     When building embedded applications on low-powered devices, a number
     of options are available that are not relevant for desktop
@@ -23,12 +24,12 @@
     The following guidelines will improve CPU performance:
     \list
      \i Create dialogs and widgets once, then QWidget::hide() and
-	    QWidget::show() them, rather than creating them and deleting
-	    them every time they are needed.
-	    This will use a little more memory, but will be much faster.
-	    Try to create them the first time "lazily" to avoid slow
-	    startup (e.g. only create a Find dialog the first time the
-	    user invokes it).
+            QWidget::show() them, rather than creating them and deleting
+            them every time they are needed.
+            This will use a little more memory, but will be much faster.
+            Try to create them the first time "lazily" to avoid slow
+            startup (e.g. only create a Find dialog the first time the
+            user invokes it).
     \endlist
 
     \target static
@@ -74,32 +75,32 @@
     \code
         void *operator new[](size_t size)
         {
-	    return malloc(size);
+            return malloc(size);
         }
 
         void *operator new(size_t size)
         {
-	    return malloc(size);
+            return malloc(size);
         }
 
         void operator delete[](void *ptr)
         {
-	    free(ptr);
+            free(ptr);
         }
 
         void operator delete[](void *ptr, size_t)
         {
-	    free(ptr);
+            free(ptr);
         }
 
         void operator delete(void *ptr)
         {
-	    free(ptr);
+            free(ptr);
         }
 
         void operator delete(void *ptr, size_t)
         {
-	    free(ptr);
+            free(ptr);
         }
     \endcode
 */

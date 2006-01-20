@@ -1,6 +1,8 @@
-/*! \page qpl.html
+/*! 
+    \page qpl.html
 
     \title Q Public License (QPL)
+    \ingroup licensing
 
     The X11 version of the Qt Open Source Edition is available under
     both the Q Public License (QPL) and the \l{gpl.html}{GNU General
@@ -34,7 +36,7 @@
         and development of free software which uses the Software.
 
 
-				         Granted Rights
+                                         Granted Rights
 
         1. You are granted the non-exclusive rights set forth in this license
            provided you agree to and comply with any and all conditions in this
@@ -102,7 +104,7 @@
                 then you must supply one.
 
 
-			            Limitations of Liability
+                                    Limitations of Liability
 
         In no event shall the initial developers or copyright holders be liable
         for any damages whatsoever, including - but not restricted to - lost
@@ -112,7 +114,7 @@
         otherwise.
 
 
-			                  No Warranty
+                                          No Warranty
 
         The Software and this license document are provided AS IS with NO WARRANTY
         OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS

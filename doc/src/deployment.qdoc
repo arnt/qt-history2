@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 /*!
-    \page deployment.html
+    \group deployment
 
     \title Deploying Qt Applications
 
@@ -107,6 +107,7 @@
     \previouspage Deploying Qt Applications
 
     \title Deploying an Application on Qt/X11
+    \ingroup deployment
 
     Due to the proliferation of Unix systems (commercial Unices, Linux
     distributions, etc.), deployment on Unix is a complex
@@ -450,6 +451,7 @@
     \previouspage Deploying Qt Applications
 
     \title Deploying an Application on Qt/Windows
+    \ingroup deployment
 
     This documentation will describe how to determine which files you
     should include in your distribution, and how to make sure that the
@@ -771,6 +773,7 @@
     \previouspage Deploying Qt Applications
 
     \title Deploying an Application on Qt/Mac
+    \ingroup deployment
 
     This documentation will describe how to create a bundle, and how
     to make sure that the application will find the resources it needs

@@ -1,6 +1,7 @@
 /*!
     \page classes.html
     \title Qt's Classes
+    \ingroup classlists
 
     This is a list of all Qt classes excluding the \l{Qt 3
     compatibility classes}. For a shorter list that only includes the

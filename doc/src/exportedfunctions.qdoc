@@ -1,6 +1,7 @@
 /*!
     \page exportedfunctions.html
     \title Special-Purpose Global Functions Exported by Qt
+    \ingroup classlists
 
     Qt provides a few low-level global functions for fine-tuning
     applications. Most of these perform very specific tasks and are

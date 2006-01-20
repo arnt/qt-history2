@@ -14,6 +14,7 @@
     \page porting4.html
 
     \title Porting to Qt 4
+    \ingroup porting
 
 \omit
     ### QFileInfo::PermissionSpec -> QFile::Permission(s?)

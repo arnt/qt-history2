@@ -1,6 +1,7 @@
 /*!
     \page porting4-designer.html
     \title Porting .ui Files to Qt 4
+    \ingroup porting
 
     Qt Designer has changed significantly in the Qt 4 release. We
     have moved away from viewing Qt Designer as an IDE and
@@ -302,7 +303,7 @@
             ...
         }
     \endcode
-    
+
     Because of the naming convention, \c setupUi() automatically
     connects \c pushButton's \c clicked() signal to \c
     HelloWorldWidget's \c on_pushButton_clicked() slot.

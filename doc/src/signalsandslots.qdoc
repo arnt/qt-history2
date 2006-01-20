@@ -15,6 +15,7 @@
 /*! 
     \page signalsandslots.html
     \title Signals and Slots
+    \ingroup architecture
 
     Signals and slots are used for communication between objects. The
     signals and slots mechanism is a central feature of Qt and

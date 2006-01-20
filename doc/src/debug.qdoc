@@ -15,6 +15,7 @@
 /*!
     \page debug.html
     \title Debugging Techniques
+    \ingroup buildsystem
 
     Here we present some useful hints to help you with debugging your
     Qt-based software.

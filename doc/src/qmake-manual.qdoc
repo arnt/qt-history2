@@ -3077,6 +3077,7 @@
 /*!
     \page qmake-precompiledheaders.html
     \title Using Precompiled Headers
+    \ingroup buildsystem
 
     \target About
 

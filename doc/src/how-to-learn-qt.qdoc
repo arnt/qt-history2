@@ -16,6 +16,7 @@
     \page how-to-learn-qt.html
 
     \title How to Learn Qt
+    \ingroup howto
 
     We assume that you already know C++.
 

@@ -14,8 +14,7 @@
 ** Please remember to update the Qt/Windows and Qt/X11 INSTALL file.
 ****************************************************************************/
 
-/*! \page installation.html
-
+/*! \group installation
 \title Installation
 
 The installation procedure is different for the different Qt platforms:
@@ -32,6 +31,7 @@ The installation procedure is different for the different Qt platforms:
 /*! \page install-x11.html
 
 \title Installing Qt/X11
+\ingroup installation
 
 \list 1
 \o  If you have the commercial edition of Qt, install your license
@@ -144,6 +144,7 @@ The installation procedure is different for the different Qt platforms:
 /*! \page install-win.html
 
 \title Installing Qt/Windows
+\ingroup installation
 
 \list 1
 \o  If you have the commercial edition of Qt, copy the license file
@@ -240,6 +241,7 @@ The installation procedure is different for the different Qt platforms:
 /*! \page install-mac.html
 
 \title Installing Qt/Mac
+\ingroup installation
 
 \list 1
 \o  If you have the commercial edition of Qt, install your license

@@ -3,6 +3,7 @@
 \nextpage Rich Text Document Structure
 
 \title Rich Text Processing
+\ingroup architecture
 
 The Scribe framework provides a set of classes for reading and manipulating
 structured rich text documents. Unlike previous rich text support in Qt, the

@@ -15,6 +15,7 @@
 /*!
     \page sql-driver.html
     \title SQL Database Drivers
+    \ingroup architecture
 
     The QtSql module uses driver \l{How to Create Qt
     Plugins}{plugins} to communicate with the different database

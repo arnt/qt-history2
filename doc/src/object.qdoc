@@ -14,8 +14,8 @@
 
 /*!
     \page object.html
-
     \title Qt Object Model
+    \ingroup architecture
 
     The standard C++ object model provides very efficient runtime
     support for the object paradigm. But its static nature is

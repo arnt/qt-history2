@@ -1,6 +1,7 @@
 /*!
     \page resources.html
     \title The Qt Resource System
+    \ingroup buildsystem
 
     \keyword resource system
 

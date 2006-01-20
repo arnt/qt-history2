@@ -16,6 +16,7 @@
     \page hierarchy.html
 
     \title Class Inheritance Hierarchy
+    \ingroup classlists
 
     This list shows the C++ class inheritance relations between the
     classes in the Qt API.

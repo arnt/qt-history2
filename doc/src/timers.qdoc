@@ -1,6 +1,7 @@
 /*!
     \page timers.html
     \title Timers
+    \ingroup architecture
 
     QObject, the base class of all Qt objects, provides the basic
     timer support in Qt. With QObject::startTimer(), you start a

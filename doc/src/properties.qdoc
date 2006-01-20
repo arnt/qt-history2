@@ -1,6 +1,7 @@
 /*!
     \page properties.html
     \title Qt's Property System
+    \ingroup architecture
 
     Qt provides a sophisticated property system similar to those supplied
     by some compiler vendors. However, as a compiler- and

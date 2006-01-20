@@ -2,6 +2,7 @@
     \page qt3to4.html
     \title qt3to4 - The Qt 3 to 4 Porting Tool
 
+    \ingroup porting
     \keyword qt3to4
 
     The \c qt3to4 tool provides help when moving a project from Qt 3
@@ -78,9 +79,9 @@
     The porting tool logs all changes to a file called \c
     portinglog.txt in the current directory. This file lists all
     changes made to the source files.
-    
+
     \section1 Advanced Usage
-     
+
     When porting, \c qt3to4 parses the source files and ports the
     contents according to the C++ language rules. This C++ parsing
     step can be disabled with the \c -disableCppParsing option.

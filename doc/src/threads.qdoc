@@ -13,6 +13,7 @@
 /*!
     \page threads.html
     \title Thread Support in Qt
+    \ingroup architecture
 
     Qt provides thread support in the form of platform-independent
     threading classes, a thread-safe way of posting events, and

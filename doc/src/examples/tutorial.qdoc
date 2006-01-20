@@ -17,6 +17,7 @@
     \nextpage {tutorial/t1}{Chapter 1}
 
     \title Qt Tutorial
+    \ingroup howto
 
     This tutorial gives an introduction to GUI programming using the Qt
     toolkit. It doesn't cover everything; the emphasis is on teaching the

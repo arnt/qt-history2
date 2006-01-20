@@ -1,7 +1,7 @@
 /*!
     \page eventsandfilters.html
-
     \title Events and Event Filters
+    \ingroup architecture
 
     In Qt, an event is an object that inherits QEvent. Events are
     delivered to objects that inherit QObject through calling

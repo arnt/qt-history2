@@ -2,6 +2,7 @@
     \page qaxserver-demo-wrapper.html
 
     \title Standard Qt widgets in an HTML page
+    \ingroup activeqt-tools
 
     \input examples/activeqt/wrapper-demo.qdocinc
 */

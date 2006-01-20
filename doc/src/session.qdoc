@@ -14,8 +14,8 @@
 
 /*!
     \page session.html
-
     \title Session Management
+    \ingroup gui-programming
 
     A \e session is a group of running applications, each of which has a
     particular state. The session is controlled by a service called the \e

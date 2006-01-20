@@ -16,6 +16,7 @@
     \page coordsys.html
 
     \title The Coordinate System
+    \ingroup architecture
 
     The coordinate system is controlled by the QPainter
     class. Together with the QPaintDevice and QPaintEngine classes,

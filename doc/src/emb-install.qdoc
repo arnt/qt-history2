@@ -2,6 +2,7 @@
     \page emb-install.html
 
     \title Installing Qtopia Core
+    \ingroup qtopia-core
 
     This installation procedure is written for Linux. It may need
     to be modified for other platforms.

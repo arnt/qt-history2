@@ -2,6 +2,7 @@
     \page templates.html
 
     \title Why Doesn't Qt Use Templates for Signals and Slots?
+    \ingroup architecture
 
     Templates are a builtin mechanism in C++ that allows the compiler to
     generate code on the fly, depending on the type of the arguments

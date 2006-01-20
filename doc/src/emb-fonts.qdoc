@@ -1,6 +1,7 @@
 /*!
     \page emb-fonts.html
     \title Fonts in Qtopia Core
+    \ingroup qtopia-core
 
     \section1 Supported Formats
 
@@ -101,12 +102,12 @@
     \row \i \e italic \i \c y or \c n
     \row \i \e weight \i \c 50 is normal, \c 75 is bold, etc.
     \row \i \e size \i \c 0 for scalable or point size * 10 (i.e. \c 120
-	    for 12pt)
+            for 12pt)
     \row \i \e flags \i \list
-		        \i \c s: smooth (anti-aliased)
-		        \i \c u: Unicode range when saving (default is Latin1)
-		        \i \c a: ASCII range when saving (default is Latin1)
-		        \endlist
+                        \i \c s: smooth (anti-aliased)
+                        \i \c u: Unicode range when saving (default is Latin1)
+                        \i \c a: ASCII range when saving (default is Latin1)
+                        \endlist
     \endtable
 
     The font definition file does not specify QPF fonts; these are loaded

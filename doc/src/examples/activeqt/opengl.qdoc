@@ -1,6 +1,8 @@
-/*! \page qaxserver-demo-opengl.html
+/*! 
+    \page qaxserver-demo-opengl.html
 
     \title OpenGL in an HTML page
+    \ingroup activeqt-tools
 
     \input examples/activeqt/opengl-demo.qdocinc
 */

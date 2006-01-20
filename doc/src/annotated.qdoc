@@ -14,8 +14,8 @@
 
 /*!
     \page annotated.html
-
     \title Annotated Class Index
+    \ingroup classlists
 
     Qt's classes with brief descriptions:
 

@@ -1,6 +1,7 @@
 /*!
     \page bughowto.html
     \title How to Report a Bug
+    \ingroup howto
 
     If you think you have found a bug in Qt, we would like to hear
     about it so that we can fix it.

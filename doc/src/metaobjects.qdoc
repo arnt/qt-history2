@@ -16,6 +16,7 @@
     \page metaobjects.html
     \title Meta-Object System
 
+    \ingroup architecture
     \keyword meta-object
 
     Qt's Meta-Object System provides the signals and slots mechanism for

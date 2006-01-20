@@ -1,6 +1,7 @@
 /*!
     \page accelerators.html
     \title Standard Accelerator Keys
+    \ingroup gui-programming
 
     Applications invariably need to define accelerator keys for actions.
     Qt fully supports accelerators, for example with \l Q3Accel::shortcutKey().

@@ -1,5 +1,7 @@
-/*! \page qaxserver-demo-hierarchy.html
+/*! 
+    \page qaxserver-demo-hierarchy.html
     \title Qt Widget Hierarchy
+    \ingroup activeqt-tools
 
     \input examples/activeqt/hierarchy-demo.qdocinc
 */

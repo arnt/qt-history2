@@ -17,6 +17,7 @@
 
     \title Implicit Data Sharing
 
+    \ingroup architecture
     \keyword implicit sharing
     \keyword implicitly shared
     \keyword reference counting

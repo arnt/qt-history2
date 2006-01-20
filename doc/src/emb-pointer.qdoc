@@ -1,6 +1,7 @@
 /*!
     \page emb-pointer.html
     \title Qtopia Core Pointer Handling
+    \ingroup qtopia-core
 
     Pointer handling in Qtopia Core works for any mouse or mouse-like
     device such as touch panels and trackballs.

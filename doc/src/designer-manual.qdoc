@@ -2187,6 +2187,8 @@ without having to write code themselves.
     \title Implementation of the Recursive Shadow Casting Algorithm in Qt Designer
     \contentspage {Qt Designer Manual}{Contents}
 
+    \ingroup licensing
+
     \legalese
     Copyright (C) 2005 Trolltech AS. All rights reserved. \BR
     Copyright (C) 2005 Bjoern Bergstroem
@@ -2208,6 +2210,7 @@ without having to write code themselves.
     \page designer-treewalker.html
     \title Contributions to the Following Qt Designer Files: treewalker.h, treedump.cpp, treedump.h, treewalker.cpp
     \contentspage {Qt Designer Manual}{Contents}
+    \ingroup licensing
     \legalese
     Copyright (C) 2005 Trolltech AS. All rights reserved. \BR
     Copyright (C) 2005 Roberto Raggi

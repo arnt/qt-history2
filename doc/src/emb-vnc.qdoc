@@ -1,6 +1,7 @@
 /*!
     \page emb-vnc.html
     \title Qtopia Core as a VNC Server
+    \ingroup qtopia-core
 
     The \link http://www.uk.research.att.com/vnc/ VNC \endlink protocol
     allows you to view and interact with the computer's display from

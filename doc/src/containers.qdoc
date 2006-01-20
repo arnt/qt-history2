@@ -2,6 +2,7 @@
     \page containers.html
     \title Generic Containers
 
+    \ingroup architecture
     \keyword container class
     \keyword container classes
 

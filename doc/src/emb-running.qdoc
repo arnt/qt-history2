@@ -2,6 +2,7 @@
     \page emb-running.html
 
     \title Running Qtopia Core Applications
+    \ingroup qtopia-core
 
     A Qtopia Core application requires a master application to be running,
     or to be the master application itself. The master application is

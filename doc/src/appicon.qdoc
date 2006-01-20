@@ -14,8 +14,8 @@
 
 /*!
     \page appicon.html
-
     \title Setting the Application Icon
+    \ingroup gui-programming
 
     The application icon, typically displayed in the top-left corner of an
     application's top-level windows, is set by calling the

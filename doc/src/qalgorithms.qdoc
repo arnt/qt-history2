@@ -1,6 +1,7 @@
 /*!
     \headerfile <QtAlgorithms>
     \title Generic Algorithms
+    \ingroup architecture
 
     \brief The <QtAlgorithms> header file provides generic template-based algorithms.
 
@@ -33,7 +34,7 @@
     qFill():
 
     \code
-	QStringList list;
+        QStringList list;
         list << "one" << "two" << "three";
 
         qFill(list.begin(), list.end(), "eleven");
@@ -46,7 +47,7 @@
     the case:
 
     \code
-	qFill(list.begin() + 1, list.end(), "six");
+        qFill(list.begin() + 1, list.end(), "six");
         // list: [ "eleven", "six", "six" ]
     \endcode
 
@@ -80,24 +81,24 @@
     the \c value_table if the entity is recognized:
 
     \code
-	QChar resolveEntity(const QString &entity)
+        QChar resolveEntity(const QString &entity)
         {
-	    static const QLatin1String name_table[] = {
-	        "AElig", "Aacute", ..., "zwnj"
+            static const QLatin1String name_table[] = {
+                "AElig", "Aacute", ..., "zwnj"
             };
             static const ushort value_table[] = {
-	        0x0061, 0x00c1, ..., 0x200c
+                0x0061, 0x00c1, ..., 0x200c
             };
             int N = sizeof(name_table) / sizeof(name_table[0]);
 
-	    const QLatin1String *name = qBinaryFind(name_table, name_table + N,
-						    entity);
-	    int index = name - name_table;
-	    if (index == N)
-		return QChar();
+            const QLatin1String *name = qBinaryFind(name_table, name_table + N,
+                                                    entity);
+            int index = name - name_table;
+            if (index == N)
+                return QChar();
 
-	    return QChar(value_table[index]);
-	}
+            return QChar(value_table[index]);
+        }
     \endcode
 
     This kind of code is for advanced users only; for most
@@ -105,15 +106,15 @@
     well:
 
     \code
-	QChar resolveEntity(const QString &entity)
+        QChar resolveEntity(const QString &entity)
         {
-	    static QMap<QString, int> entityMap;
+            static QMap<QString, int> entityMap;
 
-	    if (!entityMap) {
-		entityMap.insert("AElig", 0x0061);
-		entityMap.insert("Aacute", 0x00c1);
+            if (!entityMap) {
+                entityMap.insert("AElig", 0x0061);
+                entityMap.insert("Aacute", 0x00c1);
                 ...
-		entityMap.insert("zwnj", 0x200c);
+                entityMap.insert("zwnj", 0x200c);
             }
             return QChar(entityMap.value(entity));
         }

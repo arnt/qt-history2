@@ -14,22 +14,64 @@ Qt's class documentation.
 \o Description
 
 \row
+\o \l{Architecture}
+\o Documents about Qt's architecture and design.
+
+\row
 \o \l{Build System}
 \o Tools to help automate building and installation of Qt applications.
+
+\row
+\o \l{Class and Function Indexes}
+\o Collections of classes and functions grouped together into lists.
 
 \row
 \o \l{Codecs}
 \o Codec support in Qt.
 
 \row
+\o \l{GUI Programming}
+\o Resources for developers of GUI applications.
+
+\row
+\o \l{How To Guides and Learning Resources}
+\o Guides providing help on aspects of using Qt.
+
+\row
+\o \l{Installation}
+\o Installing Qt on supported platforms.
+
+\row
+\o \l{Licensing Information}
+\o Information about licenses and licensing issues.
+
+\row
+\o \l{Porting Guides}
+\o Guides related to porting Qt applications and libraries.
+
+\row
+\o \l{Qtopia Core}
+\o Documents specifically about Qtopia Core.
+
+\row
 \o \l{Qt Widget Gallery}
 \o Qt widgets shown in different styles on various platforms.
+\omit
+### Note: The group placeholder page is the Qt Widget Gallery page.
+\endomit
 \endtable
 */
 
 /*!
-\group buildsystem
+\group architecture
+\title Architecture
 
+These documents describe aspects of Qt's architecture and design,
+including overviews of core Qt features and technologies.
+*/
+
+/*!
+\group buildsystem
 \title Build System
 
 Qt is provided with a set of build tools to help developers automate
@@ -37,10 +79,60 @@ the process of building and installing Qt applications.
 */
 
 /*!
-\group codecs
+\group classlists
+\title Class and Function Indexes
 
+The following documents contain collections of classes, grouped by
+subject area or related to particular functionality, or comprehensive
+lists of classes and functions.
+*/
+
+/*!
+\group codecs
 \title Codecs
 
 These codecs provide facilities for conversion between Unicode and
 specific text encodings.
+*/
+
+/*!
+\group gui-programming
+\title GUI Programming
+
+The following list contains links to guides and other resources for
+developers of graphical user interface (GUI) applications.
+*/
+
+/*!
+\group howto
+\title How To Guides and Learning Resources
+
+These guides provide specific help about specific Qt-related topics.
+*/
+
+/*!
+\group licensing
+\title Licensing Information
+
+These documents include information about Qt's licenses and the licenses
+of third party components used in Qt.
+*/
+
+/*!
+\group porting
+\title Porting Guides
+
+A number of guides and documents are available that cover porting issues,
+from detailed coverage of API differences between Qt 3 and Qt 4 to
+platform and tool-specific documentation.
+*/
+
+/*!
+\group qtopia-core
+\title Qtopia Core
+
+These documents cover aspects of Qtopia Core, from installation and building
+to fine-tuning and deployment.
+
+See also the \l{Qtopia Core website}.
 */

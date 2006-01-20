@@ -16,6 +16,7 @@
     \page trademarks.html
 
     \title Trademarks
+    \ingroup licensing
 
     Trolltech\reg, Qt\reg, and the Trolltech logo are registered
     trademarks of Trolltech. Linux\reg is a trademark of Linus

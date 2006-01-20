@@ -14,8 +14,8 @@
 
 /*!
     \page mainclasses.html
-
     \title Qt's Main Classes
+    \ingroup classlists
 
     These are the most frequently used Qt classes. For the complete
     list see \link classes.html Qt's Classes \endlink.

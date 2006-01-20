@@ -4,6 +4,7 @@
     \startpage index.html Qt Reference Documentation
 
     \title Model/View Programming
+    \ingroup architecture
 
     \tableofcontents
 
@@ -1957,6 +1958,7 @@
     \page model-view-proxy-models.html
     \contentspage model-view-programming.html Contents
     \previouspage Using Drag and Drop with Item Views
+    \nextpage Model Subclassing Reference
 
     \title Proxy Models
 
@@ -2052,6 +2054,7 @@
 
 /*!
     \page model-view-model-subclassing.html
+    \previouspage Proxy Models
 
     \title Model Subclassing Reference
 

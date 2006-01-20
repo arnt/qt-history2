@@ -13,6 +13,7 @@
 /*! \page groups.html
 
 \title Grouped Classes
+\ingroup classlists
 
 This page provides a way of navigating Qt's classes by grouping
 related classes together. Some classes may appear in more than one group.
@@ -387,6 +388,7 @@ See also the \l{ActiveQt framework} for Windows.
 /*! \group qws
 
 \title Qtopia Core Classes
+\ingroup qtopia-core
 
 These classes are relevant to \l{Qtopia Core} users.
 */

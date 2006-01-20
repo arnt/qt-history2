@@ -13,6 +13,7 @@
 /*!
     \page plugins-howto.html
     \title How to Create Qt Plugins
+    \ingroup howto
 
     Qt provides two APIs for creating plugins:
 

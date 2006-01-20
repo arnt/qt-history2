@@ -1,6 +1,7 @@
 /*! 
     \page licenses.html
     \title Licenses for Code Used in Qt
+    \ingroup licensing
 
     Qt contains a little code that is not under the the \l{GNU
     General Public License (GPL)} or the

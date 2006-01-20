@@ -1,6 +1,8 @@
-/*! \page guibooks.html
+/*! 
+    \page guibooks.html
 
     \title Books about GUI Design
+    \ingroup gui-programming
 
     This is not a comprehensive list -- there are many other books worth
     buying. Here we mention just a few user interface books that don't

@@ -2,6 +2,7 @@
     \page qtestlib-manual.html
     \title QTestLib Manual
 
+    \ingroup architecture
     \keyword qtestlib
 
     The QTestLib framework, provided by Trolltech, is a tool for unit
@@ -182,6 +183,7 @@
     \nextpage {Chapter 1: Writing a Unit Test}{Chapter 1}
 
     \title QTestLib Tutorial
+    \ingroup howto
 
     This tutorial gives a short introduction to how to use some of the
     features of the QTestLib framework. It is divided into four

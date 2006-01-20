@@ -2,6 +2,7 @@
     \page emb-qvfb.html
 
     \title Qtopia Core Virtual Framebuffer
+    \ingroup qtopia-core
 
     The virtual framebuffer allows Qtopia Core programs to be developed on
     a desktop machine, without switching between consoles and X11.

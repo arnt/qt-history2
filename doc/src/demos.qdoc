@@ -1,6 +1,7 @@
 /*!
     \page demos.html
     \title Qt Demonstrations
+    \ingroup howto
 
     This is the list of demonstrations in Qt's \c demos directory.
     These are larger and more complicated programs than the

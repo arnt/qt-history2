@@ -1,6 +1,8 @@
 /*!
     \page emb-differences.html
     \title Porting Your Applications to Qtopia Core
+    \ingroup porting
+    \ingroup qtopia-core
 
     Existing Qt applications should require no porting provided there is no
     platform dependent code. Platform dependent code includes system calls,

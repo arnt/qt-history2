@@ -1,6 +1,7 @@
 /*!
     \page examples.html
     \title Qt Examples
+    \ingroup howto
 
     This is the list of examples in Qt's \c examples directory. The
     examples demonstrate Qt features in small, self-contained

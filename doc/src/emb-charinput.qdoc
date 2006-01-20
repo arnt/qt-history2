@@ -16,6 +16,7 @@
     \page emb-charinput.html
 
     \title Character Input in Qtopia Core
+    \ingroup qtopia-core
 
     Internally in the client/server protocol, each key press and key
     release is sent as a \c{QWSKeyEvent}. A QWSKeyEvent contains the
@@ -28,7 +29,7 @@
          \i Qt keycode value as defined in \c qnamespace.h
     \row \i \c{modifier}
          \i A bitfield consisting of some of Qt::ShiftButton,
-	    Qt::ControlButton, and Qt::AltButton.
+            Qt::ControlButton, and Qt::AltButton.
     \row \i \c{is_press}
          \i true if this is a key press, false if it is a key release.
     \row \i \c{is_auto_repeat}

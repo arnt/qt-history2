@@ -16,6 +16,7 @@
     \page 3rdparty.html
 
     \title Third-Party Licenses Used in Qt
+    \ingroup licensing
 
     Run \c{configure -help} to see any options that may be available for
     controlling the use of these libraries.

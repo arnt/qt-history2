@@ -2,6 +2,7 @@
     \page emb-features.html
 
     \title The Feature Definition File
+    \ingroup qtopia-core
 
     By modifying the configured \c qconfig.h file from \c src/tools, you
     can define a subset of the full Qt functionality that you wish to

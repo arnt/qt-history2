@@ -15,6 +15,7 @@
 /*!
     \page commercialeditions.html
     \title Qt Commercial Editions
+    \ingroup licensing
 
     \keyword Qt Console Edition
     \keyword Qt Desktop Edition
@@ -96,6 +97,7 @@
 /*!
     \page console-edition-classes.html
     \title Qt Console Edition Classes
+    \ingroup classlists
 
     \generatelist{classesbyedition Console}
 */
@@ -103,6 +105,7 @@
 /*!
     \page desktop-edition-classes.html
     \title Qt Desktop Edition Classes
+    \ingroup classlists
 
     \generatelist{classesbyedition Desktop}
 */
@@ -110,6 +113,7 @@
 /*!
     \page desktop-light-edition-classes.html
     \title Qt Desktop Light Edition Classes
+    \ingroup classlists
 
     \generatelist{classesbyedition DesktopLight}
 */

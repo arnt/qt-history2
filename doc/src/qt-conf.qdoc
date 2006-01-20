@@ -14,6 +14,7 @@
     \page qt-conf.html
 
     \title Using qt.conf
+    \ingroup deployment
 
     The \c qt.conf file overrides the hard-coded paths that are
     compiled into the Qt library. These paths are accessible using the

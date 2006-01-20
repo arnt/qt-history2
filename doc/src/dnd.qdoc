@@ -15,6 +15,7 @@
 /*!
     \page dnd.html
     \title Drag and Drop
+    \ingroup architecture
 
     Drag and drop provides a simple visual mechanism which users can use
     to transfer information between and within applications. (In the
