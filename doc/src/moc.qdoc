@@ -207,7 +207,7 @@
 
     \code
         #ifndef Q_MOC_RUN
-	    ... 
+            ... 
         #endif
     \endcode
 
@@ -235,7 +235,7 @@
         class SomeTemplate<int> : public QFrame
         {
             Q_OBJECT
-	    ...
+            ...
 
         signals:
             void mySignal(int);
@@ -260,7 +260,7 @@
         // correct
         class SomeClass : public QObject, public OtherClass
         {
-	    ...
+            ...
         };
     \endcode
 
@@ -278,7 +278,7 @@
             Q_OBJECT
 
         public slots:
-	    void apply(void (*apply)(List *, void *), char *); // WRONG
+            void apply(void (*apply)(List *, void *), char *); // WRONG
         };
     \endcode
 
@@ -339,7 +339,7 @@
 
         class Whatever : public QObject
         {
-	    Q_OBJECT
+            Q_OBJECT
 
         signals:
             void someSignal(SIGNEDNESS(int));
@@ -360,8 +360,8 @@
             {
                 Q_OBJECT
 
-	    public slots:   // WRONG
-	        void b();
+            public slots:   // WRONG
+                void b();
             };
         };
     \endcode
