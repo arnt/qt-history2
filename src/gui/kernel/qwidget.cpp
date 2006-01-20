@@ -4419,7 +4419,7 @@ void QWidget::setVisible(bool visible)
 
         if (!isWindow()) {
             QWidget *parent = parentWidget();
-            while (parent && parent->d_func()->layout) {
+            while (parent && parent->isVisible() && parent->d_func()->layout) {
                 parent->d_func()->layout->activate();
                 if (parent->isWindow())
                     break;
