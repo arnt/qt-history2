@@ -1837,8 +1837,9 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
     case E_BASENAME:
     case E_DIRNAME:
     case E_SECTION: {
+        bool regexp = false;
         QString sep, var;
-        int beg=0, end=-1;;
+        int beg=0, end=-1;
         if(func_t == E_SECTION) {
             if(args.count() != 3 && args.count() != 4) {
                 fprintf(stderr, "%s:%d section(var, sep, begin, end) requires three argument\n",
@@ -1856,7 +1857,8 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
                         parser.file.toLatin1().constData(), parser.line_no, func.toLatin1().constData());
             } else {
                 var = args[0];
-                sep = Option::dir_sep;
+                regexp = true;
+                sep = "[" + QRegExp::escape(Option::dir_sep) + "/]";
                 if(func_t == E_DIRNAME)
                     end = -2;
                 else
@@ -1866,9 +1868,13 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         if(!var.isNull()) {
             const QStringList &l = place[varMap(var)];
             for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+                QString separator = sep;
                 if(!ret.isEmpty())
                     ret += Option::field_sep;
-                ret += (*it).section(sep, beg, end);
+                if(regexp)
+                    ret += (*it).section(QRegExp(separator), beg, end);
+                else
+                    ret += (*it).section(separator, beg, end);
             }
         }
         break; }
