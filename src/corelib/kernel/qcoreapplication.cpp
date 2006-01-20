@@ -379,7 +379,9 @@ void QCoreApplication::flush()
     applications without a graphical user interface. These type of
     applications are used at the console or as server processes.
 
-    The \a argc and \a argv arguments are available from arguments().
+    The \a argc and \a argv arguments are processed by the application,
+    and made available in a more convenient form by the arguments()
+    function.
 */
 QCoreApplication::QCoreApplication(int &argc, char **argv)
     : QObject(*new QCoreApplicationPrivate(argc, argv))
