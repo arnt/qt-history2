@@ -77,10 +77,10 @@
     appended to QAbstractSocket's internal read buffer. To limit the
     size of the read buffer, call setReadBufferSize().
 
-    To close the socket, call close(). QAbstractSocket enters
+    To close the socket, call disconnectFromHost(). QAbstractSocket enters
     QAbstractSocket::ClosingState, then emits closing(). After all pending data
     has been written to the socket, QAbstractSocket actually closes
-    the socket, enters QAbstractSocket::ClosedState, and emits closed(). If you
+    the socket, enters QAbstractSocket::ClosedState, and emits disconnected(). If you
     want to abort a connection immediately, discarding all pending
     data, call abort() instead.
 
@@ -136,7 +136,7 @@
     This signal is emitted after connectToHost() has been called and
     a connection has been successfully established.
 
-    \sa connectToHost(), connectionClosed()
+    \sa connectToHost(), disconnected()
 */
 
 /*!
@@ -144,7 +144,7 @@
 
     This signal is emitted when the socket has been disconnected.
 
-    \sa connectToHost(), close()
+    \sa connectToHost(), disconnectFromHost(), abort()
 */
 
 /*!
@@ -1756,10 +1756,7 @@ void QAbstractSocket::setPeerName(const QString &name)
 }
 
 /*!
-    Attempts to close the socket. If there is pending data waiting to
-    be written, QAbstractSocket will enter ClosingState and wait
-    until all data has been written. Eventually, it will enter
-    UnconnectedState and emit the disconnected() signal.
+    Disconnects the socket's connection with the host.
 
     \sa abort()
 */
@@ -1777,7 +1774,10 @@ void QAbstractSocket::close()
 }
 
 /*!
-    Disconnects the socket's connection with the host.
+    Attempts to close the socket. If there is pending data waiting to
+    be written, QAbstractSocket will enter ClosingState and wait
+    until all data has been written. Eventually, it will enter
+    UnconnectedState and emit the disconnected() signal.
 
     \sa connectToHost()
 */
@@ -2061,7 +2061,7 @@ QNetworkProxy QAbstractSocket::proxy() const
 /*!
     \fn void QAbstractSocket::connectionClosed()
 
-    Use closing() instead.
+    Use closed() instead.
 */
 
 /*!
