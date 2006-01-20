@@ -2850,10 +2850,36 @@ int QGLWidget::fontDisplayListBase(const QFont & fnt, int listBase)
    lists are deleted when the widget is destroyed.
 */
 
+static void qt_drawFontLining(double x, double y, const QString &str, const QFont &font)
+{
+    QFontMetrics fm(font);
+    int h = fm.lineWidth();
+    int w = fm.width(str);
+    if (font.underline()) {
+        int pos = fm.underlinePos();
+        glRectd(x, pos + y, x + w, pos + y + h);
+    }
+    if (font.strikeOut()) {
+        int pos = fm.strikeOutPos();
+        glRectd(x, y - pos, x + w, y - pos + h);
+    }
+    if (font.overline()) {
+        int pos = fm.overlinePos();
+        glRectd(x, y - pos, x + w, y - pos + h);
+    }
+}
+
 void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt, int listBase)
 {
     makeCurrent();
     glPushAttrib(GL_ALL_ATTRIB_BITS);
+
+    glDisable(GL_TEXTURE_1D);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_RECTANGLE_NV);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -2862,13 +2888,15 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt,
     glPushMatrix();
     glLoadIdentity();
 
-    glDisable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glRasterPos2i(0, 0);
     glBitmap(0, 0, 0, 0, x, -y, NULL);
     glListBase(fontDisplayListBase(fnt, listBase));
     glCallLists(str.length(), GL_UNSIGNED_BYTE, str.toLocal8Bit());
+
+    if (fnt.underline() || fnt.strikeOut() || fnt.overline())
+        qt_drawFontLining(x, y, str, fnt);
 
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
@@ -2884,15 +2912,47 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt,
     have the labels move with the model as it is rotated etc.
 */
 void QGLWidget::renderText(double x, double y, double z, const QString & str, const QFont & fnt,
-                            int listBase)
+                           int listBase)
 {
     makeCurrent();
-    glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+
+    glDisable(GL_TEXTURE_1D);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_RECTANGLE_NV);
+    glDisable(GL_CULL_FACE);
+
     glRasterPos3d(x, y, z);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glListBase(fontDisplayListBase(fnt, listBase));
     glCallLists(str.length(), GL_UNSIGNED_BYTE, str.toLocal8Bit());
+
+    if (fnt.underline() || fnt.strikeOut() || fnt.overline()) {
+        GLdouble model[4][4], proj[4][4];
+        GLint view[4];
+        glGetDoublev(GL_MODELVIEW_MATRIX, &model[0][0]);
+        glGetDoublev(GL_PROJECTION_MATRIX, &proj[0][0]);
+        glGetIntegerv(GL_VIEWPORT, &view[0]);
+
+        GLdouble win_x, win_y, win_z;
+        gluProject(x, y, z, &model[0][0], &proj[0][0], &view[0], &win_x, &win_y, &win_z);
+        win_y = height() - win_y; // y is inverted
+
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        glOrtho(0, width(), height(), 0, -1, 1);
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+
+        qt_drawFontLining(win_x, win_y, str, fnt);
+
+        glPopMatrix();
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+    }
     glPopAttrib();
 }
 
