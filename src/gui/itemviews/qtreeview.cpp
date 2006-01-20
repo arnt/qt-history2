@@ -216,7 +216,10 @@ void QTreeView::setHeader(QHeaderView *header)
   \property QTreeView::indentation
   \brief indentation of the items in the tree view.
 
-  This property holds the indentation of the items for each level in the tree view.
+  This property holds the indentation measured in pixels of the items for each
+  level in the tree view. For top-level items, the indentation specifies the
+  horizontal distance from the viewport edge to the items in the first column;
+  for child items, it specifies their indentation from their parent items.
 */
 int QTreeView::indentation() const
 {
