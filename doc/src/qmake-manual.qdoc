@@ -4,6 +4,7 @@
     \startpage {index.html}{Qt Reference Documentation}
     \nextpage Using qmake
 
+    \ingroup buildsystem
     \keyword qmake
 
     \c qmake is a tool from Trolltech that helps simplify the build

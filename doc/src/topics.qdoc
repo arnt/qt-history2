@@ -1,0 +1,46 @@
+/*!
+\page topics.html
+
+\title Topics
+
+This page provides a collection of documents grouped by topic.
+
+The \l{Grouped Classes} page contains a similar list of groups for
+Qt's class documentation.
+
+\table
+\header
+\o Group
+\o Description
+
+\row
+\o \l{Build System}
+\o Tools to help automate building and installation of Qt applications.
+
+\row
+\o \l{Codecs}
+\o Codec support in Qt.
+
+\row
+\o \l{Qt Widget Gallery}
+\o Qt widgets shown in different styles on various platforms.
+\endtable
+*/
+
+/*!
+\group buildsystem
+
+\title Build System
+
+Qt is provided with a set of build tools to help developers automate
+the process of building and installing Qt applications.
+*/
+
+/*!
+\group codecs
+
+\title Codecs
+
+These codecs provide facilities for conversion between Unicode and
+specific text encodings.
+*/

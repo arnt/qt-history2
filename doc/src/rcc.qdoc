@@ -1,6 +1,7 @@
 /*!
     \page rcc.html
     \title Resource Compiler (rcc)
+    \ingroup buildsystem
 
     The \c rcc tool is used to embed resources into a Qt application during
     the build process. It works by generating a C++ source file containing

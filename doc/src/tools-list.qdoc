@@ -16,6 +16,7 @@
     \page tools-list.html
 
     \title Qt's Tools
+    \ingroup buildsystem
 
     Qt is supplied with several command line and graphical tools to
     ease and speed the development process. Each tool is listed here

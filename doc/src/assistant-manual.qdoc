@@ -1,6 +1,7 @@
 /*!
     \page assistant-manual.html
     \title Qt Assistant Manual
+    \ingroup buildsystem
 
     \keyword Qt Assistant
 

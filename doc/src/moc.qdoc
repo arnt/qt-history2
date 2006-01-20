@@ -13,6 +13,7 @@
 /*!
     \page moc.html
     \title Using the Meta-Object Compiler (moc)
+    \ingroup buildsystem
 
     \keyword moc
 

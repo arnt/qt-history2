@@ -5,6 +5,7 @@
     \startpage {index.html}{Qt Reference Documentation}
     \nextpage Qt Linguist Manual: Release Manager
 
+    \ingroup buildsystem
     \keyword Qt Linguist
 
     Qt provides excellent support for translating applications into local

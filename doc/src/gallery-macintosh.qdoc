@@ -2,6 +2,7 @@
   \page gallery-macintosh.html
 
   \title Macintosh Style Widget Gallery
+  \ingroup gallery
 
   This page shows some of the widgets available in Qt
   when configured to use the "macintosh" style.
