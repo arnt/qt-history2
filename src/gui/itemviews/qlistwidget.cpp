@@ -742,6 +742,12 @@ QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
   Sets the item flags for the list item to \a flags (see
   \l{Qt::ItemFlags}).
 */
+void QListWidgetItem::setFlags(Qt::ItemFlags aflags) {
+    itemFlags = aflags;
+    if (model)
+        model->itemChanged(this);
+}
+
 
 /*!
     \fn void QListWidgetItem::setText(const QString &text)

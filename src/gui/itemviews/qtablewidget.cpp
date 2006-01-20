@@ -832,6 +832,12 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 
     \sa flags()
 */
+void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
+    itemFlags = aflags;
+    if (model)
+        model->itemChanged(this);
+}
+
 
 /*!
     \fn QString QTableWidgetItem::text() const

@@ -43,7 +43,7 @@ public:
     inline QListWidget *listWidget() const { return view; }
 
     inline Qt::ItemFlags flags() const { return itemFlags; }
-    inline void setFlags(Qt::ItemFlags flags);
+    void setFlags(Qt::ItemFlags flags);
 
     inline QString text() const
         { return data(Qt::DisplayRole).toString(); }
@@ -118,9 +118,6 @@ private:
     QListModel *model;
     Qt::ItemFlags itemFlags;
 };
-
-inline void QListWidgetItem::setFlags(Qt::ItemFlags aflags)
-{ itemFlags = aflags; }
 
 inline void QListWidgetItem::setText(const QString &atext)
 { setData(Qt::DisplayRole, atext); }

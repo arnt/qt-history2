@@ -61,7 +61,7 @@ public:
     inline QTableWidget *tableWidget() const { return view; }
 
     inline Qt::ItemFlags flags() const { return itemFlags; }
-    inline void setFlags(Qt::ItemFlags flags);
+    void setFlags(Qt::ItemFlags flags);
 
     inline QString text() const
         { return data(Qt::DisplayRole).toString(); }
@@ -136,9 +136,6 @@ private:
     QTableModel *model;
     Qt::ItemFlags itemFlags;
 };
-
-inline void QTableWidgetItem::setFlags(Qt::ItemFlags aflags)
-{ itemFlags = aflags; }
 
 inline void QTableWidgetItem::setText(const QString &atext)
 { setData(Qt::DisplayRole, atext); }

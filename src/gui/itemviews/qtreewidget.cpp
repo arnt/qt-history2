@@ -527,6 +527,13 @@ Qt::DropActions QTreeModel::supportedDropActions() const
     return view->supportedDropActions();
 }
 
+void QTreeModel::itemChanged(QTreeWidgetItem *item)
+{
+    QModelIndex left = index(item, 0);
+    QModelIndex right = index(item, item->columnCount() - 1);
+    emit dataChanged(left, right);
+}
+
 /*!
   \internal
 
@@ -772,6 +779,11 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 
     \sa flags()
 */
+void QTreeWidgetItem::setFlags(Qt::ItemFlags aflags) {
+    itemFlags = aflags;
+    if (model)
+        model->itemChanged(this);
+}
 
 /*!
     \fn QString QTreeWidgetItem::text(int column) const

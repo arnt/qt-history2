@@ -47,6 +47,7 @@ public:
     void setColumnCount(int columns);
 
     QTreeWidgetItem *item(const QModelIndex &index) const;
+    void itemChanged(QTreeWidgetItem *item);
 
     QModelIndex index(QTreeWidgetItem *item, int column) const;
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
