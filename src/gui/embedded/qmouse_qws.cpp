@@ -36,7 +36,7 @@
     to a an instance of the QWSMouseHandler class using the
     QWSMouseHandler::calibrate() function.
 
-    \sa QWSMouseHandler
+    \sa QWSMouseHandler, QWSCalibratedMouseHandler
 */
 
 /*!
@@ -76,13 +76,18 @@
     constructor, create a QSocketNotifier on that opened device and
     when it receives data, it will call mouseChanged() to send the
     event to Qtopia Core for relaying to clients.
+
+    If you are creating a handler for a device that needs calibration or
+    noise reduction, such as a touchscreen, you could probably make use
+    the subclass QWSCalibratedMouseHandler.
 */
 
 
 /*!
   \fn void QWSMouseHandler::suspend()
 
-  Must be implemented in subclasses to suspend reading and handling of mouse events.
+  Must be implemented in subclasses to suspend reading and handling of
+  mouse events.
 
   \sa resume()
 */
@@ -104,7 +109,7 @@
 /*!
     \fn const QPoint &QWSMouseHandler::pos() const
 
-    Returns the mouse position.
+    Returns the current mouse position.
 */
 
 /*!
@@ -112,10 +117,11 @@
     handler.
 
     Note that once created, mouse handlers are controlled by the
-    system and should not be deleted.
+    system and should not be deleted. The \a driver and \a device
+    arguments the one passed by the environment variable
+    QWS_MOUSE_PROTO if present.
 
-    The \a driver and \a device arguments are not used by this base
-    class.
+    \sa {emb-running.html}{Running Qtopia Core Applications}
 */
 QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
     : mousePos(QWSServer::mousePosition)
@@ -124,52 +130,94 @@ QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
 }
 
 /*!
-    Destroys the mouse handler. You should not call this directly.
+    Destroys the mouse handler.
+
+    This should only be called from within Qtopia Core when the application
+    terminates. You should not call this directly.
 */
 QWSMouseHandler::~QWSMouseHandler()
 {
 }
 
 /*!
-    Ensures that the given point, \a pt is within the screen's
-    boundaries, changing \a pt if necessary.
+    Ensures that the given \a position, is within the screen's
+    boundaries, changing \a position if necessary.
 */
 
-void QWSMouseHandler::limitToScreen(QPoint &pt)
+void QWSMouseHandler::limitToScreen(QPoint &position)
 {
-    pt.setX(qMin(qt_screen->deviceWidth()-1, qMax(0, pt.x())));
-    pt.setY(qMin(qt_screen->deviceHeight()-1, qMax(0, pt.y())));
+    position.setX(qMin(qt_screen->deviceWidth() - 1, qMax(0, position.x())));
+    position.setY(qMin(qt_screen->deviceHeight() - 1, qMax(0, position.y())));
 }
 
 
 /*!
-    When a mouse event occurs this function is called with the mouse's
-    position in \a pos, the state of its buttons in \a bstate, and the wheel motion in \a wheel.
+    Notify the system of a new mouse event.
+
+    \a position is the global position of the mouse. \a state is a bitmask of
+    Qt::MouseButtons to indicate which mouse buttons are pressed.
+    \a wheel is the delta value of the mouse wheel as returned by
+    QWheelEvent::delta().
+
+    A subclass should call this function whenever it wants to deliver a new
+    mouse event. This function updates the current mouse position and
+    send the event to the \l QWSServer which will deliver the event to the
+    correct widget.
 */
-void QWSMouseHandler::mouseChanged(const QPoint &pos, int bstate, int wheel)
+void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
 {
-    mousePos = pos;
-    QWSServer::sendMouseEvent(pos, bstate, wheel);
+    mousePos = position;
+    QWSServer::sendMouseEvent(position, state, wheel);
 }
 
 /*!
     \fn QWSMouseHandler::clearCalibration()
 
-    This method is reimplemented in the calibrated mouse handler to
+    This method is reimplemented in QWSCalibratedMouseHandler to
     clear calibration information. This version does nothing.
 */
 
 /*!
     \fn QWSMouseHandler::calibrate(const QWSPointerCalibrationData *data)
 
-    This method is reimplemented in the calibrated mouse handler to
+    This method is reimplemented in QWSCalibratedMouseHandler to
     set calibration information passed in \a data, for example, from
     the Qtopia calibration screen. This version does nothing.
 */
 
+/*!
+    \class QWSCalibratedMouseHandler
+    \ingroup qws
 
-/*
- *
+    \brief The QWSCalibratedMouseHandler class provides basic functionality
+    for implementing a mouse handler that needs calibration.
+
+    This class should typically be subclassed if you are creating a handler
+    for a device which don't have a fixed mapping between device coordinates
+    and/or produces noisy events. The typical example is a touchscreen.
+
+    The QWSCalibratedMouseHandler provides linear transformation between
+    device coordinates and screen coordinates by calling transform(). This
+    implementation uses 7 parameters a, b, c, d, e, f, s to
+    transform the device coordinates (Xd, Yd) into screen coordinates (Xs, Ys)
+    using the following equations:
+
+    \code
+    s*Xs = a*Xd + b*Yy + c
+    s*Ys = d*Xd + e*Yd + f
+    \endcode
+
+    The parameters are stored separated by whitespace in alphabetical order
+    in /etc/pointercal and read when the class is instantiated. The
+    calibration parameters is recalculated when calibrate() is called.
+
+    If you want noise reduction, you can use sendFiltered() instead of
+    mouseChanged() whenever a mouse event occurs.
+*/
+
+
+/*!
+    \internal
  */
 
 QWSCalibratedMouseHandler::QWSCalibratedMouseHandler(const QString &, const QString &)
@@ -179,6 +227,9 @@ QWSCalibratedMouseHandler::QWSCalibratedMouseHandler(const QString &, const QStr
     readCalibration();
 }
 
+/*!
+    \internal
+*/
 void QWSCalibratedMouseHandler::getCalibration(QWSPointerCalibrationData *cd) const
 {
     QPoint screen_tl = cd->screenPoints[QWSPointerCalibrationData::TopLeft];
@@ -192,6 +243,12 @@ void QWSCalibratedMouseHandler::getCalibration(QWSPointerCalibrationData *cd) co
                 tly - (s * (screen_tl.y() - screen_br.y()) / e));
 }
 
+/*!
+    Clears the current calibration.
+
+    After this function is called the mouse handler will return mouse
+    events in raw device coordinates and not in screen coordinates.
+*/
 void QWSCalibratedMouseHandler::clearCalibration()
 {
     a = 1;
@@ -203,6 +260,10 @@ void QWSCalibratedMouseHandler::clearCalibration()
     s = 1;
 }
 
+
+/*!
+    Save the current calibration parameters.
+*/
 void QWSCalibratedMouseHandler::writeCalibration()
 {
     QString calFile = "/etc/pointercal";
@@ -215,10 +276,16 @@ void QWSCalibratedMouseHandler::writeCalibration()
     } else
 #endif
     {
-        qDebug() << "Could not save calibration:" << calFile;
+        qCritical() << "QWSCalibratedMouseHandler::writeCalibration:"
+            "Could not save calibration into " << calFile;
     }
 }
 
+/*!
+    Reads previously written calibration parameters.
+
+    \sa writeCalibration()
+*/
 void QWSCalibratedMouseHandler::readCalibration()
 {
     QString calFile = "/etc/pointercal";
@@ -234,12 +301,15 @@ void QWSCalibratedMouseHandler::readCalibration()
     }
 }
 
-void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *cd)
+/*!
+    Update the calibration parameters based on coordinate mapping in \a data.
+*/
+void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *data)
 {
-    QPoint dev_tl = cd->devPoints[QWSPointerCalibrationData::TopLeft];
-    QPoint dev_br = cd->devPoints[QWSPointerCalibrationData::BottomRight];
-    QPoint screen_tl = cd->screenPoints[QWSPointerCalibrationData::TopLeft];
-    QPoint screen_br = cd->screenPoints[QWSPointerCalibrationData::BottomRight];
+    QPoint dev_tl = data->devPoints[QWSPointerCalibrationData::TopLeft];
+    QPoint dev_br = data->devPoints[QWSPointerCalibrationData::BottomRight];
+    QPoint screen_tl = data->screenPoints[QWSPointerCalibrationData::TopLeft];
+    QPoint screen_br = data->screenPoints[QWSPointerCalibrationData::BottomRight];
 
     s = 1 << 16;
 
@@ -254,24 +324,42 @@ void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *cd)
     writeCalibration();
 }
 
-QPoint QWSCalibratedMouseHandler::transform(const QPoint &p)
+/*!
+    Transform the \a position from device coordinates to screen coordinates.
+
+    Returns the transformed position.
+*/
+QPoint QWSCalibratedMouseHandler::transform(const QPoint &position)
 {
     QPoint tp;
 
-    tp.setX((a * p.x() + b * p.y() + c) / s);
-    tp.setY((d * p.x() + e * p.y() + f) / s);
+    tp.setX((a * position.x() + b * position.y() + c) / s);
+    tp.setY((d * position.x() + e * position.y() + f) / s);
 
     return tp;
 }
 
-void QWSCalibratedMouseHandler::setFilterSize(int s)
+/*!
+    Set the size of the filter used in noise reduction when calling
+    sendFiltered().
+*/
+void QWSCalibratedMouseHandler::setFilterSize(int size)
 {
-    samples.resize(s);
+    samples.resize(size);
     numSamples = 0;
     currSample = 0;
 }
 
-bool QWSCalibratedMouseHandler::sendFiltered(const QPoint &p, int button)
+/*!
+    Notice the system of a new mouse event after applying a noise reduction
+    filter.
+
+    The arguments is the same as in mouseChanged().
+    Returns true if mouseChanged() was called, false otherwise.
+
+    \sa mouseChanged()
+*/
+bool QWSCalibratedMouseHandler::sendFiltered(const QPoint &position, int button)
 {
     if (!button) {
         if (numSamples >= samples.count())
@@ -282,7 +370,7 @@ bool QWSCalibratedMouseHandler::sendFiltered(const QPoint &p, int button)
     }
 
     bool sent = false;
-    samples[currSample] = p;
+    samples[currSample] = position;
     numSamples++;
     if (numSamples >= samples.count()) {
         int maxd = 0;
