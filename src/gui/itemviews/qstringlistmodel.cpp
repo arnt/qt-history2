@@ -125,7 +125,7 @@ Qt::ItemFlags QStringListModel::flags(const QModelIndex &index) const
     if (index.isValid())
         return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
     else
-        return QAbstractItemModel::flags(index);
+        return QAbstractItemModel::flags(index) | Qt::ItemIsDropEnabled;
 }
 
 /*!

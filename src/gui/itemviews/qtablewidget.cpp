@@ -443,6 +443,9 @@ bool QTableModel::setData(const QModelIndex &index, const QVariant &value, int r
 
 Qt::ItemFlags QTableModel::flags(const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return Qt::ItemIsDropEnabled;
+
     QTableWidgetItem *itm = item(index);
     if (itm)
         return itm->flags();
@@ -521,6 +524,10 @@ QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int r
 bool QTableModel::setHeaderData(int section, Qt::Orientation orientation,
                                 const QVariant &value, int role)
 {
+    if ((orientation == Qt::Horizontal && horizontal.size() == 0) ||
+        (orientation == Qt::Vertical && vertical.size() == 0))
+        return false;
+
     QTableWidgetItem *itm = 0;
     if (orientation == Qt::Horizontal)
         itm = horizontal.at(section);

@@ -498,7 +498,7 @@ bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex 
 Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return 0;
+        return Qt::ItemIsDropEnabled;
 
     return QAbstractItemModel::flags(index) | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
