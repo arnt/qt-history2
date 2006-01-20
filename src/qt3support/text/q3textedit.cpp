@@ -1833,6 +1833,7 @@ void Q3TextEdit::removeSelectedText(int selNum)
         viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
     } else {
+        lastFormatted = doc->firstParagraph();
         delete cursor;
         cursor = new Q3TextCursor(doc);
         drawCursor(true);
