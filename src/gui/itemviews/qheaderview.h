@@ -24,8 +24,6 @@ class QHeaderViewPrivate;
 
 class Q_GUI_EXPORT QHeaderView : public QAbstractItemView
 {
-    friend class QTableView;
-    friend class QTableViewPrivate;
     Q_OBJECT
     Q_PROPERTY(bool showSortIndicator READ isSortIndicatorShown WRITE setSortIndicatorShown)
     Q_PROPERTY(bool highlightSections READ highlightSections WRITE setHighlightSections)
