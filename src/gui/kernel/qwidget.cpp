@@ -294,7 +294,7 @@ void QWidget::setAutoFillBackground(bool enabled)
 }
 
 /*!
-    \class QWidget qwidget.h
+    \class QWidget
     \brief The QWidget class is the base class of all user interface objects.
 
     \ingroup abstractwidgets
@@ -2359,6 +2359,9 @@ QSize QWidget::minimumSize() const
     The widget cannot be resized to a larger size than the maximum
     widget size.
 
+    The property is limited by the QWIDGETSIZE_MAX macro, i.e. the
+    largest allowed size is QSize(16777215, 16777215).
+
     \sa maximumWidth, maximumHeight, minimumSize, sizeIncrement
 */
 
@@ -2392,7 +2395,9 @@ QSize QWidget::maximumSize() const
     \property QWidget::maximumWidth
     \brief the widget's maximum width
 
-    This property corresponds to maximumSize().width().
+    This property corresponds to maximumSize().width(). It is limited
+    by the QWIDGETSIZE_MAX macro, i.e. the largest allowed width is
+    16777215.
 
     \sa maximumSize, maximumHeight
 */
@@ -2401,7 +2406,9 @@ QSize QWidget::maximumSize() const
     \property QWidget::maximumHeight
     \brief the widget's maximum height
 
-    This property corresponds to maximumSize().height().
+    This property corresponds to maximumSize().height(). It is limited
+    by the QWIDGETSIZE_MAX macro, i.e. the largest allowed height is
+    16777215.
 
     \sa maximumSize, maximumWidth
 */
@@ -7501,6 +7508,18 @@ void QWidget::languageChange() { }  // compat
     \compat
 
     Use the \l updatesEnabled property instead.
+*/
+
+/*!
+     \macro QWIDGETSIZE_MAX
+     \relates QWidget
+
+     Defines the maximum size for a QWidget object.
+
+     The largest allowed size for a widget is QSize(QWIDGETSIZE_MAX,
+     QWIDGETSIZE_MAX), i.e. QSize (16777215,16777215).
+
+     \sa QWidget::setMaximumSize()
 */
 
 #include "moc_qwidget.cpp"
