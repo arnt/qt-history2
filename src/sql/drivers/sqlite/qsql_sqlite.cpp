@@ -149,9 +149,6 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
     }
     skipRow = initialFetch;
 
-    if (!stmt)
-        return false;
-
     res = sqlite3_step(stmt);
 
     switch(res) {
