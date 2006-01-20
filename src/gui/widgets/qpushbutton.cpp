@@ -387,7 +387,7 @@ void QPushButton::keyPressEvent(QKeyEvent *e)
     switch (e->key()) {
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        if ((d->autoDefault && d->dialogParent()) || d->defaultButton) {
+        if (d->autoDefault || d->defaultButton) {
             click();
             break;
         }
