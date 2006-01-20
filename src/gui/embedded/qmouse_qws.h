@@ -61,10 +61,10 @@ public:
     virtual void calibrate(const QWSPointerCalibrationData *);
     virtual void getCalibration(QWSPointerCalibrationData *) const;
 
+protected:
     bool sendFiltered(const QPoint &, int button);
     QPoint transform(const QPoint &);
 
-protected:
     void readCalibration();
     void writeCalibration();
     void setFilterSize(int);
