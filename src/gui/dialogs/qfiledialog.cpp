@@ -1254,6 +1254,8 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
         if (info.isAbsolute()) { // if we are doing completion in another directory, add the path first
             if (typedPath == "/")
                 completed = "/" + completed;
+            else if (typedPath.endsWith("/")) // required on windows since drives have trailing / in path
+                completed = typedPath + completed;
             else
                 completed = typedPath + "/" + completed;
         }
