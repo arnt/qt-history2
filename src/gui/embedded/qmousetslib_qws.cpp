@@ -13,7 +13,7 @@
 
 #include "qmousetslib_qws.h"
 
-#ifndef QT_NO_QWS_MOUSE_TSLIB
+#if !defined(QT_NO_QWS_MOUSE_TSLIB) || defined(QT_PLUGIN)
 
 #include "qsocketnotifier.h"
 #include "qscreen_qws.h"
@@ -50,6 +50,8 @@
 
     To make Qtopia Core explicitly choose the tslib mouse handler, set the
     QWS_MOUSE_PROTO environment variable to "tslib".
+
+    \sa {emb-running.html}{Running Qtopia Core Applications}
 */
 
 class QWSTslibMouseHandlerPrivate : public QObject
@@ -131,7 +133,7 @@ void QWSTslibMouseHandlerPrivate::open()
         return;
     }
 
-    // always use the linear module which translates from touch screen
+    // always use the linear module which translates from device
     // coordinates to screen coordinates
     if (ts_load_module(dev, "linear", 0))
         qWarning("Unable to load the linear module: '%s'", strerror(errno));
@@ -217,7 +219,10 @@ void QWSTslibMouseHandlerPrivate::readMouseData()
         if (dy != 0)
             lastdy = dy;
 
-        handler->mouseChanged(QPoint(sample.x, sample.y), pressed);
+        // tslib should do all the translation and filtering, so we send a
+        // "raw" mouse event
+        handler->QWSMouseHandler::mouseChanged(QPoint(sample.x, sample.y),
+                                               pressed);
     }
 }
 
@@ -235,7 +240,8 @@ void QWSTslibMouseHandlerPrivate::calibrate(const QWSPointerCalibrationData *dat
 {
     suspend();
     close();
-    // default implementation writes to /etc/pointercal, which is read by tslib
+    // default implementation writes to /etc/pointercal
+    // using the same format as the tslib linear module.
     handler->QWSCalibratedMouseHandler::calibrate(data);
     calibrated = true;
     open();

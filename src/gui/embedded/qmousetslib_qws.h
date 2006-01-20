@@ -18,7 +18,7 @@
 
 QT_MODULE(Gui)
 
-#ifndef QT_NO_QWS_MOUSE_TSLIB
+#if !defined(QT_NO_QWS_MOUSE_TSLIB) || defined(QT_PLUGIN)
 
 class QWSTslibMouseHandlerPrivate;
 
