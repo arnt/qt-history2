@@ -208,23 +208,31 @@ namespace QTest
         return compare_ptr_helper(const_cast<const T1 *>(t1),
                 static_cast<const T1 *>(const_cast<const T2 *>(t2)), actual, expected, file, line);
     }
-#endif
-#ifndef QTEST_NO_SPECIALIZATIONS
     template<>
-#endif
     inline bool qCompare<char>(const char *t1, const char *t2, const char *actual,
                                        const char *expected, const char *file, int line)
     {
         return compare_string_helper(t1, t2, actual, expected, file, line);
     }
-#ifndef QTEST_NO_SPECIALIZATIONS
     template<>
-#endif
     inline bool qCompare<char>(char *t1, char *t2, const char *actual, const char *expected,
                         const char *file, int line)
     {
         return compare_string_helper(t1, t2, actual, expected, file, line);
     }
+#else  /* QTEST_NO_SPECIALIZATIONS */
+    inline bool qCompare(const char *t1, const char *t2, const char *actual,
+                         const char *expected, const char *file, int line)
+    {
+        return compare_string_helper(t1, t2, actual, expected, file, line);
+    }
+
+    inline bool qCompare(char *t1, char *t2, const char *actual, const char *expected,
+                         const char *file, int line)
+    {
+        return compare_string_helper(t1, t2, actual, expected, file, line);
+    }
+#endif
 
     /* The next two specializations are for MSVC that shows problems with implicit
        conversions
