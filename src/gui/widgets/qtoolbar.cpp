@@ -989,6 +989,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             if (!qobject_cast<QToolBarWidgetAction *>(item.action)) {
                 pop->addAction(item.action);
             } else {
+#if !defined(QT_NO_SIGNALMAPPER) && !defined(QT_NO_COMBOBOX)
                 if (QComboBox *cb = qobject_cast<QComboBox *>(item.widget)) {
                     QMenu *cb_menu = new QMenu(cb->windowTitle(), pop);
                     QSignalMapper *cb_mapper = new QSignalMapper(cb_menu);
@@ -999,7 +1000,9 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                         cb_mapper->setMapping(ac, i);
                     }
                     connect(cb_mapper, SIGNAL(mapped(int)), cb, SIGNAL(activated(int)));
-                } else if (QToolButton *tb = qobject_cast<QToolButton *>(item.widget)) {
+                } else
+#endif // QT_NO_SIGNALMAPPER
+                    if (QToolButton *tb = qobject_cast<QToolButton *>(item.widget)) {
                     QAction *ac = pop->addAction(tb->icon(), tb->text());
                     connect(ac, SIGNAL(triggered()), tb, SIGNAL(clicked()));
                 }
