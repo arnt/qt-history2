@@ -534,8 +534,10 @@ QString
 Option::fixString(QString string, uchar flags)
 {
     static QHash<FixStringCacheKey, QString> *cache = 0;
-    if(!cache)
+    if(!cache) {
         cache = new QHash<FixStringCacheKey, QString>;
+        qmakeAddCacheClear(qmakeDeleteCacheClear<QHash<FixStringCacheKey, QString> >, (void**)&cache);
+    }
     FixStringCacheKey cacheKey(string, flags);
     if(cache->contains(cacheKey))
         return cache->value(cacheKey);
@@ -585,6 +587,7 @@ const char *qmake_version()
     if(ret)
         return ret;
     ret = (char *)malloc(15);
+    qmakeAddCacheClear(qmakeFreeCacheClear, (void**)&ret);
 #if defined(_MSC_VER) && _MSC_VER >= 1400
     sprintf_s(ret, 15, "%d.%02d%c", QMAKE_VERSION_MAJOR, QMAKE_VERSION_MINOR, 'a' + QMAKE_VERSION_PATCH);
 #else
@@ -699,4 +702,30 @@ QString QLibraryInfo::location(QLibraryInfo::LibraryLocation loc)
         }
     }
     return ret;
+}
+
+class QMakeCacheClearItem {
+private:
+    qmakeCacheClearFunc func;
+    void **data;
+public:
+    QMakeCacheClearItem(qmakeCacheClearFunc f, void **d) : func(f), data(d) { }
+    ~QMakeCacheClearItem() {
+        (*func)(*data);
+        *data = 0;
+    }
+};
+static QList<QMakeCacheClearItem*> cache_items;
+
+void
+qmakeClearCaches()
+{
+    qDeleteAll(cache_items);
+    cache_items.clear();
+}
+
+void
+qmakeAddCacheClear(qmakeCacheClearFunc func, void **data)
+{
+    cache_items.append(new QMakeCacheClearItem(func, data));
 }

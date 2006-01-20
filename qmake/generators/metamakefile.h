@@ -23,14 +23,15 @@ class MakefileGenerator;
 class MetaMakefileGenerator
 {
 protected:
-    MetaMakefileGenerator(QMakeProject *p) : project(p) { }
+    MetaMakefileGenerator(QMakeProject *p, bool op=true) : project(p), own_project(op) { }
     QMakeProject *project;
+    bool own_project;
 
 public:
 
     virtual ~MetaMakefileGenerator();
 
-    static MetaMakefileGenerator *createMetaGenerator(QMakeProject *);
+    static MetaMakefileGenerator *createMetaGenerator(QMakeProject *proj, bool op=true);
     static MakefileGenerator *createMakefileGenerator(QMakeProject *proj, bool noIO = false);
 
     inline QMakeProject *projectFile() const { return project; }

@@ -91,7 +91,7 @@ int main(int argc, char **argv)
     if(Option::qmake_mode == Option::QMAKE_QUERY_PROPERTY || Option::qmake_mode == Option::QMAKE_SET_PROPERTY)
         return prop.exec() ? 0 : 101;
 
-    QMakeProject proj(&prop);
+    QMakeProject project(&prop);
     int exit_val = 0;
     QStringList files;
     if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
             }
 
             // read project..
-            if(!proj.read(fn)) {
+            if(!project.read(fn)) {
                 fprintf(stderr, "Error processing project file: %s\n",
                         fn == "-" ? "(stdin)" : (*pfile).toLatin1().constData());
                 exit_val = 3;
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
                 continue;
         }
 
-        MetaMakefileGenerator *mkfile = MetaMakefileGenerator::createMetaGenerator(&proj);
+        MetaMakefileGenerator *mkfile = MetaMakefileGenerator::createMetaGenerator(&project, false);
         if(mkfile && !mkfile->write(oldpwd)) {
             if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)
                 fprintf(stderr, "Unable to generate project file.\n");
@@ -141,5 +141,6 @@ int main(int argc, char **argv)
         delete mkfile;
         mkfile = NULL;
     }
+    qmakeClearCaches();
     return exit_val;
 }

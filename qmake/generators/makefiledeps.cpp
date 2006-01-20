@@ -63,6 +63,7 @@ struct SourceFile {
     SourceFile() : deps(0), type(QMakeSourceFileInfo::TYPE_UNKNOWN),
                    mocable(0), traversed(0), exists(1),
                    moc_checked(0), dep_checked(0), included_count(0) { }
+    ~SourceFile();
     QMakeLocalFileName file;
     SourceDependChildren *deps;
     QMakeSourceFileInfo::SourceFileType type;
@@ -74,7 +75,7 @@ struct SourceDependChildren {
     SourceFile **children;
     int num_nodes, used_nodes;
     SourceDependChildren() : children(0), num_nodes(0), used_nodes(0) { }
-    ~SourceDependChildren() { if(children) free(children); }
+    ~SourceDependChildren() { if(children) free(children); children = 0; }
     void addChild(SourceFile *s) {
         if(num_nodes <= used_nodes) {
             num_nodes += 200;
@@ -83,6 +84,7 @@ struct SourceDependChildren {
         children[used_nodes++] = s;
     }
 };
+SourceFile::~SourceFile() { delete deps; }
 class SourceFiles {
     int hash(const char *);
 public:
@@ -92,13 +94,19 @@ public:
     SourceFile *lookupFile(const char *);
     inline SourceFile *lookupFile(const QString &f) { return lookupFile(f.toLatin1().constData()); }
     inline SourceFile *lookupFile(const QMakeLocalFileName &f) { return lookupFile(f.local().toLatin1().constData()); }
-    void addFile(SourceFile *, const char *k=0);
+    void addFile(SourceFile *, const char *k=0, bool own=true);
 
     struct SourceFileNode {
-        ~SourceFileNode() { free(key); }
+        SourceFileNode() : key(0), file(0), next(0), own_file(1) { }
+        ~SourceFileNode() {
+            delete [] key;
+            if(own_file)
+                delete file;
+        }
         char *key;
         SourceFileNode *next;
         SourceFile *file;
+        uint own_file : 1;
     } **nodes;
     int num_nodes;
 };
@@ -112,13 +120,10 @@ SourceFiles::SourceFiles()
 SourceFiles::~SourceFiles()
 {
     for(int n = 0; n < num_nodes; n++) {
-        if(nodes[n]) {
-            for(SourceFileNode *next = nodes[n]->next; next;) {
-                SourceFileNode *next_next = next->next;
-                delete next;
-                next = next_next;
-            }
-            delete nodes[n];
+        for(SourceFileNode *next = nodes[n]; next;) {
+            SourceFileNode *next_next = next->next;
+            delete next;
+            next = next_next;
         }
     }
     free(nodes);
@@ -147,15 +152,16 @@ SourceFile *SourceFiles::lookupFile(const char *file)
     return 0;
 }
 
-void SourceFiles::addFile(SourceFile *p, const char *k)
+void SourceFiles::addFile(SourceFile *p, const char *k, bool own_file)
 {
     QByteArray ba = p->file.local().toLatin1();
     if(!k)
         k = ba;
     int h = hash(k) % num_nodes;
     SourceFileNode *pn = new SourceFileNode;
+    pn->own_file = own_file;
     pn->key = qstrdup(k);
-	pn->file = p;
+    pn->file = p;
     pn->next = nodes[h];
     nodes[h] = pn;
 }
@@ -609,7 +615,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                         dep->file = lfn;
                         dep->type = QMakeSourceFileInfo::TYPE_C;
                         files->addFile(dep);
-                        includes->addFile(dep, inc);
+                        includes->addFile(dep, inc, false);
                     }
                     dep->exists = exists;
                 }

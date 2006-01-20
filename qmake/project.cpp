@@ -537,6 +537,8 @@ QMakeProject::~QMakeProject()
 {
     if(own_prop)
         delete prop;
+    qDeleteAll(replaceFunctions);
+    qDeleteAll(testFunctions);
 }
 
 
@@ -587,8 +589,11 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                     return false;
                 }
                 ScopeBlock sb = scope_blocks.pop();
-                if(sb.iterate)
+                if(sb.iterate) {
                     sb.iterate->exec(this, place);
+                    delete sb.iterate;
+                    sb.iterate = false;
+                }
                 if(!scope_blocks.top().ignore) {
                     debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.toLatin1().constData(),
                               parser.line_no, scope_blocks.count()+1);
@@ -1398,8 +1403,10 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
 #ifdef Q_OS_UNIX
     else if(spec == "default") {
         static char *buffer = NULL;
-        if(!buffer)
+        if(!buffer) {
             buffer = (char *)malloc(1024);
+            qmakeAddCacheClear(qmakeFreeCacheClear, (void**)&buffer);
+        }
         int l = readlink(Option::mkfile::qmakespec.toLatin1(), buffer, 1024);
         if(l != -1) {
             buffer[l] = '\0';
@@ -1474,8 +1481,10 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
         if(file.indexOf(Option::dir_sep) == -1 || !QFile::exists(file)) {
             bool found = false;
             static QStringList *feature_roots = 0;
-            if(!feature_roots)
+            if(!feature_roots) {
                 feature_roots = new QStringList(qmake_feature_paths(prop));
+                qmakeAddCacheClear(qmakeDeleteCacheClear<QStringList>, (void**)&feature_roots);
+            }
             debug_msg(2, "Looking for feature '%s' in (%s)", file.toLatin1().constData(),
 			feature_roots->join("::").toLatin1().constData());
             int start_root = 0;
@@ -1600,6 +1609,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
     static QMap<QString, int> *expands = 0;
     if(!expands) {
         expands = new QMap<QString, int>;
+        qmakeAddCacheClear(qmakeDeleteCacheClear<QMap<QString,int> >, (void**)&expands);
         expands->insert("member", E_MEMBER);
         expands->insert("first", E_FIRST);
         expands->insert("last", E_LAST);

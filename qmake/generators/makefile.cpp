@@ -1048,6 +1048,7 @@ MakefileGenerator::writeProjectMakefile()
             t << (*it)->makefile << ": " <<
                 Option::fixPathToTargetOS(fileFixify(Option::output.fileName())) << endl;
     }
+    qDeleteAll(targets);
     return true;
 }
 
@@ -2280,6 +2281,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
     if(project->isActiveConfig("ordered"))
         flags |= SubTargetOrdered;
     writeSubTargets(t, targets, flags);
+    qDeleteAll(targets);
 }
 
 void
@@ -2664,8 +2666,10 @@ MakefileGenerator::fileInfo(QString file) const
 {
     static QHash<FileInfoCacheKey, QFileInfo> *cache = 0;
     static QFileInfo noInfo = QFileInfo();
-    if(!cache)
+    if(!cache) {
         cache = new QHash<FileInfoCacheKey, QFileInfo>;
+        qmakeAddCacheClear(qmakeDeleteCacheClear<QHash<FileInfoCacheKey, QFileInfo> >, (void**)&cache);
+    }
     FileInfoCacheKey cacheKey(file);
     QFileInfo value = cache->value(cacheKey, noInfo);
     if (value != noInfo)
@@ -2756,8 +2760,10 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
 
     //setup the cache
     static QHash<FileFixifyCacheKey, QString> *cache = 0;
-    if(!cache)
+    if(!cache) {
         cache = new QHash<FileFixifyCacheKey, QString>;
+        qmakeAddCacheClear(qmakeDeleteCacheClear<QHash<FileFixifyCacheKey, QString> >, (void**)&cache);
+    }
     FileFixifyCacheKey cacheKey(ret, out_d, in_d, fix, canon);
     QString cacheVal = cache->value(cacheKey);
     if(!cacheVal.isNull())
