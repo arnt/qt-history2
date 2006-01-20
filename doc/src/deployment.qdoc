@@ -1359,24 +1359,38 @@
     \section2 Architecture Dependencies
 
     The Qt/Mac libraries, tools, and examples can be built "universal"
-    (i.e. they run native on both Intel and PowerPC machines).  This
+    (i.e. they run natively on both Intel and PowerPC machines).  This
     is accomplished by passing \c -universal on the \c configure line
-    of the source package. This requires that you use GCC 4.0. The
-    current binary package is only built as PowerPC.
+    of the source package, and requires that you use GCC 4.0.x. On
+    PowerPC hardware you will need to pass the universal SDK as a
+    command line argument to the Qt configure command. For example:
+
+    \code
+         ./configue (other arguments) -universal -sdk /Developer/SDKs/MacOSX10.4u.sdk
+    \endcode
+
+    From 4.1.1 the Qt binary package is already universal.
 
     If you want to create a binary that runs on older versions of
     PowerPC and x86, it is possible to build Qt for the PowerPC using
-    GCC 3.3, and for x86 one using GCC 4.0 and Apple's \c lipo(1) tool
-    to stitch them together. This is beyond the scope of this document
-    and is not something we have tried, but Apple documents it on
-    their \l {http://developer.apple.com/documentation}{developer
-    website}.
+    GCC 3.3, and for x86 one using GCC 4.0, and use Apple's \c lipo(1)
+    tool to stitch them together. This is beyond the scope of this
+    document and is not something we have tried, but Apple documents
+    it on their \l
+    {http://developer.apple.com/documentation}{developer website}.
 
-    Once you have a universal Qt, Qt will build for its host
-    architecture by default. If you want to build for a specific
-    architecture, you can control this with \c CONFIG line in your \c
-    .pro file. Use \c CONFIG+=ppc for PowerPC, and \c CONFIG+=x86 for
-    x86. If you desire both, simply add both to the \c CONFIG line.
+    Once you have a universal Qt, \a qmake will generate make files
+    that will build for its host architecture by default. If you want
+    to build for a specific architecture, you can control this with
+    the \c CONFIG line in your \c .pro file. Use \c CONFIG+=ppc for
+    PowerPC, and \c CONFIG+=x86 for x86. If you desire both, simply
+    add both to the \c CONFIG line. PowerPC users also need an
+    SDK. For example:
+
+    \code
+        QMAKE_MAC_SDK=/Developer/SDKs/MacOSX10.4u.sdk
+        CONFIG+=x86 ppc
+    \endcode
 
     Besides \c lipo, you can also check your binaries with the file(1)
     command line tool or the Finder.
