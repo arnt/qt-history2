@@ -5590,7 +5590,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
 
 /*!
     This function returns a copy of this string where \a a replaces
-    the lowest numbered occurrence of \c %1, \c %2, ..., \c %9.
+    the lowest numbered occurrence of \c %1, \c %2, ..., \c %99.
 
     The \a fieldWidth value specifies the minimum amount of space that
     \a a is padded to and filled with the character \a fillChar. A
@@ -5615,6 +5615,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
 
     If there is no place marker (\c %1, \c %2, etc.), a warning
     message is output and the result is undefined.
+    Note that only placeholders between \c %1 and \c %99 are supported.
 */
 QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) const
 {
