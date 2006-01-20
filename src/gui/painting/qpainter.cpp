@@ -4360,7 +4360,8 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
             ti2.logClusters += (ti2.chars - ti.chars);
         
             ti2.num_chars = 0;
-            while (ti2.logClusters[ti2.num_chars] - logClusterOffset < end)
+            int char_start = ti2.chars - ti.chars;
+            while (char_start + ti2.num_chars < ti.num_chars && ti2.logClusters[ti2.num_chars] - logClusterOffset < end)
                 ++ti2.num_chars;
         }        
         ti2.width = 0;
@@ -4399,7 +4400,8 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
         ti2.logClusters += (ti2.chars - ti.chars);
         
         ti2.num_chars = 0;
-        while (ti2.logClusters[ti2.num_chars] - logClusterOffset < end)
+        int char_start = ti2.chars - ti.chars;
+        while (char_start + ti2.num_chars < ti.num_chars && ti2.logClusters[ti2.num_chars] - logClusterOffset < end)
             ++ti2.num_chars;
     }    
     ti2.width = 0;
