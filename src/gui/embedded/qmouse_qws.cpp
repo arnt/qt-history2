@@ -276,8 +276,8 @@ void QWSCalibratedMouseHandler::writeCalibration()
     } else
 #endif
     {
-        qCritical() << "QWSCalibratedMouseHandler::writeCalibration:"
-            "Could not save calibration into " << calFile;
+        qCritical("QWSCalibratedMouseHandler::writeCalibration: "
+                  "Could not save calibration into %s", qPrintable(calFile));
     }
 }
 
