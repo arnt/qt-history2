@@ -340,8 +340,10 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::ImageText:
 	break;
     case Atom::LegaleseLeft:
+        out() << "<div style=\"padding: 0.5em; background: #e0e0e0; color: black\">";
 	break;
     case Atom::LegaleseRight:
+        out() << "</div>";
 	break;
     case Atom::Link:
         link = getLink(atom, relative, marker);
@@ -934,6 +936,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
 
     QString shortVersion;
     if ( project != "Qtopia" ) {
+        shortVersion = project + " " + shortVersion + ": ";
         if (node && !node->doc().location().isEmpty())
             out() << "<!-- " << node->doc().location().filePath() << " -->\n";
 
@@ -1598,7 +1601,9 @@ void HtmlGenerator::generateSynopsis(const Node *node, const Node *relative,
 
 void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* marker */)
 {
-    QMap<QString, FakeNode *> fakeNodeMap;
+    QMap<const FakeNode *, QMap<QString, FakeNode *> > fakeNodeMap;
+    QMap<QString, const FakeNode *> groupTitlesMap;
+    QMap<QString, FakeNode *> uncategorizedNodeMap;
     QRegExp singleDigit("\\b([0-9])\\b");
 
     const NodeList children = tre->root()->childNodes();
@@ -1622,13 +1627,79 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
             if (sortKey.startsWith("the "))
                 sortKey.remove(0, 4);
             sortKey.replace(singleDigit, "0\\1");
-            fakeNodeMap.insert(sortKey, fakeNode);
+
+            // Check whether the page is part of a group or is the group
+            // definition page.
+            QString group;
+            bool isGroupPage;
+            if (fakeNode->doc().metaCommandsUsed().contains("ingroup")) {
+                group = fakeNode->doc().metaCommandArgs("ingroup")[0];
+                isGroupPage = false;
+            } else if (fakeNode->doc().metaCommandsUsed().contains("group")) {
+                group = fakeNode->doc().metaCommandArgs("group")[0];
+                isGroupPage = true;
+            }
+
+            if (!group.isEmpty()) {
+                if (isGroupPage) {
+                    // If we encounter a group definition page, we add all
+                    // the pages in that group to the list for that group.
+                    foreach (Node *member, fakeNode->groupMembers()) {
+                        FakeNode *page = static_cast<FakeNode *>(member);
+                        if (page && member->type() == Node::Fake) {
+                            QString sortKey = page->fullTitle().toLower();
+                            if (sortKey.startsWith("the "))
+                                sortKey.remove(0, 4);
+                            sortKey.replace(singleDigit, "0\\1");
+                            fakeNodeMap[const_cast<const FakeNode *>(fakeNode)].insert(sortKey, page);
+                            groupTitlesMap[fakeNode->fullTitle()] = const_cast<const FakeNode *>(fakeNode);
+                        }
+                    }
+                } else if (!isGroupPage) {
+                    // If we encounter a page that belongs to a group then
+                    // we add that page to the list for that group.
+                    const FakeNode *groupNode = static_cast<const FakeNode *>(tre->root()->findNode(group, Node::Fake));
+                    if (groupNode)
+                        fakeNodeMap[groupNode].insert(sortKey, fakeNode);
+                    else
+                        uncategorizedNodeMap.insert(sortKey, fakeNode);
+                } else
+                    uncategorizedNodeMap.insert(sortKey, fakeNode);
+            } else
+                uncategorizedNodeMap.insert(sortKey, fakeNode);
         }
     }
 
+    // We now list all the pages found that belong to groups.
+    // If only certain pages were found for a group, but the definition page
+    // for that group wasn't listed, the list of pages will be intentionally
+    // incomplete. However, if the group definition page was listed, all the
+    // pages in that group are listed for completeness.
+
     if (!fakeNodeMap.isEmpty()) {
+        foreach (QString groupTitle, groupTitlesMap.keys()) {
+            const FakeNode *groupNode = groupTitlesMap[groupTitle];
+            out() << QString("<h3><a href=\"%1\">%2</a></h3>\n").arg(
+                        linkForNode(groupNode, relative)).arg(
+                        protect(groupNode->fullTitle()));
+
+            out() << "<ul>\n";
+            
+            foreach (FakeNode *fakeNode, fakeNodeMap[groupNode]) {
+                QString title = fakeNode->fullTitle();
+                if (title.startsWith("The "))
+                    title.remove(0, 4);
+                out() << "<li><a href=\"" << linkForNode(fakeNode, relative) << "\">"
+                      << protect(title) << "</a></li>\n";
+            }
+            out() << "</ul>\n";
+        }
+    }
+
+    if (!uncategorizedNodeMap.isEmpty()) {
+        out() << QString("<h3>Miscellaneous</h3>\n");
         out() << "<ul>\n";
-        foreach (FakeNode *fakeNode, fakeNodeMap) {
+        foreach (FakeNode *fakeNode, uncategorizedNodeMap) {
             QString title = fakeNode->fullTitle();
             if (title.startsWith("The "))
                 title.remove(0, 4);
