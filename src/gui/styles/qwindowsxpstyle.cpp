@@ -823,10 +823,14 @@ void QWindowsXPStylePrivate::drawBackground(XPThemeData &themeData)
 
     painter->save();
 
+    QMatrix m = painter->matrix();
+    bool complexXForm = m.m11() != 1.0 || m.m22() != 1.0 || m.m12() != 0.0 || m.m21() != 0.0;
+
     bool useFallback = painter->paintEngine()->getDC() == 0 
                        || themeData.rotate 
-		       || themeData.mirrorVertically
-		       || (themeData.mirrorHorizontally && pDrawThemeBackgroundEx == 0);
+                       || complexXForm
+		               || themeData.mirrorVertically
+		               || (themeData.mirrorHorizontally && pDrawThemeBackgroundEx == 0);
     if (!useFallback)
         drawBackgroundDirectly(themeData);
     else
@@ -845,8 +849,8 @@ void QWindowsXPStylePrivate::drawBackgroundDirectly(XPThemeData &themeData)
     QPainter *painter = themeData.painter;
     HDC dc = painter->paintEngine()->getDC();
 
-    QPoint redirectionDelta(int(painter->deviceMatrix().dx() - painter->matrix().dx()),
-                            int(painter->deviceMatrix().dy() - painter->matrix().dy()));
+    QPoint redirectionDelta(int(painter->deviceMatrix().dx()),
+                            int(painter->deviceMatrix().dy()));
     QRect area = themeData.rect.translated(redirectionDelta);
 
     QRegion sysRgn = painter->paintEngine()->systemClip();
