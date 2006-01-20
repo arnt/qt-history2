@@ -252,10 +252,15 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
 
             QRect r = QApplication::desktop()->screenGeometry(
                 QApplication::desktop()->screenNumber(parent));
+            const int border = 10;
             if (options.location.h + w > r.right())
-                options.location.h -= (options.location.h + w) - r.right() + 10;
+                options.location.h -= (options.location.h + w) - r.right() + border;
             if (options.location.v + h > r.bottom())
-                options.location.v -= (options.location.v + h) - r.bottom() + 10;
+                options.location.v -= (options.location.v + h) - r.bottom() + border;
+            if(options.location.h < r.left())
+                options.location.h = r.left() + border;
+            if(options.location.v < r.top())
+                options.location.v = r.top() + border;
         }
 #if 0
     } else if (QWidget *p = qApp->mainWidget()) {

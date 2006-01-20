@@ -32,10 +32,15 @@ QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent)
         p.h = (parent->x() + (parent->width() / 2)) - (sw / 2);
         p.v = (parent->y() + (parent->height() / 2)) - (sh / 2);
         QRect r = QApplication::desktop()->screenGeometry(QApplication::desktop()->screenNumber(parent));
+        const int border = 10;
         if(p.h + sw > r.right())
-            p.h -= (p.h + sw) - r.right() + 10;
+            p.h -= (p.h + sw) - r.right() + border;
         if(p.v + sh > r.bottom())
-            p.v -= (p.v + sh) - r.bottom() + 10;
+            p.v -= (p.v + sh) - r.bottom() + border;
+        if(p.h < r.left())
+            p.h = r.left() + border;
+        if(p.v < r.top())
+            p.v = r.top() + border;
 #if 0
     } else if(QWidget *w = qApp->mainWidget()) {
         static int last_screen = -1;
