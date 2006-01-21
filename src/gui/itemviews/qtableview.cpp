@@ -1240,11 +1240,8 @@ void QTableView::selectRow(int row)
     Q_D(QTableView);
 
     if (selectionBehavior() == SelectColumns ||
-        (selectionMode() == SingleSelection && selectionBehavior() == SelectItems)) {
-        qWarning("selectRow() failed since the current SelectionMode and SelectionBehavior"
-                 " does not allow rows to be selected.");
+        (selectionMode() == SingleSelection && selectionBehavior() == SelectItems))
         return;
-    }
 
     if (row >= 0 && row < model()->rowCount(rootIndex())) {
         QModelIndex index = model()->index(row, 0, rootIndex());
@@ -1270,11 +1267,8 @@ void QTableView::selectColumn(int column)
     Q_D(QTableView);
 
     if (selectionBehavior() == SelectRows ||
-        (selectionMode() == SingleSelection && selectionBehavior() == SelectItems)) {
-        qWarning("selectColumn() failed since the current SelectionMode and SelectionBehavior"
-                 " does not allow columns to be selected.");
+        (selectionMode() == SingleSelection && selectionBehavior() == SelectItems))
         return;
-    }
 
     if (column >= 0 && column < model()->columnCount(rootIndex())) {
         QModelIndex index = model()->index(0, column, rootIndex());
