@@ -82,6 +82,9 @@ bool QTemporaryFileEngine::open(QIODevice::OpenMode)
 bool QTemporaryFileEngine::remove()
 {
     Q_D(QFSFileEngine);
+    // Since the QTemporaryFileEngine::close() does not really close the file, 
+    // we must explicitly call QFSFileEngine::close() before we remove it.
+    QFSFileEngine::close();
     bool removed = QFSFileEngine::remove();
     d->file.clear();
     return removed;
