@@ -602,7 +602,7 @@ void QProcessPrivate::terminateProcess()
     qDebug("QProcessPrivate::killProcess()");
 #endif
     if (pid)
-        ::kill(pid, SIGTERM);
+        ::kill(pid_t(pid), SIGTERM);
 }
 
 void QProcessPrivate::killProcess()
@@ -611,7 +611,7 @@ void QProcessPrivate::killProcess()
     qDebug("QProcessPrivate::killProcess()");
 #endif
     if (pid)
-        ::kill(pid, SIGKILL);
+        ::kill(pid_t(pid), SIGKILL);
 }
 
 static int qt_native_select(fd_set *fdread, fd_set *fdwrite, int timeout)
