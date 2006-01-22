@@ -14,6 +14,7 @@
 #include "project.h"
 #include "property.h"
 #include "option.h"
+#include "cachekeys.h"
 #include "metamakefile.h"
 #include <qnamespace.h>
 #include <qregexp.h>

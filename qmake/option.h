@@ -152,12 +152,6 @@ private:
 inline QString fixEnvVariables(const QString &x) { return Option::fixString(x, Option::FixEnvVars); }
 inline QStringList splitPathList(const QString paths) { return paths.split(Option::dirlist_sep); }
 
-template<class T> void qmakeDeleteCacheClear(void *i) { delete (T*)i; }
-template<class T> void qmakeDeleteArrayCacheClear(void *i) { delete [] (T*)i; }
-inline void qmakeFreeCacheClear(void *i) { free(i); }
-typedef void (*qmakeCacheClearFunc)(void *);
-void qmakeClearCaches();
-void qmakeAddCacheClear(qmakeCacheClearFunc func, void **);
 
 // this is a stripped down version of the one found in QtCore
 class QLibraryInfo

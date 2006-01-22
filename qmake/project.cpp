@@ -14,6 +14,8 @@
 #include "project.h"
 #include "property.h"
 #include "option.h"
+#include "cachekeys.h"
+
 #include <qdatetime.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -1483,7 +1485,7 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
             static QStringList *feature_roots = 0;
             if(!feature_roots) {
                 feature_roots = new QStringList(qmake_feature_paths(prop));
-                qmakeAddCacheClear(qmakeDeleteCacheClear<QStringList>, (void**)&feature_roots);
+                qmakeAddCacheClear(qmakeDeleteCacheClear_QStringList, (void**)&feature_roots);
             }
             debug_msg(2, "Looking for feature '%s' in (%s)", file.toLatin1().constData(),
 			feature_roots->join("::").toLatin1().constData());
@@ -1609,7 +1611,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
     static QMap<QString, int> *expands = 0;
     if(!expands) {
         expands = new QMap<QString, int>;
-        qmakeAddCacheClear(qmakeDeleteCacheClear<QMap<QString,int> >, (void**)&expands);
+        qmakeAddCacheClear(qmakeDeleteCacheClear_QMapStringInt, (void**)&expands);
         expands->insert("member", E_MEMBER);
         expands->insert("first", E_FIRST);
         expands->insert("last", E_LAST);

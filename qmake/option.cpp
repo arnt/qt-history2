@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "option.h"
+#include "cachekeys.h"
 #include <qdir.h>
 #include <qregexp.h>
 #include <qhash.h>
@@ -503,40 +504,13 @@ bool Option::postProcessProject(QMakeProject *project)
     return true;
 }
 
-struct FixStringCacheKey
-{
-    mutable uint hash;
-    QString string, pwd;
-    uchar flags;
-    FixStringCacheKey(const QString &s, uchar f)
-    {
-        hash = 0;
-        pwd = qmake_getpwd();
-        string = s;
-        flags = f;
-    }
-    bool operator==(const FixStringCacheKey &f) const
-    {
-        return (hashCode() == f.hashCode() &&
-                f.flags == flags &&
-                f.string == string &&
-                f.pwd == pwd);
-    }
-    inline uint hashCode() const {
-        if(!hash)
-            hash = qHash(string) | qHash(flags) /*| qHash(pwd)*/;
-        return hash;
-    }
-};
-uint qHash(const FixStringCacheKey &f) { return f.hashCode(); }
-
 QString
 Option::fixString(QString string, uchar flags)
 {
     static QHash<FixStringCacheKey, QString> *cache = 0;
     if(!cache) {
         cache = new QHash<FixStringCacheKey, QString>;
-        qmakeAddCacheClear(qmakeDeleteCacheClear<QHash<FixStringCacheKey, QString> >, (void**)&cache);
+        qmakeAddCacheClear(qmakeDeleteCacheClear_QHashFixStringCacheKeyQString, (void**)&cache);
     }
     FixStringCacheKey cacheKey(string, flags);
     if(cache->contains(cacheKey))

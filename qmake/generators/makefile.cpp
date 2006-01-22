@@ -13,6 +13,7 @@
 
 #include "makefile.h"
 #include "option.h"
+#include "cachekeys.h"
 #include "meta.h"
 #include <qdir.h>
 #include <qfile.h>
@@ -2624,43 +2625,6 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
     }
 }
 
-struct FileInfoCacheKey
-{
-    mutable uint hash;
-    QString file, pwd;
-    FileInfoCacheKey(const QString &f)
-    {
-        hash = 0;
-        if(isRelativePath(f))
-            pwd = qmake_getpwd();
-        file = f;
-    }
-    bool operator==(const FileInfoCacheKey &f) const
-    {
-        return (hashCode() == f.hashCode() && f.file == file &&
-                f.pwd == pwd);
-    }
-    inline uint hashCode() const {
-        if(!hash)
-            hash = qHash(file) /*| qHash(pwd)*/;
-        return hash;
-    }
-    inline bool isRelativePath(const QString &file) {
-        int length = file.length();
-        if (!length)
-            return true;
-
-        const QChar c0 = file.at(0);
-        const QChar c1 = length >= 2 ? file.at(1) : QChar(0);
-        return !(c0 == QLatin1Char('/')
-                || c0 == QLatin1Char('\\')
-                || (c0.isLetter() && c1 == QLatin1Char(':'))
-                || (c0 == QLatin1Char('/') && c1 == QLatin1Char('/'))
-                || (c0 == QLatin1Char('\\') && c1 == QLatin1Char('\\')));
-    }
-};
-uint qHash(const FileInfoCacheKey &f) { return f.hashCode(); }
-
 QFileInfo
 MakefileGenerator::fileInfo(QString file) const
 {
@@ -2668,7 +2632,7 @@ MakefileGenerator::fileInfo(QString file) const
     static QFileInfo noInfo = QFileInfo();
     if(!cache) {
         cache = new QHash<FileInfoCacheKey, QFileInfo>;
-        qmakeAddCacheClear(qmakeDeleteCacheClear<QHash<FileInfoCacheKey, QFileInfo> >, (void**)&cache);
+        qmakeAddCacheClear(qmakeDeleteCacheClear_QHashFileInfoCacheKeyQFileInfo, (void**)&cache);
     }
     FileInfoCacheKey cacheKey(file);
     QFileInfo value = cache->value(cacheKey, noInfo);
@@ -2695,53 +2659,6 @@ MakefileGenerator::fileFixify(const QStringList& files, const QString &out_dir, 
     return ret;
 }
 
-struct FileFixifyCacheKey
-{
-    mutable uint hash;
-    QString in_d, out_d;
-    QString file, pwd;
-    uint fixType;
-    bool canonicalize;
-    FileFixifyCacheKey(const QString &f, const QString &od, const QString &id,
-                       uint ft, bool c)
-    {
-        hash = 0;
-        pwd = qmake_getpwd();
-        file = f;
-        if(od.isNull())
-            out_d = Option::output_dir;
-        else
-            out_d = od;
-        if(id.isNull())
-            in_d = qmake_getpwd();
-        else
-            in_d = id;
-        fixType = ft;
-        canonicalize = c;
-    }
-    QString toString() const {
-        return file + "--" + in_d + "--" + out_d + "--" + pwd + "--" +
-            QString::number(fixType) + "--" + QString::number((int)canonicalize);
-    }
-    bool operator==(const FileFixifyCacheKey &f) const
-    {
-        return (f.canonicalize == canonicalize &&
-                f.fixType == fixType &&
-                f.file == file &&
-                f.in_d == in_d &&
-                f.out_d == out_d &&
-                f.pwd == pwd);
-    }
-    inline uint hashCode() const {
-        if(!hash)
-            hash = uint(canonicalize) | uint(fixType) |
-                   qHash(file) | qHash(in_d) | qHash(out_d) /*|qHash(pwd)*/;
-        return hash;
-    }
-};
-
-uint qHash(const FileFixifyCacheKey &f) { return f.hashCode(); }
-
 QString
 MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const QString &in_d,
                               FileFixifyType fix, bool canon) const
@@ -2762,7 +2679,7 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
     static QHash<FileFixifyCacheKey, QString> *cache = 0;
     if(!cache) {
         cache = new QHash<FileFixifyCacheKey, QString>;
-        qmakeAddCacheClear(qmakeDeleteCacheClear<QHash<FileFixifyCacheKey, QString> >, (void**)&cache);
+        qmakeAddCacheClear(qmakeDeleteCacheClear_QHashFileFixifyCacheKeyQString, (void**)&cache);
     }
     FileFixifyCacheKey cacheKey(ret, out_d, in_d, fix, canon);
     QString cacheVal = cache->value(cacheKey);

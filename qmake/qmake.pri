@@ -12,7 +12,7 @@ SOURCES += project.cpp property.cpp main.cpp generators/makefile.cpp \
            generators/makefiledeps.cpp generators/metamakefile.cpp generators/mac/pbuilder_pbx.cpp \
            qtmd5.cpp generators/xmloutput.cpp
 HEADERS += project.h property.h generators/makefile.h \
-           generators/unix/unixmake.h meta.h option.h \
+           generators/unix/unixmake.h meta.h option.h cachekeys.h \
            generators/win32/winmakefile.h generators/projectgenerator.h \
            qtmd5.h generators/makefiledeps.h generators/metamakefile.h generators/mac/pbuilder_pbx.h \
            generators/xmloutput.h

@@ -16,6 +16,7 @@
 #include "qdir.h"
 #include "makefile.h"
 #include "project.h"
+#include "cachekeys.h"
 
 #define BUILDSMETATYPE 1
 #define SUBDIRSMETATYPE 2
