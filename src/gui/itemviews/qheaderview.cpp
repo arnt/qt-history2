@@ -1342,10 +1342,11 @@ bool QHeaderView::event(QEvent *e)
         QHoverEvent *he = static_cast<QHoverEvent*>(e);
         int oldHover = d->hover;
         d->hover = logicalIndexAt(he->pos());
-        if (d->hover != oldHover && d->hover != -1) {
+        if (d->hover != oldHover) {
             if (oldHover != -1)
                 updateSection(oldHover);
-            updateSection(d->hover);
+            if (d->hover != -1)
+                updateSection(d->hover);
         }
         break; }
     default:
