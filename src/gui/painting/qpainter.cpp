@@ -5332,7 +5332,7 @@ Q_GLOBAL_STATIC(QPaintDeviceRedirectionList, globalRedirections)
     offset within the source device.
 
     The redirection will not be effective until the begin() function
-    have been called; make sure to call end() for the given \a
+    has been called; make sure to call end() for the given \a
     device's painter (if any) before redirecting. Call
     restoreRedirected() to restore the previous redirection.
 
