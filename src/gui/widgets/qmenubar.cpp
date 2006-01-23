@@ -494,8 +494,8 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
 
     Menu items may be removed with removeAction().
 
-    \inlineimage qmenubar-m.png Screenshot in Motif style
-    \inlineimage qmenubar-w.png Screenshot in Windows style
+    \image motif-menubar.png A menubar shown in the Motif widget style.
+    \image plastique-menubar.png A menubar shown in the Windows widget style.
 
     \section1 QMenuBar on Qt/Mac
 
