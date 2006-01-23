@@ -983,7 +983,7 @@ bool
 QFile::resize(qint64 sz)
 {
     Q_D(QFile);
-    if (fileEngine()->pos() > sz)
+    if (isOpen() && fileEngine()->pos() > sz)
         seek(sz);
     if(fileEngine()->setSize(sz)) {
         unsetError();

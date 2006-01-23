@@ -1584,9 +1584,11 @@ bool QFSFileEngine::setSize(qint64 size)
                         return false;
                 }
                 file1.close();
-                file2.close();
+                file1.remove();
                 if (file2.rename(file1.fileName()))
                     return true;
+                qWarning("QFSFileEngine::rename: Failed to rename %s: %s", 
+                    qPrintable(file2.fileName()), qPrintable(qt_error_string(errno)));
             }
         }
     }
