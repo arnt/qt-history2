@@ -155,8 +155,8 @@
     user interaction with the scroll bar controls. This is useful if you have
     many different widgets that use a common range of values.
 
-    \inlineimage qscrbar-m.png Screenshot in Motif style
-    \inlineimage qscrbar-w.png Screenshot in Windows style
+    \image macintosh-scrollbar.png A scroll bar shown in the Macintosh widget style.
+    \image windowsxp-scrollbar.png A scroll bar shown in the WindowsXP widget style.
 
     Most GUI styles use the pageStep() value to calculate the size of the
     slider.
