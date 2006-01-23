@@ -2096,4 +2096,31 @@ void QDir::setNameFilter(const QString &nameFilter)
     Use QDir::SortFlags instead.
 */
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug debug, QDir::Filters filters)
+{
+    QStringList flags;
+    if (filters == QDir::NoFilter) {
+        flags << "NoFilter";        
+    } else {
+        if (filters & QDir::Dirs) flags << "Dirs";
+        if (filters & QDir::AllDirs) flags << "AllDirs";
+        if (filters & QDir::Files) flags << "Files";
+        if (filters & QDir::Drives) flags << "Drives";
+        if (filters & QDir::NoSymLinks) flags << "NoSymLinks";
+        if (filters & QDir::NoDotAndDotDot) flags << "NoDotAndDotDot";
+        if ((filters & QDir::AllEntries) == QDir::AllEntries) flags << "AllEntries";
+        if (filters & QDir::Readable) flags << "Readable";
+        if (filters & QDir::Writable) flags << "Writable";
+        if (filters & QDir::Executable) flags << "Executable";
+        if (filters & QDir::Modified) flags << "Modified";
+        if (filters & QDir::Hidden) flags << "Hidden";
+        if (filters & QDir::System) flags << "System";
+        if (filters & QDir::CaseSensitive) flags << "CaseSensitive";
+    }
+    debug << "QDir::Filters(" << flags.join("|") << ")";
+    return debug;
+}
+#endif
+
 #endif
