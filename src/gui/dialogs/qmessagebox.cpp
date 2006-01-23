@@ -302,8 +302,7 @@ static const char * const qtlogo_xpm[] = {
     The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
     how to use QMessageBox as well as other built-in Qt dialogs.
 
-    \inlineimage qmsgbox-m.png Screenshot in Motif style
-    \inlineimage qmsgbox-w.png Screenshot in Windows style
+    \image plastique-messagebox.png A message box shown in the Plastique widget style.
 
     \sa QDialog, {fowler}{GUI Design Handbook: Message Box}
 */
