@@ -103,18 +103,19 @@ void QMenuBarPrivate::updateGeometries()
     int q_start = -1;
     if(leftWidget || rightWidget) {
         int vmargin = q->style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, q)
-                      + q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q),
-            hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, q);
+                      + q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
+        int hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, q)
+                      + q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
         if(leftWidget && leftWidget->isVisible()) {
             QSize sz = leftWidget->sizeHint();
             q_width -= sz.width();
             q_start = sz.width();
-            leftWidget->setGeometry(QRect(QPoint(hmargin, vmargin + (q->fontMetrics().lineSpacing() - sz.height())/2), sz));
+            leftWidget->setGeometry(QRect(QPoint(hmargin, vmargin), sz));
         }
         if(rightWidget && rightWidget->isVisible()) {
             QSize sz = rightWidget->sizeHint();
             q_width -= sz.width();
-            rightWidget->setGeometry(QRect(QPoint(q->width()-sz.width()-hmargin, vmargin + (q->fontMetrics().lineSpacing() - sz.height())/2), sz));
+            rightWidget->setGeometry(QRect(QPoint(q->width() - sz.width() - hmargin, vmargin), sz));
         }
     }
 
@@ -1315,33 +1316,34 @@ QSize QMenuBar::minimumSizeHint() const
 
     ensurePolished();
     QSize ret(0, 0);
+    const int hmargin = style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, this);
+    const int vmargin = style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, this);
+    int fw = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this);
+    int spaceBelowMenuBar = style()->styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this);
     if(as_gui_menubar) {
         QMap<QAction*, QRect> actionRects;
         QList<QAction*> actionList;
         int w = QApplication::desktop()->width();
-        int fw = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this);
         d->calcActionRects(w - (2 * fw), 0, actionRects, actionList);
         if (d->actionList.count() > 0) {
             ret = d->actionRect(d->actionList.at(0)).size();
             if (!d->extension->isHidden())
                 ret += QSize(d->extension->sizeHint().width(), 0);
         }
-        const int hmargin = style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, this),
-                  vmargin = style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, this);
         ret += QSize(2*fw + hmargin, 2*fw + vmargin);
     }
-
+    int margin = 2*vmargin + 2*fw + spaceBelowMenuBar;
     if(d->leftWidget) {
         QSize sz = d->leftWidget->minimumSizeHint();
         ret.setWidth(ret.width() + sz.width());
-        if(sz.height() > ret.height())
-            ret.setHeight(sz.height());
+        if(sz.height() + margin > ret.height())
+            ret.setHeight(sz.height() + margin);
     }
     if(d->rightWidget) {
         QSize sz = d->rightWidget->minimumSizeHint();
         ret.setWidth(ret.width() + sz.width());
-        if(sz.height() > ret.height())
-            ret.setHeight(sz.height());
+        if(sz.height() + margin > ret.height())
+            ret.setHeight(sz.height() + margin);
     }
     if(as_gui_menubar) {
         QStyleOptionMenuItem opt;
@@ -1372,11 +1374,14 @@ QSize QMenuBar::sizeHint() const
 
     ensurePolished();
     QSize ret(0, 0);
+    const int hmargin = style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, this);
+    const int vmargin = style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, this);
+    int fw = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this);
+    int spaceBelowMenuBar = style()->styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this);
     if(as_gui_menubar) {
         QMap<QAction*, QRect> actionRects;
         QList<QAction*> actionList;
         const int w = QApplication::desktop()->width();
-        int fw = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this);
         d->calcActionRects(w - (2 * fw), 0, actionRects, actionList);
         for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
              i != actionRects.constEnd(); ++i) {
@@ -1386,22 +1391,20 @@ QSize QMenuBar::sizeHint() const
             if(actionRect.bottom() > ret.height())
                 ret.setHeight(actionRect.bottom());
         }
-        const int hmargin = style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, this),
-                  vmargin = style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, this);
         ret += QSize(2*fw + 2*hmargin, 2*fw + 2*vmargin);
     }
-
+    int margin = 2*vmargin + 2*fw + spaceBelowMenuBar;
     if(d->leftWidget) {
         QSize sz = d->leftWidget->sizeHint();
         ret.setWidth(ret.width() + sz.width());
-        if(sz.height() > ret.height())
-            ret.setHeight(sz.height());
+        if(sz.height() + margin > ret.height())
+            ret.setHeight(sz.height() + margin);
     }
     if(d->rightWidget) {
         QSize sz = d->rightWidget->sizeHint();
         ret.setWidth(ret.width() + sz.width());
-        if(sz.height() > ret.height())
-            ret.setHeight(sz.height());
+        if(sz.height() + margin > ret.height())
+            ret.setHeight(sz.height() + margin);
     }
     if(as_gui_menubar) {
         QStyleOptionMenuItem opt;
@@ -1430,21 +1433,23 @@ int QMenuBar::heightForWidth(int) const
     const bool as_gui_menubar = true;
 #endif
     int height = 0;
+    const int vmargin = style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, this);
+    int fw = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this);
+    int spaceBelowMenuBar = style()->styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this);
     if(as_gui_menubar) {
         if (d->actionList.count()) {
             // assume all actionrects have the same height
             height = d->actionRect(d->actionList.first()).height();
-            height += style()->styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this);
+            height += spaceBelowMenuBar;
         }
-        int fw = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this);
         height += 2*fw;
-        const int vmargin = style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, this);
         height += 2*vmargin;
     }
+    int margin = 2*vmargin + 2*fw + spaceBelowMenuBar;
     if(d->leftWidget)
-        height = qMax(d->leftWidget->sizeHint().height(), height);
+        height = qMax(d->leftWidget->sizeHint().height() + margin, height);
     if(d->rightWidget)
-        height = qMax(d->rightWidget->sizeHint().height(), height);
+        height = qMax(d->rightWidget->sizeHint().height() + margin, height);
     if(as_gui_menubar) {
         QStyleOptionMenuItem opt;
         opt.init(this);
