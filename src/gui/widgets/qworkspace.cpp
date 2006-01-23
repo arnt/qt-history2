@@ -166,8 +166,6 @@ QWorkspaceTitleBar::QWorkspaceTitleBar(QWidget *w, QWidget *parent, Qt::WFlags f
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
     if (w) {
-        if (w->minimumSize() == w->maximumSize())
-            d->flags &= ~Qt::WindowMaximizeButtonHint;
         setWindowTitle(w->windowTitle());
     }
 
@@ -2833,7 +2831,7 @@ void QWorkspaceChild::updateMask()
     titleBarOptions.rect = rect();
     titleBarOptions.titleBarFlags = windowFlags();
     titleBarOptions.titleBarState = windowState();
-    
+
     QStyleHintReturnMask frameMask;
     if (style()->styleHint(QStyle::SH_WindowFrame_Mask, &titleBarOptions, this, &frameMask)) {
         setMask(frameMask.region);
