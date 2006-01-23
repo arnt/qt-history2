@@ -478,9 +478,19 @@ QVariant QSortFilterProxyModel::headerData(int section, Qt::Orientation orientat
 {
     Q_D(const QSortFilterProxyModel);
     IndexMap::const_iterator it = d->create_mapping(QModelIndex());
-    int source_section = (orientation == Qt::Vertical
-                          ? it.value()->source_rows.at(section)
-                          : it.value()->source_columns.at(section));
+
+    int source_section;
+    if (orientation == Qt::Vertical) {
+        if (section < 0 || section >= it.value()->source_rows.count())
+            return QVariant();
+        source_section = it.value()->source_rows.at(section);
+    }
+    else {
+        if (section < 0 || section >= it.value()->source_columns.count())
+            return QVariant();
+        source_section = it.value()->source_columns.at(section);
+    }
+
     return d->model->headerData(source_section, orientation, role);
 }
 
@@ -492,9 +502,19 @@ bool QSortFilterProxyModel::setHeaderData(int section, Qt::Orientation orientati
 {
     Q_D(QSortFilterProxyModel);
     IndexMap::const_iterator it = d->create_mapping(QModelIndex());
-    int source_section = (orientation == Qt::Vertical
-                          ? it.value()->source_rows.at(section)
-                          : it.value()->source_columns.at(section));
+
+    int source_section;
+    if (orientation == Qt::Vertical) {
+        if (section < 0 || section >= it.value()->source_rows.count())
+            return false;
+        source_section = it.value()->source_rows.at(section);
+    }
+    else {
+        if (section < 0 || section >= it.value()->source_columns.count())
+            return false;
+        source_section = it.value()->source_columns.at(section);
+    }
+
     return d->model->setHeaderData(source_section, orientation, value, role);
 }
 
