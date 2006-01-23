@@ -220,8 +220,14 @@ void QTextFormatPrivate::resolveFont(const QFont &defaultFont)
 
         const int htmlFontSize = qBound(0, props.value(QTextFormat::FontSizeAdjustment).toInt() + 3 - 1, 6);
 
-        qreal pointSize = scaleFactors[htmlFontSize] * defaultFont.pointSizeF();
-        fnt.setPointSizeF(pointSize);
+
+        if (defaultFont.pointSize() <= 0) {
+            qreal pixelSize = scaleFactors[htmlFontSize] * defaultFont.pixelSize();
+            fnt.setPixelSize(qRound(pixelSize));
+        } else {
+            qreal pointSize = scaleFactors[htmlFontSize] * defaultFont.pointSizeF();
+            fnt.setPointSizeF(pointSize);
+        }
     }
 
     fnt.resolve(oldMask);
