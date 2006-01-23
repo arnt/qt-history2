@@ -43,21 +43,8 @@ public:
 
 static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
 {
-    QWidget *p = w->parentWidget();
-    while (!w->isWindow() && p && !p->inherits("QWorkspace")) {
-        w = p;
-        p = p->parentWidget();
-    }
-    return w;
-}
-
-static QWidget* qt_sizegrip_workspace(QWidget* w)
-{
-    while (w && !w->inherits("QWorkspace")) {
-        if (w->isWindow())
-            return 0;
+    while (!w->isWindow() && !(w->parentWidget()->windowType() & Qt::SubWindow))
         w = w->parentWidget();
-    }
     return w;
 }
 
@@ -136,7 +123,7 @@ void QSizeGripPrivate::init()
 #endif
     q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
 #if defined(Q_WS_X11)
-    if (!qt_sizegrip_workspace(q)) {
+    if (qt_sizegrip_topLevelWidget(q)->isWindow()) {
         WId id = q->winId();
         XChangeProperty(X11->display, q->window()->winId(),
                         ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
@@ -230,8 +217,9 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 
     QPoint np(e->globalPos());
 
-    QWidget* ws = qt_sizegrip_workspace(this);
-    if (ws) {
+    QWidget* frame = qt_sizegrip_topLevelWidget(this)->parentWidget();
+    if (frame && frame->parentWidget()) {
+        QWidget *ws = frame->parentWidget();
         QPoint tmp(ws->mapFromGlobal(np));
         if (tmp.x() > ws->width())
             tmp.setX(ws->width());
@@ -310,7 +298,7 @@ bool QSizeGrip::event(QEvent *e)
     switch(e->type()) {
     case QEvent::Hide:
     case QEvent::Show:
-        if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
+        if(!QApplication::closingDown() && parentWidget()) {
             if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
                 if(w->isWindow())
                     QWidgetPrivate::qt_mac_update_sizer(w, e->type() == QEvent::Hide ? -1 : 1);
