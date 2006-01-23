@@ -1414,7 +1414,7 @@ void QColorDialogPrivate::addCustom()
     The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
     how to use QColorDialog as well as other built-in Qt dialogs.
 
-    \img qcolordlg-w.png
+    \image plastique-colordialog.png A color dialog in the Plastique widget style.
 */
 
 /*!
