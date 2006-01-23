@@ -1,0 +1,30 @@
+#ifndef SCRIBBLEWIDGET_H
+#define SCRIBBLEWIDGET_H
+
+#include <QLabel>
+#include <QMouseEvent>
+#include <QResizeEvent>
+#include <QImage>
+#include <QPainter>
+
+class ScribbleWidget : public QWidget
+{
+public:
+    ScribbleWidget() : QWidget(0), scribbling(false) {}
+
+    void resizeEvent(QResizeEvent *e);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void paintEvent(QPaintEvent *);
+
+private:
+    void drawLineTo(const QPoint &endPoint);
+
+private:
+    bool scribbling;
+    QPoint lastPoint;
+    QImage image;
+};
+
+#endif // SCRIBBLEWIDGET_H
