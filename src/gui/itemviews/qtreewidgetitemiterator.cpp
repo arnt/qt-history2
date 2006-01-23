@@ -186,9 +186,9 @@ bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
     }
 
     {
-        Qt::CheckState check = item->checkState(0); //###FIXME
-        // Not sure why the FIXME is here,
-        // but we (jasaethe && mariusbm) decided that Qt::PartiallyChecked should match as Checked.
+        // ### We only test the check state for column 0
+        Qt::CheckState check = item->checkState(0);
+        // PartiallyChecked matches as Checked.
         if ((flags & Checked) && (check == Qt::Unchecked))
             return false;
         if ((flags & NotChecked) && (check != Qt::Unchecked))
