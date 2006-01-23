@@ -119,7 +119,8 @@ public:
                            const QModelIndex &source_bottom_right);
     void sourceHeaderDataChanged(Qt::Orientation orientation, int start, int end);
     void sourceLayoutChanged();
-    void clear();
+
+    void clear_mapping();
 };
 
 typedef QMap<QModelIndex, QSortFilterProxyModelPrivate::Mapping *> IndexMap;
@@ -133,7 +134,7 @@ void QSortFilterProxyModelPrivate::remove_from_mapping(const QModelIndex &source
     }
 }
 
-void QSortFilterProxyModelPrivate::clear()
+void QSortFilterProxyModelPrivate::clear_mapping()
 {
     // store the persistent indexes
     QModelIndexList source_indexes;
@@ -172,8 +173,7 @@ IndexMap::const_iterator QSortFilterProxyModelPrivate::create_mapping(
         if (q->filterAcceptsRow(i, source_parent))
             m->source_rows.append(i);
     }
-
-    int source_cols = model->columnCount(source_parent);
+    int source_cols = model->columnCount(source_parent);    
     for (int i = 0; i < source_cols; ++i) {
         if (q->filterAcceptsColumn(i, source_parent))
             m->source_columns.append(i);
@@ -341,19 +341,19 @@ void QSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
                    this, SLOT(sourceHeaderDataChanged(Qt::Orientation,int,int)));
 
         disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                   this, SLOT(sourceLayoutChanged()));
+                   this, SLOT(clear()));
 
         disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-                   this, SLOT(sourceLayoutChanged()));
+                   this, SLOT(clear()));
 
         disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                   this, SLOT(sourceLayoutChanged()));
+                   this, SLOT(clear()));
 
         disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                   this, SLOT(sourceLayoutChanged()));
+                   this, SLOT(clear()));
 
         disconnect(d->model, SIGNAL(modelReset()), this, SLOT(sourceLayoutChanged()));
-        disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(sourceLayoutChanged()));
+        disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(clear()));
     }
 
     QAbstractProxyModel::setSourceModel(sourceModel);
@@ -366,22 +366,22 @@ void QSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
                 this, SLOT(sourceHeaderDataChanged(Qt::Orientation,int,int)));
 
         connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                this, SLOT(sourceLayoutChanged()));
+                this, SLOT(clear()));
 
         connect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-                this, SLOT(sourceLayoutChanged()));
+                this, SLOT(clear()));
 
         connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                this, SLOT(sourceLayoutChanged()));
+                this, SLOT(clear()));
 
         connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                this, SLOT(sourceLayoutChanged()));
+                this, SLOT(clear()));
 
         connect(d->model, SIGNAL(modelReset()), this, SLOT(sourceLayoutChanged()));
-        connect(d->model, SIGNAL(layoutChanged()), this, SLOT(sourceLayoutChanged()));
+        connect(d->model, SIGNAL(layoutChanged()), this, SLOT(clear()));
     }
 
-    d->clear();
+    d->clear_mapping();
 }
 
 /*!
@@ -821,7 +821,7 @@ void QSortFilterProxyModel::setFilterFixedString(const QString &pattern)
 void QSortFilterProxyModel::clear()
 {
     Q_D(QSortFilterProxyModel);
-    d->clear();
+    d->clear_mapping();
     emit layoutChanged();
 }
 
