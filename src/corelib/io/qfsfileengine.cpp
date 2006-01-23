@@ -299,11 +299,11 @@ bool QFSFileEngine::close()
     flush();
     d->tried_stat = 0;
     if (d->fh) {
-	if (d->closeFileHandle)
-	    fclose(d->fh);
-	d->fh = 0;
-	d->fd = -1;
-	return true;
+        if (d->closeFileHandle)
+            fclose(d->fh);
+        d->fh = 0;
+        d->fd = -1;
+        return true;
     }
 
     if (d->fd == -1)
@@ -312,7 +312,7 @@ bool QFSFileEngine::close()
     int ret = d->closeFileHandle ? QT_CLOSE(d->fd) : 0;
     d->fd = -1;
     if(ret == -1) {
-	setError(QFile::UnspecifiedError, qt_error_string(errno));
+        setError(QFile::UnspecifiedError, qt_error_string(errno));
         return false;
     }
     return true;
