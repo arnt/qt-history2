@@ -2378,6 +2378,10 @@ void QTreeWidget::collapseItem(const QTreeWidgetItem *item)
 
 /*!
   Clears the tree widget by removing all of its items and selections.
+
+  \bold{Note:} Since each item is removed from the tree widget before being
+  deleted, the return value of QTreeWidgetItem::treeWidget() will be invalid
+  when called from an item's destructor.
 */
 
 void QTreeWidget::clear()
