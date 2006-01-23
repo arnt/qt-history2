@@ -39,13 +39,14 @@ class QPushButtonPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QPushButton)
 public:
-    QPushButtonPrivate():autoDefault(true), defaultButton(false), flat(false){}
+    enum AutoDefaultValue {Off = 0, On = 1, Auto = 2};
+    QPushButtonPrivate():autoDefault(Auto), defaultButton(false), flat(false){}
     void init();
     void popupPressed();
     QStyleOptionButton getStyleOption() const;
     QDialog *dialogParent() const;
     QPointer<QMenu> menu;
-    uint autoDefault : 1; 
+    uint autoDefault : 2; 
     uint defaultButton : 1;
     uint flat : 1;
 };
@@ -147,16 +148,18 @@ public:
 
 /*!
     \property QPushButton::autoDefault
-    \brief whether the push button is an auto-default button
+    \brief whether the push button is the auto default button
 
-    Auto-default buttons are buttons that automatically become the default
-    push button when they receive the keyboard input focus in a QDialog.
-    This property's default is true.
+    If this property is set to true then the push button is the auto
+    default button in a dialog.
 
-    In some GUI styles, default buttons are drawn with an extra frame
-    around them. Qt automatically keeps this
+    In some GUI styles a default button is drawn with an extra frame
+    around it, up to 3 pixels or more. Qt automatically keeps this
     space free around auto-default buttons, i.e. auto-default buttons
-    may have a slightly larger sizeHint().
+    may have a slightly larger size hint.
+
+    This property's default is true for buttons that have a QDialog
+    parent; otherwise it defaults to false.
 
     See the \l default property for details of how \l default and
     auto-default interact.
@@ -167,8 +170,7 @@ public:
     \brief whether the push button is the default button
 
     If this property is set to true then the push button will be
-    pressed if the user presses the Enter (or Return) key in a QDialog.
-    This property's default is false.
+    pressed if the user presses the Enter (or Return) key in a dialog.
 
     Regardless of focus, if the user presses Enter: If there is a
     default button the default button is pressed; otherwise, if
@@ -178,13 +180,15 @@ public:
     with focus, mouse clicking, or using a shortcut will press a
     button.
 
-    In a QDialog, only one push button at a time can be the default
+    In a dialog, only one push button at a time can be the default
     button. This button is then displayed with an additional frame
     (depending on the GUI style).
 
-    The default button behavior is provided only in \l{QDialog}s. Buttons
+    The default button behavior is provided only in dialogs. Buttons
     can always be clicked from the keyboard by pressing Enter (or
     Return) or the Spacebar when the button has focus.
+
+    This property's default is false.
 */
 
 /*!
@@ -252,7 +256,7 @@ QDialog *QPushButtonPrivate::dialogParent() const
     while (p && !p->isWindow()) {
         p = p->parentWidget();
         if (const QDialog *dialog = qobject_cast<const QDialog *>(p))
-           return const_cast<QDialog *>(dialog);
+            return const_cast<QDialog *>(dialog);
     }
     return 0;
 }
@@ -275,7 +279,7 @@ QStyleOptionButton QPushButtonPrivate::getStyleOption() const
     if (menu)
         opt.features |= QStyleOptionButton::HasMenu;
 #endif
-    if ((dialogParent() && autoDefault) || defaultButton)
+    if (q->autoDefault() || defaultButton)
         opt.features |= QStyleOptionButton::AutoDefaultButton;
     if (defaultButton)
         opt.features |= QStyleOptionButton::DefaultButton;
@@ -294,9 +298,10 @@ QStyleOptionButton QPushButtonPrivate::getStyleOption() const
 void QPushButton::setAutoDefault(bool enable)
 {
     Q_D(QPushButton);
-    if (d->autoDefault == enable)
+    uint state = enable ? QPushButtonPrivate::On : QPushButtonPrivate::Off;
+    if (d->autoDefault != QPushButtonPrivate::Auto && d->autoDefault == state)
         return;
-    d->autoDefault = enable;
+    d->autoDefault = state;
     update();
     updateGeometry();
 }
@@ -304,6 +309,8 @@ void QPushButton::setAutoDefault(bool enable)
 bool QPushButton::autoDefault() const
 {
     Q_D(const QPushButton);
+    if(d->autoDefault == QPushButtonPrivate::Auto)
+        return ( d->dialogParent() != 0 );
     return d->autoDefault;
 }
 
@@ -387,7 +394,7 @@ void QPushButton::keyPressEvent(QKeyEvent *e)
     switch (e->key()) {
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        if ((d->autoDefault && d->dialogParent()) || d->defaultButton) {
+        if (autoDefault() || d->defaultButton) {
             click();
             break;
         }
@@ -403,7 +410,7 @@ void QPushButton::keyPressEvent(QKeyEvent *e)
 void QPushButton::focusInEvent(QFocusEvent *e)
 {
     Q_D(QPushButton);
-    if (e->reason() != Qt::PopupFocusReason && d->autoDefault && d->dialogParent() && !d->defaultButton) {
+    if (e->reason() != Qt::PopupFocusReason && autoDefault() && !d->defaultButton) {
         d->defaultButton = true;
         QDialog *dlg = qobject_cast<QDialog*>(window());
         if (dlg)
@@ -418,7 +425,7 @@ void QPushButton::focusInEvent(QFocusEvent *e)
 void QPushButton::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QPushButton);
-    if (e->reason() != Qt::PopupFocusReason && d->autoDefault && d->dialogParent() && d->defaultButton) {
+    if (e->reason() != Qt::PopupFocusReason && autoDefault() && d->defaultButton) {
         QDialog *dlg = qobject_cast<QDialog*>(window());
         if (dlg)
             dlg->d_func()->setDefault(0);
