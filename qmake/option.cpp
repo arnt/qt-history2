@@ -598,6 +598,8 @@ void warn_msg(QMakeWarn type, const char *fmt, ...)
     fprintf(stderr, "\n");
 }
 
+#if !defined(QT_BUILD_QMAKE_LIBRARY)
+
 #include "../src/corelib/global/qconfig.cpp"
 QString QLibraryInfo::location(QLibraryInfo::LibraryLocation loc)
 {
@@ -677,6 +679,7 @@ QString QLibraryInfo::location(QLibraryInfo::LibraryLocation loc)
     }
     return ret;
 }
+#endif
 
 class QMakeCacheClearItem {
 private:
