@@ -113,15 +113,14 @@
 */
 
 /*!
-    Constructs a mouse handler. This becomes the primary mouse
+    Constructs a mouse handler which becomes the primary mouse
     handler.
 
     Note that once created, mouse handlers are controlled by the
     system and should not be deleted. The \a driver and \a device
-    arguments the one passed by the environment variable
-    QWS_MOUSE_PROTO if present.
+    arguments are passed by the QWS_MOUSE_PROTO environment variable.
 
-    \sa {emb-running.html}{Running Qtopia Core Applications}
+    \sa {Running Qtopia Core Applications}
 */
 QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
     : mousePos(QWSServer::mousePosition)
@@ -132,16 +131,16 @@ QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
 /*!
     Destroys the mouse handler.
 
-    This should only be called from within Qtopia Core when the application
-    terminates. You should not call this directly.
+    This function should only be called from within Qtopia Core when
+    the application terminates; do not call this function directly.
 */
 QWSMouseHandler::~QWSMouseHandler()
 {
 }
 
 /*!
-    Ensures that the given \a position, is within the screen's
-    boundaries, changing \a position if necessary.
+    Ensures that the given \a position is within the screen's
+    boundaries, changing the \a position if necessary.
 */
 
 void QWSMouseHandler::limitToScreen(QPoint &position)
@@ -152,17 +151,17 @@ void QWSMouseHandler::limitToScreen(QPoint &position)
 
 
 /*!
-    Notify the system of a new mouse event.
+    Notifies the system of a new mouse event.
 
-    \a position is the global position of the mouse. \a state is a bitmask of
-    Qt::MouseButtons to indicate which mouse buttons are pressed.
-    \a wheel is the delta value of the mouse wheel as returned by
-    QWheelEvent::delta().
+    This function updates the current mouse position and send the
+    event to the \l QWSServer which will deliver the event to the
+    correct widget. A subclass must call this function whenever it
+    wants to deliver a new mouse event.
 
-    A subclass should call this function whenever it wants to deliver a new
-    mouse event. This function updates the current mouse position and
-    send the event to the \l QWSServer which will deliver the event to the
-    correct widget.
+    The given \a position is the global position of the mouse. The \a
+    state parameter is a bitmask of Qt::MouseButtons indicating which
+    mouse buttons are pressed.  The \a wheel parameter is the delta
+    value of the mouse wheel as returned by QWheelEvent::delta().
 */
 void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
 {
@@ -192,9 +191,9 @@ void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
     \brief The QWSCalibratedMouseHandler class provides basic functionality
     for implementing a mouse handler that needs calibration.
 
-    This class should typically be subclassed if you are creating a handler
-    for a device which don't have a fixed mapping between device coordinates
-    and/or produces noisy events. The typical example is a touchscreen.
+    Derive from this class to create a handler when the device doesn't
+    have a fixed mapping between device coordinates and/or produces
+    noisy events, for example a touchscreen.
 
     The QWSCalibratedMouseHandler provides linear transformation between
     device coordinates and screen coordinates by calling transform(). This
@@ -207,12 +206,13 @@ void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
     s*Ys = d*Xd + e*Yd + f
     \endcode
 
-    The parameters are stored separated by whitespace in alphabetical order
-    in /etc/pointercal and read when the class is instantiated. The
-    calibration parameters is recalculated when calibrate() is called.
+    The parameters are stored in \c /etc/pointercal (separated by
+    whitespace and in alphabetical order), and are read when the class
+    is instantiated. The calibration parameters are recalculated
+    whenever calibrate() is called.
 
-    If you want noise reduction, you can use sendFiltered() instead of
-    mouseChanged() whenever a mouse event occurs.
+    To achieve noise reduction, use the sendFiltered() function
+    instead of mouseChanged() whenever a mouse event occurs.
 */
 
 
@@ -302,7 +302,8 @@ void QWSCalibratedMouseHandler::readCalibration()
 }
 
 /*!
-    Update the calibration parameters based on coordinate mapping in \a data.
+    Updates the calibration parameters based on coordinate mapping of
+    the given \a data.
 */
 void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *data)
 {
@@ -325,9 +326,8 @@ void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *data)
 }
 
 /*!
-    Transform the \a position from device coordinates to screen coordinates.
-
-    Returns the transformed position.
+    Transforms the given \a position from device coordinates to screen
+    coordinates, and returns the transformed position.
 */
 QPoint QWSCalibratedMouseHandler::transform(const QPoint &position)
 {
@@ -340,8 +340,10 @@ QPoint QWSCalibratedMouseHandler::transform(const QPoint &position)
 }
 
 /*!
-    Set the size of the filter used in noise reduction when calling
-    sendFiltered().
+    Sets the size of the filter used in noise reduction, to the given
+    \a size.
+
+    \sa sendFiltered()
 */
 void QWSCalibratedMouseHandler::setFilterSize(int size)
 {
@@ -351,11 +353,16 @@ void QWSCalibratedMouseHandler::setFilterSize(int size)
 }
 
 /*!
-    Notice the system of a new mouse event after applying a noise reduction
-    filter.
+    \fn bool QWSCalibratedMouseHandler::sendFiltered(const QPoint &position, int state)
 
-    The arguments is the same as in mouseChanged().
-    Returns true if mouseChanged() was called, false otherwise.
+    Notifies the system of a new mouse event \e after applying a noise
+    reduction filter.
+
+    Returns true if mouseChanged() was called, otherwise returns false.
+
+    The given \a position is the global position of the mouse. The \a
+    state parameter is a bitmask of Qt::MouseButtons indicating which
+    mouse buttons are pressed.
 
     \sa mouseChanged()
 */
