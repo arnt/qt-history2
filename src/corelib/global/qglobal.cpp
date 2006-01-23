@@ -627,26 +627,32 @@
 /*! \fn int qRound(qreal value)
     \relates <QtGlobal>
 
-    Rounds \a value up to the nearest integer. For example:
+    Rounds \a value to the nearest integer. For example:
 
     \code
-        qreal value = 2.3;
+        qreal valueA = 2.3;
+        qreal valueB = 2.7;
 
-        int roundedValue = qRound(value);
-        \\ roundedValue = 3
+        int roundedValueA = qRound(valueA);
+        \\ roundedValueA = 2
+        int roundedValueB = qRound(valueB);
+        \\ roundedValueB = 3
     \endcode
 */
 
 /*! \fn qint64 qRound64(qreal value)
     \relates <QtGlobal>
 
-    Rounds \a value up to the nearest 64-bit integer. For example:
+    Rounds \a value to the nearest 64-bit integer. For example:
 
     \code
-        qreal value = 42949672960,7;
+        qreal valueA = 42949672960.3;
+        qreal valueB = 42949672960.7;
 
-        int roundedValue = qRound(value);
-        \\ roundedValue = 42949672961
+        int roundedValueA = qRound(valueA);
+        \\ roundedValueA = 42949672960
+        int roundedValueB = qRound(valueB);
+        \\ roundedValueB = 42949672961
     \endcode
 */
 
