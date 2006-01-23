@@ -2725,7 +2725,7 @@ void QMetaObject::activate(QObject *sender, const QMetaObject *m,
 #ifndef QT_NO_PROPERTIES
 
 /*!
-  Sets the value of the obj1ect's \a name property to \a value.
+  Sets the value of the object's \a name property to \a value.
 
   Returns true if the operation was successful; otherwise returns
   false.
