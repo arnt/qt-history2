@@ -371,7 +371,8 @@ void QProxyModel::revert()
 QModelIndex QProxyModel::setProxyModel(const QModelIndex &source_index) const
 {
     QModelIndex proxy_index = source_index;
-    reinterpret_cast<QProxyModelPrivate::QProxyModelIndex*>(&proxy_index)->m = this;
+    if (proxy_index.isValid())
+        reinterpret_cast<QProxyModelPrivate::QProxyModelIndex*>(&proxy_index)->m = this;
     return proxy_index;
 }
 
