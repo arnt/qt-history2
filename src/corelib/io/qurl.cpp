@@ -3119,8 +3119,14 @@ QString QUrlPrivate::removeDotsFromPath(const QString &dottedPath)
                 // preceding "/" (if any) from the output buffer;
                 if (origPath.startsWith(SlashDotDotSlash)) {
                     origPath.remove(0, 3);
-                    if (path.contains(Slash))
+                    if (path.contains(Slash)) {
                         path.truncate(path.lastIndexOf(Slash));
+                    } else {
+                        if (!path.isEmpty()) {
+                            origPath.remove(0, 1);
+                            path.clear();
+                        }
+                    }
                 } else if (origPath == SlashDotDot) {
                     origPath = Slash;
                     if (path.contains(Slash))
