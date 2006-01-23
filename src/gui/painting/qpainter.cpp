@@ -4356,21 +4356,21 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
         if (ti.logClusters && ti.chars) {
             while (ti.logClusters[ti2.chars - ti.chars] - logClusterOffset < start)
                 ++ti2.chars;
-        
+
             ti2.logClusters += (ti2.chars - ti.chars);
-        
+
             ti2.num_chars = 0;
             int char_start = ti2.chars - ti.chars;
             while (char_start + ti2.num_chars < ti.num_chars && ti2.logClusters[ti2.num_chars] - logClusterOffset < end)
                 ++ti2.num_chars;
-        }        
+        }
         ti2.width = 0;
         // set the high byte to zero and calc the width
         for (i = start; i < end; ++i) {
             glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
             ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
         }
-        
+
         d->engine->drawTextItem(QPointF(x, y), ti2);
 
         QFixed xadd;
@@ -4396,14 +4396,14 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
     if (ti.logClusters && ti.chars) {
         while (ti.logClusters[ti2.chars - ti.chars] - logClusterOffset < start)
             ++ti2.chars;
-        
+
         ti2.logClusters += (ti2.chars - ti.chars);
-        
+
         ti2.num_chars = 0;
         int char_start = ti2.chars - ti.chars;
         while (char_start + ti2.num_chars < ti.num_chars && ti2.logClusters[ti2.num_chars] - logClusterOffset < end)
             ++ti2.num_chars;
-    }    
+    }
     ti2.width = 0;
     // set the high byte to zero and calc the width
     for (i = start; i < end; ++i) {
@@ -5328,13 +5328,13 @@ Q_GLOBAL_STATIC(QPaintDeviceRedirectionList, globalRedirections)
 
 /*!
     Redirects all paint commands for the given paint \a device, to the
-    \a replacement device. The optional point \a offset defines
-    an offset within the source device. After painting you must call
-    restoreRedirected().
+    \a replacement device. The optional point \a offset defines an
+    offset within the source device.
 
-    The redirect will be effective after calling QPainter::begin(),
-    so make sure to call end() on any active painter on \a device
-    before redirecting.
+    The redirection will not be effective until the begin() function
+    have been called; make sure to call end() for the given \a
+    device's painter (if any) before redirecting. Call
+    restoreRedirected() to restore the previous redirection.
 
     In general, you'll probably find that calling
     QPixmap::grabWidget() or QPixmap::grabWindow() is an easier
