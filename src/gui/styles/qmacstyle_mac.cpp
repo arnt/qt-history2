@@ -4927,6 +4927,11 @@ void QMacStyle::polish(QWidget* w)
         d->HIThemePolish(w);
     else
         d->AppManPolish(w);
+
+    if (QFocusFrame *frame = qobject_cast<QFocusFrame *>(w)) {
+        frame->setAttribute(Qt::WA_NoSystemBackground, false);
+        frame->setAutoFillBackground(false);
+    }
 }
 
 /*! \reimp */
