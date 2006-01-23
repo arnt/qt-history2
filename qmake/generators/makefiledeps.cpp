@@ -97,7 +97,7 @@ public:
     void addFile(SourceFile *, const char *k=0, bool own=true);
 
     struct SourceFileNode {
-        SourceFileNode() : key(0), file(0), next(0), own_file(1) { }
+        SourceFileNode() : key(0), next(0), file(0), own_file(1) { }
         ~SourceFileNode() {
             delete [] key;
             if(own_file)
