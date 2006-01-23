@@ -43,6 +43,16 @@ Calibration::~Calibration()
 {
 }
 
+int Calibration::exec()
+{
+    QWSServer::mouseHandler()->clearCalibration();
+    grabMouse();
+    activateWindow();
+    int ret = QDialog::exec();
+    releaseMouse();
+    return ret;
+}
+
 void Calibration::paintEvent(QPaintEvent*)
 {
     QPainter p(this);
@@ -58,23 +68,12 @@ void Calibration::mouseReleaseEvent(QMouseEvent *event)
 {
     QSize screenSize(qt_screen->width(), qt_screen->height());
     QPoint p = qt_screen->mapToDevice(event->pos(), screenSize);
-    data.devPoints[pressCount] = qt_screen->mapToDevice(event->pos(),
-                                                        screenSize);
+    data.devPoints[pressCount] = p;
 
     if (++pressCount < 5)
         repaint();
     else
         accept();
-}
-
-int Calibration::exec()
-{
-    QWSServer::mouseHandler()->clearCalibration();
-    grabMouse();
-    activateWindow();
-    int ret = QDialog::exec();
-    releaseMouse();
-    return ret;
 }
 
 void Calibration::accept()
