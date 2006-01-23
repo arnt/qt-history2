@@ -630,12 +630,9 @@ QModelIndex QAbstractItemView::currentIndex() const
 void QAbstractItemView::reset()
 {
     Q_D(QAbstractItemView);
-    QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
-    for (; it != d->editors.end(); ++it) {
-        QWidget *editor = it.value();
-        editor->hide();
-        d->releaseEditor(editor);
-    }
+    QMap<QPersistentModelIndex, QPointer<QWidget> >::const_iterator it = d->editors.begin();
+    for (; it != d->editors.end(); ++it)
+        d->releaseEditor(it.value());
     d->editors.clear();
     d->persistent.clear();
     setState(NoState);
@@ -1566,8 +1563,7 @@ void QAbstractItemView::updateEditorGeometries()
                 it.value()->hide();
             }
         } else {
-            if (it.value())
-                d->releaseEditor(it.value());
+            d->releaseEditor(it.value());
             d->editors.remove(it.key());
         }
         ++it;
