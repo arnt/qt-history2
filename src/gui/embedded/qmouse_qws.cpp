@@ -153,15 +153,15 @@ void QWSMouseHandler::limitToScreen(QPoint &position)
 /*!
     Notifies the system of a new mouse event.
 
-    This function updates the current mouse position and send the
-    event to the \l QWSServer which will deliver the event to the
-    correct widget. A subclass must call this function whenever it
-    wants to deliver a new mouse event.
+    This function updates the current mouse position and sends the
+    event to the \l QWSServer for delivery to the correct widget.
+    A subclass must call this function whenever it wants to deliver
+    a new mouse event.
 
-    The given \a position is the global position of the mouse. The \a
-    state parameter is a bitmask of Qt::MouseButtons indicating which
-    mouse buttons are pressed.  The \a wheel parameter is the delta
-    value of the mouse wheel as returned by QWheelEvent::delta().
+    The given \a position is the global position of the mouse cursor.
+    The \a state parameter is a bitmask of Qt::MouseButtons indicating
+    which mouse buttons are pressed. The \a wheel parameter is the
+    delta value of the mouse wheel as returned by QWheelEvent::delta().
 */
 void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
 {
@@ -193,7 +193,7 @@ void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
 
     Derive from this class to create a handler when the device doesn't
     have a fixed mapping between device coordinates and/or produces
-    noisy events, for example a touchscreen.
+    noisy events. A touchscreen is a good example of such a device.
 
     The QWSCalibratedMouseHandler provides linear transformation between
     device coordinates and screen coordinates by calling transform(). This
@@ -340,7 +340,7 @@ QPoint QWSCalibratedMouseHandler::transform(const QPoint &position)
 }
 
 /*!
-    Sets the size of the filter used in noise reduction, to the given
+    Sets the size of the filter used in noise reduction to the given
     \a size.
 
     \sa sendFiltered()
@@ -358,7 +358,7 @@ void QWSCalibratedMouseHandler::setFilterSize(int size)
     Notifies the system of a new mouse event \e after applying a noise
     reduction filter.
 
-    Returns true if mouseChanged() was called, otherwise returns false.
+    Returns true if mouseChanged() was called; otherwise returns false.
 
     The given \a position is the global position of the mouse. The \a
     state parameter is a bitmask of Qt::MouseButtons indicating which
