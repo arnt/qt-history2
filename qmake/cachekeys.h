@@ -19,7 +19,7 @@
 #include <qstringlist.h>
 #include <qfile.h>
 #include <qfileinfo.h>
-#include <QHash>
+#include <qhash.h>
 
 // -------------------------------------------------------------------------------------------------
 struct FixStringCacheKey
