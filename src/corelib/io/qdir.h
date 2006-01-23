@@ -212,6 +212,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QDir::Filters)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDir::SortFlags)
 
 #ifndef QT_NO_DEBUG
+class QDebug;
 QDebug operator<<(QDebug debug, QDir::Filters filters);
 #endif
 

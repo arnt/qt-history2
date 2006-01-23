@@ -14,6 +14,9 @@
 #include "qplatformdefs.h"
 #include "qdir.h"
 #include "qabstractfileengine.h"
+#ifndef QT_NO_DEBUG
+#include "qdebug.h"
+#endif
 #include "qfsfileengine.h"
 #include "qdatetime.h"
 #include "qstring.h"
