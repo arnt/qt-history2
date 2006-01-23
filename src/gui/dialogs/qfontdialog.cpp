@@ -105,7 +105,7 @@ QFontListView::QFontListView(QWidget *parent)
   If the user clicks OK the font they chose will be used for myWidget,
   and if they click Cancel the original font is used.
 
-  \img qfontdlg-w.png Screenshot in Windows style
+  \image plastique-fontdialog.png A font dialog in the Plastique widget style.
 
   \sa QFont, QFontInfo, QFontMetrics
 */
