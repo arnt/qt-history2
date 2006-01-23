@@ -1,0 +1,67 @@
+/*!
+    \example embedded/mousecalibration
+    \title Mouse Calibration Example
+
+    The Mouse Calibration example demonstrate how to write a simple program
+    that use the mechanisms in QWSMouseHandler to calibrate the mouse handler.
+
+    \section1 The Main Program
+    \quotefromfile embedded/mousecalibration/main.cpp
+
+    The program starts by using a QMessageBox to inform the user of what is 
+    going to happen. At this stage the mouse could be completely uncalibrated
+    making the user may be unable to press the OK button. We therefore use
+    a single shot QTimer to let the message box dissapear after 10 seconds.
+
+    \skipto QApplication app
+    \skipto \{
+    \printuntil \}
+
+    Next, we creates an instance of the Calibration class which will be 
+    discussed below. Finally we let the user test the new mouse settings by
+    drawing into a widget. A better calibration tool would let the user 
+    choose between accepting the new calibration, revert to the old one, or 
+    start the calibration over again.
+
+    \section1 Calibration Class Implementation
+    \quotefromfile embedded/mousecalibration/calibration.cpp
+
+    The constructor first makes sure that the Calibration dialog fills
+    up the entire screen, has focus and will receive mouse events.
+
+    \skipto QRect desktop
+    \printuntil setModal(true)
+
+    We then initialize the screenPoints array in QWSCalibrationData. This
+    must contain the actual screen coordinates of the logical positions
+    "TopLeft", "BottomRight", etc.
+
+    \printuntil h / 2
+
+    Finally we initialize the variable which keeps track of the number of 
+    mouse press events we have received.
+
+    \skipto pressCount
+    \printuntil }
+
+    The exec() function is called from the main program. We clear the current
+    calibration which makes the following mouse event be delivered in raw
+    device coordinates. grabMouse() is used to make sure no mouse events are
+    lost.
+
+    In paintEvent() we draw a cross at the next point the user should press:
+
+    \skipto paintEvent
+    \printuntil }
+    
+    We then implement mouseReleaseEvent() and use the QMouseEvent to find 
+    the coordinates the user pressed and update the devPoints array in
+    QWSCalibrationData. We continue by drawing the next cross, or close
+    the dialog by calling accept() if we have collected all the necessary
+    samples.
+
+    \skipto mouseReleaseEvent
+    \printuntil }
+
+    The accept() function activates the new calibration data.
+*/
