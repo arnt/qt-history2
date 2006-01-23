@@ -5332,6 +5332,10 @@ Q_GLOBAL_STATIC(QPaintDeviceRedirectionList, globalRedirections)
     an offset within the source device. After painting you must call
     restoreRedirected().
 
+    The redirect will be effective after calling QPainter::begin(),
+    so make sure to call end() on any active painter on \a device
+    before redirecting.
+
     In general, you'll probably find that calling
     QPixmap::grabWidget() or QPixmap::grabWindow() is an easier
     solution.
