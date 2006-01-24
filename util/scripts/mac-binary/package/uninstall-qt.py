@@ -18,7 +18,7 @@ import commands, sys, os, shutil, glob
 trace = False
 justTest = False
 # Globals
-AllPackages = ['docs', 'headers', 'examples', 'plugins', 'tools', 'libraries']
+AllPackages = ['docs', 'headers', 'examples', 'plugins', 'tools', 'libraries', 'debuglibraries' ]
 
 packagesToRemove = AllPackages
 
