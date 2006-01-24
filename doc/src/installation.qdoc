@@ -127,6 +127,7 @@ Please follow the instructions for your platform from the following list.
     \o \l{How to Learn Qt}
     \o \l{Qt Tutorial}
     \o \l http://www.trolltech.com/developer
+    \o \l{Deploying Qt Applications}
     \endlist
 \endlist
 
@@ -198,7 +199,7 @@ Please follow the instructions for your platform from the following list.
     if you have Visual Studio 2005 installed and want to compile Qt using the x64
     compiler because the 32-bit and 64-bit compiler both use the same
     \c qmake specification file.
-    This is usually done by selecting 
+    This is usually done by selecting
     \menu{Microsoft Visual Studio 2005|Visual Studio Tools|<Command Prompt>}
     from the \gui Start menu.
 
@@ -223,6 +224,7 @@ Please follow the instructions for your platform from the following list.
     \o \l{How to Learn Qt}
     \o \l{Qt Tutorial}
     \o \l http://www.trolltech.com/developer
+    \o \l{Deploying Qt Applications}
     \endlist
 
 \endlist
@@ -329,6 +331,7 @@ Please follow the instructions for your platform from the following list.
     \o \l{How to Learn Qt}
     \o \l{Qt Tutorial}
     \o \l http://www.trolltech.com/developer
+    \o \l{Deploying Qt Applications}
     \endlist
 \endlist
 
