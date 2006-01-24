@@ -1930,11 +1930,11 @@ void QApplication::setActiveWindow(QWidget* act)
     }
 
     // then focus events
-    if (!QApplicationPrivate::active_window && QApplicationPrivate::focus_widget) {
+    if (QApplicationPrivate::focus_widget)
         QApplicationPrivate::setFocusWidget(0, Qt::ActiveWindowFocusReason);
-    } else if (QApplicationPrivate::active_window) {
-        QWidget *w = QApplicationPrivate::active_window->focusWidget();
-        if (w /*&& w->focusPolicy() != QWidget::NoFocus*/)
+
+    if (QApplicationPrivate::active_window) {
+        if (QWidget *w = QApplicationPrivate::active_window->focusWidget())
             w->setFocus(Qt::ActiveWindowFocusReason);
         else
             QApplicationPrivate::active_window->focusNextPrevChild(true);
