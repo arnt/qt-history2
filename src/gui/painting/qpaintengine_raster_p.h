@@ -152,6 +152,7 @@ public:
     QBrush brush;
     QPen pen;
     QMatrix matrix;
+    int opacity;
 
     QPaintDevice *device;
     QFTOutlineMapper *outlineMapper;

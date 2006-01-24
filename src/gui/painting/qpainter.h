@@ -113,6 +113,9 @@ public:
     void setBackground(const QBrush &bg);
     const QBrush &background() const;
 
+    qreal opacity() const;
+    void setOpacity(qreal opacity);
+
     // Clip functions
     QRegion clipRegion() const;
     QPainterPath clipPath() const;

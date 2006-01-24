@@ -105,6 +105,7 @@ struct TextureData
     int width;
     int height;
     bool hasAlpha;
+    int const_alpha;
 };
 
 
@@ -181,10 +182,10 @@ struct QSpanData
         GradientData gradient;
     };
     void init(QRasterBuffer *rb);
-    void setup(const QBrush &brush);
+    void setup(const QBrush &brush, int alpha);
     void setupMatrix(const QMatrix &matrix, int txop, int bilinear);
-    void initTexture(const QImage *image);
-    void initGradient(const QGradient *g);
+    void initTexture(const QImage *image, int alpha);
+    void initGradient(const QGradient *g, int alpha);
     void adjustSpanMethods();
 };
 
@@ -375,5 +376,8 @@ const uint qt_bayer_matrix[16][16] = {
     { 0xaa, 0x6a, 0x9a, 0x5a, 0xa6, 0x66, 0x96, 0x56,
       0xa9, 0x69, 0x99, 0x59, 0xa5, 0x65, 0x95, 0x55}
 };
+
+#define ARGB_COMBINE_ALPHA(argb, alpha) \
+    (qt_div_255((argb >> 24) * alpha) << 24) | (argb & 0x00ffffff)
 
 #endif // QDRAWHELPER_P_H

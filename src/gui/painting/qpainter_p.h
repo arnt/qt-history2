@@ -80,6 +80,7 @@ public:
     int txop;
     int wx, wy, ww, wh;         // window rectangle
     int vx, vy, vw, vh;         // viewport rectangle
+    qreal opacity;
 
     uint WxF:1;                 // World transformation
     uint VxF:1;                 // View transformation

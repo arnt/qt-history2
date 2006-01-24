@@ -71,6 +71,7 @@ public:
         PainterPaths              = 0x00000200, // Can fill, outline and clip paths
         Antialiasing              = 0x00000400, // Can antialias lines
         BrushStroke               = 0x00000800, // Can render brush based pens
+        ConstantOpacity           = 0x00001000, // Can render at constant opacity
         PaintOutsidePaintEvent    = 0x20000000, // Engine is capable of painting outside paint events
         AllFeatures               = 0xffffffff  // For convenience
     };
@@ -89,6 +90,7 @@ public:
         DirtyHints              = 0x0200,
         DirtyCompositionMode    = 0x0400,
         DirtyClipEnabled        = 0x0800,
+        DirtyOpacity            = 0x1000,
 
         AllDirty                = 0xffff
     };
@@ -221,15 +223,11 @@ public:
     QPaintEngine::DirtyFlags state() const { return dirtyFlags; }
 
     QPen pen() const;
-
     QBrush brush() const;
     QPointF brushOrigin() const;
-
     QBrush backgroundBrush() const;
     Qt::BGMode backgroundMode() const;
-
     QFont font() const;
-
     QMatrix matrix() const;
 
     Qt::ClipOperation clipOperation() const;
@@ -238,10 +236,8 @@ public:
     bool isClipEnabled() const;
 
     QPainter::RenderHints renderHints() const;
-
     QPainter::CompositionMode compositionMode() const;
-
-
+    qreal opacity() const;
 
     QPainter *painter() const;
 

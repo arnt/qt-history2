@@ -342,6 +342,12 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         s->emulationSpecifier |= QPaintEngine::PrimitiveTransform;
     else
         s->emulationSpecifier &= ~QPaintEngine::PrimitiveTransform;
+
+    // Constant opacity
+    if (state->opacity != 1 && !engine->hasFeature(QPaintEngine::ConstantOpacity))
+        s->emulationSpecifier |= QPaintEngine::ConstantOpacity;
+    else
+        s->emulationSpecifier &= ~QPaintEngine::ConstantOpacity;
 }
 
 
@@ -1230,6 +1236,34 @@ QFontInfo QPainter::fontInfo() const
     Q_D(const QPainter);
     return QFontInfo(d->state->font);
 }
+
+/*!
+    Returns the opacity of the painter. The default value is
+    1.
+*/
+
+qreal QPainter::opacity() const
+{
+    Q_D(const QPainter);
+    return d->state->opacity;
+}
+
+/*!
+    Sets the opacity of the painter. The value should be in
+    the range of 0 to 1 where 0 is fully transparent and 1 is
+    fully opaque.
+
+    Opacity set on the painter will apply to all drawing operations
+    individually.
+*/
+
+void QPainter::setOpacity(qreal opacity)
+{
+    Q_D(QPainter);
+    d->state->opacity = qMin(1.0, qMax(0.0, opacity));
+    d->state->dirtyFlags |= QPaintEngine::DirtyOpacity;
+}
+
 
 /*!
     Returns the currently set brush origin.
@@ -5631,6 +5665,7 @@ QPainterState::QPainterState(const QPainterState *s)
     dirtyFlags = s->dirtyFlags;
     changeFlags = 0;
     renderHints = s->renderHints;
+    opacity = s->opacity;
 }
 
 QPainterState::QPainterState()
@@ -5667,6 +5702,7 @@ void QPainterState::init(QPainter *p) {
     dirtyFlags = 0;
     changeFlags = 0;
     renderHints = 0;
+    opacity = 1;
 }
 
 #ifdef QT3_SUPPORT
@@ -6269,3 +6305,11 @@ QPainter *QPaintEngineState::painter() const
 }
 
 
+/*!
+    Returns the opacity in the current paint engine state.
+*/
+
+qreal QPaintEngineState::opacity() const
+{
+    return static_cast<const QPainterState *>(this)->opacity;
+}

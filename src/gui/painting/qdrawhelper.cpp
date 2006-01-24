@@ -519,7 +519,8 @@ static void blend_argb(int count, const QSpan *spans, void *userData)
                     length = image_width - x;
                 const uint *src = (uint *)data->texture.imageData + y*image_width + x;
 
-                func(target, src, length, spans->coverage);
+                func(target, src, length,
+                     qt_div_255(data->texture.const_alpha * spans->coverage));
             }
         }
         ++spans;
@@ -561,7 +562,8 @@ static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
         int length = spans->len;
         while (length) {
             int l = qMin(image_width - x, length);
-            func(target, src + x, l, spans->coverage);
+            func(target, src + x, l,
+                 qt_div_255(data->texture.const_alpha * spans->coverage));
             length -= l;
             target += l;
             x = 0;
@@ -651,7 +653,8 @@ static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void 
                 x += fdx;
                 y += fdy;
             }
-            func(target, buffer, l, spans->coverage);
+            func(target, buffer, l,
+                 qt_div_255(data->texture.const_alpha * spans->coverage));
             target += l;
             length -= l;
         }
@@ -737,7 +740,8 @@ static void blend_transformed_bilinear_tiled_argb(int count, const QSpan *spans,
                 x += fdx;
                 y += fdy;
             }
-            func(target, buffer, l, spans->coverage);
+            func(target, buffer, l,
+                 qt_div_255(data->texture.const_alpha * spans->coverage));
             target += l;
             length -= l;
         }
@@ -789,7 +793,8 @@ static void blend_transformed_argb(int count, const QSpan *spans, void *userData
                 y += fdy;
                 ++b;
             }
-            func(target, buffer, l, spans->coverage);
+            func(target, buffer, l,
+                 qt_div_255(data->texture.const_alpha * spans->coverage));
             target += l;
             length -= l;
         }
@@ -844,7 +849,8 @@ static void blend_transformed_tiled_argb(int count, const QSpan *spans, void *us
                 y += fdy;
                 ++b;
             }
-            func(target, buffer, l, spans->coverage);
+            func(target, buffer, l,
+                 qt_div_255(data->texture.const_alpha * spans->coverage));
             target += l;
             length -= l;
         }

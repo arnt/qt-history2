@@ -589,6 +589,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->mono_surface = false;
     d->fast_pen = true;
     d->int_xform = true;
+    d->opacity = 255;
 
 #if defined(Q_WS_WIN)
     d->clear_type_text = false;
@@ -720,11 +721,11 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     }
 
     d->penData.init(d->rasterBuffer);
-    d->penData.setup(d->pen.brush());
+    d->penData.setup(d->pen.brush(), d->opacity);
     d->stroker = &d->basicStroker;
 
     d->brushData.init(d->rasterBuffer);
-    d->brushData.setup(d->brush);
+    d->brushData.setup(d->brush, d->opacity);
 
     updateClipPath(QPainterPath(), Qt::NoClip);
 
@@ -909,6 +910,15 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         updateMatrix(state.matrix());
     }
 
+    if (flags & DirtyOpacity) {
+        update_fast_pen = true;
+        d->opacity = int(state.opacity() * 255.0);
+
+        // Force update pen/brush as to get proper alpha colors propagated
+        flags |= DirtyPen;
+        flags |= DirtyBrush;
+    }
+
     if (flags & DirtyBackgroundMode) {
         d->rasterBuffer->opaqueBackground = (state.backgroundMode() == Qt::OpaqueMode);
     }
@@ -940,13 +950,13 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         } else {
             d->stroker = 0;
         }
-        d->penData.setup(pen_style == Qt::NoPen ? QBrush() : d->pen.brush());
+        d->penData.setup(pen_style == Qt::NoPen ? QBrush() : d->pen.brush(), d->opacity);
     }
 
     if (flags & DirtyBrush) {
         QBrush brush = state.brush();
         d->brush = brush;
-        d->brushData.setup(d->brush);
+        d->brushData.setup(d->brush, d->opacity);
     }
 
     if (flags & DirtyBrushOrigin) {
@@ -1415,7 +1425,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
     QSpanData textureData;
     textureData.init(d->rasterBuffer);
     textureData.type = QSpanData::Texture;
-    textureData.initTexture(&image);
+    textureData.initTexture(&image, d->opacity);
 
     bool stretch_sr = r.width() != sr.width() || r.height() != sr.height();
 
@@ -1461,7 +1471,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     QSpanData textureData;
     textureData.init(d->rasterBuffer);
     textureData.type = QSpanData::TiledTexture;
-    textureData.initTexture(&image);
+    textureData.initTexture(&image, d->opacity);
 
     if (d->txop > QPainterPrivate::TxTranslate) {
         QMatrix copy = d->matrix;
@@ -2849,21 +2859,21 @@ void QSpanData::init(QRasterBuffer *rb)
     m12 = m21 = dx = dy = 0.;
 }
 
-void QSpanData::setup(const QBrush &brush)
+void QSpanData::setup(const QBrush &brush, int alpha)
 {
     Qt::BrushStyle brushStyle = brush.style();
     switch (brushStyle) {
     case Qt::SolidPattern:
         type = Solid;
-        solid.color = PREMUL(brush.color().rgba());
+        solid.color = PREMUL(ARGB_COMBINE_ALPHA(brush.color().rgba(), alpha));
         break;
 
     case Qt::LinearGradientPattern:
         {
             type = LinearGradient;
             const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
-            gradient.alphaColor = !brush.isOpaque();
-            initGradient(g);
+            gradient.alphaColor = !brush.isOpaque() || alpha != 255;
+            initGradient(g, alpha);
 
             gradient.linear.origin.x = g->start().x();
             gradient.linear.origin.y = g->start().y();
@@ -2876,8 +2886,8 @@ void QSpanData::setup(const QBrush &brush)
         {
             type = RadialGradient;
             const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
-            gradient.alphaColor = !brush.isOpaque();
-            initGradient(g);
+            gradient.alphaColor = !brush.isOpaque() || alpha != 255;
+            initGradient(g, alpha);
 
             QPointF center = g->center();
             gradient.radial.center.x = center.x();
@@ -2893,8 +2903,8 @@ void QSpanData::setup(const QBrush &brush)
         {
             type = ConicalGradient;
             const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
-            gradient.alphaColor = !brush.isOpaque();
-            initGradient(g);
+            gradient.alphaColor = !brush.isOpaque() || alpha != 255;
+            initGradient(g, alpha);
             gradient.spread = QGradient::RepeatSpread;
 
             QPointF center = g->center();
@@ -2919,16 +2929,18 @@ void QSpanData::setup(const QBrush &brush)
     case Qt::DiagCrossPattern:
     case Qt::TexturePattern:
         {
+
             type = TiledTexture;
             extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert);
             QPixmap texture = brushStyle == Qt::TexturePattern
                               ? brush.texture() : qt_pixmapForBrush(brushStyle, true);
             if (texture.depth() == 1) {
-                rasterBuffer->tempImage = rasterBuffer->colorizeBitmap(texture.toImage(), brush.color());
+                rasterBuffer->tempImage = rasterBuffer->colorizeBitmap(texture.toImage(),
+                                                                       brush.color());
             } else {
                 rasterBuffer->tempImage = qt_map_to_32bit(texture);
             }
-            initTexture(&rasterBuffer->tempImage);
+            initTexture(&rasterBuffer->tempImage, alpha);
 
         }
         break;
@@ -3002,16 +3014,18 @@ void QSpanData::setupMatrix(const QMatrix &matrix, int tx, int bilin)
     adjustSpanMethods();
 }
 
-void QSpanData::initTexture(const QImage *image)
+void QSpanData::initTexture(const QImage *image, int alpha)
 {
     texture.imageData = image->bits();
     texture.width = image->width();
     texture.height = image->height();
-    texture.hasAlpha = image->format() != QImage::Format_RGB32;
+    texture.hasAlpha = image->format() != QImage::Format_RGB32
+                       || alpha != 255;
+    texture.const_alpha = alpha;
     adjustSpanMethods();
 }
 
-void QSpanData::initGradient(const QGradient *g)
+void QSpanData::initGradient(const QGradient *g, int alpha)
 {
     const QGradientStops stops = g->stops();
     int stopCount = stops.count();
@@ -3025,7 +3039,7 @@ void QSpanData::initGradient(const QGradient *g)
 
     // Up to first point
     while (pos<=begin_pos) {
-        gradient.colorTable[pos] = PREMUL(stops[0].second.rgba());
+        gradient.colorTable[pos] = PREMUL(ARGB_COMBINE_ALPHA(stops[0].second.rgba(), alpha));
         ++pos;
     }
 
@@ -3039,8 +3053,8 @@ void QSpanData::initGradient(const QGradient *g)
 
         Q_ASSERT(current_stop < stopCount);
 
-        uint current_color = PREMUL(stops[current_stop].second.rgba());
-        uint next_color = PREMUL(stops[current_stop+1].second.rgba());
+        uint current_color = PREMUL(ARGB_COMBINE_ALPHA(stops[current_stop].second.rgba(), alpha));
+        uint next_color = PREMUL(ARGB_COMBINE_ALPHA(stops[current_stop+1].second.rgba(), alpha));
 
 
         int dist;
@@ -3063,7 +3077,7 @@ void QSpanData::initGradient(const QGradient *g)
 
     // After last point
     while (pos < GRADIENT_STOPTABLE_SIZE) {
-        gradient.colorTable[pos] = PREMUL(stops[stopCount-1].second.rgba());
+        gradient.colorTable[pos] = PREMUL(ARGB_COMBINE_ALPHA(stops[stopCount-1].second.rgba(), alpha));
         ++pos;
     }
 
