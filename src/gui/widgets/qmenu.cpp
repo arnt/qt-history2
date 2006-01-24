@@ -401,6 +401,8 @@ void QMenu::setIcon(const QIcon &icon)
 void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation location, bool active)
 {
     Q_Q(QMenu);
+    if (!scroll || !scroll->scrollFlags)
+        return;
     int newOffset = 0;
     const int scrollHeight = q->style()->pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q);
     const int topScroll = (scroll->scrollFlags & QMenuScroller::ScrollUp)   ? scrollHeight : 0;
@@ -1320,14 +1322,18 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
         if (pos.y() < screen.top() + desktopFrame)
             pos.setY(screen.top() + desktopFrame);
     }
-    if (d->scroll && pos.y()+size.height() > screen.bottom() - desktopFrame) {
-        d->scroll->scrollFlags |= uint(QMenuPrivate::QMenuScroller::ScrollDown);
-        size.setHeight(screen.bottom()-desktopFrame-pos.y());
-    } else {
-        if(pos.y()+size.height() > screen.bottom())
-            pos.setY(desktopFrame+screen.top()+(screen.height()-desktopFrame-size.height()));
-        else if(pos.y() < screen.top())
-            pos.setY(screen.top());
+    if (pos.y() < screen.top() + desktopFrame) {
+        pos.setY(screen.top() + desktopFrame);
+    }
+    if (pos.y()+size.height() > screen.bottom() - desktopFrame) {
+        if (d->scroll) {
+            d->scroll->scrollFlags |= uint(QMenuPrivate::QMenuScroller::ScrollDown);
+            int y = qMax(screen.y(),pos.y());
+            size.setHeight(screen.height()-desktopFrame*2-y);
+        } else {
+            // Too big for screen, bias to see bottom of menu (for some reason)
+            pos.setY(screen.bottom()-size.height());
+        }
     }
     setGeometry(QRect(pos, size));
 
