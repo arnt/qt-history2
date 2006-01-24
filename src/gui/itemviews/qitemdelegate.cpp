@@ -796,8 +796,10 @@ QStyleOptionViewItem QItemDelegate::setOptions(const QModelIndex &index,
 
     // set font
     QVariant value = index.data(Qt::FontRole);
-    if (value.isValid())
+    if (value.isValid()){
         opt.font = qvariant_cast<QFont>(value);
+        opt.fontMetrics = QFontMetrics(opt.font);
+    }
 
     // set text alignment
     value = index.data(Qt::TextAlignmentRole);
