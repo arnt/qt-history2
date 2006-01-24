@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleGetInfoString</key>
-	<string>TrollTech Qt $VERSION_MAJOR$.$VERSION_MINOR$.$VERSION_PATCH$ Libraries</string>
+	<string>TrollTech Qt $VERSION_MAJOR$.$VERSION_MINOR$.$VERSION_PATCH$ Debug Libraries</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.trolltech.qt$VERSION_MAJOR$.libs</string>
+	<string>com.trolltech.qt$VERSION_MAJOR$.debuglibs</string>
 	<key>CFBundleName</key>
-	<string>Qt $VERSION_MAJOR$.$VERSION_MINOR$.$VERSION_PATCH$ Libraries</string>
+	<string>Qt $VERSION_MAJOR$.$VERSION_MINOR$.$VERSION_PATCH$ Debug Libraries</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$VERSION_MAJOR$.$VERSION_MINOR$</string>
 	<key>IFMajorVersion</key>
@@ -23,9 +23,9 @@
 	<key>IFPkgFlagFollowLinks</key>
 	<true/>
 	<key>IFPkgFlagInstallFat</key>
-	<true/>
+	<false/>
 	<key>IFPkgFlagIsRequired</key>
-	<true/>
+	<false/>
 	<key>IFPkgFlagRelocatable</key>
 	<false/>
     <key>IFPkgFlagRootVolumeOnly</key>

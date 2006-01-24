@@ -30,12 +30,13 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg; do
         continue
     fi
     cp -R "$BINDIR/lib/${lib}.framework" "$FRAMEWORK_DIR/" >/dev/null 2>&1
-    ./fix_prl_paths.pl "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl" "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl.fixed" 
-    mv "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl.fixed" "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl" 
-    ./fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/$lib" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}.fixed" 
-    mv "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}.fixed" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/$lib" 
-    # Remove the debug libraries and headers (they are part of another package)
-    find "$FRAMEWORK_DIR/${lib}.framework/" -name '*_debug*' -exec rm -f {} \; >/dev/null 2>&1
+    ../libraries/fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug.fixed" 
+    mv "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug.fixed" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug" 
+    ../libraries/fix_prl_paths.pl "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl" "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl.fixed" 
+    mv "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl.fixed" "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl" 
+    # Remove the normal libraries and headers (they are part of another package)
+    # some find command here.
+    find "$FRAMEWORK_DIR/${lib}.framework" -name ${lib} -o -name ${lib}'.*' -a ! -name ${lib}.framework | xargs rm >/dev/null 2>&1
     find "$FRAMEWORK_DIR/${lib}.framework/" -name Headers -exec rm -rf {} \; >/dev/null 2>&1
 done
 

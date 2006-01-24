@@ -23,7 +23,7 @@
 	<key>IFPkgFlagFollowLinks</key>
 	<true/>
 	<key>IFPkgFlagInstallFat</key>
-	<false/>
+	<true/>
 	<key>IFPkgFlagIsRequired</key>
 	<true/>
 	<key>IFPkgFlagRelocatable</key>

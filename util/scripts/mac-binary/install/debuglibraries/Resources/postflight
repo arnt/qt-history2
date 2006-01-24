@@ -52,7 +52,7 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg; do
        Products="bad product"
        esac
    fi
-   t "$lib" "$Licensee" "$Products" "$LicenseKeyExt")
+   t "${lib}_debug" "$Licensee" "$Products" "$LicenseKeyExt")
 done
 
 exit 0

@@ -33,6 +33,23 @@ copyHeader()
     cp "$HEADER_FILE" "$HEADER_DIR"
 }
 
+copyHeaderDir()
+{
+    BASEDIR=$1
+    DESTDIR=$2
+    mkdir -p "$DESTDIR"
+    for header in `find "$BASEDIR" -type f`; do
+        case $header in
+        *_pch.h|*_p.h|headers.pri)
+            continue
+            ;;
+        *)
+            copyHeader "$header" "$DESTDIR"
+            ;;
+        esac
+    done
+}
+
 [ -z "$OUTDIR" ] && exit 1
 
 #copy tools
@@ -94,17 +111,7 @@ EOF
         rm -f /tmp/tmp.exe
 
         #copy designer headers
-        mkdir -p "$OUTDIR/usr/include/QtDesigner"
-        for header in `find "${BINDIR}/include/QtDesigner" -type f`; do
-            case $header in
-            *_pch.h|*_p.h|headers.pri)
-                continue
-                ;;
-            *)
-                copyHeader "$header" "$OUTDIR/usr/include/QtDesigner"
-                ;;
-            esac
-        done
+        copyHeaderDir "$BINDIR/include/QtDesigner" "$OUTDIR/usr/include/QtDesigner"
     else
 	../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
 	cp "/tmp/tmp.exe" "$EXE"
@@ -124,16 +131,13 @@ cp $BINDIR/tools/porting/src/q3porting.xml $OUTDIR/usr/local/Qt${VERSION_MAJOR}.
 [ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtTest_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtTest_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtTest_debug.${VERSION_MAJOR}.dylib"
 
 #copy QTest headers
-mkdir -p "$OUTDIR/usr/include/QtTest"
-for header in `find "${BINDIR}/include/QtTest" -type f`; do
-    case $header in
-    *_pch.h|*_p.h|headers.pri)
-        continue
-        ;;
-    *)
-        copyHeader "$header" "$OUTDIR/usr/include/QtTest"
-        ;;
-    esac
-done
+copyHeaderDir "${BINDIR}/include/QtTest" "$OUTDIR/usr/include/QtTest"
+
+# Finally handle QtUiTools
+[ -e "${BINDIR}/lib/libQtUiTools.a" ] && cp "${BINDIR}/lib/libQtUiTools.a" "$OUTDIR/usr/lib/libQtUiTools.a"
+[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtUiTools_debug.a" ] && cp "${BINDIR}/lib/libQtUiTools_debug.a" "$OUTDIR/usr/lib/libQtUiTools_debug.a"
+
+# Copy it's headers as well
+copyHeaderDir "${BINDIR}/include/QtUiTools" "$OUTDIR/usr/include/QtUiTools"
 
 exit 0
