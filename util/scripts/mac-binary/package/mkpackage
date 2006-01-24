@@ -31,7 +31,7 @@ BINARY_DIR=
 SOURCE_DIR=
 SOURCE_PACKAGE=
 EVAL_PATCHES=
-CONFIGURE_ARGS="-qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -framework -confirm-license -no-rpath -pch -I/usr/local/pgsql/include -I/usr/local/mysql/include -L/usr/local/pgsql/lib -L/usr/local/mysql/lib"
+CONFIGURE_ARGS="-qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -framework -confirm-license -no-rpath -I/usr/local/pgsql/include -I/usr/local/mysql/include/mysql -L/usr/local/pgsql/lib -L/usr/local/mysql/lib/mysql -universal -sdk /Developer/SDKs/MacOSX10.4u.sdk"
 
 doStringReplace()
 {
@@ -295,7 +295,7 @@ fi
 [ -z "$SOURCE_PACKAGE" ] || PACKAGE_OPTIONS="$PACKAGE_OPTIONS --qtpackage=${SOURCE_PACKAGE}"
 [ -z "$SOURCE_DIR" ] || PACKAGE_OPTIONS="$PACKAGE_OPTIONS --qtsrc=${SOURCE_DIR}"
 [ -z "$BINARY_DIR" ] || PACKAGE_OPTIONS="$PACKAGE_OPTIONS --qtbin=${BINARY_DIR}"
-PACKAGE_OPTIONS="$PACKAGE_OPTIONS --debug=no"
+PACKAGE_OPTIONS="$PACKAGE_OPTIONS --debug=yes"
 
 mkdir -p "$TMP_DIR"
 find .. -name '*~' -exec rm {} \; #just get rid of these before they end up in my package
@@ -331,7 +331,7 @@ if !(/usr/bin/xcodebuild $INSTALLERPANE_BUILDPARAMS || grep '** BUILD SUCCEEDED 
 fi
 
 # Create the key decoder for the script version
-BUILD_LINE="keydecoder/main.cpp $INSTALLERPANE_PATH/keydec.cpp -o Resources/keydecoder"
+BUILD_LINE="keydecoder/main.cpp $INSTALLERPANE_PATH/keydec.cpp -o Resources/keydecoder -arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk"
 /usr/bin/g++-4.0 $BUILD_LINE
 
 #create the packages
