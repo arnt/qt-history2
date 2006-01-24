@@ -129,7 +129,6 @@
     \chapter Qt Assistant in More Detail
 
     \img assistant-assistant.png
-    \caption Qt Assistant
 
     \section1 The Sidebar
 
@@ -287,23 +286,14 @@
     \section2 The Settings Dialog
 
     The Settings dialog is used to set your preferences for \QA. The
-    dialog has four tabs: General Settings, Web Settings, PDF Settings,
-    and Profiles. \QA will remember your settings between sessions,
-    including window sizes and positions, and which pages you have open.
+    dialog has two tabs: The \gui{Web} settings tab allows you to
+    customize the way external content is displayed, and the \gui{PDF}
+    settings tab provides a similar facility for PDF files. \QA will
+    remember your settings between sessions, including window sizes
+    and positions, and which pages you have open.
     Each of the tabs is discussed as follows:
 
     \list
-    \i General Settings
-
-    \img assistant-general.png
-
-    To change the base font used throughout \QA, select a
-    font type from the Font combobox. To choose a new fixed-width
-    font, for example, to show code snippets, choose a font type from
-    the 'Fixed font' combobox. To change the color of hypertext
-    links, click the 'Link color' color button. Uncheck the
-    'Underline links' checkbox if you don't want underlined links.
-
     \i Web Settings
 
     \img assistant-web.png
