@@ -2847,13 +2847,13 @@ void QApplicationPrivate::openPopup(QWidget *popup)
         if (QWidget *fw = QApplication::focusWidget()) {
 #ifdef QT_KEYPAD_NAVIGATION
             if (QApplication::keypadNavigationEnabled()) {
-                qDebug() << "openPopup() - check focus";
+//                qDebug() << "openPopup() - check focus";
                 if (fw->hasEditFocus()) {
-                    qDebug() << "openPopup() - save old" << fw;
+//                    qDebug() << "openPopup() - save old" << fw;
                     oldEditFocus = fw;
                     fw->setEditFocus(false);
                 } else {
-                    qDebug() << "openPopup() - reset old";
+//                    qDebug() << "openPopup() - reset old";
                     oldEditFocus = 0;
                 }
             }
