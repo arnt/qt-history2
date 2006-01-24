@@ -151,10 +151,14 @@ bool QPersistentModelIndex::operator==(const QPersistentModelIndex &other) const
 
     Returns true if this persistent model index is smaller than the \a other
     persistent model index; otherwise returns false.
+    Note that all values in the persistent model index are used when comparing
+    with another persistent model index.
 */
 
 bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
 {
+    if (d && other.d)
+        return d->index < other.d->index;
     return d < other.d;
 }
 
