@@ -32,13 +32,13 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg; do
     cp -R "$BINDIR/lib/${lib}.framework" "$FRAMEWORK_DIR/" >/dev/null 2>&1
     ./fix_prl_paths.pl "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl" "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl.fixed" 
     mv "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl.fixed" "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl" 
-    ./fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/$lib" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}.fixed" 
-    mv "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}.fixed" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/$lib" 
+    ./fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/$lib" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}.fixed" 
+    mv "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}.fixed" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/$lib" 
     if [ "$DO_DEBUG" = "no" ]; then
 	find "$BINDIR/lib/${lib}.framework/" -name '*_debug*' -exec rm -f {} \; >/dev/null 2>&1
-    elif [ -e "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}_debug" ]; then
-	./fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}_debug" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}_debug.fixed" 
-	mv "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}_debug.fixed" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}_debug" 
+    elif [ -e "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug" ]; then
+	./fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug.fixed" 
+	mv "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug.fixed" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug" 
         ./fix_prl_paths.pl "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl" "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl.fixed" 
         mv "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl.fixed" "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl" 
     fi
