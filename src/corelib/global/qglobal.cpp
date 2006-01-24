@@ -1535,6 +1535,31 @@ static QSysInfo::WinVersion winVersion()
         }
     }
 
+#ifdef QT_DEBUG
+    {
+        QByteArray override = qgetenv("QT_WINVER_OVERRIDE");
+        if (override.isEmpty())
+            return winver;
+
+        if (override == "Me")
+            winver = QSysInfo::WV_Me;
+        if (override == "95")
+            winver = QSysInfo::WV_95;
+        else if (override == "98")
+            winver = QSysInfo::WV_98;
+        else if (override == "NT")
+            winver = QSysInfo::WV_NT;
+        else if (override == "2000")
+            winver = QSysInfo::WV_2000;
+        else if (override == "2003")
+            winver = QSysInfo::WV_2003;
+        else if (override == "XP")
+            winver = QSysInfo::WV_XP;
+        else if (override == "VISTA")
+            winver = QSysInfo::WV_VISTA;
+    }
+#endif
+
     return winver;
 }
 
