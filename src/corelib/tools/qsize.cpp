@@ -17,20 +17,34 @@
 
 /*!
     \class QSize
-    \brief The QSize class defines the size of a two-dimensional object.
-
     \ingroup multimedia
 
-    A size is specified by a width and a height.
+    \brief The QSize class defines the size of a two-dimensional
+    object using integer point precision.
 
-    The size can be set in the constructor and changed with setWidth(),
-    setHeight(), or scale(), or using arithmetic operators. You can swap the
-    width and height with transpose(). You can get a size which holds the
-    maximum height and width of two sizes using expandedTo(), and the minimum
-    height and width of two sizes using boundedTo().
+    A size is specified by a width() and a height().
 
+    The size can be set in the constructor and changed with the
+    setWidth(), setHeight(), or scale() functions, or using arithmetic
+    operators. The size can also be manipulated directly by retrieving
+    references to the width and height using the rwidth() and
+    rheight() functions. Finally, the width and height can be swapped
+    using the transpose() function.
 
-    \sa QPoint, QRect QSizeF
+    The isValid() function determines if a size is valid. A valid size
+    has both width and height greater than zero. The isEmpty()
+    function returns true if either of the width and height is less
+    than, or equal to, zero; if both the width and the height is zero,
+    the isNull() function returns true.
+
+    Use the expandedTo() function to retrieve a size which holds the
+    maximum height and width of \e this size and a given size. On the
+    other hand, the boundedTo() function returns a size which holds
+    the minimum height and width of \e this size and a given size.
+
+    QSize objects can be streamed as well as compared.
+
+    \sa QSizeF, QPoint, QRect
 */
 
 
@@ -41,42 +55,44 @@
 /*!
     \fn QSize::QSize()
 
-    Constructs a size with an invalid width and height.
+    Constructs an invalid size.
 
-    \sa isValid() setWidth() setHeight()
+    \sa isValid()
 */
 
 /*!
-    \fn QSize::QSize(int w, int h)
+    \fn QSize::QSize(int width, int height)
 
-    Constructs a size with width \a w and height \a h.
+    Constructs a size with the given \a width and \a height.
+
+    \sa setWidth(), setHeight()
 */
 
 /*!
     \fn bool QSize::isNull() const
 
-    Returns true if the width is 0 and the height is 0; otherwise
-    returns false.
+    Returns true if both the width and height is 0; otherwise returns
+    false.
 
-    \sa isValid() isEmpty() width() height()
+    \sa isValid(), isEmpty()
 */
 
 /*!
     \fn bool QSize::isEmpty() const
 
-    Returns true if the width is less than or equal to 0, or the height is
-    less than or equal to 0; otherwise returns false.
+    Returns true if either of the width and height is less than, or
+    equal to, 0; otherwise returns false.
 
-    \sa isNull() isValid() width() height()
+    \sa isNull(), isValid()
 */
 
 /*!
     \fn bool QSize::isValid() const
 
-    Returns true if the width is equal to or greater than 0 and the height is
-    equal to or greater than 0; otherwise returns false.
+    Returns true if both the width and height is equal to or greater
+    than 0; otherwise returns false.
 
-    \sa isNull() isEmpty() width() height()
+    \sa isNull(), isEmpty()
 */
 
 /*!
@@ -84,7 +100,7 @@
 
     Returns the width.
 
-    \sa height() setWidth()
+    \sa height(), setWidth()
 */
 
 /*!
@@ -92,29 +108,29 @@
 
     Returns the height.
 
-    \sa width() setHeight()
+    \sa width(), setHeight()
 */
 
 /*!
-    \fn void QSize::setWidth(int w)
+    \fn void QSize::setWidth(int width)
 
-    Sets the width to \a w.
+    Sets the width to the given \a width.
 
-    \sa width() rwidth() setHeight() expandedTo() boundedTo() scale() transpose()
+    \sa rwidth(), width(), setHeight()
 */
 
 /*!
-    \fn void QSize::setHeight(int h)
+    \fn void QSize::setHeight(int height)
 
-    Sets the height to \a h.
+    Sets the height to the given \a height.
 
-    \sa height() rheight() setWidth() expandedTo() boundedTo() scale() transpose()
+    \sa rheight(), height(), setWidth()
 */
 
 /*!
     Swaps the width and height values.
 
-    \sa expandedTo() boundedTo() setWidth() setHeight()
+    \sa setWidth(), setHeight()
 */
 
 void QSize::transpose()
@@ -125,17 +141,17 @@ void QSize::transpose()
 }
 
 /*!
-  \fn void QSize::scale(int w, int h, Qt::AspectRatioMode mode)
+  \fn void QSize::scale(int width, int height, Qt::AspectRatioMode mode)
 
-    Scales the size to a rectangle of width \a w and height \a h according
-    to the Qt::AspectRatioMode \a mode.
+    Scales the size to a rectangle with the given \a width and \a
+    height, according to the specified \a mode:
 
     \list
-    \i If \a mode is Qt::IgnoreAspectRatio, the size is set to (\a w, \a h).
+    \i If \a mode is Qt::IgnoreAspectRatio, the size is set to (\a width, \a height).
     \i If \a mode is Qt::KeepAspectRatio, the current size is scaled to a rectangle
-       as large as possible inside (\a w, \a h), preserving the aspect ratio.
+       as large as possible inside (\a width, \a height), preserving the aspect ratio.
     \i If \a mode is Qt::KeepAspectRatioByExpanding, the current size is scaled to a rectangle
-       as small as possible outside (\a w, \a h), preserving the aspect ratio.
+       as small as possible outside (\a width, \a height), preserving the aspect ratio.
     \endlist
 
     Example:
@@ -153,13 +169,15 @@ void QSize::transpose()
         // t3 is (60, 72)
     \endcode
 
-    \sa boundedTo() expandedTo() setWidth() setHeight()
+    \sa setWidth(), setHeight()
 */
 
 /*!
+    \fn void QSize::scale(const QSize &size, Qt::AspectRatioMode mode)
     \overload
 
-    Equivalent to scale(\a{s}.width(), \a{s}.height(), \a mode).
+    Scales the size to a rectangle with the given \a size, according to
+    the specified \a mode.
 */
 void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 {
@@ -191,15 +209,17 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
     Returns a reference to the width.
 
-    Using a reference makes it possible to directly manipulate the width.
+    Using a reference makes it possible to manipulate the width
+    directly. For example:
 
-    Example:
     \code
-        QSize s(100, 10);
-        s.rwidth() += 20;                // s becomes (120,10)
+        QSize size(100, 10);
+        size.rwidth() += 20;
+
+        // size becomes (120,10)
     \endcode
 
-    \sa rheight() setWidth()
+    \sa rheight(), setWidth()
 */
 
 /*!
@@ -207,57 +227,63 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
     Returns a reference to the height.
 
-    Using a reference makes it possible to directly manipulate the height.
+    Using a reference makes it possible to manipulate the height
+    directly. For example:
 
-    Example:
     \code
-        QSize s(100, 10);
-        s.rheight() += 5;                // s becomes (100,15)
+        QSize size(100, 10);
+        size.rheight() += 5;
+
+        // size becomes (100,15)
     \endcode
 
-    \sa rwidth() setHeight()
+    \sa rwidth(), setHeight()
 */
 
 /*!
-    \fn QSize &QSize::operator+=(const QSize &s)
+    \fn QSize &QSize::operator+=(const QSize &size)
 
-    Adds \a s to the size and returns a reference to this size.
+    Adds the given \a size to \e this size, and returns a reference to
+    this size. For example:
 
-    Example:
-    \code
-        QSize s( 3, 7);
-        QSize r(-1, 4);
-        s += r;                        // s becomes (2,11)
-    \endcode
-*/
-
-/*!
-    \fn QSize &QSize::operator-=(const QSize &s)
-
-    Subtracts \a s from the size and returns a reference to this size.
-
-    Example:
     \code
         QSize s( 3, 7);
         QSize r(-1, 4);
-        s -= r;                        // s becomes (4,3)
+        s += r;
+
+        // s becomes (2,11)
     \endcode
 */
 
 /*!
-    \fn QSize &QSize::operator*=(qreal coeff)
+    \fn QSize &QSize::operator-=(const QSize &size)
 
+    Subtracts the given \a size from \e this size, and returns a
+    reference to this size. For example:
+
+    \code
+        QSize s( 3, 7);
+        QSize r(-1, 4);
+        s -= r;
+
+        // s becomes (4,3)
+    \endcode
+*/
+
+/*!
+    \fn QSize &QSize::operator*=(qreal factor)
     \overload
 
-    Multiplies both the width and height by \a coeff and returns a
-    reference to the size.
+    Multiplies both the width and height by the given \a factor, and
+    returns a reference to the size.
 
     Note that the result is rounded to the nearest integer.
+
+    \sa scale()
 */
 
 /*!
     \fn bool operator==(const QSize &s1, const QSize &s2)
-
     \relates QSize
 
     Returns true if \a s1 and \a s2 are equal; otherwise returns false.
@@ -265,7 +291,6 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
 /*!
     \fn bool operator!=(const QSize &s1, const QSize &s2)
-
     \relates QSize
 
     Returns true if \a s1 and \a s2 are different; otherwise returns false.
@@ -273,7 +298,6 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
 /*!
     \fn const QSize operator+(const QSize &s1, const QSize &s2)
-
     \relates QSize
 
     Returns the sum of \a s1 and \a s2; each component is added separately.
@@ -281,7 +305,6 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
 /*!
     \fn const QSize operator-(const QSize &s1, const QSize &s2)
-
     \relates QSize
 
     Returns \a s2 subtracted from \a s1; each component is subtracted
@@ -289,33 +312,30 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSize operator*(const QSize &size, qreal coeff)
-
+    \fn const QSize operator*(const QSize &size, qreal factor)
     \relates QSize
 
-    Multiplies \a size by \a coeff and returns the result rounded to the nearest integer.
+    Multiplies the given \a size by the given \a factor, and returns
+    the result rounded to the nearest integer.
 
     \sa QSize::scale()
 */
 
 /*!
-    \fn const QSize operator*(qreal coeff, const QSize &size)
-
+    \fn const QSize operator*(qreal factor, const QSize &size)
     \overload
     \relates QSize
 
-    Multiplies \a size by \a coeff and returns the result rounded to the nearest integer.
-
-    \sa QSize::scale()
+    Multiplies the given \a size by the given \a factor, and returns
+    the result rounded to the nearest integer.
 */
 
 /*!
-    \fn QSize &QSize::operator/=(qreal coeff)
-
+    \fn QSize &QSize::operator/=(qreal divisor)
     \overload
 
-    Divides both the width and height by \a coeff and returns a
-    reference to the size.
+    Divides both the width and height by the given \a divisor, and
+    returns a reference to the size.
 
     Note that the result is rounded to the nearest integer.
 
@@ -324,13 +344,11 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
 /*!
     \fn const QSize operator/(const QSize &size, qreal divisor)
-
     \relates QSize
     \overload
 
-    Divides \a size by \a divisor and returns the result.
-
-    Note that the result is rounded to the nearest integer.
+    Divides the given \a size by the given \a divisor, and returns the
+    result rounded to the nearest integer.
 
     \sa QSize::scale()
 */
@@ -338,19 +356,19 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 /*!
     \fn QSize QSize::expandedTo(const QSize & otherSize) const
 
-    Returns a size with the maximum width and height of this size and
-    \a otherSize.
+    Returns a size holding the maximum width and height of this size
+    and \a otherSize.
 
-    \sa boundedTo() scale() setWidth() setHeight()
+    \sa boundedTo(), scale()
 */
 
 /*!
     \fn QSize QSize::boundedTo(const QSize & otherSize) const
 
-    Returns a size with the minimum width and height of this size and
-    \a otherSize.
+    Returns a size holding the minimum width and height of this size
+    and \a otherSize.
 
-    \sa expandedTo() scale() setWidth() setHeight()
+    \sa expandedTo(), scale()
 */
 
 
@@ -360,13 +378,13 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QSize &size)
     \relates QSize
 
-    Writes the size \a sz to the stream \a s and returns a reference
-    to the stream.
+    Writes the given \a size to the given \a stream, and returns a
+    reference to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream
-    operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator<<(QDataStream &s, const QSize &sz)
@@ -379,13 +397,13 @@ QDataStream &operator<<(QDataStream &s, const QSize &sz)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QSize &size)
     \relates QSize
 
-    Reads the size from the stream \a s into size \a sz and returns a
-    reference to the stream.
+    Reads a size from the given \a stream into the given \a size, and
+    returns a reference to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream
-    operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator>>(QDataStream &s, QSize &sz)
@@ -416,21 +434,37 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 /*!
     \class QSizeF
     \brief The QSizeF class defines the size of a two-dimensional object
-    using floating point values for accuracy.
+    using floating point precision.
 
     \ingroup multimedia
 
-    A size is specified by a width and a height.
+    A size is specified by a width() and a height().
 
-    The coordinate type is qreal.
+    The size can be set in the constructor and changed with the
+    setWidth(), setHeight(), or scale() functions, or using arithmetic
+    operators. The size can also be manipulated directly by retrieving
+    references to the width and height using the rwidth() and
+    rheight() functions. Finally, the width and height can be swapped
+    using the transpose() function.
 
-    The size can be set in the constructor and changed with setWidth(),
-    setHeight(), or scale(), or using arithmetic operators.  You can swap the
-    width and height with transpose(). You can get a size which holds the
-    maximum height and width of two sizes using expandedTo(), and the minimum
-    height and width of two sizes using boundedTo().
+    The isValid() function determines if a size is valid. A valid size
+    has both width and height greater than, or equal to, zero. The
+    isEmpty() function returns true if either of the width and height
+    is \e less than (or equal to) zero, while the isNull() function
+    returns true only if both the width and the height is zero.
 
-    \sa QSize QPointF QRectF
+    Use the expandedTo() function to retrieve a size which holds the
+    maximum height and width of this size and a given size. Likewise,
+    the boundedTo() function returns a size which holds the minimum
+    height and width of this size and a given size.
+
+    The QSizeF class also provides the toSize() function returning a
+    QSize copy of this size, constructed by rounding the width and
+    height to the nearest integer.
+
+    QSizeF objects can be streamed as well as compared.
+
+    \sa QSize, QPointF, QRectF
 */
 
 
@@ -443,46 +477,49 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 
     Constructs an invalid size.
 
-    \sa isValid() setWidth() setHeight()
+    \sa isValid()
 */
 
 /*!
     \fn QSizeF::QSizeF(const QSize &size)
 
-    Constructs a size with floating point accuracy from the given \a size.
+    Constructs a size with floating point accuracy from the given \a
+    size.
+
+    \sa toSize()
 */
 
 /*!
     \fn QSizeF::QSizeF(qreal width, qreal height)
 
-    Constructs a size with width \a width and height \a height.
+    Constructs a size with the given \a width and \a height.
 */
 
 /*!
     \fn bool QSizeF::isNull() const
 
-    Returns true if the width is 0 and the height is 0; otherwise
-    returns false.
+    Returns true if both the width and height is 0; otherwise returns
+    false.
 
-    \sa isValid() isEmpty() width() height()
+    \sa isValid(), isEmpty()
 */
 
 /*!
     \fn bool QSizeF::isEmpty() const
 
-    Returns true if the width is less than or equal to 0, or the height is
-    less than or equal to 0; otherwise returns false.
+    Returns true if either of the width and height is less than or
+    equal to 0; otherwise returns false.
 
-    \sa isNull() isValid() width() height()
+    \sa isNull(), isValid()
 */
 
 /*!
     \fn bool QSizeF::isValid() const
 
-    Returns true if the width is equal to or greater than 0 and the height is
-    equal to or greater than 0; otherwise returns false.
+    Returns true if both the width and height is equal to or greater
+    than 0; otherwise returns false.
 
-    \sa isNull() isEmpty() width() height()
+    \sa isNull(), isEmpty()
 */
 
 /*!
@@ -490,7 +527,7 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 
     Returns the width.
 
-    \sa height() setWidth()
+    \sa height(), setWidth()
 */
 
 /*!
@@ -498,36 +535,40 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 
     Returns the height.
 
-    \sa width() setHeight()
+    \sa width(), setHeight()
 */
 
 /*!
     \fn void QSizeF::setWidth(qreal width)
 
-    Sets the width to \a width.
+    Sets the width to the given \a width.
 
-    \sa width() rwidth() setHeight() expandedTo() boundedTo() scale() transpose()
+    \sa width(), rwidth(), setHeight()
 */
 
 /*!
     \fn void QSizeF::setHeight(qreal height)
 
-    Sets the height to \a height.
+    Sets the height to the given \a height.
 
-    \sa height() setWidth() expandedTo() boundedTo() scale() transpose()
+    \sa height(), rheight(), setWidth()
 */
 
 /*!
     \fn QSize QSizeF::toSize() const
 
-    Returns a size with integer precision. Note that the coordinates in the
-    returned size will be rounded to the nearest integer.
+    Returns an integer based copy of this size.
+
+    Note that the coordinates in the returned size will be rounded to
+    the nearest integer.
+
+    \sa QSizeF()
 */
 
 /*!
     Swaps the width and height values.
 
-    \sa expandedTo() boundedTo() setWidth() setHeight()
+    \sa setWidth(), setHeight()
 */
 
 void QSizeF::transpose()
@@ -538,17 +579,17 @@ void QSizeF::transpose()
 }
 
 /*!
-  \fn void QSizeF::scale(qreal w, qreal h, Qt::AspectRatioMode mode)
+  \fn void QSizeF::scale(qreal width, qreal height, Qt::AspectRatioMode mode)
 
-    Scales the size to a rectangle of width \a w and height \a h according
-    to the Qt::AspectRatioMode \a mode.
+    Scales the size to a rectangle with the given \a width and \a
+    height, according to the specified \a mode.
 
     \list
-    \i If \a mode is Qt::IgnoreAspectRatio, the size is set to (\a w, \a h).
+    \i If \a mode is Qt::IgnoreAspectRatio, the size is set to (\a width, \a height).
     \i If \a mode is Qt::KeepAspectRatio, the current size is scaled to a rectangle
-       as large as possible inside (\a w, \a h), preserving the aspect ratio.
+       as large as possible inside (\a width, \a height), preserving the aspect ratio.
     \i If \a mode is Qt::KeepAspectRatioByExpanding, the current size is scaled to a rectangle
-       as small as possible outside (\a w, \a h), preserving the aspect ratio.
+       as small as possible outside (\a width, \a height), preserving the aspect ratio.
     \endlist
 
     Example:
@@ -566,13 +607,15 @@ void QSizeF::transpose()
         // t3 is (60, 72)
     \endcode
 
-    \sa boundedTo() expandedTo() setWidth() setHeight()
+    \sa setWidth(), setHeight()
 */
 
 /*!
+    \fn void QSizeF::scale(const QSizeF &size, Qt::AspectRatioMode mode)
     \overload
 
-    Equivalent to scale(\a{s}.width(), \a{s}.height(), \a mode).
+    Scales the size to a rectangle with the given \a size, according to
+    the specified \a mode.
 */
 void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 {
@@ -604,15 +647,17 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     Returns a reference to the width.
 
-    Using a reference makes it possible to directly manipulate the width.
+    Using a reference makes it possible to manipulate the width
+    directly. For example:
 
-    Example:
     \code
-        QSizeF s(100.3, 10);
-        s.rwidth() += 20.5;                // s becomes (120.8,10)
+        QSizeF size(100.3, 10);
+        size.rwidth() += 20.5;
+
+         // size becomes (120.8,10)
     \endcode
 
-    \sa rheight() setWidth()
+    \sa rheight(), setWidth()
 */
 
 /*!
@@ -620,63 +665,69 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     Returns a reference to the height.
 
-    Using a reference makes it possible to directly manipulate the height.
+    Using a reference makes it possible to manipulate the height
+    directly. For example:
 
-    Example:
     \code
-        QSizeF s(100, 10.2);
-        s.rheight() += 5.5;                // s becomes (100,15.7)
+        QSizeF size(100, 10.2);
+        size.rheight() += 5.5;
+
+        // size becomes (100,15.7)
     \endcode
 
-    \sa rwidth() setHeight()
+    \sa rwidth(), setHeight()
 */
 
 /*!
-    \fn QSizeF &QSizeF::operator+=(const QSizeF &s)
+    \fn QSizeF &QSizeF::operator+=(const QSizeF &size)
 
-    Adds \a s to the size and returns a reference to this size.
+    Adds the given \a size to this size and returns a reference to
+    this size. For example:
 
-    Example:
-    \code
-        QSizeF s( 3, 7);
-        QSizeF r(-1, 4);
-        s += r;                        // s becomes (2,11)
-    \endcode
-*/
-
-/*!
-    \fn QSizeF &QSizeF::operator-=(const QSizeF &s)
-
-    Subtracts \a s from the size and returns a reference to this size.
-
-    Example:
     \code
         QSizeF s( 3, 7);
         QSizeF r(-1, 4);
-        s -= r;                        // s becomes (4,3)
+        s += r;
+
+        // s becomes (2,11)
     \endcode
 */
 
 /*!
-    \fn QSizeF &QSizeF::operator*=(qreal coeff)
+    \fn QSizeF &QSizeF::operator-=(const QSizeF &size)
 
+    Subtracts the given \a size from this size and returns a reference
+    to this size. For example:
+
+    \code
+        QSizeF s( 3, 7);
+        QSizeF r(-1, 4);
+        s -= r;
+
+        // s becomes (4,3)
+    \endcode
+*/
+
+/*!
+    \fn QSizeF &QSizeF::operator*=(qreal factor)
     \overload
 
-    Multiplies both the width and height by \a coeff and returns a
-    reference to the size.
+    Multiplies both the width and height by the given \a factor and
+    returns a reference to the size.
+
+    \sa scale()
 */
 
 /*!
     \fn bool operator==(const QSizeF &s1, const QSizeF &s2)
-
     \relates QSizeF
 
-    Returns true if \a s1 and \a s2 are equal; otherwise returns false.
+    Returns true if \a s1 and \a s2 are equal; otherwise returns
+    false.
 */
 
 /*!
     \fn bool operator!=(const QSizeF &s1, const QSizeF &s2)
-
     \relates QSizeF
 
     Returns true if \a s1 and \a s2 are different; otherwise returns false.
@@ -684,7 +735,6 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
 /*!
     \fn const QSizeF operator+(const QSizeF &s1, const QSizeF &s2)
-
     \relates QSizeF
 
     Returns the sum of \a s1 and \a s2; each component is added separately.
@@ -692,7 +742,6 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
 /*!
     \fn const QSizeF operator-(const QSizeF &s1, const QSizeF &s2)
-
     \relates QSizeF
 
     Returns \a s2 subtracted from \a s1; each component is subtracted
@@ -700,25 +749,25 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator*(const QSizeF &size, qreal coeff)
+    \fn const QSizeF operator*(const QSizeF &size, qreal factor)
 
     \overload
     \relates QSizeF
 
-    Multiplies \a size by \a coeff and returns the result.
+    Multiplies the given \a size by the given \a factor and returns
+    the result.
 
-    \sa QSize::scale()
+    \sa QSizeF::scale()
 */
 
 /*!
-    \fn const QSizeF operator*(qreal c, const QSizeF &s)
+    \fn const QSizeF operator*(qreal factor, const QSizeF &size)
 
     \overload
     \relates QSizeF
 
-    Multiplies \a s by \a c and returns the result.
-
-    \sa QSize::scale()
+    Multiplies the given \a size by the given \a factor and returns
+    the result.
 */
 
 /*!
@@ -726,10 +775,10 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     \overload
 
-    Divides both the width and height by \a divisor and returns a reference to the
-    size.
+    Divides both the width and height by the given \a divisor and
+    returns a reference to the size.
 
-    \sa QSize::scale()
+    \sa scale()
 */
 
 /*!
@@ -738,27 +787,28 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
     \relates QSizeF
     \overload
 
-    Divides \a size by \a divisor and returns the result.
+    Divides the given \a size by the given \a divisor and returns the
+    result.
 
-    \sa QSize::scale()
+    \sa QSizeF::scale()
 */
 
 /*!
     \fn QSizeF QSizeF::expandedTo(const QSizeF & otherSize) const
 
-    Returns a size with the maximum width and height of this size and
-    \a otherSize.
+    Returns a size holding the maximum width and height of this size
+    and \a otherSize.
 
-    \sa boundedTo() scale() setWidth() setHeight()
+    \sa boundedTo(), scale()
 */
 
 /*!
     \fn QSizeF QSizeF::boundedTo(const QSizeF & otherSize) const
 
-    Returns a size with the minimum width and height of this size and
-    \a otherSize.
+    Returns a size holding the minimum width and height of this size
+    and \a otherSize.
 
-    \sa expandedTo() scale() setWidth() setHeight()
+    \sa expandedTo(), scale()
 */
 
 
@@ -768,13 +818,13 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QSizeF &size)
     \relates QSizeF
 
-    Writes the size \a sz to the stream \a s and returns a reference
-    to the stream.
+    Writes the the given \a size to the given \a stream and returns a
+    reference to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream
-    operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator<<(QDataStream &s, const QSizeF &sz)
@@ -784,13 +834,13 @@ QDataStream &operator<<(QDataStream &s, const QSizeF &sz)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QSizeF &size)
     \relates QSizeF
 
-    Reads the size from the stream \a s into size \a sz and returns a
-    reference to the stream.
+    Reads a size from the given \a stream into the given \a size and
+    returns a reference to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream
-    operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator>>(QDataStream &s, QSizeF &sz)

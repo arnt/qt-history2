@@ -20,16 +20,15 @@
 
 /*!
     \class QLine
+    \ingroup multimedia
 
-    \brief The QLine class provides a two-dimensional vector that
-    uses integer point accuracy for coordinates.
+    \brief The QLine class provides a two-dimensional vector using
+    integer precision.
 
-    A QLine describes a finite length line (or line segment) on a
-    two-dimensional surface.  The start and end points of the line are
-    specified using integer point coordinates.
-
-    Use isNull() to determine whether the QLine represents a valid line
-    or a null line.
+    A QLine describes a finite length line (or a line segment) on a
+    two-dimensional surface. The start and end points of the line are
+    specified using integer point accuracy for coordinates. Use the
+    QLineF constructor to retrieve a floating point copy.
 
     \table
     \row
@@ -37,14 +36,16 @@
         \o \inlineimage qline-coordinates.png
     \endtable
 
-    The positions of the line's end points can be found with the p1(),
-    x1(), y1(), p2(), x2(), and y2() functions. The horizontal and vertical
-    components of the line are returned by the dx() and dy() functions.
+    The positions of the line's start and end points can be retrieved
+    using the p1(), x1(), y1(), p2(), x2(), and y2() functions. The
+    dx() and dy() functions return the horizontal and vertical
+    components of the line. Use isNull() to determine whether the
+    QLine represents a valid line or a null line.
 
-    The line can be translated along the length of another line with the
+    Finally, the line can be translated a given offset using the
     translate() function.
 
-    \sa QPoint QSize QRect QLineF
+    \sa QLineF, QPolygon, QRect
 */
 
 /*!
@@ -54,10 +55,10 @@
 */
 
 /*!
-    \fn QLine::QLine(const QPoint &pt1, const QPoint &pt2)
+    \fn QLine::QLine(const QPoint &p1, const QPoint &p2)
 
-    Constructs a line object that represents the line between \a pt1 and
-    \a pt2.
+    Constructs a line object that represents the line between \a p1 and
+    \a p2.
 */
 
 /*!
@@ -79,7 +80,7 @@
 
     Returns the line's start point.
 
-    \sa x1() y1() p2()
+    \sa x1(), y1(), p2()
 */
 
 /*!
@@ -87,7 +88,7 @@
 
     Returns the line's end point.
 
-    \sa x2() y2() p1()
+    \sa x2(), y2(), p1()
 */
 
 /*!
@@ -95,7 +96,7 @@
 
     Returns the x-coordinate of the line's start point.
 
-    \sa y1() x2() p1()
+    \sa p1()
 */
 
 /*!
@@ -103,7 +104,7 @@
 
     Returns the y-coordinate of the line's start point.
 
-    \sa x1() y2() p1()
+    \sa p1()
 */
 
 /*!
@@ -111,7 +112,7 @@
 
     Returns the x-coordinate of the line's end point.
 
-    \sa y2() x1() p2()
+    \sa p2()
 */
 
 /*!
@@ -119,7 +120,7 @@
 
     Returns the y-coordinate of the line's end point.
 
-    \sa x2() y1() p2()
+    \sa p2()
 */
 
 /*!
@@ -139,35 +140,34 @@
 */
 
 /*!
-    \fn bool QLine::operator!=(const QLine &other) const
+    \fn bool QLine::operator!=(const QLine &line) const
 
-    Returns true if \a other is not the same as this line.
+    Returns true if the given \a line is not the same as \e this line.
 
-    A line is different from another line if any of their points are
-    different or their order is different.
+    A line is different from another line if any of their start or
+    end points differ, or the internal order of the points is different.
 */
 
 /*!
-    \fn bool QLine::operator==(const QLine &other) const
+    \fn bool QLine::operator==(const QLine &line) const
 
-    Returns true if \a other is the same line as this line.
+    Returns true if the given \a line is the same as \e this line.
 
-    A line is identical to another line if the points are the same and their
-    order is the same.
+    A line is identical to another line if the start and end points
+    are identical, and the internal order of the points is the same.
 */
 
 /*!
-    \fn void QLine::translate(const QPoint &point)
+    \fn void QLine::translate(const QPoint &offset)
 
-    Translates this line with the \a point given.
+    Translates this line by the given \a offset.
 */
 
 /*!
     \fn void QLine::translate(int dx, int dy)
-
     \overload
 
-    Translates this line the distance \a dx and \a dy.
+    Translates this line the distance specified by \a dx and \a dy.
 */
 
 #ifndef QT_NO_DEBUG_STREAM
@@ -182,10 +182,10 @@ QDebug operator<<(QDebug d, const QLine &p)
 /*!
     \relates QLine
 
-    Writes the \a line to the \a stream and returns a reference to
-    the stream.
+    Writes the given \a line to the given \a stream and returns a
+    reference to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator<<(QDataStream &stream, const QLine &line)
@@ -197,10 +197,10 @@ QDataStream &operator<<(QDataStream &stream, const QLine &line)
 /*!
     \relates QLine
 
-    Reads a QLine from the \a stream into the \a line and returns a
-    reference to the stream.
+    Reads a line from the given \a stream into the given \a line and
+    returns a reference to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator>>(QDataStream &stream, QLine &line)
@@ -222,17 +222,16 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
 
 /*!
     \class QLineF
+    \ingroup multimedia
 
-    \brief The QLineF class provides a two-dimensional vector that
-    uses floating point accuracy for coordinates.
+    \brief The QLineF class provides a two-dimensional vector using
+    floating point precision.
 
     A QLineF describes a finite length line (or line segment) on a
-    two-dimensional surface. QLineF provides a variant of the QLine
-    class that defines the start and end points of the line using
-    floating point coordinates.
-
-    Use isNull() to determine whether the QLineF represents a valid line
-    or a null line.
+    two-dimensional surface. QLineF defines the start and end points
+    of the line using floating point accuracy for coordinates.  Use
+    the toLine() function to retrieve an integer based copy of this
+    line.
 
     \table
     \row
@@ -240,24 +239,44 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
         \o \inlineimage qline-coordinates.png
     \endtable
 
-    The positions of the line's end points can be found with the p1(), x1(),
-    y1(), p2(), x2(), and y2() functions. The horizontal and vertical
-    components of the line are returned by the dx() and dy() functions.
+    The positions of the line's start and end points can be retrieved
+    using the p1(), x1(), y1(), p2(), x2(), and y2() functions. The
+    dx() and dy() functions return the horizontal and vertical
+    components of the line, respectively.
 
-    Convenience functions are provided for finding the lines's length(),
-    the unitVector() along the line, whether two lines intersect(), and
-    the angle() between two lines. The line's length can be changed using
-    setLength().
+    The line's length can be retrieved using the length() function,
+    and altered using the setLength() function.  Use the isNull()
+    function to determine whether the QLineF represents a valid line
+    or a null line.
 
-    The line can be translated along the length of another line with the
-    moveBy() function, and can be traversed using a parameter with the
-    pointAt() function.
+    The intersect() function determines the IntersectType for this
+    line and a given line, while the angle() function returns the
+    angle between the lines. In addition, the unitVector() function
+    returns a line that has the same starting point as this line, but
+    with a length of only 1, while the normalVector() function returns
+    a line that is perpendicular to this line with the same starting
+    point and length.
 
-    \sa QPointF QSizeF QRectF QLine
+    Finally, the line can be translated a given offset using the
+    translate() function, and can be traversed using the pointAt()
+    function.
+
+    \sa QLine, QPolygonF, QRectF
 */
 
 /*!
     \enum QLineF::IntersectType
+
+    Describes the intersection between two lines.
+
+    \table
+    \row
+    \o \inlineimage qlinef-unbounded.png
+    \o \inlineimage qlinef-bounded.png
+    \row
+    \o QLineF::UnboundedIntersection
+    \o QLineF::BoundedIntersection
+    \endtable
 
     \value NoIntersection Indicates that the lines do not intersect;
     i.e. they are parallel.
@@ -266,13 +285,10 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
     but not within the range defined by their lengths. This will be
     the case if the lines are not parallel.
 
-    \img qlinef-unbounded.png
-
     \value BoundedIntersection The two lines intersect with each other
     within the start and end points of each line.
 
-    \img qlinef-bounded.png
-
+    \sa intersect()
 */
 
 /*!
@@ -282,10 +298,10 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
 */
 
 /*!
-    \fn QLineF::QLineF(const QPointF &pt1, const QPointF &pt2)
+    \fn QLineF::QLineF(const QPointF &p1, const QPointF &p2)
 
-    Constructs a line object that represents the line between \a pt1 and
-    \a pt2.
+    Constructs a line object that represents the line between \a p1 and
+    \a p2.
 */
 
 /*!
@@ -298,7 +314,9 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
 /*!
     \fn QLineF::QLineF(const QLine &line)
 
-    Construct a QLineF from a integer-based QLine \a line.
+    Construct a QLineF object from the given integer-based \a line.
+
+    \sa toLine()
 */
 
 /*!
@@ -317,7 +335,7 @@ bool QLineF::isNull() const
 
     Returns the line's start point.
 
-    \sa x1() y1() p2()
+    \sa x1(), y1(), p2()
 */
 
 /*!
@@ -325,22 +343,25 @@ bool QLineF::isNull() const
 
     Returns the line's end point.
 
-    \sa x2() y2() p1()
+    \sa x2(), y2(), p1()
 */
 
 /*!
     \fn QLine QLineF::toLine() const
 
-    Returns a QLine. The returned QLine's starting and end points are rounded to
+    Returns an integer based copy of this line.
+
+    Note that the returned line's start and end points are rounded to
     the nearest integer.
 
+    \sa QLineF()
 */
 /*!
     \fn qreal QLineF::x1() const
 
     Returns the x-coordinate of the line's start point.
 
-    \sa y1() p1() x2()
+    \sa p1()
 */
 
 /*!
@@ -348,7 +369,7 @@ bool QLineF::isNull() const
 
     Returns the y-coordinate of the line's start point.
 
-    \sa x1() p1() x2()
+    \sa p1()
 */
 
 /*!
@@ -356,7 +377,7 @@ bool QLineF::isNull() const
 
     Returns the x-coordinate of the line's end point.
 
-    \sa y2() p2() x1()
+    \sa p2()
 */
 
 /*!
@@ -364,7 +385,7 @@ bool QLineF::isNull() const
 
     Returns the y-coordinate of the line's end point.
 
-    \sa x2() p2() y1()
+    \sa p2()
 */
 
 /*!
@@ -372,7 +393,7 @@ bool QLineF::isNull() const
 
     Returns the horizontal component of the line's vector.
 
-    \sa dy() pointAt()
+    \sa dy(), pointAt()
 */
 
 /*!
@@ -380,13 +401,13 @@ bool QLineF::isNull() const
 
     Returns the vertical component of the line's vector.
 
-    \sa dx() pointAt()
+    \sa dx(), pointAt()
 */
 
 /*!
     \fn QLineF::setLength(qreal length)
 
-    Sets the \a length of the line.
+    Sets the length of the line to the given \a length.
 
     \sa length()
 */
@@ -397,36 +418,37 @@ bool QLineF::isNull() const
     Returns a line that is perpendicular to this line with the same starting
     point and length.
 
+    \image qlinef-normalvector.png
+
     \sa unitVector()
-
-    \img qlinef-normalvector.png
 */
 
 /*!
-    \fn bool QLineF::operator!=(const QLineF &other) const
+    \fn bool QLineF::operator!=(const QLineF &line) const
 
-    Returns true if \a other is not the same as this line.
+    Returns true if the given \a line is not the same as \e this line.
 
-    A line is different from another line if any of their points are
-    different or their order is different.
+    A line is different from another line if their start or end points
+    differ, or the internal order of the points is different.
 */
 
 /*!
-    \fn bool QLineF::operator==(const QLineF &other) const
+    \fn bool QLineF::operator==(const QLineF &line) const
 
-    Returns true if \a other is the same line as this line.
+    Returns true if the given \a line is the same as this line.
 
-    A line is identical if the two points are the same and their
-    order is the same.
+    A line is identical to another line if the start and end points
+    are identical, and the internal order of the points is the same.
 */
 
 /*!
   \fn qreal QLineF::pointAt(qreal t) const
 
-  Returns the point at the parameterized position \a t, where
-  the start and end point are defined to be at positions t=0 and t=1.
+  Returns the point at the parameterized position specified by \a
+  t. The function returns the line's start point if t = 0, and its end
+  point if t = 1.
 
-  \sa dx() dy()
+  \sa dx(), dy()
 */
 
 /*!
@@ -443,9 +465,8 @@ qreal QLineF::length() const
 
 
 /*!
-    Returns a normalized version of this line, starting at the same
-    point as this line. A normalized line is a line of unit length
-    (length() is equal to 1.0).
+    Returns the unit vector for this line, i.e a line starting at the
+    same point as \e this line with a length of 1.0.
 
     \sa normalVector()
 */
@@ -498,12 +519,14 @@ static bool qt_linef_intersect(qreal x1, qreal y1, qreal x2, qreal y2,
 }
 
 /*!
-    \fn QLineF::IntersectType QLineF::intersect(const QLineF &other, QPointF *intersectionPoint) const
+    \fn QLineF::IntersectType QLineF::intersect(const QLineF &line, QPointF *intersectionPoint) const
 
-    Returns a value indicating whether or not this line intersects the
-    \a other line. By passing a valid pointer as \a intersectionPoint, it
-    is possible to get the actual intersection point. The intersection
-    point is undefined if the lines are parallel.
+    Returns a value indicating whether or not \e this line intersects
+    with the given \a line.
+
+    The actual intersection point is extracted to \a intersectionPoint
+    (if the pointer is valid). If the lines are parallel, the
+    intersection point is undefined.
 */
 
 QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPoint) const
@@ -542,25 +565,35 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
 }
 
 /*!
-    \fn void QLineF::translate(const QPointF &point)
+    \fn void QLineF::translate(const QPointF &offset)
 
-    Translates this line with the \a point given.
+    Translates this line by the given \a offset.
 */
 
 /*!
     \fn void QLineF::translate(qreal dx, qreal dy)
-
     \overload
 
-    Translates this line the distance \a dx and \a dy.
+    Translates this line the distance specified by \a dx and \a dy.
 */
 
 /*!
   \fn qreal QLineF::angle(const QLineF &line) const
 
-  Returns the smallest angle between the given \a line and this line, not
-  taking into account whether the lines intersect or not. The angle is
-  specified in degrees.
+  Returns the angle (in degrees) between this line and the given \a
+  line, taking the direction of the lines into account. If the lines
+  do not intersect within their range, it is the intersection point of
+  the extended lines that serves as origo (see
+  QLineF::UnboundedIntersection).
+
+  \table
+  \row
+  \o \inlineimage qlinef-angle-identicaldirection.png
+  \o \inlineimage qlinef-angle-oppositedirection.png
+  \endtable
+
+  When the lines are parallel, this function returns 0 if they have
+  the same direction; otherwise it returns 180.
 
   \sa intersect()
 */
@@ -588,10 +621,10 @@ QDebug operator<<(QDebug d, const QLineF &p)
 /*!
     \relates QLineF
 
-    Writes the \a line to the \a stream and returns a reference to
-    the stream.
+    Writes the given \a line to the given \a stream and returns a
+    reference to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator<<(QDataStream &stream, const QLineF &line)
@@ -603,10 +636,10 @@ QDataStream &operator<<(QDataStream &stream, const QLineF &line)
 /*!
     \relates QLineF
 
-    Reads a QLineF from the \a stream into the \a line and returns a
-    reference to the stream.
+    Reads a line from the given \a stream into the given \a line and
+    returns a reference to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator>>(QDataStream &stream, QLineF &line)
