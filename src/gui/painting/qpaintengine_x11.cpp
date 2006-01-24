@@ -1515,24 +1515,29 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
     {
         if (picture) {
             if (clippedCount > 0) {
-                int x_offset = 0;
-                int y_offset = 0;
                 QVector<XTrapezoid> traps;
                 traps.reserve(128);
                 qt_tesselate_polygon(&traps, (QPointF *)clippedPoints, clippedCount,
                                      mode == QPaintEngine::WindingMode);
                 if (traps.size() > 0) {
-                    if (has_fill_pattern || has_fill_texture) {
-                        x_offset = qRound(XFixedToDouble(traps.at(0).left.p1.x) - bg_origin.x());
-                        y_offset = qRound(XFixedToDouble(traps.at(0).left.p1.y) - bg_origin.y());
-                    }
                     XRenderPictureAttributes attrs;
                     attrs.poly_edge = antialias ? PolyEdgeSmooth : PolyEdgeSharp;
                     XRenderChangePicture(dpy, picture, CPPolyEdge, &attrs);
-                    XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
-                                               antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
-                                               x_offset, y_offset,
-                                               traps.constData(), traps.size());
+                    if (has_fill_pattern || has_fill_texture) {
+                        for (int i=0; i < traps.size(); ++i) {
+                            int x_offset = qRound(XFixedToDouble(traps.at(i).left.p1.x) - bg_origin.x());
+                            int y_offset = qRound(XFixedToDouble(traps.at(i).left.p1.y) - bg_origin.y());
+                            XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
+                                                       antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
+                                                       x_offset, y_offset,
+                                                       traps.constData() + i, 1);
+                        }
+                    } else {
+                        XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
+                                                   antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
+                                                   0, 0,
+                                                   traps.constData(), traps.size());
+                    }
                 }
             }
         }
