@@ -3,6 +3,7 @@
 #include "customwidget.h"
 
 #include <formbuilder.h>
+#include <ui4.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -92,7 +93,45 @@ public:
 
         return 0;
     }
+
+    virtual void applyProperties(QObject *o, const QList<DomProperty*> &properties);
+    virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
+
+private:
+    QString m_class;
 };
+
+void FormBuilderPrivate::applyProperties(QObject *o, const QList<DomProperty*> &properties)
+{
+    QFormBuilder::applyProperties(o, properties);
+
+    // translate string properties
+    foreach (DomProperty *p, properties) {
+        if (p->kind() != DomProperty::String)
+            continue;
+        DomString *dom_str = p->elementString();
+        if (dom_str->hasAttributeNotr()) {
+            QString notr = dom_str->attributeNotr();
+            if (notr == QLatin1String("yes") || notr == QLatin1String("true"))
+                continue;
+        }
+        QByteArray name = p->attributeName().toUtf8();
+        QVariant v = o->property(name);
+        if (v.type() != QVariant::String)
+            continue;
+        QString text = QApplication::translate(m_class.toUtf8(),
+                                                v.toString().toUtf8(),
+                                                dom_str->attributeComment().toUtf8(),
+                                                QCoreApplication::UnicodeUTF8);
+        o->setProperty(name, text);
+    }
+}
+
+QWidget *FormBuilderPrivate::create(DomUI *ui, QWidget *parentWidget)
+{
+    m_class = ui->elementClass();
+    return QFormBuilder::create(ui, parentWidget);
+}
 
 #ifdef QFORMINTERNAL_NAMESPACE
 }
