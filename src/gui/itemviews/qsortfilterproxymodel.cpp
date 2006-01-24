@@ -887,7 +887,7 @@ bool QSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &
     if (d->filter_regexp.isEmpty() || d->filter_column == -1)
         return true;
     QModelIndex source_index = d->model->index(source_row, d->filter_column, source_parent);
-    if(!source_index.isValid());
+    if (!source_index.isValid()) // the column may not exist
         return true;
     QString key = d->model->data(source_index, Qt::DisplayRole).toString();
     return key.contains(d->filter_regexp);
