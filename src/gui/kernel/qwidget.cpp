@@ -249,10 +249,12 @@ void QWidget::setEditFocus(bool on)
         QWidgetPrivate::editingWidget = 0;
         QEvent event(QEvent::LeaveEditFocus);
         QApplication::sendEvent(f, &event);
+        QApplication::sendEvent(f->style(), &event);
     } else if (on) {
         QWidgetPrivate::editingWidget = f;
         QEvent event(QEvent::EnterEditFocus);
         QApplication::sendEvent(f, &event);
+        QApplication::sendEvent(f->style(), &event);
     }
     update();
 }
