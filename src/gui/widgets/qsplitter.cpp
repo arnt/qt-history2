@@ -863,9 +863,6 @@ QSplitterLayoutStruct *QSplitterPrivate::insertWidget(int index, QWidget *w)
     When you hide() a child its space will be distributed among the
     other children. It will be reinstated when you show() it again.
 
-    \inlineimage qsplitter-m.png Screenshot in Motif style
-    \inlineimage qsplitter-w.png Screenshot in Windows style
-
     \sa QSplitterHandle, QHBoxLayout, QVBoxLayout, QTabWidget
 */
 
