@@ -197,8 +197,7 @@ void QProgressDialogPrivate::layout()
   The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
   how to use QProgressDialog as well as other built-in Qt dialogs.
 
-  \inlineimage qprogdlg-m.png Screenshot in Motif style
-  \inlineimage qprogdlg-w.png Screenshot in Windows style
+  \image plastique-progressdialog.png A progress dialog shown in the Plastique widget style.
 
   \sa QDialog, QProgressBar, {fowler}{GUI Design Handbook: Progress Indicator}
 */
