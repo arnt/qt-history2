@@ -129,6 +129,8 @@ Q3WidgetStack::~Q3WidgetStack()
     integer will be generated to prevent two widgets having the same
     id.
 
+    If \a w already exists in the stack the widget will be removed first.
+
     If \a w is not a child of this Q3WidgetStack moves it using
     reparent().
 */
