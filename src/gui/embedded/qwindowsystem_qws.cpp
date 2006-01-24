@@ -1389,6 +1389,8 @@ void QWSServerPrivate::sendMouseEventUnfiltered(const QPoint &pos, int state, in
 */
 QWSMouseHandler *QWSServer::mouseHandler()
 {
+    if (qwsServerPrivate->mousehandlers.empty())
+        return 0;
     return qwsServerPrivate->mousehandlers.first();
 }
 
