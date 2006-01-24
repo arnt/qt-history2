@@ -188,9 +188,6 @@ QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget 
             qWarning("QGLPixelBuffer: Unable to create a pbuffer/context - giving up.");
         }
 
-        // cleanup
-        for (int i = 0; i < num_configs; ++i)
-            XFree(reinterpret_cast<void *>(configs[i]));
         XFree(configs);
         d->qctx = new QGLContext(f);
     } else {
