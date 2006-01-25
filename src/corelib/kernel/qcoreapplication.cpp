@@ -1560,7 +1560,7 @@ QString QCoreApplication::applicationName()
 
 #ifndef QT_NO_LIBRARY
 
-Q_GLOBAL_STATIC(QMutex, libraryPathMutex)
+Q_GLOBAL_STATIC_WITH_ARGS(QMutex, libraryPathMutex, (QMutex::Recursive))
 
 /*!
     Returns a list of paths that the application will search when
@@ -1588,8 +1588,6 @@ QStringList QCoreApplication::libraryPaths()
 {
     if (!self)
         return QStringList();
-    if (self->d_func()->app_libpaths)
-        return *self->d_func()->app_libpaths;
 
     QMutexLocker locker(libraryPathMutex());
     if (!self->d_func()->app_libpaths) {
