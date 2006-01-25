@@ -64,7 +64,6 @@ public:
     QTableWidgetItem *verticalHeaderItem(int section);
 
     QModelIndex index(const QTableWidgetItem *item) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 
     void setRowCount(int rows);
     void setColumnCount(int columns);
@@ -240,7 +239,7 @@ void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
     if (item)
         item->model = this;
     table[i] = item;
-    QModelIndex idx = index(row, column);
+    QModelIndex idx = QAbstractTableModel::index(row, column);
     emit dataChanged(idx, idx);
 }
 
@@ -367,16 +366,7 @@ QModelIndex QTableModel::index(const QTableWidgetItem *item) const
     int i = table.indexOf(const_cast<QTableWidgetItem*>(item));
     int row = i / columnCount();
     int col = i % columnCount();
-    return index(row, col);
-}
-
-QModelIndex QTableModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (hasIndex(row, column, parent)) {
-        QTableWidgetItem *item = table.at(tableIndex(row, column));
-        return createIndex(row, column, item);
-    }
-    return QModelIndex();
+    return QAbstractTableModel::index(row, col);
 }
 
 void QTableModel::setRowCount(int rows)
@@ -465,6 +455,7 @@ void QTableModel::sort(int column, Qt::SortOrder order)
 
     for (int row = 0; row < rowCount(); ++row) {
         QTableWidgetItem *itm = item(row, column);
+                
         if (itm)
             sortable.append(QPair<QTableWidgetItem*,int>(itm, row));
         else
@@ -475,6 +466,8 @@ void QTableModel::sort(int column, Qt::SortOrder order)
     qSort(sortable.begin(), sortable.end(), compare);
 
     QVector<QTableWidgetItem*> sorted_table(table.count());
+    QModelIndexList from;
+    QModelIndexList to;
     for (int i = 0; i < rowCount(); ++i) {
         int r = (i < sortable.count()
                  ? sortable.at(i).second
@@ -482,13 +475,13 @@ void QTableModel::sort(int column, Qt::SortOrder order)
         for (int c = 0; c < columnCount(); ++c) {
             QTableWidgetItem *itm = item(r, c);
             sorted_table[tableIndex(i, c)] = itm;
-            QModelIndex from = createIndex(r, c, itm);
-            QModelIndex to = createIndex(i, c, itm);
-            changePersistentIndex(from, to);
+            from << createIndex(r, c, 0);
+            to << createIndex(i, c, 0);
         }
     }
 
     table = sorted_table;
+    changePersistentIndexList(from, to); // ### slow
 
     emit layoutChanged();
 }
