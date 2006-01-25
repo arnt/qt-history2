@@ -1839,7 +1839,7 @@ int QTreeViewPrivate::item(int yCoordinate) const
             start = i;
         i = (start + end + 1) >> 1;
     }
-    return i;
+    return (i < viewItems.count() ? i : -1);
 }
 
 int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
