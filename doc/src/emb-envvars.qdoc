@@ -34,19 +34,9 @@
     of 90 degrees given as Rot\<x\>, for instance Transformed:Rot90.
 
     \row
-    \i \c QTDIR
-    \i If defined this tells Qtopia Core to where to find its fonts:
-    fontdir should be in \c $QTDIR/lib/fonts/.
-
-    \row
     \i \c QWS_SIZE
     \i If defined forces Qtopia Core into a window of \<width\> x
     \<height\> size centred within the screen, e.g. 320x200
-
-    \row
-    \i \c QWS_NOMTRR
-    \i If defined, don't use Memory Type Range Registers to define the framebuffer
-    as write-combined on x86. Write-combining speeds up graphics output.
 
     \row
     \i \c QWS_USB_KEYBOARD

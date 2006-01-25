@@ -16,5 +16,19 @@
     \title Adding an Accelerated Graphics Driver to Qtopia Core
     \ingroup qtopia-core
 
-    This is still work in progress.
+    Qtopia Core uses QRasterPaintEngine to implement painting
+    operations. In addition QScreen implements window
+    composition. Both are complete software implementations.
+
+    Painting is performed in two steps: each window is rendered into a
+    backingstore using QPaintEngine, and then the server composes the
+    backingstore images and copies them to the screen. Composition is
+    done by the QScreen::exposeRegion() function which again calls the
+    more basic functions QScreen::blit and QScreen::solidFill().
+
+    In order to make use of accelerated graphics hardware, it is
+    possible to derive from QPaintEngine and QScreen.
+
+    The acceleration API is still work in progress, and details are
+    subject to change.
 */

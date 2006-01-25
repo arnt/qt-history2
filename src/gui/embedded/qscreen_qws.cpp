@@ -692,8 +692,13 @@ static void blit_32_to_16(const blit_data *data)
 }
 
 /*!
-    \internal
-    the base class implementation works in device coordinates, so that transformed drivers can use it
+    Copies the given \a region in the given \a image to the point
+    specified by \a topLeft.
+
+    Can be reimplemented in subclasses to use accelerated hardware.
+
+    \omit the base class implementation works in device coordinates,
+    so that transformed drivers can use it \endomit
 */
 void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &region)
 {

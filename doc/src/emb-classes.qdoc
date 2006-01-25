@@ -25,80 +25,10 @@
 
     \tableofcontents
 
-    \omit ### font system is completely changed
-    \section1 QFontManager
-
-    There is one of these per application. At application startup time it
-    reads the font definition file from \c $QTDIR/etc/fonts/fontdir (or \c
-    /usr/local/etc/qt-embedded/fonts/fontdir if \c QTDIR is undefined). It
-    keeps track of all the font information and maintains a cache of rendered
-    fonts. It also creates the font factories. \c
-    QFontManager::QFontManager()
-    is the place to add constructors for new factories. It provides a
-    high-level interface for requesting a particular font and calls
-    \c QFontFactories to load fonts from disk on demand. Note that this only
-    applies to BDF and TrueType fonts; Qtopia Core's optimised \c .qpf
-    font file format bypasses the \c QFontManager mechanism altogether.
-
-    There should be no need to modify this class unless you wish to change
-    font matching or caching behavior.
-
-    \section1 QDiskFont
-
-    This contains information about a single on-disk font file (e.g.
-    \c{/usr/local/etc/qt-embedded/times.ttf}). It holds the file path,
-    information about whether the font is scalable, its weight, size,
-    Qtopia Core name, etc. This information is used so that \c QFontManager
-    can find the closest matching disk font (it uses a scoring mechanism
-    weighted towards matching names, then whether the font's italic, then
-    its weight).
-
-    There should be no reason to modify this class.
-
-    \section1 QRenderedFont
-
-    There is one and only one \c QRenderedFont for every unique font
-    currently loaded by the system (that is, each unique combination of
-    name, size, weight, italic or not, anti-aliased or not).
-    \c{QRenderedFont}s are reference counted; once no one is using the
-    \c QRenderedFont it is deleted along with its cache of glyph bitmaps. The
-    \c QDiskFont it was loaded from remains opened by its \c QFontFactory.
-
-    There should be no reason to modify this class, unless you wish to
-    change the way in which glyphs are cached.
-
-
-    \section1 QFontFactory (and descendants QFontFactoryBDF, QFontFactoryTtf)
-
-    These provide support for particular font formats, for instance the
-    scalable Truetype and Type1 formats (both supported in
-    \c QFontFactoryTtf, which uses Freetype 2) and the bitmap BDF format used
-    by X. It's called to open an on-disk font; once a font is opened it
-    remains opened so that the creation of new font instances from the
-    disk font is fast. It can also create a \c QRenderedFont and convert from
-    Unicode values to an index into the font file. For compactness, glyphs
-    are stored in the order and indexes they are defined in the font
-    rather than in Unicode order.
-
-    There should be no need to modify this class, but it should be
-    inherited if you wish to add a different type of font renderer (e.g.
-    for a custom vector font format).
-
-    \section1 QGlyph
-
-    This describes a particular image of a character from a \c QRenderedFont:
-    for example, the letter 'A' at 10 points in Times New Roman, bold italic,
-    anti-aliased. It contains pointers to a \c QGlyphMetrics structure with
-    information about the character, and to the raw data for the glyph:
-    this is either a 1-bit mask or an 8-bit alpha channel. Each \c QRenderedFont
-    creates these on demand and caches them once created (note that this is
-    not currently implemented for TrueType fonts).
-
-    You would only need to modify this class if you were, for example,
-    modifying Qtopia Core to support textured fonts, in which case you
-    would also need to modify \c QGfxRaster.
+    \omit
+    ### font system is completely changed- must be mentioned
     \endomit
-\omit
+
     \section1 QScreen > QLinuxFbScreen > accelerated screens, QTransformedScreen > QVfbScreen
 
     These encapsulate the framebuffer Qtopia Core is drawing to, provide
@@ -113,20 +43,7 @@
 
     Subclassing \c QScreenCursor is optional in an accelerated driver (you
     would only want to do so if the hardware supports a hardware cursor).
-\endomit
-    \omit ### QGfx has changed a lot
-    \section1 QGfx > RasterBase > Raster > accelerated driver > QGfxVfb > QGfxTransformedRaster
 
-    This class encapsulates drawing operations, a little like a low-level
-    \c QPainter. \c QGfxRaster and its descendants are specifically intended
-    for drawing into a raw framebuffer. They can take an offset for drawing
-    operations and a clipping region in order to support drawing into windows.
-    You will need to subclass the \c QGfxRaster template in order to implement
-    an accelerated driver.
-
-    If you're brave, modifying \c QGfxRaster would allow you to customise how
-    drawing is done or add support for a new bit depth/pixel format.
-    \endomit
 \omit
     \section1 QLock, QLockHolder
 
@@ -137,17 +54,15 @@
     There should be no need to modify this class unless porting
     Qtopia Core to an operating system without System V IPC.
 \endomit
-    \omit ### Not implemented in 4.0
+
     \section1 QDirectPainter
 
-    This is a \c QPainter which also gives you a pointer to the framebuffer
-    of the window it's pointing to, the window's clip region and so on.
-    It's intended to allow you to easily do your own pixel-level manipulation
-    of window contents.
+    This is a class that gives you direct access to the
+    framebuffer. It allows you bypass Qt window management, and access
+    display memory directly.
 
     There should be no reason to modify this class.
-    \endomit
-\omit
+
     \section1 QWSSoundServer, Client
 
     The Qtopia Core server contains a simple sound player and mixer. Clients
@@ -277,5 +192,4 @@
     analogous to Unix-domain sockets (a byte-oriented, reliable, ordered
     transmission mechanism, although you can probably implement it with
     something like a message queue as well).
-    \endomit
 */

@@ -5,7 +5,8 @@
 
     \section1 Supported Formats
 
-    Qtopia Core supports four font formats:
+    Qtopia Core supports the font formats supported by the FreeType2
+    library, including the following:
 
     \table
     \row
@@ -24,29 +25,20 @@
     these can be used with Qtopia Core. You should \e not use these in a
     production system: they are very slow to load and take up a \e lot of
     storage space. Instead, render the BDF to a QPF.
-    \row
-    \i \bold{Qt Prerendered Font (QPF)}
-    \i A light-weight non-scalable font format specific to Qtopia Core.
     \endtable
 
-    Support for each of these font formats (except QPF which is always
-    enabled) can be enabled or disabled independently by using the \link
-    emb-features.html Qtopia Core Feature Definition File\endlink. There is
-    support in Qtopia Core for writing a QPF font file from any font, so
-    you can initially enable TTF and BDF formats, save QPF files for the
-    fonts and sizes you need, then remove TTF and BDF support.
+    In addition Qtopia Core supports Qt Prerendered Font (QPF), a
+    light-weight non-scalable font format specific to Qtopia Core.
 
-    See \l makeqpf for a tool that helps produce QPF files from the
-    TTF and BDF, or just run your application with the \c -savefonts
-    option.
+    Using the \l {The Feature Definition File}{feature definition
+    system} either Freetype or QPF can be disabled, but at least one
+    format must be defined.
 
     \section1 Memory Requirements
 
     With TTF fonts, each character in the font at a given point size is
     only rendered when first used in a drawing or metrics operation. With
     BDF fonts all characters are rendered when the font is used.
-    With QPF fonts, the characters are stored in the same format that Qt
-    uses for drawing.
 
     For example, a 10-point Times font containing the ASCII characters uses
     around 1300 bytes when stored in QPF format.
@@ -71,10 +63,12 @@
 
     \img smooth.png smooth
 
+    \omit
     In Qtopia Core 2.2.1, smooth fonts use eight times as much memory as
     non-smooth fonts. This multiplier will be reduced to a configurable 2
     or 4 (i.e. 4-level and 16-level shading rather than the default
     256-level shading).
+    \endomit
 
     \section1 Unicode
 
@@ -98,7 +92,7 @@
     \header \i Field \i Value
     \row \i \e name \i \c Helvetica, \c Times, etc.
     \row \i \e file \i \c helvR0810.bdf, \c verdana.ttf, etc.
-    \row \i \e renderer \i \c BDF or \c FT
+    \row \i \e renderer \i \c FT
     \row \i \e italic \i \c y or \c n
     \row \i \e weight \i \c 50 is normal, \c 75 is bold, etc.
     \row \i \e size \i \c 0 for scalable or point size * 10 (i.e. \c 120
@@ -122,23 +116,8 @@
     \row \i \e weight \i \c 50 is normal, \c 75 is bold, etc.
     \endtable
 
-    If an application is run with the \c -savefonts command-line option,
-    then whenever a font other than a QPF font is used, a corresponding QPF file
-    is saved. This allows you to easily find the font usage of your applications
-    and to generate QPF files so that you can eventually reduce the memory
-    usage of your applications by disabling TTF and BDF support from Qtopia Core,
-    or by modifying the initialization of \c qws_savefonts in
-    \c kernel/qapplication_qws.cpp of the Qtopia Core library source code.
-    In extreme cases of memory-saving, it is possible to save partially-rendered
-    fonts (i.e. only the characters in "Product Name") if you are
-    certain that these are the only characters you will need from the font.
-    See QMemoryManager::savePrerenderedFont() for this functionality.
-
     \section1 Notes
 
     The font definition file, naming conventions for font files, and the
     format of QPF files may change in future versions of Qtopia Core.
-
-    When enabled, Qtopia Core uses the powerful FreeType2 library to implement
-    TrueType and Type1 support.
 */

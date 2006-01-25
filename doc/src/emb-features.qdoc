@@ -13,8 +13,6 @@
     platforms, where reducing the size of Qt is
     important and the application set is often fixed.
 
-    \bold{Note: Qtopia Core 4.0 does not support the \c -qconfig option.}
-
     \omit ### the set of features will change
     The \c qconfig.h definition file simply defines macros to disable
     features. Some features are dependent on other features and these

@@ -21,13 +21,13 @@
     \row \i Qt/X11 \i Q_WS_X11
     \endtable
 
-    The default configuration of Qtopia Core requires the following flags to be defined when compiling
-    applications:
+    The default configuration of Qtopia Core requires the following
+    flags to be defined when compiling applications:
 
     \code
-        -DQWS -fno-exceptions -fno-rtti
+        -DQWS -fno-rtti
     \endcode
 
-    Exceptions and RTTI are disabled in Qtopia Core because they incur a large
-    overhead in terms of both size and speed.
+    RTTI is disabled in Qtopia Core because it incurs a large overhead
+    in terms of both size and speed.
 */

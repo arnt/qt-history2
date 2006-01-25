@@ -1,132 +1,15 @@
 /*!
     \page emb-framebuffer-howto.html
-    \title Enabling the Linux Framebuffer
+    \title The Linux Framebuffer
     \ingroup qtopia-core
 
-    This is only a short guide.
-    See \l file:/usr/src/linux/README and
-    \l file:/usr/src/linux/Documentation/fb/ for detailed information.
-    There is also a detailed explanation at
-    \l http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html.
+    The framebuffer is enabled by default on all modern Linux
+    distributions. For information on older versions, see
+    \l http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html.
 
-    \list 1
-    \i Make sure that you have the Linux kernel source code in
-    \l file:/usr/src/linux/.
-
-    \i Log in as root and \c cd \c /usr/src/linux
-
-    \i Configure the kernel:
-
-       Run:
-    \code
-        make menuconfig
-    \endcode
-
-       Select "Code maturity level options" and set "Prompt for
-       development and/or incomplete code/drivers".
-
-       Then select "Console drivers" and set "Support for frame buffer
-       devices" to built-in (even if it says EXPERIMENTAL). Then configure
-       the driver. Most modern graphics cards can use the "VESA VGA
-       graphics console"; use that or a driver that specifically matches
-       your video card. Finally, enable "Advanced low level driver options"
-       and make sure that 16 and 32 bpp packed pixel support are enabled.
-
-       When you are finished, chose exit and save.
-
-    \i Compile the kernel
-
-       First do:
-    \code
-        make dep
-    \endcode
-       then:
-    \code
-        make bzImage
-    \endcode
-
-      The new kernel should now be in arch/i386/boot/bzImage.
-
-    \i Copy the kernel to the boot directory:
-    \code
-        cp arch/i386/boot/bzImage /boot/linux.vesafb
-    \endcode
-
-    \i Edit /etc/lilo.conf.
-
-      \warning Keep a backup of \l file:/etc/lilo.conf, and have a rescue disk
-      available. If you make a mistake, the machine may not boot.
-
-       The file \l file:/etc/lilo.conf specifies how the system boots. The
-       precise contents of the file varies from system to system. Here is
-       an example:
-    \code
-    # LILO configuration file
-    boot = /dev/hda3
-    delay = 30
-    image = /boot/vmlinuz
-      root = /dev/hda3
-      label = Linux
-      read-only # Non-UMSDOS filesystems should be mounted read-only for checking
-    other=/dev/hda1
-            label=nt
-            table=/dev/hda
-    \endcode
-
-      Make a new "image" section that is a copy of the first one, but with
-    \code
-      image = /boot/linux.vesafb
-    \endcode
-      and
-    \code
-      label = Linux-vesafb
-    \endcode
-      Place it just above the first image section.
-
-      Add a line before the image section saying \c{vga = 791}. (Meaning
-      1024x768, 16 bpp.)
-
-      With the above example, lilo.conf would now be:
-    \code
-    # LILO configuration file
-    boot = /dev/hda3
-    delay = 30
-    vga = 791
-    image = /boot/linux.vesafb
-      root = /dev/hda3
-      label = Linux-vesafb
-      read-only # Non-UMSDOS filesystems should be mounted read-only for checking
-    image = /boot/vmlinuz
-      root = /dev/hda3
-      label = Linux
-      read-only # Non-UMSDOS filesystems should be mounted read-only for checking
-    other=/dev/hda1
-            label=nt
-            table=/dev/hda
-    \endcode
-
-    Do not change any existing lines in the file; just add new ones.
-
-    \i To make the new changes take effect, run the lilo program:
-    \code
-        lilo
-    \endcode
-
-    \i Reboot the system. You should now see a penguin logo while the
-       system is booting.
-       (Or more than one on a multi-processor machine.)
-
-    \i If it does not boot properly with the new kernel, you can boot with
-       the old kernel by entering the label of the old image section at
-       the LILO prompt. (with the example lilo.conf file, the old label is
-       Linux.)
-
-       If that does not work (probably because of an error in lilo.conf),
-       boot the machine using your rescue disk, restore \l
-       file:/etc/lilo.conf from backup and re-run lilo.
-
-    \i Testing: Here's a short program that opens the frame buffer and draws a
-       gradient-filled red square.
+    To test that the framebuffer is set up correctly, and the device
+    permissions are correct, here is a short program that opens the
+    frame buffer and draws a gradient-filled red square:
 
     \code
     #include <unistd.h>
@@ -207,5 +90,4 @@
         return 0;
     }
     \endcode
-    \endlist
 */
