@@ -342,6 +342,9 @@ Q3UrlOperator::~Q3UrlOperator()
 */
 const Q3NetworkOperation *Q3UrlOperator::startOperation( Q3NetworkOperation *op )
 {
+    if ( !d->networkProtocol )
+        getNetworkProtocol();
+    
     if ( d->networkProtocol && (d->networkProtocol->supportedOperations()&op->operation()) ) {
 	d->networkProtocol->addOperation( op );
 	if ( op->operation() == Q3NetworkProtocol::OpListChildren )
