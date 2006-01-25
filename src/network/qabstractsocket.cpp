@@ -729,17 +729,14 @@ void QAbstractSocketPrivate::connectToNextAddress()
             return;
         }
 
-        // Check that we're in delayed connection state. If not, an
-        // error has occurred.
+        // Check that we're in delayed connection state. If not, try
+        // the next address
         if (socketEngine->state() != QAbstractSocket::ConnectingState) {
 #if defined(QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocketPrivate::connectToNextAddress(), connection failed (%s)",
                    socketEngine->errorString().toLatin1().constData());
 #endif
-            socketError = socketEngine->error();
-            q->setErrorString(socketEngine->errorString());
-            emit q->error(socketError);
-            return;
+            continue;
         }
 
         // Start the connect timer.
@@ -831,7 +828,7 @@ bool QAbstractSocketPrivate::readFromSocket()
 #ifdef Q_OS_LINUX
     if (bytesToRead > 0) // ### See setSocketDescriptor()
         bytesToRead += addToBytesAvailable;
-#endif    
+#endif
     if (readBufferMaxSize && bytesToRead > (readBufferMaxSize - readBuffer.size()))
         bytesToRead = readBufferMaxSize - readBuffer.size();
 
@@ -1542,7 +1539,7 @@ bool QAbstractSocket::isSequential() const
 
      This function is most commonly used when reading data from the
      socket in a loop. For example:
- 
+
      \code
          // This slot is connected to QAbstractSocket::readyRead()
          void SocketClass::readyReadSlot()
@@ -1553,7 +1550,7 @@ bool QAbstractSocket::isSequential() const
              }
          }
      \endcode
- 
+
      \sa bytesAvailable(), readyRead()
  */
 bool QAbstractSocket::atEnd() const
@@ -1902,7 +1899,7 @@ qint64 QAbstractSocket::readBufferSize() const
     implicit buffering provided by the operating system.
     Because of this, calling this function on QUdpSocket has no
     effect.
-    
+
     \sa readBufferSize(), read()
 */
 void QAbstractSocket::setReadBufferSize(qint64 size)
