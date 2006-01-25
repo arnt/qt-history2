@@ -1026,8 +1026,13 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     case MoveUp:
         while (d->intersectVector.isEmpty()) {
             rect.translate(0, -rect.height());
-            if (rect.bottom() <= 0)
+            if (rect.bottom() <= 0) {
+#ifdef QT_KEYPAD_NAVIGATION
+                if (QApplication::keypadNavigationEnabled())
+                    return model()->index(d->batchStartRow - 1, d->column, rootIndex());
+#endif
                 return current;
+            }
             if (rect.top() < 0)
                 rect.setTop(0);
             d->intersectingSet(rect);
@@ -1045,8 +1050,13 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     case MoveDown:
         while (d->intersectVector.isEmpty()) {
             rect.translate(0, rect.height());
-            if (rect.top() >= contents.height())
+            if (rect.top() >= contents.height()) {
+#ifdef QT_KEYPAD_NAVIGATION
+                if (QApplication::keypadNavigationEnabled())
+                    return model()->index(0, d->column, rootIndex());
+#endif
                 return current;
+            }
             if (rect.bottom() > contents.height())
                 rect.setBottom(contents.height());
             d->intersectingSet(rect);

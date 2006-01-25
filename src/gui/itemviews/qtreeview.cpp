@@ -1160,9 +1160,17 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     switch (cursorAction) {
     case MoveNext:
     case MoveDown:
+#ifdef QT_KEYPAD_NAVIGATION
+        if (vi == d->viewItems.count()-1 && QApplication::keypadNavigationEnabled())
+            return model()->index(0, 0, rootIndex());
+#endif
         return d->modelIndex(d->below(vi));
     case MovePrevious:
     case MoveUp:
+#ifdef QT_KEYPAD_NAVIGATION
+        if (vi == 0 && QApplication::keypadNavigationEnabled())
+            return d->modelIndex(d->viewItems.count() - 1);
+#endif
         return d->modelIndex(d->above(vi));
     case MoveLeft:
         if (d->viewItems.at(vi).expanded && d->itemsExpandable)
