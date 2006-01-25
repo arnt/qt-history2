@@ -2015,7 +2015,8 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int star
     // Ensure one selected item in single selection mode.
     QModelIndex current = currentIndex();
     if (selectionMode() == SingleSelection && current.isValid() &&
-        current.row() >= start && current.row() <= end)
+        current.row() >= start && current.row() <= end &&
+        current.parent() == parent)
     {
         int totalToRemove = end - start + 1;
         if (model()->rowCount(parent) <= totalToRemove) { // no more children
