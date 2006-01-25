@@ -167,9 +167,9 @@ QListWidgetItem *QListModel::take(int row)
     return item;
 }
 
-int QListModel::rowCount(const QModelIndex &) const
+int QListModel::rowCount(const QModelIndex &parent) const
 {
-    return lst.count();
+    return parent.isValid() ? 0 : lst.count();
 }
 
 QModelIndex QListModel::index(QListWidgetItem *item) const

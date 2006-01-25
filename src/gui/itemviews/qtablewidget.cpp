@@ -391,14 +391,14 @@ void QTableModel::setColumnCount(int columns)
         removeColumns(qMax(columns, 0), cc - columns);
 }
 
-int QTableModel::rowCount(const QModelIndex &) const
+int QTableModel::rowCount(const QModelIndex &parent) const
 {
-    return vertical.count();
+    return parent.isValid() ? 0 : vertical.count();
 }
 
-int QTableModel::columnCount(const QModelIndex &) const
+int QTableModel::columnCount(const QModelIndex &parent) const
 {
-    return horizontal.count();
+    return parent.isValid() ? 0 : horizontal.count();
 }
 
 QVariant QTableModel::data(const QModelIndex &index, int role) const
