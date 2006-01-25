@@ -191,7 +191,7 @@ public:
     QUnicodeControlCharacterMenu(QWidget *editWidget, QWidget *parent);
 
 private Q_SLOTS:
-    void actionTriggered();
+    void menuActionTriggered();
 
 private:
     QWidget *editWidget;

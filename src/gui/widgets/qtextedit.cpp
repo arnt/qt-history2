@@ -3722,11 +3722,11 @@ QUnicodeControlCharacterMenu::QUnicodeControlCharacterMenu(QWidget *_editWidget,
 {
     setTitle(tr("Insert Unicode control character"));
     for (int i = 0; i < NUM_CONTROL_CHARACTERS; ++i) {
-        addAction(tr(qt_controlCharacters[i].text), this, SLOT(actionTriggered()));
+        addAction(tr(qt_controlCharacters[i].text), this, SLOT(menuActionTriggered()));
     }
 }
 
-void QUnicodeControlCharacterMenu::actionTriggered()
+void QUnicodeControlCharacterMenu::menuActionTriggered()
 {
     QAction *a = qobject_cast<QAction *>(sender());
     int idx = actions().indexOf(a);
