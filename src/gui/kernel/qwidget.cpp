@@ -602,7 +602,8 @@ void QWidget::setAutoFillBackground(bool enabled)
     widget.)
 
     \i leaveEvent() - called when the mouse leaves the widget's screen
-    space.
+    space. Note that if the mouse enters a child widget it will not
+    cause a leaveEvent.
 
     \i moveEvent() - called when the widget has been moved relative to its
     parent.
