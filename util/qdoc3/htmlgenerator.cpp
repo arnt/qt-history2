@@ -1615,12 +1615,6 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
             if (fakeNode->subType() == FakeNode::Example)
                 continue;
 
-            // Nasty hack to remove the activeqt examples subdirectory from the list.
-            if (int index = fakeNode->doc().location().filePath().indexOf("/examples/") != -1) {
-                if (fakeNode->doc().location().filePath().mid(index, -1).count("/") > 2)
-                    continue;
-            }
-
             // not interested either in individual (Qt Designer etc.) manual chapters
             if (fakeNode->links().contains(Node::PreviousLink))
                 continue;
@@ -1667,12 +1661,12 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
                     const FakeNode *groupNode = static_cast<const FakeNode *>(tre->root()->findNode(group, Node::Fake));
                     if (groupNode)
                         fakeNodeMap[groupNode].insert(sortKey, fakeNode);
-                    else
-                        uncategorizedNodeMap.insert(sortKey, fakeNode);
-                } else
-                    uncategorizedNodeMap.insert(sortKey, fakeNode);
-            } else
-                uncategorizedNodeMap.insert(sortKey, fakeNode);
+                    //else
+                    //    uncategorizedNodeMap.insert(sortKey, fakeNode);
+                }// else
+                //    uncategorizedNodeMap.insert(sortKey, fakeNode);
+            }// else
+            //    uncategorizedNodeMap.insert(sortKey, fakeNode);
         }
     }
 
