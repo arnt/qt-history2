@@ -1525,6 +1525,11 @@ void QWidgetPrivate::show_sys()
         } else if(qt_mac_is_macdrawer(q)) {
             OpenDrawer(window, kWindowEdgeDefault, false);
         } else {
+            if (data.window_modality == Qt::WindowModal) {
+                if (q->parentWidget())
+                    SetWindowModality(window, kWindowModalityWindowModal,
+                                      qt_mac_window_for(q->parentWidget()->window()));
+            }
             ShowHide(window, true);
             toggleDrawers(true);
         }
@@ -1556,6 +1561,11 @@ void QWidgetPrivate::hide_sys()
         } else {
             ShowHide(window, false);
             toggleDrawers(false);
+            if (data.window_modality == Qt::WindowModal) {
+                if (q->parentWidget())
+                    SetWindowModality(window, kWindowModalityNone,
+                                      qt_mac_window_for(q->parentWidget()->window()));
+            }
         }
         if(q->isActiveWindow() && !(q->windowType() == Qt::Popup)) {
             QWidget *w = 0;
@@ -2196,26 +2206,11 @@ void QWidgetPrivate::setModal_sys()
     //  disappear, so Apple recommends changing the window group instead.
     WindowPtr window = qt_mac_window_for(q);
     const bool asSheet = qt_mac_is_macsheet(q);
-    SetWindowModality(window, kWindowModalityNone, 0);
     if (q->testAttribute(Qt::WA_ShowModal)) {
         if (q->testAttribute(Qt::WA_WState_Created) && asSheet && !topData()->group) {
             WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
             SetWindowGroup(window, wgr);
         }
 
-        switch (data.window_modality) {
-        case Qt::WindowModal:
-            {
-                if (!asSheet) {
-                    if (QWidget *p = q->parentWidget())
-                        SetWindowModality(window, kWindowModalityWindowModal,
-                                          qt_mac_window_for(p->window()));
-                }
-                break;
-            }
-        default:
-            // we handle ApplicationModal our selves
-            break;
-        }
     }
 }
