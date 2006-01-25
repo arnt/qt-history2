@@ -90,7 +90,6 @@ EOF
 
         #copy assistant library
 	[ -e "${BINDIR}/lib/libQtAssistantClient.a" ] && cp "${BINDIR}/lib/libQtAssistantClient.a" "$OUTDIR/usr/lib/libQtAssistantClient.a"
-	[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtAssistantClient_debug.a" ] && cp "${BINDIR}/lib/libQtAssistantClient_debug.a" "$OUTDIR/usr/lib/libQtAssistantClient_debug.a"
 
         #copy assistant headers
         mkdir -p "$OUTDIR/usr/include/QtAssistant"
@@ -103,9 +102,7 @@ EOF
     elif [ "$a" = "Designer" ]; then
 	mkdir -p "$OUTDIR/usr/lib/"
 	[ -e "${BINDIR}/lib/libQtDesigner.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtDesigner.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtDesigner.${VERSION_MAJOR}.dylib"
-	[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtDesigner_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtDesigner_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtDesigner_debug.${VERSION_MAJOR}.dylib"
 	[ -e "${BINDIR}/lib/libQtDesignerComponents.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtDesignerComponents.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtDesignerComponents.${VERSION_MAJOR}.dylib"
-	[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtDesignerComponents_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtDesignerComponents_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtDesignerComponents_debug.${VERSION_MAJOR}.dylib"
 	../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
 	cp "/tmp/tmp.exe" "$EXE"
         rm -f /tmp/tmp.exe
@@ -128,14 +125,12 @@ cp $BINDIR/tools/porting/src/q3porting.xml $OUTDIR/usr/local/Qt${VERSION_MAJOR}.
 
 #Handle the qtestlib
 [ -e "${BINDIR}/lib/libQtTest.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtTest.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtTest.${VERSION_MAJOR}.dylib"
-[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtTest_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtTest_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtTest_debug.${VERSION_MAJOR}.dylib"
 
 #copy QTest headers
 copyHeaderDir "${BINDIR}/include/QtTest" "$OUTDIR/usr/include/QtTest"
 
 # Finally handle QtUiTools
 [ -e "${BINDIR}/lib/libQtUiTools.a" ] && cp "${BINDIR}/lib/libQtUiTools.a" "$OUTDIR/usr/lib/libQtUiTools.a"
-[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtUiTools_debug.a" ] && cp "${BINDIR}/lib/libQtUiTools_debug.a" "$OUTDIR/usr/lib/libQtUiTools_debug.a"
 
 # Copy it's headers as well
 copyHeaderDir "${BINDIR}/include/QtUiTools" "$OUTDIR/usr/include/QtUiTools"

@@ -40,4 +40,25 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg; do
     find "$FRAMEWORK_DIR/${lib}.framework/" -name Headers -exec rm -rf {} \; >/dev/null 2>&1
 done
 
+#Handle the libraries in tools as well
+mkdir -p "$OUTDIR/usr/lib"
+
+#first QtAssistantClient, and QtUiTools since they are static
+for lib in libQtAssistantClient_debug.a libQtUiTools.a; do
+    [ -e  "$BINDIR/lib/${lib}" ] && cp "$BINDIR/lib/${lib}" "$OUTDIR/usr/lib/${lib}"
+done
+
+for lib in libQtDesignerComponents_debug libQtDesigner_debug libQtTest_debug; do
+	[ -e "${BINDIR}/lib/${lib}.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/${lib}.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/${lib}.${VERSION_MAJOR}.dylib"
+done
+
+# Now for the plugins
+for plugin in `find $BINDIR/plugins/ -name 'lib*.dylib'`; do
+    if echo `basename $plugin` | grep "_debug" >/dev/null 2>&1; then
+        out_plugin=`echo $plugin | sed "s,^$BINDIR,$OUTDIR/Developer/Applications/Qt,g"`
+        mkdir -p `dirname $out_plugin`
+        [ -e "$plugin" ] && ../libraries/fix_config_paths.pl "$plugin" "$out_plugin"
+    fi
+done
+
 exit 0
