@@ -759,7 +759,9 @@ void WidgetBoxTreeView::updateItemData(QTreeWidgetItem *item)
     Widget widget = qvariant_cast<Widget>(item->data(0, Qt::UserRole));
 
     if (item->text(0).isEmpty()) {
-        item->setText(0, widget.name());
+        QString widgetName = widget.name();
+        if (!widgetName.isEmpty())
+            item->setText(0, widgetName);
         return;
     }
 
