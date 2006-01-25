@@ -352,11 +352,11 @@ void QTableView::paintEvent(QPaintEvent *event)
         int right = horizontalHeader->visualIndexAt(area.right());
 
         if (isRightToLeft()) {
-            left = (left == -1 ? model()->columnCount(rootIndex()) - 1 : left);
+            left = (left == -1 ? horizontalHeader->count() - 1 : left);
             right = (right == -1 ? 0 : right);
         } else {
             left = (left == -1 ? 0 : left);
-            right = (right == -1 ? model()->columnCount(rootIndex()) - 1 : right);
+            right = (right == -1 ? horizontalHeader->count() - 1 : right);
         }
 
         int tmp = left;
@@ -365,7 +365,7 @@ void QTableView::paintEvent(QPaintEvent *event)
 
         // get the vertical start and end sections (visual indexes)
         int bottom = verticalHeader->visualIndexAt(area.bottom());
-        bottom = (bottom == -1 ? d->model->rowCount(rootIndex()) - 1 : bottom);
+        bottom = (bottom == -1 ? verticalHeader->count() - 1 : bottom);
         if (bottom == -1)
             return; // empty model
 
