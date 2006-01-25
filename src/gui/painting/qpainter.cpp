@@ -129,6 +129,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     QPainter p(&image);
 
+    p.setOpacity(state->opacity);
     p.translate(-absPathRect.x(), -absPathRect.y());
     p.setMatrix(state->matrix, true);
     p.setPen(doStroke ? state->pen : QPen(Qt::NoPen));
@@ -268,7 +269,7 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
                           || s->brush.style() == Qt::TexturePattern));
     }
 
-    if (s->state() & QPaintEngine::DirtyHints) {
+    if (s->state() & (QPaintEngine::DirtyHints | QPaintEngine::DirtyOpacity)) {
         skip = false;
     }
 
@@ -3198,7 +3199,8 @@ void QPainter::drawLines(const QLineF *lines, int lineCount)
                          & (QPaintEngine::PrimitiveTransform
                             | QPaintEngine::AlphaBlend
                             | QPaintEngine::Antialiasing
-                            | QPaintEngine::BrushStroke);
+                            | QPaintEngine::BrushStroke
+                            | QPaintEngine::ConstantOpacity);
     if (lineEmulation) {
         if (lineEmulation == QPaintEngine::PrimitiveTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
@@ -3244,7 +3246,8 @@ void QPainter::drawLines(const QLine *lines, int lineCount)
                          & (QPaintEngine::PrimitiveTransform
                             | QPaintEngine::AlphaBlend
                             | QPaintEngine::Antialiasing
-                            | QPaintEngine::BrushStroke);
+                            | QPaintEngine::BrushStroke
+                            | QPaintEngine::ConstantOpacity);
     if (lineEmulation) {
         if (lineEmulation == QPaintEngine::PrimitiveTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
@@ -3371,7 +3374,8 @@ void QPainter::drawPolyline(const QPointF *points, int pointCount)
                          & (QPaintEngine::PrimitiveTransform
                             | QPaintEngine::AlphaBlend
                             | QPaintEngine::Antialiasing
-                            | QPaintEngine::BrushStroke);
+                            | QPaintEngine::BrushStroke
+                            | QPaintEngine::ConstantOpacity);
 
     if (lineEmulation) {
         // ###
@@ -3411,7 +3415,8 @@ void QPainter::drawPolyline(const QPoint *points, int pointCount)
                          & (QPaintEngine::PrimitiveTransform
                             | QPaintEngine::AlphaBlend
                             | QPaintEngine::Antialiasing
-                            | QPaintEngine::BrushStroke);
+                            | QPaintEngine::BrushStroke
+                            | QPaintEngine::ConstantOpacity);
 
     if (lineEmulation) {
         // ###
@@ -3847,7 +3852,8 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         return;
 
     if (d->state->txop > QPainterPrivate::TxTranslate
-        && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
+        && !d->engine->hasFeature(QPaintEngine::PixmapTransform)
+        || (d->state->opacity != 1.0 && !d->engine->hasFeature(QPaintEngine::ConstantOpacity))) {
 
         QRectF new_rect = d->state->matrix.mapRect(QRectF(x, y, w, h));
 
@@ -3867,6 +3873,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 
         QPainter ip(&source);
         // set required properties
+        ip.setOpacity(d->state->opacity);
         ip.setBackgroundMode(d->state->bgMode);
         ip.setPen(d->state->pen);
         ip.setBackground(d->state->bgBrush);
@@ -3883,7 +3890,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         ip.end();
 
         d->engine->drawPixmap(QRectF(xmin, ymin, source.width(), source.height()),
-                              QPixmap::fromImage(source),
+                              QPixmap::fromImage(source, Qt::OrderedAlphaDither | Qt::DiffuseDither),
                               QRectF(0, 0, source.width(), source.height()));
     } else {
         if (!d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
