@@ -1929,6 +1929,7 @@ void QAbstractItemView::setIndexWidget(const QModelIndex &index, QWidget *widget
 */
 QWidget* QAbstractItemView::indexWidget(const QModelIndex &index) const
 {
+    Q_ASSERT(index.isValid());
     return d_func()->editors.value(index);
 }
 
