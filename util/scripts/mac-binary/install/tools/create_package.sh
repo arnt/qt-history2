@@ -26,7 +26,7 @@ copyHeader()
    mkdir -p $HEADER_DIR
     if [ `wc -l $HEADER_FILE | awk '{print $1;}'` = "1" ]; then
        LINE=`head -1 $HEADER_FILE`
-       if echo "$LINE" | grep "^#include" >/dev/null 2>&1; then
+       if echo "$LINE" | grep '^#include "../../' >/dev/null 2>&1; then
            HEADER_FILE=`dirname $HEADER_FILE`/`echo $LINE | sed "s,^#include \"\([^\"]*\)\"\$,\1,"`
        fi
     fi
@@ -40,7 +40,7 @@ copyHeaderDir()
     mkdir -p "$DESTDIR"
     for header in `find "$BASEDIR" -type f`; do
         case $header in
-        *_pch.h|*_p.h|headers.pri)
+        *_pch.h|*_p.h|*headers.pri)
             continue
             ;;
         *)
