@@ -1122,7 +1122,7 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 bool
 QMakeProject::read(const QString &project, uchar cmd)
 {
-    pfile = project;
+    pfile = QFileInfo(project).absoluteFilePath();
     return read(cmd);
 }
 
@@ -2576,6 +2576,10 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                         replacement = parser.file;
                     } else if(var == QLatin1String("_DATE_")) { //current date/time
                         replacement = QDateTime::currentDateTime().toString();
+                    } else if(var == QLatin1String("_PRO_FILE_")) {
+                        replacement = pfile;
+                    } else if(var == QLatin1String("_PRO_FILE_PWD_")) {
+                        replacement = QFileInfo(pfile).absolutePath();
                     } else if(var == QLatin1String("_QMAKE_CACHE_")) {
                         if(Option::mkfile::do_cache)
                             replacement = Option::mkfile::cachefile;
