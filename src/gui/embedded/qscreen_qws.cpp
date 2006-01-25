@@ -888,7 +888,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
         int opacity = 255;
         QImage img;
         if (!win) {
-            spanData.setup(qwsServer->backgroundBrush());
+            spanData.setup(qwsServer->backgroundBrush(), opacity);
             spanData.dx = off.x();
             spanData.dy = off.y();
         } else {
@@ -902,7 +902,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             img = pm->toImage();
             QPoint winoff = off - win->requestedRegion().boundingRect().topLeft();
             spanData.type = QSpanData::Texture;
-            spanData.initTexture(&img);
+            spanData.initTexture(&img, opacity);
             spanData.dx = winoff.x();
             spanData.dy = winoff.y();
         }
@@ -963,7 +963,7 @@ void QScreen::paintBackground(const QRegion &r)
         rb.prepare(&img);
         QSpanData spanData;
         spanData.init(&rb);
-        spanData.setup(bg);
+        spanData.setup(bg, 255);
         spanData.dx = off.x();
         spanData.dy = off.y();
         Q_ASSERT(spanData.blend);
