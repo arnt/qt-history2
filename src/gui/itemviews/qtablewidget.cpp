@@ -411,6 +411,9 @@ QVariant QTableModel::data(const QModelIndex &index, int role) const
 
 bool QTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    if (!index.isValid())
+        return false;
+
     QTableWidgetItem *itm = item(index);
     if (itm) {
         itm->setData(role, value);
