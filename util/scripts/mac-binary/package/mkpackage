@@ -337,6 +337,10 @@ BUILD_LINE="keydecoder/main.cpp $INSTALLERPANE_PATH/keydec.cpp -o Resources/keyd
 #create the packages
 PKG_CREATED=
 for package in $PACKAGES; do
+    if [ "$LICENSETYPE" == "eval" ] && [ "$package" == "debuglibraries" ]; then
+        continue
+    fi
+
     [ "$package" = "none" ] && continue
     if [ !  -e "$PACKAGE_DIR/$package/Info.plist" ]; then
 	echo "$package is not a valid package!!"
@@ -422,7 +426,9 @@ for package in $PACKAGES; do
     cp -r "$INSTALLERPANE_PATH/build/$INSTALLERPANE_CONFIGURATION/InstallerPane.bundle" "$plugin_dir"
     cp "$INSTALLERPANE_PATH/InstallerSections.plist" "$plugin_dir"
 
-    PKG_CREATED="$PKG_CREATED $package_dir"
+    if [ "$package" != "debuglibraries" ]; then
+        PKG_CREATED="$PKG_CREATED $package_dir"
+    fi
 done
 if [ -z "$PKG_CREATED" ] && [ "$PACKAGES" = " none" ]; then
    if [ "$MAKE_META" = "yes" ] || [ "$MAKE_IMAGE" = "yes" ]; then
@@ -477,12 +483,14 @@ if [ "$MAKE_META" = "yes" ]; then
     PACKAGE_DICT="$TMP_DIR/pkg.dict"
     >"$PACKAGE_DICT"
     for package in $PKG_CREATED; do
-	package_name=`basename $package`
-	package_type=selected
-	if [ "$package_name" = "Qt_libraries.pkg" ] || [ "$package_name" = "Qt_tools.pkg" ]; then
-	    package_type=required
-	fi
-	cat >"${PACKAGE_DICT}.tmp" <<EOF
+        package_name=`basename $package`
+        package_type=selected
+        if [ "$package_name" = "Qt_libraries.pkg" ] || [ "$package_name" = "Qt_tools.pkg" ]; then
+            package_type=required
+        elif [ "$package_name" = "Qt_debuglibraries.pkg" ]; then
+            package_type=unselected
+        fi
+        cat >"${PACKAGE_DICT}.tmp" <<EOF
            <dict>
               <key>IFPkgFlagPackageLocation</key>
               <string>${package_name}</string>
@@ -490,11 +498,11 @@ if [ "$MAKE_META" = "yes" ]; then
               <string>${package_type}</string>
            </dict>
 EOF
-	if [ "$package_type" = "required" ]; then
-	     cat "${PACKAGE_DICT}.tmp" "$PACKAGE_DICT" >"$TMP_DIR/dict.combined"
-	     mv "$TMP_DIR/dict.combined" "$PACKAGE_DICT"
+        if [ "$package_type" = "required" ]; then
+            cat "${PACKAGE_DICT}.tmp" "$PACKAGE_DICT" >"$TMP_DIR/dict.combined"
+            mv "$TMP_DIR/dict.combined" "$PACKAGE_DICT"
         else
-	    cat "${PACKAGE_DICT}.tmp" >>"$PACKAGE_DICT"
+            cat "${PACKAGE_DICT}.tmp" >>"$PACKAGE_DICT"
         fi
         rm -f "${PACKAGE_DICT}.tmp"
     done
@@ -509,7 +517,7 @@ fi
 
 #create disk image
 if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
-    echo "Creating disk image.."
+    echo "Creating disk image..."
     IMAGE_NAME="Qt ${QT_VERSION_STRING}"
     IMAGE="$OUTPUT_DIR/qt-mac-${LICENSETYPE}-${QT_VERSION_STRING}.dmg"
     TMPIMAGE="$OUTPUT_DIR/qt-mac-${LICENSETYPE}-${QT_VERSION_STRING}-RW.dmg"
@@ -537,10 +545,27 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
     mountpoint=`hdiutil attach "$TMPIMAGE" | grep '/Volumes' | cut -f 3`
     /Developer/Tools/SetFile -a C "$mountpoint"
     hdiutil detach "$mountpoint"
-    hdiutil convert "$TMPIMAGE"  -format UDZO -o "$IMAGE" -imagekey zlib-level=6 | grep -v ^created:
+    hdiutil convert "$TMPIMAGE"  -format UDZO -o "$IMAGE" -imagekey zlib-level=9 | grep -v ^created:
     rm "$TMPIMAGE"
     echo " done!"
 fi
+
+# Create the disk image for the debug libraries too
+if [ "$MAKE_IMAGE" = "yes" ] && [ "$LICENSETYPE" != "eval" ]; then
+    echo "Creating the debug libraries disk image..."
+    IMAGE_NAME="Qt ${QT_VERSION_STRING} Debug Libraries"
+    IMAGE="$OUTPUT_DIR/qt-mac-${LICENSETYPE}-${QT_VERSION_STRING}-debug-libs-only.dmg"
+    DISKIMAGE="$TMP_DIR/diskimage"
+
+    #remove the old stuff
+    rm -f "$IMAGE"
+    rm -rf "$DISKIMAGE"
+    mkdir -p "$DISKIMAGE"
+    cp -R "$OUTPUT_DIR/packages/Qt_debuglibraries.pkg" "$DISKIMAGE"
+    hdiutil create -srcfolder "$DISKIMAGE" -o "$IMAGE" -volname "$IMAGE_NAME" -imagekey zlib-level=9
+    echo " done!"
+fi
+
 
 #cleanup
 rm -rf "$TMP_DIR"
