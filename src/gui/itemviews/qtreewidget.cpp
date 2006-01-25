@@ -351,6 +351,34 @@ bool QTreeModel::insertColumns(int column, int count, const QModelIndex &parent)
 /*!
   \internal
   \reimp
+*/
+bool QTreeModel::removeRows(int row, int count, const QModelIndex &parent) {
+    if (count < 1 || row < 0 || (row + count) > rowCount(parent))
+        return false;
+
+    beginRemoveRows(parent, row, row + count);
+
+    bool blockSignal = signalsBlocked();
+    blockSignals(true);
+
+    QTreeWidgetItem *itm = item(parent);
+    for (int i = row+count-1; i >= row; --i) {
+        QTreeWidgetItem *child = itm ? itm->takeChild(i) : tree.takeAt(i);
+        child->model = 0;
+        child->view = 0;
+        Q_ASSERT(child);
+        delete child;
+        child = 0;
+    }
+    blockSignals(blockSignal);
+
+    endRemoveRows();
+    return true;
+}
+
+/*!
+  \internal
+  \reimp
 
   Returns the header data corresponding to the given header \a section,
   \a orientation and data \a role.

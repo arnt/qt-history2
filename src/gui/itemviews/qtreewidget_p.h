@@ -78,6 +78,8 @@ public:
     bool insertRows(int row, int count, const QModelIndex &);
     bool insertColumns(int column, int count, const QModelIndex &);
 
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+
     // dnd
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
