@@ -103,6 +103,9 @@ void QWSLock::unlock(LockType type)
     int ret;
     do {
         sembuf sops = {semNum, 1, 0};
+        if (semNum == QWSLock::BackingStore)
+            sops.sem_flg |= SEM_UNDO;
+
         ret = semop(semId, &sops, 1);
         if (ret == -1 && errno != EINTR)
             qDebug("QWSLock::unlock: %s", strerror(errno));
