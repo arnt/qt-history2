@@ -62,7 +62,10 @@ QFont QTextItem::font() const
 
 #include <private/qfontengine_p.h>
 
-/*! \class QPaintEngine qpaintengine.h
+/*!
+  \class QPaintEngine
+  \ingroup multimedia
+
   \brief The QPaintEngine class provides an abstract definition of how
   QPainter draws to a given device on a given platform.
 

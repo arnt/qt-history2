@@ -69,7 +69,7 @@ void QPrinterPrivate::createDefaultEngines()
 
 
 /*!
-  \class QPrinter qprinter.h
+  \class QPrinter
   \brief The QPrinter class is a paint device that paints on a printer.
 
   \ingroup multimedia
@@ -1567,6 +1567,7 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
 
 /*!
     \class QPrintEngine
+    \ingroup multimedia
 
     \brief The QPrintEngine class defines an interface for how QPrinter
     interacts with a given printing subsystem.

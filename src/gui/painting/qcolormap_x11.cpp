@@ -272,6 +272,8 @@ static void init_indexed(QColormapPrivate *d, int screen)
 
 /*!
     \class QColormap
+    \ingroup multimedia
+
     \brief The QColormap class maps device independent QColors to device dependent pixel values.
 */
 

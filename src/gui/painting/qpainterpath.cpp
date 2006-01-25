@@ -2204,6 +2204,7 @@ void qt_path_stroke_cubic_to(qfixed c1x, qfixed c1y,
 /*!
     \since 4.1
     \class QPainterPathStroker
+    \ingroup multimedia
 
     \brief The QPainterPathStroker class is used to generate fillable
     outlines for a given painter path.
