@@ -61,8 +61,7 @@ public:
 
     QList<QAction*> items;
 
-    virtual bool hasFormat(const QString &mimeType) const
-    { return mimeType == QLatin1String("action-repository/actions"); }
+    virtual QStringList formats() const { return QStringList() << "action-repository/actions"; }
 };
 
 } // namespace qdesigner_internal
