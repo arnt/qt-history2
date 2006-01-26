@@ -89,7 +89,7 @@ static const qint64 QIODEVICE_BUFFERSIZE = 16384;
 QIODevicePrivate::QIODevicePrivate()
     : openMode(QIODevice::NotOpen),
       errorString(QT_TRANSLATE_NOOP(QIODevice, QLatin1String("Unknown error"))),
-      pos(0)
+      pos(0), devicePos(0)
 {
 }
 
