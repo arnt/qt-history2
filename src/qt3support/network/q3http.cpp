@@ -2001,7 +2001,7 @@ void Q3Http::slotReadyRead()
 		    }
 
 		    // read data
-		    uint toRead = QMIN( (Q_LONG)n, d->chunkedSize );
+		    uint toRead = QMIN( (Q_LONG)n, (d->chunkedSize < 0 ? (Q_LONG)n : d->chunkedSize) );
 		    if ( !arr )
 			arr = new QByteArray( 0 );
 		    uint oldArrSize = arr->size();

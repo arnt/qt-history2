@@ -2491,7 +2491,7 @@ void QHttpPrivate::slotReadyRead()
                     }
 
                     // read data
-                    qint64 toRead = qMin(n, chunkedSize);
+                    qint64 toRead = chunkedSize < 0 ? n : qMin(n, chunkedSize);
                     if (!arr)
                         arr = new QByteArray;
                     uint oldArrSize = arr->size();
