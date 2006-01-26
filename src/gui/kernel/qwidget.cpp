@@ -1297,7 +1297,7 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn
                 QRegion childRgn = clipRgn & child->geometry().translated(offset);
                 QWidgetPrivate *cd = child->d_func();
                 if (cd->extra && !cd->extra->mask.isEmpty())
-                    childRgn &= cd->extra->mask.translated(offset + cd->crect.topLeft());
+                    childRgn &= cd->extra->mask.translated(offset + cd->data.crect.topLeft());
 
                 if (childRgn.isEmpty())
                     continue;
