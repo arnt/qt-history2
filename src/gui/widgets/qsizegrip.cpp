@@ -43,7 +43,7 @@ public:
 
 static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
 {
-    while (!w->isWindow() && !(w->parentWidget()->windowType() & Qt::SubWindow))
+    while (!w->isWindow() && !(w->parentWidget()->windowType() == Qt::SubWindow))
         w = w->parentWidget();
     return w;
 }
@@ -216,9 +216,8 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 
     QPoint np(e->globalPos());
 
-    QWidget* frame = qt_sizegrip_topLevelWidget(this)->parentWidget();
-    if (frame && frame->parentWidget()) {
-        QWidget *ws = frame->parentWidget();
+    if (!tlw->isWindow()) {
+        QWidget* ws = tlw->parentWidget()->parentWidget();
         QPoint tmp(ws->mapFromGlobal(np));
         if (tmp.x() > ws->width())
             tmp.setX(ws->width());
