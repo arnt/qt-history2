@@ -504,6 +504,7 @@ void QListView::reset()
 {
     Q_D(QListView);
     d->clear();
+    d->hiddenRows.clear();
     QAbstractItemView::reset();
 }
 
@@ -595,6 +596,13 @@ void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     Q_D(QListView);
     // if the parent is above rootIndex() in the tree, nothing will happen
+    if (parent == rootIndex()) {
+        int count = (end - start + 1);
+        for (int i = d->hiddenRows.count() - 1; i >= 0; --i)
+            if (d->hiddenRows.at(i) > start)
+                d->hiddenRows[i] += count;
+    }
+    d->clear();
     d->doDelayedItemsLayout();
     QAbstractItemView::rowsInserted(parent, start, end);
 }
@@ -607,8 +615,20 @@ void QListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     Q_D(QListView);
     // if the parent is above rootIndex() in the tree, nothing will happen
     QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
-    d->doDelayedItemsLayout();
+    if (parent == rootIndex()) {
+        int count = (end - start + 1);
+        for (int i = d->hiddenRows.count() - 1; i >= 0; --i) {
+            if (d->hiddenRows.at(i) > start) {
+                if (d->hiddenRows.at(i) < end) {
+                    d->hiddenRows.remove(i);
+                } else {
+                    d->hiddenRows[i] -= count;
+                }
+            }
+        }
+    }
     d->clear();
+    d->doDelayedItemsLayout();
 }
 
 /*!
@@ -1328,7 +1348,6 @@ QListViewPrivate::QListViewPrivate()
 
 void QListViewPrivate::clear()
 {
-    hiddenRows.clear();
     // initialization of data structs
     batchStartRow = 0;
     batchSavedPosition = 0;
