@@ -18,6 +18,7 @@
 #include "qlibrary.h"
 #include "qpair.h"
 #include "qsocketnotifier.h"
+#include "qvarlengtharray.h"
 #include "qwineventnotifier_p.h"
 
 #include "qabstracteventdispatcher_p.h"
@@ -376,6 +377,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 
         DWORD waitRet = 0;
         HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];
+        QVarLengthArray<uint> processedTimers;
         while (!d->interrupt) {
             DWORD nCount = d->winEventNotifierList.count();
             Q_ASSERT(nCount < MAXIMUM_WAIT_OBJECTS - 1);
@@ -411,7 +413,16 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                 }
             }
             if (haveMessage) {
-                if (msg.message == WM_QUIT) {
+                if (msg.message == WM_TIMER) {
+                    // avoid live-lock by keeping track of the timers we've already sent
+                    bool found = false;
+                    for (int i = 0; !found && i < processedTimers.count(); ++i)
+                        found = (processedTimers.constData()[i] == msg.wParam);
+                    if (!found)
+                        processedTimers.append(msg.wParam);
+                    else
+                        continue;
+                } else if (msg.message == WM_QUIT) {
                     if (QCoreApplication::instance())
                         QCoreApplication::instance()->quit();
                     return false;
