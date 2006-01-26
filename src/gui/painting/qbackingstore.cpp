@@ -699,6 +699,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             toFlush.translate(widget->mapTo(tlw, QPoint()));
             copyToScreen(toFlush, tlw, tlwOffset, recursiveCopyToScreen);
         } else {
+            toFlush += widget->d_func()->dirtyOnScreen;
             copyToScreen(toFlush, widget, widget->mapTo(tlw, QPoint()), false);
         }
     }
