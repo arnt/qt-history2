@@ -1144,7 +1144,7 @@ void QMenu::hideTearOffMenu()
 void QMenu::setActiveAction(QAction *act)
 {
     Q_D(QMenu);
-    d->setCurrentAction(act);
+    d->setCurrentAction(act, 0);
     if (d->scroll)
         d->scrollMenu(act, QMenuPrivate::QMenuScroller::ScrollCenter);
 }
