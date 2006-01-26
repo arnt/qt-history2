@@ -6631,7 +6631,7 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 
 /*!
     \class QConstString
-    \brief The QConstString is a wrapper for constant Unicode string data.
+    \brief The QConstString class is a wrapper for constant Unicode string data.
     \compat
 
     In Qt 4, QConstString is replaced by QString::fromRawData(), a
