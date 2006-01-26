@@ -786,8 +786,19 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
                     }
                 }
             } else {
-                for(int y = 0; y < images[i].height; y++) {
-                    memcpy((*hdl)+(y*dbpr), ((const uchar*)sptr+(sbpr*y)), dbpr);
+                char *dest = (*hdl);
+#if defined(__i386__)
+                if(images[i].depth == 32) {
+                    for(int y = 0; y < images[i].height; ++y) {
+                        uint *source = (uint*)((const uchar*)sptr+(sbpr*y));
+                        for(int x = 0; x < images[i].width; ++x, dest += 4)
+                            *((uint*)dest) = CFSwapInt32(*(source + x));
+                    }
+                } else
+#endif
+                {
+                    for(int y = 0; y < images[i].height; ++y)
+                        memcpy(dest+(y*dbpr), ((const uchar*)sptr+(sbpr*y)), dbpr);
                 }
             }
 
