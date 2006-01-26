@@ -1729,10 +1729,13 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                 if (table)
                     align = table->format().alignment();
 
-                if (align == Qt::AlignRight)
-                    pos.rx() += layoutStruct->x_right - cd->size.width();
-                else if (align == Qt::AlignHCenter)
-                    pos.rx() += (layoutStruct->x_right - cd->size.width()) / 2;
+                // align only if there is space for alignment
+                if (right - left > cd->size.width()) {
+                    if (align == Qt::AlignRight)
+                        pos.rx() += layoutStruct->x_right - cd->size.width();
+                    else if (align == Qt::AlignHCenter)
+                        pos.rx() += (layoutStruct->x_right - cd->size.width()) / 2;
+                }
 
                 cd->position = pos;
                 layoutStruct->y += cd->size.height();
