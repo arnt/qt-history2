@@ -247,7 +247,7 @@ public:
     QDataBuffer<QPointF> m_elements_dev;
     QDataBuffer<QT_FT_Vector> m_points;
     QDataBuffer<char> m_tags;
-    QDataBuffer<short> m_contours;
+    QDataBuffer<int> m_contours;
 
     QPolygonClipper<QRasterFloatPoint, QRasterFloatPoint, qreal> m_clipper;
     QDataBuffer<QPointF> m_polygon_dev;

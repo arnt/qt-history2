@@ -336,12 +336,12 @@ QT_FT_BEGIN_HEADER
   /*                                                                       */
   typedef struct  QT_FT_Outline_
   {
-    short       n_contours;      /* number of contours in glyph        */
-    short       n_points;        /* number of points in the glyph      */
+    int       n_contours;      /* number of contours in glyph        */
+    int       n_points;        /* number of points in the glyph      */
 
     QT_FT_Vector*  points;          /* the outline's points               */
     char*       tags;            /* the points flags                   */
-    short*      contours;        /* the contour end points             */
+    int*      contours;        /* the contour end points             */
 
     int         flags;           /* outline masks                      */
 
