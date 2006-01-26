@@ -111,6 +111,7 @@ public:
     void updatePen(const QPen &pen);
     void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateFont(const QFont &font);
+    void updateOpacity(qreal opacity);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);

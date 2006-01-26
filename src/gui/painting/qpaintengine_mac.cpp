@@ -189,7 +189,6 @@ void QQuickDrawPaintEngine::updateState(const QPaintEngineState &state)
         updateBackground(state.backgroundMode(), state.backgroundBrush());
     if(flags & DirtyFont)
         updateFont(state.font());
-
     if(flags & DirtyClipEnabled) {
         if (state.isClipEnabled())
             updateClipRegion(painter()->clipRegion(), Qt::ReplaceClip);
@@ -1133,6 +1132,8 @@ void QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
         updateBrush(state.brush(), state.brushOrigin());
     if(flags & DirtyFont)
         updateFont(state.font());
+    if (flags & DirtyOpacity)
+        updateOpacity(state.opacity());
     if (state.state() & DirtyClipEnabled) {
         if (state.isClipEnabled())
             updateClipPath(painter()->clipPath(), Qt::ReplaceClip);
@@ -1170,6 +1171,13 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
         d->shading = 0;
     }
     d->setFillBrush(brush, brushOrigin);
+}
+
+void
+QCoreGraphicsPaintEngine::updateOpacity(qreal opacity)
+{
+    Q_D(QCoreGraphicsPaintEngine);
+    CGContextSetAlpha(d->hd, opacity);
 }
 
 void
