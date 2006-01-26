@@ -61,7 +61,9 @@ public:
 bool QToolButtonPrivate::hasMenu() const
 {
     Q_Q(const QToolButton);
-    return ((menuAction && menuAction->menu()) || q->actions().size() > (defaultAction ? 1 : 0));
+    return ((defaultAction && defaultAction->menu())
+            || (menuAction && menuAction->menu())
+            || q->actions().size() > (defaultAction ? 1 : 0));
 }
 #endif
 
