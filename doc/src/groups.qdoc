@@ -184,16 +184,6 @@ accessible applications.
 
 */
 
-/*! \group activeqt-tools
-
-\title ActiveQt Tools
-
-These tools provide support for integrating Qt with Active X components.
-
-\sa {ActiveQt Framework}
-
-*/
-
 /*! \group appearance
 
 \title Widget Appearance and Style

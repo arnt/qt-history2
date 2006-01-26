@@ -14,6 +14,7 @@
     \page credits.html
 
     \title Thanks!
+    \ingroup licensing
 
     The following (and probably many others) have provided bug reports,
     suggestions, patches, beta testing, or done us other favors.  We thank

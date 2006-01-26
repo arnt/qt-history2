@@ -2,7 +2,6 @@
     \page qaxserver-demo-simple.html
 
     \title A standard ActiveX and the "simple" ActiveQt widget
-    \ingroup activeqt-tools
 
     \input examples/activeqt/simple-demo.qdocinc
 */

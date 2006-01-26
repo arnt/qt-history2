@@ -1,7 +1,6 @@
 /*!
     \page qaxserver-demo-multiple.html
     \title Two Simple Qt Widgets
-    \ingroup activeqt-tools
 
     \input examples/activeqt/multiple-demo.qdocinc
 */

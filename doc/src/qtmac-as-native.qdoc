@@ -32,6 +32,7 @@
     \page qtmac-as-native.html
 
     \title Qt/Mac is Mac OS X Native
+    \ingroup platform-notes
 
     This document explains what makes an application native on Mac OS X.
     It shows the areas where Qt/Mac is compliant, and the grey areas where

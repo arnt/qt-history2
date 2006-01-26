@@ -2,6 +2,7 @@
     \page activeqt.html
     \title ActiveQt Framework
 
+    \ingroup platform-notes
     \keyword ActiveQt
 
     Qt's ActiveX and COM support allows Qt/Windows developers to:
