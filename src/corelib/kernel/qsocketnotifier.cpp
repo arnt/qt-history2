@@ -43,6 +43,9 @@
     QUdpSocket provide notification through signals, so there is
     normally no need to use a QSocketNotifier on them.
 
+    \bold{Note for Windows users:} The socket passed to QSocketNotifier
+    will become non-blocking, even if it was created as a blocking socket.
+
     \target write notifiers
 
     There are three types of socket notifiers: read, write, and
@@ -82,6 +85,9 @@
     It is generally advisable to explicitly enable or disable the
     socket notifier, especially for write notifiers.
 
+    \bold{Note for Windows users:} The socket passed to QSocketNotifier
+    will become non-blocking, even if it was created as a blocking socket.
+
     \sa setEnabled(), isEnabled()
 */
 
@@ -108,7 +114,7 @@ QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent)
 
 #ifdef QT3_SUPPORT
 /*!
-  \obsolete
+    \obsolete
 
     Constructs a socket notifier called \a name, with the given
     \a parent. It enables the \a socket, and watches for events of the
