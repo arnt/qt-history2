@@ -199,6 +199,8 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
         top = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepSub, this);
         bottom = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepAdd, this);
+        top->hide();
+        bottom->hide();
     } else {
         setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
         setLineWidth(1);
