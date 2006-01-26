@@ -1348,9 +1348,10 @@ void QListViewPrivate::prepareItemsLayout()
     layoutBounds = viewport->rect();
 
     if (resizeMode == QListView::Adjust) {
-        int margin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-        int dw = q->verticalScrollBar()->isVisible() ? 0 : margin;
-        int dh = q->horizontalScrollBar()->isVisible() ? 0 : margin;
+        int verticalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q->verticalScrollBar());
+        int dw = q->verticalScrollBar()->isVisible() ? 0 : verticalMargin;
+        int horizontalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q->horizontalScrollBar());
+        int dh = q->horizontalScrollBar()->isVisible() ? 0 : horizontalMargin;
         layoutBounds.adjust(0, 0, -dw, -dh);
     }
 
