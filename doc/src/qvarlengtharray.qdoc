@@ -239,11 +239,11 @@
     \sa data(), operator[]()
 */
 
-/*! \fn QVarLengthArray &QVarLengthArray::operator=(const QVarLengthArray &other)
+/*! \fn QVarLengthArray<T, Prealloc> &QVarLengthArray::operator=(const QVarLengthArray<T, Prealloc> &other)
     Assigns \a other to this array and returns a reference to this array.
  */
 
-/*! \fn QVarLengthArray::QVarLengthArray(const QVarLengthArray &other)
+/*! \fn QVarLengthArray::QVarLengthArray(const QVarLengthArray<T, Prealloc> &other)
     Constructs a copy of \a other.
  */
 

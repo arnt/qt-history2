@@ -94,7 +94,7 @@
 */
 
 /*!
-    \fn QPair &QPair::operator=(const QPair &other)
+    \fn QPair<T1, T2> &QPair::operator=(const QPair<T1, T2> &other)
 
     Assigns \a other to this pair.
 */
