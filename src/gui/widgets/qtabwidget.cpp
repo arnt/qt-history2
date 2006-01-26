@@ -43,8 +43,7 @@
     different page by clicking on its tab or by pressing its
     Alt+\e{letter} shortcut if it has one.
 
-    The normal way to use QTabWidget is to do the following in the
-    constructor:
+    The normal way to use QTabWidget is to do the following:
     \list 1
     \i Create a QTabWidget.
     \i Create a QWidget for each of the pages in the tab dialog, but

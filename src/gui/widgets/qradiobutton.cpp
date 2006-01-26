@@ -52,8 +52,8 @@ public:
 
     Whenever a button is switched on or off it emits the toggled() signal.
     Connect to this signal if you want to trigger an action each time the
-    button changes state. Otherwise, use isChecked() to see if a particular
-    button is selected.
+    button changes state. Use isChecked() to see if a particular button is
+    selected.
 
     Just like QPushButton, a radio button displays text, and
     optionally a small icon. The text can be set in the constructor or
