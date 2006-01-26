@@ -520,9 +520,10 @@ QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int r
 bool QTableModel::setHeaderData(int section, Qt::Orientation orientation,
                                 const QVariant &value, int role)
 {
-    if ((orientation == Qt::Horizontal && horizontal.size() == 0) ||
-        (orientation == Qt::Vertical && vertical.size() == 0))
-        return false;
+    if (section < 0 ||
+       (orientation == Qt::Horizontal && horizontal.size() <= section) ||
+       (orientation == Qt::Vertical && vertical.size() <= section))
+    return false;
 
     QTableWidgetItem *itm = 0;
     if (orientation == Qt::Horizontal)

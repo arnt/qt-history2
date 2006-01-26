@@ -410,6 +410,9 @@ QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int ro
 bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
                                const QVariant &value, int role)
 {
+   if (section < 0 || (orientation == Qt::Horizontal && header->columnCount() <= section))
+    return false;
+
     if (orientation == Qt::Horizontal && header) {
         header->setData(section, role, value);
         emit headerDataChanged(orientation, section, section);
