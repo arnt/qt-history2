@@ -2132,7 +2132,7 @@ Render_Single_Pass( TRaster_Instance*  raster, Bool  flipped )
 
             k = (Short)( ( i + j ) / 2 );
 
-            if ( ras.band_top >= 7 || k < i )
+            if ( ras.band_top >= 7 || k <= i )
             {
                 ras.band_top = 0;
                 ras.error    = Raster_Err_OutOfMemory;
