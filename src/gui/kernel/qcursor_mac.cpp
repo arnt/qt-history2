@@ -267,6 +267,9 @@ QPixmap qt_mac_unmultiplyPixmapAlpha(const QPixmap &pixmap)
         int blue  = qBlue(pixel) * 255 / alpha;
 
         pm_data->pixels[i] = qRgba(red, green, blue, alpha);
+#if defined(__i386__)
+        pm_data->pixels[i] = CFSwapInt32(pm_data->pixels[i]);
+#endif
     }
     return fake_pm;
 }
