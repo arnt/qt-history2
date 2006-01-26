@@ -266,8 +266,10 @@ QBitmap QPixmap::mask() const
 void QPixmap::setMask(const QBitmap &mask)
 {
     if (mask.size().isEmpty()) {
-        detach();
-        data->image = data->image.convertToFormat(QImage::Format_RGB32);
+        if (depth() != 1) {
+            detach();
+            data->image = data->image.convertToFormat(QImage::Format_RGB32);
+        }
 
     } else if (mask.size() != size()) {
         qWarning("QPixmap::setMask() mask size differs from pixmap size");
