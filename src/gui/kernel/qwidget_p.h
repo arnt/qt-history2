@@ -194,7 +194,7 @@ public:
 
     QRect clipRect() const;
     QRegion clipRegion() const;
-    void subtractOpaqueChildren(QRegion &rgn, const QRect &clipRect, const QPoint &offset) const;
+    void subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset) const;
     void updateIsOpaque();
     bool isOpaque() const;
     bool hasBackground() const;

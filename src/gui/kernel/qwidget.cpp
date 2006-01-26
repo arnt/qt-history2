@@ -1289,25 +1289,24 @@ QRegion QWidgetPrivate::clipRegion() const
     return r;
 }
 
-void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRect &clipRect, const QPoint &offset) const
+void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset) const
 {
     for (int i=0; i < children.size(); ++i) {
-        if(QWidget *child = qobject_cast<QWidget *>(children.at(i))) {
-            if(child->isVisible() && !child->isWindow()) {
-                QRect childRect = child->geometry().translated(offset) & clipRect;
-
-                if (childRect.isEmpty())
-                    continue;
+        if (QWidget *child = qobject_cast<QWidget *>(children.at(i))) {
+            if (child->isVisible() && !child->isWindow()) {
+                QRegion childRgn = clipRgn & child->geometry().translated(offset);
                 QWidgetPrivate *cd = child->d_func();
-                bool hasMask = cd->extra && !cd->extra->mask.isEmpty();
+                if (cd->extra && !cd->extra->mask.isEmpty())
+                    childRgn &= cd->extra->mask.translated(offset + cd->crect.topLeft());
 
-                if (!hasMask && cd->isOpaque()) {
-                    rgn -= childRect;
-                } else {
-                    cd->subtractOpaqueChildren(rgn, childRect, offset + child->geometry().topLeft());
-                }
+                if (childRgn.isEmpty())
+                    continue;
+
+                if (cd->isOpaque())
+                    rgn -= childRgn;
+                else
+                    cd->subtractOpaqueChildren(rgn, childRgn, offset + child->geometry().topLeft());
             }
-
         }
     }
 }
