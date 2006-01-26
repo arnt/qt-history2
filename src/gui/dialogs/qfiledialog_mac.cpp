@@ -230,8 +230,9 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
     options.optionFlags |= kNavSupportPackages;
     if (args.options & QFileDialog::DontConfirmOverwrite)
         options.optionFlags |= kNavDontConfirmReplacement;
-    if (args.mode == QFileDialog::ExistingFiles)
-        options.optionFlags |= kNavAllowMultipleFiles;
+    if (args.mode != QFileDialog::ExistingFiles)
+        options.optionFlags &= ~kNavAllowMultipleFiles;
+
     if (!args.caption.isEmpty())
         options.windowTitle = QCFString::toCFStringRef(args.caption);
 

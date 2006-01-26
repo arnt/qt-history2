@@ -224,8 +224,8 @@ QStringList Q3FileDialog::macGetOpenFileNames(const QString &filter, QString *pw
     NavGetDefaultDialogCreationOptions(&options);
     options.modality = kWindowModalityAppModal;
     options.optionFlags |= kNavDontConfirmReplacement | kNavSupportPackages;
-    if(multi)
-        options.optionFlags |=         kNavAllowMultipleFiles;
+    if (!multi)
+        options.optionFlags &= ~kNavAllowMultipleFiles;
     if(!caption.isEmpty())
         options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(),
                                                            caption.length());
