@@ -165,7 +165,9 @@ QWorkspaceTitleBar::QWorkspaceTitleBar(QWidget *w, QWidget *parent, Qt::WFlags f
     d->window = w;
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
-    if (w) {
+    if (w) { 
+        if (w->maximumSize() != QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX))
+            d->flags &= ~Qt::WindowMaximizeButtonHint;
         setWindowTitle(w->windowTitle());
     }
 
@@ -292,7 +294,6 @@ void QWorkspaceTitleBar::mousePressEvent(QMouseEvent *e)
             break;
 
         case QStyle::SC_TitleBarNormalButton:
-            if (d->flags & Qt::WindowMinMaxButtonsHint)
                 d->buttonDown = ctrl;
             break;
 
@@ -373,7 +374,7 @@ void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
                 break;
 
             case QStyle::SC_TitleBarNormalButton:
-                if(d->flags & Qt::WindowMaximizeButtonHint)
+                if(d->flags & Qt::WindowMinMaxButtonsHint)
                     emit doNormal();
                 break;
 
@@ -607,21 +608,14 @@ QWidget *QWorkspaceTitleBar::window() const
 bool QWorkspaceTitleBar::event(QEvent *e)
 {
     Q_D(QWorkspaceTitleBar);
-    if (d->inevent)
-        return QWidget::event(e);
-    d->inevent = true;
-    bool result = true;
     if (e->type() == QEvent::ApplicationPaletteChange) {
         d->readColors();
     } else if (e->type() == QEvent::WindowActivate
                || e->type() == QEvent::WindowDeactivate) {
         if (d->act)
             update();
-    } else {
-        result = QWidget::event(e);
     }
-    d->inevent = false;
-    return result;
+    return QWidget::event(e);
 }
 
 void QWorkspaceTitleBar::setMovable(bool b)
