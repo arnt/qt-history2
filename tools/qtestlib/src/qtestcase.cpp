@@ -551,6 +551,60 @@
     \sa QCOMPARE()
 */
 
+/*!
+    \fn char *QTest::toString(const QLatin1String &string)
+    \overload
+
+    Returns a textual representation of the given \a string. This function is
+    used by \l QCOMPARE() to output verbose information in case of a test
+    failure.
+*/
+
+/*!
+    \fn char *QTest::toString(const QString &string)
+    \overload
+
+    Returns a textual representation of the given \a string. This function is
+    used by \l QCOMPARE() to output verbose information in case of a test
+    failure.
+*/
+
+/*!
+    \fn char *QTest::toString(const QTime &time)
+    \overload
+
+    Returns a textual representation of the given \a time. This function is
+    used by \l QCOMPARE() to output verbose information in case of a test
+    failure.
+*/
+
+/*!
+    \fn char *QTest::toString(const QDate &date)
+    \overload
+
+    Returns a textual representation of the given \a date. This function is
+    used by \l QCOMPARE() to output verbose information in case of a test
+    failure.
+*/
+
+/*!
+    \fn char *QTest::toString(const QDateTime &dateTime)
+    \overload
+
+    Returns a textual representation of the date and time specified by
+    \a dateTime. This function is used by \l QCOMPARE() to output verbose
+    information in case of a test failure.
+*/
+
+/*!
+    \fn char *QTest::toString(const QChar &character)
+    \overload
+
+    Returns a textual representation of the given \a character. This function
+    is used by \l QCOMPARE() to output verbose information in case of a test
+    failure.
+*/
+
 /*! \fn void QTest::qWait(int ms)
 
     Waits for \a ms milliseconds. While waiting, events will be processed and
@@ -1400,6 +1454,26 @@ bool QTest::compare_string_helper(const char *t1, const char *t2, const char *ac
     \internal
 */
 
+/*! \fn bool QTest::qCompare(QString const &t1, QLatin1String const &t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(QLatin1String const &t1, QString const &t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(QStringList const &t1, QStringList const &t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(QFlags<T> const &t1, T const &t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
+/*! \fn bool QTest::qCompare(QFlags<T> const &t1, int const &t2, const char *actual, const char *expected, const char *file, int line)
+    \internal
+*/
+
 /*! \fn bool QTest::qTest(const T& actual, const char *elementName, const char *actualStr, const char *expected, const char *file, int line)
     \internal
 */
@@ -1416,5 +1490,6 @@ bool QTest::compare_string_helper(const char *t1, const char *t2, const char *ac
     \internal
 */
 
-
-
+/*! \fn int QTest::qt_snprintf(char *str, int size, const char *format, ...)
+    \internal
+*/
