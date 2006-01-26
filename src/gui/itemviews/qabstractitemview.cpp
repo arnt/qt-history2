@@ -422,7 +422,10 @@ QAbstractItemView::~QAbstractItemView()
 /*!
   Sets the \a model for the view to present.
 
-  This function will also create and set a new selection model.
+  \bold{Note:} This function will also create and set a new selection model,
+  replacing any previously set with setSelectionModel().
+
+  \sa selectionModel(), setSelectionModel()
 */
 void QAbstractItemView::setModel(QAbstractItemModel *model)
 {
@@ -478,7 +481,10 @@ QAbstractItemModel *QAbstractItemView::model() const
 /*!
     Sets the current selection to the given \a selectionModel.
 
-    \sa selectionModel() clearSelection()
+    Note that, if you call setModel() after this function, the given \a selectionModel
+    will be replaced by a one created by the view.
+
+    \sa selectionModel(), setModel(), clearSelection()
 */
 void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
@@ -512,7 +518,7 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 /*!
     Returns the current selection.
 
-    \sa setSelectionModel() clearSelection()
+    \sa setSelectionModel(), clearSelection()
 */
 QItemSelectionModel* QAbstractItemView::selectionModel() const
 {
