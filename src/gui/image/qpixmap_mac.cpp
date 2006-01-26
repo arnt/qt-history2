@@ -880,18 +880,27 @@ QPaintEngine *QPixmap::paintEngine() const
 QPixmap QPixmap::copy(const QRect &rect) const
 {
     QPixmap pm;
-    if (data->type == BitmapType)
+    if (data->type == BitmapType) {
         pm = QBitmap::fromImage(toImage().copy(rect));
-    else {
+    } else {
         if (rect.isNull()) {
             pm = QPixmap(size());
             memcpy(pm.data->pixels, data->pixels, data->nbytes);
         } else {
-            pm = QPixmap(rect.size());
-            for (int i = 0; i < rect.height(); ++i)
-                memcpy(pm.data->pixels + i*pm.data->w,
-		       data->pixels + (i + rect.y())*data->w + rect.x(),
-		       rect.width()*4);
+            int x = rect.x(), y = rect.y(), w = rect.width(), h = rect.height();
+            if (w > 0 && h > 0 && x < data->w && y < data->h) {
+                pm = QPixmap(w, h);
+                if (x+w > data->w || y+h > data->h) {
+                    pm.fill(Qt::color0);  // bitBlt will not cover entire image - clear it.
+                    if(x+w > data->w)
+                        w = data->w - x;
+                    if(y+h > data->h)
+                        h = data->h - y;
+                }
+                for (int i = 0; i < h; ++i)
+                    memcpy(pm.data->pixels + i*pm.data->w,
+                           data->pixels + (i + rect.y())*data->w + rect.x(), w*4);
+            }
         }
         pm.data->has_alpha = data->has_alpha;
         pm.data->has_mask = data->has_mask;
