@@ -205,10 +205,11 @@ void QAbstractSlider::setRange(int min, int max)
     int oldMax = d->maximum;
     d->minimum = min;
     d->maximum = qMax(min, max);
-    sliderChange(SliderRangeChange);
-    if (oldMin != d->minimum || oldMax != d->maximum)
+    if (oldMin != d->minimum || oldMax != d->maximum) {
+        sliderChange(SliderRangeChange);
         emit rangeChanged(d->minimum, d->maximum);
-    setValue(d->value); // re-bound
+        setValue(d->value); // re-bound
+    }
 }
 
 
