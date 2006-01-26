@@ -2908,8 +2908,20 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
             echo "CARBON_LFLAGS +=-framework CoreServices -framework CoreFoundation" >>$mkfile
             EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
             EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
+            EXTRA_CXXFLAGS="$EXTRA_CFLAGS \$(CARBON_CXXFLAGS)"
             EXTRA_OBJS="qsettings_mac.o qcore_mac.o"
             EXTRA_SRCS="$relpath/src/corelib/io/qsettings_mac.cpp $relpath/src/corelib/kernel/qcore_mac.cpp"
+	    if [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
+		X86_CFLAGS=`getQMakeConf $XQMAKESPEC | grep "^QMAKE_CFLAGS_X86[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+		PPC_CFLAGS=`getQMakeConf $XQMAKESPEC | grep "^QMAKE_CFLAGS_PPC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+		EXTRA_CFLAGS="$X86_CFLAGS $PPC_CFLAGS $EXTRA_CFLAGS"
+		EXTRA_CXXFLAGS="$X86_CFLAGS $PPC_CFLAGS $EXTRA_CXXFLAGS"
+            fi
+	    if [ '!' -z "$CFG_SDK" ]; then
+		EXTRA_CFLAGS="-isysroot $CFG_SDK $EXTRA_CFLAGS"
+		EXTRA_CXXFLAGS="-isysroot $CFG_SDK $EXTRA_CXXFLAGS"
+		EXTRA_LFLAGS="-Wl,-syslibroot,$CFG_SDK $EXTRA_LFLAGS"
+            fi
         fi
         [ "$CFG_EMBEDDED" != "no" ] && EXTRA_CFLAGS="$EXTRA_CFLAGS -DQWS"
         if [ '!' -z "$D_FLAGS" ]; then
