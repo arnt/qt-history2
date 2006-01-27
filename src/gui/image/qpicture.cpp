@@ -50,9 +50,9 @@
     QPicture is resolution independent, i.e. a QPicture can be
     displayed on different devices (for example svg, pdf, ps, printer
     and screen) looking the same. This is, for instance, needed for
-    WYSIWYG print preview. QPicture always runs in 72 dpi, and
-    scales the painter to match differences in resolution depending
-    on the window system.
+    WYSIWYG print preview. QPicture runs in the default system dpi,
+    and scales the painter to match differences in resolution
+    depending on the window system.
 
     QPicture is an \link shclass.html implicitly shared\endlink class.
 
@@ -78,6 +78,7 @@
 const char  *qt_mfhdr_tag = "QPIC"; // header tag
 static const quint16 mfhdr_maj = 8; // major version #
 static const quint16 mfhdr_min = 0; // minor version #
+extern int qt_defaultDpi();
 
 /*!
     Constructs an empty picture.
@@ -448,8 +449,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 
     QMatrix worldMatrix = painter->matrix();
     QMatrix oldWorldMatrix = worldMatrix;
-    worldMatrix.scale(painter->device()->logicalDpiX() / 72.,
-                      painter->device()->logicalDpiY() / 72.);
+    worldMatrix.scale(painter->device()->logicalDpiX() / qt_defaultDpi(),
+                      painter->device()->logicalDpiY() / qt_defaultDpi());
     painter->setMatrix(worldMatrix);
 
     while (nrecords-- && !s.atEnd()) {
@@ -564,8 +565,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             QMatrix matrix = painter->matrix();
             painter->setMatrix(oldWorldMatrix);
 
-            p.rx() *= painter->device()->logicalDpiX() / 72.;
-            p.ry() *= painter->device()->logicalDpiY() / 72.;
+            p.rx() *= painter->device()->logicalDpiX() / double(qt_defaultDpi());
+            p.ry() *= painter->device()->logicalDpiY() / double(qt_defaultDpi());
 
             qt_format_text(font, QRectF(p, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip, str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
 
@@ -682,8 +683,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
         case QPicturePrivate::PdcSetWMatrix:
             s >> matrix >> i_8;
             matrix.setMatrix(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(),
-                             matrix.dx() * painter->device()->logicalDpiX() / 72.,
-                             matrix.dy() * painter->device()->logicalDpiY() / 72.);
+                             matrix.dx() * painter->device()->logicalDpiX() / double(qt_defaultDpi()),
+                             matrix.dy() * painter->device()->logicalDpiY() / double(qt_defaultDpi()));
             // i_8 is always false due to updateXForm() in qpaintengine_pic.cpp
             painter->setMatrix(worldMatrix * matrix, false);
             oldWorldMatrix *= matrix;
@@ -735,8 +736,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     Internal implementation of the virtual QPaintDevice::metric()
     function.
 
-    A picture has the following hard-coded values: dpi=72,
-    numcolors=16777216 and depth=24.
+    A picture has the following hard-coded values: numcolors=16777216
+    and depth=24.
 
     \a m is the metric to get.
 */
@@ -753,18 +754,18 @@ int QPicture::metric(PaintDeviceMetric m) const
             val = d->brect.height();
             break;
         case PdmWidthMM:
-            val = int(25.4/72.0*d->brect.width());
+            val = int(25.4/qt_defaultDpi()*d->brect.width());
             break;
         case PdmHeightMM:
-            val = int(25.4/72.0*d->brect.height());
+            val = int(25.4/qt_defaultDpi()*d->brect.height());
             break;
         case PdmDpiX:
         case PdmPhysicalDpiX:
-            val = 72;
+            val = qt_defaultDpi();
             break;
         case PdmDpiY:
         case PdmPhysicalDpiY:
-            val = 72;
+            val = qt_defaultDpi();
             break;
         case PdmNumColors:
             val = 16777216;
@@ -1552,7 +1553,7 @@ QByteArray QPictureIO::pictureFormat(QIODevice *d)
     if (rdlen > 0) {
         buf[rdlen - 1] = '\0';
         QString bufStr = QString::fromLatin1(buf);
-	for (int i = 0; i < pictureHandlers.size(); ++i) {
+        for (int i = 0; i < pictureHandlers.size(); ++i) {
             if (pictureHandlers.at(i)->header.indexIn(bufStr) != -1) { // try match with headers
                 format = pictureHandlers.at(i)->format;
                 break;
@@ -1575,7 +1576,7 @@ QList<QByteArray> QPictureIO::inputFormats()
     qt_init_picture_plugins();
 
     for (int i = 0; i < pictureHandlers.size(); ++i) {
-	QPictureHandler *p = pictureHandlers.at(i);
+        QPictureHandler *p = pictureHandlers.at(i);
         if (p->read_picture && !p->obsolete  && !result.contains(p->format))
             result.append(p->format);
     }
@@ -1595,7 +1596,7 @@ QList<QByteArray> QPictureIO::outputFormats()
 
     QList<QByteArray> result;
     for (int i = 0; i < pictureHandlers.size(); ++i) {
-	QPictureHandler *p = pictureHandlers.at(i);
+        QPictureHandler *p = pictureHandlers.at(i);
         if (p->write_picture && !p->obsolete && !result.contains(p->format))
             result.append(p->format);
     }
