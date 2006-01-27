@@ -137,6 +137,10 @@ QStringList QMouseDriverFactory::keys()
     if (!list.contains("Bus"))
         list << "Bus";
 #endif
+#ifndef QT_NO_QWS_MOUSE_TSLIB
+    if (!list.contains("Tslib"))
+        list << "Tslib";
+#endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_LIBRARY
