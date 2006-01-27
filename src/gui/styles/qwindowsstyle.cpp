@@ -1400,7 +1400,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         }
         QBrush brush(opt->palette.dark().color(), Qt::Dense4Pattern);
         if (opt->state & State_Item) {
-            if (QApplication::isRightToLeft())
+            if (opt->direction == Qt::RightToLeft)
                 p->fillRect(opt->rect.left(), mid_v, bef_h - opt->rect.left(), 1, brush);
             else
                 p->fillRect(aft_h, mid_v, opt->rect.right() - aft_h + 1, 1, brush);
@@ -1605,7 +1605,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             if (menuitem->menuItemType == QStyleOptionMenuItem::SubMenu) {// draw sub menu arrow
                 int dim = (h - 2 * windowsItemFrame) / 2;
                 PrimitiveElement arrow;
-                arrow = QApplication::isRightToLeft() ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight;
+                arrow = (opt->direction == Qt::RightToLeft) ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight;
                 xpos = x + w - windowsArrowHMargin - windowsItemFrame - dim;
                 QRect  vSubMenuRect = visualRect(opt->direction, menuitem->rect, QRect(xpos, y + h / 2 - dim / 2, dim, dim));
                 QStyleOptionMenuItem newMI = *menuitem;

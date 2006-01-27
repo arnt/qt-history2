@@ -3684,7 +3684,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             int x, y, w, h;
             mi->rect.getRect(&x, &y, &w, &h);
             int checkcol = maxpmw;
-            bool reverse = QApplication::isRightToLeft();
+            bool reverse = opt->direction == Qt::RightToLeft;
             int xpos = x + 18;
             if (reverse)
                 xpos += w - checkcol;
@@ -3897,7 +3897,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
         qt_mac_set_port(p);
         ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
 #if 0
-        if (QApplication::isRightToLeft())
+        if (opt->direction == Qt::RightToLeft)
             dir = kThemeGrowLeft | kThemeGrowDown;
 #endif
         DrawThemeStandaloneGrowBox(orig, dir, false, kThemeStateActive);

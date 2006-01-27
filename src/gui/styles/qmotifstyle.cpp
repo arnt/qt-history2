@@ -1216,7 +1216,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             }
             if (menuitem->menuItemType == QStyleOptionMenuItem::SubMenu) {           // draw sub menu arrow
                 int dim = (h-2*motifItemFrame) / 2;
-                QStyle::PrimitiveElement arrow = (QApplication::isRightToLeft() ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight);
+                QStyle::PrimitiveElement arrow = (opt->direction == Qt::RightToLeft ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight);
                 QStyleOption arrowOpt = *opt;
                 arrowOpt.rect = visualRect(opt->direction, opt->rect,
                                            QRect(x+w - motifArrowHMargin - motifItemFrame - dim,

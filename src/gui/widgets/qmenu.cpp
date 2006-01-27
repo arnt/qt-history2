@@ -728,6 +728,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 {
     Q_Q(const QMenu);
     QStyleOptionMenuItem opt;
+    opt.initFrom(q);
     opt.palette = q->palette();
     opt.state = QStyle::State_None;
 
@@ -1567,6 +1568,7 @@ void QMenu::paintEvent(QPaintEvent *e)
 
     const int fw = style()->pixelMetric(QStyle::PM_MenuPanelWidth, 0, this);
     QStyleOptionMenuItem menuOpt;
+    menuOpt.initFrom(this);
     menuOpt.palette = palette();
     menuOpt.state = QStyle::State_None;
     menuOpt.checkType = QStyleOptionMenuItem::NotCheckable;
@@ -1708,7 +1710,8 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
 void QMenu::changeEvent(QEvent *e)
 {
     Q_D(QMenu);
-    if (e->type() == QEvent::StyleChange || e->type() == QEvent::FontChange) {
+    if (e->type() == QEvent::StyleChange || e->type() == QEvent::FontChange ||
+        e->type() == QEvent::LayoutDirectionChange) {
         d->itemsDirty = 1;
         setMouseTracking(style()->styleHint(QStyle::SH_Menu_MouseTracking, 0, this));
         if (isVisible())
