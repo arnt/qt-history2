@@ -1318,11 +1318,29 @@ void QWSDisplay::defineCursor(int id, const QBitmap &curs, const QBitmap &mask,
     cmd.simpleData.hotY = hotY;
     cmd.simpleData.id = id;
 
-    int dataLen = cursImg.numBytes();
 
-    unsigned char *data = new unsigned char [dataLen*2];
-    memcpy(data, cursImg.bits(), dataLen);
-    memcpy(data + dataLen, maskImg.bits(), dataLen);
+    // must copy each scanline since there might be gaps between them
+    const int height = curs.height();
+    const int width = curs.width();
+    const int dst_bpl = (width + 7) / 8;
+
+    int dataLen = dst_bpl * height;
+    uchar *data = new uchar[dataLen*2];
+    uchar *dst = data;
+
+    int src_bpl = cursImg.bytesPerLine();
+    const uchar *cursSrc = cursImg.bits();
+    for (int i = 0; i < height; ++i) {
+        memcpy(dst, cursSrc + i*src_bpl, dst_bpl);
+        dst += dst_bpl;
+    }
+
+    src_bpl = maskImg.bytesPerLine();
+    const uchar *maskSrc = maskImg.bits();
+    for (int i = 0; i < height; ++i) {
+        memcpy(dst, maskSrc + i*src_bpl, dst_bpl);
+        dst += dst_bpl;
+    }
 
     cmd.setData(reinterpret_cast<char*>(data), dataLen*2);
     delete [] data;
