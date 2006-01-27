@@ -234,7 +234,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
                 settings.setValue("/" + module + "." + className + "." + classMajorVersion + "/.", className + " Class");
                 settings.setValue("/" + module + "." + className + "." + classMajorVersion + "/CLSID/.", classId);
                 if (insertable)
-                    settings.setValue("/" + module + "." + className + "." + classMajorVersion + "/Insertable/.", QVariant());
+                    settings.setValue("/" + module + "." + className + "." + classMajorVersion + "/Insertable/.", QVariant(""));
                 
                 settings.setValue("/" + module + "." + className + "/.", className + " Class");
                 settings.setValue("/" + module + "." + className + "/CLSID/.", classId);
@@ -244,16 +244,16 @@ HRESULT UpdateRegistry(BOOL bRegister)
                 if (file.right(3).toLower() == "exe")
                     settings.setValue("/CLSID/" + classId + "/AppID", appId);
                 if (control)
-                    settings.setValue("/CLSID/" + classId + "/Control/.", QVariant());
+                    settings.setValue("/CLSID/" + classId + "/Control/.", QVariant(""));
                 if (insertable)
-                    settings.setValue("/CLSID/" + classId + "/Insertable/.", QVariant());
+                    settings.setValue("/CLSID/" + classId + "/Insertable/.", QVariant(""));
                 if (file.right(3).toLower() == "dll")
                     settings.setValue("/CLSID/" + classId + "/InProcServer32/.", "\"" + file + "\"");
                 else
                     settings.setValue("/CLSID/" + classId + "/LocalServer32/.", "\"" + file + "\" -activex");
                 settings.setValue("/CLSID/" + classId + "/MiscStatus/.", control ? "1" : "0");
                 settings.setValue("/CLSID/" + classId + "/MiscStatus/1/.", QString::number(olemisc));
-                settings.setValue("/CLSID/" + classId + "/Programmable/.", QVariant());
+                settings.setValue("/CLSID/" + classId + "/Programmable/.", QVariant(""));
                 settings.setValue("/CLSID/" + classId + "/ToolboxBitmap32/.", "\"" + file + "\", 101");
                 settings.setValue("/CLSID/" + classId + "/TypeLib/.", libId);
                 settings.setValue("/CLSID/" + classId + "/Version/.", classVersion);
