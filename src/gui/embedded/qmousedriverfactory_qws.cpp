@@ -78,7 +78,6 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
     if (driver == "auto" || driver == "intellimouse" ||
          driver == "microsoft" || driver == "mousesystems" ||
          driver == "mouseman" || driver.isEmpty()) {
-        qDebug() << "Creating mouse" << key;
         return new QWSPcMouseHandler(key, device);
     }
 #endif
