@@ -1829,7 +1829,7 @@ static void do_size_hints(QWidget* widget, QWExtra *x)
         }
     }
     s.flags |= PWinGravity;
-    s.win_gravity = NorthWestGravity;
+    s.win_gravity = QApplication::isRightToLeft() ? NorthEastGravity : NorthWestGravity;
     XSetWMNormalHints(X11->display, widget->winId(), &s);
 }
 
