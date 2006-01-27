@@ -1079,26 +1079,42 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     Q_D(QTableView);
 
     // check if we really need to do anything
-    if (!index.isValid() || !model() || (model()->parent(index) != rootIndex())
+    if (!index.isValid() || !model()
+        || (model()->parent(index) != rootIndex())
         || isIndexHidden(index))
         return;
 
-    QRect area = d->viewport->rect();
-    QRect rect = visualRect(index);
+    // Adjust horizontal position
 
-    if (hint == EnsureVisible && area.contains(rect)) {
-        d->setDirtyRegion(rect);
-        return;
+    int viewportWidth = d->viewport->width();
+    int horizontalOffset = d->horizontalHeader->offset();
+    int horizontalPosition = d->horizontalHeader->sectionPosition(index.column());
+    int cellWidth = d->horizontalHeader->sectionSize(index.column());
+
+    if (horizontalPosition - horizontalOffset < 0)
+        horizontalScrollBar()->setValue(horizontalPosition);
+    else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)
+        horizontalScrollBar()->setValue(horizontalPosition - viewportWidth + cellWidth);
+
+    // Adjust vertical position
+
+    int viewportHeight = d->viewport->height();
+    int verticalOffset = d->verticalHeader->offset();
+    int verticalPosition = d->verticalHeader->sectionPosition(index.row());
+    int cellHeight = d->verticalHeader->sectionSize(index.row());
+    
+    if (verticalPosition - verticalOffset < 0) {
+        if (hint == EnsureVisible)
+            hint = PositionAtTop;
+    } else if (verticalPosition - verticalOffset + cellHeight > viewportHeight) {
+        if (hint == EnsureVisible)
+            hint = PositionAtBottom;
     }
 
-    horizontalScrollBar()->setValue(d->horizontalHeader->sectionPosition(index.column()));
-    if (hint == PositionAtBottom) {
-        int pos = d->verticalHeader->sectionPosition(index.row());
-        int size = d->verticalHeader->sectionSize(index.row());
-        verticalScrollBar()->setValue(pos - d->viewport->height() + size);
-    } else {
-        verticalScrollBar()->setValue(d->verticalHeader->sectionPosition(index.row()));
-    }
+    if (hint == PositionAtTop)
+        verticalScrollBar()->setValue(verticalPosition);
+    else if (hint == PositionAtBottom)
+        verticalScrollBar()->setValue(verticalPosition - viewportHeight + cellHeight);
 
     d->setDirtyRegion(visualRect(index));
 }
