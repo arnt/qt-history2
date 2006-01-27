@@ -1662,7 +1662,7 @@ Qt::WindowStates QWidget::windowState() const
 /*!\internal
 
    The function sets the window state on child widgets similar to
-   setWindowState(). The difference is that the WindowStateChanged
+   setWindowState(). The difference is that the window state changed
    event has the isOverride() flag set. It exists mainly to keep
    Q3Workspace working.
  */
@@ -1698,6 +1698,9 @@ void QWidget::overrideWindowState(Qt::WindowStates newstate)
 
   Note: On some window systems Qt::WindowActive is not immediate, and may be
   ignored in certain cases.
+
+  When the window state changes, the widget receives a changeEvent()
+  of type QEvent::WindowStateChange.
 
   \sa Qt::WindowState windowState()
 */
@@ -5283,6 +5286,13 @@ bool QWidget::event(QEvent *event)
 
   The state being changed in this event can be retrieved through event \a
   event.
+
+  Change events include: QEvent::ToolBarChange,
+  QEvent::ActivationChange, QEvent::EnabledChange, QEvent::FontChange,
+  QEvent::StyleChange, QEvent::PaletteChange,
+  QEvent::WindowTitleChange, QEvent::IconTextChange,
+  QEcvent::ModifiedChange, QEvent::MouseTrackingChange,
+  QEvent::ParentChange, QEvent::WindowStateChange.
 
 */
 void QWidget::changeEvent(QEvent * event)
