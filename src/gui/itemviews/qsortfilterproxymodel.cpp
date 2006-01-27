@@ -276,7 +276,7 @@ void QSortFilterProxyModelPrivate::sourceLayoutChanged()
   between another model and a view.
   \ingroup model-view
 
-  The sorting filter model transform the structure of a source model by mapping the model indexes
+  The sorting filter model transforms the structure of a source model by mapping the model indexes
   it supplies to new indexes, corresponding to different locations, for views to use.
   This approach allows a given source model to be restructured as far as views are concerned
   without requiring any transformations on the underlying data.
