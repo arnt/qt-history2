@@ -987,10 +987,13 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             if (q->isWindow()) {
                 invalidateBuffer(q->rect()); //###
             } else {
-                if(isMove)
+                if (isMove && !isResize) {
                     moveRect(QRect(oldPos, olds), x - oldPos.x(), y - oldPos.y());
-                else
+                } else {
                     q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, olds));
+                    invalidateBuffer(q->rect());
+                    //TODO: handle static contents
+                }
             }
         }
     } else { // not visible
