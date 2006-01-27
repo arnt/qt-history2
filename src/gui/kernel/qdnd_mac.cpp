@@ -16,7 +16,6 @@
 #ifndef QT_NO_DRAGANDDROP
 #include "qbitmap.h"
 #include "qcursor.h"
-#include "qdatetime.h"
 #include "qevent.h"
 #include "qpainter.h"
 #include "qurl.h"
@@ -426,6 +425,13 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         }
         QDragMoveEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
                 QApplication::mouseButtons(), QApplication::keyboardModifiers());
+        DragActions currentAction = kDragActionNothing;
+        OSStatus err = GetDragDropAction(dragRef, &currentAction);
+        if (err == noErr && currentAction != kDragActionNothing) {
+            // This looks a bit evil, but we only ever set one action, so it's OK.
+            de.setDropAction(Qt::DropAction(int(qt_mac_dnd_map_mac_actions(currentAction))));
+            de.accept();
+        }
         QApplication::sendEvent(q, &de);
         if(!de.isAccepted() || de.dropAction() == Qt::IgnoreAction)
             ret = false;
