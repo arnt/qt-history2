@@ -599,7 +599,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     if (extra && !extra->mask.isEmpty()) {
         QRegion r = extra->mask;
         extra->mask = QRegion();
-        q->setMask(extra->mask);
+        q->setMask(r);
     }
     if (extra && extra->topextra && !extra->topextra->caption.isEmpty())
         setWindowTitle_helper(extra->topextra->caption);

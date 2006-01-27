@@ -1239,8 +1239,11 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     //reset flags and show (if neccesary)
     setEnabled_helper(enable); //preserving WA_ForceDisabled
     q->setFocusPolicy(fp);
-    if (extra && !extra->mask.isEmpty())
-        q->setMask(extra->mask);
+    if (extra && !extra->mask.isEmpty()) {
+        QRegion r = extra->mask;
+        extra->mask = QRegion();
+        q->setMask(r);
+    }    
     if (q->testAttribute(Qt::WA_AcceptDrops)
         || (!q->isWindow() && q->parentWidget()
             && q->parentWidget()->testAttribute(Qt::WA_DropSiteRegistered)))
