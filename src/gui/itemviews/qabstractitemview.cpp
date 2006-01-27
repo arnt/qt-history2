@@ -437,8 +437,13 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                    this, SLOT(rowsInserted(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                    this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                   this, SLOT(rowsRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                    this, SLOT(columnsAboutToBeRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                   this, SLOT(columnsRemoved(QModelIndex,int,int)));
+        
         disconnect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
         disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
     }
@@ -459,8 +464,13 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                 this, SLOT(rowsInserted(QModelIndex,int,int)));
         connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                 this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                this, SLOT(rowsRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                 this, SLOT(columnsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                this, SLOT(columnsRemoved(QModelIndex,int,int)));
+                
         connect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
         connect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
     }
@@ -2056,7 +2066,8 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int star
 */
 void QAbstractItemViewPrivate::rowsRemoved(const QModelIndex &, int, int)
 {
-    state = QAbstractItemView::NoState;
+    Q_Q(QAbstractItemView);
+    q->setState(QAbstractItemView::NoState);
 }
 
 /*!
@@ -2070,7 +2081,7 @@ void QAbstractItemViewPrivate::columnsAboutToBeRemoved(const QModelIndex &parent
 {
     Q_Q(QAbstractItemView);
 
-    state = QAbstractItemView::CollapsingState;
+    q->setState(QAbstractItemView::CollapsingState);
 
     // Ensure one selected item in single selection mode.
     QModelIndex current = q->currentIndex();
@@ -2109,7 +2120,8 @@ void QAbstractItemViewPrivate::columnsAboutToBeRemoved(const QModelIndex &parent
 */
 void QAbstractItemViewPrivate::columnsRemoved(const QModelIndex &, int, int)
 {
-    state = QAbstractItemView::NoState;
+    Q_Q(QAbstractItemView);
+    q->setState(QAbstractItemView::NoState);
 }
 
 /*!

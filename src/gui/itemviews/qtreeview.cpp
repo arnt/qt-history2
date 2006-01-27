@@ -127,7 +127,7 @@ QTreeView::~QTreeView()
 void QTreeView::setModel(QAbstractItemModel *model)
 {
     Q_D(QTreeView);
-    if (d->selectionModel && d->model){ // support row editing
+    if (d->selectionModel && d->model) { // support row editing
         disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                    d->model, SLOT(submit()));
         disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
@@ -138,9 +138,14 @@ void QTreeView::setModel(QAbstractItemModel *model)
     d->hiddenIndexes.clear();
     d->header->setModel(model);
     QAbstractItemView::setModel(model);
-    if (d->model)
+    if (d->model) {
+        // QAbstractItemView connects to a private slot
+        disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+                   this, SLOT(rowsRemoved(QModelIndex, int, int)));
+        // QTreeView has a public slot for this
         connect(d->model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
-            this, SLOT(rowsRemoved(const QModelIndex &, int, int)));
+                this, SLOT(rowsRemoved(const QModelIndex &, int, int)));
+    }
 }
 
 /*!
