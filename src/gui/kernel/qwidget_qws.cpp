@@ -256,8 +256,10 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             if (parentWidget() && parentWidget()->testAttribute(Qt::WA_WState_Created)) {
                 d->hide_sys();
             }
-            if (destroyWindow && isWindow())
+            if (destroyWindow && isWindow()) {
                 qwsDisplay()->destroyRegion(winId());
+                d->extra->topextra->backingStore->buffer.detach();
+            }
         }
         d->setWinId(0);
     }
@@ -327,8 +329,10 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
         extra->mask = QRegion();
         q->setMask(r);
     }
-    if ((int)old_winid > 0)
+    if ((int)old_winid > 0) {
         QWidget::qwsDisplay()->destroyRegion(old_winid);
+        extra->topextra->backingStore->buffer.detach();
+    }
 #ifndef QT_NO_CURSOR
     if (setcurs) {
         q->setCursor(oldcurs);
