@@ -1712,7 +1712,7 @@ Convert_Glyph( TRaster_Instance*  raster, int  flipped )
         ras.gProfile = NULL;
 
         if ( Decompose_Curve( raster, (unsigned short)start,
-                              ras.outline.contours[i],
+                              (unsigned short)ras.outline.contours[i],
                               flipped ) )
             return FAILURE;
 
