@@ -2202,12 +2202,12 @@ void QMenu::internalDelayedPopup()
     if (isRightToLeft()) {
         on_left = true;
         QMenu *caused = qobject_cast<QMenu*>(d->causedPopup.widget);
-        if (caused && caused->x() < x() || x() - menuSize.width() < 0)
+        if (caused && caused->x() < x() || x() - menuSize.width() < QApplication::desktop()->availableGeometry(caused).left())
             on_left = false;
     } else {
         QMenu *caused = qobject_cast<QMenu*>(d->causedPopup.widget);
         if (caused && caused->x() > x() ||
-            x() + width() + menuSize.width() > QApplication::desktop()->width())
+            x() + width() + menuSize.width() > QApplication::desktop()->availableGeometry(caused).right())
             on_left = true;
     }
     if (on_left)
