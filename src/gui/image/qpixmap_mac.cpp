@@ -405,10 +405,8 @@ QPixmapData::macSetAlphaChannel(const QPixmap *pix, bool asMask)
         srow = sptr + (y * (sbpr/4));
         if(d == 1) {
             for (int x=0; x < w; ++x) {
-                if((*(srow+x) & RGB_MASK) && (*(drow+x) & RGB_MASK))
+                if((*(srow+x) & RGB_MASK))
                     *(drow+x) = 0xFFFFFFFF;
-                else
-                    *(drow+x) = 0x00000000;
             }
         } else if(d == 8) {
             for (int x=0; x < w; ++x)
@@ -741,7 +739,7 @@ CGImageRef qt_mac_create_imagemask(const QPixmap &px)
         drow = dptr + (y * (dbpr / 4));
         srow = sptr + (y * (sbpr / 4));
         for(int x = 0; x < px.data->w; ++x)
-            *(drow+x) = ~*(srow+x);
+            *(drow+x) = *(srow+x);
     }
     CGDataProviderRef provider = CGDataProviderCreateWithData(dptr, dptr, nbytes,
                                                               qt_mac_cgimage_data_free);
