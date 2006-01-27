@@ -1369,7 +1369,7 @@ static void addPatternProps(FcPattern *pattern, const QFontPrivate *fp, int scri
     }
 }
 
-static bool forceScalable(const QFontDef &request)
+static bool preferScalable(const QFontDef &request)
 {
     return request.styleStrategy & (QFont::PreferOutline|QFont::ForceOutline|QFont::PreferQuality|QFont::PreferAntialias);
 }
@@ -1435,7 +1435,7 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
             pitch_value = FC_MONO;
         FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
     }
-    if (::forceScalable(request) || (desc.style && desc.style->smoothScalable))
+    if (::preferScalable(request) || (desc.style && desc.style->smoothScalable))
         FcPatternAddBool(pattern, FC_SCALABLE, true);
 
     addPatternProps(pattern, fp, script, request);
@@ -1458,8 +1458,7 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
     FM_DEBUG("===================== loadFc: script=%d family='%s'\n", script, request.family.toLatin1().data());
     FcPattern *pattern = getFcPattern(fp, script, request);
 
-    FcBool forceScalable = ::forceScalable(request);
-    FcPatternGetBool(pattern, FC_SCALABLE, 0, &forceScalable);
+    FcBool forceScalable = request.styleStrategy & QFont::ForceOutline;
 
     FcDefaultSubstitute(pattern);
     FcConfigSubstitute(0, pattern, FcMatchPattern);
@@ -1478,32 +1477,20 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
 
     double size_value = request.pixelSize;
 
-    // remove fonts if their size isn't close enough, or if they are
-    // not scalable (and should be)
+    // remove fonts if they are not scalable (and should be)
+    if (forceScalable) {
     for (int i = 0; i < fs->nfont; ++i) {
         FcPattern *font = fs->fonts[i];
         FcResult res;
         FcBool scalable;
         res = FcPatternGetBool(font, FC_SCALABLE, 0, &scalable);
         if (res != FcResultMatch || !scalable) {
-            if (forceScalable) {
                 FcFontSetRemove(fs, i);
 #ifdef FONT_MATCH_DEBUG
                 FM_DEBUG("removing pattern:");
                 FcPatternPrint(font);
 #endif
                 --i; // go back one
-            } else {
-                double pixelSize;
-                res = FcPatternGetDouble(font, FC_PIXEL_SIZE, 0, &pixelSize);
-                if (res != FcResultMatch || qAbs((size_value-pixelSize)/size_value) > 0.2) {
-                    FcFontSetRemove(fs, i);
-#ifdef FONT_MATCH_DEBUG
-                    FM_DEBUG("removing pattern:");
-                    FcPatternPrint(font);
-#endif
-                    --i; // go back one
-                }
             }
         }
     }
