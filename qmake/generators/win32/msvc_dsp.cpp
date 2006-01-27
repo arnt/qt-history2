@@ -674,7 +674,7 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
             t << "!IF";
         else
             t << "!ELSEIF";
-        t << "\"$(CFG)\" == \"" << configName(mergedProjects.at(i)) << "\"" << endl;
+        t << " \"$(CFG)\" == \"" << configName(mergedProjects.at(i)) << "\"" << endl;
         t << endl;
         t << specialBuilds.at(i);
         t << endl;
@@ -894,7 +894,7 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
     t << "BuildCmds= " << allSteps.buildStep << endl;
     for (i = 0; i < allSteps.buildOutputs.count(); ++i) {
         t << "\"" << allSteps.buildOutputs.at(i)
-          << "\": $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n\t$(BuildCmds)\n";
+          << "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n\t$(BuildCmds)\n";
     }
     t << endl;
     t << "# End Custom Build" << endl;
