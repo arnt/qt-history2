@@ -19,7 +19,7 @@
 #include <QtGui/qregion.h>
 #include <QtGui/qwindowdefs.h>
 #include <QtCore/qlist.h>
-#include "qwsmemid_qws.h"
+#include <QtGui/qwsmemid_qws.h>
 
 QT_MODULE(Gui)
 
