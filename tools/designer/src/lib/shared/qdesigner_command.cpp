@@ -570,10 +570,20 @@ void DeleteWidgetCommand::init(QWidget *widget)
 void DeleteWidgetCommand::redo()
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
-    QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), m_parentWidget);
 
-    if (deco)
+    if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_parentWidget)) {
+        for (int i=0; i<c->count(); ++i) {
+            if (c->widget(i) == m_widget) {
+                c->remove(i);
+                formWindow()->emitSelectionChanged();
+                return;
+            }
+        }
+    }
+
+    if (QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), m_parentWidget)) {
         deco->removeWidget(m_widget);
+    }
 
     // Unmanage the managed children first
     foreach (QWidget *child, m_managedChildren)
@@ -594,7 +604,16 @@ void DeleteWidgetCommand::redo()
 
 void DeleteWidgetCommand::undo()
 {
+    QDesignerFormEditorInterface *core = formWindow()->core();
+
     m_widget->setParent(m_parentWidget);
+
+    if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_parentWidget)) {
+        c->addWidget(m_widget);
+        formWindow()->emitSelectionChanged();
+        return;
+    }
+
     m_widget->setGeometry(m_geometry);
     formWindow()->manageWidget(m_widget);
 
