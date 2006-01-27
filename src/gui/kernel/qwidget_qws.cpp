@@ -316,7 +316,13 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
     if (q->isWindow() || (!newparent || newparent->isVisible()) || explicitlyHidden)
         q->setAttribute(Qt::WA_WState_Hidden);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
-    q->setGeometry(0, 0, s.width(), s.height());
+
+    if (q->isWindow())
+        q->setGeometry(extra->topextra->fleft, extra->topextra->ftop,
+                       s.width(), s.height());
+    else
+        q->setGeometry(0, 0, s.width(), s.height());
+
     if (q->isWindow()) {
         if (!extra->topextra->caption.isEmpty())
             setWindowTitle_helper(extra->topextra->caption);
