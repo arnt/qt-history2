@@ -1889,7 +1889,7 @@
 #ifdef DEBUG_GRAYS
           fprintf( stderr, "Rotten glyph!\n" );
 #endif
-          // == Raster_Err_OutOfMemory in qblackraster.c
+          /* == Raster_Err_OutOfMemory in qblackraster.c */
           return -6;
         }
 
