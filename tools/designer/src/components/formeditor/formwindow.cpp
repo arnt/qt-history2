@@ -827,6 +827,13 @@ QWidget *FormWindow::createWidget(DomUI *ui, const QRect &rc, QWidget *target)
     if (!container)
         return 0;
 
+    if (isMainContainer(container)) {
+        if (QMainWindow *mw = qobject_cast<QMainWindow*>(container)) {
+            Q_ASSERT(mw->centralWidget() != 0);
+            container = mw->centralWidget();
+        }
+    }
+
     QDesignerResource resource(this);
     QList<QWidget*> widgets = resource.paste(ui, container);
     Q_ASSERT(widgets.size() == 1); // multiple-paste from DomUI not supported yet
