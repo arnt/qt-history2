@@ -1119,6 +1119,7 @@ static void loadFontConfig()
     const FcDefaultFont *f = defaults;
     while (f->qtname) {
         QtFontFamily *family = db->family(f->qtname, true);
+        family->fixedPitch = f->fixed;
         family->rawName = f->rawname;
         family->hasFT = true;
         family->synthetic = true;
