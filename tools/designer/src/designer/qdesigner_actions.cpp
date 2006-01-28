@@ -877,7 +877,14 @@ void QDesignerActions::showHelp(const QString &url)
     QString filePath = QLibraryInfo::location(QLibraryInfo::DocumentationPath)
                                 + QLatin1String("/html/") + url;
 
-    if (!QFile::exists(filePath)) {
+    QString cleanFilePath;
+    int index = filePath.lastIndexOf(QLatin1Char('#'));
+    if (index != -1)
+        cleanFilePath = filePath.left(index);
+    else
+        cleanFilePath = filePath;
+    
+    if (!QFile::exists(cleanFilePath)) {
         filePath = QLibraryInfo::location(QLibraryInfo::DocumentationPath)
                                 + QLatin1String("/html/designer-manual.html");
     }
@@ -923,7 +930,10 @@ void QDesignerActions::showWidgetSpecificHelp()
     if (!currentPropertyName.isEmpty()) {
         QDesignerPropertySheetExtension *ps
             = qt_extension<QDesignerPropertySheetExtension *>(core()->extensionManager(),
-                                                              fw->cursor()->selectedWidget(0));
+                                                            core()->propertyEditor()->object());
+        if (!ps)
+            ps = qt_extension<QDesignerPropertySheetExtension *>(core()->extensionManager(),
+                                                            fw->cursor()->selectedWidget(0));
         Q_ASSERT(ps);
         className = ps->propertyGroup(ps->indexOf(currentPropertyName));
     } else {
