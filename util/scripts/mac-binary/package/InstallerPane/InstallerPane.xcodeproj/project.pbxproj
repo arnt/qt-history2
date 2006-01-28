@@ -298,6 +298,7 @@
 			buildSettings = {
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				OTHER_CFLAGS = "-DQT_EVAL";
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				ZERO_LINK = YES;
 			};
 			name = "Debug-eval";
@@ -326,6 +327,10 @@
 		CA72A7B10894D77F001196EE /* Release-commercial */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -346,6 +351,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				ZERO_LINK = YES;
 			};
 			name = "Debug-commercial";
@@ -353,12 +359,17 @@
 		CA72A7B50894D77F001196EE /* Release-commercial */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = "Release-commercial";
 		};
 		CAEBD75C0896974E0003461D /* Release-eval */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -379,6 +390,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				OTHER_CFLAGS = "-DQT_EVAL";
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = "Release-eval";
 		};
