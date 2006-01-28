@@ -276,6 +276,7 @@ QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont
     } , {
         res = GetTextMetricsA(shared_dc, &tm.a);
     });
+    fontDef.fixedPitch = !(tm.w.tmPitchAndFamily & TMPF_FIXED_PITCH);
     if (!res)
         qErrnoWarning("QFontEngineWin: GetTextMetrics failed");
 
@@ -895,6 +896,7 @@ QFontEngineMultiWin::QFontEngineMultiWin(QFontEngineWin *first, const QStringLis
     ttf = false;
     engines[0] = first;
     first->ref.ref();
+    fontDef = engines[0]->fontDef;
 
     // ### initialize so that the handle() function returns something sensible...
     hfont = (HFONT) GetStockObject(ANSI_VAR_FONT);
