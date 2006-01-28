@@ -296,14 +296,14 @@ bool QFSFileEngine::close()
 {
     Q_D(QFSFileEngine);
 
-    flush();
+    bool flushed = flush();
     d->tried_stat = 0;
     if (d->fh) {
         if (d->closeFileHandle)
             fclose(d->fh);
         d->fh = 0;
         d->fd = -1;
-        return true;
+        return flushed;
     }
 
     if (d->fd == -1)
@@ -332,12 +332,17 @@ bool QFSFileEngine::flush()
     QT_FPOS_T pos;
     int gotPos = QT_FGETPOS(d->fh, &pos);
 #endif
-    fflush(d->fh);
+    int ret = fflush(d->fh);
 #ifdef Q_OS_WIN
     if (gotPos == 0)
         QT_FSETPOS(d->fh, &pos);
 #endif
     d->lastIOCommand = QFSFileEnginePrivate::IOFlushCommand;
+    if (ret != 0) {
+        setError(errno == ENOSPC ? QFile::ResourceError : QFile::WriteError,
+                 qt_error_string(errno));
+        return false;
+    }
     return true;
 }
 
@@ -476,7 +481,7 @@ qint64 QFSFileEngine::write(const char *data, qint64 len)
         } while (result == 0 && errno == EINTR);
         if (result > 0)
             return qint64(result);
-        setError(QFile::ReadError, qt_error_string(int(errno)));
+        setError(errno == ENOSPC ? QFile::ResourceError : QFile::WriteError, qt_error_string(errno));
         return qint64(result);
     }
 

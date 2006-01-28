@@ -1074,7 +1074,14 @@ QFile::setPermissions(const QString &fileName, Permissions permissions)
 bool
 QFile::flush()
 {
-    fileEngine()->flush();
+    Q_D(QFile);
+    if (!fileEngine()->flush()) {
+        QFile::FileError err = fileEngine()->error();
+        if(err == QFile::UnspecifiedError)
+            err = QFile::WriteError;
+        d->setError(err, fileEngine()->errorString());
+        return false;
+    }
     return true;
 }
 
