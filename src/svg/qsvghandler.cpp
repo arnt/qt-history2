@@ -154,7 +154,7 @@ static QString idFromUrl(const QString &url)
     if ((*itr) == '#')
         ++itr;
     QString id;
-    while ((*itr).isLetterOrNumber()) {
+    while ((*itr) != ')') {
         id += *itr;
         ++itr;
     }
