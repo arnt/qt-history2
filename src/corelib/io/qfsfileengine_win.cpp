@@ -1405,11 +1405,10 @@ QString QFSFileEngine::fileName(FileName file) const
 
         if (file == AbsolutePathName) {
             int slash = ret.lastIndexOf(QLatin1Char('/'));
-            Q_ASSERT(slash < 0 || slash >= 2);
             if (slash < 0)
                 return ret;
             else
-                return ret.left(slash);
+                return ret.left(slash > 0 ? slash : 1);
         }
         return ret;
     } else if(file == CanonicalName || file == CanonicalPathName) {
