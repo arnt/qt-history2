@@ -2235,8 +2235,8 @@
     \row \o \l{QAbstractItemModel::parent()}{parent()}
          \o Provides a model index corresponding to the parent of any given child item.
             If the model index specified corresponds to a top-level item in the model, or if
-            there is no valid parent item in the model, the function must return
-            QModelIndex() - an invalid model index.
+            there is no valid parent item in the model, and the function must return
+            an invalid model index, created with the empty QModelIndex() constructor.
     \endtable
 
     Both the above functions use the \l{QAbstractItemModel::createIndex()}{createIndex()}
@@ -2246,5 +2246,129 @@
 
     \section1 Drag and Drop Support and MIME Type Handling
 
-    ...
+    The model/view classes support drag and drop operations, providing default behavior
+    that is sufficient for many applications. However, it is also possible to customize
+    the way items are encoded during drag and drop operations, whether they are copied
+    or moved by default, and how they are inserted into existing models.
+
+    Additionally, the convenience view classes implement specialized behavior that
+    should closely follow that expected by existing developers.
+    The \l{#Convenience Views}{Convenience Views} section provides an overview of this
+    behavior.
+
+    \section2 MIME Data
+
+    By default, the built-in models and views use an internal MIME type
+    (\c{application/x-qabstractitemmodeldatalist}) to pass around information about
+    model indexes. This specifies data for a list of items, containing the row and
+    column numbers of each item, and information about the roles that each item
+    supports.
+
+    Data encoded using this MIME type can be obtained by calling
+    QAbstractItemModel::mimeData() with a QModelIndexList containing the items to
+    be serialized.
+    \omit
+    The following types are used to store information about
+    each item as it is streamed into a QByteArray and stored in a QMimeData object:
+
+    \table 90%
+    \header \o Description \o Type
+    \row \o Row \o int
+    \row \o Column \o int
+    \row \o Data for each role \o QMap<int, QVariant>
+    \endtable
+
+    This information can be retrieved for use in non-model classes by calling
+    QMimeData::data() with the \c{application/x-qabstractitemmodeldatalist} MIME
+    type and streaming out the items one by one.
+    \endomit
+
+    When implementing drag and drop support in a custom model, it is possible to
+    export items of data in specialized formats by reimplementing the following
+    functions:
+
+    \table 90%
+    \row \o \l{QAbstractItemModel::mimeData()}{mimeData()}
+         \o This function can be reimplemented to return data in formats other
+            than the default \c{application/x-qabstractitemmodeldatalist} internal
+            MIME type.
+
+            Subclasses can obtain the default QMimeData object from the base class
+            and add data to it in additional formats.
+    \endtable
+
+    For many models, it is useful to provide the contents of items in common format
+    represented by MIME types such as \c{text/plain} and \c{image/png}. Note that
+    images, colors and HTML documents can easily be added to a QMimeData object with
+    the QMimeData::setImageData(), QMimeData::setColorData(), and
+    QMimeData::setHtml() functions.
+
+    \section2 Accepting Dropped Data
+
+    When a drag and drop operation is performed over a view, the underlying model is
+    queried to determine which types of operation it supports and the MIME types
+    it can accept. This information is provided by the
+    QAbstractItemModel::supportedDropActions() and QAbstractItemModel::mimeTypes()
+    functions. Models that do not override the implementations provided by
+    QAbstractItemModel support copy operations and the default internal MIME type
+    for items.
+
+    When serialized item data is dropped onto a view, the data is inserted into
+    the current model using its implementation of QAbstractItemModel::dropMimeData().
+    The default implementation of this function will never overwrite any data in the
+    model; instead, it tries to insert the items of data either as siblings of an
+    item, or as children of that item.
+
+    To take advantage of QAbstractItemModel's default implementation for the built-in
+    MIME type, new models must provide reimplementations of the following functions:
+
+    \table 90%
+    \row \o \l{QAbstractItemModel::insertRows()}{insertRows()}
+         \o {1, 2} These functions enable the model to automatically insert new data using
+            the existing implementation provided by QAbstractItemModel::dropMimeData().
+    \row \o \l{QAbstractItemModel::insertColumns()}{insertColumns()}
+    \row \o \l{QAbstractItemModel::setData()}{setData()}
+         \o Allows the new rows and columns to be populated with items.
+    \row \o \l{QAbstractItemModel::setItemData()}{setItemData()}
+         \o This function provides more efficient support for populating new items.
+    \endtable
+
+    To accept other forms of data, these functions must be reimplemented:
+
+    \table 90%
+    \row \o \l{QAbstractItemModel::supportedDropActions()}{supportedDropActions()}
+         \o Used to return a combination of \l{Qt::DropActions}{drop actions},
+            indicating the types of drag and drop operations that the model accepts.
+    \row \o \l{QAbstractItemModel::mimeTypes()}{mimeTypes()}
+         \o Used to return a list of MIME types that can be decoded and handled by
+            the model. Generally, the MIME types that are supported for input into
+            the model are the same as those that it can use when encoding data for
+            use by external components.
+    \row \o \l{QAbstractItemModel::dropMimeData()}{dropMimeData()}
+         \o Performs the actual decoding of the data transferred by drag and drop
+            operations, determines where in the model it will be set, and inserts
+            new rows and columns where necessary. How this function is implemented
+            in subclasses depends on the requirements of the data exposed by each
+            model.
+    \endtable
+
+    If the implementation of the \l{QAbstractItemModel::dropMimeData()}{dropMimeData()}
+    function changes the dimensions of a model by inserting or removing rows or
+    columns, or if items of data are modified, care must be taken to ensure that
+    all relevant signals are emitted. It can be useful to simply call
+    reimplementations of other functions in the subclass, such as
+    \l{QAbstractItemModel::setData()}{setData()},
+    \l{QAbstractItemModel::insertRows()}{insertRows()}, and
+    \l{QAbstractItemModel::insertColumns()}{insertColumns()}, to ensure that the
+    model behaves consistently.
+
+    \section2 Convenience Views
+
+    The convenience views (QListWidget, QTableWidget, and QTreeWidget) override
+    the default drag and drop functionality to provide less flexible, but more
+    natural behavior that is appropriate for many applications. For example,
+    since it is more common to drop data into cells in a QTableWidget, replacing
+    the existing contents with the data being transferred, the underlying model
+    will set the data of the target items rather than insert new rows and columns
+    into the model.
 */
