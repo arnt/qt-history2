@@ -3,7 +3,7 @@ CONFIG          -= debug_and_release_target
 
 # find qtestlib's prl file and extract the librarie's name
 CONFIG(debug, debug|release) {
-    win32:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/QtTest_debug.prl
+    win32:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/QtTestd.prl
     else:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/libQtTest_debug.prl
     OBJECTS_DIR     = tmp/debug
     MOC_DIR         = tmp/debug
@@ -39,7 +39,8 @@ embed_testlib {
     DEFINES += QTEST_EMBED QTEST_LIGHT
 } else {
     CONFIG(debug, debug|release) {
-        LIBS += -lQtTest_debug
+        unix:LIBS += -lQtTest_debug
+        else:LIBS += -lQtTestd
     } else {
         LIBS += -lQtTest
     }

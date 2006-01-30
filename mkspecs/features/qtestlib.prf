@@ -1,5 +1,6 @@
 CONFIG(debug, debug|release) {
-    LIBS += -lQtTest_debug
+    unix:LIBS += -lQtTest_debug
+    else:LIBS += -lQtTestd
 } else {
     LIBS += -lQtTest
 }

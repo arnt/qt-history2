@@ -9,7 +9,8 @@ contains(QT_CONFIG, embedded):CONFIG += embedded
 }
 
 CONFIG(debug, debug|release) {
-    TARGET = QtTest_debug
+    unix:TARGET = QtTest_debug
+    else:TARGET = QtTestd
     OBJECTS_DIR = tmp/debug
 } else {
     TARGET = QtTest
