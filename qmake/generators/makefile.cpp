@@ -2955,9 +2955,17 @@ MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLoca
 QStringList
 &MakefileGenerator::findDependencies(const QString &file)
 {
-    QString fixedFile = fileFixify(file);
-    if(!dependsCache.contains(fixedFile))
-        dependsCache.insert(fixedFile, QMakeSourceFileInfo::dependencies(fixedFile));
+    const QString fixedFile = fileFixify(file);
+    if(!dependsCache.contains(fixedFile)) {
+#if 1
+        QStringList deps = QMakeSourceFileInfo::dependencies(file);
+        if(file != fixedFile)
+            deps += QMakeSourceFileInfo::dependencies(fixedFile);
+#else
+        QStringList deps = QMakeSourceFileInfo::dependencies(fixedFile);
+#endif
+        dependsCache.insert(fixedFile, deps);
+    }
     return dependsCache[fixedFile];
 }
 
@@ -2989,8 +2997,13 @@ MakefileGenerator::openOutput(QFile &file, const QString &build) const
             file.setFileName(outdir + fname);
         }
     }
-    if(QDir::isRelativePath(file.fileName()))
-        file.setFileName(Option::output_dir + "/" + file.fileName()); //pwd when qmake was run
+    if(QDir::isRelativePath(file.fileName())) {
+        QString fname = Option::output_dir;  //pwd when qmake was run
+        if(!fname.endsWith("/"))
+            fname += "/";
+        fname += file.fileName();
+        file.setFileName(fname);
+    }
     if(!build.isEmpty())
         file.setFileName(file.fileName() + "." + build);
     if(project->isEmpty("QMAKE_MAKEFILE"))
@@ -3000,7 +3013,12 @@ MakefileGenerator::openOutput(QFile &file, const QString &build) const
         createDir(file.fileName().left(slsh));
     if(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
         QFileInfo fi(fileInfo(Option::output.fileName()));
-        QString od = Option::fixPathToTargetOS((fi.isSymLink() ? fi.readLink() : fi.path()));
+        QString od;
+        if(fi.isSymLink())
+            od = fileInfo(fi.readLink()).absolutePath();
+        else
+            od = fi.path();
+        od = Option::fixPathToTargetOS(od);
         if(QDir::isRelativePath(od))
             od.prepend(Option::output_dir);
         Option::output_dir = od;
