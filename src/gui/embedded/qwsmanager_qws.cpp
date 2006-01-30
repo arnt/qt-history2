@@ -133,8 +133,12 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
     if(d->cached_region.regionType)
         d->previousRegionRepainted |= repaintRegion(d->cached_region.regionType, QDecoration::Pressed);
 
-    if (d->activeRegion == QDecoration::Menu)
-        menu(d->managed->geometry().topLeft());
+    if (d->activeRegion == QDecoration::Menu) {
+        QPoint pos = (QApplication::layoutDirection() == Qt::LeftToRight
+                      ? d->managed->geometry().topLeft()
+                      : d->managed->geometry().topRight());
+        menu(pos);
+    }
     if (d->activeRegion != QDecoration::None &&
          d->activeRegion != QDecoration::Menu) {
         d->active = d->managed;
