@@ -1766,7 +1766,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             int aft_v = mid_v;
             QBrush brush(option->palette.dark().color(), Qt::Dense4Pattern);
             if (option->state & State_Item) {
-                if (option->dir == Qt::RightToLeft)
+                if (option->direction == Qt::RightToLeft)
                     p->fillRect(option->rect.left(), mid_v, bef_h - option->rect.left(), 1, brush);
                 else
                     p->fillRect(aft_h, mid_v, option->rect.right() - aft_h + 1, 1, brush);
