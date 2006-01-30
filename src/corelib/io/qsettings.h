@@ -156,7 +156,7 @@ public:
     inline QT3_SUPPORT bool writeEntry(const QString &key, int value)
     { setValue(key, value); return isWritable(); }
     inline QT3_SUPPORT bool writeEntry(const QString &key, const char *value)
-    { setValue(key, value); return isWritable(); }
+    { setValue(key, QString::fromAscii(value)); return isWritable(); }
     inline QT3_SUPPORT bool writeEntry(const QString &key, const QString &value)
     { setValue(key, value); return isWritable(); }
     inline QT3_SUPPORT bool writeEntry(const QString &key, const QStringList &value)
