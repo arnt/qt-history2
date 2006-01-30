@@ -1598,7 +1598,9 @@ QTableWidgetItem *QTableWidget::item(int row, int column) const
 /*!
     Sets the item for the given \a row and \a column to \a item.
 
-    \sa item()
+    The table takes ownership of the item.
+
+    \sa item() takeItem()
 */
 void QTableWidget::setItem(int row, int column, QTableWidgetItem *item)
 {
