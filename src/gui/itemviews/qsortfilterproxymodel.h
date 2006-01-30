@@ -114,7 +114,9 @@ private:
 
     Q_PRIVATE_SLOT(d_func(), void sourceDataChanged(const QModelIndex &source_top_left, const QModelIndex &source_bottom_right))
     Q_PRIVATE_SLOT(d_func(), void sourceHeaderDataChanged(Qt::Orientation orientation, int start, int end))
+    Q_PRIVATE_SLOT(d_func(), void sourceLayoutAboutToBeChanged(const QModelIndex &source_parent))
     Q_PRIVATE_SLOT(d_func(), void sourceLayoutChanged())
+    Q_PRIVATE_SLOT(d_func(), void sourceReset())
 };
 
 #endif // QT_NO_SORTFILTERPROXYMODEL
