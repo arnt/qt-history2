@@ -60,7 +60,11 @@ void QTextEngine::shapeText(int item) const
     layoutData->used += si.num_glyphs;
 
     QGlyphLayout *g = shaper_item.glyphs;
+#ifdef Q_CC_SUN // workaround a sun CC compiler bug
+    if (this->font(si).kerning())
+#else
     if (this->font(si).d->kerning)
+#endif
         font->doKerning(si.num_glyphs, g, option.useDesignMetrics() ? QFlag(QTextEngine::DesignMetrics) : QFlag(0));
 
     si.width = 0;
