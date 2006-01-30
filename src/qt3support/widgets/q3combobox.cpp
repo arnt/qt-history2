@@ -326,8 +326,13 @@ public:
     {
 	return Q3PopupMenu::itemHeight( index );
     }
-
 };
+
+static inline QString escapedComboString(const QString &str)
+{
+    QString stringToReturn = str;
+    return stringToReturn.replace('&', "&&");
+}
 
 class Q3ComboBoxPopupItem : public QMenuItem
 {
@@ -644,7 +649,7 @@ void Q3ComboBox::insertStrList( const Q3StrList *list, int index )
 	if ( d->usingListBox() )
 	    d->listBox()->insertItem( QString::fromLatin1(tmp), index );
 	else
-	    d->popup()->insertItem( QString::fromLatin1(tmp), index, index );
+	    d->popup()->insertItem( escapedComboString(QString::fromLatin1(tmp)), index, index );
 	if ( index++ == d->current && d->current < count() ) {
 	    if ( d->ed ) {
 		d->ed->setText( text( d->current ) );
@@ -672,7 +677,7 @@ void Q3ComboBox::insertStringList( const QStringList &list, int index )
 	if ( d->usingListBox() )
 	    d->listBox()->insertItem( *it, index );
 	else
-	    d->popup()->insertItem( *it, index, index );
+	    d->popup()->insertItem( escapedComboString(*it), index, index );
 	if ( index++ == d->current && d->current < count() ) {
 	    if ( d->ed ) {
 		d->ed->setText( text( d->current ) );
@@ -719,7 +724,7 @@ void Q3ComboBox::insertStrList( const char **strings, int numStrings, int index)
 	if ( d->usingListBox() )
 	    d->listBox()->insertItem( QString::fromLatin1(strings[i]), index );
 	else
-	    d->popup()->insertItem( QString::fromLatin1(strings[i]), index, index );
+	    d->popup()->insertItem( escapedComboString(QString::fromLatin1(strings[i])), index, index );
 	i++;
 	if ( index++ == d->current && d->current < count()  ) {
 	    if ( d->ed ) {
@@ -748,7 +753,7 @@ void Q3ComboBox::insertItem( const QString &t, int index )
     if ( d->usingListBox() )
 	d->listBox()->insertItem( t, index );
     else
-	d->popup()->insertItem( t, index, index );
+	d->popup()->insertItem( escapedComboString(t), index, index );
     if ( index != cnt )
 	reIndex();
     if ( index == d->current && d->current < count()  ) {
@@ -806,7 +811,7 @@ void Q3ComboBox::insertItem( const QPixmap &pixmap, const QString& text, int ind
     if ( d->usingListBox() )
 	d->listBox()->insertItem( pixmap, text, index );
     else
-	d->popup()->insertItem( pixmap, text, index, index );
+	d->popup()->insertItem( pixmap, escapedComboString(text), index, index );
     if ( index != cnt )
 	reIndex();
     if ( index == d->current && d->current < count()  ) {
@@ -934,10 +939,13 @@ QString Q3ComboBox::text( int index ) const
 {
     if ( !checkIndex( "text", name(), count(), index ) )
 	return QString::null;
-    if ( d->usingListBox() )
+    if ( d->usingListBox() ) {
 	return d->listBox()->text( index );
-    else
-	return d->popup()->text( index );
+    } else {
+        QString retText = d->popup()->text(index);
+        retText.replace("&&", "&");
+	return retText;
+    }
 }
 
 /*!
@@ -1535,12 +1543,12 @@ void Q3ComboBox::popup()
 	    for(unsigned int i = 0; i < d->listBox()->count(); i++) {
 		Q3ListBoxItem *item = d->listBox()->item(i);
 		if(item->rtti() == Q3ListBoxText::RTTI) {
-		    d->popup()->insertItem(item->text(), i, i);
+		    d->popup()->insertItem(escapedComboString(item->text()), i, i);
 		} else if(item->rtti() == Q3ListBoxPixmap::RTTI) {
 		    if(item->pixmap())
-			d->popup()->insertItem(QIcon(*item->pixmap()), item->text(), i, i);
+			d->popup()->insertItem(QIcon(*item->pixmap()), escapedComboString(item->text()), i, i);
 		    else
-			d->popup()->insertItem(item->text(), i, i);
+			d->popup()->insertItem(escapedComboString(item->text()), i, i);
 		} else {
 		    d->popup()->insertItem(new Q3ComboBoxPopupItem(item), i, i);
 		}
