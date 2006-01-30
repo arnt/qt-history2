@@ -1045,12 +1045,11 @@ void Launcher::resizeEvent(QResizeEvent *event)
     documentFont.setPointSizeF(qMin(documentFont.pointSizeF()*width()/640.0,
                                     documentFont.pointSizeF()*height()/480.0));
 
-    if (inFullScreenResize) {
-        emit windowResized();
+    if (inFullScreenResize)
         inFullScreenResize = false;
-    } else if (currentCategory != "[starting]") {
+
+    if (currentCategory != "[starting]")
         resizeTimer->start(500);
-    }
 }
 
 void Launcher::redisplayWindow()
