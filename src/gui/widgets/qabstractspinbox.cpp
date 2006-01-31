@@ -28,6 +28,7 @@
 #include <qdebug.h>
 #include <qpalette.h>
 #include <qstyle.h>
+#include <qdebug.h>
 
 #if defined(Q_WS_X11)
 #include <limits.h>
@@ -310,6 +311,28 @@ void QAbstractSpinBox::setFrame(bool enable)
     update();
     updateGeometry();
 }
+
+/*!
+    \property QAbstractSpinBox::accelerate
+    \brief whether the spin box will accelerate the frequency of the steps when
+    pressing the step Up/Down buttons.
+
+    If enabled the spin box will increase/decrease the value faster
+    the longer you hold the button down. This only applied
+*/
+
+void QAbstractSpinBox::setAccelerate(bool on)
+{
+    Q_D(QAbstractSpinBox);
+    d->accelerate = on;
+
+}
+bool QAbstractSpinBox::accelerate() const
+{
+    Q_D(const QAbstractSpinBox);
+    return d->accelerate;
+}
+
 
 /*!
     \property QAbstractSpinBox::alignment
@@ -595,8 +618,8 @@ void QAbstractSpinBox::showEvent(QShowEvent *)
 {
     Q_D(QAbstractSpinBox);
 
-        d->reset();
-        d->updateEdit();
+    d->reset();
+    d->updateEdit();
 }
 
 /*!
@@ -755,6 +778,7 @@ void QAbstractSpinBox::paintEvent(QPaintEvent *)
          \i This will invoke stepBy(-10)
     \endtable
 */
+
 
 void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 {
@@ -992,6 +1016,13 @@ void QAbstractSpinBox::timerEvent(QTimerEvent *e)
         d->spinClickTimerId = startTimer(d->spinClickTimerInterval);
         doStep = true;
     } else if (e->timerId() == d->spinClickTimerId) {
+        if (d->accelerate) {
+            d->acceleration = d->acceleration + (int)(d->spinClickTimerInterval * 0.05);
+            if (d->spinClickTimerInterval - d->acceleration >= 10) {
+                killTimer(d->spinClickTimerId);
+                d->spinClickTimerId = startTimer(d->spinClickTimerInterval - d->acceleration);
+            }
+        }
         doStep = true;
     }
 
@@ -1010,6 +1041,7 @@ void QAbstractSpinBox::timerEvent(QTimerEvent *e)
                 stepBy(-1);
             }
         }
+        return;
     }
     QWidget::timerEvent(e);
     return;
@@ -1121,7 +1153,7 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
       spinClickTimerInterval(100), spinClickThresholdTimerId(-1), spinClickThresholdTimerInterval(thresholdTime),
       buttonState(None), cachedText("\x01"), cachedState(QValidator::Invalid),
       pendingEmit(false), readOnly(false), wrapping(false),
-      ignoreCursorPositionChanged(false), frame(true),
+      ignoreCursorPositionChanged(false), frame(true), accelerate(false), acceleration(0),
       hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0)
 {
 }
@@ -1353,6 +1385,7 @@ void QAbstractSpinBoxPrivate::reset()
         if (spinClickThresholdTimerId != -1)
             q->killTimer(spinClickThresholdTimerId);
         spinClickTimerId = spinClickThresholdTimerId = -1;
+        acceleration = 0;
         updateButtons();
     }
 }

@@ -112,6 +112,8 @@ public:
     uint wrapping : 1;
     uint ignoreCursorPositionChanged : 1;
     uint frame : 1;
+    uint accelerate : 1;
+    int acceleration;
     QStyle::SubControl hoverControl;
     QRect hoverRect;
     QAbstractSpinBox::ButtonSymbols buttonSymbols;
