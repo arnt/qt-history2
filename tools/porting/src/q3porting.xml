@@ -12,7 +12,7 @@
 **
 **************************************************************************-->
 <Rules>
-    <Count>3676</Count>
+    <Count>3601</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -44,10 +44,6 @@
     <item Type="RenamedHeader" >
         <Qt4>q3cleanuphandler.h</Qt4>
         <Qt3>qcleanuphandler.h</Qt3>
-    </item>
-    <item Type="RenamedHeader" >
-        <Qt4>q3combobox.h</Qt4>
-        <Qt3>qcombobox.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
         <Qt4>q3cstring.h</Qt4>
@@ -432,10 +428,6 @@
     <item Type="RenamedHeader" >
         <Qt4>q3cleanuphandler.h</Qt4>
         <Qt3>qcleanuphandler.h</Qt3>
-    </item>
-    <item Type="RenamedHeader" >
-        <Qt4>q3combobox.h</Qt4>
-        <Qt3>qcombobox.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
         <Qt4>q3cstring.h</Qt4>
@@ -2643,10 +2635,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QFilteringProxyModel</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QFocusEvent</Name>
     </item>
     <item Type="Qt4Class" >
@@ -2680,10 +2668,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QFrame</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QGfxShadow</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -2903,10 +2887,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QMachScreen</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QMacMime</Name>
     </item>
     <item Type="Qt4Class" >
@@ -2919,15 +2899,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QMappingProxyModel</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QMatrix</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QMatroxScreen</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3107,10 +3079,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QRepeaterScreen</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QResizeEvent</Name>
     </item>
     <item Type="Qt4Class" >
@@ -3155,18 +3123,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QShadowFbScreen</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QShadowScreenCursor</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QShadowTimerHandler</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QShortcut</Name>
     </item>
     <item Type="Qt4Class" >
@@ -3191,11 +3147,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QSNAPScreen</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QSortingProxyModel</Name>
+        <Name>QSortFilterProxyModel</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3240,10 +3192,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QStatusTipEvent</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QStringFilterModel</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3611,15 +3559,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QVga16Screen</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QVNCScreen</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QVoodooScreen</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3679,10 +3619,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QWSAddPropertyCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QWSBusMouseHandler</Name>
     </item>
     <item Type="Qt4Class" >
@@ -3691,19 +3627,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QWSChangeAltitudeCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QWSClient</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSConvertSelectionCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSCreateCommand</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3715,43 +3639,11 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QWSDefineCursorCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QWSDisplay</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QWSEvent</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSGetPropertyCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSGrabKeyboardCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSGrabMouseCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSIdentifyCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSIMMouseCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSIMResponseCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSIMUpdateCommand</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3795,15 +3687,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QWSPlaySoundCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QWSPointerCalibrationData</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSPositionCursorCommand</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3815,47 +3699,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QWSQCopRegisterChannelCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSQCopSendCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSRegionCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSRegionDestroyCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSRegionMoveCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSRegionNameCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSRemovePropertyCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSRepaintRegionCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSRequestFocusCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QWSScreenSaver</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSSelectCursorCommand</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3864,18 +3708,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QWSServerSocket</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSSetOpacityCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSSetPropertyCommand</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSSetSelectionOwnerCommand</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3896,6 +3728,10 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QWSSoundServerSocket</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
+        <Name>QWSTslibMouseHandler</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -4011,7 +3847,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtOpenGL</Library>
-        <Name>QGLPbuffer</Name>
+        <Name>QGLPixelBuffer</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtOpenGL</Library>
@@ -4167,7 +4003,15 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtTest</Library>
+        <Name>QEventSizeOfChecker</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtTest</Library>
         <Name>QSignalSpy</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtTest</Library>
+        <Name>QSpontaneKeyEvent</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtTest</Library>
@@ -4208,6 +4052,10 @@
     <item Type="Qt4Class" >
         <Library>QtTest</Library>
         <Name>QTestMouseEvent</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtUiTools</Library>
+        <Name>QUiLoader</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtXml</Library>
@@ -5107,6 +4955,7 @@
     <item Type="qt4Header" >QErrorMessage</item>
     <item Type="qt4Header" >QEvent</item>
     <item Type="qt4Header" >QEventLoop</item>
+    <item Type="qt4Header" >QEventSizeOfChecker</item>
     <item Type="qt4Header" >QExtensionFactory</item>
     <item Type="qt4Header" >QExtensionManager</item>
     <item Type="qt4Header" >QFSFileEngine</item>
@@ -5118,7 +4967,6 @@
     <item Type="qt4Header" >QFileInfoList</item>
     <item Type="qt4Header" >QFileInfoListIterator</item>
     <item Type="qt4Header" >QFileOpenEvent</item>
-    <item Type="qt4Header" >QFilteringProxyModel</item>
     <item Type="qt4Header" >QFlag</item>
     <item Type="qt4Header" >QFlags</item>
     <item Type="qt4Header" >QFocusEvent</item>
@@ -5137,11 +4985,10 @@
     <item Type="qt4Header" >QGLColormap</item>
     <item Type="qt4Header" >QGLContext</item>
     <item Type="qt4Header" >QGLFormat</item>
-    <item Type="qt4Header" >QGLPbuffer</item>
+    <item Type="qt4Header" >QGLPixelBuffer</item>
     <item Type="qt4Header" >QGLWidget</item>
     <item Type="qt4Header" >QGenericArgument</item>
     <item Type="qt4Header" >QGenericReturnArgument</item>
-    <item Type="qt4Header" >QGfxShadow</item>
     <item Type="qt4Header" >QGlobalStatic</item>
     <item Type="qt4Header" >QGradient</item>
     <item Type="qt4Header" >QGradientStop</item>
@@ -5232,14 +5079,11 @@
     <item Type="qt4Header" >QMYSQLResult</item>
     <item Type="qt4Header" >QMacMime</item>
     <item Type="qt4Header" >QMacStyle</item>
-    <item Type="qt4Header" >QMachScreen</item>
     <item Type="qt4Header" >QMainWindow</item>
     <item Type="qt4Header" >QMap</item>
     <item Type="qt4Header" >QMapData</item>
     <item Type="qt4Header" >QMapIterator</item>
-    <item Type="qt4Header" >QMappingProxyModel</item>
     <item Type="qt4Header" >QMatrix</item>
-    <item Type="qt4Header" >QMatroxScreen</item>
     <item Type="qt4Header" >QMenu</item>
     <item Type="qt4Header" >QMenuBar</item>
     <item Type="qt4Header" >QMenuItem</item>
@@ -5332,12 +5176,10 @@
     <item Type="qt4Header" >QRegExp</item>
     <item Type="qt4Header" >QRegExpValidator</item>
     <item Type="qt4Header" >QRegion</item>
-    <item Type="qt4Header" >QRepeaterScreen</item>
     <item Type="qt4Header" >QResizeEvent</item>
     <item Type="qt4Header" >QReturnArgument</item>
     <item Type="qt4Header" >QRgb</item>
     <item Type="qt4Header" >QRubberBand</item>
-    <item Type="qt4Header" >QSNAPScreen</item>
     <item Type="qt4Header" >QSQLite2Driver</item>
     <item Type="qt4Header" >QSQLite2Result</item>
     <item Type="qt4Header" >QSQLiteDriver</item>
@@ -5354,9 +5196,6 @@
     <item Type="qt4Header" >QSet</item>
     <item Type="qt4Header" >QSetIterator</item>
     <item Type="qt4Header" >QSettings</item>
-    <item Type="qt4Header" >QShadowFbScreen</item>
-    <item Type="qt4Header" >QShadowScreenCursor</item>
-    <item Type="qt4Header" >QShadowTimerHandler</item>
     <item Type="qt4Header" >QSharedData</item>
     <item Type="qt4Header" >QSharedDataPointer</item>
     <item Type="qt4Header" >QShortcut</item>
@@ -5370,13 +5209,14 @@
     <item Type="qt4Header" >QSizePolicy</item>
     <item Type="qt4Header" >QSlider</item>
     <item Type="qt4Header" >QSocketNotifier</item>
-    <item Type="qt4Header" >QSortingProxyModel</item>
+    <item Type="qt4Header" >QSortFilterProxyModel</item>
     <item Type="qt4Header" >QSound</item>
     <item Type="qt4Header" >QSpacerItem</item>
     <item Type="qt4Header" >QSpinBox</item>
     <item Type="qt4Header" >QSplashScreen</item>
     <item Type="qt4Header" >QSplitter</item>
     <item Type="qt4Header" >QSplitterHandle</item>
+    <item Type="qt4Header" >QSpontaneKeyEvent</item>
     <item Type="qt4Header" >QSqlDatabase</item>
     <item Type="qt4Header" >QSqlDriver</item>
     <item Type="qt4Header" >QSqlDriverCreator</item>
@@ -5402,7 +5242,6 @@
     <item Type="qt4Header" >QStatusTipEvent</item>
     <item Type="qt4Header" >QStdWString</item>
     <item Type="qt4Header" >QString</item>
-    <item Type="qt4Header" >QStringFilterModel</item>
     <item Type="qt4Header" >QStringList</item>
     <item Type="qt4Header" >QStringListIterator</item>
     <item Type="qt4Header" >QStringListModel</item>
@@ -5529,6 +5368,7 @@
     <item Type="qt4Header" >QTreeWidgetItemIterator</item>
     <item Type="qt4Header" >QTypeInfo</item>
     <item Type="qt4Header" >QUdpSocket</item>
+    <item Type="qt4Header" >QUiLoader</item>
     <item Type="qt4Header" >QUpdateLaterEvent</item>
     <item Type="qt4Header" >QUrl</item>
     <item Type="qt4Header" >QUrlInfo</item>
@@ -5548,28 +5388,14 @@
     <item Type="qt4Header" >QVectorData</item>
     <item Type="qt4Header" >QVectorIterator</item>
     <item Type="qt4Header" >QVectorTypedData</item>
-    <item Type="qt4Header" >QVga16Screen</item>
-    <item Type="qt4Header" >QVoodooScreen</item>
     <item Type="qt4Header" >QWMatrix</item>
-    <item Type="qt4Header" >QWSAddPropertyCommand</item>
     <item Type="qt4Header" >QWSBusMouseHandler</item>
     <item Type="qt4Header" >QWSCalibratedMouseHandler</item>
-    <item Type="qt4Header" >QWSChangeAltitudeCommand</item>
     <item Type="qt4Header" >QWSClient</item>
-    <item Type="qt4Header" >QWSConvertSelectionCommand</item>
-    <item Type="qt4Header" >QWSCreateCommand</item>
     <item Type="qt4Header" >QWSCursor</item>
     <item Type="qt4Header" >QWSCursorMap</item>
-    <item Type="qt4Header" >QWSDefineCursorCommand</item>
     <item Type="qt4Header" >QWSDisplay</item>
     <item Type="qt4Header" >QWSEvent</item>
-    <item Type="qt4Header" >QWSGetPropertyCommand</item>
-    <item Type="qt4Header" >QWSGrabKeyboardCommand</item>
-    <item Type="qt4Header" >QWSGrabMouseCommand</item>
-    <item Type="qt4Header" >QWSIMMouseCommand</item>
-    <item Type="qt4Header" >QWSIMResponseCommand</item>
-    <item Type="qt4Header" >QWSIMUpdateCommand</item>
-    <item Type="qt4Header" >QWSIdentifyCommand</item>
     <item Type="qt4Header" >QWSInputMethod</item>
     <item Type="qt4Header" >QWSInternalWindowInfo</item>
     <item Type="qt4Header" >QWSKeyboardHandler</item>
@@ -5580,32 +5406,18 @@
     <item Type="qt4Header" >QWSMouseHandlerFactoryInterface</item>
     <item Type="qt4Header" >QWSPC101KeyboardHandler</item>
     <item Type="qt4Header" >QWSPcMouseHandler</item>
-    <item Type="qt4Header" >QWSPlaySoundCommand</item>
     <item Type="qt4Header" >QWSPointerCalibrationData</item>
-    <item Type="qt4Header" >QWSPositionCursorCommand</item>
     <item Type="qt4Header" >QWSPropertyManager</item>
     <item Type="qt4Header" >QWSProtocolItem</item>
-    <item Type="qt4Header" >QWSQCopRegisterChannelCommand</item>
-    <item Type="qt4Header" >QWSQCopSendCommand</item>
-    <item Type="qt4Header" >QWSRegionCommand</item>
-    <item Type="qt4Header" >QWSRegionDestroyCommand</item>
-    <item Type="qt4Header" >QWSRegionMoveCommand</item>
-    <item Type="qt4Header" >QWSRegionNameCommand</item>
-    <item Type="qt4Header" >QWSRemovePropertyCommand</item>
-    <item Type="qt4Header" >QWSRepaintRegionCommand</item>
-    <item Type="qt4Header" >QWSRequestFocusCommand</item>
     <item Type="qt4Header" >QWSSL5000KeyboardHandler</item>
     <item Type="qt4Header" >QWSScreenSaver</item>
-    <item Type="qt4Header" >QWSSelectCursorCommand</item>
     <item Type="qt4Header" >QWSServer</item>
     <item Type="qt4Header" >QWSServerSocket</item>
-    <item Type="qt4Header" >QWSSetOpacityCommand</item>
-    <item Type="qt4Header" >QWSSetPropertyCommand</item>
-    <item Type="qt4Header" >QWSSetSelectionOwnerCommand</item>
     <item Type="qt4Header" >QWSSocket</item>
     <item Type="qt4Header" >QWSSoundClient</item>
     <item Type="qt4Header" >QWSSoundServer</item>
     <item Type="qt4Header" >QWSSoundServerSocket</item>
+    <item Type="qt4Header" >QWSTslibMouseHandler</item>
     <item Type="qt4Header" >QWSTtyKeyboardHandler</item>
     <item Type="qt4Header" >QWSUsbKeyboardHandler</item>
     <item Type="qt4Header" >QWSVr41xxKeyboardHandler</item>
@@ -10076,10 +9888,6 @@
     <item Type="NeedHeader" >
         <Class>QLabel</Class>
         <Header>QLabel</Header>
-    </item>
-    <item Type="NeedHeader" >
-        <Class>QImageIO</Class>
-        <Header>QImageIO</Header>
     </item>
     <item Type="NeedHeader" >
         <Class>QListBoxItem</Class>
