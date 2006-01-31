@@ -237,7 +237,7 @@ void MainWindow::about()
     box.setText(tr("<center><img src=\":/trolltech/assistant/images/assistant-128.png\">"
                    "<h3>%1</h3>"
                    "<br/>Version %2"
-#if defined(QT_OPENSOURCE)
+#if QT_EDITION == QT_EDITION_OPENSOURCE
                    " Open Source Edition</center><p>"
                    "This version of Qt Assistant is part of the Qt Open Source Edition, for use "
                    "in the development of Open Source applications. "

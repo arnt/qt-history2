@@ -510,7 +510,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
             "<p>Qt is a Trolltech product. See "
             "<tt>http://www.trolltech.com/qt/</tt> for more information.</p>"
            )
-#if !defined(QT_OPENSOURCE)
+#if QT_EDITION != QT_EDITION_OPENSOURCE
            .arg(QMessageBox::tr("<p>This program uses Qt version %1.</p>"))
 #else
            .arg(QMessageBox::tr("<p>This program uses Qt Open Source Edition version %1.</p>"

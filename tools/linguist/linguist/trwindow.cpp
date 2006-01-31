@@ -777,7 +777,7 @@ void TrWindow::about()
     AboutDialog about(this);
     about.versionLabel->setText(tr(
                     "Version %1"
-#if defined(QT_OPENSOURCE)
+#if QT_EDITION == QT_EDITION_OPENSOURCE
                     " Open Source Edition"
 #endif
                     ).arg(QT_VERSION_STR));
@@ -785,7 +785,7 @@ void TrWindow::about()
     about.infoText->setText(tr(
                     "<br/>Qt Linguist is a tool for adding translations to Qt "
                     "applications.<br/><br/>"
-#if defined(QT_OPENSOURCE)
+#if QT_EDITION == QT_EDITION_OPENSOURCE
                     "This version of Qt Linguist is part of the Qt Open Source Edition, for use "
                     "in the development of Open Source applications. "
                     "Qt is a comprehensive C++ framework for cross-platform application "
