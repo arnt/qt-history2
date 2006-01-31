@@ -31,6 +31,7 @@
 
 class QTreeWidgetItem;
 class QTreeWidgetItemIterator;
+class QTreeModelPrivate;
 
 class QTreeModel : public QAbstractItemModel
 {
@@ -96,9 +97,12 @@ public:
     static QTreeWidgetItem* walk(const QTreeWidgetItem *current);
 
 protected:
+    QTreeModel(QTreeModelPrivate &, QObject *parent = 0);
     void emitDataChanged(QTreeWidgetItem *item, int column);
     void beginInsertItems(QTreeWidgetItem *parent, int row, int count);
+    void endInsertItems();
     void beginRemoveItems(QTreeWidgetItem *parent, int row, int count);
+    void endRemoveItems();
     void sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortOrder order);
 
 private:
@@ -109,6 +113,15 @@ private:
     // A cache must be mutable if get-functions should have const modifiers
     mutable QModelIndexList cachedIndexes;
     QList<QTreeWidgetItemIterator*> iterators;
+
+    Q_DECLARE_PRIVATE(QTreeModel)
+};
+
+#include "private/qabstractitemmodel_p.h"
+
+class QTreeModelPrivate : public QAbstractItemModelPrivate
+{
+    Q_DECLARE_PUBLIC(QTreeModel)
 };
 
 #endif // QT_NO_TREEWIDGET

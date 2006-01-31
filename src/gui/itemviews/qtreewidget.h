@@ -141,7 +141,7 @@ private:
     // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
     QVector< QVector<QWidgetItemData> > values;
     QTreeWidget *view;
-    QTreeModel *model;
+    QStringList display;
     QTreeWidgetItem *par;
     QList<QTreeWidgetItem*> children;
     Qt::ItemFlags itemFlags;

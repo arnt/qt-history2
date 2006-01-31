@@ -80,7 +80,7 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidgetItem *item, Iterator
     : model(0), current(item), flags(flags)
 {
     Q_ASSERT(item);
-    model = item->model;
+    model = ::qobject_cast<QTreeModel*>(item->view->model());
     Q_ASSERT(model);
     model->iterators.append(this);
     if (current && !matchesFlags(current))
