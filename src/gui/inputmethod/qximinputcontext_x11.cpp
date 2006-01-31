@@ -513,6 +513,9 @@ void QXIMInputContext::widgetDestroyed(QWidget *w)
 
 void QXIMInputContext::mouseHandler(int pos, QMouseEvent *)
 {
+    if(e->type() != QEvent::MouseButtonPress)
+        return;
+
     XIM_DEBUG("QXIMInputContext::mouseHandler pos=%d", pos);
     ICData *data = ximData.value(focusWidget());
     if (!data)

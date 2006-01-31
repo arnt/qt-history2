@@ -45,6 +45,9 @@ QString QMacInputContext::language()
 
 void QMacInputContext::mouseHandler(int pos, QMouseEvent *)
 {
+    if(e->type() != QEvent::MouseButtonPress)
+        return;
+
     if (!composing)
         return;
     if (pos < 0 || pos > currentText.length())
