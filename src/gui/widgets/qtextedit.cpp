@@ -631,7 +631,7 @@ void QTextEditPrivate::adjustScrollbars()
     // value (it is visually at the right), then widening the document
     // keeps it at value zero but visually adjusts it to the new maximum
     // on the right, hence we need an update.
-    if (isRightToLeft())
+    if (q_func()->isRightToLeft())
         viewport->update();
 }
 #endif
