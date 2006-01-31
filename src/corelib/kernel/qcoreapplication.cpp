@@ -961,7 +961,18 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 
         locker.unlock();
         // after all that work, it's time to deliver the event.
+#ifdef QT_NO_EXCEPTIONS
         QCoreApplication::sendEvent(r, e);
+#else
+        try {
+            QCoreApplication::sendEvent(r, e);
+        } catch (...) {
+            locker.relock();
+            delete e;
+            throw;              // rethrow
+        }
+#endif        
+            
         locker.relock();
 
         delete e;
