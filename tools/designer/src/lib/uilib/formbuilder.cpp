@@ -457,7 +457,7 @@ void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &proper
         } else if (qobject_cast<QLabel*>(o) && p->attributeName() == QLatin1String("buddy")) {
             // save the buddy and continue
             extraInfo(this).addBuddy(qobject_cast<QLabel*>(o), v.toString());
-        } else if (qobject_cast<QFrame*>(o) && p->attributeName() == QLatin1String("orientation")) {
+        } else if (!qstrcmp("QFrame", o->metaObject()->className ()) && p->attributeName() == QLatin1String("orientation")) {
             // ### special-casing for Line (QFrame) -- fix for 4.2
             o->setProperty("frameShape", v); // v is of QFrame::Shape enum
         } else {
