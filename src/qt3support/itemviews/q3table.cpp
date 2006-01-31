@@ -5897,7 +5897,7 @@ void Q3Table::setCellWidget(int row, int col, QWidget *e)
     if (e->parent() != viewport())
 	e->reparent(viewport(), QPoint(0,0));
     Q3TableItem *itm = item(row, col);
-    if (itm) { // get the correct row and col if the item is spanning
+    if (itm && itm->row() >= 0 && itm->col() >= 0) { // get the correct row and col if the item is spanning
         row = itm->row();
         col = itm->col();
     }
