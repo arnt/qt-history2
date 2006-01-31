@@ -1781,7 +1781,7 @@ void QComboBox::hidePopup()
     if (d->container && d->container->isVisible())
         d->container->hide();
 #ifdef QT_KEYPAD_NAVIGATION
-    if (QApplication::keypadNavigationEnabled() && isEditable())
+    if (QApplication::keypadNavigationEnabled() && isEditable() && hasFocus())
         setEditFocus(true);
 #endif
 }

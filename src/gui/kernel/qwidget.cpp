@@ -236,6 +236,9 @@ void QWidget::setEditFocus(bool on)
     while (f->d_func()->extra && f->d_func()->extra->focus_proxy)
         f = f->d_func()->extra->focus_proxy;
 
+    if (!f->hasFocus())
+        f->setFocus();
+
     if (QWidgetPrivate::editingWidget && QWidgetPrivate::editingWidget != f)
         QWidgetPrivate::editingWidget->setEditFocus(false);
 
