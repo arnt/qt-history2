@@ -325,7 +325,7 @@ QXIMInputContext::QXIMInputContext()
 #ifndef QT_NO_DEBUG
         qWarning("Qt: Locale not supported on X server")
 #endif
-            ;    
+            ;
 #ifdef USE_X11R6_XIM
     else if (XSetLocaleModifiers (ximServerName.constData()) == 0)
         qWarning("Qt: Cannot set locale modifiers: %s", ximServerName.constData());
@@ -511,7 +511,7 @@ void QXIMInputContext::widgetDestroyed(QWidget *w)
     delete data;
 }
 
-void QXIMInputContext::mouseHandler(int pos, QMouseEvent *)
+void QXIMInputContext::mouseHandler(int pos, QMouseEvent *e)
 {
     if(e->type() != QEvent::MouseButtonPress)
         return;
