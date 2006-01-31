@@ -743,6 +743,11 @@ bool QRasterPaintEngine::end()
     if (d->flushOnEnd)
         flush(d->pdev, QPoint());
 
+    if (d->rasterBuffer->disabled_clip) {
+        delete d->rasterBuffer->disabled_clip;
+        d->rasterBuffer->disabled_clip = 0;
+    }
+
     setActive(false);
 
     return true;
