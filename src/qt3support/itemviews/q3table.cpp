@@ -5239,14 +5239,29 @@ void Q3Table::repaintSelections(Q3TableSelection *oldSelection,
     }
 
     int top, left, bottom, right;
-    top = QMIN(oldSelection ? oldSelection->topRow() : newSelection->topRow(),
-		newSelection ? newSelection->topRow() :oldSelection->topRow());
-    left = QMIN(oldSelection ? oldSelection->leftCol() : newSelection->leftCol(),
-		 newSelection ? newSelection->leftCol() : oldSelection->leftCol());
-    bottom = QMAX(oldSelection ? oldSelection->bottomRow() : newSelection->bottomRow(),
-		   newSelection ? newSelection->bottomRow() : oldSelection->bottomRow());
-    right = QMAX(oldSelection ? oldSelection->rightCol() : newSelection->rightCol(),
-		  newSelection ? newSelection->rightCol() : oldSelection->rightCol());
+    {
+        int oldTopRow = oldSelection ? oldSelection->topRow() : numRows() - 1;
+        int newTopRow = newSelection ? newSelection->topRow() : numRows() - 1;
+        top = QMIN(oldTopRow, newTopRow);
+    }
+
+    {
+        int oldLeftCol = oldSelection ? oldSelection->leftCol() : numCols() - 1;
+        int newLeftCol = newSelection ? newSelection->leftCol() : numCols() - 1;
+        left = QMIN(oldLeftCol, newLeftCol);
+    }
+
+    {
+        int oldBottomRow = oldSelection ? oldSelection->bottomRow() : 0;
+        int newBottomRow = newSelection ? newSelection->bottomRow() : 0;
+        bottom = QMAX(oldBottomRow, newBottomRow);
+    }
+
+    {
+        int oldRightCol = oldSelection ? oldSelection->rightCol() : 0;
+        int newRightCol = newSelection ? newSelection->rightCol() : 0;
+        right = QMAX(oldRightCol, newRightCol);
+    }
 
     if (updateHorizontal && numCols() > 0 && left >= 0 && !isRowSelection(selectionMode())) {
 	register int *s = &topHeader->states.data()[left];
