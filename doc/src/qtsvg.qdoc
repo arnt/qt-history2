@@ -21,8 +21,9 @@
   \tableofcontents
 
   \section1 SVG Support
-  Qt supports Tiny profiles of both SVG 1.1 and SVG 1.2.
-  ECMA scripts and DOM manipulation are currently not supported.
+  Qt supports the \l{SVG 1.2 Tiny Static Features}{static features} of
+  \l{SVG 1.2 Tiny}. ECMA scripts and DOM manipulation are currently not
+  supported.
 
   \section1 Configuring the Build Process
 

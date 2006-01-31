@@ -341,12 +341,13 @@
     \section2 SVG Rendering Support
 
     \l{Scalable Vector Graphics} (SVG) is an language for describing both static
-    and animated two-dimensional vector graphics. Qt includes support for the Tiny
-    profiles of both SVG 1.1 and SVG 1.2, taking advantage of the improved paint
-    system in Qt 4. SVG drawings can be rendered onto any QPaintDevice subclass,
-    such as QWidget, QImage, and QGLWidget, to take advantage of specific
-    advantages of each device. This approach gives developers the flexibility to
-    experiment, in order to find the best solution for each application.
+    and animated two-dimensional vector graphics. Qt includes support for the
+    \l{SVG 1.2 Tiny Static Features}{static features} of \l{SVG 1.2 Tiny}, taking
+    advantage of the improved paint system in Qt 4. SVG drawings can be rendered
+    onto any QPaintDevice subclass, such as QWidget, QImage, and QGLWidget, to
+    take advantage of specific advantages of each device. This approach gives
+    developers the flexibility to experiment, in order to find the best solution
+    for each application.
 
     \image svg-image.png
 
