@@ -152,6 +152,12 @@ public:
         return index.isValid();
     }
 
+    inline QPoint offset() const {
+        const Q_Q(QAbstractItemView);
+        return QPoint(q->isRightToLeft() ? -q->horizontalOffset()
+                      : q->horizontalOffset(), q->verticalOffset());
+    }
+
     QPointer<QAbstractItemModel> model;
     QPointer<QAbstractItemDelegate> delegate;
     QPointer<QItemSelectionModel> selectionModel;
@@ -168,7 +174,6 @@ public:
     QPoint pressedPosition;
 
     QAbstractItemView::State state;
-    QPoint cursorIndex;
     QAbstractItemView::EditTriggers editTriggers;
 
     QPersistentModelIndex root;

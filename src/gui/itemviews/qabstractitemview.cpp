@@ -977,7 +977,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
     d->pressedIndex = index;
     d->pressedModifiers = event->modifiers();
     QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
-    QPoint offset(horizontalOffset(), verticalOffset());
+    QPoint offset = d->offset();
     if ((command & QItemSelectionModel::Current) == 0)
         d->pressedPosition = pos + offset;
     
@@ -1014,7 +1014,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
         return;
 #ifndef QT_NO_DRAGANDDROP
     if (state() == DraggingState) {
-        topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());
+        topLeft = d->pressedPosition - d->offset();
         if ((topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
             startDrag(model()->supportedDropActions());
             setState(NoState); // the startDrag will return when the dnd operation is done
@@ -1025,7 +1025,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
 #endif // QT_NO_DRAGANDDROP
 
     if (d->selectionMode != SingleSelection)
-        topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());
+        topLeft = d->pressedPosition - d->offset();
     else
         topLeft = bottomRight;
 
@@ -1381,13 +1381,11 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         QItemSelectionModel::SelectionFlags command = selectionCommand(newCurrent, event);
         if (command & QItemSelectionModel::Current) {
             selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
-            QPoint offset(horizontalOffset(), verticalOffset());
-            QRect rect(d->pressedPosition - offset, visualRect(newCurrent).center());
+            QRect rect(d->pressedPosition - d->offset(), visualRect(newCurrent).center());
             setSelection(rect.normalized(), command);
         } else {
             selectionModel()->setCurrentIndex(newCurrent, command);
-            QPoint offset(horizontalOffset(), verticalOffset());
-            d->pressedPosition = visualRect(newCurrent).center() + offset;
+            d->pressedPosition = visualRect(newCurrent).center() + d->offset();
         }
         return;
     }
