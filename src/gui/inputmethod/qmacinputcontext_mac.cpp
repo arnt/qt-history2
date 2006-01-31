@@ -43,7 +43,7 @@ QString QMacInputContext::language()
     return QString();
 }
 
-void QMacInputContext::mouseHandler(int pos, QMouseEvent *)
+void QMacInputContext::mouseHandler(int pos, QMouseEvent *e)
 {
     if(e->type() != QEvent::MouseButtonPress)
         return;
