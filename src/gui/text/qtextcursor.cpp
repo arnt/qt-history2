@@ -1148,7 +1148,6 @@ void QTextCursor::select(SelectionType selection)
     clearSelection();
 
     const QTextBlock block = d->block();
-    const int relativePos = d->position - block.position();
 
     switch (selection) {
         case LineUnderCursor:
@@ -1167,6 +1166,10 @@ void QTextCursor::select(SelectionType selection)
                 movePosition(NextBlock, KeepAnchor);
             }
             movePosition(EndOfBlock, KeepAnchor);
+            break;
+        case Document:
+            movePosition(Start);
+            movePosition(End, KeepAnchor);
             break;
     }
 }

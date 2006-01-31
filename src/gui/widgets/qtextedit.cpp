@@ -1465,8 +1465,7 @@ void QTextEdit::clear()
 void QTextEdit::selectAll()
 {
     Q_D(QTextEdit);
-    d->cursor.movePosition(QTextCursor::Start);
-    d->cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    d->cursor.select(QTextCursor::Document);
     d->selectionChanged();
     d->viewport->update();
 #ifndef QT_NO_CLIPBOARD

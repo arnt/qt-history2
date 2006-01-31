@@ -97,7 +97,8 @@ public:
     enum SelectionType {
         WordUnderCursor,
         LineUnderCursor,
-        BlockUnderCursor
+        BlockUnderCursor,
+        Document
     };
     void select(SelectionType selection);
 
