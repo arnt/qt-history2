@@ -3,7 +3,7 @@
 
 int main(int, char **)
 {
-    Display *display;
+    Display *display = 0;
     unsigned int state = XkbPCF_GrabsUseXKBStateMask;
     (void) XkbSetPerClientControls(display, state, &state);
     return 0;
