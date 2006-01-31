@@ -522,8 +522,8 @@ void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
 
 void QTextEditPrivate::repaintContents(const QRectF &contentsRect)
 {
-    const int xOffset = hbar->value();
-    const int yOffset = vbar->value();
+    const int xOffset = horizontalOffset();
+    const int yOffset = verticalOffset();
     const QRect visibleRect(xOffset, yOffset, viewport->width(), viewport->height());
 
     QRect r = contentsRect.toRect().intersect(visibleRect);
@@ -556,13 +556,13 @@ void QTextEditPrivate::selectionChanged()
 void QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextEdit);
-    int targetY = vbar->value() - viewport->height();
+    int targetY = verticalOffset() - viewport->height();
     bool moved = false;
     qreal y;
     // move to the targetY using movePosition to keep the cursor's x
     do {
         const QRect r = q->cursorRect();
-        y = vbar->value() + r.y() - r.height();
+        y = verticalOffset() + r.y() - r.height();
         moved = cursor.movePosition(QTextCursor::Up, moveMode);
     } while (moved && y > targetY);
 
@@ -576,12 +576,12 @@ void QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
 void QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextEdit);
-    int targetY = vbar->value() + 2 * viewport->height();
+    int targetY = verticalOffset() + 2 * viewport->height();
     bool moved = false;
     qreal y;
     // move to the targetY using movePosition to keep the cursor's x
     do {
-        y = vbar->value() + q->cursorRect().bottom();
+        y = verticalOffset() + q->cursorRect().bottom();
         moved = cursor.movePosition(QTextCursor::Down, moveMode);
     } while (moved && y < targetY);
 
@@ -624,6 +624,15 @@ void QTextEditPrivate::adjustScrollbars()
 
     vbar->setRange(0, docSize.height() - viewportSize.height());
     vbar->setPageStep(viewportSize.height());
+    
+    // if we are in left-to-right mode widening the document due to
+    // lazy layouting does not require a repaint. If in right-to-left
+    // the scrollbar has the value zero and it visually has the maximum
+    // value (it is visually at the right), then widening the document
+    // keeps it at value zero but visually adjusts it to the new maximum
+    // on the right, hence we need an update.
+    if (isRightToLeft())
+        viewport->update();
 }
 #endif
 
@@ -667,14 +676,14 @@ void QTextEditPrivate::ensureVisible(const QRect &rect)
     const int visibleWidth = viewport->width();
     const int visibleHeight = viewport->height();
 
-    if (rect.x() < hbar->value())
+    if (rect.x() < horizontalOffset())
         hbar->setValue(rect.x() - rect.width());
-    else if (rect.x() + rect.width() > hbar->value() + visibleWidth)
+    else if (rect.x() + rect.width() > horizontalOffset() + visibleWidth)
         hbar->setValue(rect.x() + rect.width() - visibleWidth);
 
-    if (rect.y() < vbar->value())
+    if (rect.y() < verticalOffset())
         vbar->setValue(rect.y() - rect.height());
-    else if (rect.y() + rect.height() > vbar->value() + visibleHeight)
+    else if (rect.y() + rect.height() > verticalOffset() + visibleHeight)
         vbar->setValue(rect.y() + rect.height() - visibleHeight);
 }
 
@@ -684,7 +693,7 @@ void QTextEditPrivate::ensureViewportLayouted()
     if (!layout)
         return;
     if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout))
-        tlayout->ensureLayouted(vbar->value() + viewport->height());
+        tlayout->ensureLayouted(verticalOffset() + viewport->height());
 }
 
 void QTextEditPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
@@ -1995,7 +2004,7 @@ void QTextEditPrivate::relayoutDocument()
 
     doc->setPageSize(QSize(width, INT_MAX));
     if (tlayout)
-        tlayout->ensureLayouted(vbar->value() + viewport->height());
+        tlayout->ensureLayouted(verticalOffset() + viewport->height());
 
     ignoreAutomaticScrollbarAdjustement = false;
 
@@ -2132,15 +2141,15 @@ QRect QTextEditPrivate::selectionRect() const
         }
     }
 
-    r.translate(-hbar->value(),-vbar->value());
+    r.translate(-horizontalOffset(),-verticalOffset());
     return r;
 }
 
 void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
 {
     Q_Q(QTextEdit);
-    const int xOffset = hbar->value();
-    const int yOffset = vbar->value();
+    const int xOffset = horizontalOffset();
+    const int yOffset = verticalOffset();
 
     QRect r = e->rect();
     p->translate(-xOffset, -yOffset);
@@ -2571,6 +2580,8 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
 void QTextEdit::scrollContentsBy(int dx, int dy)
 {
     Q_D(QTextEdit);
+    if (isRightToLeft())
+        dx = -dx;
     d->viewport->scroll(dx, dy);
 }
 
@@ -2758,7 +2769,7 @@ QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
         return QRect();
 
     QRect r = d->rectForPosition(cursor.position());
-    r.translate(-d->hbar->value(),-d->vbar->value());
+    r.translate(-d->horizontalOffset(),-d->verticalOffset());
     return r;
 }
 
@@ -3487,7 +3498,7 @@ void QTextEdit::append(const QString &text)
             f = Qt::PlainText;
     }
 
-    const bool atBottom = d->vbar->value() >= d->vbar->maximum();
+    const bool atBottom = d->verticalOffset() >= d->vbar->maximum();
 
     QTextCursor cursor(d->doc);
     cursor.beginEditBlock();

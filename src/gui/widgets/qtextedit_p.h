@@ -88,7 +88,7 @@ public:
     { viewport->update(selectionRect()); }
 
     inline QPoint mapToContents(const QPoint &point) const
-    { return QPoint(point.x() + hbar->value(), point.y() + vbar->value()); }
+    { return QPoint(point.x() + horizontalOffset(), point.y() + verticalOffset()); }
 
     void selectionChanged();
 
@@ -120,6 +120,11 @@ public:
     void undo();
     void redo();
     void setCursorAfterUndoRedo(int undoPosition, int charsAdded, int charsRemoved);
+    
+    inline int horizontalOffset() const
+    { return q_func()->isRightToLeft() ? (hbar->maximum() - hbar->value()) : hbar->value(); }
+    inline int verticalOffset() const
+    { return vbar->value(); }
     
     QRect rectForPosition(int position) const;
     QRect selectionRect() const;
