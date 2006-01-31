@@ -250,7 +250,7 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
             tlw->resize(ns);
     } else {
         if (isRightToLeft())
-            tlw->setGeometry(g.right() - ns.width() + 1, g.bottom() - ns.height() + 1, 
+            tlw->setGeometry(g.right() - ns.width() + 1, g.bottom() - ns.height() + 1,
                              ns.width(), ns.height());
         else
             tlw->setGeometry(g.x(), g.bottom() - ns.height() + 1, ns.width(), ns.height());
@@ -292,8 +292,8 @@ bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
 bool QSizeGrip::event(QEvent *e)
 {
     Q_D(QSizeGrip);
-#if defined(Q_WS_MAC)
     switch(e->type()) {
+#if defined(Q_WS_MAC)
     case QEvent::Hide:
     case QEvent::Show:
         if(!QApplication::closingDown() && parentWidget()) {
@@ -303,14 +303,12 @@ bool QSizeGrip::event(QEvent *e)
             }
         }
         break;
+#endif
+    case QEvent::MouseButtonRelease:
+        d->p = QPoint();
+        break;
     default:
         break;
-    }
-#endif
-    switch(e->type()) {
-        case QEvent::MouseButtonRelease:
-            d->p = QPoint();
-            break;
     }
     return QWidget::event(e);
 }
