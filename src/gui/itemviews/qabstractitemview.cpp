@@ -1381,6 +1381,8 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         QItemSelectionModel::SelectionFlags command = selectionCommand(newCurrent, event);
         if (command & QItemSelectionModel::Current) {
             selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
+            if (d->pressedPosition == QPoint(-1, -1))
+                d->pressedPosition = visualRect(current).center();
             QRect rect(d->pressedPosition - d->offset(), visualRect(newCurrent).center());
             setSelection(rect.normalized(), command);
         } else {
