@@ -888,11 +888,9 @@ bool QAbstractItemView::event(QEvent *event)
     \fn bool QAbstractItemView::viewportEvent(QEvent *event)
 
     This function is used to handle tool tips, and What's
-    This? mode, status tips, if the given \a event is a QEvent::ToolTip,or a
+    This? mode, if the given \a event is a QEvent::ToolTip,or a
     QEvent::WhatsThis. It passes all other
     events on to its base class viewportEvent() handler.
-
-    To enable status tips you have to set the Qt::WA_Hover attribute on the viewport.
 */
 bool QAbstractItemView::viewportEvent(QEvent *event)
 {
@@ -911,17 +909,8 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
         QHoverEvent *he = static_cast<QHoverEvent*>(event);
         QModelIndex old = d->hover;
         d->hover = indexAt(he->pos());
-        if (d->hover != old) {
+        if (d->hover != old)
             d->viewport->update(visualRect(old)|visualRect(d->hover));
-#ifndef QT_NO_STATUSTIP
-            QVariant tip = d->hover.data(Qt::StatusTipRole);
-            if (tip.isValid()) {
-                QStatusTipEvent tipEvent(tip.toString());
-                QApplication::sendEvent(static_cast<QWidget *>(this), &tipEvent);
-            }
-            return true;
-#endif
-        }
         break; }
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip: {
