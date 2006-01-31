@@ -682,6 +682,8 @@ bool overrideHeadersRename(QString headerName)
         return true;
     else if(headerName == "QAction" ||  headerName == "qaction.h")
         return true;
+    else if(headerName == "QComboBox" ||  headerName == "qcombobox.h")
+        return true;
     return false;
 }
 
