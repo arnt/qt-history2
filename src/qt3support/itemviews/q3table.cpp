@@ -1266,6 +1266,7 @@ void Q3ComboTableItem::paint(QPainter *p, const QColorGroup &cg,
     opt.rect = fakeCombo->rect();
     opt.palette = pal2;
     opt.state &= ~QStyle::State_HasFocus;
+    opt.state &= ~QStyle::State_MouseOver;
     opt.state |= flags;
     opt.subControls = QStyle::SC_All;
     opt.activeSubControls = QStyle::SC_None;
@@ -1531,6 +1532,7 @@ void Q3CheckTableItem::paint(QPainter *p, const QColorGroup &cg,
     opt.rect.setRect(0, (cr.height() - sz.height()) / 2, sz.width(), sz.height());
     opt.palette = pal2;
     opt.state &= ~QStyle::State_HasFocus;
+    opt.state &= ~QStyle::State_MouseOver;
     if(isEnabled())
         opt.state |= QStyle::State_Enabled;
     if (checked)
