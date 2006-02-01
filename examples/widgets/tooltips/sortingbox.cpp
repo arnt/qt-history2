@@ -122,20 +122,23 @@ void SortingBox::mouseReleaseEvent(QMouseEvent *event)
 
 void SortingBox::createNewCircle()
 {
-    createShapeItem(circlePath, tr("Circle"), randomItemPosition(),
-                    randomItemColor());
+    static int count = 1;
+    createShapeItem(circlePath, tr("Circle <%1>").arg(++count),
+                    randomItemPosition(), randomItemColor());
 }
 
 void SortingBox::createNewSquare()
 {
-    createShapeItem(squarePath, tr("Square"), randomItemPosition(),
-                    randomItemColor());
+    static int count = 1;
+    createShapeItem(squarePath, tr("Square <%1>").arg(++count),
+                    randomItemPosition(), randomItemColor());
 }
 
 void SortingBox::createNewTriangle()
 {
-    createShapeItem(trianglePath, tr("Triangle"), randomItemPosition(),
-                    randomItemColor());
+    static int count = 1;
+    createShapeItem(trianglePath, tr("Triangle <%1>").arg(++count),
+                    randomItemPosition(), randomItemColor());
 }
 
 int SortingBox::itemAt(const QPoint &pos)
