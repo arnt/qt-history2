@@ -323,6 +323,7 @@ QHostAddress::QHostAddress(const QString &address)
     \sa setAddress()
 */
 QHostAddress::QHostAddress(const struct sockaddr *sockaddr)
+    : d(new QHostAddressPrivate)
 {
     if (sockaddr->sa_family == AF_INET)
         setAddress(htonl(((sockaddr_in *)sockaddr)->sin_addr.s_addr));
