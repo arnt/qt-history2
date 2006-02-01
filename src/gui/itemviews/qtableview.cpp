@@ -572,31 +572,24 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
         while (visualRow < bottom && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
             ++visualRow;
         break;
-    case MovePrevious:
-        {
-            int left = 0;
-            // make sure that left is the leftmost *visible* column
-            while (isColumnHidden(left) && left < right) left++;
-
-            if (visualColumn == left) {
-                // wrap up to the last column on the previous row
-                visualColumn = right;
-
-                int visualtop = 0;
-                while (visualtop < bottom && isRowHidden(verticalHeader()->logicalIndex(visualtop)))
-                    ++visualtop;
-
-                // check if we are at top we also need to wrap down to the bottom
-                if (visualRow == visualtop) {
-                    visualRow = bottom;
-                } else {
-                    --visualRow;
-                }
-                while (visualRow > 0 && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
-                    --visualRow;
-                break;
-            }
-        }
+    case MovePrevious: {
+        int left = 0;
+        while (isColumnHidden(left) && left < right)
+            ++left;
+        if (visualColumn == left) {
+            visualColumn = right;
+            int top = 0;
+            while (top < bottom && isRowHidden(verticalHeader()->logicalIndex(top)))
+                ++top;
+            if (visualRow == top)
+                visualRow = bottom;
+            else
+                --visualRow;
+            while (visualRow > 0 && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+                --visualRow;
+            break;
+        } // else MoveLeft
+    }
     case MoveLeft:
         --visualColumn;
         while (visualColumn > 0 && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
@@ -604,29 +597,28 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
         break;
     case MoveNext:
         if (visualColumn == right) {
-            // wrap down to the next line
             visualColumn = 0;
-            while (visualColumn < right && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
+            while (visualColumn < right
+                   && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
                 ++visualColumn;
-
-            if (visualRow == bottom) {
-                // check if we are at the bottom, rightmost cell, then wrap to the top left
+            if (visualRow == bottom)
                 visualRow = 0;
-            } else {
+            else
                 ++visualRow;
-            }
             while (visualRow < bottom && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
                 ++visualRow;
             break;
-        }
+        } // else MoveRight
     case MoveRight:
         ++visualColumn;
-        while (visualColumn < right && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
+        while (visualColumn < right
+               && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
             ++visualColumn;
         break;
     case MoveHome:
         visualColumn = 0;
-        while (visualColumn < right && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
+        while (visualColumn < right
+               && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
             ++visualColumn;
         if (modifiers & Qt::ControlModifier) {
             visualRow = 0;
@@ -636,19 +628,19 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
         break;
     case MoveEnd:
         visualColumn = right;
-        if (modifiers & Qt::ControlModifier) {
+        if (modifiers & Qt::ControlModifier)
             visualRow = bottom;
-        }
         break;
     case MovePageUp: {
         int newRow = rowAt(visualRect(current).top() - d->viewport->height());
-        return model()->index(qBound(0, newRow, bottom), current.column(), rootIndex()); }
+        return model()->index(qBound(0, newRow, bottom), current.column(), rootIndex());
+    }
     case MovePageDown: {
         int newRow = rowAt(visualRect(current).bottom() + d->viewport->height());
         if (newRow < 0)
             newRow = bottom;
-        return model()->index(qBound(0, newRow, bottom), current.column(), rootIndex());}
-    }
+        return model()->index(qBound(0, newRow, bottom), current.column(), rootIndex());
+    }}
 
     int logicalRow = verticalHeader()->logicalIndex(visualRow);
     int logicalColumn = horizontalHeader()->logicalIndex(visualColumn);
