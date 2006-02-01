@@ -460,7 +460,7 @@ bool QSqlTableModel::setData(const QModelIndex &index, const QVariant &value, in
     if (role != Qt::EditRole)
         return QSqlQueryModel::setData(index, value, role);
 
-    if (index.column() >= d->rec.count() || index.row() >= rowCount())
+    if (!index.isValid() || index.column() >= d->rec.count() || index.row() >= rowCount())
         return false;
 
     bool isOk = true;
