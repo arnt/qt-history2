@@ -224,45 +224,39 @@ ushort KeyDecoder::qChecksum(const char *data, uint len)
 }
 
 KeyDecoder::KeyDecoder(const char *clicenseKey)
-    : products(0), platforms(0), licenseSchema(0), licenseFeatures(0), licenseID(0)
+    : products(0), platforms(0), licenseSchema(0), licenseFeatures(0), licenseID(0), m_valid(false)
 {
-    m_valid = false;
+    static const int MAXCHARS = 7;
+    static const char * const SEP = "-";
 
-    char *licenseKey = (char *)malloc(strlen(clicenseKey) * sizeof(char));
-    char *crcCheckKey = (char *)malloc(strlen(clicenseKey) * sizeof(char));
-    strcpy(licenseKey, clicenseKey);
-
-    int partNumber = 0;
+    char *buffer = strdup(clicenseKey);
     char *licenseParts[NUMBER_OF_PARTS];
-    licenseParts[0] = licenseKey;
+    int partNumber = 0;
 
-    while((*licenseKey) != '\0') {
-        licenseKey++;
-        if ((*licenseKey) == '-') {
-            partNumber++;
-            if (partNumber >= NUMBER_OF_PARTS) {
-                free(licenseKey);
-                free(crcCheckKey);
-                return; //invalid key
-            }
-            (*licenseKey) = '\0';
-            licenseParts[partNumber] = ++licenseKey;
-        }
+    for (char *part = strtok(buffer, SEP); part != 0; part = strtok(0, SEP))
+        licenseParts[partNumber++] = part;
+    
+    if (partNumber < (NUMBER_OF_PARTS-1)) {
+        free(buffer);
+        return; //invalid key
     }
 
-    if (partNumber < (NUMBER_OF_PARTS-1))
-        return; //invalid key
+    int crcPeices = NUMBER_OF_PARTS - 1;
+    char *crcCheckKey = new char[crcPeices * MAXCHARS + crcPeices];
+    for (int i = 0; i < crcPeices; ++i) {
+        if (i != 0)
+            strncat(crcCheckKey, SEP, 1);
+        strncat(crcCheckKey, licenseParts[i], MAXCHARS);
+    }
 
-    sprintf(crcCheckKey, "%s-%s-%s-%s-%s-%s",
-        licenseParts[0], licenseParts[1], licenseParts[2],
-        licenseParts[3], licenseParts[4], licenseParts[5]);
-    
     int crc = qChecksum(crcCheckKey, (uint)strlen(crcCheckKey));
 
     char checksumVerification[5];
-    sprintf(checksumVerification, "%.2X%.2X", (crc & 0xff), (crc >> 8 & 0xff));
+    snprintf(checksumVerification, 5, "%.2X%.2X", (crc & 0xff), (crc >> 8 & 0xff));
 
-    if (strcmp(checksumVerification, licenseParts[6]) != 0) {
+    if (strncmp(checksumVerification, licenseParts[6], 5) != 0) {
+        free(buffer);
+        delete [] crcCheckKey;
         return; //invalid checksum
     }
 
@@ -272,6 +266,8 @@ KeyDecoder::KeyDecoder(const char *clicenseKey)
     licenseFeatures = decodeBaseX(licenseParts[3]) ^ FeatureMagic;
     licenseID = decodeBaseX(licenseParts[4]) ^ LicenseIDMagic;
     expiryDate = decodedExpiryDate(licenseParts[5]);
-    
+
     m_valid = true;
+    free(buffer);
+    delete [] crcCheckKey;
 }
