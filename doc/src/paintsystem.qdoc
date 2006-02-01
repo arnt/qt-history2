@@ -1,0 +1,62 @@
+/*!
+    \page paintsystem.html
+
+    \title The Paint System
+
+    QPainter, QPaintDevice, QPaintEngine
+
+    \image paintsystem-core.png
+
+    QSvg, QOpenGL
+
+    \table 100%
+    \row
+    \o \bold QStylePainter
+    \o \inlineimage paintsystem-painter.png
+    \endtable
+
+    \tableofcontents
+
+    \section1 Drawing
+
+    \table 100%
+    \row
+    \o \inlineimage paintsystem-painterpath.png
+    \o \bold QPainterPath
+    \endtable
+
+    \section1 Filling
+
+    \table 100%
+    \row
+    \o \bold QGradient
+    \image paintsystem-gradient.png
+    \o \inlineimage paintsystem-radialgradient.png
+    \endtable
+
+    \section1 Devices
+
+    \image paintsystem-device.png
+
+    \section2 Widget
+    \section2 Image
+    \section2 Pixmap
+
+    \table 100%
+    \row
+    \o \inlineimage paintsystem-icon.png
+    \o \bold QIcon
+    \endtable
+
+    \section2 Pixel Buffer
+    \section2 Printer
+    \section2 Picture
+
+    \table 100%
+    \row
+    \o \bold QMovie
+    \o \inlineimage paintsystem-movie.png
+    \endtable
+
+    \section1 Reading and Writing Image Files
+*/
