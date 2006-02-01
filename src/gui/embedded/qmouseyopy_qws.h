@@ -32,6 +32,9 @@ public:
                                  const QString & = QString());
     ~QWSYopyMouseHandler();
 
+    void resume();
+    void suspend();
+
 protected:
     QWSYopyMouseHandlerPrivate *d;
 };

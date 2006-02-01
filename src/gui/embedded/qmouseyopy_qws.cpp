@@ -36,12 +36,16 @@ public:
     QWSYopyMouseHandlerPrivate(QWSYopyMouseHandler *h);
     ~QWSYopyMouseHandlerPrivate();
 
+    void suspend();
+    void resume();
+
 private slots:
     void readMouseData();
 
 private:
     int mouseFD;
     int prevstate;
+    QSocketNotifier *mouseNotifier;
     QWSYopyMouseHandler *handler;
 };
 
@@ -55,6 +59,16 @@ QWSYopyMouseHandler::~QWSYopyMouseHandler()
     delete d;
 }
 
+void QWSYopyMouseHandler::resume()
+{
+    d->resume();
+}
+
+void QWSYopyMouseHandler::suspend()
+{
+    d->suspend();
+}
+
 QWSYopyMouseHandlerPrivate::QWSYopyMouseHandlerPrivate(QWSYopyMouseHandler *h)
     : handler(h)
 {
@@ -65,7 +79,6 @@ QWSYopyMouseHandlerPrivate::QWSYopyMouseHandlerPrivate(QWSYopyMouseHandler *h)
         sleep(1);
     }
     prevstate=0;
-    QSocketNotifier *mouseNotifier;
     mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read,
                                          this);
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
@@ -89,6 +102,18 @@ struct YopyTPdata {
   unsigned short ypos;
 
 };
+
+void QWSYopyMouseHandlerPrivate::suspend()
+{
+    mouseNotifier->setEnabled(false);
+}
+
+
+void QWSYopyMouseHandlerPrivate::resume()
+{
+    prevstate = 0;
+    mouseNotifier->setEnabled(true);
+}
 
 void QWSYopyMouseHandlerPrivate::readMouseData()
 {
