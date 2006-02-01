@@ -296,6 +296,7 @@ bool QSizeGrip::event(QEvent *e)
 #if defined(Q_WS_MAC)
     case QEvent::Hide:
     case QEvent::Show:
+        d->atBottom = qt_sizegrip_atBottom(this);
         if(!QApplication::closingDown() && parentWidget()) {
             if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
                 if(w->isWindow())
