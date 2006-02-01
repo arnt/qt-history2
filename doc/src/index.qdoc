@@ -10,7 +10,7 @@
 **
 ****************************************************************************/
 
-/*! 
+/*!
     \page index.html
 
     \keyword Qt Reference Documentation
@@ -135,6 +135,7 @@
         <li><a href="modules.html">Qt Classes by Module</a></li>
         <li><a href="hierarchy.html">Inheritance Hierarchy</a></li>
         <li><a href="functions.html">All Functions</a></li>
+        <li><a href="winsystem.html#qtopia-core-qt-for-embedded-linux">Qtopia Core</a></li>
         <li><a href="overviews.html">All Overviews and HOWTOs</a></li>
         </ul>
         </td>
