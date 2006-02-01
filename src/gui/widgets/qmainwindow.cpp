@@ -351,7 +351,7 @@ QMenuBar *QMainWindow::menuBar() const
 void QMainWindow::setMenuBar(QMenuBar *menuBar)
 {
     Q_D(QMainWindow);
-    if (d->layout->menuBar())
+    if (d->layout->menuBar() && d->layout->menuBar() != menuBar)
         delete d->layout->menuBar();
     d->layout->setMenuBar(menuBar);
 }
@@ -387,7 +387,7 @@ QStatusBar *QMainWindow::statusBar() const
 void QMainWindow::setStatusBar(QStatusBar *statusbar)
 {
     Q_D(QMainWindow);
-    if (d->layout->statusBar())
+    if (d->layout->statusBar() && d->layout->statusBar() != statusbar)
         delete d->layout->statusBar();
     d->layout->setStatusBar(statusbar);
 }
