@@ -29,8 +29,14 @@ public:
                                    const QString & = QString());
     ~QWSVr41xxMouseHandler();
 
+    void resume();
+    void suspend();
+
 protected:
     QWSVr41xxMouseHandlerPrivate *d;
+
+private:
+    friend class QWSVr41xxMouseHandlerPrivate;
 };
 
 #endif // QT_NO_QWS_MOUSE_VR41XX

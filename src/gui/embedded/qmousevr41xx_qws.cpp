@@ -30,14 +30,15 @@
 #include <errno.h>
 #include <termios.h>
 
-#include <linux/tpanel.h>
-
 class QWSVr41xxMouseHandlerPrivate : public QObject
 {
     Q_OBJECT
 public:
     QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler *, const QString &, const QString &);
     ~QWSVr41xxMouseHandlerPrivate();
+
+    void resume();
+    void suspend();
 
 private slots:
     void sendRelease();
@@ -47,9 +48,9 @@ private:
     enum { mouseBufSize = 128 };
     int mouseFD;
     int mouseIdx;
-    int obstate;
     QTimer *rtimer;
     uchar mouseBuf[mouseBufSize];
+    QSocketNotifier *mouseNotifier;
     QWSVr41xxMouseHandler *handler;
 };
 
@@ -64,27 +65,34 @@ QWSVr41xxMouseHandler::~QWSVr41xxMouseHandler()
     delete d;
 }
 
+void QWSVr41xxMouseHandler::resume()
+{
+    d->resume();
+}
+
+void QWSVr41xxMouseHandler::suspend()
+{
+    d->suspend();
+}
+
 QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler *h, const QString &, const QString &device)
     : handler(h)
 {
     QString dev = device;
     if (dev.isEmpty())
-        dev = "/dev/tpanel";
+        dev = "/dev/vrtpanel";
 
-    if ((mouseFD = open(dev, O_RDONLY)) < 0) {
-        qFatal("Cannot open %s (%s)", dev.toLatin1(), strerror(errno));
-    } else {
-        sleep(1);
+    if ((mouseFD = open(dev.toLocal8Bit().constData(), O_RDONLY)) < 0) {
+        qWarning("Cannot open %s (%s)", qPrintable(dev), strerror(errno));
+        return;
+    }
+    sleep(1);
+
+    if (fcntl(mouseFD, F_SETFL, O_NONBLOCK) < 0) {
+        qWarning("Error initializing touch panel.");
+        return;
     }
 
-    struct scanparam s;
-    s.interval = 20000;
-    s.settletime = 480;
-    if (ioctl(mouseFD, TPSETSCANPARM, &s) < 0
-      || fcntl(mouseFD, F_SETFL, O_NONBLOCK) < 0)
-        qWarning("Error initializing touch panel.");
-
-    QSocketNotifier *mouseNotifier;
     mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read,
                                          this);
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
@@ -100,6 +108,18 @@ QWSVr41xxMouseHandlerPrivate::~QWSVr41xxMouseHandlerPrivate()
 {
     if (mouseFD >= 0)
         close(mouseFD);
+}
+
+void QWSVr41xxMouseHandlerPrivate::suspend()
+{
+    mouseNotifier->setEnabled(false);
+}
+
+
+void QWSVr41xxMouseHandlerPrivate::resume()
+{
+    mouseIdx = 0;
+    mouseNotifier->setEnabled(true);
 }
 
 void QWSVr41xxMouseHandlerPrivate::sendRelease()
