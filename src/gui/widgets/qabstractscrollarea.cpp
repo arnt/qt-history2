@@ -278,7 +278,7 @@ QSize QAbstractScrollArea::maximumViewportSize() const
     int vsbExt = d->vbar->sizeHint().width();
 
     int f = 2 * d->frameWidth;
-    QSize max = size() - QSize(f,f);
+    QSize max = size() - QSize(f + d->left + d->right, f + d->top + d->bottom);
     if (d->vbarpolicy == Qt::ScrollBarAlwaysOn)
         max.rwidth() -= vsbExt;
     if (d->hbarpolicy == Qt::ScrollBarAlwaysOn)
