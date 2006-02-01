@@ -1247,14 +1247,23 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         p->restore();
         break;
     case CE_RubberBand: {
-        p->save();
-        p->setClipping(false);
-        QPainterPath path;
-        path.addRect(opt->rect);
-        path.addRect(opt->rect.adjusted(4, 4, -4, -4));
+        QPixmap tiledPixmap(16, 16);
+        QPainter pixmapPainter(&tiledPixmap);
+        pixmapPainter.setPen(Qt::NoPen);
+        pixmapPainter.setBrush(Qt::Dense4Pattern);
+        pixmapPainter.setBackground(QBrush(opt->palette.base()));
+        pixmapPainter.setBackgroundMode(Qt::OpaqueMode);
+        pixmapPainter.drawRect(0, 0, tiledPixmap.width(), tiledPixmap.height());
+        pixmapPainter.end();
+        // ### workaround for borked XRENDER
+        tiledPixmap = QPixmap::fromImage(tiledPixmap.toImage());
 
-        p->fillPath(path, opt->palette.base());
-        p->fillPath(path, QBrush(opt->palette.foreground().color(), Qt::Dense4Pattern));
+        p->save();
+        QRect r = opt->rect;
+        QStyleHintReturnMask mask;
+        if (styleHint(QStyle::SH_RubberBand_Mask, opt, widget, &mask))
+            p->setClipRegion(mask.region);
+        p->drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), tiledPixmap);
         p->restore();
         }
         break;

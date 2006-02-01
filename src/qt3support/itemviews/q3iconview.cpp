@@ -5526,6 +5526,7 @@ bool Q3IconView::eventFilter(QObject * o, QEvent * e)
                         p.end();
                     }
                 } else {
+                    p.translate(-contentsX(), -contentsY());
                     drawRubber(&p);
                 }
             }
