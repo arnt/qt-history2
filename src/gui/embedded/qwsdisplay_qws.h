@@ -87,6 +87,7 @@ public:
     void convertSelection(int winId, int selectionProperty, const QString &mimeTypes);
     void defineCursor(int id, const QBitmap &curs, const QBitmap &mask,
                         int hotX, int hotY);
+    void destroyCursor(int id);
     void selectCursor(QWidget *w, unsigned int id);
     void setCursorPosition(int x, int y);
     void grabMouse(QWidget *w, bool grab);

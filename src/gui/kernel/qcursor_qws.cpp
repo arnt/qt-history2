@@ -34,6 +34,7 @@ QCursorData::~QCursorData()
 {
     delete bm;
     delete bmm;
+    QPaintDevice::qwsDisplay()->destroyCursor(id);
 }
 
 

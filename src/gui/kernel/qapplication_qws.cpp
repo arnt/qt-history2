@@ -1347,6 +1347,19 @@ void QWSDisplay::defineCursor(int id, const QBitmap &curs, const QBitmap &mask,
     d->sendCommand(cmd);
 }
 
+void QWSDisplay::destroyCursor(int id)
+{
+    QWSDefineCursorCommand cmd;
+    cmd.simpleData.width = 0;
+    cmd.simpleData.height = 0;
+    cmd.simpleData.hotX = 0;
+    cmd.simpleData.hotY = 0;
+    cmd.simpleData.id = id;
+    cmd.setData(0, 0);
+
+    d->sendCommand(cmd);
+}
+
 #ifndef QT_NO_SOUND
 void QWSDisplay::playSoundFile(const QString& f)
 {

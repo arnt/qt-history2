@@ -2054,13 +2054,16 @@ void QWSServerPrivate::invokeDefineCursor(QWSDefineCursorCommand *cmd, QWSClient
         return;
     }
 
+    delete client->cursors.take(cmd->simpleData.id);
+
     int dataLen = cmd->simpleData.height * ((cmd->simpleData.width+7) / 8);
 
-    QWSCursor *curs = new QWSCursor(cmd->data, cmd->data + dataLen,
-                                cmd->simpleData.width, cmd->simpleData.height,
-                                cmd->simpleData.hotX, cmd->simpleData.hotY);
-
-    client->cursors.insert(cmd->simpleData.id, curs);
+    if (dataLen > 0 && cmd->data) {
+        QWSCursor *curs = new QWSCursor(cmd->data, cmd->data + dataLen,
+                                        cmd->simpleData.width, cmd->simpleData.height,
+                                        cmd->simpleData.hotX, cmd->simpleData.hotY);
+        client->cursors.insert(cmd->simpleData.id, curs);
+    }
 }
 
 void QWSServerPrivate::invokeSelectCursor(QWSSelectCursorCommand *cmd, QWSClient *client)
