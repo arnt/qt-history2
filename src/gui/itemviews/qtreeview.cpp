@@ -1047,7 +1047,7 @@ QModelIndex QTreeView::indexAt(const QPoint &point) const
 {
     Q_D(const QTreeView);
     d->executePostedLayout();
-    
+
     int visualIndex = d->item(point.y());
     QModelIndex idx = d->modelIndex(visualIndex);
     int column = d->columnAt(point.x());
@@ -1401,7 +1401,7 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
     Q_UNUSED(start);
     Q_UNUSED(end);
     Q_D(QTreeView);
-    
+
     if (d->viewItems.isEmpty())
         return;
 
@@ -1967,11 +1967,6 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     Q_Q(QTreeView);
     int viewHeight = viewport->height();
     int itemCount = viewItems.count();
-
-    if (viewHeight <= 0) {
-        q->verticalScrollBar()->setRange(0, 0);
-        return;
-    }
 
     // set page step size
     int verticalScrollBarValue = q->verticalScrollBar()->value();
