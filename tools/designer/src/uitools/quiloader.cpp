@@ -5,6 +5,7 @@
 #include <formbuilder.h>
 #include <ui4.h>
 
+#include <qdebug.h>
 #include <QAction>
 #include <QActionGroup>
 #include <QApplication>
@@ -13,6 +14,12 @@
 #include <QLayout>
 #include <QWidget>
 #include <QMap>
+#include <QTabWidget>
+#include <QTreeWidget>
+#include <QListWidget>
+#include <QTableWidget>
+#include <QToolBox>
+#include <QComboBox>
 #include <private/qobject_p.h>
 
 typedef QMap<QString, bool> widget_map;
@@ -96,6 +103,7 @@ public:
 
     virtual void applyProperties(QObject *o, const QList<DomProperty*> &properties);
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
+    virtual QWidget *create(DomWidget *ui_widget, QWidget *parentWidget);
 
 private:
     QString m_class;
@@ -131,6 +139,92 @@ QWidget *FormBuilderPrivate::create(DomUI *ui, QWidget *parentWidget)
 {
     m_class = ui->elementClass();
     return QFormBuilder::create(ui, parentWidget);
+}
+
+static void recursiveTranslate(QTreeWidgetItem *item, const QString &class_name)
+{
+    int cnt = item->columnCount();
+    for (int i = 0; i < cnt; ++i) {
+        QString text = QApplication::translate(class_name.toUtf8(),
+                                                item->text(i).toUtf8(),
+                                                "",
+                                                QCoreApplication::UnicodeUTF8);
+        item->setText(i, text);
+    }
+
+    cnt = item->childCount();
+    for (int i = 0; i < cnt; ++i)
+        recursiveTranslate(item->child(i), class_name);
+}
+
+QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
+{
+    QWidget *w = QFormBuilder::create(ui_widget, parentWidget);
+    if (w == 0)
+        return 0;
+
+    if (QTabWidget *tabw = qobject_cast<QTabWidget*>(w)) {
+        int cnt = tabw->count();
+        for (int i = 0; i < cnt; ++i) {
+            QString text = QApplication::translate(m_class.toUtf8(),
+                                                    tabw->tabText(i).toUtf8(),
+                                                    "",
+                                                    QCoreApplication::UnicodeUTF8);
+
+            tabw->setTabText(i, text);
+        }
+    } else if (QListWidget *listw = qobject_cast<QListWidget*>(w)) {
+        int cnt = listw->count();
+        for (int i = 0; i < cnt; ++i) {
+            QListWidgetItem *item = listw->item(i);
+            QString text = QApplication::translate(m_class.toUtf8(),
+                                                    item->text().toUtf8(),
+                                                    "",
+                                                    QCoreApplication::UnicodeUTF8);
+            item->setText(text);
+        }
+    } else if (QTreeWidget *treew = qobject_cast<QTreeWidget*>(w)) {
+        int cnt = treew->topLevelItemCount();
+        for (int i = 0; i < cnt; ++i) {
+            QTreeWidgetItem *item = treew->topLevelItem(i);
+            recursiveTranslate(item, m_class);
+        }
+    } else if (QTableWidget *tablew = qobject_cast<QTableWidget*>(w)) {
+        int row_cnt = tablew->rowCount();
+        int col_cnt = tablew->columnCount();
+        for (int i = 0; i < row_cnt; ++i) {
+            for (int j = 0; j < col_cnt; ++j) {
+                QTableWidgetItem *item = tablew->item(i, j);
+                if (item == 0)
+                    continue;
+                QString text = QApplication::translate(m_class.toUtf8(),
+                                                        item->text().toUtf8(),
+                                                        "",
+                                                        QCoreApplication::UnicodeUTF8);
+                item->setText(text);
+            }
+        }
+    } else if (QComboBox *combow = qobject_cast<QComboBox*>(w)) {
+        int cnt = combow->count();
+        for (int i = 0; i < cnt; ++i) {
+            QString text = QApplication::translate(m_class.toUtf8(),
+                                                    combow->itemText(i).toUtf8(),
+                                                    "",
+                                                    QCoreApplication::UnicodeUTF8);
+            combow->setItemText(i, text);
+        }
+    } else if (QToolBox *toolw = qobject_cast<QToolBox*>(w)) {
+        int cnt = toolw->count();
+        for (int i = 0; i < cnt; ++i) {
+            QString text = QApplication::translate(m_class.toUtf8(),
+                                                    toolw->itemText(i).toUtf8(),
+                                                    "",
+                                                    QCoreApplication::UnicodeUTF8);
+            toolw->setItemText(i, text);
+        }
+    }
+
+    return w;
 }
 
 #ifdef QFORMINTERNAL_NAMESPACE
