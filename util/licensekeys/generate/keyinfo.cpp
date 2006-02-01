@@ -26,35 +26,10 @@ static QByteArray encodeBaseX(uint k)
     return str;
 }
 
-static uint decodeBaseX(const QByteArray &str)
-{
-    uint k = 0;
-    int i = str.length();
-    while (i > 0) {
-	i--;
-	const char *p = strchr(Xalphabet, str.at(i));
-	if (p == 0) {
-	    return 0;
-	} else {
-	    k = (k * XAlphabetSize) + (p - Xalphabet);
-	}
-    }
-    return k;
-}
-
 static QByteArray encodedExpiryDateExt(const QDate& date)
 {
     uint day = date.toJulianDay();
     return encodeBaseX(day ^ ExpiryDateMagic);
-}
-
-static QDate decodedExpiryDateExt(const QByteArray &encodedDate)
-{
-    uint day = decodeBaseX(encodedDate) ^ ExpiryDateMagic;
-    QDate date = QDate::fromJulianDay(day);
-    if (encodedExpiryDateExt(date) != encodedDate)
-        return QDate();
-    return date;
 }
 
 QByteArray generateLicenseKey(uint products,
@@ -181,57 +156,3 @@ QByteArray generateLicenseKey(const QByteArray &products,
                               _expiryDate);
 }
 
-bool decodeLicenseKey(const QByteArray &licenseKey,
-                      uint *products,
-                      uint *platforms,
-                      uint *licenseSchema,
-                      uint *licenseFeatures,
-                      uint *licenseID,
-                      QDate *expiryDate)
-{
-    QList<QByteArray> licenseParts;
-    int dash = -1;
-    do {
-        int start = dash + 1;
-        dash = licenseKey.indexOf('-', start);
-        licenseParts.append(licenseKey.mid(start, dash - start));
-    } while (dash != -1);
-
-    // license keys have 7 fields
-    if (licenseParts.size() != 7) {
-        // invalid key
-        return false;
-    }
-    QByteArray productPart = licenseParts.at(0);
-    QByteArray platformPart = licenseParts.at(1);
-    QByteArray licenseSchemaPart = licenseParts.at(2);
-    QByteArray licenseFeaturesPart = licenseParts.at(3);
-    QByteArray licenseIDPart = licenseParts.at(4);
-    QByteArray expiryDatePart = licenseParts.at(5);
-    QByteArray checksumPart = licenseParts.at(6);
-    QByteArray keyPart = productPart
-                         + '-' + platformPart
-                         + '-' + licenseSchemaPart
-                         + '-' + licenseFeaturesPart
-                         + '-' + licenseIDPart
-                         + '-' + expiryDatePart;
-
-    // verify the crc
-    int crc = qChecksum(keyPart.constData(), keyPart.size());
-    QByteArray checksumVerification = QString("%1%2")
-                                      .arg((crc & 0xff),2,16,QChar('0'))
-                                      .arg((crc >> 8 & 0xff),2,16,QChar('0'))
-                                      .toUpper().toLatin1();
-    if (checksumPart != checksumVerification) {
-        // invalid checksum
-        return false;
-    }
-
-    *products = decodeBaseX(productPart) ^ ProductMagic;
-    *platforms = decodeBaseX(platformPart) ^ PlatformMagic;
-    *licenseSchema = decodeBaseX(licenseSchemaPart) ^ LicenseSchemaMagic;
-    *licenseFeatures = decodeBaseX(licenseFeaturesPart) ^ FeatureMagic;
-    *licenseID = decodeBaseX(licenseIDPart) ^ LicenseIDMagic;
-    *expiryDate = decodedExpiryDateExt(expiryDatePart);
-    return true;
-}

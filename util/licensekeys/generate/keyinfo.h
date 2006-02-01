@@ -146,12 +146,4 @@ QByteArray generateLicenseKey(const QByteArray &products,
                               const QByteArray &licenseID,
                               const QByteArray &expiryDate);
 
-bool decodeLicenseKey(const QByteArray &licenseKey,
-                      uint *products,
-                      uint *platforms,
-                      uint *licenseSchema,
-                      uint *licenseFeatures,
-                      uint *licenseID,
-                      QDate *expiryDate);
-
 #endif // KEYINFO_H
