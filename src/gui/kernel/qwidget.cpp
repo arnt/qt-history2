@@ -4245,7 +4245,7 @@ void QWidgetPrivate::show_helper()
         q->setAttribute(Qt::WA_PendingMoveEvent, false);
     }
     if (q->testAttribute(Qt::WA_PendingResizeEvent)) {
-        QResizeEvent e(data.crect.size(), data.crect.size());
+        QResizeEvent e(data.crect.size(), QSize());
         QApplication::sendEvent(q, &e);
         q->setAttribute(Qt::WA_PendingResizeEvent, false);
     }
