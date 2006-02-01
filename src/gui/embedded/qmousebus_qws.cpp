@@ -67,12 +67,12 @@ QWSBusMouseHandler::~QWSBusMouseHandler()
     delete d;
 }
 
-QWSBusMouseHandler::suspend()
+void QWSBusMouseHandler::suspend()
 {
     d->suspend();
 }
 
-QWSBusMouseHandler::resume()
+void QWSBusMouseHandler::resume()
 {
     d->resume();
 }
@@ -118,15 +118,16 @@ QWSBusMouseHandlerPrivate::~QWSBusMouseHandlerPrivate()
 }
 
 
-QWSBusMouseHandlerPrivate::suspend()
+void QWSBusMouseHandlerPrivate::suspend()
 {
     mouseNotifier->setEnabled(false);
 }
 
 
-QWSBusMouseHandlerPrivate::resume()
+void QWSBusMouseHandlerPrivate::resume()
 {
     mouseIdx = 0;
+    obstate = -1;
     mouseNotifier->setEnabled(true);
 }
 
