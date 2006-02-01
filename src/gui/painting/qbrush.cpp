@@ -118,7 +118,7 @@ struct QGradientBrushData : public QBrushData
 
     The gradient() defines the gradient fill used when the current
     style is either Qt::LinearGradientPattern,
-    Qt::RadialGradientPattern or Qt::ConicalGradient Pattern. The
+    Qt::RadialGradientPattern or Qt::ConicalGradientPattern. The
     gradient can only be set when constructing the brush, while the
     texture() can be set using the appropiate constructor or by using
     the setTexture() function. The texture() defines the pixmap used
