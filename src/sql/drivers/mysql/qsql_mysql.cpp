@@ -947,7 +947,12 @@ bool QMYSQLDriver::open(const QString& db,
     if (isOpen())
         close();
 
-    unsigned int optionFlags = 0;
+    /* This is a hack to get MySQL's stored procedure support working.
+       Since a stored procedure _may_ return multiple result sets,
+       we have to enable CLIEN_MULTI_STATEMENTS here, otherwise _any_
+       stored procedure call will fail.
+    */
+    unsigned int optionFlags = CLIENT_MULTI_STATEMENTS;
     const QStringList opts(connOpts.split(QLatin1Char(';'), QString::SkipEmptyParts));
 
     // extract the real options from the string
