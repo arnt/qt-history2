@@ -293,6 +293,11 @@ QVariant QTDSResult::handle() const
     return QVariant(qRegisterMetaType<DBPROCESS *>("DBPROCESS*"), &d->dbproc);
 }
 
+static inline bool qIsNull(const void *ind)
+{
+    return *reinterpret_cast<const DBINT *>(&ind) == -1;
+}
+
 bool QTDSResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
 {
     STATUS stat = dbnextrow(d->dbproc);
@@ -312,7 +317,7 @@ bool QTDSResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
         int idx = index + i;
         switch (d->rec.field(i).type()) {
             case QVariant::DateTime:
-                if ((DBINT)d->buffer.at(i * 2 + 1) == -1) {
+                if (qIsNull(d->buffer.at(i * 2 + 1))) {
                     values[idx] = QVariant(QVariant::DateTime);
                 } else {
                     DBDATETIME *bdt = (DBDATETIME*) d->buffer.at(i * 2);
@@ -322,20 +327,20 @@ bool QTDSResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
                 }
                 break;
             case QVariant::Int:
-                if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
+                if (qIsNull(d->buffer.at(i * 2 + 1)))
                     values[idx] = QVariant(QVariant::Int);
                 else
                     values[idx] = *((int*)d->buffer.at(i * 2));
                 break;
             case QVariant::Double:
             case QVariant::String:
-                if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
+                if (qIsNull(d->buffer.at(i * 2 + 1)))
                     values[idx] = QVariant(QVariant::String);
                 else
                     values[idx] = QString::fromLocal8Bit((const char*)d->buffer.at(i * 2));
                 break;
             case QVariant::ByteArray: {
-                if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
+                if (qIsNull(d->buffer.at(i * 2 + 1)))
                     values[idx] = QVariant(QVariant::ByteArray);
                 else
                     values[idx] = QByteArray((const char*)d->buffer.at(i * 2));
