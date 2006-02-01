@@ -140,6 +140,7 @@ static IActiveIMMMessagePumpOwner *aimmpump = 0;
 static QString *imeComposition = 0;
 static int        imePosition    = -1;
 bool qt_use_rtl_extensions = false;
+static bool haveCaret = false;
 
 #ifndef LGRPID_INSTALLED
 #define LGRPID_INSTALLED          0x00000001  // installed language group ids
@@ -421,6 +422,8 @@ void QWinInputContext::update()
     candf.rcArea.right = r.x() + r.width();
     candf.rcArea.bottom = r.y() + r.height();
 
+    if(haveCaret) 
+        SetCaretPos(r.x(), r.y());
 
     if (aimm) {
         aimm->SetCompositionWindow(imc, &cf);
@@ -448,6 +451,10 @@ bool QWinInputContext::endComposition()
         HIMC imc = getContext(fw->winId());
         notifyIME(imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0);
         releaseContext(fw->winId(), imc);
+        if(haveCaret) {
+            DestroyCaret();
+            haveCaret = false;
+        }
     }
 
     if (!fw)
@@ -505,6 +512,9 @@ bool QWinInputContext::startComposition()
     QWidget *fw = focusWidget();
     if (fw) {
         imePosition = 0;
+        haveCaret = CreateCaret(fw->winId(), 0, 1, 1);
+        HideCaret(fw->winId());
+        update();
     }
     return fw != 0;
 }
@@ -587,6 +597,7 @@ bool QWinInputContext::composition(LPARAM lParam)
 
            QInputMethodEvent e(*imeComposition, attrs);
            result = qt_sendSpontaneousEvent(fw, &e);
+           update();
         }
         releaseContext(fw->winId(), imc);
     }
