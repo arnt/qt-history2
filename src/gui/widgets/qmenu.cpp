@@ -2156,6 +2156,8 @@ void QMenu::actionEvent(QActionEvent *e)
         connect(e->action(), SIGNAL(hovered()), this, SLOT(actionHovered()));
     } else if (e->type() == QEvent::ActionRemoved) {
         e->action()->disconnect(this);
+        if(e->action() == d->currentAction)
+            d->currentAction = 0;
     }
 
     if (isVisible()) {
