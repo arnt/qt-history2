@@ -32,8 +32,8 @@
     right and Y increases downwards. The unit is one pixel.
 
     The drawing capabilities of QPaintDevice are currently implemented
-    by the QWidget, QPixmap, QPicture, QImage, and QPrinter
-    subclasses.
+    by the QWidget, QImage, QPixmap, QGLPixelBuffer, QPicture, and
+    QPrinter subclasses.
 
     To implement support for a new backend, you must derive from
     QPaintDevice and reimplement the virtual paintEngine() function to
