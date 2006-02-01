@@ -173,7 +173,12 @@ bool QTipLabel::eventFilter(QObject *, QEvent *e)
 void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 {
     if (QTipLabel::instance && QTipLabel::instance->text() == text)
-        return;
+        return; /* this is NOT a bug, if the text doesn't change, you
+                 don't want the tool tips to move. If you divide your
+                 widget in different parts that show the same tool
+                 tip, you must handle that yourself. Simple hide the
+                 tip (by showing an empty string) and show the new
+                 one. */
 
     if (text.isEmpty()) {
         if (QTipLabel::instance)
