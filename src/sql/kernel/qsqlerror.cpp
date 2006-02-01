@@ -17,8 +17,8 @@
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QSqlError &s)
 {
-    dbg.nospace() << "QSqlError(" << s.number() << ", \"" << s.driverText() <<
-                     "\", \"" << s.databaseText() << "\")";
+    dbg.nospace() << "QSqlError(" << s.number() << ", " << s.driverText() <<
+                     ", " << s.databaseText() << ")";
     return dbg.space();
 }
 #endif
