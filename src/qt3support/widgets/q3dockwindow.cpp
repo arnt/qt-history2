@@ -239,6 +239,7 @@ void Q3DockWindowResizeHandle::startLineDraw()
     if (rubberBand)
         endLineDraw();
     rubberBand = new QRubberBand(QRubberBand::Line);
+    rubberBand->setGeometry(-1, -1, 1, 1);
     rubberBand->show();
 }
 
