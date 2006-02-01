@@ -2316,6 +2316,12 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
             d->autoScrollTimer.start(100, this);
     }
 
+#if !defined(QT_NO_IM)
+    QTextLayout *layout = d->cursor.block().layout();
+    if (!layout->preeditAreaText().isEmpty()) 
+        return;
+#endif
+
     int newCursorPos = d->doc->documentLayout()->hitTest(mousePos, Qt::FuzzyHit);
     if (newCursorPos == -1)
         return;
@@ -2388,6 +2394,12 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
         e->ignore();
         return;
     }
+#if !defined(QT_NO_IM)
+    QTextLayout *layout = d->cursor.block().layout();
+    if (!layout->preeditAreaText().isEmpty()) 
+        return;
+#endif
+
     d->ensureViewportLayouted();
 #ifndef QT_NO_DRAGANDDROP
     d->mightStartDrag = false;
