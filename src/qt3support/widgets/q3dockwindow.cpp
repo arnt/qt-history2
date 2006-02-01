@@ -288,7 +288,6 @@ public:
     QSize minimumSizeHint() const;
     QSize minimumSize() const { return minimumSizeHint(); }
     QSize sizeHint() const { return minimumSize(); }
-    QSizePolicy sizePolicy() const;
     void setOpaqueMoving(bool b) { opaque = b; }
 
     QString windowTitle() const { return dockWindow->windowTitle(); }
@@ -525,13 +524,6 @@ QSize Q3DockWindowHandle::minimumSizeHint() const
     if (dockWindow->orientation() == Qt::Horizontal)
         return QSize(wh, 0);
     return QSize(0, wh);
-}
-
-QSizePolicy Q3DockWindowHandle::sizePolicy() const
-{
-    if (dockWindow->orientation() != Qt::Horizontal)
-        return QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    return QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 }
 
 void Q3DockWindowHandle::mouseDoubleClickEvent(QMouseEvent *e)
@@ -974,7 +966,9 @@ void Q3DockWindow::init()
 
     titleBar      = new Q3DockWindowTitleBar(this);
     verHandle     = new Q3DockWindowHandle(this);
+    verHandle->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred));
     horHandle     = new Q3DockWindowHandle(this);
+    horHandle->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
 
     vHandleLeft   = new Q3DockWindowResizeHandle(Qt::Vertical, this, this, "vert. handle");
     vHandleRight  = new Q3DockWindowResizeHandle(Qt::Vertical, this, this, "vert. handle");
