@@ -484,7 +484,8 @@ void QMoviePrivate::loadNextFrame(bool starting)
 */
 bool QMoviePrivate::isValid() const
 {
-    return (greatestFrameNumber >= 0);
+    return (greatestFrameNumber >= 0) // have we seen valid data
+	|| reader->canRead(); // or does the reader see valid data
 }
 
 /*!
