@@ -1644,8 +1644,9 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
                 }
 #endif
                 QFocusEvent out(QEvent::FocusOut, reason);
+                QStyle *style = prev->style();
                 QApplication::sendEvent(prev, &out);
-                QApplication::sendEvent(prev->style(), &out);
+                QApplication::sendEvent(style, &out);
             }
             if(focus && QApplicationPrivate::focus_widget == focus) {
                 QInputContext *qic = focus->inputContext();
