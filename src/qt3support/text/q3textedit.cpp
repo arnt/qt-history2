@@ -4527,7 +4527,7 @@ Q3MimeSourceFactory* Q3TextEdit::mimeSourceFactory() const
 
 int Q3TextEdit::heightForWidth(int w) const
 {
-    int oldw = doc->width();
+    int oldw = doc->visibleWidth();
     doc->doLayout(0, w);
     int h = doc->height();
     doc->setWidth(oldw);
