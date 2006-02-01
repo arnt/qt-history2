@@ -367,7 +367,7 @@ Q3DockWindowHandle::Q3DockWindowHandle(Q3DockWindow *dw)
 
 void Q3DockWindowHandle::paintEvent(QPaintEvent *e)
 {
-    if ((!dockWindow->dockArea || mousePressed) && !opaque)
+    if (!dockWindow->dockArea && !opaque)
         return;
     QPainter p(this);
     QStyleOptionQ3DockWindow opt;
