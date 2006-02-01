@@ -4592,6 +4592,7 @@ void Q3IconView::contentsDragEnterEvent(QDragEnterEvent *e)
     d->oldDragAcceptAction = false;
     drawDragShapes(e->pos());
     d->dropped = false;
+    e->accept();
 }
 
 /*!
