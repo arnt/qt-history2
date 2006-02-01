@@ -57,9 +57,9 @@ static inline void capitalize (char *s)
 */
 // ----- begin of generated code -----
 
-#define make_tag( c1, c2, c3, c4 )                         \
-    ((((unsigned int)c1)<<24) | (((unsigned int)c2)<<16) | \
-    (((unsigned int)c3)<<8) | ((unsigned int)c4))
+#define make_tag( c1, c2, c3, c4 )                              \
+    ((((unsigned int)c1)<<24) | (((unsigned int)c2)<<16) |      \
+     (((unsigned int)c3)<<8) | ((unsigned int)c4))
 
 struct XlfdEncoding {
     const char *name;
@@ -317,7 +317,7 @@ int qt_xlfd_encoding_id(const char *encoding)
     const XlfdEncoding *enc = xlfd_encoding;
     for (; enc->name; ++enc) {
         if ((enc->hash1 && enc->hash1 != hash1) ||
-             (enc->hash2 && enc->hash2 != hash2))
+            (enc->hash2 && enc->hash2 != hash2))
             continue;
         // hashes match, do a compare if strings match
         // the enc->name can contain '*'s we have to interpret correctly
@@ -547,7 +547,7 @@ static QtFontStyle::Key getStyle(char ** tokens)
     if (qstrcmp(tokens[Width], "normal") == 0) {
         key.stretch = 100;
     } else if (qstrcmp(tokens[Width], "semi condensed") == 0 ||
-                qstrcmp(tokens[Width], "semicondensed") == 0) {
+               qstrcmp(tokens[Width], "semicondensed") == 0) {
         key.stretch = 90;
     } else if (qstrcmp(tokens[Width], "condensed") == 0) {
         key.stretch = 80;
@@ -1283,9 +1283,9 @@ static void initializeDb()
                         QtFontSize *size = style->pixelSizes + z;
                         for (int e = 0; e < size->count; ++e) {
                             FD_DEBUG("\t\t\t\t  size %5d pitch %c encoding %s",
-                                      size->pixelSize,
-                                      size->encodings[e].pitch,
-                                      xlfd_for_id(size->encodings[e].encoding));
+                                     size->pixelSize,
+                                     size->encodings[e].pitch,
+                                     xlfd_for_id(size->encodings[e].encoding));
                         }
                     }
                 }
@@ -1385,27 +1385,32 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
     if (!pattern)
         return 0;
 
-    QtFontDesc desc;
+    FcValue value;
+    value.type = FcTypeString;
 
+    QtFontDesc desc;
     QStringList families_and_foundries = familyList(request);
     for (int i = 0; i < families_and_foundries.size(); ++i) {
         QString family, foundry;
         parseFontName(families_and_foundries.at(i), foundry, family);
-        if (!family.isEmpty())
-            FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)family.toUtf8().constData());
+        if (!family.isEmpty()) {
+            QByteArray cs = family.toUtf8();
+            value.u.s = (const FcChar8 *)cs.data();
+            FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
+        }
         if (i == 0) {
             ::match(script, request, family, foundry, -1, &desc);
-            if (!foundry.isEmpty())
-                FcPatternAddString(pattern, FC_FOUNDRY, (const FcChar8 *)foundry.toUtf8().constData());
+            if (!foundry.isEmpty()) {
+                QByteArray cs = foundry.toUtf8();
+                value.u.s = (const FcChar8 *)cs.data();
+                FcPatternAddWeak(pattern, FC_FOUNDRY, value, FcTrue);
+            }
         }
     }
 
     const char *stylehint = styleHint(request);
     if (stylehint)
         FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)stylehint);
-
-    FcValue value;
-    value.type = FcTypeString;
 
     // these should only get added to the pattern _after_ substitution
     // append the default fallback font for the specified script
@@ -1436,6 +1441,7 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
             pitch_value = FC_MONO;
         FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
     }
+    FcPatternAddBool(pattern, FC_OUTLINE, !(request.styleStrategy & QFont::PreferBitmap));
     if (::preferScalable(request) || (desc.style && desc.style->smoothScalable))
         FcPatternAddBool(pattern, FC_SCALABLE, true);
 
@@ -1476,16 +1482,14 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
     if (!fs)
         return 0;
 
-    double size_value = request.pixelSize;
-
     // remove fonts if they are not scalable (and should be)
     if (forceScalable) {
-    for (int i = 0; i < fs->nfont; ++i) {
-        FcPattern *font = fs->fonts[i];
-        FcResult res;
-        FcBool scalable;
-        res = FcPatternGetBool(font, FC_SCALABLE, 0, &scalable);
-        if (res != FcResultMatch || !scalable) {
+        for (int i = 0; i < fs->nfont; ++i) {
+            FcPattern *font = fs->fonts[i];
+            FcResult res;
+            FcBool scalable;
+            res = FcPatternGetBool(font, FC_SCALABLE, 0, &scalable);
+            if (res != FcResultMatch || !scalable) {
                 FcFontSetRemove(fs, i);
 #ifdef FONT_MATCH_DEBUG
                 FM_DEBUG("removing pattern:");
@@ -1689,8 +1693,8 @@ QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &req
 }
 
 /*! \internal
-    Loads a QFontEngine for the specified \a script that matches the
-    QFontDef \e request member variable.
+  Loads a QFontEngine for the specified \a script that matches the
+  QFontDef \e request member variable.
 */
 void QFontDatabase::load(const QFontPrivate *d, int script)
 {
@@ -1730,13 +1734,13 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
             fe = loadRaw(d, req);
         } else
 #ifndef QT_NO_FONTCONFIG
-        if (X11->has_fontconfig) {
-            fe = loadFc(d, script, req);
-        } else
+            if (X11->has_fontconfig) {
+                fe = loadFc(d, script, req);
+            } else
 #endif
-        {
-            fe = loadXlfd(d->screen, script, req);
-        }
+                {
+                    fe = loadXlfd(d->screen, script, req);
+                }
         if (!fe) {
             fe = new QFontEngineBox(req.pixelSize);
             fe->fontDef = QFontDef();
