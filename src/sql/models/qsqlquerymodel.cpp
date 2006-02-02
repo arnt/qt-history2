@@ -324,7 +324,7 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     }
     QModelIndex newBottom;
     if (hasQuerySize) {
-        beginInsertRows(QModelIndex(), 0, newBottom.row());
+        beginInsertRows(QModelIndex(), 0, qMax(0, newBottom.row()));
         newBottom = createIndex(d->query.size() - 1, d->rec.count() - 1);
         d->bottom = createIndex(d->query.size() - 1, columnsChanged ? 0 : d->rec.count() - 1);
         d->atEnd = true;
