@@ -69,6 +69,12 @@ int QSqlTableModelPrivate::nameToIndex(const QString &name) const
     return rec.indexOf(name);
 }
 
+void QSqlTableModelPrivate::initRecordAndPrimaryIndex()
+{
+    rec = db.record(tableName);
+    primaryIndex = db.primaryIndex(tableName);
+}
+
 void QSqlTableModelPrivate::clear()
 {
     editIndex = -1;
@@ -168,7 +174,6 @@ bool QSqlTableModelPrivate::exec(const QString &stmt, bool prepStatement,
             return false;
         }
     }
-    //qDebug("executed: %s (%d)", stmt.ascii(), editQuery.numRowsAffected());
     return true;
 }
 
@@ -318,8 +323,7 @@ void QSqlTableModel::setTable(const QString &tableName)
     Q_D(QSqlTableModel);
     clear();
     d->tableName = tableName;
-    d->rec = d->db.record(tableName);
-    d->primaryIndex = d->db.primaryIndex(tableName);
+    d->initRecordAndPrimaryIndex();
 }
 
 /*!
@@ -348,7 +352,13 @@ bool QSqlTableModel::select()
     revertAll();
     QSqlQuery qu(query, d->db);
     setQuery(qu);
-    return qu.isActive();
+
+    if (!qu.isActive()) {
+        // something went wrong - revert to non-select state
+        d->initRecordAndPrimaryIndex();
+        return false;
+    }
+    return true;
 }
 
 /*!
