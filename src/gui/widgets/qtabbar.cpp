@@ -1034,7 +1034,6 @@ void QTabBar::paintEvent(QPaintEvent *)
     optTabBase.init(this);
     optTabBase.shape = d->shape;
     if (theParent && overlap > 0) {
-        QPainter::setRedirected(theParent, this, pos());
         QRect rect;
         switch (tabOverlap.shape) {
         case QTabBar::RoundedNorth:
@@ -1055,9 +1054,6 @@ void QTabBar::paintEvent(QPaintEvent *)
             break;
         }
         optTabBase.rect = rect;
-        QPaintEvent e(rect);
-        QApplication::sendEvent(theParent, &e);
-        QPainter::restoreRedirected(theParent);
     }
     QStylePainter p(this);
     int selected = -1;
