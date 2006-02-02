@@ -44,8 +44,6 @@
     using QStylePainter is that the parameter lists get considerably
     shorter.
 
-    See also QStyle.
-
     \o \inlineimage paintsystem-painter.png
     \endtable
 
@@ -117,12 +115,12 @@
     defined by its style (i.e. its line-type), width, brush, how the
     endpoints are drawn (cap-style) and how joins between two
     connected lines are drawn (join-style). The pen's brush is a
-    QBrush object used to fill strokes generated with the pen. The
-    QBrush class defines the fill pattern of shapes drawn by QPainter.
+    QBrush object used to fill strokes generated with the pen,
+    i.e. the QBrush class defines the fill pattern.
 
     \section1 Filling
 
-    The shapes are filled using the QBrush class. A brush is defined
+    Shapes are filled using the QBrush class. A brush is defined
     by its style (i.e. its fill pattern) and its color.
 
     The available fill patterns are described by the Qt::BrushStyle
@@ -147,17 +145,17 @@
     on a circle surrounding it, and conical gradients interpolate
     colors around a center point.
 
-    \o \inlineimage paintsystem-radialgradient.png
+    \o \inlineimage paintsystem-fancygradient.png
     \endtable
 
     Any color in Qt is represented by the QColor class which supports
     the RGB, HSV and CMYK color models. QColor also support
-    alpha-blended outlining and filling, specifying the transparency
-    effect, and the class is platform and device independent (i.e. the
+    alpha-blended outlining and filling (specifying the transparency
+    effect), and the class is platform and device independent (the
     colors are mapped to hardware using the QColormap class). For more
     information, see the QColor class documentation.
 
-    When creating a new widget it is recommend to use the colors in
+    When creating a new widget, it is recommend to use the colors in
     the widget's palette rather than hard-coding specific colors. All
     widgets in Qt contain a palette and use their palette to draw
     themselves. A widget's palette is represented by the QPalette
@@ -177,11 +175,13 @@
     \row \o \bold {New Backends}
 
     Support for a new backend can be implemented by deriving from the
-    QPaintDevice class and reimplement the virtual
+    QPaintDevice class and reimplementing the virtual
     QPaintDevice::paintEngine() function to tell QPainter which paint
     engine should be used to draw on this particular device. To
-    actually be able to draw on the device, a corresponding paint
-    engine must be created by deriving from the QPaintEngine class.
+    actually be able to draw on the device, this paint engine must be
+    a custom paint engine created by deriving from the QPaintEngine
+    class.
+
     \endtable
 
     \section2 Widget
@@ -201,9 +201,9 @@
 
     One advantage of using QImage as a paint device is that it is
     possible to guarantee the pixel exactness of any drawing operation
-    in a platform-independent way. Another benefit of using QPainter
-    on a QImage object, is that the painting can be performed in
-    another thread than the current GUI thread.
+    in a platform-independent way. Another benefit is that the
+    painting can be performed in another thread than the current GUI
+    thread.
 
     \section2 Pixmap
 
@@ -216,8 +216,8 @@
 
     To optimize drawing with QPixmap, Qt provides the QPixmapCache
     class which can be used to store temporary pixmaps that are
-    expensive to generate without using more storage space than cache
-    limit.
+    expensive to generate without using more storage space than the
+    cache limit.
 
     Qt also provides the QBitmap convenience class, inheriting
     QPixmap. QBitmap guarantees monochrome (1-bit depth) pixmaps, and
@@ -247,7 +247,7 @@
     \section2 Pixel Buffer
 
     As mentioned above, Qt provides the QtOpenGL module offering
-    classes that makes it easy to use OpenGL in Qt applications (e.g
+    classes that makes it easy to use OpenGL in Qt applications (e.g.
     QGLWidget enabling the OpenGL API for rendering). The module also
     provides the QGLPixelBuffer class that can be used as a paint
     device for QPainter.
@@ -298,8 +298,11 @@
     \row
     \o \bold QMovie
 
-    The QMovie class is a convenience class for display animations
-    using QImageReader.
+    QMovie is a convenience class for displaying animations, using the
+    QImageReader class internally.
+
+    Once created, the QMovie class provides various functions for both
+    running and controlling the given animation.
 
     \o \inlineimage paintsystem-movie.png
     \endtable
@@ -310,12 +313,13 @@
     available through the QImageReader::supportedImageFormats() and
     QImageWriter::supportedImageFormats() functions. Qt supports
     several formats by default (listed in the QImageReader and
-    QImageWriter classs documentation). New file formats can be added
+    QImageWriter class documentation). New file formats can be added
     using as plugins.
 
     Qt's plugin mechanism can also be used to write a custom image
-    format handler: Derive from QImageIOHandler and create a
-    QImageIOPlugin object that can create the handler. When the plugin
-    is installed, QImageReader and QImageWriter will automatically
-    load the plugin and start using it.
+    format handler. this is done by deriving from the QImageIOHandler
+    class, and create a QImageIOPlugin object that can create the
+    handler. When the plugin is installed, QImageReader and
+    QImageWriter will automatically load the plugin and start using
+    it.
 */
