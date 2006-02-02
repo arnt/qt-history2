@@ -412,12 +412,6 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
     }
 
     QList<QWSClient*> clist = (*qcopServerMap)[ch];
-    if (clist.isEmpty()) {
-        qWarning("QCopChannel: no client registered for channel %s",
-                 qPrintable(ch));
-        return;
-    }
-
     for (int i=0; i < clist.size(); ++i) {
         QWSClient *c = clist.at(i);
         QWSServerPrivate::sendQCopEvent(c, ch, msg, data);
