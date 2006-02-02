@@ -121,6 +121,11 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
             == (Qt::ControlModifier | Qt::MetaModifier))
         || ((e->modifiers() & (Qt::AltModifier | Qt::MetaModifier))
             == (Qt::AltModifier | Qt::MetaModifier));
+#else
+    if (e->modifiers() & (Qt::AltModifier | Qt::MetaModifier | Qt::KeypadModifier)) {
+        e->ignore();
+        return false;
+    }
 #endif
     switch (e->key()) {
 #ifndef Q_WS_MAC  // Use the default Windows bindings.
