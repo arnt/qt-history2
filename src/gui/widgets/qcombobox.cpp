@@ -127,46 +127,48 @@ QSize QComboBoxPrivate::recomputeSizeHint(QSize &sh) const
 {
     Q_Q(const QComboBox);
     if (!sh.isValid()) {
-        // find out if we have any icons
         bool hasIcon = false;
         int count = q->count();
-        for (int i = 0; i < count && !hasIcon; ++i) {
-            if (!q->itemIcon(i).isNull())
-                hasIcon = true;
-        }
-
-        // height
+        QSize iconSize = q->iconSize();
         const QFontMetrics &fm = q->fontMetrics();
-        sh.setHeight(qMax(fm.lineSpacing(), 14) + 2);
-
-        QSize iconSize;
-        if (hasIcon) {
-            iconSize = q->iconSize();
-            sh.setHeight(qMax(sh.height(), iconSize.height() + 2));
-        }
 
         // text width
         if (&sh == &sizeHint || minimumContentsLength == 0) {
             switch (sizeAdjustPolicy) {
             case QComboBox::AdjustToContents:
             case QComboBox::AdjustToContentsOnFirstShow:
-                if (q->count() == 0) {
+                if (count == 0) {
                     sh.rwidth() = 7 * fm.width(QLatin1Char('x'));
                 } else {
-                    for (int i = 0; i < count; ++i)
-                        sh.setWidth(qMax(sh.width(), fm.width(q->itemText(i))));
+                    for (int i = 0; i < count; ++i) {
+                        if (!q->itemIcon(i).isNull()) {
+                            hasIcon = true;
+                            sh.setWidth(qMax(sh.width(), fm.width(q->itemText(i)) + iconSize.width() + 4));
+                        } else {
+                            sh.setWidth(qMax(sh.width(), fm.width(q->itemText(i))));
+                        }
+                    }
                 }
                 break;
             case QComboBox::AdjustToMinimumContentsLength:
+                for (int i = 0; i < count && !hasIcon; ++i)
+                    hasIcon = !q->itemIcon(i).isNull();
             default:
                 ;
             }
+        } else {
+            for (int i = 0; i < count && !hasIcon; ++i)
+                hasIcon = !q->itemIcon(i).isNull();
         }
         if (minimumContentsLength > 0)
             sh.setWidth(qMax(sh.width(), minimumContentsLength * fm.width(QLatin1Char('X'))));
 
-        // add icon width
-        sh.setWidth(sh.width() + (hasIcon ? iconSize.width() + 4 : 0));
+
+        // height
+        sh.setHeight(qMax(fm.lineSpacing(), 14) + 2);
+        if (hasIcon) {
+            sh.setHeight(qMax(sh.height(), iconSize.height() + 2));
+        }
 
         // add style and strut values
         QStyleOptionComboBox opt = getStyleOption();
