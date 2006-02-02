@@ -664,19 +664,25 @@ QFixed QFontEngineMac::xHeight() const
 
 bool QFontEngineMac::canRender(const QChar *string, int len)
 {
-    // ########
-    return true;
-    ATSUFontID dummyFontId = 0;
-    UniCharArrayOffset dummyOffset = 0;
-    UniCharCount dummyCount = 0;
-
     ATSUSetTextPointerLocation(textLayout, reinterpret_cast<const UniChar *>(string), 0, len, len);
     ATSUSetRunStyle(textLayout, style, 0, len);
-    // ###### I realize that's wrong, we have to call MatchFontsToText repeatedly
-    OSStatus status =
-        ATSUMatchFontsToText(textLayout, kATSUFromTextBeginning, kATSUToTextEnd,
-                             &dummyFontId, &dummyOffset, &dummyCount);
-    return status == noErr || status == kATSUFontsMatched;
+
+    OSStatus e = noErr;
+    int pos = 0;
+    do {
+        FMFont substFont = 0;
+        UniCharArrayOffset changedOffset = 0;
+        UniCharCount changeCount = 0;
+
+        e = ATSUMatchFontsToText(textLayout, pos, len - pos,
+                                 &substFont, &changedOffset,
+                                 &changeCount);
+        if (e == kATSUFontsMatched) {
+            pos = changedOffset + changeCount;
+        }
+    } while (pos < len && e != noErr);
+
+    return e == noErr || e == kATSUFontsMatched;
 }
 
 ATSUStyle QFontEngineMac::styleForFont(int fontIndex) const
