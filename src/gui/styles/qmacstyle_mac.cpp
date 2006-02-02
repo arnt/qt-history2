@@ -2632,7 +2632,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             int offSet = (hasFocus && !combo->editable) ? -1 : 0;
             off_rct.setRect(int(hirect.origin.x - outRect.origin.x),
                             int(hirect.origin.y - outRect.origin.y + offSet),
-                            int(outRect.size.width - hirect.size.width),
+                            int(outRect.size.width - hirect.size.width + offSet),
                             int(outRect.size.height - hirect.size.height + offSet));
             hirect = qt_hirectForQRect(combo->rect, p, false, off_rct);
             if (combo->editable && QSysInfo::MacintoshVersion == QSysInfo::MV_10_4) {
@@ -3090,10 +3090,13 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
                     ret.setTop(combo->rect.top());
                     ret.setBottom(combo->rect.bottom());
                 } else {
-                    // I undo the layout that Windows rect has.
-                    ret = QStyle::visualRect(combo->direction, combo->rect,
-                                             q->QWindowsStyle::subControlRect(cc, opt, sc, widget));
-                }
+                    // Allign the popup with the combobox. This code assumes
+                    // that the combobox width is big enough to show all items
+                    // in the popup.
+                    const int leftOffset = 6;
+                    const int downOffset = 2;
+                    ret.adjust(-leftOffset, downOffset, leftOffset + 1, 0);
+                 }
                 break;
             case QStyle::SC_ComboBoxEditField:
                 // ret = ret; <-- Already done
@@ -6346,7 +6349,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         sz.rheight() += 10;
         return sz;
     case CT_ComboBox:
-        sz.rwidth() += 37;
+        sz.rwidth() += 50;
         break;
     case CT_Menu:
         // Hmm... the size is too big on the bottom, but I don't have anyway to correct
