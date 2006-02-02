@@ -120,6 +120,7 @@ void QFontPrivate::load(int script)
     engine = new QFontEngineMac;
     engineData->engine = engine;
     engine->ref.ref(); //a ref for the engineData->engine
+
     if(!engine->familyref) {
         //find the font
         QStringList family_list = req.family.split(',');
@@ -180,6 +181,9 @@ void QFontPrivate::load(int script)
                 engine->fontDef.family = actualName;
         }
     }
+#if defined(Q_NEW_MAC_FONTENGINE)
+    engine->init();
+#endif
     QFontCache::instance->insertEngine(key, engine);
 }
 

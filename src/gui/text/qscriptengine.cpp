@@ -186,6 +186,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
 
 void qt_heuristicPosition(QShaperItem *item)
 {
+#if !defined(Q_NEW_MAC_FONTENGINE)
     QGlyphLayout *glyphs = item->glyphs;
 
     int cEnd = -1;
@@ -198,6 +199,7 @@ void qt_heuristicPosition(QShaperItem *item)
             cEnd = -1;
         }
     }
+#endif
 }
 
 

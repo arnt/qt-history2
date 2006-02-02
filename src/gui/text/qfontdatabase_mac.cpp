@@ -120,6 +120,7 @@ QFontEngine *loadEngine(int, const QFontPrivate *, const QFontDef &request,
                         QtFontFamily *family, QtFontFoundry *, QtFontStyle *)
 {
     QFontEngineMac *engine = new QFontEngineMac;
+
     { //find the font
         QStringList family_list;
         if(family)
@@ -153,5 +154,8 @@ QFontEngine *loadEngine(int, const QFontPrivate *, const QFontDef &request,
         if(ATSFontFamilyGetName(engine->familyref, kATSOptionFlagsDefault, &actualName) == noErr)
             engine->fontDef.family = actualName;
     }
+#if defined(Q_NEW_MAC_FONTENGINE)
+    engine->init();
+#endif
     return engine;
 }

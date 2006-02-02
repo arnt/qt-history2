@@ -347,6 +347,57 @@ private:
 #include "QtCore/qmap.h"
 #include "QtCore/qcache.h"
 
+#if defined(Q_NEW_MAC_FONTENGINE)
+
+class QFontEngineMac : public QFontEngine
+{
+public:
+    // ####
+    ATSFontFamilyRef familyref;
+
+    QFontEngineMac();
+    virtual ~QFontEngineMac();
+
+    void init();
+
+    virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
+    virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
+    virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
+
+    // ### move to qpaintengine_mac.cpp
+    virtual void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
+    virtual void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs,
+                                 QPainterPath *path, QTextItem::RenderFlags);
+
+    virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
+    virtual glyph_metrics_t boundingBox(glyph_t glyph);
+
+    virtual QFixed ascent() const;
+    virtual QFixed descent() const;
+    virtual QFixed leading() const;
+    virtual QFixed xHeight() const;
+    virtual qreal maxCharWidth() const;
+
+    virtual const char *name() const { return "ATSUI"; }
+
+    bool canRender(const QChar *string, int len);
+
+    virtual Type type() const { return QFontEngine::Mac; }
+
+    virtual int synthesized() const { return synthesisFlags; }
+
+private:
+    int fontIndexForFMFont(FMFont font) const;
+    ATSUStyle styleForFont(int fontIndex) const;
+
+    mutable ATSUTextLayout textLayout;
+    mutable ATSUStyle style;
+    int synthesisFlags;
+    mutable QVector<FMFont> fonts;
+};
+
+#else
+
 struct QATSUStyle;
 struct QATSUGlyphInfo;
 class QFontEngineMac : public QFontEngine
@@ -391,6 +442,8 @@ public:
     int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, QFixed x =-1, QFixed y=-1,
                    QPaintEngine *p=0, void **data=0) const;
 };
+
+#endif
 
 #endif
 
