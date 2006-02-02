@@ -999,7 +999,9 @@ void Q3DockWindow::init()
     vbox          = new QHBoxLayout();
     childBox          = new QBoxLayout(QBoxLayout::LeftToRight);
     vbox->addWidget(verHandle);
-    vbox->addLayout(childBox);
+    vbox->addStretch(0);
+    vbox->addLayout(childBox, 1);
+    vbox->addStretch(0);
 
     hbox->setResizeMode(QLayout::FreeResize);
     hbox->setMargin(isResizeEnabled() || curPlace == OutsideDock ? 2 : 0);
@@ -1236,7 +1238,7 @@ void Q3DockWindow::updateGui()
         setLineWidth(2);
         widgetResizeHandler->setActive(isResizeEnabled());
     } else {
-        hbox->setMargin(isResizeEnabled() ? 0 : 2);
+        hbox->setMargin(0);
         titleBar->hide();
         if (orientation() == Qt::Horizontal) {
             horHandle->hide();
@@ -1311,9 +1313,6 @@ void Q3DockWindow::updateGui()
             setLineWidth(1);
         else
             setLineWidth(0);
-        hbox->setMargin(lineWidth());
-#else
-        hbox->setMargin(2);
 #endif
         widgetResizeHandler->setActive(false);
     }
@@ -1508,7 +1507,6 @@ void Q3DockWindow::drawContents(QPainter *p)
 void Q3DockWindow::setResizeEnabled(bool b)
 {
     resizeEnabled = b;
-    hbox->setMargin(b ? 0 : 2);
     updateGui();
 }
 
