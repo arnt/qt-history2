@@ -242,7 +242,7 @@ KeyDecoder::KeyDecoder(const char *clicenseKey)
     }
 
     int crcPeices = NUMBER_OF_PARTS - 1;
-    char *crcCheckKey = new char[crcPeices * MAXCHARS + crcPeices];
+    char *crcCheckKey = (char*)calloc(crcPeices * MAXCHARS + crcPeices, sizeof(char));
     for (int i = 0; i < crcPeices; ++i) {
         if (i != 0)
             strncat(crcCheckKey, SEP, 1);
@@ -252,11 +252,15 @@ KeyDecoder::KeyDecoder(const char *clicenseKey)
     int crc = qChecksum(crcCheckKey, (uint)strlen(crcCheckKey));
 
     char checksumVerification[5];
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
+    _snprintf(checksumVerification, 5, "%.2X%.2X", (crc & 0xff), (crc >> 8 & 0xff));
+#else
     snprintf(checksumVerification, 5, "%.2X%.2X", (crc & 0xff), (crc >> 8 & 0xff));
+#endif
 
     if (strncmp(checksumVerification, licenseParts[6], 5) != 0) {
         free(buffer);
-        delete [] crcCheckKey;
+        free(crcCheckKey);
         return; //invalid checksum
     }
 
@@ -269,5 +273,5 @@ KeyDecoder::KeyDecoder(const char *clicenseKey)
 
     m_valid = true;
     free(buffer);
-    delete [] crcCheckKey;
+    free(crcCheckKey);
 }
