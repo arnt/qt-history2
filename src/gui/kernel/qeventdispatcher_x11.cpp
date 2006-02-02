@@ -42,12 +42,10 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
     Q_D(QEventDispatcherX11);
 
     int nevents = 0;
-
-    QApplication::sendPostedEvents();
-
-    // Two loops so that posted events accumulate
     do {
         while (!d->interrupt) {
+            QApplication::sendPostedEvents();
+
             XEvent event;
             if (!(flags & QEventLoop::ExcludeUserInputEvents)
                 && !d->queuedUserInputEvents.isEmpty()) {
