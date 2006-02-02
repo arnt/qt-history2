@@ -22,13 +22,14 @@
 #include "qlist.h"
 #include "qmap.h"
 #include "qdatastream.h"
+#include "qpointer.h"
 
 #include "qdebug.h"
 
 typedef QMap<QString, QList<QWSClient*> > QCopServerMap;
 static QCopServerMap *qcopServerMap = 0;
 
-typedef QMap<QString, QList<QCopChannel*> > QCopClientMap;
+typedef QMap<QString, QList< QPointer<QCopChannel> > > QCopClientMap;
 static QCopClientMap *qcopClientMap = 0;
 
 class QCopChannelPrivate
@@ -109,8 +110,8 @@ void QCopChannel::init(const QString& channel)
         return;
     }
 
-    it = qcopClientMap->insert(channel, QList<QCopChannel*>());
-    it.value().append(this);
+    it = qcopClientMap->insert(channel, QList< QPointer<QCopChannel> >());
+    it.value().append(QPointer<QCopChannel>(this));
 
     // inform server about this channel
     qt_fbdpy->registerChannel(channel);
@@ -433,9 +434,12 @@ void QCopChannel::sendLocally(const QString& ch, const QString& msg,
         return;
 
     // feed local clients with received data
-    QList<QCopChannel*> clients = (*qcopClientMap)[ch];
-    for (int i = 0; i < clients.size(); ++i)
-        clients.at(i)->receive(msg, data);
+    QList< QPointer<QCopChannel> > clients = (*qcopClientMap)[ch];
+    for (int i = 0; i < clients.size(); ++i) {
+	QCopChannel *channel = (QCopChannel *)clients.at(i);
+	if ( channel )
+	    channel->receive(msg, data);
+    }
 }
 #include "qcopchannel_qws.moc"
 
