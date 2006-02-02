@@ -314,7 +314,7 @@
     QImageWriter::supportedImageFormats() functions. Qt supports
     several formats by default (listed in the QImageReader and
     QImageWriter class documentation). New file formats can be added
-    using as plugins.
+    as plugins.
 
     Qt's plugin mechanism can also be used to write a custom image
     format handler. this is done by deriving from the QImageIOHandler
