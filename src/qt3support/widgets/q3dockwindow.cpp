@@ -471,6 +471,7 @@ void Q3DockWindowHandle::mouseReleaseEvent(QMouseEvent *e)
     }
     if (opaque)
         dockWindow->titleBar->mousePressed = false;
+    QApplication::postEvent(dockWindow->area(), new QEvent(QEvent::LayoutHint));
 }
 
 void Q3DockWindowHandle::minimize()
