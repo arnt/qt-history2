@@ -65,6 +65,7 @@ public Q_SLOTS:
 protected:
     QString selectStatement() const;
     bool updateRowInTable(int row, const QSqlRecord &values);
+    bool insertRowIntoTable(const QSqlRecord &values);
     QString orderByClause() const;
 
 private:

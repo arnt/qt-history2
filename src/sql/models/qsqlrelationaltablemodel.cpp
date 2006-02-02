@@ -437,6 +437,8 @@ void QSqlRelationalTableModel::setTable(const QString &table)
     QSqlTableModel::setTable(table);
 }
 
+/*! \internal
+ */
 void QSqlRelationalTableModelPrivate::translateFieldNames(int row, QSqlRecord &values) const
 {
     Q_Q(const QSqlRelationalTableModel);
@@ -462,6 +464,19 @@ bool QSqlRelationalTableModel::updateRowInTable(int row, const QSqlRecord &value
     d->translateFieldNames(row, rec);
 
     return QSqlTableModel::updateRowInTable(row, rec);
+}
+
+/*!
+    \reimp
+*/
+bool QSqlRelationalTableModel::insertRowIntoTable(const QSqlRecord &values)
+{
+    Q_D(QSqlRelationalTableModel);
+
+    QSqlRecord rec = values;
+    d->translateFieldNames(0, rec);
+
+    return QSqlTableModel::insertRowIntoTable(rec);
 }
 
 /*!
