@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-CONFIG += qt ordered debug
+CONFIG += qt ordered
 
 SUBDIRS = src
 
