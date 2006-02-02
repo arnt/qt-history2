@@ -5037,7 +5037,7 @@ bool QImage::hasAlphaChannel() const
 #include <private/qt_x11_p.h>
 #endif
 
-inline QImage::Endian QImage::systemBitOrder()
+QImage::Endian QImage::systemBitOrder()
 {
 #if defined(Q_WS_X11)
     return BitmapBitOrder(X11->display) == MSBFirst ? BigEndian : LittleEndian;
