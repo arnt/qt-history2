@@ -664,7 +664,7 @@ while [ "$#" -gt 0 ]; do
             VAL=`echo $1 | sed 's,-F,,'`
         fi
         ;;
-    -fw?*)
+    -fw?*|-fw)
         VAR="add_framework"
         if [ "$1" = "-fw" ]; then
             shift
