@@ -68,7 +68,7 @@
     setViewportMargins(). The feature is mostly used to place a
     QHeaderView widget above or beside the scrolling area.
 
-    For convience, QAbstractScrollArea makes all viewport events available in
+    For convenience, QAbstractScrollArea makes all viewport events available in
     the virtual viewportEvent() handler.  QWidget's specialised
     handlers are remapped to viewport events in the cases where this
     makes sense. The remapped specialised handlers are: paintEvent(),
