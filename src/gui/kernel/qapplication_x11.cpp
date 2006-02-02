@@ -2840,8 +2840,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 if (widget->isVisible()) {
                     widget->d_func()->topData()->spont_unmapped = 1;
                     QHideEvent e;
-                QApplication::sendSpontaneousEvent(widget, &e);
-                widget->d_func()->hideChildren(true);
+                    QApplication::sendSpontaneousEvent(widget, &e);
+                    widget->d_func()->hideChildren(true);
                 }
             }
 
@@ -2866,6 +2866,14 @@ int QApplication::x11ProcessEvent(XEvent* event)
                     widget->d_func()->showChildren(true);
                     QShowEvent e;
                     QApplication::sendSpontaneousEvent(widget, &e);
+
+                    // show() must have been called on this widget in
+                    // order to reach this point, but we could have
+                    // cleared these 2 attributes in case something
+                    // previously forced us into WithdrawnState
+                    // (e.g. kdocker)
+                    widget->setAttribute(Qt::WA_WState_ExplicitShowHide, true);
+                    widget->setAttribute(Qt::WA_WState_Visible, true);
                 }
             }
         }
@@ -3915,7 +3923,8 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                 // transition into or out of the Withdrawn state.",
                 // but apparently this particular window manager
                 // doesn't seem to care
-                hide();
+                setAttribute(Qt::WA_WState_ExplicitShowHide, false);
+                setAttribute(Qt::WA_WState_Visible, false);
             }
         } else {
             // the window manager has changed the WM State property...
@@ -3948,7 +3957,8 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                         // of the Withdrawn state.", but apparently
                         // this particular window manager doesn't seem
                         // to care
-                        hide();
+                        setAttribute(Qt::WA_WState_ExplicitShowHide, false);
+                        setAttribute(Qt::WA_WState_Visible, false);
                     }
                     break;
 
