@@ -95,6 +95,7 @@ struct QRelation
 
 class QSqlRelationalTableModelPrivate: public QSqlTableModelPrivate
 {
+    Q_DECLARE_PUBLIC(QSqlRelationalTableModel)
 public:
     QSqlRelationalTableModelPrivate()
         : QSqlTableModelPrivate()
@@ -105,6 +106,8 @@ public:
     QSqlRecord baseRec; // the record without relations
     void clearChanges();
     void clearEditBuffer();
+
+    void translateFieldNames(int row, QSqlRecord &values) const;
 };
 
 static void qAppendWhereClause(QString &query, const QString &clause1, const QString &clause2)
@@ -232,11 +235,11 @@ QSqlRelationalTableModel::~QSqlRelationalTableModel()
 */
 QVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) const
 {
-    Q_D(const QSqlRelationalTableModel);    
-    if (role == Qt::DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {      
+    Q_D(const QSqlRelationalTableModel);
+    if (role == Qt::DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
         const QVariant v = d->relations.at(index.column()).displayValues.value(index.row());
         if (v.isValid())
-            return v;       
+            return v;
     }
 
     return QSqlTableModel::data(index, role);
@@ -434,6 +437,20 @@ void QSqlRelationalTableModel::setTable(const QString &table)
     QSqlTableModel::setTable(table);
 }
 
+void QSqlRelationalTableModelPrivate::translateFieldNames(int row, QSqlRecord &values) const
+{
+    Q_Q(const QSqlRelationalTableModel);
+
+    for (int i = 0; i < values.count(); ++i) {
+        int realCol = q->indexInQuery(q->createIndex(row, i)).column();
+        if (realCol != -1 && relations.value(realCol).rel.isValid()) {
+            QVariant v = values.value(i);
+            values.replace(i, baseRec.field(realCol));
+            values.setValue(i, v);
+        }
+    }
+}
+
 /*!
     \reimp
 */
@@ -442,16 +459,8 @@ bool QSqlRelationalTableModel::updateRowInTable(int row, const QSqlRecord &value
     Q_D(QSqlRelationalTableModel);
 
     QSqlRecord rec = values;
+    d->translateFieldNames(row, rec);
 
-    // translate the field names
-    for (int i = 0; i < values.count(); ++i) {
-        int realCol = indexInQuery(createIndex(row, i)).column();
-        if (realCol != -1 && d->relations.value(realCol).rel.isValid()) {
-            QVariant v = values.value(i);
-            rec.replace(i, d->baseRec.field(realCol));
-            rec.setValue(i, v);
-        }
-    }
     return QSqlTableModel::updateRowInTable(row, rec);
 }
 
@@ -467,7 +476,7 @@ QString QSqlRelationalTableModel::orderByClause() const
         return QSqlTableModel::orderByClause();
 
     QString s = QLatin1String("ORDER BY ");
-    s.append(QString::fromLatin1("relTblAl_%1").arg(d->sortColumn)).append(QLatin1Char('.')).append(rel.displayColumn());      
+    s.append(QString::fromLatin1("relTblAl_%1").arg(d->sortColumn)).append(QLatin1Char('.')).append(rel.displayColumn());
     s += d->sortOrder == Qt::AscendingOrder ? QLatin1String(" ASC") : QLatin1String(" DESC");
     return s;
 }

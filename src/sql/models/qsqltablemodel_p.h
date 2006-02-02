@@ -49,6 +49,7 @@ public:
     void revertInsertedRow();
     bool setRecord(int row, const QSqlRecord &record);
     virtual int nameToIndex(const QString &name) const;
+    virtual void translateFieldNames(int row, QSqlRecord &record) const;
     void initRecordAndPrimaryIndex();
 
     QSqlDatabase db;

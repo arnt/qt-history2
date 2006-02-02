@@ -24,6 +24,11 @@
 
 #include <qdebug.h>
 
+void QSqlTableModelPrivate::translateFieldNames(int, QSqlRecord &) const
+{
+    // do nothing
+}
+
 /*! \internal
     Populates our record with values.
 */
@@ -580,7 +585,8 @@ bool QSqlTableModel::updateRowInTable(int row, const QSqlRecord &values)
 bool QSqlTableModel::insertRowIntoTable(const QSqlRecord &values)
 {
     Q_D(QSqlTableModel);
-    QSqlRecord rec(values);
+    QSqlRecord rec = values;
+    d->translateFieldNames(0, rec);
     emit beforeInsert(rec);
 
     bool prepStatement = d->db.driver()->hasFeature(QSqlDriver::PreparedQueries);
