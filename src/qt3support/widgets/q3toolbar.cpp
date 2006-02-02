@@ -349,7 +349,6 @@ void Q3ToolBar::init()
     setBackgroundRole(QPalette::Button);
     setFocusPolicy(Qt::NoFocus);
     setFrameStyle(QFrame::ToolBarPanel | QFrame::Raised);
-    boxLayout()->setSpacing(style()->pixelMetric(QStyle::PM_ToolBarItemSpacing));
 }
 
 /*!
@@ -393,7 +392,6 @@ void Q3ToolBar::addSeparator()
 
 void Q3ToolBar::styleChange(QStyle &oldStyle)
 {
-    boxLayout()->setSpacing(style()->pixelMetric(QStyle::PM_ToolBarItemSpacing));
     Q3DockWindow::styleChange(oldStyle);
 }
 
@@ -687,7 +685,7 @@ void Q3ToolBar::actionEvent(QActionEvent *e)
         } else {
             QToolButton* btn = new QToolButton(this);
             btn->setDefaultAction(a);
-            w = btn;            
+            w = btn;
         }
         d->actions.insert(a, w);
     } else if (e->type() == QEvent::ActionRemoved) {
