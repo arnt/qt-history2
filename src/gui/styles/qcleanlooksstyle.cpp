@@ -494,7 +494,7 @@ static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTi
     \brief The QCleanLooksStyle class provides a widget style similar to the
     ClearLooks style available in GNOME.
 
-    The CleanLooks style provides a default look and feel for widgets on X11
+    The CleanLooks style provides a look and feel for widgets
     that closely resembles the ClearLooks style, introduced by Richard
     Stellingwerff and Daniel Borgmann.
 
