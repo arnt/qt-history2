@@ -655,6 +655,24 @@ while [ "$#" -gt 0 ]; do
         VAR="add_link"
         VAL=`echo $1 | sed 's,-l,,'`
         ;;
+    -F?*|-F)
+        VAR="add_fpath"
+        if [ "$1" = "-F" ]; then
+            shift
+            VAL="$1"
+        else
+            VAL=`echo $1 | sed 's,-F,,'`
+        fi
+        ;;
+    -fw?*)
+        VAR="add_framework"
+        if [ "$1" = "-fw" ]; then
+            shift
+            VAL="$1"
+        else
+            VAL=`echo $1 | sed 's,-fw,,'`
+        fi
+        ;;
     -*)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL="unknown"
@@ -1261,6 +1279,21 @@ while [ "$#" -gt 0 ]; do
         ;;
     add_link)
         l_FLAGS="$l_FLAGS -l${VAL}"
+        ;;
+    add_fpath)
+        if [ "$PLATFORM_MAC" = "yes" ]; then
+            L_FLAGS="$L_FLAGS -F${VAL}"
+            I_FLAGS="$I_FLAGS -F${VAL}"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    add_framework)
+        if [ "$PLATFORM_MAC" = "yes" ]; then
+            l_FLAGS="$l_FLAGS -framework ${VAL}"
+        else
+            UNKNOWN_OPT=yes
+        fi
         ;;
     *)
         UNKNOWN_OPT=yes
@@ -2412,6 +2445,9 @@ if [ "$PLATFORM_MAC" = "yes" ]; then
     cat << EOF
 
 Qt/Mac only:
+
+    -Fstring ........... Add an explicit framework path.
+    -fw string ......... Add an explicit framework.
 
  *  -framework ......... Build Qt as a series of frameworks and
                          link tools against those frameworks.

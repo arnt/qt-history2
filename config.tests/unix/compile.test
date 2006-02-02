@@ -13,22 +13,30 @@ shift 6
 LIBPATH=""
 INCLUDEPATH=""
 CXXFLAGS=""
-PARAMS=$@
-for PARAM in $PARAMS; do
-    PREFIX=`echo $PARAM | sed 's/^\(..\).*/\1/'`
-    case $PREFIX in
-    -L|-l)
+while [ "$#" -gt 0 ]; do
+    PARAM=$1
+    case $PARAM in
+    -framework)
+        LIBPATH="$LIBPATH -framework $2"
+        shift
+        ;;
+    -F*)
+        LIBPATH="$LIBPATH $PARAM"
+        CXXFLAGS="$CXXFLAGS $PARAM"
+        ;;
+    -L*|-l*)
 	LIBPATH="$LIBPATH $PARAM"
 	;;
-    -I)
+    -I*)
         INC=`echo $PARAM | sed -e 's/^-I//'`
         INCLUDEPATH="$INCLUDEPATH $INC"
         ;;
-    -f)
+    -f*)
         CXXFLAGS="$CXXFLAGS $PARAM"
         ;;
     *) ;;
     esac
+    shift
 done
 
 # debuggery
