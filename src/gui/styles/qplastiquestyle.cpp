@@ -1050,6 +1050,10 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             drawPrimitive(PE_Q3Separator, option, painter, widget);
             break;
         }
+        if (widget && widget->inherits("Q3DockWindow")) {
+            // Don't draw a frame around docked dock windows.
+            break;
+        }
 #endif
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
             painter->save();
@@ -1707,6 +1711,18 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         painter->drawPoint(option->rect.left() + 1, option->rect.bottom() - 1);
         painter->drawPoint(option->rect.right() - 1, option->rect.bottom() - 1);
 
+#ifdef QT3_SUPPORT
+        if (widget && widget->inherits("Q3DockWindow")) {
+            // also draw the frame on the title bar
+            painter->drawLine(option->rect.left() + 1, option->rect.top(),
+                              option->rect.right() - 1, option->rect.top());
+            painter->drawLine(option->rect.left(), option->rect.top() + 1,
+                              option->rect.left(), titleBarStop);
+            painter->drawLine(option->rect.right(), option->rect.top() + 1,
+                              option->rect.right(), titleBarStop);
+        }
+#endif
+
         // alpha corners
         painter->setPen(mergedColors(palette.highlight().color(), palette.background().color(), 55));
         painter->drawPoint(option->rect.left() + 2, option->rect.bottom() - 1);
@@ -1714,9 +1730,30 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         painter->drawPoint(option->rect.right() - 2, option->rect.bottom() - 1);
         painter->drawPoint(option->rect.right() - 1, option->rect.bottom() - 2);
 
+#ifdef QT3_SUPPORT
+        if (widget && widget->inherits("Q3DockWindow")) {
+            // also draw the frame on the title bar
+            painter->drawPoint(option->rect.topLeft());
+            painter->drawPoint(option->rect.topRight());
+        }
+#endif
+
         // upper and lower left inner
         painter->setPen(active ? mergedColors(palette.highlight().color(), palette.background().color()) : palette.background().color().dark(120));
         painter->drawLine(option->rect.left() + 1, titleBarStop, option->rect.left() + 1, option->rect.bottom() - 2);
+
+#ifdef QT3_SUPPORT
+        if (widget && widget->inherits("Q3DockWindow")) {
+            // also draw the frame on the title bar
+            painter->drawLine(option->rect.left() + 1, option->rect.top() + 1,
+                              option->rect.left() + 1, titleBarStop);
+            painter->drawLine(option->rect.right() - 1, option->rect.top() + 1,
+                              option->rect.right() - 1, titleBarStop);
+            painter->drawLine(option->rect.left() + 1, option->rect.top() + 1,
+                              option->rect.right() - 1, option->rect.top() + 1);
+        }
+#endif
+
         painter->setPen(active ? mergedColors(palette.highlight().color(), palette.background().color(), 57) : palette.background().color().dark(130));
         painter->drawLine(option->rect.right() - 1, titleBarStop, option->rect.right() - 1, option->rect.bottom() - 2);
         painter->drawLine(option->rect.left() + 1, option->rect.bottom() - 1, option->rect.right() - 1, option->rect.bottom() - 1);
@@ -2931,24 +2968,44 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             handle.setColor(2, mergedColors(alphaCornerColor, option->palette.base().color()).rgba());
             handle.setColor(3, option->palette.base().color().rgba());
 
-            // Handle pattern to the left of the title
-            QRect leftSide(titleRect.left(), titleRect.top(), titleRect.width() / 2 - textWidth / 2 - margin, titleRect.bottom());
-            int nchunks = leftSide.width() / handle.width();
-            int indent = (leftSide.width() - (nchunks * handle.width())) / 2;
-            for (int i = 0; i < nchunks; ++i) {
-                painter->drawImage(QPoint(leftSide.left() + indent + i * handle.width(),
-                                          leftSide.center().y() - handle.height() / 2),
-                                   handle);
-            }
+            if (title.isEmpty()) {
+                // Joint handle if there's no title
+                QRect r;
+#ifdef QT3_SUPPORT
+                // Q3DockWindow doesn't need space for buttons
+                if (widget && widget->inherits("Q3DockWindowTitleBar")) {
+                    r = dockWidget->rect;
+                } else
+#endif
+                r.setRect(titleRect.left(), titleRect.top(), titleRect.width(), titleRect.bottom());
+                int nchunks = (r.width() / handle.width()) - 1;
+                int indent = (r.width() - (nchunks * handle.width())) / 2;
+                for (int i = 0; i < nchunks; ++i) {
+                    painter->drawImage(QPoint(r.left() + indent + i * handle.width(),
+                                              r.center().y() - handle.height() / 2),
+                                       handle);
+                }
+            } else {
+                // Handle pattern to the left of the title
+                QRect leftSide(titleRect.left(), titleRect.top(),
+                               titleRect.width() / 2 - textWidth / 2 - margin, titleRect.bottom());
+                int nchunks = leftSide.width() / handle.width();
+                int indent = (leftSide.width() - (nchunks * handle.width())) / 2;
+                for (int i = 0; i < nchunks; ++i) {
+                    painter->drawImage(QPoint(leftSide.left() + indent + i * handle.width(),
+                                              leftSide.center().y() - handle.height() / 2),
+                                       handle);
+                }
 
-            // Handle pattern to the right of the title
-            QRect rightSide = titleRect.adjusted(titleRect.width() / 2 + textWidth / 2 + margin, 0, 0, 0);
-            nchunks = rightSide.width() / handle.width();
-            indent = (rightSide.width() - (nchunks * handle.width())) / 2;
-            for (int j = 0; j < nchunks; ++j) {
-                painter->drawImage(QPoint(rightSide.left() + indent + j * handle.width(),
-                                          rightSide.center().y() - handle.height() / 2),
-                                   handle);
+                // Handle pattern to the right of the title
+                QRect rightSide = titleRect.adjusted(titleRect.width() / 2 + textWidth / 2 + margin, 0, 0, 0);
+                nchunks = rightSide.width() / handle.width();
+                indent = (rightSide.width() - (nchunks * handle.width())) / 2;
+                for (int j = 0; j < nchunks; ++j) {
+                    painter->drawImage(QPoint(rightSide.left() + indent + j * handle.width(),
+                                              rightSide.center().y() - handle.height() / 2),
+                                       handle);
+                }
             }
 
             // Draw the text centered
@@ -4197,6 +4254,17 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 #endif // QT_NO_COMBOBOX
     case CC_TitleBar:
         if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
+#ifdef QT3_SUPPORT
+            if (widget && widget->inherits("Q3DockWindowTitleBar")) {
+                // Redirect Q3DockWindow to CE_DockWidgetTitle
+                QStyleOptionDockWidget dockOption;
+                dockOption.QStyleOption::operator=(*titleBar);
+                // Fixup palette distortion
+                dockOption.palette = QPalette();
+                drawControl(CE_DockWidgetTitle, &dockOption, painter, widget);
+                break;
+            }
+#endif
             painter->save();
             bool active = (titleBar->titleBarState & State_Active);
             QRect fullRect = titleBar->rect;
@@ -5102,6 +5170,12 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         ret = 4;
         break;
     case PM_TitleBarHeight:
+#ifdef QT3_SUPPORT
+        if (widget && widget->inherits("Q3DockWindowTitleBar")) {
+            // Q3DockWindow has smaller titlebars than QDockWidget
+            ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 16);
+        } else
+#endif
         ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 30);
         break;
     case PM_MaximumDragDistance:
@@ -5203,12 +5277,12 @@ void QPlastiqueStyle::polish(QWidget *widget)
         widget->setAttribute(Qt::WA_Hover);
     }
 
-    if (widget->inherits("QWorkspaceTitleBar"))
+    if (widget->inherits("QWorkspaceTitleBar")
+        || widget->inherits("QDockSeparator")
+        || widget->inherits("QDockWidgetSeparator")
+        || widget->inherits("Q3DockWindowResizeHandle")) {
         widget->setAttribute(Qt::WA_Hover);
-    else if (widget->inherits("QDockSeparator"))
-        widget->setAttribute(Qt::WA_Hover);
-   else if (widget->inherits("QDockWidgetSeparator"))
-        widget->setAttribute(Qt::WA_Hover);
+    }
 
     if (false // to simplify the #ifdefs
 #ifndef QT_NO_MENUBAR
@@ -5255,20 +5329,19 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
 #ifndef QT_NO_SPLITTER
         || qobject_cast<QSplitterHandle *>(widget)
 #endif
+#ifndef QT_NO_TABBAR
+        || qobject_cast<QTabBar *>(widget)
+#endif
         || qobject_cast<QRadioButton *>(widget)) {
         widget->setAttribute(Qt::WA_Hover, false);
     }
 
-    if (widget->inherits("QWorkspaceTitleBar"))
+    if (widget->inherits("QWorkspaceTitleBar")
+        || widget->inherits("QDockSeparator")
+        || widget->inherits("QDockWidgetSeparator")
+        || widget->inherits("Q3DockWindowResizeHandle")) {
         widget->setAttribute(Qt::WA_Hover, false);
-#ifndef QT_NO_TABBAR
-    else if (qobject_cast<QTabBar *>(widget))
-        widget->setAttribute(Qt::WA_Hover, false);
-#endif
-    else if (widget->inherits("QDockSeparator"))
-        widget->setAttribute(Qt::WA_Hover, false);
-    else if (widget->inherits("QDockWidgetSeparator"))
-        widget->setAttribute(Qt::WA_Hover, false);
+    }
 
     if (false // to simplify the #ifdefs
 #ifndef QT_NO_MENUBAR

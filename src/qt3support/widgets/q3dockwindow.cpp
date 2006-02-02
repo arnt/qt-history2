@@ -59,6 +59,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+    bool event(QEvent *event);
 
 private:
     void startLineDraw();
@@ -71,12 +72,13 @@ private:
     QRubberBand *rubberBand;
     QPoint lastPos, firstPos;
     Q3DockWindow *dockWindow;
-
+    bool mouseOver;
 };
 
 Q3DockWindowResizeHandle::Q3DockWindowResizeHandle(Qt::Orientation o, QWidget *parent,
                                                   Q3DockWindow *w, const char *)
-    : QWidget(parent, "qt_dockwidget_internal"), mousePressed(false), rubberBand(0), dockWindow(w)
+    : QWidget(parent, "qt_dockwidget_internal"), mousePressed(false), rubberBand(0), dockWindow(w),
+      mouseOver(false)
 {
     setOrientation(o);
 }
@@ -220,15 +222,32 @@ void Q3DockWindowResizeHandle::mouseReleaseEvent(QMouseEvent *e)
     mousePressed = false;
 }
 
+bool Q3DockWindowResizeHandle::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::HoverEnter:
+        if (!mouseOver) {
+            mouseOver = true;
+            update();
+        }
+        break;
+    case QEvent::HoverLeave:
+        if (mouseOver) {
+            mouseOver = false;
+            update();
+        }
+        break;
+    default:
+        break;
+    }
+    return QWidget::event(event);
+}
+
 void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyleOption opt(0, QStyleOption::SO_Default);
-    opt.rect = rect();
-    opt.palette = palette();
-    opt.state = QStyle::State_None;
-    if (isEnabled())
-        opt.state |= QStyle::State_Enabled;
+    QStyleOption opt(0);
+    opt.init(this);
     if (orientation() == Qt::Horizontal)
         opt.state |= QStyle::State_Horizontal;
     style()->drawPrimitive(QStyle::PE_IndicatorDockWidgetResizeHandle, &opt, &p, this);
