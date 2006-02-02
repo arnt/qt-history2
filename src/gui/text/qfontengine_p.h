@@ -115,7 +115,7 @@ public:
     virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
     virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
 
-#if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
+#if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_NEW_MAC_FONTENGINE)
     virtual void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si) = 0;
 #endif
     virtual void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs,
@@ -312,7 +312,7 @@ public:
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-#if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
+#if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_NEW_MAC_FONTENGINE)
     void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
 #endif
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
@@ -364,8 +364,6 @@ public:
     virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
     virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
-    // ### move to qpaintengine_mac.cpp
-    virtual void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
     virtual void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs,
                                  QPainterPath *path, QTextItem::RenderFlags);
 
@@ -385,6 +383,8 @@ public:
     virtual Type type() const { return QFontEngine::Mac; }
 
     virtual int synthesized() const { return synthesisFlags; }
+
+    inline FMFont fontForIndex(int idx) const { return fonts.at(idx); }
 
 private:
     int fontIndexForFMFont(FMFont font) const;

@@ -308,7 +308,7 @@ glyph_metrics_t QFontEngineBox::boundingBox(const QGlyphLayout *, int numGlyphs)
     return overall;
 }
 
-#if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
+#if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_NEW_MAC_FONTENGINE)
 void QFontEngineBox::draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si)
 {
     Q_UNUSED(p);

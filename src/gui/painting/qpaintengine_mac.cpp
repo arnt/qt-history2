@@ -640,8 +640,12 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
 
 void QQuickDrawPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
+#if defined(Q_NEW_MAC_FONTENGINE)
+    Q_ASSERT(false); // never reached
+#else
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
     ti.fontEngine->draw(this, p.x(), p.y(), ti);
+#endif
 }
 
 void
@@ -1466,6 +1470,123 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     //cleanup
     CGColorSpaceRelease(cs);
     CGPatternRelease(pat);
+}
+
+void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem &item)
+{
+#if defined(Q_NEW_MAC_FONTENGINE)
+    Q_D(QCoreGraphicsPaintEngine);
+
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(item);
+
+    QPaintDevice *device = paintDevice();
+    Q_ASSERT(device);
+
+    QPen oldPen = painter()->pen();
+    QBrush oldBrush = painter()->brush();
+    painter()->setPen(Qt::NoPen);
+    painter()->setBrush(oldPen.brush());
+
+    Q_ASSERT(type() == QPaintEngine::CoreGraphics);
+
+    QFontEngineMac *fe = static_cast<QFontEngineMac *>(ti.fontEngine);
+
+    CGContextSetFontSize(d->hd, fe->fontDef.pixelSize);
+
+    CGAffineTransform cgMatrix = CGAffineTransformMake(1, 0, 0, -1, 0, -device->height());
+
+    if (fe->synthesized() & QFontEngine::SynthesizedItalic)
+        cgMatrix = CGAffineTransformConcat(cgMatrix, CGAffineTransformMake(1, 0, -tanf(14 * acosf(0) / 90), 1, 0, 0));
+
+    CGContextSetTextMatrix(d->hd, cgMatrix);
+
+    CGContextSetTextDrawingMode(d->hd, kCGTextFill);
+
+    if (!(fe->fontDef.styleStrategy & QFont::NoAntialias)) {
+        CGContextSetShouldSmoothFonts(d->hd, true);
+        CGContextSetShouldAntialias(d->hd, true);
+    }
+
+    if (ti.num_glyphs) {
+
+        QVarLengthArray<QFixedPoint> positions;
+        QVarLengthArray<glyph_t> glyphs;
+        QMatrix matrix; // #### = p->d->matrix;
+        matrix.translate(pos.x(), pos.y());
+        ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+
+        CGContextSetTextPosition(d->hd, positions[0].x.toReal(), positions[0].y.toReal());
+
+        QVarLengthArray<CGSize> advances(glyphs.size());
+        QVarLengthArray<CGGlyph> cgGlyphs(glyphs.size());
+
+        for (int i = 0; i < glyphs.size() - 1; ++i) {
+            advances[i].width = (positions[i + 1].x - positions[i].x).toReal();
+            advances[i].height = (positions[i + 1].y - positions[i].y).toReal();
+        }
+        advances[glyphs.size() - 1].width = 0;
+        advances[glyphs.size() - 1].height = 0;
+
+        int currentSpan = 0;
+        int currentFont = glyphs[0] >> 24;
+        cgGlyphs[0] = glyphs[0] & 0x00ffffff;
+
+        for (int i = 1; i < glyphs.size(); ++i) {
+            const int nextFont = glyphs[i] >> 24;
+            cgGlyphs[i] = glyphs[i] & 0x00ffffff;
+            if (nextFont == currentFont)
+                continue;
+
+            FMFont fnt = fe->fontForIndex(currentFont);
+            ATSFontRef atsFont = FMGetATSFontRefFromFont(fnt);
+            CGFontRef cgFont = CGFontCreateWithPlatformFont(&atsFont);
+            Q_ASSERT(cgFont != 0);
+
+            CGContextSetFont(d->hd, cgFont);
+
+            CGContextShowGlyphsWithAdvances(d->hd, cgGlyphs.data() + currentSpan,
+                                            advances.data() + currentSpan, i - currentSpan);
+
+            currentFont = nextFont;
+            currentSpan = i;
+        }
+
+        FMFont fnt = fe->fontForIndex(currentFont);
+        ATSFontRef atsFont = FMGetATSFontRefFromFont(fnt);
+        CGFontRef cgFont = CGFontCreateWithPlatformFont(&atsFont);
+        Q_ASSERT(cgFont != 0);
+
+        CGContextSetFont(d->hd, cgFont);
+
+        CGContextShowGlyphsWithAdvances(d->hd, cgGlyphs.data() + currentSpan,
+                                        advances.data() + currentSpan, glyphs.size() - currentSpan);
+
+    }
+
+    if (ti.flags & QTextItem::Underline) {
+        int lw = qRound(fe->lineThickness());
+        int yp = qRound(pos.y() + fe->underlinePosition().toReal());
+        painter()->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
+    }
+
+    if (ti.flags & QTextItem::StrikeOut) {
+        int lw = qRound(fe->lineThickness());
+        int yp = qRound(pos.y() - fe->ascent().toReal()/3.);
+        painter()->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
+    }
+
+    if (ti.flags & QTextItem::Overline) {
+        int lw = qRound(fe->lineThickness());
+        int yp = qRound(pos.y() - fe->ascent().toReal());
+        painter()->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
+    }
+
+    painter()->setPen(oldPen);
+    painter()->setBrush(oldBrush);
+
+#else
+    QQuickDrawPaintEngine::drawTextItem(pos, item);
+#endif
 }
 
 QPainter::RenderHints
