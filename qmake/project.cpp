@@ -2333,7 +2333,11 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
             if(!ignore_error) {
                 printf("Project LOAD(): Feature %s cannot be found.\n", file.toLatin1().constData());
                 if (!ignore_error)
+#if defined(QT_BUILD_QMAKE_LIBRARY)
+                    return false;
+#else
                     exit(3);
+#endif
             }
             return false;
         }
@@ -2356,7 +2360,11 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         QString msg = fixEnvVariables(args.first());
         fprintf(stderr, "Project %s: %s\n", func.toUpper().toLatin1().constData(), msg.toLatin1().constData());
         if(func == "error")
+#if defined(QT_BUILD_QMAKE_LIBRARY)
+            return false;
+#else
             exit(2);
+#endif
         return true;
     } else if(testFunctions.contains(func)) {
         FunctionBlock *defined = testFunctions[func];
