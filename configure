@@ -4285,7 +4285,6 @@ ARCH = $ARCH
 CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath fix_output_dirs QTDIR_build
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
-DEFINES *= QT_EDITION=QT_EDITION_DESKTOP
 QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
 QMAKE_MOC_SRC    = \$\$QT_BUILD_TREE/src/moc
 
@@ -4298,6 +4297,10 @@ QMAKE_INCDIR_QT  = \$\$QT_BUILD_TREE/include
 QMAKE_LIBDIR_QT  = \$\$QT_BUILD_TREE/lib
 
 EOF
+
+if [ "$QT_EDITION" != "QT_EDITION_OPENSOURCE" ]; then
+    echo "DEFINES *= QT_EDITION=QT_EDITION_DESKTOP" >>$CACHEFILE.tmp
+fi
 
 #dump in the SDK info
 if [ '!' -z "$CFG_SDK" ]; then
