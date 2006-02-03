@@ -83,7 +83,7 @@ class QWSSoundServerClient : public QObject {
     Q_OBJECT
 
 public:
-    QWSSoundServerClient(QTcpSocket *s, QObject* parent);
+    QWSSoundServerClient(QWS_SOCK_BASE *s, QObject* parent);
     ~QWSSoundServerClient();
 
 public slots:
@@ -117,12 +117,12 @@ private:
     bool priExist;
     static int lastId;
     static int nextId() { return ++lastId; }
-    QTcpSocket *socket;
+    QWS_SOCK_BASE *socket;
 };
 
 int QWSSoundServerClient::lastId = 0;
 
-QWSSoundServerClient::QWSSoundServerClient(QTcpSocket *s, QObject* parent) :
+QWSSoundServerClient::QWSSoundServerClient(QWS_SOCK_BASE *s, QObject* parent) :
     QObject( parent )
 {
     socket = s;
@@ -676,7 +676,7 @@ QWSSoundServerSocket::QWSSoundServerSocket(QObject *parent, const char *name) :
 
 void QWSSoundServerSocket::newConnection()
 {
-    while (QTcpSocket *sock = nextPendingConnection()) {
+    while (QWS_SOCK_BASE *sock = nextPendingConnection()) {
         QWSSoundServerClient* client = new QWSSoundServerClient(sock,this);
         
         connect(client, SIGNAL(play(int, int, const QString&)),
@@ -1294,9 +1294,9 @@ QWSSoundClient::QWSSoundClient(QObject* parent) :
     QWSSocket(parent)
 {
     connectToLocalFile(QString(SOUND_PIPE).arg(qws_display_id));
-    connect(this,SIGNAL(readyRead()),
+    QObject::connect(this,SIGNAL(readyRead()),
 	this,SLOT(tryReadCommand()));
-    if( state() == QTcpSocket::ConnectedState ) QTimer::singleShot(1, this, SIGNAL(connected()));
+    if( state() == QWS_SOCK_BASE::ConnectedState ) QTimer::singleShot(1, this, SIGNAL(connected()));
     else QTimer::singleShot(1, this, SLOT(emitConnectionRefused()));
 }
 
@@ -1308,7 +1308,7 @@ QWSSoundClient::~QWSSoundClient( )
 void QWSSoundClient::reconnect()
 {
     connectToLocalFile(QString(SOUND_PIPE).arg(qws_display_id));
-    if( state() == QTcpSocket::ConnectedState ) emit connected();
+    if( state() == QWS_SOCK_BASE::ConnectedState ) emit connected();
     else emit error( QTcpSocket::ConnectionRefusedError );
 }
 

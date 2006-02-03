@@ -22,6 +22,8 @@
 
 #ifndef QT_NO_SXV
 
+#include <sys/types.h>
+
 QT_MODULE(Gui)
 
 class QAuthDevice;
@@ -70,10 +72,11 @@ public:
 
     struct Data
     {
-        Data() {}
+        Data() { processId = -1; }
         Data( unsigned char p, int d )
             : properties( p )
             , descriptor( d )
+            , processId( -1 )
         {
             if (( properties & TransportType ) == TCP ||
                 ( properties & TransportType ) == UnixStreamSock )
@@ -84,6 +87,7 @@ public:
         unsigned char progId;
         unsigned char status;
         unsigned int descriptor;   // socket fd or shmget key
+        pid_t processId;
 
         bool trusted() const;
         void setTrusted( bool );
