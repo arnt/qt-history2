@@ -92,8 +92,18 @@
     All application-wide handlers are stored in this list. The mutex must be
     acquired to ensure thread safety.
  */
-static QList<QAbstractFileEngineHandler *> *fileEngineHandlers = 0;
 Q_GLOBAL_STATIC_WITH_ARGS(QMutex, fileEngineHandlerMutex, (QMutex::Recursive))
+static bool qt_abstractfileenginehandlerlist_shutDown = false;
+class QAbstractFileEngineHandlerList : public QList<QAbstractFileEngineHandler *>
+{
+public:
+    ~QAbstractFileEngineHandlerList()
+    {
+        QMutexLocker locker(fileEngineHandlerMutex());
+        qt_abstractfileenginehandlerlist_shutDown = true;
+    }
+};
+Q_GLOBAL_STATIC(QAbstractFileEngineHandlerList, fileEngineHandlers)
 
 /*!
     Constructs a file handler and registers it with Qt. Once created this
@@ -107,9 +117,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QMutex, fileEngineHandlerMutex, (QMutex::Recursive))
 QAbstractFileEngineHandler::QAbstractFileEngineHandler()
 {
     QMutexLocker locker(fileEngineHandlerMutex());
-    if (!fileEngineHandlers)
-        fileEngineHandlers = new QList<QAbstractFileEngineHandler *>;
-    fileEngineHandlers->prepend(this);
+    fileEngineHandlers()->prepend(this);
 }
 
 /*!
@@ -119,7 +127,9 @@ QAbstractFileEngineHandler::QAbstractFileEngineHandler()
 QAbstractFileEngineHandler::~QAbstractFileEngineHandler()
 {
     QMutexLocker locker(fileEngineHandlerMutex());
-    fileEngineHandlers->removeAll(this);
+    // Remove this handler from the handler list only if the list is valid.
+    if (!qt_abstractfileenginehandlerlist_shutDown)
+        fileEngineHandlers()->removeAll(this);
 }
 
 /*!
@@ -134,12 +144,10 @@ QAbstractFileEngineHandler::~QAbstractFileEngineHandler()
 QAbstractFileEngine *QAbstractFileEngine::create(const QString &fileName)
 {
     QMutexLocker locker(fileEngineHandlerMutex());
-    if (!fileEngineHandlers)
-        fileEngineHandlers = new QList<QAbstractFileEngineHandler *>;
 
     // check for registered handlers that can load the file
-    for (int i = 0; i < fileEngineHandlers->size(); i++) {
-        if (QAbstractFileEngine *ret = fileEngineHandlers->at(i)->create(fileName))
+    for (int i = 0; i < fileEngineHandlers()->size(); i++) {
+        if (QAbstractFileEngine *ret = fileEngineHandlers()->at(i)->create(fileName))
             return ret;
     }
 
