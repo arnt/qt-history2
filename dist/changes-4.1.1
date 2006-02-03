@@ -8,6 +8,17 @@ Applications compiled for 4.0 will continue to run with 4.1.
 *                           General                                        *
 ****************************************************************************
 
+moc
+	Better handling of preprocessor statements in combination
+	with multiline comments.
+
+
+configure
+	Respect the -no-sql-mysql flag.
+
+compilers
+	Fix build of dumpcpp-dependent projects in Visual Studio 6.
+
 ...
 
 ****************************************************************************
@@ -32,14 +43,66 @@ General improvements
 - QFile
 	changed behavior or rename() and copy()...
 
+- QPdfPrintEngine
+	Made our generated PDFs readable by Ghostscript.
+	Support pens that have patterns/pixmaps.
+
+- QTextDocument
+	Support span style background-color.
+
+- QToolbutton
+	Make popup menus appear on the correct screen.
+
+- QToolBar
+	Combo boxes now appears as submenus in a toolbar extension.
+
+- QOpenGLPaintEngine
+	Make sure the image and pixmap cache is used.
+	
+- QTextEdit
+	Improve handling of the TITLE tag.
+	Fixed navigating links via tab.
+
+- QSvg
+	Improve stroking with pen width 0.
+
+- QDockWidget
+	Update toggleViewAction() when widget gets hidden with close
+	button.
+
+- QMainWindow
+	Handle RTL layout for dockwidgets properly.
+	Make dockwidgets remember their sizes after being hidden.
+
+- Q3TextEdit
+	Fix focus indicator tabbing through tables.
+
+- QXpmHandler
+	Fixed handling of non-transparent XPM images.
+
 Platform-Specific changes
 -------------------------
 
 Windows:
 
+- QClipboard
+	Make sure the dataChanged() signal is emitted correctly.
+
+- QFileDialog
+	Improve handling of path names with special characters.
+
+
 X11:
+- QPainter
+	Fix artifacts when drawing aliased primitives with an alpha
+	pen.
 
 Mac OS X:
 
+- General fixes to the drag and drop support.
+	
+
 3rd-party libraries
 -------------------
+
+last change was: 198908
