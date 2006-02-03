@@ -26,10 +26,11 @@ class QCheckBoxPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QCheckBox)
 public:
-    QCheckBoxPrivate():tristate(false), noChange(false), hovering(true){}
+    QCheckBoxPrivate():tristate(false), noChange(false), hovering(true), publishedState(Qt::Unchecked){}
     uint tristate : 1;
     uint noChange : 1;
     uint hovering : 1;
+    uint publishedState : 2;
     void init();
     QStyleOptionButton getStyleOption() const;
 };
@@ -124,7 +125,7 @@ QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
     else
         opt.state |= checked ? QStyle::State_On : QStyle::State_Off;
     if (q->testAttribute(Qt::WA_Hover) &&  q->underMouse()) {
-        if (hovering) 
+        if (hovering)
             opt.state |= QStyle::State_MouseOver;
         else
             opt.state &= ~QStyle::State_MouseOver;
@@ -206,7 +207,10 @@ void QCheckBox::setCheckState(Qt::CheckState state)
     setChecked(state != Qt::Unchecked);
     d->blockRefresh = false;
     d->refresh();
-    emit stateChanged(state);
+    if (state != d->publishedState) {
+        d->publishedState = state;
+        emit stateChanged(state);
+    }
 }
 
 
@@ -270,7 +274,11 @@ void QCheckBox::checkStateSet()
 {
     Q_D(QCheckBox);
     d->noChange = false;
-    emit stateChanged(checkState());
+    Qt::CheckState state = checkState();
+    if (state != d->publishedState) {
+        d->publishedState = state;
+        emit stateChanged(state);
+    }
 }
 
 /*!\reimp*/
