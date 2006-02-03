@@ -471,7 +471,8 @@ void Q3DockWindowHandle::mouseReleaseEvent(QMouseEvent *e)
     }
     if (opaque)
         dockWindow->titleBar->mousePressed = false;
-    QApplication::postEvent(dockWindow->area(), new QEvent(QEvent::LayoutHint));
+    if (dockWindow->parentWidget())
+        QApplication::postEvent(dockWindow->parentWidget(), new QEvent(QEvent::LayoutHint));
 }
 
 void Q3DockWindowHandle::minimize()
@@ -555,6 +556,8 @@ void Q3DockWindowHandle::mouseDoubleClickEvent(QMouseEvent *e)
     timer->stop();
     emit doubleClicked();
     hadDblClick = true;
+    if (dockWindow->parentWidget())
+        QApplication::postEvent(dockWindow->parentWidget(), new QEvent(QEvent::LayoutHint));
 }
 
 Q3DockWindowTitleBar::Q3DockWindowTitleBar(Q3DockWindow *dw)
@@ -678,6 +681,8 @@ void Q3DockWindowTitleBar::mouseReleaseEvent(QMouseEvent *e)
         dockWindow->horHandle->mousePressed = false;
         dockWindow->verHandle->mousePressed = false;
     }
+    if (dockWindow->parentWidget())
+        QApplication::postEvent(dockWindow->parentWidget(), new QEvent(QEvent::LayoutHint));
 }
 
 void Q3DockWindowTitleBar::resizeEvent(QResizeEvent *e)
@@ -699,6 +704,8 @@ void Q3DockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
 {
     emit doubleClicked();
     hadDblClick = true;
+    if (dockWindow->parentWidget())
+        QApplication::postEvent(dockWindow->parentWidget(), new QEvent(QEvent::LayoutHint));
 }
 
 /*!
