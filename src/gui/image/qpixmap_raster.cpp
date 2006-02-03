@@ -212,24 +212,11 @@ void QPixmap::resize_helper(const QSize &size)
     if (size == data->image.size())
         return;
     detach();
-    QImage image;
 
-    QImage::Format format = data->image.format();
-    if (format == QImage::Format_MonoLSB) {
-        image = data->createBitmapImage(size.width(), size.height());
-    } else {
-        if (format == QImage::Format_Invalid)
-            format = QImage::Format_RGB32;
-        image = QImage(size, format);
-    }
-
-    // Copy the data over
-    QPainter p(&image);
-    p.drawPixmap(0, 0, *this);
-    p.end();
-
-    // replace with new data.
-    data->image = image;
+    if (size.isEmpty())
+        data->image = QImage();
+    else
+        data->image = data->image.copy(0, 0, size.width(), size.height());
 }
 #endif
 
@@ -276,8 +263,7 @@ void QPixmap::setMask(const QBitmap &mask)
 
     } else {
         detach();
-        const QImage imageMask = mask.toImage();
-        Q_ASSERT(imageMask.format() == QImage::Format_MonoLSB);
+        const QImage imageMask = mask.toImage().convertToFormat(QImage::Format_MonoLSB);
 
         int w = width();
         int h = height();
