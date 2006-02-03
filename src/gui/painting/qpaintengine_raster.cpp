@@ -791,10 +791,11 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
     Q_ASSERT(device);
 
 #if defined(Q_WS_WIN)
+    if (!d->rasterBuffer->hdc())
+        return;
+
     if (device->devType() == QInternal::Widget) {
         HDC hdc = device->getDC();
-
-        Q_ASSERT(d->rasterBuffer->hdc());
 
         bool tmp_hdc = false;
         if (!hdc) {
