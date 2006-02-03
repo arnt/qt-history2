@@ -1047,7 +1047,14 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     case PE_Frame:
 #ifdef QT3_SUPPORT
         if (widget && widget->inherits("Q3ToolBar")) {
-            drawPrimitive(PE_Q3Separator, option, painter, widget);
+            QPen oldPen = painter->pen();
+            painter->setPen(option->palette.background().color().light(104));
+            painter->drawLine(option->rect.topLeft(), option->rect.bottomLeft());
+            painter->drawLine(option->rect.topLeft(), option->rect.topRight());
+            painter->setPen(alphaCornerColor);
+            painter->drawLine(option->rect.topRight(), option->rect.bottomRight());
+            painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
+            painter->setPen(oldPen);
             break;
         }
         if (widget && widget->inherits("Q3DockWindow")) {
@@ -1225,7 +1232,11 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 #endif // QT3_SUPPORT
 #ifndef QT_NO_MAINWINDOW
     case PE_PanelMenuBar:
-        if (widget && qobject_cast<const QMainWindow *>(widget->parentWidget())) {
+        if (widget && qobject_cast<const QMainWindow *>(widget->parentWidget())
+#ifdef QT3_SUPPORT
+            || (widget->parentWidget() && widget->parentWidget()->inherits("Q3MainWindow"))
+#endif
+            ) {
             // Draws the light line above and the dark line below menu bars and
             // tool bars.
             QPen oldPen = painter->pen();
@@ -1265,15 +1276,23 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 #ifndef QT_NO_TOOLBAR
     case PE_IndicatorToolBarHandle: {
         QPixmap cache;
-        QString pixmapName = uniqueName("toolbarhandle", option, option->rect.size());
+        QRect rect = option->rect;
+#ifdef QT3_SUPPORT
+        if (widget && widget->inherits("Q3DockWindowHandle") && widget->parentWidget()->inherits("Q3DockWindow")) {
+            if (!(option->state & State_Horizontal))
+                rect.adjust(2, 0, -2, 0);
+        }
+#endif
+        QString pixmapName = uniqueName("toolbarhandle", option, rect.size());
         if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
-            cache = QPixmap(option->rect.size());
-            cache.fill(Qt::white);
+            cache = QPixmap(rect.size());
+            cache.fill(Qt::blue);
             QPainter cachePainter(&cache);
+            QRect cacheRect(QPoint(0, 0), rect.size());
             if (widget)
-                cachePainter.fillRect(option->rect, option->palette.brush(widget->backgroundRole()));
+                cachePainter.fillRect(cacheRect, option->palette.brush(widget->backgroundRole()));
             else
-                cachePainter.fillRect(option->rect, option->palette.background());
+                cachePainter.fillRect(cacheRect, option->palette.background());
 
             QImage handle(qt_toolbarhandle);
             handle.setColor(1, alphaCornerColor.rgba());
@@ -1281,23 +1300,23 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             handle.setColor(3, option->palette.base().color().rgba());
 
             if (option->state & State_Horizontal) {
-                int nchunks = option->rect.height() / handle.height();
-                int indent = (option->rect.height() - (nchunks * handle.height())) / 2;
+                int nchunks = cacheRect.height() / handle.height();
+                int indent = (cacheRect.height() - (nchunks * handle.height())) / 2;
                 for (int i = 0; i < nchunks; ++i)
-                    cachePainter.drawImage(QPoint(option->rect.left() + 3, option->rect.top() + indent + i * handle.height()),
+                    cachePainter.drawImage(QPoint(cacheRect.left() + 3, cacheRect.top() + indent + i * handle.height()),
                                            handle);
             } else {
-                int nchunks = option->rect.width() / handle.width();
-                int indent = (option->rect.width() - (nchunks * handle.width())) / 2;
+                int nchunks = cacheRect.width() / handle.width();
+                int indent = (cacheRect.width() - (nchunks * handle.width())) / 2;
                 for (int i = 0; i < nchunks; ++i)
-                    cachePainter.drawImage(QPoint(option->rect.left() + indent + i * handle.width(), option->rect.top() + 3),
+                    cachePainter.drawImage(QPoint(cacheRect.left() + indent + i * handle.width(), cacheRect.top() + 3),
                                            handle);
             }
             cachePainter.end();
             if (UsePixmapCache)
                 QPixmapCache::insert(pixmapName, cache);
         }
-        painter->drawPixmap(option->rect.topLeft(), cache);
+        painter->drawPixmap(rect.topLeft(), cache);
         break;
     }
     case PE_IndicatorToolBarSeparator: {

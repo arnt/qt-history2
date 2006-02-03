@@ -999,6 +999,7 @@ void Q3DockWindow::init()
     hbox          = new QVBoxLayout();
     vbox          = new QHBoxLayout();
     childBox          = new QBoxLayout(QBoxLayout::LeftToRight);
+    vbox->addSpacing(2);
     vbox->addWidget(verHandle);
     vbox->addStretch(0);
     vbox->addLayout(childBox, 1);
