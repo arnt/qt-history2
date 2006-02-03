@@ -17,7 +17,7 @@ public:
     int month() const;
     int day() const;
     uint julianDate() const { return m_jd; }
-    
+
 private:
     uint gregorianToJulian(int y, int m, int d) const;
     void julianToGregorian(uint jd, int &y, int &m, int &d) const;
