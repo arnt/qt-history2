@@ -570,8 +570,6 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
     matrix.translate(x, y);
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
 
-    CGContextSetTextPosition(ctx, positions[0].x.toReal(), positions[0].y.toReal());
-
     QVarLengthArray<CGSize> advances(glyphs.size());
     QVarLengthArray<CGGlyph> cgGlyphs(glyphs.size());
 
@@ -597,10 +595,20 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
         CGFontRef cgFont = CGFontCreateWithPlatformFont(&atsFont);
         Q_ASSERT(cgFont != 0);
 
+        CGContextSetTextPosition(ctx, positions[currentSpan].x.toReal(), positions[currentSpan].y.toReal());
+
         CGContextSetFont(ctx, cgFont);
 
         CGContextShowGlyphsWithAdvances(ctx, cgGlyphs.data() + currentSpan,
                                         advances.data() + currentSpan, i - currentSpan);
+
+        if (synthesisFlags & QFontEngine::SynthesizedBold) {
+            CGContextSetTextPosition(ctx, positions[currentSpan].x.toReal() + 0.5 * lineThickness().toReal(),
+                                          positions[currentSpan].y.toReal());
+
+            CGContextShowGlyphsWithAdvances(ctx, cgGlyphs.data() + currentSpan,
+                                           advances.data() + currentSpan, i - currentSpan);
+        }
 
         currentFont = nextFont;
         currentSpan = i;
@@ -611,10 +619,20 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
     CGFontRef cgFont = CGFontCreateWithPlatformFont(&atsFont);
     Q_ASSERT(cgFont != 0);
 
+    CGContextSetTextPosition(ctx, positions[currentSpan].x.toReal(), positions[currentSpan].y.toReal());
+
     CGContextSetFont(ctx, cgFont);
 
     CGContextShowGlyphsWithAdvances(ctx, cgGlyphs.data() + currentSpan,
                                     advances.data() + currentSpan, glyphs.size() - currentSpan);
+
+    if (synthesisFlags & QFontEngine::SynthesizedBold) {
+        CGContextSetTextPosition(ctx, positions[currentSpan].x.toReal() + 0.5 * lineThickness().toReal(),
+                                      positions[currentSpan].y.toReal());
+
+        CGContextShowGlyphsWithAdvances(ctx, cgGlyphs.data() + currentSpan,
+                                        advances.data() + currentSpan, glyphs.size() - currentSpan);
+    }
 
     CGContextSetTextMatrix(ctx, oldTextMatrix);
 }
