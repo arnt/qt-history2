@@ -374,7 +374,7 @@ void QWSClientPrivate::unlockCommunication()
 }
 
 //always use frame buffer
-QWSClient::QWSClient(QObject* parent, QWS_SOCK_BASE* sock, int id)
+QWSClient::QWSClient(QObject* parent, QTcpSocket* sock, int id)
     : QObject(*new QWSClientPrivate, parent), command(0), cid(id)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -435,8 +435,8 @@ void QWSClient::sendEvent(QWSEvent* event)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     if (csocket) {
-        // qDebug() << "QWSClient::sendEvent type " << event->type << " socket state " << csocket->state();
-        if ((QAbstractSocket::SocketState)(csocket->state()) == QAbstractSocket::ConnectedState) {
+        //qDebug() << "QWSClient::sendEvent type " << event->type << " socket state " << csocket->state();
+        if (csocket->state() == QAbstractSocket::ConnectedState) {
             event->write(csocket);
         }
     }
@@ -818,7 +818,7 @@ void QWSServerPrivate::handleWindowClose(QWSWindow *w)
 void QWSServerPrivate::newConnection()
 {
     Q_Q(QWSServer);
-    while (QWS_SOCK_BASE *sock = ssocket->nextPendingConnection()) {
+    while (QTcpSocket *sock = ssocket->nextPendingConnection()) {
         int socket = sock->socketDescriptor();
 
         QWSClient *client = new QWSClient(q,sock, get_object_id());

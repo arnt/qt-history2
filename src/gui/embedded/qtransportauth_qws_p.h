@@ -30,8 +30,6 @@ void hexstring( char *buf, const unsigned char* key, size_t sz );
 
 #include <QMutex>
 
-class QUnixSocketMessage;
-
 /*!
   \internal
   \class QAuthDevice
@@ -53,10 +51,10 @@ public:
     ~QAuthDevice();
     void setTarget( QIODevice *t ) { m_target = t; }
     QIODevice *target() const { return m_target; }
-    void setClient( QWSClient * );
+    void setClient( QWSClient *c );
     QWSClient *client() const;
-    bool authToMessage( QTransportAuth::Data &, char *, const char *, int );
-    bool authFromMessage( QTransportAuth::Data &, const char *, int );
+    bool authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen );
+    bool authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen );
 Q_SIGNALS:
     void authViolation( QTransportAuth::Data & );
     void policyCheck( QTransportAuth::Data &, const QString & );
@@ -71,7 +69,6 @@ private:
     AuthDirection way;
     QIODevice *m_target;
     QWSClient *m_client;
-    QByteArray msgQueue;
 };
 
 #define QSXV_KEY_LEN 16

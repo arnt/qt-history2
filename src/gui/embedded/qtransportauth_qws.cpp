@@ -447,7 +447,7 @@ const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
     if ( fd == -1 )
     {
         perror( "couldnt open keyfile" );
-        qWarning( "check keyfile path %s", qPrintable(m_keyFilePath) );
+        qWarning( "check keyfile path %s", m_keyFilePath.toLocal8Bit().constData() );
         return NULL;
     }
     QMutexLocker keyfileLocker( &keyfileMutex );
@@ -607,47 +607,53 @@ void QAuthDevice::recvReadyRead()
 {
     qint64 bytes = m_target->bytesAvailable();
     if ( bytes <= 0 ) return;
-
-    QUnixSocket *usock = reinterpret_cast<QUnixSocket*>(m_target);
-    QUnixSocketMessage msg = usock->read();
-    msgQueue.append( msg.bytes() );
-    d->processId = msg.processId();
-
+    char *lookahead = (char*)(malloc( bytes ));
+    Q_CHECK_PTR( lookahead );
+    qint64 peeked = m_target->peek( lookahead, bytes );
+    if ( peeked == -1 )
+    {
+        qWarning( "socket/device error in auth: %s",
+                m_target->errorString().toLocal8Bit().constData() );
+        free( lookahead );
+        return;
+    }
 #ifdef QTRANSPORTAUTH_DEBUG
     char displaybuf[1024];
-    hexstring( displaybuf, reinterpret_cast<const unsigned char *>(msgQueue.data()), bytes > 500 ? 500 : bytes );
+    hexstring( displaybuf, reinterpret_cast<const unsigned char *>(lookahead), bytes > 500 ? 500 : bytes );
     qDebug( "recv ready read %lli bytes - msg %s", bytes, displaybuf );
 #endif
-    if ( !authFromMessage( *d, msgQueue, bytes ))
+    if ( !authFromMessage( *d, lookahead, bytes ))
     {
         // not all arrived yet?  come back later
         if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::TooSmall )
         {
-            qDebug( "Too small - returning later" );
+            free( lookahead );
             return;
         }
     }
-    // msg auth header detected and auth determined, remove hdr
-    if (( d->status & QTransportAuth::ErrMask ) != QTransportAuth::NoMagic )
-        msgQueue = msgQueue.mid( QSXV_HEADER_LEN );
-
+    free( lookahead );
     authorizeMessage();
+
+    // ...and re-open, and triggering its readyRead
+    open( QIODevice::ReadOnly );
+    emit QBuffer::readyRead();
 }
 
-/**
-  \internal
-  Pre-process the message to determine what QWS command it is.  This
-  information is used as the "request" for the purposes of authorization.
-
-  The request and other data on the connnection (id, PID etc) are forwarded
-  to all policy listeners by emitting a signal.
-
-  The signal must be processed synchronously because on return the allow/deny
-  status is used immediately to either drop or continue processing the message.
-*/
 void QAuthDevice::authorizeMessage()
 {
-    QBuffer cmdBuf( &msgQueue );
+    char buf[128];
+    // msg auth header detected and auth determined, remove hdr
+    if (( d->status & QTransportAuth::ErrMask ) != QTransportAuth::NoMagic )
+        m_target->read( buf, QSXV_HEADER_LEN );
+    QBuffer cmdBuf;
+    cmdBuf.open( QIODevice::WriteOnly );
+    qint64 bytes;
+    while (( bytes = m_target->bytesAvailable() ))
+    {
+        m_target->read( buf, bytes > 128 ? 128 : bytes );
+        cmdBuf.write( buf, bytes > 128 ? 128 : bytes );
+    }
+    cmdBuf.close();
     cmdBuf.open( QIODevice::ReadOnly );
     QWSCommand::Type command_type = (QWSCommand::Type)(qws_read_uint( &cmdBuf ));
     QString request( qws_getCommandTypeString( command_type ));
@@ -657,21 +663,16 @@ void QAuthDevice::authorizeMessage()
         QWSQCopSendCommand *command = reinterpret_cast<QWSQCopSendCommand*>(QWSCommand::factory(command_type));
         // not all command arrived yet - come back later
         if ( !command->read( &cmdBuf ))
-        {
-            qDebug( "Not all command yet - returning" );
             return;
-        }
         request += QString( "/QCop/%1/%2" ).arg( command->channel ).arg( command->message );
     }
 #endif
-    bool isAuthorized = true;
-    QTransportAuth *auth = QTransportAuth::getInstance();
-    if ( !request.isEmpty() && request != "Unknown" )
-    {
-        emit policyCheck( *d, request );
-        isAuthorized = (( d->status & QTransportAuth::StatusMask ) == QTransportAuth::Allow );
-    }
 
+    if ( !request.isEmpty() )
+        emit policyCheck( *d, request );
+
+    QTransportAuth *auth = QTransportAuth::getInstance();
+    bool isAuthorized = (( d->status & QTransportAuth::StatusMask ) == QTransportAuth::Allow );
 #if defined(SXV_DISCOVERY)
     if (auth->isDiscoveryMode()) {
 #ifndef QT_NO_TEXTSTREAM
@@ -693,18 +694,11 @@ void QAuthDevice::authorizeMessage()
     close();
     buffer().resize(0);
     if ( isAuthorized )
-    {
-        setData( msgQueue );
-        msgQueue.clear();
-        open( QIODevice::ReadOnly );
-        emit QBuffer::readyRead();
-    }
+        setData( cmdBuf.buffer() );
 #if defined(SXV_DISCOVERY)
     else
-    {
         qWarning("%s - denied: (to turn on discovery mode, export SXV_DISCOVERY_MODE=1",
                  qPrintable(request));
-    }
 #endif
 }
 
@@ -731,9 +725,11 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
     if ( d.connection() &&
             (( d.status & QTransportAuth::ErrMask ) != QTransportAuth::Pending ))
         return false;
-    // If Unix socket credentials are being used the key wont be set
     if ( ! a->d_func()->keyInitialised )
+    {
+        qWarning( "Cannot add transport authentication - key not initialised!" );
         return false;
+    }
     unsigned char digest[QSXV_KEY_LEN];
     char *msgPtr = hdr;
     // magic always goes on the beginning

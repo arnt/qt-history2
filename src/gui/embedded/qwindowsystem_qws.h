@@ -14,14 +14,13 @@
 #ifndef QWINDOWSYSTEM_QWS_H
 #define QWINDOWSYSTEM_QWS_H
 
+#include <QtGui/qwsevent_qws.h>
+#include <QtGui/qkbd_qws.h>
+#include <QtGui/qregion.h>
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qdatetime.h>
 #include <QtCore/qlist.h>
-
-#include <QtGui/qwsevent_qws.h>
-#include <QtGui/qkbd_qws.h>
-#include <QtGui/qregion.h>
 
 QT_MODULE(Gui)
 
@@ -29,6 +28,10 @@ struct QWSWindowPrivate;
 class QWSCursor;
 class QWSClient;
 class QWSRegionManager;
+class QWSSocket;
+class QWSServerSocket;
+class QTcpSocket;
+class QTcpServer;
 class QBrush;
 class QVariant;
 class QInputMethodEvent;
@@ -381,7 +384,7 @@ class Q_GUI_EXPORT QWSClient : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWSClient)
 public:
-    QWSClient(QObject* parent, QWS_SOCK_BASE *, int id);
+    QWSClient(QObject* parent, QTcpSocket *, int id);
     ~QWSClient();
 
     int socket() const;
