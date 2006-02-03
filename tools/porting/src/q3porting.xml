@@ -12,7 +12,7 @@
 **
 **************************************************************************-->
 <Rules>
-    <Count>3601</Count>
+    <Count>3600</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -4184,7 +4184,6 @@
     <item Type="qt3Header" >jri.h</item>
     <item Type="qt3Header" >jri_md.h</item>
     <item Type="qt3Header" >jritypes.h</item>
-    <item Type="qt3Header" >moc_yacc.h</item>
     <item Type="qt3Header" >mwerks_mac.h</item>
     <item Type="qt3Header" >npapi.h</item>
     <item Type="qt3Header" >npupp.h</item>
@@ -9986,7 +9985,7 @@
         <Qt3>qguardedptr.h</Qt3>
     </item>
     <item Type="RenamedToken" >
-        <Qt4>q3InitNetworkProtocol</Qt4>
-        <Qt3>qInitNetworkProtocol</Qt3>
+        <Qt4>q3InitNetworkProtocols</Qt4>
+        <Qt3>qInitNetworkProtocols</Qt3>
     </item>
 </Rules>
