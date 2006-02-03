@@ -261,12 +261,12 @@ public:
         ReadHeader,
         Error
     };
-    
+
     QPngHandlerPrivate(QPngHandler *qq)
         : gamma(0.0), quality(2), png_ptr(0), info_ptr(0),
           end_info(0), row_pointers(0), state(Ready), q(qq)
     { }
-    
+
     float gamma;
     int quality;
     QString description;
@@ -344,7 +344,7 @@ bool QPngHandlerPrivate::readPngHeader()
         }
         if (!description.isEmpty())
             description += QLatin1String("\n\n");
-        description += key + QLatin1String(": ") + value.simplified();       
+        description += key + QLatin1String(": ") + value.simplified();
         text_ptr++;
     }
 #endif
@@ -360,7 +360,7 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
 {
     if (state == Error)
         return false;
-    
+
     if (state == Ready && !readPngHeader()) {
         state = Error;
         return false;
@@ -435,7 +435,7 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
     delete [] row_pointers;
 
     *outImage = image;
-    
+
     png_read_end(png_ptr, end_info);
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
     png_ptr = 0;
@@ -549,9 +549,13 @@ bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
     return writeImage(image, -1, QString(), off_x, off_y);
 }
 
-bool QPNGImageWriter::writeImage(const QImage& image, int quality_in, const QString &description,
+bool QPNGImageWriter::writeImage(const QImage& image_in, int quality_in, const QString &description,
                                  int off_x_in, int off_y_in)
 {
+    QImage image = image_in;
+    if(image.format() == QImage::Format_ARGB32_Premultiplied)
+        image = image.convertToFormat(QImage::Format_ARGB32);
+
     QPoint offset = image.offset();
     int off_x = off_x_in + offset.x();
     int off_y = off_y_in + offset.y();
