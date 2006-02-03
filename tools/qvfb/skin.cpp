@@ -285,16 +285,15 @@ void Skin::loadImages()
 	if ( !skinCursorFileName.isEmpty() )
 	    icurs = icurs.smoothScale(int(idown.width()*zoom),int(idown.height()*zoom));
     }
-    int conv = Qt::ThresholdAlphaDither|Qt::AvoidDither;
-    //int conv = -1;
+    Qt::ImageConversionFlags conv = Qt::ThresholdAlphaDither|Qt::AvoidDither;
     if ( !skinImageUpFileName.isEmpty() )
-	skinImageUp.convertFromImage(iup, static_cast<Qt::ImageConversionFlag>(conv));
+	skinImageUp.convertFromImage(iup);
     if ( !skinImageDownFileName.isEmpty() )
-	skinImageDown.convertFromImage(idown, static_cast<Qt::ImageConversionFlag>(conv));
+	skinImageDown.convertFromImage(idown, conv);
     if ( !skinImageClosedFileName.isEmpty() )
-	skinImageClosed.convertFromImage(iclosed, static_cast<Qt::ImageConversionFlag>(conv));
+	skinImageClosed.convertFromImage(iclosed, conv);
     if ( !skinCursorFileName.isEmpty() )
-	skinCursor.convertFromImage(icurs, static_cast<Qt::ImageConversionFlag>(conv));
+	skinCursor.convertFromImage(icurs, conv);
 
     if ( zoom == int(zoom) ) {
 	QWMatrix scale; scale = scale.scale(zoom,zoom);
