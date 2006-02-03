@@ -279,7 +279,7 @@ QString QAbstractItemDelegate::elidedText(const QFontMetrics &fontMetrics, int w
     int offset = (mode ==  Qt::ElideLeft) ? length - 1 : 0;
     QString elided;
         
-    while (i < length && fontMetrics.width(elided + text.at(offset)) + ellipsisWidth < width) {
+    while (i < length && fontMetrics.width(elided + text.at(offset)) + ellipsisWidth <= width) {
         if (mode == Qt::ElideLeft) {
             elided.prepend(text.at(offset));
             offset = (length - 1) - ++i;
