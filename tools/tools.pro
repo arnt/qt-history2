@@ -8,8 +8,8 @@ no-png {
 			porting \
                         qtestlib
     !contains(QT_EDITION, Console):SUBDIRS += designer
-    unix:!embedded:SUBDIRS        += qtconfig
-    win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS       += activeqt
+    unix:!embedded:contains(QT_CONFIG, qt3support):SUBDIRS += qtconfig
+    win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS += activeqt
 }
 
 CONFIG+=ordered
