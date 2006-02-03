@@ -245,7 +245,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
 #ifdef QT3_SUPPORT
         if (q->parentWidget()->inherits("Q3ToolBar")) {
             int iconSize = q->style()->pixelMetric(QStyle::PM_ToolBarIconSize, &opt, q);
-            opt.iconSize = QSize(iconSize, iconSize);
+            opt.iconSize = icon.actualSize(QSize(iconSize, iconSize));
             forceNoText = toolButtonStyle == Qt::ToolButtonIconOnly;
         } else
 #endif
