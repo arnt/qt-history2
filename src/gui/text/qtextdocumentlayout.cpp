@@ -1727,7 +1727,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                 QTextTable *table = qobject_cast<QTextTable *>(c);
 
                 if (table)
-                    align = table->format().alignment();
+                    align = table->format().alignment() & Qt::AlignHorizontal_Mask;
 
                 // align only if there is space for alignment
                 if (right - left > cd->size.width()) {
