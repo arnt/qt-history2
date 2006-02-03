@@ -270,6 +270,18 @@ void Semantic::parseDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST
         return;
     }
 
+    //Check if this is possibly a function call by searching for '(' and ')'
+    const QByteArray declText = textOf(decl);
+    if (declText.contains("(") && declText.contains(")")) {
+	if (decl->declarator() && decl->declarator()->subDeclarator()) {
+
+        NameAST * name = decl->declarator()->subDeclarator()->declaratorId();
+	if (name)
+            parseNameUse(name);
+	    return;	
+        } 
+    }
+
     //create VariableMember
     CodeModel::VariableMember *variableMember = CodeModel::Create<CodeModel::VariableMember>(m_storage);
     variableMember->setNameToken(tokenRefFromAST(nameAST));
