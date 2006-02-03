@@ -141,22 +141,22 @@ void QFontEngineMac::init()
         && (!(intrinsicStyle & ::italic))) {
             synthesisFlags |= SynthesizedItalic;
 
-            atsuBold = true;
-            tags[attributeCount] = kATSUQDBoldfaceTag;
-            sizes[attributeCount] = sizeof(atsuBold);
-            values[attributeCount] = &atsuBold;
+            atsuItalic = true;
+            tags[attributeCount] = kATSUQDItalicTag;
+            sizes[attributeCount] = sizeof(atsuItalic);
+            values[attributeCount] = &atsuItalic;
             ++attributeCount;
     }
     if ((fntStyle & ::bold)
         && (!(intrinsicStyle & ::bold))) {
         synthesisFlags |= SynthesizedBold;
 
-        atsuItalic = true;
-        tags[attributeCount] = kATSUQDItalicTag;
-        sizes[attributeCount] = sizeof(atsuItalic);
-        values[attributeCount] = &atsuItalic;
+        atsuBold = true;
+        tags[attributeCount] = kATSUQDBoldfaceTag;
+        sizes[attributeCount] = sizeof(atsuBold);
+        values[attributeCount] = &atsuBold;
         ++attributeCount;
-    }
+   }
 
     tags[attributeCount] = kATSUFontTag;
     // KATSUFontID is typedef'ed to FMFont
