@@ -161,7 +161,7 @@ QSize QComboBoxPrivate::recomputeSizeHint(QSize &sh) const
                 hasIcon = !q->itemIcon(i).isNull();
         }
         if (minimumContentsLength > 0)
-            sh.setWidth(qMax(sh.width(), minimumContentsLength * fm.width(QLatin1Char('X'))));
+            sh.setWidth(qMax(sh.width(), minimumContentsLength * fm.width(QLatin1Char('X')) + (hasIcon ? iconSize.width() + 4 : 0)));
 
 
         // height
