@@ -492,9 +492,11 @@ void QTcpServer::incomingConnection(int socketDescriptor)
     nextPendingConnection() is called. By default, the limit is 30
     pending connections.
 
-    Clients that attempt to connect to the server after it has
-    reached its maximum number of pending connections will either
-    immediately fail to connect or time out.
+    Clients may still able to connect after the server has reached
+    its maximum number of pending connections (i.e., QTcpSocket can
+    still emit the connected() signal). QTcpServer will stop
+    accepting the new connections, but the operating system may
+    still keep them in queue.
 
     \sa maxPendingConnections(), hasPendingConnections()
 */
