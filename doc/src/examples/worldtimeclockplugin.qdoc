@@ -174,7 +174,8 @@
     information.
 
     Note that if you want the plugins to appear in a Visual Studio
-    integration, you must copy the library into the plugin directory
-    in the install path of the integration (for an example, see
-    C:/program files/trolltech as/visual studio integration/plugins).
+    integration, the plugins must be built in release mode and their
+    libraries must be copied into the plugin directory in the install
+    path of the integration (for an example, see C:/program
+    files/trolltech as/visual studio integration/plugins).
 */
