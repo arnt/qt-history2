@@ -1462,7 +1462,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         p->setPen(oldPen);
         break; }
     case PE_FrameDockWidget:
-        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+        if (qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             drawPrimitive(QStyle::PE_FrameWindow, opt, p, w);
         }
     break;
