@@ -384,7 +384,7 @@ public:
 
     virtual int synthesized() const { return synthesisFlags; }
 
-    inline FMFont fontForIndex(int idx) const { return fonts.at(idx); }
+    void draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt &ti, int paintDeviceHeight);
 
 private:
     int fontIndexForFMFont(FMFont font) const;
