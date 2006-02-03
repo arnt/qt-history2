@@ -1785,7 +1785,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 if(widget) {
                     QPoint plocal(widget->mapFromGlobal(where));
                     QContextMenuEvent qme(QContextMenuEvent::Mouse, plocal, where);
-                    qme.ignore();
                     QApplication::sendEvent(widget, &qme);
                     if(qme.isAccepted()) { //once this happens the events before are pitched
                         qt_button_down = 0;
