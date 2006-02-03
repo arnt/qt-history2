@@ -262,7 +262,7 @@ QString QAbstractItemDelegate::elidedText(const QFontMetrics &fontMetrics, int w
     int length = text.length();
     int i = 0;
 
-    if (fontMetrics.width(text) < width)
+    if (fontMetrics.width(text) <= width)
         return text;
 
     if (mode == Qt::ElideMiddle) {
