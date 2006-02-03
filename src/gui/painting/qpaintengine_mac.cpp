@@ -641,6 +641,8 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
 void QQuickDrawPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
 #if defined(Q_NEW_MAC_FONTENGINE)
+    Q_UNUSED(p);
+    Q_UNUSED(textItem);
     Q_ASSERT(false); // never reached
 #else
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
@@ -1481,8 +1483,9 @@ void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem 
 
     QPen oldPen = painter()->pen();
     QBrush oldBrush = painter()->brush();
-    painter()->setPen(Qt::NoPen);
-    painter()->setBrush(oldPen.brush());
+    QPointF oldBrushOrigin = painter()->brushOrigin();
+    updatePen(Qt::NoPen);
+    updateBrush(oldPen.brush(), QPointF(0, 0));
 
     Q_ASSERT(type() == QPaintEngine::CoreGraphics);
 
@@ -1508,8 +1511,8 @@ void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem 
         painter()->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
     }
 
-    painter()->setPen(oldPen);
-    painter()->setBrush(oldBrush);
+    updatePen(oldPen);
+    updateBrush(oldBrush, oldBrushOrigin);
 
 #else
     QQuickDrawPaintEngine::drawTextItem(pos, item);
