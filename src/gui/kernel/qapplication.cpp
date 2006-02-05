@@ -1917,7 +1917,7 @@ void QApplication::setActiveWindow(QWidget* act)
     // first the activation/deactivation events
     QEvent activationChange(QEvent::ActivationChange);
     QEvent windowActivate(QEvent::WindowActivate);
-    QEvent windowDeactivate(QEvent::WindowActivate);
+    QEvent windowDeactivate(QEvent::WindowDeactivate);
     for (int i = 0; i < toBeActivated.size(); ++i) {
         QWidget *w = toBeActivated.at(i);
         sendSpontaneousEvent(w, &windowActivate);
