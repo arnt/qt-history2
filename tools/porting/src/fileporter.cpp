@@ -327,8 +327,7 @@ void IncludeDirectiveAnalyzer::evaluateText(const Text *textLine)
             foundInsertPos = true;
             const int containerIndex = token->index();
             const QByteArray tokenText = fileContents.text(containerIndex);
-            if (tokenText[0] == 'Q')
-                m_usedClasses.insert(tokenText);
+            m_usedClasses.insert(tokenText);
         }
     }
 }
