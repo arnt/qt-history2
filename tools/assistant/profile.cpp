@@ -30,8 +30,8 @@ Profile *Profile::createDefaultProfile(const QString &docPath)
 {
     QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath);
     if (!docPath.isEmpty())
-        path = docPath;    
-    path = path + QLatin1String("/html/");    
+        path = docPath;
+    path = QDir::cleanPath(path) + QLatin1String("/html/");  
     
     Profile *profile = new Profile;
     profile->valid = true;
