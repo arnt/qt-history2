@@ -2734,7 +2734,7 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
 #ifdef Q_WS_QWS
         , 0
 #endif
-    }, 
+    },
     {
         0,
         0,
@@ -2762,7 +2762,7 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
     }, // Format_MonoLSB
 
     {
-        0, 
+        0,
         convert_X_to_Mono,
         convert_X_to_Mono,
         0,
@@ -2775,7 +2775,7 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
     }, // Format_Indexed8
 
     {
-        0, 
+        0,
         convert_X_to_Mono,
         convert_X_to_Mono,
         convert_RGB_to_Indexed8,
@@ -2788,7 +2788,7 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
     }, // Format_RGB32
 
     {
-        0, 
+        0,
         convert_X_to_Mono,
         convert_X_to_Mono,
         convert_ARGB_to_Indexed8,
@@ -2801,7 +2801,7 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
     }, // Format_ARGB32
 
     {
-        0, 
+        0,
         convert_ARGB_PM_to_Mono,
         convert_ARGB_PM_to_Mono,
         convert_ARGB_PM_to_Indexed8,
@@ -2813,9 +2813,9 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
 #endif
     }  // Format_ARGB32_Premultiplied
 #ifdef Q_WS_QWS
-    , 
+    ,
     {
-        0, 
+        0,
         0,
         0,
         0,
@@ -3049,9 +3049,11 @@ void QImage::setPixel(int x, int y, uint index_or_rgb)
     case Format_ARGB32_Premultiplied:
         ((uint *)s)[x] = index_or_rgb;
         break;
+#ifdef Q_WS_QWS
     case Format_RGB16:
         ((ushort *)s)[x] = qt_convRgbTo16(index_or_rgb);
         break;
+#endif
     case Format_Invalid:
     case NImageFormats:
         Q_ASSERT(false);
