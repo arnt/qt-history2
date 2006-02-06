@@ -2534,6 +2534,7 @@ DrawHelper qDrawHelper[NImageFormats] =
         blend_color_argb,
         blend_src_argb,
     }
+#if 0
 #ifdef Q_WS_QWS
     ,    { // Layout_RGB16
         blend_color_rgb16,
@@ -2543,6 +2544,7 @@ DrawHelper qDrawHelper[NImageFormats] =
         blend_color_gray4_lsb,
         blend_src_generic
     }
+#endif
 #endif
 };
 
