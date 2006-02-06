@@ -1813,8 +1813,11 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         data.texture.imageData = d->fontRasterBuffer->buffer();
         data.texture.width = d->fontRasterBuffer->bytesPerLine() / 4;
         data.texture.height = d->fontRasterBuffer->height();
+        data.texture.bytesPerLine = d->fontRasterBuffer->bytesPerLine();
         data.texture.hasAlpha = true;
         data.bilinear = false;
+        data.texture.format = QImage::Format_ARGB32_Premultiplied;
+        data.texture.colorTable = 0;
 
         data.dx = -devRect.x();
         data.dy = -devRect.y();
@@ -2425,8 +2428,8 @@ void QRasterBuffer::init()
     compositionMode = QPainter::CompositionMode_SourceOver;
     delete clip;
     clip = 0;
-    format = QImage::Format_Invalid;
-    drawHelper = 0;
+    format = QImage::Format_ARGB32_Premultiplied;
+    drawHelper = qDrawHelper + QImage::Format_ARGB32_Premultiplied;
     bgBrush = Qt::white;
 }
 
