@@ -212,19 +212,6 @@ void QFontEngineFT::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemInt
     QFixed x = QFixed::fromReal(matrix.dx());
     QFixed y = QFixed::fromReal(matrix.dy());
 
-    if (ti.flags) {
-        int lw = qRound(lineThickness());
-        lw = qMax(1, lw);
-        if(ti.width != 0 && ti.flags != 0) {
-            if(ti.flags & QTextItem::Underline)
-                paintEngine->qwsFillRect(qRound(x), qRound(y + underlinePosition()), qRound(ti.width), lw);
-            if(ti.flags & QTextItem::Overline)
-                paintEngine->qwsFillRect(qRound(x), qRound(y - (ascent() + 1)), qRound(ti.width), lw);
-            if(ti.flags & QTextItem::StrikeOut)
-                paintEngine->qwsFillRect(qRound(x), qRound(y - (ascent() / 3)), qRound(ti.width), lw);
-        }
-    }
-
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
     getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
@@ -962,19 +949,6 @@ void QFontEngineQPF::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemIn
     matrix.translate(_x, _y);
     QFixed x = QFixed::fromReal(matrix.dx());
     QFixed y = QFixed::fromReal(matrix.dy());
-
-    if (si.flags) {
-        int lw = qRound(lineThickness());
-        lw = qMax(1, lw);
-        if(si.width != 0 && si.flags != 0) {
-            if(si.flags & QTextItem::Underline)
-                paintEngine->qwsFillRect(qRound(x), qRound(y + underlinePosition()), qRound(si.width), lw);
-            if(si.flags & QTextItem::Overline)
-                paintEngine->qwsFillRect(qRound(x), qRound(y - (ascent() + 1)), qRound(si.width), lw);
-            if(si.flags & QTextItem::StrikeOut)
-                paintEngine->qwsFillRect(qRound(x), qRound(y - (ascent() / 3)), qRound(si.width), lw);
-        }
-    }
 
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;

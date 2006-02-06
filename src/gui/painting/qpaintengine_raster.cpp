@@ -3154,24 +3154,6 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
             }
         }
     }
-
-    if (ti.flags & (QTextItem::Underline)) {
-            int lw = qRound(fe->lineThickness());
-            int yp = qRound(y + fe->underlinePosition().toReal());
-        Rectangle(hdc, xo, yp, qRound(ti.width) + xo, yp + lw);
-    }
-
-    if (ti.flags & (QTextItem::StrikeOut)) {
-            int lw = qRound(fe->lineThickness());
-            int yp = qRound(y - fe->ascent().toReal()/3.);
-        Rectangle(hdc, xo, yp, qRound(ti.width) + xo, yp + lw);
-    }
-
-    if (ti.flags & (QTextItem::Overline)) {
-            int lw = qRound(fe->lineThickness());
-            int yp = qRound(y - fe->ascent().toReal());
-        Rectangle(hdc, xo, yp, qRound(ti.width) + xo, yp + lw);
-    }
 }
 
 void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
