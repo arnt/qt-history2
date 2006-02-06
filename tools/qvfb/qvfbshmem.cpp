@@ -204,7 +204,7 @@ QShMemViewProtocol::~QShMemViewProtocol()
     struct shmid_ds shm;
     shmdt( (char*)hdr );
     shmctl( shmId, IPC_RMID, &shm );
-    delete dataCache;
+    free(dataCache);
     delete kh;
     delete mh;
 }
