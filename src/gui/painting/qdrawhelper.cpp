@@ -2644,11 +2644,13 @@ void qInitDrawhelperAsm()
     features = detectCPUFeatures();
 
 #ifdef QT_NO_DEBUG
+#if 0
     if (features & SSE) {
         functionForMode = qt_functionForMode_SSE;
         functionForModeSolid = qt_functionForModeSolid_SSE;
         qDrawHelper[DrawHelper::Layout_ARGB].blendColor = qt_blend_color_argb_sse;
     }
+#endif
 #endif
 }
 
