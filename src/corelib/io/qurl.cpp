@@ -3852,8 +3852,8 @@ QString QUrl::host() const
     Sets the port of the URL to \a port. The port is part of the
     authority of the URL, as described in setAuthority().
 
-    If \a port is negative or has a value larger than 65535, the port
-    will be set to -1 indicating that the port is indefined.
+    \a port must be between 0 and 65535 inclusive. Setting the
+    port to -1 indicates that the port is unspecified.
 */
 void QUrl::setPort(int port)
 {
@@ -3861,10 +3861,9 @@ void QUrl::setPort(int port)
     detach();
     QURL_UNSETFLAG(d->stateFlags, QUrlPrivate::Validated | QUrlPrivate::Normalized);
 
-    if (port < 0 || port > 65535) {
+    if (port < -1 || port > 65535) {
         qWarning("QUrl::setPort: Out of range");
         port = -1;
-        return;
     }
 
     d->port = port;
