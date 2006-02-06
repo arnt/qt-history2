@@ -170,6 +170,7 @@ bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
     if (preedit.isEmpty() && ::activeWidget)
         w = ::activeWidget;
 
+    extern bool qt_sendSpontaneousEvent(QObject *, QEvent *); //qapplication_qws.cpp
     qt_sendSpontaneousEvent(w, &ime);
 
     if (preedit.isEmpty())
