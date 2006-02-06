@@ -3263,23 +3263,31 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
 
     Q_D(QWidget);
     if (isWindow() && d->topData()->qwsManager && isVisible()) {
-        r &= d->topData()->qwsManager->region();
-        if (!r.isEmpty()) {
-            r.translate(-data->crect.x(),-data->crect.y());
-            if (post) {
-                //### why not use r here as well?
-                QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent(visibleRegion()));
-            } else {
-                QPaintEvent e(r&visibleRegion());
-                QApplication::sendEvent(d->topData()->qwsManager, &e);
-            }
-        }
+        QWSManager *manager = d->topData()->qwsManager;
+        r &= manager->region();
+        if (!r.isEmpty())
+            manager->repaintRegion(QDecoration::All, QDecoration::Normal);
     }
 #endif
 }
 
 void QETWidget::updateRegion()
 {
+    Q_D(QWidget);
+
+    QTLWExtra *topextra = d->extra->topextra;
+    QRegion myregion = d->localRequestedRegion();
+    myregion.translate(geometry().topLeft());
+
+    QWSManager *manager = topextra->qwsManager;
+    if (manager)
+        myregion += manager->region();
+
+    QRect br(myregion.boundingRect());
+    topextra->fleft = d->data.crect.x() - br.x();
+    topextra->ftop = d->data.crect.y() - br.y();
+    topextra->fright = br.right() - d->data.crect.right();
+    topextra->fbottom = br.bottom() - d->data.crect.bottom();
 }
 
 void  QApplication::setCursorFlashTime(int msecs)
