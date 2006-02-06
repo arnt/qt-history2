@@ -76,14 +76,12 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
 
 bool QDesignerFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    if (QFormBuilder::addItem(ui_widget, widget, parentWidget)) {
-        return true;
-    } else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) {
-        container->addWidget(widget);
-        return true;
+    if (! QFormBuilder::addItem(ui_widget, widget, parentWidget) || qobject_cast<QMainWindow*> (parentWidget)) {
+        if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget))
+            container->addWidget(widget);
     }
 
-    return false;
+    return true;
 }
 
 bool QDesignerFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)

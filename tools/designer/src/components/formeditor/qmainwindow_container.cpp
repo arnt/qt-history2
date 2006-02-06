@@ -88,31 +88,45 @@ static Qt::DockWidgetArea dockWidgetArea(QDockWidget *me)
 
 void QMainWindowContainer::addWidget(QWidget *widget)
 {
+    // remove all the occurences of widget
+    m_widgets.removeAll(widget);
+
+    // the
     if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget)) {
         m_widgets.append(widget);
         m_mainWindow->addToolBar(toolBarArea(toolBar), toolBar);
         toolBar->show();
-    } else if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(widget)) {
+    }
+
+    else if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(widget)) {
+        if (menuBar != m_mainWindow->menuBar())
+            m_mainWindow->setMenuBar(menuBar);
+
         m_widgets.append(widget);
-        m_mainWindow->setMenuBar(menuBar);
         menuBar->show();
-    } else if (QStatusBar *statusBar = qobject_cast<QStatusBar*>(widget)) {
+    }
+
+    else if (QStatusBar *statusBar = qobject_cast<QStatusBar*>(widget)) {
+        if (statusBar != m_mainWindow->statusBar())
+            m_mainWindow->setStatusBar(statusBar);
+
         m_widgets.append(widget);
-        m_mainWindow->setStatusBar(statusBar);
         statusBar->show();
-    } else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(widget)) {
+    }
+
+    else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(widget)) {
         m_widgets.append(widget);
         m_mainWindow->addDockWidget(dockWidgetArea(dockWidget), dockWidget);
         dockWidget->show();
-    } else if (widget != m_mainWindow->centralWidget()) {
-        if (m_mainWindow->centralWidget() != 0) {
-            // ignore this widget!
-            return;
-        }
+    }
 
-        widget->setParent(m_mainWindow);
-        m_mainWindow->setCentralWidget(widget);
+    else if (widget) {
         m_widgets.prepend(widget);
+
+        if (widget != m_mainWindow->centralWidget ()) {
+            widget->setParent(m_mainWindow);
+            m_mainWindow->setCentralWidget(widget);
+        }
     }
 }
 

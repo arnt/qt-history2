@@ -1004,7 +1004,6 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
 bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
 {
     if (item->widget() == 0) {
-        qWarning() << "========> expected a widget here?!?" << item->layout() << item->spacerItem();
         return false;
     }
 
@@ -1027,16 +1026,14 @@ bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayo
 
 bool QDesignerResource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    core()->metaDataBase()->add(widget); // ensure the widget is managed
+    core()->metaDataBase()->add(widget); // ensure the widget is in the meta database
 
-    if (QAbstractFormBuilder::addItem(ui_widget, widget, parentWidget)) {
-        return true;
-    } else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) {
-        container->addWidget(widget);
-        return true;
+    if (! QAbstractFormBuilder::addItem(ui_widget, widget, parentWidget) || qobject_cast<QMainWindow*> (parentWidget)) {
+        if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget))
+            container->addWidget(widget);
     }
 
-    return false;
+    return true;
 }
 
 void QDesignerResource::copy(QIODevice *dev, const QList<QWidget*> &selection)
