@@ -41,10 +41,10 @@ static void displayMessage(const QString &msg, bool isError = true)
     }
 #else
     if (isError) {
-        fprintf("%s\n", msg.toLatin1().constData());
+        fprintf(stderr, "%s\n", qPrintable(msg));
         fflush(stderr);
-    } else {    
-        printf("%s\n", msg.toLatin1().constData());
+    } else {
+        fprintf(stdout, "%s\n", qPrintable(msg));
         fflush(stdout);
     }
 #endif
@@ -151,7 +151,7 @@ int main( int argc, char ** argv )
         if ( arg == QLatin1String("-addcontentfile")
             || arg == QLatin1String("-removecontentfile")
             || arg == QLatin1String("-help")
-            || arg == QLatin1String("/?");
+            || arg == QLatin1String("/?")
             )
             withGUI = false;
     }
