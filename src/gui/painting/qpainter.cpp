@@ -4342,13 +4342,19 @@ static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const 
     const QPen oldPen = painter->pen();
     const QBrush oldBrush = painter->brush();
     painter->setPen(Qt::NoPen);
-    painter->setBrush(oldPen.brush());
 
     if (ti.flags & QTextItem::Underline) {
+        if (ti.underlineColor.isValid())
+            painter->setBrush(ti.underlineColor);
+        else
+            painter->setBrush(oldPen.brush());
+
         int lw = qRound(fe->lineThickness());
         int yp = qRound(pos.y() + fe->underlinePosition().toReal());
         painter->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
     }
+
+    painter->setBrush(oldPen.brush());
 
     if (ti.flags & QTextItem::StrikeOut) {
         int lw = qRound(fe->lineThickness());
