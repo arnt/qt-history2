@@ -182,6 +182,13 @@ public:
         return len;
     }
 
+    inline void removeSpans(const QList<int> &spans) {
+        for (int i = spans.count() - 1; i >= 0; --i) {
+            length -= sectionSpans.at(spans.at(i)).size;
+            sectionSpans.remove(spans.at(i));
+        }
+    }
+
     int headerSectionSize(int visual) const;
     int headerSectionPosition(int visual) const;
     int headerVisualIndexAt(int position) const;
