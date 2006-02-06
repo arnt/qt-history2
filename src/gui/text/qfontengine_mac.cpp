@@ -88,6 +88,8 @@ OSStatus QMacFontPath::closePath(void *data)
 
 #if defined(Q_NEW_MAC_FONTENGINE)
 
+#include "qscriptengine_p.h"
+
 QFontEngineMac::QFontEngineMac()
 {
     familyref = 0;
@@ -185,6 +187,7 @@ struct QGlyphLayoutInfo
     bool callbackCalled;
     int *mappedFonts;
     QTextEngine::ShaperFlags flags;
+    QShaperItem *shaperItem;
 };
 
 static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
@@ -212,15 +215,7 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
 
     *nfo->numGlyphs = itemCount - 1;
 
-    Fixed *advanceDeltas = 0;
     Fixed *baselineDeltas = 0;
-
-    e = ATSUDirectGetLayoutDataArrayPtrFromLineRef(lineRef, kATSUDirectDataAdvanceDeltaFixedArray,
-                                                   /*iCreate =*/ true,
-                                                   (void **) &advanceDeltas,
-                                                   &itemCount);
-    if (e != noErr)
-        return e;
 
     e = ATSUDirectGetLayoutDataArrayPtrFromLineRef(lineRef, kATSUDirectDataBaselineDeltaFixedArray,
                                                    /*iCreate =*/ true,
@@ -229,36 +224,32 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
     if (e != noErr)
         return e;
 
+    int glyphOutIdx = 0;
+    int glyphOutIncrement = 1;
     if (nfo->flags & QTextEngine::RightToLeft) {
-        for (ItemCount i = 0; i < itemCount - 1; ++i) {
-            int j = itemCount - 2 - i;
+        glyphOutIdx  = itemCount - 2;
+        glyphOutIncrement = -1;
+    }
 
-            const uint charOffset = layoutData[i].originalOffset / sizeof(UniChar);
-            const int fontIdx = nfo->mappedFonts[charOffset];
+    QShaperItem *item = 0;
+    if (nfo->shaperItem)
+        item = nfo->shaperItem;
 
-            nfo->glyphs[j].glyph = (layoutData[i].glyphID & 0x00ffffff) | (fontIdx << 24);
+    for (ItemCount i = 0; i < itemCount - 1; ++i) {
 
-            nfo->glyphs[j].advance.y = FixedToQFixed(baselineDeltas[i]);
-            nfo->glyphs[j].advance.x = FixedToQFixed(layoutData[i + 1].realPos - layoutData[i].realPos);
-        }
-    } else {
-        for (ItemCount i = 0; i < itemCount - 1; ++i) {
+        uint charOffset = layoutData[i].originalOffset / sizeof(UniChar);
+        const int fontIdx = nfo->mappedFonts[charOffset];
 
-            const uint charOffset = layoutData[i].originalOffset / sizeof(UniChar);
-            const int fontIdx = nfo->mappedFonts[charOffset];
+        nfo->glyphs[glyphOutIdx].glyph = (layoutData[i].glyphID & 0x00ffffff) | (fontIdx << 24);
 
-            nfo->glyphs[i].glyph = (layoutData[i].glyphID & 0x00ffffff) | (fontIdx << 24);
+        nfo->glyphs[glyphOutIdx].advance.y = FixedToQFixed(baselineDeltas[i]);
+        nfo->glyphs[glyphOutIdx].advance.x = FixedToQFixed(layoutData[i + 1].realPos - layoutData[i].realPos);
 
-            nfo->glyphs[i].advance.y = FixedToQFixed(baselineDeltas[i]);
-            nfo->glyphs[i].advance.x = FixedToQFixed(layoutData[i + 1].realPos - layoutData[i].realPos);
-        }
+        glyphOutIdx += glyphOutIncrement;
     }
 
     ATSUDirectReleaseLayoutDataArrayPtr(lineRef, kATSUDirectDataBaselineDeltaFixedArray,
                                         (void **) &baselineDeltas);
-
-    ATSUDirectReleaseLayoutDataArrayPtr(lineRef, kATSUDirectDataAdvanceDeltaFixedArray,
-                                        (void **) &advanceDeltas);
 
     ATSUDirectReleaseLayoutDataArrayPtr(lineRef, kATSUDirectDataLayoutRecordATSLayoutRecordCurrent,
                                         (void **) &layoutData);
@@ -278,6 +269,12 @@ int QFontEngineMac::fontIndexForFMFont(FMFont font) const
 
 bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
 {
+    return stringToCMap(str, len, glyphs, nglyphs, flags, /*shaperItem=*/0);
+}
+
+bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags,
+                                  QShaperItem *shaperItem) const
+{
     if (*nglyphs < len) {
         *nglyphs = len;
         return false;
@@ -291,6 +288,7 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     nfo.numGlyphs = nglyphs;
     nfo.callbackCalled = false;
     nfo.flags = flags;
+    nfo.shaperItem = shaperItem;
 
     QVarLengthArray<int> mappedFonts(len);
     for (int i = 0; i < len; ++i)

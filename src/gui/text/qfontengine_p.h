@@ -349,6 +349,8 @@ private:
 
 #if defined(Q_NEW_MAC_FONTENGINE)
 
+struct QShaperItem;
+
 class QFontEngineMac : public QFontEngine
 {
 public:
@@ -361,6 +363,9 @@ public:
     void init();
 
     virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
+    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags,
+                      QShaperItem *shaperItem) const;
+
     virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
     virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
