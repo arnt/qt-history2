@@ -146,8 +146,8 @@ void MainWindow::setup()
     connect(new QShortcut(tr("Ctrl+B"), this), SIGNAL(activated()), helpDock, SLOT(toggleBookmarks()));
     connect(new QShortcut(tr("Ctrl+S"), this), SIGNAL(activated()), helpDock, SLOT(toggleSearch()));
     connect(new QShortcut(tr("Ctrl+W"), this), SIGNAL(activated()), tabs, SLOT(closeTab()));
-    connect(new QShortcut(tr("ALT+Right"), this), SIGNAL(activated()), tabs, SLOT(nextTab()));
-    connect(new QShortcut(tr("ALT+Left"), this), SIGNAL(activated()), tabs, SLOT(previousTab()));
+    connect(new QShortcut(tr("Ctrl+]"), this), SIGNAL(activated()), tabs, SLOT(nextTab()));
+    connect(new QShortcut(tr("Ctrl+["), this), SIGNAL(activated()), tabs, SLOT(previousTab()));
 
     Config *config = Config::configuration();
 
