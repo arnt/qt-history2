@@ -68,6 +68,7 @@ protected:
 
 private:
     friend class QWidget;
+    friend class QETWidget;
     friend class QWidgetPrivate;
     friend class QApplication;
     friend class QApplicationPrivate;
