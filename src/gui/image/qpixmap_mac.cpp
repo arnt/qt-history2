@@ -222,8 +222,13 @@ QImage QPixmap::toImage() const
     int h = data->h;
     QImage::Format format = QImage::Format_MonoLSB;
     if(data->d != 1) //Doesn't support index color modes
-        format = (data->has_alpha ? QImage::Format_ARGB32_Premultiplied :
-                  QImage::Format_RGB32);
+        format = (data->has_alpha ?
+#ifdef QT_RASTER_PAINTENGINE
+                  QImage::Format_ARGB32_Premultiplied
+#else
+                  QImage::Format_ARGB32
+#endif
+                  : QImage::Format_RGB32);
 
     QImage image(w, h, format);
     quint32 *sptr = data->pixels, *srow;
