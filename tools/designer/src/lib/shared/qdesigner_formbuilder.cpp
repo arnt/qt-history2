@@ -34,6 +34,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QToolBar>
 #include <QtGui/QMenuBar>
+#include <QtGui/QMainWindow>
 
 #include <QtCore/QBuffer>
 #include <QtCore/qdebug.h>
