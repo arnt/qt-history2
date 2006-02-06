@@ -257,12 +257,12 @@ bool QAbstractItemDelegate::editorEvent(QEvent *,
 QString QAbstractItemDelegate::elidedText(const QFontMetrics &fontMetrics, int width,
                                           Qt::TextElideMode mode, const QString &text)
 {
-    const QLatin1String ellipsis("...");
+    static const QLatin1String ellipsis("...");
     int ellipsisWidth = fontMetrics.width(ellipsis);
     int length = text.length();
     int i = 0;
 
-    if (fontMetrics.width(text) <= width)
+    if (fontMetrics.width(text) <= width || mode == Qt::ElideNone)
         return text;
 
     if (mode == Qt::ElideMiddle) {

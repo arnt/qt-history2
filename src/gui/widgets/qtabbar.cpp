@@ -940,6 +940,9 @@ static QString computeElidedText(Qt::TextElideMode mode, const QString &text)
     case Qt::ElideLeft:
         ret = Ellipses + text.right(4);
         break;
+    case Qt::ElideNone:
+        ret = text;
+        break;
     }
     return ret;
 }
@@ -1274,6 +1277,8 @@ void QTabBar::changeEvent(QEvent *e)
 
     This property controls how items are elided when there is not
     enough space to show them for a given tab bar size.
+
+    By default the value is Qt::ElideRight.
 */
 
 Qt::TextElideMode QTabBar::elideMode() const

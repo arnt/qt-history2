@@ -185,7 +185,8 @@ public:
     enum TextElideMode {
         ElideLeft,
         ElideRight,
-        ElideMiddle
+        ElideMiddle,
+        ElideNone
     };
 
     enum WindowType {
