@@ -204,7 +204,7 @@ void QWidget::resetInputContext()
 }
 
 #ifdef QT_KEYPAD_NAVIGATION
-QWidget *QWidgetPrivate::editingWidget = 0;
+QPointer<QWidget> QWidgetPrivate::editingWidget;
 
 /*!
     Returns true if this widget currently has edit focus; otherwise false.
