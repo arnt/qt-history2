@@ -4335,6 +4335,37 @@ void qt_painter_tread_test()
         qWarning("QPainter: It is not safe to use text and fonts outside the GUI thread");
 }
 
+static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const QTextItemInt &ti)
+{
+    QFontEngine *fe = ti.fontEngine;
+
+    const QPen oldPen = painter->pen();
+    const QBrush oldBrush = painter->brush();
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(oldPen.brush());
+
+    if (ti.flags & QTextItem::Underline) {
+        int lw = qRound(fe->lineThickness());
+        int yp = qRound(pos.y() + fe->underlinePosition().toReal());
+        painter->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
+    }
+
+    if (ti.flags & QTextItem::StrikeOut) {
+        int lw = qRound(fe->lineThickness());
+        int yp = qRound(pos.y() - fe->ascent().toReal()/3.);
+        painter->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
+    }
+
+    if (ti.flags & QTextItem::Overline) {
+        int lw = qRound(fe->lineThickness());
+        int yp = qRound(pos.y() - fe->ascent().toReal());
+        painter->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
+    }
+
+    painter->setPen(oldPen);
+    painter->setBrush(oldBrush);
+}
+
 /*!
     \internal
     \since 4.1
@@ -4358,35 +4389,77 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
 
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(_ti);
 
-    if (ti.fontEngine->type() != QFontEngine::Multi) {
-        d->engine->drawTextItem(p, ti);
-        return;
-    }
-    QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
+    if (ti.fontEngine->type() == QFontEngine::Multi) {
+        QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
 
-    if (!ti.num_glyphs) {
-        if (ti.flags) {
-            QTextItemInt ti2 = ti;
-            ti2.fontEngine = multi->engine(0);
-            ti2.f = ti.f;
-            d->engine->drawTextItem(p, ti2);
+#if !defined(Q_WS_X11)
+        if (!ti.num_glyphs) {
+            if (ti.flags) {
+                QTextItemInt ti2 = ti;
+                ti2.fontEngine = multi->engine(0);
+                ti2.f = ti.f;
+                d->engine->drawTextItem(p, ti2);
+            }
+            return;
         }
-        return;
-    }
+#endif
 
-    QGlyphLayout *glyphs = ti.glyphs;
-    int which = glyphs[0].glyph >> 24;
+        QGlyphLayout *glyphs = ti.glyphs;
+        int which = glyphs[0].glyph >> 24;
 
-    qreal x = p.x();
-    qreal y = p.y();
+        qreal x = p.x();
+        qreal y = p.y();
 
-    int logClusterOffset = ti.logClusters[0];
-    int start = 0;
-    int end, i;
-    for (end = 0; end < ti.num_glyphs; ++end) {
-        const int e = glyphs[end].glyph >> 24;
-        if (e == which)
-            continue;
+        int logClusterOffset = ti.logClusters[0];
+        int start = 0;
+        int end, i;
+        for (end = 0; end < ti.num_glyphs; ++end) {
+            const int e = glyphs[end].glyph >> 24;
+            if (e == which)
+                continue;
+
+            // draw the text
+            QTextItemInt ti2 = ti;
+            ti2.glyphs = ti.glyphs + start;
+            ti2.num_glyphs = end - start;
+            ti2.fontEngine = multi->engine(which);
+
+            if (ti.logClusters && ti.chars) {
+                while (ti.logClusters[ti2.chars - ti.chars] - logClusterOffset < start)
+                    ++ti2.chars;
+
+                ti2.logClusters += (ti2.chars - ti.chars);
+
+                ti2.num_chars = 0;
+                int char_start = ti2.chars - ti.chars;
+                while (char_start + ti2.num_chars < ti.num_chars && ti2.logClusters[ti2.num_chars] - logClusterOffset < end)
+                    ++ti2.num_chars;
+            }
+            ti2.width = 0;
+            // set the high byte to zero and calc the width
+            for (i = start; i < end; ++i) {
+                glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
+                ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
+            }
+
+            d->engine->drawTextItem(QPointF(x, y), ti2);
+#if defined(Q_WS_X11)
+            drawTextItemDecoration(this, QPointF(x, y), ti2);
+#endif
+
+            QFixed xadd;
+            // reset the high byte for all glyphs and advance to the next sub-string
+            const int hi = which << 24;
+            for (i = start; i < end; ++i) {
+                glyphs[i].glyph = hi | glyphs[i].glyph;
+                xadd += glyphs[i].advance.x;
+            }
+            x += xadd.toReal();
+
+            // change engine
+            start = end;
+            which = e;
+        }
 
         // draw the text
         QTextItemInt ti2 = ti;
@@ -4412,52 +4485,20 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
             ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
         }
 
-        d->engine->drawTextItem(QPointF(x, y), ti2);
+        d->engine->drawTextItem(QPointF(x,y), ti2);
+#if defined(Q_WS_X11)
+        drawTextItemDecoration(this, QPointF(x, y), ti2);
+#endif
 
-        QFixed xadd;
-        // reset the high byte for all glyphs and advance to the next sub-string
+        // reset the high byte for all glyphs
         const int hi = which << 24;
-        for (i = start; i < end; ++i) {
+        for (i = start; i < end; ++i)
             glyphs[i].glyph = hi | glyphs[i].glyph;
-            xadd += glyphs[i].advance.x;
-        }
-        x += xadd.toReal();
 
-        // change engine
-        start = end;
-        which = e;
+    } else {
+        d->engine->drawTextItem(p, ti);
+        drawTextItemDecoration(this, p, ti);
     }
-
-    // draw the text
-    QTextItemInt ti2 = ti;
-    ti2.glyphs = ti.glyphs + start;
-    ti2.num_glyphs = end - start;
-    ti2.fontEngine = multi->engine(which);
-
-    if (ti.logClusters && ti.chars) {
-        while (ti.logClusters[ti2.chars - ti.chars] - logClusterOffset < start)
-            ++ti2.chars;
-
-        ti2.logClusters += (ti2.chars - ti.chars);
-
-        ti2.num_chars = 0;
-        int char_start = ti2.chars - ti.chars;
-        while (char_start + ti2.num_chars < ti.num_chars && ti2.logClusters[ti2.num_chars] - logClusterOffset < end)
-            ++ti2.num_chars;
-    }
-    ti2.width = 0;
-    // set the high byte to zero and calc the width
-    for (i = start; i < end; ++i) {
-        glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
-        ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
-    }
-
-    d->engine->drawTextItem(QPointF(x,y), ti2);
-
-    // reset the high byte for all glyphs
-    const int hi = which << 24;
-    for (i = start; i < end; ++i)
-        glyphs[i].glyph = hi | glyphs[i].glyph;
 }
 
 /*!

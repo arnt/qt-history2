@@ -1960,26 +1960,6 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
         }
 }
 
-static void drawLines(QPaintEngine *p, const QTextItemInt &ti, int baseline, int x1, int w)
-{
-    int lw = qRound(ti.fontEngine->lineThickness());
-    if (ti.flags & QTextItem::Underline) {
-        int pos = qRound(ti.fontEngine->underlinePosition());
-        qt_draw_transformed_rect(p, x1, baseline+pos, w, lw, true);
-    }
-    if (ti.flags & QTextItem::Overline) {
-        int pos = qRound(ti.fontEngine->ascent()+1);
-        if (!pos) pos = 1;
-        qt_draw_transformed_rect(p, x1, baseline-pos, w, lw, true);
-    }
-    if (ti.flags & QTextItem::StrikeOut) {
-        int pos = qRound(ti.fontEngine->ascent()/3);
-        if (!pos) pos = 1;
-        qt_draw_transformed_rect(p, x1, baseline-pos, w, lw, true);
-    }
-}
-
-
 void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
@@ -2004,8 +1984,6 @@ void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 
 void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
 {
-    if (ti.flags)
-        ::drawLines(this, ti, qRound(p.y()), qRound(p.x()), qRound(ti.width));
     if (!ti.num_glyphs)
         return;
 
@@ -2037,9 +2015,6 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &ti)
         QPaintEngine::drawTextItem(p, ti);
         return;
     }
-
-    if (ti.flags)
-        ::drawLines(this, ti, qRound(p.y()), qRound(p.x()), qRound(ti.width));
 
     if (!ti.num_glyphs)
         return;
@@ -2132,9 +2107,6 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         QPaintEngine::drawTextItem(p, ti);
         return;
     }
-
-    if (ti.flags)
-        ::drawLines(this, ti, qRound(p.y()), qRound(p.x()), qRound(ti.width));
 
     if (!ti.num_glyphs)
         return;
