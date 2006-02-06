@@ -456,7 +456,15 @@ bool QLibrary::isLibrary(const QString &fileName)
             || suffix == "so"
             || suffix == "bundle");
 #elif defined(Q_OS_HPUX)
+/*  
+    See "HP-UX Linker and Libraries User's Guide", section "Link-time Differences between PA-RISC and IPF":
+    "In PA-RISC (PA-32 and PA-64) shared libraries are suffixed with .sl. In IPF (32-bit and 64-bit), 
+    the shared libraries are suffixed with .so. For compatibility, the IPF linker also supports the .sl suffix."
+ */
     bool valid = (suffix == "sl");
+# if defined __ia64
+    valid |= (suffix == "so")
+# endif
 #elif defined(Q_OS_UNIX)
     bool valid = (suffix == "so");
 #elif defined(Q_OS_AIX)

@@ -100,11 +100,16 @@ bool QLibraryPrivate::load_sys()
 #if defined(Q_OS_HPUX)
         suffixes << ".sl";
         if (majorVerNum > -1)
-            suffixes << QString(".%1").arg(majorVerNum);
+            suffixes << QString(".sl.%1").arg(majorVerNum);
+# if defined(__ia64)
+        suffixes << ".so";
+        if (majorVerNum > -1)
+            suffixes << QString(".so.%1").arg(majorVerNum);
+# endif
 #elif defined(Q_OS_AIX)
         suffixes << ".a";
 #else
-        suffixes << ".so";       
+        suffixes << ".so";
         if (majorVerNum > -1)
             suffixes << QString(".so.%1").arg(majorVerNum);
 #endif
@@ -115,7 +120,7 @@ bool QLibraryPrivate::load_sys()
             suffixes << QString(".%1.dylib").arg(majorVerNum);
         }
 
-#endif            
+#endif
     }
         
     QString attempt;
@@ -146,7 +151,7 @@ bool QLibraryPrivate::load_sys()
     }
 #endif
     if (pHnd)
-        qualifiedFileName = attempt;        
+        qualifiedFileName = attempt;
     return (pHnd != 0);
 }
 
