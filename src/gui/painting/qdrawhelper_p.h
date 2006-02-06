@@ -28,6 +28,7 @@
 #include "QtCore/qglobal.h"
 #include "QtGui/qcolor.h"
 #include "QtGui/qpainter.h"
+#include "QtGui/qimage.h"
 #ifndef QT_FT_BEGIN_HEADER
 #define QT_FT_BEGIN_HEADER
 #define QT_FT_END_HEADER
@@ -52,14 +53,12 @@ class QGradient;
 
 typedef QT_FT_SpanFunc ProcessSpans;
 
-enum { NImageFormats = 7 };
-
 struct DrawHelper {
     ProcessSpans blendColor;
     ProcessSpans blendGradient;
 };
 
-extern DrawHelper qDrawHelper[NImageFormats];
+extern DrawHelper qDrawHelper[QImage::NImageFormats];
 void qBlendTexture(int count, const QSpan *spans, void *userData);
 
 typedef void QT_FASTCALL (*CompositionFunction)(uint *dest, const uint *src, int length, uint const_alpha);

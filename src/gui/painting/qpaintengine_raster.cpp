@@ -693,8 +693,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 #ifdef Q_WS_QWS
         } else if (format == QImage::Format_RGB16) {
             ;
-        } else if (format == QImage::Format_Grayscale4LSB) {
-            ;
 #endif
         } else {
             qWarning("QRasterPaintEngine::begin(), unsupported image format (%d)\n"

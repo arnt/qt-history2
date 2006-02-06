@@ -125,7 +125,7 @@ static uint * QT_FASTCALL destFetchARGB32P(uint *, QRasterBuffer *rasterBuffer, 
     return (uint *)rasterBuffer->scanLine(y) + x;
 }
 
-static const DestFetchProc destFetchProc[NImageFormats] =
+static const DestFetchProc destFetchProc[QImage::NImageFormats] =
 {
     0, // Format_Invalid
     destFetchMono, // Format_Mono,
@@ -172,7 +172,7 @@ static void QT_FASTCALL destStoreARGB32(QRasterBuffer *rasterBuffer, int x, int 
         data[i] = INV_PREMUL(buffer[i]);
 }
 
-static const DestStoreProc destStoreProc[NImageFormats] =
+static const DestStoreProc destStoreProc[QImage::NImageFormats] =
 {
     0, // Format_Invalid
     destStoreMono, // Format_Mono,
@@ -236,7 +236,7 @@ static uint QT_FASTCALL fetchPixel_ARGB32_Premultiplied(const uchar *scanLine, i
 
 typedef uint QT_FASTCALL (*FetchPixelProc)(const uchar *scanLine, int x, const QVector<QRgb> *);
 
-static const FetchPixelProc fetchPixelProc[NImageFormats] =
+static const FetchPixelProc fetchPixelProc[QImage::NImageFormats] =
 {
     0, 
     fetchPixel_Mono,
@@ -458,7 +458,7 @@ static const uint * QT_FASTCALL fetchTransformedBilinearTiled_generic(uint *buff
 }
 
 
-static const SourceFetchProc sourceFetch[NBlendTypes][NImageFormats] = {
+static const SourceFetchProc sourceFetch[NBlendTypes][QImage::NImageFormats] = {
     // Untransformed
     { 0, // Invalid
       fetch_generic,   // Mono
@@ -1719,7 +1719,7 @@ static void blend_transformed_tiled_argb(int count, const QSpan *spans, void *us
 }
 
 /* Image formats here are target formats */
-static const ProcessSpans processTextureSpans[NBlendTypes][NImageFormats] = {
+static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats] = {
     // Untransformed
     { 0, // Invalid
       blend_untransformed_generic,   // Mono
@@ -2318,8 +2318,10 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
         ++spans;
     }
 }
+#endif //Q_WS_QWS
 
 
+#if 0
 static inline QRgb qt_conv_4ToRgb(uchar g)
 {
     g = g | g << 4;
@@ -2495,12 +2497,11 @@ static void blend_gray4_lsb(int count, const QSpan *spans, void *userData)
         ++spans;
     }
 }
-
-#endif //Q_WS_QWS
-
+#endif
 
 
-DrawHelper qDrawHelper[NImageFormats] =
+
+DrawHelper qDrawHelper[QImage::NImageFormats] =
 {
     // Format_Invalid,
     { 0, 0 }, 
@@ -2534,17 +2535,12 @@ DrawHelper qDrawHelper[NImageFormats] =
         blend_color_argb,
         blend_src_argb,
     }
-#if 0
 #ifdef Q_WS_QWS
-    ,    { // Layout_RGB16
+    ,
+    { // Layout_RGB16
         blend_color_rgb16,
         blend_src_generic
     }
-    ,    { // Layout_Gray4LSB
-        blend_color_gray4_lsb,
-        blend_src_generic
-    }
-#endif
 #endif
 };
 
@@ -2644,13 +2640,11 @@ void qInitDrawhelperAsm()
     features = detectCPUFeatures();
 
 #ifdef QT_NO_DEBUG
-#if 0
     if (features & SSE) {
         functionForMode = qt_functionForMode_SSE;
         functionForModeSolid = qt_functionForModeSolid_SSE;
-        qDrawHelper[DrawHelper::Layout_ARGB].blendColor = qt_blend_color_argb_sse;
+        qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_sse;
     }
-#endif
 #endif
 }
 

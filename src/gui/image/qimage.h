@@ -59,9 +59,11 @@ public:
         Format_Indexed8,
         Format_RGB32,
         Format_ARGB32,
-        Format_ARGB32_Premultiplied
+        Format_ARGB32_Premultiplied, 
 #ifdef Q_WS_QWS
-        , Format_RGB16,
+        Format_RGB16,
+#if 0
+        // reserved for future use
         Format_RGB15,
         Format_Grayscale16,
         Format_Grayscale8,
@@ -69,6 +71,10 @@ public:
         Format_Grayscale4LSB,
         Format_Grayscale2,
         Format_Grayscale2LSB
+#endif
+#endif
+#ifndef qdoc
+        NImageFormats
 #endif
     };
 
