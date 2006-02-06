@@ -589,7 +589,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->mono_surface = false;
     d->fast_pen = true;
     d->int_xform = true;
-    d->opacity = 255;
+    d->opacity = 256;
 
 #if defined(Q_WS_WIN)
     d->clear_type_text = false;
@@ -687,6 +687,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         } else if (format == QImage::Format_RGB32) {
             ;
         } else if (format == QImage::Format_ARGB32_Premultiplied) {
+            gccaps |= PorterDuff;
+        } else if (format == QImage::Format_ARGB32) {
             gccaps |= PorterDuff;
 #ifdef Q_WS_QWS
         } else if (format == QImage::Format_RGB16) {
@@ -918,7 +920,11 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
 
     if (flags & DirtyOpacity) {
         update_fast_pen = true;
-        d->opacity = int(state.opacity() * 255.0);
+        d->opacity = qRound(state.opacity() * 256.0);
+        if (d->opacity > 256)
+            d->opacity = 256;
+        if (d->opacity < 0)
+            d->opacity = 0;
 
         // Force update pen/brush as to get proper alpha colors propagated
         flags |= DirtyPen;
@@ -1069,14 +1075,6 @@ void QRasterPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperat
     }
 }
 
-
-static QImage qt_map_to_32bit(const QPixmap &pixmap)
-{
-    QImage image = pixmap.toImage();
-    return image.convertToFormat(image.hasAlphaChannel()
-                                 ? QImage::Format_ARGB32_Premultiplied
-                                 : QImage::Format_RGB32);
-}
 
 void QRasterPaintEngine::fillPath(const QPainterPath &path, QSpanData *fillData)
 {
@@ -1410,8 +1408,7 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
             CGImageRelease(subimage);
         } else
 #endif
-            drawImage(r, qt_map_to_32bit(pixmap), sr);
-
+            drawImage(r, pixmap.toImage(), sr);
     }
 
 }
@@ -1423,15 +1420,11 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
     qDebug() << " - QRasterPaintEngine::drawImage(), r=" << r << " sr=" << sr << " image=" << img.size() << "depth=" << img.depth();
 #endif
 
-    const QImage image = img.format() == QImage::Format_RGB32
-                         ? img
-                         : img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-
     Q_D(QRasterPaintEngine);
     QSpanData textureData;
     textureData.init(d->rasterBuffer);
     textureData.type = QSpanData::Texture;
-    textureData.initTexture(&image, d->opacity);
+    textureData.initTexture(&img, d->opacity);
 
     bool stretch_sr = r.width() != sr.width() || r.height() != sr.height();
 
@@ -1472,12 +1465,12 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     if (pixmap.depth() == 1)
         image = d->rasterBuffer->colorizeBitmap(pixmap.toImage(), d->pen.color());
     else
-        image = qt_map_to_32bit(pixmap);
+        image = pixmap.toImage();
 
     QSpanData textureData;
     textureData.init(d->rasterBuffer);
-    textureData.type = QSpanData::TiledTexture;
-    textureData.initTexture(&image, d->opacity);
+    textureData.type = QSpanData::Texture;
+    textureData.initTexture(&image, d->opacity, TextureData::Tiled);
 
     if (d->txop > QPainterPrivate::TxTranslate) {
         QMatrix copy = d->matrix;
@@ -2432,7 +2425,8 @@ void QRasterBuffer::init()
     compositionMode = QPainter::CompositionMode_SourceOver;
     delete clip;
     clip = 0;
-    drawHelper = qDrawHelper + DrawHelper::Layout_ARGB;
+    format = QImage::Format_Invalid;
+    drawHelper = 0;
     bgBrush = Qt::white;
 }
 
@@ -2501,20 +2495,8 @@ void QRasterBuffer::prepare(QImage *image)
     m_height = image->height();
     bytes_per_line = 4*(depth == 32 ? m_width : (m_width*depth + 31)/32);
 
-    int format = image->format();
-    if (format == QImage::Format_MonoLSB) {
-        drawHelper = qDrawHelper + DrawHelper::Layout_MonoLSB;
-    } else if (format == QImage::Format_Mono) {
-        drawHelper = qDrawHelper + DrawHelper::Layout_Mono;
-#ifdef Q_WS_QWS
-    } else if (format == QImage::Format_RGB16) {
-        drawHelper = qDrawHelper + DrawHelper::Layout_RGB16;
-    } else if (format == QImage::Format_Grayscale4LSB) {
-        drawHelper = qDrawHelper + DrawHelper::Layout_Gray4LSB;
-#endif
-    } else {
-        drawHelper = qDrawHelper + DrawHelper::Layout_ARGB;
-    }
+    format = image->format();
+    drawHelper = qDrawHelper + format;
 }
 
 void QRasterBuffer::resetBuffer(int val)
@@ -2878,7 +2860,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
         {
             type = LinearGradient;
             const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
-            gradient.alphaColor = !brush.isOpaque() || alpha != 255;
+            gradient.alphaColor = !brush.isOpaque() || alpha != 256;
             initGradient(g, alpha);
 
             gradient.linear.origin.x = g->start().x();
@@ -2892,7 +2874,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
         {
             type = RadialGradient;
             const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
-            gradient.alphaColor = !brush.isOpaque() || alpha != 255;
+            gradient.alphaColor = !brush.isOpaque() || alpha != 256;
             initGradient(g, alpha);
 
             QPointF center = g->center();
@@ -2909,7 +2891,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
         {
             type = ConicalGradient;
             const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
-            gradient.alphaColor = !brush.isOpaque() || alpha != 255;
+            gradient.alphaColor = !brush.isOpaque() || alpha != 256;
             initGradient(g, alpha);
             gradient.spread = QGradient::RepeatSpread;
 
@@ -2936,7 +2918,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
     case Qt::TexturePattern:
         {
 
-            type = TiledTexture;
+            type = Texture;
             extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert);
             QPixmap texture = brushStyle == Qt::TexturePattern
                               ? brush.texture() : qt_pixmapForBrush(brushStyle, true);
@@ -2944,10 +2926,9 @@ void QSpanData::setup(const QBrush &brush, int alpha)
                 rasterBuffer->tempImage = rasterBuffer->colorizeBitmap(texture.toImage(),
                                                                        brush.color());
             } else {
-                rasterBuffer->tempImage = qt_map_to_32bit(texture);
+                rasterBuffer->tempImage = texture.toImage();
             }
-            initTexture(&rasterBuffer->tempImage, alpha);
-
+            initTexture(&rasterBuffer->tempImage, alpha, TextureData::Tiled);
         }
         break;
 
@@ -2968,32 +2949,13 @@ void QSpanData::adjustSpanMethods()
     case Solid:
         unclipped_blend = rasterBuffer->drawHelper->blendColor;
         break;
-    case Texture:
-        if (txop > QPainterPrivate::TxTranslate) {
-            unclipped_blend = bilinear
-                              ? rasterBuffer->drawHelper->blendTransformedBilinear
-                              : rasterBuffer->drawHelper->blendTransformed;
-        } else {
-            unclipped_blend = rasterBuffer->drawHelper->blend;
-        }
-        break;
-    case TiledTexture:
-        if (txop > QPainterPrivate::TxTranslate) {
-            unclipped_blend = bilinear
-                              ? rasterBuffer->drawHelper->blendTransformedBilinearTiled
-                              : rasterBuffer->drawHelper->blendTransformedTiled;
-        } else {
-            unclipped_blend = rasterBuffer->drawHelper->blendTiled;
-        }
-        break;
     case LinearGradient:
-        unclipped_blend = rasterBuffer->drawHelper->blendLinearGradient;
-        break;
     case RadialGradient:
-        unclipped_blend = rasterBuffer->drawHelper->blendRadialGradient;
-        break;
     case ConicalGradient:
-        unclipped_blend = rasterBuffer->drawHelper->blendConicalGradient;
+        unclipped_blend = rasterBuffer->drawHelper->blendGradient;
+        break;
+    case Texture:
+        unclipped_blend = qBlendTexture;
         break;
     }
     // setup clipping
@@ -3020,14 +2982,20 @@ void QSpanData::setupMatrix(const QMatrix &matrix, int tx, int bilin)
     adjustSpanMethods();
 }
 
-void QSpanData::initTexture(const QImage *image, int alpha)
+extern const QVector<QRgb> *qt_image_colortable(const QImage &image);
+
+void QSpanData::initTexture(const QImage *image, int alpha, TextureData::Type _type)
 {
     texture.imageData = image->bits();
     texture.width = image->width();
     texture.height = image->height();
-    texture.hasAlpha = image->format() != QImage::Format_RGB32
-                       || alpha != 255;
+    texture.bytesPerLine = image->bytesPerLine();
+    texture.format = image->format();
+    texture.colorTable = qt_image_colortable(*image);
+    texture.hasAlpha = image->format() != QImage::Format_RGB32 || alpha != 256;
     texture.const_alpha = alpha;
+    texture.type = _type;
+    
     adjustSpanMethods();
 }
 

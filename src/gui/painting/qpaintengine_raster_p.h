@@ -308,6 +308,7 @@ public:
     bool opaqueBackground;
 
     QPainter::CompositionMode compositionMode;
+    QImage::Format format;
     DrawHelper *drawHelper;
     QImage tempImage;
     QBrush bgBrush;

@@ -52,34 +52,15 @@ class QGradient;
 
 typedef QT_FT_SpanFunc ProcessSpans;
 
+enum { NImageFormats = 7 };
+
 struct DrawHelper {
-    enum Layout {
-        Layout_ARGB,
-        Layout_RGB32,
-        Layout_Mono,
-        Layout_MonoLSB,
-#ifdef Q_WS_QWS
-        Layout_RGB16,
-        //Layout_Gray4,
-        Layout_Gray4LSB,
-        //Layout_Gray2,
-        //Layout_Gray2LSB,
-#endif
-        Layout_Count
-    };
     ProcessSpans blendColor;
-    ProcessSpans blend;
-    ProcessSpans blendTiled;
-    ProcessSpans blendTransformed;
-    ProcessSpans blendTransformedTiled;
-    ProcessSpans blendTransformedBilinear;
-    ProcessSpans blendTransformedBilinearTiled;
-    ProcessSpans blendLinearGradient;
-    ProcessSpans blendRadialGradient;
-    ProcessSpans blendConicalGradient;
+    ProcessSpans blendGradient;
 };
 
-extern DrawHelper qDrawHelper[DrawHelper::Layout_Count];
+extern DrawHelper qDrawHelper[NImageFormats];
+void qBlendTexture(int count, const QSpan *spans, void *userData);
 
 typedef void QT_FASTCALL (*CompositionFunction)(uint *dest, const uint *src, int length, uint const_alpha);
 typedef void QT_FASTCALL (*CompositionFunctionSolid)(uint *dest, int length, uint color, uint const_alpha);
@@ -98,16 +79,6 @@ struct SolidData
 {
     uint color;
 };
-
-struct TextureData
-{
-    const void *imageData;
-    int width;
-    int height;
-    bool hasAlpha;
-    int const_alpha;
-};
-
 
 struct LinearGradientData
 {
@@ -159,6 +130,23 @@ struct GradientData
     uint alphaColor : 1;
 };
 
+struct TextureData
+{
+    const uchar *imageData;
+    int width;
+    int height;
+    int bytesPerLine;
+    QImage::Format format;
+    const QVector<QRgb> *colorTable;
+    bool hasAlpha;
+    enum Type {
+        Plain,
+        Tiled
+    };
+    Type type;
+    int const_alpha;
+};
+
 struct QSpanData
 {
     QRasterBuffer *rasterBuffer;
@@ -168,23 +156,22 @@ struct QSpanData
     enum Type {
         None,
         Solid,
-        Texture,
-        TiledTexture,
         LinearGradient,
         RadialGradient,
-        ConicalGradient
+        ConicalGradient, 
+        Texture
     } type : 8;
     int txop : 8;
     bool bilinear;
     union {
         SolidData solid;
-        TextureData texture;
         GradientData gradient;
+        TextureData texture;
     };
     void init(QRasterBuffer *rb);
     void setup(const QBrush &brush, int alpha);
     void setupMatrix(const QMatrix &matrix, int txop, int bilinear);
-    void initTexture(const QImage *image, int alpha);
+    void initTexture(const QImage *image, int alpha, TextureData::Type = TextureData::Plain);
     void initGradient(const QGradient *g, int alpha);
     void adjustSpanMethods();
 };
@@ -378,6 +365,6 @@ const uint qt_bayer_matrix[16][16] = {
 };
 
 #define ARGB_COMBINE_ALPHA(argb, alpha) \
-    (qt_div_255((argb >> 24) * alpha) << 24) | (argb & 0x00ffffff)
+    ((((argb >> 24) * alpha) >> 8) << 24) | (argb & 0x00ffffff)
 
 #endif // QDRAWHELPER_P_H

@@ -107,6 +107,11 @@ Q_GUI_EXPORT qint64 qt_image_id(const QImage &image)
     return (((qint64) image.d->ser_no) << 32) | ((qint64) image.d->detach_no);
 }
 
+const QVector<QRgb> *qt_image_colortable(const QImage &image)
+{
+    return (image.d->format <= QImage::Format_Indexed8 && !image.d->colortable.isEmpty()) ? &image.d->colortable : 0;
+}
+
 extern int qt_defaultDpi();
 
 QBasicAtomic qimage_serial_number = Q_ATOMIC_INIT(1);
