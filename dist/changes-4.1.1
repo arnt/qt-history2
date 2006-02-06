@@ -19,7 +19,19 @@ configure
 compilers
 	Fix build of dumpcpp-dependent projects in Visual Studio 6.
 
-...
+	Fixed compilation for solaris-cc-64.
+
+
+
+Qt Designer
+	Numerous fixes and improvements.
+	
+	uic3: Prevent generation of invalid font tags
+	uic: Fixed bug that caused retranslateUI() to add existing
+	items in combobox once again
+
+Qt Linguist / Internationalization
+	Fix tr() idioms, so that translation actually works.
 
 ****************************************************************************
 *                          Library                                         *
@@ -62,6 +74,8 @@ General improvements
 - QTextEdit
 	Improve handling of the TITLE tag.
 	Fixed navigating links via tab.
+	Improved handling of illformed html.
+	Fixed rendering for tables with thead/tbody/tfoot elements.
 
 - QSvg
 	Improve stroking with pen width 0.
@@ -80,6 +94,44 @@ General improvements
 - QXpmHandler
 	Fixed handling of non-transparent XPM images.
 
+- QImageIOHandler
+	Made all suppported image formats support the Size option.
+
+- QDir
+	cd() now fails when attempting to cd to a non-directory.
+
+- Q3ToolBar
+	Q3Action::setOn() now works correctly.
+
+- QAbstractItemView
+	Fix selections when mouse-tracking is turned on.
+
+- QTableView
+	Fixed drawing of selections after moving columns.
+	Do not wrap to the top if Page Down is pressed.
+
+- QItemDelegate
+	Better handling of QStyleOptionViewItem::Bottom.
+
+- QHeaderView
+	Respects dragDistance.
+
+- QGridLayout 
+	Respect specified alignment over default alignment.
+
+- QSvgRenderer
+	Better handling  of invalid files.
+
+- QPrintEngine
+	Better font underlining/overlining.? (199807)
+	Embed fonts as TrueType font files into PDF? (199815)
+
+- Q3ActionGroup
+	Fix drop down drawing error.
+
+- QWidget
+	Fix regression in setMask().
+
 Platform-Specific changes
 -------------------------
 
@@ -88,21 +140,33 @@ Windows:
 - QClipboard
 	Make sure the dataChanged() signal is emitted correctly.
 
+- QUdpSocket
+	Better handling when sending to an unbound port.
+
+
 - QFileDialog
 	Improve handling of path names with special characters.
+	Maintain modality chain when showing a native modal inside a
+	qt modal.
 
 
 X11:
 - QPainter
 	Fix artifacts when drawing aliased primitives with an alpha
 	pen.
+	Implemented Porter-Duff composition support.
+
+
 
 Mac OS X:
 
 - General fixes to the drag and drop support.
 	
+- QCursor
+	Fix alpha pixmap cursors.
+
 
 3rd-party libraries
 -------------------
 
-last change was: 198908
+last change was: 200107
