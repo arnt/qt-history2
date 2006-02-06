@@ -62,6 +62,9 @@ public:
 #endif
         QIcon icon;
         QRect rect;
+        QRect minRect;
+        QRect maxRect;
+
         QColor textColor;
         QVariant data;
     };
@@ -77,6 +80,8 @@ public:
 
     inline bool validIndex(int index) const { return index >= 0 && index < tabList.count(); }
 
+    QSize minimumTabSizeHint(int index);
+
     QToolButton* rightB; // right or bottom
     QToolButton* leftB; // left or top
     void scrollTabs(); // private slot
@@ -88,6 +93,7 @@ public:
     void makeVisible(int index);
     QStyleOptionTabV2 getStyleOption(int tab) const;
     QSize iconSize;
+    Qt::TextElideMode elideMode;
 };
 
 #endif

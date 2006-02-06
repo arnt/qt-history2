@@ -33,6 +33,7 @@ class Q_GUI_EXPORT QTabBar: public QWidget
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(bool drawBase READ drawBase WRITE setDrawBase)
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(Qt::TextElideMode elideMode READ elideMode WRITE setElideMode)
 
 public:
     explicit QTabBar(QWidget* parent=0);
@@ -65,9 +66,12 @@ public:
 
     QColor tabTextColor(int index) const;
     void setTabTextColor(int index, const QColor &color);
-    
+
     QIcon tabIcon(int index) const;
     void setTabIcon(int index, const QIcon &icon);
+
+    Qt::TextElideMode elideMode() const;
+    void setElideMode(Qt::TextElideMode);
 
 #ifndef QT_NO_TOOLTIP
     void setTabToolTip(int index, const QString &tip);
