@@ -766,7 +766,7 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
     qreal b = rect.height() / 2.0;
 
     qreal absSweepLength = (sweepLength < 0 ? -sweepLength : sweepLength);
-    int iterations = ceil((absSweepLength) / 90.0);
+    int iterations = (int)ceil((absSweepLength) / 90.0);
 
     QPointF first_point;
 
