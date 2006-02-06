@@ -1493,24 +1493,6 @@ void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem 
     if (ti.num_glyphs)
         fe->draw(d->hd, pos.x(), pos.y(), ti, paintDevice()->height());
 
-    if (ti.flags & QTextItem::Underline) {
-        int lw = qRound(fe->lineThickness());
-        int yp = qRound(pos.y() + fe->underlinePosition().toReal());
-        painter()->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
-    }
-
-    if (ti.flags & QTextItem::StrikeOut) {
-        int lw = qRound(fe->lineThickness());
-        int yp = qRound(pos.y() - fe->ascent().toReal()/3.);
-        painter()->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
-    }
-
-    if (ti.flags & QTextItem::Overline) {
-        int lw = qRound(fe->lineThickness());
-        int yp = qRound(pos.y() - fe->ascent().toReal());
-        painter()->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
-    }
-
     updatePen(oldPen);
     updateBrush(oldBrush, oldBrushOrigin);
 

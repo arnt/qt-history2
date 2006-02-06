@@ -4398,7 +4398,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
     if (ti.fontEngine->type() == QFontEngine::Multi) {
         QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
 
-#if !defined(Q_WS_X11)
+#if !defined(Q_WS_X11) && !defined(Q_WS_MAC)
         if (!ti.num_glyphs) {
             if (ti.flags) {
                 QTextItemInt ti2 = ti;
@@ -4449,7 +4449,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
             }
 
             d->engine->drawTextItem(QPointF(x, y), ti2);
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) || defined(Q_WS_MAC)
             drawTextItemDecoration(this, QPointF(x, y), ti2);
 #endif
 
@@ -4492,7 +4492,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
         }
 
         d->engine->drawTextItem(QPointF(x,y), ti2);
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) || defined(Q_WS_MAC)
         drawTextItemDecoration(this, QPointF(x, y), ti2);
 #endif
 
@@ -4503,7 +4503,9 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
 
     } else {
         d->engine->drawTextItem(p, ti);
+#if defined(Q_WS_X11) || defined(Q_WS_MAC)
         drawTextItemDecoration(this, p, ti);
+#endif
     }
 }
 
