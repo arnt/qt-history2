@@ -4477,7 +4477,7 @@ void QWidget::setVisible(bool visible)
         if (!isWindow() && parentWidget()) {
             if (parentWidget()->d_func()->layout)
                 parentWidget()->d_func()->layout->update();
-            else if (parentWidget()-isVisible())
+            else if (parentWidget()->isVisible())
                 QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
         }
 
