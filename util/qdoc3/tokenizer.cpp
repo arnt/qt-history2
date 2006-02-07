@@ -125,7 +125,6 @@ int Tokenizer::getToken()
 	    switch ( yyCh ) {
 	    case '!':
 	    case '%':
-	    case '^':
 		yyCh = getChar();
 		if ( yyCh == '=' )
 		    yyCh = getChar();
@@ -200,6 +199,14 @@ int Tokenizer::getToken()
 		    return Tok_SomeOperator;
 		} else {
 		    return Tok_Aster;
+		}
+	    case '^':
+		yyCh = getChar();
+		if ( yyCh == '=' ) {
+		    yyCh = getChar();
+		    return Tok_SomeOperator;
+		} else {
+		    return Tok_Caret;
 		}
 	    case '+':
 		yyCh = getChar();

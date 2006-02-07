@@ -20,7 +20,7 @@
   tokenizer.cpp as well, and possibly adjust Tok_FirstKeyword and
   Tok_LastKeyword.
 */
-enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen, Tok_LeftParenAster,
+enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_Caret, Tok_LeftParen, Tok_RightParen, Tok_LeftParenAster,
        Tok_Equal, Tok_LeftBrace, Tok_RightBrace, Tok_Semicolon, Tok_Colon, Tok_LeftAngle,
        Tok_RightAngle, Tok_Comma, Tok_Ellipsis, Tok_Gulbrandsen, Tok_LeftBracket, Tok_RightBracket,
        Tok_Tilde, Tok_SomeOperator, Tok_Number, Tok_String, Tok_Doc, Tok_Comment, Tok_Ident,
