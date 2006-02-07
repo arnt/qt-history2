@@ -19,8 +19,8 @@
 #include "QtTest/private/qplaintestlogger_p.h"
 #include "QtTest/private/qxmltestlogger_p.h"
 
-#include "qatomic.h"
-#include <QtCore/QByteArray>
+#include <QtCore/qatomic.h>
+#include <QtCore/qbytearray.h>
 
 #include <stdlib.h>
 #include <string.h>
