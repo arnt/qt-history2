@@ -264,7 +264,7 @@ void QStackedLayout::setCurrentIndex(int index)
 
     if (parent) {
         QWidget * fw = parent->window()->focusWidget();
-        if (fw && (!prev || prev->isAncestorOf(fw))) { // focus was on old page
+        if (fw && (prev && prev->isAncestorOf(fw))) { // focus was on old page
             // look for the best focus widget we can find
             if (QWidget *nfw = next->focusWidget())
                 nfw->setFocus();
