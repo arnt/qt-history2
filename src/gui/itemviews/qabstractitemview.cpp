@@ -443,7 +443,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                    this, SLOT(columnsAboutToBeRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
                    this, SLOT(columnsRemoved(QModelIndex,int,int)));
-        
+
         disconnect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
         disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
     }
@@ -452,7 +452,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
 
     if (d->model) {
         // These asserts do basic sanity checking of the model
-        
+
         // A model should return the same index, including its internal id/pointer.
         Q_ASSERT(model->index(0,0) == model->index(0,0));
         // The parent of a top level index should be invalid.
@@ -470,7 +470,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                 this, SLOT(columnsAboutToBeRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
                 this, SLOT(columnsRemoved(QModelIndex,int,int)));
-                
+
         connect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
         connect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
     }
@@ -980,12 +980,12 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
     QPoint offset = d->offset();
     if ((command & QItemSelectionModel::Current) == 0)
         d->pressedPosition = pos + offset;
-    
+
     if (d->pressedPosition == QPoint(-1, -1))
         d->pressedPosition = visualRect(selectionModel()->currentIndex()).center() + offset;
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalized(), command);
-    
+
     if (index.isValid())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
 
@@ -1107,7 +1107,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 
     if (selectionModel())
         selectionModel()->select(index, selectionCommand(index, event));
-    
+
     if (index == d_func()->pressedIndex && index.isValid()) {
         // signal handlers may change the model
         QPersistentModelIndex persistent = index;
@@ -1196,7 +1196,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
 	    case OnViewport:
 	        break;
             }
-            update();
+            d->viewport->update();
         } else {
             d->dropIndicatorRect = QRect();
             d->dropIndicatorPosition = QAbstractItemView::OnViewport;
@@ -1218,7 +1218,7 @@ void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
 {
     stopAutoScroll();
     setState(NoState);
-    update();
+    d_func()->viewport->update();
 }
 
 /*!
@@ -1269,7 +1269,7 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
     }
     stopAutoScroll();
     setState(NoState);
-    update();
+    d->viewport->update();
 }
 
 #endif // QT_NO_DRAGANDDROP
@@ -1832,7 +1832,7 @@ QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
 int QAbstractItemView::sizeHintForRow(int row) const
 {
     Q_D(const QAbstractItemView);
-        
+
     Q_ASSERT(row >= 0);
     if(!model() || row >= model()->rowCount())
         return -1;
@@ -2372,10 +2372,11 @@ void QAbstractItemView::doAutoScroll()
     // if nothing changed, stop scrolling
     bool verticalUnchanged = (verticalValue == verticalScrollBar()->value());
     bool horizontalUnchanged = (horizontalValue == horizontalScrollBar()->value());
-    if (verticalUnchanged && horizontalUnchanged)
+    if (verticalUnchanged && horizontalUnchanged) {
         stopAutoScroll();
-    else
-        update();
+    } else {
+        d->viewport->update();
+    }
 }
 
 /*!

@@ -1018,7 +1018,7 @@ void QTableView::setShowGrid(bool show)
 {
     if (d_func()->showGrid != show) {
         d_func()->showGrid = show;
-        update();
+        d_func()->viewport->update();
     }
 }
 
@@ -1037,7 +1037,7 @@ void QTableView::setGridStyle(Qt::PenStyle style)
 {
     if (d_func()->gridStyle != style) {
         d_func()->gridStyle = style;
-        update();
+        d_func()->viewport->update();
     }
 }
 
