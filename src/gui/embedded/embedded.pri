@@ -52,6 +52,10 @@ embedded {
 
         !contains(QT_CONFIG, freetype):DEFINES += QT_NO_FREETYPE
 
+        contains(QT_CONFIG, sxv) {
+            SOURCES += embedded/qunixsocket.cpp embedded/qunixsocketserver.cpp
+            HEADERS += embedded/qunixsocket_p.h embedded/qunixsocketserver_p.h
+        }
 # After policies are developed this should be set so discovery mode is
 # off by default, unless turned on explicitly
 #	contains(QT_CONFIG, sxv_discovery):\

@@ -3618,9 +3618,9 @@ else
     QT_CONFIG="$QT_CONFIG opengl"
 fi
 
-# disable secure execution environment
-if [ "$CFG_SXV" = "no" ]; then
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SXV"
+# secure execution environment
+if [ "$CFG_SXV" != "no" ]; then
+    QT_CONFIG="$QT_CONFIG sxv"
 fi
 
 # update QT_CONFIG to show our current predefined configuration
