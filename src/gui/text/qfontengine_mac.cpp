@@ -330,7 +330,7 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     }
 
     {
-        const int maxAttributeCount = 2;
+        const int maxAttributeCount = 3;
         ATSUAttributeTag tags[maxAttributeCount + 1];
         ByteCount sizes[maxAttributeCount + 1];
         ATSUAttributeValuePtr values[maxAttributeCount + 1];
@@ -364,6 +364,16 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
         spec.overrideUPP = atsuPostLayoutCallback;
         values[attributeCount] = &spec;
         sizes[attributeCount] = sizeof(spec);
+        ++attributeCount;
+
+        Boolean direction;
+        if (flags & QTextEngine::RightToLeft)
+            direction = kATSURightToLeftBaseDirection;
+        else
+            direction = kATSULeftToRightBaseDirection;
+        tags[attributeCount] = kATSULineDirectionTag;
+        values[attributeCount] = &direction;
+        sizes[attributeCount] = sizeof(direction);
         ++attributeCount;
 
         Q_ASSERT(attributeCount < maxAttributeCount + 1);
