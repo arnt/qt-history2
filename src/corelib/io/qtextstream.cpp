@@ -289,7 +289,9 @@ public:
 
     inline void setupDevice(QTextStream *stream, QIODevice *device)
     {
-        connect(device, SIGNAL(aboutToClose()), this, SLOT(flushStream()));
+        disconnect();
+        if (device)
+            connect(device, SIGNAL(aboutToClose()), this, SLOT(flushStream()));
         this->stream = stream;
     }
 
@@ -3037,7 +3039,7 @@ void QTextStream::setEncoding(Encoding encoding)
 /*!
     \fn int QTextStream::unsetDevice()
 
-    This function does nothing anymore; don't call it.
+    Use setDevice(0) instead.
 */
 
 /*!
