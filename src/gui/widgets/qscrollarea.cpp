@@ -425,13 +425,13 @@ void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
 
     int logicalX = QStyle::visualPos(layoutDirection(), d->viewport->rect(), QPoint(x, y)).x();
 
-    if (logicalX < d->hbar->value() - xmargin){
+    if (logicalX - xmargin < d->hbar->value()) {
         d->hbar->setValue(qMax(0, logicalX - xmargin));
     } else if (logicalX > d->hbar->value() + d->viewport->width() - xmargin) {
         d->hbar->setValue(qMin(logicalX - d->viewport->width() + xmargin, d->hbar->maximum()));
     }
 
-    if (y < d->vbar->value() - ymargin){
+    if (y - ymargin < d->vbar->value()) {
         d->vbar->setValue(qMax(0, y - ymargin));
     } else if (y > d->vbar->value() + d->viewport->height() - ymargin) {
         d->vbar->setValue(qMin(y - d->viewport->height() + ymargin, d->vbar->maximum()));
