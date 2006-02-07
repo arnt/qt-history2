@@ -122,6 +122,7 @@ Q3ToolBarExtensionWidget::Q3ToolBarExtensionWidget(QWidget *w)
     tb = new QToolButton(this, "qt_toolbar_ext_button");
     tb->setAutoRaise(true);
     setOrientation(Qt::Horizontal);
+    setAutoFillBackground(true);
 }
 
 void Q3ToolBarExtensionWidget::setOrientation(Qt::Orientation o)
@@ -561,7 +562,7 @@ void Q3ToolBar::createPopup()
         d->extension = new Q3ToolBarExtensionWidget(this);
         d->extension->setOrientation(orientation());
         d->extension->button()->setPopup(d->extensionPopup);
-        d->extension->button()->setPopupDelay(-1);
+        d->extension->button()->setPopupMode(QToolButton::InstantPopup);
     }
 
     d->extensionPopup->clear();
@@ -577,8 +578,8 @@ void Q3ToolBar::createPopup()
     int id;
     for (int i = 0; i < childlist.size(); ++i) {
         QObject *obj = childlist.at(i);
-        if (!obj->isWidgetType() || obj == d->extension->button() ||
-            QLatin1String("qt_dockwidget_internal") == obj->objectName()) {
+        if (!obj->isWidgetType() || obj == d->extension->button() || obj == d->extensionPopup
+            || QLatin1String("qt_dockwidget_internal") == obj->objectName()) {
             continue;
         }
         int j = 2;
@@ -586,12 +587,16 @@ void Q3ToolBar::createPopup()
         if (qobject_cast<QComboBox*>(w))
             j = 1;
         hide = false;
-        QPoint p = w->parentWidget()->mapTo(this, w->geometry().bottomRight());
+
+        const int padding = 4; // extra pixels added by the layout hierarchy
+        QPoint p(mapTo(this, w->geometry().bottomRight()));
         if (orientation() == Qt::Horizontal) {
-            if (p.x() > (doHide ? width() - d->extension->width() / j : width()))
+            if ((p.x() > (doHide ? width() - d->extension->width() / j - padding : width() - padding))
+                || (p.x() > parentWidget()->width() - d->extension->width()))
                 hide = true;
         } else {
-            if (p.y() > (doHide ? height()- d->extension->height() / j : height()))
+            if ((p.y() > (doHide ? height()- d->extension->height() / j - padding : height() - padding))
+                || (p.y() > parentWidget()->height() - d->extension->height()))
                 hide = true;
         }
         if (hide && w->isVisible()) {
@@ -604,7 +609,7 @@ void Q3ToolBar::createPopup()
                 if (b->popup() && b->popupDelay() == 0)
                     id = d->extensionPopup->insertItem(b->iconSet(), s, b->popup());
                 else
-                    id = d->extensionPopup->insertItem(b->iconSet(), s, b, SLOT(emulateClick())) ;
+                    id = d->extensionPopup->insertItem(b->iconSet(), s, b, SLOT(click())) ;
                 if (b->isToggleButton())
                     d->extensionPopup->setItemChecked(id, b->isOn());
                 if (!b->isEnabled())
@@ -615,9 +620,9 @@ void Q3ToolBar::createPopup()
                 if (s.isEmpty())
                     s = "";
                 if (b->pixmap())
-                    id = d->extensionPopup->insertItem(*b->pixmap(), s, b, SLOT(emulateClick()));
+                    id = d->extensionPopup->insertItem(*b->pixmap(), s, b, SLOT(click()));
                 else
-                    id = d->extensionPopup->insertItem(s, b, SLOT(emulateClick()));
+                    id = d->extensionPopup->insertItem(s, b, SLOT(click()));
                 if (b->isToggleButton())
                     d->extensionPopup->setItemChecked(id, b->isOn());
                 if (!b->isEnabled())
@@ -668,7 +673,6 @@ void Q3ToolBar::resizeEvent(QResizeEvent *e)
     checkForExtension(e->size());
 }
 
-#include <qdebug.h>
 /*!
     \internal
 
@@ -709,10 +713,14 @@ void Q3ToolBar::checkForExtension(const QSize &sz)
     if (tooSmall) {
         createPopup();
         if (d->extensionPopup->actions().count()) {
+            // parentWidget()->width() used since the Q3ToolBar width
+            // will never be less than minimumSize()
             if (orientation() == Qt::Horizontal)
-                d->extension->setGeometry(width() - 20, 1, 20, height() - 2);
+                d->extension->setGeometry((parentWidget() ? parentWidget()->width() : width()) - 20,
+                                          1, 20, height() - 2);
             else
-                d->extension->setGeometry(1, height() - 20, width() - 2, 20);
+                d->extension->setGeometry(1, (parentWidget() ? parentWidget()->height() : height()) - 20,
+                                          width() - 2, 20);
             d->extension->show();
             d->extension->raise();
         } else {

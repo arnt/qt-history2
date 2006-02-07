@@ -75,6 +75,7 @@ private:
     QString l;
 
     friend class Q3MainWindow;
+    friend class Q3DockAreaLayout;
 
 private:
     Q_DISABLE_COPY(Q3ToolBar)

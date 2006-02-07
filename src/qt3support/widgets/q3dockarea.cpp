@@ -21,6 +21,7 @@
 #include "qpainter.h"
 #include "qmap.h"
 #include "q3mainwindow.h"
+#include "q3toolbar.h"
 
 //#define QDOCKAREA_DEBUG
 
@@ -390,6 +391,8 @@ int Q3DockAreaLayout::layoutItems(const QRect &rect, bool testonly)
             continue;
         hadResizable = hadResizable || dw->isResizeEnabled();
         dw->updateSplitterVisibility(visibleWindows > 1); //!dw->area()->isLastDockWindow(dw));
+        if (Q3ToolBar *tb = qobject_cast<Q3ToolBar *>(dw))
+            tb->checkForExtension(dw->size());
     }
     return sectionpos + linestrut;
 }
