@@ -87,7 +87,7 @@ void NewActionDialog::on_iconButton_clicked()
     QDesignerFormWindowInterface *form = m_actionEditor->formWindow();
     QDesignerFormEditorInterface *core = form->core();
 
-    QString file_path = form->absoluteDir().absolutePath();
+    QString file_path;
     QString qrc_path;
     if (!actionIcon().isNull()) {
         file_path = core->iconCache()->iconToFilePath(actionIcon());

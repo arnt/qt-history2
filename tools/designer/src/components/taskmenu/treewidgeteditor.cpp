@@ -505,9 +505,7 @@ void TreeWidgetEditor::on_previewPixmapItemButton_clicked()
     QString qrc_path;
 
     QIcon icon = curItem->icon(currentRow);
-    if (icon.isNull()) {
-        file_path = m_form->absoluteDir().absolutePath();
-    } else {
+    if (!icon.isNull()) {
         file_path = m_form->core()->iconCache()->iconToFilePath(icon);
         qrc_path = m_form->core()->iconCache()->iconToQrcPath(icon);
     }

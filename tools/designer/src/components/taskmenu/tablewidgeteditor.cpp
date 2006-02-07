@@ -390,9 +390,7 @@ void TableWidgetEditor::on_previewPixmapItemButton_clicked()
     QIcon icon;
     if (curItem)
         icon = curItem->icon();
-    if (icon.isNull()) {
-        file_path = m_form->absoluteDir().absolutePath();
-    } else {
+    if (!icon.isNull()) {
         file_path = m_form->core()->iconCache()->iconToFilePath(icon);
         qrc_path = m_form->core()->iconCache()->iconToQrcPath(icon);
     }

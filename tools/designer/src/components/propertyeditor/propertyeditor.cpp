@@ -256,7 +256,7 @@ void GraphicsPropertyEditor::showDialog()
     if (form == 0)
         return;
 
-    QString file_path = form->absoluteDir().absolutePath();
+    QString file_path;
     QString qrc_path;
 
     if (m_mode == Icon && !m_icon.isNull()) {

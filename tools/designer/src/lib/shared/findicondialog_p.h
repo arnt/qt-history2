@@ -89,6 +89,13 @@ private:
         QString qrc;
     } m_resource_data;
     ResourceEditor *m_resource_editor;
+
+    static QString defaultQrcPath();
+    static QString defaultFilePath(QDesignerFormWindowInterface *form);
+    static void setDefaultQrcPath(const QString &path);
+    static void setDefaultFilePath(const QString &path);
+    static InputBox previousInputBox();
+    static void setPreviousInputBox(InputBox box);
 };
 
 } // namespace qdesigner_internal

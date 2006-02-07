@@ -137,6 +137,11 @@ void FindIconDialog::accept()
         QSettings settings;
         settings.setValue(QLatin1String("FindIconDialog/RecentDirectories"), recent_dir_list);
     }
+    if (activeBox() == ResourceBox)
+        setDefaultQrcPath(qrcPath());
+    else
+        setDefaultFilePath(QFileInfo(filePath()).absolutePath());
+    setPreviousInputBox(activeBox());
     QDialog::accept();
 }
 
@@ -269,13 +274,22 @@ void FindIconDialog::setQrc(const QString &qrc_path, const QString &file_name)
 
 void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
 {
-    if (qrcPath.isEmpty()) {
+    if (!qrcPath.isEmpty()) {
+        setFile(defaultFilePath(m_form));
+        setActiveBox(ResourceBox);
+        setQrc(qrcPath, filePath);
+    } else if (!filePath.isEmpty()) {
         setActiveBox(FileBox);
         setFile(filePath);
     } else {
-        setFile(m_form->absoluteDir().path());
-        setActiveBox(ResourceBox);
-        setQrc(qrcPath, filePath);
+        if (previousInputBox() == ResourceBox && !defaultQrcPath().isEmpty()) {
+            setFile(defaultFilePath(m_form));
+            setActiveBox(ResourceBox);
+            setQrc(defaultQrcPath(), "");
+        } else {
+            setActiveBox(FileBox);
+            setFile(defaultFilePath(m_form));
+        }
     }
 }
 
@@ -315,6 +329,50 @@ QString FindIconDialog::qrcPath() const
 QString FindIconDialog::filePath() const
 {
     return activeBox() == FileBox ? m_file_data.file : m_resource_data.file;
+}
+
+QString FindIconDialog::defaultQrcPath()
+{
+    QSettings settings;
+    return settings.value("FindIconDialog/defaultQrcPath").toString();
+}
+
+QString FindIconDialog::defaultFilePath(QDesignerFormWindowInterface *form)
+{
+    QSettings settings;
+    QString path = settings.value("FindIconDialog/defaultFilePath").toString();
+    if (path.isEmpty())
+        path = form->absoluteDir().path();
+    return path;
+}
+
+void FindIconDialog::setDefaultQrcPath(const QString &path)
+{
+    QSettings settings;
+    settings.setValue("FindIconDialog/defaultQrcPath", path);
+}
+
+void FindIconDialog::setDefaultFilePath(const QString &path)
+{
+    QSettings settings;
+    settings.setValue("FindIconDialog/defaultFilePath", path);
+}
+
+FindIconDialog::InputBox FindIconDialog::previousInputBox()
+{
+    QSettings settings;
+    QString box = settings.value("FindIconDialog/previousInputBox").toString();
+    if (box == QLatin1String("file"))
+        return FileBox;
+    return ResourceBox;
+}
+
+void FindIconDialog::setPreviousInputBox(InputBox box)
+{
+    QSettings settings;
+    settings.setValue(
+        "FindIconDialog/previousInputBox",
+        box == FileBox ? QLatin1String("file") : QLatin1String("resource"));
 }
 
 } // namespace qdesigner_internal
