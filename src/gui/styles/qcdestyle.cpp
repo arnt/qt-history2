@@ -159,10 +159,10 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         bool down = opt->state & State_Sunken;
         bool on = opt->state & State_On;
         bool showUp = !(down ^ on);
-        QBrush fill = showUp || opt->state & State_NoChange ? opt->palette.brush(QPalette::Button) : opt->palette.brush(QPalette::Mid);
+        QBrush fill = (showUp || (opt->state & State_NoChange)) ? opt->palette.brush(QPalette::Button) : opt->palette.brush(QPalette::Mid);
         qDrawShadePanel(p, opt->rect, opt->palette, !showUp, pixelMetric(PM_DefaultFrameWidth), &opt->palette.brush(QPalette::Button));
 
-        if (on) {
+        if (on || (opt->state & State_NoChange)) {
             QRect r = opt->rect;
             QPolygon a(7 * 2);
             int i, xx, yy;
