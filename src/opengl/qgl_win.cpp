@@ -825,7 +825,9 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
                 break;
         } while ((!valid || numFormats < 1) && iAttributes[si] > 1);
         chosenPfi = pixelFormat;
-    } else {
+    }
+
+    if (!chosenPfi) { // fallback if wglChoosePixelFormatARB() failed
         int pmDepth = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 0;
         PIXELFORMATDESCRIPTOR* p = (PIXELFORMATDESCRIPTOR*)dummyPfd;
         memset(p, 0, sizeof(PIXELFORMATDESCRIPTOR));
