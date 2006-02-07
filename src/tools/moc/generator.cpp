@@ -17,7 +17,7 @@
 #include <stdio.h>
 
 // if the flags change, you MUST to change it in qmetaobject.cpp too
-enum ProperyFlags  {
+enum PropertyFlags  {
     Invalid = 0x00000000,
     Readable = 0x00000001,
     Writable = 0x00000002,

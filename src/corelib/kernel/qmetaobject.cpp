@@ -97,7 +97,7 @@
 */
 
 // do not touch without touching the moc as well
-enum ProperyFlags  {
+enum PropertyFlags  {
     Invalid = 0x00000000,
     Readable = 0x00000001,
     Writable = 0x00000002,
