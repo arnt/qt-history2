@@ -29,8 +29,42 @@
 typedef QMap<QString, QList<QWSClient*> > QCopServerMap;
 static QCopServerMap *qcopServerMap = 0;
 
+class QCopServerRegexp
+{
+public:
+    QCopServerRegexp( const QString& channel, QWSClient *client );
+    QCopServerRegexp( const QCopServerRegexp& other );
+
+    QString channel;
+    QWSClient *client;
+    QRegExp regexp;
+};
+
+QCopServerRegexp::QCopServerRegexp( const QString& channel, QWSClient *client )
+{
+    this->channel = channel;
+    this->client = client;
+    this->regexp = QRegExp( channel, Qt::CaseSensitive, QRegExp::Wildcard );
+}
+
+QCopServerRegexp::QCopServerRegexp( const QCopServerRegexp& other )
+{
+    channel = other.channel;
+    client = other.client;
+    regexp = other.regexp;
+}
+
+typedef QList<QCopServerRegexp> QCopServerRegexpList;
+static QCopServerRegexpList *qcopServerRegexpList = 0;
+
 typedef QMap<QString, QList< QPointer<QCopChannel> > > QCopClientMap;
 static QCopClientMap *qcopClientMap = 0;
+
+// Determine if a channel name contains wildcard characters.
+static bool containsWildcards( const QString& channel )
+{
+    return channel.contains('*');
+}
 
 class QCopChannelPrivate
 {
@@ -331,6 +365,15 @@ void QCopChannel::registerChannel(const QString& ch, QWSClient *cl)
     if (it == qcopServerMap->end())
       it = qcopServerMap->insert(ch, QList<QWSClient*>());
 
+    // If the channel name contains wildcard characters, then we also
+    // register it on the server regexp matching list.
+    if (containsWildcards( ch )) {
+	QCopServerRegexp item(ch, cl);
+	if (!qcopServerRegexpList)
+	    qcopServerRegexpList = new QCopServerRegexpList;
+	qcopServerRegexpList->append( item );
+    }
+
     // If this is the first client in the channel, announce the channel as being created.
     if (it.value().count() == 0) {
       QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
@@ -364,6 +407,17 @@ void QCopChannel::detach(QWSClient *cl)
           delete qwsBridge;
         }
       }
+    }
+
+    if (!qcopServerRegexpList)
+	return;
+
+    QCopServerRegexpList::Iterator it2 = qcopServerRegexpList->begin();
+    while(it2 != qcopServerRegexpList->end()) {
+	if ((*it2).client == cl)
+	    it2 = qcopServerRegexpList->erase(it2);
+	else
+	    ++it2;
     }
 }
 
@@ -405,6 +459,17 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
                   qcopServerMap->erase(it);
                 }
             }
+	    if (qcopServerRegexpList && containsWildcards(c)) {
+		// Remove references to a wildcarded channel.
+		QCopServerRegexpList::Iterator it
+		    = qcopServerRegexpList->begin();
+		while(it != qcopServerRegexpList->end()) {
+		    if ((*it).client == cl && (*it).channel == c)
+			it = qcopServerRegexpList->erase(it);
+		    else
+			++it;
+		}
+	    }
             return;
         }
         qWarning("QCopChannel: unknown internal command %s", qPrintable(msg));
@@ -416,6 +481,28 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
     for (int i=0; i < clist.size(); ++i) {
         QWSClient *c = clist.at(i);
         QWSServerPrivate::sendQCopEvent(c, ch, msg, data);
+    }
+
+    if(qcopServerRegexpList && !containsWildcards(ch)) {
+	// Search for wildcard matches and forward the message on.
+	QCopServerRegexpList::ConstIterator it = qcopServerRegexpList->begin();
+	for (; it != qcopServerRegexpList->end(); ++it) {
+	    if ((*it).regexp.exactMatch(ch)) {
+		QByteArray newData;
+		{
+		    QDataStream stream
+			(&newData, QIODevice::WriteOnly | QIODevice::Append);
+		    stream << ch;
+		    stream << msg;
+		    stream << data;
+		    // Stream is flushed and closed at this point.
+		}
+		QWSServerPrivate::sendQCopEvent
+		    ((*it).client, (*it).channel,
+		     "forwardedMessage(QString,QString,QByteArray)",
+		     newData);
+	    }
+	}
     }
 }
 
