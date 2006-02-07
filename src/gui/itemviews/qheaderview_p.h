@@ -56,7 +56,7 @@ public:
           highlightSelected(false),
           stretchLastSection(false),
           stretchSections(0),
-          customSections(0),
+          contentsSections(0),
           sectionIndicatorOffset(0),
           sectionIndicator(0),
           globalResizeMode(QHeaderView::Interactive) {}
@@ -107,16 +107,15 @@ public:
     }
     
     inline bool hasAutoResizeSections() const {
-        return stretchSections || stretchLastSection || customSections;
+        return stretchSections || stretchLastSection || contentsSections;
     }
 
     QStyleOptionHeader getStyleOption() const;
 
-    inline bool hasAutoResizeSections() const
-        { return stretchSections || stretchLastSection || customSections; }
-
     inline void invalidateCachedSizeHint() const
         { cachedSizeHint = QSize(); }
+
+    void clear();
 
     enum State { NoState, ResizeSection, MoveSection } state;
 
@@ -147,7 +146,7 @@ public:
     bool highlightSelected;
     bool stretchLastSection;
     int stretchSections;
-    int customSections;
+    int contentsSections;
     int sectionIndicatorOffset;
     int defaultSectionSize;
     Qt::Alignment defaultAlignment;

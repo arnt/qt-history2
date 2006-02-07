@@ -92,6 +92,7 @@
     \value Stretch Fill all the available visible space.
     \value Custom Don't automatically change the size here, leave it
     to some other object.
+    \value Contents Automatically resize to the contents of the view.
 */
 
 /*!
@@ -837,7 +838,7 @@ void QHeaderView::setResizeMode(ResizeMode mode)
     Q_D(QHeaderView);
     initializeSections();
     d->stretchSections = (mode == Stretch ? count() : 0);
-    d->customSections =  (mode == Custom ? count() : 0);
+    d->contentsSections =  (mode == ResizeToContents ? count() : 0);
     d->globalResizeMode = mode;
     d->sectionResizeMode.clear();
     if (d->hasAutoResizeSections())
@@ -863,12 +864,12 @@ void QHeaderView::setResizeMode(int logicalIndex, ResizeMode mode)
 
     if (mode == Stretch && old != Stretch)
         ++d->stretchSections;
-    else if (mode == Custom && old != Custom)
-        ++d->customSections;
+    else if (mode == ResizeToContents && old != ResizeToContents)
+        ++d->contentsSections;
     else if (mode != Stretch && old == Stretch)
         --d->stretchSections;
-    else if (mode != Custom && old == Custom)
-        --d->customSections;
+    else if (mode != ResizeToContents && old == ResizeToContents)
+        --d->contentsSections;
 
     if (d->hasAutoResizeSections())
         resizeSections(); // section sizes may change as a result of the new mode
@@ -918,7 +919,7 @@ void QHeaderView::setSortIndicatorShown(bool show)
     if (sortIndicatorSection() < 0 || sortIndicatorSection() > count())
         return;
 
-    if (d->visualIndexResizeMode(sortIndicatorSection()) == Custom) {
+    if (d->visualIndexResizeMode(sortIndicatorSection()) == ResizeToContents) {
         resizeSections();
         d->viewport->update();
     }
@@ -952,7 +953,7 @@ void QHeaderView::setSortIndicator(int logicalIndex, Qt::SortOrder order)
     if (logicalIndex >= d->sectionCount)
         return; // nothing to do
 
-    if (old != logicalIndex && resizeMode(logicalIndex) == Custom) {
+    if (old != logicalIndex && resizeMode(logicalIndex) == ResizeToContents) {
         resizeSections();
         d->viewport->update();
     } else {
@@ -1282,8 +1283,8 @@ void QHeaderView::initializeSections(int start, int end)
 
     if (d->globalResizeMode == Stretch)
         d->stretchSections = d->sectionCount;
-    else if (d->globalResizeMode == Custom)
-        d->customSections = d->sectionCount;
+    else if (d->globalResizeMode == ResizeToContents)
+        d->contentsSections = d->sectionCount;
 
     d->createSectionSpan(start, end, (end - start + 1) * d->defaultSectionSize);
     //Q_ASSERT(d->headerLength() == d->length);
@@ -2139,9 +2140,9 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
 
         // because it isn't stretch determine its width and remove that from lengthToStrech
         int sectionSize = 0;
-        if (resizeMode == QHeaderView::Interactive) {
-            sectionSize = headerSectionSize(i);//sectionSizeAt(i);
-        } else { // resizeMode == QHeaderView::Custom
+        if (resizeMode == QHeaderView::Interactive || resizeMode == QHeaderView::Custom) {
+            sectionSize = headerSectionSize(i);
+        } else  if (resizeMode == QHeaderView::ResizeToContents) {
             int logicalIndex = q->logicalIndex(i);
             QAbstractItemView *parent = ::qobject_cast<QAbstractItemView*>(q->parent());
             if (parent)
@@ -2189,7 +2190,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
                 newSectionLength += 1;
                 --pixelReminder;
             }
-        } else { // resizeMode == QHeaderView::Custom
+        } else if (resizeMode == QHeaderView::ResizeToContents) {
             newSectionLength = section_sizes.front();
             section_sizes.removeFirst();
         }

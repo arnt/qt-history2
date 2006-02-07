@@ -36,9 +36,10 @@ public:
 
     enum ResizeMode
     {
-        Interactive, // don't change the size (let the user decide)
-        Stretch, // fill available visible space
-        Custom // let somebody else do the resize
+        Interactive,
+        Stretch,
+        Custom,
+        ResizeToContents
     };
 
     explicit QHeaderView(Qt::Orientation orientation, QWidget *parent = 0);
