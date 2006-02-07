@@ -1243,7 +1243,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         QRegion r = extra->mask;
         extra->mask = QRegion();
         q->setMask(r);
-    }    
+    }
     if (q->testAttribute(Qt::WA_AcceptDrops)
         || (!q->isWindow() && q->parentWidget()
             && q->parentWidget()->testAttribute(Qt::WA_DropSiteRegistered)))
@@ -1948,7 +1948,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         HIViewSetFrame((HIViewRef)q->winId(), &bounds);
 
         Rect r; SetRect(&r, x, y, x+w, y+h);
+        HIViewSetDrawingEnabled((HIViewRef)q->winId(), false);
         SetWindowBounds(qt_mac_window_for(q), kWindowContentRgn, &r);
+        HIViewSetDrawingEnabled((HIViewRef)q->winId(), true);
     } else {
         setWSGeometry();
     }
