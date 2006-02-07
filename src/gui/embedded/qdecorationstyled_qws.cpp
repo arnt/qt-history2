@@ -18,6 +18,7 @@
 #include "qdecorationstyled_qws.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
+#include "qpaintengine.h"
 
 #if !defined(QT_NO_QWS_DECORATION_STYLED) || defined(QT_PLUGIN)
 
@@ -113,9 +114,12 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
 
             if (isActive)
                 opt.state |= QStyle::State_Active;
-            painter->setCompositionMode(QPainter::CompositionMode_Source);
+            bool porterDuff = painter->paintEngine()->hasFeature(QPaintEngine::PorterDuff);
+            if (porterDuff)
+                painter->setCompositionMode(QPainter::CompositionMode_Source);
             painter->fillRect(br, pal.window());
-            painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+            if (porterDuff)
+                painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
             style->drawPrimitive(QStyle::PE_FrameWindow, &opt, painter, widget);
             painter->restore();
 

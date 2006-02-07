@@ -703,9 +703,8 @@ static void blit_16_to_16(const blit_data *data)
     dest += data->dy * dbpl + data->dx*2;
 
     int h = data->h;
-    int bytes = data->w * 2;
     while (h) {
-        memcpy(dest, src, bytes);
+        QT_MEMCPY_USHORT(dest, src, data->w);
         src += sbpl;
         dest += dbpl;
         --h;
@@ -893,7 +892,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
         compose(level, exposedBelow, blend, blendbuffer, changing_level);
     } else {
         QSize blendSize = blend.boundingRect().size();
-        if (!blendSize.isNull()) 
+        if (!blendSize.isNull())
             blendbuffer = QImage(blendSize, QWS_BACKINGSTORE_FORMAT);
     }
     if (!win) {

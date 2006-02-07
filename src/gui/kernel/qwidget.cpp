@@ -39,6 +39,7 @@
 #endif
 #if defined(Q_WS_QWS)
 #include "qwsmanager_qws.h"
+#include "qpaintengine.h" // for PorterDuff
 #endif
 #include "qpainter.h"
 #include "qtooltip.h"
@@ -1395,7 +1396,8 @@ void QWidgetPrivate::paintBackground(QPainter *painter, const QRect &rect, bool 
     if (asRoot && !(q->autoFillBackground() && autoFillBrush.isOpaque())) {
         const QBrush bg = q->palette().brush(QPalette::Window);
 #ifdef Q_WS_QWS
-        painter->setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
+        if (painter->paintEngine()->hasFeature(QPaintEngine::PorterDuff))
+            painter->setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
 #endif
 
         FILL_RECT_WORKAROUND(painter, rect, bg);

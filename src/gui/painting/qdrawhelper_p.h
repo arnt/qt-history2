@@ -157,7 +157,7 @@ struct QSpanData
         Solid,
         LinearGradient,
         RadialGradient,
-        ConicalGradient, 
+        ConicalGradient,
         Texture
     } type : 8;
     int txop : 8;
@@ -235,12 +235,34 @@ do {                                          \
     }                                         \
 } while (0)
 
+#define QT_MEMCPY_USHORT(dest, src, length) \
+do {                                          \
+    /* Duff's device */                       \
+    ushort *_d = (ushort*)(dest);         \
+    const ushort *_s = (ushort*)(src);    \
+    register int n = ((length) + 7) / 8;      \
+    switch ((length) & 0x07)                  \
+    {                                         \
+    case 0: do { *_d++ = *_s++;                 \
+    case 7:      *_d++ = *_s++;                 \
+    case 6:      *_d++ = *_s++;                 \
+    case 5:      *_d++ = *_s++;                 \
+    case 4:      *_d++ = *_s++;                 \
+    case 3:      *_d++ = *_s++;                 \
+    case 2:      *_d++ = *_s++;                 \
+    case 1:      *_d++ = *_s++;                 \
+    } while (--n > 0);                        \
+    }                                         \
+} while (0)
+
+
+
 static inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
 
 inline ushort convertRgb32To16(uint c)
 {
    return (((c) >> 3) & 0x001f)
-       | (((c) >> 5) & 0x07e0) 
+       | (((c) >> 5) & 0x07e0)
        | (((c) >> 8) & 0xf800);
 }
 
