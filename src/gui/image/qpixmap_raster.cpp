@@ -185,10 +185,14 @@ void QPixmap::fill(const QColor &fillColor)
         } else {
             pixel = 1;
         }
-    } else if (data->image.depth() == 32) {
+    } else if (data->image.depth() == 32
+#ifdef Q_WS_QWS
+               || data->image.depth() == 16
+#endif
+        ) {
         int alpha = fillColor.alpha();
         if (alpha != 255) {
-            if (data->image.format() == QImage::Format_RGB32)
+            if (data->image.format() == QImage::Format_RGB32 || data->image.format() == QImage::Format_RGB16)
                 data->image = data->image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
             // Premultiply pixel value.
             pixel = qRgba(fillColor.red() * alpha / 255,
@@ -201,7 +205,7 @@ void QPixmap::fill(const QColor &fillColor)
 
     } else {
         pixel = 0;
-        // ### what about 8/16-bits
+        // ### what about 8 bits
     }
 
     data->image.fill(pixel);
@@ -397,6 +401,9 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
         break;
     case QImage::Format_RGB32:
     case QImage::Format_ARGB32_Premultiplied:
+#ifdef Q_WS_QWS
+    case QImage::Format_RGB16:
+#endif
         pixmap.data->image = image;
         break;
     default:

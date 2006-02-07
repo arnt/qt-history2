@@ -2503,7 +2503,11 @@ static void convert_RGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
             }
         }
 
-        if (src->format != QImage::Format_RGB32) {
+        if (src->format != QImage::Format_RGB32
+#ifdef Q_WS_QWS
+            && src->format != QImage::Format_RGB16
+#endif
+            ) {
             const int trans = 216;
             Q_ASSERT(dst->colortable.size() > trans);
             dst->colortable[trans] = 0;

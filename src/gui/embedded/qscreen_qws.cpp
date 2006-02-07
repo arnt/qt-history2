@@ -20,6 +20,7 @@
 #include "qcolor.h"
 #include "qpixmap.h"
 #include "qwsdisplay_qws.h"
+#include "private/qwidget_qws_p.h"
 #include <private/qdrawhelper_p.h>
 #include <private/qpaintengine_raster_p.h>
 #include <private/qpainter_p.h>
@@ -691,6 +692,26 @@ static void blit_32_to_16(const blit_data *data)
     }
 }
 
+static void blit_16_to_16(const blit_data *data)
+{
+    const int sbpl = data->img->bytesPerLine();
+    const int dbpl = data->lineStep;
+
+    const uchar *src = (const uchar *)data->img->bits();
+    src += data->sy * sbpl + data->sx*2;
+    uchar *dest = (uchar *)data->data;
+    dest += data->dy * dbpl + data->dx*2;
+
+    int h = data->h;
+    int bytes = data->w * 2;
+    while (h) {
+        memcpy(dest, src, bytes);
+        src += sbpl;
+        dest += dbpl;
+        --h;
+    }
+}
+
 /*!
     Copies the given \a region in the given \a image to the point
     specified by \a topLeft.
@@ -715,7 +736,10 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
         func = blit_32_to_32;
         break;
     case 16:
-        func = blit_32_to_16;
+        if (img.depth() == 16)
+            func = blit_16_to_16;
+        else
+            func = blit_32_to_16;
         break;
     default:
         break;
@@ -747,10 +771,9 @@ void QScreen::blit(QWSWindow *win, const QRegion &clip)
     QWSBackingStore *bs = win->backingStore();
     if (!bs || bs->isNull())
         return;
-    QPixmap *pm = bs->pixmap();
     bool locked = bs->lock(max_lock_time);
     if (locked) {
-        QImage img = pm->toImage();
+        const QImage &img = bs->image();
         QRegion rgn = clip & win->requestedRegion();
         blit(img, win->requestedRegion().boundingRect().topLeft(), rgn);
         bs->unlock();
@@ -870,8 +893,8 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
         compose(level, exposedBelow, blend, blendbuffer, changing_level);
     } else {
         QSize blendSize = blend.boundingRect().size();
-        if (!blendSize.isNull())
-            blendbuffer = QImage(blendSize, QImage::Format_ARGB32_Premultiplied);
+        if (!blendSize.isNull()) 
+            blendbuffer = QImage(blendSize, QWS_BACKINGSTORE_FORMAT);
     }
     if (!win) {
         paintBackground(exposed-blend);
@@ -903,8 +926,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             locked = win->backingStore()->lock(max_lock_time);
             if (!locked)
                 return;
-            QPixmap *pm = win->backingStore()->pixmap();
-            img = pm->toImage();
+            const QImage &img = win->backingStore()->image();
             QPoint winoff = off - win->requestedRegion().boundingRect().topLeft();
             spanData.type = QSpanData::Texture;
             spanData.initTexture(&img, opacity);

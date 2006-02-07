@@ -378,7 +378,7 @@ void QWSManagerPrivate::dirtyRegion(int decorationRegion,
     Paints all the dirty regions into \a pixmap.
     Returns the regions that have been repainted.
 */
-QRegion QWSManagerPrivate::paint(QPixmap *pixmap)
+QRegion QWSManagerPrivate::paint(QPaintDevice *paintDevice)
 {
     if (dirtyRegions.empty())
         return QRegion();
@@ -391,7 +391,7 @@ QRegion QWSManagerPrivate::paint(QPixmap *pixmap)
     QDecoration &dec = QApplication::qwsDecoration();
 
     QRegion updated;
-    QPainter painter(pixmap);
+    QPainter painter(paintDevice);
     painter.translate(bs->topLevelOffset());
     for (int i = 0; i < dirtyRegions.size(); ++i) {
         int region = dirtyRegions.takeFirst();

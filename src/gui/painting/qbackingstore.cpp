@@ -679,7 +679,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             dirty -= toClean;
             if (tlw->updatesEnabled()) {
 #ifdef Q_WS_QWS
-                tlw->d_func()->drawWidget(buffer.pixmap(), toClean, tlwOffset);
+                tlw->d_func()->drawWidget(buffer.paintDevice(), toClean, tlwOffset);
 #else
                 tlw->d_func()->drawWidget(&buffer, toClean, tlwOffset);
 #endif
@@ -690,7 +690,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #ifdef Q_WS_QWS
 #ifndef QT_NO_QWS_MANAGER
         if (topextra->qwsManager)
-            toFlush += topextra->qwsManager->d_func()->paint(buffer.pixmap());
+            toFlush += topextra->qwsManager->d_func()->paint(buffer.paintDevice());
 #endif
         buffer.unlock();
 #endif // Q_WS_QWS

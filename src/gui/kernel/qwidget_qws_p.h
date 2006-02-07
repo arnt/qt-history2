@@ -25,9 +25,15 @@
 // We mean it.
 //
 
-#include <qpixmap.h>
+#include <qimage.h>
 #include <qwsmemid_qws.h>
 #include <private/qsharedmemory_p.h>
+
+#if 0
+#define QWS_BACKINGSTORE_FORMAT QImage::Format_RGB16
+#else
+#define QWS_BACKINGSTORE_FORMAT QImage::Format_ARGB32_Premultiplied
+#endif
 
 class QWSLock;
 
@@ -47,16 +53,17 @@ public:
     bool wait(int timeout = -1);
     void setLock(QWSLock *l);
 
-    QPixmap *pixmap() { return &pix; }
+    const QImage &image() const { return img; }
+    QPaintDevice *paintDevice() { return &img; }
 
     void blit(const QRect &src, const QPoint &dest);
 
     QWSMemId memoryId() const;
-    QSize size() const { return pix.size(); }
+    QSize size() const { return img.size(); }
 
-    bool isNull() const { return pix.isNull(); }
+    bool isNull() const { return img.isNull(); }
 private:
-    QPixmap pix;
+    QImage img;
     QSharedMemory shm;
     uchar *mem;
 

@@ -125,6 +125,14 @@ static uint * QT_FASTCALL destFetchARGB32P(uint *, QRasterBuffer *rasterBuffer, 
     return (uint *)rasterBuffer->scanLine(y) + x;
 }
 
+static uint * QT_FASTCALL destFetchRGB16(uint *buffer, QRasterBuffer *rasterBuffer, int x, int y, int length)
+{
+    const ushort *data = (const ushort *)rasterBuffer->scanLine(y) + x;
+    for (int i = 0; i < length; ++i)
+        buffer[i] = convertRgb16To32(data[i]);
+    return buffer;
+}
+
 static const DestFetchProc destFetchProc[QImage::NImageFormats] =
 {
     0, // Format_Invalid
@@ -134,6 +142,9 @@ static const DestFetchProc destFetchProc[QImage::NImageFormats] =
     destFetchRGB32, // Format_RGB32
     destFetchARGB32, // Format_ARGB32,
     destFetchARGB32P // Format_ARGB32_Premultiplied
+#ifdef Q_WS_QWS
+    ,  destFetchRGB16
+#endif
 };
 
 /*
@@ -172,6 +183,13 @@ static void QT_FASTCALL destStoreARGB32(QRasterBuffer *rasterBuffer, int x, int 
         data[i] = INV_PREMUL(buffer[i]);
 }
 
+static void QT_FASTCALL destStoreRGB16(QRasterBuffer *rasterBuffer, int x, int y, const uint *buffer, int length)
+{
+    ushort *data = (ushort *)rasterBuffer->scanLine(y) + x;
+    for (int i = 0; i < length; ++i)
+        data[i] = convertRgb32To16(buffer[i]);
+}
+
 static const DestStoreProc destStoreProc[QImage::NImageFormats] =
 {
     0, // Format_Invalid
@@ -181,6 +199,9 @@ static const DestStoreProc destStoreProc[QImage::NImageFormats] =
     0, // Format_RGB32
     destStoreARGB32, // Format_ARGB32,
     0 // Format_ARGB32_Premultiplied
+#ifdef Q_WS_QWS
+    ,  destStoreRGB16
+#endif
 };
 
 /*
@@ -234,6 +255,11 @@ static uint QT_FASTCALL fetchPixel_ARGB32_Premultiplied(const uchar *scanLine, i
     return ((const uint *)scanLine)[x];
 }
 
+static uint QT_FASTCALL fetchPixel_RGB16(const uchar *scanLine, int x, const QVector<QRgb> *)
+{
+    return convertRgb16To32(((const ushort *)scanLine)[x]);
+}
+
 typedef uint QT_FASTCALL (*FetchPixelProc)(const uchar *scanLine, int x, const QVector<QRgb> *);
 
 static const FetchPixelProc fetchPixelProc[QImage::NImageFormats] =
@@ -245,6 +271,9 @@ static const FetchPixelProc fetchPixelProc[QImage::NImageFormats] =
     fetchPixel_RGB32,
     fetchPixel_ARGB32,
     fetchPixel_ARGB32_Premultiplied
+#ifdef Q_WS_QWS
+    ,  fetchPixel_RGB16
+#endif
 };
 
 enum TextureBlendType {
@@ -460,50 +489,80 @@ static const uint * QT_FASTCALL fetchTransformedBilinearTiled_generic(uint *buff
 
 static const SourceFetchProc sourceFetch[NBlendTypes][QImage::NImageFormats] = {
     // Untransformed
-    { 0, // Invalid
-      fetch_generic,   // Mono
-      fetch_generic,   // MonoLsb
-      fetch_generic,   // Indexed8
-      fetch_generic,   // RGB32
-      fetch_generic,   // ARGB32
-      fetch_generic }, // ARGB32_Premultiplied
+    {
+        0, // Invalid
+        fetch_generic,   // Mono
+        fetch_generic,   // MonoLsb
+        fetch_generic,   // Indexed8
+        fetch_generic,   // RGB32
+        fetch_generic,   // ARGB32
+        fetch_generic
+#ifdef Q_WS_QWS
+        ,  fetch_generic
+#endif
+    }, // ARGB32_Premultiplied
     // Tiled
-    { 0, // Invalid
-      fetch_generic,   // Mono
-      fetch_generic,   // MonoLsb
-      fetch_generic,   // Indexed8
-      fetch_generic,   // RGB32
-      fetch_generic,   // ARGB32
-      fetch_generic }, // ARGB32_Premultiplied
+    {
+        0, // Invalid
+        fetch_generic,   // Mono
+        fetch_generic,   // MonoLsb
+        fetch_generic,   // Indexed8
+        fetch_generic,   // RGB32
+        fetch_generic,   // ARGB32
+        fetch_generic
+#ifdef Q_WS_QWS
+        ,  fetch_generic
+#endif
+    }, // ARGB32_Premultiplied
     // Transformed
-    { 0, // Invalid
-      fetchTransformed_generic,   // Mono
-      fetchTransformed_generic,   // MonoLsb
-      fetchTransformed_generic,   // Indexed8
-      fetchTransformed_generic,   // RGB32
-      fetchTransformed_generic,   // ARGB32
-      fetchTransformed_generic }, // ARGB32_Premultiplied
-    { 0, // TransformedTiled
-      fetchTransformedTiled_generic,   // Mono
-      fetchTransformedTiled_generic,   // MonoLsb
-      fetchTransformedTiled_generic,   // Indexed8
-      fetchTransformedTiled_generic,   // RGB32
-      fetchTransformedTiled_generic,   // ARGB32
-      fetchTransformedTiled_generic }, // ARGB32_Premultiplied
-    { 0, // Bilinear
-      fetchTransformedBilinear_generic,   // Mono
-      fetchTransformedBilinear_generic,   // MonoLsb
-      fetchTransformedBilinear_generic,   // Indexed8
-      fetchTransformedBilinear_generic,   // RGB32
-      fetchTransformedBilinear_generic,   // ARGB32
-      fetchTransformedBilinear_generic }, // ARGB32_Premultiplied
-    { 0, // BilinearTiled
-      fetchTransformedBilinearTiled_generic,   // Mono
-      fetchTransformedBilinearTiled_generic,   // MonoLsb
-      fetchTransformedBilinearTiled_generic,   // Indexed8
-      fetchTransformedBilinearTiled_generic,   // RGB32
-      fetchTransformedBilinearTiled_generic,   // ARGB32
-      fetchTransformedBilinearTiled_generic }, // ARGB32_Premultiplied
+    {
+        0, // Invalid
+        fetchTransformed_generic,   // Mono
+        fetchTransformed_generic,   // MonoLsb
+        fetchTransformed_generic,   // Indexed8
+        fetchTransformed_generic,   // RGB32
+        fetchTransformed_generic,   // ARGB32
+        fetchTransformed_generic
+#ifdef Q_WS_QWS
+        ,  fetchTransformed_generic
+#endif
+    }, // ARGB32_Premultiplied
+    {
+        0, // TransformedTiled
+        fetchTransformedTiled_generic,   // Mono
+        fetchTransformedTiled_generic,   // MonoLsb
+        fetchTransformedTiled_generic,   // Indexed8
+        fetchTransformedTiled_generic,   // RGB32
+        fetchTransformedTiled_generic,   // ARGB32
+        fetchTransformedTiled_generic
+#ifdef Q_WS_QWS
+        ,  fetchTransformedTiled_generic
+#endif
+    }, // ARGB32_Premultiplied
+    {
+        0, // Bilinear
+        fetchTransformedBilinear_generic,   // Mono
+        fetchTransformedBilinear_generic,   // MonoLsb
+        fetchTransformedBilinear_generic,   // Indexed8
+        fetchTransformedBilinear_generic,   // RGB32
+        fetchTransformedBilinear_generic,   // ARGB32
+        fetchTransformedBilinear_generic
+#ifdef Q_WS_QWS
+        ,  fetchTransformedBilinear_generic
+#endif
+    }, // ARGB32_Premultiplied
+    {
+        0, // BilinearTiled
+        fetchTransformedBilinearTiled_generic,   // Mono
+        fetchTransformedBilinearTiled_generic,   // MonoLsb
+        fetchTransformedBilinearTiled_generic,   // Indexed8
+        fetchTransformedBilinearTiled_generic,   // RGB32
+        fetchTransformedBilinearTiled_generic,   // ARGB32
+        fetchTransformedBilinearTiled_generic
+#ifdef Q_WS_QWS
+        ,  fetchTransformedBilinearTiled_generic
+#endif
+    }, // ARGB32_Premultiplied
 };
     
 
@@ -1164,9 +1223,10 @@ static void blend_color_argb(int count, const QSpan *spans, void *userData)
             if (spans->coverage == 255) {
                 QT_MEMFILL_UINT(target, spans->len, data->solid.color);
             } else {
+                uint c = BYTE_MUL(data->solid.color, spans->coverage);
                 int ialpha = 255 - spans->coverage;
                 for (int i = 0; i < spans->len; ++i)
-                    target[i] = INTERPOLATE_PIXEL_255(data->solid.color, spans->coverage, target[i], ialpha);
+                    target[i] = c + BYTE_MUL(target[i], ialpha);
             }
             ++spans;
         }
@@ -1180,7 +1240,67 @@ static void blend_color_argb(int count, const QSpan *spans, void *userData)
     }
 }
 
+#ifdef Q_WS_QWS
 
+static inline uint BYTE_MUL_RGB16(uint x, uint a) {
+    a >>= 3; // 5 bit alpha is good enough and makes the calulations easier
+    uint t = (x & 0xf81f) * a;
+    t = (t + ((t >> 5) & 0xf81f) + 0x8010) >> 5;
+    t &= 0xf81f;
+
+    x = ((x >> 5) & 0x3f) * a;
+    x = (x + ((x >> 5) & 0x3f) + 0x20);
+    x &= 0x07e0;
+    x |= t;
+    return x;
+}
+
+
+static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
+{
+    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
+
+    Operator op = getOperator(data);
+    if (!op.funcSolid)
+        return;
+
+    if (op.mode == QPainter::CompositionMode_Source) {
+        // inline for performance
+        ushort c = convertRgb32To16(data->solid.color);
+        while (count--) {
+            ushort *target = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
+            if (spans->coverage == 255) {
+                QT_MEMFILL_USHORT(target, spans->len, c);
+            } else {
+                ushort color = BYTE_MUL_RGB16(c, spans->coverage);
+                int ialpha = 255 - spans->coverage;
+                for (int i = 0; i < spans->len; ++i)
+                    target[i] = color + BYTE_MUL_RGB16(target[i], ialpha);
+            }
+            ++spans;
+        }
+        return;
+    }
+
+    uint buffer[buffer_size];
+    uint src_buffer[buffer_size];
+    while (count--) {
+        int x = spans->x;
+        int length = spans->len;
+        while (length) {
+            int l = qMin(buffer_size, length);
+            uint *dest = op.dest_fetch ? op.dest_fetch(buffer, data->rasterBuffer, x, spans->y, l) : buffer;
+            const uint *src = op.src_fetch(src_buffer, &op, data, spans->y, x, l);
+            op.func(dest, src, l, spans->coverage);
+            if (op.dest_store)
+                op.dest_store(data->rasterBuffer, x, spans->y, dest, l);
+            x += l;
+            length -= l;
+        }
+        ++spans;
+    }
+}
+#endif
 
 
 static void blend_src_generic(int count, const QSpan *spans, void *userData)
@@ -1323,6 +1443,104 @@ static void blend_untransformed_argb(int count, const QSpan *spans, void *userDa
     }
 }
 
+#ifdef Q_WS_QWS
+static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userData)
+{
+    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
+    if (data->texture.format != QImage::Format_RGB16 &&
+        data->texture.format != QImage::Format_ARGB32_Premultiplied) {
+        blend_untransformed_generic(count, spans, userData);
+        return;
+    }
+
+    Operator op = getOperator(data);
+    if (!op.func)
+        return;
+
+    const int image_width = data->texture.width;
+    const int image_height = data->texture.height;
+    int xoff = qRound(data->dx);
+    int yoff = qRound(data->dy);
+
+    if (data->texture.format == QImage::Format_ARGB32_Premultiplied) {
+        while (count--) {
+            int coverage = (data->texture.const_alpha * spans->coverage) >> 8;
+            int x = spans->x;
+            int length = spans->len;
+            int sx = xoff + x;
+            int sy = yoff + spans->y;
+            if (sy >= 0 && sy < image_height && sx < image_width) {
+                if (sx < 0) {
+                    x -= sx;
+                    length += sx;
+                    sx = 0;
+                }
+                if (sx + length > image_width)
+                    length = image_width - sx;
+                if (length > 0) {
+                    ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
+                    const uint *src = (uint *)data->texture.imageData + sy*image_width + sx;
+                    if (coverage == 255) {
+                        for (int i = 0; i < length; ++i) {
+                            uint s = src[i];
+                            int alpha = qAlpha(s);
+                            s = convertRgb32To16(s);
+                            if (alpha != 255)
+                                s += BYTE_MUL_RGB16(dest[i], 255 - alpha);
+                            dest[i] = s;
+                        }
+                    } else {
+                        for (int i = 0; i < length; ++i) {
+                            uint s = src[i];
+                            MASK(s, coverage);
+                            int alpha = qAlpha(s);
+                            s = convertRgb32To16(s);
+                            if (alpha != 255)
+                                s += BYTE_MUL_RGB16(dest[i], 255 - alpha);
+                            dest[i] = convertRgb32To16(s);
+                        }
+                    }
+                }
+            }
+            ++spans;
+        }
+        return;        
+    }
+
+    // texture is RGB16 
+    while (count--) {
+        int coverage = (data->texture.const_alpha * spans->coverage) >> 8;
+        int x = spans->x;
+        int length = spans->len;
+        int sx = xoff + x;
+        int sy = yoff + spans->y;
+        if (sy >= 0 && sy < image_height && sx < image_width) {
+            if (sx < 0) {
+                x -= sx;
+                length += sx;
+                sx = 0;
+            }
+            if (sx + length > image_width)
+                length = image_width - sx;
+            if (length > 0) {
+                ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
+                const ushort *src = (ushort *)data->texture.imageData + sy*image_width + sx;
+                if (coverage == 255) {
+                    memcpy(dest, src, length*sizeof(quint16));
+                } else {
+                    int ialpha = 255 - coverage;
+                    for (int i = 0; i < length; ++i) 
+                        dest[i] = convertRgb32To16(INTERPOLATE_PIXEL_255(convertRgb16To32(src[i]), coverage,
+                                                                         convertRgb16To32(dest[i]), ialpha));
+                }
+            }
+        }
+        ++spans;
+    }
+}
+#endif
+
+
 static void blend_tiled_generic(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -1418,6 +1636,130 @@ static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
     }
 }
 
+#ifdef Q_WS_QWS
+static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
+{
+    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
+    if (data->texture.format != QImage::Format_RGB16
+        && data->texture.format != QImage::Format_ARGB32_Premultiplied) {
+        blend_tiled_generic(count, spans, userData);
+        return;
+    }
+    
+    Operator op = getOperator(data);
+    if (!op.func)
+        return;
+
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
+    int xoff = qRound(data->dx) % image_width;
+    int yoff = qRound(data->dy) % image_height;
+
+    if (xoff < 0)
+        xoff += image_width;
+    if (yoff < 0)
+        yoff += image_height;
+
+    if (data->texture.format == QImage::Format_ARGB32_Premultiplied) {
+        while (count--) {
+            int x = spans->x;
+            int length = spans->len;
+            int sx = (xoff + spans->x) % image_width;
+            int sy = (spans->y + yoff) % image_height;
+            if (sx < 0)
+                sx += image_width;
+            if (sy < 0)
+                sy += image_height;
+            int coverage = (data->texture.const_alpha * spans->coverage) >> 8            
+            if (coverage == 255) {
+                while (length) {
+                    int l = qMin(image_width - sx, length);
+                    if (buffer_size < l)
+                        l = buffer_size;
+                    ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
+                    const uint *src = (uint *)data->texture.imageData + sy*image_width + sx;
+                    for (int i = 0; i < l; ++i) {
+                        uint s = src[i];
+                        int alpha = qAlpha(s);
+                        s = convertRgb32To16(s);
+                        if (alpha != 255)
+                            s += BYTE_MUL_RGB16(dest[i], 255 - alpha);
+                        dest[i] = s;
+                    }
+                    x += l;
+                    length -= l;
+                    sx = 0;
+                }
+            } else {
+                while (length) {
+                    int l = qMin(image_width - sx, length);
+                    if (buffer_size < l)
+                        l = buffer_size;
+                    ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
+                    const uint *src = (uint *)data->texture.imageData + sy*image_width + sx;
+                    for (int i = 0; i < l; ++i) {
+                        uint s = src[i];
+                        MASK(s, coverage);
+                        int alpha = qAlpha(s);
+                        s = convertRgb32To16(s);
+                        if (alpha != 255)
+                            s += BYTE_MUL_RGB16(dest[i], 255 - alpha);
+                        dest[i] = s;
+                    }
+                    x += l;
+                    length -= l;
+                    sx = 0;
+                }
+                ++spans;
+            }
+            return;        
+        }
+    }
+
+    // texture is RGB16
+    while (count--) {
+        int x = spans->x;
+        int length = spans->len;
+        int sx = (xoff + spans->x) % image_width;
+        int sy = (spans->y + yoff) % image_height;
+        if (sx < 0)
+            sx += image_width;
+        if (sy < 0)
+            sy += image_height;
+
+        int coverage = (data->texture.const_alpha * spans->coverage) >> 8;
+        if (coverage == 255) {
+            while (length) {
+                int l = qMin(image_width - sx, length);
+                if (buffer_size < l)
+                    l = buffer_size;
+                ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
+                const ushort *src = (ushort *)data->texture.imageData + sy*image_width + sx;
+                memcpy(dest, src, l*sizeof(quint16));
+                x += l;
+                length -= l;
+                sx = 0;
+            }
+        } else {
+            int ialpha = 255 - coverage;
+            while (length) {
+                int l = qMin(image_width - sx, length);
+                if (buffer_size < l)
+                    l = buffer_size;
+                ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
+                const ushort *src = (ushort *)data->texture.imageData + sy*image_width + sx;
+                for (int i = 0; i < l; ++i) 
+                    dest[i] = convertRgb32To16(INTERPOLATE_PIXEL_255(convertRgb16To32(src[i]), coverage,
+                                                                     convertRgb16To32(dest[i]), ialpha));
+                x += l;
+                length -= l;
+                sx = 0;
+            }
+        }
+        ++spans;
+    }
+}
+#endif
 
 
 static void blend_texture_generic(int count, const QSpan *spans, void *userData)
@@ -1451,6 +1793,12 @@ static void blend_texture_generic(int count, const QSpan *spans, void *userData)
 static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
+    if (data->texture.format != QImage::Format_ARGB32_Premultiplied
+        && data->texture.format != QImage::Format_RGB32) {
+        blend_src_generic(count, spans, userData);
+        return;
+    }
+    
     CompositionFunction func = functionForMode[data->rasterBuffer->compositionMode];
     if (!func)
         return;
@@ -1528,6 +1876,12 @@ static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void 
 static void blend_transformed_bilinear_tiled_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
+    if (data->texture.format != QImage::Format_ARGB32_Premultiplied
+        && data->texture.format != QImage::Format_RGB32) {
+        blend_src_generic(count, spans, userData);
+        return;
+    }
+
     CompositionFunction func = functionForMode[data->rasterBuffer->compositionMode];
     if (!func)
         return;
@@ -1614,6 +1968,12 @@ static void blend_transformed_bilinear_tiled_argb(int count, const QSpan *spans,
 static void blend_transformed_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
+    if (data->texture.format != QImage::Format_ARGB32_Premultiplied
+        && data->texture.format != QImage::Format_RGB32) {
+        blend_src_generic(count, spans, userData);
+        return;
+    }
+
     CompositionFunction func = functionForMode[data->rasterBuffer->compositionMode];
     if (!func)
         return;
@@ -1666,6 +2026,12 @@ static void blend_transformed_argb(int count, const QSpan *spans, void *userData
 static void blend_transformed_tiled_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
+    if (data->texture.format != QImage::Format_ARGB32_Premultiplied
+        && data->texture.format != QImage::Format_RGB32) {
+        blend_src_generic(count, spans, userData);
+        return;
+    }
+
     CompositionFunction func = functionForMode[data->rasterBuffer->compositionMode];
     if (!func)
         return;
@@ -1721,56 +2087,89 @@ static void blend_transformed_tiled_argb(int count, const QSpan *spans, void *us
 /* Image formats here are target formats */
 static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats] = {
     // Untransformed
-    { 0, // Invalid
+    {
+        0, // Invalid
       blend_untransformed_generic,   // Mono
       blend_untransformed_generic,   // MonoLsb
       blend_untransformed_generic,   // Indexed8
       blend_untransformed_generic,   // RGB32
       blend_untransformed_generic,   // ARGB32
-      blend_untransformed_argb }, // ARGB32_Premultiplied
+      blend_untransformed_argb // ARGB32_Premultiplied
+#ifdef Q_WS_QWS
+        ,  blend_untransformed_rgb16 // RGB16
+#endif
+    }, 
     // Tiled
-    { 0, // Invalid
+    {
+        0, // Invalid
       blend_tiled_generic,   // Mono
       blend_tiled_generic,   // MonoLsb
       blend_tiled_generic,   // Indexed8
       blend_tiled_generic,   // RGB32
       blend_tiled_generic,   // ARGB32
-      blend_tiled_argb }, // ARGB32_Premultiplied
+        blend_tiled_argb // ARGB32_Premultiplied
+#ifdef Q_WS_QWS
+        ,  blend_tiled_rgb16 // RGB16
+#endif
+    }, 
     // Transformed
-    { 0, // Invalid
+    {
+        0, // Invalid
       blend_texture_generic,   // Mono
       blend_texture_generic,   // MonoLsb
       blend_texture_generic,   // Indexed8
       blend_texture_generic,   // RGB32
       blend_texture_generic,   // ARGB32
-      blend_transformed_argb }, // ARGB32_Premultiplied
-    { 0, // TransformedTiled
+      blend_transformed_argb // ARGB32_Premultiplied
+#ifdef Q_WS_QWS
+        ,  blend_src_generic // RGB16
+#endif
+    },
+     // TransformedTiled
+    {
+        0,
       blend_texture_generic,   // Mono
       blend_texture_generic,   // MonoLsb
       blend_texture_generic,   // Indexed8
       blend_texture_generic,   // RGB32
       blend_texture_generic,   // ARGB32
-      blend_transformed_tiled_argb }, // ARGB32_Premultiplied
-    { 0, // Bilinear
+      blend_transformed_tiled_argb // ARGB32_Premultiplied
+#ifdef Q_WS_QWS
+        ,  blend_src_generic // RGB16
+#endif
+    },
+    // Bilinear
+    {
+        0, 
       blend_texture_generic,   // Mono
       blend_texture_generic,   // MonoLsb
       blend_texture_generic,   // Indexed8
       blend_texture_generic,   // RGB32
       blend_texture_generic,   // ARGB32
-      blend_transformed_bilinear_argb }, // ARGB32_Premultiplied
-    { 0, // BilinearTiled
+      blend_transformed_bilinear_argb // ARGB32_Premultiplied
+#ifdef Q_WS_QWS
+        ,  blend_src_generic // RGB16
+#endif
+    },
+    // BilinearTiled
+    {
+        0, 
       blend_texture_generic,   // Mono
       blend_texture_generic,   // MonoLsb
       blend_texture_generic,   // Indexed8
       blend_texture_generic,   // RGB32
       blend_texture_generic,   // ARGB32
-      blend_transformed_bilinear_tiled_argb } // ARGB32_Premultiplied
+      blend_transformed_bilinear_tiled_argb // ARGB32_Premultiplied
+#ifdef Q_WS_QWS
+        ,  blend_src_generic // RGB16
+#endif
+    } 
 };
 
 void qBlendTexture(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-    ProcessSpans proc = processTextureSpans[getBlendType(data)][data->texture.format];
+    ProcessSpans proc = processTextureSpans[getBlendType(data)][data->rasterBuffer->format];
     proc(count, spans, userData);
 }
 
@@ -2158,168 +2557,6 @@ static void blend_transformed_tiled_mono_lsb(int count, const QSpan *spans, void
 }
 #endif
 
-#ifdef Q_WS_QWS
-
-// ************************** 16-bpp RGB16 handling ******************************
-
-
-#include <qscreen_qws.h>
-
-static inline ushort qt_blend_pixel_rgb16(ushort dest, uint src, uint coverage)
-{
-    MASK(src, coverage);
-    int rev_alpha = 255 - qAlpha(src);
-    if (!rev_alpha)
-        return qt_convRgbTo16(src);
-
-    return qt_convRgbTo16(src + BYTE_MUL(qt_conv16ToRgb(dest), rev_alpha));
-}
-
-
-static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
-{
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    while (count--) {
-        void *t = data->rasterBuffer->scanLine(spans->y);
-        ushort *target = ((ushort *)t) + spans->x;
-        uint color = data->solid.color;
-        MASK(color, spans->coverage);
-
-        int alpha = qAlpha(color);
-        if (!alpha)
-            return;
-#if 1
-        ushort pixel = qt_convRgbTo16(color);
-        const ushort *end = target + spans->len;
-        while (target < end) {
-            *target = pixel;
-            ++target;
-        }
-#else
-        if (alpha != 0xff) {
-            int rev_alpha = 255 - alpha;
-            const uint *end = target + spans->len;
-            while (target < end) {
-                uint dest = *target;
-                *target = (color + BYTE_MUL(dest, rev_alpha)) | 0xff000000;
-                ++target;
-            }
-        } else {
-#if 1
-            const uint *end = target + spans->len;
-            while (target < end) {
-                *target = color;
-                ++target;
-            }
-#else
-            sse_memfill(target, color, spans->len);
-#endif
-        }
-#endif
-        ++spans;
-    }
-}
-
-static void blend_rgb16(int count, const QSpan *spans, void *userData)
-{
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    while (count--) {
-        void *t = data->rasterBuffer->scanLine(spans->y);
-        //src is known to be 32 bpp
-
-        int image_width = data->texture.width;
-        int image_height = data->texture.height;
-        int xoff = qRound(data->dx) % image_width;
-        int yoff = qRound(data->dy) % image_height;
-
-        if (xoff < 0)
-            xoff += image_width;
-        if (yoff < 0)
-            yoff += image_height;
-
-        const qreal dx = (xoff + spans->x)%image_width;
-        const qreal dy = (spans->y + yoff) % image_height;
-
-        ushort *target = ((ushort *)t) + spans->x;
-        uint *image_bits = (uint *)data->texture.imageData;
-        // #### take care of non integer dx/dy
-        int x = qRound(dx);
-        int y = qRound(dy);
-        //     qDebug("x=%f,y=%f %d/%d image_height=%d", dx, dy, x, y, image_height);
-        if (y < 0 || y >= image_height)
-            return;
-
-        const uint *src = image_bits + y*image_width + x;
-        const ushort *end = target + spans->len;
-        if (x < 0) {
-            src -= x;
-            target -= x;
-            x = 0;
-        }
-        if (end - target > image_width)
-            end = target + image_width;
-
-        if (data->rasterBuffer->compositionMode == QPainter::CompositionMode_Source && spans->coverage == 255) {
-            while (target < end) {
-                *target++ = qt_convRgbTo16(*src++);
-            }
-        } else {
-            while (target < end) {
-                *target = qt_blend_pixel_rgb16(*target, *src, spans->coverage);
-                ++target;
-                ++src;
-            }
-        }
-
-        ++spans;
-    }
-}
-
-static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
-{
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    while (count--) {
-        void *t = data->rasterBuffer->scanLine(spans->y);
-        int image_width = data->texture.width;
-        int image_height = data->texture.height;
-        int xoff = qRound(data->dx) % image_width;
-        int yoff = qRound(data->dy) % image_height;
-
-        if (xoff < 0)
-            xoff += image_width;
-        if (yoff < 0)
-            yoff += image_height;
-
-        const qreal dx = (xoff + spans->x)%image_width;
-        const qreal dy = (spans->y + yoff) % image_height;
-
-        ushort *target = ((ushort *)t) + spans->x;
-        uint *image_bits = (uint *)data->texture.imageData;
-        // #### take care of non integer dx/dy
-        int x = qRound(dx);
-        int y = qRound(dy);
-        x %= image_width;
-        y %= image_height;
-
-        if (x < 0)
-            x += image_width;
-        if (y < 0)
-            y += image_height;
-
-        const uint *src = image_bits + y*image_width;
-        for (int i = x; i < x + spans->len; ++i) {
-            *target = qt_blend_pixel_rgb16(*target, src[i%image_width], spans->coverage);
-            ++target;
-        }
-
-        ++spans;
-    }
-}
-#endif //Q_WS_QWS
-
 
 #if 0
 static inline QRgb qt_conv_4ToRgb(uchar g)
@@ -2537,7 +2774,7 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
     }
 #ifdef Q_WS_QWS
     ,
-    { // Layout_RGB16
+    { // Format_RGB16
         blend_color_rgb16,
         blend_src_generic
     }

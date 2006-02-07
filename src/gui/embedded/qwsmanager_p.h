@@ -76,7 +76,7 @@ public:
 
     void dirtyRegion(int decorationRegion,
                      QDecoration::DecorationState state);
-    QRegion paint(QPixmap *pixmap);
+    QRegion paint(QPaintDevice *paintDevice);
 
     QList<int> dirtyRegions;
     QList<QDecoration::DecorationState> dirtyStates;
