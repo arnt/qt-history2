@@ -65,20 +65,16 @@ QWidget *QDesktopWidget::screen(int)
     return this;
 }
 
-const QRect QDesktopWidget::availableGeometry(int screen) const
+const QRect QDesktopWidget::availableGeometry(int) const
 {
-    return screenGeometry(screen);
+    extern QRect qt_maxWindowRect;
+    QRect r = qt_maxWindowRect;
+    return r;
 }
 
 const QRect QDesktopWidget::screenGeometry(int) const
 {
-    // use max window rect?
-#ifdef QT_QWS_DYNAMIC_TRANSFORMATION
-    static QRect r;
-    r = frameGeometry();
-#else
-    static QRect r = frameGeometry();
-#endif
+    QRect r = frameGeometry();
     return r;
 }
 
