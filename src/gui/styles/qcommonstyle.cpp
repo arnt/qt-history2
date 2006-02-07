@@ -3514,7 +3514,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
 
     case SH_GroupBox_TextLabelColor:
-        ret = 0;
+        ret = opt ? int(opt->palette.color(QPalette::Text).rgba()) : 0;
         break;
 #endif // QT_NO_GROUPBOX
 
