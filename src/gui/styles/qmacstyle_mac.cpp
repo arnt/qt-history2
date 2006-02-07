@@ -5435,82 +5435,21 @@ QPixmap QMacStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixm
 QPixmap QMacStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                   const QWidget *widget) const
 {
-    IconRef icon = 0;
-    OSType iconType = 0;
-    switch (standardPixmap) {
-    case QStyle::SP_MessageBoxQuestion:
-    case QStyle::SP_MessageBoxInformation:
-        iconType = kAlertNoteIcon;
-        break;
-    case QStyle::SP_MessageBoxWarning:
-        iconType = kAlertCautionIcon;
-        break;
-    case QStyle::SP_MessageBoxCritical:
-        iconType = kAlertStopIcon;
-        break;
-    case SP_DesktopIcon:
-        iconType = kDesktopIcon;
-        break;
-    case SP_TrashIcon:
-        iconType = kTrashIcon;
-        break;
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-    case SP_ComputerIcon:
-        iconType = kComputerIcon;
-        break;
-#endif
-    case SP_DriveFDIcon:
-        iconType = kGenericFloppyIcon;
-        break;
-    case SP_DriveHDIcon:
-        iconType = kGenericHardDiskIcon;
-        break;
-    case SP_DriveCDIcon:
-    case SP_DriveDVDIcon:
-        iconType = kGenericCDROMIcon;
-        break;
-    case SP_DriveNetIcon:
-        iconType = kGenericNetworkIcon;
-        break;
-    case SP_DirOpenIcon:
-        iconType = kOpenFolderIcon;
-        break;
-    case SP_DirClosedIcon:
-    case SP_DirLinkIcon:
-        iconType = kGenericFolderIcon;
-        break;
-    case SP_FileLinkIcon:
-    case SP_FileIcon:
-        iconType = kGenericDocumentIcon;
-        break;
-    case SP_ToolBarHorizontalExtensionButton:
-    case SP_ToolBarVerticalExtensionButton: {
-        QPixmap pixmap(qt_mac_toolbar_ext);
-        if (standardPixmap == SP_ToolBarVerticalExtensionButton) {
-            QPixmap pix2(pixmap.height(), pixmap.width());
-            pix2.fill(Qt::transparent);
-            QPainter p(&pix2);
-            p.translate(pix2.width(), 0);
-            p.rotate(90);
-            p.drawPixmap(0, 0, pixmap);
-            return pix2;
-        }
-        return pixmap;
-        }
-        break;
-    default:
-        break;
-    }
-    if (iconType != 0)
-        GetIconRef(kOnSystemDisk, kSystemIconsCreator, iconType, &icon);
-    if (icon) {
-        QPixmap ret = qt_mac_convert_iconref(icon, 64, 64);
-        ReleaseIconRef(icon);
-        return ret;
-    }
-    return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
-}
+    // The default implementation of QStyle::standardIconImplementation() is to call standardPixmap()
+    // I don't want infinite recursion so if we do get in that situation, just return the Window's
+    // standard pixmap instead (since there is no mac-specific icon then). This should be fine until
+    // someone changes how Windows standard
+    // pixmap works.
+    static bool recursionGuard = false;
 
+    if (recursionGuard)
+        return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
+
+    recursionGuard = true;
+    QIcon icon = standardIconImplementation(standardPixmap, opt, widget);
+    recursionGuard = false;
+    return icon.pixmap(16, 16);
+}
 /*!
     \enum QMacStyle::FocusRectPolicy
 
@@ -6438,4 +6377,91 @@ bool QMacStyle::event(QEvent *e)
             d->focusWidget->setWidget(0);
     }
     return false;
+}
+
+
+QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
+                                            const QWidget *widget) const
+{
+    IconRef icon = 0;
+    OSType iconType = 0;
+    switch (standardIcon) {
+    case QStyle::SP_MessageBoxQuestion:
+    case QStyle::SP_MessageBoxInformation:
+        iconType = kAlertNoteIcon;
+        break;
+    case QStyle::SP_MessageBoxWarning:
+        iconType = kAlertCautionIcon;
+        break;
+    case QStyle::SP_MessageBoxCritical:
+        iconType = kAlertStopIcon;
+        break;
+    case SP_DesktopIcon:
+        iconType = kDesktopIcon;
+        break;
+    case SP_TrashIcon:
+        iconType = kTrashIcon;
+        break;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    case SP_ComputerIcon:
+        iconType = kComputerIcon;
+        break;
+#endif
+    case SP_DriveFDIcon:
+        iconType = kGenericFloppyIcon;
+        break;
+    case SP_DriveHDIcon:
+        iconType = kGenericHardDiskIcon;
+        break;
+    case SP_DriveCDIcon:
+    case SP_DriveDVDIcon:
+        iconType = kGenericCDROMIcon;
+        break;
+    case SP_DriveNetIcon:
+        iconType = kGenericNetworkIcon;
+        break;
+    case SP_DirOpenIcon:
+        iconType = kOpenFolderIcon;
+        break;
+    case SP_DirClosedIcon:
+    case SP_DirLinkIcon:
+        iconType = kGenericFolderIcon;
+        break;
+    case SP_FileLinkIcon:
+    case SP_FileIcon:
+        iconType = kGenericDocumentIcon;
+        break;
+    case SP_ToolBarHorizontalExtensionButton:
+    case SP_ToolBarVerticalExtensionButton: {
+        QPixmap pixmap(qt_mac_toolbar_ext);
+        if (standardIcon == SP_ToolBarVerticalExtensionButton) {
+            QPixmap pix2(pixmap.height(), pixmap.width());
+            pix2.fill(Qt::transparent);
+            QPainter p(&pix2);
+            p.translate(pix2.width(), 0);
+            p.rotate(90);
+            p.drawPixmap(0, 0, pixmap);
+            return pix2;
+        }
+        return pixmap;
+        }
+        break;
+    default:
+        break;
+    }
+    if (iconType != 0) {
+        QIcon retIcon;
+        IconRef icon;
+        GetIconRef(kOnSystemDisk, kSystemIconsCreator, iconType, &icon);
+        if (icon) {
+            int size = 16;
+            while (size <= 128) {
+                retIcon.addPixmap(qt_mac_convert_iconref(icon, size, size));
+                size += size;  // 16 -> 32 -> 64 -> 128
+            }
+        }
+        ReleaseIconRef(icon);
+        return retIcon;
+    }
+    return QWindowsStyle::standardIconImplementation(standardIcon, opt, widget);
 }

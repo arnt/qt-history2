@@ -87,6 +87,10 @@ public:
                               bool enabled, const QString &text, QPalette::ColorRole textRole  = QPalette::NoRole) const;
 
     bool event(QEvent *e);
+
+protected Q_SLOTS:
+    QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt = 0,
+                                     const QWidget *widget = 0) const;
 private:
     Q_DISABLE_COPY(QMacStyle)
 
