@@ -1289,6 +1289,8 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QTreeView);
 
+    dx = isRightToLeft() ? -dx : dx;
+
     if (dx)
         d->header->setOffset(horizontalScrollBar()->value());
 

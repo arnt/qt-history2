@@ -292,6 +292,7 @@ void QTableView::setVerticalHeader(QHeaderView *header)
 void QTableView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QTableView);
+    dx = isRightToLeft() ? -dx : dx;
     if (dx) d->horizontalHeader->setOffset(horizontalScrollBar()->value());
     if (dy) d->verticalHeader->setOffset(verticalScrollBar()->value());
     d->scrollContentsBy(dx, dy);
