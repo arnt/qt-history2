@@ -112,7 +112,8 @@ public:
 
     QStyleOptionHeader getStyleOption() const;
 
-    void clear();
+    inline bool hasAutoResizeSections() const
+        { return stretchSections || stretchLastSection || customSections; }
 
     inline void invalidateCachedSizeHint() const
         { cachedSizeHint = QSize(); }
