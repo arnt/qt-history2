@@ -1226,7 +1226,7 @@ HRESULT WINAPI QAxClientSite::SetMenu(HMENU hmenuShared, HOLEMENU holemenu, HWND
 	menuItemMap.clear();
     }
 
-    OleSetMenuDescriptor(holemenu, widget->window()->winId(), m_menuOwner, this, m_spInPlaceActiveObject);
+    OleSetMenuDescriptor(holemenu, widget ? widget->window()->winId() : 0, m_menuOwner, this, m_spInPlaceActiveObject);
     return S_OK;
 }
 
