@@ -2004,7 +2004,7 @@ void QTreeViewPrivate::updateVerticalScrollbar()
             max += (backtracking / itemSize) + 1;
     }
 
-    q->verticalScrollBar()->setRange(0, max);
+    q->verticalScrollBar()->setRange(0, max - 1);
 }
 
 void QTreeViewPrivate::updateHorizontalScrollbar()
