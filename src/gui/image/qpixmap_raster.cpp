@@ -192,7 +192,11 @@ void QPixmap::fill(const QColor &fillColor)
         ) {
         int alpha = fillColor.alpha();
         if (alpha != 255) {
-            if (data->image.format() == QImage::Format_RGB32 || data->image.format() == QImage::Format_RGB16)
+            if (data->image.format() == QImage::Format_RGB32
+#ifdef Q_WS_QWS
+                || data->image.format() == QImage::Format_RGB16
+#endif
+                )
                 data->image = data->image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
             // Premultiply pixel value.
             pixel = qRgba(fillColor.red() * alpha / 255,
