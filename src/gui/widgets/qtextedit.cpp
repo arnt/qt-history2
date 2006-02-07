@@ -1990,10 +1990,6 @@ void QTextEditPrivate::relayoutDocument()
             tlayout->setFixedColumnWidth(-1);
     }
 
-    int width = viewport->width();
-    if (lineWrap == QTextEdit::FixedPixelWidth)
-        width = lineWrapColumnOrWidth;
-
     QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout);
     QSize lastUsedSize;
     if (tlayout)
@@ -2005,6 +2001,22 @@ void QTextEditPrivate::relayoutDocument()
     // usedSizeChanged() signal in the layout, as we're calling it
     // later on our own anyway (or deliberately not) .
     ignoreAutomaticScrollbarAdjustement = true;
+
+    int width;
+    switch (lineWrap) {
+        case QTextEdit::NoWrap:
+            width = 0;
+            break;
+        case QTextEdit::WidgetWidth:
+            width = viewport->width();
+            break;
+        case QTextEdit::FixedPixelWidth:
+            width = lineWrapColumnOrWidth;
+            break;
+        case QTextEdit::FixedColumnWidth:
+            width = 0;
+            break;
+    }
 
     doc->setPageSize(QSize(width, INT_MAX));
     if (tlayout)
