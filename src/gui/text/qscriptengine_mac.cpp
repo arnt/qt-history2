@@ -24,13 +24,40 @@ static bool mac_shape(QShaperItem *item)
     return true;
 }
 
+static bool mac_arabic_shape(QShaperItem *item)
+{
+    if (!mac_shape(item))
+        return false;
+
+    QVarLengthArray<QArabicProperties> props(item->length + 2);
+    QArabicProperties *properties = props.data();
+    int f = item->from;
+    int l = item->length;
+    if (f > 0) {
+        --f;
+        ++l;
+        ++properties;
+    }
+    if (f + l < item->string->length()) {
+        ++l;
+    }
+    getArabicProperties((const unsigned short *)(item->string->unicode()+f), l, props.data());
+
+    for (int i = 0; i < item->length; ++i) {
+        int gpos = item->log_clusters[i];
+        item->glyphs[gpos].attributes.justification = properties[i].justification;
+    }
+
+    return true;
+}
+
 const q_scriptEngine qt_scriptEngines[] = {
     // Common
     { mac_shape, 0 },
     // Hebrew
     { mac_shape, 0 },
     // Arabic
-    { mac_shape, 0 },
+    { mac_arabic_shape, 0 },
     // Syriac
     { mac_shape, 0 },
     // Thaana
