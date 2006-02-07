@@ -232,8 +232,10 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
     }
 
     QShaperItem *item = 0;
-    if (nfo->shaperItem)
+    if (nfo->shaperItem) {
         item = nfo->shaperItem;
+        Q_ASSERT(*nfo->numGlyphs == item->length);
+    }
 
     for (ItemCount i = 0; i < itemCount - 1; ++i) {
 
@@ -244,6 +246,9 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
 
         nfo->glyphs[glyphOutIdx].advance.y = FixedToQFixed(baselineDeltas[i]);
         nfo->glyphs[glyphOutIdx].advance.x = FixedToQFixed(layoutData[i + 1].realPos - layoutData[i].realPos);
+
+        if (item)
+            item->log_clusters[charOffset] = glyphOutIdx;
 
         glyphOutIdx += glyphOutIncrement;
     }

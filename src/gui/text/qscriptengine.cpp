@@ -216,6 +216,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
     unsigned short *logClusters = item->log_clusters;
 
 
+    // the mac font engine does the setup already in stringToCMap
 #ifndef Q_WS_MAC
     int glyph_pos = 0;
     for (int i = 0; i < length; i++) {
@@ -229,8 +230,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
         ++glyph_pos;
     }
     Q_ASSERT(glyph_pos == item->num_glyphs);
-#else /*if !defined(Q_NEW_MAC_FONTENGINE)*/
-    // the new font engine does the setup already in stringToCMap
+#elif !defined(Q_NEW_MAC_FONTENGINE)
 
     logClusters[0] = 0;
     for (int i = 0; i < length; ++i) {
