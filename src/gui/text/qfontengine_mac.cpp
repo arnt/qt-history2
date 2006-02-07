@@ -224,34 +224,56 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
     if (e != noErr)
         return e;
 
-    int glyphOutIdx = 0;
-    int glyphOutIncrement = 1;
-    if (nfo->flags & QTextEngine::RightToLeft) {
-        glyphOutIdx  = itemCount - 2;
-        glyphOutIncrement = -1;
-    }
-
     QShaperItem *item = 0;
     if (nfo->shaperItem) {
         item = nfo->shaperItem;
         Q_ASSERT(*nfo->numGlyphs == item->length);
     }
 
-    for (ItemCount i = 0; i < itemCount - 1; ++i) {
+    int glyphIdx = 0;
+    int glyphIncrement = 1;
+    if (nfo->flags & QTextEngine::RightToLeft) {
+        glyphIdx  = itemCount - 2;
+        glyphIncrement = -1;
+    }
 
-        uint charOffset = layoutData[i].originalOffset / sizeof(UniChar);
+    for (int i = 0; i < *nfo->numGlyphs; ++i, glyphIdx += glyphIncrement) {
+
+        uint charOffset = layoutData[glyphIdx].originalOffset / sizeof(UniChar);
         const int fontIdx = nfo->mappedFonts[charOffset];
 
-        nfo->glyphs[glyphOutIdx].glyph = (layoutData[i].glyphID & 0x00ffffff) | (fontIdx << 24);
+        ATSGlyphRef glyphId = layoutData[glyphIdx].glyphID;
+//        qDebug() << "glyphId at i" << i << "and glyphIdx" << glyphIdx << "is" << glyphId;
 
-        nfo->glyphs[glyphOutIdx].advance.y = FixedToQFixed(baselineDeltas[i]);
-        nfo->glyphs[glyphOutIdx].advance.x = FixedToQFixed(layoutData[i + 1].realPos - layoutData[i].realPos);
+        QFixed yAdvance = FixedToQFixed(baselineDeltas[glyphIdx]);
+        QFixed xAdvance = FixedToQFixed(layoutData[glyphIdx + 1].realPos - layoutData[glyphIdx].realPos);
 
-        if (item)
-            item->log_clusters[charOffset] = glyphOutIdx;
+        if (glyphId != 0xffff || i == 0) {
+            nfo->glyphs[i].glyph = (glyphId & 0x00ffffff) | (fontIdx << 24);
 
-        glyphOutIdx += glyphOutIncrement;
+            nfo->glyphs[i].advance.y = yAdvance;
+            nfo->glyphs[i].advance.x = xAdvance;
+//            qDebug() << "advance for glyph at" << i << "is" << nfo->glyphs[i].advance.x.toReal();
+        } else {
+            // ATSUI gives us 0xffff as glyph id at the index in the glyph array for
+            // a character position that maps to a ligtature. Such a glyph id does not
+            // result in any visual glyph, but it may have an advance, which is why we
+            // sum up the glyph advances.
+            --i;
+            nfo->glyphs[i].advance.y += yAdvance;
+            nfo->glyphs[i].advance.x += xAdvance;
+            *nfo->numGlyphs -= 1;
+        }
+
+        if (item) {
+//            qDebug() << "mapping char offset" << charOffset << "to glyph index" << i;
+            item->log_clusters[charOffset] = i;
+        }
     }
+    /*
+    if (item)
+        qDebug() << "ending up with" << *nfo->numGlyphs << "glyphs for" << item->string->mid(item->from, item->length);
+        */
 
     ATSUDirectReleaseLayoutDataArrayPtr(lineRef, kATSUDirectDataBaselineDeltaFixedArray,
                                         (void **) &baselineDeltas);
