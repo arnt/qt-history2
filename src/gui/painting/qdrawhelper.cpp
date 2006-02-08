@@ -125,6 +125,7 @@ static uint * QT_FASTCALL destFetchARGB32P(uint *, QRasterBuffer *rasterBuffer, 
     return (uint *)rasterBuffer->scanLine(y) + x;
 }
 
+#ifdef Q_WS_QWS
 static uint * QT_FASTCALL destFetchRGB16(uint *buffer, QRasterBuffer *rasterBuffer, int x, int y, int length)
 {
     const ushort *data = (const ushort *)rasterBuffer->scanLine(y) + x;
@@ -132,6 +133,7 @@ static uint * QT_FASTCALL destFetchRGB16(uint *buffer, QRasterBuffer *rasterBuff
         buffer[i] = qConvertRgb16To32(data[i]);
     return buffer;
 }
+#endif
 
 static const DestFetchProc destFetchProc[QImage::NImageFormats] =
 {
@@ -183,12 +185,14 @@ static void QT_FASTCALL destStoreARGB32(QRasterBuffer *rasterBuffer, int x, int 
         data[i] = INV_PREMUL(buffer[i]);
 }
 
+#ifdef Q_WS_QWS
 static void QT_FASTCALL destStoreRGB16(QRasterBuffer *rasterBuffer, int x, int y, const uint *buffer, int length)
 {
     ushort *data = (ushort *)rasterBuffer->scanLine(y) + x;
     for (int i = 0; i < length; ++i)
         data[i] = qConvertRgb32To16(buffer[i]);
 }
+#endif
 
 static const DestStoreProc destStoreProc[QImage::NImageFormats] =
 {
@@ -255,10 +259,12 @@ static uint QT_FASTCALL fetchPixel_ARGB32_Premultiplied(const uchar *scanLine, i
     return ((const uint *)scanLine)[x];
 }
 
+#ifdef Q_WS_QWS
 static uint QT_FASTCALL fetchPixel_RGB16(const uchar *scanLine, int x, const QVector<QRgb> *)
 {
     return qConvertRgb16To32(((const ushort *)scanLine)[x]);
 }
+#endif
 
 typedef uint QT_FASTCALL (*FetchPixelProc)(const uchar *scanLine, int x, const QVector<QRgb> *);
 
@@ -1670,6 +1676,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                 sx += image_width;
             if (sy < 0)
                 sy += image_height;
+
             if (spans->coverage == 255) {
                 while (length) {
                     int l = qMin(image_width - sx, length);
