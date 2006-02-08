@@ -2002,7 +2002,7 @@ void QTextEditPrivate::relayoutDocument()
     // later on our own anyway (or deliberately not) .
     ignoreAutomaticScrollbarAdjustement = true;
 
-    int width;
+    int width = 0;
     switch (lineWrap) {
         case QTextEdit::NoWrap:
             width = 0;
