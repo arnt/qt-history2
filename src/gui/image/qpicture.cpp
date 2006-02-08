@@ -355,9 +355,15 @@ bool QPicture::save(QIODevice *dev, const char *format)
 
 QRect QPicture::boundingRect() const
 {
-    if (!d_func()->formatOk)
+    Q_D(const QPicture);
+    // Use override rect where possible.
+    if (!d->override_rect.isEmpty())
+        return d->override_rect;
+
+    if (!d->formatOk)
         d_ptr->checkFormat();
-    return d_func()->brect;
+
+    return d->brect;
 }
 
 /*!
@@ -367,9 +373,7 @@ QRect QPicture::boundingRect() const
 
 void QPicture::setBoundingRect(const QRect &r)
 {
-    if (!d_func()->formatOk)
-        d_func()->checkFormat();
-    d_func()->brect = r;
+    d_func()->override_rect = r;
 }
 
 /*!
@@ -744,20 +748,20 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 
 int QPicture::metric(PaintDeviceMetric m) const
 {
-    Q_D(const QPicture);
     int val;
+    QRect brect = boundingRect();
     switch (m) {
         case PdmWidth:
-            val = d->brect.width();
+            val = brect.width();
             break;
         case PdmHeight:
-            val = d->brect.height();
+            val = brect.height();
             break;
         case PdmWidthMM:
-            val = int(25.4/qt_defaultDpi()*d->brect.width());
+            val = int(25.4/qt_defaultDpi()*brect.width());
             break;
         case PdmHeightMM:
-            val = int(25.4/qt_defaultDpi()*d->brect.height());
+            val = int(25.4/qt_defaultDpi()*brect.height());
             break;
         case PdmDpiX:
         case PdmPhysicalDpiX:
@@ -807,7 +811,8 @@ void QPicture::detach_helper()
     x->trecs = d->trecs;
     x->formatOk = d->formatOk;
     x->formatMinor = d->formatMinor;
-    x->brect = boundingRect();
+    x->brect = d->brect;
+    x->override_rect = d->override_rect;
     x = qAtomicSetPtr(&d_ptr, x);
     if (!x->ref.deref())
         delete x;

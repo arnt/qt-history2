@@ -77,7 +77,7 @@ bool QPicturePaintEngine::begin(QPaintDevice *pd)
     d->s << (quint8) QPicturePrivate::PdcBegin << (quint8) sizeof(qint32);
     d->pic_d->brect = QRect();
     if (d->pic_d->formatMajor >= 4) {
-        QRect r = d->pic_d->brect;
+        QRect r = pic->boundingRect();
         d->s << (qint32) r.left() << (qint32) r.top() << (qint32) r.width()
              << (qint32) r.height();
     }
@@ -94,7 +94,6 @@ bool QPicturePaintEngine::end()
 #ifdef QT_PICTURE_DEBUG
     qDebug() << "QPicturePaintEngine::end()";
 #endif
-    d->pdev = 0;
     d->pic_d->trecs++;
     d->s << (quint8) QPicturePrivate::PdcEnd << (quint8) 0;
     int cs_start = sizeof(quint32);                // pos of checksum word
@@ -103,7 +102,7 @@ bool QPicturePaintEngine::end()
     int pos = d->pic_d->pictb.pos();
     d->pic_d->pictb.seek(brect_start);
     if (d->pic_d->formatMajor >= 4) { // bounding rectangle
-        QRect r = d->pic_d->brect;
+        QRect r = static_cast<QPicture *>(d->pdev)->boundingRect();
         d->s << (qint32) r.left() << (qint32) r.top() << (qint32) r.width()
              << (qint32) r.height();
     }
