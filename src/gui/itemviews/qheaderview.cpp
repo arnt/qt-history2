@@ -1612,10 +1612,11 @@ bool QHeaderView::viewportEvent(QEvent *e)
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1) {
-            QString tooltip = model()->headerData(logical, orientation(),
-                                                  Qt::ToolTipRole).toString();
-            QToolTip::showText(he->globalPos(), tooltip, this);
-            return true;
+            QVariant variant = model()->headerData(logical, orientation(), Qt::ToolTipRole);
+            if (variant.isValid()) {
+                QToolTip::showText(he->globalPos(), variant.toString(), this);
+                return true;
+            }
         }
         break; }
 #endif
