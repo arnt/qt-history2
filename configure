@@ -319,7 +319,7 @@ EOF
             cp -f $relpath/.LICENSE${LICENSE_EXTENSION}-US $outpath/LICENSE
             ;;
         Evaluation)
-            cp -f $relpath/.LICENSE-EVALUATION-US $outpath/LICENSE
+            cp -f $relpath/.LICENSE${LICENSE_EXTENSION}-EVALUATION-US $outpath/LICENSE
             ;;
         Academic)
             cp -f $relpath/.LICENSE-ACADEMIC-US $outpath/LICENSE
@@ -336,7 +336,7 @@ EOF
             cp -f $relpath/.LICENSE${LICENSE_EXTENSION} $outpath/LICENSE
             ;;
         Evaluation)
-            cp -f $relpath/.LICENSE-EVALUATION $outpath/LICENSE
+            cp -f $relpath/.LICENSE${LICENSE_EXTENSION}-EVALUATION $outpath/LICENSE
             ;;
         Academic)
             cp -f $relpath/.LICENSE-ACADEMIC $outpath/LICENSE
