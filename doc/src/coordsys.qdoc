@@ -61,14 +61,14 @@
 
     \section2 Aliased Painting
 
-    The location of each pixel is resolved using the
-    QPainter::Antialiasing render hint when drawing.
+    When drawing, the pixel rendering is controlled by the
+    QPainter::Antialiasing render hint.
 
     The \l {QPainter::RenderHint}{RenderHint} enum is used to specify
     flags to QPainter that may or may not be respected by any given
-    engine. QPainter::Antialiasing indicates that the engine should
-    antialias edges of primitives if possible, i.e. put additional
-    pixels around the original ones to smooth the edges.
+    engine. The QPainter::Antialiasing value indicates that the engine
+    should antialias edges of primitives if possible, i.e. smoothing
+    the edges by using different color intensities.
 
     But by default the painter is \e aliased and other rules apply:
     When rendering with a one pixel wide pen the pixels will be
