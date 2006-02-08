@@ -247,6 +247,7 @@ void QSplashScreenPrivate::drawContents()
     QPixmap textPix = pixmap;
     if (!textPix.isNull()) {
         QPainter painter(&textPix);
+        painter.initFrom(q);
         q->drawContents(&painter);
         QPalette p = q->palette();
         p.setBrush(q->backgroundRole(), QBrush(textPix));
