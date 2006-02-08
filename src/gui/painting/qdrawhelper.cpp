@@ -148,7 +148,7 @@ static const DestFetchProc destFetchProc[QImage::NImageFormats] =
 };
 
 /*
-  Destination store. 
+  Destination store.
 */
 
 
@@ -264,7 +264,7 @@ typedef uint QT_FASTCALL (*FetchPixelProc)(const uchar *scanLine, int x, const Q
 
 static const FetchPixelProc fetchPixelProc[QImage::NImageFormats] =
 {
-    0, 
+    0,
     fetchPixel_Mono,
     fetchPixel_MonoLSB,
     fetchPixel_Indexed8,
@@ -277,21 +277,21 @@ static const FetchPixelProc fetchPixelProc[QImage::NImageFormats] =
 };
 
 enum TextureBlendType {
-    BlendUntransformed, 
+    BlendUntransformed,
     BlendTiled,
     BlendTransformed,
     BlendTransformedTiled,
     BlendTransformedBilinear,
     BlendTransformedBilinearTiled,
     NBlendTypes
-};   
+};
 
 static const uint * QT_FASTCALL fetch_generic(uint *buffer, const Operator *, const QSpanData *data,
                                              int y, int x, int length)
 {
     FetchPixelProc fetch = fetchPixelProc[data->texture.format];
     const uchar *scanLine = data->texture.scanLine(y);
-    for (int i = 0; i < length; ++i) 
+    for (int i = 0; i < length; ++i)
         buffer[i] = fetch(scanLine, x + i, data->texture.colorTable);
     return buffer;
 }
@@ -300,7 +300,7 @@ static const uint * QT_FASTCALL fetchTransformed_generic(uint *buffer, const Ope
                                                          int y, int x, int length)
 {
     FetchPixelProc fetch = fetchPixelProc[data->texture.format];
-    
+
     int image_width = data->texture.width;
     int image_height = data->texture.height;
 
@@ -312,16 +312,16 @@ static const uint * QT_FASTCALL fetchTransformed_generic(uint *buffer, const Ope
                   + data->m11 * (x + 0.5) + data->dx) * fixed_scale);
     int fy = int((data->m22 * (y + 0.5)
                   + data->m12 * (x + 0.5) + data->dy) * fixed_scale);
-    
+
     const uint *end = buffer + length;
     uint *b = buffer;
     while (b < end) {
         int px = fx >> 16;
         int py = fy >> 16;
-        
+
         bool out = (px < 0) || (px >= image_width)
                    || (py < 0) || (py >= image_height);
-        
+
         const uchar *scanLine = data->texture.scanLine(py);
         *b = out ? uint(0) : fetch(scanLine, px, data->texture.colorTable);
         fx += fdx;
@@ -335,7 +335,7 @@ static const uint * QT_FASTCALL fetchTransformedTiled_generic(uint *buffer, cons
                                                               int y, int x, int length)
 {
     FetchPixelProc fetch = fetchPixelProc[data->texture.format];
-    
+
     int image_width = data->texture.width;
     int image_height = data->texture.height;
 
@@ -347,18 +347,18 @@ static const uint * QT_FASTCALL fetchTransformedTiled_generic(uint *buffer, cons
                   + data->m11 * (x + 0.5) + data->dx) * fixed_scale);
     int fy = int((data->m22 * (y + 0.5)
                   + data->m12 * (x + 0.5) + data->dy) * fixed_scale);
-    
+
     const uint *end = buffer + length;
     uint *b = buffer;
     while (b < end) {
         int px = fx >> 16;
         int py = fy >> 16;
-        
+
         px %= image_width;
         py %= image_height;
         if (px < 0) px += image_width;
         if (py < 0) py += image_height;
-        
+
         const uchar *scanLine = data->texture.scanLine(py);
         *b = fetch(scanLine, px, data->texture.colorTable);
         fx += fdx;
@@ -372,7 +372,7 @@ static const uint * QT_FASTCALL fetchTransformedBilinear_generic(uint *buffer, c
                                                                  int y, int x, int length)
 {
     FetchPixelProc fetch = fetchPixelProc[data->texture.format];
-    
+
     int image_width = data->texture.width;
     int image_height = data->texture.height;
 
@@ -384,7 +384,7 @@ static const uint * QT_FASTCALL fetchTransformedBilinear_generic(uint *buffer, c
                   + data->m11 * (x + 0.5) + data->dx) * fixed_scale);
     int fy = int((data->m22 * (y + 0.5)
                   + data->m12 * (x + 0.5) + data->dy) * fixed_scale);
-    
+
     const uint *end = buffer + length;
     uint *b = buffer;
     while (b < end) {
@@ -426,7 +426,7 @@ static const uint * QT_FASTCALL fetchTransformedBilinearTiled_generic(uint *buff
                                                                      int y, int x, int length)
 {
     FetchPixelProc fetch = fetchPixelProc[data->texture.format];
-    
+
     int image_width = data->texture.width;
     int image_height = data->texture.height;
 
@@ -438,7 +438,7 @@ static const uint * QT_FASTCALL fetchTransformedBilinearTiled_generic(uint *buff
                   + data->m11 * (x + 0.5) + data->dx) * fixed_scale);
     int fy = int((data->m22 * (y + 0.5)
                   + data->m12 * (x + 0.5) + data->dy) * fixed_scale);
-    
+
     const uint *end = buffer + length;
     uint *b = buffer;
     while (b < end) {
@@ -456,12 +456,12 @@ static const uint * QT_FASTCALL fetchTransformedBilinearTiled_generic(uint *buff
         x2 %= image_width;
         y1 %= image_height;
         y2 %= image_height;
-        
+
         if (x1 < 0) x1 += image_width;
         if (x2 < 0) x2 += image_width;
         if (y1 < 0) y1 += image_height;
         if (y2 < 0) y2 += image_height;
-        
+
         Q_ASSERT(x1 >= 0 && x1 < image_width);
         Q_ASSERT(x2 >= 0 && x2 < image_width);
         Q_ASSERT(y1 >= 0 && y1 < image_height);
@@ -564,7 +564,7 @@ static const SourceFetchProc sourceFetch[NBlendTypes][QImage::NImageFormats] = {
 #endif
     }, // ARGB32_Premultiplied
 };
-    
+
 
 static uint qt_gradient_pixel(const GradientData *data, qreal pos)
 {
@@ -675,7 +675,7 @@ static const uint * QT_FASTCALL fetchRadialGradient(uint *buffer, const Operator
     return b;
 }
 
-static const uint * QT_FASTCALL fetchConicalGradient(uint *buffer, const Operator *, const QSpanData *data, 
+static const uint * QT_FASTCALL fetchConicalGradient(uint *buffer, const Operator *, const QSpanData *data,
                                                      int y, int x, int length)
 {
     const uint *b = buffer;
@@ -1169,13 +1169,13 @@ static inline Operator getOperator(const QSpanData *data)
             op.dest_fetch = 0;
         }
     }
-    
+
     op.dest_store = destStoreProc[data->rasterBuffer->format];
 
     op.funcSolid = functionForModeSolid[op.mode];
     op.func = functionForMode[op.mode];
-    
-    return op;    
+
+    return op;
 }
 
 
@@ -1191,7 +1191,7 @@ static void blend_color_generic(int count, const QSpan *spans, void *userData)
     Operator op = getOperator(data);
     if (!op.funcSolid)
         return;
-    
+
     while (count--) {
         int x = spans->x;
         int length = spans->len;
@@ -1504,10 +1504,10 @@ static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userD
             }
             ++spans;
         }
-        return;        
+        return;
     }
 
-    // texture is RGB16 
+    // texture is RGB16
     while (count--) {
         int coverage = (data->texture.const_alpha * spans->coverage) >> 8;
         int x = spans->x;
@@ -1529,7 +1529,7 @@ static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userD
                     memcpy(dest, src, length*sizeof(quint16));
                 } else {
                     int ialpha = 255 - coverage;
-                    for (int i = 0; i < length; ++i) 
+                    for (int i = 0; i < length; ++i)
                         dest[i] = convertRgb32To16(INTERPOLATE_PIXEL_255(convertRgb16To32(src[i]), coverage,
                                                                          convertRgb16To32(dest[i]), ialpha));
                 }
@@ -1596,7 +1596,7 @@ static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
         blend_tiled_generic(count, spans, userData);
         return;
     }
-    
+
     Operator op = getOperator(data);
     if (!op.func)
         return;
@@ -1645,7 +1645,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
         blend_tiled_generic(count, spans, userData);
         return;
     }
-    
+
     Operator op = getOperator(data);
     if (!op.func)
         return;
@@ -1670,8 +1670,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                 sx += image_width;
             if (sy < 0)
                 sy += image_height;
-            int coverage = (data->texture.const_alpha * spans->coverage) >> 8            
-            if (coverage == 255) {
+            if (spans->coverage == 255) {
                 while (length) {
                     int l = qMin(image_width - sx, length);
                     if (buffer_size < l)
@@ -1699,7 +1698,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                     const uint *src = (uint *)data->texture.scanLine(sy) + sx;
                     for (int i = 0; i < l; ++i) {
                         uint s = src[i];
-                        MASK(s, coverage);
+                        MASK(s, spans->coverage);
                         int alpha = qAlpha(s);
                         s = convertRgb32To16(s);
                         if (alpha != 255)
@@ -1712,7 +1711,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                 }
                 ++spans;
             }
-            return;        
+            return;
         }
     }
 
@@ -1748,7 +1747,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                     l = buffer_size;
                 ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
                 const ushort *src = (ushort *)data->texture.scanLine(sy) + sx;
-                for (int i = 0; i < l; ++i) 
+                for (int i = 0; i < l; ++i)
                     dest[i] = convertRgb32To16(INTERPOLATE_PIXEL_255(convertRgb16To32(src[i]), coverage,
                                                                      convertRgb16To32(dest[i]), ialpha));
                 x += l;
@@ -1798,7 +1797,7 @@ static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void 
         blend_src_generic(count, spans, userData);
         return;
     }
-    
+
     CompositionFunction func = functionForMode[data->rasterBuffer->compositionMode];
     if (!func)
         return;
@@ -2098,7 +2097,7 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
 #ifdef Q_WS_QWS
         ,  blend_untransformed_rgb16 // RGB16
 #endif
-    }, 
+    },
     // Tiled
     {
         0, // Invalid
@@ -2111,7 +2110,7 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
 #ifdef Q_WS_QWS
         ,  blend_tiled_rgb16 // RGB16
 #endif
-    }, 
+    },
     // Transformed
     {
         0, // Invalid
@@ -2140,7 +2139,7 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
     },
     // Bilinear
     {
-        0, 
+        0,
       blend_texture_generic,   // Mono
       blend_texture_generic,   // MonoLsb
       blend_texture_generic,   // Indexed8
@@ -2153,7 +2152,7 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
     },
     // BilinearTiled
     {
-        0, 
+        0,
       blend_texture_generic,   // Mono
       blend_texture_generic,   // MonoLsb
       blend_texture_generic,   // Indexed8
@@ -2163,7 +2162,7 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
 #ifdef Q_WS_QWS
         ,  blend_src_generic // RGB16
 #endif
-    } 
+    }
 };
 
 void qBlendTexture(int count, const QSpan *spans, void *userData)
@@ -2177,34 +2176,34 @@ void qBlendTexture(int count, const QSpan *spans, void *userData)
 DrawHelper qDrawHelper[QImage::NImageFormats] =
 {
     // Format_Invalid,
-    { 0, 0 }, 
+    { 0, 0 },
     // Format_Mono,
-    { 
+    {
         blend_color_generic,
         blend_src_generic,
     },
     // Format_MonoLSB,
-    { 
+    {
         blend_color_generic,
         blend_src_generic,
-    }, 
+    },
     // Format_Indexed8,
-    { 
+    {
         blend_color_generic,
         blend_src_generic,
-    }, 
+    },
     // Format_RGB32,
-    { 
+    {
         blend_color_generic,
         blend_src_generic,
-    }, 
+    },
     // Format_ARGB32,
-    { 
+    {
         blend_color_generic,
         blend_src_generic,
-    }, 
+    },
     // Format_ARGB32_Premultiplied
-    { 
+    {
         blend_color_argb,
         blend_src_argb,
     }
