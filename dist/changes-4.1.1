@@ -9,29 +9,29 @@ Applications compiled for 4.0 will continue to run with 4.1.
 ****************************************************************************
 
 moc
-	Better handling of preprocessor statements in combination
-	with multiline comments.
+        Better handling of preprocessor statements in combination
+        with multiline comments.
 
 
 configure
-	Respect the -no-sql-mysql flag.
+        Respect the -no-sql-mysql flag.
 
 compilers
-	Fix build of dumpcpp-dependent projects in Visual Studio 6.
+        Fix build of dumpcpp-dependent projects in Visual Studio 6.
 
-	Fixed compilation for solaris-cc-64.
+        Fixed compilation for solaris-cc-64.
 
 
 
 Qt Designer
-	Numerous fixes and improvements.
-	
-	uic3: Prevent generation of invalid font tags
-	uic: Fixed bug that caused retranslateUI() to add existing
-	items in combobox once again
+        Numerous fixes and improvements.
+        
+        uic3: Prevent generation of invalid font tags
+        uic: Fixed bug that caused retranslateUI() to add existing
+        items in combobox once again
 
 Qt Linguist / Internationalization
-	Fix tr() idioms, so that translation actually works.
+        Fix tr() idioms, so that translation actually works.
 
 ****************************************************************************
 *                          Library                                         *
@@ -49,124 +49,171 @@ General improvements
         loss of information.
 
 - QXmlSimpleReader
-	A significant (approx. 50x) speedup in QXmlSimpleReader when
-	parsing documents which contain internal or external entities.
+        A significant (approx. 50x) speedup in QXmlSimpleReader when
+        parsing documents which contain internal or external entities.
 
 - QFile
-	changed behavior or rename() and copy()...
+        changed behavior or rename() and copy()...
 
 - QPdfPrintEngine
-	Made our generated PDFs readable by Ghostscript.
-	Support pens that have patterns/pixmaps.
+        Made our generated PDFs readable by Ghostscript.
+        Support pens that have patterns/pixmaps.
 
 - QTextDocument
-	Support span style background-color.
-
+        Support span style background-color.
+        Fix nested tables in html documents regression.
+        
 - QToolbutton
-	Make popup menus appear on the correct screen.
+        Make popup menus appear on the correct screen.
 
 - QToolBar
-	Combo boxes now appears as submenus in a toolbar extension.
+        Combo boxes now appears as submenus in a toolbar extension.
 
 - QOpenGLPaintEngine
-	Make sure the image and pixmap cache is used.
-	
+        Make sure the image and pixmap cache is used.
+        
 - QTextEdit
-	Improve handling of the TITLE tag.
-	Fixed navigating links via tab.
-	Improved handling of illformed html.
-	Fixed rendering for tables with thead/tbody/tfoot elements.
+        Improve handling of the TITLE tag.
+        Fixed navigating links via tab.
+        Improved handling of illformed html.
+        Fixed rendering for tables with thead/tbody/tfoot elements.
 
 - QSvg
-	Improve stroking with pen width 0.
+        Improve stroking with pen width 0.
 
 - QDockWidget
-	Update toggleViewAction() when widget gets hidden with close
-	button.
+        Update toggleViewAction() when widget gets hidden with close
+        button.
 
 - QMainWindow
-	Handle RTL layout for dockwidgets properly.
-	Make dockwidgets remember their sizes after being hidden.
+        Handle RTL layout for dockwidgets properly.
+        Make dockwidgets remember their sizes after being hidden.
 
 - Q3TextEdit
-	Fix focus indicator tabbing through tables.
+        Fix focus indicator tabbing through tables.
 
 - QXpmHandler
-	Fixed handling of non-transparent XPM images.
+        Fixed handling of non-transparent XPM images.
 
 - QImageIOHandler
-	Made all suppported image formats support the Size option.
+        Made all suppported image formats support the Size option.
 
 - QDir
-	cd() now fails when attempting to cd to a non-directory.
+        cd() now fails when attempting to cd to a non-directory.
 
 - Q3ToolBar
-	Q3Action::setOn() now works correctly.
+        Q3Action::setOn() now works correctly.
 
 - QAbstractItemView
-	Fix selections when mouse-tracking is turned on.
+        Fix selections when mouse-tracking is turned on.
 
 - QTableView
-	Fixed drawing of selections after moving columns.
-	Do not wrap to the top if Page Down is pressed.
-
+        Fixed drawing of selections after moving columns.
+        Do not wrap to the top if Page Down is pressed.
+        Improve scrolling behaviour when view has items 
+        that are wider than the view itself.
+- QTreeView
+        Fixed scrolling-related item expand bug.
+        Improve scrolling behaviour when view has items 
+        that are wider than the view itself.
+        
 - QItemDelegate
-	Better handling of QStyleOptionViewItem::Bottom.
+        Better handling of QStyleOptionViewItem::Bottom.
 
 - QHeaderView
-	Respects dragDistance.
-
+        Respects dragDistance.
+        Fix painting problems caused by clicking both mouse buttons
+        at the same time.
+        Respects TextColorRole.
+        
 - QGridLayout 
-	Respect specified alignment over default alignment.
+        Respect specified alignment over default alignment.
 
 - QSvgRenderer
-	Better handling  of invalid files.
+        Better handling  of invalid files.
 
 - QPrintEngine
-	Better font underlining/overlining.? (199807)
-	Embed fonts as TrueType font files into PDF? (199815)
+        Better font underlining/overlining.? (199807)
+        Embed fonts as TrueType font files into PDF? (199815)
 
 - Q3ActionGroup
-	Fix drop down drawing error.
+        Fix drop down drawing error.
 
 - QWidget
-	Fix regression in setMask().
+        Fix regression in setMask().
 
+- QFileDialog
+        Make sure filter combobox gets enabled when changing from 
+        Directory to ExistingFile mode.
+        Improve filename completion for files with the same name but 
+        different extention.
+        Make sure the selection is updated when modifying the filename 
+        by removing characters.
+        Allow typing in several file names.
+        Improve handling of non-existant windows shares.
+        
+- QHash / QSet
+        Make the operator==() not take the internal order of elements
+        into account when comparing.
+
+- QUrl
+        Improve handling of hostnames that start with a digit.
+
+- QLayout
+        Warn instead of crash when adding two layouts to a widget.
+                        
 Platform-Specific changes
 -------------------------
 
 Windows:
 
+- Timers now continue to fire when windows enters a modal event loop.
+
 - QClipboard
-	Make sure the dataChanged() signal is emitted correctly.
+        Make sure the dataChanged() signal is emitted correctly.
 
 - QUdpSocket
-	Better handling when sending to an unbound port.
+        Better handling when sending to an unbound port.
 
 
 - QFileDialog
-	Improve handling of path names with special characters.
-	Maintain modality chain when showing a native modal inside a
-	qt modal.
+        Improve handling of path names with special characters.
+        Maintain modality chain when showing a native modal inside a
+        qt modal.
 
+- QWorkSpace
+        Improve window resizing and button apperance. 
 
+- QDockWidget
+        Improve the look of title bar buttons.
+        Improve look when using QWindowsStyle.
+- PDF
+        Support PDF font embedding.
+                
 X11:
 - QPainter
-	Fix artifacts when drawing aliased primitives with an alpha
-	pen.
-	Implemented Porter-Duff composition support.
+        Fix artifacts when drawing aliased primitives with an alpha
+        pen.
+        Implemented Porter-Duff composition support.
 
 
 
 Mac OS X:
 
 - General fixes to the drag and drop support.
-	
+
 - QCursor
-	Fix alpha pixmap cursors.
+        Fix alpha pixmap cursors.
 
+Qtopia Core
 
+- Implement QPixmap::grabWindow
+
+- PDF
+        Support PDF font embedding.
+        
 3rd-party libraries
 -------------------
+- Fix memory leak in freetype.
 
-last change was: 200107
+last change was: 201181
