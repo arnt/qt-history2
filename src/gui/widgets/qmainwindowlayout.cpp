@@ -1335,7 +1335,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
             }
 
 	    QRect tb(info.pos, info.size);
-	    tb = QStyle::visualRect(QApplication::layoutDirection(), tb_rect[line], tb);
+            tb = QStyle::visualRect(QApplication::layoutDirection(), tb_rect[line], tb);
 	    if (!tb.isEmpty() && relayout_type == QInternal::RelayoutNormal)
 		info.item->setGeometry(tb);
 	}
@@ -1549,11 +1549,11 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
         }
 
         if (relayout_type == QInternal::RelayoutNormal || layout_info[i].is_dummy) {
-            QRect vr = QStyle::visualRect(QApplication::layoutDirection(), _r, x);
-             layout_info[i].item->setGeometry(vr);
+            QRect vr = QStyle::visualRect(QApplication::layoutDirection(), r, x);
+            layout_info[i].item->setGeometry(vr);
         }
         if (relayout_type == QInternal::RelayoutNormal) {
-            QRect vr = QStyle::visualRect(QApplication::layoutDirection(), _r, s);
+            QRect vr = QStyle::visualRect(QApplication::layoutDirection(), r, s);
             layout_info[i].sep->setGeometry(vr);
         }
     }
@@ -1566,7 +1566,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                     bottom.top() - 1);
         layout_info[CENTER].size = c.size();
         if (relayout_type == QInternal::RelayoutNormal) {
-            QRect vr = QStyle::visualRect(QApplication::layoutDirection(), _r, c);
+            QRect vr = QStyle::visualRect(QApplication::layoutDirection(), r, c);
             layout_info[CENTER].item->setGeometry(vr);
         }
     }
@@ -2256,9 +2256,9 @@ int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) con
         }
     } else {
         if (p.y() < p2.y() && toolbar->isAreaAllowed(Qt::TopToolBarArea)) {
-                pos = TOP;
+            pos = TOP;
         } else if (p.y() >= p2.y() && toolbar->isAreaAllowed(Qt::BottomToolBarArea)) {
-                pos = BOTTOM;
+            pos = BOTTOM;
         } else {
             if (p.x() < p2.x() && toolbar->isAreaAllowed(Qt::LeftToolBarArea))
                 pos = LEFT;
