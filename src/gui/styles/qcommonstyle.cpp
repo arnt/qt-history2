@@ -1402,6 +1402,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
 #endif // QT_NO_DOCKWIDGET
     case CE_Header:
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
+            QRegion clipRegion = p->clipRegion();
+            p->setClipRect(opt->rect);
             drawControl(CE_HeaderSection, header, p, widget);
             QStyleOptionHeader subopt = *header;
             subopt.rect = subElementRect(SE_HeaderLabel, header, widget);
@@ -1410,6 +1412,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 subopt.rect = subElementRect(SE_HeaderArrow, opt, widget);
                 drawPrimitive(PE_IndicatorHeaderArrow, &subopt, p, widget);
             }
+            p->setClipRegion(clipRegion);
         }
         break;
     case CE_FocusFrame:
