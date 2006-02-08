@@ -2002,8 +2002,6 @@ int QHeaderViewPrivate::sectionHandleAt(int position)
         return -1;
     int log = logicalIndex(visual);
     int pos = q->sectionViewportPosition(log);
-    if (pos < 0)
-        return -1;
     int grip = q->style()->pixelMetric(QStyle::PM_HeaderGripMargin);
     if (reverse()) {
         if (position < pos + grip)
