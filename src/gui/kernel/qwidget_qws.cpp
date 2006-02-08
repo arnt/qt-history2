@@ -649,7 +649,7 @@ void QWSBackingStore::detach()
     mem = 0;
 }
 
-void QWSBackingStore::create(QSize s)
+void QWSBackingStore::create(QSize s, QImage::Format imageFormat)
 {
     if (size() == s) {
         return;
@@ -661,7 +661,7 @@ void QWSBackingStore::create(QSize s)
 #endif
         return;
     }
-    const int bytes_per_pixel = QWS_BACKINGSTORE_FORMAT == QImage::Format_RGB16 ? 2 : 4;
+    const int bytes_per_pixel = imageFormat == QImage::Format_RGB16 ? 2 : 4;
     int extradatasize = 0;//2 * sizeof(int); //store height and width ???
     int bpl = (s.width() * bytes_per_pixel + 3) & ~3;
     int datasize = bpl * s.height() + extradatasize;
@@ -679,13 +679,13 @@ void QWSBackingStore::create(QSize s)
         memLock = QWSDisplay::Data::getClientLock();
     }
 
-    img = QImage(mem + extradatasize, s.width(), s.height(), QWS_BACKINGSTORE_FORMAT);
+    img = QImage(mem + extradatasize, s.width(), s.height(), imageFormat);
 #ifdef QT_SHAREDMEM_DEBUG
-    qDebug() << "QWSBackingStore::create size" << s << "shmid" << shm.id() << "shmaddr" << shm.address();
+    qDebug() << "QWSBackingStore::create size" << s << "shmid" << shm.id() << "shmaddr" << shm.address() << "imageFormat" << imageFormat;
 #endif
 }
 
-void QWSBackingStore::attach(QWSMemId id, QSize s)
+void QWSBackingStore::attach(QWSMemId id, QSize s, QImage::Format imageFormat)
 {
     if (shm.id() == id && s == size())
         return;
@@ -697,7 +697,7 @@ void QWSBackingStore::attach(QWSMemId id, QSize s)
 #ifdef QT_SHAREDMEM_DEBUG
         qDebug() << "QWSBackingStore::attach no id, size" << s;
 #endif
-        img = QImage(s, QWS_BACKINGSTORE_FORMAT);
+        img = QImage(s, imageFormat);
         img.fill(qRgba(255,255,0,128));
         return;
     }
@@ -711,17 +711,25 @@ void QWSBackingStore::attach(QWSMemId id, QSize s)
     mem = static_cast<uchar*>(shm.address());
 
     int extradatasize = 0;
-    img = QImage(mem + extradatasize, s.width(), s.height(), QWS_BACKINGSTORE_FORMAT);
+    img = QImage(mem + extradatasize, s.width(), s.height(), imageFormat);
 #ifdef QT_SHAREDMEM_DEBUG
-    qDebug() << "QWSBackingStore::attach size" << s << "shmid" << shm.id() << "shmaddr" << shm.address();
+    qDebug() << "QWSBackingStore::attach size" << s << "shmid" << shm.id() << "shmaddr" << shm.address() << "imageFormat" << imageFormat;
 #endif
 }
 
-void QWSBackingStore::setMemory(QWSMemId id, const QSize &s)
+void QWSBackingStore::setMemory(QWSMemId id, const QSize &s, QImage::Format imageFormat)
 {
+    if (id == (uchar*)-1) {
+        // Handle QT_FLUSH_PAINT
+        attach(-1, s, imageFormat);
+        return;
+    }
     mem = id;
-    img = QImage(mem, s.width(), s.height(), QWS_BACKINGSTORE_FORMAT);
+    img = QImage(mem, s.width(), s.height(), imageFormat);
     isServerSideBackingStore = true;
+#ifdef QT_SHAREDMEM_DEBUG
+    qDebug() << "QWSBackingStore::setMemory size" << s << "shmid" << shm.id() << "shmaddr" << shm.address() << "imageFormat" << imageFormat;
+#endif
 }
 
 bool QWSBackingStore::lock(int timeout)

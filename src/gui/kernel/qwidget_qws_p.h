@@ -29,12 +29,6 @@
 #include <qwsmemid_qws.h>
 #include <private/qsharedmemory_p.h>
 
-#if 0
-#define QWS_BACKINGSTORE_FORMAT QImage::Format_RGB16
-#else
-#define QWS_BACKINGSTORE_FORMAT QImage::Format_ARGB32_Premultiplied
-#endif
-
 class QWSLock;
 
 class QWSBackingStore
@@ -43,10 +37,10 @@ public:
     QWSBackingStore();
     ~QWSBackingStore();
 
-    void create(QSize size);
-    void attach(QWSMemId id, QSize size);
+    void create(QSize size, QImage::Format);
+    void attach(QWSMemId id, QSize size, QImage::Format);
     void detach();
-    void setMemory(QWSMemId id, const QSize &size);
+    void setMemory(QWSMemId id, const QSize &size, QImage::Format);
 
     bool lock(int timeout = -1);
     void unlock();

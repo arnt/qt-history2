@@ -17,6 +17,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qbytearray.h>
 #include <QtGui/qregion.h>
+#include <QtGui/qimage.h>
 #include <QtGui/qwindowdefs.h>
 #include <QtCore/qlist.h>
 #include <QtGui/qwsmemid_qws.h>
@@ -75,7 +76,7 @@ public:
 
     void setIdentity(const QString &appName);
     void nameRegion(int winId, const QString& n, const QString &c);
-    void requestRegion(int winId, QWSMemId memId, int windowtype, QRegion);
+    void requestRegion(int winId, QWSMemId memId, int windowtype, QRegion, QImage::Format);
     void repaintRegion(int winId, bool opaque, QRegion);
     void moveRegion(int winId, int dx, int dy);
     void destroyRegion(int winId);

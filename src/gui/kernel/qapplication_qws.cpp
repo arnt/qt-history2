@@ -742,6 +742,7 @@ void QWSDisplay::Data::fillQueue()
 #ifdef QAPPLICATION_EXTRA_DEBUG
                     if (mouse_event)
                         action = "COMPRESS";
+                    mouse_event_count++;
 #endif
                     mouse_event = me;
                 }
@@ -750,7 +751,6 @@ void QWSDisplay::Data::fillQueue()
                     qDebug("fillQueue %s (%d,%d), state %x win %d count %d", action,
                            me->simpleData.x_root, me->simpleData.y_root, me->simpleData.state,
                            me->window(), mouse_event_count);
-                mouse_event_count++;
 #endif
             }
 #if 0
@@ -1128,24 +1128,17 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
 }
 
 void QWSDisplay::requestRegion(int winId, QWSMemId memId,
-                               int windowtype, QRegion r)
+                               int windowtype, QRegion r, QImage::Format imageFormat)
 {
     if (d->directServerConnection()) {
-        qwsServer->d_func()->request_region(winId, memId, windowtype, r);
+        qwsServer->d_func()->request_region(winId, memId, windowtype, r, imageFormat);
     } else {
         QVector<QRect> ra = r.rects();
-
-        /*
-          for (int i = 0; i < ra.size(); i++) {
-          QRect r(ra[i]);
-          qDebug("rect: %d %d %d %d", r.x(), r.y(), r.right(), r.bottom());
-          }
-        */
-
         QWSRegionCommand cmd;
         cmd.simpleData.windowid = winId;
         cmd.simpleData.windowtype = windowtype;
         cmd.simpleData.memoryid = memId;
+        cmd.simpleData.imgFormat = imageFormat;
         cmd.simpleData.nrectangles = ra.count();
         cmd.setData(reinterpret_cast<const char *>(r.rects().constData()),
                     ra.count() * sizeof(QRect), false);

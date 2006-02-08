@@ -26,6 +26,7 @@
 #endif
 
 #ifdef Q_WS_QWS
+#include <qscreen_qws.h>
 #include <qwsdisplay_qws.h>
 #include <qapplication.h>
 #include <qwsmanager_qws.h>
@@ -83,12 +84,12 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec, bo
     if (widget)
         globalRgn.translate(widget->mapToGlobal(QPoint()));
 
-    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, globalRgn);
+    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, globalRgn, QImage::Format_Invalid);
     QWidget::qwsDisplay()->setAltitude(yWinId, 1, true);
     QWidget::qwsDisplay()->repaintRegion(yWinId, false, globalRgn);
 
     ::usleep(500*msec);
-    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, QRegion());
+    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, QRegion(), QImage::Format_Invalid);
     ::usleep(500*msec);
 }
 
@@ -654,12 +655,13 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
                 tlwSize = tlwRegion.boundingRect().size();
                 tlwOffset = tlw->geometry().topLeft() - tlwRegion.boundingRect().topLeft();
             }
-            buffer.create(tlwSize);
             QBrush bgBrush = tlw->palette().brush(tlw->backgroundRole());
             bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
+            QImage::Format imageFormat = (opaque && qt_screen->depth() == 16) ? QImage::Format_RGB16 : QImage::Format_ARGB32_Premultiplied;
+            buffer.create(tlwSize, imageFormat);
             QWidget::qwsDisplay()->requestRegion(tlw->data->winid,
                                                  buffer.memoryId(),
-                                                 opaque, tlwRegion);
+                                                 opaque, tlwRegion, imageFormat);
 
 #ifndef QT_NO_QWS_MANAGER
             if (topextra->qwsManager)
@@ -711,7 +713,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 void QWidgetBackingStore::releaseBuffer()
 {
     buffer.detach();
-    QWidget::qwsDisplay()->requestRegion(tlw->data->winid, 0, true, QRegion(0));
+    QWidget::qwsDisplay()->requestRegion(tlw->data->winid, 0, true, QRegion(0), QImage::Format_Invalid);
 }
 #elif defined(Q_WS_WIN)
 void QWidgetBackingStore::releaseBuffer()

@@ -1785,7 +1785,7 @@ void QWSServerPrivate::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
     region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);
 
     request_region(cmd->simpleData.windowid, cmd->simpleData.memoryid,
-                   cmd->simpleData.windowtype, region, changingw);
+                   cmd->simpleData.windowtype, region, (QImage::Format)cmd->simpleData.imgFormat, changingw);
 }
 
 void QWSServerPrivate::invokeRegionMove(const QWSRegionMoveCommand *cmd, QWSClient *client)
@@ -2537,7 +2537,7 @@ void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
 }
 
 void QWSServerPrivate::request_region(int wid, QWSMemId mid,
-                                      int windowtype, QRegion region,
+                                      int windowtype, QRegion region, QImage::Format imageFormat,
                                       QWSWindow *changingw)
 {
     Q_Q(QWSServer);
@@ -2579,10 +2579,10 @@ void QWSServerPrivate::request_region(int wid, QWSMemId mid,
         QWSClient *client = changingw->client();
 
         if (client->clientId() == 0) {
-            backingStore->setMemory(mid, region.boundingRect().size());
+            backingStore->setMemory(mid, region.boundingRect().size(), imageFormat);
 #ifndef QT_NO_QWS_MULTIPROCESS
         } else {
-            backingStore->attach(mid, region.boundingRect().size());
+            backingStore->attach(mid, region.boundingRect().size(), imageFormat);
             backingStore->setLock(changingw->client()->d_func()->clientLock);
 #endif
         }

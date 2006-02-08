@@ -892,8 +892,10 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
         compose(level, exposedBelow, blend, blendbuffer, changing_level);
     } else {
         QSize blendSize = blend.boundingRect().size();
-        if (!blendSize.isNull())
-            blendbuffer = QImage(blendSize, QWS_BACKINGSTORE_FORMAT);
+        if (!blendSize.isNull()) {
+            blendbuffer = QImage(blendSize,
+                                 qt_screen->depth() == 16 ? QImage::Format_RGB16 : QImage::Format_ARGB32_Premultiplied);
+        }
     }
     if (!win) {
         paintBackground(exposed-blend);

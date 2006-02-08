@@ -211,6 +211,7 @@ struct QWSRegionCommand : public QWSCommand
         int windowid;
         QWSMemId memoryid;
         uint windowtype:8;
+        uint imgFormat:8;
         int nrectangles;
     } simpleData;
 

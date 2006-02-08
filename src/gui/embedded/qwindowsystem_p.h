@@ -84,7 +84,7 @@ private:
     void set_opacity(const QWSSetOpacityCommand *);
     void request_focus(const QWSRequestFocusCommand *);
     void request_region(int winId, QWSMemId memId,
-                        int windowtype, QRegion, QWSWindow* = 0);
+                        int windowtype, QRegion, QImage::Format, QWSWindow* = 0);
     void repaint_region(int winId, bool opaque, QRegion);
     void destroy_region(const QWSRegionDestroyCommand *);
     void name_region(const QWSRegionNameCommand *);
