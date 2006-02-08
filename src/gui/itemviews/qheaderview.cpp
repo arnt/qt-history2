@@ -433,6 +433,7 @@ int QHeaderView::sectionPosition(int logicalIndex) const
     // before we have a chance to do the layout
     if (visual == -1)
         return -1;
+    //qDebug() << "QHeaderView::sectionPosition" << logicalIndex << d->headerSectionPosition(visual);
     return d->headerSectionPosition(visual);
 }
 
@@ -1440,7 +1441,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
                          palette().background());
     }
 
-#if 1
+#if 0
     // ### visualize section spans
     for (int a = 0, i = 0; i < d->sectionSpans.count(); ++i) {
         if (orientation() == Qt::Horizontal) {
@@ -2143,7 +2144,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         int sectionSize = 0;
         if (resizeMode == QHeaderView::Interactive || resizeMode == QHeaderView::Custom) {
             sectionSize = headerSectionSize(i);
-        } else  if (resizeMode == QHeaderView::ResizeToContents) {
+        } else { // resizeMode == QHeaderView::ResizeToContents
             int logicalIndex = q->logicalIndex(i);
             QAbstractItemView *parent = ::qobject_cast<QAbstractItemView*>(q->parent());
             if (parent)
@@ -2191,7 +2192,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
                 newSectionLength += 1;
                 --pixelReminder;
             }
-        } else if (resizeMode == QHeaderView::ResizeToContents) {
+        } else {
             newSectionLength = section_sizes.front();
             section_sizes.removeFirst();
         }
@@ -2328,7 +2329,7 @@ void QHeaderViewPrivate::createSectionSpan(int start, int end, int size)
         removeSpans(spansToRemove);
         length += span.size;
         sectionSpans.insert(spansToRemove.first(), span);
-        Q_ASSERT(initial_section_count == headerSectionCount());
+        //Q_ASSERT(initial_section_count == headerSectionCount());
     }
 }
 
@@ -2412,6 +2413,8 @@ int QHeaderViewPrivate::headerSectionPosition(int visual) const
     int section_start = 0;
     int span_position = 0;
     for (int i = 0; i < sectionSpans.count(); ++i) {
+        if (!sectionHidden.isEmpty() && sectionHidden.testBit(visual))
+            continue;
         int section_end = section_start + sectionSpans.at(i).count - 1;
         if (visual >= section_start && visual <= section_end)
             return span_position + (visual - section_start) * sectionSpans.at(i).sectionSize();
