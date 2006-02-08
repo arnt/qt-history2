@@ -132,6 +132,7 @@ struct GradientData
 struct TextureData
 {
     const uchar *imageData;
+    const uchar *scanLine(int y) const { return imageData + y*bytesPerLine; }
     int width;
     int height;
     int bytesPerLine;

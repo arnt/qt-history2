@@ -290,7 +290,7 @@ static const uint * QT_FASTCALL fetch_generic(uint *buffer, const Operator *, co
                                              int y, int x, int length)
 {
     FetchPixelProc fetch = fetchPixelProc[data->texture.format];
-    const uchar *scanLine = data->texture.imageData + y * data->texture.bytesPerLine;
+    const uchar *scanLine = data->texture.scanLine(y);
     for (int i = 0; i < length; ++i) 
         buffer[i] = fetch(scanLine, x + i, data->texture.colorTable);
     return buffer;
@@ -322,7 +322,7 @@ static const uint * QT_FASTCALL fetchTransformed_generic(uint *buffer, const Ope
         bool out = (px < 0) || (px >= image_width)
                    || (py < 0) || (py >= image_height);
         
-        const uchar *scanLine = data->texture.imageData + py * data->texture.bytesPerLine;
+        const uchar *scanLine = data->texture.scanLine(py);
         *b = out ? uint(0) : fetch(scanLine, px, data->texture.colorTable);
         fx += fdx;
         fy += fdy;
@@ -359,7 +359,7 @@ static const uint * QT_FASTCALL fetchTransformedTiled_generic(uint *buffer, cons
         if (px < 0) px += image_width;
         if (py < 0) py += image_height;
         
-        const uchar *scanLine = data->texture.imageData + py * data->texture.bytesPerLine;
+        const uchar *scanLine = data->texture.scanLine(py);
         *b = fetch(scanLine, px, data->texture.colorTable);
         fx += fdx;
         fy += fdy;
@@ -403,7 +403,7 @@ static const uint * QT_FASTCALL fetchTransformedBilinear_generic(uint *buffer, c
         bool y1_out = ((y1 < 0) || (y1 >= image_height));
         bool y2_out = ((y2 < 0) || (y2 >= image_height));
 
-        const uchar *s1 = data->texture.imageData + y1*data->texture.bytesPerLine;
+        const uchar *s1 = data->texture.scanLine(y1);
         const uchar *s2 = s1 + data->texture.bytesPerLine;
 
         uint tl = (x1_out || y1_out) ? uint(0) : fetch(s1, x1, data->texture.colorTable);
@@ -467,8 +467,8 @@ static const uint * QT_FASTCALL fetchTransformedBilinearTiled_generic(uint *buff
         Q_ASSERT(y1 >= 0 && y1 < image_height);
         Q_ASSERT(y2 >= 0 && y2 < image_height);
 
-        const uchar *s1 = data->texture.imageData + y1*data->texture.bytesPerLine;
-        const uchar *s2 = data->texture.imageData + y2*data->texture.bytesPerLine;
+        const uchar *s1 = data->texture.scanLine(y1);
+        const uchar *s2 = data->texture.scanLine(y2);
 
         uint tl = fetch(s1, x1, data->texture.colorTable);
         uint tr = fetch(s1, x2, data->texture.colorTable);
@@ -1435,7 +1435,7 @@ static void blend_untransformed_argb(int count, const QSpan *spans, void *userDa
                 length = image_width - sx;
             if (length > 0) {
                 uint *dest = ((uint *)data->rasterBuffer->scanLine(spans->y)) + x;
-                const uint *src = (uint *)data->texture.imageData + sy*image_width + sx;
+                const uint *src = (uint *)data->texture.scanLine(sy) + sx;
                 op.func(dest, src, length, (spans->coverage*data->texture.const_alpha) >> 8);
             }
         }
@@ -1479,7 +1479,7 @@ static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userD
                     length = image_width - sx;
                 if (length > 0) {
                     ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
-                    const uint *src = (uint *)data->texture.imageData + sy*image_width + sx;
+                    const uint *src = (uint *)data->texture.scanLine(sy) + sx;
                     if (coverage == 255) {
                         for (int i = 0; i < length; ++i) {
                             uint s = src[i];
@@ -1524,7 +1524,7 @@ static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userD
                 length = image_width - sx;
             if (length > 0) {
                 ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
-                const ushort *src = (ushort *)data->texture.imageData + sy*image_width + sx;
+                const ushort *src = (ushort *)data->texture.scanLine(sy) + sx;
                 if (coverage == 255) {
                     memcpy(dest, src, length*sizeof(quint16));
                 } else {
@@ -1626,7 +1626,7 @@ static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
             if (buffer_size < l)
                 l = buffer_size;
             uint *dest = ((uint *)data->rasterBuffer->scanLine(spans->y)) + x;
-            const uint *src = (uint *)data->texture.imageData + sy*image_width + sx;
+            const uint *src = (uint *)data->texture.scanLine(sy) + sx;
             op.func(dest, src, l, (spans->coverage*data->texture.const_alpha)>>8);
             x += l;
             length -= l;
@@ -1677,7 +1677,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                     if (buffer_size < l)
                         l = buffer_size;
                     ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
-                    const uint *src = (uint *)data->texture.imageData + sy*image_width + sx;
+                    const uint *src = (uint *)data->texture.scanLine(sy) + sx;
                     for (int i = 0; i < l; ++i) {
                         uint s = src[i];
                         int alpha = qAlpha(s);
@@ -1696,7 +1696,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                     if (buffer_size < l)
                         l = buffer_size;
                     ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
-                    const uint *src = (uint *)data->texture.imageData + sy*image_width + sx;
+                    const uint *src = (uint *)data->texture.scanLine(sy) + sx;
                     for (int i = 0; i < l; ++i) {
                         uint s = src[i];
                         MASK(s, coverage);
@@ -1734,7 +1734,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                 if (buffer_size < l)
                     l = buffer_size;
                 ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
-                const ushort *src = (ushort *)data->texture.imageData + sy*image_width + sx;
+                const ushort *src = (ushort *)data->texture.scanLine(sy) + sx;
                 memcpy(dest, src, l*sizeof(quint16));
                 x += l;
                 length -= l;
@@ -1747,7 +1747,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                 if (buffer_size < l)
                     l = buffer_size;
                 ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
-                const ushort *src = (ushort *)data->texture.imageData + sy*image_width + sx;
+                const ushort *src = (ushort *)data->texture.scanLine(sy) + sx;
                 for (int i = 0; i < l; ++i) 
                     dest[i] = convertRgb32To16(INTERPOLATE_PIXEL_255(convertRgb16To32(src[i]), coverage,
                                                                      convertRgb16To32(dest[i]), ialpha));
@@ -2172,570 +2172,6 @@ void qBlendTexture(int count, const QSpan *spans, void *userData)
     ProcessSpans proc = processTextureSpans[getBlendType(data)][data->rasterBuffer->format];
     proc(count, spans, userData);
 }
-
-
-#if 0
-/************************************* Mono ************************************/
-
-
-static void blend_mono(int count, const QSpan *spans, void *userData)
-{
-    if (!spans->coverage)
-        return;
-    Q_ASSERT(spans->coverage == 0xff);
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    const int image_width = data->texture.width;
-    const int image_height = data->texture.height;
-    int xoff = qRound(data->dx);
-    int yoff = qRound(data->dy);
-
-    while (count--) {
-        int x = xoff + spans->x;
-        int y = yoff + spans->y;
-
-        if (y >= 0 && y < image_height && x < image_width) {
-            int length = spans->len;
-            uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
-            if (x < 0) {
-                length += x;
-                x = 0;
-            }
-            if (x + length > image_width)
-                length = image_width - x;
-            const uint *src = (uint *)data->texture.imageData + y*image_width + x;
-            for (int i = 0; i < spans->len; ++i) {
-                int sx = x + i;
-                int dx = spans->x + i;
-                uint p = src[sx];
-                if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][dx & 15]))
-                    target[dx >> 3] |= 0x80 >> (dx & 7);
-                else
-                    target[dx >> 3] &= ~(0x80 >> (dx & 7));
-            }
-        }
-        ++spans;
-    }
-}
-
-static void blend_tiled_mono(int count, const QSpan *spans, void *userData)
-{
-    if (!spans->coverage)
-        return;
-    Q_ASSERT(spans->coverage == 0xff);
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    while (count--) {
-        int image_width = data->texture.width;
-        int image_height = data->texture.height;
-        int xoff = qRound(data->dx) % image_width;
-        int yoff = qRound(data->dy) % image_height;
-
-        if (xoff < 0)
-            xoff += image_width;
-        if (yoff < 0)
-            yoff += image_height;
-
-        const qreal dx = (xoff + spans->x)%image_width;
-        const qreal dy = (spans->y + yoff) % image_height;
-
-        uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
-        uint *image_bits = (uint *)data->texture.imageData;
-
-        // #### take care of non integer dx/dy
-        int x = qRound(dx);
-        int y = qRound(dy);
-        x %= image_width;
-        y %= image_height;
-
-        if (x < 0)
-            x += image_width;
-        if (y < 0)
-            y += image_height;
-
-        const uint *src = image_bits + y*image_width;
-        for (int i = 0; i < spans->len; ++i) {
-            int sx = x + i;
-            int dx = spans->x + i;
-            uint p = src[sx%image_width];
-            if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][dx & 15]))
-                target[dx >> 3] |= 0x80 >> (dx & 7);
-            else
-                target[dx >> 3] &= ~(0x80 >> (dx & 7));
-        }
-        ++spans;
-    }
-}
-
-
-static void blend_transformed_mono(int count, const QSpan *spans, void *userData)
-{
-    if (!spans->coverage)
-        return;
-    Q_ASSERT(spans->coverage == 0xff);
-
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    int image_width = data->texture.width;
-    int image_height = data->texture.height;
-
-    // The increment pr x in the scanline
-    int fdx = (int)(data->m11 * fixed_scale);
-    int fdy = (int)(data->m12 * fixed_scale);
-
-    while (count--) {
-        uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
-        uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * (spans->y + 0.5)
-                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale);
-        int y = int((data->m22 * (spans->y + 0.5)
-                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
-
-        for (int i = 0; i < spans->len; ++i) {
-            int px = x >> 16;
-            int py = y >> 16;
-
-            bool out = (px < 0) || (px >= image_width)
-                       || (py < 0) || (py >= image_height);
-            if (!out) {
-                int y_offset = py * image_width;
-
-                int dx = spans->x + i;
-                uint p = image_bits[y_offset + px];
-                if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][dx & 15]))
-                    target[dx >> 3] |= 0x80 >> (dx & 7);
-                else
-                    target[dx >> 3] &= ~(0x80 >> (dx & 7));
-            }
-            x += fdx;
-            y += fdy;
-        }
-        ++spans;
-    }
-}
-
-static void blend_transformed_tiled_mono(int count, const QSpan *spans, void *userData)
-{
-    if (!spans->coverage)
-        return;
-    Q_ASSERT(spans->coverage == 0xff);
-
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    int image_width = data->texture.width;
-    int image_height = data->texture.height;
-
-    // The increment pr x in the scanline
-    int fdx = (int)(data->m11 * fixed_scale);
-    int fdy = (int)(data->m12 * fixed_scale);
-
-    while (count--) {
-        uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
-        uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * (spans->y + 0.5)
-                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale);
-        int y = int((data->m22 * (spans->y + 0.5)
-                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
-
-        for (int i = 0; i < spans->len; ++i) {
-            int px = x >> 16;
-            int py = y >> 16;
-            px %= image_width;
-            py %= image_height;
-            if (px < 0) px += image_width;
-            if (py < 0) py += image_height;
-            int y_offset = py * image_width;
-
-            Q_ASSERT(px >= 0 && px < image_width);
-            Q_ASSERT(py >= 0 && py < image_height);
-
-            int dx = spans->x + i;
-            uint p = image_bits[y_offset + px];
-            if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][dx & 15]))
-                target[dx >> 3] |= 0x80 >> (dx & 7);
-            else
-                target[dx >> 3] &= ~(0x80 >> (dx & 7));
-
-            x += fdx;
-            y += fdy;
-        }
-        ++spans;
-    }
-}
-
-// ************************** Mono LSB ********************************
-
-
-
-
-static void blend_mono_lsb(int count, const QSpan *spans, void *userData)
-{
-    if (!spans->coverage)
-        return;
-    Q_ASSERT(spans->coverage == 0xff);
-
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    const int image_width = data->texture.width;
-    const int image_height = data->texture.height;
-    int xoff = qRound(data->dx);
-    int yoff = qRound(data->dy);
-
-    while (count--) {
-        int x = xoff + spans->x;
-        int y = yoff + spans->y;
-
-        if (y >= 0 && y < image_height && x < image_width) {
-            int length = spans->len;
-            if (x < 0) {
-                length += x;
-                x = 0;
-            }
-            if (x + length > image_width)
-                length = image_width - x;
-
-            uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
-            const uint *src = (uint *)data->texture.imageData + y*image_width;
-
-            for (int i = 0; i < length; ++i) {
-                int sx = x + i;
-                int dx = spans->x + i;
-                uint p = src[sx];
-                if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][dx & 15]))
-                    target[dx >> 3] |= 1 << (dx & 7);
-                else
-                    target[dx >> 3] &= ~(1 << (dx & 7));
-            }
-        }
-        ++spans;
-    }
-}
-
-static void blend_tiled_mono_lsb(int count, const QSpan *spans, void *userData)
-{
-    if (!spans->coverage)
-        return;
-    Q_ASSERT(spans->coverage == 0xff);
-
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    while (count--) {
-        int image_width = data->texture.width;
-        int image_height = data->texture.height;
-        int xoff = qRound(data->dx) % image_width;
-        int yoff = qRound(data->dy) % image_height;
-
-        if (xoff < 0)
-            xoff += image_width;
-        if (yoff < 0)
-            yoff += image_height;
-
-        const qreal dx = (xoff + spans->x)%image_width;
-        const qreal dy = (spans->y + yoff) % image_height;
-
-        // #### take care of non integer dx/dy
-        int x = qRound(dx);
-        int y = qRound(dy);
-        x %= image_width;
-        y %= image_height;
-
-        if (x < 0)
-            x += image_width;
-        if (y < 0)
-            y += image_height;
-
-        uchar *target = (uchar *)data->rasterBuffer->scanLine(spans->y);
-        const uint *src = (uint *)data->texture.imageData + y*image_width;
-
-        for (int i = 0; i < spans->len; ++i) {
-            int sx = x + i;
-            int dx = spans->x + i;
-            uint p = src[sx%image_width];
-            if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][dx & 15]))
-                target[dx >> 3] |= 1 << (dx & 7);
-            else
-                target[dx >> 3] &= ~(1 << (dx & 7));
-        }
-        ++spans;
-    }
-}
-
-
-static void blend_transformed_mono_lsb(int count, const QSpan *spans, void *userData)
-{
-    if (!spans->coverage)
-        return;
-    Q_ASSERT(spans->coverage == 0xff);
-
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    int image_width = data->texture.width;
-    int image_height = data->texture.height;
-
-    // The increment pr x in the scanline
-    int fdx = (int)(data->m11 * fixed_scale);
-    int fdy = (int)(data->m12 * fixed_scale);
-
-    while (count--) {
-        uchar *target = (uchar *)data->rasterBuffer->scanLine(spans->y);
-        uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * (spans->y + 0.5)
-                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale);
-        int y = int((data->m22 * (spans->y + 0.5)
-                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
-
-        for (int i = 0; i < spans->len; ++i) {
-            int px = x >> 16;
-            int py = y >> 16;
-
-            bool out = (px < 0) || (px >= image_width)
-                       || (py < 0) || (py >= image_height);
-            if (!out) {
-                int y_offset = py * image_width;
-
-                int dx = spans->x + i;
-                uint p = image_bits[y_offset + px];
-                if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][dx & 15]))
-                    target[dx >> 3] |= 1 << (dx & 7);
-                else
-                    target[dx >> 3] &= ~(1 << (dx & 7));
-            }
-            x += fdx;
-            y += fdy;
-        }
-        ++spans;
-    }
-}
-
-static void blend_transformed_tiled_mono_lsb(int count, const QSpan *spans, void *userData)
-{
-    if (!spans->coverage)
-        return;
-    Q_ASSERT(spans->coverage == 0xff);
-
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    int image_width = data->texture.width;
-    int image_height = data->texture.height;
-
-    // The increment pr x in the scanline
-    int fdx = (int)(data->m11 * fixed_scale);
-    int fdy = (int)(data->m12 * fixed_scale);
-
-    while (count--) {
-        uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
-        uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * (spans->y + 0.5)
-                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale);
-        int y = int((data->m22 * (spans->y + 0.5)
-                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
-
-        for (int i = 0; i < spans->len; ++i) {
-            int px = x >> 16;
-            int py = y >> 16;
-            px %= image_width;
-            py %= image_height;
-            if (px < 0) px += image_width;
-            if (py < 0) py += image_height;
-            int y_offset = py * image_width;
-
-            Q_ASSERT(px >= 0 && px < image_width);
-            Q_ASSERT(py >= 0 && py < image_height);
-
-            int dx = spans->x + i;
-            uint p = image_bits[y_offset + px];
-            if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][dx & 15]))
-                target[dx >> 3] |= 1 << (dx & 7);
-            else
-                target[dx >> 3] &= ~(1 << (dx & 7));
-
-            x += fdx;
-            y += fdy;
-        }
-        ++spans;
-    }
-}
-#endif
-
-
-#if 0
-static inline QRgb qt_conv_4ToRgb(uchar g)
-{
-    g = g | g << 4;
-    return qRgb(g, g, g);
-}
-
-static inline uchar qt_conv_RgbTo4(QRgb c)
-{
-    return qGray(c) >> 4;
-}
-
-static void blend_color_gray4_lsb(int count, const QSpan *spans, void *userData)
-{
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    while (count--) {
-        void *t = data->rasterBuffer->scanLine(spans->y);
-        Q_ASSERT(spans->coverage == 0xff);
-        uint color = data->solid.color;
-
-        int x0 = spans->x;
-        int x1 = spans->x + spans->len;
-
-        int preAdd = x0 & 1;
-        int postAdd = x1 & 1;
-
-        uchar g = qGray(color) >> 4;
-        uchar gg = g | g << 4;
-
-        uchar *target = (uchar *)t + (x0 >> 1);
-        int len = (x1-postAdd) - (x0+preAdd);
-        len >>= 1;
-        Q_ASSERT(len >= 0);
-
-        if (preAdd) {
-            *target = (*target & 0xf0) | g;
-            ++target;
-        }
-
-        while (len--)
-            *target++ = gg;
-
-        if (postAdd) {
-            *target = (*target & 0x0f) | g << 4;
-            ++target;
-        }
-
-        ++spans;
-    }
-    //### no alpha blending implemented
-}
-
-
-static void blend_tiled_gray4_lsb(int count, const QSpan *spans, void *userData)
-{
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    while (count--) {
-        void *t = data->rasterBuffer->scanLine(spans->y);
-        Q_ASSERT(spans->coverage == 0xff);
-
-        int image_width = data->texture.width;
-        int image_height = data->texture.height;
-        int xoff = qRound(data->dx) % image_width;
-        int yoff = qRound(data->dy) % image_height;
-
-        if (xoff < 0)
-            xoff += image_width;
-        if (yoff < 0)
-            yoff += image_height;
-
-        const qreal dx = (xoff + spans->x)%image_width;
-        const qreal dy = (spans->y + yoff) % image_height;
-
-        uint *image_bits = (uint *)data->texture.imageData;
-        // #### take care of non integer dx/dy
-        int x = qRound(dx);
-        int y = qRound(dy);
-        if (y < 0 || y >= image_height)
-            return;
-
-        const uint *src = image_bits + y*image_width;
-
-        int x0 = spans->x;
-        int x1 = spans->x + spans->len;
-
-        int preAdd = x0 & 1;
-        int postAdd = x1 & 1;
-
-        uchar *target = (uchar *)t + (x0 >> 1);
-        int len = (x1-postAdd) - (x0+preAdd);
-        len >>= 1;
-        Q_ASSERT(len >= 0);
-
-        int i = x;
-        if (preAdd) {
-            *target = (*target & 0xf0) | (qGray(src[i%image_width]) >> 4);
-            ++target;
-            ++i;
-        }
-
-        while (len--) {
-            uchar gg =  qGray(src[i++%image_width]) >> 4;
-            gg |= qGray(src[i++%image_width]) & 0xf0;
-            *target++ = gg;
-        }
-
-        if (postAdd) {
-            *target = (*target & 0x0f) | ( qGray(src[i++%image_width]) & 0xf0);
-            ++target;
-        }
-        ++spans;
-    }
-}
-
-static void blend_gray4_lsb(int count, const QSpan *spans, void *userData)
-{
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-
-    while (count--) {
-        void *t = data->rasterBuffer->scanLine(spans->y);
-        Q_ASSERT(spans->coverage == 0xff);
-
-        int image_width = data->texture.width;
-        int image_height = data->texture.height;
-        int xoff = qRound(data->dx) % image_width;
-        int yoff = qRound(data->dy) % image_height;
-
-        if (xoff < 0)
-            xoff += image_width;
-        if (yoff < 0)
-            yoff += image_height;
-
-        const qreal dx = (xoff + spans->x)%image_width;
-        const qreal dy = (spans->y + yoff) % image_height;
-
-        uint *image_bits = (uint *)data->texture.imageData;
-        // #### take care of non integer dx/dy
-        int x = qRound(dx);
-        int y = qRound(dy);
-        if (y < 0 || y >= image_height)
-            return;
-
-        const uint *src = image_bits + y*image_width;
-
-        int x0 = spans->x;
-        int x1 = spans->x + spans->len;
-
-        int preAdd = x0 & 1;
-        int postAdd = x1 & 1;
-
-        uchar *target = (uchar *)t + (x0 >> 1);
-        int len = (x1-postAdd) - (x0+preAdd);
-        len >>= 1;
-        Q_ASSERT(len >= 0);
-
-        const uint *p = src + x;
-        if (preAdd) {
-            *target = (*target & 0xf0) | (qGray(*p++) >> 4);
-            ++target;
-        }
-
-        while (len--) {
-            uchar gg =  qGray(*p++) >> 4;
-            gg |= qGray(*p++) & 0xf0;
-            *target++ = gg;
-        }
-
-        if (postAdd) {
-            *target = (*target & 0x0f) | (qGray(*p) & 0xf0);
-            ++target;
-        }
-        ++spans;
-    }
-}
-#endif
-
 
 
 DrawHelper qDrawHelper[QImage::NImageFormats] =
