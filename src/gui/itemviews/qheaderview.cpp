@@ -1534,7 +1534,8 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
         case QHeaderViewPrivate::NoState: {
 #ifndef QT_NO_CURSOR
             int handle = d->sectionHandleAt(pos);
-            if (handle != -1 && resizeMode(handle) == Interactive)
+            if (handle != -1 && resizeMode(handle) == Interactive
+                && !(handle == count() - 1 && stretchLastSection()))
                 setCursor(orientation() == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor);
             else
                 setCursor(Qt::ArrowCursor);
