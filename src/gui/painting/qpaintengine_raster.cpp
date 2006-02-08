@@ -974,7 +974,13 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->brushData.setupMatrix(d->brushMatrix(), d->txop, d->bilinear);
     }
 
-    if (flags & DirtyClipEnabled) {
+    if (flags & DirtyClipPath) {
+        updateClipPath(state.clipPath(), state.clipOperation());
+
+    } else if (flags & DirtyClipRegion) {
+        updateClipRegion(state.clipRegion(), state.clipOperation());
+
+    } else if (flags & DirtyClipEnabled) {
         if (state.isClipEnabled() != d->rasterBuffer->clipEnabled) {
             d->rasterBuffer->clipEnabled = state.isClipEnabled();
 
@@ -999,14 +1005,6 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
             d->penData.adjustSpanMethods();
             d->brushData.adjustSpanMethods();
         }
-    }
-
-    if (flags & DirtyClipPath) {
-        updateClipPath(state.clipPath(), state.clipOperation());
-    }
-
-    if (flags & DirtyClipRegion) {
-        updateClipRegion(state.clipRegion(), state.clipOperation());
     }
 
     if (!d->mono_surface) {
@@ -2996,7 +2994,7 @@ void QSpanData::initTexture(const QImage *image, int alpha, TextureData::Type _t
     texture.hasAlpha = image->format() != QImage::Format_RGB32 || alpha != 256;
     texture.const_alpha = alpha;
     texture.type = _type;
-    
+
     adjustSpanMethods();
 }
 
