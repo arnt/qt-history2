@@ -90,7 +90,6 @@ static mng_bool myclosestream(mng_handle hMNG)
 {
     QMngHandlerPrivate *pMydata = reinterpret_cast<QMngHandlerPrivate *>(mng_get_userdata(hMNG));
     pMydata->haveReadAll = true;
-    pMydata->frameCount = pMydata->frameIndex+1;
     return MNG_TRUE;
 }
 
@@ -227,6 +226,8 @@ bool QMngHandlerPrivate::getNextImage(QImage *result)
     if ((MNG_NOERROR == ret) || (MNG_NEEDTIMERWAIT == ret)) {
         *result = image;
         frameIndex = nextIndex++;
+        if (haveReadAll && (frameCount == 0))
+            frameCount = nextIndex;
         return true;
     }
     return false;
