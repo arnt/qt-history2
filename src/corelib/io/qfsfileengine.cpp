@@ -255,7 +255,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
         d->sequential = 0;
         struct stat st;
         ::fstat(d->fd, &st);
-	if ((st.st_mode & QT_STAT_MASK) != QT_STAT_REG || !fd) //stdin is non seekable
+        if ((st.st_mode & QT_STAT_MASK) != QT_STAT_REG || !fd) //stdin is non seekable
             d->sequential = 1;
         return true;
     }
@@ -274,7 +274,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags, FILE *fh)
     d->fd = QT_FILENO(fh);
     QT_STATBUF st;
     if (QT_FSTAT(QT_FILENO(fh), &st) != 0)
-	return false;
+        return false;
 #ifdef Q_OS_WIN32
     HANDLE hnd = (HANDLE)_get_osfhandle(d->fd);
     if (hnd == INVALID_HANDLE_VALUE)
@@ -326,8 +326,11 @@ bool QFSFileEngine::flush()
     Q_D(QFSFileEngine);
     d->ungetchBuffer.clear();
 
-    if (!d->fh)
-        return false;
+    if (!d->fh) {
+        // There's no write buffer when using an fd.
+        return d->fd != -1;
+    }
+
 #ifdef Q_OS_WIN
     QT_FPOS_T pos;
     int gotPos = QT_FGETPOS(d->fh, &pos);
@@ -424,13 +427,27 @@ qint64 QFSFileEngine::read(char *data, qint64 len)
         len -= ret;
     }
     if(len && ret != len) {
-        int read = QT_READ(d->fd, data, len);
-        if(read <= 0) {
-            if(!ret)
+        int result;
+        qint64 read = 0;
+        do {
+            qint64 bytesToRead = len - read;
+#ifdef Q_OS_WIN
+            // Reading on Windows fails with ERROR_NO_SYSTEM_RESOURCES
+            // when the chunks are too large, so we limit the block
+            // size to 32MB.
+            const qint64 MaxBlockSize = 32 * 1024 * 1024;
+            bytesToRead = qMin(bytesToRead, MaxBlockSize);
+#endif
+            result = QT_READ(d->fd, data + read, int(bytesToRead));
+            if (result > 0)
+                read += result;
+        } while (result > 0 && read < len);
+        if (read > 0) {
+            ret += read;
+        } else {
+            if (!ret)
                 ret = -1;
             setError(QFile::ReadError, qt_error_string(errno));
-        } else {
-            ret += read;
         }
     }
     return ret;
@@ -458,7 +475,7 @@ qint64 QFSFileEngine::readLine(char *data, qint64 maxlen)
     // solves this.
     if (!fgets(data, int(maxlen + 1), d->fh)) {
         setError(QFile::ReadError, qt_error_string(int(errno)));
-	return 0;
+        return 0;
     }
     return qstrlen(data);
 }
@@ -475,23 +492,31 @@ qint64 QFSFileEngine::write(const char *data, qint64 len)
             flush();
             d->lastIOCommand = QFSFileEnginePrivate::IOWriteCommand;
         }
-        size_t result;
-        do {
-            result = fwrite(data, 1, size_t(len), d->fh);
-        } while (result == 0 && errno == EINTR);
-        if (result > 0)
-            return qint64(result);
-        setError(errno == ENOSPC ? QFile::ResourceError : QFile::WriteError, qt_error_string(errno));
-        return qint64(result);
     }
 
-    qint64 ret;
+    qint64 result;
+    qint64 written = 0;
     do {
-        ret = QT_WRITE(d->fd, data, len);
-    } while (ret == -1 && errno == EINTR);
-    if(ret != len)
-        setError(errno == ENOSPC ? QFile::ResourceError : QFile::WriteError, qt_error_string(errno));
-    return ret;
+        qint64 bytesToWrite = len - written;
+#ifdef Q_OS_WIN
+        // Writing on Windows fails with ERROR_NO_SYSTEM_RESOURCES
+        // when the chunks are too large, so we limit the block size
+        // to 32MB.
+        const qint64 MaxChunkSize = 32 * 1024 * 1024;
+        bytesToWrite = qMin<qint64>(bytesToWrite, MaxChunkSize);
+#endif
+        if (d->fh)
+            result = qint64(fwrite(data + written, 1, size_t(bytesToWrite), d->fh));
+        else
+            result = QT_WRITE(d->fd, data + written, bytesToWrite);
+        if (result > 0)
+            written += qint64(result);
+    } while (written < len && ((result > 0 || (result == 0 && errno == EINTR))));
+
+    if (result > 0)
+        return written;
+    setError(errno == ENOSPC ? QFile::ResourceError : QFile::WriteError, qt_error_string(errno));
+    return qint64(result);
 }
 
 /*!
