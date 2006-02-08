@@ -1425,6 +1425,7 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
     }
 
     setState(NoState);
+    d->updateVerticalScrollbar();
 }
 
 /*!
@@ -2007,6 +2008,9 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     }
 
     q->verticalScrollBar()->setRange(0, max - 1);
+
+    if (q->verticalScrollBar()->value() * verticalStepsPerItem >= viewItems.count())
+        q->verticalScrollBar()->setValue((viewItems.count() - 1) * verticalStepsPerItem);
 }
 
 void QTreeViewPrivate::updateHorizontalScrollbar()
