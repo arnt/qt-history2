@@ -1098,19 +1098,6 @@ void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &t
     int synthesized = ti.fontEngine->synthesized();
     qreal stretch = synthesized & QFontEngine::SynthesizedStretch ? ti.fontEngine->fontDef.stretch/100. : 1.;
 
-    if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut|QTextItem::Overline)) {
-        qreal lw = fe->lineThickness().toReal();
-        if (ti.flags & (QTextItem::Underline))
-            *currentPage << p.x() << (p.y() + fe->underlinePosition().toReal())
-                           << ti.width.toReal() << lw << "re ";
-        if (ti.flags & (QTextItem::StrikeOut))
-            *currentPage  << p.x() << (p.y() - fe->ascent().toReal()/qreal(3.))
-                            << ti.width.toReal() << lw << "re ";
-        if (ti.flags & (QTextItem::Overline))
-            *currentPage  << p.x() << (p.y() - fe->ascent().toReal())
-                            << ti.width.toReal() << lw << "re ";
-        *currentPage << "f\n";
-    }
     *currentPage << "BT\n"
                  << "/F" << font->object_id << size << "Tf "
                  << stretch << (synthesized & QFontEngine::SynthesizedItalic
