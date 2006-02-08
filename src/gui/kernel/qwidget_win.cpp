@@ -1021,16 +1021,39 @@ void QWidgetPrivate::show_sys()
     q->setAttribute(Qt::WA_Mapped);
 
     int sm = SW_SHOWNORMAL;
+    bool fakedMaximize = false;
     if (q->isWindow()) {
         if (q->isMinimized())
             sm = SW_SHOWMINIMIZED;
-        else if (q->isMaximized())
+        else if (q->isMaximized()) {
             sm = SW_SHOWMAXIMIZED;
+            // Windows will not behave correctly when we try to maximize a window which does not
+            // have minimize nor maximize buttons in the window frame. Windows would then ignore
+            // non-available geometry, and rather maximize the widget to the full screen, minus the
+            // window frame (caption). So, we do a trick here, by adding a maximize button before
+            // maximizing the widget, and then remove the maximize button afterwards.
+            Qt::WindowFlags &flags = data.window_flags;
+            if (flags & Qt::WindowTitleHint &&
+                !(flags & (Qt::WindowMinMaxButtonsHint | Qt::FramelessWindowHint))) {
+                fakedMaximize = TRUE;
+                int style = GetWindowLong(q->winId(), GWL_STYLE);
+                SetWindowLong(q->winId(), GWL_STYLE, style | WS_MAXIMIZEBOX);
+            }
+        }
     }
     if ((q->windowType() == Qt::Popup) || q->windowType() == Qt::ToolTip)
         sm = SW_SHOWNOACTIVATE;
 
     ShowWindow(q->winId(), sm);
+
+    if (fakedMaximize) {
+        int style = GetWindowLong(q->winId(), GWL_STYLE);
+        SetWindowLong(q->winId(), GWL_STYLE, style & ~WS_MAXIMIZEBOX);
+        SetWindowPos(q->winId(), 0, 0, 0, 0, 0,
+                     SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER
+                     | SWP_FRAMECHANGED);
+    }
+
     if (IsIconic(q->winId()))
         data.window_state |= Qt::WindowMinimized;
     if (IsZoomed(q->winId()))
