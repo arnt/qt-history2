@@ -1,0 +1,136 @@
+Qtopia EVALUATION VERSION LICENSE AGREEMENT 
+Agreement version 1.3
+
+IMPORTANT-READ CAREFULLY:
+
+1.	This Trolltech End-User License Agreement ("Agreement") is a
+legal agreement between you (either an individual or a legal entity)
+("Licensee") and Trolltech Inc. ("Trolltech"), and pertains to the
+Trolltech software product(s) accompanying this Agreement, which
+include(s) computer software and may include "online" or electronic
+documentation, associated media, and printed materials, including the
+source code, example programs and the documentation ("Licensed
+Software"). 
+
+2.	The Licensed Software is protected by copyright laws and
+international copyright treaties, as well as other intellectual property
+laws and treaties. Trolltech retains all rights not expressly granted.
+No title, property rights or copyright in the Licensed Software or in
+any modifications to the Licensed Software shall pass to the Licensee
+under any circumstances. The Licensed Software is licensed, not sold. 
+
+3.	By installing, copying, or otherwise using the Licensed
+Software, Licensee agrees to be bound by the terms of this Agreement. If
+Licensee does not agree to the terms of this Agreement, Licensee should
+not install, copy, or otherwise use the Licensed Software. 
+
+4.	Upon Licensee's acceptance of the terms and conditions of this
+Agreement, Trolltech grants Licensee the right to modify the Licensed
+Software in the manner provided below. 
+
+5.	Trolltech grants to Licensee a personal, non-exclusive,
+non-transferable license to make and use copies of the Licensed Software
+for the sole purpose of evaluating the Licensed Software. Licensee may
+install copies of the Licensed Software on an unlimited number of
+computers provided that Licensee is the only individual using the
+Licensed Software. 
+
+6.	Licensee may not loan, rent, lease, or license the Licensed
+Software or any copy of it. Licensee may not alter or remove any details
+of ownership, copyright, trademark or other property right connected
+with the Licensed Software. Licensee may not modify or distribute the
+Licensed Software. Licensee may not distribute any software statically
+or dynamically linked with the Licensed Software. 
+
+7. Non-Disclosure of Confidential Information: The parties agree that
+Confidential Information shall mean information covering the following:
+(i) pricing of the Licensed Software, (ii) the Licensed Software's
+source code, and (ii) the Licensee's project and business details,
+disclosed by either of the parties to the other party under this
+Agreement. Both parties agree to maintain Confidential Information in
+confidence by using a reasonable degree of care in order to ensure that
+no unauthorized persons shall have access to the Confidential
+Information. The parties agree that the terms of this section shall
+continue in full force and effect irrespective of the expiration or
+termination of this Agreement for a period of three (3) years from the
+Effective Date (as specified below) of this Agreement unless otherwise
+specified in a future agreement between the parties. Trolltech and
+Licensee further agree that each party shall protect the existence and
+terms of this Agreement, including information about the evaluation of
+the Licensed Software in Licensee's business and terms around such use,
+as Confidential Information. Confidential Information shall not include
+that information which (i) becomes part of the public domain through no
+breach by any of the parties; (ii) is independently developed without
+use of Confidential Information; or (iii) is rightfully disclosed by a
+third party. 
+
+8. The right to use the Licensed Software is time-limited. All rights
+granted to Licensee in this agreement will be void after the end of the
+evaluation period, which is no later than 31 days after Licensee
+received the Licensed Software. 
+
+9. The Licensed Software may provide links to third party libraries,
+content or code (collectively "Third Party Libraries") to implement
+various functions. Third Party Libraries do not comprise part of the
+Licensed Software. Access to Third Party Libraries is included along
+with the Licensed Software delivery as a convenience only. The source
+code and libraries in such Third Party Libraries may be listed in the
+"../src/3rdparty" source tree delivered with the Licensed Software, as
+may be amended from time to time, and do not comprise any of the
+Licensed Software. Licensee acknowledges (1) that some Third Party
+Libraries may require additional licensing from the owners or licensors
+of such, and (2) that use, copying or distribution of any of the
+Licensed Software referencing any portion of a Third Party Library may
+require appropriate licensing from such third parties. 
+
+10. WARRANTY DISCLAIMER: THE LICENSED SOFTWARE IS LICENSED TO LICENSEE
+"AS IS" WITHOUT WARRANTY OF ANY KIND. TO THE MAXIMUM EXTENT PERMITTED BY
+APPLICABLE LAW, TROLLTECH ON BEHALF OF ITSELF AND ITS LICENSORS AND
+SUPPLIERS, DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT
+NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT WITH REGARD TO THE
+LICENSED SOFTWARE. TROLLTECH DOES NOT WARRANT THAT THE LICENSED SOFTWARE
+WILL SATISFY LICENSEE'S REQUIREMENTS OR THAT IT IS WITHOUT DEFECT OR
+ERROR OR THAT THE OPERATION THEREOF WILL BE UNINTERRUPTED. ALL USE OF
+AND RELIANCE ON THE LICENSED SOFTWARE IS AT THE SOLE RISK OF AND
+RESPONSIBILITY OF LICENSEE. 
+
+11. LIMITATION OF LIABILITY: IF, TROLLTECH'S WARRANTY DISCLAIMER
+NOTWITHSTANDING, TROLLTECH IS HELD TO BE LIABLE TO LICENSEE, FOR ANY
+CAUSE OF ACTION RELATING TO THE LICENSED SOFTWARE, TROLLTECH'S ENTIRE
+LIABILITY TO LICENSEE AND LICENSEE'S EXCLUSIVE REMEDY SHALL BE, AT
+TROLLTECH'S OPTION, EITHER (A) RETURN OF THE FEES PAID BY LICENSEE FOR
+THE LICENSE, OR (B) REPAIR OR REPLACEMENT OF THE LICENSED SOFTWARE,
+PROVIDED LICENSEE RETURNS TO TROLLTECH ALL COPIES OF THE LICENSED
+SOFTWARE AS ORIGINALLY DELIVERED TO LICENSEE. IN NO EVENT SHALL
+TROLLTECH BE LIABLE FOR ANY LOSS OF PROFIT, REVENUES, OPPORTUNITY, DATA
+OR COMPUTER PROGRAMS, OR FOR ANY OTHER COMMERCIAL DAMAGE, OR FOR ANY
+SPECIAL, INCIDENTAL, CONSEQUENTIAL, PUNITIVE, EXEMPLARY OR INDIRECT
+DAMAGES UNDER ANY CAUSE OF ACTION ARISING OUT OF OR RELATING TO THIS
+AGREEMENT OR THE LICENSED SOFTWARE OR DOCUMENTATION, INCLUDING, WITHOUT
+LIMITATION, CLAIMS ARISING FROM MALFUNCTION OR DEFECTS IN THE LICENSED
+SOFTWARE OR NON-DELIVERY OF THE LICENSED SOFTWARE, EVEN IF TROLLTECH HAS
+BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+
+GENERAL PROVISIONS
+
+12. This Agreement may only be modified in writing signed by authorized
+representatives of Licensee and Trolltech. In case of a conflict between
+the Agreement and the terms of any purchase order or other ordering
+document, the Agreement shall prevail. If any provision of the Agreement
+is found void or unenforceable, the remainder will remain valid and
+enforceable according to its terms. If any remedy provided is determined
+to have failed for its essential purpose, all limitations of liability
+and exclusions of damages set forth in this Agreement shall remain in
+effect. 
+
+13. This Agreement shall be construed, interpreted and governed by the
+laws of the State of California, USA. Any action or proceeding arising
+from or relating to this Agreement shall be brought in a federal court
+in the Northern District of California or in the State Court in Santa
+Clara County, California, and each party irrevocably submits to the
+personal jurisdiction of any such court in any such action or
+proceeding. The Agreement gives Licensee specific legal rights; Licensee
+may have others, which vary from state to state and from country to
+country. Trolltech reserves all rights not specifically granted in this
+Agreement. 
