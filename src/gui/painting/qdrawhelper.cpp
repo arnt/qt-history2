@@ -1249,18 +1249,11 @@ static void blend_color_argb(int count, const QSpan *spans, void *userData)
 #ifdef Q_WS_QWS
 
 static inline uint BYTE_MUL_RGB16(uint x, uint a) {
-    a >>= 3; // 5 bit alpha is good enough and makes the calulations easier
-    uint t = (x & 0xf81f) * a;
-    t = (t + ((t >> 5) & 0xf81f) + 0x8010) >> 5;
-    t &= 0xf81f;
-
-    x = ((x >> 5) & 0x3f) * a;
-    x = (x + ((x >> 5) & 0x3f) + 0x20);
-    x &= 0x07e0;
-    x |= t;
-    return x;
+    a += 1;
+    uint t = (((x & 0x07e0)*a) >> 8) & 0x07e0;
+    t |= (((x & 0xf81f)*(a>>2)) >> 6) & 0xf81f;
+    return t;
 }
-
 
 static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
 {
@@ -1280,28 +1273,28 @@ static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
             } else {
                 ushort color = BYTE_MUL_RGB16(c, spans->coverage);
                 int ialpha = 255 - spans->coverage;
-                for (int i = 0; i < spans->len; ++i)
-                    target[i] = color + BYTE_MUL_RGB16(target[i], ialpha);
+                const ushort *end = target + spans->len;
+                while (target < end) {
+                    *target = color + BYTE_MUL_RGB16(*target, ialpha);
+                    ++target;
+                }
             }
             ++spans;
         }
         return;
     }
 
-    uint buffer[buffer_size];
-    uint src_buffer[buffer_size];
+    Q_ASSERT(op.mode == QPainter::CompositionMode_SourceOver);
+    
     while (count--) {
-        int x = spans->x;
-        int length = spans->len;
-        while (length) {
-            int l = qMin(buffer_size, length);
-            uint *dest = op.dest_fetch ? op.dest_fetch(buffer, data->rasterBuffer, x, spans->y, l) : buffer;
-            const uint *src = op.src_fetch(src_buffer, &op, data, spans->y, x, l);
-            op.func(dest, src, l, spans->coverage);
-            if (op.dest_store)
-                op.dest_store(data->rasterBuffer, x, spans->y, dest, l);
-            x += l;
-            length -= l;
+        uint color = MASK(data->solid.color, spans->coverage);
+        int ialpha = qAlpha(~color);
+        ushort c = convertRgb32To16(data->solid.color);
+        ushort *target = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
+        const ushort *end = target + spans->len;
+        while (target < end) {
+            *target = c + BYTE_MUL_RGB16(*target, ialpha);
+            ++target;
         }
         ++spans;
     }
