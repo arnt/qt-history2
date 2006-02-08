@@ -2876,7 +2876,6 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt,
 
     glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_2D);
-    glDisable(GL_TEXTURE_RECTANGLE_NV);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
