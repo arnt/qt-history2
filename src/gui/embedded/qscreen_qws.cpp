@@ -915,7 +915,6 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
         QSpanData spanData;
         spanData.init(&rb);
         int opacity = 255;
-        QImage img;
         if (!win) {
             spanData.setup(qwsServer->backgroundBrush(), opacity);
             spanData.dx = off.x();
