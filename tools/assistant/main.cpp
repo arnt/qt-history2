@@ -29,28 +29,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static void displayMessage(const QString &msg, bool isError = true)
-{
-#ifdef Q_WS_WIN
-    if (isError) {
-        QMessageBox::critical( 0, QLatin1String("Qt Assistant"),
-            QLatin1String("<pre>") + msg + QLatin1String("</pre>") );
-    } else {
-        QMessageBox::information( 0, QLatin1String("Qt Assistant"),
-            QLatin1String("<pre>") + msg + QLatin1String("</pre>") );
-    }
-#else
-    if (isError) {
-        fprintf(stderr, "%s\n", qPrintable(msg));
-        fflush(stderr);
-    } else {
-        fprintf(stdout, "%s\n", qPrintable(msg));
-        fflush(stdout);
-    }
-#endif
-}
-
-#define INDEX_CHECK( text ) if( i+1 >= argc ) { displayMessage(text); return 1; }
+#define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf(stderr, "%s\n", text); return 1; }
 
 class AssistantSocket : public QTcpSocket
 {
@@ -193,16 +172,14 @@ int main( int argc, char ** argv )
                 Config *c = Config::loadConfig( QString() );
                 QFileInfo file( QFile::decodeName(argv[i+1]) );
                 if( !file.exists() ) {
-                    displayMessage("Could not locate content file: "
-                             + file.absoluteFilePath() + "\n");
+                    fprintf(stderr, "Could not locate content file: %s\n", qPrintable(file.absoluteFilePath()));
                     return 1;
                 }
                 DocuParser *parser = DocuParser::createParser( file.absoluteFilePath() );
                 if( parser ) {
                     QFile f( QFile::decodeName(argv[i+1]) );
                     if( !parser->parse( &f ) ) {
-                        displayMessage("Failed to parse file: "
-                                 + file.absoluteFilePath() + "\n");
+                        fprintf(stderr, "Failed to parse file: %s\n", qPrintable(file.absoluteFilePath()));
                         return 1;
                     }
                     parser->addTo( c->profile() );
@@ -223,18 +200,16 @@ int main( int argc, char ** argv )
                 entries = profile->docs.filter(contentFile);
 #endif
                 if (entries.count() == 0) {
-                    displayMessage("Could not locate content file: "
-                        + contentFile + "\n");
+                    fprintf(stderr, "Could not locate content file: %s\n", qPrintable(contentFile));
                     return 1;
                 } else if (entries.count() > 1) {
-                    displayMessage("More than one entry matching file name found, "
+                    fprintf(stderr, "More than one entry matching file name found, "
                         "please specify full path to file");
                     return 1;
                 } else {
                     QFileInfo file(entries[0]);
                     if( !file.exists() ) {
-                        displayMessage("Could not locate content file: "
-                            + file.absoluteFilePath() + "\n");
+                        fprintf(stderr, "Could not locate content file: %s\n", qPrintable(file.absoluteFilePath()));
                         return 1;
                     }
                     profile->removeDocFileEntry( file.absoluteFilePath() );
@@ -252,7 +227,7 @@ int main( int argc, char ** argv )
                     c->setDocRebuild(true);
                     c->save();
                 } else {
-                    displayMessage("The specified path does not exist!\n");
+                    fprintf(stderr, "The specified path does not exist!\n");
                     return 1;
                 }
             } else if ( opt == QLatin1String("-hidesidebar") ) {
@@ -275,13 +250,13 @@ int main( int argc, char ** argv )
                                   " -resourceDir               assistant will load translations from\n"
                                   "                            this directory.\n"
                                   " -help                      shows this help.");
-                displayMessage(helpText, false);
+                fprintf(stdout, "%s\n", qPrintable(helpText));
                 exit( 0 );
             } else if ( opt == QLatin1String("-resourcedir") ) {
                 INDEX_CHECK( "Missing resource directory argument!" );
                 resourceDir = QFile::decodeName( argv[++i] );
             } else {
-                displayMessage("Unrecognized option " + opt + ". Try -help to get help.\n");
+                fprintf(stderr, "Unrecognized option %s. Try -help to get help.\n", qPrintable(opt));
             }
         }
     }
