@@ -1443,13 +1443,11 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 #if 0
     // ### visualize section spans
     for (int a = 0, i = 0; i < d->sectionSpans.count(); ++i) {
-        if (orientation() == Qt::Horizontal) {
-            painter.fillRect(a - d->offset, 0, d->sectionSpans.at(i).size, 4,
-                             i & 1 ? Qt::red : Qt::blue);
-        } else {
-            painter.fillRect(0, a - d->offset, 4, d->sectionSpans.at(i).size,
-                             i & 1 ? Qt::red : Qt::blue);
-        }
+        QColor color((i & 4 ? 255 : 0), (i & 2 ? 255 : 0), (i & 1 ? 255 : 0));
+        if (orientation() == Qt::Horizontal)
+            painter.fillRect(a - d->offset, 0, d->sectionSpans.at(i).size, 4, color);
+        else
+            painter.fillRect(0, a - d->offset, 4, d->sectionSpans.at(i).size, color);
         a += d->sectionSpans.at(i).size;
     }
  
