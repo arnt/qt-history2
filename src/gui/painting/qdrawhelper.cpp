@@ -129,7 +129,7 @@ static uint * QT_FASTCALL destFetchRGB16(uint *buffer, QRasterBuffer *rasterBuff
 {
     const ushort *data = (const ushort *)rasterBuffer->scanLine(y) + x;
     for (int i = 0; i < length; ++i)
-        buffer[i] = convertRgb16To32(data[i]);
+        buffer[i] = qConvertRgb16To32(data[i]);
     return buffer;
 }
 
@@ -187,7 +187,7 @@ static void QT_FASTCALL destStoreRGB16(QRasterBuffer *rasterBuffer, int x, int y
 {
     ushort *data = (ushort *)rasterBuffer->scanLine(y) + x;
     for (int i = 0; i < length; ++i)
-        data[i] = convertRgb32To16(buffer[i]);
+        data[i] = qConvertRgb32To16(buffer[i]);
 }
 
 static const DestStoreProc destStoreProc[QImage::NImageFormats] =
@@ -257,7 +257,7 @@ static uint QT_FASTCALL fetchPixel_ARGB32_Premultiplied(const uchar *scanLine, i
 
 static uint QT_FASTCALL fetchPixel_RGB16(const uchar *scanLine, int x, const QVector<QRgb> *)
 {
-    return convertRgb16To32(((const ushort *)scanLine)[x]);
+    return qConvertRgb16To32(((const ushort *)scanLine)[x]);
 }
 
 typedef uint QT_FASTCALL (*FetchPixelProc)(const uchar *scanLine, int x, const QVector<QRgb> *);
@@ -1266,7 +1266,7 @@ static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
 
     if (op.mode == QPainter::CompositionMode_Source) {
         // inline for performance
-        ushort c = convertRgb32To16(data->solid.color);
+        ushort c = qConvertRgb32To16(data->solid.color);
         while (count--) {
             ushort *target = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
             if (spans->coverage == 255) {
@@ -1484,7 +1484,7 @@ static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userD
                         for (int i = 0; i < length; ++i) {
                             uint s = src[i];
                             int alpha = qAlpha(s);
-                            s = convertRgb32To16(s);
+                            s = qConvertRgb32To16(s);
                             if (alpha != 255)
                                 s += BYTE_MUL_RGB16(dest[i], 255 - alpha);
                             dest[i] = s;
@@ -1494,10 +1494,10 @@ static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userD
                             uint s = src[i];
                             MASK(s, coverage);
                             int alpha = qAlpha(s);
-                            s = convertRgb32To16(s);
+                            s = qConvertRgb32To16(s);
                             if (alpha != 255)
                                 s += BYTE_MUL_RGB16(dest[i], 255 - alpha);
-                            dest[i] = convertRgb32To16(s);
+                            dest[i] = qConvertRgb32To16(s);
                         }
                     }
                 }
@@ -1530,8 +1530,8 @@ static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userD
                 } else {
                     int ialpha = 255 - coverage;
                     for (int i = 0; i < length; ++i)
-                        dest[i] = convertRgb32To16(INTERPOLATE_PIXEL_255(convertRgb16To32(src[i]), coverage,
-                                                                         convertRgb16To32(dest[i]), ialpha));
+                        dest[i] = qConvertRgb32To16(INTERPOLATE_PIXEL_255(qConvertRgb16To32(src[i]), coverage,
+                                                                         qConvertRgb16To32(dest[i]), ialpha));
                 }
             }
         }
@@ -1680,7 +1680,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                     for (int i = 0; i < l; ++i) {
                         uint s = src[i];
                         int alpha = qAlpha(s);
-                        s = convertRgb32To16(s);
+                        s = qConvertRgb32To16(s);
                         if (alpha != 255)
                             s += BYTE_MUL_RGB16(dest[i], 255 - alpha);
                         dest[i] = s;
@@ -1700,7 +1700,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                         uint s = src[i];
                         MASK(s, spans->coverage);
                         int alpha = qAlpha(s);
-                        s = convertRgb32To16(s);
+                        s = qConvertRgb32To16(s);
                         if (alpha != 255)
                             s += BYTE_MUL_RGB16(dest[i], 255 - alpha);
                         dest[i] = s;
@@ -1748,8 +1748,8 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                 ushort *dest = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + x;
                 const ushort *src = (ushort *)data->texture.scanLine(sy) + sx;
                 for (int i = 0; i < l; ++i)
-                    dest[i] = convertRgb32To16(INTERPOLATE_PIXEL_255(convertRgb16To32(src[i]), coverage,
-                                                                     convertRgb16To32(dest[i]), ialpha));
+                    dest[i] = qConvertRgb32To16(INTERPOLATE_PIXEL_255(qConvertRgb16To32(src[i]), coverage,
+                                                                     qConvertRgb16To32(dest[i]), ialpha));
                 x += l;
                 length -= l;
                 sx = 0;

@@ -260,14 +260,14 @@ do {                                          \
 
 static inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
 
-inline ushort convertRgb32To16(uint c)
+inline ushort qConvertRgb32To16(uint c)
 {
    return (((c) >> 3) & 0x001f)
        | (((c) >> 5) & 0x07e0)
        | (((c) >> 8) & 0xf800);
 }
 
-inline QRgb convertRgb16To32(uint c)
+inline QRgb qConvertRgb16To32(uint c)
 {
     return 0xff000000
         | ((((c) << 3) & 0xf8) | (((c) >> 2) & 0x7))
