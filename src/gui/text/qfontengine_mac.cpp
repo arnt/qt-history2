@@ -251,6 +251,7 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
         if (glyphId != 0xffff || i == 0) {
             nfo->glyphs[i].glyph = (glyphId & 0x00ffffff) | (fontIdx << 24);
 
+            nfo->glyphs[i].attributes.clusterStart = true;
             nfo->glyphs[i].advance.y = yAdvance;
             nfo->glyphs[i].advance.x = xAdvance;
 //            qDebug() << "advance for glyph at" << i << "is" << nfo->glyphs[i].advance.x.toReal();

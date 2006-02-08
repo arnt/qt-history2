@@ -265,6 +265,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
             glyphs[pos].attributes.dontPrint = true;
         const QUnicodeTables::Properties *prop = QUnicodeTables::properties(uc[i].unicode());
         int cat = prop->category;
+#if !defined(Q_NEW_MAC_FONTENGINE)
         if (cat != QChar::Mark_NonSpacing) {
             glyphs[pos].attributes.mark = false;
             glyphs[pos].attributes.clusterStart = true;
@@ -309,6 +310,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
             logClusters[i] = cStart;
             glyphs[pos].advance = QFixedPoint();
         }
+#endif
 
         if (lastCat == QChar::Separator_Space)
             glyphs[pos-1].attributes.justification = QGlyphLayout::Space;
