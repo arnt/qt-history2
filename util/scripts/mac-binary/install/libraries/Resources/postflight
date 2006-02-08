@@ -48,6 +48,10 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg; do
        # Desktop Lite
        Products="Desktop Light"
        ;;
+       R)
+       # Console
+       Products="Console"
+       ;;
        *)
        Products="bad product"
        esac

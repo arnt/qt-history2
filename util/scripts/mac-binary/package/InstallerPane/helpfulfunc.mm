@@ -32,7 +32,7 @@ int validateLicense(const char *string)
 #endif
     if (key.IsValid()) {
         if (!(key.getProducts() & (KeyDecoder::QtUniversal | KeyDecoder::QtDesktop
-                                   | KeyDecoder::QtDesktopLight))) {
+                                   | KeyDecoder::QtDesktopLight | KeyDecoder::QtConsole))) {
             ret = InvalidProduct;
         } else {
             if (!(key.getPlatforms() & KeyDecoder::Mac)) {

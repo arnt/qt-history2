@@ -41,6 +41,10 @@ elif [ $os_major -eq 7 -a $os_minor -eq 9 ]; then
     # Desktop Lite
     ProductType="Desktop Light"
     ;;
+    R)
+    # Console
+    ProductType="Console"
+    ;;
     *)
     exit $((96+18)) ;;
     esac
