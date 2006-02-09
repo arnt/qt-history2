@@ -696,8 +696,9 @@ void MainWindow::on_actionSaveAs_triggered()
             }
         }
     }
-    QString src = doc->toHtml();
+    QString src = doc->toHtml("utf-8");
     QTextStream s(&file);
+    s.setCodec("utf-8");
     s << src;
     s.flush();
     file.close();
