@@ -406,7 +406,7 @@ QVariant QSqlTableModel::data(const QModelIndex &index, int role) const
 QVariant QSqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     Q_D(const QSqlTableModel);
-    if (orientation == Qt::Vertical) {
+    if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
         switch (d->strategy) {
         case OnFieldChange:
         case OnRowChange:
