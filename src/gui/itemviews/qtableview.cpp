@@ -664,9 +664,51 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
 {
     if (!selectionModel())
         return;
+    
     QModelIndex tl = indexAt(QPoint(isRightToLeft() ? rect.right() : rect.left(), rect.top()));
-    QModelIndex br = indexAt(QPoint(isRightToLeft() ? rect.left() : rect.right(), rect.bottom()));
-    selectionModel()->select(QItemSelection(tl, br), command);
+    QModelIndex br = indexAt(QPoint(isRightToLeft() ? rect.left() : rect.right(), rect.bottom()));    
+
+    bool verticalMoved = verticalHeader()->sectionsMoved();
+    bool horizontalMoved = horizontalHeader()->sectionsMoved();
+
+    QItemSelection selection;
+
+    if (verticalMoved && horizontalMoved) {
+        int top = verticalHeader()->visualIndex(tl.row());
+        int left = horizontalHeader()->visualIndex(tl.column());
+        int bottom = verticalHeader()->visualIndex(br.row());
+        int right = horizontalHeader()->visualIndex(br.column());
+        for (int horizontal = left; horizontal <= right; ++horizontal) {
+            int column = horizontalHeader()->logicalIndex(horizontal);
+            for (int vertical = top; vertical <= bottom; ++vertical) {
+                int row = verticalHeader()->logicalIndex(vertical);
+                QModelIndex index = model()->index(row, column, rootIndex());
+                selection.append(QItemSelectionRange(index));
+            }
+        }
+    } else if (horizontalMoved) {
+        int left = horizontalHeader()->visualIndex(tl.column());
+        int right = horizontalHeader()->visualIndex(br.column());
+        for (int visual = left; visual <= right; ++visual) {
+            int column = horizontalHeader()->logicalIndex(visual);
+            QModelIndex topLeft = model()->index(tl.row(), column, rootIndex());
+            QModelIndex bottomRight = model()->index(br.row(), column, rootIndex());
+            selection.append(QItemSelectionRange(topLeft, bottomRight));
+        }
+    } else if (verticalMoved) {
+        int top = verticalHeader()->visualIndex(tl.row());
+        int bottom = verticalHeader()->visualIndex(br.row());
+        for (int visual = top; visual <= bottom; ++visual) {
+            int row = verticalHeader()->logicalIndex(visual);
+            QModelIndex topLeft = model()->index(row, tl.column(), rootIndex());
+            QModelIndex bottomRight = model()->index(row, br.column(), rootIndex());
+            selection.append(QItemSelectionRange(topLeft, bottomRight));
+        }
+    } else { // nothing moved
+        selection.append(QItemSelectionRange(tl, br));
+    }
+
+    selectionModel()->select(selection, command);
 }
 
 /*!
