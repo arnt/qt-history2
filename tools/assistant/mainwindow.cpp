@@ -90,12 +90,24 @@ MainWindow::MainWindow()
 
     tabs->setup();
     QTimer::singleShot(0, this, SLOT(setup()));
-#if defined(Q_OS_MACX)
+#if defined(Q_WS_MAC)
     // Use the same forward and backward browser shortcuts as Safari and Internet Explorer do
     // on the Mac. This means that if you have access to one of those cool Intellimice, the thing
     // works just fine, since that's how Microsoft hacked it.
     ui.actionGoPrevious->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Left));
     ui.actionGoNext->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Right));
+
+    static const QLatin1String MacIconPath(":/trolltech/assistant/images/mac");
+    ui.actionGoNext->setIcon(QIcon(MacIconPath + QLatin1String("/next.png")));
+    ui.actionGoPrevious->setIcon(QIcon(MacIconPath + QLatin1String("/prev.png")));
+    ui.actionGoHome->setIcon(QIcon(MacIconPath + QLatin1String("/home.png")));
+    ui.actionEditCopy->setIcon(QIcon(MacIconPath + QLatin1String("/editcopy.png")));
+    ui.actionEditCopy->setIcon(QIcon(MacIconPath + QLatin1String("/editcopy.png")));
+    ui.actionEditFind->setIcon(QIcon(MacIconPath + QLatin1String("/find.png")));
+    ui.actionFilePrint->setIcon(QIcon(MacIconPath + QLatin1String("/print.png")));
+    ui.actionZoomOut->setIcon(QIcon(MacIconPath + QLatin1String("/zoomout.png")));
+    ui.actionZoomIn->setIcon(QIcon(MacIconPath + QLatin1String("/zoomin.png")));
+    ui.actionHelpWhatsThis->setIcon(QIcon(MacIconPath + QLatin1String("/whatsthis.png")));
 #endif
 }
 
