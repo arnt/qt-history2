@@ -166,7 +166,7 @@ if( $checkmissing ) { #just look for missing
 		open( P4DESC, "$P4 -ztag describe $pot_change|" ) || die "$0: Couldn't exec $P4: $!\n";
 		while( $line = <P4DESC>) {
 		    chop $line;
-		    if($line =~ /\.\.\. depotFile[0-9]+ \/\/depot\/qt\/$toBranch\/$file/) {
+		    if($line =~ /\.\.\. depotFile[0-9]+ \/\/depot\/qt\/$toBranch\/\Q$file\E/) {
 			$pot_file = 1;
 		    } elsif($line =~ /\.\.\. action[0-9]+ (.*)/ && $pot_file) {
 			$file = 0 if($1 =~ /^(integrate|branch|delete)/);
