@@ -49,4 +49,10 @@ struct QWSProtocolItem
     int bytesRead;
 };
 
+// This should probably be a method on QWSProtocolItem, but this way avoids
+// changing the API of this apparently public header
+// size = (int)type + (int)rawLenSize + simpleLen + rawLen
+#define QWS_PROTOCOL_ITEM_SIZE( item ) \
+    sizeof(int) + sizeof(int) + (item).simpleLen + (item).rawLen
+
 #endif // QWSPROTOCOLITEM_QWS_H

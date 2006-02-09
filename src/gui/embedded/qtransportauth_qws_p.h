@@ -65,7 +65,7 @@ protected:
 private Q_SLOTS:
     void recvReadyRead();
 private:
-    void authorizeMessage();
+    bool authorizeMessage();
 
     QTransportAuth::Data *d;
     AuthDirection way;

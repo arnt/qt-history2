@@ -607,28 +607,46 @@ void QAuthDevice::recvReadyRead()
 {
     qint64 bytes = m_target->bytesAvailable();
     if ( bytes <= 0 ) return;
-    QUnixSocket *usock = reinterpret_cast<QUnixSocket*>(m_target);
+    QUnixSocket *usock = static_cast<QUnixSocket*>(m_target);
     QUnixSocketMessage msg = usock->read();
     msgQueue.append( msg.bytes() );
     d->processId = msg.processId();
+    // if "fragmented" packet 1/2 way through start of a command, ie
+    // in the QWS msg type, cant do anything, come back later when
+    // there's more of the packet
+    if ( msgQueue.size() < sizeof(int) )
+    {
+        qDebug() << "returning: msg size too small" << msgQueue.size();
+        return;
+    }
 
 #ifdef QTRANSPORTAUTH_DEBUG
     char displaybuf[1024];
-    hexstring( displaybuf, reinterpret_cast<const unsigned char *>(msgQueue.constData()), bytes > 500 ? 500 : bytes );
+    hexstring( displaybuf, reinterpret_cast<const unsigned char *>(msgQueue.constData()),
+            msgQueue.size() > 500 ? 500 : msgQueue.size() );
     qDebug( "recv ready read %lli bytes - msg %s", bytes, displaybuf );
 #endif
+
     if ( !authFromMessage( *d, msgQueue, msgQueue.size() ))
     {
         // not all arrived yet?  come back later
         if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::TooSmall )
+        {
+            // qDebug() << "returning: auth header not all received";
             return;
+        }
     }
 
     // msg auth header detected and auth determined, remove hdr
     if (( d->status & QTransportAuth::ErrMask ) != QTransportAuth::NoMagic )
+    {
         msgQueue = msgQueue.mid( QSXV_HEADER_LEN );
+        // qDebug() << "removing SXV header";
+    }
 
-    authorizeMessage();
+    bool bufHasMessages = msgQueue.size() > sizeof(int);
+    while ( bufHasMessages )
+        bufHasMessages = authorizeMessage();
 }
 
 /**
@@ -642,26 +660,40 @@ void QAuthDevice::recvReadyRead()
   The signal must be processed synchronously because on return the allow/deny
   status is used immediately to either drop or continue processing the message.
 */
-void QAuthDevice::authorizeMessage()
+bool QAuthDevice::authorizeMessage()
 {
     QBuffer cmdBuf( &msgQueue );
     cmdBuf.open( QIODevice::ReadOnly );
     QWSCommand::Type command_type = (QWSCommand::Type)(qws_read_uint( &cmdBuf ));
+    QWSCommand *command = QWSCommand::factory(command_type);
+    // if NULL, factory will have already printed warning for bogus
+    // command_type just purge the bad stuff and attempt to recover
+    if ( command == NULL )
+    {
+        msgQueue = msgQueue.mid( sizeof(int) );
+        // qDebug() << "bad command - removing" << sizeof(int) << "bytes";
+        return msgQueue.size() > sizeof(int);
+    }
     QString request( qws_getCommandTypeString( command_type ));
 #ifndef QT_NO_COP
+    // not all command arrived yet - come back later
+    if ( !command->read( &cmdBuf ))
+    {
+        delete command;
+        // qDebug() << msgQueue.size() << "buffer size: exhausted before command complete - returning";
+        return false;
+    }
     if ( command_type == QWSCommand::QCopSend )
     {
-        QWSQCopSendCommand *command = reinterpret_cast<QWSQCopSendCommand*>(QWSCommand::factory(command_type));
-        // not all command arrived yet - come back later
-        if ( !command->read( &cmdBuf ))
-            return;
-        request += QString( "/QCop/%1/%2" ).arg( command->channel ).arg( command->message );
+        QWSQCopSendCommand *sendCommand = static_cast<QWSQCopSendCommand*>(command);
+        request += QString( "/QCop/%1/%2" ).arg( sendCommand->channel ).arg( sendCommand->message );
     }
 #endif
     bool isAuthorized = true;
     QTransportAuth *auth = QTransportAuth::getInstance();
     if ( !request.isEmpty() && request != "Unknown" )
     {
+        // d is now carrying the PID from the readyRead
         emit policyCheck( *d, request );
         isAuthorized = (( d->status & QTransportAuth::StatusMask ) == QTransportAuth::Allow );
     }
@@ -686,10 +718,13 @@ void QAuthDevice::authorizeMessage()
     // copy message into the authBuf...
     close();
     buffer().resize(0);
+    int commandSize = QWS_PROTOCOL_ITEM_SIZE( *command );
     if ( isAuthorized )
     {
-        setData( msgQueue );
-        msgQueue.clear();
+#ifdef QTRANSPORTAUTH_DEBUG
+        qDebug() << "authorized: releasing" << commandSize << "byte command" << request;
+#endif
+        setData( msgQueue.left( commandSize ));
         open( QIODevice::ReadOnly );
         emit QBuffer::readyRead();
     }
@@ -700,6 +735,9 @@ void QAuthDevice::authorizeMessage()
                  qPrintable(request));
     }
 #endif
+    msgQueue = msgQueue.mid( commandSize );
+    delete command;
+    return msgQueue.size() > sizeof(int);
 }
 
 /*!
