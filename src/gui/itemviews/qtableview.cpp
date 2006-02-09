@@ -1126,7 +1126,7 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     int horizontalPosition = d->horizontalHeader->sectionPosition(index.column());
     int cellWidth = d->horizontalHeader->sectionSize(index.column());
 
-    if (horizontalPosition - horizontalOffset < 0)
+    if (horizontalPosition - horizontalOffset < 0 || cellWidth > viewportWidth)
         horizontalScrollBar()->setValue(horizontalPosition);
     else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)
         horizontalScrollBar()->setValue(horizontalPosition - viewportWidth + cellWidth);
@@ -1138,7 +1138,7 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     int verticalPosition = d->verticalHeader->sectionPosition(index.row());
     int cellHeight = d->verticalHeader->sectionSize(index.row());
     
-    if (verticalPosition - verticalOffset < 0) {
+    if (verticalPosition - verticalOffset < 0 || cellHeight > viewportHeight) {
         if (hint == EnsureVisible)
             hint = PositionAtTop;
     } else if (verticalPosition - verticalOffset + cellHeight > viewportHeight) {
