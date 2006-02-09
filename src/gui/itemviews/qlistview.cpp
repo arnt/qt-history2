@@ -1308,8 +1308,8 @@ int QListView::modelColumn() const
     \brief whether all items in the listview have the same size
     \since 4.1
 
-    This property should only be set to true if it is guarantied that all items
-    in the view has the same size. This enables the view to do some
+    This property should only be set to true if it is guaranteed that all items
+    in the view have the same size. This enables the view to do some
     optimizations.
 */
 void QListView::setUniformItemSizes(bool enable)
