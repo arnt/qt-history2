@@ -28,11 +28,7 @@
 #include "QtCore/qglobal.h"
 #include "private/qcore_mac_p.h"
 
-#if !defined(QMAC_NO_COREGRAPHICS)
-#  if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_3)
-#     define QMAC_NO_COREGRAPHICS
-#  endif
-#endif
+//#define QMAC_NO_COREGRAPHICS
 
 #include "QtGui/qpainter.h"
 #include "QtGui/qwidget.h"
