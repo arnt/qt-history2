@@ -370,7 +370,7 @@ void QTreeView::setColumnHidden(int column, bool hide)
 bool QTreeView::isRowHidden(int row, const QModelIndex &parent) const
 {
     Q_D(const QTreeView);
-    if (d->hiddenIndexes.count() <= 0)
+    if (d->hiddenIndexes.isEmpty())
         return false;
     return d->hiddenIndexes.contains(model()->index(row, 0, parent));
 }
@@ -1244,12 +1244,25 @@ QRegion QTreeView::visualRegionForSelection(const QItemSelection &selection) con
             continue;
         QModelIndex parent = range.parent();
         QModelIndex leftIndex = range.topLeft();
-        while (leftIndex.isValid() && isIndexHidden(leftIndex))
-            leftIndex = model()->index(leftIndex.row(), leftIndex.column() + 1, parent);
+        int columnCount = model()->columnCount(parent);
+        while (leftIndex.isValid() && isIndexHidden(leftIndex)) {
+            if (leftIndex.column() + 1 < columnCount)
+                leftIndex = model()->index(leftIndex.row(), leftIndex.column() + 1, parent);
+            else
+                leftIndex = QModelIndex();
+        }
+        if (!leftIndex.isValid())
+            continue;
         int top = visualRect(leftIndex).top();
         QModelIndex rightIndex = range.bottomRight();
-        while (rightIndex.isValid() && isIndexHidden(rightIndex))
-            rightIndex = model()->index(rightIndex.row(), rightIndex.column() - 1, parent);
+        while (rightIndex.isValid() && isIndexHidden(rightIndex)) {
+            if (leftIndex.column() - 1 >= 0)
+                rightIndex = model()->index(rightIndex.row(), rightIndex.column() - 1, parent);
+            else
+                rightIndex = QModelIndex();
+        }
+        if (!rightIndex.isValid())
+            continue;
         int bottom = visualRect(rightIndex).bottom();
         if (top > bottom)
             qSwap<int>(top, bottom);
