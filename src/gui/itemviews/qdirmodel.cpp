@@ -639,7 +639,7 @@ Qt::ItemFlags QDirModel::flags(const QModelIndex &index) const
 
 void QDirModel::sort(int column, Qt::SortOrder order)
 {
-    QDir::SortFlags sort = 0;
+    QDir::SortFlags sort = QDir::DirsFirst;
     if (order == Qt::DescendingOrder)
         sort |= QDir::Reversed;
 

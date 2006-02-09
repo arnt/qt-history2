@@ -223,6 +223,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void sortBySize())
     Q_PRIVATE_SLOT(d_func(), void sortByDate())
     Q_PRIVATE_SLOT(d_func(), void setUnsorted())
+    Q_PRIVATE_SLOT(d_func(), void sortByColumn(int))
     Q_PRIVATE_SLOT(d_func(), void currentChanged(const QModelIndex &index))
 };
 

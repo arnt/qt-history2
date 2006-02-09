@@ -1496,6 +1496,16 @@ void QFileDialogPrivate::setUnsorted()
   \internal
 */
 
+void QFileDialogPrivate::sortByColumn(int column)
+{
+    treeView->sortByColumn(column);
+    model->refresh(rootIndex());
+}
+
+/*!
+  \internal
+*/
+
 void QFileDialogPrivate::currentChanged(const QModelIndex &index)
 {
     emit q_func()->currentChanged(model->filePath(index));
@@ -1674,6 +1684,7 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
 
     grid->addWidget(treeView, 1, 0, 1, 6);
 
+    QObject::connect(treeView->header(), SIGNAL(sectionClicked(int)), q, SLOT(sortByColumn(int)));
     QObject::connect(treeView, SIGNAL(activated(QModelIndex)), q, SLOT(enterDirectory(QModelIndex)));
     QObject::connect(treeView, SIGNAL(customContextMenuRequested(QPoint)),
                      q, SLOT(showContextMenu(QPoint)));

@@ -71,6 +71,7 @@ public:
     void sortBySize();
     void sortByDate();
     void setUnsorted();
+    void sortByColumn(int column);
     void currentChanged(const QModelIndex &index);
 
     // setup
@@ -198,7 +199,10 @@ class QFileDialogTreeView : public QTreeView
 public:
     QFileDialogTreeView(QFileDialogPrivate *d_pointer)
         : QTreeView(qobject_cast<QWidget*>(d_pointer->q_ptr)), d_ptr(d_pointer)
-    {}
+    {
+        // we want to handle this our selves in QFileDialog
+        disconnect(header(), SIGNAL(sectionClicked(int)), this, SLOT(sortByColumn(int)));
+    }
 protected:
     void keyPressEvent(QKeyEvent *e)
     {
