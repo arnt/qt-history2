@@ -1,6 +1,8 @@
-
+#include <qcoreevent.h>
 #include <qdatetime.h>
 #include <qlibraryinfo.h>
+#include <qobject.h>
+#include <qcoreapplication.h>
 #include "keyinfo.h"
 
 static const char * const dont_mess_with_me =
@@ -152,6 +154,8 @@ void qt_core_eval_init(uint type)
 #include <qlayout.h>
 #include <qmessagebox.h>
 #include <qpushbutton.h>
+#include <qtimer.h>
+#include <qapplication.h>
 
 static const char * const qtlogo_eval_xpm[] = {
 /* width height ncolors chars_per_pixel */
