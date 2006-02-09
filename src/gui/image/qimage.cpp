@@ -2817,7 +2817,7 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
         convert_ARGB_PM_to_ARGB,
         0
 #ifdef Q_WS_QWS
-        , convert_32_to_16
+        , 0
 #endif
     }  // Format_ARGB32_Premultiplied
 #ifdef Q_WS_QWS
@@ -2868,7 +2868,7 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         convert_32_to_16(image.d, tmp.d, flags);
         return image;
     } else if (d->format == Format_RGB16) {
-        int targetDepth = depthForFormat(format) == 32;
+        int targetDepth = depthForFormat(format);
         QImage image(d->width, d->height, targetDepth == 32 ? format : Format_RGB32);
         convert_16_to_32(image.d, d, flags);
         if (targetDepth == 32)
