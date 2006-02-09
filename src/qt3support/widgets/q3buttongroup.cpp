@@ -401,8 +401,15 @@ bool Q3ButtonGroup::event(QEvent * e)
         QChildEvent * ce = (QChildEvent *) e;
         if (QAbstractButton *button = qobject_cast<QAbstractButton*>(ce->child())) {
             button->setAutoExclusive(false);
-            if (excl_grp || (radio_excl && qobject_cast<QRadioButton*>(button)))
+            if (excl_grp || (radio_excl && qobject_cast<QRadioButton*>(button))) {
+                QMap<int, QAbstractButton*>::ConstIterator it = buttonIds.constBegin();
+                while (it != buttonIds.constEnd()) {
+                    if (it.value() == button)
+                        return Q3GroupBox::event(e);
+                    ++it;
+                }
                 insert(button);
+            }
         }
     }
     return Q3GroupBox::event(e);
