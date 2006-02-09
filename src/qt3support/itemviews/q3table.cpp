@@ -5712,7 +5712,14 @@ void Q3Table::setRowHeight(int row, int h)
 
 void Q3Table::adjustColumn(int col)
 {
-    int w = topHeader->sectionSizeHint(col, fontMetrics()).width();
+    int w;
+    if ( currentColumn() == col ) {
+        QFont f = font();
+        f.setBold(true);
+        w = topHeader->sectionSizeHint( col, QFontMetrics(f) ).width();
+    } else {
+        w = topHeader->sectionSizeHint( col, fontMetrics() ).width();
+    }
     if (topHeader->iconSet(col))
 	w += topHeader->iconSet(col)->pixmap().width();
     w = QMAX(w, 20);
