@@ -158,6 +158,10 @@ inline static void qt_mac_set_fullscreen_mode(bool b)
 #endif
 }
 
+#if (MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_2)
+#define kControlOpaqueMetaPart -3
+#endif
+
 //find a WindowPtr from a QWidget/HIView
 Q_GUI_EXPORT WindowPtr qt_mac_window_for(HIViewRef hiview)
 {
