@@ -149,6 +149,7 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
     const bool includeHidden = (filters & QDir::Hidden);
     const bool includeSystem = (filters & QDir::System);
 
+#ifndef QT_NO_REGEXP
     // Prepare name filters
     QList<QRegExp> regexps;
     for (int i = 0; i < filterNames.size(); ++i) {
@@ -156,7 +157,8 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
                            (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
                            QRegExp::Wildcard);
     }
-    
+#endif
+
     QFileInfo fi;
     dirent   *file;
 #if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
@@ -218,7 +220,7 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
                                || (!fi.exists() && fi.isSymLink()))) {
             continue;
         }
-        
+
         ret.append(fn);
     }
     if (closedir(dir) != 0) {
@@ -319,7 +321,7 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
         d->tried_stat = 0;
         d->need_lstat = 1;
     }
-    
+
     QAbstractFileEngine::FileFlags ret = 0;
     bool exists = d->doStat();
     if (!exists && !d->isSymlink())
