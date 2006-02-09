@@ -265,10 +265,10 @@ private:
     Q_PRIVATE_SLOT(d_func(), void columnsRemoved(const QModelIndex&, int, int))
     Q_PRIVATE_SLOT(d_func(), void rowsRemoved(const QModelIndex&, int, int))
 
-    friend class QTreeViewPrivate;
+    friend class QTreeViewPrivate; // needed to compile with MSVC
 };
+
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemView::EditTriggers)
 
 #endif // QT_NO_ITEMVIEWS
-
 #endif // QABSTRACTITEMVIEW_H
