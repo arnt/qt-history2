@@ -250,7 +250,12 @@ int main( int argc, char ** argv )
                                   " -resourceDir               assistant will load translations from\n"
                                   "                            this directory.\n"
                                   " -help                      shows this help.");
+#ifdef Q_WS_WIN
+                QMessageBox::information( 0, QLatin1String("Qt Assistant"),
+                    QLatin1String("<pre>") + helpText + QLatin1String("</pre>") );
+#else
                 fprintf(stdout, "%s\n", qPrintable(helpText));
+#endif
                 exit( 0 );
             } else if ( opt == QLatin1String("-resourcedir") ) {
                 INDEX_CHECK( "Missing resource directory argument!" );
