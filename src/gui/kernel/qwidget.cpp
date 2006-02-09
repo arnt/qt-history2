@@ -5172,12 +5172,12 @@ bool QWidget::event(QEvent *event)
         break; }
 
     case QEvent::LanguageChange:
-        changeEvent(event);
 #ifdef QT3_SUPPORT
         languageChange();
 #endif
         // fall through
     case QEvent::LocaleChange:
+        changeEvent(event);
         {
             QList<QObject*> childList = d->children;
             for (int i = 0; i < childList.size(); ++i) {
@@ -5196,6 +5196,7 @@ bool QWidget::event(QEvent *event)
         if (d->layout)
             d->layout->invalidate();
         update();
+        changeEvent(event);
         break;
 
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
@@ -5297,7 +5298,9 @@ bool QWidget::event(QEvent *event)
   QEvent::StyleChange, QEvent::PaletteChange,
   QEvent::WindowTitleChange, QEvent::IconTextChange,
   QEcvent::ModifiedChange, QEvent::MouseTrackingChange,
-  QEvent::ParentChange, QEvent::WindowStateChange.
+  QEvent::ParentChange, QEvent::WindowStateChange,
+  QEvent::LanguageChange, QEvent::LocaleChange,
+  QEvent::LayoutDirectionChange.
 
 */
 void QWidget::changeEvent(QEvent * event)
