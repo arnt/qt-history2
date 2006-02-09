@@ -148,41 +148,15 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
     const bool doExecutable = !filterPermissions || (filters & QDir::Executable);
     const bool includeHidden = (filters & QDir::Hidden);
     const bool includeSystem = (filters & QDir::System);
-    
-#ifndef QT_NO_REGEXP
-    QList<QRegExp> filterRegExps;
-#endif
 
-    QStringList filterExtensions; // An optimization
-    for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
-        bool is_ext = FALSE;
-        const QString f(*sit);
-        if ( f.length() > 2 ) {
-            if (f[0] == '*' ) {
-                is_ext = TRUE;
-                for (int i=1; i<f.length(); ++i) {
-                    if ( f[i] == '*' || f[i] == '?' || f[i] == '[' )
-                    {
-                        is_ext = FALSE;
-                        break;
-                    }
-                }
-                if ( is_ext ) {
-                    filterExtensions.append((filters & QDir::CaseSensitive)
-                            ? f.mid(1)
-                            : f.mid(1).toLower());
-                }
-            }
-        }
-#ifndef QT_NO_REGEXP
-        if ( !is_ext ) {
-            filterRegExps.append(QRegExp(*sit,
-                   (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
-                   QRegExp::Wildcard));
-        }
-#endif
+    // Prepare name filters
+    QList<QRegExp> regexps;
+    for (int i = 0; i < filterNames.size(); ++i) {
+        regexps << QRegExp(filterNames.at(i),
+                           (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
+                           QRegExp::Wildcard);
     }
-
+    
     QFileInfo fi;
     dirent   *file;
 #if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
@@ -198,18 +172,11 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
         QString fn = QFile::decodeName(QByteArray(file->d_name));
         fi.setFile(d->file + QLatin1Char('/') + fn);
 
+#ifndef QT_NO_REGEXP
         if(!((filters & QDir::AllDirs) && fi.isDir())) {
             bool matched = false;
-#ifndef QT_NO_REGEXP
-            for(QList<QRegExp>::ConstIterator rit = filterRegExps.begin(); rit != filterRegExps.end(); ++rit) {
-                if((*rit).exactMatch(fn)) {
-                    matched = true;
-                    break;
-                }
-            }
-#endif
-            for(QStringList::ConstIterator xit = filterExtensions.begin(); xit != filterExtensions.end(); ++xit) {
-                if ( fn.endsWith(*xit,(filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive) ) {
+            for (int i = 0; i < regexps.size(); ++i) {
+                if (regexps.at(i).exactMatch(fn)) {
                     matched = true;
                     break;
                 }
@@ -217,6 +184,9 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
             if (!matched)
                 continue;
         }
+#else
+        Q_UNUSED(filterNames);
+#endif
         if ((filters & QDir::NoDotAndDotDot) && ((fn == QLatin1String(".") || fn == QLatin1String(".."))))
             continue;
         bool isHidden = (fn.at(0) == QLatin1Char('.') && fn.length() > 1 && fn != QLatin1String(".."));
@@ -252,7 +222,7 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
         ret.append(fn);
     }
     if (closedir(dir) != 0) {
-        qWarning("QDir::readDirEntries: Cannot close  directory: %s", d->file.toLocal8Bit().data());
+        qWarning("QDir::readDirEntries: Cannot close directory: %s", d->file.toLocal8Bit().data());
     }
     return ret;
 }
