@@ -1639,6 +1639,8 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
     fd->currentLayoutStruct = layoutStruct;
 
+    QTextFrame::Iterator previousIt;
+
     const bool inRootFrame = (it.parentFrame() == q->document()->rootFrame());
     if (inRootFrame) {
         bool redoCheckPoints = layoutStruct->fullLayout || checkPoints.isEmpty();
@@ -1658,6 +1660,11 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
                 it = iteratorForTextPosition(checkPoint->positionInFrame);
                 checkPoints.resize(checkPoint - checkPoints.begin() + 1);
+
+                if (checkPoint != checkPoints.begin()) {
+                    previousIt = it;
+                    --previousIt;
+                }
             } else {
                 redoCheckPoints = true;
             }
@@ -1671,10 +1678,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             checkPoints << cp;
         }
     }
-
-    QTextFrame *lastFrame = 0;
-    QTextBlock lastBlock;
-
+                
     while (!it.atEnd()) {
         QTextFrame *c = it.currentFrame();
 
@@ -1769,19 +1773,20 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             } else {
                 positionFloat(c);
             }
-            lastFrame = c;
-            lastBlock = QTextBlock();
+            previousIt = it;
             ++it;
         } else {
+            QTextFrame::Iterator lastIt;
+            if (!previousIt.atEnd())
+                lastIt = previousIt;
+            previousIt = it;
             QTextBlock block = it.currentBlock();
             ++it;
 
             const qreal origY = layoutStruct->y;
 
             // layout and position child block
-            layoutBlock(block, layoutStruct, layoutFrom, layoutTo, lastBlock);
-
-            lastBlock = block;
+            layoutBlock(block, layoutStruct, layoutFrom, layoutTo, lastIt.currentBlock());
 
             // if the block right before a table is empty 'hide' it by
             // positioning it into the table border
@@ -1791,8 +1796,8 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             }
 
             // if the block right after a table is empty then 'hide' it, too
-            if (isEmptyBlockAfterTable(block, lastFrame)) {
-                QTextTableData *td = static_cast<QTextTableData *>(data(lastFrame));
+            if (isEmptyBlockAfterTable(block, lastIt.currentFrame())) {
+                QTextTableData *td = static_cast<QTextTableData *>(data(lastIt.currentFrame()));
                 QTextLayout *layout = block.layout();
 
                 QPointF pos(td->position.x() + td->size.width(),

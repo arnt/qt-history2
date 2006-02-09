@@ -668,6 +668,8 @@ QTextFrame *QTextFrame::iterator::currentFrame() const
 */
 QTextBlock QTextFrame::iterator::currentBlock() const
 {
+    if (!f)
+        return QTextBlock();
     return QTextBlock(f->docHandle(), cb);
 }
 
