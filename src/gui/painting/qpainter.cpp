@@ -1261,7 +1261,7 @@ qreal QPainter::opacity() const
 void QPainter::setOpacity(qreal opacity)
 {
     Q_D(QPainter);
-    d->state->opacity = qMin(1.0, qMax(0.0, opacity));
+    d->state->opacity = qMin(qreal(1), qMax(qreal(0), opacity));
     d->state->dirtyFlags |= QPaintEngine::DirtyOpacity;
 }
 
