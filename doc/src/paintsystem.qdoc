@@ -1,4 +1,4 @@
-/*
+/*!
     \page paintsystem.html
 
     \title The Paint System
@@ -42,7 +42,7 @@
 
     \table 100%
     \row
-    \o \inlineimage paintsystem-painterpath.png
+    \o \image paintsystem-painterpath.png
     \o \bold QPainterPath
 
     A painter path is an object composed of lines and curves. For
@@ -87,7 +87,7 @@
 
     \table 100%
     \row \o
-    \bold {Anti-aliased Painting}
+    \bold {Anti-Aliased Painting}
 
     When drawing, the pixel rendering is controlled by the
     QPainter::Antialiasing render hint. The QPainter::RenderHint enum
@@ -97,6 +97,8 @@
     The QPainter::Antialiasing value indicates that the engine should
     antialias edges of primitives if possible, i.e. smoothing the
     edges by using different color intensities.
+
+    \o \image paintsystem-antialiasing.png
 
     \endtable
 
@@ -127,12 +129,13 @@
 
     \table 100%
     \row
+    \o \image paintsystem-fancygradient.png
     \o \bold QGradient
 
     The QGradient class is used in combination with QBrush to specify
     gradient fills.
 
-    \image paintsystem-gradient.png
+    \image paintsystem-gradients.png
 
     Qt currently supports three types of gradient fills: Linear
     gradients interpolate colors between start and end points, radial
@@ -140,18 +143,17 @@
     on a circle surrounding it, and conical gradients interpolate
     colors around a center point.
 
-    \o \inlineimage paintsystem-fancygradient.png
     \endtable
 
     \section1 Creating a Paint Device
-
-    \image paintsystem-device.png
 
     The QPaintDevice class is the base class of objects that can be
     painted, i.e. QPainter can draw on any QPaintDevice
     subclass. QPaintDevice's drawing capabilities are currently
     implemented by the QWidget, QImage, QPixmap, QGLWidget,
     QGLPixelBuffer, QPicture and QPrinter subclasses.
+
+    \image paintsystem-devices.png
 
     \table 100%
     \row \o \bold {Custom Backends}
@@ -264,53 +266,68 @@
     \section1 Reading and Writing Image Files
 
     The most common way to read images is through QImage and QPixmap's
-    constructors, or by calling QImage::load() and QPixmap::load(),
-    but Qt also provides the QImageReader class which gives more
-    control over the process.  Likewise, Qt provides the QImageWriter
-    class which supports setting format specific options, such as the
-    gamma level, compression level and quality, prior to storing the
-    image. If you do not need such options, you can use QImage::save()
-    or QPixmap::save() instead.
+    constructors, or by calling the QImage::load() and QPixmap::load()
+    functions. In addition, Qt provides the QImageReader class which
+    gives more control over the process. Depending on the underlying
+    support in the image format, the functions provided by the class
+    can save memory and speed up loading of images.
+
+    Likewise, Qt provides the QImageWriter class which supports
+    setting format specific options, such as the gamma level,
+    compression level and quality, prior to storing the image. If you
+    do not need such options, you can use QImage::save() or
+    QPixmap::save() instead.
 
     \table 100%
     \row
     \o \bold QMovie
 
     QMovie is a convenience class for displaying animations, using the
-    QImageReader class internally.
+    QImageReader class internally.  Once created, the QMovie class
+    provides various functions for both running and controlling the
+    given animation.
 
-    Once created, the QMovie class provides various functions for both
-    running and controlling the given animation.
-
-    \o \inlineimage paintsystem-movie.png
+    \o \image paintsystem-movie.png
     \endtable
 
     The QImageReader and QImageWriter classes rely on the
     QImageIOHandler class which is the common image I/O interface for
-    all image formats in Qt.  A list of the supported file formats are
-    available through the QImageReader::supportedImageFormats() and
+    all image formats in Qt. QImageIOHandler objects are used
+    internally by QImageReader and QImageWriter to add support for
+    different image formats to Qt.
+
+    A list of the supported file formats are available through the
+    QImageReader::supportedImageFormats() and
     QImageWriter::supportedImageFormats() functions. Qt supports
-    several formats by default (listed in the QImageReader and
-    QImageWriter class documentation). New file formats can be added
-    as plugins.
+    several file formats by default, and in addition new formats can
+    be added as plugins. The currently supported formats are listed in
+    the QImageReader and QImageWriter class documentation.
 
     Qt's plugin mechanism can also be used to write a custom image
-    format handler. this is done by deriving from the QImageIOHandler
-    class, and create a QImageIOPlugin object that can create the
-    handler. When the plugin is installed, QImageReader and
-    QImageWriter will automatically load the plugin and start using
-    it.
+    format handler. This is done by deriving from the QImageIOHandler
+    class, and creating a QImageIOPlugin object which is a factory for
+    creating QImageIOHandler objects. When the plugin is installed,
+    QImageReader and QImageWriter will automatically load the plugin
+    and start using it.
 
     \table 100%
     \row
-    \o \inlineimage paintsystem-svg.png
+    \o \image paintsystem-svg.png
     \o \bold {SVG Rendering}
 
-    Qt also supports SVG rendering. SVG drawings can be rendered onto
-    any QPaintDevice subclass to take advantage of the specific
-    advantages of each device. This approach gives developers the
-    flexibility to experiment, in order to find the best solution for
-    each application.
+    Scalable Vector Graphics (SVG) is an language for describing both
+    static and animated two-dimensional vector graphics. Qt includes
+    support for the static features of SVG 1.2 Tiny.
+
+    SVG drawings can be rendered onto any QPaintDevice subclass.  This
+    approach gives developers the flexibility to experiment, in order
+    to find the best solution for each application.
+
+    The easiest way to render SVG files is to construct a QSvgWidget
+    and load an SVG file using one of the QSvgWidget::load()
+    functions. The rendering is performed by the QSvgRenderer class
+    which also can be used directly to provide SVG support for custom
+    widgets.
 
     For more information, see the QtSvg module documentation.
 
@@ -326,12 +343,28 @@
     feel of a GUI. Qt contains a set of QStyle subclasses that emulate
     the styles of the different platforms supported by Qt
     (QWindowsStyle, QMacStyle, QMotifStyle, etc.). By default, these
-    styles are built into the QtGui library. Styles can also be made
-    available as plugins.
+    styles are built into the QtGui library, but styles can also be
+    made available as plugins.
 
-    \image paintsystem-painter.png
+    Most functions for drawing style elements take four arguments:
 
-    The paint system provides the QStylePainter class inheriting from
+    \list
+    \o an enum value specifying which graphical element to draw
+    \o a QStyleOption object specifying how and where to render that element
+    \o a QPainter object that should be used to draw the element
+    \o a QWidget object on which the drawing is performed (optional)
+    \endlist
+
+    The style gets all the information it needs to render the
+    graphical element from the QStyleOption class. The widget is
+    passed as the last argument in case the style needs it to perform
+    special effects (such as animated default buttons on Mac OS X),
+    but it isn't mandatory. In fact, QStyle can be used to draw on any
+    paint device, not just widgets, by setting the QPainter properly.
+
+    \image paintsystem-stylepainter.png
+
+    The paint system also provides the QStylePainter class inheriting from
     QPainter.
 
     QStylePainter is a convenience class for drawing QStyle elements
