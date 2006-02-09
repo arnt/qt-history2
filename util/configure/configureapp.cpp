@@ -664,7 +664,7 @@ void Configure::parseCmdLine()
     // Ensure that QMAKESPEC exists in the mkspecs folder
     QDir mkspec_dir = qtDir + "\\mkspecs";
     QStringList mkspecs = mkspec_dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
-    
+
     if (dictionary["QMAKESPEC"].toLower() == "features"
         || !mkspecs.contains(dictionary["QMAKESPEC"], Qt::CaseInsensitive)) {
         dictionary[ "HELP" ] = "yes";
@@ -1094,7 +1094,7 @@ QString Configure::defaultTo(const QString &option)
     if (option == "JPEG"
         || option == "MNG")
         return "plugin";
-    
+
     // GIF off by default
     if (option == "GIF")
         return "no"; // We cannot have this on by default yet
@@ -1419,6 +1419,7 @@ void Configure::generateOutputVars()
 
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
+    qmakeVars += QString("RCC_DIR=") + QDir::convertSeparators("tmp/rcc/" + dictionary["QMAKE_OURDIR"]);
 
     if (!qmakeDefines.isEmpty())
         qmakeVars += QString( "DEFINES+=" ) + qmakeDefines.join( " " );
@@ -1588,7 +1589,7 @@ void Configure::generateConfigfiles()
     if (dictionary["EDITION"] == "Trolltech") {
         outStream << "/* Used for example to export symbols for the certain autotests*/" << endl;
         outStream << "#define QT_BUILD_INTERNAL" << endl;
-        outStream << endl;    
+        outStream << endl;
     }
 	outStream << "/* Machine byte-order */" << endl;
 	outStream << "#define Q_BIG_ENDIAN 4321" << endl;
