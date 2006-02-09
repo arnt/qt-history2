@@ -488,7 +488,7 @@ void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF 
     if (im.depth() == 1)
         im = im.convertToFormat(QImage::Format_RGB32);
     QPixmap pm = QPixmap::fromImage(im, flags);
-    drawPixmap(r, pm, sr);
+    drawPixmap(r, pm, QRectF(QPointF(0, 0), pm.size()));
 }
 
 /*!
