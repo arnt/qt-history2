@@ -28,6 +28,7 @@
 #include "private/qdialog_p.h"
 #include "QtGui/qitemselectionmodel.h"
 #include "QtGui/qabstractitemview.h"
+#include "QtGui/qheaderview.h"
 #include "QtGui/qlistview.h"
 #include "QtGui/qtreeview.h"
 #include "QtGui/qtoolbutton.h"
