@@ -291,10 +291,16 @@ static bool uncEntryList(const QString &server, const QStringList &filterNames, 
             *list += entries;
         } else if (list) {
 #ifndef QT_NO_REGEXP
+            // Prepare name filters
+            QList<QRegExp> regexps;
+            for (int it = 0; it < filterNames.size(); ++it) {
+                regexps << QRegExp(filterNames.at(it), Qt::CaseInsensitive,
+                                   QRegExp::Wildcard);
+            }
+
             for (int i = 0; i < entries.count(); ++i) {
-                for (QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
-                    QRegExp rx(*sit, Qt::CaseInsensitive, QRegExp::Wildcard);
-                    if (rx.exactMatch(entries.at(i))) {
+                for (int j = 0; j < regexps.size(); ++j) {
+                    if (regexps.at(j).exactMatch(entries.at(i))) {
                         list->append(entries.at(i));
                         break;
                     }
@@ -712,11 +718,19 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
 
 #ifndef QT_NO_REGEXP
         if(!(filters & QDir::AllDirs && isDir)) {
+            // Prepare name filters
+            QList<QRegExp> regexps;
+            for (int it = 0; it < filterNames.size(); ++it) {
+                regexps << QRegExp(filterNames.at(it), Qt::CaseInsensitive,
+                                   QRegExp::Wildcard);
+            }
+
             bool matched = false;
-            for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
-                QRegExp rx(*sit, Qt::CaseInsensitive, QRegExp::Wildcard);
-                if(rx.exactMatch(fname))
+            for (int i = 0; i < regexps.size(); ++i) {
+                if (regexps.at(i).exactMatch(fname)) {
                     matched = true;
+                    break;
+                }
             }
             if(!matched)
                 continue;
