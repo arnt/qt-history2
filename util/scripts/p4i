@@ -16,7 +16,7 @@ $verbose = 0;
 
 # Simplify program name, if it is a path.
 $orig_argv0 = $0; #save the old $0
-$0 =~ s/.*\///;
+$0 =~ s/.*(\\|\/)//;
 
 #known branches
 $targetBranch{"qt-2.3"} = "3.0";
@@ -46,8 +46,15 @@ if ( $line !~ /^Perforce/ ) {
 }
 
 sub usage {
-    printf "$0 [--all] [--force] [--ignoredeleted] [--noresolve] [change]\n";
-    printf "     default change is last change\n";
+    printf "$0 [--all] [--force] [--ignoredeleted] [--noresolve]\n";
+    printf "    [--checkmissing <path>] [--user <username>] [--verbose]\n";
+    printf "    [changenumber]\n";
+    printf "     default changenumber is your last submitted change\n\n";
+
+    printf "     --checkmissing will check the 1K last submits, to see if\n";
+    printf "     any of them are not integrated. The option takes a path,\n";
+    printf "     but if it's on the end of the command-line, without a\n";
+    printf "     path, ... will be used.\n";
     exit( 0 );
 }
 
@@ -77,6 +84,7 @@ while ( @ARGV ) {
     } elsif ( $arg =~ /^\d+$/ ) {
 	$change = $arg;
     } else {
+        print "Unknown command: \"$arg\"\n";
 	usage;
     }
 }
