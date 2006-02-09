@@ -1081,7 +1081,7 @@
     \code
         QMap<int, QWidget *> map;
         ...
-        QMutableMapIterator<QString, QWidget *> i(map);
+        QMutableMapIterator<int, QWidget *> i(map);
         while (i.hasNext()) {
 	    i.next();
 	    qDebug() << i.key() << ": " << i.value();
