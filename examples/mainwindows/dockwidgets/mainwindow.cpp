@@ -220,6 +220,8 @@ void MainWindow::createMenus()
     editMenu = menuBar()->addMenu(tr("&Edit"));
     editMenu->addAction(undoAct);
 
+    viewMenu = menuBar()->addMenu(tr("&View"));
+
     menuBar()->addSeparator();
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -257,6 +259,7 @@ void MainWindow::createDockWindows()
             << "Sally Hobart, Tiroli Tea, 67 Long River, Fedula");
     dock->setWidget(customerList);
     addDockWidget(Qt::RightDockWidgetArea, dock);
+    viewMenu->addAction(dock->toggleViewAction());
 
     dock = new QDockWidget(tr("Paragraphs"), this);
     paragraphsList = new QListWidget(dock);
@@ -280,6 +283,7 @@ void MainWindow::createDockWindows()
                "buy more items, or should we return the excess to you?");
     dock->setWidget(paragraphsList);
     addDockWidget(Qt::RightDockWidgetArea, dock);
+    viewMenu->addAction(dock->toggleViewAction());
 
     connect(customerList, SIGNAL(currentTextChanged(const QString &)),
             this, SLOT(insertCustomer(const QString &)));
