@@ -79,10 +79,11 @@ static QSize getPixmapSize(QTextDocument *doc, const QTextImageFormat &format)
     qreal scale = 1.0;
     QPaintDevice *pdev = doc->documentLayout()->paintDevice();
     if (pdev) {
+        extern int qt_defaultDpi();
         if (pm.isNull())
             pm = getPixmap(doc, format);
         if (!pm.isNull())
-            scale = qreal(pdev->logicalDpiY()) / qreal(pm.logicalDpiY());
+            scale = qreal(pdev->logicalDpiY()) / qreal(qt_defaultDpi());
     }
     size *= scale;
 
