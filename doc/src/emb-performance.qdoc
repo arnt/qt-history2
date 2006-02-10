@@ -9,8 +9,8 @@
     by making various trade-offs.
 
     The most direct way of saving resources is to avoid compiling in
-    features that are not required. See \link emb-features.html The
-    Feature Definition File\endlink for details.
+    features that are not required. See \l {Fine-Tuning Features} for
+    details.
 
     \list
     \i \link #general General programming style\endlink

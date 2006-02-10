@@ -77,7 +77,7 @@
     \o \l{emb-qvfb.html}{Qtopia Core Virtual Framebuffer}
     \o \l{emb-vnc.html}{Qtopia Core as a VNC Server}
     \o \l{emb-performance.html}{Qtopia Core Performance Tuning}
-    \o \l{emb-features.html}{The Feature Definition File}
+    \o \l{emb-features.html}{ Fine-Tuning Features}
     \o \l{emb-differences.html}{Porting Your Applications to Qtopia Core}
     \o \l{emb-fonts.html}{Fonts in Qtopia Core}
     \o \l{emb-charinput.html}{Character Input in Qtopia Core}
@@ -88,4 +88,4 @@
     \o \l{emb-classes.html}{The Qtopia Core Specific Classes}
     \endomit
     \endlist
-*/
+*

@@ -30,9 +30,9 @@
     In addition Qtopia Core supports Qt Prerendered Font (QPF), a
     light-weight non-scalable font format specific to Qtopia Core.
 
-    Using the \l {The Feature Definition File}{feature definition
-    system} either Freetype or QPF can be disabled, but at least one
-    format must be defined.
+    Using the \l {Fine-Tuning Features}{feature definition system}
+    either Freetype or QPF can be disabled, but at least one format
+    must be defined.
 
     \section1 Memory Requirements
 
