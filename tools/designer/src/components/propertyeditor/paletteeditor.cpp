@@ -156,8 +156,8 @@ void PaletteEditor::updatePreviewPalette()
     // build the preview palette
     QPalette currentPalette = palette();
     QPalette previewPalette;
-    for (QPalette::ColorRole r = QPalette::Foreground;
-                r < QPalette::NColorRoles; reinterpret_cast<int&>(r)++) {
+    for (int i = QPalette::Foreground; i < QPalette::NColorRoles; i++) {
+        QPalette::ColorRole r = (QPalette::ColorRole)i;
         QColor c = currentPalette.color(g, r);
         previewPalette.setColor(QPalette::Active, r, c);
         previewPalette.setColor(QPalette::Inactive, r, c);
@@ -209,9 +209,8 @@ PaletteModel::PaletteModel(QObject *parent)
     int index = meta->indexOfProperty("colorRole");
     QMetaProperty p = meta->property(index);
     QMetaEnum e = p.enumerator();
-    for (QPalette::ColorRole r = QPalette::Foreground; r < QPalette::NColorRoles;
-                reinterpret_cast<int&>(r)++) {
-        m_roleNames[r] = QLatin1String(e.key(reinterpret_cast<int&>(r)));
+    for (int r = QPalette::Foreground; r < QPalette::NColorRoles; r++) {
+        m_roleNames[(QPalette::ColorRole)r] = QLatin1String(e.key(r));
     }
     m_compute = true;
 }
