@@ -3237,7 +3237,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             QPixmap cache;
             if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
                 cache = QPixmap(option->rect.size());
-                cache.fill(option->palette.background());
+                cache.fill(option->palette.background().color());
                 QPainter groovePainter(&cache);
                 QRect pixmapRect = QRect(0, 0, option->rect.width(), option->rect.height());
                 QColor color = scrollBar->palette.base().color().dark(sunken ? 125 : 100);
