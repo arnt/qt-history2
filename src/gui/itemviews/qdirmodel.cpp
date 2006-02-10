@@ -973,6 +973,15 @@ QModelIndex QDirModel::index(const QString &path, int column) const
     QString absolutePath = QDir(path).absolutePath();
 #ifdef Q_OS_WIN
     absolutePath = absolutePath.toLower();
+    // On Windows, "filename......." and "filename" are equivalent
+    if (absolutePath.endsWith(QLatin1Char('.'))) {
+        int i;
+        for (i = absolutePath.count() - 1; i >= 0; --i) {
+            if (absolutePath.at(i) != QLatin1Char('.'))
+                break;
+        }
+        absolutePath = absolutePath.left(i+1);
+    }
 #endif
 
     QStringList pathElements = absolutePath.split(QChar('/'), QString::SkipEmptyParts);
