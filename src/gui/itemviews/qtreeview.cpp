@@ -2008,8 +2008,8 @@ void QTreeViewPrivate::updateVerticalScrollbar()
 
     // set the scroller range
     int y = viewHeight;
-    int i = itemCount; // FIXME: wrong
-    while (y > 0 && i > 0)
+    int i = itemCount;
+    while (y > 0 && i > 0) // subtract the bottom screen
         y -= height(--i);
     int max = i * verticalStepsPerItem;
 
@@ -2020,10 +2020,8 @@ void QTreeViewPrivate::updateVerticalScrollbar()
             max += (backtracking / itemSize) + 1;
     }
 
-    q->verticalScrollBar()->setRange(0, max - 1);
-
-    if (q->verticalScrollBar()->value() * verticalStepsPerItem >= viewItems.count())
-        q->verticalScrollBar()->setValue((viewItems.count() - 1) * verticalStepsPerItem);
+    max = qMin(max, viewItems.count() * verticalStepsPerItem);
+    q->verticalScrollBar()->setRange(0, max - 1); // should boud the current value
 }
 
 void QTreeViewPrivate::updateHorizontalScrollbar()
