@@ -25,10 +25,11 @@ compilers
 
 Qt Designer
         Numerous fixes and improvements.
-        
-        uic3: Prevent generation of invalid font tags
+        ion of invalid font tags
         uic: Fixed bug that caused retranslateUI() to add existing
         items in combobox once again
+	fixed dependency problem where qtDesigner modules would depend on 
+	a private class.
 
 Qt Assistant 
 	Fixed problem with restoring window geometry on multi screen 
@@ -140,12 +141,11 @@ General improvements
         Improved handling of malformed html.
         Fixed rendering for tables with thead/tbody/tfoot elements.
 	Improved copy and paste of content with whitespace
-	Significantly improved performance when appending text.
 	Make undo/redo update the cursor position.
 	Fixed memory leak when calling setHtml() repeatedly.
+	Significantly improved performance when appending and editing text.
 	Improved performance when selecting all text.
-	Improved performance when editing text.
-
+	
 - QSvg
         Improve stroking with pen width 0.
         Fix rectangle filling bug.
@@ -248,6 +248,9 @@ General improvements
 - QLayout
         Warn instead of crash when adding two layouts to a widget.
 
+- QPixmap
+	Fixed issue where save() in some cases would return true on failure.
+
 - QProgressBar
         Fix incorrect progress in some cases.         
 
@@ -327,12 +330,16 @@ Windows:
 - QAxServer
 	Fixed issue where updateRegistry would report success, even though 
 	the operation failed. (task 98380)
-
+	
 - QClipboard
         Make sure the dataChanged() signal is emitted correctly.
 
 - QUdpSocket
         Better handling when sending to an unbound port.
+
+- QInputDialog
+	Calling setText() also selects all text to be consistent with 
+	other platforms.
 
 - QPrinter
 	Fixed issue where the orientation for a QPrinter would be 
@@ -392,6 +399,11 @@ X11:
 	Fixed issue where some child processes were not cleaned up after use. 
 	(task 98217)
 
+- QPrintDialog
+	Fixed problems when using "From page" and "To page" spin boxes. 
+	(task 92274)
+	It is no longer possible to press "ok" when no printers are configured.	
+
 - qmake
 	Improved stability when modifying environment variables
 
@@ -436,6 +448,7 @@ Mac OS X:
 
 - QTextEdit
 	Fixed focus issues with japanese input. (task 97171)
+	Fixed issue with pasting unicode text between applications. (task 96649)
 
 - QToolBar 
         Improve tool bar appearance.
@@ -467,4 +480,4 @@ Qtopia Core
 -------------------
 - Fix memory leak in freetype.
 
-last change was: 204962
+last change was: 205045
