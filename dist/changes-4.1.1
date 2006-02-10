@@ -23,13 +23,24 @@ compilers
 
         Fixed compilation for solaris-cc-64.
 
+qt3to4
+	Fixed the issue where 'int red' would be translated to 'Qt::red'.
+	Improved handling of macros created by moc.
+
 Qt Designer
         Numerous fixes and improvements.
-        ion of invalid font tags
+        ion of invalid font tags ### ???
         uic: Fixed bug that caused retranslateUI() to add existing
         items in combobox once again
 	fixed dependency problem where qtDesigner modules would depend on 
 	a private class.
+	Added missing generation of setColumnCount() and setRowCount() for 
+	QTableWidget. (task 97900)
+	Fixed a platform incompatiblity when saving icon properties on Windows.
+	(task 93316)
+	Fixed a crash when breaking the layout in a dock widget. (task 97642)
+	Fixed a crash when opening a new .ui file while in "Edit Tab Order" mode.
+	Improved preview of signal/slot connections. (task 95834)
 
 Qt Assistant 
 	Fixed problem with restoring window geometry on multi screen 
@@ -37,9 +48,10 @@ Qt Assistant
 
 Qt Linguist / Internationalization
         Fixed tr() idioms, so that translation actually works.
-	
+
 Qt Translation
 	Added translation files for Simplified Chinese.
+	Fixed a problem with lupdate parsing output from uic.
 
 ****************************************************************************
 *                          Library                                         *
@@ -50,8 +62,18 @@ Qt Translation
 General improvements
 --------------------
 
+- QAbstractSlider
+	Ensure changed-signals are only emitted when the value actually changed. 
+	(task 98493)
+
+- QComboBox
+	Fixed a crash when setting and deleting the model.
+
 - QCoreApplication
 	Fixes racecondition during plugin loading.
+
+- QCommonStyle
+	Fixed wrong size hint of PM_MenuButtonIndicator.
 
 - QVariant
         The QVariant(const char *) constructor is now unavailable when
@@ -65,6 +87,7 @@ General improvements
 
 - QDateTime
 	Fixed a regression in fromString. (task 98678)
+	Avoid potential hang when paring invalid date formats.
 
 - QFile
         Changed behavior or rename() and copy()...
@@ -118,7 +141,7 @@ General improvements
         setIconSize() now works correctly.
 	Relative position within toolbars are now kept when saving and restoring state.
 
--QIcon
+- QIcon
 	Fixed issue where creating QIcons with an invalid path could 
 	result in a crash. (task 95955)
 
@@ -130,7 +153,8 @@ General improvements
         OpenGL : Faster rect outlining for the most common case.
 
 - QSyntaxHighlighter
-	Fix missing handling of blocks of text under certain conditions.
+	Fixed missing handling of blocks of text under certain conditions.
+	Improved interaction with input methods. (task 97823)
 
 - QTextBrowser
 	Fix missing linebreak after paragraph.
@@ -145,7 +169,8 @@ General improvements
 	Fixed memory leak when calling setHtml() repeatedly.
 	Significantly improved performance when appending and editing text.
 	Improved performance when selecting all text.
-	
+	Emit copyAvailable() on mouse selection. (task 98453)
+
 - QSvg
         Improve stroking with pen width 0.
         Fix rectangle filling bug.
@@ -159,11 +184,36 @@ General improvements
         Make dockwidgets remember their sizes after being hidden.
 	Improved reliability when saving and restoring state.
 
+- Q3IconView
+	Fixed selection appearance. (task 80057)
+
 - Q3TextEdit
         Fix focus indicator tabbing through tables.
 
+- Q3TabDialog
+	Added missing selected() signal
+
+- Q3ListView
+	Fixed occasional crashes when deleting items. (task 98239)
+
+- Q3ScrollView
+	Fixed default focus policy for deriving classes. (task 94578)
+
+- Q3ToolBar
+        Q3Action::setOn() now works correctly.
+
+- Q3ActionGroup
+        Fix drop down drawing error.
+
+- Q3MainWindow
+	Fixed a regression in setUsesIconText().
+
+
 - QXpmHandler
         Fixed handling of non-transparent XPM images.
+
+- QImage
+	Changed behaviour of the equality operator. ### WAS? espen: revert this change? 
 
 - QImageIOHandler
         Made all suppported image formats support the Size option.
@@ -171,14 +221,15 @@ General improvements
 - QDir
         cd() now fails when attempting to cd to a non-directory.
 
-- Q3ToolBar
-        Q3Action::setOn() now works correctly.
-
 - QAbstractItemView
         Fix selections when mouse-tracking is turned on.
+	Fixed selection issues after row resizing. (task 92336)
 
 - QAbstractItemModel
         More consistent behaviour in drag-and-drop code.	
+
+- QItemSelectionModel
+	Fixed an infinite loop in isRowSelected. (task 95832)
 
 - QTableView
         Fixed drawing of selections after moving columns.
@@ -196,6 +247,8 @@ General improvements
 	Improved performance when adding rows.
 	Fixed a bug where changing row heights sometimes did not update
 	the view properly. (task 94567)
+	Fixed a bug where calling setCurrentIndex() did update the view, but not
+	currentIndex(). (task 92311)
 
 - QItemDelegate
         Better handling of QStyleOptionViewItem::Bottom.
@@ -211,6 +264,7 @@ General improvements
 	paintSection. (task 89576)
 	Only the left mouse button can now be used to move and resize
 	header sections. (task 98243)
+	Fixed incorrect header size after swapping header sections. (task 96860)
 
 - QGridLayout 
         Respect specified alignment over default alignment.
@@ -225,28 +279,29 @@ General improvements
         Better font underlining/overlining.? (199807)
         Embed fonts as TrueType font files into PDF? (199815)
 		
-
-- Q3ActionGroup
-        Fix drop down drawing error.
-
 - QWidget
         Fix regression in setMask().
 	stuff ### fixme (change 204854)
 	Fixed issue where incorrect minimum size was reported after reparenting from
 	a top level widget.
+	Fixed return value of normalGeometry() after the widget has been maximized.
+	(task 98499)
 
 - QHash / QSet
         Make the operator==() not take the internal order of elements
         into account when comparing.
 
 - QUrl
-        Improve handling of hostnames that start with a digit.
+	Improve handling of hostnames containing digits.
         Fix crash when calling hasQueryItem() on QUrl without any
         query items.
 	Added support for parsing file names with '[' and ']' characters. (task 95629)
 
 - QLayout
         Warn instead of crash when adding two layouts to a widget.
+
+- QLocale
+	Add missing entry for "nb".
 
 - QPixmap
 	Fixed issue where save() in some cases would return true on failure.
@@ -271,6 +326,9 @@ General improvements
 
 - QString
 	Fixed regression in fromLocal8Bit().
+
+- QRadioButton
+	Fixed a potential crash in QRadioButton Qt 3 support constructors. (task 97955)
 
 - QTextDocument
         Improved stability when importing incorrectly formed html tables.
@@ -325,12 +383,15 @@ Windows:
 - Timers now continue to fire when windows enters a modal event loop.
 - Improve Type 1 font rendering.
 - Improved performance of font rendering.
-
+- Use the standard fallback fonts for asian languages. (task 93295)
+- Added workaround for missing OpenGL sample buffers on the Mobile Intel 915GM 
+  Express Chipset.
 
 - QAxServer
 	Fixed issue where updateRegistry would report success, even though 
 	the operation failed. (task 98380)
-	
+	Fixed comparison of class attributes. (task 99093)
+
 - QClipboard
         Make sure the dataChanged() signal is emitted correctly.
 
@@ -362,6 +423,7 @@ Windows:
 - QWorkSpace
         Improve window resizing.
         Improve title bar and button apperance in XP style. 
+	Improved focus handling.	
 
 - QDockWidget
         Improve the look of title bar buttons.
@@ -369,6 +431,9 @@ Windows:
 
 - QWdiget
         Fix setWindowOpacity flicker.
+
+- QLabel
+	Improved appearance when disabled.
 
 - QLineEdit
         Make QLineEdit respect the XP color scheme.         
@@ -382,8 +447,13 @@ X11:
 
 - Improved tablet event handling.
 
+- The KeypadModifier is now set when NumLock is enabled. (task 97522)
+
 - QtDemo now asks if animations should be disabled if it is not running on 
 	an accelerated XRender.
+
+- QLibrary
+	isLibrary now returns true for .a and .so on AIX.
 
 - QPaintEngine
 	Fixed issue where filling and stroking ellipses could leave pixel 
@@ -394,6 +464,7 @@ X11:
         Fix artifacts when drawing aliased primitives with an alpha pen.
         Fixed issue where rotating pixmaps could add a pixel row in some cases. 
 	(task 92307)
+	Fixed drawing of arcs of less than 1 degree. (task 92639)
 
 - QPrinter
 	Fixed issue where some child processes were not cleaned up after use. 
@@ -424,6 +495,7 @@ Mac OS X:
 - Improved performance when resizing widgets.
 - Fixed font issues for input methods with japanese. (task 96874)
 - Fixed issue with pasting japanese text. (task 97391)
+- Correctly set architecture and SDKROOT when creating a Xcode project. (task 95717)
 
 - QCursor
         Fix alpha pixmap cursors.
@@ -433,6 +505,7 @@ Mac OS X:
 
 - QMenu
 	Improved menu styling. (task 86762)	
+	Improved popup appearance. (task 96783)
 
 - QWorkSpace 
         Improve workspace children appearance.
@@ -470,14 +543,20 @@ Qtopia Core
 
 - Removed flickering when mouse cursor is above an animation.
 - Optimized use of shared memory.
+- Optionally use iwmmxt intrinsics to optimize painting.
 - Implement QPixmap::grabWindow
+
+- Fonts
+	Handle BDF fonts without the PIXEL_SIZE property.
+	Added Chinese and Japanese fonts.
 
 - PDF
         Support PDF font embedding.
-        
+- qvfb
+	Fixed a crash when increasing the display size in the configuration dialog.  
 
 3rd-party libraries
 -------------------
 - Fix memory leak in freetype.
 
-last change was: 205045
+last change was: 205594
