@@ -215,7 +215,7 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
 {
     QImage img = pixmap.toImage().convertToFormat(QImage::Format_Indexed8, Qt::ThresholdDither|Qt::AvoidDither);
     QBitmap bm = QBitmap::fromImage(img, Qt::ThresholdDither|Qt::AvoidDither);
-    QBitmap bmm = bm.mask();
+    QBitmap bmm = pixmap.mask();
     if (!bmm.isNull()) {
         QBitmap nullBm;
         bm.setMask(nullBm);
