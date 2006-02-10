@@ -15,6 +15,7 @@
 #include "qtreewidget.h"
 #include "qtreewidget_p.h"
 #include "qwidgetitemdata_p.h"
+#include <QtCore/QStack>
 
 #ifndef QT_NO_TREEWIDGET
 
@@ -34,16 +35,103 @@
   \sa QTreeWidget, {Model/View Programming}, QTreeWidgetItem
 */
 
+class QTreeWidgetItemIteratorPrivate {
+    friend class QTreeWidgetItemIterator;
+public:
+    QTreeWidgetItemIteratorPrivate(QTreeModel *model)
+        : m_currentIndex(0), m_model(model)
+    {
+
+    }
+
+    QTreeWidgetItemIteratorPrivate(const QTreeWidgetItemIteratorPrivate& other)
+        : m_currentIndex(other.m_currentIndex), m_parentIndex(other.m_parentIndex), m_model(other.m_model)
+    {
+
+    }
+
+    QTreeWidgetItemIteratorPrivate &operator=(const QTreeWidgetItemIteratorPrivate& other)
+    {
+        m_currentIndex = other.m_currentIndex;
+        m_parentIndex = other.m_parentIndex;
+        m_model = other.m_model;
+        return (*this);
+    }
+
+    ~QTreeWidgetItemIteratorPrivate()
+    {
+
+    }
+
+    QTreeWidgetItem *next(const QTreeWidgetItem *current);
+    QTreeWidgetItem *previous(const QTreeWidgetItem *current);
+private:
+    int             m_currentIndex;
+    QTreeModel     *m_model;    // This class should not have ownership of the model.
+    QStack<int>     m_parentIndex;
+};
+
+QTreeWidgetItem *QTreeWidgetItemIteratorPrivate::next(const QTreeWidgetItem *current)
+{
+    if (!current) return 0;
+
+    QTreeWidgetItem *next = 0;
+    if (current->childCount()) {
+        // walk the child
+        m_parentIndex.push(m_currentIndex);
+        m_currentIndex = 0;
+        next = current->child(0);
+    } else {
+        // walk the sibling
+        QTreeWidgetItem *parent = current->parent();
+        next = parent ? parent->child(m_currentIndex + 1) : m_model->tree.value(m_currentIndex + 1);
+        while (!next && parent) {
+            // if we had no sibling walk up the parent and try the sibling of that
+            parent = parent->parent();
+            m_currentIndex = m_parentIndex.pop();
+            next = parent ? parent->child(m_currentIndex + 1) : m_model->tree.value(m_currentIndex + 1);
+        }
+        if (next) ++(m_currentIndex);
+    }
+    return next;
+}
+
+QTreeWidgetItem *QTreeWidgetItemIteratorPrivate::previous(const QTreeWidgetItem *current)
+{
+    if (!current) return 0;
+
+    QTreeWidgetItem *prev = 0;
+    // walk the previous sibling
+    QTreeWidgetItem *parent = current->parent();
+    prev = parent ? parent->child(m_currentIndex - 1) : m_model->tree.value(m_currentIndex - 1);
+    if (prev) {
+        // Yes, we had a previous sibling but we need go down to the last leafnode.
+        --m_currentIndex;
+        while (prev && prev->childCount()) {
+            m_parentIndex.push(m_currentIndex);
+            m_currentIndex = prev->childCount() - 1;
+            prev = prev->child(m_currentIndex);
+        }
+    } else if (parent) {
+        m_currentIndex = m_parentIndex.pop();
+        prev = parent;
+    }
+    return prev;
+}
+
+
 /*!
     Constructs an iterator for the same QTreeWidget as \a it. The
     current iterator item is set to point on the current item of \a it.
 */
 
 QTreeWidgetItemIterator::QTreeWidgetItemIterator(const QTreeWidgetItemIterator &it)
-    : model(it.model), current(it.current), flags(it.flags)
+    :  d_ptr(new QTreeWidgetItemIteratorPrivate(*(it.d_ptr))),
+    current(it.current), flags(it.flags)
 {
-    Q_ASSERT(model);
-    model->iterators.append(this);
+    Q_D(QTreeWidgetItemIterator);
+    Q_ASSERT(d->m_model);
+    d->m_model->iterators.append(this);
 }
 
 /*!
@@ -56,11 +144,12 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(const QTreeWidgetItemIterator &
 */
 
 QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidget *widget, IteratorFlags flags)
-    : model(0), current(0), flags(flags)
+: current(0), flags(flags)
 {
     Q_ASSERT(widget);
-    model = qobject_cast<QTreeModel*>(widget->model());
+    QTreeModel *model = qobject_cast<QTreeModel*>(widget->model());
     Q_ASSERT(model);
+    d_ptr = new QTreeWidgetItemIteratorPrivate(model);
     model->iterators.append(this);
     current = model->tree.first();
     if (current && !matchesFlags(current))
@@ -77,12 +166,29 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidget *widget, IteratorFl
 */
 
 QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidgetItem *item, IteratorFlags flags)
-    : model(0), current(item), flags(flags)
+    : d_ptr(new QTreeWidgetItemIteratorPrivate(item->model)), current(item), flags(flags)
 {
+    Q_D(QTreeWidgetItemIterator);
     Q_ASSERT(item);
-    model = ::qobject_cast<QTreeModel*>(item->view->model());
+    QTreeModel *model = item->model;
     Q_ASSERT(model);
     model->iterators.append(this);
+
+
+    // Initialize m_currentIndex and m_parentIndex as it would be if we had traversed from
+    // the beginning.
+    QTreeWidgetItem *parent = item;
+    parent = parent->parent();
+    QList<QTreeWidgetItem *> children = parent ? parent->children : d->m_model->tree;
+    d->m_currentIndex = children.indexOf(item);
+
+    while (parent) {
+        parent = parent->parent();
+        QList<QTreeWidgetItem *> children = parent ? parent->children : d->m_model->tree;
+        int index = children.indexOf(item);
+        d->m_parentIndex.prepend(index);
+    }
+
     if (current && !matchesFlags(current))
         ++(*this);
 }
@@ -93,7 +199,8 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidgetItem *item, Iterator
 
 QTreeWidgetItemIterator::~QTreeWidgetItemIterator()
 {
-    model->iterators.removeAll(this);
+    d_func()->m_model->iterators.removeAll(this);
+    delete d_ptr;
 }
 
 /*!
@@ -103,13 +210,14 @@ QTreeWidgetItemIterator::~QTreeWidgetItemIterator()
 
 QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator=(const QTreeWidgetItemIterator &it)
 {
-    if (model != it.model) {
-        model->iterators.removeAll(this);
-        it.model->iterators.append(this);
+    Q_D(QTreeWidgetItemIterator);
+    if (d_func()->m_model != it.d_func()->m_model) {
+        d_func()->m_model->iterators.removeAll(this);
+        it.d_func()->m_model->iterators.append(this);
     }
     current = it.current;
     flags = it.flags;
-    model = it.model;
+    d->operator=(*it.d_func());
     return *this;
 }
 
@@ -123,7 +231,7 @@ QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator++()
 {
     if (current)
         do {
-            current = QTreeModel::walk(current);
+            current = d_func()->next(current);
         } while (current && !matchesFlags(current));
     return *this;
 }
@@ -138,14 +246,7 @@ QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator--()
 {
     if (current)
         do {
-            QTreeWidgetItem *item = QTreeModel::previousSibling(current);
-            if (item) {
-                while (!item->children.isEmpty())
-                    item = item->children.last();
-                current = item;
-            } else {
-                current = current->parent();
-            }
+            current = d_func()->previous(current);
         } while (current && !matchesFlags(current));
     return *this;
 }

@@ -39,6 +39,7 @@ class QTreeModel : public QAbstractItemModel
     friend class QTreeWidget;
     friend class QTreeWidgetItem;
     friend class QTreeWidgetItemIterator;
+    friend class QTreeWidgetItemIteratorPrivate;
 
 public:
     QTreeModel(int columns = 0, QObject *parent = 0);
