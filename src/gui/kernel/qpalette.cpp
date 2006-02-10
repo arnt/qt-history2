@@ -991,9 +991,10 @@ void QPalette::setColorGroup(ColorGroup cg, const QBrush &windowText, const QBru
                              const QBrush &text, const QBrush &bright_text, const QBrush &base,
                              const QBrush &window)
 {
+    QBrush alt_base = QBrush(qt_mix_colors(base.color(), button.color()));
     QBrush mid_light = QBrush(qt_mix_colors(button.color(), light.color()));
     setColorGroup(cg, windowText, button, light, dark, mid, text, bright_text, base,
-                  mid_light, window, mid_light, text,
+                  alt_base, window, mid_light, text,
                   QBrush(Qt::black), QBrush(Qt::darkBlue), QBrush(Qt::white),
                   QBrush(Qt::blue), QBrush(Qt::magenta));
 
