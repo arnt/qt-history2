@@ -638,6 +638,8 @@ void QTextEditPrivate::adjustScrollbars()
     // on the right, hence we need an update.
     if (q_func()->isRightToLeft())
         viewport->update();
+    
+    showOrHideScrollBars();
 }
 #endif
 
