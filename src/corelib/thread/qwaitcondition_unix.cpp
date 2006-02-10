@@ -84,7 +84,7 @@ struct QWaitConditionPrivate {
     Also, if some of the threads are still in \c do_something() when
     the key is pressed, they won't be woken up (since they're not
     waiting on the condition variable) and so the task will not be
-    performed for that key press. This issue can be solve using a
+    performed for that key press. This issue can be solved using a
     counter and a QMutex to guard it. For example, here's the new
     code for the worker threads:
 
