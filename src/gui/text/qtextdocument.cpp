@@ -897,6 +897,11 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc, co
 
     painter->setClipRect(view);
     ctx.clip = view;
+    
+    // don't use the system palette text as default text color, on HP/UX
+    // for example that's white, and white text on white paper doesn't
+    // look that nice
+    ctx.palette.setColor(QPalette::Text, Qt::black);
 
     layout->draw(painter, ctx);
 
