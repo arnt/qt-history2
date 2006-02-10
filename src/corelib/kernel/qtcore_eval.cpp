@@ -333,17 +333,27 @@ void qt_gui_eval_init(uint type)
     }
 }
 
+static QString qt_eval_title_prefix()
+{
+    return qt_is_educational
+        ? QLatin1String("[Qt Educational] ")
+        : QLatin1String("[Qt Evaluation] ");
+}
+
 QString qt_eval_adapt_window_title(const QString &title)
 {
-    QString title_prefix = qt_is_educational
-                           ? QLatin1String("[Qt Educational] ")
-                           : QLatin1String("[Qt Evaluation] ");
-    return title_prefix + title;
+    return qt_eval_title_prefix() + title;
 }
 
 void qt_eval_init_widget(QWidget *w)
 {
-    if (w->isTopLevel())
-        w->setWindowTitle(" ");
+    if (w->isTopLevel()) {
+        QString windowTitle = w->windowTitle();
+        if (windowTitle.isEmpty()) {
+            w->setWindowTitle(" ");
+        } else if (!windowTitle.startsWith(qt_eval_title_prefix())) {
+            qt_eval_adapt_window_title(windowTitle);
+        }
+    }
 }
 #endif
