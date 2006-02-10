@@ -416,6 +416,13 @@ static void qt_debug_path(const QPainterPath &path)
     \sa ElementType, elementCount(), isEmpty()
 */
 
+/*!
+    \fn void QPainterPath::setElementPositionAt(int index, qreal x, qreal y)
+
+    Sets the x and y coordinate of the element at index \a index to \a
+    x and \a y.
+*/
+
 /*###
     \fn QPainterPath &QPainterPath::operator +=(const QPainterPath &other)
 

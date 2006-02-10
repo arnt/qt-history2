@@ -337,7 +337,7 @@ QPainterPath PathDeformRenderer::lensDeform(const QPainterPath &source, const QP
     double flip = m_intensity;
 
     for (int i=0; i<path.elementCount(); ++i) {
-        QPainterPath::Element &e = const_cast<QPainterPath::Element &>(path.elementAt(i));
+        const QPainterPath::Element &e = path.elementAt(i);
 
         double x = e.x + offset.x();
         double y = e.y + offset.y();
@@ -347,11 +347,11 @@ QPainterPath PathDeformRenderer::lensDeform(const QPainterPath &source, const QP
         double len = m_radius - sqrt(dx * dx + dy * dy);
 
         if (len > 0) {
-            e.x = x + flip * dx * len / m_radius;
-            e.y = y + flip * dy * len / m_radius;
+            path.setElementPositionAt(i,
+                                      x + flip * dx * len / m_radius,
+                                      y + flip * dy * len / m_radius);
         } else {
-            e.x = x;
-            e.y = y;
+            path.setElementPositionAt(i, x, y);
         }
 
     }

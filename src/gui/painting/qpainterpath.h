@@ -111,6 +111,7 @@ public:
 
     inline int elementCount() const;
     inline const QPainterPath::Element &elementAt(int i) const;
+    inline void setElementPositionAt(int i, qreal x, qreal y);
 
     bool operator==(const QPainterPath &other) const;
     bool operator!=(const QPainterPath &other) const;
@@ -249,6 +250,16 @@ inline const QPainterPath::Element &QPainterPath::elementAt(int i) const
     Q_ASSERT(i >= 0 && i < elementCount());
     return d_ptr->elements.at(i);
 }
+
+inline void QPainterPath::setElementPositionAt(int i, qreal x, qreal y)
+{
+    Q_ASSERT(d_ptr);
+    Q_ASSERT(i >= 0 && i < elementCount());
+    QPainterPath::Element &e = d_ptr->elements[i];
+    e.x = x;
+    e.y = y;
+}
+
 
 inline void QPainterPath::detach()
 {
