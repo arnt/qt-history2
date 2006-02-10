@@ -2852,6 +2852,8 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
     Image_Converter converter = *converterPtr;
     if (converter) {
         QImage image(d->width, d->height, format);
+        image.setDotsPerMeterY(dotsPerMeterY());
+        image.setDotsPerMeterX(dotsPerMeterX());
         converter(image.d, d, flags);
         return image;
     }
@@ -2865,11 +2867,15 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         else
             tmp = convertToFormat(Format_RGB32, flags);
         QImage image(d->width, d->height, format);
+        image.setDotsPerMeterY(dotsPerMeterY());
+        image.setDotsPerMeterX(dotsPerMeterX());
         convert_32_to_16(image.d, tmp.d, flags);
         return image;
     } else if (d->format == Format_RGB16) {
         int targetDepth = depthForFormat(format);
         QImage image(d->width, d->height, targetDepth == 32 ? format : Format_RGB32);
+        image.setDotsPerMeterY(dotsPerMeterY());
+        image.setDotsPerMeterX(dotsPerMeterX());
         convert_16_to_32(image.d, d, flags);
         if (targetDepth == 32)
             return image;
