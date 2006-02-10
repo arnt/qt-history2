@@ -343,12 +343,22 @@ QString QTextDocumentFragment::toPlainText() const
     return result;
 }
 
+// #### Qt 5: merge with other overload
 /*!
-    Returns the contents of the document fragment as HTML.
-
-    \sa toPlainText()
+    \overload 
 */
 QString QTextDocumentFragment::toHtml() const
+{
+    return toHtml(QByteArray());
+}
+
+/*!
+    \since 4.2
+    Returns the contents of the document fragment as HTML.
+
+    \sa toPlainText(), QTextDocument::toHtml()
+*/
+QString QTextDocumentFragment::toHtml(const QByteArray &encoding) const
 {
     if (!d)
         return QString();
@@ -356,7 +366,7 @@ QString QTextDocumentFragment::toHtml() const
     QTextHtmlExporter exporter(d->doc);
     if (!d->containsCompleteDocument)
         exporter.setFragmentMarkers(true);
-    return exporter.toHtml(QByteArray());
+    return exporter.toHtml(encoding);
 }
 
 /*!

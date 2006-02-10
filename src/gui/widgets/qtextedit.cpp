@@ -80,9 +80,7 @@ QVariant QTextEditMimeData::retrieveData(const QString &mimeType, QVariant::Type
 void QTextEditMimeData::setup() const
 {
     QTextEditMimeData *that = const_cast<QTextEditMimeData *>(this);
-    QString html = fragment.toHtml();
-    html.replace("<head>", "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");
-    that->setData(QLatin1String("text/html"), html.toUtf8());
+    that->setData(QLatin1String("text/html"), fragment.toHtml("utf-8").toUtf8());
     that->setText(fragment.toPlainText());
     fragment = QTextDocumentFragment();
 }
