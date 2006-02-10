@@ -206,8 +206,8 @@ static int qt_cmp_si(const void *n1, const void *n2)
                                : f2->item.suffix();
 
 	r = qt_cmp_si_sort_flags & QDir::LocaleAware
-            ? f1->suffix_cache.localeAwareCompare(f2->filename_cache)
-            : f1->suffix_cache.compare(f2->filename_cache);
+            ? f1->suffix_cache.localeAwareCompare(f2->suffix_cache)
+            : f1->suffix_cache.compare(f2->suffix_cache);
       }
         break;
       default:
