@@ -114,5 +114,5 @@
         export QWS_MOUSE_PROTO=MouseMan:/dev/inputs/mice
     \endcode
 
-    \sa \link emb-pointer.html Qtopia Core Pointer Handling \endlink
+    \sa {Pointer Handling}
 */

@@ -1,49 +1,49 @@
 /*!
     \page emb-pointer.html
-    \title Qtopia Core Pointer Handling
+    \title Pointer Handling
+
+    Pointer handling in Qtopia Core works for both mouse and
+    mouse-like devices such as touch panels and trackballs. The
+    various drivers can be enabled and disabled using the \c configure
+    script. For example:
     \ingroup qtopia-core
 
-    Pointer handling in Qtopia Core works for any mouse or mouse-like
-    device such as touch panels and trackballs.
+    \code
+        configure -qt-mouse-tslib
+    \endcode
 
-    Usually only one pointer device is supported in an embedded device,
-    but for demonstration purposes, Qtopia Core includes a large number of
-    supported devices.
+    Run \c{./configure -help} to list the available drivers. In the
+    default Qt configuration, only the "pc" mouse driver is enabled.
 
-    \section1 Mouse Protocols
+    \section1 Supported Protocols
 
-    Mouse drivers can be enabled/disabled via the configure script.  Running
-    \c{./configure} \c{-help} lists the available mouse drivers.  Only the
-    "pc" mouse driver is enabled in the default configuration.
+    Qtopia Core supports the MouseMan, IntelliMouse, Microsoft, NEC
+    Vr41XX and Linux Touch Panel protocols as well as the universal
+    touch screen library, tslib.
 
-    Provided the "pc" mouse driver is enabled, Qtopia Core auto-detects the
-    mouse type and device if it is one of
+    Provided that the "pc" mouse driver is enabled, Qtopia Core will
+    try to auto-detect the mouse protocol and device if it is one of
     the supported types on \c /dev/psaux or one of the \c /dev/ttyS?
-    serial lines. If multiple mice are detected, all may be used simultaneously.
+    serial lines. If multiple mice are detected, all may be used
+    simultaneously. Note that Qtopia Core does not support
+    auto-detection of \e {touch panels} in which case the protocol
+    must be specified explicitly to determine which panel to use.
 
-    Alternatively, you may set the environment variable \c QWS_MOUSE_PROTO
-    to determine which mouse to use. This environment variable may be set
-    to:
-    \quote
-        \e{\<protocol\>}\c{:}\e{\<device\>}
-    \endquote
-    where \e{\<protocol\>} is one of:
-    \list
-     \i MouseMan
-     \i IntelliMouse
-     \i Microsoft
-    \endlist
-    and \e{\<device\>} is the mouse device, often \c /dev/mouse. If no
-    such variable is specified, the built-in default is \c Auto, which
-    enables auto-detection of the mouse protocol and device.
+    Other protocols can be added by deriving from the QWSMouseHandler
+    and QMouseDriverPlugin classes and using Qt's plugin mechanism.
 
-    To add another protocol, new subclasses of QWSMouseHandler and
-    QMouseDriverPlugin can be written and installed as plugins.
+    \section1 Specifying a Protocol
 
-    \section1 Touch Panels
+    To specify which protocol to use, set the QWS_MOUSE_PROTO
+    environment variable. For example (if the current shell is bash,
+    ksh, zsh or sh):
 
-    Qtopia Core ships with support for the NEC Vr41XX touch panel and the
-    emerging linux touch panel standard used by the iPAQ and Zaurus. These
-    are subclasses of QWSCalibratedMouseHandler which is in turn a subclass
-    of QWSMouseHandler in \c src/gui/kernel/qmouse_qws.cpp.
+    \code
+         export QWS_MOUSE_PROTO=<protocol>:<device>
+    \endcode
+
+    The \c <protocol> argument is either \c MouseMan, \c IntelliMouse,
+    \c Microsoft, \c vr41xx, \c linuxtp or \c tslib, and the \c
+    <device> argument is typically \c /dev/mouse for mouse devices and
+    \c /dev/ts for touch panels.
 */

@@ -81,7 +81,7 @@
     \o \l{emb-differences.html}{Porting Your Applications to Qtopia Core}
     \o \l{emb-fonts.html}{Fonts in Qtopia Core}
     \o \l{emb-charinput.html}{Character Input in Qtopia Core}
-    \o \l{emb-pointer.html}{Qtopia Core Pointer Handling}
+    \o \l{emb-pointer.html}{Pointer Handling}
     \o \l{emb-accel.html}{Adding an Accelerated Graphics Driver to Qtopia Core}
     \omit
     \o \l{emb-porting.html}{Issues to be Aware of when Porting Qtopia Core}

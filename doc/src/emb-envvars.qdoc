@@ -17,16 +17,16 @@
     \ingroup qtopia-core
 
     \table
-    \header \i Variable \i Notes
+    \header \o Variable \o Description
 
     \row
-    \i \c QWS_SW_CURSOR
-    \i If defined, always use a software mouse cursor even when using an
+    \o \bold QWS_SW_CURSOR \target QWS_SW_CURSOR
+    \o If defined, always use a software mouse cursor even when using an
     accelerated driver that supports a hardware cursor
 
     \row
-    \i \c QWS_DISPLAY
-    \i Defines the display type and framebuffer.
+    \o \bold QWS_DISPLAY \target QWS_DISPLAY
+    \o Defines the display type and framebuffer.
     Defaults to an unaccelerated Linux framebuffer driver on \c /dev/fb0.
     Valid drivers are QVFb, LinuxFb (unaccelerated Linux framebuffer),
     Transformed (for rotated displays), and VNC. Transformed displays have a
@@ -34,28 +34,43 @@
     of 90 degrees given as Rot\<x\>, for instance Transformed:Rot90.
 
     \row
-    \i \c QWS_SIZE
-    \i If defined forces Qtopia Core into a window of \<width\> x
+    \o \bold QWS_SIZE \target QWS_SIZE
+    \o If defined forces Qtopia Core into a window of \<width\> x
     \<height\> size centred within the screen, e.g. 320x200
 
     \row
-    \i \c QWS_USB_KEYBOARD
-    \i If defined, instead of opening \c{/dev/tty}, open the USB low-level
+    \o \bold QWS_USB_KEYBOARD \target  QWS_USB_KEYBOARD
+    \o If defined, instead of opening \c{/dev/tty}, open the USB low-level
     event device defined in \c QWS_USB_KEYBOARD (e.g. \c /dev/input/event0):
     this is useful if you want to run X and Qtopia Core side by side on
     different framebuffers.
 
     \row
-    \i \c QWS_MOUSE_PROTO
-    \i Defined as \<type\>:\<device\>, e.g. \c{Microsoft:/dev/ttyS0}. If you want to
-    use a USB mouse directly (separate from X) use \c{MouseMan:/dev/input/mouse0}
-    or similar. Valid mouse protocls are Auto (automatically sense protocol),
-    MouseMan, IntelliMouse, Microsoft, \c QVfbMouse (only useful with \c QVfb)
-    and TPanel, an example touch panel driver.
+    \o \bold QWS_MOUSE_PROTO \target QWS_MOUSE_PROTO
+    \o
+
+    Specifies the protocol and device for pointer handling. The
+    variable's value is defined as:
+
+    \code
+        <protocol>:<device>
+    \endcode
+
+    The supported protocols are \c MouseMan, \c IntelliMouse, \c
+    Microsoft, \c vr41xx, \c linuxtp or \c tslib, and the device is
+    typically \c /dev/mouse, or \c /dev/ts for touch panels.
+
+    The default value is \c Auto which enables auto-detection of
+    the mouse protocol and device if the "pc" mouse driver is
+    enabled. Note that Qtopia Core does not support auto-detection of
+    touch panels in which case the protocol must be specified
+    explicitly to determine which panel to use.
+
+    See also \l {Pointer Handling}
 
     \row
-    \i \c QWS_KEYBOARD
-    \i Defines the keyboard type. Multiple keyboards can be handled at once;
+    \o \bold QWS_KEYBOARD \target QWS_KEYBOARD
+    \o Defines the keyboard type. Multiple keyboards can be handled at once;
     input will be read from all of them. Valid values:
     Buttons (an iPaq button device if \c QT_QWS_IPAQ is compiled),
     QVfbKeyboard (only useful with \c QVfb),
