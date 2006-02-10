@@ -1472,7 +1472,6 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         return;
 
     case PE_Frame:
-        qDebug("XP style: PE_FRAME");
         if (flags & State_Raised)
             return;
         name = "LISTVIEW";
