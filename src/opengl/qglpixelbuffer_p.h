@@ -24,6 +24,66 @@
 //
 // We mean it.
 //
+
+#if defined (Q_OS_HPUX) && !defined (GLX_VERSION_1_3)
+typedef unsigned long GLXPbuffer;
+
+struct GLXFBConfig {
+    int visualType;
+    int transparentType;
+                                /*    colors are floats scaled to ints */
+    int transparentRed, transparentGreen, transparentBlue, transparentAlpha;
+    int transparentIndex;
+
+    int visualCaveat;
+
+    int associatedVisualId;
+    int screen;
+
+    int drawableType;
+    int renderType;
+
+    int maxPbufferWidth, maxPbufferHeight, maxPbufferPixels;
+    int optimalPbufferWidth, optimalPbufferHeight;  /* for SGIX_pbuffer */
+
+    int visualSelectGroup;	/* visuals grouped by select priority */
+
+    unsigned int id;
+
+    GLboolean rgbMode;
+    GLboolean colorIndexMode;
+    GLboolean doubleBufferMode;
+    GLboolean stereoMode;
+    GLboolean haveAccumBuffer;
+    GLboolean haveDepthBuffer;
+    GLboolean haveStencilBuffer;
+
+    /* The number of bits present in various buffers */
+    GLint accumRedBits, accumGreenBits, accumBlueBits, accumAlphaBits;
+    GLint depthBits;
+    GLint stencilBits;
+    GLint indexBits;
+    GLint redBits, greenBits, blueBits, alphaBits;
+    GLuint redMask, greenMask, blueMask, alphaMask;
+
+    GLuint multiSampleSize;     /* Number of samples per pixel (0 if no ms) */
+
+    GLuint nMultiSampleBuffers; /* Number of availble ms buffers */
+    GLint maxAuxBuffers;
+
+    /* frame buffer level */
+    GLint level;
+
+    /* color ranges (for SGI_color_range) */
+    GLboolean extendedRange;
+    GLdouble minRed, maxRed;
+    GLdouble minGreen, maxGreen;
+    GLdouble minBlue, maxBlue;
+    GLdouble minAlpha, maxAlpha;
+};
+
+#endif
+
 #include "QtOpenGL/qglpixelbuffer.h"
 #include <private/qgl_p.h>
 
