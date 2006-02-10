@@ -64,7 +64,8 @@ class QMakeProject
     enum IncludeFlags {
         IncludeFlagNone = 0x00,
         IncludeFlagFeature = 0x01,
-        IncludeFlagNewProject = 0x02
+        IncludeFlagNewParser = 0x02,
+        IncludeFlagNewProject = 0x04
     };
     IncludeStatus doProjectInclude(QString file, uchar flags, QMap<QString, QStringList> &place);
     bool doProjectTest(QString str, QMap<QString, QStringList> &place);

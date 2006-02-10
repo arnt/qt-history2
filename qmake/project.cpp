@@ -1560,14 +1560,18 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
     IteratorBlock *it = iterator;
     FunctionBlock *fu = function;
     bool parsed = false;
-    if(flags & IncludeFlagNewProject) {
+    if(flags & (IncludeFlagNewProject|IncludeFlagNewParser)) {
         // The "project's variables" are used in other places (eg. export()) so it's not
         // possible to use "place" everywhere. Instead just set variables and grab them later
         QMakeProject proj;
         proj.variables() = place;
-        if(proj.doProjectInclude("default_pre", IncludeFlagFeature, proj.variables()) == IncludeNoExist)
-            proj.doProjectInclude("default", IncludeFlagFeature, proj.variables());
-        parsed = proj.read(file, proj.variables());
+        if(flags & IncludeFlagNewParser) {
+            if(proj.doProjectInclude("default_pre", IncludeFlagFeature, proj.variables()) == IncludeNoExist)
+                proj.doProjectInclude("default", IncludeFlagFeature, proj.variables());
+            parsed = proj.read(file, proj.variables());
+        } else {
+            parsed = proj.read(file);
+        }
         place = proj.variables();
     } else {
         parsed = read(file, place);
@@ -1746,7 +1750,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             file = Option::fixPathToLocalOS(file);
 
             QMap<QString, QStringList> tmp;
-            if(doProjectInclude(file, IncludeFlagNewProject, tmp) == IncludeSuccess) {
+            if(doProjectInclude(file, IncludeFlagNewParser, tmp) == IncludeSuccess) {
                 if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES")) {
                     QStringList &out = place["QMAKE_INTERNAL_INCLUDED_FILES"];
                     const QStringList &in = tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
@@ -2244,7 +2248,7 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
 
         bool ret = false;
         QMap<QString, QStringList> tmp;
-        if(doProjectInclude(Option::fixPathToLocalOS(args[0]), IncludeFlagNewProject, tmp) == IncludeSuccess) {
+        if(doProjectInclude(Option::fixPathToLocalOS(args[0]), IncludeFlagNewParser, tmp) == IncludeSuccess) {
             if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES")) {
                 QStringList &out = place["QMAKE_INTERNAL_INCLUDED_FILES"];
                 const QStringList &in = tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
@@ -2298,12 +2302,12 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         }
         return place[args[0]].isEmpty();
     } else if(func == "include" || func == "load") {
-        QString seek_var;
+        QString parseInto;
         const bool include_statement = (func == "include");
         bool ignore_error = include_statement;
         if(args.count() == 2) {
             if(func == "include") {
-                seek_var = args[1];
+                parseInto = args[1];
             } else {
                 QString sarg = args[1];
                 ignore_error = (sarg.toLower() == "true" || sarg.toInt());
@@ -2321,7 +2325,27 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         uchar flags = IncludeFlagNone;
         if(!include_statement)
             flags |= IncludeFlagFeature;
-        IncludeStatus stat = doProjectInclude(file, flags, place);
+        IncludeStatus stat = IncludeFailure;
+        if(!parseInto.isEmpty()) {
+            QMap<QString, QStringList> symbols;
+            stat = doProjectInclude(file, flags|IncludeFlagNewProject, symbols);
+            if(stat == IncludeSuccess) {
+                QMap<QString, QStringList> out_place;
+                for(QMap<QString, QStringList>::ConstIterator it = place.begin(); it != place.end(); ++it) {
+                    const QString var = it.key();
+                    if(var != parseInto && !var.startsWith(parseInto + "."))
+                        out_place.insert(var, it.value());
+                }
+                for(QMap<QString, QStringList>::ConstIterator it = symbols.begin(); it != symbols.end(); ++it) {
+                    const QString var = it.key();
+                    if(!var.startsWith("."))
+                        out_place.insert(parseInto + "." + it.key(), it.value());
+                }
+                place = out_place;
+            }
+        } else {
+            stat = doProjectInclude(file, flags, place);
+        }
         if(stat == IncludeFeatureAlreadyLoaded) {
             warn_msg(WarnParser, "%s:%d: Duplicate of loaded feature %s",
                      parser.file.toLatin1().constData(), parser.line_no, file.toLatin1().constData());
