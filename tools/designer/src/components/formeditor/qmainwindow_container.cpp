@@ -29,7 +29,6 @@ QMainWindowContainer::QMainWindowContainer(QMainWindow *widget, QObject *parent)
     : QObject(parent),
       m_mainWindow(widget)
 {
-    Q_ASSERT(widget->centralWidget() == 0);
 }
 
 int QMainWindowContainer::count() const
