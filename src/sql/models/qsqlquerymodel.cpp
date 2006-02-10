@@ -13,6 +13,7 @@
 
 #include "qsqlquerymodel.h"
 
+#include <qdebug.h>
 #include <qsqldriver.h>
 #include <qsqlfield.h>
 
@@ -24,19 +25,18 @@ void QSqlQueryModelPrivate::prefetch(int limit)
 {
     Q_Q(QSqlQueryModel);
 
-    if (atEnd || limit <= bottom.row())
+    if (atEnd || limit <= bottom.row() || bottom.column() == -1)
         return;
 
-    int oldAt = query.at();
-    QModelIndex oldBottom = q->createIndex(bottom.row(), 0);
     QModelIndex newBottom;
+    const int oldBottomRow = qMax(bottom.row(), 0);
 
     // try to seek directly
     if (query.seek(limit)) {
         newBottom = q->createIndex(limit, bottom.column());
     } else {
         // have to seek back to our old position for MS Access
-        int i = oldBottom.row();
+        int i = oldBottomRow;
         if (query.seek(i)) {
             while (query.next())
                 ++i;
@@ -47,14 +47,8 @@ void QSqlQueryModelPrivate::prefetch(int limit)
         }
         atEnd = true; // this is the end.
     }
-    if (newBottom.row() >= 0
-        && (newBottom.row() > oldBottom.row()
-#ifdef QT3_SUPPORT
-            || oldAt == QSql::BeforeFirst
-#endif
-            )) {
-        q->beginInsertRows(QModelIndex(), oldBottom.row() == -1 ? 0 : oldBottom.row(),
-                           newBottom.row());
+    if (newBottom.row() >= 0 && newBottom.row() > bottom.row()) {
+        q->beginInsertRows(QModelIndex(), bottom.row() + 1, newBottom.row());
         bottom = newBottom;
         q->endInsertRows();
     } else {
@@ -166,7 +160,7 @@ void QSqlQueryModel::fetchMore(const QModelIndex &parent)
     Q_D(QSqlQueryModel);
     if (parent.isValid())
         return;
-    d->prefetch(d->bottom.row() + QSQL_PREFETCH);
+    d->prefetch(qMax(d->bottom.row(), 0) + QSQL_PREFETCH);
 }
 
 /*!
@@ -330,7 +324,7 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
         d->atEnd = true;
         endInsertRows();
     } else {
-        newBottom = createIndex(0, d->rec.count() - 1);
+        newBottom = createIndex(-1, d->rec.count() - 1);
     }
     if (columnsChanged) {
         beginInsertColumns(QModelIndex(), 0, newBottom.column());
