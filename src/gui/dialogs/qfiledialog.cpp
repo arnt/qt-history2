@@ -887,6 +887,7 @@ void QFileDialog::accept()
         QFileInfo info(fn);
         if (info.isDir()) {
             setDirectory(info.absoluteFilePath());
+            d->fileNameEdit->selectAll();
             return;
         }
         // check if we have to ask for permission to overwrite the file
@@ -915,6 +916,7 @@ void QFileDialog::accept()
             }
             if (info.isDir()) {
                 setDirectory(info.absoluteFilePath());
+                d->fileNameEdit->selectAll();
                 return;
             }
         }
