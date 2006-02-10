@@ -10,7 +10,9 @@ Applications compiled for 4.0 will continue to run with 4.1.
 
 moc
         Better handling of preprocessor statements in combination
-        with multiline comments.
+        with multi line comments.
+	Fixed problem where moc would generate meta information for invalid 
+	signals/slots. (task 95487)
 
 
 configure
@@ -28,8 +30,15 @@ Qt Designer
         uic: Fixed bug that caused retranslateUI() to add existing
         items in combobox once again
 
+Qt Assistant 
+	Fixed problem with restoring window geometry on multi screen 
+	configurations. (task 90349)
+
 Qt Linguist / Internationalization
-        Fix tr() idioms, so that translation actually works.
+        Fixed tr() idioms, so that translation actually works.
+	
+Qt Translation
+	Added translation files for Simplified Chinese.
 
 ****************************************************************************
 *                          Library                                         *
@@ -40,8 +49,11 @@ Qt Linguist / Internationalization
 General improvements
 --------------------
 
+- QCoreApplication
+	Fixes racecondition during plugin loading.
+
 - QVariant
-        the QVariant(const char *) constructor is now unavailable when
+        The QVariant(const char *) constructor is now unavailable when
         QT_NO_CAST_TO_ASCII is set. Otherwise, it uses QString::fromAscii
         to convert the const char * to a unicode QString to prevent
         loss of information.
@@ -50,8 +62,44 @@ General improvements
         A significant (approx. 50x) speedup in QXmlSimpleReader when
         parsing documents which contain internal or external entities.
 
+- QDateTime
+	Fixed a regression in fromString. (task 98678)
+
 - QFile
-        changed behavior or rename() and copy()...
+        Changed behavior or rename() and copy()...
+
+- QFileDialog
+        Make sure filter combobox gets enabled when changing from 
+        Directory to ExistingFile mode.
+        Improve filename completion for files with the same name but 
+        different extension.
+        Make sure the selection is updated when modifying the filename 
+        by removing characters.
+        Allow typing in several file names in the file name line edit.
+        Improve handling of non-existent windows shares.
+        Improve handling of hidden directories.
+        Make it possible to create new folder when a folder called 
+        "New Folder" already exists.
+	Improve usability by not changing the filename text when directories 
+	are selected. 
+	Improve usability by not autoselecting the first item when changing 
+	directories.
+	Ensure that calling setDirectory with a path shows the directory when 
+	the path contains a file name.
+	Avoid unnecessary resolving of mount points, leading to lockups
+	on Unix.
+	Fixed potential crash when selecting an extention filter with no 
+	matches in current directory. (task 97304)
+
+- QFileInfo
+	Fixed issue where copying a QFileInfo and calling refresh() could result 
+	in file info data being cleared. (task 94720)
+	Fixed issue where calling readLink() would resolve link targets 
+	incorrectly. (task 90607)
+
+- QGLWidget
+	Switching from fullscreen mode to normal mode no longer results in 
+	incorrect window decorations.
 
 - QPdfPrintEngine
         Made our generated PDFs readable by Ghostscript.
@@ -67,15 +115,36 @@ General improvements
 - QToolBar
         Combo boxes now appears as submenus in a toolbar extension.
         setIconSize() now works correctly.
-        
-- QOpenGLPaintEngine
-        Make sure the image and pixmap cache is used.
+	Relative position within toolbars are now kept when saving and restoring state.
+
+-QIcon
+	Fixed issue where creating QIcons with an invalid path could 
+	result in a crash. (task 95955)
+
+- QInputDialog
+	Fixes ampersands shown instead of underline in labels.
+
+- QPaintEngine
+        OpenGL : Make sure the image and pixmap cache is used.
+        OpenGL : Faster rect outlining for the most common case.
+
+- QSyntaxHighlighter
+	Fix missing handling of blocks of text under certain conditions.
+
+- QTextBrowser
+	Fix missing linebreak after paragraph.
         
 - QTextEdit
         Improve handling of the TITLE tag.
         Fixed navigating links via tab.
-        Improved handling of illformed html.
+        Improved handling of malformed html.
         Fixed rendering for tables with thead/tbody/tfoot elements.
+	Improved copy and paste of content with whitespace
+	Significantly improved performance when appending text.
+	Make undo/redo update the cursor position.
+	Fixed memory leak when calling setHtml() repeatedly.
+	Improved performance when selecting all text.
+	Improved performance when editing text.
 
 - QSvg
         Improve stroking with pen width 0.
@@ -88,6 +157,7 @@ General improvements
 - QMainWindow
         Handle RTL layout for dockwidgets properly.
         Make dockwidgets remember their sizes after being hidden.
+	Improved reliability when saving and restoring state.
 
 - Q3TextEdit
         Fix focus indicator tabbing through tables.
@@ -107,57 +177,64 @@ General improvements
 - QAbstractItemView
         Fix selections when mouse-tracking is turned on.
 
+- QAbstractItemModel
+        More consistent behaviour in drag-and-drop code.	
+
 - QTableView
         Fixed drawing of selections after moving columns.
         Do not wrap to the top if Page Down is pressed.
         Improve scrolling behavior.
         QTableView now takes ownership of QHeaders set using setHorizontalHeader()
-                
+	Fixed issue where calling setModel(0) could result in a crash. (task 97535)
+	
 - QTreeView
         Fixed scrolling-related item expand bug.
         Improve scrolling behavior.
         QTreeView now takes ownership of QHeaders set using setHorizontalHeader()
-        
+        Avoid crash when calling setRowHidden with no model.
+	Avoid crash when calling sizeHintForColumn() in some cases.
+	Improved performance when adding rows.
+	Fixed a bug where changing row heights sometimes did not update
+	the view properly. (task 94567)
+
 - QItemDelegate
         Better handling of QStyleOptionViewItem::Bottom.
         Increased the delegate horizontal margin.
         
 - QHeaderView
         Respects dragDistance.
-        Fix painting problems caused by clicking both mouse buttons
+        Fixed painting problems caused by clicking both mouse buttons
         at the same time.
         Respects TextColorRole.
-        Fix painting flaws when using sort indicators. 
-        
+        Fixed painting flaws when using sort indicators. 
+	Fixed issue where QStyleOptionHeader::End would not be set by
+	paintSection. (task 89576)
+	Only the left mouse button can now be used to move and resize
+	header sections. (task 98243)
+
 - QGridLayout 
         Respect specified alignment over default alignment.
 
 - QSvgRenderer
         Better handling  of invalid files.
 
+- QMenuItem
+	Ensure space for both check mark and icon when using QPlastiqueStyle.
+
 - QPrintEngine
         Better font underlining/overlining.? (199807)
         Embed fonts as TrueType font files into PDF? (199815)
+		
 
 - Q3ActionGroup
         Fix drop down drawing error.
 
 - QWidget
         Fix regression in setMask().
+	stuff ### fixme (change 204854)
+	Fixed issue where incorrect minimum size was reported after reparenting from
+	a top level widget.
 
-- QFileDialog
-        Make sure filter combobox gets enabled when changing from 
-        Directory to ExistingFile mode.
-        Improve filename completion for files with the same name but 
-        different extention.
-        Make sure the selection is updated when modifying the filename 
-        by removing characters.
-        Allow typing in several file names in the file name line edit.
-        Improve handling of non-existant windows shares.
-        Improve handling of hidden directories.
-        Make it possible to create new folder when a folder called 
-        "New Folder" already exists.
-        
 - QHash / QSet
         Make the operator==() not take the internal order of elements
         into account when comparing.
@@ -166,7 +243,8 @@ General improvements
         Improve handling of hostnames that start with a digit.
         Fix crash when calling hasQueryItem() on QUrl without any
         query items.
-        
+	Added support for parsing file names with '[' and ']' characters. (task 95629)
+
 - QLayout
         Warn instead of crash when adding two layouts to a widget.
 
@@ -180,11 +258,39 @@ General improvements
         Fix setting the window title on torn off menus.
         Fix bug where exec() returned the wrong QAction on some cases.
         
+- QTemporaryFile
+	Fixed issue where calling open() could potentially change the file name.
+	(task 96965)
+
+- QScrollArea
+	Fixed an issue where the scroll area sometimes would not resize to
+	compensate for content change. (task 86278)
+
+- QString
+	Fixed regression in fromLocal8Bit().
+
 - QTextDocument
-        Fix crash when importing incorrecty formed html tables.
+        Improved stability when importing incorrectly formed html tables.
+	Improved stability when importing closing tags without corresponding 
+	opening tags.
         
+- QTextStream
+	Ensure valid codec converter state after calling seek(0).	
+	Fixed issue where readAll() would not work with sequential devices.
+	(task 97917)	
+
 - QPushButton
         Buttons reparented into a dialog parent through the layout are now auto-default.
+
+- QDirModel
+	Improved stability when appending network drives.
+	Improved stability when handling symlinks with relative paths.
+
+- QSortFilterProxyModel
+	Improve stability when adding rows to source model.
+	Fixed issue where some nodes would show up as expandable even if all 
+	it's children had been filtered. (task 97659)
+	
 
 - QTabBar
         Improve handling of tab removal.
@@ -197,20 +303,30 @@ General improvements
         Fix crash when formatValue() is called without connection.
 
 - QVariant
-        Improve operator==() behavior when comaring different types.
+        Improve operator==() behavior when comparing different types.
 
 - QMessageBox
         information() now works correctly when calling it after returning
-        from QApplication::exec()      
-                
+        from QApplication::exec()
         
+- XMLInputReader
+	Fixed issue where entities in XML files were not resolved. (task 95004)
+
+
 Platform-Specific changes
 -------------------------
 
 Windows:
 
+
 - Timers now continue to fire when windows enters a modal event loop.
 - Improve Type 1 font rendering.
+- Improved performance of font rendering.
+
+
+- QAxServer
+	Fixed issue where updateRegistry would report success, even though 
+	the operation failed. (task 98380)
 
 - QClipboard
         Make sure the dataChanged() signal is emitted correctly.
@@ -218,6 +334,17 @@ Windows:
 - QUdpSocket
         Better handling when sending to an unbound port.
 
+- QPrinter
+	Fixed issue where the orientation for a QPrinter would be 
+	ignored. (task 97315)
+
+- QPrintDialog
+	Fix unhandled exception when a print dialog is launched from within 
+	Visual Studio.
+
+- QPrintEngine
+	Ensure correct pageRect() and paperRect() when printer resolution is set 
+	manually. 
 
 - QFileDialog
         Improve handling of path names with special characters.
@@ -231,7 +358,7 @@ Windows:
 
 - QDockWidget
         Improve the look of title bar buttons.
-        Improve look when using QWindowsStyle.
+        Improved appearance of dock widget title and frame.
 
 - QWdiget
         Fix setWindowOpacity flicker.
@@ -243,17 +370,48 @@ Windows:
         Fix PCL printer line drawing bug.
 
 X11:
+
+- Reintroduced qt_x11_set_global_double_buffer() for binary compatibility.
+
 - Improved tablet event handling.
+
+- QtDemo now asks if animations should be disabled if it is not running on 
+	an accelerated XRender.
+
+- QPaintEngine
+	Fixed issue where filling and stroking ellipses could leave pixel 
+	gaps.	
+
 - QPainter
-        Fix artifacts when drawing aliased primitives with an alpha
-        pen.
         Implemented Porter-Duff composition support.
-        
+        Fix artifacts when drawing aliased primitives with an alpha pen.
+        Fixed issue where rotating pixmaps could add a pixel row in some cases. 
+	(task 92307)
+
+- QPrinter
+	Fixed issue where some child processes were not cleaned up after use. 
+	(task 98217)
+
+- qmake
+	Improved stability when modifying environment variables
+
+- QProcess
+	Fixed possible deadlock when calling startDetatched(). 
+	(task 90183)
+
+- QTextEdit
+	Fixed an issue where the horizontal scrollbar did not show up. 
+	(task 92670)
 
 Mac OS X:
 
 - General fixes to the drag and drop support.
 - Fixed compilation with -no-qt3support on Mac OS 10.3
+- Ensure that the mac installer can accept an academic license.
+- qmake now places PkgInfo in the "Contents" directory of the .app bundle.
+- Improved performance when resizing widgets.
+- Fixed font issues for input methods with japanese. (task 96874)
+- Fixed issue with pasting japanese text. (task 97391)
 
 - QCursor
         Fix alpha pixmap cursors.
@@ -261,30 +419,52 @@ Mac OS X:
 - QHeaderView
         Fix text truncating issue on headers.
 
+- QMenu
+	Improved menu styling. (task 86762)	
+
 - QWorkSpace 
-        Improve wokrspace children appearance.
+        Improve workspace children appearance.
+
+- QDesktopWidget
+	Improve stability when changing users.
         
 - QDockWidget 
         Improve dock widget appearance.
+
+- QGroupBox
+	More conformant styling.
+
+- QTextEdit
+	Fixed focus issues with japanese input. (task 97171)
 
 - QToolBar 
         Improve tool bar appearance.
 
 - QPushButton
         Make mac style obey the icon size set by setIconSize().
+	Make sure buttons are not shown as default on inactive windows.
 
 - QSplashScreen
         Fix painting errors when using showMessage().
         
+- QPainter
+	Add support SmoothPixmap transform
+
+- QLabel
+	Fix labels painted incorrectly when using MacMetalStyle.
+
 Qtopia Core
 
+- Removed flickering when mouse cursor is above an animation.
+- Optimized use of shared memory.
 - Implement QPixmap::grabWindow
 
 - PDF
         Support PDF font embedding.
         
+
 3rd-party libraries
 -------------------
 - Fix memory leak in freetype.
 
-last change was: 203215
+last change was: 204962
