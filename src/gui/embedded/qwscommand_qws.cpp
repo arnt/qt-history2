@@ -311,9 +311,11 @@ void qws_write_command(QIODevice *socket, int type, char *simpleData, int simple
                        char *rawData, int rawLen)
 {
 #ifdef QWSCOMMAND_DEBUG
-    //   if (simpleLen) qDebug() << "WRITE simpleData " << QWSHexDump(simpleData, simpleLen);
-//    if (rawLen > 0) qDebug() << "WRITE rawData " << QWSHexDump(rawData, rawLen);
+    if (simpleLen) qDebug() << "WRITE simpleData " << QWSHexDump(simpleData, simpleLen);
+    if (rawLen > 0) qDebug() << "WRITE rawData " << QWSHexDump(rawData, rawLen);
 #endif
+
+#ifdef QT_NO_SXV
     qws_write_uint(socket, type);
     qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
 
@@ -325,6 +327,31 @@ void qws_write_command(QIODevice *socket, int type, char *simpleData, int simple
 
     if (rawLen && rawData)
         socket->write(rawData, rawLen);
+#else
+    if ( rawLen == -1 ) rawLen = 0;
+    ::iovec vec[4];
+    vec[0].iov_base = &type;
+    vec[0].iov_len = sizeof(type);
+    vec[1].iov_base = &rawLen;
+    vec[1].iov_len = sizeof(rawLen);
+    int nxVec = 2;
+    if (simpleData && simpleLen)
+    {
+        vec[nxVec].iov_base = simpleData;
+        vec[nxVec].iov_len = simpleLen;
+        nxVec++;
+    }
+    if (rawLen && rawData)
+    {
+        vec[nxVec].iov_base = rawData;
+        vec[nxVec].iov_len = rawLen;
+        nxVec++;
+    }
+    QUnixSocketMessage msg( vec, nxVec );
+    QUnixSocket *usock = static_cast<QUnixSocket*>(socket);
+    usock->write( msg );
+    usock->waitForBytesWritten(-1);
+#endif // QT_NO_SXV
 }
 
 /*

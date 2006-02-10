@@ -207,12 +207,15 @@ int QUnixSocketRights::peekFd() const
 struct QUnixSocketMessagePrivate : public QSharedData
 {
     QUnixSocketMessagePrivate() 
-    : state(Default) {}
+    : state(Default), vec(0), iovecLen(0), dataSize(0) {}
     QUnixSocketMessagePrivate(const QByteArray & b) 
-    : bytes(b), state(Default) {}
+    : bytes(b), state(Default), vec(0), iovecLen(0), dataSize(0) {}
     QUnixSocketMessagePrivate(const QByteArray & b,
                               const QList<QUnixSocketRights> & r)
-    : bytes(b), rights(r), state(Default) {}
+    : bytes(b), rights(r), state(Default), vec(0), iovecLen(0), dataSize(0) {}
+
+    int size() const { return vec ? dataSize : bytes.size(); }
+    void removeBytes( unsigned int );
 
     QByteArray bytes;
     QList<QUnixSocketRights> rights;
@@ -222,9 +225,53 @@ struct QUnixSocketMessagePrivate : public QSharedData
     pid_t pid;
     gid_t gid;
     uid_t uid;
+
+    ::iovec *vec;
+    int iovecLen;  // number of vectors in array
+    int dataSize;  // total size of vectors = payload
 };
 
-/*! 
+/*!
+  \internal
+  Remove \a bytesToDequeue bytes from the front of this message
+*/
+void QUnixSocketMessagePrivate::removeBytes( unsigned int bytesToDequeue )
+{
+    if ( vec )
+    {
+        ::iovec *vecPtr = vec;
+        if ( bytesToDequeue > (unsigned int)dataSize ) bytesToDequeue = dataSize;
+        while ( bytesToDequeue > 0 && iovecLen > 0 )
+        {
+            if ( vecPtr->iov_len > bytesToDequeue )
+            {
+                // dequeue the bytes by taking them off the front of the
+                // current vector.  since we don't own the iovec, its okay
+                // to "leak" this away by pointing past it
+                (char *)(vecPtr->iov_base) += bytesToDequeue;
+                vecPtr->iov_len -= bytesToDequeue;
+                bytesToDequeue = 0;
+            }
+            else
+            {
+                // dequeue bytes by skipping a whole vector.  again, its ok
+                // to lose the pointers to this data
+                bytesToDequeue -= vecPtr->iov_len;
+                iovecLen--;
+                vecPtr++;
+            }
+        }
+        dataSize -= bytesToDequeue;
+        if ( iovecLen == 0 ) vec = 0;
+    }
+    else
+    {
+        bytes.remove(0, bytesToDequeue );
+    }
+}
+
+
+/*!
   \class QUnixSocketMessage
   \brief The QUnixSocketMessage class encapsulates a message sent or received 
   through the QUnixSocket class.
@@ -309,6 +356,28 @@ QUnixSocketMessage::QUnixSocketMessage(const QByteArray & bytes,
 QUnixSocketMessage::QUnixSocketMessage(const QUnixSocketMessage & other)
 : d(other.d)
 {
+}
+
+/*!
+  Construct a QUnixSocketMessage with an initial data payload of \a vec which
+  points to an array of vecLen iovec structures.  The message's credentials
+  will be set to the application's default credentials.
+
+  This method can be used to avoid the overhead of copying buffers of data
+  and will directly send the data pointed to by \a vec on the socket.  It also
+  avoids the syscall overhead of making a number of small socket write calls,
+  if a number of data items can be delivered with one write.
+
+  Caller must ensure the iovec * \a data remains valid until the message
+  is flushed.  Caller retains ownership of the iovec structs.
+  */
+QUnixSocketMessage::QUnixSocketMessage(const ::iovec* data, int vecLen )
+: d(new QUnixSocketMessagePrivate())
+{
+    for ( int v = 0; v < vecLen; v++ )
+        d->dataSize += data[v].iov_len;
+    d->vec = const_cast<iovec*>(data);
+    d->iovecLen = vecLen;
 }
 
 /*!
@@ -1210,13 +1279,13 @@ void QUnixSocket::setRightsBufferSize(qint64 size)
 qint64 QUnixSocket::write(const QUnixSocketMessage & socketdata)
 {
     if(ConnectedState != state() || !socketdata.isValid()) return -1;
-    if(socketdata.bytes().isEmpty()) return 0;
+    if(socketdata.d->size() == 0) return 0;
 
     d->writeQueue.enqueue(socketdata);
-    d->writeQueueBytes += socketdata.bytes().size();
+    d->writeQueueBytes += socketdata.d->size();
     d->writeNotifier->setEnabled(true);
 
-    return socketdata.bytes().size();
+    return socketdata.d->size();
 }
 
 /*!
@@ -1353,21 +1422,16 @@ bool QUnixSocket::waitForBytesWritten(int msecs)
     QTime stopWatch;
     stopWatch.start();
 
-    while ( true ) {
+    while ( true )
+    {
         fd_set fdwrite;
         FD_ZERO(&fdwrite);
         FD_SET(d->fd, &fdwrite);
-
-        int timeout;
-        if (msecs == -1)
-            timeout = -1;
-        else
-            timeout = msecs - stopWatch.elapsed();
-        timeout = timeout < 0 ? 0 : timeout;
-
+        int timeout = msecs < 0 ? 0 : msecs - stopWatch.elapsed();
         struct timeval tv;
         struct timeval *ptrTv = 0;
-        if(-1 != timeout) {
+        if ( -1 != msecs )
+        {
             tv.tv_sec = timeout / 1000;
             tv.tv_usec = (timeout % 1000) * 1000;
             ptrTv = &tv;
@@ -1439,14 +1503,25 @@ void QUnixSocketPrivate::writeActivated()
     // Construct the message
     //
     ::iovec vec;
-    vec.iov_base = (void *)m.bytes().constData();
-    vec.iov_len = m.bytes().size();
-   
+    if ( !m.d->vec ) // message does not already have an iovec
+    {
+        vec.iov_base = (void *)m.bytes().constData();
+        vec.iov_len = m.bytes().size();
+    }
+
     // Allocate the control buffer
     ::msghdr sendmessage;
     ::bzero(&sendmessage, sizeof(::msghdr));
-    sendmessage.msg_iov = &vec;
-    sendmessage.msg_iovlen = 1;
+    if ( m.d->vec )
+    {
+        sendmessage.msg_iov = m.d->vec;
+        sendmessage.msg_iovlen = m.d->iovecLen;
+    }
+    else
+    {
+        sendmessage.msg_iov = &vec;
+        sendmessage.msg_iovlen = 1;
+    }
     unsigned int required = CMSG_SPACE(sizeof(::ucred)) + 
                             a.size() * CMSG_SPACE(sizeof(int));
     sendmessage.msg_control = new char[required];
@@ -1483,7 +1558,7 @@ void QUnixSocketPrivate::writeActivated()
     }
 
 #ifdef QUNIXSOCKET_DEBUG
-    qDebug() << "QUnixSocket: Transmitting message (length" << m.bytes().size() << ")";
+    qDebug() << "QUnixSocket: Transmitting message (length" << m.d->size() << ")";
 #endif
     ::ssize_t s = ::sendmsg(fd, &sendmessage, MSG_DONTWAIT | MSG_NOSIGNAL);
 #ifdef QUNIXSOCKET_DEBUG
@@ -1508,13 +1583,13 @@ void QUnixSocketPrivate::writeActivated()
                     CausedAbort);
             me->abort();
         }
-    } else if(s != m.bytes().size()) {
-        
+    } else if(s != m.d->size()) {
+
         // A partial transmission
         writeNotifier->setEnabled(true);
         delete [] (char *)sendmessage.msg_control;
         m.d->rights = QList<QUnixSocketRights>();
-        m.d->bytes.remove(0, s);
+        m.d->removeBytes( s );
         writeQueueBytes -= s;
         emit bytesWritten(s);
         return;

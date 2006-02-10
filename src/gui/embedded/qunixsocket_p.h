@@ -14,6 +14,17 @@
 #ifndef _QUNIXSOCKET_H_
 #define _QUNIXSOCKET_H_
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include <QtNetwork/qabstractsocket.h>
 #include <QtCore/qiodevice.h>
 #include <QtCore/qlist.h>
@@ -27,6 +38,7 @@ class QUnixSocketRights;
 class QUnixSocketRightsPrivate;
 class QUnixSocketPrivate;
 class QUnixSocketMessagePrivate;
+class iovec;
 
 class QUnixSocketRights {
 public:
@@ -53,6 +65,7 @@ public:
     QUnixSocketMessage(const QByteArray &);
     QUnixSocketMessage(const QByteArray &, const QList<QUnixSocketRights> &);
     QUnixSocketMessage(const QUnixSocketMessage &);
+    QUnixSocketMessage(const iovec*, int);
     QUnixSocketMessage & operator=(const QUnixSocketMessage &);
     ~QUnixSocketMessage();
 
