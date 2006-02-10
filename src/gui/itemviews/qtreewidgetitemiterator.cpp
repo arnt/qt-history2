@@ -166,11 +166,11 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidget *widget, IteratorFl
 */
 
 QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidgetItem *item, IteratorFlags flags)
-    : d_ptr(new QTreeWidgetItemIteratorPrivate(item->model)), current(item), flags(flags)
+    : d_ptr(new QTreeWidgetItemIteratorPrivate(::qobject_cast<QTreeModel*>(item->view->model()))), current(item), flags(flags)
 {
     Q_D(QTreeWidgetItemIterator);
     Q_ASSERT(item);
-    QTreeModel *model = item->model;
+    QTreeModel *model = ::qobject_cast<QTreeModel*>(item->view->model());
     Q_ASSERT(model);
     model->iterators.append(this);
 
