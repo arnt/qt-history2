@@ -134,6 +134,8 @@ public:
 #endif
 
     QWidget *parentWidget() const;
+    
+    QList<QWidget *> associatedWidgets() const;
 
 protected:
     bool event(QEvent *);

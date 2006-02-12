@@ -233,6 +233,18 @@ QWidget *QAction::parentWidget() const
     return (QWidget*)ret;
 }
 
+/*!
+  \since 4.2
+  Returns a list of widgets this action has been added to.
+  
+  \sa QWidget::addAction
+*/
+QList<QWidget *> QAction::associatedWidgets() const
+{
+    Q_D(const QAction);
+    return d->widgets;
+}
+
 #ifndef QT_NO_SHORTCUT
 /*!
     \property QAction::shortcut
