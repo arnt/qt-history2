@@ -942,7 +942,7 @@ class QDataStream;
 class QString;
 class Q_CORE_EXPORT QSysInfo {
 public:
-    enum {
+    enum Sizes {
         WordSize = (sizeof(void *)<<3)
     };
 

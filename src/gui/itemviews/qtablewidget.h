@@ -50,7 +50,7 @@ class Q_GUI_EXPORT QTableWidgetItem
     friend class QTableWidget;
     friend class QTableModel;
 public:
-    enum { Type = 0, UserType = 1000 };
+    enum ItemType { Type = 0, UserType = 1000 };
     QTableWidgetItem(int type = Type);
     explicit QTableWidgetItem(const QString &text, int type = Type);
     QTableWidgetItem(const QTableWidgetItem &other);

@@ -145,7 +145,7 @@ public:
     int elapsed() const;
 
 private:
-    enum { NullTime = -1 };
+    enum TimeFlag { NullTime = -1 };
     inline int ds() const { return mds == -1 ? 0 : mds; }
     int mds;
 

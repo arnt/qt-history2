@@ -1021,7 +1021,7 @@ public:
         DockWidgetArea_Mask = 0xf,
         AllDockWidgetAreas = DockWidgetArea_Mask
     };
-    enum {
+    enum DockWidgetAreaSizes {
         NDockWidgetAreas = 4
     };
 
@@ -1037,7 +1037,7 @@ public:
         AllToolBarAreas = ToolBarArea_Mask
     };
 
-    enum {
+    enum ToolBarAreaSizes {
         NToolBarAreas = 4
     };
 
