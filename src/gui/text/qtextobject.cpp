@@ -607,6 +607,8 @@ QTextFrame::iterator QTextFrame::end() const
 QTextFrame::iterator::iterator()
 {
     f = 0;
+    b = 0;
+    e = 0;
     cf = 0;
     cb = 0;
 }
