@@ -42,6 +42,9 @@
     \o Integrated support for rendering
     \l{The Arthur Paint System#SVG Rendering Support}{Scalable Vector Graphics}
     (SVG) drawings and animations.
+    \o Support for
+       \l{QWidget#Transparency and Double Buffering}{child widget transparency}
+       on all platforms.
     \o A Portable Document Format (PDF) backend for Qt's printing system.
     \o A \l{QTestLib Manual}{unit testing framework} for Qt applications and
        libraries.
