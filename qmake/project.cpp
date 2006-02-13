@@ -1185,6 +1185,7 @@ QMakeProject::read(uchar cmd)
                     fprintf(stderr, "QMAKESPEC has not been set, so configuration cannot be deduced.\n");
                     return false;
                 }
+                Option::mkfile::qmakespec = qmakespec;
             }
 
             if(QDir::isRelativePath(qmakespec) &&
