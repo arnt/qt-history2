@@ -646,14 +646,21 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #elif defined(Q_WS_WIN)
             releaseBuffer();
 #elif defined(Q_WS_QWS)
-            QRegion tlwRegion = tlwFrame;
-            tlwOffset = tlw->geometry().topLeft() - tlwFrame.topLeft();
+            QRegion decRegion;
+            QRegion tlwRegion;
+#ifndef QT_NO_QWS_MANAGER
+            if (topextra->qwsManager)
+                decRegion = topextra->qwsManager->region();
+#endif
             if (!tlw->d_func()->extra->mask.isEmpty()) {
                 tlwRegion = tlw->d_func()->extra->mask;
                 tlwRegion.translate(tlw->geometry().topLeft());
-                tlwRegion &= tlwFrame;
+                tlwRegion &= decRegion;
                 tlwSize = tlwRegion.boundingRect().size();
                 tlwOffset = tlw->geometry().topLeft() - tlwRegion.boundingRect().topLeft();
+            } else {
+                tlwRegion = decRegion + tlw->geometry();
+                tlwOffset = tlw->geometry().topLeft() - tlwFrame.topLeft();
             }
             QBrush bgBrush = tlw->palette().brush(tlw->backgroundRole());
             bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
