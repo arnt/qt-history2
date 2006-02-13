@@ -421,6 +421,8 @@ for package in $PACKAGES; do
         done
     else
         cp "$TMP_DIR/licenses/License.rtf" "$package_dir/Contents/Resources"
+        cp opensourceStuff/InstallationCheck "$package_dir/Contents/Resources"
+        cp opensourceStuff/InstallationCheck.strings "$package_dir/Contents/Resources"
     fi
     for a in $package_dir/Contents/Resources/*.plist $package_dir/Contents/Resources/*.info $package_dir/Contents/Resources/*flight $package_dir/Contents/Resources/*.rtf; do
 	[ -e "$a" ] && doStringReplace "$a" "$a"
@@ -497,6 +499,8 @@ if [ "$MAKE_META" = "yes" ]; then
         done
     else
         cp "$TMP_DIR/licenses/License.rtf" "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
+        cp opensourceStuff/InstallationCheck "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
+        cp opensourceStuff/InstallationCheck.strings "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     fi
     for a in $OUTPUT_DIR/Qt.mpkg/Contents/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.info $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.rtf; do
 	doStringReplace "$a" "$a"
