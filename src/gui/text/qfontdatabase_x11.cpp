@@ -577,7 +577,7 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
     int fontCount;
     // force the X server to give us XLFDs
     QByteArray xlfd_pattern("-*-");
-    xlfd_pattern += reqFamily ? reqFamily : "*";
+    xlfd_pattern += (reqFamily && reqFamily[0] != '\0') ? reqFamily : "*";
     xlfd_pattern += "-*-*-*-*-*-*-*-*-*-*-";
     xlfd_pattern += xlfd_for_id(encoding_id);
 
@@ -1653,7 +1653,11 @@ QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &req
             XFontStruct *xfs;
             if ((xfs = XLoadQueryFont(QX11Info::display(), xlfd))) {
                 fe = new QFontEngineXLFD(xfs, xlfd, mib);
-                initFontDef(desc, request, &fe->fontDef);
+                const int dpi = QX11Info::appDpiY();
+                if (!qt_fillFontDef(xfs, &fe->fontDef, dpi)
+                    && !qt_fillFontDef(xlfd, &fe->fontDef, dpi)) {
+                    initFontDef(desc, request, &fe->fontDef);
+                }
             }
         }
         if (!fe) {
