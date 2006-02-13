@@ -630,8 +630,14 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 
 #ifdef Q_WS_QWS
         //QWExtra *extra = tlw->d_func()->extra;
-        QRect tlwFrame = tlw->frameGeometry();
-        QSize tlwSize = tlwFrame.size();
+        QRegion tlwRegion = tlw->geometry();
+#ifndef QT_NO_QWS_MANAGER
+        if (topextra->qwsManager)
+            tlwRegion += topextra->qwsManager->region();
+#endif
+        if (!tlw->d_func()->extra->mask.isEmpty())
+            tlwRegion &= tlw->d_func()->extra->mask.translated(tlw->geometry().topLeft());
+        QSize tlwSize = tlwRegion.boundingRect().size();
 #else
         QSize tlwSize = tlw->size();
 #endif
@@ -646,22 +652,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #elif defined(Q_WS_WIN)
             releaseBuffer();
 #elif defined(Q_WS_QWS)
-            QRegion decRegion;
-            QRegion tlwRegion;
-#ifndef QT_NO_QWS_MANAGER
-            if (topextra->qwsManager)
-                decRegion = topextra->qwsManager->region();
-#endif
-            if (!tlw->d_func()->extra->mask.isEmpty()) {
-                tlwRegion = tlw->d_func()->extra->mask;
-                tlwRegion.translate(tlw->geometry().topLeft());
-                tlwRegion &= decRegion;
-                tlwSize = tlwRegion.boundingRect().size();
-                tlwOffset = tlw->geometry().topLeft() - tlwRegion.boundingRect().topLeft();
-            } else {
-                tlwRegion = decRegion + tlw->geometry();
-                tlwOffset = tlw->geometry().topLeft() - tlwFrame.topLeft();
-            }
+            tlwOffset = tlw->geometry().topLeft() - tlwRegion.boundingRect().topLeft();
             QBrush bgBrush = tlw->palette().brush(tlw->backgroundRole());
             bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
             QImage::Format imageFormat = (opaque && qt_screen->depth() == 16) ? QImage::Format_RGB16 : QImage::Format_ARGB32_Premultiplied;
