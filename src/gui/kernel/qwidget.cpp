@@ -643,9 +643,76 @@ void QWidget::setAutoFillBackground(bool enabled)
 
     \endlist
 
+    \section1 Transparency and Double Buffering
+
     From Qt 4.0, QWidget automatically double-buffers its painting, so
     there's no need to write double-buffering code in paintEvent() to
-    avoid flicker.
+    avoid flicker. Additionally, it became possible for widgets to
+    propagate their contents to children, in order to enable transparency
+    effects, by setting the Qt::WA_ContentsPropagated widget attribute -
+    this is now deprecated in Qt 4.1.
+
+    In Qt 4.1, the contents of parent widgets are propagated by default
+    to each of their children. Custom widgets can be written to take
+    advantage of this feature by only updating irregular regions (to
+    create non-rectangular child widgets), or by using painting with
+    colors that have less than the full alpha component. The following
+    diagram shows how attributes and properties of a custom widget can
+    be fine-tuned to achieve different effects.
+
+    \image propagation-custom.png
+
+    In the above diagram, a semi-transparent rectangular child widget with
+    an area removed is constructed and added to a parent widget (a QLabel
+    showing a pixmap) then different properties and widget attributes are
+    set to achieve different effects:
+
+    \list
+    \o The top-left widget has no additional properties or widget attributes
+       set. This default state suits most custom widgets that use transparency
+       or are irregularly-shaped, and that do not paint over their entire area
+       with an opaque brush.
+    \o The top-right widget has the \l autoFillBackground property set.
+       This property is used with custom widgets that rely on the widget style
+       to supply a default background, and do not paint over their entire area
+       with an opaque brush.
+    \o The bottom-left widget has the Qt::WA_OpaquePaintEvent widget attribute
+       set. This indicates that the widget will supply its own background
+       decoration by painting its entire area with an opaque brush before
+       painting anything else. The widget's area will be uninitialized
+       (represented in the diagram by a white area with a red diagonal grid
+       pattern). This is useful for widgets that need to paint their own
+       specialized contents quickly and that do not need a default filled
+       background.
+    \o The bottom-right widget has both the Qt::WA_OpaquePaintEvent widget
+       attribute \e{and} the \l autoFillBackground property set.
+       We show this case to demonstrate that there is no advantage to
+       using both Qt::WA_OpaquePaintEvent and \l autoFillBackground to
+       control widget repainting. You should choose just one of these
+       depending on your requirements.
+    \endlist
+
+    For rapidly updating custom widgets with simple background colors, such
+    as real-time plotting or graphing widgets, it is better to define a
+    suitable background color (using setBackgroundRole() with the
+    QPalette::Window role), set the \l autoFillBackground property, and only
+    implement the necessary drawing functionality in the widget's paintEvent().
+
+    For rapidly updating custom widgets that constantly paint over their entire
+    areas with opaque content, such as video streaming widgets, it is
+    better to set the widget's Qt::WA_OpaquePaintEvent, avoiding any unnecessary
+    overhead associated with repainting the widget's background.
+
+    In Qt 4.1, the contents of parent widgets are also propagated to standard
+    Qt widgets. This can lead to some unexpected results if the parent widget
+    is decorated in a non-standard way, as shown in the diagram below.
+
+    \image propagation-standard.png
+
+    The scope for customizing the painting behavior of standard Qt widgets,
+    without resorting to subclassing, is slightly less than that possible for
+    custom widgets. Usually, the desired appearance of a standard widget can be
+    achieved by setting its \l autoFillBackground property.
 
     \sa QEvent, QPainter, QGridLayout, QBoxLayout
 */
