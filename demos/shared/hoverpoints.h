@@ -88,7 +88,7 @@ public:
 
 private:
     inline QRectF pointBoundingRect(int i) const;
-    inline void movePoint(int i, const QPointF &newPos, bool emitChange = true);
+    void movePoint(int i, const QPointF &newPos, bool emitChange = true);
 
     QWidget *m_widget;
 
