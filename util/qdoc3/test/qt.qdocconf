@@ -2,7 +2,7 @@ include(compat.qdocconf)
 
 project                 = Qt
 description             = Qt Reference Documentation
-url                     = http://doc.trolltech.com/4.1
+url                     = http://doc.trolltech.com/4.2
 
 edition.Console         = QtCore QtNetwork QtSql QtXml QtTest
 edition.Desktop         = QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtXml \
