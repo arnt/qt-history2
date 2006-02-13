@@ -4115,7 +4115,7 @@ void bitBlt(QImage *dst, int dx, int dy, const QImage *src, int sx, int sy, int 
     contents; otherwise returns false.
 
     The comparison can be slow, unless there is some obvious
-    difference (e.g. different size), in which case the
+    difference (e.g. different size or format), in which case the
     function will return quickly.
 
     \sa operator=()
@@ -4130,19 +4130,8 @@ bool QImage::operator==(const QImage & i) const
         return false;
 
     // obviously different stuff?
-    if (i.d->height != d->height || i.d->width != d->width)
+    if (i.d->height != d->height || i.d->width != d->width || i.d->format != d->format)
         return false;
-
-    if (i.d->format != d->format) {
-        if (hasAlphaChannel() != i.hasAlphaChannel())
-            return false;
-        // Compare to converted image of highest possible precision
-        if (d->depth == 32)
-            return operator==(i.convertToFormat(d->format));
-        if (i.d->depth == 32)
-            return i.operator==(convertToFormat(i.d->format));
-        return (convertToFormat(Format_ARGB32) == i.convertToFormat(Format_ARGB32));
-    }
 
     if (d->format != Format_RGB32) {
         if (d->colortable != i.d->colortable)
