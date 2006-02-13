@@ -267,7 +267,15 @@ QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int 
     default:
         region = QDecorationDefault::region(widget, rect, decorationRegion);
     }
-    return region;
+
+    opt.rect = QRect(rect.x() - titleExtra, rect.top() - titleHeight,
+                         rect.width() + 2 * titleExtra,
+                         rect.height() + titleHeight + titleExtra);
+
+    QStyleHintReturnMask mask;
+    style->styleHint(QStyle::SH_WindowFrame_Mask, &opt, widget, &mask);
+
+    return (region & mask.region);
 }
 
 #endif // QT_NO_QWS_DECORATION_STYLED
