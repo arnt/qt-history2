@@ -4374,9 +4374,11 @@ void Q3Table::columnWidthChanged(int col)
 			 s.width() - w + 1, visibleHeight(), false);
 
     // update widgets that are affected by this change
-    if (widgets.size())
-	for (int c = col; c <= d->lastVisCol; ++c)
+    if (widgets.size()) {
+        int last = isHidden() ? numCols() - 1 : d->lastVisCol;
+	for (int c = col; c <= last; ++c)
 	    updateColWidgets(c);
+    }
     delayedUpdateGeometries();
 }
 
@@ -4406,7 +4408,8 @@ void Q3Table::rowHeightChanged(int row)
     // update widgets that are affected by this change
     if (widgets.size()) {
 	d->lastVisRow = rowAt(contentsY() + visibleHeight() + (s.height() - h + 1));
-	for (int r = row; r <= d->lastVisRow; ++r)
+        int last = isHidden() ? numRows() - 1 : d->lastVisRow;
+	for (int r = row; r <= last; ++r)
 	    updateRowWidgets(r);
     }
     delayedUpdateGeometries();
