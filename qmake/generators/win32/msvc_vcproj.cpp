@@ -597,8 +597,6 @@ nextfile:
 
     // Figure out dependencies
     for(QList<VcsolutionDepend*>::Iterator it = solution_cleanup.begin(); it != solution_cleanup.end(); ++it) {
-        if((*it)->targetType == StaticLib)
-            continue; // Shortcut, Static libs are not dep.
         int cnt = 0;
         for(QStringList::iterator dit = (*it)->dependencies.begin();  dit != (*it)->dependencies.end(); ++dit) {
             if(VcsolutionDepend *vc = solution_depends[*dit])
