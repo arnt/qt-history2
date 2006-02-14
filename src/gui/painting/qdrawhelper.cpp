@@ -1285,9 +1285,9 @@ static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
     }
 
     Q_ASSERT(op.mode == QPainter::CompositionMode_SourceOver);
-    
+
     while (count--) {
-        uint color = MASK(data->solid.color, spans->coverage);
+        uint color = BYTE_MUL(data->solid.color, spans->coverage);
         int ialpha = qAlpha(~color);
         ushort c = qConvertRgb32To16(data->solid.color);
         ushort *target = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
