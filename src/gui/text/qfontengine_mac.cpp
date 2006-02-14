@@ -227,7 +227,18 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
     QShaperItem *item = 0;
     if (nfo->shaperItem) {
         item = nfo->shaperItem;
-        Q_ASSERT(*nfo->numGlyphs == item->length);
+#if !defined(QT_NO_DEBUG)
+        /*
+        int surrogates = 0;
+        const QString &str = *item->string;
+        for (int i = item->from; i < item->length - 1; ++i) {
+            surrogates += (str[i].unicode() >= 0xd800 && str[i].unicode() < 0xdc00
+                           && str[i+1].unicode() >= 0xdc00 && str[i+1].unicode() < 0xe000);
+        }
+        qDebug() << "numGlyphs" << *nfo->numGlyphs << "item->length" << item->length << "surrogates" << surrogates;
+        Q_ASSERT(*nfo->numGlyphs == item->length - surrogates);
+        */
+#endif
     }
 
     int glyphIdx = 0;
@@ -269,6 +280,15 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
         if (item) {
 //            qDebug() << "mapping char offset" << charOffset << "to glyph index" << i;
             item->log_clusters[charOffset] = i;
+            if (charOffset < item->length - 1) {
+                QChar current = item->string->at(item->from + charOffset);
+                QChar next = item->string->at(item->from + charOffset + 1);
+                bool surrogate = (current.unicode() >= 0xd800 && current.unicode() < 0xdc00
+                                  && next.unicode() >= 0xdc00 && next.unicode() < 0xe000);
+                if (surrogate) {
+                    item->log_clusters[charOffset + 1] = i;
+                }
+            }
         }
     }
     /*
