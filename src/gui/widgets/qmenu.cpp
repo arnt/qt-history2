@@ -1307,22 +1307,35 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 
     QPoint mouse = QCursor::pos();
     const bool snapToMouse = (p == mouse);
-    if (snapToMouse) {
-        // Ensure that the menu is visible when the menu is opened at the
-        // mouse cursor position (e.g., a context menu), and if we are in
-        // reverse layout mode, "flip" it so it opens to the left instead of
-        // the right.
-        if (qApp->layoutDirection() == Qt::RightToLeft)
+
+    if (qApp->layoutDirection() == Qt::RightToLeft) {
+        if(snapToMouse) {
+            // Ensure that the menu is visible when the menu is opened at the
+            // mouse cursor position (e.g., a context menu), and if we are in
+            // reverse layout mode, "flip" it so it opens to the left instead of
+            // the right.
             pos.setX(pos.x()-size.width());
-        if (pos.x()+size.width() > screen.right())
-            pos.setX(mouse.x()-size.width());
-        if (pos.y() + size.height() > screen.bottom() - desktopFrame)
-            pos.setY(mouse.y() - (size.height() + desktopFrame));
+        }
+
+        //handle popup falling "off screen"
         if (pos.x() < screen.left())
-            pos.setX(mouse.x());
-        if (pos.y() < screen.top() + desktopFrame)
-            pos.setY(screen.top() + desktopFrame);
+            pos.setX(screen.left());
+        else if (pos.x()+size.width() > screen.right())
+            pos.setX(qMin(pos.x()-size.width(), screen.right()-size.width()));
+
+    } else {
+        //handle popup falling "off screen"
+        if (pos.x()+size.width() > screen.right())
+            pos.setX(qMax(p.x()-size.width(), screen.right()-size.width()));
+        else if (pos.x() < screen.left())
+            pos.setX(p.x());
     }
+    if (pos.y() + size.height() > screen.bottom() - desktopFrame) {
+        pos.setY(qMax(mouse.y()- (size.height() + desktopFrame), screen.bottom()-desktopFrame-size.height()));
+    } else if (pos.y() < screen.top() + desktopFrame) {
+        pos.setY(screen.top() + desktopFrame);
+    }
+
     if (pos.y() < screen.top() + desktopFrame) {
         pos.setY(screen.top() + desktopFrame);
     }
@@ -2193,27 +2206,34 @@ void QMenu::internalDelayedPopup()
         return;
 
     //setup
-    QRect actionRect(d->actionRect(d->currentAction));
-    QPoint pos(mapToGlobal(QPoint(actionRect.right(), actionRect.top())));
     d->activeMenu = d->currentAction->menu();
     d->activeMenu->d_func()->causedPopup.widget = this;
     d->activeMenu->d_func()->causedPopup.action = d->currentAction;
 
-    bool on_left = false;     //find "best" position
+    const QRect actionRect(d->actionRect(d->currentAction));
     const QSize menuSize(d->activeMenu->sizeHint());
+    const QPoint rightPos(mapToGlobal(QPoint(actionRect.right(), actionRect.top())));
+    const QPoint leftPos(mapToGlobal(QPoint(actionRect.left() - menuSize.width(), 0)));
+
+    QPoint pos(rightPos);
+    QMenu *caused = qobject_cast<QMenu*>(d->causedPopup.widget);
+    const QRect availGeometry(QApplication::desktop()->availableGeometry(caused));
     if (isRightToLeft()) {
-        on_left = true;
-        QMenu *caused = qobject_cast<QMenu*>(d->causedPopup.widget);
-        if (caused && caused->x() < x() || x() - menuSize.width() < QApplication::desktop()->availableGeometry(caused).left())
-            on_left = false;
+        pos = leftPos;
+        if (caused && caused->x() < x() || pos.x() < availGeometry.left()) {
+            if(rightPos.x() + menuSize.width() < availGeometry.right())
+                pos = rightPos;
+            else
+                pos.rx() = availGeometry.left();
+        }
     } else {
-        QMenu *caused = qobject_cast<QMenu*>(d->causedPopup.widget);
-        if (caused && caused->x() > x() ||
-            x() + width() + menuSize.width() > QApplication::desktop()->availableGeometry(caused).right())
-            on_left = true;
+        if (caused && caused->x() > x() || pos.x() + menuSize.width() > availGeometry.right()) {
+            if(leftPos.x() < availGeometry.left())
+                pos.rx() = availGeometry.right() - menuSize.width();
+            else
+                pos = leftPos;
+        }
     }
-    if (on_left)
-        pos.rx() = mapToGlobal(QPoint(actionRect.left() - menuSize.width(), 0)).x();
 
     //calc sloppy focus buffer
     if (style()->styleHint(QStyle::SH_Menu_SloppySubMenus, 0, this)) {
