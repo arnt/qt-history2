@@ -433,7 +433,7 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
     // internal commands
     if (ch.isEmpty()) {
         if (msg == "isRegistered()") {
-            QByteArray c;
+            QString c;
             QDataStream s(data);
             s >> c;
             bool known = qcopServerMap && qcopServerMap->contains(c)
