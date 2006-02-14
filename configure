@@ -417,7 +417,8 @@ CFG_XRANDR=auto
 CFG_XRENDER=auto
 CFG_OPENGL=auto
 CFG_FONTCONFIG=auto
-CFG_QWS_FREETYPE=yes
+CFG_QWS_FREETYPE=auto
+CFG_LIBFREETYPE=auto
 CFG_SQL_AVAILABLE=
 CFG_GFX_AVAILABLE=""
 CFG_GFX_ON=""
@@ -1029,7 +1030,8 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     freetype)
-        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+        [ "$VAL" = "qt" ] && VAL=yes
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
             CFG_QWS_FREETYPE="$VAL"
         else
             UNKNOWN_OPT=yes
@@ -2479,8 +2481,10 @@ Qtopia Core only:
                          cross-compiling, otherwise the host
                          endianness will be used.
 
-    -no-freetype ....... Qtopia Core only: do not compile in FreeType2 support.
- *  -freetype .......... Qtopia Core only: add FreeType2 font support.
+    -no-freetype ....... Do not compile in Freetype2 support.
+    -qt-freetype ....... Use the libfreetype bundled with Qt.
+ *  -system-libfreetype  Use libfreetype from the operating system.
+                         See http://www.freetype.org/
 
     -qconfig local ..... Use src/corelib/global/qconfig-local.h rather than the
                          default ($CFG_QCONFIG).
@@ -3351,6 +3355,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/fontconfig "FontConfig" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
 	    CFG_FONTCONFIG=yes
 	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=-lfreetype -lfontconfig \$\$QMAKE_LIBS_X11\""
+	    CFG_LIBFREETYPE=system
 	else
 	    if [ "$CFG_FONTCONFIG" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "FontConfig support cannot be enabled due to functionality tests!"
@@ -3364,15 +3369,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	fi
     fi
 
-    # need freetype even when building without fontconfig
-    if [ "$CFG_FONTCONFIG" != "yes" ]; then
-        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/freetype "FreeType" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
-            QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=-lfreetype \$\$QMAKE_LIBS_X11\""
-        else
-            QT_CONFIG="$QT_CONFIG freetype"
-        fi
-    fi
-    
     # auto-detect Session Management support
     if [ "$CFG_SM" = "auto" ]; then
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/sm "Session Management" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
@@ -3458,6 +3454,18 @@ if [ "$PLATFORM_X11" = "yes" ]; then
         fi
     fi
 fi # X11
+
+# freetype support
+[ "x$CFG_EMBEDDED" != "xno" ] && CFG_LIBFREETYPE="$CFG_QWS_FREETYPE"
+[ "x$PLATFORM_MAC" = "xyes" ] && CFG_LIBFREETYPE=no
+if [ "$CFG_LIBFREETYPE" = "auto" ]; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/freetype "FreeType" $L_FLAGS $I_FLAGS $l_FLAGS ; then
+        CFG_LIBFREETYPE=system
+    else
+        CFG_LIBFREETYPE=yes
+    fi
+fi
+    
 
 if [ "$CFG_ENDIAN" = "auto" ]; then
     if [ "$PLATFORM_MAC" = "yes" ]; then
@@ -3721,6 +3729,14 @@ if [ "$CFG_GIF" = "no" ]; then
 elif [ "$CFG_GIF" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG gif"
 fi
+if [ "$CFG_LIBFREETYPE" = "no" ]; then
+    QT_CONFIG="$QT_CONFIG no-freetype"
+elif [ "$CFG_LIBFREETYPE" = "system" ]; then
+    QT_CONFIG="$QT_CONFIG system-freetype"
+else
+    QT_CONFIG="$QT_CONFIG freetype"
+fi
+
 if [ "x$PLATFORM_MAC" = "xyes" ]; then
     #On Mac we implicitly link against libz, so we
     #never use the 3rdparty stuff.
@@ -3743,7 +3759,6 @@ fi
 [ "$CFG_CUPS" = "yes" ] && QT_CONFIG="$QT_CONFIG cups"
 [ "$CFG_NAS" = "system" ] && QT_CONFIG="$QT_CONFIG nas"
 
-[ "$CFG_QWS_FREETYPE" = "yes" -a "x$CFG_EMBEDDED" != "xno" ] && QT_CONFIG="$QT_CONFIG freetype"
 if [ "$PLATFORM_X11" = "yes" ]; then
     [ "$CFG_SM" = "yes" ] && QT_CONFIG="$QT_CONFIG x11sm"
 
@@ -4140,7 +4155,7 @@ QMAKE_VARS="$QMAKE_VARS \"sql-plugins = $SQL_PLUGINS\""
 [ "$CFG_JPEG" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEFORMAT_JPEG"
 [ "$CFG_MNG" != "yes" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEFORMAT_MNG"
 [ "$CFG_ZLIB" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ZLIB"
-
+[ "$CFG_LIBFREETYPE" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_FREETYPE"
 [ "$CFG_EXCEPTIONS" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_EXCEPTIONS"
 [ "$CFG_TABLET" = "no" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_TABLET"
 [ "$CFG_IPV6" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6"

@@ -50,8 +50,6 @@ embedded {
 		    embedded/qwslock.cpp \
 		    embedded/qwssocket_qws.cpp
 
-        !contains(QT_CONFIG, freetype):DEFINES += QT_NO_FREETYPE
-
         contains(QT_CONFIG, sxv) {
             SOURCES += embedded/qunixsocket.cpp embedded/qunixsocketserver.cpp
             HEADERS += embedded/qunixsocket_p.h embedded/qunixsocketserver_p.h

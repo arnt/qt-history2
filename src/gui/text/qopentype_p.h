@@ -27,7 +27,7 @@
 
 #include "qtextengine_p.h"
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "ftxopen.h"
@@ -79,6 +79,6 @@ private:
     int loadFlags;
 };
 
-#endif // QT_HAVE_FREETYPE
+#endif // QT_NO_OPENTYPE
 
 #endif // QOPENTYPE_P_H

@@ -22,7 +22,7 @@
 #include "qfontengine_p.h"
 #include <stdlib.h>
 #include <qvarlengtharray.h>
-#ifdef QT_HAVE_FREETYPE
+#ifndef QT_NO_OPENTYPE
 #include "qopentype_p.h"
 #endif
 
@@ -356,7 +356,7 @@ static bool basic_shape(QShaperItem *item)
 enum {
     CcmpProperty = 0x1
 };
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
 static const QOpenType::Features hebrew_features[] = {
     { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
     {0, 0}
@@ -371,7 +371,7 @@ static bool hebrew_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Hebrew);
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(item->script)) {
@@ -1412,7 +1412,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
     *shapedLength = data - shapeBuffer;
 }
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
 
 enum {
     InitProperty = 0x2,
@@ -1526,7 +1526,7 @@ static bool arabic_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Arabic);
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(QUnicodeTables::Arabic))

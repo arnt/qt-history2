@@ -240,14 +240,17 @@ QByteArray QFontSubset::glyphName(unsigned short unicode, bool symbol)
     return buffer;
 }
 
-#ifdef QT_HAVE_FREETYPE
+#ifndef QT_NO_FREETYPE
 static FT_Face ft_face(const QFontEngine *engine)
 {
 #ifdef Q_WS_X11
+#ifndef QT_NO_FONTCONFIG
     if (engine->type() == QFontEngine::Freetype) {
         const QFontEngineFT *ft = static_cast<const QFontEngineFT *>(engine);
         return ft->non_locked_face();
-    } else if (engine->type() == QFontEngine::XLFD) {
+    } else 
+#endif
+    if (engine->type() == QFontEngine::XLFD) {
         const QFontEngineXLFD *xlfd = static_cast<const QFontEngineXLFD *>(engine);
         return xlfd->non_locked_face();
     }
@@ -267,7 +270,7 @@ QByteArray QFontSubset::glyphName(unsigned int glyph, const QVector<int> reverse
     uint glyphIndex = glyph_indices[glyph];
     QByteArray ba;
     QPdf::ByteStream s(&ba);
-#ifdef QT_HAVE_FREETYPE
+#ifndef QT_NO_FREETYPE
     FT_Face face = ft_face(fontEngine);
 
     char name[32];

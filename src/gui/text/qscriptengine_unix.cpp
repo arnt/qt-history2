@@ -24,7 +24,7 @@ static bool syriac_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Syriac);
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     QOpenType *openType = item->font->openType();
     if (openType && openType->supportsScript(QUnicodeTables::Syriac)) {
         return arabicSyriacOpenTypeShape(openType, item);
@@ -38,7 +38,7 @@ static bool thaana_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Thaana);
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(item->script)) {
@@ -1140,7 +1140,7 @@ enum IndicProperties {
     CligProperty = 0x10000
 };
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
 static const QOpenType::Features indic_features[] = {
     { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty }, 
     { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty },
@@ -1543,7 +1543,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
     for (i = 0; i < len; ++i)
         control |= (form(reordered[i]) == Control);
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     if (openType) {
 
         // we need to keep track of where the base glyph is for some
@@ -1788,7 +1788,7 @@ static bool indic_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script >= QUnicodeTables::Devanagari && item->script <= QUnicodeTables::Sinhala);
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     QOpenType *openType = item->font->openType();
     if (openType)
         openType->selectScript(item->script, indic_features);
@@ -1991,7 +1991,7 @@ static inline TibetanForm tibetan_form(const QChar &c)
     return (TibetanForm)tibetanForm[c.unicode() - 0x0f40];
 }
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
 static const QOpenType::Features tibetan_features[] = {
     { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
     { FT_MAKE_TAG('a', 'b', 'v', 's'), AboveSubstProperty },
@@ -2034,7 +2034,7 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
 
     // now we have the syllable in the right order, and can start running it through open type.
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     if (openType && openType->supportsScript(QUnicodeTables::Tibetan)) {
         openType->selectScript(QUnicodeTables::Tibetan, tibetan_features);
 
@@ -2097,7 +2097,7 @@ static bool tibetan_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Tibetan);
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     QOpenType *openType = item->font->openType();
     if (openType && !openType->supportsScript(item->script))
         openType = 0;
@@ -2468,7 +2468,7 @@ static inline int khmer_nextSyllableBoundary(const QString &s, int start, int en
 }
 
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
 static const QOpenType::Features khmer_features[] = {
     { FT_MAKE_TAG( 'p', 'r', 'e', 'f' ), PreFormProperty },
     { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), BelowFormProperty },
@@ -2486,7 +2486,7 @@ static const QOpenType::Features khmer_features[] = {
 
 static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 {
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     if (openType)
         openType->selectScript(QUnicodeTables::Khmer, khmer_features);
 #endif
@@ -2680,7 +2680,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 
     // now we have the syllable in the right order, and can start running it through open type.
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     if (openType) {
  	uint where[16];
         for (int i = 0; i < len; ++i) {
@@ -2718,7 +2718,7 @@ static bool khmer_shape(QShaperItem *item)
 {
     assert(item->script == QUnicodeTables::Khmer);
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     QOpenType *openType = item->font->openType();
     if (openType && !openType->supportsScript(item->script))
         openType = 0;
@@ -2787,6 +2787,7 @@ static void khmer_attributes( int script, const QString &text, int from, int len
 	assert( i == boundary );
     }
 }
+
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
@@ -2893,7 +2894,7 @@ static int hangul_nextSyllableBoundary(const QString &s, int start, int end)
     return start+pos;
 }
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
 static const QOpenType::Features hangul_features [] = {
     { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty }, 
     { FT_MAKE_TAG('l', 'j', 'm', 'o'), CcmpProperty }, 
@@ -2947,7 +2948,7 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
         IDEBUG("    %d: %4x", i, ch[i].unicode());
     }
 
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
     if (openType && !composed) {
 
         QVarLengthArray<unsigned short> logClusters(len);
@@ -2981,7 +2982,7 @@ static bool hangul_shape(QShaperItem *item)
     }
 
     if (!allPrecomposed) {
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+#ifndef QT_NO_OPENTYPE
         QOpenType *openType = item->font->openType();
         if (openType && !openType->supportsScript(item->script))
             openType = 0;
