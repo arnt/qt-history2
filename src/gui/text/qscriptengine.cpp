@@ -257,7 +257,10 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
             continue;
         ++pos;
         while (pos < logClusters[i]) {
+            // the mac engine already has attributes setup properly
+#if !defined(Q_NEW_MAC_FONTENGINE)
             glyphs[pos].attributes = glyphs[pos-1].attributes;
+#endif
             ++pos;
         }
         // hide soft-hyphens by default
