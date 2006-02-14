@@ -59,13 +59,13 @@ private:
     static QList<QAuServerMacCleanupHandler*> cleanups;
     static void movieEnd(QTCallBack, long data) {
         QAuServerMacCleanupHandler *iteration = (QAuServerMacCleanupHandler*)data;
+        if(iteration->qsound)
+            iteration->qsound_server->decLoop(iteration->qsound);
         if(iteration->loops != -1) { //forever
             if((--iteration->loops) <= 0) {
                 iteration->deleteLater();
                 return;
             }
-            if(iteration->qsound)
-                iteration->qsound_server->decLoop(iteration->qsound);
         }
         GoToBeginningOfMovie(iteration->movie);
         CallMeWhen(iteration->callback, movieCallbackProc, (long)iteration, triggerAtStop, 0, 0);
