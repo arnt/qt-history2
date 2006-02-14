@@ -673,23 +673,16 @@ void QWidget::setAutoFillBackground(bool enabled)
        or are irregularly-shaped, and that do not paint over their entire area
        with an opaque brush.
     \o The top-right widget has the \l autoFillBackground property set.
-       This property is used with custom widgets that rely on the widget style
+       This property is used with custom widgets that rely on the widget
        to supply a default background, and do not paint over their entire area
        with an opaque brush.
     \o The bottom-left widget has the Qt::WA_OpaquePaintEvent widget attribute
-       set. This indicates that the widget will supply its own background
-       decoration by painting its entire area with an opaque brush before
-       painting anything else. The widget's area will be uninitialized
-       (represented in the diagram by a white area with a red diagonal grid
-       pattern). This is useful for widgets that need to paint their own
-       specialized contents quickly and that do not need a default filled
-       background.
-    \o The bottom-right widget has both the Qt::WA_OpaquePaintEvent widget
-       attribute \e{and} the \l autoFillBackground property set.
-       We show this case to demonstrate that there is no advantage to
-       using both Qt::WA_OpaquePaintEvent and \l autoFillBackground to
-       control widget repainting. You should choose just one of these
-       depending on your requirements.
+       set. This indicates that the widget will paint over its entire area with
+       opaque colors. The widget's area will initially be \e{uninitialized}
+       (represented in the diagram by a red diagonal grid pattern that shines
+       through the overpainted area). This is useful for widgets that need to
+       paint their own specialized contents quickly and that do not need a
+       default filled background.
     \endlist
 
     For rapidly updating custom widgets with simple background colors, such
@@ -702,6 +695,11 @@ void QWidget::setAutoFillBackground(bool enabled)
     areas with opaque content, such as video streaming widgets, it is
     better to set the widget's Qt::WA_OpaquePaintEvent, avoiding any unnecessary
     overhead associated with repainting the widget's background.
+
+    If a widget has both the Qt::WA_OpaquePaintEvent widget attribute \e{and}
+    the \l autoFillBackground property set, the Qt::WA_OpaquePaintEvent
+    attribute takes precedence. You should choose just one of these
+    depending on your requirements.
 
     In Qt 4.1, the contents of parent widgets are also propagated to standard
     Qt widgets. This can lead to some unexpected results if the parent widget
