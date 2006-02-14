@@ -63,9 +63,10 @@ QWSVr41xxKbPrivate::QWSVr41xxKbPrivate(QWSVr41xxKeyboardHandler *h, const QStrin
     buttonFD = -1;
     notifier = 0;
 
-    if ((buttonFD = open(terminalName, O_RDWR | O_NDELAY, 0)) < 0)
-    {
-        qWarning("Cannot open %s\n", terminalName.toLatin1());
+    buttonFD = open(terminalName.toLatin1().constData(), O_RDWR | O_NDELAY, 0);;
+    if (buttonFD < 0) {
+        qWarning("Cannot open %s\n", qPrintable(terminalName));
+        return;
     }
 
     if (buttonFD >= 0) {

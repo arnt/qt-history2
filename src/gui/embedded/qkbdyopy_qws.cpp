@@ -36,7 +36,7 @@ extern "C" {
     int getpgid(int);
 }
 
-#include <qwidgetlist.h>
+#include <qwidget.h>
 #include <qsocketnotifier.h>
 
 class QWSYopyKbPrivate : public QObject
@@ -71,12 +71,14 @@ QWSYopyKeyboardHandler::~QWSYopyKeyboardHandler()
 
 QWSYopyKbPrivate::QWSYopyKbPrivate(QWSYopyKeyboardHandler *h, const QString &device) : handler(h)
 {
-    terminalName = device.isEmpty()?"/dev/tty1":device.toLatin1();
+    terminalName = device.isEmpty()?"/dev/tty1":device.toLatin1().constData();
     buttonFD = -1;
     notifier = 0;
 
-    if ((buttonFD = ::open(terminalName, O_RDWR | O_NDELAY, 0)) < 0) {
-        qFatal("Cannot open %s\n", terminalName.toLatin1());
+    buttonFD = ::open(terminalName.toLatin1().constData(), O_RDWR | O_NDELAY, 0);
+    if (buttonFD < 0) {
+        qWarning("Cannot open %s\n", qPrintable(terminalName));
+        return;
     } else {
 
        tcsetpgrp(buttonFD, getpgid(0));
@@ -152,15 +154,11 @@ void QWSYopyKbPrivate::readKeyboardData()
                                //
                                // Updates all widgets.
                                //
-                               QWidgetList  *list = QApplication::allWidgets();
-                               QWidgetListIt it(*list);          // iterate over the widgets
-                               QWidget * w;
-                               while ((w=it.current()) != 0) {   // for each widget...
-                                 ++it;
-                                 w->update();
+                               QWidgetList list = QApplication::allWidgets();
+                               for (int i = 0; i < list.size(); ++i) {
+                                   QWidget *w = list.at(i);
+                                   w->update();
                                }
-                               delete list;
-                               // qApp->desktop()->repaint();
                            }
                          }
                          break;
