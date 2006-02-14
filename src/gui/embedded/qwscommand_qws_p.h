@@ -37,7 +37,6 @@
 #include <QtCore/qdatastream.h>
 #include <QtCore/qvariant.h>
 #include "qwsprotocolitem_qws.h"
-#include "private/qwidget_qws_p.h"
 #include "qwsmemid_qws.h"
 
 QT_MODULE(Gui)
@@ -605,7 +604,6 @@ struct QWSIMUpdateCommand: public QWSCommand
         QWSCommand(QWSCommand::IMUpdate,
                     sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
-    enum UpdateType {Update, FocusIn, FocusOut, Reset, Destroyed};
     struct SimpleData {
         int windowid;
         int type;

@@ -1879,7 +1879,7 @@ void QWSServerPrivate::setFocus(QWSWindow* changingw, bool gain)
     if (current_IM) {
         QWSWindow *loser =  (!gain == (focusw==changingw)) ? focusw : 0;
         if (loser && loser->winId() == current_IM_winId)
-            current_IM->updateHandler(QWSIMUpdateCommand::FocusOut);
+            current_IM->updateHandler(QWSInputMethod::FocusOut);
     }
 #endif
     if (gain) {
@@ -2189,7 +2189,7 @@ void QWSServerPrivate::invokeIMResponse(const QWSIMResponseCommand *cmd,
 void QWSServerPrivate::invokeIMUpdate(const QWSIMUpdateCommand *cmd,
                                  QWSClient *)
 {
-    if (cmd->simpleData.type == QWSIMUpdateCommand::FocusIn)
+    if (cmd->simpleData.type == QWSInputMethod::FocusIn)
         current_IM_winId = cmd->simpleData.windowid;
 
     if (current_IM && current_IM_winId == cmd->simpleData.windowid)
@@ -3048,18 +3048,32 @@ void QWSInputMethod::reset()
 }
 
 /*!
+  \enum QWSInputMethod::UpdateType
+
+  This enum describes different types of update events received by
+  updateHandler.
+
+  \value Update    The input widget is updated in some way; use sendQuery() with Qt::ImMicroFocus as an argument for more information.
+  \value FocusIn   A new input widget receives focus.
+  \value FocusOut  The input widget loses focus.
+  \value Reset       The input method should be reset.
+  \value Destroyed The input widget is destroyed.
+
+*/
+
+/*!
   Handles update events, including resets and focus changes.
 
   Reimplementations must call the base implementation for all cases that it
   does not handle itself.
 
-  \a type is a value defined in \l QWSIMUpdateCommand::UpdateType.
+  \a type is a value defined in \l UpdateType.
 */
 void QWSInputMethod::updateHandler(int type)
 {
     switch (type) {
-    case QWSIMUpdateCommand::FocusOut:
-    case QWSIMUpdateCommand::Reset:
+    case FocusOut:
+    case Reset:
         reset();
         break;
 

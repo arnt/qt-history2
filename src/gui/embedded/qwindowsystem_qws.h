@@ -325,6 +325,8 @@ public:
     QWSInputMethod();
     virtual ~QWSInputMethod();
 
+    enum UpdateType {Update, FocusIn, FocusOut, Reset, Destroyed};
+
     virtual bool filter(int unicode, int keycode, int modifiers,
                         bool isPress, bool autoRepeat);
 

@@ -51,7 +51,7 @@ void QWSInputContext::setFocusWidget( QWidget *w )
         int winid = tlw->winId();
 
         int widgetid = oldFocus->winId();
-        QPaintDevice::qwsDisplay()->sendIMUpdate(QWSIMUpdateCommand::FocusOut, winid, widgetid);
+        QPaintDevice::qwsDisplay()->sendIMUpdate(QWSInputMethod::FocusOut, winid, widgetid);
     }
 
     QInputContext::setFocusWidget(w);
@@ -63,7 +63,7 @@ void QWSInputContext::setFocusWidget( QWidget *w )
     int winid = tlw->winId();
 
     int widgetid = w->winId();
-    QPaintDevice::qwsDisplay()->sendIMUpdate(QWSIMUpdateCommand::FocusIn, winid, widgetid);
+    QPaintDevice::qwsDisplay()->sendIMUpdate(QWSInputMethod::FocusIn, winid, widgetid);
 
     //setfocus ???
 
@@ -88,7 +88,7 @@ void QWSInputContext::update()
     int winid = tlw->winId();
 
     int widgetid = w->winId();
-    QPaintDevice::qwsDisplay()->sendIMUpdate(QWSIMUpdateCommand::Update, winid, widgetid);
+    QPaintDevice::qwsDisplay()->sendIMUpdate(QWSInputMethod::Update, winid, widgetid);
 
 }
 

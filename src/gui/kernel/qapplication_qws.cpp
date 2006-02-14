@@ -1235,7 +1235,7 @@ void QWSDisplay::sendIMResponse(int winId, int property, const QVariant &result)
 
 void QWSDisplay::resetIM()
 {
-    sendIMUpdate(QWSIMUpdateCommand::Reset, -1, -1);
+    sendIMUpdate(QWSInputMethod::Reset, -1, -1);
 }
 
 void QWSDisplay::sendIMMouseEvent(int index, bool isPress)
