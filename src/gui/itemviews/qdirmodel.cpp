@@ -238,6 +238,8 @@ public:
     QDirNode *node(int row, QDirNode *parent) const;
     QVector<QDirNode> children(QDirNode *parent, bool stat) const;
 
+    void refresh();
+
     void savePersistentIndexes();
     void restorePersistentIndexes();
 
@@ -273,6 +275,7 @@ public:
 
     QList< QPair<QString,int> > savedPaths;
     QList< QPersistentModelIndex > savedPersistentIndexes;
+    QPersistentModelIndex toBeRefreshed;
 
     bool shouldStat; // use the "carefull not to stat directories" mode
 };
@@ -553,14 +556,16 @@ bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int rol
 
     QDirModelPrivate::QDirNode *node = d->node(index);
     QDir dir = node->info.dir();
-    if (dir.rename(node->info.fileName(), value.toString())) {
-        QModelIndex par = parent(index);
-        refresh(par);
-        QModelIndex topLeft = this->index(0, 0, par);
-        int rc = rowCount(par);
-        int cc = columnCount(par);
-        QModelIndex bottomRight = this->index(rc, cc, par);
-        emit dataChanged(topLeft, bottomRight);
+    QString name = value.toString();
+    if (dir.rename(node->info.fileName(), name)) {
+        node->info = QFileInfo(dir, name);
+        QModelIndex sibling = index.sibling(index.row(), 3);
+        emit dataChanged(index, sibling);
+        
+        d->toBeRefreshed = index.parent();
+        int slot = metaObject()->indexOfSlot("refresh()");
+        QApplication::postEvent(this, new QMetaCallEvent(slot));
+
         return true;
     }
 
@@ -1299,6 +1304,13 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent,
     return nodes;
 }
 
+void QDirModelPrivate::refresh()
+{
+    Q_Q(QDirModel);
+    q->refresh(toBeRefreshed);
+    toBeRefreshed = QModelIndex();
+}
+
 void QDirModelPrivate::savePersistentIndexes()
 {
     Q_Q(QDirModel);
@@ -1425,4 +1437,7 @@ QFileInfo QDirModelPrivate::resolvedInfo(QFileInfo info)
     return info;
 #endif
 }
+
+#include "moc_qdirmodel.cpp"
+
 #endif // QT_NO_DIRMODEL
