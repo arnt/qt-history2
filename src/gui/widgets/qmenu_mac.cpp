@@ -223,6 +223,16 @@ static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *actio
         ret = kHICommandQuit;
     }
 #undef MENU_TRANSLATE
+
+    QMenuMergeList *list = 0;
+    GetMenuItemProperty(merge, 0, kMenuCreatorQt, kMenuPropertyMergeList,
+                        sizeof(list), 0, &list);
+    for(int i = 0; list && i < list->size(); ++i) {
+        QMenuMergeItem item = list->at(i);
+        if(item.command == ret && item.action)
+            return 0;
+    }
+
     QAction *cmd_action = 0;
     GetMenuCommandProperty(merge, ret, kMenuCreatorQt, kMenuPropertyQAction,
                            sizeof(cmd_action), 0, &cmd_action);
