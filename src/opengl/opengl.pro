@@ -24,7 +24,7 @@ x11 {
     SOURCES += qgl_x11.cpp \
 	       qglpixelbuffer_x11.cpp
  	contains(QT_CONFIG, fontconfig) {
- 		include($$QT_SOURCE_TREE/config.tests/x11/fontconfig/fontconfig.pri)
+ 		include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
  	}
 }
 
