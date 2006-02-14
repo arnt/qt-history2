@@ -336,7 +336,7 @@ public:
     virtual void queryResponse(int property, const QVariant&);
 
 protected:
-    uint QWSInputMethod::setInputResolution(bool isHigh);
+    uint setInputResolution(bool isHigh);
     uint inputResolutionShift() const;
     // needed for required transform
     void sendMouseEvent(const QPoint &pos, int state, int wheel);
