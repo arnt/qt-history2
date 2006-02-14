@@ -1650,6 +1650,9 @@ bool QHeaderView::viewportEvent(QEvent *e)
         }
         return true; }
 #endif // QT_NO_STATUSTIP
+    case QEvent::FontChange:
+        resizeSections();
+        break;
     default:
         break;
     }
