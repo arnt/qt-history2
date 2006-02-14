@@ -1,7 +1,8 @@
 #include "configureapp.h"
 #include "environment.h"
-#include "keyinfo.h"
+#include "keydec.h"
 
+#include <QDate>
 #include <qdir.h>
 #include <qfileinfo.h>
 #include <qtextstream.h>
@@ -1671,6 +1672,24 @@ WCE({	if(dictionary["STYLE_POCKETPC"] != "yes")    qconfigList += "QT_NO_STYLE_P
         return;
     }
 
+    // Copy configured mkspec to default directory, but remove the old one first, if there is any
+    QString defSpec = qtDir + "/mkspecs/default";
+    QFileInfo defSpecInfo(defSpec);
+    if (defSpecInfo.exists()) {
+        if (!Environment::rmdir(defSpec)) {
+            cout << "Couldn't update default mkspec! Are files in " << qPrintable(defSpec) << " read-only?" << endl;
+            dictionary["DONE"] = "error";
+            return;
+        }
+    }
+
+    QString pltSpec = qtDir + "/mkspecs/" + dictionary["QMAKESPEC"];
+    if (!Environment::cpdir(pltSpec, defSpec)) {
+        cout << "Couldn't update default mkspec! Does " << qPrintable(pltSpec) << " exist?" << endl;
+        dictionary["DONE"] = "error";
+        return;
+    }
+
     outDir = dictionary[ "QT_SOURCE_TREE" ];
 
     // Generate the new qconfig.cpp file
@@ -1693,8 +1712,8 @@ WCE({	if(dictionary["STYLE_POCKETPC"] != "yes")    qconfigList += "QT_NO_STYLE_P
                   << "static const char qt_configure_plugins_path_str      [512 + 12] = \"qt_plugpath=" << QString(dictionary["QT_INSTALL_PLUGINS"]).replace( "\\", "\\\\" ) << "\";"  << endl
                   << "static const char qt_configure_data_path_str         [512 + 12] = \"qt_datapath=" << QString(dictionary["QT_INSTALL_DATA"]).replace( "\\", "\\\\" ) << "\";"  << endl
                   << "static const char qt_configure_translations_path_str [512 + 12] = \"qt_trnspath=" << QString(dictionary["QT_INSTALL_TRANSLATIONS"]).replace( "\\", "\\\\" ) << "\";" << endl
-                  << "static const char qt_configure_examples_path_str         [512 + 12] = \"qt_xmplpath=" << QString(dictionary["QT_INSTALL_EXAMPLES"]).replace( "\\", "\\\\" ) << "\";"  << endl
-                  << "static const char qt_configure_demos_path_str         [512 + 12] = \"qt_demopath=" << QString(dictionary["QT_INSTALL_DEMOS"]).replace( "\\", "\\\\" ) << "\";"  << endl
+                  << "static const char qt_configure_examples_path_str     [512 + 12] = \"qt_xmplpath=" << QString(dictionary["QT_INSTALL_EXAMPLES"]).replace( "\\", "\\\\" ) << "\";"  << endl
+                  << "static const char qt_configure_demos_path_str        [512 + 12] = \"qt_demopath=" << QString(dictionary["QT_INSTALL_DEMOS"]).replace( "\\", "\\\\" ) << "\";"  << endl
                   //<< "static const char qt_configure_settings_path_str [256] = \"qt_stngpath=" << QString(dictionary["QT_INSTALL_SETTINGS"]).replace( "\\", "\\\\" ) << "\";" << endl
                   << "/* strlen( \"qt_lcnsxxxx\" ) == 12 */" << endl
                   << "#define QT_CONFIGURE_LICENSEE qt_configure_licensee_str + 12;" << endl
@@ -2208,40 +2227,48 @@ void Configure::readLicense()
 
     // Verify license info...
     QString licenseKey = licenseInfo["LICENSEKEYEXT"];
-    uint products, platforms, licenseSchema, licenseFeatures, licenseID;
-    QDate expiryDate;
-    if (!decodeLicenseKey(licenseKey.toLatin1(), &products, &platforms, &licenseSchema,
-                         &licenseFeatures, &licenseID, &expiryDate)) {
+
+    KeyDecoder keyDec(licenseKey.toLatin1());
+    if (!keyDec.IsValid()) {
         cout << "License file does not contain proper license key." << endl;
         dictionary["DONE"] = "error";
         return;
-    } else if (QString::number(licenseID) != licenseInfo["LICENSEID"]) {
+    } else if (QString::number(keyDec.getLicenseID()) != licenseInfo["LICENSEID"]) {
+        CDate expiryDate = keyDec.getExpiryDate();
+        QString dateStr;
+        dateStr.sprintf("%04d%02d%02d", expiryDate.year(), expiryDate.month(), expiryDate.day());
         cout << "License file does not contain proper license key." << endl;
-        cout << expiryDate.toString("yyyyMMdd") << endl;
+        cout << dateStr << endl;
         cout << licenseInfo["EXPIRYDATE"];
         dictionary["DONE"] = "error";
         return;
     }
+    
+    uint products = keyDec.getProducts();;
+    uint platforms = keyDec.getPlatforms();
+    uint licenseSchema = keyDec.getLicenseSchema();
+    uint licenseFeatures = keyDec.getLicenseFeatures();
+    uint licenseID = keyDec.getLicenseID();
 
     // determine which edition we are licensed to use
     QString licenseType;
     switch (licenseSchema) {
-    case FullCommercial:
+    case KeyDecoder::FullCommercial:
         licenseType = "Commercial";
-        switch (products & QtProductMask) {
-        case QtUniversal:
+        switch (products) {
+        case KeyDecoder::QtUniversal:
             dictionary["EDITION"] = "Universal";
             dictionary["QT_EDITION"] = "QT_EDITION_UNIVERSAL";
             break;
-        case QtDesktop:
+        case KeyDecoder::QtDesktop:
             dictionary["EDITION"] = "Desktop";
             dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
             break;
-        case QtDesktopLight:
+        case KeyDecoder::QtDesktopLight:
             dictionary["EDITION"] = "DesktopLight";
             dictionary["QT_EDITION"] = "QT_EDITION_DESKTOPLIGHT";
             break;
-        case QtConsole:
+        case KeyDecoder::QtConsole:
             dictionary["EDITION"] = "Console";
             dictionary["QT_EDITION"] = "QT_EDITION_CONSOLE";
             break;
@@ -2249,12 +2276,12 @@ void Configure::readLicense()
             break;
         }
         break;
-    case SupportedEvaluation:
-    case UnsupportedEvaluation:
-    case FullSourceEvaluation:
+    case KeyDecoder::SupportedEvaluation:
+    case KeyDecoder::UnsupportedEvaluation:
+    case KeyDecoder::FullSourceEvaluation:
         licenseType = "Evaluation";
-        switch (products & QtProductMask) {
-        case QtDesktop:
+        switch (products) {
+        case KeyDecoder::QtDesktop:
             dictionary["EDITION"] = "Evaluation";
             dictionary["QT_EDITION"] = "QT_EDITION_EVALUATION";
             break;
@@ -2262,10 +2289,10 @@ void Configure::readLicense()
             break;
         }
         break;
-    case Academic:
+    case KeyDecoder::Academic:
         licenseType = "Academic";
-        switch (products & QtProductMask) {
-        case QtDesktop:
+        switch (products) {
+        case KeyDecoder::QtDesktop:
             dictionary["EDITION"] = "Academic";
             dictionary["QT_EDITION"] = "QT_EDITION_ACADEMIC";
             break;
@@ -2273,10 +2300,10 @@ void Configure::readLicense()
             break;
         }
         break;
-    case Educational:
+    case KeyDecoder::Educational:
         licenseType = "Educational";
-        switch (products & QtProductMask) {
-        case QtDesktop:
+        switch (products) {
+        case KeyDecoder::QtDesktop:
             dictionary["EDITION"] = "Educational";
             dictionary["QT_EDITION"] = "QT_EDITION_EDUCATIONAL";
             break;
@@ -2294,7 +2321,7 @@ void Configure::readLicense()
     }
 
     // verify that we are licensed to use Qt on this platform
-    if (!(platforms & Windows)) {
+    if (!(platforms & KeyDecoder::Windows)) {
         cout << "You are not licensed for the Qt/Windows platform." << endl << endl;
         cout << "Please contact sales@trolltech.com to upgrade your license" << endl;
         cout << "to include the Qt/Windows platform, or install the" << endl;
@@ -2307,22 +2334,22 @@ void Configure::readLicense()
     QString toLicenseFile = dictionary["QT_SOURCE_TREE"] + "/LICENSE";
     QString fromLicenseFile;
     switch (licenseSchema) {
-    case FullCommercial:
+    case KeyDecoder::FullCommercial:
         fromLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE";
         break;
-    case SupportedEvaluation:
-    case UnsupportedEvaluation:
-    case FullSourceEvaluation:
+    case KeyDecoder::SupportedEvaluation:
+    case KeyDecoder::UnsupportedEvaluation:
+    case KeyDecoder::FullSourceEvaluation:
         fromLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE-EVALUATION";
         break;
-    case Academic:
+    case KeyDecoder::Academic:
         fromLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE-ACADEMIC";
         break;
-    case Educational:
+    case KeyDecoder::Educational:
         fromLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE-EDUCATIONAL";
         break;
     }
-    if (licenseFeatures & USCustomer)
+    if (licenseFeatures & KeyDecoder::USCustomer)
         fromLicenseFile += "-US";
     if (!QFileInfo(toLicenseFile).exists()) {
         if (!CopyFileA(QDir::convertSeparators(fromLicenseFile).toLocal8Bit(),

@@ -4,6 +4,9 @@
 #include <iostream>
 #include <QStringList>
 #include <QMap>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 
 using namespace std;
 
@@ -22,7 +25,7 @@ struct CompilerInfo{
     {CC_BORLAND, "Borland C++",                                                    0, "bcc32.exe"},
     {CC_MINGW,   "MinGW (Minimalist GNU for Windows)",                             0, "mingw32-gcc.exe"},
     {CC_INTEL,   "Intel(R) C++ Compiler for 32-bit applications",                  0, "icl.exe"}, // xilink.exe, xilink5.exe, xilink6.exe, xilib.exe
-    {CC_MSVC6,   "Microsoft (R) 32-bit C/C++ Optimizing CompilerMSVC 6.x",         "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++\\ProductDir", "cl.exe"}, // link.exe, lib.exe
+    {CC_MSVC6,   "Microsoft (R) 32-bit C/C++ Optimizing Compiler (6.x)",           "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++\\ProductDir", "cl.exe"}, // link.exe, lib.exe
     {CC_NET2002, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2002 (7.0)",  "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
     {CC_NET2003, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2003 (7.1)",  "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
     {CC_NET2005, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2005 (8.0)",  "Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
@@ -563,3 +566,46 @@ int Environment::execute(QStringList arguments, const QStringList &additionalEnv
     return exitCode;
 }
 
+bool Environment::cpdir(const QString &srcDir, const QString &destDir)
+{
+    QString cleanSrcName = QDir::cleanPath(srcDir);
+    QString cleanDstName = QDir::cleanPath(destDir);
+
+    bool result = true;
+    QDir destD = QDir(cleanSrcName);
+    result &= destD.mkdir(cleanDstName);
+
+    QDir dir = QDir(cleanSrcName);
+    QFileInfoList allEntries = dir.entryInfoList(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+    for (int i = 0; result && (i < allEntries.count()); ++i) {
+        QFileInfo entry = allEntries.at(i);
+        if (entry.isDir()) {
+            result &= cpdir(QString("%1/%2").arg(cleanSrcName).arg(entry.baseName()),
+                            QString("%1/%2").arg(cleanDstName).arg(entry.baseName()));
+        } else {
+            QString destFile = QString("%1/%2").arg(cleanDstName).arg(entry.fileName());
+            result &= QFile::copy(entry.absoluteFilePath(), destFile);
+            SetFileAttributesA(destFile.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL);
+        }
+    }
+    return result;
+}
+
+bool Environment::rmdir(const QString &name)
+{
+    bool result = true;
+    QString cleanName = QDir::cleanPath(name);
+
+    QDir dir = QDir(cleanName);
+    QFileInfoList allEntries = dir.entryInfoList(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+    for (int i = 0; result && (i < allEntries.count()); ++i) {
+        QFileInfo entry = allEntries.at(i);
+        if (entry.isDir()) {
+            result &= rmdir(entry.absoluteFilePath());
+        } else {
+            result &= QFile::remove(entry.absoluteFilePath());
+        }
+    }
+    result &= dir.rmdir(cleanName);
+    return result;
+}

@@ -96,8 +96,9 @@ SOURCES	 = main.cpp configureapp.cpp environment.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/kernel/qmetatype.cpp
 	   
 
-SOURCES += $$QT_SOURCE_TREE/util/licensekeys/shared/keyinfo.cpp
+HEADERS += $$QT_SOURCE_TREE/util/scripts/mac-binary/package/InstallerPane/keydec.h
+SOURCES += $$QT_SOURCE_TREE/util/scripts/mac-binary/package/InstallerPane/keydec.cpp
 
 INCLUDEPATH += $$QT_SOURCE_TREE/src/corelib/arch/generic \
 	       $$QT_SOURCE_TREE/include/QtCore \
-	       $$QT_SOURCE_TREE/util/licensekeys/shared
+	       $$QT_SOURCE_TREE/util/scripts/mac-binary/package/InstallerPane

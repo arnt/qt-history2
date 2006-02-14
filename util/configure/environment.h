@@ -24,6 +24,8 @@ public:
     static bool detectExecutable(const QString &executable);
 
     static int execute(QStringList arguments, const QStringList &additionalEnv, const QStringList &removeEnv);
+    static bool cpdir(const QString &srcDir, const QString &destDir);
+    static bool rmdir(const QString &name);
 
 private:
     static Compiler detectedCompiler;
