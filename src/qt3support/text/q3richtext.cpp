@@ -5763,9 +5763,11 @@ int Q3TextFormatterBreakWords::format(Q3TextDocument *doc, Q3TextParagraph *para
     if (len > 1) {
         c = &parag->string()->at(len - 1);
         if (!c->isAnchor()) {
-            c->format()->removeRef();
+            if (c->format())
+                c->format()->removeRef();
             c->setFormat(string->at(len - 2).format());
-            c->format()->addRef();
+            if (c->format())
+                c->format()->addRef();
         }
     }
 
