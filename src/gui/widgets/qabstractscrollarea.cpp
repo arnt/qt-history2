@@ -501,6 +501,9 @@ bool QAbstractScrollArea::viewportEvent(QEvent *e)
     case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
     case QEvent::ContextMenu:
+#ifndef QT_NO_WHEELEVENT
+    case QEvent::Wheel:
+#endif
 #ifndef QT_NO_DRAGANDDROP
     case QEvent::Drop:
     case QEvent::DragEnter:
@@ -510,15 +513,6 @@ bool QAbstractScrollArea::viewportEvent(QEvent *e)
         return QFrame::event(e);
     case QEvent::LayoutRequest:
         return event(e);
-#ifndef QT_NO_WHEELEVENT
-    case QEvent::Wheel:
-        if (!QFrame::event(e) || !e->isAccepted()) {
-            if (static_cast<QWheelEvent*>(e)->orientation() == Qt::Horizontal)
-                return QApplication::sendEvent(d->hbar, e);
-            return QApplication::sendEvent(d->vbar, e);
-        }
-        return true;
-#endif
     default:
         break;
     }
@@ -615,7 +609,11 @@ void QAbstractScrollArea::mouseMoveEvent(QMouseEvent *e)
 #ifndef QT_NO_WHEELEVENT
 void QAbstractScrollArea::wheelEvent(QWheelEvent *e)
 {
-    e->ignore();
+    Q_D(QAbstractScrollArea);
+    if (static_cast<QWheelEvent*>(e)->orientation() == Qt::Horizontal)
+        QApplication::sendEvent(d->hbar, e);
+    else
+        QApplication::sendEvent(d->vbar, e);
 }
 #endif
 
