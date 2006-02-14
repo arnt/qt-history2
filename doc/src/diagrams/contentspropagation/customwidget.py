@@ -108,44 +108,25 @@ if __name__ == "__main__":
     if qt == "4.0":
         noBackgroundWidget = CustomWidget(label, fake = True)
         noBackgroundWidget.setAttribute(Qt.WA_NoBackground, True)
-        layout.addWidget(noBackgroundWidget, 2, 0, Qt.AlignCenter)
+        layout.addWidget(noBackgroundWidget, 0, 2, Qt.AlignCenter)
         caption = QLabel("With WA_NoBackground set", label)
         caption.setWordWrap(True)
         caption.setMargin(2)
-        layout.addWidget(caption, 3, 0, Qt.AlignCenter | Qt.AlignTop)
+        layout.addWidget(caption, 1, 2, Qt.AlignCenter | Qt.AlignTop)
     elif qt == "4.1":
         opaqueWidget = CustomWidget(label, fake = True)
         opaqueWidget.setAttribute(Qt.WA_OpaquePaintEvent, True)
-        layout.addWidget(opaqueWidget, 2, 0, Qt.AlignCenter)
+        layout.addWidget(opaqueWidget, 0, 2, Qt.AlignCenter)
         caption = QLabel("With WA_OpaquePaintEvent set", label)
         caption.setAutoFillBackground(True)
         caption.setMargin(2)
-        layout.addWidget(caption, 3, 0, Qt.AlignCenter | Qt.AlignTop)
-    
-    if qt == "4.0":
-        contentsNoBackgroundWidget = CustomWidget(label, fake = True)
-        contentsNoBackgroundWidget.setAttribute(Qt.WA_ContentsPropagated, True)
-        contentsNoBackgroundWidget.setAttribute(Qt.WA_NoBackground, True)
-        layout.addWidget(contentsNoBackgroundWidget, 2, 1, Qt.AlignCenter)
-        caption = QLabel("With WA_ContentsPropagated and WA_NoBackground set", label)
-        caption.setMargin(2)
-        layout.addWidget(caption, 3, 1, Qt.AlignCenter | Qt.AlignTop)
-    elif qt == "4.1":
-        opaqueAutoFillWidget = CustomWidget(label, fake = True)
-        opaqueAutoFillWidget.setAttribute(Qt.WA_OpaquePaintEvent, True)
-        opaqueAutoFillWidget.setAutoFillBackground(True)
-        layout.addWidget(opaqueAutoFillWidget, 2, 1, Qt.AlignCenter)
-        caption = QLabel("With WA_OpaquePaintEvent and autoFillBackground set", label)
-        caption.setWordWrap(True)
-        caption.setAutoFillBackground(True)
-        caption.setMargin(2)
-        layout.addWidget(caption, 3, 1, Qt.AlignCenter | Qt.AlignTop)
+        layout.addWidget(caption, 1, 2, Qt.AlignCenter | Qt.AlignTop)
     
     if qt == "4.0":
         label.setWindowTitle("Qt 4.0: Painting Custom Widgets")
     elif qt == "4.1":
         label.setWindowTitle("Qt 4.1: Painting Custom Widgets")
     
-    label.resize(404, 340)
+    label.resize(404, 160)
     label.show()
     sys.exit(app.exec_())
