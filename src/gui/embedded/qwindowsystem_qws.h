@@ -324,13 +324,23 @@ class Q_GUI_EXPORT QWSInputMethod : public QObject
 public:
     QWSInputMethod();
     virtual ~QWSInputMethod();
+
     virtual bool filter(int unicode, int keycode, int modifiers,
-                        bool isPress, bool autoRepeat)=0;
+                        bool isPress, bool autoRepeat);
+
+    virtual bool filter(const QPoint &, int state, int wheel);
+
     virtual void reset();
     virtual void updateHandler(int type);
     virtual void mouseHandler(int pos, int state);
     virtual void queryResponse(int property, const QVariant&);
+
 protected:
+    uint QWSInputMethod::setInputResolution(bool isHigh);
+    uint inputResolutionShift() const;
+    // needed for required transform
+    void sendMouseEvent(const QPoint &pos, int state, int wheel);
+
     void sendEvent(const QInputMethodEvent*);
     void sendPreeditString(const QString &preeditString, int cursorPosition, int selectionLength = 0);
     void sendCommitString(const QString &commitString, int replaceFrom = 0, int replaceLength = 0);
@@ -339,6 +349,8 @@ protected:
 #ifdef QT3_SUPPORT
     inline void sendIMEvent(QWSServer::IMState, const QString& txt, int cpos, int selLen = 0);
 #endif
+private:
+    bool mIResolution;
 };
 
 inline void QWSInputMethod::sendEvent(const QInputMethodEvent *ime)

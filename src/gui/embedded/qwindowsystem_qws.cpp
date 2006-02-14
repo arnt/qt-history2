@@ -132,7 +132,7 @@ static QWSInputMethod *current_IM = 0;
 
 static QWSWindow *current_IM_composing_win = 0;
 static int current_IM_winId = -1;
-//static bool force_reject_strokeIM = 0;
+static bool force_reject_strokeIM = false;
 #endif
 
 
@@ -1249,7 +1249,9 @@ void QWSServer::setDefaultKeyboard(const char *k)
     defaultKeyboard = k;
 }
 
+#ifndef QT_NO_QWS_CURSOR
 static bool prevWin;
+#endif
 
 
 extern int *qt_last_x,*qt_last_y;
@@ -1279,19 +1281,20 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     } else {
 	tpos = pos;
     }
-#if 0 //###ndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_IM
+    const int btnMask = Qt::LeftButton | Qt::RightButton | Qt::MidButton;
     int stroke_count; // number of strokes to keep shown.
     if (force_reject_strokeIM || qwsServerPrivate->mouseGrabber
 	    || !current_IM) {
 	stroke_count = 0;
     } else {
-	stroke_count = current_IM->filterMouse(tpos, state, wheel);
+	stroke_count = current_IM->filter(tpos, state, wheel);
     }
 
     if (stroke_count == 0) {
 	if (state&btnMask)
 	    force_reject_strokeIM = true;
-	sendMouseEventUnfiltered(pos, state);
+        QWSServerPrivate::sendMouseEventUnfiltered(pos, state);
     }
     // stop force reject after stroke ends.
     if (state&btnMask && force_reject_strokeIM)
@@ -2377,6 +2380,8 @@ void QWSServer::openMouse()
     }
 #ifndef QT_NO_QWS_CURSOR
     setCursorVisible(needviscurs);
+#else
+    Q_UNUSED(needviscurs)
 #endif
 }
 
@@ -2988,8 +2993,6 @@ QWSInputMethod::~QWSInputMethod()
 }
 
 /*!
-    \fn bool QWSInputMethod::filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
-
     This function must be implemented in subclasses to handle key
     input from physical or virtual keyboards. Returning true will
     block the event from further processing.
@@ -2999,8 +3002,36 @@ QWSInputMethod::~QWSInputMethod()
     If \a isPress is true this is a key press; otherwise it is a key
     release. If \a autoRepeat is true this is an auto-repeated key
     press.
-*/
 
+    The default implementation returns false.
+*/
+bool QWSInputMethod::filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
+{
+    Q_UNUSED(unicode);
+    Q_UNUSED(keycode);
+    Q_UNUSED(modifiers);
+    Q_UNUSED(isPress);
+    Q_UNUSED(autoRepeat);
+    return false;
+}
+
+/*!
+    This function must be implemented in subclasses to handle mouse
+    input from physical or virtual pointer devices. Returning true will
+    block the event from further processing.
+
+    The position of the mouse event is given in \a position,
+    with state and wheel values \a state and \a wheel.
+
+    The default implementation returns false.
+*/
+bool QWSInputMethod::filter(const QPoint &position, int state, int wheel)
+{
+    Q_UNUSED(position);
+    Q_UNUSED(state);
+    Q_UNUSED(wheel);
+    return false;
+}
 
 /*!
     Implemented in subclasses to reset the state of the input method.
@@ -3176,7 +3207,6 @@ void QWSInputMethod::sendCommitString(const QString &commitString, int replaceFr
   \sa queryResponse()
 */
 
-#if 0 //#########
 /*!
   If \a isHigh is true and the device has a pointer device resolution twice or
   more of the screen resolution, then positions passed to filterMouse will be presented
@@ -3205,7 +3235,8 @@ uint QWSInputMethod::inputResolutionShift() const
 
 /*!
   Sends a mouse event at the position \a pos, with state and wheel values \a state and \wheel.
-  The event will be not be tested by the filterMouse function.
+  The event will be not be tested by by the active input method.  This function will
+  also transform \a pos if the screen coordinates do not match device pointer coordinates
 
   \note calling QWSServer::sendMouseEvent() will result in the event being filtered by the
   current inputmethod.
@@ -3214,10 +3245,16 @@ uint QWSInputMethod::inputResolutionShift() const
 */
 void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 {
-    qwsServer->sendMouseEventUnfiltered( pos, state, wheel );
+    QPoint tpos;
+    if (qt_screen->isTransformed()) {
+	QSize s = QSize(qt_screen->width(), qt_screen->height());
+	tpos = qt_screen->mapToDevice(pos, s);
+    } else {
+	tpos = pos;
+    }
+    // because something else will transform it back later.
+    QWSServerPrivate::sendMouseEventUnfiltered( tpos, state, wheel );
 }
-#endif // 0
-
 #endif // QT_NO_QWS_INPUTMETHODS
 
 /*!
