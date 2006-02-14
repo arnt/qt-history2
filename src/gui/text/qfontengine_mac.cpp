@@ -228,16 +228,13 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
     if (nfo->shaperItem) {
         item = nfo->shaperItem;
 #if !defined(QT_NO_DEBUG)
-        /*
         int surrogates = 0;
         const QString &str = *item->string;
-        for (int i = item->from; i < item->length - 1; ++i) {
+        for (int i = item->from; i < item->from + item->length - 1; ++i) {
             surrogates += (str[i].unicode() >= 0xd800 && str[i].unicode() < 0xdc00
                            && str[i+1].unicode() >= 0xdc00 && str[i+1].unicode() < 0xe000);
         }
-        qDebug() << "numGlyphs" << *nfo->numGlyphs << "item->length" << item->length << "surrogates" << surrogates;
         Q_ASSERT(*nfo->numGlyphs == item->length - surrogates);
-        */
 #endif
     }
 
