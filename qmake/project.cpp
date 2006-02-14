@@ -1176,7 +1176,7 @@ QMakeProject::read(uchar cmd)
                 for(QStringList::ConstIterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
                     QString mkspec = (*it) + QDir::separator() + "default";
                     QFileInfo default_info(mkspec);
-                    if(default_info.exists() && default_info.isSymLink()) {
+                    if(default_info.exists() && default_info.isDir()) {
                         qmakespec = mkspec;
                         break;
                     }
