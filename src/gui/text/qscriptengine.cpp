@@ -233,7 +233,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
 #elif !defined(Q_NEW_MAC_FONTENGINE)
 
     logClusters[0] = 0;
-    for (int i = 0; i < length; ++i) {
+    for (int i = 1; i < length; ++i) {
         if (uc[i - 1].unicode() >= 0xd800 && uc[i - 1].unicode() < 0xdc00
             && uc[i].unicode() >= 0xdc00 && uc[i].unicode() < 0xe000)
             logClusters[i] = i - 1;
