@@ -49,33 +49,49 @@
     \o \bold QWS_MOUSE_PROTO \target QWS_MOUSE_PROTO
     \o
 
-    Specifies the protocol and device for pointer handling. The
+    Specifies the driver and device for pointer handling. The
     variable's value is defined as:
 
     \code
-        <protocol>:<device>
+        <driver>:<device>
     \endcode
 
-    The supported protocols are \c MouseMan, \c IntelliMouse, \c
+    The available drivers are \c MouseMan, \c IntelliMouse, \c
     Microsoft, \c vr41xx, \c linuxtp or \c tslib, and the device is
-    typically \c /dev/mouse, or \c /dev/ts for touch panels.
+    typically \c /dev/mouse, or \c /dev/ts for touch panels. Note that
+    specifying the device is optional.
 
-    The default value is \c Auto which enables auto-detection of
-    the mouse protocol and device if the "pc" mouse driver is
-    enabled. Note that Qtopia Core does not support auto-detection of
-    touch panels in which case the protocol must be specified
-    explicitly to determine which panel to use.
+    The default value is \c Auto which enables auto-detection of the
+    mouse device if the "pc" mouse driver is enabled. Note that Qtopia
+    Core does not support auto-detection of touch panels in which case
+    the driver must be specified explicitly to determine which device
+    to use.
 
-    See also \l {Pointer Handling}
+    See also \l {Pointer Handling}.
 
     \row
     \o \bold QWS_KEYBOARD \target QWS_KEYBOARD
-    \o Defines the keyboard type. Multiple keyboards can be handled at once;
-    input will be read from all of them. Valid values:
-    Buttons (an iPaq button device if \c QT_QWS_IPAQ is compiled),
-    QVfbKeyboard (only useful with \c QVfb),
-    and TTY (either a USB keyboard or \c /dev/tty depending if \c QWS_USB_KEYBOARD
-    is defined)
+    \o
+
+    Specifies the driver and device for character input. The variable's value is defined as:
+
+    \code
+        <driver>:<device>
+    \endcode
+
+    The available drivers are \c sl5000, \c yopy, \c vr41xx, \c tty or
+    \c usb, and the device is typically \c /dev/tty0. Note that
+    specifying the device is optional.
+
+    Multiple keyboard drivers can be specified in one go:
+
+    \code
+        <driver> <driver> <driver>:<device>
+    \endcode
+
+    Input will be read from all of specified drivers.
+
+    See also \l {Character Input}.
 
     \endtable
 */

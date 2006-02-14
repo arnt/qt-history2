@@ -15,35 +15,36 @@
     Run \c{./configure -help} to list the available drivers. In the
     default Qt configuration, only the "pc" mouse driver is enabled.
 
-    \section1 Supported Protocols
+    \section1 Available Drivers
 
-    Qtopia Core supports the MouseMan, IntelliMouse, Microsoft, NEC
-    Vr41XX and Linux Touch Panel protocols as well as the universal
-    touch screen library, tslib.
+    Qtopia Core provides drivers for the MouseMan, IntelliMouse,
+    Microsoft, NEC Vr41XX, Linux Touch Panel and Yopy protocols as
+    well as the universal touch screen library, tslib.
 
     Provided that the "pc" mouse driver is enabled, Qtopia Core will
-    try to auto-detect the mouse protocol and device if it is one of
-    the supported types on \c /dev/psaux or one of the \c /dev/ttyS?
-    serial lines. If multiple mice are detected, all may be used
+    try to auto-detect the mouse device if it is one of the supported
+    types on \c /dev/psaux or one of the \c /dev/ttyS?  serial
+    lines. If multiple mice are detected, all may be used
     simultaneously. Note that Qtopia Core does not support
-    auto-detection of \e {touch panels} in which case the protocol
-    must be specified explicitly to determine which panel to use.
+    auto-detection of \e {touch panels} in which case the driver must
+    be specified explicitly to determine which device to use.
 
-    Other protocols can be added by deriving from the QWSMouseHandler
+    Other drivers can be added by deriving from the QWSMouseHandler
     and QMouseDriverPlugin classes and using Qt's plugin mechanism.
 
-    \section1 Specifying a Protocol
+    \section1 Specifying a Driver
 
-    To specify which protocol to use, set the QWS_MOUSE_PROTO
+    To specify which driver to use, set the QWS_MOUSE_PROTO
     environment variable. For example (if the current shell is bash,
     ksh, zsh or sh):
 
     \code
-         export QWS_MOUSE_PROTO=<protocol>:<device>
+         export QWS_MOUSE_PROTO=<driver>:<device>
     \endcode
 
-    The \c <protocol> argument is either \c MouseMan, \c IntelliMouse,
-    \c Microsoft, \c vr41xx, \c linuxtp or \c tslib, and the \c
-    <device> argument is typically \c /dev/mouse for mouse devices and
-    \c /dev/ts for touch panels.
+    The \c <driver> argument is either \c MouseMan, \c IntelliMouse,
+    \c Microsoft, \c vr41xx, \c linuxtp, \c yopy or \c tslib, and the
+    \c <device> argument is typically \c /dev/mouse for mouse devices
+    and \c /dev/ts for touch panels. Note that the latter argument is
+    optional.
 */
