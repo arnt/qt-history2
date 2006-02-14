@@ -1,6 +1,10 @@
 TEMPLATE        = app
 CONFIG          += qt warn_on uic
 TARGET          = qvfb
+DESTDIR         = ../../bin
+
+target.path=$$[QT_INSTALL_BINS]
+INSTALLS += target
 
 QT		+= qt3support
 
