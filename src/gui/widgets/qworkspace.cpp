@@ -1129,10 +1129,15 @@ void QWorkspace::wheelEvent(QWheelEvent *e)
     Q_D(QWorkspace);
     if (!scrollBarsEnabled())
         return;
+    // the scrollbars are children of the workspace, so if we receive
+    // a wheel event we redirect to the scrollbars using a direct event
+    // call, /not/ using sendEvent() because if the scrollbar ignores the
+    // event QApplication::sendEvent() will propagate the event to the parent widget,
+    // which is us, who /just/ sent it.
     if (d->vbar && d->vbar->isVisible() && !(e->modifiers() & Qt::AltModifier))
-        QApplication::sendEvent(d->vbar, e);
+        d->vbar->event(e);
     else if (d->hbar && d->hbar->isVisible())
-        QApplication::sendEvent(d->hbar, e);
+        d->hbar->event(e);
 }
 #endif
 
