@@ -975,6 +975,21 @@ void *fetchData(QTestData *data, const char *tagName, int typeId)
     be used to declare a main method that parses the command line arguments
     and executes the tests.
 
+    The following example will run all tests in \c MyFirstTestObject and
+    \c{MySecondTestObject}:
+
+    \code
+    MyFirstTestObject test1;
+    QTest::qExec(&test1);
+
+    MySecondTestObject test2;
+    QTest::qExec(&test2);
+    \endcode
+
+    Note: This function is not reentrant, only one test can run at a time. A
+    test that was executed with qExec() can't run another test via qExec() and
+    threads are not allowed to call qExec() simultaneously.
+
     \sa QTEST_MAIN()
 */
 int QTest::qExec(QObject *testObject, int argc, char **argv)
