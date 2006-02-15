@@ -4609,7 +4609,52 @@ static void hangul_attributes(int script, const QString &text, int from, int len
 }
 
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
-# include "qscriptengine_unix.cpp"
+
+const q_scriptEngine qt_scriptEngines[] = {
+    // Common
+    { basic_shape, 0},
+    // Hebrew
+    { hebrew_shape, 0 },
+    // Arabic
+    { arabic_shape, 0},
+    // Syriac
+    { syriac_shape, 0},
+    // Thaana
+    { thaana_shape, 0 },
+    // Devanagari
+    { indic_shape, indic_attributes },
+    // Bengali
+    { indic_shape, indic_attributes },
+    // Gurmukhi
+    { indic_shape, indic_attributes },
+    // Gujarati
+    { indic_shape, indic_attributes },
+    // Oriya
+    { indic_shape, indic_attributes },
+    // Tamil
+    { indic_shape, indic_attributes },
+    // Telugu
+    { indic_shape, indic_attributes },
+    // Kannada
+    { indic_shape, indic_attributes },
+    // Malayalam
+    { indic_shape, indic_attributes },
+    // Sinhala
+    { indic_shape, indic_attributes },
+    // Thai
+    { basic_shape, thai_attributes },
+    // Lao
+    { basic_shape, 0 },
+    // Tibetan
+    { tibetan_shape, tibetan_attributes },
+    // Myanmar
+    { basic_shape, 0 },
+    // Hangul
+    { hangul_shape, hangul_attributes },
+    // Khmer
+    { khmer_shape, khmer_attributes }
+};
+
 #elif defined(Q_WS_WIN)
 # include "qscriptengine_win.cpp"
 #elif defined(Q_WS_MAC)
