@@ -1934,14 +1934,7 @@ QString Q3FileDialogPrivate::File::text(int column) const
 
     switch(column) {
     case 0:
-        {
-            QString name = info.name();
-#ifdef Q_OS_WIN
-            if (info.isSymLink() && name.endsWith(".lnk"))
-                name = name.left(name.length() - 4);
-#endif
-            return name;
-        }
+        return info.name();
     case 1:
         if (info.isFile()) {
             QIODevice::Offset size = info.size();
