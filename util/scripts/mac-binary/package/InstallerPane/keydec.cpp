@@ -191,7 +191,7 @@ uint KeyDecoder::decodeBaseX(const char *str)
 
 void KeyDecoder::encodedExpiryDate(const CDate &date, char *str)
 {    
-    return encodeBaseX(date.julianDate() ^ 0x5B7EC4, str);
+    encodeBaseX(date.julianDate() ^ 0x5B7EC4, str);
 }
 
 CDate KeyDecoder::decodedExpiryDate(const char *encodedDate)
