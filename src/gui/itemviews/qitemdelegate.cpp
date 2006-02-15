@@ -761,23 +761,35 @@ bool QItemDelegate::editorEvent(QEvent *event,
     Q_ASSERT(event);
     Q_ASSERT(model);
 
-    // make sure that we have the right event type and that the item is checkable
-    if ((event->type() != QEvent::MouseButtonRelease)
-        || !(model->flags(index) & Qt::ItemIsUserCheckable))
+    // make sure that the item is checkable
+    if (!(model->flags(index) & Qt::ItemIsUserCheckable))
         return false;
 
-    // check if the event happened in the right place
-    QVariant value = index.data(Qt::CheckStateRole);
-    QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignLeft | Qt::AlignVCenter,
-                                          check(option, option.rect, value).size(),
-                                          QRect(option.rect.x(), option.rect.y(),
-                                                option.rect.width(), option.rect.height()));
-    if (checkRect.contains(static_cast<QMouseEvent*>(event)->pos())) {
-        Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
-        return model->setData(index, (state == Qt::Unchecked ? Qt::Checked : Qt::Unchecked),
-                              Qt::CheckStateRole);
+    // make sure that we have the right event type
+    if (event->type() == QEvent::MouseButtonRelease) {
+        QVariant value = index.data(Qt::CheckStateRole);
+        if (!value.isValid())
+            return false;
+        QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignLeft | Qt::AlignVCenter,
+                                              check(option, option.rect, value).size(),
+                                              QRect(option.rect.x(), option.rect.y(),
+                                                    option.rect.width(), option.rect.height()));
+        if (!checkRect.contains(static_cast<QMouseEvent*>(event)->pos()))
+            return false;
+        Qt::CheckState state = (static_cast<Qt::CheckState>(value.toInt()) == Qt::Unchecked
+                                ? Qt::Checked : Qt::Unchecked);
+        return model->setData(index, state, Qt::CheckStateRole);
+    } else if (event->type() == QEvent::KeyPress) {
+        if (static_cast<QKeyEvent*>(event)->key() == Qt::Key_Space) {
+            QVariant value = index.data(Qt::CheckStateRole);
+            if (!value.isValid())
+                return false;
+            Qt::CheckState state = (static_cast<Qt::CheckState>(value.toInt()) == Qt::Unchecked
+                                    ? Qt::Checked : Qt::Unchecked);
+            return model->setData(index, state, Qt::CheckStateRole);
+        }
     }
-
+        
     return false;
 }
 

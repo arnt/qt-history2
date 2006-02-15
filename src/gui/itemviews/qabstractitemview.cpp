@@ -1415,7 +1415,8 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         event->ignore();
         break;
     case Qt::Key_Space:
-        selectionModel()->select(currentIndex(), selectionCommand(currentIndex(), event));
+        if (!edit(currentIndex(), AnyKeyPressed, event))
+            selectionModel()->select(currentIndex(), selectionCommand(currentIndex(), event));
         break;
 #ifdef Q_WS_MAC
     case Qt::Key_Enter:
@@ -1541,7 +1542,8 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
     if (!editor)
         return false;
 
-    if (event && event->type() == QEvent::KeyPress && (trigger & d->editTriggers) == AnyKeyPressed)
+    if (event && event->type() == QEvent::KeyPress
+        && (trigger & d->editTriggers) == AnyKeyPressed)
         QApplication::sendEvent(editor->focusProxy() ? editor->focusProxy() : editor, event);
     setState(EditingState);
     editor->show();
