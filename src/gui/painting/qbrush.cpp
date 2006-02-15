@@ -96,7 +96,6 @@ struct QGradientBrushData : public QBrushData
     \brief The QBrush class defines the fill pattern of shapes drawn
     by QPainter.
 
-
     A brush has a style, a color, a gradient and a texture.
 
     The brush style() defines the fill pattern using the
@@ -165,6 +164,9 @@ struct QGradientBrushData : public QBrushData
     painter.setPen(Qt::NoPen)} to disable this behavior.
 
     \endtable
+
+    For more information about painting in general, see {The Paint
+    System} documentation.
 
     \sa Qt::BrushStyle, QPainter, QColor
 */

@@ -67,7 +67,8 @@
     function returns the number of different colors available for the
     paint device.
 
-    \sa QPaintEngine, QPainter, {The Coordinate System}
+    \sa QPaintEngine, QPainter, {The Coordinate System}, {The Paint
+    System}
 */
 
 /*!

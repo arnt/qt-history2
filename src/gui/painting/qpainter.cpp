@@ -425,14 +425,14 @@ void QPainterPrivate::updateState(QPainterState *newState)
     destructor, deactivates it.
 
     Together with the QPaintDevice and QPaintEngine classes, QPainter
-    form the basis for Qt's paint system, Arthur. QPainter is the
-    class used to perform drawing operations. QPaintDevice represents
-    a device that can be painted on using a QPainter. QPaintEngine
-    provides the interface that the painter uses to draw onto
-    different types of devices. If the painter is active, device()
-    returns the paint device on which the painter paints, and
-    paintEngine() returns the paint engine that the painter is
-    currently operating on.
+    form the basis for Qt's paint system. QPainter is the class used
+    to perform drawing operations. QPaintDevice represents a device
+    that can be painted on using a QPainter. QPaintEngine provides the
+    interface that the painter uses to draw onto different types of
+    devices. If the painter is active, device() returns the paint
+    device on which the painter paints, and paintEngine() returns the
+    paint engine that the painter is currently operating on. For more
+    information, see \l {The Paint System} documentation.
 
     Sometimes it is desirable to make someone else paint on an unusual
     QPaintDevice. QPainter supports a static function to do this,

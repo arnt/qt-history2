@@ -95,6 +95,9 @@
     QColor is platform and device independent. The QColormap class
     maps the color to the hardware.
 
+    For more information about painting in general, see {The Paint
+    System} documentation.
+
     \tableofcontents
 
     \section1 Integer vs. Floating Point Precision
