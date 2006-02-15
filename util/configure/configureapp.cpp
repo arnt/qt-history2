@@ -2255,60 +2255,41 @@ void Configure::readLicense()
     switch (licenseSchema) {
     case KeyDecoder::FullCommercial:
         licenseType = "Commercial";
-        switch (products) {
-        case KeyDecoder::QtUniversal:
+        if (products & KeyDecoder::QtUniversal) {
             dictionary["EDITION"] = "Universal";
             dictionary["QT_EDITION"] = "QT_EDITION_UNIVERSAL";
-            break;
-        case KeyDecoder::QtDesktop:
+        } else if (products & KeyDecoder::QtDesktop) {
             dictionary["EDITION"] = "Desktop";
             dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
-            break;
-        case KeyDecoder::QtDesktopLight:
+        } else if (products & KeyDecoder::QtDesktopLight) {
             dictionary["EDITION"] = "DesktopLight";
             dictionary["QT_EDITION"] = "QT_EDITION_DESKTOPLIGHT";
-            break;
-        case KeyDecoder::QtConsole:
+        } else if (products & KeyDecoder::QtConsole) {
             dictionary["EDITION"] = "Console";
             dictionary["QT_EDITION"] = "QT_EDITION_CONSOLE";
-            break;
-        default:
-            break;
-        }
+        }        
         break;
     case KeyDecoder::SupportedEvaluation:
     case KeyDecoder::UnsupportedEvaluation:
     case KeyDecoder::FullSourceEvaluation:
         licenseType = "Evaluation";
-        switch (products) {
-        case KeyDecoder::QtDesktop:
+        if (products & KeyDecoder::QtDesktop) {
             dictionary["EDITION"] = "Evaluation";
             dictionary["QT_EDITION"] = "QT_EDITION_EVALUATION";
-            break;
-        default:
-            break;
         }
         break;
     case KeyDecoder::Academic:
         licenseType = "Academic";
-        switch (products) {
-        case KeyDecoder::QtDesktop:
+        if (products & KeyDecoder::QtDesktop) {
             dictionary["EDITION"] = "Academic";
             dictionary["QT_EDITION"] = "QT_EDITION_ACADEMIC";
-            break;
-        default:
-            break;
         }
         break;
     case KeyDecoder::Educational:
         licenseType = "Educational";
-        switch (products) {
-        case KeyDecoder::QtDesktop:
+        if (products & KeyDecoder::QtDesktop) {
             dictionary["EDITION"] = "Educational";
             dictionary["QT_EDITION"] = "QT_EDITION_EDUCATIONAL";
-            break;
-        default:
-            break;
         }
         break;
     }
