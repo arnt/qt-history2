@@ -336,15 +336,16 @@
     \section1 Styling
 
     Qt's built-in widgets use the QStyle class to perform nearly all
-    of their drawing, ensuring that they look exactly like the
-    equivalent native widgets.
+    of their drawing.  QStyle is an abstract base class that
+    encapsulates the look and feel of a GUI, and can be used to make
+    the widgets look exactly like the equivalent native widgets or to
+    give the widgets a custom look.
 
-    QStyle is an abstract base class that encapsulates the look and
-    feel of a GUI. Qt contains a set of QStyle subclasses that emulate
-    the styles of the different platforms supported by Qt
-    (QWindowsStyle, QMacStyle, QMotifStyle, etc.). By default, these
-    styles are built into the QtGui library, but styles can also be
-    made available as plugins.
+    Qt provides a set of QStyle subclasses that emulate the native
+    look of the different platforms supported by Qt (QWindowsStyle,
+    QMacStyle, QMotifStyle, etc.). These styles are built into the
+    QtGui library, other styles can be made available using Qt's
+    plugin mechansim.
 
     Most functions for drawing style elements take four arguments:
 
@@ -360,18 +361,17 @@
     passed as the last argument in case the style needs it to perform
     special effects (such as animated default buttons on Mac OS X),
     but it isn't mandatory. In fact, QStyle can be used to draw on any
-    paint device, not just widgets, by setting the QPainter properly.
+    paint device (not just widgets), in which case the widget argument
+    is a zero pointer.
 
     \image paintsystem-stylepainter.png
 
-    The paint system also provides the QStylePainter class inheriting from
-    QPainter.
-
-    QStylePainter is a convenience class for drawing QStyle elements
-    inside a widget, and extends QPainter with a set of high-level
-    drawing functions implemented on top of QStyle's API. The
-    advantage of using QStylePainter is that the parameter lists get
-    considerably shorter.
+    The paint system also provides the QStylePainter class inheriting
+    from QPainter.  QStylePainter is a convenience class for drawing
+    QStyle elements inside a widget, and extends QPainter with a set
+    of high-level drawing functions implemented on top of QStyle's
+    API. The advantage of using QStylePainter is that the parameter
+    lists get considerably shorter.
 
     \table 100%
     \row
