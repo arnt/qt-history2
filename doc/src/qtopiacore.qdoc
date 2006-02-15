@@ -30,9 +30,10 @@
     Qtopia Core applications write directly to the framebuffer,
     eliminating the need for the X Window System and saving memory.
 
-    If you do not have a working Linux framebuffer you can use the
-    \l {Qtopia Core Virtual Framebuffer}, or you can \l {Qtopia Core as a
-    VNC Server}{run Qtopia Core as a VNC server}.
+    If you do not have a working Linux framebuffer you can use Qtopia
+    Core's \l {The Virtual Framebuffer}{Virtual Framebuffer}, or you
+    can \l {Running as a VNC Server}{run Qtopia Core as a VNC
+    server}.
 
     \o \image qtopiacore-architecture.png
     \endtable
