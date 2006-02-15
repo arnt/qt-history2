@@ -97,9 +97,7 @@ struct QTLWExtra {
     uint resizer : 4;
 #endif
 #if defined(Q_WS_QWS) && !defined (QT_NO_QWS_MANAGER)
-//    QRegion decor_allocated_region; // decoration allocated region
     QWSManager *qwsManager;
-    QRect frameGeometry;
 #endif
 #if defined Q_WS_QWS
     bool inPaintTransaction;
