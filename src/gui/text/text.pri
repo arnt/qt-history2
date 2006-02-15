@@ -142,12 +142,13 @@ contains(QT_CONFIG, freetype) {
     DEFINES += FT_CONFIG_OPTION_SYSTEM_ZLIB
     
     embedded:CONFIG += opentype
-}
-contains(QT_CONFIG, system-freetype) {
+} else:contains(QT_CONFIG, system-freetype) {
     embedded:CONFIG += opentype
     # pull in the proper freetype2 include directory
     include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
     LIBS += -lfreetype
+} else {
+    DEFINES *= QT_NO_FREETYPE
 }
 
 contains(QT_CONFIG, fontconfig) {
