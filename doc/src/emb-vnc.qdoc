@@ -1,6 +1,11 @@
 /*!
     \page emb-vnc.html
-    \title Qtopia Core as a VNC Server
+
+    \contentspage {Qtopia Core}{Contents}
+    \previouspage  The Virtual Framebuffer
+    \nextpage Environment Variables
+
+    \title Running as a VNC Server
     \ingroup qtopia-core
 
     The \link http://www.uk.research.att.com/vnc/ VNC \endlink protocol

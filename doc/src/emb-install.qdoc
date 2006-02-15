@@ -1,7 +1,11 @@
 /*!
     \page emb-install.html
 
-    \title Installing Qtopia Core
+    \previouspage Qtopia Core
+    \contentspage {Qtopia Core}{Contents}
+    \nextpage Running Applications
+
+    \title Installation
     \ingroup qtopia-core
     \ingroup installation
 

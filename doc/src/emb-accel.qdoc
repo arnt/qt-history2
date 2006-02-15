@@ -13,7 +13,10 @@
 /*!
     \page emb-accel.html
 
-    \title Adding an Accelerated Graphics Driver to Qtopia Core
+    \contentspage {Qtopia Core}{Contents}
+    \previouspage Character Input
+
+    \title Adding an Accelerated Graphics Driver
     \ingroup qtopia-core
 
     Qtopia Core uses Qt's premade raster-based implementation of

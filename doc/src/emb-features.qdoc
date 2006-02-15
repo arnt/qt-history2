@@ -1,6 +1,10 @@
 /*!
     \page emb-features.html
 
+    \contentspage {Qtopia Core}{Contents}
+    \previouspage Performance Tuning
+    \nextpage Pointer Handling
+
     \title Fine-Tuning Features
 
     On the Qtopia Core platform the set of applications is often
@@ -44,6 +48,8 @@
     Qt provides several ready-made custom configuration files defining
     a minimal, small, medium and large installation, respectively,
     located in the \c /src/corelib/global directory.
+
+    \sa {Performance Tuning}
 
     \omit ### the following set of features is outdated, but is
     preserved since parts are still relevant and are supposed to be

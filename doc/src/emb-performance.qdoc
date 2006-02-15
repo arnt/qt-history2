@@ -1,76 +1,93 @@
 /*!
     \page emb-performance.html
-    \title Qtopia Core Performance Tuning
+
+    \contentspage Qtopia Core
+    \previouspage Fonts
+    \nextpage Fine-Tuning Features
+
+    \title Performance Tuning
+
+    When building embedded applications on low-powered devices, a
+    number of options are available that reduce the memory and/or CPU
+    requirements by making various trade-offs. These options range
+    from variations in programming style, to linking and memory
+    allocation.
     \ingroup qtopia-core
 
-    When building embedded applications on low-powered devices, a number
-    of options are available that are not relevant for desktop
-    applications. These options reduce the memory and/or CPU requirements
-    by making various trade-offs.
+    But note that the most direct way of saving resources, is to avoid
+    compiling in features that are not required. See \l {Fine-Tuning
+    Features} for details.
 
-    The most direct way of saving resources is to avoid compiling in
-    features that are not required. See \l {Fine-Tuning Features} for
-    details.
+    \tableofcontents
 
-    \list
-    \i \link #general General programming style\endlink
-    \i \link #static Static vs. Dynamic linking\endlink
-    \i \link #alloc Alternative memory allocation\endlink
-    \endlist
+    \section1 Programming Style
 
-    \target general
-    \section1 General Programming Style
+    Rather than creating dialogs and widgets every time they are
+    needed, and delete them when they are no longer required, create
+    them once and use the QWidget::hide() and QWidget::show()
+    functions whenever appropiate.  To avoid a a slow startup of the
+    application, delay the creation of dialogs and widgets until they
+    are requested.
 
-    The following guidelines will improve CPU performance:
-    \list
-     \i Create dialogs and widgets once, then QWidget::hide() and
-            QWidget::show() them, rather than creating them and deleting
-            them every time they are needed.
-            This will use a little more memory, but will be much faster.
-            Try to create them the first time "lazily" to avoid slow
-            startup (e.g. only create a Find dialog the first time the
-            user invokes it).
-    \endlist
+    This will improve CPU performance: The approach requires a little
+    more memory, but will be much faster.
 
-    \target static
     \section1 Static vs. Dynamic Linking
 
-    A lot of CPU and memory is used by the ELF linking process. You can
-    make significant savings by using a static build of your application
-    suite. This means that rather than having dynamic Qt libraries and a
-    collection of executables which link dynamically to these libraries,
-    you build all the applications into a single executable and statically
-    link that with static Qt libraries. This improves start-up time, and
-    reduces memory usage, at the expense of flexibility (to add a new
-    application, you must recompile the single executable) and robustness
-    (if one application has a bug, it might harm other applications). If
-    you need to install end-user applications, this may not be an option,
-    but if you are building a single application suite for a device with
-    limited CPU power and memory, this option could be very beneficial.
+    A lot of CPU and memory is used by the ELF (Executable and Linking
+    Format) linking process. Significant savings can be achieved by
+    using a static build of the application suite.
+
+    This means that rather than having dynamic Qt libraries and a
+    collection of executables which link dynamically to these
+    libraries, all the applications is built into into a single
+    executable which is statically linked to static Qt libraries.
+
+    This improves the start-up time and reduces memory usage, at the
+    expense of flexibility (to add a new application, you must
+    recompile the single executable) and robustness (if one
+    application has a bug, it might harm other applications).
+
+    \table 100%
+    \row
+    \o \bold {Creating a Static Build}
 
     To compile Qt as a static library, use the \c -static option when
-    you run configure.
+    running configure:
 
-    To build your application suite as an all-in-one application, design each
-    application as a stand-alone widget or set of widgets, with only minimal
-    code in the main() function. Then, write an application that provides
-    a means of switching between the applications (e.g. a QIconView). The
-    \link http://www.trolltech.com/products/qtopia/index.html Qtopia
-    \endlink is an example of this. It can be built either as a set of
-    dynamically linked executables, or as a single static application.
+    \code
+        ./configure -static
+    \endcode
 
-    Note that you should generally still link dynamically against the
-    standard C library and any other libraries which might be used by
-    other applications on your device.
+    To build the application suite as an all-in-one application,
+    design each application as a stand-alone widget (or set of
+    widgets) with only minimal code in the \c main() function. Then,
+    write an application that provides a means of switching between
+    the applications.
 
-    \target alloc
+    Note that the application still should link dynamically against
+    the standard C library and any other libraries which might be used
+    by other applications on the target device.
+
+    \endtable
+
+    The \l
+    {http://www.trolltech.com/products/qtopia/index.html}{Qtopia}
+    platform is an example using this apporach: It can be built either
+    as a set of dynamically linked executables, or as a single static
+    application.
+
+    When installing end-user applications, this approach may not be an
+    option, but when building a single application suite for a device
+    with limited CPU power and memory, this option could be very
+    beneficial.
+
     \section1 Alternative Memory Allocation
 
-    We have found that the libraries shipped with some C++ compilers on
-    some platforms have poor performance in the built-in "new" and "delete"
-    operators. You might gain performance by re-implementing these
-    functions. For example, you can switch to the plain C allocators
-    by adding the following to your code:
+    The libraries shipped with some C++ compilers on some platforms
+    have poor performance in the built-in "new" and "delete"
+    operators. Improved memory allocation and performance may be
+    gained by re-implementing these functions:
 
     \code
         void *operator new[](size_t size)
@@ -103,4 +120,8 @@
             free(ptr);
         }
     \endcode
+
+    The example above shows the necessary code to switch to the plain
+    C memory allocators.
+
 */

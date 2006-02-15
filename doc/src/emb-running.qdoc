@@ -1,7 +1,11 @@
 /*!
     \page emb-running.html
 
-    \title Running Qtopia Core Applications
+    \contentspage {Qtopia Core}{Contents}
+    \previouspage Installation
+    \nextpage Porting Applications to Qtopia Core
+
+    \title Running Applications
     \ingroup qtopia-core
 
     A Qtopia Core application requires a master application to be running,

@@ -1,6 +1,11 @@
 /*!
     \page emb-differences.html
-    \title Porting Your Applications to Qtopia Core
+
+    \contentspage {Qtopia Core}{Contents}
+    \previouspage Running Applications
+    \nextpage The Linux Framebuffer
+
+    \title Porting Applications to Qtopia Core
     \ingroup porting
     \ingroup qtopia-core
 

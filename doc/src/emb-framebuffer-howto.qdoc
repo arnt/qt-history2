@@ -1,5 +1,9 @@
 /*!
     \page emb-framebuffer-howto.html
+    \contentspage {Qtopia Core}{Contents}
+    \previouspage Porting Applications to Qtopia Core
+    \nextpage The Virtual Framebuffer
+
     \title The Linux Framebuffer
     \ingroup qtopia-core
 

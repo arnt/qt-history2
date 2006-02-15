@@ -1,5 +1,10 @@
 /*!
     \page emb-fonts.html
+
+    \contentspage {Qtopia Core}{Contents}
+    \previouspage Environment Variables
+    \nextpage Performance Tuning
+
     \title Fonts
 
     The Qtopia Core platform uses the \l

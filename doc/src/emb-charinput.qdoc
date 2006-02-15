@@ -15,6 +15,10 @@
 /*!
     \page emb-charinput.html
 
+    \contentspage {Qtopia Core}{Contents}
+    \previouspage Pointer Handling
+    \nextpage Adding an Accelerated Graphics Driver
+
     \title Character Input
 
     When running a Qtopia Core application, it either runs as a server
