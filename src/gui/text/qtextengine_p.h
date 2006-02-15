@@ -443,7 +443,7 @@ public:
 
     static void bidiReorder(int numRuns, const quint8 *levels, int *visualOrder);
 
-    const QCharAttributes *attributes();
+    const QCharAttributes *attributes() const;
 
     void shape(int item) const;
 

@@ -865,7 +865,7 @@ QTextEngine::~QTextEngine()
     delete specialData;
 }
 
-const QCharAttributes *QTextEngine::attributes()
+const QCharAttributes *QTextEngine::attributes() const
 {
     if (layoutData && layoutData->haveCharAttributes)
         return (QCharAttributes *) layoutData->memory;
