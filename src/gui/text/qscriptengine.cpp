@@ -4792,9 +4792,9 @@ const q_scriptEngine qt_scriptEngines[] = {
     // Common
     { basic_shape, 0 },
     // Hebrew
-    { hebrew_shape, 0 },
+    { basic_shape, 0 },
     // Arabic
-    { arabic_shape, 0 },
+    { basic_shape, 0 },
     // Syriac
     { basic_shape, 0 },
     // Thaana
