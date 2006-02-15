@@ -1,0 +1,61 @@
+/*!
+    \page qtopiacore.html
+    \nextpage Installing Qtopia Core
+
+    \title Qtopia Core
+
+    The Qtopia Core platform is a C++ framework for GUI and
+    application development for embedded devices. It runs on a variety
+    of processors, usually with Embedded Linux.  Qtopia Core provides
+    the standard Qt API for embedded devices with a lightweight
+    windowing system.
+
+    \list
+        \o \l {Qtopia Core Classes}
+    \endlist
+
+    In addition to the class library, Qtopia Core provides means for
+    customizing and optimizing the final result: Memory consumption
+    can be fine-tuned by compiling out features that are not used, and
+    a number of options are available that reduce the memory and CPU
+    requirements by making various trade-offs. Keyboard and pointer
+    drivers can be specified, as weel as the font output's format. It
+    is also possible to make use of accelerated graphics hardware.
+
+    \table 100%
+    \row
+    \o
+    \bold { Qtopia Core versus Qt/X11 on Embedded Linux}
+
+    Qtopia Core applications write directly to the framebuffer,
+    eliminating the need for the X Window System and saving memory.
+
+    If you do not have a working Linux framebuffer you can use the
+    \l {Qtopia Core Virtual Framebuffer}, or you can \l {Qtopia Core as a
+    VNC Server}{run Qtopia Core as a VNC server}.
+
+    \o \image qtopiacore-architecture.png
+    \endtable
+
+    \list
+        \o \l {Installing Qtopia Core}
+        \o \l {Running Qtopia Core Applications}
+        \o \l {Porting Your Applications to Qtopia Core}
+   \endlist
+
+    \list
+        \o \l {The Linux Framebuffer}
+        \o \l {Qtopia Core Virtual Framebuffer}
+        \o \l {Qtopia Core as a VNC Server}
+    \endlist
+
+    \list
+        \o \l {Qtopia Core Environment Variables}
+        \o \l {Fonts}
+        \o \l {Performance Tuning}
+        \o \l {Fine-Tuning Features}
+        \o \l {Pointer Handling}
+        \o \l {Character Input}
+        \o \l {Adding an Accelerated Graphics Driver to Qtopia Core}
+    \endlist
+*/

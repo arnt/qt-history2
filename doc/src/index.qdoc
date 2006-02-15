@@ -135,7 +135,7 @@
         <li><a href="modules.html">Qt Classes by Module</a></li>
         <li><a href="hierarchy.html">Inheritance Hierarchy</a></li>
         <li><a href="functions.html">All Functions</a></li>
-        <li><a href="winsystem.html#qtopia-core-qt-for-embedded-linux">Qtopia Core</a></li>
+        <li><a href="qtopiacore.html">Qtopia Core</a></li>
         <li><a href="overviews.html">All Overviews and HOWTOs</a></li>
         </ul>
         </td>
@@ -144,7 +144,7 @@
         <li><a href="signalsandslots.html">Signals and Slots</a></li>
         <li><a href="object.html">Object Model</a></li>
         <li><a href="layout.html">Layout Management</a></li>
-        <li><a href="qt4-arthur.html">Paint System</a></li>
+        <li><a href="paintsystem.html">Paint System</a></li>
         <li><a href="dnd.html">Drag and Drop</a></li>
         <li><a href="containers.html">Tool and Container Classes</a></li>
         <li><a href="i18n.html">Internationalization</a></li>

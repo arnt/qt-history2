@@ -66,9 +66,11 @@
     \target qws
     \section1 Qtopia Core (Qt for Embedded Linux)
 
-    When compiling for this platform, the macro \c{Q_WS_QWS} is defined
-    (the window system is literally the Qt Window System).
+    When compiling for this platform, the macro \c{Q_WS_QWS} is
+    defined (the window system is literally the Qt Window System). See
+    the \l {Qtopia Core} documentation for more information.
 
+    \omit
     \list
     \o \l{emb-install.html}{Installing Qtopia Core}
     \o \l{emb-envvars.html}{Qtopia Core Environment Variables}
@@ -83,9 +85,8 @@
     \o \l{emb-charinput.html}{Character Input}
     \o \l{emb-pointer.html}{Pointer Handling}
     \o \l{emb-accel.html}{Adding an Accelerated Graphics Driver to Qtopia Core}
-    \omit
     \o \l{emb-porting.html}{Issues to be Aware of when Porting Qtopia Core}
     \o \l{emb-classes.html}{The Qtopia Core Specific Classes}
-    \endomit
     \endlist
-*
+    \endomit
+*/
