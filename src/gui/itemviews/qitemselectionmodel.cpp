@@ -750,11 +750,11 @@ void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, QItemSelecti
             select(index, command); // select item
         return;
     }
-    QModelIndex previous = d->currentIndex;
+    QPersistentModelIndex previous = d->currentIndex;
     d->currentIndex = index; // set current before emitting selection changed below
     if (command != NoUpdate)
-        select(index, command); // select item
-    emit currentChanged(index, previous);
+        select(d->currentIndex, command); // select item
+    emit currentChanged(d->currentIndex, previous);
     if (d->currentIndex.row() != previous.row())
         emit currentRowChanged(d->currentIndex, previous);
     if (d->currentIndex.column() != previous.column())

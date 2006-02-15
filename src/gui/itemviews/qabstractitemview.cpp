@@ -968,10 +968,12 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QAbstractItemView);
     QPoint pos = event->pos();
-    QModelIndex index = indexAt(pos);
+    QModelIndex idx = indexAt(pos);
 
-    if (!selectionModel() || (d->state == EditingState && d->editors.contains(index)))
+    if (!selectionModel() || (d->state == EditingState && d->editors.contains(idx)))
         return;
+
+    QPersistentModelIndex index = idx;
 
     bool alreadySelected = selectionModel()->isSelected(index);
     d->pressedIndex = index;
@@ -991,9 +993,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
 
     // signal handlers may change the model
     if (index.isValid()) {
-        QPersistentModelIndex persistent = index;
         emit pressed(index);
-        index = persistent;
         if (alreadySelected)
             edit(index, SelectedClicked, event);
     }
@@ -1037,10 +1037,10 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
     if (d->enteredIndex != index) {
         // signal handlers may change the model
         QPersistentModelIndex persistent = index;
-        if (index.isValid()){
-            emit entered(index);
+        if (persistent.isValid()) {
+            emit entered(persistent);
 #ifndef QT_NO_STATUSTIP
-            QString statustip = model()->data(index, Qt::StatusTipRole).toString();
+            QString statustip = model()->data(persistent, Qt::StatusTipRole).toString();
             if (parent() && !statustip.isEmpty()) {
                 QStatusTipEvent tip(statustip);
                 QApplication::sendEvent(parent(), &tip);
@@ -1079,11 +1079,12 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
         if (topLeft.y() > bottomRight.y()) qSwap(topLeft.ry(), bottomRight.ry());
         if (topLeft.x() > bottomRight.x()) qSwap(topLeft.rx(), bottomRight.rx());
         QRect selectionRect = QRect(topLeft, bottomRight);
+        QPersistentModelIndex persistent = index;
         setSelection(selectionRect, command);
 
         // set at the end because it might scroll the view
-        if (index.isValid())
-            selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+        if (persistent.isValid())
+            selectionModel()->setCurrentIndex(persistent, QItemSelectionModel::NoUpdate);
     }
 }
 
@@ -1097,11 +1098,11 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
     Q_D(QAbstractItemView);
     d->pressedPosition = QPoint(-1, -1);
 
-    QPoint pos = event->pos();
-    QModelIndex index = indexAt(pos);
-
     if (state() == EditingState)
         return;
+
+    QPoint pos = event->pos();
+    QPersistentModelIndex index = indexAt(pos);
 
     setState(NoState);
 
@@ -1110,13 +1111,12 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 
     if (index == d_func()->pressedIndex && index.isValid()) {
         // signal handlers may change the model
-        QPersistentModelIndex persistent = index;
-        bool edited = edit(persistent, NoEditTriggers, event); // send event to delegate
-        emit clicked(persistent);
+        bool edited = edit(index, NoEditTriggers, event); // send event to delegate
+        emit clicked(index);
         if (edited) // if the delegate handled the click, the item is not activated
             return;
         if (style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
-            emit activated(persistent);
+            emit activated(index);
     }
 }
 
@@ -1343,8 +1343,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
     }
 #endif
 
-    QModelIndex current = currentIndex();
-    QModelIndex newCurrent;
+    QPersistentModelIndex newCurrent;
     switch (event->key()) {
     case Qt::Key_Down:
         newCurrent = moveCursor(MoveDown, event->modifiers());
@@ -1378,12 +1377,13 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         break;
     }
 
-    if (newCurrent != current && newCurrent.isValid()) {
+    QPersistentModelIndex oldCurrent = currentIndex();
+    if (newCurrent != oldCurrent && newCurrent.isValid()) {
         QItemSelectionModel::SelectionFlags command = selectionCommand(newCurrent, event);
         if (command & QItemSelectionModel::Current) {
             selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
             if (d->pressedPosition == QPoint(-1, -1))
-                d->pressedPosition = visualRect(current).center();
+                d->pressedPosition = visualRect(oldCurrent).center();
             QRect rect(d->pressedPosition - d->offset(), visualRect(newCurrent).center());
             setSelection(rect.normalized(), command);
         } else {
@@ -1660,14 +1660,16 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
     case QAbstractItemDelegate::EditNextItem: {
         QModelIndex index = moveCursor(MoveNext, Qt::NoModifier);
         if (index.isValid()) {
-            selectionModel()->setCurrentIndex(index, flags);
-            edit(index);
+            QPersistentModelIndex persistent(index);
+            selectionModel()->setCurrentIndex(persistent, flags);
+            edit(persistent);
         } break; }
     case QAbstractItemDelegate::EditPreviousItem: {
         QModelIndex index = moveCursor(MovePrevious, Qt::NoModifier);
         if (index.isValid()) {
-            selectionModel()->setCurrentIndex(index, flags);
-            edit(index);
+            QPersistentModelIndex persistent(index);
+            selectionModel()->setCurrentIndex(persistent, flags);
+            edit(persistent);
         } break; }
     case QAbstractItemDelegate::SubmitModelCache:
         model()->submit();
