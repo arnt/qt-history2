@@ -1791,7 +1791,7 @@ void Configure::displayConfig()
     cout << "    ZLIB support............" << dictionary[ "ZLIB" ] << endl;
     cout << "    GIF support............." << dictionary[ "GIF" ] << endl;
     cout << "    JPEG support............" << dictionary[ "JPEG" ] << endl;
-    cout << "    PNG support............." << dictionary[ "PNG" ] << endl << endl;
+    cout << "    PNG support............." << dictionary[ "PNG" ] << endl;
     cout << "    MNG support............." << dictionary[ "MNG" ] << endl << endl;
 
     cout << "Styles:" << endl;
