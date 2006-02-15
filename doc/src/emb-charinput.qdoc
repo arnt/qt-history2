@@ -102,7 +102,7 @@
     Multiple keyboard drivers can be specified in one go:
 
     \code
-         export QWS_KEYBOARD=<driver> <driver> <driver>:<device>
+         export QWS_KEYBOARD="<driver> <driver> <driver>:<device>"
     \endcode
 
     Input will be read from all of specified drivers.
