@@ -1589,14 +1589,14 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
                 QFileInfo fi(fileInfo(Option::fixPathToLocalOS(in)));
                 val = fi.completeBaseName();
                 if(val.isNull())
-                    val = fi.fileName();
+                    val = Option::fixPathToTargetOS(fi.fileName(), false);
             }
             if(var == QLatin1String("QMAKE_FILE_NAME") || var == QLatin1String("QMAKE_FILE_IN"))
-                val = fileInfo(Option::fixPathToLocalOS(in)).filePath();
+                val = Option::fixPathToTargetOS(fileInfo(Option::fixPathToLocalOS(in)).filePath(), false);
         }
         if(val.isNull() && !out.isNull()) {
             if(var == QLatin1String("QMAKE_FILE_OUT"))
-                val = out;
+                val = Option::fixPathToTargetOS(out, false);
         }
         if(!val.isNull()) {
             ret.replace(rep, reg_var.matchedLength(), val);
