@@ -1153,9 +1153,9 @@ void Q3ScrollView::wheelEvent(QWheelEvent *e)
     viewportWheelEvent(&ce);
     if (!ce.isAccepted()) {
         if (e->orientation() == Horizontal && horizontalScrollBar())
-            QApplication::sendEvent(horizontalScrollBar(), e);
+            horizontalScrollBar()->event(e);
         else  if (e->orientation() == Vertical && verticalScrollBar())
-            QApplication::sendEvent(verticalScrollBar(), e);
+            verticalScrollBar()->event(e);
     } else {
         e->accept();
     }
