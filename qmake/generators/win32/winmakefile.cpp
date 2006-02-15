@@ -388,7 +388,7 @@ void Win32MakefileGenerator::processRcFileVar()
             rcFile.write(rcString);
             rcFile.close();
         }
-        project->variables()["RC_FILE"].insert(0, Option::fixPathToTargetOS(rcFile.fileName(), false, false));
+        project->variables()["RC_FILE"].insert(0, fileFixify(rcFile.fileName()));
     }
     if (!project->variables()["RC_FILE"].isEmpty()) {
         if (!project->variables()["RES_FILE"].isEmpty()) {
@@ -528,7 +528,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
         destDir += Option::dir_sep;
     QString target = QString(project->first("TARGET")+project->first("TARGET_EXT")).remove('"');
     project->variables()["DEST_TARGET"].prepend(destDir + target);
-    
+
     writeObjectsPart(t);
 
     writeExtraCompilerVariables(t);
