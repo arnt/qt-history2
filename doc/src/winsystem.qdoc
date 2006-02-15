@@ -69,24 +69,4 @@
     When compiling for this platform, the macro \c{Q_WS_QWS} is
     defined (the window system is literally the Qt Window System). See
     the \l {Qtopia Core} documentation for more information.
-
-    \omit
-    \list
-    \o \l{emb-install.html}{Installing Qtopia Core}
-    \o \l{emb-envvars.html}{Qtopia Core Environment Variables}
-    \o \l{emb-running.html}{Running Qtopia Core Applications}
-    \o \l{emb-framebuffer-howto.html}{Enabling the Linux Framebuffer}
-    \o \l{emb-qvfb.html}{Qtopia Core Virtual Framebuffer}
-    \o \l{emb-vnc.html}{Qtopia Core as a VNC Server}
-    \o \l{emb-performance.html}{Qtopia Core Performance Tuning}
-    \o \l{emb-features.html}{ Fine-Tuning Features}
-    \o \l{emb-differences.html}{Porting Your Applications to Qtopia Core}
-    \o \l{emb-fonts.html}{Fonts in Qtopia Core}
-    \o \l{emb-charinput.html}{Character Input}
-    \o \l{emb-pointer.html}{Pointer Handling}
-    \o \l{emb-accel.html}{Adding an Accelerated Graphics Driver to Qtopia Core}
-    \o \l{emb-porting.html}{Issues to be Aware of when Porting Qtopia Core}
-    \o \l{emb-classes.html}{The Qtopia Core Specific Classes}
-    \endlist
-    \endomit
 */
