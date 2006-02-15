@@ -237,7 +237,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
         if (uc[i - 1].unicode() >= 0xd800 && uc[i - 1].unicode() < 0xdc00
             && uc[i].unicode() >= 0xdc00 && uc[i].unicode() < 0xe000)
             logClusters[i] = i - 1;
-        else 
+        else
             logClusters[i] = i;
 
     }
@@ -368,7 +368,7 @@ static const QOpenType::Features hebrew_features[] = {
     {0, 0}
 };
 #endif
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#ifndef Q_WS_MAC
 /* Hebrew shaping. In the non opentype case we try to use the
    presentation forms specified for Hebrew. Especially for the
    ligatures with Dagesh this gives much better results than we could
@@ -383,7 +383,7 @@ static bool hebrew_shape(QShaperItem *item)
 
     if (openType && openType->supportsScript(item->script)) {
         openType->selectScript(item->script, hebrew_features);
-        
+
         if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
             return false;
 
@@ -398,7 +398,7 @@ static bool hebrew_shape(QShaperItem *item)
         ShinDot = 0x5c1,
         SinDot = 0x5c2,
         Patah = 0x5b7,
-        Qamats = 0x5b8, 
+        Qamats = 0x5b8,
         Holam = 0x5b9,
         Rafe = 0x5bf
     };
@@ -408,7 +408,7 @@ static bool hebrew_shape(QShaperItem *item)
     const QChar *uc = item->string->unicode() + item->from;
     unsigned short *logClusters = item->log_clusters;
     QGlyphLayout *glyphs = item->glyphs;
-    
+
     *shapedChars = *uc;
     logClusters[0] = 0;
     int slen = 1;
@@ -421,9 +421,9 @@ static bool hebrew_shape(QShaperItem *item)
             if (base >= 0x5d0
                 && base <= 0x5ea
                 && base != 0x5d7
-                && base != 0x5dd 
-                && base != 0x5df 
-                && base != 0x5e2 
+                && base != 0x5dd
+                && base != 0x5df
+                && base != 0x5e2
                 && base != 0x5e5) {
                 shaped = base - 0x5d0 + 0xfb30;
             } else if (base == 0xfb2a || base == 0xfb2b /* Shin with Shin or Sin dot */) {
@@ -493,7 +493,7 @@ static bool hebrew_shape(QShaperItem *item)
         }
         logClusters[i] = cluster_start;
     }
-    
+
     if (!item->font->stringToCMap(shapedChars, slen, glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
     for (int i = 0; i < item->num_glyphs; ++i) {
@@ -1314,7 +1314,7 @@ static inline const QChar nextChar(const QString *str, int pos)
     return QChar::ReplacementCharacter;
 }
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#ifndef Q_WS_MAC
 static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffer, int *shapedLength,
                          bool reverse, QGlyphLayout *glyphs, unsigned short *logClusters)
 {
@@ -1425,12 +1425,12 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
 
 enum {
     InitProperty = 0x2,
-    IsolProperty = 0x4, 
+    IsolProperty = 0x4,
     FinaProperty = 0x8,
     MediProperty = 0x10,
-    RligProperty = 0x20, 
-    CaltProperty = 0x40, 
-    LigaProperty = 0x80, 
+    RligProperty = 0x20,
+    CaltProperty = 0x40,
+    LigaProperty = 0x80,
     DligProperty = 0x100,
     CswhProperty = 0x200,
     MsetProperty = 0x400
@@ -1441,14 +1441,14 @@ static const QOpenType::Features arabic_features[] = {
     { FT_MAKE_TAG('i', 's', 'o', 'l'), IsolProperty },
     { FT_MAKE_TAG('f', 'i', 'n', 'a'), FinaProperty },
     { FT_MAKE_TAG('m', 'e', 'd', 'i'), MediProperty },
-    { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty }, 
-    { FT_MAKE_TAG('r', 'l', 'i', 'g'), RligProperty }, 
-    { FT_MAKE_TAG('c', 'a', 'l', 't'), CaltProperty }, 
-    { FT_MAKE_TAG('l', 'i', 'g', 'a'), LigaProperty }, 
-    { FT_MAKE_TAG('d', 'l', 'i', 'g'), DligProperty }, 
+    { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty },
+    { FT_MAKE_TAG('r', 'l', 'i', 'g'), RligProperty },
+    { FT_MAKE_TAG('c', 'a', 'l', 't'), CaltProperty },
+    { FT_MAKE_TAG('l', 'i', 'g', 'a'), LigaProperty },
+    { FT_MAKE_TAG('d', 'l', 'i', 'g'), DligProperty },
     { FT_MAKE_TAG('c', 's', 'w', 'h'), CswhProperty },
     // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
-    { FT_MAKE_TAG('m', 's', 'e', 't'), MsetProperty }, 
+    { FT_MAKE_TAG('m', 's', 'e', 't'), MsetProperty },
     {0, 0}
 };
 
@@ -1460,11 +1460,11 @@ static const QOpenType::Features syriac_features[] = {
     { FT_MAKE_TAG('f', 'i', 'n', '3'), FinaProperty },
     { FT_MAKE_TAG('m', 'e', 'd', 'i'), MediProperty },
     { FT_MAKE_TAG('m', 'e', 'd', '2'), MediProperty },
-    { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty }, 
-    { FT_MAKE_TAG('r', 'l', 'i', 'g'), RligProperty }, 
-    { FT_MAKE_TAG('c', 'a', 'l', 't'), CaltProperty }, 
-    { FT_MAKE_TAG('l', 'i', 'g', 'a'), LigaProperty }, 
-    { FT_MAKE_TAG('d', 'l', 'i', 'g'), DligProperty }, 
+    { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty },
+    { FT_MAKE_TAG('r', 'l', 'i', 'g'), RligProperty },
+    { FT_MAKE_TAG('c', 'a', 'l', 't'), CaltProperty },
+    { FT_MAKE_TAG('l', 'i', 'g', 'a'), LigaProperty },
+    { FT_MAKE_TAG('d', 'l', 'i', 'g'), DligProperty },
     {0, 0}
 };
 
@@ -1530,7 +1530,7 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
 
 #endif
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#ifndef Q_WS_MAC
 // #### stil missing: identify invalid character combinations
 static bool arabic_shape(QShaperItem *item)
 {
@@ -1611,7 +1611,7 @@ static bool thaana_shape(QShaperItem *item)
 
 enum Form {
     Invalid = 0x0,
-    Unknown = Invalid,
+    UnknownForm = Invalid,
     Consonant,
     Nukta,
     Halant,
@@ -1643,16 +1643,16 @@ static const unsigned char indicForms[0xe00-0x900] = {
 
     Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, Consonant, Consonant,
-    Consonant, Consonant, Unknown, Unknown,
+    Consonant, Consonant, UnknownForm, UnknownForm,
     Nukta, Other, Matra, Matra,
 
     Matra, Matra, Matra, Matra,
     Matra, Matra, Matra, Matra,
     Matra, Matra, Matra, Matra,
-    Matra, Halant, Unknown, Unknown,
+    Matra, Halant, UnknownForm, UnknownForm,
 
     Other, StressMark, StressMark, StressMark,
-    StressMark, Unknown, Unknown, Unknown,
+    StressMark, UnknownForm, UnknownForm, UnknownForm,
     Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, Consonant, Consonant,
 
@@ -1684,13 +1684,13 @@ static const unsigned char indicForms[0xe00-0x900] = {
 
     Consonant, Invalid, Consonant, Invalid,
     Invalid, Invalid, Consonant, Consonant,
-    Consonant, Consonant, Unknown, Unknown,
+    Consonant, Consonant, UnknownForm, UnknownForm,
     Nukta, Other, Matra, Matra,
 
     Matra, Matra, Matra, Matra,
     Matra, Invalid, Invalid, Matra,
     Matra, Invalid, Invalid, Matra,
-    Matra, Halant, Unknown, Unknown,
+    Matra, Halant, UnknownForm, UnknownForm,
 
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, VowelMark,
@@ -1725,16 +1725,16 @@ static const unsigned char indicForms[0xe00-0x900] = {
 
     Consonant, Invalid, Consonant, Consonant,
     Invalid, Consonant, Consonant, Invalid,
-    Consonant, Consonant, Unknown, Unknown,
+    Consonant, Consonant, UnknownForm, UnknownForm,
     Nukta, Other, Matra, Matra,
 
     Matra, Matra, Matra, Invalid,
     Invalid, Invalid, Invalid, Matra,
     Matra, Invalid, Invalid, Matra,
-    Matra, Halant, Unknown, Unknown,
+    Matra, Halant, UnknownForm, UnknownForm,
 
     Invalid, Invalid, Invalid, Invalid,
-    Invalid, Unknown, Unknown, Unknown,
+    Invalid, UnknownForm, UnknownForm, UnknownForm,
     Invalid, Consonant, Consonant, Consonant,
     Consonant, Invalid, Consonant, Invalid,
 
@@ -1766,18 +1766,18 @@ static const unsigned char indicForms[0xe00-0x900] = {
 
     Consonant, Invalid, Consonant, Consonant,
     Invalid, Consonant, Consonant, Consonant,
-    Consonant, Consonant, Unknown, Unknown,
+    Consonant, Consonant, UnknownForm, UnknownForm,
     Nukta, Other, Matra, Matra,
 
     Matra, Matra, Matra, Matra,
     Matra, Matra, Invalid, Matra,
     Matra, Matra, Invalid, Matra,
-    Matra, Halant, Unknown, Unknown,
+    Matra, Halant, UnknownForm, UnknownForm,
 
-    Other, Unknown, Unknown, Unknown,
-    Unknown, Unknown, Unknown, Unknown,
-    Unknown, Unknown, Unknown, Unknown,
-    Unknown, Unknown, Unknown, Unknown,
+    Other, UnknownForm, UnknownForm, UnknownForm,
+    UnknownForm, UnknownForm, UnknownForm, UnknownForm,
+    UnknownForm, UnknownForm, UnknownForm, UnknownForm,
+    UnknownForm, UnknownForm, UnknownForm, UnknownForm,
 
     Other, Other, Other, Other,
     Other, Other, Other, Other,
@@ -1807,16 +1807,16 @@ static const unsigned char indicForms[0xe00-0x900] = {
 
     Consonant, Invalid, Consonant, Consonant,
     Invalid, Invalid, Consonant, Consonant,
-    Consonant, Consonant, Unknown, Unknown,
+    Consonant, Consonant, UnknownForm, UnknownForm,
     Nukta, Other, Matra, Matra,
 
     Matra, Matra, Matra, Matra,
     Invalid, Invalid, Invalid, Matra,
     Matra, Invalid, Invalid, Matra,
-    Matra, Halant, Unknown, Unknown,
+    Matra, Halant, UnknownForm, UnknownForm,
 
     Other, Invalid, Invalid, Invalid,
-    Invalid, Unknown, LengthMark, LengthMark,
+    Invalid, UnknownForm, LengthMark, LengthMark,
     Invalid, Invalid, Invalid, Invalid,
     Consonant, Consonant, Invalid, Consonant,
 
@@ -1848,7 +1848,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
 
     Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, Invalid, Consonant,
-    Consonant, Consonant, Unknown, Unknown,
+    Consonant, Consonant, UnknownForm, UnknownForm,
     Invalid, Invalid, Matra, Matra,
 
     Matra, Matra, Matra, Invalid,
@@ -1889,7 +1889,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
 
     Consonant, Consonant, Consonant, Consonant,
     Invalid, Consonant, Consonant, Consonant,
-    Consonant, Consonant, Unknown, Unknown,
+    Consonant, Consonant, UnknownForm, UnknownForm,
     Invalid, Invalid, Matra, Matra,
 
     Matra, Matra, Matra, Matra,
@@ -1930,7 +1930,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
 
     Consonant, Consonant, Consonant, Consonant,
     Invalid, Consonant, Consonant, Consonant,
-    Consonant, Consonant, Unknown, Unknown,
+    Consonant, Consonant, UnknownForm, UnknownForm,
     Invalid, Invalid, Matra, Matra,
 
     Matra, Matra, Matra, Matra,
@@ -1971,7 +1971,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
 
     Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, Consonant, Consonant,
-    Consonant, Consonant, Unknown, Unknown,
+    Consonant, Consonant, UnknownForm, UnknownForm,
     Invalid, Invalid, Matra, Matra,
 
     Matra, Matra, Matra, Matra,
@@ -2671,14 +2671,14 @@ static inline void splitMatra(unsigned short *reordered, int matra, int &len, in
 
 enum IndicProperties {
     // these two are already defined
-//     CcmpProperty = 0x1, 
+//     CcmpProperty = 0x1,
 //     InitProperty = 0x2,
     NuktaProperty = 0x4,
     AkhantProperty = 0x8,
     RephProperty = 0x10,
     PreFormProperty = 0x20,
     BelowFormProperty = 0x40,
-    AboveFormProperty = 0x80, 
+    AboveFormProperty = 0x80,
     HalfFormProperty = 0x100,
     PostFormProperty = 0x200,
     VattuProperty = 0x400,
@@ -2686,13 +2686,13 @@ enum IndicProperties {
     BelowSubstProperty = 0x1000,
     AboveSubstProperty = 0x2000,
     PostSubstProperty = 0x4000,
-    HalantProperty = 0x8000, 
+    HalantProperty = 0x8000,
     CligProperty = 0x10000
 };
 
 #ifndef QT_NO_OPENTYPE
 static const QOpenType::Features indic_features[] = {
-    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty }, 
+    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
     { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty },
     { FT_MAKE_TAG('n', 'u', 'k', 't'), NuktaProperty },
     { FT_MAKE_TAG('a', 'k', 'h', 'n'), AkhantProperty },
@@ -2705,7 +2705,7 @@ static const QOpenType::Features indic_features[] = {
     { FT_MAKE_TAG('b', 'l', 'w', 's'), BelowSubstProperty },
     { FT_MAKE_TAG('a', 'b', 'v', 's'), AboveSubstProperty },
     { FT_MAKE_TAG('p', 's', 't', 's'), PostSubstProperty },
-    { FT_MAKE_TAG('h', 'a', 'l', 'n'), HalantProperty }, 
+    { FT_MAKE_TAG('h', 'a', 'l', 'n'), HalantProperty },
     { 0, 0 }
 };
 #endif
@@ -3073,7 +3073,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
             if (reordered[i] == ra)
                 reph = i;
     }
-    
+
     if (!item->font->stringToCMap((const QChar *)reordered.data(), len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
@@ -3177,7 +3177,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
         // psts
         // ### this looks slightly different from before, but I believe it's correct
-        if (reordered[len-1] != halant || base != len-2) 
+        if (reordered[len-1] != halant || base != len-2)
             properties[base] &= ~PostSubstProperty;
         for (i = base+1; i < len; ++i)
             properties[i] &= ~PostSubstProperty;
@@ -3191,7 +3191,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                 qDebug("    i: %s", ::propertiesToString(properties[i]).toLatin1().data());
         }
 #endif
-        
+
         // initialize
         item->log_clusters = clusters.data();
         openType->shape(item, properties.data());
@@ -3437,7 +3437,7 @@ static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *
             thaiCodec = 0;
     }
 #endif
-    
+
     if (!th_brk)
         return;
 
@@ -4030,12 +4030,12 @@ static const QOpenType::Features khmer_features[] = {
     { FT_MAKE_TAG( 'p', 'r', 'e', 'f' ), PreFormProperty },
     { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), BelowFormProperty },
     { FT_MAKE_TAG( 'a', 'b', 'v', 'f' ), AboveFormProperty },
-    { FT_MAKE_TAG( 'p', 's', 't', 'f' ), PostFormProperty }, 
-    { FT_MAKE_TAG( 'p', 'r', 'e', 's' ), PreSubstProperty }, 
-    { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), BelowSubstProperty }, 
-    { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), AboveSubstProperty }, 
-    { FT_MAKE_TAG( 'p', 's', 't', 's' ), PostSubstProperty }, 
-    { FT_MAKE_TAG( 'c', 'l', 'i', 'g' ), CligProperty }, 
+    { FT_MAKE_TAG( 'p', 's', 't', 'f' ), PostFormProperty },
+    { FT_MAKE_TAG( 'p', 'r', 'e', 's' ), PreSubstProperty },
+    { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), BelowSubstProperty },
+    { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), AboveSubstProperty },
+    { FT_MAKE_TAG( 'p', 's', 't', 's' ), PostSubstProperty },
+    { FT_MAKE_TAG( 'c', 'l', 'i', 'g' ), CligProperty },
     { 0, 0 }
 };
 #endif
@@ -4223,7 +4223,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
                 break;
         } // switch
     } // for
-    
+
     if (!item->font->stringToCMap((const QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
@@ -4455,10 +4455,10 @@ static int hangul_nextSyllableBoundary(const QString &s, int start, int end)
 
 #ifndef QT_NO_OPENTYPE
 static const QOpenType::Features hangul_features [] = {
-    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty }, 
-    { FT_MAKE_TAG('l', 'j', 'm', 'o'), CcmpProperty }, 
-    { FT_MAKE_TAG('j', 'j', 'm', 'o'), CcmpProperty }, 
-    { FT_MAKE_TAG('t', 'j', 'm', 'o'), CcmpProperty }, 
+    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
+    { FT_MAKE_TAG('l', 'j', 'm', 'o'), CcmpProperty },
+    { FT_MAKE_TAG('j', 'j', 'm', 'o'), CcmpProperty },
+    { FT_MAKE_TAG('t', 'j', 'm', 'o'), CcmpProperty },
     { 0, 0 }
 };
 #endif
