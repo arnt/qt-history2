@@ -1420,7 +1420,7 @@ void Configure::generateOutputVars()
 
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
-    qmakeVars += QString("RCC_DIR=") + QDir::convertSeparators("tmp/rcc/" + dictionary["QMAKE_OURDIR"]);
+    qmakeVars += QString("RCC_DIR=") + QDir::convertSeparators("tmp/rcc/" + dictionary["QMAKE_OUTDIR"]);
 
     if (!qmakeDefines.isEmpty())
         qmakeVars += QString( "DEFINES+=" ) + qmakeDefines.join( " " );
@@ -2243,7 +2243,7 @@ void Configure::readLicense()
         dictionary["DONE"] = "error";
         return;
     }
-    
+
     uint products = keyDec.getProducts();;
     uint platforms = keyDec.getPlatforms();
     uint licenseSchema = keyDec.getLicenseSchema();
