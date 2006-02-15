@@ -244,10 +244,10 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
         glyphIdx  = itemCount - 2;
         glyphIncrement = -1;
     }
-
+    int lastCharOffset = -1;
     for (int i = 0; i < *nfo->numGlyphs; ++i, glyphIdx += glyphIncrement) {
 
-        uint charOffset = layoutData[glyphIdx].originalOffset / sizeof(UniChar);
+        int charOffset = layoutData[glyphIdx].originalOffset / sizeof(UniChar);
         const int fontIdx = nfo->mappedFonts[charOffset];
 
         ATSGlyphRef glyphId = layoutData[glyphIdx].glyphID;
@@ -275,18 +275,23 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
         }
 
         if (item) {
-//            qDebug() << "mapping char offset" << charOffset << "to glyph index" << i;
-            item->log_clusters[charOffset] = i;
+            // surrogate handling
             if (charOffset < item->length - 1) {
                 QChar current = item->string->at(item->from + charOffset);
                 QChar next = item->string->at(item->from + charOffset + 1);
-                bool surrogate = (current.unicode() >= 0xd800 && current.unicode() < 0xdc00
-                                  && next.unicode() >= 0xdc00 && next.unicode() < 0xe000);
-                if (surrogate) {
+                if (current.unicode() >= 0xd800 && current.unicode() < 0xdc00
+                    && next.unicode() >= 0xdc00 && next.unicode() < 0xe000)
                     item->log_clusters[charOffset + 1] = i;
-                }
+            }
+
+            if (charOffset > lastCharOffset) {
+                item->log_clusters[charOffset] = i;
+            } else {
+                item->log_clusters[charOffset] = i - 1;
+                nfo->glyphs[i].attributes.clusterStart = false;
             }
         }
+        lastCharOffset = qMax(lastCharOffset, charOffset);
     }
     /*
     if (item)
