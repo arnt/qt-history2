@@ -41,11 +41,12 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
     Q_D(QEventDispatcherX11);
 
+    QApplication::sendPostedEvents();
+
+    ulong marker = XNextRequest(X11->display);
     int nevents = 0;
     do {
         while (!d->interrupt) {
-            QApplication::sendPostedEvents();
-
             XEvent event;
             if (!(flags & QEventLoop::ExcludeUserInputEvents)
                 && !d->queuedUserInputEvents.isEmpty()) {
@@ -99,9 +100,13 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
             nevents++;
             if (qApp->x11ProcessEvent(&event) == 1)
                 return true;
+
+            if (event.xany.serial >= marker)
+                goto out;
         }
     } while (!d->interrupt && XEventsQueued(X11->display, QueuedAfterFlush));
 
+ out:
     if (!d->interrupt) {
         const uint exclude_all =
             QEventLoop::ExcludeSocketNotifiers | QEventLoop::X11ExcludeTimers | QEventLoop::WaitForMoreEvents;
