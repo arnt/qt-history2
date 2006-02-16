@@ -2262,7 +2262,9 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 
     HRESULT res = DISP_E_MEMBERNOTFOUND;
 
-    int index = indexCache.value(dispidMember, -1);
+    bool uniqueIndex = wFlags == DISPATCH_PROPERTYGET || wFlags == DISPATCH_PROPERTYPUT || wFlags == DISPATCH_METHOD;
+
+    int index = uniqueIndex ? indexCache.value(dispidMember, -1) : -1;
     QByteArray name;
     if (index == -1) {
 	ensureMetaData();
@@ -2573,7 +2575,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
              break;
     }
 
-    if (index != -1)
+    if (index != -1 && uniqueIndex)
 	indexCache.insert(dispidMember, index);
 
     if (exception) {
