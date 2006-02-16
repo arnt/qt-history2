@@ -47,6 +47,7 @@ struct QMacDndAnswerRecord {
   QDnD debug facilities
  *****************************************************************************/
 //#define DEBUG_DRAG_EVENTS
+//#define DEBUG_DRAG_PROMISES
 
 /*****************************************************************************
   QDnD globals
@@ -79,7 +80,7 @@ class QMacMimeData : public QMimeData
   */
 OSErr QDragManager::qt_mac_send_handler(FlavorType flav, void *data, DragItemRef, DragRef dragRef)
 {
-#if 0
+#ifdef DEBUG_DRAG_PROMISES
     qDebug("asked to send %c%c%c%c", (flav >> 24) & 0xFF, (flav >> 16) & 0xFF, (flav >> 8) & 0xFF,
             flav & 0xFF);
 #endif
@@ -591,7 +592,7 @@ Qt::DropAction QDragManager::drag(QDrag *o)
             if(c->flavorFor(fmts.at(i))) {
                 for (int j = 0; j < c->countFlavors(); j++) {
                     const uint flav = c->flavor(j);
-#if 0
+#ifdef DEBUG_DRAG_PROMISES
                     qDebug("%d) trying to append (%s) '%s' -> %d[%c%c%c%c] (%d)",
                            i, c->convertorName().toLatin1().constData(), fmts.at(i).toLatin1().constData(),
                            flav, (flav >> 24) & 0xFF, (flav >> 16) & 0xFF, (flav >> 8) & 0xFF, flav & 0xFF,
@@ -678,6 +679,7 @@ Qt::DropAction QDragManager::drag(QDrag *o)
         result = TrackDrag(dragRef, &fakeEvent, dragRegion.handle(true));
         qt_mac_in_drag = false;
     }
+    object = 0;
     if(result == noErr) {
         DragActions ret = kDragActionNothing;
         GetDragDropAction(dragRef, &ret);

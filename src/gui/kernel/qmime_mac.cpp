@@ -48,6 +48,11 @@ static void cleanup_mimes()
         delete mimes->takeFirst();
 }
 
+/*****************************************************************************
+  QDnD debug facilities
+ *****************************************************************************/
+//#define DEBUG_MIME_MAPS
+
 //functions
 extern QString qt_mac_from_pascal_string(const Str255);  //qglobal.cpp
 extern void qt_mac_from_pascal_string(QString, Str255, TextEncoding encoding=0, int len=-1);  //qglobal.cpp
@@ -705,7 +710,7 @@ QList<QByteArray> QMacMimeFileUri::convertFromMime(const QString &mime, QVariant
         else
             uri = url.toString();
         if(uri.startsWith(QLatin1String("file:///")))
-            uri.insert(6, "localhost"); //Mac likes localhost to be in it!
+            uri.insert(7, "localhost"); //Mac likes localhost to be in it!
         ret.append(uri.toLatin1());
     }
     return ret;
@@ -839,15 +844,15 @@ QMacMime::convertor(QMacMimeType t, const QString &mime, int flav)
 
     MimeList *mimes = globalMimeList();
     for(MimeList::const_iterator it = mimes->constBegin(); it != mimes->constEnd(); ++it) {
-#if 0
-        qDebug("seeing if %s (%d) can convert %s to %d[%c%c%c%c] [%d]",
+#ifdef DEBUG_MIME_MAPS
+        qDebug("QMacMime::convertor: seeing if %s (%d) can convert %s to %d[%c%c%c%c] [%d]",
                (*it)->convertorName().toLatin1().constData(),
                (*it)->type & t, mime.toLatin1().constData(),
                flav, (flav >> 24) & 0xFF, (flav >> 16) & 0xFF, (flav >> 8) & 0xFF, (flav) & 0xFF,
                (*it)->canConvert(mime,flav));
         for(int i = 0; i < (*it)->countFlavors(); ++i) {
             int f = (*it)->flavor(i);
-            qDebug("%d) %d[%c%c%c%c] [%s]", i, f,
+            qDebug("  %d) %d[%c%c%c%c] [%s]", i, f,
                    (f >> 24) & 0xFF, (f >> 16) & 0xFF, (f >> 8) & 0xFF, (f) & 0xFF,
                    (*it)->convertorName().toLatin1().constData());
         }
@@ -865,6 +870,13 @@ QString QMacMime::flavorToMime(QMacMimeType t, int flav)
 {
     MimeList *mimes = globalMimeList();
     for(MimeList::const_iterator it = mimes->constBegin(); it != mimes->constEnd(); ++it) {
+#ifdef DEBUG_MIME_MAPS
+        qDebug("QMacMIme::flavorToMime: attempting %s (%d) for flavor %d[%c%c%c%c] [%s]",
+               (*it)->convertorName().toLatin1().constData(),
+               (*it)->type & t, flav, (flav >> 24) & 0xFF, (flav >> 16) & 0xFF, (flav >> 8) & 0xFF, (flav) & 0xFF,
+               (*it)->mimeFor(flav).toLatin1().constData());
+
+#endif
         if((*it)->type & t) {
             QString mimeType = (*it)->mimeFor(flav);
             if(!mimeType.isNull())
