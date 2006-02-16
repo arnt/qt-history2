@@ -67,7 +67,11 @@ public:
     void setFrame(bool);
     bool hasFrame() const;
 
-    enum EchoMode { Normal, NoEcho, Password };
+    enum EchoMode { Normal, NoEcho, Password 
+#ifdef Q_WS_QWS
+    ,PasswordEchoOnEdit
+#endif
+    };
     EchoMode echoMode() const;
     void setEchoMode(EchoMode);
 

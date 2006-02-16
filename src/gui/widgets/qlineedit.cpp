@@ -61,10 +61,6 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 #define verticalMargin 1
 #define horizontalMargin 2
 
-#ifdef Q_WS_QWS
-bool showPasswordOnFocus = true;
-#endif
-
 QStyleOptionFrame QLineEditPrivate::getStyleOption() const
 {
     Q_Q(const QLineEdit);
@@ -369,7 +365,11 @@ QString QLineEdit::displayText() const
     if (d->echoMode == NoEcho)
         return QString::fromLatin1("");
     QString res = d->text;
+#ifdef Q_WS_QWS    
+    if (d->echoMode == Password || d->echoMode == PasswordEchoOnEdit) {
+#else
     if (d->echoMode == Password) {
+#endif
         QStyleOptionFrame opt = d->getStyleOption();
         res.fill(style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, this));
     }
@@ -1544,9 +1544,8 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
        event->key() != Qt::Key_Up && 
        event->key() != Qt::Key_Down &&
        event->key() != Qt::Key_Back &&
-       echoMode() == Password && 
-       !isReadOnly() &&
-      showPasswordOnFocus)
+       echoMode() == PasswordEchoOnEdit && 
+       !isReadOnly())
 {
     setEchoMode(Normal);
     clear();
@@ -1805,7 +1804,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
 #if defined Q_WS_QWS
                 if(d->resumePassword)
                 {
-                    setEchoMode(Password);
+                    setEchoMode(PasswordEchoOnEdit);
                     d->resumePassword = false;
                 }
 #endif
@@ -1888,7 +1887,7 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
     }
     
 #ifdef Q_WS_QWS
-    if(echoMode() == Password && showPasswordOnFocus)
+    if(echoMode() == PasswordEchoOnEdit)
     {
         setEchoMode(Normal);
         clear();
@@ -2005,7 +2004,7 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
     
 #ifdef Q_WS_QWS
     if(d->resumePassword){
-        setEchoMode(Password);
+        setEchoMode(PasswordEchoOnEdit);
         d->resumePassword = false;
     }
 #endif
