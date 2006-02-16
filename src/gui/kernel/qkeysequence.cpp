@@ -507,7 +507,7 @@ int QKeySequencePrivate::decodeString(const QString &str, QKeySequence::Sequence
     int fnum = 0;
     if (accel.length() == 1) {
         ret |= accel[0].toUpper().unicode();
-    } else if (accel[0] == QLatin1Char('f') && (fnum = accel.mid(1).toInt())) {
+    } else if (accel[0] == QLatin1Char('f') && (fnum = accel.mid(1).toInt()) && (fnum >= 1) && (fnum <= 35)) {
         ret |= Qt::Key_F1 + fnum - 1;
     } else {
         // For NativeText, check the traslation table first,
