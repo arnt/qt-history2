@@ -35,6 +35,7 @@
 #define COMMAND_PROPERTY                Doc::alias("property")
 #define COMMAND_REIMP                   Doc::alias("reimp")
 #define COMMAND_RELATES                 Doc::alias("relates")
+#define COMMAND_SERVICE                 Doc::alias("service")
 #define COMMAND_STARTPAGE               Doc::alias("startpage")
 #define COMMAND_TYPEDEF                 Doc::alias("typedef")
 #define COMMAND_VARIABLE                Doc::alias("variable")
@@ -87,6 +88,7 @@ void CppCodeParser::initializeParser(const Config &config)
 
     nodeTypeMap.insert(COMMAND_NAMESPACE, Node::Namespace);
     nodeTypeMap.insert(COMMAND_CLASS, Node::Class);
+    nodeTypeMap.insert(COMMAND_SERVICE, Node::Class);
     nodeTypeMap.insert(COMMAND_ENUM, Node::Enum);
     nodeTypeMap.insert(COMMAND_TYPEDEF, Node::Typedef);
     nodeTypeMap.insert(COMMAND_PROPERTY, Node::Property);
@@ -221,7 +223,7 @@ QSet<QString> CppCodeParser::topicCommands()
                            << COMMAND_EXTERNALPAGE << COMMAND_FILE
                            << COMMAND_FN << COMMAND_GROUP << COMMAND_HEADERFILE << COMMAND_MACRO
                            << COMMAND_MODULE << COMMAND_NAMESPACE << COMMAND_PAGE
-                           << COMMAND_PROPERTY << COMMAND_TYPEDEF << COMMAND_VARIABLE;
+                           << COMMAND_PROPERTY << COMMAND_SERVICE << COMMAND_TYPEDEF << COMMAND_VARIABLE;
 }
 
 Node *CppCodeParser::processTopicCommand( const Doc& doc,
@@ -306,6 +308,16 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	    doc.location().warning(tr("Cannot find '%1' specified with '\\%2'")
 				   .arg(arg).arg(command));
 	    lastPath = path;
+	}
+	if ( command == COMMAND_SERVICE ) {
+	    // If the command is "\service", then we need to tag the
+	    // class with the actual service name.
+	    QStringList args = arg.split(" ");
+	    if (args.size() > 1 ) {
+		ClassNode *cnode = static_cast<ClassNode *>(node);
+		cnode->setServiceName( args[1] );
+		cnode->setHideFromMainList( true );
+	    }
 	}
 	return node;
     } else if ( command == COMMAND_EXAMPLE ) {

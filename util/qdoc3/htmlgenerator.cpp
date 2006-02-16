@@ -129,6 +129,7 @@ void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
     moduleNamespaceMap.clear();
     funcIndex.clear();
     legaleseTexts.clear();
+    serviceClasses.clear();
     findAllClasses(tree->root());
     findAllFunctions(tree->root());
     findAllLegaleseTexts(tree->root());
@@ -308,6 +309,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	    generateLegaleseList(relative, marker);
 	} else if (atom->string() == "mainclasses") {
 	    generateCompactList(relative, marker, mainClasses);
+	} else if (atom->string() == "services") {
+	    generateCompactList(relative, marker, serviceClasses);
 	} else if (atom->string() == "overviews") {
             generateOverviewList(relative, marker);
 	} else if (atom->string() == "namespaces") {
@@ -2102,6 +2105,11 @@ void HtmlGenerator::generateFullName(const Node *apparentNode, const Node *relat
     out() << "<a href=\"" << linkForNode(actualNode, relative) << "\">";
     if (apparentNode->type() == Node::Fake)
 	out() << protect(static_cast<const FakeNode *>(apparentNode)->title());
+    else if (apparentNode->type() == Node::Class &&
+             !(static_cast<const ClassNode *>(apparentNode))
+		->serviceName().isEmpty())
+	out() << protect((static_cast<const ClassNode *>(apparentNode))
+			    ->serviceName());
     else
 	out() << protect(marker->plainFullName(apparentNode, relative));
     out() << "</a>";
@@ -2169,13 +2177,16 @@ void HtmlGenerator::findAllClasses(const InnerNode *node)
                     !(*c)->parent()->name().isEmpty())
                     className = (*c)->parent()->name()+"::"+className;
 
-                if ((*c)->status() == Node::Compat) {
-                    compatClasses.insert(className, *c);
-                } else {
-	            nonCompatClasses.insert(className, *c);
-                    if ((*c)->status() == Node::Main)
-		        mainClasses.insert(className, *c);
-                }
+		if (!(static_cast<const ClassNode *>(*c))->hideFromMainList()) {
+		    if ((*c)->status() == Node::Compat) {
+			compatClasses.insert(className, *c);
+		    } else {
+			nonCompatClasses.insert(className, *c);
+			if ((*c)->status() == Node::Main)
+			    mainClasses.insert(className, *c);
+		    }
+		}
+
                 QString moduleName = (*c)->moduleName();
                 if (moduleName == "Qt3SupportLight") {
                     moduleClassMap[moduleName].insert((*c)->name(), *c);
@@ -2183,6 +2194,11 @@ void HtmlGenerator::findAllClasses(const InnerNode *node)
                 }
                 if (!moduleName.isEmpty())
                     moduleClassMap[moduleName].insert((*c)->name(), *c);
+
+		QString serviceName =
+		    (static_cast<const ClassNode *>(*c))->serviceName();
+		if (!serviceName.isEmpty())
+		    serviceClasses.insert(serviceName, *c);
 	    } else if ((*c)->isInnerNode()) {
 	        findAllClasses(static_cast<InnerNode *>(*c));
 	    }

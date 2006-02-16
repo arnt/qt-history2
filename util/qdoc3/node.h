@@ -184,9 +184,17 @@ public:
     const QList<RelatedClass> &baseClasses() const { return bas; }
     const QList<RelatedClass> &derivedClasses() const { return der; }
 
+    bool hideFromMainList() const { return hidden; }
+    void setHideFromMainList(bool value) { hidden = value; }
+
+    QString serviceName() const { return sname; }
+    void setServiceName(const QString& value) { sname = value; }
+
 private:
     QList<RelatedClass> bas;
     QList<RelatedClass> der;
+    bool hidden;
+    QString sname;
 };
 
 class FakeNode : public InnerNode

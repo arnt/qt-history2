@@ -147,6 +147,7 @@ private:
     QMap<QString, const Node *> mainClasses;
     QMap<QString, const Node *> compatClasses;
     QMap<QString, const Node *> namespaceIndex;
+    QMap<QString, const Node *> serviceClasses;
     QMap<QString, QMap<QString, const Node *> > funcIndex;
     QMap<Text, const Node *> legaleseTexts;
 };
