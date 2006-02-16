@@ -1603,7 +1603,7 @@ void Configure::generateConfigfiles()
 	    outStream << "#define Q_BYTE_ORDER Q_LITTLE_ENDIAN" << endl;
 
         outStream << "/* Machine architecture */" << endl;
-        outStream << "#define Q_ARCH_" + dictionary[ "ARCHITECTURE" ].toUpper() << endl;
+        outStream << "#define QT_ARCH_" + dictionary[ "ARCHITECTURE" ].toUpper() << endl;
 
 	outStream << endl << "// Compile time features" << endl;
 
