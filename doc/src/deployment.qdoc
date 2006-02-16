@@ -104,7 +104,7 @@
 
 /*!
     \page deployment-x11.html
-    \previouspage Deploying Qt Applications
+    \contentspage Deploying Qt Applications
 
     \title Deploying an Application on Qt/X11
     \ingroup deployment
@@ -448,7 +448,7 @@
 
 /*!
     \page deployment-windows.html
-    \previouspage Deploying Qt Applications
+    \contentspage Deploying Qt Applications
 
     \title Deploying an Application on Qt/Windows
     \ingroup deployment
@@ -770,7 +770,7 @@
 
 /*!
     \page deployment-mac.html
-    \previouspage Deploying Qt Applications
+    \contentspage Deploying Qt Applications
 
     \title Deploying an Application on Qt/Mac
     \ingroup deployment
