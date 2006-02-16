@@ -1489,9 +1489,17 @@ void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem 
 
     Q_ASSERT(type() == QPaintEngine::CoreGraphics);
 
+    const bool textAA = state->renderHints() & QPainter::TextAntialiasing;
+    const bool lineAA = state->renderHints() & QPainter::Antialiasing;
+    if(textAA != lineAA)
+        CGContextSetShouldAntialias(d->hd, textAA);
+
     QFontEngineMac *fe = static_cast<QFontEngineMac *>(ti.fontEngine);
     if (ti.num_glyphs)
         fe->draw(d->hd, pos.x(), pos.y(), ti, paintDevice()->height());
+
+    if(textAA != lineAA)
+        CGContextSetShouldAntialias(d->hd, !textAA);
 
     updatePen(oldPen);
     updateBrush(oldBrush, oldBrushOrigin);

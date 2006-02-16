@@ -633,11 +633,6 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
 
     CGContextSetTextDrawingMode(ctx, kCGTextFill);
 
-    if (!(fontDef.styleStrategy & QFont::NoAntialias)) {
-        CGContextSetShouldSmoothFonts(ctx, true);
-        CGContextSetShouldAntialias(ctx, true);
-    }
-
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
     QMatrix matrix;
