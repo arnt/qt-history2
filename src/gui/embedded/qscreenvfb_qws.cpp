@@ -184,6 +184,11 @@ void QVFbKeyboardHandler::readKeyboardData()
 
 //===========================================================================
 
+/*!
+    \class QVFbScreen
+    \ingroup qws
+*/
+
 QVFbScreen::QVFbScreen(int display_id) : QScreen(display_id)
 {
     mouseHandler = 0;

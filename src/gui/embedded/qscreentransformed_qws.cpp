@@ -46,6 +46,11 @@ void qws_setScreenTransformation(int t)
 // -------------------------------------------------------------------------------------------------
 // Transformed Screen
 // -------------------------------------------------------------------------------------------------
+
+/*!
+    \class QTransformedScreen
+    \ingroup qws
+*/
 QTransformedScreen::QTransformedScreen(int display_id)
     : QT_TRANS_SCREEN_BASE(display_id)
 {

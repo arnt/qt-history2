@@ -1087,7 +1087,9 @@ void QVNCServer::discardClient()
 
 //===========================================================================
 
-/*
+/*!
+    \class QVNCScreen
+    \ingroup qws
 */
 
 QVNCScreen::QVNCScreen(int display_id) : VNCSCREEN_BASE(display_id)

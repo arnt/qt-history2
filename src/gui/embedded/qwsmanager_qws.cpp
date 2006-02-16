@@ -55,6 +55,10 @@ QRegion &QWSManager::cachedRegion()
     return d_func()->cached_region.region;
 }
 
+/*!
+    \class QWSManager
+    \ingroup qws
+*/
 
 QWSManager::QWSManager(QWidget *w)
     : QObject(*new QWSManagerPrivate, (QObject*)0)

@@ -139,6 +139,11 @@ static bool force_reject_strokeIM = false;
 //#define QWS_REGION_DEBUG
 
 /*!
+    \class QWSScreenSaver
+    \ingroup qws
+*/
+
+/*!
     \class QWSWindow qwindowsystem_qws.h
     \brief The QWSWindow class provides server-specific functionality in Qtopia Core.
 
@@ -372,6 +377,11 @@ void QWSClientPrivate::unlockCommunication()
         clientLock->unlock(QWSLock::Communication);
 #endif
 }
+
+/*!
+    \class QWSClient
+    \ingroup qws
+*/
 
 //always use frame buffer
 QWSClient::QWSClient(QObject* parent, QWS_SOCK_BASE* sock, int id)
