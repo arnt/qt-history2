@@ -14,7 +14,6 @@
     \page emb-accel.html
 
     \contentspage {Qtopia Core}{Contents}
-    \previouspage Character Input
 
     \title Adding an Accelerated Graphics Driver
     \ingroup qtopia-core

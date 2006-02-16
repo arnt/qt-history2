@@ -2,8 +2,6 @@
     \page emb-vnc.html
 
     \contentspage {Qtopia Core}{Contents}
-    \previouspage  The Virtual Framebuffer
-    \nextpage Environment Variables
 
     \title Running as a VNC Server
     \ingroup qtopia-core

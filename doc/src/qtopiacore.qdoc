@@ -1,6 +1,5 @@
 /*!
     \page qtopiacore.html
-    \nextpage Installing Qtopia Core
 
     \title Qtopia Core
 
@@ -10,9 +9,30 @@
     the standard Qt API for embedded devices with a lightweight
     windowing system.
 
-    \list
-        \o The \l {Qtopia Core Classes}
+    \table 100%
+    \header \o Getting Started \o Components  \o Optimizations
+    \row
+    \o
+     \list
+         \o \l {Installing Qtopia Core}
+         \o \l {Qtopia Core Classes}
+         \o \l {Running Applications}
+         \o \l {Porting Applications to Qtopia Core}
     \endlist
+    \o
+    \list
+        \o \l {Environment Variables}
+        \o \l {Fonts}
+        \o \l {Pointer Handling}
+        \o \l {Character Input}
+    \endlist
+    \o
+    \list
+        \o \l {Performance Tuning}
+        \o \l {Fine-Tuning Features}
+        \o \l {Adding an Accelerated Graphics Driver}
+    \endlist
+    \endtable
 
     In addition to the class library, Qtopia Core provides means for
     customizing and optimizing the final result: Memory consumption
@@ -30,33 +50,26 @@
     Qtopia Core applications write directly to the framebuffer,
     eliminating the need for the X Window System and saving memory.
 
-    If you do not have a working Linux framebuffer you can use Qtopia
-    Core's \l {The Virtual Framebuffer}{Virtual Framebuffer}, or you
-    can \l {Running as a VNC Server}{run Qtopia Core as a VNC
-    server}.
+    The framebuffer is enabled by default on all modern Linux
+    distributions. To test that the framebuffer is set up correctly,
+    and the device permissions are correct, use the \l {The Linux
+    Framebuffer}{bla bla} program. For information on older versions,
+    see \l http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html.
 
     \o \image qtopiacore-architecture.png
-    \endtable
 
-    \list
-        \o \l {Installation}
-        \o \l {Running Applications}
-        \o \l {Porting Applications to Qtopia Core}
-   \endlist
+    \row
+    \o
+    If you do not have a working Linux framebuffer you can use Qtopia
+    Core's Virtual Framebuffer, or you can run Qtopia Core as a VNC
+    server.
 
+    \o
     \list
-        \o \l {The Linux Framebuffer}
         \o \l {The Virtual Framebuffer}
         \o \l {Running as a  VNC Server}
     \endlist
 
-    \list
-        \o \l {Environment Variables}
-        \o \l {Fonts}
-        \o \l {Performance Tuning}
-        \o \l {Fine-Tuning Features}
-        \o \l {Pointer Handling}
-        \o \l {Character Input}
-        \o \l {Adding an Accelerated Graphics Driver}
-    \endlist
+    \endtable
+
 */

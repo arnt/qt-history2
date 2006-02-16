@@ -2,8 +2,6 @@
     \page emb-running.html
 
     \contentspage {Qtopia Core}{Contents}
-    \previouspage Installing Qtopia Core
-    \nextpage Porting Applications to Qtopia Core
 
     \title Running Applications
     \ingroup qtopia-core

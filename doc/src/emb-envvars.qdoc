@@ -14,8 +14,6 @@
     \page emb-envvars.html
 
     \contentspage {Qtopia Core}{Contents}
-    \previouspage Running as a VNC Server
-    \nextpage Fonts
 
     \title Environment Variables
     \ingroup qtopia-core

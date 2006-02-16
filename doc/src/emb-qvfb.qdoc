@@ -2,8 +2,6 @@
     \page emb-qvfb.html
 
     \contentspage {Qtopia Core}{Contents}
-    \previouspage The Linux Framebuffer
-    \nextpage Running as a VNC Server
 
     \title The Virtual Framebuffer
     \ingroup qtopia-core
