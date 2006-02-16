@@ -1,0 +1,2 @@
+equals(TEMPLATE,lib): QMAKE_POST_LINK += mt -manifest $(DESTDIR_TARGET).manifest -outputresource:$(DESTDIR_TARGET);2
+equals(TEMPLATE,app): QMAKE_POST_LINK += mt -manifest $(DESTDIR_TARGET).manifest -outputresource:$(DESTDIR_TARGET);1
