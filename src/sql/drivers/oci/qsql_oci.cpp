@@ -992,6 +992,10 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues
     if (boundValues.isEmpty() || columnCount == 0)
         return false;
 
+#ifdef BATCH_DEBUG
+    qDebug() << "columnCount:" << columnCount << boundValues;
+#endif
+
     int i;
     sword r;
 
@@ -1149,18 +1153,37 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues
             }
         }
 
+        QOCIBatchColumn &bindColumn = columns[i];
+
+#ifdef BATCH_DEBUG
+        qDebug("OCIBindByPos(%p, %p, %p, %d, %p, %d, %d, %p, %p, 0, %d, %p, OCI_DEFAULT)",
+            d->sql, &bindColumn.bindh, d->err, i + 1, bindColumn.data,
+            bindColumn.maxLen, bindColumn.bindAs, bindColumn.indicators, bindColumn.lengths,
+            arrayBind ? bindColumn.maxarr_len : 0, arrayBind ? &bindColumn.curelep : 0);
+
+        for (int ii = 0; ii < (int)bindColumn.recordCount; ++ii) {
+            qDebug(" record %d: indicator %d, length %d", ii, bindColumn.indicators[ii],
+                    bindColumn.lengths[ii]);
+        }
+#endif
+
+
         // binding the column
         r = OCIBindByPos(
-                d->sql, &columns[i].bindh, d->err, i + 1,
-                (dvoid *) columns[i].data,
-                columns[i].maxLen,
-                columns[i].bindAs,
-                (dvoid *)columns[i].indicators ,
-                (ub2 *) columns[i].lengths,
+                d->sql, &bindColumn.bindh, d->err, i + 1,
+                (dvoid *) bindColumn.data,
+                bindColumn.maxLen,
+                bindColumn.bindAs,
+                (dvoid *)bindColumn.indicators,
+                (ub2 *) bindColumn.lengths,
                 (ub2*) 0,
-                arrayBind ? columns[i].maxarr_len : 0,
-                arrayBind ? &columns[i].curelep : 0,
+                arrayBind ? bindColumn.maxarr_len : 0,
+                arrayBind ? &bindColumn.curelep : 0,
                 OCI_DEFAULT);
+
+#ifdef BATCH_DEBUG
+        qDebug("After OCIBindByPos: r = %d, bindh = %p", r, bindColumn.bindh);
+#endif
 
         if (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO) {
             qOraWarning("QOCIPrivate::execBatch: unable to bind column:", d);
@@ -1517,7 +1540,7 @@ bool QOCIResult::prepare(const QString& query)
 
     if (d->sql) {
         r = OCIHandleFree(d->sql, OCI_HTYPE_STMT);
-        if (r != 0)
+        if (r != OCI_SUCCESS)
             qOraWarning("QOCIResult::prepare: unable to free statement handle:", d);
     }
     if (query.isEmpty())
@@ -1527,7 +1550,7 @@ bool QOCIResult::prepare(const QString& query)
                         OCI_HTYPE_STMT,
                         0,
                         0);
-    if (r != 0) {
+    if (r != OCI_SUCCESS) {
         qOraWarning("QOCIResult::prepare: unable to alloc statement:", d);
         setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
                      "Unable to alloc statement"), QSqlError::StatementError, d));
@@ -1548,13 +1571,12 @@ bool QOCIResult::prepare(const QString& query)
                        len,
                        OCI_NTV_SYNTAX,
                        OCI_DEFAULT);
-    if (r != 0) {
+    if (r != OCI_SUCCESS) {
         qOraWarning("QOCIResult::prepare: unable to prepare statement:", d);
         setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
                                 "Unable to prepare statement"), QSqlError::StatementError, d));
         return false;
     }
-    // do something with the placeholders? into a map?
     return true;
 }
 
