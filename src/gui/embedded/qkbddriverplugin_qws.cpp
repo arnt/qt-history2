@@ -19,10 +19,11 @@
 
 /*!
     \class QKbdDriverPlugin
+    \ingroup plugins
+    \ingroup qws
+
     \brief The QKbdDriverPlugin class provides an abstract base for
     Qtopia Core keyboard driver plugins.
-
-    \ingroup plugins
 
     The keyboard driver plugin is a simple plugin interface that makes
     it easy to create custom keyboard drivers.

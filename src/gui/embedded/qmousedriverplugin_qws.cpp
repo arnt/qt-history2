@@ -19,10 +19,11 @@
 
 /*!
     \class QMouseDriverPlugin
+    \ingroup plugins
+    \ingroup qws
+
     \brief The QMouseDriverPlugin class provides an abstract base for
     Qtopia Core mouse driver plugins.
-
-    \ingroup plugins
 
     The mouse driver plugin is a simple plugin interface that makes it
     easy to create custom mouse drivers.

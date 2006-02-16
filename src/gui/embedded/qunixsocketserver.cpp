@@ -36,7 +36,7 @@ class QUnixSocketServerPrivate : public QObject
 Q_OBJECT
 public:
     QUnixSocketServerPrivate(QUnixSocketServer * parent)
-    : QObject(), me(parent), fd(-1), maxConns(30), 
+    : QObject(), me(parent), fd(-1), maxConns(30),
       error(QUnixSocketServer::NoError), acceptNotifier(0)
     {}
 
@@ -56,18 +56,19 @@ public slots:
   \ingroup Platform::DeviceSpecific
   \ingroup Platform::OS
   \ingroup Platform::Communications
+  \ingroup qws
 
-  This class makes it possible to accept incoming Unix domain socket 
+  This class makes it possible to accept incoming Unix domain socket
   connections.  Call \l QUnixSocketServer::listen() to have the server listen
-  for incoming connections on a specified path.  The pure virtual 
-  \l QUnixSocketServer::incomingConnection() is called each time a new 
+  for incoming connections on a specified path.  The pure virtual
+  \l QUnixSocketServer::incomingConnection() is called each time a new
   connection is established.  Users must inherit from QUnixSocketServer and
   implement this method.
 
-  If an error occurs, \l QUnixSocketServer::serverError() returns the type of 
+  If an error occurs, \l QUnixSocketServer::serverError() returns the type of
   error.  Errors can only occur during server establishment - that is, during a
   call to \l QUnixSocketServer::listen().  Calling \l QUnixSocketServer::close()
-  causes QUnixSocketServer to stop listening for connections and reset its 
+  causes QUnixSocketServer to stop listening for connections and reset its
   state.
 
   QUnixSocketServer is often used in conjunction with the \l QUnixSocket class.
@@ -83,14 +84,14 @@ public slots:
   \l QUnixSocketServer::serverError().
 
   \value NoError No error has occurred.
-  \value InvalidPath An invalid path endpoint was passed to 
-         \l QUnixSocketServer::listen().  As defined by unix(7), invalid paths 
+  \value InvalidPath An invalid path endpoint was passed to
+         \l QUnixSocketServer::listen().  As defined by unix(7), invalid paths
          include an empty path, or what more than 107 characters long.
   \value ResourceError An error acquiring or manipulating the system's socket
          resources occurred.  For example, if the process runs out of available
          socket descriptors, a ResourceError will occur.
-  \value BindError The server was unable to bind to the specified path.  
-  \value ListenError The server was unable to listen on the specified path for 
+  \value BindError The server was unable to bind to the specified path.
+  \value ListenError The server was unable to listen on the specified path for
          incoming connections.
   */
 
@@ -131,12 +132,12 @@ void QUnixSocketServer::close()
 
     if(-1 != d->fd) {
 #ifdef QUNIXSOCKET_DEBUG
-        int closerv = 
-#endif 
+        int closerv =
+#endif
             ::close(d->fd);
 #ifdef QUNIXSOCKET_DEBUG
         if(0 != closerv) {
-            qDebug() << "QUnixSocketServer: Unable to close socket (" 
+            qDebug() << "QUnixSocketServer: Unable to close socket ("
                      << strerror(errno) << ")";
         }
 #endif
@@ -150,9 +151,9 @@ void QUnixSocketServer::close()
   Returns the last server error.  Errors may only occur within a call to
   \l QUnixSocketServer::listen(), and only when such a call fails.
 
-  This method is not destructive, so multiple calls to 
-  QUnixSocketServer::serverError() will return the same value.  The error is 
-  only reset by an explicit call to \l QUnixSocketServer::close() or 
+  This method is not destructive, so multiple calls to
+  QUnixSocketServer::serverError() will return the same value.  The error is
+  only reset by an explicit call to \l QUnixSocketServer::close() or
   by further calls to \l QUnixSocketServer::listen().
   */
 QUnixSocketServer::ServerError QUnixSocketServer::serverError() const
@@ -164,7 +165,7 @@ QUnixSocketServer::ServerError QUnixSocketServer::serverError() const
 }
 
 /*!
-  Returns true if this server is listening for incoming connections, false 
+  Returns true if this server is listening for incoming connections, false
   otherwise.
 
   \sa QUnixSocketServer::listen()
@@ -209,7 +210,7 @@ bool QUnixSocketServer::listen(const QByteArray & path)
     d->fd = ::socket(PF_UNIX, SOCK_STREAM, 0);
     if(-1 == d->fd) {
 #ifdef QUNIXSOCKETSERVER_DEBUG
-        qDebug() << "QUnixSocketServer: Unable to create socket (" 
+        qDebug() << "QUnixSocketServer: Unable to create socket ("
                  << strerror(errno) << ")";
 #endif
         close();
@@ -227,7 +228,7 @@ bool QUnixSocketServer::listen(const QByteArray & path)
     // Attempt to bind
     if(-1 == ::bind(d->fd, (sockaddr *)&addr, sizeof(sockaddr_un))) {
 #ifdef QUNIXSOCKETSERVER_DEBUG
-        qDebug() << "QUnixSocketServer: Unable to bind socket (" 
+        qDebug() << "QUnixSocketServer: Unable to bind socket ("
                  << strerror(errno) << ")";
 #endif
         close();
@@ -238,7 +239,7 @@ bool QUnixSocketServer::listen(const QByteArray & path)
     // Listen to socket
     if(-1 == ::listen(d->fd, d->maxConns)) {
 #ifdef QUNIXSOCKETSERVER_DEBUG
-        qDebug() << "QUnixSocketServer: Unable to listen socket (" 
+        qDebug() << "QUnixSocketServer: Unable to listen socket ("
                  << strerror(errno) << ")";
 #endif
         close();
@@ -277,9 +278,9 @@ int QUnixSocketServer::socketDescriptor() const
 
 /*!
   Returns the maximum length the queue of pending connections may grow to.  That
-  is, the maximum number of clients attempting to connect for which the Unix 
-  socket server has not yet accepted and passed to 
-  \l QUnixSocketServer::incomingConnection().  If a connection request arrives 
+  is, the maximum number of clients attempting to connect for which the Unix
+  socket server has not yet accepted and passed to
+  \l QUnixSocketServer::incomingConnection().  If a connection request arrives
   with the queue full, the client may receive a connection refused notification.
 
   By default a queue length of 30 is used.
@@ -296,7 +297,7 @@ int QUnixSocketServer::maxPendingConnections() const
 
 /*!
   Sets the maximum length the queue of pending connections may grow to
-  \a numConnections.  This value will only apply to 
+  \a numConnections.  This value will only apply to
   \l QUnixSocketServer::listen() calls made following the value change - it will
   not be retroactively applied.
 
@@ -332,7 +333,7 @@ void QUnixSocketServerPrivate::acceptActivated()
 #ifdef QUNIXSOCKETSERVER_DEBUG
     qDebug() << "QUnixSocketServer: Accept connection " << connsock;
 #endif
-    if(-1 != connsock) 
+    if(-1 != connsock)
         me->incomingConnection(connsock);
 }
 

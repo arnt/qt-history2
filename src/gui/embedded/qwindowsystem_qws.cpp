@@ -2730,9 +2730,6 @@ void QWSServerPrivate::emergency_cleanup()
 #ifndef QT_NO_QWS_KEYBOARD
 static QList<QWSServer::KeyboardFilter*> *keyFilters = 0;
 
-/*!
-  \internal
-*/
 void QWSServer::processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                                 bool isPress, bool autoRepeat)
 {

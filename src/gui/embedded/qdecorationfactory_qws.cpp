@@ -30,9 +30,10 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
 /*!
     \class QDecorationFactory qdecorationfactory.h
-    \brief The QDecorationFactory class creates QDecoration objects.
-
+    \ingroup qws
     \ingroup appearance
+
+    \brief The QDecorationFactory class creates QDecoration objects.
 
     The decoration factory creates a QDecoration object for a given
     key with QDecorationFactory::create(key).

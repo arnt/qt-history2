@@ -16,9 +16,10 @@
 
 /*!
     \class QDecorationPlugin
-    \brief The QDecorationPlugin class provides an abstract base for custom QDecoration plugins.
-
+    \ingroup qws
     \ingroup plugins
+
+    \brief The QDecorationPlugin class provides an abstract base for custom QDecoration plugins.
 
     The decoration plugin is a simple plugin interface that makes it easy
     to create custom decorations that can be loaded dynamically into

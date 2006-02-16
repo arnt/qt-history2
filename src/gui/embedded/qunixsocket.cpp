@@ -42,6 +42,7 @@ extern "C" {
   \ingroup Platform::DeviceSpecific
   \ingroup Platform::OS
   \ingroup Platform::Communications
+  \ingroup qws
 
   \l QUnixSocket allows you to transfer Unix file descriptors between processes.
   A file descriptor is referred to as "rights data" as it allows one process to
@@ -279,6 +280,7 @@ void QUnixSocketMessagePrivate::removeBytes( unsigned int bytesToDequeue )
   \ingroup Platform::DeviceSpecific
   \ingroup Platform::OS
   \ingroup Platform::Communications
+  \ingroup qws
 
   In addition to transmitting regular byte stream data, messages sent over Unix
   domain sockets may have special ancillary properties.  QUnixSocketMessage
@@ -568,6 +570,7 @@ bool QUnixSocketMessage::isValid() const
   \ingroup Platform::DeviceSpecific
   \ingroup Platform::OS
   \ingroup Platform::Communications
+  \ingroup qws
 
   Unix domain sockets provide an efficient mechanism for communications between
   Unix processes on the same machine.  Unix domain sockets support a reliable,
