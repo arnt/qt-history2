@@ -39,22 +39,18 @@ ClearCacheFunc QScreen::clearCacheFunc = 0;
 
 #ifndef QT_NO_QWS_CURSOR
 /*!
-    \class QScreenCursor qscreen_qws.h
+    \class QScreenCursor
     \brief The QScreenCursor class manages the onscreen mouse cursor in
     Qtopia Core.
 
-    \internal (for now)
-
     \ingroup qws
 
-    It provides an implementation of a software mouse cursor
-    and can be subclassed by hardware drivers which support a hardware mouse
-    cursor. There may only be one QScreenCursor at a time; it is constructed
-    by QScreen or one of its descendants.
+    QScreenCursor provides an implementation of a software mouse
+    cursor and can be subclassed by hardware drivers which support a
+    hardware mouse cursor. There may only be one QScreenCursor at a
+    time; it is constructed by QScreen or one of its descendants.
 
-    This class is non-portable. It is available only in Qtopia Core.
-    It is also internal - this documentation is intended for those subclassing
-    it in hardware drivers, not for application developers.
+    This class is non-portable. It is only available in Qtopia Core.
 */
 
 extern bool qws_sw_cursor;

@@ -48,20 +48,21 @@ extern int qws_client_id;
 // extern volatile int * lastop;
 
 /*!
-  \class QLinuxFbScreen
-  \ingroup qws
-  \brief The QLinuxFbScreen class manages the Linux framebuffer.
+    \class QLinuxFbScreen
+    \ingroup qws
+    \brief The QLinuxFbScreen class manages the Linux framebuffer.
 
-  \internal (for now)
+     QLinuxFbScreen is a descendant of the QScreen class, and there
+     should only be one QLinuxFbScreen object per application.
 
-  Accelerated drivers
-  for Linux should inherit from it; it contains code for reading information
-  about the framebuffer from the Linux framebuffer interface, managing
-  the color palette, managing offscreen graphics memory and mapping the
-  framebuffer interface itself, removing the need for drivers to do this.
-  It also acts as a factory for the unaccelerated screen cursor and
-  unaccelerated QRasterPaintEngine. QLinuxFbScreen is a descendant of QScreen;
-  there is precisely one per Qtopia Core application.
+     This class enables reading information about the framebuffer from
+     the Linux framebuffer interface, managing the color palette,
+     managing off-screen graphics memory and mapping the framebuffer
+     interface itself (removing the need for drivers to do this).
+
+     QLinuxFbScreen also acts as a factory for the unaccelerated
+     screen cursor and unaccelerated QRasterPaintEngine, and
+     accelerated drivers for Linux should derive from this class.
 */
 
 // Unaccelerated screen/driver setup. Can be overridden by accelerated
