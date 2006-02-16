@@ -26,6 +26,7 @@ void QTextEngine::shapeText(int item) const
     QFontEngine *font = fontEngine(si, &si.ascent, &si.descent);
 
     QShaperItem shaper_item;
+    shaper_item.charAttributes = attributes();
     shaper_item.script = si.analysis.script;
     shaper_item.string = &layoutData->string;
     shaper_item.from = si.position;

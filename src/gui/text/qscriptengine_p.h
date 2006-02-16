@@ -41,6 +41,7 @@ struct QShaperItem {
     int num_glyphs; // in: available glyphs out: glyphs used/needed
     unsigned short *log_clusters;
     int flags;
+    const QCharAttributes *charAttributes;
 };
 
 // return true if ok.

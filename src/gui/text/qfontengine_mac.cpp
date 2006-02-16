@@ -224,6 +224,8 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
     if (e != noErr)
         return e;
 
+    int nextCharStop = -1;
+    int currentClusterGlyph = -1; // first glyph in log cluster
     QShaperItem *item = 0;
     if (nfo->shaperItem) {
         item = nfo->shaperItem;
@@ -236,6 +238,10 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
         }
         Q_ASSERT(*nfo->numGlyphs == item->length - surrogates);
 #endif
+        for (nextCharStop = item->from; nextCharStop < item->from + item->length; ++nextCharStop)
+            if (item->charAttributes[nextCharStop].charStop)
+                break;
+        nextCharStop -= item->from;
     }
 
     int glyphIdx = 0;
@@ -244,14 +250,12 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
         glyphIdx  = itemCount - 2;
         glyphIncrement = -1;
     }
-    int lastCharOffset = -1;
     for (int i = 0; i < *nfo->numGlyphs; ++i, glyphIdx += glyphIncrement) {
 
         int charOffset = layoutData[glyphIdx].originalOffset / sizeof(UniChar);
         const int fontIdx = nfo->mappedFonts[charOffset];
 
         ATSGlyphRef glyphId = layoutData[glyphIdx].glyphID;
-//        qDebug() << "glyphId at i" << i << "and glyphIdx" << glyphIdx << "is" << glyphId;
 
         QFixed yAdvance = FixedToQFixed(baselineDeltas[glyphIdx]);
         QFixed xAdvance = FixedToQFixed(layoutData[glyphIdx + 1].realPos - layoutData[glyphIdx].realPos);
@@ -259,10 +263,8 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
         if (glyphId != 0xffff || i == 0) {
             nfo->glyphs[i].glyph = (glyphId & 0x00ffffff) | (fontIdx << 24);
 
-            nfo->glyphs[i].attributes.clusterStart = true;
             nfo->glyphs[i].advance.y = yAdvance;
             nfo->glyphs[i].advance.x = xAdvance;
-//            qDebug() << "advance for glyph at" << i << "is" << nfo->glyphs[i].advance.x.toReal();
         } else {
             // ATSUI gives us 0xffff as glyph id at the index in the glyph array for
             // a character position that maps to a ligtature. Such a glyph id does not
@@ -275,28 +277,42 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
         }
 
         if (item) {
+            if (charOffset >= nextCharStop) {
+                nfo->glyphs[i].attributes.clusterStart = true;
+                currentClusterGlyph = i;
+
+                ++nextCharStop;
+                for (; nextCharStop < item->length; ++nextCharStop)
+                    if (item->charAttributes[item->from + nextCharStop].charStop)
+                        break;
+            } else {
+                if (currentClusterGlyph == -1)
+                    currentClusterGlyph = i;
+            }
+            item->log_clusters[charOffset] = currentClusterGlyph;
+
             // surrogate handling
             if (charOffset < item->length - 1) {
                 QChar current = item->string->at(item->from + charOffset);
                 QChar next = item->string->at(item->from + charOffset + 1);
                 if (current.unicode() >= 0xd800 && current.unicode() < 0xdc00
-                    && next.unicode() >= 0xdc00 && next.unicode() < 0xe000)
-                    item->log_clusters[charOffset + 1] = i;
-            }
-
-            if (charOffset > lastCharOffset) {
-                item->log_clusters[charOffset] = i;
-            } else {
-                item->log_clusters[charOffset] = i - 1;
-                nfo->glyphs[i].attributes.clusterStart = false;
+                    && next.unicode() >= 0xdc00 && next.unicode() < 0xe000) {
+                    item->log_clusters[charOffset + 1] = currentClusterGlyph;
+                }
             }
         }
-        lastCharOffset = qMax(lastCharOffset, charOffset);
     }
+
     /*
-    if (item)
-        qDebug() << "ending up with" << *nfo->numGlyphs << "glyphs for" << item->string->mid(item->from, item->length);
-        */
+    if (item) {
+        qDebug() << "resulting logclusters:";
+        for (int i = 0; i < item->length; ++i)
+            qDebug() << "logClusters[" << i << "] =" << item->log_clusters[i];
+        qDebug() << "clusterstarts:";
+        for (int i = 0; i < *nfo->numGlyphs; ++i)
+            qDebug() << "clusterStart[" << i << "] =" << nfo->glyphs[i].attributes.clusterStart;
+    }
+    */
 
     ATSUDirectReleaseLayoutDataArrayPtr(lineRef, kATSUDirectDataBaselineDeltaFixedArray,
                                         (void **) &baselineDeltas);
