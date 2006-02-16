@@ -27,16 +27,26 @@ static QTextFormat qt_mac_compose_format()
 }
 
 QMacInputContext::QMacInputContext(QObject *parent)
-    : QInputContext(parent), composing(false)
+    : QInputContext(parent), composing(false), textDocument(0)
 {
-    InterfaceTypeList itl = { kUnicodeDocument };
-    NewTSMDocument(1, itl, &id, (long)this);
+//    createTextDocument();
 }
 
 QMacInputContext::~QMacInputContext()
 {
-    DeleteTSMDocument(id);
+    if(textDocument)
+        DeleteTSMDocument(textDocument);
 }
+
+void
+QMacInputContext::createTextDocument()
+{
+    if(!textDocument) {
+        InterfaceTypeList itl = { kUnicodeDocument };
+        NewTSMDocument(1, itl, &textDocument, (long)this);
+    }
+}
+
 
 QString QMacInputContext::language()
 {
@@ -57,17 +67,19 @@ void QMacInputContext::mouseHandler(int pos, QMouseEvent *e)
 
 void QMacInputContext::reset()
 {
+    createTextDocument();
     composing = false;
-    ActivateTSMDocument(id);
-    FixTSMDocument(id);
+    ActivateTSMDocument(textDocument);
+    FixTSMDocument(textDocument);
 }
 
 void QMacInputContext::setFocusWidget(QWidget *w)
 {
+    createTextDocument();
     if(w)
-        ActivateTSMDocument(id);
+        ActivateTSMDocument(textDocument);
     else
-        DeactivateTSMDocument(id);
+        DeactivateTSMDocument(textDocument);
     QInputContext::setFocusWidget(w);
 }
 
