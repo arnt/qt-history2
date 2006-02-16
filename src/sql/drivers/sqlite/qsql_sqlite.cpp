@@ -34,20 +34,20 @@
 Q_DECLARE_METATYPE(sqlite3*)
 Q_DECLARE_METATYPE(sqlite3_stmt*)
 
-static QVariant::Type qSqliteType(int tp)
+static QVariant::Type qGetColumnType(const QString &typeName)
 {
-    switch (tp) {
-    case SQLITE_INTEGER:
+    if (typeName == QLatin1String("integer")
+        || typeName == QLatin1String("int"))
         return QVariant::Int;
-    case SQLITE_FLOAT:
+    if (typeName == QLatin1String("double")
+        || typeName == QLatin1String("float")
+        || typeName.startsWith(QLatin1String("numeric")))
         return QVariant::Double;
-    case SQLITE_BLOB:
+    if (typeName == QLatin1String("blob"))
         return QVariant::ByteArray;
-    case SQLITE_TEXT:
-    default:
-        return QVariant::String;
-    }
+    return QVariant::String;
 }
+
 
 static QSqlError qMakeError(sqlite3 *access, const QString &descr, QSqlError::ErrorType type,
                             int errorCode = -1)
@@ -73,7 +73,7 @@ public:
     bool fetchNext(QSqlCachedResult::ValueCache &values, int idx, bool initialFetch);
     bool isSelect();
     // initializes the recordInfo and the cache
-    void initColumns();
+    void initColumns(bool emptyResultset);
     void finalize();
 
     QSQLiteResult* q;
@@ -114,7 +114,7 @@ void QSQLiteResultPrivate::finalize()
     stmt = 0;
 }
 
-void QSQLiteResultPrivate::initColumns()
+void QSQLiteResultPrivate::initColumns(bool emptyResultset)
 {
     rInf.clear();
 
@@ -128,9 +128,15 @@ void QSQLiteResultPrivate::initColumns()
         QString colName = QString::fromUtf16(
                     static_cast<const ushort *>(sqlite3_column_name16(stmt, i)));
 
+        // must use typeName for resolving the type to match QSqliteDriver::record
+        QString typeName = QString::fromUtf16(
+                    static_cast<const ushort *>(sqlite3_column_decltype16(stmt, i)));
+
         int dotIdx = colName.lastIndexOf(QLatin1Char('.'));
-        int stp = sqlite3_column_type(stmt, i);
-        QSqlField fld(colName.mid(dotIdx == -1 ? 0 : dotIdx + 1), qSqliteType(stp));
+        QSqlField fld(colName.mid(dotIdx == -1 ? 0 : dotIdx + 1), qGetColumnType(typeName));
+
+        // sqlite3_column_type is documented to have undefined behavior if the result set is empty
+        int stp = emptyResultset ? -1 : sqlite3_column_type(stmt, i);
         fld.setSqlType(stp);
         rInf.append(fld);
     }
@@ -156,7 +162,7 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
         // check to see if should fill out columns
         if (rInf.isEmpty())
             // must be first call.
-            initColumns();
+            initColumns(false);
         if (idx < 0 && !initialFetch)
             return true;
         for (i = 0; i < rInf.count(); ++i) {
@@ -186,7 +192,7 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
     case SQLITE_DONE:
         if (rInf.isEmpty())
             // must be first call.
-            initColumns();
+            initColumns(true);
         q->setAt(QSql::AfterLastRow);
         return false;
     case SQLITE_ERROR:
@@ -522,20 +528,6 @@ QStringList QSQLiteDriver::tables(QSql::TableType type) const
     }
 
     return res;
-}
-
-static QVariant::Type qGetColumnType(const QString &typeName)
-{
-    if (typeName == QLatin1String("integer")
-        || typeName == QLatin1String("int"))
-        return QVariant::Int;
-    if (typeName == QLatin1String("double")
-        || typeName == QLatin1String("float")
-        || typeName.startsWith(QLatin1String("numeric")))
-        return QVariant::Double;
-    if (typeName == QLatin1String("blob"))
-        return QVariant::ByteArray;
-    return QVariant::String;
 }
 
 static QSqlIndex qGetTableInfo(QSqlQuery &q, const QString &tableName, bool onlyPIndex = false)
