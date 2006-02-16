@@ -349,6 +349,12 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
     OSStatus e = noErr;
 
+    e = ATSUSetTextPointerLocation(textLayout, (UniChar *)(str), 0, len, len);
+    if (e != noErr) {
+        qWarning("Qt: internal: %ld: Error ATSUSetTextPointerLocation %s: %d", e, __FILE__, __LINE__);
+        return false;
+    }
+
     QGlyphLayoutInfo nfo;
     nfo.glyphs = glyphs;
     nfo.numGlyphs = nglyphs;
@@ -422,12 +428,6 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
             return false;
         }
 
-    }
-
-    e = ATSUSetTextPointerLocation(textLayout, (UniChar *)(str), 0, len, len);
-    if (e != noErr) {
-        qWarning("Qt: internal: %ld: Error ATSUSetTextPointerLocation %s: %d", e, __FILE__, __LINE__);
-        return false;
     }
 
     e = ATSUSetRunStyle(textLayout, style, 0, len);
