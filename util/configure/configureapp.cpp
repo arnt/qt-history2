@@ -1476,7 +1476,9 @@ void Configure::generateCachefile()
         cacheStream << "ARCH=" << dictionary[ "ARCHITECTURE" ] << endl;
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_SOURCE_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
-        cacheStream << "DEFINES *= QT_EDITION=QT_EDITION_DESKTOP" << endl;
+
+        if (dictionary["QT_EDITION"] != "QT_EDITION_OPENSOURCE")
+            cacheStream << "DEFINES *= QT_EDITION=QT_EDITION_DESKTOP" << endl;
 
 	//so that we can build without an install first (which would be impossible)
 	cacheStream << "QMAKE_MOC = $$QT_BUILD_TREE/bin/moc.exe" << endl;
@@ -2267,7 +2269,7 @@ void Configure::readLicense()
         } else if (products & KeyDecoder::QtConsole) {
             dictionary["EDITION"] = "Console";
             dictionary["QT_EDITION"] = "QT_EDITION_CONSOLE";
-        }        
+        }
         break;
     case KeyDecoder::SupportedEvaluation:
     case KeyDecoder::UnsupportedEvaluation:
