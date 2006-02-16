@@ -2813,23 +2813,6 @@ else
     chmod -w $outpath/src/corelib/global/qconfig.cpp
 fi
 
-# symlink the arch/$ARCH/arch/ include directory to include/QtCore/arch/
-if [ -d "$outpath/src/corelib/global/arch" ]; then
-    rm -f "$outpath/src/corelib/global/arch"
-else
-    mkdir -p "$outpath/src/corelib/global/"
-fi
-ln -s "$relpath/src/corelib/arch/$ARCH/arch" "$outpath/src/corelib/global/arch"
-for arch in "$outpath/include/QtCore/arch" "$outpath/include/Qt/arch"; do
-   if [ -d "$arch" ]; then
-       rm -f "$arch"
-   else
-       mkdir -p `dirname $arch`
-   fi
-   rm -f "$arch"
-   ln -s "$relpath/src/corelib/arch/$ARCH/arch" "$arch"
-done
-
 # -----------------------------------------------------------------------------
 # build qmake
 # -----------------------------------------------------------------------------
@@ -4053,6 +4036,10 @@ else
     echo "#define Q_BYTE_ORDER $CFG_ENDIAN" >>$outpath/src/corelib/global/qconfig.h.new
 fi
 
+echo '/* Machine Architecture */' >>$outpath/src/corelib/global/qconfig.h.new
+ARCH_STR=`echo $ARCH | tr '[:lower:]' '[:upper:]'`
+echo "#define QT_ARCH_${ARCH_STR}" >>$outpath/src/corelib/global/qconfig.h.new
+
 echo '/* Compile time features */' >>$outpath/src/corelib/global/qconfig.h.new
 [ '!' -z "$LicenseKeyExt" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKeyExt\"" >>$outpath/src/corelib/global/qconfig.h.new
 
@@ -4067,7 +4054,6 @@ echo "" >>$outpath/src/corelib/global/qconfig.h.new
 if [ "$Edition" = "Trolltech" ]; then
     echo "#define QT_BUILD_INTERNAL" >>$outpath/src/corelib/global/qconfig.h.new
 fi
-
 
 # Embedded compile time options
 if [ "$PLATFORM_QWS" = "yes" ]; then

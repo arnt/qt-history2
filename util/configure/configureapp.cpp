@@ -1602,6 +1602,9 @@ void Configure::generateConfigfiles()
 	else
 	    outStream << "#define Q_BYTE_ORDER Q_LITTLE_ENDIAN" << endl;
 
+        outStream << "/* Machine architecture */" << endl;
+        outStream << "#define Q_ARCH_" + dictionary[ "ARCHITECTURE" ].toUpper() << endl;
+
 	outStream << endl << "// Compile time features" << endl;
 
         QStringList qconfigList;
@@ -1652,24 +1655,10 @@ WCE({	if(dictionary["STYLE_POCKETPC"] != "yes")    qconfigList += "QT_NO_STYLE_P
         }
     }
 
-    QString archFile = qtDir + "/src/corelib/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h";
+    QString archFile = qtDir + "/src/corelib/arch/qatomic_" + dictionary[ "ARCHITECTURE" ] + ".h";
     QFileInfo archInfo(archFile);
     if (!archInfo.exists()) {
 	qDebug("Architecture file %s does not exist!", qPrintable(archFile) );
-        dictionary[ "DONE" ] = "error";
-        return;
-    }
-    QDir archhelper;
-    archhelper.mkdir(qtDir + "/include/QtCore/arch");
-    if (!CopyFileA(archFile.toLocal8Bit(), QString(qtDir + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FALSE))
-	qDebug("Couldn't copy %s to include/arch", qPrintable(archFile) );
-    if (!SetFileAttributesA(QString(qtDir + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FILE_ATTRIBUTE_NORMAL))
-	qDebug("Couldn't reset writable file attribute for qatomic.h");
-
-    // Create qatomic.h "symlinks"
-    QString atomicContents = QString("#include \"../../../src/corelib/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h\"\n");
-    if (!writeToFile(atomicContents.toLocal8Bit(),    qtDir + "/include/QtCore/arch/qatomic.h")
-        || !writeToFile(atomicContents.toLocal8Bit(), qtDir + "/include/Qt/arch/qatomic.h")) {
         dictionary[ "DONE" ] = "error";
         return;
     }

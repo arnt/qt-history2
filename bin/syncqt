@@ -638,7 +638,7 @@ foreach (@modules_to_sync) {
 	    while(my $t = readdir(DIR)) {
 		my $file = "$subdir/$t";
 		if(-d "$file") {
-		    push @subdirs, "$file" unless($t eq "." || $t eq ".." || $t eq "arch");
+		    push @subdirs, "$file" unless($t eq "." || $t eq "..");
 		} else {
 		    my @files = ("$file");
 		    push @files, "$out_basedir/include/Qt/$t" if(-e "$out_basedir/include/Qt/$t");
@@ -678,7 +678,7 @@ foreach (@modules_to_sync) {
             opendir DIR, "$subdir";
             while(my $t = readdir(DIR)) {
                 push @subdirs, "$subdir/$t" if(-d "$subdir/$t" && !($t eq ".") &&
-					       !($t eq "..") && !($t eq "arch"));
+					       !($t eq ".."));
             }
             closedir DIR;
         }
@@ -837,7 +837,7 @@ if($check_includes) {
 		opendir DIR, "$subdir";
 		while(my $t = readdir(DIR)) {
 		    push @subdirs, "$subdir/$t" if(-d "$subdir/$t" && !($t eq ".") &&
-						   !($t eq "..") && !($t eq "arch"));
+						   !($t eq ".."));
 		}
 		closedir DIR;
 	    }

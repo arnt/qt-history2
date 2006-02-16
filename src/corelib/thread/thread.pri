@@ -7,8 +7,7 @@ HEADERS += thread/qmutex.h \
  	   thread/qthread.h \
  	   thread/qthreadstorage.h \
  	   thread/qwaitcondition.h \
-	   thread/qatomic.h \
-	   $$QT_BUILD_TREE/include/QtCore/arch/qatomic.h
+	   thread/qatomic.h
 	
 # private headers
 HEADERS += thread/qmutex_p.h \

@@ -5,7 +5,7 @@ DEFINES   += QT_BUILD_CORE_LIB
 win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x67000000
 
 include(../qbase.pri)
-include(arch/$$ARCH/arch.pri)
+include(arch/arch.pri)
 include(global/global.pri)
 include(thread/thread.pri)
 include(tools/tools.pri)
