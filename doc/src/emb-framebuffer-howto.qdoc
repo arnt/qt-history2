@@ -2,16 +2,12 @@
     \page emb-framebuffer-howto.html
     \contentspage {Qtopia Core}{Contents}
 
-    \title The Linux Framebuffer
+    \title Testing the  Linux Framebuffer
     \ingroup qtopia-core
 
-    The framebuffer is enabled by default on all modern Linux
-    distributions. For information on older versions, see
-    \l http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html.
-
-    To test that the framebuffer is set up correctly, and the device
-    permissions are correct, here is a short program that opens the
-    frame buffer and draws a gradient-filled red square:
+    To test that the Linux framebuffer is set up correctly, and that
+    the device permissions are correct, use the program below which
+    opens the frame buffer and draws a gradient-filled red square:
 
     \code
     #include <unistd.h>
