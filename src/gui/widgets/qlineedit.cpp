@@ -365,7 +365,7 @@ QString QLineEdit::displayText() const
     if (d->echoMode == NoEcho)
         return QString::fromLatin1("");
     QString res = d->text;
-#ifdef Q_WS_QWS    
+#ifdef Q_WS_QWS
     if (d->echoMode == Password || d->echoMode == PasswordEchoOnEdit) {
 #else
     if (d->echoMode == Password) {
@@ -1538,13 +1538,13 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
                 }
             }
     }
-    
+
 #if defined(Q_WS_QWS)
     if(event->key() != Qt::Key_Select &&
-       event->key() != Qt::Key_Up && 
+       event->key() != Qt::Key_Up &&
        event->key() != Qt::Key_Down &&
        event->key() != Qt::Key_Back &&
-       echoMode() == PasswordEchoOnEdit && 
+       echoMode() == PasswordEchoOnEdit &&
        !isReadOnly())
 {
     setEchoMode(Normal);
@@ -1885,7 +1885,7 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
         e->ignore();
         return;
     }
-    
+
 #ifdef Q_WS_QWS
     if(echoMode() == PasswordEchoOnEdit)
     {
@@ -2001,14 +2001,14 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
 void QLineEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QLineEdit);
-    
+
 #ifdef Q_WS_QWS
     if(d->resumePassword){
         setEchoMode(PasswordEchoOnEdit);
         d->resumePassword = false;
     }
 #endif
-    
+
     Qt::FocusReason reason = e->reason();
     if (reason != Qt::ActiveWindowFocusReason &&
         reason != Qt::PopupFocusReason)
@@ -2305,7 +2305,7 @@ void QLineEdit::changeEvent(QEvent *ev)
     if(ev->type() == QEvent::ActivationChange) {
         if (!palette().isEqual(QPalette::Active, QPalette::Inactive))
             update();
-    } else if (ev->type() == QEvent::FontChange) {
+    } else if (ev->type() == QEvent::FontChange || ev->type() == QEvent::StyleChange) {
         d->updateTextLayout();
     }
     QWidget::changeEvent(ev);
