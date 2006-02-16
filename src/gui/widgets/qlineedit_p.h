@@ -45,6 +45,9 @@ public:
           ascent(0), maxLength(32767), hscroll(0), lastCursorPos(-1), maskData(0),
           modifiedState(0), undoState(0), selstart(0), selend(0), userInput(false),
           emitingEditingFinished(false)
+#ifdef Q_WS_QWS
+          ,resumePassword(false)
+#endif
         {}
     ~QLineEditPrivate()
     {
@@ -183,6 +186,11 @@ public:
     QBasicTimer deleteAllTimer; // keypad navigation
     QString origText;
 #endif
+
+#ifdef Q_WS_QWS
+    bool resumePassword;
+#endif
+
 };
 
 #endif // QT_NO_LINEEDIT

@@ -61,6 +61,10 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 #define verticalMargin 1
 #define horizontalMargin 2
 
+#ifdef Q_WS_QWS
+bool showPasswordOnFocus = true;
+#endif
+
 QStyleOptionFrame QLineEditPrivate::getStyleOption() const
 {
     Q_Q(const QLineEdit);
@@ -1534,6 +1538,21 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
                 }
             }
     }
+    
+#if defined(Q_WS_QWS)
+    if(event->key() != Qt::Key_Select &&
+       event->key() != Qt::Key_Up && 
+       event->key() != Qt::Key_Down &&
+       event->key() != Qt::Key_Back &&
+       echoMode() == Password && 
+       !isReadOnly() &&
+      showPasswordOnFocus)
+{
+    setEchoMode(Normal);
+    clear();
+    d->resumePassword = true;
+}
+#endif
 
     if (QApplication::keypadNavigationEnabled() && !select && !hasEditFocus()) {
         setEditFocus(true);
@@ -1783,6 +1802,13 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
                 && !isReadOnly()) {
                 if (text().length() == 0) {
                     setText(d->origText);
+#if defined Q_WS_QWS
+                if(d->resumePassword)
+                {
+                    setEchoMode(Password);
+                    d->resumePassword = false;
+                }
+#endif
                     setEditFocus(false);
                 } else if (!d->deleteAllTimer.isActive()) {
                     d->deleteAllTimer.start(750, this);
@@ -1860,6 +1886,15 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
         e->ignore();
         return;
     }
+    
+#ifdef Q_WS_QWS
+    if(echoMode() == Password && showPasswordOnFocus)
+    {
+        setEchoMode(Normal);
+        clear();
+        d->resumePassword = true;
+    }
+#endif
 
     int priorState = d->undoState;
     d->removeSelectedText();
@@ -1967,6 +2002,14 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
 void QLineEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QLineEdit);
+    
+#ifdef Q_WS_QWS
+    if(d->resumePassword){
+        setEchoMode(Password);
+        d->resumePassword = false;
+    }
+#endif
+    
     Qt::FocusReason reason = e->reason();
     if (reason != Qt::ActiveWindowFocusReason &&
         reason != Qt::PopupFocusReason)
