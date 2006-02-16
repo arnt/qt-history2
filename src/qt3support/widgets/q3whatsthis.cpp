@@ -51,6 +51,10 @@ bool Q3WhatsThis::eventFilter(QObject *o, QEvent *e)
         QString s = text(static_cast<QHelpEvent*>(e)->pos());
         if (!s.isEmpty())
             QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(), s, static_cast<QWidget*>(o));
+    } else if (e->type() == QEvent::QueryWhatsThis) {
+        QString s = text(static_cast<QHelpEvent*>(e)->pos());
+        if (s.isEmpty())
+            return false;
     } else if (e->type() == QEvent::WhatsThisClicked) {
         QString href = static_cast<QWhatsThisClickedEvent*>(e)->href();
         if (clicked(href))
