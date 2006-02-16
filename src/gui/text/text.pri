@@ -78,6 +78,7 @@ unix:x11 {
 }
 
 !embedded:!x11:mac {
+        DEFINES += Q_NEW_MAC_FONTENGINE
 	SOURCES += \
 		text/qfont_mac.cpp \
 		text/qfontengine_mac.cpp
