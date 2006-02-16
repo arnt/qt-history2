@@ -98,8 +98,7 @@ public:
     void relayout(const QModelIndex &parent);
     void reexpandChildren(const QModelIndex &parent);
 
-    void updateVerticalScrollbar();
-    void updateHorizontalScrollbar();
+    void updateScrollbars();
 
     int itemDecorationAt(const QPoint &pos) const;
 

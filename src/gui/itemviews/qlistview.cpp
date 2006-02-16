@@ -1249,15 +1249,21 @@ void QListView::updateGeometries()
     } else {
         QModelIndex index = model()->index(0, d->column, rootIndex());
         QStyleOptionViewItem option = viewOptions();
-        QSize size = d->itemSize(option, index);
+        QSize step = d->itemSize(option, index);
 
-        horizontalScrollBar()->setSingleStep(size.width() + d->spacing);
-        horizontalScrollBar()->setPageStep(d->viewport->width());
-        horizontalScrollBar()->setRange(0, d->contentsSize.width() - d->viewport->width() - 1);
+        QSize vsize = d->viewport->size();
+        QSize max = maximumViewportSize();
 
-        verticalScrollBar()->setSingleStep(size.height() + d->spacing);
-        verticalScrollBar()->setPageStep(d->viewport->height());
-        verticalScrollBar()->setRange(0, d->contentsSize.height() - d->viewport->height() - 1);
+        if (max.width() >= d->contentsSize.width() && max.height() >= d->contentsSize.height())
+            vsize = max;
+
+        horizontalScrollBar()->setSingleStep(step.width() + d->spacing);
+        horizontalScrollBar()->setPageStep(vsize.width());
+        horizontalScrollBar()->setRange(0, d->contentsSize.width() - vsize.width());
+
+        verticalScrollBar()->setSingleStep(step.height() + d->spacing);
+        verticalScrollBar()->setPageStep(vsize.height());
+        verticalScrollBar()->setRange(0, d->contentsSize.height() - vsize.height());
     }
     // if the scrollbars are turned off, we resize the contents to the viewport
     if (d->movement == Static && !d->wrap) {

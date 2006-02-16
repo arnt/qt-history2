@@ -1438,7 +1438,7 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
     }
 
     setState(NoState);
-    d->updateVerticalScrollbar();
+    d->updateScrollbars();
 }
 
 /*!
@@ -1526,11 +1526,7 @@ void QTreeView::updateGeometries()
     d->header->setOffset(horizontalScrollBar()->value());
     if (d->header->isHidden())
         QMetaObject::invokeMethod(d->header, "updateGeometries");
-
-    if (model()) {
-        d->updateVerticalScrollbar();
-        d->updateHorizontalScrollbar();
-    }
+    d->updateScrollbars();
 
     QAbstractItemView::updateGeometries();
 }
@@ -1978,10 +1974,19 @@ void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent)
     }
 }
 
-void QTreeViewPrivate::updateVerticalScrollbar()
+void QTreeViewPrivate::updateScrollbars()
 {
     Q_Q(QTreeView);
-    int viewHeight = viewport->height();
+
+    QSize vsize = viewport->size();
+    QSize msize = q->maximumViewportSize();
+    
+    // update the horizontal scrollbar
+    int width = (msize.width() >= header->length() ? msize.width() : vsize.width());
+    q->horizontalScrollBar()->setPageStep(width);
+    q->horizontalScrollBar()->setRange(0, header->length() - width);
+
+    int viewHeight = vsize.height();
     int itemCount = viewItems.count();
 
     // set page step size
@@ -2021,15 +2026,7 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     }
 
     max = qMin(max, viewItems.count() * verticalStepsPerItem);
-    q->verticalScrollBar()->setRange(0, max - 1); // should boud the current value
-}
-
-void QTreeViewPrivate::updateHorizontalScrollbar()
-{
-    Q_Q(QTreeView);
-    int width = viewport->width();
-    q->horizontalScrollBar()->setPageStep(width);
-    q->horizontalScrollBar()->setRange(0, header->length() - width);
+    q->verticalScrollBar()->setRange(0, max);
 }
 
 int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const

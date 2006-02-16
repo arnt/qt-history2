@@ -39,8 +39,6 @@ public:
           columnResizeTimerID(0), rowResizeTimerID(0),
           horizontalHeader(0), verticalHeader(0) {}
     void init();
-    void updateVerticalScrollbar();
-    void updateHorizontalScrollbar();
     void trimHiddenSelections(QItemSelectionRange *range) const;
 
     bool showGrid;

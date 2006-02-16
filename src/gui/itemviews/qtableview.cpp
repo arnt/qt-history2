@@ -43,23 +43,6 @@ void QTableViewPrivate::init()
     tabKeyNavigation = true;
 }
 
-void QTableViewPrivate::updateVerticalScrollbar()
-{
-    Q_Q(QTableView);
-    int height = viewport->height();
-    q->verticalScrollBar()->setPageStep(height);
-    q->verticalScrollBar()->setRange(0, verticalHeader->length() - height);
-}
-
-void QTableViewPrivate::updateHorizontalScrollbar()
-{
-    Q_Q(QTableView);
-    int width = viewport->width();
-    q->horizontalScrollBar()->setPageStep(width);
-    q->horizontalScrollBar()->setRange(0, horizontalHeader->length() - width);
-
-}
-
 /*!
   \internal
   Trims away indices that are hidden in the treeview due to hidden horizontal or vertical sections.
@@ -833,6 +816,8 @@ void QTableView::updateGeometries()
     bool reverse = isRightToLeft();
     setViewportMargins(reverse ? 0 : width, height, reverse ? width : 0, 0);
 
+    // update headers
+
     QRect vg = d->viewport->geometry();
 
     int verticalLeft = reverse ? vg.right() : (vg.left() - width);
@@ -847,11 +832,23 @@ void QTableView::updateGeometries()
         QMetaObject::invokeMethod(d->horizontalHeader, "updateGeometries");
     d->horizontalHeader->setOffset(horizontalScrollBar()->value());
 
-    if (d->model) {
-        d->updateVerticalScrollbar();
-        d->updateHorizontalScrollbar();
-    }
+    // update scrollbars
 
+    int horizontalLength = d->horizontalHeader->length();
+    int verticalLength = d->verticalHeader->length();
+
+    QSize vsize = d->viewport->size();
+    QSize max = maximumViewportSize();
+    
+    if (max.width() >= horizontalLength && max.height() >= verticalLength)
+        vsize = max;
+
+    verticalScrollBar()->setPageStep(vsize.height());
+    verticalScrollBar()->setRange(0, verticalLength - vsize.height());
+
+    horizontalScrollBar()->setPageStep(vsize.width());
+    horizontalScrollBar()->setRange(0, horizontalLength - vsize.width());
+    
     QAbstractItemView::updateGeometries();
 }
 
