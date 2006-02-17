@@ -2025,7 +2025,7 @@ void QTreeViewPrivate::updateScrollbars()
             max += (backtracking / itemSize) + 1;
     }
 
-    max = qMin(max, viewItems.count() * verticalStepsPerItem);
+    max = qMin(max, (viewItems.count() - 1) * verticalStepsPerItem);
     q->verticalScrollBar()->setRange(0, max);
 }
 
