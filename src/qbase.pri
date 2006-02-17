@@ -55,10 +55,6 @@ mac:!static:contains(QT_CONFIG, qt_framework) {
               !contains(FRAMEWORK_HEADERS.files, .*/qconfig.h) {
 	          FRAMEWORK_HEADERS.files *= $$QT_BUILD_TREE/src/corelib/global/qconfig.h 
 	      }
-	      ARCH_FRAMEWORK_HEADERS.version = $$FRAMEWORK_HEADERS.version
-	      ARCH_FRAMEWORK_HEADERS.files = $$QT_SOURCE_TREE/src/corelib/arch/$$ARCH/arch/qatomic.h
-	      ARCH_FRAMEWORK_HEADERS.path = $$FRAMEWORK_HEADERS.path/arch
-	      QMAKE_BUNDLE_DATA += ARCH_FRAMEWORK_HEADERS
           }
       }
       QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
