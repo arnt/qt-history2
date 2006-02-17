@@ -510,6 +510,30 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
 }
 
 /*!
+  \internal
+
+*/
+void QItemSelectionModelPrivate::rowsRemoved(const QModelIndex &parent, int start, int end)
+{
+    Q_Q(QItemSelectionModel);
+    if (parent == currentIndex.parent()
+        && currentIndex.row() >= start && currentIndex.row() <= end)
+        emit q->currentChanged(currentIndex, currentIndex);
+}
+
+/*!
+  \internal
+
+*/
+void QItemSelectionModelPrivate::columnsRemoved(const QModelIndex &parent, int start, int end)
+{
+    Q_Q(QItemSelectionModel);
+    if (parent == currentIndex.parent()
+        && currentIndex.column() >= start && currentIndex.column() <= end)
+        emit q->currentChanged(currentIndex, currentIndex);
+}
+
+/*!
   \class QItemSelectionModel
 
   \brief The QItemSelectionModel class keeps track of a view's selected items.
@@ -705,13 +729,7 @@ void QItemSelectionModel::select(const QItemSelection &selection, QItemSelection
 void QItemSelectionModel::clear()
 {
     Q_D(QItemSelectionModel);
-    if (d->ranges.count() == 0 && d->currentSelection.count() == 0)
-        return;
-    QItemSelection selection = d->ranges;
-    selection.merge(d->currentSelection, d->currentCommand);
-    d->ranges.clear();
-    d->currentSelection.clear();
-    emit selectionChanged(QItemSelection(), selection);
+    clearSelection();
     QModelIndex previous = d->currentIndex;
     d->currentIndex = QModelIndex();
     if (previous.isValid()) {
@@ -729,6 +747,22 @@ void QItemSelectionModel::reset()
     bool block = blockSignals(true);
     clear();
     blockSignals(block);
+}
+
+/*!
+  \since 4.2
+  Clears the selection in the selection model. Emits selectionChanged().
+*/
+void QItemSelectionModel::clearSelection()
+{
+    Q_D(QItemSelectionModel);
+    if (d->ranges.count() == 0 && d->currentSelection.count() == 0)
+        return;
+    QItemSelection selection = d->ranges;
+    selection.merge(d->currentSelection, d->currentCommand);
+    d->ranges.clear();
+    d->currentSelection.clear();
+    emit selectionChanged(QItemSelection(), selection);
 }
 
 
@@ -1086,5 +1120,7 @@ QDebug operator<<(QDebug dbg, const QItemSelectionRange &range)
 #endif
 }
 #endif
+
+#include "moc_qitemselectionmodel.cpp"
 
 #endif // QT_NO_ITEMVIEWS

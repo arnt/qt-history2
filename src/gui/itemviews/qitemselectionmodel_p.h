@@ -37,6 +37,9 @@ public:
 
     QItemSelection expandSelection(const QItemSelection &selection,
                                    QItemSelectionModel::SelectionFlags command) const;
+    
+    void rowsRemoved(const QModelIndex &parent, int start, int end);
+    void columnsRemoved(const QModelIndex &parent, int start, int end);
 
     inline void remove(QList<QItemSelectionRange> &r)
     {

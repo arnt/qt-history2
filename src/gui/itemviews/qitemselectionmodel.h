@@ -139,6 +139,8 @@ public Q_SLOTS:
     virtual void clear();
     virtual void reset();
 
+    void clearSelection();
+
 Q_SIGNALS:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -151,6 +153,8 @@ protected:
 
 private:
     Q_DISABLE_COPY(QItemSelectionModel)
+    Q_PRIVATE_SLOT(d_func(), void columnsRemoved(const QModelIndex&, int, int))
+    Q_PRIVATE_SLOT(d_func(), void rowsRemoved(const QModelIndex&, int, int))
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QItemSelectionModel::SelectionFlags)

@@ -709,7 +709,7 @@ void QAbstractItemView::edit(const QModelIndex &index)
 void QAbstractItemView::clearSelection()
 {
     if (selectionModel())
-        selectionModel()->clear();
+        selectionModel()->clearSelection();
 }
 
 /*!
