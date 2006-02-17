@@ -223,6 +223,8 @@ void QPixmap::resize_helper(const QSize &size)
 
     if (size.isEmpty())
         data->image = QImage();
+    else if (data->image.isNull())
+        *this = QPixmap(size, data->type);
     else
         data->image = data->image.copy(0, 0, size.width(), size.height());
 }
