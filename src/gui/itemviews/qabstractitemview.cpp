@@ -18,17 +18,14 @@
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qstyle.h>
-#include <qbitmap.h>
-#include <qpair.h>
-#include <qmenu.h>
 #include <qdrag.h>
 #include <qevent.h>
-#include <qeventloop.h>
 #include <qscrollbar.h>
 #include <qwhatsthis.h>
 #include <qtooltip.h>
-#include <qitemdelegate.h>
 #include <qdatetime.h>
+#include <qlineedit.h>
+#include <qitemdelegate.h>
 #include <private/qabstractitemview_p.h>
 
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
@@ -2610,6 +2607,8 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
             q->itemDelegate()->updateEditorGeometry(w, options, index);
             editors.insert(index, w);
             QWidget::setTabOrder(w, q);
+            if (QLineEdit *le = ::qobject_cast<QLineEdit*>(w))
+                le->selectAll();
         }
     }
     return w;
