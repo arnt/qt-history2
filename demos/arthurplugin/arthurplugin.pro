@@ -34,7 +34,7 @@ HEADERS = \
 RESOURCES += arthur_plugin.qrc
 
 # install
-target.path = $$[QT_INSTALL_PLUGINS]/arthurplugin
+target.path = $$[QT_INSTALL_PLUGINS]/designer
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.jpg *.png
 sources.path = $$[QT_INSTALL_DEMOS]/arthurplugin
 INSTALLS += target sources
