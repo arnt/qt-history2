@@ -339,7 +339,7 @@ QModelIndex QPersistentModelIndex::child(int row, int column) const
     return QModelIndex();
 }
 
-/*
+/*!
   Returns the data for the given \a role for the item referred to by the index.
 */
 QVariant QPersistentModelIndex::data(int role) const
@@ -1239,11 +1239,13 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 /*!
     Handles the \a data supplied by a drag and drop operation that ended with
     the given \a action.
-    Note that the coordinates given by row, column and parent are the coordinates where
-    the data should be inserted, so it is the responsibility of the view to
-    transform the drop coordinates to the correct model coordinates.
-    (For instance, a drop action on an item in a QTreeView can result in one of these actions:
-    insert a child of the item or insert a sibling of the item)
+    Although the specified \a row, \a column and \a parent indicate the location of
+    an item in the model where the operation ended, it is the responsibility of the
+    view to provide a suitable location for where the data should be inserted.
+
+    For instance, a drop action on an item in a QTreeView can result in new items
+    either being inserted as children of the item specified by \a row, \a column,
+    and \a parent, or as siblings of the item.
 
     \sa supportedDropActions()
 */
