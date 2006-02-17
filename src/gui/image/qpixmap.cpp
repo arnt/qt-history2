@@ -43,7 +43,7 @@ Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
 
 Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap)
 {
-    return (((qint64) pixmap.data->ser_no) << 32) | ((qint64) pixmap.data->detach_no);
+    return -(((qint64) pixmap.data->ser_no) << 32) | ((qint64) (pixmap.data->detach_no));
 }
 
 /*!

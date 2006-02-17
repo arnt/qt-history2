@@ -123,7 +123,7 @@ public:
     QPrinter::Orientation orientation;
     bool fullPage;
 
-    int addImage(const QImage &image, bool *bitmap);
+    int addImage(const QImage &image, bool *bitmap, qint64 serial_no);
     int addBrushPattern(const QMatrix &matrix, bool *specifyColor, int *gStateObject);
 
 private:
@@ -160,6 +160,7 @@ private:
     // various PDF objects
     int pageRoot, catalog, info, graphicsState, patternColorSpace;
     QVector<uint> pages;
+    QHash<qint64, uint> imageCache;
 };
 
 

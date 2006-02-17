@@ -32,6 +32,9 @@
 #include "qprintengine_pdf_p.h"
 #include "private/qdrawhelper_p.h"
 
+extern qint64 qt_pixmap_id(const QPixmap &pixmap);
+extern qint64 qt_image_id(const QImage &image);
+
 //#define FONT_DUMP
 
 // might be helpful for smooth transforms of images
@@ -261,7 +264,8 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
 
     QBrush b = d->brush;
 
-    QPixmap pm = pixmap.copy(sr.toRect());
+    QRect sourceRect = sr.toRect();
+    QPixmap pm = sourceRect != pixmap.rect() ? pixmap.copy(sourceRect) : pixmap;
     QImage image = pm.toImage();
 
     *d->currentPage << "q\n";
@@ -269,7 +273,7 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
         << QPdf::generateMatrix(QMatrix(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
                                         rectangle.x(), rectangle.y()) * d->stroker.matrix);
     bool bitmap = true;
-    int object = d->addImage(image, &bitmap);
+    int object = d->addImage(image, &bitmap, qt_pixmap_id(pm));
     if (bitmap) {
         if (d->backgroundMode == Qt::OpaqueMode) {
             // draw background
@@ -293,14 +297,15 @@ void QPdfEngine::drawImage(const QRectF & rectangle, const QImage & image, const
         return;
     Q_D(QPdfEngine);
 
-    QImage im = image.copy(sr.toRect());
+    QRect sourceRect = sr.toRect();
+    QImage im = sourceRect != image.rect() ? image.copy(sr.toRect()) : image;
 
     *d->currentPage << "q\n";
     *d->currentPage
         << QPdf::generateMatrix(QMatrix(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
                                         rectangle.x(), rectangle.y()) * d->stroker.matrix);
     bool bitmap = false;
-    int object = d->addImage(im, &bitmap);
+    int object = d->addImage(im, &bitmap, qt_image_id(im));
     d->currentPage->streamImage(image.width(), image.height(), object);
     *d->currentPage << "Q\n";
 }
@@ -589,7 +594,7 @@ int QPdfEnginePrivate::addBrushPattern(const QMatrix &m, bool *specifyColor, int
             return 0;
         QImage image = brush.texture().toImage();
         bool bitmap = true;
-        imageObject = addImage(image, &bitmap);
+        imageObject = addImage(image, &bitmap, qt_pixmap_id(brush.texture()));
         QImage::Format f = image.format();
         if (f != QImage::Format_MonoLSB && f != QImage::Format_Mono) {
             paintType = 1; // Colored tiling
@@ -638,10 +643,14 @@ int QPdfEnginePrivate::addBrushPattern(const QMatrix &m, bool *specifyColor, int
     return patternObj;
 }
 
-int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap)
+int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_no)
 {
     if (img.isNull())
         return -1;
+
+    int object = imageCache.value(serial_no);
+    if(object) 
+        return object;
 
     QImage image = img;
     QImage::Format format = image.format();
@@ -667,55 +676,56 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap)
             memcpy(rawdata, image.scanLine(y), bytesPerLine);
             rawdata += bytesPerLine;
         }
-        return writeImage(data, w, h, d, 0, 0);
-    }
-
-    QByteArray imageData;
-    QByteArray softMaskData;
-
-    imageData.resize(3 * w * h);
-    softMaskData.resize(w * h);
-
-    uchar *data = (uchar *)imageData.data();
-    uchar *sdata = (uchar *)softMaskData.data();
-    bool hasAlpha = false;
-    bool hasMask = false;
-    for (int y = 0; y < h; ++y) {
-        const QRgb *rgb = (const QRgb *)image.scanLine(y);
-        for (int x = 0; x < w; ++x) {
-            *(data++) = qRed(*rgb);
-            *(data++) = qGreen(*rgb);
-            *(data++) = qBlue(*rgb);
-            uchar alpha = qAlpha(*rgb);
-            *sdata++ = alpha;
-            hasMask |= (alpha < 255);
-            hasAlpha |= (alpha != 0 && alpha != 255);
-            ++rgb;
-        }
-    }
-    int maskObject = 0;
-    int softMaskObject = 0;
-    if (hasAlpha) {
-        softMaskObject = writeImage(softMaskData, w, h, 8, 0, 0);
-    } else if (hasMask) {
-        // dither the soft mask to 1bit and add it. This also helps PDF viewers
-        // without transparency support
-        int bytesPerLine = (w + 7) >> 3;
-        QByteArray mask(bytesPerLine * h, 0);
-        uchar *mdata = (uchar *)mask.data();
-        const uchar *sdata = (const uchar *)softMaskData.constData();
+        object = writeImage(data, w, h, d, 0, 0);
+    } else {
+        QByteArray imageData;
+        QByteArray softMaskData;
+    
+        imageData.resize(3 * w * h);
+        softMaskData.resize(w * h);
+    
+        uchar *data = (uchar *)imageData.data();
+        uchar *sdata = (uchar *)softMaskData.data();
+        bool hasAlpha = false;
+        bool hasMask = false;
         for (int y = 0; y < h; ++y) {
+            const QRgb *rgb = (const QRgb *)image.scanLine(y);
             for (int x = 0; x < w; ++x) {
-                if (*sdata)
-                    mdata[x>>3] |= (0x80 >> (x&7));
-                ++sdata;
+                *(data++) = qRed(*rgb);
+                *(data++) = qGreen(*rgb);
+                *(data++) = qBlue(*rgb);
+                uchar alpha = qAlpha(*rgb);
+                *sdata++ = alpha;
+                hasMask |= (alpha < 255);
+                hasAlpha |= (alpha != 0 && alpha != 255);
+                ++rgb;
             }
-            mdata += bytesPerLine;
         }
-        maskObject = writeImage(mask, w, h, 1, 0, 0);
+        int maskObject = 0;
+        int softMaskObject = 0;
+        if (hasAlpha) {
+            softMaskObject = writeImage(softMaskData, w, h, 8, 0, 0);
+        } else if (hasMask) {
+            // dither the soft mask to 1bit and add it. This also helps PDF viewers
+            // without transparency support
+            int bytesPerLine = (w + 7) >> 3;
+            QByteArray mask(bytesPerLine * h, 0);
+            uchar *mdata = (uchar *)mask.data();
+            const uchar *sdata = (const uchar *)softMaskData.constData();
+            for (int y = 0; y < h; ++y) {
+                for (int x = 0; x < w; ++x) {
+                    if (*sdata)
+                        mdata[x>>3] |= (0x80 >> (x&7));
+                    ++sdata;
+                }
+                mdata += bytesPerLine;
+            }
+            maskObject = writeImage(mask, w, h, 1, 0, 0);
+        }
+        object = writeImage(imageData, w, h, 32, maskObject, softMaskObject);
     }
-
-    return writeImage(imageData, w, h, 32, maskObject, softMaskObject);
+    imageCache.insert(serial_no, object);
+    return object;
 }
 
 
