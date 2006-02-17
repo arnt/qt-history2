@@ -952,6 +952,9 @@ void QAbstractItemModelPrivate::reset()
     Note that this signal must be emitted explicitly when
     reimplementing the setHeaderData() function.
 
+    If you are changing the number of columns or rows you don't need to emit this signal,
+    but use the begin/end functions.
+
     \sa headerData(), setHeaderData(), dataChanged()
 */
 
