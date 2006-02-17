@@ -31,11 +31,11 @@ public:
     void addPropertyFunction(PropertyNode *property, const QString &funcName,
 			     PropertyNode::FunctionRole funcRole);
     void addToGroup(Node *node, const QString &group);
-    void resolveInheritance();
+    void resolveInheritance(NamespaceNode *rootNode = 0);
     void resolveProperties();
     void resolveGroups();
     void resolveTargets();
-    void fixInheritance();
+    void fixInheritance(NamespaceNode *rootNode = 0);
     void setVersion(const QString &version) { vers = version; }
     NamespaceNode *root() { return &roo; }
 

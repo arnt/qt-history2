@@ -290,16 +290,24 @@ void Tree::addToGroup(Node *node, const QString &group)
     priv->groupMap.insert(group, node);
 }
 
-void Tree::resolveInheritance()
+void Tree::resolveInheritance(NamespaceNode *rootNode)
 {
+    if (!rootNode)
+        rootNode = root();
+
     for ( int pass = 0; pass < 2; pass++ ) {
-	NodeList::ConstIterator c = root()->childNodes().begin();
-	while ( c != root()->childNodes().end() ) {
+	NodeList::ConstIterator c = rootNode->childNodes().begin();
+	while ( c != rootNode->childNodes().end() ) {
 	    if ( (*c)->type() == Node::Class )
 		resolveInheritance( pass, (ClassNode *) *c );
+            else if ( (*c)->type() == Node::Namespace ) {
+                NamespaceNode *ns = static_cast<NamespaceNode*>(*c);
+                resolveInheritance( ns );
+            }
 	    ++c;
 	}
-	priv->unresolvedInheritanceMap.clear();
+        if (rootNode == root())
+	    priv->unresolvedInheritanceMap.clear();
     }
 }
 
@@ -447,12 +455,19 @@ void Tree::resolveTargets()
     }
 }
 
-void Tree::fixInheritance()
+void Tree::fixInheritance(NamespaceNode *rootNode)
 {
-    NodeList::ConstIterator c = root()->childNodes().begin();
-    while ( c != root()->childNodes().end() ) {
+    if (!rootNode)
+        rootNode = root();
+
+    NodeList::ConstIterator c = rootNode->childNodes().begin();
+    while ( c != rootNode->childNodes().end() ) {
 	if ( (*c)->type() == Node::Class )
 	    static_cast<ClassNode *>(*c)->fixBaseClasses();
+        else if ( (*c)->type() == Node::Namespace ) {
+            NamespaceNode *ns = static_cast<NamespaceNode*>(*c);
+            fixInheritance( ns );
+        }
 	++c;
     }
 }
