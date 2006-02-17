@@ -44,10 +44,7 @@ public:
           echoMode(0), textDirty(0), selDirty(0), validInput(1),
           ascent(0), maxLength(32767), hscroll(0), lastCursorPos(-1), maskData(0),
           modifiedState(0), undoState(0), selstart(0), selend(0), userInput(false),
-          emitingEditingFinished(false)
-#ifdef Q_WS_QWS
-          ,resumePassword(false)
-#endif
+          emitingEditingFinished(false),resumePassword(false)
         {}
     ~QLineEditPrivate()
     {
@@ -187,9 +184,8 @@ public:
     QString origText;
 #endif
 
-#ifdef Q_WS_QWS
     bool resumePassword;
-#endif
+
 
 };
 

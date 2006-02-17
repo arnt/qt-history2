@@ -23,6 +23,7 @@ Window::Window()
     QComboBox *echoComboBox = new QComboBox;
     echoComboBox->addItem(tr("Normal"));
     echoComboBox->addItem(tr("Password"));
+    echoComboBox->addItem(tr("PasswordEchoOnEdit"));
     echoComboBox->addItem(tr("No Echo"));
 
     echoLineEdit = new QLineEdit;
@@ -130,7 +131,10 @@ void Window::slotEchoChanged(int index)
         echoLineEdit->setEchoMode(QLineEdit::Password);
         break;
     case 2:
-    	echoLineEdit->setEchoMode(QLineEdit::NoEcho);
+    	echoLineEdit->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+        break;
+    case 3:
+        echoLineEdit->setEchoMode(QLineEdit::NoEcho);
     }
 }
 

@@ -352,7 +352,7 @@ void QLineEdit::setText(const QString& text)
     \brief the displayed text
 
     If \l echoMode is \l Normal this returns the same as text(); if
-    \l EchoMode is \l Password it returns a string of asterisks
+    \l EchoMode is \l Password or \l PasswordEchoOnEdit it returns a string of asterisks
     text().length() characters long, e.g. "******"; if \l EchoMode is
     \l NoEcho returns an empty string, "".
 
@@ -365,11 +365,8 @@ QString QLineEdit::displayText() const
     if (d->echoMode == NoEcho)
         return QString::fromLatin1("");
     QString res = d->text;
-#ifdef Q_WS_QWS
+
     if (d->echoMode == Password || d->echoMode == PasswordEchoOnEdit) {
-#else
-    if (d->echoMode == Password) {
-#endif
         QStyleOptionFrame opt = d->getStyleOption();
         res.fill(style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, this));
     }
@@ -446,6 +443,8 @@ void QLineEdit::setFrame(bool enable)
                     password should be kept secret.
     \value Password  Display asterisks instead of the characters
                     actually entered.
+    \value PasswordEchoOnEdit Display characters as they are entered  
+                    while editing otherwise display asterisks.
 
     \sa setEchoMode() echoMode()
 */
@@ -456,7 +455,7 @@ void QLineEdit::setFrame(bool enable)
     \brief the line edit's echo mode
 
     The initial setting is \l Normal, but QLineEdit also supports \l
-    NoEcho and \l Password modes.
+    NoEcho,\l Password and \l PasswordEchoOnEdit modes.
 
     The widget's display and the ability to copy or drag the text is
     affected by this setting.
@@ -1539,19 +1538,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             }
     }
 
-#if defined(Q_WS_QWS)
-    if(event->key() != Qt::Key_Select &&
-       event->key() != Qt::Key_Up &&
-       event->key() != Qt::Key_Down &&
-       event->key() != Qt::Key_Back &&
-       echoMode() == PasswordEchoOnEdit &&
-       !isReadOnly())
-{
-    setEchoMode(Normal);
-    clear();
-    d->resumePassword = true;
-}
-#endif
+
 
     if (QApplication::keypadNavigationEnabled() && !select && !hasEditFocus()) {
         setEditFocus(true);
@@ -1559,6 +1546,23 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             return; // Just start. No action.
     }
 #endif
+
+
+    if(echoMode() == PasswordEchoOnEdit &&
+       !isReadOnly() &&
+       !event->text().isEmpty() &&
+#ifdef QT_KEYPAD_NAVIGATION
+       event->key() != Qt::Key_Select &&
+       event->key() != Qt::Key_Up &&
+       event->key() != Qt::Key_Down &&
+       event->key() != Qt::Key_Back &&
+#endif
+       !(event->modifiers() & Qt::ControlModifier))
+    {
+        setEchoMode(Normal);
+        clear();
+        d->resumePassword = true;
+    }
 
     d->setCursorVisible(true);
     if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
@@ -1801,13 +1805,13 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
                 && !isReadOnly()) {
                 if (text().length() == 0) {
                     setText(d->origText);
-#if defined Q_WS_QWS
+
                 if(d->resumePassword)
                 {
                     setEchoMode(PasswordEchoOnEdit);
                     d->resumePassword = false;
                 }
-#endif
+
                     setEditFocus(false);
                 } else if (!d->deleteAllTimer.isActive()) {
                     d->deleteAllTimer.start(750, this);
@@ -1886,14 +1890,14 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
         return;
     }
 
-#ifdef Q_WS_QWS
+
     if(echoMode() == PasswordEchoOnEdit)
     {
         setEchoMode(Normal);
         clear();
         d->resumePassword = true;
     }
-#endif
+
 
     int priorState = d->undoState;
     d->removeSelectedText();
@@ -2002,12 +2006,12 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QLineEdit);
 
-#ifdef Q_WS_QWS
+
     if(d->resumePassword){
         setEchoMode(PasswordEchoOnEdit);
         d->resumePassword = false;
     }
-#endif
+
 
     Qt::FocusReason reason = e->reason();
     if (reason != Qt::ActiveWindowFocusReason &&
