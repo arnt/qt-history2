@@ -1580,7 +1580,12 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     }
 
     // tab order
-    QWidget::setTabOrder(lookInCombo, listView);
+    QWidget::setTabOrder(lookInCombo, backButton);
+    QWidget::setTabOrder(backButton, toParentButton);
+    QWidget::setTabOrder(toParentButton, newFolderButton);
+    QWidget::setTabOrder(newFolderButton, detailModeButton);
+    QWidget::setTabOrder(detailModeButton, listModeButton);
+    QWidget::setTabOrder(listModeButton, listView);
     QWidget::setTabOrder(listView, treeView);
     QWidget::setTabOrder(treeView, fileNameEdit);
     QWidget::setTabOrder(fileNameEdit, fileTypeCombo);
