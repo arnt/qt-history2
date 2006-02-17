@@ -1,5 +1,5 @@
 /*!
-    \page emb-fonts.html
+    \page qtopiacore-fonts.html
 
     \contentspage {Qtopia Core}{Contents}
 
@@ -7,12 +7,12 @@
 
     The Qtopia Core platform uses the \l
     {http://freetype.sourceforge.net/freetype2/index.html}{FreeType 2}
-    font engine to produce font output. For that reason it supports the
-    same font formats as this font engine. In addition, Qtopia Core
-    supports the Qt Prerendered Font (\l QPF), a light-weight
+    font engine to produce font output. For that reason it supports
+    the same font formats as this font engine. In addition, Qtopia
+    Core supports the Qt Prerendered Font (\l QPF), a light-weight
     non-scalable font format specific to Qtopia Core. Several of the
-    formats are rendered using anti-aliasing for improved readability
-    on low-resolution devices.
+    formats may be rendered using anti-aliasing for improved
+    readability on low-resolution devices.
 
     When Qtopia Core applications run, they look for a file called \c
     fontdir in Qt's \c /lib/fonts/ directory which defines the fonts
@@ -32,7 +32,7 @@
     disabled and enabled using Qtopia Core's feature definition
     system, reducing the size of Qt and saving resources.
 
-    Note that at least one of the two formats must be defined.
+    Note that at least one font format must be defined.
 
     See also \l {Fine-Tuning Features}.
 
@@ -58,92 +58,19 @@
     {http://freetype.sourceforge.net/freetype2/index.html}{FreeType 2}
     font engine (and Qtopia Core) supports the following font formats:
 
-    \table 100%
-    \header \o Format \o Description
-    \row
-    \o \bold TTF
-    \o
-    \bold TrueType
-
-    Originally developed by Apple Computer as a competitor to Adobe's
-    Type 1 fonts used in PostScript. Standard on Microsoft Windows and
-    Mac OS X.
-
-    \row
-    \o \bold{PFA/PFB}
-    \o
-    \bold {Postscript Type1}
-
-    Scalable fonts often used by printers, but the format is also
-    popular on X11. The format is similar in functionality to the
-    TrueType fomat.
-
-    \row
-    \o \bold BDF
-    \o
-    \bold {Bitmap Distribution Format}
-
-    A standard format for non-scalable fonts for the X Window System.
-
-    A large number of BDF fonts are supplied as part of standard X11
-    distributions, most of these can be used with Qtopia Core. Note
-    that these fonts should \e not be used in a production system;
-    they are very slow to load and take up a lot of storage
-    space.
-
-    \row \o \bold {CID-keyed Type1}
-    \o
-
-    A CID keyed font is a PostScript (or OpenType) font designed to
-    hold Chinese, Japanese and Korean characters efficiently.
-
-    \row \o \bold CFF
-    \o
-    \bold {Compact Font Format}
-
-    A font format suitable for compactly representing one or more Type
-    1 or CID-keyed fonts.
-
-    \row \o \bold {OpenType fonts}
-    \o
-
-    A cross-platform font file format developed jointly by Adobe and Microsoft.
-
-    OpenType fonts resemble TrueType fonts but they can contain either
-    TrueType or PostScript Type 1 font data.
-
-    \row \o \bold {SFNT-based bitmap fonts}
-
-    \o The SFNT resource, used for font management on the Macintosh
-    platform, describes TrueType outline fonts.
-
-    \row \o \bold PCF
-    \o
-    \bold {Portable Compiled Format}
-
-    A binary representation of a bitmap font used by the XServer.
-
-    \row \o \bold {Windows FNT}
-    \o
-    \bold {Microsoft Windows Font File Format}
-
-    A format used to store fonts under Microsoft Windows.
-
-    \row \o \bold PFR
-    \o
-    \bold {Portable Font Resource}
-
-    Dynamic fonts that are formatted in such a way that they can be
-    either automatically grabbed from the author's site or embedded in
-    an html page, ensuring that the html page reader sees the page in
-    the intended font.
-
-    \row \o \bold {Type 42 }(limited support)
-    \o
-    A format used to download TrueType fonts to PostScript printers,
-    or PostScript compatible printers, that contain a TrueType
-    rasterizer.
-    \endtable
+    \list
+        \o TrueType (TTF)
+        \o Postscript Type1 (PFA/PFB)
+        \o Bitmap Distribution Format (BDF)
+        \o CID-keyed Type1
+        \o Compact Font Format (CFF)
+        \o OpenType fonts
+        \o SFNT-based bitmap fonts
+        \o Portable Compiled Format (PCF)
+        \o Microsoft Windows Font File Format (Windows FNT)
+        \o Portable Font Resource (PFR)
+        \o Type 42 (limited support)
+    \endlist
 
     It is possible to add modules to the \l
     {http://freetype.sourceforge.net/freetype2/index.html}{FreeType 2}
@@ -157,23 +84,17 @@
     The Qt Prerendered Font (QPF) is a platform specific, light-weight
     and non-scalable font format.
 
-    With Qt 3 and the Qt/Embedded platform (Qtopia Core's predecessor)
-    it was possible to create custom QPF font files, for example
-    creating QPF files from a TrueType (TTF) or Bitmap Distribution
-    Format (BDF) font, removing the need for TTF and BDF support. Qt 3
-    also provided the \c makeqpf tool, located in its \c tools
+    With Qt/Embedded (Qtopia Core's predecessor) versions 2 and 3, it
+    was possible to create custom QPF font files, for example creating
+    QPF files from a TrueType (TTF) or Bitmap Distribution Format
+    (BDF) font, removing the need for TTF and BDF support. Qt/Embedded
+    also provided the \c makeqpf tool, located in Qt's \c tools
     directory, for producing QPF font files.
 
-    Note that the \c makeqpf tool is not yet ported to Qt 4.
+    Note that the \c makeqpf tool is not yet ported to Qtopia Core.
 
+\omit
     \section1 Memory Requirements
-
-    With TrueType fonts, the rendering of each character in the font
-    at a given point size is not performed until it is required in a
-    drawing or metrics operation. With Bitmap Distribution Format
-    fonts, all characters are rendered when the font is used. For
-    example, a 10-point Times font containing the ASCII characters
-    uses around 1300 bytes when stored in QPF format.
 
     Taking advantage of the way the QPF format is structured, Qtopia
     Core memory-maps the data rather than reading and parsing it. This
@@ -182,6 +103,7 @@
     Scalable fonts use a larger amount of memory per font, but
     these fonts provide a memory saving if many different sizes of each
     font are needed.
+\endomit
 
     \section1 Specifying Fonts
 
@@ -196,16 +118,7 @@
         name file renderer italic weight size flags
     \endcode
 
-    The font definition file does not specify \l QPF fonts; these are
-    loaded directly from the directory containing the \c fontdir file,
-    and must be called
-
-    \code
-        name_size_weight_italicflag.qpf
-    \endcode
-
-    Both the \c fontdir file and the \c .qpf file names follow the
-    same syntax convention:
+    where
 
     \table 100%
     \header \o Field \o Value
@@ -221,6 +134,11 @@
 		        \o \c u: Unicode range when saving (default is Latin1)
 		        \o \c a: ASCII range when saving (default is Latin1)
 		        \endlist
-    \row \o \bold italicflag \o \c i for italic, otherwise nothing.
     \endtable
+
+    The font definition file does not specify \l QPF fonts; these are
+    loaded directly from the directory containing the \c fontdir
+    file. The font data is specified by the file name, for example \c
+    helvetica_120_50.qpf is 12 point Helvetica while \c
+    helvetica_120_50i.qpf is 12 point Helvetica \e italic.
 */

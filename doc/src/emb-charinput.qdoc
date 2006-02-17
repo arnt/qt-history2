@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 /*!
-    \page emb-charinput.html
+    \page qtopiacore-charinput.html
 
     \contentspage {Qtopia Core}{Contents}
 
@@ -22,7 +22,7 @@
     When running a Qtopia Core application, it either runs as a server
     or connects to an existing server.  Internally in the
     client/server protocol, each key press and key release is sent as
-    a QWSKeyEvent object to the server.
+    a \l {QWSEvent}{QWSKeyEvent} object to the server.
     \ingroup qtopia-core
 
     A key event can be generated from a keyboard driver. A keyboard
