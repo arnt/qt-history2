@@ -44,29 +44,31 @@
 
     \table 100%
     \row
-    \o
+    \o {1, 2}
     \bold { Qtopia Core versus Qt/X11 on Embedded Linux}
 
     Qtopia Core applications write directly to the framebuffer,
     eliminating the need for the X Window System and saving memory.
-    The framebuffer is enabled by default on all modern Linux
-    distributions. For information on older versions, see \l
-    http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html.
 
-    See also \l {Testing the Linux Framebuffer}.
-
-    \o \image qtopiacore-architecture.png
-
-    \row
-    \o {2, 1}
-    If you do not have a working Linux framebuffer you can use Qtopia
-    Core's Virtual Framebuffer, or you can run Qtopia Core as a VNC
-    server.
+    For development and debugging, the Qtopia Core platform provides a
+    virtual framebuffer as well as the option of running Qtopia Core
+    as a VNC server.
 
     \list
         \o \l {The Virtual Framebuffer}
         \o \l {Running as a  VNC Server}
     \endlist
+
+    \o \image qtopiacore-architecture.png
+    \row
+    \o
+    \bold {The Linux Framebuffer}
+
+    The framebuffer is enabled by default on all modern Linux
+    distributions. For information on older versions, see \l
+    http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html.
+
+    See also \l {Testing the Linux Framebuffer}.
 
     \endtable
 
