@@ -534,6 +534,9 @@ Option::fixString(QString string, uchar flags)
         string = QDir::cleanPath(string);
     }
 
+    if(string.length() > 2 && string[0].isLetter() && string[1] == QLatin1Char(':'))
+        string[0] = string[0].toLower();
+
     //fix separators
     Q_ASSERT(!((flags & Option::FixPathToLocalSeparators) && (flags & Option::FixPathToTargetSeparators)));
     if(flags & Option::FixPathToLocalSeparators) {

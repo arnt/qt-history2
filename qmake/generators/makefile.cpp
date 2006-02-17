@@ -2020,7 +2020,9 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 deps += inc_deps;
             }
             for(int i = 0; i < deps.size(); ) {
-                if(out == deps.at(i))
+                QString &dep = deps[i];
+                dep = Option::fixPathToTargetOS(dep, false);
+                if(out == dep)
                     deps.removeAt(i);
                 else
                     ++i;
