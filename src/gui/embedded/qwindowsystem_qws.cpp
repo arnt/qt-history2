@@ -1291,7 +1291,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     } else {
 	tpos = pos;
     }
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     const int btnMask = Qt::LeftButton | Qt::RightButton | Qt::MidButton;
     int stroke_count; // number of strokes to keep shown.
     if (force_reject_strokeIM || qwsServerPrivate->mouseGrabber
