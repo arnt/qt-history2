@@ -1581,6 +1581,8 @@ QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
 }
 
 /*!
+  \internal
+
   Sorts the children by the value in the given \a column, in the \a order
   specified. If \a climb is true, the items below each of the children will
   also be sorted.
