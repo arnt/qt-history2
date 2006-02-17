@@ -166,7 +166,7 @@ void FindIconDialog::itemActivated(const QString&, const QString &file_name)
 
 void FindIconDialog::itemActivated(QListWidgetItem *item)
 {
-    if (activeBox() != FileBox)
+    if (!item || activeBox() != FileBox)
         return;
     QString file = item->text();
     QString path = m_view_dir.filePath(file);
