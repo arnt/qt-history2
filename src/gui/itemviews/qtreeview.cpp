@@ -1797,6 +1797,10 @@ int QTreeViewPrivate::coordinate(int item) const
     Q_Q(const QTreeView);
     int scrollbarValue = q->verticalScrollBar()->value();
     int viewItemIndex = itemAt(scrollbarValue); // first item (may start above the page)
+    if (viewItemIndex == -1) {
+        const_cast<QTreeViewPrivate*>(this)->updateScrollbars();
+        viewItemIndex = itemAt(scrollbarValue); // first item (may start above the page)
+    }
     Q_ASSERT(viewItemIndex != -1);
     int viewItemHeight = height(viewItemIndex);
     int viewportHeight = viewport->height();
@@ -1978,6 +1982,12 @@ void QTreeViewPrivate::updateScrollbars()
 {
     Q_Q(QTreeView);
 
+    if (!viewport->isVisible() || viewItems.isEmpty()) {
+        q->verticalScrollBar()->setRange(0, 0);
+        q->verticalScrollBar()->setPageStep(0);
+        return;
+    }
+
     QSize vsize = viewport->size();
     QSize msize = q->maximumViewportSize();
     
@@ -1986,34 +1996,26 @@ void QTreeViewPrivate::updateScrollbars()
     q->horizontalScrollBar()->setPageStep(width);
     q->horizontalScrollBar()->setRange(0, header->length() - width);
 
-    int viewHeight = vsize.height();
-    int itemCount = viewItems.count();
-
     // set page step size
     int verticalScrollBarValue = q->verticalScrollBar()->value();
     int itemsInViewport = 0;
     if (uniformRowHeights) {
-        itemsInViewport = viewHeight / itemHeight;
+        itemsInViewport = vsize.height() / itemHeight;
     } else {
         int topItemInViewport = itemAt(verticalScrollBarValue);
-        if (topItemInViewport < 0) {
-            // if itemAt can't find the top item, there are no visible items in the view
-            q->verticalScrollBar()->setRange(0, 0);
-            q->verticalScrollBar()->setPageStep(0);
-            return;
-        }
+        Q_ASSERT(topItemInViewport != -1);
         int h = height(topItemInViewport);
         int y = topItemDelta(verticalScrollBarValue, h);
         int i = topItemInViewport;
-        for (; y < viewHeight && i < itemCount; ++i)
+        for (; y < vsize.height() && i < viewItems.count(); ++i)
             y += height(i);
         itemsInViewport = i - topItemInViewport;
     }
     q->verticalScrollBar()->setPageStep(itemsInViewport * verticalStepsPerItem);
 
     // set the scroller range
-    int y = viewHeight;
-    int i = itemCount;
+    int y = vsize.height();
+    int i = viewItems.count();
     while (y > 0 && i > 0) // subtract the bottom screen
         y -= height(--i);
     int max = i * verticalStepsPerItem;
@@ -2025,7 +2027,7 @@ void QTreeViewPrivate::updateScrollbars()
             max += (backtracking / itemSize) + 1;
     }
 
-    max = qMin(max, (viewItems.count() - 1) * verticalStepsPerItem);
+    max = qMin(max, viewItems.count() * verticalStepsPerItem);
     q->verticalScrollBar()->setRange(0, max);
 }
 
