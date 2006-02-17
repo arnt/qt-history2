@@ -3650,6 +3650,14 @@ QByteArray QByteArray::fromBase64(const QByteArray &base64)
     \internal
 */
 
+/*! \typedef QByteArray::const_reference
+    \internal
+*/
+
+/*! \typedef QByteArray::reference
+    \internal
+*/
+
 /*!
     \fn QByteArray::QByteArray(int size)
 
