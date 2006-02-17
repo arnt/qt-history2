@@ -1340,6 +1340,16 @@
     see \l
     {http://developer.apple.com/documentation/DeveloperTools/Conceptual/cross_development/index.html}{Apple's Developer Website}.
 
+    Since the linker is set to be compatible with all OS X version, you have to
+    change the \c MACOSX_DEPLOYMENT_TARGET environment variable to get weak
+    linking to work for your application. You can add:
+
+    \code
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2
+    \endcode
+
+    to your .pro file and qmake will take care of this for you.
+
     However, there is a bit of a wrinkle to keep in mind when your are
     deploying. Mac OS X 10.4 ("Tiger") ships GCC 4.0 as its default
     compiler. This is also the GCC compiler we use for building the
