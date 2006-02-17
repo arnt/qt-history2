@@ -10,7 +10,7 @@
 class ScribbleWidget : public QWidget
 {
 public:
-    ScribbleWidget() : QWidget(0), scribbling(false) {}
+    ScribbleWidget(QWidget *parent = 0);
 
     void resizeEvent(QResizeEvent *e);
     void mousePressEvent(QMouseEvent *event);

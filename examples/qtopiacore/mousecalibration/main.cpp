@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 
     {
         QMessageBox message;
-        message.setText("<p>Please press once at the each of the marks "
+        message.setText("<p>Please press once at each of the marks "
                         "shown in the next screen.</p>"
                         "<p>This messagebox will timout after 10 seconds "
                         "if you are unable to close it.</p>");

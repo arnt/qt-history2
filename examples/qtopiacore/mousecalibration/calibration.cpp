@@ -20,21 +20,18 @@ Calibration::Calibration()
     setFocus();
     setModal(true);
 
-    int w = qt_screen->deviceWidth();
-    int h = qt_screen->deviceHeight();
+    int width = qt_screen->deviceWidth();
+    int height = qt_screen->deviceHeight();
 
-    // non-linearity is expected to increase on the edge of the screen,
-    // so keep all points 10 percent within the screen.
-    int dx = w / 10;
-    int dy = h / 10;
+    int dx = width / 10;
+    int dy = height / 10;
 
-    // fill data with screen coordinates
     QPoint *points = data.screenPoints;
     points[QWSPointerCalibrationData::TopLeft] = QPoint(dx, dy);
-    points[QWSPointerCalibrationData::BottomLeft] = QPoint(dx, h - dy);
-    points[QWSPointerCalibrationData::BottomRight] = QPoint(w - dx, h - dy);
-    points[QWSPointerCalibrationData::TopRight] = QPoint(w - dx, dy);
-    points[QWSPointerCalibrationData::Center] = QPoint(w / 2, h / 2);
+    points[QWSPointerCalibrationData::BottomLeft] = QPoint(dx, height - dy);
+    points[QWSPointerCalibrationData::BottomRight] = QPoint(width - dx, height - dy);
+    points[QWSPointerCalibrationData::TopRight] = QPoint(width - dx, dy);
+    points[QWSPointerCalibrationData::Center] = QPoint(width / 2, height / 2);
 
     pressCount = 0;
 }
@@ -58,7 +55,6 @@ void Calibration::paintEvent(QPaintEvent*)
     QPainter p(this);
     p.fillRect(rect(), Qt::white);
 
-    // draw a cross at the point the user should press
     QPoint point = data.screenPoints[pressCount];
     p.fillRect(point.x() - 6, point.y() - 1, 13, 3, Qt::black);
     p.fillRect(point.x() - 1, point.y() - 6, 3, 13, Qt::black);

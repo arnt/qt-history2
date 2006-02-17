@@ -1,5 +1,11 @@
 #include "scribblewidget.h"
 
+ScribbleWidget::ScribbleWidget(QWidget *parent)
+    : QWidget(parent)
+{
+    scribbling = false;
+}
+
 void ScribbleWidget::resizeEvent(QResizeEvent *e)
 {
     image = QImage(e->size(), QImage::Format_RGB32);
