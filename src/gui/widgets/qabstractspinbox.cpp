@@ -1494,9 +1494,8 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
     pendingEmit = false;
     if (doUpdate) {
         updateEdit();
-    } else {
-        updateButtons();
     }
+    updateButtons();
 
     if (ep == AlwaysEmit || (ep == EmitIfChanged && old != value)) {
         emitSignals(ep, old);
