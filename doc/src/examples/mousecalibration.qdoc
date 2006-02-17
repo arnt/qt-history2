@@ -6,56 +6,64 @@
     program using the mechanisms provided by the QWSMouseHandler class
     to calibrate the mouse handler.
 
-    \image mousecalibration-example.png
-
-    Calibration is ...
+    Calibration is the process of mapping between physical
+    (i.e. device) coordinates and logical coordinates.
 
     The example consists of two classes in addition to the main program:
 
     \list
-        \o \c Calibration is a dialog widget that ...
-        \o \c ScribbleWidget is ...
+        \o \c Calibration is a dialog widget that retrieves the device coordinates.
+        \o \c ScribbleWidget is a minimal drawing program used to let the user
+            test the new mouse settings.
     \endlist
 
     First we will review the main program, then we will take a look at
-    the \c Calibration and \c ScribbleWidget classes.
+    the \c Calibration class. The \c ScribbleWidget class is only a
+    help tool in this context, and will not be covered here.
 
     \section1 The Main Program
+
+    The program starts by presenting a message box informing the user
+    of what is going to happen:
 
     \quotefromfile qtopiacore/mousecalibration/main.cpp
     \skipto main
     \printto Calibration
 
-    The program starts by using the QMessageBox class to inform the
-    user of what is going to happen. QMessageBox provides a modal
-    dialog with a short message, an icon, and some buttons. It provides
-    a range of different messages, arranged roughly along two axes:
-    severity and complexity.
+    The QMessageBox class provides a modal dialog with for a range of
+    different messages, arranged roughly along two axes: severity and
+    complexity.
 
     At this stage in the program, the mouse could be completely
     uncalibrated, making the user unable to press the OK button. For
-    that reeason we use the QTimer class to make the message box
-    disappears after 10 seconds. QTimer provides repetitive and
-    single-shot timers.
+    that reason we use the static QTimer::singleShot() function to
+    make the message box disappear after 10 seconds. The QTimer class
+    provides repetitive and single-shot timers: The single shot
+    function calls the given slot after a specified interval.
 
     \skipto Calibration
+    \printuntil exec
+
+    Next, we create an instance of the Calibration class which is a
+    dialog widget retrieving the necessary sample coordinates: The
+    dialog sequentially presents five marks for the user to press,
+    storing the device coordinates for the press events.
+
+    \skipto {
     \printuntil /^\}/
 
-    Next, we create an instance of the Calibration class which
-    ....
+    When the calibration dialog returns, we let the user test the new
+    mouse settings by drawing onto a widget. Since the mouse still can
+    be uncalibrated, we continue to use the QMessageBox and QTimer
+    classes to inform the user about the program's process.
 
-    Since the mouse still could be completely uncalibrated, we
-    continue to use QMessageBox and QTimer to inform the user about
-    the program's process.
-
-    Finally, we let the user test the new mouse settings by drawing
-    into a widget. An improved calibration tool would let the user
-    choose between accepting the new calibration, revert to the old
-    one, and restarting the calibration.
+    An improved calibration tool would let the user choose between
+    accepting the new calibration, reverting to the old one, and
+    restarting the calibration.
 
     \section1 Calibration Class Definition
 
-    The \c Calibration class inherits from QDialog, and is ...
+    The \c Calibration class inherits from QDialog:
 
     \quotefromfile qtopiacore/mousecalibration/calibration.h
     \skipto class Calibration
@@ -66,14 +74,14 @@
     {QWidget::paintEvent()}{paintEvent()} and \l
     {QWidget::mouseReleaseEvent()}{mouseReleaseEvent()} functions.
 
-    In addition we declare a couple of private variables, \c data and
+    In addition, we declare a couple of private variables, \c data and
     \c pressCount, holding the \c Calibration object's number of mouse
     press events and current calibration data. The \c pressCount
-    variable is used when..., while the calibration data, i.e. the
-    device and screen coordinates, is stored in a
-    QWSPointerCalibrationData object that is passed to the mouse
-    handlerr. The QWSPointerCalibrationData class is simply a
-    container for calibration data.
+    variable is a convenience variable, while the \c data is a
+    QWSPointerCalibrationData object storing the physical and logical
+    coordinates, and is passed to the mouse handler. The
+    QWSPointerCalibrationData class is simply a container for
+    calibration data.
 
     \section1 Calibration Class Implementation
 
@@ -93,10 +101,10 @@
 
     This array must contain the actual screen coordinates of the
     logical positions "TopLeft", "BottomRight", etc. The \c qt_screen
-    pointer is ...
-
-    Since non-linearity is expected to increase on the edge of the
-    screen, all points are kept 10 percent within the screen.
+    pointer is a reference to the screen device. There can only be one
+    screen device per application. Since non-linearity is expected to
+    increase on the edge of the screen, all points are kept 10 percent
+    within the screen.
 
     \skipto pressCount
     \printuntil /^\}/
@@ -118,11 +126,11 @@
     First we clear the current calibration making the following mouse
     event delivered in raw device coordinates. Then we call the
     QWidget::grabMouse() function to make sure no mouse events are
-    lost, and the QWidget::activateWindow() function making the
+    lost, and the QWidget::activateWindow() function to make the
     top-level widget containing this dialog, the active window. After
-    calling the QDialog::exec() base function, we call the
-    QWidget::releaseMouse() function to release the mouse grab before
-    the function returns.
+    calling the QDialog::exec() base function, we call
+    QWidget::releaseMouse() to release the mouse grab before the
+    function returns.
 
     \skipto paintEvent
     \printuntil /^\}/
@@ -135,10 +143,12 @@
 
     We then reimplement the QWidget::mouseReleaseEvent() function,
     using the QMouseEvent object passed as parameter to find the
-    coordinates the user pressed and update the
-    QWSPointerCalibrationData::devPoints array. We continue by drawing
-    the next cross, or close the dialog by calling the accept() slot
-    if we have collected all the necessary samples.
+    coordinates the user pressed, and update the
+    QWSPointerCalibrationData::devPoints array.
+
+    The we continue by drawing the next cross, or close the dialog by
+    calling the accept() slot if we have collected all the necessary
+    samples.
 
     \skipto accept
     \printuntil }
@@ -146,21 +156,4 @@
     Our reimplementation of the QDialog::accept() slot simply activate
     the new calibration data, using Q_ASSERT to ensure that the number
     of required samples are present.
-
-    \section1 ScribbleWidget Class Definition
-
-    \quotefromfile qtopiacore/mousecalibration/scribblewidget.h
-    \skipto class ScribbleWidget
-    \printuntil /^\}/
-
-    \section1 ScribbleWidget Class Implementation
-
-    \quotefromfile qtopiacore/mousecalibration/scribblewidget.cpp
-    \skipto ScribbleWidget
-    \printuntil /^\}/
-    \printuntil /^\}/
-    \printuntil /^\}/
-    \printuntil /^\}/
-    \printuntil /^\}/
-    \printuntil /^\}/
 */
