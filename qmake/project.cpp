@@ -44,19 +44,13 @@ struct parser_info {
 
 static QString remove_quotes(const QString &arg)
 {
-    static bool symbols_init = false;
-    enum { SINGLEQUOTE, DOUBLEQUOTE };
-    static ushort symbols[2];
-    if(!symbols_init) {
-        symbols_init = true;
-        symbols[SINGLEQUOTE] = QChar('\'').unicode();
-        symbols[DOUBLEQUOTE] = QChar('"').unicode();
-    }
+    const ushort SINGLEQUOTE = '\'';
+    const ushort DOUBLEQUOTE = '"';
 
     const QChar *arg_data = arg.data();
     const ushort first = arg_data->unicode();
     const int arg_len = arg.length();
-    if(first == symbols[SINGLEQUOTE] || first == symbols[DOUBLEQUOTE]) {
+    if(first == SINGLEQUOTE || first == DOUBLEQUOTE) {
         const ushort last = (arg_data+arg_len-1)->unicode();
         if(last == first)
             return arg.mid(1, arg_len-2);
@@ -396,31 +390,25 @@ static QStringList split_arg_list(QString params)
     int quote = 0;
     QStringList args;
 
-    static bool symbols_init = false;
-    enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, COMMA, SPACE, TAB  };
-    static ushort symbols[7];
-    if(!symbols_init) {
-        symbols_init = true;
-        symbols[LPAREN] = QChar('(').unicode();
-        symbols[RPAREN] = QChar(')').unicode();
-        symbols[SINGLEQUOTE] = QChar('\'').unicode();
-        symbols[DOUBLEQUOTE] = QChar('"').unicode();
-        symbols[COMMA] = QChar(',').unicode();
-        symbols[SPACE] = QChar(' ').unicode();
-        symbols[TAB] = QChar('\t').unicode();
-    }
+    const ushort LPAREN = '(';
+    const ushort RPAREN = ')';
+    const ushort SINGLEQUOTE = '\'';
+    const ushort DOUBLEQUOTE = '"';
+    const ushort COMMA = ',';
+    const ushort SPACE = ' ';
+    const ushort TAB = '\t';
 
     ushort unicode;
     const QChar *params_data = params.data();
     const int params_len = params.length();
     int last = 0;
-    while(last < params_len && ((params_data+last)->unicode() == symbols[SPACE]
-                                /*|| (params_data+last)->unicode() == symbols[TAB]*/))
+    while(last < params_len && ((params_data+last)->unicode() == SPACE
+                                /*|| (params_data+last)->unicode() == TAB*/))
         ++last;
     for(int x = last, parens = 0; x <= params_len; x++) {
         unicode = (params_data+x)->unicode();
         if(x == params_len) {
-            while(x && (params_data+(x-1))->unicode() == symbols[SPACE])
+            while(x && (params_data+(x-1))->unicode() == SPACE)
                 --x;
             QString mid(params_data+last, x-last);
             if(quote) {
@@ -431,15 +419,15 @@ static QStringList split_arg_list(QString params)
             args << mid;
             break;
         }
-        if(unicode == symbols[LPAREN]) {
+        if(unicode == LPAREN) {
             --parens;
-        } else if(unicode == symbols[RPAREN]) {
+        } else if(unicode == RPAREN) {
             ++parens;
         } else if(quote && unicode == quote) {
             quote = 0;
-        } else if(!quote && (unicode == symbols[SINGLEQUOTE] || unicode == symbols[DOUBLEQUOTE])) {
+        } else if(!quote && (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE)) {
             quote = unicode;
-        } else if(!parens && !quote && unicode == symbols[COMMA]) {
+        } else if(!parens && !quote && unicode == COMMA) {
             QString mid = params.mid(last, x - last).trimmed();
             if(quote) {
                 if(mid[0] == quote && mid[(int)mid.length()-1] == quote)
@@ -448,8 +436,8 @@ static QStringList split_arg_list(QString params)
             }
             args << mid;
             last = x+1;
-            while(last < params_len && ((params_data+last)->unicode() == symbols[SPACE]
-                                        /*|| (params_data+last)->unicode() == symbols[TAB]*/))
+            while(last < params_len && ((params_data+last)->unicode() == SPACE
+                                        /*|| (params_data+last)->unicode() == TAB*/))
                 ++last;
         }
     }
@@ -464,38 +452,32 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     QStringList ret;
     QStack<char> quote;
 
-    static bool symbols_init = false;
-    enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, SLASH, SEMICOLON };
-    static ushort symbols[6];
-    if(!symbols_init) {
-        symbols_init = true;
-        symbols[LPAREN] = QChar('(').unicode();
-        symbols[RPAREN] = QChar(')').unicode();
-        symbols[SINGLEQUOTE] = QChar('\'').unicode();
-        symbols[DOUBLEQUOTE] = QChar('"').unicode();
-        symbols[SLASH] = QChar('\\').unicode();
-        symbols[SEMICOLON] = QChar(';').unicode();
-    }
+    const ushort LPAREN = '(';
+    const ushort RPAREN = ')';
+    const ushort SINGLEQUOTE = '\'';
+    const ushort DOUBLEQUOTE = '"';
+    const ushort SLASH = '\\';
+    const ushort SEMICOLON = ';';
 
     ushort unicode;
     const QChar *vals_data = vals.data();
     const int vals_len = vals.length();
     for(int x = 0, parens = 0; x < vals_len; x++) {
         unicode = (vals_data+x)->unicode();
-        if(x != (int)vals_len-1 && unicode == symbols[SLASH] &&
-           ((vals_data+(x+1))->unicode() == '\'' || (vals_data+(x+1))->unicode() == symbols[DOUBLEQUOTE])) {
+        if(x != (int)vals_len-1 && unicode == SLASH &&
+           ((vals_data+(x+1))->unicode() == '\'' || (vals_data+(x+1))->unicode() == DOUBLEQUOTE)) {
             build += *(vals_data+(x++)); //get that 'escape'
         } else if(!quote.isEmpty() && unicode == quote.top()) {
             quote.pop();
-        } else if(unicode == symbols[SINGLEQUOTE] || unicode == symbols[DOUBLEQUOTE]) {
+        } else if(unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE) {
             quote.push(unicode);
-        } else if(unicode == symbols[RPAREN]) {
+        } else if(unicode == RPAREN) {
             --parens;
-        } else if(unicode == symbols[LPAREN]) {
+        } else if(unicode == LPAREN) {
             ++parens;
         }
 
-        if(!parens && quote.isEmpty() && ((do_semicolon && unicode == symbols[SEMICOLON]) ||
+        if(!parens && quote.isEmpty() && ((do_semicolon && unicode == SEMICOLON) ||
                                           *(vals_data+x) == Option::field_sep)) {
             ret << build;
             build = "";
@@ -2470,22 +2452,16 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
     if(str.isEmpty())
         return true;
 
-    static bool symbols_init = false;
-    enum { LSQUARE, RSQUARE, LCURLY, RCURLY, LPAREN, RPAREN, DOLLAR, SLASH, UNDERSCORE, DOT, NSYMBOLS };
-    static ushort symbols[10];
-    if(!symbols_init) {
-        symbols_init = true;
-        symbols[LSQUARE] = QChar('[').unicode();
-        symbols[RSQUARE] = QChar(']').unicode();
-        symbols[LCURLY] = QChar('{').unicode();
-        symbols[RCURLY] = QChar('}').unicode();
-        symbols[LPAREN] = QChar('(').unicode();
-        symbols[RPAREN] = QChar(')').unicode();
-        symbols[DOLLAR] = QChar('$').unicode();
-        symbols[SLASH] = QChar('\\').unicode();
-        symbols[UNDERSCORE] = QChar('_').unicode();
-        symbols[DOT] = QChar('.').unicode();
-    }
+    const ushort LSQUARE = '[';
+    const ushort RSQUARE = ']';
+    const ushort LCURLY = '{';
+    const ushort RCURLY = '}';
+    const ushort LPAREN = '(';
+    const ushort RPAREN = ')';
+    const ushort DOLLAR = '$';
+    const ushort SLASH = '\\';
+    const ushort UNDERSCORE = '_';
+    const ushort DOT = '.';
 
     ushort unicode;
     const QChar *str_data = str.data();
@@ -2500,10 +2476,11 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
     for(int i = 0; i < str_len; ++i) {
         unicode = (str_data+i)->unicode();
         const int start_var = i;
-        if(unicode == symbols[SLASH]) {
+        if(unicode == SLASH) {
             bool escape = false;
-            for(int s = 0; s < NSYMBOLS; ++s) {
-                if(s != DOT && *(str_data+i+1) == symbols[s]) {
+            const char *symbols = "[]{}()$\\";
+            for(const char *s = symbols; *s; ++s) {
+                if(*(str_data+i+1) == (ushort)*s) {
                     i++;
                     escape = true;
                     if(!(replaced++))
@@ -2516,30 +2493,30 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                 ret.append(QChar(unicode));
             continue;
         }
-        if(unicode == symbols[DOLLAR] && str_len > i+2) {
+        if(unicode == DOLLAR && str_len > i+2) {
             unicode = (str_data+(++i))->unicode();
-            if(unicode == symbols[DOLLAR]) {
+            if(unicode == DOLLAR) {
                 term = 0;
                 var.clear();
                 args.clear();
                 enum { VAR, ENVIRON, FUNCTION, PROPERTY } var_type = VAR;
                 unicode = (str_data+(++i))->unicode();
-                if(unicode == symbols[LSQUARE]) {
+                if(unicode == LSQUARE) {
                     unicode = (str_data+(++i))->unicode();
-                    term = symbols[RSQUARE];
+                    term = RSQUARE;
                     var_type = PROPERTY;
-                } else if(unicode == symbols[LCURLY]) {
+                } else if(unicode == LCURLY) {
                     unicode = (str_data+(++i))->unicode();
                     var_type = VAR;
-                    term = symbols[RCURLY];
-                } else if(unicode == symbols[LPAREN]) {
+                    term = RCURLY;
+                } else if(unicode == LPAREN) {
                     unicode = (str_data+(++i))->unicode();
                     var_type = ENVIRON;
-                    term = symbols[RPAREN];
+                    term = RPAREN;
                 }
                 while(1) {
                     if(!(unicode & (0xFF<<8)) &&
-                       unicode != symbols[DOT] && unicode != symbols[UNDERSCORE] &&
+                       unicode != DOT && unicode != UNDERSCORE &&
                        (unicode < 'a' || unicode > 'z') && (unicode < 'A' || unicode > 'Z') &&
                        (unicode < '0' || unicode > '9'))
                         break;
@@ -2548,16 +2525,16 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                         break;
                     unicode = (str_data+i)->unicode();
                 }
-                if(var_type == VAR && unicode == symbols[LPAREN]) {
+                if(var_type == VAR && unicode == LPAREN) {
                     var_type = FUNCTION;
                     int depth = 0;
                     while(1) {
                         if(++i == str_len)
                             break;
                         unicode = (str_data+i)->unicode();
-                        if(unicode == symbols[LPAREN]) {
+                        if(unicode == LPAREN) {
                             depth++;
-                        } else if(unicode == symbols[RPAREN]) {
+                        } else if(unicode == RPAREN) {
                             if(!depth)
                                 break;
                             --depth;
