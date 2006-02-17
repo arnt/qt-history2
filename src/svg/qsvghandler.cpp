@@ -905,7 +905,7 @@ static void parseFont(QSvgNode *node,
             }
         }
         if (!fontStyle)
-            fontStyle = new QSvgFontStyle(font);
+            fontStyle = new QSvgFontStyle(font, node->document());
         if (!anchor.isEmpty())
             fontStyle->setTextAnchor(anchor);
 
@@ -977,7 +977,7 @@ static void pathArcSegment(QPainterPath &path,
 
 // the arc handling code underneath is from XSVG (BSD license)
 /*
- * Copyright © 2002 USC/Information Sciences Institute
+ * Copyright  2002 USC/Information Sciences Institute
  *
  * Permission to use, copy, modify, distribute, and sell this software
  * and its documentation for any purpose is hereby granted without
@@ -2335,7 +2335,7 @@ static QSvgNode *createSvgNode(QSvgNode *parent,
     QString heightStr = attributes.value("height");
     QString viewBoxStr = attributes.value("viewBox");
 
-    QSvgHandler::LengthType type;
+    QSvgHandler::LengthType type = QSvgHandler::PX; // FIXME: is the default correct?
     qreal width = 0;
     if (!widthStr.isEmpty()) {
         width = parseLength(widthStr, type, handler);
@@ -2583,8 +2583,8 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
             QString id = attributes.value("id");
             if (id.isEmpty())
                 id = attributes.value("xml:id");
-            m_nodes.top()->appendStyleProperty(prop, id, true);
             m_style = prop;
+            m_nodes.top()->appendStyleProperty(prop, id, true);
         } else {
             qWarning("Couldn't parse node: %s", qPrintable(localName));
         }

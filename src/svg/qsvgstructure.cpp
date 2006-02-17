@@ -24,6 +24,11 @@ QSvgG::QSvgG(QSvgNode *parent)
 
 }
 
+QSvgStructureNode::~QSvgStructureNode()
+{
+    qDeleteAll(m_renderers);
+}
+
 void QSvgG::draw(QPainter *p)
 {
     QList<QSvgNode*>::iterator itr = m_renderers.begin();

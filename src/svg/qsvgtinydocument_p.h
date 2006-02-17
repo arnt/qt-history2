@@ -31,7 +31,7 @@
 #include "QtCore/qlist.h"
 #include "QtCore/qhash.h"
 #include "QtCore/qdatetime.h"
-
+#include "qsvgstyle_p.h"
 class QPainter;
 class QByteArray;
 class QSvgFont;
@@ -43,6 +43,7 @@ public:
     static QSvgTinyDocument * load(const QByteArray &contents);
 public:
     QSvgTinyDocument();
+    ~QSvgTinyDocument();
     Type type() const;
 
     QSize size() const;
@@ -74,7 +75,7 @@ private:
 
     QRect m_viewBox;
 
-    QHash<QString, QSvgFont*> m_fonts;
+    QHash<QString, QSvgRefCounter<QSvgFont> > m_fonts;
 
     QTime m_time;
     bool  m_animated;

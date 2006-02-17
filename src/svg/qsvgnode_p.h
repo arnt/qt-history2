@@ -93,10 +93,10 @@ public:
 
     void setVisible(bool visible);
     bool isVisible() const;
-protected:
+private:
     QSvgNode   *m_parent;
     QSvgStyle   m_style;
-    QHash<QString, QSvgStyleProperty*> m_styles;
+    QHash<QString, QSvgRefCounter<QSvgStyleProperty> > m_styles;
 
     QStringList m_requiredFeatures;
     QStringList m_requiredExtensions;

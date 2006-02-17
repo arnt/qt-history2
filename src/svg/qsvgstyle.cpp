@@ -78,8 +78,8 @@ QSvgFontStyle::QSvgFontStyle(QSvgFont *font, QSvgTinyDocument *doc)
 {
 }
 
-QSvgFontStyle::QSvgFontStyle(const QFont &font)
-    : m_font(0), m_pointSize(24), m_qfont(font)
+QSvgFontStyle::QSvgFontStyle(const QFont &font, QSvgTinyDocument *doc)
+    : m_font(0), m_pointSize(24), m_doc(doc), m_qfont(font)
 {
 }
 
@@ -277,6 +277,11 @@ QSvgStyleProperty::Type QSvgTransformStyle::type() const
     return TRANSFORM;
 }
 
+QSvgStyle::~QSvgStyle()
+{
+}
+
+
 void QSvgStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *node)
 {
     if (quality) {
@@ -318,7 +323,7 @@ void QSvgStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *node)
     //animated transforms have to be applied
     //_after_ the original object transformations
     if (!animateTransforms.isEmpty()) {
-        QList<QSvgAnimateTransform*>::const_iterator itr;
+        QList<QSvgRefCounter<QSvgAnimateTransform> >::const_iterator itr;
         for (itr = animateTransforms.constBegin(); itr != animateTransforms.constEnd();
              ++itr) {
             (*itr)->apply(p, rect, node);
@@ -359,7 +364,7 @@ void QSvgStyle::revert(QPainter *p)
     //animated transforms need to be reverted _before_
     //the native transforms
     if (!animateTransforms.isEmpty()) {
-        QList<QSvgAnimateTransform*>::const_iterator itr;
+        QList<QSvgRefCounter<QSvgAnimateTransform> >::const_iterator itr;
         itr = animateTransforms.constBegin();
         //only need to rever the first one because that
         //one has the original world matrix for the primitve

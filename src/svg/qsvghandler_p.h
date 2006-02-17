@@ -28,11 +28,11 @@
 #include "QtXml/qxml.h"
 #include "QtCore/qhash.h"
 #include "QtCore/qstack.h"
+#include "qsvgstyle_p.h"
 
 class QSvgNode;
 class QSvgTinyDocument;
 class QXmlAttributes;
-class QSvgStyleProperty;
 class QSvgHandler;
 class QColor;
 
@@ -99,7 +99,7 @@ private:
     };
     QStack<CurrentNode> m_skipNodes;
 
-    QSvgStyleProperty *m_style;
+    QSvgRefCounter<QSvgStyleProperty> m_style;
 
     LengthType m_defaultCoords;
 

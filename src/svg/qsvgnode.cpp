@@ -34,39 +34,30 @@ void QSvgNode::appendStyleProperty(QSvgStyleProperty *prop, const QString &id,
     if (!justLink) {
         switch (prop->type()) {
         case QSvgStyleProperty::QUALITY:
-            delete m_style.quality;
             m_style.quality = static_cast<QSvgQualityStyle*>(prop);
             break;
         case QSvgStyleProperty::FILL:
-            delete m_style.fill;
             m_style.fill = static_cast<QSvgFillStyle*>(prop);
             break;
         case QSvgStyleProperty::VIEWPORT_FILL:
-            delete m_style.viewportFill;
             m_style.viewportFill = static_cast<QSvgViewportFillStyle*>(prop);
             break;
         case QSvgStyleProperty::FONT:
-            delete m_style.font;
             m_style.font = static_cast<QSvgFontStyle*>(prop);
             break;
         case QSvgStyleProperty::STROKE:
-            delete m_style.stroke;
             m_style.stroke = static_cast<QSvgStrokeStyle*>(prop);
             break;
         case QSvgStyleProperty::SOLID_COLOR:
-            delete m_style.solidColor;
             m_style.solidColor = static_cast<QSvgSolidColorStyle*>(prop);
             break;
         case QSvgStyleProperty::GRADIENT:
-            delete m_style.gradient;
             m_style.gradient = static_cast<QSvgGradientStyle*>(prop);
             break;
         case QSvgStyleProperty::TRANSFORM:
-            delete m_style.transform;
             m_style.transform = static_cast<QSvgTransformStyle*>(prop);
             break;
         case QSvgStyleProperty::ANIMATE_COLOR:
-            delete m_style.animateColor;
             m_style.animateColor = static_cast<QSvgAnimateColor*>(prop);
             break;
         case QSvgStyleProperty::ANIMATE_TRANSFORM:

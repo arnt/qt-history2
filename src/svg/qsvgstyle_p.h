@@ -30,13 +30,81 @@
 #include "QtGui/qmatrix.h"
 #include "QtGui/qcolor.h"
 #include "QtGui/qfont.h"
+#include <qdebug.h>
 
 class QPainter;
 class QSvgNode;
 class QSvgFont;
 class QSvgTinyDocument;
 
-class QSvgStyleProperty
+template <class T> class QSvgRefCounter
+{
+public:
+    QSvgRefCounter() { t = 0; }
+    QSvgRefCounter(T *_t) 
+    { 
+        t = _t; 
+        if (t) 
+            t->ref(); 
+    }
+    QSvgRefCounter(const QSvgRefCounter &other) 
+    { 
+        t = other.t; 
+        if (t) 
+            t->ref(); 
+    }
+    QSvgRefCounter &operator =(T *_t) 
+    { 
+        if(_t)
+            _t->ref();
+        if (t) 
+            t->deref(); 
+        t = _t; 
+        return *this;
+    }
+    QSvgRefCounter &operator =(const QSvgRefCounter &other) 
+    { 
+        if(other.t)
+            other.t->ref();
+        if (t) 
+            t->deref(); 
+        t = other.t; 
+        return *this;
+    }
+    ~QSvgRefCounter() 
+    {
+        if (t)
+            t->deref();
+    }
+
+    inline T *operator->() const { return t; }
+    inline operator T*() const { return t; }
+    
+private:
+    T *t;
+};
+
+class QSvgRefCounted
+{
+public:
+    QSvgRefCounted() { _ref = 0; }
+    virtual ~QSvgRefCounted() {}
+    void ref() { 
+        ++_ref; 
+//        qDebug() << this << ": adding ref, now " << _ref; 
+    }
+    void deref() { 
+//        qDebug() << this << ": removing ref, now " << _ref; 
+        if(!--_ref) {
+//            qDebug("     deleting");
+            delete this; 
+        }
+    }
+private:
+    int _ref;
+};
+
+class QSvgStyleProperty : public QSvgRefCounted
 {
 public:
     enum Type
@@ -145,7 +213,7 @@ class QSvgFontStyle : public QSvgStyleProperty
 {
 public:
     QSvgFontStyle(QSvgFont *font, QSvgTinyDocument *doc);
-    QSvgFontStyle(const QFont &font);
+    QSvgFontStyle(const QFont &font, QSvgTinyDocument *doc);
     virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
@@ -233,6 +301,7 @@ class QSvgGradientStyle : public QSvgStyleProperty
 {
 public:
     QSvgGradientStyle(QGradient *grad, bool resolveBounds=false);
+    ~QSvgGradientStyle() { delete m_gradient; }
     virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
@@ -343,18 +412,20 @@ public:
           transform(0),
           animateColor(0)
     {}
+    ~QSvgStyle();
+
     void apply(QPainter *p, const QRectF &rect, QSvgNode *node);
     void revert(QPainter *p);
-    QSvgQualityStyle       *quality;
-    QSvgFillStyle          *fill;
-    QSvgViewportFillStyle  *viewportFill;
-    QSvgFontStyle          *font;
-    QSvgStrokeStyle        *stroke;
-    QSvgSolidColorStyle    *solidColor;
-    QSvgGradientStyle      *gradient;
-    QSvgTransformStyle     *transform;
-    QSvgAnimateColor       *animateColor;
-    QList<QSvgAnimateTransform*>   animateTransforms;
+    QSvgRefCounter<QSvgQualityStyle>      quality;
+    QSvgRefCounter<QSvgFillStyle>         fill;
+    QSvgRefCounter<QSvgViewportFillStyle> viewportFill;
+    QSvgRefCounter<QSvgFontStyle>         font;
+    QSvgRefCounter<QSvgStrokeStyle>       stroke;
+    QSvgRefCounter<QSvgSolidColorStyle>   solidColor;
+    QSvgRefCounter<QSvgGradientStyle>     gradient;
+    QSvgRefCounter<QSvgTransformStyle>    transform;
+    QSvgRefCounter<QSvgAnimateColor>      animateColor;
+    QList<QSvgRefCounter<QSvgAnimateTransform> >   animateTransforms;
 };
 
 /********************************************************/

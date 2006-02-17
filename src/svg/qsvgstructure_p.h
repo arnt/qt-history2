@@ -39,6 +39,7 @@ class QSvgStructureNode : public QSvgNode
 {
 public:
     QSvgStructureNode(QSvgNode *parent);
+    ~QSvgStructureNode();
     QSvgNode *scopeNode(const QString &id) const;
     QSvgStyleProperty *scopeStyle(const QString &id) const;
     void addChild(QSvgNode *child, const QString &id, bool def = false);

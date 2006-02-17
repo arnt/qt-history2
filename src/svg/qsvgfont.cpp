@@ -14,7 +14,6 @@ QSvgGlyph::QSvgGlyph(QChar unicode, const QPainterPath &path, qreal horizAdvX)
 QSvgFont::QSvgFont(qreal horizAdvX)
     : m_horizAdvX(horizAdvX)
 {
-
 }
 
 
