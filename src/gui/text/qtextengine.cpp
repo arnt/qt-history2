@@ -1448,6 +1448,7 @@ void QTextEngine::LayoutData::reallocate(int totalGlyphs)
     memory = (void **)::realloc(memory_on_stack ? 0 : old_mem, newAllocated*sizeof(void *));
     if (memory_on_stack && memory)
         memcpy(memory, old_mem, allocated);
+    memory_on_stack = false;
 
     void **m = memory;
     m += space_charAttributes;
