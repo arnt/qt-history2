@@ -1425,7 +1425,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
             event->ignore();
         break;
     case Qt::Key_O:
-        if (event->modifiers() & Qt::ControlModifier)
+        if (event->modifiers() & Qt::ControlModifier && currentIndex().isValid())
             emit activated(currentIndex());
         break;
 #else
@@ -1436,7 +1436,8 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Enter:
     case Qt::Key_Return:
     case Qt::Key_Select:
-        emit activated(currentIndex());
+        if (currentIndex().isValid())
+            emit activated(currentIndex());
         break;
 #endif
     case Qt::Key_A:
