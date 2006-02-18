@@ -448,7 +448,7 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
             Q_ASSERT(qcopServerMap);
             QCopServerMap::Iterator it = qcopServerMap->find(c);
             if (it != qcopServerMap->end()) {
-                Q_ASSERT(it.value().contains(cl));
+                //Q_ASSERT(it.value().contains(cl));
                 it.value().removeAll(cl);
                 if (it.value().isEmpty()) {
                   // If this was the last client in the channel, announce the channel as dead
