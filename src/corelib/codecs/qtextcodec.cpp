@@ -302,6 +302,17 @@ static QTextCodec * ru_RU_hack(const char * i) {
 
 #endif
 
+static QTextCodec *checkForCodec(const char *name) {
+    QTextCodec *c = QTextCodec::codecForName(name);
+    if (!c) {
+        const char *at = strchr(name, '@');
+        if (at) {
+            QByteArray n(name, at - name);
+            c = QTextCodec::codecForName(n.data());
+        }
+    }
+    return c;
+}
 
 /* the next two functions are implicitely thread safe,
    as they are only called by setup() which uses a mutex.
@@ -354,24 +365,24 @@ static void setupLocaleMapper()
         // 1. CODESET from ctype if it contains a .CODESET part (e.g. en_US.ISO8859-15)
         char * codeset = ctype ? strchr(ctype, '.') : 0;
         if (codeset && *codeset == '.')
-            localeMapper = QTextCodec::codecForName(codeset + 1);
+            localeMapper = checkForCodec(codeset + 1);
 
         // 2. CODESET from lang if it contains a .CODESET part
         codeset = lang ? strchr(lang, '.') : 0;
         if (!localeMapper && codeset && *codeset == '.')
-            localeMapper = QTextCodec::codecForName(codeset + 1);
+            localeMapper = checkForCodec(codeset + 1);
 
         // 3. ctype (maybe the locale is named "ISO-8859-1" or something)
         if (!localeMapper && ctype && *ctype != 0 && strcmp (ctype, "C") != 0)
-            localeMapper = QTextCodec::codecForName(ctype);
+            localeMapper = checkForCodec(ctype);
 
         // 4. locale (ditto)
         if (!localeMapper && lang && *lang != 0)
-            localeMapper = QTextCodec::codecForName(lang);
+            localeMapper = checkForCodec(lang);
 
         // 5. "@euro"
-        if (ctype && strstr(ctype, "@euro") || lang && strstr(lang, "@euro"))
-            localeMapper = QTextCodec::codecForName("ISO 8859-15");
+        if (!localeMapper && ctype && strstr(ctype, "@euro") || lang && strstr(lang, "@euro"))
+            localeMapper = checkForCodec("ISO 8859-15");
 
         // 6. guess locale from ctype unless ctype is "C"
         // 7. guess locale from lang
