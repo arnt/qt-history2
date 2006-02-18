@@ -40,7 +40,9 @@
 
 extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); // qapplication_xxx.cpp
 
+#ifndef Q_WS_QWS
 static bool qt_enable_backingstore = true;
+#endif
 #ifdef Q_WS_X11
 // for compatibility with Qt 4.0
 Q_GUI_EXPORT void qt_x11_set_global_double_buffer(bool enable)

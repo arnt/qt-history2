@@ -711,7 +711,6 @@ QApplication::QApplication(Display *dpy, int &argc, char **argv,
 
 void QApplicationPrivate::initialize()
 {
-    Q_Q(QApplication);
     QWidgetPrivate::mapper = new QWidgetMapper;
     if (qt_appType != QApplication::Tty)
         (void) QApplication::style();  // trigger creation of application style
@@ -723,6 +722,7 @@ void QApplicationPrivate::initialize()
 
 #ifndef QT_NO_SESSIONMANAGER
     // connect to the session manager
+    Q_Q(QApplication);
     session_manager = new QSessionManager(q, session_id, session_key);
 #endif
 
@@ -1650,7 +1650,7 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
             }
             if(focus && QApplicationPrivate::focus_widget == focus) {
                 QInputContext *qic = focus->inputContext();
-                if ( qic ) 
+                if ( qic )
 	            qic->setFocusWidget( focus_widget );
                 QFocusEvent in(QEvent::FocusIn, reason);
                 QApplication::sendEvent(focus, &in);

@@ -189,7 +189,6 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                     cw = object->target();
 
                 if (object->target() != cw) {
-                    QWidget *oldtarget = object->target();
                     if (object->target()) {
                         QDragLeaveEvent dle;
                         QApplication::sendEvent(object->target(), &dle);

@@ -123,6 +123,7 @@ bool QWSInputContext::translateIMQueryEvent(QWidget *w, const QWSIMQueryEvent *e
 
 bool QWSInputContext::translateIMInitEvent(const QWSIMInitEvent *e)
 {
+    Q_UNUSED(e);
     qDebug("### QWSInputContext::translateIMInitEvent not implemented ###");
     return false;
 }

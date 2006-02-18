@@ -3249,7 +3249,10 @@ bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab) /* grab i
 
 void QETWidget::repaintDecoration(QRegion r, bool post)
 {
-#ifndef QT_NO_QWS_MANAGER
+    Q_UNUSED(post);
+#ifdef QT_NO_QWS_MANAGER
+    Q_UNUSED(r);
+#else
     //please note that qwsManager is a QObject, not a QWidget.
     //therefore, normal ways of painting do not work.
     // However, it does listen to paint events.

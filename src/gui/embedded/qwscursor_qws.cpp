@@ -516,7 +516,10 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
 void QWSCursor::createDropShadow(int dropx, int dropy)
 {
     //####
-#if 0 && !defined(QT_NO_QWS_CURSOR) && !defined(QT_NO_QWS_ALPHA_CURSOR)
+#if 1 || defined(QT_NO_QWS_CURSOR) || defined(QT_NO_QWS_ALHPA_CURSOR)
+    Q_UNUSED(dropx);
+    Q_UNUSED(dropy);
+#else
     if (cursor.width() + dropx > 64 || cursor.height() + dropy > 64)
         return;
 
