@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qwscommand_qws_p.h"
+#include <sys/uio.h>
 
 // #define QWSCOMMAND_DEBUG 1 // Uncomment to debug client/server communication
 
