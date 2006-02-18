@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <time.h>
 
 /*!
   \class QTransportAuth
@@ -393,7 +394,7 @@ QMutex *QTransportAuth::getKeyFileMutex()
     return &d->keyfileMutex;
 }
 
-static struct AuthCookie *keyCache[ KEY_CACHE_SIZE ] = { 0 };
+static struct AuthRecord *keyCache[ KEY_CACHE_SIZE ] = { 0 };
 
 /*!
   \internal
@@ -418,6 +419,15 @@ void QTransportAuthPrivate::freeCache()
   Find the client key for the \a progId.  If it is cached should be very
   fast, otherwise requires a read of the secret key file
 
+  In the success case a pointer to the key is returned.  The pointer is
+  to storage owned by this class, and should be used immediately.
+
+  NULL is returned in the following cases:
+  \list
+    \o the keyfile could not be accessed - error condition
+    \o there was no key for the supplied program id - key auth failed
+  \endlist
+
   Note that for the Keyfile, there is multi-thread concurrency issues:
   the Keyfile can be read by the qpe process when QTransportAuth is
   verifying a request, and it can be read or written by the Monitor
@@ -437,8 +447,10 @@ const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
     {
         if ( keyCache[i] == NULL )
             break;
-        if ( keyCache[i]->progId == progId )
-            return keyCache[i]->key;
+        if ( keyCache[i]->auth.progId == progId )
+        {
+            return (unsigned char *)(keyCache[i]);
+        }
     }
     if ( i == KEY_CACHE_SIZE ) // cache buffer has wrapped
         i = 0;
@@ -456,17 +468,19 @@ const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
         if ( kr.auth.progId == progId )
         {
             if ( keyCache[i] == NULL )
-                keyCache[i] = (AuthCookie *)(malloc( sizeof( kr )));
-            memcpy( (char*)(keyCache[i]), kr.data, sizeof( kr ));
+                keyCache[i] = (AuthRecord*)(malloc( sizeof( kr )));
 #ifdef QTRANSPORTAUTH_DEBUG
             qDebug( "Found client key for prog %u", progId );
 #endif
+            memcpy( (char*)(keyCache[i]), &kr, sizeof( kr ));
             ::close( fd );
-            return keyCache[i]->key;
+            return (unsigned char *)(keyCache[i]);
         }
     }
     ::close( fd );
-    qWarning( "Not found client key for prog %u", progId );
+#ifdef QTRANSPORTAUTH_DEBUG
+    qWarning( "No valid key found for prog %u", progId );
+#endif
     return NULL;
 }
 
@@ -614,7 +628,7 @@ void QAuthDevice::recvReadyRead()
     // if "fragmented" packet 1/2 way through start of a command, ie
     // in the QWS msg type, cant do anything, come back later when
     // there's more of the packet
-    if ( msgQueue.size() < sizeof(int) )
+    if ( msgQueue.size() < (int)sizeof(int) )
     {
         qDebug() << "returning: msg size too small" << msgQueue.size();
         return;
@@ -644,7 +658,7 @@ void QAuthDevice::recvReadyRead()
         // qDebug() << "removing SXV header";
     }
 
-    bool bufHasMessages = msgQueue.size() > sizeof(int);
+    bool bufHasMessages = msgQueue.size() > (int)sizeof(int);
     while ( bufHasMessages )
         bufHasMessages = authorizeMessage();
 }
@@ -672,7 +686,7 @@ bool QAuthDevice::authorizeMessage()
     {
         msgQueue = msgQueue.mid( sizeof(int) );
         // qDebug() << "bad command - removing" << sizeof(int) << "bytes";
-        return msgQueue.size() > sizeof(int);
+        return msgQueue.size() > (int)sizeof(int);
     }
     QString request( qws_getCommandTypeString( command_type ));
 #ifndef QT_NO_COP
@@ -737,7 +751,7 @@ bool QAuthDevice::authorizeMessage()
 #endif
     msgQueue = msgQueue.mid( commandSize );
     delete command;
-    return msgQueue.size() > sizeof(int);
+    return msgQueue.size() > (int)sizeof(int);
 }
 
 /*!
@@ -896,7 +910,16 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
     if ( clientKey == NULL )
     {
         d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::NoSuchKey;
-        emit authViolation( d );
+        return false;
+    }
+    AuthRecord *ar = (AuthRecord *)clientKey;
+    time_t now = time(0);
+    if ( ar->change_time + QSXV_KEY_PERIOD < now )
+    {
+        d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::OutOfDate;
+#ifdef QTRANSPORTAUTH_DEBUG
+        qDebug( "authFromMessage() - key out of date" );
+#endif
         return false;
     }
 
@@ -929,6 +952,7 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
         }
     }
     // TODO - provide sequence number check against replay attack
+    // Note that this is only reqd for promiscuous transports (not UDS)
     d.progId = msg[QSXV_PROG_IDX];
     d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
     return true;

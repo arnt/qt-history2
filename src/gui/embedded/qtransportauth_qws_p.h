@@ -17,7 +17,9 @@
 #include "qtransportauth_qws.h"
 #include "qbuffer.h"
 
-#ifndef QT_NO_SXV
+#if !defined(QT_NO_SXV) || defined(SXV_INSTALLER)
+
+#include <qmutex.h>
 
 #include "private/qobject_p.h"
 
@@ -28,7 +30,8 @@
 void hexstring( char *buf, const unsigned char* key, size_t sz );
 #endif
 
-#include <QMutex>
+// Keys expire after a day
+#define QSXV_KEY_PERIOD 86400
 
 class QUnixSocketMessage;
 

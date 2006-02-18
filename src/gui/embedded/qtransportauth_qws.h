@@ -20,7 +20,7 @@
 #include <QtCore/qbuffer.h>
 #include <QtCore/qpointer.h>
 
-#ifndef QT_NO_SXV
+#if !defined(QT_NO_SXV) || defined(SXV_INSTALLER)
 
 #include <sys/types.h>
 
@@ -46,6 +46,7 @@ public:
         NoMagic = 0x03,
         NoSuchKey = 0x04,
         FailMatch = 0x05,
+        OutOfDate = 0x06,
         // reserved for expansion
         Success = 0x1e,
         ErrMask = 0x1f,
