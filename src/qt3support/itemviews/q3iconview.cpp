@@ -1793,7 +1793,8 @@ void Q3IconViewItem::removeRenameBox()
         return;
 
     bool resetFocus = view->viewport()->focusProxy() == renameBox;
-    delete renameBox;
+    renameBox->hide();
+    renameBox->deleteLater();
     renameBox = 0;
     if (resetFocus) {
         view->viewport()->setFocusProxy(view);
