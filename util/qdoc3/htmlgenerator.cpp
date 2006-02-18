@@ -1619,7 +1619,7 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
                 continue;
 
             // not interested either in individual (Qt Designer etc.) manual chapters
-            if (fakeNode->links().contains(Node::PreviousLink))
+            if (fakeNode->links().contains(Node::ContentsLink))
                 continue;
 
             // Discard external nodes.
