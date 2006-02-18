@@ -33,12 +33,21 @@ public:
     QSqlError addConnection(const QString &driver, const QString &dbName, const QString &host,
                   const QString &user, const QString &passwd, int port = -1);
 
+    void insertRow();
+    void deleteRow();
+    void updateActions();
+
 public slots:
     void exec();
     void showTable(const QString &table);
     void showMetaData(const QString &table);
     void addConnection();
+    void currentChanged() { updateActions(); }
 
+    void on_insertRowAction_triggered()
+    { insertRow(); }
+    void on_deleteRowAction_triggered()
+    { deleteRow(); }
     void on_connectionWidget_tableActivated(const QString &table)
     { showTable(table); }
     void on_connectionWidget_metaDataRequested(const QString &table)

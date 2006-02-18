@@ -22,6 +22,9 @@ Browser::Browser(QWidget *parent)
 {
     setupUi(this);
 
+    table->addAction(insertRowAction);
+    table->addAction(deleteRowAction);
+
     if (QSqlDatabase::drivers().isEmpty())
         QMessageBox::information(this, tr("No database drivers found"),
                                  tr("This demo requires at least one Qt database driver. "
@@ -47,7 +50,9 @@ void Browser::exec()
         emit statusMessage(tr("Query OK."));
     else
         emit statusMessage(tr("Query OK, number of affected rows: %1").arg(
-                    model->query().numRowsAffected()));
+                           model->query().numRowsAffected()));
+
+    updateActions();
 }
 
 QSqlError Browser::addConnection(const QString &driver, const QString &dbName, const QString &host,
@@ -112,12 +117,17 @@ void Browser::addConnection()
 void Browser::showTable(const QString &t)
 {
     QSqlTableModel *model = new QSqlTableModel(table, connectionWidget->currentDatabase());
+    model->setEditStrategy(QSqlTableModel::OnRowChange);
     model->setTable(t);
     model->select();
     if (model->lastError().type() != QSqlError::NoError)
         emit statusMessage(model->lastError().text());
     table->setModel(model);
     table->setEditTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed);
+
+    connect(table->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+            this, SLOT(currentChanged()));
+    updateActions();
 }
 
 void Browser::showMetaData(const QString &t)
@@ -153,5 +163,51 @@ void Browser::showMetaData(const QString &t)
 
     table->setModel(model);
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    updateActions();
+}
+
+void Browser::insertRow()
+{
+    QSqlTableModel *model = qobject_cast<QSqlTableModel *>(table->model());
+    if (!model)
+        return;
+
+    QModelIndex insertIndex = table->currentIndex();
+    int row = insertIndex.row() == -1 ? 0 : insertIndex.row();
+    model->insertRow(row);
+    insertIndex = model->index(row, 0);
+    table->setCurrentIndex(insertIndex);
+    table->edit(insertIndex);
+}
+
+void Browser::deleteRow()
+{
+    QSqlTableModel *model = qobject_cast<QSqlTableModel *>(table->model());
+    if (!model)
+        return;
+
+    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+    QModelIndexList currentSelection = table->selectionModel()->selectedIndexes();
+    for (int i = 0; i < currentSelection.count(); ++i) {
+        if (currentSelection.at(i).column() != 0)
+            continue;
+        model->removeRow(currentSelection.at(i).row());
+    }
+
+    model->submitAll();
+    model->setEditStrategy(QSqlTableModel::OnRowChange);
+
+    updateActions();
+}
+
+void Browser::updateActions()
+{
+    bool enableIns = qobject_cast<QSqlTableModel *>(table->model());
+    bool enableDel = enableIns && table->currentIndex().isValid();
+
+    insertRowAction->setEnabled(enableIns);
+    deleteRowAction->setEnabled(enableDel);
 }
 

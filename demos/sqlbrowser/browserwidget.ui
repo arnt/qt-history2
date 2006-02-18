@@ -54,6 +54,9 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="contextMenuPolicy" >
+       <enum>Qt::ActionsContextMenu</enum>
+      </property>
       <property name="selectionBehavior" >
        <enum>QAbstractItemView::SelectRows</enum>
       </property>
@@ -151,6 +154,28 @@
     </widget>
    </item>
   </layout>
+  <action name="insertRowAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Insert Row</string>
+   </property>
+   <property name="statusTip" >
+    <string>Inserts a new Row</string>
+   </property>
+  </action>
+  <action name="deleteRowAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Delete Row</string>
+   </property>
+   <property name="statusTip" >
+    <string>Deletes the current Row</string>
+   </property>
+  </action>
  </widget>
  <pixmapfunction></pixmapfunction>
  <customwidgets>
@@ -167,7 +192,6 @@
   <tabstop>clearButton</tabstop>
   <tabstop>submitButton</tabstop>
   <tabstop>connectionWidget</tabstop>
-  <tabstop>__qt__promoted_connectionWidget</tabstop>
   <tabstop>table</tabstop>
  </tabstops>
  <resources/>
