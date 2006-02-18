@@ -4,6 +4,7 @@
 #include "qpainterpath.h"
 #include "qhash.h"
 #include "qstring.h"
+#include "qsvgstyle_p.h"
 
 class QSvgGlyph
 {
