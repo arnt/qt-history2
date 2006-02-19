@@ -2170,7 +2170,6 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     QRect r = e->rect();
     p->translate(-xOffset, -yOffset);
     r.translate(xOffset, yOffset);
-    p->setClipRect(r);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
     ctx.selections = extraSelections;
