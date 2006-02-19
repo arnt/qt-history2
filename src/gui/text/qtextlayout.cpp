@@ -1460,8 +1460,20 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 {
     const QScriptLine &line = eng->lines[i];
 
-    if (!line.length)
+    if (!line.length) {
+        if (selection
+            && selection->start <= line.from
+            && selection->start + selection->length > line.from) {
+
+            p->save();
+            const qreal lineHeight = line.height().toReal();
+            QRectF r(pos.x() + line.x.toReal(), pos.y() + line.y.toReal(),
+                     lineHeight / 2, lineHeight);
+            setPenAndDrawBackground(p, QPen(), selection->format, r);
+            p->restore();
+        }
         return;
+    }
 
     QPen pen = p->pen();
 
