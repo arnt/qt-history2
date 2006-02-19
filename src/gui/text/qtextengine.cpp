@@ -1662,7 +1662,7 @@ QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width) con
 
     const QCharAttributes *attributes = this->attributes();
 
-    if (mode == Qt::ElideLeft) {
+    if (mode == Qt::ElideRight) {
         QFixed currentWidth;
         int pos = 0;
         int nextBreak = 0;
@@ -1683,7 +1683,7 @@ QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width) con
                  && currentWidth < availableWidth);
 
         return layoutData->string.left(pos) + ellipsisText;
-    } else if (mode == Qt::ElideRight) {
+    } else if (mode == Qt::ElideLeft) {
         QFixed currentWidth;
         int pos = layoutData->string.length();
         int nextBreak = layoutData->string.length();
