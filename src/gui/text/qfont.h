@@ -210,6 +210,7 @@ private:
     friend class Q3TextFormatCollection;
     friend class QTextLayout;
     friend class QTextEngine;
+    friend class QStackTextEngine;
     friend class QTextLine;
     friend struct QScriptLine;
     friend class QGLContext;

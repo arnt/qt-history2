@@ -18,6 +18,7 @@
 #include <qfontmetrics.h>
 #include <qstring.h>
 #include <qdebug.h>
+#include <private/qtextengine_p.h>
 
 /*!
     \class QAbstractItemDelegate qabstractitemdelegate.h
@@ -257,48 +258,7 @@ bool QAbstractItemDelegate::editorEvent(QEvent *,
 QString QAbstractItemDelegate::elidedText(const QFontMetrics &fontMetrics, int width,
                                           Qt::TextElideMode mode, const QString &text)
 {
-    static const QLatin1String ellipsis("...");
-    int ellipsisWidth = fontMetrics.width(ellipsis);
-    int length = text.length();
-    int i = 0;
-
-    if (fontMetrics.width(text) <= width || mode == Qt::ElideNone)
-        return text;
-
-    if (mode == Qt::ElideMiddle) {
-        QString left, right;
-        i = (length / 2) - 1;
-        do {
-            left = text.left(i);
-            right = text.right(i);
-        } while (--i > -1 &&
-                 fontMetrics.width(left) + ellipsisWidth + fontMetrics.width(right) > width);
-        return left + ellipsis + right;
-    }
-
-    int offset = (mode ==  Qt::ElideLeft) ? length - 1 : 0;
-    QString elided;
-        
-    while (i < length && fontMetrics.width(elided + text.at(offset)) + ellipsisWidth <= width) {
-        if (mode == Qt::ElideLeft) {
-            elided.prepend(text.at(offset));
-            offset = (length - 1) - ++i;
-        } else {
-            elided.append(text.at(offset));
-            offset = ++i;
-        }
-    }
-    
-    if (mode == Qt::ElideLeft) {
-        if (elided.isEmpty())
-            elided = text.right(1);
-        elided.prepend(ellipsis);
-    } else {
-        if (elided.isEmpty())
-            elided = text.left(1);
-        elided.append(ellipsis);
-    }
-    
-    return elided;
+    QStackTextEngine engine(text, fontMetrics);
+    return engine.elidedText(mode, width);
 }
 #endif // QT_NO_ITEMVIEWS

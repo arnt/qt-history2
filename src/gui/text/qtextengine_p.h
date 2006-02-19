@@ -501,7 +501,7 @@ public:
     }
     int formatIndex(const QScriptItem *si) const;
 
-    QFixed nextTab(const QScriptItem *si, QFixed x);
+    QFixed nextTab(const QScriptItem *si, QFixed x) const;
 
     mutable QScriptLineArray lines;
 
@@ -535,6 +535,8 @@ public:
 
     bool atWordSeparator(int position) const;
     void indexAdditionalFormats();
+    
+    QString elidedText(Qt::TextElideMode mode, const QFixed &width) const;
 
 private:
     void setBoundary(int strPos) const;
@@ -549,6 +551,7 @@ class QStackTextEngine : public QTextEngine {
 public:
     enum { MemSize = 256*40/sizeof(void *) };
     QStackTextEngine(const QString &string, const QFont &f);
+    QStackTextEngine(const QString &string, const QFontMetrics &metrics);
     LayoutData _layoutData;
     void *_memory[MemSize];
 };

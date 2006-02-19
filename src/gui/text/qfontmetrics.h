@@ -91,6 +91,7 @@ private:
     friend class QFontPrivate;
 #endif
     friend class QFontMetricsF;
+    friend class QStackTextEngine;
 
     QFontPrivate *d;
 };

@@ -988,6 +988,15 @@ QFixed QTextEngine::width(int from, int len) const
             if (!si->num_glyphs)
                 shape(i);
 
+            if (si->isObject) {
+                w += si->width;
+                continue;
+            } else if (si->isTab) {
+                w = nextTab(si, w);
+                continue;
+            }
+
+
             QGlyphLayout *glyphs = this->glyphs(si);
             unsigned short *logClusters = this->logClusters(si);
 
@@ -1015,7 +1024,7 @@ QFixed QTextEngine::width(int from, int len) const
 
 //                 qDebug("char: start=%d end=%d / glyph: start = %d, end = %d", charFrom, charEnd, glyphStart, glyphEnd);
                 for (int i = glyphStart; i < glyphEnd; i++)
-                    w += glyphs[i].advance.x;
+                    w += glyphs[i].advance.x * !glyphs[i].attributes.dontPrint;
             }
         }
     }
@@ -1590,6 +1599,153 @@ void QTextEngine::indexAdditionalFormats()
     }
 }
 
+QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width) const
+{
+//    qDebug() << "elidedText; available width" << width.toReal() << "text width:" << this->width(0, layoutData->string.length()).toReal();
+
+    itemize();
+    for (int i = 0; i < layoutData->items.size(); ++i) {
+        QScriptItem &si = layoutData->items[i];
+        if (!si.num_glyphs)
+            shape(i);
+
+        unsigned short *logClusters = this->logClusters(&si);
+        QGlyphLayout *glyphs = this->glyphs(&si);
+
+        const int end = si.position + length(&si);
+        for (int i = si.position; i < end - 1; ++i)
+            if (layoutData->string.at(i) == QLatin1Char('&')) {
+                const int gp = logClusters[i - si.position];
+                glyphs[gp].attributes.dontPrint = true;
+                QCharAttributes *attributes = const_cast<QCharAttributes *>(this->attributes());
+                attributes[i + 1].charStop = false;
+                attributes[i + 1].whiteSpace = false;
+                attributes[i + 1].softBreak = false;
+                if (i < end - 1
+                    && layoutData->string.at(i + 1) == QLatin1Char('&'))
+                    ++i;
+            }
+    }
+
+    if (mode == Qt::ElideNone
+        || this->width(0, layoutData->string.length()) <= width
+        || layoutData->string.length() <= 1)
+        return layoutData->string;
+
+    QFixed ellipsisWidth;
+    QString ellipsisText;
+    {
+        QChar ellipsisChar(0x2026);
+
+        QFontEngine *fe = fnt.d->engineForScript(QUnicodeTables::Common);
+        if (fe->canRender(&ellipsisChar, 1)) {
+            QGlyphLayout glyph;
+            int nGlyphs = 1;
+            fe->stringToCMap(&ellipsisChar, 1, &glyph, &nGlyphs, 0);
+            ellipsisWidth = glyph.advance.x;
+            ellipsisText = ellipsisChar;
+        } else {
+            QString dotDotDot(QLatin1String("..."));
+
+            QGlyphLayout glyphs[3];
+            int nGlyphs = 3;
+            if (!fe->stringToCMap(dotDotDot.constData(), 3, glyphs, &nGlyphs, 0))
+                // should never happen...
+                return layoutData->string;
+            for (int i = 0; i < nGlyphs; ++i)
+                ellipsisWidth += glyphs[i].advance.x;
+            ellipsisText = dotDotDot;
+        }
+    }
+
+    const QFixed availableWidth = width - ellipsisWidth;
+
+    const QCharAttributes *attributes = this->attributes();
+
+    if (mode == Qt::ElideLeft) {
+        QFixed currentWidth;
+        int pos = 0;
+        int nextBreak = 0;
+
+        do {
+            pos = nextBreak;
+
+            ++nextBreak;
+            while (nextBreak < layoutData->string.length()
+                   && !attributes[nextBreak].charStop
+                   && !attributes[nextBreak].softBreak
+                   && !attributes[nextBreak].whiteSpace
+                  )
+                ++nextBreak;
+
+            currentWidth += this->width(pos, nextBreak - pos);
+        } while (nextBreak < layoutData->string.length()
+                 && currentWidth < availableWidth);
+
+        return layoutData->string.left(pos) + ellipsisText;
+    } else if (mode == Qt::ElideRight) {
+        QFixed currentWidth;
+        int pos = layoutData->string.length();
+        int nextBreak = layoutData->string.length();
+
+        do {
+            pos = nextBreak;
+
+            --nextBreak;
+            while (nextBreak > 0
+                   && !attributes[nextBreak].charStop
+                   && !attributes[nextBreak].softBreak
+                   && !attributes[nextBreak].whiteSpace
+                  )
+                --nextBreak;
+
+            currentWidth += this->width(nextBreak, pos - nextBreak);
+        } while (nextBreak > 0
+                 && currentWidth < availableWidth);
+
+        return ellipsisText + layoutData->string.mid(pos);
+    } else if (mode == Qt::ElideMiddle) {
+        QFixed leftWidth;
+        QFixed rightWidth;
+
+        int leftPos = 0;
+        int nextLeftBreak = 0;
+
+        int rightPos = layoutData->string.length();
+        int nextRightBreak = layoutData->string.length();
+
+        do {
+            leftPos = nextLeftBreak;
+            rightPos = nextRightBreak;
+
+            ++nextLeftBreak;
+            while (nextLeftBreak < layoutData->string.length()
+                   && !attributes[nextLeftBreak].charStop
+                   && !attributes[nextLeftBreak].softBreak
+                   && !attributes[nextLeftBreak].whiteSpace
+                  )
+                ++nextLeftBreak;
+
+            --nextRightBreak;
+            while (nextRightBreak > 0
+                   && !attributes[nextRightBreak].charStop
+                   && !attributes[nextRightBreak].softBreak
+                   && !attributes[nextRightBreak].whiteSpace
+                  )
+                --nextRightBreak;
+
+            leftWidth += this->width(leftPos, nextLeftBreak - leftPos);
+            rightWidth += this->width(nextRightBreak, rightPos - nextRightBreak);
+        } while (nextLeftBreak < layoutData->string.length()
+                 && nextRightBreak > 0
+                 && leftWidth + rightWidth < availableWidth);
+
+        return layoutData->string.left(leftPos) + ellipsisText + layoutData->string.mid(rightPos);
+    }
+
+    return layoutData->string;
+}
+
 void QTextEngine::setBoundary(int strPos) const
 {
     if (strPos <= 0 || strPos >= layoutData->string.length())
@@ -1639,7 +1795,7 @@ void QTextEngine::splitItem(int item, int pos) const
 //     qDebug("split at position %d itempos=%d", pos, item);
 }
 
-QFixed QTextEngine::nextTab(const QScriptItem *si, QFixed x)
+QFixed QTextEngine::nextTab(const QScriptItem *si, QFixed x) const
 {
     // #### should work for alignright and righttoleft
     if (!(option.alignment() & Qt::AlignLeft) ||
@@ -1680,6 +1836,15 @@ QStackTextEngine::QStackTextEngine(const QString &string, const QFont &f)
     : _layoutData(string, _memory, MemSize)
 {
     fnt = f;
+    text = string;
+    stackEngine = true;
+    layoutData = &_layoutData;
+}
+
+QStackTextEngine::QStackTextEngine(const QString &string, const QFontMetrics &metrics)
+    : _layoutData(string, _memory, MemSize)
+{
+    fnt = QFont(metrics.d);
     text = string;
     stackEngine = true;
     layoutData = &_layoutData;
