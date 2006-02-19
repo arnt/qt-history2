@@ -681,18 +681,14 @@ void QTextHtmlImporter::import()
             cursor.insertText(text, format);
     }
 
-    if (lists.size() || tables.size())
-        closeTag(count() - 1);
-
     cursor.endEditBlock();
 }
 
 // returns true if a block tag was closed
 bool QTextHtmlImporter::closeTag(int i)
 {
-    const bool atLastNode = (i == count() - 1);
     const QTextHtmlParserNode *closedNode = &at(i - 1);
-    const int endDepth = atLastNode ? - 1 : depth(i) - 1;
+    const int endDepth = depth(i) - 1;
     int depth = this->depth(i - 1);
     bool blockTagClosed = false;
 
