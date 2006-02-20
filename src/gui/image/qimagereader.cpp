@@ -461,9 +461,14 @@ QString QImageReader::fileName() const
 }
 
 /*!
-    Returns the size of the image. This function may or may not read
-    the entire image, depending on whether the image format supports
-    checking the size of an image before loading it.
+    Returns the size of the image, without actually reading the image
+    contents.
+
+    If the image format does not support this feature, this function returns
+    an invalid size. Qt's built-in image handlers all support this feature,
+    but custom image format plugins are not required to do so.
+
+    \sa QImageIOHandler::ImageOption, QImageIOHandler::option(), QImageIOHandler::supportsOption()
 */
 QSize QImageReader::size() const
 {
@@ -473,15 +478,7 @@ QSize QImageReader::size() const
     if (d->handler->supportsOption(QImageIOHandler::Size))
         return d->handler->option(QImageIOHandler::Size).toSize();
 
-    QImage image;
-    if (!d->handler->read(&image)) {
-        // ### skips a frame in animations
-        d->imageReaderError = InvalidDataError;
-        d->errorString = QT_TRANSLATE_NOOP(QImageReader, "Unable to read image data");
-        return QSize();
-    }
-
-    return image.size();
+    return QSize();
 }
 
 /*!
