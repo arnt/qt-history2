@@ -76,7 +76,7 @@ void HtmlGenerator::initializeGenerator(const Config &config)
         QString editionName = *edition;
         QStringList editionModules = config.getStringList(
                                     CONFIG_EDITION + Config::dot + editionName);
-        
+
         if (!editionModules.isEmpty())
             editionModuleMap[editionName] = editionModules;
 
@@ -946,8 +946,12 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
         shortVersion = tre->version();
         if (shortVersion.count(QChar('.')) == 2)
             shortVersion.truncate(shortVersion.lastIndexOf(QChar('.')));
-        if (!shortVersion.isEmpty())
-            shortVersion = "Qt " + shortVersion + ": ";
+        if (!shortVersion.isEmpty()) {
+            if (project == "QSA")
+                shortVersion = "QSA " + shortVersion + ": ";
+            else
+                shortVersion = "Qt " + shortVersion + ": ";
+        }
     }
 
     out() << "<head>\n"
@@ -2302,7 +2306,7 @@ const Node *HtmlGenerator::findNodeForTarget(const QString &target,
     const Node *relative, CodeMarker *marker, const Atom *atom)
 {
     const Node *node = 0;
-    
+
 
     if (target.isEmpty()) {
         node = relative;
