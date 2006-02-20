@@ -24,6 +24,7 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qvector.h>
+#include <qapplication.h>
 #include <qvarlengtharray.h>
 #include <qabstractitemdelegate.h>
 #include <qvariant.h>
@@ -1652,6 +1653,10 @@ bool QHeaderView::viewportEvent(QEvent *e)
 #endif // QT_NO_STATUSTIP
     case QEvent::FontChange:
         resizeSections();
+        if (QAbstractItemView *par = ::qobject_cast<QAbstractItemView*>(parent())) {
+            int slot = par->metaObject()->indexOfSlot("updateGeometries()");
+            QApplication::postEvent(par, new QMetaCallEvent(slot));
+        }
         break;
     default:
         break;
@@ -2145,8 +2150,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
             sectionSize = headerSectionSize(i);
         } else { // resizeMode == QHeaderView::ResizeToContents
             int logicalIndex = q->logicalIndex(i);
-            QAbstractItemView *parent = ::qobject_cast<QAbstractItemView*>(q->parent());
-            if (parent)
+            if (QAbstractItemView *parent = ::qobject_cast<QAbstractItemView*>(q->parent()))
                 sectionSize = (orientation == Qt::Horizontal
                                ? parent->sizeHintForColumn(logicalIndex)
                                : parent->sizeHintForRow(logicalIndex));
