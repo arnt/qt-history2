@@ -56,7 +56,7 @@ class QPdfEngine : public QPdfBaseEngine
 {
     Q_DECLARE_PRIVATE(QPdfEngine)
 public:
-    QPdfEngine();
+    QPdfEngine(QPrinter::PrinterMode m);
     virtual ~QPdfEngine();
 
     // reimplementations QPaintEngine
@@ -161,6 +161,7 @@ private:
     int pageRoot, catalog, info, graphicsState, patternColorSpace;
     QVector<uint> pages;
     QHash<qint64, uint> imageCache;
+    int resolution;
 };
 
 

@@ -67,6 +67,8 @@ void qt_generate_epsf(bool b)
     qt_gen_epsf = b;
 }
 
+extern int qt_defaultDpi();
+
 static const char *const ps_header =
 "/BD{bind def}bind def/d2{dup dup}BD/ED{exch def}BD/D0{0 ED}BD/F{setfont}BD\n"
 "/RL{rlineto}BD/CM{currentmatrix}BD/SM{setmatrix}BD/TR{translate}BD/SD\n"
@@ -351,10 +353,8 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
     resolution = 72;
     if (m == QPrinter::HighResolution)
         resolution = 1200;
-#ifdef Q_WS_X11
     else if (m == QPrinter::ScreenResolution)
-        resolution = QX11Info::appDpiY();
-#endif
+        resolution = qt_defaultDpi();
 
 #ifndef QT_NO_SETTINGS
     QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));

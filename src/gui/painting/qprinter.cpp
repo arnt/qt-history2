@@ -59,7 +59,7 @@ void QPrinterPrivate::createDefaultEngines()
         printEngine = psEngine;
 #endif
     } else {
-        QPdfEngine *pdfEngine = new QPdfEngine;
+        QPdfEngine *pdfEngine = new QPdfEngine(printerMode);
         paintEngine = pdfEngine;
         printEngine = pdfEngine;
     }

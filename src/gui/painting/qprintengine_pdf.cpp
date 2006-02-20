@@ -32,6 +32,8 @@
 #include "qprintengine_pdf_p.h"
 #include "private/qdrawhelper_p.h"
 
+extern int qt_defaultDpi();
+
 extern qint64 qt_pixmap_id(const QPixmap &pixmap);
 extern qint64 qt_image_id(const QImage &image);
 
@@ -46,9 +48,6 @@ static const bool do_compress = false;
 #else
 static const bool do_compress = true;
 #endif
-
-static const int resolution = 72;
-
 
 QPdfPage::QPdfPage()
     : QPdf::ByteStream(&data)
@@ -75,15 +74,21 @@ inline QPaintEngine::PaintEngineFeatures qt_pdf_decide_features()
     return f;
 }
 
-QPdfEngine::QPdfEngine()
+QPdfEngine::QPdfEngine(QPrinter::PrinterMode m)
     : QPdfBaseEngine(*new QPdfEnginePrivate, qt_pdf_decide_features()), outFile_(new QFile)
 {
     Q_D(QPdfEngine);
     device_ = 0;
 
     pagesize_ = QPrinter::A4;
+    
+    if (m == QPrinter::HighResolution)
+        d->resolution = 1200;
+    else if (m == QPrinter::ScreenResolution) 
+        d->resolution = qt_defaultDpi();
+
     QRect r = paperRect();
-    d->setDimensions(r.width(),r.height());
+    d->setDimensions(qRound(r.width()*72./d->resolution),qRound(r.height()*72./d->resolution));
 }
 
 QPdfEngine::~QPdfEngine()
@@ -104,8 +109,6 @@ void QPdfEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
         break;
     case PPK_Orientation: {
         d->orientation = QPrinter::Orientation(value.toInt());
-        QRect r = paperRect();
-        d->setDimensions(r.width(),r.height());
         break;
     }
     case PPK_OutputFileName: {
@@ -124,16 +127,18 @@ void QPdfEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
         break;
     case PPK_PageSize: {
         pagesize_ = QPrinter::PageSize(value.toInt());
-        QRect r = paperRect();
-        d->setDimensions(r.width(),r.height());
     }
         break;
+    case PPK_Resolution:
+        d->resolution = value.toInt();
     case PPK_FullPage:
         d->fullPage = value.toBool();
         break;
     default:
         break;
     }
+    QRect r = paperRect();
+    d->setDimensions(qRound(r.width()*72./d->resolution),qRound(r.height()*72./d->resolution));
 }
 
 QVariant QPdfEngine::property(PrintEnginePropertyKey key) const
@@ -163,9 +168,9 @@ QVariant QPdfEngine::property(PrintEnginePropertyKey key) const
     case PPK_PaperSource:
         return QPrinter::Auto;
     case PPK_Resolution:
-        return 600;
+        return d->resolution;
     case PPK_SupportedResolutions:
-        return QList<QVariant>() << resolution;
+        return QList<QVariant>() << d->resolution;
     default:
         break;
     }
@@ -188,8 +193,8 @@ QRect QPdfEngine::paperRect() const
 {
     Q_D(const QPdfEngine);
     QPdf::PaperSize s = QPdf::paperSize(pagesize_);
-    int w = qRound(s.width);
-    int h = qRound(s.height);
+    int w = qRound(s.width*d->resolution/72.);
+    int h = qRound(s.height*d->resolution/72.);
     if (d->orientation == QPrinter::Portrait)
         return QRect(0, 0, w, h);
     else
@@ -203,7 +208,7 @@ QRect QPdfEngine::pageRect() const
     if (d->fullPage)
         return r;
     // would be nice to get better margins than this.
-    return QRect(resolution/3, resolution/3, r.width()-2*resolution/3, r.height()-2*resolution/3);
+    return QRect(d->resolution/3, d->resolution/3, r.width()-2*d->resolution/3, r.height()-2*d->resolution/3);
 }
 
 void QPdfEngine::setDevice(QIODevice* dev)
@@ -391,15 +396,17 @@ int QPdfEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
         break;
     case QPaintDevice::PdmDpiX:
     case QPaintDevice::PdmDpiY:
+        val = d->resolution;
+        break;
     case QPaintDevice::PdmPhysicalDpiX:
     case QPaintDevice::PdmPhysicalDpiY:
-        val = 72;
+        val = 1200;
         break;
     case QPaintDevice::PdmWidthMM:
-        val = qRound(r.width()*25.4/72.);
+        val = qRound(r.width()*25.4/d->resolution);
         break;
     case QPaintDevice::PdmHeightMM:
-        val = qRound(r.height()*25.4/72.);
+        val = qRound(r.height()*25.4/d->resolution);
         break;
     case QPaintDevice::PdmNumColors:
         val = INT_MAX;
@@ -739,7 +746,8 @@ void QPdfEnginePrivate::newPage()
     pages.append(requestObject());
 
     *currentPage << "/GSa gs /CSp cs /CSp CS\n";
-    QMatrix tmp(1.0, 0.0, 0.0, -1.0, 0.0, height_);
+    qreal scale = 72./resolution;
+    QMatrix tmp(scale, 0.0, 0.0, -scale, 0.0, height_);
     if (!fullPage)
         tmp.translate(resolution/3, resolution/3);
     *currentPage << QPdf::generateMatrix(tmp) << "q\n";
