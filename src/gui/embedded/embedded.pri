@@ -50,17 +50,10 @@ embedded {
 		    embedded/qwslock.cpp \
 		    embedded/qwssocket_qws.cpp
 
-        contains(QT_CONFIG, sxv) {
+        contains(QT_CONFIG,sxv)|contains(QT_CONFIG,qtopia) {
             SOURCES += embedded/qunixsocket.cpp embedded/qunixsocketserver.cpp
             HEADERS += embedded/qunixsocket_p.h embedded/qunixsocketserver_p.h
         }
-
-# SXV_DISCOVERY is only for use during development of a Qtopia system, and
-# not be defined for a production system build.  When this macro is defined
-# code is compiled to read the environment variable SXV_DISCOVERY_MODE and
-# to TURN OFF the SXV system if that environment variable is defined.  Shipping
-# a system compiled with this macro defined is a security breach.
-        DEFINES += SXV_DISCOVERY
 
 #
 # Decorations

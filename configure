@@ -3609,7 +3609,7 @@ else
     QT_CONFIG="$QT_CONFIG opengl"
 fi
 
-# secure execution environment
+# safe execution environment
 if [ "$CFG_SXV" != "no" ]; then
     QT_CONFIG="$QT_CONFIG sxv"
 fi
