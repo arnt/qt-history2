@@ -242,4 +242,10 @@
     \o \l{activeqt/webbrowser}{Web Browser}\raisedaster
     \o \l{activeqt/wrapper}{Wrapper}\raisedaster
     \endlist
+
+    \section1 Qtopia Core Examples
+
+    \list
+    \o \l{qtopiacore/mousecalibration}{Mouse Calibration}\raisedaster
+    \endlist
 */
