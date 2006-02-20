@@ -215,6 +215,7 @@ public:
     int xglyph_format;
     GlyphSet glyphSet;
 #endif
+    inline Glyph *cachedGlyph(glyph_t g) const { return glyph_data.value(g); }
 private:
     mutable QOpenType *_openType;
     FT_Size_Metrics metrics;

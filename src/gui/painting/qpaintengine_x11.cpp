@@ -2121,34 +2121,46 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
     if (X11->use_xrender
         && !(d->pdev->devType() == QInternal::Pixmap
              && static_cast<const QPixmap *>(d->pdev)->data->type == QPixmap::BitmapType)) {
-        int nGlyphs = 0;
+
         GlyphSet glyphSet = ft->glyphSet;
         const QColor &pen = d->cpen.color();
         ::Picture src = X11->getSolidFill(d->scrn, pen);
         XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, ft->xglyph_format);
 
-        QVarLengthArray<XGlyphElt32, 256> glyphSpec(glyphs.size());
-        for (int i = 0; i < glyphs.size(); ++i) {
-            int xp = qRound(positions[i].x);
-            int yp = qRound(positions[i].y);
-            if (xp > SHRT_MIN && xp < SHRT_MAX) {
-                glyphSpec[nGlyphs].glyphset = glyphSet;
-                glyphSpec[nGlyphs].chars = &glyphs[i];
-                glyphSpec[nGlyphs].nchars = 1;
-                glyphSpec[nGlyphs].xOff = xp;
-                glyphSpec[nGlyphs].yOff = yp;
-                ++nGlyphs;
+        QFixed xp = positions[0].x;
+        QFixed yp = positions[0].y;
+        XGlyphElt32 elt;
+        elt.glyphset = glyphSet;
+        elt.chars = &glyphs[0];
+        elt.nchars = 1;
+        elt.xOff = qRound(xp);
+        elt.yOff = qRound(yp);
+        for (int i = 1; i < glyphs.size(); ++i) {
+            QFontEngineFT::Glyph *g = ft->cachedGlyph(glyphs[i - 1]);
+            if (g
+                && positions[i].x == xp + g->advance
+                && positions[i].y == yp) {
+                elt.nchars++;
+                xp += g->advance;
+            } else {
+                xp = positions[i].x;
+                yp = positions[i].y;
+
+                XRenderCompositeText32(X11->display, PictOpOver, src, d->picture,
+                                       maskFormat, 0, 0, 0, 0,
+                                       &elt, 1);
+                elt.chars = &glyphs[i];
+                elt.nchars = 1;
+                elt.xOff = qRound(xp);
+                elt.yOff = qRound(yp);
             }
         }
+        XRenderCompositeText32(X11->display, PictOpOver, src, d->picture,
+                               maskFormat, 0, 0, 0, 0,
+                               &elt, 1);
 
-        int i = 0;
-        while (i < nGlyphs) {
-            XRenderCompositeText32 (X11->display, PictOpOver, src, d->picture,
-                                    maskFormat, 0, 0, 0, 0,
-                                    glyphSpec.data() + i, 1);
-            ++i;
-        }
         return;
+
     }
 #endif
     ft->lockFace();
