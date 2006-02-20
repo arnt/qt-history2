@@ -97,4 +97,9 @@ inline bool operator ==(QHostAddress::SpecialAddress address1, const QHostAddres
 Q_NETWORK_EXPORT QDebug operator<<(QDebug, const QHostAddress &);
 #endif
 
+#ifndef QT_NO_DATASTREAM
+Q_NETWORK_EXPORT QDataStream &operator<<(QDataStream &, const QHostAddress &);
+Q_NETWORK_EXPORT QDataStream &operator>>(QDataStream &, QHostAddress &);
+#endif
+
 #endif // QHOSTADDRESS_H

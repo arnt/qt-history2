@@ -15,6 +15,9 @@
 #include "qhostaddress.h"
 #include "qplatformdefs.h"
 #include "qstringlist.h"
+#ifndef QT_NO_DATASTREAM
+#include <qdatastream.h>
+#endif
 
 #define QT_ENSURE_PARSED(a) \
     do { \
@@ -692,3 +695,78 @@ QDebug operator<<(QDebug d, const QHostAddress &address)
     return d.space();
 }
 #endif
+
+#ifndef QT_NO_DATASTREAM
+
+/*! \relates QHostAddress
+
+    Writes host address \a address to the stream \a out and returns a reference
+    to the stream.
+
+    \sa {Format of the QDataStream operators}
+*/
+QDataStream &operator<<(QDataStream &out, const QHostAddress &address)
+{
+    qint8 prot;
+    prot = qint8(address.protocol());
+    out << prot;
+    switch (address.protocol()) {
+    case QAbstractSocket::UnknownNetworkLayerProtocol:
+        break;
+    case QAbstractSocket::IPv4Protocol:
+        out << address.toIPv4Address();
+        break;
+    case QAbstractSocket::IPv6Protocol:
+    {
+        Q_IPV6ADDR ipv6 = address.toIPv6Address();
+        for (int i = 0; i < 16; ++i)
+            out << ipv6[i];
+        out << address.scopeId();
+    }
+        break;
+    }
+    return out;
+}
+
+/*! \relates QHostAddress
+
+    Reads a host address into \a address from the stream \a in and returns a
+    reference to the stream.
+
+    \sa {Format of the QDataStream operators}
+*/
+QDataStream &operator>>(QDataStream &in, QHostAddress &address)
+{
+    qint8 prot;
+    in >> prot;
+    switch (QAbstractSocket::NetworkLayerProtocol(prot)) {
+    case QAbstractSocket::UnknownNetworkLayerProtocol:
+        address.clear();
+        break;
+    case QAbstractSocket::IPv4Protocol:
+    {
+        quint32 ipv4;
+        in >> ipv4;
+        address.setAddress(ipv4);
+    }
+        break;
+    case QAbstractSocket::IPv6Protocol:
+    {
+        Q_IPV6ADDR ipv6;
+        for (int i = 0; i < 16; ++i)
+            in >> ipv6[i];
+        address.setAddress(ipv6);
+
+        QString scope;
+        in >> scope;
+        address.setScopeId(scope);
+    }
+        break;
+    default:
+        address.clear();
+        in.setStatus(QDataStream::ReadCorruptData);
+    }
+    return in;
+}
+
+#endif //QT_NO_DATASTREAM
