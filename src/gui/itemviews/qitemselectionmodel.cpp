@@ -518,13 +518,19 @@ void QItemSelectionModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
 {
     // let the world know that the current index has changed as a result
     Q_Q(QItemSelectionModel);
-    if (parent == currentIndex.parent()
+    if (currentIndex.isValid() && parent == currentIndex.parent()
         && currentIndex.row() >= start && currentIndex.row() <= end) {
         QModelIndex old = currentIndex;
-        currentIndex = QModelIndex();
+        if (start > 0) // there are rows left above the change
+            currentIndex = model->index(start - 1, old.column(), parent);
+        else if (model && end < model->rowCount() - 1) // there are rows left below the change
+            currentIndex = model->index(end + 1, old.column(), parent);
+        else // there are no rows left in the table
+            currentIndex = QModelIndex();
         emit q->currentChanged(currentIndex, old);
         emit q->currentRowChanged(currentIndex, old);
-        emit q->currentColumnChanged(currentIndex, old);
+        if (currentIndex.column() != old.column())
+            emit q->currentColumnChanged(currentIndex, old);
     }
 }
 
@@ -537,12 +543,18 @@ void QItemSelectionModelPrivate::columnsAboutToBeRemoved(const QModelIndex &pare
 {
     // let the world know that the current index has changed as a result
     Q_Q(QItemSelectionModel);
-    if (parent == currentIndex.parent()
+    if (currentIndex.isValid() && parent == currentIndex.parent()
         && currentIndex.column() >= start && currentIndex.column() <= end) {
         QModelIndex old = currentIndex;
-        currentIndex = QModelIndex();
+        if (start > 0) // there are columns to the left of the change
+            currentIndex = model->index(old.row(), start - 1, parent);
+        else if (model && end < model->rowCount() - 1) // there are columns to the right of the change
+            currentIndex = model->index(old.row(), end + 1, parent);
+        else // there are no columns left in the table
+            currentIndex = QModelIndex();
         emit q->currentChanged(currentIndex, old);
-        emit q->currentRowChanged(currentIndex, old);
+        if (currentIndex.row() != old.row())
+            emit q->currentRowChanged(currentIndex, old);
         emit q->currentColumnChanged(currentIndex, old);
     }
 }
