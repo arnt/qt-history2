@@ -125,6 +125,7 @@ Q_SIGNALS:
     void sectionCountChanged(int oldCount, int newCount);
     void sectionHandleDoubleClicked(int logicalIndex);
     void sectionAutoResize(int logicalIndex, QHeaderView::ResizeMode mode);
+    void geometriesChanged();
 
 protected Q_SLOTS:
     void updateSection(int logicalIndex);

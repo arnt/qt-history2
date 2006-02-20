@@ -157,6 +157,12 @@
 */
 
 /*!
+  \fn void QHeaderView::geometriesChanged()
+
+  This signal is emitted when the header geometries has changed.
+*/
+
+/*!
     \property QHeaderView::highlightSections
     \brief whether the sections containing selected items are highlighted
 */
@@ -1653,10 +1659,7 @@ bool QHeaderView::viewportEvent(QEvent *e)
 #endif // QT_NO_STATUSTIP
     case QEvent::FontChange:
         resizeSections();
-        if (QAbstractItemView *par = ::qobject_cast<QAbstractItemView*>(parent())) {
-            int slot = par->metaObject()->indexOfSlot("updateGeometries()");
-            QApplication::postEvent(par, new QMetaCallEvent(slot));
-        }
+        emit geometriesChanged();
         break;
     default:
         break;
