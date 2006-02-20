@@ -696,6 +696,11 @@ QDebug operator<<(QDebug d, const QHostAddress &address)
 }
 #endif
 
+uint qHash(const QHostAddress &key)
+{
+    return qHash(key.toString());
+}
+
 #ifndef QT_NO_DATASTREAM
 
 /*! \relates QHostAddress
