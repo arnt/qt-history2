@@ -24,6 +24,7 @@
 #include "qtabwidget.h"
 #include "qtooltip.h"
 #include "qwhatsthis.h"
+#include "private/qtextengine_p.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
@@ -99,11 +100,10 @@ QStyleOptionTabV2 QTabBarPrivate::getStyleOption(int tab) const
             opt.cornerWidgets |= QStyleOptionTab::RightCornerWidget;
     }
     int hframe  = q->style()->pixelMetric(QStyle::PM_TabBarTabHSpace, &opt, q);
-    opt.text = QAbstractItemDelegate::elidedText(q->fontMetrics(),
-                                                 1 + (verticalTabs(shape) ? ptab->rect.height()
-                                                                          : ptab->rect.width())
-                                                   - hframe,
-                                                 elideMode, opt.text);
+
+    QStackTextEngine engine(opt.text, q->fontMetrics());
+    opt.text = engine.elidedText(elideMode, 1 + (verticalTabs(shape) ? ptab->rect.height() : ptab->rect.width()) - hframe,
+                                 Qt::TextShowMnemonic);
 #endif
     return opt;
 }

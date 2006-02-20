@@ -1599,32 +1599,34 @@ void QTextEngine::indexAdditionalFormats()
     }
 }
 
-QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width) const
+QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width, int flags) const
 {
 //    qDebug() << "elidedText; available width" << width.toReal() << "text width:" << this->width(0, layoutData->string.length()).toReal();
 
-    itemize();
-    for (int i = 0; i < layoutData->items.size(); ++i) {
-        QScriptItem &si = layoutData->items[i];
-        if (!si.num_glyphs)
-            shape(i);
+    if (flags & Qt::TextShowMnemonic) {
+        itemize();
+        for (int i = 0; i < layoutData->items.size(); ++i) {
+            QScriptItem &si = layoutData->items[i];
+            if (!si.num_glyphs)
+                shape(i);
 
-        unsigned short *logClusters = this->logClusters(&si);
-        QGlyphLayout *glyphs = this->glyphs(&si);
+            unsigned short *logClusters = this->logClusters(&si);
+            QGlyphLayout *glyphs = this->glyphs(&si);
 
-        const int end = si.position + length(&si);
-        for (int i = si.position; i < end - 1; ++i)
-            if (layoutData->string.at(i) == QLatin1Char('&')) {
-                const int gp = logClusters[i - si.position];
-                glyphs[gp].attributes.dontPrint = true;
-                QCharAttributes *attributes = const_cast<QCharAttributes *>(this->attributes());
-                attributes[i + 1].charStop = false;
-                attributes[i + 1].whiteSpace = false;
-                attributes[i + 1].softBreak = false;
-                if (i < end - 1
-                    && layoutData->string.at(i + 1) == QLatin1Char('&'))
-                    ++i;
-            }
+            const int end = si.position + length(&si);
+            for (int i = si.position; i < end - 1; ++i)
+                if (layoutData->string.at(i) == QLatin1Char('&')) {
+                    const int gp = logClusters[i - si.position];
+                    glyphs[gp].attributes.dontPrint = true;
+                    QCharAttributes *attributes = const_cast<QCharAttributes *>(this->attributes());
+                    attributes[i + 1].charStop = false;
+                    attributes[i + 1].whiteSpace = false;
+                    attributes[i + 1].softBreak = false;
+                    if (i < end - 1
+                            && layoutData->string.at(i + 1) == QLatin1Char('&'))
+                        ++i;
+                }
+        }
     }
 
     if (mode == Qt::ElideNone

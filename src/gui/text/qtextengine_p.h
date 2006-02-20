@@ -536,7 +536,7 @@ public:
     bool atWordSeparator(int position) const;
     void indexAdditionalFormats();
     
-    QString elidedText(Qt::TextElideMode mode, const QFixed &width) const;
+    QString elidedText(Qt::TextElideMode mode, const QFixed &width, int flags = 0) const;
 
 private:
     void setBoundary(int strPos) const;
