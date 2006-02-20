@@ -576,10 +576,12 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model)
     : QObject(*new QItemSelectionModelPrivate, model)
 {
     d_func()->model = model;
-    connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-            this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
-    connect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
-            this, SLOT(columnsRemoved(const QModelIndex&,int,int)));
+    if (model) {
+        connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
+                this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
+                this, SLOT(columnsRemoved(const QModelIndex&,int,int)));
+    }
 }
 
 /*!
@@ -589,10 +591,12 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *par
     : QObject(*new QItemSelectionModelPrivate, parent)
 {
     d_func()->model = model;
-    connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-            this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
-    connect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
-            this, SLOT(columnsRemoved(const QModelIndex&,int,int)));
+    if (model) {
+        connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
+                this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
+                this, SLOT(columnsRemoved(const QModelIndex&,int,int)));
+    }
 }
 
 /*!
@@ -602,10 +606,12 @@ QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstra
     : QObject(dd, model)
 {
     d_func()->model = model;
-    connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-            this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
-    connect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
-            this, SLOT(columnsRemoved(const QModelIndex&,int,int)));
+    if (model) {
+        connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
+                this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
+                this, SLOT(columnsRemoved(const QModelIndex&,int,int)));
+    }
 }
 
 /*!
