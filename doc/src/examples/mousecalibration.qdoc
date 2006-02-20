@@ -76,7 +76,7 @@
     \printuntil /^\};/
 
     We reimplement QDialog's \l {QDialog::exec()}{exec()} and \l
-    {QWidget::accept()}{accept()} slots, and QWidget's \l
+    {QDialog::accept()}{accept()} slots, and QWidget's \l
     {QWidget::paintEvent()}{paintEvent()} and \l
     {QWidget::mouseReleaseEvent()}{mouseReleaseEvent()} functions.
 
@@ -146,11 +146,11 @@
 
     The QWidget::paintEvent() function is reimplemented to receive the
     widget's paint events. A paint event is a request to repaint all
-    or part of the widget. It can happen as a result of repaint() or
-    update(), or because the widget was obscured and has now been
-    uncovered, or for many other reasons.  In our reimplementation of
-    the function we simply draw a cross at the next point the user
-    should press.
+    or part of the widget. It can happen as a result of
+    QWidget::repaint() or QWidget::update(), or because the widget was
+    obscured and has now been uncovered, or for many other reasons.
+    In our reimplementation of the function we simply draw a cross at
+    the next point the user should press.
 
     \skipto mouseReleaseEvent
     \printuntil }
@@ -176,6 +176,6 @@
 
     Our reimplementation of the QDialog::accept() slot simply activate
     the new calibration data using the QWSMouseHandler::calibrate()
-    function. We also use the Q_ASSERT macro to ensure that the number
+    function. We also use the Q_ASSERT() macro to ensure that the number
     of required samples are present.
 */
