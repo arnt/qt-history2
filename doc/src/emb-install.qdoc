@@ -7,139 +7,230 @@
     \ingroup qtopia-core
     \ingroup installation
 
-    This installation procedure is written for Linux. It may need
-    to be modified for other platforms.
+    The following installation procedure is written for Linux, and may
+    need to be modified for other platforms.
 
-    \list 1
-    \i Unpack the archive if you have not done so already
+    \tableofcontents
+
+    \section1 Step 1: Installing the License File (commercial editions only)
+
+    If you have the commercial edition of Qtopia Core, install your
+    license file as \c $HOME/.qt-license. For the open source version
+    you do not need a license file.
+
+    \section1 Step 2: Unpacking the Archive
+
+    First, you must uncompress the archive, then unpack it:
 
     \code
         cd <anywhere>
-        gunzip qtopia-core-commercial-src-%VERSION%.tar.gz    # uncompress the archive
-        tar xf qtopia-core-commercial-src-%VERSION%.tar       # unpack it
+        gunzip qtopia-core-commercial-src-%VERSION%.tar.gz
+        tar xf qtopia-core-commercial-src-%VERSION%.tar
     \endcode
 
-    This document assumes that the archive is installed as \c{~/qtopia-core-commercial-src-%VERSION%}.
-    \i Compile the Qtopia Core library and examples.
+    This document assumes that the archive is installed as
+
+    \code
+        ~/qtopia-core-commercial-src-%VERSION%
+    \endcode
+
+    \section1 Step 3: Building the Library
+
+    To configure the Qtopia Core library for your deployment
+    architecture, type:
 
     \code
         cd ~/qtopia-core-commercial-src-%VERSION%
-        export QTDIR=~/qtopia-core-commercial-src-%VERSION%
-        ./configure
+        ./configure -embedded [architecture]
+    \endcode
+
+    The configuration system is designed to allow platform-specific
+    options to be added, typical architectures are x86 and arm. Type
+    "./configure -help" to get a list of all available options. In
+    general all Linux systems which have framebuffer support can use
+    the "linux-generic-g++" platform.
+
+    To create the library and compile all the demos, examples, tools,
+    and tutorials, type:
+
+    \code
         make
     \endcode
 
-    The configuration system is designed to allow platform-specific options
-    to be added, but in general all Linux systems which have framebuffer
-    support can use the "linux-generic-g++" platform.
-    The configuration system also supports cross-compilers:
-    to build on Linux/x86  for the Linux/MIPSEL target, you would use:
+    On some systems the \c make utility is called differently, e.g. \c
+    gmake. The \c configure script tells you which make utility to
+    use. To \e install the library, demos, examples, tools, and
+    tutorials, type:
 
     \code
-        ./configure -embedded mips
+       su -c "make install"
     \endcode
 
-    Only a small number of configurations are predefined.
-    You can create your own custom configuration by adding new files
-    to the \c mkspecs/qws/ directory.  Use existing similar configurations
+    and enter the root password. Qtopia Core is by default installed
+    into the \c /usr/local/Trolltech/QtopiaCore-%VERSION% directory
+    but this can be changed by using \c configure's \c -prefix
+    parameter.
+
+    The configuration system also supports cross-compilers. For
+    example, to build on Linux/x86 for the Linux/MIPSEL target, you
+    would use:
+
+     \code
+        ./configure -embedded mips
+     \endcode
+
+    Note that when cross-compiling the "make install" approach is not
+    desirable since ...
+
+    Only a small number of configurations are predefined.  You can
+    create your own custom configuration by adding new files to Qt's
+    \c mkspecs/qws/ directory, using existing similar configurations
     as a starting point.
 
-    \i Enable framebuffer support.
+    \section1 Step 4: Adjusting the Environment Variables
 
-       You may need to recompile your kernel to enable the framebuffer.
-       This document does not describe how to do this; the
-       \link emb-framebuffer-howto.html Framebuffer HOWTO page \endlink
-       contains a short description. (You should see
-       a penguin logo at boot time when the frame buffer is enabled.)
+    In order to use Qtopia Core, some environment variables needs to
+    be extended, the \c PATH variable to locate \c qmake, \c moc and
+    other Qtopia Core tools, and the \c LD_LIBRARY_PATH for compilers
+    that do not support \c rpath.
 
-       For Matrox G100/G200/G400 use the matrox frame buffer driver.
+    To set the \c PATH variable, add the following lines in \c
+    .profile if your shell is bash, ksh, zsh or sh:
 
-       For NVidia TNT cards use the nvidia frame buffer driver.
+    \code
+        PATH=/usr/local/Trolltech/QtopiaCore-%VERSION%/bin:$PATH
+        export PATH
+    \endcode
 
-       For Mach64 and most other cards, use the vesafb driver.
+    In case your shell is csh or tcsh, add the following line in
+    \c .login instead:
 
-       Note that some cards are only supported in VGA16 mode, this will
-       not work with the current version of Qtopia Core, since VGA/16 is
-       not yet supported. You may need to upgrade your kernel, or even
-       switch to an experimental kernel.
+    \code
+        setenv PATH /usr/local/Trolltech/QtopiaCore-%VERSION%/bin:$PATH
+    \endcode
 
-       The frame buffer must also be enabled with a boot parameter. See
-       \c /usr/src/linux/Documentation/fb for details.
+    If you use a different shell, please modify your environment
+    variables accordingly.
 
-       The \c fbset program, which should be included in Linux distributions,
-       may be used to switch video modes without rebooting the system. The
-       video mode active when the server is started will be used. (8-bit
-       modes are still experimental.) \bold{Note:} \c fbset does not work
-       with the vesafb driver.
+    For compilers that do not support \c rpath you must also extended
+    the LD_LIBRARY_PATH environment variable to include
+    \c /usr/local/Trolltech/QtopiaCore-%VERSION%/lib. Note that on Linux
+    with GCC, this step is not needed.
 
-    \i Change permissions.
+    \section1 Step 5: Enabling Framebuffer Support
 
-       To run Qtopia Core, you need write access to the framebuffer device
-       \c /dev/fb0.
+    Qtopia Core applications write directly to the framebuffer,
+    eliminating the need for the X Window System and saving
+    memory. For development and debugging, the Qtopia Core platform
+    provides a virtual framebuffer as well as the option of running
+    Qtopia Core as a VNC server.
 
-       You also need read access to the mouse device. (Note that
-       \c /dev/mouse is normally a symbolic link; the actual mouse device
-       must be readable.)
+    For a description of how to install the virtual frame buffer and
+    how to run Qtopia Core as a VNC server, please consult the
+    documentation at:
+
+    \list
+       \o \l {The Virtual Framebuffer}
+       \o \l {Running as a VNC Server}
+    \endlist
+
+    Please note that the virtual framebuffer requires a Qt/X11
+    installation.
+
+    The Linux framebuffer is enabled by default on all modern Linux
+    distributions. For information on older versions, see \l
+    http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html. To test that the
+    Linux framebuffer is set up correctly, and that the device
+    permissions are correct, use the program provided by the \l
+    {Testing the Linux Framebuffer} document.
+
+    That's all. Qtopia Core is now installed.
+
+    \section1 Step 6: Customizing the Qtopia Core Library (optional)
+
+    When building embedded applications on low-powered devices,
+    reducing the memory and CPU requirements are important.
+
+    A number of options tuning the library's performance are
+    available. But the most direct way of saving resources is to
+    fine-tune the set of Qt features that is compiled. It is also
+    possible to make use of accelerated graphics hardware.
+
+    For more information, please consult the documentation at:
+
+    \list
+        \o \l {Fine-Tuning Features}
+        \o \l {Performance Tuning}
+        \o \l {Adding an Accelerated Graphics Driver}
+    \endlist
+
+    In addition, it is possible to specify the \l {Pointer
+    Handling}{pointer handling} as well as the \l{Character
+    Input}{character input} and \l {Fonts}{font formats}.
+
+    \sa {Running Applications}, {Porting Applications to Qtopia Core}
 
 \omit ### this doesn't exist anymore
-    \i How to run the demonstration program.
+    \list
+    \o How to run the demonstration program.
 
        Log into a virtual console and do this:
 
-    \code
-        cd ~/qt-embedded-commercial-VERSION/examples/launcher
-        ./start-demo
-    \endcode
-    \endomit
-\omit
-    \i Miscellaneous troubleshooting and known bugs.
+        \code
+            cd ~/qt-embedded-commercial-VERSION/examples/launcher
+           ./start-demo
+        \endcode
 
-      To kill gpm, run the following command as root:
+    \o Miscellaneous troubleshooting and known bugs.
 
-    \code
-        gpm -k
-    \endcode
+        To kill gpm, run the following command as root:
 
-      In some cases, if the server does not work, it will work when run as root.
+        \code
+             gpm -k
+         \endcode
 
-      Show processes using the framebuffer:
+        In some cases, if the server does not work, it will work when run as root.
 
-    \code
-        fuser -v /dev/fb0
-    \endcode
+        Show processes using the framebuffer:
 
-      Kill such processes:
-    \code
-        fuser -vk /dev/fb0
-    \endcode
-      or harsher:
-    \code
-        fuser -k -KILL /dev/fb0
-    \endcode
+        \code
+            fuser -v /dev/fb0
+        \endcode
 
-      Show existing semaphores:
-    \code
-        ipcs
-    \endcode
+        Kill such processes:
 
-      Remove semaphores:
-    \code
-        ipcrm
-    \endcode
+        \code
+            fuser -vk /dev/fb0
+        \endcode
 
-      The communication between client and server is done through the
-      named pipe \c /tmp/qtembedded-username/QtEmbedded-0; sometimes it may need to be deleted
-      (e.g. if you run Qtopia Core with root privileges then later as an unprivileged user).
+        or harsher:
 
-    \i Customization.
+        \code
+            fuser -k -KILL /dev/fb0
+        \endcode
 
-       The Qtopia Core library can be reduced in size by
-       \link emb-features.html removing unnecessary features \endlink.
+        Show existing semaphores:
 
-    \i This document shows how to use Qtopia Core with the Linux framebuffer. For
-    development and debugging purposes it is often easier to use the \link
-    emb-qvfb.html Qtopia Core virtual framebuffer\endlink instead.
+        \code
+            ipcs
+        \endcode
+
+        Remove semaphores:
+
+        \code
+            ipcrm
+        \endcode
+
+        The communication between client and server is done through
+        the named pipe \c /tmp/qtembedded-username/QtEmbedded-0;
+        sometimes it may need to be deleted (e.g. if you run Qtopia
+        Core with root privileges then later as an unprivileged user).
+
+    \o This document shows how to use Qtopia Core with the Linux
+        framebuffer. For development and debugging purposes it is often
+        easier to use the \link emb-qvfb.html Qtopia Core virtual
+        framebuffer\endlink instead.
+    \endlist
 \endomit
 
-    \endlist
 */
