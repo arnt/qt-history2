@@ -41,6 +41,9 @@ public:
     void rowsRemoved(const QModelIndex &parent, int start, int end);
     void columnsRemoved(const QModelIndex &parent, int start, int end);
 
+    void rowsRemoved(const QModelIndex &parent, int start, int end);
+    void columnsRemoved(const QModelIndex &parent, int start, int end);
+
     inline void remove(QList<QItemSelectionRange> &r)
     {
         QList<QItemSelectionRange>::const_iterator it = r.constBegin();
