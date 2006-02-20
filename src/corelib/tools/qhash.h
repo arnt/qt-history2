@@ -763,7 +763,7 @@ Q_OUTOFLINE_TEMPLATE bool QHash<Key, T>::operator==(const QHash<Key, T> &other) 
 
         const_iterator it2 = other.find(akey);
         do {
-            if (it2 == end() || !(it2.key() == akey))
+            if (it2 == other.end() || !(it2.key() == akey))
                 return false;
             if (!QTypeInfo<T>::isDummy && !(it.value() == it2.value()))
                 return false;
