@@ -32,6 +32,8 @@
 #include "QtCore/qhash.h"
 #include "QtCore/qdatetime.h"
 #include "qsvgstyle_p.h"
+#include "qsvgfont_p.h"
+
 class QPainter;
 class QByteArray;
 class QSvgFont;
