@@ -747,16 +747,6 @@ static inline ArabicGroup arabicGroup(unsigned short uc)
    The state table below handles rules R1-R7.
 */
 
-enum Shape {
-    XIsolated,
-    XFinal,
-    XInitial,
-    XMedial,
-    // intermediate state
-    XCausing
-};
-
-
 enum Joining {
     JNone,
     JCausing,
@@ -764,7 +754,6 @@ enum Joining {
     JRight,
     JTransparent
 };
-
 
 static const Joining joining_for_group[ArabicGroupsEnd] = {
     // NonJoining
@@ -793,8 +782,8 @@ static const Joining joining_for_group[ArabicGroupsEnd] = {
 
 
 struct JoiningPair {
-    Shape form1;
-    Shape form2;
+    QArabicShape form1;
+    QArabicShape form2;
 };
 
 static const JoiningPair joining_table[5][4] =
@@ -850,14 +839,7 @@ This seems to imply that we have at most one kashida point per arabic word.
 
 */
 
-struct QArabicProperties {
-    unsigned char shape;
-    unsigned char justification;
-};
-Q_DECLARE_TYPEINFO(QArabicProperties, Q_PRIMITIVE_TYPE);
-
-
-static void getArabicProperties(const unsigned short *chars, int len, QArabicProperties *properties)
+void qt_getArabicProperties(const unsigned short *chars, int len, QArabicProperties *properties)
 {
 //     qDebug("arabicSyriacOpenTypeShape: properties:");
     int lastPos = 0;
@@ -865,7 +847,7 @@ static void getArabicProperties(const unsigned short *chars, int len, QArabicPro
 
     ArabicGroup group = arabicGroup(chars[0]);
     Joining j = joining_for_group[group];
-    Shape shape = joining_table[XIsolated][j].form2;
+    QArabicShape shape = joining_table[XIsolated][j].form2;
     properties[0].justification = QGlyphLayout::NoJustification;
 
     for (int i = 1; i < len; ++i) {
@@ -1337,7 +1319,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
     if (f + l < uc->length()) {
         ++l;
     }
-    getArabicProperties((const unsigned short *)(uc->unicode()+f), l, props.data());
+    qt_getArabicProperties((const unsigned short *)(uc->unicode()+f), l, props.data());
 
     const QChar *ch = uc->unicode() + from;
     QChar *data = shapeBuffer;
@@ -1492,7 +1474,7 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
     if (f + l < item->string->length()) {
         ++l;
     }
-    getArabicProperties((const unsigned short *)(uc+f), l, props.data());
+    qt_getArabicProperties((const unsigned short *)(uc+f), l, props.data());
 
     QVarLengthArray<uint> apply(item->num_glyphs);
 
@@ -4732,7 +4714,7 @@ static bool mac_arabic_shape(QShaperItem *item)
     if (f + l < item->string->length()) {
         ++l;
     }
-    getArabicProperties((const unsigned short *)(item->string->unicode()+f), l, props.data());
+    qt_getArabicProperties((const unsigned short *)(item->string->unicode()+f), l, props.data());
 
     for (int i = 0; i < item->length; ++i) {
         int gpos = item->log_clusters[i];
