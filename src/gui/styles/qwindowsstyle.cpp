@@ -2232,8 +2232,10 @@ QRect QWindowsStyle::subElementRect(SubElement sr, const QStyleOption *opt, cons
     return r;
 }
 
+#ifdef QT3_SUPPORT
 Q_GLOBAL_STATIC_WITH_ARGS(QBitmap, globalVerticalLine, (1, 129))
 Q_GLOBAL_STATIC_WITH_ARGS(QBitmap, globalHorizontalLine, (128, 1))
+#endif
 
 /*! \reimp */
 void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
