@@ -704,7 +704,7 @@ void QAbstractItemView::edit(const QModelIndex &index)
 }
 
 /*!
-    Clears all selected items.
+    Clears all selected items and the current index.
 */
 void QAbstractItemView::clearSelection()
 {
