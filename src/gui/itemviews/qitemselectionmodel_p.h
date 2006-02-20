@@ -38,11 +38,8 @@ public:
     QItemSelection expandSelection(const QItemSelection &selection,
                                    QItemSelectionModel::SelectionFlags command) const;
     
-    void rowsRemoved(const QModelIndex &parent, int start, int end);
-    void columnsRemoved(const QModelIndex &parent, int start, int end);
-
-    void rowsRemoved(const QModelIndex &parent, int start, int end);
-    void columnsRemoved(const QModelIndex &parent, int start, int end);
+    void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
+    void columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
 
     inline void remove(QList<QItemSelectionRange> &r)
     {

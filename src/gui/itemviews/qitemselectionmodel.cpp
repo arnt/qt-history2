@@ -513,26 +513,38 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   \internal
 
 */
-void QItemSelectionModelPrivate::rowsRemoved(const QModelIndex &parent, int start, int end)
+void QItemSelectionModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
+                                                      int start, int end)
 {
     // let the world know that the current index has changed as a result
     Q_Q(QItemSelectionModel);
     if (parent == currentIndex.parent()
-        && currentIndex.row() >= start && currentIndex.row() <= end)
-        emit q->currentChanged(currentIndex, currentIndex);
+        && currentIndex.row() >= start && currentIndex.row() <= end) {
+        QModelIndex old = currentIndex;
+        currentIndex = QModelIndex();
+        emit q->currentChanged(currentIndex, old);
+        emit q->currentRowChanged(currentIndex, old);
+        emit q->currentColumnChanged(currentIndex, old);
+    }
 }
 
 /*!
   \internal
 
 */
-void QItemSelectionModelPrivate::columnsRemoved(const QModelIndex &parent, int start, int end)
+void QItemSelectionModelPrivate::columnsAboutToBeRemoved(const QModelIndex &parent,
+                                                         int start, int end)
 {
     // let the world know that the current index has changed as a result
     Q_Q(QItemSelectionModel);
     if (parent == currentIndex.parent()
-        && currentIndex.column() >= start && currentIndex.column() <= end)
-        emit q->currentChanged(currentIndex, currentIndex);
+        && currentIndex.column() >= start && currentIndex.column() <= end) {
+        QModelIndex old = currentIndex;
+        currentIndex = QModelIndex();
+        emit q->currentChanged(currentIndex, old);
+        emit q->currentRowChanged(currentIndex, old);
+        emit q->currentColumnChanged(currentIndex, old);
+    }
 }
 
 /*!
@@ -577,10 +589,10 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model)
 {
     d_func()->model = model;
     if (model) {
-        connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-                this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
-                this, SLOT(columnsRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&,int,int)),
+                this, SLOT(rowsAboutToBeRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
+                this, SLOT(columnsAboutToBeRemoved(const QModelIndex&,int,int)));
     }
 }
 
@@ -592,10 +604,10 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *par
 {
     d_func()->model = model;
     if (model) {
-        connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-                this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
-                this, SLOT(columnsRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&,int,int)),
+                this, SLOT(rowsAboutToBeRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
+                this, SLOT(columnsAboutToBeRemoved(const QModelIndex&,int,int)));
     }
 }
 
@@ -607,10 +619,10 @@ QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstra
 {
     d_func()->model = model;
     if (model) {
-        connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-                this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
-                this, SLOT(columnsRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&,int,int)),
+                this, SLOT(rowsAboutToBeRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
+                this, SLOT(columnsAboutToBeRemoved(const QModelIndex&,int,int)));
     }
 }
 

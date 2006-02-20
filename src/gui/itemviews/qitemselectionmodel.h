@@ -153,8 +153,8 @@ protected:
 
 private:
     Q_DISABLE_COPY(QItemSelectionModel)
-    Q_PRIVATE_SLOT(d_func(), void columnsRemoved(const QModelIndex&, int, int))
-    Q_PRIVATE_SLOT(d_func(), void rowsRemoved(const QModelIndex&, int, int))
+    Q_PRIVATE_SLOT(d_func(), void columnsAboutToBeRemoved(const QModelIndex&, int, int))
+    Q_PRIVATE_SLOT(d_func(), void rowsAboutToBeRemoved(const QModelIndex&, int, int))
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QItemSelectionModel::SelectionFlags)
