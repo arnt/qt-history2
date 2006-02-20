@@ -203,6 +203,9 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
             format = QImage::Format_Mono;
     }
 
+    if (bi.biHeight < 0)
+        h = -h;                  // support images with negative height
+
     image = QImage(w, h, format);
     if (image.isNull())                        // could not create image
         return false;
@@ -475,6 +478,18 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
             }
         }
         delete[] buf24;
+    }
+
+    if (bi.biHeight < 0) {
+        // Flip the image
+        uchar *buf = new uchar[bpl];
+        h = -bi.biHeight;
+        for (int y = 0; y < h/2; ++y) {
+            memcpy(buf, data + y*bpl, bpl);
+            memcpy(data + y*bpl, data + (h-y-1)*bpl, bpl);
+            memcpy(data + (h-y-1)*bpl, buf, bpl);
+        }
+        delete buf;
     }
 
     return true;
