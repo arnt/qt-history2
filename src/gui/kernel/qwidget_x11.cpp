@@ -1106,13 +1106,13 @@ void QWidgetPrivate::setWindowIcon_sys(bool forceReset)
         if (!QX11Info::appDefaultVisual(xinfo.screen())
             || !QX11Info::appDefaultColormap(xinfo.screen())) {
             // non-default visual/colormap, use 1bpp bitmap
-            if (!forceReset)
+            if (!forceReset || !topData->iconPixmap)
                 topData->iconPixmap = new QBitmap(pixmap);
             h->icon_pixmap = topData->iconPixmap->handle();
         } else {
             // default depth, use a normal pixmap (even though this
             // violates the ICCCM)
-            if (!forceReset)
+            if (!forceReset || !topData->iconPixmap)
                 topData->iconPixmap = new QPixmap(pixmap);
             h->icon_pixmap = topData->iconPixmap->data->x11ConvertToDefaultDepth();
         }
