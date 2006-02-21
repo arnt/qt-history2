@@ -556,7 +556,7 @@ void QItemSelectionModelPrivate::_q_columnsAboutToBeRemoved(const QModelIndex &p
         QModelIndex old = currentIndex;
         if (start > 0) // there are columns to the left of the change
             currentIndex = model->index(old.row(), start - 1, parent);
-        else if (model && end < model->rowCount() - 1) // there are columns to the right of the change
+        else if (model && end < model->columnCount() - 1) // there are columns to the right of the change
             currentIndex = model->index(old.row(), end + 1, parent);
         else // there are no columns left in the table
             currentIndex = QModelIndex();
