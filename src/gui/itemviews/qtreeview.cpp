@@ -1984,12 +1984,6 @@ void QTreeViewPrivate::updateScrollbars()
 {
     Q_Q(QTreeView);
 
-    if (!viewport->isVisible() || viewItems.isEmpty()) {
-        q->verticalScrollBar()->setRange(0, 0);
-        q->verticalScrollBar()->setPageStep(0);
-        return;
-    }
-
     QSize vsize = viewport->size();
     QSize msize = q->maximumViewportSize();
     
@@ -1997,6 +1991,12 @@ void QTreeViewPrivate::updateScrollbars()
     int width = (msize.width() >= header->length() ? msize.width() : vsize.width());
     q->horizontalScrollBar()->setPageStep(width);
     q->horizontalScrollBar()->setRange(0, header->length() - width);
+    
+    if (!viewport->isVisible() || viewItems.isEmpty()) {
+        q->verticalScrollBar()->setRange(0, 0);
+        q->verticalScrollBar()->setPageStep(0);
+        return;
+    }
 
     // set page step size
     int verticalScrollBarValue = q->verticalScrollBar()->value();
