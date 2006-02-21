@@ -83,9 +83,9 @@
      \endcode
 
     Only a small number of configurations are predefined.  You can
-    create your own custom configuration by adding new files to Qt's
-    \c mkspecs/qws/ directory, using existing similar configurations
-    as a starting point.
+    create your own custom configuration by adding new files to the \c
+    mkspecs/qws/ directory, using existing similar configurations as a
+    starting point.
 
     \section1 Step 4: Adjusting the Environment Variables
 
