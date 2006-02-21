@@ -239,7 +239,9 @@ void ListWidgetEditor::updateEditor()
         itemText = item->text();
         itemIcon = item->icon();
     }
+    int cursorPos = ui.itemTextLineEdit->cursorPosition();
     ui.itemTextLineEdit->setText(itemText);
+    ui.itemTextLineEdit->setCursorPosition(cursorPos);
     ui.previewPixmapItemButton->setIcon(itemIcon);
     ui.deletePixmapItemButton->setEnabled(!itemIcon.isNull());
 }
