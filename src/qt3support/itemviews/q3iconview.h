@@ -43,6 +43,7 @@ class Q3IconViewItem;
 class Q3IconViewItemLineEdit;
 class QStringList;
 class Q3IconDragPrivate;
+class QColorGroup;
 
 #ifndef QT_NO_DRAGANDDROP
 
