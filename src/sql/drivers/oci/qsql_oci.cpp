@@ -43,7 +43,7 @@
 # define QOCI_ORACLE10_WORKAROUND
 #endif
 
-#define QOCI_DYNAMIC_CHUNK_SIZE  255
+#define QOCI_DYNAMIC_CHUNK_SIZE 65535
 #define QOCI_PREFETCH_MEM  10240
 
 Q_DECLARE_METATYPE(OCIEnv*)
@@ -513,15 +513,15 @@ static QVariant::Type qDecodeOCIType(int ocitype)
 static OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
 {
     OraFieldInfo ofi;
-    ub2                colType(0);
-    text                *colName = 0;
-    ub4                colNameLen(0);
-    sb1                colScale(0);
-    ub2                colLength(0);
-    ub2                colFieldLength(0);
-    sb2                colPrecision(0);
-    ub1                colIsNull(0);
-    int                r(0);
+    ub2 colType(0);
+    text *colName = 0;
+    ub4 colNameLen(0);
+    sb1 colScale(0);
+    ub2 colLength(0);
+    ub2 colFieldLength(0);
+    sb2 colPrecision(0);
+    ub1 colIsNull(0);
+    int r(0);
     QVariant::Type type(QVariant::Invalid);
 
     r = OCIAttrGet((dvoid*)param,
@@ -807,24 +807,36 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
             }
             break;
         case QVariant::String:
-            dataSize += dataSize + sizeof(QChar);
-//            qDebug("OCIDefineByPosStr: %d", dataSize);
-            r = OCIDefineByPos(d->sql,
-                               &dfn,
-                               d->err,
-                               count,
-                               create(idx, dataSize),
-                               dataSize,
-                               SQLT_STR,
-                               (dvoid *) &(fieldInf[idx].ind),
-                               0, 0, OCI_DEFAULT);
-            if (r == 0)
-                setCharset(dfn);
+            if (ofi.oraType == SQLT_LNG) {
+                r = OCIDefineByPos(d->sql,
+                        &dfn,
+                        d->err,
+                        count,
+                        0,
+                        SB4MAXVAL,
+                        SQLT_LNG,
+                        (dvoid *) &(fieldInf[idx].ind),
+                        0, 0, OCI_DYNAMIC_FETCH);
+            } else {
+                dataSize += dataSize + sizeof(QChar);
+                //qDebug("OCIDefineByPosStr(%d): %d", count, dataSize);
+                r = OCIDefineByPos(d->sql,
+                        &dfn,
+                        d->err,
+                        count,
+                        create(idx, dataSize),
+                        dataSize,
+                        SQLT_STR,
+                        (dvoid *) &(fieldInf[idx].ind),
+                        0, 0, OCI_DEFAULT);
+                if (r == 0)
+                    setCharset(dfn);
+            }
            break;
         default:
             // this should make enough space even with character encoding
             dataSize = (dataSize + 1) * sizeof(utext) ;
-//            qDebug("OCIDefineByPosDef: %d", dataSize);
+            //qDebug("OCIDefineByPosDef(%d): %d", count, dataSize);
             r = OCIDefineByPos(d->sql,
                                 &dfn,
                                 d->err,
@@ -914,6 +926,7 @@ int QOCIResultPrivate::readPiecewise(QVector<QVariant> &values, int index)
         if (r != OCI_SUCCESS)
             qOraWarning("OCIResultPrivate::readPiecewise: unable to get piece info:", d);
         fieldNum = fieldFromDefine(dfn);
+        bool isStringField = fieldInf.at(fieldNum).oraType == SQLT_LNG;
         int chunkSize = QOCI_DYNAMIC_CHUNK_SIZE;
         nullField = false;
         r  = OCIStmtSetPieceInfo(dfn, OCI_HTYPE_DEFINE,
@@ -940,12 +953,19 @@ int QOCIResultPrivate::readPiecewise(QVector<QVariant> &values, int index)
         if (nullField || !chunkSize) {
             fieldInf[fieldNum].ind = -1;
         } else {
-            QByteArray ba = values.at(fieldNum + index).toByteArray();
-            int sz = ba.size();
-            ba.resize(sz + chunkSize);
-            memcpy(ba.data() + sz, (char*)col, chunkSize);
-            values[fieldNum + index] = ba;
-            fieldInf[fieldNum].ind = 0;
+            if (isStringField) {
+                QString str = values.at(fieldNum + index).toString();
+                str += QString::fromUtf16((const unsigned short *)col, chunkSize / 2);
+                values[fieldNum + index] = str;
+                fieldInf[fieldNum].ind = 0;
+            } else {
+                QByteArray ba = values.at(fieldNum + index).toByteArray();
+                int sz = ba.size();
+                ba.resize(sz + chunkSize);
+                memcpy(ba.data() + sz, (char*)col, chunkSize);
+                values[fieldNum + index] = ba;
+                fieldInf[fieldNum].ind = 0;
+            }
         }
     } while (status == OCI_SUCCESS_WITH_INFO || status == OCI_NEED_DATA);
     return r;
@@ -1402,6 +1422,9 @@ void QOCIResultPrivate::getValues(QVector<QVariant> &v, int index)
             continue;
         }
 
+        if (fld.oraType == SQLT_BIN || fld.oraType == SQLT_LBI || fld.oraType == SQLT_LNG)
+            continue; // already fetched piecewise
+
         switch (fld.typ) {
         case QVariant::DateTime:
             v[index + i] = QVariant(qMakeDate(fld.data));
@@ -1412,8 +1435,6 @@ void QOCIResultPrivate::getValues(QVector<QVariant> &v, int index)
             v[index + i] = QVariant(QString::fromUtf16((const short unsigned int*)fld.data));
             break;
         case QVariant::ByteArray:
-            if (fld.oraType == SQLT_BIN || fld.oraType == SQLT_LBI)
-                break;; // already fetched piecewise
             if (fld.len > 0)
                 v[index + i] = QByteArray(fld.data, fld.len);
             else
