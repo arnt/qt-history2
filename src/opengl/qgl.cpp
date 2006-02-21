@@ -2921,7 +2921,6 @@ void QGLWidget::renderText(double x, double y, double z, const QString & str, co
 
     glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_2D);
-    glDisable(GL_TEXTURE_RECTANGLE_NV);
     glDisable(GL_CULL_FACE);
 
     glRasterPos3d(x, y, z);
