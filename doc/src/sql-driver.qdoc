@@ -127,8 +127,8 @@
     to \c libmysqld instead of libmysqlclient. This can be done by replacing
     \c -lmysqlclient_r by \c -lmysqld in the \c qmake command in the section below.
 
-    Please refer to the MySQL documentation, chapter 23.1 for more information
-    about the MySQL embedded server.
+    Please refer to the MySQL documentation, chapter "libmysqld, the Embedded
+    MySQL Server Library" for more information about the MySQL embedded server.
 
     \section3 How to Build the Plugin on Unix and Mac OS X
 
