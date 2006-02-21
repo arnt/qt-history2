@@ -895,12 +895,206 @@ static const char * const file_link_xpm[]={
 
 #endif //QT_NO_IMAGEFORMAT_XPM
 
+#ifdef Q_WS_WIN
+QPixmap convertHIconToPixmap( const HICON icon)
+{
+    bool foundAlpha = false;
+    HDC screenDevice = qt_win_display_dc();
+    HDC hdc = CreateCompatibleDC(screenDevice); 
+
+    ICONINFO iconinfo;
+    GetIconInfo(icon, &iconinfo); //x and y Hotspot describes the icon center
+    
+    //create image
+    HBITMAP winBitmap = CreateBitmap(iconinfo.xHotspot * 2, iconinfo.yHotspot * 2, 1, 32, 0); 
+    HGDIOBJ oldhdc = SelectObject(hdc, winBitmap); 
+    DrawIconEx( hdc, 0, 0, icon, iconinfo.xHotspot * 2, iconinfo.yHotspot * 2, 0, 0, DI_NORMAL);
+    QPixmap::HBitmapFormat alphaType = QPixmap::PremultipliedAlpha;
+    
+    BITMAP bitmapData;
+    GetObject(iconinfo.hbmColor, sizeof(BITMAP), &bitmapData);
+    
+    QPixmap iconpixmap = QPixmap::fromWinHBITMAP(winBitmap, alphaType);
+    QImage img = iconpixmap.toImage();
+    
+    if ( bitmapData.bmBitsPixel == 32 ) { //only check 32 bit images for alpha
+        for (int y = 0 ; y < iconpixmap.height() && !foundAlpha ; y++) {
+            QRgb *scanLine= reinterpret_cast<QRgb *>(img.scanLine(y));
+            for (int x = 0; x < img.width() ; x++) {
+                if (qAlpha(scanLine[x]) != 0) {
+                    foundAlpha = true;
+                    break;
+                }
+            }
+        }
+    }
+    
+    if (!foundAlpha) {
+        //If no alpha was found, we use the mask to set alpha values
+        HBITMAP winMask = CreateBitmap(iconinfo.xHotspot * 2, iconinfo.yHotspot * 2, 1, 32, 0); 
+        SelectObject(hdc, winMask); 
+        DrawIconEx( hdc, 0, 0, icon, iconinfo.xHotspot * 2, iconinfo.yHotspot * 2, 0, 0, DI_MASK);
+        
+        QPixmap maskPixmap = QPixmap::fromWinHBITMAP(winMask, alphaType);
+        QImage mask = maskPixmap.toImage();
+        
+        for (int y = 0 ; y< iconpixmap.height() ; y++){
+            QRgb *scanlineImage = reinterpret_cast<QRgb *>(img.scanLine(y));
+            QRgb *scanlineMask = reinterpret_cast<QRgb *>(mask.scanLine(y));
+            for (int x = 0; x < img.width() ; x++){
+                if (qRed(scanlineMask[x]) != 0)
+                    scanlineImage[x] = 0; //mask out this pixel
+                else 
+                    scanlineImage[x] |= 0xff000000; // set the alpha channel to 255
+            }
+        }
+        DeleteObject(winMask);
+    }
+    
+    //dispose resources created by iconinfo call
+    DeleteObject(iconinfo.hbmMask);
+    DeleteObject(iconinfo.hbmColor);
+         
+    SelectObject(hdc, oldhdc); //restore state
+    DeleteDC(hdc);
+    DeleteObject(winBitmap);
+    return QPixmap::fromImage(img);
+}
+
+QPixmap loadIconFromShell32( int resourceId, int size )
+{
+    HMODULE hmod = LoadLibraryA("shell32.dll");
+    if( hmod ) {
+        HICON iconHandle = (HICON)LoadImage(hmod, MAKEINTRESOURCE(resourceId), IMAGE_ICON, size, size, 0);
+        if( iconHandle ) {
+            QPixmap iconpixmap = convertHIconToPixmap( iconHandle );
+            DestroyIcon(iconHandle);
+            return iconpixmap;
+        }
+    }
+    return QPixmap();
+}
+#endif
+
 /*!
  \reimp
  */
 QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                       const QWidget *widget) const
 {
+#ifdef Q_WS_WIN
+    QPixmap desktopIcon;
+    switch(standardPixmap) {
+    case SP_DriveCDIcon:
+    case SP_DriveDVDIcon:
+        {
+            desktopIcon = loadIconFromShell32(12, 16);
+            break;
+        }
+    case SP_DriveNetIcon:
+        {
+            desktopIcon = loadIconFromShell32(10, 16);
+            break;
+        }
+    case SP_DriveHDIcon:
+        {
+            desktopIcon = loadIconFromShell32(9, 16);
+            break;
+        }
+    case SP_DriveFDIcon:
+        {
+            desktopIcon = loadIconFromShell32(7, 16);
+            break;
+        }
+    case SP_FileIcon:
+        {
+            desktopIcon = loadIconFromShell32(1, 16);
+            break;
+        }
+    case SP_FileLinkIcon:
+        {
+            desktopIcon = loadIconFromShell32(1, 16);
+            QPainter painter(&desktopIcon);
+            QPixmap link = loadIconFromShell32(30, 16);
+            painter.drawPixmap(0, 0, 16, 16, link);
+            break;
+        }
+    case SP_DirLinkIcon:
+        {
+            desktopIcon = loadIconFromShell32(4, 16);
+            QPainter painter(&desktopIcon);
+            QPixmap link = loadIconFromShell32(30, 16);
+            painter.drawPixmap(0, 0, 16, 16, link);
+            break;
+        } 
+    case SP_DirClosedIcon:
+        {
+            desktopIcon = loadIconFromShell32(4, 16);
+            break;
+        }
+    case SP_DesktopIcon:
+        {
+            desktopIcon = loadIconFromShell32(35, 16);
+            break;
+        }
+    case SP_ComputerIcon:
+        {
+            desktopIcon = loadIconFromShell32(16, 16);
+            break;
+        }
+    case SP_DirOpenIcon:
+        {
+            desktopIcon = loadIconFromShell32(5, 16);
+            break;
+        }
+    case SP_FileDialogNewFolder:
+        {
+            desktopIcon = loadIconFromShell32(319, 16);
+            break;
+        }
+    case SP_FileDialogToParent:
+        {
+            desktopIcon = loadIconFromShell32(255, 16);
+            break;
+        }
+    case SP_TrashIcon:
+        {
+            desktopIcon = loadIconFromShell32(191, 16);
+            break;
+        }
+    case SP_MessageBoxInformation:
+        {
+            HICON iconHandle = LoadIcon(NULL, IDI_INFORMATION); 
+            desktopIcon = convertHIconToPixmap( iconHandle );
+            DestroyIcon(iconHandle);
+            break;
+        }
+    case SP_MessageBoxWarning:
+        {
+            HICON iconHandle = LoadIcon(NULL, IDI_WARNING); 
+            desktopIcon = convertHIconToPixmap( iconHandle );
+            DestroyIcon(iconHandle);
+            break;
+        }
+    case SP_MessageBoxCritical:
+        {
+            HICON iconHandle = LoadIcon(NULL, IDI_ERROR); 
+            desktopIcon = convertHIconToPixmap( iconHandle );
+            DestroyIcon(iconHandle);
+            break;
+        }
+    case SP_MessageBoxQuestion:
+        {
+            HICON iconHandle = LoadIcon(NULL, IDI_QUESTION); 
+            desktopIcon = convertHIconToPixmap( iconHandle );
+            DestroyIcon(iconHandle);
+            break;
+        }
+    }
+    if (!desktopIcon.isNull()) {
+        return desktopIcon;
+    }
+#endif
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
     case SP_TitleBarMenuButton:
