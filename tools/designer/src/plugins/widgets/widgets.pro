@@ -23,7 +23,12 @@ DEPENDPATH += q3buttongroup \
               q3wizard \
               q3listbox \
               q3table \
-              q3textedit
+              q3textedit \
+              q3dateedit \
+              q3timeedit \
+              q3datetimeedit \
+              q3progressbar \
+              q3textbrowser
 
 INCLUDEPATH += . \
                q3buttongroup \
@@ -37,7 +42,12 @@ INCLUDEPATH += . \
                q3wizard \
                q3listbox \
                q3table \
-               q3textedit
+               q3textedit \
+               q3dateedit \
+               q3timeedit \
+               q3datetimeedit \
+               q3progressbar \
+               q3textbrowser
 
 
 SOURCES += qt3supportwidgets.cpp
@@ -64,7 +74,12 @@ HEADERS += q3buttongroup/q3buttongroup_plugin.h \
            q3table/q3table_extrainfo.h \
            q3table/q3table_plugin.h \
            q3textedit/q3textedit_extrainfo.h \
-           q3textedit/q3textedit_plugin.h
+           q3textedit/q3textedit_plugin.h \
+           q3dateedit/q3dateedit_plugin.h \
+           q3timeedit/q3timeedit_plugin.h \
+           q3datetimeedit/q3datetimeedit_plugin.h \
+           q3progressbar/q3progressbar_plugin.h \
+           q3textbrowser/q3textbrowser_plugin.h
 
 SOURCES += q3buttongroup/q3buttongroup_plugin.cpp \
            q3frame/q3frame_plugin.cpp \
@@ -87,4 +102,9 @@ SOURCES += q3buttongroup/q3buttongroup_plugin.cpp \
            q3table/q3table_extrainfo.cpp \
            q3table/q3table_plugin.cpp \
            q3textedit/q3textedit_extrainfo.cpp \
-           q3textedit/q3textedit_plugin.cpp
+           q3textedit/q3textedit_plugin.cpp \
+           q3dateedit/q3dateedit_plugin.cpp \
+           q3timeedit/q3timeedit_plugin.cpp \
+           q3datetimeedit/q3datetimeedit_plugin.cpp \
+           q3progressbar/q3progressbar_plugin.cpp \
+           q3textbrowser/q3textbrowser_plugin.cpp
