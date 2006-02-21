@@ -2892,7 +2892,8 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt,
     glRasterPos2i(0, 0);
     glBitmap(0, 0, 0, 0, x, -y, NULL);
     glListBase(fontDisplayListBase(fnt, listBase));
-    glCallLists(str.length(), GL_UNSIGNED_BYTE, str.toLocal8Bit());
+    QByteArray cstr(str.toLatin1());
+    glCallLists(cstr.size(), GL_UNSIGNED_BYTE, cstr.constData());
 
     if (fnt.underline() || fnt.strikeOut() || fnt.overline())
         qt_drawFontLining(x, y, str, fnt);
@@ -2925,7 +2926,8 @@ void QGLWidget::renderText(double x, double y, double z, const QString & str, co
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glListBase(fontDisplayListBase(fnt, listBase));
-    glCallLists(str.length(), GL_UNSIGNED_BYTE, str.toLocal8Bit());
+    QByteArray cstr(str.toLatin1());
+    glCallLists(cstr.size(), GL_UNSIGNED_BYTE, cstr.constData());
 
     if (fnt.underline() || fnt.strikeOut() || fnt.overline()) {
         GLdouble model[4][4], proj[4][4];
