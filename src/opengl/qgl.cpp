@@ -2848,6 +2848,8 @@ int QGLWidget::fontDisplayListBase(const QFont & fnt, int listBase)
    follow the last generated list. You would normally not have to
    change this value unless you are using lists in the same range. The
    lists are deleted when the widget is destroyed.
+
+   Note: this function only works reliably with ASCII strings.
 */
 
 static void qt_drawFontLining(double x, double y, const QString &str, const QFont &font)
