@@ -513,7 +513,7 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   \internal
 
 */
-void QItemSelectionModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
+void QItemSelectionModelPrivate::_q_rowsAboutToBeRemoved(const QModelIndex &parent,
                                                       int start, int end)
 {
     Q_Q(QItemSelectionModel);
@@ -545,7 +545,7 @@ void QItemSelectionModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
   \internal
 
 */
-void QItemSelectionModelPrivate::columnsAboutToBeRemoved(const QModelIndex &parent,
+void QItemSelectionModelPrivate::_q_columnsAboutToBeRemoved(const QModelIndex &parent,
                                                          int start, int end)
 {
     Q_Q(QItemSelectionModel);
@@ -616,9 +616,9 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model)
     d_func()->model = model;
     if (model) {
         connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(rowsAboutToBeRemoved(const QModelIndex&,int,int)));
+                this, SLOT(_q_rowsAboutToBeRemoved(const QModelIndex&,int,int)));
         connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(columnsAboutToBeRemoved(const QModelIndex&,int,int)));
+                this, SLOT(_q_columnsAboutToBeRemoved(const QModelIndex&,int,int)));
     }
 }
 
@@ -631,9 +631,9 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *par
     d_func()->model = model;
     if (model) {
         connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(rowsAboutToBeRemoved(const QModelIndex&,int,int)));
+                this, SLOT(_q_rowsAboutToBeRemoved(const QModelIndex&,int,int)));
         connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(columnsAboutToBeRemoved(const QModelIndex&,int,int)));
+                this, SLOT(_q_columnsAboutToBeRemoved(const QModelIndex&,int,int)));
     }
 }
 
@@ -646,9 +646,9 @@ QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstra
     d_func()->model = model;
     if (model) {
         connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(rowsAboutToBeRemoved(const QModelIndex&,int,int)));
+                this, SLOT(_q_rowsAboutToBeRemoved(const QModelIndex&,int,int)));
         connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(columnsAboutToBeRemoved(const QModelIndex&,int,int)));
+                this, SLOT(_q_columnsAboutToBeRemoved(const QModelIndex&,int,int)));
     }
 }
 
