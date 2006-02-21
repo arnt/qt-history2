@@ -2966,12 +2966,13 @@ void QWorkspaceChild::adjustToFullscreen()
         setGeometry(parentWidget()->rect());
     } else {
         int fw =  style()->pixelMetric(QStyle::PM_MDIFrameWidth, 0, this);
+        bool noBorder = style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar);
         int th = titlebar ? titlebar->sizeHint().height() : 0;
         int w = parentWidget()->width() + 2*fw;
         int h = parentWidget()->height() + 2*fw + th;
         w = qMax(w, childWidget->minimumWidth());
         h = qMax(h, childWidget->minimumHeight());
-        setGeometry(-fw, -fw - th, w, h);
+        setGeometry(-fw, (noBorder ? 0 : -fw) - th, w, h);
     }
     childWidget->overrideWindowState(Qt::WindowMaximized);
     overrideWindowState(Qt::WindowMaximized);
