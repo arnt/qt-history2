@@ -134,9 +134,10 @@ QItemDelegate::~QItemDelegate()
     Renders the delegate using the given \a painter and style \a option for
     the item specified by \a index.
 
-    When reimplementing this function in a subclass, you should use the
-    \a option to determine the state of the item to be displated and adjust
-    the way it is painted accordingly.
+    When reimplementing this function in a subclass, you should update the area
+    held by the option's \l{QStyleOption::rect}{rect} variable, using the
+    option's \l{QStyleOption::state}{state} variable to determine the state of
+    the item to be displayed, and adjust the way it is painted accordingly.
 
     For example, a selected item may need to be displayed differently to
     unselected items, as shown in the following code:
