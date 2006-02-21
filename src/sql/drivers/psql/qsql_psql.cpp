@@ -53,6 +53,11 @@
 Q_DECLARE_METATYPE(PGconn*)
 Q_DECLARE_METATYPE(PGresult*)
 
+/* This is a compile time switch - if PQfreemem is declared, the compiler will use that one,
+   otherwise it'll run in this template */
+template <typename T>
+inline void PQfreemem(T *t, int = 0) { free(t); }
+
 class QPSQLDriverPrivate
 {
 public:
