@@ -1657,6 +1657,8 @@ bool QHeaderView::viewportEvent(QEvent *e)
         }
         return true; }
 #endif // QT_NO_STATUSTIP
+    case QEvent::Hide:
+    case QEvent::Show:
     case QEvent::FontChange:
         resizeSections();
         emit geometriesChanged();
