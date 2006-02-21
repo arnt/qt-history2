@@ -124,8 +124,35 @@ void XFormView::setAnimation(bool animate)
 
 void XFormView::changeRotation(int r)
 {
+    setRotation(double(r)/10.0);
+}
+
+void XFormView::changeScale(int s)
+{
+    setScale(double(s)/1000.0);
+}
+
+void XFormView::changeShear(int s)
+{
+    setShear(double(s)/1000.0);
+}
+
+void XFormView::setShear(double s)
+{
+    m_shear = s;
+    update();
+}
+
+void XFormView::setScale(double s)
+{
+    m_scale = s;
+    update();
+}
+
+void XFormView::setRotation(double r)
+{
     double old_rot = m_rotation;
-    m_rotation = double(r/10.0);
+    m_rotation = r;
 
     QPointF center(pts->points().at(0));
     QMatrix m;
@@ -134,18 +161,6 @@ void XFormView::changeRotation(int r)
     m.translate(-center.x(), -center.y());
     pts->setPoints(pts->points() * m);
 
-    update();
-}
-
-void XFormView::changeScale(int s)
-{
-    m_scale = double(s/1000.0);
-    update();
-}
-
-void XFormView::changeShear(int s)
-{
-    m_shear = double(s/1000.0);
     update();
 }
 

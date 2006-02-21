@@ -27,9 +27,9 @@ class XFormView : public ArthurFrame
     Q_OBJECT
 
     Q_PROPERTY(bool animation READ animation WRITE setAnimation)
-    Q_PROPERTY(double shear READ shear WRITE changeShear)
-    Q_PROPERTY(double rotation READ rotation WRITE changeRotation)
-    Q_PROPERTY(double scale READ scale WRITE changeScale)
+    Q_PROPERTY(double shear READ shear WRITE setShear)
+    Q_PROPERTY(double rotation READ rotation WRITE setRotation)
+    Q_PROPERTY(double scale READ scale WRITE setScale)
 
 public:
     XFormView(QWidget *parent);
@@ -49,6 +49,9 @@ public:
     double shear() const { return m_shear; }
     double scale() const { return m_scale; }
     double rotation() const { return m_rotation; }
+    void setShear(double s);
+    void setScale(double s);
+    void setRotation(double r);
 
 public slots:
     void setAnimation(bool animate);

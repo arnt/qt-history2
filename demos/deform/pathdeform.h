@@ -42,9 +42,9 @@ public:
     QSize sizeHint() const { return QSize(600, 500); }
 
     bool animated() const { return m_animated; }
-    int radius() const { return m_radius; }
+    int radius() const { return int(m_radius); }
     int fontSize() const { return m_fontSize; }
-    int intensity() const { return m_intensity; }
+    int intensity() const { return int(m_intensity); }
     QString text() const { return m_text; }
 
 public slots:
