@@ -4,8 +4,15 @@ HEADERS		= ../../../sql/drivers/psql/qsql_psql.h
 SOURCES		= main.cpp \
 		  ../../../sql/drivers/psql/qsql_psql.cpp
 
-unix:!contains( LIBS, .*pq.* ):LIBS	*= -lpq
-	
+unix: {
+    isEmpty(QT_LFLAGS_PSQL) {
+        !contains(LIBS, .*pq.*):LIBS *= -lpq
+    } else {
+        LIBS *= $$QT_LFLAGS_PSQL
+        QMAKE_CXXFLAGS *= $$QT_CFLAGS_PSQL
+    }
+}
+
 win32:!contains(LIBS, .*pq.* ) {
     !win32-g++:LIBS    *= -llibpq       
     win32-g++:LIBS *= -lpq	
