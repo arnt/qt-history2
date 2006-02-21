@@ -1482,6 +1482,17 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             dom_prop->setElementSizePolicy(dom);
         } break;
 
+        case QVariant::Date: {
+            DomDate *dom = new DomDate();
+            QDate date = qvariant_cast<QDate>(v);
+
+            dom->setElementYear(date.year());
+            dom->setElementMonth(date.month());
+            dom->setElementDay(date.day());
+
+            dom_prop->setElementDate(dom);
+        } break;
+
         case QVariant::Time: {
             DomTime *dom = new DomTime();
             QTime time = qvariant_cast<QTime>(v);
@@ -1491,6 +1502,20 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             dom->setElementSecond(time.second());
 
             dom_prop->setElementTime(dom);
+        } break;
+
+        case QVariant::DateTime: {
+            DomDateTime *dom = new DomDateTime();
+            QDateTime dateTime = qvariant_cast<QDateTime>(v);
+
+            dom->setElementHour(dateTime.time().hour());
+            dom->setElementMinute(dateTime.time().minute());
+            dom->setElementSecond(dateTime.time().second());
+            dom->setElementYear(dateTime.date().year());
+            dom->setElementMonth(dateTime.date().month());
+            dom->setElementDay(dateTime.date().day());
+            
+            dom_prop->setElementDateTime(dom);
         } break;
 
         case QVariant::Url: {
