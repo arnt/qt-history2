@@ -149,7 +149,10 @@
 
     That's all. Qtopia Core is now installed.
 
-    \section1 Customizing the Qtopia Core Library
+    \table 100%
+    \row
+    \o
+    \bold {Customizing the Qtopia Core Library}
 
     When building embedded applications on low-powered devices,
     reducing the memory and CPU requirements are important.
@@ -168,8 +171,7 @@
     In addition, it is possible to specify the \l {Pointer
     Handling}{pointer handling} as well as the \l{Character
     Input}{character input} and \l {Fonts}{font formats}.
-
-    \sa {Running Applications}, {Porting Applications to Qtopia Core}
+    \endtable
 
 \omit ### this doesn't exist anymore
     \list

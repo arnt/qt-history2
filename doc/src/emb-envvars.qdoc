@@ -35,6 +35,8 @@
     special format: the specification should include a rotation as a multiple
     of 90 degrees given as Rot\<x\>, for instance Transformed:Rot90.
 
+    See also \l {Running Applications}
+
     \row
     \o \bold QWS_SIZE \target QWS_SIZE
     \o If defined forces Qtopia Core into a window of \<width\> x
