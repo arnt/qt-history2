@@ -7,20 +7,22 @@
     \ingroup qtopia-core
     \ingroup installation
 
-    The following installation procedure is written for Linux, and may
-    need to be modified for other platforms.
-
     \tableofcontents
+
+    Note that the installation procedure is written for Linux, and may
+    need to be modified for other platforms.
 
     \section1 Step 1: Installing the License File (commercial editions only)
 
-    If you have the commercial edition of Qtopia Core, install your
-    license file as \c $HOME/.qt-license. For the open source version
-    you do not need a license file.
+    If you have the commercial edition of Qtopia Core, the first step
+    is to install your license file as \c $HOME/.qt-license.
+
+    For the open source version you do not need a license file.
 
     \section1 Step 2: Unpacking the Archive
 
-    First, you must uncompress the archive, then unpack it:
+    First uncompress the archive in the preferred location, then
+    unpack it:
 
     \code
         cd <anywhere>
@@ -28,7 +30,8 @@
         tar xf qtopia-core-commercial-src-%VERSION%.tar
     \endcode
 
-    This document assumes that the archive is installed as
+    This document assumes that the archive is unpacked in the
+    following directory:
 
     \code
         ~/qtopia-core-commercial-src-%VERSION%
@@ -36,18 +39,18 @@
 
     \section1 Step 3: Building the Library
 
-    To configure the Qtopia Core library for your deployment
-    architecture, type:
+    Before building the Qtopia Core library, run the \c ./configure
+    script to configure the library for your deployment architecture:
 
     \code
-        cd ~/qtopia-core-commercial-src-%VERSION%
+        cd  ~/qtopia-core-commercial-src-%VERSION%
         ./configure -embedded [architecture]
     \endcode
 
     The configuration system is designed to allow platform-specific
-    options to be added, typical architectures are x86 and arm. Type
-    "./configure -help" to get a list of all available options. In
-    general all Linux systems which have framebuffer support can use
+    options to be added, typical architectures are x86 and arm. To get
+    a list of all available options, type \c {./configure -help}. In
+    general, all Linux systems which have framebuffer support can use
     the "linux-generic-g++" platform.
 
     To create the library and compile all the demos, examples, tools,
@@ -68,8 +71,8 @@
 
     and enter the root password. Qtopia Core is by default installed
     into the \c /usr/local/Trolltech/QtopiaCore-%VERSION% directory
-    but this can be changed by using \c configure's \c -prefix
-    parameter.
+    but this can be changed by using the \c configure script's \c
+    -prefix parameter.
 
     The configuration system also supports cross-compilers. For
     example, to build on Linux/x86 for the Linux/MIPSEL target, you
@@ -79,9 +82,6 @@
         ./configure -embedded mips
      \endcode
 
-    Note that when cross-compiling the "make install" approach is not
-    desirable since ...
-
     Only a small number of configurations are predefined.  You can
     create your own custom configuration by adding new files to Qt's
     \c mkspecs/qws/ directory, using existing similar configurations
@@ -89,21 +89,21 @@
 
     \section1 Step 4: Adjusting the Environment Variables
 
-    In order to use Qtopia Core, some environment variables needs to
-    be extended, the \c PATH variable to locate \c qmake, \c moc and
-    other Qtopia Core tools, and the \c LD_LIBRARY_PATH for compilers
-    that do not support \c rpath.
+    In order to use Qtopia Core, the \c PATH variable must be extended
+    to locate \c qmake, \c moc and other Qtopia Core tools, and the \c
+    LD_LIBRARY_PATH must be extended for compilers that do not support
+    \c rpath.
 
-    To set the \c PATH variable, add the following lines in \c
-    .profile if your shell is bash, ksh, zsh or sh:
+    To set the \c PATH variable, add the following lines to your \c
+    .profile file if your shell is bash, ksh, zsh or sh:
 
     \code
         PATH=/usr/local/Trolltech/QtopiaCore-%VERSION%/bin:$PATH
         export PATH
     \endcode
 
-    In case your shell is csh or tcsh, add the following line in
-    \c .login instead:
+    In case your shell is csh or tcsh, add the following line to the
+    \c .login file instead:
 
     \code
         setenv PATH /usr/local/Trolltech/QtopiaCore-%VERSION%/bin:$PATH
@@ -113,7 +113,7 @@
     variables accordingly.
 
     For compilers that do not support \c rpath you must also extended
-    the LD_LIBRARY_PATH environment variable to include
+    the \c LD_LIBRARY_PATH environment variable to include
     \c /usr/local/Trolltech/QtopiaCore-%VERSION%/lib. Note that on Linux
     with GCC, this step is not needed.
 
@@ -121,12 +121,13 @@
 
     Qtopia Core applications write directly to the framebuffer,
     eliminating the need for the X Window System and saving
-    memory. For development and debugging, the Qtopia Core platform
-    provides a virtual framebuffer as well as the option of running
-    Qtopia Core as a VNC server.
+    memory. The final step in the installation procedure is to enable
+    the framebuffer support.
 
-    For a description of how to install the virtual frame buffer and
-    how to run Qtopia Core as a VNC server, please consult the
+    For development and debugging, the Qtopia Core platform provides a
+    virtual framebuffer as well as the option of running Qtopia Core
+    as a VNC server. For a description of how to install the virtual
+    framebuffer and how to use the VNC protocol, please consult the
     documentation at:
 
     \list
@@ -134,19 +135,21 @@
        \o \l {Running as a VNC Server}
     \endlist
 
-    Please note that the virtual framebuffer requires a Qt/X11
+    Note that the virtual framebuffer requires a Qt/X11
     installation.
 
-    The Linux framebuffer is enabled by default on all modern Linux
-    distributions. For information on older versions, see \l
-    http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html. To test that the
-    Linux framebuffer is set up correctly, and that the device
-    permissions are correct, use the program provided by the \l
-    {Testing the Linux Framebuffer} document.
+    No particular actions are required to enable the framebuffer on
+    target devices: The Linux framebuffer is enabled by default on all
+    modern Linux distributions. For information on older versions, see
+    \l http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html.
+
+    To test that the Linux framebuffer is set up correctly, and that
+    the device permissions are correct, use the program provided by
+    the \l {Testing the Linux Framebuffer} document.
 
     That's all. Qtopia Core is now installed.
 
-    \section1 Step 6: Customizing the Qtopia Core Library (optional)
+    \section1 Customizing the Qtopia Core Library
 
     When building embedded applications on low-powered devices,
     reducing the memory and CPU requirements are important.
@@ -155,8 +158,6 @@
     available. But the most direct way of saving resources is to
     fine-tune the set of Qt features that is compiled. It is also
     possible to make use of accelerated graphics hardware.
-
-    For more information, please consult the documentation at:
 
     \list
         \o \l {Fine-Tuning Features}
