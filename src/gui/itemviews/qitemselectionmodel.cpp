@@ -516,8 +516,9 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
 void QItemSelectionModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
                                                       int start, int end)
 {
-    // let the world know that the current index has changed as a result
     Q_Q(QItemSelectionModel);
+
+    // update current index
     if (currentIndex.isValid() && parent == currentIndex.parent()
         && currentIndex.row() >= start && currentIndex.row() <= end) {
         QModelIndex old = currentIndex;
@@ -532,6 +533,12 @@ void QItemSelectionModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
         if (currentIndex.column() != old.column())
             emit q->currentColumnChanged(currentIndex, old);
     }
+
+    // update selectionsx
+    QModelIndex tl = model->index(start, 0, parent);
+    QModelIndex br = model->index(end, model->columnCount(parent) - 1, parent);
+    q->select(QItemSelection(tl, br), QItemSelectionModel::Deselect);
+    finalize();
 }
 
 /*!
@@ -541,8 +548,9 @@ void QItemSelectionModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
 void QItemSelectionModelPrivate::columnsAboutToBeRemoved(const QModelIndex &parent,
                                                          int start, int end)
 {
-    // let the world know that the current index has changed as a result
     Q_Q(QItemSelectionModel);
+
+    // update current index
     if (currentIndex.isValid() && parent == currentIndex.parent()
         && currentIndex.column() >= start && currentIndex.column() <= end) {
         QModelIndex old = currentIndex;
@@ -557,6 +565,12 @@ void QItemSelectionModelPrivate::columnsAboutToBeRemoved(const QModelIndex &pare
             emit q->currentRowChanged(currentIndex, old);
         emit q->currentColumnChanged(currentIndex, old);
     }
+    
+    // update selections
+    QModelIndex tl = model->index(0, start, parent);
+    QModelIndex br = model->index(model->rowCount(parent) - 1, end, parent);
+    q->select(QItemSelection(tl, br), QItemSelectionModel::Deselect);
+    finalize();
 }
 
 /*!
@@ -749,10 +763,8 @@ void QItemSelectionModel::select(const QItemSelection &selection, QItemSelection
     }
 
     // merge and clear currentSelection if Current was not set (ie. start new currentSelection)
-    if (!(command & Current)) {
-        d->ranges.merge(d->currentSelection, d->currentCommand);
-        d->currentSelection.clear();
-    }
+    if (!(command & Current))
+        d->finalize();
 
     // update currentSelection
     if (command & Toggle || command & Select || command & Deselect) {

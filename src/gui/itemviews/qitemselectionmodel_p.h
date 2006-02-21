@@ -48,6 +48,12 @@ public:
             ranges.removeAll(*it);
     }
 
+    inline void finalize()
+    {
+        ranges.merge(currentSelection, currentCommand);
+        currentSelection.clear();
+    }
+
     QPointer<QAbstractItemModel> model;
     QItemSelection ranges;
     QItemSelection currentSelection;
