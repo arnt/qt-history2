@@ -3451,7 +3451,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     EXCEPINFO excepinfo;
     memset(&excepinfo, 0, sizeof(excepinfo));
 
-    WORD wFlags = (isProperty && params.cArgs == 1) ? DISPATCH_PROPERTYPUT : DISPATCH_METHOD;
+    WORD wFlags = (isProperty && params.cArgs == 1) ? DISPATCH_PROPERTYPUT : DISPATCH_METHOD | DISPATCH_PROPERTYGET;
     hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, wFlags, &params, pret, &excepinfo, &argerr);
 
     // set return value
@@ -3586,7 +3586,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
     bool parse = false;
 
     if (function.contains('(')) {
-        disptype = DISPATCH_METHOD;
+        disptype = DISPATCH_METHOD | DISPATCH_PROPERTYGET;
         if (d->useMetaObject)
             id = mo->indexOfSlot(function);
         if (id >= 0) {
@@ -3752,10 +3752,8 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
     UINT argerr = 0;
 
     HRESULT hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, disptype, &params, res, &excepinfo, &argerr);
-    if (hres == DISP_E_MEMBERNOTFOUND && disptype == DISPATCH_METHOD)
-        hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, &excepinfo, &argerr);
 
-    if (disptype == DISPATCH_METHOD && hres == S_OK && varc) {
+    if (disptype == (DISPATCH_METHOD|DISPATCH_PROPERTYGET) && hres == S_OK && varc) {
         for (int i = 0; i < varc; ++i)
             if (arg[varc-i-1].vt & VT_BYREF) // update out-parameters
                 vars[i] = VARIANTToQVariant(arg[varc-i-1], vars.at(i).typeName());
