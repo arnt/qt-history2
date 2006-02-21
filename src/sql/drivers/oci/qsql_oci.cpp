@@ -60,11 +60,11 @@ static const ub2 qOraCharset = OCI_UCS2ID;
 
 typedef QVarLengthArray<sb2, 32> IndicatorArray;
 
-QByteArray qMakeOraDate(const QDateTime& dt);
-QDateTime qMakeDate(const char* oraDate);
-QString qOraWarn(const QOCIPrivate* d);
-void qOraWarning(const char* msg, const QOCIPrivate* d);
-QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, const QOCIPrivate* p);
+static QByteArray qMakeOraDate(const QDateTime& dt);
+static QDateTime qMakeDate(const char* oraDate);
+static QString qOraWarn(const QOCIPrivate* d);
+static void qOraWarning(const char* msg, const QOCIPrivate* d);
+static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, const QOCIPrivate* p);
 
 class QOCIRowId: public QSharedData
 {
@@ -399,7 +399,7 @@ void qOraWarning(const char* msg, const QOCIPrivate* d)
     qWarning("%s %s", msg, qOraWarn(d).toLocal8Bit().constData());
 }
 
-int qOraErrorNumber(const QOCIPrivate* d)
+static int qOraErrorNumber(const QOCIPrivate* d)
 {
     sb4 errcode;
     OCIErrorGet((dvoid *)d->err,
@@ -414,10 +414,10 @@ int qOraErrorNumber(const QOCIPrivate* d)
 
 QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, const QOCIPrivate* p)
 {
-    return QSqlError(QLatin1String("QOCI: ") + err, qOraWarn(p), type);
+    return QSqlError(QLatin1String("QOCI: ") + err, qOraWarn(p), type, qOraErrorNumber(p));
 }
 
-QVariant::Type qDecodeOCIType(const QString& ocitype, int ocilen, int ociprec, int ociscale)
+static QVariant::Type qDecodeOCIType(const QString& ocitype, int ocilen, int ociprec, int ociscale)
 {
     QVariant::Type type = QVariant::Invalid;
     if (ocitype == QLatin1String("VARCHAR2") || ocitype == QLatin1String("VARCHAR")
@@ -451,7 +451,7 @@ QVariant::Type qDecodeOCIType(const QString& ocitype, int ocilen, int ociprec, i
     return type;
 }
 
-QVariant::Type qDecodeOCIType(int ocitype)
+static QVariant::Type qDecodeOCIType(int ocitype)
 {
     QVariant::Type type = QVariant::Invalid;
     switch (ocitype) {
@@ -510,7 +510,7 @@ QVariant::Type qDecodeOCIType(int ocitype)
         return type;
 }
 
-OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
+static OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
 {
     OraFieldInfo ofi;
     ub2                colType(0);
