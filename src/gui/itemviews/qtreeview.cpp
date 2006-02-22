@@ -1045,6 +1045,16 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
 /*!
   \reimp
 */
+void QTreeView::mouseMoveEvent(QMouseEvent *event)
+{
+    Q_D(QTreeView);
+    if (d->itemDecorationAt(event->pos()) == -1)
+        QAbstractItemView::mouseMoveEvent(event);
+}
+
+/*!
+  \reimp
+*/
 QModelIndex QTreeView::indexAt(const QPoint &point) const
 {
     Q_D(const QTreeView);
