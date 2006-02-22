@@ -1093,6 +1093,8 @@ QListWidget::~QListWidget()
 QListWidgetItem *QListWidget::item(int row) const
 {
     Q_D(const QListWidget);
+    if (row < 0 || row >= d->model()->rowCount())
+        return 0;
     return d->model()->at(row);
 }
 
@@ -1104,8 +1106,9 @@ QListWidgetItem *QListWidget::item(int row) const
 
 int QListWidget::row(const QListWidgetItem *item) const
 {
-    Q_ASSERT(item);
     Q_D(const QListWidget);
+    if (!item)
+        return -1;
     return d->model()->index(const_cast<QListWidgetItem*>(item)).row();
 }
 
