@@ -311,6 +311,11 @@ bool QSQLiteResult::exec()
                 return false;
             }
         }
+    } else {
+        setLastError(QSqlError(QCoreApplication::translate("QSQLiteResult",
+                        "Parameter count mismatch"), QString(), QSqlError::StatementError));
+        d->finalize();
+        return false;
     }
     d->skippedStatus = d->fetchNext(cache(), 0, true);
     if (lastError().isValid()) {
