@@ -1926,7 +1926,6 @@ QModelIndexList QAbstractItemModel::persistentIndexList() const
     Q_D(QAbstractItemModel);
     QList<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
     QModelIndexList result;
-    result.reserve(persistentIndexes.count());
     for (int i = 0; i < persistentIndexes.count(); ++i)
         result.append(persistentIndexes.at(j)->index);
     return result;
