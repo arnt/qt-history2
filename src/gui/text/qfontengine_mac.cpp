@@ -616,7 +616,7 @@ QFixed QFontEngineMac::xHeight() const
     return QFixed::fromReal(metrics.xHeight * fontDef.pointSize);
 }
 
-void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt &ti, int paintDeviceHeight)
+void QFontEngineMac::draw(CGContextRef ctx, const QTextItemInt &ti, int paintDeviceHeight)
 {
     CGContextSetFontSize(ctx, fontDef.pixelSize);
 
@@ -633,27 +633,24 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
 
     CGContextSetTextDrawingMode(ctx, kCGTextFill);
 
-    QVarLengthArray<QFixedPoint> positions;
-    QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix;
-    matrix.translate(x, y);
-    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    QFixedPoint *positions = ti.deviceGlyphPositions;
+    glyph_t *glyphs = ti.deviceGlyphs;
 
-    QVarLengthArray<CGSize> advances(glyphs.size());
-    QVarLengthArray<CGGlyph> cgGlyphs(glyphs.size());
+    QVarLengthArray<CGSize> advances(ti.num_deviceGlyphs);
+    QVarLengthArray<CGGlyph> cgGlyphs(ti.num_deviceGlyphs);
 
-    for (int i = 0; i < glyphs.size() - 1; ++i) {
+    for (int i = 0; i < ti.num_deviceGlyphs - 1; ++i) {
         advances[i].width = (positions[i + 1].x - positions[i].x).toReal();
         advances[i].height = (positions[i + 1].y - positions[i].y).toReal();
     }
-    advances[glyphs.size() - 1].width = 0;
-    advances[glyphs.size() - 1].height = 0;
+    advances[ti.num_deviceGlyphs - 1].width = 0;
+    advances[ti.num_deviceGlyphs - 1].height = 0;
 
     int currentSpan = 0;
     int currentFont = glyphs[0] >> 24;
     cgGlyphs[0] = glyphs[0] & 0x00ffffff;
 
-    for (int i = 1; i < glyphs.size(); ++i) {
+    for (int i = 1; i < ti.num_deviceGlyphs; ++i) {
         const int nextFont = glyphs[i] >> 24;
         cgGlyphs[i] = glyphs[i] & 0x00ffffff;
         if (nextFont == currentFont)
@@ -693,14 +690,14 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
     CGContextSetFont(ctx, cgFont);
 
     CGContextShowGlyphsWithAdvances(ctx, cgGlyphs.data() + currentSpan,
-                                    advances.data() + currentSpan, glyphs.size() - currentSpan);
+                                    advances.data() + currentSpan, ti.num_deviceGlyphs - currentSpan);
 
     if (synthesisFlags & QFontEngine::SynthesizedBold) {
         CGContextSetTextPosition(ctx, positions[currentSpan].x.toReal() + 0.5 * lineThickness().toReal(),
                                       positions[currentSpan].y.toReal());
 
         CGContextShowGlyphsWithAdvances(ctx, cgGlyphs.data() + currentSpan,
-                                        advances.data() + currentSpan, glyphs.size() - currentSpan);
+                                        advances.data() + currentSpan, ti.num_deviceGlyphs - currentSpan);
     }
 
     CGContextSetTextMatrix(ctx, oldTextMatrix);

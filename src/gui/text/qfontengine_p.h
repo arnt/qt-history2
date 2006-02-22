@@ -389,7 +389,7 @@ public:
 
     virtual int synthesized() const { return synthesisFlags; }
 
-    void draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt &ti, int paintDeviceHeight);
+    void draw(CGContextRef ctx, const QTextItemInt &ti, int paintDeviceHeight);
 
 private:
     int fontIndexForFMFont(FMFont font) const;

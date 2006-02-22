@@ -1478,6 +1478,7 @@ void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem 
 {
 #if defined(Q_NEW_MAC_FONTENGINE)
     Q_D(QCoreGraphicsPaintEngine);
+    Q_UNUSED(pos);
 
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(item);
 
@@ -1496,7 +1497,7 @@ void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem 
 
     QFontEngineMac *fe = static_cast<QFontEngineMac *>(ti.fontEngine);
     if (ti.num_glyphs)
-        fe->draw(d->hd, pos.x(), pos.y(), ti, paintDevice()->height());
+        fe->draw(d->hd, ti, paintDevice()->height());
 
     if(textAA != lineAA)
         CGContextSetShouldAntialias(d->hd, !textAA);
