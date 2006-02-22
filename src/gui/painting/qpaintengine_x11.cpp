@@ -2035,7 +2035,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &ti)
     for (int i = 0; i < glyphs.size(); i++) {
         int xp = qRound(positions[i].x);
         int yp = qRound(positions[i].y);
-        if (xp < SHRT_MAX && xp > SHRT_MIN) {
+        if (xp < SHRT_MAX && xp > SHRT_MIN &&  yp > SHRT_MIN && yp < SHRT_MAX) {
             XChar2b ch;
             ch.byte1 = glyphs[i] >> 8;
             ch.byte2 = glyphs[i] & 0xff;
@@ -2048,7 +2048,8 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &ti)
 void QX11PaintEngine::core_render_glyph(QFontEngineFT *fe, int xp, int yp, uint g)
 {
     Q_D(QX11PaintEngine);
-    if (xp < SHRT_MIN || xp > SHRT_MAX || d->cpen.style() == Qt::NoPen)
+    if (xp < SHRT_MIN || xp > SHRT_MAX  || yp < SHRT_MIN || yp > SHRT_MAX
+        || d->cpen.style() == Qt::NoPen)
         return;
 
     QFontEngineFT::Glyph *glyph = fe->loadGlyph(g, QFontEngineFT::Format_Mono);
@@ -2129,6 +2130,11 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 
         QFixed xp = positions[0].x;
         QFixed yp = positions[0].y;
+
+        // better return instead of crashing the X server
+        if (xp > SHRT_MIN && xp < SHRT_MAX &&  yp > SHRT_MIN && yp < SHRT_MAX)
+            return;
+
         XGlyphElt32 elt;
         elt.glyphset = glyphSet;
         elt.chars = &glyphs[0];
