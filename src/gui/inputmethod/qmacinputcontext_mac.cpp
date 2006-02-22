@@ -169,6 +169,11 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
             GetEventParameter(event, kEventParamTextInputSendFixLen, typeLongInteger, 0,
                               sizeof(fixed_length), 0, &fixed_length);
             if(fixed_length == -1 || fixed_length == (long)unilen) {
+                if (text != context->currentText && context->currentText.isEmpty()) {
+                    // We've recursed into here and we shouldn't need to do anything
+                    // more... hopefully.
+                    return noErr;
+                }
                 QInputMethodEvent e;
                 e.setCommitString(text);
                 context->currentText = QString();
