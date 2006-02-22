@@ -925,6 +925,9 @@ void QAbstractButton::mousePressEvent(QMouseEvent *e)
     if (hitButton(e->pos())) {
         setDown(true);
         emit pressed();
+        e->accept();
+    } else {
+        e->ignore();
     }
 }
 
@@ -943,10 +946,13 @@ void QAbstractButton::mouseReleaseEvent(QMouseEvent *e)
     if (!d->down)
         return;
 
-    if (hitButton(e->pos()))
+    if (hitButton(e->pos())) {
         d->click();
-    else
+        e->accept();
+    } else {
         setDown(false);
+        e->ignore();
+    }
 }
 
 /*! \reimp */
@@ -964,6 +970,9 @@ void QAbstractButton::mouseMoveEvent(QMouseEvent *e)
             emit pressed();
         else
             emit released();
+        e->accept();
+    } else if (!hitButton(e->pos())) {
+        e->ignore();
     }
 }
 
