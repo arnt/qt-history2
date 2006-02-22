@@ -79,6 +79,7 @@ public:
     uint mouseDown : 1, hasHadMouse : 1;
     int motions;
     QAction *currentAction;
+    static QBasicTimer menuDelayTimer;
     QAction *actionAt(QPoint p) const;
     void setFirstActionActive();
     void setCurrentAction(QAction *, int =-1, bool =false);
@@ -126,6 +127,7 @@ public:
     mutable bool hasCheckableItems;
 
     //sloppy selection
+    static QBasicTimer sloppyDelayTimer;
     QAction *sloppyAction;
     QRegion sloppyRegion;
 

@@ -42,6 +42,9 @@
 #endif // QT3_SUPPORT
 
 
+QBasicTimer QMenuPrivate::menuDelayTimer;
+QBasicTimer QMenuPrivate::sloppyDelayTimer;
+
 /* QMenu code */
 // internal class used for the torn off popup
 class QTornOffMenu : public QMenu
@@ -259,18 +262,10 @@ void QMenuPrivate::popupAction(QAction *action, int delay, bool activateFirst)
 {
     Q_Q(QMenu);
     if (action && action->isEnabled()) {
-        if (!delay) {
+        if (!delay)
             q->internalDelayedPopup();
-        } else {
-            static QTimer *menuDelayTimer = 0;
-            if (!menuDelayTimer)
-                menuDelayTimer = new QTimer(qApp);
-            menuDelayTimer->disconnect(SIGNAL(timeout()));
-            QObject::connect(menuDelayTimer, SIGNAL(timeout()),
-                             q, SLOT(internalDelayedPopup()));
-            menuDelayTimer->setSingleShot(true);
-            menuDelayTimer->start(delay);
-        }
+        else
+            QMenuPrivate::menuDelayTimer.start(delay, q);
         if (activateFirst && action->menu())
             action->menu()->d_func()->setFirstActionActive();
     }
@@ -2097,15 +2092,8 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
         d->mouseDown = e->buttons() & Qt::LeftButton;
     }
     if (d->sloppyRegion.contains(e->pos())) {
-        static QTimer *sloppyDelayTimer = 0;
-        if (!sloppyDelayTimer)
-            sloppyDelayTimer = new QTimer(qApp);
-        sloppyDelayTimer->disconnect(SIGNAL(timeout()));
-        QObject::connect(sloppyDelayTimer, SIGNAL(timeout()),
-                         this, SLOT(internalSetSloppyAction()));
-        sloppyDelayTimer->setSingleShot(true);
-        sloppyDelayTimer->start(style()->styleHint(QStyle::SH_Menu_SubMenuPopupDelay, 0, this)*6);
         d->sloppyAction = action;
+        QMenuPrivate::sloppyDelayTimer.start(style()->styleHint(QStyle::SH_Menu_SubMenuPopupDelay, 0, this)*6, this);
     } else {
         d->setCurrentAction(action, style()->styleHint(QStyle::SH_Menu_SubMenuPopupDelay, 0, this));
     }
@@ -2141,6 +2129,12 @@ QMenu::timerEvent(QTimerEvent *e)
         d->scrollMenu((QMenuPrivate::QMenuScroller::ScrollDirection)d->scroll->scrollDirection);
         if (d->scroll->scrollFlags == QMenuPrivate::QMenuScroller::ScrollNone)
             d->scroll->scrollTimer->stop();
+    } else if(QMenuPrivate::menuDelayTimer.timerId() == e->timerId()) {
+        QMenuPrivate::menuDelayTimer.stop();
+        internalDelayedPopup();
+    } else if(QMenuPrivate::sloppyDelayTimer.timerId() == e->timerId()) {
+        QMenuPrivate::sloppyDelayTimer.stop();
+        internalSetSloppyAction();
     }
 }
 
