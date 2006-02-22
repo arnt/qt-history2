@@ -223,6 +223,7 @@ void QSqlCachedResult::clearValues()
 {
     setAt(QSql::BeforeFirstRow);
     d->rowCacheEnd = 0;
+    d->atEnd = false;
 }
 
 bool QSqlCachedResult::cacheNext()
