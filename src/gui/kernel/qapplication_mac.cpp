@@ -1389,10 +1389,7 @@ bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhan
             (*mouse_down_unhandled) = true;
         return false;
     } else if(windowPart != inGoAway && windowPart != inCollapseBox) {
-        bool set_active = true;
-        if(windowPart == inZoomIn || windowPart == inZoomOut || windowPart == inDrag || windowPart == inGrow)
-            set_active = !(GetCurrentKeyModifiers() & cmdKey);
-        if(set_active) {
+        if(!(GetCurrentKeyModifiers() & cmdKey)) {
             widget->raise();
             if(widget->isWindow() && widget->windowType() != Qt::Desktop
                && widget->windowType() != Qt::Popup && !qt_mac_is_macsheet(widget)
@@ -2556,6 +2553,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     } else {
                         QApplication::beep();
                     }
+                } else if(cmd.commandID == kHICommandSelectWindow) {
+                    if((GetCurrentKeyModifiers() & cmdKey))
+                        handled_event = true;
                 } else if(cmd.commandID == kHICommandAbout) {
                     QMessageBox::aboutQt(0);
                     HiliteMenu(0);
