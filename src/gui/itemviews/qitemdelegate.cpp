@@ -676,13 +676,18 @@ QRect QItemDelegate::textRectangle(QPainter *painter, const QRect &rect,
         QFontMetrics fontMetrics(font);
         return QRect(0, 0, 0, fontMetrics.lineSpacing());
     }
-
-    if (!text.contains(QLatin1Char('\n'))) {
+    const QChar *chr = text.constData();
+    const QChar *end = chr + text.length();
+    while (chr != end
+           && *chr != QLatin1Char('\n')
+           && *chr != QLatin1Char('\t')
+           && *chr != QLatin1Char('&')) ++chr;
+    if (chr == end) {
         QFontMetrics fontMetrics(font);
         return QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
     }
     QRectF result;
-    qt_format_text(font, rect, Qt::TextDontPrint|Qt::TextDontClip,
+    qt_format_text(font, rect, Qt::TextDontPrint|Qt::TextDontClip|Qt::TextExpandTabs,
                    text, &result, 0, 0, 0, painter);
     return result.toRect();
 }
