@@ -275,15 +275,6 @@ QObjectPrivate::~QObjectPrivate()
 #endif
 }
 
-class ConnectionObject : public QObject
-{
-    Q_DECLARE_PRIVATE(QObject)
-public:
-    bool isSender(const QObject *receiver, const char *signal) const;
-    QList<QObject*> receiverList(const char *signal) const;
-    QList<QObject*> senders() const;
-};
-
 bool QObjectPrivate::isSender(const QObject *receiver, const char *signal) const
 {
     Q_Q(const QObject);
