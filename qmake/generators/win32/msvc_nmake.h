@@ -27,7 +27,7 @@ class NmakeMakefileGenerator : public Win32MakefileGenerator
     void init();
 
 protected:
-    QStringList &findDependencies(const QString &file);
+    virtual QStringList &findDependencies(const QString &file);
     QString var(const QString &value);
     QString precompH, precompObj, precompPch;
     bool usePCH;

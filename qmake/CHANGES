@@ -1,4 +1,8 @@
-1.08a -
+2.10a -
+
+   support for spaces in filenames.
+
+2.00a -
 
    Automatic feature loading (from CONFIG) has been added, this allows qmake to be
    written using qmake language.
@@ -23,7 +27,7 @@
    warning() can be used in place of message() now.
 
    improved support for subdirs with .pro's listed
-   support for QCONFIG added to add functionality from Qt
+   support for QT added to add functionality from Qt
 
 1.07a -
 

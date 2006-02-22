@@ -27,8 +27,8 @@ bool
 NmakeMakefileGenerator::writeMakefile(QTextStream &t)
 {
     writeHeader(t);
-    if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
-        QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
+    if(!project->values("QMAKE_FAILED_REQUIREMENTS").isEmpty()) {
+        QStringList &qut = project->values("QMAKE_EXTRA_TARGETS");
         for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
             t << *it << " ";
         t << "all first clean:" << "\n\t"
@@ -115,43 +115,43 @@ void NmakeMakefileGenerator::init()
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->first("TEMPLATE") == "app")
-        project->variables()["QMAKE_APP_FLAG"].append("1");
+        project->values("QMAKE_APP_FLAG").append("1");
     else if(project->first("TEMPLATE") == "lib")
-        project->variables()["QMAKE_LIB_FLAG"].append("1");
+        project->values("QMAKE_LIB_FLAG").append("1");
     else if(project->first("TEMPLATE") == "subdirs") {
         MakefileGenerator::init();
-        if(project->variables()["MAKEFILE"].isEmpty())
-            project->variables()["MAKEFILE"].append("Makefile");
-        if(project->variables()["QMAKE_QMAKE"].isEmpty())
-            project->variables()["QMAKE_QMAKE"].append("qmake");
+        if(project->values("MAKEFILE").isEmpty())
+            project->values("MAKEFILE").append("Makefile");
+        if(project->values("QMAKE_QMAKE").isEmpty())
+            project->values("QMAKE_QMAKE").append("qmake");
         if(project->isEmpty("QMAKE_COPY_FILE"))
-            project->variables()["QMAKE_COPY_FILE"].append("$(COPY)");
+            project->values("QMAKE_COPY_FILE").append("$(COPY)");
         if(project->isEmpty("QMAKE_COPY_DIR"))
-            project->variables()["QMAKE_COPY_DIR"].append("xcopy /s /q /y /i");
+            project->values("QMAKE_COPY_DIR").append("xcopy /s /q /y /i");
         if(project->isEmpty("QMAKE_INSTALL_FILE"))
-            project->variables()["QMAKE_INSTALL_FILE"].append("$(COPY_FILE)");
+            project->values("QMAKE_INSTALL_FILE").append("$(COPY_FILE)");
         if(project->isEmpty("QMAKE_INSTALL_DIR"))
-            project->variables()["QMAKE_INSTALL_DIR"].append("$(COPY_DIR)");
+            project->values("QMAKE_INSTALL_DIR").append("$(COPY_DIR)");
         return;
     }
 
-    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    project->values("QMAKE_LIBS") += project->values("LIBS");
     processVars();
 
-    if (!project->variables()["RES_FILE"].isEmpty()) {
-        project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
+    if (!project->values("RES_FILE").isEmpty()) {
+        project->values("QMAKE_LIBS") += project->values("RES_FILE");
     }
 
-    if(!project->variables()["DEF_FILE"].isEmpty())
-        project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
+    if(!project->values("DEF_FILE").isEmpty())
+        project->values("QMAKE_LFLAGS").append(QString("/DEF:") + project->first("DEF_FILE"));
 
-    if(!project->variables()["VERSION"].isEmpty()) {
-        QString version = project->variables()["VERSION"][0];
+    if(!project->values("VERSION").isEmpty()) {
+        QString version = project->values("VERSION")[0];
         int firstDot = version.indexOf(".");
         QString major = version.left(firstDot);
         QString minor = version.right(version.length() - firstDot - 1);
         minor.replace(".", "");
-        project->variables()["QMAKE_LFLAGS"].append("/VERSION:" + major + "." + minor);
+        project->values("QMAKE_LFLAGS").append("/VERSION:" + major + "." + minor);
     }
 
     // Base class init!
@@ -165,29 +165,29 @@ void NmakeMakefileGenerator::init()
         precompObj = var("OBJECTS_DIR") + project->first("TARGET") + "_pch" + Option::obj_ext;
         precompPch = var("OBJECTS_DIR") + project->first("TARGET") + "_pch.pch";
         // Add linking of precompObj (required for whole precompiled classes)
-        project->variables()["OBJECTS"]                  += precompObj;
+        project->values("OBJECTS")                  += precompObj;
         // Add pch file to cleanup
-        project->variables()["QMAKE_CLEAN"]          += precompPch;
+        project->values("QMAKE_CLEAN")          += precompPch;
         // Return to variable pool
-        project->variables()["PRECOMPILED_OBJECT"] = QStringList(precompObj);
-        project->variables()["PRECOMPILED_PCH"]    = QStringList(precompPch);
+        project->values("PRECOMPILED_OBJECT") = QStringList(precompObj);
+        project->values("PRECOMPILED_PCH")    = QStringList(precompPch);
     }
 
     QString version = project->first("TARGET_VERSION_EXT");
     if(project->isActiveConfig("shared")) {
-        project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".exp");
+        project->values("QMAKE_CLEAN").append(project->first("DESTDIR") + project->first("TARGET") + version + ".exp");
     }
     if(project->isActiveConfig("debug")) {
-        project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".pdb");
-        project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".ilk");
-        project->variables()["QMAKE_CLEAN"].append("vc*.pdb");
-        project->variables()["QMAKE_CLEAN"].append("vc*.idb");
+        project->values("QMAKE_CLEAN").append(project->first("DESTDIR") + project->first("TARGET") + version + ".pdb");
+        project->values("QMAKE_CLEAN").append(project->first("DESTDIR") + project->first("TARGET") + version + ".ilk");
+        project->values("QMAKE_CLEAN").append("vc*.pdb");
+        project->values("QMAKE_CLEAN").append("vc*.idb");
     }
 }
 
 void NmakeMakefileGenerator::writeLibDirPart(QTextStream &t)
 {
-    QStringList libDirs = project->variables()["QMAKE_LIBDIR"];
+    QStringList libDirs = project->values("QMAKE_LIBDIR");
     for (int i = 0; i < libDirs.size(); ++i)
         libDirs[i].remove("\"");
     t << valGlue(libDirs,"/LIBPATH:\"","\" /LIBPATH:\"","\"") << " ";
@@ -218,7 +218,7 @@ void NmakeMakefileGenerator::writeImplicitRulesPart(QTextStream &t)
         }
         QString srcs[] = { QString("SOURCES"), QString("GENERATED_SOURCES"), QString() };
         for(int x = 0; !srcs[x].isNull(); x++) {
-            QStringList &l = project->variables()[srcs[x]];
+            QStringList &l = project->values(srcs[x]);
             for(QStringList::Iterator sit = l.begin(); sit != l.end(); ++sit) {
                 QString sep = "\\";
                 if((*sit).indexOf(sep) == -1)
@@ -255,11 +255,12 @@ void NmakeMakefileGenerator::writeBuildRulesPart(QTextStream &t)
     t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << "$(DESTDIR_TARGET)" << endl << endl;
     t << "$(DESTDIR_TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
     if(project->isActiveConfig("staticlib")) {
-        t << "\n\t" << "$(LIB) /OUT:\"$(DESTDIR_TARGET)\" @<<" << "\n\t  "
+        t << "\n\t" << "$(LIB) /OUT:$(DESTDIR_TARGET) @<<" << "\n\t  "
           << "$(OBJECTS)";
     } else {
-        t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:\"$(DESTDIR_TARGET)\" @<< " << "\n\t  "
+        t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(DESTDIR_TARGET) @<< " << "\n\t  "
           << "$(OBJECTS) $(LIBS)";
     }
     t << endl << "<<" << endl;
 }
+

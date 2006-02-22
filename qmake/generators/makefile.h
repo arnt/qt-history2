@@ -96,6 +96,12 @@ protected:
     QFileInfo findFileInfo(const QMakeLocalFileName &);
     QMakeProject *project;
 
+    //escape
+    virtual QString unescapeFilePath(const QString &path) const;
+    virtual QStringList unescapeFilePaths(const QStringList &path) const;
+    virtual QString escapeFilePath(const QString &path) const { return path; }
+    QStringList escapeFilePaths(const QStringList &paths) const;
+
     //initialization
     void verifyCompilers();
     virtual void init();
@@ -119,6 +125,8 @@ protected:
         VPATH_NoFixify           = 0x04
     };
     QStringList findFilesInVPATH(QStringList l, uchar flags, const QString &var="");
+
+    QString mkdir_p_asstring(const QString &dir, bool escape=true) const;
 
     //subclasses can use these to query information about how the generator was "run"
     QString buildArgs();
@@ -202,7 +210,5 @@ inline bool MakefileGenerator::findLibraries()
 
 inline MakefileGenerator::~MakefileGenerator()
 { }
-
-QString mkdir_p_asstring(const QString &dir);
 
 #endif // MAKEFILE_H

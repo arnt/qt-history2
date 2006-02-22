@@ -27,8 +27,8 @@ bool
 BorlandMakefileGenerator::writeMakefile(QTextStream &t)
 {
     writeHeader(t);
-    if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
-        QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
+    if(!project->values("QMAKE_FAILED_REQUIREMENTS").isEmpty()) {
+        QStringList &qut = project->values("QMAKE_EXTRA_TARGETS");
         for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
             t << *it << " ";
         t << "all first clean:" << "\n\t"
@@ -69,39 +69,39 @@ BorlandMakefileGenerator::init()
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if (project->first("TEMPLATE") == "app") {
-        project->variables()["QMAKE_APP_FLAG"].append("1");
+        project->values("QMAKE_APP_FLAG").append("1");
     } else if(project->first("TEMPLATE") == "lib"){
-        project->variables()["QMAKE_LIB_FLAG"].append("1");
+        project->values("QMAKE_LIB_FLAG").append("1");
     } else if(project->first("TEMPLATE") == "subdirs") {
         MakefileGenerator::init();
         if(project->isEmpty("QMAKE_COPY_FILE"))
-            project->variables()["QMAKE_COPY_FILE"].append("$(COPY)");
+            project->values("QMAKE_COPY_FILE").append("$(COPY)");
         if(project->isEmpty("QMAKE_COPY_DIR"))
-            project->variables()["QMAKE_COPY_DIR"].append("xcopy /s /q /y /i");
+            project->values("QMAKE_COPY_DIR").append("xcopy /s /q /y /i");
         if(project->isEmpty("QMAKE_INSTALL_FILE"))
-            project->variables()["QMAKE_INSTALL_FILE"].append("$(COPY_FILE)");
+            project->values("QMAKE_INSTALL_FILE").append("$(COPY_FILE)");
         if(project->isEmpty("QMAKE_INSTALL_DIR"))
-            project->variables()["QMAKE_INSTALL_DIR"].append("$(COPY_DIR)");
-        if(project->variables()["MAKEFILE"].isEmpty())
-            project->variables()["MAKEFILE"].append("Makefile");
-        if(project->variables()["QMAKE_QMAKE"].isEmpty())
-            project->variables()["QMAKE_QMAKE"].append("qmake");
+            project->values("QMAKE_INSTALL_DIR").append("$(COPY_DIR)");
+        if(project->values("MAKEFILE").isEmpty())
+            project->values("MAKEFILE").append("Makefile");
+        if(project->values("QMAKE_QMAKE").isEmpty())
+            project->values("QMAKE_QMAKE").append("qmake");
         return;
     }
 
     processVars();
 
-    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    project->values("QMAKE_LIBS") += project->values("LIBS");
 
     MakefileGenerator::init();
 
-    if (project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+    if (project->isActiveConfig("dll") || !project->values("QMAKE_APP_FLAG").isEmpty()) {
         // bcc does not generate a .tds file for static libs
         QString tdsPostfix;
-        if (!project->variables()["VERSION"].isEmpty())
+        if (!project->values("VERSION").isEmpty())
             tdsPostfix = project->first("TARGET_VERSION_EXT");
         tdsPostfix += ".tds";
-        project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + tdsPostfix);
+        project->values("QMAKE_CLEAN").append(project->first("DESTDIR") + project->first("TARGET") + tdsPostfix);
     }
 }
 
@@ -113,8 +113,8 @@ void BorlandMakefileGenerator::writeBuildRulesPart(QTextStream &t)
     if(project->isActiveConfig("staticlib")) {
         t << "\n\t-$(DEL_FILE) $(DESTDIR_TARGET)"
 	      << "\n\t" << "$(LIB) $(DESTDIR_TARGET) @&&|" << " \n+"
-	      << project->variables()["OBJECTS"].join(" \\\n+") << " \\\n+"
-	      << project->variables()["OBJMOC"].join(" \\\n+");
+	      << project->values("OBJECTS").join(" \\\n+") << " \\\n+"
+	      << project->values("OBJMOC").join(" \\\n+");
     } else {
         t << "\n\t" << "$(LINK) @&&|" << "\n\t"
 	      << "$(LFLAGS) $(OBJECTS) $(OBJMOC),$(DESTDIR_TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";

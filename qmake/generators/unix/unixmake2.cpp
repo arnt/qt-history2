@@ -19,9 +19,8 @@
 #include <qfile.h>
 #include <qdir.h>
 #include <qdatetime.h>
+#include <qdebug.h>
 #include <time.h>
-
-QString mkdir_p_asstring(const QString &dir);
 
 UnixMakefileGenerator::UnixMakefileGenerator() : MakefileGenerator(), init_flag(false), include_deps(false)
 {
@@ -50,9 +49,9 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
 {
 
     writeHeader(t);
-    if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+    if(!project->values("QMAKE_FAILED_REQUIREMENTS").isEmpty()) {
         t << "QMAKE    = "        << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
-        QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
+        QStringList &qut = project->values("QMAKE_EXTRA_TARGETS");
         for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
             t << *it << " ";
         t << "first all clean install distclean uninstall:" << "\n\t"
@@ -63,11 +62,11 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
         return true;
     }
 
-    if (project->variables()["TEMPLATE"].first() == "app" ||
-        project->variables()["TEMPLATE"].first() == "lib") {
+    if (project->values("TEMPLATE").first() == "app" ||
+        project->values("TEMPLATE").first() == "lib") {
         writeMakeParts(t);
         return MakefileGenerator::writeMakefile(t);
-    } else if(project->variables()["TEMPLATE"].first() == "subdirs") {
+    } else if(project->values("TEMPLATE").first() == "subdirs") {
         MakefileGenerator::writeSubDirs(t);
         return true;
     }
@@ -79,8 +78,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 {
     QString deps = fileFixify(Option::output.fileName()), target_deps, prl;
     bool do_incremental = (project->isActiveConfig("incremental") &&
-                           !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
-                           (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
+                           !project->values("QMAKE_INCREMENTAL").isEmpty() &&
+                           (!project->values("QMAKE_APP_FLAG").isEmpty() ||
                             (!project->isActiveConfig("staticlib")))),
          src_incremental=false;
 
@@ -137,7 +136,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << endl;
 
     t << "####### Output directory" << endl << endl;
-    if (! project->variables()["OBJECTS_DIR"].isEmpty())
+    if (! project->values("OBJECTS_DIR").isEmpty())
         t << "OBJECTS_DIR   = " << var("OBJECTS_DIR") << endl;
     else
         t << "OBJECTS_DIR   = ./" << endl;
@@ -145,9 +144,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     /* files */
     t << "####### Files" << endl << endl;
-    t << "SOURCES       = " << varList("SOURCES") << " " << varList("GENERATED_SOURCES") << endl;
+    t << "SOURCES       = " << valList(escapeFilePaths(project->values("SOURCES"))) << " "
+      << valList(escapeFilePaths(project->values("GENERATED_SOURCES"))) << endl;
     if(do_incremental) {
-        QStringList &objs = project->variables()["OBJECTS"], &incrs = project->variables()["QMAKE_INCREMENTAL"], incrs_out;
+        QStringList &objs = project->values("OBJECTS"), &incrs = project->values("QMAKE_INCREMENTAL"), incrs_out;
         t << "OBJECTS       = ";
         for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
             bool increment = false;
@@ -163,40 +163,40 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 t << "\\\n\t\t" << (*objit);
         }
         if(incrs_out.count() == objs.count()) { //we just switched places, no real incrementals to be done!
-            t << incrs_out.join(" \\\n\t\t") << endl;
+            t << escapeFilePaths(incrs_out).join(" \\\n\t\t") << endl;
         } else if(!incrs_out.count()) {
             t << endl;
         } else {
             src_incremental = true;
             t << endl;
-            t << "INCREMENTAL_OBJECTS = " << incrs_out.join(" \\\n\t\t") << endl;
+            t << "INCREMENTAL_OBJECTS = " << escapeFilePaths(incrs_out).join(" \\\n\t\t") << endl;
         }
     } else {
-        t << "OBJECTS       = " << varList("OBJECTS") << endl;
+        t << "OBJECTS       = " << valList(escapeFilePaths(project->values("OBJECTS"))) << endl;
     }
     if(do_incremental && !src_incremental)
         do_incremental = false;
-    t << "DIST          = " << valList(fileFixify(project->variables()["DISTFILES"])) << endl;
+    t << "DIST          = " << valList(fileFixify(project->values("DISTFILES"))) << endl;
     t << "QMAKE_TARGET  = " << var("QMAKE_ORIG_TARGET") << endl;
     t << "DESTDIR       = " << var("DESTDIR") << endl;
     if(project->isActiveConfig("compile_libtool"))
         t << "TARGETL       = " << var("TARGET_la") << endl;
-    t << "TARGET        = " << var("TARGET") << endl;
+    t << "TARGET        = " << escapeFilePath(var("TARGET")) << endl;
     if(project->isActiveConfig("plugin")) {
-        t << "TARGETD       = " << var("TARGET") << endl;
-    } else if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-        t << "TARGETA       = " << var("TARGETA") << endl;
+        t << "TARGETD       = " << escapeFilePath(var("TARGET")) << endl;
+    } else if(!project->isActiveConfig("staticlib") && project->values("QMAKE_APP_FLAG").isEmpty()) {
+        t << "TARGETA       = " << escapeFilePath(var("TARGETA")) << endl;
         if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
-            t << "TARGETD       = " << var("TARGET_x.y") << endl;
-            t << "TARGET0       = " << var("TARGET_") << endl;
+            t << "TARGETD       = " << escapeFilePath(var("TARGET_x.y")) << endl;
+            t << "TARGET0       = " << escapeFilePath(var("TARGET_")) << endl;
         } else if(project->isEmpty("QMAKE_HPUX_SHLIB")) {
-            t << "TARGETD       = " << var("TARGET_x.y.z") << endl;
-            t << "TARGET0       = " << var("TARGET_") << endl;
-            t << "TARGET1       = " << var("TARGET_x") << endl;
-            t << "TARGET2       = " << var("TARGET_x.y") << endl;
+            t << "TARGETD       = " << escapeFilePath(var("TARGET_x.y.z")) << endl;
+            t << "TARGET0       = " << escapeFilePath(var("TARGET_")) << endl;
+            t << "TARGET1       = " << escapeFilePath(var("TARGET_x")) << endl;
+            t << "TARGET2       = " << escapeFilePath(var("TARGET_x.y")) << endl;
         } else {
-            t << "TARGETD       = " << var("TARGET_x") << endl;
-            t << "TARGET0       = " << var("TARGET_") << endl;
+            t << "TARGETD       = " << escapeFilePath(var("TARGET_x")) << endl;
+            t << "TARGET0       = " << escapeFilePath(var("TARGET_")) << endl;
         }
     }
     writeExtraCompilerVariables(t);
@@ -204,7 +204,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << endl;
 
     // blasted includes
-    QStringList &qeui = project->variables()["QMAKE_EXTRA_INCLUDES"];
+    QStringList &qeui = project->values("QMAKE_EXTRA_INCLUDES");
     QStringList::Iterator it;
     for(it = qeui.begin(); it != qeui.end(); ++it)
         t << "include " << (*it) << endl;
@@ -228,7 +228,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             cmd += " -I" + project->first("QMAKE_ABSOLUTE_SOURCE_PATH") + " ";
         cmd += " $(INCPATH) " + varGlue("DEPENDPATH", "-I", " -I", "");
         QString odir;
-        if(!project->variables()["OBJECTS_DIR"].isEmpty())
+        if(!project->values("OBJECTS_DIR").isEmpty())
             odir = project->first("OBJECTS_DIR");
         t << "###### Dependencies" << endl << endl;
         t << odir << ".deps/%.d: %.cpp\n\t";
@@ -245,7 +245,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
         QString src[] = { "SOURCES", "GENERATED_SOURCES", QString() };
         for(int x = 0; !src[x].isNull(); x++) {
-            QStringList &l = project->variables()[src[x]];
+            QStringList &l = project->values(src[x]);
             for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
                 if(!(*it).isEmpty()) {
                     QString d_file;
@@ -273,18 +273,18 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
 
     t << "####### Build rules" << endl << endl;
-    if(!project->variables()["SUBLIBS"].isEmpty()) {
+    if(!project->values("SUBLIBS").isEmpty()) {
         QString libdir = "tmp/";
         if(!project->isEmpty("SUBLIBS_DIR"))
             libdir = project->first("SUBLIBS_DIR");
         t << "SUBLIBS       = ";
-        QStringList &l = project->variables()["SUBLIBS"];
+        QStringList &l = project->values("SUBLIBS");
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it)
             t << libdir << "lib" << (*it) << ".a ";
         t << endl << endl;
     }
     if(project->isActiveConfig("depend_prl") && !project->isEmpty("QMAKE_PRL_INTERNAL_FILES")) {
-        QStringList &l = project->variables()["QMAKE_PRL_INTERNAL_FILES"];
+        QStringList &l = project->values("QMAKE_PRL_INTERNAL_FILES");
         QStringList::Iterator it;
         for(it = l.begin(); it != l.end(); ++it) {
             QMakeMetaInfo libinfo;
@@ -302,7 +302,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             }
         }
     }
-    if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+    if(!project->values("QMAKE_APP_FLAG").isEmpty()) {
         QString destdir = project->first("DESTDIR");
         if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
             QString bundle_loc = project->first("QMAKE_BUNDLE_LOCATION");
@@ -333,7 +333,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             } else {
                 //actual target
                 QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." +
-                                          project->variables()["QMAKE_EXTENSION_SHLIB"].first();
+                                          project->values("QMAKE_EXTENSION_SHLIB").first();
                 QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
                 if(project->isActiveConfig("debug"))
                     incr_lflags += var("QMAKE_LFLAGS_DEBUG");
@@ -360,7 +360,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 deps.prepend(incr_target_dir + " ");
                 incr_deps = "$(OBJECTS)";
             }
-            t << "all: " << deps <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)"
+            t << "all: " << deps <<  " " << valGlue(escapeFilePaths(project->values("ALL_DEPS")),""," "," ") <<  "$(TARGET)"
               << endl << endl;
 
             //real target
@@ -375,7 +375,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 t << "\n\t" << var("QMAKE_POST_LINK");
             t << endl << endl;
         } else {
-            t << "all: " << deps <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)"
+            t << "all: " << deps <<  " " << valGlue(escapeFilePaths(project->values("ALL_DEPS")),""," "," ") <<  "$(TARGET)"
               << endl << endl;
 
             t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) "
@@ -390,7 +390,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             t << endl << endl;
         }
     } else if(!project->isActiveConfig("staticlib")) {
-        QString destdir = project->first("DESTDIR"), incr_deps;
+        QString destdir = unescapeFilePath(project->first("DESTDIR")), incr_deps;
         if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
             QString bundle_loc = project->first("QMAKE_BUNDLE_LOCATION");
             if(!bundle_loc.isEmpty() && !bundle_loc.startsWith("/"))
@@ -399,29 +399,32 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 bundle_loc += "/";
             destdir += project->first("QMAKE_BUNDLE_NAME") + bundle_loc;
         }
+        destdir = escapeFilePath(destdir);
+
         if(do_incremental) {
-            QString s_ext = project->variables()["QMAKE_EXTENSION_SHLIB"].first();
+            QString s_ext = project->values("QMAKE_EXTENSION_SHLIB").first();
             QString incr_target = var("QMAKE_ORIG_TARGET").replace(
                 QRegExp("\\." + s_ext), "").replace(QRegExp("^lib"), "") + "_incremental";
             if(incr_target.indexOf(Option::dir_sep) != -1)
                 incr_target = incr_target.right(incr_target.length() -
                                                 (incr_target.lastIndexOf(Option::dir_sep) + 1));
+            incr_target = escapeFilePath(incr_target);
 
             if(project->first("QMAKE_INCREMENTAL_STYLE") == "ld") {
-                QString incr_target_dir = var("OBJECTS_DIR") + incr_target + Option::obj_ext;
+                QString incr_target_dir = escapeFilePath(var("OBJECTS_DIR") + incr_target + Option::obj_ext);
                 //actual target
                 const QString link_deps = "$(OBJECTS) ";
                 t << incr_target_dir << ": " << link_deps << "\n\t"
                   << "ld -r  -o " << incr_target_dir << " " << link_deps << endl;
                 //communicated below
-                QStringList &cmd = project->variables()["QMAKE_LINK_SHLIB_CMD"];
+                QStringList &cmd = project->values("QMAKE_LINK_SHLIB_CMD");
                 cmd.first().replace("$(OBJECTS) ", "$(INCREMENTAL_OBJECTS)"); //ick
                 cmd.append(incr_target_dir);
                 deps.prepend(incr_target_dir + " ");
                 incr_deps = "$(INCREMENTAL_OBJECTS)";
             } else {
                 //actual target
-                QString incr_target_dir = destdir + "lib" + incr_target + "." + s_ext;
+                QString incr_target_dir = escapeFilePath(destdir + "lib" + incr_target + "." + s_ext);
                 QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
                 if(!project->isEmpty("QMAKE_LFLAGS_INCREMENTAL"))
                     incr_lflags += var("QMAKE_LFLAGS_INCREMENTAL") + " ";
@@ -435,7 +438,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 t << "$(LINK) " << incr_lflags << " -o "<< incr_target_dir <<
                     " $(INCREMENTAL_OBJECTS)" << endl;
                 //communicated below
-                QStringList &cmd = project->variables()["QMAKE_LINK_SHLIB_CMD"];
+                QStringList &cmd = project->values("QMAKE_LINK_SHLIB_CMD");
                 if(!destdir.isEmpty())
                     cmd.append(" -L" + destdir);
                 cmd.append(" -l" + incr_target);
@@ -443,14 +446,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 incr_deps = "$(OBJECTS)";
             }
 
-            t << "all: " << " " << deps << " " << varGlue("ALL_DEPS",""," ","")
+            t << "all: " << " " << deps << " " << valGlue(escapeFilePaths(project->values("ALL_DEPS")),""," "," ")
               << " " << destdir << "$(TARGET)" << endl << endl;
 
             //real target
             t << destdir << "$(TARGET): " << var("PRE_TARGETDEPS") << " "
               << incr_deps << " $(SUBLIBS) " << target_deps << " " << var("POST_TARGETDEPS");
         } else {
-            t << "all: " << deps << " " << varGlue("ALL_DEPS",""," ","") << " " <<
+            t << "all: " << deps << " " << valGlue(escapeFilePaths(project->values("ALL_DEPS")),""," "," ") << " " <<
                 destdir << "$(TARGET)" << endl << endl;
             t << destdir << "$(TARGET): " << var("PRE_TARGETDEPS")
               << " $(OBJECTS) $(SUBLIBS) $(OBJCOMP) " << target_deps
@@ -478,9 +481,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             t << "\n\t"
               << "-$(DEL_FILE) $(TARGET) $(TARGET0) $(DESTDIR)$(TARGET0)" << "\n\t"
               << var("QMAKE_LINK_SHLIB_CMD") << "\n\t"
-              << mkdir_p_asstring("`dirname $(DESTDIR)$(TARGETD)`") << "\n\t"
+              << mkdir_p_asstring("\"`dirname $(DESTDIR)$(TARGETD)`\"", false) << "\n\t"
               << "-$(MOVE) $(TARGET) $(DESTDIR)$(TARGETD)" << "\n\t"
-              << mkdir_p_asstring("`dirname $(DESTDIR)$(TARGET0)`") << "\n\t"
+              << mkdir_p_asstring("\"`dirname $(DESTDIR)$(TARGET0)`\"", false) << "\n\t"
               << varGlue("QMAKE_LN_SHLIB","-"," "," Versions/" +
                          project->first("QMAKE_FRAMEWORK_VERSION") +
                          "/$(TARGET) $(DESTDIR)$(TARGET0)") << "\n\t"
@@ -539,7 +542,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         }
     } else {
         QString destdir = project->first("DESTDIR");
-        t << "all: " << deps << " " << varGlue("ALL_DEPS",""," "," ") << destdir << "$(TARGET) "
+        t << "all: " << deps << " " << valGlue(escapeFilePaths(project->values("ALL_DEPS")),""," "," ") << destdir << "$(TARGET) "
           << varGlue("QMAKE_AR_SUBLIBS", destdir, " " + destdir, "") << "\n\n"
           << "staticlib: " << destdir << "$(TARGET)" << "\n\n";
         if(project->isEmpty("QMAKE_AR_SUBLIBS")) {
@@ -558,8 +561,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "\t" << "-$(MOVE) $(TARGET) " << destdir << "\n";
         } else {
             int max_files = project->first("QMAKE_MAX_FILES_PER_AR").toInt();
-            QStringList objs = project->variables()["OBJECTS"] + project->variables()["OBJCOMP"],
-                        libs = project->variables()["QMAKE_AR_SUBLIBS"];
+            QStringList objs = project->values("OBJECTS") + project->values("OBJCOMP"),
+                        libs = project->values("QMAKE_AR_SUBLIBS");
             libs.prepend("$(TARGET)");
             for(QStringList::Iterator libit = libs.begin(), objit = objs.begin();
                 libit != libs.end(); ++libit) {
@@ -570,7 +573,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 if((*libit) == "$(TARGET)") {
                     t << destdir << "$(TARGET): " << var("PRE_TARGETDEPS")
                       << " " << var("POST_TARGETDEPS") << valList(build) << "\n\t";
-                    ar = project->variables()["QMAKE_AR_CMD"].first();
+                    ar = project->values("QMAKE_AR_CMD").first();
                     ar = ar.replace("$(OBJECTS)", build.join(" "));
                 } else {
                     t << (*libit) << ": " << valList(build) << "\n\t";
@@ -612,8 +615,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
 
     if(!project->first("QMAKE_PKGINFO").isEmpty()) {
-        QString pkginfo = project->first("QMAKE_PKGINFO");
-        QString destdir = project->first("DESTDIR") + project->first("QMAKE_BUNDLE_NAME") + "/Contents";
+        QString pkginfo = escapeFilePath(project->first("QMAKE_PKGINFO"));
+        QString destdir = escapeFilePath(project->first("DESTDIR") + project->first("QMAKE_BUNDLE_NAME") + "/Contents");
         t << pkginfo << ": " << "\n\t";
         if(!destdir.isEmpty())
             t << mkdir_p_asstring(destdir) << "\n\t";
@@ -624,8 +627,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
         //copy the plist
-        QString info_plist = fileFixify(project->first("QMAKE_INFO_PLIST")),
-            info_plist_out = project->first("QMAKE_INFO_PLIST_OUT");
+        QString info_plist = escapeFilePath(fileFixify(project->first("QMAKE_INFO_PLIST"))),
+            info_plist_out = escapeFilePath(project->first("QMAKE_INFO_PLIST_OUT"));
         QString destdir = info_plist_out.section(Option::dir_sep, 0, -2);
         t << info_plist_out << ": " << "\n\t";
         if(!destdir.isEmpty())
@@ -638,7 +641,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
               << "-e \"s,@EXECUTABLE@," << var("QMAKE_ORIG_TARGET") << ",g\" "
               << "-e \"s,@TYPEINFO@,"<< (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ?
                          QString::fromLatin1("????") : project->first("QMAKE_PKGINFO_TYPEINFO").left(4)) << ",g\" "
-              << "\"" << info_plist << "\" >\"" << info_plist_out << "\"" << endl;
+              << "" << info_plist << " >" << info_plist_out << endl;
             //copy the icon
             if(!project->isEmpty("ICON")) {
                 QString dir = project->first("DESTDIR") + project->first("QMAKE_BUNDLE_NAME") + "/Contents/Resources/";
@@ -655,14 +658,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
               << "-e \"s,@TYPEINFO@,"
               << (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ?
                   QString::fromLatin1("????") : project->first("QMAKE_PKGINFO_TYPEINFO").left(4)) << ",g\" "
-              << "\"" << info_plist << "\" >\"" << info_plist_out << "\"" << endl;
+              << "" << info_plist << " >" << info_plist_out << endl;
         }
         //copy other data
         if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
             QString bundle_dir = project->first("DESTDIR") + project->first("QMAKE_BUNDLE_NAME") + "/";
-            const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
+            const QStringList &bundle_data = project->values("QMAKE_BUNDLE_DATA");
             for(int i = 0; i < bundle_data.count(); i++) {
-                const QStringList &files = project->variables()[bundle_data[i] + ".files"];
+                const QStringList &files = project->values(bundle_data[i] + ".files");
                 QString path = bundle_dir;
                 if(!project->isEmpty(bundle_data[i] + ".version")) {
                     QString version = project->first(bundle_data[i] + ".version") + "/" +
@@ -704,11 +707,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << mkdir_p_asstring(ddir_c) << "\n\t"
       << "$(COPY_FILE) --parents $(SOURCES) $(DIST) " << ddir_c << Option::dir_sep << " && ";
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
-        const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+        const QStringList &quc = project->values("QMAKE_EXTRA_COMPILERS");
         for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
-            const QStringList &var = project->variables()[(*it)+".input"];
+            const QStringList &var = project->values((*it)+".input");
             for(QStringList::ConstIterator var_it = var.begin(); var_it != var.end(); ++var_it) {
-                const QStringList &val = project->variables()[(*var_it)];
+                const QStringList &val = project->values((*var_it));
                 if(val.isEmpty())
                     continue;
                 t << "$(COPY_FILE) --parents " << val.join(" ") << " " << ddir_c << Option::dir_sep << " && ";
@@ -729,7 +732,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     QString clean_targets = "compiler_clean " + var("CLEAN_DEPS");
     t << "yaccclean:" << "\n";
     if(!var("YACCSOURCES").isEmpty()) {
-        QStringList clean, &l = project->variables()["YACCSOURCES"];
+        QStringList clean, &l = project->values("YACCSOURCES");
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
             QFileInfo fi(fileInfo((*it)));
             QString dir;
@@ -749,7 +752,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "lexclean:" << "\n";
     if(!var("LEXSOURCES").isEmpty()) {
-        QStringList clean, &l = project->variables()["LEXSOURCES"];
+        QStringList clean, &l = project->values("LEXSOURCES");
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
             QFileInfo fi(fileInfo((*it)));
             QString dir;
@@ -797,11 +800,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "-$(DEL_FILE) *~ core *.core" << "\n"
       << varGlue("CLEAN_FILES","\t-$(DEL_FILE) "," ","") << endl << endl;
     t << "####### Sub-libraries" << endl << endl;
-    if (!project->variables()["SUBLIBS"].isEmpty()) {
+    if (!project->values("SUBLIBS").isEmpty()) {
         QString libdir = "tmp/";
         if(!project->isEmpty("SUBLIBS_DIR"))
             libdir = project->first("SUBLIBS_DIR");
-        QStringList &l = project->variables()["SUBLIBS"];
+        QStringList &l = project->values("SUBLIBS");
         for(it = l.begin(); it != l.end(); ++it)
             t << libdir << "lib" << (*it) << ".a" << ":\n\t"
               << var(QString("MAKELIB") + (*it)) << endl << endl;
@@ -817,7 +820,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "\t-$(LIBTOOL) --mode=clean $(DEL_FILE) " << "$(TARGET)" << endl;
     else
         t << "\t-$(DEL_FILE) " << "$(TARGET)" << " " << endl;
-    if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
+    if(!project->isActiveConfig("staticlib") && project->values("QMAKE_APP_FLAG").isEmpty() &&
        !project->isActiveConfig("plugin") && !project->isActiveConfig("compile_libtool"))
         t << "\t-$(DEL_FILE) " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
           << destdir << "$(TARGET2) $(TARGETA)" << endl;
@@ -863,158 +866,158 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 void UnixMakefileGenerator::init2()
 {
     //version handling
-    if(project->variables()["VERSION"].isEmpty())
-        project->variables()["VERSION"].append("1.0." +
+    if(project->values("VERSION").isEmpty())
+        project->values("VERSION").append("1.0." +
                                                (project->isEmpty("VER_PAT") ? QString("0") :
                                                 project->first("VER_PAT")));
     QStringList l = project->first("VERSION").split('.');
     l << "0" << "0"; //make sure there are three
-    project->variables()["VER_MAJ"].append(l[0]);
-    project->variables()["VER_MIN"].append(l[1]);
-    project->variables()["VER_PAT"].append(l[2]);
+    project->values("VER_MAJ").append(l[0]);
+    project->values("VER_MIN").append(l[1]);
+    project->values("VER_PAT").append(l[2]);
     if(project->isEmpty("QMAKE_FRAMEWORK_VERSION"))
-        project->variables()["QMAKE_FRAMEWORK_VERSION"].append(project->variables()["VER_MAJ"].first());
+        project->values("QMAKE_FRAMEWORK_VERSION").append(project->values("VER_MAJ").first());
 
-    if (!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+    if (!project->values("QMAKE_APP_FLAG").isEmpty()) {
         if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
             QString bundle_loc = project->first("QMAKE_BUNDLE_LOCATION");
             if(!bundle_loc.isEmpty() && !bundle_loc.startsWith("/"))
                 bundle_loc.prepend("/");
             if(!bundle_loc.endsWith("/"))
                 bundle_loc += "/";
-            project->variables()["TARGET"].first().prepend(project->first("QMAKE_BUNDLE_NAME") + bundle_loc);
+            project->values("TARGET").first().prepend(project->first("QMAKE_BUNDLE_NAME") + bundle_loc);
         }
         if(!project->isEmpty("TARGET"))
-            project->variables()["TARGET"].first().prepend(project->first("DESTDIR"));
-       if (!project->variables()["QMAKE_CYGWIN_EXE"].isEmpty())
-            project->variables()["TARGET_EXT"].append(".exe");
+            project->values("TARGET").first().prepend(project->first("DESTDIR"));
+       if (!project->values("QMAKE_CYGWIN_EXE").isEmpty())
+            project->values("TARGET_EXT").append(".exe");
     } else if (project->isActiveConfig("staticlib")) {
-        project->variables()["TARGET"].first().prepend("lib");
-        project->variables()["TARGET"].first() += ".a";
-        if(project->variables()["QMAKE_AR_CMD"].isEmpty())
-            project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGET) $(OBJECTS)");
+        project->values("TARGET").first().prepend("lib");
+        project->values("TARGET").first() += ".a";
+        if(project->values("QMAKE_AR_CMD").isEmpty())
+            project->values("QMAKE_AR_CMD").append("$(AR) $(TARGET) $(OBJECTS)");
     } else {
-        project->variables()["TARGETA"].append(project->first("DESTDIR") + "lib" + project->first("TARGET") + ".a");
+        project->values("TARGETA").append(project->first("DESTDIR") + "lib" + project->first("TARGET") + ".a");
         if(project->isActiveConfig("compile_libtool"))
-            project->variables()["TARGET_la"] = QStringList(project->first("DESTDIR") + "lib" + project->first("TARGET") + Option::libtool_ext);
+            project->values("TARGET_la") = QStringList(project->first("DESTDIR") + "lib" + project->first("TARGET") + Option::libtool_ext);
 
-        if (!project->variables()["QMAKE_AR_CMD"].isEmpty())
-            project->variables()["QMAKE_AR_CMD"].first().replace("(TARGET)","(TARGETA)");
+        if (!project->values("QMAKE_AR_CMD").isEmpty())
+            project->values("QMAKE_AR_CMD").first().replace("(TARGET)","(TARGETA)");
         else
-            project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGETA) $(OBJECTS)");
+            project->values("QMAKE_AR_CMD").append("$(AR) $(TARGETA) $(OBJECTS)");
         if(project->isActiveConfig("compile_libtool")) {
-            project->variables()["TARGET"] = project->variables()["TARGET_la"];
+            project->values("TARGET") = project->values("TARGET_la");
         } else if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
             QString bundle_loc = project->first("QMAKE_BUNDLE_LOCATION");
             if(!bundle_loc.isEmpty() && !bundle_loc.startsWith("/"))
                 bundle_loc.prepend("/");
             if(!bundle_loc.endsWith("/"))
                 bundle_loc += "/";
-            project->variables()["TARGET_"].append(project->first("QMAKE_BUNDLE_NAME") +
-                                                   bundle_loc + project->first("TARGET"));
-            project->variables()["TARGET_x.y"].append(project->first("QMAKE_BUNDLE_NAME") +
+            project->values("TARGET_").append(project->first("QMAKE_BUNDLE_NAME") +
+                                                   bundle_loc + unescapeFilePath(project->first("TARGET")));
+            project->values("TARGET_x.y").append(project->first("QMAKE_BUNDLE_NAME") +
                                                       "/Versions/" +
                                                       project->first("QMAKE_FRAMEWORK_VERSION") +
-                                                      bundle_loc + project->first("TARGET"));
+                                                      bundle_loc + unescapeFilePath(project->first("TARGET")));
         } else if(project->isActiveConfig("plugin")) {
             QString prefix;
             if(!project->isActiveConfig("no_plugin_name_prefix"))
                 prefix = "lib";
-            project->variables()["TARGET_x.y.z"].append(prefix +
+            project->values("TARGET_x.y.z").append(prefix +
                                                         project->first("TARGET") + "." +
                                                         project->first("QMAKE_EXTENSION_PLUGIN"));
             if(project->isActiveConfig("lib_version_first"))
-                project->variables()["TARGET_x"].append(prefix + project->first("TARGET") + "." +
+                project->values("TARGET_x").append(prefix + project->first("TARGET") + "." +
                                                         project->first("VER_MAJ") + "." +
                                                         project->first("QMAKE_EXTENSION_PLUGIN"));
             else
-                project->variables()["TARGET_x"].append(prefix + project->first("TARGET") + "." +
+                project->values("TARGET_x").append(prefix + project->first("TARGET") + "." +
                                                         project->first("QMAKE_EXTENSION_PLUGIN") +
                                                         "." + project->first("VER_MAJ"));
-            project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
+            project->values("TARGET") = project->values("TARGET_x.y.z");
         } else if (!project->isEmpty("QMAKE_HPUX_SHLIB")) {
-            project->variables()["TARGET_"].append("lib" + project->first("TARGET") + ".sl");
+            project->values("TARGET_").append("lib" + project->first("TARGET") + ".sl");
             if(project->isActiveConfig("lib_version_first"))
-                project->variables()["TARGET_x"].append("lib" + project->first("VER_MAJ") + "." +
+                project->values("TARGET_x").append("lib" + project->first("VER_MAJ") + "." +
                                                         project->first("TARGET"));
             else
-                project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x").append("lib" + project->first("TARGET") + "." +
                                                         project->first("VER_MAJ"));
-            project->variables()["TARGET"] = project->variables()["TARGET_x"];
+            project->values("TARGET") = project->values("TARGET_x");
         } else if (!project->isEmpty("QMAKE_AIX_SHLIB")) {
-            project->variables()["TARGET_"].append("lib" + project->first("TARGET") + ".a");
+            project->values("TARGET_").append("lib" + project->first("TARGET") + ".a");
             if(project->isActiveConfig("lib_version_first")) {
-                project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x").append("lib" + project->first("TARGET") + "." +
                                                         project->first("VER_MAJ") + "." +
                                                         project->first("QMAKE_EXTENSION_SHLIB"));
-                project->variables()["TARGET_x.y"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x.y").append("lib" + project->first("TARGET") + "." +
                                                           project->first("VER_MAJ") +
                                                           "." + project->first("VER_MIN") + "." +
                                                           project->first("QMAKE_EXTENSION_SHLIB"));
-                project->variables()["TARGET_x.y.z"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x.y.z").append("lib" + project->first("TARGET") + "." +
                                                             project->first("VER_MAJ") + "." +
                                                             project->first("VER_MIN") + "." +
                                                             project->first("VER_PAT") + "." +
                                                             project->first("QMAKE_EXTENSION_SHLIB"));
             } else {
-                project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x").append("lib" + project->first("TARGET") + "." +
                                                         project->first("QMAKE_EXTENSION_SHLIB") +
                                                         "." + project->first("VER_MAJ"));
-                project->variables()["TARGET_x.y"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x.y").append("lib" + project->first("TARGET") + "." +
                                                           project->first("QMAKE_EXTENSION_SHLIB") +
                                                           "." + project->first("VER_MAJ") +
                                                           "." + project->first("VER_MIN"));
-                project->variables()["TARGET_x.y.z"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x.y.z").append("lib" + project->first("TARGET") + "." +
                                                             project->first("QMAKE_EXTENSION_SHLIB") + "." +
                                                             project->first("VER_MAJ") + "." +
                                                             project->first("VER_MIN") + "." +
                                                             project->first("VER_PAT"));
             }
-            project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
+            project->values("TARGET") = project->values("TARGET_x.y.z");
         } else {
-            project->variables()["TARGET_"].append("lib" + project->first("TARGET") + "." +
+            project->values("TARGET_").append("lib" + project->first("TARGET") + "." +
                                                    project->first("QMAKE_EXTENSION_SHLIB"));
             if(project->isActiveConfig("lib_version_first")) {
-                project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x").append("lib" + project->first("TARGET") + "." +
                                                         project->first("VER_MAJ") + "." +
                                                         project->first("QMAKE_EXTENSION_SHLIB"));
-                project->variables()["TARGET_x.y"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x.y").append("lib" + project->first("TARGET") + "." +
                                                           project->first("VER_MAJ") +
                                                           "." + project->first("VER_MIN") + "." +
                                                           project->first("QMAKE_EXTENSION_SHLIB"));
-                project->variables()["TARGET_x.y.z"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x.y.z").append("lib" + project->first("TARGET") + "." +
                                                             project->first("VER_MAJ") + "." +
                                                             project->first("VER_MIN") +  "." +
                                                             project->first("VER_PAT") + "." +
-                                                            project->variables()["QMAKE_EXTENSION_SHLIB"].first());
+                                                            project->values("QMAKE_EXTENSION_SHLIB").first());
             } else {
-                project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x").append("lib" + project->first("TARGET") + "." +
                                                         project->first("QMAKE_EXTENSION_SHLIB") +
                                                         "." + project->first("VER_MAJ"));
-                project->variables()["TARGET_x.y"].append("lib" + project->first("TARGET") + "." +
+                project->values("TARGET_x.y").append("lib" + project->first("TARGET") + "." +
                                                       project->first("QMAKE_EXTENSION_SHLIB")
                                                       + "." + project->first("VER_MAJ") +
                                                       "." + project->first("VER_MIN"));
-                project->variables()["TARGET_x.y.z"].append("lib" + project->first("TARGET") +
+                project->values("TARGET_x.y.z").append("lib" + project->first("TARGET") +
                                                             "." +
-                                                            project->variables()[
-                                                                "QMAKE_EXTENSION_SHLIB"].first() + "." +
+                                                            project->values(
+                                                                "QMAKE_EXTENSION_SHLIB").first() + "." +
                                                             project->first("VER_MAJ") + "." +
                                                             project->first("VER_MIN") +  "." +
                                                             project->first("VER_PAT"));
             }
-            project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
+            project->values("TARGET") = project->values("TARGET_x.y.z");
         }
         if(project->isEmpty("QMAKE_LN_SHLIB"))
-            project->variables()["QMAKE_LN_SHLIB"].append("ln -s");
-        if (!project->variables()["QMAKE_LFLAGS_SONAME"].isEmpty()) {
+            project->values("QMAKE_LN_SHLIB").append("ln -s");
+        if (!project->values("QMAKE_LFLAGS_SONAME").isEmpty()) {
             QString soname;
             if(project->isActiveConfig("plugin")) {
-                if(!project->variables()["TARGET"].isEmpty())
+                if(!project->values("TARGET").isEmpty())
                     soname += project->first("TARGET");
             } else if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
                 soname += project->first("TARGET_x.y");
-            } else if(!project->variables()["TARGET_x"].isEmpty()) {
+            } else if(!project->values("TARGET_x").isEmpty()) {
                 soname += project->first("TARGET_x");
             }
             if(!soname.isEmpty()) {
@@ -1026,47 +1029,47 @@ void UnixMakefileGenerator::init2()
                         instpath += Option::dir_sep;
                     soname.prepend(instpath);
                 }
-                project->variables()["QMAKE_LFLAGS_SONAME"].first() += soname;
+                project->values("QMAKE_LFLAGS_SONAME").first() += escapeFilePath(soname);
             }
         }
-        if (project->variables()["QMAKE_LINK_SHLIB_CMD"].isEmpty())
-            project->variables()["QMAKE_LINK_SHLIB_CMD"].append(
+        if (project->values("QMAKE_LINK_SHLIB_CMD").isEmpty())
+            project->values("QMAKE_LINK_SHLIB_CMD").append(
                 "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS) $(OBJCOMP)");
     }
-    if (!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-        project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_APP"];
-        project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_APP"];
-        project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_APP"];
+    if (!project->values("QMAKE_APP_FLAG").isEmpty()) {
+        project->values("QMAKE_CFLAGS") += project->values("QMAKE_CFLAGS_APP");
+        project->values("QMAKE_CXXFLAGS") += project->values("QMAKE_CXXFLAGS_APP");
+        project->values("QMAKE_LFLAGS") += project->values("QMAKE_LFLAGS_APP");
     } else if (project->isActiveConfig("dll")) {
         if(!project->isActiveConfig("plugin") || !project->isActiveConfig("plugin_no_share_shlib_cflags")) {
-            project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_SHLIB"];
-            project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_SHLIB"];
+            project->values("QMAKE_CFLAGS") += project->values("QMAKE_CFLAGS_SHLIB");
+            project->values("QMAKE_CXXFLAGS") += project->values("QMAKE_CXXFLAGS_SHLIB");
         }
         if (project->isActiveConfig("plugin")) {
-            project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_PLUGIN"];
-            project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_PLUGIN"];
-            project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_PLUGIN"];
+            project->values("QMAKE_CFLAGS") += project->values("QMAKE_CFLAGS_PLUGIN");
+            project->values("QMAKE_CXXFLAGS") += project->values("QMAKE_CXXFLAGS_PLUGIN");
+            project->values("QMAKE_LFLAGS") += project->values("QMAKE_LFLAGS_PLUGIN");
             if(project->isActiveConfig("plugin_with_soname") && !project->isActiveConfig("compile_libtool"))
-                project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
+                project->values("QMAKE_LFLAGS") += project->values("QMAKE_LFLAGS_SONAME");
         } else {
-            project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SHLIB"];
+            project->values("QMAKE_LFLAGS") += project->values("QMAKE_LFLAGS_SHLIB");
             if(!project->isEmpty("QMAKE_LFLAGS_COMPAT_VERSION")) {
                 if(project->isEmpty("COMPAT_VERSION"))
-                    project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
+                    project->values("QMAKE_LFLAGS") += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
                                                                     project->first("VER_MAJ") + "." +
                                                                     project->first("VER_MIN"));
                 else
-                    project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
+                    project->values("QMAKE_LFLAGS") += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
                                                                     project->first("COMPATIBILITY_VERSION"));
             }
             if(!project->isEmpty("QMAKE_LFLAGS_VERSION")) {
-                project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_VERSION") +
+                project->values("QMAKE_LFLAGS") += QString(project->first("QMAKE_LFLAGS_VERSION") +
                                                                 project->first("VER_MAJ") + "." +
                                                                 project->first("VER_MIN") + "." +
                                                                 project->first("VER_PAT"));
             }
             if(!project->isActiveConfig("compile_libtool"))
-                project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
+                project->values("QMAKE_LFLAGS") += project->values("QMAKE_LFLAGS_SONAME");
         }
     }
 
@@ -1076,21 +1079,21 @@ void UnixMakefileGenerator::init2()
             plist = specdir() + QDir::separator() + "Info.plist." + project->first("TEMPLATE");
         if(exists(Option::fixPathToLocalOS(plist))) {
             if(project->isEmpty("QMAKE_INFO_PLIST"))
-                project->variables()["QMAKE_INFO_PLIST"].append(plist);
-            project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") +
+                project->values("QMAKE_INFO_PLIST").append(plist);
+            project->values("QMAKE_INFO_PLIST_OUT").append(project->first("DESTDIR") +
                                                                 project->first("QMAKE_BUNDLE_NAME") +
                                                                 "/Contents/Info.plist");
-            project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");
+            project->values("ALL_DEPS") += project->first("QMAKE_INFO_PLIST_OUT");
             if(!project->isEmpty("ICON") && project->first("TEMPLATE") == "app")
-                project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
+                project->values("ALL_DEPS") += project->first("DESTDIR") +
                                                     project->first("QMAKE_BUNDLE_NAME") +
                                                     "/Contents/Resources/" + project->first("ICON").section('/', -1);
             if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
                 QString bundle_dir = project->first("DESTDIR") + project->first("QMAKE_BUNDLE_NAME") + "/";
-                QStringList &alldeps = project->variables()["ALL_DEPS"];
-                const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
+                QStringList &alldeps = project->values("ALL_DEPS");
+                const QStringList &bundle_data = project->values("QMAKE_BUNDLE_DATA");
                 for(int i = 0; i < bundle_data.count(); i++) {
-                    const QStringList &files = project->variables()[bundle_data[i] + ".files"];
+                    const QStringList &files = project->values(bundle_data[i] + ".files");
                     QString path = bundle_dir;
                     if(!project->isEmpty(bundle_data[i] + ".version")) {
                         alldeps += Option::fixPathToLocalOS(path + Option::dir_sep +
@@ -1136,7 +1139,7 @@ UnixMakefileGenerator::writeLibtoolFile()
     QFile ft(fname);
     if(!ft.open(QIODevice::WriteOnly))
         return;
-    project->variables()["ALL_DEPS"].append(fileFixify(fname));
+    project->values("ALL_DEPS").append(fileFixify(fname));
 
     QTextStream t(&ft);
     t << "# " << lname << " - a libtool library file\n";
@@ -1165,12 +1168,12 @@ UnixMakefileGenerator::writeLibtoolFile()
     t << "# Libraries that this one depends upon.\n";
     QStringList libs;
     if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
-        libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];
+        libs = project->values("QMAKE_INTERNAL_PRL_LIBS");
     else
         libs << "QMAKE_LIBS"; //obvious one
     t << "dependency_libs='";
     for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it)
-        t << project->variables()[(*it)].join(" ") << " ";
+        t << project->values((*it)).join(" ") << " ";
     t << "'\n\n";
 
     t << "# Version information for " << lname << "\n";
@@ -1242,7 +1245,7 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
     QFile ft(fname);
     if(!ft.open(QIODevice::WriteOnly))
         return;
-    project->variables()["ALL_DEPS"].append(fileFixify(fname));
+    project->values("ALL_DEPS").append(fileFixify(fname));
     QTextStream t(&ft);
 
     QString prefix = pkgConfigPrefix();
@@ -1267,7 +1270,7 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
         name.replace(0, 1, name[0].toUpper());
     }
     t << "Name: " << name << endl;
-    QString desc = project->variables()["QMAKE_PKGCONFIG_DESCRIPTION"].join(" ");
+    QString desc = project->values("QMAKE_PKGCONFIG_DESCRIPTION").join(" ");
     if(desc.isEmpty()) {
         if(name.isEmpty()) {
             desc = project->first("QMAKE_ORIG_TARGET").toLower();
@@ -1290,13 +1293,13 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
     // libs
     QStringList libs;
     if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
-        libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];
+        libs = project->values("QMAKE_INTERNAL_PRL_LIBS");
     else
         libs << "QMAKE_LIBS"; //obvious one
     libs << "QMAKE_LFLAGS_THREAD"; //not sure about this one, but what about things like -pthread?
     t << "Libs: -L${libdir} -l" << lname.left(lname.length()-Option::libtool_ext.length()) << " ";
     for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it)
-        t << project->variables()[(*it)].join(" ") << " ";
+        t << project->values((*it)).join(" ") << " ";
     t << endl;
 
     // flags
@@ -1304,8 +1307,8 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
     t << "Cflags: "
         // << var("QMAKE_CXXFLAGS") << " "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
-      << project->variables()["PRL_EXPORT_CXXFLAGS"].join(" ")
-      << project->variables()["QMAKE_PKGCONFIG_CFLAGS"].join(" ")
+      << project->values("PRL_EXPORT_CXXFLAGS").join(" ")
+      << project->values("QMAKE_PKGCONFIG_CFLAGS").join(" ")
         //      << varGlue("DEFINES","-D"," -D"," ")
       << " -I${includedir}";
 }

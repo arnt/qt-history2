@@ -23,6 +23,7 @@
 #else
 # include <io.h>
 #endif
+#include <qdebug.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
