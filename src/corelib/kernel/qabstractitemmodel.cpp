@@ -1923,11 +1923,11 @@ void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
 */
 QModelIndexList QAbstractItemModel::persistentIndexList() const
 {
-    Q_D(QAbstractItemModel);
+    Q_D(const QAbstractItemModel);
     QList<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
     QModelIndexList result;
     for (int i = 0; i < persistentIndexes.count(); ++i)
-        result.append(persistentIndexes.at(j)->index);
+        result.append(persistentIndexes.at(i)->index);
     return result;
 }
 
