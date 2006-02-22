@@ -818,6 +818,10 @@ void QSqlQuery::clear()
     placeholders are supported; but they cannot be mixed in the same
     query. See the \l{QSqlQuery examples}{Detailed Description} for examples.
 
+    Portability note: Some databases choose to delay preparing a query until
+    it is executed the first time. In this case, preparing a syntactically wrong
+    query succeeds, but every consecutive exec() will fail.
+
     \sa exec(), bindValue(), addBindValue()
 */
 bool QSqlQuery::prepare(const QString& query)
