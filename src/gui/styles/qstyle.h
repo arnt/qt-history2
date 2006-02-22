@@ -464,6 +464,7 @@ public:
         PM_TabBarIconSize,
         PM_SizeGripSize,
         PM_DockWidgetTitleMargin,
+        PM_MessageBoxIconSize,
 
 
         // do not add any values below/greater than this

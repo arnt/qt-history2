@@ -1203,6 +1203,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_CheckBoxLabelSpacing The spacing between a check box and its label
     \value PM_TabBarIconSize The default icon size for a tab bar.
     \value PM_SizeGripSize The size of a size grip
+    \value PM_MessageBoxIconSize The size of the standard icons in a message box
 
     \value PM_CustomBase  Base value for custom ControlElements
     Custom values must be greater than this value

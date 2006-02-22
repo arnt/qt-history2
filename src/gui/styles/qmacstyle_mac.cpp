@@ -5208,6 +5208,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case PM_ToolBarHandleExtent:
         ret = 11;
         break;
+    case PM_MessageBoxIconSize:
+        ret = 64;
+        break;
     default:
         ret = QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
@@ -5448,7 +5451,19 @@ QPixmap QMacStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOpt
     recursionGuard = true;
     QIcon icon = standardIconImplementation(standardPixmap, opt, widget);
     recursionGuard = false;
-    return icon.pixmap(16, 16);
+    int size;
+    switch (standardPixmap) {
+        default:
+            size = 32;
+            break;
+        case SP_MessageBoxCritical:
+        case SP_MessageBoxQuestion:
+        case SP_MessageBoxInformation:
+        case SP_MessageBoxWarning:
+            size = 64;
+            break;
+    }
+    return icon.pixmap(size, size);
 }
 /*!
     \enum QMacStyle::FocusRectPolicy
@@ -6385,7 +6400,6 @@ bool QMacStyle::event(QEvent *e)
 QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
                                             const QWidget *widget) const
 {
-    IconRef icon = 0;
     OSType iconType = 0;
     switch (standardIcon) {
     case QStyle::SP_MessageBoxQuestion:

@@ -3382,6 +3382,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
     case PM_SizeGripSize:
         ret = 13;
         break;
+    case PM_MessageBoxIconSize:
+        ret = 32;
+        break;
     default:
         ret = 0;
         break;

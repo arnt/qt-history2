@@ -758,23 +758,26 @@ QPixmap QMessageBox::standardIcon(Icon icon, Qt::GUIStyle style)
 
 QPixmap QMessageBox::standardIcon(Icon icon)
 {
-    QPixmap pm;
+    int iconSize = QApplication::style()->pixelMetric(QStyle::PM_MessageBoxIconSize);
+    QIcon tmpIcon;
     switch (icon) {
     case Information:
-        pm = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxInformation);
+        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation);
         break;
     case Warning:
-        pm = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxWarning);
+        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
         break;
     case Critical:
-        pm = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxCritical);
+        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical);
         break;
     case Question:
-        pm = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxQuestion);
+        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxQuestion);
     default:
         break;
     }
-    return pm;
+    if (!tmpIcon.isNull())
+        return tmpIcon.pixmap(iconSize, iconSize);
+    return QPixmap();
 }
 
 
