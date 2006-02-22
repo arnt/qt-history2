@@ -737,6 +737,10 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
             t += 9+3;
             result += "uint";
         } else if (strncmp("long", t+9, 4) == 0
+                   // preserve '[unsigned] long int'
+                   && (strlen(t + 9 + 4) < 4
+                       || strncmp(t + 9 + 4, " int", 4) != 0
+                      )
                    // preserve '[unsigned] long long'
                    && (strlen(t + 9 + 4) < 5
                        || strncmp(t + 9 + 4, " long", 5) != 0
