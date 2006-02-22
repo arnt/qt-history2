@@ -91,12 +91,6 @@ public:
 
     QMimeData *internalMimeData()  const;
 
-    // used by the iterator
-    static QTreeWidgetItem* nextSibling(const QTreeWidgetItem* item);
-    static QTreeWidgetItem* previousSibling(const QTreeWidgetItem* item);
-    static void ensureValidIterator(QTreeWidgetItemIterator *iterator, const QTreeWidgetItem *itemToBeRemoved);
-    static QTreeWidgetItem* walk(const QTreeWidgetItem *current);
-
 protected:
     QTreeModel(QTreeModelPrivate &, QObject *parent = 0);
     void emitDataChanged(QTreeWidgetItem *item, int column);
