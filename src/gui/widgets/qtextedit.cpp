@@ -443,6 +443,9 @@ void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QT
 
     q->setAttribute(Qt::WA_InputMethodEnabled);
 
+    // avoid multiple textChanged() signals being emitted
+    QObject::disconnect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
+
     if (clearDocument) {
         doc->clear();
 
@@ -478,6 +481,8 @@ void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QT
         cursor.setCharFormat(charFormatForInsertion);
     }
 
+    QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
+    emit q->textChanged();
     doc->setUndoRedoEnabled(!q->isReadOnly());
     updateCurrentCharFormatAndSelection();
     doc->setModified(false);
