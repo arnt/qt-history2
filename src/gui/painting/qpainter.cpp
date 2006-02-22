@@ -4393,7 +4393,10 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
     Q_D(QPainter);
     d->updateState(d->state);
 
-    const QTextItemInt &ti = static_cast<const QTextItemInt &>(_ti);
+    QTextItemInt &ti = const_cast<QTextItemInt &>(static_cast<const QTextItemInt &>(_ti));
+
+    QVarLengthArray<QFixedPoint> positions;
+    QVarLengthArray<glyph_t> outGlyphs;
 
     if (ti.fontEngine->type() == QFontEngine::Multi) {
         QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
@@ -4436,6 +4439,14 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
                 ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
             }
 
+            QMatrix matrix = d->state->matrix;
+            matrix.translate(x, y);
+            ti2.fontEngine->getGlyphPositions(ti2.glyphs, ti2.num_glyphs, matrix, ti2.flags, outGlyphs, positions);
+
+            ti2.deviceGlyphPositions = positions.data();
+            ti2.deviceGlyphs = outGlyphs.data();
+            ti2.num_deviceGlyphs = outGlyphs.size();
+
             d->engine->drawTextItem(QPointF(x, y), ti2);
             drawTextItemDecoration(this, QPointF(x, y), ti2);
 
@@ -4476,6 +4487,14 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
             glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
             ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
         }
+        
+        QMatrix matrix = d->state->matrix;
+        matrix.translate(x, y);
+        ti2.fontEngine->getGlyphPositions(ti2.glyphs, ti2.num_glyphs, matrix, ti2.flags, outGlyphs, positions);
+
+        ti2.deviceGlyphPositions = positions.data();
+        ti2.deviceGlyphs = outGlyphs.data();
+        ti2.num_deviceGlyphs = outGlyphs.size();
 
         d->engine->drawTextItem(QPointF(x,y), ti2);
         drawTextItemDecoration(this, QPointF(x, y), ti2);
@@ -4486,6 +4505,14 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
             glyphs[i].glyph = hi | glyphs[i].glyph;
 
     } else {
+        QMatrix matrix = d->state->matrix;
+        matrix.translate(p.x(), p.y());
+        ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, outGlyphs, positions);
+
+        ti.deviceGlyphPositions = positions.data();
+        ti.deviceGlyphs = outGlyphs.data();
+        ti.num_deviceGlyphs = outGlyphs.size();
+        
         d->engine->drawTextItem(p, ti);
         drawTextItemDecoration(this, p, ti);
     }

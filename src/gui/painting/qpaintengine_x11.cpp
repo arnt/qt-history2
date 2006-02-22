@@ -1982,16 +1982,10 @@ void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 }
 
 
-void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
+void QX11PaintEngine::drawBox(const QPointF &, const QTextItemInt &ti)
 {
     if (!ti.num_glyphs)
         return;
-
-    QVarLengthArray<QFixedPoint> positions;
-    QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix;
-    matrix.translate(p.x(), p.y());
-    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
 
     int size = qRound(ti.fontEngine->ascent());
     QSize s(size - 3, size - 3);
@@ -2001,8 +1995,8 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
     QPen pen = painter()->pen();
     pen.setWidthF(ti.fontEngine->lineThickness().toReal());
     painter()->setPen(pen);
-    for (int k = 0; k < positions.size(); k++)
-        painter()->drawRect(QRectF(positions[k].toPointF(), s));
+    for (int k = 0; k < ti.num_deviceGlyphs; k++)
+        painter()->drawRect(QRectF(ti.deviceGlyphPositions[k].toPointF(), s));
     painter()->restore();
 }
 
@@ -2019,22 +2013,16 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &ti)
     if (!ti.num_glyphs)
         return;
 
-    QVarLengthArray<QFixedPoint> positions;
-    QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix = d->matrix;
-    matrix.translate(p.x(), p.y());
-    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    glyph_t *glyphs = ti.deviceGlyphs;
 
     QFontEngineXLFD *xlfd = static_cast<QFontEngineXLFD *>(ti.fontEngine);
     Qt::HANDLE font_id = xlfd->fontStruct()->fid;
 
     XSetFont(d->dpy, d->gc, font_id);
 
-    QVarLengthArray<XChar2b> chars(glyphs.size());
-
-    for (int i = 0; i < glyphs.size(); i++) {
-        int xp = qRound(positions[i].x);
-        int yp = qRound(positions[i].y);
+    for (int i = 0; i < ti.num_deviceGlyphs; i++) {
+        int xp = qRound(ti.deviceGlyphPositions[i].x);
+        int yp = qRound(ti.deviceGlyphPositions[i].y);
         if (xp < SHRT_MAX && xp > SHRT_MIN &&  yp > SHRT_MIN && yp < SHRT_MAX) {
             XChar2b ch;
             ch.byte1 = glyphs[i] >> 8;
@@ -2112,11 +2100,8 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
     if (!ti.num_glyphs)
         return;
 
-    QVarLengthArray<QFixedPoint> positions;
-    QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix = d->matrix;
-    matrix.translate(p.x(), p.y());
-    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    QFixedPoint *positions = ti.deviceGlyphPositions;
+    glyph_t *glyphs = ti.deviceGlyphs;
 
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender
@@ -2142,7 +2127,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         elt.nchars = 1;
         elt.xOff = qRound(xp);
         elt.yOff = qRound(yp);
-        for (int i = 1; i < glyphs.size(); ++i) {
+        for (int i = 1; i < ti.num_deviceGlyphs; ++i) {
             QFontEngineFT::Glyph *g = ft->cachedGlyph(glyphs[i - 1]);
             if (g
                 && positions[i].x == xp + g->advance
@@ -2172,7 +2157,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 #endif
     ft->lockFace();
     int i = 0;
-    while (i < glyphs.size()) {
+    while (i < ti.num_deviceGlyphs) {
         core_render_glyph(ft, qRound(positions[i].x), qRound(positions[i].y), glyphs[i]);
         ++i;
     }

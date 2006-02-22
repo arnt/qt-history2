@@ -212,11 +212,10 @@ void QFontEngineFT::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemInt
     QFixed x = QFixed::fromReal(matrix.dx());
     QFixed y = QFixed::fromReal(matrix.dy());
 
-    QVarLengthArray<QFixedPoint> positions;
-    QVarLengthArray<glyph_t> glyphs;
-    getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    QFixedPoint *positions = ti.deviceGlyphPositions;
+    glyph_t *glyphs = ti.deviceGlyphs;
 
-    for(int i = 0; i < glyphs.size(); i++) {
+    for(int i = 0; i < ti.num_deviceGlyphs; i++) {
         const QGlyph *glyph = rendered_glyphs[glyphs[i]];
         Q_ASSERT(glyph);
 
@@ -950,11 +949,10 @@ void QFontEngineQPF::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemIn
     QFixed x = QFixed::fromReal(matrix.dx());
     QFixed y = QFixed::fromReal(matrix.dy());
 
-    QVarLengthArray<QFixedPoint> positions;
-    QVarLengthArray<glyph_t> glyphs;
-    getGlyphPositions(si.glyphs, si.num_glyphs, matrix, si.flags, glyphs, positions);
+    QFixedPoint *positions = si.deviceGlyphPositions;
+    glyph_t *glyphs = si.deviceGlyphs;
 
-    for(int i = 0; i < glyphs.size(); i++) {
+    for(int i = 0; i < si.num_deviceGlyphs; i++) {
         const QPFGlyph *glyph = d->tree->get(glyphs[i]);
         if (!glyph)
             continue;
