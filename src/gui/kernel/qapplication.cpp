@@ -1773,7 +1773,7 @@ void QApplication::aboutQt()
     \fn void QApplication::focusChanged(QWidget *old, QWidget *now)
 
     This signal is emitted when the widget that has keyboard focus
-    changed from \a old to \a now, i.e. because the user presse the
+    changed from \a old to \a now, i.e. because the user pressed the
     tab-key, clicked into a widget or changed the active window. Note
     that both \a old and \a now can be the null-pointer.
 
