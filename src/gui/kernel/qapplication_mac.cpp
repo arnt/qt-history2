@@ -943,6 +943,15 @@ void qt_init(QApplicationPrivate *priv, int)
 
 void qt_cleanup()
 {
+    if (mac_display_changeUPP) {
+        ProcessSerialNumber psn;
+        if(GetCurrentProcess(&psn) == noErr) {
+            DMRemoveExtendedNotifyProc(mac_display_changeUPP, 0, &psn, kNilOptions);
+            DisposeDMExtendedNotificationUPP(mac_display_changeUPP);
+            mac_display_changeUPP = 0;
+        }
+    }
+
     qt_release_app_proc_handler();
     if(app_proc_handlerUPP) {
         DisposeEventHandlerUPP(app_proc_handlerUPP);
