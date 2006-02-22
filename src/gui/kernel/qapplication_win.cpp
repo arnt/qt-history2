@@ -1863,8 +1863,19 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     result = false;
                     break;
                 }
-                QWidget *fw = qApp->focusWidget();
-                if (fw) {
+            
+                QWidget *fw = QWidget::keyboardGrabber();
+                if (!fw) {
+                    if (qApp->activePopupWidget())
+                        fw = (qApp->activePopupWidget()->focusWidget()
+                                                  ? qApp->activePopupWidget()->focusWidget()
+                                                  : qApp->activePopupWidget());
+                    else if (qApp->focusWidget())
+                        fw = qApp->focusWidget();
+                    else if (widget) 
+                        fw = widget->window();
+                }
+                if (fw && fw->isEnabled()) {
                     QPoint pos = fw->inputMethodQuery(Qt::ImMicroFocus).toRect().center();
                     QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, fw->mapToGlobal(pos));
                     result = qt_sendSpontaneousEvent(fw, &e);
