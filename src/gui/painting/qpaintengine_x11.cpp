@@ -2132,7 +2132,8 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         QFixed yp = positions[0].y;
 
         // better return instead of crashing the X server
-        if (xp > SHRT_MIN && xp < SHRT_MAX &&  yp > SHRT_MIN && yp < SHRT_MAX)
+        if (xp.toInt() < SHRT_MIN || xp.toInt() > SHRT_MAX
+            || yp.toInt() < SHRT_MIN || yp.toInt() > SHRT_MAX)
             return;
 
         XGlyphElt32 elt;
