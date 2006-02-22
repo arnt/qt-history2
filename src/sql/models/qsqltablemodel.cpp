@@ -54,7 +54,8 @@ bool QSqlTableModelPrivate::setRecord(int row, const QSqlRecord &record)
             continue;
         QModelIndex cIndex = q->createIndex(row, idx);
         QVariant value = record.value(i);
-        if (q->data(cIndex) != value)
+        QVariant oldValue = q->data(cIndex);
+        if (oldValue.isNull() || oldValue != value)
             isOk &= q->setData(cIndex, value, Qt::EditRole);
     }
     if (isOk && oldStrategy == QSqlTableModel::OnFieldChange)
