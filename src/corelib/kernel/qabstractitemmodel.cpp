@@ -1917,6 +1917,23 @@ void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
 }
 
 /*!
+  \since 4.2
+
+  Returns the list of indexes stored as persistent indexes in the model.
+*/
+QModelIndexList QAbstractItemModel::persistentIndexList() const
+{
+    Q_D(QAbstractItemModel);
+    QList<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
+    QModelIndexList result;
+    result.reserve(persistentIndexes.count());
+    for (int i = 0; i < persistentIndexes.count(); ++i)
+        result.append(persistentIndexes.at(j)->index);
+    return result;
+}
+
+
+/*!
     \class QAbstractTableModel
     \brief The QAbstractTableModel class provides an abstract model that can be
     subclassed to create table models.

@@ -224,7 +224,8 @@ protected:
 
     void changePersistentIndex(const QModelIndex &from, const QModelIndex &to);
     void changePersistentIndexList(const QModelIndexList &from, const QModelIndexList &to);
-
+    QModelIndexList persistentIndexList() const;
+    
 private:
     Q_DECLARE_PRIVATE(QAbstractItemModel)
     Q_DISABLE_COPY(QAbstractItemModel)
