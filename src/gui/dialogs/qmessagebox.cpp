@@ -470,7 +470,14 @@ QMessageBox::QMessageBox(const QString& caption,
     Q_D(QMessageBox);
     d->init(button0, button1, button2);
 #ifdef Q_WS_MAC
-    setText("<p><b>" + caption + "</b></p><p>" + text + "</p>");
+    // Make our message box look a little more mac like.
+    QString finalText = QLatin1String("<p><b>") + caption + QLatin1String("</b></p>");
+    if (Qt::mightBeRichText(text))
+        finalText += QLatin1String("<br><br>") + text;
+    else
+        finalText += Qt::convertFromPlainText(text);
+
+    setText(finalText);
 #else
     setWindowTitle(caption);
     setText(text);

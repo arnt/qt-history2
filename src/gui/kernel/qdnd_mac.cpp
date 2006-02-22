@@ -81,8 +81,8 @@ class QMacMimeData : public QMimeData
 OSErr QDragManager::qt_mac_send_handler(FlavorType flav, void *data, DragItemRef, DragRef dragRef)
 {
 #ifdef DEBUG_DRAG_PROMISES
-    qDebug("asked to send %c%c%c%c", (flav >> 24) & 0xFF, (flav >> 16) & 0xFF, (flav >> 8) & 0xFF,
-            flav & 0xFF);
+    qDebug("asked to send %c%c%c%c", char(flav >> 24) & 0xFF, char(flav >> 16) & 0xFF, char(flav >> 8) & 0xFF,
+            char(flav) & 0xFF);
 #endif
     QDragPrivate *o = (QDragPrivate *)data;
     QDragManager *manager = QDragManager::self();
@@ -664,11 +664,8 @@ Qt::DropAction QDragManager::drag(QDrag *o)
     //set the drag image
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height()), pixRegion;
     if(!pix.isNull()) {
-        if(!pix.mask().isNull())
-            pixRegion = QRegion(pix.mask());
-        else
-            pixRegion = QRegion(0, 0, pix.width(), pix.height());
-        SetDragImage(dragRef, GetGWorldPixMap((GWorldPtr)pix.macQDHandle()), pixRegion.handle(true), boundsPoint, 0);
+        HIPoint hipoint = { -hotspot.x(), -hotspot.y() };
+        SetDragImageWithCGImage(dragRef, static_cast<CGImageRef>(pix.macCGHandle()), &hipoint, 0);
     }
 
     SetDragItemBounds(dragRef, (ItemReference)1 , &boundsRect);

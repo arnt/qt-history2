@@ -711,7 +711,7 @@ QList<QByteArray> QMacMimeFileUri::convertFromMime(const QString &mime, QVariant
             uri = url.toString();
         if(uri.startsWith(QLatin1String("file:///")))
             uri.insert(7, "localhost"); //Mac likes localhost to be in it!
-        ret.append(uri.toLatin1());
+        ret.append(uri.toUtf8());
     }
     return ret;
 }
@@ -793,23 +793,41 @@ QList<QByteArray> QMacMimeHFSUri::convertFromMime(const QString &mime, QVariant 
         return ret;
     QList<QVariant> urls = data.toList();
     for(int i = 0; i < urls.size(); ++i) {
-#if 0
-        QUrl url = urls.at(i).toUrl();
-        QString uri;
-        if(url.scheme().isEmpty())
-            uri = QUrl::fromLocalFile(url.toString()).toString();
-        else
-            uri = url.toString();
-#else
-        QString uri = urls.at(i).toUrl().toString();
-#endif
-
-        HFSFlavor hfs;
-        hfs.fileType = 'TEXT';
-        hfs.fileCreator = qt_mac_mime_type;
-        hfs.fdFlags = 0;
-        if(qt_mac_create_fsspec(uri, &hfs.fileSpec) == noErr)
-            ret.append(uri.toLatin1());
+        QString uri = urls.at(i).toUrl().toLocalFile();
+        // Attempt to create an HFSFlavor to give back
+        // The following code is not for the squemish.
+        QByteArray ba(sizeof(HFSFlavor));
+        HFSFlavor *phfs = reinterpret_cast<HFSFlavor *>(ba.data());
+        FSRef fsref;
+        OSErr err = FSPathMakeRef(reinterpret_cast<const UInt8 *>(uri.toUtf8().constData()),
+                                  &fsref, 0);
+        if (err == noErr) {
+            // Find out more info about the thing.
+            FSRefParam fsrefparam;
+            FSCatalogInfo catInfo;
+            memset(&catInfo, 0, sizeof(FSCatalogInfo));
+            memset(&fsrefparam, 0, sizeof(FSRefParam));
+            fsrefparam.ref = &fsref;
+            fsrefparam.whichInfo = kFSCatInfoGettableInfo;
+            fsrefparam.spec = &phfs->fileSpec;
+            fsrefparam.catInfo = &catInfo;
+            err = PBGetCatalogInfoSync(&fsrefparam);
+            if (err == noErr) {
+                const FileInfo *fileInfo = reinterpret_cast<const FileInfo *>(catInfo.finderInfo);
+                phfs->fdFlags = fileInfo->finderFlags;
+                if (phfs->fileSpec.parID == fsRtParID) {
+                    phfs->fileCreator = 'MACS';
+                    phfs->fileType = 'disk';
+                } else if (catInfo.nodeFlags & kFSNodeIsDirectoryMask) {
+                    phfs->fileCreator = 'MACS';
+                    phfs->fileType = 'fold';
+                } else {
+                    phfs->fileCreator = fileInfo->fileCreator;
+                    phfs->fileType = fileInfo->fileType;
+                }
+            }
+        }
+        ret.append(ba);
     }
     return ret;
 }
@@ -825,8 +843,8 @@ void QMacMime::initialize()
         qAddPostRoutine(cleanup_mimes);
         new QMacMimeImage;
         new QMacMimeText;
-        new QMacMimeFileUri;
         new QMacMimeHFSUri;
+        new QMacMimeFileUri;
         new QMacMimeAnyMime;
     }
 }
