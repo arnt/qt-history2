@@ -34,10 +34,11 @@ public:
     int rowCacheEnd;
     int colCount;
     bool forwardOnly;
+    bool atEnd;
 };
 
 QSqlCachedResultPrivate::QSqlCachedResultPrivate():
-    rowCacheEnd(0), colCount(0), forwardOnly(false)
+    rowCacheEnd(0), colCount(0), forwardOnly(false), atEnd(false)
 {
 }
 
@@ -45,6 +46,7 @@ void QSqlCachedResultPrivate::cleanup()
 {
     cache.clear();
     forwardOnly = false;
+    atEnd = false;
     colCount = 0;
     rowCacheEnd = 0;
 }
@@ -174,7 +176,7 @@ bool QSqlCachedResult::fetchFirst()
 
 bool QSqlCachedResult::fetchLast()
 {
-    if (at() == QSql::AfterLastRow) {
+    if (d->atEnd) {
         if (d->forwardOnly)
             return false;
         else
@@ -225,8 +227,12 @@ void QSqlCachedResult::clearValues()
 
 bool QSqlCachedResult::cacheNext()
 {
+    if (d->atEnd)
+        return false;
+
     if (!gotoNext(d->cache, d->nextIndex())) {
         d->revertLast();
+        d->atEnd = true;
         return false;
     }
     setAt(at() + 1);
