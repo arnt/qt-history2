@@ -1407,7 +1407,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             drawControl(CE_HeaderSection, header, p, widget);
             QStyleOptionHeader subopt = *header;
             subopt.rect = subElementRect(SE_HeaderLabel, header, widget);
-            drawControl(CE_HeaderLabel, &subopt, p, widget);
+            if (subopt.rect.isValid())
+                drawControl(CE_HeaderLabel, &subopt, p, widget);
             if (header->sortIndicator != QStyleOptionHeader::None) {
                 subopt.rect = subElementRect(SE_HeaderArrow, opt, widget);
                 drawPrimitive(PE_IndicatorHeaderArrow, &subopt, p, widget);
