@@ -98,24 +98,7 @@
     \section1 Building the Plugins Manually
 
     \target QMYSQL
-    \section2 QMYSQL for MySQL 3.x and higher
-
-    \section3 General Information
-
-    MySQL 3.x doesn't support SQL transactions by default, although there
-    are some backends which offer this functionality. Recent versions of
-    the MySQL client libraries (>3.23.34) allow you to use transactions on
-    those modified servers.
-
-    If you have a recent client library and connect to a
-    transaction-enabled MySQL server, a call to the
-    QSqlDriver::hasFeature(QSqlDriver::Transactions) function returns
-    true and SQL transactions can be used.
-
-    If the plugin is compiled against MySQL 4.x client libraries,
-    transactions are enabled by default.
-
-    You can find information about MySQL on \l http://www.mysql.com
+    \section2 QMYSQL for MySQL 4 and higher
 
     \section3 Stored procedure support
 
