@@ -1650,7 +1650,21 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
             height = qpattern->data.pixmap.height();
         } else {
             qpattern->as_mask = true;
-            qpattern->data.bytes = qt_patternForBrush(bs, false);
+
+            Qt::BrushStyle bsForPattern;
+            switch (bs) {
+            // Since the matrix is flipped, we need to filp the diagonal
+            default:
+                bsForPattern = bs;
+                break;
+            case Qt::BDiagPattern:
+                bsForPattern = Qt::FDiagPattern;
+                break;
+            case Qt::FDiagPattern:
+                bsForPattern = Qt::BDiagPattern;
+                break;
+            }
+            qpattern->data.bytes = qt_patternForBrush(bsForPattern, false);
             width = height = 8;
             const QColor &col = brush.color();
             components[0] = qt_mac_convert_color_to_cg(col.red());
