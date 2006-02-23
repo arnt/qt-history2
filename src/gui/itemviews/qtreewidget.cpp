@@ -1231,6 +1231,9 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
 /*!
     Sets the value for the item's \a column and \a role to the given
     \a value.
+
+    The \a role describes the type of data specified by \a value, and is defined by
+    the Qt::ItemDataRole enum.
 */
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {
