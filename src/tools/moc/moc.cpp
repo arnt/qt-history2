@@ -122,7 +122,7 @@ QByteArray normalizeType(const char *s, bool fixScope)
 {
     int len = qstrlen(s);
     char stackbuf[64];
-    char *buf = (len >= 64 ? new char[len] : stackbuf);
+    char *buf = (len >= 64 ? new char[len + 1] : stackbuf);
     char *d = buf;
     char last = 0;
     while(*s && is_space(*s))
