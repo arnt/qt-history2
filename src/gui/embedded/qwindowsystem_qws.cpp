@@ -645,6 +645,14 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
     parent is \a parent.
 */
 
+/*!
+    \fn static QWSServer* QWSServer::instance()
+
+    Returns a pointer to the application's QWSServer instance. The pointer
+    will be 0 if the application is not the window server, e.g.
+    QApplication::type() != QApplication::GuiServer.
+*/
+
 struct QWSCommandStruct
 {
     QWSCommandStruct(QWSCommand *c, QWSClient *cl) :command(c),client(cl){}

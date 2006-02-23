@@ -150,6 +150,9 @@ private:
 class QWSMouseHandler;
 struct QWSCommandStruct;
 class QWSServerPrivate;
+class QWSServer;
+
+extern QWSServer *qwsServer;
 
 class Q_GUI_EXPORT QWSServer : public QObject
 {
@@ -173,6 +176,8 @@ public:
                              bool isPress, bool autoRepeat);
     static void processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                                 bool isPress, bool autoRepeat);
+
+    static QWSServer* instance() { return qwsServer; }
 
 #ifndef QT_NO_QWS_INPUTMETHODS
 #ifdef QT3_SUPPORT
@@ -314,8 +319,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void newConnection())
 #endif
 };
-
-extern QWSServer *qwsServer; //there can be only one
 
 #ifndef QT_NO_QWS_INPUTMETHODS
 class Q_GUI_EXPORT QWSInputMethod : public QObject

@@ -53,6 +53,12 @@ ClearCacheFunc QScreen::clearCacheFunc = 0;
     This class is non-portable. It is only available in Qtopia Core.
 */
 
+/*!
+    \fn static QScreenCursor* QScreenCursor::instance()
+
+    Returns a pointer to the application's QScreenCursor instance.
+*/
+
 extern bool qws_sw_cursor;
 
 /*!
@@ -192,6 +198,12 @@ void QScreenCursor::initSoftwareCursor()
 
      \value NormalPixel
      \value BGRPixel
+*/
+
+/*!
+    \fn static QScreen* QScreen::instance()
+
+    Returns a pointer to the application's QScreen instance.
 */
 
 /*!

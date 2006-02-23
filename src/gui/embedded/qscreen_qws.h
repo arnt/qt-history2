@@ -93,6 +93,8 @@ const int SourcePixmap=1;
 
 #ifndef QT_NO_QWS_CURSOR
 
+class QScreenCursor;
+extern QScreenCursor *qt_screencursor;
 extern bool qt_sw_cursor;
 
 class Q_GUI_EXPORT QScreenCursor
@@ -116,6 +118,7 @@ public:
     bool isAccelerated() const { return hwaccel; }
 
     static void initSoftwareCursor();
+    static QScreenCursor* instance() { return qt_screencursor; }
 
 protected:
     QImage cursor;
@@ -127,8 +130,6 @@ protected:
     uint hwaccel : 1;
     uint supportsAlpha : 1;
 };
-
-extern QScreenCursor * qt_screencursor;
 
 #endif // QT_NO_QWS_CURSOR
 
@@ -145,6 +146,7 @@ public:
 };
 
 class QScreen;
+extern QScreen *qt_screen;
 typedef void(*ClearCacheFunc)(QScreen *obj, int);
 
 class Q_GUI_EXPORT QScreen {
@@ -153,6 +155,7 @@ public:
 
     explicit QScreen(int display_id);
     virtual ~QScreen();
+    static QScreen* instance() { return qt_screen; }
     virtual bool initDevice() = 0;
     virtual bool connect(const QString &displaySpec) = 0;
     virtual void disconnect() = 0;
@@ -281,8 +284,6 @@ private:
     void compose(int level, const QRegion &exposed, QRegion &blend, QImage &blendbuffer, int changing_level);
     void paintBackground(const QRegion &);
 };
-
-extern QScreen * qt_screen;
 
 // This lives in loadable modules
 
