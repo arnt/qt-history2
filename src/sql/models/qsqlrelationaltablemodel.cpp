@@ -16,6 +16,7 @@
 #include "qhash.h"
 #include "qstringlist.h"
 #include "qsqldatabase.h"
+#include "qsqldriver.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
 #include "qsqlindex.h"
@@ -100,6 +101,7 @@ public:
     QSqlRelationalTableModelPrivate()
         : QSqlTableModelPrivate()
     {}
+    QString escapedRelationField(const QString &tableName, const QString &fieldName) const;
 
     int nameToIndex(const QString &name) const;
     mutable QVector<QRelation> relations;
@@ -313,6 +315,16 @@ QSqlRelation QSqlRelationalTableModel::relation(int column) const
     return d->relations.value(column).rel;
 }
 
+QString QSqlRelationalTableModelPrivate::escapedRelationField(const QString &tableName,
+                        const QString &fieldName) const
+{
+    QString esc;
+    esc.reserve(tableName.size() + fieldName.size() + 1);
+    esc.append(tableName).append(QLatin1Char('.')).append(fieldName);
+
+    return db.driver()->escapeIdentifier(esc, QSqlDriver::FieldName);
+}
+
 /*!
     \reimp
 */
@@ -337,23 +349,27 @@ QString QSqlRelationalTableModel::selectStatement() const
         QSqlRelation relation = d->relations.value(i, nullRelation).rel;
         if (relation.isValid()) {
             QString relTableAlias = QString::fromLatin1("relTblAl_%1").arg(i);
-            fList.append(relTableAlias).append(QLatin1Char('.'));
-            fList.append(relation.displayColumn()).append(QLatin1Char(','));
+            fList.append(d->escapedRelationField(relTableAlias, relation.displayColumn()));
+            fList.append(QLatin1Char(','));
             if (!tables.contains(relation.tableName()))
-                tables.append(relation.tableName().append(QLatin1String(" AS ")).append(relTableAlias));
-            where.append(tableName()).append(QLatin1Char('.')).append(rec.fieldName(i));
-            where.append(QLatin1Char('=')).append(relTableAlias).append(QLatin1Char('.'));
-            where.append(relation.indexColumn()).append(QLatin1String(" AND "));
+                tables.append(d->db.driver()->escapeIdentifier(relation.tableName(),
+                       QSqlDriver::TableName).append(QLatin1String(" AS ")).append(
+                       d->db.driver()->escapeIdentifier(relTableAlias, QSqlDriver::TableName)));
+            where.append(d->escapedRelationField(tableName(), rec.fieldName(i)));
+            where.append(QLatin1Char('='));
+            where.append(d->escapedRelationField(relTableAlias, relation.indexColumn()));
+            where.append(QLatin1String(" AND "));
         } else {
-            fList.append(tableName()).append(QLatin1Char('.')).append(rec.fieldName(i)).append(
-                            QLatin1Char(','));
+            fList.append(d->escapedRelationField(tableName(), rec.fieldName(i)));
+            fList.append(QLatin1Char(','));
         }
     }
     if (!tables.isEmpty())
         tList.append(tables.join(QLatin1String(","))).append(QLatin1String(","));
     if (fList.isEmpty())
         return query;
-    tList.prepend(QLatin1Char(',')).prepend(tableName());
+    tList.prepend(QLatin1Char(',')).prepend(d->db.driver()->escapeIdentifier(tableName(),
+                QSqlDriver::TableName));
     // truncate tailing comma
     tList.chop(1);
     fList.chop(1);
