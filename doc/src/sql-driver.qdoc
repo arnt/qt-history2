@@ -38,7 +38,7 @@
     \row \o \link #QDB2 QDB2\endlink \o IBM DB2 (version 7.1 and higher)
     \row \o \link #QIBASE QIBASE\endlink \o Borland InterBase
     \row \o \link #QMYSQL QMYSQL\endlink \o MySQL
-    \row \o \link #QOCI QOCI\endlink \o Oracle Call Interface Driver (versions 8, 9, and 10)
+    \row \o \link #QOCI QOCI\endlink \o Oracle Call Interface Driver
     \row \o \link #QODBC QODBC\endlink
          \o Open Database Connectivity (ODBC) - Microsoft SQL Server and other
             ODBC-compliant databases
@@ -197,25 +197,19 @@
 
     \section3 General Information
 
-    The Qt OCI plugin supports Oracle 8.1, 9i, 10g and higher. After
+    The Qt OCI plugin supports Oracle 9i, 10g and higher. After
     connecting to the Oracle server, the plugin will auto-detect the
     database version and enable features accordingly.
 
     \section3 User authentication
 
-    For Oracle versions >= 9, the Qt OCI plugin supports authentication using
+    The Qt OCI plugin supports authentication using
     external credentials (OCI_CRED_EXT). Usually, this means that the database
     server will use the user authentication provided by the operating system
     instead of its own authentication mechanism.
 
     Leave the username and password empty when opening a connection with
     QSqlDatabase to use the external credentials authentication.
-
-    \section3 Unicode Support
-
-    If the Oracle server supports Unicode, the OCI plugin will use UTF-8
-    encoding to communicate with version 8 servers and UCS2 for version 9
-    and higher.
 
     \section3 BLOB/LOB Support
 
@@ -237,18 +231,11 @@
 
     \list
     \i \c libclntsh.so (all versions)
-    \i \c libwtc8.so (only Oracle 8) or \c libwtc9.so (only Oracle 9)
+    \i \c libwtc9.so (only Oracle 9)
     \endlist
 
     Tell \c qmake where to find the Oracle header files and shared
     libraries and run make:
-
-    For Oracle 8:
-    \code
-        cd $QTDIR/src/plugins/sqldrivers/oci
-        qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc8" oci.pro
-        make
-    \endcode
 
     For Oracle version 9:
     \code
@@ -264,14 +251,6 @@
         qmake -o Makefile "INCLUDEPATH+=/usr/include/oracle/10.1.0.3/client/" "LIBS+=-L/usr/lib/oracle/10.1.0.3/client/lib" oci.pro
         make
     \endcode
-
-    Note that some versions of the OCI 8 or 9 client libraries contain a bug
-    that makes programs linked to these libraries segfault on application exit. This
-    only happens if the QOCI driver is compiled as a plugin. To work
-    around this problem, either compile the driver into the Qt libray
-    itself, or configure Qt with the option '-DQT_NO_LIBRARY_UNLOAD'.
-    For Oracle 9, it is possible to link to the static OCI library by
-    using "LIBS+=$ORACLE_HOME/lib/libclntst9.a".
 
     \section3 How to Build the Plugin on Windows
 
