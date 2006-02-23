@@ -731,7 +731,7 @@ public:
 
 int QMacMimeHFSUri::countFlavors()
 {
-    return 2;
+    return 1;
 }
 
 QString QMacMimeHFSUri::convertorName()
@@ -739,10 +739,8 @@ QString QMacMimeHFSUri::convertorName()
     return "HFSUri";
 }
 
-int QMacMimeHFSUri::flavor(int flav)
+int QMacMimeHFSUri::flavor(int)
 {
-    if(flav == 0)
-        return kDragFlavorTypePromiseHFS;
     return kDragFlavorTypeHFS;
 }
 
@@ -755,7 +753,7 @@ int QMacMimeHFSUri::flavorFor(const QString &mime)
 
 QString QMacMimeHFSUri::mimeFor(int flav)
 {
-    if(flav == kDragFlavorTypeHFS || flav == kDragFlavorTypePromiseHFS)
+    if(flav == kDragFlavorTypeHFS)
         return QString("text/uri-list");
     return QString();
 }
@@ -763,14 +761,13 @@ QString QMacMimeHFSUri::mimeFor(int flav)
 bool QMacMimeHFSUri::canConvert(const QString &mime, int flav)
 {
     if(mime == QLatin1String("text/uri-list"))
-        return flav == kDragFlavorTypeHFS || flav == kDragFlavorTypePromiseHFS;
+        return flav == kDragFlavorTypeHFS;
     return false;
 }
 
 QVariant QMacMimeHFSUri::convertToMime(const QString &mime, QList<QByteArray> data, int flav)
 {
-    if(mime != QLatin1String("text/uri-list") ||
-       (flav != kDragFlavorTypeHFS && flav != kDragFlavorTypePromiseHFS))
+    if(mime != QLatin1String("text/uri-list") || flav != kDragFlavorTypeHFS)
         return QByteArray();
     QList<QVariant> ret;
     char *buffer = (char*)malloc(1024);
@@ -788,8 +785,7 @@ QVariant QMacMimeHFSUri::convertToMime(const QString &mime, QList<QByteArray> da
 QList<QByteArray> QMacMimeHFSUri::convertFromMime(const QString &mime, QVariant data, int flav)
 {
     QList<QByteArray> ret;
-    if(mime != QLatin1String("text/uri-list") ||
-       (flav != kDragFlavorTypeHFS && flav != kDragFlavorTypePromiseHFS))
+    if(mime != QLatin1String("text/uri-list") || flav != kDragFlavorTypeHFS)
         return ret;
     QList<QVariant> urls = data.toList();
     for(int i = 0; i < urls.size(); ++i) {
@@ -843,8 +839,8 @@ void QMacMime::initialize()
         qAddPostRoutine(cleanup_mimes);
         new QMacMimeImage;
         new QMacMimeText;
-        new QMacMimeHFSUri;
         new QMacMimeFileUri;
+        new QMacMimeHFSUri;
         new QMacMimeAnyMime;
     }
 }
