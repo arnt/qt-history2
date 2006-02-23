@@ -117,6 +117,34 @@
 
     You can find information about MySQL on \l http://www.mysql.com
 
+    \section3 Stored procedure support
+
+    MySQL 5 introduces stored procedure support on a SQL level, but no
+    API to control IN, OUT and INOUT parameters. Therefore, parameters
+    have to be set and read using SQL commands instead of QSqlQuery::bindValue().
+
+    Example stored procedure:
+
+    create procedure qtestproc (OUT param1 INT, OUT param2 INT)
+    BEGIN
+        set param1 = 42;
+        set param2 = 43;
+    END
+
+    Source code to access the OUT values:
+
+    <code>
+        QSqlQuery q;
+        q.exec("call qtestproc (@outval1, @outval2)");
+        q.exec("select @outval1, @outval2");
+        q.next();
+        qDebug() << q.value(0) << q.value(1); // outputs "42" and "43"
+    </endcode>
+
+    Note: \c{@outval1} and \c{@outval2} are variables local to the current
+    connection and will not be affected by queries sent from another host
+    or connection.
+
     \section3 Embedded MySQL server
 
     The MySQL embedded server is a drop-in replacement for the normal
