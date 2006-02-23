@@ -1992,16 +1992,6 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     updateEditorData(); // we are counting on having relatively few editors
     if (!isVisible() || d->layoutPosted)
         return; // no need to update
-    // single row or column changed
-    bool sameRow = topLeft.row() == bottomRight.row() && topLeft.isValid();
-    bool sameCol = topLeft.column() == bottomRight.column() && topLeft.isValid();
-    if (sameRow || sameCol) {
-        QRect tl = visualRect(topLeft);
-        QRect br = visualRect(bottomRight);
-        d->viewport->update(tl.unite(br));
-        return;
-    }
-    // more changed
     d->viewport->update();
 }
 
