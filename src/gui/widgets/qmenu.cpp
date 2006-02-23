@@ -2207,7 +2207,7 @@ void QMenu::internalDelayedPopup()
     const QRect actionRect(d->actionRect(d->currentAction));
     const QSize menuSize(d->activeMenu->sizeHint());
     const QPoint rightPos(mapToGlobal(QPoint(actionRect.right(), actionRect.top())));
-    const QPoint leftPos(mapToGlobal(QPoint(actionRect.left() - menuSize.width(), 0)));
+    const QPoint leftPos(mapToGlobal(QPoint(actionRect.left() - menuSize.width(), actionRect.top())));
 
     QPoint pos(rightPos);
     QMenu *caused = qobject_cast<QMenu*>(d->causedPopup.widget);
