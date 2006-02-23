@@ -2573,11 +2573,13 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 frame.rect = subControlRect(CC_GroupBox, opt, SC_GroupBoxFrame, widget);
                 p->save();
                 QRegion region(groupBox->rect);
-                bool ltr = groupBox->direction == Qt::LeftToRight;
-                QRect finalRect = checkBoxRect.unite(textRect);
-                if (groupBox->subControls & QStyle::SC_GroupBoxCheckBox)
-                    finalRect.adjust(ltr ? -4 : 0, 0, ltr ? 0 : 4, 0);
-                region -= finalRect;
+                if (!groupBox->text.isEmpty()) {
+                    bool ltr = groupBox->direction == Qt::LeftToRight;
+                    QRect finalRect = checkBoxRect.unite(textRect);
+                    if (groupBox->subControls & QStyle::SC_GroupBoxCheckBox)
+                        finalRect.adjust(ltr ? -4 : 0, 0, ltr ? 0 : 4, 0);
+                    region -= finalRect;
+                }
                 p->setClipRegion(region);
                 drawPrimitive(PE_FrameGroupBox, &frame, p, widget);
                 p->restore();
