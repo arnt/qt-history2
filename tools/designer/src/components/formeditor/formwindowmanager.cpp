@@ -20,6 +20,7 @@
 #include "connectionedit_p.h"
 
 #include <QtDesigner/QtDesigner>
+#include <QtDesigner/private/qtundo_p.h>
 #include <qdesigner_promotedwidget_p.h>
 #include <qdesigner_command_p.h>
 #include <layoutinfo_p.h>
@@ -348,11 +349,9 @@ void FormWindowManager::setupActions()
     connect(m_actionBreakLayout, SIGNAL(triggered()), this, SLOT(slotActionBreakLayoutActivated()));
     m_actionBreakLayout->setEnabled(false);
 
-    m_actionUndo = new QAction(tr("Undo"), this);
-    m_actionUndo->setShortcut(Qt::CTRL + Qt::Key_Z);
+    m_actionUndo = QtUndoManager::manager()->createUndoAction(this);
     m_actionUndo->setEnabled(false);
-    m_actionRedo = new QAction(tr("Redo"), this);
-    m_actionRedo->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z);
+    m_actionRedo = QtUndoManager::manager()->createRedoAction(this);
     m_actionRedo->setEnabled(false);
 }
 

@@ -150,11 +150,11 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 //
 // edit actions
 //
-    m_undoAction = QtUndoManager::manager()->createUndoAction(this);
+    m_undoAction = formWindowManager->actionUndo();
     m_undoAction->setShortcut(tr("CTRL+Z"));
     m_editActions->addAction(m_undoAction);
 
-    m_redoAction = QtUndoManager::manager()->createRedoAction(this);
+    m_redoAction = formWindowManager->actionRedo();
     m_redoAction->setShortcut(tr("CTRL+SHIFT+Z"));
     m_editActions->addAction(m_redoAction);
 
