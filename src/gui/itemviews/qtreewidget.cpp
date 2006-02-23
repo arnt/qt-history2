@@ -646,12 +646,13 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qSort(sorting.begin(), sorting.end(), compare);
 
-    // update the persistent indexes for the top level
+    int colCount = header->columnCount();
     for (int r = 0; r < sorting.count(); ++r) {
-        for (int c = 0; c < sorting.at(r).first->columnCount(); ++c) {
-            QTreeWidgetItem *item = sorting.at(r).first;
-            items->replace(r, item);
-            QModelIndex from = createIndex(sorting.at(r).second, c, item);
+        QTreeWidgetItem *item = sorting.at(r).first;
+        items->replace(r, item);
+        int oldRow = sorting.at(r).second;
+        for (int c = 0; c < colCount; ++c) {
+            QModelIndex from = createIndex(oldRow, c, item);
             QModelIndex to = createIndex(r, c, item);
             changePersistentIndex(from, to);
         }
