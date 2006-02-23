@@ -287,6 +287,8 @@ bool QSqlRelationalTableModel::setData(const QModelIndex &index, const QVariant 
     city, and that the view should present the \c{city}'s \c name
     field to the user.
 
+    Note: The table's primary key may not contain a relation to another table.
+
     \sa relation()
 */
 void QSqlRelationalTableModel::setRelation(int column, const QSqlRelation &relation)
