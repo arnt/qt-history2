@@ -134,7 +134,7 @@ Qt::ItemFlags QStringListModel::flags(const QModelIndex &index) const
 
     The dataChanged() signal is emitted if the item is changed.
 
-    \sa data()
+    \sa Qt::ItemDataRole, data()
 */
 
 bool QStringListModel::setData(const QModelIndex &index, const QVariant &value, int role)

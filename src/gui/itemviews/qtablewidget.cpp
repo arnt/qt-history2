@@ -1034,6 +1034,8 @@ QTableWidgetItem *QTableWidgetItem::clone() const
 
 /*!
     Sets the item's data for the given \a role to the specified \a value.
+
+    \sa Qt::ItemDataRole, data()
 */
 void QTableWidgetItem::setData(int role, const QVariant &value)
 {

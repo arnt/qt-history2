@@ -510,6 +510,8 @@ QListWidgetItem *QListWidgetItem::clone() const
   This function sets the data for a given \a role to the given \a value (see
   \l{Qt::ItemDataRole}). Reimplement this function if you need
   extra roles or special behavior for certain roles.
+
+  \sa Qt::ItemDataRole, data(), itemData()
 */
 void QListWidgetItem::setData(int role, const QVariant &value)
 {

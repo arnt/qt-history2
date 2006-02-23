@@ -508,9 +508,7 @@ int QDirModel::columnCount(const QModelIndex &parent) const
 
 /*!
   Returns the data for the model item \a index with the given \a role.
-
 */
-
 QVariant QDirModel::data(const QModelIndex &index, int role) const
 {
     Q_D(const QDirModel);
@@ -545,6 +543,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
   the data referenced by the \a value. Returns true if successful;
   otherwise returns false.
 
+  \sa Qt::ItemDataRole
 */
 
 bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -561,7 +560,7 @@ bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int rol
         node->info = QFileInfo(dir, name);
         QModelIndex sibling = index.sibling(index.row(), 3);
         emit dataChanged(index, sibling);
-        
+
         d->toBeRefreshed = index.parent();
         int slot = metaObject()->indexOfSlot("refresh()");
         QApplication::postEvent(this, new QMetaCallEvent(slot));

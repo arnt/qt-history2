@@ -143,7 +143,7 @@ int QStandardItemModel::rowCount(const QModelIndex &parent) const
     Q_D(const QStandardItemModel);
     if (parent.column() > 0)
         return 0;
-    
+
     QStdModelRow *modelRow = d->containedRow(parent, true);
     if (modelRow)
         return modelRow->childrenRows.count();
@@ -183,7 +183,7 @@ bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
     Q_D(const QStandardItemModel);
     if (parent.column() > 0)
         return false;
-        
+
     if (parent.isValid()) {
         QStdModelRow *modelRow = d->containedRow(parent, true);
         if (modelRow)
@@ -203,7 +203,7 @@ QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 {
     Q_D(const QStandardItemModel);
     // Don't need to check if index is valid because modelRow will
-    
+
     QStdModelRow *modelRow = d->containedRow(index, false);
     if (modelRow && modelRow->items.count() > index.column()) {
         QStdModelItem *item = modelRow->items.at(index.column());
@@ -227,7 +227,7 @@ bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value
     Q_D(const QStandardItemModel);
     if (!index.isValid())
         return false;
-    
+
     QStdModelRow *modelRow = d->containedRow(index, true);
     int count = modelRow->items.count();
     // make room for enough items
