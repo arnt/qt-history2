@@ -1899,6 +1899,11 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
     }
 
 
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+        setEditFocus(true);
+#endif
+
     int priorState = d->undoState;
     d->removeSelectedText();
 

@@ -2569,6 +2569,10 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
         e->ignore();
         return;
     }
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+        setEditFocus(true);
+#endif
     d->cursor.beginEditBlock();
 
     d->cursor.removeSelectedText();
