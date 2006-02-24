@@ -1937,6 +1937,15 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 
     case Qt::Key_Alt:
         key_consumed = true;
+        if ( style()->styleHint(QStyle::SH_MenuBar_AltKeyNavigation, 0, this))
+        {
+            hide();
+#ifndef QT_NO_MENUBAR
+            if (QMenuBar *mb = qobject_cast<QMenuBar*>(qApp->focusWidget())) {
+                mb->d_func()->setKeyboardMode(false);
+            }
+#endif
+        }
         break;
 
     case Qt::Key_Escape:
