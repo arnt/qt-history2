@@ -1865,10 +1865,12 @@ inline void Q3TextParagraph::clearBackgroundColor()
 
 inline void Q3TextParagraph::append(const QString &s, bool reallyAtEnd)
 {
-    if (reallyAtEnd)
+    if (reallyAtEnd) {
         insert(str->length(), s);
-    else
-        insert(qMax(str->length() - 1, 0), s);
+    } else {
+        int str_end = str->length() - 1;
+        insert(str_end > 0 ? str_end : 0, s);
+    }
 }
 
 inline Q3TextParagraph *Q3TextParagraph::prev() const
