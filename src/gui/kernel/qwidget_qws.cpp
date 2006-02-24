@@ -584,7 +584,7 @@ void QWidgetPrivate::blitToScreen(const QRegion &globalrgn)
 
 QWSBackingStore::QWSBackingStore()
 {
-    isServerSideBackingStore = false;
+    isSharedMemory = false;
     memLock = 0;
     ownsMemory = false;
 }
@@ -628,10 +628,10 @@ void QWSBackingStore::blit(const QRect &r, const QPoint &p)
 
 QWSMemId QWSBackingStore::memoryId() const
 {
-    if (isServerSideBackingStore)
-        return mem;
-    else
+    if (isSharedMemory)
         return shm.id();
+    else
+        return mem;
 }
 
 void QWSBackingStore::detach()
@@ -640,21 +640,74 @@ void QWSBackingStore::detach()
     qDebug() << "QWSBackingStore::detach shmid" << shm.id() << "shmaddr" << shm.address();
 #endif
     img = QImage();
-    if (isServerSideBackingStore) {
-        if (ownsMemory)
-            delete[] mem;
-    } else {
+    if (isSharedMemory)
         shm.detach();
-    }
+    else if (ownsMemory)
+        delete[] mem;
+    isSharedMemory = false;
+    ownsMemory = false;
     mem = 0;
 }
 
-void QWSBackingStore::create(QSize s, QImage::Format imageFormat)
+
+
+bool QWSBackingStore::createIfNecessary(QWidget *tlw)
 {
-    if (size() == s) {
+    QTLWExtra *topextra = tlw->d_func()->extra->topextra;
+
+    QRegion tlwRegion = tlw->geometry();
+#ifndef QT_NO_QWS_MANAGER
+    if (topextra->qwsManager)
+        tlwRegion += topextra->qwsManager->region();
+#endif
+    if (!tlw->d_func()->extra->mask.isEmpty())
+        tlwRegion &= tlw->d_func()->extra->mask.translated(tlw->geometry().topLeft());
+    QSize tlwSize = tlwRegion.boundingRect().size();
+
+
+    QBrush bgBrush = tlw->palette().brush(tlw->backgroundRole());
+    bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
+
+    QImage::Format imageFormat = (opaque && qt_screen->depth() == 16) ? QImage::Format_RGB16 : QImage::Format_ARGB32_Premultiplied;
+
+#ifdef EXPERIMENTAL_ONSCREEN_PAINT
+    bool useBS = !opaque || tlw->windowOpacity() != qreal(1.0);
+#else
+    bool useBS = true;
+#endif
+    bool doCreate = false;
+    if (useBS)
+        doCreate = tlwSize != size() || imageFormat != img.format() || _windowType == NoBS; // ...
+    else
+        doCreate = _windowType != NoBS;
+
+    if (doCreate) {
+        create(tlwSize, imageFormat, useBS ? int(opaque) : int(NoBS));
+         QWidget::qwsDisplay()->requestRegion(tlw->data->winid,
+                                              memoryId(),
+                                              _windowType, tlwRegion, imageFormat);
+         offs = tlw->geometry().topLeft() - tlwRegion.boundingRect().topLeft();
+    }
+
+    if (windowType() == QWSBackingStore::NoBS)
+        offs = tlw->geometry().topLeft();
+
+    return doCreate;
+}
+
+
+void QWSBackingStore::create(QSize s, QImage::Format imageFormat, int windowType)
+{
+    if (size() == s && imageFormat == img.format() && windowType == _windowType)
+        return;
+    detach();
+    _windowType = windowType;
+
+    if (_windowType == QWSBackingStore::NoBS) {
+        mem = qt_screen->base();
+        img = QImage(mem, qt_screen->width(), qt_screen->height(), imageFormat);
         return;
     }
-    detach();
     if (s.isNull()) {
 #ifdef QT_SHAREDMEM_DEBUG
         qDebug() << "QWSBackingStore::create null size";
@@ -668,10 +721,12 @@ void QWSBackingStore::create(QSize s, QImage::Format imageFormat)
 
     if (isServerProcess()) { // I'm the server process
         mem = new uchar[datasize];
-        isServerSideBackingStore = true;
+        isSharedMemory = false;
         ownsMemory = true;
     } else {
-        if (!shm.create(datasize + sizeof(int))) {
+        isSharedMemory = true;
+        ownsMemory = false;
+        if (!shm.create(datasize)) {
             perror("QWSBackingStore::create allocating shared memory");
             qFatal("Error creating shared memory of size %d", datasize);
         }
@@ -685,20 +740,21 @@ void QWSBackingStore::create(QSize s, QImage::Format imageFormat)
 #endif
 }
 
-void QWSBackingStore::attach(QWSMemId id, QSize s, QImage::Format imageFormat)
+void QWSBackingStore::attach(QWSMemId id, QSize s, QImage::Format imageFormat, int windowType)
 {
-    if (shm.id() == id && s == size())
+    if (shm.id() == id && s == size() && _windowType == windowType)
         return;
     detach();
+    _windowType = windowType;
+    if (windowType == QWSBackingStore::NoBS) {
+        mem  = qt_screen->base();
+        return;
+    }
     if (s.isNull())
         return;
-    if (id == -1) {
-        // this is a creative solution (aka hack) for implementing QT_FLUSH_PAINT
-#ifdef QT_SHAREDMEM_DEBUG
-        qDebug() << "QWSBackingStore::attach no id, size" << s;
-#endif
-        img = QImage(s, imageFormat);
-        img.fill(qRgba(255,255,0,128));
+    if (windowType == YellowThing) {
+        // QT_FLUSH_PAINT
+        //detach has already set everything
         return;
     }
     if (!shm.attach(id)) {
@@ -707,7 +763,8 @@ void QWSBackingStore::attach(QWSMemId id, QSize s, QImage::Format imageFormat)
                  int(id), s.width() * s.height());
         return;
     }
-
+    isSharedMemory = true;
+    ownsMemory = false;
     mem = static_cast<uchar*>(shm.address());
 
     int extradatasize = 0;
@@ -717,16 +774,30 @@ void QWSBackingStore::attach(QWSMemId id, QSize s, QImage::Format imageFormat)
 #endif
 }
 
-void QWSBackingStore::setMemory(QWSMemId id, const QSize &s, QImage::Format imageFormat)
+void QWSBackingStore::setMemory(QWSMemId id, const QSize &s, QImage::Format imageFormat, int windowType)
 {
-    if (id == (uchar*)-1) {
+    _windowType = windowType;
+    if (_windowType == QWSBackingStore::NoBS) {
+        //qDebug("QWSBackingStore::setMemory");
+        mem = qt_screen->base();
+
+        img = QImage(mem, qt_screen->width(), qt_screen->height(), imageFormat);
+        isSharedMemory = false;
+        ownsMemory = false;
+        return;
+    }
+    if (windowType == YellowThing) {
         // Handle QT_FLUSH_PAINT
-        attach(-1, s, imageFormat);
+        mem = 0;
+        img = QImage();
+        isSharedMemory = false;
+        ownsMemory = false;
         return;
     }
     mem = id;
     img = QImage(mem, s.width(), s.height(), imageFormat);
-    isServerSideBackingStore = true;
+    isSharedMemory = false;
+    ownsMemory = false;
 #ifdef QT_SHAREDMEM_DEBUG
     qDebug() << "QWSBackingStore::setMemory size" << s << "shmid" << shm.id() << "shmaddr" << shm.address() << "imageFormat" << imageFormat;
 #endif
@@ -985,6 +1056,16 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                     topextra->ftop = data.crect.y()-br.y();
                     topextra->fright = br.right()-data.crect.right();
                     topextra->fbottom = br.bottom()-data.crect.bottom();
+                    QWSBackingStore *bs = &topextra->backingStore->buffer;
+                    if (bs->windowType() == QWSBackingStore::NoBS) {
+                        QWidget::qwsDisplay()->requestRegion(data.winid, bs->memoryId(), bs->windowType(),
+                                                             myregion, bs->image().format());
+#ifndef QT_NO_QWS_MANAGER
+                        if (topextra->qwsManager)
+                            topextra->qwsManager->d_func()->dirtyRegion(QDecoration::All,
+                                                            QDecoration::Normal);
+#endif
+                    }
                 }
             }
         }

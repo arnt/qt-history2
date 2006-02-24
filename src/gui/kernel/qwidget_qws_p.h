@@ -37,10 +37,11 @@ public:
     QWSBackingStore();
     ~QWSBackingStore();
 
-    void create(QSize size, QImage::Format);
-    void attach(QWSMemId id, QSize size, QImage::Format);
+    void create(QSize size, QImage::Format, int windowType);
+    bool createIfNecessary(QWidget *tlw);
+    void attach(QWSMemId id, QSize size, QImage::Format, int windowType);
     void detach();
-    void setMemory(QWSMemId id, const QSize &size, QImage::Format);
+    void setMemory(QWSMemId id, const QSize &size, QImage::Format, int windowType);
 
     bool lock(int timeout = -1);
     void unlock();
@@ -56,13 +57,23 @@ public:
     QSize size() const { return img.size(); }
 
     bool isNull() const { return img.isNull(); }
+
+    enum WindowType {Transparent=0, Opaque=1, OnScreen=2, NoBS=3, YellowThing=4};
+
+    int windowType() const { return _windowType; }
+
+    QPoint tlwOffset() const { return offs; }
 private:
     QImage img;
     QSharedMemory shm;
     uchar *mem;
 
-    int isServerSideBackingStore : 1;
+    QRegion clipRgn;
+    QPoint offs;
+    int isSharedMemory : 1;
     int ownsMemory : 1;
+
+    int _windowType;
 
     QWSLock *memLock;
 };

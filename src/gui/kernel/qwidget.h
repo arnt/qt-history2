@@ -616,6 +616,7 @@ private:
     friend bool qt_mac_is_metal(const QWidget *w);
 #endif
 #ifdef Q_WS_QWS
+    friend class QWSBackingStore;
     friend class QWSManager;
     friend class QWSManagerPrivate;
     friend class QDecoration;

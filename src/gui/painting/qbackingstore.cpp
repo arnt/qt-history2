@@ -86,12 +86,12 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec, bo
     if (widget)
         globalRgn.translate(widget->mapToGlobal(QPoint()));
 
-    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, globalRgn, QImage::Format_Invalid);
+    QWidget::qwsDisplay()->requestRegion(yWinId, -1, QWSBackingStore::YellowThing, globalRgn, QImage::Format_Invalid);
     QWidget::qwsDisplay()->setAltitude(yWinId, 1, true);
     QWidget::qwsDisplay()->repaintRegion(yWinId, false, globalRgn);
 
     ::usleep(500*msec);
-    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, QRegion(), QImage::Format_Invalid);
+    QWidget::qwsDisplay()->requestRegion(yWinId, -1, QWSBackingStore::YellowThing, QRegion(), QImage::Format_Invalid);
     ::usleep(500*msec);
 }
 
@@ -631,18 +631,23 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         QRegion toClean;
 
 #ifdef Q_WS_QWS
-        //QWExtra *extra = tlw->d_func()->extra;
-        QRegion tlwRegion = tlw->geometry();
+        bool created = buffer.createIfNecessary(tlw);
+
+        if (created) {
 #ifndef QT_NO_QWS_MANAGER
-        if (topextra->qwsManager)
-            tlwRegion += topextra->qwsManager->region();
+            if (topextra->qwsManager)
+                topextra->qwsManager->d_func()->dirtyRegion(QDecoration::All,
+                                                            QDecoration::Normal);
 #endif
-        if (!tlw->d_func()->extra->mask.isEmpty())
-            tlwRegion &= tlw->d_func()->extra->mask.translated(tlw->geometry().topLeft());
-        QSize tlwSize = tlwRegion.boundingRect().size();
-#else
+            toClean = QRegion(0, 0, tlw->width(), tlw->height());
+        } else {
+            toClean = dirty;
+        }
+        tlwOffset = buffer.tlwOffset();
+#else // not QWS
+
         QSize tlwSize = tlw->size();
-#endif
+
         if (buffer.size() != tlwSize) {
 #if defined(Q_WS_X11)
             extern int qt_x11_preferred_pixmap_depth;
@@ -653,26 +658,12 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             qt_x11_preferred_pixmap_depth = old_qt_x11_preferred_pixmap_depth;
 #elif defined(Q_WS_WIN)
             releaseBuffer();
-#elif defined(Q_WS_QWS)
-            tlwOffset = tlw->geometry().topLeft() - tlwRegion.boundingRect().topLeft();
-            QBrush bgBrush = tlw->palette().brush(tlw->backgroundRole());
-            bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
-            QImage::Format imageFormat = (opaque && qt_screen->depth() == 16) ? QImage::Format_RGB16 : QImage::Format_ARGB32_Premultiplied;
-            buffer.create(tlwSize, imageFormat);
-            QWidget::qwsDisplay()->requestRegion(tlw->data->winid,
-                                                 buffer.memoryId(),
-                                                 opaque, tlwRegion, imageFormat);
-
-#ifndef QT_NO_QWS_MANAGER
-            if (topextra->qwsManager)
-                topextra->qwsManager->d_func()->dirtyRegion(QDecoration::All,
-                                                            QDecoration::Normal);
-#endif
-#endif // Q_WS_QWS
+#endif // Q_WS_X11
                 toClean = QRegion(0, 0, tlw->width(), tlw->height());
         } else {
             toClean = dirty;
         }
+#endif //Q_WS_QWS
 
 #ifdef Q_WS_QWS
         buffer.lock();

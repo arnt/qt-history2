@@ -2587,7 +2587,7 @@ void QWSServerPrivate::request_region(int wid, QWSMemId mid,
     }
     bool isShow = !changingw->isVisible() && !region.isEmpty();
 
-    if (windowtype == QWSRegionCommand::OnScreen) {
+    if (windowtype == QWSBackingStore::OnScreen) {
         int i = 0;
 
         int oldPos = windows.indexOf(changingw);
@@ -2618,15 +2618,15 @@ void QWSServerPrivate::request_region(int wid, QWSMemId mid,
         QWSClient *client = changingw->client();
 
         if (client->clientId() == 0) {
-            backingStore->setMemory(mid, region.boundingRect().size(), imageFormat);
+            backingStore->setMemory(mid, region.boundingRect().size(), imageFormat, windowtype);
 #ifndef QT_NO_QWS_MULTIPROCESS
         } else {
-            backingStore->attach(mid, region.boundingRect().size(), imageFormat);
+            backingStore->attach(mid, region.boundingRect().size(), imageFormat, windowtype);
             backingStore->setLock(changingw->client()->d_func()->clientLock);
 #endif
         }
 
-        changingw->opaque = windowtype != QWSRegionCommand::Transparent;
+        changingw->opaque = windowtype != QWSBackingStore::Transparent && windowtype != QWSBackingStore::YellowThing;
 
         setWindowRegion(changingw, region);
     }

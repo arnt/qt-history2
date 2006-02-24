@@ -16,8 +16,8 @@
 #include "qscreen_qws.h"
 #include "private/qobject_p.h"
 #include "private/qapplication_p.h"
+#include "private/qwidget_qws_p.h"
 #include "qwsdisplay_qws.h"
-#include "qwscommand_qws_p.h"
 #include "qwidget.h"
 #include "qimage.h"
 
@@ -67,7 +67,7 @@ QRegion QDirectPainter::reserveRegion(const QRegion &reg)
         ad->directPainterID  = QWidget::qwsDisplay()->takeId();
         QWidget::qwsDisplay()->nameRegion(ad->directPainterID, "QDirectPainter reserved space", "reserved");
     }
-    QWidget::qwsDisplay()->requestRegion(ad->directPainterID, -1, QWSRegionCommand::OnScreen, reg, QImage::Format_Invalid);
+    QWidget::qwsDisplay()->requestRegion(ad->directPainterID, -1, QWSBackingStore::OnScreen, reg, QImage::Format_Invalid);
 
     //### slightly dirty way to do a blocking wait for the region event
 

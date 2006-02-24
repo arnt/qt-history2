@@ -908,7 +908,8 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
     if (!win) {
         paintBackground(exposed-blend);
     } else if (!above_changing && win->backingStore() && !win->backingStore()->isNull()) {
-        blit(win, (exposed - blend));
+        if (win->backingStore()->windowType() != QWSBackingStore::NoBS)
+            blit(win, (exposed - blend));
     }
     QRegion blendRegion = exposed & blend;
     if (win)
