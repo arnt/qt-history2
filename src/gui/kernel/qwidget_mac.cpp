@@ -2214,12 +2214,10 @@ void QWidgetPrivate::setModal_sys()
     // We need a different window type if we are to be run modal. SetWindowClass will
     //  disappear, so Apple recommends changing the window group instead.
     WindowPtr window = qt_mac_window_for(q);
-    const bool asSheet = qt_mac_is_macsheet(q);
     if (q->testAttribute(Qt::WA_ShowModal)) {
-        if (q->testAttribute(Qt::WA_WState_Created) && asSheet && !topData()->group) {
+        if (q->testAttribute(Qt::WA_WState_Created) && !topData()->group) {
             WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
             SetWindowGroup(window, wgr);
         }
-
     }
 }
