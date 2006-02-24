@@ -834,7 +834,7 @@ class QListWidgetPrivate : public QListViewPrivate
 {
     Q_DECLARE_PUBLIC(QListWidget)
 public:
-    QListWidgetPrivate() : QListViewPrivate() {}
+    QListWidgetPrivate() : QListViewPrivate(), sortOrder(Qt::Ascending), sortingEnabled(false) {}
     inline QListModel *model() const { return ::qobject_cast<QListModel*>(q_func()->model()); }
     void setup();
     void emitItemPressed(const QModelIndex &index);
@@ -844,6 +844,9 @@ public:
     void emitItemEntered(const QModelIndex &index);
     void emitItemChanged(const QModelIndex &index);
     void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
+    void _q_sort();
+    Qt::SortOrder sortOrder;
+    bool sortingEnabled;
 };
 
 void QListWidgetPrivate::setup()
@@ -865,6 +868,13 @@ void QListWidgetPrivate::setup()
                      q, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     QObject::connect(q->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                      q, SIGNAL(itemSelectionChanged()));
+    // sorting
+    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(_q_sort()), Qt::QueuedConnection);
+    QObject::connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)),
+                     q, SLOT(_q_sort()), Qt::QueuedConnection);
+    QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                     q, SLOT(_q_sort()), Qt::QueuedConnection);
 }
 
 void QListWidgetPrivate::emitItemPressed(const QModelIndex &index)
@@ -911,6 +921,12 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     emit q->currentItemChanged(currentItem, model()->at(previous.row()));
     emit q->currentTextChanged(currentItem ? currentItem->text() : QString());
     emit q->currentRowChanged(current.row());
+}
+
+void QListWidgetPrivate::_q_sort()
+{
+    if (sortingEnabled)
+        model()->sort(0, sortOrder);
 }
 
 /*!
@@ -1265,7 +1281,29 @@ QRect QListWidget::visualItemRect(const QListWidgetItem *item) const
 void QListWidget::sortItems(Qt::SortOrder order)
 {
     Q_D(QListWidget);
+    d->sortOrder = order;
     d->model()->sort(0, order);
+}
+
+/*!
+  \since 4.2
+  If \a enable is true, the items in the widget will be sorted if the contents changes.
+*/
+void QListWidget::setSortingEnabled(bool enable)
+{
+    Q_D(QListWidget);
+    d->sortingEnabled = enable;
+}
+
+/*!
+  \since 4.2
+  Returns true if sorting is enabled; otherwise returns false.
+*/
+
+bool QListWidget::isSortingEnabled() const
+{
+    Q_D(const QListWidget);
+    return d->sortingEnabled;
 }
 
 /*!

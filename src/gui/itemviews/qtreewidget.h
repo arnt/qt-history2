@@ -287,6 +287,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void emitItemExpanded(const QModelIndex &index))
     Q_PRIVATE_SLOT(d_func(), void emitItemCollapsed(const QModelIndex &index))
     Q_PRIVATE_SLOT(d_func(), void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
+    Q_PRIVATE_SLOT(d_func(), void _q_sort())
 
 };
 

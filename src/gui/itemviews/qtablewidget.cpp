@@ -1241,6 +1241,7 @@ public:
     QTableWidgetPrivate() : QTableViewPrivate(), sortingEnabled(false) {}
     inline QTableModel *model() const { return ::qobject_cast<QTableModel*>(q_func()->model()); }
     void setup();
+
     // view signals
     void emitItemPressed(const QModelIndex &index);
     void emitItemClicked(const QModelIndex &index);
@@ -1251,7 +1252,8 @@ public:
     void emitItemChanged(const QModelIndex &index);
     // selection signals
     void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
-    // data
+    // sorting
+    void _q_sort();
     bool sortingEnabled;
 };
 
@@ -1273,6 +1275,10 @@ void QTableWidgetPrivate::setup()
                      q, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     QObject::connect(q->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                      q, SIGNAL(itemSelectionChanged()));
+    // sorting
+    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), q, SLOT(_q_sort()));
+    QObject::connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)), q, SLOT(_q_sort()));
+    QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)), q, SLOT(_q_sort()));
 }
 
 void QTableWidgetPrivate::emitItemPressed(const QModelIndex &index)
@@ -1331,6 +1337,16 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     if (currentItem || previousItem)
         emit q->currentItemChanged(currentItem, previousItem);
     emit q->currentCellChanged(current.row(), current.column(), previous.row(), previous.column());
+}
+
+void QTableWidgetPrivate::_q_sort()
+{
+    Q_Q(QTableWidget);
+    if (sortingEnabled) {
+        int column = q->horizontalHeader()->sortIndicatorSection();
+        Qt::SortOrder order = q->horizontalHeader()->sortIndicatorOrder();
+        model()->sort(column, order);
+    }
 }
 
 /*!
@@ -1821,6 +1837,7 @@ void QTableWidget::setSortingEnabled(bool enable)
 {
     Q_D(QTableWidget);
     d->sortingEnabled = enable;
+    horizontalHeader()->setSortIndicatorShown(enable);
     if (enable) {
         disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)),
                    this, SLOT(selectColumn(int)));

@@ -153,6 +153,7 @@ class Q_GUI_EXPORT QListWidget : public QListView
     Q_OBJECT
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(int currentRow READ currentRow WRITE setCurrentRow NOTIFY currentRowChanged USER true)
+    Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
 
     friend class QListWidgetItem;
     friend class QListModel;
@@ -182,6 +183,8 @@ public:
     QRect visualItemRect(const QListWidgetItem *item) const;
 
     void sortItems(Qt::SortOrder order = Qt::AscendingOrder);
+    void setSortingEnabled(bool enable);
+    bool isSortingEnabled() const;
 
     void editItem(QListWidgetItem *item);
     void openPersistentEditor(QListWidgetItem *item);
@@ -242,6 +245,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void emitItemEntered(const QModelIndex &index))
     Q_PRIVATE_SLOT(d_func(), void emitItemChanged(const QModelIndex &index))
     Q_PRIVATE_SLOT(d_func(), void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
+    Q_PRIVATE_SLOT(d_func(), void _q_sort())
 };
 
 inline void QListWidget::addItem(QListWidgetItem *aitem)

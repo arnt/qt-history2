@@ -291,6 +291,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void emitItemEntered(const QModelIndex &index))
     Q_PRIVATE_SLOT(d_func(), void emitItemChanged(const QModelIndex &index))
     Q_PRIVATE_SLOT(d_func(), void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
+    Q_PRIVATE_SLOT(d_func(), void _q_sort())
 };
 
 inline QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const

@@ -1607,6 +1607,7 @@ public:
     void emitItemExpanded(const QModelIndex &index);
     void emitItemCollapsed(const QModelIndex &index);
     void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &index);
+    void _q_sort();
     bool sortingEnabled;
 };
 
@@ -1665,6 +1666,16 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     QTreeWidgetItem *currentItem = model()->item(current);
     QTreeWidgetItem *previousItem = model()->item(previous);
     emit q->currentItemChanged(currentItem, previousItem);
+}
+
+void QTreeWidgetPrivate::_q_sort()
+{
+    Q_Q(QTreeWidget);
+    if (sortingEnabled) {
+        int column = q->header()->sortIndicatorSection();
+        Qt::SortOrder order = q->header()->sortIndicatorOrder();
+        model()->sort(column, order);
+    }
 }
 
 /*!
@@ -1833,6 +1844,13 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     // model signals
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitItemChanged(QModelIndex)));
+    // sorting
+    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                     this, SLOT(_q_sort()), Qt::QueuedConnection);
+    QObject::connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)),
+                     this, SLOT(_q_sort()), Qt::QueuedConnection);
+    QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                     this, SLOT(_q_sort()), Qt::QueuedConnection);
 
     header()->setClickable(false);
 }
