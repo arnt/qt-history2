@@ -1828,7 +1828,6 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
     QTreeView::setModel(new QTreeModel(0, this));
-    // view signals
     connect(this, SIGNAL(pressed(QModelIndex)), SLOT(emitItemPressed(QModelIndex)));
     connect(this, SIGNAL(clicked(QModelIndex)), SLOT(emitItemClicked(QModelIndex)));
     connect(this, SIGNAL(doubleClicked(QModelIndex)), SLOT(emitItemDoubleClicked(QModelIndex)));
@@ -1836,21 +1835,15 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     connect(this, SIGNAL(entered(QModelIndex)), SLOT(emitItemEntered(QModelIndex)));
     connect(this, SIGNAL(expanded(QModelIndex)), SLOT(emitItemExpanded(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(emitItemCollapsed(QModelIndex)));
-    // selection signals
     connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SIGNAL(itemSelectionChanged()));
-    // model signals
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitItemChanged(QModelIndex)));
-    // sorting
-    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                     this, SLOT(_q_sort()), Qt::QueuedConnection);
-    QObject::connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)),
-                     this, SLOT(_q_sort()), Qt::QueuedConnection);
-    QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                     this, SLOT(_q_sort()), Qt::QueuedConnection);
+    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(_q_sort()));
+    QObject::connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(_q_sort()));
+    QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)), this, SLOT(_q_sort()));
 
     header()->setClickable(false);
 }

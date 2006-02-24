@@ -853,28 +853,21 @@ void QListWidgetPrivate::setup()
 {
     Q_Q(QListWidget);
     q->QListView::setModel(new QListModel(q));
-    // view signals
     QObject::connect(q, SIGNAL(pressed(QModelIndex)), q, SLOT(emitItemPressed(QModelIndex)));
     QObject::connect(q, SIGNAL(clicked(QModelIndex)), q, SLOT(emitItemClicked(QModelIndex)));
     QObject::connect(q, SIGNAL(doubleClicked(QModelIndex)),
                      q, SLOT(emitItemDoubleClicked(QModelIndex)));
     QObject::connect(q, SIGNAL(activated(QModelIndex)), q, SLOT(emitItemActivated(QModelIndex)));
     QObject::connect(q, SIGNAL(entered(QModelIndex)), q, SLOT(emitItemEntered(QModelIndex)));
-    // model signals
     QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                      q, SLOT(emitItemChanged(QModelIndex)));
-    // selection signals
     QObject::connect(q->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                      q, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     QObject::connect(q->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                      q, SIGNAL(itemSelectionChanged()));
-    // sorting
-    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                     q, SLOT(_q_sort()), Qt::QueuedConnection);
-    QObject::connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)),
-                     q, SLOT(_q_sort()), Qt::QueuedConnection);
-    QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                     q, SLOT(_q_sort()), Qt::QueuedConnection);
+    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), q, SLOT(_q_sort()));
+    QObject::connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)), q, SLOT(_q_sort()));
+    QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)), q, SLOT(_q_sort()));
 }
 
 void QListWidgetPrivate::emitItemPressed(const QModelIndex &index)
