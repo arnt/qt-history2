@@ -1556,7 +1556,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_Frame:
     case PE_FrameMenu:
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
-            if (frame->lineWidth == 2) {
+            if (frame->lineWidth == 2 || pe == PE_Frame) {
                 QPalette popupPal = frame->palette;
                 if (pe == PE_FrameMenu) {
                     popupPal.setColor(QPalette::Light, frame->palette.background().color());
