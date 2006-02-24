@@ -1314,10 +1314,9 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 
         //handle popup falling "off screen"
         if (pos.x() < screen.left())
-            pos.setX(screen.left());
+            pos.setX(pos.x()-size.width());
         else if (pos.x()+size.width() > screen.right())
-            pos.setX(qMin(pos.x()-size.width(), screen.right()-size.width()));
-
+            pos.setX(qMax(pos.x()-size.width(), screen.right()-size.width()));
     } else {
         //handle popup falling "off screen"
         if (pos.x()+size.width() > screen.right())
