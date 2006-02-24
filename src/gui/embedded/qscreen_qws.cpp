@@ -929,7 +929,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             spanData.dx = off.x();
             spanData.dy = off.y();
         } else if (win->backingStore()->windowType() == QWSBackingStore::YellowThing) {
-            spanData.setup(QColor(255,255,31,127));
+            spanData.setup(QColor(255,255,31,127), opacity);
             spanData.dx = off.x();
             spanData.dy = off.y();
         } else {
