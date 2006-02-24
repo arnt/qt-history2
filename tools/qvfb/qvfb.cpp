@@ -428,11 +428,11 @@ void QVFb::setRate(int i)
 void QVFb::about()
 {
     QMessageBox::about(this, "About QVFB",
-	"<h2>The Qt/Embedded Virtual X11 Framebuffer</h2>"
+	"<h2>The Qtopia Core Virtual X11 Framebuffer</h2>"
 	"<p>This application runs under Qt/X11, emulating a simple framebuffer, "
-	"which the Qt/Embedded server and clients can attach to just as if "
+	"which the Qtopia Core server and clients can attach to just as if "
 	"it was a hardware Linux framebuffer. "
-	"<p>With the aid of this development tool, you can develop Qt/Embedded "
+	"<p>With the aid of this development tool, you can develop Qtopia Core "
 	"applications under X11 without having to switch to a virtual console. "
 	"This means you can comfortably use your other development tools such "
 	"as GUI profilers and debuggers."

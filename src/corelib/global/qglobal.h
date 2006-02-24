@@ -501,7 +501,7 @@
 
      MACX     - Mac OS X
      MAC9     - Mac OS 9
-     QWS      - Qt/Embedded
+     QWS      - Qtopia Core
      WIN32    - Windows
      X11      - X Window System
      PM       - unsupported

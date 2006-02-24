@@ -2143,7 +2143,7 @@ void SetupWizardImpl::licenseChanged()
     testFeature = Feature_Unix;
     platformString = "UNIX";
 #    ifdef Q_CC_GNU
-#    warning "What about Qt/Embedded?"
+#    warning "What about Qtopia Core?"
 #    endif
 #  endif
     if ( !(features&testFeature) && currentPage() == licensePage ) {

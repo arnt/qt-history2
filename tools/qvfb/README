@@ -1,7 +1,7 @@
-Qt/Embedded Virtual Framebuffer
+Qtopia Core Virtual Framebuffer
 ===============================
 
-The virtual frame buffer allows a Qt/Embedded program to be developed on your
+The virtual frame buffer allows a Qtopia Core program to be developed on your
 desktop machine, without switching between consoles and X11.  The virtual
 framebuffer consists of a shared memory region (the virtual frame buffer)
 and a utility to display the framebuffer in a window.  The display is updated
@@ -15,8 +15,8 @@ To use the virtual framebuffer:
 1. Ensure QT_NO_QWS_VFB is not set in qconfig.h (when you configure Qt,
     add the -qvfb option).
 2. Start qvfb (qvfb should be compiled as a normal Qt/X11 application,
-    NOT as a Qt/Embedded application!).
-3. Start a Qt/Embedded server (i.e. construct QApplication with
+    NOT as a Qtopia Core application!).
+3. Start a Qtopia Core server (i.e. construct QApplication with
    QApplication::GuiServer flag, or run a client with the -qws option).
 
 qvfb supports the following command line options:
@@ -25,7 +25,7 @@ qvfb supports the following command line options:
 [-height height] the height of the virtual framebuffer (default: 320).
 [-depth depth]   the depth of the virtual framebuffer (1,4,8 or 32, default: 8).
 [-nocursor]      do not display the X11 cursor in the framebuffer window.
-[-qwsdisplay]    the Qt/Embedded display ID, e.g. -qwsdisplay :1 (default :0).
+[-qwsdisplay]    the Qtopia Core display ID, e.g. -qwsdisplay :1 (default :0).
 [-skin skinfile] tells qvfb to load a skin file, e.g. -skin pda.skin
 
 Please refer to the file "pda.skin" as an example of what a skin file looks like.

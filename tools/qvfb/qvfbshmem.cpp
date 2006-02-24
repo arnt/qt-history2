@@ -41,28 +41,28 @@
 #include <math.h>
 
 #ifndef Q_WS_QWS
-// Get the name of the directory where Qt/Embedded temporary data should
+// Get the name of the directory where Qtopia Core temporary data should
 // live.
 static QString qws_dataDir(int qws_display_id)
 {
     QByteArray dataDir = QString("/tmp/qtembedded-%1").arg(qws_display_id).toLocal8Bit();
     if (mkdir(dataDir, 0700)) {
         if (errno != EEXIST) {
-            qFatal("Cannot create Qt/Embedded data directory: %s", dataDir.constData());
+            qFatal("Cannot create Qtopia Core data directory: %s", dataDir.constData());
         }
     }
 
     struct stat buf;
     if (lstat(dataDir, &buf))
-        qFatal("stat failed for Qt/Embedded data directory: %s", dataDir.constData());
+        qFatal("stat failed for Qtopia Core data directory: %s", dataDir.constData());
 
     if (!S_ISDIR(buf.st_mode))
         qFatal("%s is not a directory", dataDir.constData());
     if (buf.st_uid != getuid())
-        qFatal("Qt/Embedded data directory is not owned by user %d", getuid());
+        qFatal("Qtopia Core data directory is not owned by user %d", getuid());
 
     if ((buf.st_mode & 0677) != 0600)
-        qFatal("Qt/Embedded data directory has incorrect permissions: %s", dataDir.constData());
+        qFatal("Qtopia Core data directory has incorrect permissions: %s", dataDir.constData());
     dataDir += "/";
 
     return QString(dataDir);

@@ -1,4 +1,4 @@
-# Qt/Embedded
+# Qtopia Core
 
 embedded {
 	CONFIG -= opengl x11
@@ -73,7 +73,7 @@ embedded {
     }
 
 #
-# Qt/Embedded Drivers
+# Qtopia Core Drivers
 #
 	HEADERS += embedded/qscreendriverplugin_qws.h \
 		    embedded/qscreendriverfactory_qws.h \

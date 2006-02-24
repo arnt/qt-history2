@@ -1684,7 +1684,7 @@ WCE({	if(dictionary["STYLE_POCKETPC"] != "yes")    qconfigList += "QT_NO_STYLE_P
     outDir = dictionary[ "QT_SOURCE_TREE" ];
 
     // Generate the new qconfig.cpp file
-    // ### Should go through a qconfig.cpp.new, like the X11/Mac/Embedded
+    // ### Should go through a qconfig.cpp.new, like the X11/Mac/Qtopia
     // ### one, to avoid unecessary rebuilds, if file hasn't changed
     outName = outDir + "/src/corelib/global/qconfig.cpp";
     ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );

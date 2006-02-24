@@ -463,7 +463,7 @@ void Main::showInfo(const QString &feature)
 void Main::about()
 {
     QMessageBox::about(this, "About qconfig",
-	"<p><b><font size=\"+2\">Qt/Embedded build configuration</font></b></p>"
+	"<p><b><font size=\"+2\">Qtopia Core build configuration</font></b></p>"
 	"<p></p>"
 	"<p>Version 2.0</p>"
 	"<p>Copyright (C) 2001-$THISYEAR$ Trolltech AS. All rights reserved.</p>"
