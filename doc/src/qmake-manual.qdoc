@@ -939,6 +939,23 @@
         INCLUDEPATH = c:\msdev\include d:\stl\include
     \endcode
 
+    \target INSTALLS
+    \section1 INSTALLS
+
+    This variable contains a list of resources that will be installed when
+    \c{make install} or a similar installation procedure is executed. Each
+    item in the list is typically defined with attributes that provide
+    information about where it will be installed.
+
+    For example, the following \c{target.path} definition describes where the
+    build target will be installed, and the \c INSTALLS assignment adds the
+    build target to the list of existing resources to be installed:
+
+    \code
+        target.path += $$[QT_INSTALL_PLUGINS]/imageformats
+        INSTALLS += target
+    \endcode
+
     \target LEXIMPLS
     \section1 LEXIMPLS
 
