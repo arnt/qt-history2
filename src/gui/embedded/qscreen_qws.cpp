@@ -928,6 +928,10 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             spanData.setup(qwsServer->backgroundBrush(), opacity);
             spanData.dx = off.x();
             spanData.dy = off.y();
+        } else if (win->backingStore()->windowType() == QWSBackingStore::YellowThing) {
+            spanData.setup(QColor(255,255,31,127));
+            spanData.dx = off.x();
+            spanData.dy = off.y();
         } else {
             opacity = win->opacity();
             if (!win->backingStore() || win->backingStore()->isNull())
