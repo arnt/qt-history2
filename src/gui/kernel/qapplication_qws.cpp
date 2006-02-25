@@ -3275,9 +3275,11 @@ void QETWidget::updateRegion()
     QRegion myregion = d->localRequestedRegion();
     myregion.translate(geometry().topLeft());
 
+#ifndef QT_NO_QWS_MANAGER
     QWSManager *manager = topextra->qwsManager;
     if (manager)
         myregion += manager->region();
+#endif
 
     QRect br(myregion.boundingRect());
     topextra->fleft = d->data.crect.x() - br.x();
