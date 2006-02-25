@@ -1,6 +1,9 @@
 #ifndef QTREEWIDGETITEMITERATOR_P_H
 #define QTREEWIDGETITEMITERATOR_P_H
+
 #include <QtCore/QStack>
+
+#ifndef QT_NO_TREEWIDGET
 #include "qtreewidgetitemiterator.h"
 
 class QTreeModel;
@@ -45,4 +48,5 @@ private:
     QTreeWidgetItemIterator *q_ptr;
 };
 
+#endif // QT_NO_TREEWIDGET
 #endif //QTREEWIDGETITEMITERATOR_P_H
