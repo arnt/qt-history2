@@ -2011,6 +2011,7 @@ QString QApplicationPrivate::appName() const // get application name
   Platform specific QApplication members
  *****************************************************************************/
 
+#ifdef QT3_SUPPORT
 #define NoValue         0x0000
 #define XValue          0x0001
 #define YValue          0x0002
@@ -2173,7 +2174,6 @@ static int parseGeometry(const char* string,
 }
 
 
-#ifdef QT3_SUPPORT
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
     QApplicationPrivate::main_widget = mainWidget;

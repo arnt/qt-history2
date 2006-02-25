@@ -302,7 +302,9 @@ void QWSServerPrivate::initializeCursor()
 
 void QWSServerPrivate::setCursor(QWSCursor *curs)
 {
-#ifndef QT_NO_QWS_CURSOR
+#ifdef QT_NO_QWS_CURSOR
+    Q_UNUSED(curs);
+#else
     if (cursor == curs)
         return;
 
@@ -330,7 +332,9 @@ static void cleanupSystemCursorTable()
 
 void QWSCursor::createSystemCursor(int id)
 {
-#ifndef QT_NO_QWS_CURSOR
+#ifdef QT_NO_QWS_CURSOR
+    Q_UNUSED(id);
+#else
     if (!systemCursorTableInit) {
         for (int i = 0; i <= Qt::LastCursor; i++)
             systemCursorTable[i] = 0;
@@ -433,7 +437,9 @@ void QWSCursor::createSystemCursor(int id)
 QWSCursor *QWSCursor::systemCursor(int id)
 {
     QWSCursor *cursor = 0;
-#ifndef QT_NO_QWS_CURSOR
+#ifdef QT_NO_QWS_CURSOR
+    Q_UNUSED(id);
+#else
     if (id >= 0 && id <= Qt::LastCursor) {
         if (!systemCursorTable[id])
             createSystemCursor(id);
@@ -452,7 +458,14 @@ QWSCursor *QWSCursor::systemCursor(int id)
 void QWSCursor::set(const uchar *data, const uchar *mask,
                     int width, int height, int hx, int hy)
 {
-#ifndef QT_NO_QWS_CURSOR
+#ifdef QT_NO_QWS_CURSOR
+    Q_UNUSED(data);
+    Q_UNUSED(mask);
+    Q_UNUSED(width);
+    Q_UNUSED(height);
+    Q_UNUSED(hx);
+    Q_UNUSED(hy);
+#else
     hot.setX(hx);
     hot.setY(hy);
 

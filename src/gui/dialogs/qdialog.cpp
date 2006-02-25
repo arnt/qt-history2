@@ -914,7 +914,9 @@ bool QDialog::isSizeGripEnabled() const
 
 void QDialog::setSizeGripEnabled(bool enabled)
 {
-#ifndef QT_NO_SIZEGRIP
+#ifdef QT_NO_SIZEGRIP
+    Q_UNUSED(enabled);
+#else
     Q_D(QDialog);
     if (!enabled != !d->resizer) {
         if (enabled) {

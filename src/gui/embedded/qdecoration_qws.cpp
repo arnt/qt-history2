@@ -257,7 +257,9 @@ void QDecoration::regionDoubleClicked(QWidget *widget, int reg)
 */
 void QDecoration::startMove(QWidget *widget)
 {
-#ifndef QT_NO_QWS_MANAGER
+#ifdef QT_NO_QWS_MANAGER
+    Q_UNUSED(widget);
+#else
     QWSManager *manager = widget->d_func()->topData()->qwsManager;
     if (manager)
         manager->startMove();
@@ -270,7 +272,9 @@ void QDecoration::startMove(QWidget *widget)
 */
 void QDecoration::startResize(QWidget *widget)
 {
-#ifndef QT_NO_QWS_MANAGER
+#ifdef QT_NO_QWS_MANAGER
+    Q_UNUSED(widget);
+#else
     QWSManager *manager = widget->d_func()->topData()->qwsManager;
     if (manager)
         manager->startResize();

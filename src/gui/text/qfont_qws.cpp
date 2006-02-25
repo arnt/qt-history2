@@ -45,10 +45,10 @@ void QFont::cleanup()
 
 Qt::HANDLE QFont::handle() const
 {
+#ifndef QT_NO_FREETYPE
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
 
-#ifndef QT_NO_FREETYPE
     if (engine->type() == QFontEngine::Freetype)
         return static_cast<QFontEngineFT *>(engine)->handle();
 #endif

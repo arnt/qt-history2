@@ -249,7 +249,10 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
 
 void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-#ifndef QT_NO_PROPERTIES
+#ifdef QT_NO_PROPERTIES
+    Q_UNUSED(editor);
+    Q_UNUSED(index);
+#else
     Q_D(const QItemDelegate);
     QVariant v = index.data(Qt::EditRole);
     QByteArray n = d->editorFactory()->valuePropertyName(v.type());
@@ -267,7 +270,11 @@ void QItemDelegate::setModelData(QWidget *editor,
                                  QAbstractItemModel *model,
                                  const QModelIndex &index) const
 {
-#ifndef QT_NO_PROPERTIES
+#ifdef QT_NO_PROPERTIES
+    Q_UNUSED(editor);
+    Q_UNUSED(model);
+    Q_UNUSED(index);
+#else
     Q_D(const QItemDelegate);
     Q_ASSERT(model);
     Q_ASSERT(editor);

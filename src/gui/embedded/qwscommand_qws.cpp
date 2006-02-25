@@ -377,6 +377,7 @@ bool qws_read_command(QIODevice *socket, char *&simpleData, int &simpleLen,
             return false;
         int tmp = socket->read(simpleData, simpleLen);
         Q_ASSERT(tmp == simpleLen);
+        Q_UNUSED(tmp);
     }
 
     if (rawLen > MAX_COMMAND_SIZE) {

@@ -248,7 +248,9 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 {
     Q_UNUSED(script);
     Q_UNUSED(fp);
-
+#ifdef QT_NO_FREETYPE
+    Q_UNUSED(foundry);
+#endif
     Q_ASSERT(size);
 
     int pixelSize = size->pixelSize;

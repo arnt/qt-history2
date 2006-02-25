@@ -654,6 +654,7 @@ static void qDrawWinArrow(QPainter *p, Qt::ArrowType type, bool down,
 #pragma warning(disable: 4244)
 #endif
 
+#ifdef QT3_SUPPORT
 #ifndef QT_NO_STYLE_MOTIF
 // motif arrows look the same whether they are used or not
 // is this correct?
@@ -778,9 +779,8 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
 #undef CTOP
 #undef CBOT
 }
-#endif
+#endif // QT_NO_STYLE_MOTIF
 
-#ifdef QT3_SUPPORT
 QRect qItemRect(QPainter *p, Qt::GUIStyle gs,
                 int x, int y, int w, int h,
                 int flags,

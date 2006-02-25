@@ -907,6 +907,7 @@ static void init_layout_struct(const QMainWindowLayout * const layout,
     }
 }
 
+#ifndef QT_NO_TOOLBAR
 /*
   Returns the size hint for the first user item in a tb layout. This
   is used to contrain the minimum size a tb can have.
@@ -936,6 +937,7 @@ static QSize get_real_sh(QLayout *layout)
     real_sh += QSize(spacing*i + margin*2, spacing*i + margin*2);
     return real_sh;
 }
+#endif // QT_NO_TOOLBAR
 
 void QMainWindowLayout::setGeometry(const QRect &_r)
 {

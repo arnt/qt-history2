@@ -653,10 +653,9 @@ void QWSBackingStore::detach()
 
 bool QWSBackingStore::createIfNecessary(QWidget *tlw)
 {
-    QTLWExtra *topextra = tlw->d_func()->extra->topextra;
-
     QRegion tlwRegion = tlw->geometry();
 #ifndef QT_NO_QWS_MANAGER
+    QTLWExtra *topextra = tlw->d_func()->extra->topextra;
     if (topextra->qwsManager)
         tlwRegion += topextra->qwsManager->region();
 #endif
