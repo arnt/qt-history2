@@ -233,6 +233,7 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
     Q_UNUSED(widget);
     Q_UNUSED(decorationRegion);
     Q_Unused(xoff);
+    return QPixmap();
 #else
     static const char **staticHelpPixmapXPM = 0;
     static const char **staticMenuPixmapXPM = 0;
@@ -299,8 +300,6 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
             break;
     }
     return *pm;
-#else
-    return QPixmap();
 #endif
 }
 
