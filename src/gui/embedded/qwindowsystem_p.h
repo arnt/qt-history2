@@ -244,7 +244,9 @@ private:
     QMap<QString, QList<QWSClient*> > channels;
 #endif
 
+#ifndef QT_NO_QWS_MULTIPROCESS
     QWSServerSocket *ssocket;
+#endif
 
 };
 #endif
