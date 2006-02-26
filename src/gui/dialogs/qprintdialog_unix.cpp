@@ -826,7 +826,9 @@ static void parseQconfig(QList<QPrinterDescription> *printers)
 static char *parseCupsOutput(QList<QPrinterDescription> *printers)
 {
     char *defaultPrinter = 0;
-#ifndef QT_NO_LIBRARY
+#ifdef QT_NO_LIBRARY
+    Q_UNUSED(printers);
+#else
     int nd;
     cups_dest_t *d;
     QLibrary lib("cups", 2);

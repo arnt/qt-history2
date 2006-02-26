@@ -422,7 +422,9 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
 
 void QWSManager::menu(const QPoint &pos)
 {
-#ifndef QT_NO_MENU
+#ifdef QT_NO_MENU
+    Q_UNUSED(pos);
+#else
     Q_D(QWSManager);
     if (d->popup)
         delete d->popup;
@@ -433,12 +435,14 @@ void QWSManager::menu(const QPoint &pos)
     connect(d->popup, SIGNAL(triggered(QAction*)), SLOT(menuTriggered(QAction*)));
 
     d->popup->popup(pos);
-#endif
+#endif // QT_NO_MENU
 }
 
 void QWSManager::menuTriggered(QAction *action)
 {
-#ifndef QT_NO_MENU
+#ifdef QT_NO_MENU
+    Q_UNUSED(action);
+#else
     Q_D(QWSManager);
     QApplication::qwsDecoration().menuTriggered(d->managed, action);
     d->popup->deleteLater();

@@ -104,7 +104,9 @@ QInputContext *QInputContextFactory::create( const QString& key, QObject *parent
         result = new QMacInputContext;
     }
 #endif
-#ifndef QT_NO_LIBRARY
+#ifdef QT_NO_LIBRARY
+    Q_UNUSED(key);
+#else
     if (QInputContextFactoryInterface *factory =
         qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key))) {
         result = factory->create(key);
@@ -174,7 +176,9 @@ QStringList QInputContextFactory::languages( const QString &key )
     if (key == QLatin1String("mac"))
         return QStringList(QString());
 #endif
-#ifndef QT_NO_LIBRARY
+#ifdef QT_NO_LIBRARY
+    Q_UNUSED(key);
+#else
     if (QInputContextFactoryInterface *factory =
         qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
         result = factory->languages(key);
@@ -196,7 +200,9 @@ QString QInputContextFactory::displayName( const QString &key )
     if (key == QLatin1String("xim"))
         return QInputContext::tr( "XIM" );
 #endif
-#ifndef QT_NO_LIBRARY
+#ifdef QT_NO_LIBRARY
+    Q_UNUSED(key);
+#else
     if (QInputContextFactoryInterface *factory =
         qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
         return factory->displayName(key);
@@ -225,7 +231,9 @@ QString QInputContextFactory::description( const QString &key )
     if (key == QLatin1String("mac"))
         return QInputContext::tr( "Mac OS X input method" );
 #endif
-#ifndef QT_NO_LIBRARY
+#ifdef QT_NO_LIBRARY
+    Q_UNUSED(key);
+#else
     if (QInputContextFactoryInterface *factory =
         qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
         return factory->description(key);

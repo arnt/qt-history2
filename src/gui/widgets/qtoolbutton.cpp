@@ -888,8 +888,8 @@ bool QToolButton::autoRaise() const
 void QToolButton::setDefaultAction(QAction *action)
 {
     Q_D(QToolButton);
-    bool hadMenu = false;
 #ifndef QT_NO_MENU
+    bool hadMenu = false;
     hadMenu = d->hasMenu();
 #endif
     d->defaultAction = action;

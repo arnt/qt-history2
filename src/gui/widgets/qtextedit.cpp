@@ -632,7 +632,7 @@ void QTextEditPrivate::adjustScrollbars()
 
     vbar->setRange(0, docSize.height() - viewportSize.height());
     vbar->setPageStep(viewportSize.height());
-    
+
     // if we are in left-to-right mode widening the document due to
     // lazy layouting does not require a repaint. If in right-to-left
     // the scrollbar has the value zero and it visually has the maximum
@@ -641,7 +641,7 @@ void QTextEditPrivate::adjustScrollbars()
     // on the right, hence we need an update.
     if (q_func()->isRightToLeft())
         viewport->update();
-    
+
     showOrHideScrollBars();
 }
 #endif
@@ -2179,16 +2179,16 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     QAbstractTextDocumentLayout::PaintContext ctx;
     ctx.selections = extraSelections;
     ctx.palette = q->palette();
-    
+
     if (cursorOn && q->isEnabled()) {
         if (hideCursor)
             ctx.cursorPosition = -1;
-        else if (preeditCursor != 0) 
+        else if (preeditCursor != 0)
             ctx.cursorPosition = - (preeditCursor + 2);
         else
             ctx.cursorPosition = cursor.position();
     }
-    
+
     if (!dndFeedbackCursor.isNull())
         ctx.cursorPosition = dndFeedbackCursor.position();
     if (cursor.hasSelection()) {
@@ -2339,7 +2339,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
 
 #if !defined(QT_NO_IM)
     QTextLayout *layout = d->cursor.block().layout();
-    if (!layout->preeditAreaText().isEmpty()) 
+    if (!layout->preeditAreaText().isEmpty())
         return;
 #endif
 
@@ -2417,7 +2417,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
     }
 #if !defined(QT_NO_IM)
     QTextLayout *layout = d->cursor.block().layout();
-    if (!layout->preeditAreaText().isEmpty()) 
+    if (!layout->preeditAreaText().isEmpty())
         return;
 #endif
 
@@ -2476,7 +2476,9 @@ bool QTextEdit::focusNextPrevChild(bool next)
 */
 void QTextEdit::contextMenuEvent(QContextMenuEvent *e)
 {
-#ifndef QT_NO_MENU
+#ifdef QT_NO_MENU
+    Q_UNUSED(e);
+#else
     QMenu *menu = createStandardContextMenu();
     menu->exec(e->globalPos());
     delete menu;

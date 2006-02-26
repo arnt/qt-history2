@@ -1129,25 +1129,25 @@ void QFileDialogPrivate::showHidden()
 void QFileDialogPrivate::useFilter(const QString &filter)
 {
     QStringList filters = qt_clean_filter_list(filter);
-    
+
     // If acceptMode is AcceptSave, replace the file extension
-    // in the fileNameEdit with the new filter extension. 
+    // in the fileNameEdit with the new filter extension.
     if (acceptMode == QFileDialog::AcceptSave) {
 
         QString filterExtension;
         if (filters.count() > 0)
             filterExtension = QFileInfo(filters.at(0)).suffix();
-    
+
         QString fileNameText = fileNameEdit->text();
         const QString fileNameExtension = QFileInfo(fileNameText).suffix();
-        
+
         if (fileNameExtension.isEmpty() == false && filterExtension.isEmpty() == false) {
             const int fileNameExtensionLenght = fileNameExtension.count();
             fileNameText.replace(fileNameText.count() - fileNameExtensionLenght, fileNameExtensionLenght, filterExtension);
             fileNameEdit->setText(fileNameText);
         }
     }
-    
+
     model->setNameFilters(filters);
     model->refresh(rootIndex());
 }
@@ -1221,7 +1221,7 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
         absoluteInfo = QFileInfo(toInternal(q->directory().absolutePath() + QDir::separator() + text));
     if (absoluteInfo.exists()) {
         QModelIndex index = model->index(absoluteInfo.absoluteFilePath());
-        if (index.isValid()) 
+        if (index.isValid())
             treeView->setCurrentIndex(index);
         return;
     }
@@ -1231,15 +1231,15 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
         selections->clear();
         return;
     }
-    
+
     // Save the path part of what the user has typed.
     const QString typedPath = info.path();
-    
+
     // If the user has typed a local path that goes beyond the current directory, for example
     // ../foo or foo/bar, we treat that as an absolute path by prepending the path from lookInEdit.
     if (!info.isAbsolute() && typedPath != QLatin1String("."))
         info.setFile(toInternal(lookInEdit->text() + "/" + text));
-    
+
     // do autocompletion
     QModelIndex first;
     if (info.isAbsolute()) // if we have an absolute path, do completion in that directory
@@ -1322,7 +1322,9 @@ void QFileDialogPrivate::autoCompleteDirectory(const QString &text)
 
 void QFileDialogPrivate::showContextMenu(const QPoint &pos)
 {
-#ifndef QT_NO_MENU
+#ifdef QT_NO_MENU
+    Q_UNUSED(pos);
+#else
     Q_Q(QFileDialog);
     QAbstractItemView *view = 0;
     if (q->viewMode() == QFileDialog::Detail)
@@ -1355,7 +1357,7 @@ void QFileDialogPrivate::showContextMenu(const QPoint &pos)
     }
 
     menu.exec(view->mapToGlobal(pos));
-#endif
+#endif // QT_NO_MENU
 }
 
 /*!

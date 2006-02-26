@@ -447,7 +447,9 @@ bool QDialog::eventFilter(QObject *o, QEvent *e)
 /*! \reimp */
 void QDialog::contextMenuEvent(QContextMenuEvent *e)
 {
-#if !defined(QT_NO_WHATSTHIS) && !defined(QT_NO_MENU)
+#if defined(QT_NO_WHATSTHIS) || defined(QT_NO_MENU)
+    Q_UNUSED(e);
+#else
     QWidget *w = childAt(e->pos());
     if (!w) {
         w = rect().contains(e->pos()) ? this : 0;

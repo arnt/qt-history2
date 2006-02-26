@@ -1053,7 +1053,9 @@ void QAbstractSpinBox::timerEvent(QTimerEvent *e)
 
 void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 {
-#ifndef QT_NO_MENU
+#ifdef QT_NO_MENU
+    Q_UNUSED(e);
+#else
     Q_D(QAbstractSpinBox);
 
     d->reset();
@@ -1078,7 +1080,7 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
         }
     }
     e->accept();
-#endif
+#endif // QT_NO_MENU
 }
 
 /*!

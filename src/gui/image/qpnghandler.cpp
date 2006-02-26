@@ -552,6 +552,10 @@ bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
 bool QPNGImageWriter::writeImage(const QImage& image_in, int quality_in, const QString &description,
                                  int off_x_in, int off_y_in)
 {
+#ifdef QT_NO_IMAGE_TEXT
+    Q_UNUSED(description);
+#endif
+
     QImage image = image_in;
     if(image.format() == QImage::Format_ARGB32_Premultiplied)
         image = image.convertToFormat(QImage::Format_ARGB32);

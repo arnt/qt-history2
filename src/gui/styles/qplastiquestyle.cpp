@@ -695,6 +695,7 @@ static void qt_plastique_draw_mdibutton(QPainter *painter, const QStyleOptionTit
     painter->drawPoint(tmp.right() - 1, tmp.bottom() - 1);
 }
 
+#ifndef QT_NO_DOCKWIDGET
 static QString elliditide(const QString &text, const QFontMetrics &fontMetrics, const QRect &rect, int *textWidth = 0)
 {
     // Chop and insert ellide into title if text is too wide
@@ -725,6 +726,7 @@ static QString elliditide(const QString &text, const QFontMetrics &fontMetrics, 
         *textWidth = width;
     return title;
 }
+#endif // QT_NO_DOCKWIDGET
 
 static void qt_plastique_draw_handle(QPainter *painter, const QStyleOption *option,
                                      const QRect &rect, Qt::Orientation orientation,
@@ -3229,11 +3231,11 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         if (const QStyleOptionSlider *scrollBar = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             bool sunken = scrollBar->state & State_Sunken;
             bool horizontal = scrollBar->orientation == Qt::Horizontal;
-            
+
             QString groovePixmapName = uniqueName("scrollbar_groove", option, option->rect.size());
             if (sunken)
                 groovePixmapName += "-sunken";
-                
+
             QPixmap cache;
             if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
                 cache = QPixmap(option->rect.size());
@@ -3257,7 +3259,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     groovePainter.fillRect(QRect(pixmapRect.topRight(), QSize(1, pixmapRect.height())),
                                            QBrush(edgeColor, Qt::Dense4Pattern));
                 }
-                    
+
                 groovePainter.end();
                 if (UsePixmapCache)
                     QPixmapCache::insert(groovePixmapName, cache);
@@ -3273,7 +3275,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             bool isEnabled = scrollBar->state & State_Enabled;
             bool reverse = scrollBar->direction == Qt::RightToLeft;
             bool sunken = scrollBar->state & State_Sunken;
-            
+
             // The SubLine (up/left) buttons
             int scrollBarExtent = pixelMetric(PM_ScrollBarExtent, option, widget);
             QRect button1;

@@ -271,8 +271,7 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
             break;
         case Menu:
             if (!widget->windowIcon().isNull())
-                return widget->windowIcon().pixmap(16,16); //#############
-#warning "QIcon::pixmap() needs a size !!!!!!"
+                return widget->windowIcon().pixmap(16,16); //##### QIcon::pixmap() needs a size !!!!!!"
             if (!pm) {
                 xoff = 1;
                 pm = staticMenuPixmap;

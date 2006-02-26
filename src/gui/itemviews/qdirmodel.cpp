@@ -259,7 +259,7 @@ public:
     inline void clear(QDirNode *parent) const;
 
     void invalidate();
-    
+
     mutable QDirNode root;
     bool resolveSymlinks;
     bool readOnly;
@@ -439,7 +439,7 @@ QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent) con
     if (!p->populated)
         d->populate(p); // populate without stat'ing
     if (row >= p->children.count())
-        return QModelIndex();    
+        return QModelIndex();
     // now get the internal pointer for the index
     QDirModelPrivate::QDirNode *n = d->node(row, parent.isValid() ? p : 0);
     Q_ASSERT(n);
@@ -952,7 +952,7 @@ void QDirModel::refresh(const QModelIndex &parent)
         n->stat = true; // make sure that next time we read all the info
         return;
     }
-        
+
     d->savePersistentIndexes();
     beginRemoveRows(parent, 0, rows - 1);
     n->stat = true; // make sure that next time we read all the info
@@ -1061,7 +1061,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         idx = createIndex(row, 0, static_cast<void*>(&parent->children[row]));
         Q_ASSERT(idx.isValid());
     }
-        
+
     if (column != 0)
         return idx.sibling(idx.row(), column);
     return idx;
@@ -1390,6 +1390,7 @@ QString QDirModelPrivate::time(const QModelIndex &index) const
 #ifndef QT_NO_DATESTRING
     return node(index)->info.lastModified().toString("yyyy-MM-dd hh:mm:ss");
 #else
+    Q_UNUSED(index);
     return QString();
 #endif
 }

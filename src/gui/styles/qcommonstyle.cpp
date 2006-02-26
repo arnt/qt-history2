@@ -1948,7 +1948,6 @@ static qreal angle(const QPointF &p1, const QPointF &p2)
     }
     return _angle;
 }
-#endif // QT_NO_DIAL
 
 static int calcBigLineSize(int radius)
 {
@@ -1960,7 +1959,6 @@ static int calcBigLineSize(int radius)
     return bigLineSize;
 }
 
-#ifndef QT_NO_DIAL
 static QPolygonF calcArrow(const QStyleOptionSlider *dial, qreal &a)
 {
     int width = dial->rect.width();

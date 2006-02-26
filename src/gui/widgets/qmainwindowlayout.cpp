@@ -815,7 +815,11 @@ static void fix_minmax(QVector<QLayoutStruct> &ls,
                 const QMainWindowLayout * const layout,
                 POSITION pos)
 {
-#ifndef QT_NO_DOCKWIDGET
+#ifdef QT_NO_DOCKWIDGET
+    Q_UNUSED(ls);
+    Q_UNUSED(layout);
+    Q_UNUSED(pos);
+#else
     const Qt::DockWidgetArea area = static_cast<Qt::DockWidgetArea>(areaForPosition(pos));
 
     const struct
@@ -1960,7 +1964,6 @@ int QMainWindowLayout::constrain(QDockWidgetLayout *dock, int delta)
 
     return delta;
 }
-#endif // QT_NO_DOCKWIDGET
 
 static
 Qt::DockWidgetAreas areasForMousePosition(const QRect &r, const QPoint &p, bool floatable = false)
@@ -2026,7 +2029,6 @@ Qt::DockWidgetAreas areasForMousePosition(const QRect &r, const QPoint &p, bool 
     return areas;
 }
 
-#ifndef QT_NO_DOCKWIDGET
 Qt::DockWidgetArea QMainWindowLayout::locateDockWidget(QDockWidget *dockwidget,
                                                        const QPoint &mouse) const
 {
@@ -2203,7 +2205,6 @@ void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
 
     DEBUG() << "END of QMainWindowLayout::dropDockWidget";
 }
-#endif // QT_NO_DOCKWIDGET
 
 static bool removeWidgetRecursively(QLayoutItem *li, QWidget *w, bool dummy)
 {
@@ -2227,7 +2228,6 @@ static bool removeWidgetRecursively(QLayoutItem *li, QWidget *w, bool dummy)
     return false;
 }
 
-#ifndef QT_NO_DOCKWIDGET
 void QMainWindowLayout::removeRecursive(QDockWidget *dockwidget)
 {
     removeWidgetRecursively(this, dockwidget, save_layout_info != 0);
