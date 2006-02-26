@@ -605,7 +605,7 @@ void QAbstractButton::setCheckable(bool checkable)
     Q_D(QAbstractButton);
     if (d->checkable == checkable)
         return;
-    
+
     d->checkable = checkable;
     d->checked = false;
 }
@@ -875,8 +875,6 @@ bool QAbstractButton::hitButton(const QPoint &pos) const
 /*! \reimp */
 bool QAbstractButton::event(QEvent *e)
 {
-    Q_D(QAbstractButton);
-
     // as opposed to other widgets, disabled buttons accept mouse
     // events. This avoids surprising click-through scenarios
     if (!isEnabled()) {
@@ -900,6 +898,7 @@ bool QAbstractButton::event(QEvent *e)
 
 #ifndef QT_NO_SHORTCUT
     if (e->type() == QEvent::Shortcut) {
+        Q_D(QAbstractButton);
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (d->shortcutId != se->shortcutId())
             return false;

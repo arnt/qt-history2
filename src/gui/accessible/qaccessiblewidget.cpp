@@ -57,7 +57,7 @@ static QString buddyString(const QWidget *widget)
     if (groupbox)
         return groupbox->title();
 #endif
-    
+
     return QString();
 }
 
@@ -101,6 +101,7 @@ QString Q_GUI_EXPORT qt_accHotKey(const QString &text)
         return QString();
     return (QString)QKeySequence(Qt::ALT) + ac.toUpper();
 #else
+    Q_UNUSED(text);
     return QString();
 #endif
 }

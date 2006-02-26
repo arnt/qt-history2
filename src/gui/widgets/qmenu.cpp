@@ -940,7 +940,9 @@ QAction *QMenu::addAction(const QIcon &icon, const QString &text)
 QAction *QMenu::addAction(const QString &text, const QObject *receiver, const char* member, const QKeySequence &shortcut)
 {
     QAction *action = new QAction(text, this);
-#ifndef QT_NO_SHORTCUT
+#ifdef QT_NO_SHORTCUT
+    Q_UNUSED(shortcut);
+#else
     action->setShortcut(shortcut);
 #endif
     QObject::connect(action, SIGNAL(triggered()), receiver, member);
@@ -963,7 +965,9 @@ QAction *QMenu::addAction(const QIcon &icon, const QString &text, const QObject 
                           const char* member, const QKeySequence &shortcut)
 {
     QAction *action = new QAction(icon, text, this);
-#ifndef QT_NO_SHORTCUT
+#ifdef QT_NO_SHORTCUT
+    Q_UNUSED(shortcut);
+#else
     action->setShortcut(shortcut);
 #endif
     QObject::connect(action, SIGNAL(triggered()), receiver, member);

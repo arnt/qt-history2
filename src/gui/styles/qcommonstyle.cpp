@@ -338,7 +338,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         break;
 #endif // QT3_SUPPORT
     case PE_IndicatorBranch: {
-        static const int decoration_size = 9;
         int mid_h = opt->rect.x() + opt->rect.width() / 2;
         int mid_v = opt->rect.y() + opt->rect.height() / 2;
         int bef_h = mid_h;
@@ -346,6 +345,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         int aft_h = mid_h;
         int aft_v = mid_v;
 #ifndef QT_NO_IMAGEFORMAT_XPM
+        static const int decoration_size = 9;
         static QPixmap open(tree_branch_open_xpm);
         static QPixmap closed(tree_branch_closed_xpm);
         if (opt->state & State_Children) {

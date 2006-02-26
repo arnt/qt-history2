@@ -204,7 +204,9 @@ QDecorationDefault::~QDecorationDefault()
 
 const char **QDecorationDefault::xpmForRegion(int reg)
 {
-#ifndef QT_NO_IMAGEFORMAT_XPM
+#ifdef QT_NO_IMAGEFORMAT_XPM
+    Q_UNUSED(reg);
+#else
     switch(reg)
     {
     case Help:
@@ -227,7 +229,11 @@ const char **QDecorationDefault::xpmForRegion(int reg)
 QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegion,
                                       int &xoff, int &/*yoff*/)
 {
-#ifndef QT_NO_IMAGEFORMAT_XPM
+#ifdef QT_NO_IMAGEFORMAT_XPM
+    Q_UNUSED(widget);
+    Q_UNUSED(decorationRegion);
+    Q_Unused(xoff);
+#else
     static const char **staticHelpPixmapXPM = 0;
     static const char **staticMenuPixmapXPM = 0;
     static const char **staticClosePixmapXPM = 0;

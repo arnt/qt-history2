@@ -185,11 +185,11 @@ void QWSSoundServerClient::tryReadCommand()
 	    int bitspersample = getNumTok(l);
 	    int flags = getNumTok(l);
 	    emit playRaw(mCurrentID, soundid, l, chs, freq, bitspersample, flags);
-	} else if ( functionName == "PAUSE" ) { 
+	} else if ( functionName == "PAUSE" ) {
 	    emit pause(mCurrentID, soundid);
-	} else if ( functionName == "STOP" ) { 
+	} else if ( functionName == "STOP" ) {
 	    emit stop(mCurrentID, soundid);
-	} else if ( functionName == "RESUME" ) { 
+	} else if ( functionName == "RESUME" ) {
 	    emit resume(mCurrentID, soundid);
 	} else if ( functionName == "SETVOLUME" ) {
 	    int left = getNumTok(l);
@@ -260,13 +260,13 @@ public:
 	sampleRunin = 0;
 	dev = -1;
     }
-    
+
     virtual ~QWSSoundServerProvider() {
     }
 
     int groupId() const { return mWid; }
     int soundId() const { return mSid; }
-    
+
     void startSampleRunin() {
 	// inteded to provide even audio return from mute/pause/dead samples.
 	//sampleRunin = runinLength; // or more?
@@ -280,7 +280,7 @@ public:
 
     void setMute(bool m) { mMuted = m; }
     bool muted() { return mMuted; }
-    
+
     void setPriority(bool p) {
 	if (p != isPriority) {
 	    isPriority = p; // currently meaningless.
@@ -304,11 +304,11 @@ public:
     // argument is max samples server is looking for,
     // in terms of current device status.
     virtual int readySamples(int) = 0;
-    
+
     int getSample(int off, int bps) {
         return (bps == 1) ? (data[out+off] - 128) * 128 : ((short*)data)[(out/2)+off];
     }
-    
+
     int add(int* mixl, int* mixr, int count)
     {
         int bytesPerSample = chunkdata.wBitsPerSample >> 3;
@@ -376,7 +376,7 @@ public:
             if (count && samples_due >= chunkdata.samplesPerSec) {
                 int l = getSample(0,bytesPerSample)*lVolNum/lVolDen;
                 int r = (chunkdata.channels == 2) ? getSample(1,bytesPerSample)*rVolNum/rVolDen : l;
-                if (!sound_stereo && chunkdata.channels == 2) 
+                if (!sound_stereo && chunkdata.channels == 2)
                     l += r;
 		if (sampleRunin) {
                     while (sampleRunin && count && samples_due >= chunkdata.samplesPerSec) {
@@ -502,7 +502,7 @@ public:
 	int size;
 	char *dest = prepareBuffer(size);
 	// may want to change this to something like
-	// if (data == data1 && max2<<1 < sound_buffer_size 
+	// if (data == data1 && max2<<1 < sound_buffer_size
 	//	||
 	//	data == data2 && max1<<1 < sound_buffer_size)
 	// so will keep filling off buffer while there is +50% space left
@@ -563,7 +563,7 @@ public:
 
 	}
 	// may want to change this to something like
-	// if (data == data1 && max2<<1 < sound_buffer_size 
+	// if (data == data1 && max2<<1 < sound_buffer_size
 	//	||
 	//	data == data2 && max1<<1 < sound_buffer_size)
 	// so will keep filling off buffer while there is +50% space left
@@ -618,7 +618,7 @@ public:
 	return (dev == -1);
     }
 
-    
+
     int readySamples(int)
     {
 	int size;
@@ -678,7 +678,7 @@ void QWSSoundServerSocket::newConnection()
 {
     while (QWS_SOCK_BASE *sock = nextPendingConnection()) {
         QWSSoundServerClient* client = new QWSSoundServerClient(sock,this);
-        
+
         connect(client, SIGNAL(play(int, int, const QString&)),
                 this, SIGNAL(playFile(int, int, const QString&)));
         connect(client, SIGNAL(play(int, int, const QString&, int, int)),
@@ -761,18 +761,18 @@ public:
         unwritten = 0;
         can_GETOSPACE = true;
     }
-    
+
     ~QWSSoundServerPrivate()
     {
         qDeleteAll(active);
         qDeleteAll(inactive);
     }
-    
+
 signals:
     void soundFileCompleted(int, int);
     void deviceReady(int, int);
     void deviceError(int, int, int);
-    
+
 public slots:
     void playRawFile(int wid, int sid, const QString &filename, int freq, int channels, int bitspersample, int flags);
     void playFile(int wid, int sid, const QString& filename);
@@ -844,8 +844,12 @@ void QWSSoundServerPrivate::timerEvent(QTimerEvent* event)
     }
 }
 
-void QWSSoundServerPrivate::playRawFile(int wid, int sid, const QString &filename, int freq, int channels, int bitspersample, int flags) // ### TODO: fix up unused flags warning
+void QWSSoundServerPrivate::playRawFile(int wid, int sid, const QString &filename,
+                                        int freq, int channels, int bitspersample, int flags)
 {
+#ifdef QT_NO_QWS_SOUNDSERVER
+    Q_UNUSED(flags);
+#endif
     int f = openFile(wid, sid, filename);
     if ( f ) {
         QWSSoundServerStream *b = new QWSSoundServerStream(f, channels, freq, bitspersample, wid, sid);
@@ -870,8 +874,12 @@ void QWSSoundServerPrivate::playFile(int wid, int sid, const QString& filename)
     }
 }
 
-void QWSSoundServerPrivate::playFile(int wid, int sid, const QString& filename, int v, int flags) // ### TODO: fixup unused flags warning
+void QWSSoundServerPrivate::playFile(int wid, int sid, const QString& filename,
+                                     int v, int flags)
 {
+#ifdef QT_NO_QWS_SOUNDSERVER
+    Q_UNUSED(flags);
+#endif
     int f = openFile(wid, sid, filename);
     if ( f ) {
         QWSSoundServerProvider *b = new QWSSoundServerBucket(f, wid, sid);
@@ -884,9 +892,9 @@ void QWSSoundServerPrivate::playFile(int wid, int sid, const QString& filename, 
         emit deviceReady(wid, sid);
     }
 }
-    
+
 void QWSSoundServerPrivate::checkPresetVolumes(int wid, int sid, QWSSoundServerProvider *p)
-{      
+{
     QList<PresetVolume>::Iterator it = volumes.begin();
     while (it != volumes.end()) {
         PresetVolume v = *it;
@@ -914,7 +922,7 @@ void QWSSoundServerPrivate::pauseFile(int wid, int sid)
         }
     }
 }
-    
+
 void QWSSoundServerPrivate::resumeFile(int wid, int sid)
 {
     QWSSoundServerProvider *bucket;
@@ -938,7 +946,7 @@ void QWSSoundServerPrivate::stopFile(int wid, int sid)
             active.removeAt(i);
             delete bucket;
             return;
-        }    
+        }
     }
     for (int i = 0; i < inactive.size(); ++i ) {
         bucket = inactive.at(i);
@@ -946,7 +954,7 @@ void QWSSoundServerPrivate::stopFile(int wid, int sid)
             inactive.removeAt(i);
             delete bucket;
             return;
-        }    
+        }
     }
 }
 
@@ -1035,12 +1043,12 @@ void QWSSoundServerPrivate::setMute(int wid, int sid, bool m)
         volumes.append(nv);
     }
 }
-    
-void QWSSoundServerPrivate::playPriorityOnly(bool p) 
+
+void QWSSoundServerPrivate::playPriorityOnly(bool p)
 {
     QWSSoundServerProvider::setPlayPriorityOnly(p);
 }
-    
+
 void QWSSoundServerPrivate::sendCompletedSignals()
 {
     while( !completed.isEmpty() ) {
@@ -1050,11 +1058,11 @@ void QWSSoundServerPrivate::sendCompletedSignals()
     }
 }
 
-    
+
 int QWSSoundServerPrivate::openFile(int wid, int sid, const QString& filename)
 {
     stopFile(wid, sid); // close and re-open.
-    int f = ::open(QFile::encodeName(filename), O_RDONLY|O_NONBLOCK); 
+    int f = ::open(QFile::encodeName(filename), O_RDONLY|O_NONBLOCK);
     if (f == -1) {
         // XXX check ferror, check reason.
         qDebug("Failed opening \"%s\"",filename.toLatin1().data());
@@ -1149,7 +1157,7 @@ void  QWSSoundServerPrivate::feedDevice(int fd)
     } else {
         sendCompletedSignals();
     }
-        
+
     QWSSoundServerProvider* bucket;
 
     // find out how much audio is possible
@@ -1194,14 +1202,14 @@ void  QWSSoundServerPrivate::feedDevice(int fd)
                     short *d = (short*)data;
                     for (int i=0; i<available; i++) {
                         *d++ = (short)qMax(qMin(left[i],32767),-32768);
-                        if ( sound_stereo ) 
+                        if ( sound_stereo )
                             *d++ = (short)qMax(qMin(right[i],32767),-32768);
                     }
                 } else {
                     signed char *d = (signed char *)data;
                     for (int i=0; i<available; i++) {
                         *d++ = (signed char)qMax(qMin(left[i]/256,127),-128)+128;
-                        if ( sound_stereo ) 
+                        if ( sound_stereo )
                             *d++ = (signed char)qMax(qMin(right[i]/256,127),-128)+128;
                     }
                 }
@@ -1251,7 +1259,7 @@ QWSSoundServer::QWSSoundServer(QObject* parent) :
     QObject(parent)
 {
     d = new QWSSoundServerPrivate(this);
-    
+
     connect( d, SIGNAL( soundFileCompleted( int, int ) ),
         this, SLOT( translateSoundCompleted( int, int ) ) );
 }
@@ -1327,7 +1335,7 @@ void QWSSoundClient::play( int id, const QString& filename )
 {
     QFileInfo fi(filename);
     sendServerMessage(QString("PLAY ")
-        + QString::number(id) + " " 
+        + QString::number(id) + " "
         + fi.absoluteFilePath() + "\n");
 }
 

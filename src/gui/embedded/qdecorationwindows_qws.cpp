@@ -155,7 +155,9 @@ QDecorationWindows::~QDecorationWindows()
 
 const char **QDecorationWindows::xpmForRegion(int reg)
 {
-#ifndef QT_NO_IMAGEFORMAT_XPM
+#ifdef QT_NO_IMAGEFORMAT_XPM
+    Q_UNUSED(reg);
+#else
     switch(reg)
     {
     case Close:

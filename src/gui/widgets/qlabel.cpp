@@ -1051,7 +1051,6 @@ void QLabel::setMovie(QMovie *movie)
 
 void QLabelPrivate::clearContents()
 {
-    Q_Q(QLabel);
     delete doc;
     doc = 0;
 
@@ -1068,6 +1067,7 @@ void QLabelPrivate::clearContents()
 
     ltext.clear();
 #ifndef QT_NO_SHORTCUT
+    Q_Q(QLabel);
     q->releaseShortcut(shortcutId);
     shortcutId = 0;
 #endif

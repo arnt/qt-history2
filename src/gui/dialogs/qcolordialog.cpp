@@ -963,7 +963,9 @@ void QColorShowLabel::mousePressEvent(QMouseEvent *e)
 
 void QColorShowLabel::mouseMoveEvent(QMouseEvent *e)
 {
-#ifndef QT_NO_DRAGANDDROP
+#ifdef QT_NO_DRAGANDDROP
+    Q_UNUSED(e);
+#else
     if (!mousePressed)
         return;
     if ((pressPos - e->pos()).manhattanLength() > QApplication::startDragDistance()) {

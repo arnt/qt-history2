@@ -186,7 +186,9 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
         return;
     }
 
+#ifndef QT_NO_EFFECTS
     bool preventAnimation = (QTipLabel::instance != 0);
+#endif
     int scr;
     if (QApplication::desktop()->isVirtualDesktop())
         scr = QApplication::desktop()->screenNumber(pos);
