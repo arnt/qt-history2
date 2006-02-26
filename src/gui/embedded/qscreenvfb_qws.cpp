@@ -171,7 +171,9 @@ void QVFbKeyboardHandler::readKeyboardData()
             qWarning("Instructed to quit by Virtual Keyboard");
             qApp->quit();
         }
+#ifndef QT_NO_QWS_KEYBOARD
         QWSServer::processKeyEvent(kd->unicode, kd->keycode, kd->modifiers, kd->press, kd->repeat);
+#endif
         idx += sizeof(QVFbKeyData);
     }
 

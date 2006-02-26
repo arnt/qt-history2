@@ -174,8 +174,10 @@ public:
 
     static void sendKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                              bool isPress, bool autoRepeat);
+#ifndef QT_NO_QWS_KEYBOARD
     static void processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                                 bool isPress, bool autoRepeat);
+#endif
 
     static QWSServer* instance() { return qwsServer; }
 
