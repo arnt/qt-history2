@@ -1588,34 +1588,17 @@ void QTreeView::updateGeometries()
 int QTreeView::sizeHintForColumn(int column) const
 {
     Q_D(const QTreeView);
-    if (d->viewItems.count() <= 0)
-        return -1;
-
+    int w = 0;
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
-    QModelIndex index;
-
     const QVector<QTreeViewItem> viewItems = d->viewItems;
-    int v = verticalScrollBar()->value();
-    int h = viewport()->height();
-    int i = qMax(d->itemAt(v), 0);
-    int c = viewItems.count();
-    int s = d->height(i);
-    int y = d->topItemDelta(v, s);
-    int w = 0;
-    QSize size;
-
-    while (y < h && i < c) {
-        Q_ASSERT(i != -1);
-        index = viewItems.at(i).index;
+    for (int i = 0; i < viewItems.count(); ++i) {
+        QModelIndex index = viewItems.at(i).index;
         if (index.column() != column)
             index = index.sibling(index.row(), column);
-        size = delegate->sizeHint(option, index);
-        w = qMax(w, size.width() + (column == 0 ? d->indentation(i) : 0));
-        y += size.height();
-        ++i;
+        int width = delegate->sizeHint(option, index).width();
+        w = qMax(w, width + (column == 0 ? d->indentation(i) : 0));
     }
-
     return w;
 }
 
