@@ -80,8 +80,7 @@ MainWindow::MainWindow()
 
     QRect geom = config->geometry();
     if(geom.isValid()) {
-        resize(geom.size());
-        move(geom.topLeft());
+        setGeometry(geom);
     }
 
     restoreState(config->mainWindowState());
