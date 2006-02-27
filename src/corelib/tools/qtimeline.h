@@ -23,7 +23,7 @@ class Q_CORE_EXPORT QTimeLine : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int duration READ duration WRITE setDuration)
-    Q_PROPERTY(qreal updateInterval READ updateInterval WRITE setUpdateInterval)
+    Q_PROPERTY(int updateInterval READ updateInterval WRITE setUpdateInterval)
     Q_PROPERTY(int currentTime READ currentTime WRITE setCurrentTime)
     Q_PROPERTY(Direction direction READ direction WRITE setDirection)
     Q_PROPERTY(int loopCount READ loopCount WRITE setLoopCount)
