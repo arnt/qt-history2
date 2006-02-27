@@ -14,10 +14,12 @@
 #ifndef QTIMELINE_H
 #define QTIMELINE_H
 
+QT_MODULE(Core)
+
 #include <QtCore/qobject.h>
 
 class QTimeLinePrivate;
-class QTimeLine : public QObject
+class Q_CORE_EXPORT QTimeLine : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int duration READ duration WRITE setDuration)
