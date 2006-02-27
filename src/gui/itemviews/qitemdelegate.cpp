@@ -399,7 +399,7 @@ void QItemDelegate::drawFocus(QPainter *painter,
                               const QStyleOptionViewItem &option,
                               const QRect &rect) const
 {
-    if (option.state & QStyle::State_HasFocus == 0)
+    if ((option.state & QStyle::State_HasFocus) == 0)
         return;
     QStyleOptionFocusRect o;
     o.QStyleOption::operator=(option);
