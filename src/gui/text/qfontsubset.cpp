@@ -1580,13 +1580,16 @@ QByteArray QFontSubset::toType1() const
     int nGlyphs = this->nGlyphs();
 
     QByteArray id = QByteArray::number(object_id);
-    s << "/F" << id << "-Base <<\n"
-        "/FontName (" << properties.postscriptName << ") def\n"
-        "/FontInfo <</FsType " << (int)fontEngine->fsType << ">>\n"
+    QByteArray psname = properties.postscriptName;
+    psname.replace(" ", "");
+    s << "/F" << id << "-Base <<\n";
+    if(!psname.isEmpty())
+        s << "/FontName /" << psname << "\n";
+    s << "/FontInfo <</FsType " << (int)fontEngine->fsType << ">>\n"
         "/FontType 1\n"
         "/PaintType 0\n"
         "/FontMatrix [.001 0 0 .001 0 0]\n"
-        // ### FontBBox ?
+        "/FontBBox { 0 0 0 0 }\n"
         "/Private <<\n"
         "/password 5839\n"
         "/MinFeature {16 16}\n"
