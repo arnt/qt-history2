@@ -14,9 +14,9 @@
 #ifndef QTIMELINE_H
 #define QTIMELINE_H
 
-QT_MODULE(Core)
-
 #include <QtCore/qobject.h>
+
+QT_MODULE(Core)
 
 class QTimeLinePrivate;
 class Q_CORE_EXPORT QTimeLine : public QObject
