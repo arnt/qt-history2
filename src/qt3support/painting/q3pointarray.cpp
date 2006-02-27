@@ -47,11 +47,15 @@ void Q3PointArray::makeArc(int x, int y, int w, int h, int a1, int a2)
 {
     QRectF r(x, y, w, h);
     QPointF startPoint;
-    qt_find_ellipse_coords(r, a1 / 16, a2 / 16, &startPoint, 0);
+    qt_find_ellipse_coords(r, a1 / 16.0, a2 / 16.0, &startPoint, 0);
 
     QPainterPath path(startPoint);
-    path.arcTo(r, a1 / 16, a2 / 16);
-    *this = path.toSubpathPolygons().at(0).toPolygon();
+    path.arcTo(r, a1 / 16.0, a2 / 16.0);
+
+    if (path.isEmpty())
+        *this = Q3PointArray();
+    else
+        *this = path.toSubpathPolygons().at(0).toPolygon();
 }
 #endif
 
@@ -74,12 +78,15 @@ void Q3PointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QMa
 {
     QRectF r(x, y, w, h);
     QPointF startPoint;
-    qt_find_ellipse_coords(r, a1, a2, &startPoint, 0);
+    qt_find_ellipse_coords(r, a1 / 16.0, a2 / 16.0, &startPoint, 0);
 
     QPainterPath path(startPoint);
-    path.arcTo(r, a1, a2);
+    path.arcTo(r, a1 / 16.0, a2 / 16.0);
     path = path * xf;
-    *this = path.toSubpathPolygons().at(0).toPolygon();
+    if (path.isEmpty())
+        *this = Q3PointArray();
+    else
+        *this = path.toSubpathPolygons().at(0).toPolygon();
 }
 
 #endif // QT_NO_TRANSFORMATIONS
