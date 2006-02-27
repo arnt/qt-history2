@@ -6,115 +6,137 @@
     \title Running Applications
     \ingroup qtopia-core
 
-    A Qtopia Core application requires a master application to be running,
-    or to be the master application itself. The master application is
-    primarily responsible for managing top-level window regions, and
-    pointer and keyboard input.
+    A Qtopia Core application requires a master application to be
+    running, or to be the master application itself. The master
+    application is responsible for managing top-level window regions,
+    pointer handling and character input.
 
     Any Qtopia Core application can be the master application by
     constructing the QApplication object with the
-    \c{QApplication::GuiServer} type, or by being run with the \c{-qws}
-    command line option.
+    QApplication::GuiServer type, or by running the application with
+    the \c{-qws} command line option.
 
-    This document assumes you have the Linux framebuffer configured correctly
-    and that no master process is running. If you do not have a working Linux
-    framebuffer you can use the
-    \link emb-qvfb.html Qtopia Core virtual framebuffer\endlink, or you can
-    run Qtopia Core as a \link emb-vnc.html VNC server\endlink.
+    Note that this document assumes that you either are using the \l
+    {The Virtual Framebuffer}{Qtopia Core Virtual Framebuffer} or are
+    running Qtopia Core as a \l {Running as a VNC Server}{VNC server},
+    \e or that you have the Linux framebuffer configured correctly and
+    that no master process is running. (To test that the Linux
+    framebuffer is set up correctly, use the program provided by the
+    \l {Testing the Linux Framebuffer} document.)
 
-    Change to a Linux console and select an example to run, e.g. \c
-    examples/widgets. Make sure \c $QTDIR is set to the directory where you
-    installed Qtopia Core and add the \c $QTDIR/lib directory to
-    \c $LD_LIBRARY_PATH, e.g.:
+    \tableofcontents
+
+    \section1 Using a Single Display
+
+    To run the application using a single display, change to a Linux
+    console and select an application to run, e.g. \l {Text
+    Edit}{demos/textedit}.  Run the application with the \c{-qws}
+    option:
 
     \code
-        export QTDIR=$HOME/qt-VERSION
-        export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
-    \endcode
-
-    Run the application with the \c{-qws} option:
-
-    \code
-        cd $QTDIR/examples/demos/textedit
+        cd path/to/QtopiaCore/demos/textedit
         ./textedit -qws
     \endcode
 
-    You should see the \c textedit example appear. If your mouse doesn't
-    work correctly you must specify the type of mouse to use. You can
-    exit the master application at any time using
-    \bold{Ctrl+Alt+Backspace}.
+    \table 100%
+    \row
+    \o
+    Provided that the environment variables are adjusted properly
+    during the \l {Installing Qtopia Core}{installation process}, you
+    should see the \l {Text Edit demo} appear.
 
-    If you wish to run additional applications you should run them as clients
-    i.e. without the \c{-qws} option.
+    If the input methods don't work properly, the input driver and
+    device must be specified explicitly. For more information, please
+    consult the following documentation:
 
-    \section1 Displays
+    \list
+        \o \l {Pointer Handling}
+        \o \l {Character Input}
+    \endlist
 
-    Qtopia Core allows multiple displays to be used simultaneously by running
-    multiple Qtopia Core master processes. This is achieved using the \c -display
-    command line parameter or the \c $QWS_DISPLAY environment variable.
+    \o
+    \inlineimage qtopiacore-runningapplication.png
+    \endtable
+
+    Additional applications should be run as clients, i.e. without the
+    \c{-qws} option. You can exit the master application at any time
+    using \gui{Ctrl+Alt+Backspace}.
+
+    \section1 Using Multiple Displays
+
+    Qtopia Core also allows multiple displays to be used
+    simultaneously by running multiple Qtopia Core master
+    processes. This is achieved using the \c -display command line
+    parameter or the QWS_DISPLAY environment variable.
 
     The \c -display parameter's syntax is:
 
     \code
-        [gfx driver][:driver specific options][:display number]
+        <gfx driver><:driver specific options><:display number>
     \endcode
 
+    The valid drivers are \c linuxfb, \c qvfb, \c vnc and \c
+    transformed. For example, use the following code to run the
+    example and demo launcher \l {Qt Demo example}{Qt Demo}, on a
+    transformed display:
+
+    \code
+        cd path/to/QtopiaCore/examples/tools/qtdemo
+        qtdemo -qws -display transformed:rot90:1
+    \endcode
+
+    Alternatively, you can set the QWS_DISPLAY environment variable
+    before running the application. For example, if the current shell
+    is bash, ksh, zsh or sh:
+
+    \code
+        export QWS_DISPLAY=<gfx driver><:driver specific options><:display number>
+    \endcode
+
+    \omit
     To try this functionality you can do the following:
-    \list 1
-    \i Change to VC 1 (virtual console one) and run the launcher example:
 
-    \code
-        $ cd examples/tools/launcher
-        $ ./launcher -qws
-    \endcode
+    \table 100%
+    \row
+    \o
+        \list 1
+        \o Change to VC 1 (virtual console one) and run the
+        example and demo launcher \l {Qt Demo example}{Qt Demo}:
 
-    \i Switch to VC 2 and run another one:
+        \code
+            cd path/to/QtopiaCore/examples/tools/qtdemo
+            qtdemo -qws
+        \endcode
 
-    \code
-        $ cd examples/tools/launcher
-        $ ./launcher -qws -display :1
-    \endcode
+        \image qtopiacore-runningqtdemo.png
 
-    Another launcher will be started. Start an application in this launcher.
+        \o Switch to VC 2 and run another one:
 
-    \i Press \bold{Ctrl+Alt+F1} - back to display 0. You can also start
-    additional applications on a particular display by specifying the
-    display ID. Change to VC 3:
+        \code
+           cd path/to/QtopiaCore//examples/tools/qtdemo
+           qtdemo -qws -display :1
+        \endcode
 
-    \code
-        $ cd examples/widgets/styles
-        $ ./styles -display :1
-    \endcode
+        Another launcher will be started. Start an application in this launcher.
 
-    will display the widgets example on display :1 (VC 2).
-    \endlist
+        \o Press \gui{Ctrl+Alt+F1} to get back to display 0.
+        \endlist
 
-    Only the master process needs to specify the driver/device part
-    explicitly. The clients get the information they need from the master
-    when they connect. So once you have a master server running using a
-    particular driver, you can just use \c client \c display \c n to use
-    display \c n.
+        You can also start additional applications on a particular
+        display by specifying the display ID. Change to VC 3:
 
-    \section1 Mouse Input
+        \code
+            cd path/to/QtopiaCore/examples/widgets/styles
+            ./styles -display :1
+        \endcode
 
-    Qtopia Core attempts to autodetect a mouse by default.  The supported
-    protocols are MouseMan, Microsoft, IntelliMouse and
-    some other devices specific to certain hardware (e.g. Vr touch panel).
-    To specify the mouse to use set the \c $QWS_MOUSE_PROTO environment
-    variable, for example:
+        will display the styles example on display :1 (i.e. VC 2).
 
-    \code
-        export QWS_MOUSE_PROTO=IntelliMouse
-    \endcode
-
-    The mouse autodetection opens the serial devices and psaux which
-    may cause conflicts with other programs using those devices.  If
-    this is the case then specify the mouse driver protocol and device
-    explicitly:
-
-    \code
-        export QWS_MOUSE_PROTO=MouseMan:/dev/inputs/mice
-    \endcode
-
-    \sa {Pointer Handling}
+        Only the master process needs to specify the driver/device
+        part explicitly. The clients get the information they need
+        from the master when they connect. So once you have a master
+        server running using a particular driver, you can just use \c
+        client \c display \c n to use display \c n.
+    \endtable
+    \endomit
 */

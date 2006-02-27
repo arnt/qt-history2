@@ -28,14 +28,25 @@
 
     \row
     \o \bold QWS_DISPLAY \target QWS_DISPLAY
-    \o Defines the display type and framebuffer.
-    Defaults to an unaccelerated Linux framebuffer driver on \c /dev/fb0.
-    Valid drivers are QVFb, LinuxFb (unaccelerated Linux framebuffer),
-    Transformed (for rotated displays), and VNC. Transformed displays have a
-    special format: the specification should include a rotation as a multiple
-    of 90 degrees given as Rot\<x\>, for instance Transformed:Rot90.
+    \o
+    Specifies the display type and framebuffer. The
+    variable's value is defined as:
 
-    See also \l {Running Applications}
+    \code
+        <gfx driver><:driver specific options><:display number>
+    \endcode
+
+    The default value is an unaccelerated Linux framebuffer driver: \c
+    /dev/fb0.  Valid drivers are \c qvfb, \c linuxfb (unaccelerated
+    Linux framebuffer), \c transformed (for rotated displays), and \c
+    vnc (when running Qtopia Core as a VNC server).
+
+    Transformed displays have a special format: the specification
+    should include a rotation as a multiple of 90 degrees given as \c
+    rot<x>, for instance \c transformed:rot90.
+
+    See also \l {Running Applications}, \l {The Virtual Framebuffer}
+    and \l {Running as a VNC Server}.
 
     \row
     \o \bold QWS_SIZE \target QWS_SIZE
