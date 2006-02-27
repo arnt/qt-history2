@@ -92,7 +92,7 @@ QTextStream &PageGenerator::out()
 void PageGenerator::generateInnerNode( const InnerNode *node,
 				       CodeMarker *marker )
 {
-    if (!node->url().isEmpty())
+    if (!node->url().isNull())
         return;
 
     if (node->type() == Node::Fake) {

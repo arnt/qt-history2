@@ -527,7 +527,7 @@ void Tree::readIndexFile(const QString &path)
         file.close();
 
         QDomElement indexElement = document.documentElement();
-        QString indexUrl = indexElement.attribute("url");
+        QString indexUrl = indexElement.attribute("url", "");
         priv->basesList.clear();
         priv->relatedList.clear();
 
@@ -553,12 +553,25 @@ void Tree::readIndexSection(const QDomElement &element,
     QString name = element.attribute("name");
 
     Node *section;
+    Location location;
+
     if (element.nodeName() == "namespace") {
         section = new NamespaceNode(parent, name);
+
+        if (!indexUrl.isEmpty())
+            location = Location(indexUrl + "/" + name.toLower() + ".html");
+        else if (!indexUrl.isNull())
+            location = Location(name.toLower() + ".html");
+
     } else if (element.nodeName() == "class") {
         section = new ClassNode(parent, name);
         priv->basesList.append(QPair<ClassNode*,QString>(
             static_cast<ClassNode*>(section), element.attribute("bases")));
+
+        if (!indexUrl.isEmpty())
+            location = Location(indexUrl + "/" + name.toLower() + ".html");
+        else if (!indexUrl.isNull())
+            location = Location(name.toLower() + ".html");
 
     } else if (element.nodeName() == "page") {
         FakeNode::SubType subtype;
@@ -586,14 +599,34 @@ void Tree::readIndexSection(const QDomElement &element,
 
         section = fakeNode;
 
+        if (!indexUrl.isEmpty())
+            location = Location(indexUrl + "/" + name);
+        else if (!indexUrl.isNull())
+            location = Location(name);
+
     } else if (element.nodeName() == "enum") {
         section = new EnumNode(parent, name);
+
+        if (!indexUrl.isEmpty())
+            location = Location(indexUrl + "/" + parent->name().toLower() + ".html");
+        else if (!indexUrl.isNull())
+            location = Location(parent->name().toLower() + ".html");
 
     } else if (element.nodeName() == "typedef") {
         section = new TypedefNode(parent, name);
 
+        if (!indexUrl.isEmpty())
+            location = Location(indexUrl + "/" + parent->name().toLower() + ".html");
+        else if (!indexUrl.isNull())
+            location = Location(parent->name().toLower() + ".html");
+
     } else if (element.nodeName() == "property") {
         section = new PropertyNode(parent, name);
+
+        if (!indexUrl.isEmpty())
+            location = Location(indexUrl + "/" + parent->name().toLower() + ".html");
+        else if (!indexUrl.isNull())
+            location = Location(parent->name().toLower() + ".html");
 
     } else if (element.nodeName() == "function") {
         FunctionNode::Virtualness virt;
@@ -653,8 +686,18 @@ void Tree::readIndexSection(const QDomElement &element,
 
         section = functionNode;
 
+        if (!indexUrl.isEmpty())
+            location = Location(indexUrl + "/" + parent->name().toLower() + ".html");
+        else if (!indexUrl.isNull())
+            location = Location(parent->name().toLower() + ".html");
+
     } else if (element.nodeName() == "variable") {
         section = new VariableNode(parent, name);
+
+        if (!indexUrl.isEmpty())
+            location = Location(indexUrl + "/" + parent->name().toLower() + ".html");
+        else if (!indexUrl.isNull())
+            location = Location(parent->name().toLower() + ".html");
 
     } else if (element.nodeName() == "keyword") {
         Target target;
@@ -697,7 +740,7 @@ void Tree::readIndexSection(const QDomElement &element,
 
     // Create some content for the node.
     QSet<QString> emptySet;
-    Location location(indexUrl + "/" + name.toLower() + ".html");
+
     Doc doc(location, " ", emptySet); // placeholder
     section->setDoc(doc);
 
