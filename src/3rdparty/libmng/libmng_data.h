@@ -653,6 +653,9 @@ typedef struct mng_data_struct {
            mng_int32         iFrameclipb;
 
            mng_uint32        iNextdelay;         /* delay *after* next image */
+
+           mng_bool          bForcedelay;
+           mng_uint32        iAccumdelay;
 #endif
 
 #ifndef MNG_SKIPCHUNK_SHOW

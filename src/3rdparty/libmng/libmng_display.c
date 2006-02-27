@@ -371,8 +371,9 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
 
   {
 #ifndef MNG_SKIPCHUNK_FRAM
-    if (pData->iFramedelay > 0)        /* real delay ? */
+    if (pData->iFramedelay > 0 || pData->bForcedelay)        /* real delay ? */
     {                                  /* let the app refresh first ? */
+      pData->bForcedelay = MNG_FALSE;
       if ((pData->bRunning) && (!pData->bSkipping) &&
           (pData->iUpdatetop < pData->iUpdatebottom) && (pData->iUpdateleft < pData->iUpdateright))
         if (!pData->fRefresh (((mng_handle)pData),
@@ -442,6 +443,7 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
       pData->iFrametime = pData->iFrametime + iWaitfor;
                                        /* setup for next delay */
     pData->iFramedelay = pData->iNextdelay;
+    pData->iAccumdelay += pData->iFramedelay;
 #endif
   }
 
@@ -3204,6 +3206,9 @@ mng_retcode mng_process_display_mend (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_START);
 #endif
+
+  pData->bForcedelay = pData->iAccumdelay ? MNG_FALSE : MNG_TRUE;
+  pData->iAccumdelay = 0;
 
 #ifdef MNG_SUPPORT_DYNAMICMNG
   if (pData->bStopafterseek)           /* need to stop after this ? */

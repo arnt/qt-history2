@@ -420,6 +420,9 @@ MNG_LOCAL mng_retcode mng_reset_rundata (mng_datap pData)
   pData->iFrameclipb           = 0;
 
   pData->iNextdelay            = 1;
+
+  pData->bForcedelay           = MNG_FALSE;
+  pData->iAccumdelay           = 0;
 #endif
 
 #ifndef MNG_SKIPCHUNK_SHOW
@@ -1685,6 +1688,9 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iFrameclipb           = 0;
 
   pData->iNextdelay            = 1;
+
+  pData->bForcedelay           = MNG_FALSE;
+  pData->iAccumdelay           = 0;
 #endif
 
 #ifndef MNG_SKIPCHUNK_SHOW
