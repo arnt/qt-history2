@@ -35,6 +35,7 @@ class Q_GUI_EXPORT QSortFilterProxyModel : public QAbstractProxyModel
     Q_PROPERTY(QRegExp filterRegExp READ filterRegExp WRITE setFilterRegExp)
     Q_PROPERTY(int filterKeyColumn READ filterKeyColumn WRITE setFilterKeyColumn)
     Q_PROPERTY(Qt::CaseSensitivity filterCaseSensitivity READ filterCaseSensitivity WRITE setFilterCaseSensitivity)
+    Q_PROPERTY(bool dynamicSortFilter READ dynamicSortFilter WRITE setDynamicSortFilter)
 
 public:
     QSortFilterProxyModel(QObject *parent = 0);
@@ -56,6 +57,9 @@ public:
 
     Qt::CaseSensitivity filterCaseSensitivity() const;
     void setFilterCaseSensitivity(Qt::CaseSensitivity cs);
+
+    bool dynamicSortFilter() const;
+    void setDynamicSortFilter(bool enable);
 
 public Q_SLOTS:
     void setFilterRegExp(const QString &pattern);
@@ -114,9 +118,15 @@ private:
 
     Q_PRIVATE_SLOT(d_func(), void sourceDataChanged(const QModelIndex &source_top_left, const QModelIndex &source_bottom_right))
     Q_PRIVATE_SLOT(d_func(), void sourceHeaderDataChanged(Qt::Orientation orientation, int start, int end))
-    Q_PRIVATE_SLOT(d_func(), void sourceLayoutAboutToBeChanged(const QModelIndex &source_parent))
-    Q_PRIVATE_SLOT(d_func(), void sourceLayoutChanged())
     Q_PRIVATE_SLOT(d_func(), void sourceReset())
+    Q_PRIVATE_SLOT(d_func(), void sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end))
+    Q_PRIVATE_SLOT(d_func(), void sourceRowsInserted(const QModelIndex &source_parent, int start, int end))
+    Q_PRIVATE_SLOT(d_func(), void sourceRowsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end))
+    Q_PRIVATE_SLOT(d_func(), void sourceRowsRemoved(const QModelIndex &source_parent, int start, int end))
+    Q_PRIVATE_SLOT(d_func(), void sourceColumnsAboutToBeInserted(const QModelIndex &source_parent, int start, int end))
+    Q_PRIVATE_SLOT(d_func(), void sourceColumnsInserted(const QModelIndex &source_parent, int start, int end))
+    Q_PRIVATE_SLOT(d_func(), void sourceColumnsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end))
+    Q_PRIVATE_SLOT(d_func(), void sourceColumnsRemoved(const QModelIndex &source_parent, int start, int end))
 };
 
 #endif // QT_NO_SORTFILTERPROXYMODEL
