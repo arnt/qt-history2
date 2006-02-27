@@ -2604,5 +2604,3 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
         str = ret;
     return true;
 }
-
-
