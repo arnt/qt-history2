@@ -98,9 +98,6 @@ extern void qt_init_display(); //qapplication_qws.cpp
 extern QString qws_qtePipeFilename();
 
 extern void qt_client_enqueue(const QWSEvent *); //qapplication_qws.cpp
-typedef void MoveRegionF(const QWSRegionMoveCommand*);
-typedef void RequestRegionF(int, QRegion);
-typedef void SetAltitudeF(const QWSChangeAltitudeCommand*);
 extern QList<QWSCommand*> *qt_get_server_queue();
 
 static QRect maxwindow_rect;
@@ -752,8 +749,6 @@ void QWSServerPrivate::initServer(int flags)
         bgBrush = new QBrush(QColor(0x20, 0xb0, 0x50));
 
     initializeCursor();
-
-    qt_screen->exposeRegion(QRect(0,0,qt_screen->width(), qt_screen->height()), 0);
 
     // input devices
     if (!(flags&QWSServer::DisableMouse)) {
@@ -2373,6 +2368,12 @@ void QWSServerPrivate::setWindowRegion(QWSWindow* changingw, QRegion r)
 
 void QWSServerPrivate::exposeRegion(QRegion r, int changing)
 {
+    static bool initial = true;
+    if (initial) {
+        r = QRect(0,0,qt_screen->width(), qt_screen->height());
+        changing = 0;
+        initial = false;
+    }
     qt_screen->exposeRegion(r, qMax(nReserved, changing));
 }
 
@@ -2701,9 +2702,12 @@ const QBrush &QWSServer::backgroundBrush() const
 */
 void QWSServer::setBackground(const QBrush &brush)
 {
+    if (!QWSServerPrivate::bgBrush)
+        QWSServerPrivate::bgBrush = new QBrush(brush);
+    else
+        *QWSServerPrivate::bgBrush = brush;
     if (!qwsServer)
         return;
-    *QWSServerPrivate::bgBrush = brush;
     qt_screen->exposeRegion(QRect(0,0,qt_screen->width(), qt_screen->height()), 0);
 }
 
