@@ -37,7 +37,8 @@ public:
         : showGrid(true), gridStyle(Qt::SolidLine),
           rowSectionAnchor(0), columnSectionAnchor(0),
           columnResizeTimerID(0), rowResizeTimerID(0),
-          horizontalHeader(0), verticalHeader(0) {}
+          horizontalHeader(0), verticalHeader(0),
+          sortingEnabled(false) {}
     void init();
     void trimHiddenSelections(QItemSelectionRange *range) const;
 
@@ -51,7 +52,7 @@ public:
     QList<int> rowsToUpdate;
     QHeaderView *horizontalHeader;
     QHeaderView *verticalHeader;
-
+    bool sortingEnabled;
 };
 
 #endif // QT_NO_TABLEVIEW

@@ -171,7 +171,6 @@ class Q_GUI_EXPORT QTableWidget : public QTableView
     Q_OBJECT
     Q_PROPERTY(int rowCount READ rowCount WRITE setRowCount)
     Q_PROPERTY(int columnCount READ columnCount WRITE setColumnCount)
-    Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
 
     friend class QTableModel;
 public:

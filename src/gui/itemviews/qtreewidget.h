@@ -185,7 +185,6 @@ class Q_GUI_EXPORT QTreeWidget : public QTreeView
 {
     Q_OBJECT
     Q_PROPERTY(int columnCount READ columnCount WRITE setColumnCount)
-    Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
     Q_PROPERTY(int topLevelItemCount READ topLevelItemCount)
 
     friend class QTreeModel;

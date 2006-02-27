@@ -201,6 +201,7 @@ void QTreeView::setHeader(QHeaderView *header)
     delete d->header;
     d->header = header;
     d->header->setParent(this);
+
     if (!d->header->model())
         d->header->setModel(model());
 
@@ -212,11 +213,11 @@ void QTreeView::setHeader(QHeaderView *header)
             this, SLOT(columnCountChanged(int,int)));
     connect(d->header, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeColumnToContents(int)));
-    connect(d->header, SIGNAL(sectionClicked(int)),
-            this, SLOT(sortByColumn(int)));
     connect(d->header, SIGNAL(geometriesChanged()),
             this, SLOT(updateGeometries()));
     d->header->setFocusProxy(this);
+
+    setSortingEnabled(d->sortingEnabled);
 }
 
 /*!
@@ -540,6 +541,33 @@ void QTreeView::setExpanded(const QModelIndex &index, bool expanded)
         this->expand(index);
     else
         this->collapse(index);
+}
+
+/*!
+  \ since Qt 4.2
+    \property QTreeView::sortingEnabled
+    \brief whether sorting is enabled
+
+    If this property is true sorting is enabled for the table; if the
+    property is false, sorting is not enabled. The default value is false.
+*/
+
+void QTreeView::setSortingEnabled(bool enable)
+{
+    Q_D(QTreeView);
+    d->sortingEnabled = enable;
+    header()->setSortIndicatorShown(enable);
+    header()->setClickable(enable);
+    if (enable)
+        connect(header(), SIGNAL(sectionClicked(int)), this, SLOT(sortByColumn(int)));
+    else
+        disconnect(header(), SIGNAL(sectionClicked(int)), this, SLOT(sortByColumn(int)));
+}
+
+bool QTreeView::isSortingEnabled() const
+{
+    Q_D(const QTreeView);
+    return d->sortingEnabled;
 }
 
 /*!

@@ -28,6 +28,7 @@ class Q_GUI_EXPORT QTableView : public QAbstractItemView
     Q_OBJECT
     Q_PROPERTY(bool showGrid READ showGrid WRITE setShowGrid)
     Q_PROPERTY(Qt::PenStyle gridStyle READ gridStyle WRITE setGridStyle)
+    Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
 
 public:
     explicit QTableView(QWidget *parent = 0);
@@ -59,6 +60,9 @@ public:
 
     bool isColumnHidden(int column) const;
     void setColumnHidden(int column, bool hide);
+
+    void setSortingEnabled(bool enable);
+    bool isSortingEnabled() const;
 
     bool showGrid() const;
 

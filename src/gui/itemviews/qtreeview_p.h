@@ -48,7 +48,7 @@ public:
         : QAbstractItemViewPrivate(),
           header(0), indent(20), lastViewedItem(0), itemHeight(-1), 
           uniformRowHeights(false), rootDecoration(true),
-          itemsExpandable(true),
+          itemsExpandable(true), sortingEnabled(false),
           columnResizeTimerID(0)  {}
 
     ~QTreeViewPrivate() {}
@@ -113,6 +113,7 @@ public:
     bool uniformRowHeights; // used when all rows have the same height
     bool rootDecoration;
     bool itemsExpandable;
+    bool sortingEnabled;
 
     // used for drawing
     int left;

@@ -69,8 +69,24 @@ public:
 
     bool isSectionSelected(int section) const;
 
+    inline bool rowIntersectsSelection(int row) const {
+        return (selectionModel ? selectionModel->columnIntersectsSelection(row, root) : false);
+    }
+
+    inline bool columnIntersectsSelection(int column) const {
+        return (selectionModel ? selectionModel->columnIntersectsSelection(column, root) : false);
+    }
+
+    inline bool isRowSelected(int row) const {
+        return (selectionModel ? selectionModel->isRowSelected(row, root) : false);
+    }
+
+    inline bool isColumnSelected(int column) const {
+        return (selectionModel ? selectionModel->isColumnSelected(column, root) : false);
+    }
+
     inline void prepareSectionSelected() {
-        if (!selectionModel->hasSelection())
+        if (!selectionModel || !selectionModel->hasSelection())
             sectionSelected.clear();
         else if (sectionSelected.count() != sectionCount * 2)
             sectionSelected.fill(false, sectionCount * 2);

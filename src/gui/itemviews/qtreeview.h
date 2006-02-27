@@ -30,6 +30,7 @@ class Q_GUI_EXPORT QTreeView : public QAbstractItemView
     Q_PROPERTY(bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated)
     Q_PROPERTY(bool uniformRowHeights READ uniformRowHeights WRITE setUniformRowHeights)
     Q_PROPERTY(bool itemsExpandable READ itemsExpandable WRITE setItemsExpandable)
+    Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
 
 public:
     explicit QTreeView(QWidget *parent = 0);
@@ -67,6 +68,9 @@ public:
 
     bool isExpanded(const QModelIndex &index) const;
     void setExpanded(const QModelIndex &index, bool expand);
+
+    void setSortingEnabled(bool enable);
+    bool isSortingEnabled() const;
 
     void keyboardSearch(const QString &search);
 

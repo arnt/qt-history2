@@ -1416,10 +1416,10 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         logical = logicalIndex(i);
         if (orientation() == Qt::Horizontal) {
             rect.setRect(sectionViewportPosition(logical), 0, sectionSize(logical), height);
-            highlight = d->selectionModel->columnIntersectsSelection(logical, rootIndex());
+            highlight = d->columnIntersectsSelection(logical);
         } else {
             rect.setRect(0, sectionViewportPosition(logical), width, sectionSize(logical));
-            highlight = d->selectionModel->rowIntersectsSelection(logical, rootIndex());
+            highlight = d->rowIntersectsSelection(logical);
         }
         rect.translate(offset);
         if (d->highlightSelected && highlight && active) {
@@ -2091,7 +2091,6 @@ QStyleOptionHeader QHeaderViewPrivate::getStyleOption() const
 
 bool QHeaderViewPrivate::isSectionSelected(int section) const
 {
-    Q_Q(const QHeaderView);
     int i = section * 2;
     if (i < 0 || i >= sectionSelected.count())
         return false;
@@ -2099,9 +2098,9 @@ bool QHeaderViewPrivate::isSectionSelected(int section) const
         return sectionSelected.testBit(i + 1);
     bool s = false;
     if (orientation == Qt::Horizontal)
-        s = q->selectionModel()->isColumnSelected(section, QModelIndex());
+        s = isColumnSelected(section);
     else
-        s = q->selectionModel()->isRowSelected(section, QModelIndex());
+        s = isRowSelected(section);
     sectionSelected.setBit(i + 1, s); // selection state
     sectionSelected.setBit(i, true); // cache state
     return s;

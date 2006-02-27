@@ -1596,7 +1596,7 @@ class QTreeWidgetPrivate : public QTreeViewPrivate
 {
     Q_DECLARE_PUBLIC(QTreeWidget)
 public:
-    QTreeWidgetPrivate() : QTreeViewPrivate(), sortingEnabled(false) {}
+    QTreeWidgetPrivate() : QTreeViewPrivate() {}
     inline QTreeModel *model() const { return ::qobject_cast<QTreeModel*>(q_func()->model()); }
     void emitItemPressed(const QModelIndex &index);
     void emitItemClicked(const QModelIndex &index);
@@ -1608,7 +1608,6 @@ public:
     void emitItemCollapsed(const QModelIndex &index);
     void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &index);
     void _q_sort();
-    bool sortingEnabled;
 };
 
 void QTreeWidgetPrivate::emitItemPressed(const QModelIndex &index)
@@ -2150,29 +2149,20 @@ void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 }
 
 /*!
-  If \a enable is true, the items in the widget will be sorted if the user
-  clicks on a header section; otherwise sorting by clicking on the
-  header section is disabled.
+  \reimpl
 */
 void QTreeWidget::setSortingEnabled(bool enable)
 {
-    Q_D(QTreeWidget);
-    d->sortingEnabled = enable;
-    if (header()->isSortIndicatorShown() != enable) {
-        header()->setSortIndicatorShown(enable);
-        header()->setClickable(enable);
-    }
+    QTreeView::setSortingEnabled(enable);
 }
 
 /*!
-  Returns true if sorting is enabled; otherwise returns false.
-  Sorting is enabled when the user clicks on a header section.
+  \reimpl
 */
 
 bool QTreeWidget::isSortingEnabled() const
 {
-    Q_D(const QTreeWidget);
-    return d->sortingEnabled;
+    return QTreeView::isSortingEnabled();
 }
 
 /*!

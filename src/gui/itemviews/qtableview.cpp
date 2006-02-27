@@ -1045,6 +1045,39 @@ void QTableView::setColumnHidden(int column, bool hide)
 }
 
 /*!
+  \ sinve Qt 4.2
+    \property QTableView::sortingEnabled
+    \brief whether sorting is enabled
+
+    If this property is true sorting is enabled for the table; if the
+    property is false, sorting is not enabled. The default value is false.
+*/
+
+void QTableView::setSortingEnabled(bool enable)
+{
+    Q_D(QTableView);
+    d->sortingEnabled = enable;
+    horizontalHeader()->setSortIndicatorShown(enable);
+    if (enable) {
+        disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)),
+                   this, SLOT(selectColumn(int)));
+        connect(horizontalHeader(), SIGNAL(sectionClicked(int)),
+                this, SLOT(sortByColumn(int)));
+    } else {
+        connect(horizontalHeader(), SIGNAL(sectionPressed(int)),
+                this, SLOT(selectColumn(int)));
+        disconnect(horizontalHeader(), SIGNAL(sectionClicked(int)),
+                   this, SLOT(sortByColumn(int)));
+    }
+}
+
+bool QTableView::isSortingEnabled() const
+{
+    Q_D(const QTableView);
+    return d->sortingEnabled;
+}
+
+/*!
     \property QTableView::showGrid
     \brief whether the grid is shown
 
