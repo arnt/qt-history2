@@ -294,18 +294,18 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
                                          const QStyleOptionViewItem &option,
                                          const QModelIndex &index) const
 {
-    if (editor) {
-        Q_ASSERT(index.isValid());
-        QPixmap pixmap = decoration(option, index.data(Qt::DecorationRole));
-        QString text = index.data(Qt::EditRole).toString();
-        QRect pixmapRect = pixmap.rect();
-        QRect textRect(0, 0, editor->fontMetrics().width(text), editor->fontMetrics().lineSpacing());
-        QRect checkRect = check(option, textRect, index.data(Qt::CheckStateRole));
-        QStyleOptionViewItem opt = option;
-        opt.showDecorationSelected = true; // let the editor take up all available space
-        doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
-        editor->setGeometry(textRect);
-    }
+    if (editor!)
+        return;
+    Q_ASSERT(index.isValid());
+    QPixmap pixmap = decoration(option, index.data(Qt::DecorationRole));
+    QString text = index.data(Qt::EditRole).toString();
+    QRect pixmapRect = pixmap.rect();
+    QRect textRect(0, 0, editor->fontMetrics().width(text), editor->fontMetrics().lineSpacing());
+    QRect checkRect = check(option, textRect, index.data(Qt::CheckStateRole));
+    QStyleOptionViewItem opt = option;
+    opt.showDecorationSelected = true; // let the editor take up all available space
+    doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
+    editor->setGeometry(textRect);
 }
 
 /*!
@@ -377,16 +377,16 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QRect &rect, const QPixmap &pixmap) const
 {
-    if (!pixmap.isNull() && !rect.isEmpty()) {
-        QPoint p = QStyle::alignedRect(option.direction, option.decorationAlignment,
-                                       pixmap.size(), rect).topLeft();
-        if (option.state & QStyle::State_Selected) {
-            bool enabled = option.state & QStyle::State_Enabled;
-            QPixmap *pm = selected(pixmap, option.palette, enabled);
-            painter->drawPixmap(p, *pm);
-        } else {
-            painter->drawPixmap(p, pixmap);
-        }
+    if (pixmap.isNull() || rect.isEmpty())
+        return;
+    QPoint p = QStyle::alignedRect(option.direction, option.decorationAlignment,
+                                   pixmap.size(), rect).topLeft();
+    if (option.state & QStyle::State_Selected) {
+        bool enabled = option.state & QStyle::State_Enabled;
+        QPixmap *pm = selected(pixmap, option.palette, enabled);
+        painter->drawPixmap(p, *pm);
+    } else {
+        painter->drawPixmap(p, pixmap);
     }
 }
 
@@ -399,17 +399,17 @@ void QItemDelegate::drawFocus(QPainter *painter,
                               const QStyleOptionViewItem &option,
                               const QRect &rect) const
 {
-    if (option.state & QStyle::State_HasFocus) {
-        QStyleOptionFocusRect o;
-        o.QStyleOption::operator=(option);
-        o.rect = rect;
-        o.state |= QStyle::State_KeyboardFocusChange;
-        QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled)
-                                  ? QPalette::Normal : QPalette::Disabled;
-        o.backgroundColor = option.palette.color(cg, (option.state & QStyle::State_Selected)
-                                                 ? QPalette::Highlight : QPalette::Background);
-        QApplication::style()->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter);
-    }
+    if (option.state & QStyle::State_HasFocus == 0)
+        return;
+    QStyleOptionFocusRect o;
+    o.QStyleOption::operator=(option);
+    o.rect = rect;
+    o.state |= QStyle::State_KeyboardFocusChange;
+    QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled)
+                              ? QPalette::Normal : QPalette::Disabled;
+    o.backgroundColor = option.palette.color(cg, (option.state & QStyle::State_Selected)
+                                             ? QPalette::Highlight : QPalette::Background);
+    QApplication::style()->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter);
 }
 
 /*!
