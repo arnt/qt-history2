@@ -161,7 +161,7 @@ public:
     void update_persistent_indexes(const QModelIndexList &source_indexes);
 
     void filter_changed();
-    void QSortFilterProxyModelPrivate::handle_filter_changed(
+    void handle_filter_changed(
         QVector<int> &source_to_proxy, QVector<int> &proxy_to_source,
         const QModelIndex &source_parent, Qt::Orientation orient);
 };
