@@ -1841,8 +1841,7 @@ void TrWindow::readConfig()
         r.moveTopLeft(QApplication::desktop()->availableGeometry().topLeft());
 
     if (r.isValid()) {
-        resize(r.size());
-        move(r.topLeft());
+        setGeometry(r);
     } 
 
     restoreState(config.value(keybase + "MainWindowState").toByteArray());
