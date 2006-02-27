@@ -37,8 +37,6 @@ void qt_format_text(const QFont&, const QRectF&,
                     int, const QString&, QRectF *,
                     int, int*, int, QPainter*);
 
-static const int textMargin = 3;
-
 class QItemDelegatePrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QItemDelegate)
@@ -360,6 +358,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 
     QFont font = painter->font();
     painter->setFont(option.font);
+    const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0); // remove width padding
     QString str = text;
     if (painter->fontMetrics().width(text) > textRect.width() && !text.contains(QLatin1Char('\n')))
@@ -475,6 +474,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
                              bool hint) const
 {
     Q_ASSERT(checkRect && pixmapRect && textRect);
+    const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     int x = option.rect.left();
     int y = option.rect.top();
     int w, h;
