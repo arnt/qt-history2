@@ -294,7 +294,7 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
                                          const QStyleOptionViewItem &option,
                                          const QModelIndex &index) const
 {
-    if (editor!)
+    if (!editor)
         return;
     Q_ASSERT(index.isValid());
     QPixmap pixmap = decoration(option, index.data(Qt::DecorationRole));
