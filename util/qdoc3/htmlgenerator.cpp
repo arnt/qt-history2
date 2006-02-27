@@ -1618,6 +1618,18 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
         if (child->type() == Node::Fake && child != relative) {
             FakeNode *fakeNode = static_cast<FakeNode *>(child);
 
+            // Check whether the page is part of a group or is the group
+            // definition page.
+            QString group;
+            bool isGroupPage;
+            if (fakeNode->doc().metaCommandsUsed().contains("ingroup")) {
+                group = fakeNode->doc().metaCommandArgs("ingroup")[0];
+                isGroupPage = false;
+            } else if (fakeNode->doc().metaCommandsUsed().contains("group")) {
+                group = fakeNode->doc().metaCommandArgs("group")[0];
+                isGroupPage = true;
+            }
+
             // there are too many examples; they would clutter the list
             if (fakeNode->subType() == FakeNode::Example)
                 continue;
@@ -1634,18 +1646,6 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
             if (sortKey.startsWith("the "))
                 sortKey.remove(0, 4);
             sortKey.replace(singleDigit, "0\\1");
-
-            // Check whether the page is part of a group or is the group
-            // definition page.
-            QString group;
-            bool isGroupPage;
-            if (fakeNode->doc().metaCommandsUsed().contains("ingroup")) {
-                group = fakeNode->doc().metaCommandArgs("ingroup")[0];
-                isGroupPage = false;
-            } else if (fakeNode->doc().metaCommandsUsed().contains("group")) {
-                group = fakeNode->doc().metaCommandArgs("group")[0];
-                isGroupPage = true;
-            }
 
             if (!group.isEmpty()) {
                 if (isGroupPage) {
