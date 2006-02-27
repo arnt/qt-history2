@@ -59,16 +59,12 @@ void HtmlGenerator::initializeGenerator(const Config &config)
     address = config.getString(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_ADDRESS);
 
     project = config.getString(CONFIG_PROJECT);
-    if (project.isEmpty())
-        project = "Project";
 
     projectDescription = config.getString(CONFIG_DESCRIPTION);
-    if (projectDescription.isEmpty())
+    if (projectDescription.isEmpty() && !project.isEmpty())
         projectDescription = project + " Reference Documentation";
 
     projectUrl = config.getString(CONFIG_URL);
-    if (projectUrl.isEmpty())
-        projectUrl = "http://www.trolltech.com/products/" + project.toLower();
 
     QSet<QString> editionNames = config.subVars(CONFIG_EDITION);
     QSet<QString>::ConstIterator edition = editionNames.begin();
