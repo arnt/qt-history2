@@ -202,7 +202,7 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
         // something wrong, don't get col info, but still return false
         q->setLastError(qMakeError(access, QCoreApplication::translate("QSQLiteResult",
                         "Unable to fetch row"), QSqlError::ConnectionError, res));
-        finalize();
+        sqlite3_reset(stmt);
         q->setAt(QSql::AfterLastRow);
         return false;
     }
@@ -314,7 +314,6 @@ bool QSQLiteResult::exec()
     } else {
         setLastError(QSqlError(QCoreApplication::translate("QSQLiteResult",
                         "Parameter count mismatch"), QString(), QSqlError::StatementError));
-        d->finalize();
         return false;
     }
     d->skippedStatus = d->fetchNext(cache(), 0, true);
