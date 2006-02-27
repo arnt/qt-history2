@@ -594,12 +594,10 @@ QWSBackingStore::~QWSBackingStore()
     detach();
 }
 
-// 32bpp only
 void QWSBackingStore::blit(const QRect &r, const QPoint &p)
 {
-//    int depth = pix.depth();
     int lineskip = img.bytesPerLine();
-    int depth = img.depth() >> 8;
+    int depth = img.depth() >> 3;
 
     const uchar *src;
     uchar *dest;
