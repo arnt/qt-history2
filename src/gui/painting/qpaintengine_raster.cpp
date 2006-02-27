@@ -723,6 +723,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->penData.init(d->rasterBuffer);
     d->penData.setup(d->pen.brush(), d->opacity);
     d->stroker = &d->basicStroker;
+    d->basicStroker.setClipRect(d->deviceRect);
 
     d->brushData.init(d->rasterBuffer);
     d->brushData.setup(d->brush, d->opacity);
@@ -955,6 +956,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         } else if (pen_style != Qt::NoPen) {
             if (!d->dashStroker)
                 d->dashStroker = new QDashStroker(&d->basicStroker);
+            d->dashStroker->setClipRect(d->deviceRect);
             d->dashStroker->setDashPattern(d->pen.dashPattern());
             d->stroker = d->dashStroker;
         } else {

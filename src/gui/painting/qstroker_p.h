@@ -126,6 +126,9 @@ public:
                        void *data, const QMatrix &matrix);
     void strokeEllipse(const QRectF &ellipse, void *data, const QMatrix &matrix);
 
+    QRectF clipRect() const { return m_clip_rect; }
+    void setClipRect(const QRectF &clip) { m_clip_rect = clip; }
+
 protected:
     inline void emitMoveTo(qfixed x, qfixed y);
     inline void emitLineTo(qfixed x, qfixed y);
@@ -133,6 +136,8 @@ protected:
 
     virtual void processCurrentSubpath() = 0;
     QDataBuffer<Element> m_elements;
+
+    QRectF m_clip_rect;
 
 private:
     void *m_customData;
