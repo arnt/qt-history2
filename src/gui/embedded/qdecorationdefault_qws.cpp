@@ -232,7 +232,7 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
 #ifdef QT_NO_IMAGEFORMAT_XPM
     Q_UNUSED(widget);
     Q_UNUSED(decorationRegion);
-    Q_Unused(xoff);
+    Q_UNUSED(xoff);
     return QPixmap();
 #else
     static const char **staticHelpPixmapXPM = 0;
