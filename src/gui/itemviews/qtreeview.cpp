@@ -2033,8 +2033,7 @@ void QTreeViewPrivate::updateScrollbars()
     if (uniformRowHeights) {
         itemsInViewport = vsize.height() / itemHeight;
     } else {
-        int topItemInViewport = itemAt(verticalScrollBarValue);
-        Q_ASSERT(topItemInViewport != -1);
+        int topItemInViewport = qMax(0, itemAt(verticalScrollBarValue));
         int h = height(topItemInViewport);
         int y = topItemDelta(verticalScrollBarValue, h);
         int i = topItemInViewport;
