@@ -401,6 +401,9 @@ QPixmapData::~QPixmapData()
 void
 QPixmapData::macSetAlphaChannel(const QPixmap *pix, bool asMask)
 {
+    if(!pixels || !h || !w || pix->data->w != w || pix->data->h != h)
+        return;
+
     quint32 *dptr = pixels, *drow;
     const uint dbpr = nbytes / h;
     const unsigned short sbpr = pix->data->nbytes / pix->data->h;
