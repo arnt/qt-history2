@@ -579,19 +579,23 @@ void QItemSelectionModelPrivate::_q_columnsAboutToBeRemoved(const QModelIndex &p
 void QItemSelectionModelPrivate::_q_columnsAboutToBeInserted(const QModelIndex &parent,
                                                              int start, int end)
 {
+    Q_UNUSED(end);
     finalize();
+    QList<QItemSelectionRange> split;
     QList<QItemSelectionRange>::iterator it = ranges.begin();
     for (; it != ranges.end(); ++it) {
-        if ((*it).parent() == parent && (*it).left() <= start && (*it).right() >= start) {
+        if ((*it).isValid() && (*it).parent() == parent
+            && (*it).left() <= start && (*it).right() >= start) {
             QModelIndex bottomMiddle = model->index((*it).bottom(), start, (*it).parent());
             QItemSelectionRange left((*it).topLeft(), bottomMiddle);
             QModelIndex topMiddle = model->index((*it).top(), start, (*it).parent());
             QItemSelectionRange right(topMiddle, (*it).bottomRight());
             ranges.erase(it);
-            ranges.prepend(left);
-            ranges.prepend(right);
+            split.append(left);
+            split.append(right);
         }
     }
+    ranges += split;
 }
 
 /*!
@@ -602,19 +606,23 @@ void QItemSelectionModelPrivate::_q_columnsAboutToBeInserted(const QModelIndex &
 void QItemSelectionModelPrivate::_q_rowsAboutToBeInserted(const QModelIndex &parent,
                                                           int start, int end)
 {
+    Q_UNUSED(end);
     finalize();
+    QList<QItemSelectionRange> split;
     QList<QItemSelectionRange>::iterator it = ranges.begin();
     for (; it != ranges.end(); ++it) {
-        if ((*it).parent() == parent && (*it).top() <= start && (*it).bottom() >= start) {
+        if ((*it).isValid() && (*it).parent() == parent
+            && (*it).top() <= start && (*it).bottom() >= start) {
             QModelIndex middleRight = model->index(start, (*it).right(), (*it).parent());
             QItemSelectionRange top((*it).topLeft(), middleRight);
             QModelIndex middleLeft = model->index(start, (*it).left(), (*it).parent());
             QItemSelectionRange bottom((*it).bottomRight(), middleLeft);
             ranges.erase(it);
-            ranges.prepend(top);
-            ranges.prepend(bottom);
+            split.append(top);
+            split.append(bottom);
         }
     }
+    ranges += split;
 }
 
 /*!
