@@ -1223,6 +1223,8 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
         QModelIndex index = model->index(absoluteInfo.absoluteFilePath());
         if (index.isValid())
             treeView->setCurrentIndex(index);
+        else
+            selections->clear();
         return;
     }
     // if the user is removing text, don't autocomplete

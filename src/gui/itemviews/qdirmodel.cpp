@@ -1049,12 +1049,14 @@ QModelIndex QDirModel::index(const QString &path, int column) const
 
         // we couldn't find the path element, we create a new node since we _know_ that the path is valid
         if (row == -1) {
-            if (!d->allowAppendChild)
+            QString newPath = parent->info.absoluteFilePath() + "/" + element;
+            if (!d->allowAppendChild || !QFileInfo(newPath).isDir())
                 return QModelIndex();
-            d->appendChild(parent, parent->info.absoluteFilePath() + "/" + element);
+            d->appendChild(parent, newPath);
             row = parent->children.count() - 1;
             if (i == pathElements.count() - 1) // always stat children of  the last element
                 parent->children[row].stat = true;
+            emit const_cast<QDirModel*>(this)->layoutChanged();
         }
 
         Q_ASSERT(row >= 0);
