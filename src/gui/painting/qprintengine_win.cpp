@@ -180,11 +180,11 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
 
 QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
     : QPaintEngine(*(new QWin32PrintEnginePrivate),
-                   PaintEngineFeatures(AllFeatures
-                                       & ~(LinearGradientFill
-                                           | RadialGradientFill
-                                           | ConicalGradientFill
-                                           | BrushStroke)))
+                   PaintEngineFeatures(PrimitiveTransform 
+                                       | PixmapTransform 
+                                       | PainterPaths 
+                                       | Antialiasing 
+                                       | PaintOutsidePaintEvent))
 {
     Q_D(QWin32PrintEngine);
     d->docName = "document1";
