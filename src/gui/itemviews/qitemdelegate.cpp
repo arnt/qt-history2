@@ -681,7 +681,7 @@ QRect QItemDelegate::textRectangle(QPainter *painter, const QRect &rect,
     // In qt 4.2 there will be a proper option in QStyleOptionViewItem for rect.width()
     if (rect.width() == -1) {
         QFontMetrics fontMetrics(font);
-        return QRect(0, 0, 0, fontMetrics.lineSpacing());
+        return QRect(0, 0, 0, fontMetrics.lineSpacing() * (text.count(QLatin1Char('\n')) + 1));
     }
     const QChar *chr = text.constData();
     const QChar *end = chr + text.length();
