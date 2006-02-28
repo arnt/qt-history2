@@ -1122,7 +1122,7 @@ QStringList QAxBase::verbs() const
                 while (enumVerbs->Next(1, &verb, &c) == S_OK) {
                     if (!verb.lpszVerbName)
                         continue;
-                    QString verbName = QString::fromUtf16((unsigned short *)verb.lpszVerbName);
+                    QString verbName = QString::fromUtf16((const ushort *)verb.lpszVerbName);
                     if (!verbName.isEmpty())
                         d->verbs.insert(verbName, verb.lVerb);
                 }
@@ -2470,7 +2470,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
         // get function documentation
         BSTR bstrDocu;
         info->GetDocumentation(funcdesc->memid, 0, &bstrDocu, 0, 0);
-        QString strDocu = QString::fromUtf16(bstrDocu);
+        QString strDocu = QString::fromUtf16((const ushort*)bstrDocu);
         SysFreeString(bstrDocu);
         if (!!strDocu)
             desc += "[" + strDocu + "]";
@@ -2554,7 +2554,7 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
         // get function documentation
         BSTR bstrDocu;
         info->GetDocumentation(vardesc->memid, 0, &bstrDocu, 0, 0);
-        QString strDocu = QString::fromUtf16(bstrDocu);
+        QString strDocu = QString::fromUtf16((const ushort*)bstrDocu);
         SysFreeString(bstrDocu);
         if (!!strDocu)
             desc += "[" + strDocu + "]";
@@ -2696,7 +2696,7 @@ void MetaObjectGenerator::readEventInterface(ITypeInfo *eventinfo, IConnectionPo
         // get function documentation
         BSTR bstrDocu;
         eventinfo->GetDocumentation(funcdesc->memid, 0, &bstrDocu, 0, 0);
-        QString strDocu = QString::fromUtf16(bstrDocu);
+        QString strDocu = QString::fromUtf16((const ushort*)bstrDocu);
         SysFreeString(bstrDocu);
         if (!!strDocu)
             desc += "[" + strDocu + "]";

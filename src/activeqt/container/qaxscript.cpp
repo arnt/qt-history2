@@ -160,7 +160,7 @@ HRESULT WINAPI QAxScriptSite::GetItemInfo(LPCOLESTR pstrName, DWORD mask, IUnkno
     else if (mask & SCRIPTINFO_ITYPEINFO)
         return E_POINTER;
     
-    QAxBase *object = script->findObject(QString::fromUtf16((unsigned short *)pstrName));
+    QAxBase *object = script->findObject(QString::fromUtf16((const ushort*)pstrName));
     if (!object)
         return TYPE_E_ELEMENTNOTFOUND;
     
@@ -202,9 +202,9 @@ HRESULT WINAPI QAxScriptSite::OnScriptTerminate(const VARIANT *result, const EXC
         emit script->finished(VARIANTToQVariant(*result, 0));
     if (exception)
         emit script->finished(exception->wCode, 
-        QString::fromUtf16(exception->bstrSource),
-        QString::fromUtf16(exception->bstrDescription),
-        QString::fromUtf16(exception->bstrHelpFile)
+        QString::fromUtf16((const ushort*)exception->bstrSource),
+        QString::fromUtf16((const ushort*)exception->bstrDescription),
+        QString::fromUtf16((const ushort*)exception->bstrHelpFile)
 			    );
     return S_OK;
 }
@@ -253,9 +253,9 @@ HRESULT WINAPI QAxScriptSite::OnScriptError(IActiveScriptError *error)
     error->GetSourcePosition(&context, &lineNumber, &charPos);
     HRESULT hres = error->GetSourceLineText(&bstrLineText);
     if (hres == S_OK)
-        lineText = QString::fromUtf16(bstrLineText);
+        lineText = QString::fromUtf16((const ushort*)bstrLineText);
     
-    emit script->error(exception.wCode, QString::fromUtf16(exception.bstrDescription), lineNumber, lineText);
+    emit script->error(exception.wCode, QString::fromUtf16((const ushort*)exception.bstrDescription), lineNumber, lineText);
     
     return S_OK;
 }
