@@ -191,6 +191,7 @@ public:
     const unsigned char *getClientKey( unsigned char progId );
 
     bool keyInitialised;
+    bool keyChanged;
     QString m_logFilePath;
     QString m_keyFilePath;
     AuthCookie authKey;

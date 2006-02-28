@@ -127,6 +127,7 @@ const char *QTransportAuth::errorString( const Data &d )
 
 QTransportAuthPrivate::QTransportAuthPrivate()
     : keyInitialised(false)
+    , keyChanged(false)
 {
 }
 
@@ -161,6 +162,7 @@ void QTransportAuth::setProcessKey( const char *authdata )
     Q_D(QTransportAuth);
     ::memcpy(&d->authKey, authdata, sizeof(struct AuthCookie));
     d->keyInitialised = true;
+    d->keyChanged = true;
 }
 
 void QTransportAuth::registerPolicyReceiver( QObject *pr )
@@ -773,10 +775,11 @@ bool QAuthDevice::authorizeMessage()
 bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen )
 {
     QTransportAuth *a = QTransportAuth::getInstance();
-    // only authorize connection oriented transports once
-    if ( d.connection() &&
+    // only authorize connection oriented transports once, unless key has changed
+    if ( !a->d_func()->keyChanged && d.connection() &&
             (( d.status & QTransportAuth::ErrMask ) != QTransportAuth::Pending ))
         return false;
+    a->d_func()->keyChanged = false;
     // If Unix socket credentials are being used the key wont be set
     if ( ! a->d_func()->keyInitialised )
         return false;
