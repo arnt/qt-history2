@@ -14,8 +14,8 @@
 #ifndef QSCREENTRANSFORMED_QWS_H
 #define QSCREENTRANSFORMED_QWS_H
 
-#include <QtGui/qscreenvfb_qws.h>
 #include <QtGui/qscreenlinuxfb_qws.h>
+#include <QtGui/qscreenvfb_qws.h>
 
 QT_MODULE(Gui)
 
