@@ -511,10 +511,9 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
 
 /*!
   \internal
-
 */
 void QItemSelectionModelPrivate::_q_rowsAboutToBeRemoved(const QModelIndex &parent,
-                                                      int start, int end)
+                                                         int start, int end)
 {
     Q_Q(QItemSelectionModel);
 
@@ -543,10 +542,9 @@ void QItemSelectionModelPrivate::_q_rowsAboutToBeRemoved(const QModelIndex &pare
 
 /*!
   \internal
-
 */
 void QItemSelectionModelPrivate::_q_columnsAboutToBeRemoved(const QModelIndex &parent,
-                                                         int start, int end)
+                                                            int start, int end)
 {
     Q_Q(QItemSelectionModel);
 
@@ -571,6 +569,52 @@ void QItemSelectionModelPrivate::_q_columnsAboutToBeRemoved(const QModelIndex &p
     QModelIndex br = model->index(model->rowCount(parent) - 1, end, parent);
     q->select(QItemSelection(tl, br), QItemSelectionModel::Deselect);
     finalize();
+}
+
+/*!
+  \internal
+
+  Split selection ranges if columns are about to be inserted in the middle.
+*/
+void QItemSelectionModelPrivate::_q_columnsAboutToBeInserted(const QModelIndex &parent,
+                                                             int start, int end)
+{
+    finalize();
+    QList<QItemSelectionRange>::iterator it = ranges.begin();
+    for (; it != ranges.end(); ++it) {
+        if ((*it).parent() == parent && (*it).left() <= start && (*it).right() >= start) {
+            QModelIndex bottomMiddle = model->index((*it).bottom(), start, (*it).parent());
+            QItemSelectionRange left((*it).topLeft(), bottomMiddle);
+            QModelIndex topMiddle = model->index((*it).top(), start, (*it).parent());
+            QItemSelectionRange right(topMiddle, (*it).bottomRight());
+            ranges.erase(it);
+            ranges.prepend(left);
+            ranges.prepend(right);
+        }
+    }
+}
+
+/*!
+  \internal
+
+  Split selection ranges if rows are about to be inserted in the middle.
+*/
+void QItemSelectionModelPrivate::_q_rowsAboutToBeInserted(const QModelIndex &parent,
+                                                          int start, int end)
+{
+    finalize();
+    QList<QItemSelectionRange>::iterator it = ranges.begin();
+    for (; it != ranges.end(); ++it) {
+        if ((*it).parent() == parent && (*it).top() <= start && (*it).bottom() >= start) {
+            QModelIndex middleRight = model->index(start, (*it).right(), (*it).parent());
+            QItemSelectionRange top((*it).topLeft(), middleRight);
+            QModelIndex middleLeft = model->index(start, (*it).left(), (*it).parent());
+            QItemSelectionRange bottom((*it).bottomRight(), middleLeft);
+            ranges.erase(it);
+            ranges.prepend(top);
+            ranges.prepend(bottom);
+        }
+    }
 }
 
 /*!
@@ -619,6 +663,10 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model)
                 this, SLOT(_q_rowsAboutToBeRemoved(const QModelIndex&,int,int)));
         connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
                 this, SLOT(_q_columnsAboutToBeRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeInserted(const QModelIndex&,int,int)),
+                this, SLOT(_q_rowsAboutToBeInserted(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
+                this, SLOT(_q_columnsAboutToBeInserted(const QModelIndex&,int,int)));
     }
 }
 
@@ -634,6 +682,10 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *par
                 this, SLOT(_q_rowsAboutToBeRemoved(const QModelIndex&,int,int)));
         connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
                 this, SLOT(_q_columnsAboutToBeRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeInserted(const QModelIndex&,int,int)),
+                this, SLOT(_q_rowsAboutToBeInserted(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
+                this, SLOT(_q_columnsAboutToBeInserted(const QModelIndex&,int,int)));
     }
 }
 
@@ -649,6 +701,10 @@ QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstra
                 this, SLOT(_q_rowsAboutToBeRemoved(const QModelIndex&,int,int)));
         connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
                 this, SLOT(_q_columnsAboutToBeRemoved(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeInserted(const QModelIndex&,int,int)),
+                this, SLOT(_q_rowsAboutToBeInserted(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
+                this, SLOT(_q_columnsAboutToBeInserted(const QModelIndex&,int,int)));
     }
 }
 
@@ -870,11 +926,6 @@ bool QItemSelectionModel::isSelected(const QModelIndex &index) const
         || (model()->flags(index) & Qt::ItemIsSelectable) == 0)
         return false;
     bool selected = false;
-    QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();
-    //  search model ranges
-    for (; !selected && it != d->ranges.end(); ++it)
-        if ((*it).contains(index))
-            selected = true;
     // check  currentSelection
     if (d->currentSelection.count()) {
         if (d->currentCommand & Deselect && selected)
@@ -884,6 +935,11 @@ bool QItemSelectionModel::isSelected(const QModelIndex &index) const
         else if (d->currentCommand & Select && !selected)
             selected = d->currentSelection.contains(index);
     }
+    //  search model ranges
+    QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();
+    for (; !selected && it != d->ranges.end(); ++it)
+        if ((*it).contains(index))
+            selected = true;
     return selected;
 }
 
