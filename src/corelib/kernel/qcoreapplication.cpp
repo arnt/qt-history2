@@ -1280,7 +1280,9 @@ QString QCoreApplication::translate(const char *context, const char *sourceText,
                 return result;
         }
     }
-#ifndef QT_NO_TEXTCODEC
+#ifdef QT_NO_TEXTCODEC
+    Q_UNUSED(encoding)
+#else
     if (encoding == UnicodeUTF8)
         return QString::fromUtf8(sourceText);
     else if (QTextCodec::codecForTr() != 0)

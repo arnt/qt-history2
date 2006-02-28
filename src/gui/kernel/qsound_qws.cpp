@@ -62,13 +62,13 @@ class QAuBucketQWS : public QObject, public QAuBucket
     Q_OBJECT
 public:
     QAuBucketQWS( QAuServerQWS*, QSound*, QObject* parent = 0 );
-    
+
     ~QAuBucketQWS();
-    
+
 #ifndef MEDIA_SERVER
     int id() const { return id_; }
 #endif
-    
+
     QSound* sound() const { return sound_; }
 
 #ifdef MEDIA_SERVER
@@ -96,7 +96,7 @@ private:
 #endif
     QSound *sound_;
     QAuServerQWS *server_;
-    
+
     static int next;
 };
 
@@ -107,7 +107,7 @@ class QAuServerQWS : public QAuServer
     Q_OBJECT
 public:
     QAuServerQWS( QObject* parent );
-    
+
     void init( QSound* s )
     {
         QAuBucketQWS *bucket = new QAuBucketQWS( this, s );
@@ -117,14 +117,14 @@ public:
 #endif
         setBucket( s, bucket );
     }
-    
+
 #ifndef MEDIA_SERVER
     // Register bucket
     void insert( QAuBucketQWS *bucket )
     {
         buckets.insert( bucket->id(), bucket );
     }
-    
+
     // Remove bucket from register
     void remove( QAuBucketQWS *bucket )
     {
@@ -143,7 +143,7 @@ public:
         client->play( bucket( s )->id(), filepath );
 #endif
     }
-    
+
     void stop( QSound* s )
     {
 #if defined(QT_NO_QWS_SOUNDSERVER)
@@ -156,7 +156,7 @@ public:
     }
 
     bool okay() { return true; }
-    
+
 private slots:
     // Continue playing sound if loops remain
     void complete( int id )
@@ -175,20 +175,22 @@ private slots:
     // Only for Media Server
     void complete( QAuBucketQWS* bucket )
     {
-#ifdef MEDIA_SERVER
+#ifndef MEDIA_SERVER
+        Q_UNUSED(bucket);
+#else
         QSound *sound = bucket->sound();
         if( decLoop( sound ) ) {
             play( sound );
         }
 #endif
     }
-    
+
 protected:
     QAuBucketQWS* bucket( QSound *s )
     {
         return (QAuBucketQWS*)QAuServer::bucket( s );
     }
-    
+
 private:
 #ifndef MEDIA_SERVER
     // Find registered bucket with given id, return null if none found
@@ -198,12 +200,12 @@ private:
         if( it != buckets.end() ) {
             return it.value();
         }
-        
+
         return 0;
     }
-    
+
     QHash<int, QAuBucketQWS*> buckets; // ### possible problem with overlapping keys
-    
+
 #ifdef QT_NO_QWS_SOUNDSERVER
     QWSSoundServer *server;
 #else
@@ -218,15 +220,15 @@ QAuServerQWS::QAuServerQWS(QObject* parent) :
 {
 #ifndef MEDIA_SERVER
     setObjectName( "qauserverqws" );
-    
+
 #ifdef QT_NO_QWS_SOUNDSERVER
     server = new QWSSoundServer( this ); // ### only suitable for single application
-    
+
     connect( server, SIGNAL( soundCompleted( int ) ),
         this, SLOT( complete( int ) ) );
 #else
     client = new QWSSoundClient( this ); // ### requires successful connection
-    
+
     connect( client, SIGNAL( soundCompleted( int ) ),
         this, SLOT( complete( int ) ) );
 #endif
@@ -280,13 +282,16 @@ void QAuBucketQWS::stop()
 
 void QAuBucketQWS::processMessage( const QString& msg, const QByteArray& data )
 {
-#ifdef MEDIA_SERVER
+    Q_UNUSED(data);
+#ifndef MEDIA_SERVER
+    Q_UNUSED(msg);
+#else
     if( msg == "done()" ) {
         emit done( this );
     }
 #endif
 }
-    
+
 QAuBucketQWS::~QAuBucketQWS()
 {
 #ifdef MEDIA_SERVER

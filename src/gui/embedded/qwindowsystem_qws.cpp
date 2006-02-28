@@ -362,7 +362,9 @@ QWSClientPrivate::~QWSClientPrivate()
 
 void QWSClientPrivate::setLockId(int id)
 {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
+    Q_UNUSED(id);
+#else
     clientLock = new QWSLock(id);
 #endif
 }
@@ -384,7 +386,10 @@ void QWSClientPrivate::unlockCommunication()
 QWSClient::QWSClient(QObject* parent, QWS_SOCK_BASE* sock, int id)
     : QObject(*new QWSClientPrivate, parent), command(0), cid(id)
 {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
+    Q_UNUSED(sock);
+    isClosed = false;
+#else
     csocket = 0;
     if (!sock) {
         socketDescriptor = -1;
@@ -399,8 +404,6 @@ QWSClient::QWSClient(QObject* parent, QWS_SOCK_BASE* sock, int id)
         connect(csocket, SIGNAL(disconnected()), this, SLOT(closeHandler()));
         connect(csocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(errorHandler()));
     }
-#else
-    isClosed = false;
 #endif //QT_NO_QWS_MULTIPROCESS
 }
 
@@ -681,7 +684,9 @@ QWSServer::QWSServer(int flags, QObject *parent, const char *name) :
 #endif
 
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 static void ignoreSignal(int) {} // Used to eat SIGPIPE signals below
+#endif
 
 void QWSServerPrivate::initServer(int flags)
 {
@@ -958,7 +963,9 @@ void QWSServerPrivate::deleteWindowsLater()
 
 QWSCommand* QWSClient::readMoreCommand()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     QIODevice *socket = 0;
+#endif
 #ifndef QT_NO_SXV
     if (socketDescriptor != -1)  // not server socket
         socket = QTransportAuth::getInstance()->passThroughByClient( this );

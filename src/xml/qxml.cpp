@@ -1349,6 +1349,7 @@ void QXmlInputSource::fetchData()
 QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
 {
 #ifdef QT_NO_TEXTCODEC
+    Q_UNUSED(beginning);
     return QString(data);
 #else
     if (data.size() == 0)

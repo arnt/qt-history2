@@ -728,6 +728,7 @@ static QString elliditide(const QString &text, const QFontMetrics &fontMetrics, 
 }
 #endif // QT_NO_DOCKWIDGET
 
+#if !defined(QT_NO_DOCKWIDGET) || !defined(QT_NO_SPLITTER)
 static void qt_plastique_draw_handle(QPainter *painter, const QStyleOption *option,
                                      const QRect &rect, Qt::Orientation orientation,
                                      const QWidget *widget)
@@ -758,6 +759,7 @@ static void qt_plastique_draw_handle(QPainter *painter, const QStyleOption *opti
             painter->drawImage(QPoint(rect.left(), rect.top() + i * (handle.height() + spacing)), handle);
     }
 }
+#endif
 
 class QPlastiqueStylePrivate
 {

@@ -88,7 +88,11 @@ public:
 
 QLock::QLock(const QString &filename, char id, bool create)
 {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
+    Q_UNUSED(filename);
+    Q_UNUSED(id);
+    Q_UNUSED(create);
+#else
     data = new QLockData;
     data->count = 0;
 #ifdef Q_NO_SEMAPHORE
@@ -178,7 +182,9 @@ bool QLock::isValid() const
 
 void QLock::lock(Type t)
 {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
+    Q_UNUSED(t);
+#else
     if (!data->count) {
 #ifdef Q_NO_SEMAPHORE
         int op = LOCK_SH;

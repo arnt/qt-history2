@@ -60,7 +60,8 @@ static const short monthDays[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30
 static const char * const qt_shortMonthNames[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-
+#endif
+#ifndef QT_NO_DATESTRING
 static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* dd = 0);
 #endif
 

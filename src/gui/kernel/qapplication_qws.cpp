@@ -278,7 +278,10 @@ void qt_server_enqueue(const QWSCommand *command)
 
 QWSDisplay::Data::Data(QObject* parent, bool singleProcess)
 {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
+    Q_UNUSED(parent);
+    Q_UNUSED(singleProcess);
+#else
     if (singleProcess)
         csocket = 0;
     else {
@@ -1285,7 +1288,9 @@ void QWSDisplay::setSelectionOwner(int winId, const QTime &time)
 
 void QWSDisplay::convertSelection(int winId, int selectionProperty, const QString &mimeTypes)
 {
-#ifndef QT_NO_QWS_PROPERTIES
+#ifdef QT_NO_QWS_PROPERTIES
+    Q_UNUSED(mimeTypes);
+#else
     // ### we need the atom/property thingy like in X here
     addProperty(winId, QT_QWS_PROPERTY_CONVERTSELECTION);
     setProperty(winId, QT_QWS_PROPERTY_CONVERTSELECTION,

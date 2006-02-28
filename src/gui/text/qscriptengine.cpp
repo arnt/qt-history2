@@ -3406,7 +3406,11 @@ static void indic_attributes(int script, const QString &text, int from, int len,
 
 static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *attributes)
 {
-#ifndef QT_NO_TEXTCODEC
+#ifdef QT_NO_TEXTCODEC
+    Q_UNUSED(string);
+    Q_UNUSED(len);
+    Q_UNUSED(attributes);
+#else
     typedef int (*th_brk_def)(const char*, int[], int);
     static QTextCodec *thaiCodec = QTextCodec::codecForMib(2259);
     static th_brk_def th_brk = 0;
@@ -3442,7 +3446,7 @@ static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *
 
     if (break_positions != brp)
         delete [] break_positions;
-#endif
+#endif // QT_NO_TEXTCODEC
 }
 
 
@@ -4400,7 +4404,7 @@ enum
     Mymr_c1 = Mymr_CC_CONSONANT | Mymr_CF_CONSONANT | Mymr_CF_POS_BELOW,
     Mymr_c2 = Mymr_CC_CONSONANT2 | Mymr_CF_CONSONANT,
     Mymr_ng = Mymr_CC_NGA | Mymr_CF_CONSONANT | Mymr_CF_POS_ABOVE,
-    Mymr_ya = Mymr_CC_YA | Mymr_CF_CONSONANT | Mymr_CF_MEDIAL | Mymr_CF_POS_AFTER | Mymr_CF_AFTER_KINZI, 
+    Mymr_ya = Mymr_CC_YA | Mymr_CF_CONSONANT | Mymr_CF_MEDIAL | Mymr_CF_POS_AFTER | Mymr_CF_AFTER_KINZI,
     Mymr_ra = Mymr_CC_RA | Mymr_CF_CONSONANT | Mymr_CF_MEDIAL | Mymr_CF_POS_BEFORE,
     Mymr_wa = Mymr_CC_WA | Mymr_CF_CONSONANT | Mymr_CF_MEDIAL | Mymr_CF_POS_BELOW,
     Mymr_ha = Mymr_CC_HA | Mymr_CF_CONSONANT | Mymr_CF_MEDIAL | Mymr_CF_POS_BELOW,
@@ -4452,37 +4456,37 @@ getMyanmarCharClass (const QChar &ch)
 
 static const signed char mymrStateTable[][Mymr_CC_COUNT] =
 {
-//   xx  c1, c2  ng  ya  ra  wa  ha  id zwnj vi  dl  db  da  dr  sa  sb  sp zwj  
-    { 1,  4,  4,  2,  4,  4,  4,  4, 24,  1, 27, 17, 18, 19, 20, 21,  1,  1,  4}, //  0 - ground state 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //  1 - exit state (or sp to the right of the syllable) 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  3, 17, 18, 19, 20, 21, -1, -1,  4}, //  2 - NGA 
-    {-1,  4,  4,  4,  4,  4,  4,  4, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //  3 - Virama after NGA 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  5, 17, 18, 19, 20, 21,  1,  1, -1}, //  4 - Base consonant 
-    {-2,  6, -2, -2,  7,  8,  9, 10, -2, 23, -2, -2, -2, -2, -2, -2, -2, -2, -2}, //  5 - First virama 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 25, 17, 18, 19, 20, 21, -1, -1, -1}, //  6 - c1 after virama 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, //  7 - ya after virama 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, //  8 - ra after virama 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, //  9 - wa after virama 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, // 10 - ha after virama 
-    {-1, -1, -1, -1,  7,  8,  9, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, // 11 - Virama after NGA+zwj 
-    {-2, -2, -2, -2, -2, -2, 13, 14, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, // 12 - Second virama 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 15, 17, 18, 19, 20, 21, -1, -1, -1}, // 13 - wa after virama 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, // 14 - ha after virama 
-    {-2, -2, -2, -2, -2, -2, -2, 16, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, // 15 - Third virama 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, // 16 - ha after virama 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 20, 21,  1,  1, -1}, // 17 - dl, Dependent vowel e 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 19, -1, 21,  1,  1, -1}, // 18 - db, Dependent vowel u,uu 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1,  1, -1}, // 19 - da, Dependent vowel i,ii,ai 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 22, -1, -1, -1, -1, -1,  1,  1, -1}, // 20 - dr, Dependent vowel aa 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1, -1}, // 21 - sa, Sign anusvara 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1}, // 22 - atha 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1, -1}, // 23 - zwnj for atha 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1, -1}, // 24 - Independent vowel 
-    {-2, -2, -2, -2, 26, 26, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, // 25 - Virama after subscript consonant 
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1,  1, -1}, // 26 - ra/ya after subscript consonant + virama 
+//   xx  c1, c2  ng  ya  ra  wa  ha  id zwnj vi  dl  db  da  dr  sa  sb  sp zwj
+    { 1,  4,  4,  2,  4,  4,  4,  4, 24,  1, 27, 17, 18, 19, 20, 21,  1,  1,  4}, //  0 - ground state
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //  1 - exit state (or sp to the right of the syllable)
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  3, 17, 18, 19, 20, 21, -1, -1,  4}, //  2 - NGA
+    {-1,  4,  4,  4,  4,  4,  4,  4, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //  3 - Virama after NGA
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  5, 17, 18, 19, 20, 21,  1,  1, -1}, //  4 - Base consonant
+    {-2,  6, -2, -2,  7,  8,  9, 10, -2, 23, -2, -2, -2, -2, -2, -2, -2, -2, -2}, //  5 - First virama
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 25, 17, 18, 19, 20, 21, -1, -1, -1}, //  6 - c1 after virama
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, //  7 - ya after virama
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, //  8 - ra after virama
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, //  9 - wa after virama
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, // 10 - ha after virama
+    {-1, -1, -1, -1,  7,  8,  9, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, // 11 - Virama after NGA+zwj
+    {-2, -2, -2, -2, -2, -2, 13, 14, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, // 12 - Second virama
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 15, 17, 18, 19, 20, 21, -1, -1, -1}, // 13 - wa after virama
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, // 14 - ha after virama
+    {-2, -2, -2, -2, -2, -2, -2, 16, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, // 15 - Third virama
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, // 16 - ha after virama
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 20, 21,  1,  1, -1}, // 17 - dl, Dependent vowel e
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 19, -1, 21,  1,  1, -1}, // 18 - db, Dependent vowel u,uu
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1,  1, -1}, // 19 - da, Dependent vowel i,ii,ai
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 22, -1, -1, -1, -1, -1,  1,  1, -1}, // 20 - dr, Dependent vowel aa
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1, -1}, // 21 - sa, Sign anusvara
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1}, // 22 - atha
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1, -1}, // 23 - zwnj for atha
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1, -1}, // 24 - Independent vowel
+    {-2, -2, -2, -2, 26, 26, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, // 25 - Virama after subscript consonant
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1,  1, -1}, // 26 - ra/ya after subscript consonant + virama
     {-1,  6, -1, -1,  7,  8,  9, 10, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1}, // 27 - Virama after ground state
 // exit state -2 is for invalid order of medials and combination of invalids
-// with virama where virama should treat as start of next syllable 
+// with virama where virama should treat as start of next syllable
 };
 
 
@@ -4508,7 +4512,7 @@ static inline int myanmar_nextSyllableBoundary(const QString &s, int start, int 
     while (pos < end) {
         MymrCharClass charClass = getMyanmarCharClass(*uc);
         state = mymrStateTable[state][charClass & Mymr_CF_CLASS_MASK];
-        if (pos == start) 
+        if (pos == start)
             *invalid = charClass & Mymr_CF_DOTTED_CIRCLE;
 
         MMDEBUG("state[%d]=%d class=%8x (uc=%4x)", pos - start, state, charClass, uc->unicode());
@@ -4532,11 +4536,11 @@ static const QOpenType::Features myanmar_features[] = {
     { FT_MAKE_TAG('p', 'r', 'e', 'f'), PreFormProperty },
     { FT_MAKE_TAG('b', 'l', 'w', 'f'), BelowFormProperty },
     { FT_MAKE_TAG('a', 'b', 'v', 'f'), AboveFormProperty },
-    { FT_MAKE_TAG('p', 's', 't', 'f'), PostFormProperty }, 
-    { FT_MAKE_TAG('p', 'r', 'e', 's'), PreSubstProperty }, 
-    { FT_MAKE_TAG('b', 'l', 'w', 's'), BelowSubstProperty }, 
-    { FT_MAKE_TAG('a', 'b', 'v', 's'), AboveSubstProperty }, 
-    { FT_MAKE_TAG('p', 's', 't', 's'), PostSubstProperty }, 
+    { FT_MAKE_TAG('p', 's', 't', 'f'), PostFormProperty },
+    { FT_MAKE_TAG('p', 'r', 'e', 's'), PreSubstProperty },
+    { FT_MAKE_TAG('b', 'l', 'w', 's'), BelowSubstProperty },
+    { FT_MAKE_TAG('a', 'b', 'v', 's'), AboveSubstProperty },
+    { FT_MAKE_TAG('p', 's', 't', 's'), PostSubstProperty },
     { FT_MAKE_TAG('r', 'l', 'i', 'g'), CligProperty }, // Myanmar1 uses this instead of the other features
     { 0, 0 }
 };
@@ -4655,7 +4659,7 @@ static bool myanmar_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
             ++i;
             continue;
         }
-        
+
         ushort chr = uc[i].unicode();
         MymrCharClass cc = getMyanmarCharClass(uc[i]);
         if (kinzi >= 0 && i > base && (cc & Mymr_CF_AFTER_KINZI)) {
@@ -4688,12 +4692,12 @@ static bool myanmar_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
             properties[len-1] = prop;
             properties[len] = prop;
             if(basePos >= 0 && basePos == len-2)
-                properties[len-2] = prop;                
+                properties[len-2] = prop;
         }
         lastWasVirama = (chr == Mymr_C_VIRAMA);
-        if(i == base) 
+        if(i == base)
             basePos = len;
-        
+
         if ((chr != Mymr_C_SIGN_ZWNJ && chr != Mymr_C_SIGN_ZWJ) || !len) {
             reordered[len] = chr;
             ++len;
@@ -4706,7 +4710,7 @@ static bool myanmar_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         properties[len+1] = AboveForm;
         len += 2;
     }
-    
+
     if (!item->font->stringToCMap((const QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
@@ -4793,7 +4797,7 @@ static bool myanmar_shape(QShaperItem *item)
             item->num_glyphs += syllable.num_glyphs;
             return false;
         }
-        
+
         // fix logcluster array
         MMDEBUG("syllable:");
         for (int i = first_glyph; i < first_glyph + syllable.num_glyphs; ++i)

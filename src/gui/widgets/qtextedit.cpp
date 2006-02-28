@@ -2372,6 +2372,9 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
 void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
+#if defined(QT_NO_DRAGANDDROP) && defined(QT_NO_CLIPBOARD)
+    Q_UNUSED(e);
+#endif
 
     d->ensureViewportLayouted();
     d->autoScrollTimer.stop();
