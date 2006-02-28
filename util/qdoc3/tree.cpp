@@ -216,8 +216,10 @@ const FakeNode *Tree::findFakeNodeByTitle(const QString &title) const
         if (i != priv->fakeNodesByTitle.constEnd()) {
             FakeNodeHash::const_iterator j = i;
             ++j;
-            if (j == priv->fakeNodesByTitle.constEnd() || j.key() != i.key())
-                return i.value();
+            if (j != priv->fakeNodesByTitle.constEnd() && j.key() == i.key())
+                i.value()->doc().location().warning(
+                    tr("Page '%1' defined in more than one location").arg(title));
+            return i.value();
         }
     }
     return 0;
@@ -594,15 +596,16 @@ void Tree::readIndexSection(const QDomElement &element,
 
         FakeNode *fakeNode = new FakeNode(parent, name, subtype);
         fakeNode->setTitle(element.attribute("title"));
-        if (element.hasAttribute("location"))
-            fakeNode->setLocation(Location(element.attribute("location")));
 
-        section = fakeNode;
+        if (element.hasAttribute("location"))
+            name = element.attribute("location", "");
 
         if (!indexUrl.isEmpty())
             location = Location(indexUrl + "/" + name);
         else if (!indexUrl.isNull())
             location = Location(name);
+
+        section = fakeNode;
 
     } else if (element.nodeName() == "enum") {
         section = new EnumNode(parent, name);
