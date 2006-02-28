@@ -1186,13 +1186,16 @@ bool QPainter::end()
     d->updateState(0);
     d->engine->setPaintDevice(0);
 
+    --d->device->painters;
+    if (d->device->painters == 0)
+        d->engine->setActive(false);
+
     if (d->engine->autoDestruct()) {
         delete d->engine;
     }
 
     d->engine = 0;
 
-    --d->device->painters;
     d->device = 0;
     return ended;
 }
