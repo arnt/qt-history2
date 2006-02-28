@@ -76,7 +76,7 @@ public:
 
 //    QWSRegionManager *rgnMan;
     uchar *sharedRam;
-#if !defined(Q_NO_QSHM) && !defined(QT_NO_QWS_MULTIPROCESS)
+#ifndef QT_NO_QWS_MULTIPROCESS
     QSharedMemory shm;
 #endif
     int sharedRamSize;

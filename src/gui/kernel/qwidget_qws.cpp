@@ -38,10 +38,6 @@
 #include "qwidget_p.h"
 #include "qwidget_qws_p.h"
 
-
-#include <sys/types.h>
-#include <sys/shm.h>
-
 extern int *qt_last_x;
 extern int *qt_last_y;
 extern WId qt_last_cursor;
@@ -626,9 +622,11 @@ void QWSBackingStore::blit(const QRect &r, const QPoint &p)
 
 QWSMemId QWSBackingStore::memoryId() const
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     if (isSharedMemory)
         return shm.id();
     else
+#endif
         return mem;
 }
 
@@ -638,10 +636,13 @@ void QWSBackingStore::detach()
     qDebug() << "QWSBackingStore::detach shmid" << shm.id() << "shmaddr" << shm.address();
 #endif
     img = QImage();
+#ifndef QT_NO_QWS_MULTIPROCESS
     if (isSharedMemory)
         shm.detach();
-    else if (ownsMemory)
-        delete[] mem;
+    else
+#endif
+        if (ownsMemory)
+            delete[] mem;
     isSharedMemory = false;
     ownsMemory = false;
     mem = 0;
@@ -720,6 +721,7 @@ void QWSBackingStore::create(QSize s, QImage::Format imageFormat, int windowType
         mem = new uchar[datasize];
         isSharedMemory = false;
         ownsMemory = true;
+#ifndef QT_NO_QWS_MULTIPROCESS
     } else {
         isSharedMemory = true;
         ownsMemory = false;
@@ -729,6 +731,7 @@ void QWSBackingStore::create(QSize s, QImage::Format imageFormat, int windowType
         }
         mem = static_cast<uchar*>(shm.address());
         memLock = QWSDisplay::Data::getClientLock();
+#endif
     }
 
     img = QImage(mem + extradatasize, s.width(), s.height(), imageFormat);
@@ -737,6 +740,7 @@ void QWSBackingStore::create(QSize s, QImage::Format imageFormat, int windowType
 #endif
 }
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 void QWSBackingStore::attach(QWSMemId id, QSize s, QImage::Format imageFormat, int windowType)
 {
     if (shm.id() == id && s == size() && _windowType == windowType)
@@ -770,6 +774,7 @@ void QWSBackingStore::attach(QWSMemId id, QSize s, QImage::Format imageFormat, i
     qDebug() << "QWSBackingStore::attach size" << s << "shmid" << shm.id() << "shmaddr" << shm.address() << "imageFormat" << imageFormat;
 #endif
 }
+#endif // QT_NO_QWS_MULTIPROCESS
 
 void QWSBackingStore::setMemory(QWSMemId id, const QSize &s, QImage::Format imageFormat, int windowType)
 {

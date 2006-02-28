@@ -13,7 +13,7 @@
 
 #include "qsharedmemory_p.h"
 
-#if !defined(QT_QWS_NO_SHM)
+#if !defined(QT_NO_QWS_MULTIPROCESS)
 
 #include <sys/shm.h>
 
@@ -152,4 +152,4 @@ bool QSharedMemory::attach ()
 }
 
 
-#endif
+#endif // QT_NO_QWS_MULTIPROCESS

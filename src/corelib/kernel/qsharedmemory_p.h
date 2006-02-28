@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#if !defined (QT_QWS_NO_SHM)
+#if !defined (QT_NO_QWS_MULTIPROCESS)
 
 #include "qplatformdefs.h"
 #include "QtCore/qstring.h"

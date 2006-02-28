@@ -39,7 +39,9 @@ public:
 
     void create(QSize size, QImage::Format, int windowType);
     bool createIfNecessary(QWidget *tlw);
+#ifndef QT_NO_QWS_MULTIPROCESS
     void attach(QWSMemId id, QSize size, QImage::Format, int windowType);
+#endif
     void detach();
     void setMemory(QWSMemId id, const QSize &size, QImage::Format, int windowType);
 
@@ -65,7 +67,9 @@ public:
     QPoint tlwOffset() const { return offs; }
 private:
     QImage img;
+#ifndef QT_NO_QWS_MULTIPROCESS
     QSharedMemory shm;
+#endif
     uchar *mem;
 
     QRegion clipRgn;
