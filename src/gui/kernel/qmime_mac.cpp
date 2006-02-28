@@ -792,7 +792,7 @@ QList<QByteArray> QMacMimeHFSUri::convertFromMime(const QString &mime, QVariant 
         QString uri = urls.at(i).toUrl().toLocalFile();
         // Attempt to create an HFSFlavor to give back
         // The following code is not for the squemish.
-        QByteArray ba(sizeof(HFSFlavor));
+        QByteArray ba(sizeof(HFSFlavor), '\0');
         HFSFlavor *phfs = reinterpret_cast<HFSFlavor *>(ba.data());
         FSRef fsref;
         OSErr err = FSPathMakeRef(reinterpret_cast<const UInt8 *>(uri.toUtf8().constData()),

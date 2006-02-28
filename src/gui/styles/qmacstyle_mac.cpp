@@ -5660,9 +5660,9 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
                 }
             }
             p->setPen(Qt::NoPen);
-            QColor dark = opt->palette.dark();
+            QColor dark = opt->palette.dark().color();
             dark.setAlphaF(0.75);
-            QColor light = opt->palette.light();
+            QColor light = opt->palette.light().color();
             light.setAlphaF(0.6);
             p->fillPath(path, light);
             p->save();

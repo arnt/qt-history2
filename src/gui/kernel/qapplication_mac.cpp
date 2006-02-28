@@ -2141,7 +2141,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             } else {
 #ifdef QMAC_SPEAK_TO_ME
-                const int speak_keys = Qt::AltButton|Qt::ShiftButton;
+                const int speak_keys = Qt::AltModifier | Qt::ShiftModifier;
 		if(etype == QMouseEvent::MouseButtonDblClick && ((modifiers & speak_keys) == speak_keys)) {
                     QVariant v = widget->property("displayText");
                     if(!v.isValid()) v = widget->property("text");
