@@ -1146,16 +1146,10 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 
     case PPK_Resolution: 
         {
-            int oldRes = d->resolution;
             d->resolution = value.toInt();
 
-            if (d->mode == QPrinter::ScreenResolution) {
-                d->stretch_x = d->resolution / double(d->dpi_display);
-                d->stretch_y = d->resolution / double(d->dpi_display);
-            } else {
-                d->stretch_x = d->stretch_x * double(oldRes) / double(d->resolution);
-                d->stretch_y = d->stretch_y * double(oldRes) / double(d->resolution);
-            }
+            d->stretch_x = d->dpi_x / double(d->resolution);
+            d->stretch_y = d->dpi_y / double(d->resolution);
         }
         break;
 
