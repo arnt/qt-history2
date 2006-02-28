@@ -1147,7 +1147,8 @@ void QHeaderView::updateSection(int logicalIndex)
 void QHeaderView::resizeSections()
 {
     Q_D(QHeaderView);
-    d->resizeSections(Interactive, false); // no global resize mode
+    if (d->hasAutoResizeSections())
+        d->resizeSections(Interactive, false); // no global resize mode
 }
 
 /*!
