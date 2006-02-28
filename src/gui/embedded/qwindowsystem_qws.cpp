@@ -321,6 +321,11 @@ QWSWindow::~QWSWindow()
     delete _backingStore;
 }
 
+/*!
+    \fn QWSBackingStore *QWSWindow::backingStore()
+    \internal
+*/
+
 
 /*********************************************************************
  *
@@ -380,8 +385,29 @@ void QWSClientPrivate::unlockCommunication()
 /*!
     \class QWSClient
     \ingroup qws
+
+    \brief The QWSClient class encapsulates a client process in Qtopia
+    Core.
+
+    When running a Qtopia Core application, it either runs as a server
+    or as a client connected to an existing server. The server is
+    responsible for managing top-level window regions. A list of the
+    current windows can be retrieved using the
+    QWSServer::clientWindows() function, and each window can tell
+    which client that owns it through its QWSWindow::client()
+    function.
+
+    A QWSClient object has an unique ID that can be retrieved using
+    its clientId() function. QWSClient also provides the identity()
+    function which typically returns the name of this client's running
+    application.
+
+    \sa QWSServer, QCopChannel, {Running Applications}
 */
 
+/*!
+   \internal
+*/
 //always use frame buffer
 QWSClient::QWSClient(QObject* parent, QWS_SOCK_BASE* sock, int id)
     : QObject(*new QWSClientPrivate, parent), command(0), cid(id)
@@ -407,12 +433,18 @@ QWSClient::QWSClient(QObject* parent, QWS_SOCK_BASE* sock, int id)
 #endif //QT_NO_QWS_MULTIPROCESS
 }
 
+/*!
+   \internal
+*/
 QWSClient::~QWSClient()
 {
     qDeleteAll(cursors);
     delete command;
 }
 
+/*!
+   \internal
+*/
 void QWSClient::setIdentity(const QString& i)
 {
     id = i;
@@ -435,12 +467,17 @@ void QWSClient::errorHandler()
     emit connectionClosed();
 }
 
-
+/*!
+   \internal
+*/
 int QWSClient::socket() const
 {
     return socketDescriptor;
 }
 
+/*!
+   \internal
+*/
 void QWSClient::sendEvent(QWSEvent* event)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -457,7 +494,9 @@ void QWSClient::sendEvent(QWSEvent* event)
     }
 }
 
-
+/*!
+   \internal
+*/
 void QWSClient::sendRegionEvent(int winid, QRegion rgn, int type)
 {
     QWSRegionEvent event;
@@ -475,6 +514,9 @@ void QWSClient::sendRegionEvent(int winid, QRegion rgn, int type)
 
 extern int qt_servershmid;
 
+/*!
+   \internal
+*/
 void QWSClient::sendConnectedEvent(const char *display_spec)
 {
     QWSConnectedEvent event;
@@ -487,6 +529,9 @@ void QWSClient::sendConnectedEvent(const char *display_spec)
     sendEvent(&event);
 }
 
+/*!
+   \internal
+*/
 void QWSClient::sendMaxWindowRectEvent()
 {
     QWSMaxWindowRectEvent event;
@@ -495,7 +540,9 @@ void QWSClient::sendMaxWindowRectEvent()
     sendEvent(&event);
 }
 
-
+/*!
+   \internal
+*/
 #ifndef QT_NO_QWS_PROPERTIES
 void QWSClient::sendPropertyNotifyEvent(int property, int state)
 {
@@ -506,6 +553,9 @@ void QWSClient::sendPropertyNotifyEvent(int property, int state)
     sendEvent(&event);
 }
 
+/*!
+   \internal
+*/
 void QWSClient::sendPropertyReplyEvent(int property, int len, char *data)
 {
     QWSPropertyReplyEvent event;
@@ -516,6 +566,10 @@ void QWSClient::sendPropertyReplyEvent(int property, int len, char *data)
     sendEvent(&event);
 }
 #endif //QT_NO_QWS_PROPERTIES
+
+/*!
+   \internal
+*/
 void QWSClient::sendSelectionClearEvent(int windowid)
 {
     QWSSelectionClearEvent event;
@@ -523,6 +577,9 @@ void QWSClient::sendSelectionClearEvent(int windowid)
     sendEvent(&event);
 }
 
+/*!
+   \internal
+*/
 void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int windowid)
 {
     QWSSelectionRequestEvent event;
@@ -533,7 +590,32 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
     sendEvent(&event);
 }
 
+/*!
+   \fn void QWSClient::connectionClosed()
+   \internal
+*/
 
+/*!
+    \fn void QWSClient::readyRead();
+    \internal
+*/
+
+/*!
+    \fn void QWSClient::sendFocusEvent(int winid, bool get)
+    \internal
+*/
+
+/*!
+   \fn int QWSClient::clientId () const
+
+   Returns an integer uniquely identfying this client.
+*/
+
+/*!
+   \fn QString QWSClient::identity () const
+
+   Returns the name of this client's running application.
+*/
 /*********************************************************************
  *
  * Class: QWSServer
@@ -961,6 +1043,9 @@ void QWSServerPrivate::deleteWindowsLater()
 
 #endif //QT_NO_QWS_MULTIPROCESS
 
+/*!
+   \internal
+*/
 QWSCommand* QWSClient::readMoreCommand()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -3321,9 +3406,10 @@ uint QWSInputMethod::inputResolutionShift() const
 }
 
 /*!
-  Sends a mouse event at the position \a pos, with state and wheel values \a state and \wheel.
-  The event will be not be tested by by the active input method.  This function will
-  also transform \a pos if the screen coordinates do not match device pointer coordinates
+  Sends a mouse event at the position \a pos, with state and wheel
+  values \a state and \a wheel.  The event will be not be tested by by
+  the active input method.  This function will also transform \a pos
+  if the screen coordinates do not match device pointer coordinates
 
   \note calling QWSServer::sendMouseEvent() will result in the event being filtered by the
   current inputmethod.
@@ -3390,15 +3476,16 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 
 /*!
     \class QWSServer::KeyboardFilter
-    \brief The KeyboardFilter class provides a global keyboard event filter.
-
     \ingroup qws
 
-    The KeyboardFilter class is used to implement a global, low-level
-    filter on key events in the Qtopia Core server application; this
-    can be used to implement things like APM (advanced power
-    management) suspend from a button without having to filter for it
-    in all applications.
+    \brief The KeyboardFilter class provides a global keyboard event filter.
+
+    KeyboardFilter is used to implement a global, low-level filter on
+    key events in the Qtopia Core server application; this can be used
+    to implement things like APM (advanced power management) suspended
+    from a button without having to filter for it in all applications.
+
+    \sa QWSServer, QWSInputMethod {Character Input}
 */
 
 /*!
@@ -3410,16 +3497,31 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 /*!
     \fn bool QWSServer::KeyboardFilter::filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
 
-    Returns true if the specified key should be filtered; otherwise returns
-    false. A true return value stops the key from being processed any further.
+    Returns true if the specified key event should be filtered,
+    stopping the event from being processed any further; otherwise
+    returns false.
 
-    The Unicode value is given in \a unicode and the key code in \a
-    keycode. Keyboard modifiers are OR-ed together in \a modifiers.
-    If \a isPress is true this is a key press; otherwise it is a key
-    release. If \a autoRepeat is true this is an auto-repeated key
-    press.
-
-    All normal key events should be blocked while in compose mode.
+    \table
+    \header \o Parameter \o Description
+    \row
+        \o \a unicode
+        \o The unicode value of the key.
+    \row
+        \o \a keycode
+        \o The Qt keycode value as defined by the Qt::Key enum.
+    \row
+        \o \a modifiers
+        \o An OR combination of Qt::KeyboardModifier values, indicating whether
+            \gui Shift/Alt/Ctrl keys are pressed.
+    \row
+        \o \a isPress
+        \o True if the event is a key press event; otherwise false.
+    \row
+        \o \a autoRepeat
+        \o True if the event is caused by auto repeat (i.e. the
+            user has held the key down and this is the second or subsequent
+            key event being sent); otherwise false.
+    \endtable
 */
 
 /*!

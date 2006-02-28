@@ -74,34 +74,44 @@ public:
 
 /*!
     \class QCopChannel
-
-    \brief The QCopChannel class provides communication capabilities
-    between several clients.
-
     \ingroup qws
 
-    The Qt Cop (QCOP) is a COmmunication Protocol, allowing clients to
-    communicate both within the same address space and between
-    different processes.
+    \brief The QCopChannel class provides communication capabilities
+    between clients.
 
-    Currently, this facility is only available for Qtopia Core. On X11
-    and Windows we are exploring the use of existing standards such as
-    DCOP and COM.
+    When running a Qtopia Core application, it either runs as a server
+    or as a client connected to an existing server. The Qt Cop (QCOP)
+    is a communication protocol, allowing clients to communicate both
+    within the same address space and between different
+    processes. This facility is currently only available for Qtopia
+    Core (on X11 and Windows we are exploring the use of existing
+    standards such as DCOP and COM).
 
-    QCopChannel provides send() and isRegistered() which are static
-    functions usable without an object.
+    QCopChannel provides several static functions which are usable
+    without an object: The send() function, which sends the given
+    message and data on the specified channel, and the isRegistered()
+    function which queries the server for the existence of the given
+    channel.
 
-    The channel() function returns the name of the channel.
+    In addition, the QCopChannel class provides the channel() function
+    which returns the name of the object's channel, the virtual
+    receive() function which allows subclasses to process data
+    received from their channel, and the received() signal which is
+    emitted with the given message and the incoming data when a
+    QCopChannel subclass receives data from its channel.
 
-    In order to \e listen to the traffic on a channel, you should
-    either subclass QCopChannel and reimplement receive(), or
-    connect() to the received() signal.
+    In order to \e listen to the traffic on a channel, you must either
+    derive from the QCopChannel class and reimplement the receive()
+    function, or connect to the received() signal.
+
+    \sa QWSClient, {Running Applications}
 */
 
 /*!
-    Constructs a QCop channel and registers it with the server using
-    the name \a channel. The standard \a parent argument is passed on
-    to the QObject constructor.
+    Constructs a QCop channel with the given \a parent, and registers it
+    with the server using the given \a channel name.
+
+    \sa isRegistered(), channel()
 */
 
 QCopChannel::QCopChannel(const QString& channel, QObject *parent) :
@@ -169,6 +179,8 @@ void QCopChannel::reregisterAll()
     Destroys the client's end of the channel and notifies the server
     that the client has closed its connection. The server will keep
     the channel open until the last registered client detaches.
+
+    \sa QCopChannel()
 */
 
 QCopChannel::~QCopChannel()
@@ -191,6 +203,8 @@ QCopChannel::~QCopChannel()
 
 /*!
     Returns the name of the channel.
+
+    \sa QCopChannel()
 */
 
 QString QCopChannel::channel() const
@@ -199,26 +213,30 @@ QString QCopChannel::channel() const
 }
 
 /*!
+    \fn void QCopChannel::receive(const QString& message, const QByteArray &data)
+
     This virtual function allows subclasses of QCopChannel to process
-    data received from their channel.
+    the given \a message and \a data received from their channel. The default
+    implementation emits the received() signal.
 
-    The default implementation emits the received() signal.
-
-    Note that the format of \a data has to be well defined in order to
-    extract the information it contains.
+    Note that the format of the given \a data has to be well defined
+    in order to extract the information it contains. In addition, it
+    is recommended to use the DCOP convention. This is not a
+    requirement, but you must ensure that the sender and receiver
+    agree on the argument types.
 
     Example:
 
     \code
-        void MyClass::receive(const QString &msg, const QByteArray &data)
+        void MyClass::receive(const QString &message, const QByteArray &data)
         {
             QDataStream in(data);
-            if (msg == "execute(QString,QString)") {
+            if (message == "execute(QString,QString)") {
                 QString cmd;
                 QString arg;
                 in >> cmd >> arg;
                 ...
-            } else if (msg == "delete(QString)") {
+            } else if (message == "delete(QString)") {
                 QString fileName;
                 in >> fileName;
                 ...
@@ -228,13 +246,8 @@ QString QCopChannel::channel() const
         }
     \endcode
 
-    This example assumes that the \a msg is a DCOP-style function
-    signature and the \a data contains the function's arguments. (See
-    send().)
-
-    Using the DCOP convention is a recommendation, but not a
-    requirement. Whatever convention you use the sender and receiver
-    \e must agree on the argument types.
+    This example assumes that the \c message is a DCOP-style function
+    signature and the \c data contains the function's arguments.
 
     \sa send()
  */
@@ -244,16 +257,19 @@ void QCopChannel::receive(const QString& msg, const QByteArray &data)
 }
 
 /*!
-    \fn void QCopChannel::received(const QString& msg, const QByteArray &data)
+    \fn void QCopChannel::received(const QString& message, const QByteArray &data)
 
-    This signal is emitted with the \a msg and \a data whenever the
+    This signal is emitted with the given \a message and \a data whenever the
     receive() function gets incoming data.
+
+    \sa receive()
 */
 
 /*!
-    Queries the server for the existence of \a channel.
+    Queries the server for the existence of the given \a channel. Returns true
+    if the channel is registered; otherwise returns false.
 
-    Returns true if \a channel is registered; otherwise returns false.
+    \sa channel(), QCopChannel()
 */
 
 bool QCopChannel::isRegistered(const QString&  channel)
@@ -271,11 +287,12 @@ bool QCopChannel::isRegistered(const QString&  channel)
 }
 
 /*!
+    \fn bool QCopChannel::send(const QString& channel, const QString& message)
     \overload
-    Send the message \a msg on channel \a channel. The message will be
-    distributed to all clients subscribed to the \a channel.
 
-    \sa receive()
+    Sends the given \a message on the specified \a channel.  The
+    message will be distributed to all clients subscribed to the
+    channel.
 */
 
 bool QCopChannel::send(const QString& channel, const QString& msg)
@@ -285,9 +302,16 @@ bool QCopChannel::send(const QString& channel, const QString& msg)
 }
 
 /*!
-    Send the message \a msg on channel \a channel with data \a data.
-    The message will be distributed to all clients subscribed to the
-    channel.
+    \fn bool QCopChannel::send(const QString& channel, const QString& message,
+                       const QByteArray &data)
+
+    Sends the given \a message on the specified \a channel with the
+    given \a data.  The message will be distributed to all clients
+    subscribed to the channel.
+
+    It is recommended to use the DCOP convention. This is not a
+    requirement, but you must ensure that the sender and receiver
+    agree on the argument types.
 
     Note that QDataStream provides a convenient way to fill the byte
     array with auxiliary data.
@@ -298,20 +322,15 @@ bool QCopChannel::send(const QString& channel, const QString& msg)
         QByteArray data;
         QDataStream out(&data, QIODevice::WriteOnly);
         out << QString("cat") << QString("file.txt");
-        QCopChannel::send("System/Shell", "execute(QString,QString)",
-                          data);
+        QCopChannel::send("System/Shell", "execute(QString,QString)", data);
     \endcode
 
-    Here the channel is "System/Shell". The \a msg is an arbitrary
-    string, but in the example we've used the DCOP convention of
-    passing a function signature. Such a signature is formatted as
-    "functionname(types)" where types is a list of zero or more
-    comma-separated type names, with no whitespace, no consts and no
-    pointer or reference marks, i.e. no "*" or "&".
-
-    Using the DCOP convention is a recommendation, but not a
-    requirement. Whatever convention you use the sender and receiver
-    \e must agree on the argument types.
+    Here the channel is \c "System/Shell". The \c message is an
+    arbitrary string, but in the example we've used the DCOP
+    convention of passing a function signature. Such a signature is
+    formatted as \c "functionname(types)" where \c types is a list of
+    zero or more comma-separated type names, with no whitespace, no
+    consts and no pointer or reference marks, i.e. no "*" or "&".
 
     \sa receive()
 */
