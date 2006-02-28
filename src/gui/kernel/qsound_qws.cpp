@@ -25,21 +25,75 @@
 #include "qhash.h"
 #include "qfileinfo.h"
 
-class QAuServerQWS;
+#ifdef MEDIA_SERVER
+#include "qbytearray.h"
+#include "quuid.h"
+#include "qdatastream.h"
+#include "qcopchannel_qws.h"
 
-class QAuBucketQWS : public QAuBucket
+#define SERVER_CHANNEL "QPE/MediaServer"
+
+class QCopMessage : public QDataStream
 {
 public:
-    QAuBucketQWS( QAuServerQWS*, QSound* );
+    QCopMessage( const QString& channel, const QString& message )
+        : QDataStream( new QBuffer ), m_channel( channel ), m_message( message )
+    {
+        device()->open( QIODevice::WriteOnly );
+    }
+
+    ~QCopMessage()
+    {
+        QCopChannel::send( m_channel, m_message, ((QBuffer*)device())->buffer() );
+        delete device();
+    }
+
+private:
+    QString m_channel;
+    QString m_message;
+};
+
+#endif // MEDIA_SERVER
+
+class QAuServerQWS;
+
+class QAuBucketQWS : public QObject, public QAuBucket
+{
+    Q_OBJECT
+public:
+    QAuBucketQWS( QAuServerQWS*, QSound*, QObject* parent = 0 );
     
     ~QAuBucketQWS();
     
+#ifndef MEDIA_SERVER
     int id() const { return id_; }
+#endif
     
     QSound* sound() const { return sound_; }
-    
+
+#ifdef MEDIA_SERVER
+    void play();
+
+    void stop();
+#endif
+
+signals:
+    // Only for Media Server
+    void done( QAuBucketQWS* );
+
+private slots:
+    // Only for Media Server
+    void processMessage( const QString& msg, const QByteArray& data );
+
 private:
+#ifdef MEDIA_SERVER
+    QCopChannel *m_channel;
+    QUuid m_id;
+#endif
+
+#ifndef MEDIA_SERVER
     int id_;
+#endif
     QSound *sound_;
     QAuServerQWS *server_;
     
@@ -57,9 +111,14 @@ public:
     void init( QSound* s )
     {
         QAuBucketQWS *bucket = new QAuBucketQWS( this, s );
+#ifdef MEDIA_SERVER
+        connect( bucket, SIGNAL(done(QAuBucketQWS*)),
+            this, SLOT(complete(QAuBucketQWS*)) );
+#endif
         setBucket( s, bucket );
     }
     
+#ifndef MEDIA_SERVER
     // Register bucket
     void insert( QAuBucketQWS *bucket )
     {
@@ -71,12 +130,15 @@ public:
     {
         buckets.remove( bucket->id() );
     }
+#endif
 
     void play( QSound* s )
     {
         QString filepath = QFileInfo( s->fileName() ).absoluteFilePath();
-#ifdef QT_NO_QWS_SOUNDSERVER
+#if defined(QT_NO_QWS_SOUNDSERVER)
         server->playFile( bucket( s )->id(), filepath );
+#elif defined(MEDIA_SERVER)
+        bucket( s )->play();
 #else
         client->play( bucket( s )->id(), filepath );
 #endif
@@ -84,8 +146,10 @@ public:
     
     void stop( QSound* s )
     {
-#ifdef QT_NO_QWS_SOUNDSERVER
+#if defined(QT_NO_QWS_SOUNDSERVER)
         server->stopFile( bucket( s )->id() );
+#elif defined(MEDIA_SERVER)
+        bucket( s )->stop();
 #else
         client->stop( bucket( s )->id() );
 #endif
@@ -97,6 +161,7 @@ private slots:
     // Continue playing sound if loops remain
     void complete( int id )
     {
+#ifndef MEDIA_SERVER
         QAuBucketQWS *bucket = find( id );
         if( bucket ) {
             QSound *sound = bucket->sound();
@@ -104,6 +169,18 @@ private slots:
                 play( sound );
             }
         }
+#endif
+    }
+
+    // Only for Media Server
+    void complete( QAuBucketQWS* bucket )
+    {
+#ifdef MEDIA_SERVER
+        QSound *sound = bucket->sound();
+        if( decLoop( sound ) ) {
+            play( sound );
+        }
+#endif
     }
     
 protected:
@@ -113,6 +190,7 @@ protected:
     }
     
 private:
+#ifndef MEDIA_SERVER
     // Find registered bucket with given id, return null if none found
     QAuBucketQWS* find( int id )
     {
@@ -131,11 +209,14 @@ private:
 #else
     QWSSoundClient *client;
 #endif
+
+#endif // MEDIA_SERVER
 };
 
 QAuServerQWS::QAuServerQWS(QObject* parent) :
     QAuServer(parent)
 {
+#ifndef MEDIA_SERVER
     setObjectName( "qauserverqws" );
     
 #ifdef QT_NO_QWS_SOUNDSERVER
@@ -149,18 +230,71 @@ QAuServerQWS::QAuServerQWS(QObject* parent) :
     connect( client, SIGNAL( soundCompleted( int ) ),
         this, SLOT( complete( int ) ) );
 #endif
+
+#endif // MEDIA_SERVER
 }
 
-QAuBucketQWS::QAuBucketQWS( QAuServerQWS *server, QSound *sound )
-    : sound_( sound ), server_( server )
+QAuBucketQWS::QAuBucketQWS( QAuServerQWS *server, QSound *sound, QObject* parent )
+    : QObject( parent ), sound_( sound ), server_( server )
 {
+#ifdef MEDIA_SERVER
+    m_id = QUuid::createUuid();
+
+    sound->setObjectName( m_id.toString() );
+
+    m_channel = new QCopChannel( QString( "QPE/QSound/" ).append( m_id ), this );
+    connect( m_channel, SIGNAL(received(const QString&,const QByteArray&)),
+        this, SLOT(processMessage(const QString&,const QByteArray&)) );
+
+    {
+        QCopMessage message( SERVER_CHANNEL, "subscribe(QUuid)" );
+        message << m_id;
+    }
+
+    {
+        QString filepath = QFileInfo( sound_->fileName() ).absoluteFilePath();
+        QCopMessage message( SERVER_CHANNEL, "open(QUuid,QString)" );
+        message << m_id << filepath;
+    }
+#else
     id_ = next++;
     server_->insert( this );
+#endif
+}
+
+#ifdef MEDIA_SERVER
+void QAuBucketQWS::play()
+{
+    QString filepath = QFileInfo( sound_->fileName() ).absoluteFilePath();
+
+    QCopMessage message( SERVER_CHANNEL, "play(QUuid)" );
+    message << m_id;
+}
+
+void QAuBucketQWS::stop()
+{
+    QCopMessage message( SERVER_CHANNEL, "stop(QUuid)" );
+    message << m_id;
+}
+#endif // MEDIA_SERVER
+
+void QAuBucketQWS::processMessage( const QString& msg, const QByteArray& data )
+{
+#ifdef MEDIA_SERVER
+    if( msg == "done()" ) {
+        emit done( this );
+    }
+#endif
 }
     
 QAuBucketQWS::~QAuBucketQWS()
 {
+#ifdef MEDIA_SERVER
+    QCopMessage message( SERVER_CHANNEL, "revoke(QUuid)" );
+    message << m_id;
+#else
     server_->remove( this );
+#endif
 }
 
 
