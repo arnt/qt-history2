@@ -680,9 +680,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     if (device->devType() == QInternal::Image) {
         QImage *image = static_cast<QImage *>(device);
         int format = image->format();
-        d->flushOnEnd = (format != QImage::Format_ARGB32_Premultiplied
-                         && format != QImage::Format_RGB32
-                         && !isBitmap);
+        d->flushOnEnd = false;
 
         d->rasterBuffer->prepare(image);
         if (format == QImage::Format_MonoLSB) {
@@ -830,32 +828,7 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
         } else {
             device->releaseDC(hdc);
         }
-    } else {
-
-        QImage *target = 0;
-
-        if (device->devType() == QInternal::Pixmap) {
-            target = &static_cast<QPixmap *>(device)->data->image;
-        } else if (device->devType() == QInternal::Image) {
-            target = static_cast<QImage *>(device);
-        }
-
-        Q_ASSERT(target);
-        Q_ASSERT(target->format() != QImage::Format_RGB32 &&
-                 target->format() != QImage::Format_ARGB32_Premultiplied);
-
-        switch (target->format()) {
-
-        case QImage::Format_ARGB32:
-            d->rasterBuffer->flushToARGBImage(target);
-            break;
-
-        default:
-            qWarning("QRasterPaintEngine::flush(), unhandled case: %d", target->format());
-            break;
-        }
     }
-
 #elif defined(Q_WS_MAC)
 #  ifdef QMAC_NO_COREGRAPHICS
 #    warning "unhandled"
