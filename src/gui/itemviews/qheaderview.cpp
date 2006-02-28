@@ -1610,6 +1610,7 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
 
 bool QHeaderView::viewportEvent(QEvent *e)
 {
+    Q_D(QHeaderView);
     switch (e->type()) {
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip: {
@@ -1663,6 +1664,11 @@ bool QHeaderView::viewportEvent(QEvent *e)
         resizeSections();
         emit geometriesChanged();
         break;
+    case QEvent::ContextMenu: {
+        d->state = QHeaderViewPrivate::NoState;
+        d->pressed =d->section = d->target = -1;
+        d->updateSectionIndicator(d->section, -1);
+    }
     default:
         break;
     }
