@@ -1416,6 +1416,7 @@ void QFileDialogPrivate::renameCurrent()
 
 void QFileDialogPrivate::deleteCurrent()
 {
+    Q_Q(QFileDialog);
     QModelIndex index = selections->currentIndex();
     index = index.sibling(index.row(), 0);
     if (!index.isValid() || model->isReadOnly())
@@ -1434,10 +1435,14 @@ void QFileDialogPrivate::deleteCurrent()
                                   QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 
-    if (model->isDir(index))
-        model->rmdir(index);
-    else
+    if (model->isDir(index)) {
+        if (!model->rmdir(index)) {
+            QMessageBox::warning(q, q->windowTitle(),
+                                 tr("Could not delete directory."));
+        }
+    } else {
         model->remove(index);
+    }
 }
 
 /*!
