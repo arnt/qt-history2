@@ -1493,9 +1493,9 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
     }
     if(QDir::isRelativePath(file)) {
         QStringList include_roots;
-        include_roots << Option::output_dir;
         if(Option::output_dir != qmake_getpwd())
             include_roots << qmake_getpwd();
+        include_roots << Option::output_dir;
         for(int root = 0; root < include_roots.size(); ++root) {
 		QString testName = QDir::convertSeparators(include_roots[root]);
 		if (!testName.endsWith(QString(QDir::separator())))
