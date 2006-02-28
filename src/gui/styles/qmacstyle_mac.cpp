@@ -5205,6 +5205,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case PM_DockWidgetTitleMargin:
         ret = 0;
         break;
+    case PM_DockWidgetSeparatorExtent:
+        ret = 6;
+        break;
     case PM_ToolBarHandleExtent:
         ret = 11;
         break;
