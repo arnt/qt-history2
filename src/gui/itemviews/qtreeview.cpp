@@ -734,7 +734,15 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
     }
 
     // horizontal
-    horizontalScrollBar()->setValue(d->header->sectionPosition(index.column()));
+    int viewportWidth = d->viewport->width();
+    int horizontalOffset = d->header->offset();
+    int horizontalPosition = d->header->sectionPosition(index.column());
+    int cellWidth = d->header->sectionSize(index.column());
+
+    if (horizontalPosition - horizontalOffset < 0 || cellWidth > viewportWidth)
+        horizontalScrollBar()->setValue(horizontalPosition);
+    else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)
+        horizontalScrollBar()->setValue(horizontalPosition - viewportWidth + cellWidth);
 }
 
 /*!
