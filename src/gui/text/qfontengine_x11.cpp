@@ -276,15 +276,17 @@ QFontEngine::Properties QFreetypeFace::properties() const
 
 QByteArray QFreetypeFace::getSfntTable(uint tag) const
 {
-    if (!FT_IS_SFNT(face))
-        return QByteArray();
-    FT_ULong length = 0;
-    FT_Load_Sfnt_Table(face, tag, 0, 0, &length);
     QByteArray table;
-    if (length != 0) {
-        table.resize(length);
-        FT_Load_Sfnt_Table(face, tag, 0, (FT_Byte *)table.data(), &length);
+#if (FREETYPE_MAJOR*10000 + FREETYPE_MINOR*100 + FREETYPE_PATCH) > 20103
+    if (FT_IS_SFNT(face)) {
+        FT_ULong length = 0;
+        FT_Load_Sfnt_Table(face, tag, 0, 0, &length);
+        if (length != 0) {
+            table.resize(length);
+            FT_Load_Sfnt_Table(face, tag, 0, (FT_Byte *)table.data(), &length);
+        }
     }
+#endif
     return table;
 }
 
