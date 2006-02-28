@@ -480,15 +480,18 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     //handle the erase
                     if (engine && !widget->testAttribute(Qt::WA_NoSystemBackground)
                         && (widget->isWindow() || widget->autoFillBackground()) || widget->testAttribute(Qt::WA_TintedBackground)) {
-                        if (!redirectionOffset.isNull())
-                            QPainter::setRedirected(widget, widget, redirectionOffset);
                         QRect rr = qrgn.boundingRect();
+                        if (!redirectionOffset.isNull()) {
+                            QPainter::setRedirected(widget, widget, redirectionOffset);
+                            rr.setWidth(rr.width()+redirectionOffset.x());
+                            rr.setHeight(rr.height()+redirectionOffset.y());
+                        }
                         bool was_unclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
                         widget->setAttribute(Qt::WA_PaintUnclipped, false);
                         QPainter p(widget);
                         if(was_unclipped)
                             widget->setAttribute(Qt::WA_PaintUnclipped);
-                        p.setClipRegion(qrgn);
+                        p.setClipRegion(qrgn.translated(redirectionOffset));
                         widget->d_func()->paintBackground(&p, rr, widget->isWindow());
                         if (widget->testAttribute(Qt::WA_TintedBackground)) {
                             QColor tint = widget->palette().window().color();
