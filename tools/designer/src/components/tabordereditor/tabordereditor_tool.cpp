@@ -68,7 +68,6 @@ void TabOrderEditorTool::activated()
 {
     connect(formWindow(), SIGNAL(changed()),
                 m_editor, SLOT(updateBackground()));
-    m_editor->updateBackground();
 }
 
 void TabOrderEditorTool::deactivated()

@@ -89,6 +89,12 @@ void TabOrderEditor::widgetRemoved(QWidget*)
 {
 }
 
+void TabOrderEditor::showEvent(QShowEvent *e)
+{
+    QWidget::showEvent(e);
+    updateBackground();
+}
+
 QRect TabOrderEditor::indicatorRect(int index) const
 {
     if (index < 0 || index >= m_tab_order_list.size())

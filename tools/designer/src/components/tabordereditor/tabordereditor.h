@@ -49,6 +49,7 @@ protected:
     virtual void mousePressEvent(QMouseEvent *e);
     virtual void mouseDoubleClickEvent(QMouseEvent *e);
     virtual void resizeEvent(QResizeEvent *e);
+    virtual void showEvent(QShowEvent *e);
 
 private:
     QRect indicatorRect(int index) const;
