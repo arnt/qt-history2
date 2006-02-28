@@ -913,6 +913,7 @@ void QDashStroker::processCurrentSubpath()
             QPointF p2;
 
             int idash_incr = 0;
+            bool has_offset = doffset > 0;
             qreal dpos = pos + dashes[idash] - doffset - estart;
 
             Q_ASSERT(dpos >= 0);
@@ -940,7 +941,13 @@ void QDashStroker::processCurrentSubpath()
                     || (line_to_pos.x > clip_tl.x && line_to_pos.x < clip_br.x
                         && line_to_pos.y > clip_tl.y && line_to_pos.y < clip_br.y))
                 {
-                    m_stroker->moveTo(move_to_pos.x, move_to_pos.y);
+                    // If we have an offset, we're continuing a dash
+                    // from a previous element and should only
+                    // continue the current dash, without starting a
+                    // new subpath.
+                    if (!has_offset)
+                        m_stroker->moveTo(move_to_pos.x, move_to_pos.y);
+
                     m_stroker->lineTo(line_to_pos.x, line_to_pos.y);
                 }
             } else {
