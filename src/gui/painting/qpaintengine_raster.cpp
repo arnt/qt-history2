@@ -593,6 +593,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->mono_surface = false;
     d->fast_pen = true;
     d->int_xform = true;
+    d->user_clip_enabled = false;
     d->opacity = 256;
 
 #if defined(Q_WS_WIN)
@@ -980,6 +981,15 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->brushData.setupMatrix(d->brushMatrix(), d->txop, d->bilinear);
     }
 
+    if (flags & (DirtyClipPath | DirtyClipRegion)) {
+        d->user_clip_enabled = true;
+        // If we're setting a clip, we kill the old clip
+        if (d->rasterBuffer->disabled_clip) {
+            delete d->rasterBuffer->disabled_clip;
+            d->rasterBuffer->disabled_clip = 0;
+        }
+    }
+
     if (flags & DirtyClipPath) {
         updateClipPath(state.clipPath(), state.clipOperation());
 
@@ -987,8 +997,9 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         updateClipRegion(state.clipRegion(), state.clipOperation());
 
     } else if (flags & DirtyClipEnabled) {
-        if (state.isClipEnabled() != d->rasterBuffer->clipEnabled) {
-            d->rasterBuffer->clipEnabled = state.isClipEnabled();
+
+        if (state.isClipEnabled() != d->user_clip_enabled) {
+            d->user_clip_enabled = state.isClipEnabled();
 
             // The tricky case... When we disable clipping we still do
             // system clip so we need to rasterize the system clip and
@@ -996,12 +1007,12 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
             // choose to set clipping to true later on we have to the
             // current one (in disabled_clip).
             if (!d->baseClip.isEmpty()) {
-                if (!d->rasterBuffer->clipEnabled) {
+                if (!state.isClipEnabled()) { // save current clip for later
                     Q_ASSERT(!d->rasterBuffer->disabled_clip);
                     d->rasterBuffer->disabled_clip = d->rasterBuffer->clip;
                     d->rasterBuffer->clip = 0;
                     updateClipPath(QPainterPath(), Qt::NoClip);
-                } else {
+                } else { // re-enable old clip
                     Q_ASSERT(d->rasterBuffer->disabled_clip);
                     d->rasterBuffer->resetClip();
                     d->rasterBuffer->clip = d->rasterBuffer->disabled_clip;

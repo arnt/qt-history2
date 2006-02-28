@@ -189,7 +189,7 @@ public:
     uint flushOnEnd : 1;
     uint mono_surface : 1;
     uint int_xform : 1;
-
+    uint user_clip_enabled : 1;
 
 };
 
