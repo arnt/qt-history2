@@ -43,7 +43,7 @@
     \o
     Provided that the environment variables are adjusted properly
     during the \l {Installing Qtopia Core}{installation process}, you
-    should see the \l {Text Edit demo} appear.
+    should see the \l {Text Edit} demo appear.
 
     If the input methods don't work properly, the input driver and
     device must be specified explicitly. For more information, please

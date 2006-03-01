@@ -27,7 +27,7 @@
     backingstore using QPaintEngine, and then the server composes the
     backingstore images and copies them to the screen. Composition is
     done by the QScreen::exposeRegion() function which again calls the
-    more basic functions QScreen::blit and QScreen::solidFill().
+    more basic functions QScreen::blit() and QScreen::solidFill().
 
     In order to make use of accelerated graphics hardware, it is
     possible to derive from QPaintEngine and QScreen.
