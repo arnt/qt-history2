@@ -134,7 +134,7 @@ qint64 RCCFileInfo::writeDataBlob(FILE *out, qint64 offset, RCCResourceLibrary::
         }
     }
 #endif // QT_NO_COMPRESS
-    
+
     //some info
     if(format == RCCResourceLibrary::C_Code)
         fprintf(out, "  // %s\n  ", fileInfo.absoluteFilePath().toLatin1().constData());
@@ -241,7 +241,6 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                 if (!prefix.endsWith(QLatin1String("/")))
                     prefix += '/';
 
-
                 for (QDomNode res = child.firstChild(); !res.isNull(); res = res.nextSibling()) {
                     if (res.toElement().tagName() == QLatin1String(TAG_FILE)) {
 
@@ -269,7 +268,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                         alias = QDir::cleanPath(alias);
                         while (alias.startsWith("../"))
                             alias.remove(0, 3);
-                        alias = prefix + alias;
+                        alias = mResourceRoot + prefix + alias;
 
                         QFileInfo file(currentPath + fileName);
                         if (!file.exists()) {
