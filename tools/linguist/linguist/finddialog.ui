@@ -211,5 +211,22 @@
   <tabstop>matchCase</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>cancel</sender>
+   <signal>clicked()</signal>
+   <receiver>FindDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>372</x>
+     <y>58</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>373</x>
+     <y>109</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
