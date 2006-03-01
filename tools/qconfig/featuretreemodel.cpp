@@ -399,7 +399,9 @@ void FeatureTreeModel::writeConfig(QTextStream &stream) const
         if (disabled.size() > 0) {
             stream << '\n' << "// " << sections.keys().at(i) << '\n';
             foreach (QString feature, disabled)
-                stream << "#define QT_NO_" << feature << '\n';
+                stream << "#ifndef QT_NO_" << feature << '\n'
+                       << "#  define QT_NO_" << feature << '\n'
+                       << "#endif" << '\n';
         }
     }
 }
