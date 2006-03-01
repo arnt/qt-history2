@@ -1596,6 +1596,8 @@ void QTreeView::updateGeometries()
 int QTreeView::sizeHintForColumn(int column) const
 {
     Q_D(const QTreeView);
+    if (d->viewItems.isEmpty())
+        return -1;
     int w = 0;
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
