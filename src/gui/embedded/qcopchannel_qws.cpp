@@ -79,15 +79,20 @@ public:
     \brief The QCopChannel class provides communication capabilities
     between clients.
 
-    When running a Qtopia Core application, it either runs as a server
-    or as a client connected to an existing server. The Qt Cop (QCOP)
-    is a communication protocol, allowing clients to communicate both
-    within the same address space and between different
-    processes. This facility is currently only available for Qtopia
-    Core (on X11 and Windows we are exploring the use of existing
-    standards such as DCOP and COM).
+    QCOP is a many-to-many communication protocol for transferring
+    messages on various channels. A channel is identified by a name,
+    and anyone who wants to can listen to it. The QCOP protocol allows
+    clients to communicate both within the same address space and
+    between different processes, but it is currently only available
+    for Qtopia Core (on X11 and Windows we are exploring the use of
+    existing standards such as DCOP and COM).
 
-    QCopChannel provides several static functions which are usable
+    Typically, QCopChannel is either used to send messages to a
+    channel using the provided static functions, or to listen to the
+    traffic on a channel by deriving from the class to take advantage
+    of the provided functionality for receiving messages.
+
+    QCopChannel provides a couple of static functions which are usable
     without an object: The send() function, which sends the given
     message and data on the specified channel, and the isRegistered()
     function which queries the server for the existence of the given
@@ -97,12 +102,8 @@ public:
     which returns the name of the object's channel, the virtual
     receive() function which allows subclasses to process data
     received from their channel, and the received() signal which is
-    emitted with the given message and the incoming data when a
-    QCopChannel subclass receives data from its channel.
-
-    In order to \e listen to the traffic on a channel, you must either
-    derive from the QCopChannel class and reimplement the receive()
-    function, or connect to the received() signal.
+    emitted with the given message and data when a QCopChannel
+    subclass receives a message from its channel.
 
     \sa QWSClient, {Running Applications}
 */
