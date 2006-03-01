@@ -38,12 +38,12 @@ public:
     virtual Q3NetworkProtocol *createObject() = 0;
 };
 
-template< class Protocol >
+template< class T >
 class Q3NetworkProtocolFactory : public Q3NetworkProtocolFactoryBase
 {
 public:
     Q3NetworkProtocol *createObject() {
-	return new Protocol;
+	return new T;
     }
 
 };
