@@ -3411,8 +3411,8 @@ uint QWSInputMethod::inputResolutionShift() const
   the active input method.  This function will also transform \a pos
   if the screen coordinates do not match device pointer coordinates
 
-  \note calling QWSServer::sendMouseEvent() will result in the event being filtered by the
-  current inputmethod.
+  Note that calling QWSServer::sendMouseEvent() will result in the
+  event being filtered by the current inputmethod.
 
   \sa QWSServer::sendMouseEvent()
 */

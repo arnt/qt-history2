@@ -175,6 +175,8 @@ static const int keyMSize = sizeof(pc101KeyM)/sizeof(QWSKeyMap)-1;
 /*!
     \class QWSPC101KeyboardHandler
     \ingroup qws
+
+    \internal
 */
 
 QWSPC101KeyboardHandler::QWSPC101KeyboardHandler(const QString&)

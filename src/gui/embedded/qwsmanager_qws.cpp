@@ -58,8 +58,12 @@ QRegion &QWSManager::cachedRegion()
 /*!
     \class QWSManager
     \ingroup qws
+    \internal
 */
 
+/*!
+
+*/
 QWSManager::QWSManager(QWidget *w)
     : QObject(*new QWSManagerPrivate, (QObject*)0)
 {
