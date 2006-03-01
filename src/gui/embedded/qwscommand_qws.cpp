@@ -319,11 +319,13 @@ void qws_write_command(QIODevice *socket, int type, char *simpleData, int simple
     if (rawLen > 0) qDebug() << "WRITE rawData " << QWSHexDump(rawData, rawLen);
 #endif
 
+#ifndef QT_NO_SXV
     QTransportAuth *a = QTransportAuth::getInstance();
     // ###### as soon as public API can be modified get rid of horrible casts
-    QIODevice *ad = a->passThroughByClient( reinterpret_cast<QWSClient*>(socket) );
-    if ( ad )
+    QIODevice *ad = a->passThroughByClient(reinterpret_cast<QWSClient*>(socket));
+    if (ad)
         socket = ad;
+#endif
 
     qws_write_uint(socket, type);
     qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
