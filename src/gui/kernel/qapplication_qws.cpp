@@ -578,7 +578,7 @@ void QWSDisplay::Data::init()
                 QTransportAuth::Trusted,
                 csocket->socketDescriptor());
         QAuthDevice *ad = a->authBuf( d, csocket );
-
+        ad->setClient( reinterpret_cast<void*>(csocket) );
         cmd.write(ad);
 #else
         cmd.write(csocket);

@@ -115,14 +115,18 @@ const char * const errorStrings[] = {
     "cache miss on connection oriented transport",
     "no magic bytes on message",
     "key not found for prog id",
-    "authorization key match failed"
+    "authorization key match failed",
+    "key out of date"
 };
 
 const char *QTransportAuth::errorString( const Data &d )
 {
     if (( d.status & ErrMask ) == Success )
         return "success";
-    return errorStrings[( d.status & ErrMask )];
+    int e = d.status & ErrMask;
+    if ( e > OutOfDate )
+        return "unknown";
+    return errorStrings[e];
 }
 
 QTransportAuthPrivate::QTransportAuthPrivate()
@@ -158,7 +162,7 @@ QTransportAuth::~QTransportAuth()
 
 void QTransportAuth::setProcessKey( const char *authdata )
 {
-    // qDebug( "set process key" );
+    qDebug( "setProcessKey" );
     Q_D(QTransportAuth);
     ::memcpy(&d->authKey, authdata, sizeof(struct AuthCookie));
     d->keyInitialised = true;
@@ -312,17 +316,19 @@ bool QTransportAuth::isDiscoveryMode() const
   Return the authorizer device mapped to this client.  Note that this
   could probably all be void* instead of QWSClient* for generality.
   Until the need for that rears its head its QWSClient* to save the casts.
+
+  #### OK the need has arrived, but the public API is frozen.
 */
 QIODevice *QTransportAuth::passThroughByClient( QWSClient *client ) const
 {
     Q_D(const QTransportAuth);
 
     if ( client == 0 ) return 0;
-    if ( d->buffersByClient.contains( client ))
+    if ( d->buffersByClient.contains( reinterpret_cast<void*>( client )))
     {
-        return d->buffersByClient[client];
+        return d->buffersByClient[reinterpret_cast<void*>(client)];
     }
-    qWarning( "buffer not found for client %p", client );
+    // qWarning( "buffer not found for client %p", client );
     return 0;
 }
 
@@ -513,13 +519,18 @@ QAuthDevice::~QAuthDevice()
     // qDebug( "destroying authdevice" );
 }
 
-void QAuthDevice::setClient( QWSClient *cli )
+/*!
+  \internal
+  Store a pointer to the related device or instance which this
+  authorizer is proxying for
+*/
+void QAuthDevice::setClient( void *cli )
 {
     m_client = cli;
     QTransportAuth::getInstance()->d_func()->buffersByClient[cli] = this;
 }
 
-QWSClient *QAuthDevice::client() const
+void *QAuthDevice::client() const
 {
     return m_client;
 }
@@ -564,7 +575,7 @@ qint64 QAuthDevice::writeData(const char *data, qint64 len)
 {
     if ( way == Receive )  // server
         return QBuffer::writeData( data, len );
-    // qDebug( "write data %lli bytes", len );
+    // qDebug( "write data %lli bytes, pid %li", len, ::getpid() );
     char header[AUTH_SPACE(0)];
     qint64 bytes = 0;
     if ( authToMessage( *d, header, data, len ))
@@ -643,21 +654,28 @@ void QAuthDevice::recvReadyRead()
     qDebug( "recv ready read %lli bytes - msg %s", bytes, displaybuf );
 #endif
 
+    unsigned char saveStatus = d->status;
     if ( !authFromMessage( *d, msgQueue, msgQueue.size() ))
     {
         // not all arrived yet?  come back later
         if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::TooSmall )
         {
             // qDebug() << "returning: auth header not all received";
+            d->status = saveStatus;
             return;
         }
     }
 
-    // msg auth header detected and auth determined, remove hdr
-    if (( d->status & QTransportAuth::ErrMask ) != QTransportAuth::NoMagic )
+    if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::NoMagic )
     {
+        // no msg auth header, don't change the success status for connections
+        if ( d->connection() )
+            d->status = saveStatus;
+    }
+    else
+    {
+        // msg auth header detected and auth determined, remove hdr
         msgQueue = msgQueue.mid( QSXV_HEADER_LEN );
-        // qDebug() << "removing SXV header";
     }
 
     bool bufHasMessages = msgQueue.size() > (int)sizeof(int);
@@ -704,11 +722,17 @@ bool QAuthDevice::authorizeMessage()
         QWSQCopSendCommand *sendCommand = static_cast<QWSQCopSendCommand*>(command);
         request += QString( "/QCop/%1/%2" ).arg( sendCommand->channel ).arg( sendCommand->message );
     }
+    if ( command_type == QWSCommand::QCopRegisterChannel )
+    {
+        QWSQCopRegisterChannelCommand *registerCommand = static_cast<QWSQCopRegisterChannelCommand*>(command);
+        request += QString( "/QCop/RegisterChannel/%1" ).arg( registerCommand->channel );
+    }
 #endif
     bool isAuthorized = true;
     QTransportAuth *auth = QTransportAuth::getInstance();
     if ( !request.isEmpty() && request != "Unknown" )
     {
+        d->status &= QTransportAuth::ErrMask;  // clear the status
         // d is now carrying the PID from the readyRead
         emit policyCheck( *d, request );
         isAuthorized = (( d->status & QTransportAuth::StatusMask ) == QTransportAuth::Allow );
@@ -774,6 +798,7 @@ bool QAuthDevice::authorizeMessage()
 */
 bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen )
 {
+    // qDebug( "authToMessage(): prog id %u", d.progId );
     QTransportAuth *a = QTransportAuth::getInstance();
     // only authorize connection oriented transports once, unless key has changed
     if ( !a->d_func()->keyChanged && d.connection() &&

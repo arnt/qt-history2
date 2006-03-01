@@ -1121,7 +1121,7 @@ void QWSServerPrivate::doClient()
 #ifndef QT_NO_SXV
     QAuthDevice *ad = qobject_cast<QAuthDevice*>(q->sender());
     if (ad)
-        client = ad->client();
+        client = (QWSClient*)ad->client();
     else
 #endif
         client = (QWSClient*)q->sender();

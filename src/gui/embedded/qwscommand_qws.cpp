@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qwscommand_qws_p.h"
+#include "qtransportauth_qws.h"
+#include "qtransportauth_qws_p.h"
+
 #include <sys/uio.h>
 
 // #define QWSCOMMAND_DEBUG 1 // Uncomment to debug client/server communication
@@ -315,6 +318,12 @@ void qws_write_command(QIODevice *socket, int type, char *simpleData, int simple
     if (simpleLen) qDebug() << "WRITE simpleData " << QWSHexDump(simpleData, simpleLen);
     if (rawLen > 0) qDebug() << "WRITE rawData " << QWSHexDump(rawData, rawLen);
 #endif
+
+    QTransportAuth *a = QTransportAuth::getInstance();
+    // ###### as soon as public API can be modified get rid of horrible casts
+    QIODevice *ad = a->passThroughByClient( reinterpret_cast<QWSClient*>(socket) );
+    if ( ad )
+        socket = ad;
 
     qws_write_uint(socket, type);
     qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
