@@ -102,7 +102,9 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
 // static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void *data,
 //                                 LineDrawMode style, const QRect &devRect);
 
-const int QT_RASTER_COORD_LIMIT = 50000;
+// This limitations comes from qgrayraster.c. Any higher and
+// rasterization of shapes will produce incorrect results.
+const int QT_RASTER_COORD_LIMIT = 16385;
 
 struct QRasterFloatPoint {
     qreal x;
