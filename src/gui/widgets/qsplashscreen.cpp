@@ -219,7 +219,18 @@ void QSplashScreen::finish(QWidget *mainWin)
 void QSplashScreen::setPixmap(const QPixmap &pixmap)
 {
     Q_D(QSplashScreen);
-    d->pixmap = pixmap;
+
+    if (pixmap.hasAlpha()) {
+        QPixmap opaque(pixmap.size());
+        QPainter p(&opaque);
+        p.fillRect(0, 0, pixmap.width(), pixmap.height(), palette().background());
+        p.drawPixmap(0, 0, pixmap);
+        p.end();
+        d->pixmap = opaque;
+    } else {
+        d->pixmap = pixmap;
+    }
+
     QRect r(0, 0, d->pixmap.size().width(), d->pixmap.size().height());
     resize(d->pixmap.size());
     move(QApplication::desktop()->screenGeometry().center() - r.center());
