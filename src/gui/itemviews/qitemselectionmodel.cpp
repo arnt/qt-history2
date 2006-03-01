@@ -620,8 +620,6 @@ void QItemSelectionModelPrivate::_q_rowsAboutToBeInserted(const QModelIndex &par
             ranges.erase(it);
             split.append(top);
             split.append(bottom);
-            qDebug() << top;
-            qDebug() << bottom;
         }
     }
     ranges += split;
