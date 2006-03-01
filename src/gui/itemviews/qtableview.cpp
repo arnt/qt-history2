@@ -1063,6 +1063,7 @@ void QTableView::setSortingEnabled(bool enable)
                    this, SLOT(selectColumn(int)));
         connect(horizontalHeader(), SIGNAL(sectionClicked(int)),
                 this, SLOT(sortByColumn(int)));
+        sortByColumn(horizontalHeader()->sortIndicatorSection());
     } else {
         connect(horizontalHeader(), SIGNAL(sectionPressed(int)),
                 this, SLOT(selectColumn(int)));
@@ -1454,8 +1455,7 @@ void QTableView::resizeColumnsToContents()
 void QTableView::sortByColumn(int column)
 {
     Q_D(QTableView);
-
-    if (!d->model)
+    if (!d->model || column == -1)
         return;
     bool ascending = (horizontalHeader()->sortIndicatorSection() == column
                       && horizontalHeader()->sortIndicatorOrder() == Qt::DescendingOrder);
