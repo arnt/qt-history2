@@ -1016,6 +1016,9 @@ void Moc::parseDeclareMetatype()
         next(IDENTIFIER);
         typeName += lexem();
     }
+    if (test(STAR)) {
+        typeName += lexem();
+    }
     metaTypes.append(typeName);
     next(RPAREN);
 }
