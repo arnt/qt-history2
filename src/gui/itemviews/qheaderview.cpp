@@ -2067,6 +2067,9 @@ void QHeaderViewPrivate::setupSectionIndicator(int section, int position)
 
 void QHeaderViewPrivate::updateSectionIndicator(int section, int position)
 {
+    if (!sectionIndicator)
+        return;
+
     if (section == -1 || target == -1) {
         sectionIndicator->hide();
         return;
