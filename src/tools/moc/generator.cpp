@@ -143,7 +143,7 @@ bool isVariantType(const char* type)
     return qvariant_nameToType(type) != 0;
 }
 
-Generator::Generator(FILE *outfile, ClassDef *classDef) :out(outfile), cdef(classDef)
+Generator::Generator(FILE *outfile, ClassDef *classDef, const QList<QByteArray> &metaTypes) : out(outfile), cdef(classDef), metaTypes(metaTypes)
 {
     if (cdef->superclassList.size())
         purestSuperClass = cdef->superclassList.first().first;
@@ -277,7 +277,7 @@ void Generator::generateCode()
     QList<QByteArray> extraList;
     for (int i = 0; i < cdef->propertyList.count(); ++i) {
         const PropertyDef &p = cdef->propertyList.at(i);
-        if (!isVariantType(p.type)) {
+        if (!isVariantType(p.type) && !metaTypes.contains(p.type)) {
             int s = p.type.indexOf("::");
             if (s > 0) {
                 QByteArray scope = p.type.left(s);

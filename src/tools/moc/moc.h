@@ -148,6 +148,7 @@ public:
     QList<QByteArray> includeFiles;
     QList<ClassDef> classList;
     QMap<QByteArray, QByteArray> interface2IdMap;
+    QList<QByteArray> metaTypes;
 
 
     void parse();
@@ -177,6 +178,7 @@ public:
     void parseClassInfo(ClassDef *def);
     void parseInterfaces(ClassDef *def);
     void parseDeclareInterface();
+    void parseDeclareMetatype();
     void parseSlotInPrivate(ClassDef *def, FunctionDef::Access access);
 
     void parseFunctionArguments(FunctionDef *def);

@@ -21,7 +21,7 @@ class Generator
     FILE *out;
     ClassDef *cdef;
 public:
-    Generator(FILE *outfile, ClassDef *classDef);
+    Generator(FILE *outfile, ClassDef *classDef, const QList<QByteArray> &metaTypes);
     void generateCode();
 private:
     void generateClassInfos();
@@ -32,8 +32,9 @@ private:
     void generateSignal(FunctionDef *def, int index);
 
     int strreg(const char *); // registers a string and returns its id
-    QList<QByteArray>strings;
+    QList<QByteArray> strings;
     QByteArray purestSuperClass;
+    QList<QByteArray> metaTypes;
 };
 
 #endif // GENERATOR_H

@@ -529,6 +529,9 @@ void Moc::parse()
             case Q_DECLARE_INTERFACE_TOKEN:
                 parseDeclareInterface();
                 break;
+            case Q_DECLARE_METATYPE_TOKEN:
+                parseDeclareMetatype();
+                break;
             case USING:
                 if (test(NAMESPACE)) {
                     while (test(SCOPE) || test(IDENTIFIER))
@@ -722,7 +725,7 @@ void Moc::generate(FILE *out)
 
 
     for (i = 0; i < classList.size(); ++i) {
-        Generator generator(out, &classList[i]);
+        Generator generator(out, &classList[i], metaTypes);
         generator.generateCode();
     }
 }
@@ -999,6 +1002,21 @@ void Moc::parseDeclareInterface()
         iid = lexem();
     }
     interface2IdMap.insert(interface, iid);
+    next(RPAREN);
+}
+
+void Moc::parseDeclareMetatype()
+{
+    next(LPAREN);
+    QByteArray typeName;
+    next(IDENTIFIER);
+    typeName += lexem();
+    while (test(SCOPE)) {
+        typeName += lexem();
+        next(IDENTIFIER);
+        typeName += lexem();
+    }
+    metaTypes.append(typeName);
     next(RPAREN);
 }
 
