@@ -104,6 +104,8 @@ public:
 
     void select(int start, int stop, QItemSelectionModel::SelectionFlags command);
 
+    QPair<int,int> startAndEndColumns(const QRect &rect) const;
+
     QHeaderView *header;
     int indent;
 
@@ -116,9 +118,8 @@ public:
     bool sortingEnabled;
 
     // used for drawing
-    int left;
-    int right;
-    int current;
+    mutable QPair<int,int> leftAndRight;
+    mutable int current;
 
     // used when expanding and closing items
     QVector<QPersistentModelIndex> expandedIndexes;

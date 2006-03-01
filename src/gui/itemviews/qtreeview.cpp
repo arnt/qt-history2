@@ -777,86 +777,87 @@ void QTreeView::timerEvent(QTimerEvent *event)
 */
 void QTreeView::paintEvent(QPaintEvent *event)
 {
-    Q_D(QTreeView);
+    QPainter painter(viewport());
+    drawTree(&painter, event->region());
+    
+#ifndef QT_NO_DRAGANDDROP
+    // Paint the dropIndicator
+    d_func()->paintDropIndicator(&painter);
+#endif
+}
+
+/*!
+  \since 4.2
+  Draws the part of the tree intersecting the given \a region.
+
+  \sa paintEvent()
+*/
+void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
+{
+    Q_D(const QTreeView);
     QStyleOptionViewItem option = viewOptions();
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
     const QBrush baseBrush = palette().brush(QPalette::Base);
     const QBrush alternateBrush = palette().brush(QPalette::AlternateBase);
-    const int v = verticalScrollBar()->value();
-    const int c = d->viewItems.count();
     const QVector<QTreeViewItem> viewItems = d->viewItems;
     const QPoint offset = d->scrollDelayOffset;
-
-    QPainter painter(d->viewport);
-    if (c == 0 || d->header->count() == 0) {
-        painter.fillRect(event->rect(), baseBrush);
+    const int firstVisibleItem = d->itemAt(verticalScrollBar()->value());
+    const int firstVisibleDelta = d->topItemDelta(verticalScrollBar()->value(),
+                                                  d->height(firstVisibleItem));
+    const int viewportWidth = d->viewport->width();
+    const int headerLength = d->header->length();
+            
+    if (viewItems.count() == 0 || d->header->count() == 0 || firstVisibleItem == -1) {
+        painter->fillRect(region.boundingRect(), baseBrush);
         return;
     }
 
-    QVector<QRect> rects = event->region().rects();
+    QVector<QRect> rects = region.rects();
     for (int a = 0; a < rects.size(); ++a) {
 
-        QRect area = rects.at(a);
-        area.translate(offset);
+        const QRect area = rects.at(a).translated(offset);
+        d->leftAndRight = d->startAndEndColumns(area);
 
-        const int t = area.top();
-        const int b = area.bottom() + 1;
+        int i = firstVisibleItem; // the first item at the top of the viewport
+        int y = firstVisibleDelta; // we may only see part of the first item
 
-        d->left = d->header->visualIndexAt(area.left());
-        d->right = d->header->visualIndexAt(area.right());
-        if (isRightToLeft()) {
-            d->left = (d->left == -1 ? d->header->count() - 1 : d->left);
-            d->right = (d->right == -1 ? 0 : d->right);
-        } else {
-            d->left = (d->left == -1 ? 0 : d->left);
-            d->right = (d->right == -1 ? d->header->count() - 1 : d->right);
+        // start at the top of the viewport  and iterate down to the update area
+        for (; i < viewItems.count(); ++i) {
+            const int itemHeight = d->height(i);
+            if (y + itemHeight >= area.top())
+                break;
+            y += itemHeight;
         }
 
-        int tmp = d->left;
-        d->left = qMin(d->left, d->right);
-        d->right = qMax(tmp, d->right);
-
-        int i = d->itemAt(v); // first item
-        if (i < 0) // couldn't find the first item
-            return;
-        int y = d->topItemDelta(v, d->height(i));
-        int w = d->viewport->width();
-
-        while (y < b && i < c) {
-            int h = d->height(i); // actual height
-            if (y + h >= t) { // we are in the update area
-                option.rect.setRect(0, y, 0, h);
-                option.state = state | (viewItems.at(i).expanded
-                                        ? QStyle::State_Open : QStyle::State_None);
-                if (alternate)
-                    option.palette.setBrush(QPalette::Base, i & 1 ? alternateBrush : baseBrush);
-                d->current = i;
-                drawRow(&painter, option, viewItems.at(i).index);
-            }
-            y += h;
-            ++i;
+        // paint the visible rows
+        for (; i < viewItems.count() && y <= area.bottom(); ++i) {
+            const int itemHeight = d->height(i);
+            option.rect.setRect(0, y, 0, itemHeight);
+            option.state = state | (viewItems.at(i).expanded
+                                    ? QStyle::State_Open : QStyle::State_None);
+            if (alternate)
+                option.palette.setBrush(QPalette::Base, i & 1 ? alternateBrush : baseBrush);
+            d->current = i;
+            drawRow(painter, option, viewItems.at(i).index);
+            y += itemHeight;
         }
 
-        int x = d->header->length();
-        QRect bottom(0, y, w, b - y);
-        if (y < b && area.intersects(bottom))
-            painter.fillRect(bottom, baseBrush);
+        if (y <= area.bottom()) {
+            QRect bottomArea(0, y, viewportWidth, area.height() - y + 1);
+            if (area.intersects(bottomArea))
+                painter->fillRect(bottomArea, baseBrush);
+        }
         if (isRightToLeft()) {
-            QRect right(0, 0, w - x, b);
-            if (x > 0 && area.intersects(right))
-                painter.fillRect(right, baseBrush);
+            QRect rightArea(0, 0, viewportWidth - headerLength, area.height());
+            if (headerLength > 0 && area.intersects(rightArea))
+                painter->fillRect(rightArea, baseBrush);
         } else {
-            QRect left(x, 0, w - x, b);
-            if (x < w && area.intersects(left))
-                painter.fillRect(left, baseBrush);
+            QRect leftArea(headerLength, 0, viewportWidth - headerLength, area.height());
+            if (headerLength < viewportWidth && area.intersects(leftArea))
+                painter->fillRect(leftArea, baseBrush);
         }
     }
-
-#ifndef QT_NO_DRAGANDDROP
-    // Paint the dropIndicator
-    d_func()->paintDropIndicator(&painter);
-#endif
 }
 
 /*!
@@ -870,8 +871,8 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    const QPoint offset = d->scrollDelayOffset;
     QStyleOptionViewItem opt = option;
+    const QPoint offset = d->scrollDelayOffset;
     const int y = option.rect.y() + offset.y();
     const QModelIndex parent = index.parent();
     const QHeaderView *header = d->header;
@@ -880,8 +881,8 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const bool reverse = isRightToLeft();
     const QStyle::State state = opt.state;
-    const int left = d->left;
-    const int right = d->right;
+    const int left = d->leftAndRight.first;
+    const int right = d->leftAndRight.second;
 
     // ### special case: treeviews with multiple columns draw the selections differently than with only one column
     opt.showDecorationSelected = (d->selectionBehavior & SelectRows)
@@ -1860,13 +1861,13 @@ int QTreeViewPrivate::coordinate(int item) const
 int QTreeViewPrivate::item(int yCoordinate) const
 {
     Q_Q(const QTreeView);
-    int scrollbarValue = q->verticalScrollBar()->value();
+    const int scrollbarValue = q->verticalScrollBar()->value();
     int viewItemIndex = itemAt(scrollbarValue);
     if (viewItemIndex < 0) // couldn't find first visible item
         return -1;
 
-    int viewItemHeight = height(viewItemIndex);
-    int viewportHeight = viewport->height();
+    const int viewItemHeight = height(viewItemIndex);
+    const int viewportHeight = viewport->height();
     int y = topItemDelta(scrollbarValue, viewItemHeight);
     if (yCoordinate >= y) {
         // search for item in viewport
@@ -2146,6 +2147,21 @@ void QTreeViewPrivate::select(int top, int bottom,
     for (int i = 0; i < rangeStack.count(); ++i)
         selection.append(rangeStack.at(i));
     q->selectionModel()->select(selection, command);
+}
+
+QPair<int,int> QTreeViewPrivate::startAndEndColumns(const QRect &rect) const
+{
+    Q_Q(const QTreeView);
+    int start = header->visualIndexAt(rect.left());
+    int end = header->visualIndexAt(rect.right());
+    if (q->isRightToLeft()) {
+        start = (start == -1 ? header->count() - 1 : start);
+        end = (end == -1 ? 0 : end);
+    } else {
+        start = (start == -1 ? 0 : start);
+        end = (end == -1 ? header->count() - 1 : end);
+    }
+    return qMakePair<int,int>(qMin(start, end), qMax(start, end));
 }
 
 #endif // QT_NO_TREEVIEW

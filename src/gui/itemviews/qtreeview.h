@@ -120,6 +120,8 @@ protected:
 
     void timerEvent(QTimerEvent *event);
     void paintEvent(QPaintEvent *event);
+
+    void drawTree(QPainter *painter, const QRegion &region) const;
     virtual void drawRow(QPainter *painter,
                          const QStyleOptionViewItem &options,
                          const QModelIndex &index) const;
