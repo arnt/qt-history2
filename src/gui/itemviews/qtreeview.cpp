@@ -795,23 +795,24 @@ void QTreeView::paintEvent(QPaintEvent *event)
 void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
 {
     Q_D(const QTreeView);
-    QStyleOptionViewItem option = viewOptions();
-    const QStyle::State state = option.state;
-    const bool alternate = d->alternatingColors;
     const QBrush baseBrush = palette().brush(QPalette::Base);
-    const QBrush alternateBrush = palette().brush(QPalette::AlternateBase);
     const QVector<QTreeViewItem> viewItems = d->viewItems;
-    const QPoint offset = d->scrollDelayOffset;
-    const int firstVisibleItem = d->itemAt(verticalScrollBar()->value());
-    const int firstVisibleDelta = d->topItemDelta(verticalScrollBar()->value(),
-                                                  d->height(firstVisibleItem));
-    const int viewportWidth = d->viewport->width();
-    const int headerLength = d->header->length();
             
-    if (viewItems.count() == 0 || d->header->count() == 0 || firstVisibleItem == -1) {
+    if (viewItems.count() == 0 || d->header->count() == 0) {
         painter->fillRect(region.boundingRect(), baseBrush);
         return;
     }
+
+    QStyleOptionViewItem option = viewOptions();
+    const QStyle::State state = option.state;
+    const QBrush alternateBrush = palette().brush(QPalette::AlternateBase);
+    const bool alternate = d->alternatingColors;
+    const QPoint offset = d->scrollDelayOffset;
+    const int viewportWidth = d->viewport->width();
+    const int headerLength = d->header->length();
+    const int firstVisibleItem = d->itemAt(verticalScrollBar()->value());
+    const int firstVisibleDelta = d->topItemDelta(verticalScrollBar()->value(),
+                                                  d->height(firstVisibleItem));
 
     QVector<QRect> rects = region.rects();
     for (int a = 0; a < rects.size(); ++a) {
