@@ -509,7 +509,7 @@ bool CppCodeParser::matchTemplateAngles( CodeChunk *dataType )
             } else if (tok == Tok_RightParen || tok == Tok_RightBrace) {
                 if (--parenAndBraceDepth < 0)
                     return false;
-            } 
+            }
 
 	    if ( dataType != 0 )
 		dataType->append( lexeme() );
@@ -584,7 +584,7 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var )
 	    break;
     }
 
-    while ( match(Tok_Ampersand) || match(Tok_Aster) || match(Tok_const) || 
+    while ( match(Tok_Ampersand) || match(Tok_Aster) || match(Tok_const) ||
 	    match(Tok_Caret) )
 	dataType->append( previousLexeme() );
 
@@ -823,7 +823,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
     return true;
 }
 
-bool CppCodeParser::matchBaseSpecifier( ClassNode *classe )
+bool CppCodeParser::matchBaseSpecifier( ClassNode *classe, bool isClass )
 {
     Node::Access access;
 
@@ -833,17 +833,19 @@ bool CppCodeParser::matchBaseSpecifier( ClassNode *classe )
     switch ( tok ) {
     case Tok_public:
 	access = Node::Public;
+        readToken();
 	break;
     case Tok_protected:
 	access = Node::Protected;
+        readToken();
 	break;
     case Tok_private:
 	access = Node::Private;
+        readToken();
 	break;
     default:
-	return false;
+	access = isClass ? Node::Private : Node::Public;
     }
-    readToken();
 
     CodeChunk baseClass;
     if (!matchDataType(&baseClass))
@@ -853,10 +855,10 @@ bool CppCodeParser::matchBaseSpecifier( ClassNode *classe )
     return true;
 }
 
-bool CppCodeParser::matchBaseList( ClassNode *classe )
+bool CppCodeParser::matchBaseList( ClassNode *classe, bool isClass )
 {
     for ( ;; ) {
-	if ( !matchBaseSpecifier(classe) )
+	if ( !matchBaseSpecifier(classe, isClass) )
 	    return false;
 	if ( tok == Tok_LeftBrace )
 	    return true;
@@ -891,7 +893,7 @@ bool CppCodeParser::matchClassDecl( InnerNode *parent )
     if (!moduleName.isEmpty())
         classe->setModuleName(moduleName);
 
-    if ( match(Tok_Colon) && !matchBaseList(classe) )
+    if ( match(Tok_Colon) && !matchBaseList(classe, isClass) )
 	return false;
     if ( !match(Tok_LeftBrace) )
 	return false;
@@ -1072,7 +1074,7 @@ bool CppCodeParser::matchProperty(InnerNode *parent)
                     if (--depth == 0)
                         break;
                 } else {
-                    readToken();                
+                    readToken();
                 }
             }
             value = "?";
