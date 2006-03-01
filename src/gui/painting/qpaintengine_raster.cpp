@@ -147,6 +147,7 @@ public:
 #ifdef QT_DEBUG_CONVERT
         printf("QFTOutlineMapper::beginOutline rule=%d\n", fillRule);
 #endif
+        m_valid = true;
         m_elements.reset();
         m_elements_dev.reset();
         m_element_types.reset();
@@ -209,6 +210,11 @@ public:
         }
     }
 
+    QT_FT_Outline *outline() {
+        if (m_valid)
+            return &m_outline;
+        return 0;
+    }
 
     QT_FT_Outline *convertPath(const QPainterPath &path)
     {
@@ -245,8 +251,9 @@ public:
         }
 
         endOutline();
-        return &m_outline;
+        return outline();
     }
+
 public:
     QDataBuffer<QPainterPath::ElementType> m_element_types;
     QDataBuffer<QPointF> m_elements;
@@ -270,6 +277,8 @@ public:
     qreal m_m22;
     qreal m_dx;
     qreal m_dy;
+
+    bool m_valid;
 };
 
 void QFTOutlineMapper::endOutline()
@@ -450,8 +459,10 @@ void QFTOutlineMapper::clipElements(const QPointF *elements,
     }
 #endif
 
-    if (!clipped_count)
+    if (!clipped_count) {
+        m_valid = false;
         return;
+    }
 
     QPainterPath::ElementType *point_types = new QPainterPath::ElementType[clipped_count];
     point_types[0] = QPainterPath::MoveToElement;
@@ -1203,7 +1214,7 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
         }
         d->outlineMapper->endOutline();
 
-        d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData, d->rasterBuffer);
+        d->rasterize(d->outlineMapper->outline(), d->penData.blend, &d->penData, d->rasterBuffer);
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
 
@@ -1234,7 +1245,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
         d->outlineMapper->endOutline();
 
         // scanconvert.
-        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData, d->rasterBuffer);
+        d->rasterize(d->outlineMapper->outline(), d->brushData.blend, &d->brushData, d->rasterBuffer);
     }
 
     // Do the outline...
@@ -1289,7 +1300,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             }
             d->outlineMapper->endOutline();
 
-            d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData, d->rasterBuffer);
+            d->rasterize(d->outlineMapper->outline(), d->penData.blend, &d->penData, d->rasterBuffer);
 
             d->outlineMapper->setMatrix(d->matrix, d->txop);
         }
@@ -1327,7 +1338,7 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
         d->outlineMapper->endOutline();
 
         // scanconvert.
-        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData, d->rasterBuffer);
+        d->rasterize(d->outlineMapper->outline(), d->brushData.blend, &d->brushData, d->rasterBuffer);
     }
 
     // Do the outline...
@@ -2018,7 +2029,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         }
         d->outlineMapper->endOutline();
 
-        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData, d->rasterBuffer);
+        d->rasterize(d->outlineMapper->outline(), d->brushData.blend, &d->brushData, d->rasterBuffer);
     }
 
     if (d->penData.blend) {
@@ -2033,7 +2044,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         }
         d->outlineMapper->endOutline();
 
-        d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData, d->rasterBuffer);
+        d->rasterize(d->outlineMapper->outline(), d->penData.blend, &d->penData, d->rasterBuffer);
 
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
@@ -2238,7 +2249,7 @@ void QRasterPaintEnginePrivate::rasterize(QT_FT_Outline *outline,
                                           ProcessSpans callback,
                                           void *userData, QRasterBuffer *rasterBuffer)
 {
-    if (!callback)
+    if (!callback || !outline)
         return;
 
     void *data = userData;
