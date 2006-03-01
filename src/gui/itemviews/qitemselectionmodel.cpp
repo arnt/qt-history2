@@ -586,7 +586,7 @@ void QItemSelectionModelPrivate::_q_columnsAboutToBeInserted(const QModelIndex &
     for (; it != ranges.end(); ++it) {
         if ((*it).isValid() && (*it).parent() == parent
             && (*it).left() <= start && (*it).right() >= start) {
-            QModelIndex bottomMiddle = model->index((*it).bottom(), start, (*it).parent());
+            QModelIndex bottomMiddle = model->index((*it).bottom(), start - 1, (*it).parent());
             QItemSelectionRange left((*it).topLeft(), bottomMiddle);
             QModelIndex topMiddle = model->index((*it).top(), start, (*it).parent());
             QItemSelectionRange right(topMiddle, (*it).bottomRight());
@@ -613,13 +613,15 @@ void QItemSelectionModelPrivate::_q_rowsAboutToBeInserted(const QModelIndex &par
     for (; it != ranges.end(); ++it) {
         if ((*it).isValid() && (*it).parent() == parent
             && (*it).top() <= start && (*it).bottom() >= start) {
-            QModelIndex middleRight = model->index(start, (*it).right(), (*it).parent());
+            QModelIndex middleRight = model->index(start - 1, (*it).right(), (*it).parent());
             QItemSelectionRange top((*it).topLeft(), middleRight);
             QModelIndex middleLeft = model->index(start, (*it).left(), (*it).parent());
-            QItemSelectionRange bottom((*it).bottomRight(), middleLeft);
+            QItemSelectionRange bottom(middleLeft, (*it).bottomRight());
             ranges.erase(it);
             split.append(top);
             split.append(bottom);
+            qDebug() << top;
+            qDebug() << bottom;
         }
     }
     ranges += split;
