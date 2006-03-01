@@ -4391,10 +4391,10 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
     qt_painter_tread_test();
 #endif
 
-    if (!isActive() || pen().style() == Qt::NoPen)
+    if (!isActive())
         return;
+
     Q_D(QPainter);
-    d->updateState(d->state);
 
     QTextItemInt &ti = const_cast<QTextItemInt &>(static_cast<const QTextItemInt &>(_ti));
 
@@ -4409,6 +4409,19 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
 
         qreal x = p.x();
         qreal y = p.y();
+
+    if (d->state->bgMode == Qt::OpaqueMode) {
+        QRectF rect(p.x(), p.y() - ti.ascent.toReal(),
+                    ti.width.toReal(),
+                    (ti.ascent + ti.descent).toReal());
+        fillRect(rect, d->state->bgBrush);
+    }
+
+
+    if (pen().style() == Qt::NoPen)
+        return;
+
+    d->updateState(d->state);
 
         int logClusterOffset = ti.logClusters[0];
         int start = 0;
