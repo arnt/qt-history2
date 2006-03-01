@@ -999,7 +999,7 @@ void QWidgetPrivate::hide_sys()
     ShowWindow(q->winId(), SW_HIDE);
     if(!q->isWindow())
         invalidateBuffer(q->rect());
-    else if (!QWidgetBackingStore::paintOnScreen(q)) 
+    else if (!QWidgetBackingStore::paintOnScreen(q))
         extra->topextra->backingStore->releaseBuffer(); // release backing store buffer on hide
 }
 
@@ -1236,7 +1236,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
     // move ourselves to the new position and map (if necessary) after
     // the movement. Rationale: moving unmapped windows is much faster
     // than moving mapped windows
-    MoveWindow(q->winId(), xrect.x(), xrect.y(), xrect.width(), xrect.height(), true);
+    MoveWindow(q->winId(), xrect.x(), xrect.y(), xrect.width(), xrect.height(), !jump);
     if (mapWindow && !dontShow) {
         q->setAttribute(Qt::WA_Mapped);
         ShowWindow(q->winId(), SW_SHOWNOACTIVATE);
