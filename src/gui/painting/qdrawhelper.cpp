@@ -2132,7 +2132,7 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
       blend_texture_generic,   // Mono
       blend_texture_generic,   // MonoLsb
       blend_texture_generic,   // Indexed8
-      blend_transformed_tiled_argb // RGB32
+      blend_transformed_tiled_argb, // RGB32
       blend_texture_generic,   // ARGB32
       blend_transformed_tiled_argb // ARGB32_Premultiplied
 #ifdef Q_WS_QWS
