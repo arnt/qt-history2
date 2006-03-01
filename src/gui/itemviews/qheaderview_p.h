@@ -70,7 +70,7 @@ public:
     bool isSectionSelected(int section) const;
 
     inline bool rowIntersectsSelection(int row) const {
-        return (selectionModel ? selectionModel->columnIntersectsSelection(row, root) : false);
+        return (selectionModel ? selectionModel->rowIntersectsSelection(row, root) : false);
     }
 
     inline bool columnIntersectsSelection(int column) const {
