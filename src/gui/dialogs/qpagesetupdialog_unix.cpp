@@ -187,6 +187,10 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 int QPageSetupDialog::exec()
 {
     Q_D(QPageSetupDialog);
+
+    if (d->printer->outputFormat() != QPrinter::NativeFormat) 
+        return Rejected;
+
     int ret = QDialog::exec();
     if (ret == Accepted) {
         // Read out the data

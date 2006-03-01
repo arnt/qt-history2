@@ -28,6 +28,10 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 int QPageSetupDialog::exec()
 {
     Q_D(QPageSetupDialog);
+
+    if (d->printer->outputFormat() != QPrinter::NativeFormat) 
+        return Rejected;
+
     QMacPrintEngine *engine = static_cast<QMacPrintEngine *>(d->printer->paintEngine());
     QMacPrintEnginePrivate *ep = static_cast<QMacPrintEnginePrivate *>(engine->d_ptr);
     Boolean ret;

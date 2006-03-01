@@ -33,6 +33,10 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 int QPageSetupDialog::exec()
 {
     Q_D(QPageSetupDialog);
+
+    if (d->printer->outputFormat() != QPrinter::NativeFormat)
+        return Rejected;
+   
     QWin32PrintEngine *engine = static_cast<QWin32PrintEngine*>(d->printer->paintEngine());
     QWin32PrintEnginePrivate *ep = static_cast<QWin32PrintEnginePrivate *>(engine->d_ptr);
 
