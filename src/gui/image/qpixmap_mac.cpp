@@ -189,7 +189,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             const QVector<QRgb> rgb = image.colorTable();
             for (int i = 0, count = image.numColors(); i < count; ++i) {
                 const int alpha = qAlpha(rgb[i]);
-                if (alpha != 0 && alpha != 0xff) {
+                if (alpha != 0xff) {
                     alphamap = true;
                     break;
                 }
