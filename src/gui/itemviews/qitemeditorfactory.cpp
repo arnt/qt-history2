@@ -148,9 +148,12 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
         QLineEdit *le = new QLineEdit(parent);
         le->setFrame(false);
         return le; }
+#else
+    default:
+        break;
 #endif
     }
-    return 0;    
+    return 0;
 }
 
 QByteArray QDefaultItemEditorFactory::valuePropertyName(QVariant::Type type) const

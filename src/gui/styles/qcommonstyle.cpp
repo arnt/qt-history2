@@ -622,6 +622,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     }
 }
 
+#ifndef QT_NO_TOOLBUTTON
 static void drawArrow(const QStyle *style, const QStyleOptionToolButton *toolbutton,
                       const QRect &rect, QPainter *painter, const QWidget *widget = 0)
 {
@@ -648,6 +649,8 @@ static void drawArrow(const QStyle *style, const QStyleOptionToolButton *toolbut
     arrowOpt.state = toolbutton->state;
     style->drawPrimitive(pe, &arrowOpt, painter, widget);
 }
+#endif // QT_NO_TOOLBUTTON
+
 /*!
   \reimp
 */
