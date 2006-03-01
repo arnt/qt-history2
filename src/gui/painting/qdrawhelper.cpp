@@ -82,25 +82,27 @@ struct Operator
 static uint * QT_FASTCALL destFetchMono(uint *buffer, QRasterBuffer *rasterBuffer, int x, int y, int length)
 {
     uchar *data = (uchar *)rasterBuffer->scanLine(y);
+    uint *start = buffer;
     const uint *end = buffer + length;
     while (buffer < end) {
         *buffer = data[x>>3] & (0x80 >> (x & 7)) ? 0xff000000 : 0xffffffff;
+        ++buffer;
         ++x;
     }
-
-    return buffer;
+    return start;
 }
 
 static uint * QT_FASTCALL destFetchMonoLsb(uint *buffer, QRasterBuffer *rasterBuffer, int x, int y, int length)
 {
     uchar *data = (uchar *)rasterBuffer->scanLine(y);
+    uint *start = buffer;
     const uint *end = buffer + length;
     while (buffer < end) {
         *buffer = data[x>>3] & (0x1 << (x & 7)) ? 0xff000000 : 0xffffffff;
+        ++buffer;
         ++x;
     }
-
-    return buffer;
+    return start;
 }
 
 static uint * QT_FASTCALL destFetchRGB32(uint *, QRasterBuffer *rasterBuffer, int x, int y, int)
