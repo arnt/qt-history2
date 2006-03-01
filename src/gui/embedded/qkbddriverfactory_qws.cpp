@@ -33,27 +33,28 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 #endif //QT_MAKEDLL
 
 /*!
-    \class QKbdDriverFactory qkbddriverfactory.h
-    \brief The QKbdDriverFactory class creates QWSKeyboardHandler objects
-    for Qtopia Core.
-
+    \class QKbdDriverFactory
     \ingroup qws
 
-    The graphics driver factory creates a QWSKeyboardHandler object
-    for a given key with QKbdDriverFactory::create(key).
+    \brief The QKbdDriverFactory class creates QWSKeyboardHandler
+    objects.
+
+    Only available in \l {Qtopia Core}.
+
+    QKbdDriverFactory creates a QWSKeyboardHandler object using the
+    create() function and a given key. The valid keys can be
+    retrieved using the keys() function.
 
     The drivers are either built-in or dynamically loaded from a
-    driver plugin (see \l QKbdDriverPlugin).
+    driver plugin (see \l QKbdDriverPlugin for details).
 
-    This class is only available in Qtopia Core.
-
-    QKbdDriverFactory::keys() returns a list of valid keys.
+    \sa QWSKeyboardHandler, QKbdDriverPlugin, {Character Input}
 */
 
 /*!
-    Creates a QWSKeyboardHandler object that matches \a key for device
-    \a device. This is either a built-in driver, or a driver from a
-    driver plugin.
+    Creates a QWSKeyboardHandler object that matches the given \a key,
+    for the given \a device. The device is either a built-in driver,
+    or a driver plugin.
 
     \sa keys()
 */
@@ -98,7 +99,8 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
 }
 
 /*!
-    Returns the list of keys this factory can create drivers for.
+    Returns the list of valid keys this factory can create drivers
+    for.
 
     \sa create()
 */

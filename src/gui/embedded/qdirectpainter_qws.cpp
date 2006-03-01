@@ -26,35 +26,54 @@
 
 
 /*!
-    \class QDirectPainter qdirectpainter_qws.h
-    \brief The QDirectPainter class provides direct access to the video hardware.
-
+    \class QDirectPainter
     \ingroup multimedia
     \ingroup qws
 
-    Only available in Qtopia Core.
+    \brief The QDirectPainter class provides direct access to the
+    video hardware.
 
     When the hardware is known and well defined, as is often the case
     with software for embedded devices, it may be useful to manipulate
-    the underlying video hardware directly. In order to do this in a
-    way that is co-operative with other applications,
-    you must reserve a region of the screen for the application.
+    the underlying video hardware directly. Note that this
+    functionality is only available in \l {Qtopia Core}.
 
-    QDirectPainter provides this functionality.
+    Access to the video hardware can be retrieved using the
+    frameBuffer() function which returns a pointer to the beginning of
+    the display memory.  In order to access the video hardware in a
+    way that is co-operative with other applications, a region of the
+    screen must be reserved for the application. QDirectPainter
+    provides the necessary functionality: the reserveRegion() function
+    attempts to reserve the given region and returns the region
+    actually reserved. The reserved region can also be retrieved using
+    the region() function.
 
-    Depending on the hardware, you may also have to lock the video
-    hardware for exclusive use for a small time while you write to
-    it. Use the functions lock() and unlock() in that case.
+    Depending on the hardware, it might be necessary to lock the video
+    hardware for exclusive use for a small time while writing to it,
+    using the lock() and unlock() functions. Note that calling lock()
+    will prevent all other applications from working until unlock() is
+    called.
 
+    In addition, QDirectPainter provides several functions returning
+    information about the framebuffer as well as the screen: the
+    linestep() function returns the length (in bytes) of each scanline
+    of the framebuffer while the screenDepth(), screenWidth() and
+    screenHeight() function return the screen metrics.
+
+    \sa QScreen
 */
 
 /*!
-  Attempts to reserve the region \a reg and returns the region
-  actually reserved.  Releases the previously reserved region, if
-  any. If not released explicitly, the region will be released on
-  application exit.
+    \fn QRegion QDirectPainter::reserveRegion(const QRegion &region)
 
+    Attempts to reserve the given \a region, and returns the region
+    that is actually reserved.
 
+    This function also releases the previously reserved region, if
+    any. If not released explicitly, the region will be released on
+    application exit.
+
+    \sa region()
 */
 QRegion QDirectPainter::reserveRegion(const QRegion &reg)
 {
@@ -78,10 +97,12 @@ QRegion QDirectPainter::reserveRegion(const QRegion &reg)
     return ad->directPainterRegion;
 }
 
-/*
-  Returns a pointer to the beginning of display memory. It is the
-  applications responsibility to limit itself to modifying only the
-  region reserved by reserveRegion().
+/*!
+    Returns a pointer to the beginning of the display memory. It is
+    the applications responsibility to limit itself to modifying only
+    the reserved region.
+
+    \sa region(), linestep()
 */
 uchar* QDirectPainter::frameBuffer()
 {
@@ -89,7 +110,9 @@ uchar* QDirectPainter::frameBuffer()
 }
 
 /*!
-  Returns the reserved region.
+    Returns the reserved region.
+
+    \sa reserveRegion(), frameBuffer()
 */
 QRegion QDirectPainter::region()
 {
@@ -97,7 +120,9 @@ QRegion QDirectPainter::region()
 }
 
 /*!
-  Returns the bit depth of the display.
+    Returns the bit depth of the display.
+
+    \sa screenHeight(), screenWidth()
 */
 int QDirectPainter::screenDepth()
 {
@@ -105,7 +130,9 @@ int QDirectPainter::screenDepth()
 }
 
 /*!
-  Returns the width of the display in pixels.
+    Returns the width of the display in pixels.
+
+    \sa screenHeight(), screenDepth()
 */
 int QDirectPainter::screenWidth()
 {
@@ -113,7 +140,9 @@ int QDirectPainter::screenWidth()
 }
 
 /*!
-  Returns the height of the display in pixels.
+    Returns the height of the display in pixels.
+
+    \sa screenWidth(), screenDepth()
 */
 int QDirectPainter::screenHeight()
 {
@@ -121,7 +150,9 @@ int QDirectPainter::screenHeight()
 }
 
 /*!
-  Returns the length in bytes of each scanline of the framebuffer.
+    Returns the length (in bytes) of each scanline of the framebuffer.
+
+    \sa frameBuffer()
 */
 int QDirectPainter::linestep()
 {
@@ -130,8 +161,13 @@ int QDirectPainter::linestep()
 
 
 /*!
-  Locks access to video hardware, stopping all other applications from accessing the screen.
-  \warning this will prevent all other applications from working until unlock() is called.
+    Locks access to video hardware, stopping all other applications
+    from accessing the screen.
+
+    \warning This will prevent all other applications from working
+    until unlock() is called.
+
+    \sa unlock()
 */
 void QDirectPainter::lock()
 {
@@ -139,7 +175,9 @@ void QDirectPainter::lock()
     qDebug("QDirectPainter::lock() not implemented");
 }
 /*!
-  Unlocks the video lock, allowing other applications to display on the screen.
+    Unlocks the video lock, allowing other applications to display on the screen.
+
+    \sa lock()
  */
 void QDirectPainter::unlock()
 {

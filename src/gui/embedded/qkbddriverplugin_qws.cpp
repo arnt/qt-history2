@@ -22,18 +22,17 @@
     \ingroup plugins
     \ingroup qws
 
-    \brief The QKbdDriverPlugin class provides an abstract base for
-    Qtopia Core keyboard driver plugins.
+    \brief The QKbdDriverPlugin class is an abstract base class for
+    keyboard driver plugins.
 
-    The keyboard driver plugin is a simple plugin interface that makes
-    it easy to create custom keyboard drivers.
+    Only available in \l {Qtopia Core}.
 
-    Writing a keyboard driver plugin is achieved by subclassing this
-    base class, reimplementing the pure virtual functions keys() and
-    create(), and exporting the class with the Q_EXPORT_PLUGIN2()
-    macro. See \l{How to Create Qt Plugins} for details.
+    Writing a custom keyboard driver plugin is achieved by subclassing
+    QKbdDriverPlugin, reimplementing the pure virtual functions keys()
+    and create(), and exporting the class with the Q_EXPORT_PLUGIN2()
+    macro (See \l{How to Create Qt Plugins} for details).
 
-    This class is only available in Qtopia Core.
+    \sa QKbdDriverFactory, QWSKeyboardHandler, {Character Input}
 */
 
 /*!
@@ -45,8 +44,11 @@
 */
 
 /*!
-    Constructs a keyboard driver plugin with the given \a parent. This
-    is invoked automatically by the Q_EXPORT_PLUGIN2() macro.
+    Constructs a keyboard driver plugin with the given \a parent.
+
+    Note that this constructor is invoked automatically by the
+    Q_EXPORT_PLUGIN2() macro, so there is no need for calling it
+    explicitly.
 */
 QKbdDriverPlugin::QKbdDriverPlugin(QObject *parent)
     : QObject(parent)
@@ -56,8 +58,8 @@ QKbdDriverPlugin::QKbdDriverPlugin(QObject *parent)
 /*!
     Destroys the keyboard driver plugin.
 
-    You never have to call this explicitly. Qt destroys a plugin
-    automatically when it is no longer used.
+    Note that Qt destroys a plugin automatically when it is no longer
+    used, so there is no need for calling the destructor explicitly.
 */
 QKbdDriverPlugin::~QKbdDriverPlugin()
 {
@@ -66,7 +68,8 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
 /*!
     \fn QScreen *QKbdDriverPlugin::create(const QString &driver, const QString &device)
 
-    Creates a driver matching the type specified by \a driver and \a device.
+    Creates a driver matching the type specified by the given \a
+    driver and \a device.
 
     \sa keys()
 */

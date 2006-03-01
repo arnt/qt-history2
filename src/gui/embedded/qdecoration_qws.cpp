@@ -25,56 +25,86 @@
 
 
 /*!
-    \class QDecoration qdecoration_qws.h
-    \brief The QDecoration class allows the appearance of the Qtopia Core Window
-    Manager to be customized.
-
+    \class QDecoration
     \ingroup qws
 
-    Qtopia Core provides window management to top level windows. The
-    appearance of the borders and buttons (the decoration) around the
-    managed windows can be customized by creating your own class
-    derived from QDecoration and overriding a few methods.
+    \brief The QDecoration class allows the appearance of top level
+    windows to be customized.
 
-    This class is non-portable. It is available \e only in Qtopia Core.
+    Note that this class is non-portable, and that it is only
+    available in \l {Qtopia Core}.
 
-    \sa QApplication::qwsSetDecoration()
+    \l {Qtopia Core} provides window management of top level
+    windows. The appearance of the borders and buttons (the
+    decoration) around these windows can be customized by deriving
+    from the QDecoration class. To apply a decoration to an
+    application, use the QApplication::qwsSetDecoration() function.
+
+    The QDecoration class provides the virtual paint() function that
+    can be reimplemented to paint the border and title decoration
+    around a specified widget using a given painter and decoration
+    state.
+
+    Use the DecorationRegion enum to specify which region to
+    paint. This enum describes the various regions of the window
+    decoration. To retrieve the actual regions, use the region()
+    function. It is also possible to determine the type of region
+    containing a given point, using the regionAt() function. A
+    region's state can be specified using the DecorationState enum,
+    e.g. whether it is active or not.
+
+    QDecoration also provides the possibility of building the system
+    menu for a given top level widget with its virtual buildSysMenu()
+    function. The menuTriggered() function is called whenever an
+    action in such a widget's menu is triggered.
+
+    The virtual regionClicked() and regionDoubleClicked() functions
+    are provided to enable response to mouse clicks. The default
+    implementations responds to (single) clicks on items in a widget's
+    system menu and double clicks on a widget's title.
+
+    Finally, the QDecoration class provides a couple of static
+    functions, startMove() and startResize(), which start the move or
+    resize action by making the appropiate decoration region active
+    and grabbing the mouse input.
+
+    \sa QDecorationFactory, QDecorationPlugin, QDirectPainter
 */
 
 /*!
     \fn QDecoration::QDecoration()
 
-    Constructs a decorator.
+    Constructs a decoration object.
 */
 
 /*!
     \fn QDecoration::~QDecoration()
 
-    Destroys a decorator.
+    Destroys this decoration object.
 */
 
 /*!
     \enum QDecoration::DecorationRegion
 
-    This enum describes the regions in the window decorations.
+    This enum describes the various regions of the window decoration.
 
     \value All The entire region used by the window decoration.
 
-    \value Top    The top border is used to vertically resize the window.
-    \value Bottom The bottom border is used to vertically resize the window.
-    \value Left   The left border is used to horizontally resize the window.
-    \value Right  The right border is used to horizontally resize the window.
-    \value TopLeft    The top-left corner of the window is used to resize the
+    \value Top    The top border used to vertically resize the window.
+    \value Bottom The bottom border used to vertically resize the window.
+    \value Left   The left border used to horizontally resize the window.
+    \value Right  The right border used to horizontally resize the window.
+    \value TopLeft    The top-left corner of the window used to resize the
                       window both horizontally and vertically.
-    \value TopRight   The top-right corner of the window is used to resize the
+    \value TopRight   The top-right corner of the window used to resize the
                       window both horizontally and vertically.
-    \value BottomLeft The bottom-left corner of the window is used to resize the
+    \value BottomLeft The bottom-left corner of the window used to resize the
                       window both horizontally and vertically.
-    \value BottomRight The bottom-right corner of the window is used to resize the
+    \value BottomRight The bottom-right corner of the window used to resize the
                       window both horizontally and vertically.
-    \value Borders    All of the regions used to describe the window border.
+    \value Borders    All the regions used to describe the window border.
 
-    \value Title    The region containing the window title that can be used
+    \value Title    The region containing the window title, used
                     to move the window by dragging with the mouse cursor.
     \value Close    The region occupied by the close button. Clicking in this
                     region closes the window.
@@ -84,48 +114,79 @@
                     this region maximizes the window.
     \value Normalize The region occupied by a button used to restore a window's
                      normal size. Clicking in this region restores a maximized
-                     window to its previous size. This region used for this
-                     button is often also the maximize region.
+                     window to its previous size. The region used for this
+                     button is often also the Maximize region.
     \value Menu     The region occupied by the window's menu button. Clicking
                     in this region opens the window operations (system) menu.
     \value Help     The region occupied by the window's help button. Clicking
                     in this region causes the context-sensitive help function
                     to be enabled.
-    \value Resize   The region that the user can click to resize the window.
-    \value Move     The region that the user can click to move the window.
-    \value None
+    \value Resize   The region used to resize the window.
+    \value Move     The region used to move the window.
+    \value None      No region.
+
+    \sa region(), regionAt(), DecorationState
 */
 
 /*!
     \enum QDecoration::DecorationState
 
-    \value Normal
-    \value Disabled
-    \value Hover
-    \value Pressed
+    This enum describes the various states of a decoration region.
+
+    \value Normal The region is active
+    \value Disabled The region is inactive.
+    \value Hover The cursor is hovering over the region.
+    \value Pressed The region is pressed.
+
+    \sa paint(), DecorationRegion
+*/
+
+/*!
+    \fn QRegion QDecoration::region(const QWidget *widget, const QRect & rectangle, int decorationRegion)
+
+    Returns the region specified by \a decorationRegion, for the given
+    top level \a widget.
+
+    The \a rectangle parameter specifies the rectangle the decoration
+    is wrapped around. The \a decorationRegion is a bitmask of the
+    values described by the DecorationRegion enum.
+
+    \sa regionAt()
 */
 
 /*!
     \fn QRegion QDecoration::region(const QWidget *widget, int decorationRegion)
+    \overload
 
-    Returns the requested region \a decorationRegion which will
-    contain \a widget.
+    Returns the region specified by \a decorationRegion containing the
+    given \a widget. The \a decorationRegion is a bitmask of the
+    values described by the DecorationRegion enum.
 */
 
 /*!
     \fn void QDecoration::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
                                 DecorationState state)
 
-    Override to paint the border and title decoration around \a
-    widget using \a painter. \a decorationRegion is the number of the
-    decoration region. \a state specifies how to render the region.
+    This virtual function allows subclasses of QDecoration to paint
+    the border and title decoration for the specified top level \a
+    widget using the given \a painter and \a state.
+
+    The specified \a decorationRegion is a bitmask of the values
+    described by the DecorationRegion enum.
 */
 
 /*!
     \fn int QDecoration::regionAt(const QWidget *widget, const QPoint &point)
 
-    Returns the first region within \a widget which contains \a point.
-    If none of the regions contain the point, returns \l None.
+    Returns the type of the first region within the specified \a
+    widget which contains the given \a point.
+
+    The return value is one of the DecorationRegion enum's values. Use
+    the region() function to retrieve the actual region. If none of
+    the widget's regions contain the point, this function returns \l
+    None.
+
+    \sa region()
 */
 int QDecoration::regionAt(const QWidget *w, const QPoint &point)
 {
@@ -161,7 +222,9 @@ int QDecoration::regionAt(const QWidget *w, const QPoint &point)
 
 #ifndef QT_NO_MENU
 /*!
-    Builds the system \a menu for the TLW \a widget.
+    Builds the system \a menu for the given top level \a widget.
+
+    \sa menuTriggered()
 */
 void QDecoration::buildSysMenu(QWidget *widget, QMenu *menu)
 {
@@ -180,8 +243,11 @@ void QDecoration::buildSysMenu(QWidget *widget, QMenu *menu)
 }
 
 /*!
-    This function is called whenever an \a action in a menu is triggered
-    for a top level \a widget.
+    This function is called whenever an action in a top level widget's
+    menu is triggered. Pointers to the \a widget and \a action are
+    passed as arguments.
+
+    \sa buildSysMenu()
 */
 void QDecoration::menuTriggered(QWidget *widget, QAction *action)
 {
@@ -191,11 +257,17 @@ void QDecoration::menuTriggered(QWidget *widget, QAction *action)
 #endif // QT_NO_MENU
 
 /*!
-    This function is called whenever a region in a top level widget is
-    clicked. The widget and region are specified by \a widget and \a reg.
+    \fn void QDecoration::regionClicked(QWidget *widget, int region)
 
-    The default implementation performs the action for when a region is
-    clicked, and it is used to handle clicks on items in the system menu.
+    This function is called whenever a region in a top level widget is
+    clicked. Specifications of the \a widget as well as the \a region
+    are passed as arguments. The \a region parameter is one of the
+    DecorationRegion values.
+
+    The default implementation responds to clicks on items in the
+    system menu, performing the requested actions.
+
+    \sa regionDoubleClicked()
 */
 void QDecoration::regionClicked(QWidget *widget, int reg)
 {
@@ -230,12 +302,17 @@ void QDecoration::regionClicked(QWidget *widget, int reg)
 }
 
 /*!
+    \fn void QDecoration::regionDoubleClicked(QWidget *widget, int region)
+
     This function is called whenever a region in a top level widget is
-    double clicked. The widget and region are specified by \a widget and
-    \a reg.
+    clicked. Specifications of the \a widget as well as the \a region
+    are passed as arguments. The \a region parameter is one of the
+    DecorationRegion values.
 
     The default implementation responds to a double click on the widget's
     title, toggling its size between the maximum and its normal size.
+
+    \sa regionClicked()
 */
 void QDecoration::regionDoubleClicked(QWidget *widget, int reg)
 {
@@ -252,8 +329,10 @@ void QDecoration::regionDoubleClicked(QWidget *widget, int reg)
 }
 
 /*!
-    Initiates move mode for the top level widget specified by \a widget
-    that is TLW handled by QWSManager.
+    Starts to move the given top level \a widget by making its \l
+    Title region active and grabbing the mouse input.
+
+    \sa DecorationRegion
 */
 void QDecoration::startMove(QWidget *widget)
 {
@@ -267,8 +346,10 @@ void QDecoration::startMove(QWidget *widget)
 }
 
 /*!
-    Initiates resize mode for the top level widget specified by \a widget
-    that is handled by QWSManager.
+    Starts to resize the given top level \a widget by making its \l
+    BottomRight region active and grabbing the mouse input.
+
+    \sa DecorationRegion
 */
 void QDecoration::startResize(QWidget *widget)
 {
