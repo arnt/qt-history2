@@ -2172,26 +2172,7 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
     Q_D(QAbstractItemView);
     QModelIndexList indexes = selectedIndexes();
     if (indexes.count() > 0) {
-        // setup pixmap
-        QRect rect = visualRect(indexes.at(0));
-        QList<QRect> rects;
-        for (int i = 0; i < indexes.count(); ++i) {
-            rects.append(visualRect(indexes.at(i)));
-            rect |= rects.at(i);
-        }
-        rect = rect.intersect(d->viewport->rect());
-        QPixmap pixmap(rect.size());
-        pixmap.fill(palette().base().color());
-        QPainter painter(&pixmap);
-        QStyleOptionViewItem option = viewOptions();
-        option.state |= QStyle::State_Selected;
-        for (int j = 0; j < indexes.count(); ++j) {
-            option.rect = QRect(rects.at(j).topLeft() - rect.topLeft(),
-                                rects.at(j).size());
-            itemDelegate()->paint(&painter, option, indexes.at(j));
-        }
-        painter.end();
-        // create drag object
+        QPixmap pixmap = d->renderToPixmap(indexes);
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(model()->mimeData(indexes));
@@ -2619,6 +2600,29 @@ void QAbstractItemViewPrivate::removeSelectedRows()
         int count = (*it).bottom() - (*it).top() + 1;
         model->removeRows((*it).top(), count, parent);
     }
+}
+
+QPixmap QAbstractItemViewPrivate::renderToPixmap(const QModelIndexList &indexes) const
+{
+    Q_Q(const QAbstractItemView);
+    QRect rect = q->visualRect(indexes.at(0));
+    QList<QRect> rects;
+    for (int i = 0; i < indexes.count(); ++i) {
+        rects.append(q->visualRect(indexes.at(i)));
+        rect |= rects.at(i);
+    }
+    rect = rect.intersect(viewport->rect());
+    QPixmap pixmap(rect.size());
+    pixmap.fill(q->palette().base().color());
+    QPainter painter(&pixmap);
+    QStyleOptionViewItem option = q->viewOptions();
+    option.state |= QStyle::State_Selected;
+    for (int j = 0; j < indexes.count(); ++j) {
+        option.rect = QRect(rects.at(j).topLeft() - rect.topLeft(), rects.at(j).size());
+        delegate->paint(&painter, option, indexes.at(j));
+    }
+    painter.end();
+    return pixmap;   
 }
 
 #include "moc_qabstractitemview.cpp"
