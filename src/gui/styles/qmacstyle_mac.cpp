@@ -1649,13 +1649,6 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
         HIRect hirect = qt_hirectForQRect(opt->rect);
         HIThemeDrawButton(&hirect, &bi, cg, kHIThemeOrientationNormal, 0);
         break; }
-    case QStyle::PE_IndicatorHeaderArrow:
-        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
-            if (w && isTreeView(w))
-                break; // ListView-type header is taken care of.
-            q->drawPrimitive(header->state & QStyle::State_UpArrow ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, header, p, w);
-        }
-        break;
     case QStyle::PE_FrameGroupBox: {
             HIThemeGroupBoxDrawInfo gdi;
             gdi.version = qt_mac_hitheme_version;
@@ -3375,15 +3368,6 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         qt_mac_set_port(p);
         DrawThemeButton(qt_glb_mac_rect(opt->rect, p), kThemeDisclosureButton, &currentInfo,
                         0, 0, 0, 0);
-        break;
-    case QStyle::PE_IndicatorHeaderArrow:
-        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
-            if (isTreeView(w))
-                break; // ListView-type header is taken care of.
-            q->drawPrimitive(header->state & QStyle::State_UpArrow ? QStyle::PE_IndicatorArrowUp
-                                                                   : QStyle::PE_IndicatorArrowDown,
-                                                                   header, p, w);
-        }
         break;
     case QStyle::PE_Frame:
     case QStyle::PE_FrameLineEdit:
@@ -5677,6 +5661,16 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 
             break;
         }
+    case PE_IndicatorHeaderArrow:
+        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
+            if (isTreeView(w) || header->sortIndicator == QStyleOptionHeader::None)
+                break; // ListView-type header is taken care of.
+            drawPrimitive((header->sortIndicator
+                               == QStyleOptionHeader::SortUp) ? PE_IndicatorArrowUp
+                                                              : PE_IndicatorArrowDown,
+                                                              header, p, w);
+        }
+        break;
     default:
         if (d->useHITheme)
             d->HIThemeDrawPrimitive(pe, opt, p, w);
