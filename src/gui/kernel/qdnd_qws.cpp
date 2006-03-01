@@ -246,6 +246,10 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                 QDropEvent de(object->target()->mapFromGlobal(me->globalPos()), possible_actions, dropData,
                               me->buttons(), me->modifiers());
                 QApplication::sendEvent(object->target(), &de);
+                if (de.isAccepted())
+                    global_accepted_action = de.dropAction();
+                else
+                    global_accepted_action = Qt::IgnoreAction;
 
                 if (object)
                     object->deleteLater();
