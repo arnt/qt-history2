@@ -1842,12 +1842,3 @@ QStackTextEngine::QStackTextEngine(const QString &string, const QFont &f)
     stackEngine = true;
     layoutData = &_layoutData;
 }
-
-QStackTextEngine::QStackTextEngine(const QString &string, const QFontMetrics &metrics)
-    : _layoutData(string, _memory, MemSize)
-{
-    fnt = QFont(metrics.d);
-    text = string;
-    stackEngine = true;
-    layoutData = &_layoutData;
-}

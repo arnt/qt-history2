@@ -68,6 +68,8 @@ public:
         { return boundingRect(QRect(x, y, w, h), flags, text, tabstops, tabarray); }
     QSize size(int flags, const QString& str, int tabstops=0, int *tabarray=0) const;
 
+    QString elidedText(const QString &text, Qt::TextElideMode mode, int width, int flags = 0) const;
+
     int underlinePos() const;
     int overlinePos() const;
     int strikeOutPos() const;
@@ -132,6 +134,7 @@ public:
     QRectF boundingRect(QChar) const;
     QRectF boundingRect(const QRectF &r, int flags, const QString& string, int tabstops=0, int *tabarray=0) const;
     QSizeF size(int flags, const QString& str, int tabstops=0, int *tabarray=0) const;
+    QString elidedText(const QString &text, Qt::TextElideMode mode, qreal width, int flags = 0) const;
 
     qreal underlinePos() const;
     qreal overlinePos() const;

@@ -243,22 +243,22 @@ bool QAbstractItemDelegate::editorEvent(QEvent *,
 }
 
 /*!
-    If the string \a text is wider than \a width, returns an elided
-    version of the string (i.e., a string with "..." in it).
-    Otherwise, returns the original string.
+    \obsolete 
 
-    The \a mode parameter specifies whether the text is elided on the
-    left (e.g., "...tech"), in the middle (e.g., "Tr...ch"), or on
-    the right (e.g., "Trol...").
-
-    The \a width is specified in pixels, not characters. The font
-    metrics to be used are given by \a fontMetrics.
+    Use QFontMetrics::elidedText() instead.
+    
+    \oldcode
+        QFontMetrics fm = ...
+        QString str = QAbstractItemDelegate::elidedText(fm, width, mode, text);
+    \newcode
+        QFontMetrics fm = ...
+        QString str = fm.elidedText(text, mode, width);
+    \endcode
 */
 
 QString QAbstractItemDelegate::elidedText(const QFontMetrics &fontMetrics, int width,
                                           Qt::TextElideMode mode, const QString &text)
 {
-    QStackTextEngine engine(text, fontMetrics);
-    return engine.elidedText(mode, width);
+    return fontMetrics.elidedText(text, mode, width);
 }
 #endif // QT_NO_ITEMVIEWS

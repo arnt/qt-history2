@@ -101,9 +101,8 @@ QStyleOptionTabV2 QTabBarPrivate::getStyleOption(int tab) const
     }
     int hframe  = q->style()->pixelMetric(QStyle::PM_TabBarTabHSpace, &opt, q);
 
-    QStackTextEngine engine(opt.text, q->fontMetrics());
-    opt.text = engine.elidedText(elideMode, 1 + (verticalTabs(shape) ? ptab->rect.height() : ptab->rect.width()) - hframe,
-                                 Qt::TextShowMnemonic);
+    opt.text = q->fontMetrics().elidedText(opt.text, elideMode, 1 + (verticalTabs(shape) ? ptab->rect.height() : ptab->rect.width()) - hframe,
+                                           Qt::TextShowMnemonic);
 #endif
     return opt;
 }

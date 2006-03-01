@@ -711,6 +711,28 @@ QSize QFontMetrics::size(int flgs, const QString &text, int tabstops, int *tabar
 }
 
 /*!
+    \since 4.2
+
+    If the string \a text is wider than \a width, returns an elided
+    version of the string (i.e., a string with "..." in it).
+    Otherwise, returns the original string.
+
+    The \a mode parameter specifies whether the text is elided on the
+    left (e.g., "...tech"), in the middle (e.g., "Tr...ch"), or on
+    the right (e.g., "Trol...").
+
+    The \a width is specified in pixels, not characters.
+
+    The \a flags argument is optional and currently only supports
+    Qt::TextShowMnemonic as value.
+*/
+QString QFontMetrics::elidedText(const QString &text, Qt::TextElideMode mode, int width, int flags) const
+{
+    QStackTextEngine engine(text, QFont(d));
+    return engine.elidedText(mode, width, flags);
+}
+
+/*!
     Returns the distance from the base line to where an underscore
     should be drawn.
 
@@ -1413,6 +1435,28 @@ QRectF QFontMetricsF::boundingRect(const QRectF &r, int flgs, const QString& str
 QSizeF QFontMetricsF::size(int flgs, const QString &str, int tabstops, int *tabarray) const
 {
     return boundingRect(QRectF(), flgs, str, tabstops, tabarray).size();
+}
+
+/*!
+    \since 4.2
+
+    If the string \a text is wider than \a width, returns an elided
+    version of the string (i.e., a string with "..." in it).
+    Otherwise, returns the original string.
+
+    The \a mode parameter specifies whether the text is elided on the
+    left (e.g., "...tech"), in the middle (e.g., "Tr...ch"), or on
+    the right (e.g., "Trol...").
+
+    The \a width is specified in pixels, not characters.
+
+    The \a flags argument is optional and currently only supports
+    Qt::TextShowMnemonic as value.
+*/
+QString QFontMetricsF::elidedText(const QString &text, Qt::TextElideMode mode, qreal width, int flags) const
+{
+    QStackTextEngine engine(text, QFont(d));
+    return engine.elidedText(mode, QFixed::fromReal(width), flags);
 }
 
 /*!
