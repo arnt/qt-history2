@@ -665,7 +665,10 @@ void WriteInitialization::writeProperties(const QString &varName,
             if (propertyName == QLatin1String("buddy") && uic->customWidgetsInfo()->extends(className, QLatin1String("QLabel"))) {
                 m_buddies.append(Buddy(varName, p->elementCstring()));
             } else {
-                propertyValue = fixString(p->elementCstring());
+                if (stdset)
+                    propertyValue = fixString(p->elementCstring());
+                else
+                    propertyValue = QLatin1String("QByteArray(") + fixString(p->elementCstring()) + QLatin1String(")");
             }
             break;
         case DomProperty::Cursor:
