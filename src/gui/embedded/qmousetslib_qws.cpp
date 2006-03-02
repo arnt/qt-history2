@@ -37,7 +37,7 @@
 
     \ingroup qws
 
-    To be able to compile this mouse handler, Qtopia Core must be configured
+    To be able to compile this mouse handler, \l {Qtopia Core} must be configured
     with -qt-mouse-tslib. In addition, the tslib headers and libraries must
     be present in the build environment. Use -I and -L with configure if
     neccessary. The tslib sources can be downloaded from
@@ -48,7 +48,7 @@
     file and setting the neccessary environment variables. See the README
     file provided with tslib for details.
 
-    To make Qtopia Core explicitly choose the tslib mouse handler, set the
+    To make \l {Qtopia Core} explicitly choose the tslib mouse handler, set the
     QWS_MOUSE_PROTO environment variable to "tslib".
 
     \sa {emb-running.html}{Running Qtopia Core Applications}

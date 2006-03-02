@@ -50,7 +50,7 @@ ClearCacheFunc QScreen::clearCacheFunc = 0;
     hardware mouse cursor. There may only be one QScreenCursor at a
     time; it is constructed by QScreen or one of its descendants.
 
-    This class is non-portable. It is only available in Qtopia Core.
+    This class is non-portable. It is only available in \l {Qtopia Core}.
 */
 
 /*!
@@ -190,7 +190,7 @@ void QScreenCursor::initSoftwareCursor()
 
   QScreens act as factories for the screen cursor. QLinuxFbScreen
   manages a Linux framebuffer; accelerated drivers subclass QLinuxFbScreen.
-  There can only be one screen in a Qtopia Core application.
+  There can only be one screen in a \l {Qtopia Core} application.
 */
 
 /*!
@@ -208,13 +208,13 @@ void QScreenCursor::initSoftwareCursor()
 
 /*!
 \fn QScreen::initDevice()
-This function is called by the Qtopia Core server when initializing
+This function is called by the \l {Qtopia Core} server when initializing
 the framebuffer. Accelerated drivers use it to set up the graphics card.
 */
 
 /*!
 \fn QScreen::connect(const QString &displaySpec)
-This function is called by every Qtopia Core application on startup.
+This function is called by every \l {Qtopia Core} application on startup.
 It maps in the framebuffer and in the accelerated drivers the graphics
 card control registers. \a displaySpec has the following syntax:
 \code
@@ -230,7 +230,7 @@ or the -display command line parameter.
 
 /*!
 \fn QScreen::disconnect()
-This function is called by every Qtopia Core application just
+This function is called by every \l {Qtopia Core} application just
 before exitting; it's normally used to unmap the framebuffer.
 */
 
@@ -294,14 +294,14 @@ Returns the length in bytes of each scanline of the framebuffer.
 /*!
   \fn QScreen::deviceWidth() const
 Gives the full width of the framebuffer device, as opposed to the
-width which Qtopia Core will actually use. These can differ if the
+width which \l {Qtopia Core} will actually use. These can differ if the
 display is centered within the framebuffer.
 */
 
 /*!
   \fn QScreen::deviceHeight() const
 Gives the full height of the framebuffer device, as opposed to the
-height which Qtopia Core will actually use. These can differ if the
+height which \l {Qtopia Core} will actually use. These can differ if the
 display is centered within the framebuffer.
 */
 
@@ -346,7 +346,7 @@ screen. Offscreen memory is only used by the accelerated drivers.
 
 /*!
   \fn QScreen::QScreen(int display_id)
-  Create a screen; the \a display_id is the number of the Qtopia Core server
+  Create a screen; the \a display_id is the number of the \l {Qtopia Core} server
   to connect to.
 */
 
@@ -382,8 +382,8 @@ QScreen::~QScreen()
 }
 
 /*!
-  Called by the Qtopia Core server on shutdown; never called by
-  a Qtopia Core client. This is intended to support graphics card specific
+  Called by the \l {Qtopia Core} server on shutdown; never called by
+  a \l {Qtopia Core} client. This is intended to support graphics card specific
   shutdown; the unaccelerated implementation simply hides the mouse cursor.
 */
 
@@ -567,7 +567,7 @@ bool QScreen::onCard(const unsigned char * p, ulong& offset) const
 */
 
 /*
-Given a display_id (number of the Qtopia Core server to connect to)
+Given a display_id (number of the \l {Qtopia Core} server to connect to)
 and a spec (e.g. Mach64:/dev/fb0) return a QScreen-descendant.
 The QScreenDriverFactory is queried for a suitable driver and, if found,
 asked to create a driver.

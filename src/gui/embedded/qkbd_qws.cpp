@@ -74,7 +74,7 @@ private:
     A QWSKeyboardHandler will usually open some system device in its
     constructor, create a QSocketNotifier on that opened device and
     when it receives data, it will call processKeyEvent() to send the
-    event to Qtopia Core for relaying to clients.
+    event to \l {Qtopia Core} for relaying to clients.
 */
 
 

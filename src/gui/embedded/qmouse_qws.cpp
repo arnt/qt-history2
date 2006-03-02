@@ -75,7 +75,7 @@
     A QWSMouseHandler will usually open some system device in its
     constructor, create a QSocketNotifier on that opened device and
     when it receives data, it will call mouseChanged() to send the
-    event to Qtopia Core for relaying to clients.
+    event to \l {Qtopia Core} for relaying to clients.
 
     If you are creating a handler for a device that needs calibration or
     noise reduction, such as a touchscreen, you could probably make use
@@ -131,7 +131,7 @@ QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
 /*!
     Destroys the mouse handler.
 
-    This function should only be called from within Qtopia Core when
+    This function should only be called from within \l {Qtopia Core} when
     the application terminates; do not call this function directly.
 */
 QWSMouseHandler::~QWSMouseHandler()

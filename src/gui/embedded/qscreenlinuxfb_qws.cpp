@@ -88,7 +88,7 @@ QLinuxFbScreen::~QLinuxFbScreen()
 }
 
 /*!
-    This is called by Qtopia Core clients to map in the framebuffer.
+    This is called by \l {Qtopia Core} clients to map in the framebuffer.
     It should be reimplemented by accelerated drivers to map in
     graphics card registers; those drivers should then call this
     function in order to set up offscreen memory management. The
@@ -388,7 +388,7 @@ void QLinuxFbScreen::createPalette(fb_cmap &cmap, fb_var_screeninfo &vinfo, fb_f
 }
 
 /*!
-    This is called by the Qtopia Core server at startup time. It turns
+    This is called by the \l {Qtopia Core} server at startup time. It turns
     off console blinking, sets up the color palette, enables write
     combining on the framebuffer and initialises the off-screen memory
     manager.
@@ -759,7 +759,7 @@ void QLinuxFbScreen::setupOffScreen()
 }
 
 /*!
-    This is called by the Qtopia Core server when it shuts down, and
+    This is called by the \l {Qtopia Core} server when it shuts down, and
     should be inherited if you need to do any card-specific cleanup.
     The default version hides the screen cursor and reenables the
     blinking cursor and screen blanking.
@@ -869,7 +869,7 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
 
 /*!
     This doesn't do anything; accelerated drivers may wish to reimplement
-    it to save graphics cards registers. It's called by the Qtopia Core server
+    it to save graphics cards registers. It's called by the \l {Qtopia Core} server
     when the virtual console is switched.
 */
 
@@ -882,7 +882,7 @@ void QLinuxFbScreen::save()
 // restore the state of the graphics card.
 /*!
     This is called when the virtual console is switched back to
-    Qtopia Core and restores the palette.
+    \l {Qtopia Core} and restores the palette.
 */
 void QLinuxFbScreen::restore()
 {

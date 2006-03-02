@@ -146,7 +146,7 @@ static bool force_reject_strokeIM = false;
 
     \ingroup qws
 
-    When you run a Qtopia Core application, it either runs as a server
+    When you run a \l {Qtopia Core} application, it either runs as a server
     or connects to an existing server. If it runs as a server, some
     additional functionality is provided by the QWSServer class.
 
@@ -389,7 +389,7 @@ void QWSClientPrivate::unlockCommunication()
     \brief The QWSClient class encapsulates a client process in Qtopia
     Core.
 
-    When running a Qtopia Core application, it either runs as a server
+    When running a \l {Qtopia Core} application, it either runs as a server
     or as a client connected to an existing server. The server is
     responsible for managing top-level window regions. A list of the
     current windows can be retrieved using the
@@ -628,11 +628,11 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
 
     \ingroup qws
 
-    When you run a Qtopia Core application, it either runs as a server
+    When you run a \l {Qtopia Core} application, it either runs as a server
     or connects to an existing server. If it runs as a server, some
     additional operations are provided by this class.
 
-    This class is instantiated by QApplication for Qtopia Core server
+    This class is instantiated by QApplication for \l {Qtopia Core} server
     processes. You should never construct this class yourself.
 
     A pointer to the QWSServer instance can be obtained via the global
@@ -720,7 +720,7 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
     Construct a QWSServer object.
 
     \warning This class is instantiated by QApplication for
-    Qtopia Core server processes. You should never construct this
+    \l {Qtopia Core} server processes. You should never construct this
     class yourself.
 
     The \a flags are used for keyboard and mouse setting. The server's
@@ -1312,7 +1312,7 @@ void QWSServer::refresh(QRegion & r)
 }
 
 /*!
-    Sets the area of the screen which Qtopia Core applications will
+    Sets the area of the screen which \l {Qtopia Core} applications will
     consider to be the maximum area to use for windows to \a r.
 
     \sa QWidget::showMaximized()
@@ -3481,7 +3481,7 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     \brief The KeyboardFilter class provides a global keyboard event filter.
 
     KeyboardFilter is used to implement a global, low-level filter on
-    key events in the Qtopia Core server application; this can be used
+    key events in the \l {Qtopia Core} server application; this can be used
     to implement things like APM (advanced power management) suspended
     from a button without having to filter for it in all applications.
 

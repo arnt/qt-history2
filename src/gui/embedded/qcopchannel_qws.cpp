@@ -84,8 +84,8 @@ public:
     and anyone who wants to can listen to it. The QCOP protocol allows
     clients to communicate both within the same address space and
     between different processes, but it is currently only available
-    for Qtopia Core (on X11 and Windows we are exploring the use of
-    existing standards such as DCOP and COM).
+    for \l {Qtopia Core} (on X11 and Windows we are exploring the use
+    of existing standards such as DCOP and COM).
 
     Typically, QCopChannel is either used to send messages to a
     channel using the provided static functions, or to listen to the
