@@ -43,7 +43,12 @@ DragWidget::DragWidget(QWidget *parent)
 
 void DragWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
+    if(event->mimeData()->hasFormat("text/uri-list")){
+        QList<QUrl> urls = event->mimeData()->urls();
+        qDebug("DragEnter:");
+        for(int i = 0; i < urls.size(); ++i)
+            qDebug(" %s", urls.at(i).toString().toLatin1().constData());
+    } else if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
         if (event->source() == this) {
             event->setDropAction(Qt::MoveAction);
             event->accept();
@@ -57,10 +62,15 @@ void DragWidget::dragEnterEvent(QDragEnterEvent *event)
 
 void DragWidget::dropEvent(QDropEvent *event)
 {
-    if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
+    if(event->mimeData()->hasFormat("text/uri-list")){
+        QList<QUrl> urls = event->mimeData()->urls();
+        qDebug("Drop:");
+        for(int i = 0; i < urls.size(); ++i)
+            qDebug(" %s", urls.at(i).toString().toLatin1().constData());
+    } else if (event->mimeData()->hasFormat("application/x-dnditemdata")) {
         QByteArray itemData = event->mimeData()->data("application/x-dnditemdata");
         QDataStream dataStream(&itemData, QIODevice::ReadOnly);
-        
+
         QPixmap pixmap;
         QPoint offset;
         dataStream >> pixmap >> offset;
@@ -95,8 +105,11 @@ void DragWidget::mousePressEvent(QMouseEvent *event)
     dataStream << pixmap << QPoint(event->pos() - child->pos());
 
     QMimeData *mimeData = new QMimeData;
-    mimeData->setData("application/x-dnditemdata", itemData);
-        
+    //mimeData->setData("application/x-dnditemdata", itemData);
+    QList<QUrl> urls;
+    urls.append(QUrl::fromLocalFile("/Users/sam/bar"));
+    mimeData->setUrls(urls);
+
     QDrag *drag = new QDrag(this);
     drag->setMimeData(mimeData);
     drag->setPixmap(pixmap);

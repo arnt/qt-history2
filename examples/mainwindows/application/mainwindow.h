@@ -37,6 +37,8 @@ private slots:
     bool saveAs();
     void about();
     void documentWasModified();
+    void settings1Slot() { qDebug("Settings1Slot"); }
+    void settings2Slot() { qDebug("Settings2Slot"); }
 
 private:
     void createActions();
@@ -69,6 +71,8 @@ private:
     QAction *pasteAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
+    QAction *settings1Act;
+    QAction *settings2Act;
 };
 
 #endif
