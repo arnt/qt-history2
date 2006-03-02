@@ -18,6 +18,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QLocale>
+#include <QtCore/QTimer>
 #include <QtCore/QTranslator>
 #include <QtCore/qdebug.h>
 
@@ -35,7 +36,7 @@ QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
       m_server(0),
       m_client(0),
-      m_workbench(0)
+      m_workbench(0), suppressNewFormShow(false)
 {
     setOrganizationName(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String("Designer"));
@@ -112,18 +113,17 @@ void QDesigner::initialize()
         QMetaObject::invokeMethod(this, "quit", Qt::QueuedConnection);
         return;
     }
-    
+
     m_workbench = new QDesignerWorkbench();
 
     emit initialized();
 
-    if (files.isEmpty()) {
-        if (QDesignerSettings().showNewFormOnStartup())
-            m_workbench->actionManager()->createForm();
-    } else {
-        for (int arg = 0; arg < files.count(); ++arg)
-            m_workbench->readInForm(files.at(arg));
+    foreach (QString file, files) {
+        if (m_workbench->readInForm(file) && !suppressNewFormShow)
+            suppressNewFormShow = true;
     }
+    if (QDesignerSettings().showNewFormOnStartup())
+        QTimer::singleShot(100, this, SLOT(callCreateForm())); // won't show anything if suppressed
 }
 
 bool QDesigner::event(QEvent *ev)
@@ -131,7 +131,10 @@ bool QDesigner::event(QEvent *ev)
     bool eaten;
     switch (ev->type()) {
     case QEvent::FileOpen:
-        m_workbench->readInForm(static_cast<QFileOpenEvent *>(ev)->file());
+        // set it true first since, if it's a Qt 3 form, the messagebox from convert will fire the timer.
+        suppressNewFormShow = true;
+        if (!m_workbench->readInForm(static_cast<QFileOpenEvent *>(ev)->file()))
+            suppressNewFormShow = false;
         eaten = true;
         break;
     case QEvent::Close: {
@@ -161,4 +164,10 @@ void QDesigner::setMainWindow(QDesignerToolWindow *tw)
 QDesignerToolWindow *QDesigner::mainWindow() const
 {
     return m_mainWindow;
+}
+
+void QDesigner::callCreateForm()
+{
+    if (!suppressNewFormShow)
+        m_workbench->actionManager()->createForm();
 }

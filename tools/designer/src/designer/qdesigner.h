@@ -47,12 +47,14 @@ signals:
 
 private slots:
     void initialize();
+    void callCreateForm();
 
 private:
     QDesignerServer *m_server;
     QDesignerClient *m_client;
     QDesignerWorkbench *m_workbench;
     QPointer<QDesignerToolWindow> m_mainWindow;
+    bool suppressNewFormShow;
 };
 
 #endif // QDESIGNER_H
