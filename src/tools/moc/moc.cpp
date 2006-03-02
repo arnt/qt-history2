@@ -1008,19 +1008,8 @@ void Moc::parseDeclareInterface()
 void Moc::parseDeclareMetatype()
 {
     next(LPAREN);
-    QByteArray typeName;
-    next(IDENTIFIER);
-    typeName += lexem();
-    while (test(SCOPE)) {
-        typeName += lexem();
-        next(IDENTIFIER);
-        typeName += lexem();
-    }
-    if (test(STAR)) {
-        typeName += lexem();
-    }
+    const QByteArray typeName = lexemUntil(RPAREN);
     metaTypes.append(typeName);
-    next(RPAREN);
 }
 
 void Moc::parseSlotInPrivate(ClassDef *def, FunctionDef::Access access)
