@@ -340,6 +340,17 @@ int QComboBoxPrivateContainer::spacing() const
     return 0;
 }
 
+void QComboBoxPrivateContainer::changeEvent(QEvent *e)
+{
+    if (e->type() == QEvent::StyleChange) {
+        QStyleOptionComboBox opt = comboStyleOption();
+        view->setMouseTracking(style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
+                               style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo));
+    }
+    QWidget::changeEvent(e);
+}
+
+
 bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
 {
     switch (e->type()) {

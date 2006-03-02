@@ -124,6 +124,7 @@ public:
     QAbstractItemView *itemView() const;
     void setItemView(QAbstractItemView *itemView);
     int spacing() const;
+
     QTimer blockMouseReleaseTimer;
     QPoint initialClickPosition;
 
@@ -133,6 +134,7 @@ public Q_SLOTS:
     void setCurrentIndex(const QModelIndex &index);
 
 protected:
+    void changeEvent(QEvent *e);
     bool eventFilter(QObject *o, QEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
