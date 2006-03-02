@@ -87,13 +87,18 @@ QWSEvent *QWSEvent::factory(int type)
 
     \brief The QWSEvent class encapsulates an event in Qtopia Core.
 
-    When running a Qtopia Core application, it either runs as a server
+    When running a \l {Qtopia Core} application, it either runs as a server
     or connects to an existing server. In the client/server protocol,
     each event is sent as a QWSEvent object to the server.
 
     QWSEvent provides the Type enum specifying the origin of
     the event. Internally, each type is represented by a QWSEvent
     subclass, e.g. QWSKeyEvent.
+
+    Note that the QApplication class provides the virtual \l
+    {QApplication::qwsEventFilter()}{qwsEventFilter()} function which
+    can be reimplemented to get direct access to all QWS (Q Window
+    System) events that are received from the QWS master process.
 
     \sa QWSServer, QWSClient
 */
