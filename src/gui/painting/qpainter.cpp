@@ -4455,7 +4455,10 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
                 ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
             }
 
-            QMatrix matrix = d->state->matrix;
+            QMatrix matrix;
+#if !defined(Q_WS_MAC)
+            matrix = d->state->matrix;
+#endif
             matrix.translate(x, y);
             ti2.fontEngine->getGlyphPositions(ti2.glyphs, ti2.num_glyphs, matrix, ti2.flags, outGlyphs, positions);
 
@@ -4504,7 +4507,10 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
             ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
         }
         
-        QMatrix matrix = d->state->matrix;
+        QMatrix matrix;
+#if !defined(Q_WS_MAC)
+        matrix = d->state->matrix;
+#endif
         matrix.translate(x, y);
         ti2.fontEngine->getGlyphPositions(ti2.glyphs, ti2.num_glyphs, matrix, ti2.flags, outGlyphs, positions);
 
@@ -4521,7 +4527,10 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
             glyphs[i].glyph = hi | glyphs[i].glyph;
 
     } else {
-        QMatrix matrix = d->state->matrix;
+        QMatrix matrix;
+#if !defined(Q_WS_MAC)
+        matrix = d->state->matrix;
+#endif
         matrix.translate(p.x(), p.y());
         ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, outGlyphs, positions);
 
