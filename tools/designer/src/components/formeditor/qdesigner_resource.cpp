@@ -572,8 +572,19 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     if (widgetInfoIndex != -1) {
         widgetInfo = m_core->widgetDataBase()->item(widgetInfoIndex);
 
-        if (widgetInfo->isCustom())
+        if (widgetInfo->isCustom()) {
+            if (widgetInfo->extends().isEmpty()) {
+                const QMetaObject *mo = widget->metaObject()->superClass();
+                while (mo != 0) {
+                    if (m_core->widgetDataBase()->indexOfClassName(QLatin1String(mo->className())) != -1) {
+                        widgetInfo->setExtends(QLatin1String(mo->className()));
+                        break;
+                    }
+                    mo = mo->superClass();
+                }
+            }
             m_usedCustomWidgets.insert(widgetInfo, true);
+        }
     }
 
     DomWidget *w = 0;
