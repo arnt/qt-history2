@@ -6148,7 +6148,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                         int newLeft = labelRect.left() + (rtl ? -newSum : newSum);
                         labelRect.moveLeft(newLeft);
                     } else {
-                        int newLeft = labelRect.left() + (rtl ? -3 : 3);
+                        int newLeft = labelRect.left() - (rtl ? 3 : 2);
                         labelRect.moveLeft(newLeft);
                         labelRect.moveTop(labelRect.top() + 5);
                     }
