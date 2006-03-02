@@ -654,33 +654,35 @@ void QAuthDevice::recvReadyRead()
     qDebug( "recv ready read %lli bytes - msg %s", bytes, displaybuf );
 #endif
 
-    unsigned char saveStatus = d->status;
-    if ( !authFromMessage( *d, msgQueue, msgQueue.size() ))
-    {
-        // not all arrived yet?  come back later
-        if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::TooSmall )
-        {
-            // qDebug() << "returning: auth header not all received";
-            d->status = saveStatus;
-            return;
-        }
-    }
-
-    if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::NoMagic )
-    {
-        // no msg auth header, don't change the success status for connections
-        if ( d->connection() )
-            d->status = saveStatus;
-    }
-    else
-    {
-        // msg auth header detected and auth determined, remove hdr
-        msgQueue = msgQueue.mid( QSXV_HEADER_LEN );
-    }
-
     bool bufHasMessages = msgQueue.size() > (int)sizeof(int);
     while ( bufHasMessages )
+    {
+        unsigned char saveStatus = d->status;
+        if ( !authFromMessage( *d, msgQueue, msgQueue.size() ))
+        {
+            // not all arrived yet?  come back later
+            if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::TooSmall )
+            {
+                // qDebug() << "returning: auth header not all received";
+                d->status = saveStatus;
+                return;
+            }
+        }
+
+        if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::NoMagic )
+        {
+            // no msg auth header, don't change the success status for connections
+            if ( d->connection() )
+                d->status = saveStatus;
+        }
+        else
+        {
+            // msg auth header detected and auth determined, remove hdr
+            msgQueue = msgQueue.mid( QSXV_HEADER_LEN );
+        }
+
         bufHasMessages = authorizeMessage();
+    }
 }
 
 /**
@@ -768,13 +770,14 @@ bool QAuthDevice::authorizeMessage()
         open( QIODevice::ReadOnly );
         emit QBuffer::readyRead();
     }
-#if defined(SXV_DISCOVERY)
     else
     {
-        qWarning("%s - denied: (to turn on discovery mode, export SXV_DISCOVERY_MODE=1",
-                 qPrintable(request));
-    }
+        qWarning( "%s - denied: for Program Id %u [PID %lu]"
+#if defined(SXV_DISCOVERY)
+                "(to turn on discovery mode, export SXV_DISCOVERY_MODE=1)"
 #endif
+                , qPrintable(request), d->progId, d->processId );
+    }
     msgQueue = msgQueue.mid( commandSize );
     delete command;
     return msgQueue.size() > (int)sizeof(int);
