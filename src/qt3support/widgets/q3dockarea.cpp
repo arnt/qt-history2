@@ -144,6 +144,7 @@ void Q3DockAreaLayout::invalidate()
     dirty = true;
     cached_width = 0;
     cached_height = 0;
+    QLayout::invalidate();
 }
 
 static int start_pos(const QRect &r, Qt::Orientation o)
