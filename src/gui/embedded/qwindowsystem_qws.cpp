@@ -3480,6 +3480,8 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 
     \brief The KeyboardFilter class provides a global keyboard event filter.
 
+    Note that this class is only available in \l {Qtopia Core}.
+
     KeyboardFilter is used to implement a global, low-level filter on
     key events in the \l {Qtopia Core} server application; this can be used
     to implement things like APM (advanced power management) suspended

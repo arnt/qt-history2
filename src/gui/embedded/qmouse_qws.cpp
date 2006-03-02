@@ -65,9 +65,10 @@
 
 /*!
     \class QWSMouseHandler
-    \brief The QWSMouseHandler class is a mouse driver for Qtopia Core.
-
     \ingroup qws
+
+    \brief The QWSMouseHandler class implements a mouse driver in
+    Qtopia Core.
 
     The mouse driver handles events from system devices and generates
     mouse events.
@@ -77,32 +78,46 @@
     when it receives data, it will call mouseChanged() to send the
     event to \l {Qtopia Core} for relaying to clients.
 
-    If you are creating a handler for a device that needs calibration or
-    noise reduction, such as a touchscreen, you could probably make use
-    the subclass QWSCalibratedMouseHandler.
+    If you are creating a handler for a device that needs calibration
+    or noise reduction, such as a touchscreen, use the
+    QWSCalibratedMouseHandler subclass instead to take advantage of
+    the calibrate() and clearCalibration() functions.
+
+    Note that when deriving from the QWSMouseHandler class, the
+    resume() and suspend() functions must be reimplemented.
+
+    In addition, QWSMouseHandler provides the limitToScreen() function
+    ensuring that the given position is within the screen's boundaries
+    (changing the position if necessary), and the pos() function
+    returning the current mouse position.
+
+    \sa QMouseDriverPlugin, {Pointer Handling},
+    {qtopiacore/mousecalibration}{Mouse Calibration Example}
 */
 
 
 /*!
-  \fn void QWSMouseHandler::suspend()
+    \fn void QWSMouseHandler::suspend()
 
-  Must be implemented in subclasses to suspend reading and handling of
-  mouse events.
+    Suspends reading and handling of mouse events.
 
-  \sa resume()
+    Note that this function must be reimplemented in subclasses.
+
+    \sa resume()
 */
 
 /*!
-  \fn void QWSMouseHandler::resume()
+    \fn void QWSMouseHandler::resume()
 
-  Must be implemented in subclasses to resume handling mouse events.
+    Resumes handling mouse events.
 
-  \sa suspend()
+    Note that this function must be reimplemented in subclasses.
+
+    \sa suspend()
 */
 
 /*!
     \fn virtual void QWSMouseHandler::getCalibration(QWSPointerCalibrationData *) const
-
     \internal
 */
 
@@ -110,6 +125,8 @@
     \fn const QPoint &QWSMouseHandler::pos() const
 
     Returns the current mouse position.
+
+    \sa mouseChanged(), limitToScreen()
 */
 
 /*!
@@ -119,8 +136,6 @@
     Note that once created, mouse handlers are controlled by the
     system and should not be deleted. The \a driver and \a device
     arguments are passed by the QWS_MOUSE_PROTO environment variable.
-
-    \sa {Running Qtopia Core Applications}
 */
 QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
     : mousePos(QWSServer::mousePosition)
@@ -129,10 +144,10 @@ QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
 }
 
 /*!
-    Destroys the mouse handler.
+    Destroys this mouse handler.
 
-    This function should only be called from within \l {Qtopia Core} when
-    the application terminates; do not call this function directly.
+    Do not call this function directly; it should only be called when
+    the application terminates and form within \l {Qtopia Core}.
 */
 QWSMouseHandler::~QWSMouseHandler()
 {
@@ -141,6 +156,8 @@ QWSMouseHandler::~QWSMouseHandler()
 /*!
     Ensures that the given \a position is within the screen's
     boundaries, changing the \a position if necessary.
+
+    \sa pos()
 */
 
 void QWSMouseHandler::limitToScreen(QPoint &position)
@@ -154,14 +171,17 @@ void QWSMouseHandler::limitToScreen(QPoint &position)
     Notifies the system of a new mouse event.
 
     This function updates the current mouse position and sends the
-    event to the \l QWSServer for delivery to the correct widget.
-    A subclass must call this function whenever it wants to deliver
-    a new mouse event.
+    event to the server application for delivery to the correct widget.
 
     The given \a position is the global position of the mouse cursor.
     The \a state parameter is a bitmask of Qt::MouseButtons indicating
     which mouse buttons are pressed. The \a wheel parameter is the
     delta value of the mouse wheel as returned by QWheelEvent::delta().
+
+    A subclass must call this function whenever it wants to deliver
+    a new mouse event.
+
+    \sa pos()
 */
 void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
 {
@@ -172,16 +192,21 @@ void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
 /*!
     \fn QWSMouseHandler::clearCalibration()
 
-    This method is reimplemented in QWSCalibratedMouseHandler to
-    clear calibration information. This version does nothing.
+    This virtual function allows subclasses of QWSMouseHandler to
+    clear calibration information. The default implementation does
+    nothing.
+
+    \sa QWSCalibratedMouseHandler::clearCalibration(), calibrate()
 */
 
 /*!
     \fn QWSMouseHandler::calibrate(const QWSPointerCalibrationData *data)
 
-    This method is reimplemented in QWSCalibratedMouseHandler to
-    set calibration information passed in \a data, for example, from
-    the Qtopia calibration screen. This version does nothing.
+    This virtual function allows subclasses of QWSMouseHandler to set
+    calibration information passed in \a data. The default
+    implementation does nothing.
+
+    \sa QWSCalibratedMouseHandler::calibrate(), clearCalibration()
 */
 
 /*!
