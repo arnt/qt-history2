@@ -4398,18 +4398,6 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
 
     QTextItemInt &ti = const_cast<QTextItemInt &>(static_cast<const QTextItemInt &>(_ti));
 
-    QVarLengthArray<QFixedPoint> positions;
-    QVarLengthArray<glyph_t> outGlyphs;
-
-    if (ti.fontEngine->type() == QFontEngine::Multi) {
-        QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
-
-        QGlyphLayout *glyphs = ti.glyphs;
-        int which = glyphs[0].glyph >> 24;
-
-        qreal x = p.x();
-        qreal y = p.y();
-
     if (d->state->bgMode == Qt::OpaqueMode) {
         QRectF rect(p.x(), p.y() - ti.ascent.toReal(),
                     ti.width.toReal(),
@@ -4422,6 +4410,18 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
         return;
 
     d->updateState(d->state);
+
+    QVarLengthArray<QFixedPoint> positions;
+    QVarLengthArray<glyph_t> outGlyphs;
+
+    if (ti.fontEngine->type() == QFontEngine::Multi) {
+        QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
+
+        QGlyphLayout *glyphs = ti.glyphs;
+        int which = glyphs[0].glyph >> 24;
+
+        qreal x = p.x();
+        qreal y = p.y();
 
         int logClusterOffset = ti.logClusters[0];
         int start = 0;
