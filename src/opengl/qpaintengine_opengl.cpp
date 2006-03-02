@@ -11,9 +11,11 @@
 **
 ****************************************************************************/
 
+#include <private/qtextengine_p.h>
+#include <qdebug.h>
+#include <private/qfontengine_p.h>
 #include <private/qmath_p.h>
 #include <private/qdrawhelper_p.h>
-#include <qdebug.h>
 #include <private/qpaintengine_p.h>
 #include "qapplication.h"
 #include "qbrush.h"
@@ -1094,7 +1096,6 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
                                      qMax(qAbs(mtx.m12()), qAbs(mtx.m21())) ),
                            0.0001);
 
-
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(&mat[0][0]);
 }
@@ -1573,28 +1574,259 @@ QOpenGLPaintEngine::handle() const
     return 0;
 }
 
+static const int x_margin = 1;
+static const int y_margin = 0;
+static QImage *glyphs_m0 = 0;
+static int next_x = x_margin;
+static int next_y = y_margin;
+static GLuint glyph_tex = 0;
+
+struct GlyphTexture {
+    qreal x; // glyph texture coords
+    qreal y;
+    qreal width;
+    qreal height;
+};
+static QHash<QChar, GlyphTexture*> glyphHash;
+
 void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
-#ifdef Q_WS_WIN
+#if 1
     Q_D(QOpenGLPaintEngine);
-    // the image fallback is both faster and nicer looking on windows...
-    if (d->txop <= QPainterPrivate::TxTranslate) {
-        QImage img((int)textItem.width(),
-                   (int)(textItem.ascent() + textItem.descent()),
-                   QImage::Format_ARGB32_Premultiplied);
-        img.fill(0);
-        QPainter painter(&img);
-        painter.setPen(d->cpen);
-        painter.setBrush(d->cbrush);
-        painter.drawTextItem(QPoint(0, (int)(textItem.ascent())), textItem);
-        painter.end();
-        drawImage(QRectF(p.x(), p.y()-(textItem.ascent()), img.width(), img.height()),
-                  img,
-                  QRectF(0, 0, img.width(), img.height()),
-                  Qt::AutoColor);
-    } else
-#endif
-    {
-        QPaintEngine::drawTextItem(p, textItem);
+    bool updateGlyphTexture = false;
+    const int scale = 1;
+
+//    GLenum target = GL_TEXTURE_2D;
+    GLenum target = GL_TEXTURE_RECTANGLE_NV;
+
+    // add the glyphs used to the glyph texture cache
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+    for (int i=0; i< ti.num_chars; ++i) {
+        if (ti.chars[i] == ' ')
+            continue;
+        QHash<QChar, GlyphTexture *>::const_iterator it = glyphHash.find(ti.chars[i]);
+        GlyphTexture *tex;
+        if (it == glyphHash.end()) {
+            glyph_metrics_t gm = ti.fontEngine->boundingBox(ti.glyphs[i].glyph);
+            // render new glyph and put it in the cache
+            QPixmap pm0((qRound(gm.width.toReal())+2)*scale, (qRound(ti.ascent.toReal() + ti.descent.toReal())+2)*scale);
+            pm0.fill(Qt::transparent);
+            QPainter p(&pm0);
+            p.setFont(painter()->font());
+            p.scale(scale, scale);
+            p.setPen(Qt::black);
+            p.drawText(0, qRound(ti.ascent.toReal()), ti.chars[i]);
+            p.end();
+
+            if (glyphs_m0 == 0) {
+                glyphs_m0 = new QImage(1024, 1024, QImage::Format_ARGB32);
+                glyphs_m0->fill(0);
+            }
+
+            if (next_x + pm0.width() + x_margin > glyphs_m0->width()) {
+                next_x = x_margin;
+                next_y += pm0.height() + x_margin;
+            }
+
+            tex = new GlyphTexture;
+//             tex->x = next_x;
+//             tex->y = next_y;
+//             tex->width = pm0.width()/scale;
+//             tex->height = pm0.height()/scale;
+
+            if (target == GL_TEXTURE_2D) {
+                tex->x = float(next_x) / glyphs_m0->width();
+                tex->y = float(next_y) / glyphs_m0->height();
+                tex->width = float(pm0.width()/scale) / glyphs_m0->width();
+                tex->height = float(pm0.height()/scale) / glyphs_m0->height();
+//                 x1 = float(it.value()->x) / glyphs_m0->width();
+//                 y1 = float(it.value()->y) / glyphs_m0->height();
+//                 x2 = x1 + float(it.value()->width*scale) / glyphs_m0->width();
+//                 y2 = y1 + float(it.value()->height*scale) / glyphs_m0->height();
+            } else {
+                tex->x = next_x;
+                tex->y = next_y;
+                tex->width = pm0.width();
+                tex->height = pm0.height();
+//                 x1 = it.value()->x;
+//                 y1 = it.value()->y;
+//                 x2 = x1 + it.value()->width*scale;
+//                 y2 = y1 + it.value()->height*scale;
+            }
+
+
+            QPainter ip(glyphs_m0);
+            ip.drawPixmap(next_x, next_y, pm0);
+            ip.end();
+
+            if (next_x + pm0.width() + x_margin > glyphs_m0->width()) {
+                next_x = x_margin;
+                next_y += pm0.height() + y_margin;
+            } else {
+                next_x += pm0.width() + x_margin;
+            }
+
+            glyphHash.insert(ti.chars[i], tex);
+            updateGlyphTexture = true;
+        }
     }
+
+    // regen texture if it needs to be updated
+
+    if (updateGlyphTexture) {
+        glDeleteTextures(1, &glyph_tex);
+        glGenTextures(1, &glyph_tex);
+
+        int i = 0;
+        uchar tex_data[1024*1024*2];
+        for (int y=0; y<glyphs_m0->height(); ++y) {
+            uint *s = (uint *) glyphs_m0->scanLine(y);
+            for (int x=0; x<glyphs_m0->width(); ++x) {
+                tex_data[i] = 0xff;
+                tex_data[i+1] = qAlpha(*s);
+                ++s;
+                i += 2;
+            }
+        }
+        glBindTexture(target, glyph_tex);
+
+        glTexImage2D(target, 0, GL_LUMINANCE8_ALPHA8, 1024, 1024, 0,
+                     GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, &tex_data);
+
+//         gluBuild2DMipmaps(target, GL_LUMINANCE8_ALPHA8, 1024, 1024,
+//                           GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, &tex_data);
+
+#if 0   // filtering
+        glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameterf(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+#else
+        glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//_MIPMAP_NEAREST);
+        glTexParameterf(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+#endif
+    }
+//      else {
+//          // all in
+//          glyphs_m0->save("m0.png", "PNG");
+//          glyphs_m1->save("m1.png", "PNG");
+//      }
+
+    glBindTexture(target, glyph_tex);
+    glColor4ubv(d->pen_color);
+    glEnable(target);
+
+    // do the actual drawing
+    glBegin(GL_QUADS);
+    {
+        for (int i=0; i< ti.num_chars; ++i) {
+            if (ti.chars[i] == ' ')
+                continue;
+            QHash<QChar, GlyphTexture *>::const_iterator it = glyphHash.find(ti.chars[i]);
+            Q_ASSERT(it != glyphHash.end());
+            qreal x1, x2, y1, y2;
+            x1 = it.value()->x;
+            y1 = it.value()->y;
+            x2 = x1 + it.value()->width;
+            y2 = y1 + it.value()->height;
+//             if (target == GL_TEXTURE_2D) {
+//                 x1 = float(it.value()->x) / glyphs_m0->width();
+//                 y1 = float(it.value()->y) / glyphs_m0->height();
+//                 x2 = x1 + float(it.value()->width*scale) / glyphs_m0->width();
+//                 y2 = y1 + float(it.value()->height*scale) / glyphs_m0->height();
+//             } else {
+//                 x1 = it.value()->x;
+//                 y1 = it.value()->y;
+//                 x2 = x1 + it.value()->width*scale;
+//                 y2 = y1 + it.value()->height*scale;
+//             }
+            QMatrix inv = d->matrix;
+            inv.translate(p.x(), p.y());
+            inv = inv.inverted();
+
+            QPointF logical_pos(inv.map(QPointF(ti.deviceGlyphPositions[i].x.toReal(),
+                                                ti.deviceGlyphPositions[i].y.toReal())));
+            QPointF offset(p - QPointF(0, ti.ascent.toReal()));
+            if (d->txop > QPainterPrivate::TxTranslate) // ### not really sure were this is coming from...
+                offset -= d->matrix.map(p);
+
+            QRectF r(logical_pos + offset,
+//                      QSize(qRound(it.value()->width*glyphs_m0->width()),
+//                           qRound(it.value()->height*glyphs_m0->height())));
+                     QSize(qRound(it.value()->width),
+                           qRound(it.value()->height)));
+            glTexCoord2d(x1, y1);
+            glVertex2d(r.x(), r.y());
+
+            glTexCoord2d(x2, y1);
+            glVertex2d(r.x()+r.width(), r.y());
+
+            glTexCoord2d(x2, y2);
+            glVertex2d(r.x()+r.width(), r.y()+r.height());
+
+            glTexCoord2d(x1, y2);
+            glVertex2d(r.x(), r.y()+r.height());
+        }
+    }
+    glEnd();
+#endif
+// < -- Working stuff start
+// struct GlyphTexture {
+//     QImage *glyph;
+// };
+// static QHash<QChar, GlyphTexture*> glyphHash;
+// #if 1
+//     Q_D(QOpenGLPaintEngine);
+//     QString str = textItem.text();
+//     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+//     for (int i=0; i< str.length(); ++i) {
+//         if (str.at(i) == ' ')
+//             continue;
+//         QHash<QChar, GlyphTexture *>::const_iterator it = glyphHash.find(str.at(i));
+//         GlyphTexture *tex;
+//         if (it == glyphHash.end()) {
+//             glyph_metrics_t gm = ti.fontEngine->boundingBox(ti.glyphs[i].glyph);
+//             // render new glyph and insert
+//             QPixmap pm(gm.width.toInt()+2, (int)(textItem.ascent() + textItem.descent())+2);
+//             pm.fill(Qt::transparent);//QColor(Qt::white));
+//             QPainter p(&pm);
+//             p.translate(1, 1);
+//             p.setPen(d->cpen);
+//             p.drawText(0, qRound(textItem.ascent()), str.at(i));
+//             p.end();
+//             GlyphTexture *gt = new GlyphTexture;
+//             gt->glyph = new QImage(pm.toImage().convertToFormat(QImage::Format_ARGB32));
+//             glyphHash.insert(str.at(i), gt);
+//             tex = gt;
+//         } else {
+//             tex = it.value();
+//         }
+//         QPointF pt(ti.deviceGlyphPositions[i].x.toReal(), ti.deviceGlyphPositions[i].y.toReal());
+//         drawImage(QRectF(pt.x(), pt.y(), tex->glyph->width(), tex->glyph->height()),
+//                   *tex->glyph,
+//                   QRectF(0, 0, tex->glyph->width(), tex->glyph->height()),
+//                   Qt::AutoColor);
+//     }
+// #endif
+// -- > Working stuff -- end
+// #ifdef Q_WS_WIN
+//     Q_D(QOpenGLPaintEngine);
+//     // the image fallback is both faster and nicer looking on windows...
+//     if (d->txop <= QPainterPrivate::TxTranslate) {
+//         QImage img((int)textItem.width(),
+//                    (int)(textItem.ascent() + textItem.descent()),
+//                    QImage::Format_ARGB32_Premultiplied);
+//         img.fill(0);
+//         QPainter painter(&img);
+//         painter.setPen(d->cpen);
+//         painter.setBrush(d->cbrush);
+//         painter.drawTextItem(QPoint(0, (int)(textItem.ascent())), textItem);
+//         painter.end();
+//         drawImage(QRectF(p.x(), p.y()-(textItem.ascent()), img.width(), img.height()),
+//                   img,
+//                   QRectF(0, 0, img.width(), img.height()),
+//                   Qt::AutoColor);
+//     } else
+// #endif
+//     {
+//        QPaintEngine::drawTextItem(p, textItem);
+//     }
 }
