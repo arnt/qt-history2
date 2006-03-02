@@ -163,7 +163,6 @@ public:
     void updateTextLayout();
     void moveCursor(int pos, bool mark = false);
     void setText(const QString& txt, int pos = -1, bool edited = true);
-    int xToPosInternal( int x, QTextLine::CursorPosition ) const;
     int xToPos(int x, QTextLine::CursorPosition = QTextLine::CursorBetweenCharacters) const;
     QRect cursorRect() const;
 

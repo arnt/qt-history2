@@ -1857,9 +1857,9 @@ bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
 #if !defined QT_NO_IM
     Q_Q(QLineEdit);
     if ( composeMode() ) {
-	int tmp_cursor = xToPosInternal( e->pos().x(), QTextLine::CursorOnCharacter );
+	int tmp_cursor = xToPos(e->pos().x());
 	int mousePos = tmp_cursor - cursor;
-	if ( mousePos < 0 || mousePos >= textLayout.preeditAreaText().length() ) {
+	if ( mousePos < 0 || mousePos > textLayout.preeditAreaText().length() ) {
             mousePos = -1;
 	    // don't send move events outside the preedit area
             if ( e->type() == QEvent::MouseMove )
@@ -2405,23 +2405,13 @@ void QLineEditPrivate::updateTextLayout()
     ascent = qRound(l.ascent());
 }
 
-int QLineEditPrivate::xToPosInternal(int x, QTextLine::CursorPosition betweenOrOn) const
+int QLineEditPrivate::xToPos(int x, QTextLine::CursorPosition betweenOrOn) const
 {
     Q_Q(const QLineEdit);
     x-= q->contentsRect().x() - hscroll + horizontalMargin;
     QTextLine l = textLayout.lineAt(0);
-    if (x >= 0 && x < l.naturalTextWidth())
-        return l.xToCursor(x, betweenOrOn);
-    return x < 0 ? -1 : text.length();
+    return l.xToCursor(x, betweenOrOn);
 }
-
-
-int QLineEditPrivate::xToPos(int x, QTextLine::CursorPosition betweenOrOn) const
-{
-    int pos = xToPosInternal(x, betweenOrOn);
-    return (pos < 0) ? 0 : pos;
-}
-
 
 QRect QLineEditPrivate::cursorRect() const
 {
