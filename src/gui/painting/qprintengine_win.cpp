@@ -1016,8 +1016,8 @@ void QWin32PrintEnginePrivate::updateOrigin()
     int o_y = devPageRect.y();
 
     if (fullPage) {
-        origin_x = qRound(-o_x * stretch_x);
-        origin_y = qRound(-o_y * stretch_y);
+        origin_x = qRound(-o_x);
+        origin_y = qRound(-o_y);
     } else {
         origin_x = 0;
         origin_y = 0;
