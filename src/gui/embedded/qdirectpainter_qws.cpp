@@ -42,14 +42,14 @@
     frameBuffer() function which returns a pointer to the beginning of
     the display memory.  In order to access the video hardware in a
     way that is co-operative with other applications, a region of the
-    screen must be reserved for the application. QDirectPainter
-    provides the necessary functionality: the reserveRegion() function
+    screen must be reserved for the application, QDirectPainter
+    provides the necessary functionality: The reserveRegion() function
     attempts to reserve the given region and returns the region
     actually reserved. The reserved region can also be retrieved using
     the region() function.
 
     Depending on the hardware, it might be necessary to lock the video
-    hardware for exclusive use for a small time while writing to it,
+    hardware for exclusive use while writing to it. This is possible
     using the lock() and unlock() functions. Note that calling lock()
     will prevent all other applications from working until unlock() is
     called.
@@ -60,7 +60,7 @@
     of the framebuffer while the screenDepth(), screenWidth() and
     screenHeight() function return the screen metrics.
 
-    \sa QScreen
+    \sa QScreen, QDecoration
 */
 
 /*!
@@ -69,7 +69,7 @@
     Attempts to reserve the given \a region, and returns the region
     that is actually reserved.
 
-    This function also releases the previously reserved region, if
+    This function also releases the previously reserved region if
     any. If not released explicitly, the region will be released on
     application exit.
 
@@ -98,9 +98,10 @@ QRegion QDirectPainter::reserveRegion(const QRegion &reg)
 }
 
 /*!
-    Returns a pointer to the beginning of the display memory. It is
-    the applications responsibility to limit itself to modifying only
-    the reserved region.
+    Returns a pointer to the beginning of the display memory.
+
+    Note that it is the applications responsibility to limit itself to
+    modifying only the reserved region.
 
     \sa region(), linestep()
 */
@@ -161,11 +162,10 @@ int QDirectPainter::linestep()
 
 
 /*!
-    Locks access to video hardware, stopping all other applications
-    from accessing the screen.
+    Locks access to the video hardware.
 
-    \warning This will prevent all other applications from working
-    until unlock() is called.
+    Note that calling this function will prevent all other
+    applications from working until unlock() is called.
 
     \sa unlock()
 */
@@ -175,7 +175,8 @@ void QDirectPainter::lock()
     qDebug("QDirectPainter::lock() not implemented");
 }
 /*!
-    Unlocks the video lock, allowing other applications to display on the screen.
+    Unlocks the lock on the video hardware (set by the lock()
+    function), allowing other applications to access the screen.
 
     \sa lock()
  */

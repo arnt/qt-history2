@@ -178,8 +178,8 @@
 /*!
     \fn int QDecoration::regionAt(const QWidget *widget, const QPoint &point)
 
-    Returns the type of the first region within the specified \a
-    widget which contains the given \a point.
+    Returns the type of the first region of the specified top level \a
+    widget containing the given \a point.
 
     The return value is one of the DecorationRegion enum's values. Use
     the region() function to retrieve the actual region. If none of
@@ -260,8 +260,8 @@ void QDecoration::menuTriggered(QWidget *widget, QAction *action)
     \fn void QDecoration::regionClicked(QWidget *widget, int region)
 
     This function is called whenever a region in a top level widget is
-    clicked. Specifications of the \a widget as well as the \a region
-    are passed as arguments. The \a region parameter is one of the
+    clicked. The parameters specifies the \a widget as well as the \a
+    region.  Note that the \a region parameter is one of the
     DecorationRegion values.
 
     The default implementation responds to clicks on items in the
@@ -305,8 +305,8 @@ void QDecoration::regionClicked(QWidget *widget, int reg)
     \fn void QDecoration::regionDoubleClicked(QWidget *widget, int region)
 
     This function is called whenever a region in a top level widget is
-    clicked. Specifications of the \a widget as well as the \a region
-    are passed as arguments. The \a region parameter is one of the
+    double clicked. The parameters specifies the \a widget as well as
+    the \a region. Note that the \a region parameter is one of the
     DecorationRegion values.
 
     The default implementation responds to a double click on the widget's
@@ -329,8 +329,9 @@ void QDecoration::regionDoubleClicked(QWidget *widget, int reg)
 }
 
 /*!
-    Starts to move the given top level \a widget by making its \l
-    Title region active and grabbing the mouse input.
+    Starts to move the given \a widget by making its \l Title region
+    active and grabbing the mouse input. The \a widget must be a top
+    level widget.
 
     \sa DecorationRegion
 */
@@ -346,8 +347,9 @@ void QDecoration::startMove(QWidget *widget)
 }
 
 /*!
-    Starts to resize the given top level \a widget by making its \l
-    BottomRight region active and grabbing the mouse input.
+    Starts to resize the given \a widget by making its \l BottomRight
+    region active and grabbing the mouse input. The \a widget must be
+    a top level widget.
 
     \sa DecorationRegion
 */

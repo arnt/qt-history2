@@ -28,9 +28,10 @@
     Only available in \l {Qtopia Core}.
 
     Writing a custom keyboard driver plugin is achieved by subclassing
-    QKbdDriverPlugin, reimplementing the pure virtual functions keys()
-    and create(), and exporting the class with the Q_EXPORT_PLUGIN2()
-    macro (See \l{How to Create Qt Plugins} for details).
+    QKbdDriverPlugin, reimplementing the pure virtual keys() and
+    create() functions, and exporting the class using the
+    Q_EXPORT_PLUGIN2() macro (See \l{How to Create Qt Plugins} for
+    details).
 
     \sa QKbdDriverFactory, QWSKeyboardHandler, {Character Input}
 */
@@ -38,7 +39,8 @@
 /*!
     \fn QStringList QKbdDriverPlugin::keys() const
 
-    Returns the list of keyboard drivers this plugin supports.
+    Returns the list of valid keys, i.e. the keyboard drivers
+    supported by this plugin.
 
     \sa create()
 */
@@ -66,10 +68,10 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
 }
 
 /*!
-    \fn QScreen *QKbdDriverPlugin::create(const QString &driver, const QString &device)
+    \fn QScreen *QKbdDriverPlugin::create(const QString &key, const QString &device)
 
     Creates a driver matching the type specified by the given \a
-    driver and \a device.
+    key and \a device parameters.
 
     \sa keys()
 */
