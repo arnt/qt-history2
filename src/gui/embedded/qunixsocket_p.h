@@ -92,7 +92,7 @@ private:
     QSharedDataPointer<QUnixSocketMessagePrivate> d;
 };
 
-class QUnixSocket : public QIODevice
+class Q_GUI_EXPORT QUnixSocket : public QIODevice
 {
     Q_OBJECT
 public:

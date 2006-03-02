@@ -28,7 +28,7 @@
 #include <QtCore/qobject.h>
 
 class QUnixSocketServerPrivate;
-class QUnixSocketServer : public QObject
+class Q_GUI_EXPORT QUnixSocketServer : public QObject
 {
     Q_OBJECT
 public:
