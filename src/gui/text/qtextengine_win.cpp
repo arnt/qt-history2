@@ -590,7 +590,6 @@ void QTextEngine::shapeText(int item) const
 fail:
         if (hdc)
             ReleaseDC(0, hdc);
-        ScriptFreeCache(&fontEngine->script_cache);
         if(res == S_OK)
             goto end;
     }
