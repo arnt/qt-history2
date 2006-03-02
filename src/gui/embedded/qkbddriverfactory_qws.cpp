@@ -39,9 +39,9 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     \brief The QKbdDriverFactory class creates QWSKeyboardHandler
     objects.
 
-    Only available in \l {Qtopia Core}.
+    Note that this class is only available in \l {Qtopia Core}.
 
-    The QWSKeyboardHandler class implements keyboard
+    The QWSKeyboardHandler class is used to implement keyboard
     drivers. QKbdDriverFactory creates a QWSKeyboardHandler object
     using the create() function and a given key. The valid keys can be
     retrieved using the keys() function.
@@ -102,6 +102,10 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
 /*!
     Returns the list of valid keys, i.e. the keys this factory can
     create drivers for.
+
+    \omit
+    A key is typically...
+    \endomit
 
     \sa create()
 */

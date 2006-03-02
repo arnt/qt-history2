@@ -19,27 +19,31 @@
     \ingroup qws
     \ingroup plugins
 
-    \brief The QDecorationPlugin class provides an abstract base for custom QDecoration plugins.
+    \brief The QDecorationPlugin class is an abstract base class for
+    decoration plugins.
 
-    The decoration plugin is a simple plugin interface that makes it easy
+    Note that this class is only available in \l {Qtopia Core}.
+
+    QDecorationPlugin is a simple plugin interface that makes it easy
     to create custom decorations that can be loaded dynamically into
-    applications with a QDecorationFactory.
+    applications using the QDecorationFactory class.
 
-    Writing a decoration plugin is achieved by subclassing this base class,
-    reimplementing the pure virtual functions keys() and create(), and
-    exporting the class with the Q_EXPORT_PLUGIN2() macro. See
-    \l{How to Create Qt Plugins} for details.
+    Writing a decoration plugin is achieved by subclassing
+    QDecorationPlugin, reimplementing the pure virtual keys() and
+    create() functions, and exporting the class using the
+    Q_EXPORT_PLUGIN2() macro. See \l{How to Create Qt Plugins} for
+    details.
 
-    This class is only available in Qtopia Core.
+    \sa QDecorationFactory, QDecoration
 */
 
 /*!
     \fn QStringList QDecorationPlugin::keys() const
 
-    Returns the list of decoration keys this plugin supports.
+    Returns the list of valid keys, i.e. the decoration keys supported
+    by this plugin.
 
-    These keys are usually the class names of the custom decoration that
-    are implemented in the plugin.
+    A key is usually the class name of a custom decoration.
 
     \sa create()
 */
@@ -47,15 +51,17 @@
 /*!
     \fn QDecoration *QDecorationPlugin::create(const QString &key)
 
-    Creates and returns a QDecoration object for the decoration key \a key. The
-    decoration key is usually the class name of the required decoration.
+    Creates a QDecoration object for the given decoration \a key.
 
     \sa keys()
 */
 
 /*!
-    Constructs a decoration plugin with parent \a parent. This is
-    invoked automatically by the Q_EXPORT_PLUGIN2() macro.
+    Constructs a decoration plugin with the given \a parent.
+
+    Note that this constructor is invoked automatically by the
+    Q_EXPORT_PLUGIN2() macro, so there is no need for calling it
+    explicitly.
 */
 QDecorationPlugin::QDecorationPlugin(QObject *parent)
     : QObject(parent)
@@ -65,8 +71,8 @@ QDecorationPlugin::QDecorationPlugin(QObject *parent)
 /*!
     Destroys the decoration plugin.
 
-    You never have to call this explicitly. Qt destroys a plugin
-    automatically when it is no longer used.
+    Note that Qt destroys a plugin automatically when it is no longer
+    used, so there is no need for calling the destructor explicitly.
 */
 QDecorationPlugin::~QDecorationPlugin()
 {

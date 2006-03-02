@@ -35,27 +35,33 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 #endif //QT_MAKEDLL
 
 /*!
-    \class QMouseDriverFactory qmousedriverfactory.h
-    \brief The QMouseDriverFactory class creates QWSMouseHandler
-    objects for Qtopia Core.
-
+    \class QMouseDriverFactory
     \ingroup qws
 
-    The graphics driver factory creates a QWSMouseHandler object for a
-    given key with QMouseDriverFactory::create(key).
+    \brief The QMouseDriverFactory class creates QWSMouseHandler
+    objects.
+
+    Note that this class is only available in \l {Qtopia Core}.
+
+    The QWSMouseHandler class is used to implement mouse
+    drivers. QMouseDriverFactory creates a QWSMouseHandler object
+    using the create() function and a given key. The valid keys can be
+    retrieved using the keys() function
+    \omit
+    typically including...
+    \endomit
+    .
 
     The drivers are either built-in or dynamically loaded from a
     driver plugin (see \l QMouseDriverPlugin).
 
-    This class is only available in Qtopia Core.
-
-    QMouseDriverFactory::keys() returns a list of valid keys.
+    \sa QWSMouseHandler, QMouseDriverPlugin, {Pointer Handling}
 */
 
 /*!
-    Creates a QWSMouseHandler object that matches \a key and uses
-    device \a device. This is either a built-in driver, or a driver
-    from a driver plugin.
+    Creates a QWSMouseHandler object that matches the given \a key,
+    for the given \a device. The device is either a built-in driver,
+    or a driver from a driver plugin.
 
     \sa keys()
 */
@@ -100,7 +106,12 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
 }
 
 /*!
-    Returns the list of keys this factory can create drivers for.
+    Returns the list of valid keys, i.e. the keys this factory can
+    create drivers for.
+
+    \omit
+    A key is typically...
+    \endomit
 
     \sa create()
 */

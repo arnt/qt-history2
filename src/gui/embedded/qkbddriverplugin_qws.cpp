@@ -25,7 +25,11 @@
     \brief The QKbdDriverPlugin class is an abstract base class for
     keyboard driver plugins.
 
-    Only available in \l {Qtopia Core}.
+    Note that this class is only available in \l {Qtopia Core}.
+
+    QKbdDriverPlugin is a simple plugin interface that makes it easy
+    to create custom keyboard drivers that can be loaded dynamically
+    into applications using the QKbdDriverFactory class.
 
     Writing a custom keyboard driver plugin is achieved by subclassing
     QKbdDriverPlugin, reimplementing the pure virtual keys() and
@@ -41,6 +45,10 @@
 
     Returns the list of valid keys, i.e. the keyboard drivers
     supported by this plugin.
+
+    \omit
+    A key is ...
+    \endomit
 
     \sa create()
 */
