@@ -23,7 +23,7 @@ ShapedClock::ShapedClock(QWidget *parent)
     timer->start(1000);
 
     setMouseTracking(true);
-    //setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
+    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
     setWindowTitle(tr("Shaped Analog Clock"));
 }
 
@@ -104,7 +104,6 @@ void ShapedClock::resizeEvent(QResizeEvent *event)
     int side = qMin(width(), height());
     QRegion maskedRegion(width()/2 - side/2, height()/2 - side/2, side, side,
                          QRegion::Ellipse);
-    maskedRegion += QRect(width()-15, height()-15, 15, 15);
     setMask(maskedRegion);
 }
 

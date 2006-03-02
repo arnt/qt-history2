@@ -139,11 +139,6 @@ void MainWindow::createActions()
     aboutAct->setStatusTip(tr("Show the application's About box"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 
-    settings1Act = new QAction(tr("Settings"), this);
-    connect(settings1Act, SIGNAL(triggered()), this, SLOT(settings1Slot()));
-    settings2Act = new QAction(tr("Options"), this);
-    connect(settings2Act, SIGNAL(triggered()), this, SLOT(settings2Slot()));
-
     aboutQtAct = new QAction(tr("About &Qt"), this);
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
@@ -163,7 +158,6 @@ void MainWindow::createMenus()
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
-    fileMenu->addAction(settings1Act);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
@@ -171,7 +165,6 @@ void MainWindow::createMenus()
     editMenu->addAction(cutAct);
     editMenu->addAction(copyAct);
     editMenu->addAction(pasteAct);
-    editMenu->addAction(settings2Act);
 
     menuBar()->addSeparator();
 
