@@ -155,7 +155,7 @@ bool WidgetInfo::isValidProperty(const QString &className, const QString &name)
     if (!meta)
         return true;
 
-    return meta->indexOfProperty(name) != -1;
+    return meta->indexOfProperty(name.toLatin1()) != -1;
 }
 
 bool WidgetInfo::isValidSignal(const QString &className, const QString &name)
@@ -164,7 +164,7 @@ bool WidgetInfo::isValidSignal(const QString &className, const QString &name)
     if (!meta)
         return true;
 
-    return meta->indexOfSignal(name) != -1;
+    return meta->indexOfSignal(name.toLatin1()) != -1;
 }
 
 bool WidgetInfo::isValidSlot(const QString &className, const QString &name)
@@ -173,7 +173,7 @@ bool WidgetInfo::isValidSlot(const QString &className, const QString &name)
     if (!meta)
         return true;
 
-    return meta->indexOfSlot(name) != -1;
+    return meta->indexOfSlot(name.toLatin1()) != -1;
 }
 
 bool WidgetInfo::isValidEnumerator(const QString &className, const QString &name)
@@ -195,7 +195,7 @@ bool WidgetInfo::checkEnumerator(const QMetaObject *meta, const QString &name)
 
 bool WidgetInfo::checkEnumerator(const QMetaEnum &metaEnum, const QString &name)
 {
-    return metaEnum.keyToValue(name) != -1;
+    return metaEnum.keyToValue(name.toLatin1()) != -1;
 }
 
 
@@ -231,7 +231,7 @@ QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const QString &
 {
     QString scope = QLatin1String(metaEnum.scope());
 
-    int idx = metaEnum.keyToValue(name);
+    int idx = metaEnum.keyToValue(name.toLatin1());
     if (idx != -1) {
         QString enumerator = name;
         int i = enumerator.indexOf(QLatin1String("::"));
