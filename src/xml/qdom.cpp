@@ -3023,7 +3023,7 @@ bool QDomNode::isComment() const
 
 /*!
     Returns the first child element with tag name \a tagName if tagName is non-empty;
-    otherwise returns the last child element.  Returns a null element if no
+    otherwise returns the first child element.  Returns a null element if no
     such child exists.
 
     \sa lastChildElement() previousSiblingElement() nextSiblingElement()
