@@ -265,7 +265,7 @@ void QTreeView::setRootIsDecorated(bool show)
   \property QTreeView::uniformRowHeights
   \brief whether all items in the treeview have the same height
 
-  This property should only be set to true if it is guarantied that all items
+  This property should only be set to true if it is guaranteed that all items
   in the view has the same height. This enables the view to do some
   optimizations.
 */
