@@ -61,7 +61,7 @@ void QFontEngine::addGlyphsToPath(glyph_t *, QFixedPoint *, int ,
 {
 }
 
-void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, const QMatrix &matrix, QTextItem::RenderFlags flags, 
+void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, const QMatrix &matrix, QTextItem::RenderFlags flags,
                                     QVarLengthArray<glyph_t> &glyphs_out, QVarLengthArray<QFixedPoint> &positions)
 {
     QFixed xpos = QFixed::fromReal(matrix.dx());
@@ -83,7 +83,7 @@ void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, con
         }
         positions.resize(nglyphs+totalKashidas);
         glyphs_out.resize(nglyphs+totalKashidas);
-        
+
         i = 0;
         while(i < nglyphs) {
             if (glyphs[i].attributes.dontPrint) {
@@ -169,7 +169,7 @@ void QFontEngine::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs,
 {
     if (!numGlyphs)
         return;
-    
+
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> positioned_glyphs;
     QMatrix matrix;
@@ -208,6 +208,28 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
     path->addRegion(region);
 }
 
+QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
+{
+    glyph_metrics_t gm = boundingBox(glyph);
+    int glyph_width = qRound(gm.width)+2;
+    int glyph_height = qRound(ascent() + descent())+2;
+
+    QFixedPoint pt;
+    pt.y = ascent();
+    QPainterPath path;
+    QPixmap pm(glyph_width, glyph_height);
+    pm.fill(Qt::transparent);
+    QPainter p(&pm);
+    p.setRenderHint(QPainter::Antialiasing);
+    addGlyphsToPath(&glyph, &pt, 1, &path, 0);
+    p.setPen(Qt::NoPen);
+    p.setBrush(Qt::black);
+    p.drawPath(path);
+    p.end();
+
+    return pm.toImage().convertToFormat(QImage::Format_ARGB32);
+}
+
 QFontEngine::Properties QFontEngine::properties() const
 {
     Properties p;
@@ -225,7 +247,7 @@ QFontEngine::Properties QFontEngine::properties() const
     return p;
 }
 
-void QFontEngine::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics) 
+void QFontEngine::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
 {
     *metrics = boundingBox(glyph);
     QFixedPoint p;
@@ -285,7 +307,7 @@ void QFontEngineBox::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 {
     if (!numGlyphs)
         return;
-    
+
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> positioned_glyphs;
     QMatrix matrix;
@@ -295,7 +317,7 @@ void QFontEngineBox::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 
     int size = qRound(ascent());
     QSize s(size - 3, size - 3);
-    for (int k = 0; k < positions.size(); k++) 
+    for (int k = 0; k < positions.size(); k++)
         path->addRect(QRectF(positions[k].toPointF(), s));
 }
 

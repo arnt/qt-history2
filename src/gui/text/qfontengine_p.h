@@ -93,7 +93,7 @@ public:
     virtual Properties properties() const;
     virtual void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
     virtual QByteArray getSfntTable(uint /*tag*/) const { return QByteArray(); }
-    
+
     struct FaceId {
         FaceId() : index(0), encoding(0) {}
         QByteArray filename;
@@ -120,11 +120,12 @@ public:
 #endif
     virtual void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs,
                                  QPainterPath *path, QTextItem::RenderFlags flags);
-    void getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, const QMatrix &matrix, QTextItem::RenderFlags flags, 
+    void getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, const QMatrix &matrix, QTextItem::RenderFlags flags,
                            QVarLengthArray<glyph_t> &glyphs_out, QVarLengthArray<QFixedPoint> &positions);
-    
+
     virtual void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *, QTextItem::RenderFlags flags);
     void addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *, int, QPainterPath *, QTextItem::RenderFlags);
+    virtual QImage alphaMapForGlyph(glyph_t);
 
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
@@ -219,7 +220,7 @@ public:
     void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
     QByteArray getSfntTable(uint tag) const;
     int synthesized() const;
-    
+
     QOpenType *openType() const;
     void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
 
@@ -239,7 +240,7 @@ public:
     QFixed descent() const;
     QFixed leading() const;
     QFixed xHeight() const;
-    
+
     qreal maxCharWidth() const;
     qreal minLeftBearing() const;
     qreal minRightBearing() const;
@@ -473,7 +474,7 @@ public:
     QFixed descent() const;
     QFixed leading() const;
     QFixed xHeight() const;
-    
+
     QFixed lineThickness() const;
     QFixed underlinePosition() const;
     qreal maxCharWidth() const;

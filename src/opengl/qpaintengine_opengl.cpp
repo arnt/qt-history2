@@ -1608,7 +1608,35 @@ struct QGLGlyphCoord {
     qreal width;
     qreal height;
 };
-static QHash<QChar, QGLGlyphCoord*> qt_glyph_cache;
+static QHash<glyph_t, QGLGlyphCoord*> qt_glyph_cache;
+
+
+
+// struct QGLGlyph
+// {
+//     GLuint texture;
+//     qreal x;
+//     qreal y;
+//     qreal width;
+//     qreal height;
+// };
+
+// class QGLGlyphCache
+// {
+// public:
+//     QGLGlyphCache() {}
+//     QGLGlyph *lookup(const QChar &char, const QFont &font);
+
+// protected:
+//     QHash<QChar, QGLGlyph*> qt_glyph_cache;
+//     QHash<QString, GLuint> qt_font_textures;
+// };
+
+// QGLGlyph *QGLGlyphCache::lookup(const QChar &char, const QFont &font)
+// {
+
+// }
+
 
 void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
@@ -1618,32 +1646,19 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     // add the glyphs used to the glyph texture cache
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
-    for (int i=0; i< ti.num_chars; ++i) {
-        if (ti.chars[i] == ' ')
-            continue;
-        QHash<QChar,  QGLGlyphCoord*>::const_iterator it = qt_glyph_cache.find(ti.chars[i]);
+    QVarLengthArray<QFixedPoint> positions;
+    QVarLengthArray<glyph_t> glyphs;
+    QMatrix matrix;
+    matrix.translate(p.x(), p.y());
+    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    for (int i=0; i< glyphs.size(); ++i) {
+        QHash<glyph_t,  QGLGlyphCoord*>::const_iterator it = qt_glyph_cache.find(glyphs[i]);
         QGLGlyphCoord *tex;
         if (it == qt_glyph_cache.end()) {
             // render new glyph and put it in the cache
             glyph_metrics_t gm = ti.fontEngine->boundingBox(ti.glyphs[i].glyph);
             int glyph_width = qRound(gm.width.toReal())+2;
             int glyph_height = qRound(ti.ascent.toReal() + ti.descent.toReal())+2;
-            if (glyph_width%2 != 0) // padding
-                ++glyph_width;
-
-            QPixmap glyph(glyph_width*scale, glyph_height*scale);
-            glyph.fill(Qt::transparent);
-            QPainter p(&glyph);
-            QFont f(painter()->font());
-            f.setUnderline(false);
-            f.setOverline(false);
-            f.setStrikeOut(false);
-            p.setFont(f);
-            p.scale(scale, scale);
-            p.setPen(Qt::black);
-            p.drawText(0, qRound(ti.ascent.toReal()), ti.chars[i]);
-            p.end();
-
             if (next_x + glyph_width + x_margin > glyph_tex_width) {
                 next_x = x_margin;
                 next_y += glyph_width + x_margin;
@@ -1670,10 +1685,14 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             }
 
             glBindTexture(target, glyph_tex);
-            QImage glyph_im(glyph.toImage().convertToFormat(QImage::Format_ARGB32));
+            QImage glyph_im(ti.fontEngine->alphaMapForGlyph(glyphs[i]).convertToFormat(QImage::Format_ARGB32));
+            int padded_width = glyph_im.width();
+            if (padded_width%2 != 0)
+                ++padded_width;
 
             int idx = 0;
             uchar tex_data[100*100*2];
+            memset(&tex_data, 0, 100*100*2);
             for (int y=0; y<glyph_im.height(); ++y) {
                 uint *s = (uint *) glyph_im.scanLine(y);
                 for (int x=0; x<glyph_im.width(); ++x) {
@@ -1682,8 +1701,10 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                     ++s;
                     idx += 2;
                 }
+                if (glyph_im.width()%2 != 0)
+                    idx += 2;
             }
-            glTexSubImage2D(target, 0, next_x, next_y, glyph_im.width(), glyph_im.height(),
+            glTexSubImage2D(target, 0, next_x, next_y, padded_width, glyph_im.height(),
                             GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, &tex_data);
 
             if (next_x + glyph_width + x_margin > glyph_tex_width) {
@@ -1693,7 +1714,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                 next_x += glyph_width + x_margin;
             }
 
-            qt_glyph_cache.insert(ti.chars[i], tex);
+            qt_glyph_cache.insert(glyphs[i], tex);
         }
     }
 
@@ -1704,16 +1725,8 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     // do the actual drawing
     glBegin(GL_QUADS);
     {
-        QVarLengthArray<QFixedPoint> positions;
-        QVarLengthArray<glyph_t> glyphs;
-        QMatrix matrix;
-        matrix.translate(p.x(), p.y());
-        ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
-
-        for (int i=0; i< ti.num_chars; ++i) {
-            if (ti.chars[i] == ' ')
-                continue;
-            QHash<QChar, QGLGlyphCoord *>::const_iterator it = qt_glyph_cache.find(ti.chars[i]);
+        for (int i=0; i< glyphs.size(); ++i) {
+            QHash<glyph_t, QGLGlyphCoord *>::const_iterator it = qt_glyph_cache.find(glyphs[i]);
             Q_ASSERT(it != qt_glyph_cache.end());
             qreal x1, x2, y1, y2;
             x1 = it.value()->x;
@@ -1721,8 +1734,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             x2 = x1 + it.value()->width;
             y2 = y1 + it.value()->height;
 
-            QPointF logical_pos(QPointF(positions[i].x.toReal(),
-                                        positions[i].y.toReal()));
+            QPointF logical_pos(positions[i].x.toReal(), positions[i].y.toReal());
 
             QRectF r(logical_pos - QPointF(0, ti.ascent.toReal()),
                      QSize(qRound(it.value()->width*glyph_tex_width),
