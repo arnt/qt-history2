@@ -45,9 +45,9 @@
     by this plugin.
 
     \l {Qtopia Core} currently supports the following drivers by
-    default: \c qvfb (\l {Qtopia Core}'s virtual framebuffer), \c
-    linuxfb (The Linux framebuffer), \c transformed (for rotated
-    displays) and \c vnc (a \l {Running as a VNC Server}{VNC} server).
+    default: \c QVfb (\l {Qtopia Core}'s virtual framebuffer), \c
+    LinuxFb (The Linux framebuffer), \c Transformed (for rotated
+    displays) and \c VNC (a \l {Running as a VNC Server}{VNC} server).
 
     \sa create()
 */

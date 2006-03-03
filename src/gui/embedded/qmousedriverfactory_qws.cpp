@@ -45,23 +45,19 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
     The QWSMouseHandler class is used to implement mouse
     drivers. QMouseDriverFactory creates a QWSMouseHandler object
-    using the create() function and a given key. The valid keys can be
-    retrieved using the keys() function
-    \omit
-    typically including...
-    \endomit
-    .
+    using the create() function and a key identifying the driver.
 
-    The drivers are either built-in or dynamically loaded from a
-    driver plugin (see \l QMouseDriverPlugin).
+    The valid keys can be retrieved using the keys() function.  The
+    drivers are either built-in or dynamically loaded from a driver
+    plugin (see \l QMouseDriverPlugin).
 
     \sa QWSMouseHandler, QMouseDriverPlugin, {Pointer Handling}
 */
 
 /*!
-    Creates a QWSMouseHandler object that matches the given \a key,
-    for the given \a device. The device is either a built-in driver,
-    or a driver from a driver plugin.
+    Creates a QWSMouseHandler object for the driver specified by the
+    given \a key, for the given \a device. The device is either a
+    built-in driver, or a driver from a driver plugin.
 
     \sa keys()
 */
@@ -109,9 +105,9 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
     Returns the list of valid keys, i.e. the keys this factory can
     create drivers for.
 
-    \omit
-    A key is typically...
-    \endomit
+    \l {Qtopia Core} currently supports the following drivers by
+    default: \c MouseMan, \c IntelliMouse, \c Microsoft, \c VR41xx, \c
+    LinuxTP, \c Yopy and \c Tslib.
 
     \sa create()
 */

@@ -43,19 +43,19 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
     The QWSKeyboardHandler class is used to implement keyboard
     drivers. QKbdDriverFactory creates a QWSKeyboardHandler object
-    using the create() function and a given key. The valid keys can be
-    retrieved using the keys() function.
+    using the create() function and a key identifying the driver.
 
-    The drivers are either built-in or dynamically loaded from a
-    driver plugin (see \l QKbdDriverPlugin for details).
+    The valid keys can be retrieved using the keys() function.  The
+    drivers are either built-in or dynamically loaded from a driver
+    plugin (see \l QKbdDriverPlugin for details).
 
     \sa QWSKeyboardHandler, QKbdDriverPlugin, {Character Input}
 */
 
 /*!
-    Creates a QWSKeyboardHandler object that matches the given \a key,
-    for the given \a device. The device is either a built-in driver,
-    or a driver plugin.
+    Creates a QWSKeyboardHandler object for the driver specified by
+    the given \a key, for the given \a device. The driver is either a
+    built-in driver, or a driver plugin.
 
     \sa keys()
 */
@@ -103,9 +103,8 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
     Returns the list of valid keys, i.e. the keys this factory can
     create drivers for.
 
-    \omit
-    A key is typically...
-    \endomit
+    \l {Qtopia Core} currently supports the following drivers by
+    default: \c SL5000, \c Yopy, \c VR41xx, \c TTY and \c USB.
 
     \sa create()
 */

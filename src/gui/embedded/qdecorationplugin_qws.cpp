@@ -43,7 +43,9 @@
     Returns the list of valid keys, i.e. the decoration keys supported
     by this plugin.
 
-    A key is usually the class name of a custom decoration.
+    A key is usually the class name of a custom decoration.  \l
+    {Qtopia Core} currently supports the following decorations by
+    default: \c Default, \c Styled and \c Windows.
 
     \sa create()
 */

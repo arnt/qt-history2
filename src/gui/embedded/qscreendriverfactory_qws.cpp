@@ -54,8 +54,9 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
 /*!
     Creates a QScreen object for the driver specified by the given \a
-    key and \a displayId. The returned QScreen object may be created
-    from a built-in driver, or from a driver plugin.
+    key using the display specified by \a displayId. The returned
+    QScreen object may be created from a built-in driver, or from a
+    driver plugin.
 
     \sa keys()
 */
@@ -95,9 +96,9 @@ QScreen *QScreenDriverFactory::create(const QString& key, int displayId)
     create screens for.
 
     \l {Qtopia Core} currently supports the following drivers by
-    default: \c qvfb (\l {Qtopia Core}'s virtual framebuffer), \c
-    linuxfb (The Linux framebuffer), \c transformed (for rotated
-    displays) and \c vnc (a \l {Running as a VNC Server}{VNC} server).
+    default: \c QVfb (\l {Qtopia Core}'s virtual framebuffer), \c
+    LinuxFb (The Linux framebuffer), \c Transformed (for rotated
+    displays) and \c VNC (a \l {Running as a VNC Server}{VNC} server).
 
     \sa create()
 */

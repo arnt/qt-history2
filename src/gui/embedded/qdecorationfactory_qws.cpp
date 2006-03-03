@@ -39,20 +39,20 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
     The QDecoration class is used to customize the appearance of top
     level windows. QDecorationFactory creates a QDecoration object
-    using the create() function and a given key. The valid keys can be
-    retrieved using the keys() function, typically including
-    "default", "windows", "styled".
+    using the create() function and a key identifying the
+    decoration.
 
-    The decorations are either built-in or dynamically loaded from
-    a decoration plugin (see \l QDecorationPlugin).
+    The valid keys can be retrieved using the keys() function. The
+    decorations are either built-in or dynamically loaded from a
+    decoration plugin (see \l QDecorationPlugin).
 
     \sa QDecoration, QDecorationPlugin
 */
 
 /*!
-    Creates a QDecoration object that matches the given \a key. The \a
-    key specifies either a built-in decoration, or a decoration from a
-    decoration plugin.
+    Creates a QDecoration object for the decoration specified by the
+    given \a key. The \a key specifies either a built-in decoration,
+    or a decoration from a decoration plugin.
 
     \sa keys()
 */
@@ -91,9 +91,8 @@ QDecoration *QDecorationFactory::create(const QString& key)
     Returns the list of valid keys, i.e. the keys this factory can
     create decorations for.
 
-    \omit
-    A key is typically...
-    \endomit
+    \l {Qtopia Core} currently supports the following decorations by
+    default: \c Default, \c Styled and \c Windows.
 
     \sa create()
 */

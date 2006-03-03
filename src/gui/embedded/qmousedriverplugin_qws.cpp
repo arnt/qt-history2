@@ -45,9 +45,9 @@
 
     Returns the list of valid keys, i.e. mouse drivers supported by this plugin.
 
-    \omit
-    A key is ...
-    \endomit
+    \l {Qtopia Core} currently supports the following drivers by
+    default: \c MouseMan, \c IntelliMouse, \c Microsoft, \c VR41xx, \c
+    LinuxTP, \c Yopy and \c Tslib.
 
     \sa create()
 */

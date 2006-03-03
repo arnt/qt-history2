@@ -46,9 +46,8 @@
     Returns the list of valid keys, i.e. the keyboard drivers
     supported by this plugin.
 
-    \omit
-    A key is ...
-    \endomit
+    \l {Qtopia Core} currently supports the following drivers by
+    default: \c SL5000, \c Yopy, \c VR41xx, \c TTY and \c USB.
 
     \sa create()
 */
