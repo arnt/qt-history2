@@ -78,6 +78,7 @@
     Other drivers can be added by deriving from the QWSKeyboardHandler
     and QKbdDriverPlugin classes and using Qt's plugin mechanism.
 
+    \omit
     If your keyboard supports either PC101 code set 1 scancodes, or
     the standard Linux keycodes, then you can save work by subclassing
     from QWSPC101KeyboardHandler rather than QWSKeyboardHandler. For
@@ -86,6 +87,7 @@
     pressed. For keyboards that support the standard Linux keycodes
     (see the Linux loadkeys manual page), call
     QWSPC101KeyboardHandler::doKey() with the keycodes.
+    \endomit
 
     \section1 Specifying a Keyboard Driver
 
