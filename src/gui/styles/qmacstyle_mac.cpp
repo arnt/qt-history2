@@ -1673,6 +1673,8 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 if (pe == QStyle::PE_FrameLineEdit) {
                     fdi.kind = kHIThemeFrameTextFieldSquare;
                     GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
+                    if (frame->state & QStyle::State_ReadOnly)
+                        fdi.state = kThemeStateInactive;
                 } else {
                     baseColor = QColor(150, 150, 150); //hardcoded since no query function --Sam
                     fdi.kind = kHIThemeFrameListBox;
