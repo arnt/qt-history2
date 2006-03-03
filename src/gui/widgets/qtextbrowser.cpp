@@ -56,7 +56,7 @@ public:
       semantics when somebody connected to it calls setText() or
       setSource() */
     bool textOrSourceChanged;
-
+    QString highlightedAnchor; // Anchor below cursor
     bool forceLoadOnSourceChange;
 
     QString findFile(const QUrl &name) const;
@@ -851,6 +851,9 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *e)
     QTextEdit::mouseMoveEvent(e);
 
     QString anchor = anchorAt(e->pos());
+    if (anchor == d->highlightedAnchor)
+        return;
+
     if (anchor.isEmpty()) {
 #ifndef QT_NO_CURSOR
         d->viewport->setCursor(Qt::ArrowCursor);
@@ -867,7 +870,7 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *e)
         // convenience to ease connecting to QStatusBar::showMessage(const QString &)
         emit highlighted(url.toString());
     }
-
+    d->highlightedAnchor = anchor;
 }
 
 /*!
