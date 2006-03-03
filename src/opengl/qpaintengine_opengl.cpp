@@ -1704,6 +1704,12 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     // do the actual drawing
     glBegin(GL_QUADS);
     {
+        QVarLengthArray<QFixedPoint> positions;
+        QVarLengthArray<glyph_t> glyphs;
+        QMatrix matrix;
+        matrix.translate(p.x(), p.y());
+        ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+
         for (int i=0; i< ti.num_chars; ++i) {
             if (ti.chars[i] == ' ')
                 continue;
@@ -1714,17 +1720,11 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             y1 = it.value()->y;
             x2 = x1 + it.value()->width;
             y2 = y1 + it.value()->height;
-            QMatrix inv = d->matrix;
-            inv.translate(p.x(), p.y());
-            inv = inv.inverted();
 
-            QPointF logical_pos(inv.map(QPointF(ti.deviceGlyphPositions[i].x.toReal(),
-                                                ti.deviceGlyphPositions[i].y.toReal())));
-            QPointF offset(p - QPointF(0, ti.ascent.toReal()));
-            if (d->txop > QPainterPrivate::TxTranslate) // ###
-                offset -= d->matrix.map(p);
+            QPointF logical_pos(QPointF(positions[i].x.toReal(),
+                                        positions[i].y.toReal()));
 
-            QRectF r(logical_pos + offset,
+            QRectF r(logical_pos - QPointF(0, ti.ascent.toReal()),
                      QSize(qRound(it.value()->width*glyph_tex_width),
                            qRound(it.value()->height*glyph_tex_height)));
             glTexCoord2d(x1, y1);

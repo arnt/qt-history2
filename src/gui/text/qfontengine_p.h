@@ -43,7 +43,7 @@ class QPainterPath;
 class QTextEngine;
 struct QGlyphLayout;
 
-class QFontEngine
+class Q_GUI_EXPORT QFontEngine
 {
 public:
     enum Type {
