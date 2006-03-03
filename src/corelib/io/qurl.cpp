@@ -3934,6 +3934,18 @@ QString QUrl::path() const
 }
 
 /*!
+    Returns true if this URL contains a Query (i.e., if ? was seen on it).
+
+    \sa hasQueryItem, encodedQuery
+*/
+bool QUrl::hasQuery() const
+{
+    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
+
+    return d->hasQuery;
+}
+
+/*!
     Sets the characters used for delimiting between keys and values,
     and between key-value pairs in the URL's query string. The default
     value delimiter is '=' and the default pair delimiter is '&'.
@@ -4239,6 +4251,18 @@ QString QUrl::fragment() const
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
 
     return d->fragment;
+}
+
+/*!
+    Returns true if this URL contains a fragment (i.e., if # was seen on it).
+
+    \sa fragment, setFragment
+*/
+bool QUrl::hasFragment() const
+{
+    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
+
+    return d->hasFragment;
 }
 
 /*!

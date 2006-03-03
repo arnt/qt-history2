@@ -96,6 +96,8 @@ public:
     void setPath(const QString &path);
     QString path() const;
 
+    bool hasQuery() const;
+
     void setEncodedQuery(const QByteArray &query);
     QByteArray encodedQuery() const;
 
@@ -114,6 +116,7 @@ public:
 
     void setFragment(const QString &fragment);
     QString fragment() const;
+    bool hasFragment() const;
 
     QUrl resolved(const QUrl &relative) const;
 
