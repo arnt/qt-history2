@@ -3083,6 +3083,8 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 
     QGlyphLayout *glyphs = ti.glyphs;
 
+    int xo = qRound(x);
+
     if (!(ti.flags & QTextItem::RightToLeft) && fe->useTextOutA) {
         // hack to get symbol fonts working on Win95. See also QFontEngine constructor
         // can only happen if !ttf
@@ -3118,35 +3120,35 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                         options, 0, convertToText ? convertedGlyphs : g.data(), ti.num_glyphs, 0);
             x += w.toReal();
         } else {
-            QFixedPoint *positions = ti.deviceGlyphPositions;
-            glyph_t *_glyphs = ti.deviceGlyphs;
+            QVarLengthArray<QFixedPoint> positions;
+            QVarLengthArray<glyph_t> _glyphs;
+            QMatrix matrix;
+            matrix.translate(p.x(), p.y());
+            ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, _glyphs, positions);
 
-            convertToText = convertToText && ti.num_glyphs == ti.num_deviceGlyphs;
+            convertToText = convertToText && ti.num_glyphs == _glyphs.size();
 
-            bool outputEntireItem = QT_WA_INLINE(ti.num_deviceGlyphs > 0, false);
+            bool outputEntireItem = QT_WA_INLINE(_glyphs.size() > 0, false);
 
             if (outputEntireItem) {
                 options |= ETO_PDY;
-                QVarLengthArray<INT> glyphDistances(ti.num_deviceGlyphs * 2);
-                QVarLengthArray<wchar_t> g(ti.num_deviceGlyphs);
-                for (int i=0; i<ti.num_deviceGlyphs - 1; ++i) {
-                    glyphDistances[i * 2] = qRound(positions[i + 1].x - positions[i].x);
-                    glyphDistances[i * 2 + 1] = qRound(positions[i + 1].y - positions[i].y);
+                QVarLengthArray<INT> glyphDistances(_glyphs.size() * 2);
+                QVarLengthArray<wchar_t> g(_glyphs.size());
+                for (int i=0; i<_glyphs.size() - 1; ++i) {
+                    glyphDistances[i * 2] = qRound(positions[i + 1].x) - qRound(positions[i].x);
+                    glyphDistances[i * 2 + 1] = qRound(positions[i + 1].y) - qRound(positions[i].y);
                     g[i] = _glyphs[i];
                 }
-                glyphDistances[(ti.num_deviceGlyphs - 1) * 2] = 0;
-                glyphDistances[(ti.num_deviceGlyphs - 1) * 2 + 1] = 0;
-                g[ti.num_deviceGlyphs - 1] = _glyphs[ti.num_deviceGlyphs - 1];
-                ExtTextOutW(hdc, qRound(pos.x()), qRound(pos.y()), options, 0,
-                            convertToText ? convertedGlyphs : g.data(), ti.num_deviceGlyphs, glyphDistances.data());
+                glyphDistances[(_glyphs.size() - 1) * 2] = 0;
+                glyphDistances[(_glyphs.size() - 1) * 2 + 1] = 0;
+                g[_glyphs.size() - 1] = _glyphs[_glyphs.size() - 1];
+                ExtTextOutW(hdc, qRound(positions[0].x), qRound(positions[0].y), options, 0,
+                            convertToText ? convertedGlyphs : g.data(), _glyphs.size(), glyphDistances.data());
             } else {
                 int i = 0;
-
-                int dx = qRound(pos.x() - positions[0].x.toReal());
-                int dy = qRound(pos.y() - positions[0].y.toReal());
-                while(i < ti.num_deviceGlyphs) {
+                while(i < _glyphs.size()) {
                     wchar_t g = _glyphs[i];
-                    ExtTextOutW(hdc, qRound(positions[i].x) + dx, qRound(positions[i].y) + dy, options, 0,
+                    ExtTextOutW(hdc, qRound(positions[i].x), qRound(positions[i].y), options, 0,
                                 convertToText ? convertedGlyphs + i : &g, 1, 0);
                     ++i;
                 }
