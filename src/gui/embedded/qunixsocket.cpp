@@ -39,9 +39,11 @@ extern "C" {
 /*!
   \class QUnixSocketRights
   \brief The QUnixSocketRights class encapsulates QUnixSocket rights data.
+  \omit
   \ingroup Platform::DeviceSpecific
   \ingroup Platform::OS
   \ingroup Platform::Communications
+  \endomit
   \ingroup qws
 
   \l QUnixSocket allows you to transfer Unix file descriptors between processes.
@@ -191,7 +193,7 @@ int QUnixSocketRights::dupFd() const
 
   The lifetime of this file descriptor is tied to the lifetime of the
   QUnixSocketRights instance.  The file descriptor returned by this method
-  \i {may} be close(2)'d when the QUnixSocketRights instance is destroyed.  If
+  \e may be close(2)'d when the QUnixSocketRights instance is destroyed.  If
   you want to continue to use the file descriptor use
   \l QUnixSocketRights::dupFd() instead.
 
@@ -277,9 +279,11 @@ void QUnixSocketMessagePrivate::removeBytes( unsigned int bytesToDequeue )
   \class QUnixSocketMessage
   \brief The QUnixSocketMessage class encapsulates a message sent or received
   through the QUnixSocket class.
+  \omit
   \ingroup Platform::DeviceSpecific
   \ingroup Platform::OS
   \ingroup Platform::Communications
+  \endomit
   \ingroup qws
 
   In addition to transmitting regular byte stream data, messages sent over Unix
@@ -362,12 +366,15 @@ QUnixSocketMessage::QUnixSocketMessage(const QUnixSocketMessage & other)
 }
 
 /*!
-  Construct a QUnixSocketMessage with an initial data payload of \a vec which
-  points to an array of vecLen iovec structures.  The message's credentials
-  will be set to the application's default credentials.
+  \fn  QUnixSocketMessage::QUnixSocketMessage(const iovec* data, int vecLen)
+
+  Construct a QUnixSocketMessage with an initial data payload of \a
+  data which points to an array of \a vecLen iovec structures.  The
+  message's credentials will be set to the application's default
+  credentials.
 
   This method can be used to avoid the overhead of copying buffers of data
-  and will directly send the data pointed to by \a vec on the socket.  It also
+  and will directly send the data pointed to by \a data on the socket.  It also
   avoids the syscall overhead of making a number of small socket write calls,
   if a number of data items can be delivered with one write.
 
@@ -567,9 +574,12 @@ bool QUnixSocketMessage::isValid() const
 /*!
   \class QUnixSocket
   \brief The QUnixSocket class provides a Unix domain socket.
+
+  \omit
   \ingroup Platform::DeviceSpecific
   \ingroup Platform::OS
   \ingroup Platform::Communications
+  \endomit
   \ingroup qws
 
   Unix domain sockets provide an efficient mechanism for communications between

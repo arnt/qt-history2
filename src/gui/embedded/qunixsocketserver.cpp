@@ -53,9 +53,11 @@ public slots:
 /*!
   \class QUnixSocketServer
   \brief The QUnixSocketServer class provides a Unix domain socket based server.
+  \omit
   \ingroup Platform::DeviceSpecific
   \ingroup Platform::OS
   \ingroup Platform::Communications
+  \endomit
   \ingroup qws
 
   This class makes it possible to accept incoming Unix domain socket
@@ -96,7 +98,7 @@ public slots:
   */
 
 /*!
-  Create a new Unix socket server.
+  Create a new Unix socket server with the given \a parent.
   */
 QUnixSocketServer::QUnixSocketServer(QObject *parent)
 : QObject(parent), d(0)
