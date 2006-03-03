@@ -31,6 +31,7 @@ class Q_GUI_EXPORT QTreeView : public QAbstractItemView
     Q_PROPERTY(bool uniformRowHeights READ uniformRowHeights WRITE setUniformRowHeights)
     Q_PROPERTY(bool itemsExpandable READ itemsExpandable WRITE setItemsExpandable)
     Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
+    Q_PROPERTY(bool animationsEnabled READ isAnimationsEnabled WRITE setAnimationsEnabled)
 
 public:
     explicit QTreeView(QWidget *parent = 0);
@@ -71,6 +72,9 @@ public:
 
     void setSortingEnabled(bool enable);
     bool isSortingEnabled() const;
+
+    void setAnimationsEnabled(bool enable);
+    bool isAnimationsEnabled() const;
 
     void keyboardSearch(const QString &search);
 
@@ -146,6 +150,7 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QTreeView)
     Q_DISABLE_COPY(QTreeView)
+    Q_PRIVATE_SLOT(d_func(), void _q_endAnimatedOperation())
 };
 
 #endif // QT_NO_TREEVIEW

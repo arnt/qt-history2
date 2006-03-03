@@ -177,8 +177,6 @@ void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
                 d->model, SLOT(submit()));
 }
 
-
-
 /*!
   Returns the header for the tree view.
 */
@@ -571,6 +569,29 @@ bool QTreeView::isSortingEnabled() const
 }
 
 /*!
+  \ since Qt 4.2
+    \property QTreeView::animationsEnabled
+    \brief whether animations are enabled
+
+    If this property is true the treeview will animate expandsion
+    and collasping of branches. If this property is false, the treeview
+    will expand or collapse branches immediately without showing
+    the animation.
+*/
+
+void QTreeView::setAnimationsEnabled(bool enable)
+{
+    Q_D(QTreeView);
+    d->animationsEnabled = enable;
+}
+
+bool QTreeView::isAnimationsEnabled() const
+{
+    Q_D(const QTreeView);
+    return d->animationsEnabled;
+}
+
+/*!
   \reimp
  */
 void QTreeView::keyboardSearch(const QString &search)
@@ -695,7 +716,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
 
     // Expand all parents if the parent(s) of the node are not expanded.
     QModelIndex parent = index.parent();
-    while (parent.isValid() && state() != CollapsingState && d->itemsExpandable) {
+    while (parent.isValid() && state() == NoState && d->itemsExpandable) {
         if (!isExpanded(parent))
             expand(parent);
         parent = model()->parent(parent);
@@ -777,12 +798,16 @@ void QTreeView::timerEvent(QTimerEvent *event)
 */
 void QTreeView::paintEvent(QPaintEvent *event)
 {
+    Q_D(QTreeView);
     QPainter painter(viewport());
+    painter.save();
     drawTree(&painter, event->region());
-    
+    painter.restore();
+    if (d->isAnimating())
+        d->drawAnimatedOperation(&painter);
 #ifndef QT_NO_DRAGANDDROP
     // Paint the dropIndicator
-    d_func()->paintDropIndicator(&painter);
+    d->paintDropIndicator(&painter);
 #endif
 }
 
@@ -1016,7 +1041,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
 void QTreeView::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QTreeView);
-    if (!d->viewport->rect().contains(event->pos()))
+    if (state() != NoState || !d->viewport->rect().contains(event->pos()))
         return;
     int i = d->itemDecorationAt(event->pos());
     if (i == -1) {
@@ -1037,7 +1062,7 @@ void QTreeView::mousePressEvent(QMouseEvent *event)
 void QTreeView::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QTreeView);
-    if (d->itemDecorationAt(event->pos()) == -1)
+    if (d->itemDecorationAt(event->pos()) == -1) // ### what about expanding/collapsing state ?
         QAbstractItemView::mouseReleaseEvent(event);
 }
 
@@ -1047,7 +1072,7 @@ void QTreeView::mouseReleaseEvent(QMouseEvent *event)
 void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
 {
     Q_D(QTreeView);
-    if (!d->viewport->rect().contains(event->pos()))
+    if (state() != NoState || !d->viewport->rect().contains(event->pos()))
         return;
 
     int i = d->itemDecorationAt(event->pos());
@@ -1086,7 +1111,7 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
 void QTreeView::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QTreeView);
-    if (d->itemDecorationAt(event->pos()) == -1)
+    if (d->itemDecorationAt(event->pos()) == -1) // ### what about expanding/collapsing state ?
         QAbstractItemView::mouseMoveEvent(event);
 }
 
@@ -1695,31 +1720,37 @@ void QTreeViewPrivate::initialize()
     header->setMovable(true);
     header->setStretchLastSection(true);
     q->setHeader(header);
+
+    // animation
+    QObject::connect(&timeline, SIGNAL(frameChanged(int)), viewport, SLOT(update()));
+    QObject::connect(&timeline, SIGNAL(finished()), q, SLOT(_q_endAnimatedOperation()));
 }
 
-void QTreeViewPrivate::expand(int i, bool emitSignal)
+void QTreeViewPrivate::expand(int item, bool emitSignal)
 {
     Q_Q(QTreeView);
 
-    if (!model || i == -1 || viewItems.at(i).expanded)
+    if (!model || item == -1 || viewItems.at(item).expanded)
         return;
 
+    if (emitSignal && animationsEnabled)
+        prepareAnimatedOperation(item, AnimatedOperation::Expand);
+
     q->setState(QAbstractItemView::ExpandingState);
-
-    QModelIndex index = viewItems.at(i).index;
+    QModelIndex index = viewItems.at(item).index;
     expandedIndexes.append(index);
-
-    viewItems[i].expanded = true;
-    layout(i);
-
-    // make sure we expand children that were previously expanded
+    viewItems[item].expanded = true;
+    layout(item);
     if (model->hasChildren(index))
-        reexpandChildren(index);
-
+        reexpandChildren(index); // will call expand with emitSignal == false
     q->setState(QAbstractItemView::NoState);
 
-    if (emitSignal)
-        emit q->expanded(index);
+    if (emitSignal) {
+        if (animationsEnabled)
+            beginAnimatedOperation();
+        else
+            emit q->expanded(index);
+    }    
 }
 
 void QTreeViewPrivate::collapse(int item, bool emitSignal)
@@ -1729,17 +1760,18 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
     if (!model || item == -1 || expandedIndexes.isEmpty())
         return;
 
-    q->setState(QAbstractItemView::CollapsingState);
-
     int total = viewItems.at(item).total;
     QModelIndex modelIndex = viewItems.at(item).index;
     int index = expandedIndexes.indexOf(modelIndex);
     if (index == -1 || viewItems.at(item).expanded == false)
         return; // nothing to do
 
+    if (emitSignal && animationsEnabled)
+        prepareAnimatedOperation(item, AnimatedOperation::Collapse);
+
+    q->setState(QAbstractItemView::CollapsingState);
     expandedIndexes.remove(index);
     viewItems[item].expanded = false;
-
     index = item;
     QModelIndex parent = modelIndex;
     while (parent.isValid() && parent != root) {
@@ -1749,11 +1781,97 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
         index = viewIndex(parent);
     }
     viewItems.remove(item + 1, total); // collapse
-
     q->setState(QAbstractItemView::NoState);
+    
+    if (emitSignal) {
+        if (animationsEnabled)
+            beginAnimatedOperation();
+        else
+            emit q->collapsed(modelIndex);
+    }    
+}
 
-    if (emitSignal)
-        emit q->collapsed(modelIndex);
+void QTreeViewPrivate::prepareAnimatedOperation(int item, AnimatedOperation::Type type)
+{
+    animatedOperation.item = item;
+    animatedOperation.type = type;
+
+    int top = coordinate(item + 1);
+    QRect rect = viewport->rect();
+    if (type == AnimatedOperation::Collapse) {
+        // ### we don't take hidden items into account
+        int h = 0;
+        int c = item + viewItems.at(item).total + 1;
+        for (int i = item + 1; i < c; ++i)
+            h += height(i);
+        rect.setHeight(h);
+        animatedOperation.duration = h;
+    }
+    rect.moveTop(top); 
+
+    animatedOperation.top = top;
+    animatedOperation.before = renderTreeToPixmap(rect);
+}
+
+void QTreeViewPrivate::beginAnimatedOperation()
+{
+    Q_Q(QTreeView);
+
+    QRect rect = viewport->rect();
+    if (animatedOperation.type == AnimatedOperation::Expand) {
+        // ### we don't take hidden items into account
+        int h = 0;
+        int c = animatedOperation.item + viewItems.at(animatedOperation.item).total + 1;
+        for (int i = animatedOperation.item + 1; i < c; ++i)
+            h += height(i);
+        rect.setHeight(h);
+        animatedOperation.duration = h;
+    }
+    rect.moveTop(animatedOperation.top);
+
+    animatedOperation.after = renderTreeToPixmap(rect);
+
+    timeline.stop();
+    timeline.setDuration(1000);
+    timeline.setFrameRange(animatedOperation.top, animatedOperation.top + animatedOperation.duration);
+    timeline.start();
+
+    q->setState(QAbstractItemView::AnimatingState);
+}
+
+void QTreeViewPrivate::_q_endAnimatedOperation()
+{
+    Q_Q(QTreeView);
+    animatedOperation.before = QPixmap();
+    animatedOperation.after = QPixmap();
+    q->setState(QAbstractItemView::NoState);
+    if (animatedOperation.type == AnimatedOperation::Expand)
+        emit q->expanded(viewItems.at(animatedOperation.item).index);
+    else // operation == AnimatedOperation::Collapse
+        emit q->collapse(viewItems.at(animatedOperation.item).index);
+}
+
+void QTreeViewPrivate::drawAnimatedOperation(QPainter *painter) const
+{
+    int start = timeline.startFrame();
+    int end = timeline.endFrame();
+    bool collapsing = animatedOperation.type == AnimatedOperation::Collapse;
+    int current = collapsing ? end - timeline.currentFrame() + start : timeline.currentFrame();
+    const QPixmap top = collapsing ? animatedOperation.before : animatedOperation.after;
+    painter->drawPixmap(0, start, top, 0, end - current - 1, top.width(), top.height());
+    const QPixmap bottom = collapsing ? animatedOperation.after : animatedOperation.before;
+    painter->drawPixmap(0, current, bottom);
+}
+
+QPixmap QTreeViewPrivate::renderTreeToPixmap(const QRect &rect) const
+{
+    Q_Q(const QTreeView);
+    QPixmap pixmap(rect.size());
+    QPainter painter(&pixmap);
+    painter.translate(0, -rect.top());
+    q->drawTree(&painter, QRegion(rect));
+    painter.end();
+    return pixmap;
 }
 
 void QTreeViewPrivate::layout(int i)
@@ -2164,5 +2282,7 @@ QPair<int,int> QTreeViewPrivate::startAndEndColumns(const QRect &rect) const
     }
     return qMakePair<int,int>(qMin(start, end), qMax(start, end));
 }
+
+#include "moc_qtreeview.cpp"
 
 #endif // QT_NO_TREEVIEW

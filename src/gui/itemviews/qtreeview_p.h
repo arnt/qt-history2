@@ -39,7 +39,7 @@ struct QTreeViewItem
     int height : 16; // row height
 };
 
-class QTreeViewPrivate: public QAbstractItemViewPrivate
+class QTreeViewPrivate : public QAbstractItemViewPrivate
 {
     Q_DECLARE_PUBLIC(QTreeView)
 public:
@@ -49,13 +49,31 @@ public:
           header(0), indent(20), lastViewedItem(0), itemHeight(-1), 
           uniformRowHeights(false), rootDecoration(true),
           itemsExpandable(true), sortingEnabled(false),
-          columnResizeTimerID(0)  {}
+          animationsEnabled(false), columnResizeTimerID(0)  {}
 
     ~QTreeViewPrivate() {}
     void initialize();
 
+    struct AnimatedOperation
+    {
+        enum Type { Expand, Collapse };
+        int item;
+        int top;
+        int duration;
+        Type type;
+        QPixmap before;
+        QPixmap after;
+    };
+    
     void expand(int item, bool emitSignal);
     void collapse(int item, bool emitSignal);
+
+    void prepareAnimatedOperation(int item, AnimatedOperation::Type type);
+    void beginAnimatedOperation();
+    void _q_endAnimatedOperation();
+    void drawAnimatedOperation(QPainter *painter) const;
+    QPixmap renderTreeToPixmap(const QRect &rect) const;
+
     void layout(int item);
 
     int pageUp(int item) const;
@@ -121,9 +139,11 @@ public:
     mutable QPair<int,int> leftAndRight;
     mutable int current;
 
-    // used when expanding and closing items
+    // used when expanding and collapsing items
     QVector<QPersistentModelIndex> expandedIndexes;
     QStack<bool> expandParent;
+    AnimatedOperation animatedOperation;
+    bool animationsEnabled;
 
     // used when hiding and showing items
     QVector<QPersistentModelIndex> hiddenIndexes;

@@ -32,6 +32,7 @@
 #include "QtGui/qmime.h"
 #include "QtCore/qmap.h"
 #include "QtCore/qtimer.h"
+#include "QtCore/qtimeline.h"
 #include "QtGui/qregion.h"
 #include "QtCore/qdebug.h"
 
@@ -159,6 +160,10 @@ public:
                       : q->horizontalOffset(), q->verticalOffset());
     }
 
+    inline bool isAnimating() const {
+        return state == QAbstractItemView::AnimatingState;
+    }
+
     QPointer<QAbstractItemModel> model;
     QPointer<QAbstractItemDelegate> delegate;
     QPointer<QItemSelectionModel> selectionModel;
@@ -210,6 +215,7 @@ public:
     QBasicTimer updateTimer;
 
     QPoint scrollDelayOffset;
+    QTimeLine timeline;
 };
 
 #include <qvector.h>
