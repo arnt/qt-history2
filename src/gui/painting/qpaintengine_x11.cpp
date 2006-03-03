@@ -50,6 +50,30 @@ extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
+
+#ifndef QT_NO_XRENDER
+static const int compositionModeToRenderOp[QPainter::CompositionMode_Xor + 1] = {
+    PictOpOver, //CompositionMode_SourceOver,
+    PictOpOverReverse, //CompositionMode_DestinationOver,
+    PictOpClear, //CompositionMode_Clear,
+    PictOpSrc, //CompositionMode_Source,
+    PictOpDst, //CompositionMode_Destination,
+    PictOpIn, //CompositionMode_SourceIn,
+    PictOpInReverse, //CompositionMode_DestinationIn,
+    PictOpOut, //CompositionMode_SourceOut,
+    PictOpOutReverse, //CompositionMode_DestinationOut,
+    PictOpAtop, //CompositionMode_SourceAtop,
+    PictOpAtopReverse, //CompositionMode_DestinationAtop,
+    PictOpXor //CompositionMode_Xor
+};
+
+static inline int qpainterOpToXrender(QPainter::CompositionMode mode)
+{
+    Q_ASSERT(mode <= QPainter::CompositionMode_Xor);
+    return compositionModeToRenderOp[mode];
+}
+#endif
+
 // hack, so we don't have to make QRegion::clipRectangles() public or include
 // X11 headers in qregion.h
 void *qt_getClipRects(const QRegion &r, int &num)
@@ -81,53 +105,6 @@ static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2,
 #endif // QT_NO_XRENDER
 }
 
-static inline int qpainterOpToXrender(QPainter::CompositionMode mode)
-{
-#ifndef QT_NO_XRENDER
-    switch (mode) {
-    case QPainter::CompositionMode_SourceOver:
-        return PictOpOver;
-        break;
-    case QPainter::CompositionMode_DestinationOver:
-        return PictOpOverReverse;
-        break;
-    case QPainter::CompositionMode_Clear:
-        return PictOpClear;
-        break;
-    case QPainter::CompositionMode_Source:
-        return PictOpSrc;
-        break;
-    case QPainter::CompositionMode_Destination:
-        return PictOpDst;
-        break;
-    case QPainter::CompositionMode_SourceIn:
-        return PictOpIn;
-        break;
-    case QPainter::CompositionMode_DestinationIn:
-        return PictOpInReverse;
-        break;
-    case QPainter::CompositionMode_SourceOut:
-        return PictOpOut;
-        break;
-    case QPainter::CompositionMode_DestinationOut:
-        return PictOpOutReverse;
-        break;
-    case QPainter::CompositionMode_SourceAtop:
-        return PictOpAtop;
-        break;
-    case QPainter::CompositionMode_DestinationAtop:
-        return PictOpAtopReverse;
-        break;
-    case QPainter::CompositionMode_Xor:
-        return PictOpXor;
-        break;
-    default:
-        return PictOpOver;
-        break;
-    }
-#endif
-    return 0;
-}
 
 static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
 #ifndef QT_NO_XRENDER
@@ -153,37 +130,6 @@ static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
 #endif // QT_NO_XRENDER
 }
 
-void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w, int h, bool fill)
-{
-    QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
-    QMatrix matrix = p->d_func()->matrix;
-
-    XPoint points[5];
-    int xp = x, yp = y;
-    matrix.map(xp, yp, &xp, &yp);
-    points[0].x = xp;
-    points[0].y = yp;
-    xp = x + w; yp = y;
-    matrix.map(xp, yp, &xp, &yp);
-    points[1].x = xp;
-    points[1].y = yp;
-    xp = x + w; yp = y + h;
-    matrix.map(xp, yp, &xp, &yp);
-    points[2].x = xp;
-    points[2].y = yp;
-    xp = x; yp = y + h;
-    matrix.map(xp, yp, &xp, &yp);
-    points[3].x = xp;
-    points[3].y = yp;
-    points[4] = points[0];
-
-    if (fill)
-        XFillPolygon(p->d_func()->dpy, p->d_func()->hd, p->d_func()->gc, points,
-                     4, Convex, CoordModeOrigin);
-    else
-        XDrawLines(p->d_func()->dpy, p->d_func()->hd, p->d_func()->gc, points, 5, CoordModeOrigin);
-}
-
 
 #define DITHER_SIZE 16
 static const uchar base_dither_matrix[DITHER_SIZE][DITHER_SIZE] = {
@@ -207,7 +153,7 @@ static const uchar base_dither_matrix[DITHER_SIZE][DITHER_SIZE] = {
 
 static QPixmap qt_patternForAlpha(uchar alpha)
 {
-    static QPixmap pm;
+    QPixmap pm;
     QString key = "$qt-alpha-brush$" + QString::number(alpha);
     if (!QPixmapCache::find(key, pm)) {
         // #### why not use a mono image here????
@@ -672,6 +618,12 @@ static QPaintEngine::PaintEngineFeatures qt_decide_features()
     if (X11->use_xrender) {
         features |= QPaintEngine::Antialiasing;
         features |= QPaintEngine::PorterDuff;
+#if 0
+        if (X11->xrender_version > 10) {
+            features |= QPaintEngine::LinearGradientFill;
+            // ###
+        }
+#endif
     }
 
     return features;

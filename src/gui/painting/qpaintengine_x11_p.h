@@ -100,7 +100,6 @@ protected:
 #endif
 
     friend void qt_cleanup();
-    friend void qt_draw_transformed_rect(QPaintEngine *pp, int x, int y, int w, int h, bool fill);
     friend void qt_draw_background(QPaintEngine *pp, int x, int y, int w, int h);
     friend class QPixmap;
     friend class QFontEngineBox;
@@ -115,7 +114,6 @@ class QX11PaintEnginePrivate : public QPaintEnginePrivate
 public:
     QX11PaintEnginePrivate()
     {
-        dpy = 0;
         scrn = -1;
         hd = 0;
         picture = 0;

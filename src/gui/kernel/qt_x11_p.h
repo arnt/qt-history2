@@ -310,8 +310,7 @@ struct QX11Data
     // true if Qt is compiled w/ RENDER support and RENDER is supported on the connected Display
     bool use_xrender;
     int xrender_major;
-    int xrender_eventbase;
-    int xrender_errorbase;
+    int xrender_version;
 
     // true if Qt is compiled w/ Tablet support and we have a tablet.
     bool use_xinput;

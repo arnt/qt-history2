@@ -1232,8 +1232,7 @@ void qt_init(QApplicationPrivate *priv, int,
     // RENDER
     X11->use_xrender = false;
     X11->xrender_major = 0;
-    X11->xrender_eventbase = 0;
-    X11->xrender_errorbase = 0;
+    X11->xrender_version = 0;
 
     // XInputExtension
     X11->use_xinput = false;
@@ -1494,11 +1493,12 @@ void qt_init(QApplicationPrivate *priv, int,
 #endif // QT_NO_XRANDR
 
 #ifndef QT_NO_XRENDER
+        int xrender_eventbase,  xrender_errorbase;
         // See if XRender is supported on the connected display
         if (XQueryExtension(X11->display, "RENDER", &X11->xrender_major,
-                            &X11->xrender_eventbase, &X11->xrender_errorbase)
-            && XRenderQueryExtension(X11->display, &X11->xrender_eventbase,
-                                     &X11->xrender_errorbase)) {
+                            &xrender_eventbase, &xrender_errorbase)
+            && XRenderQueryExtension(X11->display, &xrender_eventbase,
+                                     &xrender_errorbase)) {
             // XRender is supported, let's see if we have a PictFormat for the
             // default visual
             XRenderPictFormat *format =
@@ -1508,8 +1508,16 @@ void qt_init(QApplicationPrivate *priv, int,
             int major = 0;
             int minor = 0;
             XRenderQueryVersion(X11->display, &major, &minor);
-            if (qgetenv("QT_X11_NO_XRENDER").isNull())
-                X11->use_xrender = (major >= 0 && minor >= 5) && (format != 0);
+            if (qgetenv("QT_X11_NO_XRENDER").isNull() && format != 0) {
+                X11->use_xrender = (major >= 0 && minor >= 5);
+                X11->xrender_version = major*100+minor;
+                // workaround for broken XServer on Ubuntu Breezy (6.8 compiled with 7.0
+                // protocol headers)
+                if (X11->xrender_version == 10
+                    && VendorRelease(X11->display) < 60900000
+                    && QByteArray(ServerVendor(X11->display)).contains("X.Org"))
+                    X11->xrender_version = 9;
+            }
         }
 #endif // QT_NO_XRENDER
 
