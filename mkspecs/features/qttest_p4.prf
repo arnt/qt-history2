@@ -2,23 +2,32 @@ CONFIG          += qt warn_on console depend_includepath
 CONFIG          -= debug_and_release_target
 
 # find qtestlib's prl file and extract the librarie's name
+QTEST_LIB =
+mac:exists($$[QT_INSTALL_LIBS]/QtTest.framework):QTEST_LIB = QTest.framework
 CONFIG(debug, debug|release) {
-    win32:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/QtTestd.prl
-    else:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/libQtTest_debug.prl
+    isEmpty(QTEST_LIB) {
+       win32 {
+          QTEST_LIB = $$fromfile($$[QT_INSTALL_LIBS]/QtTestd.prl, QMAKE_PRL_TARGET)4.dll
+       } else {
+          QTEST_LIB_PRL = $$fromfile($$[QT_INSTALL_LIBS]/libQtTest_debug.prl, QMAKE_PRL_TARGET)
+       }
+    }
     OBJECTS_DIR     = tmp/debug
     MOC_DIR         = tmp/debug
 } else {
-    win32:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/QtTest.prl
-    else:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/libQtTest.prl
+    isEmpty(QTEST_LIB) {
+       win32 {
+          QTEST_LIB = $$fromfile($$[QT_INSTALL_LIBS]/QtTest.prl, QMAKE_PRL_TARGET)4.dll
+       } else {
+          QTEST_LIB_PRL = $$fromfile($$[QT_INSTALL_LIBS]/libQtTest.prl, QMAKE_PRL_TARGET)
+       }
+    }
     OBJECTS_DIR     = tmp/release
     MOC_DIR         = tmp/release
 }
-QTEST_LIB = $$fromfile($$QTESTLIB_PRL, QMAKE_PRL_TARGET)
-win32: QTEST_LIB = $${QTEST_LIB}4.dll
-isEmpty(QTEST_LIB) {
-    warning("Cannot find qtestlib's prl file!")
-} else {
-    !exists($$[QT_INSTALL_LIBS]/$$QTEST_LIB):CONFIG += embed_testlib
+isEmpty(QTEST_LIB)|!exists($$[QT_INSTALL_LIBS]) {
+    warning("Cannot find qtestlib!")
+    CONFIG += embed_testlib
 }
 
 # make sure the test is build according to your Qt configuration
@@ -38,12 +47,7 @@ embed_testlib {
                $${QTESTDIR}/qtesttable.cpp
     DEFINES += QTEST_EMBED QTEST_LIGHT
 } else {
-    CONFIG(debug, debug|release) {
-        unix:LIBS += -lQtTest_debug
-        else:LIBS += -lQtTestd
-    } else {
-        LIBS += -lQtTest
-    }
+    CONFIG += qtestlib
 }
 
 embedded:QMAKE_CXXFLAGS+=-fno-rtti

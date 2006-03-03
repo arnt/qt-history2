@@ -18,8 +18,18 @@ QMAKE_TARGET_PRODUCT = Designer
 QMAKE_TARGET_DESCRIPTION = Graphical user interface designer.
 QMAKE_TARGET_COPYRIGHT = Copyright (c) 2003-2005 Trolltech
 
-target.path=$$[QT_INSTALL_LIBS]
-INSTALLS        += target
+
+#load up the headers info
+CONFIG += qt_install_headers
+HEADERS_PRI = $$QT_BUILD_TREE/include/QtDesigner/headers.pri
+include($$HEADERS_PRI)|clear(HEADERS_PRI)
+
+#mac frameworks
+mac:!static:contains(QT_CONFIG, qt_framework) {
+   QMAKE_FRAMEWORK_BUNDLE_NAME = $$TARGET
+   CONFIG += lib_bundle qt_no_framework_direct_includes qt_framework
+   CONFIG(debug, debug|release):!build_pass:CONFIG += build_all
+}
 
 SOURCES += qdesigner_components.cpp
 
@@ -51,3 +61,7 @@ PRECOMPILED_HEADER= lib_pch.h
 
 include(../../sharedcomponents.pri)
 include(../component.pri)
+
+target.path=$$[QT_INSTALL_LIBS]
+INSTALLS        += target
+
