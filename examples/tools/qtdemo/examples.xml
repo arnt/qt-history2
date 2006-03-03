@@ -66,6 +66,7 @@
     <example filename="torrent" name="Torrent Client" />
   </category>
   <category dirname="opengl" name="OpenGL">
+    <example filename="2dpainting" name="2D Painting" />
     <example filename="grabber" name="Grabber" />
     <example filename="hellogl" name="Hello GL" />
     <example filename="pbuffers" name="Pixel Buffers" />

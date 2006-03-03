@@ -164,11 +164,13 @@
     \section1 OpenGL Examples
 
     \list
+    \o \l{opengl/2dpainting}{2D Painting}
     \o \l{opengl/grabber}{Grabber}
     \o \l{opengl/hellogl}{Hello GL}
-    \o \l{opengl/textures}{Textures}
-    \o \l{opengl/samplebuffers}{Sample Buffers}
+    \o \l{opengl/overpainting}{Overpainting a Scene}
     \o \l{opengl/pbuffers}{Pixel Buffers}
+    \o \l{opengl/samplebuffers}{Sample Buffers}
+    \o \l{opengl/textures}{Textures}
     \endlist
 
     \section1 XML Examples
