@@ -68,20 +68,25 @@ private:
     \brief The QWSKeyboardHandler class implements a keyboard driver
     in Qtopia Core.
 
-    The keyboard driver handles events from system devices and
-    generates key events.
+    A keyboard driver handles events from system devices and generates
+    key events. Custom keyboard drivers can be added by subclassing
+    the QKbdDriverPlugin class, using the QKbdDriverFactory class to
+    dynamically load the driver into the application.
 
-    A QWSKeyboardHandler will usually open some system device in its
-    constructor, create a QSocketNotifier on that opened device and
-    when it receives data, it will call processKeyEvent() to send the
-    event to \l {Qtopia Core} for relaying to clients.
+    A QWSKeyboardHandler object will usually open some system device,
+    and create a QSocketNotifier object for that device. The
+    QSocketNotifier class provides support for monitoring activity on
+    a file descriptor. When the socket notifier receives data, it will
+    call the keyboard handler's processKeyEvent() function to send the
+    event to the \l {Qtopia Core} server application for relaying to
+    clients.
 
-    QWSKeyboardHandler also provide functions to control auto-repetion
-    of a specified key presses: beginAutoRepeat() and endAutoRepeat(),
-    and the transformDirKey() function able to transform an arrow key
-    according to the display orientation.
+    QWSKeyboardHandler also provides functions to control
+    auto-repetion of key sequences, beginAutoRepeat() and
+    endAutoRepeat(), and the transformDirKey() function enabling
+    transformation of arrow keys according to the display orientation.
 
-    \sa QKbdDriverPlugin, QKbdDriverFactory, {Character Input}
+    \sa {Character Input}, {Qtopia Core}
 */
 
 
@@ -89,9 +94,9 @@ private:
     Constructs a keyboard handler.
 
     The handler \e may be passed to the system for later destruction
-    with QWSServer::setKeyboardHandler(), but this is not required
-    (the handler can still function, calling processKeyEvent() to emit
-    events).
+    using the QWSServer::setKeyboardHandler() function, but this is
+    not required (i.e. the handler can still function, calling
+    processKeyEvent() to emit events).
 */
 QWSKeyboardHandler::QWSKeyboardHandler()
 {
@@ -99,7 +104,7 @@ QWSKeyboardHandler::QWSKeyboardHandler()
 }
 
 /*!
-    Destroys a keyboard handler.
+    Destroys this keyboard handler.
 
     Do not call the destructor if the handler has been passed to the
     QWSServer::setKeyboardHandler() function.
@@ -114,8 +119,9 @@ QWSKeyboardHandler::~QWSKeyboardHandler()
     Sends a key event.
 
     This function is used by QWSKeyboardHandler subclasses to send a
-    key event. The server may additionally filter the event before
-    passing it on to applications.
+    key event to the Qtopia Core server application. The server may
+    additionally filter the event before passing it on to client
+    applications.
 
     \table
     \header \o Parameter \o Meaning
@@ -143,10 +149,11 @@ void QWSKeyboardHandler::processKeyEvent(int unicode, int keycode, Qt::KeyboardM
 /*!
     \fn int QWSKeyboardHandler::transformDirKey(int keycode)
 
-    Transforms an arrow key with the given \a keycode to the
+    Transforms the arrow key specified by the given \a keycode, to the
     orientation of the display and returns the transformed keycode.
 
-    The \a keycode can have one of the following values:
+    The \a keycode is a Qt::Key value. The values identifying arrow
+    keys are:
 
     \list
         \o Qt::Key_Left
@@ -180,8 +187,8 @@ int QWSKeyboardHandler::transformDirKey(int key)
     the key press is sent periodically until the endAutoRepeat()
     function is called.
 
-    The key press is specified by its \a unicode value, \a keycode and
-    \a modifier state.
+    The key press is specified by its \a unicode, \a keycode and \a
+    modifier state.
 
     \sa endAutoRepeat(), processKeyEvent()
 */
