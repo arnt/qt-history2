@@ -591,20 +591,43 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     xform_offset_y *= d->stretch_y;
 
     int dc_state = SaveDC(d->hdc);
+    
+    HRGN region = 0;
+    if (pixmap.hasAlpha()) {        
 
-    if (pixmap.hasAlpha()) {
-        QPainterPath clipMask;
-        clipMask.addRegion(QRegion(pixmap.mask()));
-        clipMask = clipMask * QMatrix(d->stretch_x, 0, 0, d->stretch_y,
-                                      tx - xform_offset_x, ty - xform_offset_y);
-        if (!clipMask.isEmpty()) {
-            d->composeGdiPath(clipMask);
-            if (!SelectClipPath(d->hdc, RGN_AND))
-                qErrnoWarning("QWin32PrintEngine::drawPixmap(), failed to set mask");
+        QRegion r(pixmap.mask());
+        QVector<QRect> rects = r.rects();        
+        RGNDATA *rgnd = (RGNDATA *) malloc(sizeof(RGNDATAHEADER) + sizeof(RECT) * rects.size());
+                
+        QMatrix m(d->stretch_x, 0, 0, d->stretch_y,
+                  tx - xform_offset_x, ty - xform_offset_y);
+        RECT *gdi_rect = (RECT *) rgnd->Buffer;
+        for (int i=0; i<rects.size(); ++i) {
+            QRect rect = m.mapRect(rects.at(i));
+            gdi_rect->left = rect.x();
+            gdi_rect->top = rect.y();
+            gdi_rect->right = rect.x() + rect.width();
+            gdi_rect->bottom = rect.y() + rect.height();
+            ++gdi_rect;           
         }
-    }
+        
+        rgnd->rdh.dwSize = sizeof(RGNDATAHEADER);
+        rgnd->rdh.iType = RDH_RECTANGLES;
+        rgnd->rdh.nCount = rects.size();
+        rgnd->rdh.nRgnSize = sizeof(RECT) * rects.size();
 
-//     printf(" - drawing target=[%d, %d, %d, %d]\n", tx, ty, tw, th);
+        QRect brect = m.mapRect(r.boundingRect());
+        rgnd->rdh.rcBound.left = brect.x();
+        rgnd->rdh.rcBound.top = brect.y();
+        rgnd->rdh.rcBound.right = brect.x() + brect.width();
+        rgnd->rdh.rcBound.bottom = brect.y() + brect.height();
+
+        region = ExtCreateRegion(0, sizeof(RGNDATAHEADER) + sizeof(RECT) * rects.size(), rgnd);
+        
+        ExtSelectClipRgn(d->hdc, region, RGN_AND);
+
+        free(rgnd);
+    } 
 
     if (!StretchBlt(d->hdc, qRound(tx - xform_offset_x), qRound(ty - xform_offset_y), tw, th,
                     hbitmap_hdc, 0, 0, pixmap.width(), pixmap.height(), SRCCOPY))
@@ -615,6 +638,9 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     DeleteDC(hbitmap_hdc);
 
     RestoreDC(d->hdc, dc_state);
+
+    if (region != 0)
+        DeleteObject(region);
 }
 
 
