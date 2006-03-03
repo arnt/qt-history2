@@ -1152,8 +1152,6 @@ QStringList QDir::entryList(const QStringList &nameFilters, Filters filters,
 }
 
 /*!
-    \overload
-
     Returns a list of QFileInfo objects for all the files and
     directories in the directory, ordered in accordance with
     setSorting() and filtered in accordance with setFilter() and
