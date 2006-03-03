@@ -66,13 +66,12 @@ function. This is useful mostly for buttons that do not have any
 text, because they have no automatic shortcut.
 
 \code
-      button->setPixmap(QPixmap(":/images/print.png"));
-      button->setShortcut(tr("Alt+F7"));
+    button->setIcon(QIcon(":/images/print.png"));
+    button->setShortcut(tr("Alt+F7"));
 \endcode
 
 All of the buttons provided by Qt (QPushButton, QToolButton,
-QCheckBox, and QRadioButton) can display both text and
-pixmaps.
+QCheckBox, and QRadioButton) can display both \l text and \l{icon}{icons}.
 
 A button can be made the default button in a dialog are provided by
 QPushButton::setDefault() and QPushButton::setAutoDefault().
