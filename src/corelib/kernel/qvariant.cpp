@@ -715,9 +715,6 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         case QVariant::ByteArray:
             *i = v_cast<QByteArray>(d)->toInt(ok);
             break;
-        case QVariant::Int:
-            *i = d->data.i;
-            break;
         case QVariant::UInt:
             *i = int(d->data.u);
             break;
@@ -753,9 +750,6 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
             break;
         case QVariant::Int:
             *u = uint(d->data.i);
-            break;
-        case QVariant::UInt:
-            *u = d->data.u;
             break;
         case QVariant::LongLong:
             *u = uint(d->data.ll);
@@ -793,9 +787,6 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         case QVariant::UInt:
             *l = qlonglong(d->data.u);
             break;
-        case QVariant::LongLong:
-            *l = d->data.ll;
-            break;
         case QVariant::ULongLong:
             *l = qlonglong(d->data.ull);
             break;
@@ -822,9 +813,6 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
             break;
         case QVariant::LongLong:
             *l = qulonglong(d->data.ll);
-            break;
-        case QVariant::ULongLong:
-            *l = d->data.ull;
             break;
         case QVariant::Double:
             *l = qRound64(d->data.d);
@@ -888,9 +876,6 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
             break;
         case QVariant::ByteArray:
             *f = v_cast<QByteArray>(d)->toDouble(ok);
-            break;
-        case QVariant::Double:
-            *f = d->data.d;
             break;
         case QVariant::Int:
             *f = double(d->data.i);
@@ -2046,14 +2031,19 @@ Q_VARIANT_TO(RectF)
     \fn QStringList QVariant::toStringList() const
 
     Returns the variant as a QStringList if the variant has type()
-    StringList or List of a type that can be converted to QString;
-    otherwise returns an empty list.
+    StringList, \l String, or \l List of a type that can be converted
+    to QString; otherwise returns an empty list.
+
+    \sa canConvert(), convert()
 */
 
 /*!
-    Returns the variant as a QString if the variant has type()
-    String, ByteArray, Int, UInt, Bool, Double, Date, Time, DateTime,
-    KeySequence, Font or Color; otherwise returns an empty string.
+    Returns the variant as a QString if the variant has type() \l
+    String, \l Bool, \l ByteArray, \l Char, \l Date, \l DateTime, \l
+    Double, \l Int, \l LongLong, \l StringList, \l Time, \l UInt, or
+    \l ULongLong; otherwise returns an empty string.
+
+    \sa canConvert(), convert()
 */
 QString QVariant::toString() const
 {
@@ -2065,19 +2055,10 @@ QString QVariant::toString() const
     return ret;
 }
 /*!
-    Returns the variant as a QMap<QString, QVariant> if the variant has
-    type() Map; otherwise returns an empty map.
+    Returns the variant as a QMap<QString, QVariant> if the variant
+    has type() \l Map; otherwise returns an empty map.
 
-    Note that if you want to iterate over the map, you should iterate
-    over a copy, e.g.
-    \code
-    QVariantMap map = myVariant.toMap();
-    QVariantMap::Iterator it = map.begin();
-    while(it != map.end()) {
-        myProcessing(*it);
-        ++it;
-    }
-    \endcode
+    \sa canConvert(), convert()
 */
 QVariantMap QVariant::toMap() const
 {
@@ -2088,134 +2069,166 @@ QVariantMap QVariant::toMap() const
 }
 
 /*!
-  \fn QDate QVariant::toDate() const
+    \fn QDate QVariant::toDate() const
 
-    Returns the variant as a QDate if the variant has type() Date,
-    DateTime or String; otherwise returns an invalid date.
+    Returns the variant as a QDate if the variant has type() \l Date,
+    \l DateTime, or \l String; otherwise returns an invalid date.
 
-    Note that if the type() is String an invalid date will be returned
-    if the string cannot be parsed as a Qt::ISODate format date.
-*/
+    If the type() is \l String, an invalid date will be returned if the
+    string cannot be parsed as a Qt::ISODate format date.
 
-
-/*!
-  \fn QTime QVariant::toTime() const
-
-    Returns the variant as a QTime if the variant has type() Time,
-    DateTime or String; otherwise returns an invalid time.
-
-    Note that if the type() is String an invalid time will be returned
-    if the string cannot be parsed as a Qt::ISODate format time.
+    \sa canConvert(), convert()
 */
 
 /*!
-  \fn QDateTime QVariant::toDateTime() const
+    \fn QTime QVariant::toTime() const
 
-    Returns the variant as a QDateTime if the variant has type()
-    DateTime, Date or String; otherwise returns an invalid date/time.
+    Returns the variant as a QTime if the variant has type() \l Time,
+    \l DateTime, or \l String; otherwise returns an invalid time.
 
-    Note that if the type() is String an invalid date/time will be
-    returned if the string cannot be parsed as a Qt::ISODate format
+    If the type() is \l String, an invalid time will be returned if
+    the string cannot be parsed as a Qt::ISODate format time.
+
+    \sa canConvert(), convert()
+*/
+
+/*!
+    \fn QDateTime QVariant::toDateTime() const
+
+    Returns the variant as a QDateTime if the variant has type() \l
+    DateTime, \l Date, or \l String; otherwise returns an invalid
     date/time.
-*/
 
+    If the type() is \l String, an invalid date/time will be returned
+    if the string cannot be parsed as a Qt::ISODate format date/time.
 
-/*!
-  \fn QByteArray QVariant::toByteArray() const
-
-    Returns the variant as a QByteArray if the variant has type()
-    ByteArray; otherwise returns an empty bytearray.
+    \sa canConvert(), convert()
 */
 
 /*!
-  \fn QPoint QVariant::toPoint() const
+    \fn QByteArray QVariant::toByteArray() const
 
-  Returns the variant as a QPoint if the variant has type()
-  Point; otherwise returns a null QPoint.
- */
+    Returns the variant as a QByteArray if the variant has type() \l
+    ByteArray or \l String (converted using QString::fromAscii());
+    otherwise returns an empty byte array.
 
-/*!
-  \fn QRect QVariant::toRect() const
-
-  Returns the variant as a QRect if the variant has type()
-  Rect; otherwise returns an invalid QRect.
- */
-
-/*!
-  \fn QSize QVariant::toSize() const
-
-  Returns the variant as a QSize if the variant has type()
-  Size or SizeF; otherwise returns an invalid QSize.
- */
-
-/*!
-  \fn QSizeF QVariant::toSizeF() const
-
-  Returns the variant as a QSizeF if the variant has type()
-  SizeF or Size; otherwise returns an invalid QSizeF.
- */
-
-/*!
-  \fn QUrl QVariant::toUrl() const
-
-  Returns the variant as a QUrl if the variant has type()
-  Url; otherwise returns an invalid QUrl.
- */
-
-/*!
-  \fn QLocale QVariant::toLocale() const
-
-  Returns the variant as a QLocale if the variant has type()
-  Locale; otherwise returns an invalid QLocale.
- */
-
-/*!
-  \fn QRegExp QVariant::toRegExp() const
-  \since 4.1
-
-  Returns the variant as a QRegExp if the variant has type()
-  RegExp; otherwise returns an empty QRegExp.
+    \sa canConvert(), convert()
 */
 
 /*!
-  \fn QRectF QVariant::toRectF() const
+    \fn QPoint QVariant::toPoint() const
 
-  Returns the variant as a QRectF if the variant has type()
-  Rect or RectF; otherwise returns an invalid QRectF.
- */
+    Returns the variant as a QPoint if the variant has type()
+    \l Point or \l PointF; otherwise returns a null QPoint.
 
-/*!
-  \fn QLineF QVariant::toLineF() const
-
-  Returns the variant as a QLineF if the variant has type()
-  LineF; otherwise returns an invalid QLineF.
- */
+    \sa canConvert(), convert()
+*/
 
 /*!
-  \fn QLine QVariant::toLine() const
+    \fn QRect QVariant::toRect() const
 
-  Returns the variant as a QLine if the variant has type()
-  Line; otherwise returns an invalid QLine.
- */
+    Returns the variant as a QRect if the variant has type() \l Rect;
+    otherwise returns an invalid QRect.
 
-/*!
-  \fn QPointF QVariant::toPointF() const
-
-  Returns the variant as a QPointF if the variant has type()
-  Point or PointF; otherwise returns a null QPointF.
- */
+    \sa canConvert(), convert()
+*/
 
 /*!
-  \fn QChar QVariant::toChar() const
+    \fn QSize QVariant::toSize() const
 
-  Returns the variant as a QChar if the variant has type()
-  Char or contains a numeric value; otherwise returns
-  an invalid QChar.
- */
+    Returns the variant as a QSize if the variant has type() \l Size;
+    otherwise returns an invalid QSize.
+
+    \sa canConvert(), convert()
+*/
+
+/*!
+    \fn QSizeF QVariant::toSizeF() const
+
+    Returns the variant as a QSizeF if the variant has type() \l
+    SizeF; otherwise returns an invalid QSizeF.
+
+    \sa canConvert(), convert()
+*/
+
+/*!
+    \fn QUrl QVariant::toUrl() const
+
+    Returns the variant as a QUrl if the variant has type()
+    \l Url; otherwise returns an invalid QUrl.
+
+    \sa canConvert(), convert()
+*/
+
+/*!
+    \fn QLocale QVariant::toLocale() const
+
+    Returns the variant as a QLocale if the variant has type()
+    \l Locale; otherwise returns an invalid QLocale.
+
+    \sa canConvert(), convert()
+*/
+
+/*!
+    \fn QRegExp QVariant::toRegExp() const
+    \since 4.1
+
+    Returns the variant as a QRegExp if the variant has type() \l
+    RegExp; otherwise returns an empty QRegExp.
+
+    \sa canConvert(), convert()
+*/
+
+/*!
+    \fn QRectF QVariant::toRectF() const
+
+    Returns the variant as a QRectF if the variant has type() \l Rect
+    or \l RectF; otherwise returns an invalid QRectF.
+
+    \sa canConvert(), convert()
+*/
+
+/*!
+    \fn QLineF QVariant::toLineF() const
+
+    Returns the variant as a QLineF if the variant has type() \l
+    LineF; otherwise returns an invalid QLineF.
+
+    \sa canConvert(), convert()
+*/
+
+/*!
+    \fn QLine QVariant::toLine() const
+
+    Returns the variant as a QLine if the variant has type() \l Line;
+    otherwise returns an invalid QLine.
+
+    \sa canConvert(), convert()
+*/
+
+/*!
+    \fn QPointF QVariant::toPointF() const
+
+    Returns the variant as a QPointF if the variant has type() \l
+    Point or \l PointF; otherwise returns a null QPointF.
+
+    \sa canConvert(), convert()
+*/
+
+/*!
+    \fn QChar QVariant::toChar() const
+
+    Returns the variant as a QChar if the variant has type() \l Char,
+    \l Int, or \l UInt; otherwise returns an invalid QChar.
+
+    \sa canConvert(), convert()
+*/
 
 /*!
     Returns the variant as a QBitArray if the variant has type()
-    BitArray; otherwise returns an empty bitarray.
+    \l BitArray; otherwise returns an empty bit array.
+
+    \sa canConvert(), convert()
 */
 QBitArray QVariant::toBitArray() const
 {
@@ -2225,14 +2238,14 @@ QBitArray QVariant::toBitArray() const
 }
 
 /*!
-    Returns the variant as an int if the variant has type() String,
-    Int, UInt, Double, Bool or KeySequence; otherwise returns
-    0.
+    Returns the variant as an int if the variant has type() \l Int,
+    \l Bool, \l ByteArray, \l Char, \l Double, \l LongLong, \l
+    String, \l UInt, or \l ULongLong; otherwise returns 0.
 
     If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
     converted to an int; otherwise \c{*}\a{ok} is set to false.
 
-    \sa canConvert()
+    \sa canConvert(), convert()
 */
 int QVariant::toInt(bool *ok) const
 {
@@ -2254,10 +2267,13 @@ int QVariant::toInt(bool *ok) const
 
 /*!
     Returns the variant as an unsigned int if the variant has type()
-    String, ByteArray, UInt, Int, Double, or Bool; otherwise returns 0.
+    \l UInt,  \l Bool, \l ByteArray, \l Char, \l Double, \l Int, \l
+    LongLong, \l String, or \l ULongLong; otherwise returns 0.
 
     If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
     converted to an unsigned int; otherwise \c{*}\a{ok} is set to false.
+
+    \sa canConvert(), convert()
 */
 uint QVariant::toUInt(bool *ok) const
 {
@@ -2279,13 +2295,13 @@ uint QVariant::toUInt(bool *ok) const
 
 /*!
     Returns the variant as a long long int if the variant has type()
-    LongLong, ULongLong, any type allowing a toInt() conversion;
-    otherwise returns 0.
+    \l LongLong, \l Bool, \l ByteArray, \l Char, \l Double, \l Int,
+    \l String, \l UInt, or \l ULongLong; otherwise returns 0.
 
     If \a ok is non-null: \c{*}\c{ok} is set to true if the value could be
     converted to an int; otherwise \c{*}\c{ok} is set to false.
 
-    \sa canConvert()
+    \sa canConvert(), convert()
 */
 qlonglong QVariant::toLongLong(bool *ok) const
 {
@@ -2306,14 +2322,15 @@ qlonglong QVariant::toLongLong(bool *ok) const
 }
 
 /*!
-    Returns the variant as as an unsigned long long int if the variant
-    has type() LongLong, ULongLong, any type allowing a toUInt()
-    conversion; otherwise returns 0.
+    Returns the variant as as an unsigned long long int if the
+    variant has type() \l ULongLong, \l Bool, \l ByteArray, \l Char,
+    \l Double, \l Int, \l LongLong, \l String, or \l UInt; otherwise
+    returns 0.
 
     If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
     converted to an int; otherwise \c{*}\a{ok} is set to false.
 
-    \sa canConvert()
+    \sa canConvert(), convert()
 */
 qulonglong QVariant::toULongLong(bool *ok) const
 {
@@ -2336,9 +2353,12 @@ qulonglong QVariant::toULongLong(bool *ok) const
 /*!
     Returns the variant as a bool if the variant has type() Bool.
 
-    Returns true if the variant has type Int, UInt or Double and its
-    value is non-zero, or if the variant has type String and its lower-case
+    Returns true if the variant has type() \l Bool, \l Char, \l Double,
+    \l Int, \l LongLong, \l UInt, or \l ULongLong and the value is
+    non-zero, or if the variant has type \l String and its lower-case
     content is not empty, "0" or "false"; otherwise returns false.
+
+    \sa canConvert(), convert()
 */
 bool QVariant::toBool() const
 {
@@ -2352,12 +2372,14 @@ bool QVariant::toBool() const
 }
 
 /*!
-    Returns the variant as a double if the variant has type() String,
-    ByteArray, Double, Int, UInt, LongLong, ULongLong or Bool; otherwise
-    returns 0.0.
+    Returns the variant as a double if the variant has type() \l
+    Double, \l Bool, \l ByteArray, \l Int, \l LongLong, \l String, \l
+    UInt, or \l ULongLong; otherwise returns 0.0.
 
     If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
     converted to a double; otherwise \c{*}\a{ok} is set to false.
+
+    \sa canConvert(), convert()
 */
 double QVariant::toDouble(bool *ok) const
 {
@@ -2378,21 +2400,10 @@ double QVariant::toDouble(bool *ok) const
 }
 
 /*!
-  \fn QVariantList QVariant::toList() const
+    Returns the variant as a QVariantList if the variant has type()
+    \l List or \l StringList; otherwise returns an empty list.
 
-    Returns the variant as a QVariantList if the variant has
-    type() List or StringList; otherwise returns an empty list.
-
-    Note that if you want to iterate over the list, you should iterate
-    over a copy, e.g.
-    \code
-    QVariantList list = myVariant.toList();
-    QVariantList::Iterator it = list.begin();
-    while(it != list.end()) {
-        myProcessing(*it);
-        ++it;
-    }
-    \endcode
+    \sa canConvert(), convert()
 */
 QVariantList QVariant::toList() const
 {
@@ -2417,24 +2428,33 @@ QVariantList QVariant::toList() const
     toInt(), toBool(), ... methods.
 
     The following casts are done automatically:
+
     \table
     \header \o Type \o Automatically Cast To
-    \row \o \l Bool \o \l Double, \l Int, \l UInt, \l LongLong, \l ULongLong
+    \row \o \l Bool \o \l Char, \l Double, \l Int, \l LongLong, \l String, \l UInt, \l ULongLong
+    \row \o \l ByteArray \o \l Double, \l Int, \l LongLong, \l String, \l UInt, \l ULongLong
+    \row \o \l Char \o \l Bool, \l Int, \l UInt, \l LongLong, \l ULongLong
     \row \o \l Color \o \l String
-    \row \o \l Date \o \l String, \l DateTime
-    \row \o \l DateTime \o \l String, \l Date, \l Time
-    \row \o \l Double \o \l String, \l Int, \l Bool, \l UInt
+    \row \o \l Date \o \l DateTime, \l String
+    \row \o \l DateTime \o \l Date, \l String, \l Time
+    \row \o \l Double \o \l Bool, \l Int, \l LongLong, \l String, \l UInt, \l ULong
     \row \o \l Font \o \l String
-    \row \o \l Int \o \l String, \l Double, \l Bool, \l UInt
-    \row \o \l List \o \l StringList (if the list contains strings or something that can be cast to a string)
-    \row \o \l String \o \l CString, \l Int, \l UInt, \l Bool, \l Double, \l Date,
-    \l Time, \l DateTime, \l KeySequence, \l Font, \l Color
-    \row \o \l CString \o \l String
-    \row \o \l StringList \o \l List
-    \row \o \l Time \o \l String
-    \row \o \l UInt \o \l String, \l Double, \l Bool, \l Int
-    \row \o \l KeySequence \o \l String, \l Int
+    \row \o \l Int \o \l Bool, \l Char, \l Double, \l LongLong, \l String, \l UInt, \l ULongLong
+    \row \o \l KeySequence \o \l Int, \l String
+    \row \o \l List \o \l StringList (if the list's items can be converted to strings)
+    \row \o \l LongLong \o \l Bool, \l ByteArray, \l Char, \l Double, \l Int, \l String, \l UInt, \l ULongLong
+    \row \o \l Point \o PointF
+    \row \o \l Rect \o RectF
+    \row \o \l String \o \l Bool, \l ByteArray, \l Char, \l Color, \l Date, \l DateTime, \l Double,
+                         \l Font, \l Int, \l KeySequence, \l LongLong, \l StringList, \l Time, \l UInt,
+                         \l ULongLong
+    \row \o \l StringList \o \l List, \l String (if the list contains exactly one item)
+    \row \o \l Time \o \l DateTime, \l String
+    \row \o \l UInt \o \l Bool, \l Char, \l Double, \l Int, \l LongLong, \l String, \l ULongLong
+    \row \o \l ULongLong \o \l Bool, \l Char, \l Double, \l Int, \l LongLong, \l String, \l UInt
     \endtable
+
+    \sa convert()
 */
 bool QVariant::canConvert(Type t) const
 {
