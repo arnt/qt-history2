@@ -75,8 +75,8 @@
         <gfx driver><:driver specific options><:display number>
     \endcode
 
-    The valid drivers are \c linuxfb, \c qvfb, \c vnc and \c
-    transformed. For example, use the following code to run the
+    The valid drivers are \c LinuxFb, \c QVfb, \c VNC and \c
+    Transformed. For example, use the following code to run the
     example and demo launcher \l {Qt Demo example}{Qt Demo}, on a
     transformed display:
 

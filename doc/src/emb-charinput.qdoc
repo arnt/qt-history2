@@ -68,8 +68,8 @@
 
     \section1 Available Keyboard Drivers
 
-    Qtopia Core provides drivers for the SL5000, Yopy, NEC Vr41XX,
-    console (tty) and USB protocols.
+    Qtopia Core provides drivers for the SL5000, Yopy, Vr41XX, console
+    (TTY) and USB protocols.
 
     Note that the console keyboard driver also handles console
     switching (\bold{Ctrl+Alt+F1}, ..., \bold{Ctrl+Alt+F10}) and
@@ -97,8 +97,8 @@
          export QWS_KEYBOARD=<driver>:<device>
     \endcode
 
-    The \c <driver> argument is either \c sl5000, \c yopy, \c vr41xx,
-    \c tty or \c usb, and the \c <device> argument is typically \c
+    The \c <driver> argument is either \c SL5000, \c Yopy, \c VR41xx,
+    \c TTY or \c USB, and the \c <device> argument is typically \c
     /dev/tty0. Note that the latter argument is optional.
 
     Multiple keyboard drivers can be specified in one go:

@@ -37,9 +37,9 @@
     \endcode
 
     The default value is an unaccelerated Linux framebuffer driver: \c
-    /dev/fb0.  Valid drivers are \c qvfb, \c linuxfb (unaccelerated
-    Linux framebuffer), \c transformed (for rotated displays), and \c
-    vnc (when running Qtopia Core as a VNC server).
+    /dev/fb0.  Valid drivers are \c QVfb, \c LinuxFb (unaccelerated
+    Linux framebuffer), \c Transformed (for rotated displays), and \c
+    VNC (when running Qtopia Core as a VNC server).
 
     Transformed displays have a special format: the specification
     should include a rotation as a multiple of 90 degrees given as \c
@@ -72,7 +72,7 @@
     \endcode
 
     The available drivers are \c MouseMan, \c IntelliMouse, \c
-    Microsoft, \c vr41xx, \c linuxtp or \c tslib, and the device is
+    Microsoft, \c VR41xx, \c LinuxTP or \c Tslib, and the device is
     typically \c /dev/mouse, or \c /dev/ts for touch panels. Note that
     specifying the device is optional.
 
@@ -94,8 +94,8 @@
         <driver>:<device>
     \endcode
 
-    The available drivers are \c sl5000, \c yopy, \c vr41xx, \c tty or
-    \c usb, and the device is typically \c /dev/tty0. Note that
+    The available drivers are \c SL5000, \c Yopy, \c VR41xx, \c TTY or
+    \c USB, and the device is typically \c /dev/tty0. Note that
     specifying the device is optional.
 
     Multiple keyboard drivers can be specified in one go:

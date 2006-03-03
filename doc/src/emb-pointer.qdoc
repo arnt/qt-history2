@@ -46,7 +46,7 @@
     \endcode
 
     The \c <driver> argument is either \c MouseMan, \c IntelliMouse,
-    \c Microsoft, \c vr41xx, \c linuxtp, \c yopy or \c tslib, and the
+    \c Microsoft, \c VR41xx, \c LinuxTP, \c Yopy or \c Tslib, and the
     \c <device> argument is typically \c /dev/mouse for mouse devices
     and \c /dev/ts for touch panels. Note that the latter argument is
     optional.
