@@ -292,7 +292,7 @@ class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
 public:
     QOpenGLPaintEnginePrivate()
         : bgmode(Qt::TransparentMode)
-        , opacity(1.0f)
+        , opacity(1)
         , has_fast_pen(false)
         , txop(QPainterPrivate::TxNone)
         , inverseScale(1)
@@ -777,6 +777,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     d->has_autoswap = d->drawable.autoBufferSwap();
     d->drawable.setAutoBufferSwap(false);
     d->inverseScale = 1;
+    d->opacity = 1;
     setActive(true);
     d->drawable.makeCurrent();
 
