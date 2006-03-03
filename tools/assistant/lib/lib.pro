@@ -4,7 +4,7 @@ TARGET                = QtAssistantClient
 VERSION                = 1.0
 
 CONFIG                += qt warn_on
-CONFIG                += staticlib debug_and_release
+CONFIG                += debug_and_release
 mac:unix:CONFIG       += explicitlib
 CONFIG                -= dll
 
