@@ -1691,8 +1691,9 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                 ++padded_width;
 
             int idx = 0;
-            uchar tex_data[100*100*2];
-            memset(&tex_data, 0, 100*100*2);
+            uchar *tex_data = (uchar *) malloc(padded_width*glyph_im.height()*2);
+            memset(tex_data, 0, padded_width*glyph_im.height()*2);
+
             for (int y=0; y<glyph_im.height(); ++y) {
                 uint *s = (uint *) glyph_im.scanLine(y);
                 for (int x=0; x<glyph_im.width(); ++x) {
@@ -1705,7 +1706,8 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                     idx += 2;
             }
             glTexSubImage2D(target, 0, next_x, next_y, padded_width, glyph_im.height(),
-                            GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, &tex_data);
+                            GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, tex_data);
+            free(tex_data);
 
             if (next_x + glyph_width + x_margin > glyph_tex_width) {
                 next_x = x_margin;
