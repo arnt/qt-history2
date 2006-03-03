@@ -1641,14 +1641,15 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             if (!glyph_tex) {
                 glDeleteTextures(1, &glyph_tex);
                 glGenTextures(1, &glyph_tex);
-                uchar tex_data[glyph_tex_width*glyph_tex_height*2];
+                uchar *tex_data = (uchar *) malloc(glyph_tex_width*glyph_tex_height*2);
                 memset(tex_data, 0, glyph_tex_width*glyph_tex_height*2);
                 glBindTexture(target, glyph_tex);
                 glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameterf(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexImage2D(target, 0, GL_LUMINANCE8_ALPHA8,
                              glyph_tex_width, glyph_tex_height, 0,
-                             GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, &tex_data);
+                             GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, tex_data);
+                free(tex_data);
             }
 
             glBindTexture(target, glyph_tex);
