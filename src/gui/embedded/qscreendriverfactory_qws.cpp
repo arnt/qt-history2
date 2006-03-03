@@ -33,27 +33,29 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 #endif //QT_MAKEDLL
 
 /*!
-    \class QScreenDriverFactory qscreendriverfactory.h
-    \brief The QScreenDriverFactory class creates QScreen objects for Qtopia Core.
-
+    \class QScreenDriverFactory
     \ingroup qws
 
-    The graphics driver factory creates a QScreen object for a given
-    key with QScreenDriverFactory::create(key).
+    \brief The QScreenDriverFactory class creates QScreen objects.
 
-    The drivers are either built-in or dynamically loaded from a
-    driver plugin (see \l QScreenDriverPlugin).
+    Note that this class is only available in \l {Qtopia Core}.
 
-    QScreenDriverFactory::keys() returns a list of valid keys. Qt
-    currently ships with "LinuxFb".
+    The QScreen class and its descendants manage the framebuffer and
+    palette. QScreenDriverFactory creates a QScreen object using the
+    create() function and a key identifying the driver.
 
-    This class is only available in \l{Qtopia Core}.
+    The valid keys (i.e. the supported drivers) can be retrieved using
+    the keys() function. The drivers are either built-in or
+    dynamically loaded from a driver plugin (see \l
+    QScreenDriverPlugin).
+
+    \sa QScreen, QScreenDriverPlugin
 */
 
 /*!
-    Creates a QScreen object of a type that matches \a key, and with
-    the ID, \a displayId. The QScreen object returned may be from a
-    built-in driver, or from a driver plugin.
+    Creates a QScreen object for the driver specified by the given \a
+    key and \a displayId. The returned QScreen object may be created
+    from a built-in driver, or from a driver plugin.
 
     \sa keys()
 */
@@ -89,7 +91,13 @@ QScreen *QScreenDriverFactory::create(const QString& key, int displayId)
 }
 
 /*!
-    Returns the list of keys this factory can create drivers for.
+    Returns the list of valid keys, i.e. the drivers this factory can
+    create screens for.
+
+    \l {Qtopia Core} currently supports the following drivers by
+    default: \c qvfb (\l {Qtopia Core}'s virtual framebuffer), \c
+    linuxfb (The Linux framebuffer), \c transformed (for rotated
+    displays) and \c vnc (a \l {Running as a VNC Server}{VNC} server).
 
     \sa create()
 */
