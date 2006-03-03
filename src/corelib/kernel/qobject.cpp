@@ -2289,32 +2289,24 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     }
 
     QByteArray signal_name;
-#ifndef QT_NO_DEBUG
     bool signal_found = false;
-#endif
     if (signal) {
         signal_name = QMetaObject::normalizedSignature(signal);
         signal = signal_name;
-#ifndef QT_NO_DEBUG
         if (!check_signal_macro(sender, signal, "disconnect", "unbind"))
             return false;
-#endif
         signal++; // skip code
     }
 
     QByteArray method_name;
-#ifndef QT_NO_DEBUG
     int membcode = -1;
     bool method_found = false;
-#endif
     if (method) {
         method_name = QMetaObject::normalizedSignature(method);
         method = method_name;
-#ifndef QT_NO_DEBUG
         membcode = method[0] - '0';
         if (!check_method_code(membcode, receiver, method, "disconnect"))
             return false;
-#endif
         method++; // skip code
     }
 
@@ -2330,9 +2322,7 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
             signal_index = smeta->indexOfSignal(signal);
             if (signal_index < smeta->methodOffset())
                 continue;
-#ifndef QT_NO_DEBUG
             signal_found = true;
-#endif
         }
 
         if (!method) {
@@ -2354,7 +2344,6 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
         }
     } while (signal && (smeta = smeta->superClass()));
 
-#ifndef QT_NO_DEBUG
     if (signal && !signal_found) {
         err_method_notfound(QSIGNAL_CODE, sender, signal, "disconnect");
         err_info_about_objects("disconnect", sender, receiver);
@@ -2362,7 +2351,6 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
         err_method_notfound(membcode, receiver, method, "disconnect");
         err_info_about_objects("disconnect", sender, receiver);
     }
-#endif
     if (res)
         const_cast<QObject*>(sender)->disconnectNotify(signal - 1);
     return res;
