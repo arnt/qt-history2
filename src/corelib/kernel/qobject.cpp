@@ -1856,8 +1856,6 @@ void QObject::deleteLater()
   Signals and slots
  *****************************************************************************/
 
-#ifndef QT_NO_DEBUG
-
 static bool check_signal_macro(const QObject *sender, const char *signal,
                                 const char *func, const char *op)
 {
@@ -1913,8 +1911,6 @@ static void err_info_about_objects(const char * func,
     if (!b.isEmpty())
         qWarning("Object::%s:  (receiver name: '%s')", func, b.toLocal8Bit().data());
 }
-
-#endif // !QT_NO_DEBUG
 
 /*!
     Returns a pointer to the object that sent the signal, if called in
@@ -2104,21 +2100,17 @@ bool QObject::connect(const QObject *sender, const char *signal,
     }
 
     if (sender == 0 || receiver == 0 || signal == 0 || method == 0) {
-#ifndef QT_NO_DEBUG
         qWarning("QObject::connect: Cannot connect %s::%s to %s::%s",
                  sender ? sender->metaObject()->className() : "(null)",
                  signal ? signal+1 : "(null)",
                  receiver ? receiver->metaObject()->className() : "(null)",
                  method ? method+1 : "(null)");
-#endif
         return false;
     }
     QByteArray tmp_signal_name;
 
-#ifndef QT_NO_DEBUG
     if (!check_signal_macro(sender, signal, "connect", "bind"))
         return false;
-#endif
     const QMetaObject *smeta = sender->metaObject();
     ++signal; //skip code
     int signal_index = smeta->indexOfSignal(signal);
@@ -2128,10 +2120,8 @@ bool QObject::connect(const QObject *sender, const char *signal,
         signal = tmp_signal_name.constData() + 1;
         signal_index = smeta->indexOfSignal(signal);
         if (signal_index < 0) {
-#ifndef QT_NO_DEBUG
             err_method_notfound(QSIGNAL_CODE, sender, signal, "connect");
             err_info_about_objects("connect", sender, receiver);
-#endif
             return false;
         }
     }
@@ -2139,10 +2129,8 @@ bool QObject::connect(const QObject *sender, const char *signal,
     QByteArray tmp_method_name;
     int membcode = method[0] - '0';
 
-#ifndef QT_NO_DEBUG
     if (!check_method_code(membcode, receiver, method, "connect"))
         return false;
-#endif
     ++method; // skip code
 
     const QMetaObject *rmeta = receiver->metaObject();
@@ -2170,13 +2158,10 @@ bool QObject::connect(const QObject *sender, const char *signal,
     }
 
     if (method_index < 0) {
-#ifndef QT_NO_DEBUG
         err_method_notfound(membcode, receiver, method, "connect");
         err_info_about_objects("connect", sender, receiver);
-#endif
         return false;
     }
-#ifndef QT_NO_DEBUG
     if (!QMetaObject::checkConnectArgs(signal, method)) {
         qWarning("QObject::connect: Incompatible sender/receiver arguments"
                  "\n\t%s::%s --> %s::%s",
@@ -2184,7 +2169,6 @@ bool QObject::connect(const QObject *sender, const char *signal,
                  receiver->metaObject()->className(), method);
         return false;
     }
-#endif
 
     int *types = 0;
     if (type == Qt::QueuedConnection
