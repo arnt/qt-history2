@@ -118,7 +118,7 @@
     in queued signals and slots connections. It associates a type
     name to a type so that it can be created and destructed
     dynamically at run-time. Register new types with
-    qRegisterMetaType(). Any class or struct that has a public
+    qRegisterMetaType(). Any class or struct that has a public default
     constructor, a public copy constructor, and a public destructor
     can be registered.
 

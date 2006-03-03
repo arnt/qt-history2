@@ -1,3 +1,6 @@
+    * Fix QMenu::addAction(QAction *) overload, "using" etc.
+    * fix space between two tables using <p></p>
+    * qpixmap-qt3.html; remove 8 public functions inherited from QPaintDevice
     * \variable array
     * Added support for parameterless macros (e.g. \macro Q_OBJECT).
     * Made qdoc stricter regarding the data types (e.g. can't use \enum to document a typedef).

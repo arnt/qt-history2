@@ -1552,8 +1552,19 @@ void QMapData::dump()
 /*!
     \fn iterator QMap::insert(const Key &key, const T &value, bool overwrite);
 
-    Use the two-argument insert() overload instead. If you want to
-    overwrite, remove() then insert().
+    Use the two-argument insert() overload instead. If you don't want
+    to overwrite, call contains() beforehand.
+
+    \oldcode
+        QMap<QString, int> map;
+        ...
+        map.insert("delay", 30000, false);
+    \newcode
+        QMap<QString, int> map;
+        ...
+        if (!map.contains("delay"))
+            map.insert("delay", 30000);
+    \endcode
 */
 
 /*!

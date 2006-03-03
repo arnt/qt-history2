@@ -1837,7 +1837,9 @@
     \row    \o QImageIO::format()         \o QImageReader::format() and QImageWriter::format()
     \row    \o QImageIO::gamma()          \o QImageWriter::gamma()
     \row    \o QImageIO::image()          \o Return value of QImageReader::read()
+    \row    \o QImageIO::inputFormats()   \o QImageReader::supportedImageFormats()
     \row    \o QImageIO::ioDevice()       \o QImageReader::device() and QImageWriter::device()
+    \row    \o QImageIO::outputFormats()  \o QImageWriter::supportedImageFormats()
     \row    \o QImageIO::parameters()     \o N/A
     \row    \o QImageIO::quality()        \o QImageWriter::quality()
     \row    \o QImageIO::read()           \o QImageReader::read()
@@ -1973,7 +1975,8 @@
 
     \section1 QLayout
 
-    QLayout setSupportsMargin()
+    In Qt 4, margins are always handled by layouts; there is no
+    QLayout::setSupportsMargin() function anymore.
 
     The deleteAllItems() function is now only available if
     \c QT3_SUPPORT is defined. If you maintain a QList of layout
@@ -3155,7 +3158,7 @@
     the QTcpSocket class, which inherits most of its functionality
     from QAbstractSocket.
 
-    \section1 QSocket
+    \section1 QSocketDevice
 
     The \c QSocketDevice class has been renamed Q3SocketDevice and
     moved to the Qt3Support library. In Qt 4, there is no
@@ -3422,9 +3425,6 @@
         data stored in the QString object. Call QString::ascii() if
         you want the old behavior.
 
-    \o  QString::simpleText() has been renamed
-        QString::isSimpleText().
-
     \endlist
 
     \section1 QStringList
@@ -3544,11 +3544,10 @@
 
     \section1 QSyntaxHighlighter
 
-    The QSyntaxHighlighter class has been renamed Q3SyntaxHighlighter
-    and moved to the Qt3Support library.
-
-    See \l{Rich Text Processing} for an overview of the Qt 4 rich
-    text classes.
+    The \c QSyntaxHighlighter class from Qt 3 has been renamed
+    Q3SyntaxHighlighter and moved to the Qt3Support library. Since Qt
+    4.1, it has been replaced by a new QSyntaxHighlighter class based
+    on Qt 4's new rich text engine.
 
     \section1 QTabBar
 
@@ -3653,6 +3652,10 @@
 
     See \l{#properties}{Properties} for a list of QToolBar properties
     in Qt 3 that have changed in Qt 4.
+
+    \section1 QToolTip
+
+    The QToolTip::setGloballyEnable() function does no longer exist.
 
     \section1 QUriDrag
 
@@ -3789,6 +3792,8 @@
     \o The \c QVariant::CString enum value is now a synonym for
        QVariant::ByteArray.
     \endlist
+
+    Also, 
 
     \section1 QVBox
 
