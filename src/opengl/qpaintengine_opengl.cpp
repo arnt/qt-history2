@@ -292,6 +292,7 @@ class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
 public:
     QOpenGLPaintEnginePrivate()
         : bgmode(Qt::TransparentMode)
+        , opacity(1.0f)
         , has_fast_pen(false)
         , txop(QPainterPrivate::TxNone)
         , inverseScale(1)
@@ -307,14 +308,14 @@ public:
         pen_color[0] = c.red();
         pen_color[1] = c.green();
         pen_color[2] = c.blue();
-        pen_color[3] = c.alpha();
+        pen_color[3] = qRound(c.alpha() * opacity);
     }
 
     inline void setGLBrush(const QColor &c) {
         brush_color[0] = c.red();
         brush_color[1] = c.green();
         brush_color[2] = c.blue();
-        brush_color[3] = c.alpha();
+        brush_color[3] = qRound(c.alpha() * opacity);
     }
 
     inline void setGradientOps(Qt::BrushStyle style);
@@ -336,6 +337,7 @@ public:
     QRegion crgn;
     Qt::BrushStyle brush_style;
     Qt::BrushStyle pen_brush_style;
+    qreal opacity;
 
     uint has_clipping : 1;
     uint has_pen : 1;
@@ -857,9 +859,22 @@ bool QOpenGLPaintEngine::end()
 
 void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
 {
+    Q_D(QOpenGLPaintEngine);
     QPaintEngine::DirtyFlags flags = state.state();
 
     bool update_fast_pen = false;
+
+    if (flags & DirtyOpacity) {
+        update_fast_pen = true;
+        d->opacity = state.opacity();
+        if (d->opacity > 1.0f)
+            d->opacity = 1.0f;
+        if (d->opacity < 0.f)
+            d->opacity = 0.f;
+        // force update
+        flags |= DirtyPen;
+        flags |= DirtyBrush;
+    }
 
     if (flags & DirtyTransform) {
         update_fast_pen = true;
@@ -1479,7 +1494,7 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     glPushAttrib(GL_CURRENT_BIT);
-    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glColor4f(1.0, 1.0, 1.0, d->opacity);
     glEnable(GL_TEXTURE_2D);
 
     GLdouble tc_w = r.width()/pm.width();
@@ -1528,8 +1543,9 @@ void QOpenGLPaintEngine::drawImage(const QRectF &r, const QImage &image, const Q
 void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRectF &r,
                                          const QRectF &sr, GLenum target)
 {
+    Q_D(QOpenGLPaintEngine);
     glPushAttrib(GL_CURRENT_BIT);
-    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glColor4f(1.0, 1.0, 1.0, d->opacity);
     glEnable(target);
 
     glBegin(GL_QUADS);
