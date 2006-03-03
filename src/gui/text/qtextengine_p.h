@@ -178,7 +178,6 @@ struct QFixedPoint {
     QPointF toPointF() const { return QPointF(x.toReal(), y.toReal()); }
 };
 
-typedef unsigned int glyph_t;
 
 class QTextItemInt : public QTextItem
 {
@@ -194,16 +193,8 @@ public:
     const QFont *f;
     QColor underlineColor;
 
-    // glyphs as provided by QTextLayout
     QGlyphLayout *glyphs;
     int num_glyphs;
-
-    // glyphs (and their positions) as they have to be
-    // drawn on the device.
-    QFixedPoint *deviceGlyphPositions;
-    glyph_t *deviceGlyphs;
-    int num_deviceGlyphs;
-
     QFontEngine *fontEngine;
 };
 
@@ -233,6 +224,8 @@ struct glyph_metrics_t
     QFixed yoff;
 };
 Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
+
+typedef unsigned int glyph_t;
 
 #if defined(Q_WS_X11) || defined (Q_WS_QWS) || defined (Q_WS_MAC)
 

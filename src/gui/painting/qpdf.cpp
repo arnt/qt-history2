@@ -1089,9 +1089,12 @@ void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &t
     size = ti.fontEngine->fontDef.pixelSize;
 #endif
 
-    glyph_t *glyphs = ti.deviceGlyphs;
-    QFixedPoint *positions = ti.deviceGlyphPositions;
-
+    QVarLengthArray<glyph_t> glyphs;
+    QVarLengthArray<QFixedPoint> positions;
+    QMatrix m;
+    m.translate(p.x(), p.y());
+    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, m, ti.flags,
+                                     glyphs, positions);
     int synthesized = ti.fontEngine->synthesized();
     qreal stretch = synthesized & QFontEngine::SynthesizedStretch ? ti.fontEngine->fontDef.stretch/100. : 1.;
 
@@ -1127,7 +1130,7 @@ void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &t
 #else
     qreal last_x = 0.;
     qreal last_y = 0.;
-    for (int i = 0; i < ti.num_deviceGlyphs; ++i) {
+    for (int i = 0; i < glyphs.size(); ++i) {
         qreal x = positions[i].x.toReal();
         qreal y = positions[i].y.toReal();
         if (synthesized & QFontEngine::SynthesizedItalic)
@@ -1147,7 +1150,7 @@ void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &t
         *currentPage << "/Span << /ActualText <> >> BDC\n";
         last_x = 0.5*fe->lineThickness().toReal();
         last_y = 0.;
-        for (int i = 0; i < ti.num_deviceGlyphs; ++i) {
+        for (int i = 0; i < glyphs.size(); ++i) {
             qreal x = positions[i].x.toReal();
             qreal y = positions[i].y.toReal();
             if (synthesized & QFontEngine::SynthesizedItalic)
