@@ -132,23 +132,27 @@ QTemporaryFilePrivate::~QTemporaryFilePrivate()
     \ingroup io
     \mainclass
 
-    QTemporaryFile is used to create unique temporary files safely. The file
-    itself is created by calling open(). The name of the temporary file is
-    guaranteed to be unique (i.e., you are guaranteed to not overwrite an
-    existing file), and the file will subsequently be removed upon destruction
-    of the QTemporaryFile object. This is an important technique that avoids
-    data corruption for applications that store data in temporary files. The
-    file name is either auto-generated, or created based on a template, which
-    is passed to QTemporaryFile's constructor.
+    QTemporaryFile is used to create unique temporary files safely.
+    The file itself is created by calling open(). The name of the
+    temporary file is guaranteed to be unique (i.e., you are
+    guaranteed to not overwrite an existing file), and the file will
+    subsequently be removed upon destruction of the QTemporaryFile
+    object. This is an important technique that avoids data
+    corruption for applications that store data in temporary files.
+    The file name is either auto-generated, or created based on a
+    template, which is passed to QTemporaryFile's constructor.
 
     Example:
 
     \code
-        QTemporaryFile *file = new QTemporaryFile;
-        if (file->open(QFile::ReadWrite)) {
-            // file->fileName() now contains the unique file name
+        {
+            QTemporaryFile file;
+            if (file.open()) {
+                // file.fileName() returns the unique file name
+            }
+
+            // the QTemporaryFile destructor removes the temporary file
         }
-        delete file; // also removes the temporary file
     \endcode
 
     Reopening a QTemporaryFile after calling close() is safe. For as long as
