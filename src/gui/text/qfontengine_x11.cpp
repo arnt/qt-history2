@@ -1773,6 +1773,41 @@ void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyph
     }
 }
 
+QImage QFontEngineFT::alphaMapForGlyph(glyph_t glyph)
+{
+#ifndef QT_NO_XRENDER
+    if (X11->use_xrender) {
+        glyph_metrics_t gm = boundingBox(glyph);
+        int glyph_width = qRound(gm.width)+2;
+        int glyph_height = qRound(ascent() + descent())+2;
+
+        QPixmap pm(glyph_width, glyph_height);
+        pm.fill(Qt::transparent);
+
+        ::Picture src = X11->getSolidFill(pm.x11Info().screen(), Qt::black);
+        XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, xglyph_format);
+
+        QFixed xp;
+        QFixed yp = ascent();
+
+        XGlyphElt32 elt;
+        elt.glyphset = glyphSet;
+        elt.chars = &glyph;
+        elt.nchars = 1;
+        elt.xOff = qRound(xp);
+        elt.yOff = qRound(yp);
+        XRenderCompositeText32(X11->display, PictOpOver, src, pm.x11PictureHandle(),
+                                       maskFormat, 0, 0, 0, 0,
+                                       &elt, 1);
+    
+        return pm.toImage().convertToFormat(QImage::Format_ARGB32);
+    } else
+#endif
+    {
+        return QFontEngine::alphaMapForGlyph(glyph);
+    }
+}
+
 QFixed QFontEngineFT::ascent() const
 {
     return QFixed::fromFixed(metrics.ascender);

@@ -161,6 +161,7 @@ public:
                          QPainterPath *path, QTextItem::RenderFlags flags);
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
                           QPainterPath *path, QTextItem::RenderFlags flags);
+    virtual QImage alphaMapForGlyph(glyph_t);
 
     FcPattern *pattern() const { return _pattern; }
     QOpenType *openType() const;
