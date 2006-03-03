@@ -220,6 +220,9 @@ struct QTextHtmlParserNode {
                                  );
             case Html_th:
             case Html_td: return (parentId == Html_tr);
+            case Html_thead:
+            case Html_tbody:
+            case Html_tfoot: return (parentId == Html_table);
             default: break;
         }
         return true;
