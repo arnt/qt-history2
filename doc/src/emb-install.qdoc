@@ -180,7 +180,7 @@
        Log into a virtual console and do this:
 
         \code
-            cd ~/qt-embedded-commercial-VERSION/examples/launcher
+            cd ~/qtopia-core-commercial-VERSION/examples/launcher
            ./start-demo
         \endcode
 
