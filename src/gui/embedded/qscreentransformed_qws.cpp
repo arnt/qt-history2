@@ -67,7 +67,9 @@ bool QTransformedScreen::connect(const QString &displaySpec)
     bool result = QT_TRANS_SCREEN_BASE::connect(displaySpec);
     int indexOfRot = displaySpec.indexOf(":Rot");
     if (result && indexOfRot != -1) {
-        int t = qMin(displaySpec.mid(indexOfRot + 4).toUInt()/90, uint(Rot270));
+       int lastIndexOfRot = displaySpec.lastIndexOf(":");
+       int t = qMin(displaySpec.mid(indexOfRot + 4, lastIndexOfRot - (indexOfRot + 4)).toUInt()/90, uint(Rot270));
+
         setTransformation(static_cast<Transformation>(t));
     }
     return result;
