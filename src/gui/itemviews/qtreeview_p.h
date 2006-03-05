@@ -74,6 +74,10 @@ public:
     void drawAnimatedOperation(QPainter *painter) const;
     QPixmap renderTreeToPixmap(const QRect &rect) const;
 
+    inline QRect animationRect() const
+        { return QRect(0, animatedOperation.top, viewport->width(),
+                       viewport->height() - animatedOperation.top); }
+
     void layout(int item);
 
     int pageUp(int item) const;
@@ -116,7 +120,7 @@ public:
     void relayout(const QModelIndex &parent);
     void reexpandChildren(const QModelIndex &parent);
 
-    void updateScrollbars();
+    void updateScrollBars();
 
     int itemDecorationAt(const QPoint &pos) const;
 

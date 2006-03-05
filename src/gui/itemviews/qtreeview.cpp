@@ -480,8 +480,10 @@ void QTreeView::expand(const QModelIndex &index)
     int i = d->viewIndex(index);
     if (i != -1) { // is visible
         d->expand(i, true);
-        updateGeometries();
-        viewport()->update();
+        if (!d->isAnimating()) {
+            updateGeometries();
+            viewport()->update();
+        }
     } else {
         d->expandedIndexes.append(index);
         emit expanded(index);
@@ -501,8 +503,10 @@ void QTreeView::collapse(const QModelIndex &index)
     int i = d->viewIndex(index);
     if (i != -1) { // is visible
         d->collapse(i, true);
-        updateGeometries();
-        viewport()->update();
+        if (!d->isAnimating()) {
+            updateGeometries();
+            viewport()->update();
+        }
     } else {
         int i = d->expandedIndexes.indexOf(index);
         if (i != -1) {
@@ -800,15 +804,15 @@ void QTreeView::paintEvent(QPaintEvent *event)
 {
     Q_D(QTreeView);
     QPainter painter(viewport());
-    painter.save();
-    drawTree(&painter, event->region());
-    painter.restore();
-    if (d->isAnimating())
+    if (d->isAnimating()) {
+        drawTree(&painter, event->region() - d->animationRect());
         d->drawAnimatedOperation(&painter);
+    } else {
+        drawTree(&painter, event->region());
 #ifndef QT_NO_DRAGANDDROP
-    // Paint the dropIndicator
-    d->paintDropIndicator(&painter);
+        d->paintDropIndicator(&painter);
 #endif
+    }
 }
 
 /*!
@@ -1051,8 +1055,10 @@ void QTreeView::mousePressEvent(QMouseEvent *event)
             d->collapse(i, true);
         else
             d->expand(i, true);
-        updateGeometries();
-        viewport()->update();
+        if (!d->isAnimating()) {
+            updateGeometries();
+            viewport()->update();
+        }
     }
 }
 
@@ -1513,7 +1519,7 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
     }
 
     setState(NoState);
-    d->updateScrollbars();
+    d->updateScrollBars();
 }
 
 /*!
@@ -1601,7 +1607,7 @@ void QTreeView::updateGeometries()
     d->header->setOffset(horizontalScrollBar()->value());
     if (d->header->isHidden())
         QMetaObject::invokeMethod(d->header, "updateGeometries");
-    d->updateScrollbars();
+    d->updateScrollBars();
 
     QAbstractItemView::updateGeometries();
 }
@@ -1849,6 +1855,8 @@ void QTreeViewPrivate::_q_endAnimatedOperation()
         emit q->expanded(viewItems.at(animatedOperation.item).index);
     else // operation == AnimatedOperation::Collapse
         emit q->collapse(viewItems.at(animatedOperation.item).index);
+    q->updateGeometries();
+    viewport->update();
 }
 
 void QTreeViewPrivate::drawAnimatedOperation(QPainter *painter) const
@@ -1857,6 +1865,7 @@ void QTreeViewPrivate::drawAnimatedOperation(QPainter *painter) const
     int end = timeline.endFrame();
     bool collapsing = animatedOperation.type == AnimatedOperation::Collapse;
     int current = collapsing ? end - timeline.currentFrame() + start : timeline.currentFrame();
+//    qDebug() << current;
     const QPixmap top = collapsing ? animatedOperation.before : animatedOperation.after;
     painter->drawPixmap(0, start, top, 0, end - current - 1, top.width(), top.height());
     const QPixmap bottom = collapsing ? animatedOperation.after : animatedOperation.before;
@@ -1948,16 +1957,16 @@ int QTreeViewPrivate::indentation(int i) const
 int QTreeViewPrivate::coordinate(int item) const
 {
     Q_Q(const QTreeView);
-    int scrollbarValue = q->verticalScrollBar()->value();
-    int viewItemIndex = itemAt(scrollbarValue); // first item (may start above the page)
+    int scrollBarValue = q->verticalScrollBar()->value();
+    int viewItemIndex = itemAt(scrollBarValue); // first item (may start above the page)
     if (viewItemIndex == -1) {
-        const_cast<QTreeViewPrivate*>(this)->updateScrollbars();
-        viewItemIndex = itemAt(scrollbarValue); // first item (may start above the page)
+        const_cast<QTreeViewPrivate*>(this)->updateScrollBars();
+        viewItemIndex = itemAt(scrollBarValue); // first item (may start above the page)
     }
     Q_ASSERT(viewItemIndex != -1);
     int viewItemHeight = height(viewItemIndex);
     int viewportHeight = viewport->height();
-    int y = topItemDelta(scrollbarValue, viewItemHeight); // the part of the item above the page
+    int y = topItemDelta(scrollBarValue, viewItemHeight); // the part of the item above the page
     if (viewItemIndex <= item) {
         while (y < viewportHeight && viewItemIndex < viewItems.count()) {
             if (viewItemIndex == item)
@@ -1980,14 +1989,14 @@ int QTreeViewPrivate::coordinate(int item) const
 int QTreeViewPrivate::item(int yCoordinate) const
 {
     Q_Q(const QTreeView);
-    const int scrollbarValue = q->verticalScrollBar()->value();
-    int viewItemIndex = itemAt(scrollbarValue);
+    const int scrollBarValue = q->verticalScrollBar()->value();
+    int viewItemIndex = itemAt(scrollBarValue);
     if (viewItemIndex < 0) // couldn't find first visible item
         return -1;
 
     const int viewItemHeight = height(viewItemIndex);
     const int viewportHeight = viewport->height();
-    int y = topItemDelta(scrollbarValue, viewItemHeight);
+    int y = topItemDelta(scrollBarValue, viewItemHeight);
     if (yCoordinate >= y) {
         // search for item in viewport
         while (y < viewportHeight && viewItemIndex < viewItems.count()) {
@@ -2131,7 +2140,7 @@ void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent)
     }
 }
 
-void QTreeViewPrivate::updateScrollbars()
+void QTreeViewPrivate::updateScrollBars()
 {
     Q_Q(QTreeView);
 
