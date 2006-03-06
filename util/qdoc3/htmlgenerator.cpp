@@ -784,7 +784,9 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
                     if (enume->flagsType())
                         names << enume->flagsType()->name();
 
-                    foreach (QString enumName, enume->doc().enumItemNames())
+                    foreach (QString enumName,
+                             enume->doc().enumItemNames().toSet()
+                             - enume->doc().omitEnumItemNames().toSet())
                         names << plainCode(marker->markedUpEnumValue(enumName, enume));
                 }
                 foreach (QString name, names)
