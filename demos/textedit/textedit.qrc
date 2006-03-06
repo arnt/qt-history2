@@ -18,6 +18,8 @@
   <file>images/mac/textleft.png</file>
   <file>images/mac/textright.png</file>
   <file>images/mac/textunder.png</file>
+  <file>images/mac/zoomin.png</file>
+  <file>images/mac/zoomout.png</file>
   <file>images/win/editcopy.png</file>
   <file>images/win/editcut.png</file>
   <file>images/win/editpaste.png</file>
@@ -35,6 +37,8 @@
   <file>images/win/textleft.png</file>
   <file>images/win/textright.png</file>
   <file>images/win/textunder.png</file>
+  <file>images/win/zoomin.png</file>
+  <file>images/win/zoomout.png</file>
   <file>example.html</file>
 </qresource>
 </RCC>

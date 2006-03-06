@@ -85,14 +85,14 @@ void PreviewView::zoomIn()
 {
     scale += 0.2;
     resizeEvent(0);
-    update();
+    viewport()->update();
 }
 
 void PreviewView::zoomOut()
 {
     scale -= 0.2;
     resizeEvent(0);
-    update();
+    viewport()->update();
 }
 
 void PreviewView::paintEvent(QPaintEvent *)
@@ -222,7 +222,6 @@ PrintPreview::PrintPreview(const QTextDocument *document, QWidget *parent)
     connect(a, SIGNAL(triggered()), this, SLOT(print()));
     tb->addAction(a);
 
-    /*
     a = new QAction(QIcon(rsrcPath + "/zoomin.png"), tr("Zoom In"), this);
     connect(a, SIGNAL(triggered()), view, SLOT(zoomIn()));
     tb->addAction(a);
@@ -230,7 +229,6 @@ PrintPreview::PrintPreview(const QTextDocument *document, QWidget *parent)
     a = new QAction(QIcon(rsrcPath + "/zoomout.png"), tr("Zoom Out"), this);
     connect(a, SIGNAL(triggered()), view, SLOT(zoomOut()));
     tb->addAction(a);
-    */
 }
 
 PrintPreview::~PrintPreview()
