@@ -1,11 +1,12 @@
 TEMPLATE      = subdirs
-SUBDIRS       = chart \
+SUBDIRS       = basicsortfiltermodel \
+                chart \
+                customsortfiltermodel \
                 dirview \
                 pixelator \
                 puzzle \
                 simpledommodel \
                 simpletreemodel \
-                sortingmodel \
                 spinboxdelegate
 
 # install

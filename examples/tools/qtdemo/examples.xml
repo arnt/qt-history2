@@ -26,14 +26,15 @@
     <example filename="puzzle" name="Puzzle" />
   </category>
   <category dirname="itemviews" name="Item Views">
+    <example filename="basicsortfiltermodel" name="Basic Sort/Filter Model" />
     <example filename="chart" name="Chart" />
+    <example filename="customsortfiltermodel" name="Custom Sort/Filter Model" />
     <example filename="dirview" name="Directory View" />
     <example filename="pixelator" name="Pixelator" />
     <example filename="puzzle" name="Puzzle" />
     <example filename="simpledommodel" name="Simple DOM Model" />
     <example filename="simpletreemodel" name="Simple Tree Model" />
     <example filename="spinboxdelegate" name="Spin Box Delegate" />
-    <example filename="sortingmodel" name="Sorting Model" />
   </category>
   <category dirname="layouts" name="Layouts">
     <example filename="basiclayouts" name="Basic Layouts" />
