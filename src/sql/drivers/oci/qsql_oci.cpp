@@ -335,7 +335,7 @@ static void qOraOutValue(QVariant &value, QList<QByteArray> &storage)
         value = qMakeDate(storage.takeFirst()).date();
         break;
     case QVariant::DateTime:
-        value = qMakeDate(storage.takeFirst()).time();
+        value = qMakeDate(storage.takeFirst());
         break;
     case QVariant::String:
         value = QString::fromUtf16(
@@ -358,6 +358,8 @@ void QOCIPrivate::outValues(QVector<QVariant> &values, IndicatorArray &indicator
 
         if (indicators[i] == -1) // NULL
             values[i] = QVariant(values.at(i).type());
+        else
+            values[i] = QVariant(typ, values.at(i).constData());
     }
 }
 
@@ -1696,6 +1698,7 @@ void QOCIResult::virtual_hook(int id, void *data)
 {
     Q_ASSERT(id == QSqlResult::BatchOperation);
     Q_ASSERT(data);
+    Q_UNUSED(id);
 
     bool *op = reinterpret_cast<bool *>(data);
     QOCIResultPrivate::execBatch(d, boundValues(), *op);
