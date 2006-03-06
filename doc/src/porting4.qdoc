@@ -1628,6 +1628,10 @@
     functionality is available via the QWidget::nextInFocusChain()
     and QWidget::focusNextPrevChild() functions.
 
+    \section1 QFont
+
+    \c QFont::Script has been moved to QFontDatabase::WritingSystem.
+
     \section1 QFrame
 
     The QFrame class has been made more lightweight in Qt 4, by
