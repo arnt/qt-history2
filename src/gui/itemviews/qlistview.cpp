@@ -222,7 +222,7 @@ QListView::Flow QListView::flow() const
 void QListView::setWrapping(bool enable)
 {
     Q_D(QListView);
-    d->modeProperties |= uint(QListViewPrivate::Movement);
+    d->modeProperties |= uint(QListViewPrivate::Wrap);
     d->wrap = enable;
     d->doDelayedItemsLayout();
 }
