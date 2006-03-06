@@ -51,7 +51,10 @@
     options to be added, typical architectures are x86 and arm. To get
     a list of all available options, type \c {./configure -help}. In
     general, all Linux systems which have framebuffer support can use
-    the "linux-generic-g++" platform.
+    the "linux-generic-g++" platform. The configuration system also
+    supports cross-compilers. For example, to build on Linux/x86 for
+    the Linux/MIPSEL target, pass \c mips as parameter to the \c
+    configure script's \c -embedded option.
 
     To create the library and compile all the demos, examples, tools,
     and tutorials, type:
@@ -73,14 +76,6 @@
     into the \c /usr/local/Trolltech/QtopiaCore-%VERSION% directory
     but this can be changed by using the \c configure script's \c
     -prefix parameter.
-
-    The configuration system also supports cross-compilers. For
-    example, to build on Linux/x86 for the Linux/MIPSEL target, you
-    would use:
-
-     \code
-        ./configure -embedded mips
-     \endcode
 
     Only a small number of configurations are predefined.  You can
     create your own custom configuration by adding new files to the \c
