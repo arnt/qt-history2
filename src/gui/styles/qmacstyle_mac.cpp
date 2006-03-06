@@ -762,7 +762,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
             tdi->kind = kThemeSmallSlider;
         break;
     }
-    tdi->bounds = qt_hirectForQRect(slider->rect);
+    tdi->bounds = qt_hirectForQRect(slider->rect, 0, false);
     tdi->min = slider->minimum;
     tdi->max = slider->maximum;
     tdi->value = slider->sliderPosition;
