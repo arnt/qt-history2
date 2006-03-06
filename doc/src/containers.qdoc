@@ -687,7 +687,7 @@
     \code
         QMultiMap<QString, int> map;
         ...
-        foreach (QString str, map.keys())
+        foreach (QString str, map.uniqueKeys())
             foreach (int i, map.values(str))
                 qDebug() << str << ":" << i;
     \endcode

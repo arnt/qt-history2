@@ -792,16 +792,30 @@ void QHashData::checkSanity()
     Same as value().
 */
 
+/*! \fn QList<Key> QHash::uniqueKeys() const
+    \since 4.2
+
+    Returns a list containing all the keys in the map in ascending
+    order. Keys that occur multiple times in the map (because items
+    were inserted with insertMulti(), or unite() was used) occur only
+    once in the returned list.
+
+    \sa keys(), values()
+*/
+
 /*! \fn QList<Key> QHash::keys() const
 
     Returns a list containing all the keys in the hash, in an
     arbitrary order. Keys that occur multiple times in the hash
     (because items were inserted with insertMulti(), or unite() was
-    used), also occur multiple times in the list.
+    used) also occur multiple times in the list.
+
+    To obtain a list of unique keys, where each key from the map only
+    occurs once, use uniqueKeys().
 
     The order is guaranteed to be the same as that used by values().
 
-    \sa values(), key()
+    \sa uniqueKeys(), values(), key()
 */
 
 /*! \fn QList<Key> QHash::keys(const T &value) const

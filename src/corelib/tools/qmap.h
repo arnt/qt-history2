@@ -153,6 +153,7 @@ public:
     T &operator[](const Key &key);
     const T operator[](const Key &key) const;
 
+    QList<Key> uniqueKeys() const;
     QList<Key> keys() const;
     QList<Key> keys(const T &value) const;
     QList<T> values() const;
@@ -666,6 +667,25 @@ Q_OUTOFLINE_TEMPLATE QMapData::Node *QMap<Key, T>::mutableFindNode(QMapData::Nod
     } else {
         return e;
     }
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key, T>::uniqueKeys() const
+{
+    QList<Key> res;
+    const_iterator i = begin();
+    if (i != end()) {
+        for (;;) {
+            const Key &key = i.key();
+            res.append(key);
+            do {
+                if (++i == end())
+                    goto break_out_of_outer_loop;
+            } while (!(key < i.key()));   // loop while (key == i.key())
+        }
+    }
+break_out_of_outer_loop:
+    return res;
 }
 
 template <class Key, class T>
