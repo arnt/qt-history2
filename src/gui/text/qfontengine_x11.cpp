@@ -1773,39 +1773,26 @@ void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyph
     }
 }
 
-QImage QFontEngineFT::alphaMapForGlyph(glyph_t glyph)
+QImage QFontEngineFT::alphaMapForGlyph(glyph_t g)
 {
-#ifndef QT_NO_XRENDER
-    if (X11->use_xrender) {
-        glyph_metrics_t gm = boundingBox(glyph);
-        int glyph_width = qRound(gm.width)+2;
-        int glyph_height = qRound(ascent() + descent())+2;
+    Glyph *glyph = loadGlyph(g, Format_A8);
+    if (!glyph)
+        return QFontEngine::alphaMapForGlyph(g);
 
-        QPixmap pm(glyph_width, glyph_height);
-        pm.fill(Qt::transparent);
+    Q_ASSERT(glyph->format == QFontEngineFT::Format_A8);
 
-        ::Picture src = X11->getSolidFill(pm.x11Info().screen(), Qt::black);
-        XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, xglyph_format);
+    const int pitch = (glyph->width + 3) & ~3;
+    const int ascent = metrics.ascender / 64;
+    const int descent = -(metrics.descender / 64);
 
-        QFixed xp;
-        QFixed yp = ascent();
+    QImage img(glyph->width, ascent + descent + 1, QImage::Format_ARGB32);
+    img.fill(Qt::transparent);
 
-        XGlyphElt32 elt;
-        elt.glyphset = glyphSet;
-        elt.chars = &glyph;
-        elt.nchars = 1;
-        elt.xOff = qRound(xp);
-        elt.yOff = qRound(yp);
-        XRenderCompositeText32(X11->display, PictOpOver, src, pm.x11PictureHandle(),
-                                       maskFormat, 0, 0, 0, 0,
-                                       &elt, 1);
+    for (int y = 0; y < glyph->height; ++y)
+        for (int x = 0; x < glyph->width; ++x)
+            img.setPixel(x, y - glyph->y + ascent, qRgba(255, 255, 255, glyph->data[y * pitch + x]));
     
-        return pm.toImage().convertToFormat(QImage::Format_ARGB32);
-    } else
-#endif
-    {
-        return QFontEngine::alphaMapForGlyph(glyph);
-    }
+    return img;
 }
 
 QFixed QFontEngineFT::ascent() const
