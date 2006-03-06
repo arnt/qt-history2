@@ -318,8 +318,11 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &addr, quint16
         case ETIMEDOUT:
             setError(QAbstractSocket::NetworkError, ConnectionTimeOutErrorString);
             break;
+        case EHOSTUNREACH:
+            setError(QAbstractSocket::NetworkError, HostUnreachableErrorString);
+            break;
         case ENETUNREACH:
-            setError(QAbstractSocket::NetworkError, UnreachableErrorString);
+            setError(QAbstractSocket::NetworkError, NetworkUnreachableErrorString);
             break;
         case EADDRINUSE:
             setError(QAbstractSocket::NetworkError, AddressInuseErrorString);

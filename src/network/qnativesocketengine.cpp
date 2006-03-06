@@ -172,7 +172,10 @@ void QNativeSocketEnginePrivate::setError(QAbstractSocket::SocketError error, Er
     case InvalidSocketErrorString:
         socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Invalid socket descriptor");
         break;
-    case UnreachableErrorString:
+    case HostUnreachableErrorString:
+        socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Host unreachable");
+        break;
+    case NetworkUnreachableErrorString:
         socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Network unreachable");
         break;
     case AccessErrorString:

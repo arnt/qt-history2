@@ -572,8 +572,11 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &address, quin
             case WSAEACCES:
                 setError(QAbstractSocket::SocketAccessError, AccessErrorString);
                 break;
+            case WSAEHOSTUNREACH:
+                setError(QAbstractSocket::NetworkError, HostUnreachableErrorString);
+                break;
             case WSAENETUNREACH:
-                setError(QAbstractSocket::NetworkError, UnreachableErrorString);
+                setError(QAbstractSocket::NetworkError, NetworkUnreachableErrorString);
                 break;
             case WSAEINVAL:
                 if (!firstChanceWSAEINVAL) {
