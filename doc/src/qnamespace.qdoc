@@ -420,10 +420,11 @@
     \value DirectConnection  When emitted, the signal is immediately delivered to the slot.
     \value QueuedConnection  When emitted, the signal is queued until the event loop is
                              able to deliver it to the slot.
-    \value AutoConnection    If the signal is emitted from an object in the
-                             same thread as the receiving object, the slot is
-                             invoked directly, as with Qt::DirectConnection;
-                             otherwise the signal is queued, as with
+    \value AutoConnection    If the signal is emitted from the thread
+                             in which the receiving object lives, the
+                             slot is invoked directly, as with
+                             Qt::DirectConnection; otherwise the
+                             signal is queued, as with
                              Qt::QueuedConnection.
     \omitvalue AutoCompatConnection
 

@@ -341,7 +341,7 @@
 
     \section2 Signals and Slots Across Threads
 
-    Qt supports two types of signal-slot connections:
+    Qt supports three types of signal-slot connections:
 
     \list
     \o With \l{Qt::DirectConnection}{direct connections}, the
@@ -354,17 +354,19 @@
        slot is invoked when control returns to the event loop of the
        thread to which the object belongs. The slot is executed in
        the thread where the receiver object lives.
+
+    \o With \l{Qt::AutoConnection}{auto connections} (the default),
+       the behavior is the same as with direct connections if
+       the signal is emitted in the thread where the receiver lives;
+       otherwise, the behavior is that of a queued connection.
     \endlist
 
-    By default, QObject::connect() establishes a direct connection if
-    the sender and the receiver live in the same thread, and a queued
-    connection if they live in different threads. This can be
-    modified by passing an additional argument to
-    \l{QObject::connect()}{connect()}. Be aware that using direct
-    connections when the sender and receiver don't live in the same
-    thread is unsafe if an event loop is running in the receiver's
-    thread, for the same reason that calling any function on an
-    object living in another thread is unsafe.
+    The connection type can be specified by passing an additional
+    argument to \l{QObject::connect()}{connect()}. Be aware that
+    using direct connections when the sender and receiver live in
+    different threads is unsafe if an event loop is running in the
+    receiver's thread, for the same reason that calling any function
+    on an object living in another thread is unsafe.
 
     QObject::connect() itself is thread-safe.
 

@@ -65,8 +65,8 @@
     \endlist
 
     If you are not already familiar with Qt's thread support, we
-    recommend that you start by reading the
-    \l{threads.html}{Multithreaded Programming} overview.
+    recommend that you start by reading the \l{Thread Support in Qt}
+    overview.
 
     \section1 RenderThread Class Definition
 
@@ -226,15 +226,14 @@
     with the \l{QObject::connect()}{connect()} call.
 
     Although it looks like a standard signal-slot connection between
-    two \l{QObject}s, because the objects \e live in different
-    threads, the connection is actually a
-    \l{Qt::QueuedConnection}{queued connection}. These connections
-    are asynchronous (i.e., non-blocking), meaning that the slot will
-    be called at some point after the \c emit statement. What's more,
-    the slot will be invoked in the thread in which the receiver
-    lives. Here, the signal is emitted in the worker thread, and the
-    slot is executed in the GUI thread when control returns to the
-    event loop.
+    two \l{QObject}s, because the signal is emitted in a different
+    thread than the receiver lives in, the connection is effectively a
+    \l{Qt::QueuedConnection}{queued connection}. These connections are
+    asynchronous (i.e., non-blocking), meaning that the slot will be
+    called at some point after the \c emit statement. What's more, the
+    slot will be invoked in the thread in which the receiver lives.
+    Here, the signal is emitted in the worker thread, and the slot is
+    executed in the GUI thread when control returns to the event loop.
 
     With queued connections, Qt must store a copy of the arguments
     that were passed to the signal so that it can pass them to the
@@ -260,9 +259,9 @@
 
     If the pixmap has the right scale factor, we draw the pixmap
     directly onto the widget. Otherwise, we scale and translate the
-    \l{coordsys.html}{coordinate system} before we draw the pixmap.
-    The calls to QPainter::save() and QPainter::restore() make sure
-    that any painting performed afterward uses the standard
+    \l{The Coordinate System}{coordinate system} before we draw the
+    pixmap. The calls to QPainter::save() and QPainter::restore() make
+    sure that any painting performed afterward uses the standard
     coordinate system.
 
     \printuntil /^\}$/
