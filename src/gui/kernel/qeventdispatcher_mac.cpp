@@ -24,7 +24,6 @@
 #  include "qmutex.h"
 #endif
 
-#define QMAC_EVENT_NOWAIT kEventDurationNoWait
 
 /*****************************************************************************
   Externals
@@ -440,9 +439,9 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
                 // process a pending user input event
                 event = d->queuedUserInputEvents.takeFirst();
             } else {
-                if(ReceiveNextEvent(0, 0, QMAC_EVENT_NOWAIT, true, &event)
-                      != noErr)
-                    break;
+                OSStatus err = ReceiveNextEvent(0,0, kEventDurationNoWait, true, &event);
+                if(err != noErr)
+                    continue;
                 // else
                 if (flags & QEventLoop::ExcludeUserInputEvents) {
                      UInt32 ekind = GetEventKind(event),
@@ -463,7 +462,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
             if (!filterEvent(&event) && qt_mac_send_event(flags, event))
                 retVal = true;
             ReleaseEvent(event);
-        } while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue()));
+        } while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue()) > 0);
 
         QApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
 
@@ -474,9 +473,10 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
                         && !d->zero_timer_count);
         if (canWait) {
             emit aboutToBlock();
-            while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);
+            while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, kEventDurationForever, true) == kCFRunLoopRunTimedOut);
             emit awake();
         } else {
+            CFRunLoopRunInMode(kCFRunLoopDefaultMode, kEventDurationNoWait, true);
             break;
         }
     }

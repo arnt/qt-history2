@@ -1479,7 +1479,11 @@ void QWidget::update(const QRect &r)
             h = data->crect.height() - y;
         if(w && h) {
             QRegion rgn(x, y, w, h);
-            HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
+            if (testAttribute(Qt::WA_WState_InPaintEvent)) {
+                QApplication::postEvent(this, new QUpdateLaterEvent(rgn));
+            } else {
+                HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
+            }
         }
     }
 }
@@ -1487,7 +1491,10 @@ void QWidget::update(const QRect &r)
 void QWidget::update(const QRegion &rgn)
 {
     if(updatesEnabled() && isVisible())
-        HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
+        if (testAttribute(Qt::WA_WState_InPaintEvent))
+            QApplication::postEvent(this, new QUpdateLaterEvent(rgn));
+        else
+            HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
 }
 
 void QWidget::repaint(const QRegion &rgn)
