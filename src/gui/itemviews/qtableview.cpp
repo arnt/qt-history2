@@ -1045,7 +1045,7 @@ void QTableView::setColumnHidden(int column, bool hide)
 }
 
 /*!
-  \ sinve Qt 4.2
+    \since Qt 4.2
     \property QTableView::sortingEnabled
     \brief whether sorting is enabled
 

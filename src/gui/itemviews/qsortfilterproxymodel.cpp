@@ -85,6 +85,7 @@ public:
 
     int sort_column;
     Qt::SortOrder sort_order;
+    Qt::CaseSensitivity sort_casesensitivity;
 
     int filter_column;
     QRegExp filter_regexp;
@@ -937,6 +938,7 @@ QSortFilterProxyModel::QSortFilterProxyModel(QObject *parent)
     Q_D(QSortFilterProxyModel);
     d->sort_column = -1;
     d->sort_order = Qt::AscendingOrder;
+    d->sort_casesensitivity = Qt::CaseSensitive;
     d->filter_column = 0;
     d->dynamic_sortfilter = false;
     connect(this, SIGNAL(modelReset()), this, SLOT(clear()));
@@ -1393,8 +1395,13 @@ void QSortFilterProxyModel::setFilterKeyColumn(int column)
 }
 
 /*!
-    Returns the case sensitivity of the QRegExp pattern used to filter the
-    contents of the source model. By default, the filter is case sensistive.
+    \property QSortFilterProxyModel::filterCaseSensitivity
+    \brief the case sensitivity of the QRegExp pattern used to filter the
+    contents of the source model
+
+    By default, the filter is case sensistive.
+
+    \sa filterRegExp, sortCaseSensitivity
 */
 Qt::CaseSensitivity QSortFilterProxyModel::filterCaseSensitivity() const
 {
@@ -1402,12 +1409,6 @@ Qt::CaseSensitivity QSortFilterProxyModel::filterCaseSensitivity() const
     return d->filter_regexp.caseSensitivity();
 }
 
-/*!
-    Sets the case sensitivity of the QRegExp pattern used to filter the contents
-    of the source model to \a cs. By default, the filter is case sensitive.
-
-    \sa setFilterRegExp(), setFilterWildcard(), setFilterFixedString()
-*/
 void QSortFilterProxyModel::setFilterCaseSensitivity(Qt::CaseSensitivity cs)
 {
     Q_D(QSortFilterProxyModel);
@@ -1415,6 +1416,30 @@ void QSortFilterProxyModel::setFilterCaseSensitivity(Qt::CaseSensitivity cs)
         return;
     d->filter_regexp.setCaseSensitivity(cs);
     d->filter_changed();
+}
+
+/*!
+    \property QSortFilterProxyModel::sortCaseSensitivity
+    \brief the case sensitivity setting used for comparing strings when sorting
+
+    By default, sorting is case sensistive.
+
+    \sa filterCaseSensitivity, lessThan()
+*/
+Qt::CaseSensitivity QSortFilterProxyModel::sortCaseSensitivity() const
+{
+    Q_D(const QSortFilterProxyModel);
+    return d->sort_casesensitivity;
+}
+
+void QSortFilterProxyModel::setSortCaseSensitivity(Qt::CaseSensitivity cs)
+{
+    Q_D(QSortFilterProxyModel);
+    if (d->sort_casesensitivity == cs)
+        return;
+
+    d->sort_casesensitivity = cs;
+    clear();
 }
 
 /*!
@@ -1491,24 +1516,30 @@ void QSortFilterProxyModel::clear()
 }
 
 /*!
-  Returns true if the value of the item referred to by the given index \a left
-  is less than the value of the item referred to by the given index \a right,
-  otherwise returns false.
-  This function is used as the < operator when sorting, and handles several
-  QVariant types:
+    Returns true if the value of the item referred to by the given
+    index \a left is less than the value of the item referred to by
+    the given index \a right, otherwise returns false.
 
-  \list
-  \o QVariant::Int
-  \o QVariant::UInt
-  \o QVariant::LongLong
-  \o QVariant::ULongLong
-  \o QVariant::Double
-  \o QVariant::Char
-  \o QVariant::Date
-  \o QVariant::Time
-  \o QVariant::DateTime
-  \o QVariant::String
-  \endlist
+    This function is used as the < operator when sorting, and handles
+    the following QVariant types:
+
+    \list
+    \o QVariant::Int
+    \o QVariant::UInt
+    \o QVariant::LongLong
+    \o QVariant::ULongLong
+    \o QVariant::Double
+    \o QVariant::Char
+    \o QVariant::Date
+    \o QVariant::Time
+    \o QVariant::DateTime
+    \o QVariant::String
+    \endlist
+
+    Comparison of \l{QString}s is case sensitive by default; this can
+    be changed using the \l sortCaseSensitivity property.
+
+    \sa sortCaseSensitivity, dynamicSortFilter
 */
 bool QSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
@@ -1530,12 +1561,13 @@ bool QSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
     case QVariant::Date:
         return l.toDate() < r.toDate();
     case QVariant::Time:
-            return l.toTime() < r.toTime();
+        return l.toTime() < r.toTime();
     case QVariant::DateTime:
         return l.toDateTime() < r.toDateTime();
     case QVariant::String:
     default:
-        return l.toString() < r.toString();
+        Q_D(const QSortFilterProxyModel);
+        return l.toString().compare(r.toString(), d->sort_casesensitivity) < 0;
     }
     return false;
 }

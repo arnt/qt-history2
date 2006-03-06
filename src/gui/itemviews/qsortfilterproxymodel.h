@@ -34,8 +34,9 @@ class Q_GUI_EXPORT QSortFilterProxyModel : public QAbstractProxyModel
     Q_OBJECT
     Q_PROPERTY(QRegExp filterRegExp READ filterRegExp WRITE setFilterRegExp)
     Q_PROPERTY(int filterKeyColumn READ filterKeyColumn WRITE setFilterKeyColumn)
-    Q_PROPERTY(Qt::CaseSensitivity filterCaseSensitivity READ filterCaseSensitivity WRITE setFilterCaseSensitivity)
     Q_PROPERTY(bool dynamicSortFilter READ dynamicSortFilter WRITE setDynamicSortFilter)
+    Q_PROPERTY(Qt::CaseSensitivity filterCaseSensitivity READ filterCaseSensitivity WRITE setFilterCaseSensitivity)
+    Q_PROPERTY(Qt::CaseSensitivity sortCaseSensitivity READ sortCaseSensitivity WRITE setSortCaseSensitivity)
 
 public:
     QSortFilterProxyModel(QObject *parent = 0);
@@ -57,6 +58,9 @@ public:
 
     Qt::CaseSensitivity filterCaseSensitivity() const;
     void setFilterCaseSensitivity(Qt::CaseSensitivity cs);
+
+    Qt::CaseSensitivity sortCaseSensitivity() const;
+    void setSortCaseSensitivity(Qt::CaseSensitivity cs);
 
     bool dynamicSortFilter() const;
     void setDynamicSortFilter(bool enable);

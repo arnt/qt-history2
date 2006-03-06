@@ -546,12 +546,12 @@ void QTreeView::setExpanded(const QModelIndex &index, bool expanded)
 }
 
 /*!
-  \ since Qt 4.2
+    \since Qt 4.2
     \property QTreeView::sortingEnabled
     \brief whether sorting is enabled
 
     If this property is true sorting is enabled for the table; if the
-    property is false, sorting is not enabled. The default value is false.
+    property is false, sorting is not enabled. The default value is true.
 */
 
 void QTreeView::setSortingEnabled(bool enable)
@@ -573,7 +573,7 @@ bool QTreeView::isSortingEnabled() const
 }
 
 /*!
-  \ since Qt 4.2
+    \since Qt 4.2
     \property QTreeView::animationsEnabled
     \brief whether animations are enabled
 
