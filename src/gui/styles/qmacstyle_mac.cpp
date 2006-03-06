@@ -2627,7 +2627,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             int offSet = (hasFocus && !combo->editable) ? -1 : 0;
             off_rct.setRect(int(hirect.origin.x - outRect.origin.x),
                             int(hirect.origin.y - outRect.origin.y + offSet),
-                            int(outRect.size.width - hirect.size.width + offSet),
+                            int(outRect.size.width - hirect.size.width) + offSet,
                             int(outRect.size.height - hirect.size.height + offSet));
             hirect = qt_hirectForQRect(combo->rect, p, false, off_rct);
             if (combo->editable && QSysInfo::MacintoshVersion == QSysInfo::MV_10_4) {
