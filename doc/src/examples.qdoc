@@ -101,13 +101,14 @@
     \section1 Item View Examples
 
     \list
+    \o \l{itemviews/basicsortfiltermodel}{Basic Sort/Filter Model}
     \o \l{itemviews/chart}{Chart}
+    \o \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
     \o \l{itemviews/dirview}{Dir View}
     \o \l{itemviews/pixelator}{Pixelator}\raisedaster
     \o \l{itemviews/puzzle}{Puzzle}
     \o \l{itemviews/simpledommodel}{Simple DOM Model}\raisedaster
     \o \l{itemviews/simpletreemodel}{Simple Tree Model}\raisedaster
-    \o \l{itemviews/sortingmodel}{Sorting Model}
     \o \l{itemviews/spinboxdelegate}{Spin Box Delegate}\raisedaster
     \endlist
 
