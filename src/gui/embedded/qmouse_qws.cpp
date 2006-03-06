@@ -89,7 +89,11 @@
     the calibrate() and clearCalibration() functions.
 
     Note that when deriving from the QWSMouseHandler class, the
-    resume() and suspend() functions must be reimplemented.
+    resume() and suspend() functions must be reimplemented to control
+    the flow of mouse input. The default implementation does nothing;
+    reimplementations of these functions typically call the
+    QSocketNotifier::setEnabled() function to enable or disable the
+    socket notifier, respectively.
 
     In addition, QWSMouseHandler provides the limitToScreen() function
     ensuring that the given position is within the screen's boundaries
@@ -106,7 +110,11 @@
 
     Suspends reading and handling of mouse events.
 
-    Note that this function must be reimplemented in subclasses.
+    Note that this function must be reimplemented in subclasses to
+    control the flow of mouse input.  The default implementation does
+    nothing; reimplementations typically call the
+    QSocketNotifier::setEnabled() function to disable the socket
+    notifier.
 
     \sa resume()
 */
@@ -116,7 +124,11 @@
 
     Resumes reading and handling mouse events.
 
-    Note that this function must be reimplemented in subclasses.
+    Note that this function must be reimplemented in subclasses to
+    control the flow of mouse input.  The default implementation does
+    nothing; reimplementations typically call the
+    QSocketNotifier::setEnabled() function to enable the socket
+    notifier.
 
     \sa suspend()
 */
