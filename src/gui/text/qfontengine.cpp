@@ -64,13 +64,17 @@ void QFontEngine::addGlyphsToPath(glyph_t *, QFixedPoint *, int ,
 void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, const QMatrix &matrix, QTextItem::RenderFlags flags,
                                     QVarLengthArray<glyph_t> &glyphs_out, QVarLengthArray<QFixedPoint> &positions)
 {
-    QFixed xpos = QFixed::fromReal(matrix.dx());
-    QFixed ypos = QFixed::fromReal(matrix.dy());
-
-    bool transform = matrix.m11() != 1.
-                     || matrix.m12() != 0.
-                     || matrix.m21() != 0.
-                     || matrix.m22() != 1.;
+    QFixed xpos;
+    QFixed ypos;
+    
+    const bool transform = matrix.m11() != 1.
+                           || matrix.m12() != 0.
+                           || matrix.m21() != 0.
+                           || matrix.m22() != 1.;
+    if (!transform) {
+        xpos = QFixed::fromReal(matrix.dx());
+        ypos = QFixed::fromReal(matrix.dy());
+    }
 
     int current = 0;
     if (flags & QTextItem::RightToLeft) {
