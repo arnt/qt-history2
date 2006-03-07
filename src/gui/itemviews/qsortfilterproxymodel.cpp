@@ -953,8 +953,8 @@ void QSortFilterProxyModelPrivate::sourceColumnsRemoved(const QModelIndex &sourc
     setDynamicSortFilter(true). At any time, you can call clear() to
     resort/refilter the data.
 
-    The \l{itemviews/basicsortfiltermodel}{Basic Sort Filter Model}
-    and \l{itemviews/customsortfiltermodel}{Custom Sort Filter Model}
+    The \l{itemviews/basicsortfiltermodel}{Basic Sort/Filter Model}
+    and \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
     examples illustrate how to use QSortFilterProxyModel to perform
     basic sorting and filtering and how to subclass it to implement
     custom behavior.
@@ -1477,7 +1477,7 @@ void QSortFilterProxyModel::sort(int column, Qt::SortOrder order)
     \property QSortFilterProxyModel::filterRegExp
     \brief the QRegExp used to filter the contents of the source model
 
-    Setting this property overwrites the current \l caseSensitivity.
+    Setting this property overwrites the current \l filterCaseSensitivity.
 
     \sa setCaseSensitivity(), setFilterWildcard(), setFilterFixedString()
 */
