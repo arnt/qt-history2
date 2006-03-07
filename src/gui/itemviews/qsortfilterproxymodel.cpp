@@ -86,9 +86,11 @@ public:
     int sort_column;
     Qt::SortOrder sort_order;
     Qt::CaseSensitivity sort_casesensitivity;
+    int sort_role;
 
     int filter_column;
     QRegExp filter_regexp;
+    int filter_role;
 
     bool dynamic_sortfilter;
 
@@ -1058,7 +1060,9 @@ QSortFilterProxyModel::QSortFilterProxyModel(QObject *parent)
     d->sort_column = -1;
     d->sort_order = Qt::AscendingOrder;
     d->sort_casesensitivity = Qt::CaseSensitive;
+    d->sort_role = Qt::DisplayRole;
     d->filter_column = 0;
+    d->filter_role = Qt::DisplayRole;
     d->dynamic_sortfilter = false;
     connect(this, SIGNAL(modelReset()), this, SLOT(clear()));
 }
@@ -1607,6 +1611,7 @@ void QSortFilterProxyModel::setFilterFixedString(const QString &pattern)
 }
 
 /*!
+    \since 4.2
     \property QSortFilterProxyModel::dynamicSortFilter
     \brief whether the proxy model is dynamically sorted and filtered
     whenever the contents of the source model change
@@ -1623,6 +1628,50 @@ void QSortFilterProxyModel::setDynamicSortFilter(bool enable)
 {
     Q_D(QSortFilterProxyModel);
     d->dynamic_sortfilter = enable;
+}
+
+/*!
+    \since 4.2
+    \property QSortFilterProxyModel::sortRole
+    \brief the item role that is used to query the source model's data when sorting items
+
+    The default value is Qt::DisplayRole.
+
+    \sa lessThan()
+*/
+int QSortFilterProxyModel::sortRole() const
+{
+    Q_D(const QSortFilterProxyModel);
+    return d->sort_role;
+}
+
+void QSortFilterProxyModel::setSortRole(int role)
+{
+    Q_D(QSortFilterProxyModel);
+    d->sort_role = role;
+    clear();
+}
+
+/*!
+    \since 4.2
+    \property QSortFilterProxyModel::filterRole
+    \brief the item role that is used to query the source model's data when filtering items
+
+    The default value is Qt::DisplayRole.
+
+    \sa filterAcceptsRow()
+*/
+int QSortFilterProxyModel::filterRole() const
+{
+    Q_D(const QSortFilterProxyModel);
+    return d->filter_role;
+}
+
+void QSortFilterProxyModel::setFilterRole(int role)
+{
+    Q_D(QSortFilterProxyModel);
+    d->filter_role = role;
+    clear();
 }
 
 /*!
@@ -1670,8 +1719,9 @@ void QSortFilterProxyModel::clear()
 */
 bool QSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    QVariant l = (left.model() ? left.model()->data(left, Qt::DisplayRole) : QVariant());
-    QVariant r = (right.model() ? right.model()->data(right, Qt::DisplayRole) : QVariant());
+    Q_D(const QSortFilterProxyModel);
+    QVariant l = (left.model() ? left.model()->data(left, d->sort_role) : QVariant());
+    QVariant r = (right.model() ? right.model()->data(right, d->sort_role) : QVariant());
     switch (l.type()) {
     case QVariant::Int:
         return l.toInt() < r.toInt();
@@ -1693,7 +1743,6 @@ bool QSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
         return l.toDateTime() < r.toDateTime();
     case QVariant::String:
     default:
-        Q_D(const QSortFilterProxyModel);
         return l.toString().compare(r.toString(), d->sort_casesensitivity) < 0;
     }
     return false;
@@ -1718,7 +1767,7 @@ bool QSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &
     QModelIndex source_index = d->model->index(source_row, d->filter_column, source_parent);
     if (!source_index.isValid()) // the column may not exist
         return true;
-    QString key = d->model->data(source_index, Qt::DisplayRole).toString();
+    QString key = d->model->data(source_index, d->filter_role).toString();
     return key.contains(d->filter_regexp);
 }
 
