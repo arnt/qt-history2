@@ -232,31 +232,42 @@ void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
     \class QWSCalibratedMouseHandler
     \ingroup qws
 
-    \brief The QWSCalibratedMouseHandler class provides basic functionality
-    for implementing a mouse handler that needs calibration.
+    \brief The QWSCalibratedMouseHandler class implements a mouse
+    driver providing calibration and noise reduction.
 
-    Derive from this class to create a handler when the device doesn't
-    have a fixed mapping between device coordinates and/or produces
-    noisy events. A touchscreen is a good example of such a device.
+    A mouse driver handles events from system devices and generates
+    mouse events. Custom mouse drivers can be added by subclassing the
+    QMouseDriverPlugin class, using the QMouseDriverFactory class to
+    dynamically load the driver into the application.
 
-    The QWSCalibratedMouseHandler provides linear transformation between
-    device coordinates and screen coordinates by calling transform(). This
-    implementation uses 7 parameters a, b, c, d, e, f, s to
-    transform the device coordinates (Xd, Yd) into screen coordinates (Xs, Ys)
-    using the following equations:
+    Derive from the QWSCalibratedMouseHandler class when the system
+    device does not have a fixed mapping between device coordinates
+    and/or produces noisy events, e.g. a touchscreen.
 
-    \code
-    s*Xs = a*Xd + b*Yy + c
-    s*Ys = d*Xd + e*Yd + f
-    \endcode
+    QWSCalibratedMouseHandler provides an implementation of the
+    calibrate() function to update the calibration parameters based on
+    coordinate mapping of the given data. The linear transformation
+    between device coordinates and screen coordinates is performed by
+    calling the transform() function explicitly on the points passed
+    to the QWSMouseHandler::mouseChanged() function.
 
-    The parameters are stored in \c /etc/pointercal (separated by
-    whitespace and in alphabetical order), and are read when the class
-    is instantiated. The calibration parameters are recalculated
-    whenever calibrate() is called.
+    The calibration parameters are recalculated whenever calibrate()
+    is called. They can be saved using the writeCalibration()
+    function, and are stored in \c /etc/pointercal (separated by
+    whitespace and in alphabetical order). The calibration parameters
+    are read when the class is instantiated, but previously written
+    parameters can be retrieved at any time using the
+    readCalibration() function. Use the clearCalibration() function to
+    make the mouse handler return mouse events in raw device
+    coordinates and not in screen coordinates.
 
-    To achieve noise reduction, use the sendFiltered() function
-    instead of mouseChanged() whenever a mouse event occurs.
+    To achieve noise reduction, QWSCalibratedMouseHandler provides the
+    sendFiltered() function. Use this function instead of
+    mouseChanged() whenever a mouse event occurs. The filter's size
+    can be manipulated using the setFilterSize() function.
+
+    \sa QWSMouseHandler, QWSPointerCalibrationData,
+    {examples/qtopiacore/mousecalibration}{Mouse Calibration Example}
 */
 
 
@@ -288,10 +299,11 @@ void QWSCalibratedMouseHandler::getCalibration(QWSPointerCalibrationData *cd) co
 }
 
 /*!
-    Clears the current calibration.
+    Clears the current calibration, i.e. makes the mouse
+    handler return mouse events in raw device coordinates instead of
+    screen coordinates.
 
-    After this function is called the mouse handler will return mouse
-    events in raw device coordinates and not in screen coordinates.
+    \sa calibrate()
 */
 void QWSCalibratedMouseHandler::clearCalibration()
 {
@@ -306,7 +318,10 @@ void QWSCalibratedMouseHandler::clearCalibration()
 
 
 /*!
-    Save the current calibration parameters.
+    Saves the current calibration parameters in \c /etc/pointercal
+    (separated by whitespace and in alphabetical order).
+
+    \sa readCalibration()
 */
 void QWSCalibratedMouseHandler::writeCalibration()
 {
@@ -326,7 +341,9 @@ void QWSCalibratedMouseHandler::writeCalibration()
 }
 
 /*!
-    Reads previously written calibration parameters.
+    Reads previously written calibration parameters which are stored
+    in \c /etc/pointercal (separated by whitespace and in alphabetical
+    order).
 
     \sa writeCalibration()
 */
@@ -348,6 +365,12 @@ void QWSCalibratedMouseHandler::readCalibration()
 /*!
     Updates the calibration parameters based on coordinate mapping of
     the given \a data.
+
+    Create an instance of the QWSPointerCalibrationData class, fill in
+    the device and screen coordinates and pass the object to the mouse
+    handler using this function.
+
+    \sa clearCalibration(), transform()
 */
 void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *data)
 {
@@ -372,6 +395,22 @@ void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *data)
 /*!
     Transforms the given \a position from device coordinates to screen
     coordinates, and returns the transformed position.
+
+    Such a linear transformation is performed by calling the
+    transform() function explicitly on the points passed to the
+    QWSMouseHandler::mouseChanged() function.
+
+    This implementation uses 7 parameters \c a, \c b, \c c, \c d, \c
+    e, \c f and \c s to transform the device coordinates (\c Xd, \c
+    Yd) into screen coordinates (\c Xs, \c Ys) using the following
+    equations:
+
+    \code
+        s*Xs = a*Xd + b*Yd + c
+        s*Ys = d*Xd + e*Yd + f
+    \endcode
+
+    \sa mouseChanged()
 */
 QPoint QWSCalibratedMouseHandler::transform(const QPoint &position)
 {
@@ -387,6 +426,11 @@ QPoint QWSCalibratedMouseHandler::transform(const QPoint &position)
     Sets the size of the filter used in noise reduction to the given
     \a size.
 
+    The sendFiltered() function reduces noice by calculating an
+    average position from a collection of mouse event positions. The
+    filter size determines the number of positions that is used as
+    basis for the calculations.
+
     \sa sendFiltered()
 */
 void QWSCalibratedMouseHandler::setFilterSize(int size)
@@ -400,15 +444,20 @@ void QWSCalibratedMouseHandler::setFilterSize(int size)
     \fn bool QWSCalibratedMouseHandler::sendFiltered(const QPoint &position, int state)
 
     Notifies the system of a new mouse event \e after applying a noise
-    reduction filter.
-
-    Returns true if mouseChanged() was called; otherwise returns false.
+    reduction filter. Returns true if the filtering process is
+    successful; otherwise returns false. Note that if the filtering
+    process failes, the system is not notified about the event.
 
     The given \a position is the global position of the mouse. The \a
     state parameter is a bitmask of Qt::MouseButtons indicating which
     mouse buttons are pressed.
 
-    \sa mouseChanged()
+    The sendFiltered() function reduces noice by calculating an
+    average position from a collection of mouse event positions, and
+    then call the mouseChanged() function with the new position. The
+    number of positions that is used is determined by the filter size.
+
+    \sa mouseChanged(), setFilterSize()
 */
 bool QWSCalibratedMouseHandler::sendFiltered(const QPoint &position, int button)
 {
