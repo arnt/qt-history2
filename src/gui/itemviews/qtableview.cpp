@@ -338,11 +338,15 @@ void QTableView::paintEvent(QPaintEvent *event)
         int right = horizontalHeader->visualIndexAt(area.right());
 
         if (isRightToLeft()) {
-            left = (left == -1 ? horizontalHeader->count() - 1 : left);
-            right = (right == -1 ? 0 : right);
+            if (left == -1)
+                left = horizontalHeader->count() - 1;
+            if (right == -1)
+                right =  0;
         } else {
-            left = (left == -1 ? 0 : left);
-            right = (right == -1 ? horizontalHeader->count() - 1 : right);
+            if (left == -1)
+                left = 0;
+            if (right == -1)
+                right = horizontalHeader->count() - 1;
         }
 
         int tmp = left;
