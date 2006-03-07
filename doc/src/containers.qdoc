@@ -646,8 +646,9 @@
             qDebug() << i.next();
     \endcode
 
-    Just like C++'s \c for loop, the variable used for iteration
-    can be defined within the \c foreach statement:
+    Unless the data type contains a comma (e.g., \c{QPair<int,
+    int>}), the variable used for iteration can be defined within the
+    \c foreach statement:
 
     \code
         QLinkedList<QString> list;
@@ -687,15 +688,11 @@
     \code
         QMultiMap<QString, int> map;
         ...
-        foreach (QString str, map.uniqueKeys())
+        foreach (QString str, map.uniqueKeys()) {
             foreach (int i, map.values(str))
                 qDebug() << str << ":" << i;
+	}
     \endcode
-
-    Note that, in some cases, there may be duplicate keys in the map.
-    To obtain a list of unique keys, where each key from the map only
-    occurs once, use an intermediate QSet object to filter out
-    duplicates.
 
     Qt automatically takes a copy of the container when it enters a
     \c foreach loop. If you modify the container as you are
