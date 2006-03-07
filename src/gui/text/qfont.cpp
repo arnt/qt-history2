@@ -202,7 +202,6 @@ void QFontPrivate::resolve(uint mask, const QFontPrivate *other)
 
 
 QFontEngineData::QFontEngineData()
-    : lineWidth(1)
 {
     ref = 1;
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
@@ -210,9 +209,6 @@ QFontEngineData::QFontEngineData()
 #else
     engine = 0;
 #endif // Q_WS_X11 || Q_WS_WIN
-#ifndef Q_WS_MAC
-    memset(widthCache, 0, widthCacheSize*sizeof(uchar));
-#endif
 }
 
 QFontEngineData::~QFontEngineData()

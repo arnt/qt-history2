@@ -108,17 +108,12 @@ public:
     ~QFontEngineData();
 
     QAtomic ref;
-    uint lineWidth;
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
     QFontEngine *engines[QUnicodeTables::ScriptCount];
 #else
     QFontEngine *engine;
 #endif // Q_WS_X11 || Q_WS_WIN
-#ifndef Q_WS_MAC
-    enum { widthCacheSize = 0x500 };
-    uchar widthCache[widthCacheSize];
-#endif
 };
 
 
