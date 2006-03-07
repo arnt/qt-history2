@@ -171,7 +171,7 @@ QWSSL5000KeyboardHandler::QWSSL5000KeyboardHandler(const QString &device)
     numLock = false;
 
     sharp_kbdctl_modifstat  st;
-    int dev = ::open(device.isEmpty()?"/dev/sharp_kbdctl":device.toLatin1(), O_RDWR);
+    int dev = ::open(device.isEmpty()?"/dev/sharp_kbdctl":device.toLocal8Bit().constData(), O_RDWR);
     if (dev >= 0) {
         memset(&st, 0, sizeof(st));
         st.which = 3;
