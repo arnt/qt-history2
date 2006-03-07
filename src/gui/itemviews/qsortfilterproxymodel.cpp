@@ -407,6 +407,7 @@ QVector<QPair<int, QVector<int > > > QSortFilterProxyModelPrivate::proxy_interva
     if (source_items.isEmpty())
         return proxy_intervals;
 
+    int proxy_low = 0;
     int proxy_item = 0;
     int source_items_index = 0;
     QVector<int> source_items_in_interval;
@@ -418,21 +419,24 @@ QVector<QPair<int, QVector<int > > > QSortFilterProxyModelPrivate::proxy_interva
         ++source_items_index;
 
         // Find proxy item at which insertion should be started
-        // ### Optimize: Binary search
+        int proxy_high = proxy_to_source.size() - 1;
         QModelIndex i1 = compare ? model->index(first_new_source_item, sort_column, source_parent) : QModelIndex();
-        forever {
-            if (proxy_item >= proxy_to_source.size())
-                break;
+        while (proxy_low <= proxy_high) {
+            proxy_item = ((proxy_high - proxy_low) / 2) + proxy_low;
             if (compare) {
                 QModelIndex i2 = model->index(proxy_to_source.at(proxy_item), sort_column, source_parent);
                 if ((sort_order == Qt::AscendingOrder) ? q->lessThan(i1, i2) : q->lessThan(i2, i1))
-                    break;
+                    proxy_high = proxy_item - 1;
+                else
+                    proxy_low = proxy_item + 1;
             } else {
                 if (first_new_source_item < proxy_to_source.at(proxy_item))
-                    break;
+                    proxy_high = proxy_item - 1;
+                else
+                    proxy_low = proxy_item + 1;
             }
-            ++proxy_item;
         }
+        proxy_item = proxy_low;
 
         // Find the sequence of new source items that should be inserted here
         if (proxy_item >= proxy_to_source.size()) {
