@@ -2239,9 +2239,6 @@ int QWidget::y() const
     currently visible, it is guaranteed to receive an event before it
     is shown.
 
-    move() is virtual, and all other overloaded move() implementations
-    in Qt call it.
-
     \warning Calling move() or setGeometry() inside moveEvent() can
     lead to infinite recursion.
 
@@ -4735,7 +4732,7 @@ bool QWidget::close()
     You almost never have to reimplement the setVisible() function. If
     you need to change some settings before a widget is shown, use
     showEvent() instead. If you need to do some delayed initialization
-    use the Polish event delivered to the event() method
+    use the Polish event delivered to the event() function.
 
     \sa show(), hide(), isHidden(), isVisibleTo(), isMinimized(),
     showEvent(), hideEvent()
