@@ -1265,7 +1265,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
             }
 
-            if (tabV2.state & State_HasFocus && !tabV2.text.isEmpty()) {
+            if (tabV2.state & State_HasFocus) {
                 const int OFFSET = 1 + pixelMetric(PM_DefaultFrameWidth);
 
                 int x1, x2;
