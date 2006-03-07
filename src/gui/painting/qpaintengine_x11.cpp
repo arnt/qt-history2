@@ -2079,7 +2079,6 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
     GlyphSet transformedGlyphSet = 0;
     if (d->txop >= QPainterPrivate::TxScale
         && xrenderPath) {
-        Q_ASSERT(!d->matrix.isIdentity());
         drawTransformed = ft->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix, &transformedGlyphSet);
     }
 #endif
