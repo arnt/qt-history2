@@ -126,7 +126,6 @@ struct QAccessibleTextBinding {
     { { QAccessible::StatusBar, kAXStaticTextRole, false },
       { -1, 0, false }
     },
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     { { QAccessible::Column, kAXColumnRole, false },
       { -1, 0, false }
     },
@@ -151,36 +150,6 @@ struct QAccessibleTextBinding {
     { { QAccessible::Link, kAXTextFieldRole, false },
       { -1, 0, false }
     },
-#else
-    { { QAccessible::TitleBar, kAXWindowTitleRole, false },
-      { -1, 0, false }
-    },
-    { { QAccessible::ColumnHeader, kAXTableHeaderViewRole, false },
-      { -1, 0, false }
-    },
-    { { QAccessible::RowHeader, kAXTableHeaderViewRole, false },
-      { -1, 0, false }
-    },
-    { { QAccessible::Column, kAXTableColumnRole, false },
-      { -1, 0, false }
-    },
-    { { QAccessible::Row, kAXTableRowRole, false },
-      { -1, 0, false }
-    },
-    { { QAccessible::Cell, kAXOutlineCellRole, false },
-      { -1, 0, false }
-    },
-    { { QAccessible::EditableText, kAXTextRole, false },
-      { QAccessible::Value, kAXValueAttribute, true },
-      { -1, 0, false }
-    },
-    { { QAccessible::Link, kAXTextRole, false },
-      { -1, 0, false }
-    },
-    { { QAccessible::PushButton, kAXPushButtonRole, false },
-      { -1, 0, false }
-    },
-#endif
     { { -1, 0, false } }
 };
 
@@ -222,7 +191,7 @@ class QInterfaceItemBase
 public:
     QInterfaceItemBase(QAccessibleInterface *interface);
     ~QInterfaceItemBase();
-    
+
     QAccessibleInterface *interface;
     int refCount;
 };
@@ -239,7 +208,7 @@ QInterfaceItemBase::~QInterfaceItemBase()
 
 /*
     QInterfaceItem represents one accessiblity item. It hides the fact that
-    one QAccessibleInterface may represent more than one item, and it also 
+    one QAccessibleInterface may represent more than one item, and it also
     automates the memory management for QAccessibleInterfaces using a ref count.
 
     It has the same API as QAccessibleInterface, minus the child parameter
@@ -247,76 +216,76 @@ QInterfaceItemBase::~QInterfaceItemBase()
 */
 class QInterfaceItem : public QAccessible
 {
-public: 
+public:
     QInterfaceItem();
     QInterfaceItem(QAccessibleInterface *interface, int child = 0);
     QInterfaceItem(QInterfaceItem item, int child);
     ~QInterfaceItem();
-    
+
     QInterfaceItem(const QInterfaceItem &other);
     void operator=(const QInterfaceItem &other);
     bool operator==(const QInterfaceItem &other) const;
-    
-    inline QString actionText (int action, Text text) const 
+
+    inline QString actionText (int action, Text text) const
     { return base->interface->actionText(action, text, child); }
-    
+
     int childAt(int x, int y) const
-    { 
+    {
         int foundChild = base->interface->childAt(x, y);
         if (child == 0)
             return foundChild;
-        
+
         if (foundChild == -1)
             return -1;
- 
+
         if (foundChild == child)
             return 0;
         return -1;
     }
-    
+
     inline int childCount() const
-    { 
+    {
         if (child != 0)
             return 0;
         return base->interface->childCount();
     }
-    
+
     inline void doAction(int action, const QVariantList &params = QVariantList())
     { base->interface->doAction(action, child, params); }
-    
+
     QInterfaceItem navigate(RelationFlag relation, int entry) const;
-   
+
     inline QObject * object() const
-    { return base->interface->object(); } 
-        
+    { return base->interface->object(); }
+
     inline QRect rect() const
-    { return base->interface->rect(child); } 
-    
+    { return base->interface->rect(child); }
+
     inline Role role() const
     { return base->interface->role(child); }
-    
+
     inline void setText(Text t, const QString &text)
     { base->interface->setText(t, child, text); }
-    
+
     inline State state() const
     { return base->interface->state(child); }
-    
+
     inline QString text (Text text) const
     { return base->interface->text(text, child); }
-    
+
     inline int userActionCount()
     { return base->interface->userActionCount(child); }
-    
-    inline QString className() const 
+
+    inline QString className() const
     { return base->interface->object()->metaObject()->className(); }
 
     inline bool isHIView() const
     { return (child == 0); }
-    
+
     inline int id() const
     { return child; }
 
-    inline bool isValid() const 
+    inline bool isValid() const
     { return (base != 0); }
 
     QInterfaceItem parent() const
@@ -369,10 +338,10 @@ void QInterfaceItem::operator=(const QInterfaceItem &other)
         return;
 
     child = other.child;
-    
+
     if (base != 0 && --base->refCount == 0)
         delete base;
-    
+
     base = other.base;
     if (base != 0)
         ++base->refCount;
@@ -394,7 +363,7 @@ uint qHash(QInterfaceItem item)
 }
 
 QInterfaceItem::~QInterfaceItem()
-{ 
+{
     if (base == 0)
         return;
 
@@ -403,7 +372,7 @@ QInterfaceItem::~QInterfaceItem()
 }
 
 QInterfaceItem QInterfaceItem::navigate(RelationFlag relation, int entry) const
-{ 
+{
     // On a QAccessibleInterface that handles its own children we can short-circut
     // the navigation if this QInterfaceItem refers to one of the children:
     if (child != 0) {
@@ -413,16 +382,16 @@ QInterfaceItem QInterfaceItem::navigate(RelationFlag relation, int entry) const
             return QInterfaceItem(*this, 0);
 
         // The child hiearchy is only one level deep, so navigating to a child
-        // of a child is not possible. 
+        // of a child is not possible.
         if (relation == QAccessible::Child)
             return QInterfaceItem();
     }
-    
+
     QAccessibleInterface *child_iface = 0;
     const int status = base->interface->navigate(relation, entry, &child_iface);
     if (status == -1)
         return QInterfaceItem(); // not found;
-    
+
     // Check if target is a child of this interface.
     if (!child_iface) {
         return QInterfaceItem(*this, status);
@@ -443,12 +412,12 @@ public:
     explicit QAXUIElement(AXUIElementRef elementRef);
     QAXUIElement(const QAXUIElement &element);
     ~QAXUIElement();
-    
+
     inline HIObjectRef object() const
     {
         return AXUIElementGetHIObject(elementRef);
     }
-    
+
     inline int id() const
     {
         UInt64 id;
@@ -460,12 +429,12 @@ public:
     {
         return elementRef;
     }
-    
+
     inline bool isValid() const
     {
         return (elementRef != 0);
     }
-    
+
     void QAXUIElement::operator=(const QAXUIElement &other);
     bool QAXUIElement::operator==(const QAXUIElement &other) const;
 private:
@@ -503,14 +472,14 @@ void QAXUIElement::operator=(const QAXUIElement &other)
 {
     if (*this == other)
         return;
-    
+
     if (elementRef != 0) {
         CFRelease(object());
         CFRelease(elementRef);
     }
-    
+
     elementRef = other.elementRef;
-  
+
       if (elementRef != 0) {
         CFRetain(elementRef);
         CFRetain(object());
@@ -532,11 +501,11 @@ uint qHash(QAXUIElement element)
     There is a one-to-one relationship between AXUIElementRefs on the Mac side
     and QInterFaceItems on the Qt side, and this class provies lookup funcitons
     that translates between these to items.
-    
-    The identity of a QInterfaceItem is determined by its QAccessibleInterface and 
+
+    The identity of a QInterfaceItem is determined by its QAccessibleInterface and
     child identifier, and the identity of a AXUIelementRef is determined by its
     HIObjectRef and identifier.
-   
+
     QAccessibleHierarchyManager recieves QObject::destroyed signals and deletes
     the accessibility objects for destroyed objects.
 */
@@ -547,10 +516,10 @@ public:
     QAccessibleHierarchyManager() {};
     ~QAccessibleHierarchyManager();
     void reset();
-    
+
     QAXUIElement createElementForInterface(const QInterfaceItem &interface);
     void addElementInterfacePair(const QAXUIElement &element, const QInterfaceItem &interface);
-    
+
     QInterfaceItem lookup(const AXUIElementRef element);
     AXUIElementRef lookup(const QInterfaceItem interface);
     QAXUIElement lookup(QObject * const object, int id);
@@ -559,10 +528,10 @@ private slots:
 private:
     typedef QMultiHash<QObject*, QInterfaceItem> QObjectToInterfacesHash;
     QObjectToInterfacesHash qobjectToInterfaces;
-    
+
     typedef QHash<QAXUIElement, QInterfaceItem> QAXUIElementToInterfaceHash;
     QAXUIElementToInterfaceHash elementToInterface;
-    
+
     typedef QHash<QInterfaceItem, QAXUIElement> InterfaceToQAXUIElementHash;
     InterfaceToQAXUIElementHash interfaceToElement;
 };
@@ -573,13 +542,13 @@ QAccessibleHierarchyManager::~QAccessibleHierarchyManager()
 }
 
 /*
-    Reomves all accessibility info accosiated with the sender object from the hash. 
+    Reomves all accessibility info accosiated with the sender object from the hash.
 */
 void QAccessibleHierarchyManager::objectDestroyed()
-{ 
+{
     QObject * const destroyed = sender();
     QObjectToInterfacesHash::iterator i = qobjectToInterfaces.find(destroyed);
-        
+
     while (i != qobjectToInterfaces.end() && i.key() == destroyed) {
         const QInterfaceItem interface = i.value();
         ++i;
@@ -612,37 +581,37 @@ static bool isItInteresting(const QInterfaceItem interface)
     // If the object is 0 it's probably not that intersting.
     QObject * const object = interface.object();
     if (!object)
-        return false; 
-    
+        return false;
+
     const QString className = object->metaObject()->className();
-    
+
     // VoiceOver focusing on tool tips can be confusing. The contents of the
-    // tool tip is avalible through the description attribute anyway, so 
+    // tool tip is avalible through the description attribute anyway, so
     // we disable accessibility for tool tips.
     if (className == QLatin1String("QTipLabel"))
-        return false; 
-    
+        return false;
+
    const QAccessible::Role role = interface.role();
-   
+
    // Some roles are not interesting:
-   if (role == QAccessible::Client ||    // QWidget 
-       role == QAccessible::Border ||    // QFrame 
+   if (role == QAccessible::Client ||    // QWidget
+       role == QAccessible::Border ||    // QFrame
        role == QAccessible::Application || // We use the system-provided application element.
        role == QAccessible::MenuItem)      // The system also provides the menu items.
-        return false; 
-    
-    // It is probably better to access the toolbar buttons directly than having 
+        return false;
+
+    // It is probably better to access the toolbar buttons directly than having
     // to navigate through the toolbar.
     if (role == QAccessible::ToolBar)
         return false;
-    
+
     // Mac accessibility does not have an attribute that corresponds to the Invisible/Offscreen
-    // state, so we disable the interface here. 
+    // state, so we disable the interface here.
     const QAccessible::State state = interface.state();
     if (state & QAccessible::Invisible ||
         state & QAccessible::Offscreen )
         return false;
-    
+
     return true;
 }
 
@@ -653,50 +622,50 @@ QAXUIElement QAccessibleHierarchyManager::createElementForInterface(const QInter
 {
     if (interface.isValid() == false)
         return QAXUIElement();
-    
+
     HIObjectRef hiobj = 0;
     bool weCreatedIt = false;
 
     if (interface.isHIView()) {
         QObject * const object = interface.object();
-        
-        if (object && qobjectToInterfaces.contains(object) == false) 
+
+        if (object && qobjectToInterfaces.contains(object) == false)
             connect(object, SIGNAL(destroyed()), SLOT(objectDestroyed()));
-            
+
         QWidget * const widget = qobject_cast<QWidget * const>(object);
         if (widget)
             hiobj = (HIObjectRef)widget->winId();
     }
-     
+
     if (hiobj == 0) {
         HIObjectCreate(kObjectQtAccessibility, 0, &hiobj);
         weCreatedIt = true;
     }
-              
+
     // If the interface is not interesting to the accessibility user we disable
-    // accessibility for it it. This means that it won't show up for the user, 
+    // accessibility for it it. This means that it won't show up for the user,
     // but it is still a part of the hierarcy.
     // This also gets rid of the "empty_widget" created in QEventDispatcherMac::processEvents().
     HIObjectSetAccessibilityIgnored(hiobj, !isItInteresting(interface));
-    
-    
+
+
     // Install accessibility event handler on object
     if (!accessibilityEventHandlerUPP)
         accessibilityEventHandlerUPP = NewEventHandlerUPP(accessibilityEventHandler);
-        
+
     OSErr err = InstallHIObjectEventHandler(hiobj, accessibilityEventHandlerUPP,
                                         GetEventTypeCount(accessibilityEvents),
-                                        accessibilityEvents, 0, 0);        
+                                        accessibilityEvents, 0, 0);
 
-    if (err) 
-        qDebug() << "qaccessible_mac: Could not install accessibility event handler"; 
+    if (err)
+        qDebug() << "qaccessible_mac: Could not install accessibility event handler";
 
     QAXUIElement qelement(AXUIElementCreateWithHIObjectAndIdentifier(hiobj, interface.id()));
 
     // If we created a hiobj we let the QAXUIElement own it.
     if (weCreatedIt)
-        CFRelease(hiobj); 
-    
+        CFRelease(hiobj);
+
     return qelement;
 }
 
@@ -727,7 +696,7 @@ AXUIElementRef QAccessibleHierarchyManager::lookup(const QInterfaceItem interfac
 QAXUIElement QAccessibleHierarchyManager::lookup(QObject * const object, int id)
 {
     QObjectToInterfacesHash::iterator i = qobjectToInterfaces.find(object);
-            
+
     while (i != qobjectToInterfaces.end() && i.key() == object) {
         const QInterfaceItem interface = i.value();
         ++i;
@@ -738,7 +707,7 @@ QAXUIElement QAccessibleHierarchyManager::lookup(QObject * const object, int id)
         const QAXUIElement element = interfaceToElement.value(interface);
         if (element.isValid() == false)
             continue;
-        
+
         return element;
     }
     return QAXUIElement();
@@ -795,13 +764,13 @@ static AXUIElementRef lookupCreateChild(const QInterfaceItem interface, const in
     const QInterfaceItem child_iface = interface.navigate(QAccessible::Child, childIndex);
     if (child_iface.isValid() == false)
         return 0;
-        
+
     AXUIElementRef childElement = accessibleHierarchyManager()->lookup(child_iface);
     if (childElement)
         return childElement;
 
     QAXUIElement element = accessibleHierarchyManager()->createElementForInterface(child_iface);
-    accessibleHierarchyManager()->addElementInterfacePair(element, child_iface); 
+    accessibleHierarchyManager()->addElementInterfacePair(element, child_iface);
 
     return element.element();
 }
@@ -813,7 +782,7 @@ static void createElementsForRootInterface()
         return;
 
     QInterfaceItem appQInterfaceItem(appInterface, 0);
-    
+
     // Add the children of the root accessiblity interface
     const int childCount = appQInterfaceItem.childCount();
     for (int i = 0; i < childCount; ++i)
@@ -838,11 +807,11 @@ static void installApplicationEventhandler()
 {
     if (!applicationEventHandlerUPP)
         applicationEventHandlerUPP = NewEventHandlerUPP(applicationEventHandler);
-    
+
     OSStatus err = InstallApplicationEventHandler(applicationEventHandlerUPP,
                             GetEventTypeCount(application_events), application_events,
                             0, 0);
-    
+
     if (err && err != eventHandlerAlreadyInstalledErr)
         qDebug() << "qaccessible_mac: Error installing application event handler:" << err;
 }
@@ -857,9 +826,9 @@ static void removeEventhandler(EventHandlerUPP eventHandler)
 
 
 /*
-    Returns the value for element by combining the QAccessibility::Checked and 
+    Returns the value for element by combining the QAccessibility::Checked and
     QAccessibility::Mixed flags into an int value that the Mac accessibilty
-    system understands. This works for checkboxes, radiobuttons, and the like. 
+    system understands. This works for checkboxes, radiobuttons, and the like.
     The return values are:
     0: unchecked
     1: checked
@@ -872,7 +841,7 @@ static int buttonValue(QInterfaceItem element)
         return 2;
     else if(state & QAccessible::Checked)
         return 1;
-    else 
+    else
         return 0;
 }
 
@@ -887,7 +856,7 @@ static QString getValue(QInterfaceItem interface)
 
 /*
     Translates a QAccessible::Role into a mac accessibility role
-    using the text_bindings table. 
+    using the text_bindings table.
 */
 static CFStringRef macRoleForQtRole(QAccessible::Role role)
 {
@@ -963,7 +932,7 @@ static QInterfaceItem findLabel(QInterfaceItem interface)
 static QList<QInterfaceItem> findLabelled(QInterfaceItem interface)
 {
     QList<QInterfaceItem> interfaceList;
-    
+
     int count = 1;
     const QInterfaceItem labelled = interface.navigate(QAccessible::Labelled, count);
     while (labelled.isValid()) {
@@ -979,11 +948,11 @@ static QList<QInterfaceItem> findLabelled(QInterfaceItem interface)
 static bool supportsAttribute(CFStringRef attribute, QInterfaceItem interface)
 {
     const int text = textForRoleAndAttribute(interface.role(), attribute);
- 
+
     // Special case: Static texts don't have a title.
     if (interface.role() == QAccessible::StaticText && attribute == kAXTitleAttribute)
         return false;
-    
+
     // Return true if we the attribute matched a QAccessible::Role and we get text for that role from the interface.
     if (text != -1) {
         if (text == QAccessible::Value) // Special case for Value, see getValue()
@@ -996,7 +965,7 @@ static bool supportsAttribute(CFStringRef attribute, QInterfaceItem interface)
         if (interface.childCount() > 0)
             return true;
     }
-    
+
     return false;
 }
 
@@ -1021,7 +990,7 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, E
 
     if (!attrs)
         return eventNotHandledErr;
-    
+
     // Append attribute names that are always supported.
     qt_mac_append_cf_uniq(attrs, kAXPositionAttribute);
     qt_mac_append_cf_uniq(attrs, kAXSizeAttribute);
@@ -1031,7 +1000,7 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, E
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     qt_mac_append_cf_uniq(attrs, kAXTopLevelUIElementAttribute);
 #endif
-   
+
     // Append these names if the QInterafceItem returns any data for them.
     appendIfSupported(attrs, kAXTitleAttribute, interface);
     appendIfSupported(attrs, kAXValueAttribute, interface);
@@ -1042,7 +1011,7 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, E
     appendIfSupported(attrs, kAXHelpAttribute, interface);
     appendIfSupported(attrs, kAXTitleUIElementAttribute, interface);
     appendIfSupported(attrs, kAXChildrenAttribute, interface);
-    
+
     // Append attribute names based on the interaface role.
     switch (interface.role())  {
         case QAccessible::Window:
@@ -1065,12 +1034,12 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, E
         default:
         break;
     }
-   
+
     return noErr;
 }
 
 /*
-    Adds the children for interface to the global QAccessibleHirearchyManager. 
+    Adds the children for interface to the global QAccessibleHirearchyManager.
 */
 static QList<AXUIElementRef> mapChildrenForInterface(const QInterfaceItem interface)
 {
@@ -1078,7 +1047,7 @@ static QList<AXUIElementRef> mapChildrenForInterface(const QInterfaceItem interf
     const int children_count = interface.childCount();
     for (int i = 0; i < children_count; ++i) {
         children.append(lookupCreateChild(interface, i + 1));
-    }    
+    }
     return children;
 }
 
@@ -1087,12 +1056,12 @@ static void handleStringAttribute(EventRef event, QAccessible::Text text, QInter
     QString str = interface.text(text);
     if (str.isEmpty())
         return;
-    
+
     // Remove any html markup from the text string, or VoiceOver will read the html tags.
     static QTextDocument document;
     document.setHtml(str);
     str = document.toPlainText();
-    
+
     CFStringRef cfstr = QCFString::toCFStringRef(str);
     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(cfstr), &cfstr);
 }
@@ -1109,11 +1078,11 @@ static OSStatus handleChildrenAttribute(EventHandlerCallRef next_ref, EventRef e
    // Add the children for this interface to the global QAccessibelHierachyManager.
     const QList<AXUIElementRef> children = mapChildrenForInterface(interface);
     const int childCount = children.count();
-    
+
     OSStatus err = eventNotHandledErr;
     if (interface.isHIView())
         err = CallNextEventHandler(next_ref, event);
-    
+
     CFMutableArrayRef array = 0;
     int arraySize = 0;
     if (err == noErr) {
@@ -1124,11 +1093,11 @@ static OSStatus handleChildrenAttribute(EventHandlerCallRef next_ref, EventRef e
             arraySize = CFArrayGetCount(array);
         }
     }
-    
+
     if (array == 0)
         return err;
-   
-    // If the system event handler and the QInterafceItem agrees on the number of children 
+
+    // If the system event handler and the QInterafceItem agrees on the number of children
     // we trust the children returned by the system event handler.
     if (childCount == arraySize)
         return noErr;
@@ -1143,7 +1112,7 @@ static OSStatus handleChildrenAttribute(EventHandlerCallRef next_ref, EventRef e
 }
 
 /*
-    
+
 */
 static OSStatus handleParentAttribute(EventHandlerCallRef next_ref, EventRef event, QInterfaceItem interface)
 {
@@ -1153,10 +1122,10 @@ static OSStatus handleParentAttribute(EventHandlerCallRef next_ref, EventRef eve
     }
     if (err == noErr)
         return err;
-    
+
     const QInterfaceItem parentInterface  = interface.navigate(QAccessible::Ancestor, 1);
     const AXUIElementRef parentElement = accessibleHierarchyManager()->lookup(parentInterface);
-    
+
     if (parentElement == 0)
         return eventNotHandledErr;
 
@@ -1167,7 +1136,7 @@ static OSStatus handleParentAttribute(EventHandlerCallRef next_ref, EventRef eve
 struct IsWindowTest
 {
     static inline bool test(const QInterfaceItem interface)
-    { 
+    {
         return (interface.role() == QAccessible::Window);
     }
 };
@@ -1175,10 +1144,10 @@ struct IsWindowTest
 struct IsWindowAndNotDrawerOrSheetTest
 {
     static inline bool test(const QInterfaceItem interface)
-    { 
+    {
         QWidget * const widget = qobject_cast<QWidget*>(interface.object());
         return (interface.role() == QAccessible::Window &&
-                widget && widget->isWindow() && 
+                widget && widget->isWindow() &&
                 !qt_mac_is_macdrawer(widget) &&
                 !qt_mac_is_macsheet(widget));
     }
@@ -1186,7 +1155,7 @@ struct IsWindowAndNotDrawerOrSheetTest
 
 /*
     Navigates up the iterfaces ancestor hierachy until a QAccessibleInterface that
-    passes the Test is found. If we reach a interface that is a HIView we stop the 
+    passes the Test is found. If we reach a interface that is a HIView we stop the
     search and call AXUIElementCopyAttributeValue.
 */
 template <typename TestType>
@@ -1202,7 +1171,7 @@ OSStatus navigateAncestors(EventHandlerCallRef next_ref, EventRef event, const Q
             element = accessibleHierarchyManager()->lookup(current);
             break;
         }
-        
+
         // If we reach an InterfaceItem that is a HiView we can hand of the search to
         // the system event handler. This is the common case.
         if (current.isHIView()) {
@@ -1213,11 +1182,11 @@ OSStatus navigateAncestors(EventHandlerCallRef next_ref, EventRef event, const Q
                 element = (AXUIElementRef)value;
             break;
         }
-        
+
         QInterfaceItem next = current.navigate(QAccessible::Ancestor, 1);
         if (next.isValid() == false)
             break;
-        if (next == current) 
+        if (next == current)
             break;
         current = next;
     }
@@ -1231,7 +1200,7 @@ OSStatus navigateAncestors(EventHandlerCallRef next_ref, EventRef event, const Q
 }
 
 /*
-    Returns the top-level window for an interface, which is the closest ancestor interface that 
+    Returns the top-level window for an interface, which is the closest ancestor interface that
     has the Window role, but is not a sheet or a drawer.
 */
 static OSStatus handleWindowAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
@@ -1240,7 +1209,7 @@ static OSStatus handleWindowAttribute(EventHandlerCallRef next_ref, EventRef eve
 }
 
 /*
-    Returns the top-level window for an interface, which is the closest ancestor interface that 
+    Returns the top-level window for an interface, which is the closest ancestor interface that
     has the Window role. (Can also be a sheet or a drawer)
 */
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
@@ -1264,7 +1233,7 @@ static OSStatus handleTabsAttribute(EventHandlerCallRef next_ref, EventRef event
         if (child.isValid() && child.role() == QAccessible::PageTab)
              qt_mac_append_cf_uniq(array, lookupCreateChild(interface, i));
     }
-    
+
     OSStatus err = SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFArrayRef, sizeof(array), &array);
     CFRelease(array);
     if (err)
@@ -1320,7 +1289,7 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
         return handleSizeAttribute(next_ref, event, interface);
     } else  if (CFStringCompare(var, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
         CFStringRef role = macRoleForQtRole(interface.role());
-        QWidget * const widget = qobject_cast<QWidget *>(interface.object()); 
+        QWidget * const widget = qobject_cast<QWidget *>(interface.object());
         if (role == kAXUnknownRole && widget && widget->isWindow())
             role = kAXWindowRole;
 
@@ -1328,8 +1297,8 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
                           sizeof(role), &role);
 
     } else if (CFStringCompare(var, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
-        Boolean val =  !((interface.state() & QAccessible::Unavailable)) 
-                     && !((interface.state() & QAccessible::Invisible)); 
+        Boolean val =  !((interface.state() & QAccessible::Unavailable))
+                     && !((interface.state() & QAccessible::Invisible));
         SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean,
                           sizeof(val), &val);
     } else if (CFStringCompare(var, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
@@ -1434,14 +1403,14 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
         const QAccessible::Text text = (QAccessible::Text)textForRoleAndAttribute(role, var);
         handleStringAttribute(event, text, interface);
     } else if (CFStringCompare(var, kAXLinkedUIElementsAttribute, 0) == kCFCompareEqualTo) {
-        return CallNextEventHandler(next_ref, event); 
+        return CallNextEventHandler(next_ref, event);
 #endif
     } else if (CFStringCompare(var, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
         const QAccessible::Role role = interface.role();
         const QAccessible::Text text = (QAccessible::Text)textForRoleAndAttribute(role, var);
         handleStringAttribute(event, text, interface);
     } else if (CFStringCompare(var, kAXTitleUIElementAttribute, 0) == kCFCompareEqualTo) {
-        return CallNextEventHandler(next_ref, event); 
+        return CallNextEventHandler(next_ref, event);
     } else if (CFStringCompare(var, kAXTabsAttribute, 0) == kCFCompareEqualTo) {
         return handleTabsAttribute(next_ref, event, interface);
     } else if (CFStringCompare(var, kAXMinValueAttribute, 0) == kCFCompareEqualTo) {
@@ -1449,17 +1418,17 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
             uint value = 0;
             SetEventParameter(event, kEventParamAccessibleAttributeValue, typeUInt32, sizeof(value), &value);
         } else {
-            return CallNextEventHandler(next_ref, event); 
+            return CallNextEventHandler(next_ref, event);
         }
     } else if (CFStringCompare(var, kAXMaxValueAttribute, 0) == kCFCompareEqualTo) {
         if (interface.role() == QAccessible::RadioButton || interface.role() == QAccessible::CheckBox) {
             uint value = 2;
             SetEventParameter(event, kEventParamAccessibleAttributeValue, typeUInt32, sizeof(value), &value);
         } else {
-            return CallNextEventHandler(next_ref, event); 
+            return CallNextEventHandler(next_ref, event);
         }
     } else {
-        return CallNextEventHandler(next_ref, event); 
+        return CallNextEventHandler(next_ref, event);
     }
     return noErr;
 }
@@ -1501,15 +1470,15 @@ static OSStatus getChildAtPoint(EventHandlerCallRef next_ref, EventRef event, QI
     Point where;
     GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0, sizeof(where), 0, &where);
     const int child = interface.childAt(where.h, where.v);
-    
+
     if(child == -1)
         return eventNotHandledErr;
-    
+
     const AXUIElementRef element = lookupCreateChild(interface, child);
 
     SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef,
                                   sizeof(element), &element);
-    
+
     return noErr;
 }
 
@@ -1526,7 +1495,7 @@ static QList<QAccessible::Action> supportedPredefinedActions(QInterfaceItem inte
             actions.append(QAccessible::Press);
         break;
     }
-        
+
     return actions;
 }
 
@@ -1595,7 +1564,7 @@ static OSStatus getAllActionNames(EventHandlerCallRef next_ref, EventRef event, 
     CFMutableArrayRef actions = 0;
     GetEventParameter(event, kEventParamAccessibleActionNames, typeCFMutableArrayRef, 0,
                       sizeof(actions), 0, &actions);
-    
+
     // Add supported predefined actions.
     const QList<QAccessible::Action> predefinedActions = supportedPredefinedActions(interface);
     for (int i = 0; i < predefinedActions.count(); ++i) {
@@ -1603,14 +1572,14 @@ static OSStatus getAllActionNames(EventHandlerCallRef next_ref, EventRef event, 
         if (action != QCFString())
             qt_mac_append_cf_uniq(actions, action);
     }
-    
+
     // Add user actions
     const int actionCount = interface.userActionCount();
     for (int i = 0; i < actionCount; ++i) {
         const QString actionName = interface.actionText(i, QAccessible::Name);
         qt_mac_append_cf_uniq(actions, QCFString::toCFStringRef(actionName));
     }
-    
+
     return noErr;
 }
 
@@ -1624,15 +1593,15 @@ static OSStatus performNamedAction(EventHandlerCallRef next_ref, EventRef event,
     CFStringRef act;
     GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, 0,
                       sizeof(act), 0, &act);
-    
+
     const QAccessible::Action action = translateAction(act);
-    
+
     // Perform built-in action
     if (action != QAccessible::DefaultAction) {
         interface.doAction(action, QVariantList());
         return noErr;
-    } 
-    
+    }
+
     // Search for user-defined actions and perform it if found.
     const int actCount = interface.userActionCount();
     const QString qAct = QCFString::toQString(act);
@@ -1697,19 +1666,19 @@ static OSStatus accessibilityEventHandler(EventHandlerCallRef next_ref, EventRef
 {
     Q_UNUSED(next_ref)
     Q_UNUSED(data)
-    
+
     // Return if this event is not a AccessibleGetNamedAttribute event.
     const UInt32 eclass = GetEventClass(event);
     if (eclass != kEventClassAccessibility)
         return eventNotHandledErr;
-    
+
     // Get the AXUIElementRef and QInterfaceItem pointer
     AXUIElementRef element = 0;
     GetEventParameter(event, kEventParamAccessibleObject, typeCFTypeRef, 0, sizeof(element), 0, &element);
     const QInterfaceItem interface = accessibleHierarchyManager()->lookup(element);
     if (interface.isValid() == false)
         return eventNotHandledErr;
-        
+
     const UInt32 ekind = GetEventKind(event);
     OSStatus status = noErr;
     switch (ekind) {
@@ -1757,7 +1726,7 @@ static OSStatus objectCreateEventHandler(EventHandlerCallRef next_ref, EventRef 
 */
 static void registerQtAccessibilityHIObjectSubclass()
 {
-    if (!objectCreateEventHandlerUPP) 
+    if (!objectCreateEventHandlerUPP)
         objectCreateEventHandlerUPP = NewEventHandlerUPP(objectCreateEventHandler);
     OSStatus err = HIObjectRegisterSubclass(kObjectQtAccessibility, 0, 0, objectCreateEventHandlerUPP,
                                          GetEventTypeCount(objectCreateEvents), objectCreateEvents, 0, 0);
@@ -1770,7 +1739,7 @@ void QAccessible::initialize()
     // Return if mac accessibility is not enabled.
     if (!AXAPIEnabled())
         return;
-    
+
     registerQtAccessibilityHIObjectSubclass();
 }
 
@@ -1782,9 +1751,9 @@ void QAccessible::setRootObject(QObject *object)
         rootObjectHandler(object);
         return;
     }
-    
+
     rootObject = object;
-    
+
     installApplicationEventhandler();
 }
 
@@ -1803,15 +1772,15 @@ void QAccessible::updateAccessibility(QObject *object, int child, Event reason)
         updateHandler(object, child, reason);
         return;
     }
-    
+
     // Return if the mac accessibility is not enabled.
-    if(!AXAPIEnabled()) 
+    if(!AXAPIEnabled())
         return;
-    
+
     const QAXUIElement element = accessibleHierarchyManager()->lookup(object, child);
     if (element.isValid() == false)
         return;
-    
+
     CFStringRef notification = 0;
     if(object && object->isWidgetType() && reason == ObjectCreated) {
         notification = kAXWindowCreatedNotification;
@@ -1825,11 +1794,11 @@ void QAccessible::updateAccessibility(QObject *object, int child, Event reason)
         notification = kAXWindowMovedNotification;
     } else if(reason == ObjectShow || reason == ObjectHide ) {
         // There is no equivalent Mac notification for ObjectShow/Hide, so we call HIObjectSetAccessibilityIgnored
-        // and isItIntersting which will mark the HIObject accociated with the element as ignored if the 
+        // and isItIntersting which will mark the HIObject accociated with the element as ignored if the
         // QAccessible::Invisible state bit is set.
         const QInterfaceItem interface = accessibleHierarchyManager()->lookup(element.element());
         HIObjectSetAccessibilityIgnored(element.object(), !isItInteresting(interface));
-        
+
         // If the interface manages its own children, also check if we should ignore those.
         for (int i = 1; i <= interface.childCount(); ++i) {
             const QInterfaceItem childInterface = interface.navigate(QAccessible::Child, i);
@@ -1851,7 +1820,7 @@ void QAccessible::updateAccessibility(QObject *object, int child, Event reason)
 
     if (!notification)
         return;
-    
+
     AXNotificationHIObjectNotify(notification, element.object(), element.id());
 }
 

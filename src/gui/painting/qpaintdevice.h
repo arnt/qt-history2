@@ -103,7 +103,6 @@ public:
 #endif
 
     friend class QPainter;
-    friend class QQuickDrawPaintEngine;
     friend class QFontEngineMac;
 };
 

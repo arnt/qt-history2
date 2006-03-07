@@ -553,12 +553,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     memset(dptr, 0, pm.data->nbytes);
 
     //do the transform
-    bool painterSmoothTransform = false;
-#if !defined(QMAC_NO_COREGRAPHICS)
-    if(qgetenv("QT_MAC_USE_QUICKDRAW").isNull())
-        painterSmoothTransform = true;
-#endif
-    if(mode == Qt::SmoothTransformation && painterSmoothTransform) {
+    if(mode == Qt::SmoothTransformation) {
         QPainter p(&pm);
         p.setRenderHint(QPainter::Antialiasing);
         p.setRenderHint(QPainter::SmoothPixmapTransform);
@@ -832,44 +827,19 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
 {
     QPixmap ret(width, height);
-#if !defined(QMAC_NO_COREGRAPHICS)
-    if(qgetenv("QT_MAC_USE_QUICKDRAW").isNull()) {
-        ret.fill(QColor(0, 0, 0, 0));
+    ret.fill(QColor(0, 0, 0, 0));
 
-        CGRect rect = CGRectMake(0, 0, width, height);
+    CGRect rect = CGRectMake(0, 0, width, height);
 
-        CGContextRef ctx = qt_mac_cg_context(&ret);
-        CGAffineTransform old_xform = CGContextGetCTM(ctx);
-        CGContextConcatCTM(ctx, CGAffineTransformInvert(old_xform));
-        CGContextConcatCTM(ctx, CGAffineTransformIdentity);
+    CGContextRef ctx = qt_mac_cg_context(&ret);
+    CGAffineTransform old_xform = CGContextGetCTM(ctx);
+    CGContextConcatCTM(ctx, CGAffineTransformInvert(old_xform));
+    CGContextConcatCTM(ctx, CGAffineTransformIdentity);
 
-        ::RGBColor b;
-        b.blue = b.green = b.red = 256*256;
-        PlotIconRefInContext(ctx, &rect, kAlignNone, kTransformNone, &b, kPlotIconRefNormalFlags, icon);
-        CGContextRelease(ctx);
-    } else
-#endif
-    {
-        Rect rect;
-        SetRect(&rect, 0, 0, width, height);
-        {
-            QMacSavedPortInfo pi(&ret);
-            PlotIconRef(&rect, kAlignNone, kTransformNone, kIconServicesNormalUsageFlag, icon);
-        }
-        if(!IsIconRefMaskEmpty(icon)) {
-            QBitmap bitmap(width, height);
-            {
-                QPainter p(&bitmap);
-                RgnHandle mask = qt_mac_get_rgn();
-                IconRefToRgn(mask, &rect, kAlignNone, kIconServicesNormalUsageFlag, icon);
-                p.setClipRegion(qt_mac_convert_mac_region(mask));
-                qt_mac_dispose_rgn(mask);
-                p.fillRect(0, 0, width, height, Qt::color1);
-                p.end();
-            }
-            ret.setMask(bitmap);
-        }
-    }
+    ::RGBColor b;
+    b.blue = b.green = b.red = 256*256;
+    PlotIconRefInContext(ctx, &rect, kAlignNone, kTransformNone, &b, kPlotIconRefNormalFlags, icon);
+    CGContextRelease(ctx);
     return ret;
 }
 
@@ -883,12 +853,7 @@ QPaintEngine *QPixmap::paintEngine() const
         else
             data->paintEngine = new QCoreGraphicsPaintEngine();
 #else
-#if !defined(QMAC_NO_COREGRAPHICS)
-        if(qgetenv("QT_MAC_USE_QUICKDRAW").isNull())
-            data->paintEngine = new QCoreGraphicsPaintEngine();
-        else
-#endif
-            data->paintEngine = new QQuickDrawPaintEngine();
+        data->paintEngine = new QCoreGraphicsPaintEngine();
 #endif
     }
     return data->paintEngine;

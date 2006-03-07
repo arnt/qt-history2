@@ -254,7 +254,6 @@ Q_GUI_EXPORT void qt_mac_set_press_and_hold_context(bool b) { qt_mac_press_and_h
 
 Q_GUI_EXPORT void qt_mac_secure_keyboard(bool b)
 {
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if(b) {
         SInt32 (*EnableSecureEventInput_ptr)() = EnableSecureEventInput; // workaround for gcc warning
         if (EnableSecureEventInput_ptr)
@@ -264,9 +263,6 @@ Q_GUI_EXPORT void qt_mac_secure_keyboard(bool b)
         if (DisableSecureEventInput_ptr)
             (*DisableSecureEventInput_ptr)();
     }
-#else
-    Q_UNUSED(b);
-#endif
 }
 
 bool qt_nograb()                                // application no-grab option
@@ -880,11 +876,6 @@ void qt_init(QApplicationPrivate *priv, int)
         }
         priv->argc = j;
 
-        if(qt_is_gui_used && argv[0] && *argv[0] != '/' && QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
-            qWarning("Qt: QApplication: Warning argv[0] == '%s' is relative.\n"
-                     "In order to dispatch events correctly Mac OS X may "
-                     "require applications to be run with the *full* path to the "
-                     "executable.", argv[0]);
         //special hack to change working directory (for an app bundle) when running from finder
         if(!passed_psn.isNull() && QDir::currentPath() == "/") {
             QCFType<CFURLRef> bundleURL(CFBundleCopyBundleURL(CFBundleGetMainBundle()));
@@ -905,7 +896,6 @@ void qt_init(QApplicationPrivate *priv, int)
 #if !defined(QMAC_NO_COREGRAPHICS)
         QCoreGraphicsPaintEngine::initialize();
 #endif
-        QQuickDrawPaintEngine::initialize();
 #ifndef QT_NO_ACCESSIBILITY
         QAccessible::initialize();
 #endif
@@ -970,7 +960,6 @@ void qt_cleanup()
         QAccessible::cleanup();
 #endif
         QMacInputContext::cleanup();
-        QQuickDrawPaintEngine::cleanup();
         QCursorData::cleanup();
         QFont::cleanup();
         QColormap::cleanup();

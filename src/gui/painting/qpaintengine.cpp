@@ -266,7 +266,6 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
     \value Windows
     \value MacPrinter
     \value CoreGraphics Mac OS X's Quartz2D (CoreGraphics)
-    \value QuickDraw Mac OS X's older QuickDraw-based painting
     \value QWindowSystem Qtopia Core
     \value PostScript
     \value OpenGL

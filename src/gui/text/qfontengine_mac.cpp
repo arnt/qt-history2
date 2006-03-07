@@ -853,41 +853,6 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
     QPaintEngineState *pState = p->state;
     QFixed x = QFixed::fromReal(req_x), y = QFixed::fromReal(req_y);
 
-#if 1
-    if(p->type() == QPaintEngine::QuickDraw && !pState->matrix().isIdentity()) {
-        QFixed aw = si.width, ah = si.ascent + si.descent + 1;
-        if(aw == 0 || ah == 0)
-            return;
-        QBitmap bm(qRound(aw), qRound(ah));        // create bitmap
-        {
-            QPainter paint(&bm);  // draw text in bitmap
-            paint.setPen(Qt::color1);
-            paint.drawTextItem(QPointF(0, si.ascent.toReal()), si);
-            paint.end();
-        }
-
-        QPixmap pm(bm.size());
-        if(pState->backgroundMode() == Qt::OpaqueMode) {
-            pm = bm;
-            bm.fill(Qt::color1);
-            pm.setMask(bm);
-        } else {
-            QPainter paint(&pm);
-            paint.fillRect(QRectF(0, 0, pm.width(), pm.height()), pState->pen().color());
-            paint.end();
-            pm.setMask(bm);
-        }
-        pState->painter()->drawPixmap(QPointF(x.toReal(), (y - si.ascent).toReal()), pm);
-        return;
-    }
-#endif
-    if(p->type() == QPaintEngine::QuickDraw) {
-        QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
-        mgc->syncState();
-        mgc->setupQDPort(false, 0, 0);
-        mgc->setupQDFont();
-    }
-
     if(pState->backgroundMode() == Qt::OpaqueMode) {
         glyph_metrics_t br = boundingBox(si.glyphs, si.num_glyphs);
         pState->painter()->fillRect(QRectF((x + br.x).toReal(), (y + br.y).toReal(), br.width.toReal(),
@@ -1257,43 +1222,6 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             q_ctx = QMacCGContext(pixmap);
         }
         ctx = static_cast<CGContextRef>(q_ctx);
-    } else if(p && p->type() == QPaintEngine::QuickDraw) {
-        QRegion rgn;
-        QPoint pt;
-        static_cast<QQuickDrawPaintEngine *>(p)->setupQDPort(false, &pt, &rgn);
-        x += pt.x();
-        y += pt.y();
-        ATSUFontID fontID;
-        FMFontFamily qdfamily = FMGetFontFamilyFromATSFontFamilyRef(familyref);
-        ATSUFONDtoFontID(qdfamily, 0, &fontID);
-        TextFont(fontID);
-
-        GetGWorld(&ctx_port, 0);
-        if(OSStatus err = QDBeginCGContext(ctx_port, &ctx)) {
-            qWarning("QFontEngine: Internal error: WH0A, QDBeginCGContext(%ld) failed (%s:%d)", err, __FILE__, __LINE__);
-            return 0;
-        }
-        if(task & DRAW) {
-            Rect clipr;
-            GetPortBounds(ctx_port, &clipr);
-#if 1
-            CGContextBeginPath(ctx);
-            if(rgn.isEmpty()) {
-                CGContextAddRect(ctx, CGRectMake(0, 0, 0, 0));
-            } else {
-                QVector<QRect> rects = rgn.rects();
-                const int count = rects.size();
-                for(int i = 0; i < count; i++) {
-                    const QRect &r = rects[i];
-                    CGContextAddRect(ctx, CGRectMake(r.x(), (clipr.bottom - clipr.top) - r.y() - r.height(),
-                                                     r.width(), r.height()));
-                }
-            }
-            CGContextClip(ctx);
-#else
-            ClipCGContextToRegion(ctx, &clipr, rgn.handle(true));
-#endif
-        }
     } else {
         Q_ASSERT(!(task & DRAW));
         static QPixmap *pixmap = 0;
@@ -1411,8 +1339,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         CGAffineTransform oldMatrix = CGContextGetCTM(ctx), newMatrix;
 #if 0
         if(pState &&
-           (0 /*|| p->type() == QPaintEngine::CoreGraphics */
-            /*|| p->type() == QPaintEngine::QuickDraw*/)) {
+           (0 /*|| p->type() == QPaintEngine::CoreGraphics*/)) {
             newMatrix = CGAffineTransformConcat(CGAffineTransformMake(pState->matrix.m11(), pState->matrix.m12(),
                                                                       pState->matrix.m21(), pState->matrix.m22(),
                                                                       pState->matrix.dx(),  pState->matrix.dy()),
@@ -1509,17 +1436,6 @@ void QFontEngineMac::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
     arr++;
 
     QMacCGContext q_ctx;
-    if(QSysInfo::MacintoshVersion <= QSysInfo::MV_10_2) {
-        tags[arr] = kATSUCGContextTag;
-        static QPixmap *pixmap = 0;
-        if(!pixmap)
-            pixmap = new QPixmap(1, 1);
-        q_ctx = QMacCGContext(pixmap);
-        CGContextRef ctx = static_cast<CGContextRef>(q_ctx);
-        valueSizes[arr] = sizeof(ctx);
-        values[arr] = &ctx;
-        arr++;
-    }
 
     if(arr > arr_guess) //this won't really happen, just so I will not miss the case
         qWarning("QFontEngine: Internal error: %d: WH0A, arr_guess underflow %d", __LINE__, arr);

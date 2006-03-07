@@ -332,16 +332,7 @@ void QMacPrintEnginePrivate::initialize()
 
     Q_Q(QMacPrintEngine);
 
-#if 0 //always use coregraphics for now until the bugs are kicked out
-#if !defined(QMAC_NO_COREGRAPHICS)
-    if(!qgetenv("QT_MAC_USE_QUICKDRAW"))
-        paintEngine = new QCoreGraphicsPaintEngine();
-    else
-#endif
-        paintEngine = new QQuickDrawPaintEngine();
-#else
     paintEngine = new QCoreGraphicsPaintEngine();
-#endif
     suppressStatus = false;
 
     q->gccaps = paintEngine->gccaps;

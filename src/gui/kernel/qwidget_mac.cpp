@@ -158,19 +158,10 @@ inline static void qt_mac_set_fullscreen_mode(bool b)
 #endif
 }
 
-#if (MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_2)
-#define kControlOpaqueMetaPart -3
-#endif
-
 //find a WindowPtr from a QWidget/HIView
 Q_GUI_EXPORT WindowPtr qt_mac_window_for(HIViewRef hiview)
 {
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3)
-        return HIViewGetWindow(hiview);
-#endif
-    return GetControlOwner(hiview);
-
+    return HIViewGetWindow(hiview);
 }
 Q_GUI_EXPORT WindowPtr qt_mac_window_for(const QWidget *w)
 {
@@ -225,14 +216,10 @@ void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
 void qt_mac_update_ignore_mouseevents(QWidget *w)
 {
     if(w->isWindow()) {
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_2)
-        if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2) {
-            if(w->testAttribute(Qt::WA_TransparentForMouseEvents))
-                ChangeWindowAttributes(qt_mac_window_for(w), kWindowIgnoreClicksAttribute, 0);
-            else
-                ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowIgnoreClicksAttribute);
-        }
-#endif
+        if(w->testAttribute(Qt::WA_TransparentForMouseEvents))
+            ChangeWindowAttributes(qt_mac_window_for(w), kWindowIgnoreClicksAttribute, 0);
+        else
+            ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowIgnoreClicksAttribute);
     }
 }
 
@@ -254,16 +241,12 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
         geo->right++;
     if(geo->bottom == geo->top)
         geo->bottom++;
-    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-        Rect null_rect; SetRect(&null_rect, 0, 0, 1, 1);
-        ret = CreateNewWindow(wclass, wattr, &null_rect, w);
-        if(ret == noErr) {
-            ret = SetWindowBounds(*w, kWindowContentRgn, geo);
-            if(ret != noErr)
-                qWarning("QWidget: Internal error (%s:%d)", __FILE__, __LINE__);
-        }
-    } else {
-        ret = CreateNewWindow(wclass, wattr, geo, w);
+    Rect null_rect; SetRect(&null_rect, 0, 0, 1, 1);
+    ret = CreateNewWindow(wclass, wattr, &null_rect, w);
+    if(ret == noErr) {
+        ret = SetWindowBounds(*w, kWindowContentRgn, geo);
+        if(ret != noErr)
+            qWarning("QWidget: Internal error (%s:%d)", __FILE__, __LINE__);
     }
     return ret;
 }
@@ -314,26 +297,9 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         bool send_to_app = false;
         {
             WindowPartCode wpc;
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                if (GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, 0,
-                                      sizeof(wpc), 0, &wpc) == noErr && wpc != inContent)
-                    send_to_app = true;
-            } else
-#endif
-            {
-                HIPoint hipt;
-                WindowRef wref;
-                if (GetEventParameter(event, kEventParamMouseLocation, typeHIPoint, 0,
-                                      sizeof(hipt), 0, &hipt) == noErr
-                    && GetEventParameter(event, kEventParamWindowRef, typeWindowRef, 0,
-                                         sizeof(wref), 0, &wref) == noErr) {
-                    Point lopt = { int(hipt.y), int(hipt.x) };
-                    wpc = FindWindow(lopt, &wref);
-                    if (wpc != inContent)
-                        send_to_app = true;
-                }
-            }
+            if (GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, 0,
+                                  sizeof(wpc), 0, &wpc) == noErr && wpc != inContent)
+                send_to_app = true;
         }
         if(!send_to_app) {
             WindowRef window;
@@ -397,12 +363,8 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
         if(ekind == kEventHIObjectConstruct) {
             HIViewRef view;
             if(GetEventParameter(event, kEventParamHIObjectInstance, typeHIObjectRef,
-                                 0, sizeof(view), 0, &view) == noErr) {
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3)
-                    HIViewChangeFeatures(view, kHIViewAllowsSubviews, 0);
-#endif
-            }
+                                 0, sizeof(view), 0, &view) == noErr)
+                HIViewChangeFeatures(view, kHIViewAllowsSubviews, 0);
         } else if(ekind == kEventHIObjectDestruct) {
             //nothing to really do.. or is there?
         } else {
@@ -538,8 +500,6 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
             }
         } else if(ekind == kEventControlInitialize) {
             UInt32 features = kControlSupportsDragAndDrop | kControlSupportsClickActivation | kControlSupportsFocus;
-            if(QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
-                features |= (kControlSupportsEmbedding|kControlSupportsGetRegion);
             SetEventParameter(event, kEventParamControlFeatures, typeUInt32, sizeof(features), &features);
         } else if(ekind == kEventControlSetFocusPart) {
         } else if(ekind == kEventControlGetClickActivation) {
@@ -2196,21 +2156,10 @@ QPaintEngine *QWidget::paintEngine() const
         return engine;
     }
 #else
-    if (!pe) {
-#if !defined(QMAC_NO_COREGRAPHICS)
-        if(qgetenv("QT_MAC_USE_QUICKDRAW").isNull())
-            pe = new QCoreGraphicsPaintEngine();
-        else
-#endif
-            pe = new QQuickDrawPaintEngine();
-    }
+    if (!pe)
+        pe = new QCoreGraphicsPaintEngine();
     if (pe->isActive()) {
-        QPaintEngine *engine =
-#if !defined(QMAC_NO_COREGRAPHICS)
-        qgetenv("QT_MAC_USE_QUICKDRAW").isNull()
-            ? new QCoreGraphicsPaintEngine() :
-#endif
-            new QQuickDrawPaintEngine();
+        QPaintEngine *engine = new QCoreGraphicsPaintEngine();
         engine->setAutoDestruct(true);
         return engine;
     }
