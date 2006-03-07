@@ -256,7 +256,7 @@ void QPrinterPrivate::createDefaultEngines()
   \value B8 64 x 91 mm
   \value B9 45 x 64 mm
   \value C5E 163 x 229 mm
-  \value Comm10E 105 x 241 mm, US Common 10 Envelope
+  \value Comm10E 105 x 241 mm, U.S. Common 10 Envelope
   \value DLE 110 x 220 mm
   \value Executive 7.5 x 10 inches, 191 x 254 mm
   \value Folio 210 x 330 mm
@@ -264,11 +264,12 @@ void QPrinterPrivate::createDefaultEngines()
   \value Legal 8.5 x 14 inches, 216 x 356 mm
   \value Letter 8.5 x 11 inches, 216 x 279 mm
   \value Tabloid 279 x 432 mm
-  \value Custom
-  \omitvalue NPageSize
+  \value Custom Unknown size
 
   With setFullPage(false) (the default), the metrics will be a bit
   smaller; how much depends on the printer in use.
+
+  \omitvalue NPageSize
 */
 
 
