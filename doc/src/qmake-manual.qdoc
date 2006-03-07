@@ -2083,13 +2083,13 @@
 
     \tableofcontents{2}
 
-    \section1 basename(file)
+    \section1 basename(variablename)
 
     Returns the basename of the file specified. For example:
 
     \code
        FILE = /etc/passwd
-       FILENAME = $$basename($$FILE) #passwd
+       FILENAME = $$basename(FILE) #passwd
     \endcode
 
     \section1 CONFIG(config)
