@@ -1269,7 +1269,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
 
     FT_GlyphSlot slot = face->glyph;
 
-    const FT_Matrix matrix = freetype->matrix;
+    FT_Matrix matrix = freetype->matrix;
 
     int left  = slot->metrics.horiBearingX;
     int right = slot->metrics.horiBearingX + slot->metrics.width;
