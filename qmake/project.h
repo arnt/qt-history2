@@ -81,6 +81,7 @@ class QMakeProject
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
     bool doVariableReplace(QString &str, QMap<QString, QStringList> &place);
     void init(QMakeProperty *, const QMap<QString, QStringList> *);
+    QStringList &values(const QString &v, QMap<QString, QStringList> &place);
 
 public:
     QMakeProject() { init(0, 0); }
@@ -127,11 +128,11 @@ inline QString QMakeProject::projectFile()
 inline QString QMakeProject::configFile()
 { return cfile; }
 
+inline QStringList &QMakeProject::values(const QString &v)
+{ return values(v, vars); }
+
 inline bool QMakeProject::isEmpty(const QString &v)
 { return !vars.contains(v) || vars[v].isEmpty(); }
-
-inline QStringList &QMakeProject::values(const QString &v)
-{ return vars[v]; }
 
 inline QString QMakeProject::first(const QString &v)
 {
