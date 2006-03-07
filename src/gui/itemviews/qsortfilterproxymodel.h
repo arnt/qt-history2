@@ -124,6 +124,8 @@ public:
     QSize span(const QModelIndex &index) const;
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
+    QStringList mimeTypes() const;
+    Qt::DropActions supportedDropActions() const;
 private:
     Q_DECLARE_PRIVATE(QSortFilterProxyModel)
     Q_DISABLE_COPY(QSortFilterProxyModel)

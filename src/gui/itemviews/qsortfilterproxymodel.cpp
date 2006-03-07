@@ -20,6 +20,7 @@
 #include <qdebug.h>
 #include <qdatetime.h>
 #include <qpair.h>
+#include <qstringlist.h>
 #include <private/qabstractitemmodel_p.h>
 #include <private/qabstractproxymodel_p.h>
 
@@ -1303,6 +1304,24 @@ QMimeData *QSortFilterProxyModel::mimeData(const QModelIndexList &indexes) const
     for (int i = 0; i < indexes.count(); ++i)
         source_indexes << d->proxy_to_source(indexes.at(i));
     return d->model->mimeData(source_indexes);
+}
+
+/*!
+  \reimp
+*/
+QStringList QSortFilterProxyModel::mimeTypes() const
+{
+    Q_D(const QSortFilterProxyModel);
+    return d->model->mimeTypes();
+}
+
+/*!
+  \reimp
+*/
+Qt::DropActions QSortFilterProxyModel::supportedDropActions() const
+{
+    Q_D(const QSortFilterProxyModel);
+    return d->model->supportedDropActions();
 }
 
 /*!
