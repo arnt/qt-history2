@@ -2066,8 +2066,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix;
-    matrix = d->matrix;
+    QMatrix matrix = d->matrix;
     matrix.translate(p.x(), p.y());
     ft->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
 
