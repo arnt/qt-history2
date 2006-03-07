@@ -102,24 +102,29 @@
 
     \code
         moc_%.cpp: %.h
-                moc $< -o $@
+                moc $(DEFINES) $(INCPATH) $< -o $@
     \endcode
 
-    If you want to write portably, you can use individual rules with the
-    following form:
+    If you want to write portably, you can use individual rules of
+    the following form:
 
     \code
         moc_foo.cpp: foo.h
-                moc $< -o $@
+                moc $(DEFINES) $(INCPATH) $< -o $@
     \endcode
 
     You must also remember to add \c moc_foo.cpp to your \c SOURCES
     (substitute your favorite name) variable and \c moc_foo.o or \c
     moc_foo.obj to your \c OBJECTS variable.
 
-    (While we prefer to name our C++ source files \c .cpp, you can
-    use any other extension, such as \c .C, \c .cc, \c .CC, \c .cxx,
-    and \c .c++, if you prefer.)
+    Both examples assume that \c $(DEFINES) and \c $(INCPATH) expand
+    to the define and include path options that are passed to the C++
+    compiler. These are required by \c moc to preprocess the source
+    files.
+
+    While we prefer to name our C++ source files \c .cpp, you can use
+    any other extension, such as \c .C, \c .cc, \c .CC, \c .cxx, and
+    \c .c++, if you prefer.
 
     For Q_OBJECT class declarations in implementation (\c .cpp)
     files, we suggest a makefile rule like this:
@@ -128,7 +133,7 @@
         foo.o: foo.moc
 
         foo.moc: foo.cpp
-                moc -i $< -o $@
+                moc $(DEFINES) $(INCPATH) -i $< -o $@
     \endcode
 
     This guarantees that make will run the moc before it compiles
