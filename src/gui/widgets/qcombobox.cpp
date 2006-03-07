@@ -1960,6 +1960,12 @@ bool QComboBox::event(QEvent *event)
         if (d->lineEdit)
             return d->lineEdit->event(event);
         break;
+#ifdef QT_KEYPAD_NAVIGATION
+    case QEvent::EnterEditFocus:
+        if (!d->lineEdit)
+            setEditFocus(false); // We never want edit focus if we are not editable
+        break;
+#endif
     default:
         break;
     }
@@ -2059,23 +2065,25 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         break;
 #ifdef QT_KEYPAD_NAVIGATION
     case Qt::Key_Select:
-        if (QApplication::keypadNavigationEnabled()) {
-            if (!hasEditFocus()) {
-                showPopup();
-                return;
-            }
+        if (QApplication::keypadNavigationEnabled()
+                && (!hasEditFocus() || !d->lineEdit)) {
+            showPopup();
+            return;
         }
         break;
     case Qt::Key_Left:
-        if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+        if (QApplication::keypadNavigationEnabled()
+                && (!hasEditFocus() || !d->lineEdit))
             --newIndex;
         break;
     case Qt::Key_Right:
-        if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+        if (QApplication::keypadNavigationEnabled()
+                && (!hasEditFocus() || !d->lineEdit))
             ++newIndex;
         break;
     case Qt::Key_Back:
-        if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+        if (QApplication::keypadNavigationEnabled()
+                && (!hasEditFocus() || !d->lineEdit))
             e->ignore();
         break;
 #endif
