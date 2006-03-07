@@ -42,7 +42,7 @@ public:
     \sa QAbstractEventDispatcher
 */
 
-/*! 
+/*!
     \enum QEventLoop::ProcessEventsFlag
 
     This enum controls the types of events processed by the
@@ -150,9 +150,19 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     d->exit = false;
     data->eventLoops.push(this);
 
+#if defined(QT_NO_EXCEPTIONS)
     while (!d->exit)
         processEvents(flags | WaitForMoreEvents | ProcessEventsFlag(QEventLoop::DeferredDeletion));
-
+#else
+    try {
+        while (!d->exit)
+            processEvents(flags | WaitForMoreEvents | ProcessEventsFlag(QEventLoop::DeferredDeletion));
+    } catch (...) {
+        qFatal("Qt has caught an exception thrown from an event handler. Throwing\n"
+               "exceptions from an event handler is not supported in Qt. You must\n"
+               "reimplement QApplication::notify() and catch all exceptions there.\n");
+    }
+#endif
 
     QEventLoop *eventLoop = data->eventLoops.pop();
     Q_ASSERT_X(eventLoop == this, "QEventLoop::exec()", "internal error");
@@ -165,7 +175,6 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     Process pending events that match \a flags for a maximum of \a
     maxTime milliseconds, or until there are no more events to
     process, whichever is shorter.
-
     This function is especially useful if you have a long running
     operation and want to show its progress without allowing user
     input, i.e. by using the \l ExcludeUserInputEvents flag.
