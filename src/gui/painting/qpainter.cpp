@@ -4408,6 +4408,35 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
 
     if (pen().style() == Qt::NoPen)
         return;
+    
+    const RenderHints oldRenderHints = d->state->renderHints;
+    if (d->state->txop >= QPainterPrivate::TxScale) {
+        // draw antialias decoration (underline/overline/strikeout) with
+        // transformed text
+        
+        const QMatrix &m = d->state->matrix;
+        bool isPlain45DegreeRotation =
+                (qFuzzyCompare(m.m11(), 0.0)
+                 && qFuzzyCompare(m.m12(), 1.0)
+                 && qFuzzyCompare(m.m21(), -1.0)
+                 && qFuzzyCompare(m.m22(), 0)
+                 )
+                ||
+                (qFuzzyCompare(m.m11(), -1.0)
+                 && qFuzzyCompare(m.m12(), 0.0)
+                 && qFuzzyCompare(m.m21(), 0.0)
+                 && qFuzzyCompare(m.m22(), -1.0)
+                )
+                ||
+                (qFuzzyCompare(m.m11(), 0.0)
+                 && qFuzzyCompare(m.m12(), -1.0)
+                 && qFuzzyCompare(m.m21(), 1.0)
+                 && qFuzzyCompare(m.m22(), 0.0)
+                )
+               ;
+        if (!isPlain45DegreeRotation)
+            setRenderHint(QPainter::Antialiasing, true);
+    }
 
     d->updateState(d->state);
 
@@ -4505,6 +4534,11 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
         d->engine->drawTextItem(p, ti);
         drawTextItemDecoration(this, p, ti);
     }
+    
+    if (d->state->renderHints != oldRenderHints) {
+        d->state->renderHints = oldRenderHints;
+        d->state->dirtyFlags |= QPaintEngine::DirtyHints;
+    }    
 }
 
 /*!
