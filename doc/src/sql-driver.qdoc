@@ -64,17 +64,14 @@
     built. You should get an output similar to this:
 
     \code
-        -qt-sql-<driver> ...... Enable a SQL <driver> in the Qt Library, by default
-                                none are turned on.
-        -plugin-sql-<driver> .. Enable SQL <driver> as a plugin to be linked to
-                                at run time.
-        -no-sql-<driver> ...... Disable SQL <driver> entirely.
+        -no-sql-<driver> ... Disable SQL <driver> entirely.
+        -qt-sql-<driver> ... Enable a SQL <driver> in the Qt Library, by default
+                             none are turned on.
+        -plugin-sql-<driver> Enable SQL <driver> as a plugin to be linked to
+                             at run time.
 
-                                Possible values for <driver>:
-                                [ db2 ibase mysql oci odbc psql sqlite sqlite2 tds ]
-
-                                Auto-Detected on this system:
-                                [ sqlite ]
+                             Possible values for <driver>:
+                             [ db2 ibase mysql oci odbc psql sqlite sqlite2 tds ]
     \endcode
 
     The \c configure script cannot detect the neccessary libraries
@@ -164,11 +161,11 @@
     You need to get the MySQL installation files. Run \c SETUP.EXE and
     choose "Custom Install". Install the "Libs & Include Files" Module.
     Build the plugin as follows (here it is assumed that MySQL is
-    installed in \c{C:\MYSQL}):
+    installed in \c{C:\MySQL}):
 
     \code
         cd %QTDIR%\src\plugins\sqldrivers\mysql
-        qmake -o Makefile "INCLUDEPATH+=C:\MYSQL\INCLUDE" "LIBS+=C:\MYSQL\LIB\OPT\LIBMYSQL.LIB" mysql.pro
+        qmake -o Makefile "INCLUDEPATH+=C:\MySQL\include" "LIBS+=C:\MySQL\lib\opt\libmysql.lib" mysql.pro
         nmake
     \endcode
 
