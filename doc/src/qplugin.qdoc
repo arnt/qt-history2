@@ -89,7 +89,7 @@
     Example:
 
     \code
-        Q_IMPORT_PLUGIN(qjpegplugin)
+        Q_IMPORT_PLUGIN(qjpeg)
     \endcode
 
     Static plugins must also be included by the linker when your
@@ -99,7 +99,7 @@
     \code
         TEMPLATE      = app
         QTPLUGIN     += qjpeg qgif qmng    # image formats
-        QTPLUGIN     += cn tw           # codecs
+        QTPLUGIN     += cn tw              # codecs
     \endcode
 
     Depending on your build, Qt provides the following static plugins:
