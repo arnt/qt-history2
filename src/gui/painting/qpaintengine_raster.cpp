@@ -1759,8 +1759,9 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     // the character has a large negative bearing (e.g. it should be drawn on top
     // of the previous character)
     qreal leftBearingReserve = ti.fontEngine->maxCharWidth();
-    QRectF logRect(p.x() - leftBearingReserve, p.y() - ti.ascent.toReal(), (ti.width + x_buffering).toReal() + leftBearingReserve,
-                    (ti.ascent + ti.descent).toReal());
+    QRectF logRect(p.x() - leftBearingReserve, p.y() - ti.ascent.toReal(),
+                   (ti.width + x_buffering).toReal() + leftBearingReserve,
+                   (ti.ascent + ti.descent + 1).toReal());
     QRect devRect = d->matrix.mapRect(logRect).toRect();
 
     if(devRect.width() == 0 || devRect.height() == 0)

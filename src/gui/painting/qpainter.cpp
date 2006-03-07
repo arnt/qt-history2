@@ -4401,7 +4401,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
     if (d->state->bgMode == Qt::OpaqueMode) {
         QRectF rect(p.x(), p.y() - ti.ascent.toReal(),
                     ti.width.toReal(),
-                    (ti.ascent + ti.descent).toReal());
+                    (ti.ascent + ti.descent + 1).toReal());
         fillRect(rect, d->state->bgBrush);
     }
 
