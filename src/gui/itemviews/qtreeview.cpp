@@ -1198,7 +1198,7 @@ void QTreeView::reset()
 /*!
   Returns the horizontal offset of the items in the treeview.
 
-  Note that the ttree view uses the horizontal header section
+  Note that the tree view uses the horizontal header section
   positions to determine the positions of columns in the view.
 
   \sa verticalOffset()
