@@ -695,6 +695,8 @@ template <class Iterator> bool qt_stroke_side(Iterator *it,
 
 
 /*!
+    \internal
+
     Creates a number of curves for a given arc definition. The arc is
     defined an arc along the ellipses that fits into \a rect starting
     at \a startAngle and an arc length of \a sweepLength.
