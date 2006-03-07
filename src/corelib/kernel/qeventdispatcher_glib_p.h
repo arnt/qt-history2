@@ -8,7 +8,7 @@
 
 class QEventDispatcherGlibPrivate;
 
-class QEventDispatcherGlib : public QAbstractEventDispatcher
+class Q_CORE_EXPORT QEventDispatcherGlib : public QAbstractEventDispatcher
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QEventDispatcherGlib)
@@ -41,7 +41,7 @@ struct GSocketNotifierSource;
 struct GTimerSource;
 typedef struct _GMainContext GMainContext;
 
-class QEventDispatcherGlibPrivate : public QAbstractEventDispatcherPrivate
+class Q_CORE_EXPORT QEventDispatcherGlibPrivate : public QAbstractEventDispatcherPrivate
 {
 
 public:
