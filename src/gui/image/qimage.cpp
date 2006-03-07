@@ -1169,6 +1169,8 @@ QImage QImage::copy(const QRect& r) const
 
     if (r.isNull()) {
         QImage image(d->width, d->height, d->format);
+        if (image.isNull())
+            return image;
 
 #ifdef Q_WS_QWS
         // Qtopia Core can create images with non-default bpl
@@ -1202,6 +1204,8 @@ QImage QImage::copy(const QRect& r) const
         return QImage();
 
     QImage image(w, h, d->format);
+    if (image.isNull())
+        return image;
 
     if (x < 0 || y < 0 || x + w > d->width || y + h > d->height) {
         // bitBlt will not cover entire image - clear it.
@@ -3440,6 +3444,8 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
         target_format = Format_ARGB32_Premultiplied;
 
     QImage dImage(wd, hd, target_format);
+    if (dImage.isNull())
+        return dImage;
     dImage.d->colortable = d->colortable;
     dImage.d->has_alpha_clut = d->has_alpha_clut | complex_xform;
     dImage.d->dpmx = dotsPerMeterX();
