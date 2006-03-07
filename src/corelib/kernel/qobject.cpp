@@ -2082,7 +2082,23 @@ int QObject::receivers(const char *signal) const
     duplicate a connection, two signals will be emitted. You can
     always break a connection using disconnect().
 
-    \sa disconnect(), sender()
+    The optional \a type parameter describes the type of connection
+    to establish. In particular, it determines whether a particular
+    signal is delivered to a slot immediately or queued for delivery
+    at a later time. If the signal is queued, the parameters must be
+    of types that are known to Qt's meta-object system, because Qt
+    needs to copy the arguments to store them in an event behind the
+    scenes. If you try to use a queued connection and get the error
+    message
+
+    \code
+        QObject::connect: Cannot queue arguments of type 'MyType'
+    \endcode
+
+    call qRegisterMetaType() to register the data type before you
+    establish the connection.
+
+    \sa disconnect(), sender(), qRegisterMetaType()
 */
 
 bool QObject::connect(const QObject *sender, const char *signal,

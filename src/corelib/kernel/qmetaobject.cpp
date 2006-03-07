@@ -892,6 +892,19 @@ QByteArray QMetaObject::normalizedSignature(const char *method)
                                   Qt::QueuedConnection);
     \endcode
 
+    With asynchronous method invocations, the parameters must be of
+    types that are known to Qt's meta-object system, because Qt needs
+    to copy the arguments to store them in an event behind the
+    scenes. If you try to use a queued connection and get the error
+    message
+
+    \code
+        QMetaObject::invokeMethod: Unable to handle unregistered datatype 'MyType'
+    \endcode
+
+    call qRegisterMetaType() to register the data type before you
+    call invokeMethod().
+
     To synchronously invoke the \c compute(QString, int, double) slot on
     some arbitrary object \c obj retrieve its return value:
 
@@ -907,7 +920,8 @@ QByteArray QMetaObject::normalizedSignature(const char *method)
     If the "compute" slot does not take exactly one QString, one int
     and one double in the specified order, the call will fail.
 
-    \sa Q_ARG(), Q_RETURN_ARG()
+
+    \sa Q_ARG(), Q_RETURN_ARG(), qRegisterMetaType()
 */
 bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionType type,
                  QGenericReturnArgument ret,
