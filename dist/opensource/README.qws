@@ -1,23 +1,23 @@
-     Qt/Embedded OPEN SOURCE EDITION %VERSION% SOURCE CODE%SNAPSHOTONLY SNAPSHOT%%STABLEONLY-stable DISTRIBUTION%
+     Qtopia Core OPEN SOURCE EDITION %VERSION% SOURCE CODE%SNAPSHOTONLY SNAPSHOT%%STABLEONLY-stable DISTRIBUTION%
 
-This is%STABLEONLY the official%%SNAPSHOTONLY a snapshot% release of the Qt/Embedded Open Source Edition version %VERSION%.
+This is%STABLEONLY the official%%SNAPSHOTONLY a snapshot% release of the Qtopia Core Open Source Edition version %VERSION%.
 
-Qt/Embedded Open Source Edition may only be used to develop Free
+Qtopia Core Open Source Edition may only be used to develop Free
 (non-proprietary) Software. The LICENSE.GPL file explains what you may
-or may not do with the Qt/Embedded Open Source Edition.
+or may not do with the Qtopia Core Open Source Edition.
 
 If you are using Qt for developing commercial, proprietary, or other
 software not covered by the terms listed in the LICENSE.GPL file, you
-must have have a commercial license for Qt/Embedded. Please see
+must have have a commercial license for Qtopia Core. Please see
 http://www.trolltech.com/purchase.html for how to obtain this. Commercial
 Qt editions are also available for Microsoft Windows.  
 
-The INSTALL file explains how to install Qt/Embedded.
+The INSTALL file explains how to install Qtopia Core.
 
 If you want to enable built-in GIF image reading support in Qt, run
 configure with the "-gif" argument before compiling.
 
-The Qt/Embedded Open Source Edition is currently supported on Linux
+The Qtopia Core Open Source Edition is currently supported on Linux
 Framebuffer. If you want to port Qt to a new platform, please contact
 info@trolltech.com
 
