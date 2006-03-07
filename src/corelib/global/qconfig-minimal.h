@@ -235,7 +235,7 @@
 #  define QT_NO_PRINTER
 #endif
 
-// Qt/Embedded-specific
+// Qtopia-specific
 #ifndef QT_NO_QWS_ALPHA_CURSOR
 #  define QT_NO_QWS_ALPHA_CURSOR
 #endif

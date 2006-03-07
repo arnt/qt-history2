@@ -107,7 +107,7 @@
 // Multi-process architecture
 //#define QT_NO_QWS_MULTIPROCESS
 
-// Qt/Embedded window system properties.
+// Qtopia Core window system properties.
 //#define QT_NO_QWS_PROPERTIES
 
 // Pre-rendered fonts

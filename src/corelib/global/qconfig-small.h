@@ -175,7 +175,7 @@
 #  define QT_NO_PRINTER
 #endif
 
-// Qt/Embedded-specific
+// Qtopia-specific
 #ifndef QT_NO_QWS_SOUNDSERVER
 #  define QT_NO_QWS_SOUNDSERVER
 #endif

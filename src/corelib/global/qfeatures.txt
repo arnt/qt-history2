@@ -718,88 +718,88 @@ Requires:
 Name: QCop IPC
 SeeAlso: ???
 
-# Qt/Embedded-specific
+# Qtopia-specific
 
 Feature: QWS_SOUNDSERVER
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires: SOUND HOSTINFO QWS_MULTIPROCESS
 Name: Server to play sound
 SeeAlso: ???
 
 Feature: QWS_MULTIPROCESS
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires:
 Name: Multi-process architecture
 SeeAlso: ???
 
 Feature: QWS_KEYBOARD
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires:
 Name: Console keyboard
 SeeAlso: ???
 
 Feature: QWS_CURSOR
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires: CURSOR
 Name: Visible cursor
 SeeAlso: ???
 
 Feature: QWS_ALPHA_CURSOR
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires:
 Name: Alpha-blended cursor
 SeeAlso: ???
 
 Feature: QWS_MANAGER
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires: QWS_DECORATION_DEFAULT
 Name: Window Manager
 SeeAlso: ???
 
 Feature: QWS_DECORATION_DEFAULT
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires: 
 Name:
 SeeAlso: ???
 
 Feature: QWS_DECORATION_WINDOWS
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires: QWS_DECORATION_DEFAULT
 Name: The "Windows" style
 SeeAlso: ???
 
 Feature: QWS_DECORATION_STYLED
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires: QWS_DECORATION_DEFAULT
 Name:
 SeeAlso: ???
 
 Feature: QWS_MOUSE
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires:
 Name: Mouse
 SeeAlso: ???
 
 Feature: QWS_MOUSE_AUTO
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires:
 Name: Autodetecting mouse driver
 SeeAlso: ???
 
 Feature: QWS_MOUSE_MANUAL
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires:
 Name: Non-autodetecting mouse driver
 SeeAlso: ???
 
 Feature: QWS_PROPERTIES
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires:
-Name: Qt/Embedded window system properties.
+Name: Qtopia Core window system properties.
 SeeAlso: ???
 
 Feature: SXV
-Section: Qt/Embedded-specific
+Section: Qtopia-specific
 Requires: QWS_MULTIPROCESS
 Name: Secure Execution Environment (experimental)
 SeeAlso: ???
