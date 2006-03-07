@@ -56,6 +56,8 @@ that they will look and feel exactly as you intended.
  \tableofcontents{1 Creating Custom Widgets for Qt Designer}
 \i \l{Creating Custom Widget Extensions}
  \tableofcontents{1 Creating Custom Widget Extensions}
+\i \l{Qt Designer's UI File Format}
+ \tableofcontents{1 Qt Designer's UI File Format}
 \endlist
 
 \section1 Figures and Hints
@@ -1971,8 +1973,9 @@ without having to write code themselves.
 */
 
 /*!
-    \page creating-custom-widgets-extensions.html
+    \page designer-creating-custom-widgets-extensions.html
     \previouspage Creating Custom Widgets for Qt Designer
+    \nextpage Qt Designer's UI File Format
     \contentspage {Qt Designer Manual}{Contents}
 
     \title Creating Custom Widget Extensions
@@ -2180,6 +2183,21 @@ without having to write code themselves.
     Extension} and \l {designer/containerextension}{Container Extension}
     examples for more information about creating custom widget extensions
     in \QD.
+*/
+
+/*!
+    \page designer-ui-file-format.html
+    \previouspage Creating Custom Widget Extensions
+    \contentspage {Qt Designer Manual}{Contents}
+
+    \title Qt Designer's UI File Format
+
+    The \c .ui file format used by \QD is described by the
+    \l{http://www.w3.org/XML/Schema}{XML schema} presented below,
+    which we include for your convenience. Be aware that the format
+    may change in future Qt releases.
+
+    \include tools/designer/data/ui4.xsd
 */
 
 /*!
