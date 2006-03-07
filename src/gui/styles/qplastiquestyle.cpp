@@ -3476,12 +3476,17 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 #ifndef QT_NO_SLIDER
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
-            QRect groove = subControlRect(CC_Slider, option, SC_SliderGroove, widget);
             QRect handle = subControlRect(CC_Slider, option, SC_SliderHandle, widget);
             QRect ticks = subControlRect(CC_Slider, option, SC_SliderTickmarks, widget);
+            QRect grooveRegion = subControlRect(CC_Slider, option, SC_SliderGroove, widget);
             bool horizontal = slider->orientation == Qt::Horizontal;
             bool ticksAbove = slider->tickPosition & QSlider::TicksAbove;
             bool ticksBelow = slider->tickPosition & QSlider::TicksBelow;
+
+            QRect groove;             
+            //The clickable region is 5 px wider than the visible groove for improved usability
+            if (grooveRegion.isValid())
+                groove = horizontal ? grooveRegion.adjusted(0, 5, 0, -5) : grooveRegion.adjusted(5, 0, -5, 0);
 
             QPixmap cache;
 
@@ -4727,14 +4732,14 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             case SC_SliderGroove: {
                 QPoint grooveCenter = slider->rect.center();
                 if (slider->orientation == Qt::Horizontal) {
-                    rect.setHeight(4);
+                    rect.setHeight(14);
                     --grooveCenter.ry();
                     if (slider->tickPosition & QSlider::TicksAbove)
                         grooveCenter.ry() += tickSize;
                     if (slider->tickPosition & QSlider::TicksBelow)
                         grooveCenter.ry() -= tickSize;
                 } else {
-                    rect.setWidth(4);
+                    rect.setWidth(14);
                     --grooveCenter.rx();
                     if (slider->tickPosition & QSlider::TicksAbove)
                         grooveCenter.rx() += tickSize;
