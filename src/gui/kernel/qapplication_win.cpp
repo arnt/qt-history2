@@ -1733,7 +1733,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             }
 
             // WM_ACTIVATEAPP handles the "true" false case, as this is only when the application
-            // looses focus. Doing it here would result in the widget getting focus to not know
+            // loses focus. Doing it here would result in the widget getting focus to not know
             // where it got it from; it would simply get a 0 value as the old focus widget.
             if (LOWORD(wParam) != WA_INACTIVE)
                 qApp->winFocus(widget, true);

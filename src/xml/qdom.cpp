@@ -4618,7 +4618,7 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
     QString nsDecl("");
     if (!namespaceURI.isNull()) {
         // ### optimize this, so that you only declare namespaces that are not
-        // yet declared -- we loose default namespace mappings, so maybe we
+        // yet declared -- we lose default namespace mappings, so maybe we
         // should rather store the information that we get from
         // startPrefixMapping()/endPrefixMapping() and use them (you have to
         // take care if the DOM tree is modified, though)

@@ -3963,7 +3963,7 @@ void QWidgetPrivate::reparentFocusWidgets(QWidget * oldtlw)
     if(focus_child)
         focus_child->clearFocus();
 
-    // seperate the focus chain
+    // separate the focus chain
     QWidget *topLevel = q->window();
     QWidget *w = q;
     QWidget *firstOld = 0;

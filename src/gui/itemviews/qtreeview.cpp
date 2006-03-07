@@ -416,7 +416,7 @@ void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
     if (!model() || d->layoutPosted)
         return;
 
-    // refresh the height cache here; we don't really loose anything by getting the size hint,
+    // refresh the height cache here; we don't really lose anything by getting the size hint,
     // since QAbstractItemView::dataChanged() will get the visualRect for the items anyway
 
     QModelIndex top = (topLeft.column() == 0) ? topLeft

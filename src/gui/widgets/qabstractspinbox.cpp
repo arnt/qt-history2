@@ -87,7 +87,7 @@ static const int thresholdTime = 500; // ### make this a stylehint in 4.1
   \fn void QAbstractSpinBox::editingFinished()
 
   This signal is emitted editing is finished. This happens when the
-  spinbox looses focus and when enter is pressed.
+  spinbox loses focus and when enter is pressed.
 */
 
 /*!

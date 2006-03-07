@@ -88,7 +88,7 @@
 
     The problem of obtaining the window IDs is often solved by the
     container invoking the application that provides the widget as a
-    seperate process (as a panel invokes a docked applet), passing
+    separate process (as a panel invokes a docked applet), passing
     its window ID to the new process as a command-line argument. The
     new process can then call embedInto() with the container's window
     ID, as shown in the example code above. Similarily, the new

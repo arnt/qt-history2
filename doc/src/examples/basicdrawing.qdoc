@@ -444,7 +444,7 @@
     (pushes the state onto a stack). The rationale for this is that we
     calculate each shape copy's position relative to the same point in
     the coordinate system. When translating the coordinate system, we
-    loose the knowledge of this point unless we save the current
+    lose the knowledge of this point unless we save the current
     painter state \e before we start the translating process.
 
     \skipto restore

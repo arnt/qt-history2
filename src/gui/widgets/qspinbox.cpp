@@ -82,7 +82,7 @@ public:
     the value currently displayed. The user can also type the value in
     manually. If the value is entered directly into the spin box, the
     value will be changed and valueChanged() will be emitted with the
-    new value when Enter/Return is pressed, when the spin box looses
+    new value when Enter/Return is pressed, when the spin box loses
     focus or when the spin box is deactivated (see
     QWidget::windowActivationChanged()). The spin box supports integer
     values but can be extended to use different strings with

@@ -417,6 +417,7 @@
     slots. In particular, it determines whether a particular signal is delivered to a
     slot immediately or queued for delivery at a later time.
 
+    \omitvalue AutoCompatConnection
     \value DirectConnection  When emitted, the signal is immediately delivered to the slot.
     \value QueuedConnection  When emitted, the signal is queued until the event loop is
                              able to deliver it to the slot.
@@ -426,9 +427,20 @@
                              Qt::DirectConnection; otherwise the
                              signal is queued, as with
                              Qt::QueuedConnection.
-    \omitvalue AutoCompatConnection
 
-    \sa {Thread Support in Qt}, QObject::connect()
+    With queued connections, the parameters must be of types that are known to
+    Qt's meta-object system, because Qt needs to copy the arguments to store them
+    in an event behind the scenes. If you try to use a queued connection and
+    get the error message
+
+    \code
+        QObject::connect: Cannot queue arguments of type 'MyType'
+    \endcode
+
+    call qRegisterMetaType() to register the data type before you
+    establish the connection.
+
+    \sa {Thread Support in Qt}, QObject::connect(), qRegisterMetaType()
 */
 
 /*!

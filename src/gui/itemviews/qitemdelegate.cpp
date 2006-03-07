@@ -752,7 +752,7 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
                 w = w->parentWidget();
             }
 #ifndef QT_NO_DRAGANDDROP
-            // The window may loose focus during an drag operation.
+            // The window may lose focus during an drag operation.
             // i.e when dragging involves the task bar on Windows.
             if (QDragManager::self() && QDragManager::self()->object != 0)
                 return false;

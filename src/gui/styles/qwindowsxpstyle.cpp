@@ -592,7 +592,7 @@ bool QWindowsXPStylePrivate::resolveSymbols()
 
 /*! \internal
     Returns a native buffer (DIB section) of at least the size of
-    ( \a x , \a y ). The buffer has a 32 bit depth, to not loose
+    ( \a x , \a y ). The buffer has a 32 bit depth, to not lose
     the alpha values on proper alpha-pixmaps.
 */
 HBITMAP QWindowsXPStylePrivate::buffer(int w, int h)

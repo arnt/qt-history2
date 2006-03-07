@@ -90,7 +90,7 @@
     All item models are based on the QAbstractItemModel class. This class
     defines an interface that is used by views and delegates to access data.
     The data itself does not have to be stored in the model; it can be held
-    in a data structure or repository provided by a seperate class, a file,
+    in a data structure or repository provided by a separate class, a file,
     a database, or some other application component.
 
     The basic concepts surrounding models are presented in the section

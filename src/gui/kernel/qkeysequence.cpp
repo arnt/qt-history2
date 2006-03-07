@@ -398,7 +398,7 @@ int QKeySequence::assign(const QString &ks)
     // Run through the whole string, but stop
     // if we have 4 keys before the end.
     while (keyseq.length() && n < 4) {
-        // We MUST use something to seperate each sequence, and space
+        // We MUST use something to separate each sequence, and space
         // does not cut it, since some of the key names have space
         // in them.. (Let's hope no one translate with a comma in it:)
         p = keyseq.indexOf(QLatin1Char(','));
