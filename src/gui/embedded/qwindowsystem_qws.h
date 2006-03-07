@@ -191,14 +191,14 @@ public:
 #endif
 
 #ifndef QT_NO_QWS_KEYBOARD
-    typedef struct KeyMap {
+    struct KeyMap {
         int  key_code;
         ushort unicode;
         ushort shift_unicode;
         ushort ctrl_unicode;
     };
 
-    typedef struct KeyOverride {
+    struct KeyOverride {
         ushort scan_code;
         KeyMap map;
     };
