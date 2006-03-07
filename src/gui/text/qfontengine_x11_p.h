@@ -188,7 +188,7 @@ private:
     int subpixel;
     bool transform;
     int hint_style;
-    mutable FT_Matrix matrix; // need mutable because the freetype API doesn't use const
+    FT_Matrix matrix;
 
 public:
     enum GlyphFormat {
@@ -211,16 +211,30 @@ public:
         signed char format;
         uchar *data;
     };
-    Glyph *loadGlyph(uint glyph, GlyphFormat = Format_None) const;
+    inline Glyph *loadGlyph(uint glyph, GlyphFormat format = Format_None) const
+    { return fnt.loadGlyph(this, glyph, format); }
+    struct Font
+    {
+        Font();
+        ~Font();
+        FT_Matrix transformationMatrix;
+#ifndef QT_NO_XRENDER
+        GlyphSet glyphSet;
+#endif
+        mutable QHash<int, Glyph *> glyph_data; // maps from glyph index to glyph data
+        Glyph *loadGlyph(const QFontEngineFT *fe, uint glyph, GlyphFormat = Format_None) const;
+    };
+    mutable Font fnt;
 #ifndef QT_NO_XRENDER
     int xglyph_format;
-    GlyphSet glyphSet;
+
+    QList<Font> transformedFonts;
+    bool loadTransformedGlyphSet(glyph_t *glyphs, int num_glyphs, const QMatrix &matrix, GlyphSet *gs);
 #endif
-    inline Glyph *cachedGlyph(glyph_t g) const { return glyph_data.value(g); }
+    inline Glyph *cachedGlyph(glyph_t g) const { return fnt.glyph_data.value(g); }
 private:
     mutable QOpenType *_openType;
     FT_Size_Metrics metrics;
-    mutable QHash<int, Glyph *> glyph_data; // maps from glyph index to glyph data
 };
 
 #endif // QT_NO_FONTCONFIG

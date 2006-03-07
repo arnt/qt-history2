@@ -2052,30 +2052,49 @@ void QX11PaintEngine::core_render_glyph(QFontEngineFT *fe, int xp, int yp, uint 
 void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 {
     Q_D(QX11PaintEngine);
+    if (!ti.num_glyphs)
+        return;
+
+    QFontEngineFT *ft = static_cast<QFontEngineFT *>(ti.fontEngine);
+
+    if (!d->cpen.isSolid() || ft->drawAsOutline()) {
+        QPaintEngine::drawTextItem(p, ti);
+    }
+
     QFixed xpos = QFixed::fromReal(p.x() + d->matrix.dx());
     QFixed ypos = QFixed::fromReal(p.y() + d->matrix.dy());
 
-    QFontEngineFT *ft = static_cast<QFontEngineFT *>(ti.fontEngine);
-    if (!d->cpen.isSolid() || ft->drawAsOutline() || d->txop >= QPainterPrivate::TxScale) {
+    QVarLengthArray<QFixedPoint> positions;
+    QVarLengthArray<glyph_t> glyphs;
+    QMatrix matrix;
+    matrix = d->matrix;
+    matrix.translate(p.x(), p.y());
+    ft->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+
+    bool drawTransformed = false;
+#ifndef QT_NO_XRENDER
+    const bool xrenderPath = (X11->use_xrender
+                              && !(d->pdev->devType() == QInternal::Pixmap
+                              && static_cast<const QPixmap *>(d->pdev)->data->type == QPixmap::BitmapType));
+
+    GlyphSet transformedGlyphSet = 0;
+    if (d->txop >= QPainterPrivate::TxScale
+        && xrenderPath) {
+        Q_ASSERT(!d->matrix.isIdentity());
+        drawTransformed = ft->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix, &transformedGlyphSet);
+    }
+#endif
+    
+    if ((d->txop >= QPainterPrivate::TxScale && !drawTransformed)) {
         QPaintEngine::drawTextItem(p, ti);
         return;
     }
 
-    if (!ti.num_glyphs)
-        return;
-
-    QVarLengthArray<QFixedPoint> positions;
-    QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix = d->matrix;
-    matrix.translate(p.x(), p.y());
-    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
-
 #ifndef QT_NO_XRENDER
-    if (X11->use_xrender
-        && !(d->pdev->devType() == QInternal::Pixmap
-             && static_cast<const QPixmap *>(d->pdev)->data->type == QPixmap::BitmapType)) {
+    if (xrenderPath) {
 
-        GlyphSet glyphSet = ft->glyphSet;
+        GlyphSet glyphSet = drawTransformed ? transformedGlyphSet : ft->fnt.glyphSet;
+
         const QColor &pen = d->cpen.color();
         ::Picture src = X11->getSolidFill(d->scrn, pen);
         XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, ft->xglyph_format);
