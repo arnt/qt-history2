@@ -76,7 +76,6 @@ win32 {
 
 unix:x11 {
 	HEADERS += \
-		kernel/qeventdispatcher_x11_p.h \
 		kernel/qx11embed_x11.h \
 		kernel/qx11info_x11.h
 
@@ -86,13 +85,25 @@ unix:x11 {
 		kernel/qcursor_x11.cpp \
 		kernel/qdnd_x11.cpp \
 		kernel/qdesktopwidget_x11.cpp \
-		kernel/qeventdispatcher_x11.cpp \
 		kernel/qmotifdnd_x11.cpp \
 		kernel/qsound_x11.cpp \
 		kernel/qwidget_x11.cpp \
 		kernel/qwidgetcreate_x11.cpp \
 		kernel/qx11embed_x11.cpp \
 		kernel/qx11info_x11.cpp
+
+        contains(QT_CONFIG, glib) {
+            SOURCES += \
+		kernel/qguieventdispatcher_glib.cpp
+            HEADERS += \
+                kernel/qguieventdispatcher_glib_p.h
+            QMAKE_CXXFLAGS += $$QT_CFLAGS_GLIB
+        } else {
+            SOURCES += \
+		kernel/qeventdispatcher_x11.cpp
+            HEADERS += \
+                kernel/qeventdispatcher_x11_p.h
+        }
 }
 
 embedded {

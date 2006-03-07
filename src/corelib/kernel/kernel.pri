@@ -61,11 +61,23 @@ mac {
 
 unix {
 	SOURCES += \
-		kernel/qcrashhandler.cpp \
-		kernel/qeventdispatcher_unix.cpp
+                kernel/qcrashhandler.cpp
 	HEADERS += \
-		kernel/qcrashhandler_p.h \
-		kernel/qeventdispatcher_unix_p.h
+		kernel/qcrashhandler_p.h
+
+        contains(QT_CONFIG, glib) {
+            SOURCES += \
+                kernel/qeventdispatcher_glib.cpp
+            HEADERS += \
+                kernel/qeventdispatcher_glib_p.h
+            QMAKE_CXXFLAGS += $$QT_CFLAGS_GLIB
+            LIBS +=$$QT_LIBS_GLIB
+        } else {
+            SOURCES += \
+                kernel/qeventdispatcher_unix.cpp
+            HEADERS += \
+                kernel/qeventdispatcher_unix_p.h
+        }
 }
 
 embedded:SOURCES += kernel/qsharedmemory_p.cpp

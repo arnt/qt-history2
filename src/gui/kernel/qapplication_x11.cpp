@@ -50,7 +50,11 @@
 #include "qstyle.h"
 #include "qmetaobject.h"
 
-#include "qeventdispatcher_x11_p.h"
+#if defined(QT_NO_GLIB)
+#  include "qeventdispatcher_x11_p.h"
+#else
+#  include "qguieventdispatcher_glib_p.h"
+#endif
 #include <private/qpaintengine_x11_p.h>
 
 // Input method stuff - UNFINISHED
@@ -375,9 +379,15 @@ public:
 void QApplicationPrivate::createEventDispatcher()
 {
     Q_Q(QApplication);
+#if defined(QT_NO_GLIB)
     eventDispatcher = (q->type() != QApplication::Tty
                        ? new QEventDispatcherX11(q)
                        : new QEventDispatcherUNIX(q));
+#else
+    eventDispatcher = (q->type() != QApplication::Tty
+                       ? new QGuiEventDispatcherGlib(q)
+                       : new QEventDispatcherGlib(q));
+#endif
 }
 
 /*****************************************************************************

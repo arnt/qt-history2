@@ -32,7 +32,11 @@
 #include <qlibraryinfo.h>
 
 #ifdef Q_OS_UNIX
-#  include "qeventdispatcher_unix_p.h"
+#  if defined(QT_NO_GLIB)
+#    include "qeventdispatcher_unix_p.h"
+#  else
+#    include "qeventdispatcher_glib_p.h"
+#  endif
 #endif
 #ifdef Q_OS_WIN
 #  include "qeventdispatcher_win_p.h"
@@ -210,7 +214,11 @@ void QCoreApplicationPrivate::createEventDispatcher()
 {
     Q_Q(QCoreApplication);
 #if defined(Q_OS_UNIX)
+#  if defined(QT_NO_GLIB)
     eventDispatcher = new QEventDispatcherUNIX(q);
+#  else
+    eventDispatcher = new QEventDispatcherGlib(q);
+#  endif
 #elif defined(Q_OS_WIN)
     eventDispatcher = new QEventDispatcherWin32(q);
 #else
@@ -969,10 +977,18 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         } catch (...) {
             locker.relock();
             delete e;
+
+            // since we were interrupted, we need another pass to make sure we clean everything up
+            data->canWait = false;
+
+            // uglehack: copied from below
+            --data->postEventList.recursion;
+            if (!data->postEventList.recursion && !data->canWait && data->eventDispatcher)
+                data->eventDispatcher->wakeUp();
             throw;              // rethrow
         }
-#endif        
-            
+#endif
+
         locker.relock();
 
         delete e;

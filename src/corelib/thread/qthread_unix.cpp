@@ -17,7 +17,11 @@
 
 #include "qplatformdefs.h"
 
-#include <private/qeventdispatcher_unix_p.h>
+#if defined(QT_NO_GLIB)
+#  include <private/qeventdispatcher_unix_p.h>
+#else
+#  include "../kernel/qeventdispatcher_glib_p.h"
+#endif
 #include "qthreadstorage.h"
 
 #include "qthread_p.h"
@@ -64,7 +68,11 @@ void *QThreadPrivate::start(void *arg)
     QThreadData *data = QThreadData::get(thr);
     data->quitNow = false;
     // ### TODO: allow the user to create a custom event dispatcher
+#if defined(QT_NO_GLIB)
     data->eventDispatcher = new QEventDispatcherUNIX;
+#else
+    data->eventDispatcher = new QEventDispatcherGlib;
+#endif
     data->eventDispatcher->startingUp();
 
     emit thr->started();

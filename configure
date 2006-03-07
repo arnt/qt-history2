@@ -450,6 +450,7 @@ CFG_TABLET=auto
 CFG_XKB=auto
 CFG_NIS=auto
 CFG_CUPS=auto
+CFG_GLIB=auto
 CFG_LARGEFILE=auto
 CFG_STL=auto
 CFG_PRECOMPILE=no
@@ -1120,6 +1121,13 @@ while [ "$#" -gt 0 ]; do
     cups)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_CUPS="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    glib)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_GLIB="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2202,6 +2210,13 @@ if [ "$OPT_HELP" = "yes" ]; then
         CUY="*"
         CUN=" "
     fi
+    if [ "$CFG_GLIB" = "no" ]; then
+        GBY=" "
+        GBN="*"
+    else
+        GBY="*"
+        GBN=" "
+    fi
     if [ "$CFG_LARGEFILE" = "no" ]; then
         LFSY=" "
         LFSN="*"
@@ -2386,6 +2401,9 @@ Additional options:
 
  $CUN  -no-cups............ Do not compile CUPS support.
  $CUY  -cups .............. Compile CUPS support.
+
+ $GBY  -no-glib............ Do not compile Glib support.
+ $GBN  -glib............... Compile Glib support.
 
  $PHN  -no-pch ............ Do not use precompiled header support.
  $PHY  -pch ............... Use precompiled header support.
@@ -3335,6 +3353,31 @@ if [ "$CFG_CUPS" != "no" ]; then
     fi
 fi
 
+# auto-detect Glib support
+GLIB_CFLAGS=
+GLIB_LIBS=
+if [ "$CFG_GLIB" != "no" ]; then
+    if $WHICH pkg-config >/dev/null 2>&1; then
+        GLIB_CFLAGS=`pkg-config --cflags glib-2.0`
+        GLIB_LIBS=`pkg-config --libs glib-2.0`
+    fi
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/glib "Glib" $L_FLAGS $I_FLAGS $l_FLAGS $GLIB_CFLAGS $GLIB_LIBS; then
+        CFG_GLIB=yes
+        QMAKE_VARS="$QMAKE_VARS \"QT_CFLAGS_GLIB = $GLIB_CFLAGS\""
+        QMAKE_VARS="$QMAKE_VARS \"QT_LIBS_GLIB = $GLIB_LIBS\""
+    else
+        if [ "$CFG_GLIB" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+            echo "Glib support cannot be enabled due to functionality tests!"
+            echo " Turn on verbose messaging (-v) to $0 to see the final report."
+            echo " If you believe this message is in error you may use the continue"
+            echo " switch (-continue) to $0 to continue."
+            exit 101
+        else
+            CFG_GLIB=no
+        fi
+    fi
+fi
+
 # x11
 if [ "$PLATFORM_X11" = "yes" ]; then
     x11tests=$relpath/config.tests/x11
@@ -3815,6 +3858,7 @@ else
 fi
 [ "$CFG_NIS" = "yes" ] && QT_CONFIG="$QT_CONFIG nis"
 [ "$CFG_CUPS" = "yes" ] && QT_CONFIG="$QT_CONFIG cups"
+[ "$CFG_GLIB" = "yes" ] && QT_CONFIG="$QT_CONFIG glib"
 [ "$CFG_NAS" = "system" ] && QT_CONFIG="$QT_CONFIG nas"
 
 if [ "$PLATFORM_X11" = "yes" ]; then
@@ -4223,6 +4267,7 @@ QMAKE_VARS="$QMAKE_VARS \"sql-plugins = $SQL_PLUGINS\""
 
 # X11/Unix/Mac only configs
 [ "$CFG_CUPS" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_CUPS"
+[ "$CFG_GLIB" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GLIB"
 [ "$CFG_GETADDRINFO" = "no" ]&& QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETADDRINFO"
 [ "$CFG_IPV6IFNAME" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6IFNAME"
 [ "$CFG_NAS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NAS"
@@ -4533,6 +4578,7 @@ echo "getaddrinfo support . $CFG_GETADDRINFO"
 echo "Accessibility ....... $CFG_ACCESSIBILITY"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
+echo "Glib support ........ $CFG_GLIB"
 echo "Large File support .. $CFG_LARGEFILE"
 echo "GIF support ......... $CFG_GIF"
 if [ "$CFG_JPEG" = "no" ]; then
