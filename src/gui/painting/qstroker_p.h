@@ -157,7 +157,7 @@ public:
         MiterJoin,
         RoundJoin,
         RoundCap,
-        SvgMiterJoin,
+        SvgMiterJoin
     };
 
     QStroker();
