@@ -609,7 +609,7 @@ void Generator::generateMetacall()
                 const ArgumentDef &a = f.arguments.at(j);
                 if (j)
                     fprintf(out, ",");
-                fprintf(out, "*reinterpret_cast< %s>(_a[%d])",a.typeNameForCast.constData(), offset++);
+                fprintf(out, "(*reinterpret_cast< %s>(_a[%d]))",a.typeNameForCast.constData(), offset++);
             }
             fprintf(out, ");");
             if (f.normalizedType.size())
