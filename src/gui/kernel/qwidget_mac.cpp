@@ -2171,9 +2171,13 @@ void QWidgetPrivate::setModal_sys()
 {
     Q_Q(QWidget);
     // We need a different window type if we are to be run modal. SetWindowClass will
-    //  disappear, so Apple recommends changing the window group instead.
+    // disappear, so Apple recommends changing the window group instead.
+    // Also, of this widget's window is a secondary window, we need to set the window
+    // type if the primary window is modal.
     WindowPtr window = qt_mac_window_for(q);
-    if (q->testAttribute(Qt::WA_ShowModal)) {
+    const QWidget * const windowParent = q->window()->parentWidget();
+    const QWidget * const primaryWindow = windowParent ? windowParent->window() : 0;
+    if (q->testAttribute(Qt::WA_ShowModal) || (primaryWindow && primaryWindow->testAttribute(Qt::WA_ShowModal))) {
         if (q->testAttribute(Qt::WA_WState_Created) && !topData()->group) {
             WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
             SetWindowGroup(window, wgr);
