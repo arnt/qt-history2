@@ -718,81 +718,6 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
 }
 #endif
 
-static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *slider,
-                          const QPainter *p, ThemeTrackDrawInfo *tdi, const QWidget *needToRemove)
-{
-    memset(tdi, 0, sizeof(ThemeTrackDrawInfo));
-    tdi->filler1 = 0;
-    bool isScrollbar = (cc == QStyle::CC_ScrollBar);
-    switch (qt_aqua_size_constrain(needToRemove)) {
-    case QAquaSizeUnknown:
-    case QAquaSizeLarge:
-        if (isScrollbar)
-            tdi->kind = kThemeMediumScrollBar;
-        else
-            tdi->kind = kThemeMediumSlider;
-        break;
-    case QAquaSizeMini:
-        if (isScrollbar)
-            tdi->kind = kThemeMiniScrollBar;
-        else
-            tdi->kind = kThemeMiniSlider;
-        break;
-    case QAquaSizeSmall:
-        if (isScrollbar)
-            tdi->kind = kThemeSmallScrollBar;
-        else
-            tdi->kind = kThemeSmallSlider;
-        break;
-    }
-    // Grr... this is dumb
-    if (!p) {
-        tdi->bounds = *qt_glb_mac_rect(slider->rect);
-    } else {
-        tdi->bounds = *qt_glb_mac_rect(slider->rect, p);
-    }
-    tdi->min = slider->minimum;
-    tdi->max = slider->maximum;
-    tdi->value = slider->sliderPosition;
-    tdi->attributes = kThemeTrackShowThumb;
-    if (slider->state & QStyle::State_HasFocus)
-        tdi->attributes |= kThemeTrackHasFocus;
-    if (slider->upsideDown)
-        tdi->attributes |= kThemeTrackRightToLeft;
-    if (slider->orientation == Qt::Horizontal) {
-        tdi->attributes |= kThemeTrackHorizontal;
-        if (isScrollbar && slider->direction == Qt::RightToLeft) {
-            if (!slider->upsideDown)
-                tdi->attributes |= kThemeTrackRightToLeft;
-            else
-                tdi->attributes &= ~kThemeTrackRightToLeft;
-        }
-    }
-
-    // HIThemes (and indirectly appearance manager) broke reverse scrollbars so
-    // put them back and "fake it"
-    if (isScrollbar && (tdi->attributes & kThemeTrackRightToLeft)
-        && QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
-        tdi->attributes &= ~kThemeTrackRightToLeft;
-        tdi->value = tdi->max - slider->sliderPosition;
-    }
-
-    tdi->enableState = slider->state & QStyle::State_Enabled ? kThemeTrackActive
-                                                             : kThemeTrackDisabled;
-    if (!(slider->state & QStyle::State_Active))
-        tdi->enableState = kThemeTrackDisabled;
-    if (!isScrollbar) {
-        if (slider->tickPosition == QSlider::NoTicks || slider->tickPosition == QSlider::TicksBothSides)
-            tdi->trackInfo.slider.thumbDir = kThemeThumbPlain;
-        else if (slider->tickPosition == QSlider::TicksAbove)
-            tdi->trackInfo.slider.thumbDir = kThemeThumbUpward;
-        else
-            tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
-    } else {
-        tdi->trackInfo.scrollbar.viewsize = slider->pageStep;
-    }
-}
-
 QMacStylePrivate::QMacStylePrivate(QMacStyle *style)
     : timerID(-1), progressFrame(0), q(style)
 {
@@ -882,31 +807,6 @@ static const char * const * const PantherTabXpms[] = {
                                     qt_mac_tab_press_mid,
                                     qt_mac_tab_press_right};
 
-void qt_mac_draw_tab(QPainter *p, const QWidget *w, const QRect &ir, ThemeTabStyle tts,
-                     ThemeTabDirection ttd)
-{
-#if 0
-    if (ir.height() > kThemeLargeTabHeightMax) {
-        QPixmap tabPix(ir.width(), kThemeLargeTabHeightMax);
-        QPainter pixPainter(&tabPix);
-        if (w)
-            pixPainter.fillRect(QRect(QPoint(0, 0), tabPix.size()),
-                                w->palette().brush(w->backgroundRole()));
-        else
-            tabPix.fill(QColor(255, 255, 255, 255));
-
-        Rect pixRect = *qt_glb_mac_rect(QRect(0, 0, ir.width(), kThemeLargeTabHeightMax),
-                                        &pixPainter, false);
-        qt_mac_set_port(&pixPainter);
-        DrawThemeTab(&pixRect, tts, ttd, 0, 0);
-        p->drawPixmap(ir, tabPix);
-    } else {
-        qt_mac_set_port(p);
-        DrawThemeTab(qt_glb_mac_rect(ir, p, false), tts, ttd, 0, 0);
-    }
-#endif
-}
-
 void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p,
                                       const QWidget *) const
 {
@@ -924,7 +824,14 @@ void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p
             // Draw into a pixmap to determine which version we use, Aqua or Graphite.
             QPixmap tabPix(20, 20);
             QPainter pixPainter(&tabPix);
-            qt_mac_draw_tab(&pixPainter, 0, QRect(0, 0, 20, 20), kThemeTabFront, kThemeTabNorth);
+            HIThemeTabDrawInfo tdi;
+            tdi.version = 0;
+            tdi.style = kThemeTabFront;
+            tdi.direction = kThemeTabNorth;
+            tdi.size = kHIThemeTabSizeNormal;
+            tdi.adornment = kHIThemeTabAdornmentNone;
+            HIRect inRect = CGRectMake(0.0f, 0.0f, 20.0f, 20.0f);
+            HIThemeDrawTab(&inRect, &tdi, QMacCGContext(&pixPainter), kHIThemeOrientationNormal, 0);
             pixPainter.end();
             const QRgb GraphiteColor = 0xffa7b0ba;
             QRgb pmColor = tabPix.toImage().pixel(10, 10);
@@ -1883,6 +1790,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
     case QStyle::CE_TabBarTabShape:
         if (const QStyleOptionTab *tabOpt = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+            if (QSysInfo::MacintoshVersion > QSysInfo::MV_10_3) {
             HIThemeTabDrawInfo tdi;
             tdi.version = 1;
             tdi.style = kThemeTabNonFront;
@@ -1964,9 +1872,11 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             }
             HIRect hirect = qt_hirectForQRect(tabRect, p);
             HIThemeDrawTab(&hirect, &tdi, cg, kHIThemeOrientationNormal, 0);
-#else
-            drawPantherTab(tabOpt, p, w);
+            } else
 #endif
+            {
+                drawPantherTab(tabOpt, p, w);
+            }
         }
         break;
     case QStyle::CE_SizeGrip: {
