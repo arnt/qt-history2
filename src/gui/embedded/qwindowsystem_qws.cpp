@@ -141,50 +141,63 @@ static bool force_reject_strokeIM = false;
 */
 
 /*!
-    \class QWSWindow qwindowsystem_qws.h
-    \brief The QWSWindow class provides server-specific functionality in Qtopia Core.
-
+    \class QWSWindow
     \ingroup qws
 
-    When you run a \l {Qtopia Core} application, it either runs as a server
-    or connects to an existing server. If it runs as a server, some
-    additional functionality is provided by the QWSServer class.
+    \brief The QWSWindow class provides window-specific information in
+    Qtopia Core.
 
-    This class maintains information about each window and allows
-    operations to be performed on the windows.
+    When running a \l {Qtopia Core} application, it either runs as a
+    server or connects to an existing server. As applications add and
+    remove widgets, the QWSServer class maintains information about
+    each window. Note that you should never construct this class
+    yourself; the QWSServer::clientWindows() function returns the
+    current top-level windows as a QList of QWSWindow objects.
 
-    You can get the window's name(), caption() and winId(), along with
+    QWSWindow provides functions returning various information about
+    the window: its caption(), name(), opacity() and winId() along with
     the client() that owns the window.
 
-    The region the window wants to draw on is returned by requestedRegion().
+    In addition, it is possible to determine whether the window is
+    visible or not using the isVisible() function. Use the
+    isFullyObscured() function to determine if the window is
+    completely obsured by another window or by the bounds of the
+    screen. The isOpaque() functions returns true if the window
+    doesn't have an alpha channel; otherwise false. Finally, the
+    requestedRegion() function can be used to retrieve the region of
+    the display the window wants to draw on.
 
-    The visibility of the window can be determined using
-    isVisible(). Visibility can be changed using raise(), lower(), show(),
-    hide() and setActiveWindow().
+    \sa QWSServer, {Running Applications}, {Qtopia Core}
 */
 
 /*!
     \fn int QWSWindow::winId() const
 
-    Returns the window's Id.
+    Returns the window's ID.
+
+    \sa name(), caption()
 */
 
 /*!
     \fn const QString &QWSWindow::name() const
 
     Returns the window's name.
+
+    \sa caption(), winId()
 */
 
 /*!
     \fn const QString &QWSWindow::caption() const
 
     Returns the window's caption.
+
+    \sa name(), winId()
 */
 
 /*!
     \fn QWSClient* QWSWindow::client() const
 
-    Returns the QWSClient that owns this window.
+    Returns a reference to the QWSClient object that owns this window.
 */
 
 /*!
@@ -192,13 +205,11 @@ static bool force_reject_strokeIM = false;
 
     Returns the region that the window has requested to draw onto,
     including any window decorations.
-    \omit
-    \sa allocatedRegion()
-    \endomit
 */
 
-/* NO DOC
+/*!
     \fn QRegion QWSWindow::allocatedRegion() const
+    \internal
 
     Returns the region that the window is allowed to draw onto,
     including any window decorations but excluding regions covered by
@@ -211,10 +222,30 @@ static bool force_reject_strokeIM = false;
     \fn bool QWSWindow::isVisible() const
 
     Returns true if the window is visible; otherwise returns false.
+
+    \sa isFullyObscured()
 */
 
-/* NO DOC
+/*!
+    \fn bool QWSWindow::isOpaque() const
+
+    Returns true if the window is opaque, i.e. if its alpha channel
+    equals 255; otherwise returns false.
+
+    \sa opacity()
+*/
+
+/*!
+    \fn uint QWSWindow::opacity () const
+
+    Returns the window's alpha channel value.
+
+    \sa isOpaque()
+*/
+
+/*!
     \fn bool QWSWindow::isPartiallyObscured() const
+    \internal
 
     Returns true if the window is partially obsured by another window
     or by the bounds of the screen; otherwise returns false.
@@ -225,6 +256,8 @@ static bool force_reject_strokeIM = false;
 
     Returns true if the window is completely obsured by another window
     or by the bounds of the screen; otherwise returns false.
+
+    \sa isVisible()
 */
 
 QWSWindow::QWSWindow(int i, QWSClient* client)
@@ -235,6 +268,7 @@ QWSWindow::QWSWindow(int i, QWSClient* client)
 }
 
 /*!
+    \internal
     Raises the window above all other windows except "Stay on top" windows.
 */
 void QWSWindow::raise()
@@ -243,6 +277,7 @@ void QWSWindow::raise()
 }
 
 /*!
+    \internal
     Lowers the window below other windows.
 */
 void QWSWindow::lower()
@@ -251,6 +286,7 @@ void QWSWindow::lower()
 }
 
 /*!
+    \internal
     Shows the window.
 */
 void QWSWindow::show()
@@ -259,6 +295,7 @@ void QWSWindow::show()
 }
 
 /*!
+    \internal
     Hides the window.
 */
 void QWSWindow::hide()
@@ -267,6 +304,7 @@ void QWSWindow::hide()
 }
 
 /*!
+    \internal
     Make this the active window (i.e. sets the keyboard focus to this
     window).
 */
@@ -281,6 +319,7 @@ void QWSWindow::setName(const QString &n)
 }
 
 /*!
+  \internal
   Sets the window's caption to \a c.
 */
 void QWSWindow::setCaption(const QString &c)
@@ -310,6 +349,7 @@ void QWSWindow::operation(QWSWindowOperationEvent::Operation o)
 }
 
 /*!
+    \internal
     Destructor.
 */
 QWSWindow::~QWSWindow()
@@ -3658,7 +3698,7 @@ void QWSInputMethod::sendCommitString(const QString &commitString, int replaceFr
     \fn QWSInputMethod::sendEvent(const QInputMethodEvent *)
 
     Sends a QInputMethodEvent object to the focus widget.
-
+a
     \sa sendPreeditString(), sendCommitString(), reset()
 */
 
@@ -3738,6 +3778,7 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 
 /*!
     \fn  QWSWindow::QWSWindow(int i, QWSClient * client)
+    \internal
 
     Constructs a new top-level window, associated with the client \a
     client and giving it the id \a i.
