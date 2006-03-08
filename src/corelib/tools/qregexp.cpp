@@ -780,7 +780,7 @@ static void mergeInto(QMap<int, int> *a, const QMap<int, int> &b)
 static QString wc2rx(const QString &wc_str)
 {
     int wclen = wc_str.length();
-    QString rx = QLatin1String("");
+    QString rx;
     int i = 0;
     const QChar *wc = wc_str.unicode();
     while (i < wclen) {
@@ -839,7 +839,33 @@ static int caretIndex(int offset, QRegExp::CaretMode caretMode)
 }
 
 /*
-  The class QRegExpEngine encapsulates a modified nondeterministic
+    The QRegExpEngineKey struct uniquely identifies an engine.
+*/
+struct QRegExpEngineKey
+{
+    QString pattern;
+    QRegExp::PatternSyntax patternSyntax;
+    Qt::CaseSensitivity cs;
+
+    inline QRegExpEngineKey(const QString &pattern, QRegExp::PatternSyntax patternSyntax,
+                            Qt::CaseSensitivity cs)
+        : pattern(pattern), patternSyntax(patternSyntax), cs(cs) {}
+
+    inline void clear() {
+        pattern.clear();
+        patternSyntax = QRegExp::RegExp;
+        cs = Qt::CaseSensitive;
+    }
+};
+
+bool operator==(const QRegExpEngineKey &key1, const QRegExpEngineKey &key2)
+{
+    return key1.pattern == key2.pattern && key1.patternSyntax == key2.patternSyntax
+           && key1.cs == key2.cs;
+}
+
+/*
+  The QRegExpEngine class encapsulates a modified nondeterministic
   finite automaton (NFA).
 */
 class QRegExpEngine
@@ -907,12 +933,11 @@ public:
     };
 #endif
 
-    QRegExpEngine(Qt::CaseSensitivity cs) { setup(cs); }
-    QRegExpEngine(const QString &rx, Qt::CaseSensitivity cs);
+    QRegExpEngine(Qt::CaseSensitivity cs) : cs(cs) { setup(); }
+    QRegExpEngine(const QRegExpEngineKey &key);
     ~QRegExpEngine();
 
     bool isValid() const { return valid; }
-    Qt::CaseSensitivity caseSensitivity() const { return cs; }
     const QString &errorString() const { return yyError; }
     int numCaptures() const { return officialncap; }
     void match(const QString &str, int pos, bool minimal, bool oneTest, int caretIndex,
@@ -1019,7 +1044,7 @@ private:
 #endif
 
     enum { InitialState = 0, FinalState = 1 };
-    void setup(Qt::CaseSensitivity cs);
+    void setup();
     int setupState(int match);
 
     /*
@@ -1227,9 +1252,24 @@ private:
     int mmOneTestMatchedLen; // length of partial match
 };
 
-QRegExpEngine::QRegExpEngine(const QString &rx, Qt::CaseSensitivity cs)
+QRegExpEngine::QRegExpEngine(const QRegExpEngineKey &key)
+    : cs(key.cs)
 {
-    setup(cs);
+    setup();
+
+    QString rx;
+
+    switch (key.patternSyntax) {
+    case QRegExp::Wildcard:
+        rx = wc2rx(key.pattern);
+        break;
+    case QRegExp::FixedString:
+        rx = QRegExp::escape(key.pattern);
+        break;
+    default:
+        rx = key.pattern;
+    }
+
     valid = (parse(rx.unicode(), rx.length()) == rx.length());
     if (!valid) {
 #ifndef QT_NO_REGEXP_OPTIM
@@ -1539,7 +1579,7 @@ void QRegExpEngine::dump() const
 }
 #endif
 
-void QRegExpEngine::setup(Qt::CaseSensitivity caseSensitive)
+void QRegExpEngine::setup()
 {
     ref = 1;
 #ifndef QT_NO_REGEXP_CAPTURE
@@ -1554,7 +1594,6 @@ void QRegExpEngine::setup(Qt::CaseSensitivity caseSensitive)
     trivial = true;
 #endif
     valid = false;
-    cs = caseSensitive;
 #ifndef QT_NO_REGEXP_BACKREF
     nbrefs = 0;
 #endif
@@ -3136,84 +3175,67 @@ void QRegExpEngine::parseExpression(Box *box)
 struct QRegExpPrivate
 {
     QRegExpEngine *eng;
-    QString pattern; // regular-expression or wildcard pattern
-    QString rxpattern; // regular-expression pattern
-    QRegExp::PatternSyntax patternSyntax;
-    bool min : 1;
-    Qt::CaseSensitivity cs;
+    QRegExpEngineKey engineKey;
+    bool min;
 #ifndef QT_NO_REGEXP_CAPTURE
     QString t; // last string passed to QRegExp::indexIn() or lastIndexIn()
     QStringList capturedCache; // what QRegExp::capturedTexts() returned last
 #endif
     QVector<int> captured; // what QRegExpEngine::match() returned last
 
-    QRegExpPrivate() : eng(0) { captured.fill(-1, 2); }
+    inline QRegExpPrivate()
+        : eng(0), engineKey(QString(), QRegExp::RegExp, Qt::CaseSensitive), min(false)
+        { captured.fill(-1, 2); }
+    inline QRegExpPrivate(const QRegExpEngineKey &key)
+        : eng(0), engineKey(key), min(false)
+        { captured.fill(-1, 2); }
 };
 
 #if !defined(QT_NO_REGEXP_OPTIM)
-typedef QCache<QString, QRegExpEngine> EngineCache;
+uint qHash(const QRegExpEngineKey &key)
+{
+    return qHash(key.pattern);
+}
+
+typedef QCache<QRegExpEngineKey, QRegExpEngine> EngineCache;
 Q_GLOBAL_STATIC(EngineCache, globalEngineCache)
 Q_GLOBAL_STATIC(QMutex, mutex)
 #endif // QT_NO_REGEXP_OPTIM
 
-static QRegExpEngine *refEngine(const QString &pattern, Qt::CaseSensitivity cs)
+static QRegExpEngine *refEngine(const QRegExpEngineKey &key)
 {
 #if !defined(QT_NO_REGEXP_OPTIM)
-    EngineCache *engineCache = globalEngineCache();
-    if (engineCache) {
-        QMutexLocker locker(mutex());
-
-        QRegExpEngine *eng = engineCache->take(pattern);
-        if (eng == 0 || eng->caseSensitivity() != cs) {
-            delete eng;
-        } else {
-            ++eng->ref;
-            return eng;
-        }
+    QMutexLocker locker(mutex());
+    QRegExpEngine *eng = globalEngineCache()->take(key);
+    if (eng != 0) {
+        ++eng->ref;
+        return eng;
     }
 #endif // QT_NO_REGEXP_OPTIM
 
-    return new QRegExpEngine(pattern, cs);
+    return new QRegExpEngine(key);
 }
 
-static void derefEngine(QRegExpEngine *eng, const QString &pattern)
+static void derefEngine(QRegExpEngine *eng, const QRegExpEngineKey &key)
 {
 #if !defined(QT_NO_REGEXP_OPTIM)
-    EngineCache *engineCache = globalEngineCache();
     QMutexLocker locker(mutex());
 #endif // QT_NO_REGEXP_OPTIM
 
     if (!--eng->ref) {
 #if !defined(QT_NO_REGEXP_OPTIM)
-        if (!pattern.isNull() && engineCache) {
-            engineCache->insert(pattern, eng, 4 + pattern.length() / 4);
-            return;
-        }
+        globalEngineCache()->insert(key, eng, 4 + key.pattern.length() / 4);
 #else
-        Q_UNUSED(pattern);
-#endif
+        Q_UNUSED(key);
         delete eng;
-        eng = 0;
+#endif
     }
 }
 
 static void prepareEngine(QRegExpPrivate *priv)
 {
     if (priv->eng == 0) {
-        switch (priv->patternSyntax) {
-#ifndef QT_NO_REGEXP_WILDCARD
-        case QRegExp::Wildcard:
-            priv->rxpattern = wc2rx(priv->pattern);
-            break;
-#endif
-        case QRegExp::FixedString:
-            priv->rxpattern = QRegExp::escape(priv->pattern);
-            break;
-        default:
-            priv->rxpattern = priv->pattern;
-        }
-
-        priv->eng = refEngine(priv->rxpattern, priv->cs);
+        priv->eng = refEngine(priv->engineKey);
         priv->captured.fill(-1, 2 + 2 * priv->eng->numCaptures());
     }
 }
@@ -3232,8 +3254,7 @@ static void prepareEngineForMatch(QRegExpPrivate *priv, const QString &str)
 static void invalidateEngine(QRegExpPrivate *priv)
 {
     if (priv->eng != 0) {
-        derefEngine(priv->eng, priv->rxpattern);
-        priv->rxpattern = QString();
+        derefEngine(priv->eng, priv->engineKey);
         priv->eng = 0;
     }
 }
@@ -3281,15 +3302,12 @@ static void invalidateEngine(QRegExpPrivate *priv)
 QRegExp::QRegExp()
 {
     priv = new QRegExpPrivate;
-    priv->patternSyntax = RegExp;
-    priv->min = false;
-    priv->cs = Qt::CaseSensitive;
 }
 
 /*!
     Constructs a regular expression object for the given \a pattern
     string. The pattern must be given using wildcard notation if \a
-    syntax is \c Wildcard; the default is \c RegExp. The pattern is
+    syntax is \l Wildcard; the default is \l RegExp. The pattern is
     case sensitive, unless \a cs is Qt::CaseInsensitive. Matching is
     greedy (maximal), but can be changed by calling
     setMinimal().
@@ -3298,11 +3316,7 @@ QRegExp::QRegExp()
 */
 QRegExp::QRegExp(const QString &pattern, Qt::CaseSensitivity cs, PatternSyntax syntax)
 {
-    priv = new QRegExpPrivate;
-    priv->pattern = pattern;
-    priv->patternSyntax = syntax;
-    priv->min = false;
-    priv->cs = cs;
+    priv = new QRegExpPrivate(QRegExpEngineKey(pattern, syntax, cs));
     prepareEngine(priv);
 }
 
@@ -3338,11 +3352,8 @@ QRegExp &QRegExp::operator=(const QRegExp &rx)
         ++otherEng->ref;
     invalidateEngine(priv);
     priv->eng = otherEng;
-    priv->pattern = rx.priv->pattern;
-    priv->rxpattern = rx.priv->rxpattern;
-    priv->patternSyntax = rx.priv->patternSyntax;
+    priv->engineKey = rx.priv->engineKey;
     priv->min = rx.priv->min;
-    priv->cs = rx.priv->cs;
 #ifndef QT_NO_REGEXP_CAPTURE
     priv->t = rx.priv->t;
     priv->capturedCache = rx.priv->capturedCache;
@@ -3361,10 +3372,7 @@ QRegExp &QRegExp::operator=(const QRegExp &rx)
 */
 bool QRegExp::operator==(const QRegExp &rx) const
 {
-    return priv->pattern == rx.priv->pattern &&
-           priv->patternSyntax == rx.priv->patternSyntax &&
-           priv->min == rx.priv->min &&
-           priv->cs == rx.priv->cs;
+    return priv->engineKey == rx.priv->engineKey && priv->min == rx.priv->min;
 }
 
 /*!
@@ -3393,7 +3401,7 @@ bool QRegExp::operator==(const QRegExp &rx) const
 
 bool QRegExp::isEmpty() const
 {
-    return priv->pattern.isEmpty();
+    return priv->engineKey.pattern.isEmpty();
 }
 
 /*!
@@ -3411,7 +3419,7 @@ bool QRegExp::isEmpty() const
 */
 bool QRegExp::isValid() const
 {
-    if (priv->pattern.isEmpty()) {
+    if (priv->engineKey.pattern.isEmpty()) {
         return true;
     } else {
         prepareEngine(priv);
@@ -3428,7 +3436,7 @@ bool QRegExp::isValid() const
 */
 QString QRegExp::pattern() const
 {
-    return priv->pattern;
+    return priv->engineKey.pattern;
 }
 
 /*!
@@ -3439,9 +3447,9 @@ QString QRegExp::pattern() const
 */
 void QRegExp::setPattern(const QString &pattern)
 {
-    if (priv->pattern != pattern) {
-        priv->pattern = pattern;
+    if (priv->engineKey.pattern != pattern) {
         invalidateEngine(priv);
+        priv->engineKey.pattern = pattern;
     }
 }
 
@@ -3453,7 +3461,7 @@ void QRegExp::setPattern(const QString &pattern)
 */
 Qt::CaseSensitivity QRegExp::caseSensitivity() const
 {
-    return priv->cs;
+    return priv->engineKey.cs;
 }
 
 /*!
@@ -3466,26 +3474,26 @@ Qt::CaseSensitivity QRegExp::caseSensitivity() const
 */
 void QRegExp::setCaseSensitivity(Qt::CaseSensitivity cs)
 {
-    if ((bool)cs != (bool)priv->cs) {
-        priv->cs = cs;
+    if ((bool)cs != (bool)priv->engineKey.cs) {
         invalidateEngine(priv);
+        priv->engineKey.cs = cs;
     }
 }
 
 #ifndef QT_NO_REGEXP_WILDCARD
 /*!
-    Returns \c Wildcard if wildcard mode is enabled; otherwise
-    returns \c RegExp. The default is \c RegExp.
+    Returns the syntax used by the regular expression. The default is
+    QRegExp::RegExp.
 
     \sa pattern(), caseSensitivity()
 */
 QRegExp::PatternSyntax QRegExp::patternSyntax() const
 {
-    return priv->patternSyntax;
+    return priv->engineKey.patternSyntax;
 }
 
 /*!
-    Sets the wildcard mode for the regular expression. The default is
+    Sets the syntax mode for the regular expression. The default is
     QRegExp::RegExp.
 
     Setting \a syntax to QRegExp::Wildcard enables simple shell-like
@@ -3501,9 +3509,9 @@ QRegExp::PatternSyntax QRegExp::patternSyntax() const
 */
 void QRegExp::setPatternSyntax(PatternSyntax syntax)
 {
-    if ((bool)syntax != (bool)priv->patternSyntax) {
-        priv->patternSyntax = syntax;
+    if ((bool)syntax != (bool)priv->engineKey.patternSyntax) {
         invalidateEngine(priv);
+        priv->engineKey.patternSyntax = syntax;
     }
 }
 #endif
@@ -3953,14 +3961,14 @@ QDataStream &operator<<(QDataStream &out, const QRegExp &regExp)
 QDataStream &operator>>(QDataStream &in, QRegExp &regExp)
 {
     QString pattern;
-    quint8 caseSensitivity;
+    quint8 cs;
     quint8 patternSyntax;
     quint8 isMinimal;
 
-    in >> pattern >> caseSensitivity >> patternSyntax >> isMinimal;
+    in >> pattern >> cs >> patternSyntax >> isMinimal;
 
-    QRegExp newRegExp(pattern, caseSensitivity ? Qt::CaseSensitive : Qt::CaseInsensitive,
-                      (QRegExp::PatternSyntax)patternSyntax);
+    QRegExp newRegExp(pattern, Qt::CaseSensitivity(cs),
+                      QRegExp::PatternSyntax(patternSyntax));
 
     newRegExp.setMinimal(isMinimal);
     regExp = newRegExp;
