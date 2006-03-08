@@ -69,7 +69,6 @@ RegExpDialog::RegExpDialog(QWidget *parent)
     checkBoxLayout->addStretch(1);
 
     QGridLayout *mainLayout = new QGridLayout;
-    mainLayout->setSizeConstraint(QLayout::SetFixedSize);
     mainLayout->addWidget(patternLabel, 0, 0);
     mainLayout->addWidget(patternComboBox, 0, 1);
     mainLayout->addWidget(escapedPatternLabel, 1, 0);
@@ -101,6 +100,7 @@ RegExpDialog::RegExpDialog(QWidget *parent)
     textComboBox->addItem(tr("(10 + delta4) * 32"));
 
     setWindowTitle(tr("RegExp"));
+    setFixedHeight(sizeHint().height());
     refresh();
 }
 
