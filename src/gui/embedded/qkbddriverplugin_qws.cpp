@@ -78,7 +78,7 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
     \fn QScreen *QKbdDriverPlugin::create(const QString &key, const QString &device)
 
     Creates a driver matching the type specified by the given \a
-    key and \a device parameters.
+    key and \a device parameters. Keys are case sensitive.
 
     \sa keys()
 */

@@ -120,7 +120,7 @@ QAccessibleBridgePlugin::~QAccessibleBridgePlugin()
     \fn QAccessibleBridge *QAccessibleBridgePlugin::create(const QString &key)
 
     Creates and returns the QAccessibleBridge object corresponding to
-    the given \a key.
+    the given \a key. Keys are case sensitive.
 
     \sa keys()
 */

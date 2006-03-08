@@ -57,7 +57,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 /*!
     Creates a QWSMouseHandler object for the driver specified by the
     given \a key, for the given \a device. The device is either a
-    built-in driver, or a driver from a driver plugin.
+    built-in driver, or a driver from a driver plugin. Keys are
+    case sensitive.
 
     \sa keys()
 */

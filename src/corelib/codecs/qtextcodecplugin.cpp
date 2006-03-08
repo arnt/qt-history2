@@ -40,9 +40,11 @@
 /*!
     \fn QStringList QTextCodecPlugin::names() const
 
-    Returns the list of MIME names and aliases supported by this plugin.
+    Returns the list of MIME names supported by this plugin.
 
-    \sa createForName()
+    If a codec has several names, the extra names are returned by aliases().
+
+    \sa createForName(), aliases()
 */
 
 /*!
@@ -54,7 +56,28 @@
 /*!
     \fn QTextCodec *QTextCodecPlugin::createForName(const QByteArray &name)
 
-    Creates a QTextCodec object for the codec called \a name.
+    Creates a QTextCodec object for the codec called \a name. The \a name
+    must come from the list of encodings returned by names(). Encoding
+    names are case sensitive.
+
+    Example:
+
+    \code
+        QList<QByteArray> MyCodecPlugin::names() const
+        {
+            return QList<QByteArray> << "IBM01140" << "hp15-tw";
+        }
+
+        QTextCodec *MyCodecPlugin::createForName(const QByteArray &name)
+        {
+            if (name == "IBM01140") {
+                return new Ibm01140Codec;
+            } else if (name == "hp15-tw") {
+                return new Hp15TwCodec;
+            }
+            return 0;
+        }
+    \endcode
 
     \sa names()
 */

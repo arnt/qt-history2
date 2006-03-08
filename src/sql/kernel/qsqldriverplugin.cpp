@@ -50,7 +50,7 @@
 
     Creates and returns a QSqlDriver object for the driver called \a
     key. The driver key is usually the class name of the required
-    driver.
+    driver. Keys are case sensitive.
 
     \sa keys()
 */

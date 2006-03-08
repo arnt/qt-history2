@@ -46,13 +46,27 @@
     \fn QStyle* QStylePlugin::create(const QString& key)
 
     Creates and returns a QStyle object for the style key \a key. The
-    style key is usually the class name of the required style.
+    style key is usually the class name of the required style. Keys are
+    case insensitive.
 
-    In an implementation of the create() function, the string
-    comparison must be case insensitive. For example:
+    Example:
 
     \code
-        key.toLower() == "stylename"
+        QStringList MyStylePlugin::keys() const
+        {
+            return QStringList() << "Rocket" << "StarBuster";
+        }
+
+        QStyle *MyStylePlugin::create(const QString &key)
+        {
+            QString lcKey = key;
+            if (lcKey == "rocket") {
+                return new RocketStyle;
+            } else if (lcKey == "starbuster") {
+                return new StarBusterStyle;
+            }
+            return 0;
+        }
     \endcode
 
     \sa keys()

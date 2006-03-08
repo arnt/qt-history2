@@ -67,7 +67,7 @@ QAccessiblePlugin::~QAccessiblePlugin()
     \fn QAccessibleInterface *QAccessiblePlugin::create(const QString &key, QObject *object)
 
     Creates and returns a QAccessibleInterface implementation for the
-    class \a key and the object \a object.
+    class \a key and the object \a object. Keys are case sensitive.
 
     \sa keys()
 */

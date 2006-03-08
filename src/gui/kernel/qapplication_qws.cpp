@@ -2776,7 +2776,8 @@ void QApplication::qwsSetDecoration(QDecoration *dec)
 
   Requests a QDecoration object for \a decoration from the QDecorationFactory.
 
-  The string must be one of the QStyleFactory::keys().
+  The string must be one of the QDecorationFactory::keys(). Keys are
+  case insensitive.
 
   A later call to the QApplication constructor will override the
   requested style when a "-style" option is passed in as a commandline

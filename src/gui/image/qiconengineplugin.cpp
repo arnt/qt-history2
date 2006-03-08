@@ -37,6 +37,7 @@
 
     Returns a list of icon engine keys that this plugin supports. The keys correspond
     to the suffix of the file or resource name used when the plugin was created.
+    Keys are case insensitive.
 
     \sa create()
 */

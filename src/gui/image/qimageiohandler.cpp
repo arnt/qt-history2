@@ -519,7 +519,8 @@ QImageIOPlugin::~QImageIOPlugin()
     \fn QImageIOHandler *QImageIOPlugin::create(QIODevice *device, const QByteArray &format) const
 
     Creates and returns a QImageIOHandler subclass, with \a device
-    and \a format set.
+    and \a format set. The \a format must come from the list returned by keys().
+    Format names are case sensitive.
 
     \sa keys()
 */

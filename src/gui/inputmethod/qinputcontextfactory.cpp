@@ -64,25 +64,26 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     The input contexts are either built-in or dynamically loaded from
     an input context plugin (see QInputContextPlugin).
 
-    QInputContextFactory::keys() returns a list of valid keys. The
+    keys() returns a list of valid keys. The
     keys are the names used, for example, to identify and specify
     input methods for the input method switching mechanism. The names
     have to be consistent with QInputContext::identifierName(), and
     may only contain ASCII characters.
 
     A key can be used to retrieve the associated input context's
-    supported languages using QInputContextFactory::languages(). You
+    supported languages using languages(). You
     can retrieve the input context's description using
-    QInputContextFactory::description() and finally you can get a user
+    description() and finally you can get a user
     friendly internationalized name of the QInputContext object
-    specified by the key using QInputContextFactory::displayName().
+    specified by the key using displayName().
 
     \sa QInputContext, QInputContextPlugin
 */
 
 /*!
     Creates and returns a QInputContext object for the input context
-    specified by \a key with the given \a parent.
+    specified by \a key with the given \a parent. Keys are case
+    sensitive.
 
     \sa keys()
 */

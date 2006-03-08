@@ -42,7 +42,7 @@
 */
 
 /*!
-    \fn  bool QPictureFormatPlugin::installIOHandler(const QString &format)
+    \fn bool QPictureFormatPlugin::installIOHandler(const QString &format)
 
     Installs a QPictureIO picture I/O handler for the picture format \a
     format.
