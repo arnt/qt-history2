@@ -66,7 +66,7 @@ void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, con
 {
     QFixed xpos;
     QFixed ypos;
-    
+
     const bool transform = matrix.m11() != 1.
                            || matrix.m12() != 0.
                            || matrix.m21() != 0.
@@ -215,15 +215,18 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
 QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
 {
     glyph_metrics_t gm = boundingBox(glyph);
-    int glyph_width = qRound(gm.width)+2;
-    int glyph_height = qRound(ascent() + descent())+2;
+    int glyph_width = qRound(gm.width);
+    int glyph_height = qRound(gm.height);
 
+    if (glyph_width <= 0 || glyph_height <= 0)
+        return QImage();
     QFixedPoint pt;
-    pt.y = ascent();
+    pt.x = gm.x;
+    pt.y = -gm.y;
     QPainterPath path;
-    QPixmap pm(glyph_width, glyph_height);
-    pm.fill(Qt::transparent);
-    QPainter p(&pm);
+    QImage im(glyph_width, glyph_height, QImage::Format_ARGB32_Premultiplied);
+    im.fill(Qt::transparent);
+    QPainter p(&im);
     p.setRenderHint(QPainter::Antialiasing);
     addGlyphsToPath(&glyph, &pt, 1, &path, 0);
     p.setPen(Qt::NoPen);
@@ -231,7 +234,20 @@ QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
     p.drawPath(path);
     p.end();
 
-    return pm.toImage().convertToFormat(QImage::Format_ARGB32);
+    QImage indexed(im.width(), im.height(), QImage::Format_Indexed8);
+    QVector<QRgb> colors(256);
+    for (int i=0; i<256; ++i)
+        colors[i] = qRgba(0, 0, 0, i);
+    indexed.setColorTable(colors);
+
+    for (int y=0; y<im.height(); ++y) {
+        uchar *dst = (uchar *) indexed.scanLine(y);
+        uint *src = (uint *) im.scanLine(y);
+        for (int x=0; x<im.width(); ++x)
+            dst[x] = qAlpha(src[x]);
+    }
+
+    return indexed;
 }
 
 QFontEngine::Properties QFontEngine::properties() const

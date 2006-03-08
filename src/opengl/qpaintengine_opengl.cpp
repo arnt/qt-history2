@@ -1692,7 +1692,7 @@ QGLGlyphCoord *QGLGlyphCache::lookup(const QTextItemInt &ti, glyph_t g)
         qgl_glyph->height = float(glyph_height/scale) / glyph_tex_height;
         qgl_glyph->texture = font_tex->texture;
 
-        QImage glyph_im(ti.fontEngine->alphaMapForGlyph(g).convertToFormat(QImage::Format_ARGB32));
+        QImage glyph_im(ti.fontEngine->alphaMapForGlyph(g).convertToFormat(QImage::Format_Indexed8));
         int padded_width = glyph_im.width();
         if (padded_width%2 != 0)
             ++padded_width;
@@ -1702,10 +1702,10 @@ QGLGlyphCoord *QGLGlyphCache::lookup(const QTextItemInt &ti, glyph_t g)
         memset(tex_data, 0, padded_width*glyph_im.height()*2);
 
         for (int y=0; y<glyph_im.height(); ++y) {
-            uint *s = (uint *) glyph_im.scanLine(y);
+            uchar *s = (uchar *) glyph_im.scanLine(y);
             for (int x=0; x<glyph_im.width(); ++x) {
                 tex_data[idx] = 0xff;
-                tex_data[idx+1] = qAlpha(*s);
+                tex_data[idx+1] = *s;
                 ++s;
                 idx += 2;
             }
@@ -1764,6 +1764,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     {
         for (int i=0; i< glyphs.size(); ++i) {
             QGLGlyphCoord *g = qt_glyph_cache->lookup(ti, glyphs[i]);
+            glyph_metrics_t metrics = ti.fontEngine->boundingBox(glyphs[i]);
 
             qreal x1, x2, y1, y2;
             x1 = g->x;
@@ -1771,11 +1772,12 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             x2 = x1 + g->width;
             y2 = y1 + g->height;
 
-            QPointF logical_pos(positions[i].x.toReal(), positions[i].y.toReal());
+            QPointF logical_pos((positions[i].x - metrics.x).toReal(),
+                                (positions[i].y + metrics.y).toReal());
 
-            QRectF r(logical_pos - QPointF(0, ti.ascent.toReal()),
-                     QSize(qRound(g->width*glyph_tex_width),
-                           qRound(g->height*glyph_tex_height)));
+            QRectF r(logical_pos,
+                     QSizeF(g->width*glyph_tex_width,
+                            g->height*glyph_tex_height));
             glTexCoord2d(x1, y1);
             glVertex2d(r.x(), r.y());
 
