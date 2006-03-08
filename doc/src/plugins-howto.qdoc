@@ -89,23 +89,29 @@
         class MyStylePlugin : public QStylePlugin
         {
         public:
-            QStringList keys() const {
-                return QStringList() << "mystyle";
-            }
-
-            QStyle *create(const QString &key) {
-                if (key == "mystyle")
-                    return new MyStyle;
-                return 0;
-            }
+            QStringList keys() const;
+            QStyle *create(const QString &key);
         };
+
+        QStringList MyStylePlugin::keys() const
+        {
+            return QStringList() << "MyStyle";
+        }
+
+        QStyle *MyStylePlugin::create(const QString &key)
+        {
+            if (key.toLower() == "mystyle")
+                return new MyStyle;
+            return 0;
+        }
 
         Q_EXPORT_PLUGIN2(MyStylePlugin)
     \endcode
 
-    (Note that QStylePlugin is case-insensitive, and the lower-case
-    version of the key is used; most other plugins are case
-    sensitive.)
+    (Note that QStylePlugin is case insensitive, and the lower-case
+    version of the key is used in our
+    \l{QStylePlugin::create()}{create()} implementation; most other
+    plugins are case sensitive.)
 
     For database drivers, image formats, text codecs, and most other
     plugin types, no explicit object creation is required. Qt will
