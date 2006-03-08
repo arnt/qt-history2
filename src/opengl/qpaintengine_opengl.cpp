@@ -1592,13 +1592,10 @@ QOpenGLPaintEngine::handle() const
     return 0;
 }
 
-
 const int glyph_tex_width = 1024;
 const int glyph_tex_height = 64;
 static const int x_margin = 1;
 static const int y_margin = 0;
-
-// static GLuint glyph_tex = 0;
 
 struct QGLGlyphCoord {
     // stores the offset and size of a glyph texture
@@ -1607,6 +1604,8 @@ struct QGLGlyphCoord {
     qreal width;
     qreal height;
     GLuint texture;
+    QFixed xoffset;
+    QFixed yoffset;
 };
 
 struct QGLFontTexture {
@@ -1615,7 +1614,6 @@ struct QGLFontTexture {
     GLuint texture;
 };
 
-// static QHash<glyph_t, QGLGlyphCoord*> qt_glyph_cache;
 typedef QHash<glyph_t, QGLGlyphCoord*>  QGLGlyphHash;
 typedef QHash<QFontEngine*, QGLGlyphHash* > QGLFontGlyphHash;
 typedef QHash<QFontEngine*, QGLFontTexture* > QGLFontTexHash;
@@ -1672,7 +1670,7 @@ QGLGlyphCoord *QGLGlyphCache::lookup(const QTextItemInt &ti, glyph_t g)
             font_tex->texture = tex;
             font_tex->x_offset = x_margin;
             font_tex->y_offset = y_margin;
-            qDebug() << "new font tex: " << ti.fontEngine << font_tex->texture;
+//             qDebug() << "new font tex: " << ti.fontEngine << font_tex->texture;
             qt_font_textures.insert(ti.fontEngine, font_tex);
         } else {
             font_tex = it.value();
@@ -1685,12 +1683,15 @@ QGLGlyphCoord *QGLGlyphCache::lookup(const QTextItemInt &ti, glyph_t g)
         }
 
         const int scale = 1;
+        glyph_metrics_t metrics = ti.fontEngine->boundingBox(g);
         qgl_glyph = new QGLGlyphCoord;
         qgl_glyph->x = float(font_tex->x_offset) / glyph_tex_width;
         qgl_glyph->y = float(font_tex->y_offset) / glyph_tex_height;
         qgl_glyph->width = float(glyph_width/scale) / glyph_tex_width;
         qgl_glyph->height = float(glyph_height/scale) / glyph_tex_height;
         qgl_glyph->texture = font_tex->texture;
+        qgl_glyph->xoffset = metrics.x;
+        qgl_glyph->yoffset = metrics.y;
 
         QImage glyph_im(ti.fontEngine->alphaMapForGlyph(g).convertToFormat(QImage::Format_Indexed8));
         int padded_width = glyph_im.width();
@@ -1745,9 +1746,8 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     matrix.translate(p.x(), p.y());
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
 
-    if (!qt_glyph_cache) {
+    if (!qt_glyph_cache)
         qt_glyph_cache = new QGLGlyphCache;
-    }
 
     // make sure the glyphs we want to draw are in the cache
     QGLGlyphCoord *g = 0;
@@ -1764,7 +1764,6 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     {
         for (int i=0; i< glyphs.size(); ++i) {
             QGLGlyphCoord *g = qt_glyph_cache->lookup(ti, glyphs[i]);
-            glyph_metrics_t metrics = ti.fontEngine->boundingBox(glyphs[i]);
 
             qreal x1, x2, y1, y2;
             x1 = g->x;
@@ -1772,8 +1771,8 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             x2 = x1 + g->width;
             y2 = y1 + g->height;
 
-            QPointF logical_pos((positions[i].x - metrics.x).toReal(),
-                                (positions[i].y + metrics.y).toReal());
+            QPointF logical_pos((positions[i].x - g->xoffset).toReal(),
+                                (positions[i].y + g->yoffset).toReal());
 
             QRectF r(logical_pos,
                      QSizeF(g->width*glyph_tex_width,
