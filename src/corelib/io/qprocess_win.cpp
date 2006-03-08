@@ -560,7 +560,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
     forever {
 
         if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
-            canWrite();
+            _q_canWrite();
             timer.resetIncrements();
         }
 
@@ -606,7 +606,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
     forever {
 
         if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0)))
-            return canWrite();
+            return _q_canWrite();
 
         if (bytesAvailableFromStdout() != 0) {
             _q_canReadStandardOutput();
@@ -646,7 +646,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
 
     forever {
         if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
-            canWrite();
+            _q_canWrite();
             timer.resetIncrements();
         }
 
@@ -718,7 +718,7 @@ void QProcessPrivate::_q_notified()
     notifier->stop();
 
     if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0)))
-        canWrite();
+        _q_canWrite();
 
     if (bytesAvailableFromStdout())
         _q_canReadStandardOutput();
