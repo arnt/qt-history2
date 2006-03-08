@@ -80,7 +80,7 @@ static gboolean postEventSourcePrepare(GSource *, gint *timeout)
     gint dummy;
     if (!timeout)
         timeout = &dummy;
-    return (*timeout = data->canWait > 0 ? -1 : 0) == -1;
+    return (*timeout = data->canWait ? -1 : 0) == 0;
 }
 
 static gboolean postEventSourceCheck(GSource *source)
