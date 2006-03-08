@@ -458,6 +458,9 @@ void QItemDelegate::drawBackground(QPainter *painter,
     if (option.showDecorationSelected && (option.state & QStyle::State_Selected)) {
         QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                                   ? QPalette::Normal : QPalette::Disabled;
+        if (cg == QPalette::Normal && !(option.state & QStyle::State_Active))
+            cg = QPalette::Inactive;
+
         painter->fillRect(option.rect, option.palette.brush(cg, QPalette::Highlight));
     } else {
         QVariant value = index.data(Qt::BackgroundColorRole);
