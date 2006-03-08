@@ -330,7 +330,7 @@
     basic types, for example \l qint8 which is a signed char
     guaranteed to be 8-bit on all platforms supported by Qt. The
     header file also declares the \l qlonglong type definition for \c
-    {long long int } (\c unsigned __int64 on Windows).
+    {long long int } (\c __int64 on Windows).
 
     Several convenience type definitions are declared: \l qreal for \c
     double, \l uchar for \c unsigned char, \l uint for \c unsigned
