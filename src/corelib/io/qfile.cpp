@@ -180,6 +180,19 @@ QFilePrivate::setError(QFile::FileError err, int errNum)
     use the encodeName() and decodeName() functions to convert
     between Unicode file names and 8-bit file names.
 
+    On Unix, there are some special system files (e.g. in \c /proc) for which
+    size() will always return 0, yet you may still be able to read more data
+    from such a file; the data is generated in direct response to you calling
+    read(). In this case, however, you cannot use atEnd() to determine if
+    there is more data to read (since atEnd() will return true for a file that
+    claims to have size 0). Instead, you should either call readAll(), or call
+    read() or readLine() repeatedly until no more data can be read. The next
+    example uses QTextStream to read \c /proc/modules line by line:
+    
+    \skipto readRegularEmptyFile_snippet
+    \skipto QFile
+    \printto /^\}/
+
     \sa QTextStream, QDataStream, QFileInfo, QDir, {The Qt Resource System}
 */
 
@@ -1103,7 +1116,11 @@ QFile::close()
 }
 
 /*!
-  \reimp
+  Returns the size of the file.
+
+  For regular empty files on Unix (e.g. those in \c /proc), this function
+  returns 0; the contents of such a file are generated on demand in response
+  to you calling read().
 */
 
 qint64 QFile::size() const
@@ -1121,7 +1138,13 @@ qint64 QFile::pos() const
 }
 
 /*!
-  \reimp
+  Returns true if the end of the file has been reached; otherwise returns
+  false.
+  
+  For regular empty files on Unix (e.g. those in \c /proc), this function
+  returns true, since the file system reports that the size of such a file is
+  0. Therefore, you should not depend on atEnd() when reading data from such a
+  file, but rather call read() until no more data can be read.
 */
 
 bool QFile::atEnd() const

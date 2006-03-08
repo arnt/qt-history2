@@ -607,6 +607,13 @@ bool QIODevice::seek(qint64 pos)
     Returns true if the current read and write position is at the end
     of the device (i.e. there is no more data available for reading on
     the device); otherwise returns false.
+
+    For some devices, atEnd() can return true even though there is more data
+    to read. This special case only applies to devices that generate data in
+    direct response to you calling read() (e.g., \c /dev or \c /proc files on
+    Unix and Mac OS X, or console input / \c stdin on all platforms).
+
+    \sa bytesAvailable(), read(), isSequential()
 */
 bool QIODevice::atEnd() const
 {
@@ -615,7 +622,7 @@ bool QIODevice::atEnd() const
     printf("%p QIODevice::atEnd() returns %s, d->openMode == %d, d->pos == %d\n", this, (d->openMode == NotOpen || d->pos == size()) ? "true" : "false",
            int(d->openMode), int(d->pos));
 #endif
-    return d->openMode != NotOpen && d->buffer.isEmpty() && (isSequential() || d->pos == size());
+    return d->openMode != NotOpen && d->buffer.isEmpty() && (bytesAvailable() == 0);
 }
 
 /*!
@@ -654,7 +661,7 @@ qint64 QIODevice::bytesAvailable() const
 {
     Q_D(const QIODevice);
     if (!isSequential())
-        return size() - d->pos;
+        return qMax(size() - d->pos, qint64(0));
     return d->buffer.size();
 }
 
