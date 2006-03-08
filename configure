@@ -1851,6 +1851,12 @@ else
         fi
         ARCH=powerpc
         ;;
+    *:*:ppc64)
+        if [ "$OPT_VERBOSE" = "yes" ]; then
+            echo "    64-bit PowerPC (powerpc)"
+        fi
+        ARCH=powerpc
+        ;;
     *:*:s390*)
     	if [ "$OPT_VERBOSE" = "yes" ]; then
     	    echo "    IBM S/390 (s390)"
