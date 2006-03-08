@@ -64,7 +64,6 @@ private:
     void init();
     void calculateFrame();
     void insertWid(QWidget*);
-    void setTextSpacer();
     Q3GroupBoxPrivate * d;
 
     Q_DISABLE_COPY(Q3GroupBox)
