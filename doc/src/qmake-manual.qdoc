@@ -987,17 +987,16 @@
     \section1 LIBS
 
     This variable contains a list of libraries to be linked into the project.
-    If you are more comfortable with the Unix convension of -L/-l flags you are
-    free to use them in a cross-platform manner and qmake will do the correct
+    You can use the Unix \c -l (library) and -L (library path) flags and
+    qmake will to the correct thing
     thing with these libraries on Windows (namely this means passing the full
     path of the library to the linker). The only limitation to this is the
-    library must exist, for qmake to find which directory a -l lib lives in.
+    library must exist, for qmake to find which directory a \c -l lib lives in.
 
     For example:
 
     \code
-        unix:LIBS += -lmath -L/usr/local/lib
-        win32:LIBS += c:\mylibs\math.lib
+        LIBS += -lmath -L/usr/local/lib
     \endcode
 
     By default, the list of libraries stored in \c LIBS is reduced to a list of
