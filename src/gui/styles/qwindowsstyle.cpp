@@ -1565,6 +1565,9 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                     popupPal.setColor(QPalette::Light, frame->palette.background().color());
                     popupPal.setColor(QPalette::Midlight, frame->palette.light().color());
                 }
+            if (use2000style && pe == PE_Frame)
+                qDrawWinButton(p, frame->rect, popupPal, frame->state & State_Sunken);
+            else
                 qDrawWinPanel(p, frame->rect, popupPal, frame->state & State_Sunken);
             } else {
                 QCommonStyle::drawPrimitive(pe, opt, p, w);
@@ -1643,6 +1646,13 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     break;
 #endif // QT_NO_DOCKWIDGET
 
+    case PE_FrameTabWidget: 
+        if (use2000style) {
+            QRect rect = opt->rect;
+            QPalette pal = opt->palette;
+            qDrawWinButton(p, opt->rect, opt->palette, false, 0);
+            break; 
+       }
     default:
         QCommonStyle::drawPrimitive(pe, opt, p, w);
     }
@@ -1889,8 +1899,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setPen(light);
                     p->drawLine(x1, y1 + 2, x1, y2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
                     p->drawPoint(x1 + 1, y1 + 1);
-                    p->setPen(midlight);
-                    p->drawLine(x1 + 1, y1 + 2, x1 + 1, y2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
+                    if (!use2000style) {
+                        p->setPen(midlight);
+                        p->drawLine(x1 + 1, y1 + 2, x1 + 1, y2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
+                    }
                 }
                 // Top
                 {
@@ -1898,8 +1910,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     int end = x2 - (nextSelected ? 0 : 2);
                     p->setPen(light);
                     p->drawLine(beg, y1, end, y1);
-                    p->setPen(midlight);
-                    p->drawLine(beg, y1 + 1, end, y1 + 1);
+                    if (!use2000style) {
+                        p->setPen(midlight);
+                        p->drawLine(beg, y1 + 1, end, y1 + 1);
+                    }
                 }
                 // Right
                 if (lastTab || selected || onlyOne || !nextSelected) {
@@ -1927,8 +1941,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setPen(light);
                     p->drawLine(x1, y2 - 2, x1, y1 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
                     p->drawPoint(x1 + 1, y2 - 1);
-                    p->setPen(midlight);
-                    p->drawLine(x1 + 1, y2 - 2, x1 + 1, y1 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
+                    if (!use2000style) {
+                        p->setPen(midlight);
+                        p->drawLine(x1 + 1, y2 - 2, x1 + 1, y1 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
+                    }
                 }
                 // Bottom
                 {
@@ -1965,8 +1981,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setPen(light);
                     p->drawLine(x1 + 2, y1, x2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1);
                     p->drawPoint(x1 + 1, y1 + 1);
-                    p->setPen(midlight);
-                    p->drawLine(x1 + 2, y1 + 1, x2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
+                    if (!use2000style) {
+                        p->setPen(midlight);
+                        p->drawLine(x1 + 2, y1 + 1, x2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
+                    }
                 }
                 // Left
                 {
@@ -1974,8 +1992,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     int end = y2 - (nextSelected ? 0 : 2);
                     p->setPen(light);
                     p->drawLine(x1, beg, x1, end);
-                    p->setPen(midlight);
-                    p->drawLine(x1 + 1, beg, x1 + 1, end);
+                    if (!use2000style) {
+                        p->setPen(midlight);
+                        p->drawLine(x1 + 1, beg, x1 + 1, end);
+                    }
                 }
                 // Bottom
                 if (lastTab || selected || onlyOne || !nextSelected) {
@@ -2005,9 +2025,11 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setPen(light);
                     p->drawLine(x2 - 2, y1, x1 + ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1);
                     p->drawPoint(x2 - 1, y1 + 1);
-                    p->setPen(midlight);
-                    p->drawLine(x2 - 3, y1 + 1, x1 + ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
-                    p->drawPoint(x2 - 1, y1);
+                    if (!use2000style) {
+                        p->setPen(midlight);
+                        p->drawLine(x2 - 3, y1 + 1, x1 + ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
+                        p->drawPoint(x2 - 1, y1);
+                    }
                 }
                 // Right
                 {
