@@ -1114,15 +1114,23 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 switch (tab->shape) {
                 case QTabBar::TriangularNorth:
                     rect.adjust(0, 0, 0, -tabOverlap);
+                    if(!selected)
+                        rect.adjust(1, 1, -1, 0);
                     break;
                 case QTabBar::TriangularSouth:
                     rect.adjust(0, tabOverlap, 0, 0);
+                    if(!selected)
+                        rect.adjust(1, 0, -1, -1);
                     break;
                 case QTabBar::TriangularEast:
                     rect.adjust(tabOverlap, 0, 0, 0);
+                    if(!selected)
+                        rect.adjust(0, 1, -1, -1);
                     break;
                 case QTabBar::TriangularWest:
                     rect.adjust(0, 0, -tabOverlap, 0);
+                    if(!selected)
+                        rect.adjust(1, 1, 0, -1);
                     break;
                 default:
                     break;
@@ -3301,7 +3309,10 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
                    || tb->shape == QTabBar::RoundedWest || tb->shape == QTabBar::RoundedEast))
             ret = 8;
         else
-            ret = 0;
+            if(tb->shape == QTabBar::TriangularWest || tb->shape == QTabBar::TriangularEast)
+                ret = 3;
+            else
+                ret = 2;
         break; }
 #endif
 
