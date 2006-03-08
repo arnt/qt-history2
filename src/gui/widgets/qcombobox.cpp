@@ -2082,9 +2082,12 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
             ++newIndex;
         break;
     case Qt::Key_Back:
-        if (QApplication::keypadNavigationEnabled()
-                && (!hasEditFocus() || !d->lineEdit))
-            e->ignore();
+        if (QApplication::keypadNavigationEnabled()) {
+            if (!hasEditFocus() || !d->lineEdit)
+                e->ignore();
+            else if (d->lineEdit && hasEditFocus())
+                d->skipCompletion = true;
+        }
         break;
 #endif
     default:

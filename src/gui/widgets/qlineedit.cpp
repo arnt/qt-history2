@@ -1359,6 +1359,8 @@ bool QLineEdit::event(QEvent * e)
                     && d->deleteAllTimer.isActive()) {
                 d->deleteAllTimer.stop();
                 backspace();
+                ke->accept();
+                return true;
             }
         }
     }
