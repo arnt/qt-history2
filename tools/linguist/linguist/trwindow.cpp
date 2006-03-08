@@ -798,7 +798,7 @@ void TrWindow::about()
                     "Qt Commercial License Agreement. For details, see the file LICENSE "
                     "that came with this software distribution.<br/>"
 #endif
-                    "<br/>Copyright 2000-$THISYEAR$ Trolltech AS. All rights reserved."
+                    "<br/>Copyright (C) 2000-$THISYEAR$ Trolltech AS. All rights reserved."
                     "<br/><br/>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
                     " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
                     " PARTICULAR PURPOSE.<br/> "));
