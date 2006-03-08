@@ -1628,7 +1628,6 @@ public:
 protected:
     QGLFontTexHash qt_font_textures;
     QGLFontGlyphHash qt_glyph_cache;
-
 };
 
 QGLGlyphCoord *QGLGlyphCache::lookup(const QTextItemInt &ti, glyph_t g)
@@ -1683,15 +1682,14 @@ QGLGlyphCoord *QGLGlyphCache::lookup(const QTextItemInt &ti, glyph_t g)
         }
 
         const int scale = 1;
-        glyph_metrics_t metrics = ti.fontEngine->boundingBox(g);
         qgl_glyph = new QGLGlyphCoord;
         qgl_glyph->x = float(font_tex->x_offset) / glyph_tex_width;
         qgl_glyph->y = float(font_tex->y_offset) / glyph_tex_height;
         qgl_glyph->width = float(glyph_width/scale) / glyph_tex_width;
         qgl_glyph->height = float(glyph_height/scale) / glyph_tex_height;
         qgl_glyph->texture = font_tex->texture;
-        qgl_glyph->xoffset = metrics.x;
-        qgl_glyph->yoffset = metrics.y;
+        qgl_glyph->xoffset = gm.x;
+        qgl_glyph->yoffset = gm.y;
 
         QImage glyph_im(ti.fontEngine->alphaMapForGlyph(g).convertToFormat(QImage::Format_Indexed8));
         int padded_width = glyph_im.width();
