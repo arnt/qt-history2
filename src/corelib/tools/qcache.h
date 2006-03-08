@@ -22,15 +22,16 @@ template <class Key, class T>
 class QCache
 {
     struct Node {
-        inline Node() {}
-        inline Node(const Key &key, T *data, int cost)
-            : k(key), t(data), c(cost), p(0), n(0) {}
-        Key k; T *t; int c; Node *p,*n;
+        inline Node() : keyPtr(0) {}
+        inline Node(T *data, int cost)
+            : keyPtr(0), t(data), c(cost), p(0), n(0) {}
+        const Key *keyPtr; T *t; int c; Node *p,*n;
     };
     Node *f, *l;
     QHash<Key, Node> hash;
-    QHash<int, Node> serial;
+    void *unused;
     int mx, total;
+
     inline void unlink(Node &n) {
         if (n.p) n.p->n = n.n;
         if (n.n) n.n->p = n.p;
@@ -38,10 +39,14 @@ class QCache
         if (f == &n) f = n.n;
         total -= n.c;
         delete n.t;
-        hash.remove(Key(n.k));
+        hash.remove(*n.keyPtr);
     }
-    inline T *&relink(const Key &key) {
-        Node &n = hash[key];
+    inline T *relink(const Key &key) {
+        typename QHash<Key, Node>::iterator i = hash.find(key);
+        if (i == hash.constEnd())
+            return 0;
+
+        Node &n = *i;
         if (f != &n) {
             if (n.p) n.p->n = n.n;
             if (n.n) n.n->p = n.p;
@@ -107,8 +112,7 @@ inline void QCache<Key,T>::setMaxCost(int m)
 
 template <class Key, class T>
 inline T *QCache<Key,T>::object(const Key &key) const
-{ if (!hash.contains(key)) return 0;
- return const_cast<QCache<Key,T>*>(this)->relink(key); }
+{ return const_cast<QCache<Key,T>*>(this)->relink(key); }
 
 template <class Key, class T>
 inline T *QCache<Key,T>::operator[](const Key &key) const
@@ -116,12 +120,29 @@ inline T *QCache<Key,T>::operator[](const Key &key) const
 
 template <class Key, class T>
 inline bool QCache<Key,T>::remove(const Key &key)
-{ if (hash.contains(key)) { unlink(hash[key]); return true; } return false; }
+{
+    typename QHash<Key, Node>::iterator i = hash.find(key);
+    if (i == hash.constEnd()) {
+        return false;
+    } else {
+        unlink(*i);
+        return true;
+    }
+}
 
 template <class Key, class T>
 inline T *QCache<Key,T>::take(const Key &key)
-{ if (!hash.contains(key)) return 0;
- Node &n = hash[key]; T *t = n.t; n.t = 0; unlink(n); return t; }
+{
+    typename QHash<Key, Node>::iterator i = hash.find(key);
+    if (i == hash.constEnd())
+        return 0;
+
+    Node &n = *i;
+    T *t = n.t;
+    n.t = 0;
+    unlink(n);
+    return t;
+}
 
 template <class Key, class T>
 bool QCache<Key,T>::insert(const Key &akey, T *aobject, int acost)
@@ -132,10 +153,11 @@ bool QCache<Key,T>::insert(const Key &akey, T *aobject, int acost)
         return false;
     }
     trim(mx - acost);
-    Node sn(akey, aobject, acost);
-    hash.insert(akey, sn);
+    Node sn(aobject, acost);
+    typename QHash<Key, Node>::iterator i = hash.insert(akey, sn);
     total += acost;
-    Node *n = &hash[akey];
+    Node *n = &i.value();
+    n->keyPtr = &i.key();
     if (f) f->p = n;
     n->n = f;
     f = n;
