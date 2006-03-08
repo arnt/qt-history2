@@ -718,88 +718,88 @@ Requires:
 Name: QCop IPC
 SeeAlso: ???
 
-# Qtopia-specific
+# Qtopia Core
 
 Feature: QWS_SOUNDSERVER
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires: SOUND HOSTINFO QWS_MULTIPROCESS
 Name: Server to play sound
 SeeAlso: ???
 
 Feature: QWS_MULTIPROCESS
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires:
 Name: Multi-process architecture
 SeeAlso: ???
 
 Feature: QWS_KEYBOARD
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires:
 Name: Console keyboard
 SeeAlso: ???
 
 Feature: QWS_CURSOR
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires: CURSOR
 Name: Visible cursor
 SeeAlso: ???
 
 Feature: QWS_ALPHA_CURSOR
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires:
 Name: Alpha-blended cursor
 SeeAlso: ???
 
 Feature: QWS_MANAGER
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires: QWS_DECORATION_DEFAULT
 Name: Window Manager
 SeeAlso: ???
 
 Feature: QWS_DECORATION_DEFAULT
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires: 
 Name:
 SeeAlso: ???
 
 Feature: QWS_DECORATION_WINDOWS
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires: QWS_DECORATION_DEFAULT
 Name: The "Windows" style
 SeeAlso: ???
 
 Feature: QWS_DECORATION_STYLED
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires: QWS_DECORATION_DEFAULT
 Name:
 SeeAlso: ???
 
 Feature: QWS_MOUSE
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires:
 Name: Mouse
 SeeAlso: ???
 
 Feature: QWS_MOUSE_AUTO
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires:
 Name: Autodetecting mouse driver
 SeeAlso: ???
 
 Feature: QWS_MOUSE_MANUAL
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires:
 Name: Non-autodetecting mouse driver
 SeeAlso: ???
 
 Feature: QWS_PROPERTIES
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires:
 Name: Qtopia Core window system properties.
 SeeAlso: ???
 
 Feature: SXV
-Section: Qtopia-specific
+Section: Qtopia Core
 Requires: QWS_MULTIPROCESS
 Name: Secure Execution Environment (experimental)
 SeeAlso: ???

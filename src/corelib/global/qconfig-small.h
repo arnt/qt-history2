@@ -175,7 +175,7 @@
 #  define QT_NO_PRINTER
 #endif
 
-// Qtopia-specific
+// Qtopia Core
 #ifndef QT_NO_QWS_SOUNDSERVER
 #  define QT_NO_QWS_SOUNDSERVER
 #endif
