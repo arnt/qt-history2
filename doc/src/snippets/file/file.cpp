@@ -54,6 +54,19 @@ static void writeTextStream_snippet()
     out << "The magic number is: " << 49 << "\n";
 }
 
+static void readRegularEmptyFile_snippet()
+{
+    QFile file("/proc/modules");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
+    QTextStream in(&file);
+    QString line = in.readLine();
+    while (!line.isNull()) {
+        process_line(line);
+        line = in.readLine();
+    }
+}
 
 int main()
 {
