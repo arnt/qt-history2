@@ -116,7 +116,7 @@ public Q_SLOTS:
 
 private:
     Q_DISABLE_COPY(QMovie)
-    Q_PRIVATE_SLOT(d_func(), void loadNextFrame())
+    Q_PRIVATE_SLOT(d_func(), void _q_loadNextFrame())
 
 #ifdef QT3_SUPPORT
 public:

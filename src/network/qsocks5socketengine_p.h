@@ -87,17 +87,17 @@ public:
 private:
     Q_DECLARE_PRIVATE(QSocks5SocketEngine)
     Q_DISABLE_COPY(QSocks5SocketEngine)
-    Q_PRIVATE_SLOT(d_func(), void controlSocketConnected())
-    Q_PRIVATE_SLOT(d_func(), void controlSocketReadNotification())
-    Q_PRIVATE_SLOT(d_func(), void controlSocketError(QAbstractSocket::SocketError))
+    Q_PRIVATE_SLOT(d_func(), void _q_controlSocketConnected())
+    Q_PRIVATE_SLOT(d_func(), void _q_controlSocketReadNotification())
+    Q_PRIVATE_SLOT(d_func(), void _q_controlSocketError(QAbstractSocket::SocketError))
 #ifndef QT_NO_UDPSOCKET
-    Q_PRIVATE_SLOT(d_func(), void udpSocketReadNotification())
+    Q_PRIVATE_SLOT(d_func(), void _q_udpSocketReadNotification())
 #endif
-    Q_PRIVATE_SLOT(d_func(), void controlSocketBytesWritten())
-    Q_PRIVATE_SLOT(d_func(), void emitPendingReadNotification())
-    Q_PRIVATE_SLOT(d_func(), void emitPendingWriteNotification())
-    Q_PRIVATE_SLOT(d_func(), void controlSocketDisconnected())
-    Q_PRIVATE_SLOT(d_func(), void controlSocketStateChanged(QAbstractSocket::SocketState))
+    Q_PRIVATE_SLOT(d_func(), void _q_controlSocketBytesWritten())
+    Q_PRIVATE_SLOT(d_func(), void _q_emitPendingReadNotification())
+    Q_PRIVATE_SLOT(d_func(), void _q_emitPendingWriteNotification())
+    Q_PRIVATE_SLOT(d_func(), void _q_controlSocketDisconnected())
+    Q_PRIVATE_SLOT(d_func(), void _q_controlSocketStateChanged(QAbstractSocket::SocketState))
 
 };
 
@@ -198,16 +198,16 @@ public:
     void parseRequestMethodReply();
     void parseNewConnection();
 
-    void controlSocketConnected();
-    void controlSocketReadNotification();
-    void controlSocketError(QAbstractSocket::SocketError);
+    void _q_controlSocketConnected();
+    void _q_controlSocketReadNotification();
+    void _q_controlSocketError(QAbstractSocket::SocketError);
 #ifndef QT_NO_UDPSOCKET
     void checkForDatagrams() const;
-    void udpSocketReadNotification();
+    void _q_udpSocketReadNotification();
 #endif
-    void controlSocketBytesWritten();
-    void controlSocketDisconnected();
-    void controlSocketStateChanged(QAbstractSocket::SocketState);
+    void _q_controlSocketBytesWritten();
+    void _q_controlSocketDisconnected();
+    void _q_controlSocketStateChanged(QAbstractSocket::SocketState);
 
     QNetworkProxy proxyInfo;
 
@@ -226,10 +226,10 @@ public:
     mutable bool writeNotificationActivated;
 
     bool readNotificationPending;
-    void emitPendingReadNotification();
+    void _q_emitPendingReadNotification();
     void emitReadNotification();
     bool writeNotificationPending;
-    void emitPendingWriteNotification();
+    void _q_emitPendingWriteNotification();
     void emitWriteNotification();
 };
 

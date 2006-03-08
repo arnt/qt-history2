@@ -90,15 +90,15 @@ private:
     Q_DECLARE_PRIVATE(QProxyModel)
     Q_DISABLE_COPY(QProxyModel)
 
-    Q_PRIVATE_SLOT(d_func(), void sourceDataChanged(const QModelIndex&,const QModelIndex&))
-    Q_PRIVATE_SLOT(d_func(), void sourceRowsAboutToBeInserted(const QModelIndex&,int,int))
-    Q_PRIVATE_SLOT(d_func(), void sourceRowsInserted(const QModelIndex&,int,int))
-    Q_PRIVATE_SLOT(d_func(), void sourceRowsAboutToBeRemoved(const QModelIndex&,int,int))
-    Q_PRIVATE_SLOT(d_func(), void sourceRowsRemoved(const QModelIndex&,int,int))
-    Q_PRIVATE_SLOT(d_func(), void sourceColumnsAboutToBeInserted(const QModelIndex&,int,int))
-    Q_PRIVATE_SLOT(d_func(), void sourceColumnsInserted(const QModelIndex&,int,int))
-    Q_PRIVATE_SLOT(d_func(), void sourceColumnsAboutToBeRemoved(const QModelIndex&,int,int))
-    Q_PRIVATE_SLOT(d_func(), void sourceColumnsRemoved(const QModelIndex&,int,int))
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceDataChanged(const QModelIndex&,const QModelIndex&))
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceRowsAboutToBeInserted(const QModelIndex&,int,int))
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceRowsInserted(const QModelIndex&,int,int))
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceRowsAboutToBeRemoved(const QModelIndex&,int,int))
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceRowsRemoved(const QModelIndex&,int,int))
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceColumnsAboutToBeInserted(const QModelIndex&,int,int))
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceColumnsInserted(const QModelIndex&,int,int))
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceColumnsAboutToBeRemoved(const QModelIndex&,int,int))
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceColumnsRemoved(const QModelIndex&,int,int))
 };
 
 #endif // QT_NO_PROXYMODEL

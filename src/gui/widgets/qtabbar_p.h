@@ -84,7 +84,7 @@ public:
 
     QToolButton* rightB; // right or bottom
     QToolButton* leftB; // left or top
-    void scrollTabs(); // private slot
+    void _q_scrollTabs(); // private slot
     QRect hoverRect;
 
     void refresh();

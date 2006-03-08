@@ -173,8 +173,8 @@ public:
     void drag();
 #endif
 
-    void clipboardChanged();
-    void deleteSelected();
+    void _q_clipboardChanged();
+    void _q_deleteSelected();
     bool userInput;
     bool emitingEditingFinished;
 

@@ -196,8 +196,8 @@ Q_SIGNALS:
 private:
     Q_DISABLE_COPY(QLineEdit)
     Q_DECLARE_PRIVATE(QLineEdit)
-    Q_PRIVATE_SLOT(d_func(), void clipboardChanged())
-    Q_PRIVATE_SLOT(d_func(), void deleteSelected())
+    Q_PRIVATE_SLOT(d_func(), void _q_clipboardChanged())
+    Q_PRIVATE_SLOT(d_func(), void _q_deleteSelected())
 };
 
 #endif // QT_NO_LINEEDIT

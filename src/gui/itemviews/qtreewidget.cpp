@@ -1598,67 +1598,67 @@ class QTreeWidgetPrivate : public QTreeViewPrivate
 public:
     QTreeWidgetPrivate() : QTreeViewPrivate() {}
     inline QTreeModel *model() const { return ::qobject_cast<QTreeModel*>(q_func()->model()); }
-    void emitItemPressed(const QModelIndex &index);
-    void emitItemClicked(const QModelIndex &index);
-    void emitItemDoubleClicked(const QModelIndex &index);
-    void emitItemActivated(const QModelIndex &index);
-    void emitItemEntered(const QModelIndex &index);
-    void emitItemChanged(const QModelIndex &index);
-    void emitItemExpanded(const QModelIndex &index);
-    void emitItemCollapsed(const QModelIndex &index);
-    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &index);
+    void _q_emitItemPressed(const QModelIndex &index);
+    void _q_emitItemClicked(const QModelIndex &index);
+    void _q_emitItemDoubleClicked(const QModelIndex &index);
+    void _q_emitItemActivated(const QModelIndex &index);
+    void _q_emitItemEntered(const QModelIndex &index);
+    void _q_emitItemChanged(const QModelIndex &index);
+    void _q_emitItemExpanded(const QModelIndex &index);
+    void _q_emitItemCollapsed(const QModelIndex &index);
+    void _q_emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &index);
     void _q_sort();
 };
 
-void QTreeWidgetPrivate::emitItemPressed(const QModelIndex &index)
+void QTreeWidgetPrivate::_q_emitItemPressed(const QModelIndex &index)
 {
     Q_Q(QTreeWidget);
     emit q->itemPressed(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitItemClicked(const QModelIndex &index)
+void QTreeWidgetPrivate::_q_emitItemClicked(const QModelIndex &index)
 {
     Q_Q(QTreeWidget);
     emit q->itemClicked(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitItemDoubleClicked(const QModelIndex &index)
+void QTreeWidgetPrivate::_q_emitItemDoubleClicked(const QModelIndex &index)
 {
     Q_Q(QTreeWidget);
     emit q->itemDoubleClicked(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitItemActivated(const QModelIndex &index)
+void QTreeWidgetPrivate::_q_emitItemActivated(const QModelIndex &index)
 {
     Q_Q(QTreeWidget);
     emit q->itemActivated(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitItemEntered(const QModelIndex &index)
+void QTreeWidgetPrivate::_q_emitItemEntered(const QModelIndex &index)
 {
     Q_Q(QTreeWidget);
     emit q->itemEntered(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &index)
+void QTreeWidgetPrivate::_q_emitItemChanged(const QModelIndex &index)
 {
     Q_Q(QTreeWidget);
     emit q->itemChanged(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitItemExpanded(const QModelIndex &index)
+void QTreeWidgetPrivate::_q_emitItemExpanded(const QModelIndex &index)
 {
     Q_Q(QTreeWidget);
     emit q->itemExpanded(model()->item(index));
 }
 
-void QTreeWidgetPrivate::emitItemCollapsed(const QModelIndex &index)
+void QTreeWidgetPrivate::_q_emitItemCollapsed(const QModelIndex &index)
 {
     Q_Q(QTreeWidget);
     emit q->itemCollapsed(model()->item(index));
 }
 
-void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
+void QTreeWidgetPrivate::_q_emitCurrentItemChanged(const QModelIndex &current,
                                                 const QModelIndex &previous)
 {
     Q_Q(QTreeWidget);
@@ -1827,19 +1827,19 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
     QTreeView::setModel(new QTreeModel(0, this));
-    connect(this, SIGNAL(pressed(QModelIndex)), SLOT(emitItemPressed(QModelIndex)));
-    connect(this, SIGNAL(clicked(QModelIndex)), SLOT(emitItemClicked(QModelIndex)));
-    connect(this, SIGNAL(doubleClicked(QModelIndex)), SLOT(emitItemDoubleClicked(QModelIndex)));
-    connect(this, SIGNAL(activated(QModelIndex)), SLOT(emitItemActivated(QModelIndex)));
-    connect(this, SIGNAL(entered(QModelIndex)), SLOT(emitItemEntered(QModelIndex)));
-    connect(this, SIGNAL(expanded(QModelIndex)), SLOT(emitItemExpanded(QModelIndex)));
-    connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(emitItemCollapsed(QModelIndex)));
+    connect(this, SIGNAL(pressed(QModelIndex)), SLOT(_q_emitItemPressed(QModelIndex)));
+    connect(this, SIGNAL(clicked(QModelIndex)), SLOT(_q_emitItemClicked(QModelIndex)));
+    connect(this, SIGNAL(doubleClicked(QModelIndex)), SLOT(_q_emitItemDoubleClicked(QModelIndex)));
+    connect(this, SIGNAL(activated(QModelIndex)), SLOT(_q_emitItemActivated(QModelIndex)));
+    connect(this, SIGNAL(entered(QModelIndex)), SLOT(_q_emitItemEntered(QModelIndex)));
+    connect(this, SIGNAL(expanded(QModelIndex)), SLOT(_q_emitItemExpanded(QModelIndex)));
+    connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(_q_emitItemCollapsed(QModelIndex)));
     connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
+            this, SLOT(_q_emitCurrentItemChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SIGNAL(itemSelectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitItemChanged(QModelIndex)));
+            this, SLOT(_q_emitItemChanged(QModelIndex)));
     QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(_q_sort()));
     QObject::connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(_q_sort()));
     QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)), this, SLOT(_q_sort()));

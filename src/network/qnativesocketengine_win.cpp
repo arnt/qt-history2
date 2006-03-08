@@ -1198,7 +1198,7 @@ void QNativeSocketEnginePrivate::nativeClose()
     ::closesocket(socketDescriptor);
 }
 
-void QNativeSocketEnginePrivate::systemReadNotification()
+void QNativeSocketEnginePrivate::_q_systemReadNotification()
 {
     Q_Q(QNativeSocketEngine);
     

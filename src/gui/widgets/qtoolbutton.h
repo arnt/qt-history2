@@ -93,9 +93,9 @@ private:
     Q_DISABLE_COPY(QToolButton)
     Q_DECLARE_PRIVATE(QToolButton)
 #ifndef QT_NO_MENU
-    Q_PRIVATE_SLOT(d_func(), void buttonPressed())
+    Q_PRIVATE_SLOT(d_func(), void _q_buttonPressed())
 #endif
-    Q_PRIVATE_SLOT(d_func(), void actionTriggered())
+    Q_PRIVATE_SLOT(d_func(), void _q_actionTriggered())
 
 #ifdef QT3_SUPPORT
 public:

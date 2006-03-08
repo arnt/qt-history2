@@ -482,18 +482,18 @@ void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
                "QMainWIndow::addToolBar", "specified 'area' is not an allowed area");
 
     disconnect(this, SIGNAL(iconSizeChanged(QSize)),
-               toolbar, SLOT(updateIconSize(QSize)));
+               toolbar, SLOT(_q_updateIconSize(QSize)));
     disconnect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
-               toolbar, SLOT(updateToolButtonStyle(Qt::ToolButtonStyle)));
+               toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
 
     d->layout->removeWidget(toolbar);
 
-    toolbar->d_func()->updateIconSize(d->iconSize);
-    toolbar->d_func()->updateToolButtonStyle(d->toolButtonStyle);
+    toolbar->d_func()->_q_updateIconSize(d->iconSize);
+    toolbar->d_func()->_q_updateToolButtonStyle(d->toolButtonStyle);
     connect(this, SIGNAL(iconSizeChanged(QSize)),
-            toolbar, SLOT(updateIconSize(QSize)));
+            toolbar, SLOT(_q_updateIconSize(QSize)));
     connect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
-            toolbar, SLOT(updateToolButtonStyle(Qt::ToolButtonStyle)));
+            toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
 
     d->layout->addToolBar(area, toolbar);
 
@@ -539,12 +539,12 @@ void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
 
     removeToolBar(toolbar);
 
-    toolbar->d_func()->updateIconSize(d->iconSize);
-    toolbar->d_func()->updateToolButtonStyle(d->toolButtonStyle);
+    toolbar->d_func()->_q_updateIconSize(d->iconSize);
+    toolbar->d_func()->_q_updateToolButtonStyle(d->toolButtonStyle);
     connect(this, SIGNAL(iconSizeChanged(QSize)),
-            toolbar, SLOT(updateIconSize(QSize)));
+            toolbar, SLOT(_q_updateIconSize(QSize)));
     connect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
-            toolbar, SLOT(updateToolButtonStyle(Qt::ToolButtonStyle)));
+            toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
 
     d->layout->insertToolBar(before, toolbar);
 
@@ -560,9 +560,9 @@ void QMainWindow::removeToolBar(QToolBar *toolbar)
 {
     if (toolbar) {
         disconnect(this, SIGNAL(iconSizeChanged(QSize)),
-                   toolbar, SLOT(updateIconSize(QSize)));
+                   toolbar, SLOT(_q_updateIconSize(QSize)));
         disconnect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
-                   toolbar, SLOT(updateToolButtonStyle(Qt::ToolButtonStyle)));
+                   toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
 
         d_func()->layout->removeWidget(toolbar);
         toolbar->hide();

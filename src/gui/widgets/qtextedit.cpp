@@ -423,15 +423,15 @@ void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QT
             doc = new QTextDocument(q);
         }
 
-        QObject::connect(doc->documentLayout(), SIGNAL(update(QRectF)), q, SLOT(repaintContents(QRectF)));
-        QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), q, SLOT(adjustScrollbars()));
+        QObject::connect(doc->documentLayout(), SIGNAL(update(QRectF)), q, SLOT(_q_repaintContents(QRectF)));
+        QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), q, SLOT(_q_adjustScrollbars()));
         cursor = QTextCursor(doc);
 
         doc->setDefaultFont(q->font());
         doc->documentLayout()->setPaintDevice(viewport);
 
-        QObject::connect(doc, SIGNAL(contentsChanged()), q, SLOT(updateCurrentCharFormatAndSelection()));
-        QObject::connect(doc, SIGNAL(cursorPositionChanged(QTextCursor)), q, SLOT(emitCursorPosChanged(QTextCursor)));
+        QObject::connect(doc, SIGNAL(contentsChanged()), q, SLOT(_q_updateCurrentCharFormatAndSelection()));
+        QObject::connect(doc, SIGNAL(cursorPositionChanged(QTextCursor)), q, SLOT(_q_emitCursorPosChanged(QTextCursor)));
 
         // convenience signal forwards
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
@@ -484,7 +484,7 @@ void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QT
     QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
     emit q->textChanged();
     doc->setUndoRedoEnabled(!q->isReadOnly());
-    updateCurrentCharFormatAndSelection();
+    _q_updateCurrentCharFormatAndSelection();
     doc->setModified(false);
     anchorToScrollToWhenVisible.clear();
     emit q->cursorPositionChanged();
@@ -528,7 +528,7 @@ void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
     }
 }
 
-void QTextEditPrivate::repaintContents(const QRectF &contentsRect)
+void QTextEditPrivate::_q_repaintContents(const QRectF &contentsRect)
 {
     const int xOffset = horizontalOffset();
     const int yOffset = verticalOffset();
@@ -600,14 +600,14 @@ void QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
     }
 }
 
-void QTextEditPrivate::updateCurrentCharFormatAndSelection()
+void QTextEditPrivate::_q_updateCurrentCharFormatAndSelection()
 {
     updateCurrentCharFormat();
     selectionChanged();
 }
 
 #ifndef QT_NO_SCROLLBAR
-void QTextEditPrivate::adjustScrollbars()
+void QTextEditPrivate::_q_adjustScrollbars()
 {
     if (ignoreAutomaticScrollbarAdjustement)
         return;
@@ -642,7 +642,7 @@ void QTextEditPrivate::adjustScrollbars()
     if (q_func()->isRightToLeft())
         viewport->update();
 
-    showOrHideScrollBars();
+    _q_showOrHideScrollBars();
 }
 #endif
 
@@ -706,7 +706,7 @@ void QTextEditPrivate::ensureViewportLayouted()
         tlayout->ensureLayouted(verticalOffset() + viewport->height());
 }
 
-void QTextEditPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
+void QTextEditPrivate::_q_emitCursorPosChanged(const QTextCursor &someCursor)
 {
     Q_Q(QTextEdit);
     if (someCursor.isCopyOf(cursor)) {
@@ -804,7 +804,7 @@ void QTextEditPrivate::extendLinewiseSelection(int suggestedNewPosition)
     }
 }
 
-void QTextEditPrivate::deleteSelected()
+void QTextEditPrivate::_q_deleteSelected()
 {
     if (readOnly || !cursor.hasSelection())
 	return;
@@ -815,10 +815,10 @@ void QTextEditPrivate::undo()
 {
     Q_Q(QTextEdit);
     QObject::connect(doc, SIGNAL(contentsChange(int, int, int)),
-                     q, SLOT(setCursorAfterUndoRedo(int, int, int)));
+                     q, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
     doc->undo();
     QObject::disconnect(doc, SIGNAL(contentsChange(int, int, int)),
-                        q, SLOT(setCursorAfterUndoRedo(int, int, int)));
+                        q, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
     q->ensureCursorVisible();
 }
 
@@ -826,14 +826,14 @@ void QTextEditPrivate::redo()
 {
     Q_Q(QTextEdit);
     QObject::connect(doc, SIGNAL(contentsChange(int, int, int)),
-                     q, SLOT(setCursorAfterUndoRedo(int, int, int)));
+                     q, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
     doc->redo();
     QObject::disconnect(doc, SIGNAL(contentsChange(int, int, int)),
-                        q, SLOT(setCursorAfterUndoRedo(int, int, int)));
+                        q, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
     q->ensureCursorVisible();
 }
 
-void QTextEditPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRemoved*/, int charsAdded)
+void QTextEditPrivate::_q_setCursorAfterUndoRedo(int undoPosition, int /*charsRemoved*/, int charsAdded)
 {
     if (cursor.isNull())
         return;
@@ -1268,7 +1268,7 @@ void QTextEdit::setTextCursor(const QTextCursor &cursor)
 {
     Q_D(QTextEdit);
     d->cursor = cursor;
-    d->updateCurrentCharFormatAndSelection();
+    d->_q_updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
     d->viewport->update();
     emit cursorPositionChanged();
@@ -1971,11 +1971,11 @@ void QTextEdit::resizeEvent(QResizeEvent *e)
     if (d->lineWrap == WidgetWidth) {
         if (e->oldSize().width() == e->size().width()
             && e->oldSize().height() != e->size().height())
-            d->adjustScrollbars();
+            d->_q_adjustScrollbars();
         else
             d->relayoutDocument();
     } else {
-        d->adjustScrollbars();
+        d->_q_adjustScrollbars();
     }
 }
 
@@ -2002,7 +2002,7 @@ void QTextEditPrivate::relayoutDocument()
     else
         lastUsedSize = layout->documentSize().toSize();
 
-    // ignore calls to adjustScrollbars caused by an emission of the
+    // ignore calls to _q_adjustScrollbars caused by an emission of the
     // usedSizeChanged() signal in the layout, as we're calling it
     // later on our own anyway (or deliberately not) .
     ignoreAutomaticScrollbarAdjustement = true;
@@ -2045,7 +2045,7 @@ void QTextEditPrivate::relayoutDocument()
     // its size. So a layout with less width _can_ take up less vertical space, too.
     // If the wider case causes a vertical scrollbar to appear and the narrower one
     // (narrower because the vertical scrollbar takes up horizontal space)) to disappear
-    // again then we have an endless loop, as adjustScrollBars sets new ranges on the
+    // again then we have an endless loop, as _q_adjustScrollBars sets new ranges on the
     // scrollbars, the QAbstractScrollArea will find out about it and try to show/hide the scrollbars
     // again. That's why we try to detect this case here and break out.
     //
@@ -2058,7 +2058,7 @@ void QTextEditPrivate::relayoutDocument()
         && usedSize.height() <= viewport->height())
         return;
 
-    adjustScrollbars();
+    _q_adjustScrollbars();
 }
 
 QRect QTextEditPrivate::rectForPosition(int position) const
@@ -2295,7 +2295,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
     } else {
         ensureCursorVisible();
         emit cursorPositionChanged();
-        d->updateCurrentCharFormatAndSelection();
+        d->_q_updateCurrentCharFormatAndSelection();
     }
     d->repaintSelection();
 }
@@ -2362,7 +2362,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
     } else {
         ensureCursorVisible();
         emit cursorPositionChanged();
-        d->updateCurrentCharFormatAndSelection();
+        d->_q_updateCurrentCharFormatAndSelection();
     }
     d->repaintSelection();
 }
@@ -2765,7 +2765,7 @@ QMenu *QTextEdit::createStandardContextMenu()
         const QMimeData *md = QApplication::clipboard()->mimeData();
         a->setEnabled(md && canInsertFromMimeData(md));
 #endif
-        a = menu->addAction(tr("Delete"), this, SLOT(deleteSelected()));
+        a = menu->addAction(tr("Delete"), this, SLOT(_q_deleteSelected()));
         a->setEnabled(d->cursor.hasSelection());
     }
 
@@ -3427,7 +3427,7 @@ void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
     }
     d->cursor.movePosition(op, mode);
     ensureCursorVisible();
-    d->updateCurrentCharFormatAndSelection();
+    d->_q_updateCurrentCharFormatAndSelection();
 }
 
 /*!

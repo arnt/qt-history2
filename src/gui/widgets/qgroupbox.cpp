@@ -41,8 +41,8 @@ public:
     int shortcutId;
 #endif
 
-    void fixFocus();
-    void setChildrenEnabled(bool b);
+    void _q_fixFocus();
+    void _q_setChildrenEnabled(bool b);
     bool flat;
     bool checkable;
     bool checked;
@@ -265,7 +265,7 @@ bool QGroupBox::event(QEvent *e)
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (se->shortcutId() == d->shortcutId) {
-            d->fixFocus();
+            d->_q_fixFocus();
             return true;
         }
     }
@@ -328,7 +328,7 @@ void QGroupBox::childEvent(QChildEvent *c)
     focus, and gives the focus to that widget.
 */
 
-void QGroupBoxPrivate::fixFocus()
+void QGroupBoxPrivate::_q_fixFocus()
 {
     Q_Q(QGroupBox);
     QWidget *fw = q->focusWidget();
@@ -379,7 +379,7 @@ void QGroupBoxPrivate::calculateFrame()
 void QGroupBox::focusInEvent(QFocusEvent *)
 { // note no call to super
     Q_D(QGroupBox);
-    d->fixFocus();
+    d->_q_fixFocus();
 }
 
 
@@ -453,15 +453,15 @@ void QGroupBox::setCheckable(bool checkable)
     if (checkable) {
         setChecked(true);
         if (!wasCheckable) {
-            d->setChildrenEnabled(true);
+            d->_q_setChildrenEnabled(true);
             updateGeometry();
         }
     } else {
         if (wasCheckable) {
-            d->setChildrenEnabled(true);
+            d->_q_setChildrenEnabled(true);
             updateGeometry();
         }
-        d->setChildrenEnabled(true);
+        d->_q_setChildrenEnabled(true);
     }
 
     if (wasCheckable != checkable)
@@ -508,7 +508,7 @@ void QGroupBox::setChecked(bool b)
         bool wasToggled = (b != d->checked);
         d->checked = b;
         if (wasToggled) {
-            d->setChildrenEnabled(b);
+            d->_q_setChildrenEnabled(b);
             emit toggled(b);
         }
     }
@@ -518,7 +518,7 @@ void QGroupBox::setChecked(bool b)
   sets all children of the group box except the qt_groupbox_checkbox
   to either disabled/enabled
 */
-void QGroupBoxPrivate::setChildrenEnabled(bool b)
+void QGroupBoxPrivate::_q_setChildrenEnabled(bool b)
 {
     Q_Q(QGroupBox);
     QObjectList childs = q->children();
@@ -549,7 +549,7 @@ void QGroupBox::changeEvent(QEvent *ev)
         if (d->checkable && isEnabled()) {
             // we are being enabled - disable children
             if (!d->checked)
-                d->setChildrenEnabled(false);
+                d->_q_setChildrenEnabled(false);
         }
     } else if(ev->type() == QEvent::FontChange || ev->type() == QEvent::StyleChange) {
         updateGeometry();

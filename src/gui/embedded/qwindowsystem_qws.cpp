@@ -919,7 +919,7 @@ void QWSServerPrivate::initServer(int flags)
     disablePainting = false;
 #ifndef QT_NO_QWS_MULTIPROCESS
     ssocket = new QWSServerSocket(qws_qtePipeFilename(), q);
-    QObject::connect(ssocket, SIGNAL(newConnection()), q, SLOT(newConnection()));
+    QObject::connect(ssocket, SIGNAL(newConnection()), q, SLOT(_q_newConnection()));
 
     if ( !ssocket->isListening()) {
         perror("Error");
@@ -967,8 +967,8 @@ void QWSServerPrivate::initServer(int flags)
 
     screensavertimer = new QTimer(q);
     screensavertimer->setSingleShot(true);
-    QObject::connect(screensavertimer, SIGNAL(timeout()), q, SLOT(screenSaverTimeout()));
-    screenSaverWake();
+    QObject::connect(screensavertimer, SIGNAL(timeout()), q, SLOT(_q_screenSaverTimeout()));
+    _q_screenSaverWake();
 
     clientMap[-1] = new QWSClient(q, 0, 0);
 
@@ -1056,7 +1056,7 @@ void QWSServerPrivate::handleWindowClose(QWSWindow *w)
 /*!
   \internal
 */
-void QWSServerPrivate::newConnection()
+void QWSServerPrivate::_q_newConnection()
 {
     Q_Q(QWSServer);
     while (QWS_SOCK_BASE *sock = ssocket->nextPendingConnection()) {
@@ -1081,15 +1081,15 @@ void QWSServerPrivate::newConnection()
         ad->setClient(client);
 
         QObject::connect(ad, SIGNAL(readyRead()),
-                q, SLOT(doClient()));
+                q, SLOT(_q_doClient()));
 
         QObject::connect(client, SIGNAL(connectionClosed()),
-                q, SLOT(clientClosed()));
+                q, SLOT(_q_clientClosed()));
 #else
         QObject::connect(client, SIGNAL(readyRead()),
-                         q, SLOT(doClient()));
+                         q, SLOT(_q_doClient()));
         QObject::connect(client, SIGNAL(connectionClosed()),
-                         q, SLOT(clientClosed()));
+                         q, SLOT(_q_clientClosed()));
 #endif // QT_NO_SXV
 
         client->sendConnectedEvent(qws_display_spec.constData());
@@ -1105,7 +1105,7 @@ void QWSServerPrivate::newConnection()
 /*!
   \internal
 */
-void QWSServerPrivate::clientClosed()
+void QWSServerPrivate::_q_clientClosed()
 {
     Q_Q(QWSServer);
     QWSClient* cl = (QWSClient*)q->sender();
@@ -1162,7 +1162,7 @@ void QWSServerPrivate::clientClosed()
         }
     }
     if (deletedWindows.count())
-        QTimer::singleShot(0, q, SLOT(deleteWindowsLater()));
+        QTimer::singleShot(0, q, SLOT(_q_deleteWindowsLater()));
 
     //qDebug("removing client %d with socket %d", cl->clientId(), cl->socket());
     clientMap.remove(cl->socket());
@@ -1176,7 +1176,7 @@ void QWSServerPrivate::clientClosed()
 //    syncRegions();
 }
 
-void QWSServerPrivate::deleteWindowsLater()
+void QWSServerPrivate::_q_deleteWindowsLater()
 {
     qDeleteAll(deletedWindows);
     deletedWindows.clear();
@@ -1248,12 +1248,12 @@ void QWSServer::processEventQueue()
 
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-void QWSServerPrivate::doClient()
+void QWSServerPrivate::_q_doClient()
 {
     Q_Q(QWSServer);
     static bool active = false;
     if (active) {
-        qDebug("QWSServer::doClient() reentrant call, ignoring");
+        qDebug("QWSServer::_q_doClient() reentrant call, ignoring");
         return;
     }
     active = true;
@@ -1534,7 +1534,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     qwsServerPrivate->showCursor();
 
     if (state)
-        qwsServerPrivate->screenSaverWake();
+        qwsServerPrivate->_q_screenSaverWake();
 
 
     QPoint tpos;
@@ -1810,7 +1810,7 @@ void QWSServer::sendKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers mod
 
     if (isPress) {
         if (keycode != Qt::Key_F34 && keycode != Qt::Key_F35)
-            qwsServerPrivate->screenSaverWake();
+            qwsServerPrivate->_q_screenSaverWake();
     }
 
 #ifndef QT_NO_QWS_INPUTMETHODS
@@ -3190,7 +3190,7 @@ void QWSServer::setScreenSaverIntervals(int* ms)
 
     qwsServerPrivate->screensavertimer->stop();
     qt_screen->blank(false);
-    qwsServerPrivate->screenSaverWake();
+    qwsServerPrivate->_q_screenSaverWake();
 }
 
 /*!
@@ -3212,7 +3212,7 @@ void QWSServer::setScreenSaverInterval(int ms)
 
 extern bool qt_disable_lowpriority_timers; //in qeventloop_unix.cpp
 
-void QWSServerPrivate::screenSaverWake()
+void QWSServerPrivate::_q_screenSaverWake()
 {
     if (screensaverintervals) {
         if (screensaverinterval != screensaverintervals) {
@@ -3230,7 +3230,7 @@ void QWSServerPrivate::screenSaverWake()
     qt_disable_lowpriority_timers=false;
 }
 
-void QWSServerPrivate::screenSaverSleep()
+void QWSServerPrivate::_q_screenSaverSleep()
 {
     qt_screen->blank(true);
 #if !defined(QT_QWS_IPAQ) && !defined(QT_QWS_EBX)
@@ -3279,16 +3279,16 @@ void QWSServerPrivate::screenSave(int level)
         }
     } else {
         screensaverinterval = 0;//screensaverintervals;
-        screenSaverSleep();
+        _q_screenSaverSleep();
     }
 }
 
-void QWSServerPrivate::screenSaverTimeout()
+void QWSServerPrivate::_q_screenSaverTimeout()
 {
     if (screensaverinterval) {
         if (screensavertime.elapsed() > *screensaverinterval*2) {
             // bogus (eg. unsuspend, system time changed)
-            screenSaverWake(); // try again
+            _q_screenSaverWake(); // try again
             return;
         }
         screenSave(screensaverinterval - screensaverintervals);
@@ -3316,9 +3316,9 @@ bool QWSServer::screenSaverActive()
 void QWSServer::screenSaverActivate(bool activate)
 {
     if (activate)
-        qwsServerPrivate->screenSaverSleep();
+        qwsServerPrivate->_q_screenSaverSleep();
     else
-        qwsServerPrivate->screenSaverWake();
+        qwsServerPrivate->_q_screenSaverWake();
 }
 
 void QWSServerPrivate::disconnectClient(QWSClient *c)

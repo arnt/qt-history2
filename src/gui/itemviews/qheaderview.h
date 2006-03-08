@@ -171,7 +171,7 @@ protected:
     QRegion visualRegionForSelection(const QItemSelection &selection) const;
 
 private:
-    Q_PRIVATE_SLOT(d_func(), void sectionsRemoved(const QModelIndex &parent, int logicalFirst, int logicalLast))
+    Q_PRIVATE_SLOT(d_func(), void _q_sectionsRemoved(const QModelIndex &parent, int logicalFirst, int logicalLast))
     Q_DECLARE_PRIVATE(QHeaderView)
     Q_DISABLE_COPY(QHeaderView)
 };

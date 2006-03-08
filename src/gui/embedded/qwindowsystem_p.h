@@ -162,16 +162,16 @@ private:
 //private slots:
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-    void clientClosed();
-    void doClient();
-    void deleteWindowsLater();
+    void _q_clientClosed();
+    void _q_doClient();
+    void _q_deleteWindowsLater();
 #endif
 
-    void screenSaverWake();
-    void screenSaverSleep();
-    void screenSaverTimeout();
+    void _q_screenSaverWake();
+    void _q_screenSaverSleep();
+    void _q_screenSaverTimeout();
 #ifndef QT_NO_QWS_MULTIPROCESS
-    void newConnection();
+    void _q_newConnection();
 #endif
 
 //other private moved from class

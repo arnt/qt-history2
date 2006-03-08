@@ -37,10 +37,10 @@ class QToolButtonPrivate : public QAbstractButtonPrivate
 public:
     void init();
 #ifndef QT_NO_MENU
-    void buttonPressed();
+    void _q_buttonPressed();
     void popupTimerDone();
 #endif
-    void actionTriggered();
+    void _q_actionTriggered();
     QStyleOptionToolButton getStyleOption() const;
     QPointer<QAction> menuAction; //the menu set by the user (setMenu)
     QBasicTimer popupTimer;
@@ -227,7 +227,7 @@ void QToolButtonPrivate::init()
     q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    QObject::connect(q, SIGNAL(pressed()), q, SLOT(buttonPressed()));
+    QObject::connect(q, SIGNAL(pressed()), q, SLOT(_q_buttonPressed()));
 }
 
 
@@ -461,7 +461,7 @@ void QToolButton::actionEvent(QActionEvent *event)
             setDefaultAction(action); // update button state
         break;
     case QEvent::ActionAdded:
-        connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+        connect(action, SIGNAL(triggered()), this, SLOT(_q_actionTriggered()));
         break;
     case QEvent::ActionRemoved:
         if (d->defaultAction == action)
@@ -478,7 +478,7 @@ void QToolButton::actionEvent(QActionEvent *event)
     QAbstractButton::actionEvent(event);
 }
 
-void QToolButtonPrivate::actionTriggered()
+void QToolButtonPrivate::_q_actionTriggered()
 {
     Q_Q(QToolButton);
     if (QAction *action = qobject_cast<QAction *>(q->sender()))
@@ -695,7 +695,7 @@ void QToolButton::showMenu()
     d->popupTimerDone();
 }
 
-void QToolButtonPrivate::buttonPressed()
+void QToolButtonPrivate::_q_buttonPressed()
 {
     Q_Q(QToolButton);
     if (!hasMenu())

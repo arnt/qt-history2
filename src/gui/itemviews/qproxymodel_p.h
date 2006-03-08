@@ -48,15 +48,15 @@ class QProxyModelPrivate : private QAbstractItemModelPrivate
     Q_DECLARE_PUBLIC(QProxyModel)
 
 public:
-    void sourceDataChanged(const QModelIndex &tl,const QModelIndex &br);
-    void sourceRowsAboutToBeInserted(const QModelIndex &parent, int first ,int last);
-    void sourceRowsInserted(const QModelIndex &parent, int first ,int last);
-    void sourceRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
-    void sourceRowsRemoved(const QModelIndex &parent, int first, int last);
-    void sourceColumnsAboutToBeInserted(const QModelIndex &parent, int first, int last);
-    void sourceColumnsInserted(const QModelIndex &parent, int first, int last);
-    void sourceColumnsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
-    void sourceColumnsRemoved(const QModelIndex &parent, int first, int last);
+    void _q_sourceDataChanged(const QModelIndex &tl,const QModelIndex &br);
+    void _q_sourceRowsAboutToBeInserted(const QModelIndex &parent, int first ,int last);
+    void _q_sourceRowsInserted(const QModelIndex &parent, int first ,int last);
+    void _q_sourceRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
+    void _q_sourceRowsRemoved(const QModelIndex &parent, int first, int last);
+    void _q_sourceColumnsAboutToBeInserted(const QModelIndex &parent, int first, int last);
+    void _q_sourceColumnsInserted(const QModelIndex &parent, int first, int last);
+    void _q_sourceColumnsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
+    void _q_sourceColumnsRemoved(const QModelIndex &parent, int first, int last);
 
     struct QProxyModelIndex
     {

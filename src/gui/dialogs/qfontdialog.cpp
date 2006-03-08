@@ -118,12 +118,12 @@ public:
         : writingSystem(QFontDatabase::Any)
     { }
 
-    void sizeChanged(const QString &);
-    void familyHighlighted(int);
-    void writingSystemHighlighted(int);
-    void styleHighlighted(int);
-    void sizeHighlighted(int);
-    void updateSample();
+    void _q_sizeChanged(const QString &);
+    void _q_familyHighlighted(int);
+    void _q_writingSystemHighlighted(int);
+    void _q_styleHighlighted(int);
+    void _q_sizeHighlighted(int);
+    void _q_updateSample();
 
     QLabel * familyAccel;
     QLineEdit * familyEdit;
@@ -252,20 +252,20 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     d->smoothScalable = false;
 
     connect(d->writingSystemCombo, SIGNAL(activated(int)),
-            SLOT(writingSystemHighlighted(int)));
+            SLOT(_q_writingSystemHighlighted(int)));
     connect(d->familyList, SIGNAL(highlighted(int)),
-            SLOT(familyHighlighted(int)));
+            SLOT(_q_familyHighlighted(int)));
     connect(d->styleList, SIGNAL(highlighted(int)),
-            SLOT(styleHighlighted(int)));
+            SLOT(_q_styleHighlighted(int)));
     connect(d->sizeList, SIGNAL(highlighted(int)),
-            SLOT(sizeHighlighted(int)));
+            SLOT(_q_sizeHighlighted(int)));
     connect(d->sizeEdit, SIGNAL(textChanged(QString)),
-            SLOT(sizeChanged(QString)));
+            SLOT(_q_sizeChanged(QString)));
 
     connect(d->strikeout, SIGNAL(clicked()),
-            SLOT(updateSample()));
+            SLOT(_q_updateSample()));
     connect(d->underline, SIGNAL(clicked()),
-            SLOT(updateSample()));
+            SLOT(_q_updateSample()));
 
     for (int i = 0; i < QFontDatabase::WritingSystemsCount; ++i) {
         QFontDatabase::WritingSystem ws = QFontDatabase::WritingSystem(i);
@@ -678,10 +678,10 @@ void QFontDialog::updateSizes()
     }
 
     d->sizeList->blockSignals(false);
-    d->updateSample();
+    d->_q_updateSample();
 }
 
-void QFontDialogPrivate::updateSample()
+void QFontDialogPrivate::_q_updateSample()
 {
     Q_Q(QFontDialog);
     if (familyList->currentText().isEmpty())
@@ -693,7 +693,7 @@ void QFontDialogPrivate::updateSample()
 /*!
     \internal
 */
-void QFontDialogPrivate::writingSystemHighlighted(int index)
+void QFontDialogPrivate::_q_writingSystemHighlighted(int index)
 {
     Q_Q(QFontDialog);
     writingSystem = QFontDatabase::WritingSystem(index);
@@ -704,7 +704,7 @@ void QFontDialogPrivate::writingSystemHighlighted(int index)
 /*!
     \internal
 */
-void QFontDialogPrivate::familyHighlighted(int i)
+void QFontDialogPrivate::_q_familyHighlighted(int i)
 {
     Q_Q(QFontDialog);
     family = familyList->text(i);
@@ -721,7 +721,7 @@ void QFontDialogPrivate::familyHighlighted(int i)
     \internal
 */
 
-void QFontDialogPrivate::styleHighlighted(int index)
+void QFontDialogPrivate::_q_styleHighlighted(int index)
 {
     Q_Q(QFontDialog);
     QString s = styleList->text(index);
@@ -740,7 +740,7 @@ void QFontDialogPrivate::styleHighlighted(int index)
     \internal
 */
 
-void QFontDialogPrivate::sizeHighlighted(int index)
+void QFontDialogPrivate::_q_sizeHighlighted(int index)
 {
     Q_Q(QFontDialog);
     QString s = sizeList->text(index);
@@ -750,7 +750,7 @@ void QFontDialogPrivate::sizeHighlighted(int index)
         sizeEdit->selectAll();
 
     size = s.toInt();
-    updateSample();
+    _q_updateSample();
 }
 
 /*!
@@ -759,7 +759,7 @@ void QFontDialogPrivate::sizeHighlighted(int index)
     The size is passed in the \a s argument as a \e string.
 */
 
-void QFontDialogPrivate::sizeChanged(const QString &s)
+void QFontDialogPrivate::_q_sizeChanged(const QString &s)
 {
     // no need to check if the conversion is valid, since we have an QIntValidator in the size edit
     int size = s.toInt();
@@ -777,7 +777,7 @@ void QFontDialogPrivate::sizeChanged(const QString &s)
         sizeList->setCurrentItem(i);
         sizeList->blockSignals(false);
     }
-    updateSample();
+    _q_updateSample();
 }
 
 /*!

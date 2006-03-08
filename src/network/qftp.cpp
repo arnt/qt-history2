@@ -1154,11 +1154,11 @@ public:
     ~QFtpPrivate() { while (!pending.isEmpty()) delete pending.takeFirst(); }
 
     // private slots
-    void startNextCommand();
-    void piFinished(const QString&);
-    void piError(int, const QString&);
-    void piConnectState(int);
-    void piFtpReply(int, const QString&);
+    void _q_startNextCommand();
+    void _q_piFinished(const QString&);
+    void _q_piError(int, const QString&);
+    void _q_piConnectState(int);
+    void _q_piFtpReply(int, const QString&);
 
     int addCommand(QFtpCommand *cmd);
 
@@ -1182,7 +1182,7 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
 
     if (pending.count() == 1) {
         // don't emit the commandStarted() signal before the ID is returned
-        QTimer::singleShot(0, q_func(), SLOT(startNextCommand()));
+        QTimer::singleShot(0, q_func(), SLOT(_q_startNextCommand()));
     }
     return cmd->id;
 }
@@ -1349,13 +1349,13 @@ QFtp::QFtp(QObject *parent)
     d->errorString = tr("Unknown error");
 
     connect(&d->pi, SIGNAL(connectState(int)),
-            SLOT(piConnectState(int)));
+            SLOT(_q_piConnectState(int)));
     connect(&d->pi, SIGNAL(finished(QString)),
-            SLOT(piFinished(QString)));
+            SLOT(_q_piFinished(QString)));
     connect(&d->pi, SIGNAL(error(int,QString)),
-            SLOT(piError(int,QString)));
+            SLOT(_q_piError(int,QString)));
     connect(&d->pi, SIGNAL(rawFtpReply(int,QString)),
-            SLOT(piFtpReply(int,QString)));
+            SLOT(_q_piFtpReply(int,QString)));
 
     connect(&d->pi.dtp, SIGNAL(readyRead()),
             SIGNAL(readyRead()));
@@ -1378,13 +1378,13 @@ QFtp::QFtp(QObject *parent, const char *name)
     d->errorString = tr("Unknown error");
 
     connect(&d->pi, SIGNAL(connectState(int)),
-            SLOT(piConnectState(int)));
+            SLOT(_q_piConnectState(int)));
     connect(&d->pi, SIGNAL(finished(QString)),
-            SLOT(piFinished(QString)));
+            SLOT(_q_piFinished(QString)));
     connect(&d->pi, SIGNAL(error(int,QString)),
-            SLOT(piError(int,QString)));
+            SLOT(_q_piError(int,QString)));
     connect(&d->pi, SIGNAL(rawFtpReply(int,QString)),
-            SLOT(piFtpReply(int,QString)));
+            SLOT(_q_piFtpReply(int,QString)));
 
     connect(&d->pi.dtp, SIGNAL(readyRead()),
             SIGNAL(readyRead()));
@@ -2149,7 +2149,7 @@ QString QFtp::errorString() const
 
 /*! \internal
 */
-void QFtpPrivate::startNextCommand()
+void QFtpPrivate::_q_startNextCommand()
 {
     Q_Q(QFtp);
     if (pending.isEmpty())
@@ -2175,12 +2175,12 @@ void QFtpPrivate::startNextCommand()
     }
 
     if (c->command == QFtp::SetTransferMode) {
-        piFinished("Transfer mode set");
+        _q_piFinished("Transfer mode set");
     } else if (c->command == QFtp::SetProxy) {
         proxyHost = c->rawCmds[0];
         proxyPort = c->rawCmds[1].toUInt();
         c->rawCmds.clear();
-        piFinished("Proxy set to " + proxyHost + ":" + QString::number(proxyPort));
+        _q_piFinished("Proxy set to " + proxyHost + ":" + QString::number(proxyPort));
     } else if (c->command == QFtp::ConnectToHost) {
         if (!proxyHost.isEmpty()) {
             host = c->rawCmds[0];
@@ -2215,7 +2215,7 @@ void QFtpPrivate::startNextCommand()
 
 /*! \internal
 */
-void QFtpPrivate::piFinished(const QString&)
+void QFtpPrivate::_q_piFinished(const QString&)
 {
     if (pending.isEmpty())
         return;
@@ -2239,13 +2239,13 @@ void QFtpPrivate::piFinished(const QString&)
     if (pending.isEmpty()) {
         emit q_func()->done(false);
     } else {
-        startNextCommand();
+        _q_startNextCommand();
     }
 }
 
 /*! \internal
 */
-void QFtpPrivate::piError(int errorCode, const QString &text)
+void QFtpPrivate::_q_piError(int errorCode, const QString &text)
 {
     Q_Q(QFtp);
     QFtpCommand *c = pending.first();
@@ -2310,24 +2310,24 @@ void QFtpPrivate::piError(int errorCode, const QString &text)
     if (pending.isEmpty())
         emit q->done(true);
     else
-        startNextCommand();
+        _q_startNextCommand();
 }
 
 /*! \internal
 */
-void QFtpPrivate::piConnectState(int connectState)
+void QFtpPrivate::_q_piConnectState(int connectState)
 {
     state = QFtp::State(connectState);
     emit q_func()->stateChanged(state);
     if (close_waitForStateChange) {
         close_waitForStateChange = false;
-        piFinished(QT_TRANSLATE_NOOP("QFtp", "Connection closed"));
+        _q_piFinished(QT_TRANSLATE_NOOP("QFtp", "Connection closed"));
     }
 }
 
 /*! \internal
 */
-void QFtpPrivate::piFtpReply(int code, const QString &text)
+void QFtpPrivate::_q_piFtpReply(int code, const QString &text)
 {
     if (q_func()->currentCommand() == QFtp::RawCommand) {
         pi.rawCommand = true;

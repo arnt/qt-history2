@@ -554,9 +554,9 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *lineEdit)
 
     if (d->type != QVariant::Invalid) {
         connect(d->edit, SIGNAL(textChanged(QString)),
-                this, SLOT(editorTextChanged(QString)));
+                this, SLOT(_q_editorTextChanged(QString)));
         connect(d->edit, SIGNAL(cursorPositionChanged(int,int)),
-                this, SLOT(editorCursorPositionChanged(int,int)));
+                this, SLOT(_q_editorCursorPositionChanged(int,int)));
     }
     QStyleOptionSpinBox opt = d->getStyleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
@@ -1261,7 +1261,7 @@ void QAbstractSpinBoxPrivate::emitSignals(EmitPolicy, const QVariant &)
     signal.
 */
 
-void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
+void QAbstractSpinBoxPrivate::_q_editorTextChanged(const QString &t)
 {
     Q_Q(QAbstractSpinBox);
 
@@ -1287,7 +1287,7 @@ void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
     the different sections etc.
 */
 
-void QAbstractSpinBoxPrivate::editorCursorPositionChanged(int oldpos, int newpos)
+void QAbstractSpinBoxPrivate::_q_editorCursorPositionChanged(int oldpos, int newpos)
 {
     if (!edit->hasSelectedText() && !ignoreCursorPositionChanged && !specialValue()) {
         ignoreCursorPositionChanged = true;

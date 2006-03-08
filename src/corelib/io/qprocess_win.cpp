@@ -424,16 +424,16 @@ void QProcessPrivate::startProcess()
 
     if (QAbstractEventDispatcher::instance(q->thread())) {
         processFinishedNotifier = new QWinEventNotifier(pid->hProcess, q);
-        QObject::connect(processFinishedNotifier, SIGNAL(activated(HANDLE)), q, SLOT(processDied()));
+        QObject::connect(processFinishedNotifier, SIGNAL(activated(HANDLE)), q, SLOT(_q_processDied()));
         processFinishedNotifier->setEnabled(true);
         notifier = new QTimer(q);
-        QObject::connect(notifier, SIGNAL(timeout()), q, SLOT(notified()));
+        QObject::connect(notifier, SIGNAL(timeout()), q, SLOT(_q_notified()));
         notifier->start(NOTIFYTIMEOUT);
     }
 
     // give the process a chance to start ...
     Sleep(SLEEPMIN*2);
-    startupNotification();
+    _q_startupNotification();
 }
 
 void QProcessPrivate::execChild(const QByteArray &encodedProgramName)
@@ -566,12 +566,12 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 
         bool readyReadEmitted = false;
         if (bytesAvailableFromStdout() != 0) {
-            readyReadEmitted = canReadStandardOutput() ? true : readyReadEmitted;
+            readyReadEmitted = _q_canReadStandardOutput() ? true : readyReadEmitted;
             timer.resetIncrements();
         }
 
         if (bytesAvailableFromStderr() != 0) {
-            readyReadEmitted = canReadStandardError() ? true : readyReadEmitted;
+            readyReadEmitted = _q_canReadStandardError() ? true : readyReadEmitted;
             timer.resetIncrements();
         }
 
@@ -582,7 +582,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
             return false;
         if (WaitForSingleObject(pid->hProcess, 0) == WAIT_OBJECT_0) {
             // find the return value if there is noew data to read
-            processDied();
+            _q_processDied();
             return false;
         }
 
@@ -609,19 +609,19 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
             return canWrite();
 
         if (bytesAvailableFromStdout() != 0) {
-            canReadStandardOutput();
+            _q_canReadStandardOutput();
             timer.resetIncrements();
         }
 
         if (bytesAvailableFromStderr() != 0) {
-            canReadStandardError();
+            _q_canReadStandardError();
             timer.resetIncrements();
         }
 
         if (!pid)
             return false;
         if (WaitForSingleObject(pid->hProcess, 0) == WAIT_OBJECT_0) {
-            processDied();
+            _q_processDied();
             return false;
         }
 
@@ -651,12 +651,12 @@ bool QProcessPrivate::waitForFinished(int msecs)
         }
 
         if (bytesAvailableFromStdout() != 0) {
-            canReadStandardOutput();
+            _q_canReadStandardOutput();
             timer.resetIncrements();
         }
 
         if (bytesAvailableFromStderr() != 0) {
-            canReadStandardError();
+            _q_canReadStandardError();
             timer.resetIncrements();
         }
 
@@ -664,7 +664,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
             return true;
 
         if (WaitForSingleObject(pid->hProcess, timer.nextSleepTime()) == WAIT_OBJECT_0) {
-            processDied();
+            _q_processDied();
             return true;
         }
 
@@ -713,7 +713,7 @@ bool QProcessPrivate::waitForWrite(int msecs)
     return false;
 }
 
-void QProcessPrivate::notified()
+void QProcessPrivate::_q_notified()
 {
     notifier->stop();
 
@@ -721,10 +721,10 @@ void QProcessPrivate::notified()
         canWrite();
 
     if (bytesAvailableFromStdout())
-        canReadStandardOutput();
+        _q_canReadStandardOutput();
 
     if (bytesAvailableFromStderr())
-        canReadStandardError();
+        _q_canReadStandardError();
     
     if (processState != QProcess::NotRunning)
         notifier->start(NOTIFYTIMEOUT);

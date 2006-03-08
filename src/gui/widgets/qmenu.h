@@ -127,8 +127,8 @@ private Q_SLOTS:
     void internalDelayedPopup();
 
 private:
-    Q_PRIVATE_SLOT(d_func(), void actionTriggered())
-    Q_PRIVATE_SLOT(d_func(), void actionHovered())
+    Q_PRIVATE_SLOT(d_func(), void _q_actionTriggered())
+    Q_PRIVATE_SLOT(d_func(), void _q_actionHovered())
 
 #ifdef QT3_SUPPORT
 public:

@@ -238,7 +238,7 @@ public:
     QDirNode *node(int row, QDirNode *parent) const;
     QVector<QDirNode> children(QDirNode *parent, bool stat) const;
 
-    void refresh();
+    void _q_refresh();
 
     void savePersistentIndexes();
     void restorePersistentIndexes();
@@ -562,7 +562,7 @@ bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int rol
         emit dataChanged(index, sibling);
 
         d->toBeRefreshed = index.parent();
-        int slot = metaObject()->indexOfSlot("refresh()");
+        int slot = metaObject()->indexOfSlot("_q_refresh()");
         QApplication::postEvent(this, new QMetaCallEvent(slot));
 
         return true;
@@ -795,7 +795,7 @@ void QDirModel::setNameFilters(const QStringList &filters)
     Q_D(QDirModel);
     d->nameFilters = filters;
     if (d->shouldStat)
-        refresh(QModelIndex());
+       refresh(QModelIndex());
     else
         d->invalidate();
     emit layoutChanged();
@@ -1305,7 +1305,7 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent,
     return nodes;
 }
 
-void QDirModelPrivate::refresh()
+void QDirModelPrivate::_q_refresh()
 {
     Q_Q(QDirModel);
     q->refresh(toBeRefreshed);

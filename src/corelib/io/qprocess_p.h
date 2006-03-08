@@ -55,12 +55,12 @@ public:
     virtual ~QProcessPrivate();
 
     // private slots
-    bool canReadStandardOutput();
-    bool canReadStandardError();
-    bool canWrite();
-    bool startupNotification();
-    bool processDied();
-    void notified();
+    bool _q_canReadStandardOutput();
+    bool _q_canReadStandardError();
+    bool _q_canWrite();
+    bool _q_startupNotification();
+    bool _q_processDied();
+    void _q_notified();
 
     QProcess::ProcessChannel processChannel;
     QProcess::ProcessChannelMode processChannelMode;

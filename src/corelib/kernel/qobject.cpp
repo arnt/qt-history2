@@ -1218,7 +1218,7 @@ void QObjectPrivate::setThreadId_helper(QThreadData *currentData, QThreadData *t
     }
 }
 
-void QObjectPrivate::reregisterTimers(void *pointer)
+void QObjectPrivate::_q_reregisterTimers(void *pointer)
 {
     Q_Q(QObject);
     QThread *objectThread = q->thread();

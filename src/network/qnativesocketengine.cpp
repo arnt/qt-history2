@@ -873,7 +873,7 @@ void QNativeSocketEngine::setReadNotificationEnabled(bool enable)
                                               QSocketNotifier::Read, this);
 #ifdef Q_OS_WIN
         QObject::connect(d->readNotifier, SIGNAL(activated(int)),
-                         this, SLOT(systemReadNotification()));
+                         this, SLOT(_q_systemReadNotification()));
 #else
         QObject::connect(d->readNotifier, SIGNAL(activated(int)),
                          this, SIGNAL(readNotification()));

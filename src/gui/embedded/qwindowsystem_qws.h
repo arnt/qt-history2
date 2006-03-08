@@ -308,17 +308,17 @@ private:
 
 private:
 #ifndef QT_NO_QWS_MULTIPROCESS
-    Q_PRIVATE_SLOT(d_func(), void clientClosed())
-    Q_PRIVATE_SLOT(d_func(), void doClient())
-    Q_PRIVATE_SLOT(d_func(), void deleteWindowsLater())
+    Q_PRIVATE_SLOT(d_func(), void _q_clientClosed())
+    Q_PRIVATE_SLOT(d_func(), void _q_doClient())
+    Q_PRIVATE_SLOT(d_func(), void _q_deleteWindowsLater())
 #endif
 
-    Q_PRIVATE_SLOT(d_func(), void screenSaverWake())
-    Q_PRIVATE_SLOT(d_func(), void screenSaverSleep())
-    Q_PRIVATE_SLOT(d_func(), void screenSaverTimeout())
+    Q_PRIVATE_SLOT(d_func(), void _q_screenSaverWake())
+    Q_PRIVATE_SLOT(d_func(), void _q_screenSaverSleep())
+    Q_PRIVATE_SLOT(d_func(), void _q_screenSaverTimeout())
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-    Q_PRIVATE_SLOT(d_func(), void newConnection())
+    Q_PRIVATE_SLOT(d_func(), void _q_newConnection())
 #endif
 };
 

@@ -396,7 +396,7 @@ void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent actio
 }
 
 
-void QMenuBarPrivate::actionTriggered()
+void QMenuBarPrivate::_q_actionTriggered()
 {
     Q_Q(QMenuBar);
     if (QAction *action = qobject_cast<QAction *>(q->sender())) {
@@ -407,7 +407,7 @@ void QMenuBarPrivate::actionTriggered()
     }
 }
 
-void QMenuBarPrivate::actionHovered()
+void QMenuBarPrivate::_q_actionHovered()
 {
     Q_Q(QMenuBar);
     if (QAction *action = qobject_cast<QAction *>(q->sender())) {
@@ -1034,8 +1034,8 @@ void QMenuBar::actionEvent(QActionEvent *e)
     }
 #endif
     if(e->type() == QEvent::ActionAdded) {
-        connect(e->action(), SIGNAL(triggered()), this, SLOT(actionTriggered()));
-        connect(e->action(), SIGNAL(hovered()), this, SLOT(actionHovered()));
+        connect(e->action(), SIGNAL(triggered()), this, SLOT(_q_actionTriggered()));
+        connect(e->action(), SIGNAL(hovered()), this, SLOT(_q_actionHovered()));
     } else if(e->type() == QEvent::ActionRemoved) {
         e->action()->disconnect(this);
     }
@@ -1174,7 +1174,7 @@ bool QMenuBar::event(QEvent *e)
         int shortcutId = se->shortcutId();
         for(int j = 0; j < d->shortcutIndexMap.size(); ++j) {
             if (shortcutId == d->shortcutIndexMap.value(j))
-                d->internalShortcutActivated(j);
+                d->_q_internalShortcutActivated(j);
         }
     } break;
 #endif
@@ -1233,7 +1233,7 @@ bool QMenuBar::eventFilter(QObject *object, QEvent *event)
         switch (event->type()) {
         case QEvent::ShowToParent:
         case QEvent::HideToParent:
-            d->updateLayout();
+            d->_q_updateLayout();
             break;
         default:
             break;
@@ -1465,13 +1465,13 @@ int QMenuBar::heightForWidth(int) const
 /*!
   \internal
 */
-void QMenuBarPrivate::internalShortcutActivated(int id)
+void QMenuBarPrivate::_q_internalShortcutActivated(int id)
 {
     QAction *act = actionList.at(id);
     setCurrentAction(act, true, true);
 }
 
-void QMenuBarPrivate::updateLayout()
+void QMenuBarPrivate::_q_updateLayout()
 {
     Q_Q(QMenuBar);
     itemsDirty = true;
@@ -1509,7 +1509,7 @@ void QMenuBar::setCornerWidget(QWidget *w, Qt::Corner corner)
         w->installEventFilter(this);
     }
 
-    d->updateLayout();
+    d->_q_updateLayout();
 }
 
 /*!

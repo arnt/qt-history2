@@ -33,19 +33,19 @@ public:
     {
     }
 
-    inline void browseClicked() {}
-    inline void okClicked() {}
-    inline void printerOrFileSelected(QAbstractButton *) {}
-    inline void landscapeSelected(int) {}
-    inline void paperSizeSelected(int) {}
-    inline void orientSelected(int) {}
-    inline void pageOrderSelected(QAbstractButton *) {}
-    inline void colorModeSelected(QAbstractButton *) {}
-    inline void setNumCopies(int) {}
-    inline void printRangeSelected(QAbstractButton *) {}
-    inline void setFirstPage(int) {}
-    inline void setLastPage(int) {}
-    inline void fileNameEditChanged(const QString &) {}
+    inline void _q_browseClicked() {}
+    inline void _q_okClicked() {}
+    inline void _q_printerOrFileSelected(QAbstractButton *) {}
+    inline void _q_landscapeSelected(int) {}
+    inline void _q_paperSizeSelected(int) {}
+    inline void _q_orientSelected(int) {}
+    inline void _q_pageOrderSelected(QAbstractButton *) {}
+    inline void _q_colorModeSelected(QAbstractButton *) {}
+    inline void _q_setNumCopies(int) {}
+    inline void _q_printRangeSelected(QAbstractButton *) {}
+    inline void _q_setFirstPage(int) {}
+    inline void _q_setLastPage(int) {}
+    inline void _q_fileNameEditChanged(const QString &) {}
 
     QWin32PrintEnginePrivate *ep;
 };

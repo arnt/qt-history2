@@ -77,9 +77,9 @@ public:
 
     void init();
     void actionTriggered();
-    void toggleView(bool b);
-    void updateIconSize(const QSize &sz);
-    void updateToolButtonStyle(Qt::ToolButtonStyle style);
+    void _q_toggleView(bool b);
+    void _q_updateIconSize(const QSize &sz);
+    void _q_updateToolButtonStyle(Qt::ToolButtonStyle style);
     QToolBarItem createItem(QAction *action);
     int indexOf(QAction *action) const;
 

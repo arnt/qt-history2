@@ -122,20 +122,20 @@ public:
         return q_func()->createIndex(row, column, const_cast<void *>(p));
     }
 
-    void sourceDataChanged(const QModelIndex &source_top_left,
+    void _q_sourceDataChanged(const QModelIndex &source_top_left,
                            const QModelIndex &source_bottom_right);
-    void sourceHeaderDataChanged(Qt::Orientation orientation, int start, int end);
+    void _q_sourceHeaderDataChanged(Qt::Orientation orientation, int start, int end);
 
-    void sourceReset();
+    void _q_sourceReset();
 
-    void sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end);
-    void sourceRowsInserted(const QModelIndex &source_parent, int start, int end);
-    void sourceRowsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end);
-    void sourceRowsRemoved(const QModelIndex &source_parent, int start, int end);
-    void sourceColumnsAboutToBeInserted(const QModelIndex &source_parent, int start, int end);
-    void sourceColumnsInserted(const QModelIndex &source_parent, int start, int end);
-    void sourceColumnsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end);
-    void sourceColumnsRemoved(const QModelIndex &source_parent, int start, int end);
+    void _q_sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end);
+    void _q_sourceRowsInserted(const QModelIndex &source_parent, int start, int end);
+    void _q_sourceRowsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end);
+    void _q_sourceRowsRemoved(const QModelIndex &source_parent, int start, int end);
+    void _q_sourceColumnsAboutToBeInserted(const QModelIndex &source_parent, int start, int end);
+    void _q_sourceColumnsInserted(const QModelIndex &source_parent, int start, int end);
+    void _q_sourceColumnsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end);
+    void _q_sourceColumnsRemoved(const QModelIndex &source_parent, int start, int end);
 
     void clear_mapping();
 
@@ -759,7 +759,7 @@ void QSortFilterProxyModelPrivate::handle_filter_changed(
     }
 }
 
-void QSortFilterProxyModelPrivate::sourceDataChanged(const QModelIndex &source_top_left,
+void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &source_top_left,
                                                      const QModelIndex &source_bottom_right)
 {
     Q_Q(QSortFilterProxyModel);
@@ -833,7 +833,7 @@ void QSortFilterProxyModelPrivate::sourceDataChanged(const QModelIndex &source_t
     }
 }
 
-void QSortFilterProxyModelPrivate::sourceHeaderDataChanged(Qt::Orientation orientation,
+void QSortFilterProxyModelPrivate::_q_sourceHeaderDataChanged(Qt::Orientation orientation,
                                                            int start, int end)
 {
     Q_Q(QSortFilterProxyModel);
@@ -847,57 +847,57 @@ void QSortFilterProxyModelPrivate::sourceHeaderDataChanged(Qt::Orientation orien
     emit q->headerDataChanged(orientation, proxy_start, proxy_end);
 }
 
-void QSortFilterProxyModelPrivate::sourceReset()
+void QSortFilterProxyModelPrivate::_q_sourceReset()
 {
     Q_Q(QSortFilterProxyModel);
     // All internal structures are deleted in clear()
     q->reset();
 }
 
-void QSortFilterProxyModelPrivate::sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end)
 {
     Q_UNUSED(source_parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
 }
 
-void QSortFilterProxyModelPrivate::sourceRowsInserted(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceRowsInserted(const QModelIndex &source_parent, int start, int end)
 {
     source_items_inserted(source_parent, start, end, Qt::Vertical);
 }
 
-void QSortFilterProxyModelPrivate::sourceRowsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceRowsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end)
 {
     Q_UNUSED(source_parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
 }
 
-void QSortFilterProxyModelPrivate::sourceRowsRemoved(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceRowsRemoved(const QModelIndex &source_parent, int start, int end)
 {
     source_items_removed(source_parent, start, end, Qt::Vertical);
 }
 
-void QSortFilterProxyModelPrivate::sourceColumnsAboutToBeInserted(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceColumnsAboutToBeInserted(const QModelIndex &source_parent, int start, int end)
 {
     Q_UNUSED(source_parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
 }
 
-void QSortFilterProxyModelPrivate::sourceColumnsInserted(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceColumnsInserted(const QModelIndex &source_parent, int start, int end)
 {
     source_items_inserted(source_parent, start, end, Qt::Horizontal);
 }
 
-void QSortFilterProxyModelPrivate::sourceColumnsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceColumnsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end)
 {
     Q_UNUSED(source_parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
 }
 
-void QSortFilterProxyModelPrivate::sourceColumnsRemoved(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &source_parent, int start, int end)
 {
     source_items_removed(source_parent, start, end, Qt::Horizontal);
 }
@@ -1091,36 +1091,36 @@ void QSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 
     if (d->model && d->model != &d->empty) {
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                   this, SLOT(sourceDataChanged(QModelIndex,QModelIndex)));
+                   this, SLOT(_q_sourceDataChanged(QModelIndex,QModelIndex)));
 
         disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
-                   this, SLOT(sourceHeaderDataChanged(Qt::Orientation,int,int)));
+                   this, SLOT(_q_sourceHeaderDataChanged(Qt::Orientation,int,int)));
 
         disconnect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
-                   this, SLOT(sourceRowsAboutToBeInserted(QModelIndex,int,int)));
+                   this, SLOT(_q_sourceRowsAboutToBeInserted(QModelIndex,int,int)));
 
         disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                   this, SLOT(sourceRowsInserted(QModelIndex,int,int)));
+                   this, SLOT(_q_sourceRowsInserted(QModelIndex,int,int)));
 
         disconnect(d->model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
-                   this, SLOT(sourceColumnsAboutToBeInserted(QModelIndex,int,int)));
+                   this, SLOT(_q_sourceColumnsAboutToBeInserted(QModelIndex,int,int)));
 
         disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-                   this, SLOT(sourceColumnsInserted(QModelIndex,int,int)));
+                   this, SLOT(_q_sourceColumnsInserted(QModelIndex,int,int)));
 
         disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                   this, SLOT(sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
-                
+                   this, SLOT(_q_sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
+
         disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                   this, SLOT(sourceRowsRemoved(QModelIndex,int,int)));
+                   this, SLOT(_q_sourceRowsRemoved(QModelIndex,int,int)));
 
         disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-                   this, SLOT(sourceColumnsAboutToBeRemoved(QModelIndex,int,int)));
-                
-        disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                   this, SLOT(sourceColumnsRemoved(QModelIndex,int,int)));
+                   this, SLOT(_q_sourceColumnsAboutToBeRemoved(QModelIndex,int,int)));
 
-        disconnect(d->model, SIGNAL(modelReset()), this, SLOT(sourceReset()));
+        disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                   this, SLOT(_q_sourceColumnsRemoved(QModelIndex,int,int)));
+
+        disconnect(d->model, SIGNAL(modelReset()), this, SLOT(_q_sourceReset()));
         disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(clear()));
     }
 
@@ -1128,36 +1128,36 @@ void QSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 
     if (sourceModel) {
         connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                this, SLOT(sourceDataChanged(QModelIndex,QModelIndex)));
+                this, SLOT(_q_sourceDataChanged(QModelIndex,QModelIndex)));
 
         connect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
-                this, SLOT(sourceHeaderDataChanged(Qt::Orientation,int,int)));
+                this, SLOT(_q_sourceHeaderDataChanged(Qt::Orientation,int,int)));
 
         connect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
-                this, SLOT(sourceRowsAboutToBeInserted(QModelIndex,int,int)));
-        
+                this, SLOT(_q_sourceRowsAboutToBeInserted(QModelIndex,int,int)));
+
         connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-              this, SLOT(sourceRowsInserted(QModelIndex,int,int)));
+              this, SLOT(_q_sourceRowsInserted(QModelIndex,int,int)));
 
         connect(d->model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
-                this, SLOT(sourceColumnsAboutToBeInserted(QModelIndex,int,int)));
+                this, SLOT(_q_sourceColumnsAboutToBeInserted(QModelIndex,int,int)));
 
         connect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-                this, SLOT(sourceColumnsInserted(QModelIndex,int,int)));
+                this, SLOT(_q_sourceColumnsInserted(QModelIndex,int,int)));
 
         connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                this, SLOT(sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
-                
+                this, SLOT(_q_sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
+
         connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                this, SLOT(sourceRowsRemoved(QModelIndex,int,int)));
+                this, SLOT(_q_sourceRowsRemoved(QModelIndex,int,int)));
 
         connect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-                this, SLOT(sourceColumnsAboutToBeRemoved(QModelIndex,int,int)));
-                
-        connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                this, SLOT(sourceColumnsRemoved(QModelIndex,int,int)));
+                this, SLOT(_q_sourceColumnsAboutToBeRemoved(QModelIndex,int,int)));
 
-        connect(d->model, SIGNAL(modelReset()), this, SLOT(sourceReset()));
+        connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_sourceColumnsRemoved(QModelIndex,int,int)));
+
+        connect(d->model, SIGNAL(modelReset()), this, SLOT(_q_sourceReset()));
         connect(d->model, SIGNAL(layoutChanged()), this, SLOT(clear()));
     }
 

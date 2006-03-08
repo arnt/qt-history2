@@ -837,13 +837,13 @@ public:
     QListWidgetPrivate() : QListViewPrivate(), sortOrder(Qt::Ascending), sortingEnabled(false) {}
     inline QListModel *model() const { return ::qobject_cast<QListModel*>(q_func()->model()); }
     void setup();
-    void emitItemPressed(const QModelIndex &index);
-    void emitItemClicked(const QModelIndex &index);
-    void emitItemDoubleClicked(const QModelIndex &index);
-    void emitItemActivated(const QModelIndex &index);
-    void emitItemEntered(const QModelIndex &index);
-    void emitItemChanged(const QModelIndex &index);
-    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
+    void _q_emitItemPressed(const QModelIndex &index);
+    void _q_emitItemClicked(const QModelIndex &index);
+    void _q_emitItemDoubleClicked(const QModelIndex &index);
+    void _q_emitItemActivated(const QModelIndex &index);
+    void _q_emitItemEntered(const QModelIndex &index);
+    void _q_emitItemChanged(const QModelIndex &index);
+    void _q_emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
     void _q_sort();
     Qt::SortOrder sortOrder;
     bool sortingEnabled;
@@ -853,16 +853,16 @@ void QListWidgetPrivate::setup()
 {
     Q_Q(QListWidget);
     q->QListView::setModel(new QListModel(q));
-    QObject::connect(q, SIGNAL(pressed(QModelIndex)), q, SLOT(emitItemPressed(QModelIndex)));
-    QObject::connect(q, SIGNAL(clicked(QModelIndex)), q, SLOT(emitItemClicked(QModelIndex)));
+    QObject::connect(q, SIGNAL(pressed(QModelIndex)), q, SLOT(_q_emitItemPressed(QModelIndex)));
+    QObject::connect(q, SIGNAL(clicked(QModelIndex)), q, SLOT(_q_emitItemClicked(QModelIndex)));
     QObject::connect(q, SIGNAL(doubleClicked(QModelIndex)),
-                     q, SLOT(emitItemDoubleClicked(QModelIndex)));
-    QObject::connect(q, SIGNAL(activated(QModelIndex)), q, SLOT(emitItemActivated(QModelIndex)));
-    QObject::connect(q, SIGNAL(entered(QModelIndex)), q, SLOT(emitItemEntered(QModelIndex)));
+                     q, SLOT(_q_emitItemDoubleClicked(QModelIndex)));
+    QObject::connect(q, SIGNAL(activated(QModelIndex)), q, SLOT(_q_emitItemActivated(QModelIndex)));
+    QObject::connect(q, SIGNAL(entered(QModelIndex)), q, SLOT(_q_emitItemEntered(QModelIndex)));
     QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                     q, SLOT(emitItemChanged(QModelIndex)));
+                     q, SLOT(_q_emitItemChanged(QModelIndex)));
     QObject::connect(q->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-                     q, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
+                     q, SLOT(_q_emitCurrentItemChanged(QModelIndex,QModelIndex)));
     QObject::connect(q->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                      q, SIGNAL(itemSelectionChanged()));
     QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), q, SLOT(_q_sort()));
@@ -870,43 +870,43 @@ void QListWidgetPrivate::setup()
     QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)), q, SLOT(_q_sort()));
 }
 
-void QListWidgetPrivate::emitItemPressed(const QModelIndex &index)
+void QListWidgetPrivate::_q_emitItemPressed(const QModelIndex &index)
 {
     Q_Q(QListWidget);
     emit q->itemPressed(model()->at(index.row()));
 }
 
-void QListWidgetPrivate::emitItemClicked(const QModelIndex &index)
+void QListWidgetPrivate::_q_emitItemClicked(const QModelIndex &index)
 {
     Q_Q(QListWidget);
     emit q->itemClicked(model()->at(index.row()));
 }
 
-void QListWidgetPrivate::emitItemDoubleClicked(const QModelIndex &index)
+void QListWidgetPrivate::_q_emitItemDoubleClicked(const QModelIndex &index)
 {
     Q_Q(QListWidget);
     emit q->itemDoubleClicked(model()->at(index.row()));
 }
 
-void QListWidgetPrivate::emitItemActivated(const QModelIndex &index)
+void QListWidgetPrivate::_q_emitItemActivated(const QModelIndex &index)
 {
     Q_Q(QListWidget);
     emit q->itemActivated(model()->at(index.row()));
 }
 
-void QListWidgetPrivate::emitItemEntered(const QModelIndex &index)
+void QListWidgetPrivate::_q_emitItemEntered(const QModelIndex &index)
 {
     Q_Q(QListWidget);
     emit q->itemEntered(model()->at(index.row()));
 }
 
-void QListWidgetPrivate::emitItemChanged(const QModelIndex &index)
+void QListWidgetPrivate::_q_emitItemChanged(const QModelIndex &index)
 {
     Q_Q(QListWidget);
     emit q->itemChanged(model()->at(index.row()));
 }
 
-void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
+void QListWidgetPrivate::_q_emitCurrentItemChanged(const QModelIndex &current,
                                                 const QModelIndex &previous)
 {
     Q_Q(QListWidget);

@@ -223,10 +223,10 @@ void QTabBarPrivate::init()
 {
     Q_Q(QTabBar);
     leftB = new QToolButton(q);
-    QObject::connect(leftB, SIGNAL(clicked()), q, SLOT(scrollTabs()));
+    QObject::connect(leftB, SIGNAL(clicked()), q, SLOT(_q_scrollTabs()));
     leftB->hide();
     rightB = new QToolButton(q);
-    QObject::connect(rightB, SIGNAL(clicked()), q, SLOT(scrollTabs()));
+    QObject::connect(rightB, SIGNAL(clicked()), q, SLOT(_q_scrollTabs()));
     rightB->hide();
 #ifdef QT_KEYPAD_NAVIGATION
     if (QApplication::keypadNavigationEnabled()) {
@@ -403,7 +403,7 @@ void QTabBarPrivate::makeVisible(int index)
 
 }
 
-void QTabBarPrivate::scrollTabs()
+void QTabBarPrivate::_q_scrollTabs()
 {
     Q_Q(QTabBar);
     const QObject *sender = q->sender();

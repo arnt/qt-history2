@@ -110,13 +110,13 @@ void QAbstractScrollAreaPrivate::init()
     hbar = new QScrollBar(Qt::Horizontal, q);
     hbar->setRange(0,0);
     hbar->setVisible(false);
-    QObject::connect(hbar, SIGNAL(valueChanged(int)), q, SLOT(hslide(int)));
-    QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
+    QObject::connect(hbar, SIGNAL(valueChanged(int)), q, SLOT(_q_hslide(int)));
+    QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(_q_showOrHideScrollBars()), Qt::QueuedConnection);
     vbar = new QScrollBar(Qt::Vertical, q);
     vbar->setRange(0,0);
     vbar->setVisible(false);
-    QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(vslide(int)));
-    QObject::connect(vbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
+    QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(_q_vslide(int)));
+    QObject::connect(vbar, SIGNAL(rangeChanged(int,int)), q, SLOT(_q_showOrHideScrollBars()), Qt::QueuedConnection);
     viewport = new QAbstractScrollAreaViewport(q);
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setAutoFillBackground(true);
@@ -739,7 +739,7 @@ void QAbstractScrollArea::scrollContentsBy(int, int)
     viewport()->update();
 }
 
-void QAbstractScrollAreaPrivate::hslide(int x)
+void QAbstractScrollAreaPrivate::_q_hslide(int x)
 {
     Q_Q(QAbstractScrollArea);
     int dx = xoffset - x;
@@ -747,7 +747,7 @@ void QAbstractScrollAreaPrivate::hslide(int x)
     q->scrollContentsBy(dx, 0);
 }
 
-void QAbstractScrollAreaPrivate::vslide(int y)
+void QAbstractScrollAreaPrivate::_q_vslide(int y)
 {
     Q_Q(QAbstractScrollArea);
     int dy = yoffset - y;
@@ -755,7 +755,7 @@ void QAbstractScrollAreaPrivate::vslide(int y)
     q->scrollContentsBy(0, dy);
 }
 
-void QAbstractScrollAreaPrivate::showOrHideScrollBars()
+void QAbstractScrollAreaPrivate::_q_showOrHideScrollBars()
 {
     layoutChildren();
 }

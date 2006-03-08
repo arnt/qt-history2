@@ -315,7 +315,7 @@ void QProcessPrivate::startProcess()
         startupSocketNotifier = new QSocketNotifier(childStartedPipe[0],
                                                     QSocketNotifier::Read, q);
         QObject::connect(startupSocketNotifier, SIGNAL(activated(int)),
-                         q, SLOT(startupNotification()));
+                         q, SLOT(_q_startupNotification()));
     }
 
     qt_create_pipe(deathPipe);
@@ -323,7 +323,7 @@ void QProcessPrivate::startProcess()
         deathNotifier = new QSocketNotifier(deathPipe[0],
                                             QSocketNotifier::Read, q);
         QObject::connect(deathNotifier, SIGNAL(activated(int)),
-                         q, SLOT(processDied()));
+                         q, SLOT(_q_processDied()));
     }
 
     qt_create_pipe(writePipe);
@@ -331,7 +331,7 @@ void QProcessPrivate::startProcess()
         writeSocketNotifier = new QSocketNotifier(writePipe[1],
                                                   QSocketNotifier::Write, q);
         QObject::connect(writeSocketNotifier, SIGNAL(activated(int)),
-                         q, SLOT(canWrite()));
+                         q, SLOT(_q_canWrite()));
         writeSocketNotifier->setEnabled(false);
     }
 
@@ -343,13 +343,13 @@ void QProcessPrivate::startProcess()
                                                          QSocketNotifier::Read,
                                                          q);
         QObject::connect(standardReadSocketNotifier, SIGNAL(activated(int)),
-                         q, SLOT(canReadStandardOutput()));
+                         q, SLOT(_q_canReadStandardOutput()));
 
         errorReadSocketNotifier = new QSocketNotifier(errorReadPipe[0],
                                                       QSocketNotifier::Read,
                                                       q);
         QObject::connect(errorReadSocketNotifier, SIGNAL(activated(int)),
-                         q, SLOT(canReadStandardError()));
+                         q, SLOT(_q_canReadStandardError()));
     }
 
     // Start the process (platform dependent)
@@ -665,7 +665,7 @@ bool QProcessPrivate::waitForStarted(int msecs)
         return false;
     }
 
-    bool startedEmitted = startupNotification();
+    bool startedEmitted = _q_startupNotification();
 #if defined (QPROCESS_DEBUG)
     qDebug("QProcessPrivate::waitForStarted() == %s", startedEmitted ? "true" : "false");
 #endif
@@ -716,18 +716,18 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 	}
 
 	if (childStartedPipe[0] != -1 && FD_ISSET(childStartedPipe[0], &fdread)) {
-	    if (!startupNotification())
+	    if (!_q_startupNotification())
 		return false;
 	}
 
         bool readyReadEmitted = false;
 	if (standardReadPipe[0] != -1 && FD_ISSET(standardReadPipe[0], &fdread)) {
-	    bool canRead = canReadStandardOutput();
+	    bool canRead = _q_canReadStandardOutput();
             if (processChannel == QProcess::StandardOutput && canRead)
                 readyReadEmitted = true;
 	}
 	if (errorReadPipe[0] != -1 && FD_ISSET(errorReadPipe[0], &fdread)) {
-	    bool canRead = canReadStandardError();
+	    bool canRead = _q_canReadStandardError();
             if (processChannel == QProcess::StandardError && canRead)
                 readyReadEmitted = true;
 	}
@@ -735,10 +735,10 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
             return true;
 
 	if (writePipe[1] != -1 && FD_ISSET(writePipe[1], &fdwrite))
-	    canWrite();
+	    _q_canWrite();
 
 	if (FD_ISSET(deathPipe[0], &fdread)) {
-            if (processDied())
+            if (_q_processDied())
                 return false;
         }
     }
@@ -789,21 +789,21 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 	}
 
 	if (childStartedPipe[0] != -1 && FD_ISSET(childStartedPipe[0], &fdread)) {
-	    if (!startupNotification())
+	    if (!_q_startupNotification())
 		return false;
 	}
 
 	if (writePipe[1] != -1 && FD_ISSET(writePipe[1], &fdwrite))
-	    return canWrite();
+	    return _q_canWrite();
 
 	if (standardReadPipe[0] != -1 && FD_ISSET(standardReadPipe[0], &fdread))
-	    canReadStandardOutput();
+	    _q_canReadStandardOutput();
 
 	if (errorReadPipe[0] != -1 && FD_ISSET(errorReadPipe[0], &fdread))
-	    canReadStandardError();
+	    _q_canReadStandardError();
 
 	if (FD_ISSET(deathPipe[0], &fdread)) {
-            if (processDied())
+            if (_q_processDied())
                 return false;
         }
     }
@@ -856,20 +856,20 @@ bool QProcessPrivate::waitForFinished(int msecs)
 	}
 
 	if (childStartedPipe[0] != -1 && FD_ISSET(childStartedPipe[0], &fdread)) {
-	    if (!startupNotification())
+	    if (!_q_startupNotification())
 		return false;
 	}
 	if (writePipe[1] != -1 && FD_ISSET(writePipe[1], &fdwrite))
-	    canWrite();
+	    _q_canWrite();
 
 	if (standardReadPipe[0] != -1 && FD_ISSET(standardReadPipe[0], &fdread))
-	    canReadStandardOutput();
+	    _q_canReadStandardOutput();
 
 	if (errorReadPipe[0] != -1 && FD_ISSET(errorReadPipe[0], &fdread))
-	    canReadStandardError();
+	    _q_canReadStandardError();
 
 	if (FD_ISSET(deathPipe[0], &fdread)) {
-            if (processDied())
+            if (_q_processDied())
                 return true;
 	}
     }
@@ -922,7 +922,7 @@ bool QProcessPrivate::waitForDeadChild()
     return false;
 }
 
-void QProcessPrivate::notified()
+void QProcessPrivate::_q_notified()
 {
 }
 

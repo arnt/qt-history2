@@ -1265,7 +1265,7 @@ void QLineEditPrivate::copy(bool clipboard) const
         q->disconnect(QApplication::clipboard(), SIGNAL(selectionChanged()), q, 0);
         QApplication::clipboard()->setText(t, clipboard ? QClipboard::Clipboard : QClipboard::Selection);
         q->connect(QApplication::clipboard(), SIGNAL(selectionChanged()),
-                   q, SLOT(clipboardChanged()));
+                   q, SLOT(_q_clipboardChanged()));
     }
 }
 
@@ -2322,11 +2322,11 @@ void QLineEdit::changeEvent(QEvent *ev)
     QWidget::changeEvent(ev);
 }
 
-void QLineEditPrivate::clipboardChanged()
+void QLineEditPrivate::_q_clipboardChanged()
 {
 }
 
-void QLineEditPrivate::deleteSelected()
+void QLineEditPrivate::_q_deleteSelected()
 {
     Q_Q(QLineEdit);
     if (!hasSelectedText())
@@ -2371,7 +2371,7 @@ void QLineEditPrivate::init(const QString& txt)
     actions[PasteAct] = new QAction(QLineEdit::tr("&Paste") + ACCEL_KEY(V), q);
     QObject::connect(actions[PasteAct], SIGNAL(triggered()), q, SLOT(paste()));
     actions[ClearAct] = new QAction(QLineEdit::tr("Delete"), q);
-    QObject::connect(actions[ClearAct], SIGNAL(triggered()), q, SLOT(deleteSelected()));
+    QObject::connect(actions[ClearAct], SIGNAL(triggered()), q, SLOT(_q_deleteSelected()));
     //popup->insertSeparator();
     actions[SelectAllAct] = new QAction(QLineEdit::tr("Select All")
 #ifndef Q_WS_X11

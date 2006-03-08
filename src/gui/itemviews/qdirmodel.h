@@ -132,7 +132,7 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QDirModel)
     Q_DISABLE_COPY(QDirModel)
-    Q_PRIVATE_SLOT(d_func(), void refresh())
+    Q_PRIVATE_SLOT(d_func(), void _q_refresh())
 };
 
 #endif // QT_NO_DIRMODEL

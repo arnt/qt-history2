@@ -112,7 +112,7 @@ void QAbstractItemViewPrivate::init()
     QAbstractItemView provides common slots such as edit() and
     setCurrentIndex(). Many protected slots are also provided, including
     dataChanged(), rowsInserted(), rowsAboutToBeRemoved(),
-    columnsInserted(), columnsRemoved(),
+    columnsInserted(), _q_columnsRemoved(),
     selectionChanged(), and currentChanged().
 
     The root item is returned by rootIndex(), and the current item by
@@ -435,11 +435,11 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                    this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                   this, SLOT(rowsRemoved(QModelIndex,int,int)));
+                   this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-                   this, SLOT(columnsAboutToBeRemoved(QModelIndex,int,int)));
+                   this, SLOT(_q_columnsAboutToBeRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                   this, SLOT(columnsRemoved(QModelIndex,int,int)));
+                   this, SLOT(_q_columnsRemoved(QModelIndex,int,int)));
 
         disconnect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
         disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
@@ -462,11 +462,11 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                 this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                this, SLOT(rowsRemoved(QModelIndex,int,int)));
+                this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-                this, SLOT(columnsAboutToBeRemoved(QModelIndex,int,int)));
+                this, SLOT(_q_columnsAboutToBeRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                this, SLOT(columnsRemoved(QModelIndex,int,int)));
+                this, SLOT(_q_columnsRemoved(QModelIndex,int,int)));
 
         connect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
         connect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
@@ -2057,7 +2057,7 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int star
     rows are those under the given \a parent from \a start to \a end
     inclusive.
 */
-void QAbstractItemViewPrivate::rowsRemoved(const QModelIndex &, int, int)
+void QAbstractItemViewPrivate::_q_rowsRemoved(const QModelIndex &, int, int)
 {
     Q_Q(QAbstractItemView);
     q->setState(QAbstractItemView::NoState);
@@ -2070,7 +2070,7 @@ void QAbstractItemViewPrivate::rowsRemoved(const QModelIndex &, int, int)
     columns are those under the given \a parent from \a start to \a end
     inclusive.
 */
-void QAbstractItemViewPrivate::columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+void QAbstractItemViewPrivate::_q_columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
     Q_Q(QAbstractItemView);
 
@@ -2111,7 +2111,7 @@ void QAbstractItemViewPrivate::columnsAboutToBeRemoved(const QModelIndex &parent
     rows are those under the given \a parent from \a start to \a end
     inclusive.
 */
-void QAbstractItemViewPrivate::columnsRemoved(const QModelIndex &, int, int)
+void QAbstractItemViewPrivate::_q_columnsRemoved(const QModelIndex &, int, int)
 {
     Q_Q(QAbstractItemView);
     q->setState(QAbstractItemView::NoState);

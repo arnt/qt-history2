@@ -51,29 +51,29 @@ public:
     QFileDialogPrivate();
 
     // private slots
-    void reload();
-    void navigateToPrevious();
-    void navigateToParent();
-    void enterDirectory(const QModelIndex &index);
-    void enterDirectory(const QString &path);
-    void enterDirectory();
-    void showList();
-    void showDetails();
-    void showHidden();
-    void useFilter(const QString &filter);
-    void updateFileName(const QItemSelection &selection);
-    void autoCompleteFileName(const QString &text);
-    void autoCompleteDirectory(const QString &text);
-    void showContextMenu(const QPoint &pos);
-    void createDirectory();
-    void renameCurrent();
-    void deleteCurrent();
-    void sortByName();
-    void sortBySize();
-    void sortByDate();
-    void setUnsorted();
-    void sortByColumn(int column);
-    void currentChanged(const QModelIndex &index);
+    void _q_reload();
+    void _q_navigateToPrevious();
+    void _q_navigateToParent();
+    void _q_enterDirectory(const QModelIndex &index);
+    void _q_enterDirectory(const QString &path);
+    void _q_enterDirectory();
+    void _q_showList();
+    void _q_showDetails();
+    void _q_showHidden();
+    void _q_useFilter(const QString &filter);
+    void _q_updateFileName(const QItemSelection &selection);
+    void _q_autoCompleteFileName(const QString &text);
+    void _q_autoCompleteDirectory(const QString &text);
+    void _q_showContextMenu(const QPoint &pos);
+    void _q_createDirectory();
+    void _q_renameCurrent();
+    void _q_deleteCurrent();
+    void _q_sortByName();
+    void _q_sortBySize();
+    void _q_sortByDate();
+    void _q_setUnsorted();
+    void _q_sortByColumn(int column);
+    void _q_currentChanged(const QModelIndex &index);
 
     // setup
     void setup(const QString &directory, const QStringList &nameFilter);

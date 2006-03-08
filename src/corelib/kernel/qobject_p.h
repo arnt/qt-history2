@@ -69,7 +69,7 @@ public:
     int thread;
     void moveToThread_helper(QThread *targetThread);
     void setThreadId_helper(QThreadData *currentData, QThreadData *targetData, int id);
-    void reregisterTimers(void *pointer);
+    void _q_reregisterTimers(void *pointer);
 
     // object currently activating the object
     QObject *currentSender;

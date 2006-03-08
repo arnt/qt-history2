@@ -1243,15 +1243,15 @@ public:
     void setup();
 
     // view signals
-    void emitItemPressed(const QModelIndex &index);
-    void emitItemClicked(const QModelIndex &index);
-    void emitItemDoubleClicked(const QModelIndex &index);
-    void emitItemActivated(const QModelIndex &index);
-    void emitItemEntered(const QModelIndex &index);
+    void _q_emitItemPressed(const QModelIndex &index);
+    void _q_emitItemClicked(const QModelIndex &index);
+    void _q_emitItemDoubleClicked(const QModelIndex &index);
+    void _q_emitItemActivated(const QModelIndex &index);
+    void _q_emitItemEntered(const QModelIndex &index);
     // model signals
-    void emitItemChanged(const QModelIndex &index);
+    void _q_emitItemChanged(const QModelIndex &index);
     // selection signals
-    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
+    void _q_emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
     // sorting
     void _q_sort();
 };
@@ -1260,18 +1260,18 @@ void QTableWidgetPrivate::setup()
 {
     Q_Q(QTableWidget);
     // view signals
-    QObject::connect(q, SIGNAL(pressed(QModelIndex)), q, SLOT(emitItemPressed(QModelIndex)));
-    QObject::connect(q, SIGNAL(clicked(QModelIndex)), q, SLOT(emitItemClicked(QModelIndex)));
+    QObject::connect(q, SIGNAL(pressed(QModelIndex)), q, SLOT(_q_emitItemPressed(QModelIndex)));
+    QObject::connect(q, SIGNAL(clicked(QModelIndex)), q, SLOT(_q_emitItemClicked(QModelIndex)));
     QObject::connect(q, SIGNAL(doubleClicked(QModelIndex)),
-                     q, SLOT(emitItemDoubleClicked(QModelIndex)));
-    QObject::connect(q, SIGNAL(activated(QModelIndex)), q, SLOT(emitItemActivated(QModelIndex)));
-    QObject::connect(q, SIGNAL(entered(QModelIndex)), q, SLOT(emitItemEntered(QModelIndex)));
+                     q, SLOT(_q_emitItemDoubleClicked(QModelIndex)));
+    QObject::connect(q, SIGNAL(activated(QModelIndex)), q, SLOT(_q_emitItemActivated(QModelIndex)));
+    QObject::connect(q, SIGNAL(entered(QModelIndex)), q, SLOT(_q_emitItemEntered(QModelIndex)));
     // model signals
     QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                     q, SLOT(emitItemChanged(QModelIndex)));
+                     q, SLOT(_q_emitItemChanged(QModelIndex)));
     // selection signals
     QObject::connect(q->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-                     q, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
+                     q, SLOT(_q_emitCurrentItemChanged(QModelIndex,QModelIndex)));
     QObject::connect(q->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                      q, SIGNAL(itemSelectionChanged()));
     // sorting
@@ -1280,7 +1280,7 @@ void QTableWidgetPrivate::setup()
     QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)), q, SLOT(_q_sort()));
 }
 
-void QTableWidgetPrivate::emitItemPressed(const QModelIndex &index)
+void QTableWidgetPrivate::_q_emitItemPressed(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
     if (QTableWidgetItem *item = model()->item(index))
@@ -1288,7 +1288,7 @@ void QTableWidgetPrivate::emitItemPressed(const QModelIndex &index)
     emit q->cellPressed(index.row(), index.column());
 }
 
-void QTableWidgetPrivate::emitItemClicked(const QModelIndex &index)
+void QTableWidgetPrivate::_q_emitItemClicked(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
     if (QTableWidgetItem *item = model()->item(index))
@@ -1296,7 +1296,7 @@ void QTableWidgetPrivate::emitItemClicked(const QModelIndex &index)
     emit q->cellClicked(index.row(), index.column());
 }
 
-void QTableWidgetPrivate::emitItemDoubleClicked(const QModelIndex &index)
+void QTableWidgetPrivate::_q_emitItemDoubleClicked(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
     if (QTableWidgetItem *item = model()->item(index))
@@ -1304,7 +1304,7 @@ void QTableWidgetPrivate::emitItemDoubleClicked(const QModelIndex &index)
     emit q->cellDoubleClicked(index.row(), index.column());
 }
 
-void QTableWidgetPrivate::emitItemActivated(const QModelIndex &index)
+void QTableWidgetPrivate::_q_emitItemActivated(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
     if (QTableWidgetItem *item = model()->item(index))
@@ -1312,14 +1312,14 @@ void QTableWidgetPrivate::emitItemActivated(const QModelIndex &index)
     emit q->cellActivated(index.row(), index.column());
 }
 
-void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index)
+void QTableWidgetPrivate::_q_emitItemEntered(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
     if (QTableWidgetItem *item = model()->item(index))
         emit q->itemEntered(item);
 }
 
-void QTableWidgetPrivate::emitItemChanged(const QModelIndex &index)
+void QTableWidgetPrivate::_q_emitItemChanged(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
     if (QTableWidgetItem *item = model()->item(index))
@@ -1327,7 +1327,7 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &index)
     emit q->cellChanged(index.row(), index.column());
 }
 
-void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
+void QTableWidgetPrivate::_q_emitCurrentItemChanged(const QModelIndex &current,
                                                  const QModelIndex &previous)
 {
     Q_Q(QTableWidget);

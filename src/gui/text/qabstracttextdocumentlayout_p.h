@@ -44,14 +44,14 @@ public:
     inline QAbstractTextDocumentLayoutPrivate()
         : paintDevice(0) {}
 
-    inline int dynamicPageCountSlot() const
+    inline int _q_dynamicPageCountSlot() const
     { return q_func()->pageCount(); }
-    inline QSizeF dynamicDocumentSizeSlot() const
+    inline QSizeF _q_dynamicDocumentSizeSlot() const
     { return q_func()->documentSize(); }
 
     HandlerHash handlers;
 
-    void handlerDestroyed(QObject *obj);
+    void _q_handlerDestroyed(QObject *obj);
     QPaintDevice *paintDevice;
 };
 

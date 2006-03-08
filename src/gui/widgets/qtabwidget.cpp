@@ -142,8 +142,8 @@ public:
     QTabWidgetPrivate();
     ~QTabWidgetPrivate();
     void updateTabBarPosition();
-    void showTab(int);
-    void removeTab(int);
+    void _q_showTab(int);
+    void _q_removeTab(int);
     void init();
     QStyleOptionTabWidgetFrame getStyleOption() const;
 
@@ -172,7 +172,7 @@ void QTabWidgetPrivate::init()
     Q_Q(QTabWidget);
     stack = new QStackedWidget(q);
     stack->setLineWidth(0);
-    QObject::connect(stack, SIGNAL(widgetRemoved(int)), q, SLOT(removeTab(int)));
+    QObject::connect(stack, SIGNAL(widgetRemoved(int)), q, SLOT(_q_removeTab(int)));
     QTabBar *tabBar = new QTabBar(q);
     tabBar->setDrawBase(false);
     q->setTabBar(tabBar);
@@ -544,7 +544,7 @@ void QTabWidget::setTabBar(QTabBar* tb)
     d->tabs = tb;
     setFocusProxy(d->tabs);
     connect(d->tabs, SIGNAL(currentChanged(int)),
-             this,    SLOT(showTab(int)));
+             this,    SLOT(_q_showTab(int)));
     setUpLayout();
 }
 
@@ -565,7 +565,7 @@ QTabBar* QTabWidget::tabBar() const
     sized.
 */
 
-void QTabWidgetPrivate::showTab(int index)
+void QTabWidgetPrivate::_q_showTab(int index)
 {
     Q_Q(QTabWidget);
     if (index < stack->count() && index >= 0) {
@@ -578,7 +578,7 @@ void QTabWidgetPrivate::showTab(int index)
     }
 }
 
-void QTabWidgetPrivate::removeTab(int index)
+void QTabWidgetPrivate::_q_removeTab(int index)
 {
     Q_Q(QTabWidget);
     tabs->removeTab(index);

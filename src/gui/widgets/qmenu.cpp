@@ -697,7 +697,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
     }
 }
 
-void QMenuPrivate::actionTriggered()
+void QMenuPrivate::_q_actionTriggered()
 {
     Q_Q(QMenu);
     if (QAction *action = qobject_cast<QAction *>(q->sender())) {
@@ -708,7 +708,7 @@ void QMenuPrivate::actionTriggered()
     }
 }
 
-void QMenuPrivate::actionHovered()
+void QMenuPrivate::_q_actionHovered()
 {
     Q_Q(QMenu);
     if (QAction *action = qobject_cast<QAction *>(q->sender())) {
@@ -2171,8 +2171,8 @@ void QMenu::actionEvent(QActionEvent *e)
     }
 #endif
     if (e->type() == QEvent::ActionAdded) {
-        connect(e->action(), SIGNAL(triggered()), this, SLOT(actionTriggered()));
-        connect(e->action(), SIGNAL(hovered()), this, SLOT(actionHovered()));
+        connect(e->action(), SIGNAL(triggered()), this, SLOT(_q_actionTriggered()));
+        connect(e->action(), SIGNAL(hovered()), this, SLOT(_q_actionHovered()));
     } else if (e->type() == QEvent::ActionRemoved) {
         e->action()->disconnect(this);
         if(e->action() == d->currentAction)

@@ -50,9 +50,9 @@ public:
     void layoutChildren();
     bool viewportEvent(QEvent *);
 
-    void hslide(int);
-    void vslide(int);
-    void showOrHideScrollBars();
+    void _q_hslide(int);
+    void _q_vslide(int);
+    void _q_showOrHideScrollBars();
 };
 
 #endif // QT_NO_SCROLLAREA

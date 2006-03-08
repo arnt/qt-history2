@@ -20,7 +20,7 @@ class QSignalMapperPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QSignalMapper)
 public:
-    void senderDestroyed() {
+    void _q_senderDestroyed() {
         Q_Q(QSignalMapper);
         q->removeMappings(q->sender());
     }
@@ -126,7 +126,7 @@ void QSignalMapper::setMapping(QObject *sender, int id)
 {
     Q_D(QSignalMapper);
     d->intHash.insert(sender, id);
-    connect(sender, SIGNAL(destroyed()), this, SLOT(senderDestroyed()));
+    connect(sender, SIGNAL(destroyed()), this, SLOT(_q_senderDestroyed()));
 }
 
 /*!
@@ -141,7 +141,7 @@ void QSignalMapper::setMapping(QObject *sender, const QString &text)
 {
     Q_D(QSignalMapper);
     d->stringHash.insert(sender, text);
-    connect(sender, SIGNAL(destroyed()), this, SLOT(senderDestroyed()));
+    connect(sender, SIGNAL(destroyed()), this, SLOT(_q_senderDestroyed()));
 }
 
 /*!
@@ -156,7 +156,7 @@ void QSignalMapper::setMapping(QObject *sender, QWidget *widget)
 {
     Q_D(QSignalMapper);
     d->widgetHash.insert(sender, widget);
-    connect(sender, SIGNAL(destroyed()), this, SLOT(senderDestroyed()));
+    connect(sender, SIGNAL(destroyed()), this, SLOT(_q_senderDestroyed()));
 }
 
 /*!
@@ -171,7 +171,7 @@ void QSignalMapper::setMapping(QObject *sender, QObject *object)
 {
     Q_D(QSignalMapper);
     d->objectHash.insert(sender, object);
-    connect(sender, SIGNAL(destroyed()), this, SLOT(senderDestroyed()));
+    connect(sender, SIGNAL(destroyed()), this, SLOT(_q_senderDestroyed()));
 }
 
 /*!

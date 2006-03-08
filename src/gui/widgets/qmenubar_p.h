@@ -80,10 +80,10 @@ public:
     //firing of events
     void activateAction(QAction *, QAction::ActionEvent);
 
-    void actionTriggered();
-    void actionHovered();
-    void internalShortcutActivated(int);
-    void updateLayout();
+    void _q_actionTriggered();
+    void _q_actionHovered();
+    void _q_internalShortcutActivated(int);
+    void _q_updateLayout();
 
     //extra widgets in the menubar
     QPointer<QWidget> leftWidget, rightWidget;

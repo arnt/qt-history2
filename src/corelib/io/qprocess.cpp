@@ -438,7 +438,7 @@ void QProcessPrivate::cleanup()
 
 /*! \internal
 */
-bool QProcessPrivate::canReadStandardOutput()
+bool QProcessPrivate::_q_canReadStandardOutput()
 {
     Q_Q(QProcess);
     qint64 available = bytesAvailableFromStdout();
@@ -493,7 +493,7 @@ bool QProcessPrivate::canReadStandardOutput()
 
 /*! \internal
 */
-bool QProcessPrivate::canReadStandardError()
+bool QProcessPrivate::_q_canReadStandardError()
 {
     Q_Q(QProcess);
     qint64 available = bytesAvailableFromStderr();
@@ -537,7 +537,7 @@ bool QProcessPrivate::canReadStandardError()
 
 /*! \internal
 */
-bool QProcessPrivate::canWrite()
+bool QProcessPrivate::_q_canWrite()
 {
     Q_Q(QProcess);
     if (writeSocketNotifier)
@@ -582,11 +582,11 @@ bool QProcessPrivate::canWrite()
 
 /*! \internal
 */
-bool QProcessPrivate::processDied()
+bool QProcessPrivate::_q_processDied()
 {
     Q_Q(QProcess);
 #if defined QPROCESS_DEBUG
-    qDebug("QProcessPrivate::processDied()");
+    qDebug("QProcessPrivate::_q_processDied()");
 #endif
 #ifdef Q_OS_UNIX
     if (!waitForDeadChild())
@@ -598,18 +598,18 @@ bool QProcessPrivate::processDied()
 #endif
 
     // the process may have died before it got a chance to report that it was
-    // either running or stopped, so we will call startupNotification() and
+    // either running or stopped, so we will call _q_startupNotification() and
     // give it a chance to emit started() or error(FailedToStart).
     if (processState == QProcess::Starting) {
-        if (!startupNotification())
+        if (!_q_startupNotification())
             return true;
     }
 
     // in case there is data in the pipe line and this slot by chance
     // got called before the read notifications, call these two slots
     // so the data is made available before the process dies.
-    canReadStandardOutput();
-    canReadStandardError();
+    _q_canReadStandardOutput();
+    _q_canReadStandardError();
 
     findExitCode();
 
@@ -627,14 +627,14 @@ bool QProcessPrivate::processDied()
     emit q->finished(exitCode);
     emit q->finished(exitCode, exitStatus);
 #if defined QPROCESS_DEBUG
-    qDebug("QProcessPrivate::processDied() process is dead");
+    qDebug("QProcessPrivate::_q_processDied() process is dead");
 #endif
     return true;
 }
 
 /*! \internal
 */
-bool QProcessPrivate::startupNotification()
+bool QProcessPrivate::_q_startupNotification()
 {
     Q_Q(QProcess);
 #if defined QPROCESS_DEBUG

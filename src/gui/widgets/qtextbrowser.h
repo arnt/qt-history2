@@ -77,7 +77,7 @@ public:
 private:
     Q_DISABLE_COPY(QTextBrowser)
     Q_DECLARE_PRIVATE(QTextBrowser)
-    Q_PRIVATE_SLOT(d_func(), void documentModified())
+    Q_PRIVATE_SLOT(d_func(), void _q_documentModified())
 };
 
 #endif // QT_NO_TEXTBROWSER

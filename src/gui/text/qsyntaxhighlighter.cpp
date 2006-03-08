@@ -32,7 +32,7 @@ public:
 
     QPointer<QTextDocument> doc;
 
-    void reformatBlocks(int from, int charsRemoved, int charsAdded);
+    void _q_reformatBlocks(int from, int charsRemoved, int charsAdded);
     void reformatBlock(QTextBlock block);
 
     void applyFormatChanges();
@@ -44,8 +44,8 @@ void QSyntaxHighlighterPrivate::applyFormatChanges()
 {
     QTextLayout *layout = currentBlock.layout();
 
-    QList<QTextLayout::FormatRange> ranges = layout->additionalFormats();    
-    
+    QList<QTextLayout::FormatRange> ranges = layout->additionalFormats();
+
     const int preeditAreaStart = layout->preeditAreaPosition();
     const int preeditAreaLength = layout->preeditAreaText().length();
 
@@ -82,13 +82,13 @@ void QSyntaxHighlighterPrivate::applyFormatChanges()
             break;
 
         r.length = i - r.start;
-        
+
         if (r.start >= preeditAreaStart) {
             r.start += preeditAreaLength;
         } else if (r.start + r.length >= preeditAreaStart) {
             r.length += preeditAreaLength;
         }
-        
+
         ranges << r;
         r.start = r.length = -1;
     }
@@ -108,7 +108,7 @@ void QSyntaxHighlighterPrivate::applyFormatChanges()
     layout->setAdditionalFormats(ranges);
 }
 
-void QSyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int charsAdded)
+void QSyntaxHighlighterPrivate::_q_reformatBlocks(int from, int charsRemoved, int charsAdded)
 {
     Q_UNUSED(charsRemoved);
 
@@ -332,7 +332,7 @@ void QSyntaxHighlighter::setDocument(QTextDocument *doc)
     Q_D(QSyntaxHighlighter);
     if (d->doc) {
         disconnect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                   this, SLOT(reformatBlocks(int, int, int)));
+                   this, SLOT(_q_reformatBlocks(int, int, int)));
 
         QTextCursor cursor(d->doc);
         cursor.beginEditBlock();
@@ -343,7 +343,7 @@ void QSyntaxHighlighter::setDocument(QTextDocument *doc)
     d->doc = doc;
     if (d->doc) {
         connect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                this, SLOT(reformatBlocks(int, int, int)));
+                this, SLOT(_q_reformatBlocks(int, int, int)));
         QTimer::singleShot(0, this, SLOT(rehighlight()));
     }
 }
@@ -370,7 +370,7 @@ void QSyntaxHighlighter::rehighlight()
     QTextCursor cursor(d->doc);
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::End);
-    d->reformatBlocks(0, 0, cursor.position());
+    d->_q_reformatBlocks(0, 0, cursor.position());
     cursor.endEditBlock();
 }
 

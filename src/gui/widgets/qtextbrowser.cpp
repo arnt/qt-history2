@@ -61,7 +61,7 @@ public:
 
     QString findFile(const QUrl &name) const;
 
-    inline void documentModified()
+    inline void _q_documentModified()
     {
         textOrSourceChanged = true;
         forceLoadOnSourceChange = true;
@@ -511,7 +511,7 @@ void QTextBrowserPrivate::init()
     q->setReadOnly(true);
     q->setUndoRedoEnabled(false);
     viewport->setMouseTracking(true);
-    QObject::connect(q->document(), SIGNAL(contentsChanged()), q, SLOT(documentModified()));
+    QObject::connect(q->document(), SIGNAL(contentsChanged()), q, SLOT(_q_documentModified()));
 }
 
 /*!

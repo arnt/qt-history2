@@ -219,13 +219,13 @@ private:
     Q_DISABLE_COPY(QHttp)
     Q_DECLARE_PRIVATE(QHttp)
 
-    Q_PRIVATE_SLOT(d_func(), void startNextRequest())
-    Q_PRIVATE_SLOT(d_func(), void slotReadyRead())
-    Q_PRIVATE_SLOT(d_func(), void slotConnected())
-    Q_PRIVATE_SLOT(d_func(), void slotError(QAbstractSocket::SocketError))
-    Q_PRIVATE_SLOT(d_func(), void slotClosed())
-    Q_PRIVATE_SLOT(d_func(), void slotBytesWritten(qint64 numBytes))
-    Q_PRIVATE_SLOT(d_func(), void slotDoFinished())
+    Q_PRIVATE_SLOT(d_func(), void _q_startNextRequest())
+    Q_PRIVATE_SLOT(d_func(), void _q_slotReadyRead())
+    Q_PRIVATE_SLOT(d_func(), void _q_slotConnected())
+    Q_PRIVATE_SLOT(d_func(), void _q_slotError(QAbstractSocket::SocketError))
+    Q_PRIVATE_SLOT(d_func(), void _q_slotClosed())
+    Q_PRIVATE_SLOT(d_func(), void _q_slotBytesWritten(qint64 numBytes))
+    Q_PRIVATE_SLOT(d_func(), void _q_slotDoFinished())
 
     friend class QHttpNormalRequest;
     friend class QHttpSetHostRequest;

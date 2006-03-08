@@ -86,8 +86,8 @@ public:
     virtual QString textFromValue(const QVariant &n) const;
     virtual QVariant valueFromText(const QString &input) const;
 
-    void editorTextChanged(const QString &);
-    virtual void editorCursorPositionChanged(int oldpos, int newpos);
+    void _q_editorTextChanged(const QString &);
+    virtual void _q_editorCursorPositionChanged(int oldpos, int newpos);
 
     QStyle::SubControl newHoverControl(const QPoint &pos);
     bool updateHoverControl(const QPoint &pos);

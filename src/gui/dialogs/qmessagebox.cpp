@@ -42,7 +42,7 @@ class QMessageBoxPrivate : public QDialogPrivate
     Q_DECLARE_PUBLIC(QMessageBox)
 public:
     QMessageBoxPrivate() {}
-    void buttonClicked();
+    void _q_buttonClicked();
     void init(int, int, int);
     int indexOf(int) const;
     QLabel *label;
@@ -599,7 +599,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
             }
             pb[i]->setAutoDefault(true);
             pb[i]->setFocusPolicy(Qt::StrongFocus);
-            q->connect(pb[i], SIGNAL(clicked()), SLOT(buttonClicked()));
+            q->connect(pb[i], SIGNAL(clicked()), SLOT(_q_buttonClicked()));
         }
     }
 }
@@ -847,7 +847,7 @@ void QMessageBox::setButtonText(int button, const QString &text)
     Internal slot to handle button clicks.
 */
 
-void QMessageBoxPrivate::buttonClicked()
+void QMessageBoxPrivate::_q_buttonClicked()
 {
     Q_Q(QMessageBox);
 

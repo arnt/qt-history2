@@ -347,14 +347,16 @@ public Q_SLOTS:
 
 private:
     Q_DISABLE_COPY(QTextEdit)
-    Q_PRIVATE_SLOT(d_func(), void repaintContents(const QRectF &r))
-    Q_PRIVATE_SLOT(d_func(), void updateCurrentCharFormatAndSelection())
-    Q_PRIVATE_SLOT(d_func(), void adjustScrollbars())
-    Q_PRIVATE_SLOT(d_func(), void emitCursorPosChanged(const QTextCursor &))
-    Q_PRIVATE_SLOT(d_func(), void deleteSelected())
+    Q_PRIVATE_SLOT(d_func(), void _q_repaintContents(const QRectF &r))
+    Q_PRIVATE_SLOT(d_func(), void _q_updateCurrentCharFormatAndSelection())
+    Q_PRIVATE_SLOT(d_func(), void _q_adjustScrollbars())
+    Q_PRIVATE_SLOT(d_func(), void _q_emitCursorPosChanged(const QTextCursor &))
+    Q_PRIVATE_SLOT(d_func(), void _q_deleteSelected())
+    // undo and redo are semi-public slots to keep Qt3 code working, don't use _q_ prefix.
+    // Will be made public in a later release
     Q_PRIVATE_SLOT(d_func(), void undo())
     Q_PRIVATE_SLOT(d_func(), void redo())
-    Q_PRIVATE_SLOT(d_func(), void setCursorAfterUndoRedo(int, int, int))
+    Q_PRIVATE_SLOT(d_func(), void _q_setCursorAfterUndoRedo(int, int, int))
 };
 
 #endif // QT_NO_TEXTEDIT

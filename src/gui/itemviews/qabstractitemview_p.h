@@ -48,9 +48,9 @@ public:
 
     void init();
 
-    void rowsRemoved(const QModelIndex &parent, int start, int end);
-    void columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
-    void columnsRemoved(const QModelIndex &parent, int start, int end);
+    void _q_rowsRemoved(const QModelIndex &parent, int start, int end);
+    void _q_columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
+    void _q_columnsRemoved(const QModelIndex &parent, int start, int end);
 
     void fetchMore();
     bool shouldEdit(QAbstractItemView::EditTrigger trigger, const QModelIndex &index);

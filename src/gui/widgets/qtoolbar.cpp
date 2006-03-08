@@ -209,10 +209,10 @@ void QToolBarPrivate::init()
 
     toggleViewAction = new QAction(q);
     toggleViewAction->setCheckable(true);
-    QObject::connect(toggleViewAction, SIGNAL(triggered(bool)), q, SLOT(toggleView(bool)));
+    QObject::connect(toggleViewAction, SIGNAL(triggered(bool)), q, SLOT(_q_toggleView(bool)));
 }
 
-void QToolBarPrivate::toggleView(bool b)
+void QToolBarPrivate::_q_toggleView(bool b)
 {
     Q_Q(QToolBar);
     if (b == q->isHidden()) {
@@ -223,7 +223,7 @@ void QToolBarPrivate::toggleView(bool b)
     }
 }
 
-void QToolBarPrivate::updateIconSize(const QSize &sz)
+void QToolBarPrivate::_q_updateIconSize(const QSize &sz)
 {
     Q_Q(QToolBar);
     if (!explicitIconSize) {
@@ -233,7 +233,7 @@ void QToolBarPrivate::updateIconSize(const QSize &sz)
     }
 }
 
-void QToolBarPrivate::updateToolButtonStyle(Qt::ToolButtonStyle style)
+void QToolBarPrivate::_q_updateToolButtonStyle(Qt::ToolButtonStyle style)
 {
     Q_Q(QToolBar);
     if (!explicitToolButtonStyle) {

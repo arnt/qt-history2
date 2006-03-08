@@ -1205,12 +1205,12 @@ public:
     void setCurrentAlpha(int a) { cs->setCurrentAlpha(a); }
     void showAlpha(bool b) { cs->showAlpha(b); }
 
-    void addCustom();
+    void _q_addCustom();
 
-    void newHsv(int h, int s, int v);
-    void newColorTypedIn(QRgb rgb);
-    void newCustom(int, int);
-    void newStandard(int, int);
+    void _q_newHsv(int h, int s, int v);
+    void _q_newColorTypedIn(QRgb rgb);
+    void _q_newCustom(int, int);
+    void _q_newStandard(int, int);
 
     QWellArray *custom;
     QWellArray *standard;
@@ -1223,7 +1223,7 @@ public:
 };
 
 //sets all widgets to display h,s,v
-void QColorDialogPrivate::newHsv(int h, int s, int v)
+void QColorDialogPrivate::_q_newHsv(int h, int s, int v)
 {
     cs->setHsv(h, s, v);
     cp->setCol(h, s);
@@ -1234,11 +1234,11 @@ void QColorDialogPrivate::newHsv(int h, int s, int v)
 void QColorDialogPrivate::setCurrentColor(QRgb rgb)
 {
     cs->setRgb(rgb);
-    newColorTypedIn(rgb);
+    _q_newColorTypedIn(rgb);
 }
 
 //sets all widgets exept cs to display rgb
-void QColorDialogPrivate::newColorTypedIn(QRgb rgb)
+void QColorDialogPrivate::_q_newColorTypedIn(QRgb rgb)
 {
     int h, s, v;
     rgb2hsv(rgb, h, s, v);
@@ -1246,7 +1246,7 @@ void QColorDialogPrivate::newColorTypedIn(QRgb rgb)
     lp->setCol(h, s, v);
 }
 
-void QColorDialogPrivate::newCustom(int r, int c)
+void QColorDialogPrivate::_q_newCustom(int r, int c)
 {
     int i = r+2*c;
     setCurrentColor(cusrgb[i]);
@@ -1255,7 +1255,7 @@ void QColorDialogPrivate::newCustom(int r, int c)
         standard->setSelected(-1,-1);
 }
 
-void QColorDialogPrivate::newStandard(int r, int c)
+void QColorDialogPrivate::_q_newStandard(int r, int c)
 {
     setCurrentColor(stdrgb[r+c*6]);
     if (custom)
@@ -1289,7 +1289,7 @@ void QColorDialogPrivate::init()
 #ifndef QT_NO_SHORTCUT
         lab->setBuddy(standard);
 #endif
-        q->connect(standard, SIGNAL(selected(int,int)), SLOT(newStandard(int,int)));
+        q->connect(standard, SIGNAL(selected(int,int)), SLOT(_q_newStandard(int,int)));
         leftLay->addWidget(lab);
         leftLay->addWidget(standard);
 
@@ -1299,7 +1299,7 @@ void QColorDialogPrivate::init()
         custom = new QColorWell(q, 2, 8, cusrgb);
         custom->setAcceptDrops(true);
 
-        q->connect(custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));
+        q->connect(custom, SIGNAL(selected(int,int)), SLOT(_q_newCustom(int,int)));
         lab = new QLabel(QColorDialog::tr("&Custom colors") , q);
 #ifndef QT_NO_SHORTCUT
         lab->setBuddy(custom);
@@ -1338,12 +1338,12 @@ void QColorDialogPrivate::init()
     pickLay->addWidget(lp);
 
     QObject::connect(cp, SIGNAL(newCol(int,int)), lp, SLOT(setCol(int,int)));
-    QObject::connect(lp, SIGNAL(newHsv(int,int,int)), q, SLOT(newHsv(int,int,int)));
+    QObject::connect(lp, SIGNAL(newHsv(int,int,int)), q, SLOT(_q_newHsv(int,int,int)));
 
     rightLay->addStretch();
 
     cs = new QColorShower(q);
-    QObject::connect(cs, SIGNAL(newCol(QRgb)), q, SLOT(newColorTypedIn(QRgb)));
+    QObject::connect(cs, SIGNAL(newCol(QRgb)), q, SLOT(_q_newColorTypedIn(QRgb)));
     rightLay->addWidget(cs);
 
     QHBoxLayout *buttons;
@@ -1368,11 +1368,11 @@ void QColorDialogPrivate::init()
     if (!compact) {
         QPushButton *addCusBt = new QPushButton(QColorDialog::tr("&Add to Custom Colors"), q);
         rightLay->addWidget(addCusBt);
-        QObject::connect(addCusBt, SIGNAL(clicked()), q, SLOT(addCustom()));
+        QObject::connect(addCusBt, SIGNAL(clicked()), q, SLOT(_q_addCustom()));
     }
 }
 
-void QColorDialogPrivate::addCustom()
+void QColorDialogPrivate::_q_addCustom()
 {
     cusrgb[nextCust] = cs->currentColor();
     if (custom)
@@ -1607,7 +1607,7 @@ bool QColorDialog::selectColor(const QColor& col)
         for (i = 0; i < 6; i++) {
             for (j = 0; j < 8; j++) {
                 if (color == stdrgb[i + j*6]) {
-                    d->newStandard(i, j);
+                    d->_q_newStandard(i, j);
                     d->standard->setCurrent(i, j);
                     d->standard->setSelected(i, j);
                     d->standard->setFocus();
@@ -1621,7 +1621,7 @@ bool QColorDialog::selectColor(const QColor& col)
         for (i = 0; i < 2; i++) {
             for (j = 0; j < 8; j++) {
                 if (color == cusrgb[i + j*2]) {
-                    d->newCustom(i, j);
+                    d->_q_newCustom(i, j);
                     d->custom->setCurrent(i, j);
                     d->custom->setSelected(i, j);
                     d->custom->setFocus();

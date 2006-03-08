@@ -225,14 +225,14 @@ void QHeaderView::setModel(QAbstractItemModel *model)
             QObject::disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                                 this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
             QObject::disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                                this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+                                this, SLOT(_q_sectionsRemoved(QModelIndex,int,int)));
         } else {
             QObject::disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                                 this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                                 this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
             QObject::disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                                this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+                                this, SLOT(_q_sectionsRemoved(QModelIndex,int,int)));
          }
         QObject::disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
                             this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
@@ -245,14 +245,14 @@ void QHeaderView::setModel(QAbstractItemModel *model)
             QObject::connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                 this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
             QObject::connect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+                this, SLOT(_q_sectionsRemoved(QModelIndex,int,int)));
         } else {
             QObject::connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                              this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                              this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
             QObject::connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                             this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+                             this, SLOT(_q_sectionsRemoved(QModelIndex,int,int)));
         }
         QObject::connect(model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
                          this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
@@ -1189,7 +1189,7 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
     Q_UNUSED(logicalLast);
 }
 
-void QHeaderViewPrivate::sectionsRemoved(const QModelIndex &parent,
+void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
                                            int logicalFirst, int logicalLast)
 {
     Q_Q(QHeaderView);

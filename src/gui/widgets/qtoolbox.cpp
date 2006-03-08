@@ -83,8 +83,8 @@ public:
         : currentPage(0)
     {
     }
-    void buttonClicked();
-    void widgetDestroyed(QObject*);
+    void _q_buttonClicked();
+    void _q_widgetDestroyed(QObject*);
 
     Page *page(QWidget *widget) const;
     const Page *page(int index) const;
@@ -347,12 +347,12 @@ int QToolBox::insertItem(int index, QWidget *widget, const QIcon &icon, const QS
         return -1;
 
     Q_D(QToolBox);
-    connect(widget, SIGNAL(destroyed(QObject*)), this, SLOT(widgetDestroyed(QObject*)));
+    connect(widget, SIGNAL(destroyed(QObject*)), this, SLOT(_q_widgetDestroyed(QObject*)));
 
     QToolBoxPrivate::Page c;
     c.widget = widget;
     c.button = new QToolBoxButton(this);
-    connect(c.button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+    connect(c.button, SIGNAL(clicked()), this, SLOT(_q_buttonClicked()));
 
     c.sv = new QScrollArea(this);
     c.sv->setWidget(widget);
@@ -390,7 +390,7 @@ int QToolBox::insertItem(int index, QWidget *widget, const QIcon &icon, const QS
     return index;
 }
 
-void QToolBoxPrivate::buttonClicked()
+void QToolBoxPrivate::_q_buttonClicked()
 {
     Q_Q(QToolBox);
     QToolBoxButton *tb = ::qobject_cast<QToolBoxButton*>(q->sender());
@@ -444,7 +444,7 @@ void QToolBoxPrivate::relayout()
     }
 }
 
-void QToolBoxPrivate::widgetDestroyed(QObject *object)
+void QToolBoxPrivate::_q_widgetDestroyed(QObject *object)
 {
     Q_Q(QToolBox);
     // no verification - vtbl corrupted already
@@ -480,10 +480,10 @@ void QToolBox::removeItem(int index)
 {
     Q_D(QToolBox);
     if (QWidget *w = widget(index)) {
-        disconnect(w, SIGNAL(destroyed(QObject*)), this, SLOT(widgetDestroyed(QObject*)));
+        disconnect(w, SIGNAL(destroyed(QObject*)), this, SLOT(_q_widgetDestroyed(QObject*)));
         w->setParent(this);
         // destroy internal data
-        d->widgetDestroyed(w);
+        d->_q_widgetDestroyed(w);
         itemRemoved(index);
     }
 }

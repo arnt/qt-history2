@@ -114,8 +114,8 @@ protected:
     QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent = 0);
 
 private:
-    Q_PRIVATE_SLOT(d_func(), void editorTextChanged(const QString &))
-    Q_PRIVATE_SLOT(d_func(), void editorCursorPositionChanged(int, int))
+    Q_PRIVATE_SLOT(d_func(), void _q_editorTextChanged(const QString &))
+    Q_PRIVATE_SLOT(d_func(), void _q_editorCursorPositionChanged(int, int))
 
     Q_DECLARE_PRIVATE(QAbstractSpinBox)
     Q_DISABLE_COPY(QAbstractSpinBox)

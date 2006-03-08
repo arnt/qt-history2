@@ -52,7 +52,7 @@ public Q_SLOTS:
 
 private:
     Q_DISABLE_COPY(QSignalMapper)
-    Q_PRIVATE_SLOT(d_func(), void senderDestroyed())
+    Q_PRIVATE_SLOT(d_func(), void _q_senderDestroyed())
 
 #ifdef QT3_SUPPORT
 public:

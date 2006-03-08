@@ -23,19 +23,19 @@ class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
 public:
     QPrintDialogPrivate() : ep(0) { }
 
-    inline void browseClicked() {}
-    inline void okClicked() {}
-    inline void printerOrFileSelected(QAbstractButton *) {}
-    inline void landscapeSelected(int) {}
-    inline void paperSizeSelected(int) {}
-    inline void orientSelected(int) {}
-    inline void pageOrderSelected(QAbstractButton *) {}
-    inline void colorModeSelected(QAbstractButton *) {}
-    inline void setNumCopies(int) {}
-    inline void printRangeSelected(QAbstractButton *) {}
-    inline void setFirstPage(int) {}
-    inline void setLastPage(int) {}
-    inline void fileNameEditChanged(const QString & /*text*/) {}
+    inline void _q_browseClicked() {}
+    inline void _q_okClicked() {}
+    inline void _q_printerOrFileSelected(QAbstractButton *) {}
+    inline void _q_landscapeSelected(int) {}
+    inline void _q_paperSizeSelected(int) {}
+    inline void _q_orientSelected(int) {}
+    inline void _q_pageOrderSelected(QAbstractButton *) {}
+    inline void _q_colorModeSelected(QAbstractButton *) {}
+    inline void _q_setNumCopies(int) {}
+    inline void _q_printRangeSelected(QAbstractButton *) {}
+    inline void _q_setFirstPage(int) {}
+    inline void _q_setLastPage(int) {}
+    inline void _q_fileNameEditChanged(const QString & /*text*/) {}
 
     QMacPrintEnginePrivate *ep;
 };
@@ -60,7 +60,7 @@ int QPrintDialog::exec()
     // Carbon's documentation lies.
     // It seems the only way that Carbon lets you use all is if the minimum
     // for the page range is 1. This _kind of_ makes sense if you think about
-    // it. However, calling setFirstPage or setLastPage always enforces the range.
+    // it. However, calling _q_setFirstPage or _q_setLastPage always enforces the range.
     PMSetPageRange(d->ep->settings, d->minPage, d->maxPage);
     if (d->printRange == PageRange) {
         PMSetFirstPage(d->ep->settings, d->fromPage, false);

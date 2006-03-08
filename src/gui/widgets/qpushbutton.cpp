@@ -42,7 +42,7 @@ public:
     enum AutoDefaultValue {Off = 0, On = 1, Auto = 2};
     QPushButtonPrivate():autoDefault(Auto), defaultButton(false), flat(false){}
     void init();
-    void popupPressed();
+    void _q_popupPressed();
     QStyleOptionButton getStyleOption() const;
     QDialog *dialogParent() const;
     QPointer<QMenu> menu;
@@ -454,8 +454,8 @@ void QPushButton::setMenu(QMenu* menu)
 {
     Q_D(QPushButton);
     if (menu && !d->menu) {
-        disconnect(this, SIGNAL(pressed()), this, SLOT(popupPressed()));
-        connect(this, SIGNAL(pressed()), this, SLOT(popupPressed()));
+        disconnect(this, SIGNAL(pressed()), this, SLOT(_q_popupPressed()));
+        connect(this, SIGNAL(pressed()), this, SLOT(_q_popupPressed()));
     }
     d->menu = menu;
     update();
@@ -485,10 +485,10 @@ void QPushButton::showMenu()
     if (!d || !d->menu)
         return;
     setDown(true);
-    d->popupPressed();
+    d->_q_popupPressed();
 }
 
-void QPushButtonPrivate::popupPressed()
+void QPushButtonPrivate::_q_popupPressed()
 {
     Q_Q(QPushButton);
     if (!down || !menu)

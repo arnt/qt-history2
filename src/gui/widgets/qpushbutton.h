@@ -77,7 +77,7 @@ private:
     Q_DISABLE_COPY(QPushButton)
     Q_DECLARE_PRIVATE(QPushButton)
 #ifndef QT_NO_MENU        
-    Q_PRIVATE_SLOT(d_func(), void popupPressed())
+    Q_PRIVATE_SLOT(d_func(), void _q_popupPressed())
 #endif
 };
 

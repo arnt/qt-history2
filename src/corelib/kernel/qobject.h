@@ -257,7 +257,7 @@ protected:
 
 private:
     Q_DISABLE_COPY(QObject)
-    Q_PRIVATE_SLOT(d_func(), void reregisterTimers(void *))
+    Q_PRIVATE_SLOT(d_func(), void _q_reregisterTimers(void *))
 };
 
 inline bool QObject::connect(const QObject *asender, const char *asignal,

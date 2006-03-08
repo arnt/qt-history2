@@ -54,8 +54,8 @@ public:
 #endif
 #ifndef QT_NO_MOVIE
     QMovie *lmovie;
-    void movieUpdated(const QRect&);
-    void movieResized(const QSize&);
+    void _q_movieUpdated(const QRect&);
+    void _q_movieResized(const QSize&);
 #endif
     QPointer<QWidget> lbuddy;
     int shortcutId;
@@ -984,7 +984,7 @@ QWidget * QLabel::buddy() const
 
 
 #ifndef QT_NO_MOVIE
-void QLabelPrivate::movieUpdated(const QRect& rect)
+void QLabelPrivate::_q_movieUpdated(const QRect& rect)
 {
     Q_Q(QLabel);
     if (lmovie && lmovie->isValid()) {
@@ -1007,11 +1007,11 @@ void QLabelPrivate::movieUpdated(const QRect& rect)
     }
 }
 
-void QLabelPrivate::movieResized(const QSize& size)
+void QLabelPrivate::_q_movieResized(const QSize& size)
 {
     Q_Q(QLabel);
     valid_hints = false;
-    movieUpdated(QRect(QPoint(0,0), size));
+    _q_movieUpdated(QRect(QPoint(0,0), size));
     q->updateGeometry();
 }
 
@@ -1032,8 +1032,8 @@ void QLabel::setMovie(QMovie *movie)
     d->clearContents();
 
     d->lmovie = movie;
-    connect(movie, SIGNAL(resized(QSize)), this, SLOT(movieResized(QSize)));
-    connect(movie, SIGNAL(updated(QRect)), this, SLOT(movieUpdated(QRect)));
+    connect(movie, SIGNAL(resized(QSize)), this, SLOT(_q_movieResized(QSize)));
+    connect(movie, SIGNAL(updated(QRect)), this, SLOT(_q_movieUpdated(QRect)));
 
     // Assume that if the movie is running,
     // resize/update signals will come soon enough
