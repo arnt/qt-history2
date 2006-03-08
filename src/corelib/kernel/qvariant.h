@@ -283,7 +283,7 @@ class Q_CORE_EXPORT QVariant
     struct PrivateShared
     {
         inline PrivateShared() : ref(1) { }
-        inline PrivateShared(void *v) : ref(1) { ptr = v; }
+        inline PrivateShared(void *v) : ptr(v), ref(1) { }
         void *ptr;
         QAtomic ref;
     };

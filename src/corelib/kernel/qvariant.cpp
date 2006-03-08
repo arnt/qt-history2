@@ -455,7 +455,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
         s << d->data.ull;
         break;
     case QVariant::Bool:
-        s << (qint8)d->data.b;
+        s << qint8(d->data.b);
         break;
     case QVariant::Double:
         s << d->data.d;
@@ -728,7 +728,7 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
             *i = qRound(d->data.d);
             break;
         case QVariant::Bool:
-            *i = (int)d->data.b;
+            *i = int(d->data.b);
             break;
         default:
             *i = 0;
@@ -1710,7 +1710,7 @@ void QVariant::detach()
 */
 const char *QVariant::typeName() const
 {
-    return typeToName((Type)d.type);
+    return typeToName(Type(d.type));
 }
 
 /*!
@@ -1833,11 +1833,11 @@ QVariant::Type QVariant::nameToType(const char *name)
     int i;
     for (i = 1; i < CoreTypeCount; ++i) {
         if (strcmp(core_type_map[i], name) == 0)
-            return (Type)i;
+            return Type(i);
     }
     for (i = 0; i < GuiTypeCount; ++i) {
         if (strcmp(gui_type_map[i], name) == 0)
-            return (Type)(i + QVariant::Font - 1);
+            return Type(i + QVariant::Font - 1);
     }
     if (QMetaType::type(name))
         return UserType;
@@ -1984,7 +1984,7 @@ QDataStream& operator>>(QDataStream &s, QVariant::Type &p)
 */
 QDataStream& operator<<(QDataStream &s, const QVariant::Type p)
 {
-    s << (quint32)p;
+    s << static_cast<const quint32>(p);
 
     return s;
 }

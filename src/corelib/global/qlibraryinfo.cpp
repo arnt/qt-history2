@@ -365,7 +365,7 @@ QLibraryInfo::location(LibraryLocation loc)
             while((rep = reg_var.indexIn(ret)) != -1) {
                 ret.replace(rep, reg_var.matchedLength(),
                             QString::fromLocal8Bit(qgetenv(ret.mid(rep + 2,
-                                                                   reg_var.matchedLength() - 3).toLatin1().constData())));
+                                reg_var.matchedLength() - 3).toLatin1().constData()).constData()));
             }
             config->endGroup();
         }
