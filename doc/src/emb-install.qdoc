@@ -220,7 +220,7 @@
         \endcode
 
         The communication between client and server is done through
-        the named pipe \c /tmp/qtopiacore-username/QtopiaCore-0;
+        the named pipe \c /tmp/qtembedded-username/QtEmbedded-0;
         sometimes it may need to be deleted (e.g. if you run Qtopia
         Core with root privileges then later as an unprivileged user).
 
