@@ -625,7 +625,10 @@ QKeyEvent::~QKeyEvent()
     Returns the code of the key that was pressed or released.
 
     See \l Qt::Key for the list of keyboard codes. These codes are
-    independent of the underlying window system.
+    independent of the underlying window system. Note that this
+    function does not distinguish between capital and non-capital
+    letters, use the text() function (returning the Unicode text the
+    key generated) for this purpose.
 
     A value of either 0 or Qt::Key_unknown means that the event is not
     the result of a known key; for example, it may be the result of
