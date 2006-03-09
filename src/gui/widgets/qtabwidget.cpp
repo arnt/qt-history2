@@ -725,8 +725,8 @@ void QTabWidgetPrivate::updateTabBarPosition()
     \property QTabWidget::tabPosition
     \brief the position of the tabs in this tab widget
 
-    Possible values for this property are QTabWidget::North and
-    QTabWidget::South.
+    Possible values for this property are described by the TabPosition
+    enum.
 
     \sa TabPosition
 */

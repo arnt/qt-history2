@@ -480,11 +480,7 @@ QTabBar::~QTabBar()
     \property QTabBar::shape
     \brief the shape of the tabs in the tab bar
 
-    The value of this property is one of the following: \l
-    RoundedNorth (default), \l RoundedSouth, \l TriangularNorth or \l
-    TriangularBelow.
-
-    \sa Shape
+    Possible values for this property are described by the Shape enum.
 */
 
 
