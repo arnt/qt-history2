@@ -506,6 +506,10 @@ QT_LFLAGS_PSQL=
 QT_CFLAGS_MYSQL=
 QT_LFLAGS_MYSQL=
 
+# flags for Glib (X11 only)
+QT_CFLAGS_GLIB=
+QT_LIBS_GLIB=
+
 #-------------------------------------------------------------------------------
 # check SQL drivers, mouse drivers and decorations available in this package
 #-------------------------------------------------------------------------------
@@ -2216,13 +2220,6 @@ if [ "$OPT_HELP" = "yes" ]; then
         CUY="*"
         CUN=" "
     fi
-    if [ "$CFG_GLIB" = "no" ]; then
-        GBY=" "
-        GBN="*"
-    else
-        GBY="*"
-        GBN=" "
-    fi
     if [ "$CFG_LARGEFILE" = "no" ]; then
         LFSY=" "
         LFSN="*"
@@ -2408,9 +2405,6 @@ Additional options:
  $CUN  -no-cups............ Do not compile CUPS support.
  $CUY  -cups .............. Compile CUPS support.
 
- $GBY  -no-glib............ Do not compile Glib support.
- $GBN  -glib............... Compile Glib support.
-
  $PHN  -no-pch ............ Do not use precompiled header support.
  $PHY  -pch ............... Use precompiled header support.
 
@@ -2487,6 +2481,13 @@ if [ "$PLATFORM_X11" = "yes" ]; then
         IMY="*"
         IMN=" "
     fi
+    if [ "$CFG_GLIB" = "no" ]; then
+        GBY=" "
+        GBN="*"
+    else
+        GBY="*"
+        GBN=" "
+    fi
     cat << EOF
 
 Qt/X11 only:
@@ -2530,6 +2531,9 @@ Qt/X11 only:
 
  $XKN  -no-xkb ............ Do not compile XKB (X KeyBoard extension) support.
  $XKY  -xkb ............... Compile XKB support.
+
+ $GBY  -no-glib............ Do not compile Glib support.
+ $GBN  -glib............... Compile Glib support.
 
 EOF
 fi
@@ -3359,31 +3363,6 @@ if [ "$CFG_CUPS" != "no" ]; then
     fi
 fi
 
-# auto-detect Glib support
-GLIB_CFLAGS=
-GLIB_LIBS=
-if [ "$CFG_GLIB" != "no" ]; then
-    if $WHICH pkg-config >/dev/null 2>&1; then
-        GLIB_CFLAGS=`pkg-config --cflags glib-2.0`
-        GLIB_LIBS=`pkg-config --libs glib-2.0`
-    fi
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/glib "Glib" $L_FLAGS $I_FLAGS $l_FLAGS $GLIB_CFLAGS $GLIB_LIBS; then
-        CFG_GLIB=yes
-        QMAKE_VARS="$QMAKE_VARS \"QT_CFLAGS_GLIB = $GLIB_CFLAGS\""
-        QMAKE_VARS="$QMAKE_VARS \"QT_LIBS_GLIB = $GLIB_LIBS\""
-    else
-        if [ "$CFG_GLIB" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
-            echo "Glib support cannot be enabled due to functionality tests!"
-            echo " Turn on verbose messaging (-v) to $0 to see the final report."
-            echo " If you believe this message is in error you may use the continue"
-            echo " switch (-continue) to $0 to continue."
-            exit 101
-        else
-            CFG_GLIB=no
-        fi
-    fi
-fi
-
 # x11
 if [ "$PLATFORM_X11" = "yes" ]; then
     x11tests=$relpath/config.tests/x11
@@ -3557,6 +3536,29 @@ if [ "$PLATFORM_X11" = "yes" ]; then
                 exit 101
             else
                 CFG_XKB=no
+            fi
+        fi
+    fi
+
+    # auto-detect Glib support
+    if [ "$CFG_GLIB" != "no" ]; then
+        if $WHICH pkg-config >/dev/null 2>&1; then
+            QT_CFLAGS_GLIB=`pkg-config --cflags glib-2.0`
+            QT_LIBS_GLIB=`pkg-config --libs glib-2.0`
+        fi
+        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/glib "Glib" $L_FLAGS $I_FLAGS $l_FLAGS $QT_CFLAGS_GLIB $QT_LIBS_GLIB $X11TESTS_FLAGS; then
+            CFG_GLIB=yes
+            QMAKE_VARS="$QMAKE_VARS \"QT_CFLAGS_GLIB = $QT_CFLAGS_GLIB\""
+            QMAKE_VARS="$QMAKE_VARS \"QT_LIBS_GLIB = $QT_LIBS_GLIB\""
+        else
+            if [ "$CFG_GLIB" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+                echo "Glib support cannot be enabled due to functionality tests!"
+                echo " Turn on verbose messaging (-v) to $0 to see the final report."
+                echo " If you believe this message is in error you may use the continue"
+                echo " switch (-continue) to $0 to continue."
+                exit 101
+            else
+                CFG_GLIB=no
             fi
         fi
     fi
