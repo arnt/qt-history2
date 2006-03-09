@@ -78,7 +78,7 @@ public:
 };
 
 struct QLayoutStruct {
-    QLayoutStruct() : widthUsed(0), minimumWidth(0), maximumWidth(INT_MAX),
+    QLayoutStruct() : contentsWidth(0), minimumWidth(0), maximumWidth(INT_MAX),
                       fullLayout(false), pageHeight(0.0),
                       pageBottom(0.0), pageMargin(0.0)
     {}
@@ -86,7 +86,7 @@ struct QLayoutStruct {
     qreal x_left;
     qreal x_right;
     qreal y;
-    qreal widthUsed;
+    qreal contentsWidth;
     qreal minimumWidth;
     qreal maximumWidth;
     bool fullLayout;
@@ -266,6 +266,9 @@ struct QCheckPoint
 {
     qreal y;
     int positionInFrame;
+    qreal minimumWidth;
+    qreal maximumWidth;
+    qreal contentsWidth;
 };
 Q_DECLARE_TYPEINFO(QCheckPoint, Q_PRIMITIVE_TYPE);
 
@@ -1599,7 +1602,7 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     layoutStruct.x_left = margin + fd->padding;
     layoutStruct.x_right = margin + fd->contentsWidth - fd->padding;
     layoutStruct.y = margin + fd->padding;
-    layoutStruct.widthUsed = 0;
+    layoutStruct.contentsWidth = 0;
     layoutStruct.minimumWidth = 0;
     layoutStruct.maximumWidth = INT_MAX;
     layoutStruct.fullLayout = fd->contentsWidth != newContentsWidth;
@@ -1618,7 +1621,7 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     QTextFrame::Iterator it = f->begin();
     layoutFlow(it, &layoutStruct, layoutFrom, layoutTo);
 
-    fd->contentsWidth = qMax(fd->contentsWidth, layoutStruct.widthUsed);
+    fd->contentsWidth = qMax(fd->contentsWidth, layoutStruct.contentsWidth);
     fd->minimumWidth = layoutStruct.minimumWidth;
     fd->maximumWidth = layoutStruct.maximumWidth;
 
@@ -1652,6 +1655,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                     --checkPoint;
 
                 layoutStruct->y = checkPoint->y;
+                layoutStruct->minimumWidth = checkPoint->minimumWidth;
+                layoutStruct->maximumWidth = checkPoint->maximumWidth;
+                layoutStruct->contentsWidth = checkPoint->contentsWidth;
 
                 if (layoutStruct->pageHeight > 0.0) {
                     int page = int(layoutStruct->y / layoutStruct->pageHeight);
@@ -1696,6 +1702,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                     QCheckPoint p;
                     p.y = layoutStruct->y;
                     p.positionInFrame = docPos;
+                    p.minimumWidth = layoutStruct->minimumWidth;
+                    p.maximumWidth = layoutStruct->maximumWidth;
+                    p.contentsWidth = layoutStruct->contentsWidth;
                     checkPoints.append(p);
 
                     if (currentLazyLayoutPosition != -1
@@ -1828,6 +1837,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             QCheckPoint cp;
             cp.y = layoutStruct->y;
             cp.positionInFrame = q->document()->docHandle()->length();
+            cp.minimumWidth = layoutStruct->minimumWidth;
+            cp.maximumWidth = layoutStruct->maximumWidth;
+            cp.contentsWidth = layoutStruct->contentsWidth;
             checkPoints.append(cp);
         } else {
             currentLazyLayoutPosition = checkPoints.last().positionInFrame;
@@ -1982,8 +1994,8 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
 
             line.setPosition(QPointF(left - layoutStruct->x_left, layoutStruct->y - cy));
             layoutStruct->y += lineHeight;
-            layoutStruct->widthUsed
-                = qMax<qreal>(layoutStruct->widthUsed, left - layoutStruct->x_left + line.naturalTextWidth());
+            layoutStruct->contentsWidth
+                = qMax<qreal>(layoutStruct->contentsWidth, left - layoutStruct->x_left + line.naturalTextWidth());
 
             // position floats
             for (int i = 0; i < layoutStruct->pendingFloats.size(); ++i) {
@@ -1998,8 +2010,8 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
         const int cnt = tl->lineCount();
         for (int i = 0; i < cnt; ++i) {
             QTextLine line = tl->lineAt(i);
-            layoutStruct->widthUsed
-                = qMax(layoutStruct->widthUsed, line.x() + tl->lineAt(i).naturalTextWidth());
+            layoutStruct->contentsWidth
+                = qMax(layoutStruct->contentsWidth, line.x() + tl->lineAt(i).naturalTextWidth());
         }
         if (layoutStruct->updateRect.isValid()
             && bl.length() > 1) {
