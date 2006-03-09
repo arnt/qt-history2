@@ -297,7 +297,8 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             return ret;
     }
 
-    if (ct == QStyle::CT_PushButton) {
+    switch (ct) {
+    case QStyle::CT_PushButton: {
         const QPushButton *psh = static_cast<const QPushButton *>(widg);
         int minw = -1;
         // Aqua Style guidelines restrict the size of OK and Cancel buttons to 68 pixels.
@@ -336,7 +337,9 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         else if (sz == QAquaSizeMini)
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricMiniCheckBoxHeight));
 #endif
-    } else if (ct == QStyle::CT_SizeGrip) {
+        break;
+    }
+    case QStyle::CT_SizeGrip:
         if (sz == QAquaSizeLarge || sz == QAquaSizeSmall) {
             Rect r;
             Point p = { 0, 0 };
@@ -346,43 +349,54 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             if (GetThemeStandaloneGrowBoxBounds(p, dir, sz == QAquaSizeSmall, &r) == noErr)
                 ret = QSize(r.right - r.left, r.bottom - r.top);
         }
-    } else if (ct == QStyle::CT_ComboBox) {
-        if (sz == QAquaSizeLarge)
+        break;
+    case QStyle::CT_ComboBox:
+        switch (sz) {
+        case QAquaSizeLarge:
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight));
-        else if (sz == QAquaSizeSmall)
+            break;
+        case QAquaSizeSmall:
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPopupButtonHeight));
-        else if (sz == QAquaSizeMini)
+            break;
+        case QAquaSizeMini:
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricMiniPopupButtonHeight));
-
-    } else if (ct == QStyle::CT_ToolButton && sz == QAquaSizeSmall) {
-        int width = 0, height = 0;
-        if (szHint == QSize(-1, -1)) { //just 'guess'..
-            const QToolButton *bt = static_cast<const QToolButton *>(widg);
-            if (!bt->icon().isNull()) {
-                QSize iconSize = bt->iconSize();
-                QSize pmSize = bt->icon().actualSize(QSize(32, 32), QIcon::Normal);
-                width = qMax(width, qMax(iconSize.width(), pmSize.width()));
-                height = qMax(height, qMax(iconSize.height(), pmSize.height()));
-            }
-            if (!bt->text().isNull() && bt->toolButtonStyle() != Qt::ToolButtonIconOnly) {
-                int text_width = bt->fontMetrics().width(bt->text()),
-                   text_height = bt->fontMetrics().height();
-                if (bt->toolButtonStyle() == Qt::ToolButtonTextUnderIcon) {
-                    width = qMax(width, text_width);
-                    height += text_height;
-                } else {
-                    width += text_width;
-                    width = qMax(height, text_height);
-                }
-            }
-        } else {
-            width = szHint.width();
-            height = szHint.height();
+            break;
+        default:
+            break;
         }
-        width =  qMax(20, width +  5); //border
-        height = qMax(20, height + 5); //border
-        ret = QSize(width, height);
-    } else if (ct == QStyle::CT_Slider) {
+        break;
+    case QStyle::CT_ToolButton:
+        if (sz == QAquaSizeSmall) {
+            int width = 0, height = 0;
+            if (szHint == QSize(-1, -1)) { //just 'guess'..
+                const QToolButton *bt = static_cast<const QToolButton *>(widg);
+                if (!bt->icon().isNull()) {
+                    QSize iconSize = bt->iconSize();
+                    QSize pmSize = bt->icon().actualSize(QSize(32, 32), QIcon::Normal);
+                    width = qMax(width, qMax(iconSize.width(), pmSize.width()));
+                    height = qMax(height, qMax(iconSize.height(), pmSize.height()));
+                }
+                if (!bt->text().isNull() && bt->toolButtonStyle() != Qt::ToolButtonIconOnly) {
+                    int text_width = bt->fontMetrics().width(bt->text()),
+                       text_height = bt->fontMetrics().height();
+                    if (bt->toolButtonStyle() == Qt::ToolButtonTextUnderIcon) {
+                        width = qMax(width, text_width);
+                        height += text_height;
+                    } else {
+                        width += text_width;
+                        width = qMax(height, text_height);
+                    }
+                }
+            } else {
+                width = szHint.width();
+                height = szHint.height();
+            }
+            width =  qMax(20, width +  5); //border
+            height = qMax(20, height + 5); //border
+            ret = QSize(width, height);
+        }
+        break;
+    case QStyle::CT_Slider: {
         int w = -1;
         const QSlider *sld = static_cast<const QSlider *>(widg);
         if (sz == QAquaSizeLarge) {
@@ -420,7 +434,9 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             ret.setHeight(w);
         else
             ret.setWidth(w);
-    } else if (ct == QStyle::CT_ProgressBar) {
+        break;
+    }
+    case QStyle::CT_ProgressBar: {
         int finalValue = -1;
         Qt::Orientation orient = Qt::Horizontal;
         if (const QProgressBar *pb = qobject_cast<const QProgressBar *>(widg))
@@ -436,8 +452,9 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             ret.setHeight(finalValue);
         else
             ret.setWidth(finalValue);
-
-    } else if (ct == QStyle::CT_LineEdit) {
+        break;
+    }
+    case QStyle::CT_LineEdit:
         if (!widg || !qobject_cast<QComboBox *>(widg->parentWidget())) {
             //should I take into account the font dimentions of the lineedit? -Sam
             if (sz == QAquaSizeLarge)
@@ -445,15 +462,20 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             else
                 ret = QSize(-1, 19);
         }
-    } else if (ct == QStyle::CT_HeaderSection) {
+        break;
+    case QStyle::CT_HeaderSection:
         if (sz == QAquaSizeLarge && isTreeView(widg))
            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricListHeaderHeight));
-    } else if (ct == QStyle::CT_MenuBar) {
+        break;
+    case QStyle::CT_MenuBar:
         if (sz == QAquaSizeLarge) {
             SInt16 size;
             if (!GetThemeMenuBarHeight(&size))
                 ret = QSize(-1, size);
         }
+        break;
+    default:
+        break;
     }
     return ret;
 }
