@@ -1826,7 +1826,7 @@ void QTreeWidgetPrivate::_q_sort()
 QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
-    QTreeView::setModel(new QTreeModel(0, this));
+    QTreeView::setModel(new QTreeModel(1, this));
     connect(this, SIGNAL(pressed(QModelIndex)), SLOT(_q_emitItemPressed(QModelIndex)));
     connect(this, SIGNAL(clicked(QModelIndex)), SLOT(_q_emitItemClicked(QModelIndex)));
     connect(this, SIGNAL(doubleClicked(QModelIndex)), SLOT(_q_emitItemDoubleClicked(QModelIndex)));
