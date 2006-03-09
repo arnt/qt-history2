@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-/*! 
+/*!
     \page signalsandslots.html
     \title Signals and Slots
     \ingroup architecture
@@ -53,7 +53,7 @@
     is a function that is called in reponse to a particular signal.
     Qt's widgets have many pre-defined slots, but it is common
     practice to subclass widgets and add your own slots so that you
-    can handle the signals that you are interested in. 
+    can handle the signals that you are interested in.
 
     \img abstract-connections.png
     \omit
@@ -214,9 +214,7 @@
 
     A slot is called when a signal connected to it is emitted. Slots are
     normal C++ functions and can be called normally; their only special
-    feature is that signals can be connected to them. A slot's arguments
-    cannot have default values, and, like signals, it is rarely wise to
-    use your own custom types for slot arguments.
+    feature is that signals can be connected to them.
 
     Since slots are normal member functions with just a little extra
     spice, they have access rights like ordinary member functions. A
@@ -340,7 +338,7 @@
 
     If you don't care about overflow, or you know that overflow
     cannot occur, you can ignore the \c overflow() signal, i.e. don't
-    connect it to any slot. 
+    connect it to any slot.
 
     If on the other hand you want to call two different error
     functions when the number overflows, simply connect the signal to
