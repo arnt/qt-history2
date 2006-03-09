@@ -194,6 +194,23 @@
     The \c .ts file format is a simple human-readable XML format that can
     be used with version control systems if required.
 
+    Pass the \c -help option to \c lupdate to obtain the list of
+    supported options:
+
+    \code
+        Usage:
+            lupdate [options] project-file
+            lupdate [options] source-files -ts ts-files
+        Options:
+            -help  Display this information and exit
+            -noobsolete
+                   Drop all obsolete strings
+            -silent
+                   Don't explain what is being done
+            -version
+                   Display the version of lupdate and exit
+    \endcode
+
     \section1 lrelease
 
     Usage: \c {lrelease myproject.pro}
@@ -215,6 +232,25 @@
     Note that lrelease will only incorporate translations that are
     marked as "done". If a translation is missing, or has failed
     validation, the original text will be used instead.
+
+    Pass the \c -help option to \c lrelease to obtain the list of
+    supported options:
+
+    \code
+        Usage:
+            lrelease [options] project-file
+            lrelease [options] ts-files [-qm qm-file]
+        Options:
+            -help  Display this information and exit
+            -compress
+                   Compress the .qm files
+            -nounfinished
+                   Do not include unfinished translations
+            -silent
+                   Don't explain what is being done
+            -version
+                   Display the version of lrelease and exit
+    \endcode
 
     \section1 Missing Translations
 

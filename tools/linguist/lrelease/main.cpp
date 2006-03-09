@@ -33,12 +33,12 @@ static void printUsage()
               "    lrelease [options] ts-files [-qm qm-file]\n"
               "Options:\n"
               "    -help  Display this information and exit\n"
-              "    -nocompress\n"
-              "           Do not compress the .qm files\n"
+              "    -compress\n"
+              "           Compress the .qm files\n"
               "    -nounfinished\n"
               "           Do not include unfinished translations\n"
-              "    -verbose\n"
-              "           Explain what is being done\n"
+              "    -silent\n"
+              "           Don't explain what is being done\n"
               "    -version\n"
               "           Display the version of lrelease and exit\n" );
 }
@@ -87,9 +87,9 @@ static void releaseTsFile( const QString& tsFileName, bool verbose,
 
 int main( int argc, char **argv )
 {
-    bool verbose = false;
+    bool verbose = true; // the default is true starting with Qt 4.2
     bool ignoreUnfinished = false;
-    bool trimmed = true;
+    bool trimmed = false; // the default is false starting with Qt 4.2
     bool metTranslations = false;
     MetaTranslator tor;
     QString outputFile;
@@ -97,11 +97,17 @@ int main( int argc, char **argv )
     int i;
 
     for ( i = 1; i < argc; i++ ) {
-        if ( qstrcmp(argv[i], "-nocompress") == 0 ) {
+        if ( qstrcmp(argv[i], "-compress") == 0 ) {
+            trimmed = true;
+            continue;
+	} if ( qstrcmp(argv[i], "-nocompress") == 0 ) {
             trimmed = false;
             continue;
         } else if ( qstrcmp(argv[i], "-nounfinished") == 0 ) {
             ignoreUnfinished = true;
+            continue;
+        } else if ( qstrcmp(argv[i], "-silent") == 0 ) {
+            verbose = false;
             continue;
         } else if ( qstrcmp(argv[i], "-verbose") == 0 ) {
             verbose = true;
@@ -191,6 +197,11 @@ int main( int argc, char **argv )
                              " project file '%s'\n",
                              argv[i] );
                 QDir::setCurrent( oldDir );
+            } else {
+                fprintf( stderr, "error: lrelease encountered project file functionality that is currently not supported.\n"
+                    "You might want to consider using .ts files as input instead of a project file.\n"
+                    "Try the following syntax:\n"
+                    "    lrelease [options] ts-files [-qm qm-file]\n");
             }
         }
     }

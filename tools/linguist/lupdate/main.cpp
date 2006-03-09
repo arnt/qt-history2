@@ -41,7 +41,7 @@ static const char *g_defaultExtensions = "ui,c,c++,cc,cpp,cxx,ch,h,h++,hh,hpp,hx
 static void printUsage()
 {
     fprintf( stderr, "Usage:\n"
-        "    lupdate [options] [project-file]\n"
+             "    lupdate [options] [project-file]\n"
              "    lupdate [options] [source-file|path]... -ts ts-files\n"
              "Options:\n"
              "    -help  Display this information and exit.\n"
@@ -51,8 +51,8 @@ static void printUsage()
              "           Process files with the given extensions only.\n"
              "           The extension list must be separated with commas, not with whitespace.\n"
              "           Default: '%s'.\n"
-             "    -verbose\n"
-             "           Explain what is being done.\n"
+             "    -silent\n"
+             "           Don't explain what is being done.\n"
              "    -version\n"
              "           Display the version of lupdate and exit.\n", g_defaultExtensions);
 }
@@ -115,7 +115,7 @@ int main( int argc, char **argv )
 	QByteArray codecForSource;
     QStringList tsFileNames;
 
-    bool verbose = false;
+    bool verbose = true; // verbose is on by default starting with Qt 4.2
     bool noObsolete = false;
     bool metSomething = false;
     int numFiles = 0;
@@ -137,6 +137,9 @@ int main( int argc, char **argv )
             return 0;
         } else if ( qstrcmp(argv[i], "-noobsolete") == 0 ) {
             noObsolete = true;
+            continue;
+        } else if ( qstrcmp(argv[i], "-silent") == 0 ) {
+            verbose = false;
             continue;
         } else if ( qstrcmp(argv[i], "-verbose") == 0 ) {
             verbose = true;
@@ -233,6 +236,11 @@ int main( int argc, char **argv )
                              " project file '%s'\n",
                              argv[i] );
                 }
+            } else {
+                fprintf( stderr, "error: lupdate encountered project file functionality that is currently not supported.\n"
+                    "You might want to consider using directories as input instead of a project file.\n"
+                    "Try the following syntax:\n"
+                    "    lupdate [options] [source-file|path]... -ts ts-files\n");
             }
         } else {
             if ( metTsFlag ) {

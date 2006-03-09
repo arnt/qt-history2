@@ -44,7 +44,7 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
       are updated according to the virgin translator.
     */
     for ( it = all.begin(); it != all.end(); ++it ) {
-        MetaTranslatorMessage::Type newType;
+        MetaTranslatorMessage::Type newType = MetaTranslatorMessage::Finished;
         MetaTranslatorMessage m = *it;
 
         // skip context comment

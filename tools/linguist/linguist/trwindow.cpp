@@ -408,7 +408,7 @@ void TrWindow::release()
     newFilename = QFileDialog::getSaveFileName(this, tr("Release"), newFilename,
         tr("Qt message files for released applications (*.qm)\nAll files (*)"));
     if (!newFilename.isEmpty()) {
-        if (tor.release(newFilename))
+        if (tor.release(newFilename, false, false, Translator::Everything))
             statusBar()->showMessage(tr("File created."), MessageMS);
         else
             QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot save '%1'.").arg(newFilename));
