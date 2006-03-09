@@ -67,7 +67,6 @@ public:
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
-    void drawTextItem(const QPointF &pos, const QTextItem &item);
 
     void drawTextItem(const QPointF &pos, const QTextItem &item);
 
