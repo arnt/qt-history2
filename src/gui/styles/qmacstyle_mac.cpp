@@ -2251,7 +2251,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 QRect updown = q->subControlRect(QStyle::CC_SpinBox, sb, QStyle::SC_SpinBoxUp,
                                                  widget);
                 updown |= q->subControlRect(QStyle::CC_SpinBox, sb, QStyle::SC_SpinBoxDown, widget);
-                HIRect newRect = qt_hirectForQRect(updown);
+                HIRect newRect = qt_hirectForQRect(updown, p, false);
                 QRect off_rct;
                 HIRect outRect;
                 HIThemeGetButtonBackgroundBounds(&newRect, &bdi, &outRect);
@@ -2259,6 +2259,12 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                                 int(newRect.origin.y - outRect.origin.y),
                                 int(outRect.size.width - newRect.size.width),
                                 int(outRect.size.height - newRect.size.height));
+
+                // HIThemeGetButtonBackgroundBounds offsets non-focused normal sized 
+                // buttons by one in de y direction, account for that here.
+                if (bdi.adornment == kThemeAdornmentNone && bdi.kind == kThemeIncDecButton)
+                    off_rct.adjust(0, 1, 0, 0);
+                
                 newRect = qt_hirectForQRect(updown, off_rct);
                 HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             }
