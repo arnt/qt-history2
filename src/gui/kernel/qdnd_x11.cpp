@@ -112,7 +112,8 @@ static Window qt_xdnd_current_proxy_target;
 // widget we forwarded position to last, and local position
 static QPointer<QWidget> qt_xdnd_current_widget;
 static QPoint qt_xdnd_current_position;
-//NOTUSED static Atom qt_xdnd_target_current_time;
+// timestamp from the XdndPosition and XdndDrop
+static Time qt_xdnd_target_current_time;
 // screen number containing the pointer... -1 means default
 static int qt_xdnd_current_screen = -1;
 // state of dragging... true if dragging, false if not
@@ -698,6 +699,11 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
         return;
     }
 
+    if (l[3] != 0) {
+        // timestamp from the source
+        qt_xdnd_target_current_time = X11->userTime = l[3];
+    }
+
     QDragManager *manager = QDragManager::self();
     QMimeData *dropData = manager->object ? manager->dragPrivate()->data : manager->dropData;
 
@@ -742,7 +748,6 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
             }
             if (target_widget) {
                 qt_xdnd_current_position = p;
-                //NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
                 last_target_accepted_action = Qt::IgnoreAction;
                 QDragEnterEvent de(p, possible_actions, dropData, QApplication::mouseButtons(), QApplication::keyboardModifiers());
@@ -758,7 +763,6 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
         } else {
             qt_xdnd_current_widget = c;
             qt_xdnd_current_position = p;
-            //NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
             if (last_target_accepted_action != Qt::IgnoreAction) {
                 me.setDropAction(last_target_accepted_action);
@@ -794,6 +798,9 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
         response.data.l[3] = (answerRect.width() << 16) + answerRect.height();
         response.data.l[4] = qtaction_to_xdndaction(accepted_action);
     }
+
+    // reset
+    qt_xdnd_target_current_time = CurrentTime;
 
     QWidget * source = QWidget::find(qt_xdnd_dragsource_xid);
     if (source && (source->windowType() == Qt::Desktop) && !source->acceptDrops())
@@ -972,7 +979,7 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
 
     if (l[2] != 0) {
         // update the "user time" from the timestamp in the event.
-        X11->userTime = l[2];
+        qt_xdnd_target_current_time = X11->userTime = l[2];
     }
 
     if (!passive) {
@@ -992,9 +999,9 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
         finished.format = 32;
         finished.message_type = ATOM(XdndFinished);
         DNDDEBUG << "xdndHandleDrop"
-             << "qt_xdnd_current_widget" << qt_xdnd_current_widget 
-             << (qt_xdnd_current_widget ? qt_xdnd_current_widget->winId() : 0) 
-             << "t_xdnd_current_widget->window()" 
+             << "qt_xdnd_current_widget" << qt_xdnd_current_widget
+             << (qt_xdnd_current_widget ? qt_xdnd_current_widget->winId() : 0)
+             << "t_xdnd_current_widget->window()"
              << (qt_xdnd_current_widget ? qt_xdnd_current_widget->window() : 0)
              << (qt_xdnd_current_widget ? qt_xdnd_current_widget->window()->winId() : 0);
         finished.data.l[0] = qt_xdnd_current_widget?qt_xdnd_current_widget->window()->winId():0;
@@ -1009,6 +1016,9 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
     qt_xdnd_dragsource_xid = 0;
     qt_xdnd_current_widget = 0;
     waiting_for_status = false;
+
+    // reset
+    qt_xdnd_target_current_time = CurrentTime;
 }
 
 
@@ -1017,8 +1027,8 @@ void QX11Data::xdndHandleFinished(QWidget *, const XEvent * xe, bool passive)
     DEBUG("xdndHandleFinished");
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
-    DNDDEBUG << "xdndHandleFinished, l[0]" << l[0] 
-             << "qt_xdnd_current_target" << qt_xdnd_current_target 
+    DNDDEBUG << "xdndHandleFinished, l[0]" << l[0]
+             << "qt_xdnd_current_target" << qt_xdnd_current_target
              << "qt_xdnd_current_proxy_targe" << qt_xdnd_current_proxy_target;
 
     if (l[0] && (l[0] == qt_xdnd_current_target
@@ -1552,7 +1562,8 @@ static QByteArray xdndObtainData(const char *format)
     if (!qt_xdnd_current_widget || (qt_xdnd_current_widget->windowType() == Qt::Desktop))
         tw = new QWidget;
 
-    XConvertSelection(X11->display, ATOM(XdndSelection), a, ATOM(XdndSelection), tw->winId(), CurrentTime);
+    XConvertSelection(X11->display, ATOM(XdndSelection), a, ATOM(XdndSelection), tw->winId(),
+                      qt_xdnd_target_current_time);
     XFlush(X11->display);
 
     XEvent xevent;
