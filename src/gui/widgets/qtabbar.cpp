@@ -855,6 +855,7 @@ void QTabBar::setCurrentIndex(int index)
     \since 4.1
 
     The default value is style-dependent.
+    \sa QTabWidget::iconSize
 */
 QSize QTabBar::iconSize() const
 {
@@ -1269,11 +1270,14 @@ void QTabBar::changeEvent(QEvent *e)
 /*!
     \property QTabBar::elideMode
     \brief How to elide text in the tab bar
+    \since 4.2
 
     This property controls how items are elided when there is not
     enough space to show them for a given tab bar size.
 
     By default the value is Qt::ElideRight.
+
+    \sa QTabWidget::elideMode
 */
 
 Qt::TextElideMode QTabBar::elideMode() const

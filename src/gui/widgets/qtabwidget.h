@@ -32,6 +32,8 @@ class Q_GUI_EXPORT QTabWidget : public QWidget
     Q_PROPERTY(TabShape tabShape READ tabShape WRITE setTabShape)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentChanged)
     Q_PROPERTY(int count READ count)
+    Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(Qt::TextElideMode elideMode READ elideMode WRITE setElideMode)
 
 public:
     explicit QTabWidget(QWidget *parent = 0);
@@ -87,6 +89,12 @@ public:
 
     void setCornerWidget(QWidget * w, Qt::Corner corner = Qt::TopRightCorner);
     QWidget * cornerWidget(Qt::Corner corner = Qt::TopRightCorner) const;
+
+    Qt::TextElideMode elideMode() const;
+    void setElideMode(Qt::TextElideMode);
+
+    QSize iconSize() const;
+    void setIconSize(const QSize &size);
 
 public Q_SLOTS:
     void setCurrentIndex(int index);

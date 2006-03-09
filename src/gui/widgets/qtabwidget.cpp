@@ -926,6 +926,46 @@ void QTabWidget::paintEvent(QPaintEvent *)
 }
 
 /*!
+    \property QTabWidget::iconSize
+    \brief The size for icons in the tab bar
+    \since 4.2
+
+    The default value is style-dependent.
+
+    \sa QTabBar::iconSize
+*/
+QSize QTabWidget::iconSize() const
+{
+    return d_func()->tabs->iconSize();
+}
+
+void QTabWidget::setIconSize(const QSize &size)
+{
+    d_func()->tabs->setIconSize(size);
+}
+
+/*!
+    \property QTabWidget::elideMode
+    \brief How to elide text in the tab bar
+    \since 4.2
+
+    This property controls how items are elided when there is not
+    enough space to show them for a given tab bar size.
+
+    By default the value is Qt::ElideRight.
+
+    \sa QTabBar::elideMode
+*/
+Qt::TextElideMode QTabWidget::elideMode() const
+{
+    return d_func()->tabs->elideMode();
+}
+
+void QTabWidget::setElideMode(Qt::TextElideMode mode)
+{
+    d_func()->tabs->setElideMode(mode);
+}
+/*!
     \fn void QTabWidget::insertTab(QWidget * widget, const QString
     &label, int index)
 
