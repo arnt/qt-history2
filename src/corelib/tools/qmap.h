@@ -513,7 +513,8 @@ Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::unite(const QMap<Key, T> &other)
 {
     QMap<Key, T> copy(other);
     const_iterator it = copy.constEnd();
-    while (it != copy.constBegin()) {
+    const const_iterator begin = copy.constBegin();
+    while (it != begin) {
         --it;
         insertMulti(it.key(), it.value());
     }
