@@ -53,14 +53,12 @@ public:
     inline QT3_SUPPORT void setCaseSensitive(bool sensitive)
     { setCaseSensitivity(sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive); }
 #endif
-#ifndef QT_NO_REGEXP_WILDCARD
     PatternSyntax patternSyntax() const;
     void setPatternSyntax(PatternSyntax syntax);
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT bool wildcard() const { return patternSyntax() == Wildcard; }
     inline QT3_SUPPORT void setWildcard(bool wildcard)
     { setPatternSyntax(wildcard ? Wildcard : RegExp); }
-#endif
 #endif
 
     bool isMinimal() const;
