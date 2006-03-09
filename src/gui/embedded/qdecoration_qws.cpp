@@ -45,13 +45,13 @@
     around a specified widget using a given painter and decoration
     state.
 
-    Use the DecorationRegion enum to specify which region to
+    The DecorationRegion enum is used to specify which region to
     paint. This enum describes the various regions of the window
-    decoration. To retrieve the actual regions, use the region()
-    function. It is also possible to determine the type of region
-    containing a given point, using the regionAt() function. A
-    region's state can be specified using the DecorationState enum,
-    e.g. whether it is active or not.
+    decoration. The region() function is used to retrieve the actual
+    regions the decoration occupy. It is also possible to determine
+    the type of region containing a given point, using the regionAt()
+    function. The DecorationState enum is used to specify a region's
+    state, e.g. whether it is active or not.
 
     QDecoration also provides the possibility of building the system
     menu for a given top level widget with its virtual buildSysMenu()
