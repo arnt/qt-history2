@@ -533,6 +533,7 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     iAttributes[i++] = WGL_ACCELERATION_ARB; // 7
     iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB; // 8
     iAttributes[i++] = WGL_SAMPLES_ARB; // 9
+    iAttributes[i++] = WGL_NUMBER_OVERLAYS_ARB; // 10
 
     if (wglGetPixelFormatAttribivARB(hdc, pfi, 0, i,
                                      iAttributes.constData(),
@@ -557,6 +558,7 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
         fmt.setSampleBuffers(iValues[8]);
         if (fmt.sampleBuffers())
             fmt.setSamples(iValues[9]);
+        fmt.setOverlay(iValues[10]);
     }
 #if 0
     qDebug() << "values for pfi:" << pfi;
@@ -570,6 +572,7 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     qDebug() << "direct        7:" << fmt.directRendering();
     qDebug() << "sample buffer 8:" << fmt.sampleBuffers();
     qDebug() << "num samples   9:" << fmt.samples();
+    qDebug() << "has overlays 10:" << fmt.hasOverlay();
 #endif
     return fmt;
 }
