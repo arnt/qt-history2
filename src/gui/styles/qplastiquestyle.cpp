@@ -1192,7 +1192,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         }
         break ;
     case PE_FrameDockWidget:
-    case PE_FrameMenu: {
+    case PE_FrameMenu:
+    case PE_FrameStatusBar: {
         // Draws the frame around a popup menu.
         QPen oldPen = painter->pen();
         painter->setPen(borderColor);
