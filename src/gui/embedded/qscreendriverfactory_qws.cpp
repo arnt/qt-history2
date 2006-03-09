@@ -56,7 +56,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     Creates a QScreen object for the driver specified by the given \a
     key using the display specified by \a displayId. The returned
     QScreen object may be created from a built-in driver, or from a
-    driver plugin. Keys are case sensitive.
+    driver plugin. Keys are case-insensitive.
 
     \sa keys()
 */

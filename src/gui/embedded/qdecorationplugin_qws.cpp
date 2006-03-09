@@ -54,7 +54,7 @@
     \fn QDecoration *QDecorationPlugin::create(const QString &key)
 
     Creates a QDecoration object for the given decoration \a key. Keys
-    are case sensitive.
+    are case-insensitive.
 
     \sa keys()
 */

@@ -52,7 +52,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 /*!
     Creates a QDecoration object for the decoration specified by the
     given \a key. The \a key specifies either a built-in decoration,
-    or a decoration from a decoration plugin. Keys are case sensitive.
+    or a decoration from a decoration plugin. Keys are case-insensitive.
 
     \sa keys()
 */
