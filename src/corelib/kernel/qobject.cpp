@@ -2353,9 +2353,7 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
                 if (method_index < 0)
                     break;
                 res |= QMetaObject::disconnect(sender, signal_index, receiver, method_index);
-#ifndef QT_NO_DEBUG
                 method_found = true;
-#endif
             } while ((rmeta = rmeta->superClass()));
         }
     } while (signal && (smeta = smeta->superClass()));
