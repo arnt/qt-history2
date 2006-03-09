@@ -379,8 +379,9 @@ QStatusBar *QMainWindow::statusBar() const
 /*!
     Sets the status bar for the main window to \a statusbar.
 
-    Note: QMainWindow takes ownership of the \a statusbar pointer and
-    deletes it at the appropriate time.
+    Setting the status bar to 0 will remove it from the main window.
+    Note that QMainWindow takes ownership of the \a statusbar pointer
+    and deletes it at the appropriate time.
 
     \sa statusBar()
 */
