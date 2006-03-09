@@ -81,9 +81,10 @@
     paths that are compiled into the Qt library. For more information,
     see the \l {Using qt.conf} documentation.
 
-    Suppose that you have a new style class called \c MyStyle that
-    you want to make available as a plugin. The required code is
-    straightforward:
+    Suppose that you have a new style class called \c MyStyle that you
+    want to make available as a plugin. The required code is
+    straightforward, here is the class definition (\c
+    mystyleplugin.h):
 
     \code
         class MyStylePlugin : public QStylePlugin
@@ -92,6 +93,13 @@
             QStringList keys() const;
             QStyle *create(const QString &key);
         };
+    \endcode
+
+    Ensure that the class implementation is located in a \c .cpp file
+    (including the class definition):
+
+    \code
+        #include "mystyleplugin.h"
 
         QStringList MyStylePlugin::keys() const
         {
