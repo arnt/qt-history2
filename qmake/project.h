@@ -132,13 +132,14 @@ inline QStringList &QMakeProject::values(const QString &v)
 { return values(v, vars); }
 
 inline bool QMakeProject::isEmpty(const QString &v)
-{ return !vars.contains(v) || vars[v].isEmpty(); }
+{ return values(v).isEmpty(); }
 
 inline QString QMakeProject::first(const QString &v)
 {
-    if (isEmpty(v))
+    const QStringList vals = values(v);
+    if(vals.isEmpty())
         return QString("");
-    return vars[v].first();
+    return vals.first();
 }
 
 inline QMap<QString, QStringList> &QMakeProject::variables()

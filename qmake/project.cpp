@@ -1315,38 +1315,6 @@ QMakeProject::read(uchar cmd)
                 break;
         }
     }
-
-    // now let the user override the template from an option..
-    if(!Option::user_template.isEmpty()) {
-        QString s;
-        if (!vars["TEMPLATE"].isEmpty())
-	    s = vars["TEMPLATE"].first();
-        debug_msg(1, "Overriding TEMPLATE (%s) with: %s", s.toLatin1().constData(),
-                  Option::user_template.toLatin1().constData());
-        vars["TEMPLATE"].clear();
-        vars["TEMPLATE"].append(Option::user_template);
-    }
-
-    QStringList &templ = vars["TEMPLATE"];
-    if(templ.isEmpty())
-        templ.append(QString("app"));
-    else if(vars["TEMPLATE"].first().endsWith(".t"))
-        templ = QStringList(templ.first().left(templ.first().length() - 2));
-    if(!Option::user_template_prefix.isEmpty() && !templ.first().startsWith(Option::user_template_prefix))
-        templ.first().prepend(Option::user_template_prefix);
-
-    QString test_version = QString::fromLocal8Bit(qgetenv("QTESTVERSION"));
-    if(!test_version.isEmpty()) {
-        QString s = vars["TARGET"].first();
-        if(s == "qt" || s == "qt-mt" || s == "qte" || s == "qte-mt") {
-            QString &ver = vars["VERSION"].first();
-//            fprintf(stderr,"Current QT version number: " + ver + "\n");
-            if(!ver.isEmpty() && ver != test_version) {
-                ver = test_version;
-                fprintf(stderr,("Changed QT version number to " + test_version + "!\n").toLatin1());
-            }
-        }
-    }
     Option::postProcessProject(this);   // let Option post-process
     return true;
 }
@@ -2624,9 +2592,14 @@ QStringList &QMakeProject::values(const QString &_var, QMap<QString, QStringList
             var = ".BUILTIN.USER." + var;
             place[var] =  QStringList(Option::user_template);
         } else if(!place[var].isEmpty()) {
-            if(!Option::user_template_prefix.isEmpty()) {
-                var = ".BUILTIN.PREFIX." + var;
-                place[var] =  QStringList(Option::user_template_prefix + values("TEMPLATE", place).first());
+            QString orig_template = place["TEMPLATE"].first(), real_template;
+            if(!Option::user_template_prefix.isEmpty() && !orig_template.startsWith(Option::user_template_prefix))
+                real_template = Option::user_template_prefix + orig_template;
+            if(real_template.endsWith(".t"))
+                real_template = real_template.left(real_template.length()-2);
+            if(!real_template.isEmpty()) {
+                var = ".BUILTIN." + var;
+                place[var] = QStringList(real_template);
             }
         } else {
             var = ".BUILTIN." + var;
