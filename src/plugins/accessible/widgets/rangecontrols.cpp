@@ -72,7 +72,7 @@ int QAccessibleSpinBox::childCount() const
 QRect QAccessibleSpinBox::rect(int child) const
 {
     QRect rect;
-    QStyleOptionComplex so;
+    QStyleOptionSpinBox so;
     so.rect = widget()->rect();
     switch(child) {
     case Editor:
