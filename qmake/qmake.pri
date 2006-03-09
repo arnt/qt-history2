@@ -20,12 +20,12 @@ contains(QT_EDITION, OpenSource) {
    DEFINES += QMAKE_OPENSOURCE_EDITION
 } else {
    SOURCES +=  generators/win32/borland_bmake.cpp generators/win32/msvc_nmake.cpp \
-               generators/projectgenerator.cpp generators/mac/metrowerks_xml.cpp \
+               generators/projectgenerator.cpp \
                generators/win32/msvc_dsp.cpp generators/win32/msvc_vcproj.cpp \
 	       generators/win32/msvc_objectmodel.cpp
    HEADERS +=  generators/win32/borland_bmake.h generators/win32/msvc_nmake.h \
                generators/win32/msvc_dsp.h generators/win32/msvc_vcproj.h \
-               generators/mac/metrowerks_xml.h generators/win32/mingw_make.h \
+               nerators/win32/mingw_make.h \
 	       generators/win32/msvc_objectmodel.h
 }
 

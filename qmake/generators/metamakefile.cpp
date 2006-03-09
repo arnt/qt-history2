@@ -359,7 +359,6 @@ SubdirsMetaMakefileGenerator::~SubdirsMetaMakefileGenerator()
 #ifndef QMAKE_OPENSOURCE_EDITION
 # include "msvc_nmake.h"
 # include "borland_bmake.h"
-# include "metrowerks_xml.h"
 # include "msvc_dsp.h"
 # include "msvc_vcproj.h"
 #endif
@@ -399,8 +398,6 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj, bool noIO)
             mkfile = new NmakeMakefileGenerator;
     } else if(gen == "BMAKE") {
         mkfile = new BorlandMakefileGenerator;
-    } else if(gen == "METROWERKS") {
-        mkfile = new MetrowerksMakefileGenerator;
 #endif
     } else {
         fprintf(stderr, "Unknown generator specified: %s\n", gen.toLatin1().constData());

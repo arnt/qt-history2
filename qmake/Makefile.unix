@@ -224,9 +224,6 @@ msvc_vcproj.o: generators/win32/msvc_vcproj.cpp
 msvc_nmake.o: generators/win32/msvc_nmake.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) generators/win32/msvc_nmake.cpp
 
-metrowerks_xml.o: generators/mac/metrowerks_xml.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) generators/mac/metrowerks_xml.cpp
-
 pbuilder_pbx.o: generators/mac/pbuilder_pbx.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) generators/mac/pbuilder_pbx.cpp
 

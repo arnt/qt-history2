@@ -1,7 +1,7 @@
-COMMERCIAL_OBJS = metrowerks_xml.o  borland_bmake.o msvc_dsp.o msvc_vcproj.o \
+COMMERCIAL_OBJS = borland_bmake.o msvc_dsp.o msvc_vcproj.o \
                   msvc_nmake.o msvc_objectmodel.o 
 
 COMMERCIAL_DEPEND_SRC = generators/win32/msvc_objectmodel.cpp \
-                        generators/mac/metrowerks_xml.cpp generators/win32/msvc_nmake.cpp \
+                         generators/win32/msvc_nmake.cpp \
                         generators/win32/borland_bmake.cpp 
 
