@@ -45,7 +45,7 @@ public:
     void emitSignals(EmitPolicy ep, const QVariant &old);
     QString textFromValue(const QVariant &f) const;
     QVariant valueFromText(const QString &f) const;
-    void editorCursorPositionChanged(int lastpos, int newpos);
+    virtual void _q_editorCursorPositionChanged(int oldpos, int newpos);
     QVariant validateAndInterpret(QString &input, int &, QValidator::State &state, bool fixup = false) const;
 
     QVariant valueForPosition(int pos) const;
@@ -600,10 +600,7 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
         d->updateEdit();
         d->edit->setCursorPosition(0);
         QDTEDEBUG << 0;
-        d->editorCursorPositionChanged(-1, 0);
-
-
-
+        d->_q_editorCursorPositionChanged(-1, 0);
     }
 }
 
@@ -1478,7 +1475,7 @@ void QDateTimeEditPrivate::emitSignals(EmitPolicy ep, const QVariant &old)
   \reimp
 */
 
-void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
+void QDateTimeEditPrivate::_q_editorCursorPositionChanged(int oldpos, int newpos)
 {
     Q_Q(QDateTimeEdit);
     if (ignoreCursorPositionChanged || specialValue())
