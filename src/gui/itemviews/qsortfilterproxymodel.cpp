@@ -147,19 +147,22 @@ public:
         const QVector<int> &source_to_proxy, const QVector<int> &source_items) const;
     void insert_source_items(
         QVector<int> &source_to_proxy, QVector<int> &proxy_to_source, const QVector<int> &source_items,
-        const QModelIndex &source_parent, Qt::Orientation orient);
+        const QModelIndex &source_parent, Qt::Orientation orient, bool emit_signal = true);
     void remove_source_items(
         QVector<int> &source_to_proxy, QVector<int> &proxy_to_source, const QVector<int> &source_items,
-        const QModelIndex &source_parent, Qt::Orientation orient);
+        const QModelIndex &source_parent, Qt::Orientation orient, bool emit_signal = true);
     void remove_proxy_interval(
         QVector<int> &source_to_proxy, QVector<int> &proxy_to_source, int proxy_start, int proxy_end,
-        const QModelIndex &proxy_parent, Qt::Orientation orient);
+        const QModelIndex &proxy_parent, Qt::Orientation orient, bool emit_signal = true);
     void build_source_to_proxy_mapping(
         const QVector<int> &proxy_to_source, QVector<int> &source_to_proxy) const;
     void source_items_inserted(
         const QModelIndex &source_parent, int start, int end, Qt::Orientation orient);
     void source_items_removed(
         const QModelIndex &source_parent, int start, int end, Qt::Orientation orient);
+    void proxy_item_range(
+        const QVector<int> &source_to_proxy, const QVector<int> &source_items,
+        int &proxy_low, int &proxy_high) const;
 
     QModelIndexList store_persistent_indexes();
     void update_persistent_indexes(const QModelIndexList &source_indexes);
@@ -341,7 +344,7 @@ QVector<QPair<int, int > > QSortFilterProxyModelPrivate::proxy_intervals_for_sou
 */
 void QSortFilterProxyModelPrivate::remove_source_items(
     QVector<int> &source_to_proxy, QVector<int> &proxy_to_source, const QVector<int> &source_items,
-    const QModelIndex &source_parent, Qt::Orientation orient)
+    const QModelIndex &source_parent, Qt::Orientation orient, bool emit_signal)
 {
     QVector<QPair<int, int> > proxy_intervals;
     proxy_intervals = proxy_intervals_for_source_items(source_to_proxy, source_items);
@@ -352,7 +355,7 @@ void QSortFilterProxyModelPrivate::remove_source_items(
         QPair<int, int> interval = proxy_intervals.at(i);
         int proxy_start = interval.first;
         int proxy_end = interval.second;
-        remove_proxy_interval(source_to_proxy, proxy_to_source, proxy_start, proxy_end, proxy_parent, orient);
+        remove_proxy_interval(source_to_proxy, proxy_to_source, proxy_start, proxy_end, proxy_parent, orient, emit_signal);
     }
 }
 
@@ -365,25 +368,27 @@ void QSortFilterProxyModelPrivate::remove_source_items(
 */
 void QSortFilterProxyModelPrivate::remove_proxy_interval(
     QVector<int> &source_to_proxy, QVector<int> &proxy_to_source, int proxy_start, int proxy_end,
-    const QModelIndex &proxy_parent, Qt::Orientation orient)
+    const QModelIndex &proxy_parent, Qt::Orientation orient, bool emit_signal)
 {
     Q_Q(QSortFilterProxyModel);
-    // Signify start of operation
-    if (orient == Qt::Vertical)
-        q->beginRemoveRows(proxy_parent, proxy_start, proxy_end);
-    else
-        q->beginRemoveColumns(proxy_parent, proxy_start, proxy_end);
+    if (emit_signal) {
+        if (orient == Qt::Vertical)
+            q->beginRemoveRows(proxy_parent, proxy_start, proxy_end);
+        else
+            q->beginRemoveColumns(proxy_parent, proxy_start, proxy_end);
+    }
 
     // Remove items from proxy-to-source mapping
     proxy_to_source.remove(proxy_start, proxy_end - proxy_start + 1);
 
     build_source_to_proxy_mapping(proxy_to_source, source_to_proxy);
 
-    // Signify end of operation
-    if (orient == Qt::Vertical)
-        q->endRemoveRows();
-    else
-        q->endRemoveColumns();
+    if (emit_signal) {
+        if (orient == Qt::Vertical)
+            q->endRemoveRows();
+        else
+            q->endRemoveColumns();
+    }
 }
 
 /*!
@@ -475,7 +480,7 @@ QVector<QPair<int, QVector<int > > > QSortFilterProxyModelPrivate::proxy_interva
 void QSortFilterProxyModelPrivate::insert_source_items(
     QVector<int> &source_to_proxy, QVector<int> &proxy_to_source,
     const QVector<int> &source_items, const QModelIndex &source_parent,
-    Qt::Orientation orient)
+    Qt::Orientation orient, bool emit_signal)
 {
     Q_Q(QSortFilterProxyModel);
     QVector<QPair<int, QVector<int> > > proxy_intervals;
@@ -490,20 +495,24 @@ void QSortFilterProxyModelPrivate::insert_source_items(
         QVector<int> source_items = interval.second;
         int proxy_end = proxy_start + source_items.size() - 1;
 
-        if (orient == Qt::Vertical)
-            q->beginInsertRows(proxy_parent, proxy_start, proxy_end);
-        else
-            q->beginInsertColumns(proxy_parent, proxy_start, proxy_end);
+        if (emit_signal) {
+            if (orient == Qt::Vertical)
+                q->beginInsertRows(proxy_parent, proxy_start, proxy_end);
+            else
+                q->beginInsertColumns(proxy_parent, proxy_start, proxy_end);
+        }
 
         for (int i = 0; i < source_items.size(); ++i)
             proxy_to_source.insert(proxy_start + i, source_items.at(i));
 
         build_source_to_proxy_mapping(proxy_to_source, source_to_proxy);
 
-        if (orient == Qt::Vertical)
-            q->endInsertRows();
-        else
-            q->endInsertColumns();
+        if (emit_signal) {
+            if (orient == Qt::Vertical)
+                q->endInsertRows();
+            else
+                q->endInsertColumns();
+        }
     }
 }
 
@@ -658,6 +667,22 @@ void QSortFilterProxyModelPrivate::source_items_removed(
     update_persistent_indexes(source_indexes);
 }
 
+void QSortFilterProxyModelPrivate::proxy_item_range(
+    const QVector<int> &source_to_proxy, const QVector<int> &source_items,
+    int &proxy_low, int &proxy_high) const
+{
+    proxy_low = INT_MAX;
+    proxy_high = INT_MIN;
+    foreach (int source_item, source_items) {
+        int proxy_item = source_to_proxy.at(source_item);
+        Q_ASSERT(proxy_item != -1);
+        if (proxy_item < proxy_low)
+            proxy_low = proxy_item;
+        if (proxy_item > proxy_high)
+            proxy_high = proxy_item;
+    }
+}
+
 /*!
   \internal
 */
@@ -775,6 +800,7 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
     QVector<int> source_rows_remove;
     QVector<int> source_rows_insert;
     QVector<int> source_rows_change;
+    QVector<int> source_rows_resort;
     for (int source_row = source_top_left.row(); source_row <= source_bottom_right.row(); ++source_row) {
         if (dynamic_sortfilter) {
             if (m->proxy_rows.at(source_row) != -1) {
@@ -783,8 +809,7 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
                     source_rows_remove.append(source_row);
                 } else if (sort_column >= source_top_left.column() && sort_column <= source_bottom_right.column()) {
                     // This source row has changed in a way that may affect sorted order
-                    source_rows_remove.append(source_row);
-                    source_rows_insert.append(source_row);
+                    source_rows_resort.append(source_row);
                 } else {
                     // This row has simply changed, without affecting filtering nor sorting
                     source_rows_change.append(source_row);
@@ -801,28 +826,22 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
         }
     }
 
-    if (!source_rows_remove.isEmpty() || !source_rows_insert.isEmpty()) {
-        // Do row removal and insertion
-        QModelIndexList source_indexes = store_persistent_indexes();
+    if (!source_rows_remove.isEmpty())
         remove_source_items(m->proxy_rows, m->source_rows, source_rows_remove, source_parent, Qt::Vertical);
-        sort_source_rows(source_rows_insert, source_parent);
-        insert_source_items(m->proxy_rows, m->source_rows, source_rows_insert, source_parent, Qt::Vertical);
-        update_persistent_indexes(source_indexes);
-    }
 
-    if (!source_rows_change.isEmpty()) {
-        // Need to emit signal for data changes that did not affect sorting nor filtering
+    if (!source_rows_resort.isEmpty()) {
+        // Re-sort the rows
+        QModelIndexList source_indexes = store_persistent_indexes();
+        remove_source_items(m->proxy_rows, m->source_rows, source_rows_resort, source_parent, Qt::Vertical, false);
+        sort_source_rows(source_rows_resort, source_parent);
+        insert_source_items(m->proxy_rows, m->source_rows, source_rows_resort, source_parent, Qt::Vertical, false);
+        update_persistent_indexes(source_indexes);
+        emit q->layoutChanged();
+    } else if (!source_rows_change.isEmpty()) {
         // Find the proxy row range
-        int proxy_start_row = INT_MAX;
-        int proxy_end_row = INT_MIN;
-        foreach (int source_row, source_rows_change) {
-            int proxy_row = m->proxy_rows.at(source_row);
-            Q_ASSERT(proxy_row != -1);
-            if (proxy_row < proxy_start_row)
-                proxy_start_row = proxy_row;
-            if (proxy_row > proxy_end_row)
-                proxy_end_row = proxy_row;
-        }
+        int proxy_start_row;
+        int proxy_end_row;
+        proxy_item_range(m->proxy_rows, source_rows_change, proxy_start_row, proxy_end_row);
         // ### Find the proxy column range also
 
         QModelIndex proxy_top_left = create_index(
@@ -830,6 +849,11 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
         QModelIndex proxy_bottom_right = create_index(
             proxy_end_row, m->proxy_columns.at(source_bottom_right.column()), it);
         emit q->dataChanged(proxy_top_left, proxy_bottom_right);
+    }
+
+    if (!source_rows_insert.isEmpty()) {
+        sort_source_rows(source_rows_insert, source_parent);
+        insert_source_items(m->proxy_rows, m->source_rows, source_rows_insert, source_parent, Qt::Vertical);
     }
 }
 
