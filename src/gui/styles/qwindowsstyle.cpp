@@ -1565,10 +1565,10 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                     popupPal.setColor(QPalette::Light, frame->palette.background().color());
                     popupPal.setColor(QPalette::Midlight, frame->palette.light().color());
                 }
-            if (use2000style && pe == PE_Frame)
-                qDrawWinButton(p, frame->rect, popupPal, frame->state & State_Sunken);
-            else
-                qDrawWinPanel(p, frame->rect, popupPal, frame->state & State_Sunken);
+                if (use2000style && pe == PE_Frame && (frame->state & State_Raised))
+                    qDrawWinButton(p, frame->rect, popupPal, frame->state & State_Sunken);
+                else
+                    qDrawWinPanel(p, frame->rect, popupPal, frame->state & State_Sunken);
             } else {
                 QCommonStyle::drawPrimitive(pe, opt, p, w);
             }
