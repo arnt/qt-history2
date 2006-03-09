@@ -2093,7 +2093,7 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
       blend_untransformed_generic,   // Mono
       blend_untransformed_generic,   // MonoLsb
       blend_untransformed_generic,   // Indexed8
-      blend_untransformed_argb,      // RGB32
+      blend_untransformed_generic,   // RGB32
       blend_untransformed_generic,   // ARGB32
       blend_untransformed_argb // ARGB32_Premultiplied
 #ifdef Q_WS_QWS
@@ -2106,9 +2106,9 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
       blend_tiled_generic,   // Mono
       blend_tiled_generic,   // MonoLsb
       blend_tiled_generic,   // Indexed8
-      blend_tiled_argb,      // RGB32
+      blend_tiled_generic,   // RGB32
       blend_tiled_generic,   // ARGB32
-      blend_tiled_argb       // ARGB32_Premultiplied
+        blend_tiled_argb // ARGB32_Premultiplied
 #ifdef Q_WS_QWS
         ,  blend_tiled_rgb16 // RGB16
 #endif
@@ -2119,9 +2119,9 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
       blend_texture_generic,   // Mono
       blend_texture_generic,   // MonoLsb
       blend_texture_generic,   // Indexed8
-      blend_transformed_argb,  // RGB32
+      blend_texture_generic,   // RGB32
       blend_texture_generic,   // ARGB32
-      blend_transformed_argb   // ARGB32_Premultiplied
+      blend_transformed_argb // ARGB32_Premultiplied
 #ifdef Q_WS_QWS
         ,  blend_src_generic // RGB16
 #endif
@@ -2132,7 +2132,7 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
       blend_texture_generic,   // Mono
       blend_texture_generic,   // MonoLsb
       blend_texture_generic,   // Indexed8
-      blend_transformed_tiled_argb, // RGB32
+      blend_texture_generic,   // RGB32
       blend_texture_generic,   // ARGB32
       blend_transformed_tiled_argb // ARGB32_Premultiplied
 #ifdef Q_WS_QWS
@@ -2145,7 +2145,7 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
       blend_texture_generic,   // Mono
       blend_texture_generic,   // MonoLsb
       blend_texture_generic,   // Indexed8
-      blend_transformed_bilinear_argb, // RGB32
+      blend_texture_generic,   // RGB32
       blend_texture_generic,   // ARGB32
       blend_transformed_bilinear_argb // ARGB32_Premultiplied
 #ifdef Q_WS_QWS
@@ -2158,7 +2158,7 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
       blend_texture_generic,   // Mono
       blend_texture_generic,   // MonoLsb
       blend_texture_generic,   // Indexed8
-      blend_transformed_tiled_argb, // RGB32
+      blend_texture_generic,   // RGB32
       blend_texture_generic,   // ARGB32
       blend_transformed_bilinear_tiled_argb // ARGB32_Premultiplied
 #ifdef Q_WS_QWS
@@ -2196,8 +2196,8 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
     },
     // Format_RGB32,
     {
-        blend_color_argb,
-        blend_src_argb,
+        blend_color_generic,
+        blend_src_generic,
     },
     // Format_ARGB32,
     {
@@ -2317,7 +2317,6 @@ void qInitDrawhelperAsm()
     if (features & SSE) {
         functionForMode = qt_functionForMode_SSE;
         functionForModeSolid = qt_functionForModeSolid_SSE;
-        qDrawHelper[QImage::Format_RGB32].blendColor = qt_blend_color_argb_sse;
         qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_sse;
     }
 #endif
