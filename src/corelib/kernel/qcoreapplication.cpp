@@ -1594,13 +1594,13 @@ Q_GLOBAL_STATIC_WITH_ARGS(QMutex, libraryPathMutex, (QMutex::Recursive))
 /*!
     Returns a list of paths that the application will search when
     dynamically loading libraries.
-    The installation directory for plugins is the only entry if no
-    paths have been set.  The default installation directory for plugins
-    is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
-    installed. The directory of the application executable (NOT the
-    working directory) is also added to the plugin paths, as well as
-    the colon separated entries of the QT_PLUGIN_PATH environment
-    variable.
+
+    This list will include the installation directory for plugins if
+    it exists (the default installation directory for plugins is \c
+    INSTALL/plugins, where \c INSTALL is the directory where Qt was
+    installed).  The directory of the application executable (NOT the
+    working directory) is always added, as well as the colon separated
+    entries of the QT_PLUGIN_PATH environment variable.
 
     If you want to iterate over the list, you can use the \l foreach
     pseudo-keyword:
