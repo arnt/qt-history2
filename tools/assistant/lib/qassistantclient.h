@@ -17,10 +17,12 @@
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
+#include <QtCore/qglobal.h>
+#include "qassistantclient_global.h"
 
 class QTcpSocket;
 
-class QAssistantClient : public QObject
+class QT_ASSISTANT_CLIENT_EXPORT QAssistantClient : public QObject
 {
     Q_OBJECT
     Q_PROPERTY( bool open READ isOpen )

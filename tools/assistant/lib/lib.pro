@@ -8,14 +8,21 @@ CONFIG                += debug_and_release
 mac:unix:CONFIG       += explicitlib
 CONFIG                -= dll
 
-HEADERS         = qassistantclient.h
+HEADERS         = qassistantclient.h \
+                  qassistantclient_global.h
 SOURCES         = qassistantclient.cpp
 
 DESTDIR                = ../../../lib
+DLLDESTDIR             = ../../../bin
 
 unix {
         QMAKE_CFLAGS += $$QMAKE_CFLAGS_SHLIB
         QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_SHLIB
+}
+
+DEFINES += QT_ASSISTANT_CLIENT_LIBRARY
+contains(CONFIG, static) {
+    DEFINES += QT_ASSISTANT_CLIENT_STATIC
 }
 
 #load up the headers info
