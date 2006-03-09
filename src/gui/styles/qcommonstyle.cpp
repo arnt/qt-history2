@@ -2609,6 +2609,13 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     drawItemText(p, textRect,  Qt::TextShowMnemonic | Qt::AlignHCenter | alignment,
                                  groupBox->palette, groupBox->state & State_Enabled, groupBox->text,
                                  textColor.isValid() ? QPalette::NoRole : QPalette::Foreground);
+
+                    if (groupBox->state & State_HasFocus) {
+                        QStyleOptionFocusRect fropt;
+                        fropt.QStyleOption::operator=(*groupBox);
+                        fropt.rect = textRect;
+                        drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
+                    }
                 }
             }
 

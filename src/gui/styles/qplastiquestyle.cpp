@@ -1024,7 +1024,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 painter->drawLine(frameV2.rect.topLeft(), frameV2.rect.topRight());
                 painter->setPen(oldPen);
             } else {
-                frameV2.state &= ~State_Sunken;
+                frameV2.state &= ~(State_Sunken | State_HasFocus);
                 drawPrimitive(PE_Frame, &frameV2, painter, widget);
             }
         }
