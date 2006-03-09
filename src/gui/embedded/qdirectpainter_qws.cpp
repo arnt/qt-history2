@@ -38,15 +38,15 @@
     the underlying video hardware directly. Note that this
     functionality is only available in \l {Qtopia Core}.
 
-    Access to the video hardware can be retrieved using the
-    frameBuffer() function which returns a pointer to the beginning of
-    the display memory.  In order to access the video hardware in a
-    way that is co-operative with other applications, a region of the
-    screen must be reserved for the application, QDirectPainter
-    provides the necessary functionality: The reserveRegion() function
-    attempts to reserve the given region and returns the region
-    actually reserved. The reserved region can also be retrieved using
-    the region() function.
+    Access to the video hardware is provided by the frameBuffer()
+    function which returns a pointer to the beginning of the display
+    memory.  In order to access the video hardware in a way that is
+    co-operative with other applications, a region of the screen must
+    be reserved for the application, QDirectPainter provides the
+    necessary functionality: The reserveRegion() function attempts to
+    reserve the given region and returns the region actually
+    reserved. The reserved region can also be retrieved using the
+    region() function.
 
     Depending on the hardware, it might be necessary to lock the video
     hardware for exclusive use while writing to it. This is possible
