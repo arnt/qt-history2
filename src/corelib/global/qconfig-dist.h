@@ -13,7 +13,7 @@
 
 
 /*
- Empty leaves all features enabled. See doc/html/features.html for choices.
+ Empty leaves all features enabled. See doc/html/emb-features.html for choices.
 
  Note that disabling some features will produce a libqt that is not
  compatible with other libqt builds. Such modifications are only
