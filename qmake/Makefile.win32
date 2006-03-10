@@ -63,7 +63,7 @@ OBJS        = project.obj main.obj makefile.obj unixmake.obj unixmake2.obj mingw
 
 !IFNDEF QMAKE_OPENSOURCE_EDITION
 OBJS        = $(OBJS) borland_bmake.obj msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj \
-              msvc_objectmodel.obj metrowerks_xml.obj
+              msvc_objectmodel.obj
 !ELSE
 CFLAGS      = $(CFLAGS) -DQMAKE_OPENSOURCE_EDITION
 !ENDIF
@@ -166,7 +166,6 @@ clean::
 	-del msvc_dsp.obj
 	-del msvc_vcproj.obj
 	-del msvc_objectmodel.obj
-	-del metrowerks_xml.obj
 	-del pbuilder_pbx.obj
 	-del vc60.pdb
 	-del vc70.pdb
@@ -347,9 +346,6 @@ property.obj: property.cpp project.h option.h
 
 projectgenerator.obj: generators/projectgenerator.cpp
 	$(CXX) $(CXXFLAGS) generators/projectgenerator.cpp
-
-metrowerks_xml.obj: generators/mac/metrowerks_xml.cpp
-	$(CXX) $(CXXFLAGS) generators/mac/metrowerks_xml.cpp
 
 pbuilder_pbx.obj: generators/mac/pbuilder_pbx.cpp
 	$(CXX) $(CXXFLAGS) generators/mac/pbuilder_pbx.cpp
