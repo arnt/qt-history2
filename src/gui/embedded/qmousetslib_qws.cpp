@@ -31,27 +31,44 @@
 
 /*!
     \class QWSTslibMouseHandler
-
-    \brief The QWSTslibMouseHandler class provides mouse events from
-    the Universal Touch screen Library, tslib.
-
     \ingroup qws
 
-    To be able to compile this mouse handler, \l {Qtopia Core} must be configured
-    with -qt-mouse-tslib. In addition, the tslib headers and libraries must
-    be present in the build environment. Use -I and -L with configure if
-    neccessary. The tslib sources can be downloaded from
-    \l {http://cvs.arm.linux.org.uk}.
+    \brief The QWSTslibMouseHandler class implements a mouse driver
+    for the Universal Touch Screen Library, tslib.
 
-    In order to use this mouse handler, tslib must also be correctly installed
-    on the target machine. This includes providing a ts.conf configuration
-    file and setting the neccessary environment variables. See the README
-    file provided with tslib for details.
+    QWSTslibMouseHandler inherits the QWSCalibratedMouseHandler class,
+    providing calibration and noise reduction functionality in
+    addition to generating mouse events, for devices using the
+    Universal Touch Screen Library.
 
-    To make \l {Qtopia Core} explicitly choose the tslib mouse handler, set the
-    QWS_MOUSE_PROTO environment variable to "tslib".
+    To be able to compile this mouse handler, \l {Qtopia Core} must be
+    configured with the \c -qt-mouse-tslib option, see the \l {Pointer
+    Handling} documentation for details. In addition, the tslib
+    headers and libraries must be present in the build environment.
+    The tslib sources can be downloaded from \l
+    {http://cvs.arm.linux.org.uk}.  Use the \c -I or \c -L option with
+    \c configure to explicitly add the libraries. For example, adding
+    the actual library:
 
-    \sa {emb-running.html}{Running Qtopia Core Applications}
+    \code
+        configure -l <the tslib library>
+    \endcode
+
+    or alternatively adding the path to the library:
+
+    \code
+        configure -L <path to tslib>
+    \endcode
+
+    In order to use this mouse handler, tslib must also be correctly
+    installed on the target machine. This includes providing a \c
+    ts.conf configuration file and setting the neccessary environment
+    variables, see the README file provided with tslib for details.
+
+    To make \l {Qtopia Core} explicitly choose the tslib mouse
+    handler, set the QWS_MOUSE_PROTO environment variable.
+
+    \sa {Pointer Handling}, {Qtopia Core}
 */
 
 class QWSTslibMouseHandlerPrivate : public QObject
