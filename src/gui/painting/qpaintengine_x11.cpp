@@ -696,6 +696,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->composition_mode = PictOpOver;
 #endif
     d->xlibMaxLinePoints = 32762; // a safe number used to avoid, call to XMaxRequestSize(d->dpy) - 3;
+    d->opacity = 1;
 
     // Set up the polygon clipper. Note: This will only work in
     // polyline mode as long as we have a buffer zone, since a
@@ -1058,6 +1059,19 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
 {
     Q_D(QX11PaintEngine);
     QPaintEngine::DirtyFlags flags = state.state();
+
+
+    if (flags & DirtyOpacity) {
+        d->opacity = state.opacity();
+        if (d->opacity > 1)
+            d->opacity = 1;
+        if (d->opacity < 0)
+            d->opacity = 0;
+        // Force update pen/brush as to get proper alpha colors propagated
+        flags |= DirtyPen;
+        flags |= DirtyBrush;
+    }
+
     if (flags & DirtyTransform) updateMatrix(state.matrix());
     if (flags & (DirtyBackground | DirtyBackgroundMode))
         updateBackground(state.backgroundMode(), state.backgroundBrush());
@@ -1115,6 +1129,12 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     int cp = CapButt;
     int jn = JoinMiter;
     int ps = pen.style();
+
+    if (d->opacity < 1.0) {
+        QColor c = d->cpen.color();
+        c.setAlpha(qRound(c.alpha()*d->opacity));
+        d->cpen.setColor(c);
+    }
 
     d->has_pen = (ps != Qt::NoPen);
     d->has_alpha_pen = (pen.color().alpha() != 255);
@@ -1250,6 +1270,11 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 #if !defined(QT_NO_XRENDER)
     d->current_brush = 0;
 #endif
+    if (d->opacity < 1.0) {
+        QColor c = d->cbrush.color();
+        c.setAlpha(qRound(c.alpha()*d->opacity));
+        d->cbrush.setColor(c);
+    }
 
     int s  = FillSolid;
     int  bs = d->cbrush.style();
@@ -1779,7 +1804,12 @@ void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
     Q_D(QX11PaintEngine);
     d->bg_mode = mode;
     d->bg_brush = bgBrush;
-    d->bg_col = bgBrush.color();
+    if (d->opacity < 1.0) {
+        QColor c = d->bg_brush.color();
+        c.setAlpha(qRound(c.alpha()*d->opacity));
+        d->bg_brush.setColor(c);
+    }
+    d->bg_col = d->bg_brush.color();
     updatePen(d->cpen);
     updateBrush(d->cbrush, d->bg_origin);
 }
@@ -2082,7 +2112,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         drawTransformed = ft->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix, &transformedGlyphSet);
     }
 #endif
-    
+
     if ((d->txop >= QPainterPrivate::TxScale && !drawTransformed)) {
         QPaintEngine::drawTextItem(p, ti);
         return;

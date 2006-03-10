@@ -172,6 +172,7 @@ public:
     QBrush bg_brush;
     QRegion crgn;
     QMatrix matrix;
+    qreal opacity;
 
     uint has_complex_xform : 1;
     uint has_custom_pen : 1;
