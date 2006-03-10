@@ -186,6 +186,9 @@ void MainWindow::createMenus()
 
 void MainWindow::loadPlugins()
 {
+    foreach (QObject *plugin, QPluginLoader::staticInstances())
+        populateMenus(plugin);
+
     pluginsDir = QDir(qApp->applicationDirPath());
 
 #if defined(Q_OS_WIN)
@@ -199,9 +202,6 @@ void MainWindow::loadPlugins()
     }
 #endif
     pluginsDir.cd("plugins");
-
-    foreach (QObject *plugin, QPluginLoader::staticInstances())
-        populateMenus(plugin);
 
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
         QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));

@@ -6,7 +6,7 @@ SOURCES        = main.cpp \
                  mainwindow.cpp \
                  paintarea.cpp \
                  plugindialog.cpp
-LIBS           = -Lplugins -lpnp_basictools
+LIBS           = -L../plugandpaintplugins/basictools -lpnp_basictools
 
 CONFIG(debug, debug|release) {
    unix:LIBS = $$member(LIBS, 0) $$member(LIBS, 1)_debug
