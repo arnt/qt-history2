@@ -130,10 +130,12 @@ void QFontEngineMac::init()
         fntStyle |= ::italic;
 
     FMFontStyle intrinsicStyle;
-    status = FMGetFontFromFontFamilyInstance(family, fntStyle, &fonts[0], &intrinsicStyle);
+    FMFont fnt;
+    status = FMGetFontFromFontFamilyInstance(family, fntStyle, &fnt, &intrinsicStyle);
+    fonts[0] = FontInfo(fnt);
     Q_ASSERT(status == noErr);
 
-    status = FMGetFontFamilyInstanceFromFont(fonts.at(0), &family, &intrinsicStyle);
+    status = FMGetFontFamilyInstanceFromFont(fonts.at(0).fmFont, &family, &intrinsicStyle);
     Q_ASSERT(status == noErr);
 
     Boolean atsuBold = false;
@@ -163,7 +165,7 @@ void QFontEngineMac::init()
     tags[attributeCount] = kATSUFontTag;
     // KATSUFontID is typedef'ed to FMFont
     sizes[attributeCount] = sizeof(FMFont);
-    values[attributeCount] = &fonts[0];
+    values[attributeCount] = &fonts[0].fmFont;
     ++attributeCount;
 
     status = ATSUCreateStyle(&style);
@@ -178,6 +180,13 @@ QFontEngineMac::~QFontEngineMac()
 {
     ATSUDisposeTextLayout(textLayout);
     ATSUDisposeStyle(style);
+}
+
+QFontEngineMac::FontInfo::FontInfo(FMFont fnt)
+{
+    fmFont = fnt;
+    ATSFontRef atsFont = FMGetATSFontRefFromFont(fmFont);
+    cgFont = CGFontCreateWithPlatformFont(&atsFont);
 }
 
 struct QGlyphLayoutInfo
@@ -327,9 +336,9 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
 int QFontEngineMac::fontIndexForFMFont(FMFont font) const
 {
     for (int i = 0; i < fonts.count(); ++i)
-        if (fonts.at(i) == font)
+        if (fonts.at(i).fmFont == font)
             return i;
-    fonts.append(font);
+    fonts.append(FontInfo(font));
     return fonts.count() - 1;
 }
 
@@ -602,7 +611,7 @@ QFixed QFontEngineMac::leading() const
 
 qreal QFontEngineMac::maxCharWidth() const
 {
-    ATSFontRef atsFont = FMGetATSFontRefFromFont(fonts.at(0));
+    ATSFontRef atsFont = FMGetATSFontRefFromFont(fonts.at(0).fmFont);
     ATSFontMetrics metrics;
     ATSFontGetHorizontalMetrics(atsFont, kATSOptionFlagsDefault, &metrics);
     return metrics.maxAdvanceWidth * fontDef.pointSize;
@@ -610,7 +619,7 @@ qreal QFontEngineMac::maxCharWidth() const
 
 QFixed QFontEngineMac::xHeight() const
 {
-    ATSFontRef atsFont = FMGetATSFontRefFromFont(fonts.at(0));
+    ATSFontRef atsFont = FMGetATSFontRefFromFont(fonts.at(0).fmFont);
     ATSFontMetrics metrics;
     ATSFontGetHorizontalMetrics(atsFont, kATSOptionFlagsDefault, &metrics);
     return QFixed::fromReal(metrics.xHeight * fontDef.pointSize);
@@ -659,14 +668,10 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
         if (nextFont == currentFont)
             continue;
 
-        FMFont fnt = fonts.at(currentFont);
-        ATSFontRef atsFont = FMGetATSFontRefFromFont(fnt);
-        CGFontRef cgFont = CGFontCreateWithPlatformFont(&atsFont);
-        Q_ASSERT(cgFont != 0);
+	QCFType<CGFontRef> cgFont = fonts.at(currentFont).cgFont;
+        CGContextSetFont(ctx, cgFont);
 
         CGContextSetTextPosition(ctx, positions[currentSpan].x.toReal(), positions[currentSpan].y.toReal());
-
-        CGContextSetFont(ctx, cgFont);
 
         CGContextShowGlyphsWithAdvances(ctx, cgGlyphs.data() + currentSpan,
                                         advances.data() + currentSpan, i - currentSpan);
@@ -683,14 +688,10 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
         currentSpan = i;
     }
 
-    FMFont fnt = fonts.at(currentFont);
-    ATSFontRef atsFont = FMGetATSFontRefFromFont(fnt);
-    CGFontRef cgFont = CGFontCreateWithPlatformFont(&atsFont);
-    Q_ASSERT(cgFont != 0);
+    QCFType<CGFontRef> cgFont = fonts.at(currentFont).cgFont;
+    CGContextSetFont(ctx, cgFont);
 
     CGContextSetTextPosition(ctx, positions[currentSpan].x.toReal(), positions[currentSpan].y.toReal());
-
-    CGContextSetFont(ctx, cgFont);
 
     CGContextShowGlyphsWithAdvances(ctx, cgGlyphs.data() + currentSpan,
                                     advances.data() + currentSpan, glyphs.size() - currentSpan);
@@ -735,7 +736,7 @@ ATSUStyle QFontEngineMac::styleForFont(int fontIndex) const
         return style;
 
     ATSUStyle result;
-    FMFont font = fonts.at(fontIndex);
+    FMFont font = fonts.at(fontIndex).fmFont;
 
     ATSUCreateAndCopyStyle(style, &result);
 

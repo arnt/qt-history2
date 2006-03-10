@@ -350,6 +350,8 @@ private:
 
 #if defined(Q_NEW_MAC_FONTENGINE)
 
+#include "private/qcore_mac_p.h"
+
 struct QShaperItem;
 
 class QFontEngineMac : public QFontEngine
@@ -399,7 +401,14 @@ private:
     mutable ATSUTextLayout textLayout;
     mutable ATSUStyle style;
     int synthesisFlags;
-    mutable QVector<FMFont> fonts;
+    struct FontInfo
+    {
+        FontInfo() : fmFont(0) {}
+        explicit FontInfo(FMFont fnt);
+        FMFont fmFont;
+        QCFType<CGFontRef> cgFont;
+    };
+    mutable QVector<FontInfo> fonts;
 };
 
 #else
