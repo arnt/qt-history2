@@ -53,10 +53,12 @@ public:
     QString whatsthis;
 #ifndef QT_NO_SHORTCUT
     QKeySequence shortcut;
+    QList<QKeySequence> alternateShortcuts;
 #endif
     QVariant userData;
 #ifndef QT_NO_SHORTCUT
     int shortcutId;
+    QList<int> alternateShortcutIds;
     Qt::ShortcutContext shortcutContext;
 #endif
     QFont font;
@@ -70,11 +72,12 @@ public:
     QList<QWidget *> widgets;
 #ifndef QT_NO_SHORTCUT
     void redoGrab(QShortcutMap &map);
+    void redoGrabAlternate(QShortcutMap &map);
     void setShortcutEnabled(bool enable, QShortcutMap &map);
 
     static QShortcutMap *globalMap;
 #endif // QT_NO_SHORTCUT
-    
+
 #ifdef QT3_SUPPORT //for menubar/menu compat
     QMenuItemEmitter *act_signal;
     int id, param;

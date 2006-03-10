@@ -86,11 +86,35 @@ void QActionPrivate::redoGrab(QShortcutMap &map)
         map.setShortcutEnabled(false, shortcutId, q);
 }
 
+void QActionPrivate::redoGrabAlternate(QShortcutMap &map)
+{
+    Q_Q(QAction);
+    foreach (int id, alternateShortcutIds)
+        if (id)
+            map.removeShortcut(id, q);
+    alternateShortcutIds.clear();
+    if (alternateShortcuts.isEmpty())
+        return;
+    foreach (const QKeySequence& alternate, alternateShortcuts) {
+        if (!alternate.isEmpty())
+            alternateShortcutIds.append(map.addShortcut(q, alternate, shortcutContext));
+        else
+            alternateShortcutIds.append(0);
+    }
+    if (!enabled) {
+        foreach (int id, alternateShortcutIds)
+           map.setShortcutEnabled(false, id, q);
+    }
+}
+
 void QActionPrivate::setShortcutEnabled(bool enable, QShortcutMap &map)
 {
     Q_Q(QAction);
     if (shortcutId)
         map.setShortcutEnabled(enable, shortcutId, q);
+    foreach (int id, alternateShortcutIds)
+        if (id)
+            map.setShortcutEnabled(enable, id, q);
 }
 #endif // QT_NO_SHORTCUT
 
@@ -271,6 +295,36 @@ QKeySequence QAction::shortcut() const
 }
 
 /*!
+    \since 4.2
+
+    Sets a list of alternate shortcuts that in addition to the action's
+    main shortcut trigger the action.
+*/
+void QAction::setAlternateShortcuts(const QList<QKeySequence> &shortcuts)
+{
+    Q_D(QAction);
+    if (d->alternateShortcuts == shortcuts)
+        return;
+
+    d->alternateShortcuts = shortcuts;
+    d->redoGrabAlternate(qApp->d_func()->shortcutMap);
+    d->sendDataChanged();
+}
+
+/*!
+    \since 4.2
+
+    Returns the list of alternate shortcuts.
+
+    \sa setAlternateShortcuts()
+*/
+QList<QKeySequence> QAction::alternateShortcuts() const
+{
+    Q_D(const QAction);
+    return d->alternateShortcuts;
+}
+
+/*!
     \property QAction::shortcutContext
     \brief the context for the action's shortcut
 
@@ -285,6 +339,7 @@ void QAction::setShortcutContext(Qt::ShortcutContext context)
         return;
     d->shortcutContext = context;
     d->redoGrab(qApp->d_func()->shortcutMap);
+    d->redoGrabAlternate(qApp->d_func()->shortcutMap);
     d->sendDataChanged();
 }
 
@@ -812,7 +867,7 @@ QAction::event(QEvent *e)
 #ifndef QT_NO_SHORTCUT
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
-        Q_ASSERT_X(se->key() == d_func()->shortcut,
+        Q_ASSERT_X(se->key() == d_func()->shortcut || d_func()->alternateShortcuts.contains(se->key()),
                    "QAction::event",
                    "Received shortcut event from incorrect shortcut");
         if (se->isAmbiguous())

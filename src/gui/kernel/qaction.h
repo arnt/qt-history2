@@ -88,18 +88,21 @@ public:
     QMenu *menu() const;
     void setMenu(QMenu *menu);
 #endif
-    
+
     void setSeparator(bool b);
     bool isSeparator() const;
 
 #ifndef QT_NO_SHORTCUT
     void setShortcut(const QKeySequence &shortcut);
     QKeySequence shortcut() const;
-    
+
+    void setAlternateShortcuts(const QList<QKeySequence> &shortcuts);
+    QList<QKeySequence> alternateShortcuts() const;
+
     void setShortcutContext(Qt::ShortcutContext context);
     Qt::ShortcutContext shortcutContext() const;
 #endif
-    
+
     void setFont(const QFont &font);
     QFont font() const;
 
