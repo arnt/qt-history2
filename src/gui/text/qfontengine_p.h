@@ -43,8 +43,9 @@ class QPainterPath;
 class QTextEngine;
 struct QGlyphLayout;
 
-class Q_GUI_EXPORT QFontEngine
+class Q_GUI_EXPORT QFontEngine : public QObject
 {
+    Q_OBJECT
 public:
     enum Type {
         Box,
@@ -65,7 +66,7 @@ public:
         TestFontEngine = 0x1000
     };
 
-    inline QFontEngine() {
+    inline QFontEngine() : QObject(0) {
         ref = 0;
         cache_count = 0;
         fsType = 0;
