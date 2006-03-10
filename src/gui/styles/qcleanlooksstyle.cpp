@@ -583,24 +583,24 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
             const int margin = 2;
             if (option->state & State_Horizontal) {
                 const int offset = rect.width()/2;
-                painter->setPen(QPen(option->palette.dark().color().light(120)));
+                painter->setPen(QPen(option->palette.background().color().dark(110)));
                 painter->drawLine(rect.bottomLeft().x() + offset,
                             rect.bottomLeft().y() - margin,
                             rect.topLeft().x() + offset,
                             rect.topLeft().y() + margin);
-                painter->setPen(QPen(option->palette.light().color()));
+                painter->setPen(QPen(option->palette.background().color().light(110)));
                 painter->drawLine(rect.bottomLeft().x() + offset + 1,
                             rect.bottomLeft().y() - margin,
                             rect.topLeft().x() + offset + 1,
                             rect.topLeft().y() + margin);
             } else { //Draw vertical separator
                 const int offset = rect.height()/2;
-                painter->setPen(QPen(option->palette.dark().color().light(120)));
+                painter->setPen(QPen(option->palette.background().color().dark(110)));
                 painter->drawLine(rect.topLeft().x() + margin ,
                             rect.topLeft().y() + offset,
                             rect.topRight().x() - margin,
                             rect.topRight().y() + offset);
-                painter->setPen(QPen(option->palette.light().color()));
+                painter->setPen(QPen(option->palette.background().color().light(110)));
                 painter->drawLine(rect.topLeft().x() + margin ,
                             rect.topLeft().y() + offset + 1,
                             rect.topRight().x() - margin,
@@ -1209,15 +1209,17 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 break;
             }
 
+            QColor light = option->palette.background().color().light(110);
+            
             //draw top border
-            painter->setPen(QPen(option->palette.light().color()));
+            painter->setPen(QPen(light));
             painter->drawLine(rect.topLeft().x(),
                         rect.topLeft().y(),
                         rect.topRight().x(),
                         rect.topRight().y());
 
             if (paintLeftBorder) {
-                painter->setPen(QPen(option->palette.light().color()));
+                painter->setPen(QPen(light));
                 painter->drawLine(rect.topLeft().x(),
                             rect.topLeft().y(),
                             rect.bottomLeft().x(),
@@ -1663,6 +1665,9 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
     case CE_MenuBarEmptyArea:
         painter->save();
         {
+            QColor shadow = mergedColors(option->palette.background().color().dark(120),
+                                 option->palette.dark().color().light(130), 60);
+
             QLinearGradient gradient(rect.topLeft(), QPoint(rect.bottomLeft().x(), rect.bottomLeft().y()*2));
             gradient.setColorAt(0, option->palette.button().color());
             gradient.setColorAt(1, option->palette.button().color().dark(110));
@@ -1670,7 +1675,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
 
             if (widget && qobject_cast<const QMainWindow *>(widget->parentWidget())) {
                 QPen oldPen = painter->pen();
-                painter->setPen(QPen(option->palette.dark().color().light(120)));
+                painter->setPen(QPen(shadow));
                 painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
             }
         }
@@ -3016,7 +3021,10 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         newSize += QSize(0, 1);
         break;
     case CT_PushButton:
-	newSize += QSize(0, 4);
+	    newSize += QSize(0, 4);
+        break;	
+    case CT_MenuBarItem:
+	    newSize += QSize(0, 2);
 	break;
     default:
         break;
