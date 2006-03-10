@@ -138,6 +138,48 @@ static bool force_reject_strokeIM = false;
 /*!
     \class QWSScreenSaver
     \ingroup qws
+
+    \brief The QWSScreenSaver class implements a screensaver in Qtopia
+    Core.
+
+    Derive from this class to define a custom screensaver, note that
+    there exists no default implementation. Reimplement the restore()
+    and save() functions which are called whenever the screensaver is
+    activated or deactivated, respectively, and use the
+    QWSServer::setScreenSaver() function to install it.
+
+    QWSServer also provides means of controlling the screensaver, see
+    the \l {QWSServer#Display Handling}{QWSServer} class documentation
+    for details.
+
+    \sa QWSServer, QScreen, {Qtopia Core}
+*/
+
+/*!
+    \fn QWSScreenSaver::~QWSScreenSaver()
+
+    Reimplement this function to destroy the screensaver.
+*/
+
+/*!
+    \fn QWSScreenSaver::restore()
+
+    Reimplement this function to deactivate the screensaver.
+
+    \sa QWSServer::screenSaverActivate(), save()
+*/
+
+/*!
+    \fn QWSScreenSaver::save(int level)
+
+    Reimplement this function to return true if the screensaver
+    successfully enters the timeout interval specified by the \a level
+    parameter; otherwise it should return false.
+
+    The timeout intervals are typically specified using the
+    QWSServer::setScreenSaverIntervals() function.
+
+    \sa QWSServer::screenSaverActivate(), restore()
 */
 
 /*!
@@ -760,11 +802,13 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
     applications will consider to be the maximum area to use for
     windows.
 
-    The screen saver can be activated using the screenSaverActivate()
-    function, the screenSaverActive() function returns its current
-    status. The screen saver's timeout intervals can be specified
-    using the setScreenSaverInterval() and setScreenSaverIntervals()
-    functions.
+    The setScreenSaver() function provides the option of installing a
+    custom screensaver derived from the QWSScreenSaver class. Once
+    installed, the screensaver can be activated using the
+    screenSaverActivate() function, and the screenSaverActive()
+    function returns its current status. The screensaver's timeout
+    intervals can be specified using the setScreenSaverInterval() and
+    setScreenSaverIntervals() functions.
 
     Use the isCursorVisible() function to determine if the cursor is
     visible on the display, use the setCursorVisible() function to
@@ -3207,8 +3251,8 @@ void QWSServer::removeKeyboardFilter()
     \fn void QWSServer::setScreenSaverIntervals(int* intervals)
 
     Sets a list of timeout \a intervals (specified in millisecond) for
-    the screen saver. An interval of 0 milliseconds turns off the
-    screen saver.
+    the screensaver. An interval of 0 milliseconds turns off the
+    screensaver.
 
     Note that the array must be 0-terminated.
 
@@ -3243,8 +3287,8 @@ void QWSServer::setScreenSaverIntervals(int* ms)
 /*!
     \fn void QWSServer::setScreenSaverInterval(int milliseconds)
 
-    Sets the timeout interval for the screen saver to be the specified
-    \a milliseconds. To turn off the screen saver, set the timout
+    Sets the timeout interval for the screensaver to be the specified
+    \a milliseconds. To turn off the screensaver, set the timout
     interval to 0.
 
     \sa setScreenSaverIntervals()
@@ -3294,10 +3338,12 @@ void QWSServerPrivate::_q_screenSaverSleep()
 }
 
 /*!
-    \internal
+    \fn void QWSServer::setScreenSaver(QWSScreenSaver* screenSaver)
 
-    Deletes the current screen saver and sets the screen saver to be
-    \a ss.
+    Deletes the current screensaver and installs the given \a
+    screenSaver instead.
+
+    \sa screenSaverActivate()
 */
 void QWSServer::setScreenSaver(QWSScreenSaver* ss)
 {
@@ -3817,28 +3863,43 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 
     \brief The KeyMap class is used for mapping scancodes.
 
-    The KeyMap structure records an individual KeyMap entry in the
-    array used to map keyboard scancodes to Qt key codes and Unicode
-    values.
+    The data from a keyboard comes mainly in the form of scancodes,
+    produced by key presses or used in the protocol with the computer.
+    Qtopia Core maintains a keyboard mapping table used to convert the
+    data to Qt key codes and Unicode values.
+
+    The mapping table is a collection of KeyMap objects, each object
+    records the mapping between a single keyboard scancode and its Qt
+    key and Unicode values.
+
+    \sa QWSServer::keyMap()
 */
 
 /*!
     \variable QWSServer::KeyMap::ctrl_unicode
-    \brief the ...
+
+    \brief the unicode value identifying the combination of the Ctrl
+    key and the scancode associated with this KeyMap object
 */
 
 /*!
     \variable  QWSServer::KeyMap::key_code
-    \brief the ...
+
+    \brief the Qt::Key value identfying the scancode associated with
+    this KeyMap object
 */
 /*!
     \variable QWSServer::KeyMap::shift_unicode
-    \brief the ...
+
+    \brief the unicode value identifying the combination of the Shift
+    key and the scancode associated with  this KeyMap object
 */
 
 /*!
     \variable QWSServer::KeyMap::unicode
-    \brief the ...
+
+    \brief the unicode value identfying the scancode associated with
+    this KeyMap object
 */
 
 /*!
