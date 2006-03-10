@@ -44,20 +44,14 @@
     To be able to compile this mouse handler, \l {Qtopia Core} must be
     configured with the \c -qt-mouse-tslib option, see the \l {Pointer
     Handling} documentation for details. In addition, the tslib
-    headers and libraries must be present in the build environment.
-    The tslib sources can be downloaded from \l
-    {http://cvs.arm.linux.org.uk}.  Use the \c -I or \c -L option with
-    \c configure to explicitly add the libraries. For example, adding
-    the actual library:
+    headers and library must be present in the build environment.  The
+    tslib sources can be downloaded from \l
+    {http://cvs.arm.linux.org.uk}.  Use the \c -L and \c -I options
+    with \c configure to explicitly specify the location of the
+    library and its headers:
 
     \code
-        configure -l <the tslib library>
-    \endcode
-
-    or alternatively adding the path to the library:
-
-    \code
-        configure -L <path to tslib>
+        configure  -L <path to tslib library> -I <path to tslib headers>
     \endcode
 
     In order to use this mouse handler, tslib must also be correctly
