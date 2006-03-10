@@ -40,7 +40,7 @@ false {
       CONFIG(debug, debug|release):QT_TEST_LINKAGE = -l$${QT_TEST_LIB_NAME}d
       else:QT_TEST_LINKAGE = -l$${QT_TEST_LIB_NAME}
    } else { 
-      isEqual(QT_TEST_LIB_NAME_style, debug):QT_TEST_LINKAGE = -l$${QT_TEST_LIB_NAME}_debug
+      CONFIG(debug, debug|release):QT_TEST_LINKAGE = -l$${QT_TEST_LIB_NAME}_debug
       else:QT_TEST_LINKAGE = -l$${QT_TEST_LIB_NAME}
    }
 }
