@@ -690,8 +690,6 @@ static inline bool is_space(char s)
 static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixScope = false, bool adjustConst = true)
 {
     int len = e - t;
-    if (strncmp("void", t, len) == 0)
-        return QByteArray();
     /*
       Convert 'char const *' into 'const char *'. Start at index 1,
       not 0, because 'const char *' is already OK.
@@ -836,7 +834,8 @@ QByteArray QMetaObject::normalizedSignature(const char *method)
                     --templdepth;
                 d++;
             }
-            result += normalizeTypeInternal(t, d);
+            if (strncmp("void", t, d - t) != 0)
+                result += normalizeTypeInternal(t, d);
         }
         if (*d == '(')
             ++argdepth;

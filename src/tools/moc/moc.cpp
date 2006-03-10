@@ -21,8 +21,6 @@
 static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixScope = false, bool adjustConst = true)
 {
     int len = e - t;
-    if (strncmp("void", t, len) == 0)
-        return QByteArray();
     /*
       Convert 'char const *' into 'const char *'. Start at index 1,
       not 0, because 'const char *' is already OK.
@@ -136,7 +134,9 @@ QByteArray normalizeType(const char *s, bool fixScope)
             last = *d++ = ' ';
     }
     *d = '\0';
-    QByteArray result = normalizeTypeInternal(buf, d, fixScope);
+    QByteArray result;
+    if (strncmp("void", buf, d - buf) != 0)
+        result = normalizeTypeInternal(buf, d, fixScope);
     if (buf != stackbuf)
         delete [] buf;
     return result;
