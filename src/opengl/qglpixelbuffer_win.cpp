@@ -245,6 +245,7 @@ QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget 
     d->size = QSize(width, height);
     d->invalid = false;
     d->qctx = new QGLContext(f);
+    d->qctx->d_func()->sharing = (shareWidget != 0);
 }
 
 QGLPixelBuffer::~QGLPixelBuffer()

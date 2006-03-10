@@ -190,6 +190,7 @@ QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget 
 
         XFree(configs);
         d->qctx = new QGLContext(f);
+        d->qctx->d_func()->sharing = (shareWidget != 0);
     } else {
         qWarning("QGLPixelBuffer: Unable to find a context/format match - giving up.");
         return;
