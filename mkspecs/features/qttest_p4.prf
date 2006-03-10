@@ -9,7 +9,7 @@ CONFIG(debug, debug|release) {
        win32 {
           QTEST_LIB = $$fromfile($$[QT_INSTALL_LIBS]/QtTestd.prl, QMAKE_PRL_TARGET)4.dll
        } else {
-          QTEST_LIB_PRL = $$fromfile($$[QT_INSTALL_LIBS]/libQtTest_debug.prl, QMAKE_PRL_TARGET)
+          QTEST_LIB = $$fromfile($$[QT_INSTALL_LIBS]/libQtTest_debug.prl, QMAKE_PRL_TARGET)
        }
     }
     OBJECTS_DIR     = tmp/debug
@@ -19,7 +19,7 @@ CONFIG(debug, debug|release) {
        win32 {
           QTEST_LIB = $$fromfile($$[QT_INSTALL_LIBS]/QtTest.prl, QMAKE_PRL_TARGET)4.dll
        } else {
-          QTEST_LIB_PRL = $$fromfile($$[QT_INSTALL_LIBS]/libQtTest.prl, QMAKE_PRL_TARGET)
+          QTEST_LIB = $$fromfile($$[QT_INSTALL_LIBS]/libQtTest.prl, QMAKE_PRL_TARGET)
        }
     }
     OBJECTS_DIR     = tmp/release
