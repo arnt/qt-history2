@@ -144,28 +144,28 @@ static bool force_reject_strokeIM = false;
     \class QWSWindow
     \ingroup qws
 
-    \brief The QWSWindow class provides window-specific information in
+    \brief The QWSWindow class encapsulates a top-level window in
     Qtopia Core.
 
     When running a \l {Qtopia Core} application, it either runs as a
     server or connects to an existing server. As applications add and
     remove widgets, the QWSServer class maintains information about
-    each window. Note that you should never construct this class
-    yourself; the QWSServer::clientWindows() function returns the
-    current top-level windows as a QList of QWSWindow objects.
+    each window. Note that you should never construct the QWSWindow
+    class yourself; the current top-level windows can be retrieved
+    using the QWSServer::clientWindows() function.
 
     QWSWindow provides functions returning various information about
     the window: its caption(), name(), opacity() and winId() along with
     the client() that owns the window.
 
     In addition, it is possible to determine whether the window is
-    visible or not using the isVisible() function. Use the
-    isFullyObscured() function to determine if the window is
+    visible using the isVisible() function, if the window is
     completely obsured by another window or by the bounds of the
-    screen. The isOpaque() functions returns true if the window
-    doesn't have an alpha channel; otherwise false. Finally, the
-    requestedRegion() function can be used to retrieve the region of
-    the display the window wants to draw on.
+    screen using the isFullyObscured() function, and whether the
+    window has an alpha channel different from 255 using the
+    isOpaque() function. Finally, QWSWindow provides the
+    requestedRegion() function that returns the region of the display
+    the window wants to draw on.
 
     \sa QWSServer, {Running Applications}, {Qtopia Core}
 */
@@ -683,61 +683,63 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
 
     \section1 Client Administration
 
-    Use the clientWindows() function to retrieve a list of the current
-    top-level windows. The collection of windows changes as
+    In \l {Qtopia Core}, the top-level windows are encasulated as
+    QWSWindow objects. The collection of windows changes as
     applications add and remove widgets, and each window can tell
     which client that owns it through its QWSWindow::client()
-    function. Given a particular position on the display, the window
-    containing it can be retrieved using the windowAt() function.
-
-    The QCopChannel class and the QCOP communication protocol enable
-    transfer of messages on various channels between
-    clients. QWSServer provides the newChannel() and removedChannel()
-    signals that is emitted whenever a new QCopChannel object is
-    created or destroyed. See the QCopChannel class documentation for
-    details on client communication.
+    function. Use the clientWindows() function to retrieve a list of
+    the current top-level windows. Given a particular position on the
+    display, the window containing it can be retrieved using the
+    windowAt() function.
 
     QWSServer also provides the windowEvent() signal which is emitted
-    whenever somethings happen to a top level window. The WindowEvent
+    whenever something happens to a top level window; the WindowEvent
     enum describes the various types of events that the signal
-    recognizes. In addition the server class provides the markedText()
-    signal which is emitted whenever some text has been selectedin any
-    of the windows, passing the selection as parameter.
+    recognizes. In addition, the server class provides the
+    markedText() signal which is emitted whenever some text has been
+    selected in any of the windows, passing the selection as
+    parameter.
 
     See the QWSWindow and QWSClient class documentation for more
     details.
 
+    The QCopChannel class and the QCOP communication protocol enable
+    transfer of messages between clients. QWSServer provides the
+    newChannel() and removedChannel() signals that is emitted whenever
+    a new QCopChannel object is created or destroyed. See the
+    QCopChannel class documentation for details on client
+    communication.
+
     \section1 Mouse and Keyboard Handling
 
     To open the mouse devices specified by the QWS_MOUSE_PROTO
-    environment variable use the openMouse() function. Alternatively,
+    environment variable, use the openMouse() function. Alternatively,
     the static setDefaultMouse() function provides means of specifying
     the default mouse driver to use if the QWS_MOUSE_PROTO variable is
-    not defined (the default is otherwise platform dependent). Use the
-    closeMouse() function to delete the various mouse handlers. The
-    primary mouse handler can be retrieved using the static
-    mouseHandler() function.
+    not defined. Note that the default is otherwise platform
+    dependent. The primary mouse handler can be retrieved using the
+    static mouseHandler() function. Use the closeMouse() function to
+    delete the mouse handlers.
 
     Likewise, open the keyboard devices specified by the QWS_KEYBOARD
-    environment variable using the openKeyboard()
+    environment variable by using the openKeyboard()
     function. Alternatively, the static setDefaultKeyboard() function
     provides means of specifying the default keyboard driver to use if
-    the QWS_KEYBOARD variable is not defined (the default is otherwise
-    platform dependent). Use the closeKeyboard() function to delete
-    the various keyboard handlers. The primary keyboard handler can be
-    retrieved using the static keyboardHandler() function.
+    the QWS_KEYBOARD variable is not defined. Note again tha the
+    default is otherwise platform dependent.  The primary keyboard
+    handler can be retrieved using the static keyboardHandler()
+    function. Use the closeKeyboard() function to delete the keyboard
+    handlers.
 
-    In addition, QWSServer provides the suspendMouse() and
-    resumeMouse() functions to control the flow of mouse input (see
-    QWSMouseHandler for more details), and the processKeyEvent()
-    function to process key events generated by physical devices and
-    the sendKeyEvent() function to send key events generated by
-    "virtual keyboards" Use the addKeyboardFilter() function to filter
-    the key events from physical keyboard drivers, i.e. events
-    generated by the processKeyEvent() function. Use the
-    removeKeyboardFilter() to remove and delete the most recently
-    added filter.  (see \l {Character Input} and QWSKeyboardHandler
-    for more information)
+    In addition, the QWSServer class can control the flow of mouse
+    input using the suspendMouse() and resumeMouse() functions (see
+    QWSMouseHandler for more details), and handle key events from both
+    physical and virtual keyboards using the processKeyEvent() and
+    sendKeyEvent() functions, respectively. Use the
+    addKeyboardFilter() function to filter the key events from
+    physical keyboard drivers, the most recently added filter can be
+    removed and deleted using the removeKeyboardFilter() function. See
+    \l {Character Input} and QWSKeyboardHandler for more information.
 
     Finally, the keyMap() function returns the keyboard mapping table
     used to convert keyboard scancodes to Qt keycodes and Unicode
@@ -745,21 +747,24 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
 
     \section1 Display Handling
 
-    Use the static setBackground() function to set the brush used as
-    the background in the absence of obscuring windows. The
-    backgroundBrush() function returns the currently set brush.
+    To set the brush used as the background in the absence of
+    obscuring windows, QWSServer provides the static setBackground()
+    function. The backgroundBrush() function returns the currently set
+    brush.
 
-    QWSServer provides the refresh() function to refresh the entire or
-    a specified region of the display, and the enablePainting()
-    function controlling painting privileges on the display. The
-    setMaxWindowRect() sets the area of the screen which \l {Qtopia
-    Core} applications will consider to be the maximum area to use for
+    Use the refresh() function to refresh the entire display, or
+    alternatively a specified region of it. The enablePainting()
+    function can be used to control the privileges for painting on the
+    display. QWSServer also provide the setMaxWindowRect() function
+    restricting the area of the screen which \l {Qtopia Core}
+    applications will consider to be the maximum area to use for
     windows.
 
     The screen saver can be activated using the screenSaverActivate()
     function, the screenSaverActive() function returns its current
-    status. The timeout intervals can be specified using the
-    setScreenSaverInterval() and setScreenSaverIntervals() functions.
+    status. The screen saver's timeout intervals can be specified
+    using the setScreenSaverInterval() and setScreenSaverIntervals()
+    functions.
 
     Use the isCursorVisible() function to determine if the cursor is
     visible on the display, use the setCursorVisible() function to
@@ -767,13 +772,14 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
 
     \section1 Input Method Handling
 
-    Custom input methods can be installed using the
-    setCurrentInputMethod(). QWSServer also provide the sendIMEvent()
+    Custom input methods derived from the QWSInputMethod class, can be
+    installed using the setCurrentInputMethod(). Use the sendIMEvent()
     and sendIMQuery() functions to send input method events and
-    queries. Finally QWSServer provides the IMMouse enum describing
+    queries. Finally, QWSServer provides the IMMouse enum describing
     the various mouse events recognized by the
-    QWSInputMethod::mouseHandler() function which allows subclasses of
-    QWSInputMethod to handle mouse events within the preedit text.
+    QWSInputMethod::mouseHandler() function. The latter funciton
+    allows subclasses of QWSInputMethod to handle mouse events within
+    the preedit text.
 
     \sa QWSClient, {Qtopia Core}, {Running Applications}
 */
@@ -806,11 +812,11 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
     subclasses of QWSInputMethod to handle mouse events within the
     preedit text.
 
-    \value MousePress An event generated by pressing a mouse button
+    \value MousePress An event generated by pressing a mouse button.
     \value MouseRelease An event generated by relasing a mouse button.
     \value MouseMove An event generated by moving the mouse cursor.
     \value MouseOutside This value is only reserved, i.e. it is not used in
-                                    current implementations
+                                    current implementations.
 
     \sa QWSInputMethod::mouseHandler()
 */
@@ -832,14 +838,14 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
     This enum specifies the various events that can occur in a
     top-level window.
 
-    \value Create A new window has been created (QWidget constructor).
-    \value Destroy The window has been closed and deleted (QWidget destructor).
-    \value Hide The window has been hidden with QWidget::hide().
-    \value Show The window has been shown with QWidget::show() or similar.
+    \value Create A new window has been created (by the QWidget constructor).
+    \value Destroy The window has been closed and deleted (by the QWidget destructor).
+    \value Hide The window has been hidden using the QWidget::hide() function.
+    \value Show The window has been shown using the QWidget::show() function or similar.
     \value Raise The window has been raised to the top of the desktop.
     \value Lower The window has been lowered.
     \value Geometry The window has changed size or position.
-    \value Active The window has become the active window (has keyboard focus).
+    \value Active The window has become the active window (i.e. it has keyboard focus).
     \value Name The window has been named.
 
     \sa windowEvent()
@@ -863,11 +869,12 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
 /*!
     \fn const QList<QWSWindow*> &QWSServer::clientWindows()
 
-    Returns the list of top-level windows.
+    Returns the list of current top-level windows.
 
-    Note that the list will change as applications add and remove
-    widgets so it should not be stored for future use. The windows are
-    sorted in stacking order from top-most to bottom-most.
+    Note that the collection of top-level windows changes as
+    applications add and remove widgets so it should not be stored for
+    future use. The windows are sorted in stacking order from top-most
+    to bottom-most.
 
     \sa windowAt(),  QWSClient
 */
@@ -885,7 +892,7 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
     \fn void QWSServer::removedChannel(const QString& channel)
 
     This signal is emitted immediately after the QCopChannel object
-    specified by \a channel is destroyed.
+    specified by \a channel, is destroyed.
 
     Note that a channel is not destroyed until all its listeners have
     been unregistered.
@@ -1785,8 +1792,8 @@ void QWSServerPrivate::sendQCopEvent(QWSClient *c, const QString &ch,
 /*!
     \fn QWSWindow *QWSServer::windowAt(const QPoint& position)
 
-    Returns the window containing the given \a position or 0 if there
-    is no window under the specified point.
+    Returns the window containing the given \a position, returns 0 if
+    there is no window under the specified point.
 
     \sa clientWindows()
 */
@@ -1934,7 +1941,7 @@ void QWSServerPrivate::resetEngine()
 /*!
     \fn void QWSServer::setCursorVisible(bool visible)
 
-    Makes the cursor visible if \a visible is true: otherwise the the
+    Makes the cursor visible if \a visible is true: otherwise the
     cursor is made invisible.
 
     \sa isCursorVisible()
@@ -1966,7 +1973,7 @@ bool QWSServer::isCursorVisible()
 /*!
     \fn void QWSServer::sendIMEvent(const QInputMethodEvent *event)
 
-    This function sends the given input method \a event to the server.
+    Sends the given input method \a event.
 
     If there is a window currently in compose mode (i.e. actively
     composing the preedit string ), the event is sent to that
@@ -2686,8 +2693,8 @@ void QWSServerPrivate::exposeRegion(QRegion r, int changing)
 }
 
 /*!
-    Closes all pointer devices by deleting the associated mouse
-    handlers.
+    Closes all pointer devices (specified by the QWS_MOUSE_PROTO
+    environment variable) by deleting the associated mouse handlers.
 
     \sa openMouse(), mouseHandler()
 */
@@ -2739,7 +2746,7 @@ void QWSServer::openMouse()
 /*!
   Suspends mouse handling by suspending each registered mouse handler.
 
-  \sa resumeMouse(), QWSMouseHandler::suspend()
+  \sa resumeMouse(), QWSMouseHandler::suspend(), QWS_MOUSE_PROTO
 */
 void QWSServer::suspendMouse()
 {
@@ -2751,7 +2758,7 @@ void QWSServer::suspendMouse()
 /*!
     Resumes mouse handling by reactivating each registered mouse handler.
 
-    \sa suspendMouse(), QWSMouseHandler::resume()
+    \sa suspendMouse(), QWSMouseHandler::resume(), QWS_MOUSE_PROTO
 */
 void QWSServer::resumeMouse()
 {
@@ -2787,8 +2794,8 @@ QWSMouseHandler* QWSServerPrivate::newMouseHandler(const QString& spec)
 #ifndef QT_NO_QWS_KEYBOARD
 
 /*!
-    Closes all the keyboard devices specified by the QWS_KEYBOARD
-    environment variable, i.e. deleting the associated keyboard
+    Closes all the keyboard devices (specified by the QWS_KEYBOARD
+    environment variable) by deleting the associated keyboard
     handlers.
 
     \sa openKeyboard(),  keyboardHandler()
@@ -3020,8 +3027,8 @@ void QWSServerPrivate::closeDisplay()
 }
 
 /*!
-    Returns the brush used as the background in the absence of
-    obscuring windows.
+    Returns the brush used as background in the absence of obscuring
+    windows.
 
     \sa setBackground()
 */
@@ -3031,8 +3038,8 @@ const QBrush &QWSServer::backgroundBrush() const
 }
 
 /*!
-    Sets the brush to be used as the background in the absence of
-    obscuring windows, to the given \a brush.
+    Sets the brush used as background in the absence of obscuring
+    windows, to be the given \a brush.
 
     \sa backgroundBrush()
 */
@@ -3151,13 +3158,13 @@ void QWSServer::processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers 
 /*!
     \fn void QWSServer::addKeyboardFilter(KeyboardFilter *filter)
 
-    Makes the given \a filter the one invoked for all key events from
-    physical keyboard drivers (i.e. events sent via the
+    Makes the given \a filter the one invoked for all key events
+    generated by physical keyboard drivers (i.e. events sent using the
     processKeyEvent() function).
 
-    Note that the filter is not invoked for keys generated by virtual
-    keyboard drivers (i.e. events sent via the sendKeyEvent()
-    function).
+    Note that the filter is not invoked for keys generated by \e
+    virtual keyboard drivers (i.e. events sent using the
+    sendKeyEvent() function).
 
     \sa removeKeyboardFilter()
 */
@@ -3183,8 +3190,8 @@ void QWSServer::addKeyboardFilter(KeyboardFilter *f)
 /*!
     Removes and deletes the most recently added filter.
 
-    Note that the caller is responsible for matching each addition of
-    a keyboard filter with a corresponding removal.
+    Note that the programmer is responsible for matching each addition
+    of a keyboard filter with a corresponding removal.
 
     \sa addKeyboardFilter()
 */
@@ -3197,11 +3204,11 @@ void QWSServer::removeKeyboardFilter()
 #endif // QT_NO_QWS_KEYBOARD
 
 /*!
-    \fn void QWSServer::setScreenSaverIntervals(int* milliseconds)
+    \fn void QWSServer::setScreenSaverIntervals(int* intervals)
 
-    Sets a list of timeouts for the screensaver specified by the given
-    array of \a milliseconds intervals. An interval of 0 milliseconds
-    turns off the screensaver.
+    Sets a list of timeout \a intervals (specified in millisecond) for
+    the screen saver. An interval of 0 milliseconds turns off the
+    screen saver.
 
     Note that the array must be 0-terminated.
 
@@ -3236,9 +3243,9 @@ void QWSServer::setScreenSaverIntervals(int* ms)
 /*!
     \fn void QWSServer::setScreenSaverInterval(int milliseconds)
 
-    Sets the timeout for the screensaver to the specified \a
-    milliseconds. To turn off the screensaver, set timout interval to
-    0.
+    Sets the timeout interval for the screen saver to be the specified
+    \a milliseconds. To turn off the screen saver, set the timout
+    interval to 0.
 
     \sa setScreenSaverIntervals()
 */
@@ -3349,7 +3356,7 @@ bool QWSServer::screenSaverActive()
 
 /*!
     Activates the screensaver immediately if the \a activate is true;
-    otherwise the screensaver is deactivated.
+    otherwise it is deactivated.
 
     \sa screenSaverActive()
 */
@@ -3790,8 +3797,9 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     This signal is emitted whenever something happens to a top-level
     window (e.g. it's created or destroyed).
 
-    The window to which the event has occurred as weel as the event's
-    type is passed in the \a window and \a eventType parameters.
+    The window to which the event has occurred and the event's type
+    are passed in the \a window and \a eventType parameters,
+    respectively.
 */
 
 /*!

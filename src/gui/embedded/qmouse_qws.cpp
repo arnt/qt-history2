@@ -241,15 +241,16 @@ void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
     dynamically load the driver into the application.
 
     Derive from the QWSCalibratedMouseHandler class when the system
-    device does not have a fixed mapping between device coordinates
-    and/or produces noisy events, e.g. a touchscreen.
+    device does not have a fixed mapping between device and screen
+    coordinates and/or produces noisy events, e.g. a touchscreen.
 
     QWSCalibratedMouseHandler provides an implementation of the
     calibrate() function to update the calibration parameters based on
-    coordinate mapping of the given data. The linear transformation
-    between device coordinates and screen coordinates is performed by
-    calling the transform() function explicitly on the points passed
-    to the QWSMouseHandler::mouseChanged() function.
+    coordinate mapping of the given calibration data. The calibration
+    data is represented by an QWSCalibrationData object. The linear
+    transformation between device coordinates and screen coordinates
+    is performed by calling the transform() function explicitly on the
+    points passed to the QWSMouseHandler::mouseChanged() function.
 
     The calibration parameters are recalculated whenever calibrate()
     is called. They can be saved using the writeCalibration()
@@ -396,14 +397,13 @@ void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *data)
     Transforms the given \a position from device coordinates to screen
     coordinates, and returns the transformed position.
 
-    Such a linear transformation is performed by calling the
-    transform() function explicitly on the points passed to the
-    QWSMouseHandler::mouseChanged() function.
+    Typically, the transform() function is called explicitly on the
+    points passed to the QWSMouseHandler::mouseChanged() function.
 
-    This implementation uses 7 parameters \c a, \c b, \c c, \c d, \c
-    e, \c f and \c s to transform the device coordinates (\c Xd, \c
-    Yd) into screen coordinates (\c Xs, \c Ys) using the following
-    equations:
+    This implementation is a linear transformation using 7 parameters
+    (\c a, \c b, \c c, \c d, \c e, \c f and \c s) to transform the
+    device coordinates (\c Xd, \c Yd) into screen coordinates (\c Xs,
+    \c Ys) using the following equations:
 
     \code
         s*Xs = a*Xd + b*Yd + c
@@ -428,7 +428,7 @@ QPoint QWSCalibratedMouseHandler::transform(const QPoint &position)
 
     The sendFiltered() function reduces noice by calculating an
     average position from a collection of mouse event positions. The
-    filter size determines the number of positions that is used as
+    filter size determines the number of positions that forms the
     basis for the calculations.
 
     \sa sendFiltered()
@@ -449,8 +449,8 @@ void QWSCalibratedMouseHandler::setFilterSize(int size)
     process failes, the system is not notified about the event.
 
     The given \a position is the global position of the mouse. The \a
-    state parameter is a bitmask of Qt::MouseButtons indicating which
-    mouse buttons are pressed.
+    state parameter is a bitmask of the Qt::MouseButton enum's values
+    indicating which mouse buttons are pressed.
 
     The sendFiltered() function reduces noice by calculating an
     average position from a collection of mouse event positions, and
