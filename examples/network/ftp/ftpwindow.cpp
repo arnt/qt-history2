@@ -78,6 +78,7 @@ void FtpWindow::connectOrDisconnect()
     if (ftp) {
         ftp->abort();
         ftp->deleteLater();
+        ftp = 0;
         fileList->setEnabled(false);
         downloadButton->setEnabled(false);
         connectButton->setText(tr("Connect"));
