@@ -144,9 +144,10 @@ static bool force_reject_strokeIM = false;
 
     Derive from this class to define a custom screensaver, note that
     there exists no default implementation. Reimplement the restore()
-    and save() functions which are called whenever the screensaver is
-    activated or deactivated, respectively, and use the
-    QWSServer::setScreenSaver() function to install it.
+    and save() functions. These functions are called whenever the
+    screensaver is activated or deactivated, respectively. Once the
+    custom screensave is created, use the QWSServer::setScreenSaver()
+    function to install it.
 
     QWSServer also provides means of controlling the screensaver, see
     the \l {QWSServer#Display Handling}{QWSServer} class documentation
@@ -3865,12 +3866,12 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 
     The data from a keyboard comes mainly in the form of scancodes,
     produced by key presses or used in the protocol with the computer.
-    Qtopia Core maintains a keyboard mapping table used to convert the
-    data to Qt key codes and Unicode values.
+    Qtopia Core maintains a keyboard mapping table which it uses to
+    convert the scancode data to Qt::Key and Unicode values.
 
     The mapping table is a collection of KeyMap objects, each object
-    records the mapping between a single keyboard scancode and its Qt
-    key and Unicode values.
+    records the mapping between a single keyboard scancode and its
+    Qt::Key and Unicode values.
 
     \sa QWSServer::keyMap()
 */
@@ -3879,27 +3880,27 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     \variable QWSServer::KeyMap::ctrl_unicode
 
     \brief the unicode value identifying the combination of the Ctrl
-    key and the scancode associated with this KeyMap object
+    key and the keyboard scancode associated with this KeyMap object
 */
 
 /*!
     \variable  QWSServer::KeyMap::key_code
 
-    \brief the Qt::Key value identfying the scancode associated with
-    this KeyMap object
+    \brief the Qt::Key value identfying the keyboard scancode
+    associated with this KeyMap object
 */
 /*!
     \variable QWSServer::KeyMap::shift_unicode
 
     \brief the unicode value identifying the combination of the Shift
-    key and the scancode associated with  this KeyMap object
+    key and the keyboard scancode associated with this KeyMap object
 */
 
 /*!
     \variable QWSServer::KeyMap::unicode
 
-    \brief the unicode value identfying the scancode associated with
-    this KeyMap object
+    \brief the unicode value identfying the keyborad scancode
+    associated with this KeyMap object
 */
 
 /*!
