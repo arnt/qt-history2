@@ -218,8 +218,8 @@ Q_SIGNALS:
     void lastWindowClosed();
     void focusChanged(QWidget *old, QWidget *now);
 #ifndef QT_NO_SESSIONMANAGER
-    void commitData(QSessionManager *sessionManager);
-    void saveState(QSessionManager *sessionManager);
+    void commitDataRequest(QSessionManager &sessionManager);
+    void saveStateRequest(QSessionManager &sessionManager);
 #endif
 
 public Q_SLOTS:

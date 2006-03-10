@@ -2397,10 +2397,6 @@ QString QApplication::sessionKey() const
   QSessionManager::allowsErrorInteraction() for details and example
   usage.
 
-  The default implementation requests interaction and sends a close
-  event to all visible top-level widgets. If any event was
-  rejected, the shutdown is canceled.
-
   Note: You should use Qt::DirectConnection when connecting to this signal.
 
   \sa isSessionRestored(), sessionId(), saveState(), {Session Management}
@@ -2429,13 +2425,12 @@ QString QApplication::sessionKey() const
   event to all visible top-level widgets. If any event was
   rejected, the shutdown is canceled.
 
-  \obsolete
   \sa isSessionRestored(), sessionId(), saveState(), {Session Management}
 */
 #ifndef QT_NO_SESSIONMANAGER
 void QApplication::commitData(QSessionManager& manager )
 {
-    emit commitData(&manager);
+    emit commitDataRequest(manager);
     if (manager.allowsInteraction()) {
         QWidgetList done;
         QWidgetList list = QApplication::topLevelWidgets();
@@ -2507,13 +2502,12 @@ void QApplication::commitData(QSessionManager& manager )
   See QSessionManager::allowsInteraction() and
   QSessionManager::allowsErrorInteraction() for details.
 
-  \obsolete
   \sa isSessionRestored(), sessionId(), commitData(), {Session Management}
 */
 
 void QApplication::saveState(QSessionManager& sessionManager)
 {
-    emit saveState(&sessionManager);
+    emit saveStateRequest(sessionManager);
 }
 #endif //QT_NO_SESSIONMANAGER
 /*
