@@ -43,6 +43,7 @@
         {
             struct MyInterface { ... };
         }
+
         Q_DECLARE_INTERFACE(Foo::MyInterface, "org.examples.MyInterface")
     \endcode
 
@@ -93,36 +94,16 @@
     \endcode
 
     Static plugins must also be included by the linker when your
-    application is built. With qmake, you can use \c QTPLUGIN to add
+    application is built. For Qt's predefined plugins,
+    you can use the \c QTPLUGIN to add
     the required plugins to your build. For example:
 
     \code
         TEMPLATE      = app
         QTPLUGIN     += qjpeg qgif qmng    # image formats
-        QTPLUGIN     += cn tw              # codecs
     \endcode
 
-    Depending on your build, Qt provides the following static plugins:
-
-    \table
-    \header
-    \i Plugin name  \i Type         \i Description         \i QTPLUGIN entry
-    \row
-    \i \c qjpeg     \i Image format \i The JPEG image format \i qjpeg
-    \row
-    \i \c qgif      \i Image format \i The GIF image format \i qgif
-    \row
-    \i \c qmng      \i Image format \i The MNG image format \i qmng
-    \endtable
-
-    You should also ensure that the linker will use the correct linker
-    path by adding the following line to your application's project file:
-
-    \code
-        QMAKE_LFLAGS += -L$$[QT_INSTALL_PLUGINS]/imageformats
-    \endcode
-
-    \sa {How to Create Qt Plugins}, {Using qmake}
+    \sa {Static Plugins}, {How to Create Qt Plugins}, {Using qmake}
 */
 
 /*!

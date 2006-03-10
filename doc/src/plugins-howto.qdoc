@@ -154,12 +154,12 @@
     part of the path (e.g., \c styles) cannot be changed.
 
     The normal way to include a plugin with an application is either
-    to compile it in with the application or to compile it into a
-    dynamic library and use it like any other library. If you want the
-    plugin to be loadable then one approach is to create a
-    subdirectory under the application and place the plugin in that
-    directory. For more information about deployment, see the \l
-    {Deploying Qt Applications} documentation.
+    to \l{Static Plugins}{compile it in with the application} or to
+    compile it into a dynamic library and use it like any other
+    library. If you want the plugin to be loadable then one approach
+    is to create a subdirectory under the application and place the
+    plugin in that directory. For more information about deployment,
+    see the \l {Deploying Qt Applications} documentation.
 
     \section1 The Lower-Level API: Extending Qt Applications
 
@@ -214,7 +214,7 @@
     \l{Creating Custom Widgets for Qt Designer} for information about issues
     that are specific to \QD.
 
-    \section1 Loading and Verifying Plugins
+    \section1 Loading and Verifying Plugins Dynamically
 
     When loading plugins, the Qt library does some sanity checking to
     determine whether or not the plugin can be loaded and used. This
@@ -256,13 +256,13 @@
     project file:
 
     \code
-    CONFIG += release
+        CONFIG += release
     \endcode
 
     This will ensure that the plugin is compatible with the version of the library
     used in the application.
 
-    \section1 The Build Key
+    \section2 The Build Key
 
     When loading plugins, Qt checks the build key of each plugin against its
     own configuration to ensure that only compatible plugins are loaded; any
@@ -307,6 +307,84 @@
        plugins that can only be loaded by the library with which the
        plugins were linked.
     \endlist
+
+    \section1 Static Plugins
+
+    Plugins can be linked statically against your application. If you
+    build the static version of Qt, this is the only option for
+    including Qt's predefined plugins.
+
+    When compiled as a static library, Qt provides the following
+    static plugins:
+
+    \table
+    \header \o Plugin name                  \o Type               \o Description
+    \row    \o \c qtaccessiblecompatwidgets \o Accessibility      \o Accessibility for Qt 3 support widgets
+    \row    \o \c qtaccessiblewidgets       \o Accessibility      \o Accessibility for Qt widgets
+    \row    \o \c qdecorationdefault        \o Decorations (Qtopia) \o Default style
+    \row    \o \c qdecorationwindows        \o Decorations (Qtopia) \o Windows style
+    \row    \o \c qgif                      \o Image formats      \o GIF
+    \row    \o \c qjpeg                     \o Image formats      \o JPEG
+    \row    \o \c qmng                      \o Image formats      \o MNG
+    \row    \o \c qimsw_multi               \o Input methods (Qtopia) \o Input Method Switcher
+    \row    \o \c qwstslibmousehandler      \o Mouse drivers (Qtopia) \o \c tslib mouse
+    \row    \o \c qgfxtransformed           \o Graphic drivers (Qtopia) \o Transformed screen
+    \row    \o \c qgfxvnc                   \o Graphic drivers (Qtopia) \o VNC
+    \row    \o \c qscreenvfb                \o Graphic drivers (Qtopia) \o Virtual frame buffer
+    \row    \o \c qsqldb2                   \o SQL driver         \o IBM DB2    \row    \o \c qsqlibase       \o SQL driver         \o Borland InterBase
+    \row    \o \c qsqlite                   \o SQL driver         \o SQLite version 3
+    \row    \o \c qsqlite2                  \o SQL driver         \o SQLite version 2
+    \row    \o \c qsqlmysql                 \o SQL driver         \o MySQL
+    \row    \o \c qsqloci                   \o SQL driver         \o Oracle (OCI)
+    \row    \o \c qsqlodbc                  \o SQL driver         \o Open Database Connectivity (ODBC)
+    \row    \o \c qsqlpsql                  \o SQL driver         \o PostgreSQL
+    \row    \o \c qsqltds                   \o SQL driver         \o Sybase Adaptive Server (TDS)
+    \row    \o \c qcncodecs                 \o Text codecs        \o Simplified Chinese (People's Republic of China)
+    \row    \o \c qjpcodecs                 \o Text codecs        \o Japanese
+    \row    \o \c qkrcodecs                 \o Text codecs        \o Korean
+    \row    \o \c qtwcodecs                 \o Text codecs        \o Traditional Chinese (Taiwan)
+    \endtable
+
+    To link statically against those plugins, you need to use the
+    Q_IMPORT_PLUGIN() macro in your application and you need to add
+    the required plugins to your build using \c QTPLUGIN.
+    For example, in your \c main.cpp:
+
+    \code
+        #include <QApplication>
+        #include <QtPlugin>
+
+        Q_IMPORT_PLUGIN(qjpeg)
+        Q_IMPORT_PLUGIN(qgif)
+        Q_IMPORT_PLUGIN(qkrcodecs)
+        
+        int main(int argc, char *argv[])
+        {
+            QApplication app(argc, argv);
+            ...
+            return app.exec();
+        }
+    \endcode
+
+    \code
+        TEMPLATE      = app
+        QTPLUGIN     += qjpeg qgif      # image formats
+        QTPLUGIN     += qkrcodecs       # text codecs
+    \endcode
+
+    It is also possible to create your own static plugins, by
+    following these steps:
+
+    \list 1
+    \o Add \c{CONFIG += static} to your plugin's \c .pro file.
+    \o Use the Q_IMPORT_PLUGIN() macro in your application.
+    \o Link your application with your plugin library using \c LIBS
+       in the \c .pro file.
+    \endlist
+
+    See the \l{tools/plugandpaint}{Plug & Paint} example and the
+    associated \l{tools/plugandpaintplugin/basictools}{Basic Tools}
+    plugin for details on how to do this.
 
     \sa QPluginLoader, QLibrary
 */
