@@ -21,11 +21,10 @@
 
 /*!
     \class QWSPointerCalibrationData
+    \ingroup qws
 
     \brief The QWSPointerCalibrationData class is a container for data
     used in calibration of a mouse handler.
-
-    \ingroup qws
 
     QWSPointerCalibrationData stores device and screen coordinates in
     the devPoints and screenPoints variables, respectively.
@@ -33,10 +32,11 @@
     A calibration program should create an instance of this class,
     fill the devPoints and screenPoints variables with its device and
     screen coordinates, and pass the QWSPointerCalibrationData object
-    to a an instance of the QWSMouseHandler class using the
+    to an instance of the QWSMouseHandler class using the
     QWSMouseHandler::calibrate() function.
 
-    \sa QWSMouseHandler, QWSCalibratedMouseHandler
+    \sa QWSCalibratedMouseHandler, {qtopiacore/mousecalibration}{Mouse
+    Calibration Example}
 */
 
 /*!
@@ -52,8 +52,8 @@
 /*!
     \enum QWSPointerCalibrationData::Location
 
-    This enum describes logical positions specified by the values
-    stored in the devPoints and screenPoints variables.
+    This enum describes the various logical positions that can be
+    specified by the devPoints and screenPoints variables.
 
     \value TopLeft           Index of the top left corner of the screen.
     \value BottomLeft     Index of the bottom left corner of the screen.
@@ -268,7 +268,7 @@ void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
     can be manipulated using the setFilterSize() function.
 
     \sa QWSMouseHandler, QWSPointerCalibrationData,
-    {examples/qtopiacore/mousecalibration}{Mouse Calibration Example}
+    {qtopiacore/mousecalibration}{Mouse Calibration Example}
 */
 
 
