@@ -3031,16 +3031,16 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
 void QCleanLooksStyle::polish(QApplication *app)
 {
     Q_UNUSED(app);
-    /*QFont font = app->font();
-   font.setKerning(false);
-   font.setPointSize(10);
-   font.setFamily("bitstream vera sans");
-   app->setFont(font);
-*/
-
-    // ### should we always use the standard palette, even on Windows
-    // ### and Mac OS X?
-    //app->setPalette(standardPalette());   
+    /*	
+    QFont font = app->font();
+    font.setKerning(false);
+    font.setPointSize(10);
+    font.setFamily("bitstream vera sans");
+    app->setFont(font);
+    */
+#ifdef Q_WS_X11
+    app->setPalette(standardPalette());   
+#endif
 }
 
 /*!
