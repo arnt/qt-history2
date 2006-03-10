@@ -808,6 +808,10 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
             iAttributes[i++] = WGL_STENCIL_BITS_ARB;
             iAttributes[i++] = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
         }
+        if (d->glFormat.hasOverlay()) {
+            iAttributes[i++] = WGL_NUMBER_OVERLAYS_ARB;
+            iAttributes[i++] = 1;
+        }
         int si = 0;
         bool trySampleBuffers = QGLExtensions::glExtensions & QGLExtensions::SampleBuffers;
         if (trySampleBuffers && d->glFormat.sampleBuffers()) {
