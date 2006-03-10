@@ -1994,7 +1994,7 @@ QDataStream& operator>>(QDataStream &s, QVariant::Type &p)
 */
 QDataStream& operator<<(QDataStream &s, const QVariant::Type p)
 {
-    s << static_cast<const quint32>(p);
+    s << static_cast<quint32>(p);
 
     return s;
 }
