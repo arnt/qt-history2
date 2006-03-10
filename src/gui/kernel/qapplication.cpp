@@ -2373,6 +2373,39 @@ QString QApplication::sessionKey() const
 
 
 
+
+
+/*!
+  \since 4.2
+  \fn void QApplication::commitData(QSessionManager *sessionManager)
+
+  This signal deals with \link session.html session
+  management\endlink. It is emited when the QSessionManager wants the
+  application to commit all its data.
+
+  Usually this means saving all open files, after getting
+  permission from the user. Furthermore you may want to provide a means
+  by which the user can cancel the shutdown.
+
+  Note that you should not exit the application when called.
+  Instead, the session manager may or may not do this afterwards,
+  depending on the context.
+
+  \warning Within this signal, no user interaction is possible, \e
+  unless you ask the session manager \a manager for explicit permission.
+  See QSessionManager::allowsInteraction() and
+  QSessionManager::allowsErrorInteraction() for details and example
+  usage.
+
+  The default implementation requests interaction and sends a close
+  event to all visible top-level widgets. If any event was
+  rejected, the shutdown is canceled.
+
+  Note: You should use Qt::DirectConnection when connecting to this signal.
+
+  \sa isSessionRestored(), sessionId(), saveState(), {Session Management}
+*/
+
 /*!
   This function deals with \link session.html session
   management\endlink. It is invoked when the QSessionManager wants the
@@ -2396,12 +2429,13 @@ QString QApplication::sessionKey() const
   event to all visible top-level widgets. If any event was
   rejected, the shutdown is canceled.
 
+  \obsolete
   \sa isSessionRestored(), sessionId(), saveState(), {Session Management}
 */
 #ifndef QT_NO_SESSIONMANAGER
 void QApplication::commitData(QSessionManager& manager )
 {
-
+    emit commitData(&manager);
     if (manager.allowsInteraction()) {
         QWidgetList done;
         QWidgetList list = QApplication::topLevelWidgets();
@@ -2421,6 +2455,35 @@ void QApplication::commitData(QSessionManager& manager )
     }
 }
 
+/*!
+  \since 4.2
+  \fn void QApplication::saveState(QSessionManager *sessionManager)
+
+  This signal deals with \link session.html session
+  management\endlink. It is invoked when the
+  \link QSessionManager session manager \endlink wants the application
+  to preserve its state for a future session.
+
+  For example, a text editor would create a temporary file that
+  includes the current contents of its edit buffers, the location of
+  the cursor and other aspects of the current editing session.
+
+  Note that you should never exit the application within this
+  signal. Instead, the session manager may or may not do this
+  afterwards, depending on the context. Futhermore, most session
+  managers will very likely request a saved state immediately after
+  the application has been started. This permits the session manager
+  to learn about the application's restart policy.
+
+  \warning Within this function, no user interaction is possible, \e
+  unless you ask the session manager \a manager for explicit permission.
+  See QSessionManager::allowsInteraction() and
+  QSessionManager::allowsErrorInteraction() for details.
+
+  Note:: You should use Qt::DirectConnection when connecting to this signal.
+
+  \sa isSessionRestored(), sessionId(), commitData(), {Session Management}
+*/
 
 /*!
   This function deals with \link session.html session
@@ -2444,11 +2507,13 @@ void QApplication::commitData(QSessionManager& manager )
   See QSessionManager::allowsInteraction() and
   QSessionManager::allowsErrorInteraction() for details.
 
+  \obsolete
   \sa isSessionRestored(), sessionId(), commitData(), {Session Management}
 */
 
-void QApplication::saveState(QSessionManager& /* manager */)
+void QApplication::saveState(QSessionManager& sessionManager)
 {
+    emit saveState(&sessionManager);
 }
 #endif //QT_NO_SESSIONMANAGER
 /*

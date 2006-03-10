@@ -217,6 +217,10 @@ public:
 Q_SIGNALS:
     void lastWindowClosed();
     void focusChanged(QWidget *old, QWidget *now);
+#ifndef QT_NO_SESSIONMANAGER
+    void commitData(QSessionManager *sessionManager);
+    void saveState(QSessionManager *sessionManager);
+#endif
 
 public Q_SLOTS:
     static void closeAllWindows();
