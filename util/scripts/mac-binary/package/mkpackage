@@ -177,7 +177,7 @@ elif [ ! -z "$SOURCE_PACKAGE" ]; then
     EXTENSION=`echo "$PACKAGE_NAME" | sed -e 's,.*\.tar\.\(.*\),\1,'`
     PACKAGE_DEST=`echo "$PACKAGE_NAME" | sed -e 's,\(.*\)\.tar.*,\1,'`
     if [ "$LICENSETYPE" = "eval" ]; then
-	CONFIGURE_ARGS="$CONFIGURE_ARGS -DQT_EVAL"
+	CONFIGURE_ARGS="$CONFIGURE_ARGS -DQT_EVAL -release"
         # If you didn't set the eval patches, I'll try in the same place as the package
         if [ -z "$EVAL_PATCHES" ]; then
             PACKAGE_VERSION=`echo $PACKAGE_DEST | sed -e 's,.*src-\(.*\),\1,'`
@@ -421,6 +421,8 @@ for package in $PACKAGES; do
         done
     else
         cp "$TMP_DIR/licenses/License.rtf" "$package_dir/Contents/Resources"
+        rm -f "$package_dir/Contents/Resources/InstallationCheck"
+        rm -f "$package_dir/Contents/Resources/InstallationCheck.strings"
         cp opensourceStuff/InstallationCheck "$package_dir/Contents/Resources"
         cp opensourceStuff/InstallationCheck.strings "$package_dir/Contents/Resources"
     fi
@@ -499,6 +501,8 @@ if [ "$MAKE_META" = "yes" ]; then
         done
     else
         cp "$TMP_DIR/licenses/License.rtf" "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
+        rm -f "$OUTPUT_DIR/Qt.mpkg/Contents/Resources/InstallationCheck"
+        rm -f "$OUTPUT_DIR/Qt.mpkg/Contents/Resources/InstallationCheck.strings"
         cp opensourceStuff/InstallationCheck "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
         cp opensourceStuff/InstallationCheck.strings "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     fi
