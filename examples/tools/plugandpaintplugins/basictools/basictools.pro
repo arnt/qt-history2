@@ -1,5 +1,5 @@
 TEMPLATE      = lib
-CONFIG       += plugin
+CONFIG       += plugin static
 INCLUDEPATH  += ../..
 HEADERS       = basictoolsplugin.h
 SOURCES       = basictoolsplugin.cpp

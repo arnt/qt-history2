@@ -11,9 +11,11 @@
 **
 ****************************************************************************/
 
-#include <QApplication>
+#include <QtGui>
 
 #include "mainwindow.h"
+
+Q_IMPORT_PLUGIN(pnp_basictools)
 
 int main(int argc, char *argv[])
 {

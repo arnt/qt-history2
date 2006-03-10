@@ -200,25 +200,14 @@ void MainWindow::loadPlugins()
 #endif
     pluginsDir.cd("plugins");
 
+    foreach (QObject *plugin, QPluginLoader::staticInstances())
+        populateMenus(plugin);
+
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
         QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
         QObject *plugin = loader.instance();
         if (plugin) {
-            BrushInterface *iBrush = qobject_cast<BrushInterface *>(plugin);
-            if (iBrush)
-                addToMenu(plugin, iBrush->brushes(), brushMenu,
-                          SLOT(changeBrush()), brushActionGroup);
-
-            ShapeInterface *iShape = qobject_cast<ShapeInterface *>(plugin);
-            if (iShape)
-                addToMenu(plugin, iShape->shapes(), shapesMenu,
-                          SLOT(insertShape()));
-
-            FilterInterface *iFilter = qobject_cast<FilterInterface *>(plugin);
-            if (iFilter)
-                addToMenu(plugin, iFilter->filters(), filterMenu,
-                          SLOT(applyFilter()));
-
+            populateMenus(plugin);
             pluginFileNames += fileName;
         }
     }
@@ -226,6 +215,22 @@ void MainWindow::loadPlugins()
     brushMenu->setEnabled(!brushActionGroup->actions().isEmpty());
     shapesMenu->setEnabled(!shapesMenu->actions().isEmpty());
     filterMenu->setEnabled(!filterMenu->actions().isEmpty());
+}
+
+void MainWindow::populateMenus(QObject *plugin)
+{
+    BrushInterface *iBrush = qobject_cast<BrushInterface *>(plugin);
+    if (iBrush)
+        addToMenu(plugin, iBrush->brushes(), brushMenu, SLOT(changeBrush()),
+                  brushActionGroup);
+
+    ShapeInterface *iShape = qobject_cast<ShapeInterface *>(plugin);
+    if (iShape)
+        addToMenu(plugin, iShape->shapes(), shapesMenu, SLOT(insertShape()));
+
+    FilterInterface *iFilter = qobject_cast<FilterInterface *>(plugin);
+    if (iFilter)
+        addToMenu(plugin, iFilter->filters(), filterMenu, SLOT(applyFilter()));
 }
 
 void MainWindow::addToMenu(QObject *plugin, const QStringList &texts,

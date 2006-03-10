@@ -21,15 +21,11 @@ PluginDialog::PluginDialog(const QString &path, const QStringList &fileNames,
     : QDialog(parent)
 {
     label = new QLabel;
-    label->setWordWrap(true);
-
-    QStringList headerLabels;
-    headerLabels << tr("Components");
 
     treeWidget = new QTreeWidget;
     treeWidget->setAlternatingRowColors(false);
     treeWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    treeWidget->setHeaderLabels(headerLabels);
+    treeWidget->setColumnCount(1);
     treeWidget->header()->hide();
 
     okButton = new QPushButton(tr("OK"));
@@ -52,51 +48,53 @@ PluginDialog::PluginDialog(const QString &path, const QStringList &fileNames,
     featureIcon.addPixmap(style()->standardPixmap(QStyle::SP_FileIcon));
 
     setWindowTitle(tr("Plugin Information"));
-    populateTreeWidget(path, fileNames);
+    findPlugins(path, fileNames);
 }
 
-void PluginDialog::populateTreeWidget(const QString &path,
-                                      const QStringList &fileNames)
+void PluginDialog::findPlugins(const QString &path,
+                               const QStringList &fileNames)
 {
-    if (fileNames.isEmpty()) {
-        label->setText(tr("Plug & Paint couldn't find any plugins in the %1 "
-                          "directory.")
-                       .arg(QDir::convertSeparators(path)));
-        treeWidget->hide();
-    } else {
-        label->setText(tr("Plug & Paint found the following plugins in the %1 "
-                          "directory:")
-                       .arg(QDir::convertSeparators(path)));
+    label->setText(tr("Plug & Paint found the following plugins\n"
+                      "(looked in %1):")
+                   .arg(QDir::convertSeparators(path)));
 
-        QDir dir(path);
+    QDir dir(path);
 
-        foreach (QString fileName, fileNames) {
-            QPluginLoader loader(dir.absoluteFilePath(fileName));
-            QObject *plugin = loader.instance();
+    foreach (QObject *plugin, QPluginLoader::staticInstances())
+        populateTreeWidget(plugin, tr("%1 (Static Plugin)")
+                                   .arg(plugin->metaObject()->className()));
 
-            QTreeWidgetItem *pluginItem = new QTreeWidgetItem(treeWidget);
-            pluginItem->setText(0, fileName);
-            treeWidget->setItemExpanded(pluginItem, true);
+    foreach (QString fileName, fileNames) {
+        QPluginLoader loader(dir.absoluteFilePath(fileName));
+        QObject *plugin = loader.instance();
+        if (plugin)
+            populateTreeWidget(plugin, fileName);
+    }
+}
 
-            QFont boldFont = pluginItem->font(0);
-            boldFont.setBold(true);
-            pluginItem->setFont(0, boldFont);
+void PluginDialog::populateTreeWidget(QObject *plugin, const QString &text)
+{
+    QTreeWidgetItem *pluginItem = new QTreeWidgetItem(treeWidget);
+    pluginItem->setText(0, text);
+    treeWidget->setItemExpanded(pluginItem, true);
 
-            if (plugin) {
-                BrushInterface *iBrush = qobject_cast<BrushInterface *>(plugin);
-                if (iBrush)
-                    addItems(pluginItem, "BrushInterface", iBrush->brushes());
+    QFont boldFont = pluginItem->font(0);
+    boldFont.setBold(true);
+    pluginItem->setFont(0, boldFont);
 
-                ShapeInterface *iShape = qobject_cast<ShapeInterface *>(plugin);
-                if (iShape)
-                    addItems(pluginItem, "ShapeInterface", iShape->shapes());
+    if (plugin) {
+        BrushInterface *iBrush = qobject_cast<BrushInterface *>(plugin);
+        if (iBrush)
+            addItems(pluginItem, "BrushInterface", iBrush->brushes());
 
-                FilterInterface *iFilter =
-                        qobject_cast<FilterInterface *>(plugin);
-                if (iFilter)
-                    addItems(pluginItem, "FilterInterface", iFilter->filters());
-            }
-        }
+        ShapeInterface *iShape = qobject_cast<ShapeInterface *>(plugin);
+        if (iShape)
+            addItems(pluginItem, "ShapeInterface", iShape->shapes());
+
+        FilterInterface *iFilter =
+                qobject_cast<FilterInterface *>(plugin);
+        if (iFilter)
+            addItems(pluginItem, "FilterInterface", iFilter->filters());
     }
 }
 

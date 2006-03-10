@@ -46,6 +46,7 @@ private:
     void createActions();
     void createMenus();
     void loadPlugins();
+    void populateMenus(QObject *plugin);
     void addToMenu(QObject *plugin, const QStringList &texts, QMenu *menu,
                    const char *member, QActionGroup *actionGroup = 0);
 

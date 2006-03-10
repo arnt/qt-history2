@@ -32,7 +32,8 @@ public:
                  QWidget *parent = 0);
 
 private:
-    void populateTreeWidget(const QString &path, const QStringList &fileNames);
+    void findPlugins(const QString &path, const QStringList &fileNames);
+    void populateTreeWidget(QObject *plugin, const QString &text);
     void addItems(QTreeWidgetItem *pluginItem, const char *interfaceName,
                   const QStringList &features);
 
