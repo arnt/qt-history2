@@ -2377,7 +2377,7 @@ QString QApplication::sessionKey() const
 
 /*!
   \since 4.2
-  \fn void QApplication::commitData(QSessionManager *sessionManager)
+  \fn void QApplication::commitDataRequest(QSessionManager &sessionManager)
 
   This signal deals with \link session.html session
   management\endlink. It is emited when the QSessionManager wants the
@@ -2452,7 +2452,7 @@ void QApplication::commitData(QSessionManager& manager )
 
 /*!
   \since 4.2
-  \fn void QApplication::saveState(QSessionManager *sessionManager)
+  \fn void QApplication::saveStateRequest(QSessionManager &sessionManager)
 
   This signal deals with \link session.html session
   management\endlink. It is invoked when the
