@@ -908,10 +908,20 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
             const QStringList *slist = v_cast<QStringList>(d);
             for (int i = 0; i < slist->size(); ++i)
                 lst->append(QVariant(slist->at(i)));
+        } else if (qstrcmp(QMetaType::typeName(d->type), "QList<QVariant>") == 0) {
+            *static_cast<QVariantList *>(result) =
+                *static_cast<QList<QVariant> *>(d->data.shared->ptr);
         } else {
             return false;
         }
         break;
+    case QVariant::Map:
+        if (qstrcmp(QMetaType::typeName(d->type), "QMap<QString, QVariant>") == 0) {
+            *static_cast<QVariantMap *>(result) =
+                *static_cast<QMap<QString, QVariant> *>(d->data.shared->ptr);
+        } else {
+            return false;
+        }
 #ifndef QT_NO_GEOM_VARIANT
     case QVariant::RectF:
         if (d->type == QVariant::Rect)
