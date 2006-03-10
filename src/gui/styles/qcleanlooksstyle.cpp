@@ -1423,12 +1423,15 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
         painter->save();
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option))
         {
+            QStyleOptionMenuItem item = *mbi;
+            item.rect = mbi->rect.adjusted(0, 3, 0, -1);
             QColor highlightOutline = option->palette.highlight().color().dark(130);
             QLinearGradient gradient(rect.topLeft(), QPoint(rect.bottomLeft().x(), rect.bottomLeft().y()*2));
             gradient.setColorAt(0, option->palette.button().color());
             gradient.setColorAt(1, option->palette.button().color().dark(110));
             painter->fillRect(rect, gradient);
-            QCommonStyle::drawControl(element, option, painter, widget);
+            
+            QCommonStyle::drawControl(element, &item, painter, widget);
 
             bool act = mbi->state & State_Selected && mbi->state & State_Sunken;
             bool dis = !(mbi->state & State_Enabled);
@@ -1449,7 +1452,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, mbi, widget))
                     alignment |= Qt::TextHideMnemonic;
-                drawItemText(painter, mbi->rect, alignment, mbi->palette, mbi->state & State_Enabled, mbi->text, textRole);
+                drawItemText(painter, item.rect, alignment, mbi->palette, mbi->state & State_Enabled, mbi->text, textRole);
             }
 
         }
