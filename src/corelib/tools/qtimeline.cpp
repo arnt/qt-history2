@@ -81,7 +81,9 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     qreal lastValue = q->currentValue();
     int lastFrame = q->currentFrame();
 
-    currentTime = msecs < 0 ? -msecs : msecs;
+    currentTime = msecs;
+    while (currentTime < 0)
+        currentTime += duration;
     bool looped = (msecs < 0 || msecs > duration);
     currentTime %= (duration + 1);
     if (looped)
@@ -304,8 +306,8 @@ void QTimeLine::setDirection(Direction direction)
 {
     Q_D(QTimeLine);
     d->direction = direction;
-    d->startTime = d->timer.elapsed();
-    d->timer.restart();
+    d->startTime = d->currentTime;
+    d->timer.start();
 }
 
 /*!
@@ -454,7 +456,7 @@ int QTimeLine::currentTime() const
 void QTimeLine::setCurrentTime(int msec)
 {
     Q_D(QTimeLine);
-    d->startTime = msec;
+    d->startTime = 0;
     d->timer.restart();
     d->setCurrentTime(msec);
 }
@@ -559,7 +561,12 @@ void QTimeLine::start()
         qWarning("QTimeLine::start: already running");
         return;
     }
+    if (d->currentTime == d->duration && d->direction == Forwards)
+        d->currentTime = 0;
+    else if (d->currentTime == 0 && d->direction == Backwards)
+        d->currentTime = d->duration;
     d->timerId = startTimer(d->updateInterval);
+    d->startTime = d->currentTime;
     d->timer.start();
     d->setState(Running);
 }
@@ -627,5 +634,9 @@ void QTimeLine::timerEvent(QTimerEvent *event)
     }
     event->accept();
 
-    d->setCurrentTime((d->direction == Forwards ? d->timer.elapsed() : -d->timer.elapsed()) + d->startTime);
+    if (d->direction == Forwards) {
+        d->setCurrentTime(d->startTime + d->timer.elapsed());
+    } else {
+        d->setCurrentTime(d->startTime - d->timer.elapsed());
+    }
 }
