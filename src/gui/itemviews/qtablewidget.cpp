@@ -1016,6 +1016,24 @@ QTableWidgetItem::QTableWidgetItem(const QString &text, int type)
 }
 
 /*!
+    Constructs a table item with the given \a icon and \a text.
+
+    \sa type()
+*/
+QTableWidgetItem::QTableWidgetItem(const QIcon &icon, const QString &text, int type)
+    :  rtti(type), view(0), model(0),
+       itemFlags(Qt::ItemIsEditable
+                |Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled
+                |Qt::ItemIsDropEnabled)
+{
+    setData(Qt::DecorationRole, icon);
+    setData(Qt::DisplayRole, text);
+}
+
+/*!
     Destroys the table item.
 */
 QTableWidgetItem::~QTableWidgetItem()
