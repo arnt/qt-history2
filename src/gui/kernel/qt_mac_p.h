@@ -87,14 +87,19 @@ public:
             change_events = 0;
         }
     }
-    static inline void exec() {
+    static inline void exec(bool flush) {
         if(change_events) {
-            for(int i = 0; i < change_events->count(); i++)
-                change_events->at(i)->windowChanged();
+            for(int i = 0; i < change_events->count(); i++) {
+                if(flush)
+                    change_events->at(i)->flushWindowChanged();
+                else
+                    change_events->at(i)->windowChanged();
+            }
         }
     }
 protected:
     virtual void windowChanged() = 0;
+    virtual void flushWindowChanged() = 0;
 };
 
 class QMacCGContext

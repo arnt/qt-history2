@@ -589,7 +589,7 @@ Q_GUI_EXPORT void qt_event_request_window_change()
 Q_GUI_EXPORT void qt_event_send_window_change()
 {
     if(request_window_change_pending) {
-        QMacWindowChangeEvent::exec();
+        QMacWindowChangeEvent::exec(true);
         if (IsEventInQueue(GetMainEventQueue(), request_window_change_pending))
             RemoveEventFromQueue(GetMainEventQueue(), request_window_change_pending);
         qt_mac_event_release(request_window_change_pending);
@@ -1732,7 +1732,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             }
         } else if(ekind == kEventQtRequestWindowChange) {
             qt_mac_event_release(request_window_change_pending);
-            QMacWindowChangeEvent::exec();
+            QMacWindowChangeEvent::exec(false);
         } else if(ekind == kEventQtRequestMenubarUpdate) {
             qt_mac_event_release(request_menubarupdate_pending);
             QMenuBar::macUpdateMenuBar();

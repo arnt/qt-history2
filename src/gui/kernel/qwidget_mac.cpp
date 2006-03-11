@@ -379,6 +379,8 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
             widget = QWidget::find((WId)hiview);
         if(ekind == kEventControlDraw) {
             if(widget) {
+                QMacWindowChangeEvent::exec(true);
+
                 //requested rgn
                 widget->d_func()->clp_serial++;
                 RgnHandle rgn;

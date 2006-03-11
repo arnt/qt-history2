@@ -44,7 +44,7 @@
 /*****************************************************************************
   QOpenGL debug facilities
  *****************************************************************************/
-//#define DEBUG_WINDOW_UPDATE
+//#define DEBUG_OPENGL_REGION_UPDATE
 
 /*****************************************************************************
   Externals
@@ -285,7 +285,7 @@ void QGLContext::makeCurrent()
 
 static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
 {
-    if(!widget->isVisible() || widget->isMinimized())
+    if(widget->isHidden() || widget->isMinimized())
         return QRegion();
     const QRect wrect = QRect(qt_mac_posInWindow(widget), widget->size());
     if(!wrect.isValid())
@@ -335,8 +335,10 @@ void QGLContext::updatePaintDevice()
         QWidget *w = (QWidget *)d->paintDevice;
         HIViewRef hiview = (HIViewRef)w->winId();
         WindowPtr window = qt_mac_window_for(hiview);
-#ifdef DEBUG_WINDOW_UPDATE
-        qDebug("setting on %s %p/%p [%s]", w->metaObject()->className(), hiview, window, w->handle() ? "Inside" : "Outside");
+#ifdef DEBUG_OPENGL_REGION_UPDATE
+        static int serial_no_gl = 0;
+        qDebug("[%d] %p setting on %s %p/%p [%s]", ++serial_no_gl, w,
+               w->metaObject()->className(), hiview, window, w->handle() ? "Inside" : "Outside");
 #endif
 
         //update drawable
@@ -351,10 +353,14 @@ void QGLContext::updatePaintDevice()
         if(!w->isWindow()) {
             QRegion clp = qt_mac_get_widget_rgn(w); //get drawable area
 
-#ifdef DEBUG_WINDOW_UPDATE
-            QVector<QRect> rs = clp.rects();
-            for(int i = 0; i < rs.count(); i++)
-                qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
+#ifdef DEBUG_OPENGL_REGION_UPDATE
+            if(clp.isEmpty()) {
+                qDebug("  Empty area!");
+            } else {
+                QVector<QRect> rs = clp.rects();
+                for(int i = 0; i < rs.count(); i++)
+                    qDebug("  %d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
+            }
 #endif
             //update the clip
             if(!aglIsEnabled((AGLContext)d->cx, AGL_BUFFER_RECT))
@@ -532,6 +538,12 @@ public:
 protected:
     static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);
     void windowChanged() { context->d_func()->glcx->d_func()->update = true; }
+    void flushWindowChanged() {
+        if(context->d_func()->glcx->d_func()->update) {
+            context->d_func()->glcx->updatePaintDevice();
+            context->update();
+        }
+    }
 };
 
 
