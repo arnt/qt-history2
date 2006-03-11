@@ -274,13 +274,20 @@ void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activat
         q->update(actionRect(currentAction));
 
     popupState = popup;
+    QAction *previousAction = currentAction;
     currentAction = action;
     if(action) {
         activateAction(action, QAction::Hover);
         if(popup)
             popupAction(action, activateFirst);
         q->update(actionRect(action));
+    }  else if (previousAction) {
+        QString empty;
+        QStatusTipEvent tip(empty);
+        QApplication::sendEvent(q, &tip);
     }
+
+
     if (fw)
         fw->setFocus(Qt::NoFocusReason);
 }
@@ -386,9 +393,13 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
 
 void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
 {
+    Q_Q(QMenuBar);
     if (!action || !action->isEnabled())
         return;
     action->activate(action_e);
+    if (action_e == QAction::Hover)
+        action->showStatusText(q);
+
 //     if(action_e == QAction::Trigger)
 //         emit q->activated(action);
 //     else if(action_e == QAction::Hover)
