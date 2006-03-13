@@ -74,8 +74,8 @@ signals:
     void doMaximize();
     void doMinimize();
     void doShade();
-    void _q_showOperationMenu();
-    void _q_popupOperationMenu(const QPoint&);
+    void showOperationMenu();
+    void popupOperationMenu(const QPoint&);
     void doubleClicked();
 
 protected:
@@ -276,7 +276,7 @@ void QWorkspaceTitleBar::mousePressEvent(QMouseEvent *e)
                 if (!t)
                     t = new QTime;
                 if (tc != this || t->elapsed() > QApplication::doubleClickInterval()) {
-                    emit _q_showOperationMenu();
+                    emit showOperationMenu();
                     t->start();
                     tc = this;
                 } else {
@@ -333,7 +333,7 @@ void QWorkspaceTitleBar::contextMenuEvent(QContextMenuEvent *e)
                                                              this);
     if(ctrl == QStyle::SC_TitleBarLabel || ctrl == QStyle::SC_TitleBarSysMenu) {
         e->accept();
-        emit _q_popupOperationMenu(e->globalPos());
+        emit popupOperationMenu(e->globalPos());
     } else {
         e->ignore();
     }
@@ -753,8 +753,8 @@ public:
     bool isWindowOrIconVisible() const;
 
 signals:
-    void _q_showOperationMenu();
-    void _q_popupOperationMenu(const QPoint&);
+    void showOperationMenu();
+    void popupOperationMenu(const QPoint&);
 
 public slots:
     void activate();
@@ -953,7 +953,7 @@ QWorkspacePrivate::init()
     shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::Key_Tab), "activateNextWindow");
     shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Tab), "activatePreviousWindow");
     shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::Key_F4), "closeActiveWindow");
-    shortcutMap.insert(q->grabShortcut(Qt::ALT + Qt::Key_Minus), "showOperationMenu");
+    shortcutMap.insert(q->grabShortcut(Qt::ALT + Qt::Key_Minus), "_q_showOperationMenu");
     shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::Key_F6), "activateNextWindow");
     shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_F6), "activatePreviousWindow");
     shortcutMap.insert(q->grabShortcut(Qt::Key_Forward), "activateNextWindow");
