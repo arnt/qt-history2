@@ -427,7 +427,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                         QCoreApplication::instance()->quit();
                     return false;
                 }
-                
+
                 if (!filterEvent(&msg)) {
                     TranslateMessage(&msg);
                     QT_WA({
@@ -481,13 +481,18 @@ bool QEventDispatcherWin32::hasPendingEvents()
 
 void QEventDispatcherWin32::registerSocketNotifier(QSocketNotifier *notifier)
 {
-    if (notifier == 0 || notifier->socket() < 0 || notifier->type() < 0 || notifier->type() > 2) {
+    int socket;
+    int type;
+    if (!notifier
+        || (socket = notifier->socket()) < 0
+        || (type = notifier->type()) < 0
+        || notifier->type() > 2) {
         qWarning("QSocketNotifier: Internal error");
         return;
+    } else if (notifier->thread() != thread() || thread() != QThread::currentThread()) {
+        qWarning("QSocketNotifier: socket notifiers cannot be enabled from another thread");
+        return;
     }
-
-    int socket = notifier->socket();
-    int type = notifier->type();
 
     Q_D(QEventDispatcherWin32);
     QSNDict *sn_vec[3] = { &d->sn_read, &d->sn_write, &d->sn_except };
@@ -537,13 +542,18 @@ void QEventDispatcherWin32::registerSocketNotifier(QSocketNotifier *notifier)
 
 void QEventDispatcherWin32::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
-    if (notifier == 0 || notifier->socket() < 0 || notifier->type() < 0 || notifier->type() > 2) {
+    int socket;
+    int type;
+    if (!notifier
+        || (socket = notifier->socket()) < 0
+        || (type = notifier->type()) < 0
+        || notifier->type() > 2) {
         qWarning("QSocketNotifier: Internal error");
         return;
+    } else if (notifier->thread() != thread() || thread() != QThread::currentThread()) {
+        qWarning("QSocketNotifier: socket notifiers cannot be disabled from another thread");
+        return;
     }
-
-    int socket = notifier->socket();
-    int type = notifier->type();
 
     Q_D(QEventDispatcherWin32);
     QSNDict *sn_vec[3] = { &d->sn_read, &d->sn_write, &d->sn_except };
@@ -583,6 +593,14 @@ void QEventDispatcherWin32::unregisterSocketNotifier(QSocketNotifier *notifier)
 
 void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *object)
 {
+    if (timerId < 1 || interval < 0 || !object) {
+        qWarning("QEventDispatcherWin32::registerTimer: invalid arguments");
+        return;
+    } else if (object->thread() != thread() || thread() != QThread::currentThread()) {
+        qWarning("QObject::startTimer: timers cannot be started from another thread");
+        return;
+    }
+
     Q_D(QEventDispatcherWin32);
 
     register ::TimerInfo *t = new ::TimerInfo;
@@ -599,8 +617,8 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
         ok = 1;
         if (!interval)  // optimization for single-shot-zero-timer
             QCoreApplication::postEvent(this, new QZeroTimerEvent(t->ind));
-        else 
-            ok = SetTimer(d->internalHwnd(), t->ind, (uint) interval, 0);        
+        else
+            ok = SetTimer(d->internalHwnd(), t->ind, (uint) interval, 0);
     } else {
         t->dispatcher = d;
         t->type = ::TimerInfo::Fast;
@@ -626,6 +644,14 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
 
 bool QEventDispatcherWin32::unregisterTimer(int timerId)
 {
+    if (timerId < 1) {
+        qWarning("QEventDispatcherUNIX::unregisterTimer: invalid argument");
+        return false;
+    } else if (thread() != QThread::currentThread()) {
+        qWarning("QObject::killTimer: timers cannot be stopped from another thread");
+        return false;
+    }
+
     Q_D(QEventDispatcherWin32);
     if (d->timerVec.isEmpty() || timerId <= 0)
         return false;
@@ -653,6 +679,14 @@ bool QEventDispatcherWin32::unregisterTimer(int timerId)
 
 bool QEventDispatcherWin32::unregisterTimers(QObject *object)
 {
+    if (!object) {
+        qWarning("QEventDispatcherUNIX::unregisterTimers: invalid argument");
+        return false;
+    } else if (object->thread() != thread() || thread() != QThread::currentThread()) {
+        qWarning("QObject::killTimers: timers cannot be stopped from another thread");
+        return false;
+    }
+
     Q_D(QEventDispatcherWin32);
     if (d->timerVec.isEmpty())
         return false;
@@ -683,6 +717,11 @@ bool QEventDispatcherWin32::unregisterTimers(QObject *object)
 QList<QEventDispatcherWin32::TimerInfo>
 QEventDispatcherWin32::registeredTimers(QObject *object) const
 {
+    if (!object) {
+        qWarning("QEventDispatcherUNIX:registeredTimers: invalid argument");
+        return QList<TimerInfo>();
+    }
+
     Q_D(const QEventDispatcherWin32);
     QList<TimerInfo> list;
     for (int i = 0; i < d->timerVec.size(); ++i) {
@@ -695,6 +734,14 @@ QEventDispatcherWin32::registeredTimers(QObject *object) const
 
 bool QEventDispatcherWin32::registerEventNotifier(QWinEventNotifier *notifier)
 {
+    if (!notifier) {
+        qWarning("QWinEventNotifier: Internal error");
+        return false;
+    } else if (notifier->thread() != thread() || thread() != QThread::currentThread()) {
+        qWarning("QWinEventNotifier: event notifiers cannot be enabled from another thread");
+        return false;
+    }
+
     Q_D(QEventDispatcherWin32);
 
     if (d->winEventNotifierList.contains(notifier))
@@ -710,6 +757,14 @@ bool QEventDispatcherWin32::registerEventNotifier(QWinEventNotifier *notifier)
 
 void QEventDispatcherWin32::unregisterEventNotifier(QWinEventNotifier *notifier)
 {
+    if (!notifier) {
+        qWarning("QWinEventNotifier: Internal error");
+        return;
+    } else if (notifier->thread() != thread() || thread() != QThread::currentThread()) {
+        qWarning("QWinEventNotifier: event notifiers cannot be disabled from another thread");
+        return;
+    }
+
     Q_D(QEventDispatcherWin32);
 
     int i = d->winEventNotifierList.indexOf(notifier);

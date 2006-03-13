@@ -64,6 +64,14 @@ static void qt_mac_activate_timer(EventLoopTimerRef, void *data)
 
 void QEventDispatcherMac::registerTimer(int timerId, int interval, QObject *obj)
 {
+    if (timerId < 1 || interval < 0 || !obj) {
+        qWarning("QEventDispatcherUNIX::registerTimer: invalid arguments");
+        return;
+    } else if (obj->thread() != thread() || thread() != QThread::currentThread()) {
+        qWarning("QObject::startTimer: timers cannot be started from another thread");
+        return;
+    }
+
     Q_D(QEventDispatcherMac);
     if (!d->macTimerList)
         d->macTimerList = new MacTimerList;
@@ -80,7 +88,7 @@ void QEventDispatcherMac::registerTimer(int timerId, int interval, QObject *obj)
         EventTimerInterval mint = (((EventTimerInterval)interval) / 1000);
         d->macTimerList->append(t); //carbon timers go at the end..
         if (InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
-                                 timerUPP, &d->macTimerList->last(), &d->macTimerList->last().mac_timer)) {
+                                  timerUPP, &d->macTimerList->last(), &d->macTimerList->last().mac_timer)) {
             qFatal("This cannot really happen, can it!?!");
             return; //exceptional error
         }
@@ -101,6 +109,14 @@ static Boolean find_timer_event(EventRef event, void *data)
 
 bool QEventDispatcherMac::unregisterTimer(int id)
 {
+    if (timerId < 1) {
+        qWarning("QEventDispatcherUNIX::unregisterTimer: invalid argument");
+        return false;
+    } else if (thread() != QThread::currentThread()) {
+        qWarning("QObject::killTimer: timers cannot be stopped from another thread");
+        return false;
+    }
+
     Q_D(QEventDispatcherMac);
     if(!d->macTimerList || id <= 0)
         return false;                                // not init'd or invalid timer
@@ -126,6 +142,14 @@ bool QEventDispatcherMac::unregisterTimer(int id)
 
 bool QEventDispatcherMac::unregisterTimers(QObject *obj)
 {
+    if (!object) {
+        qWarning("QEventDispatcherUNIX::unregisterTimers: invalid argument");
+        return false;
+    } else if (object->thread() != thread() || thread() != QThread::currentThread()) {
+        qWarning("QObject::killTimers: timers cannot be stopped from another thread");
+        return false;
+    }
+
     Q_D(QEventDispatcherMac);
     if(!d->macTimerList)                                // not initialized
         return false;
@@ -159,6 +183,11 @@ bool QEventDispatcherMac::unregisterTimers(QObject *obj)
 QList<QEventDispatcherMac::TimerInfo>
 QEventDispatcherMac::registeredTimers(QObject *object) const
 {
+    if (!object) {
+        qWarning("QEventDispatcherUNIX:registeredTimers: invalid argument");
+        return QList<TimerInfo>();
+    }
+
     Q_D(const QEventDispatcherMac);
     QList<TimerInfo> list;
     if (!d->macTimerList)
@@ -296,17 +325,30 @@ bool qt_mac_remove_socket_from_runloop(const CFSocketRef socket)
 */
 void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
 {
+    int nativeSocket;
+    int type;
+    if (!notifier
+        || (nativeSocket = notifier->socket()) < 0
+        || nativeSocket > FD_SETSIZE
+        || (type = notifier->type()) < 0
+        || type > 2) {
+        qWarning("QSocketNotifier: Internal error");
+        return;
+    } else if (notifier->thread() != thread()
+               || thread() != QThread::currentThread()) {
+        qWarning("QSocketNotifier: socket notifiers cannot be enabled from another thread");
+        return;
+    }
+
     Q_D(QEventDispatcherMac);
     QEventDispatcherUNIX::registerSocketNotifier(notifier);
 
-    const  QSocketNotifier::Type type = notifier->type();
     if (type == QSocketNotifier::Exception) {
         qWarning("QSocketNotifier::Exception is not supported on Mac OS X");
         return;
     }
 
     // Check if we have a CFSocket for the native socket, create one if not.
-    const int nativeSocket = notifier->socket();
     MacSocketInfo *socketInfo = d->macSockets.value(nativeSocket);
     if (!socketInfo) {
         socketInfo = new MacSocketInfo();
@@ -360,15 +402,28 @@ void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
 */
 void QEventDispatcherMac::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
+    int nativeSocket;
+    int type;
+    if (!notifier
+        || (nativeSocket = notifier->socket()) < 0
+        || nativeSocket > FD_SETSIZE
+        || (type = notifier->type()) < 0
+        || type > 2) {
+        qWarning("QSocketNotifier: Internal error");
+        return;
+    } else if (notifier->thread() != thread()
+               || thread() != QThread::currentThread()) {
+        qWarning("QSocketNotifier: socket notifiers cannot be disabled from another thread");
+        return;
+    }
+
     Q_D(QEventDispatcherMac);
     QEventDispatcherUNIX::unregisterSocketNotifier(notifier);
 
-    const  QSocketNotifier::Type type = notifier->type();
     if (type == QSocketNotifier::Exception) {
         qWarning("QSocketNotifier::Exception is not supported on Mac OS X");
         return;
     }
-    const int nativeSocket = notifier->socket();
     MacSocketInfo *socketInfo = d->macSockets.value(nativeSocket);
     if (!socketInfo) {
         qWarning("QEventDispatcherMac::unregisterSocketNotifier: Tried to unregister a not registered notifier");
