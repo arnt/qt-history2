@@ -246,6 +246,16 @@ struct QX11InfoData {
     int subpixel;
 };
 
+class QDrag;
+struct QXdndDropTransaction
+{
+    Time timestamp;
+    Window target;
+    Window proxy_target;
+    QWidget *embedding_widget;
+    QDrag *object;
+};
+
 class QMimeData;
 
 struct QX11Data;
@@ -282,6 +292,8 @@ struct QX11Data
     QList<Atom> xdndMimeAtomsForFormat(const QString &format);
     QByteArray xdndMimeConvertToFormat(Atom a, const QByteArray &data, const QString &format);
     Atom xdndMimeAtomForFormat(const QString &format, const QList<Atom> &atoms);
+
+    QList<QXdndDropTransaction> dndDropTransactions;
 
     // from qmotifdnd_x11.cpp
     void motifdndHandle(QWidget *, const XEvent *, bool);

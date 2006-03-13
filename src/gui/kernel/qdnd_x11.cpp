@@ -53,6 +53,83 @@
 #define DNDDEBUG if(0) qDebug()
 #endif
 
+static int findXdndDropTransactionByWindow(Window window)
+{
+    int at = -1;
+    for (int i = 0; i < X11->dndDropTransactions.count(); ++i) {
+        const QXdndDropTransaction &t = X11->dndDropTransactions.at(i);
+        if (t.target == window || t.proxy_target == window) {
+            at = i;
+            break;
+        }
+    }
+    return at;
+}
+
+static int findXdndDropTransactionByTime(Time timestamp)
+{
+    int at = -1;
+    for (int i = 0; i < X11->dndDropTransactions.count(); ++i) {
+        const QXdndDropTransaction &t = X11->dndDropTransactions.at(i);
+        if (t.timestamp == timestamp) {
+            at = i;
+            break;
+        }
+    }
+    return at;
+}
+
+// timer used to discard old XdndDrop transactions
+static int transaction_expiry_timer = -1;
+enum { XdndDropTransactionTimeout = 5000 }; // 5 seconds
+
+static void restartXdndDropExpiryTimer()
+{
+    if (transaction_expiry_timer != -1)
+        QDragManager::self()->killTimer(transaction_expiry_timer);
+    transaction_expiry_timer = QDragManager::self()->startTimer(XdndDropTransactionTimeout);
+}
+
+
+// find an ancestor with XdndAware on it
+static Window findXdndAwareParent(Window window)
+{
+    Window target = 0;
+    forever {
+        // check if window has XdndAware
+        Atom type = 0;
+        int f;
+        unsigned long n, a;
+        unsigned char *data = 0;
+        if (XGetWindowProperty(X11->display, window, ATOM(XdndAware), 0, 0, False,
+                               AnyPropertyType, &type, &f,&n,&a,&data) == Success) {
+	    if (data)
+                XFree(data);
+	    if (type) {
+                target = window;
+                break;
+            }
+        }
+
+        // try window's parent
+        Window root;
+        Window parent;
+        Window *children;
+        uint unused;
+        if (!XQueryTree(X11->display, window, &root, &parent, &children, &unused))
+            break;
+        if (children)
+            XFree(children);
+        if (window == root)
+            break;
+        window = parent;
+    }
+    return target;
+}
+
+
+
+
 // and all this stuff is copied -into- qapp_x11.cpp
 
 static void handle_xdnd_position(QWidget *, const XEvent *, bool);
@@ -109,6 +186,8 @@ static QRect qt_xdnd_source_sameanswer;
 static Window qt_xdnd_current_target;
 // window to send events to (always valid if qt_xdnd_current_target)
 static Window qt_xdnd_current_proxy_target;
+static Time qt_xdnd_source_current_time;
+
 // widget we forwarded position to last, and local position
 static QPointer<QWidget> qt_xdnd_current_widget;
 static QPoint qt_xdnd_current_position;
@@ -323,12 +402,12 @@ QStringList QX11Data::xdndMimeFormatsForAtom(Atom a)
     if (a) {
         QString atomName = xdndMimeAtomToString(a);
         formats.append(atomName);
-        
+
         // special cases for string type
         if (a == ATOM(UTF8_STRING) || a == XA_STRING
             || a == ATOM(TEXT) || a == ATOM(COMPOUND_TEXT))
             formats.append(QLatin1String("text/plain"));
-        
+
         // special cases for uris
         if (atomName == QLatin1String("text/x-moz-url"))
             formats.append(QLatin1String("text/uri-list"));
@@ -340,7 +419,7 @@ QStringList QX11Data::xdndMimeFormatsForAtom(Atom a)
     return formats;
 }
 
-//$$$ 
+//$$$
 bool QX11Data::xdndMimeDataForAtom(Atom a, QMimeData *mimeData, QByteArray *data, Atom *atomFormat, int *dataFormat)
 {
     bool ret = false;
@@ -353,7 +432,7 @@ bool QX11Data::xdndMimeDataForAtom(Atom a, QMimeData *mimeData, QByteArray *data
             *dataFormat = 16;
         ret = true;
     } else {
-        if ((a == ATOM(UTF8_STRING) || a == XA_STRING 
+        if ((a == ATOM(UTF8_STRING) || a == XA_STRING
             || a == ATOM(TEXT) || a == ATOM(COMPOUND_TEXT))
             && QInternalMimeData::hasFormatHelper(QLatin1String("text/plain"), mimeData)) {
             if (a == ATOM(UTF8_STRING)){
@@ -369,8 +448,8 @@ bool QX11Data::xdndMimeDataForAtom(Atom a, QMimeData *mimeData, QByteArray *data
                 QByteArray strData = QString::fromUtf8(QInternalMimeData::renderDataHelper(
                                      QLatin1String("text/plain"), mimeData)).toLocal8Bit();
                 char *list[] = { strData.data(), NULL };
-    
-                XICCEncodingStyle style = (a == ATOM(COMPOUND_TEXT)) 
+
+                XICCEncodingStyle style = (a == ATOM(COMPOUND_TEXT))
                                         ? XCompoundTextStyle : XStdICCTextStyle;
                 XTextProperty textprop;
                 if (list[0] != NULL
@@ -385,14 +464,14 @@ bool QX11Data::xdndMimeDataForAtom(Atom a, QMimeData *mimeData, QByteArray *data
                     "    format %d\n"
                     "    %ld items\n"
                     "    %d bytes\n",
-                    textprop.encoding, 
+                    textprop.encoding,
                     X11->xdndMimeAtomToString(textprop.encoding).toLatin1().data(),
                     textprop.format, textprop.nitems, data->size());
 
                     XFree(textprop.value);
                 }
             }
-        } else if (atomName == QLatin1String("text/x-moz-url") && 
+        } else if (atomName == QLatin1String("text/x-moz-url") &&
                    QInternalMimeData::hasFormatHelper(QLatin1String("text/uri-list"), mimeData)) {
             QByteArray uri = QInternalMimeData::renderDataHelper(
                              QLatin1String("text/uri-list"), mimeData).split('\n').first();
@@ -412,7 +491,7 @@ bool QX11Data::xdndMimeDataForAtom(Atom a, QMimeData *mimeData, QByteArray *data
                 Pixmap handle = pm.handle();
                 *data = QByteArray((const char *) &handle, sizeof(Pixmap));
                 dm->xdndMimeTransferedPixmap[dm->xdndMimeTransferedPixmapIndex] = pm;
-                dm->xdndMimeTransferedPixmapIndex = 
+                dm->xdndMimeTransferedPixmapIndex =
                             (dm->xdndMimeTransferedPixmapIndex + 1) % 2;
             }
         }
@@ -454,7 +533,7 @@ QByteArray QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, con
     QString atomName = xdndMimeAtomToString(a);
     if (atomName == format)
         return data;
- 
+
     // special cases for string types
     if (format == QLatin1String("text/plain")) {
         if (a == ATOM(UTF8_STRING))
@@ -465,7 +544,7 @@ QByteArray QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, con
             // #### might be wrong for COMPUND_TEXT
             return QString::fromLocal8Bit(data, data.size()).toUtf8();
     }
-    
+
     // special case for uri types
     if (format == QLatin1String("text/uri-list")) {
         if (atomName == QLatin1String("text/x-moz-url")) {
@@ -512,7 +591,7 @@ QByteArray QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, con
             return buf.buffer();
         }
     }
-    return QByteArray();        
+    return QByteArray();
 }
 
 //$$$ middle of xdndObtainData
@@ -521,7 +600,7 @@ Atom QX11Data::xdndMimeAtomForFormat(const QString &format, const QList<Atom> &a
     Atom a = xdndMimeStringToAtom(format);
     if (a && atoms.contains(a))
         return a;
-    
+
     // find matches for string types
     if (format == QLatin1String("text/plain")) {
         if (atoms.contains(ATOM(UTF8_STRING)))
@@ -948,6 +1027,7 @@ void qt_xdnd_send_leave()
     manager->updateCursor();
     qt_xdnd_current_target = 0;
     qt_xdnd_current_proxy_target = 0;
+    qt_xdnd_source_current_time = 0;
     waiting_for_status = false;
 }
 
@@ -1031,18 +1111,39 @@ void QX11Data::xdndHandleFinished(QWidget *, const XEvent * xe, bool passive)
              << "qt_xdnd_current_target" << qt_xdnd_current_target
              << "qt_xdnd_current_proxy_targe" << qt_xdnd_current_proxy_target;
 
-    if (l[0] && (l[0] == qt_xdnd_current_target
-            || l[0] == qt_xdnd_current_proxy_target)) {
-        //
-        if (!passive)
-            (void) checkEmbedded(qt_xdnd_current_widget, xe);
-        current_embedding_widget = 0;
-        qt_xdnd_current_target = 0;
-        qt_xdnd_current_proxy_target = 0;
-        QDragManager *manager = QDragManager::self();
-        if (manager->object)
-            manager->object->deleteLater();
-        manager->object = 0;
+    if (l[0]) {
+        int at = findXdndDropTransactionByWindow(l[0]);
+        if (at != -1) {
+            restartXdndDropExpiryTimer();
+
+            QXdndDropTransaction t = X11->dndDropTransactions.takeAt(at);
+            QDragManager *manager = QDragManager::self();
+
+            Window target = qt_xdnd_current_target;
+            Window proxy_target = qt_xdnd_current_proxy_target;
+            QWidget *embedding_widget = current_embedding_widget;
+            QDrag *currentObject = manager->object;
+
+            qt_xdnd_current_target = t.target;
+            qt_xdnd_current_proxy_target = t.proxy_target;
+            current_embedding_widget = t.embedding_widget;
+            manager->object = t.object;
+
+            if (!passive)
+                (void) checkEmbedded(qt_xdnd_current_widget, xe);
+
+            current_embedding_widget = 0;
+            qt_xdnd_current_target = 0;
+            qt_xdnd_current_proxy_target = 0;
+
+            if (t.object)
+                t.object->deleteLater();
+
+            qt_xdnd_current_target = target;
+            qt_xdnd_current_proxy_target = proxy_target;
+            current_embedding_widget = embedding_widget;
+            manager->object = currentObject;
+        }
     }
     waiting_for_status = false;
 }
@@ -1050,8 +1151,17 @@ void QX11Data::xdndHandleFinished(QWidget *, const XEvent * xe, bool passive)
 
 void QDragManager::timerEvent(QTimerEvent* e)
 {
-    if (e->timerId() == heartbeat && qt_xdnd_source_sameanswer.isNull())
+    if (e->timerId() == heartbeat && qt_xdnd_source_sameanswer.isNull()) {
         move(QCursor::pos());
+    } else if (e->timerId() == transaction_expiry_timer) {
+        for (int i = 0; i < X11->dndDropTransactions.count(); ++i) {
+            X11->dndDropTransactions.at(i).object->deleteLater();
+        }
+        X11->dndDropTransactions.clear();
+
+        killTimer(transaction_expiry_timer);
+        transaction_expiry_timer = -1;
+    }
 }
 
 bool QDragManager::eventFilter(QObject * o, QEvent * e)
@@ -1417,6 +1527,8 @@ void QDragManager::move(const QPoint & globalPos)
         move.data.l[4] = qtaction_to_xdndaction(defaultAction(dragPrivate()->possible_actions, QApplication::keyboardModifiers()));
         DEBUG("sending Xdnd position");
 
+        qt_xdnd_source_current_time = X11->time;
+
         if (w)
             handle_xdnd_position(w, (const XEvent *)&move, false);
         else
@@ -1460,11 +1572,27 @@ void QDragManager::drop()
     if (w && (w->windowType() == Qt::Desktop) && !w->acceptDrops())
         w = 0;
 
+    QXdndDropTransaction t = {
+        X11->time,
+        qt_xdnd_current_target,
+        qt_xdnd_current_proxy_target,
+        current_embedding_widget,
+        object
+    };
+    X11->dndDropTransactions.append(t);
+    restartXdndDropExpiryTimer();
+
     if (w)
         X11->xdndHandleDrop(w, (const XEvent *)&drop, false);
     else
         XSendEvent(X11->display, qt_xdnd_current_proxy_target, False,
-                    NoEventMask, (XEvent*)&drop);
+                   NoEventMask, (XEvent*)&drop);
+
+    qt_xdnd_current_target = 0;
+    qt_xdnd_current_proxy_target = 0;
+    qt_xdnd_source_current_time = 0;
+    current_embedding_widget = 0;
+    object = 0;
 
 #ifndef QT_NO_CURSOR
     if (restoreCursor) {
@@ -1512,18 +1640,65 @@ void QX11Data::xdndHandleSelectionRequest(const XSelectionRequestEvent * req)
     evt.xselection.target = XNone;
     evt.xselection.property = XNone;
     evt.xselection.time = req->time;
-    Atom atomFormat = req->target;
-    int dataFormat = 0;
-    QByteArray data;
-    if (X11->xdndMimeDataForAtom(req->target, QDragManager::self()->dragPrivate()->data,
-                            &data, &atomFormat, &dataFormat)) {
-        int dataSize = data.size() / (dataFormat / 8);
-        XChangeProperty (X11->display, req->requestor, req->property,
-                         atomFormat, dataFormat, PropModeReplace,
-                         (unsigned char *)data.data(), dataSize);
-        evt.xselection.property = req->property;
-        evt.xselection.target = atomFormat;
+
+    QDragManager *manager = QDragManager::self();
+    QDrag *currentObject = manager->object;
+
+    // which transaction do we use? (note: -2 means use current manager->object)
+    int at = -1;
+
+    // figure out which data the requestor is really interested in
+    if (manager->object && req->time == qt_xdnd_source_current_time) {
+        // requestor wants the current drag data
+        at = -2;
+    } else {
+        // if someone has requested data in response to XdndDrop, find the corresponding transaction. the
+        // spec says to call XConvertSelection() using the timestamp from the XdndDrop
+        at = findXdndDropTransactionByTime(req->time);
+        if (at == -1) {
+            // no dice, perhaps the client was nice enough to use the same window id in XConvertSelection()
+            // that we sent the XdndDrop event to.
+            at = findXdndDropTransactionByWindow(req->requestor);
+        }
+        if (at == -1 && req->time == CurrentTime) {
+            // bastards! previous Qt versions always requested the data on a child of the target window
+            // using CurrentTime... but it could be asking for either drop data or the current drag's data
+            Window target = findXdndAwareParent(req->requestor);
+            if (target) {
+                if (qt_xdnd_current_target && qt_xdnd_current_target == target)
+                    at = -2;
+                else
+                    at = findXdndDropTransactionByWindow(target);
+            }
+        }
     }
+    if (at >= 0) {
+        restartXdndDropExpiryTimer();
+
+        // use the drag object from an XdndDrop tansaction
+        manager->object = X11->dndDropTransactions.at(at).object;
+    } else if (at != -2) {
+        // no transaction found, we'll have to reject the request
+        manager->object = 0;
+    }
+    if (manager->object) {
+        Atom atomFormat = req->target;
+        int dataFormat = 0;
+        QByteArray data;
+        if (X11->xdndMimeDataForAtom(req->target, manager->dragPrivate()->data,
+                                     &data, &atomFormat, &dataFormat)) {
+            int dataSize = data.size() / (dataFormat / 8);
+            XChangeProperty (X11->display, req->requestor, req->property,
+                             atomFormat, dataFormat, PropModeReplace,
+                             (unsigned char *)data.data(), dataSize);
+            evt.xselection.property = req->property;
+            evt.xselection.target = atomFormat;
+        }
+    }
+
+    // reset manager->object in case we modified it above
+    manager->object = currentObject;
+
     // ### this can die if req->requestor crashes at the wrong
     // ### moment
     XSendEvent(X11->display, req->requestor, False, 0, &evt);
@@ -1582,7 +1757,7 @@ static QByteArray xdndObtainData(const char *format)
     }
     if (!qt_xdnd_current_widget || (qt_xdnd_current_widget->windowType() == Qt::Desktop))
         delete tw;
-   
+
     return X11->xdndMimeConvertToFormat(a, result, format);
 }
 
