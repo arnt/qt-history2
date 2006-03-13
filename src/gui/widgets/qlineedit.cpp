@@ -160,8 +160,14 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     Any other key sequence that represents a valid character, will
     cause the character to be inserted into the line edit.
 
-    \inlineimage macintosh-lineedit.png Screenshot in Macintosh style
-    \inlineimage windows-lineedit.png Screenshot in Windows style
+    \table 100%
+    \row \o \inlineimage macintosh-lineedit.png Screenshot of a Macintosh line edit
+         \o A line edit shown in the Macintosh widget style.
+    \row \o \inlineimage windows-lineedit.png Screenshot of a Windows XP line edit
+         \o A line edit shown in the Windows XP widget style.
+    \row \o \inlineimage plastique-lineedit.png Screenshot of a Plastique line edit
+         \o A line edit shown in the Plastique widget style.
+    \endtable
 
     \sa QTextEdit, QLabel, QComboBox, {fowler}{GUI Design Handbook: Field, Entry}
 */

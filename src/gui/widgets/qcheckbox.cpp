@@ -73,8 +73,14 @@ public:
     pressed(), released(), clicked(), toggled(), checkState(), and
     stateChanged().
 
-    \inlineimage macintosh-checkbox.png Screenshot in Macintosh style
-    \inlineimage windows-checkbox.png Screenshot in Windows style
+    \table 100%
+    \row \o \inlineimage macintosh-checkbox.png Screenshot of a Macintosh style checkbox
+         \o A checkbox shown in the Macintosh widget style.
+    \row \o \inlineimage windows-checkbox.png Screenshot of a Windows XP style checkbox
+         \o A checkbox shown in the Windows XP widget style.
+    \row \o \inlineimage plastique-checkbox.png Screenshot of a Plastique style checkbox
+         \o A checkbox shown in the Plastique widget style.
+    \endtable
 
     \sa QAbstractButton, QRadioButton, {fowler}{GUI Design Handbook: Check Box}
 */

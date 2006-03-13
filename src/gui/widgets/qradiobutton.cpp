@@ -63,8 +63,14 @@ public:
     setDown(), isDown(), autoRepeat(), group(), setAutoRepeat(),
     toggle(), pressed(), released(), clicked(), and toggled().
 
-    \inlineimage macintosh-radiobutton.png Screenshot in Macintosh style
-    \inlineimage windows-radiobutton.png Screenshot in Windows style
+    \table 100%
+    \row \o \inlineimage plastique-radiobutton.png Screenshot of a Plastique radio button
+         \o A radio button shown in the Plastique widget style.
+    \row \o \inlineimage macintosh-radiobutton.png Screenshot of a Macintosh radio button
+         \o A radio button shown in the Macintosh widget style.
+    \row \o \inlineimage windows-radiobutton.png Screenshot of a Windows XP radio button
+         \o A radio button shown in the Windows XP widget style.
+    \endtable
 
     \sa QPushButton, QToolButton, QCheckBox, {fowler}{GUI Design Handbook: Radio Button}
 */

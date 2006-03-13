@@ -172,8 +172,14 @@ QStyleOptionTabV2 QTabBarPrivate::getStyleOption(int tab) const
     For subclasses, you might also need the tabRect() functions which
     returns the visual geometry of a single tab.
 
-    \image plastique-tabbar.png A tab bar shown in the Plastique widget style.
-    \image plastique-tabbar.png A truncated tab bar shown in the Plastique widget style.
+    \table 100%
+    \row \o \inlineimage plastique-tabbar.png Screenshot of a Plastique style tab bar
+         \o A tab bar shown in the Plastique widget style.
+    \row \o \inlineimage plastique-tabbar-truncated.png Screenshot of a truncated Plastique tab bar
+         \o A truncated tab bar shown in the Plastique widget style.
+    \endtable
+
+    \sa QTabWidget
 */
 
 /*!

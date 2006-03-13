@@ -133,16 +133,16 @@ public:
     was a button (inheriting from QAbstractButton), triggering the
     mnemonic would emulate a button click.
 
-    \table
+    \table 100%
     \row
-    \i \inlineimage macintosh-label.png Screenshot of a Macintosh style label
-    \i A Macintosh style label
+    \o \inlineimage macintosh-label.png Screenshot of a Macintosh style label
+    \o A label shown in the Macintosh widget style.
     \row
-    \i \inlineimage plastique-label.png Screenshot of a Plastique style label
-    \i A Plastique style label
+    \o \inlineimage plastique-label.png Screenshot of a Plastique style label
+    \o A label shown in the Plastique widget style.
     \row
-    \i \inlineimage windowsxp-label.png Screenshot of a Windows XP style label
-    \i A Windows XP style label
+    \o \inlineimage windowsxp-label.png Screenshot of a Windows XP style label
+    \o A label shown in the Windows XP widget style.
     \endtable
 
     \sa QLineEdit, QTextEdit, QPixmap, QMovie,

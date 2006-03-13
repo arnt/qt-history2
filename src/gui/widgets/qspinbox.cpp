@@ -116,8 +116,14 @@ public:
     choice in addition to the range of numeric values. See
     setSpecialValueText() for how to do this with QSpinBox.
 
-    \inlineimage macintosh-spinbox.png Screenshot in Macintosh style
-    \inlineimage windows-spinbox.png Screenshot in Windows style
+    \table 100%
+    \row \o \inlineimage windowsxp-spinbox.png Screenshot of a Windows XP spin box
+         \o A spin box shown in the Windows XP widget style.
+    \row \o \inlineimage plastique-spinbox.png Screenshot of a Plastique spin box
+         \o A spin box shown in the Plastique widget style.
+    \row \o \inlineimage macintosh-spinbox.png Screenshot of a Macintosh spin box
+         \o A spin box shown in the Macintosh widget style.
+    \endtable
 
     \section1 Subclassing QSpinBox
 

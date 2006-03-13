@@ -207,7 +207,14 @@ QStyle::SubControl QSliderPrivate::newHoverControl(const QPoint &pos)
         \i End moves to the end (maximum).
     \endlist
 
-    \image macintosh-slider.png Screenshot in Macintosh style
+    \table 100%
+    \row \o \inlineimage macintosh-slider.png Screenshot of a Macintosh slider
+         \o A slider shown in the Macintosh widget style.
+    \row \o \inlineimage windows-slider.png Screenshot of a Windows XP slider
+         \o A slider shown in the Windows XP widget style.
+    \row \o \inlineimage plastique-slider.png Screenshot of a Plastique slider
+         \o A slider shown in the Plastique widget style.
+    \endtable
 
     \sa QScrollBar, QSpinBox, {fowler}{GUI Design Handbook: Slider}
 */

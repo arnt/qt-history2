@@ -86,8 +86,14 @@
     (at the top, providing the tabs) and a QStackedWidget (most of the
     area, organizing the individual pages).
 
-    \inlineimage windows-tabwidget.png Screenshot in Windows style
-    \inlineimage macintosh-tabwidget.png Screenshot in macintosh style
+    \table 100%
+    \row \o \inlineimage windowsxp-tabwidget.png Screenshot of a Windows XP style tab widget
+         \o \inlineimage macintosh-tabwidget.png Screenshot of a Macintosh style tab widget
+         \o \inlineimage plastique-tabwidget.png Screenshot of a Plastique style tab widget
+    \row \o A Windows XP style tab widget.
+         \o A Macintosh style tab widget.
+         \o A Plastique style tab widget.
+    \endtable
 
     \sa QTabBar QStackedWidget QToolBox
 */
