@@ -449,7 +449,9 @@ void MainWindow::setActionsEnabled()
 {
     // Find the view item and client for the current row, and update
     // the states of the actions.
-    QTreeWidgetItem *item = torrentView->currentItem();
+    QTreeWidgetItem *item = 0;
+    if (!torrentView->selectedItems().isEmpty())
+        item = torrentView->selectedItems().first();
     TorrentClient *client = item ? jobs.at(torrentView->indexOfTopLevelItem(item)).client : 0;
     bool pauseEnabled = client && ((client->state() == TorrentClient::Paused)
                                        ||  (client->state() > TorrentClient::Preparing));
