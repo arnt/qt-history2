@@ -722,6 +722,11 @@ QTextCodec* QTextCodec::codecForMib(int mib)
 {
     setup();
 
+    // Qt 3 used 1000 (mib for UCS2) as it's identifier for the utf16 codec. Map
+    // this correctly for compatibility.
+    if (mib == 1000)
+        mib = 1015;
+
     QList<QTextCodec*>::ConstIterator i;
     for (int i = 0; i < all->size(); ++i) {
         QTextCodec *cursor = all->at(i);
@@ -1265,7 +1270,7 @@ QTextCodec *QTextCodec::codecForHtml(const QByteArray &ba)
 
 /*!
     \fn QTextCodec *QTextCodec::codecForName(const char *hint, int accuracy)
-    
+
     Use the codecForName(const QByteArray &) overload instead.
 */
 

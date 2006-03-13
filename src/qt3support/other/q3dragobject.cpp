@@ -534,7 +534,7 @@ static QTextCodec *codecForHTML(const QByteArray &ba)
 
     if (ba.size() > 1 && (((uchar)ba[0] == 0xfe && (uchar)ba[1] == 0xff)
                           || ((uchar)ba[0] == 0xff && (uchar)ba[1] == 0xfe))) {
-        mib = 1000; // utf16
+        mib = 1015; // utf16
     } else if (ba.size() > 2
                && (uchar)ba[0] == 0xef
                && (uchar)ba[1] == 0xbb
@@ -657,7 +657,7 @@ bool Q3TextDrag::decode(const QMimeSource* e, QString& str, QString& subtype)
                     payload = e->encodedData(mime);
                     if (payload.size()) {
                         int l;
-                        if (codec->mibEnum() != 1000) {
+                        if (codec->mibEnum() != 1015) {
                             // length is at NUL or payload.size()
                             l = 0;
                             while (l < (int)payload.size() && payload[l])
@@ -848,7 +848,7 @@ bool Q3ImageDrag::decode(const QMimeSource* e, QImage& img)
         return false;
 
     QByteArray payload;
-    QList<QByteArray> fileFormats = QImageReader::supportedImageFormats();    
+    QList<QByteArray> fileFormats = QImageReader::supportedImageFormats();
 
     // PNG is best of all
     // (this is a rather strange hack, but it works now)
