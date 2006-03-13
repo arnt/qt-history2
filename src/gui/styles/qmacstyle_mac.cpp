@@ -3386,10 +3386,16 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                                 int(newRect.origin.y - outRect.origin.y),
                                 int(outRect.size.width - newRect.size.width),
                                 int(outRect.size.height - newRect.size.height));
+
                 // HIThemeGetButtonBackgroundBounds offsets non-focused normal sized 
                 // buttons by one in de y direction, account for that here.
                 if (bdi.adornment == kThemeAdornmentNone && bdi.kind == kThemeIncDecButton)
                     off_rct.adjust(0, 1, 0, 0);
+
+                // Adjust the rect for small buttos also.
+                if (bdi.adornment == kThemeAdornmentFocus && bdi.kind == kThemeIncDecButtonSmall)
+                    off_rct.adjust(0, 0, 0, -1);
+
                 newRect = qt_hirectForQRect(updown, off_rct);
                 HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             }
