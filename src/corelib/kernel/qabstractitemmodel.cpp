@@ -1043,7 +1043,7 @@ QAbstractItemModel::~QAbstractItemModel()
     model. The new items are those between \a start and \a end
     inclusive, under the given \a parent item.
 
-    \sa insertRows()
+    \sa insertRows(), beginInsertRows()
 */
 
 /*!
@@ -1053,7 +1053,7 @@ QAbstractItemModel::~QAbstractItemModel()
     model. The new items will be positioned between \a start and \a end
     inclusive, under the given \a parent item.
 
-    \sa insertRows()
+    \sa insertRows(), beginInsertRows()
 */
 
 /*!
@@ -1063,7 +1063,7 @@ QAbstractItemModel::~QAbstractItemModel()
     model. The removed items are those between \a start and \a end
     inclusive, under the given \a parent item.
 
-    \sa removeRows()
+    \sa removeRows(), beginRemoveRows()
 */
 
 /*!
@@ -1073,7 +1073,7 @@ QAbstractItemModel::~QAbstractItemModel()
     model. The items that will be removed are those between \a start and \a end
     inclusive, under the given \a parent item.
 
-    \sa removeRows()
+    \sa removeRows(), beginRemoveRows()
 */
 
 /*!
@@ -1083,7 +1083,7 @@ QAbstractItemModel::~QAbstractItemModel()
     model. The new items are those between \a start and \a end
     inclusive, under the given \a parent item.
 
-    \sa insertColumns()
+    \sa insertColumns(), beginInsertColumns()
 */
 
 /*!
@@ -1093,7 +1093,7 @@ QAbstractItemModel::~QAbstractItemModel()
     model. The new items will be positioned between \a start and \a end
     inclusive, under the given \a parent item.
 
-    \sa insertColumns()
+    \sa insertColumns(), beginInsertColumns()
 */
 
 /*!
@@ -1103,7 +1103,7 @@ QAbstractItemModel::~QAbstractItemModel()
     model. The removed items are those between \a start and \a end
     inclusive, under the given \a parent item.
 
-    \sa removeColumns()
+    \sa removeColumns(), beginRemoveColumns()
 */
 
 /*!
@@ -1113,7 +1113,7 @@ QAbstractItemModel::~QAbstractItemModel()
     from the model. The items to be removed are those between \a start and
     \a end inclusive, under the given \a parent item.
 
-    \sa removeColumns()
+    \sa removeColumns(), beginRemoveColumns()
 */
 
 /*!
@@ -1306,6 +1306,8 @@ Qt::DropActions QAbstractItemModel::supportedDropActions() const
   If you implement your own model, you can reimplement this function
   if you want to support insertions. Alternatively, you can provide
   you own API for altering the data.
+
+  \sa insertColumns(), removeRows(), beginInsertRows(), endInsertRows()
 */
 bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
 {
@@ -1330,6 +1332,8 @@ bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
   If you implement your own model, you can reimplement this function
   if you want to support insertions. Alternatively, you can provide
   you own API for altering the data.
+
+  \sa insertRows(), removeColumns(), beginInsertColumns(), endInsertColumns()
 */
 bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
 {
@@ -1347,7 +1351,7 @@ bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
     if you want to support removing. Alternatively, you can provide
     you own API for altering the data.
 
-    \sa removeRow(), removeColumns(), insertColumns()
+    \sa removeRow(), removeColumns(), insertColumns(), beginRemoveRows(), endRemoveRows()
 */
 bool QAbstractItemModel::removeRows(int, int, const QModelIndex &)
 {
@@ -1365,7 +1369,7 @@ bool QAbstractItemModel::removeRows(int, int, const QModelIndex &)
     if you want to support removing. Alternatively, you can provide
     you own API for altering the data.
 
-    \sa removeColumn(), removeRows(), insertColumns()
+    \sa removeColumn(), removeRows(), insertColumns(), beginRemoveColumns(), endRemoveColumns()
 */
 bool QAbstractItemModel::removeColumns(int, int, const QModelIndex &)
 {
