@@ -116,10 +116,10 @@ static inline void load(const QString & = QString(), int = -1)
 }
 
 static
-QFontEngine *loadEngine(int, const QFontPrivate *, const QFontDef &request,
+QFontEngine *loadEngine(int, const QFontPrivate *fontPriv, const QFontDef &request,
                         QtFontFamily *family, QtFontFoundry *, QtFontStyle *)
 {
-    QFontEngineMac *engine = new QFontEngineMac;
+    ATSFontFamilyRef atsFamily = 0;
 
     { //find the font
         QStringList family_list;
@@ -140,22 +140,21 @@ QFontEngine *loadEngine(int, const QFontPrivate *, const QFontDef &request,
                 QCFString actualName;
                 if(ATSFontFamilyGetName(familyref, kATSOptionFlagsDefault, &actualName) == noErr) {
                     if(static_cast<QString>(actualName) == *it) {
-                        engine->familyref = familyref;
+                        atsFamily = familyref;
                         break;
                     }
                 }
-                if(!engine->familyref) //just take one if it isn't set yet
-                    engine->familyref = familyref;
+                if(!family) //just take one if it isn't set yet
+                    atsFamily = familyref;
             }
         }
     }
-    if(engine->familyref) { //fill in actual name
-        QCFString actualName;
-        if(ATSFontFamilyGetName(engine->familyref, kATSOptionFlagsDefault, &actualName) == noErr)
-            engine->fontDef.family = actualName;
+    QFontDef fontDef = request;
+    if(family) { //fill in actual name
+	QCFString actualName;
+        if(ATSFontFamilyGetName(atsFamily, kATSOptionFlagsDefault, &actualName) == noErr)
+	    fontDef.family = actualName;
     }
-#if defined(Q_NEW_MAC_FONTENGINE)
-    engine->init();
-#endif
-    return engine;
+
+    return new QFontEngineMac(atsFamily, fontDef, fontPriv->kerning);
 }

@@ -116,7 +116,7 @@ public:
     virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
     virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
 
-#if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_NEW_MAC_FONTENGINE)
+#if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
     virtual void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si) = 0;
 #endif
     virtual void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs,
@@ -185,8 +185,6 @@ public:
     FaceId _faceId;
     mutable int synthesized_flags;
     mutable QFixed lineWidth;
-#elif defined(Q_WS_MAC)
-    uint kerning : 1;
 #endif // Q_WS_WIN
 };
 
@@ -314,7 +312,7 @@ public:
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-#if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_NEW_MAC_FONTENGINE)
+#if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
     void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
 #endif
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
@@ -349,8 +347,6 @@ private:
 #include "QtCore/qmap.h"
 #include "QtCore/qcache.h"
 
-#if defined(Q_NEW_MAC_FONTENGINE)
-
 #include "private/qcore_mac_p.h"
 
 struct QShaperItem;
@@ -358,13 +354,9 @@ struct QShaperItem;
 class QFontEngineMac : public QFontEngine
 {
 public:
-    // ####
-    ATSFontFamilyRef familyref;
-
-    QFontEngineMac();
+    QFontEngineMac(const ATSFontFamilyRef &family, const QFontDef &fontDef,
+                   bool kerning);
     virtual ~QFontEngineMac();
-
-    void init();
 
     virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags,
@@ -395,9 +387,14 @@ public:
 
     void draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt &ti, int paintDeviceHeight);
 
+    inline ATSFontFamilyRef fontFamilyRef() const { return familyref; }
+
 private:
     int fontIndexForFMFont(FMFont font) const;
     ATSUStyle styleForFont(int fontIndex) const;
+
+    ATSFontFamilyRef familyref;
+    uint kerning : 1;
 
     mutable ATSUTextLayout textLayout;
     mutable ATSUStyle style;
@@ -411,55 +408,6 @@ private:
     };
     mutable QVector<FontInfo> fonts;
 };
-
-#else
-
-struct QATSUStyle;
-struct QATSUGlyphInfo;
-class QFontEngineMac : public QFontEngine
-{
-    mutable ATSUTextLayout mTextLayout;
-    mutable QATSUStyle *internal_fi;
-    enum { widthCacheSize = 0x500 };
-    mutable int widthCache[widthCacheSize];
-    QATSUStyle *getFontStyle() const;
-    mutable QCache<QString, QATSUGlyphInfo> glyphCache;
-
-public:
-    ATSFontFamilyRef familyref;
-    QFontEngineMac();
-    ~QFontEngineMac();
-
-    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
-    void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
-    void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
-
-
-    void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
-    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
-
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
-    glyph_metrics_t boundingBox(glyph_t glyph);
-
-    QFixed ascent() const;
-    QFixed descent() const;
-    QFixed leading() const;
-    qreal maxCharWidth() const;
-
-    const char *name() const { return "ATSUI"; }
-
-    bool canRender(const QChar *string, int len);
-
-    Type type() const { return QFontEngine::Mac; }
-
-    void calculateCost();
-
-    enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04, ADVANCES=0x08 };
-    int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, QFixed x =-1, QFixed y=-1,
-                   QPaintEngine *p=0, void **data=0) const;
-};
-
-#endif
 
 #endif
 

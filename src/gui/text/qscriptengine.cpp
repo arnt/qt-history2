@@ -230,22 +230,10 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
         ++glyph_pos;
     }
     Q_ASSERT(glyph_pos == item->num_glyphs);
-#elif !defined(Q_NEW_MAC_FONTENGINE)
-
-    logClusters[0] = 0;
-    for (int i = 1; i < length; ++i) {
-        if (uc[i - 1].unicode() >= 0xd800 && uc[i - 1].unicode() < 0xdc00
-            && uc[i].unicode() >= 0xdc00 && uc[i].unicode() < 0xe000)
-            logClusters[i] = i - 1;
-        else
-            logClusters[i] = i;
-
-    }
-    Q_ASSERT(item->num_glyphs == length);
 #endif
 
     // first char in a run is never (treated as) a mark
-#if !defined(Q_NEW_MAC_FONTENGINE)
+#if !defined(Q_WS_MAC)
     int cStart = 0;
 #endif
     glyphs[0].attributes.mark = false;
@@ -260,7 +248,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
         ++pos;
         while (pos < logClusters[i]) {
             // the mac engine already has attributes setup properly
-#if !defined(Q_NEW_MAC_FONTENGINE)
+#if !defined(Q_WS_MAC)
             glyphs[pos].attributes = glyphs[pos-1].attributes;
 #endif
             ++pos;
@@ -270,7 +258,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
             glyphs[pos].attributes.dontPrint = true;
         const QUnicodeTables::Properties *prop = QUnicodeTables::properties(uc[i].unicode());
         int cat = prop->category;
-#if !defined(Q_NEW_MAC_FONTENGINE)
+#if !defined(Q_WS_MAC)
         if (cat != QChar::Mark_NonSpacing) {
             glyphs[pos].attributes.mark = false;
             glyphs[pos].attributes.clusterStart = true;
@@ -338,7 +326,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
     heuristicSetGlyphAttributes(item, item->string->unicode() + item->from, item->length);
 }
 
-#if !defined(Q_NEW_MAC_FONTENGINE)
+#if !defined(Q_WS_MAC)
 static bool basic_shape(QShaperItem *item)
 {
     if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
@@ -4340,6 +4328,8 @@ static void khmer_attributes( int script, const QString &text, int from, int len
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
+#ifndef Q_WS_MAC
+
 enum MymrCharClassValues
 {
     Mymr_CC_RESERVED             =  0,
@@ -4841,7 +4831,7 @@ static void myanmar_attributes(int script, const QString &text, int from, int le
     }
 }
 
-
+#endif
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
 // Hangul
@@ -5196,7 +5186,6 @@ const q_scriptEngine qt_scriptEngines[] = {
 };
 #elif defined(Q_WS_MAC)
 
-#if defined(Q_NEW_MAC_FONTENGINE)
 static bool mac_shape(QShaperItem *item)
 {
     QFontEngineMac *fe = static_cast<QFontEngineMac *>(item->font);
@@ -5280,53 +5269,5 @@ const q_scriptEngine qt_scriptEngines[] = {
     // Khmer
     { mac_shape, khmer_attributes }
 };
-#else
-
-const q_scriptEngine qt_scriptEngines[] = {
-    // Common
-    { basic_shape, 0 },
-    // Hebrew
-    { basic_shape, 0 },
-    // Arabic
-    { basic_shape, 0 },
-    // Syriac
-    { basic_shape, 0 },
-    // Thaana
-    { basic_shape, 0 },
-    // Devanagari
-    { basic_shape, 0 },
-    // Bengali
-    { basic_shape, 0 },
-    // Gurmukhi
-    { basic_shape, 0 },
-    // Gujarati
-    { basic_shape, 0 },
-    // Oriya
-    { basic_shape, 0 },
-    // Tamil
-    { basic_shape, 0 },
-    // Telugu
-    { basic_shape, 0 },
-    // Kannada
-    { basic_shape, 0 },
-    // Malayalam
-    { basic_shape, 0 },
-    // Sinhala
-    { basic_shape, 0 },
-    // Thai
-    { basic_shape, 0 },
-    // Lao
-    { basic_shape, 0 },
-    // Tibetan
-    { basic_shape, 0 },
-    // Myanmar
-    { basic_shape, 0 },
-    // Hangul
-    { basic_shape, 0 },
-    // Khmer
-    { basic_shape, 0 }
-};
-
-#endif
 
 #endif

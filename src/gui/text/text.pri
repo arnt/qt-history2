@@ -82,7 +82,6 @@ unix:x11 {
 	SOURCES += \
 		text/qfont_mac.cpp \
 		text/qfontengine_mac.cpp
-        DEFINES += Q_NEW_MAC_FONTENGINE
 }
 
 embedded {
