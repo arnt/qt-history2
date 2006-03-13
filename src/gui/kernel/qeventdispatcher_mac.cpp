@@ -109,7 +109,7 @@ static Boolean find_timer_event(EventRef event, void *data)
 
 bool QEventDispatcherMac::unregisterTimer(int id)
 {
-    if (timerId < 1) {
+    if (id < 1) {
         qWarning("QEventDispatcherUNIX::unregisterTimer: invalid argument");
         return false;
     } else if (thread() != QThread::currentThread()) {
@@ -142,10 +142,10 @@ bool QEventDispatcherMac::unregisterTimer(int id)
 
 bool QEventDispatcherMac::unregisterTimers(QObject *obj)
 {
-    if (!object) {
+    if (!obj) {
         qWarning("QEventDispatcherUNIX::unregisterTimers: invalid argument");
         return false;
-    } else if (object->thread() != thread() || thread() != QThread::currentThread()) {
+    } else if (obj->thread() != thread() || thread() != QThread::currentThread()) {
         qWarning("QObject::killTimers: timers cannot be stopped from another thread");
         return false;
     }
