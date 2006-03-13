@@ -40,17 +40,26 @@ ClearCacheFunc QScreen::clearCacheFunc = 0;
 #ifndef QT_NO_QWS_CURSOR
 /*!
     \class QScreenCursor
-    \brief The QScreenCursor class manages the onscreen mouse cursor in
-    Qtopia Core.
-
     \ingroup qws
+
+    \brief The QScreenCursor class manages the onscreen mouse cursor.
+
+    Note that this class is non-portable, and that it is only
+    available in \l {Qtopia Core}.
 
     QScreenCursor provides an implementation of a software mouse
     cursor and can be subclassed by hardware drivers which support a
     hardware mouse cursor. There may only be one QScreenCursor at a
-    time; it is constructed by QScreen or one of its descendants.
+    time; it is constructed by the QScreen class or one of its
+    descendants, i.e. QScreen act as a factory for the screen cursor
+    and the QScreenCursor class should never be instantiated
+    explicitly.
 
-    This class is non-portable. It is only available in \l {Qtopia Core}.
+    The QWSServer class provides some means of controlling the
+    cursor's appearance with the QWSServer::isCursorVisible() and
+    QWSServer::setCursorVisible() functions.
+
+    \sa QScreen, QWSServer
 */
 
 /*!
@@ -163,6 +172,40 @@ void QScreenCursor::initSoftwareCursor()
 #endif // QT_NO_QWS_CURSOR
 
 
+/*!
+    \internal
+    \fn QRect QScreenCursor::boundingRect () const
+*/
+
+/*!
+    \internal
+    \fn bool QScreenCursor::enabled ()
+*/
+
+/*!
+    \internal
+    \fn QImage QScreenCursor::image () const
+*/
+
+/*!
+    \internal
+    \fn void QScreenCursor::initSoftwareCursor ()
+*/
+
+/*!
+    \internal
+    \fn bool QScreenCursor::isAccelerated () const
+*/
+
+/*!
+    \internal
+    \fn bool QScreenCursor::isVisible () const
+*/
+
+/*!
+    \internal
+    \fn bool QScreenCursor::supportsAlphaCursor () const
+*/
 
 
 
@@ -182,15 +225,16 @@ void QScreenCursor::initSoftwareCursor()
 
 
 /*!
-  \class QScreen qscreen_qws.h
-  \brief The QScreen class and its descendants manage the framebuffer and
-  palette.
+  \class QScreen
+  \brief The QScreen class provides framebuffer and palette management.
 
   \ingroup qws
 
   QScreens act as factories for the screen cursor. QLinuxFbScreen
   manages a Linux framebuffer; accelerated drivers subclass QLinuxFbScreen.
   There can only be one screen in a \l {Qtopia Core} application.
+
+  \sa {Running Applications}
 */
 
 /*!
@@ -720,6 +764,8 @@ static void blit_16_to_16(const blit_data *data)
 }
 
 /*!
+    \fn void QScreen::blit(const QImage &image, const QPoint &topLeft, const QRegion &region)
+
     Copies the given \a region in the given \a image to the point
     specified by \a topLeft.
 
