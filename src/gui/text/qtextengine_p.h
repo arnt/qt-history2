@@ -287,7 +287,7 @@ struct QGlyphLayout
     inline QGlyphLayout()
         : glyph(0), justificationType(0), nKashidas(0), space_18d6(0)
         {}
-    
+
     // highest value means highest priority for justification. Justification is done by first inserting kashidas
     // starting with the highest priority positions, then stretching spaces, afterwards extending inter char
     // spacing, and last spacing between arabic words.
@@ -329,6 +329,14 @@ struct QGlyphLayout
     uint space_18d6 : 24;
 };
 Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
+
+inline bool qIsControlChar(ushort uc)
+{
+    return (uc >= 0x200b && uc <= 0x200f /* ZW Space, ZWNJ, ZWJ, LRM and RLM */)
+            || (uc >= 0x2028 && uc <= 0x202f /* LS, PS, LRE, RLE, PDF, LRO, RLO, NNBSP */)
+            || (uc >= 0x206a && uc <= 0x206f /* ISS, ASS, IAFS, AFS, NADS, NODS */);
+}
+
 
 struct QCharAttributes {
     uchar softBreak      :1;     // Potential linebreak point _before_ this character
@@ -559,5 +567,5 @@ public:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextEngine::ShaperFlags)
 
 
-    
+
 #endif // QTEXTENGINE_P_H

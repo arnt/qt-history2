@@ -238,6 +238,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
 #endif
     glyphs[0].attributes.mark = false;
     glyphs[0].attributes.clusterStart = true;
+    glyphs[0].attributes.dontPrint = qIsControlChar(uc[0].unicode());
 
     int pos = 0;
     int lastCat = ::category(uc[0]);
@@ -254,7 +255,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
             ++pos;
         }
         // hide soft-hyphens by default
-        if (uc[i].unicode() == 0x00ad)
+        if (uc[i].unicode() == 0x00ad || qIsControlChar(uc[i].unicode()))
             glyphs[pos].attributes.dontPrint = true;
         const QUnicodeTables::Properties *prop = QUnicodeTables::properties(uc[i].unicode());
         int cat = prop->category;
@@ -471,6 +472,7 @@ static bool hebrew_shape(QShaperItem *item)
                 glyphs[slen].attributes.clusterStart = true;
                 glyphs[slen].attributes.mark = false;
                 glyphs[slen].attributes.combiningClass = 0;
+                glyphs[slen].attributes.dontPrint = qIsControlChar(uc[i].unicode());
                 cluster_start = slen;
             } else {
                 glyphs[slen].attributes.clusterStart = false;
@@ -1446,8 +1448,6 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
         return false;
     heuristicSetGlyphAttributes(item);
 
-    QGlyphLayout *glyphs = item->glyphs;
-    unsigned short *logClusters = item->log_clusters;
     const unsigned short *uc = (const unsigned short *)item->string->unicode() + item->from;
 
     QVarLengthArray<QArabicProperties> props(item->length+2);
@@ -1465,20 +1465,6 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
     qt_getArabicProperties((const unsigned short *)(uc+f), l, props.data());
 
     QVarLengthArray<uint> apply(item->num_glyphs);
-
-
-    // Hack to remove ZWJ and ZWNJ from rendered output.
-    int j = 0;
-    for (int i = 0; i < item->num_glyphs; i++) {
-        if (uc[i] == 0x200c || uc[i] == 0x200d)
-            continue;
-        glyphs[j] = glyphs[i];
-        properties[j] = properties[i];
-        glyphs[j].attributes.justification = properties[i].justification;
-        logClusters[i] = logClusters[j];
-        ++j;
-    }
-    item->num_glyphs = j;
 
     for (int i = 0; i < item->num_glyphs; i++) {
         apply[i] = 0;
