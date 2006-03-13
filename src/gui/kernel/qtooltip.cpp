@@ -23,6 +23,7 @@
 #include <qtimer.h>
 #include <qtooltip.h>
 #include <private/qeffects_p.h>
+#include <qtextdocument.h>
 #include <qdebug.h>
 
 #ifndef QT_NO_TOOLTIP
@@ -40,6 +41,9 @@
     widget's function. It is drawn immediately below the given
     position in a distinctive black-on-yellow color combination. The
     tip can be any \l{QTextEdit}{rich text} formatted string.
+
+    Rich text formatted tips implictely do word breaking, unless
+    specified differently with \c{<p style='white-space:pre'>}.
 
     The simplest and most common way to set a widget's tooltip is by
     calling its QWidget::setToolTip() function.
@@ -86,6 +90,7 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
     setAlignment(Qt::AlignLeft);
     setIndent(1);
     ensurePolished();
+    setWordWrap(Qt::mightBeRichText(text));
     setText(text);
 
     QFontMetrics fm(font());
