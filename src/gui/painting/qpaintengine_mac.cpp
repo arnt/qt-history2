@@ -710,7 +710,6 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
 
 void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem &item)
 {
-#if defined(Q_NEW_MAC_FONTENGINE)
     Q_D(QCoreGraphicsPaintEngine);
 
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(item);
@@ -737,10 +736,6 @@ void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem 
 
     updatePen(oldPen);
     updateBrush(oldBrush, oldBrushOrigin);
-
-#else
-    QQuickDrawPaintEngine::drawTextItem(pos, item);
-#endif
 }
 
 QPainter::RenderHints
