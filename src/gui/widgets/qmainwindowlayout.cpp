@@ -758,6 +758,8 @@ QLayoutItem *QMainWindowLayout::itemAt(int index) const
         if (x++ == index)
             return layout_info[i].item;
     }
+    if (x++ == index)
+        return statusbar;
     return 0;
 }
 
@@ -801,6 +803,11 @@ QLayoutItem *QMainWindowLayout::takeAt(int index)
             VDEBUG() << "END of QMainWindowLayout::takeAt (removed" << i << ")";
             return ret;
         }
+    }
+    if (x++ == index) {
+        QLayoutItem *ret = statusbar;
+        statusbar = 0;
+        return ret;
     }
 
     VDEBUG() << "END of QMainWindowLayout::takeAt (not found)";
