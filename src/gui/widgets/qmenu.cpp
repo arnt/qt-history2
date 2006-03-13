@@ -1824,7 +1824,27 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         QAction *nextAction = 0;
         QMenuPrivate::QMenuScroller::ScrollLocation scroll_loc = QMenuPrivate::QMenuScroller::ScrollStay;
         if (!d->currentAction) {
-            nextAction = d->actionList.isEmpty() ? 0 : d->actionList.first();
+            if(key == Qt::Key_Down) {
+                for(int i = 0; i < d->actionList.size(); ++i) {
+                    QAction *act = d->actionList.at(i);
+                    if (!act->isSeparator() &&
+                        (style()->styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, 0, this)
+                         || act->isEnabled())) {
+                        nextAction = act;
+                        break;
+                    }
+                }
+            } else {
+                for(int i = d->actionList.size()-1; i >= 0; --i) {
+                    QAction *act = d->actionList.at(i);
+                    if (!act->isSeparator() &&
+                        (style()->styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, 0, this)
+                         || act->isEnabled())) {
+                        nextAction = act;
+                        break;
+                    }
+                }
+            }
         } else {
             for(int i=0, y=0; !nextAction && i < (int)d->actionList.count(); i++) {
                 QAction *act = d->actionList.at(i);
