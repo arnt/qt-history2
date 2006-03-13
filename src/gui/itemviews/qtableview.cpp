@@ -650,12 +650,12 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
     the specified selection \a flags.
 */
 void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
-{
-    if (!selectionModel())
-        return;
-    
+{    
     QModelIndex tl = indexAt(QPoint(isRightToLeft() ? rect.right() : rect.left(), rect.top()));
-    QModelIndex br = indexAt(QPoint(isRightToLeft() ? rect.left() : rect.right(), rect.bottom()));    
+    QModelIndex br = indexAt(QPoint(isRightToLeft() ? rect.left() : rect.right(), rect.bottom()));
+
+    if (!selectionModel() || !tl.isValid() || !br.isValid())
+        return;    
 
     bool verticalMoved = verticalHeader()->sectionsMoved();
     bool horizontalMoved = horizontalHeader()->sectionsMoved();
