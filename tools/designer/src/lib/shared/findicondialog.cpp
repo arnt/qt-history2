@@ -243,7 +243,9 @@ void FindIconDialog::setFile(const QString &path)
 
     setViewDir(dir);
 
+    int cursorPos = ui->m_file_input->lineEdit()->cursorPosition();
     ui->m_file_input->lineEdit()->setText(path);
+    ui->m_file_input->lineEdit()->setCursorPosition(cursorPos);
 
     m_file_data.file.clear();
     ui->m_icon_view->clearSelection();
