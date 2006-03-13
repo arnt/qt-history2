@@ -1614,8 +1614,9 @@ struct QGLFontTexture {
 };
 
 typedef QHash<glyph_t, QGLGlyphCoord*>  QGLGlyphHash;
-typedef QHash<QFontEngine*, QGLGlyphHash* > QGLFontGlyphHash;
-typedef QHash<QFontEngine*, QGLFontTexture* > QGLFontTexHash;
+typedef QHash<QFontEngine*, QGLGlyphHash*> QGLFontGlyphHash;
+typedef QHash<quint64, QGLFontTexture*> QGLFontTexHash;
+typedef QHash<QPaintDevice*, QGLFontGlyphHash*> QGLDeviceHash;
 
 class QGLGlyphCache : public QObject
 {
@@ -1624,7 +1625,7 @@ public:
     QGLGlyphCache() : QObject(0) { current_cache = 0; }
     ~QGLGlyphCache();
     QGLGlyphCoord *lookup(QFontEngine *, glyph_t);
-    void cacheGlyphs(const QTextItemInt &, const QVarLengthArray<glyph_t> &);
+    void cacheGlyphs(QPaintDevice *, const QTextItemInt &, const QVarLengthArray<glyph_t> &);
     void cleanCache();
 
 public slots:
@@ -1634,7 +1635,7 @@ public slots:
 protected:
     QGLGlyphHash *current_cache;
     QGLFontTexHash qt_font_textures;
-    QGLFontGlyphHash qt_glyph_cache;
+    QGLDeviceHash qt_device_cache;
 };
 
 QGLGlyphCache::~QGLGlyphCache()
@@ -1645,18 +1646,31 @@ QGLGlyphCache::~QGLGlyphCache()
 
 void QGLGlyphCache::fontEngineDestroyed(QObject *o)
 {
+//     qDebug() << "fontEngineDestroyed()";
     QFontEngine *fe = static_cast<QFontEngine *>(o); // safe, since only the type is used
-    QGLGlyphHash *cache = qt_glyph_cache.take(fe);
-    delete cache;
-    QGLFontTexture *tex = qt_font_textures.take(fe);
+    QList<QPaintDevice *> keys = qt_device_cache.keys();
+    QPaintDevice *dev = 0;
+
+    for (int i=0; i < keys.size(); ++i) {
+        QGLFontGlyphHash *font_cache = qt_device_cache.value(keys.at(i));
+        if (font_cache->find(fe) != font_cache->end()) {
+            dev = keys.at(i);
+            QGLGlyphHash *cache = font_cache->take(fe);
+            delete cache;
+            break;
+        }
+    }
+
+    quint64 font_key = (reinterpret_cast<quint64>(dev) << 32) | reinterpret_cast<quint64>(fe);
+    QGLFontTexture *tex = qt_font_textures.take(font_key);
     glDeleteTextures(1, &tex->texture);
     delete tex;
-//    qDebug() << "font engine destroyed" << o;
 }
 
 void QGLGlyphCache::widgetDestroyed(QObject *)
 {
-    cleanCache();
+//     qDebug() << "widget destroyed";
+    cleanCache(); // ###
 }
 
 void QGLGlyphCache::cleanCache()
@@ -1667,26 +1681,50 @@ void QGLGlyphCache::cleanCache()
         ++it;
     }
     qDeleteAll(qt_font_textures);
-    qDeleteAll(qt_glyph_cache);
     qt_font_textures.clear();
-    qt_glyph_cache.clear();
+
+    QList<QPaintDevice *> keys = qt_device_cache.keys();
+    for (int i=0; i < keys.size(); ++i) {
+        QGLFontGlyphHash *font_cache = qt_device_cache.value(keys.at(i));
+        qDeleteAll(*font_cache);
+        font_cache->clear();
+    }
+    qDeleteAll(qt_device_cache);
+    qt_device_cache.clear();
 }
 
-void QGLGlyphCache::cacheGlyphs(const QTextItemInt &ti,
+void QGLGlyphCache::cacheGlyphs(QPaintDevice *device, const QTextItemInt &ti,
                                 const QVarLengthArray<glyph_t> &glyphs)
 {
-    QGLFontGlyphHash::const_iterator cache_it = qt_glyph_cache.find(ti.fontEngine);
+    QGLDeviceHash::const_iterator dev_it = qt_device_cache.find(device);
+    QGLFontGlyphHash *font_cache = 0;
+    if (dev_it == qt_device_cache.end()) {
+        font_cache = new QGLFontGlyphHash;
+//         qDebug() << "new device" << device << font_cache;
+        qt_device_cache.insert(device, font_cache);
+        if (device->devType() == QInternal::Widget) {
+            QWidget *widget = static_cast<QWidget *>(device);
+            connect(widget, SIGNAL(destroyed(QObject *)), SLOT(widgetDestroyed(QObject *)));
+        }
+    } else {
+        font_cache = dev_it.value();
+    }
+    Q_ASSERT(font_cache != 0);
+
+    QGLFontGlyphHash::const_iterator cache_it = font_cache->find(ti.fontEngine);
     QGLGlyphHash *cache = 0;
-    if (cache_it == qt_glyph_cache.end()) {
+    if (cache_it == font_cache->end()) {
         cache = new QGLGlyphHash;
-        qt_glyph_cache.insert(ti.fontEngine, cache);
+        font_cache->insert(ti.fontEngine, cache);
         connect(ti.fontEngine, SIGNAL(destroyed(QObject *)), SLOT(fontEngineDestroyed(QObject *)));
     } else {
         cache = cache_it.value();
     }
     current_cache = cache;
 
-    QGLFontTexHash::const_iterator it = qt_font_textures.find(ti.fontEngine);
+    quint64 font_key = (reinterpret_cast<quint64>(device) << 32)
+                       | reinterpret_cast<quint64>(ti.fontEngine);
+    QGLFontTexHash::const_iterator it = qt_font_textures.find(font_key);
     QGLFontTexture *font_tex;
     if (it == qt_font_textures.end()) {
         GLuint font_texture;
@@ -1704,8 +1742,8 @@ void QGLGlyphCache::cacheGlyphs(const QTextItemInt &ti,
         font_tex->texture = font_texture;
         font_tex->x_offset = x_margin;
         font_tex->y_offset = y_margin;
-        qDebug() << "new font tex: " << ti.fontEngine << font_tex->texture;
-        qt_font_textures.insert(ti.fontEngine, font_tex);
+//         qDebug() << "new font tex: " << font_key << font_tex->texture;
+        qt_font_textures.insert(font_key, font_tex);
     } else {
         font_tex = it.value();
         glBindTexture(GL_TEXTURE_2D, font_tex->texture);
@@ -1808,7 +1846,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 //     }
 
     // make sure the glyphs we want to draw are in the cache
-    qt_glyph_cache()->cacheGlyphs(ti, glyphs);
+    qt_glyph_cache()->cacheGlyphs(paintDevice(), ti, glyphs);
 
     glColor4ubv(d->pen_color);
     glEnable(GL_TEXTURE_2D);
@@ -1828,9 +1866,8 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             QPointF logical_pos((positions[i].x - g->x_offset).toReal(),
                                 (positions[i].y + g->y_offset).toReal());
 
-            QRectF r(logical_pos,
-                     QSizeF(g->width*glyph_tex_width,
-                            g->height*glyph_tex_height));
+            QRectF r(logical_pos, QSizeF(g->width*glyph_tex_width,
+                                         g->height*glyph_tex_height));
             glTexCoord2d(x1, y1);
             glVertex2d(r.x(), r.y());
 
