@@ -387,9 +387,6 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
     case PM_DockWidgetTitleMargin:
         ret = 3;
         break;
-    case PM_DockWidgetSeparatorExtent:
-        ret = 4;
-        break;
 #if defined(Q_WS_WIN)
     case PM_DockWidgetFrameWidth:
         ret = GetSystemMetrics(SM_CXFRAME);
@@ -1637,9 +1634,31 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
          qDrawWinPanel(p, opt->rect, popupPal, opt->state & State_Sunken);
         break; }
 #ifndef QT_NO_DOCKWIDGET
-    case PE_IndicatorDockWidgetResizeHandle:
-        break;
-    case PE_FrameDockWidget:
+    case PE_IndicatorDockWidgetResizeHandle: {
+        QPen oldPen = p->pen();
+        p->setPen(opt->palette.light().color());
+        if (opt->state & State_Horizontal) {
+            p->drawLine(opt->rect.left(),          opt->rect.top(),
+                        opt->rect.right(), opt->rect.top());
+            p->setPen(opt->palette.dark().color());
+            p->drawLine(opt->rect.left(),          opt->rect.bottom() - 1,
+                        opt->rect.right(), opt->rect.bottom() - 1);
+            p->setPen(opt->palette.shadow().color());
+            p->drawLine(opt->rect.left(),          opt->rect.bottom(),
+                        opt->rect.right(), opt->rect.bottom());
+        } else {
+            p->drawLine(opt->rect.left(), opt->rect.top(),
+                        opt->rect.left(), opt->rect.bottom());
+            p->setPen(opt->palette.dark().color());
+            p->drawLine(opt->rect.right() - 1, opt->rect.top(),
+                        opt->rect.right() - 1, opt->rect.bottom());
+            p->setPen(opt->palette.shadow().color());
+            p->drawLine(opt->rect.right(), opt->rect.top(),
+                        opt->rect.right(), opt->rect.bottom());
+        }
+        p->setPen(oldPen);
+        break; }
+case PE_FrameDockWidget:
         if (qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             drawPrimitive(QStyle::PE_FrameWindow, opt, p, w);
         }
@@ -2059,8 +2078,27 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                         &opt->palette.brush(QPalette::Button));
         break;
 #ifndef QT_NO_SPLITTER
-    case CE_Splitter:
-        break;
+case CE_Splitter: {
+        QPen oldPen = p->pen();
+        p->setPen(opt->palette.light().color());
+        if (opt->state & State_Horizontal) {
+            p->drawLine(opt->rect.x() + 1, opt->rect.y(), opt->rect.x() + 1, opt->rect.height());
+            p->setPen(opt->palette.dark().color());
+            p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.x(), opt->rect.height());
+            p->drawLine(opt->rect.right() - 1, opt->rect.y(), opt->rect.right() - 1,
+                        opt->rect.height());
+            p->setPen(opt->palette.shadow().color());
+            p->drawLine(opt->rect.right(), opt->rect.y(), opt->rect.right(), opt->rect.height());
+        } else {
+            p->drawLine(opt->rect.x(), opt->rect.y() + 1, opt->rect.width(), opt->rect.y() + 1);
+            p->setPen(opt->palette.dark().color());
+            p->drawLine(opt->rect.x(), opt->rect.bottom() - 1, opt->rect.width(),
+                        opt->rect.bottom() - 1);
+            p->setPen(opt->palette.shadow().color());
+            p->drawLine(opt->rect.x(), opt->rect.bottom(), opt->rect.width(), opt->rect.bottom());
+        }
+        p->setPen(oldPen);
+        break; }
 #endif // QT_NO_SPLITTER
 #ifndef QT_NO_SCROLLBAR
     case CE_ScrollBarSubLine:
@@ -2365,10 +2403,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 }
                 p->setPen(dwOpt->palette.color(QPalette::Light));
                 if (!dockWidget || !dockWidget->isFloating()) {
-                    QRect titleRect = opt->rect.adjusted(0, 2, -1, -3);
+                    p->drawLine(r.topLeft(), r.topRight());
                     p->setPen(dwOpt->palette.color(QPalette::Dark));
-                    p->drawRect(titleRect);
-                }
+                    p->drawLine(r.bottomLeft(), r.bottomRight());            }
             }
             if (!dwOpt->title.isEmpty()) {
                 QFont oldFont = p->font();
