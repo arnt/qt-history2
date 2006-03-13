@@ -467,8 +467,11 @@ void QTranslatorPrivate::clear()
     contextLength = 0;
     offsetLength = 0;
 
-    QEvent ev(QEvent::LanguageChange);
-    QCoreApplication::sendEvent(QCoreApplication::instance(), &ev);
+    QCoreApplication * const application = QCoreApplication::instance();
+    if (application) {
+        QEvent * const event = new QEvent(QEvent::LanguageChange);
+        QCoreApplication::postEvent(application, event);
+    }
 }
 
 
