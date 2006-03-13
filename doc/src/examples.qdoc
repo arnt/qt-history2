@@ -165,10 +165,10 @@
     \section1 OpenGL Examples
 
     \list
-    \o \l{opengl/2dpainting}{2D Painting}
+    \o \l{opengl/2dpainting}{2D Painting}\raisedaster
     \o \l{opengl/grabber}{Grabber}
     \o \l{opengl/hellogl}{Hello GL}
-    \o \l{opengl/overpainting}{Overpainting}
+    \o \l{opengl/overpainting}{Overpainting}\raisedaster
     \o \l{opengl/pbuffers}{Pixel Buffers}
     \o \l{opengl/samplebuffers}{Sample Buffers}
     \o \l{opengl/textures}{Textures}
