@@ -575,6 +575,24 @@ typedef quint64 qulonglong;
 #if defined(__cplusplus)
 
 /*
+  quintptr and qptrdiff is guaranteed to be the same size as a pointer, i.e.
+
+      sizeof(void *) == sizeof(quintptr)
+      && sizeof(void *) == sizeof(qptrdiff)
+*/
+template <int> class QUintForSize    { private: typedef void    Type; };
+template <>    class QUintForSize<4> { public:  typedef quint32 Type; };
+template <>    class QUintForSize<8> { public:  typedef quint64 Type; };
+template <typename T> class QUintForType : public QUintForSize<sizeof(T)> { };
+typedef QUintForType<void *>::Type quintptr;
+
+template <int> class QIntForSize    { private: typedef void   Type; };
+template <>    class QIntForSize<4> { public:  typedef qint32 Type; };
+template <>    class QIntForSize<8> { public:  typedef qint64 Type; };
+template <typename T> class QIntForType : public QIntForSize<sizeof(T)> { };
+typedef QIntForType<void *>::Type qptrdiff;
+
+/*
    Useful type definitions for Qt
 */
 

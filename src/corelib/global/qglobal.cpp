@@ -529,6 +529,40 @@
 */
 
 /*!
+    \typedef quintptr
+    \relates <QtGlobal>
+
+    Integral type for representing a pointers (useful for hashing,
+    etc.).
+
+    Typedef for either quint32 or quint64. This type is guaranteed to
+    be the same size as a pointer on all platforms supported by Qt. On
+    a system with 32-bit pointers, quintptr is a typedef for quint32;
+    on a system with 64-bit pointers, quintptr is a typedef for
+    quint64.
+
+    Note that quintptr is unsigned. Use qptrdiff for signed values.
+
+    \sa qptrdiff, quint32, quint64
+*/
+
+/*!
+    \typedef qptrdiff
+    \relates <QtGlobal>
+
+    Integral type for representing pointer differences.
+
+    Typedef for either qint32 or qint64. This type is guaranteed to be
+    the same size as a pointer on all platforms supported by Qt. On a
+    system with 32-bit pointers, quintptr is a typedef for quint32; on
+    a system with 64-bit pointers, quintptr is a typedef for quint64.
+
+    Note that qptrdiff is signed. Use quintptr for unsigned values.
+
+    \sa quintptr, qint32, qint64
+*/
+
+/*!
     \typedef QtMsgHandler
     \relates <QtGlobal>
 
