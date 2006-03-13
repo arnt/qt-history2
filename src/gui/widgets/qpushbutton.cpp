@@ -520,13 +520,10 @@ void QPushButtonPrivate::_q_popupPressed()
         else
             x -= menuSize.width();
     }
-    QObject *guard = q;
-    QMetaObject::addGuard(&guard);
+    QPointer<QPushButton> guard(q);
     menu->exec(QPoint(x, y));
     if (guard)
         q->setDown(false);
-    QMetaObject::removeGuard(&guard);
-
 }
 #endif // QT_NO_MENU
 

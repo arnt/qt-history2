@@ -452,13 +452,10 @@ void QAbstractButtonPrivate::click()
 
     down = false;
     blockRefresh = true;
-    QObject *guard = q;
-    QMetaObject::addGuard(&guard);
+    QPointer<QAbstractButton> guard(q);
     q->nextCheckState();
-    if (!guard) {
-        QMetaObject::removeGuard(&guard);
+    if (!guard)
         return;
-    }
     blockRefresh = false;
     refresh();
     emit q->released();
@@ -470,7 +467,6 @@ void QAbstractButtonPrivate::click()
         emit group->buttonClicked(q);
     }
 #endif
-    QMetaObject::removeGuard(&guard);
 }
 
 
@@ -642,8 +638,7 @@ void QAbstractButton::setChecked(bool checked)
             return;
     }
 
-    QObject *guard = this;
-    QMetaObject::addGuard(&guard);
+    QPointer<QAbstractButton> guard(this);
 
     d->checked = checked;
     if (!d->blockRefresh)
@@ -654,7 +649,6 @@ void QAbstractButton::setChecked(bool checked)
         d->notifyChecked();
     if (guard)
         emit toggled(checked);
-    QMetaObject::removeGuard(&guard);
 }
 
 bool QAbstractButton::isChecked() const
@@ -803,8 +797,7 @@ void QAbstractButton::click()
     if (!isEnabled())
         return;
     Q_D(QAbstractButton);
-    QObject *guard = this;
-    QMetaObject::addGuard(&guard);
+    QPointer<QAbstractButton> guard(this);
     d->down = true;
     emit pressed();
     if (guard) {
@@ -819,7 +812,6 @@ void QAbstractButton::click()
             emit d->group->buttonClicked(this);
 #endif
     }
-    QMetaObject::removeGuard(&guard);
 }
 
 /*! \fn void QAbstractButton::toggle()
@@ -1044,8 +1036,7 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
     if (e->timerId() == d->repeatTimer.timerId()) {
         d->repeatTimer.start(AUTO_REPEAT_PERIOD, this);
         if (d->down) {
-            QObject *guard = this;
-            QMetaObject::addGuard(&guard);
+            QPointer<QAbstractButton> guard(this);
             emit released();
             if (guard)
                 emit clicked(d->checked);
@@ -1055,7 +1046,6 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
 #endif
             if (guard)
                 emit pressed();
-            QMetaObject::removeGuard(&guard);
         }
     } else if (e->timerId() == d->animateTimer.timerId()) {
         d->animateTimer.stop();

@@ -774,13 +774,11 @@ void QAction::setChecked(bool b)
     if (!d->checkable || d->checked == b)
         return;
 
-    QObject *guard = this;
-    QMetaObject::addGuard(&guard);
+    QPointer<QAction> guard(this);
     d->checked = b;
     d->sendDataChanged();
     if (guard)
         emit toggled(b);
-    QMetaObject::removeGuard(&guard);
 }
 
 bool QAction::isChecked() const
