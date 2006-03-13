@@ -1,6 +1,8 @@
 TEMPLATE      = subdirs
-SUBDIRS       = grabber \
+SUBDIRS       = 2dpainting \
+                grabber \
                 hellogl \
+                overpainting \
                 pbuffers \
                 samplebuffers \
                 textures
