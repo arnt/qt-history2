@@ -39,7 +39,7 @@ public:
         : startTime(0), duration(1000), startFrame(0), endFrame(0),
           updateInterval(1000 / 25),
           totalLoopCount(1), currentLoopCount(0), currentTime(0), timerId(0),
-          direction(QTimeLine::Forwards), curveShape(QTimeLine::EaseInOutCurve),
+          direction(QTimeLine::Forward), curveShape(QTimeLine::EaseInOutCurve),
           state(QTimeLine::NotRunning)
     { }
 
@@ -93,7 +93,7 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     if (totalLoopCount && looped && currentLoopCount >= totalLoopCount) {
         finished = true;
         q->stop();
-        currentTime = (direction == QTimeLine::Backwards) ? 0 : duration;
+        currentTime = (direction == QTimeLine::Backward) ? 0 : duration;
     }
 
     if (lastValue != q->currentValue())
@@ -143,7 +143,7 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     upon which you must call start() again to restart from the beginning. To
     make the timeline loop, you can call setLoopCount(), passing the number of
     times the timeline should run before finishing. The direction can also be
-    changed, causing the timeline to run backwards, by calling
+    changed, causing the timeline to run backward, by calling
     setDirection(). You can also pause and unpause the timeline while it's
     running by calling setPaused(). For interactive control, the
     setCurrentTime() function is provided, which sets the time position of the
@@ -157,7 +157,7 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     given time. This value is typically used to describe the steps of an
     animation, where 0 is the first step of an animation, and 1 is the last
     step. When running, QTimeLine generates values between 0 and 1 by calling
-    valueForTime() and emitting valueChanged(). By default, valueFromTime()
+    valueForTime() and emitting valueChanged(). By default, valueForTime()
     applies an interpolation algorithm to generate these value. You can choose
     from a set of predefined timeline algorithms by calling
     setCurveShape(). By default, QTimeLine uses the EaseInOut curve shape,
@@ -189,10 +189,10 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
 
     This enum describes the direction of the timeline when in \l Running state.
     
-    \value Forwards The current time of the timeline increases with time (i.e.,
+    \value Forward The current time of the timeline increases with time (i.e.,
     moves from 0 and towards the end / duration).
 
-    \value Backwards The current time of the timeline decreases with time (i.e.,
+    \value Backward The current time of the timeline decreases with time (i.e.,
     moves from the end / duration and towards 0).
 */
 
@@ -539,6 +539,9 @@ qreal QTimeLine::valueForTime(int msec) const
         value = sinProgress * mix + linearProgress * (1.0 - mix);
         break;
     }
+    case SineCurve:
+        value = (::sin(((msec * pi * 2) / d->duration) - pi/2.0) + 1.0) / 2.0;
+        break;
     default:
         break;
     }
@@ -561,9 +564,9 @@ void QTimeLine::start()
         qWarning("QTimeLine::start: already running");
         return;
     }
-    if (d->currentTime == d->duration && d->direction == Forwards)
+    if (d->currentTime == d->duration && d->direction == Forward)
         d->currentTime = 0;
-    else if (d->currentTime == 0 && d->direction == Backwards)
+    else if (d->currentTime == 0 && d->direction == Backward)
         d->currentTime = d->duration;
     d->timerId = startTimer(d->updateInterval);
     d->startTime = d->currentTime;
@@ -611,15 +614,15 @@ void QTimeLine::setPaused(bool paused)
 }
 
 /*!
-    Toggles the direction of the timeline. If the direction was Forwards, it
-    becomes Backwards, and vice verca.
+    Toggles the direction of the timeline. If the direction was Forward, it
+    becomes Backward, and vice verca.
 
     \sa setDirection()
 */
 void QTimeLine::toggleDirection()
 {
     Q_D(QTimeLine);
-    setDirection(d->direction == Forwards ? Backwards : Forwards);
+    setDirection(d->direction == Forward ? Backward : Forward);
 }
 
 /*!
@@ -634,7 +637,7 @@ void QTimeLine::timerEvent(QTimerEvent *event)
     }
     event->accept();
 
-    if (d->direction == Forwards) {
+    if (d->direction == Forward) {
         d->setCurrentTime(d->startTime + d->timer.elapsed());
     } else {
         d->setCurrentTime(d->startTime - d->timer.elapsed());

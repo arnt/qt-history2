@@ -35,14 +35,15 @@ public:
         Running
     };
     enum Direction {
-        Forwards,
-        Backwards
+        Forward,
+        Backward
     };
     enum CurveShape {
         EaseInCurve,
         EaseOutCurve,
         EaseInOutCurve,
-        LinearCurve
+        LinearCurve,
+        SineCurve
     };
 
     explicit QTimeLine(int duration = 1000, QObject *parent = 0);
