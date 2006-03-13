@@ -559,7 +559,7 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                 int delay=count>3 ? LM(hold[2], hold[3]) : 1;
                 // IE and mozilla use a minimum delay of 10. With the minumum delay of 10
                 // we are compatible to them and avoid huge loads on the app and xserver.
-                *nextFrameDelay = (delay < 10 ? 10 : delay) * 10;
+                *nextFrameDelay = (delay < 2 ? 10 : delay) * 10;
 
                 bool havetrans=hold[1]&0x1;
                 trans_index = havetrans ? hold[4] : -1;

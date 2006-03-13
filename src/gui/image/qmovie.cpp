@@ -155,6 +155,7 @@
 #include "qimagereader.h"
 #include "qpixmap.h"
 #include "qrect.h"
+#include "qdatetime.h"
 #include "qtimer.h"
 #include "qpair.h"
 #include "qmap.h"
@@ -401,6 +402,8 @@ QFrameInfo QMoviePrivate::infoForFrame(int frameNumber)
 */
 bool QMoviePrivate::next()
 {
+    QTime time;
+    time.start();
     QFrameInfo info = infoForFrame(nextFrameNumber);
     if (!info.isValid())
         return false;
@@ -433,6 +436,12 @@ bool QMoviePrivate::next()
     else
         currentPixmap = info.pixmap;
     nextDelay = speedAdjustedDelay(info.delay);
+    // Adjust delay according to the time it took to read the frame
+    int processingTime = time.elapsed();
+    if (processingTime > nextDelay)
+        nextDelay = 0;
+    else
+        nextDelay = nextDelay - processingTime;
     return true;
 }
 
