@@ -811,14 +811,19 @@ void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 */
 QMenu *QMainWindow::createPopupMenu()
 {
+    Q_D(QMainWindow);
     QMenu *menu = 0;
 #ifndef QT_NO_DOCKWIDGET
     QList<QDockWidget *> dockwidgets = qFindChildren<QDockWidget *>(this);
     if (dockwidgets.size()) {
         menu = new QMenu(this);
-        for (int i = 0; i < dockwidgets.size(); ++i)
-            if (dockwidgets.at(i)->parentWidget() == this)
+        for (int i = 0; i < dockwidgets.size(); ++i) {
+            QDockWidget *dockWidget = dockwidgets.at(i);
+            if (dockWidget->parentWidget() == this
+                && d->layout->indexOf(dockWidget) != -1) {
                 menu->addAction(dockwidgets.at(i)->toggleViewAction());
+            }
+        }
         menu->addSeparator();
     }
 #endif // QT_NO_DOCKWIDGET
@@ -827,11 +832,16 @@ QMenu *QMainWindow::createPopupMenu()
     if (toolbars.size()) {
         if (!menu)
             menu = new QMenu(this);
-        for (int i = 0; i < toolbars.size(); ++i)
-            if (toolbars.at(i)->parentWidget() == this)
+        for (int i = 0; i < toolbars.size(); ++i) {
+            QToolBar *toolBar = toolbars.at(i);
+            if (toolBar->parentWidget() == this
+                && d->layout->indexOf(toolBar) != -1) {
                 menu->addAction(toolbars.at(i)->toggleViewAction());
+            }
+        }
     }
 #endif
+    Q_UNUSED(d);
     return menu;
 }
 #endif // QT_NO_MENU
