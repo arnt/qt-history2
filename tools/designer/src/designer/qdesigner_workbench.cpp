@@ -379,6 +379,7 @@ void QDesignerWorkbench::switchToDockedMode()
             this, SLOT(activateWorkspaceChildWindow(QWidget*)));
     mw->setCentralWidget(m_workspace);
     m_core->setTopLevel(mw);
+    (void) mw->statusBar();
     if (m_geometries.isEmpty()) {
         settings.setGeometryFor(mw, qApp->desktop()->availableGeometry(0));
     } else {
@@ -397,7 +398,6 @@ void QDesignerWorkbench::switchToDockedMode()
     m_formToolBar->show();
 
     qDesigner->setMainWindow(mw);
-    (void) mw->statusBar();
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         QDockWidget *dockWidget = magicalDockWidget(tw);
