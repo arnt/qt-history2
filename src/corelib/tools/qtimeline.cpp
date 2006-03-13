@@ -88,11 +88,10 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     currentTime %= (duration + 1);
     if (looped)
         ++currentLoopCount;
-    
+
     bool finished = false;
     if (totalLoopCount && looped && currentLoopCount >= totalLoopCount) {
         finished = true;
-        q->stop();
         currentTime = (direction == QTimeLine::Backward) ? 0 : duration;
     }
 
@@ -100,8 +99,10 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
         emit q->valueChanged(q->currentValue());
     if (lastFrame != q->currentFrame())
         emit q->frameChanged(q->currentFrame());
-    if (finished)
+    if (finished) {
         emit q->finished();
+        q->stop();
+    }
 }
 
 /*!
