@@ -205,6 +205,21 @@ bool QEventDispatcherGlib::hasPendingEvents()
 
 void QEventDispatcherGlib::registerSocketNotifier(QSocketNotifier *socketNotifier)
 {
+    int sockfd;
+    int type;
+    if (!socketNotifier
+        || (sockfd = socketNotifier->socket()) < 0
+        || sockfd > FD_SETSIZE
+        || (type = socketNotifier->type()) < 0
+        || type > 2) {
+        qWarning("QSocketNotifier: Internal error");
+        return;
+    } else if (socketNotifier->thread() != thread()
+               || thread() != QThread::currentThread()) {
+        qWarning("QSocketNotifier: socket notifiers cannot be enabled from another thread");
+        return;
+    }
+
     Q_D(QEventDispatcherGlib);
 
     GSocketNotifierSource *source =
@@ -212,8 +227,8 @@ void QEventDispatcherGlib::registerSocketNotifier(QSocketNotifier *socketNotifie
                                                                sizeof(GSocketNotifierSource)));
     g_source_set_can_recurse(&source->source, true);
 
-    source->pollfd.fd = socketNotifier->socket();
-    switch (socketNotifier->type()) {
+    source->pollfd.fd = sockfd;
+    switch (type) {
     case QSocketNotifier::Read:
         source->pollfd.events = G_IO_IN | G_IO_HUP | G_IO_ERR;
         break;
@@ -233,6 +248,21 @@ void QEventDispatcherGlib::registerSocketNotifier(QSocketNotifier *socketNotifie
 
 void QEventDispatcherGlib::unregisterSocketNotifier(QSocketNotifier *socketNotifier)
 {
+    int sockfd;
+    int type;
+    if (!socketNotifier
+        || (sockfd = socketNotifier->socket()) < 0
+        || sockfd > FD_SETSIZE
+        || (type = socketNotifier->type()) < 0
+        || type > 2) {
+        qWarning("QSocketNotifier: Internal error");
+        return;
+    } else if (socketNotifier->thread() != thread()
+               || thread() != QThread::currentThread()) {
+        qWarning("QSocketNotifier: socket notifiers cannot be disabled from another thread");
+        return;
+    }
+
     Q_D(QEventDispatcherGlib);
 
     GSocketNotifierSource *source = d->socketNotifierSources.take(socketNotifier);
@@ -245,6 +275,14 @@ void QEventDispatcherGlib::unregisterSocketNotifier(QSocketNotifier *socketNotif
 
 void QEventDispatcherGlib::registerTimer(int timerId, int interval, QObject *object)
 {
+    if (timerId < 1 || interval < 0 || !object) {
+        qWarning("QEventDispatcherUNIX::registerTimer: invalid arguments");
+        return;
+    } else if (object->thread() != thread() || thread() != QThread::currentThread()) {
+        qWarning("QObject::startTimer: timers cannot be started from another thread");
+        return;
+    }
+
     Q_D(QEventDispatcherGlib);
 
     GTimerSource *source = new GTimerSource;
@@ -262,6 +300,14 @@ void QEventDispatcherGlib::registerTimer(int timerId, int interval, QObject *obj
 
 bool QEventDispatcherGlib::unregisterTimer(int timerId)
 {
+    if (timerId < 1) {
+        qWarning("QEventDispatcherUNIX::unregisterTimer: invalid argument");
+        return false;
+    } else if (thread() != QThread::currentThread()) {
+        qWarning("QObject::killTimer: timers cannot be stopped from another thread");
+        return false;
+    }
+
     Q_D(QEventDispatcherGlib);
 
     GTimerSource *source = 0;
@@ -284,6 +330,14 @@ bool QEventDispatcherGlib::unregisterTimer(int timerId)
 
 bool QEventDispatcherGlib::unregisterTimers(QObject *object)
 {
+    if (!object) {
+        qWarning("QEventDispatcherUNIX::unregisterTimers: invalid argument");
+        return false;
+    } else if (object->thread() != thread() || thread() != QThread::currentThread()) {
+        qWarning("QObject::killTimers: timers cannot be stopped from another thread");
+        return false;
+    }
+
     Q_D(QEventDispatcherGlib);
 
     bool returnValue = false;
@@ -304,6 +358,11 @@ bool QEventDispatcherGlib::unregisterTimers(QObject *object)
 
 QList<QEventDispatcherGlib::TimerInfo> QEventDispatcherGlib::registeredTimers(QObject *object) const
 {
+    if (!object) {
+        qWarning("QEventDispatcherUNIX:registeredTimers: invalid argument");
+        return QList<TimerInfo>();
+    }
+
     Q_D(const QEventDispatcherGlib);
 
     QList<TimerInfo> returnValue;
