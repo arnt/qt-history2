@@ -775,7 +775,10 @@ QFileInfo::suffix() const
 
 
 /*!
-    Returns the file's path as a QDir object.
+    Returns the path of the object's parent directory as a QDir object.
+
+    \bold{Note:} The QDir returned always corresponds to the object's parent
+    directory, even if the QFileInfo represents a directory.
 
     \sa dirPath(), filePath(), fileName(), isRelative(), absoluteDir()
 */
