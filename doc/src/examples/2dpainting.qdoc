@@ -43,7 +43,7 @@
     \skipto class
     \printuntil /^\};/
 
-    Apart from the constructor, it only provides a paint() function to paint
+    Apart from the constructor, it only provides a \c paint() function to paint
     using a painter supplied by one of our widget subclasses.
 
     \section1 Helper Class Implementation
@@ -55,7 +55,7 @@
     \skipto Helper::Helper
     \printuntil /^\}/
 
-    The actual painting is performed in the paint() function. This takes
+    The actual painting is performed in the \c paint() function. This takes
     a QPainter that has already been set up to paint onto a paint device
     (either a QWidget or a QGLWidget), a QPaintEvent that provides information
     about the region to be painted, and a measure of the elapsed time (in
@@ -94,11 +94,12 @@
     \skipto class
     \printuntil /^\};/
 
-    Apart from the constructor, it only contains a \l{QWidget::paintEvent()}{paintEvent()}
-    function, that lets us draw customized content, and a slot that is used
-    to animate its contents. One member variable keeps track of the \c Helper
-    that the widget uses to paint its contents, and the other records the
-    elapsed time since it was last updated.
+    Apart from the constructor, it only contains a
+    \l{QWidget::paintEvent()}{paintEvent()} function, that lets us draw
+    customized content, and a slot that is used to animate its contents.
+    One member variable keeps track of the \c Helper that the widget uses
+    to paint its contents, and the other records the elapsed time since
+    it was last updated.
 
     \section1 Widget Class Implementation
 
@@ -110,7 +111,7 @@
     \skipto Widget::Widget
     \printuntil /^\}/
 
-    The animate() slot is called whenever a timer, which we define later, times
+    The \c animate() slot is called whenever a timer, which we define later, times
     out:
 
     \skipto ::animate()
@@ -124,7 +125,7 @@
 
     Since the \c Helper class does all of the actual painting, we only have
     to implement a paint event that sets up a QPainter for the widget and calls
-    the helper's paint() function:
+    the helper's \c paint() function:
 
     \skipto ::paintEvent(
     \printuntil /^\}/
@@ -155,19 +156,19 @@
     This enables anti-aliasing if it is supported by your system's OpenGL
     driver.
 
-    The animate() slot is exactly the same as that provided by the \c Widget
+    The \c animate() slot is exactly the same as that provided by the \c Widget
     class:
 
     \skipto ::animate()
     \printuntil /^\}/
 
-    The paintEvent() is almost the same as that found in the \c Widget class:
+    The \c paintEvent() is almost the same as that found in the \c Widget class:
 
     \skipto ::paintEvent(
     \printuntil /^\}/
 
     Since anti-aliasing will be enabled if available, we only need to set up
-    a QPainter on the widget and call the helper's paint() function to display
+    a QPainter on the widget and call the helper's \c paint() function to display
     the widget's contents.
 
     \section1 Window Class Definition
@@ -191,7 +192,7 @@
     \printuntil /^\}/
 
     A timer with a 50 millisecond time out is constructed for animation purposes,
-    and connected to the animate() slots of the \c Widget and \c GLWidget objects.
+    and connected to the \c animate() slots of the \c Widget and \c GLWidget objects.
     Once started, the widgets should be updated at around 20 frames per second.
 
     \section1 Running the Example

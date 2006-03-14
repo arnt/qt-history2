@@ -63,10 +63,10 @@
     initialization of the 2D graphics used.
 
     The new private member functions and variables relate exclusively to the
-    2D graphics and animation. The animate() slot is called periodically by the
-    \c animationTimer to update the widget; the createBubbles() function
+    2D graphics and animation. The \c animate() slot is called periodically by the
+    \c animationTimer to update the widget; the \c createBubbles() function
     initializes the \c bubbles list with instances of a helper class used to
-    draw the animation; the formatInstructions() function is responsible for
+    draw the animation; the \c formatInstructions() function is responsible for
     a semi-transparent messages that is also overpainted onto the OpenGL scene.
 
     \section1 GLWidget Class Implementation
@@ -89,12 +89,13 @@
     \skipto ~GLWidget
     \printuntil /^\}/
 
-    The initializeGL() function is fairly minimal, only setting up the display
+    The \c initializeGL() function is fairly minimal, only setting up the display
     list used in the scene. To cooperate fully with QPainter, we defer matrix
     stack operations and attribute initialization until the widget needs to be
     updated.
 
-    In this example, we implement paintEvent() rather than paintGL() to render
+    In this example, we implement \l{QWidget::paintEvent()}{paintEvent()} rather
+    than \l{QGLWidget::paintGL()}{paintGL()} to render
     our scene. When drawing on a QGLWidget, the paint engine used by QPainter
     performs certain operations that change the states of the OpenGL
     implementation's matrix and property stacks. Therefore, it is necessary to
@@ -119,11 +120,12 @@
     \skipto qglClearColor
     \printuntil resizeGL
 
-    Although the resizeGL() implementation we provide is called automatically
-    whenever the widget is resized, we also call it here to set up the
-    projection used for the scene. This is unnecessary in OpenGL examples that
-    implement the paintGL() function because the matrix stacks are usually
-    unmodified between calls to resizeGL() and paintGL().
+    Although the \l{QGLWidget::resizeGL()}{resizeGL()} implementation we provide
+    is called automatically whenever the widget is resized, we also call it here
+    to set up the projection used for the scene. This is unnecessary in OpenGL
+    examples that implement the \l{QGLWidget::paintGL()}{paintGL()} function
+    because the matrix stacks are usually unmodified between calls to
+    \l{QGLWidget::resizeGL()}{resizeGL()} and \l{QGLWidget::paintGL()}{paintGL()}.
 
     Since the widget's background is not drawn by the system or by Qt, we use
     an OpenGL call to paint it before positioning the object defined earlier
@@ -150,8 +152,9 @@
     When QPainter::end() is called, suitable OpenGL-specific calls are made to
     write the scene, and its additional contents, onto the widget.
 
-    The implementation of the resizeGL() function sets up the dimensions of
-    the viewport and defines a projection transformation:
+    The implementation of the \l{QGLWidget::resizeGL()}{resizeGL()} function
+    sets up the dimensions of the viewport and defines a projection
+    transformation:
 
     \skipto ::resizeGL
     \printuntil /^\}/
@@ -170,8 +173,9 @@
     This function only has an effect if less than 20 bubbles have already been
     created.
 
-    The animate() slot is called every time the widget's \c animationTimer emits
-    the activated() signal. This keeps the bubbles moving around.
+    The \c animate() slot is called every time the widget's \c animationTimer emits
+    the \l{QTimer::activated()}{activated()} signal. This keeps the bubbles moving
+    around.
 
     \skipto ::animate
     \printuntil /^\}/
@@ -179,14 +183,15 @@
     We simply iterate over the bubbles in the \c bubbles list, updating the
     widget before and after each of them is moved.
 
-    The formatInstructions() function is used to prepare some basic instructions
+    The \c formatInstructions() function is used to prepare some basic instructions
     that will be painted with the other 2D graphics over the 3D scene.
 
     \skipto ::formatInstructions
     \printuntil /^\}/
 
     The instructions are painted onto a suitably-sized semi-transparent image that
-    can be rendered using QPainter in the widget's paintEvent() handler function.
+    can be rendered using QPainter in the widget's
+    \l{QWidget::paintEvent()}{paintEvent()} handler function.
 
     \section1 Summary
 
@@ -206,7 +211,8 @@
     \o Reimplement QWidget::paintEvent() to draw both 2D and 3D graphics.
     \endlist
 
-    The paintEvent() implementation must perform the following tasks:
+    The \l{QWidget::paintEvent()}{paintEvent()} implementation must perform the
+    following tasks:
 
     \list
     \o Construct a QPainter object.
@@ -214,9 +220,10 @@
     \o Push the current OpenGL projection and modelview matrices onto their
        respective stacks.
     \o Push the current OpenGL attributes onto the attribute stack.
-    \o Perform initialization tasks usually done in the initializeGL() function.
-    \o Call the widget's resizeGL() function to set the correct perspective
-       transformation and set up the viewport.
+    \o Perform initialization tasks usually done in the
+       \l{QGLWidget::initializeGL()}{initializeGL()} function.
+    \o Call the widget's \l{QGLWidget::resizeGL()}{resizeGL()} function to set
+       the correct perspective transformation and set up the viewport.
     \o Render the scene using OpenGL calls.
     \o Pop the OpenGL projection and modelview matrices off their respective stacks.
     \o Pop the OpenGL attributes off the attribute stack.

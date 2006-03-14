@@ -89,19 +89,20 @@
     \printuntil /^\}/
 
     In the above slot, the \c xRot variable is updated only if the new angle
-    is different to the old one, the xRotationChanged() signals is emitted to
-    allow other components to be updated, and the widget's updateGL() handler
-    function is called.
+    is different to the old one, the \c xRotationChanged() signals is emitted to
+    allow other components to be updated, and the widget's
+    \l{QGLWidget::updateGL()}{updateGL()} handler function is called.
 
-    The setYRotation() and setZRotation() slots perform the same task for
+    The \c setYRotation() and \c setZRotation() slots perform the same task for
     rotations measured by the \c yRot and \c zRot variables.
 
     \section2 OpenGL Initialization
 
-    The initializeGL() function is used to perform useful initialization tasks
-    that are needed to render the 3D scene. These often involve defining colors
-    and materials, enabling and disabling certain rendering flags, and
-    setting other properties used to customize the rendering process.
+    The \l{QGLWidget::initializeGL()}{initializeGL()} function is used to
+    perform useful initialization tasks that are needed to render the 3D scene.
+    These often involve defining colors and materials, enabling and disabling
+    certain rendering flags, and setting other properties used to customize the
+    rendering process.
 
     \skipto ::initializeGL
     \printuntil /^\}/
@@ -113,10 +114,10 @@
 
     \section2 Resizing the Viewport
 
-    The resizeGL() function is used to ensure that the OpenGL implementation
-    renders the scene onto a viewport that matches the size of the widget,
-    using the correct transformation from 3D coordinates to 2D viewport
-    coordinates.
+    The \l{QGLWidget::resizeGL()}{resizeGL()} function is used to ensure that
+    the OpenGL implementation renders the scene onto a viewport that matches the
+    size of the widget, using the correct transformation from 3D coordinates to
+    2D viewport coordinates.
 
     The function is called whenever the widget's dimensions change, and is
     supplied with the new width and height. Here, we define a square viewport
@@ -132,19 +133,19 @@
 
     \section2 Painting the Scene
 
-    The paintGL() function is used to paint the contents of the scene onto
-    the widget. For widgets that only need to be decorated with pure OpenGL
-    content, we reimplement QGLWidget::paintGL() \e instead of reimplementing
-    QWidget::paintEvent():
+    The \l{QGLWidget::paintGL()}{paintGL()} function is used to paint the
+    contents of the scene onto the widget. For widgets that only need to be
+    decorated with pure OpenGL content, we reimplement QGLWidget::paintGL()
+    \e instead of reimplementing QWidget::paintEvent():
 
     \quotefromfile opengl/hellogl/glwidget.cpp
     \skipto ::paintGL
     \printuntil /^\}/
 
     In this example, we clear the widget using the background color that
-    we defined in the initializeGL() function, set up the frame of reference
-    for the object we want to display, and call the display list containing
-    the rendering commands for the object.
+    we defined in the \l{QGLWidget::initializeGL()}{initializeGL()} function,
+    set up the frame of reference for the object we want to display, and call
+    the display list containing the rendering commands for the object.
 
     \section2 Mouse Handling
 
@@ -152,15 +153,15 @@
     reimplementing functions such as QWidget::mousePressEvent() and
     QWidget::mouseMoveEvent().
 
-    The mousePressEvent() function simply records the position of the
-    mouse when a button is initially pressed:
+    The \l{QWidget::mousePressEvent()}{mousePressEvent()} function simply
+    records the position of the mouse when a button is initially pressed:
 
     \skipto ::mousePressEvent
     \printuntil /^\}/
 
-    The mouseMoveEvent() function uses the previous location of the mouse
-    cursor to determine how much the object in the scene should be rotated,
-    and in which direction:
+    The \l{QWidget::mouseMoveEvent()}{mouseMoveEvent()} function uses the
+    previous location of the mouse cursor to determine how much the object
+    in the scene should be rotated, and in which direction:
 
     \skipto ::mouseMoveEvent
     \printuntil /^\}/
@@ -171,10 +172,10 @@
 
     \section2 Utility Functions
 
-    We have omitted the utility functions, makeObject(), quad(), extrude(),
-    and normalizeAngle() from our discussion. These can be viewed in the
-    quoted source for \c glwidget.cpp via the link at the start of this
-    document.
+    We have omitted the utility functions, \c makeObject(), \c quad(),
+    \c extrude(), and \c normalizeAngle() from our discussion. These can be
+    viewed in the quoted source for \c glwidget.cpp via the link at the
+    start of this document.
 
     \section1 Window Class Definition
 
@@ -202,8 +203,8 @@
     This allows the user to change the orientation of the object by dragging
     the sliders.
 
-    We also connect the xRotationChanged(), yRotationChanged(), and
-    zRotationChanged() signals from \c glWidget to the
+    We also connect the \c xRotationChanged(), \c yRotationChanged(), and
+    \c zRotationChanged() signals from \c glWidget to the
     \l{QAbstractSlider::setValue()}{setValue()} slots in the
     corresponding sliders.
 
@@ -213,7 +214,7 @@
     The sliders are placed horizontally in a layout alongside the \c GLWidget,
     and initialized with suitable default values.
 
-    The createSlider() utility function constructs a QSlider, and ensures
+    The \c createSlider() utility function constructs a QSlider, and ensures
     that it is set up with a suitable range, step value, tick interval, and
     page step value before returning it to the calling function:
 
