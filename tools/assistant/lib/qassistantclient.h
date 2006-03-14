@@ -18,7 +18,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
 #include <QtCore/qglobal.h>
-#include "qassistantclient_global.h"
+#include <QtAssistant/qassistantclient_global.h>
 
 class QTcpSocket;
 
