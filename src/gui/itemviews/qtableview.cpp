@@ -330,12 +330,14 @@ void QTableView::paintEvent(QPaintEvent *event)
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
+    const bool enabled = (state & QStyle::State_Enabled) != 0;
 
     QPainter painter(d->viewport);
+    painter.setBrush(option.palette.brush(QPalette::Base));
 
     // if there's nothing to do, clear the area and return
     if (!model() || horizontalHeader->count() == 0 || verticalHeader->count() == 0) {
-        painter.fillRect(event->rect(), option.palette.brush(QPalette::Base));
+        painter.fillRect(event->rect(), painter.brush());
         return;
     }
 
@@ -415,21 +417,24 @@ void QTableView::paintEvent(QPaintEvent *event)
                         option.state |= QStyle::State_MouseOver;
                     else
                         option.state &= ~QStyle::State_MouseOver;
-                    QPalette::ColorGroup cg;
-                    if ((model()->flags(index) & Qt::ItemIsEnabled) == 0) {
-                        option.state &= ~QStyle::State_Enabled;
-                        cg = QPalette::Disabled;
-                    } else {
-                        cg = QPalette::Normal;
+                    if (enabled) {
+                        QPalette::ColorGroup cg;
+                        if ((model()->flags(index) & Qt::ItemIsEnabled) == 0) {
+                            option.state &= ~QStyle::State_Enabled;
+                            cg = QPalette::Disabled;
+                        } else {
+                            cg = QPalette::Normal;
+                        }
+                        option.palette.setCurrentColorGroup(cg);
                     }
                     if (focus && index == current)
                         option.state |= QStyle::State_HasFocus;
-                    if (alternateBase)
-                        painter.fillRect(colp, rowp, colw, rowh,
-                                         option.palette.brush(cg, QPalette::AlternateBase));
-                    else
-                        painter.fillRect(colp, rowp, colw, rowh,
-                                         option.palette.brush(QPalette::Base));
+                    if (alternate) {
+                        painter.setBrush(alternateBase
+                                         ? option.palette.brush(QPalette::AlternateBase)
+                                         : option.palette.brush(QPalette::Base));
+                    }
+                    painter.fillRect(colp, rowp, colw, rowh, painter.brush());
                     itemDelegate()->paint(&painter, option, index);
                 }
                 if (v == top && showGrid) {
@@ -447,6 +452,8 @@ void QTableView::paintEvent(QPaintEvent *event)
             }
             alternateBase = !alternateBase && alternate;
         }
+        option.palette.setCurrentColorGroup(state & QStyle::State_Enabled
+                                            ? QPalette::Normal : QPalette::Disabled);
 
         int w = d->viewport->width();
         int h = d->viewport->height();

@@ -899,12 +899,9 @@ void QListView::paintEvent(QPaintEvent *e)
     const QItemSelectionModel *selections = selectionModel();
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const bool alternate = d->alternatingColors;
-    const QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled
-                                     ? QPalette::Normal : QPalette::Disabled);
-    const QBrush baseBrush = option.palette.brush(cg, QPalette::Base);
-    const QBrush alternateBrush = option.palette.brush(cg, QPalette::AlternateBase);
     const QStyle::State state = option.state;
     const QAbstractItemView::State viewState = this->state();
+    const bool enabled = (state & QStyle::State_Enabled) != 0;
 
     bool alternateBase = false;
     if (alternate && !toBeRendered.isEmpty()) {
@@ -919,6 +916,8 @@ void QListView::paintEvent(QPaintEvent *e)
         }
     }
 
+    painter.setBrush(option.palette.brush(QPalette::Base));
+
     QVector<QModelIndex>::const_iterator end = toBeRendered.constEnd();
     for (QVector<QModelIndex>::const_iterator it = toBeRendered.constBegin(); it != end; ++it) {
         Q_ASSERT((*it).isValid());
@@ -926,8 +925,16 @@ void QListView::paintEvent(QPaintEvent *e)
         option.state = state;
         if (selections && selections->isSelected(*it))
             option.state |= QStyle::State_Selected;
-        if ((itemModel->flags(*it) & Qt::ItemIsEnabled) == 0)
-            option.state &= ~QStyle::State_Enabled;
+        if (enabled) {
+            QPalette::ColorGroup cg;
+            if ((itemModel->flags(*it) & Qt::ItemIsEnabled) == 0) {
+                option.state &= ~QStyle::State_Enabled;
+                cg = QPalette::Disabled;
+            } else {
+                cg = QPalette::Normal;
+            }
+            option.palette.setCurrentColorGroup(cg);
+        }
         if (focus && current == *it) {
             option.state |= QStyle::State_HasFocus;
             if (viewState == EditingState)
@@ -939,10 +946,12 @@ void QListView::paintEvent(QPaintEvent *e)
             option.state &= ~QStyle::State_MouseOver;
 
         if (alternate) {
-            option.palette.setBrush(QPalette::Base, alternateBase ? alternateBrush : baseBrush);
-            painter.fillRect(option.rect, alternateBase ? alternateBrush : baseBrush);
+            painter.setBrush(alternateBase
+                             ? option.palette.brush(QPalette::AlternateBase)
+                             : option.palette.brush(QPalette::Base));
             alternateBase = !alternateBase;
         }
+        painter.fillRect(option.rect, painter.brush());
         delegate->paint(&painter, option, *it);
     }
 
