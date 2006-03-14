@@ -893,6 +893,19 @@ void QListView::paintEvent(QPaintEvent *e)
     const QStyle::State state = option.state;
     const QAbstractItemView::State viewState = this->state();
 
+    bool alternateBase = false;
+    if (alternate && !toBeRendered.isEmpty()) {
+        int first = toBeRendered.first().row();
+        if (!d->hiddenRows.isEmpty()) {
+            for (int row = 0; row < first; ++row) {
+                if (!d->hiddenRows.contains(row))
+                    alternateBase = !alternateBase;
+            }
+        } else {
+            alternateBase = (first & 1) != 0;
+        }
+    }
+
     QVector<QModelIndex>::const_iterator end = toBeRendered.constEnd();
     for (QVector<QModelIndex>::const_iterator it = toBeRendered.constBegin(); it != end; ++it) {
         Q_ASSERT((*it).isValid());
@@ -913,8 +926,9 @@ void QListView::paintEvent(QPaintEvent *e)
             option.state &= ~QStyle::State_MouseOver;
 
         if (alternate) {
-            option.palette.setBrush(QPalette::Base, (*it).row() & 1 ? alternateBrush : baseBrush);
-            painter.fillRect(option.rect, (*it).row() & 1 ? alternateBrush : baseBrush);
+            option.palette.setBrush(QPalette::Base, alternateBase ? alternateBrush : baseBrush);
+            painter.fillRect(option.rect, alternateBase ? alternateBrush : baseBrush);
+            alternateBase = !alternateBase;
         }
         delegate->paint(&painter, option, *it);
     }
