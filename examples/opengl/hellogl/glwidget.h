@@ -26,9 +26,6 @@ public:
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    int xRotation() const { return xRot; }
-    int yRotation() const { return yRot; }
-    int zRotation() const { return zRot; }
 
 public slots:
     void setXRotation(int angle);

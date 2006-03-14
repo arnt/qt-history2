@@ -20,12 +20,16 @@ Window::Window()
 {
     glWidget = new GLWidget;
 
-    xSlider = createSlider(SIGNAL(xRotationChanged(int)),
-                           SLOT(setXRotation(int)));
-    ySlider = createSlider(SIGNAL(yRotationChanged(int)),
-                           SLOT(setYRotation(int)));
-    zSlider = createSlider(SIGNAL(zRotationChanged(int)),
-                           SLOT(setZRotation(int)));
+    xSlider = createSlider();
+    ySlider = createSlider();
+    zSlider = createSlider();
+
+    connect(xSlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setXRotation(int)));
+    connect(glWidget, SIGNAL(xRotationChanged(int)), xSlider, SLOT(setValue(int)));
+    connect(ySlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setYRotation(int)));
+    connect(glWidget, SIGNAL(yRotationChanged(int)), ySlider, SLOT(setValue(int)));
+    connect(zSlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setZRotation(int)));
+    connect(glWidget, SIGNAL(zRotationChanged(int)), zSlider, SLOT(setValue(int)));
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
     mainLayout->addWidget(glWidget);
@@ -40,7 +44,7 @@ Window::Window()
     setWindowTitle(tr("Hello GL"));
 }
 
-QSlider *Window::createSlider(const char *changedSignal, const char *setterSlot)
+QSlider *Window::createSlider()
 {
     QSlider *slider = new QSlider(Qt::Vertical);
     slider->setRange(0, 360 * 16);
@@ -48,7 +52,5 @@ QSlider *Window::createSlider(const char *changedSignal, const char *setterSlot)
     slider->setPageStep(15 * 16);
     slider->setTickInterval(15 * 16);
     slider->setTickPosition(QSlider::TicksRight);
-    connect(slider, SIGNAL(valueChanged(int)), glWidget, setterSlot);
-    connect(glWidget, changedSignal, slider, SLOT(setValue(int)));
     return slider;
 }
