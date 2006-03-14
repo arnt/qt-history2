@@ -72,7 +72,7 @@
 
 #ifdef Q_WS_WIN
 void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
-                       bool convertToText = false);
+                       bool convertToText, const QMatrix &xform, const QPointF &topLeft);
 #endif
 
 // #define QT_DEBUG_DRAW
@@ -1625,7 +1625,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 #if defined(Q_WS_WIN)
 bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, int ymin, int xmax,
                                               int ymax, const QTextItem &textItem, bool clearType,
-                                              qreal leftBearingReserve)
+                                              qreal leftBearingReserve, const QPointF &topLeft)
 {
     Q_D(QRasterPaintEngine);
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
@@ -1643,7 +1643,9 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
         SelectObject(hdc, GetStockObject(BLACK_BRUSH));
         SelectObject(hdc, GetStockObject(BLACK_PEN));
         SetTextColor(hdc, RGB(0,0,0));
-        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, hdc);
+        qt_draw_text_item(QPointF(leftBearingReserve, ti.ascent.toReal()), ti, hdc,
+            false, QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(), 
+            d->matrix.m22(), 0, 0), topLeft);
 
         BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
                hdc, 0, 0, SRCCOPY);
@@ -1684,8 +1686,12 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
             SetTextColor(d->fontRasterBuffer->hdc(), cf);
         }
 
-        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti,
-                          d->fontRasterBuffer->hdc());
+
+        qt_draw_text_item(QPointF(leftBearingReserve, ti.ascent.toReal()), ti,
+                          d->fontRasterBuffer->hdc(), false, 
+                          QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(), 
+                          d->matrix.m22(), 0, 0), topLeft);
+
 
         if (d->clear_type_text) {
             DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(NULL_BRUSH)));
@@ -1710,7 +1716,7 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
                         // ### This is far from optimal.
                         if (qAlpha(rbScanline[x]) == 0) {
                             return drawTextInFontBuffer(devRect, xmin, ymin, xmax, ymax, textItem,
-                                false, leftBearingReserve);
+                                false, leftBearingReserve, topLeft);
                         }
                         scanline[x - devRect.x()] |= 0xff000000;
                         break ;
@@ -1740,7 +1746,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     if (!d->penData.blend)
         return;
 
-    if (d->txop >= QPainterPrivate::TxScale) {
+    if (QT_WA_INLINE(false, d->txop >= QPainterPrivate::TxScale)) {
         QPaintEngine::drawTextItem(p, textItem);
         return;
     }
@@ -1758,12 +1764,16 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     // Hack to reserve some space on the left side of the string in case
     // the character has a large negative bearing (e.g. it should be drawn on top
     // of the previous character)
-    qreal leftBearingReserve = ti.fontEngine->maxCharWidth();
-    QRectF logRect(p.x() - leftBearingReserve, p.y() - ti.ascent.toReal(),
-                   (ti.width + x_buffering).toReal() + leftBearingReserve,
-                   (ti.ascent + ti.descent + 1).toReal());
-    QRect devRect = d->matrix.mapRect(logRect).toRect();
+    qreal leftBearingReserve = ti.fontEngine->maxCharWidth(); 
+    qreal bufferWidth = (ti.width + x_buffering).toReal() + leftBearingReserve;
+    qreal bufferHeight = (ti.ascent + ti.descent + 1).toReal();
 
+    QMatrix m(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(), d->matrix.m22(), 0, 0);
+    QRectF logRect(0, 0, bufferWidth, bufferHeight);
+    QPointF topLeft = m.mapRect(logRect).topLeft();
+
+    logRect.moveTo(p.x() - leftBearingReserve, p.y() - ti.ascent.toReal());
+    QRect devRect = d->matrix.mapRect(logRect).toRect();
     if(devRect.width() == 0 || devRect.height() == 0)
         return;
 
@@ -1779,7 +1789,8 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     // Fill the font raster buffer with text
     clearType = drawTextInFontBuffer(devRect, xmin, ymin, xmax, ymax, textItem,
-                                     clearType, leftBearingReserve);
+                                     clearType, leftBearingReserve, 
+                                     topLeft);
 
     const int NSPANS = 256;
     QSpan spans[NSPANS];
@@ -3062,19 +3073,19 @@ void QSpanData::initGradient(const QGradient *g, int alpha)
 }
 
 #ifdef Q_WS_WIN
-static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
-                               bool convertToText)
+static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC hdc,
+                               bool convertToText, const QMatrix &xform, const QPointF &topLeft)
 {
-    QPointF p = pos;
-    QFontEngine *fe = ti.fontEngine;
 
+    // Make sure we translate for systems that can't handle world transforms
+    QPointF pos(QT_WA_INLINE(_pos, _pos + QPointF(xform.dx(), xform.dy())));
+    QFontEngine *fe = ti.fontEngine;
+    QPointF baseline_pos = xform.inverted().map(xform.map(pos) - topLeft);
+  
     SetTextAlign(hdc, TA_BASELINE);
     SetBkMode(hdc, TRANSPARENT);
 
     bool has_kerning = ti.f && ti.f->kerning();
-
-    qreal x = p.x();
-    qreal y = p.y();
 
     SelectObject(hdc, fe->hfont);
 
@@ -3084,48 +3095,65 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 
     QGlyphLayout *glyphs = ti.glyphs;
 
-    int xo = qRound(x);
-
     if (!(ti.flags & QTextItem::RightToLeft) && fe->useTextOutA) {
+        qreal x = pos.x();
+        qreal y = pos.y();
+
         // hack to get symbol fonts working on Win95. See also QFontEngine constructor
         // can only happen if !ttf
         for(int i = 0; i < ti.num_glyphs; i++) {
             QString str(QChar(glyphs->glyph));
             QByteArray cstr = str.toLocal8Bit();
-            TextOutA(hdc, qRound(x + glyphs->offset.x.toReal()), qRound(y + glyphs->offset.y.toReal()),
+            TextOutA(hdc, qRound(x + glyphs->offset.x.toReal()), 
+                     qRound(y + glyphs->offset.y.toReal()),
                      cstr.data(), cstr.length());
             x += glyphs->advance.x.toReal();
             glyphs++;
         }
     } else {
         bool fast = !has_kerning;
-        QFixed w = 0;
         for(int i = 0; i < ti.num_glyphs; i++) {
             if (glyphs[i].offset.x != 0 || glyphs[i].offset.y != 0 || glyphs[i].space_18d6 != 0
                 || glyphs[i].attributes.dontPrint) {
                 fast = false;
                 break;
-            }
-            w += glyphs[i].advance.x;
+            }            
         }
+
+        // Scale, rotate and translate here. This is only valid for systems > Windows Me.
+        // We should never get here on Windows Me or lower if the transformation specifies
+        // scaling or rotation.        
+        QT_WA({            
+            XFORM win_xform;
+            win_xform.eM11 = xform.m11();
+            win_xform.eM12 = xform.m12();
+            win_xform.eM21 = xform.m21();
+            win_xform.eM22 = xform.m22();
+            win_xform.eDx = xform.dx();
+            win_xform.eDy = xform.dy();
+            SetGraphicsMode(hdc, GM_ADVANCED);
+            SetWorldTransform(hdc, &win_xform);
+        }, {
+            // nothing 
+        });
 
         if (fast) {
             // fast path
             QVarLengthArray<wchar_t> g(ti.num_glyphs);
             for (int i = 0; i < ti.num_glyphs; ++i)
-                g[i] = glyphs[i].glyph;
-            // fast path
+                g[i] = glyphs[i].glyph;            
             ExtTextOutW(hdc,
-                        qRound(x + glyphs->offset.x.toReal()),
-                        qRound(y + glyphs->offset.y.toReal()),
-                        options, 0, convertToText ? convertedGlyphs : g.data(), ti.num_glyphs, 0);
-            x += w.toReal();
+                        qRound(baseline_pos.x() + glyphs->offset.x.toReal()),
+                        qRound(baseline_pos.y() + glyphs->offset.y.toReal()),
+                        options, 0, convertToText ? convertedGlyphs : g.data(), ti.num_glyphs, 0);            
         } else {
             QVarLengthArray<QFixedPoint> positions;
             QVarLengthArray<glyph_t> _glyphs;
+
             QMatrix matrix;
-            matrix.translate(p.x(), p.y());
-            ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, _glyphs, positions);
+            matrix.translate(baseline_pos.x(), baseline_pos.y());
+            ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, 
+                _glyphs, positions);
 
             convertToText = convertToText && ti.num_glyphs == _glyphs.size();
 
@@ -3144,25 +3172,36 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                 glyphDistances[(_glyphs.size() - 1) * 2 + 1] = 0;
                 g[_glyphs.size() - 1] = _glyphs[_glyphs.size() - 1];
                 ExtTextOutW(hdc, qRound(positions[0].x), qRound(positions[0].y), options, 0,
-                            convertToText ? convertedGlyphs : g.data(), _glyphs.size(), glyphDistances.data());
+                            convertToText ? convertedGlyphs : g.data(), _glyphs.size(),
+                            glyphDistances.data());
             } else {
                 int i = 0;
                 while(i < _glyphs.size()) {
-                    wchar_t g = _glyphs[i];
-                    ExtTextOutW(hdc, qRound(positions[i].x), qRound(positions[i].y), options, 0,
+                    wchar_t g = _glyphs[i];                    
+
+                    ExtTextOutW(hdc, qRound(positions[i].x), 
+                        qRound(positions[i].y), options, 0,
                                 convertToText ? convertedGlyphs + i : &g, 1, 0);
                     ++i;
-                }
+                }         
             }
-        }
+        }    
+        QT_WA({
+            XFORM win_xform;            
+            win_xform.eM11 = win_xform.eM22 = 1.0;
+            win_xform.eM12 = win_xform.eM21 = win_xform.eDx = win_xform.eDy = 0.0;
+            SetWorldTransform(hdc, &win_xform);
+        }, {
+            // nothing
+        });
     }
 }
 
 void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
-                       bool convertToText)
+                       bool convertToText, const QMatrix &xform, const QPointF &topLeft)
 {
     Q_ASSERT(ti.fontEngine->type() != QFontEngine::Multi);
-    draw_text_item_win(pos, ti, hdc, convertToText);
+    draw_text_item_win(pos, ti, hdc, convertToText, xform, topLeft);
 }
 
 

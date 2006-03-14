@@ -123,7 +123,8 @@ private:
 
 #if defined(Q_WS_WIN)
     bool drawTextInFontBuffer(const QRect &devRect, int xmin, int ymin, int xmax,
-        int ymax, const QTextItem &textItem, bool clearType, qreal leftBearingReserve);
+        int ymax, const QTextItem &textItem, bool clearType, qreal leftBearingReserve,
+        const QPointF &topLeft);
 #endif
 };
 

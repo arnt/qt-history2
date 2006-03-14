@@ -353,15 +353,16 @@ bool QWin32PrintEngine::abort()
 }
 
 extern void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
-                              bool convertToText);
+                              bool convertToText, const QMatrix &matrix, const QPointF &topLeft);
 
 void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     Q_D(const QWin32PrintEngine);
 
     QRgb brushColor = state->pen().brush().color().rgb();
-    bool fallBack = (d->txop >= QPainterPrivate::TxScale || state->pen().brush().style() != Qt::SolidPattern
-        || qAlpha(brushColor) != 0xff);
+    bool fallBack = state->pen().brush().style() != Qt::SolidPattern
+                    || qAlpha(brushColor) != 0xff
+                    || QT_WA_INLINE(false, d->txop >= QPainterPrivate::TxScale);
     if (fallBack) {
         QPaintEngine::drawTextItem(p, textItem);
         return ;
@@ -382,8 +383,8 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
     SelectObject(d->hdc, CreateSolidBrush(cf));
     SelectObject(d->hdc, CreatePen(PS_SOLID, 1, cf));
     SetTextColor(d->hdc, cf);
-    qt_draw_text_item(QPointF(d->matrix.dx(), d->matrix.dy()) + p,
-                      ti, d->hdc, latin1String);
+
+    qt_draw_text_item(p, ti, d->hdc, latin1String, d->matrix, d->devPaperRect.topLeft());
     DeleteObject(SelectObject(d->hdc,GetStockObject(HOLLOW_BRUSH)));
     DeleteObject(SelectObject(d->hdc,GetStockObject(BLACK_PEN)));
 }
@@ -1042,8 +1043,8 @@ void QWin32PrintEnginePrivate::updateOrigin()
     int o_y = devPageRect.y();
 
     if (fullPage) {
-        origin_x = qRound(-o_x);
-        origin_y = qRound(-o_y);
+        origin_x = -o_x;
+        origin_y = -o_y;
     } else {
         origin_x = 0;
         origin_y = 0;
