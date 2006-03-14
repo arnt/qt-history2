@@ -510,10 +510,7 @@ int QTimeLine::frameForTime(int msec) const
 qreal QTimeLine::valueForTime(int msec) const
 {
     Q_D(const QTimeLine);
-    if (msec <= 0)
-        return 0;
-    if (msec >= d->duration)
-        return 1;
+    msec = qMin(qMax(msec, 0), d->duration);
 
     // Simple linear interpolation
     qreal value = msec / qreal(d->duration);
