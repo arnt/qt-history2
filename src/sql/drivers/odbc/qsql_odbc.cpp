@@ -247,8 +247,9 @@ static QString qGetStringData(SQLHANDLE hStmt, int column, int colSize, bool uni
     SQLRETURN r = SQL_ERROR;
     QSQLLEN lengthIndicator = 0;
 
+    // NB! colSize must be a multiple of 2 for unicode enabled DBs
     if (colSize <= 0) {
-        colSize = 255;
+        colSize = 256;
     } else if (colSize > 65536) { // limit buffer size to 64 KB
         colSize = 65536;
     } else {
