@@ -68,9 +68,12 @@
     \printuntil /^\}/
 
     Although the user may take some time to complete the dragging operation,
-    as far as the application is concerned the start() function returns
-    immediately with \l{Qt::DropActions}{one of several values}. These
-    indicate how the operation ended, and are described in more detail below.
+    as far as the application is concerned the start() function is a blocking
+    function that returns with \l{Qt::DropActions}{one of several values}.
+    These indicate how the operation ended, and are described in more detail
+    below.
+
+    Note that the start() function does not block the main event loop.
 
     For widgets that need to distinguish between mouse clicks and drags, it
     is useful to reimplement the widget's
