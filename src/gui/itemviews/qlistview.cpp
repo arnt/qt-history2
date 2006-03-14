@@ -72,6 +72,19 @@
     within a notional grid of size specified by gridSize(). The items can
     be rendered as large or small icons depending on their iconSize().
 
+    \table 100%
+    \row \o \inlineimage windowsxp-listview.png
+         \o \inlineimage macintosh-listview.png
+         \o \inlineimage plastique-listview.png
+    \row \o A WindowsXP style list view.
+         \o A Macintosh style list view.
+         \o A Plastique style list view.
+    \row \o \inlineimage cde-listview.png
+         \o \inlineimage motif-listview.png
+    \row \o A CDE style list view.
+         \o A Motif style list view.
+    \endtable
+
     \sa {Model/View Programming}, QTreeView, QTableView, QListWidget
 */
 

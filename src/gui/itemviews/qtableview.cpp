@@ -123,8 +123,20 @@ void QTableViewPrivate::trimHiddenSelections(QItemSelectionRange *range) const
     columnViewportPosition() functions provide the equivalent conversion
     operations between x-coordinates and column indexes.
 
-    \sa {Model/View Programming}, QAbstractItemModel, QAbstractItemView
+    \table 100%
+    \row \o \inlineimage windowsxp-tableview.png
+         \o \inlineimage macintosh-tableview.png
+         \o \inlineimage plastique-tableview.png
+    \row \o A WindowsXP style table view.
+         \o A Macintosh style table view.
+         \o A Plastique style table view.
+    \row \o \inlineimage cde-tableview.png
+         \o \inlineimage motif-tableview.png
+    \row \o A CDE style table view.
+         \o A Motif style table view.
+    \endtable
 
+    \sa QTableWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView
 */
 
 /*!

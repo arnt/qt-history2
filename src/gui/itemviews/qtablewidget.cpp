@@ -1233,6 +1233,19 @@ QTableWidgetItem &QTableWidgetItem::operator=(const QTableWidgetItem &other)
     number of columns with columnCount(). The table can be cleared with the
     clear() function.
 
+    \table 100%
+    \row \o \inlineimage windowsxp-tableview.png
+         \o \inlineimage macintosh-tableview.png
+         \o \inlineimage plastique-tableview.png
+    \row \o A WindowsXP style table widget.
+         \o A Macintosh style table widget.
+         \o A Plastique style table widget.
+    \row \o \inlineimage cde-tableview.png
+         \o \inlineimage motif-tableview.png
+    \row \o A CDE style table widget.
+         \o A Motif style table widget.
+    \endtable
+
     \sa QTableWidgetItem, QTableView, {Model/View Programming}
 */
 

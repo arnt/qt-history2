@@ -1723,6 +1723,19 @@ void QTreeWidgetPrivate::_q_sort()
   setSortingEnabled(). The isSortingEnabled() function indicates whether
   sorting is enabled.
 
+    \table 100%
+    \row \o \inlineimage windowsxp-treeview.png
+         \o \inlineimage macintosh-treeview.png
+         \o \inlineimage plastique-treeview.png
+    \row \o A WindowsXP style tree widget.
+         \o A Macintosh style tree widget.
+         \o A Plastique style tree widget.
+    \row \o \inlineimage cde-treeview.png
+         \o \inlineimage motif-treeview.png
+    \row \o A CDE style tree widget.
+         \o A Motif style tree widget.
+    \endtable
+
   \sa QTreeWidgetItem, QTreeView, {Model/View Programming}
 */
 

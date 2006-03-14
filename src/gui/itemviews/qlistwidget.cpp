@@ -975,6 +975,19 @@ void QListWidgetPrivate::_q_sort()
     current item changes, the currentItemChanged() signal is emitted with the
     new current item and the item that was previously current.
 
+    \table 100%
+    \row \o \inlineimage windowsxp-listview.png
+         \o \inlineimage macintosh-listview.png
+         \o \inlineimage plastique-listview.png
+    \row \o A WindowsXP style list widget.
+         \o A Macintosh style list widget.
+         \o A Plastique style list widget.
+    \row \o \inlineimage cde-listview.png
+         \o \inlineimage motif-listview.png
+    \row \o A CDE style list widget.
+         \o A Motif style list widget.
+    \endtable
+
     \sa QListWidgetItem, QListView, QTreeView, {Model/View Programming}
 */
 

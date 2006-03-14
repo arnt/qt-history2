@@ -74,6 +74,19 @@
     Describe the expanding/collapsing concept if not covered elsewhere.
     \endomit
 
+    \table 100%
+    \row \o \inlineimage windowsxp-treeview.png
+         \o \inlineimage macintosh-treeview.png
+         \o \inlineimage plastique-treeview.png
+    \row \o A WindowsXP style tree view.
+         \o A Macintosh style tree view.
+         \o A Plastique style tree view.
+    \row \o \inlineimage cde-treeview.png
+         \o \inlineimage motif-treeview.png
+    \row \o A CDE style tree view.
+         \o A Motif style tree view.
+    \endtable
+
     \sa QListView, QTreeWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView
 */
 
@@ -895,7 +908,7 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
   using the \a painter given. The \a option control how the item is
   displayed.
 
-  \sa QStyleOptionViewItem
+  \sa QStyleOptionViewItem() setAlternatingRowColors()
 */
 void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const
