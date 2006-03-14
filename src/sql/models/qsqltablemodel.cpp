@@ -638,11 +638,12 @@ bool QSqlTableModel::submitAll()
 
     switch (d->strategy) {
     case OnFieldChange:
-        return true;
-    case OnRowChange:
-        if (d->editBuffer.isEmpty()){
+        if (d->insertIndex == -1)
             return true;
-        }
+        // else fall through
+    case OnRowChange:
+        if (d->editBuffer.isEmpty())
+            return true;
         if (d->insertIndex != -1) {
             if (!insertRowIntoTable(d->editBuffer))
                 return false;
@@ -686,7 +687,8 @@ bool QSqlTableModel::submitAll()
     user stopped editing the current row.
 
     Submits the currently edited row if the model's strategy is set
-    to OnRowChange. Does nothing for the other edit strategies.
+    to OnRowChange or OnFieldChange. Does nothing for the OnManualSubmit
+    strategy.
 
     Use submitAll() to submit all pending changes for the
     OnManualSubmit strategy.
@@ -699,7 +701,7 @@ bool QSqlTableModel::submitAll()
 bool QSqlTableModel::submit()
 {
     Q_D(QSqlTableModel);
-    if (d->strategy == OnRowChange)
+    if (d->strategy == OnRowChange || d->strategy == OnFieldChange)
         return submitAll();
     return true;
 }
@@ -732,6 +734,9 @@ void QSqlTableModel::revert()
     \value OnRowChange  Changes to a row will be applied when the user selects a different row.
     \value OnManualSubmit  All changes will be cached in the model until either submitAll()
                            or revertAll() is called.
+
+    Note: To prevent inserting only partly initialized rows into the database,
+    \c OnFieldChange will behave like \c OnRowChange for newly inserted rows.
 
     \sa setEditStrategy()
 */
