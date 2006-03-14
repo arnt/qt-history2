@@ -2936,12 +2936,11 @@ fi
 setBootstrapVariable()
 {
     variableRegExp="$1[^_A-Z0-9]"
-
-    transformation="cat"
     if [ -n "$2" ]; then
-        transformation="sed $2"
+	getQMakeConf | grep "$variableRegExp" | sed "$2" >> $mkfile
+    else
+	getQMakeConf | grep "$variableRegExp" >> $mkfile
     fi
-    getQMakeConf | grep "$variableRegExp" | $transformation >> $mkfile
 }
 
 # build qmake
@@ -3021,6 +3020,12 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
             EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
             EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(QMAKE_CXXFLAGS_DEBUG)"
         fi
+	if [ '!' -z "$RPATH_FLAGS" ] && [ '!' -z "`getQMakeConf $QMAKESPEC | grep QMAKE_RPATH | awk '{print $3;}'`" ]; then
+  	    setBootstrapVariable QMAKE_RPATH 's,\$\$LITERAL_WHITESPACE, ,'
+	    for rpath in $RPATH_FLAGS; do
+		EXTRA_LFLAGS="\$(QMAKE_RPATH)$rpath $EXTRA_LFLAGS"
+            done
+        fi
         if [ "$PLATFORM_MAC" = "yes" ]; then
             echo "export MACOSX_DEPLOYMENT_TARGET = 10.2" >>$mkfile
             echo "CARBON_LFLAGS +=-framework CoreServices -framework CoreFoundation" >>$mkfile
@@ -3033,7 +3038,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 		X86_CFLAGS=`getQMakeConf $XQMAKESPEC | grep "^QMAKE_CFLAGS_X86[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
 		PPC_CFLAGS=`getQMakeConf $XQMAKESPEC | grep "^QMAKE_CFLAGS_PPC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
 		EXTRA_CFLAGS="$X86_CFLAGS $PPC_CFLAGS $EXTRA_CFLAGS"
-		EXTRA_CXXFLAGS="$X86_CFLAGS $PPC_CFLAGS $EXTRA_CXXFLAGS"
+		EXTRA_CXXFLAGS="$X86_CFLAGS $PPC_CFLAGS $EXTRA_CXXFLAGS" 
             fi
 	    if [ '!' -z "$CFG_SDK" ]; then
 		EXTRA_CFLAGS="-isysroot $CFG_SDK $EXTRA_CFLAGS"
