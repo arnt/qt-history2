@@ -308,6 +308,7 @@ bool QFSFileEnginePrivate::isSymlink() const
     if (need_lstat) {
         QFSFileEnginePrivate *that = const_cast<QFSFileEnginePrivate *>(this);
         that->need_lstat = false;
+        QT_STATBUF st;          // don't clobber our main one
         that->is_link = (QT_LSTAT(QFile::encodeName(file), &st) == 0) ? S_ISLNK(st.st_mode) : false;
     }
     return is_link;

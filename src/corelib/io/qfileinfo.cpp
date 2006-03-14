@@ -32,7 +32,7 @@ public:
     QDateTime &getFileTime(QAbstractFileEngine::FileTime) const;
     QString getFileName(QAbstractFileEngine::FileName) const;
 
-    enum { CachedPerms=0x01, CachedTypes=0x02, CachedFlags=0x04,
+    enum { CachedFileFlags=0x01, CachedLinkTypeFlag=0x02,
            CachedMTime=0x10, CachedCTime=0x20, CachedATime=0x40,
            CachedSize =0x08 };
     struct Data {
@@ -55,11 +55,11 @@ public:
         mutable QString fileName;
         mutable QHash<int, QString> fileNames;
 
+        mutable uint cachedFlags : 31;
         mutable uint cache_enabled : 1;
+        mutable uint fileFlags;
         mutable qint64 fileSize;
         mutable QDateTime fileTimes[3];
-        mutable uint fileFlags;
-        mutable uint cachedFlags;
         inline bool getCachedFlag(uint c) const
         { return cache_enabled ? (cachedFlags & c) : 0; }
         inline void setCachedFlag(uint c)
@@ -118,19 +118,34 @@ QFileInfoPrivate::getFileName(QAbstractFileEngine::FileName name) const
 uint
 QFileInfoPrivate::getFileFlags(QAbstractFileEngine::FileFlags request) const
 {
-    QAbstractFileEngine::FileFlags flags = QAbstractFileEngine::FileInfoAll;
-    if (!data->getCachedFlag(request)) {
-        // Unless we need to know if it's a symlink or if the file exists, we
-        // fetch all info.
-        if ((request & QAbstractFileEngine::LinkType) == 0)
-            flags &= ~QAbstractFileEngine::LinkType;
-
-        flags = data->fileEngine->fileFlags(flags);
-        data->setCachedFlag(flags | request);
+    // we split the testing for LinkType and the rest because, in order to
+    // determine if a file is a symlink or not, we have to lstat(). If we're not
+    // interested in that information, we might as well avoid one extra syscall.
+    
+    QAbstractFileEngine::FileFlags flags;
+    if (!data->getCachedFlag(CachedFileFlags)) {
+        QAbstractFileEngine::FileFlags req = QAbstractFileEngine::FileInfoAll;
+        req &= (~QAbstractFileEngine::LinkType);
+        
+        flags = data->fileEngine->fileFlags(req);
+        data->setCachedFlag(CachedFileFlags);
         data->fileFlags |= uint(flags);
     } else {
         flags = QAbstractFileEngine::FileFlags(data->fileFlags & request);
     }
+
+    if (request & QAbstractFileEngine::LinkType) {
+        if (!data->getCachedFlag(CachedLinkTypeFlag)) {
+            QAbstractFileEngine::FileFlags linkflag;
+            linkflag = data->fileEngine->fileFlags(QAbstractFileEngine::LinkType);
+            
+            data->setCachedFlag(CachedLinkTypeFlag);
+            data->fileFlags |= uint(linkflag);
+            flags |= linkflag;
+        }
+    }
+    // no else branch
+    // if we had it cached, it was caught in the previous else branch
 
     return flags & request;
 }
