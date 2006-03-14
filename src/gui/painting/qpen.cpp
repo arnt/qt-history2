@@ -443,6 +443,7 @@ void QPen::setStyle(Qt::PenStyle s)
         return;
     detach();
     d->style = s;
+    d->dashPattern.clear();
 }
 
 /*!
