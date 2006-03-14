@@ -820,10 +820,6 @@ QStyleOptionViewItem QItemDelegate::setOptions(const QModelIndex &index,
 {
     QStyleOptionViewItem opt = option;
 
-    // Set color group
-    opt.palette.setCurrentColorGroup(option.state & QStyle::State_Enabled
-                                     ? QPalette::Active : QPalette::Disabled);
-
     // set font
     QVariant value = index.data(Qt::FontRole);
     if (value.isValid()){
