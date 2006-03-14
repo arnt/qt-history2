@@ -38,6 +38,8 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 /*!
   \class QUnixSocketRights
+  \internal
+
   \brief The QUnixSocketRights class encapsulates QUnixSocket rights data.
   \omit
   \ingroup Platform::DeviceSpecific
@@ -277,6 +279,8 @@ void QUnixSocketMessagePrivate::removeBytes( unsigned int bytesToDequeue )
 
 /*!
   \class QUnixSocketMessage
+  \internal
+
   \brief The QUnixSocketMessage class encapsulates a message sent or received
   through the QUnixSocket class.
   \omit
@@ -573,6 +577,8 @@ bool QUnixSocketMessage::isValid() const
 
 /*!
   \class QUnixSocket
+  \internal
+
   \brief The QUnixSocket class provides a Unix domain socket.
 
   \omit

@@ -52,6 +52,8 @@ public slots:
 
 /*!
   \class QUnixSocketServer
+  \internal
+
   \brief The QUnixSocketServer class provides a Unix domain socket based server.
   \omit
   \ingroup Platform::DeviceSpecific
