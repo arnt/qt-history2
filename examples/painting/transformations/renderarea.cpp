@@ -41,7 +41,7 @@ void RenderArea::setShape(const QPainterPath &shape)
 
 QSize RenderArea::minimumSizeHint() const
 {
-    return QSize(50, 50);
+    return QSize(182, 182);
 }
 
 QSize RenderArea::sizeHint() const
