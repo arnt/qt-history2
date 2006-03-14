@@ -1681,7 +1681,10 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             QCheckPoint cp;
             cp.y = layoutStruct->y;
             cp.positionInFrame = 0;
-            checkPoints << cp;
+            cp.minimumWidth = layoutStruct->minimumWidth;
+            cp.maximumWidth = layoutStruct->maximumWidth;
+            cp.contentsWidth = layoutStruct->contentsWidth;
+            checkPoints.append(cp);
         }
     }
                 
