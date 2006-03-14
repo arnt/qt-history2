@@ -397,6 +397,10 @@ void Configure::parseCmdLine()
 	else if( configCmdLine.at(i) == "-no-style-cde" )
 	    dictionary[ "STYLE_CDE" ] = "no";
 
+        // Qt 3 Support ---------------------------------------------
+        else if( configCmdLine.at(i) == "-no-qt3support" )
+            dictionary[ "QT3SUPPORT" ] = "no";
+
         // Databases ------------------------------------------------
 	else if( configCmdLine.at(i) == "-qt-sql-mysql" )
 	    dictionary[ "SQL_MYSQL" ] = "yes";
@@ -879,7 +883,8 @@ bool Configure::displayHelp()
                     "[-saveconfig <config>] [-loadconfig <config>] [-no-zlib]\n"
                     "[-qt-zlib] [-system-zlib] [-no-gif] [-qt-gif] [-no-libpng]\n"
                     "[-qt-libpng] [-system-libpng] [-no-libjpeg] [-qt-libjpeg]\n"
-                    "[-system-libjpeg] [-no-libmng] [-qt-libmng] [-system-libmng]\n\n", 0, 7);
+                    "[-system-libjpeg] [-no-libmng] [-qt-libmng] [-system-libmng]\n"
+                    "[-no-qt3support]\n\n", 0, 7);
 
         desc("Installation options:\n\n");
 #if !defined(EVAL)
@@ -946,6 +951,8 @@ bool Configure::displayHelp()
         desc("SQL_SQLITE2", "auto", "",                 "  sqlite2", ' ');
         desc("SQL_IBASE", "auto", "",                   "  ibase", ' ');
         desc(                   "",                     "(drivers marked with a '+' have been detected as available on this system)\n", false, ' ');
+
+        desc("QT3SUPPORT", "no","-no-qt3support",       "Disables the Qt 3 support functionality.\n");
 
 #endif
         desc(                   "-platform <spec>",     "The operating system and compiler you are building on.\n(default %QMAKESPEC%)\n");
@@ -1776,7 +1783,8 @@ void Configure::displayConfig()
     cout << "STL support................." << dictionary[ "STL" ] << endl;
     cout << "Exception support..........." << dictionary[ "EXCEPTIONS" ] << endl;
     cout << "RTTI support................" << dictionary[ "RTTI" ] << endl;
-    cout << "OpenGL support.............." << dictionary[ "OPENGL" ] << endl << endl;
+    cout << "OpenGL support.............." << dictionary[ "OPENGL" ] << endl;
+    cout << "Qt3 compatibility..........." << dictionary[ "QT3SUPPORT" ] << endl << endl;
 
     cout << "Third Party Libraries:" << endl;
     cout << "    ZLIB support............" << dictionary[ "ZLIB" ] << endl;
