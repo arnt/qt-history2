@@ -112,7 +112,6 @@ public:
     void clearEditBuffer();
 
     void translateFieldNames(int row, QSqlRecord &values) const;
-    void removeColumnWorkaround(int column, int count);
 };
 
 static void qAppendWhereClause(QString &query, const QString &clause1, const QString &clause2)
@@ -517,9 +516,15 @@ QString QSqlRelationalTableModel::orderByClause() const
     return s;
 }
 
-void QSqlRelationalTableModelPrivate::removeColumnWorkaround(int column, int count)
+bool QSqlRelationalTableModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
+    Q_D(QSqlRelationalTableModel);
+
+    if (!QSqlTableModel::removeColumns(column, count, parent))
+        return false;
+
     for (int i = 0; i < count; ++i)
-        baseRec.remove(column + i);
+        d->baseRec.remove(column + i);
+    return true;
 }
 

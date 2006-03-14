@@ -943,11 +943,6 @@ QString QSqlTableModel::selectStatement() const
     return query;
 }
 
-void QSqlTableModelPrivate::removeColumnWorkaround(int, int)
-{
-    // do nothing
-}
-
 /*!
     Removes \a count columns from the \a parent model, starting at
     index \a column.
@@ -962,7 +957,6 @@ bool QSqlTableModel::removeColumns(int column, int count, const QModelIndex &par
     Q_D(QSqlTableModel);
     if (parent.isValid() || column < 0 || column + count > d->rec.count())
         return false;
-    d->removeColumnWorkaround(column, count);
     for (int i = 0; i < count; ++i)
         d->rec.remove(column + i);
     if (d->query.isActive())
