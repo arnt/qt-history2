@@ -160,7 +160,6 @@ void QFontPrivate::load(int script)
 	fontDef.pixelSize = qt_mac_pixelsize(fontDef, dpi);
     {
 	QCFString actualName;
-	Q_ASSERT(engine->type() == QFontEngine::Mac);
 	if (ATSFontFamilyGetName(familyRef, kATSOptionFlagsDefault, &actualName) == noErr)
 	    fontDef.family = actualName;
     }
