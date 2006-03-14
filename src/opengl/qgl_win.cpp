@@ -663,8 +663,11 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         }
 
         if (shareContext && shareContext->isValid()) {
+            QGLContext *share = const_cast<QGLContext *>(shareContext);
             d->sharing = (wglShareLists(shareContext->d_func()->rc, d->rc) != 0);
-            const_cast<QGLContext *>(shareContext)->d_func()->sharing = d->sharing;
+            d->shareContext = d->sharing ? share : 0;
+            share->d_func()->sharing = d->sharing;
+            share->d_func()->shareContext = d->sharing ? this : 0;
         }
 
         goto end;
@@ -984,6 +987,7 @@ void QGLContext::reset()
     delete d->cmap;
     d->cmap = 0;
     d->initDone = false;
+    d->shareContext = 0;
 }
 
 

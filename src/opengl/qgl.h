@@ -230,6 +230,7 @@ private:
     friend class QGLWidget;
     friend class QGLDrawable;
     friend class QGLWidgetPrivate;
+    friend class QGLGlyphCache;
 #ifdef Q_WS_MAC
     friend class QMacGLWindowChangeEvent;
     void updatePaintDevice();

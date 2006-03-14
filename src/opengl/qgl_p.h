@@ -87,7 +87,7 @@ class QGLContextPrivate
 {
     Q_DECLARE_PUBLIC(QGLContext)
 public:
-    explicit QGLContextPrivate(QGLContext *context) : q_ptr(context) {}
+    explicit QGLContextPrivate(QGLContext *context) : shareContext(0), q_ptr(context) {}
     ~QGLContextPrivate() {}
     GLuint bindTexture(const QImage &image, GLenum target, GLint format, const QString &key,
                        qint64 qt_id, bool clean = false);
@@ -124,6 +124,7 @@ public:
     uint crWin : 1;
     QPaintDevice *paintDevice;
     QColor transpColor;
+    QGLContext *shareContext;
     QGLContext *q_ptr;
 };
 
