@@ -25,6 +25,8 @@
 
 #include "qsqltablemodel_p.h"
 
+#include "qdebug.h"
+
 /*!
     \class QSqlRelation
     \brief The QSqlRelation class stores information about an SQL foreign key.
@@ -110,6 +112,7 @@ public:
     void clearEditBuffer();
 
     void translateFieldNames(int row, QSqlRecord &values) const;
+    void removeColumnWorkaround(int column, int count);
 };
 
 static void qAppendWhereClause(QString &query, const QString &clause1, const QString &clause2)
@@ -342,7 +345,7 @@ QString QSqlRelationalTableModel::selectStatement() const
     QString fList;
     QString where;
 
-    QSqlRecord rec = database().record(tableName());
+    QSqlRecord rec = d->baseRec;
     QStringList tables;
     const QRelation nullRelation;
     for (int i = 0; i < rec.count(); ++i) {
@@ -512,5 +515,11 @@ QString QSqlRelationalTableModel::orderByClause() const
     s.append(QString::fromLatin1("relTblAl_%1").arg(d->sortColumn)).append(QLatin1Char('.')).append(rel.displayColumn());
     s += d->sortOrder == Qt::AscendingOrder ? QLatin1String(" ASC") : QLatin1String(" DESC");
     return s;
+}
+
+void QSqlRelationalTableModelPrivate::removeColumnWorkaround(int column, int count)
+{
+    for (int i = 0; i < count; ++i)
+        baseRec.remove(column + i);
 }
 

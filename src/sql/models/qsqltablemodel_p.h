@@ -50,6 +50,7 @@ public:
     bool setRecord(int row, const QSqlRecord &record);
     virtual int nameToIndex(const QString &name) const;
     void initRecordAndPrimaryIndex();
+    virtual void removeColumnWorkaround(int column, int count); // hack to keep b/c, removed in 4.2
 
     QSqlDatabase db;
     int editIndex;
