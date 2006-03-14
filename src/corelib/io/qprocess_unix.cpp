@@ -930,6 +930,8 @@ void QProcessPrivate::_q_notified()
  */
 bool QProcessPrivate::startDetached(const QString &program, const QStringList &arguments)
 {
+    processManager()->start();
+
     pid_t childPid = fork();
     if (childPid == 0) {
         ::setsid();
