@@ -523,10 +523,10 @@ bool QSqlRelationalTableModel::removeColumns(int column, int count, const QModel
     if (!QSqlTableModel::removeColumns(column, count, parent))
         return false;
 
-    for (int i = column; i < column + count; ++i) {
-        d->baseRec.remove(i);
-        if (d->relations.count() > i)
-            d->relations.remove(i);
+    for (int i = 0; i < count; ++i) {
+        d->baseRec.remove(column);
+        if (d->relations.count() > column)
+            d->relations.remove(column);
     }
 }
 

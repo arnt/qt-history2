@@ -958,7 +958,7 @@ bool QSqlTableModel::removeColumns(int column, int count, const QModelIndex &par
     if (parent.isValid() || column < 0 || column + count > d->rec.count())
         return false;
     for (int i = 0; i < count; ++i)
-        d->rec.remove(column + i);
+        d->rec.remove(column);
     if (d->query.isActive())
         return select();
     return true;
