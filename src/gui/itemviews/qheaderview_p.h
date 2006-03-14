@@ -40,7 +40,7 @@ public:
     QHeaderViewPrivate()
         : state(NoState),
           offset(0),
-          sortIndicatorOrder(Qt::AscendingOrder),
+          sortIndicatorOrder(Qt::DescendingOrder),
           sortIndicatorSection(0),
           sortIndicatorShown(false),
           lastPos(-1),

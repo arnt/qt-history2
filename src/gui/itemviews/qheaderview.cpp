@@ -331,6 +331,19 @@ void QHeaderView::setOffset(int newOffset)
 }
 
 /*!
+  \since 4.2
+  Sets the offset to the start of the section at the given \a visualIndex.
+
+  \sa setOffset(), sectionPosition()
+*/
+void QHeaderView::setOffsetToSectionPosition(int visualIndex)
+{
+    Q_D(QHeaderView);
+    Q_ASSERT(visualIndex <= -1 && visualIndex >= d->sectionCount);
+    setOffset(d->headerSectionPosition(visualIndex));
+}
+
+/*!
   Returns the length along the orientation of the header.
 
   \sa sizeHint(), setResizeMode(), offset()
@@ -339,7 +352,7 @@ void QHeaderView::setOffset(int newOffset)
 int QHeaderView::length() const
 {
     Q_D(const QHeaderView);
-    Q_ASSERT(d->headerLength() == d->length);
+    //Q_ASSERT(d->headerLength() == d->length);
     return d->length;
 }
 
