@@ -3636,11 +3636,27 @@ void QUrl::setEncodedUrl(const QByteArray &encodedUrl, ParsingMode parsingMode)
             }
         }
 
+        // Find the host part
+        int start = tmp.indexOf("//");
+        if (start != -1) {
+            // Has host part, find delimiter
+            start += 2; // skip "//"
+            int hostEnd = tmp.indexOf('/', start);
+            if (hostEnd == -1)
+                hostEnd = tmp.indexOf('#', start);
+            if (hostEnd == -1)
+                hostEnd = tmp.indexOf('?');
+            start = (hostEnd == -1) ? -1 : hostEnd + 1;
+        } else {
+            start = 0; // Has no host part
+        }
+
         // Replace non-US-ASCII characters with percent encoding
         copy = tmp;
         tmp.clear();
         for (int i = 0; i < copy.size(); ++i) {
-            if (quint8(copy.at(i)) < 32 || quint8(copy.at(i)) > 127) {
+            quint8 c = quint8(copy.at(i));
+            if (c < 32 || c > 127 || (start != -1 && i >= start && (c == '[' || c == ']'))) {
                 char buf[4];
                 qsnprintf(buf, sizeof(buf), "%%%02hhX", quint8(copy.at(i)));
                 buf[3] = '\0';
