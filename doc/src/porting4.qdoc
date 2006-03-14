@@ -259,6 +259,10 @@
     property has been renamed \c windowTitle to make it clear that it
     refers to the title shown in the window's title bar.
 
+    In addition, the property system has been extended to allow
+    properties to be redefined in subclasses with the Q_PROPERTY()
+    macro, removing the need for a \l{#Q_OVERRIDE}{Q_OVERRIDE} macro.
+
     The table below lists the Qt properties that have been renamed in
     Qt 4. Occurrences of these in \e{Qt Designer} \c .ui files are
     automatically converted to the new name by \c uic.
