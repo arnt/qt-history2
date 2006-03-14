@@ -19,16 +19,20 @@
 QT_MODULE(Gui)
 
 #if !defined(QT_NO_STYLE_CLEANLOOKS)
-    
-class QCleanLooksStyle : public QWindowsStyle
+
+class QCleanLooksStylePrivate;
+class Q_GUI_EXPORT QCleanLooksStyle : public QWindowsStyle
 {
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QCleanLooksStyle)
+
 public:
     QCleanLooksStyle();
     ~QCleanLooksStyle();
 
     QPalette standardPalette () const;
-    void drawPrimitive(PrimitiveElement elem, 
-                        const QStyleOption *option, 
+    void drawPrimitive(PrimitiveElement elem,
+                        const QStyleOption *option,
                         QPainter *painter, const QWidget *widget = 0) const;
     void drawControl(ControlElement ce, const QStyleOption *option, QPainter *painter,
                                 const QWidget *widget) const;
@@ -55,8 +59,6 @@ public:
     void drawItemText(QPainter *painter, const QRect &rect,
                               int flags, const QPalette &pal, bool enabled,
                               const QString &text, QPalette::ColorRole textRole = QPalette::NoRole) const;
-private:
-//     Q_DECLARE_PRIVATE( QCleanLooksStyle );
 };
 
 #endif // QT_NO_STYLE_CLEANLOOKS

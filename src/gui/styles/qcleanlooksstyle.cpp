@@ -1210,7 +1210,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             }
 
             QColor light = option->palette.background().color().light(110);
-            
+
             //draw top border
             painter->setPen(QPen(light));
             painter->drawLine(rect.topLeft().x(),
@@ -1430,7 +1430,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             gradient.setColorAt(0, option->palette.button().color());
             gradient.setColorAt(1, option->palette.button().color().dark(110));
             painter->fillRect(rect, gradient);
-            
+
             QCommonStyle::drawControl(element, &item, painter, widget);
 
             bool act = mbi->state & State_Selected && mbi->state & State_Sunken;
@@ -1928,7 +1928,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
     QColor gradientStartColor = option->palette.button().color().light(108);
     QColor gradientStopColor = mergedColors(option->palette.button().color().dark(108), option->palette.dark().color().light(140), 70);
-    
+
     QColor highlightedGradientStartColor = option->palette.button().color();
     QColor highlightedGradientStopColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 85);
 
@@ -2007,7 +2007,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     cachePainter.setPen(option->palette.light().color().light());
                     cachePainter.drawLine(upRect.left() + 1, upRect.top() + 1, upRect.left() + 1, downRect.bottom() - 1);
                 }
-                
+
                 if(upIsActive && sunken) {
                     cachePainter.setPen(gradientStopColor.dark(130));
                     cachePainter.drawLine(upRect.left() + 1, upRect.top() + 1, upRect.left() + 1, upRect.bottom() - 1);
@@ -2024,7 +2024,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     cachePainter.setPen(option->palette.light().color().light());
                     cachePainter.drawLine(downRect.topLeft() + QPoint(3, 0), downRect.topRight() - QPoint(3, 0));
                 }
-                
+
                 if (spinBox->buttonSymbols == QAbstractSpinBox::PlusMinus) {
                     int centerX = upRect.center().x();
                     int centerY = upRect.center().y();
@@ -2050,18 +2050,18 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     // arrows
                     QImage upArrow(qt_spinbox_button_arrow_up);
                     upArrow.setColor(1, spinBox->palette.foreground().color().rgba());
-                    
+
                     cachePainter.drawImage(upRect.center().x() - upArrow.width() / 2,
                                             upRect.center().y() - upArrow.height() / 2,
                                             upArrow);
-                
+
                     QImage downArrow(qt_spinbox_button_arrow_down);
                     downArrow.setColor(1, spinBox->palette.foreground().color().rgba());
-                    
+
                     cachePainter.drawImage(downRect.center().x() - downArrow.width() / 2,
                                             downRect.center().y() - downArrow.height() / 2,
                                             downArrow);
-                
+
                 }
                 cachePainter.end();
                 if (UsePixmapCache)
@@ -2485,13 +2485,13 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         qt_cleanlooks_draw_gradient(painter,
                                                     QRect(fillRect),
                                                     gradientStopColor.dark(120),
-                                                    gradientStopColor.dark(120), 
+                                                    gradientStopColor.dark(120),
                                                     horizontal ? TopDown : FromLeft);
                     } else {
                         qt_cleanlooks_draw_gradient(painter,
                                                     QRect(fillRect),
                                                     gradientStartColor.light(105),
-                                                    gradientStopColor, 
+                                                    gradientStopColor,
                                                     horizontal ? TopDown : FromLeft);
                     }
                 }
@@ -2748,7 +2748,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     drawPrimitive(PE_FrameGroupBox, &frame, painter);
                     painter->restore();
                 }
-            } 
+            }
             // Draw title
             if ((groupBox->subControls & QStyle::SC_GroupBoxLabel) && !groupBox->text.isEmpty()) {
                 if (!groupBox->text.isEmpty()) {
@@ -2766,7 +2766,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                             textRect.adjust(checkBoxRect.right() + 4, 0, checkBoxRect.right() + 4, 0);
                         }
                     }
-                   
+
                     painter->drawText(textRect, Qt::TextShowMnemonic | Qt::AlignLeft| alignment, groupBox->text);
                 }
                 // Draw checkbox
@@ -3025,7 +3025,7 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         break;
     case CT_PushButton:
 	    newSize += QSize(0, 4);
-        break;	
+        break;
     case CT_MenuBarItem:
 	    newSize += QSize(0, 2);
 	break;
@@ -3042,16 +3042,6 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
 void QCleanLooksStyle::polish(QApplication *app)
 {
     Q_UNUSED(app);
-    /*	
-    QFont font = app->font();
-    font.setKerning(false);
-    font.setPointSize(10);
-    font.setFamily("bitstream vera sans");
-    app->setFont(font);
-    */
-#ifdef Q_WS_X11
-    app->setPalette(standardPalette());   
-#endif
 }
 
 /*!
@@ -3059,13 +3049,6 @@ void QCleanLooksStyle::polish(QApplication *app)
 */
 void QCleanLooksStyle::polish(QWidget *widget)
 {
-/*
-   QFont font = widget->font();
-   font.setKerning(false);
-   font.setPointSize(10);
-   font.setFamily("bitstream vera sans");
-   widget->setFont(font);
-*/
     if (qobject_cast<QAbstractButton*>(widget)
         || qobject_cast<QComboBox *>(widget)
         || qobject_cast<QProgressBar *>(widget)
@@ -3234,7 +3217,7 @@ QRect QCleanLooksStyle::subControlRect(ComplexControl control, const QStyleOptio
                     QFont font = widget->font();
                     font.setBold(true);
                     QFontMetrics fontMetrics(font);
-                  
+
                     QSize textRect = fontMetrics.boundingRect(groupBoxWidget->title()).size() + QSize(2, 0);
                     if (subControl == SC_GroupBoxCheckBox) {
                         int indicatorWidth = pixelMetric(PM_IndicatorWidth, option, widget);
