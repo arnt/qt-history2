@@ -103,6 +103,9 @@ void MainWindow::createActions()
         saveAsActs.append(action);
     }
 
+    printPdfAct = new QAction(tr("&Print as PDF"), this);
+    connect(printPdfAct, SIGNAL(triggered()), scribbleArea, SLOT(printPdf()));
+
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
@@ -134,6 +137,7 @@ void MainWindow::createMenus()
     fileMenu = new QMenu(tr("&File"), this);
     fileMenu->addAction(openAct);
     fileMenu->addMenu(saveAsMenu);
+    fileMenu->addAction(printPdfAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
