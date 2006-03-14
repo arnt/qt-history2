@@ -84,6 +84,8 @@ protected:
     virtual bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const;
     virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
+    void filterChanged();
+
 public:
 #ifdef Q_NO_USING_KEYWORD
     inline QObject *parent() const { return QObject::parent(); }

@@ -1732,6 +1732,18 @@ void QSortFilterProxyModel::clear()
 }
 
 /*!
+  Updates the mapping// , to reflect the change in the filter.
+
+   This function should be called if you are implementing
+   custom filtering, and you filter parameters changed.
+*/
+void QSortFilterProxyModel::filterChanged()
+{
+    Q_D(QSortFilterProxyModel);
+    d->filter_changed();
+}
+
+/*!
     Returns true if the value of the item referred to by the given
     index \a left is less than the value of the item referred to by
     the given index \a right, otherwise returns false.
