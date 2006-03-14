@@ -56,7 +56,8 @@
     clearImage() slot clears the image displayed in the scribble
     area. We need the private \c drawLineTo() function to actually do
     the drawing, and \c resizeImage() to change the size of a
-    QImage.
+    QImage. The \c printPdf() slot handles conversion and export of
+    images to PDF files.
 
     We also need the following private variables:
 
@@ -213,6 +214,25 @@
     (where RR, GG, and BB are the red, green and blue
     color channels, ff is the hexadecimal value 255).
 
+    Export to a PDF file is handled by the \c printPdf() slot:
+
+    \skipto printPdf()
+    \printuntil printDialog
+
+    We construct a high resolution QPrinter object for the required
+    output format, using a QPrintDialog to ask the user to specify a
+    page size and indicate how the output should be formatted on the page.
+
+    If the dialog is accepted, we perform the task of printing to the paint
+    device:
+
+    \printuntil /^\}/
+
+    Printing an image to a file in this way is simply a matter of
+    painting onto the QPrinter. We scale the image to fit within the
+    available space on the page before painting it onto the paint
+    device.
+
     \section1 MainWindow Class Definition
 
     \quotefromfile widgets/scribble/mainwindow.h
@@ -221,7 +241,7 @@
 
     The \c MainWindow class inherits from QMainWindow. We reimplement
     the \l{QWidget::closeEvent()}{closeEvent()} handler from QWidget.
-    The \gui open(), \gui save(), \gui penColor() and \gui penWidth()
+    The \c open(), \c save(), \c penColor() and \c penWidth()
     slots correspond to menu entries. In addition we create four
     private functions.
 
