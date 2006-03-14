@@ -520,7 +520,7 @@ bool QSqlRelationalTableModel::removeColumns(int column, int count, const QModel
 {
     Q_D(QSqlRelationalTableModel);
 
-    if (!QSqlTableModel::removeColumns(column, count, parent))
+    if (parent.isValid() || column < 0 || column + count > d->rec.count())
         return false;
 
     for (int i = 0; i < count; ++i) {
@@ -528,5 +528,6 @@ bool QSqlRelationalTableModel::removeColumns(int column, int count, const QModel
         if (d->relations.count() > column)
             d->relations.remove(column);
     }
+    return QSqlTableModel::removeColumns(column, count, parent);
 }
 
