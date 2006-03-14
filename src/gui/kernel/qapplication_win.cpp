@@ -1644,16 +1644,17 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     widget->topData()->normalGeometry = widget->geometry();
             case SC_RESTORE:
                 window_state_change = true;
+                if ((0xfff0 & wParam) == SC_MAXIMIZE)
+                    widget->dataPtr()->window_state |= Qt::WindowMaximized;
+                else if (!widget->isMinimized())
+                    widget->dataPtr()->window_state &= ~Qt::WindowMaximized;
+                
                 if (widget->isMinimized()) {
                     widget->dataPtr()->window_state &= ~Qt::WindowMinimized;
                     widget->showChildren(true);
                     QShowEvent e;
                     qt_sendSpontaneousEvent(widget, &e);
                 }
-                if ((0xfff0 & wParam) == SC_MAXIMIZE)
-                    widget->dataPtr()->window_state |= Qt::WindowMaximized;
-                else
-                    widget->dataPtr()->window_state &= ~Qt::WindowMaximized;
                 result = false;
                 break;
             default:
