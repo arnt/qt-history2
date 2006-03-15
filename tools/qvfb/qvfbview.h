@@ -38,7 +38,7 @@ class QVFbView :
 public:
     enum Rotation { Rot0, Rot90, Rot180, Rot270 };
     QVFbView( int id, int w, int h, int d, Rotation r, QWidget *parent = 0);
-    ~QVFbView();
+    virtual ~QVFbView();
 
     int displayId() const;
     int displayWidth() const;
