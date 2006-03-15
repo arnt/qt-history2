@@ -1093,6 +1093,8 @@ void QVNCServer::discardClient()
 
     \brief The QVNCScreen class manages the screen for VNC servers.
 
+    Note that this class is only available in \l {Qtopia Core}.
+
     The VNC protocol allows you to view and interact with the
     computer's display from anywhere on the network.  Note that there
     should only be one QVNCScreen object per application.
