@@ -361,9 +361,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         if (d->cx) {
             QGLContext *share = const_cast<QGLContext *>(shareContext);
             d->sharing = true;
-            d->shareContext = share;
             share->d_func()->sharing = true;
-            share->d_func()->shareContext = this;
         }
     }
     if (!d->cx)
@@ -590,7 +588,7 @@ void QGLContext::reset()
     d->valid = false;
     d->transpColor = QColor();
     d->initDone = false;
-    d->shareContext = 0;
+    qgl_share_reg()->removeShare(this);
 }
 
 

@@ -146,9 +146,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     if (shareContext && shareContext->d_func()->cx) {
         QGLContext *share = const_cast<QGLContext *>(shareContext);
         d->sharing = true;
-        d->shareContext = share;
         share->d_func()->sharing = true;
-        share->d_func()->shareContext = this;
     }
     if(deviceIsPixmap())
         updatePaintDevice();
@@ -271,7 +269,7 @@ void QGLContext::reset()
     d->valid = false;
     d->transpColor = QColor();
     d->initDone = false;
-    d->shareContext = 0;
+    qgl_context_reg()->removeShare(this);
 }
 
 void QGLContext::makeCurrent()

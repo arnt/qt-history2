@@ -28,6 +28,7 @@
 #include "QtOpenGL/qgl.h"
 #include "QtOpenGL/qglcolormap.h"
 #include "QtCore/qmap.h"
+#include "QtCore/qhash.h"
 #include "private/qwidget_p.h"
 
 class QGLContext;
@@ -87,7 +88,7 @@ class QGLContextPrivate
 {
     Q_DECLARE_PUBLIC(QGLContext)
 public:
-    explicit QGLContextPrivate(QGLContext *context) : shareContext(0), q_ptr(context) {}
+    explicit QGLContextPrivate(QGLContext *context) : q_ptr(context) {}
     ~QGLContextPrivate() {}
     GLuint bindTexture(const QImage &image, GLenum target, GLint format, const QString &key,
                        qint64 qt_id, bool clean = false);
@@ -124,7 +125,6 @@ public:
     uint crWin : 1;
     QPaintDevice *paintDevice;
     QColor transpColor;
-    QGLContext *shareContext;
     QGLContext *q_ptr;
 };
 
@@ -159,4 +159,47 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QGLExtensions::Extensions)
 #ifndef GL_BGRA
 #define GL_BGRA 0x80E1
 #endif
+
+typedef QMultiHash<const QGLContext *, const QGLContext *> QGLSharingHash;
+class QGLShareRegister
+{
+public:
+    QGLShareRegister() {}
+    ~QGLShareRegister() { reg.clear(); }
+
+    bool checkSharing(const QGLContext *context1, const QGLContext *context2, const QGLContext * start=0) {
+        QList<const QGLContext *> shares = reg.values(context1);
+        for (int k=0; k<shares.size(); ++k) {
+            const QGLContext *ctx = shares.at(k);
+            if (ctx == start) // terminates recursion
+                continue;
+            if (ctx == context2)
+                return true;
+            if (checkSharing(ctx, context2, context1))
+                return true;
+        }
+        return false;
+    }
+
+    void addShare(const QGLContext *context, const QGLContext *share) {
+        reg.insert(context, share);
+        reg.insert(share, context);
+    }
+
+    void removeShare(const QGLContext *context) {
+        reg.remove(context);
+        QGLSharingHash::iterator it = reg.begin();
+        while (it != reg.end()) {
+            if (it.value() == context)
+                reg.erase(it);
+            else
+                ++it;
+        }
+    }
+
+private:
+    QGLSharingHash reg;
+};
+
+extern QGLShareRegister* qgl_context_reg();
 #endif // QGL_P_H

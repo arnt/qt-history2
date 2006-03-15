@@ -1708,18 +1708,25 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
 {
     QGLContextHash::const_iterator dev_it = qt_context_cache.find(context);
     QGLFontGlyphHash *font_cache = 0;
-    bool using_share_context = false;
+    QGLContext *context_key = 0;
 
     if (dev_it == qt_context_cache.end()) {
         // check for shared contexts
-        dev_it = qt_context_cache.find(context->d_func()->shareContext);
-        if (dev_it != qt_context_cache.end())
-            using_share_context = true;
+        QList<QGLContext *> contexts = qt_context_cache.keys();
+        for (int i=0; i<contexts.size(); ++i) {
+            QGLContext *ctx = contexts.at(i);
+            if (ctx != context && qgl_context_reg()->checkSharing(context, ctx)) {
+                context_key = ctx;
+                dev_it = qt_context_cache.find(context_key);
+                break;
+            }
+        }
     }
+
     if (dev_it == qt_context_cache.end()) {
         // no shared contexts either - create a new entry
         font_cache = new QGLFontGlyphHash;
-//        qDebug() << "new context" << context << font_cache;
+//         qDebug() << "new context" << context << font_cache;
         qt_context_cache.insert(context, font_cache);
         if (context->device()->devType() == QInternal::Widget) {
             QWidget *widget = static_cast<QWidget *>(context->device());
@@ -1741,8 +1748,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
     }
     current_cache = cache;
 
-    QGLContext *context_key = using_share_context ? context->d_func()->shareContext : context;
-    quint64 font_key = (reinterpret_cast<quint64>(context_key) << 32)
+    quint64 font_key = (reinterpret_cast<quint64>(context_key ? context_key : context) << 32)
                        | reinterpret_cast<quint64>(ti.fontEngine);
     QGLFontTexHash::const_iterator it = qt_font_textures.find(font_key);
     QGLFontTexture *font_tex;
@@ -1762,7 +1768,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
         font_tex->texture = font_texture;
         font_tex->x_offset = x_margin;
         font_tex->y_offset = y_margin;
-//         qDebug() << "new font tex: " << font_key << font_tex->texture;
+//         qDebug() << "new font tex: " << hex << font_key << font_tex->texture;
         qt_font_textures.insert(font_key, font_tex);
     } else {
         font_tex = it.value();

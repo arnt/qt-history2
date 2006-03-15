@@ -991,6 +991,12 @@ struct DDSFormat {
 #define GL_GENERATE_MIPMAP_HINT_SGIS  0x8192
 #endif
 
+Q_GLOBAL_STATIC(QGLShareRegister, _qgl_share_reg);
+QGLShareRegister* qgl_share_reg()
+{
+    return _qgl_share_reg();
+}
+
 /*!
     \class QGLContext
     \brief The QGLContext class encapsulates an OpenGL rendering context.
@@ -1658,6 +1664,8 @@ bool QGLContext::create(const QGLContext* shareContext)
     Q_D(QGLContext);
     reset();
     d->valid = chooseContext(shareContext);
+    if (d->sharing)  // ok, we managed to share
+        qgl_share_reg()->addShare(this, shareContext);
     return d->valid;
 }
 
