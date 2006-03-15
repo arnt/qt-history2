@@ -1480,6 +1480,7 @@ QList<QPolygonF> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
             if (current.size() > 1)
                 flatCurves += current;
             current.clear();
+            current.reserve(16);
             current += QPointF(e.x, e.y) * matrix;
             break;
         case QPainterPath::LineToElement:
@@ -1488,12 +1489,11 @@ QList<QPolygonF> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
         case QPainterPath::CurveToElement: {
             Q_ASSERT(d->elements.at(i+1).type == QPainterPath::CurveToDataElement);
             Q_ASSERT(d->elements.at(i+2).type == QPainterPath::CurveToDataElement);
-            QPolygonF bezier = QBezier::fromPoints(QPointF(d->elements.at(i-1).x, d->elements.at(i-1).y) * matrix,
+            QBezier bezier = QBezier::fromPoints(QPointF(d->elements.at(i-1).x, d->elements.at(i-1).y) * matrix,
                                        QPointF(e.x, e.y) * matrix,
                                        QPointF(d->elements.at(i+1).x, d->elements.at(i+1).y) * matrix,
-                                       QPointF(d->elements.at(i+2).x, d->elements.at(i+2).y) * matrix).toPolygon();
-            bezier.remove(0);
-            current += bezier;
+                                                 QPointF(d->elements.at(i+2).x, d->elements.at(i+2).y) * matrix);
+            bezier.addToPolygon(&current);
             i+=2;
             break;
         }
@@ -1542,6 +1542,11 @@ QPolygonF QPainterPath::toFillPolygon(const QMatrix &matrix) const
     return polygon;
 }
 
+static inline bool rect_intersects(const QRectF &r1, const QRectF &r2)
+{
+    return qMax(r1.left(), r2.left()) <= qMin(r1.right(), r2.right())
+        && qMax(r1.top(), r2.top()) <= qMin(r1.bottom(), r2.bottom());
+}
 /*!
     Converts the path into a list of polygons using the given
     transformation \a matrix, and returns the list.
@@ -1594,7 +1599,7 @@ QList<QPolygonF> QPainterPath::toFillPolygons(const QMatrix &matrix) const
     for (int j=0; j<count; ++j) {
         QRectF cbounds = bounds.at(j);
         for (int i=0; i<count; ++i) {
-            if (cbounds.intersects(bounds.at(i))) {
+            if (rect_intersects(cbounds, bounds.at(i))) {
                 isects[j] << i;
             }
         }

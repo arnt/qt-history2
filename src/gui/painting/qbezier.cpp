@@ -53,6 +53,12 @@ QPolygonF QBezier::toPolygon() const
 
     QPolygonF polygon;
     polygon.append(QPointF(x1, y1));
+    addToPolygon(&polygon);
+    return polygon;
+}
+
+void QBezier::addToPolygon(QPolygonF *polygon) const
+{
     QBezier beziers[32];
     beziers[0] = *this;
     QBezier *b = beziers;
@@ -63,14 +69,14 @@ QPolygonF QBezier::toPolygon() const
         if (l > 1.) {
             d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2) - (b->y4 - b->y1)*(b->x1 - b->x2) )
                 + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3) - (b->y4 - b->y1)*(b->x1 - b->x3) );
-            d /= l;
         } else {
             d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
                 qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
+            l = 1.;
         }
-        if (d < .5 || b == beziers + 31) {
+        if (d < .5*l || b == beziers + 31) {
             // good enough, we pop it off and add the endpoint
-            polygon.append(QPointF(b->x4, b->y4));
+            polygon->append(QPointF(b->x4, b->y4));
             --b;
         } else {
             // split, second half of the polygon goes lower into the stack
@@ -78,7 +84,6 @@ QPolygonF QBezier::toPolygon() const
             ++b;
         }
     }
-    return polygon;
 }
 
 void QBezier::split(QBezier *firstHalf, QBezier *secondHalf) const
