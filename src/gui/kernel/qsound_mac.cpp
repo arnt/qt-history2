@@ -107,9 +107,9 @@ public:
     static void stop(QSound *s) {
         if(!s)
             return;
-        for(QList<QAuServerMacCleanupHandler*>::Iterator it = cleanups.begin(); it != cleanups.end(); ++it) {
-            if((*it)->qsound == s) {
-                delete (*it); //the destructor removes it..
+        for(int i = 0; i < cleanups.size(); ++i) {
+            if(cleanups[i]->qsound == s) {
+                delete cleanups[i]; //the destructor removes it..
                 break;
             }
         }
@@ -138,16 +138,14 @@ QAuServerMac::~QAuServerMac()
 static Movie get_movie(const QString &filename, QPixmap *offscreen)
 {
     FSSpec fileSpec;
-    if(qt_mac_create_fsspec(filename, &fileSpec) != noErr) {
-        qDebug("Qt: internal: bogus %d", __LINE__);
-        return NULL;
-    }
+    if(qt_mac_create_fsspec(filename, &fileSpec) != noErr)
+        return 0;
     Movie aMovie = nil;
     short movieResFile;
     if(OpenMovieFile(&fileSpec, &movieResFile, fsCurPerm) != noErr)
-        return NULL;
+        return 0;
     if(NewMovieFromFile(&aMovie, movieResFile, 0, 0, newMovieActive, 0) != noErr)
-        return NULL;
+        return 0;
     SetMovieGWorld(aMovie, qt_mac_qd_context(offscreen), 0); //just a temporary offscreen
     CloseMovieFile(movieResFile);
     return aMovie;
