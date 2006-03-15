@@ -50,27 +50,51 @@ extern int qws_client_id;
 /*!
     \class QLinuxFbScreen
     \ingroup qws
+
     \brief The QLinuxFbScreen class manages the Linux framebuffer.
 
-     QLinuxFbScreen is a descendant of the QScreen class, and there
-     should only be one QLinuxFbScreen object per application.
+    Note that this class is only available in \l {Qtopia Core}, and
+    that there should only be one QLinuxFbScreen object per
+    application.
 
-     This class enables reading information about the framebuffer from
-     the Linux framebuffer interface, managing the color palette,
-     managing off-screen graphics memory and mapping the framebuffer
-     interface itself (removing the need for drivers to do this).
+    The QLinuxFbScreen class inherits QScreen and enables reading
+    information about the framebuffer from the Linux framebuffer
+    interface, managing the color palette, managing off-screen
+    graphics memory and mapping the framebuffer interface itself
+    (removing the need for drivers to do this).
 
-     QLinuxFbScreen also acts as a factory for the unaccelerated
-     screen cursor and unaccelerated QRasterPaintEngine, and
-     accelerated drivers for Linux should derive from this class.
+    In particular, QLinuxFbScreen provides the cache() function
+    allocating off-screen graphics memory, and the complementary
+    uncache() function releasing the allocated memory. The latter
+    function will first sync the graphics card to ensure the memory
+    isn't still being used by a command in the graphics card FIFO
+    queue. The deleteEntry() function deletes the given memory block
+    without such synchronization.  Given the screen instance and
+    client id, the memory can also be released using the clearCache()
+    function, but this should only be necessary if a client exits
+    abnormally.
+
+    In addition, when in paletted graphics modes, the set() function
+    provides the possibility of setting a specified color index to a
+    given RGB value.
+
+    The QLinuxFbScreen class also acts as a factory for the
+    unaccelerated screen cursor and the unaccelerated raster-based
+    implementation of QPaintEngine (\c
+    QRasterPaintEngine). Accelerated drivers for Linux should derive
+    from this class.
+
+    \sa QScreen, {Running Applications}, {Qtopia Core}
 */
 
 // Unaccelerated screen/driver setup. Can be overridden by accelerated
 // drivers
 
 /*!
-    Constructs a QLinuxFbScreen; passes \a display_id to the QScreen
-    constructor.
+    \fn QLinuxFbScreen::QLinuxFbScreen(int displayId)
+
+    Constructs a QLinuxFbScreen object. The \a displayId argument
+    identifies the Qtopia Core server to connect to.
 */
 
 QLinuxFbScreen::QLinuxFbScreen(int display_id) : QScreen(display_id)
@@ -80,7 +104,7 @@ QLinuxFbScreen::QLinuxFbScreen(int display_id) : QScreen(display_id)
 }
 
 /*!
-    Destroys a QLinuxFbScreen.
+    Destroys this QLinuxFbScreen object.
 */
 
 QLinuxFbScreen::~QLinuxFbScreen()
@@ -88,6 +112,8 @@ QLinuxFbScreen::~QLinuxFbScreen()
 }
 
 /*!
+    \reimp
+
     This is called by \l {Qtopia Core} clients to map in the framebuffer.
     It should be reimplemented by accelerated drivers to map in
     graphics card registers; those drivers should then call this
@@ -235,6 +261,8 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
 }
 
 /*!
+    \reimp
+
     This unmaps the framebuffer.
 
     \sa connect()
@@ -388,6 +416,8 @@ void QLinuxFbScreen::createPalette(fb_cmap &cmap, fb_var_screeninfo &vinfo, fb_f
 }
 
 /*!
+    \reimp
+
     This is called by the \l {Qtopia Core} server at startup time. It turns
     off console blinking, sets up the color palette, enables write
     combining on the framebuffer and initialises the off-screen memory
@@ -593,20 +623,20 @@ void QLinuxFbScreen::insert_entry(int pos,int start,int end)
 }
 
 /*!
-    This function requests a block of offscreen graphics card memory
-    from the memory manager; it will be aligned at
-    pixmapOffsetAlignment(). Returns a pointer to the data within the
-    framebuffer, or 0 if no memory is free. QScreen::onCard can be
-    used to retrieve a byte offset from the start of graphics card
-    memory from this pointer. The display is locked while memory is
-    allocated and unallocated in order to preserve the memory pool's
-    integrity, so cache() and uncache() should not be called if the
-    screen is locked.
+    \fn uchar * QLinuxFbScreen::cache(int amount)
 
-    \a amount is the amount of memory to allocate, \a optim gives the
-    optimization level (same values as QPixmap::Optimization).
+    Requests the specified \a amount of offscreen graphics card memory
+    from the memory manager, and returns a pointer to the data within
+    the framebuffer (or 0 if there is no free memory).
 
-    \sa uncache()
+    Note that the display is locked while memory is allocated in order to
+    preserve the memory pool's integrity.
+
+    Use the QScreen::onCard() function to retrieve an offset (in
+    bytes) from the start of graphics card memory for the returned
+    pointer.
+
+    \sa uncache(), clearCache(), deleteEntry()
 */
 
 uchar * QLinuxFbScreen::cache(int amount)
@@ -670,21 +700,24 @@ uchar * QLinuxFbScreen::cache(int amount)
 }
 
 /*!
-    Deletes \a c, a block of memory allocated from graphics card
-    memory.
+    \fn void QLinuxFbScreen::uncache(uchar * memoryBlock)
+
+    Deletes the specified \a memoryBlock allocated from the graphics
+    card memory.
+
+    Note that the display is locked while memory is unallocated in
+    order to preserve the memory pool's integrity.
 
     This function will first sync the graphics card to ensure the
-    memory isn't still being used by a command in the graphics
-    card FIFO queue.
+    memory isn't still being used by a command in the graphics card
+    FIFO queue. It is possible to speed up a driver by overriding this
+    function to avoid syncing. For example, the driver might delay
+    deleting the memory until it detects that all commands dealing
+    with the memory are no longer in the queue. Note that it will then
+    be up to the driver to ensure that the specified \a memoryBlock no
+    longer is being used.
 
-    You can speed up a driver by overriding uncache() to avoid
-    syncing, however it will then be up to the driver to ensure
-    the memory at \a c is no longer being used.  For example the
-    driver might delay deleting the memory until it detects that
-    all commands dealing with the memory are no longer in the
-    queue.
-
-    \sa cache() deleteEntry() sync()
+    \sa cache(), deleteEntry(), clearCache()
  */
 void QLinuxFbScreen::uncache(uchar * c)
 {
@@ -694,9 +727,12 @@ void QLinuxFbScreen::uncache(uchar * c)
 }
 
 /*!
-    Delete \c c, a block of memory allocated from graphics card memory.
+    \fn void QLinuxFbScreen::deleteEntry(uchar * memoryBlock)
 
-    \sa uncache() cache()
+    Deletes the specified \a memoryBlock allocated from the graphics
+    card memory.
+
+    \sa uncache(), cache(), clearCache()
 */
 void QLinuxFbScreen::deleteEntry(uchar * c)
 {
@@ -718,9 +754,14 @@ void QLinuxFbScreen::deleteEntry(uchar * c)
     qDebug("Attempt to delete unknown offset %ld",pos);
 }
 
-/*
-  Remove all entries from the cache for clientId.
-  Should only be necessary if a client exits abnormally.
+/*!
+    Removes all entries from the cache for the specified screen \a
+    instance and client identfied by the given \a clientId.
+
+    Calling this function should only be necessary if a client exits
+    abnormally.
+
+    \sa cache(), uncache(), deleteEntry()
 */
 void QLinuxFbScreen::clearCache(QScreen *instance, int clientId)
 {
@@ -759,6 +800,8 @@ void QLinuxFbScreen::setupOffScreen()
 }
 
 /*!
+    \reimp
+
     This is called by the \l {Qtopia Core} server when it shuts down, and
     should be inherited if you need to do any card-specific cleanup.
     The default version hides the screen cursor and reenables the
@@ -787,8 +830,10 @@ void QLinuxFbScreen::shutdownDevice()
 }
 
 /*!
-    In paletted graphics modes, this sets color index \a i to the
-    specified RGB value, (\a r, \a g, \a b).
+    \fn void QLinuxFbScreen::set(unsigned int index,unsigned int red,unsigned int green,unsigned int blue)
+
+    Sets the specified color \a index to the specified RGB value, (\a
+    red, \a green, \a blue), when in paletted graphics modes.
 */
 
 void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned int b)
@@ -817,6 +862,8 @@ void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned i
 }
 
 /*!
+    \reimp
+
     Sets the framebuffer to a new resolution and bit depth. The width is
     in \a nw, the height is in \a nh, and the depth is in \a nd. After
     doing this any currently-existing paint engines will be invalid and the
@@ -868,6 +915,8 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
 // between linux virtual consoles.
 
 /*!
+    \reimp
+
     This doesn't do anything; accelerated drivers may wish to reimplement
     it to save graphics cards registers. It's called by the \l {Qtopia Core} server
     when the virtual console is switched.
@@ -881,6 +930,8 @@ void QLinuxFbScreen::save()
 
 // restore the state of the graphics card.
 /*!
+    \reimp
+
     This is called when the virtual console is switched back to
     \l {Qtopia Core} and restores the palette.
 */
@@ -912,6 +963,11 @@ void QLinuxFbScreen::restore()
     }
 }
 
+/*!
+    \fn int QLinuxFbScreen::sharedRamSize(void * end)
+    \internal
+*/
+
 // This works like the QScreenCursor code. end points to the end
 // of our shared structure, we return the amount of memory we reserved
 int QLinuxFbScreen::sharedRamSize(void * end)
@@ -925,6 +981,9 @@ int QLinuxFbScreen::sharedRamSize(void * end)
     return sizeof(QLinuxFb_Shared);
 }
 
+/*!
+    \reimp
+*/
 void QLinuxFbScreen::blank(bool on)
 {
 #if defined(QT_QWS_IPAQ)
@@ -944,3 +1003,11 @@ void QLinuxFbScreen::blank(bool on)
 }
 
 #endif // QT_NO_QWS_LINUXFB
+
+/*
+    \fn bool QLinuxFbScreen::useOffscreen ()
+
+    (doc: subject to change)
+
+    The default implementation returns false.
+*/
