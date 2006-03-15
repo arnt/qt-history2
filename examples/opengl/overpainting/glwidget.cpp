@@ -120,7 +120,6 @@ void GLWidget::paintEvent(QPaintEvent *event)
     glShadeModel(GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glEnable(GL_MULTISAMPLE);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     static GLfloat lightPosition[4] = { 0.5, 5.0, 7.0, 1.0 };
