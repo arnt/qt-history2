@@ -129,8 +129,14 @@ bool QProgressBarPrivate::repaintRequired() const
     QFtp or QHttp to download items when they are unable to determine the
     size of the item being downloaded.
 
-    \inlineimage macintosh-progressbar.png Screenshot in Macintosh style
-    \inlineimage windows-progressbar.png Screenshot in Windows style
+    \table
+    \row \o \inlineimage macintosh-progressbar.png Screenshot of a Macintosh style progress bar
+         \o A progress bar shown in the Macintosh widget style.
+    \row \o \inlineimage windowsxp-progressbar.png Screenshot of a Windows XP style progress bar
+         \o A progress bar shown in the Windows XP widget style.
+    \row \o \inlineimage plastique-progressbar.png Screenshot of a Plastique style progress bar
+         \o A progress bar shown in the Plastique widget style.
+    \endtable
 
     \sa QProgressDialog, {fowler}{GUI Design Handbook: Progress Indicator}
 */
