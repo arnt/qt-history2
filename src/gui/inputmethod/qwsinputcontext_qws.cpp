@@ -130,18 +130,22 @@ bool QWSInputContext::translateIMInitEvent(const QWSIMInitEvent *e)
 
 bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
 {
+    QDataStream stream(e->streamingData);
+    QString preedit;
+    QString commit;
+
+    stream >> preedit;
+    stream >> commit;
+
+    if (preedit.isEmpty() && ::activeWidget)
+        w = ::activeWidget;
+
     QInputContext *qic = w->inputContext();
     if (!qic)
         return false;
 
-    QString preedit;
-    QString commit;
     QList<QInputMethodEvent::Attribute> attrs;
 
-    QDataStream stream(e->streamingData);
-
-    stream >> preedit;
-    stream >> commit;
 
     while (!stream.atEnd()) {
         int type = -1;
@@ -168,8 +172,6 @@ bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
     if (!commit.isEmpty() || e->simpleData.replaceLength > 0)
         ime.setCommitString(commit, e->simpleData.replaceFrom, e->simpleData.replaceLength);
 
-    if (preedit.isEmpty() && ::activeWidget)
-        w = ::activeWidget;
 
     extern bool qt_sendSpontaneousEvent(QObject *, QEvent *); //qapplication_qws.cpp
     qt_sendSpontaneousEvent(w, &ime);
