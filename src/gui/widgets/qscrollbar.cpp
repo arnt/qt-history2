@@ -155,11 +155,17 @@
     user interaction with the scroll bar controls. This is useful if you have
     many different widgets that use a common range of values.
 
-    \image macintosh-horizontalscrollbar.png A scroll bar shown in the Macintosh widget style.
-    \image windowsxp-horizontalscrollbar.png A scroll bar shown in the WindowsXP widget style.
-
     Most GUI styles use the pageStep() value to calculate the size of the
     slider.
+
+    \table 100%
+    \row \o \inlineimage macintosh-horizontalscrollbar.png Screenshot of a Macintosh style scroll bar
+         \o A scroll bar shown in the Macintosh widget style.
+    \row \o \inlineimage windows-horizontalscrollbar.png Screenshot of a Windows XP style scroll bar
+         \o A scroll bar shown in the WindowsXP widget style.
+    \row \o \inlineimage plastique-horizontalscrollbar.png Screenshot of a Plastique style scroll bar
+         \o A scroll bar shown in the Plastique widget style.
+    \endtable
 
     \sa QScrollArea, QSlider, QDial, QSpinBox, {fowler}{GUI Design Handbook: Scroll Bar}
 */

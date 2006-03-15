@@ -136,8 +136,14 @@ public:
     Other classes of buttons are option buttons (see QRadioButton) and
     check boxes (see QCheckBox).
 
-    \inlineimage macintosh-pushbutton.png Screenshot in Macintosh style
-    \inlineimage windows-pushbutton.png Screenshot in Windows style
+    \table 100%
+    \row \o \inlineimage macintosh-pushbutton.png Screenshot of a Macintosh style push button
+         \o A push button shown in the Macintosh widget style.
+    \row \o \inlineimage windowsxp-pushbutton.png Screenshot of a Windows XP style push button
+         \o A push button shown in the Windows XP widget style.
+    \row \o \inlineimage plastique-pushbutton.png Screenshot of a Plastique style push button
+         \o A push button shown in the Plastique widget style.
+    \endtable
 
     In Qt, the QAbstractButton base class provides most of the modes
     and other API, and QPushButton provides GUI logic.

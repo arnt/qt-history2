@@ -69,7 +69,6 @@ void QActionGroupPrivate::_q_actionHovered()
     \class QActionGroup
     \brief The QActionGroup class groups actions together.
 
-    \ingroup basic
     \ingroup application
 
     In some situations it is useful to group actions together. For
