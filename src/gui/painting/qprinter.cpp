@@ -356,7 +356,7 @@ void QPrinterPrivate::createDefaultEngines()
 */
 QPrinter::QPrinter(PrinterMode mode)
     : QPaintDevice(),
-      d_ptr(new QPrinterPrivate)
+      d_ptr(new QPrinterPrivate(this))
 {
     if (!qApp) {
         qFatal("QPrinter: Must construct a QApplication before a QPaintDevice");
@@ -403,9 +403,6 @@ void QPrinter::setEngines(QPrintEngine *printEngine, QPaintEngine *paintEngine)
 QPrinter::~QPrinter()
 {
     Q_D(QPrinter);
-#if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))
-    delete d->printDialog;
-#endif
     if (d->use_default_engine)
         delete d->printEngine;
     delete d;
@@ -1291,13 +1288,12 @@ void QPrinter::setPrinterSelectionOption(const QString &option)
 
 int QPrinter::fromPage() const
 {
-#if defined(QT3_SUPPORT) && !defined(QT_NO_PRINTDIALOG)
+#if !defined(QT_NO_PRINTDIALOG)
     Q_D(const QPrinter);
     if (d->outputFormat == QPrinter::PdfFormat)
         return 0;
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d_func()->printDialog->fromPage();
+    d->ensurePrintDialog();
+    return d->printDialog->fromPage();
 #else
     return 0;
 #endif
@@ -1319,13 +1315,13 @@ int QPrinter::fromPage() const
 
 int QPrinter::toPage() const
 {
-#if defined(QT3_SUPPORT) && !defined(QT_NO_PRINTDIALOG)
+#if !defined(QT_NO_PRINTDIALOG)
     Q_D(const QPrinter);
     if (d->outputFormat == QPrinter::PdfFormat)
         return 0;
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d_func()->printDialog->toPage();
+
+    d->ensurePrintDialog();
+    return d->printDialog->toPage();
 #else
     return 0;
 #endif
@@ -1350,12 +1346,11 @@ int QPrinter::toPage() const
 
 void QPrinter::setFromTo(int from, int to)
 {
-#if defined(QT3_SUPPORT) && !defined(QT_NO_PRINTDIALOG)
+#if !defined(QT_NO_PRINTDIALOG)
     Q_D(QPrinter);
     if (d->outputFormat == QPrinter::PdfFormat)
         return;
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    d->ensurePrintDialog();
     d->printDialog->setFromTo(from, to);
 #else
     Q_UNUSED(from);
@@ -1375,11 +1370,11 @@ void QPrinter::setOutputToFile(bool f)
     }
 }
 
-bool qt_compat_QPrinter_printSetup(QPrinter *p, QPrinterPrivate *pd, QWidget *parent)
+bool qt_compat_QPrinter_printSetup(QPrinter *, QPrinterPrivate *pd, QWidget *parent)
 {
-    if (!pd->printDialog)
-        pd->printDialog = new QPrintDialog(p, parent);
-    else if (parent)
+    pd->ensurePrintDialog();
+
+    if (parent)
         pd->printDialog->setParent(parent);
 
     return pd->printDialog->exec() != 0;
@@ -1443,9 +1438,8 @@ bool QPrinter::setup(QWidget *parent)
 int QPrinter::minPage() const
 {
     Q_D(const QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d_func()->printDialog->minPage();
+    d->ensurePrintDialog();
+    return d->printDialog->minPage();
 }
 
 /*!
@@ -1454,9 +1448,8 @@ int QPrinter::minPage() const
 int QPrinter::maxPage() const
 {
     Q_D(const QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter *>(this)->d_func()->printDialog->maxPage();
+    d->ensurePrintDialog();
+    return d_func()->printDialog->maxPage();
 }
 
 /*!
@@ -1465,8 +1458,7 @@ int QPrinter::maxPage() const
 void QPrinter::setMinMax( int minPage, int maxPage )
 {
     Q_D(QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    d->ensurePrintDialog();
     d->printDialog->setMinMax(minPage, maxPage);
 }
 
@@ -1482,9 +1474,8 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 bool QPrinter::collateCopiesEnabled() const
 {
     Q_D(const QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d_func()->printDialog->isOptionEnabled(QPrintDialog::PrintCollateCopies);
+    d->ensurePrintDialog();
+    return d->printDialog->isOptionEnabled(QPrintDialog::PrintCollateCopies);
 }
 
 /*!
@@ -1496,9 +1487,8 @@ bool QPrinter::collateCopiesEnabled() const
 void QPrinter::setCollateCopiesEnabled(bool enable)
 {
     Q_D(QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
 
+    d->ensurePrintDialog();
     QPrintDialog::PrintDialogOptions opt = d->printDialog->enabledOptions();
     if (enable)
         opt |= QPrintDialog::PrintCollateCopies;
@@ -1515,8 +1505,7 @@ void QPrinter::setCollateCopiesEnabled(bool enable)
 void QPrinter::setPrintRange( PrintRange range )
 {
     Q_D(QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    d->ensurePrintDialog();
     d->printDialog->setPrintRange(QPrintDialog::PrintRange(range));
 }
 
@@ -1532,9 +1521,8 @@ void QPrinter::setPrintRange( PrintRange range )
 QPrinter::PrintRange QPrinter::printRange() const
 {
     Q_D(const QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return PrintRange(const_cast<QPrinter*>(this)->d_func()->printDialog->printRange());
+    d->ensurePrintDialog();
+    return PrintRange(d->printDialog->printRange());
 }
 
 /*!
@@ -1543,8 +1531,7 @@ QPrinter::PrintRange QPrinter::printRange() const
 void QPrinter::setOptionEnabled( PrinterOption option, bool enable )
 {
     Q_D(QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    d->ensurePrintDialog();
     QPrintDialog::PrintDialogOptions opt = d->printDialog->enabledOptions();
     if (enable)
         opt |= QPrintDialog::PrintDialogOption(1 << option);
@@ -1559,9 +1546,9 @@ void QPrinter::setOptionEnabled( PrinterOption option, bool enable )
 bool QPrinter::isOptionEnabled( PrinterOption option ) const
 {
     Q_D(const QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d_func()->printDialog->isOptionEnabled(QPrintDialog::PrintDialogOption(option));
+
+    d->ensurePrintDialog();
+    return d->printDialog->isOptionEnabled(QPrintDialog::PrintDialogOption(option));
 }
 
 #endif // QT3_SUPPORT

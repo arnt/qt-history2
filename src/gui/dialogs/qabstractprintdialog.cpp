@@ -13,6 +13,8 @@
 
 #include "qabstractprintdialog.h"
 #include "qabstractprintdialog_p.h"
+#include "qprinter.h"
+#include "private/qprinter_p.h"
 
 #ifndef QT_NO_PRINTDIALOG
 
@@ -55,6 +57,7 @@ QAbstractPrintDialog::QAbstractPrintDialog(QPrinter *printer, QWidget *parent)
 {
     Q_D(QAbstractPrintDialog);
     d->printer = printer;
+    printer->d_func()->printDialog = this;
 }
 
 /*!
@@ -67,6 +70,7 @@ QAbstractPrintDialog::QAbstractPrintDialog(QAbstractPrintDialogPrivate &ptr,
 {
     Q_D(QAbstractPrintDialog);
     d->printer = printer;
+    printer->d_func()->printDialog = this;
 }
 
 

@@ -40,15 +40,25 @@ class QPrintEngine;
 
 class QPrinterPrivate
 {
+    Q_DECLARE_PUBLIC(QPrinter)
 public:
-    QPrinterPrivate()
+    QPrinterPrivate(QPrinter *printer)
         : printEngine(0)
         , paintEngine(0)
-#if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))
+        , q_ptr(printer)
+#if !(defined(QT_NO_PRINTDIALOG))
+        , ownPrintDialog(0)
         , printDialog(0)
 #endif
         , use_default_engine(true)
     {
+    }
+
+    ~QPrinterPrivate() {
+#if !(defined(QT_NO_PRINTDIALOG))
+        delete ownPrintDialog;
+        ownPrintDialog = 0;
+#endif
     }
 
     void createDefaultEngines();
@@ -57,12 +67,21 @@ public:
     QPrinter::OutputFormat outputFormat;
     QPrintEngine *printEngine;
     QPaintEngine *paintEngine;
+    QPrinter *q_ptr;
 
-#if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))
-    QPointer<QPrintDialog> printDialog;
+#if !(defined(QT_NO_PRINTDIALOG))
+    mutable QPrintDialog *ownPrintDialog;
+    mutable QPointer<QAbstractPrintDialog> printDialog;
 #endif
 
     bool use_default_engine;
+    void ensurePrintDialog() const {
+        if (printDialog)
+            return;
+        if (!ownPrintDialog) {
+            ownPrintDialog = new QPrintDialog(q_ptr); // printDialog is set here.
+        }
+    }
 };
 
 #endif // QT_NO_PRINTER

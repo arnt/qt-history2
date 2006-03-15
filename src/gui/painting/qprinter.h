@@ -201,6 +201,7 @@ private:
     QPrinterPrivate *d_ptr;
 
     friend class QPrintDialogWin;
+    friend class QAbstractPrintDialog;
 };
 
 #ifdef QT3_SUPPORT
