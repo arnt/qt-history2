@@ -990,7 +990,7 @@ bool QFSFileEnginePrivate::doStat() const
             });
             could_stat = fileAttrib != INVALID_FILE_ATTRIBUTES;
             if (!could_stat) {
-                if (fname.at(0).isLetter() && fname.mid(1, fname.length()) == ":/") {
+                if (!fname.isEmpty() && fname.at(0).isLetter() && fname.mid(1, fname.length()) == ":/") {
                     // an empty drive ??
                     fileAttrib = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN;
                     could_stat = true;
