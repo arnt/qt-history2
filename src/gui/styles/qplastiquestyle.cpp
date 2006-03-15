@@ -4360,9 +4360,18 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             font.setBold(true);
             painter->setFont(font);
             painter->setPen(titleBar->palette.text().color());
-            painter->drawText(textRect.adjusted(1, 1, 1, 1), titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
+
+            // Attempt to align left if there is not enough room for the title
+            // text. Otherwise, align center. QWorkspace does elliding for us,
+            // and it doesn't know about the bold title, so we need to work
+            // around some of the width mismatches.
+            bool tooWide = (QFontMetrics(font).width(titleBar->text) > textRect.width());
+            QTextOption option((tooWide ? Qt::AlignLeft : Qt::AlignHCenter) | Qt::AlignVCenter);
+            option.setWrapMode(QTextOption::NoWrap);
+
+            painter->drawText(textRect.adjusted(1, 1, 1, 1), titleBar->text, option);
             painter->setPen(titleBar->palette.highlightedText().color());
-            painter->drawText(textRect, titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
+            painter->drawText(textRect, titleBar->text, option);
 
             // min button
             if ((titleBar->subControls & SC_TitleBarMinButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
@@ -4927,6 +4936,7 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
                         ret.adjust(0, 0, -delta, 0);
                     if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
                         ret.adjust(0, 0, -delta, 0);
+                    ret.adjust(indent, 0, -indent, 0);
                 }
                 break;
             case SC_TitleBarContextHelpButton:
