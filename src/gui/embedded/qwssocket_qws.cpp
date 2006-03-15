@@ -59,7 +59,7 @@
 QWSSocket::QWSSocket(QObject *parent)
     : QWS_SOCK_BASE(parent)
 {
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
     QObject::connect( this, SIGNAL(stateChanged(SocketState)),
             this, SLOT(forwardStateChange(SocketState)));
 #endif
@@ -69,7 +69,7 @@ QWSSocket::~QWSSocket()
 {
 }
 
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
 QString QWSSocket::errorString()
 {
     switch ( QUnixSocket::error() )
@@ -107,7 +107,7 @@ void QWSSocket::forwardStateChange(QUnixSocket::SocketState st  )
 
 bool QWSSocket::connectToLocalFile(const QString &file)
 {
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
     bool result = QUnixSocket::connect( file.toLocal8Bit() );
     if ( !result )
     {
@@ -145,7 +145,7 @@ bool QWSSocket::connectToLocalFile(const QString &file)
  *
  **********************************************************************/
 QWSServerSocket::QWSServerSocket(const QString& file, QObject *parent)
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
     : QUnixSocketServer(parent)
 #else
     : QTcpServer(parent)
@@ -156,7 +156,7 @@ QWSServerSocket::QWSServerSocket(const QString& file, QObject *parent)
 
 void QWSServerSocket::init(const QString &file)
 {
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
     QByteArray fn = file.toLocal8Bit();
     bool result = QUnixSocketServer::listen( fn );
     if ( !result )
@@ -217,7 +217,7 @@ QWSServerSocket::~QWSServerSocket()
 {
 }
 
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
 
 void QWSServerSocket::incomingConnection(int socketDescriptor)
 {
@@ -236,6 +236,6 @@ QWSSocket *QWSServerSocket::nextPendingConnection()
     return s;
 }
 
-#endif // QT_NO_SXV
+#endif // QT_NO_SXE
 
 #endif  //QT_NO_QWS_MULTIPROCESS

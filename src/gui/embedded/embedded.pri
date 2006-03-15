@@ -50,7 +50,7 @@ embedded {
 		    embedded/qwslock.cpp \
 		    embedded/qwssocket_qws.cpp
 
-        contains(QT_CONFIG,sxv)|contains(QT_CONFIG,qtopia) {
+        contains(QT_CONFIG,sxe)|contains(QT_CONFIG,qtopia) {
             SOURCES += embedded/qunixsocket.cpp embedded/qunixsocketserver.cpp
             HEADERS += embedded/qunixsocket_p.h embedded/qunixsocketserver_p.h
         }

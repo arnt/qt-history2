@@ -16,7 +16,7 @@
 
 #include <Qt/qconfig.h>
 
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
 #define QWS_SOCK_BASE QUnixSocket
 #define QWS_SOCK_SERVER_BASE QUnixSocketServer
 #include "qunixsocket_p.h"
@@ -43,7 +43,7 @@ public:
 
     bool connectToLocalFile(const QString &file);
 
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
     QString errorString();
 Q_SIGNALS:
     void connected();
@@ -65,7 +65,7 @@ public:
     QWSServerSocket(const QString& file, QObject *parent=0);
     ~QWSServerSocket();
 
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
     QWSSocket *nextPendingConnection();
 Q_SIGNALS:
     void newConnection();

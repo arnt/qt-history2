@@ -20,7 +20,7 @@
 #include <QtCore/qbuffer.h>
 #include <QtCore/qpointer.h>
 
-#if !defined(QT_NO_SXV) || defined(SXV_INSTALLER)
+#if !defined(QT_NO_SXE) || defined(SXE_INSTALLER)
 
 #include <sys/types.h>
 
@@ -123,5 +123,5 @@ private:
     Q_DECLARE_PRIVATE(QTransportAuth)
 };
 
-#endif // QT_NO_SXV
+#endif // QT_NO_SXE
 #endif // QTRANSPORTAUTH_QWS_H

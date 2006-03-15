@@ -798,8 +798,8 @@ Requires:
 Name: Qtopia Core window system properties.
 SeeAlso: ???
 
-Feature: SXV
+Feature: SXE
 Section: Qtopia Core
 Requires: QWS_MULTIPROCESS
-Name: Secure Execution Environment (experimental)
+Name: Safe Execution Environment (experimental)
 SeeAlso: ???

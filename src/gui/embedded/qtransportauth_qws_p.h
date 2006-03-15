@@ -17,7 +17,7 @@
 #include "qtransportauth_qws.h"
 #include "qbuffer.h"
 
-#if !defined(QT_NO_SXV) || defined(SXV_INSTALLER)
+#if !defined(QT_NO_SXE) || defined(SXE_INSTALLER)
 
 #include <qmutex.h>
 
@@ -31,7 +31,7 @@ void hexstring( char *buf, const unsigned char* key, size_t sz );
 #endif
 
 // Keys expire after a day
-#define QSXV_KEY_PERIOD 86400
+#define QSXE_KEY_PERIOD 86400
 
 class QUnixSocketMessage;
 
@@ -77,9 +77,9 @@ private:
     QByteArray msgQueue;
 };
 
-#define QSXV_KEY_LEN 16
-#define QSXV_MAGIC_BYTES 4
-#define QSXV_MAX_PROG_ID 255
+#define QSXE_KEY_LEN 16
+#define QSXE_MAGIC_BYTES 4
+#define QSXE_MAX_PROG_ID 255
 
 // Number of bytes of each message to authenticate.  Just need to ensure
 // that the command at the beginning hasn't been tampered with.  This value
@@ -91,7 +91,7 @@ private:
   \class AuthCookie
   Struct to carry process authentication key and id
 */
-#define QSXV_HEADER_LEN 24
+#define QSXE_HEADER_LEN 24
 
 /*!
   \macro AUTH_ID
@@ -111,21 +111,21 @@ private:
   AUTH_KEY, AUTH_DATA and AUTH_SPACE macros.
 */
 
-#define AUTH_ID(k) ((unsigned char)(k[QSXV_KEY_LEN]))
+#define AUTH_ID(k) ((unsigned char)(k[QSXE_KEY_LEN]))
 #define AUTH_KEY(k) ((unsigned char *)(k))
 
 // must be a largish -ve number under any endianess when cast as an int
-const unsigned char magic[QSXV_MAGIC_BYTES] = { 0xBA, 0xD4, 0xD4, 0xBA };
+const unsigned char magic[QSXE_MAGIC_BYTES] = { 0xBA, 0xD4, 0xD4, 0xBA };
 const int magicInt = 0xBAD4D4BA;
 
-#define AUTH_DATA(x) (unsigned char *)((x) + QSXV_HEADER_LEN)
-#define AUTH_SPACE(x) ((x) + QSXV_HEADER_LEN)
-#define QSXV_LEN_IDX 4
-#define QSXV_KEY_IDX 6
-#define QSXV_PROG_IDX 22
-#define QSXV_SEQ_IDX 23
+#define AUTH_DATA(x) (unsigned char *)((x) + QSXE_HEADER_LEN)
+#define AUTH_SPACE(x) ((x) + QSXE_HEADER_LEN)
+#define QSXE_LEN_IDX 4
+#define QSXE_KEY_IDX 6
+#define QSXE_PROG_IDX 22
+#define QSXE_SEQ_IDX 23
 
-#define QSXV_KEYFILE "keyfile"
+#define QSXE_KEYFILE "keyfile"
 
 /*
   Header in above format, less the magic bytes.
@@ -135,7 +135,7 @@ struct AuthHeader
 {
     unsigned char len;
     unsigned char pad;
-    unsigned char digest[QSXV_KEY_LEN];
+    unsigned char digest[QSXE_KEY_LEN];
     unsigned char id;
     unsigned char seq;
 };
@@ -148,9 +148,9 @@ struct AuthMessage
     AuthMessage()
     {
         ::memset( authData, 0, sizeof(authData) );
-        ::memcpy( pad_magic, magic, QSXV_MAGIC_BYTES );
+        ::memcpy( pad_magic, magic, QSXE_MAGIC_BYTES );
     }
-    unsigned char pad_magic[QSXV_MAGIC_BYTES];
+    unsigned char pad_magic[QSXE_MAGIC_BYTES];
     union {
         AuthHeader hdr;
         char authData[sizeof(AuthHeader)];
@@ -163,7 +163,7 @@ struct AuthMessage
 */
 struct AuthCookie
 {
-    unsigned char key[QSXV_KEY_LEN];
+    unsigned char key[QSXE_KEY_LEN];
     unsigned char pad;
     unsigned char progId;
 };
@@ -202,6 +202,6 @@ public:
     QMutex keyfileMutex;
 };
 
-#endif // QT_NO_SXV
+#endif // QT_NO_SXE
 #endif // QTRANSPORTAUTH_QWS_P_H
 

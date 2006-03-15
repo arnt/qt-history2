@@ -1157,7 +1157,7 @@ void QWSServerPrivate::_q_newConnection()
         QWSClient *client = new QWSClient(q,sock, get_object_id());
         clientMap[socket] = client;
 
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
 #ifdef QTRANSPORTAUTH_DEBUG
         qDebug( "Transport auth connected: unix stream socket %d", socket );
 #endif
@@ -1182,7 +1182,7 @@ void QWSServerPrivate::_q_newConnection()
                          q, SLOT(_q_doClient()));
         QObject::connect(client, SIGNAL(connectionClosed()),
                          q, SLOT(_q_clientClosed()));
-#endif // QT_NO_SXV
+#endif // QT_NO_SXE
 
         client->sendConnectedEvent(qws_display_spec.constData());
 
@@ -1284,7 +1284,7 @@ QWSCommand* QWSClient::readMoreCommand()
 #ifndef QT_NO_QWS_MULTIPROCESS
     QIODevice *socket = 0;
 #endif
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
     if (socketDescriptor != -1)  // not server socket
         socket = QTransportAuth::getInstance()->passThroughByClient( this );
 #if QTRANSPORTAUTH_DEBUG
@@ -1296,7 +1296,7 @@ QWSCommand* QWSClient::readMoreCommand()
         qDebug( "readMoreCommand: %lli bytes - %s", socket->bytesAvailable(), displaybuf );
     }
 #endif
-#endif // QT_NO_SXV
+#endif // QT_NO_SXE
 
 #ifndef QT_NO_QWS_MULTIPROCESS
     if (!socket)
@@ -1351,7 +1351,7 @@ void QWSServerPrivate::_q_doClient()
     active = true;
 
     QWSClient* client;
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
     QAuthDevice *ad = qobject_cast<QAuthDevice*>(q->sender());
     if (ad)
         client = (QWSClient*)ad->client();

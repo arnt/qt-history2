@@ -468,7 +468,7 @@ CFG_IPV6IFNAME=auto
 CFG_RPATH=yes
 CFG_FRAMEWORK=auto
 CFG_UNIVERSAL_BINARY=auto
-CFG_SXV=no
+CFG_SXE=no
 CFG_LOCAL_INSTALL=yes
 CFG_SDK=
 D_FLAGS=
@@ -760,8 +760,8 @@ while [ "$#" -gt 0 ]; do
     buildkey)
         CFG_USER_BUILD_KEY="$VAL"
         ;;
-    sxv)
-	CFG_SXV="$VAL"
+    sxe)
+	CFG_SXE="$VAL"
         ;;
     embedded)
         CFG_EMBEDDED="$VAL"
@@ -3743,8 +3743,8 @@ else
 fi
 
 # safe execution environment
-if [ "$CFG_SXV" != "no" ]; then
-    QT_CONFIG="$QT_CONFIG sxv"
+if [ "$CFG_SXE" != "no" ]; then
+    QT_CONFIG="$QT_CONFIG sxe"
 fi
 
 # update QT_CONFIG to show our current predefined configuration
@@ -4278,7 +4278,7 @@ QMAKE_VARS="$QMAKE_VARS \"sql-plugins = $SQL_PLUGINS\""
 [ "$CFG_EXCEPTIONS" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_EXCEPTIONS"
 [ "$CFG_TABLET" = "no" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_TABLET"
 [ "$CFG_IPV6" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6"
-[ "$CFG_SXV" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SXV"
+[ "$CFG_SXE" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SXE"
 
 # X11/Unix/Mac only configs
 [ "$CFG_CUPS" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_CUPS"

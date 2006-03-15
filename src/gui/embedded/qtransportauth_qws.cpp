@@ -14,7 +14,7 @@
 #include "qtransportauth_qws.h"
 #include "qtransportauth_qws_p.h"
 
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
 
 #include "../../3rdparty/md5/md5.h"
 #include "../../3rdparty/md5/md5.c"
@@ -49,7 +49,7 @@
   the overhead of authentication on every message.
 
   For each process there is one instance of the QTransportAuth object.
-  For server processes it can determine the \link secure-exe-environ.html SXV
+  For server processes it can determine the \link secure-exe-environ.html SXE
   Program Identity \endlink and provide access to policy data to determine if
   the message should be forwarded for action.  If not actioned, the message
   may be treated as being from a flawed or malicious process.
@@ -74,7 +74,7 @@
   \endcode
 
   Here it is asserted that the transport is trusted.  See the assumptions
-  listed in the \link secure-exe-environ.html SXV documentation \endlink
+  listed in the \link secure-exe-environ.html SXE documentation \endlink
 
   Then proxy in the authentication device:
 
@@ -291,16 +291,16 @@ QString QTransportAuth::logFilePath() const
 
 bool QTransportAuth::isDiscoveryMode() const
 {
-#if defined(SXV_DISCOVERY)
+#if defined(SXE_DISCOVERY)
     static bool checked = false;
     static bool yesItIs = false;
 
     if ( checked ) return yesItIs;
 
-    yesItIs = ( getenv( "SXV_DISCOVERY_MODE" ) != 0 );
+    yesItIs = ( getenv( "SXE_DISCOVERY_MODE" ) != 0 );
     if ( yesItIs )
     {
-        qWarning("SXV Discovery mode on, ALLOWING ALL requests and logging to %s",
+        qWarning("SXE Discovery mode on, ALLOWING ALL requests and logging to %s",
                  qPrintable(logFilePath()));
         QFile::remove( logFilePath() );
     }
@@ -678,7 +678,7 @@ void QAuthDevice::recvReadyRead()
         else
         {
             // msg auth header detected and auth determined, remove hdr
-            msgQueue = msgQueue.mid( QSXV_HEADER_LEN );
+            msgQueue = msgQueue.mid( QSXE_HEADER_LEN );
         }
 
         bufHasMessages = authorizeMessage();
@@ -740,7 +740,7 @@ bool QAuthDevice::authorizeMessage()
         isAuthorized = (( d->status & QTransportAuth::StatusMask ) == QTransportAuth::Allow );
     }
 
-#if defined(SXV_DISCOVERY)
+#if defined(SXE_DISCOVERY)
     if (auth->isDiscoveryMode()) {
 #ifndef QT_NO_TEXTSTREAM
         if (!auth->logFilePath().isEmpty()) {
@@ -773,8 +773,8 @@ bool QAuthDevice::authorizeMessage()
     else
     {
         qWarning( "%s - denied: for Program Id %u [PID %lu]"
-#if defined(SXV_DISCOVERY)
-                "(to turn on discovery mode, export SXV_DISCOVERY_MODE=1)"
+#if defined(SXE_DISCOVERY)
+                "(to turn on discovery mode, export SXE_DISCOVERY_MODE=1)"
 #endif
                 , qPrintable(request), d->progId, d->processId );
     }
@@ -811,30 +811,30 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
     // If Unix socket credentials are being used the key wont be set
     if ( ! a->d_func()->keyInitialised )
         return false;
-    unsigned char digest[QSXV_KEY_LEN];
+    unsigned char digest[QSXE_KEY_LEN];
     char *msgPtr = hdr;
     // magic always goes on the beginning
-    for ( int m = 0; m < QSXV_MAGIC_BYTES; ++m )
+    for ( int m = 0; m < QSXE_MAGIC_BYTES; ++m )
         *msgPtr++ = magic[m];
-    hdr[ QSXV_LEN_IDX ] = (unsigned char)msgLen;
+    hdr[ QSXE_LEN_IDX ] = (unsigned char)msgLen;
     if ( !d.trusted())
     {
         // Use HMAC
-        int rc = hmac_md5( (unsigned char *)msg, msgLen, a->d_func()->authKey.key, QSXV_KEY_LEN, digest );
+        int rc = hmac_md5( (unsigned char *)msg, msgLen, a->d_func()->authKey.key, QSXE_KEY_LEN, digest );
         if ( rc == -1 )
             return false;
-        memcpy( hdr + QSXV_KEY_IDX, digest, QSXV_KEY_LEN );
+        memcpy( hdr + QSXE_KEY_IDX, digest, QSXE_KEY_LEN );
     }
     else
     {
-        memcpy( hdr + QSXV_KEY_IDX, a->d_func()->authKey.key, QSXV_KEY_LEN );
+        memcpy( hdr + QSXE_KEY_IDX, a->d_func()->authKey.key, QSXE_KEY_LEN );
     }
 
-    hdr[ QSXV_PROG_IDX ] = a->d_func()->authKey.progId;
+    hdr[ QSXE_PROG_IDX ] = a->d_func()->authKey.progId;
 
 #ifdef QTRANSPORTAUTH_DEBUG
-    char keydisplay[QSXV_KEY_LEN*2+1];
-    hexstring( keydisplay, a->d_func()->authKey.key, QSXV_KEY_LEN );
+    char keydisplay[QSXE_KEY_LEN*2+1];
+    hexstring( keydisplay, a->d_func()->authKey.key, QSXE_KEY_LEN );
 
     qDebug( "Auth to message %s against prog id %u and key %s\n",
             msg, a->d_func()->authKey.progId, keydisplay );
@@ -842,7 +842,7 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
 
     // TODO implement sequence to prevent replay attack, not required
     // for trusted transports
-    hdr[ QSXV_SEQ_IDX ] = 1;  // dummy sequence
+    hdr[ QSXE_SEQ_IDX ] = 1;  // dummy sequence
 
     d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
     return true;
@@ -900,7 +900,7 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
 */
 bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen )
 {
-    if ( msgLen < QSXV_MAGIC_BYTES )
+    if ( msgLen < QSXE_MAGIC_BYTES )
     {
         d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::TooSmall;
         return false;
@@ -908,7 +908,7 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
     // if no magic bytes, exit straight away
     int m;
     const unsigned char *mptr = reinterpret_cast<const unsigned char *>(msg);
-    for ( m = 0; m < QSXV_MAGIC_BYTES; ++m )
+    for ( m = 0; m < QSXE_MAGIC_BYTES; ++m )
     {
         if ( *mptr++ != magic[m] )
         {
@@ -924,19 +924,19 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
     }
 
 #ifdef QTRANSPORTAUTH_DEBUG
-    char authhdr[QSXV_HEADER_LEN*2+1];
-    hexstring( authhdr, reinterpret_cast<const unsigned char *>(msg), QSXV_HEADER_LEN );
+    char authhdr[QSXE_HEADER_LEN*2+1];
+    hexstring( authhdr, reinterpret_cast<const unsigned char *>(msg), QSXE_HEADER_LEN );
     qDebug( "authFromMessage(): message header is %s", authhdr );
 #endif
 
-    unsigned char authLen = (unsigned char)(msg[ QSXV_LEN_IDX ]);
+    unsigned char authLen = (unsigned char)(msg[ QSXE_LEN_IDX ]);
 
     if ( msgLen < AUTH_SPACE(authLen) )
     {
         d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::TooSmall;
         return false;
     }
-    unsigned char progbuf = (unsigned char)(msg[ QSXV_PROG_IDX ]);
+    unsigned char progbuf = (unsigned char)(msg[ QSXE_PROG_IDX ]);
     const unsigned char *clientKey = a->d_func()->getClientKey( progbuf );
     if ( clientKey == NULL )
     {
@@ -945,7 +945,7 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
     }
     AuthRecord *ar = (AuthRecord *)clientKey;
     time_t now = time(0);
-    if ( ar->change_time + QSXV_KEY_PERIOD < now )
+    if ( ar->change_time + QSXE_KEY_PERIOD < now )
     {
         d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::OutOfDate;
 #ifdef QTRANSPORTAUTH_DEBUG
@@ -955,25 +955,25 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
     }
 
 #ifdef QTRANSPORTAUTH_DEBUG
-    char keydisplay[QSXV_KEY_LEN*2+1];
-    hexstring( keydisplay, clientKey, QSXV_KEY_LEN );
+    char keydisplay[QSXE_KEY_LEN*2+1];
+    hexstring( keydisplay, clientKey, QSXE_KEY_LEN );
     qDebug( "authFromMessage(): message %s against prog id %u and key %s\n",
-            AUTH_DATA(msg), ((unsigned int)(msg[ QSXV_PROG_IDX ])), keydisplay );
+            AUTH_DATA(msg), ((unsigned int)(msg[ QSXE_PROG_IDX ])), keydisplay );
 #endif
 
     const unsigned char *auth_tok;
-    unsigned char digest[QSXV_KEY_LEN];
+    unsigned char digest[QSXE_KEY_LEN];
     if ( !d.trusted())
     {
-        hmac_md5( AUTH_DATA(msg), authLen, clientKey, QSXV_KEY_LEN, digest );
+        hmac_md5( AUTH_DATA(msg), authLen, clientKey, QSXE_KEY_LEN, digest );
         auth_tok = digest;
     }
     else
     {
         auth_tok = clientKey;
     }
-    mptr = reinterpret_cast<const unsigned char *>( msg + QSXV_KEY_IDX );
-    for ( m = 0; m < QSXV_KEY_LEN; ++m )
+    mptr = reinterpret_cast<const unsigned char *>( msg + QSXE_KEY_IDX );
+    for ( m = 0; m < QSXE_KEY_LEN; ++m )
     {
         if ( *mptr++ != *auth_tok++ )
         {
@@ -984,7 +984,7 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
     }
     // TODO - provide sequence number check against replay attack
     // Note that this is only reqd for promiscuous transports (not UDS)
-    d.progId = msg[QSXV_PROG_IDX];
+    d.progId = msg[QSXE_PROG_IDX];
     d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
     return true;
 }
@@ -1089,4 +1089,4 @@ static int hmac_md5(
 
 #include "moc_qtransportauth_qws_p.cpp"
 
-#endif // QT_NO_SXV
+#endif // QT_NO_SXE

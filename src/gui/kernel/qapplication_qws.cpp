@@ -571,7 +571,7 @@ void QWSDisplay::Data::init()
 
         QWSIdentifyCommand cmd;
         cmd.setId(appName, QWSDisplay::Data::clientLock->id());
-#ifndef QT_NO_SXV
+#ifndef QT_NO_SXE
         QTransportAuth *a = QTransportAuth::getInstance();
         QTransportAuth::Data *d = a->connectTransport(
                 QTransportAuth::UnixStreamSock |
