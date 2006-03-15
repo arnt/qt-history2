@@ -250,7 +250,7 @@ static bool force_reject_strokeIM = false;
     including any window decorations.
 */
 
-/*!
+/*
     \fn QRegion QWSWindow::allocatedRegion() const
     \internal
 
@@ -286,7 +286,7 @@ static bool force_reject_strokeIM = false;
     \sa isOpaque()
 */
 
-/*!
+/*
     \fn bool QWSWindow::isPartiallyObscured() const
     \internal
 
@@ -1757,7 +1757,11 @@ QWSMouseHandler *QWSServer::mouseHandler()
 
 // called by QWSMouseHandler constructor, not user code.
 /*!
-  \internal
+    \fn void QWSServer::setMouseHandler(QWSMouseHandler* handler)
+
+    Sets the primary mouse handler to be the given \a handler.
+
+    \sa mouseHandler()
 */
 void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 {
@@ -2864,7 +2868,6 @@ QWSKeyboardHandler* QWSServer::keyboardHandler()
 
 /*!
     \fn void QWSServer::setKeyboardHandler(QWSKeyboardHandler* handler)
-    \internal
 
     Sets the primary keyboard handler to be the given \a handler.
 
