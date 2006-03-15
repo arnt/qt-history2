@@ -985,7 +985,7 @@ void QGLContext::reset()
     delete d->cmap;
     d->cmap = 0;
     d->initDone = false;
-    qgl_context_reg()->removeShare(this);
+    qgl_share_reg()->removeShare(this);
 }
 
 

@@ -269,7 +269,7 @@ void QGLContext::reset()
     d->valid = false;
     d->transpColor = QColor();
     d->initDone = false;
-    qgl_context_reg()->removeShare(this);
+    qgl_share_reg()->removeShare(this);
 }
 
 void QGLContext::makeCurrent()

@@ -201,5 +201,5 @@ private:
     QGLSharingHash reg;
 };
 
-extern QGLShareRegister* qgl_context_reg();
+extern QGLShareRegister* qgl_share_reg();
 #endif // QGL_P_H

@@ -1715,7 +1715,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
         QList<QGLContext *> contexts = qt_context_cache.keys();
         for (int i=0; i<contexts.size(); ++i) {
             QGLContext *ctx = contexts.at(i);
-            if (ctx != context && qgl_context_reg()->checkSharing(context, ctx)) {
+            if (ctx != context && qgl_share_reg()->checkSharing(context, ctx)) {
                 context_key = ctx;
                 dev_it = qt_context_cache.find(context_key);
                 break;
