@@ -1117,7 +1117,7 @@ UnixMakefileGenerator::libtoolFileName()
     QString ret = var("TARGET");
     int slsh = ret.lastIndexOf(Option::dir_sep);
     if(slsh != -1)
-        ret = ret.right(ret.length() - slsh);
+        ret = ret.right(ret.length() - slsh - 1);
     int dot = ret.indexOf('.');
     if(dot != -1)
         ret = ret.left(dot);
@@ -1204,7 +1204,7 @@ UnixMakefileGenerator::pkgConfigFileName()
     QString ret = var("TARGET");
     int slsh = ret.lastIndexOf(Option::dir_sep);
     if(slsh != -1)
-        ret = ret.right(ret.length() - slsh);
+        ret = ret.right(ret.length() - slsh - 1);
     if(ret.startsWith("lib"))
         ret = ret.mid(3);
     int dot = ret.indexOf('.');
