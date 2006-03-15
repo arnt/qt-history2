@@ -26,7 +26,11 @@ class QVNCServer;
 class QVNCHeader;
 class QSharedMemory;
 
+#ifdef qdoc
+class QVNCScreen : public QScreen {
+#else
 class QVNCScreen : public VNCSCREEN_BASE {
+#endif
 public:
     explicit QVNCScreen(int display_id);
     virtual ~QVNCScreen();
