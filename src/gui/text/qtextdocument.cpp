@@ -1026,9 +1026,13 @@ void QTextDocument::print(QPrinter *printer) const
         int page = fromPage;
         while (true) {
             for (int j = 0; j < pageCopies; ++j) {
-                printPage(page, &p, doc, body, pageNumberPos);
-                if (j < pageCopies - 1)
-                    printer->newPage();
+                if (printer->printerState() == QPrinter::Active) {
+                    printPage(page, &p, doc, body, pageNumberPos);
+                    if (j < pageCopies - 1)
+                        printer->newPage();
+                } else {
+                    goto UserCanceled;
+                }
             }
 
             if (page == toPage)
@@ -1046,6 +1050,7 @@ void QTextDocument::print(QPrinter *printer) const
             printer->newPage();
     }
 
+UserCanceled:
     delete clonedDoc;
 }
 #endif

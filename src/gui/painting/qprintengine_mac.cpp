@@ -63,6 +63,8 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
 bool QMacPrintEngine::end()
 {
     Q_D(QMacPrintEngine);
+    if (d->state == QPrinter::Aborted)
+        return true;  // I was just here a function call ago :)
     if(d->paintEngine->type() == QPaintEngine::CoreGraphics)
         static_cast<QCoreGraphicsPaintEngine*>(d->paintEngine)->d_func()->hd = 0;
     d->paintEngine->end();
@@ -221,8 +223,14 @@ bool QMacPrintEngine::newPage()
     OSStatus err = d->suppressStatus ? PMSessionEndPageNoDialog(d->session)
                                      : PMSessionEndPage(d->session);
     if (err != noErr)  {
-        qWarning("QMacPrintEngine::newPage: Cannot end current page: %ld", err);
-        d->state = QPrinter::Error;
+        if (err == kPMCancel) {
+            // User canceled, we need to abort!
+            abort();
+        } else {
+            // Not sure what the problem is...
+            qWarning("QMacPrintEngine::newPage: Cannot end current page. %ld", err);
+            d->state = QPrinter::Error;
+        }
         return false;
     }
     return d->newPage_helper();
@@ -231,7 +239,7 @@ bool QMacPrintEngine::newPage()
 bool QMacPrintEngine::abort()
 {
     Q_D(QMacPrintEngine);
-    if (d->state == QPrinter::Active)
+    if (d->state != QPrinter::Active)
         return false;
     bool ret = end();
     d->state = QPrinter::Aborted;
@@ -389,7 +397,7 @@ bool QMacPrintEnginePrivate::newPage_helper()
     Q_ASSERT(state == QPrinter::Active);
 
     if (PMSessionError(session) != noErr) {
-        abort();
+        q->abort();
         return false;
     }
 
