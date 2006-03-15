@@ -445,6 +445,9 @@ static QString uniqueName(const QString &key, const QStyleOption *option, const 
     tmp.sprintf("%s-%d-%d-%d-%dx%d", key.toLatin1().constData(), uint(option->state),
                 complexOption ? uint(complexOption->activeSubControls) : uint(0),
                 option->palette.serialNumber(), size.width(), size.height());
+    if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
+        tmp.append("-" + QString::number(spinBox->buttonSymbols) + "-" + QString::number(spinBox->stepEnabled));
+    }
     return tmp;
 }
 
