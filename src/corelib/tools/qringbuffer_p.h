@@ -168,13 +168,13 @@ public:
     }
 
     inline void clear() {
-        QByteArray tmp = buffers[0];
-        buffers.clear();
-        buffers << tmp;
-
-        if (buffers.at(0).size() != basicBlockSize)
-            buffers[0].resize(basicBlockSize);
-
+        if(!buffers.isEmpty()) {
+            QByteArray tmp = buffers[0];
+            buffers.clear();
+            buffers << tmp;
+            if (buffers.at(0).size() != basicBlockSize)
+                buffers[0].resize(basicBlockSize);
+        }
         head = tail = 0;
         tailBuffer = 0;
         bufferSize = 0;
