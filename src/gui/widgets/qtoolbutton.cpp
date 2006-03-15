@@ -78,9 +78,17 @@ bool QToolButtonPrivate::hasMenu() const
     A tool button is a special button that provides quick-access to
     specific commands or options. As opposed to a normal command
     button, a tool button usually doesn't show a text label, but shows
-    an icon instead. Its classic usage is to select tools, for example
+    an icon instead.
+
+    Tool buttons are normally created when new QAction instances are
+    created with QToolBar::addAction() or existing actions are added
+    to a toolbar with QToolBar::addAction(). It is also possible to
+    construct tool buttons in the same way as any other widget, and
+    arrange them alongside other widgets in layouts.
+
+    One classic use of a tool button is to select tools; for example,
     the "pen" tool in a drawing program. This would be implemented
-    with a QToolButton as toggle button (see setToggleButton()).
+    by using a QToolButton as a toggle button (see setToggleButton()).
 
     QToolButton supports auto-raising. In auto-raise mode, the button
     draws a 3D frame only when the mouse points at it. The feature is
@@ -109,10 +117,14 @@ bool QToolButtonPrivate::hasMenu() const
     of possible pages to jump to. The default delay is 600ms; you can
     adjust it with setPopupDelay().
 
-    \img qdockwindow.png Toolbar with Toolbuttons \caption A floating
-    QToolbar with QToolbuttons
+    \table 100%
+    \row \o \inlineimage assistant-toolbar1.png Qt Assistant's toolbar with tool buttons
+    \row \o Qt Assistant's toolbar contains tool buttons that are associated
+         with actions used in other parts of the main window.
+    \endtable
 
-    \sa QPushButton, QToolBar, QMainWindow, {fowler}{GUI Design Handbook: Push Button}
+    \sa QPushButton, QToolBar, QMainWindow, QAction,
+        {fowler}{GUI Design Handbook: Push Button}
 */
 
 /*!
