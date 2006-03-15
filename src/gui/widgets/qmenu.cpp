@@ -2222,6 +2222,8 @@ void QMenu::actionEvent(QActionEvent *e)
         connect(e->action(), SIGNAL(triggered()), this, SLOT(_q_actionTriggered()));
         connect(e->action(), SIGNAL(hovered()), this, SLOT(_q_actionHovered()));
     } else if (e->type() == QEvent::ActionRemoved) {
+        d->actionRects.clear();
+        d->actionList.clear();
         e->action()->disconnect(this);
         if(e->action() == d->currentAction)
             d->currentAction = 0;
