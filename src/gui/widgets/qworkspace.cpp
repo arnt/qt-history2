@@ -487,20 +487,9 @@ void QWorkspaceTitleBar::paintEvent(QPaintEvent *)
 
     if (d->window) {
         QString title = qt_setWindowTitle_helperHelper(opt.text, d->window);
-        QFontMetrics fm(fontMetrics());
         int maxw = style()->subControlRect(QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarLabel,
                                        this).width();
-
-        QString cuttitle = title;
-        if (fm.width(title + "m") > maxw) {
-            int i = title.length();
-            int dotlength = fm.width("...");
-            while (i>0 && fm.width(title.left(i)) + dotlength > maxw)
-                i--;
-            if(i != (int)title.length())
-                cuttitle = title.left(i) + "...";
-        }
-        opt.text = cuttitle;
+        opt.text = fontMetrics().elidedText(title, Qt::ElideRight, maxw);
     }
 
     if (d->flags & Qt::WindowSystemMenuHint) {
