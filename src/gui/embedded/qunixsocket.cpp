@@ -690,7 +690,7 @@ bool QUnixSocketMessage::isValid() const
          transmitted, but further writes by the application will be refused.
   */
 
-/*!
+/*
   \fn QUnixSocket::bytesWritten(qint64 bytes)
 
   This signal is emitted every time a payload of data has been written to the
@@ -700,21 +700,21 @@ bool QUnixSocketMessage::isValid() const
   \sa QUnixSocket::readyRead()
 */
 
-/*!
+/*
   \fn QUnixSocket::readyRead()
 
   This signal is emitted once every time new data is available for reading from
   the connection. It will only be emitted again once new data is available.
 
   \sa QUnixSocket::bytesWritten()
-  */
+*/
 
 /*!
   \fn QUnixSocket::stateChanged(SocketState socketState)
 
   This signal is emitted each time the socket changes connection state.
   \a socketState will be set to the socket's new state.
-  */
+*/
 
 class QUnixSocketPrivate : public QObject {
 Q_OBJECT
