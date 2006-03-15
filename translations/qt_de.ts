@@ -612,23 +612,23 @@ nach
     </message>
     <message>
         <source>The protocol `%1&apos; does not support removing files or directories</source>
-        <translation>Das Protokoll `%1&apos; untersützt nicht das Löschen von Dateien oder Verzeichnissen</translation>
+        <translation>Das Protokoll `%1&apos; unterstützt nicht das Löschen von Dateien oder Verzeichnissen</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support renaming files or directories</source>
-        <translation>Das Protokoll `%1&apos; untersützt nicht das Umbenennen von Dateien oder Verzeichnissen</translation>
+        <translation>Das Protokoll `%1&apos; unterstützt nicht das Umbenennen von Dateien oder Verzeichnissen</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support getting files</source>
-        <translation>Das Protokoll `%1&apos; untersützt nicht das Laden von Files</translation>
+        <translation>Das Protokoll `%1&apos; unterstützt nicht das Laden von Files</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support putting files</source>
-        <translation>Das Protokoll `%1&apos; untersützt nicht das Speichern von Files</translation>
+        <translation>Das Protokoll `%1&apos; unterstützt nicht das Speichern von Files</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support copying or moving files or directories</source>
-        <translation> Das Protokoll `%1&apos; untersützt nicht das Kopieren oder Verschieben von Dateien oder Verzeichnissen</translation>
+        <translation> Das Protokoll `%1&apos; unterstützt nicht das Kopieren oder Verschieben von Dateien oder Verzeichnissen</translation>
     </message>
     <message>
         <source>(unknown)</source>
