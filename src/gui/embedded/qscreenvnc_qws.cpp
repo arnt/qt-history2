@@ -1090,8 +1090,93 @@ void QVNCServer::discardClient()
 /*!
     \class QVNCScreen
     \ingroup qws
+
+    \brief The QVNCScreen class manages the screen for VNC servers.
+
+    The VNC protocol allows you to view and interact with the
+    computer's display from anywhere on the network.  Note that there
+    should only be one QVNCScreen object per application.
+
+    The default implementation of QVNCScreen inherits QLinuxFbScreen,
+    but any QScreen subclass, or QScreen itself, can serve as its base
+    class. This is easily achieved by manipulating the \c
+    VNCSCREEN_BASE definition in the .h file.
+
+    \sa QScreen, {Running as a VNC Server}, {Qtopia Core}
 */
 
+/*!
+    \fn bool QVNCScreen::connect(const QString & displaySpec)
+    \reimp
+*/
+
+/*!
+    \fn void QVNCScreen::disconnect()
+    \reimp
+*/
+
+/*!
+    \fn void QVNCScreen::restore()
+    \reimp
+*/
+
+/*!
+    \fn bool QVNCScreen::initDevice ()
+    \reimp
+*/
+
+/*!
+    \fn void QVNCScreen::save ()
+    \reimp
+*/
+
+/*!
+    \fn void QVNCScreen::setDirty ( const QRect & r )
+    \reimp
+*/
+
+/*!
+    \fn void QVNCScreen::setMode ( int nw, int nh, int nd )
+    \reimp
+*/
+
+/*!
+    \fn void QVNCScreen::shutdownDevice ()
+    \reimp
+*/
+
+/*!
+    \variable QVNCScreen::success
+    \internal
+*/
+
+/*!
+    \variable  QVNCScreen::vncServer
+    \internal
+*/
+/*!
+    \variable QVNCScreen::shmrgn
+    \internal
+*/
+/*!
+    \variable  QVNCScreen::shm
+    \internal
+*/
+/*!
+    \variable QVNCScreen::hdr
+    \internal
+*/
+/*!
+    \variable QVNCScreen::virtualBuffer
+    \internal
+*/
+
+/*!
+    \fn QVNCScreen::QVNCScreen(int displayId)
+
+    Constructs a QVNCScreen object. The \a displayId argument
+    identifies the Qtopia Core server to connect to.
+*/
 QVNCScreen::QVNCScreen(int display_id) : VNCSCREEN_BASE(display_id)
 {
     virtualBuffer = false;
@@ -1099,6 +1184,9 @@ QVNCScreen::QVNCScreen(int display_id) : VNCSCREEN_BASE(display_id)
     shm = 0;
 }
 
+/*!
+    Destroys this QVNCScreen object.
+*/
 QVNCScreen::~QVNCScreen()
 {
   //shm->destroy();
