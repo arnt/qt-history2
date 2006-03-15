@@ -84,22 +84,25 @@ QFilePrivate::openExternalFile(int flags, FILE *fh)
 void
 QFilePrivate::setError(QFile::FileError err)
 {
+    Q_Q(QFile);    
     error = err;
-    errorString.clear();
+    q->setErrorString(QT_TRANSLATE_NOOP(QIODevice, QLatin1String("Unknown error")));
 }
 
 void
 QFilePrivate::setError(QFile::FileError err, const QString &errStr)
 {
+    Q_Q(QFile);    
     error = err;
-    errorString = errStr;
+    q->setErrorString(errStr);
 }
 
 void
 QFilePrivate::setError(QFile::FileError err, int errNum)
 {
+    Q_Q(QFile);    
     error = err;
-    errorString = qt_error_string(errNum);
+    q->setErrorString(qt_error_string(errNum));
 }
 
 //************* QFile
@@ -611,30 +614,32 @@ QFile::rename(const QString &newName)
     }
     close();
     if(error() == QFile::NoError) {
-        if(fileEngine()->rename(newName)) {
+        if (fileEngine()->rename(newName)) {
             unsetError();
             return true;
-        } else {
-            QFile in(fileName());
-            QFile out(newName);
-            if (in.open(QIODevice::ReadOnly)) {
-                if(out.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-                    bool error = false;
-                    char block[1024];
-                    while(!in.atEnd()) {
-                        long read = in.read(block, 1024);
-                        if(read == -1)
-                            break;
-                        if(read != out.write(block, read)) {
-                            d->setError(QFile::CopyError, QLatin1String("Failure to write block"));
-                            error = true;
-                            break;
-                        }
+        }
+
+        QFile in(fileName());
+        QFile out(newName);
+        if (in.open(QIODevice::ReadOnly)) {
+            if(out.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+                bool error = false;
+                char block[1024];
+                while (!in.atEnd()) {
+                    qint64 read = in.read(block, 1024);
+                    if (read == -1) {
+                        error = true;
+                        break;
                     }
-                    if(!error)
-                        in.remove();
-                    return !error;
-                 }
+                    if (read != out.write(block, read)) {
+                        d->setError(QFile::CopyError, QLatin1String("Failure to write block"));
+                        error = true;
+                        break;
+                    }
+                }
+                if(!error)
+                    in.remove();
+                return !error;
             }
         }
         d->setError(QFile::RenameError, errno);
@@ -1195,10 +1200,10 @@ qint64 QFile::readData(char *data, qint64 len)
     Q_D(QFile);
     unsetError();
 
-    qint64 ret = 0;
-    qint64 read = fileEngine()->read(data+ret, len-ret);
+    qint64 ret = -1;
+    qint64 read = fileEngine()->read(data, len);
     if (read != -1)
-        ret += read;
+        ret = read;
 
     if(ret < 0) {
         QFile::FileError err = fileEngine()->error();
@@ -1269,93 +1274,3 @@ QFile::unsetError()
     Q_D(QFile);
     d->setError(QFile::NoError);
 }
-
-/*
-    Returns a human-readable description of an error that occurred on
-    the device. The error described by the string corresponds to
-    changes of QFile::error(). If the status is reset, the error
-    string is also reset.
-
-    \code
-        QFile file("address.dat");
-        if (!file.open(QIODevice::ReadOnly) {
-            QMessageBox::critical(this, tr("Error"),
-                    tr("Could not open file for reading: %1")
-                    .arg(file.errorString()));
-            return;
-        }
-    \endcode
-
-    \sa unsetError()
-*/
-
-/* ### NEEDS TO BE FIXED
-QString
-QFile::errorString() const
-{
-    if (d->errorString.isEmpty()) {
-        const char *str = 0;
-        switch (d->error) {
-        case NoError:
-        case UnspecifiedError:
-            str = QT_TRANSLATE_NOOP("QFile", "Unknown error");
-            break;
-        case ReadError:
-            str = QT_TRANSLATE_NOOP("QFile", "Could not read from the file");
-            break;
-        case WriteError:
-            str = QT_TRANSLATE_NOOP("QFile", "Could not write to the file");
-            break;
-        case FatalError:
-            str = QT_TRANSLATE_NOOP("QFile", "Fatal error");
-            break;
-        case ResourceError:
-            str = QT_TRANSLATE_NOOP("QFile", "Resource error");
-            break;
-        case OpenError:
-            str = QT_TRANSLATE_NOOP("QFile", "Could not open the file");
-            break;
-#ifdef QT3_SUPPORT
-        case ConnectError:
-            str = QT_TRANSLATE_NOOP("QFile", "Could not connect to host");
-            break;
-#endif
-        case AbortError:
-            str = QT_TRANSLATE_NOOP("QFile", "Aborted");
-            break;
-        case TimeOutError:
-            str = QT_TRANSLATE_NOOP("QFile", "Timeout");
-            break;
-        case RemoveError:
-            str = QT_TRANSLATE_NOOP("QFile", "Could not remove file");
-            break;
-        case RenameError:
-            str = QT_TRANSLATE_NOOP("QFile", "Could not rename file");
-            break;
-        case PositionError:
-            str = QT_TRANSLATE_NOOP("QFile", "Could not position in file");
-            break;
-        case PermissionsError:
-            str = QT_TRANSLATE_NOOP("QFile", "Failure to set Permissions");
-            break;
-        case CopyError:
-            str = QT_TRANSLATE_NOOP("QFile", "Could not copy file");
-            break;
-        case ResizeError:
-            str = QT_TRANSLATE_NOOP("QFile", "Could not resize file");
-            break;
-        }
-#if defined(QT_BUILD_CORE_LIB)
-        QString ret = QCoreApplication::translate("QFile", str);
-#ifdef QT3_SUPPORT
-        if(ret == str)
-            ret = QCoreApplication::translate("QIODevice", str);
-#endif
-        return ret;
-#else
-        return QString::fromLatin1(str);
-#endif
-    }
-    return d->errorString;
-}
-*/

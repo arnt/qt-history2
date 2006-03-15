@@ -410,9 +410,13 @@ qint64 QFSFileEngine::read(char *data, qint64 len)
         {
             readBytes = fread(data, 1, size_t(len), d->fh);
         }
-        if (readBytes == 0)
+        qint64 ret = qint64(readBytes);
+        if (ret == 0) {
             setError(QFile::ReadError, qt_error_string(int(errno)));
-        return readBytes;
+            if (!feof(d->fh))
+                ret = -1;
+        }
+        return ret;
     }
 
     qint64 ret = 0;

@@ -44,7 +44,6 @@ protected:
     bool isOpen;
 
     QFile::FileError error;
-    QString errorString;
     void setError(QFile::FileError err);
     void setError(QFile::FileError err, const QString &errorString);
     void setError(QFile::FileError err, int errNum);
