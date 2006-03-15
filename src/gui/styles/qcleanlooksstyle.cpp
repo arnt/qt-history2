@@ -808,7 +808,22 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
         painter->restore();
         break;
     case PE_FrameDefaultButton:
-    case PE_FrameFocusRect:
+        case PE_FrameFocusRect:
+        if (const QStyleOptionFocusRect *focusFrame = qstyleoption_cast<const QStyleOptionFocusRect *>(option)) {
+            if (!(focusFrame->state & State_KeyboardFocusChange))
+                return;
+            QRect rect = focusFrame->rect;
+            painter->save();
+            painter->setBackgroundMode(Qt::TransparentMode);
+            painter->setBrush(QBrush(focusFrame->palette.shadow().color().dark(120), Qt::Dense4Pattern));
+            painter->setBrushOrigin(rect.topLeft());
+            painter->setPen(Qt::NoPen);
+            painter->drawRect(rect.left(), rect.top(), rect.width(), 1);    // Top
+            painter->drawRect(rect.left(), rect.bottom(), rect.width(), 1); // Bottom
+            painter->drawRect(rect.left(), rect.top(), 1, rect.height());   // Left
+            painter->drawRect(rect.right(), rect.top(), 1, rect.height());  // Right
+            painter->restore();
+        }
         break;
     case PE_PanelButtonCommand:
         painter->save();
@@ -2886,7 +2901,14 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
                         }
                     }
+                 if (slider->state & State_HasFocus) {
+                    QStyleOptionFocusRect fropt;
+                    fropt.QStyleOption::operator=(*slider);
+                    fropt.rect = slider->rect;//subElementRect(SE_SliderFocusRect, slider, widget);
+                    drawPrimitive(PE_FrameFocusRect, &fropt, painter, widget);
                 }
+
+             }
                 if (option->subControls & SC_SliderTickmarks) {
                     QPen oldPen = painter->pen();
                     painter->setPen(borderColor);
