@@ -92,6 +92,8 @@ public:
 
     void invalidate();
 
+    // returns true if \a widget is a toolbar or dockwidget that we know about
+    bool contains(QWidget *widget) const;
     void removeRecursive(QDockWidget *dockwidget);
 
 

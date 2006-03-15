@@ -2235,6 +2235,27 @@ static bool removeWidgetRecursively(QLayoutItem *li, QWidget *w, bool dummy)
     return false;
 }
 
+bool QMainWindowLayout::contains(QWidget *widget) const
+{
+    // is it a toolbar?
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+	for (int i = 0; i < lineInfo.list.size(); ++i) {
+	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
+	    if (info.item->widget() == widget)
+                return true;
+        }
+    }
+    // is it a dock widget?
+    for (int pos = 0; pos < NPOSITIONS - 1; ++pos) {
+        if (!layout_info[pos].item)
+            continue;
+        if (findWidgetRecursively(layout_info[pos].item, widget))
+            return true;
+    }
+    return false;
+}
+
 void QMainWindowLayout::removeRecursive(QDockWidget *dockwidget)
 {
     removeWidgetRecursively(this, dockwidget, save_layout_info != 0);

@@ -820,7 +820,7 @@ QMenu *QMainWindow::createPopupMenu()
         for (int i = 0; i < dockwidgets.size(); ++i) {
             QDockWidget *dockWidget = dockwidgets.at(i);
             if (dockWidget->parentWidget() == this
-                && d->layout->indexOf(dockWidget) != -1) {
+                && d->layout->contains(dockWidget)) {
                 menu->addAction(dockwidgets.at(i)->toggleViewAction());
             }
         }
@@ -835,7 +835,7 @@ QMenu *QMainWindow::createPopupMenu()
         for (int i = 0; i < toolbars.size(); ++i) {
             QToolBar *toolBar = toolbars.at(i);
             if (toolBar->parentWidget() == this
-                && d->layout->indexOf(toolBar) != -1) {
+                && d->layout->contains(toolBar)) {
                 menu->addAction(toolbars.at(i)->toggleViewAction());
             }
         }
