@@ -794,10 +794,12 @@ QString FontProperty::toString() const
 // -------------------------------------------------------------------------
 MapProperty::MapProperty(const QMap<QString, QVariant> &items,
                          const QVariant &value,
-                         const QString &name)
+                         const QString &name,
+                         const QStringList &okeys)
     : AbstractProperty<QVariant>(value, name),
       m_items(items),
-      m_keys(m_items.keys())
+      m_keys(items.keys()),
+      comboKeys(okeys.isEmpty() ? m_keys : okeys)
 {
 }
 
@@ -837,7 +839,7 @@ QString MapProperty::toString() const
 int MapProperty::indexOf(const QVariant &value) const
 {
     QString key = m_items.key(value);
-    return m_keys.indexOf(key);
+    return comboKeys.indexOf(key);
 }
 
 QWidget *MapProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
@@ -846,7 +848,7 @@ QWidget *MapProperty::createEditor(QWidget *parent, const QObject *target, const
     combo->view()->setTextElideMode(Qt::ElideLeft);
     combo->setFrame(0);
 
-    combo->addItems(m_keys);
+    combo->addItems(comboKeys);
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
 
     return combo;

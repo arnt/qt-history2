@@ -465,7 +465,6 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             isMainContainer = (fw->mainContainer() == widget);
         }
     }
-
     m_prop_sheet = qobject_cast<QDesignerPropertySheetExtension*>(m->extension(object, Q_TYPEID(QDesignerPropertySheetExtension)));
     for (int i=0; i<m_prop_sheet->count(); ++i) {
         if (!m_prop_sheet->isVisible(i))
@@ -480,15 +479,15 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             if (pname == QLatin1String("alignment")) {
                 if (qobject_cast<QLineEdit *>(object)) {
                     QStringList align_keys = QStringList()
-                        << QString::fromUtf8("Qt::AlignLeft")
-                        << QString::fromUtf8("Qt::AlignHCenter")
-                        << QString::fromUtf8("Qt::AlignRight");
+                                             << QString::fromUtf8("Qt::AlignLeft")
+                                             << QString::fromUtf8("Qt::AlignHCenter")
+                                             << QString::fromUtf8("Qt::AlignRight");
                     QMap<QString, QVariant> align_map;
                     foreach (QString align, align_keys) {
                         align_map.insert(align, f.items.value(align));
                     }
                     p = new MapProperty(align_map, uint(f.value.toInt() & Qt::AlignHorizontal_Mask),
-                                    QLatin1String("alignment"));
+                                        QLatin1String("alignment"));
                 } else {
                     p = new AlignmentProperty(f.items, Qt::Alignment(f.value.toInt()), pname);
                 }
@@ -496,8 +495,18 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new FlagsProperty(f.items, f.value.toInt(), pname);
             }
         } else if (qVariantCanConvert<EnumType>(value)) {
+            QStringList keys;
+            const int index = object->metaObject()->indexOfProperty(qPrintable(pname));
+            if (index != -1) {
+                QMetaEnum en = object->metaObject()->property(index).enumerator();
+                const QString className = QString::fromLatin1(object->metaObject()->className()) + "::";
+                for (int j=0; j<en.keyCount(); ++j) {
+                    keys << (className + QString::fromLatin1(en.key(j)));
+                }
+            }
+
             EnumType e = qvariant_cast<EnumType>(value);
-            p = new MapProperty(e.items, e.value, pname);
+            p = new MapProperty(e.items, e.value, pname, keys);
         }
 
         if (!p) {

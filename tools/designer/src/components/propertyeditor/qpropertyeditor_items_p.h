@@ -386,7 +386,7 @@ class QT_PROPERTYEDITOR_EXPORT MapProperty: public AbstractProperty<QVariant>
 {
 public:
     MapProperty(const QMap<QString, QVariant> &items, const QVariant &value,
-                const QString &name);
+                const QString &name, const QStringList &overrideKeys = QStringList());
 
     QStringList keys() const;
     QMap<QString, QVariant> items() const;
@@ -402,7 +402,7 @@ public:
 
 private:
     QMap<QString, QVariant> m_items;
-    QStringList m_keys;
+    QStringList m_keys, comboKeys;
 };
 
 class QT_PROPERTYEDITOR_EXPORT FlagsProperty: public MapProperty
