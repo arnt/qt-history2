@@ -373,12 +373,13 @@ static bool hebrew_shape(QShaperItem *item)
     if (openType && openType->supportsScript(item->script)) {
         openType->selectScript(item->script, hebrew_features);
 
+        const int availableGlyphs = item->num_glyphs;
         if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
             return false;
 
         heuristicSetGlyphAttributes(item);
         openType->shape(item);
-        return openType->positionAndAdd(item);
+        return openType->positionAndAdd(item, availableGlyphs);
     }
 #endif
 
@@ -1443,7 +1444,7 @@ static const QOpenType::Features syriac_features[] = {
 static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
 {
     openType->selectScript(item->script, item->script == QUnicodeTables::Arabic ? arabic_features : syriac_features);
-    int nglyphs = item->num_glyphs;
+    const int nglyphs = item->num_glyphs;
     if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
     heuristicSetGlyphAttributes(item);
@@ -1480,8 +1481,7 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
     }
 
     openType->shape(item, apply.data());
-    item->num_glyphs = nglyphs;
-    return openType->positionAndAdd(item);
+    return openType->positionAndAdd(item, nglyphs);
 }
 
 #endif
@@ -1548,11 +1548,12 @@ static bool thaana_shape(QShaperItem *item)
 
     if (openType && openType->supportsScript(item->script)) {
         openType->selectScript(QUnicodeTables::Thaana);
+        const int availableGlyphs = item->num_glyphs;
         if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
             return false;
         heuristicSetGlyphAttributes(item);
         openType->shape(item);
-        return openType->positionAndAdd(item);
+        return openType->positionAndAdd(item, availableGlyphs);
     }
 #endif
     return basic_shape(item);
@@ -3030,6 +3031,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                 reph = i;
     }
 
+    const int availableGlyphs = item->num_glyphs;
     if (!item->font->stringToCMap((const QChar *)reordered.data(), len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
@@ -3173,7 +3175,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
             }
         }
 
-        if (!openType->positionAndAdd(item, false))
+        if (!openType->positionAndAdd(item, availableGlyphs, false))
             return false;
 
         if (control) {
@@ -3535,6 +3537,7 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         str = (QChar *)reordered.data();
     }
 
+    const int availableGlyphs = item->num_glyphs;
     if (!item->font->stringToCMap(str, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
@@ -3553,7 +3556,7 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         openType->selectScript(QUnicodeTables::Tibetan, tibetan_features);
 
         openType->shape(item);
-        if (!openType->positionAndAdd(item, false))
+        if (!openType->positionAndAdd(item, availableGlyphs, false))
             return false;
     }
 #endif
@@ -4184,6 +4187,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
         } // switch
     } // for
 
+    const int availableGlyphs = item->num_glyphs;
     if (!item->font->stringToCMap((const QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
@@ -4219,7 +4223,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
         }
 
         openType->shape(item, where);
-	if (!openType->positionAndAdd(item, false))
+        if (!openType->positionAndAdd(item, availableGlyphs, false))
             return false;
     } else
 #endif
@@ -4687,6 +4691,7 @@ static bool myanmar_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         len += 2;
     }
 
+    const int availableGlyphs = item->num_glyphs;
     if (!item->font->stringToCMap((const QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
@@ -4727,7 +4732,7 @@ static bool myanmar_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         }
 
         openType->shape(item, where);
-        if (!openType->positionAndAdd(item, false))
+        if (!openType->positionAndAdd(item, availableGlyphs, false))
             return false;
     } else
 #endif
@@ -4968,6 +4973,7 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
         len = 1;
     }
 
+    const int availableGlyphs = item->num_glyphs;
     if (!item->font->stringToCMap(ch, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
     for (i = 0; i < len; i++) {
@@ -4987,7 +4993,7 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
         item->log_clusters = logClusters.data();
 
         openType->shape(item);
-        if (!openType->positionAndAdd(item, false))
+        if (!openType->positionAndAdd(item, availableGlyphs, false))
             return false;
 
     }

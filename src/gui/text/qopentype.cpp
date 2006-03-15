@@ -315,7 +315,7 @@ void QOpenType::shape(QShaperItem *item, const unsigned int *properties)
 #endif
 }
 
-bool QOpenType::positionAndAdd(QShaperItem *item, bool doLogClusters)
+bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLogClusters)
 {
     if (gpos) {
 #ifdef Q_WS_X11
@@ -331,7 +331,7 @@ bool QOpenType::positionAndAdd(QShaperItem *item, bool doLogClusters)
     }
     
     // make sure we have enough space to write everything back
-    if (item->num_glyphs < (int)otl_buffer->in_length) {
+    if (availableGlyphs < (int)otl_buffer->in_length) {
         item->num_glyphs = otl_buffer->in_length;
         return false;
     }

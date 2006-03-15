@@ -54,7 +54,7 @@ public:
     void selectScript(unsigned int script, const Features *features = 0);
     
     void shape(QShaperItem *item, const unsigned int *properties = 0);
-    bool positionAndAdd(QShaperItem *item, bool doLogClusters = true);
+    bool positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLogClusters = true);
 
     OTL_GlyphItem glyphs() const { return otl_buffer->in_string; }
     int len() const { return otl_buffer->in_length; }
