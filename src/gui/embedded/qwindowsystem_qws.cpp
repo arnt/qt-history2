@@ -2583,7 +2583,7 @@ void QWSServerPrivate::invokeIMUpdate(const QWSIMUpdateCommand *cmd,
     if (cmd->simpleData.type == QWSInputMethod::FocusIn)
         current_IM_winId = cmd->simpleData.windowid;
 
-    if (current_IM && current_IM_winId == cmd->simpleData.windowid)
+    if (current_IM && (current_IM_winId == cmd->simpleData.windowid || cmd->simpleData.windowid == -1))
         current_IM->updateHandler(cmd->simpleData.type);
 }
 
