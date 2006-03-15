@@ -25,6 +25,9 @@
 #include <qevent.h>
 #include <qlayout.h>
 #include <qscrollbar.h>
+#ifndef QT_NO_IM
+#include "qinputcontext.h"
+#endif
 #include <private/qcombobox_p.h>
 #include <qdebug.h>
 
@@ -1777,6 +1780,10 @@ void QComboBox::showPopup()
         listRect.moveBottomLeft(above);
     }
 
+#ifndef QT_NO_IM
+    if (QInputContext *qic = inputContext())
+        qic->reset();
+#endif
     container->setGeometry(listRect);
     view()->scrollTo(view()->currentIndex());
     container->raise();
