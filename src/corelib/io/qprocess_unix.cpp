@@ -387,6 +387,8 @@ void QProcessPrivate::startProcess()
 
 void QProcessPrivate::execChild(const QByteArray &programName)
 {
+    ::signal(SIGPIPE, SIG_DFL);         // reset the signal that we ignored
+    
     QByteArray encodedProgramName = programName;
     Q_Q(QProcess);
 
@@ -936,6 +938,7 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
     if (childPid == 0) {
         ::setsid();
         ::signal(SIGHUP, SIG_IGN);
+        ::signal(SIGPIPE, SIG_DFL);
 
         if (fork() == 0) {
             char **argv = new char *[arguments.size() + 2];
