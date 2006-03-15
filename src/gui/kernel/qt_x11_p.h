@@ -261,6 +261,13 @@ class QMimeData;
 struct QX11Data;
 extern QX11Data *qt_x11Data;
 
+enum DesktopEnvironment {
+    DE_UNKNOWN,
+    DE_KDE,
+    DE_GNOME,
+    DE_CDE
+};
+
 struct QX11Data
 {
     Window findClientWindow(Window, Atom, bool);
@@ -407,6 +414,8 @@ struct QX11Data
 
     char *startupId;
 
+    DesktopEnvironment desktopEnvironment;
+
     /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
     enum X11Atom {
         // window-manager <-> client protocols
@@ -489,6 +498,8 @@ struct QX11Data
 
         _NET_STARTUP_INFO,
         _NET_STARTUP_INFO_BEGIN,
+
+        _NET_SUPPORTING_WM_CHECK,
 
         // Property formats
         COMPOUND_TEXT,

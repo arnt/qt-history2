@@ -210,6 +210,8 @@ static const char * x11_atomnames = {
     "_NET_STARTUP_INFO\0"
     "_NET_STARTUP_INFO_BEGIN\0"
 
+    "_NET_SUPPORTING_WM_CHECK\0"
+
     // Property formats
     "COMPOUND_TEXT\0"
     "TEXT\0"
@@ -1677,6 +1679,78 @@ void qt_init(QApplicationPrivate *priv, int,
     }
 
     if (qt_is_gui_used) {
+        // Attempt to determine the current running X11 Desktop Enviornment
+        // Use dbus if/when we can, but fall back to using windowManagerName() for now
+
+        X11->desktopEnvironment = DE_UNKNOWN;
+
+        // See if the current window manager is using the freedesktop.org spec to give its name
+        Window windowManagerWindow = 0;
+        Atom typeReturned;
+        int formatReturned;
+        unsigned long nitemsReturned;
+        unsigned long unused;
+        unsigned char *data = 0;
+        if (XGetWindowProperty(QX11Info::display(), QX11Info::appRootWindow(),
+                           ATOM(_NET_SUPPORTING_WM_CHECK),
+                           0, 1024, False, XA_WINDOW, &typeReturned,
+                           &formatReturned, &nitemsReturned, &unused, &data)
+              == Success) {
+            if (typeReturned == XA_WINDOW && formatReturned == 32)
+                windowManagerWindow = *((Window*) data);
+            if (data)
+                XFree(data);
+
+            QString wmName;
+            Atom utf8atom = ATOM(UTF8_STRING);
+            if (XGetWindowProperty(QX11Info::display(), windowManagerWindow, ATOM(_NET_WM_NAME),
+                           0, 1024, False, utf8atom, &typeReturned,
+                           &formatReturned, &nitemsReturned, &unused, &data)
+                == Success) {
+                if (typeReturned == utf8atom && formatReturned == 8)
+                    wmName = QString::fromUtf8((const char*)data);
+                if (data)
+                    XFree(data);
+                if (wmName == QLatin1String("KWin"))
+                    X11->desktopEnvironment = DE_KDE;
+                if (wmName == QLatin1String("Metacity"))
+                    X11->desktopEnvironment = DE_GNOME;
+            }
+        }
+
+        // Running a different/newer/older window manager?  Try some other things
+        if (X11->desktopEnvironment == DE_UNKNOWN){
+            Atom type;
+            int format;
+            unsigned long length, after;
+            uchar *data;
+
+            if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(DTWM_IS_RUNNING),
+                                     0, 1, False, AnyPropertyType, &type, &format, &length,
+                                     &after, &data) == Success && length) {
+                // DTWM is running, meaning most likely CDE is running...
+                X11->desktopEnvironment = DE_CDE;
+            }
+            else if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
+                                 ATOM(GNOME_BACKGROUND_PROPERTIES), 0, 1, False, AnyPropertyType,
+                                 &type, &format, &length, &after, &data) == Success && length) {
+                if (data) XFree((char *)data);
+                X11->desktopEnvironment = DE_GNOME;
+            } else
+            if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWIN_RUNNING),
+                             0, 1, False, AnyPropertyType, &type, &format, &length,
+                             &after, &data) == Success && length) {
+                if (data) XFree((char *)data);
+                X11->desktopEnvironment = DE_KDE;
+            } else
+            if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWM_RUNNING),
+                             0, 1, False, AnyPropertyType, &type, &format, &length,
+                             &after, &data) == Success && length) {
+                if (data) XFree((char *)data);
+                X11->desktopEnvironment = DE_KDE;
+            }
+        }
+
         qt_set_input_encoding();
 
         qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
@@ -1863,7 +1937,7 @@ void qt_init(QApplicationPrivate *priv, int,
         X11->startupId = getenv("DESKTOP_STARTUP_ID");
         putenv(strdup("DESKTOP_STARTUP_ID="));
 
-    } else {
+   } else {
         // read some non-GUI settings when not using the X server...
 
         if (QApplication::desktopSettingsAware()) {
@@ -1902,43 +1976,22 @@ void qt_init(QApplicationPrivate *priv, int,
 */
 void QApplicationPrivate::x11_initialize_style()
 {
-    Atom type;
-    int format;
-    unsigned long length, after;
-    uchar *data;
-    if (!QApplicationPrivate::app_style &&
-         XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWIN_RUNNING),
-                             0, 1, False, AnyPropertyType, &type, &format, &length,
-                             &after, &data) == Success && length) {
-        if (data) XFree((char *)data);
-        // kwin is there. check if KDE's styles are available,
-        // otherwise use windows style
-        QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("plastique"));
-    }
-    if (!QApplicationPrivate::app_style &&
-         XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWM_RUNNING),
-                             0, 1, False, AnyPropertyType, &type, &format, &length,
-                             &after, &data) == Success && length) {
-        if (data) XFree((char *)data);
-        QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("plastique"));
-    }
-    if (!QApplicationPrivate::app_style &&
-         XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(DTWM_IS_RUNNING),
-                             0, 1, False, AnyPropertyType, &type, &format, &length,
-                             &after, &data) == Success && length) {
-        // DTWM is running, meaning most likely CDE is running...
-        if (data) XFree((char *) data);
-        QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("cde"));
-    }
-    // maybe another desktop?
-    if (!QApplicationPrivate::app_style &&
-         XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
-                             ATOM(GNOME_BACKGROUND_PROPERTIES), 0, 1, False, AnyPropertyType,
-                             &type, &format, &length, &after, &data) == Success &&
-         length) {
-        if (data) XFree((char *)data);
-        // default to MotifPlus with hovering
-        QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("plastique"));
+    if (QApplicationPrivate::app_style)
+        return;
+
+    switch(X11->desktopEnvironment) {
+        case DE_KDE:
+            QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("plastique"));
+            break;
+        case DE_GNOME:
+            QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("cleanlooks"));
+            break;
+        case DE_CDE:
+            QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("cde"));
+            break;
+        default:
+            // Don't do anything
+            break;
     }
 }
 
