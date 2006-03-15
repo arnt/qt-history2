@@ -189,8 +189,91 @@ void QVFbKeyboardHandler::readKeyboardData()
 /*!
     \class QVFbScreen
     \ingroup qws
+
+    \brief The QVFbScreen class manages the virtual framebuffer.
+
+    Note that this class is only available in \l {Qtopia Core}.
+
+    The Qtopia Core platform provides a \l {The Virtual
+    Framebuffer}{virtual framebuffer} for development and debugging,
+    i.e. the virtual framebuffer allows Qtopia Core programs to be
+    developed on a desktop machine, without switching between consoles
+    and X11.
+
+    \sa QScreen, {Running Applications}, {Qtopia Core}
 */
 
+/*!
+    \fn bool QVFbScreen::connect(const QString & displaySpec)
+    \reimp
+*/
+
+/*!
+    \fn void QVFbScreen::disconnect()
+    \reimp
+*/
+
+/*!
+    \fn bool QVFbScreen::initDevice()
+    \reimp
+*/
+
+/*!
+    \fn void QVFbScreen::restore()
+    \reimp
+*/
+
+/*!
+    \fn void QVFbScreen::save()
+    \reimp
+*/
+
+/*!
+    \fn void QVFbScreen::setDirty(const QRect & r)
+    \reimp
+*/
+
+/*!
+    \fn void QVFbScreen::setMode(int nw, int nh, int nd)
+    \reimp
+*/
+
+/*!
+    \fn void QVFbScreen::shutdownDevice()
+    \reimp
+*/
+
+/*!
+    \variable QVFbScreen::success
+    \internal
+*/
+
+/*!
+    \variable QVFbScreen::shmrgn
+    \internal
+*/
+
+/*!
+    \variable QVFbScreen::hdr
+    \internal
+*/
+
+/*!
+    \variable QVFbScreen::mouseHandler
+    \internal
+*/
+
+/*!
+    \variable QVFbScreen::keyboardHandler
+    \internal
+*/
+
+/*!
+    \fn QVFbScreen::QVFbScreen(int displayId)
+
+    Constructs a QVNCScreen object. The \a displayId argument
+    identifies the Qtopia Core server to connect to.
+*/
 QVFbScreen::QVFbScreen(int display_id) : QScreen(display_id)
 {
     mouseHandler = 0;
@@ -200,6 +283,9 @@ QVFbScreen::QVFbScreen(int display_id) : QScreen(display_id)
     data = 0;
 }
 
+/*!
+    Destroys this QVFbScreen object.
+*/
 QVFbScreen::~QVFbScreen()
 {
 }
