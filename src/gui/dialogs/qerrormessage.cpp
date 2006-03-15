@@ -83,9 +83,11 @@ QSize QErrorMessageTextView::sizeHint() const
     the dialog in the usual way, and show it by calling the showMessage() slot or
     connecting signals to it.
 
-    For Qtopia Core developers, the static qtHandler() installs a message handler
-    using qInstallMsgHandler() and creates a QErrorMessage that displays qDebug(),
-    qWarning() and qFatal() messages.
+    The static qtHandler() function installs a message handler
+    using qInstallMsgHandler() and creates a QErrorMessage that displays
+    qDebug(), qWarning() and qFatal() messages. This is most useful in
+    environments where no console is available to display warnings and
+    error messages.
 
     In both cases QErrorMessage will queue pending messages and display
     them in order, with each new message being shown as soon as the user
