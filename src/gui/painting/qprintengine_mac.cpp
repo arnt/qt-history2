@@ -285,18 +285,10 @@ int QMacPrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
     int val = 1;
     switch (m) {
     case QPaintDevice::PdmWidth:
-        if (d->state == QPrinter::Active
-            || property(PPK_Orientation).toInt() == QPrinter::Portrait)
-            val = qt_get_PDMWidth(d->format, property(PPK_FullPage).toBool());
-        else
-            val = qt_get_PDMHeight(d->format, property(PPK_FullPage).toBool());
+        val = qt_get_PDMWidth(d->format, property(PPK_FullPage).toBool());
         break;
     case QPaintDevice::PdmHeight:
-        if (d->state == QPrinter::Active
-            || property(PPK_Orientation).toInt() == QPrinter::Portrait)
-            val = qt_get_PDMHeight(d->format, property(PPK_FullPage).toBool());
-        else
-            val = qt_get_PDMWidth(d->format, property(PPK_FullPage).toBool());
+        val = qt_get_PDMHeight(d->format, property(PPK_FullPage).toBool());
         break;
     case QPaintDevice::PdmWidthMM:
         val = metric(QPaintDevice::PdmWidth);
@@ -534,8 +526,35 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
         break;
     case PPK_SelectionOption:
         break;
-    case PPK_Resolution:  // ###
+    case PPK_Resolution:  {
+        PMPrinter printer;
+        UInt32 count;
+        if (PMSessionGetCurrentPrinter(d->session, &printer) != noErr)
+            break;
+        if (PMPrinterGetPrinterResolutionCount(printer, &count) != noErr)
+            break;
+        PMResolution resolution = { 0.0, 0.0 };
+        PMResolution bestResolution = { 0.0, 0.0 };
+        int dpi = value.toInt();
+        int bestDistance = INT_MAX;
+        for (UInt32 i = 1; i <= count; ++i) {  // Yes, it starts at 1
+            if (PMPrinterGetIndexedPrinterResolution(printer, i, &resolution) == noErr) {
+                if (dpi == int(resolution.hRes)) {
+                    bestResolution = resolution;
+                    break;
+                } else {
+                    int distance = qAbs(dpi - int(resolution.hRes));
+                    if (distance < bestDistance) {
+                        bestDistance = distance;
+                        bestResolution = resolution;
+                    }
+                }
+            }
+        }
+        PMSetResolution(d->format, &resolution);
+        PMSessionValidatePageFormat(d->session, d->format, kPMDontWantBoolean);
         break;
+    }
 
     case PPK_FullPage:
         d->fullPage = value.toBool();
@@ -547,6 +566,7 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
         d->orient = QPrinter::Orientation(value.toInt());
         PMOrientation o = d->orient == QPrinter::Portrait ? kPMPortrait : kPMLandscape;
         PMSetOrientation(d->format, o, false);
+        PMSessionValidatePageFormat(d->session, d->format, kPMDontWantBoolean);
         break; }
     case PPK_OutputFileName:
         d->outputFilename = value.toString();
@@ -640,8 +660,12 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
                 ret = QCFString::toQString(name);
         }
 		break; }
-    case PPK_Resolution: // ###
+    case PPK_Resolution: {
+        PMResolution resolution;
+        if (PMGetResolution(d->format, &resolution) == noErr)
+            ret = resolution.hRes;
         break;
+    }
     case PPK_SupportedResolutions:
         ret = d->supportedResolutions();
         break;
