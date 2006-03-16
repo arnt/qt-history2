@@ -544,6 +544,7 @@ QStdModelRow *QStandardItemModelPrivate::containedRow(const QModelIndex &index,
 */
 void QStandardItemModelPrivate::clear()
 {
+    topLevelColumns = 0;
     qDeleteAll(topLevelRows);
     topLevelRows.clear();
     qDeleteAll(horizontalHeader);
