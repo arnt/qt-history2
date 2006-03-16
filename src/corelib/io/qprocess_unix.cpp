@@ -125,8 +125,12 @@ QProcessManager::QProcessManager()
     // extremely unlikely event that the pipe fills up, we do not under any
     // circumstances want to block.
     ::pipe(qt_qprocess_deadChild_pipe);
+    ::fcntl(qt_qprocess_deadChild_pipe[0], F_SETFD, FD_CLOEXEC);
+    ::fcntl(qt_qprocess_deadChild_pipe[1], F_SETFD, FD_CLOEXEC);
     ::fcntl(qt_qprocess_deadChild_pipe[0], F_SETFL,
 	    ::fcntl(qt_qprocess_deadChild_pipe[0], F_GETFL) | O_NONBLOCK);
+    ::fcntl(qt_qprocess_deadChild_pipe[1], F_SETFL,
+	    ::fcntl(qt_qprocess_deadChild_pipe[1], F_GETFL) | O_NONBLOCK);
 
     // set up the SIGCHLD handler, which writes a single byte to the dead
     // child pipe every time a child dies.
@@ -319,6 +323,8 @@ void QProcessPrivate::startProcess()
     }
 
     qt_create_pipe(deathPipe);
+    ::fcntl(deathPipe[0], F_SETFD, FD_CLOEXEC);
+    ::fcntl(deathPipe[1], F_SETFD, FD_CLOEXEC);
     if (QAbstractEventDispatcher::instance(q->thread())) {
         deathNotifier = new QSocketNotifier(deathPipe[0],
                                             QSocketNotifier::Read, q);
@@ -429,11 +435,14 @@ void QProcessPrivate::execChild(const QByteArray &programName)
 
     // copy the stdin socket
     ::dup2(writePipe[0], fileno(stdin));
+    ::close(writePipe[0]);
 
     // copy the stdout and stderr if asked to
     if (processChannelMode != QProcess::ForwardedChannels) {
         ::dup2(standardReadPipe[1], fileno(stdout));
         ::dup2(errorReadPipe[1], fileno(stderr));
+        ::close(standardReadPipe[1]);
+        ::close(errorReadPipe[1]);
 
         // merge stdout and stderr if asked to
         if (processChannelMode == QProcess::MergedChannels)
