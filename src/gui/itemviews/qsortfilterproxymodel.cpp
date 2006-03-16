@@ -1061,6 +1061,12 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &so
     children. If a parent item doesn't match the filter, none of its
     children will be shown.
 
+    A common use case is to let the user specify the filter regexp,
+    wildcard pattern, or fixed string in a QLineEdit and to connect
+    the \l{QLineEdit::textChanged()}{textChanged()} signal to
+    setFilterRegExp(), setFilterWildcard(), or setFilterFixedString()
+    to reapply the filter.
+
     Custom filtering behavior can be achieved by reimplementing the
     filterAcceptsRow() and filterAcceptsColumn() functions. For
     example, the following implementation ignores the \l
