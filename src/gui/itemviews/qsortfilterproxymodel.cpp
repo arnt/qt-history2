@@ -1555,6 +1555,8 @@ void QSortFilterProxyModel::setFilterRegExp(const QRegExp &regExp)
   \property QSortFilterProxyModel::filterKeyColumn
   \brief the column where the key used to filter the contents
   of the source model is read from.
+
+  If the value is -1, the keys will be read from all columns.
 */
 int QSortFilterProxyModel::filterKeyColumn() const
 {
