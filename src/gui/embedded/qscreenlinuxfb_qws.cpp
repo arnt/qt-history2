@@ -51,28 +51,24 @@ extern int qws_client_id;
     \class QLinuxFbScreen
     \ingroup qws
 
-    \brief The QLinuxFbScreen class manages the Linux framebuffer.
+    \brief The QLinuxFbScreen class implements a screen driver for the
+    Linux framebuffer.
 
-    Note that this class is only available in \l {Qtopia Core}, and
-    that there should only be one QLinuxFbScreen object per
-    application.
+    Note that this class is only available in \l {Qtopia Core}.
+    Custom screen drivers can be added by subclassing the
+    QScreenDriverPlugin class, using the QScreenDriverFactory class to
+    dynamically load the driver into the application, but there should
+    only be one screen object per application.
 
-    The QLinuxFbScreen class inherits QScreen and enables reading
-    information about the framebuffer from the Linux framebuffer
-    interface, managing the color palette, managing off-screen
-    graphics memory and mapping the framebuffer interface itself
-    (removing the need for drivers to do this).
-
-    In particular, QLinuxFbScreen provides the cache() function
-    allocating off-screen graphics memory, and the complementary
-    uncache() function releasing the allocated memory. The latter
-    function will first sync the graphics card to ensure the memory
-    isn't still being used by a command in the graphics card FIFO
-    queue. The deleteEntry() function deletes the given memory block
-    without such synchronization.  Given the screen instance and
-    client id, the memory can also be released using the clearCache()
-    function, but this should only be necessary if a client exits
-    abnormally.
+    The QLinuxFbScreen class provides the cache() function allocating
+    off-screen graphics memory, and the complementary uncache()
+    function releasing the allocated memory. The latter function will
+    first sync the graphics card to ensure the memory isn't still
+    being used by a command in the graphics card FIFO queue. The
+    deleteEntry() function deletes the given memory block without such
+    synchronization.  Given the screen instance and client id, the
+    memory can also be released using the clearCache() function, but
+    this should only be necessary if a client exits abnormally.
 
     In addition, when in paletted graphics modes, the set() function
     provides the possibility of setting a specified color index to a
@@ -80,11 +76,10 @@ extern int qws_client_id;
 
     The QLinuxFbScreen class also acts as a factory for the
     unaccelerated screen cursor and the unaccelerated raster-based
-    implementation of QPaintEngine (\c
-    QRasterPaintEngine). Accelerated drivers for Linux should derive
-    from this class.
+    implementation of QPaintEngine (\c QRasterPaintEngine);
+    accelerated drivers for Linux should derive from this class.
 
-    \sa QScreen, {Running Applications}, {Qtopia Core}
+    \sa QScreen, QScreenDriverPlugin, {Running Applications}
 */
 
 // Unaccelerated screen/driver setup. Can be overridden by accelerated
@@ -756,7 +751,7 @@ void QLinuxFbScreen::deleteEntry(uchar * c)
 
 /*!
     Removes all entries from the cache for the specified screen \a
-    instance and client identfied by the given \a clientId.
+    instance and client identified by the given \a clientId.
 
     Calling this function should only be necessary if a client exits
     abnormally.

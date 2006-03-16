@@ -1091,20 +1091,25 @@ void QVNCServer::discardClient()
     \class QVNCScreen
     \ingroup qws
 
-    \brief The QVNCScreen class manages the screen for VNC servers.
+    \brief The QVNCScreen class implements a screen driver for VNC
+    servers.
 
     Note that this class is only available in \l {Qtopia Core}.
+    Custom screen drivers can be added by subclassing the
+    QScreenDriverPlugin class, using the QScreenDriverFactory class to
+    dynamically load the driver into the application, but there should
+    only be one screen object per application.
 
     The VNC protocol allows you to view and interact with the
-    computer's display from anywhere on the network.  Note that there
-    should only be one QVNCScreen object per application.
+    computer's display from anywhere on the network. See the \l
+    {Running as a VNC Server} documentation for more details.
 
     The default implementation of QVNCScreen inherits QLinuxFbScreen,
     but any QScreen subclass, or QScreen itself, can serve as its base
     class. This is easily achieved by manipulating the \c
-    VNCSCREEN_BASE definition in the .h file.
+    VNCSCREEN_BASE definition in the header file.
 
-    \sa QScreen, {Running as a VNC Server}, {Qtopia Core}
+    \sa QScreen, QScreenDriverPlugin, {Running Applications}
 */
 
 /*!

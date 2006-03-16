@@ -190,17 +190,22 @@ void QVFbKeyboardHandler::readKeyboardData()
     \class QVFbScreen
     \ingroup qws
 
-    \brief The QVFbScreen class manages the virtual framebuffer.
+    \brief The QVFbScreen class implements a screen driver for the
+    virtual framebuffer.
 
     Note that this class is only available in \l {Qtopia Core}.
+    Custom screen drivers can be added by subclassing the
+    QScreenDriverPlugin class, using the QScreenDriverFactory class to
+    dynamically load the driver into the application, but there should
+    only be one screen object per application.
 
     The Qtopia Core platform provides a \l {The Virtual
-    Framebuffer}{virtual framebuffer} for development and debugging,
-    i.e. the virtual framebuffer allows Qtopia Core programs to be
+    Framebuffer}{virtual framebuffer} for development and debugging;
+    the virtual framebuffer allows Qtopia Core programs to be
     developed on a desktop machine, without switching between consoles
     and X11.
 
-    \sa QScreen, {Running Applications}, {Qtopia Core}
+    \sa QScreen, QScreenDriverPlugin, {Running Applications}
 */
 
 /*!

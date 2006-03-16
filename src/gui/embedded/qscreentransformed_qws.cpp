@@ -50,6 +50,133 @@ void qws_setScreenTransformation(int t)
 /*!
     \class QTransformedScreen
     \ingroup qws
+
+    \brief The QTransformedScreen class implements a screen driver for
+    a transformed screen.
+
+    Note that this class is only available in \l {Qtopia Core}.
+    Custom screen drivers can be added by subclassing the
+    QScreenDriverPlugin class, using the QScreenDriverFactory class to
+    dynamically load the driver into the application, but there should
+    only be one screen object per application.
+
+    The default implementation of QTransformedScreen inherits the
+    QVFbScreen class if the virtual framebuffer is enabled, or
+    QLinuxFbScreen if it is not. But note that any QScreen subclass,
+    or QScreen itself, can serve as its base class. This is easily
+    achieved by manipulating the \c QT_TRANS_SCREEN_BASE definition in
+    the header file.
+
+    Use the QScreen::isTransformed() function to determine if a screen
+    is transformed. The QTransformedScreen class itself provides means
+    of rotating the screen with its setTransformation() function; the
+    transformation() function returns the currently set rotation in
+    terms of the \l Transformation enum (which describes the various
+    available rotation settings). Alternatively, QTransformedScreen
+    provides an implementation of the QScreen::transformOrientation()
+    function, returning the current rotation as an integer value.
+
+    \sa QScreen, QScreenDriverPlugin, {Running Applications}
+*/
+
+/*!
+    \enum QTransformedScreen::Transformation
+
+    This enum describes the various rotations a transformed screen can
+    have.
+
+    \value None No rotation
+    \value Rot90 90 degrees rotation
+    \value Rot180 180 degrees rotation
+    \value Rot270 270 degrees rotation
+*/
+
+/*!
+    \fn void QTransformedScreen::blit(const QImage & img, const QPoint & topLeft, const QRegion & region)
+    \reimp
+*/
+
+/*!
+    \fn bool QTransformedScreen::connect(const QString & displaySpec)
+    \reimp
+*/
+
+/*!
+    \fn bool QTransformedScreen::isTransformed() const
+    \reimp
+*/
+
+/*!
+    \fn QSize QTransformedScreen::mapFromDevice(const QSize & s) const
+    \reimp
+*/
+
+/*!
+    \fn QPoint QTransformedScreen::mapFromDevice(const QPoint &, const QSize &) const
+    \reimp
+*/
+
+/*!
+    \fn QRect QTransformedScreen::mapFromDevice(const QRect &, const QSize &) const
+    \reimp
+*/
+
+/*!
+    \fn QRegion QTransformedScreen::mapFromDevice(const QRegion &, const QSize &) const
+    \reimp
+*/
+
+/*!
+    \fn QSize QTransformedScreen::mapToDevice(const QSize & s) const
+    \reimp
+*/
+
+/*!
+    \fn QPoint QTransformedScreen::mapToDevice(const QPoint &, const QSize &) const
+    \reimp
+*/
+
+/*!
+    \fn QRect QTransformedScreen::mapToDevice(const QRect &, const QSize &) const
+    \reimp
+*/
+
+/*!
+    \fn QRegion QTransformedScreen::mapToDevice(const QRegion &, const QSize &) const
+    \reimp
+*/
+
+/*!
+    \fn void QTransformedScreen::solidFill(const QColor & color, const QRegion & region)
+    \reimp
+*/
+
+/*!
+    \fn int QTransformedScreen::transformOrientation() const
+    \reimp
+*/
+
+/*!
+    \fn QTransformedScreen::QTransformedScreen(int displayId)
+
+    Constructs a QTransformedScreen object. The \a displayId argument
+    identifies the Qtopia Core server to connect to.
+*/
+
+/*!
+    \fn void QTransformedScreen::setTransformation ( Transformation transformation )
+
+    Rotates this screen object according to the specified \a transformation.
+
+    \sa transformation()
+*/
+
+/*!
+    \fn Transformation QTransformedScreen::transformation() const
+
+    Returns the currently set rotation.
+
+    \sa setTransformation(), QScreen::transformOrientation()
 */
 QTransformedScreen::QTransformedScreen(int display_id)
     : QT_TRANS_SCREEN_BASE(display_id)
