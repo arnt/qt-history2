@@ -5180,7 +5180,7 @@ const q_scriptEngine qt_scriptEngines[] = {
 
 static bool mac_shape(QShaperItem *item)
 {
-    QFontEngineMac *fe = static_cast<QFontEngineMac *>(item->font);
+    QFontEngineMacMulti *fe = static_cast<QFontEngineMacMulti *>(item->font);
     if (!fe->stringToCMap(item->string->unicode()+item->from, item->length,
                           item->glyphs, &item->num_glyphs, QFlag(item->flags),
                           item))

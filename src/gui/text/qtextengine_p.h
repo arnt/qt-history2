@@ -440,7 +440,8 @@ public:
     enum ShaperFlag {
         RightToLeft = 0x0001,
         Mirrored = 0x0001,
-        DesignMetrics = 0x0002
+        DesignMetrics = 0x0002,
+        GlyphIndicesOnly = 0x0004
     };
     Q_DECLARE_FLAGS(ShaperFlags, ShaperFlag)
 

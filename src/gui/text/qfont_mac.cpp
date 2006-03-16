@@ -67,7 +67,7 @@ Qt::HANDLE QFont::handle() const
     if (! d->engineData)
         d->load(QUnicodeTables::Common);
     if (d->engineData && d->engineData->engine)
-        return (Qt::HANDLE)((QFontEngineMac*)d->engineData->engine)->fontFamilyRef();
+        return (Qt::HANDLE)((QFontEngineMacMulti*)d->engineData->engine)->fontFamilyRef();
     return 0;
 }
 
@@ -99,7 +99,7 @@ void QFontPrivate::load(int script)
     req.pointSize = qRound(qt_mac_pointsize(request, dpi));
 
     if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
-        Q_ASSERT(e->type() == QFontEngine::Mac);
+        Q_ASSERT(e->type() == QFontEngine::Multi);
         e->ref.ref();
         engineData->engine = e;
         return; // the font info and fontdef should already be filled
@@ -164,7 +164,7 @@ void QFontPrivate::load(int script)
 	    fontDef.family = actualName;
     }
 
-    QFontEngineMac *engine = new QFontEngineMac(familyRef, fontDef, kerning);
+    QFontEngine *engine = new QFontEngineMacMulti(familyRef, fontDef, kerning);
     engineData->engine = engine;
     engine->ref.ref(); //a ref for the engineData->engine
 

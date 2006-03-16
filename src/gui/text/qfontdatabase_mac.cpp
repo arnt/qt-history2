@@ -156,5 +156,5 @@ QFontEngine *loadEngine(int, const QFontPrivate *fontPriv, const QFontDef &reque
 	    fontDef.family = actualName;
     }
 
-    return new QFontEngineMac(atsFamily, fontDef, fontPriv->kerning);
+    return new QFontEngineMacMulti(atsFamily, fontDef, fontPriv->kerning);
 }

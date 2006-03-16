@@ -13,6 +13,7 @@
 #include "qfontsubset_p.h"
 #include <qendian.h>
 #include <qpainterpath.h>
+#include <qdebug.h>
 #include "private/qpdf_p.h"
 
 #ifndef QT_NO_PRINTER
@@ -375,7 +376,7 @@ QVector<int> QFontSubset::getReverseMap() const
     for (uint uc = 0; uc < 0x10000; ++uc) {
         QChar ch(uc);
         int nglyphs = 10;
-        fontEngine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
+        fontEngine->stringToCMap(&ch, 1, glyphs, &nglyphs, QTextEngine::GlyphIndicesOnly);
         int idx = glyph_indices.indexOf(glyphs[0].glyph);
         if (idx >= 0 && !reverseMap.at(idx))
             reverseMap[idx] = uc;
