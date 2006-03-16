@@ -37,7 +37,10 @@
     \l {Qtopia Core} provides window management of top level
     windows. The appearance of the borders and buttons (the
     decoration) around these windows can be customized by deriving
-    from the QDecoration class. To apply a decoration to an
+    from the QDecoration class. Custom decorations can be added by
+    subclassing the QDecorationPlugin class, using the
+    QDecorationFactory class to dynamically load the decoration into
+    the application. To actually apply a decoration to an
     application, use the QApplication::qwsSetDecoration() function.
 
     The QDecoration class provides the virtual paint() function that
