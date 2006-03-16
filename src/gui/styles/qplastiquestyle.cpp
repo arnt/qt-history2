@@ -3632,6 +3632,13 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 }
 
                 painter->drawPixmap(handle.topLeft(), cache);
+                
+                if (slider->state & State_HasFocus) {
+                    QStyleOptionFocusRect fropt;
+                    fropt.QStyleOption::operator=(*slider);
+                    fropt.rect = subElementRect(SE_SliderFocusRect, slider, widget);
+                    drawPrimitive(PE_FrameFocusRect, &fropt, painter, widget);
+                }
             }
 
             if (option->subControls & SC_SliderTickmarks) {
