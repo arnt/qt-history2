@@ -51,17 +51,34 @@ public:
     { unlock(); }
 
     inline void unlock()
-    { if (q_lock) q_lock->unlock(); }
+    {
+        if (q_lock) {
+            if ((q_val & 1u) == 1u) {
+                q_val &= ~1u;
+                q_lock->unlock();
+            }
+        }
+    }
 
     inline void relock()
-    { if (q_lock) q_lock->lockForRead(); }
+    {
+        if (q_lock) {
+            if ((q_val & 1u) == 0u) {
+                q_lock->lockForRead();
+                q_val |= 1u;
+            }
+        }
+    }
 
     inline QReadWriteLock *readWriteLock() const
-    { return q_lock; }
+    { return reinterpret_cast<QReadWriteLock *>(q_val & ~1u); }
 
 private:
     Q_DISABLE_COPY(QReadLocker)
-    QReadWriteLock *q_lock;
+    union {
+        QReadWriteLock *q_lock;
+        quintptr q_val;
+    };
 };
 
 inline QReadLocker::QReadLocker(QReadWriteLock *areadWriteLock)
@@ -77,17 +94,34 @@ public:
     { unlock(); }
 
     inline void unlock()
-    { if (q_lock) q_lock->unlock(); }
+    {
+        if (q_lock) {
+            if ((q_val & 1u) == 1u) {
+                q_val &= ~1u;
+                q_lock->unlock();
+            }
+        }
+    }
 
     inline void relock()
-    { if (q_lock) q_lock->lockForWrite(); }
+    {
+        if (q_lock) {
+            if ((q_val & 1u) == 0u) {
+                q_lock->lockForWrite();
+                q_val |= 1u;
+            }
+        }
+    }
 
     inline QReadWriteLock *readWriteLock() const
-    { return q_lock; }
+    { return reinterpret_cast<QReadWriteLock *>(q_val & ~1u); }
 
 private:
     Q_DISABLE_COPY(QWriteLocker)
-    QReadWriteLock *q_lock;
+    union{
+        QReadWriteLock *q_lock;
+        quintptr q_val;
+    };
 };
 
 inline QWriteLocker::QWriteLocker(QReadWriteLock *areadWriteLock)
