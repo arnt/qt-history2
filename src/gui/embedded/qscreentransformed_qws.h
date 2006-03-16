@@ -26,8 +26,12 @@ QT_MODULE(Gui)
 #else
 #define QT_TRANS_SCREEN_BASE   QVFbScreen
 #endif
-   
+
+#ifdef qdoc
+class QTransformedScreen : public QScreen
+#else
 class QTransformedScreen : public QT_TRANS_SCREEN_BASE
+#endif
 {
 public:
     explicit QTransformedScreen(int display_id);
