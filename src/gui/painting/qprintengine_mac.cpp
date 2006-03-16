@@ -155,6 +155,10 @@ void QMacPrintEnginePrivate::setPageSize(QPrinter::PageSize ps)
                 // reset the orientation and resolution as they are lost in the copy.
                 q->setProperty(QPrintEngine::PPK_Orientation, orient);
                 PMSetResolution(format, &resolution);
+                if (PMSessionValidatePageFormat(session, format, kPMDontWantBoolean) != noErr) {
+                    // Don't know, warn for the moment.
+                    qWarning("QMacPrintEngine, problem setting format and resolution for this page size");
+                }
                 break;
             }
         }
@@ -371,6 +375,7 @@ void QMacPrintEnginePrivate::initialize()
     if (formatOK) {
         formatOK = PMSessionDefaultPageFormat(session, format) == noErr;
         formatOK = PMSetResolution(format, &resolution) == noErr;
+        formatOK = PMSessionValidatePageFormat(session, format, kPMDontWantBoolean) == noErr;
     }
 
     if(paintEngine->type() == QPaintEngine::CoreGraphics) {
