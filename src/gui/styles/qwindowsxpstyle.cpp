@@ -829,8 +829,8 @@ void QWindowsXPStylePrivate::drawBackground(XPThemeData &themeData)
     bool useFallback = painter->paintEngine()->getDC() == 0
                        || themeData.rotate
                        || complexXForm
-		               || themeData.mirrorVertically
-		               || (themeData.mirrorHorizontally && pDrawThemeBackgroundEx == 0);
+	               || themeData.mirrorVertically
+	               || (themeData.mirrorHorizontally && pDrawThemeBackgroundEx == 0);
     if (!useFallback)
         drawBackgroundDirectly(themeData);
     else
@@ -1342,6 +1342,22 @@ QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option,
                    rect.adjust(0, 0, -2, -2);
         }
         break;
+    case SE_TabWidgetTabBar: {
+        rect = QWindowsStyle::subElementRect(sr, option, widget);
+        const QStyleOptionTabWidgetFrame *twfOption = 
+            qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option);
+        if (twfOption && twfOption->direction == Qt::RightToLeft
+            && (twfOption->shape == QTabBar::RoundedNorth
+                || twfOption->shape == QTabBar::RoundedSouth))
+        {
+            QStyleOptionTab otherOption;
+            otherOption.shape = (twfOption->shape == QTabBar::RoundedNorth
+                                ? QTabBar::RoundedEast : QTabBar::RoundedSouth);
+            int overlap = pixelMetric(PM_TabBarBaseOverlap, &otherOption, widget);
+            int borderThickness = pixelMetric(PM_DefaultFrameWidth, option, widget);
+            rect.adjust(-overlap + borderThickness, 0, -overlap + borderThickness, 0);
+        }
+        break;}
 
     default:
         rect = QWindowsStyle::subElementRect(sr, option, widget);
@@ -1587,7 +1603,8 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
                 break;
             case QTabBar::RoundedSouth:
             case QTabBar::TriangularSouth:
-                vMirrored = true;
+                //vMirrored = true;
+                rotate = 180; // No  100% correct, but works
                 break;
             case QTabBar::RoundedEast:
             case QTabBar::TriangularEast:
@@ -1989,6 +2006,15 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             } else {
                 partId = TABP_TABITEM;
             }
+
+            if (tab->direction == Qt::RightToLeft
+                && (tab->shape == QTabBar::RoundedNorth
+                    || tab->shape == QTabBar::RoundedSouth)) {
+                bool temp = firstTab;
+                firstTab = lastTab;
+                lastTab = temp;
+            }
+
             switch (tab->shape) {
             case QTabBar::RoundedNorth:
                 if (selected)
@@ -1997,7 +2023,8 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                     rect.adjust(0, tabOverlap, 0, 0);
                 break;
             case QTabBar::RoundedSouth:
-                vMirrored = true;
+                //vMirrored = true;
+                rotate = 180; // Not 100% correct, but works
                 if (selected)
                     rect.adjust(firstTab ? 0 : -tabOverlap , -borderThickness, lastTab ? 0 : tabOverlap, 0);
                 else
