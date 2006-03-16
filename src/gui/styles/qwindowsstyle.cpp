@@ -1958,11 +1958,11 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 // Left
                 if (firstTab || selected || onlyOne || !previousSelected) {
                     p->setPen(light);
-                    p->drawLine(x1, y2 - 2, x1, y1 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
+                    p->drawLine(x1, y2 - 2, x1, y1 + ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
                     p->drawPoint(x1 + 1, y2 - 1);
                     if (!use2000style) {
                         p->setPen(midlight);
-                        p->drawLine(x1 + 1, y2 - 2, x1 + 1, y1 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
+                        p->drawLine(x1 + 1, y2 - 2, x1 + 1, y1 + ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
                     }
                 }
                 // Bottom
