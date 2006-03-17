@@ -1026,13 +1026,12 @@ void QTextDocument::print(QPrinter *printer) const
         int page = fromPage;
         while (true) {
             for (int j = 0; j < pageCopies; ++j) {
-                if (printer->printerState() == QPrinter::Active) {
-                    printPage(page, &p, doc, body, pageNumberPos);
-                    if (j < pageCopies - 1)
-                        printer->newPage();
-                } else {
+                if (printer->printerState() == QPrinter::Aborted
+                    || printer->printerState() == QPrinter::Error)
                     goto UserCanceled;
-                }
+                printPage(page, &p, doc, body, pageNumberPos);
+                if (j < pageCopies - 1)
+                    printer->newPage();
             }
 
             if (page == toPage)
