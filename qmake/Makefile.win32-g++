@@ -25,7 +25,7 @@ OBJS        = project.o main.o makefile.o unixmake.o unixmake2.o mingw_make.o \
 
 ifndef QMAKE_OPENSOURCE_EDITION
 OBJS        += borland_bmake.o msvc_nmake.o msvc_dsp.o msvc_vcproj.o \
-              msvc_objectmodel.o metrowerks_xml.o
+              msvc_objectmodel.o
 else
 CFLAGS      += -DQMAKE_OPENSOURCE_EDITION
 endif
@@ -241,9 +241,6 @@ property.o: property.cpp project.h option.h
 
 projectgenerator.o: generators/projectgenerator.cpp
 	$(CXX) $(CXXFLAGS) generators/projectgenerator.cpp
-
-metrowerks_xml.o: generators/mac/metrowerks_xml.cpp
-	$(CXX) $(CXXFLAGS) generators/mac/metrowerks_xml.cpp
 
 pbuilder_pbx.o: generators/mac/pbuilder_pbx.cpp
 	$(CXX) $(CXXFLAGS) generators/mac/pbuilder_pbx.cpp
