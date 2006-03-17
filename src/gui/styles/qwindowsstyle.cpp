@@ -439,7 +439,15 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         ret = GetSystemMetrics(SM_CYFRAME);
         break;
 #endif
-
+    case PM_ToolBarItemMargin:
+        ret = 1;
+        break;
+    case PM_ToolBarItemSpacing:
+        ret = 0;
+        break;
+    case PM_ToolBarHandleExtent:
+        ret = 10;
+        break;
     default:
         ret = QCommonStyle::pixelMetric(pm, opt, widget);
         break;
@@ -1245,6 +1253,31 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             }
         }
         break;
+    case PE_IndicatorToolBarHandle:
+        p->save();
+        p->translate(opt->rect.x(), opt->rect.y());
+        if (opt->state & State_Horizontal) {
+            int x = opt->rect.width() / 2 - 4;
+            if (QApplication::layoutDirection() == Qt::RightToLeft)
+                x -= 2;
+            if (opt->rect.height() > 4) {
+                qDrawShadePanel(p, x, 2, 3, opt->rect.height() - 4,
+                                opt->palette, false, 1, 0);
+                qDrawShadePanel(p, x + 3, 2, 3, opt->rect.height() - 4,
+                                opt->palette, false, 1, 0);
+            }
+        } else {
+            if (opt->rect.width() > 4) {
+                int y = opt->rect.height() / 2 - 4;
+                qDrawShadePanel(p, 2, y, opt->rect.width() - 4, 3,
+                                opt->palette, false, 1, 0);
+                qDrawShadePanel(p, 2, y + 3, opt->rect.width() - 4, 3,
+                                opt->palette, false, 1, 0);
+            }
+        }
+        p->restore();
+        break;
+    
 #endif // QT_NO_TOOLBAR
     case PE_FrameButtonTool:
     case PE_PanelButtonTool: {
@@ -2968,6 +3001,14 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             sz += QSize(windowsItemHMargin * 4, windowsItemVMargin * 2);
         break;
 #endif
+                // Otherwise, fall through
+    case CT_ToolButton:
+        if (const QStyleOptionToolButton *toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(opt))
+        {
+            return sz += QSize(7, 6);
+        }
+        // Otherwise, fall through
+
     default:
         sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
     }

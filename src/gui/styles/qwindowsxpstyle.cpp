@@ -1823,11 +1823,13 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
 
         name = "REBAR";
         partId = RP_GRIPPER;
-
-        if (option->state & State_Horizontal)
+        if (option->state & State_Horizontal) {
             partId = RP_GRIPPER;
+            rect.adjust(0, 0, -2, 0);
+        }
         else {
             partId = RP_GRIPPERVERT;
+            rect.adjust(0, 0, 0, -2);
         }
         break;
 
@@ -3168,7 +3170,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
 
 #ifndef QT_NO_TOOLBAR
     case PM_ToolBarHandleExtent:
-        res = 6;
+        res = 8;
         break;
 
 #endif // QT_NO_TOOLBAR
@@ -3398,12 +3400,6 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
                 sz.setHeight(sz.height() - 2);
                 return sz;
             }
-        }
-        // Otherwise, fall through
-    case CT_ToolButton:
-        if (const QStyleOptionToolButton *toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option))
-        {
-                return sz += QSize(6,9);
         }
         // Otherwise, fall through
     default:
