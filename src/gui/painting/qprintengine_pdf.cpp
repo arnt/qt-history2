@@ -79,6 +79,7 @@ QPdfEngine::QPdfEngine(QPrinter::PrinterMode m)
 {
     Q_D(QPdfEngine);
     device_ = 0;
+    state = QPrinter::Idle;
 
     pagesize_ = QPrinter::A4;
     
@@ -243,6 +244,7 @@ bool QPdfEngine::begin(QPaintDevice *)
     d->unsetDevice();
     d->setDevice(device_);
     setActive(true);
+    state = QPrinter::Active;
     d->writeHeader();
     newPage();
 
@@ -257,6 +259,7 @@ bool QPdfEngine::end()
     device_->close();
     d->unsetDevice();
     setActive(false);
+    state = QPrinter::Idle;
     return true;
 }
 

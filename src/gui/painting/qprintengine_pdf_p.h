@@ -76,7 +76,7 @@ public:
     int metric(QPaintDevice::PaintDeviceMetric) const;
     bool abort() {return false;}
     bool newPage();
-    QPrinter::PrinterState printerState() const {return QPrinter::Idle;}
+    QPrinter::PrinterState printerState() const {return state;}
     // end reimplementations QPrintEngine
 
     void setBrush();
@@ -97,6 +97,7 @@ private:
 
     QIODevice* device_;
     QFile* outFile_;
+    QPrinter::PrinterState state;
 };
 
 class QPdfEnginePrivate : public QPdfBaseEnginePrivate

@@ -971,6 +971,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     d->fontsUsed = "";
 
     setActive(true);
+    d->printerState = QPrinter::Active;
 
     newPage();
 
@@ -1007,6 +1008,7 @@ bool QPSPrintEngine::end()
     d->firstPage = true;
 
     setActive(false);
+    d->printerState = QPrinter::Idle;
     d->pdev = 0;
 
     if (d->pid) {
