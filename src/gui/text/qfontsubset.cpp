@@ -10,10 +10,10 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+#include <qdebug.h>
 #include "qfontsubset_p.h"
 #include <qendian.h>
 #include <qpainterpath.h>
-#include <qdebug.h>
 #include "private/qpdf_p.h"
 
 #ifndef QT_NO_PRINTER
@@ -249,7 +249,7 @@ static FT_Face ft_face(const QFontEngine *engine)
     if (engine->type() == QFontEngine::Freetype) {
         const QFontEngineFT *ft = static_cast<const QFontEngineFT *>(engine);
         return ft->non_locked_face();
-    } else 
+    } else
 #endif
     if (engine->type() == QFontEngine::XLFD) {
         const QFontEngineXLFD *xlfd = static_cast<const QFontEngineXLFD *>(engine);
@@ -278,7 +278,7 @@ QByteArray QFontSubset::glyphName(unsigned int glyph, const QVector<int> reverse
     name[0] = 0;
     if (face && FT_HAS_GLYPH_NAMES(face)) {
 #if defined(Q_WS_X11)
-        if (fontEngine->type() == QFontEngine::XLFD) 
+        if (fontEngine->type() == QFontEngine::XLFD)
             glyphIndex = static_cast<QFontEngineXLFD *>(fontEngine)->glyphIndexToFreetypeGlyphIndex(glyphIndex);
 #endif
         FT_Get_Glyph_Name(face, glyphIndex, &name, 32);
@@ -1389,7 +1389,7 @@ QByteArray QFontSubset::toTruetype() const
         fontEngine->getUnscaledGlyph(g, &path, &metric);
         if (noEmbed) {
             path = QPainterPath();
-            if (g == 0) 
+            if (g == 0)
                 path.addRect(QRectF(0, 0, 1000, 1000));
         }
         QTtfGlyph glyph = generateGlyph(i, path, metric.xoff.toReal(), metric.x.toReal(), properties.emSquare.toReal());
@@ -1424,7 +1424,7 @@ QByteArray QFontSubset::toTruetype() const
         name_table.data = fontEngine->getSfntTable(name_table.tag);
     if (name_table.data.isEmpty()) {
         qttf_name_table name;
-        if (noEmbed) 
+        if (noEmbed)
             name.copyright = "Fake font";
         else
             name.copyright = properties.copyright;
@@ -1442,7 +1442,7 @@ QByteArray QFontSubset::toTruetype() const
         if (!os2.data.isEmpty())
             tables.append(os2);
     }
-    
+
     return bindFont(tables);
 }
 
