@@ -20,14 +20,14 @@
 #include <QTextStream>
 #include <QtXml>
 
-static QByteArray protect(const QByteArray& str)
+static QString protect(const QString & str)
 {
-    QByteArray p = str;
-    p.replace("&", "&amp;");
-    p.replace("\"", "&quot;");
-    p.replace(">", "&gt;");
-    p.replace("<", "&lt;");
-    p.replace("'", "&apos;");
+    QString p = str;
+    p.replace(QLatin1Char('&'),  "&amp;");
+    p.replace(QLatin1Char('\"'), "&quot;");
+    p.replace(QLatin1Char('>'),  "&gt;");
+    p.replace(QLatin1Char('<'),  "&lt;");
+    p.replace(QLatin1Char('\''), "&apos;");
     return p;
 }
 
@@ -150,14 +150,16 @@ bool PhraseBook::save(const QString &filename) const
         return false;
 
     QTextStream t(&f);
+    t.setCodec( QTextCodec::codecForName("UTF-8") );
+
     t << "<!DOCTYPE QPH><QPH>\n";
     ConstIterator p;
     for (p = begin(); p != end(); ++p) {
         t << "<phrase>\n";
-        t << "    <source>" << protect( (*p).source().toUtf8() ) << "</source>\n";
-        t << "    <target>" << protect( (*p).target().toUtf8() ) << "</target>\n";
+        t << "    <source>" << protect( (*p).source() ) << "</source>\n";
+        t << "    <target>" << protect( (*p).target() ) << "</target>\n";
         if (!(*p).definition().isEmpty())
-            t << "    <definition>" << protect( (*p).definition().toUtf8())
+            t << "    <definition>" << protect( (*p).definition() )
               << "</definition>\n";
         t << "</phrase>\n";
     }
