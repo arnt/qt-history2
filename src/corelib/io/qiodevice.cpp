@@ -622,7 +622,7 @@ bool QIODevice::atEnd() const
     printf("%p QIODevice::atEnd() returns %s, d->openMode == %d, d->pos == %d\n", this, (d->openMode == NotOpen || d->pos == size()) ? "true" : "false",
            int(d->openMode), int(d->pos));
 #endif
-    return d->openMode != NotOpen && d->buffer.isEmpty() && (bytesAvailable() == 0);
+    return d->openMode == NotOpen || (d->buffer.isEmpty() && bytesAvailable() == 0);
 }
 
 /*!
