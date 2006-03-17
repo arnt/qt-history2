@@ -510,6 +510,13 @@ bool QFontEngineMacMulti::canRender(const QChar *string, int len)
     return e == noErr || e == kATSUFontsMatched;
 }
 
+#define MAKE_TAG(ch1, ch2, ch3, ch4) (\
+    (((quint32)(ch1)) << 24) | \
+    (((quint32)(ch2)) << 16) | \
+    (((quint32)(ch3)) << 8) | \
+    ((quint32)(ch4)) \
+   )
+
 QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, FMFont fmFont, const QFontDef &def, QFontEngineMacMulti *multiEngine)
     : fmFont(fmFont), multiEngine(multiEngine), cmap(0), symbolCMap(false)
 {
@@ -571,6 +578,15 @@ QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, FMFont fmFont, const QFontDe
     Q_ASSERT(attributeCount < maxAttributeCount + 1);
     status = ATSUSetAttributes(style, attributeCount, tags, sizes, values);
     Q_ASSERT(status == noErr);
+
+    if (ATSFontGetTable(FMGetATSFontRefFromFont(fmFont),
+                        MAKE_TAG('O', 'S', '/', '2'),
+                        /*offset = */8,
+                        /*size = */2, &fsType, 0) == noErr) {
+       fsType = qFromBigEndian<quint16>(fsType); 
+    } else {
+        fsType = 0;
+    }
 }
 
 QFontEngineMac::~QFontEngineMac()
@@ -579,13 +595,6 @@ QFontEngineMac::~QFontEngineMac()
     if (cmap)
         delete [] cmap;
 }
-
-#define MAKE_TAG(ch1, ch2, ch3, ch4) (\
-    (((quint32)(ch1)) << 24) | \
-    (((quint32)(ch2)) << 16) | \
-    (((quint32)(ch3)) << 8) | \
-    ((quint32)(ch4)) \
-   )
 
 static inline quint32 getUInt(unsigned char *p)
 { return qFromBigEndian<quint32>(p); }
