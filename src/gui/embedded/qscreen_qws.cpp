@@ -238,10 +238,16 @@ void QScreenCursor::initSoftwareCursor()
 */
 
 /*!
-     \enum QScreen::PixelType
+    \enum QScreen::PixelType
 
-     \value NormalPixel
-     \value BGRPixel
+    This enum describes the pixel storage format of the screen,
+    i.e. the order of the red (R), green (G) and blue (B) components
+    of a pixel.
+
+    \value NormalPixel Red-green-blue (RGB)
+    \value BGRPixel Blue-green-red (BGR)
+
+    \sa pixelType()
 */
 
 /*!
@@ -257,25 +263,37 @@ the framebuffer. Accelerated drivers use it to set up the graphics card.
 */
 
 /*!
-\fn QScreen::connect(const QString &displaySpec)
-This function is called by every \l {Qtopia Core} application on startup.
-It maps in the framebuffer and in the accelerated drivers the graphics
-card control registers. \a displaySpec has the following syntax:
-\code
-    [screen driver][:driver specific options][:display number]
-\endcode
-for example if you want to use the mach64 driver on fb1 as display 2:
-\code
-    Mach64:/dev/fb1:2
-\endcode
-\a displaySpec is passed in via the QWS_DISPLAY environment variable
-or the -display command line parameter.
+    \fn QScreen::connect(const QString &displaySpec)
+
+    This function is called by every \l {Qtopia Core} application on
+    startup, and must be reimplemented to map in the framebuffer and
+    the accelerated drivers that the graphics card control registers.
+
+    The \a displaySpec argument is passed by the QWS_DISPLAY
+    environment variable or the -display command line parameter, and
+    has the following syntax:
+
+    \code
+        [screen driver][:driver specific options][:display number]
+    \endcode
+
+    For example, to use the mach64 driver on fb1 as display 2:
+
+    \code
+        Mach64:/dev/fb1:2
+    \endcode
+
+    \sa disconnect(), {Running Applications}
 */
 
 /*!
-\fn QScreen::disconnect()
-This function is called by every \l {Qtopia Core} application just
-before exitting; it's normally used to unmap the framebuffer.
+    \fn QScreen::disconnect()
+
+    This function is called by every \l {Qtopia Core} application just
+    before exiting, and should be reimplemented to unmap the
+    framebuffer.
+
+    \sa connect()
 */
 
 /*!
@@ -283,11 +301,24 @@ before exitting; it's normally used to unmap the framebuffer.
 
     This function can be used to set the framebuffer \a width, \a
     height, and \a depth. It's currently unused.
+
+    \omit
+    Sets the framebuffer to a new resolution and bit depth. The width is
+    in \a nw, the height is in \a nh, and the depth is in \a nd. After
+    doing this any currently-existing paint engines will be invalid and the
+    screen should be completely redrawn. In a multiple-process
+    Embedded Qt situation you must signal all other applications to
+    call setMode() to the same mode and redraw.
+    \endomit
 */
 
 /*!
-\fn QScreen::blank(bool on)
-If \a on is true, blank the screen. Otherwise unblank it.
+    \fn QScreen::blank(bool on)
+
+    Reimplement this function to avoid displaying any contents on the
+    screen if \a on is true; otherwise the contents should be shown.
+
+    The default implementation does nothing.
 */
 
 /*!
@@ -317,11 +348,16 @@ Gives the height in pixels of the framebuffer.
 */
 
 /*!
-\fn QScreen::depth() const
-Gives the depth in bits per pixel of the framebuffer. This is the number
-of bits each pixel takes up rather than the number of significant bits,
-so 24bpp and 32bpp express the same range of colors (8 bits of
-red, green and blue)
+    \fn QScreen::depth() const
+
+    Returns the depth (in bits per pixel) of the framebuffer.
+
+    Note that the returned depth is the number of bits each pixel
+    takes up rather than the number of significant bits, so 24bpp and
+    32bpp express the same range of colors (8 bits of red, green and
+    blue).
+
+    \sa clut()
 */
 
 /*!
@@ -336,22 +372,33 @@ Returns the length in bytes of each scanline of the framebuffer.
 */
 
 /*!
-  \fn QScreen::deviceWidth() const
-Gives the full width of the framebuffer device, as opposed to the
-width which \l {Qtopia Core} will actually use. These can differ if the
-display is centered within the framebuffer.
+    \fn QScreen::deviceWidth() const
+
+    Returns the full width of the framebuffer device.
+
+    Note that the returned width can differ from the width which \l
+    {Qtopia Core} will actually use, if the display is centered within
+    the framebuffer.
+
+    \sa deviceHeight()
 */
 
 /*!
-  \fn QScreen::deviceHeight() const
-Gives the full height of the framebuffer device, as opposed to the
-height which \l {Qtopia Core} will actually use. These can differ if the
-display is centered within the framebuffer.
+    \fn QScreen::deviceHeight() const
+
+    Returns the full height of the framebuffer device.
+
+    Note that the returned height can differ from the height which \l
+    {Qtopia Core} will actually use, if the display is centered within
+    the framebuffer.
+
+    \sa deviceWidth()
 */
 
 /*!
-  \fn QScreen::base() const
-Returns a pointer to the start of the framebuffer.
+    \fn uchar *QScreen::base() const
+
+    Returns a pointer to the beginning of the framebuffer.
 */
 
 /*!
@@ -389,15 +436,21 @@ screen. Offscreen memory is only used by the accelerated drivers.
 // drivers
 
 /*!
-  \fn QScreen::QScreen(int display_id)
-  Create a screen; the \a display_id is the number of the \l {Qtopia Core} server
-  to connect to.
+  \fn QScreen::QScreen(int displayId)
+
+  Constructs a QScreen object. The \a displayId identifies the the \l
+  {Qtopia Core} server to connect to.
 */
 
 /*!
-  \fn QScreen::clut()
-  Returns the screen's color lookup table (color palette). This is only
-  valid in paletted modes (8bpp and lower).
+    \fn QScreen::clut()
+
+    Returns the screen's color lookup table (i.e. its color
+    palette). Only valid in paletted modes, i.e. in modes where only
+    palette indexes (and not actual color values) are stored in memory
+    (e.g. 8-bit mode).
+
+    \sa depth()
 */
 
 /*!
@@ -418,7 +471,7 @@ QScreen::QScreen(int display_id)
 }
 
 /*!
-  Destroys a QScreen
+  Destroys this QScreen object.
 */
 
 QScreen::~QScreen()
@@ -429,6 +482,13 @@ QScreen::~QScreen()
   Called by the \l {Qtopia Core} server on shutdown; never called by
   a \l {Qtopia Core} client. This is intended to support graphics card specific
   shutdown; the unaccelerated implementation simply hides the mouse cursor.
+
+  \omit
+  This is called by the \l {Qtopia Core} server when it shuts down, and
+  should be inherited if you need to do any card-specific cleanup.
+  The default version hides the screen cursor and reenables the
+  blinking cursor and screen blanking.
+  \endomit
 */
 
 void QScreen::shutdownDevice()
@@ -446,8 +506,14 @@ extern bool qws_accel; //in qapplication_qws.cpp
  */
 
 /*!
-  Given an RGB value \a r \a g \a b, return an index which is the closest
-  match to it in the screen's palette. Used in paletted modes only.
+    \fn int QScreen::alloc(unsigned int red, unsigned int green, unsigned int blue)
+
+    Returns the index in the screen's palette which is the closest
+    match to the given RGB value (\a red, \a green, \a blue).
+
+    Used in paletted modes only, i.e. in modes where only palette
+    indexes (and not actual color values) are stored in memory
+    (e.g. 8-bit mode).
 */
 
 int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
@@ -659,6 +725,20 @@ QScreen *qt_get_screen(int display_id, const char *spec)
     return 0;
 }
 
+
+/*!
+    \fn void QScreen::exposeRegion(QRegion region, int windowIndex)
+
+    Paints the given \a region on screen. The \a windowIndex parameter
+    refer to the affected windows.
+
+    Note that there is no need to call this function explicitly, but
+    it must be reimplemented in derived classes. It can also be
+    reimplemented to make use of accelerated hardware, but this is
+    typically done by reimplementing the blit() function instead.
+
+    \sa blit()
+*/
 void QScreen::exposeRegion(QRegion r, int changing)
 {
     if (r.isEmpty())
@@ -767,12 +847,11 @@ static void blit_16_to_16(const blit_data *data)
     \fn void QScreen::blit(const QImage &image, const QPoint &topLeft, const QRegion &region)
 
     Copies the given \a region in the given \a image to the point
-    specified by \a topLeft.
+    specified by \a topLeft using device coordinates.
 
-    Can be reimplemented in subclasses to use accelerated hardware.
+    Reimplement this function to use accelerated hardware.
 
-    \omit the base class implementation works in device coordinates,
-    so that transformed drivers can use it \endomit
+    \sa exposeRegion(), {Adding an Accelerated Graphics Driver}
 */
 void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &region)
 {
