@@ -167,11 +167,11 @@ public:
     QGLShareRegister() {}
     ~QGLShareRegister() { reg.clear(); }
 
-    bool checkSharing(const QGLContext *context1, const QGLContext *context2, const QGLContext * start=0) {
+    bool checkSharing(const QGLContext *context1, const QGLContext *context2, const QGLContext * skip=0) {
         QList<const QGLContext *> shares = reg.values(context1);
         for (int k=0; k<shares.size(); ++k) {
             const QGLContext *ctx = shares.at(k);
-            if (ctx == start) // terminates recursion
+            if (ctx == skip) // avoid an indirect circular loop (infinite recursion)
                 continue;
             if (ctx == context2)
                 return true;
@@ -182,16 +182,15 @@ public:
     }
 
     void addShare(const QGLContext *context, const QGLContext *share) {
-        reg.insert(context, share);
+        reg.insert(context, share); // context sharing works both ways
         reg.insert(share, context);
     }
 
     void removeShare(const QGLContext *context) {
-        reg.remove(context);
         QGLSharingHash::iterator it = reg.begin();
         while (it != reg.end()) {
-            if (it.value() == context)
-                reg.erase(it);
+            if (it.key() == context || it.value() == context)
+                it = reg.erase(it);
             else
                 ++it;
         }
