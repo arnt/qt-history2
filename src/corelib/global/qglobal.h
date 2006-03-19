@@ -838,7 +838,6 @@ class QDataStream;
 
 /*
    Create Qt DLL if QT_DLL is defined (Windows only)
-   or QT_SHARED is defined (Kylix only)
 */
 
 #if defined(Q_OS_WIN)
