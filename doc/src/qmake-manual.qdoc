@@ -996,7 +996,7 @@
     For example:
 
     \code
-        LIBS += -lmath -L/usr/local/lib
+        LIBS += -L/usr/local/lib -lmath
     \endcode
 
     By default, the list of libraries stored in \c LIBS is reduced to a list of
