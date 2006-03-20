@@ -2058,10 +2058,6 @@ bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
         return false;
     if (qApp->activePopupWidget() == widget)
         return false;
-    if ((widget->windowType() == Qt::Tool)) {
-        // allow tool windows
-        return false;
-    }
 
     bool blocked = false;
     for (int i = 0; !blocked && i < qt_modal_stack->size(); ++i) {
@@ -2137,7 +2133,7 @@ void QApplicationPrivate::enterModal(QWidget *widget)
     QList<QWidget*> windows = qApp->topLevelWidgets();
     for (int i = 0; i < windows.count(); ++i) {
         QWidget *window = windows.at(i);
-        if (isBlockedByModal(window))
+        if (window->windowType() != Qt::Tool && isBlockedByModal(window))
             blocked.insert(window);
     }
 
@@ -2147,7 +2143,7 @@ void QApplicationPrivate::enterModal(QWidget *widget)
     QEvent e(QEvent::WindowBlocked);
     for (int i = 0; i < windows.count(); ++i) {
         QWidget *window = windows.at(i);
-        if (!blocked.contains(window) && isBlockedByModal(window))
+        if (!blocked.contains(window) && window->windowType() != Qt::Tool && isBlockedByModal(window))
             QApplication::sendEvent(window, &e);
     }
 }
@@ -2160,7 +2156,7 @@ void QApplicationPrivate::leaveModal(QWidget *widget)
     QList<QWidget*> windows = qApp->topLevelWidgets();
     for (int i = 0; i < windows.count(); ++i) {
         QWidget *window = windows.at(i);
-        if (isBlockedByModal(window))
+        if (window->windowType() != Qt::Tool && isBlockedByModal(window))
             blocked.insert(window);
     }
 
@@ -2170,7 +2166,7 @@ void QApplicationPrivate::leaveModal(QWidget *widget)
     QEvent e(QEvent::WindowUnblocked);
     for (int i = 0; i < windows.count(); ++i) {
         QWidget *window = windows.at(i);
-        if(blocked.contains(window) && !isBlockedByModal(window))
+        if(blocked.contains(window) && window->windowType() != Qt::Tool && !isBlockedByModal(window))
             QApplication::sendEvent(window, &e);
     }
 }
