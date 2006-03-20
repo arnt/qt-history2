@@ -1786,38 +1786,59 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     }
         break;
     case PE_IndicatorBranch:
-        if (option->state & State_Children) {
-            painter->save();
-            QPoint center = option->rect.center();
-            // border
-            QRect fullRect(center.x() - 4, center.y() - 4, 9, 9);
-            painter->setPen(borderColor);
-            painter->drawLine(fullRect.left() + 1, fullRect.top(),
-                              fullRect.right() - 1, fullRect.top());
-            painter->drawLine(fullRect.left() + 1, fullRect.bottom(),
-                              fullRect.right() - 1, fullRect.bottom());
-            painter->drawLine(fullRect.left(), fullRect.top() + 1,
-                              fullRect.left(), fullRect.bottom() - 1);
-            painter->drawLine(fullRect.right(), fullRect.top() + 1,
-                              fullRect.right(), fullRect.bottom() - 1);
-            // "antialiased" corners
-            painter->setPen(alphaCornerColor);
-            painter->drawPoint(fullRect.topLeft());
-            painter->drawPoint(fullRect.topRight());
-            painter->drawPoint(fullRect.bottomLeft());
-            painter->drawPoint(fullRect.bottomRight());
-            // fill
-            QRect adjustedRect = fullRect;
-            QRect gradientRect(adjustedRect.left() + 1, adjustedRect.top() + 1,
-                               adjustedRect.right() - adjustedRect.left() - 1,
-                               adjustedRect.bottom() - adjustedRect.top() - 1);
-            qt_plastique_draw_gradient(painter, gradientRect, baseGradientStartColor, baseGradientStopColor);
-            // draw "+" or "-"
-            painter->setPen(alphaTextColor);
-            painter->drawLine(center.x() - 2, center.y(), center.x() + 2, center.y());
-            if (!(option->state & State_Open))
-                painter->drawLine(center.x(), center.y() - 2, center.x(), center.y() + 2);
-            painter->restore();
+        {
+            int mid_h = option->rect.x() + option->rect.width() / 2;
+            int mid_v = option->rect.y() + option->rect.height() / 2;
+            int bef_h = mid_h;
+            int bef_v = mid_v;
+            int aft_h = mid_h;
+            int aft_v = mid_v;
+            QBrush brush(option->palette.dark().color(), Qt::Dense4Pattern);
+            if (option->state & State_Item) {
+                if (option->direction == Qt::RightToLeft)
+                    painter->fillRect(option->rect.left(), mid_v, bef_h - option->rect.left(), 1, brush);
+                else
+                    painter->fillRect(aft_h, mid_v, option->rect.right() - aft_h + 1, 1, brush);
+            }
+            if (option->state & State_Sibling)
+                painter->fillRect(mid_h, aft_v, 1, option->rect.bottom() - aft_v + 1, brush);
+            if (option->state & (State_Open | State_Children | State_Item | State_Sibling))
+                painter->fillRect(mid_h, option->rect.y(), 1, bef_v - option->rect.y(), brush);
+
+            if (option->state & State_Children) {
+                painter->save();
+                QPoint center = option->rect.center();
+                // border
+                QRect fullRect(center.x() - 4, center.y() - 4, 9, 9);
+                painter->setPen(borderColor);
+                painter->drawLine(fullRect.left() + 1, fullRect.top(),
+                                fullRect.right() - 1, fullRect.top());
+                painter->drawLine(fullRect.left() + 1, fullRect.bottom(),
+                                fullRect.right() - 1, fullRect.bottom());
+                painter->drawLine(fullRect.left(), fullRect.top() + 1,
+                                fullRect.left(), fullRect.bottom() - 1);
+                painter->drawLine(fullRect.right(), fullRect.top() + 1,
+                                fullRect.right(), fullRect.bottom() - 1);
+                // "antialiased" corners
+                painter->setPen(alphaCornerColor);
+                painter->drawPoint(fullRect.topLeft());
+                painter->drawPoint(fullRect.topRight());
+                painter->drawPoint(fullRect.bottomLeft());
+                painter->drawPoint(fullRect.bottomRight());
+                // fill
+                QRect adjustedRect = fullRect;
+                QRect gradientRect(adjustedRect.left() + 1, adjustedRect.top() + 1,
+                                adjustedRect.right() - adjustedRect.left() - 1,
+                                adjustedRect.bottom() - adjustedRect.top() - 1);
+                qt_plastique_draw_gradient(painter, gradientRect, baseGradientStartColor, baseGradientStopColor);
+                // draw "+" or "-"
+                painter->setPen(alphaTextColor);
+                painter->drawLine(center.x() - 2, center.y(), center.x() + 2, center.y());
+                if (!(option->state & State_Open))
+                    painter->drawLine(center.x(), center.y() - 2, center.x(), center.y() + 2);
+                painter->restore();
+
+            }
         }
         break;
     default:
