@@ -615,10 +615,13 @@ bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QStringList &lis
     for (int i = 0; i < listNames.count(); ++i) {
         QStringList list = project->values(listNames.at(i));
         for (int j = 0; j < list.count(); ++j) {
+            const QString name = list.at(j);
+            if (name.isEmpty())
+                continue;
             if (project->isActiveConfig("flat"))
-                root.insertFlat(list.at(j), listNames.at(i));
+                root.insertFlat(name, listNames.at(i));
             else
-                root.insertStructured(list.at(j), listNames.at(i));
+                root.insertStructured(name, listNames.at(i));
         }
     }
 
