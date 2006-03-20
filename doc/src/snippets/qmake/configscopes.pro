@@ -9,8 +9,8 @@ release {
     TARGET = application
 }
 
-CONFIG(debug, debug|release) {
-    message(Building in debug mode.)
+CONFIG(opengl) {
+    message(Building with OpenGL support.)
 } else {
-    message(Building in release mode. Ignoring debug if it is available.)
+    message(OpenGL support is not available.)
 }
