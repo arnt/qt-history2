@@ -126,12 +126,12 @@ void QAuServerNAS::play(const QString& filename)
     if (nas) {
         int iv=100;
         AuFixedPoint volume=AuFixedPointFromFraction(iv,100);
-        AuSoundPlayFromFile(nas, filename.local8Bit(), AuNone, volume,
+        AuSoundPlayFromFile(nas, filename.toLocal8Bit().constData(), AuNone, volume,
                             NULL, NULL, NULL, NULL, NULL, NULL);
         AuFlush(nas);
         dataReceived();
         AuFlush(nas);
-        qApp->flushX();
+        qApp->flush();
     }
 }
 
@@ -184,7 +184,7 @@ void QAuServerNAS::play(QSound* s)
         AuFlush(nas);
         dataReceived();
         AuFlush(nas);
-        qApp->flushX();
+        qApp->flush();
     }
 }
 
@@ -196,7 +196,7 @@ void QAuServerNAS::stop(QSound* s)
         AuFlush(nas);
         dataReceived();
         AuFlush(nas);
-        qApp->flushX();
+        qApp->flush();
     }
 }
 
@@ -207,7 +207,7 @@ void QAuServerNAS::init(QSound* s)
 
     if (nas) {
         AuBucketID b_id =
-            AuSoundCreateBucketFromFile(nas, s->fileName().local8Bit(),
+            AuSoundCreateBucketFromFile(nas, s->fileName().toLocal8Bit().constData(),
                                         0 /*AuAccessAllMasks*/, NULL, NULL);
         setBucket(s, new QAuBucketNAS(b_id));
     }
