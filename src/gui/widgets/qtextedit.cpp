@@ -456,7 +456,7 @@ void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QT
     }
 
 #ifndef QT_NO_CURSOR
-    viewport->setCursor(Qt::IBeamCursor);
+    viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
 
     if (!text.isEmpty()) {
@@ -3055,6 +3055,7 @@ void QTextEdit::setReadOnly(bool ro)
 
     if (hasFocus())
         d->setBlinkingCursorEnabled(!ro);
+    d->viewport->setCursor(d->readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
 }
 
 /*!
