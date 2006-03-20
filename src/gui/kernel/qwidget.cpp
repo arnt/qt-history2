@@ -5291,10 +5291,11 @@ bool QWidget::event(QEvent *event)
         break;
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip:
-        if (d->toolTip.size() && isActiveWindow())
+        if (d->toolTip.size() && (testAttribute(Qt::WA_ShowToolTipWhenInactive) || isActiveWindow())) {
             QToolTip::showText(static_cast<QHelpEvent*>(event)->globalPos(), d->toolTip, this);
-        else
+        } else {
             event->ignore();
+        }
         break;
 #endif
 #ifndef QT_NO_WHATSTHIS
@@ -6848,6 +6849,10 @@ void QWidget::setWindowModified(bool mod)
   \property QWidget::toolTip
 
   \brief the widget's tooltip
+
+  Note that by default tooltips are only shown for active windows. You
+  can change this behavior by setting the attribute
+  WA_ShowToolTipWhenInactive to true.
 
   \sa QToolTip statusTip whatsThis
 */
