@@ -452,9 +452,16 @@ bool QLibrary::isLibrary(const QString &fileName)
 #if defined(Q_OS_WIN32)
     bool valid = (suffix == "dll");
 #elif defined(Q_OS_DARWIN)
-    bool valid = (suffix == "dylib"
-            || suffix == "so"
-            || suffix == "bundle");
+    
+    // On Mac, libs look like libmylib.1.0.0.dylib
+    const QString lastSuffix = suffixes.at(suffixes.count() - 1);
+    const QString firstSuffix = suffixes.at(0);
+        
+    bool valid = (lastSuffix == "dylib"
+            || firstSuffix == "so"
+            || firstSuffix == "bundle");
+
+    return valid;
 #elif defined(Q_OS_HPUX)
 /*  
     See "HP-UX Linker and Libraries User's Guide", section "Link-time Differences between PA-RISC and IPF":
