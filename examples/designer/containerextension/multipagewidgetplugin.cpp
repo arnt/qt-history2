@@ -93,7 +93,7 @@ QString MultiPageWidgetPlugin::domXml() const
 {
     return QString("\
     <widget class=\"MultiPageWidget\" name=\"multipagewidget\">\
-        <widget class=\"QWidget\" />\
+        <widget class=\"QWidget\" name=\"page\" />\
     </widget>\
     ");
 }

@@ -39,7 +39,6 @@ QSize MultiPageWidget::sizeHint() const
 void MultiPageWidget::addPage(QWidget *page)
 {
     page->setParent(stackWidget);
-    page->setObjectName("widget");
 
     stackWidget->addWidget(page);
     comboBox->addItem(tr("Page %1").arg(comboBox->count() + 1));
@@ -69,7 +68,6 @@ int MultiPageWidget::currentIndex()
 void MultiPageWidget::insertPage(int index, QWidget *page)
 {
     page->setParent(stackWidget);
-    page->setObjectName("widget");
 
     stackWidget->insertWidget(index, page);
     comboBox->insertItem(index, tr("Page %1").arg(comboBox->count() + 1));
