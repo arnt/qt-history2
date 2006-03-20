@@ -163,12 +163,12 @@ QString QLocalePrivate::month(int index, bool short_format) const
 
 QString QLocalePrivate::day(int index, bool short_format) const
 {
-    if (index < 0 || index >= 7)
+    if (index < 1 || index > 7)
         return QString();
 
     quint32 idx = short_format ? m_short_day_names_idx : m_long_day_names_idx;
     QStringList day_names = QString::fromUtf8(days_data + idx).split(QLatin1Char(';'));
-    return day_names.at(index);
+    return day_names.at(index == 7 ? 0 : index);
 }
 
 #ifndef QT_NO_DATASTREAM
@@ -1634,10 +1634,10 @@ QString QLocale::toString(const QDate &date, const QString &format) const
                         result.append(d->longLongToString(date.day(), -1, 10, 2, QLocalePrivate::ZeroPadded));
                         break;
                     case 3:
-                        result.append(d->day(date.dayOfWeek() - 1, true));
+                        result.append(d->day(date.dayOfWeek(), true));
                         break;
                     case 4:
-                        result.append(d->day(date.dayOfWeek() - 1));
+                        result.append(d->day(date.dayOfWeek()));
                         break;
                     default:
                         break;

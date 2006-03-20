@@ -224,7 +224,7 @@ int QDate::day() const
 }
 
 /*!
-    Returns the weekday for this date.
+    Returns the weekday (1 to 7) for this date.
 
     \sa day(), dayOfYear(), Qt::DayOfWeek
 */
