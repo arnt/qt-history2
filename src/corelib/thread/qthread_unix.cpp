@@ -306,7 +306,8 @@ void QThread::start(Priority priority)
 #endif // _POSIX_THREAD_ATTR_STACKSIZE
 
         if (code) {
-            qWarning("QThread::start: Thread stack size error: %s", strerror(code)) ;
+            qWarning("QThread::start: Thread stack size error: %s",
+                     qPrintable(qt_error_string(code)));
 
             // we failed to set the stacksize, and as the documentation states,
             // the thread will fail to run...
@@ -329,7 +330,7 @@ void QThread::start(Priority priority)
     pthread_attr_destroy(&attr);
 
     if (code) {
-        qWarning("QThread::start: Thread creation error: %s", strerror(code));
+        qWarning("QThread::start: Thread creation error: %s", qPrintable(qt_error_string(code)));
 
         d->running = false;
         d->finished = false;
@@ -371,7 +372,7 @@ void QThread::terminate()
 
     int code = pthread_cancel(d->thread_id);
     if (code) {
-        qWarning("QThread::terminate: Thread termination error: %s", strerror(code));
+        qWarning("QThread::start: Thread termination error: %s", qt_error_string((code)));
     } else {
         d->terminated = true;
     }

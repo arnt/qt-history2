@@ -294,7 +294,7 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
     if (!file.open(QIODevice::ReadOnly)) {
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("%s: %s", (const char*) QFile::encodeName(library),
-            strerror(errno));
+            qPrintable(qt_error_string(errno)));
 #endif
         return false;
     }
@@ -314,7 +314,7 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
     } else {
         // mmap failed
 #if defined(QT_DEBUG_COMPONENT)
-        qWarning("mmap: %s", strerror(errno));
+        qWarning("mmap: %s", qPrintable(qt_error_string(errno)));
 #endif
 #endif // USE_MMAP
         // try reading the data into memory instead
@@ -337,7 +337,7 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
 #ifdef USE_MMAP
     if (mapaddr != MAP_FAILED && munmap(mapaddr, maplen) != 0) {
 #if defined(QT_DEBUG_COMPONENT)
-        qWarning("munmap: %s", strerror(errno));
+        qWarning("munmap: %s", qPrintable(qt_error_string((errno)));
 #endif
     }
 #endif // USE_MMAP

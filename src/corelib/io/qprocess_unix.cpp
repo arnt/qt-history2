@@ -281,12 +281,12 @@ static void qt_create_pipe(int *pipe)
 #ifdef Q_OS_IRIX
     if (::socketpair(AF_UNIX, SOCK_STREAM, 0, pipe) == -1) {
         qWarning("QProcessPrivate::createPipe: Cannot create pipe %p: %s",
-                 pipe, strerror(errno));
+                 pipe, qPrintable(qt_error_string(errno)));
     }
 #else
     if (::pipe(pipe) != 0) {
         qWarning("QProcessPrivate::createPipe: Cannot create pipe %p: %s",
-                 pipe, strerror(errno));
+                 pipe, qPrintable(qt_error_string(errno)));
     }
 #endif
 }

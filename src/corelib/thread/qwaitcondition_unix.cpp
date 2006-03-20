@@ -16,15 +16,15 @@
 #include "qmutex.h"
 #include "qatomic.h"
 #include "qmutex_p.h"
+#include "qstring.h"
 #include <errno.h>
-#include <string.h>
 
 #ifndef QT_NO_THREAD
 
 static void report_error(int code, const char *where, const char *what)
 {
     if (code != 0)
-        qWarning("%s: %s failure: %s", where, what, strerror(code));
+        qWarning("%s: %s failure: %s", where, what, qPrintable(qt_error_string(code)));
 }
 
 

@@ -42,6 +42,7 @@
 #include "qfileinfo.h"
 #include "qhash.h"
 #include "qevent.h"
+#include "qvarlengtharray.h"
 #include "qdebug.h"
 #include <private/qunicodetables_p.h>
 #include <private/qcrashhandler_p.h>
@@ -5567,9 +5568,16 @@ static void sm_performSaveYourself(QSessionManagerPrivate* smd)
     // tell the session manager about our program in best POSIX style
     sm_setProperty(QString::fromLatin1(SmProgram), QString::fromLocal8Bit(qApp->argv()[0]));
     // tell the session manager about our user as well.
-    struct passwd* entry = getpwuid(geteuid());
-    if (entry)
-        sm_setProperty(QString::fromLatin1(SmUserID), QString::fromLatin1(entry->pw_name));
+    struct passwd *entryPtr = 0;
+#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+    QVarLengthArray<char, 1024> buf(sysconf(_SC_GETPW_R_SIZE_MAX));
+    struct passwd entry;
+    getpwuid_r(geteuid(), &entry, buf.data(), buf.size(), &entryPtr);
+#else
+    entryPtr = getpwuid(geteuid());
+#endif
+    if (entryPtr)
+        sm_setProperty(QString::fromLatin1(SmUserID), QString::fromLatin1(entryPtr->pw_name));
 
     // generate a restart and discard command that makes sense
     QStringList restart;

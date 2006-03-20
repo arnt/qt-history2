@@ -21,6 +21,7 @@
 #include "qdir.h"
 #include "qdatetime.h"
 #include "qdebug.h"
+#include "qvarlengtharray.h"
 
 #include <stdlib.h>
 #include <limits.h>
@@ -529,12 +530,29 @@ uint QFSFileEngine::ownerId(FileOwner own) const
 
 QString QFSFileEngine::owner(FileOwner own) const
 {
+#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+    QVarLengthArray<char, 1024> buf(sysconf(_SC_GETPW_R_SIZE_MAX));
+#endif
+
     if(own == OwnerUser) {
-        passwd *pw = getpwuid(ownerId(own));
+        struct passwd *pw = 0;
+#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+        struct passwd entry;
+        getpwuid_r(ownerId(own), &entry, buf.data(), buf.size(), &pw);
+#else
+        pw = getpwuid(ownerId(own));
+#endif
         if(pw)
             return QFile::decodeName(QByteArray(pw->pw_name));
     } else if(own == OwnerGroup) {
-        struct group *gr = getgrgid(ownerId(own));
+        struct group *gr = 0;
+#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+        buf.resize(sysconf(_SC_GETGR_R_SIZE_MAX));
+        struct group entry;
+        getgrgid_r(ownerId(own), &entry, buf.data(), buf.size(), &gr);
+#else
+        gr = getgrgid(ownerId(own));
+#endif
         if(gr)
             return QFile::decodeName(QByteArray(gr->gr_name));
     }
