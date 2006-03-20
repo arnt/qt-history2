@@ -1341,7 +1341,7 @@ void QPrintDialogPrivate::_q_okClicked()
     printer->setNumCopies(numCopies);
     if (printAllButton->isChecked()) {
         q->setPrintRange(QPrintDialog::AllPages);
-        q->setFromTo(q->minPage(), q->maxPage());
+        q->setFromTo(0, 0);
     } else {
         if (printSelectionButton->isChecked()) {
             q->setPrintRange(QPrintDialog::Selection);
