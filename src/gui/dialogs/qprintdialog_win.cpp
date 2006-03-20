@@ -205,8 +205,8 @@ static void qt_win_read_back_PRINTDLGW(PRINTDLGW *pd, QPrintDialogPrivate *d)
         d->toPage = pd->nToPage;
     } else {
         d->printRange = QPrintDialog::AllPages;
-        d->fromPage = d->minPage;
-        d->toPage = d->maxPage;
+        d->fromPage = 0;
+        d->toPage = 0;
     }
 
     d->ep->printToFile = (pd->Flags & PD_PRINTTOFILE) != 0;
