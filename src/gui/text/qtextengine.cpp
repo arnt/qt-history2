@@ -996,14 +996,6 @@ QFixed QTextEngine::width(int from, int len) const
                 continue;
             }
 
-            if (si->isObject) {
-                w += si->width;
-                continue;
-            } else if (si->isTab) {
-                w = nextTab(si, w);
-                continue;
-            }
-
 
             QGlyphLayout *glyphs = this->glyphs(si);
             unsigned short *logClusters = this->logClusters(si);
