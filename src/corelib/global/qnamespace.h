@@ -355,7 +355,7 @@ public:
         WA_NoX11EventCompression = 81,
         WA_TintedBackground = 82,
 
-        WA_ShowToolTipWhenInactive = 83,
+        WA_AlwaysShowToolTips = 83,
 
         // Add new attributes above this
         WA_AttributeCount
