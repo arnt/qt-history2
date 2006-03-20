@@ -622,6 +622,7 @@ void QFileDialog::setFileMode(FileMode mode)
         d->fileTypeCombo->addItem(tr("Directories"));
     }
     d->fileTypeCombo->setEnabled(mode != DirectoryOnly);
+    d->model->refresh(d->rootIndex());
 }
 
 QFileDialog::FileMode QFileDialog::fileMode() const
