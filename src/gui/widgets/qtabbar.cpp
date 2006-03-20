@@ -844,7 +844,7 @@ int QTabBar::currentIndex() const
 void QTabBar::setCurrentIndex(int index)
 {
     Q_D(QTabBar);
-    if (d->validIndex(index)) {
+    if (d->validIndex(index) && d->currentIndex != index) {
         d->currentIndex = index;
         update();
         d->makeVisible(index);
