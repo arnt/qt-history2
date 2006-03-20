@@ -110,15 +110,21 @@ void QAbstractProxyModel::revert()
 
 
 /*!
-  \fn QModelIndex QSortFilterProxyModel::mapToSource(const QModelIndex &proxyIndex) const
+  \fn QModelIndex QAbstractProxyModel::mapToSource(const QModelIndex &proxyIndex) const
 
-  Reimplement this method to map proxy indexes to source indexes.
+  Reimplement this function to return the model index in the source model that
+  corresponds to the \a proxyIndex in the proxy model.
+
+  \sa mapFromSource()
 */
 
 /*!
-  \fn QModelIndex mapFromSource(const QModelIndex &sourceIndex) const
+  \fn QModelIndex QAbstractProxyModel::mapFromSource(const QModelIndex &sourceIndex) const
 
-  Reimplement this method to map source indexes to proxy indexes.
+  Reimplement this function to return the model index in the proxy model that
+  corresponds to the \a sourceIndex from the source model.
+
+  \sa mapToSource()
 */
 
 /*!
