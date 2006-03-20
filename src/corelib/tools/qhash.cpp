@@ -1739,17 +1739,8 @@ void QHashData::checkSanity()
     The items that share the same key are available from most
     recently to least recently inserted.
 
-    A more efficient approach is to use QHashIterator::findNextKey() or
-    QMutableHashIterator::findNextKey():
-
-    \code
-        QHashIterator<QString, int> i(hash);
-        while (i.findNextKey("plenty"))
-            cout << i.value() << endl;
-    \endcode
-
-    If you prefer the STL-style iterators, you can call find() to get
-    the iterator for the first item with a key and iterate from
+    A more efficient approach is to call find() to get
+    the STL-style iterator for the first item with a key and iterate from
     there:
 
     \code
