@@ -197,6 +197,8 @@ void QSvgRenderer::setFramesPerSecond(int num)
 }
 
 /*!
+  \internal
+
     \property QSvgRenderer::currentFrame
     \brief the current frame of the document's animation, or 0 if the document is not animated
 
@@ -215,6 +217,8 @@ void QSvgRenderer::setCurrentFrame(int frame)
 }
 
 /*!
+  \internal
+
     Returns the number of frames in the animation, or 0 if the current document is not
     animated.
 
