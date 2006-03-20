@@ -59,7 +59,7 @@ void my_error_exit (j_common_ptr cinfo)
     my_error_mgr* myerr = (my_error_mgr*) cinfo->err;
     char buffer[JMSG_LENGTH_MAX];
     (*cinfo->err->format_message)(cinfo, buffer);
-    qWarning(buffer);
+    qWarning("%s", buffer);
     longjmp(myerr->setjmp_buffer, 1);
 }
 
