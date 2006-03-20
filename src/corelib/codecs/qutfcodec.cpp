@@ -213,7 +213,8 @@ QByteArray QUtf16Codec::convertFromUnicode(const QChar *uc, int len, ConverterSt
     int length =  2*len;
     if (!state || (!(state->flags & IgnoreHeader))) {
         length += 2;
-    } else if (e == Detect) {
+    }
+    if (e == Detect) {
         endian = (QSysInfo::ByteOrder == QSysInfo::BigEndian) ? BE : LE;
     }
 
