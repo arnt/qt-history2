@@ -330,7 +330,7 @@ const QString::Null QString::null = QString::Null();
     setNum() functions, the number() static functions, and the
     toInt(), toDouble(), and similar functions.
 
-    To get an upper or lower case version of a string use toUpper() or
+    To get an upper- or lowercase version of a string use toUpper() or
     toLower().
 
     If you want to replace all occurrences of a particular substring
@@ -383,7 +383,7 @@ const QString::Null QString::null = QString::Null();
 
     As mentioned above, QString provides a lot of functions and
     operators that make it easy to interoperate with \c{const char *}
-    strings. This functionaly is a two-edged sword: It makes QString
+    strings. This functionaly is a double-edged sword: It makes QString
     more convenient to use if all strings are ASCII or Latin-1, but
     there is always the risk that an implicit conversion from or to
     \c{const char *} is done using the wrong 8-bit encoding. To
@@ -5135,6 +5135,9 @@ QString &QString::setNum(qulonglong n, int base)
 
     The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'.
     See \l{#arg-formats}{arg()} for an explanation of the formats.
+
+    Unlike QLocale::toString(), this function doesn't honor the
+    user's locale settings.
 */
 
 QString &QString::setNum(double n, char f, int prec)
@@ -5179,6 +5182,9 @@ QString &QString::setNum(double n, char f, int prec)
 
     The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'.
     See \l{#arg-formats}{arg()} for an explanation of the formats.
+
+    Unlike QLocale::toString(), this function doesn't honor the
+    user's locale settings.
 */
 
 
@@ -5265,7 +5271,10 @@ QString QString::number(qulonglong n, int base)
     or 'G'. See \l{#arg-formats}{arg()} for an explanation of the
     formats.
 
-    \sa setNum()
+    Unlike QLocale::toString(), this function doesn't honor the
+    user's locale settings.
+
+    \sa setNum(), QLocale::toString()
 */
 QString QString::number(double n, char f, int prec)
 {
@@ -5876,6 +5885,8 @@ QString QString::arg(char a, int fieldWidth, const QChar &fillChar) const
     replaced with a localized representation of \a a. The conversion uses
     the default locale, set by QLocale::setDefaultLocale(). If no default
     locale was specified, the "C" locale is used.
+
+    \sa QLocale::toString()
 */
 QString QString::arg(double a, int fieldWidth, char fmt, int prec, const QChar &fillChar) const
 {
