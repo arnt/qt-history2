@@ -950,8 +950,8 @@ void QListView::paintEvent(QPaintEvent *e)
                              ? option.palette.brush(QPalette::AlternateBase)
                              : option.palette.brush(QPalette::Base));
             alternateBase = !alternateBase;
+            painter.fillRect(option.rect, painter.brush());
         }
-        painter.fillRect(option.rect, painter.brush());
         delegate->paint(&painter, option, *it);
     }
 
