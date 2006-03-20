@@ -1537,8 +1537,9 @@ void QWidgetPrivate::show_sys()
             QWidget *p = q->parentWidget();
             if (p)
                 p = p->window();
-            if (p && (data.window_modality == Qt::NonModal
-                      || data.window_modality == Qt::WindowModal)) {
+            if (p && (p->window()->isModal()
+                      || (data.window_modality == Qt::NonModal
+                          || data.window_modality == Qt::WindowModal))) {
                 // transient for window
                 XSetTransientForHint(X11->display, q->winId(), p->winId());
             } else {
