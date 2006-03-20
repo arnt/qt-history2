@@ -27,10 +27,10 @@
     \skipto QTableView *view = new
     \printuntil setItemDelegate
 
-    The \l{sql/relationaltablemodel} example (shown below)
-    illustrates how to use QSqlRelationalDelegate in conjunction with
-    QSqlRelationalTableModel to provide tables with foreigh key
-    support.
+    The \l{sql/relationaltablemodel}{Relational Table Model} example
+    (shown below) illustrates how to use QSqlRelationalDelegate in
+    conjunction with QSqlRelationalTableModel to provide tables with
+    foreign key support.
 
     \image relationaltable.png
 
