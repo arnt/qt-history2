@@ -75,9 +75,20 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \reentrant
 
     To start a process, pass the name and command line arguments of
-    the program you want to run as arguments to start(). QProcess then
-    enters the \l Starting state, and when the program has started,
-    QProcess enters the \l Running state and emits started().
+    the program you want to run as arguments to start(). For example:
+
+    \quotefromfile snippets/qprocess/qprocess-simpleexecution.cpp
+    \skipto parent
+    \printline parent
+    \dots
+    \skipto program
+    \printline program
+    \skipto QStringList
+    \printuntil start
+
+    QProcess then enters the \l Starting state, and when the program
+    has started, QProcess enters the \l Running state and emits
+    started().
 
     QProcess allows you to treat a process as a sequential I/O
     device. You can write to and read from the process just as you
