@@ -927,6 +927,7 @@ void QTextEditPrivate::_q_setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     \row \i Alt+Wheel
          \i Scrolls the page horizontally (the Wheel is the mouse wheel).
     \row \i Ctrl+Wheel        \i Zooms the text.
+    \row \i Ctrl+A            \i Selects all text.
     \endtable
 
     The text edit may be able to provide some meta-information. For
@@ -970,17 +971,9 @@ void QTextEditPrivate::_q_setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     \header \i Keypresses \i Action
     \row \i Backspace \i Deletes the character to the left of the cursor.
     \row \i Delete \i Deletes the character to the right of the cursor.
-    \row \i Ctrl+A \i Moves the cursor to the beginning of the line.
-    \row \i Ctrl+B \i Moves the cursor one character to the left.
     \row \i Ctrl+C \i Copy the selected text to the clipboard.
     \row \i Ctrl+Insert \i Copy the selected text to the clipboard.
-    \row \i Ctrl+D \i Delete the character to the right of the cursor.
-    \row \i Ctrl+E \i Moves the cursor to the end of the line.
-    \row \i Ctrl+F \i Moves the cursor one character to the right.
-    \row \i Ctrl+H \i Deletes the character to the left of the cursor.
     \row \i Ctrl+K \i Deletes to the end of the line.
-    \row \i Ctrl+N \i Moves the cursor one line down.
-    \row \i Ctrl+P \i Moves the cursor one line up.
     \row \i Ctrl+V \i Pastes the clipboard text into text edit.
     \row \i Shift+Insert \i Pastes the clipboard text into text edit.
     \row \i Ctrl+X \i Deletes the selected text and copies it to the clipboard.
