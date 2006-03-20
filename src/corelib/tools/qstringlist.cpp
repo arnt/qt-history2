@@ -276,8 +276,20 @@ void QtPrivate::QStringList_sort(QStringList *that)
     \code
         QStringList list;
         list << "Bill Murray" << "John Doe" << "Bill Clinton";
-        list = list.filter("Bill");
-        // list: ["Bill Murray", "Bill Clinton"]
+
+        QStringList result = list.filter("Bill");
+        // result: ["Bill Murray", "Bill Clinton"]
+    \endcode
+
+    This is equivalent to
+
+    \code
+        QStringList result;
+
+        foreach (QString str, list) {
+            if (str.contains("Bill"))
+                result += str;
+        }
     \endcode
 
     \sa QString::contains()
