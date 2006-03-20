@@ -118,8 +118,7 @@ public:
     }
 
     inline QHeaderView::ResizeMode visualIndexResizeMode(int visual) const {
-        return (sectionResizeMode.count() <= visual
-                ? globalResizeMode : sectionResizeMode.at(visual));
+        return headerSectionResizeMode(visual); // ### remove this
     }
     
     inline bool hasAutoResizeSections() const {
@@ -141,7 +140,6 @@ public:
     int sortIndicatorSection;
     bool sortIndicatorShown;
 
-    mutable QVector<QHeaderView::ResizeMode> sectionResizeMode;
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
     mutable QVector<int> logicalIndices; // logicalIndex = row or column in the model
     mutable QBitArray sectionSelected;
@@ -174,14 +172,16 @@ public:
     struct SectionSpan {
         int size;
         int count;
-        inline SectionSpan() : size(0), count(0) {}
-        inline SectionSpan(int length, int sections) : size(length), count(sections) {}
+        QHeaderView::ResizeMode resizeMode;
+        inline SectionSpan() : size(0), count(0), resizeMode(QHeaderView::Interactive) {}
+        inline SectionSpan(int length, int sections, QHeaderView::ResizeMode mode)
+            : size(length), count(sections), resizeMode(mode) {}
         inline int sectionSize() const { return size / count; }
     };
 
     QVector<SectionSpan> sectionSpans;
 
-    void createSectionSpan(int start, int end, int size);
+    void createSectionSpan(int start, int end, int size, QHeaderView::ResizeMode mode);
     void removeSectionsFromSpans(int start, int end);
 
     inline int headerSectionCount() const { // for debugging
@@ -205,9 +205,26 @@ public:
         }
     }
 
+    inline int sectionSpanIndex(int visual) const {
+        int section_start = 0;
+        for (int i = 0; i < sectionSpans.count(); ++i) {
+            int section_end = section_start + sectionSpans.at(i).count - 1;
+            if (visual >= section_start && visual <= section_end)
+                return i;
+            section_start = section_end + 1;
+        }
+        return -1;
+    }
+
     int headerSectionSize(int visual) const;
     int headerSectionPosition(int visual) const;
     int headerVisualIndexAt(int position) const;
+
+    // resize mode
+    void setHeaderSectionResizeMode(int visual, QHeaderView::ResizeMode mode);
+    QHeaderView::ResizeMode headerSectionResizeMode(int visual) const;
+    void setGlobalHeaderResizeMode(QHeaderView::ResizeMode mode);
+    
 };
 
 #endif // QT_NO_ITEMVIEWS
