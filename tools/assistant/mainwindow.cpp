@@ -408,18 +408,22 @@ void MainWindow::showLinks(const QStringList &links)
         return;
     }
 
-    pendingLinks = links;
-
-    QStringList::ConstIterator it = pendingLinks.begin();
+    QStringList::ConstIterator it = links.begin();
     // Initial showing, The tab is empty so update that without creating it first
     if (!tabs->currentBrowser()->source().isValid()) {
-        pendingBrowsers.append(tabs->currentBrowser());
-        tabs->setTitle(tabs->currentBrowser(), pendingLinks.first());
+        QPair<HelpWindow*, QString> browser;
+        browser.first = tabs->currentBrowser();
+        browser.second = links.first();
+        pendingBrowsers.append(browser);
+        tabs->setTitle(tabs->currentBrowser(), links.first());
     }
     ++it;
 
-    while(it != pendingLinks.end()) {
-        pendingBrowsers.append(tabs->newBackgroundTab(*it));
+    while(it != links.end()) {
+        QPair<HelpWindow*, QString> browser;
+        browser.first = tabs->newBackgroundTab(*it);
+        browser.second = *it;
+        pendingBrowsers.append(browser);
         ++it;
     }
 
@@ -427,16 +431,30 @@ void MainWindow::showLinks(const QStringList &links)
     return;
 }
 
+void MainWindow::removePendingBrowser(HelpWindow *win)
+{
+    if (!pendingBrowsers.count())
+        return;
+
+    QMutableListIterator<QPair<HelpWindow*, QString> > it(pendingBrowsers);
+    while (it.hasNext()) {
+        QPair<HelpWindow*, QString> browser = it.next();
+        if (browser.first == win) {
+            it.remove();
+            break;
+        }
+    }
+}
+
 void MainWindow::timerEvent(QTimerEvent *e)
 {
-    QString link = pendingLinks.first();
-    HelpWindow *win = pendingBrowsers.first();
-    pendingLinks.pop_front();
-    pendingBrowsers.removeFirst();
-    if (pendingLinks.size() == 0)
+    QPair<HelpWindow*, QString> browser = pendingBrowsers.first();
+    pendingBrowsers.pop_front();
+    
+    if (pendingBrowsers.size() == 0)
         killTimer(e->timerId());
 
-    win->setSource(MainWindow::urlifyFileName(link));
+    browser.first->setSource(MainWindow::urlifyFileName(browser.second));
 }
 
 void MainWindow::showQtHelp()

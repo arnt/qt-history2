@@ -254,6 +254,7 @@ void TabbedBrowser::closeTab()
     if(ui.tab->count()==1)
         return;
     HelpWindow *win = currentBrowser();
+    mainWindow()->removePendingBrowser(win);
     ui.tab->removeTab(ui.tab->indexOf(win));
     QTimer::singleShot(0, win, SLOT(deleteLater()));
     ui.tab->cornerWidget(Qt::TopRightCorner)->setEnabled(ui.tab->count() > 1);

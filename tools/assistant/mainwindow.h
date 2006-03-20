@@ -38,6 +38,8 @@ public:
     void setupPopupMenu(QMenu *menu);
     static QString urlifyFileName(const QString &fileName);
 
+    void removePendingBrowser(HelpWindow *win);
+
 public slots:
     MainWindow *newWindow();
 
@@ -95,8 +97,7 @@ private:
     QDockWidget *dw;
     static QList<MainWindow*> windows;
     QMap<QAction*,QString> *goActionDocFiles;
-    QStringList pendingLinks;
-    QList<HelpWindow*> pendingBrowsers;
+    QList<QPair<HelpWindow*,QString> > pendingBrowsers;
 };
 
 #endif // MAINWINDOW_H
