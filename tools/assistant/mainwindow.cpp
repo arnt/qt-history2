@@ -212,6 +212,7 @@ void MainWindow::setupGoActions()
             }
             action = new QAction(this);
             action->setText(title);
+            action->setWhatsThis(tr("Displays the main page of a specific documentation set."));
             action->setIcon(QIcon(pix));
             ui.goMenu->addAction(action);
             ui.goActionToolbar->addAction(action);
