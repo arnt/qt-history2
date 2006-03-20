@@ -1068,6 +1068,12 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
 	hint_style = X11->fc_hint_style;
 #endif
 
+    autohint = false;
+#ifdef FC_AUTOHINT
+    if (FcPatternGetBool(pattern, FC_AUTOHINT, 0, &b) == FcResultMatch)
+        autohint = b;
+#endif
+
     face_id = ::face_id(pattern);
 
     freetype = QFreetypeFace::getFace(face_id);
@@ -1243,6 +1249,11 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
         load_flags = FT_LOAD_NO_HINTING;
     else if (fe->hint_style < FC_HINT_FULL)
         load_flags |= FT_LOAD_TARGET_LIGHT;
+#endif
+
+#ifdef FT_LOAD_FORCE_AUTOHINT
+    if (autohint)
+        load_flags |= FT_LOAD_FORCE_AUTOHINT;
 #endif
 
     bool transform = fe->transform

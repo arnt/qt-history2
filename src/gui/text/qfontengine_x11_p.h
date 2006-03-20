@@ -64,7 +64,7 @@ public:
 #endif
     QByteArray getSfntTable(uint tag) const;
     int synthesized() const;
-    
+
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
                       QTextEngine::ShaperFlags flags) const;
 
@@ -130,7 +130,7 @@ public:
     void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
     QByteArray getSfntTable(uint tag) const;
     int synthesized() const;
-    
+
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
                       QTextEngine::ShaperFlags flags) const;
 
@@ -188,6 +188,7 @@ private:
     int subpixel;
     bool transform;
     int hint_style;
+    bool autohint;
     FT_Matrix matrix;
 
 public:
