@@ -305,10 +305,10 @@
     \target GeneralConfiguration
     \section1 General Configuration
 
-    The \c CONFIG variable specifies the options and features that the compiler
-    should use and the libraries that should be linked against. Anything can be
-    added to the \c CONFIG variable, but the options covered below are
-    recognized by \c qmake internally.
+    The \l{qmake Variable Reference#CONFIG}{CONFIG variable} specifies the
+    options and features that the compiler should use and the libraries that
+    should be linked against. Anything can be added to the \c CONFIG variable,
+    but the options covered below are recognized by \c qmake internally.
 
     The following options control the compiler flags that are used to build the
     project:
@@ -332,12 +332,12 @@
     You can test for the presence of certain configuration options by using the
     built-in \l{qmake Function Reference#CONFIG(config)}{CONFIG()} function.
     For example, the following lines show the function as the condition in a scope
-    to test whether only the \c debug option is in use:
+    to test whether only the \c opengl option is in use:
 
     \quotefromfile snippets/qmake/configscopes.pro
     \skipto CONFIG(
-    \printuntil release mode
-    \printuntil }
+    \printuntil else
+    \printuntil /^\}$/
 
     The following options define the type of project to be built. Note that some
     of these options only take effect when used on the relevant platform. On other
