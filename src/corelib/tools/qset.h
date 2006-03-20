@@ -45,6 +45,7 @@ public:
 
     inline void detach() { q_hash.detach(); }
     inline bool isDetached() const { return q_hash.isDetached(); }
+    inline void setSharable(bool sharable) { q_hash.setSharable(sharable); }
 
     inline void clear() { q_hash.clear(); }
 
@@ -87,6 +88,9 @@ public:
     inline const_iterator constBegin() const { return q_hash.constBegin(); }
     inline const_iterator end() const { return q_hash.end(); }
     inline const_iterator constEnd() const { return q_hash.constEnd(); }
+    const_iterator erase(const_iterator i)
+        { return Hash::const_iterator(
+                         q_hash.erase(reinterpret_cast<const typename Hash::iterator &>(i))); }
 
     // more Qt
     typedef const_iterator ConstIterator;
@@ -94,6 +98,8 @@ public:
     inline const_iterator insert(const T &value)
         { return static_cast<typename Hash::const_iterator>(q_hash.insert(value,
                                                                           QHashDummyValue())); }
+    const_iterator find(const T &value) const { return q_hash.find(value); }
+    inline const_iterator constFind(const T &value) const { return find(value); }
     QSet<T> &unite(const QSet<T> &other);
     QSet<T> &intersect(const QSet<T> &other);
     QSet<T> &subtract(const QSet<T> &other);
@@ -208,5 +214,40 @@ QList<T> QList<T>::fromSet(const QSet<T> &set)
 }
 
 Q_DECLARE_SEQUENTIAL_ITERATOR(Set)
+
+template <typename T>
+class QMutableSetIterator
+{
+    typedef typename QSet<T>::const_iterator const_iterator;
+    QSet<T> *c;
+    const_iterator i, n;
+    inline bool item_exists() const { return n != c->constEnd(); }
+
+public:
+    inline QMutableSetIterator(QSet<T> &container)
+        : c(&container)
+    { c->setSharable(false); i = c->begin(); n = c->end(); }
+    inline ~QMutableSetIterator()
+    { c->setSharable(true); }
+    inline QMutableSetIterator &operator=(QSet<T> &container)
+    { c->setSharable(true); c = &container; c->setSharable(false);
+      i = c->begin(); n = c->end(); return *this; }
+    inline void toFront() { i = c->begin(); n = c->end(); }
+    inline void toBack() { i = c->end(); n = i; }
+    inline bool hasNext() const { return c->constEnd() != i; }
+    inline const T &next() { n = i++; return *n; }
+    inline const T &peekNext() const { return *i; }
+    inline bool hasPrevious() const { return c->constBegin() != i; }
+    inline const T &previous() { n = --i; return *n; }
+    inline const T &peekPrevious() const { const_iterator p = i; return *--p; }
+    inline void remove()
+    { if (c->constEnd() != n) { i = c->erase(n); n = c->end(); } }
+    inline const T &value() const { Q_ASSERT(item_exists()); return *n; }
+    inline bool findNext(const T &t)
+    { while (c->constEnd() != (n = i)) if (*i++ == t) return true; return false; }
+    inline bool findPrevious(const T &t)
+    { while (c->constBegin() != i) if (*(n = --i) == t) return true;
+      n = c->end(); return false;  }
+};
 
 #endif // QSET_H

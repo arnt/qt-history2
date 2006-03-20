@@ -194,7 +194,10 @@
     easier to use than the STL-style iterators; on the other hand,
     they are slightly less efficient.
 
-    QSetIterator\<T\> allows you to iterate over a QSet\<T\>.
+    QSetIterator\<T\> allows you to iterate over a QSet\<T\>. If you
+    want to modify the set as you iterate over it, use
+    QMutableSetIterator\<T\> instead.
+
     The constructor takes a QSet as argument. After construction, the
     iterator is located at the very beginning of the set (before
     the first item). Here's how to iterate over all the elements
@@ -236,7 +239,7 @@
     will continue iterating over the original set, ignoring the
     modified copy.
 
-    \sa QSet::const_iterator
+    \sa QMutableSetIterator, QSet::const_iterator
 */
 
 /*! 
@@ -495,6 +498,68 @@
     \sa QVectorIterator, QVector::iterator
 */
 
+/*! 
+    \class QMutableSetIterator
+    \inmodule QtCore
+    \since 4.2
+
+    \brief The QMutableSetIterator class provides a Java-style non-const iterator for QSet.
+
+    QSet has both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QMutableSetIterator\<T\> allows you to iterate over a QSet\<T\>
+    and remove items from the set as you iterate. If you don't want
+    to modify the set (or have a const QSet), use the slightly faster
+    QSetIterator\<T\> instead.
+
+    The QMutableSetIterator constructor takes a QSet as argument.
+    After construction, the iterator is located at the very beginning
+    of the set (before the first item). Here's how to iterate over
+    all the elements sequentially:
+
+    \code
+        QSet<float> set;
+        ...
+        QMutableSetIterator<float> i(set);
+        while (i.hasNext())
+	    qDebug() << i.next();
+    \endcode
+
+    The next() function returns the next item in the set and
+    advances the iterator. Unlike STL-style iterators, Java-style
+    iterators point \e between items rather than directly \e at
+    items. The first call to next() advances the iterator to the
+    position between the first and second item, and returns the first
+    item; the second call to next() advances the iterator to the
+    position between the second and third item, returning the second
+    item; and so on.
+
+    \img javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \code
+        QMutableSetIterator<float> i(set);
+        i.toBack();
+        while (i.hasPrevious())
+	    qDebug() << i.previous();
+    \endcode
+
+    If you want to remove items as you iterate over the set, use
+    remove().
+
+    Only one mutable iterator can be active on a given set at any
+    time. Furthermore, no changes should be done directly to the set
+    while the iterator is active (as opposed to through the
+    iterator), since this could invalidate the iterator and lead to
+    undefined behavior.
+
+    \sa QSetIterator, QSet::const_iterator
+*/
+
 /*!
     \fn QListIterator::QListIterator(const QList<T> &list)
     \fn QLinkedListIterator::QLinkedListIterator(const QLinkedList<T> &list)
@@ -519,6 +584,7 @@
 
 /*!
     \fn QSetIterator::QSetIterator(const QSet<T> &set)
+    \fn QMutableSetIterator::QMutableSetIterator(QSet<T> &set)
 
     Constructs an iterator for traversing \a set. The iterator is
     set to be at the front of the set (before the first item).
@@ -530,6 +596,7 @@
     \fn QMutableListIterator::~QMutableListIterator()
     \fn QMutableLinkedListIterator::~QMutableLinkedListIterator()
     \fn QMutableVectorIterator::~QMutableVectorIterator()
+    \fn QMutableSetIterator::~QMutableSetIterator()
 
     Destroys the iterator.
 
@@ -557,6 +624,7 @@
 */
 
 /*! \fn QSetIterator &QSetIterator::operator=(const QSet<T> &set)
+    \fn QMutableSetIterator &QMutableSetIterator::operator=(QSet<T> &set)
 
     Makes the iterator operate on \a set. The iterator is set to be
     at the front of the set (before the first item).
@@ -571,6 +639,7 @@
     \fn void QMutableListIterator::toFront()
     \fn void QMutableLinkedListIterator::toFront()
     \fn void QMutableVectorIterator::toFront()
+    \fn void QMutableSetIterator::toFront()
 
     Moves the iterator to the front of the container (before the
     first item).
@@ -585,6 +654,7 @@
     \fn void QMutableListIterator::toBack()
     \fn void QMutableLinkedListIterator::toBack()
     \fn void QMutableVectorIterator::toBack()
+    \fn void QMutableSetIterator::toBack()
 
     Moves the iterator to the back of the container (after the last
     item).
@@ -599,6 +669,7 @@
     \fn bool QMutableListIterator::hasNext() const
     \fn bool QMutableLinkedListIterator::hasNext() const
     \fn bool QMutableVectorIterator::hasNext() const
+    \fn bool QMutableSetIterator::hasNext() const
 
     Returns true if there is at least one item ahead of the iterator,
     i.e. the iterator is \e not at the back of the container;
@@ -611,6 +682,7 @@
     \fn const T &QLinkedListIterator::next()
     \fn const T &QVectorIterator::next()
     \fn const T &QSetIterator::next()
+    \fn const T &QMutableSetIterator::next()
 
     Returns the next item and advances the iterator by one position.
 
@@ -637,6 +709,7 @@
     \fn const T &QLinkedListIterator::peekNext() const
     \fn const T &QVectorIterator::peekNext() const
     \fn const T &QSetIterator::peekNext() const
+    \fn const T &QMutableSetIterator::peekNext() const
 
     Returns the next item without moving the iterator.
 
@@ -665,6 +738,7 @@
     \fn bool QMutableListIterator::hasPrevious() const
     \fn bool QMutableLinkedListIterator::hasPrevious() const
     \fn bool QMutableVectorIterator::hasPrevious() const
+    \fn bool QMutableSetIterator::hasPrevious() const
 
     Returns true if there is at least one item behind the iterator,
     i.e. the iterator is \e not at the front of the container;
@@ -677,6 +751,7 @@
     \fn const T &QLinkedListIterator::previous()
     \fn const T &QVectorIterator::previous()
     \fn const T &QSetIterator::previous()
+    \fn const T &QMutableSetIterator::previous()
 
     Returns the previous item and moves the iterator back by one
     position.
@@ -704,6 +779,7 @@
     \fn const T &QLinkedListIterator::peekPrevious() const
     \fn const T &QVectorIterator::peekPrevious() const
     \fn const T &QSetIterator::peekPrevious() const
+    \fn const T &QMutableSetIterator::peekPrevious() const
 
     Returns the previous item without moving the iterator.
 
@@ -732,6 +808,7 @@
     \fn bool QMutableListIterator::findNext(const T &value)
     \fn bool QMutableLinkedListIterator::findNext(const T &value)
     \fn bool QMutableVectorIterator::findNext(const T &value)
+    \fn bool QMutableSetIterator::findNext(const T &value)
 
     Searches for \a value starting from the current iterator position
     forward. Returns true if \a value is found; otherwise returns false.
@@ -750,6 +827,7 @@
     \fn bool QMutableListIterator::findPrevious(const T &value)
     \fn bool QMutableLinkedListIterator::findPrevious(const T &value)
     \fn bool QMutableVectorIterator::findPrevious(const T &value)
+    \fn bool QMutableSetIterator::findPrevious(const T &value)
 
     Searches for \a value starting from the current iterator position
     backward. Returns true if \a value is found; otherwise returns
@@ -805,7 +883,7 @@
 
     Example:
     \code
-	QMutableVectorIterator<int> i(list);
+	QMutableVectorIterator<int> i(vector);
         while (i.hasNext()) {
 	    int val = i.next();
             if (val < -32768 || val > 32767)
@@ -814,6 +892,24 @@
     \endcode
 
     \sa insert(), setValue()
+*/
+
+/*! \fn void QMutableSetIterator::remove()
+
+    Removes the last item that was jumped over using one of the
+    traversal functions (next(), previous(), findNext(), findPrevious()).
+
+    Example:
+    \code
+	QMutableSetIterator<int> i(set);
+        while (i.hasNext()) {
+	    int val = i.next();
+            if (val < -32768 || val > 32767)
+		i.remove();
+        }
+    \endcode
+
+    \sa value()
 */
 
 /*! \fn void QMutableListIterator::setValue(const T &value) const
@@ -879,6 +975,7 @@
 /*! \fn const T &QMutableListIterator::value() const
     \fn const T &QMutableLinkedListIterator::value() const
     \fn const T &QMutableVectorIterator::value() const
+    \fn const T &QMutableSetIterator::value() const
 
     Returns the value of the last item that was jumped over using one
     of the traversal functions (next(), previous(), findNext(),
@@ -887,8 +984,6 @@
     After a call to next() or findNext(), value() is equivalent to
     peekPrevious(). After a call to previous() or findPrevious(), value() is
     equivalent to peekNext().
-
-    \sa setValue()
 */
 
 /*!

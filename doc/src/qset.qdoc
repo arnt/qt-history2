@@ -39,7 +39,7 @@
 
     If you want to navigate through all the values stored in a QSet,
     you can use an iterator. QSet supports both \l{Java-style
-    iterators} (QSetIterator) and \l{STL-style iterators}
+    iterators} (QSetIterator and QMutableSetIterator) and \l{STL-style iterators}
     (QSet::const_iterator). Here's how to iterate over a QSet<QWidget
     *> using a Java-style iterator:
 
@@ -90,7 +90,7 @@
     isn't necessary to obtain good performance. You can also call
     capacity() to retrieve the hash table's size.
 
-    \sa QSetIterator, QHash, QMap
+    \sa QSetIterator, QMutableSetIterator, QHash, QMap
 */
 
 /*!
@@ -239,6 +239,11 @@
 */
 
 /*!
+    \fn void QSet::setSharable(bool sharable)
+    \internal
+*/
+
+/*!
     \fn void QSet::clear()
 
     Removes all elements from the set.
@@ -256,12 +261,41 @@
 */
 
 /*!
+    \fn QSet::const_iterator QSet::erase(const_iterator pos)
+
+    Removes the item associated with the iterator \a pos from the
+    set, and returns an iterator to the next item in the set.
+
+    Unlike remove(), this function never causes QSet to rehash its
+    internal data structure. This means that it can safely be called
+    while iterating, and won't affect the order of items in the set.
+
+    \sa remove(), find()
+*/
+
+/*! \fn QSet::const_iterator QSet::find(const T &value) const
+
+    Returns an iterator pointing to the item \a value in the set.
+
+    If the set contains no item \a value, the function returns end().
+
+    \sa contains()
+*/
+
+/*! \fn QSet::const_iterator QSet::constFind(const T &value) const
+
+    Same as find(\a value).
+
+    \sa contains()
+*/
+
+/*!
     \fn bool QSet::contains(const T &value) const
 
     Returns true if the set contains item \a value; otherwise returns
     false.
 
-    \sa insert(), remove()
+    \sa insert(), remove(), find()
 */
 
 /*!
@@ -479,7 +513,7 @@
     Multiple iterators can be used on the same set. However, you may
     not attempt to modify the container while iterating on it.
 
-    \sa QSetIterator
+    \sa QSetIterator, QMutableSetIterator
 */
 
 /*! \fn QSet::const_iterator::const_iterator()

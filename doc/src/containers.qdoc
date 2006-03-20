@@ -241,7 +241,7 @@
     \row    \o QVector<T>, QStack<T>              \o QVectorIterator<T>
                                                   \o QMutableVectorIterator<T>
     \row    \o QSet<T>                            \o QSetIterator<T>
-                                                  \o N/A
+                                                  \o QMutableSetIterator<T>
     \row    \o QMap<Key, T>, QMultiMap<Key, T>    \o QMapIterator<Key, T>
                                                   \o QMutableMapIterator<Key, T>
     \row    \o QHash<Key, T>, QMultiHash<Key, T>  \o QHashIterator<Key, T>
