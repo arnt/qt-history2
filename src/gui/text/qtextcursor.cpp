@@ -1052,27 +1052,28 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
 
         QTextBlockFormat blockFmt = blockFormat();
 
-        bool seenCRLF = false;
-
         int textStart = 0;
         for (int i = 0; i < text.length(); ++i) {
             QChar ch = text.at(i);
-            if (ch == QLatin1Char('\n')
-                || ch == QChar::ParagraphSeparator) {
 
-                const int textEnd = (seenCRLF ? i - 1 : i);
+            const int textEnd = i;
+
+            if (ch == QLatin1Char('\r')
+                && (i + 1) < text.length()
+                && text.at(i + 1) == QLatin1Char('\n')) {
+                ++i;
+                ch = text.at(i);
+            }
+
+            if (ch == QLatin1Char('\n')
+                || ch == QChar::ParagraphSeparator
+                || ch == QLatin1Char('\r')) {
 
                 if (textEnd > textStart)
                     d->priv->insert(d->position, QString(text.unicode() + textStart, textEnd - textStart), formatIdx);
 
                 textStart = i + 1;
                 d->insertBlock(blockFmt, format);
-
-                seenCRLF = false;
-            } else if (ch == QLatin1Char('\r')
-                       && (i + 1) < text.length()
-                       && text.at(i + 1) == QLatin1Char('\n')) {
-                seenCRLF = true;
             }
         }
         if (textStart < text.length())
