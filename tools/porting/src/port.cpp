@@ -93,7 +93,7 @@ void usage(const OptionList &optionList)
     // Print the options, pad with spaces between the argument and description where needed.
     const int extraSpaces = 5;
     foreach (const Option option, optionList) {
-        printf(option.argument.toLocal8Bit().constData());
+        printf("%s", option.argument.toLocal8Bit().constData());
         for (int i = 0; i < argumentMaxLenght - option.argument.count() + extraSpaces; ++i)
             printf(" ");
         puts(option.description.toLocal8Bit().constData());

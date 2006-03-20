@@ -10,6 +10,7 @@ QT = xml core
 DEPENDPATH += .
 TARGET =qt3to4
 DESTDIR = ../../../bin
+DEFINES += QT_NO_CAST_TO_ASCII
 
 HEADERS +=  smallobject.h             \
             tokenengine.h             \

@@ -144,7 +144,7 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents)
 
         insertText += "//Added by qt3to4:\n";
         logText += "In file ";
-        logText += Logger::instance()->globalState.value("currentFileName");
+        logText += Logger::instance()->globalState.value("currentFileName").toLocal8Bit();
         logText += ": Added the following include directives:\n";
         foreach (QByteArray headerName, insertHeaders) {
             insertText = insertText + headerName + "\n";
