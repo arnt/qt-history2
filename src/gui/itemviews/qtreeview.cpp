@@ -2169,38 +2169,26 @@ void QTreeViewPrivate::updateScrollBars()
 {
     Q_Q(QTreeView);
 
-    QSize vsize = viewport->size();
-    QSize msize = q->maximumViewportSize();
-    
-    // update the horizontal scrollbar
-    int width = (msize.width() >= header->length() ? msize.width() : vsize.width());
-    q->horizontalScrollBar()->setPageStep(width);
-    q->horizontalScrollBar()->setRange(0, header->length() - width);
-    
-    if (!viewport->isVisible() || viewItems.isEmpty()) {
-        q->verticalScrollBar()->setRange(0, 0);
-        q->verticalScrollBar()->setPageStep(0);
-        return;
-    }
+    QSize viewportSize = viewport->size();
 
     // set page step size
     int verticalScrollBarValue = q->verticalScrollBar()->value();
     int itemsInViewport = 0;
     if (uniformRowHeights) {
-        itemsInViewport = vsize.height() / itemHeight;
+        itemsInViewport = viewportSize.height() / itemHeight;
     } else {
         int topItemInViewport = qMax(0, itemAt(verticalScrollBarValue));
         int h = height(topItemInViewport);
         int y = topItemDelta(verticalScrollBarValue, h);
         int i = topItemInViewport;
-        for (; y < vsize.height() && i < viewItems.count(); ++i)
+        for (; y < viewportSize.height() && i < viewItems.count(); ++i)
             y += height(i);
         itemsInViewport = i - topItemInViewport;
     }
     q->verticalScrollBar()->setPageStep(itemsInViewport * verticalStepsPerItem);
 
     // set the scroller range
-    int y = vsize.height();
+    int y = viewportSize.height();
     int i = viewItems.count();
     while (y > 0 && i > 0) // subtract the bottom screen
         y -= height(--i);
@@ -2215,6 +2203,14 @@ void QTreeViewPrivate::updateScrollBars()
 
     max = qMin(max, viewItems.count() * verticalStepsPerItem);
     q->verticalScrollBar()->setRange(0, max);
+
+    // update the horizontal scrollbar
+    const QSize maxSize = q->maximumViewportSize();
+    if (maxSize.width() >= horizontalLength && max <= 0)
+        viewportSize = maxSize;
+    const int horizontalLength = header->length();
+    q->horizontalScrollBar()->setPageStep(viewportSize.width());
+    q->horizontalScrollBar()->setRange(0, horizontalLength - viewportSize.width());
 }
 
 int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
