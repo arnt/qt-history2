@@ -1582,7 +1582,9 @@ bool QTextEngine::atWordSeparator(int position) const
         || c == QLatin1Char('(')
         || c == QLatin1Char(')')
         || c == QLatin1Char('{')
-        || c == QLatin1Char('}');
+        || c == QLatin1Char('}')
+        || c == QChar::Nbsp
+        ;
 }
 
 void QTextEngine::indexAdditionalFormats()
