@@ -37,12 +37,16 @@ static QString keyPath(const QString &rKey)
 static QString keyName(const QString &rKey)
 {
     int idx = rKey.lastIndexOf(QLatin1Char('\\'));
-    if (idx == -1)
-        return rKey;
 
-    QString res(rKey.mid(idx + 1));
-    if (res == "Default" || res == ".")
-        res = "";
+    QString res;
+    if (idx == -1)
+        res = rKey;
+    else
+        res = rKey.mid(idx + 1);
+
+    if (res == QLatin1String("Default") || res == QLatin1String("."))
+        res = QLatin1String("");
+
     return res;
 }
 
