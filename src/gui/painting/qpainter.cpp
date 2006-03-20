@@ -3192,7 +3192,9 @@ void QPainter::drawLines(const QLineF *lines, int lineCount)
         printf("QPainter::drawLines(), line count=%d\n", lineCount);
 #endif
 
-    if (!isActive())
+    Q_ASSERT_X(lines, "QPainter::drawLines", "lines array cannot be 0");
+
+    if (!isActive() || lineCount < 1)
         return;
 
     Q_D(QPainter);
@@ -3239,7 +3241,9 @@ void QPainter::drawLines(const QLine *lines, int lineCount)
         printf("QPainter::drawLine(), line count=%d\n", lineCount);
 #endif
 
-    if (!isActive())
+    Q_ASSERT_X(lines, "QPainter::drawLines", "lines array cannot be 0");
+
+    if (!isActive() || lineCount < 1)
         return;
 
     Q_D(QPainter);
