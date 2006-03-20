@@ -511,7 +511,7 @@
 
     Moves the mouse pointer to a \a widget. If \a pos is not
     specified, the mouse pointer moves to the center of the widget. If
-    a \a delay (in milliseconds) is given, the test will wait after
+    a \a delay (in milliseconds) is given, the test will wait before
     moving the mouse pointer.
 */
 
