@@ -240,7 +240,7 @@
             Q_OBJECT
 
         public:
-            MyWidget(QWidget *parent = 0);
+            HelloWorldWidget(QWidget *parent = 0);
 
         public slots:
             void mySlot();
@@ -286,7 +286,7 @@
             Q_OBJECT
 
         public:
-            MyWidget(QWidget *parent = 0);
+            HelloWorldWidget(QWidget *parent = 0);
 
         public slots:
             void on_pushButton_clicked();
@@ -397,7 +397,7 @@
     editor, the custom widget will retain the looks, behavior,
     properties, signals and slots of the base widget. It is not
     currently possible to tell Qt Designer 4 that the custom widget
-    will have additional signals or slots. 
+    will have additional signals or slots.
 
     \c{uic3 -convert} handles the conversion of custom widgets to the
     new \c .ui format, however all custom signals and slots are lost.
