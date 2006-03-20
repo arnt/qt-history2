@@ -1679,7 +1679,7 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
         }
 
         // Draw the text item
-        if (d->clear_type_text) {
+        if (clearType) {
             COLORREF cf = RGB(qRed(penColor), qGreen(penColor), qBlue(penColor));
             SelectObject(d->fontRasterBuffer->hdc(), CreateSolidBrush(cf));
             SelectObject(d->fontRasterBuffer->hdc(), CreatePen(PS_SOLID, 1, cf));
@@ -1693,7 +1693,7 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
                           d->matrix.m22(), 0, 0), topLeft);
 
 
-        if (d->clear_type_text) {
+        if (clearType) {
             DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(NULL_BRUSH)));
             DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(BLACK_PEN)));
         }
@@ -1827,6 +1827,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         data.texture.bytesPerLine = d->fontRasterBuffer->bytesPerLine();
         data.texture.hasAlpha = true;
         data.bilinear = false;
+        data.texture.const_alpha = 255;
         data.texture.format = QImage::Format_ARGB32_Premultiplied;
         data.texture.colorTable = 0;
 
