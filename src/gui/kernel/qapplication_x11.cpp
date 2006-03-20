@@ -902,11 +902,13 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                 fnt.setStrikeOut(fontinfo.strikeOut());
                 fnt.setStyleHint(fontinfo.styleHint());
 
-                if (fnt.pointSize() <= 0 && fnt.pixelSize() <= 0)
+                if (fnt.pointSize() <= 0 && fnt.pixelSize() <= 0) {
                     // size is all wrong... fix it
-                    fnt.setPointSize((int) ((fontinfo.pixelSize() * 72. /
-                                             (float) QX11Info::appDpiY()) +
-                                            0.5));
+                    qreal pointSize = fontinfo.pixelSize() * 72. / (float) QX11Info::appDpiY();
+                    if (pointSize <= 0)
+                        pointSize = 12;
+                    fnt.setPointSize(qRound(pointSize));
+                }
             }
         }
 
