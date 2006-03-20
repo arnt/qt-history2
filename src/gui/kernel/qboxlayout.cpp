@@ -321,7 +321,7 @@ void QBoxLayoutPrivate::calcHfw(int w)
     \endlist
 
     The margin default is provided by the style. The default margin
-    Qt styles specify is 9 for widgets and 11 for top level windows.
+    most Qt styles specify is 9 for child widgets and 11 for windows.
     The spacing defaults to the same as the margin width for a
     top-level layout, or to the same as the parent layout.
 

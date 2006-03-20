@@ -134,6 +134,8 @@ QLayoutPrivate::QLayoutPrivate()
 
     There can be only one top-level layout for a widget. It is
     returned by QWidget::layout()
+
+    \sa QWidget::setLayout()
 */
 QLayout::QLayout(QWidget *parent, int margin, int spacing, const char *name)
     : QObject(*new QLayoutPrivate,parent)
@@ -284,6 +286,9 @@ bool QLayout::setAlignment(QLayout *l, Qt::Alignment alignment)
     \property QLayout::margin
     \brief the width of the outside border of the layout
 
+    The margin default is provided by the style. The default margin
+    most Qt styles specify is 9 for child widgets and 11 for windows.
+
     \sa spacing
 */
 
@@ -291,12 +296,12 @@ bool QLayout::setAlignment(QLayout *l, Qt::Alignment alignment)
     \property QLayout::spacing
     \brief the spacing between widgets inside the layout
 
-    The default value is -1, which signifies that the layout's spacing
-    is inherited from the parent layout, or from the style settings for the parent widget.
+    The default value is -1, which signifies that the layout's
+    spacing is inherited from the parent layout, or from the style
+    settings for the parent widget.
 
     \sa margin
 */
-
 
 int QLayout::margin() const
 {
