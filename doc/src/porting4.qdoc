@@ -3433,6 +3433,9 @@
         data stored in the QString object. Call QString::ascii() if
         you want the old behavior.
 
+    \o  QString::arg() now converts two-digit place markers, allowing
+        up to 99 place markers to be used in any given string.
+
     \endlist
 
     \section1 QStringList
