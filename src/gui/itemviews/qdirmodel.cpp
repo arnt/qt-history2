@@ -950,6 +950,8 @@ void QDirModel::refresh(const QModelIndex &parent)
     int rows = n->children.count();
     if (rows == 0) {
         n->stat = true; // make sure that next time we read all the info
+        n->populated = false;
+        emit layoutChanged();
         return;
     }
 
