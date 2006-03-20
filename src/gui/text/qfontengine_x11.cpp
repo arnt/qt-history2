@@ -1252,7 +1252,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
 #endif
 
 #ifdef FT_LOAD_FORCE_AUTOHINT
-    if (autohint)
+    if (fe->autohint)
         load_flags |= FT_LOAD_FORCE_AUTOHINT;
 #endif
 
