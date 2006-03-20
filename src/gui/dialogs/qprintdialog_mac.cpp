@@ -76,24 +76,34 @@ int QPrintDialog::exec()
     if (result) {
         UInt32 page;
         PMGetFirstPage(d->ep->settings, &page);
-        d->fromPage = qMax(UInt32(0), page);
+        d->fromPage = page;
         PMGetLastPage(d->ep->settings, &page);
         d->toPage = qMin(UInt32(INT_MAX), page);
-        d->printRange = PageRange; // In a way a lie, but it shouldn't hurt.
-        // Carbon hands us back a very large number here even for ALL, set it to max
-        // in that case to follow the behavior of the other print dialogs.
-        if (d->maxPage < d->toPage)
-            d->toPage = d->maxPage;
+
+        // OK, I need to map these values back let's see
+        // If from is 1 and to is INT_MAX, then print it all
+        // (Apologies to the folks with more than INT_MAX pages)
+        // ...that's a joke.
+        if (d->fromPage == 1 && d->toPage == INT_MAX) {
+            d->printRange = AllPages;
+            d->fromPage = d->toPage = 0;
+        } else {
+            d->printRange = PageRange; // In a way a lie, but it shouldn't hurt.
+            // Carbon hands us back a very large number here even for ALL, set it to max
+            // in that case to follow the behavior of the other print dialogs.
+            if (d->maxPage < d->toPage)
+                d->toPage = d->maxPage;
+        }
         // Keep us in sync with file output
         PMDestinationType dest;
         PMSessionGetDestinationType(d->ep->session, d->ep->settings, &dest);
         if (dest == kPMDestinationFile) {
             QCFType<CFURLRef> file;
             PMSessionCopyDestinationLocation(d->ep->session, d->ep->settings, &file);
-            UInt8 localFile[255];  // Assuming there's a POSIX file system here.
+            UInt8 localFile[2048];  // Assuming there's a POSIX file system here.
             CFURLGetFileSystemRepresentation(file, true, localFile, sizeof(localFile));
             d->ep->outputFilename
-                = QString::fromLocal8Bit(reinterpret_cast<const char *>(localFile));
+                = QString::fromUtf8(reinterpret_cast<const char *>(localFile));
         }
     }
     return result;
