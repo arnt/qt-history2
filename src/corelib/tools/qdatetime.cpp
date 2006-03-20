@@ -1302,8 +1302,7 @@ void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
 /*!
     \fn QTime::QTime()
 
-    Constructs the time 0 hours, minutes, seconds and milliseconds,
-    i.e. 00:00:00.000 (midnight). This is a valid time.
+    Constructs a null time object.
 
     \sa isValid()
 */
@@ -1327,8 +1326,8 @@ QTime::QTime(int h, int m, int s, int ms)
 /*!
     \fn bool QTime::isNull() const
 
-    Returns true if the time is equal to 00:00:00.000; otherwise
-    returns false. A null time is valid.
+    Returns true if the time is null; otherwise returns false. A null time
+    is also an invalid time.
 
     \sa isValid()
 */
