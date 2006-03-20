@@ -38,6 +38,10 @@ public:
     void initialize(QDesignerFormEditorInterface *formEditor);
     QString domXml() const;
 
+private slots:
+    void currentIndexChanged(int index);
+    void pageTitleChanged(const QString &title);
+
 private:
     bool initialized;
 };

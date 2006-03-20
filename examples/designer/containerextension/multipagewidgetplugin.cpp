@@ -14,7 +14,9 @@
 #include <QtDesigner/QExtensionFactory>
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QDesignerPropertySheetExtension>
 
 #include <QIcon>
 #include <QtPlugin>
@@ -67,6 +69,10 @@ bool MultiPageWidgetPlugin::isContainer() const
 QWidget *MultiPageWidgetPlugin::createWidget(QWidget *parent)
 {
     MultiPageWidget *widget = new MultiPageWidget(parent);
+    connect(widget, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(currentIndexChanged(int)));
+    connect(widget, SIGNAL(pageTitleChanged(const QString &)),
+            this, SLOT(pageTitleChanged(const QString &)));
     return widget;
 }
 
@@ -96,6 +102,32 @@ QString MultiPageWidgetPlugin::domXml() const
         <widget class=\"QWidget\" name=\"page\" />\
     </widget>\
     ");
+}
+
+void MultiPageWidgetPlugin::currentIndexChanged(int index)
+{
+    MultiPageWidget *widget = qobject_cast<MultiPageWidget*>(sender());
+    if (widget) {
+        QDesignerFormWindowInterface *form;
+        form = QDesignerFormWindowInterface::findFormWindow(widget);
+        form->emitSelectionChanged();
+    }
+}
+
+void MultiPageWidgetPlugin::pageTitleChanged(const QString &title)
+{
+    MultiPageWidget *widget = qobject_cast<MultiPageWidget*>(sender());
+    if (widget) {
+        QWidget *page = widget->widget(widget->currentIndex());
+        QDesignerFormWindowInterface *form;
+        form = QDesignerFormWindowInterface::findFormWindow(widget);
+        QDesignerFormEditorInterface *editor = form->core();
+        QExtensionManager *manager = editor->extensionManager();
+        QDesignerPropertySheetExtension *sheet;
+        sheet = qt_extension<QDesignerPropertySheetExtension*>(manager, page);
+        int propertyIndex = sheet->indexOf(QLatin1String("windowTitle"));
+        sheet->setChanged(propertyIndex, true);
+    }
 }
 
 Q_EXPORT_PLUGIN2(containerextension, MultiPageWidgetPlugin)

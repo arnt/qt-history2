@@ -24,7 +24,7 @@ class MultiPageWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
-    Q_PROPERTY(QString pageTitle READ pageTitle WRITE setPageTitle)
+    Q_PROPERTY(QString pageTitle READ pageTitle WRITE setPageTitle STORED false)
 
 public:
     MultiPageWidget(QWidget *parent = 0);
@@ -33,14 +33,20 @@ public:
 
     void addPage(QWidget *page);
     void removePage(int index);
-    int count();
-    int currentIndex();
+    int count() const;
+    int currentIndex() const;
     void insertPage(int index, QWidget *page);
-    void setCurrentIndex(int index);
     QWidget *widget(int index);
 
     QString pageTitle() const;
     void setPageTitle(QString const &newTitle);
+
+public slots:
+    void setCurrentIndex(int index);
+
+signals:
+    void currentIndexChanged(int index);
+    void pageTitleChanged(const QString &title);
 
 private:
     QStackedWidget *stackWidget;
