@@ -161,7 +161,7 @@
     \endcode
 
     This second method is useful when porting Qt 3 forms to Qt 4. \c
-    HelloWorldWidget is is a class whose instance is the actual form
+    HelloWorldWidget is a class whose instance is the actual form
     and which contains public pointers to all the widgets in it. It
     therefore has an interface identical to that of a class generated
     by \c uic in Qt 3.
