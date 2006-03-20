@@ -350,7 +350,7 @@
     QCOMPARE(QString("HELLO").toUpper(), QString("HELLO"));
     \endcode
 
-    To prevent that the function ends up being cluttered by repetative
+    To prevent that the function ends up being cluttered by repetitive
     code, QTestLib supports adding test data to a test function. All
     we need is to add another private slot to our test class:
 
