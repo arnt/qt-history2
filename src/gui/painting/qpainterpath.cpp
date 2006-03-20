@@ -1698,7 +1698,10 @@ static void qt_painterpath_isect_curve(const QBezier &bezier, const QPointF &pt,
     qreal x = pt.x();
     QRectF bounds = bezier.bounds();
 
-    // potential intersection, divide and try again..
+    // potential intersection, divide and try again...
+    // Please note that a sideeffect of the bottom exclusion is that
+    // horizontal lines are dropped, but this is correct according to
+    // scan conversion rules.
     if (y >= bounds.y() && y < bounds.y() + bounds.height()) {
 
         // hit lower limit... This is a rough threshold, but its a
@@ -1709,7 +1712,7 @@ static void qt_painterpath_isect_curve(const QBezier &bezier, const QPointF &pt,
             // approximate a line after while (i.e. that it doesn't
             // change direction drastically during its slope)
             if (bezier.pt1().x() <= x) {
-                (*winding) += (bezier.pt2().y() > bezier.pt1().y() ? 1 : -1);
+                (*winding) += (bezier.pt4().y() > bezier.pt1().y() ? 1 : -1);
             }
             return;
         }
