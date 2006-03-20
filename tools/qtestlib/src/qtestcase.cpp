@@ -396,14 +396,14 @@
 
 /*! \fn void QTest::keyEvent(KeyAction action, QWidget *widget, Qt::Key key, Qt::KeyboardModifiers modifier = Qt::NoModifier, int delay=-1)
 
-    Sends a Qt key event to \a widget with the given \a key and an associated \a action. Optionally, a keyboard \a modifier can be specified, as well as a \a delay (in milliseconds) of the test after sending the event.
+    Sends a Qt key event to \a widget with the given \a key and an associated \a action. Optionally, a keyboard \a modifier can be specified, as well as a \a delay (in milliseconds) of the test before sending the event.
 */
 
 /*! \fn void QTest::keyEvent(KeyAction action, QWidget *widget, char ascii, Qt::KeyboardModifiers modifier = Qt::NoModifier, int delay=-1)
 
     \overload
 
-    Sends a Qt key event to \a widget with the given key \a ascii and an associated \a action. Optionally, a keyboard \a modifier can be specified, as well as a \a delay (in milliseconds) of the test after sending the event.
+    Sends a Qt key event to \a widget with the given key \a ascii and an associated \a action. Optionally, a keyboard \a modifier can be specified, as well as a \a delay (in milliseconds) of the test before sending the event.
 
 */
 
@@ -448,7 +448,7 @@
 
     Simulates clicking a \a sequence of keys on a \a
     widget. Optionally, a keyboard \a modifier can be specified as
-    well as a \a delay (in milliseconds) of the test after each key
+    well as a \a delay (in milliseconds) of the test before each key
     click.
 
     Example:
@@ -468,7 +468,7 @@
     Simulates pressing a mouse \a button with an optional \a modifier
     on a \a widget.  The position is defined by \a pos; the default
     position is the center of the widget. If \a delay is specified,
-    the test will wait for the specified amount of milliseconds after
+    the test will wait for the specified amount of milliseconds before
     the press.
 
     \sa QTest::mouseRelease(), QTest::mouseClick()
@@ -480,7 +480,7 @@
     on a \a widget.  The position of the release is defined by \a pos;
     the default position is the center of the widget. If \a delay is
     specified, the test will wait for the specified amount of
-    milliseconds after releasing the button.
+    milliseconds before releasing the button.
 
     \sa QTest::mousePress(), QTest::mouseClick()
 */
@@ -491,7 +491,7 @@
     on a \a widget.  The position of the click is defined by \a pos;
     the default position is the center of the widget. If \a delay is
     specified, the test will wait for the specified amount of
-    milliseconds after pressing and after releasing the button.
+    milliseconds before pressing and before releasing the button.
 
     \sa QTest::mousePress(), QTest::mouseRelease()
 */
@@ -502,7 +502,7 @@
     modifier on a \a widget.  The position of the click is defined by
     \a pos; the default position is the center of the widget. If \a
     delay is specified, the test will wait for the specified amount of
-    milliseconds after each press and release.
+    milliseconds before each press and release.
 
     \sa QTest::mouseClick()
 */
