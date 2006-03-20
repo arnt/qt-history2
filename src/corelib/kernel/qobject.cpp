@@ -1105,6 +1105,10 @@ bool QObject::blockSignals(bool block)
 /*!
     Returns the thread in which the object lives.
 
+    \warning This function returns 0 if the QObject was created
+    before QApplication or QCoreApplication was constructed. This
+    behavior might change in future versions of Qt.
+
     \sa moveToThread()
 */
 QThread *QObject::thread() const
