@@ -1003,7 +1003,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
     QRect primitive(reverse ? rect.left() : rect.right(), rect.top(), indent, rect.height());
 
 
-    QModelIndex parent = index.parent();
+    const QModelIndex parent = index.parent();
     QModelIndex current = parent;
     QModelIndex ancestor = current.parent();
 
@@ -1035,9 +1035,13 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         const bool children = (expanded // already layed out
                                ? d->viewItems.at(item).total // this also covers the hidden items
                                : d->model->hasChildren(index)); // not layed out yet, so we don't know
+        bool moreSiblings = false;
+        if (d->hiddenIndexes.isEmpty())
+            moreSiblings = (d->model->rowCount(parent) - 1 > index.row());
+        else
+            moreSiblings = ((d->viewItems.size() > item +1) && (d->viewItems.at(item + 1).index.parent() == parent));
         opt.state = QStyle::State_Item | extraFlags
-                    | (d->model->rowCount(parent) - 1 > index.row()
-                      ? QStyle::State_Sibling : QStyle::State_None)
+                    | (moreSiblings ? QStyle::State_Sibling : QStyle::State_None)
                     | (children ? QStyle::State_Children : QStyle::State_None)
                     | (expanded ? QStyle::State_Open : QStyle::State_None);
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
