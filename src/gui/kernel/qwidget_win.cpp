@@ -310,7 +310,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if (topLevel) {
             if ((type == Qt::Window || dialog || tool)) {
                 if (!(flags & Qt::FramelessWindowHint)) {
-                    if ((type == Qt::Window || dialog) && !(flags & Qt::MSWindowsFixedSizeDialogHint)) {
+                    if (!(flags & Qt::MSWindowsFixedSizeDialogHint)) {
                         style |= WS_THICKFRAME;
                         if(!(flags &
                             ( Qt::WindowSystemMenuHint
