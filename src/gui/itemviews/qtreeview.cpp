@@ -751,12 +751,11 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
     }
 
     // vertical
-    int verticalSteps = verticalStepsPerItem();
     bool above = (hint == EnsureVisible && rect.top() < area.top());
     bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
     if (hint == PositionAtTop || above) {
         int i = d->viewIndex(index);
-        verticalScrollBar()->setValue(i * verticalSteps);
+        verticalScrollBar()->setValue(i);
     } else if (hint == PositionAtBottom || below) {
         int i = d->viewIndex(index);
         if (i < 0) {
@@ -766,9 +765,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
         int y = area.height();
         while (y > 0 && i > 0)
             y -= d->height(i--);
-        int h = d->height(i);
-        int a = (-y * verticalSteps) / (h ? h : 1);
-        verticalScrollBar()->setValue(++i * verticalSteps + a);
+        verticalScrollBar()->setValue(++i + (y ? 1 : 0));
     }
 
     // horizontal
@@ -1239,7 +1236,7 @@ int QTreeView::verticalOffset() const
     Q_D(const QTreeView);
     // gives an estimate
     if (model() && model()->rowCount(rootIndex()) > 0) {
-        float items = float(verticalScrollBar()->value()) / float(verticalStepsPerItem());
+        float items = float(verticalScrollBar()->value());
         return int(items * d->itemHeight);
     }
     // no items, no offset
@@ -1413,7 +1410,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 
     // guestimate the number of items in the viewport
     int viewCount = d->viewport->height() / d->itemHeight;
-    int maxDeltaY = verticalStepsPerItem() * qMin(d->viewItems.count(), viewCount);
+    int maxDeltaY = qMin(d->viewItems.count(), viewCount);
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
     if (qAbs(dy) > qAbs(maxDeltaY) && d->editors.isEmpty()) {
@@ -1423,26 +1420,19 @@ void QTreeView::scrollContentsBy(int dx, int dy)
     }
 
     if (dy) {
-        int steps = verticalStepsPerItem();
-        int currentScrollbarValue = verticalScrollBar()->value();
-        int previousScrollbarValue = currentScrollbarValue + dy; // -(-dy)
-        int currentViewIndex = currentScrollbarValue / steps; // the first visible item
-        int previousViewIndex = previousScrollbarValue / steps;
-
-        const QVector<QTreeViewItem> viewItems = d->viewItems;
-
-        int currentY = d->topItemDelta(currentScrollbarValue, d->height(currentViewIndex));
-        int previousY = currentY;
-        if ((previousViewIndex >= 0) && (previousViewIndex < d->viewItems.size()))
-            previousY = d->topItemDelta(previousScrollbarValue, d->height(previousViewIndex));
-
-        dy = currentY - previousY;
-        if (previousViewIndex < currentViewIndex) { // scrolling down
-            for (int i = previousViewIndex; i < currentViewIndex; ++i)
-                dy -= d->height(i);
-        } else if (previousViewIndex > currentViewIndex) { // scrolling up
-            for (int i = previousViewIndex - 1; i >= currentViewIndex; --i)
-                dy += d->height(i);
+        if (d->uniformRowHeights && d->scrollMode == ScrollPerItem) {
+            dy *= d->itemHeight;
+        } else {
+            int currentViewIndex = verticalScrollBar()->value();
+            int previousViewIndex = currentViewIndex + dy; //-(-dy);
+            dy = 0;
+            if (previousViewIndex < currentViewIndex) { // scrolling down
+                for (int i = previousViewIndex; i < currentViewIndex; ++i)
+                    dy -= d->height(i);
+            } else if (previousViewIndex > currentViewIndex) { // scrolling up
+                for (int i = previousViewIndex - 1; i >= currentViewIndex; --i)
+                    dy += d->height(i);
+            }
         }
     }
 
@@ -1885,7 +1875,6 @@ void QTreeViewPrivate::drawAnimatedOperation(QPainter *painter) const
     int end = timeline.endFrame();
     bool collapsing = animatedOperation.type == AnimatedOperation::Collapse;
     int current = collapsing ? end - timeline.currentFrame() + start : timeline.currentFrame();
-//    qDebug() << current;
     const QPixmap top = collapsing ? animatedOperation.before : animatedOperation.after;
     painter->drawPixmap(0, start, top, 0, end - current - 1, top.width(), top.height());
     const QPixmap bottom = collapsing ? animatedOperation.after : animatedOperation.before;
@@ -2103,14 +2092,12 @@ QModelIndex QTreeViewPrivate::modelIndex(int i) const
 
 int QTreeViewPrivate::itemAt(int value) const
 {
-    int i = value / verticalStepsPerItem;
-    return (i < 0 || i >= viewItems.count()) ? -1 : i;
+    return (value < 0 || value >= viewItems.count()) ? -1 : value;
 }
 
 int QTreeViewPrivate::topItemDelta(int value, int iheight) const
 {
-    int above = (value % verticalStepsPerItem) * iheight; // what's left; in "item units"
-    return -(above / verticalStepsPerItem); // above the page
+    return 0;
 }
 
 int QTreeViewPrivate::columnAt(int x) const
@@ -2192,24 +2179,16 @@ void QTreeViewPrivate::updateScrollBars()
             y += height(i);
         itemsInViewport = i - topItemInViewport;
     }
-    q->verticalScrollBar()->setPageStep(itemsInViewport * verticalStepsPerItem);
+    q->verticalScrollBar()->setPageStep(itemsInViewport);
 
     // set the scroller range
     int y = vsize.height();
     int i = viewItems.count();
     while (y > 0 && i > 0) // subtract the bottom screen
         y -= height(--i);
-    int max = i * verticalStepsPerItem;
-
-    if (y < 0) { // if the first item starts above the viewport, we have to backtrack
-        int backtracking = verticalStepsPerItem * -y;
-        int itemSize = height(i);
-        if (itemSize > 0) // avoid division by zero
-            max += (backtracking / itemSize) + 1;
-    }
-
-    max = qMin(max, viewItems.count() * verticalStepsPerItem);
+    int max = qMin(i + (y < 0), viewItems.count());
     q->verticalScrollBar()->setRange(0, max);
+ 
 }
 
 int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const

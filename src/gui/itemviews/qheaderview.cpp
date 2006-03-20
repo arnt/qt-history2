@@ -1326,12 +1326,12 @@ void QHeaderView::initializeSections(int start, int end)
         }
     }
 
-//     if (d->globalResizeMode == Stretch)
-//         d->stretchSections = d->sectionCount;
-//     else if (d->globalResizeMode == ResizeToContents)
-//         d->contentsSections = d->sectionCount;
+    if (d->globalResizeMode == Stretch)
+        d->stretchSections = d->sectionCount;
+    else if (d->globalResizeMode == ResizeToContents)
+         d->contentsSections = d->sectionCount;
 
-    d->createSectionSpan(start, end, (end - start + 1) * d->defaultSectionSize, Interactive);
+    d->createSectionSpan(start, end, (end - start + 1) * d->defaultSectionSize, d->globalResizeMode);
     //Q_ASSERT(d->headerLength() == d->length);
 
     emit sectionCountChanged(oldCount,  d->sectionCount);
