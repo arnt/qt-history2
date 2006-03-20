@@ -241,7 +241,7 @@ void QMainWindowPrivate::init()
 /*!
     \fn void QMainWindow::toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle)
 
-    This signal is emiited when the style used for tool buttons in the
+    This signal is emitted when the style used for tool buttons in the
     window is changed. The new style is passed in \a toolButtonStyle.
 
     You can connect this signal to other components to help maintain
