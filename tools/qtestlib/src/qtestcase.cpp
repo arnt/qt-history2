@@ -967,9 +967,12 @@ void *fetchData(QTestData *data, const char *tagName, int typeId)
 } // namespace
 
 /*!
-    Executes tests declared in \a testObject. Optionally, the command line arguments
-    \a argc and \a argv can be provided. For a list of recognized arguments, read
-    \l {QTestLib Command Line Arguments}.
+    Executes tests declared in \a testObject. In addition, the private slots
+    \c{initTestCase()}, \c{cleanupTestCase()}, \c{init()} and \c{cleanup()}
+    are executed if they exist. See \l{Creating a test} for more details.
+
+    Optionally, the command line arguments \a argc and \a argv can be provided.
+    For a list of recognized arguments, read \l {QTestLib Command Line Arguments}.
 
     For stand-alone tests, the convenience macro \l QTEST_MAIN() can
     be used to declare a main method that parses the command line arguments

@@ -60,25 +60,56 @@
     \l{http://www.trolltech.com/products/3rdparty/tools.html}{Qt
     testing products provided by Trolltech partners}.
 
+
     \section1 QTestLib API
 
     All public methods are in the \l QTest namespace. In addition, the
     \l QSignalSpy class provides easy introspection for Qt's signals and slots.
 
-    \section1 QTestLib Tutorial
 
-    This tutorial gives a short introduction to how to use some of the
-    features of the QTestLib framework. It is divided into four
-    chapters:
+    \section1 Using QTestLib
 
-    \list 1
-    \o \l {Chapter 1: Writing a Unit Test}{Writing a Unit Test}
-    \o \l {Chapter 2: Data Driven Testing}{Data Driven Testing}
-    \o \l {Chapter 3: Simulating GUI Events}{Simulating GUI Events}
-    \o \l {Chapter 4: Replaying GUI Events}{Replaying GUI Events}
+    \section2 Creating a test
+
+    To create a test, subclass QObject and add one or more private slots to it. Each
+    private slot is a testfunction in your test. QTest::qExec() can be used to execute
+    all testfunctions in the test object.
+
+    In addition, there are four private slots that are \e not treated as testfunctions.
+    They will be executed by the testing framework and can be used to initialize and
+    clean up either the entire test or the current test function.
+
+    \list
+    \o \c{initTestCase()} will be called before the first testfunction is executed.
+    \o \c{cleanupTestCase()} will be called after the last testfunction was executed.
+    \o \c{init()} will be called before each testfunction is executed.
+    \o \c{cleanup()} will be called after every testfunction.
     \endlist
 
-    \section1 Building a Test
+    If \c{initTestCase()} fails, no testfunction will be executed. If \c{init()} fails,
+    the following testfunction will not be executed, the test will proceed to the next
+    testfunction.
+
+    Example:
+    \code
+    class MyFirstTest: public QObject
+    {
+        Q_OBJECT
+    private slots:
+        void initTestCase()
+        { qDebug("called before everything else"); }
+        void myFirstTest()
+        { QVERIFY(1 == 1); }
+        void mySecondTest()
+        { QVERIFY(1 != 2); }
+        void cleanupTestCase()
+        { qDebug("called after myFirstTest and mySecondTest"); }
+    };
+    \endcode
+
+    For more examples, refer to the \l{QTestLib Tutorial}.
+
+    \section2 Building a Test
 
     If you are using \c qmake as your build tool, just add the
     following to your project file:
@@ -96,9 +127,9 @@
     See \l {Chapter 1: Writing a Unit Test}{Writing a Unit Test} for a step by
     step explanation.
 
-    \section1 QTestLib Command Line Arguments
+    \section2 QTestLib Command Line Arguments
 
-    \section2 Syntax
+    \section3 Syntax
 
     The syntax to execute an autotest takes the following simple form:
 
@@ -138,7 +169,7 @@
     emission and waits 500 milliseconds after each simulated
     mouse/keyboard event.
 
-    \section2 Options
+    \section3 Options
 
     The following command line arguments are understood:
 
