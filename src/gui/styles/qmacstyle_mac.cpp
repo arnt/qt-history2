@@ -1608,6 +1608,12 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case PM_ToolBarHandleExtent:
         ret = 11;
         break;
+    case PM_ToolBarItemMargin:
+        ret = 0;
+        break;
+    case PM_ToolBarItemSpacing:
+        ret = 4;
+        break;
     case PM_MessageBoxIconSize:
         ret = 64;
         break;
