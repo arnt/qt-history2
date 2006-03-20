@@ -1165,7 +1165,8 @@ QString QMYSQLDriver::formatValue(const QSqlField &field, bool trimStrings) cons
                 const QByteArray ba = field.value().toByteArray();
                 // buffer has to be at least length*2+1 bytes
                 char* buffer = new char[ba.size() * 2 + 1];
-                int escapedSize = int(mysql_escape_string(buffer, ba.data(), ba.size()));
+                int escapedSize = int(mysql_real_escape_string(d->mysql, buffer,
+                                      ba.data(), ba.size()));
                 r.reserve(escapedSize + 3);
                 r.append(QLatin1Char('\'')).append(d->tc->toUnicode(buffer)).append(QLatin1Char('\''));
                 delete[] buffer;
