@@ -2059,6 +2059,10 @@ bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
     if (qApp->activePopupWidget() == widget)
         return false;
 
+    QWidget *groupLeaderForWidget = widget;
+    while (groupLeaderForWidget && !groupLeaderForWidget->testAttribute(Qt::WA_GroupLeader))
+        groupLeaderForWidget = groupLeaderForWidget->parentWidget();
+
     bool blocked = false;
     for (int i = 0; !blocked && i < qt_modal_stack->size(); ++i) {
         QWidget *modalWidget = qt_modal_stack->at(i);
@@ -2094,10 +2098,18 @@ bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
 
         switch (windowModality) {
         case Qt::ApplicationModal:
-            if (modalWidget == widget)
+            if (modalWidget == widget) {
                 return false;
-            if (modalWidget != widget)
+            } else if (groupLeaderForWidget) {
+                // if \a widget has WA_GroupLeader, it can only be blocked by children with ApplicationModal
+                QWidget *p = modalWidget;
+                while (p && p != groupLeaderForWidget && !p->testAttribute(Qt::WA_GroupLeader))
+                    p = p->parentWidget();
+                if (p == groupLeaderForWidget)
+                    blocked = true;
+            } else if (modalWidget != widget) {
                 blocked = true;
+            }
             break;
         case Qt::WindowModal:
             w = widget;
