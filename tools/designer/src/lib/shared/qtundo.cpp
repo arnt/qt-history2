@@ -607,7 +607,9 @@ void QtUndoStack::push(QtCommand *command)
         delete takeLast();
     }
 
-    switch (command->type()) {
+    QtCommand::Type t = command->type();
+
+    switch (t) {
 
         case QtCommand::Command: {
             // Either merge the new command with the current command, or append it to the
@@ -650,7 +652,7 @@ void QtUndoStack::push(QtCommand *command)
 
     m_current_iter = size() - 1;
 
-    if (command->type() != QtCommand::MacroBegin && m_macro_nest == 0) {
+    if (t != QtCommand::MacroBegin && m_macro_nest == 0) {
         ++m_num_commands;
         emit commandExecuted();
     }
