@@ -2205,10 +2205,10 @@ void QTreeViewPrivate::updateScrollBars()
     q->verticalScrollBar()->setRange(0, max);
 
     // update the horizontal scrollbar
+    const int horizontalLength = header->length();
     const QSize maxSize = q->maximumViewportSize();
     if (maxSize.width() >= horizontalLength && max <= 0)
         viewportSize = maxSize;
-    const int horizontalLength = header->length();
     q->horizontalScrollBar()->setPageStep(viewportSize.width());
     q->horizontalScrollBar()->setRange(0, horizontalLength - viewportSize.width());
 }
