@@ -1534,10 +1534,10 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                     p->fillRect(handle, QBrush(p->background().color(), Qt::Dense5Pattern));
             }
 
-            if (opt->subControls & SC_SliderTickmarks) {
-                QStyleOptionComplex tickOpt = *opt;
-                tickOpt.subControls = SC_SliderTickmarks;
-                QCommonStyle::drawComplexControl(cc, &tickOpt, p, widget);
+            if (slider->subControls & SC_SliderTickmarks) {
+                QStyleOptionSlider tmpSlider = *slider;
+                tmpSlider.subControls = SC_SliderTickmarks;
+                QCommonStyle::drawComplexControl(cc, &tmpSlider, p, widget);
             }
         }
         break;
@@ -1777,9 +1777,9 @@ int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
     case PM_SliderSpaceAvailable:
         if (const QStyleOptionSlider *sl = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             if (sl->orientation == Qt::Horizontal)
-                ret = sl->rect.width() - pixelMetric(PM_SliderLength, opt, widget) - 6;
+                ret = sl->rect.width() - pixelMetric(PM_SliderLength, opt, widget) - 2 * pixelMetric(PM_DefaultFrameWidth, opt, widget);
             else
-                ret = sl->rect.height() - pixelMetric(PM_SliderLength, opt, widget) - 6;
+                ret = sl->rect.height() - pixelMetric(PM_SliderLength, opt, widget) - 2 * pixelMetric(PM_DefaultFrameWidth, opt, widget);
         }
         break;
 #endif // QT_NO_SLIDER
