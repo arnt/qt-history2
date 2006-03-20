@@ -987,6 +987,14 @@ QFixed QTextEngine::width(int from, int len) const
         if (pos + ilen > from) {
             if (!si->num_glyphs)
                 shape(i);
+            
+            if (si->isObject) {
+                w += si->width;
+                continue;
+            } else if (si->isTab) {
+                w = nextTab(si, w);
+                continue;
+            }
 
             if (si->isObject) {
                 w += si->width;
