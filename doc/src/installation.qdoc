@@ -77,9 +77,14 @@ Please follow the instructions for your platform from the following list.
 
     and enter the root password.
 
-    Note that on some systems the make utility is called differently,
+    Note that on some systems the make utility is named differently,
     e.g. gmake. The configure script tells you which make utility to
     use.
+
+    \bold{Note:} If you later need to reconfigure and rebuild Qt from the
+    same location, ensure that all traces of the previous configuration are
+    removed by entering the build directory and typing \c{make confclean}
+    before running \c configure again.
 
 \o  Environment variables
 
@@ -211,6 +216,11 @@ Please follow the instructions for your platform from the following list.
     nmake
 \endcode
 
+    \bold{Note:} If you later need to reconfigure and rebuild Qt from the
+    same location, ensure that all traces of the previous configuration are
+    removed by entering the build directory and typing \c{make confclean}
+    before running \c configure again.
+
 \o  That's all. Qt is now installed.
 
     If you are new to Qt, we suggest that you take a look at the demos
@@ -290,6 +300,11 @@ Please follow the instructions for your platform from the following list.
 \endcode
 
     and enter the root password.
+
+    \bold{Note:} If you later need to reconfigure and rebuild Qt from the
+    same location, ensure that all traces of the previous configuration are
+    removed by entering the build directory and typing \c{make confclean}
+    before running \c configure again.
 
 \o  Environment variables
 
