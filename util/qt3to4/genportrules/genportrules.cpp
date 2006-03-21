@@ -694,6 +694,7 @@ bool overrideHeadersRename(QString headerName)
 void generateManualRules()
 {
     addRenamedClassRule("QGuardedPtr", "QPointer");
+    addRenamedClassRule("QDeepCopy", "Q3DeepCopy");
 
     //The headers for event classes (and some other classes )now needs
     //to be specifically included, so we add rules for that.
