@@ -1073,7 +1073,12 @@ QSqlDriver* QSqlDatabase::driver() const
 
 /*!
     Returns information about the last error that occurred on the
-    database. See QSqlError for more information.
+    database.
+
+    Failures that occur in conjunction with an individual query are
+    reported by QSqlQuery::lastError().
+
+    \sa QSqlError, QSqlQuery::lastError()
 */
 
 QSqlError QSqlDatabase::lastError() const

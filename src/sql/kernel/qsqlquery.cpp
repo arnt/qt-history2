@@ -698,9 +698,9 @@ int QSqlQuery::numRowsAffected() const
 
 /*!
     Returns error information about the last error (if any) that
-    occurred.
+    occurred with this query.
 
-    \sa QSqlError
+    \sa QSqlError, QSqlDatabase::lastError()
 */
 
 QSqlError QSqlQuery::lastError() const
