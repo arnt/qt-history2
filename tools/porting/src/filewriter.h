@@ -38,4 +38,6 @@ private:
     static FileWriter *theInstance;
 };
 
+QByteArray detectLineEndings(const QByteArray &array);
+
 #endif

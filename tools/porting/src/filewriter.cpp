@@ -104,3 +104,12 @@ void FileWriter::setOverwriteFiles(OverWriteFiles writeMode)
 {
     overWriteFiles = writeMode;
 }
+
+QByteArray detectLineEndings(const QByteArray &array)
+{
+    if (array.contains("\r\n")) {
+        return "\r\n";
+    } else {
+        return "\n";
+    }
+}
