@@ -2505,6 +2505,9 @@ bool QVariant::convert(Type t)
     \relates QVariant
 
     Returns true if \a v1 and \a v2 are equal; otherwise returns false.
+
+    \warning This function doesn't support custom types registered
+    with qRegisterMetaType().
 */
 /*!
     \fn bool operator!=(const QVariant &v1, const QVariant &v2)
@@ -2512,19 +2515,29 @@ bool QVariant::convert(Type t)
     \relates QVariant
 
     Returns false if \a v1 and \a v2 are equal; otherwise returns true.
+
+    \warning This function doesn't support custom types registered
+    with qRegisterMetaType().
 */
 
 /*! \fn bool QVariant::operator==(const QVariant &v) const
+
     Compares this QVariant with \a v and returns true if they are
     equal; otherwise returns false.
+
+    \warning This function doesn't support custom types registered
+    with qRegisterMetaType().
 */
 
 /*!
     \fn bool QVariant::operator!=(const QVariant &v) const
+
     Compares this QVariant with \a v and returns true if they are not
     equal; otherwise returns false.
-*/
 
+    \warning This function doesn't support custom types registered
+    with qRegisterMetaType().
+*/
 
 /*! \internal
  */
