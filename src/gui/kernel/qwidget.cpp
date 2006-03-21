@@ -4643,20 +4643,11 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
         qApp->quit();
 #endif
     if (quitOnClose) {
-        /* if there is no non-withdrawn primary window left (except
-           the ones without QuitOnClose), we emit the lastWindowClosed
-           signal */
-        QWidgetList list = QApplication::topLevelWidgets();
-        bool lastWindowClosed = true;
-        for (int i = 0; i < list.size(); ++i) {
-            QWidget *w = list.at(i);
-            if (!w->isVisible() || w->parentWidget() || !w->testAttribute(Qt::WA_QuitOnClose))
-                continue;
-            lastWindowClosed = false;
-            break;
-        }
-        if (lastWindowClosed)
-            QApplicationPrivate::emitLastWindowClosed();
+        // QApplicationPrivate::_q_tryEmitLastWindowClosed will check if all windows have been closed,
+        // emitting QApplication::lastWindowClosed() if necessary
+        QMetaObject::invokeMethod(QApplication::instance(),
+                                  "_q_tryEmitLastWindowClosed",
+                                  Qt::QueuedConnection);
     }
 
     if (!that.isNull()) {
@@ -6644,6 +6635,9 @@ const QPixmap *QWidget::icon() const
 */
 void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
 {
+    if (testAttribute(attribute) == on)
+        return;
+
     Q_D(QWidget);
     Q_ASSERT_X(sizeof(d->high_attributes)*8 >= (Qt::WA_AttributeCount - sizeof(uint)*8),
                "QWidget::setAttribute(WidgetAttribute, bool)",
@@ -6666,23 +6660,23 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
 
 #ifndef QT_NO_DRAGANDDROP
     case Qt::WA_AcceptDrops:  {
-            if (on && !testAttribute(Qt::WA_DropSiteRegistered))
-                setAttribute(Qt::WA_DropSiteRegistered, true);
-            else if (!on && (isWindow() || !parentWidget() || !parentWidget()->testAttribute(Qt::WA_DropSiteRegistered)))
-                setAttribute(Qt::WA_DropSiteRegistered, false);
-            QEvent e(QEvent::AcceptDropsChange);
-            QApplication::sendEvent(this, &e);
-            break;
-        }
+        if (on && !testAttribute(Qt::WA_DropSiteRegistered))
+            setAttribute(Qt::WA_DropSiteRegistered, true);
+        else if (!on && (isWindow() || !parentWidget() || !parentWidget()->testAttribute(Qt::WA_DropSiteRegistered)))
+            setAttribute(Qt::WA_DropSiteRegistered, false);
+        QEvent e(QEvent::AcceptDropsChange);
+        QApplication::sendEvent(this, &e);
+        break;
+    }
     case Qt::WA_DropSiteRegistered:  {
-            d->registerDropSite(on);
-            for (int i = 0; i < d->children.size(); ++i) {
-                QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
-                if (w && !w->isWindow() && !w->testAttribute(Qt::WA_AcceptDrops) && w->testAttribute(Qt::WA_DropSiteRegistered) != on)
-                    w->setAttribute(Qt::WA_DropSiteRegistered, on);
-            }
-            break;
+        d->registerDropSite(on);
+        for (int i = 0; i < d->children.size(); ++i) {
+            QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
+            if (w && !w->isWindow() && !w->testAttribute(Qt::WA_AcceptDrops) && w->testAttribute(Qt::WA_DropSiteRegistered) != on)
+                w->setAttribute(Qt::WA_DropSiteRegistered, on);
         }
+        break;
+    }
 #endif
 
     case Qt::WA_NoChildEventsForParent:
@@ -6699,6 +6693,8 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         break;
     case Qt::WA_ShowModal:
         if (!on) {
+            if (isVisible() && isModal())
+                QApplicationPrivate::leaveModal(this);
             // reset modality type to Modeless when clearing WA_ShowModal
             data->window_modality = Qt::NonModal;
         } else if (data->window_modality == Qt::NonModal) {

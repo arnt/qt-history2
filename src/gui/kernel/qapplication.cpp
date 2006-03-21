@@ -3822,6 +3822,27 @@ void QApplicationPrivate::emitLastWindowClosed()
     }
 }
 
+void QApplicationPrivate::_q_tryEmitLastWindowClosed()
+{
+    /* if there is no non-withdrawn primary window left (except
+       the ones without QuitOnClose), we emit the lastWindowClosed
+       signal */
+    QWidgetList list = QApplication::topLevelWidgets();
+    bool lastWindowClosed = true;
+    for (int i = 0; i < list.size(); ++i) {
+        QWidget *w = list.at(i);
+        if (!w->isVisible()
+            || (w->parentWidget() && w->parentWidget()->isVisible())
+            || !w->testAttribute(Qt::WA_QuitOnClose)) {
+            continue;
+        }
+        lastWindowClosed = false;
+        break;
+    }
+    if (lastWindowClosed)
+        emitLastWindowClosed();
+}
+
 /*! \variable QApplication::NormalColors
     \compat
 

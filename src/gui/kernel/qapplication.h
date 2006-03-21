@@ -289,6 +289,8 @@ private:
     friend class QInputContext;
     friend class QDirectPainter;
 #endif
+
+    Q_PRIVATE_SLOT(d_func(), void _q_tryEmitLastWindowClosed())
 };
 
 #endif // QAPPLICATION_H

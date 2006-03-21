@@ -273,6 +273,8 @@ public:
     static QWidget *oldEditFocus;
 #endif
 
+    void _q_tryEmitLastWindowClosed();
+
 private:
     static QApplicationPrivate *self;
 };
