@@ -725,12 +725,7 @@ void QAbstractSocketPrivate::_q_connectToNextAddress()
         // (localhost address on BSD or any UDP connect), emit
         // connected() and return.
         if (socketEngine->connectToHost(host, port)) {
-            state = QAbstractSocket::ConnectedState;
-            emit q->stateChanged(state);
-            socketEngine->setReadNotificationEnabled(true);
-            if (!writeBuffer.isEmpty())
-                socketEngine->setWriteNotificationEnabled(true);
-            emit q->connected();
+            fetchConnectionParameters();
             return;
         }
 
@@ -775,23 +770,7 @@ void QAbstractSocketPrivate::_q_testConnection()
     }
 
     if (socketEngine && (socketEngine->state() == QAbstractSocket::ConnectedState || socketEngine->connectToHost(host, port))) {
-        state = QAbstractSocket::ConnectedState;
-        emit q->stateChanged(state);
-
-        socketEngine->setReadNotificationEnabled(true);
-        socketEngine->setWriteNotificationEnabled(true);
-
-        localPort = socketEngine->localPort();
-        peerPort = socketEngine->peerPort();
-        localAddress = socketEngine->localAddress();
-        peerAddress = socketEngine->peerAddress();
-        peerName = hostName;
-
-        emit q->connected();
-#if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::_q_testConnection() connection to %s:%i established",
-               host.toString().toLatin1().constData(), port);
-#endif
+        fetchConnectionParameters();
         return;
     }
 
@@ -866,6 +845,33 @@ bool QAbstractSocketPrivate::readFromSocket()
 
     return true;
 }
+
+/*! \internal
+
+    Sets up the the internal state after the connection has succeeded.
+*/
+void QAbstractSocketPrivate::fetchConnectionParameters()
+{
+    Q_Q(QAbstractSocket);
+    state = QAbstractSocket::ConnectedState;
+    emit q->stateChanged(state);
+
+    peerName = hostName;
+    if (socketEngine) {
+        socketEngine->setReadNotificationEnabled(true);
+        socketEngine->setWriteNotificationEnabled(true);
+        localPort = socketEngine->localPort();
+        peerPort = socketEngine->peerPort();
+        localAddress = socketEngine->localAddress();
+        peerAddress = socketEngine->peerAddress();
+    }
+
+    emit q->connected();
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocketPrivate::fetchConnectionParameters() connection to %s:%i established",
+           host.toString().toLatin1().constData(), port);
+#endif
+}    
 
 /*! \internal
 

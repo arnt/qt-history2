@@ -77,6 +77,7 @@ public:
     bool flush();
 
     bool initSocketLayer(const QHostAddress &host, QAbstractSocket::SocketType socketType);
+    void fetchConnectionParameters();
     void setupSocketNotifiers();
     bool readFromSocket();
 
