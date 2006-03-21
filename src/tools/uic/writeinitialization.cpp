@@ -863,7 +863,7 @@ void WriteInitialization::writeProperties(const QString &varName,
         case DomProperty::Url: {
             DomUrl* u = p->elementUrl();
             propertyValue = QString::fromLatin1("QUrl(%1)")
-                            .arg(fixString(u->elementString()->text()));
+                            .arg(fixString(u->elementString()->text(), option.indent));
             break;
         }
         case DomProperty::Unknown:
