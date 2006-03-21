@@ -616,6 +616,8 @@ void QSettingsPrivate::iniEscapedStringList(const QStringList &strs, QByteArray 
             with Qt 4.0. @Invalid() stands for QVariant(), and
             QVariant().toStringList() returns an empty QStringList,
             so we're in good shape.
+
+            ### Qt 5: Use a nicer syntax, e.g. @List, for variant lists
         */
         result += "@Invalid()";
     } else {
@@ -1423,32 +1425,43 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
     equalsCharPos = -1;
 
     QByteArray linein;
+
+    // skip blank lines here
     do {
         linein = device.readLine();
-    } while (!linein.isEmpty() && (linein.at(0)=='\r' || linein.at(0)=='\n')); // skip blanks here
+    } while (!linein.isEmpty() && ((ch = linein.at(0)) == '\r' || ch == '\n'));
+
     int posin = 0;
 
     while (posin < linein.length()) {
         ch = linein.at(posin++);
-    process_ch:
         MAYBE_GROW();
 
         switch (ch) {
         case '"':
             data[pos++] = '"';
-            while (posin < linein.length() && (ch=linein.at(posin++)) != '"') {
-                MAYBE_GROW();
+            if (posin < linein.length()) {
+                while ((ch = linein.at(posin++)) != '"') {
+                    MAYBE_GROW();
 
-                if (static_cast<signed char>(ch) == -1)
-                    goto end;
-
-                if (ch == '\\') {
-                    data[pos++] = '\\';
-                    if (posin >= linein.length())
+                    if (static_cast<signed char>(ch) == -1)
                         goto end;
-                    ch = linein.at(posin++);
+
+                    if (ch == '\\') {
+                        data[pos++] = '\\';
+                        if (posin >= linein.length())
+                            goto end;
+                        ch = linein.at(posin++);
+                    }
+                    data[pos++] = ch;
+
+                    if (posin == linein.length()) {
+                        linein = device.readLine();
+                        posin = 0;
+                        if (linein.isEmpty())
+                            break;
+                    }
                 }
-                data[pos++] = ch;
             }
             data[pos++] = '"';
             break;
@@ -1460,25 +1473,6 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
         case '\n':
         case '\r':
         process_newline:
-            /*
-                According to the specs, a line ends with CF, LF,
-                CR+LF, or LF+CR. In practice, this is irrelevant and
-                the ungetch() call is expensive, so let's not do it.
-            */
-#if 0
-            /*
-            if (!device.getChar(&ch2))
-                goto end;
-            if ((ch2 != '\n' && ch2 != '\r') || ch == ch2)
-                device.ungetChar(ch2);
-            */
-            // never tested, this was already disabled when getChar was replaced
-            if (posin >= linein.length())
-                goto end;
-            ch2 = linein.at(posin++);
-            if ((ch2 != '\n' && ch2 != '\r') || ch == ch2)
-                --posin;
-#endif
             goto end;
             break;
         case '\\':
@@ -1487,12 +1481,22 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
             ch = linein.at(posin++);
 
             if (ch == '\n' || ch == '\r') {
-                if (posin < linein.length()) {
-                    ch2 = linein.at(posin++);
-                    if ((ch2 != '\n' && ch2 != '\r') || ch == ch2) {
-                        ch = ch2;
-                        goto process_ch;
+                int n = 1;
+                for (;;) {
+                    if (posin >= linein.length()) {
+                        linein = device.readLine();
+                        posin = 0;
+                        if (linein.isEmpty())
+                            break;
                     }
+                    if (n++ == 2)
+                        break;
+
+                    ch2 = linein.at(posin);
+                    if ((ch2 != '\n' && ch2 != '\r') || ch == ch2)
+                        break;
+
+                    ++posin;
                 }
             } else {
                 data[pos++] = '\\';
