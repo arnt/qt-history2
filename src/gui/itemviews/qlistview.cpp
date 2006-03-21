@@ -969,7 +969,7 @@ void QListView::paintEvent(QPaintEvent *e)
 #ifndef QT_NO_RUBBERBAND
     if (d->elasticBand.isValid()) {
         QStyleOptionRubberBand opt;
-        opt.init(this);
+        opt.initFrom(this);
         opt.shape = QRubberBand::Rectangle;
         opt.opaque = false;
         opt.rect = d->mapToViewport(d->elasticBand).intersect(

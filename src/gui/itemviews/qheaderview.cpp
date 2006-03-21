@@ -2126,8 +2126,7 @@ QStyleOptionHeader QHeaderViewPrivate::getStyleOption() const
 {
     Q_Q(const QHeaderView);
     QStyleOptionHeader opt;
-    opt.rect = q->rect();
-    opt.palette = q->palette();
+    opt.initFrom(q);
     opt.state = QStyle::State_None | QStyle::State_Raised;
     opt.orientation = orientation;
     if (orientation == Qt::Horizontal)

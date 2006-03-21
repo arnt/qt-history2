@@ -974,8 +974,11 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 QPixmap pixmap
                     = header->icon.pixmap(pixelMetric(PM_SmallIconSize), (header->state & State_Enabled) ? QIcon::Normal : QIcon::Disabled);
                 int pixw = pixmap.width();
-                // "pixh - 1" because of tricky integer division
-                drawItemPixmap(p, rect, header->iconAlignment, pixmap);
+                
+                QRect aligned = alignedRect(header->direction, QFlag(header->iconAlignment), pixmap.size(), rect);
+                QRect inter = aligned.intersect(rect);
+                p->drawPixmap(inter.x(), inter.y(), pixmap, inter.x() - aligned.x(), inter.y() - aligned.y(), inter.width(), inter.height());
+              
                 if (header->direction == Qt::LeftToRight)
                     rect.setLeft(rect.left() + pixw + 2);
                 else
