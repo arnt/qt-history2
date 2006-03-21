@@ -627,15 +627,21 @@ void qt_init(QApplicationPrivate *priv, int)
     if (!qt_app_has_font) {
         HFONT hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
         QFont f("MS Sans Serif",8);
+        int result = 0;
         QT_WA({
             LOGFONT lf;
-            if (GetObject(hfont, sizeof(lf), &lf))
+            if (result = GetObject(hfont, sizeof(lf), &lf))
                 f = qt_LOGFONTtoQFont((LOGFONT&)lf,true);
         } , {
             LOGFONTA lf;
-            if (GetObjectA(hfont, sizeof(lf), &lf))
+            if (result = GetObjectA(hfont, sizeof(lf), &lf))
                 f = qt_LOGFONTtoQFont((LOGFONT&)lf,true);
         });
+        if (result
+            && QSysInfo::WindowsVersion >= QSysInfo::WV_2000
+            && QSysInfo::WindowsVersion <= QSysInfo::WV_NT_based
+            && f.family() == QLatin1String("MS Shell Dlg"))
+            f.setFamily("MS Shell Dlg 2");
         QApplication::setFont(f);
     }
 
