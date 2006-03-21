@@ -51,7 +51,7 @@ bool Q_GUI_EXPORT qt_use_native_dialogs = true; // for the benefit of testing to
 #endif
 
 const char *qt_file_dialog_filter_reg_exp =
-    "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\-\\[\\]]*)\\)$";
+    "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\-\\[\\]@\\{\\}/!<>\\$%&=^~:\\|]*)\\)$";
 
 // Makes a list of filters from ;;-separated text.
 QStringList qt_make_filter_list(const QString &filter)
