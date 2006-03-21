@@ -920,6 +920,9 @@ void QTextBrowser::focusOutEvent(QFocusEvent *ev)
         d->focusIndicator.clearSelection();
         d->viewport->update();
     }
+#ifndef QT_NO_CURSOR
+    d->viewport->setCursor(d->readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
+#endif
     QTextEdit::focusOutEvent(ev);
 }
 
