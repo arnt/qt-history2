@@ -2447,7 +2447,7 @@ QVariantList QVariant::toList() const
     \row \o \l Color \o \l String
     \row \o \l Date \o \l DateTime, \l String
     \row \o \l DateTime \o \l Date, \l String, \l Time
-    \row \o \l Double \o \l Bool, \l Int, \l LongLong, \l String, \l UInt, \l ULong
+    \row \o \l Double \o \l Bool, \l Int, \l LongLong, \l String, \l UInt, \l ULongLong
     \row \o \l Font \o \l String
     \row \o \l Int \o \l Bool, \l Char, \l Double, \l LongLong, \l String, \l UInt, \l ULongLong
     \row \o \l KeySequence \o \l Int, \l String
