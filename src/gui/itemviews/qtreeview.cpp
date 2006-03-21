@@ -1010,8 +1010,8 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
     QModelIndex current = parent;
     QModelIndex ancestor = current.parent();
 
-    QStyleOption opt(0);
-    opt.palette = palette();
+    QStyleOption opt;
+    opt.initFrom(this);
     QStyle::State extraFlags = QStyle::State_None;
     if (isEnabled())
         extraFlags |= QStyle::State_Enabled;
