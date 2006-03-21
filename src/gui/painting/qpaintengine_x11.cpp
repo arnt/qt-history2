@@ -1510,10 +1510,17 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
                                                        traps.constData() + i, 1);
                         }
                     } else {
-                        XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
-                                                   antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
-                                                   0, 0,
-                                                   traps.constData(), traps.size());
+                        int traps_left = traps.size();
+                        while (traps_left) {
+                            int to_draw = traps_left;
+                            if (to_draw > 50000)
+                                to_draw = 50000;
+                            XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
+                                                       antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
+                                                       0, 0,
+                                                       traps.constData()+traps.size()-traps_left, to_draw);
+                            traps_left -= to_draw;
+                        }
                     }
                 }
             }
