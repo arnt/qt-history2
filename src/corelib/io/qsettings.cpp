@@ -1653,7 +1653,14 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
             block += '=';
 
             const QVariant &value = j.value();
-            if (value.type() == QVariant::StringList || value.type() == QVariant::List) {
+
+            /*
+                The size() != 1 trick is necessary because
+                QVariant(QString("foo")).toList() returns an empty
+                list, not a list containing "foo".
+            */
+            if (value.type() == QVariant::StringList
+                    || (value.type() == QVariant::List && value.toList().size() != 1)) {
                 iniEscapedStringList(variantListToStringList(value.toList()), block);
             } else {
                 iniEscapedString(variantToString(value), block);
