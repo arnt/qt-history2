@@ -214,6 +214,7 @@ void QMainWindowLayout::setStatusBar(QStatusBar *sb)
         addChildWidget(sb);
     delete statusbar;
     statusbar = sb ? new QWidgetItem(sb) : 0;
+    invalidate();
 }
 #endif // QT_NO_STATUSBAR
 
