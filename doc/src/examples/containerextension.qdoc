@@ -146,6 +146,12 @@
     function's QDesignerFormEditorInterface parameter provides the
     plugin with a gateway to all of \QD's API's.
 
+    In case of a multipage widget such as ours, we must also implement
+    two private slots: currentIndexChanged() and
+    pageTitleChanged(). These are required to update \QD's property
+    editor whenever the user views another page or changes one of the
+    page titles.
+
     The \c MultiPageWidgetPlugin class inherits from both QObject and
     QDesignerCustomWidgetInterface. It is important to remember, when
     using multiple inheritance, to ensure that all the interfaces
@@ -164,24 +170,97 @@
     \skipto MultiPageWidgetPlugin
     \printto isContainer(
 
-    \skipto createWidget(
-    \printto initialize(
+    \skipto isInitialized
+    \printuntil /^\}/
+
+    One of the functions that differ is the isContainer() function
+    which returns true in this example since our custom widget is
+    intended to be used as a container.
 
     \quotefromfile designer/containerextension/multipagewidgetplugin.cpp
     \skipto isContainer(
     \printto createWidget(
 
-    One of the functions that differ is the isContainer() function
-    which returns true in this example since our custom widget is
-    intended to be used as a container. Note also the initialize()
-    function:
+    Another function that differ is the function creating our custom widget:
 
+    \skipto createWidget
+    \printto isInitialized
+
+    In addition to actually creating the widget, we connect the
+    widget's currentIndexChanged() signal to the plugin's
+    currentIndexChanged() slot to update \QD's property editor. We
+    also connect the widget's pageTitleChanged() signal to the
+    plugin's pageTitleChanged() slot.
+
+    So the currentIndexChanged() slot is called whenever our custom
+    widget's currentIndexChanged() \e signal is emitted, i.e. whenever
+    the user views another page:
+
+    \skipto currentIndexChanged
+    \printuntil sender
+
+    First, we retrieve the object emitting the signal using the
+    QObject::sender() and qobject_cast() functions. If called in a
+    slot activated by a signal, QObject::sender() returns a pointer to
+    the object that sent the signal; otherwise it returns 0.
+
+    \skipto if (widget)
+    \printuntil /^\}/
+
+    Then we need to update the property editor; we use the static
+    QDesignerFormWindowInterface::findFormWindow() function to
+    retrieve the QDesignerFormWindowInterface object containg the
+    widget and emit its \l
+    {QDesignerFormWindowInterface::emitSelectionChanged()}{emitSelectionChanged()}
+    signal, forcing an update of the property editor.
+
+    \skipto pageTitleChanged
+    \printuntil sender
+
+    The pageTitleChanged() slot is called whenever our custom widget's
+    pageTitleChanged() \e signal is emitted. Again we first retrieve
+    the object emitting the signal using the QObject::sender() and
+    qobject_cast() functions. Then we need to update the property editor:
+
+    \skipto if (widget)
+    \printuntil findFormWindow
+
+    We retrieve the new current page from the widget that emitted the
+    signal, and again we use the static
+    QDesignerFormWindowInterface::findFormWindow() function to
+    retrieve the form containing the widget.
+
+    \skipto editor
+    \printuntil manager
+
+    Then we use the QDesignerFormWindowInterface::core() function to
+    get hold of the current QDesignerFormEditorInterface object. The
+    QDesignerFormEditorInterface class allows you to access Qt
+    Designer's various components; a reference to \QD's extension
+    manager can be obtained using the
+    QDesignerFormEditorInterface::extensionManager() function.
+
+    \skipto sheet
+    \printuntil /^\}/
+
+    Once we have the extension manager we can retrieve the current
+    QDesignerPropertySheetExtension object. \QD uses the
+    QDesignerPropertySheetExtension class to feed its property
+    editor. Whenever a widget is selected in its workspace, \QD will
+    query for the widget's property sheet extension. By calling the
+    the QDesignerPropertySheetExtension::setChanged() function, we
+    implicitly force an update of the property editor.
+
+    propertyIndex vs windowTitle
+
+    \quotefromfile designer/containerextension/multipagewidgetplugin.cpp
     \skipto initialize(
     \printuntil return;
 
-    The \c initialize() function takes a QDesignerFormEditorInterface
-    object as argument.  The QDesignerFormEditorInterface class
-    provides access to Qt Designer's components.
+    Note also the initialize() function: The \c initialize() function
+    takes a QDesignerFormEditorInterface object as argument. The
+    QDesignerFormEditorInterface class provides access to Qt
+    Designer's components.
 
     In \QD you can create two kinds of plugins: custom widget plugins
     and tool plugins. QDesignerFormEditorInterface provides access to
@@ -236,22 +315,24 @@
     \skipto domXml
     \printuntil /^\}/
 
-    Note also the \c domXml() function which include default settings
-    for the widget in the standard XML format used by \QD. In this
-    case, we specify the container's first page; any inital pages of a
-    multi-page widget must be specified within this function.
+    Finally, take a look at the \c domXml() function. This function
+    includes default settings for the widget in the standard XML
+    format used by \QD. In this case, we specify the container's first
+    page; any inital pages of a multi-page widget must be specified
+    within this function.
 
     We have omitted to reimplement the
     QDesignerCustomWidgetInterface::codeTemplate() function which
     normally provide a sample code template for the custom widget.
 
+    \skipto Q_EXPORT_PLUGIN2
     \printline Q_EXPORT_PLUGIN2
 
-    Finally, we use the Q_EXPORT_PLUGIN2() macro to export the
-    MultiPageWidgetPlugin class for use with Qt's plugin handling classes:
-    This macro ensures that \QD can access and construct the custom
-    widget. Without this macro, there is no way for \QD to use the
-    widget.
+    Remember also to use the Q_EXPORT_PLUGIN2() macro to export the
+    MultiPageWidgetPlugin class for use with Qt's plugin handling
+    classes: This macro ensures that \QD can access and construct the
+    custom widget. Without this macro, there is no way for \QD to use
+    the widget.
 
     \section1 MultiPageWidgetExtensionFactory Class Definition
 
@@ -402,4 +483,16 @@
     them in the same way it manages the properties the MultiPageWidget
     widget inherits from QWidget and QObject, for example featuring
     the property editor.
+
+    Note the \c STORED attribute in the declaration of the \a
+    pageTitle property: This attribute indicates persistence, ie.e \c
+    STORED declares whether the property's value must be remembered
+    when storing an object's state, and only makes sense for writable
+    properties.  Technically superfluous properties define this to be
+    false; the default value is true.
+
+    We must also implement and emit the currentIndexChanged() and
+    pageTitleChanged() signals to ensure that \QD's property editor is
+    updated whenever the user views another page or changes one of the
+    page titles.
 */
