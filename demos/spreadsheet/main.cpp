@@ -14,13 +14,13 @@
 #include <QtGui>
 
 static QString encode_pos(int row, int col) {
-    return QString(col + 'A') + QString(row + '0');
+    return QString(col + 'A') + QString::number(row + 1);
 }
 
 static void decode_pos(const QString &pos, int *row, int *col)
 {
     *col = pos.at(0).toLatin1() - 'A';
-    *row = pos.at(1).toLatin1() - '0';
+    *row = pos.right(pos.size() - 1).toInt() - 1;
 }
 
 class SpreadSheetItem : public QTableWidgetItem
@@ -37,8 +37,6 @@ public:
 
     inline QString formula() const
         { return QTableWidgetItem::data(Qt::DisplayRole).toString(); }
-
-    QPoint convertCoords(const QString coords) const;
 
 private:
     mutable bool isResolving;
@@ -100,11 +98,12 @@ QVariant SpreadSheetItem::display() const
         return formula; // its a normal string
 
     QString op = list.at(0).toLower();
-    QPoint one = convertCoords(list.at(1));
-    QPoint two = convertCoords(list.at(2));
+    int firstRow, firstCol, secondRow, secondCol;
+    decode_pos(list.at(1), &firstRow, &firstCol);
+    decode_pos(list.at(2), &secondRow, &secondCol);
 
-    const QTableWidgetItem *start = tableWidget()->item(one.y(), one.x());
-    QTableWidgetItem *end = tableWidget()->item(two.y(), two.x());
+    const QTableWidgetItem *start = tableWidget()->item(firstRow, firstCol);
+    const QTableWidgetItem *end = tableWidget()->item(secondRow, secondCol);
 
     if (!start || !end)
         return "Error: Item does not exist!";
@@ -142,17 +141,6 @@ QVariant SpreadSheetItem::display() const
 
     isResolving = false;
     return result;
-}
-
-QPoint SpreadSheetItem::convertCoords(const QString coords) const
-{
-    int r = 0;
-    int c = coords.at(0).toUpper().toAscii() - 'A';
-    for (int i = 1; i < coords.count(); ++i) {
-        r *= 10;
-        r += coords.at(i).digitValue();
-    }
-    return QPoint(c, r);
 }
 
 class SpreadSheet : public QMainWindow
@@ -418,9 +406,12 @@ bool SpreadSheet::runInputDialog(const QString &title,
                                  const QString &outText,
                                  QString *cell1, QString *cell2, QString *outCell)
 {
-    const QStringList rows = QStringList() << "0" << "1" << "2" << "3" << "4"
-                                           << "5" << "6" << "7" << "8" << "9";
-    const QStringList cols = QStringList() << "A" << "B" << "C" << "D" << "E" << "F";
+
+    QStringList rows, cols;
+    for (int c = 0; c < table->columnCount(); ++c)
+        cols << QChar('A' + c);
+    for (int r = 0; r < table->rowCount(); ++r)
+        rows << QString::number(1 + r);
 
     QDialog addDialog(this);
     addDialog.setWindowTitle(title);
@@ -430,33 +421,39 @@ bool SpreadSheet::runInputDialog(const QString &title,
 
     QLabel cell1Label(c1Text, &group);
     QComboBox cell1RowInput(&group);
+    int c1Row, c1Col;
+    decode_pos(*cell1, &c1Row, &c1Col);
     cell1RowInput.addItems(rows);
-    cell1RowInput.setCurrentIndex(cell1->at(1).toLatin1() - '0');
+    cell1RowInput.setCurrentIndex(c1Row);
     QComboBox cell1ColInput(&group);
     cell1ColInput.addItems(cols);
-    cell1ColInput.setCurrentIndex(cell1->at(0).toLatin1() - 'A');
+    cell1ColInput.setCurrentIndex(c1Col);
 
     QLabel operatorLabel(opText, &group);
     operatorLabel.setAlignment(Qt::AlignHCenter);
 
     QLabel cell2Label(c2Text, &group);
     QComboBox cell2RowInput(&group);
+    int c2Row, c2Col;
+    decode_pos(*cell2, &c2Row, &c2Col);
     cell2RowInput.addItems(rows);
-    cell2RowInput.setCurrentIndex(cell2->at(1).toLatin1() - '0');
+    cell2RowInput.setCurrentIndex(c2Row);
     QComboBox cell2ColInput(&group);
     cell2ColInput.addItems(cols);
-    cell2ColInput.setCurrentIndex(cell2->at(0).toLatin1() - 'A');
+    cell2ColInput.setCurrentIndex(c2Col);
 
     QLabel equalsLabel("=", &group);
     equalsLabel.setAlignment(Qt::AlignHCenter);
 
     QLabel outLabel(outText, &group);
     QComboBox outRowInput(&group);
+    int outRow, outCol;
+    decode_pos(*outCell, &outRow, &outCol);
     outRowInput.addItems(rows);
-    outRowInput.setCurrentIndex(outCell->at(1).toLatin1() - '0');
+    outRowInput.setCurrentIndex(outRow);
     QComboBox outColInput(&group);
     outColInput.addItems(cols);
-    outColInput.setCurrentIndex(outCell->at(0).toLatin1() - 'A');
+    outColInput.setCurrentIndex(outCol);
 
     QPushButton cancelButton(tr("Cancel"), &addDialog);
     connect(&cancelButton, SIGNAL(clicked()), &addDialog, SLOT(reject()));
@@ -565,9 +562,8 @@ void SpreadSheet::actionMath_helper(const QString &title, const QString &op)
     QString out = "B3";
 
     QTableWidgetItem *current = table->currentItem();
-    if (current) {
-        out = QString(table->currentColumn() + 'A') + QString(table->currentRow() + '0');
-    }
+    if (current)
+        out = encode_pos(table->currentRow(), table->currentColumn());
 
     if (runInputDialog(title, tr("Cell 1"), tr("Cell 2"), op, tr("Output to:"),
                        &cell1, &cell2, &out)) {
@@ -691,14 +687,14 @@ void SpreadSheet::setupContents()
     table->item(0, 4)->setBackgroundColor(titleBackground);
     table->item(0, 4)->setToolTip("This column shows the expenses in NOK");
     table->item(0, 4)->setFont(titleFont);
-    table->setItem(1, 4, new SpreadSheetItem("* B1 D1"));
-    table->setItem(2, 4, new SpreadSheetItem("* B2 D2"));
-    table->setItem(3, 4, new SpreadSheetItem("* B3 D3"));
-    table->setItem(4, 4, new SpreadSheetItem("* B4 D4"));
-    table->setItem(5, 4, new SpreadSheetItem("* B5 D5"));
-    table->setItem(6, 4, new SpreadSheetItem("* B6 D6"));
-    table->setItem(7, 4, new SpreadSheetItem("* B7 D7"));
-    table->setItem(8, 4, new SpreadSheetItem("* B8 D8"));
+    table->setItem(1, 4, new SpreadSheetItem("* B2 D2"));
+    table->setItem(2, 4, new SpreadSheetItem("* B3 D3"));
+    table->setItem(3, 4, new SpreadSheetItem("* B4 D4"));
+    table->setItem(4, 4, new SpreadSheetItem("* B5 D5"));
+    table->setItem(5, 4, new SpreadSheetItem("* B6 D6"));
+    table->setItem(6, 4, new SpreadSheetItem("* B7 D7"));
+    table->setItem(7, 4, new SpreadSheetItem("* B8 D8"));
+    table->setItem(8, 4, new SpreadSheetItem("* B9 D9"));
     table->setItem(9, 4, new SpreadSheetItem("sum E2 E9"));
     table->item(9,4)->setBackgroundColor(Qt::lightGray);
 
