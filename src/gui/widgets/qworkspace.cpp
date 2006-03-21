@@ -1020,11 +1020,14 @@ void QWorkspace::setBackground(const QBrush &background)
 }
 
 /*!
-  Adds widget \a w as new sub window to the workspace.  If \a flags
-  are non-zero, they will override the flags set on the widget.
+    Adds widget \a w as new sub window to the workspace.  If \a flags
+    are non-zero, they will override the flags set on the widget.
 
-  Returns the widget used for the window frame.
+    Returns the widget used for the window frame.
 
+    To remove the widget \a w from the workspace, simply call
+    setParent() with the new parent (or 0 to make it a stand-alone
+    window).
 */
 QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
 {
