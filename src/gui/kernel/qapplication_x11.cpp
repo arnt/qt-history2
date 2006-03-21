@@ -64,6 +64,10 @@
 #include "qinputcontextfactory.h"
 #endif // QT_NO_IM
 
+#ifndef QT_NO_XFIXES
+#include <X11/extensions/Xfixes.h>
+#endif // QT_NO_XFIXES
+
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
 
@@ -1249,6 +1253,12 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->xrender_major = 0;
     X11->xrender_version = 0;
 
+    // XFIXES
+    X11->use_xfixes = false;
+    X11->xfixes_major = 0;
+    X11->xfixes_eventbase = 0;
+    X11->xfixes_errorbase = 0;
+
     // XInputExtension
     X11->use_xinput = false;
     X11->xinput_major = 0;
@@ -1535,6 +1545,27 @@ void qt_init(QApplicationPrivate *priv, int,
             }
         }
 #endif // QT_NO_XRENDER
+
+#ifndef QT_NO_XFIXES
+        // See if Xfixes is supported on the connected display
+        if (XQueryExtension(X11->display, "XFIXES", &X11->xfixes_major,
+                            &X11->xfixes_eventbase, &X11->xfixes_errorbase)
+            && XFixesQueryExtension(X11->display, &X11->xfixes_eventbase,
+                                    &X11->xfixes_errorbase)) {
+            // Xfixes is supported.
+            // Note: the XFixes protocol version is negotiated using QueryVersion.
+            // We supply the highest version we support, the X server replies with
+            // the highest version it supports, but no higher than the version we
+            // asked for. The version sent back is the protocol version the X server
+            // will use to talk us. If this call is removed, the behavior of the
+            // X server when it receives an XFixes request is undefined.
+            int major = 3;
+            int minor = 0;
+            XFixesQueryVersion(X11->display, &major, &minor);
+            X11->use_xfixes = (major >= 2);
+            X11->xfixes_major = major;
+        }
+#endif // QT_NO_XFIXES
 
 #ifndef QT_NO_XKB
         // If XKB is detected, set the GrabsUseXKBState option so input method

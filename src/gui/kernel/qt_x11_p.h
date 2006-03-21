@@ -331,6 +331,12 @@ struct QX11Data
     int xrender_major;
     int xrender_version;
 
+    // true if Qt is compiled w/ XFIXES support and XFIXES is supported on the connected Display
+    bool use_xfixes;
+    int xfixes_major;
+    int xfixes_eventbase;
+    int xfixes_errorbase;
+
     // true if Qt is compiled w/ Tablet support and we have a tablet.
     bool use_xinput;
     int xinput_major;

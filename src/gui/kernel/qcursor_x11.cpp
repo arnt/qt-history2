@@ -22,6 +22,10 @@
 #  include <X11/Xcursor/Xcursor.h>
 #endif // QT_NO_XCURSOR
 
+#ifndef QT_NO_XFIXES
+#  include <X11/extensions/Xfixes.h>
+#endif // QT_NO_XFIXES
+
 #include "qx11info_x11.h"
 
 // Define QT_USE_APPROXIMATE_CURSORS when compiling if you REALLY want to
@@ -225,7 +229,6 @@ void QCursorData::update()
         return;
     }
 
-#ifndef QT_NO_XCURSOR
     static const char *cursorNames[] = {
         "left_ptr",
         "up_arrow",
@@ -246,6 +249,7 @@ void QCursorData::update()
         "left_ptr_watch"
     };
 
+#ifndef QT_NO_XCURSOR
     hcurs = XcursorLibraryLoadCursor(dpy, cursorNames[cshape]);
     if (hcurs)
         return;
@@ -427,9 +431,8 @@ void QCursorData::update()
         pm  = XCreateBitmapFromData(dpy, rootwin, cursor_bits16[i], 16, 16);
         pmm = XCreateBitmapFromData(dpy, rootwin, cursor_bits16[i + 1], 16, 16);
         hcurs = XCreatePixmapCursor(dpy, pm, pmm, &fg, &bg, 8, 8);
-        return;
     }
-    if ((cshape >= Qt::SplitVCursor && cshape <= Qt::SplitHCursor)
+    else if ((cshape >= Qt::SplitVCursor && cshape <= Qt::SplitHCursor)
             || cshape == Qt::WhatsThisCursor || cshape == Qt::BusyCursor) {
         XColor bg, fg;
         bg.red   = 255 << 8;
@@ -444,9 +447,8 @@ void QCursorData::update()
         int hs = (cshape == Qt::PointingHandCursor || cshape == Qt::WhatsThisCursor
                   || cshape == Qt::BusyCursor) ? 0 : 16;
         hcurs = XCreatePixmapCursor(dpy, pm, pmm, &fg, &bg, hs, hs);
-        return;
     }
-    if (cshape == Qt::ForbiddenCursor) {
+    else if (cshape == Qt::ForbiddenCursor) {
         XColor bg, fg;
         bg.red   = 255 << 8;
         bg.green = 255 << 8;
@@ -458,8 +460,17 @@ void QCursorData::update()
         pm  = XCreateBitmapFromData(dpy, rootwin, cursor_bits20[i], 20, 20);
         pmm = XCreateBitmapFromData(dpy, rootwin, cursor_bits20[i + 1], 20, 20);
         hcurs = XCreatePixmapCursor(dpy, pm, pmm, &fg, &bg, 10, 10);
+    }
+
+    if (hcurs)
+    {
+#ifndef QT_NO_XFIXES
+        if (X11->use_xfixes)
+            XFixesSetCursorName(dpy, hcurs, cursorNames[cshape]);
+#endif /* ! QT_NO_XFIXES */
         return;
     }
+
 #endif /* ! QT_USE_APPROXIMATE_CURSORS */
 
     uint sh;
@@ -528,4 +539,9 @@ void QCursorData::update()
         return;
     }
     hcurs = XCreateFontCursor(dpy, sh);
+
+#ifndef QT_NO_XFIXES
+    if (X11->use_xfixes)
+        XFixesSetCursorName(dpy, hcurs, cursorNames[cshape]);
+#endif /* ! QT_NO_XFIXES */
 }

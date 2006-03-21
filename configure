@@ -575,7 +575,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -1091,6 +1091,13 @@ while [ "$#" -gt 0 ]; do
     xcursor)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_XCURSOR="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    xfixes)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_XFIXES="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2512,6 +2519,10 @@ Qt/X11 only:
  $XCY  -xcursor ........... Compile Xcursor support.
                          Requires X11/Xcursor/Xcursor.h and libXcursor.
 
+ $XCN  -no-xfixes ......... Do not compile Xfixes support.
+ $XCY  -xfixes ............ Compile Xfixes support.
+                         Requires X11/extensions/Xfixes.h and libXfixes.
+
  $XZN  -no-xrandr ......... Do not compile Xrandr (resize and rotate) support.
  $XZY  -xrandr ............ Compile Xrandr support.
                          Requires X11/extensions/Xrandr.h and libXrandr.
@@ -3409,6 +3420,23 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	fi
     fi
 
+    # auto-detect Xfixes support
+    if [ "$CFG_XFIXES" != "no" ]; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xfixes "Xfixes" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
+	    CFG_XFIXES=yes
+	else
+	    if [ "$CFG_XFIXES" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+		echo "Xfixes support cannot be enabled due to functionality tests!"
+		echo " Turn on verbose messaging (-v) to $0 to see the final report."
+		echo " If you believe this message is in error you may use the continue"
+		echo " switch (-continue) to $0 to continue."
+		exit 101
+	    else
+		CFG_XFIXES=no
+	    fi
+	fi
+    fi
+
     # auto-detect Xrandr support (resize and rotate extension)
     if [ "$CFG_XRANDR" != "no" ]; then
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xrandr "Xrandr" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
@@ -3892,6 +3920,10 @@ if [ "$PLATFORM_X11" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG xcursor"
         QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXcursor \$\$QMAKE_LIBS_X11\""
     fi
+    if [ "$CFG_XFIXES" = "yes" ]; then
+        QT_CONFIG="$QT_CONFIG xfixes"
+        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXfixes \$\$QMAKE_LIBS_X11\""
+    fi
     if [ "$CFG_XRANDR" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG xrandr"
         if [ "$CFG_XRENDER" != "yes" ]; then
@@ -4047,7 +4079,7 @@ esac
 #     tablet
 #     ipv6
 #
-#     X11     : x11sm xinerama xcursor xrandr xrender fontconfig xkb
+#     X11     : x11sm xinerama xcursor xfixes xrandr xrender fontconfig xkb
 #     Embedded: embedded freetype
 #
 ALL_OPTIONS="stl"
@@ -4289,6 +4321,7 @@ QMAKE_VARS="$QMAKE_VARS \"sql-plugins = $SQL_PLUGINS\""
 [ "$CFG_NIS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NIS"
 [ "$CFG_SM" = "no" ]         && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SESSIONMANAGER"
 [ "$CFG_XCURSOR" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XCURSOR"
+[ "$CFG_XFIXES" = "no" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XFIXES"
 [ "$CFG_FONTCONFIG" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_FONTCONFIG"
 [ "$CFG_XINERAMA" = "no" ]   && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XINERAMA"
 [ "$CFG_XKB" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XKB"
@@ -4634,6 +4667,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "XShape support ...... $CFG_XSHAPE"
     echo "Xinerama support .... $CFG_XINERAMA"
     echo "Xcursor support ..... $CFG_XCURSOR"
+    echo "Xfixes support ...... $CFG_XFIXES"
     echo "Xrandr support ...... $CFG_XRANDR"
     echo "Xrender support ..... $CFG_XRENDER"
     echo "FontConfig support .. $CFG_FONTCONFIG"
