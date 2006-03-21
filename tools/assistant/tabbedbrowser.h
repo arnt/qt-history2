@@ -34,8 +34,8 @@ public:
     QStringList sources() const;
     QList<HelpWindow*> browsers() const;
 
-    HelpWindow* newBackgroundTab(const QString &url);
-    HelpWindow* createHelpWindow(const QString &);
+    HelpWindow* newBackgroundTab();
+    HelpWindow* createHelpWindow();
 
     void setTitle(HelpWindow*, const QString &);
 

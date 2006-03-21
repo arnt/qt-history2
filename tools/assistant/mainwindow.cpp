@@ -416,13 +416,13 @@ void MainWindow::showLinks(const QStringList &links)
         browser.first = tabs->currentBrowser();
         browser.second = links.first();
         pendingBrowsers.append(browser);
-        tabs->setTitle(tabs->currentBrowser(), links.first());
+        tabs->setTitle(tabs->currentBrowser(), tr("..."));
     }
     ++it;
 
     while(it != links.end()) {
         QPair<HelpWindow*, QString> browser;
-        browser.first = tabs->newBackgroundTab(*it);
+        browser.first = tabs->newBackgroundTab();
         browser.second = *it;
         pendingBrowsers.append(browser);
         ++it;

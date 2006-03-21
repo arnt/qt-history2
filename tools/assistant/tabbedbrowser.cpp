@@ -101,14 +101,14 @@ void TabbedBrowser::previousTab()
         ui.tab->setCurrentIndex(idx);
 }
 
-HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
+HelpWindow *TabbedBrowser::createHelpWindow()
 {
     MainWindow *mainWin = mainWindow();
     HelpWindow *win = new HelpWindow(mainWin, 0);
     win->setFrameStyle(QFrame::NoFrame);
     win->setPalette(palette());
     win->setSearchPaths(Config::configuration()->mimePaths());
-    ui.tab->addTab(win, title);
+    ui.tab->addTab(win, tr("..."));
     connect(win, SIGNAL(highlighted(QString)),
              (const QObject*) (mainWin->statusBar()), SLOT(showMessage(QString)));
     connect(win, SIGNAL(chooseWebBrowser()), mainWin, SLOT(showWebBrowserSettings()));
@@ -126,9 +126,9 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
     return win;
 }
 
-HelpWindow *TabbedBrowser::newBackgroundTab(const QString &url)
+HelpWindow *TabbedBrowser::newBackgroundTab()
 {
-    HelpWindow *win = createHelpWindow(url);
+    HelpWindow *win = createHelpWindow();
     return win;
 }
 
@@ -140,7 +140,7 @@ void TabbedBrowser::newTab(const QString &lnk)
         if(w)
             link = w->source().toString();
     }
-    HelpWindow *win = createHelpWindow(link);
+    HelpWindow *win = createHelpWindow();
     ui.tab->setCurrentIndex(ui.tab->indexOf(win));
     if(!link.isNull()) {
          win->setSource(link);
