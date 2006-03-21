@@ -30,6 +30,7 @@ $targetBranch{"qt-4.1-qtopia"} = "4.1";
 $targetBranch{"qtopia-1.6"} = "1";
 $targetBranch{"qtopia-1"} = "2.1";
 $targetBranch{"qtopia-2.1"} = "2";
+$targetBranch{"qtopia-4.1.0"} = "4.1";
 $targetBranch{"qtopia-4.1"} = "main";
 $targetBranch{"qtest-main"} = "stable";
 $targetBranch{"qtest-stable"} = "main";
