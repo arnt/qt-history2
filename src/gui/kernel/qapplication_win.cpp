@@ -3300,8 +3300,7 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
             t = QEvent::TabletRelease;
             button_pressed = false;
         }
-        // Truncate the stuff here as that what wintab does.
-        QPoint globalPos(hiResGlobal.x(), hiResGlobal.y());
+        QPoint globalPos(qRound(hiResGlobal.x()), qRound(hiResGlobal.y()));
 
         // make sure the tablet event get's sent to the proper widget...
         QWidget *w = QApplication::widgetAt(globalPos);
