@@ -1566,7 +1566,7 @@ QWidgetList QApplication::topLevelWidgets()
         for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
              it != QWidgetPrivate::mapper->constEnd(); ++it) {
             QWidget *w = *it;
-            if (w->isWindow())
+            if (w->isWindow() && !w->isDesktop())
                 list.append(w);
         }
     }
