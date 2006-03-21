@@ -795,6 +795,7 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
             if (at(cell).isTableCell) {
 
                 const QTextHtmlParserNode &c = at(cell);
+                const int currentColumn = colsInRow;
                 colsInRow += c.tableCellColSpan;
 
                 if (c.tableCellRowSpan > 1) {
@@ -804,8 +805,10 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
                         rowSpanCellsPerRow[r]++;
                 }
 
-                while (columnWidths.count() < colsInRow)
-                    columnWidths << c.width;
+                columnWidths.resize(qMax(columnWidths.count(), colsInRow));
+                for (int i = currentColumn; i < currentColumn + c.tableCellColSpan; ++i)
+                    if (columnWidths.at(i).type() == QTextLength::VariableLength)
+                        columnWidths[i] = c.width;
             }
 
         table.columns = qMax(table.columns, colsInRow + rowSpanCellsPerRow.value(effectiveRow, 0));
