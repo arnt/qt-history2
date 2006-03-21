@@ -122,6 +122,8 @@ private:
     QDesignerFormWindowManagerInterface *formWindowManager() const;
     void changeBringToFrontVisiblity(bool visible);
 
+    bool eventFilter(QObject *object, QEvent *event);
+
 private:
     QDesignerFormEditorInterface *m_core;
     qdesigner_internal::QDesignerIntegration *m_integration;

@@ -42,6 +42,7 @@
 #include <QtGui/QHeaderView>
 
 #include <QtCore/QVariant>
+#include <QtCore/QUrl>
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
 
@@ -374,6 +375,8 @@ void QDesignerWorkbench::switchToDockedMode()
     mw->setObjectName(QLatin1String("MDIWindow"));
     mw->setWindowTitle(tr("Qt Designer"));
     m_workspace = new QWorkspace(mw);
+    m_workspace->setAcceptDrops(true);
+    m_workspace->installEventFilter(this);
     m_workspace->setScrollBarsEnabled(true);
     connect(m_workspace, SIGNAL(windowActivated(QWidget*)),
             this, SLOT(activateWorkspaceChildWindow(QWidget*)));
@@ -429,6 +432,34 @@ void QDesignerWorkbench::switchToDockedMode()
 
     if (!m_initializing)
         QMetaObject::invokeMethod(this, "adjustFormPositions", Qt::QueuedConnection);
+}
+
+bool QDesignerWorkbench::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == m_workspace) {
+        if (event->type() == QEvent::DragEnter) {
+            QDragEnterEvent *e = static_cast<QDragEnterEvent*>(event);
+            if (e->mimeData()->hasFormat("text/uri-list")) {
+                e->acceptProposedAction();
+                return true;
+            }
+        } else if (event->type() == QEvent::Drop) {
+            QDropEvent *e = static_cast<QDropEvent*>(event);
+            if (!e->mimeData()->hasFormat("text/uri-list"))
+                return false;
+            foreach (QUrl url, e->mimeData()->urls()) {
+                QString fileName = url.toLocalFile();
+                if (fileName.endsWith(".ui"))
+                    readInForm(url.toLocalFile());
+                else
+                    QMessageBox::critical(m_workspace, tr("Opening Form"),
+                        tr("Cannot open file %1!").arg(fileName));
+            }
+            e->acceptProposedAction();
+            return true;
+        }
+    }
+    return false;
 }
 
 void QDesignerWorkbench::adjustFormPositions()
