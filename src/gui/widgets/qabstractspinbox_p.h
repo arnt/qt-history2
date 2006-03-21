@@ -95,6 +95,7 @@ public:
     void clearCache() const;
 
     static int variantCompare(const QVariant &arg1, const QVariant &arg2);
+    static QVariant variantBound(const QVariant &min, const QVariant &value, const QVariant &max);
 
     QLineEdit *edit;
     QString prefix, suffix, specialValueText;
@@ -113,6 +114,7 @@ public:
     uint ignoreCursorPositionChanged : 1;
     uint frame : 1;
     uint accelerate : 1;
+    QAbstractSpinBox::CorrectionMode correctionMode;
     int acceleration;
     QStyle::SubControl hoverControl;
     QRect hoverRect;

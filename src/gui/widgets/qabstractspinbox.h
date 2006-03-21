@@ -29,6 +29,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_OBJECT
 
     Q_ENUMS(ButtonSymbols)
+    Q_ENUMS(CorrectionMode)
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
     Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
@@ -37,6 +38,8 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
     Q_PROPERTY(QString text READ text)
     Q_PROPERTY(bool accelerate READ accelerate WRITE setAccelerate)
+    Q_PROPERTY(CorrectionMode correctionMode READ correctionMode WRITE setCorrectionMode)
+
 public:
     explicit QAbstractSpinBox(QWidget *parent = 0);
     ~QAbstractSpinBox();
@@ -49,6 +52,11 @@ public:
 
     ButtonSymbols buttonSymbols() const;
     void setButtonSymbols(ButtonSymbols bs);
+
+    enum CorrectionMode  { PreviousValue, NearestValue };
+
+    void setCorrectionMode(CorrectionMode cm);
+    CorrectionMode correctionMode() const;
 
     QString text() const;
 

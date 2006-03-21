@@ -333,6 +333,30 @@ bool QAbstractSpinBox::accelerate() const
     return d->accelerate;
 }
 
+/*!
+    \property QAbstractSpinBox::correctionMode
+
+    \brief This enum type describes the mode the spinbox will use to
+    correct an Intermediate value if editing finishes.
+
+    If the mode is PreviousValue the spinbox will revert to the last
+    valid value.
+
+    If the mode is NearestValue the spinbox will revert to the nearest
+    valid value.
+*/
+
+void QAbstractSpinBox::setCorrectionMode(CorrectionMode cm)
+{
+    Q_D(QAbstractSpinBox);
+    d->correctionMode = cm;
+
+}
+QAbstractSpinBox::CorrectionMode QAbstractSpinBox::correctionMode() const
+{
+    Q_D(const QAbstractSpinBox);
+    return d->correctionMode;
+}
 
 /*!
     \property QAbstractSpinBox::alignment
@@ -1155,7 +1179,8 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
       spinClickTimerInterval(100), spinClickThresholdTimerId(-1), spinClickThresholdTimerInterval(thresholdTime),
       buttonState(None), cachedText("\x01"), cachedState(QValidator::Invalid),
       pendingEmit(false), readOnly(false), wrapping(false),
-      ignoreCursorPositionChanged(false), frame(true), accelerate(false), acceleration(0),
+      ignoreCursorPositionChanged(false), frame(true), accelerate(false),
+      correctionMode(QAbstractSpinBox::PreviousValue), acceleration(0),
       hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0)
 {
 }
@@ -1631,7 +1656,8 @@ void QAbstractSpinBoxPrivate::interpret(EmitPolicy ep)
 
         doInterpret = tmp != copy && (q->validate(tmp, pos) == QValidator::Acceptable);
         if (!doInterpret) {
-            v = value;
+            v = (correctionMode == QAbstractSpinBox::NearestValue
+                 ? variantBound(minimum, v, maximum) : value);
         }
     }
     if (doInterpret) {
@@ -1870,6 +1896,17 @@ int QAbstractSpinBoxPrivate::variantCompare(const QVariant &arg1, const QVariant
            __FILE__, __LINE__, arg1.typeName(), arg2.typeName());
 
     return -2;
+}
+
+QVariant QAbstractSpinBoxPrivate::variantBound(const QVariant &min, const QVariant &value, const QVariant &max)
+{
+    Q_ASSERT(variantCompare(min, max) <= 0);
+    if (variantCompare(min, value) < 0) {
+        const int compMax = variantCompare(value, max);
+        return (compMax < 0 ? value : max);
+    } else {
+        return min;
+    }
 }
 
 
