@@ -1,14 +1,26 @@
-#include <qapplication.h>
+/****************************************************************************
+**
+** Copyright (C) 2001-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include <QApplication>
 #include "hello.h"
 
 int main(int argc, char **argv)
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
-    MyPushButton* hello = new MyPushButton("Hello world!");
-    hello->resize(100, 30);
+    MyPushButton helloButton("Hello world!");
+    helloButton.resize(100, 30);
 
-    a.setMainWidget(hello);
-    hello->show();
-    return a.exec();
+    helloButton.show();
+    return app.exec();
 }
