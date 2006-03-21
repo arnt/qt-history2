@@ -249,7 +249,7 @@ void QGridLayoutPrivate::recalcHFW(int w, int spacing)
 
     hfw_width = w;
     hfw_height = qMin(QLAYOUTSIZE_MAX, h);
-    hfw_minheight = qMin(QLAYOUTSIZE_MAX, h);
+    hfw_minheight = qMin(QLAYOUTSIZE_MAX, mh);
 }
 
 int QGridLayoutPrivate::heightForWidth(int w, int margin, int spacing)
