@@ -2494,8 +2494,12 @@ bool QVariant::convert(Type t)
         return false;
 
     create(t, 0);
+    if (oldValue.isNull())
+        return false;
+
     bool isOk = true;
     handler->convert(&oldValue.d, t, data(), &isOk);
+    d.is_null = !isOk;
     return isOk;
 }
 
