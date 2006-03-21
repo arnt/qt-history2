@@ -964,6 +964,11 @@ void QWin32PrintEnginePrivate::initHDC()
         break;
     }
 
+    initDevRects();
+}
+
+void QWin32PrintEnginePrivate::initDevRects()
+{
     devPaperRect = QRect(0, 0,
                          GetDeviceCaps(hdc, PHYSICALWIDTH),
                          GetDeviceCaps(hdc, PHYSICALHEIGHT));
@@ -1031,10 +1036,12 @@ QList<QVariant> QWin32PrintEnginePrivate::queryResolutions() const
 
 void QWin32PrintEnginePrivate::doReinit()
 {
-    if (state == QPrinter::Active)
+    if (state == QPrinter::Active) {
         reinit = true;
-    else
+    } else {
         resetDC();
+        initDevRects();
+    }
 }
 
 void QWin32PrintEnginePrivate::updateOrigin()
@@ -1261,13 +1268,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
         break;
 
     case PPK_PageRect:
-        {
-            QRect rect(QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPageRect));
-            if (property(PPK_Orientation) == QPrinter::Portrait)
-                value = rect;
-            else
-                value = QRect(rect.top(), rect.left(), rect.height(), rect.width());
-        }
+        value = QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPageRect);
         break;
 
     case PPK_PageSize:
@@ -1283,13 +1284,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
         break;
 
     case PPK_PaperRect:
-        {
-            QRect rect(QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPaperRect));
-            if (property(PPK_Orientation) == QPrinter::Portrait)
-                value = rect;
-            else
-                value = QRect(rect.top(), rect.left(), rect.height(), rect.width());            
-        }
+        value = QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPaperRect);
         break;
 
     case PPK_PaperSource:

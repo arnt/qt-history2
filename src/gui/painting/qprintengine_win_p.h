@@ -158,6 +158,8 @@ public:
 
     void updateOrigin();
 
+    void initDevRects();
+
 
     // Windows GDI printer references.
     HANDLE hPrinter;
