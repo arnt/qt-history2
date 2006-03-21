@@ -404,6 +404,10 @@ void QTextEditPrivate::init(const QString &html)
     q->setAcceptDrops(true);
     q->setFocusPolicy(Qt::WheelFocus);
     q->setAttribute(Qt::WA_KeyCompression);
+
+#ifndef QT_NO_CURSOR
+    viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
+#endif
 }
 
 void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QTextDocument *document)
@@ -454,10 +458,6 @@ void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QT
         blockFmt.setLayoutDirection(q->layoutDirection());
         cursor.setBlockFormat(blockFmt);
     }
-
-#ifndef QT_NO_CURSOR
-    viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
-#endif
 
     if (!text.isEmpty()) {
         // clear 'our' cursor for insertion to prevent

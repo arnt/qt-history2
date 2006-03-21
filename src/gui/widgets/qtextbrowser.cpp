@@ -59,6 +59,10 @@ public:
     QString highlightedAnchor; // Anchor below cursor
     bool forceLoadOnSourceChange;
 
+#ifndef QT_NO_CURSOR
+    QCursor oldCursor;
+#endif
+
     QString findFile(const QUrl &name) const;
 
     inline void _q_documentModified()
@@ -856,12 +860,14 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *e)
 
     if (anchor.isEmpty()) {
 #ifndef QT_NO_CURSOR
-        d->viewport->setCursor(Qt::ArrowCursor);
+        if (d->viewport->cursor().shape() != Qt::PointingHandCursor)
+            d->oldCursor = d->viewport->cursor();
+        d->viewport->setCursor(d->oldCursor);
 #endif
         emit highlighted(QUrl());
         emit highlighted(QString());
     } else {
-#ifndef QT_NO_CURSOR
+#ifndef QT_NO_CURSOR        
         d->viewport->setCursor(Qt::PointingHandCursor);
 #endif
 
@@ -921,7 +927,7 @@ void QTextBrowser::focusOutEvent(QFocusEvent *ev)
         d->viewport->update();
     }
 #ifndef QT_NO_CURSOR
-    d->viewport->setCursor(d->readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
+    d->viewport->setCursor(d->readOnly ? d->oldCursor : Qt::IBeamCursor);
 #endif
     QTextEdit::focusOutEvent(ev);
 }
