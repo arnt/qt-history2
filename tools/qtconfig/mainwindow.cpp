@@ -139,14 +139,13 @@ static QColorGroup::ColorRole effectFromItem( int item )
 
 static void setStyleHelper(QWidget *w, QStyle *s)
 {
-    w->setStyle(s);
-
     const QObjectList children = w->children();
     for (int i = 0; i < children.size(); ++i) {
         QObject *child = children.at(i);
         if (child->isWidgetType())
             setStyleHelper((QWidget *) child, s);
     }
+    w->setStyle(s);
 }
 
 
