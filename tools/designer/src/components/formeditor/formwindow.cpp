@@ -958,10 +958,7 @@ void FormWindow::selectWidgets()
 
 bool FormWindow::handleKeyPressEvent(QWidget *widget, QWidget *, QKeyEvent *e)
 {
-    if (qobject_cast<FormWindow*>(widget))
-        return false;
-
-    if (qobject_cast<QMenu*>(widget))
+    if (qobject_cast<FormWindow*>(widget) || qobject_cast<QMenu*>(widget))
         return false;
 
     e->accept(); // we always accept!
@@ -972,28 +969,26 @@ bool FormWindow::handleKeyPressEvent(QWidget *widget, QWidget *, QKeyEvent *e)
         case Qt::Key_Delete:
         case Qt::Key_Backspace:
             deleteWidgets();
-            return true;
+            break;
 
         case Qt::Key_Tab:
             cursor()->movePosition(QDesignerFormWindowCursorInterface::Next);
-            return true;
+            break;
 
         case Qt::Key_Backtab:
             cursor()->movePosition(QDesignerFormWindowCursorInterface::Prev);
-            return true;
+            break;
 
         case Qt::Key_Left:
         case Qt::Key_Right:
         case Qt::Key_Up:
         case Qt::Key_Down:
-            if (e->modifiers() && Qt::ControlModifier) {
+            if (e->modifiers() && Qt::ControlModifier)
                 handleArrowKeyEvent(e->key(), e->modifiers() == Qt::ControlModifier);
-                return true;
-            }
             break;
     }
 
-    return false;
+    return true;
 }
 
 void FormWindow::handleArrowKeyEvent(int key, bool modifier)
