@@ -34,6 +34,8 @@
       \tableofcontents{1 Running qmake}
     \o \l{qmake Advanced Usage}
       \tableofcontents{1 qmake Advanced Usage}
+    \o \l{Using Precompiled Headers}
+      \tableofcontents{1 Using Precompiled Headers}
     \o \l{qmake Reference}
       \tableofcontents{1 qmake Reference}
     \endlist
@@ -637,7 +639,7 @@
     \page qmake-reference.html
     \title qmake Reference
     \contentspage {qmake Manual}{Contents}
-    \previouspage Running qmake
+    \previouspage Using Precompiled Headers
     \nextpage qmake Variable Reference
 
     This reference is a detailed index of all the variables and function
@@ -2688,7 +2690,7 @@
     \title qmake Advanced Usage
     \contentspage {qmake Manual}{Contents}
     \previouspage Configuring qmake's Environment
-    \nextpage qmake Reference
+    \nextpage Using Precompiled Headers
 
     Many \c qmake project files simply describe the sources and header files used
     by the project, using a list of \c{name = value} and \c{name += value}
@@ -3093,9 +3095,12 @@
 /*!
     \page qmake-precompiledheaders.html
     \title Using Precompiled Headers
+    \contentspage {qmake Manual}{Contents}
+    \previouspage qmake Advanced Usage
+    \nextpage qmake Reference
     \ingroup buildsystem
 
-    \target About
+    \target Introduction
 
     Precompiled headers are a performance feature supported by some
     compilers to compile a stable body of code, and store the compiled
@@ -3120,7 +3125,7 @@
         \endlist
     \o Unix
         \list
-        \o GCC 3.3 and above
+        \o GCC 3.4 and above
         \endlist
     \endlist
 
@@ -3130,8 +3135,8 @@
     \target PCH_CONTENTS
     \section2 Contents of the Precompiled Header File
 
-    The precompiled header must contain code which is \c stable
-    and \c static throughout your project. A typical PCH might look
+    The precompiled header must contain code which is \e stable
+    and \e static throughout your project. A typical PCH might look
     like this:
 
     \section3 Example: \c stable.h
@@ -3144,9 +3149,9 @@
     #include <stdlib>
     #include <iostream>
     #include <vector>
-    #include <qapplication.h> // Qt includes
-    #include <qpushbutton.h>
-    #include <qlabel.h>
+    #include <QApplication> // Qt includes
+    #include <QPushButton>
+    #include <QLabel>
     #include "thirdparty/include/libmain.h"
     #include "my_stable_class.h"
     ...
@@ -3169,7 +3174,7 @@
 
     \c qmake will handle the rest, to ensure the creation and use of the
     precompiled header file. You do not need to include the precompiled
-    header file in \c HEADERS, as qmake will do this if the configuration
+    header file in \c HEADERS, as \c qmake will do this if the configuration
     supports PCH.
 
     All platforms that support precompiled headers have the configuration
@@ -3202,47 +3207,47 @@
     \section1 Example Project
 
     You can find the following source code in the
-    \c{qt/qmake/examples/precompile} directory:
+    \c{examples/qmake/precompile} directory in the Qt distribution:
 
     \section2 \c mydialog.ui
 
-    \quotefile precompile/mydialog.ui
-    \skipto <!
-    \printuntil </UI>
+    \quotefromfile qmake/precompile/mydialog.ui
+    \skipto <ui
+    \printuntil </ui>
 
     \section2 \c stable.h
 
-    \quotefile precompile/stable.h
-    \skipto /*
+    \quotefromfile qmake/precompile/stable.h
+    \skipto Add C includes here
     \printuntil #endif
 
     \section2 \c myobject.h
 
-    \quotefile precompile/myobject.h
+    \quotefromfile qmake/precompile/myobject.h
     \skipto #include
     \printuntil }
 
     \section2 \c myobject.cpp
 
-    \quotefile precompile/myobject.cpp
+    \quotefromfile qmake/precompile/myobject.cpp
     \skipto #include
     \printuntil }
 
     \section2 \c util.cpp
 
-    \quotefile precompile/util.cpp
+    \quotefromfile qmake/precompile/util.cpp
     \skipto void
     \printuntil }
 
     \section2 \c main.cpp
 
-    \quotefile precompile/main.cpp
+    \quotefromfile qmake/precompile/main.cpp
     \skipto #include
     \printuntil }
 
     \section2 \c precompile.pro
 
-    \quotefile precompile/precompile.pro
+    \quotefromfile qmake/precompile/precompile.pro
     \skipto #
     \printuntil .ui
 */
@@ -3268,24 +3273,25 @@
     \o main.cpp
     \endlist
 
-    You will find these files in \c {qt/qmake/examples/tutorial}.  The
-    only other thing you know about the setup of the application is that
-    it's written in Qt.  First, using your favorite plain text editor,
-    create a file called \c hello.pro in \c {qt/qmake/tutorial}.  The
-    first thing you need to do is add the lines that tell \c qmake about
-    the source and header files that are part of your development project.
+    You will find these files in the \c{examples/qmake/tutorial} directory
+    of the Qt distribution. The only other thing you know about the setup of
+    the application is that it's written in Qt.  First, using your favorite
+    plain text editor, create a file called \c hello.pro in
+    \c{examples/qmake/tutorial}. The first thing you need to do is add the
+    lines that tell \c qmake about the source and header files that are part
+    of your development project.
 
     We'll add the source files to the project file first.  To do this you
-    need to use the SOURCES variable.  Just start a new line with \c
-    {SOURCES +=} and put hello.cpp after it.  You should have something
-    like:
+    need to use the \l{qmake Variable Reference#SOURCES}{SOURCES} variable.
+    Just start a new line with \c {SOURCES +=} and put hello.cpp after it.
+    You should have something like this:
 
     \code
         SOURCES += hello.cpp
     \endcode
 
     We repeat this for each source file in the project, until we end up
-    with:
+    with the following:
 
     \code
         SOURCES += hello.cpp
@@ -3302,7 +3308,8 @@
 
     Now that the source files are listed in the project file, the header
     files must be added. These are added in exactly the same way as source
-    files, except that the variable name is HEADERS:
+    files, except that the variable name we use is
+    \l{qmake Variable Reference#HEADERS}{HEADERS}.
 
     Once you have done this, your project file should look something like
     this:
@@ -3323,10 +3330,11 @@
         TARGET = helloworld
     \endcode
 
-    The final step is to set the \c CONFIG variable. Since this is a Qt
-    application, we need to put \c qt on the CONFIG line so that \c qmake
-    will add the relevant libraries to be linked against and ensure that
-    build lines for \c moc and \c uic are included in the makefile.
+    The final step is to set the \l{qmake Variable Reference#CONFIG}{CONFIG}
+    variable. Since this is a Qt application, we need to put \c qt on the
+    \c CONFIG line so that \c qmake will add the relevant libraries to be
+    linked against and ensure that build lines for \c moc and \c uic are
+    included in the generated Makefile.
 
     The finished project file should look like this:
 
@@ -3337,8 +3345,8 @@
         SOURCES += main.cpp
     \endcode
 
-    You can now use \c qmake to generate a makefile for your application.
-    On the command line, in your application directory, type:
+    You can now use \c qmake to generate a Makefile for your application.
+    On the command line, in your project's directory, type the following:
 
     \code
         qmake -o Makefile hello.pro
@@ -3346,8 +3354,8 @@
 
     Then type \c make or \c nmake depending on the compiler you use.
 
-    For Visual Studio users, \c qmake can also generate \c .dsp or \c
-    .vcproj files, for example:
+    For Visual Studio users, \c qmake can also generate \c .dsp or
+    \c .vcproj files, for example:
 
     \code
         qmake -tp vc -o hello.dsp hello.pro
@@ -3356,10 +3364,10 @@
     \section1 Making an Application Debuggable
 
     The release version of an application doesn't contain any debugging
-    symbols or other debuggin information. During development it is useful
+    symbols or other debugging information. During development it is useful
     to produce a debugging version of the application that has the
     relevant information. This is easily achieved by adding \c debug to the
-    CONFIG variable in the project file.
+    \c CONFIG variable in the project file.
 
     For example:
 
@@ -3370,21 +3378,22 @@
         SOURCES += main.cpp
     \endcode
 
-    Use \c qmake as before to generate a makefile and you will be able to
-    debug your application.
+    Use \c qmake as before to generate a Makefile and you will be able to
+    obtain useful information about your application when running it in
+    a debugging environment.
 
     \section1 Adding Platform-Specific Source Files
 
     After a few hours of coding, you might have made a start on the
-    platform specific part of your application, and decided to keep the
-    platform dependent code separate.  So you now have two new files to
-    include into your project file - \c hellowin.cpp and \c
+    platform-specific part of your application, and decided to keep the
+    platform-dependent code separate.  So you now have two new files to
+    include into your project file: \c hellowin.cpp and \c
     hellounix.cpp.  We can't just add these to the \c SOURCES
-    variable since this will put both files in the makefile.  So what we
+    variable since this will put both files in the Makefile. So, what we
     need to do here is to use a scope which will be processed depending on
     which platform \c qmake is run on.
 
-    A simple scope which will add in the platform dependent file for
+    A simple scope that will add in the platform-dependent file for
     Windows looks like this:
 
     \code
@@ -3395,8 +3404,8 @@
 
     So if \c qmake is run on Windows, it will add \c hellowin.cpp to the
     list of source files.  If \c qmake is run on any other platform, it
-    will simply ignore it.  Now all that is left to be done is to create a
-    scope for the unix dependent file.
+    will simply ignore it. Now all that is left to be done is to create a
+    scope for the Unix-specific file.
 
     When you have done that, your project file should now look
     something like this:
@@ -3414,15 +3423,15 @@
         }
     \endcode
 
-    Use \c qmake as before to generate a makefile.
+    Use \c qmake as before to generate a Makefile.
 
     \section1 Stopping qmake If a File Doesn't Exist
 
-    You may not want to create a makefile if a certain file doesn't exist.
+    You may not want to create a Makefile if a certain file doesn't exist.
     We can check if a file exists by using the exists() function.  We can
     stop \c qmake from processing by using the error() function.  This
-    works in the same way as scopes.  Simply replace the scope condition
-    with the function. A check for a main.cpp file looks like this:
+    works in the same way as scopes do.  Simply replace the scope condition
+    with the function. A check for a \c main.cpp file looks like this:
 
     \code
         !exists( main.cpp ) {
@@ -3430,8 +3439,8 @@
         }
     \endcode
 
-    The "!" is used to negate the test, i.e. \c{exists( main.cpp )} is
-    true if the file exists and \c{!exists( main.cpp )} is true if the
+    The \c{!} symbol is used to negate the test; i.e. \c{exists( main.cpp )}
+    is true if the file exists, and \c{!exists( main.cpp )} is true if the
     file doesn't exist.
 
     \code
@@ -3456,16 +3465,16 @@
 
     \section1 Checking for More than One Condition
 
-    Suppose you use Windows and you want to be able to see the qDebug()
-    statements when you run your application on the command line.  Unless
-    you build your application with the console setting, you won't see the
-    output.  We can easily put \c console on the CONFIG line so that on
-    Windows the makefile will have this setting.  But let's say that we
-    only want to add the CONFIG line if we are running on Windows \c and when
-    \c debug is already on the CONFIG line.  This requires using two
-    nested scopes; just create one scope, then create the other inside
-    that one.  Put the settings to be processed inside the last scope,
-    like this:
+    Suppose you use Windows and you want to be able to see statement
+    output with qDebug() when you run your application on the command line.
+    Unless you build your application with the appropriate console setting,
+    you won't see the output. We can easily put \c console on the \c CONFIG
+    line so that on Windows the makefile will have this setting. However,
+    let's say that we only want to add the \c CONFIG line if we are running
+    on Windows \e and when \c debug is already on the \c CONFIG line.
+    This requires using two nested scopes; just create one scope, then create
+    the other inside it. Put the settings to be processed inside the last
+    scope, like this:
 
     \code
         win32 {
@@ -3497,7 +3506,7 @@
         }
     \endcode
 
-    That's it!  You have now completed the tutorial for \c qmake, and are
+    That's it! You have now completed the tutorial for \c qmake, and are
     ready to write project files for your development projects.
 */
 
