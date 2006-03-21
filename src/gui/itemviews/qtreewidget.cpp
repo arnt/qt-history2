@@ -1243,9 +1243,10 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         for (int i = 0; i < children.count(); ++i) {
             QTreeWidgetItem *child = children.at(i);
             if (child->data(column, role).isValid()) {// has a CheckState
-                child->par = 0; // a little hack to avoid multiple dataChanged signals
+                Qt::ItemFlags f = itemFlags; // a little hack to avoid multiple dataChanged signals
+                itemFlags &= ~Qt::ItemIsTristate;
                 child->setData(column, role, value);
-                child->par = this;
+                itemFlags = f;
             }
         }
     }
