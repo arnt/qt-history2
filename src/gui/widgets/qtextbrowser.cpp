@@ -513,6 +513,7 @@ void QTextBrowserPrivate::init()
 {
     Q_Q(QTextBrowser);
     q->setReadOnly(true);
+    viewport->setCursor(oldCursor);
     q->setUndoRedoEnabled(false);
     viewport->setMouseTracking(true);
     QObject::connect(q->document(), SIGNAL(contentsChanged()), q, SLOT(_q_documentModified()));

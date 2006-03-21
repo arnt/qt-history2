@@ -406,7 +406,7 @@ void QTextEditPrivate::init(const QString &html)
     q->setAttribute(Qt::WA_KeyCompression);
 
 #ifndef QT_NO_CURSOR
-    viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
+    viewport->setCursor(Qt::IBeamCursor);
 #endif
 }
 
@@ -3055,7 +3055,6 @@ void QTextEdit::setReadOnly(bool ro)
 
     if (hasFocus())
         d->setBlinkingCursorEnabled(!ro);
-    d->viewport->setCursor(d->readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
 }
 
 /*!
