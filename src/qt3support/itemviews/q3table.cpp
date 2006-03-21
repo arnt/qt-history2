@@ -1499,6 +1499,7 @@ QWidget *Q3CheckTableItem::createEditor() const
     cb->setChecked(checked);
     cb->setText(text());
     cb->setBackgroundColor(table()->viewport()->backgroundColor());
+    cb->setAutoFillBackground(true);
     QObject::connect(cb, SIGNAL(toggled(bool)), table(), SLOT(doValueChanged()));
     return cb;
 }
