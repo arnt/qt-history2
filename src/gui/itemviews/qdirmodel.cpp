@@ -1281,7 +1281,7 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent,
     } else if (parent->info.isDir()) {
         if (parent->info.isSymLink()) {
             QString link = parent->info.readLink();
-            if (link.at(link.size() - 1) == QDir::separator())
+            if (link.size() > 1 && link.at(link.size() - 1) == QDir::separator())
                 link.chop(1);
             if (stat)
                 infoList = entryInfoList(link);
