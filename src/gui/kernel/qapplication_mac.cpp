@@ -2957,7 +2957,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
         }
 
         settings.beginGroup(QLatin1String("Font Substitutions"));
-        QStringList fontsubs = settings.childGroups();
+        QStringList fontsubs = settings.childKeys();
         if (!fontsubs.isEmpty()) {
             QStringList::Iterator it = fontsubs.begin();
             for (; it != fontsubs.end(); ++it) {
