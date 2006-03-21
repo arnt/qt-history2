@@ -119,6 +119,8 @@ static QStyleOptionHeader getStyleOption(const Q3Header *header, int section)
     QStyleOptionHeader opt;
     opt.init(header);
     opt.section = section;
+    opt.textAlignment = Qt::AlignVCenter;
+    opt.iconAlignment = Qt::AlignVCenter;
     if (header->iconSet(section))
         opt.icon = *header->iconSet(section);
     opt.text = header->label(section);
