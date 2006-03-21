@@ -454,9 +454,6 @@ QString QSpinBox::textFromValue(int v) const
     Note: QSpinBox handles specialValueText() separately; this
     function is only concerned with the other values.
 
-    Note: Neither prefix() nor suffix() are included when this
-    function is called by QSpinBox.
-
     \sa textFromValue(), validate()
 */
 
@@ -867,9 +864,6 @@ QString QDoubleSpinBox::textFromValue(double v) const
 /*!
     This virtual function is used by the spin box whenever it needs to
     interpret \a text entered by the user as a value.
-
-    Note: Neither prefix() nor suffix() are included when this
-    function is called by QDoubleSpinBox.
 
     Subclasses that need to display spin box values in a non-numeric
     way need to reimplement this function.
