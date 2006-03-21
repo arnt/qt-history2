@@ -480,7 +480,7 @@ QString QFSFileEngine::fileName(FileName file) const
                     }
                 }
                 ret = QDir::cleanPath(ret);
-                if (ret.endsWith(QLatin1Char('/')))
+                if (ret.size() > 1 && ret.endsWith(QLatin1Char('/')))
                     ret.chop(1);
                 return ret;
             }
