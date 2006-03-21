@@ -46,6 +46,11 @@ static bool qt_table_clipper_enabled = true;
 #ifndef QT_INTERNAL_TABLE
 Q_COMPAT_EXPORT
 #endif
+
+class Q3HeaderData;
+extern bool qt_get_null_label_bit(Q3HeaderData *data, int section);
+extern void qt_set_null_label_bit(Q3HeaderData *data, int section, bool b);
+
 void qt_set_table_clipper_enabled(bool enabled)
 {
     qt_table_clipper_enabled = enabled;
@@ -7226,8 +7231,13 @@ void Q3TableHeader::swapSections(int oldIdx, int newIdx, bool swapTable)
     bool sectionsHasContent = !(oldIconSet.isNull() && newIconSet.isNull()
                             && oldLabel.isNull() && newLabel.isNull());
     if (sectionsHasContent) {
+        Q3HeaderData *data = static_cast<Q3Header*>(this)->d;
+        bool oldNullLabel = qt_get_null_label_bit(data, oldIdx);
+        bool newNullLabel = qt_get_null_label_bit(data, newIdx);
         setLabel(oldIdx, newIconSet, newLabel);
         setLabel(newIdx, oldIconSet, oldLabel);
+        qt_set_null_label_bit(data, oldIdx, newNullLabel);
+        qt_set_null_label_bit(data, newIdx, oldNullLabel);
     }
 
     qt_qheader_label_return_null_strings = false;
