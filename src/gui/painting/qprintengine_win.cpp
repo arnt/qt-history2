@@ -363,6 +363,29 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
     bool fallBack = state->pen().brush().style() != Qt::SolidPattern
                     || qAlpha(brushColor) != 0xff
                     || QT_WA_INLINE(false, d->txop >= QPainterPrivate::TxScale);
+
+
+    if (!fallBack) {
+        const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+        QFontEngine *fe = ti.fontEngine;
+        
+        // Try selecting the font to see if we get a substitution font
+        SelectObject(d->hdc, fe->hfont);
+       
+        QT_WA({
+            TCHAR n[64];            
+            GetTextFaceW(d->hdc, 64, n);
+            fallBack = QString::fromUtf16((ushort *)n) 
+                       != QString::fromUtf16(fe->logfont.lfFaceName);
+        } , {
+            char an[64];
+            GetTextFaceA(d->hdc, 64, an);
+            fallBack = QString::fromLocal8Bit(an) 
+                       != QString::fromLocal8Bit(((LOGFONTA*)(&fe->logfont))->lfFaceName);
+        });
+    }
+
+
     if (fallBack) {
         QPaintEngine::drawTextItem(p, textItem);
         return ;
