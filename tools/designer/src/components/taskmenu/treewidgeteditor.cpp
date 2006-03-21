@@ -19,6 +19,7 @@
 #include <QtDesigner/QtDesigner>
 #include <QtCore/QDir>
 #include <QtCore/QQueue>
+#include <QHeaderView>
 
 using namespace qdesigner_internal;
 
@@ -49,6 +50,8 @@ TreeWidgetEditor::TreeWidgetEditor(QDesignerFormWindowInterface *form, QWidget *
     ui.moveItemDownButton->setIcon(downIcon);
     ui.moveItemRightButton->setIcon(forwardIcon);
     ui.moveItemLeftButton->setIcon(backIcon);
+
+    ui.treeWidget->header()->setMovable(false);
 }
 
 TreeWidgetEditor::~TreeWidgetEditor()
