@@ -35,14 +35,14 @@
 
     \table
     \header \o Driver name \o DBMS
-    \row \o \link #QDB2 QDB2\endlink \o IBM DB2 (version 7.1 and higher)
+    \row \o \link #QDB2 QDB2\endlink \o IBM DB2 (version 7.1 and above)
     \row \o \link #QIBASE QIBASE\endlink \o Borland InterBase
     \row \o \link #QMYSQL QMYSQL\endlink \o MySQL
     \row \o \link #QOCI QOCI\endlink \o Oracle Call Interface Driver
     \row \o \link #QODBC QODBC\endlink
          \o Open Database Connectivity (ODBC) - Microsoft SQL Server and other
             ODBC-compliant databases
-    \row \o \link #QPSQL QPSQL\endlink \o PostgreSQL (versions 7.3 and higher)
+    \row \o \link #QPSQL QPSQL\endlink \o PostgreSQL (versions 7.3 and above)
     \row \o \link #QSQLITE2 QSQLITE2\endlink \o SQLite version 2
     \row \o \link #QSQLITE QSQLITE\endlink \o SQLite version 3
     \row \o \link #QTDS QTDS\endlink \o Sybase Adaptive Server
@@ -97,7 +97,7 @@
     \target QMYSQL
     \section2 QMYSQL for MySQL 4 and higher
 
-    \section3 Stored procedure support
+    \section3 Stored Procedure Support
 
     MySQL 5 introduces stored procedure support at the SQL level, but no
     API to control IN, OUT and INOUT parameters. Therefore, parameters
@@ -127,7 +127,7 @@
     connection and will not be affected by queries sent from another host
     or connection.
 
-    \section3 Embedded MySQL server
+    \section3 Embedded MySQL Server
 
     The MySQL embedded server is a drop-in replacement for the normal
     client library. With the embedded MySQL server, a MySQL server is
@@ -181,7 +181,7 @@
     connecting to the Oracle server, the plugin will auto-detect the
     database version and enable features accordingly.
 
-    \section3 User authentication
+    \section3 User Authentication
 
     The Qt OCI plugin supports authentication using
     external credentials (OCI_CRED_EXT). Usually, this means that the database
@@ -337,7 +337,7 @@
     make in the line above.
 
     \target QPSQL
-    \section2 QPSQL for PostgreSQL Version 7.3 and higher
+    \section2 QPSQL for PostgreSQL (Version 7.3 and Above)
 
     \section3 General Information
 
@@ -437,7 +437,7 @@
     the line above.
 
     \target QDB2
-    \section2 QDB2 for IBM DB2 (v7.1 or Higher)
+    \section2 QDB2 for IBM DB2 (Version 7.1 and Above)
 
     \section3 General Information
 
@@ -482,7 +482,7 @@
     build instructions for version 3 apply to version 2 as well.
 
     \target QSQLITE
-    \section2 QSQLITE for SQLite Version 3 and Above
+    \section2 QSQLITE for SQLite (Version 3 and Above)
 
 
     \section3 General Information
@@ -506,7 +506,7 @@
 
     You can find information about SQLite on \l{http://www.sqlite.org}.
 
-    \section3 How to build the plugin
+    \section3 How to Build the Plugin
 
     SQLite version 3 is included as a third-party library within Qt.
     It can be built by passing the following parameters to the
@@ -531,18 +531,18 @@
         nmake
     \endcode
 
-    \section3 File format compatibility
+    \section3 File Format Compatibility
 
     SQLite minor releases sometimes break file format forward compatibility.
     For example, SQLite 3.3 can read database files created with SQLite 3.2,
     but databases created with SQLite 3.3 cannot be read by SQLite 3.2.
-    Please refer to the SQLite documentation and changelogs for information about
+    Please refer to the SQLite documentation and change logs for information about
     file format compatibility between versions.
-    
+
     Qt minor releases usually follow the SQLite minor releases, while Qt patch releases
     follow SQLite patch releases. Patch releases are therefore both backward and forward
     compatible.
-    
+
     To force SQLite to use a specific file format, it is neccessary to build and
     ship your own database plugin with your own SQLite library as illustrated above.
     Some versions of SQLite can be forced to write a specific file format by setting
