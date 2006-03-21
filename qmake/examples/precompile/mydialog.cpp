@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2003-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2006-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
@@ -11,13 +11,10 @@
 **
 ****************************************************************************/
 
-/* Add C includes here */
+#include "mydialog.h"
 
-#if defined __cplusplus
-/* Add C++ includes here */
-
-# include <iostream>
-# include <QApplication>
-# include <QPushButton>
-# include <QLabel>
-#endif
+MyDialog::MyDialog(QWidget *parent)
+    : QDialog(parent)
+{
+    setupUi(this);
+}
