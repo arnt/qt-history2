@@ -215,6 +215,7 @@ void QButtonGroup::removeButton(QAbstractButton *button)
     if (button->d_func()->group == this) {
         button->d_func()->group = 0;
         d->buttonList.removeAll(button);
+        d->mapping.remove(button);
     }
 }
 
