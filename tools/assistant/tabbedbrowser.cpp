@@ -150,11 +150,13 @@ void TabbedBrowser::newTab(const QString &lnk)
 void TabbedBrowser::zoomIn()
 {
     currentBrowser()->zoomIn();
+    Config::configuration()->setFontPointSize(currentBrowser()->font().pointSizeF());
 }
 
 void TabbedBrowser::zoomOut()
 {
     currentBrowser()->zoomOut();
+    Config::configuration()->setFontPointSize(currentBrowser()->font().pointSizeF());
 }
 
 void TabbedBrowser::init()
