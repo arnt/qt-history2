@@ -200,6 +200,16 @@ the \gui + handle next to the category label. When in
 \l{Qt Designer's Widget Editing Mode}{Widget Editing Mode}, you can add objects to a
 form by dragging the appropriate items from the widget box onto the form, and
 dropping them in the required locations.
+
+\QD provides a scratch pad feature that allows you to collect the most
+commonly used objects in a separate category. This category will be
+saved for later use when exiting \QD. The scratch pad category can be
+filled with any widget currently displayed in a form by simply
+dragging them from the form and dropping them onto the widget
+box. These widgets can be used in the same way as any other widgets,
+but in additon they can contain child widgets. Open a context menu
+over a widget to change its name or remove it from the scratch pad.
+
 \endtable
 
 */
