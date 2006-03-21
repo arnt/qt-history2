@@ -1519,7 +1519,8 @@ void QGLContext::setDevice(QPaintDevice *pDev)
         reset();
     d->paintDevice = pDev;
     if (d->paintDevice && (d->paintDevice->devType() != QInternal::Widget
-                        && d->paintDevice->devType() != QInternal::Pixmap)) {
+                           && d->paintDevice->devType() != QInternal::Pixmap
+                           && d->paintDevice->devType() != QInternal::Pbuffer)) {
         qWarning("QGLContext: Unsupported paint device type");
     }
 }
