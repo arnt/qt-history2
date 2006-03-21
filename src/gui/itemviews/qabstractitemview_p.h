@@ -30,13 +30,17 @@
 #include "QtCore/qdatetime.h"
 #include "QtGui/qevent.h"
 #include "QtGui/qmime.h"
-#include "QtCore/qmap.h"
+#include "QtCore/qpair.h"
 #include "QtCore/qtimer.h"
 #include "QtCore/qtimeline.h"
 #include "QtGui/qregion.h"
 #include "QtCore/qdebug.h"
 
 #ifndef QT_NO_ITEMVIEWS
+
+typedef QList<QPair<QPersistentModelIndex, QPointer<QWidget> > > _q_abstractitemview_editor_container;
+typedef _q_abstractitemview_editor_container::const_iterator _q_abstractitemview_editor_const_iterator;
+typedef _q_abstractitemview_editor_container::iterator _q_abstractitemview_editor_iterator;
 
 class Q_GUI_EXPORT QAbstractItemViewPrivate : public QAbstractScrollAreaPrivate
 {
@@ -160,6 +164,26 @@ public:
                       : q->horizontalOffset(), q->verticalOffset());
     }
 
+    QWidget *editorForIndex(const QModelIndex &index) const;
+    inline bool hasEditor(const QModelIndex &index) const {
+        return editorForIndex(index) != 0;
+    }
+    QModelIndex indexForEditor(QWidget *editor) const;
+    void addEditor(const QModelIndex &index, QWidget *editor);
+    void removeEditor(QWidget *editor);
+    inline QModelIndex indexForIterator(const _q_abstractitemview_editor_iterator &it) const {
+        return (*it).first;
+    }
+    inline QWidget *editorForIterator(const _q_abstractitemview_editor_iterator &it) const {
+        return (*it).second;
+    }
+    inline QModelIndex indexForIterator(const _q_abstractitemview_editor_const_iterator &it) const {
+        return (*it).first;
+    }
+    inline QWidget *editorForIterator(const _q_abstractitemview_editor_const_iterator &it) const {
+        return (*it).second;
+    }
+
     inline bool isAnimating() const {
         return state == QAbstractItemView::AnimatingState;
     }
@@ -171,7 +195,7 @@ public:
     QAbstractItemView::SelectionMode selectionMode;
     QAbstractItemView::SelectionBehavior selectionBehavior;
 
-    QMap<QPersistentModelIndex, QPointer<QWidget> > editors;
+    _q_abstractitemview_editor_container editors;
     QList<QWidget*> persistent;
 
     QPersistentModelIndex enteredIndex;
