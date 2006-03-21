@@ -224,8 +224,8 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     Q_D(QWidget);
 
-    if (QWidget *p = parentWidget())
-        p->d_func()->invalidateBuffer(geometry());
+    if (!isWindow() && parentWidget())
+        parentWidget()->d_func()->invalidateBuffer(geometry());
 
     d->deactivateWidgetCleanup();
     if (testAttribute(Qt::WA_WState_Created)) {
