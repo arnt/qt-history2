@@ -440,18 +440,15 @@ bool QLibraryPrivate::loadPlugin()
  */
 bool QLibrary::isLibrary(const QString &fileName)
 {
+#if defined(Q_OS_WIN32)
+    return fileName.endsWith(QLatin1String(".dll"));
+#else
     QString completeSuffix = QFileInfo(fileName).completeSuffix();
     if (completeSuffix.isEmpty())
         return false;
     QStringList suffixes = completeSuffix.split(QLatin1Char('.'));
-#if defined(Q_OS_WIN32)
-    QString suffix = suffixes.last();
-#else
     QString suffix = suffixes.first();
-#endif
-#if defined(Q_OS_WIN32)
-    bool valid = (suffix == "dll");
-#elif defined(Q_OS_DARWIN)
+# if defined(Q_OS_DARWIN)
     
     // On Mac, libs look like libmylib.1.0.0.dylib
     const QString lastSuffix = suffixes.at(suffixes.count() - 1);
@@ -462,29 +459,30 @@ bool QLibrary::isLibrary(const QString &fileName)
             || firstSuffix == "bundle");
 
     return valid;
-#elif defined(Q_OS_HPUX)
+# elif defined(Q_OS_HPUX)
 /*  
     See "HP-UX Linker and Libraries User's Guide", section "Link-time Differences between PA-RISC and IPF":
     "In PA-RISC (PA-32 and PA-64) shared libraries are suffixed with .sl. In IPF (32-bit and 64-bit), 
     the shared libraries are suffixed with .so. For compatibility, the IPF linker also supports the .sl suffix."
  */
     bool valid = (suffix == "sl");
-# if defined __ia64
+#  if defined __ia64
     valid |= (suffix == "so")
-# endif
-#elif defined(Q_OS_UNIX)
+#  endif
+# elif defined(Q_OS_UNIX)
     bool valid = (suffix == "so");
-#elif defined(Q_OS_AIX)
+# elif defined(Q_OS_AIX)
 	bool valid = (suffix == "a"
 			|| suffix == "so");
-#else
+# else
     bool valid = false;
-#endif
+# endif
 
     for (int i = 1; i < suffixes.count() && valid; ++i)
         suffixes.at(i).toInt(&valid);
-
     return valid;
+#endif
+
 }
 
 bool QLibraryPrivate::isPlugin()
