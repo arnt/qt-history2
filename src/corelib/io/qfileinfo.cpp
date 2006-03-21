@@ -216,6 +216,50 @@ QDateTime
     isSymLink(). The readLink() function provides the name of the file
     the symlink points to.
 
+    On Unix (including Mac OS X), the symlink has the same size() has
+    the file it points to, because Unix handles symlinks
+    transparently; similarly, opening a symlink using QFile
+    effectively opens the link's target. For example:
+
+    \code
+        #ifdef Q_OS_UNIX
+
+        QFileInfo info1("/home/bob/bin/untabify");
+        info1.isSymLink();          // returns true
+        info1.absoluteFilePath();   // returns "/home/bob/bin/untabify"
+        info1.size();               // returns 56201
+        info1.readLink();           // returns "/opt/pretty++/bin/untabify"
+
+        QFileInfo info2(info1.readLink());
+        info1.isSymLink();          // returns false
+        info1.absoluteFilePath();   // returns "/opt/pretty++/bin/untabify"
+        info1.size();               // returns 56201
+
+        #endif
+    \endcode
+
+    On Windows, symlinks (shortcuts) are \c .lnk files. The reported
+    size() is that of the symlink (not the link's target), and
+    opening a symlink using QFile opens the \c .lnk file. For
+    example:
+
+    \code
+        #ifdef Q_OS_WIN
+
+        QFileInfo info1("C:\\Documents and Settings\\Bob\\untabify.lnk");
+        info1.isSymLink();          // returns true
+        info1.absoluteFilePath();   // returns "C:\\Documents and Settings\\Bob\\untabify.lnk"
+        info1.size();               // returns 743
+        info1.readLink();           // returns "C:\\Pretty++\\untabify"
+
+        QFileInfo info2(info1.readLink());
+        info1.isSymLink();          // returns false
+        info1.absoluteFilePath();   // returns "C:\\Pretty++\\untabify"
+        info1.size();               // returns 63942
+
+        #endif
+    \endcode
+
     Elements of the file's name can be extracted with path() and
     fileName(). The fileName()'s parts can be extracted with
     baseName() and extension().
@@ -908,6 +952,18 @@ QFileInfo::isDir() const
 /*!
     Returns true if this object points to a symbolic link (or to a
     shortcut on Windows); otherwise returns false.
+
+    On Unix (including Mac OS X), opening a symlink effectively opens
+    the \l{readLink()}{link's target}. On Windows, it opens the \c
+    .lnk file itself.
+
+    Example:
+
+    \code
+        QFileInfo info(fileName);
+        if (info.isSymLink())
+            fileName = info.readLink();
+    \endcode
 
     \sa isFile(), isDir(), readLink()
 */
