@@ -484,6 +484,9 @@
     \target QSQLITE
     \section2 QSQLITE for SQLite Version 3 and Above
 
+
+    \section3 General Information
+
     The Qt SQLite plugin makes it possible to access SQLite
     databases. SQLite is an in-process database, which means that it
     is not necessary to have a database server. SQLite operates on a
@@ -502,6 +505,8 @@
     SQLite has no support for types, every value is treated as character data.
 
     You can find information about SQLite on \l{http://www.sqlite.org}.
+
+    \section3 How to build the plugin
 
     SQLite version 3 is included as a third-party library within Qt.
     It can be built by passing the following parameters to the
@@ -525,6 +530,23 @@
         qmake -o Makefile "INCLUDEPATH+=C:\SQLITE\INCLUDE" "LIBS+=C:\SQLITE\LIB\SQLITE3.LIB" mysql.pro
         nmake
     \endcode
+
+    \section3 File format compatibility
+
+    SQLite minor releases sometimes break file format forward compatibility.
+    For example, SQLite 3.3 can read database files created with SQLite 3.2,
+    but databases created with SQLite 3.3 cannot be read by SQLite 3.2.
+    Please refer to the SQLite documentation and changelogs for information about
+    file format compatibility between versions.
+    
+    Qt minor releases usually follow the SQLite minor releases, while Qt patch releases
+    follow SQLite patch releases. Patch releases are therefore both backward and forward
+    compatible.
+    
+    To force SQLite to use a specific file format, it is neccessary to build and
+    ship your own database plugin with your own SQLite library as illustrated above.
+    Some versions of SQLite can be forced to write a specific file format by setting
+    the \c{SQLITE_DEFAULT_FILE_FORMAT} define when building SQLite.
 
     \target QIBASE
     \section2 QIBASE for Borland InterBase
