@@ -1615,8 +1615,10 @@ Q_GLOBAL_STATIC_WITH_ARGS(QMutex, libraryPathMutex, (QMutex::Recursive))
 */
 QStringList QCoreApplication::libraryPaths()
 {
-    if (!self)
+    if (!self) {
+        qWarning("QCoreApplication::libraryPaths: QCoreApplication is not instantiated.");
         return QStringList();
+    }
 
     QMutexLocker locker(libraryPathMutex());
     if (!self->d_func()->app_libpaths) {
