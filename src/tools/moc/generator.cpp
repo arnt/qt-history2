@@ -49,7 +49,7 @@ enum MethodFlags {
 };
 
 /*
-  Attention!  This table is copied from qcorevariant.cpp. If you
+  Attention!  This table is copied from qvariant.cpp. If you
   change one, change both.
 */
 enum { CoreTypeCount = 28 };
@@ -159,6 +159,7 @@ int Generator::strreg(const char *s)
         if (str == s)
             return idx;
         idx += str.length() + 1;
+        idx -= str.count('\\');
     }
     strings.append(s);
     return idx;
