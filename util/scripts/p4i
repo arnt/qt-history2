@@ -157,7 +157,7 @@ if( $checkmissing ) { #just look for missing
 	#check which has not been integrated
 	my @not_integrated;
 	foreach $file (@files) {
-	    open( P4CHANG, "$P4 changes -m $maxChanges \"//depot/qt/$toBranch/$file\"|" ) ||
+	    open( P4CHANG, "$P4 changes -m $maxChanges \"//depot/$product/$toBranch/$file\"|" ) ||
 		die "$0: Couldn't exec $P4: $!\n";
 	    while( $line = <P4CHANG> ) {
 		chop $line;
@@ -167,7 +167,7 @@ if( $checkmissing ) { #just look for missing
 		open( P4DESC, "$P4 -ztag describe $pot_change|" ) || die "$0: Couldn't exec $P4: $!\n";
 		while( $line = <P4DESC>) {
 		    chop $line;
-		    if($line =~ /\.\.\. depotFile[0-9]+ \/\/depot\/qt\/$toBranch\/\Q$file\E/) {
+		    if($line =~ /\.\.\. depotFile[0-9]+ \/\/depot\/$product\/$toBranch\/\Q$file\E/) {
 			$pot_file = 1;
 		    } elsif($line =~ /\.\.\. action[0-9]+ (.*)/ && $pot_file) {
 			$file = 0 if($1 =~ /^(integrate|branch|delete)/);
