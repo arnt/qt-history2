@@ -400,7 +400,7 @@ glyph_metrics_t QFontEngineWin::boundingBox(const QGlyphLayout *glyphs, int numG
     QFixed w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
-        w += (--end)->advance.x;
+        w += ((--end)->advance.x + end->space_18d6) * !end->attributes.dontPrint;    
 
     return glyph_metrics_t(0, -tm.w.tmAscent, w, tm.w.tmHeight, w, 0);
 }
