@@ -549,7 +549,8 @@ void Q3FtpDTP::socketReadyRead()
 	    qDebug( "Q3FtpDTP read: %d bytes (total %d bytes)", (int)bytesRead, bytesDone );
 #endif
 	    emit dataTransferProgress( bytesDone, bytesTotal );
-	    data.dev->writeBlock( ba );
+            if (data.dev)       // make sure it wasn't deleted in the slot
+                data.dev->writeBlock( ba );
 	} else {
 #if defined(Q3FTPDTP_DEBUG)
 	    qDebug( "Q3FtpDTP readyRead: %d bytes available (total %d bytes read)", (int)bytesAvailable(), bytesDone );
