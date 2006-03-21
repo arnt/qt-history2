@@ -184,6 +184,10 @@ void Semantic::parseElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST *node)
     const QByteArray kindText = textOf(kind);
     const QByteArray nameText = textOf(node->name());
 
+    // Don't do anything if the class, struct or enum has already been declared or defined.
+    if (nameLookup(currentScope.top(), node->name()).count() > 0)
+        return;
+
     if (kindText == "class" || kindText == "struct") {
         // Create ClassType.
         CodeModel::ClassType *type = CodeModel::Create<CodeModel::ClassType>(m_storage);
