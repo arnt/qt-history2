@@ -1861,10 +1861,9 @@ int QHeaderView::verticalOffset() const
 void QHeaderView::updateGeometries()
 {
     Q_D(QHeaderView);
-    if (d->hasAutoResizeSections()) {
-        setViewportMargins(0, 0, 0, 0); // ### force layoutChildren in QAbstractScrollArea
+    d->layoutChildren();
+    if (d->hasAutoResizeSections())
         resizeSections();
-    }
 }
 
 /*!
