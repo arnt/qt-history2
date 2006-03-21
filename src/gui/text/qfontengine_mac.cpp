@@ -699,7 +699,7 @@ static unsigned char *getCMap(ATSFontRef font, bool &symbol)
         if (platformSpecificId == 0x0001
             || platformSpecificId == 0x0000
             || platformSpecificId == 0x000a) {
-            if (platformSpecificId > version) {
+            if (platformSpecificId > version || !unicode_table) {
                 version = platformSpecificId;
                 unicode_table = getUInt(maps + 8*n + 4);
             }
