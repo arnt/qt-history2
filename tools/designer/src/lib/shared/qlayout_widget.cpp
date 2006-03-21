@@ -795,6 +795,8 @@ void QLayoutSupport::computeGridLayout(QHash<QLayoutItem*, QRect> *l)
 void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
 {
     QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
+    int margin = gridLayout->margin();
+    int spacing = gridLayout->spacing();
 
     { // take the items
         int index = 0;
@@ -818,6 +820,9 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
         gridLayout->addItem(it.key(), info.y(), info.x(),
                 info.height(), info.width());
     }
+
+    gridLayout->setMargin(margin);
+    gridLayout->setSpacing(spacing);
 }
 
 QLayoutWidget::QLayoutWidget(QDesignerFormWindowInterface *formWindow, QWidget *parent)
