@@ -1691,8 +1691,10 @@ void QAbstractItemView::commitData(QWidget *editor)
 {
     if (!model() || !editor)
         return;
+    editor->removeEventFilter(d_func()->delegate);
     QModelIndex index = d_func()->indexForEditor(editor);
     itemDelegate()->setModelData(editor, model(), index);
+    editor->installEventFilter(d_func()->delegate);
 }
 
 /*!
