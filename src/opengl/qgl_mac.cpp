@@ -373,8 +373,11 @@ void QGLContext::updatePaintDevice()
                 if(aglIsEnabled((AGLContext)d->cx, AGL_CLIP_REGION))
                     aglDisable((AGLContext)d->cx, AGL_CLIP_REGION);
             } else {
-                QPoint wpos = qt_mac_posInWindow(w);
-                const GLint offs[4] = { wpos.x(), w->window()->height() - (wpos.y() + w->height()),
+                HIPoint origin = { 0., 0. };
+                OSStatus status = HIViewConvertPoint(&origin, HIViewRef(w->winId()), 0);
+                const GLint offs[4] = { qRound(origin.x),
+                                        w->window()->frameGeometry().height()
+                                                - (qRound(origin.y) + w->height()),
                                         w->width(), w->height() };
                 aglSetInteger((AGLContext)d->cx, AGL_BUFFER_RECT, offs);
                 aglSetInteger((AGLContext)d->cx, AGL_CLIP_REGION, (const GLint *)clp.handle(true));
@@ -415,6 +418,7 @@ QColor QGLContext::overlayTransparentColor() const
 {
     return QColor(0, 0, 0);                // Invalid color
 }
+
 
 static QColor cmap[256];
 static bool cmap_init = false;
