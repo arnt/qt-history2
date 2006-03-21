@@ -81,6 +81,8 @@ void QAbstractItemViewPrivate::init()
     q->setVerticalStepsPerItem(64);
 
     doDelayedItemsLayout();
+
+	q->setAttribute(Qt::WA_InputMethodEnabled);
 }
 
 /*!
@@ -877,7 +879,11 @@ bool QAbstractItemView::event(QEvent *event)
             keyPressEvent(keyEvent);
             return keyEvent->isAccepted();
         }
-    }
+	} else if (event->type() == QEvent::InputMethod) {
+		if (!edit(currentIndex(), AnyKeyPressed, event))
+			event->ignore();
+		return true;
+	}
     return QAbstractScrollArea::event(event);
 }
 
@@ -1540,7 +1546,7 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
     if (!editor)
         return false;
 
-    if (event && event->type() == QEvent::KeyPress
+    if (event && (event->type() == QEvent::KeyPress || event->type() == QEvent::InputMethod)
         && (trigger & d->editTriggers) == AnyKeyPressed)
         QApplication::sendEvent(editor->focusProxy() ? editor->focusProxy() : editor, event);
     setState(EditingState);
