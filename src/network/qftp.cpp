@@ -618,7 +618,8 @@ void QFtpDTP::socketReadyRead()
             qDebug("QFtpDTP read: %lli bytes (total %lli bytes)", bytesRead, bytesDone);
 #endif
             emit dataTransferProgress(bytesDone, bytesTotal);
-            data.dev->write(ba);
+            if (data.dev)       // make sure it wasn't deleted in the slot
+                data.dev->write(ba);
         } else {
 #if defined(QFTPDTP_DEBUG)
             qDebug("QFtpDTP readyRead: %lli bytes available (total %lli bytes read)",
