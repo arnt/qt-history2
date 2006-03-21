@@ -2383,10 +2383,6 @@ void QWidget::setMask(const QRegion& region)
     Note that this effect can be slow if the region is particularly
     complex.
 
-    \omit
-    See \c examples/tux for an example of masking for transparency.
-    \endomit
-
     The following code shows how an image with an alpha channel can be
     used to generate a mask for a widget:
 
@@ -2398,7 +2394,10 @@ void QWidget::setMask(const QRegion& region)
     giving the appearance that an irregularly-shaped image is being drawn
     directly onto the screen.
 
-    \sa clearMask(), windowOpacity()
+    Masked widgets receive mouse events only on their visible
+    portions.
+
+    \sa clearMask(), windowOpacity(), {widgets/shapedclock}{Shaped Clock Example}
 */
 
 void QWidget::setMask(const QBitmap &bitmap)
