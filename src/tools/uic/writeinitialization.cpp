@@ -76,7 +76,7 @@ void WriteInitialization::acceptUI(DomUI *node)
             continue;
 
         QString varConn = connection + QLatin1String("Connection");
-        output << option.indent << varConn << " = QSqlDatabase::database(" << fixString(connection) << ");\n";
+        output << option.indent << varConn << " = QSqlDatabase::database(" << fixString(connection, option.indent) << ");\n";
     }
 
     acceptWidget(node->elementWidget());
@@ -571,13 +571,13 @@ void WriteInitialization::writeProperties(const QString &varName,
         if (properties.contains(QLatin1String("control"))) {
             DomProperty *p = properties.value(QLatin1String("control"));
             output << option.indent << varName << "->setControl(QString::fromUtf8("
-                   << fixString(toString(p->elementString())) << "));\n";
+                   << fixString(toString(p->elementString()), option.indent) << "));\n";
         }
     }
 
     DomWidget *buttonGroupWidget = findWidget(QLatin1String("Q3ButtonGroup"));
 
-    output << option.indent << varName << "->setObjectName(QString::fromUtf8(" << fixString(varName) << "));\n";
+    output << option.indent << varName << "->setObjectName(QString::fromUtf8(" << fixString(varName, option.indent) << "));\n";
 
     for (int i=0; i<lst.size(); ++i) {
         DomProperty *p = lst.at(i);
@@ -666,9 +666,9 @@ void WriteInitialization::writeProperties(const QString &varName,
                 m_buddies.append(Buddy(varName, p->elementCstring()));
             } else {
                 if (stdset)
-                    propertyValue = fixString(p->elementCstring());
+                    propertyValue = fixString(p->elementCstring(), option.indent);
                 else
-                    propertyValue = QLatin1String("QByteArray(") + fixString(p->elementCstring()) + QLatin1String(")");
+                    propertyValue = QLatin1String("QByteArray(") + fixString(p->elementCstring(), option.indent) + QLatin1String(")");
             }
             break;
         case DomProperty::Cursor:
@@ -688,7 +688,7 @@ void WriteInitialization::writeProperties(const QString &varName,
             QString fontName = driver->unique(QLatin1String("font"));
             output << option.indent << "QFont " << fontName << ";\n";
             if (!f->elementFamily().isEmpty()) {
-                output << option.indent << fontName << ".setFamily(QString::fromUtf8(" << fixString(f->elementFamily())
+                output << option.indent << fontName << ".setFamily(QString::fromUtf8(" << fixString(f->elementFamily(), option.indent)
                     << "));\n";
             }
             if (f->elementPointSize() > 0) {
@@ -798,7 +798,7 @@ void WriteInitialization::writeProperties(const QString &varName,
             if (p->elementString()->hasAttributeNotr()
                     && toBool(p->elementString()->attributeNotr())) {
                 propertyValue = QLatin1String("QString::fromUtf8(")
-                        + fixString(p->elementString()->text())
+                        + fixString(p->elementString()->text(), option.indent)
                         + QLatin1String(")");
             } else {
                 propertyValue = trCall(p->elementString());
@@ -855,7 +855,7 @@ void WriteInitialization::writeProperties(const QString &varName,
             if (p->elementStringList()->elementString().size()) {
                 QStringList lst = p->elementStringList()->elementString();
                 for (int i=0; i<lst.size(); ++i) {
-                    propertyValue += QLatin1String(" << ") + fixString(lst.at(i));
+                    propertyValue += QLatin1String(" << ") + fixString(lst.at(i), option.indent);
                 }
             }
             break;
@@ -1219,7 +1219,7 @@ QString WriteInitialization::pixCall(DomProperty *p) const
     if (pixFunc.isEmpty())
         pixFunc = QLatin1String("QString::fromUtf8");
 
-    return type + QLatin1String("(") + pixFunc + QLatin1String("(") + fixString(s) + QLatin1String(")") + QLatin1String(")");
+    return type + QLatin1String("(") + pixFunc + QLatin1String("(") + fixString(s, option.indent) + QLatin1String(")") + QLatin1String(")");
 }
 
 void WriteInitialization::initializeComboBox(DomWidget *w)
@@ -1414,7 +1414,7 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
 QString WriteInitialization::trCall(const QString &str, const QString &commentHint) const
 {
     QString result;
-    QString comment = commentHint.isEmpty() ? QString::fromUtf8("0") : fixString(commentHint);
+    QString comment = commentHint.isEmpty() ? QString::fromUtf8("0") : fixString(commentHint, option.indent);
 
     if (option.translateFunction.isEmpty()) {
         result = QLatin1String("QApplication::translate(\"");
@@ -1425,7 +1425,7 @@ QString WriteInitialization::trCall(const QString &str, const QString &commentHi
         result = option.translateFunction + QLatin1String("(");
     }
 
-    result += fixString(str);
+    result += fixString(str, option.indent);
     result += QLatin1String(", ");
     result += comment;
 
@@ -1470,9 +1470,9 @@ void WriteInitialization::initializeSqlDataTable(DomWidget *w)
     output << option.indent << option.indent << varName << "->setSqlCursor(";
 
     if (connection == QLatin1String("(default)")) {
-        output << "new QSqlCursor(" << fixString(table) << "), false, true);\n";
+        output << "new QSqlCursor(" << fixString(table, option.indent) << "), false, true);\n";
     } else {
-        output << "new QSqlCursor(" << fixString(table) << ", true, " << connection << "Connection" << "), false, true);\n";
+        output << "new QSqlCursor(" << fixString(table, option.indent) << ", true, " << connection << "Connection" << "), false, true);\n";
     }
     output << option.indent << option.indent << varName << "->refresh(QDataTable::RefreshAll);\n";
     output << option.indent << "}\n";
@@ -1510,9 +1510,9 @@ void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
     output << option.indent << option.indent << varName << "->setSqlCursor(";
 
     if (connection == QLatin1String("(default)")) {
-        output << "new QSqlCursor(" << fixString(table) << "), true);\n";
+        output << "new QSqlCursor(" << fixString(table, option.indent) << "), true);\n";
     } else {
-        output << "new QSqlCursor(" << fixString(table) << ", true, " << connection << "Connection" << "), false, true);\n";
+        output << "new QSqlCursor(" << fixString(table, option.indent) << ", true, " << connection << "Connection" << "), false, true);\n";
     }
     output << option.indent << option.indent << varName << "->refresh();\n";
     output << option.indent << "}\n";

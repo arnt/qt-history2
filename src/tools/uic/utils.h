@@ -25,33 +25,43 @@ inline bool toBool(const QString &str)
 inline QString toString(const DomString *str)
 { return str ? str->text() : QString(); }
 
-inline QString fixString(const QString &str)
+inline QString fixString(const QString &str, const QString &indent)
 {
-	QByteArray utf8 = str.toUtf8();
-	uchar cbyte;
-    QString result;
+    QString cursegment;
+    QStringList result;
+    uchar cbyte;
+    QByteArray utf8 = str.toUtf8();
 
     for (int i = 0; i < utf8.length(); ++i) {
-		cbyte = utf8.at(i);
-		if (cbyte >= 0x80) {
-			result += QLatin1String("\\") + QString::number(cbyte, 8);
-		} else {
-			switch(cbyte) {
-			case '\\':
-				result += QLatin1String("\\\\"); break;
-			case '\"':
-				result += QLatin1String("\\\""); break;
-			case '\r':
-				break;
-			case '\n':
-				result += QLatin1String("\\n\"\n\""); break;
-			default:
-				result += QChar(cbyte);
-			}
-		}
+        cbyte = utf8.at(i);
+        if (cbyte >= 0x80) {
+            cursegment += QLatin1String("\\") + QString::number(cbyte, 8);
+        } else {
+            switch(cbyte) {
+            case '\\':
+                cursegment += QLatin1String("\\\\"); break;
+            case '\"':
+                cursegment += QLatin1String("\\\""); break;
+            case '\r':
+                break;
+            case '\n':
+                cursegment += QLatin1String("\\n\"\n\""); break;
+            default:
+                cursegment += QChar(cbyte);
+            }
+        }
+        
+        if (cursegment.length() > 1024) {
+            result << cursegment;
+            cursegment.clear();
+        }
     }
 
-	return QLatin1String("\"") + result + QLatin1String("\"");
+    if (!cursegment.isEmpty())
+        result << cursegment;
+
+    QString joinstr = QLatin1String("\"\n") + indent + indent + QLatin1Char('\"');
+    return QLatin1String("\"") + result.join(joinstr) + QLatin1String("\"");
 }
 
 inline QHash<QString, DomProperty *> propertyMap(const QList<DomProperty *> &properties)

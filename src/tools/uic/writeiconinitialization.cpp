@@ -68,6 +68,6 @@ void WriteIconInitialization::acceptImage(DomImage *image)
     if (fmt == QLatin1String("XPM.GZ")) {
         output << "return " << "QPixmap((const char**)" << imageData << ");\n";
     } else {
-        output << " { QImage img; img.loadFromData(" << imageData << ", sizeof(" << imageData << "), " << fixString(fmt) << "); return QPixmap::fromImage(img); }\n";
+        output << " { QImage img; img.loadFromData(" << imageData << ", sizeof(" << imageData << "), " << fixString(fmt, ind) << "); return QPixmap::fromImage(img); }\n";
     }
 }
