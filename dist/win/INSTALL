@@ -43,6 +43,14 @@
 
         nmake
 
+    If you need to reconfigure and rebuild Qt from the same location,
+    ensure that all traces of the previous configuration are removed
+    by entering the build directory and typing
+
+        make confclean
+
+    before running the configure script again.
+
 5.  That's all. Qt is now installed.
 
     If you are new to Qt, we suggest that you take a look at the demos

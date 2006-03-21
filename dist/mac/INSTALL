@@ -41,6 +41,14 @@
     /usr/local/Trolltech/Qt-%VERSION% but this can be changed by using the
     -prefix parameter.
 
+    If you need to reconfigure and rebuild Qt from the same location,
+    ensure that all traces of the previous configuration are removed
+    by entering the build directory and typing
+
+        make confclean
+
+    before running the configure script again.
+
     NOTE: If you encounter problems with header files having a size of zero and 
     no permissions, remove these files and try building again. This is typically 
     encountered when building with multiple jobs, so try running make -j1 instead.
