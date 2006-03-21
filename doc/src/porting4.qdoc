@@ -1935,7 +1935,7 @@
     \row \o IO_Sequential \o Use QIODevice::isSequential() instead.
     \row \o IO_Combined \o N/A
     \row \o IO_TypeMask \o N/A
-    \row \o IO_Raw \o N/A
+    \row \o IO_Raw \o QIODevice::Unbuffered
     \row \o IO_Async \o N/A
     \row \o IO_ReadOnly \o QIODevice::ReadOnly
     \row \o IO_WriteOnly \o QIODevice::WriteOnly

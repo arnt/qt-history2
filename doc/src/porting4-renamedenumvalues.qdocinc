@@ -4,6 +4,7 @@
 \row \o IO_Translate \o QIODevice::Translate
 \row \o IO_Truncate \o QIODevice::Truncate
 \row \o IO_WriteOnly \o QIODevice::WriteOnly
+\row \o IO_Raw \o QIODevice::Unbuffered
 \row \o QAccessible::Moveable \o QAccessible::Movable
 \row \o QApplication::CustomColors \o QApplication::CustomColor
 \row \o QApplication::NormalColors \o QApplication::NormalColor
