@@ -1211,6 +1211,7 @@ void QGridLayout::addWidget(QWidget *widget, int fromRow, int fromColumn,
     QGridBox *b = new QGridBox(widget);
     b->setAlignment(alignment);
     d->add(b, fromRow, toRow, fromColumn, toColumn);
+    invalidate();
 }
 
 /*!
