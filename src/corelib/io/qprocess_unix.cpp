@@ -365,6 +365,18 @@ void QProcessPrivate::startProcess()
     QByteArray encodedProg = QFile::encodeName(program);
     processManager()->lock();
     pid_t childPid = fork();
+    if (childPid < 0) {
+        // Cleanup, report error and return
+        processManager()->unlock();
+        processState = QProcess::NotRunning;
+        emit q->stateChanged(processState);
+        processError = QProcess::FailedToStart;
+        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Resource error (fork failure)"));
+        emit q->error(processError);
+        cleanup();
+        return;
+    }
+
     if (childPid == 0) {
         execChild(encodedProg);
         ::_exit(-1);

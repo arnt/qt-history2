@@ -34,7 +34,7 @@ class Q_CORE_EXPORT QProcess : public QIODevice
     Q_OBJECT
 public:
     enum ProcessError {
-        FailedToStart, //### file not found
+        FailedToStart, //### file not found, resource error
         Crashed,
         Timedout,
         ReadError,
