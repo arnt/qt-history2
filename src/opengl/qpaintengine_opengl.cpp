@@ -1857,6 +1857,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     // make sure the glyphs we want to draw are in the cache
     qt_glyph_cache()->cacheGlyphs(d->drawable.context(), ti, glyphs);
 
+    d->setGradientOps(d->pen_brush_style); // ## gradients
     glColor4ubv(d->pen_color);
     glEnable(GL_TEXTURE_2D);
 
