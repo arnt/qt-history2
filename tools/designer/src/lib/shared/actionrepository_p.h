@@ -50,6 +50,7 @@ public slots:
 protected:
     virtual void startDrag(Qt::DropActions supportedActions);
     virtual QMimeData *mimeData(const QList<QListWidgetItem*> items) const;
+    virtual void focusInEvent(QFocusEvent *event);
 };
 
 class QDESIGNER_SHARED_EXPORT ActionRepositoryMimeData: public QMimeData

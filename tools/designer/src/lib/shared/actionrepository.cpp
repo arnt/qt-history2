@@ -60,5 +60,12 @@ void ActionRepository::filter(const QString &text)
     }
 }
 
+void ActionRepository::focusInEvent(QFocusEvent *event)
+{
+    QListWidget::focusInEvent(event);
+    if (currentItem()) {
+        emit currentItemChanged(currentItem(), currentItem());
+    }
+}
 
 } // namespace qdesigner_internal
