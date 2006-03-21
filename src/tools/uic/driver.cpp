@@ -92,6 +92,13 @@ QString Driver::findOrInsertName(const QString &name)
     return unique(name);
 }
 
+QString Driver::normalizedName(const QString &name)
+{
+    QString result = name;
+    result.replace(QRegExp(QLatin1String("[^a-zA-Z_0-9]")), QLatin1String("_"));
+    return result;
+};
+
 QString Driver::unique(const QString &instanceName, const QString &className)
 {
     QString name;
@@ -100,7 +107,7 @@ QString Driver::unique(const QString &instanceName, const QString &className)
     if (instanceName.size()) {
         int id = 1;
         name = instanceName;
-        name.replace(QRegExp(QLatin1String("[^a-zA-Z_0-9]")), QLatin1String("_"));
+        name = normalizedName(name);
         QString base = name;
 
         while (m_nameRepository.contains(name)) {

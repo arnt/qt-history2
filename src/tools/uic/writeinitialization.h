@@ -108,6 +108,7 @@ private:
     void initializeSqlDataTable(DomWidget *w);
     void initializeSqlDataBrowser(DomWidget *w);
 
+    QString findDeclaration(const QString &name);
     DomWidget *findWidget(const QString &widgetClass);
     DomImage *findImage(const QString &name) const;
 

@@ -1540,19 +1540,35 @@ bool WriteInitialization::isValidObject(const QString &name) const
         || m_registeredActions.contains(name);
 }
 
+QString WriteInitialization::findDeclaration(const QString &name)
+{
+    QString normalized = Driver::normalizedName(name);
+
+    if (DomWidget *widget = driver->widgetByName(normalized))
+        return driver->findOrInsertWidget(widget);
+    else if (DomAction *action = driver->actionByName(normalized))
+        return driver->findOrInsertAction(action);
+
+    return QString();
+}
+
 void WriteInitialization::acceptConnection(DomConnection *connection)
 {
-    if (isValidObject(connection->elementSender()) && isValidObject(connection->elementReceiver())) {
-        output << option.indent << "QObject::connect("
-            << connection->elementSender()
-            << ", "
-            << "SIGNAL(" << connection->elementSignal() << ")"
-            << ", "
-            << connection->elementReceiver()
-            << ", "
-            << "SLOT(" << connection->elementSlot() << ")"
-            << ");\n";
-    }
+    QString sender = findDeclaration(connection->elementSender());
+    QString receiver = findDeclaration(connection->elementReceiver());
+
+    if (sender.isEmpty() || receiver.isEmpty())
+        return;
+
+    output << option.indent << "QObject::connect("
+        << sender
+        << ", "
+        << "SIGNAL(" << connection->elementSignal() << ")"
+        << ", "
+        << receiver
+        << ", "
+        << "SLOT(" << connection->elementSlot() << ")"
+        << ");\n";
 }
 
 DomImage *WriteInitialization::findImage(const QString &name) const

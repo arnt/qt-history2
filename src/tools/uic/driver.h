@@ -56,6 +56,7 @@ public:
     inline QString headerFileName() const
     { return headerFileName(m_option.outputFile.isEmpty() ? m_option.inputFile : m_option.outputFile); }
 
+    static QString normalizedName(const QString &name);
     static QString qtify(const QString &name);
     QString unique(const QString &instanceName=QString(),
                    const QString &className=QString());
