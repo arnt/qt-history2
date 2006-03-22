@@ -580,7 +580,8 @@ void QTimeLine::start()
 void QTimeLine::stop()
 {
     Q_D(QTimeLine);
-    killTimer(d->timerId);
+    if (d->timerId)
+        killTimer(d->timerId);
     d->setState(NotRunning);
     d->timerId = 0;
 }
