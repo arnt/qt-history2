@@ -1950,6 +1950,8 @@ void QTreeWidget::addTopLevelItem(QTreeWidgetItem *item)
 /*!
   Removes the top-level item at the given \a index in the tree and
   returns it, otherwise returns 0;
+
+  \sa insertTopLevelItem(), topLevelItem()
 */
 
 QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
@@ -2164,6 +2166,8 @@ void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 
 /*!
   \reimpl
+
+  \sa sortItems()
 */
 void QTreeWidget::setSortingEnabled(bool enable)
 {
@@ -2366,6 +2370,8 @@ void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
 /*!
   Ensures that the \a item is visible, scrolling the view if necessary using
   the specified \a hint.
+
+  \sa currentItem(), itemAt(), topLevelItem()
 */
 
 void QTreeWidget::scrollToItem(const QTreeWidgetItem *item, ScrollHint hint)
@@ -2380,6 +2386,8 @@ void QTreeWidget::scrollToItem(const QTreeWidgetItem *item, ScrollHint hint)
 /*!
     Expands the \a item. This causes the tree containing the item's children
     to be expanded.
+
+    \sa collapseItem(), currentItem(), itemAt(), topLevelItem()
 */
 
 void QTreeWidget::expandItem(const QTreeWidgetItem *item)
@@ -2393,6 +2401,8 @@ void QTreeWidget::expandItem(const QTreeWidgetItem *item)
 /*!
     Closes the \a item. This causes the tree containing the item's children
     to be collapsed.
+
+    \sa expandItem(), currentItem(), itemAt(), topLevelItem()
 */
 
 void QTreeWidget::collapseItem(const QTreeWidgetItem *item)
@@ -2409,6 +2419,8 @@ void QTreeWidget::collapseItem(const QTreeWidgetItem *item)
   \bold{Note:} Since each item is removed from the tree widget before being
   deleted, the return value of QTreeWidgetItem::treeWidget() will be invalid
   when called from an item's destructor.
+
+  \sa taketopLevelItem()
 */
 
 void QTreeWidget::clear()
