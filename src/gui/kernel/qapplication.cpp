@@ -610,13 +610,22 @@ QApplication::QApplication(int &argc, char **argv, Type type)
 /*!
     \internal
 */
-void QApplicationPrivate::construct()
+void QApplicationPrivate::construct(
+#ifdef Q_WS_X11
+                                    Display *dpy, Qt::HANDLE visual, Qt::HANDLE cmap
+#endif
+                                    )
 {
     Q_INIT_RESOURCE(qstyle);
 
     qt_is_gui_used = (qt_appType != QApplication::Tty);
     process_cmdline();
-    qt_init(this, qt_appType);   // Must be called before initialize()
+    // Must be called before initialize()
+    qt_init(this, qt_appType
+#ifdef Q_WS_X11
+            , dpy, visual, cmap
+#endif
+            );
     initialize();
     if (qt_is_gui_used)
         qt_maxWindowRect = QApplication::desktop()->rect();
@@ -651,20 +660,10 @@ static char *aargv[] = { (char*)"unknown", 0 };
 QApplication::QApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap)
     : QCoreApplication(*new QApplicationPrivate(aargc, aargv, GuiClient))
 {
-    Q_D(QApplication);
-    qt_is_gui_used = true;
-    // ... no command line.
-
     if (! dpy)
         qWarning("QApplication: Invalid Display* argument");
-
-    qt_init(d, GuiClient, dpy, visual, colormap);
-
-    d->initialize();
-
-    if (qt_is_gui_used)
-        qt_maxWindowRect = desktop()->rect();
-    d->eventDispatcher->startingUp();
+    Q_D(QApplication);
+    d->construct(dpy, visual, colormap);
 }
 
 /*!
@@ -686,19 +685,10 @@ QApplication::QApplication(Display *dpy, int &argc, char **argv,
                            Qt::HANDLE visual, Qt::HANDLE colormap)
     : QCoreApplication(*new QApplicationPrivate(argc, argv, GuiClient))
 {
-    Q_D(QApplication);
-    qt_is_gui_used = true;
-
     if (! dpy)
         qWarning("QApplication: Invalid Display* argument");
-    qt_init(d, GuiClient, dpy, visual, colormap);
-
-    d->process_cmdline();
-    d->initialize();
-
-    if (qt_is_gui_used)
-        qt_maxWindowRect = desktop()->rect();
-    d->eventDispatcher->startingUp();
+    Q_D(QApplication);
+    d->construct(dpy, visual, colormap);
 }
 
 
