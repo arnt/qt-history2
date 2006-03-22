@@ -2320,7 +2320,7 @@ void QWidgetPrivate::fixupDnd()
     // will sync children_use_dnd up to our window
     checkChildrenDnd();
     QWidget *window = q->window();
-    if (X11) {
+    if (X11 && !QApplication::closingDown()) {
         bool enableDnd = (window->d_func()->extra && window->d_func()->extra->children_use_dnd)
                          || window->testAttribute(Qt::WA_AcceptDrops);
         X11->dndEnable(q, enableDnd);
