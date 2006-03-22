@@ -527,19 +527,29 @@ void QTextDocumentPrivate::remove(int pos, int length, QTextUndoCommand::Operati
 
 void QTextDocumentPrivate::setCharFormat(int pos, int length, const QTextCharFormat &newFormat, FormatChangeMode mode)
 {
+    beginEditBlock();
+    
     Q_ASSERT(newFormat.isValid());
 
-    beginEditBlock();
-
     int newFormatIdx = -1;
-    if (mode == SetFormat)
+    if (mode == SetFormatAndPreserveObjectIndices) {
+        QTextCharFormat cleanFormat = newFormat;
+        cleanFormat.clearProperty(QTextFormat::ObjectIndex);
+        newFormatIdx = formats.indexForFormat(cleanFormat);
+    } else if (mode == SetFormat) {
         newFormatIdx = formats.indexForFormat(newFormat);
+    }
 
     if (pos == -1) {
         if (mode == MergeFormat) {
             QTextFormat format = formats.format(initialBlockCharFormatIndex);
             format.merge(newFormat);
             initialBlockCharFormatIndex = formats.indexForFormat(format);
+        } else if (mode == SetFormatAndPreserveObjectIndices
+                   && formats.format(initialBlockCharFormatIndex).objectIndex() != -1) {
+            QTextCharFormat f = newFormat;
+            f.setObjectIndex(formats.format(initialBlockCharFormatIndex).objectIndex());
+            initialBlockCharFormatIndex = formats.indexForFormat(f);
         } else {
             initialBlockCharFormatIndex = newFormatIdx;
         }
@@ -570,6 +580,11 @@ void QTextDocumentPrivate::setCharFormat(int pos, int length, const QTextCharFor
             QTextFormat format = formats.format(fragment->format);
             format.merge(newFormat);
             fragment->format = formats.indexForFormat(format);
+        } else if (mode == SetFormatAndPreserveObjectIndices
+                   && formats.format(oldFormat).objectIndex() != -1) {
+            QTextCharFormat f = newFormat;
+            f.setObjectIndex(formats.format(oldFormat).objectIndex());
+            fragment->format = formats.indexForFormat(f);
         } else {
             fragment->format = newFormatIdx;
         }
@@ -606,6 +621,8 @@ void QTextDocumentPrivate::setBlockFormat(const QTextBlock &from, const QTextBlo
 				     const QTextBlockFormat &newFormat, FormatChangeMode mode)
 {
     beginEditBlock();
+
+    Q_ASSERT(mode != SetFormatAndPreserveObjectIndices); // only implemented for setCharFormat
 
     Q_ASSERT(newFormat.isValid());
 

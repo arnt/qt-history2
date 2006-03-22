@@ -545,9 +545,12 @@ static void setBlockCharFormat(QTextDocumentPrivate *priv, int pos1, int pos2,
     }
 }
 
-void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode)
+void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &_format, QTextDocumentPrivate::FormatChangeMode changeMode)
 {
     priv->beginEditBlock();
+    
+    QTextCharFormat format = _format;
+    format.clearProperty(QTextFormat::ObjectIndex);
 
     QTextTable *table = complexSelectionTable();
     if (table) {
@@ -633,9 +636,12 @@ void QTextCursorPrivate::setBlockFormat(const QTextBlockFormat &format, QTextDoc
     }
 }
 
-void QTextCursorPrivate::setCharFormat(const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode)
+void QTextCursorPrivate::setCharFormat(const QTextCharFormat &_format, QTextDocumentPrivate::FormatChangeMode changeMode)
 {
     Q_ASSERT(position != anchor);
+    
+    QTextCharFormat format = _format;
+    format.clearProperty(QTextFormat::ObjectIndex);
 
     QTextTable *table = complexSelectionTable();
     if (table) {
@@ -1035,12 +1041,15 @@ void QTextCursor::insertText(const QString &text)
 
     Inserts \a text at the current position with the given \a format.
 */
-void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
+void QTextCursor::insertText(const QString &text, const QTextCharFormat &_format)
 {
     if (!d || !d->priv)
         return;
-
-    Q_ASSERT(format.isValid());
+    
+    Q_ASSERT(_format.isValid());
+    
+    QTextCharFormat format = _format;
+    format.clearProperty(QTextFormat::ObjectIndex);
 
     d->priv->beginEditBlock();
 
@@ -1426,7 +1435,7 @@ void QTextCursor::setBlockCharFormat(const QTextCharFormat &format)
     if (!d || !d->priv)
         return;
 
-    d->setBlockCharFormat(format, QTextDocumentPrivate::SetFormat);
+    d->setBlockCharFormat(format, QTextDocumentPrivate::SetFormatAndPreserveObjectIndices);
 }
 
 /*!
@@ -1490,7 +1499,7 @@ void QTextCursor::setCharFormat(const QTextCharFormat &format)
         d->currentCharFormat = d->priv->formatCollection()->indexForFormat(format);
         return;
     }
-    d->setCharFormat(format, QTextDocumentPrivate::SetFormat);
+    d->setCharFormat(format, QTextDocumentPrivate::SetFormatAndPreserveObjectIndices);
 }
 
 /*!
@@ -1604,10 +1613,13 @@ void QTextCursor::insertBlock(const QTextBlockFormat &format)
 
     \sa setBlockFormat()
 */
-void QTextCursor::insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat)
+void QTextCursor::insertBlock(const QTextBlockFormat &format, const QTextCharFormat &_charFormat)
 {
     if (!d || !d->priv)
         return;
+
+    QTextCharFormat charFormat = _charFormat;
+    charFormat.clearProperty(QTextFormat::ObjectIndex);
 
     d->priv->beginEditBlock();
     d->remove();
@@ -1801,6 +1813,32 @@ void QTextCursor::insertFragment(const QTextDocumentFragment &fragment)
     d->priv->beginEditBlock();
     d->remove();
     fragment.d->insert(*this);
+    d->priv->endEditBlock();
+}
+
+/*!
+    \overload
+    \since 4.2
+
+    Inserts the image defined by \a format at the current position() with the specified
+    alignment.
+*/
+void QTextCursor::insertImage(const QTextImageFormat &format, QTextFrameFormat::Position alignment)
+{
+    if (!d || !d->priv)
+        return;
+
+    QTextFrameFormat ffmt;
+    ffmt.setPosition(alignment);
+    QTextObject *obj = d->priv->createObject(ffmt);
+    
+    QTextImageFormat fmt = format;
+    fmt.setObjectIndex(obj->objectIndex());
+        
+    d->priv->beginEditBlock();
+    d->remove();
+    const int idx = d->priv->formatCollection()->indexForFormat(fmt);
+    d->priv->insert(d->position, QString(QChar(QChar::ObjectReplacementCharacter)), idx);
     d->priv->endEditBlock();
 }
 

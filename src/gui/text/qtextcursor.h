@@ -152,6 +152,7 @@ public:
 
     void insertFragment(const QTextDocumentFragment &fragment);
 
+    void insertImage(const QTextImageFormat &format, QTextFrameFormat::Position alignment);
     void insertImage(const QTextImageFormat &format);
     void insertImage(const QString &name);
 

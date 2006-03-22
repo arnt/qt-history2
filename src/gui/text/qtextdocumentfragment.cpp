@@ -533,13 +533,7 @@ void QTextHtmlImporter::import()
             if (node->imageHeight >= 0)
                 fmt.setHeight(node->imageHeight);
 
-            QTextFrameFormat::Position f = QTextFrameFormat::Position(node->cssFloat);
-            QTextFrameFormat ffmt;
-            ffmt.setPosition(f);
-            QTextObject *obj = doc->docHandle()->createObject(ffmt);
-            fmt.setObjectIndex(obj->objectIndex());
-
-            cursor.insertImage(fmt);
+            cursor.insertImage(fmt, QTextFrameFormat::Position(node->cssFloat));
             hasBlock = false;
             continue;
         } else if (node->id == Html_hr) {
@@ -629,8 +623,6 @@ void QTextHtmlImporter::import()
                     cursor.setBlockFormat(block);
                     cursor.setBlockCharFormat(charFmt);
                 } else {
-                    block.clearProperty(QTextFormat::ObjectIndex);
-                    charFmt.clearProperty(QTextFormat::ObjectIndex);
                     appendBlock(block, charFmt);
                 }
             }

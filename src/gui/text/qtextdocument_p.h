@@ -153,7 +153,7 @@ public:
     QTextFrame *insertFrame(int start, int end, const QTextFrameFormat &format);
     void removeFrame(QTextFrame *frame);
 
-    enum FormatChangeMode { MergeFormat, SetFormat };
+    enum FormatChangeMode { MergeFormat, SetFormat, SetFormatAndPreserveObjectIndices };
 
     void setCharFormat(int pos, int length, const QTextCharFormat &newFormat, FormatChangeMode mode = SetFormat);
     void setBlockFormat(const QTextBlock &from, const QTextBlock &to,
