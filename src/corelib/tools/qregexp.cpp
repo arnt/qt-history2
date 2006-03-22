@@ -1389,10 +1389,8 @@ void QRegExpMatchState::match(const QString &str0, int pos0, bool minimal0, bool
         *c++ = pos;
         *c++ = matchLen;
         int n = eng->isOfficialCapture.size();
-// qDebug("n = %d (%d %d)", n, eng->ncap, eng->officialncap);
         for (int j = 0; j < n; j++) {
             if (eng->isOfficialCapture.testBit(j)) {
-// qDebug("  j = %d passed", j);
                 int len = capEnd[j] - capBegin[j];
                 *c++ = (len > 0) ? pos + capBegin[j] : 0;
                 *c++ = len;
@@ -3113,9 +3111,9 @@ void QRegExpEngine::parseAtom(Box *box)
 void QRegExpEngine::parseFactor(Box *box)
 {
 #ifndef QT_NO_REGEXP_CAPTURE
-    int atom = startAtom(yyMayCapture && yyTok == Tok_LeftParen);
-#else
-    static const int atom = 0;
+    int outerAtom = startAtom(false);
+    int innerAtom = startAtom(yyMayCapture && yyTok == Tok_LeftParen);
+    bool magicLeftParen = (yyTok == Tok_MagicLeftParen);
 #endif
 
 #ifndef QT_NO_REGEXP_INTERVAL
@@ -3137,15 +3135,16 @@ void QRegExpEngine::parseFactor(Box *box)
 
     parseAtom(box);
 #ifndef QT_NO_REGEXP_CAPTURE
-    finishAtom(atom, yyTok == Tok_Quantifier);
+    finishAtom(innerAtom, magicLeftParen);
 #endif
 
-    if (yyTok == Tok_Quantifier) {
+    bool hasQuantifier = (yyTok == Tok_Quantifier);
+    if (hasQuantifier) {
 #ifndef QT_NO_REGEXP_OPTIM
         trivial = false;
 #endif
         if (yyMaxRep == InftyRep) {
-            box->plus(atom);
+            box->plus(innerAtom);
 #ifndef QT_NO_REGEXP_INTERVAL
         } else if (yyMaxRep == 0) {
             box->clear();
@@ -3186,6 +3185,9 @@ void QRegExpEngine::parseFactor(Box *box)
 #endif
     }
 #undef YYREDO
+#ifndef QT_NO_REGEXP_CAPTURE
+    finishAtom(outerAtom, hasQuantifier);
+#endif
 }
 
 void QRegExpEngine::parseTerm(Box *box)
