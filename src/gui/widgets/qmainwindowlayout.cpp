@@ -356,8 +356,7 @@ Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar) const
                 return static_cast<Qt::ToolBarArea>(areaForPosition(lineInfo.pos));
         }
     }
-    Q_ASSERT_X(false, "QMainWindow::toolBarArea", "'toolbar' is not managed by this main window.");
-    return Qt::TopToolBarArea;
+    return Qt::ToolBarArea(0);
 }
 #endif // QT_NO_TOOLBAR
 
@@ -444,9 +443,7 @@ Qt::DockWidgetArea QMainWindowLayout::dockWidgetArea(QDockWidget *dockwidget) co
         if (findWidgetRecursively(layout_info[pos].item, dockwidget))
             return static_cast<Qt::DockWidgetArea>(areaForPosition(pos));
     }
-    Q_ASSERT_X(false, "QMainWindow::dockWidgetArea",
-               "'dockwidget' is not managed by this main window.");
-    return Qt::TopDockWidgetArea;
+    return Qt::DockWidgetArea(0);
 
 }
 #endif // QT_NO_DOCKWIDGET

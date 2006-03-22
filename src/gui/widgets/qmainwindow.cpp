@@ -571,7 +571,8 @@ void QMainWindow::removeToolBar(QToolBar *toolbar)
 }
 
 /*!
-    Returns the tool bar area for \a toolbar.
+    Returns the Qt::ToolBarArea for \a toolbar. If \a toolbar has not
+    been added to the main window, this function returns zero.
 
     \sa addToolBar() addToolBarBreak() Qt::ToolBarArea
 */
@@ -665,7 +666,8 @@ void QMainWindow::removeDockWidget(QDockWidget *dockwidget)
 }
 
 /*!
-    Returns the Qt::DockWidgetArea for \a dockwidget.
+    Returns the Qt::DockWidgetArea for \a dockwidget. If \a dockwidget
+    has not been added to the main window, this function returns zero.
 
     \sa addDockWidget() splitDockWidget() Qt::DockWidgetArea
 */
