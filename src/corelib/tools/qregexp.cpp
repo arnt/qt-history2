@@ -1389,10 +1389,10 @@ void QRegExpMatchState::match(const QString &str0, int pos0, bool minimal0, bool
         *c++ = pos;
         *c++ = matchLen;
         int n = eng->isOfficialCapture.size();
-qDebug("n = %d (%d %d)", n, eng->ncap, eng->officialncap);
+// qDebug("n = %d (%d %d)", n, eng->ncap, eng->officialncap);
         for (int j = 0; j < n; j++) {
             if (eng->isOfficialCapture.testBit(j)) {
-qDebug("  j = %d passed", j);
+// qDebug("  j = %d passed", j);
                 int len = capEnd[j] - capBegin[j];
                 *c++ = (len > 0) ? pos + capBegin[j] : 0;
                 *c++ = len;
