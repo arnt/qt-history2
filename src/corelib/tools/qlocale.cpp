@@ -1720,11 +1720,11 @@ static bool timeFormatContainsAP(const QString &format)
         }
 
         QChar c1 = format.at(i);
- 
+
         // In Windows time-format strings, 't' is the AM/PM marker
         if (c1.unicode() == 't')
             return true;
-        
+
         if (i + 1 == format.size())
             break;
         QChar c2 = format.at(i + 1);
@@ -1735,6 +1735,16 @@ static bool timeFormatContainsAP(const QString &format)
         ++i;
     }
     return false;
+}
+
+static QString timeZone()
+{
+#ifdef Q_OS_WIN
+    return QString();
+#else
+    tzset();
+    return QString::fromLocal8Bit(tzname[0]);
+#endif
 }
 
 /*!
@@ -1856,6 +1866,12 @@ QString QLocale::toString(const QTime &time, const QString &format) const
                     default:
                         break;
                 }
+                break;
+
+            case 'z':
+                if (repeat > 4)
+                    repeat = 4;
+                result.append(timeZone());
                 break;
 
             default:
@@ -2094,7 +2110,7 @@ static const QLocalePrivate *windowsCustomLocale()
         // Initialize with the default values for the current system locale
         const QLocalePrivate *plain = findLocale(QLocalePrivate::systemLocaleName());
         QLocalePrivate *custom = new QLocalePrivate(*plain);
-        
+
         // Modify it according to the custom settings
         QString s = getWinLocaleInfo(LOCALE_SDECIMAL);
         if (!s.isEmpty())
