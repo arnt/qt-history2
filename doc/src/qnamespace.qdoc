@@ -780,16 +780,16 @@
     semi-transparent or shine through semi-transparent overlapping
     widgets. This is only supported on X11. The flag is set or
     cleared by the widget's author. This flag is required for
-    rendering outside of Qt's paint system, e.g. should you want to
+    rendering outside of Qt's paint system; e.g. if you need to
     use native X11 painting primitives.
 
     \value WA_PaintUnclipped Makes all painters operating on this
     widget unclipped. Children of this widget or other widgets in
     front of it do not clip the area the painter can paint on. This
-    flag is only supported on X11 for widgets that have paint on
-    screen is set. The preferred way to do this cross platform is to
-    create a transparent widget that lies in front of the other
-    widgets.
+    flag is only supported on X11 for widgets for which the
+    WA_PaintOnScreen flag is set. The preferred way to do this in a
+    cross platform way is to create a transparent widget that lies
+    in front of the other widgets.
 
     \value WA_PaintOutsidePaintEvent Makes it possible to use QPainter
     to paint on the widget outside \l{QWidget::paintEvent()}{paintEvent()}.
