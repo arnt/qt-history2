@@ -91,7 +91,7 @@ void SpreadSheetItem::setData(int role, const QVariant &value)
 
 QVariant SpreadSheetItem::display() const
 {
-    // check if the string is actially a formula or not
+    // check if the string is actually a formula or not
     QString formula = this->formula();
     QStringList list = formula.split(' ');
     if (list.count() != 3)
@@ -136,7 +136,7 @@ QVariant SpreadSheetItem::display() const
         else
             result = (start->text().toInt() / end->text().toInt());
     } else {
-        result = "Error: Operation does not exist!";
+        result = formula;
     }
 
     isResolving = false;
