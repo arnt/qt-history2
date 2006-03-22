@@ -215,16 +215,18 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
 QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
 {
     glyph_metrics_t gm = boundingBox(glyph);
-    int glyph_width = qRound(gm.width);
-    int glyph_height = qRound(gm.height);
+    int glyph_x = floor(gm.x.toReal());
+    int glyph_y = floor(gm.y.toReal());
+    int glyph_width = ceil((gm.x + gm.width).toReal()) -  glyph_x + 2;
+    int glyph_height = ceil((gm.y + gm.height).toReal()) - glyph_y + 2;
 
     if (glyph_width <= 0 || glyph_height <= 0)
         return QImage();
     QFixedPoint pt;
-    pt.x = gm.x;
-    pt.y = -gm.y;
+    pt.x = 0;
+    pt.y = -glyph_y; // the baseline
     QPainterPath path;
-    QImage im(glyph_width, glyph_height, QImage::Format_ARGB32_Premultiplied);
+    QImage im(glyph_width + glyph_x, glyph_height, QImage::Format_ARGB32_Premultiplied);
     im.fill(Qt::transparent);
     QPainter p(&im);
     p.setRenderHint(QPainter::Antialiasing);
