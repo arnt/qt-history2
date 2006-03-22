@@ -54,20 +54,20 @@ inline uint qHash(QChar key) { return qHash(key.unicode()); }
 Q_CORE_EXPORT uint qHash(const QByteArray &key);
 Q_CORE_EXPORT uint qHash(const QString &key);
 
-template <class T> inline uint qHash(const T *key)
-{
 #if defined(Q_CC_MSVC)
 #pragma warning( push )
 #pragma warning( disable : 4311 ) // disable pointer truncation warning
 #endif
+template <class T> inline uint qHash(const T *key)
+{
     if (sizeof(const T *) > sizeof(uint))
         return qHash(reinterpret_cast<quint64>(key));
     else
         return uint(reinterpret_cast<ulong>(key));
+}
 #if defined(Q_CC_MSVC)
 #pragma warning( pop )
 #endif
-}
 
 struct Q_CORE_EXPORT QHashData
 {
