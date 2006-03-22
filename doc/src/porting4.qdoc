@@ -251,6 +251,18 @@
          \omit ### Check with Sam \endomit
     \endtable
 
+    In Qt 4.1, the widget flags used to determine window modality have
+    been replaced by a single enum that can be used to specify the modal
+    behavior of top-level widgets:
+
+    \table
+    \header \o Qt 3 type \o Qt 4 equivalent
+    \row \o Qt::WShowModal \o Use QWidget::setWindowModality(Qt::ApplicationModal) instead.
+    \row \o Qt::WGroupLeader \o Use QWidget::setWindowModality(Qt::WindowModel)
+         for each child dialog of the group leader, but do not change the modality
+         of the group leader itself.
+    \endtable
+
     \target properties
     \section1 Properties
 
@@ -3839,7 +3851,7 @@
 
     Widget background painting has been greatly improved, supporting
     flicker-free updates and making it possible to have
-    semitransparent widgets. This renders the following background
+    semi-transparent widgets. This renders the following background
     handling functions obsolete:
 
     \list

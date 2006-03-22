@@ -851,14 +851,8 @@
     enabled. See QWidget::mouseTracking.
 
     \value WA_GroupLeader
-        Makes this window a group leader. A group
-        leader should \e not have a parent (i.e. it should be a
-        top-level window). Any decendant windows (direct or indirect)
-        of a group leader are in its group; other windows are not. If
-        you show a secondary window from the group (i.e. show a
-        window whose top-most parent is a group leader), that window
-        will be modal with respect to the other windows in the group,
-        but modeless with respect to windows in other groups.
+        \e{This attribute has been deprecated.} Use QWidget::windowModality
+        instead.
 
     \value WA_KeyboardFocusChange Set on a toplevel window when
         the users changes focus with the keyboard (tab, backtab, or shortcut).
@@ -2022,7 +2016,7 @@
 
     The values are:
     \value NonModal         The window is not modal and does not block input to other windows.
-    \value WindowModal      The window is modal to a single window heirarchy and blocks input to its parent window, all grand parent windows, and all siblings of its parent and grand parent windows.
+    \value WindowModal      The window is modal to a single window hierarchy and blocks input to its parent window, all grandparent windows, and all siblings of its parent and grandparent windows.
     \value ApplicationModal The window is modal to the application and blocks input to all windows.
 
     \sa QWidget::windowModality, QDialog
