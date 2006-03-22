@@ -226,7 +226,10 @@ void RichTextEditor::setText(const QString &text)
 void RichTextEditor::setDefaultFont(const QFont &font)
 {
     document()->setDefaultFont(font);
-    setFontPointSize(font.pointSize());
+    if (font.pointSize() > 0)
+        setFontPointSize(font.pointSize());
+    else
+        setFontPointSize(QFontInfo(font).pointSize());
     emit textChanged();
 }
 
