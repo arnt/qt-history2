@@ -1826,16 +1826,10 @@ const QGLContext* QGLContext::currentContext()
     \ingroup multimedia
     \mainclass
 
-    QGLWidget provides functionality for displaying OpenGL
-    \footnote
-        OpenGL is a trademark of Silicon Graphics, Inc. in the
-        United States and other countries.
-    \endfootnote
-    graphics integrated into a Qt application. It is very simple to
-    use. You inherit from it and use the subclass like any other
-    QWidget, except that instead of drawing the widget's contents
-    using QPainter etc. you use the standard OpenGL rendering
-    commands.
+    QGLWidget provides functionality for displaying OpenGL graphics integrated into
+    a Qt application. It is very simple to use. You inherit from it and use the
+    subclass like any other QWidget, except that instead of drawing the widget's
+    contents using QPainter you use the standard OpenGL rendering commands.
 
     QGLWidget provides three convenient virtual functions that you can
     reimplement in your subclass to perform the typical OpenGL tasks:
@@ -1942,6 +1936,35 @@ const QGLContext* QGLContext::currentContext()
 
     On X servers in which the default visual is in an overlay plane,
     non-GL Qt windows can also be used for overlays.
+
+    \section1 Painting Techniques
+
+    As described above, subclass QGLWidget to render pure 3D content in the
+    following way:
+
+    \list
+    \o Reimplement the QGLWidget::initializeGL() and QGLWidget::resizeGL() to
+       set up the OpenGL state and provide a perspective transformation.
+    \o Reimplement QGLWidget::paintGL() to paint the 3D scene, calling only
+       OpenGL functions to draw on the widget.
+    \endlist
+
+    It is also possible to draw 2D graphics onto a QGLWidget subclass, it is necessary
+    to reimplement QGLWidget::paintEvent() and do the following:
+
+    \list
+    \o Construct a QPainter object.
+    \o Initialize it for use on the widget with the QPainter::begin() function.
+    \o Draw primitives using QPainter's member functions.
+    \o Call QPainter::end() to finish painting.
+    \endlist
+
+    Overpainting 2D content on top of 3D content takes a little more effort.
+    One approach to doing this is shown in the
+    \l{Overpainting Example}{Overpainting} example.
+
+    \e{OpenGL is a trademark of Silicon Graphics, Inc. in the United States and other
+    countries.}
 */
 
 /*!
