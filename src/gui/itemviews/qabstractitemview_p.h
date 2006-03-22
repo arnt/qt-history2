@@ -154,7 +154,7 @@ public:
     }
 
     void removeSelectedRows();
-    QPixmap renderToPixmap(const QModelIndexList &indexes) const;
+    QPixmap renderToPixmap(const QModelIndexList &indexes, QRect *r = 0) const;
 
     virtual bool selectionAllowed(const QModelIndex &index) const {
         // in some views we want to go ahead with selections, even if the index is invalid
@@ -246,7 +246,7 @@ public:
     QPoint scrollDelayOffset;
 
     QBasicTimer delayedEditing;
-    
+
     QTimeLine timeline;
 };
 

@@ -2182,7 +2182,8 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
     Q_D(QAbstractItemView);
     QModelIndexList indexes = selectedIndexes();
     if (indexes.count() > 0) {
-        QPixmap pixmap = d->renderToPixmap(indexes);
+        QRect rect;
+        QPixmap pixmap = d->renderToPixmap(indexes, &rect);
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(model()->mimeData(indexes));
@@ -2690,7 +2691,7 @@ bool QAbstractItemViewPrivate::openEditor(const QModelIndex &index, QEvent *even
     return true;
 }
 
-QPixmap QAbstractItemViewPrivate::renderToPixmap(const QModelIndexList &indexes) const
+QPixmap QAbstractItemViewPrivate::renderToPixmap(const QModelIndexList &indexes, QRect *r) const
 {
     Q_Q(const QAbstractItemView);
     QRect rect = q->visualRect(indexes.at(0));
@@ -2710,7 +2711,8 @@ QPixmap QAbstractItemViewPrivate::renderToPixmap(const QModelIndexList &indexes)
         delegate->paint(&painter, option, indexes.at(j));
     }
     painter.end();
-    return pixmap;   
+    if (r) *r = rect;
+    return pixmap;
 }
 
 #include "moc_qabstractitemview.cpp"
