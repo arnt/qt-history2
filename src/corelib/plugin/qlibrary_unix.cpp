@@ -93,6 +93,8 @@ bool QLibraryPrivate::load_sys()
     else
         path += QLatin1Char('/');
 
+    // The first filename we want to attempt to load is the filename as the callee specified.
+    // Thus, the first attempt we do must be with an empty prefix and empty suffix.
     QStringList suffixes, prefixes("");
     suffixes << "";
     if (pluginState != IsAPlugin) {
@@ -130,7 +132,7 @@ bool QLibraryPrivate::load_sys()
                 continue;
             if (!suffixes.at(suffix).isEmpty() && name.endsWith(suffixes.at(suffix)))
                 continue;
-            attempt = path + prefixes.at(prefix) + name + suffixes.at(suffix);                        
+            attempt = path + prefixes.at(prefix) + name + suffixes.at(suffix);
             pHnd = DL_PREFIX(dlopen)(QFile::encodeName(attempt), RTLD_LAZY);
         }
     }
