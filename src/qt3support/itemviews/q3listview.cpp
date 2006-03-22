@@ -2109,8 +2109,8 @@ void Q3ListViewItem::paintCell(QPainter * p, const QColorGroup & cg,
     int r = marg;
     const QPixmap * icon = pixmap(column);
 
-    if (pal.foreground() != lv->palette().color(lv->foregroundRole()))
-        p->fillRect(0, 0, width, height(), pal.foreground());
+    if (pal.background() != lv->palette().color(lv->backgroundRole()))
+        p->fillRect(0, 0, width, height(), pal.background());
     else
         lv->paintEmptyArea(p, QRect(0, 0, width, height()));
 
@@ -6555,7 +6555,7 @@ void Q3CheckListItem::paintCell(QPainter * p, const QColorGroup & cg,
     if (!lv)
         return;
 
-    const QPalette::ColorRole crole = lv->foregroundRole();
+    const QPalette::ColorRole crole = lv->backgroundRole();
     if (cg.brush(crole) != lv->palette().brush(crole))
         p->fillRect(0, 0, width, height(), cg.brush(crole));
     else
