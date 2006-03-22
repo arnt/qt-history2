@@ -68,7 +68,37 @@
     controlled by the \l indentation property.
 
     Headers in a tree view are constructed using the QHeaderView class
-    and can be hidden using header()->hide();
+    and can be hidden using header()->hide().
+
+    \section2 Key Bindings
+
+    QTreeView supports a set of key bindings that enable the user to
+    navigate in the view and interact with the contents of items:
+
+    \table
+    \header \o Key \o Action
+    \row \o UpArrow   \o Moves the cursor to the item in the same column on
+         the previous row. If the parent of the current item has no more rows to
+         navigate to, the cursor moves to the relevant item in the last row
+         of the sibling that precedes the parent.
+    \row \o DownArrow \o Moves the cursor to the item in the same column on
+         the next row. If the parent of the current item has no more rows to
+         navigate to, the cursor moves to the relevant item in the first row
+         of the sibling that follows the parent.
+    \row \o LeftArrow  \o Hides the children of the current item (if present)
+         by collapsing a branch.
+    \row \o RightArrow \o Reveals the children of the current item (if present)
+         by expanding a branch.
+    \row \o PageUp   \o Moves the cursor up one page.
+    \row \o PageDown \o Moves the cursor down one page.
+    \row \o Home \o Moves the cursor to an item in the same column of the first
+         row of the first top-level item in the model.
+    \row \o End  \o Moves the cursor to an item in the same column of the last
+         row of the last top-level item in the model.
+    \row \o F2   \o In editable models, this opens the current item for editing.
+         The Escape key can be used to cancel the editing process and revert
+         any changes to the data displayed.
+    \endtable
 
     \omit
     Describe the expanding/collapsing concept if not covered elsewhere.
