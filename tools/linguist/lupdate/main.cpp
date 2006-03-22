@@ -205,8 +205,7 @@ int main( int argc, char **argv )
                         if ( it.key() == "HEADERS" || it.key() == "SOURCES" ) {
                             fetchtr_cpp( (*t).toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
                             metSomething = true;
-                        } else if ( it.key() == "INTERFACES" ||
-                                    it.key() == "FORMS" ) {
+                        } else if ( it.key() == "INTERFACES" || it.key() == "FORMS" || it.key() == "FORMS3" ) {
                             fetchtr_ui( (*t).toAscii(), &fetchedTor, defaultContext.toAscii(), true );
                             fetchtr_cpp( (*t).toAscii() + ".h", &fetchedTor, defaultContext.toAscii(), false, codecForSource );
                             metSomething = true;
