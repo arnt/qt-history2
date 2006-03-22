@@ -28,6 +28,8 @@
 //#define QT_PICTURE_DEBUG
 #include <qdebug.h>
 
+#include <math.h>
+
 class QPicturePaintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QPicturePaintEngine)
@@ -238,7 +240,7 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
     Q_D(QPicturePaintEngine);
     int newpos = d->pic_d->pictb.pos();            // new position
     int length = newpos - pos;
-    QRect br = r.toRect();
+    QRectF br(r);
 
     if (length < 255) {                         // write 8-bit length
         d->pic_d->pictb.seek(pos - 1);             // position to right index
@@ -254,19 +256,34 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
     }
     d->pic_d->pictb.seek(newpos);                  // set to new position
 
-    if (br.isValid()) {
+    if (br.width() > 0.0 || br.height() > 0.0) {
         if (corr) {                             // widen bounding rect
             int w2 = painter()->pen().width() / 2;
             br.setCoords(br.left() - w2, br.top() - w2,
-                          br.right() + w2, br.bottom() + w2);
+                        br.right() + w2, br.bottom() + w2);
         }
         br = painter()->matrix().mapRect(br);
         if (painter()->hasClipping()) {
             QRect cr = painter()->clipRegion().boundingRect();
             br &= cr;
         }
-        if (br.isValid())
-            d->pic_d->brect |= br;                 // merge with existing rect
+
+        if (br.width() > 0.0 || br.height() > 0.0) {
+            int minx = int(floor(br.left()));
+            int miny = int(floor(br.top()));
+            int maxx = int(ceil(br.right()));
+            int maxy = int(ceil(br.bottom()));
+
+            if (d->pic_d->brect.width() > 0 || d->pic_d->brect.height() > 0) {
+                minx = qMin(minx, d->pic_d->brect.left());
+                miny = qMin(miny, d->pic_d->brect.top());
+                maxx = qMax(maxx, d->pic_d->brect.x() + d->pic_d->brect.width());
+                maxy = qMax(maxy, d->pic_d->brect.y() + d->pic_d->brect.height());
+                d->pic_d->brect = QRect(minx, miny, maxx - minx, maxy - miny);
+            } else {
+                d->pic_d->brect = QRect(minx, miny, maxx - minx, maxy - miny);
+            }
+        }
     }
 }
 
