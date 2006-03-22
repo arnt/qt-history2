@@ -65,7 +65,7 @@
          text than simple string matching does. For example we can
          create a regexp which says "find one of the words 'mail',
          'letter' or 'correspondence' but not any of the words
-         'email', 'mailman' 'mailer', 'letterbox' etc."
+         'email', 'mailman' 'mailer', 'letterbox', etc."
     \row \i Search and Replace
          \i A regexp can be used to replace a pattern with a piece of
          text, for example replace all occurrences of '&' with
@@ -151,7 +151,7 @@
 
     Our second example is matching the words 'mail', 'letter' or
     'correspondence' but without matching 'email', 'mailman',
-    'mailer', 'letterbox' etc. We'll start by just matching 'mail'. In
+    'mailer', 'letterbox', etc. We'll start by just matching 'mail'. In
     full the regexp is, \bold{m{1,1}a{1,1}i{1,1}l{1,1}}, but since
     each expression itself is automatically quantified by \bold{{1,1}}
     we can simply write this as \bold{mail}; an 'm' followed by an 'a'
@@ -367,7 +367,7 @@
     words in a string using \bold{\\b(\\w+)\\W+\\1\\b} which means match a
     word boundary followed by one or more word characters followed by
     one or more non-word characters followed by the same text as the
-    first parenthesised expression followed by a word boundary.
+    first parenthesized expression followed by a word boundary.
 
     If we want to use parentheses purely for grouping and not for
     capturing we can use the non-capturing syntax, e.g.
@@ -379,6 +379,16 @@
     since the regexp engine has to do less book-keeping.
 
     Both capturing and non-capturing parentheses may be nested.
+
+    \target greedy quantifiers
+
+    For historical reasons, quantifiers (e.g. \bold{*}) that apply to
+    capturing parentheses are more "greedy" than other quantifiers.
+    For example, \bold{a*(a)*} will match "aaa" with cap(1) == "aaa".
+    This behavior is different from what other regexp engines do
+    (notably, Perl). To obtain a more intuitive capturing behavior,
+    specify QRegExp::RegExp2 to the QRegExp constructor or call
+    setPatternSyntax(QRegExp::RegExp2).
 
     \target cap_in_a_loop
 
@@ -509,14 +519,12 @@
     is rarely necessary. The same applies to \c{$} which in
     QRegExp always signifies the end of the string.
 
-    QRegExp's quantifiers are the same as Perl's greedy quantifiers.
-    Non-greedy matching cannot be applied to individual quantifiers,
-    but can be applied to all the quantifiers in the pattern. For
-    example, to match the Perl regexp \bold{ro+?m} requires:
-    \code
-        QRegExp rx("ro+m");
-        rx.setMinimal(true);
-    \endcode
+    QRegExp's quantifiers are the same as Perl's greedy quantifiers
+    (but see the \l{greedy quantifiers}{note above}). Non-greedy
+    matching cannot be applied to individual quantifiers, but can be
+    applied to all the quantifiers in the pattern. For example, to
+    match the Perl regexp \bold{ro+?m} requires: \code QRegExp
+    rx("ro+m"); rx.setMinimal(true); \endcode
 
     The equivalent of Perl's \c{/i} option is
     setCaseSensitivity(Qt::CaseInsensitive).
@@ -529,7 +537,7 @@
     can be emulated in various ways for example by splitting the input
     into lines or by looping with a regexp that searches for newlines.
 
-    Because QRegExp is string oriented there are no \\A, \\Z, or \\z
+    Because QRegExp is string oriented, there are no \\A, \\Z, or \\z
     assertions. The \\G assertion is not supported but can be emulated
     in a loop.
 
@@ -856,6 +864,8 @@ bool operator==(const QRegExpEngineKey &key1, const QRegExpEngineKey &key2)
 
 class QRegExpEngine;
 
+//Q_DECLARE_TYPEINFO(QVector<int>, Q_MOVABLE_TYPE);
+
 /*
   This is the engine state during matching.
 */
@@ -900,75 +910,141 @@ struct QRegExpMatchState
 };
 
 /*
+  The struct QRegExpAutomatonState represents one state in a modified NFA. The
+  input characters matched are stored in the state instead of on
+  the transitions, something possible for an automaton
+  constructed from a regular expression.
+*/
+struct QRegExpAutomatonState
+{
+#ifndef QT_NO_REGEXP_CAPTURE
+    int atom; // which atom does this state belong to?
+#endif
+    int match; // what does it match? (see CharClassBit and BackRefBit)
+    QVector<int> outs; // out-transitions
+    QMap<int, int> reenter; // atoms reentered when transiting out
+    QMap<int, int> anchors; // anchors met when transiting out
+
+    inline QRegExpAutomatonState() { }
+#ifndef QT_NO_REGEXP_CAPTURE
+    inline QRegExpAutomatonState(int a, int m)
+        : atom(a), match(m) { }
+#else
+    inline QRegExpAutomatonState(int m)
+        : match(m) { }
+#endif
+};
+
+Q_DECLARE_TYPEINFO(QRegExpAutomatonState, Q_MOVABLE_TYPE);
+
+/*
+  The struct QRegExpCharClassRange represents a range of characters (e.g.,
+  [0-9] denotes range 48 to 57).
+*/
+struct QRegExpCharClassRange
+{
+    ushort from; // 48
+    ushort to; // 57
+};
+
+Q_DECLARE_TYPEINFO(QRegExpCharClassRange, Q_PRIMITIVE_TYPE);
+
+#ifndef QT_NO_REGEXP_CAPTURE
+/*
+  The struct QRegExpAtom represents one node in the hierarchy of regular
+  expression atoms.
+*/
+struct QRegExpAtom
+{
+    enum { NoCapture = -1, OfficialCapture = -2, UnofficialCapture = -3 };
+
+    int parent; // index of parent in array of atoms
+    int capture; // index of capture, from 1 to ncap - 1
+};
+
+Q_DECLARE_TYPEINFO(QRegExpAtom, Q_PRIMITIVE_TYPE);
+#endif
+
+struct QRegExpLookahead;
+
+#ifndef QT_NO_REGEXP_ANCHOR_ALT
+/*
+  The struct QRegExpAnchorAlternation represents a pair of anchors with
+  OR semantics.
+*/
+struct QRegExpAnchorAlternation
+{
+    int a; // this anchor...
+    int b; // ...or this one
+};
+
+Q_DECLARE_TYPEINFO(QRegExpAnchorAlternation, Q_PRIMITIVE_TYPE);
+#endif
+
+#ifndef QT_NO_REGEXP_CCLASS
+/*
+  The class QRegExpCharClass represents a set of characters, such as can
+  be found in regular expressions (e.g., [a-z] denotes the set
+  {a, b, ..., z}).
+*/
+class QRegExpCharClass
+{
+public:
+    QRegExpCharClass();
+    inline QRegExpCharClass(const QRegExpCharClass &cc) { operator=(cc); }
+
+    QRegExpCharClass &operator=(const QRegExpCharClass &cc);
+
+    void clear();
+    bool negative() const { return n; }
+    void setNegative(bool negative);
+    void addCategories(int cats);
+    void addRange(ushort from, ushort to);
+    void addSingleton(ushort ch) { addRange(ch, ch); }
+
+    bool in(QChar ch) const;
+#ifndef QT_NO_REGEXP_OPTIM
+    const QVector<int> &firstOccurrence() const { return occ1; }
+#endif
+
+#if defined(QT_DEBUG)
+    void dump() const;
+#endif
+
+private:
+    int c; // character classes
+    QVector<QRegExpCharClassRange> r; // character ranges
+    bool n; // negative?
+#ifndef QT_NO_REGEXP_OPTIM
+    QVector<int> occ1; // first-occurrence array
+#endif
+};
+#else
+struct QRegExpCharClass
+{
+    int dummy;
+
+#ifndef QT_NO_REGEXP_OPTIM
+    QRegExpCharClass() { occ1.fill(0, NumBadChars); }
+
+    const QVector<int> &firstOccurrence() const { return occ1; }
+    QVector<int> occ1;
+#endif
+};
+#endif
+
+Q_DECLARE_TYPEINFO(QRegExpCharClass, Q_MOVABLE_TYPE);
+
+/*
   The QRegExpEngine class encapsulates a modified nondeterministic
   finite automaton (NFA).
 */
 class QRegExpEngine
 {
 public:
-#ifndef QT_NO_REGEXP_CCLASS
-    /*
-      The class CharClass represents a set of characters, such as can
-      be found in regular expressions (e.g., [a-z] denotes the set
-      {a, b, ..., z}).
-    */
-    class CharClass
-    {
-    public:
-        CharClass();
-        CharClass(const CharClass &cc) { operator=(cc); }
+    QRegExpEngine(Qt::CaseSensitivity cs, bool greedy)
+        : cs(cs), greedyQuantifiers(greedyQuantifiers) { setup(); }
 
-        CharClass &operator=(const CharClass &cc);
-
-        void clear();
-        bool negative() const { return n; }
-        void setNegative(bool negative);
-        void addCategories(int cats);
-        void addRange(ushort from, ushort to);
-        void addSingleton(ushort ch) { addRange(ch, ch); }
-
-        bool in(QChar ch) const;
-#ifndef QT_NO_REGEXP_OPTIM
-        const QVector<int> &firstOccurrence() const { return occ1; }
-#endif
-
-#if defined(QT_DEBUG)
-        void dump() const;
-#endif
-
-        /*
-          The struct Range represents a range of characters (e.g.,
-          [0-9] denotes range 48 to 57).
-        */
-        struct Range
-        {
-            ushort from; // 48
-            ushort to; // 57
-        };
-
-    private:
-        int c; // character classes
-        QVector<Range> r; // character ranges
-        bool n; // negative?
-#ifndef QT_NO_REGEXP_OPTIM
-        QVector<int> occ1; // first-occurrence array
-#endif
-    };
-#else
-    struct CharClass
-    {
-        int dummy;
-
-#ifndef QT_NO_REGEXP_OPTIM
-        CharClass() { occ1.fill(0, NumBadChars); }
-
-        const QVector<int> &firstOccurrence() const { return occ1; }
-        QVector<int> occ1;
-#endif
-    };
-#endif
-
-    QRegExpEngine(Qt::CaseSensitivity cs) : cs(cs) { setup(); }
     QRegExpEngine(const QRegExpEngineKey &key);
     ~QRegExpEngine();
 
@@ -977,7 +1053,7 @@ public:
     int numCaptures() const { return officialncap; }
 
     int createState(QChar ch);
-    int createState(const CharClass &cc);
+    int createState(const QRegExpCharClass &cc);
 #ifndef QT_NO_REGEXP_BACKREF
     int createState(int bref);
 #endif
@@ -1008,74 +1084,8 @@ public:
 
 private:
     enum { CharClassBit = 0x10000, BackRefBit = 0x20000 };
-
-    /*
-      The struct State represents one state in a modified NFA. The
-      input characters matched are stored in the state instead of on
-      the transitions, something possible for an automaton
-      constructed from a regular expression.
-    */
-    struct State
-    {
-#ifndef QT_NO_REGEXP_CAPTURE
-        int atom; // which atom does this state belong to?
-#endif
-        int match; // what does it match? (see CharClassBit and BackRefBit)
-        QVector<int> outs; // out-transitions
-        QMap<int, int> *reenter; // atoms reentered when transiting out
-        QMap<int, int> *anchors; // anchors met when transiting out
-
-#ifndef QT_NO_REGEXP_CAPTURE
-        State(int a, int m)
-            : atom(a), match(m), reenter(0), anchors(0) { }
-#else
-        State(int m)
-            : match(m), reenter(0), anchors(0) { }
-#endif
-        ~State() { delete reenter; delete anchors; }
-    };
-
-#ifndef QT_NO_REGEXP_LOOKAHEAD
-    /*
-      The struct Lookahead represents a lookahead a la Perl (e.g.,
-      (?=foo) and (?!bar)).
-    */
-    struct Lookahead
-    {
-        QRegExpEngine *eng; // NFA representing the embedded regular expression
-        bool neg; // negative lookahead?
-
-        Lookahead(QRegExpEngine *eng0, bool neg0)
-            : eng(eng0), neg(neg0) { }
-        ~Lookahead() { delete eng; }
-    };
-#endif
-
-#ifndef QT_NO_REGEXP_CAPTURE
-    /*
-      The struct Atom represents one node in the hierarchy of regular
-      expression atoms.
-    */
-    struct Atom
-    {
-        int parent; // index of parent in array of atoms
-        int capture; // index of capture, from 1 to ncap
-    };
-#endif
-
-#ifndef QT_NO_REGEXP_ANCHOR_ALT
-    /*
-      The struct AnchorAlternation represents a pair of anchors with
-      OR semantics.
-    */
-    struct AnchorAlternation
-    {
-        int a; // this anchor...
-        int b; // ...or this one
-    };
-#endif
-
     enum { InitialState = 0, FinalState = 1 };
+
     void setup();
     int setupState(int match);
 
@@ -1093,8 +1103,8 @@ private:
            Anchor_LookaheadMask = (Anchor_FirstLookahead - 1) ^
                    ((Anchor_FirstLookahead << MaxLookaheads) - 1) };
 #ifndef QT_NO_REGEXP_CAPTURE
-    int startAtom(bool capture);
-    void finishAtom(int atom) { cf = f.at(atom).parent; }
+    int startAtom(bool officialCapture);
+    void finishAtom(int atom, bool needCapture);
 #endif
 
 #ifndef QT_NO_REGEXP_LOOKAHEAD
@@ -1108,22 +1118,23 @@ private:
     bool bruteMatch(QRegExpMatchState &matchState) const;
 #endif
 
-    QVector<State *> s; // array of states
+    QVector<QRegExpAutomatonState> s; // array of states
 #ifndef QT_NO_REGEXP_CAPTURE
-    QVector<Atom> f; // atom hierarchy
+    QVector<QRegExpAtom> f; // atom hierarchy
     int nf; // number of atoms
     int cf; // current atom
+    QVector<int> captureForOfficialCapture;
 #endif
     int officialncap; // number of captures, seen from the outside
     int ncap; // number of captures, seen from the inside
 #ifndef QT_NO_REGEXP_CCLASS
-    QVector<CharClass *> cl; // array of character classes
+    QVector<QRegExpCharClass> cl; // array of character classes
 #endif
 #ifndef QT_NO_REGEXP_LOOKAHEAD
-    QVector<Lookahead *> ahead; // array of lookaheads
+    QVector<QRegExpLookahead *> ahead; // array of lookaheads
 #endif
 #ifndef QT_NO_REGEXP_ANCHOR_ALT
-    QVector<AnchorAlternation> aa; // array of (a, b) pairs of anchors
+    QVector<QRegExpAnchorAlternation> aa; // array of (a, b) pairs of anchors
 #endif
 #ifndef QT_NO_REGEXP_OPTIM
     bool caretAnchored; // does the regexp start with ^?
@@ -1131,6 +1142,7 @@ private:
 #endif
     bool valid; // is the regular expression valid?
     Qt::CaseSensitivity cs; // case sensitive?
+    bool greedyQuantifiers; // RegExp2?
 #ifndef QT_NO_REGEXP_BACKREF
     int nbrefs; // number of back-references
 #endif
@@ -1163,7 +1175,7 @@ private:
 
         void clear() { operator=(Box(eng)); }
         void set(QChar ch);
-        void set(const CharClass &cc);
+        void set(const QRegExpCharClass &cc);
 #ifndef QT_NO_REGEXP_BACKREF
         void set(int bref);
 #endif
@@ -1231,7 +1243,7 @@ private:
     int yyPos; // the position of the next character to read
     int yyLen; // the length of yyIn
     int yyCh; // the last character read
-    CharClass *yyCharClass; // attribute for Tok_CharClass tokens
+    QRegExpCharClass *yyCharClass; // attribute for Tok_CharClass tokens
     int yyMinRep; // attribute for Tok_Quantifier
     int yyMaxRep; // ditto
     QString yyError; // syntax error or overflow during parsing?
@@ -1251,8 +1263,24 @@ private:
     friend class QRegExpMatchState;
 };
 
+#ifndef QT_NO_REGEXP_LOOKAHEAD
+/*
+  The struct QRegExpLookahead represents a lookahead a la Perl (e.g.,
+  (?=foo) and (?!bar)).
+*/
+struct QRegExpLookahead
+{
+    QRegExpEngine *eng; // NFA representing the embedded regular expression
+    bool neg; // negative lookahead?
+
+    inline QRegExpLookahead(QRegExpEngine *eng0, bool neg0)
+        : eng(eng0), neg(neg0) { }
+    inline ~QRegExpLookahead() { delete eng; }
+};
+#endif
+
 QRegExpEngine::QRegExpEngine(const QRegExpEngineKey &key)
-    : cs(key.cs)
+    : cs(key.cs), greedyQuantifiers(key.patternSyntax == QRegExp::RegExp2)
 {
     setup();
 
@@ -1260,7 +1288,9 @@ QRegExpEngine::QRegExpEngine(const QRegExpEngineKey &key)
 
     switch (key.patternSyntax) {
     case QRegExp::Wildcard:
+#ifndef QT_NO_REGEXP_WILDCARD
         rx = wc2rx(key.pattern);
+#endif
         break;
     case QRegExp::FixedString:
         rx = QRegExp::escape(key.pattern);
@@ -1280,16 +1310,6 @@ QRegExpEngine::QRegExpEngine(const QRegExpEngineKey &key)
 
 QRegExpEngine::~QRegExpEngine()
 {
-    for (int i = s.size() - 1; i >= 0; --i)
-        delete s.at(i);
-#ifndef QT_NO_REGEXP_CCLASS
-    for (int j = cl.size() - 1; j >= 0; --j)
-        delete cl.at(j);
-#endif
-#ifndef QT_NO_REGEXP_LOOKAHEAD
-    for (int k = ahead.size() - 1; k >= 0; --k)
-        delete ahead.at(k);
-#endif
 }
 
 void QRegExpMatchState::setup(QRegExpEngine *eng)
@@ -1383,12 +1403,15 @@ void QRegExpMatchState::match(const QString &str0, int pos0, bool minimal0, bool
         int *c = captured.data();
         *c++ = pos;
         *c++ = matchLen;
-        int n = eng->officialncap;
-        for (int j = 0; j < n; j++) {
+
+#ifndef QT_NO_REGEXP_CAPTURE
+        for (int i = 0; i < eng->officialncap; ++i) {
+            int j = eng->captureForOfficialCapture.at(i);
             int len = capEnd[j] - capBegin[j];
-            *c++ = len > 0 ? pos + capBegin[j] : 0;
+            *c++ = (len > 0) ? pos + capBegin[j] : 0;
             *c++ = len;
         }
+#endif
     } else {
         // we rely on 2's complement here
         memset(captured.data(), -1, capturedSize * sizeof(int));
@@ -1405,11 +1428,11 @@ int QRegExpEngine::createState(QChar ch)
     return setupState(ch.unicode());
 }
 
-int QRegExpEngine::createState(const CharClass &cc)
+int QRegExpEngine::createState(const QRegExpCharClass &cc)
 {
 #ifndef QT_NO_REGEXP_CCLASS
     int n = cl.size();
-    cl += new CharClass(cc);
+    cl += QRegExpCharClass(cc);
     return setupState(CharClassBit | n);
 #else
     Q_UNUSED(cc);
@@ -1441,26 +1464,23 @@ int QRegExpEngine::createState(int bref)
 
 void QRegExpEngine::addCatTransitions(const QVector<int> &from, const QVector<int> &to)
 {
-    for (int i = 0; i < from.size(); i++) {
-        State *st = s.at(from.at(i));
-        mergeInto(&st->outs, to);
-    }
+    for (int i = 0; i < from.size(); i++)
+        mergeInto(&s[from.at(i)].outs, to);
 }
 
 #ifndef QT_NO_REGEXP_CAPTURE
 void QRegExpEngine::addPlusTransitions(const QVector<int> &from, const QVector<int> &to, int atom)
 {
     for (int i = 0; i < from.size(); i++) {
-        State *st = s.at(from.at(i));
-        QVector<int> oldOuts = st->outs;
-        mergeInto(&st->outs, to);
-        if (f.at(atom).capture >= 0) {
-            if (st->reenter == 0)
-                st->reenter = new QMap<int, int>;
+        QRegExpAutomatonState &st = s[from.at(i)];
+        const QVector<int> oldOuts = st.outs;
+        mergeInto(&st.outs, to);
+        if (f.at(atom).capture != QRegExpAtom::NoCapture) {
             for (int j = 0; j < to.size(); j++) {
-                if (!st->reenter->contains(to.at(j)) &&
+                // ### st.reenter.contains(to.at(j)) check looks suspicious
+                if (!st.reenter.contains(to.at(j)) &&
                      qBinaryFind(oldOuts.begin(), oldOuts.end(), to.at(j)) == oldOuts.end())
-                    st->reenter->insert(to.at(j), atom);
+                    st.reenter.insert(to.at(j), atom);
             }
         }
     }
@@ -1510,12 +1530,10 @@ int QRegExpEngine::anchorConcatenation(int a, int b)
 */
 void QRegExpEngine::addAnchors(int from, int to, int a)
 {
-    State *st = s.at(from);
-    if (st->anchors == 0)
-        st->anchors = new QMap<int, int>;
-    if (st->anchors->contains(to))
-        a = anchorAlternation(st->anchors->value(to), a);
-    st->anchors->insert(to, a);
+    QRegExpAutomatonState &st = s[from];
+    if (st.anchors.contains(to))
+        a = anchorAlternation(st.anchors.value(to), a);
+    st.anchors.insert(to, a);
 }
 
 #ifndef QT_NO_REGEXP_OPTIM
@@ -1574,13 +1592,14 @@ void QRegExpEngine::dump() const
     for (i = 0; i < s.size(); i++) {
         qDebug("  %d%s", i, i == InitialState ? " (initial)" : i == FinalState ? " (final)" : "");
 #ifndef QT_NO_REGEXP_CAPTURE
-        qDebug("    in atom %d", s[i]->atom);
+        if (nf > 0)
+            qDebug("    in atom %d", s[i].atom);
 #endif
-        int m = s[i]->match;
+        int m = s[i].match;
         if ((m & CharClassBit) != 0) {
             qDebug("    match character class %d", m ^ CharClassBit);
 #ifndef QT_NO_REGEXP_CCLASS
-            cl[m ^ CharClassBit]->dump();
+            cl[m ^ CharClassBit].dump();
 #else
             qDebug("    negative character class");
 #endif
@@ -1591,20 +1610,28 @@ void QRegExpEngine::dump() const
         } else {
             qDebug("    match 0x%.4x", m);
         }
-        for (j = 0; j < s[i]->outs.size(); j++) {
-            int next = s[i]->outs[j];
+        for (j = 0; j < s[i].outs.size(); j++) {
+            int next = s[i].outs[j];
             qDebug("    -> %d", next);
-            if (s[i]->reenter != 0 && s[i]->reenter->contains(next))
-                qDebug("       [reenter %d]", (*s[i]->reenter)[next]);
-            if (s[i]->anchors != 0 && s[i]->anchors->value(next, 0) != 0)
-                qDebug("       [anchors 0x%.8x]", (*s[i]->anchors)[next]);
+            if (s[i].reenter.contains(next))
+                qDebug("       [reenter %d]", s[i].reenter[next]);
+            if (s[i].anchors.value(next) != 0)
+                qDebug("       [anchors 0x%.8x]", s[i].anchors[next]);
         }
     }
 #ifndef QT_NO_REGEXP_CAPTURE
     if (nf > 0) {
         qDebug("  Atom    Parent  Capture");
-        for (i = 0; i < nf; i++)
-            qDebug("  %6d  %6d  %6d", i, f[i].parent, f[i].capture);
+        for (i = 0; i < nf; i++) {
+            if (f[i].capture == QRegExpAtom::NoCapture) {
+                qDebug("  %6d  %6d     nil", i, f[i].parent);
+            } else {
+                int cap = f[i].capture;
+                bool official = captureForOfficialCapture.contains(cap);
+                qDebug("  %6d  %6d  %6d  %s", i, f[i].parent, f[i].capture,
+                       official ? "official" : "");
+            }
+        }
     }
 #endif
 #ifndef QT_NO_REGEXP_ANCHOR_ALT
@@ -1642,9 +1669,9 @@ void QRegExpEngine::setup()
 int QRegExpEngine::setupState(int match)
 {
 #ifndef QT_NO_REGEXP_CAPTURE
-    s += new State(cf, match);
+    s += QRegExpAutomatonState(cf, match);
 #else
-    s += new State(match);
+    s += QRegExpAutomatonState(match);
 #endif
     return s.size() - 1;
 }
@@ -1655,14 +1682,21 @@ int QRegExpEngine::setupState(int match)
   atoms. When a state is created, it is assigned to the current atom.
   The information is later used for capturing.
 */
-int QRegExpEngine::startAtom(bool capture)
+int QRegExpEngine::startAtom(bool officialCapture)
 {
     if ((nf & (nf + 1)) == 0 && nf + 1 >= f.size())
         f.resize((nf + 1) << 1);
     f[nf].parent = cf;
     cf = nf++;
-    f[cf].capture = capture ? ncap++ : -1;
+    f[cf].capture = officialCapture ? QRegExpAtom::OfficialCapture : QRegExpAtom::NoCapture;
     return cf;
+}
+
+void QRegExpEngine::finishAtom(int atom, bool needCapture)
+{
+    if (greedyQuantifiers && needCapture && f[atom].capture == QRegExpAtom::NoCapture)
+        f[atom].capture = QRegExpAtom::UnofficialCapture;
+    cf = f.at(atom).parent;
 }
 #endif
 
@@ -1677,7 +1711,7 @@ int QRegExpEngine::addLookahead(QRegExpEngine *eng, bool negative)
         error(RXERR_LIMIT);
         return 0;
     }
-    ahead += new Lookahead(eng, negative);
+    ahead += new QRegExpLookahead(eng, negative);
     return Anchor_FirstLookahead << n;
 }
 #endif
@@ -1740,7 +1774,7 @@ bool QRegExpMatchState::testAnchor(int i, int a, const int *capBegin)
 #ifndef QT_NO_REGEXP_LOOKAHEAD
     if ((a & QRegExpEngine::Anchor_LookaheadMask) != 0) {
         QString cstr((QChar *) in + pos + i, len - pos - i);
-        const QVector<QRegExpEngine::Lookahead *> &ahead = eng->ahead;
+        const QVector<QRegExpLookahead *> &ahead = eng->ahead;
         for (j = 0; j < ahead.size(); j++) {
             if ((a & (QRegExpEngine::Anchor_FirstLookahead << j)) != 0) {
                 QRegExpMatchState matchState;
@@ -1756,7 +1790,8 @@ bool QRegExpMatchState::testAnchor(int i, int a, const int *capBegin)
 #ifndef QT_NO_REGEXP_BACKREF
     for (j = 0; j < eng->nbrefs; j++) {
         if ((a & (QRegExpEngine::Anchor_BackRef1Empty << j)) != 0) {
-            if (capBegin[j] != EmptyCapture)
+            int i = eng->captureForOfficialCapture.at(j);
+            if (capBegin[i] != EmptyCapture)
                 return false;
         }
     }
@@ -1880,8 +1915,8 @@ bool QRegExpMatchState::matchHere()
     oneTestMatchedLen = -1;
     curStack[0] = QRegExpEngine::InitialState;
 
-#ifndef QT_NO_REGEXP_CAPTURE
     int ncap = eng->ncap;
+#ifndef QT_NO_REGEXP_CAPTURE
     if (ncap > 0) {
         for (j = 0; j < ncap; j++) {
             curCapBegin[j] = EmptyCapture;
@@ -1901,30 +1936,29 @@ bool QRegExpMatchState::matchHere()
         int ch = (i < len - pos) ? in[pos + i].unicode() : 0;
         for (j = 0; j < ncur; j++) {
             int cur = curStack[j];
-            QRegExpEngine::State *scur = eng->s[cur];
-            const QVector<int> &outs = scur->outs;
+            const QRegExpAutomatonState &scur = eng->s.at(cur);
+            const QVector<int> &outs = scur.outs;
             for (k = 0; k < outs.size(); k++) {
                 int next = outs.at(k);
-                QRegExpEngine::State *snext = eng->s.at(next);
+                const QRegExpAutomatonState &snext = eng->s.at(next);
                 bool inside = true;
-#ifndef QT_NO_REGEXP_BACKREF
+#if !defined(QT_NO_REGEXP_BACKREF) && !defined(QT_NO_REGEXP_CAPTURE)
                 int needSomeSleep = 0;
 #endif
 
                 /*
                   First, check if the anchors are anchored properly.
                 */
-                if (scur->anchors != 0) {
-                    int a = scur->anchors->value(next, 0);
-                    if (a != 0 && !testAnchor(i, a, curCapBegin + j * ncap))
-                        inside = false;
-                }
+                int a = scur.anchors.value(next);
+                if (a != 0 && !testAnchor(i, a, curCapBegin + j * ncap))
+                    inside = false;
+
                 /*
                   If indeed they are, check if the input character is
                   correct for this transition.
                 */
                 if (inside) {
-                    m = snext->match;
+                    m = snext.match;
                     if ((m & (QRegExpEngine::CharClassBit | QRegExpEngine::BackRefBit)) == 0) {
                         if (eng->cs)
                             inside = (m == ch);
@@ -1936,20 +1970,20 @@ bool QRegExpMatchState::matchHere()
                         inside = true;
                     } else if ((m & QRegExpEngine::CharClassBit) != 0) {
 #ifndef QT_NO_REGEXP_CCLASS
-                        const QRegExpEngine::CharClass *cc = eng->cl.at(m ^ QRegExpEngine::CharClassBit);
+                        const QRegExpCharClass &cc = eng->cl.at(m ^ QRegExpEngine::CharClassBit);
                         if (eng->cs)
-                            inside = cc->in(ch);
-                        else if (cc->negative())
-                            inside = cc->in(QChar(ch).toLower()) &&
-                                     cc->in(QChar(ch).toUpper());
+                            inside = cc.in(ch);
+                        else if (cc.negative())
+                            inside = cc.in(QChar(ch).toLower()) &&
+                                     cc.in(QChar(ch).toUpper());
                         else
-                            inside = cc->in(QChar(ch).toLower()) ||
-                                     cc->in(QChar(ch).toUpper());
+                            inside = cc.in(QChar(ch).toLower()) ||
+                                     cc.in(QChar(ch).toUpper());
 #endif
-#ifndef QT_NO_REGEXP_BACKREF
+#if !defined(QT_NO_REGEXP_BACKREF) && !defined(QT_NO_REGEXP_CAPTURE)
                     } else { /* ((m & QRegExpEngine::BackRefBit) != 0) */
                         int bref = m ^ QRegExpEngine::BackRefBit;
-                        int ell = j * ncap + (bref - 1);
+                        int ell = j * ncap + eng->captureForOfficialCapture.at(bref - 1);
 
                         inside = bref <= ncap && curCapBegin[ell] != EmptyCapture;
                         if (inside) {
@@ -2033,7 +2067,7 @@ bool QRegExpMatchState::matchHere()
                     if (ncap > 0) {
                         memcpy(capBegin, curCapBegin + j * ncap, ncap * sizeof(int));
                         memcpy(capEnd, curCapEnd + j * ncap, ncap * sizeof(int));
-                        int c = scur->atom, n = snext->atom;
+                        int c = scur.atom, n = snext.atom;
                         int p = -1, q = -1;
                         int cap;
 
@@ -2050,7 +2084,7 @@ bool QRegExpMatchState::matchHere()
                           If we are reentering an atom, we empty all
                           capture zones inside it.
                         */
-                        if (scur->reenter != 0 && (q = scur->reenter->value(next, 0)) != 0) {
+                        if ((q = scur.reenter.value(next)) != 0) {
                             QBitArray b(eng->nf, false);
                             b.setBit(q, true);
                             for (int ell = q + 1; ell < eng->nf; ell++) {
@@ -2225,7 +2259,7 @@ bool QRegExpMatchState::matchHere()
 
 #ifndef QT_NO_REGEXP_CCLASS
 
-QRegExpEngine::CharClass::CharClass()
+QRegExpCharClass::QRegExpCharClass()
     : c(0), n(false)
 {
 #ifndef QT_NO_REGEXP_OPTIM
@@ -2233,7 +2267,7 @@ QRegExpEngine::CharClass::CharClass()
 #endif
 }
 
-QRegExpEngine::CharClass &QRegExpEngine::CharClass::operator=(const CharClass &cc)
+QRegExpCharClass &QRegExpCharClass::operator=(const QRegExpCharClass &cc)
 {
     c = cc.c;
     r = cc.r;
@@ -2244,14 +2278,14 @@ QRegExpEngine::CharClass &QRegExpEngine::CharClass::operator=(const CharClass &c
     return *this;
 }
 
-void QRegExpEngine::CharClass::clear()
+void QRegExpCharClass::clear()
 {
     c = 0;
     r.resize(0);
     n = false;
 }
 
-void QRegExpEngine::CharClass::setNegative(bool negative)
+void QRegExpCharClass::setNegative(bool negative)
 {
     n = negative;
 #ifndef QT_NO_REGEXP_OPTIM
@@ -2259,7 +2293,7 @@ void QRegExpEngine::CharClass::setNegative(bool negative)
 #endif
 }
 
-void QRegExpEngine::CharClass::addCategories(int cats)
+void QRegExpCharClass::addCategories(int cats)
 {
     c |= cats;
 #ifndef QT_NO_REGEXP_OPTIM
@@ -2267,7 +2301,7 @@ void QRegExpEngine::CharClass::addCategories(int cats)
 #endif
 }
 
-void QRegExpEngine::CharClass::addRange(ushort from, ushort to)
+void QRegExpCharClass::addRange(ushort from, ushort to)
 {
     if (from > to)
         qSwap(from, to);
@@ -2295,7 +2329,7 @@ void QRegExpEngine::CharClass::addRange(ushort from, ushort to)
 #endif
 }
 
-bool QRegExpEngine::CharClass::in(QChar ch) const
+bool QRegExpCharClass::in(QChar ch) const
 {
 #ifndef QT_NO_REGEXP_OPTIM
     if (occ1.at(BadChar(ch)) == NoOccurrence)
@@ -2312,7 +2346,7 @@ bool QRegExpEngine::CharClass::in(QChar ch) const
 }
 
 #if defined(QT_DEBUG)
-void QRegExpEngine::CharClass::dump() const
+void QRegExpCharClass::dump() const
 {
     int i;
     qDebug("    %stive character class", n ? "nega" : "posi");
@@ -2374,7 +2408,7 @@ void QRegExpEngine::Box::set(QChar ch)
     minl = 1;
 }
 
-void QRegExpEngine::Box::set(const CharClass &cc)
+void QRegExpEngine::Box::set(const QRegExpCharClass &cc)
 {
     ls.resize(1);
     ls[0] = eng->createState(cc);
@@ -2774,7 +2808,7 @@ void QRegExpEngine::startTokenizer(const QChar *rx, int len)
     yyPos = 0;
     yyLen = len;
     yyCh = getChar();
-    yyCharClass = new CharClass;
+    yyCharClass = new QRegExpCharClass;
     yyMinRep = 0;
     yyMaxRep = 0;
     yyError = QString();
@@ -2952,7 +2986,7 @@ int QRegExpEngine::parse(const QChar *pattern, int len)
 #ifndef QT_NO_REGEXP_CAPTURE
     int atom = startAtom(false);
 #endif
-    CharClass anything;
+    QRegExpCharClass anything;
     Box box(this); // create InitialState
     box.set(anything);
     Box rightBox(this); // create FinalState
@@ -2961,7 +2995,7 @@ int QRegExpEngine::parse(const QChar *pattern, int len)
     Box middleBox(this);
     parseExpression(&middleBox);
 #ifndef QT_NO_REGEXP_CAPTURE
-    finishAtom(atom);
+    finishAtom(atom, false);
 #endif
 #ifndef QT_NO_REGEXP_OPTIM
     middleBox.setupHeuristics();
@@ -2971,21 +3005,46 @@ int QRegExpEngine::parse(const QChar *pattern, int len)
     delete yyCharClass;
     yyCharClass = 0;
 
-    officialncap = ncap;
+#ifndef QT_NO_REGEXP_CAPTURE
+    for (int i = 0; i < nf; ++i) {
+        switch (f[i].capture) {
+        case QRegExpAtom::NoCapture:
+            break;
+        case QRegExpAtom::OfficialCapture:
+            f[i].capture = ncap;
+            captureForOfficialCapture.append(ncap);
+            ++ncap;
+            ++officialncap;
+            break;
+        case QRegExpAtom::UnofficialCapture:
+            f[i].capture = greedyQuantifiers ? ncap++ : QRegExpAtom::NoCapture;
+        }
+    }
+
 #ifndef QT_NO_REGEXP_BACKREF
-    if (nbrefs > ncap)
-        ncap = nbrefs;
+#ifndef QT_NO_REGEXP_OPTIM
+    if (officialncap == 0 && nbrefs == 0) {
+        ncap = nf = 0;
+        f.clear();
+    }
+#endif
+    while (nbrefs > officialncap) {
+        // in this case, captureForOfficialCapture.size() != officialncap
+        captureForOfficialCapture.append(ncap);
+        ++ncap;
+    }
+#endif
 #endif
 
     if (!yyError.isEmpty())
         return -1;
 
 #ifndef QT_NO_REGEXP_OPTIM
-    const State *sinit = s.at(InitialState);
-    caretAnchored = (sinit->anchors != 0);
+    const QRegExpAutomatonState &sinit = s.at(InitialState);
+    caretAnchored = !sinit.anchors.isEmpty();
     if (caretAnchored) {
-        const QMap<int, int> &anchors = *sinit->anchors;
-        QMap<int, int>::ConstIterator a;
+        const QMap<int, int> &anchors = sinit.anchors;
+        QMap<int, int>::const_iterator a;
         for (a = anchors.begin(); a != anchors.end(); ++a) {
             if (
 #ifndef QT_NO_REGEXP_ANCHOR_ALT
@@ -3027,7 +3086,7 @@ void QRegExpEngine::parseAtom(Box *box)
         case Tok_PosLookahead:
         case Tok_NegLookahead:
             neg = (yyTok == Tok_NegLookahead);
-            eng = new QRegExpEngine(cs);
+            eng = new QRegExpEngine(cs, greedyQuantifiers);
             len = eng->parse(yyIn + yyPos - 1, yyLen - yyPos + 1);
             if (len >= 0)
                 skipChars(len);
@@ -3075,9 +3134,11 @@ void QRegExpEngine::parseAtom(Box *box)
 void QRegExpEngine::parseFactor(Box *box)
 {
 #ifndef QT_NO_REGEXP_CAPTURE
-    int atom = startAtom(yyMayCapture && yyTok == Tok_LeftParen);
+    int outerAtom = greedyQuantifiers ? startAtom(false) : -1;
+    int innerAtom = startAtom(yyMayCapture && yyTok == Tok_LeftParen);
+    bool magicLeftParen = (yyTok == Tok_MagicLeftParen);
 #else
-    static const int atom = 0;
+    const int innerAtom = -1;
 #endif
 
 #ifndef QT_NO_REGEXP_INTERVAL
@@ -3090,7 +3151,7 @@ void QRegExpEngine::parseFactor(Box *box)
     int pos = yyPos;
     int len = yyLen;
     int ch = yyCh;
-    CharClass charClass;
+    QRegExpCharClass charClass;
     if (yyTok == Tok_CharClass)
         charClass = *yyCharClass;
     int tok = yyTok;
@@ -3099,15 +3160,16 @@ void QRegExpEngine::parseFactor(Box *box)
 
     parseAtom(box);
 #ifndef QT_NO_REGEXP_CAPTURE
-    finishAtom(atom);
+    finishAtom(innerAtom, magicLeftParen);
 #endif
 
-    if (yyTok == Tok_Quantifier) {
+    bool hasQuantifier = (yyTok == Tok_Quantifier);
+    if (hasQuantifier) {
 #ifndef QT_NO_REGEXP_OPTIM
         trivial = false;
 #endif
         if (yyMaxRep == InftyRep) {
-            box->plus(atom);
+            box->plus(innerAtom);
 #ifndef QT_NO_REGEXP_INTERVAL
         } else if (yyMaxRep == 0) {
             box->clear();
@@ -3148,6 +3210,10 @@ void QRegExpEngine::parseFactor(Box *box)
 #endif
     }
 #undef YYREDO
+#ifndef QT_NO_REGEXP_CAPTURE
+    if (greedyQuantifiers)
+        finishAtom(outerAtom, hasQuantifier);
+#endif
 }
 
 void QRegExpEngine::parseTerm(Box *box)
@@ -3211,20 +3277,6 @@ Q_GLOBAL_STATIC(EngineCache, globalEngineCache)
 Q_GLOBAL_STATIC(QMutex, mutex)
 #endif // QT_NO_REGEXP_OPTIM
 
-static QRegExpEngine *refEngine(const QRegExpEngineKey &key)
-{
-#if !defined(QT_NO_REGEXP_OPTIM)
-    QMutexLocker locker(mutex());
-    QRegExpEngine *eng = globalEngineCache()->take(key);
-    if (eng != 0) {
-        ++eng->ref;
-        return eng;
-    }
-#endif // QT_NO_REGEXP_OPTIM
-
-    return new QRegExpEngine(key);
-}
-
 static void derefEngine(QRegExpEngine *eng, const QRegExpEngineKey &key)
 {
 #if !defined(QT_NO_REGEXP_OPTIM)
@@ -3233,7 +3285,10 @@ static void derefEngine(QRegExpEngine *eng, const QRegExpEngineKey &key)
 
     if (!--eng->ref) {
 #if !defined(QT_NO_REGEXP_OPTIM)
-        globalEngineCache()->insert(key, eng, 4 + key.pattern.length() / 4);
+        if (globalEngineCache())
+            globalEngineCache()->insert(key, eng, 4 + key.pattern.length() / 4);
+        else
+            delete eng;
 #else
         Q_UNUSED(key);
         delete eng;
@@ -3243,10 +3298,23 @@ static void derefEngine(QRegExpEngine *eng, const QRegExpEngineKey &key)
 
 static void prepareEngine(QRegExpPrivate *priv)
 {
-    if (priv->eng == 0) {
-        priv->eng = refEngine(priv->engineKey);
-        priv->matchState.setup(priv->eng);
+    {
+#if !defined(QT_NO_REGEXP_OPTIM)
+        // the mutex protects both the globalEngineCache() and the priv->eng pointer
+        QMutexLocker locker(mutex());
+
+        if (priv->eng == 0) {
+            priv->eng = globalEngineCache()->take(priv->engineKey);
+            if (priv->eng != 0)
+                ++priv->eng->ref;
+        }
+#endif // QT_NO_REGEXP_OPTIM
+
+        if (priv->eng == 0)
+            priv->eng = new QRegExpEngine(priv->engineKey);
     }
+
+    priv->matchState.setup(priv->eng);
 }
 
 static void prepareEngineForMatch(QRegExpPrivate *priv, const QString &str)
@@ -3293,13 +3361,16 @@ static void invalidateEngine(QRegExpPrivate *priv)
     \value RegExp A rich Perl-like pattern matching syntax. This is
     the default.
 
+    \value RegExp2 Like RegExp, but with \l{greedy quantifiers}. This
+    will be the default in Qt 5. (Introduced in Qt 4.2.)
+
     \value Wildcard This provides a simple pattern matching syntax
     similar to that used by shells (command interpreters) for "file
     globbing". See \l{Wildcard Matching}.
 
     \value FixedString The pattern is a fixed string. This is
     equivalent to using the RegExp pattern on a string in
-    which all metacharacters are escaped (e.g., using escape()).
+    which all metacharacters are escaped using escape().
 
     \sa setPatternSyntax()
 */
@@ -3327,7 +3398,6 @@ QRegExp::QRegExp()
 QRegExp::QRegExp(const QString &pattern, Qt::CaseSensitivity cs, PatternSyntax syntax)
 {
     priv = new QRegExpPrivate(QRegExpEngineKey(pattern, syntax, cs));
-    prepareEngine(priv);
 }
 
 /*!
@@ -3357,6 +3427,7 @@ QRegExp::~QRegExp()
 */
 QRegExp &QRegExp::operator=(const QRegExp &rx)
 {
+    prepareEngine(rx.priv); // to allow sharing
     QRegExpEngine *otherEng = rx.priv->eng;
     if (otherEng)
         ++otherEng->ref;
@@ -3492,7 +3563,6 @@ void QRegExp::setCaseSensitivity(Qt::CaseSensitivity cs)
     }
 }
 
-#ifndef QT_NO_REGEXP_WILDCARD
 /*!
     Returns the syntax used by the regular expression. The default is
     QRegExp::RegExp.
@@ -3526,7 +3596,6 @@ void QRegExp::setPatternSyntax(PatternSyntax syntax)
         priv->engineKey.patternSyntax = syntax;
     }
 }
-#endif
 
 /*!
     Returns true if minimal (non-greedy) matching is enabled;
