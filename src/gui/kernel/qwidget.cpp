@@ -4621,8 +4621,6 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
 #ifdef QT3_SUPPORT
     bool isMain = (QApplicationPrivate::main_widget == q);
 #endif
-    bool quitOnClose = q->testAttribute(Qt::WA_QuitOnClose);
-
     if (mode != CloseNoEvent) {
         QCloseEvent e;
         if (mode == CloseWithSpontaneousEvent)
@@ -4642,6 +4640,10 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
     if (isMain)
         qApp->quit();
 #endif
+    // Attempt to close the application only if this has WA_QuitOnClose set and a non-visible parent
+    bool quitOnClose = q->testAttribute(Qt::WA_QuitOnClose)
+                    && (!(q->parentWidget() && q->parentWidget()->isVisible()));
+
     if (quitOnClose) {
         // QApplicationPrivate::_q_tryEmitLastWindowClosed will check if all windows have been closed,
         // emitting QApplication::lastWindowClosed() if necessary
