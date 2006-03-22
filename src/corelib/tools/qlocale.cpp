@@ -22,6 +22,7 @@
 #include "qstringlist.h"
 #if defined(Q_WS_WIN)
 #   include "qt_windows.h"
+#   include <time.h>
 #endif
 #if !defined(QWS) && defined(Q_OS_MAC)
 #   include "private/qcore_mac_p.h"
@@ -1740,10 +1741,11 @@ static bool timeFormatContainsAP(const QString &format)
 static QString timeZone()
 {
 #ifdef Q_OS_WIN
-    return QString();
+    _tzset();
+    return QString::fromLocal8Bit(_tzname[1]);
 #else
     tzset();
-    return QString::fromLocal8Bit(tzname[0]);
+    return QString::fromLocal8Bit(tzname[1]);
 #endif
 }
 
