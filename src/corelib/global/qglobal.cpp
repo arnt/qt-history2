@@ -1837,7 +1837,8 @@ QString qt_error_string(int errorCode)
             LocalFree((HLOCAL)string);
         });
 #elif !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS) && _POSIX_VERSION >= 200112L
-        QByteArray buf(1024);
+        QByteArray buf;
+	buf.reserve(1024);
         strerror_r(errorCode, buf.data(), buf.size());
         ret = QString::fromLocal8Bit(buf.constData());
 #else
