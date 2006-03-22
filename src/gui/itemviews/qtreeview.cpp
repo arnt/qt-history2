@@ -113,8 +113,10 @@
          \o A Plastique style tree view.
     \row \o \inlineimage cde-treeview.png
          \o \inlineimage motif-treeview.png
+         \o \inlineimage cleanlooks-treeview.png
     \row \o A CDE style tree view.
          \o A Motif style tree view.
+         \o A CleanLooks style tree view.
     \endtable
 
     \sa QListView, QTreeWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView
@@ -2015,8 +2017,8 @@ int QTreeViewPrivate::coordinate(int item) const
     int scrollBarValue = q->verticalScrollBar()->value();
     int viewItemIndex = itemAt(scrollBarValue); // first item (may start above the page)
     if (viewItemIndex == -1) {
-        const_cast<QTreeViewPrivate*>(this)->updateScrollbars();
-        viewItemIndex = itemAt(scrollbarValue); // first item (may start above the page)
+        const_cast<QTreeViewPrivate*>(this)->updateScrollBars();
+        viewItemIndex = itemAt(scrollBarValue); // first item (may start above the page)
     }
     Q_ASSERT(viewItemIndex != -1);
     int viewItemHeight = height(viewItemIndex);
