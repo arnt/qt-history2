@@ -419,6 +419,14 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         break; }
 
     case PE_PanelButtonCommand:
+        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
+            if ((btn->features & QStyleOptionButton::Flat)
+                && !(opt->state & (State_Sunken | State_On))) {
+                p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
+                break;
+            }
+        }
+        // Fall-through
     case PE_PanelButtonBevel:
     case PE_PanelButtonTool: {
         QBrush fill;
@@ -898,13 +906,11 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                     qDrawShadePanel(p, opt->rect.adjusted(1, 1, -1, -1), opt->palette, true);
                 }
             }
-            if (!(btn->features & QStyleOptionButton::Flat) ||
-                (btn->state & (State_Sunken | State_On))) {
-                QStyleOptionButton newOpt = *btn;
-                newOpt.rect = QRect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-                p->setBrushOrigin(p->brushOrigin());
-                drawPrimitive(PE_PanelButtonCommand, &newOpt, p, widget);
-            }
+            QStyleOptionButton newOpt = *btn;
+            newOpt.rect = QRect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+            p->setBrushOrigin(p->brushOrigin());
+            drawPrimitive(PE_PanelButtonCommand, &newOpt, p, widget);
+
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, btn, widget);
                 QRect ir = btn->rect;
