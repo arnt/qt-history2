@@ -227,10 +227,7 @@
     We omit to reimplement the
     QDesignerCustomWidgetInterface::domXml() function (which include
     default settings for the widget in the standard XML format used by
-    Qt Designer), since noe default values are necessary. We also omit
-    to reimplement the QDesignerCustomWidgetInterface::codeTemplate()
-    function which normally provide a sample code template for the
-    custom widget.
+    Qt Designer), since no default values are necessary.
 
     \printline Q_EXPORT_PLUGIN2
 

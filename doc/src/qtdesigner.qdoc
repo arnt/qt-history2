@@ -1009,7 +1009,6 @@
         bool isContainer() const;
         bool isInitialized() const;
         QIcon icon() const;
-        QString codeTemplate() const;
         QString domXml() const;
         QString group() const;
         QString includeFile() const;
@@ -1173,11 +1172,12 @@
 /*!
     \fn QString QDesignerCustomWidgetInterface::codeTemplate() const
 
+    This function is reserved for future use by \QD.
+
+    \omit
     Returns the code template that \QD includes in forms that contain
     the custom widget when they are saved.
-
-    \l uic uses the code template to provide code for constructing the
-    custom widget.
+    \endomit
 */
 
 

@@ -1883,9 +1883,6 @@ without having to write code themselves.
     \row \o \c domXml()
          \o A description of the widget's properties, such as its object
             name, size hint, and other standard QWidget properties.
-    \row \o \c codeTemplate()
-         \o The default code to be used to construct and set up the widget in
-            \c{uic}-generated files.
     \endtable
 
     Two other virtual functions can also be reimplemented:

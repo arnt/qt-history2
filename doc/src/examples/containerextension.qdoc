@@ -321,10 +321,6 @@
     page; any inital pages of a multi-page widget must be specified
     within this function.
 
-    We have omitted to reimplement the
-    QDesignerCustomWidgetInterface::codeTemplate() function which
-    normally provide a sample code template for the custom widget.
-
     \skipto Q_EXPORT_PLUGIN2
     \printline Q_EXPORT_PLUGIN2
 

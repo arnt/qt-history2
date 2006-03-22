@@ -28,7 +28,6 @@ public:
     bool isContainer() const;
     bool isInitialized() const;
     QIcon icon() const;
-    QString codeTemplate() const;
     QString domXml() const;
     QString group() const;
     QString includeFile() const;
