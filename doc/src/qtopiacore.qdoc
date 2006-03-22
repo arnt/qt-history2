@@ -14,13 +14,14 @@
     \row
     \o
      \list
-         \o \l {Installing Qtopia Core}
-         \o \l {Qtopia Core Classes}
-         \o \l {Running Applications}
-         \o \l {Porting Applications to Qtopia Core}
+        \o \l {Installing Qtopia Core}
+        \o \l {Running Applications}
+        \o \l {Cross Compiling Applications}
+        \o \l {Porting Applications to Qtopia Core}
     \endlist
     \o
     \list
+        \o \l {Qtopia Core Classes}{Classes}
         \o \l {Environment Variables}
         \o \l {Fonts}
         \o \l {Pointer Handling}
