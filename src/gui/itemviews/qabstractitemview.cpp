@@ -2186,6 +2186,7 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(model()->mimeData(indexes));
+        drag->setHotSpot(d->viewport->mapFromGlobal(QCursor::pos()) - rect.topLeft());
         if (drag->start(supportedActions) == Qt::MoveAction)
             d->removeSelectedRows();
     }
