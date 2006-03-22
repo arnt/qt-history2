@@ -503,6 +503,9 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         p->restore();
         break;
+    case PE_Q3DockWindowSeparator:
+        drawPrimitive(PE_IndicatorToolBarSeparator, opt, p, widget);
+        break;
     case PE_IndicatorToolBarSeparator:
         {
             QPoint p1, p2;
