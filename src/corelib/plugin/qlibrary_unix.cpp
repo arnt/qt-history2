@@ -100,28 +100,34 @@ bool QLibraryPrivate::load_sys()
     if (pluginState != IsAPlugin) {
         prefixes << "lib";
 #if defined(Q_OS_HPUX)
-        suffixes << ".sl";
-        if (majorVerNum > -1)
+        if (majorVerNum > -1) {
             suffixes << QString(".sl.%1").arg(majorVerNum);
+        } else {
+            suffixes << ".sl";
+        }
 # if defined(__ia64)
-        suffixes << ".so";
-        if (majorVerNum > -1)
+        if (majorVerNum > -1) {
             suffixes << QString(".so.%1").arg(majorVerNum);
+        } else {
+            suffixes << ".so";
+        }
 # endif
 #elif defined(Q_OS_AIX)
         suffixes << ".a";
 #else
-        suffixes << ".so";
-        if (majorVerNum > -1)
+        if (majorVerNum > -1) {
             suffixes << QString(".so.%1").arg(majorVerNum);
+        } else {
+            suffixes << ".so";
+        }
 #endif
 # ifdef Q_OS_MAC
-        suffixes << ".bundle" << ".dylib";
         if (majorVerNum > -1) {
             suffixes << QString(".%1.bundle").arg(majorVerNum);
             suffixes << QString(".%1.dylib").arg(majorVerNum);
+        } else {
+            suffixes << ".bundle" << ".dylib";
         }
-
 #endif
     }
         
