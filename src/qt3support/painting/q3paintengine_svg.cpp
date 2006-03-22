@@ -102,6 +102,17 @@ public:
                           int *talign, QPainter *p);
     void drawPath(const QString &data, QPainter *p);
     QColor parseColor(const QString &col);
+    void init() {
+        QDomImplementation domImpl;
+        QDomDocumentType docType = domImpl.createDocumentType("svg", publicId, systemId);
+        doc = domImpl.createDocument("http://www.w3.org/2000/svg", "svg", docType);
+        doc.insertBefore(doc.createProcessingInstruction("xml", piData), doc.firstChild());
+        current = doc.documentElement();
+        images.clear();
+        pixmaps.clear();
+
+        doc.documentElement().setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+    }
 
 
     bool dirtyTransform;
@@ -131,26 +142,14 @@ Q3SVGPaintEngine::Q3SVGPaintEngine()
     : QPaintEngine(*(new Q3SVGPaintEnginePrivate), AllFeatures)
 {
     Q_D(Q3SVGPaintEngine);
-    QDomImplementation domImpl;
-    QDomDocumentType docType = domImpl.createDocumentType("svg", publicId, systemId);
-    d->doc = domImpl.createDocument("http://www.w3.org/2000/svg", "svg", docType);
-    d->doc.insertBefore(d->doc.createProcessingInstruction("xml", piData), d->doc.firstChild());
-    d->current = d->doc.documentElement();
-    d->images.clear();
-    d->pixmaps.clear();
+    d->init();
 }
 
 Q3SVGPaintEngine::Q3SVGPaintEngine(Q3SVGPaintEnginePrivate &dptr)
     : QPaintEngine(dptr, AllFeatures)
 {
     Q_D(Q3SVGPaintEngine);
-    QDomImplementation domImpl;
-    QDomDocumentType docType = domImpl.createDocumentType("svg", publicId, systemId);
-    d->doc = domImpl.createDocument("http://www.w3.org/2000/svg", "svg", docType);
-    d->doc.insertBefore(d->doc.createProcessingInstruction("xml", piData), d->doc.firstChild());
-    d->current = d->doc.documentElement();
-    d->images.clear();
-    d->pixmaps.clear();
+    d->init();
 }
 
 Q3SVGPaintEngine::~Q3SVGPaintEngine()
