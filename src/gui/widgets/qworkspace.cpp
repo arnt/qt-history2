@@ -165,7 +165,7 @@ QWorkspaceTitleBar::QWorkspaceTitleBar(QWidget *w, QWidget *parent, Qt::WFlags f
     d->window = w;
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
-    if (w) { 
+    if (w) {
         if (w->maximumSize() != QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX))
             d->flags &= ~Qt::WindowMaximizeButtonHint;
         setWindowTitle(w->windowTitle());
@@ -2658,8 +2658,10 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
     case QEvent::Resize:
         {
             QResizeEvent* re = (QResizeEvent*)e;
-            if (re->size() != windowSize && !shademode)
+            if (re->size() != windowSize && !shademode) {
                 resize(re->size() + baseSize());
+                childWidget->update(); //workaround
+            }
         }
         break;
 
