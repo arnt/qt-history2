@@ -583,17 +583,21 @@ QRect QFontMetrics::boundingRect(const QString &str) const
 }
 
 /*!
-    Returns the bounding rectangle of the character \a ch relative to
-    the left-most point on the base line.
+    Returns the rectangle that is covered by ink if the character where
+    to be drawn at the origin of the coordinate system. 
 
     Note that the bounding rectangle may extend to the left of (0, 0),
     e.g. for italicized fonts, and that the text output may cover \e
-    all pixels in the bounding rectangle.
+    all pixels in the bounding rectangle. For a space character the rectangle
+    will usually be empty.
 
     Note that the rectangle usually extends both above and below the
     base line.
-
-    \sa width()
+    
+    \warning The width of the returned rectangle is not the advance width
+    of the character. Use boundingRect(const QString &) or width() instead.
+    
+    \sa width() 
 */
 QRect QFontMetrics::boundingRect(QChar ch) const
 {
