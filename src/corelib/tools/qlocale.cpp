@@ -417,7 +417,7 @@ static QString getWinLocaleInfo(LCTYPE type)
     });
 
     if (cnt == 0) {
-        qWarning() << "QLocale: empty windows locale info" << type;
+        qWarning("QLocale: empty windows locale info (%d)", type);
         return QString();
     }
 
@@ -433,7 +433,7 @@ static QString getWinLocaleInfo(LCTYPE type)
     });
 
     if (cnt == 0) {
-        qWarning() << "QLocale: empty windows locale info" << type;
+        qWarning("QLocale: empty windows locale info (%d)", type);
         return QString();
     }
 
