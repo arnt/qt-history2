@@ -180,10 +180,10 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
 
 QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
     : QPaintEngine(*(new QWin32PrintEnginePrivate),
-                   PaintEngineFeatures(PrimitiveTransform 
-                                       | PixmapTransform 
-                                       | PainterPaths 
-                                       | Antialiasing 
+                   PaintEngineFeatures(PrimitiveTransform
+                                       | PixmapTransform
+                                       | PainterPaths
+                                       | Antialiasing
                                        | PaintOutsidePaintEvent))
 {
     Q_D(QWin32PrintEngine);
@@ -368,19 +368,19 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
     if (!fallBack) {
         const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
         QFontEngine *fe = ti.fontEngine;
-        
+
         // Try selecting the font to see if we get a substitution font
         SelectObject(d->hdc, fe->hfont);
-       
+
         QT_WA({
-            TCHAR n[64];            
+            TCHAR n[64];
             GetTextFaceW(d->hdc, 64, n);
-            fallBack = QString::fromUtf16((ushort *)n) 
-                       != QString::fromUtf16(fe->logfont.lfFaceName);
+            fallBack = QString::fromUtf16((ushort *)n)
+                       != QString::fromUtf16((ushort *)fe->logfont.lfFaceName);
         } , {
             char an[64];
             GetTextFaceA(d->hdc, 64, an);
-            fallBack = QString::fromLocal8Bit(an) 
+            fallBack = QString::fromLocal8Bit(an)
                        != QString::fromLocal8Bit(((LOGFONTA*)(&fe->logfont))->lfFaceName);
         });
     }
@@ -615,14 +615,14 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     xform_offset_y *= d->stretch_y;
 
     int dc_state = SaveDC(d->hdc);
-    
+
     HRGN region = 0;
-    if (pixmap.hasAlpha()) {        
+    if (pixmap.hasAlpha()) {
 
         QRegion r(pixmap.mask());
-        QVector<QRect> rects = r.rects();        
+        QVector<QRect> rects = r.rects();
         RGNDATA *rgnd = (RGNDATA *) malloc(sizeof(RGNDATAHEADER) + sizeof(RECT) * rects.size());
-                
+
         QMatrix m(d->stretch_x, 0, 0, d->stretch_y,
                   tx - xform_offset_x, ty - xform_offset_y);
         RECT *gdi_rect = (RECT *) rgnd->Buffer;
@@ -632,9 +632,9 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
             gdi_rect->top = rect.y();
             gdi_rect->right = rect.x() + rect.width();
             gdi_rect->bottom = rect.y() + rect.height();
-            ++gdi_rect;           
+            ++gdi_rect;
         }
-        
+
         rgnd->rdh.dwSize = sizeof(RGNDATAHEADER);
         rgnd->rdh.iType = RDH_RECTANGLES;
         rgnd->rdh.nCount = rects.size();
@@ -647,11 +647,11 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
         rgnd->rdh.rcBound.bottom = brect.y() + brect.height();
 
         region = ExtCreateRegion(0, sizeof(RGNDATAHEADER) + sizeof(RECT) * rects.size(), rgnd);
-        
+
         ExtSelectClipRgn(d->hdc, region, RGN_AND);
 
         free(rgnd);
-    } 
+    }
 
     if (!StretchBlt(d->hdc, qRound(tx - xform_offset_x), qRound(ty - xform_offset_y), tw, th,
                     hbitmap_hdc, 0, 0, pixmap.width(), pixmap.height(), SRCCOPY))
@@ -1201,7 +1201,7 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
         d->initialize();
         break;
 
-    case PPK_Resolution: 
+    case PPK_Resolution:
         {
             d->resolution = value.toInt();
 
