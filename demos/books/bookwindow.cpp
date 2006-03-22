@@ -33,6 +33,7 @@ BookWindow::BookWindow()
 
     // Create the data model
     model = new QSqlRelationalTableModel(ui.bookTable);
+    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->setTable("books");
 
     // Remeber the indexes of the columns
@@ -92,8 +93,10 @@ void BookWindow::currentBookChanged(const QModelIndex &index)
     QSqlRecord rec = model->record(index.row());
     ui.titleEdit->setText(rec.value("title").toString());
     ui.yearEdit->setValue(rec.value("year").toInt());
-    ui.authorEdit->setCurrentIndex(ui.authorEdit->findText(rec.value(authorIdx).toString()));
-    ui.genreEdit->setCurrentIndex(ui.genreEdit->findText(rec.value(genreIdx).toString()));
+    ui.authorEdit->setCurrentIndex(ui.authorEdit->findText(
+                model->data(model->index(index.row(), authorIdx)).toString()));
+    ui.genreEdit->setCurrentIndex(ui.genreEdit->findText(
+                model->data(model->index(index.row(), genreIdx)).toString()));
     ui.ratingEdit->setCurrentIndex(rec.value("rating").toInt());
 }
 

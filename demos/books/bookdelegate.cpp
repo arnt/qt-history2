@@ -67,7 +67,7 @@ bool BookDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
                                const QModelIndex &index)
 {
     if (index.column() != 5)
-        return false;
+        return QSqlRelationalDelegate::editorEvent(event, model, option, index);
 
     QMouseEvent *mouseEvent;
     int stars;
