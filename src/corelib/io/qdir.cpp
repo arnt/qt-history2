@@ -942,15 +942,17 @@ QDir::Filters QDir::filter() const
     and directories will include symbolic links to files and directories
     unless you set the NoSymLinks value.
 
-    If you do not set any of Readable, Writable, or
-    Executable, QDir will set all three of them. This makes the
-    default easy to write, and at the same time useful.
+    A default constructed QDir will not filter out files based on their
+    permissions, so entryList() and entryInfoList() will all files that
+    are readable, writable, executable, or any combination of the three.
+    This makes the default easy to write, and at the same time useful.
 
-    Examples: Readable | Writable means list all files for which the
-    application has read access, write access or both. Dirs | Drives
-    means list drives, directories, all files that the application can
-    read, write or execute, and also symlinks to such
-    files/directories.
+    For example, setting the \c Readable, \c Writable, and \c Files
+    flags allows all files to be listed for which the application has read
+    access, write access or both. If the \c Dirs and \c Drives flags are
+    also included in this combination then all drives, directories, all
+    files that the application can read, write, or execute, and symlinks
+    to such files/directories can be listed.
 */
 
 /*!
