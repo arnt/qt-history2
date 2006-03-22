@@ -57,11 +57,14 @@ public:
     void _q_columnsRemoved(const QModelIndex &parent, int start, int end);
 
     void fetchMore();
-    bool shouldEdit(QAbstractItemView::EditTrigger trigger, const QModelIndex &index);
-    bool shouldAutoScroll(const QPoint &pos);
+    bool shouldEdit(QAbstractItemView::EditTrigger trigger, const QModelIndex &index) const;
+    bool shouldForwardEvent(QAbstractItemView::EditTrigger trigger, const QEvent *event) const;
+    bool shouldAutoScroll(const QPoint &pos) const;
     void doDelayedItemsLayout();
 
     QWidget *editor(const QModelIndex &index, const QStyleOptionViewItem &options);
+    bool sendDelegateEvent(const QModelIndex &index, QEvent *event) const;
+    bool openEditor(const QModelIndex &index, QEvent *event);
 
     QItemSelectionModel::SelectionFlags multiSelectionCommand(const QModelIndex &index,
                                                               const QEvent *event) const;
@@ -168,9 +171,11 @@ public:
     inline bool hasEditor(const QModelIndex &index) const {
         return editorForIndex(index) != 0;
     }
+
     QModelIndex indexForEditor(QWidget *editor) const;
     void addEditor(const QModelIndex &index, QWidget *editor);
     void removeEditor(QWidget *editor);
+
     inline QModelIndex indexForIterator(const _q_abstractitemview_editor_iterator &it) const {
         return (*it).first;
     }
@@ -239,6 +244,9 @@ public:
     QBasicTimer updateTimer;
 
     QPoint scrollDelayOffset;
+
+    QBasicTimer delayedEditing;
+    
     QTimeLine timeline;
 };
 

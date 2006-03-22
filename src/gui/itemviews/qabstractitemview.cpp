@@ -1488,6 +1488,10 @@ void QAbstractItemView::timerEvent(QTimerEvent *event)
         doAutoScroll();
     else if (event->timerId() == d->updateTimer.timerId())
         d->updateDirtyRegion();
+    else if (event->timerId() == d->delayedEditing.timerId()) {
+        d->delayedEditing.stop();
+        d->openEditor(currentIndex(), 0);
+    }
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -1532,26 +1536,19 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
     if (!model() || !index.isValid())
         return false;
 
-    QModelIndex buddy = model()->buddy(index);
-    QStyleOptionViewItem options = viewOptions();
-    options.rect = visualRect(buddy);
-    options.state |= (buddy == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
-    if (event && itemDelegate()->editorEvent(event, model(), options, buddy))
-        return true; // the delegate handled the event
+    if (trigger == DoubleClicked)
+        d->delayedEditing.stop();
 
-    if (!d->shouldEdit(trigger, buddy))
+    if (d->sendDelegateEvent(index, event))
+        return true;
+
+    if (!d->shouldEdit(trigger, model()->buddy(index)))
         return false;
 
-    QWidget *editor = d->editor(buddy, options);
-    if (!editor)
-        return false;
-
-    if (event && (event->type() == QEvent::KeyPress || event->type() == QEvent::InputMethod)
-        && (trigger & d->editTriggers) == AnyKeyPressed)
-        QApplication::sendEvent(editor->focusProxy() ? editor->focusProxy() : editor, event);
-    setState(EditingState);
-    editor->show();
-    editor->setFocus();
+    if (trigger == SelectedClicked) // we may get a double click event later
+        d->delayedEditing.start(QApplication::doubleClickInterval() + 100, this);
+    else
+        d->openEditor(index, d->shouldForwardEvent(trigger, event) ? event : 0);
 
     return true;
 }
@@ -2538,7 +2535,7 @@ void QAbstractItemViewPrivate::fetchMore()
 }
 
 bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::EditTrigger trigger,
-                                          const QModelIndex &index)
+                                          const QModelIndex &index) const
 {
     if (!index.isValid())
         return false;
@@ -2554,7 +2551,15 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::EditTrigger trigger
     return (trigger & editTriggers);
 }
 
-bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
+bool QAbstractItemViewPrivate::shouldForwardEvent(QAbstractItemView::EditTrigger trigger,
+                                                  const QEvent *event) const
+{
+    if ((trigger & editTriggers) != QAbstractItemView::AnyKeyPressed)
+        return false;
+    return (event->type() == QEvent::KeyPress) || (event->type() == QEvent::InputMethod);
+}
+
+bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos) const
 {
     if (!autoScroll)
         return false;
@@ -2616,7 +2621,7 @@ void QAbstractItemViewPrivate::removeSelectedRows()
 }
 
 QWidget *QAbstractItemViewPrivate::editorForIndex(const QModelIndex &index) const
-{    
+{
     _q_abstractitemview_editor_const_iterator it = editors.begin();
     for (; it != editors.end(); ++it) {
         if (indexForIterator(it) == index)
@@ -2649,6 +2654,39 @@ void QAbstractItemViewPrivate::removeEditor(QWidget *editor)
 void QAbstractItemViewPrivate::addEditor(const QModelIndex &index, QWidget *editor)
 {
     editors.append(QPair<QPersistentModelIndex, QPointer<QWidget> >(index, editor));
+}
+
+bool QAbstractItemViewPrivate::sendDelegateEvent(const QModelIndex &index, QEvent *event) const
+{
+    Q_Q(const QAbstractItemView);
+    QModelIndex buddy = model->buddy(index);
+    QStyleOptionViewItem options = q->viewOptions();
+    options.rect = q->visualRect(buddy);
+    options.state |= (buddy == q->currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
+    return (event && delegate->editorEvent(event, model, options, buddy));
+}
+
+bool QAbstractItemViewPrivate::openEditor(const QModelIndex &index, QEvent *event)
+{
+    Q_Q(QAbstractItemView);
+
+    QModelIndex buddy = model->buddy(index);
+    QStyleOptionViewItem options = q->viewOptions();
+    options.rect = q->visualRect(buddy);
+    options.state |= (buddy == q->currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
+
+    QWidget *w = editor(buddy, options);
+    if (!w)
+        return false;
+
+    if (event)
+        QApplication::sendEvent(w->focusProxy() ? w->focusProxy() : w, event);
+
+    q->setState(QAbstractItemView::EditingState);
+    w->show();
+    w->setFocus();
+
+    return true;
 }
 
 QPixmap QAbstractItemViewPrivate::renderToPixmap(const QModelIndexList &indexes) const
