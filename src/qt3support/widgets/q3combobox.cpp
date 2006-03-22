@@ -309,7 +309,8 @@
     \property Q3ComboBox::sizeLimit
     \brief the maximum on-screen size of the combobox.
 
-    This is disregarded in Motif 1.x style. The default limit is ten
+    This property is ignored for both Motif 1.x style and non-editable
+    comboboxes in Mac style. The default limit is ten
     lines. If the number of items in the combobox is or grows larger
     than lines, a scrollbar is added.
 */
