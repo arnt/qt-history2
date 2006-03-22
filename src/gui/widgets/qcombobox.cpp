@@ -933,6 +933,9 @@ QComboBox::~QComboBox()
 /*!
     \property QComboBox::maxVisibleItems
     \brief the maximum allowed size on screen of the combobox
+
+    This property is ignored for non-editable comboboxes in Mac
+    style.
 */
 
 int QComboBox::maxVisibleItems() const
