@@ -89,7 +89,7 @@ public:
     inline const_iterator end() const { return q_hash.end(); }
     inline const_iterator constEnd() const { return q_hash.constEnd(); }
     const_iterator erase(const_iterator i)
-        { return Hash::const_iterator(
+        { return typename Hash::const_iterator(
                          q_hash.erase(reinterpret_cast<const typename Hash::iterator &>(i))); }
 
     // more Qt
