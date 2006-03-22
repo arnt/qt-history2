@@ -108,7 +108,10 @@ public:
     void drop(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
 
     void extend(QDockWidget *dockwidget, Qt::Orientation direction);
-    void split(QDockWidget *existing, QDockWidget *with, Qt::DockWidgetArea area);
+    static void split(QDockWidgetLayout *layout,
+                      QDockWidget *existing,
+                      QDockWidget *with,
+                      Qt::DockWidgetArea area);
 
 Q_SIGNALS:
     void emptied();

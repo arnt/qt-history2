@@ -1308,7 +1308,7 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &_r, const QPo
 
         if (nested) {
             DEBUG() << "    splitting";
-            split(qobject_cast<QDockWidget *>(info.item->widget()), dockwidget, location.area);
+            split(this, qobject_cast<QDockWidget *>(info.item->widget()), dockwidget, location.area);
         } else {
             DEBUG() << "    extending";
             int at = location.index / 2;
@@ -1387,40 +1387,45 @@ static void locateDockWidget(QDockWidget *w, QDockWidgetLayout **layout, int *wh
     }
 }
 
-void QDockWidgetLayout::split(QDockWidget *existing, QDockWidget *with, Qt::DockWidgetArea area)
+void QDockWidgetLayout::split(QDockWidgetLayout *layout,
+                              QDockWidget *existing,
+                              QDockWidget *with,
+                              Qt::DockWidgetArea area)
 {
-    QDockWidgetLayout *layout = this;
     int which = -1;
     locateDockWidget(existing, &layout, &which);
     Q_ASSERT(which != -1);
     const QDockWidgetLayoutInfo &info = layout->layout_info.at(which);
 
-    Q_ASSERT(relayout_type == QInternal::RelayoutNormal);
-    relayout_type = QInternal::RelayoutDropped;
+    Q_ASSERT(layout->relayout_type == QInternal::RelayoutNormal);
+    layout->relayout_type = QInternal::RelayoutDropped;
 
     const Qt::Orientation howToSplit = ((area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea)
                                         ? Qt::Horizontal
                                         : Qt::Vertical);
-    if (orientation == howToSplit) {
+    if (layout->orientation == howToSplit) {
         // don't nest, just split save_size between the 2 dock widgets
         const int separator_extent =
-            parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
+            layout->parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
         int each_size = qMax(info.cur_size - separator_extent, 0) / 2;
 
         int at = which;
         if (area == Qt::RightDockWidgetArea || area == Qt::BottomDockWidgetArea)
             at += 2;
 
-        addChildWidget(with);
-        insert(at, new QWidgetItem(with)).cur_size
+        layout->addChildWidget(with);
+        layout->insert(at, new QWidgetItem(with)).cur_size
             = const_cast<QDockWidgetLayoutInfo &>(info).cur_size
             = each_size;
     } else {
         // create a nested window dock in place of the current widget
         QDockWidgetLayout *nestedLayout =
-            new QDockWidgetLayout(area, orientation == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
+            new QDockWidgetLayout(area,
+                                  (layout->orientation == Qt::Horizontal
+                                   ? Qt::Vertical
+                                   : Qt::Horizontal));
         nestedLayout->setParent(layout);
-        nestedLayout->setObjectName(objectName() + "_nestedLayout");
+        nestedLayout->setObjectName(layout->objectName() + "_nestedLayout");
 
         int save_size = info.cur_size;
         layout->removeWidget(existing);

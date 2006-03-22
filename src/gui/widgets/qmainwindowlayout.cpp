@@ -409,9 +409,12 @@ void QMainWindowLayout::splitDockWidget(QDockWidget *after, QDockWidget *dockwid
 
     const Qt::DockWidgetArea area = dockWidgetArea(after);
     QDockWidgetLayout * const layout = layoutForArea(area);
-    layout->split(after, dockwidget, (orientation == Qt::Horizontal
-                                      ? Qt::RightDockWidgetArea
-                                      : Qt::BottomDockWidgetArea));
+    QDockWidgetLayout::split(layout,
+                             after,
+                             dockwidget,
+                             (orientation == Qt::Horizontal
+                              ? Qt::RightDockWidgetArea
+                              : Qt::BottomDockWidgetArea));
 }
 #endif // QT_NO_DOCKWIDGET
 
