@@ -5020,6 +5020,8 @@ QWidget *Q3Table::beginEdit(int row, int col, bool replace)
 {
     if (isReadOnly() || isRowReadOnly(row) || isColumnReadOnly(col))
 	return 0;
+    if ( row < 0 || row >= numRows() || col < 0 || col >= numCols() )
+        return 0;
     Q3TableItem *itm = item(row, col);
     if (itm && !itm->isEnabled())
 	return 0;
