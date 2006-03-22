@@ -3244,10 +3244,10 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
                 ret = sl->rect.width() - pixelMetric(PM_SliderLength, sl, widget);
             else
                 ret = sl->rect.height() - pixelMetric(PM_SliderLength, sl, widget);
-            break;
         } else {
             ret = 0;
         }
+        break;
 #endif // QT_NO_SLIDER
 #ifndef QT_NO_DOCKWIDGET
     case PM_DockWidgetSeparatorExtent:
