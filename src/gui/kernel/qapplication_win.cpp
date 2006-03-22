@@ -1024,7 +1024,7 @@ void qt_win_set_cursor(QWidget *w, const QCursor& /* c */)
         return;
     QWidget* cW = QWidget::find(curWin);
     if (!cW || cW->window() != w->window() ||
-         !cW->isVisible() || !cW->underMouse())
+         !cW->isVisible() || !cW->underMouse() || QApplication::overrideCursor())
         return;
 
     SetCursor(cW->cursor().handle());
