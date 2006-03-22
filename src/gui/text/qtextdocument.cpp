@@ -1319,14 +1319,16 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
         html.chop(qstrlen(decorationTag.latin1()));
     }
 
-    if (format.foreground() != defaultCharFormat.foreground()) {
+    if (format.foreground() != defaultCharFormat.foreground()
+        && format.foreground().style() != Qt::NoBrush) {
         html += QLatin1String(" color:");
         html += format.foreground().color().name();
         html += QLatin1Char(';');
         attributesEmitted = true;
     }
 
-    if (format.background() != defaultCharFormat.background()) {
+    if (format.background() != defaultCharFormat.background()
+        && format.background().style() != Qt::NoBrush) {
         html += QLatin1String(" background-color:");
         html += format.background().color().name();
         html += QLatin1Char(';');
