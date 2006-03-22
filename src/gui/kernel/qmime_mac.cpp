@@ -477,10 +477,8 @@ int QMacMimeText::flavorFor(const QString &mime)
 
 QString QMacMimeText::mimeFor(int flav)
 {
-    if(flav == kScrapFlavorTypeText)
+    if (flav == kScrapFlavorTypeText || flav == kScrapFlavorTypeUnicode)
         return QLatin1String("text/plain");
-    else if(flav == kScrapFlavorTypeUnicode)
-        return QLatin1String("text/plain;charset=ISO-10646-UCS-2");
     return QString();
 }
 

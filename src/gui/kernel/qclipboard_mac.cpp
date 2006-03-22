@@ -163,7 +163,7 @@ QVariant QClipboardWatcher::retrieveData(const QString &format, QVariant::Type) 
     Size flavorsize=0;
     QMacMime::QMacMimeType qmt = QMacMime::MIME_CLIP;
     extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
-    if(GetScrapFlavorSize(scrap, qt_mac_mime_type, &flavorsize) == noErr)
+    if(GetScrapFlavorSize(scrap, qt_mac_mime_type, &flavorsize) == noErr && format != QLatin1String("text/plain"))
         qmt = QMacMime::MIME_QT_CONVERTOR;
     QList<QMacMime *> all = QMacMime::all(qmt);
     for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {

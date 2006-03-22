@@ -264,7 +264,8 @@ bool QDropData::hasFormat_sys(const QString &mime) const
     QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
     Size sz;
     extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
-    if(GetFlavorDataSize(qt_mac_current_dragRef, ref, qt_mac_mime_type, &sz) == noErr)
+    if(GetFlavorDataSize(qt_mac_current_dragRef, ref, qt_mac_mime_type, &sz) == noErr
+                            && mime != QLatin1String("text/plain"))
         qmt = QMacMime::MIME_QT_CONVERTOR;
     for(int x = 1; x <= (int)cnt; x++) {
         if(GetFlavorType(qt_mac_current_dragRef, ref, x, &flav) == noErr) {
@@ -285,7 +286,8 @@ QVariant QDropData::retrieveData_sys(const QString &mime, QVariant::Type) const
         if(GetDragItemReferenceNumber(qt_mac_current_dragRef, 1, &ref) == noErr) {
             Size sz;
             extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
-            if(GetFlavorDataSize(qt_mac_current_dragRef, ref, qt_mac_mime_type, &sz) == noErr)
+            if(GetFlavorDataSize(qt_mac_current_dragRef, ref, qt_mac_mime_type, &sz) == noErr
+                    && mime != QLatin1String("text/plain"))
                 qmt = QMacMime::MIME_QT_CONVERTOR;
         }
     }
