@@ -539,9 +539,14 @@ void FormWindowManager::slotUpdateActions()
                                     && layout == 0;
 
                 m_layoutChilds = layoutAvailable;
-                // ### generalize (put in function)
-                breakAvailable = (layout != 0 && (!layout->isEmpty() || qobject_cast<QSplitter*>(widget)))
-                                  || LayoutInfo::isWidgetLaidout(m_core, widget);
+
+                breakAvailable = LayoutInfo::isWidgetLaidout(m_core, widget);
+
+                if (! breakAvailable && layout != 0)
+                    breakAvailable = ! layout->isEmpty();
+
+                if (! breakAvailable && qobject_cast<QSplitter*>(widget))
+                    breakAvailable = qobject_cast<QSplitter*>(widget)->count() != 0;
             }
         } else {
             layoutAvailable = unlaidoutWidgetCount > 1;
