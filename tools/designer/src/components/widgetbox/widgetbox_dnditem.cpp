@@ -113,8 +113,13 @@ static QWidget *decorationFromDomWidget(DomWidget *dom_widget, QDesignerFormEdit
     WidgetBoxResource builder(core);
     QWidget *w = builder.createWidget(dom_widget, result);
     QSize size = domWidgetSize(dom_widget);
+    QSize minimumSize = w->minimumSizeHint();
     if (!size.isValid())
         size = w->sizeHint();
+    if (size.width() < minimumSize.width())
+        size.setWidth(minimumSize.width());
+    if (size.height() < minimumSize.height())
+        size.setHeight(minimumSize.height());
     w->setGeometry(QRect(QPoint(0, 0), size));
     result->resize(size);
     result->setWindowOpacity(0.8);
