@@ -910,9 +910,9 @@ void QTextEditPrivate::_q_setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     The find() function can be used to find and select a given string
     within the text.
 
-    \section2 Read-only key bindings
+    \section2 Read-only Key Bindings
 
-    When QTextEdit is used read-only the key-bindings are limited to
+    When QTextEdit is used read-only the key bindings are limited to
     navigation, and text may only be selected with the mouse:
     \table
     \header \i Keypresses \i Action
@@ -964,9 +964,9 @@ void QTextEditPrivate::_q_setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     modified since it was either loaded or since the last call to setModified
     with false as argument. In addition it provides methods for undo and redo.
 
-    \section2 Editing key bindings
+    \section2 Editing Key Bindings
 
-    The list of key-bindings which are implemented for editing:
+    The list of key bindings which are implemented for editing:
     \table
     \header \i Keypresses \i Action
     \row \i Backspace \i Deletes the character to the left of the cursor.
