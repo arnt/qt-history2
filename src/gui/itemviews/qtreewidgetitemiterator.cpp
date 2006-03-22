@@ -65,7 +65,7 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidget *widget, IteratorFl
     Q_ASSERT(model);
     d_ptr = new QTreeWidgetItemIteratorPrivate(this, model);
     model->iterators.append(this);
-    current = model->tree.first();
+    if (!model->tree.isEmpty()) current = model->tree.first();
     if (current && !matchesFlags(current))
         ++(*this);
 }
