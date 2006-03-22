@@ -6849,6 +6849,9 @@ QDomElement QDomDocument::documentElement() const
     Creates a new element called \a tagName that can be inserted into
     the DOM tree, e.g. using QDomNode::appendChild().
 
+    If \a tagName is not a valid XML name, the behavior of this function is governed
+    by QDomImplementation::InvalidDataPolicy.
+
     \sa createElementNS() QDomNode::appendChild() QDomNode::insertBefore()
     QDomNode::insertAfter()
 */
@@ -6875,6 +6878,10 @@ QDomDocumentFragment QDomDocument::createDocumentFragment()
     Creates a text node for the string \a value that can be inserted
     into the document tree, e.g. using QDomNode::appendChild().
 
+    If \a value contains characters which cannot be stored as character
+    data of an XML document (even in the form of character references), the
+    behavior of this function is governed by QDomImplementation::InvalidDataPolicy.
+
     \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomText QDomDocument::createTextNode(const QString& value)
@@ -6888,6 +6895,9 @@ QDomText QDomDocument::createTextNode(const QString& value)
     Creates a new comment for the string \a value that can be inserted
     into the document, e.g. using QDomNode::appendChild().
 
+    If \a value contains characters which cannot be stored in an XML comment,
+    the behavior of this function is governed by QDomImplementation::InvalidDataPolicy.
+
     \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomComment QDomDocument::createComment(const QString& value)
@@ -6900,6 +6910,10 @@ QDomComment QDomDocument::createComment(const QString& value)
 /*!
     Creates a new CDATA section for the string \a value that can be
     inserted into the document, e.g. using QDomNode::appendChild().
+
+    If \a value contains characters which cannot be stored in a CDATA section,
+    the behavior of this function is governed by
+    QDomImplementation::InvalidDataPolicy.
 
     \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
@@ -6916,6 +6930,10 @@ QDomCDATASection QDomDocument::createCDATASection(const QString& value)
     the target for the processing instruction to \a target and the
     data to \a data.
 
+    If \a target is not a valid XML name, or data if contains characters which cannot
+    appear in a processing instruction, the behavior of this function is governed by
+    QDomImplementation::InvalidDataPolicy.
+
     \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomProcessingInstruction QDomDocument::createProcessingInstruction(const QString& target,
@@ -6931,6 +6949,9 @@ QDomProcessingInstruction QDomDocument::createProcessingInstruction(const QStrin
     Creates a new attribute called \a name that can be inserted into
     an element, e.g. using QDomElement::setAttributeNode().
 
+    If \a name is not a valid XML name, the behavior of this function is governed by
+    QDomImplementation::InvalidDataPolicy.
+
     \sa createAttributeNS()
 */
 QDomAttr QDomDocument::createAttribute(const QString& name)
@@ -6943,6 +6964,9 @@ QDomAttr QDomDocument::createAttribute(const QString& name)
 /*!
     Creates a new entity reference called \a name that can be inserted
     into the document, e.g. using QDomNode::appendChild().
+
+    If \a name is not a valid XML name, the behavior of this function is governed by
+    QDomImplementation::InvalidDataPolicy.
 
     \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
@@ -7046,6 +7070,8 @@ QDomNode QDomDocument::importNode(const QDomNode& importedNode, bool deep)
     QDomNode::prefix() and QDomNode::localName() to appropriate values
     (depending on \a qName).
 
+    If \a qName is an empty string, returns a null element.
+
     \sa createElement()
 */
 QDomElement QDomDocument::createElementNS(const QString& nsURI, const QString& qName)
@@ -7061,6 +7087,9 @@ QDomElement QDomDocument::createElementNS(const QString& nsURI, const QString& q
     and the namespace URI is \a nsURI. This function also sets
     QDomNode::prefix() and QDomNode::localName() to appropriate values
     (depending on \a qName).
+
+    If \a qName is not a valid XML name, the behavior of this function is governed by
+    QDomImplementation::InvalidDataPolicy.
 
     \sa createAttribute()
 */
