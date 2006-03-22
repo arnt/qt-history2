@@ -33,6 +33,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdlib.h>
+#include <qdebug.h>
 
 #if defined(Q_OS_LINUX) && !defined(__UCLIBC__)
 #    include <fenv.h>
@@ -406,9 +407,46 @@ static QString winIso3116CtryName()
     return result;
 }
 
+static QString getWinLocaleInfo(LCTYPE type)
+{
+    int cnt = 0;
+    QT_WA({
+        cnt = GetLocaleInfoW(LOCALE_USER_DEFAULT, type, 0, 0)*2;
+    } , {
+        cnt = GetLocaleInfoA(LOCALE_USER_DEFAULT, type, 0, 0);
+    });
+
+    if (cnt == 0) {
+        qWarning() << "QLocale: empty windows locale info" << type;
+        return QString();
+    }
+
+    QByteArray buff(cnt, 0);
+
+    QT_WA({
+        cnt = GetLocaleInfoW(LOCALE_USER_DEFAULT, type,
+                                reinterpret_cast<wchar_t*>(buff.data()),
+                                buff.size()/2);
+    } , {
+        cnt = GetLocaleInfoA(LOCALE_USER_DEFAULT, type,
+                                buff.data(), buff.size());
+    });
+
+    if (cnt == 0) {
+        qWarning() << "QLocale: empty windows locale info" << type;
+        return QString();
+    }
+
+    QString result;
+    QT_WA({
+        result = QString::fromUtf16(reinterpret_cast<ushort*>(buff.data()));
+    } , {
+        result = QString::fromLocal8Bit(buff.data());
+    });
+    return result;
+}
+
 #endif // Q_OS_WIN
-
-
 
 QByteArray QLocalePrivate::systemLocaleName()
 {
@@ -490,6 +528,49 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
         return d;
 
     return locale_data + idx;
+}
+
+static const QLocalePrivate *findLocale(const QString &name)
+{
+    QLocale::Language lang = QLocale::C;
+    QLocale::Country cntry = QLocale::AnyCountry;
+
+    uint l = name.length();
+
+    do {
+        if (l < 2)
+            break;
+
+        const QChar *uc = name.unicode();
+        if (l > 2
+                && uc[2] != QLatin1Char('_')
+                && uc[2] != QLatin1Char('.')
+                && uc[2] != QLatin1Char('@'))
+            break;
+
+        QString lang_code = name.mid(0, 2);
+        // CLDR has changed the code for Bokmal from "no" to "nb". We want to support
+        // both, but we have no alias mechanism in the database.
+        if (lang_code == QLatin1String("nb"))
+            lang_code = QLatin1String("no");
+        lang = codeToLanguage(lang_code);
+        if (lang == QLocale::C)
+            break;
+
+        if (l == 2 || uc[2] == QLatin1Char('.') || uc[2] == QLatin1Char('@'))
+            break;
+
+        // we have uc[2] == '_'
+        if (l < 5)
+            break;
+
+        if (l > 5 && uc[5] != QLatin1Char('.') && uc[5] != QLatin1Char('@'))
+            break;
+
+        cntry = codeToCountry(name.mid(3, 2));
+    } while (false);
+
+    return findLocale(lang, cntry);
 }
 
 /*!
@@ -1068,45 +1149,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
 QLocale::QLocale(const QString &name)
 {
-    Language lang = C;
-    Country cntry = AnyCountry;
-
-    uint l = name.length();
-
-    do {
-        if (l < 2)
-            break;
-
-        const QChar *uc = name.unicode();
-        if (l > 2
-                && uc[2] != QLatin1Char('_')
-                && uc[2] != QLatin1Char('.')
-                && uc[2] != QLatin1Char('@'))
-            break;
-
-        QString lang_code = name.mid(0, 2);
-        // CLDR has changed the code for Bokmal from "no" to "nb". We want to support
-        // both, but we have no alias mechanism in the database.
-        if (lang_code == QLatin1String("nb"))
-            lang_code = QLatin1String("no");
-        lang = codeToLanguage(lang_code);
-        if (lang == C)
-            break;
-
-        if (l == 2 || uc[2] == QLatin1Char('.') || uc[2] == QLatin1Char('@'))
-            break;
-
-        // we have uc[2] == '_'
-        if (l < 5)
-            break;
-
-        if (l > 5 && uc[5] != QLatin1Char('.') && uc[5] != QLatin1Char('@'))
-            break;
-
-        cntry = codeToCountry(name.mid(3, 2));
-    } while (false);
-
-    d = findLocale(lang, cntry);
+    d = findLocale(name);
 }
 
 /*!
@@ -1582,22 +1625,23 @@ QString QLocale::toString(const QDate &date, const QString &format) const
 
         switch (c.unicode()) {
             case 'y':
-                if (repeat >= 4)
-                    repeat = 4;
-                else if (repeat >= 2)
+                if (repeat >= 5)
+                    repeat = 5;
+                else if (repeat == 3)
                     repeat = 2;
-                else
-                    repeat = 1;
 
                 switch (repeat) {
+                    case 5:  // On Windows, "yyyyy" is same as "yyyy"
                     case 4:
                         result.append(d->longLongToString(date.year()));
                         break;
                     case 2:
-                        result.append(d->longLongToString(date.year()%100));
+                        result.append(d->longLongToString(date.year()%100, -1, 10, 2, QLocalePrivate::ZeroPadded));
+                        break;
+                    case 1:
+                        result.append(d->longLongToString(date.year()%10));
                         break;
                     default:
-                        result.append(c);
                         break;
                 }
                 break;
@@ -1669,13 +1713,20 @@ QString QLocale::toString(const QDate &date, FormatType format) const
 static bool timeFormatContainsAP(const QString &format)
 {
     int i = 0;
-    while (i + 1 < format.size()) {
+    while (i < format.size()) {
         if (format.at(i).unicode() == '\'') {
             readEscapedFormatString(format, &i);
             continue;
         }
 
         QChar c1 = format.at(i);
+ 
+        // In Windows time-format strings, 't' is the AM/PM marker
+        if (c1.unicode() == 't')
+            return true;
+        
+        if (i + 1 == format.size())
+            break;
         QChar c2 = format.at(i + 1);
         if (c1.unicode() == 'a' && c2.unicode() == 'p'
             || c1.unicode() == 'A' && c2.unicode() == 'P')
@@ -1725,6 +1776,7 @@ QString QLocale::toString(const QTime &time, const QString &format) const
 
         switch (c.unicode()) {
             case 'h':
+            case 'H':
                 if (repeat > 2)
                     repeat = 2;
 
@@ -1790,6 +1842,22 @@ QString QLocale::toString(const QTime &time, const QString &format) const
                 }
                 break;
 
+            case 't': // Windows AM/PM marker
+                if (repeat > 2)
+                    repeat = 2;
+
+                switch (repeat) {
+                    case 1:
+                        result.append(am_pm == AM ? QLatin1String("A") : QLatin1String("P"));
+                        break;
+                    case 2:
+                        result.append(am_pm == AM ? QLatin1String("AM") : QLatin1String("PM"));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+
             default:
                 repeat = 1;
                 result.append(c);
@@ -1843,6 +1911,16 @@ QString QLocale::dateFormat(FormatType format) const
     }
 #endif
 #endif
+
+#ifdef Q_OS_WIN
+    if (d == system().d) {
+        LCTYPE type = format == LongFormat ? LOCALE_SLONGDATE : LOCALE_SSHORTDATE;
+        QString s = getWinLocaleInfo(type);
+        if (!s.isEmpty())
+            return s;
+    }
+#endif
+
     const quint32 idx = (format == ShortFormat ? d->m_short_date_format_idx : d->m_long_date_format_idx);
     return QString::fromUtf8(date_format_data + idx);
 }
@@ -1878,6 +1956,15 @@ QString QLocale::timeFormat(FormatType format) const
     }
 #endif
 #endif
+
+#ifdef Q_OS_WIN
+    if (d == system().d) {
+        QString s = getWinLocaleInfo(LOCALE_STIMEFORMAT);
+        if (!s.isEmpty())
+            return s;
+    }
+#endif
+
     const quint32 idx = (format == ShortFormat ? d->m_short_time_format_idx : d->m_long_time_format_idx);
     return QString::fromUtf8(time_format_data + idx);
 }
@@ -1998,14 +2085,58 @@ QString QLocale::toString(double i, char f, int prec) const
     \sa system()
 */
 
+#ifdef Q_OS_WIN
+static const QLocalePrivate *windowsCustomLocale()
+{
+    static QLocalePrivate *result = 0;
+
+    if (result == 0) {
+        // Initialize with the default values for the current system locale
+        const QLocalePrivate *plain = findLocale(QLocalePrivate::systemLocaleName());
+        QLocalePrivate *custom = new QLocalePrivate(*plain);
+        
+        // Modify it according to the custom settings
+        QString s = getWinLocaleInfo(LOCALE_SDECIMAL);
+        if (!s.isEmpty())
+            custom->m_decimal = s.at(0).unicode();
+
+        s = getWinLocaleInfo(LOCALE_STHOUSAND);
+        if (!s.isEmpty())
+            custom->m_group = s.at(0).unicode();
+
+        s = getWinLocaleInfo(LOCALE_SLIST);
+        if (!s.isEmpty())
+            custom->m_list = s.at(0).unicode();
+
+        s = getWinLocaleInfo(LOCALE_SNEGATIVESIGN);
+        if (!s.isEmpty())
+            custom->m_minus = s.at(0).unicode();
+
+        if (!q_atomic_test_and_set_ptr(&result, 0, custom))
+            delete custom;
+    }
+
+    return result;
+}
+#endif
+
+
 /*!
     Returns a QLocale object initialized to the system locale.
+
+    On Windows, this locale will reflect customizations made by the user in the control panel.
 
     \sa QTextCodec::locale() c()
 */
 
 QLocale QLocale::system()
 {
+#ifdef Q_OS_WIN
+    QLocale result(C);
+    result.d = windowsCustomLocale();
+    return result;
+#endif
+
     QByteArray s = 0;
 #ifdef Q_OS_UNIX
     s = qgetenv("LC_ALL");
