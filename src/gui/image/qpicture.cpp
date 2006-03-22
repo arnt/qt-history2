@@ -854,7 +854,7 @@ bool QPicturePrivate::checkFormat()
     resetFormat();
 
     // can't check anything in an empty buffer
-    if (pictb.size() == 0)
+    if (pictb.size() == 0 || pictb.isOpen())
         return false;
 
     pictb.open(QIODevice::ReadOnly);                        // open buffer device
