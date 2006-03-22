@@ -2015,8 +2015,8 @@ int QTreeViewPrivate::coordinate(int item) const
     int scrollBarValue = q->verticalScrollBar()->value();
     int viewItemIndex = itemAt(scrollBarValue); // first item (may start above the page)
     if (viewItemIndex == -1) {
-        const_cast<QTreeViewPrivate*>(this)->updateScrollBars();
-        viewItemIndex = itemAt(scrollBarValue); // first item (may start above the page)
+        const_cast<QTreeViewPrivate*>(this)->updateScrollbars();
+        viewItemIndex = itemAt(scrollbarValue); // first item (may start above the page)
     }
     Q_ASSERT(viewItemIndex != -1);
     int viewItemHeight = height(viewItemIndex);
@@ -2200,6 +2200,13 @@ void QTreeViewPrivate::updateScrollBars()
     Q_Q(QTreeView);
 
     QSize viewportSize = viewport->size();
+
+    // TODO why is there an assert when you remove this if in the file dialog?
+    if (!viewport->isVisible()) {
+        q->verticalScrollBar()->setRange(0, 0);
+        q->verticalScrollBar()->setPageStep(0);
+        return;
+    }
 
     // set page step size
     int verticalScrollBarValue = q->verticalScrollBar()->value();
