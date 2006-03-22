@@ -104,6 +104,7 @@ public:
 
     friend class QPainter;
     friend class QFontEngineMac;
+    friend class QX11PaintEngine;
 };
 
 #ifdef QT3_SUPPORT

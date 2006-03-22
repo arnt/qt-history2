@@ -361,6 +361,12 @@ void QPainterPrivate::updateState(QPainterState *newState)
 
     } else if (newState->state() || engine->state!=newState) {
 
+        // ### we might have to call QPainter::begin() here...
+        if (!engine->state) {
+            engine->state = newState;
+            engine->setDirty(QPaintEngine::AllDirty);
+        }
+
         if (engine->state->painter() != newState->painter)
             // ### this could break with clip regions vs paths.
             engine->setDirty(QPaintEngine::AllDirty);
@@ -1184,11 +1190,12 @@ bool QPainter::end()
 
     bool ended = d->engine->end();
     d->updateState(0);
-    d->engine->setPaintDevice(0);
 
     --d->device->painters;
-    if (d->device->painters == 0)
+    if (d->device->painters == 0) {
+        d->engine->setPaintDevice(0);
         d->engine->setActive(false);
+    }
 
     if (d->engine->autoDestruct()) {
         delete d->engine;

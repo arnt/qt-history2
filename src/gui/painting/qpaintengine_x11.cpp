@@ -652,7 +652,6 @@ QX11PaintEngine::~QX11PaintEngine()
 bool QX11PaintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QX11PaintEngine);
-    d->pdev = pdev;
     d->xinfo = qt_x11Info(pdev);
 #ifndef QT_NO_XRENDER
     if (pdev->devType() == QInternal::Widget) {
@@ -671,11 +670,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     Q_ASSERT(d->xinfo != 0);
     d->dpy = d->xinfo->display(); // get display variable
     d->scrn = d->xinfo->screen(); // get screen variable
-
-    if (isActive()) {                         // already active painting
-        qWarning("QX11PaintEngine::begin: Painter already active");
-        return false;
-    }
 
     d->bg_col = Qt::white;
     d->bg_mode = Qt::TransparentMode;
@@ -740,7 +734,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 bool QX11PaintEngine::end()
 {
     Q_D(QX11PaintEngine);
-    setActive(false);
 
 #if !defined(QT_NO_XRENDER)
     if (d->picture) {
@@ -752,11 +745,12 @@ bool QX11PaintEngine::end()
     }
 #endif
 
-    if (d->gc_brush) {
+    if (d->gc_brush && d->pdev->painters < 2) {
         XFreeGC(d->dpy, d->gc_brush);
         d->gc_brush = 0;
     }
-    if (d->gc) {
+
+    if (d->gc && d->pdev->painters < 2) {
         XFreeGC(d->dpy, d->gc);
         d->gc = 0;
     }
