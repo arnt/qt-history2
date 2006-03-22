@@ -1661,21 +1661,25 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
 
     // The EndEditHint part
     QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::ClearAndSelect
-                                                |d->selectionBehaviorFlags();
+        |d->selectionBehaviorFlags();
     switch (hint) {
     case QAbstractItemDelegate::EditNextItem: {
         QModelIndex index = moveCursor(MoveNext, Qt::NoModifier);
         if (index.isValid()) {
             QPersistentModelIndex persistent(index);
             selectionModel()->setCurrentIndex(persistent, flags);
-            edit(persistent);
+            // currentChanged signal would have already started editing
+            if (!(editTriggers() & QAbstractItemView::CurrentChanged))
+                edit(persistent);
         } break; }
     case QAbstractItemDelegate::EditPreviousItem: {
         QModelIndex index = moveCursor(MovePrevious, Qt::NoModifier);
         if (index.isValid()) {
             QPersistentModelIndex persistent(index);
             selectionModel()->setCurrentIndex(persistent, flags);
-            edit(persistent);
+            // currentChanged signal would have already started editing
+            if (!(editTriggers() & QAbstractItemView::CurrentChanged))
+                edit(persistent);
         } break; }
     case QAbstractItemDelegate::SubmitModelCache:
         model()->submit();
@@ -2374,18 +2378,18 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(const QM
 {
     Q_D(const QAbstractItemView);
     switch (selectionMode()) {
-    case NoSelection: // Never update selection model
-        return QItemSelectionModel::NoUpdate;
-    case SingleSelection: // ClearAndSelect on valid index otherwise NoUpdate
-        if (!index.isValid() || (event && event->type() == QEvent::MouseButtonRelease))
+        case NoSelection: // Never update selection model
             return QItemSelectionModel::NoUpdate;
-        return QItemSelectionModel::ClearAndSelect|d->selectionBehaviorFlags();
-    case MultiSelection:
-        return d->multiSelectionCommand(index, event);
-    case ExtendedSelection:
-        return d->extendedSelectionCommand(index, event);
-    case ContiguousSelection:
-        return d->contiguousSelectionCommand(index, event);
+        case SingleSelection: // ClearAndSelect on valid index otherwise NoUpdate
+            if (!index.isValid() || (event && event->type() == QEvent::MouseButtonRelease))
+                return QItemSelectionModel::NoUpdate;
+            return QItemSelectionModel::ClearAndSelect|d->selectionBehaviorFlags();
+        case MultiSelection:
+            return d->multiSelectionCommand(index, event);
+        case ExtendedSelection:
+            return d->extendedSelectionCommand(index, event);
+        case ContiguousSelection:
+            return d->contiguousSelectionCommand(index, event);
     }
     return QItemSelectionModel::NoUpdate;
 }
@@ -2441,7 +2445,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
             if (!index.isValid() && !(button & Qt::RightButton)
                 && !(modifiers & Qt::ShiftModifier) && !(modifiers & Qt::ControlModifier))
                 return QItemSelectionModel::Clear;
-             // just pressing on an invalid index should not select anything, also pressing with anything but the left mouse button should not do anything
+            // just pressing on an invalid index should not select anything, also pressing with anything but the left mouse button should not do anything
             if (!index.isValid() || button != Qt::LeftButton)
                 return QItemSelectionModel::NoUpdate;
             break; }
