@@ -629,6 +629,8 @@ void QTextHtmlImporter::import()
                     cursor.setBlockFormat(block);
                     cursor.setBlockCharFormat(charFmt);
                 } else {
+                    block.clearProperty(QTextFormat::ObjectIndex);
+                    charFmt.clearProperty(QTextFormat::ObjectIndex);
                     appendBlock(block, charFmt);
                 }
             }
