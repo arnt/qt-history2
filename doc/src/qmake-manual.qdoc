@@ -938,7 +938,7 @@
     For example:
 
     \code
-        INCLUDEPATH = c:\msdev\include d:\stl\include
+        INCLUDEPATH = c:/msdev/include d:/stl/include
     \endcode
 
     \target INSTALLS
@@ -998,7 +998,8 @@
     For example:
 
     \code
-        LIBS += -L/usr/local/lib -lmath
+        unix:LIBS += -L/usr/local/lib -lmath
+        win32:LIBS += c:/mylibs/math.lib
     \endcode
 
     By default, the list of libraries stored in \c LIBS is reduced to a list of
@@ -1050,7 +1051,7 @@
 
     \code
         unix:MOC_DIR = ../myproject/tmp
-        win32:MOC_DIR = c:\myproject\tmp
+        win32:MOC_DIR = c:/myproject/tmp
     \endcode
 
     \target OBJECTS
@@ -1072,7 +1073,7 @@
 
     \code
         unix:OBJECTS_DIR = ../myproject/tmp
-        win32:OBJECTS__DIR = c:\myproject\tmp
+        win32:OBJECTS__DIR = c:/myproject/tmp
     \endcode
 
     \target OBJMOC
@@ -1819,7 +1820,7 @@
 
     \code
         unix:RCC_DIR = ../myproject/resources
-        win32:RCC_DIR = c:\myproject\resources
+        win32:RCC_DIR = c:/myproject/resources
     \endcode
 
     \target REQUIRES
@@ -1974,7 +1975,7 @@
 
     \code
         unix:UI_DIR = ../myproject/ui
-        win32:UI_DIR = c:\myproject\ui
+        win32:UI_DIR = c:/myproject/ui
     \endcode
 
     \target UI_HEADERS_DIR
@@ -1987,7 +1988,7 @@
 
     \code
         unix:UI_HEADERS_DIR = ../myproject/ui/include
-        win32:UI_HEADERS_DIR = c:\myproject\ui\include
+        win32:UI_HEADERS_DIR = c:/myproject/ui/include
     \endcode
 
     \target UI_SOURCES_DIR
@@ -2000,7 +2001,7 @@
 
     \code
         unix:UI_SOURCES_DIR = ../myproject/ui/src
-        win32:UI_SOURCES_DIR = c:\myproject\ui\src
+        win32:UI_SOURCES_DIR = c:/myproject/ui/src
     \endcode
 
     \target VERSION
@@ -3589,7 +3590,7 @@
 
     \code
         TEMPLATE = app
-        DESTDIR  = c:\helloapp
+        DESTDIR  = c:/helloapp
         HEADERS += hello.h
         SOURCES += hello.cpp
         SOURCES += main.cpp
