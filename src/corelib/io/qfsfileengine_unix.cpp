@@ -373,9 +373,9 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
         {
             if ((type & LinkType) && d->isSymlink())
                 ret |= LinkType;
-            if((d->st.st_mode & S_IFMT) == S_IFREG)
+            if (exists && (d->st.st_mode & S_IFMT) == S_IFREG)
                 ret |= FileType;
-            else if((d->st.st_mode & S_IFMT) == S_IFDIR)
+            else if (exists && (d->st.st_mode & S_IFMT) == S_IFDIR)
                 ret |= DirectoryType;
         }
     }
