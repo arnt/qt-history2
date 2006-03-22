@@ -56,6 +56,7 @@ public:
     void flush();
 
 private:
+    friend int qt_mac_send_zero_timers();
     friend void qt_mac_select_timer_callbk(__EventLoopTimer*, void*);
     friend class QApplicationPrivate;
 };
@@ -76,7 +77,7 @@ struct MacSocketInfo {
     int read;
     int write;
 };
-typedef QHash<int, MacSocketInfo *> MacSocketHash; 
+typedef QHash<int, MacSocketInfo *> MacSocketHash;
 
 class QEventDispatcherMacPrivate : public QEventDispatcherUNIXPrivate
 {

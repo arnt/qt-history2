@@ -550,6 +550,8 @@ int QEventDispatcherMacPrivate::activateTimers()
             ret++;
             QTimerEvent e(t.id);
             QApplication::sendEvent(t.obj, &e);
+            if(ret == zero_timer_count)
+                break;
         }
     }
     return ret;
@@ -579,6 +581,13 @@ void QEventDispatcherMac::flush()
 
 /* This allows the eventloop to block, and will keep things going - including keeping away
    the evil spinning cursor */
+int qt_mac_send_zero_timers()
+{
+    if(QEventDispatcherMac *disp = qobject_cast<QEventDispatcherMac*>(QAbstractEventDispatcher::instance()))
+        return disp->d_func()->activateTimers();
+    return 0;
+}
+
 class QMacBlockingFunction::Object : public QObject
 {
     QAtomic ref;
@@ -591,7 +600,7 @@ public:
 protected:
     void timerEvent(QTimerEvent *)
     {
-        // if(QApplication::eventLoop()->activateTimers())
+        if(qt_mac_send_zero_timers())
             QApplication::flush();
     }
 };
