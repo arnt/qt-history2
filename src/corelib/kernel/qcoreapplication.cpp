@@ -456,6 +456,7 @@ QCoreApplication::~QCoreApplication()
 #endif
 
     self = 0;
+    QCoreApplicationPrivate::is_app_closing = true;
     QCoreApplicationPrivate::is_app_running = false;
 
 #ifndef QT_NO_THREAD

@@ -813,6 +813,7 @@ QApplication::~QApplication()
     delete qt_desktopWidget;
     qt_desktopWidget = 0;
     QApplicationPrivate::is_app_closing = true;
+    QApplicationPrivate::is_app_running = false;
 
 #ifndef QT_NO_CLIPBOARD
     delete qt_clipboard;
