@@ -785,8 +785,11 @@
 
     \value WA_PaintUnclipped Makes all painters operating on this
     widget unclipped. Children of this widget or other widgets in
-    front of it do not clip the area the painter can paint on. This is
-    not supported on Mac OS X.
+    front of it do not clip the area the painter can paint on. This
+    flag is only supported on X11 for widgets that have paint on
+    screen is set. The preferred way to do this cross platform is to
+    create a transparent widget that lies in front of the other
+    widgets.
 
     \value WA_PaintOutsidePaintEvent Makes it possible to use QPainter
     to paint on the widget outside \l{QWidget::paintEvent()}{paintEvent()}.
