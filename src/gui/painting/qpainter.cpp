@@ -4080,17 +4080,8 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
     Draws the given \a text with the currently defined text direction,
     beginning at the given \a position.
 
-    \table 100%
-    \row
-    \o \inlineimage qpainter-text.png
-    \o
-    \code
-        QPainter painter(this);
-        painter.drawText(rect, Qt::AlignCenter, tr("Qt by\nTrolltech"));
-    \endcode
-    \endtable
-
-    \sa boundingRect(), layoutDirection()
+    This function does not break text into multiple lines. Use the QPainter::drawText()
+    overload that takes a rectangle instead if you want line breaking.
 */
 
 void QPainter::drawText(const QPointF &p, const QString &str)
@@ -4193,6 +4184,16 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
 
     Draws the given \a text within the provided \a rectangle.
 
+    \table 100%
+    \row
+    \o \inlineimage qpainter-text.png
+    \o
+    \code
+        QPainter painter(this);
+        painter.drawText(rect, Qt::AlignCenter, tr("Qt by\nTrolltech"));
+    \endcode
+    \endtable
+
     The \a boundingRect (if not null) is set to the actual bounding
     rectangle of the output.  The \a flags argument is a bitwise OR of
     the following flags:
@@ -4211,7 +4212,7 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
     \o Qt::TextWordWrap
     \endlist
 
-    \sa Qt::AlignmentFlag, Qt::TextFlag
+    \sa Qt::AlignmentFlag, Qt::TextFlag, boundingRect(), layoutDirection()
 */
 void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *br)
 {
