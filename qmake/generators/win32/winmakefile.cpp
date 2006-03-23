@@ -550,9 +550,6 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "####### Build rules" << endl << endl;
     writeBuildRulesPart(t);
 
-    if (!project->values("QMAKE_POST_LINK").isEmpty())
-        t << "\t" <<var("QMAKE_POST_LINK") << endl;
-
     if(project->isActiveConfig("shared") && !project->values("DLLDESTDIR").isEmpty()) {
         QStringList dlldirs = project->values("DLLDESTDIR");
         for (QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir) {

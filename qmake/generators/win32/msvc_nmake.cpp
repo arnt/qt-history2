@@ -254,6 +254,8 @@ void NmakeMakefileGenerator::writeBuildRulesPart(QTextStream &t)
     t << "first: all" << endl;
     t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << "$(DESTDIR_TARGET)" << endl << endl;
     t << "$(DESTDIR_TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
+    if(!project->isEmpty("QMAKE_PRE_LINK"))
+        t << "\n\t" <<var("QMAKE_PRE_LINK");
     if(project->isActiveConfig("staticlib")) {
         t << "\n\t" << "$(LIB) /OUT:$(DESTDIR_TARGET) @<<" << "\n\t  "
           << "$(OBJECTS)";
@@ -261,6 +263,9 @@ void NmakeMakefileGenerator::writeBuildRulesPart(QTextStream &t)
         t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(DESTDIR_TARGET) @<< " << "\n\t  "
           << "$(OBJECTS) $(LIBS)";
     }
-    t << endl << "<<" << endl;
+    t << endl << "<<";
+    if(!project->isEmpty("QMAKE_POST_LINK"))
+        t << "\n\t" <<var("QMAKE_POST_LINK");
+    t << endl;
 }
 
