@@ -308,21 +308,21 @@ void FormWindowManager::setupActions()
     m_actionAdjustSize->setEnabled(false);
 
     m_actionHorizontalLayout = new QAction(createIconSet(QLatin1String("edithlayout.png")), tr("Lay Out &Horizontally"), this);
-    m_actionHorizontalLayout->setShortcut(Qt::CTRL + Qt::Key_H);
+    m_actionHorizontalLayout->setShortcut(Qt::CTRL + Qt::Key_1);
     m_actionHorizontalLayout->setStatusTip(tr("Lays out the selected widgets horizontally"));
     m_actionHorizontalLayout->setWhatsThis(whatsThisFrom(QLatin1String("Layout|Lay Out Horizontally")));
     connect(m_actionHorizontalLayout, SIGNAL(triggered()), this, SLOT(slotActionHorizontalLayoutActivated()));
     m_actionHorizontalLayout->setEnabled(false);
 
     m_actionVerticalLayout = new QAction(createIconSet(QLatin1String("editvlayout.png")), tr("Lay Out &Vertically"), this);
-    m_actionVerticalLayout->setShortcut(Qt::CTRL + Qt::Key_L);
+    m_actionVerticalLayout->setShortcut(Qt::CTRL + Qt::Key_2);
     m_actionVerticalLayout->setStatusTip(tr("Lays out the selected widgets vertically"));
     m_actionVerticalLayout->setWhatsThis(whatsThisFrom(QLatin1String("Layout|Lay Out Vertically")));
     connect(m_actionVerticalLayout, SIGNAL(triggered()), this, SLOT(slotActionVerticalLayoutActivated()));
     m_actionVerticalLayout->setEnabled(false);
 
     m_actionGridLayout = new QAction(createIconSet(QLatin1String("editgrid.png")), tr("Lay Out in a &Grid"), this);
-    m_actionGridLayout->setShortcut(Qt::CTRL + Qt::Key_G);
+    m_actionGridLayout->setShortcut(Qt::CTRL + Qt::Key_5);
     m_actionGridLayout->setStatusTip(tr("Lays out the selected widgets in a grid"));
     m_actionGridLayout->setWhatsThis(whatsThisFrom(QLatin1String("Layout|Lay Out in a Grid")));
     connect(m_actionGridLayout, SIGNAL(triggered()), this, SLOT(slotActionGridLayoutActivated()));
@@ -330,6 +330,7 @@ void FormWindowManager::setupActions()
 
     m_actionSplitHorizontal = new QAction(createIconSet(QLatin1String("editvlayoutsplit.png")),
                                           tr("Lay Out Horizontally in S&plitter"), this);
+    m_actionSplitHorizontal->setShortcut(Qt::CTRL + Qt::Key_3);
     m_actionSplitHorizontal->setStatusTip(tr("Lays out the selected widgets horizontally in a splitter"));
     m_actionSplitHorizontal->setWhatsThis(whatsThisFrom(QLatin1String("Layout|Lay Out Horizontally in Splitter")));
     connect(m_actionSplitHorizontal, SIGNAL(triggered()), this, SLOT(slotActionSplitHorizontalActivated()));
@@ -337,13 +338,14 @@ void FormWindowManager::setupActions()
 
     m_actionSplitVertical = new QAction(createIconSet(QLatin1String("edithlayoutsplit.png")),
                                         tr("Lay Out Vertically in Sp&litter"), this);
+    m_actionSplitVertical->setShortcut(Qt::CTRL + Qt::Key_4);
     m_actionSplitVertical->setStatusTip(tr("Lays out the selected widgets vertically in a splitter"));
     m_actionSplitVertical->setWhatsThis(whatsThisFrom(QLatin1String("Layout|Lay Out Vertically in Splitter")));
     connect(m_actionSplitVertical, SIGNAL(triggered()), this, SLOT(slotActionSplitVerticalActivated()));
     m_actionSplitVertical->setEnabled(false);
 
     m_actionBreakLayout = new QAction(createIconSet(QLatin1String("editbreaklayout.png")), tr("&Break Layout"), this);
-    m_actionBreakLayout->setShortcut(Qt::CTRL + Qt::Key_B);
+    m_actionBreakLayout->setShortcut(Qt::CTRL + Qt::Key_0);
     m_actionBreakLayout->setStatusTip(tr("Breaks the selected layout"));
     m_actionBreakLayout->setWhatsThis(whatsThisFrom(QLatin1String("Layout|Break Layout")));
     connect(m_actionBreakLayout, SIGNAL(triggered()), this, SLOT(slotActionBreakLayoutActivated()));
