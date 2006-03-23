@@ -37,7 +37,7 @@ bool processResourceFile(const QStringList &filenamesIn, const QString &filename
     library.setCompressLevel(compressLevel);
     library.setCompressThreshold(compressThreshold);
     library.setResourceRoot(resourceRoot);
-    if(!library.readFiles())
+    if(!library.readFiles(list))
         return false;
 
     //open output
