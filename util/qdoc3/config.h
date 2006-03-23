@@ -92,6 +92,7 @@ private:
 #define CONFIG_SOURCEDIRS               "sourcedirs"
 #define CONFIG_SOURCES                  "sources"
 #define CONFIG_SPURIOUS                 "spurious"
+#define CONFIG_STYLESHEETS              "stylesheets"
 #define CONFIG_TABSIZE                  "tabsize"
 #define CONFIG_TRANSLATORS              "translators" // ### don't document for now
 #define CONFIG_URL                      "url"

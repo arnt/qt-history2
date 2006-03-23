@@ -140,6 +140,7 @@ private:
     QString projectDescription;
     QString projectUrl;
     QString navigationLinks;
+    QStringList stylesheets;
     const Tree *tre;
     QMap<QString, QMap<QString, const Node *> > moduleClassMap;
     QMap<QString, QMap<QString, const Node *> > moduleNamespaceMap;
@@ -156,5 +157,6 @@ private:
 #define HTMLGENERATOR_FOOTER            "footer"
 #define HTMLGENERATOR_POSTHEADER        "postheader"
 #define HTMLGENERATOR_STYLE             "style"
+#define HTMLGENERATOR_STYLESHEETS       "stylesheets"
 
 #endif

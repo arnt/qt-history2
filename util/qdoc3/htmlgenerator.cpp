@@ -78,6 +78,8 @@ void HtmlGenerator::initializeGenerator(const Config &config)
 
         ++edition;
     }
+
+    stylesheets = config.getStringList(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_STYLESHEETS);
 }
 
 void HtmlGenerator::terminateGenerator()
@@ -708,6 +710,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
 
     out() << "</ul>\n";
 
+    out() << "<div class=\"sections\">\n";
     bool needOtherSection = false;
 
     sections = marker->sections(inner, CodeMarker::Summary, CodeMarker::Okay);
@@ -715,15 +718,18 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     while ( s != sections.end() ) {
         if (s->members.isEmpty()) {
             if (!s->inherited.isEmpty())
+            out() << "<div class=\"" << registerRef((*s).name.toLower()) << "\">\n";
                 needOtherSection = true;
         } else {
 	    out() << "<a name=\"" << registerRef((*s).name.toLower()) << "\"></a>\n";
 	    out() << "<h3>" << protect((*s).name) << "</h3>\n";
+            out() << "</div>\n";
 
 	    generateSectionList(*s, inner, marker, CodeMarker::Summary);
         }
 	++s;
     }
+        out() << "<div class=\"additional-inherited-members\">\n";
 
     if (needOtherSection) {
 	out() << "<h3>Additional Inherited Members</h3>\n"
@@ -734,16 +740,21 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
             if (s->members.isEmpty() && !s->inherited.isEmpty())
                 generateSectionInheritedList(*s, inner, marker);
             ++s;
+        out() << "</div>\n";
         }
 	out() << "</ul>\n";
+    out() << "</div>\n";
+
     }
 
     out() << "<a name=\"" << registerRef( "details" ) << "\"></a>\n";
 
     if ( !inner->doc().isEmpty() ) {
-	out() << "<hr />\n" << "<h2>" << "Detailed Description" << "</h2>\n";
+	out() << "<div class=\"detailed-description\">\n"
+              << "<h2>" << "Detailed Description" << "</h2>\n";
 	generateBody( inner, marker );
 	generateAlsoList( inner, marker );
+        out() << "</div>\n";
     }
 
     sections = marker->sections(inner, CodeMarker::Detailed, CodeMarker::Okay);
@@ -953,7 +964,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
     }
 
     out() << "<head>\n"
-	     "    <title>" << shortVersion << protect( title ) << "</title>\n";
+	     "  <title>" << shortVersion << protect( title ) << "</title>\n";
     if (!style.isEmpty())
 	out() << "    <style>" << style << "</style>\n";
 
@@ -982,7 +993,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
             else
                 anchorPair = anchorForNode(linkNode);
 
-            out() << "    <link rel=\"prev\" href=\""
+            out() << "  <link rel=\"prev\" href=\""
                   << anchorPair.first << "\" />\n";
 
             navigationLinks += "[Previous: <a href=\"" + anchorPair.first + "\">";
@@ -1000,7 +1011,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
             else
                 anchorPair = anchorForNode(linkNode);
 
-            out() << "    <link rel=\"contents\" href=\""
+            out() << "  <link rel=\"contents\" href=\""
                   << anchorPair.first << "\" />\n";
 
             navigationLinks += "[<a href=\"" + anchorPair.first + "\">";
@@ -1018,7 +1029,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
             else
                 anchorPair = anchorForNode(linkNode);
 
-            out() << "    <link rel=\"next\" href=\""
+            out() << "  <link rel=\"next\" href=\""
                   << anchorPair.first << "\" />\n";
 
             navigationLinks += "[Next: <a href=\"" + anchorPair.first + "\">";
@@ -1035,7 +1046,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
                 anchorPair = linkPair;
             else
                 anchorPair = anchorForNode(linkNode);
-            out() << "    <link rel=\"index\" href=\""
+            out() << "  <link rel=\"index\" href=\""
                   << anchorPair.first << "\" />\n";
         }
         if (node->links().contains(Node::StartLink)) {
@@ -1045,10 +1056,16 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
                 anchorPair = linkPair;
             else
                 anchorPair = anchorForNode(linkNode);
-            out() << "    <link rel=\"start\" href=\""
+            out() << "  <link rel=\"start\" href=\""
                   << anchorPair.first << "\" />\n";
         }
     }
+
+    foreach (QString stylesheet, stylesheets) {
+        out() << "  <link href=\"" << stylesheet << "\" rel=\"stylesheet\" "
+              << "type=\"text/css\" />\n";
+    }
+
     out() << "</head>\n"
              "<body>\n"
 	  << QString(postHeader).replace("\\" + COMMAND_VERSION, tre->version());
@@ -2124,14 +2141,16 @@ void HtmlGenerator::generateDetailedMember(const Node *node, const InnerNode *re
 
     if (node->type() == Node::Enum
             && (enume = static_cast<const EnumNode *>(node))->flagsType()) {
-        out() << "<h3 class=\"flags\">";
+        out() << "<div class=\"flags\">\n";
+        out() << "<h3>";
         out() << "<a name=\"" + refForNode( node ) + "\"></a>";
         generateSynopsis(enume, relative, marker, CodeMarker::Detailed);
         out() << "<br />";
         generateSynopsis(enume->flagsType(), relative, marker, CodeMarker::Detailed);
         out() << "</h3>\n";
     } else {
-        out() << "<h3 class=\"fn\">";
+        out() << "<div class=\"fn\">\n";
+        out() << "<h3>";
         out() << "<a name=\"" + refForNode( node ) + "\"></a>";
         generateSynopsis( node, relative, marker, CodeMarker::Detailed );
         out() << "</h3>\n";
@@ -2166,6 +2185,7 @@ void HtmlGenerator::generateDetailedMember(const Node *node, const InnerNode *re
         }
     }
     generateAlsoList( node, marker );
+    out() << "</div>\n";
 }
 
 void HtmlGenerator::findAllClasses(const InnerNode *node)
