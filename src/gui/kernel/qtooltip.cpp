@@ -173,7 +173,8 @@ bool QTipLabel::eventFilter(QObject *, QEvent *e)
 /*!
     Shows \a text as a tool tip, at global position \a pos. The
     optional widget argument, \a w, is used to determine the
-    appropriate screen on multi-head systems.
+    appropriate screen on multi-head systems. If \a text is empty the
+    tool tip is hidden.
 */
 void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 {
