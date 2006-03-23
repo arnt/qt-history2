@@ -12,6 +12,9 @@ MainWindow::MainWindow()
     printAction = fileMenu->addAction(tr("&Print..."), this, SLOT(printFile()));
     printAction->setEnabled(false);
 
+    pdfPrintAction = fileMenu->addAction(tr("Print as P&DF..."), this, SLOT(printPdf()));
+    pdfPrintAction->setEnabled(false);
+
     fileMenu->addAction(tr("E&xit"), this, SLOT(close()),
                         QKeySequence(tr("Ctrl+Q", "File|Exit")));
 
@@ -52,6 +55,7 @@ void MainWindow::openFile()
             }
         }
         printAction->setEnabled(true);
+        pdfPrintAction->setEnabled(true);
     }
 }
 
@@ -65,4 +69,14 @@ void MainWindow::printFile()
         return;
 
     document->print(&printer);
+}
+
+void MainWindow::printPdf()
+{
+    QPrinter printer(QPrinter::HighResolution);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+
+    QPrintDialog *printDialog = new QPrintDialog(&printer, this);
+    if (printDialog->exec() == QDialog::Accepted)
+        editor->document()->print(&printer);
 }

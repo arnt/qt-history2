@@ -19,9 +19,11 @@ public:
 public slots:
     void openFile();
     void printFile();
+    void printPdf();
 
 private:
     QAction *printAction;
+    QAction *pdfPrintAction;
     QString currentFile;
     QTextEdit *editor;
     QTextDocument *document;
