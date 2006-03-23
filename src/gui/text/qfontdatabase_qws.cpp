@@ -90,7 +90,7 @@ static void initializeDb()
             filename += file;
             bool italic = isitalic[0] == 'y';
             bool smooth = QByteArray(flags).contains('s');
-            if (QFile::exists(filename))
+            if (file[0] && QFile::exists(filename))
                 addFont(db, name, weight, italic, size/10, file, smooth);
         }
     } while (!feof(fontdef));
