@@ -1491,6 +1491,11 @@ void QPainter::setClipping(bool enable)
     if (hasClipping() == enable)
         return;
 
+    // we can't enable clipping if we don't have a clip
+    if (enable
+        && (d->state->clipInfo.isEmpty() || d->state->clipInfo.last().operation == Qt::NoClip))
+        return;
+
     if (enable)
         d->state->clipEnabled = true;
     else
