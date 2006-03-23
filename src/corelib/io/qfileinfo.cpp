@@ -121,12 +121,12 @@ QFileInfoPrivate::getFileFlags(QAbstractFileEngine::FileFlags request) const
     // we split the testing for LinkType and the rest because, in order to
     // determine if a file is a symlink or not, we have to lstat(). If we're not
     // interested in that information, we might as well avoid one extra syscall.
-    
+
     QAbstractFileEngine::FileFlags flags;
     if (!data->getCachedFlag(CachedFileFlags)) {
         QAbstractFileEngine::FileFlags req = QAbstractFileEngine::FileInfoAll;
         req &= (~QAbstractFileEngine::LinkType);
-        
+
         flags = data->fileEngine->fileFlags(req);
         data->setCachedFlag(CachedFileFlags);
         data->fileFlags |= uint(flags);
@@ -138,7 +138,7 @@ QFileInfoPrivate::getFileFlags(QAbstractFileEngine::FileFlags request) const
         if (!data->getCachedFlag(CachedLinkTypeFlag)) {
             QAbstractFileEngine::FileFlags linkflag;
             linkflag = data->fileEngine->fileFlags(QAbstractFileEngine::LinkType);
-            
+
             data->setCachedFlag(CachedLinkTypeFlag);
             data->fileFlags |= uint(linkflag);
             flags |= linkflag;
@@ -275,7 +275,11 @@ QDateTime
 */
 
 /*!
-    Constructs a new empty QFileInfo.
+    Constructs an empty QFileInfo object.
+
+    Note that an empty QFileInfo object contain no file reference.
+
+    \sa setFile()
 */
 
 QFileInfo::QFileInfo() : d_ptr(new QFileInfoPrivate())
@@ -347,8 +351,8 @@ QFileInfo::~QFileInfo()
 /*!
     \fn bool QFileInfo::operator!=(const QFileInfo &fileinfo)
 
-    Returns true if the QFileInfo refers to a different file to the one
-    specified by \a fileinfo; otherwise returns false.
+    Returns true if this QFileInfo object refers to a different file
+    than the one specified by \a fileinfo; otherwise returns false.
 
     \sa operator==()
 */
@@ -356,22 +360,10 @@ QFileInfo::~QFileInfo()
 /*!
     \overload
     \fn bool QFileInfo::operator!=(const QFileInfo &fileinfo) const
-
-    Returns true if the QFileInfo refers to a different file to the one
-    specified by \a fileinfo; otherwise returns false.
-
-    \sa operator==()
 */
 
 /*!
     \overload
-    Returns true if the QFileInfo refers to a file in the same location as
-    the other \a fileinfo; otherwise returns false.
-
-    \warning This will not compare two different symbolic links
-    pointing to the same file.
-
-    \sa operator!=()
 */
 
 bool
@@ -402,8 +394,11 @@ QFileInfo::operator==(const QFileInfo &fileinfo) const
 }
 
 /*!
-    Returns true if the QFileInfo refers to a file in the same location as
-    the other \a fileinfo; otherwise returns false.
+    Returns true if this QFileInfo object refers to a file in the same
+    location as \a fileinfo; otherwise returns false.
+
+    Note that the result of comparing two empty QFileInfo objects,
+    containing no file references, is undefined.
 
     \warning This will not compare two different symbolic links
     pointing to the same file.
