@@ -1784,6 +1784,15 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     int ymin = qMax(devRect.y(), 0);
     int xmax = qMin(devRect.x() + devRect.width(), d->rasterBuffer->width());
     int xmin = qMax(devRect.x(), 0);
+
+    QClipData *clip = d->rasterBuffer->clipEnabled ? d->rasterBuffer->clip : 0;
+    if (clip) {
+        xmin = qMax(xmin, clip->xmin);
+        xmax = qMin(xmax, clip->xmax);
+        ymin = qMax(ymin, clip->ymin);
+        ymax = qMin(ymax, clip->ymax);
+    }
+
     if (xmax - xmin <= 0 || ymax - ymin <= 0)
         return;
 
