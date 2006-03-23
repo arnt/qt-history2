@@ -89,11 +89,16 @@ public:
     }
     static inline void exec(bool flush) {
         if(change_events) {
+            bool send_window_changed = !flush;
+            if(!send_window_changed) {
+                extern bool qt_event_remove_window_change(); //qapplication_mac.cpp
+                send_window_changed = qt_event_remove_window_change();
+            }
             for(int i = 0; i < change_events->count(); i++) {
+                if(send_window_changed)
+                    change_events->at(i)->windowChanged();
                 if(flush)
                     change_events->at(i)->flushWindowChanged();
-                else
-                    change_events->at(i)->windowChanged();
             }
         }
     }

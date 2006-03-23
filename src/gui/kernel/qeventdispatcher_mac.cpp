@@ -564,8 +564,7 @@ void QEventDispatcherMac::wakeUp()
 
 void QEventDispatcherMac::flush()
 {
-    extern void qt_event_send_window_change(); //qapplication_mac.cpp
-    qt_event_send_window_change();
+    QMacWindowChangeEvent::exec(true);
 
 //    sendPostedEvents();
     if(qApp) {

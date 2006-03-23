@@ -586,14 +586,15 @@ Q_GUI_EXPORT void qt_event_request_window_change()
     PostEventToQueue(GetMainEventQueue(), request_window_change_pending,
                      kEventPriorityHigh);
 }
-Q_GUI_EXPORT void qt_event_send_window_change()
+bool qt_event_remove_window_change()
 {
     if(request_window_change_pending) {
-        QMacWindowChangeEvent::exec(true);
         if (IsEventInQueue(GetMainEventQueue(), request_window_change_pending))
             RemoveEventFromQueue(GetMainEventQueue(), request_window_change_pending);
         qt_mac_event_release(request_window_change_pending);
+        return true;
     }
+    return false;
 }
 
 /* activation */

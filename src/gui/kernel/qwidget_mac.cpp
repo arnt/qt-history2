@@ -85,13 +85,11 @@ extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
 static QSize qt_initial_size(QWidget *w) {
     QSize s = w->sizeHint();
     Qt::Orientations exp;
-    QLayout *layout = w->layout();
-    if (layout) {
+    if(QLayout *layout = w->layout()) {
         if (layout->hasHeightForWidth())
             s.setHeight(layout->totalHeightForWidth(s.width()));
         exp = layout->expandingDirections();
-    } else
-    {
+    } else {
         if (w->sizePolicy().hasHeightForWidth())
             s.setHeight(w->heightForWidth(s.width()));
         exp = w->sizePolicy().expandingDirections();
