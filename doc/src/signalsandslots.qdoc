@@ -216,27 +216,12 @@
     normal C++ functions and can be called normally; their only special
     feature is that signals can be connected to them.
 
-    Since slots are normal member functions with just a little extra
-    spice, they have access rights like ordinary member functions. A
-    slot's access right determines who can connect to it:
-
-    \list
-    \o  A \c{public slots} section contains slots that anyone can connect
-        signals to. This is very useful for component programming: you create
-        objects that know nothing about each other, connect their signals and
-        slots so that information is passed correctly, and, like a model
-        railway, turn it on and leave it running.
-
-    \o  A \c{protected slots} section contains slots that this class and its
-        subclasses may connect signals to. This is intended for slots that are
-        part of the class's implementation rather than its interface to the
-        rest of the world.
-
-    \o  A \c{private slots} section contains slots that only the class itself
-        may connect signals to. This is intended for very tightly connected
-        classes, where even subclasses aren't trusted to get the connections
-        right.
-    \endlist
+    Since slots are normal member functions, they follow the normal C++
+    rules when called directly. However, as slots, they can be invoked
+    by any component, regardless of its access level, via a signal-slot
+    connection. This means that a signal emitted from an instance of an
+    arbitrary class can cause a private slot to be invoked in an instance
+    of an unrelated class.
 
     You can also define slots to be virtual, which we have found quite
     useful in practice.
