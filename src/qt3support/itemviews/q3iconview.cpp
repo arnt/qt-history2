@@ -175,8 +175,6 @@ public:
 
 #endif
 
-class Q3IconViewToolTip;
-
 class Q3IconViewPrivate
 {
 public:
@@ -235,7 +233,6 @@ public:
     uint inMenuMode : 1;
 
     QPoint dragPos;
-    Q3IconViewToolTip *toolTip;
     QPixmapCache maskCache;
     QHash<Q3IconViewItem *, Q3IconViewItem *> selectedItems;
 
@@ -346,49 +343,6 @@ static int cmpIconViewItems(const void *n1, const void *n2)
 #if defined(Q_C_CALLBACKS)
 }
 #endif
-
-
-#if 0
-class Q3IconViewToolTip : public QToolTip
-{
-public:
-    Q3IconViewToolTip(QWidget *parent, Q3IconView *iv);
-
-    void maybeTip(const QPoint &pos);
-
-private:
-    Q3IconView *view;
-};
-
-Q3IconViewToolTip::Q3IconViewToolTip(QWidget *parent, Q3IconView *iv)
-    : QToolTip(parent), view(iv)
-{
-}
-
-void Q3IconViewToolTip::maybeTip(const QPoint &pos)
-{
-    if (!parentWidget() || !view || view->wordWrapIconText() || !view->showToolTips())
-        return;
-
-    Q3IconViewItem *item = view->findItem(view->viewportToContents(pos));
-    if (!item || item->tmpText == item->itemText)
-        return;
-
-    QRect r(item->textRect(false));
-    QRect r2 = item->pixmapRect(false);
-    /* this probably should be | r, but QToolTip does not handle that
-     * well */
-
-    // At this point the rectangle is too small (it is the width of the icon)
-    // since we need it to be bigger than that, extend it here.
-    r.setWidth(view->d->fm->boundingRect(item->itemText).width() + 4);
-    r = QRect(view->contentsToViewport(QPoint(r.x(), r.y())), QSize(r.width(), r.height()));
-
-    r2 = QRect(view->contentsToViewport(QPoint(r2.x(), r2.y())), QSize(r2.width(), r2.height()));
-    tip(r2, item->itemText, r);
-}
-#endif
-
 
 class Q3IconViewItemPrivate
 {
@@ -2752,9 +2706,6 @@ Q3IconView::Q3IconView(QWidget *parent, const char *name, Qt::WFlags f)
     viewport()->setFocusPolicy(Qt::WheelFocus);
     setFocusPolicy(Qt::WheelFocus);
 
-#if 0
-    d->toolTip = new Q3IconViewToolTip(viewport(), this);
-#endif
     d->showTips = true;
 }
 
@@ -2821,10 +2772,6 @@ Q3IconView::~Q3IconView()
     }
     delete d->fm;
     d->fm = 0;
-#if 0
-    delete d->toolTip;
-    d->toolTip = 0;
-#endif
     delete d;
 }
 
@@ -5533,6 +5480,21 @@ bool Q3IconView::eventFilter(QObject * o, QEvent * e)
                 }
             }
             return true;
+        case QHelpEvent::ToolTip:
+        {
+            if (wordWrapIconText() || !showToolTips())
+                return false;
+
+            QHelpEvent *he = static_cast<QHelpEvent *>(e);
+            Q3IconViewItem *item = findItem(viewportToContents(he->pos()));
+            if (!item || item->tmpText == item->itemText) {
+                QToolTip::showText(he->globalPos(), QString(), viewport());
+                return true;
+            }
+
+            QToolTip::showText(he->globalPos(), item->itemText, viewport());
+            return true;
+        }
         default:
             // nothing
             break;
