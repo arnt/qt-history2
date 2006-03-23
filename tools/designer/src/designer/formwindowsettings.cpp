@@ -87,5 +87,7 @@ void FormWindowSettings::accept()
 
     formWindow()->setIncludeHints(ui.includeHintsTextEdit->toPlainText().split(QLatin1String("\n")));
 
+    formWindow()->setDirty(true);
+
     QDialog::accept();
 }
