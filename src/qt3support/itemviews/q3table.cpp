@@ -3527,8 +3527,12 @@ void Q3Table::selectRow(int row)
     row = QMIN(numRows()-1, row);
     if (row < 0)
 	return;
-    Q3TableSelection sel(row, 0, row, numCols() - 1);
-    addSelection(sel);
+    if (selectionMode() == SingleRow) {
+        setCurrentCell(row, currentColumn());
+    } else {
+        Q3TableSelection sel(row, 0, row, numCols() - 1);
+        addSelection(sel);
+    }
 }
 
 /*! Selects the column \a col.
