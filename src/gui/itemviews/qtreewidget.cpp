@@ -1733,8 +1733,10 @@ void QTreeWidgetPrivate::_q_sort()
          \o A Plastique style tree widget.
     \row \o \inlineimage cde-treeview.png
          \o \inlineimage motif-treeview.png
+         \o \inlineimage cleanlooks-treeview.png
     \row \o A CDE style tree widget.
          \o A Motif style tree widget.
+         \o A CleanLooks style tree widget.
     \endtable
 
   \sa QTreeWidgetItem, QTreeView, {Model/View Programming}
