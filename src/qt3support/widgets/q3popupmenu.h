@@ -29,6 +29,8 @@ public:
     inline int exec(const QPoint & pos, int indexAtPoint = 0) {
         return findIdForAction(QMenu::exec(pos, actions().value(indexAtPoint)));
     }
+private:
+    Q_DISABLE_COPY(Q3PopupMenu)
 };
 
 #endif // QPOPUPMENU_H
