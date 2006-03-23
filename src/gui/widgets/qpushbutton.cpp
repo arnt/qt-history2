@@ -40,7 +40,7 @@ class QPushButtonPrivate : public QAbstractButtonPrivate
     Q_DECLARE_PUBLIC(QPushButton)
 public:
     enum AutoDefaultValue {Off = 0, On = 1, Auto = 2};
-    QPushButtonPrivate():autoDefault(Auto), defaultButton(false), flat(false){}
+    QPushButtonPrivate():autoDefault(Auto), defaultButton(false), flat(false), menuOpen(false){}
     void init();
     void _q_popupPressed();
     QStyleOptionButton getStyleOption() const;
@@ -49,6 +49,7 @@ public:
     uint autoDefault : 2; 
     uint defaultButton : 1;
     uint flat : 1;
+    uint menuOpen : 1;
 };
 
 /*!
@@ -289,7 +290,7 @@ QStyleOptionButton QPushButtonPrivate::getStyleOption() const
         opt.features |= QStyleOptionButton::AutoDefaultButton;
     if (defaultButton)
         opt.features |= QStyleOptionButton::DefaultButton;
-    if (down)
+    if (down || menuOpen)
         opt.state |= QStyle::State_Sunken;
     if (checked)
         opt.state |= QStyle::State_On;
@@ -527,7 +528,12 @@ void QPushButtonPrivate::_q_popupPressed()
             x -= menuSize.width();
     }
     QPointer<QPushButton> guard(q);
+
+    //Because of a delay in menu effects, we must keep track of the
+    //menu visibility to avoid flicker on button release
+    menuOpen = true;
     menu->exec(QPoint(x, y));
+    menuOpen = false;
     if (guard)
         q->setDown(false);
 }
