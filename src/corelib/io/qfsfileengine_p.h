@@ -73,6 +73,7 @@ public:
         IOWriteCommand
     };
     LastIOCommand  lastIOCommand;
+    bool lastFlushFailed;
     
 protected:
     QFSFileEnginePrivate();

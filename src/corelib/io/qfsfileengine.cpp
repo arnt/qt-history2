@@ -63,6 +63,7 @@ QFSFileEnginePrivate::QFSFileEnginePrivate() : QAbstractFileEnginePrivate()
     fd = -1;
     fh = 0;
     lastIOCommand = IOFlushCommand;
+    lastFlushFailed = false;
     closeFileHandle = false;
     init();
 }
@@ -146,6 +147,8 @@ static QByteArray openModeToFopenMode(QIODevice::OpenMode flags, const QString &
 bool QFSFileEngine::open(QIODevice::OpenMode flags)
 {
     Q_D(QFSFileEngine);
+    d->lastFlushFailed = false;
+    
     if (d->file.isEmpty()) {
         qWarning("QFSFileEngine::open: No file name specified");
         setError(QFile::OpenError, QLatin1String("No file name specified"));
@@ -225,6 +228,8 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags)
 bool QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
 {
     Q_D(QFSFileEngine);
+    d->lastFlushFailed = false;
+
     d->closeFileHandle = false;
 #ifdef Q_OS_UNIX
     d->fh = fdopen(fd, openModeToFopenMode(flags).constData());
@@ -269,6 +274,8 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
 bool QFSFileEngine::open(QIODevice::OpenMode flags, FILE *fh)
 {
     Q_D(QFSFileEngine);
+    d->lastFlushFailed = false;
+
     Q_UNUSED(flags);
     d->fh = fh;
     d->fd = QT_FILENO(fh);
@@ -296,14 +303,16 @@ bool QFSFileEngine::close()
 {
     Q_D(QFSFileEngine);
 
-    bool flushed = flush();
+    bool flushed = !d->lastFlushFailed && flush();
+
     d->tried_stat = 0;
     if (d->fh) {
+        bool closed = true;
         if (d->closeFileHandle)
-            fclose(d->fh);
+            closed = fclose(d->fh) == 0;
         d->fh = 0;
         d->fd = -1;
-        return flushed;
+        return flushed && closed;
     }
 
     if (d->fd == -1)
@@ -325,6 +334,8 @@ bool QFSFileEngine::flush()
 {
     Q_D(QFSFileEngine);
     d->ungetchBuffer.clear();
+    if (d->lastFlushFailed)
+        return false;
 
     if (!d->fh) {
         // There's no write buffer when using an fd.
@@ -336,6 +347,8 @@ bool QFSFileEngine::flush()
     int gotPos = QT_FGETPOS(d->fh, &pos);
 #endif
     int ret = fflush(d->fh);
+    d->lastFlushFailed = (ret != 0);
+
 #ifdef Q_OS_WIN
     if (gotPos == 0)
         QT_FSETPOS(d->fh, &pos);
@@ -509,10 +522,13 @@ qint64 QFSFileEngine::write(const char *data, qint64 len)
         const qint64 MaxChunkSize = 32 * 1024 * 1024;
         bytesToWrite = qMin<qint64>(bytesToWrite, MaxChunkSize);
 #endif
-        if (d->fh)
+        if (d->fh) {
             result = qint64(fwrite(data + written, 1, size_t(bytesToWrite), d->fh));
-        else
+            if (bytesToWrite > 0 && result == 0)
+                result = -1;
+        } else {
             result = QT_WRITE(d->fd, data + written, bytesToWrite);
+        }
         if (result > 0)
             written += qint64(result);
     } while (written < len && ((result > 0 || (result == 0 && errno == EINTR))));
