@@ -237,8 +237,9 @@ bool QWin32PrintEngine::begin(QPaintDevice *)
         }
     });
 
-    if (QSysInfo::WindowsVersion & Qt::WV_DOS_based) {
-	// StartPage resets DC on Win95/98
+    if (StartPage(d->hdc) <= 0) {
+        qErrnoWarning("QWin32PrintEngine::begin: StartPage failed");
+        ok = false;
     }
 
     if (!ok) {
