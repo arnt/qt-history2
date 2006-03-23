@@ -1811,6 +1811,8 @@ void QTreeWidgetPrivate::_q_sort()
     This signal is emitted when the current item changes. The current
     item is specified by \a current, and this replaces the \a previous
     current item.
+
+    \sa setCurrentItem()
 */
 
 /*!
@@ -1873,6 +1875,8 @@ QTreeWidget::~QTreeWidget()
 
 /*
   Retuns the number of header columns in the view.
+
+  \sa sortColumn(), currentColumn(), topLevelItemCount()
 */
 
 int QTreeWidget::columnCount() const
@@ -1896,6 +1900,8 @@ void QTreeWidget::setColumnCount(int columns)
 /*!
   Returns the top level item at the given \a index, or 0 if the item does
   not exist.
+
+  \sa topLevelItemCount(), insertTopLevelItem()
 */
 
 QTreeWidgetItem *QTreeWidget::topLevelItem(int index) const
@@ -1906,6 +1912,8 @@ QTreeWidgetItem *QTreeWidget::topLevelItem(int index) const
 
 /*!\property QTreeWidget::topLevelItemCount
     \brief the number of top-level items
+
+    \sa columnCount(), currentItem()
 */
 
 int QTreeWidget::topLevelItemCount() const
@@ -1917,7 +1925,7 @@ int QTreeWidget::topLevelItemCount() const
 /*!
   Inserts the \a item at \a index in the top level in the view.
 
-  \sa addTopLevelItem()
+  \sa addTopLevelItem(), columnCount()
 */
 
 void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
@@ -1953,7 +1961,7 @@ void QTreeWidget::addTopLevelItem(QTreeWidgetItem *item)
   Removes the top-level item at the given \a index in the tree and
   returns it, otherwise returns 0;
 
-  \sa insertTopLevelItem(), topLevelItem()
+  \sa insertTopLevelItem(), topLevelItem(), topLevelItemCount()
 */
 
 QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
@@ -1979,6 +1987,8 @@ QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
 /*!
   Returns the index of the given top-level \a item, or -1 if the item
   cannot be found.
+
+  \sa sortItems(), topLevelItemCount()
  */
 int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
 {
@@ -2037,7 +2047,7 @@ QTreeWidgetItem *QTreeWidget::headerItem() const
     Sets the header \a item for the tree widget. The label for each column in
     the header is supplied by the corresponding label in the item.
 
-    \sa headerItem()
+    \sa headerItem(), setHeaderLabels()
 */
 
 void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
@@ -2057,6 +2067,8 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
   the label for each column.
 
   Note that setHeaderLabels wont remove existing columns.
+
+  \sa setHeaderItem()
 */
 void QTreeWidget::setHeaderLabels(const QStringList &labels)
 {
@@ -2070,7 +2082,7 @@ void QTreeWidget::setHeaderLabels(const QStringList &labels)
 /*!
     Returns the current item in the tree widget.
 
-    \sa setCurrentItem()
+    \sa setCurrentItem(), currentItemChanged()
 */
 QTreeWidgetItem *QTreeWidget::currentItem() const
 {
@@ -2079,10 +2091,10 @@ QTreeWidgetItem *QTreeWidget::currentItem() const
 }
 
 /*!
-  \since 4.1
+    \since 4.1
     Returns the current column in the tree widget.
 
-    \sa setCurrentItem()
+    \sa setCurrentItem(), columnCount()
 */
 int QTreeWidget::currentColumn() const
 {
@@ -2094,7 +2106,7 @@ int QTreeWidget::currentColumn() const
 
   Depending on the current selection mode, the item may also be selected.
 
-  \sa currentItem()
+  \sa currentItem(), currentItemChanged()
 */
 void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 {
@@ -2118,6 +2130,8 @@ void QTreeWidget::setCurrentItem(QTreeWidgetItem *item, int column)
 
 /*!
   Returns a pointer to the item at the coordinates \a p.
+
+  \sa visualItemRect()
 */
 QTreeWidgetItem *QTreeWidget::itemAt(const QPoint &p) const
 {
@@ -2134,6 +2148,8 @@ QTreeWidgetItem *QTreeWidget::itemAt(const QPoint &p) const
 
 /*!
   Returns the rectangle on the viewport occupied by the item at \a item.
+
+  \sa itemAt()
 */
 QRect QTreeWidget::visualItemRect(const QTreeWidgetItem *item) const
 {
@@ -2148,6 +2164,8 @@ QRect QTreeWidget::visualItemRect(const QTreeWidgetItem *item) const
   \since 4.1
 
   Returns the column used to sort the contents of the widget.
+
+  \sa sortItems()
 */
 int QTreeWidget::sortColumn() const
 {
@@ -2157,6 +2175,8 @@ int QTreeWidget::sortColumn() const
 /*!
   Sorts the items in the widget in the specified \a order by the values in
   the given \a column.
+
+  \sa sortColumn()
 */
 
 void QTreeWidget::sortItems(int column, Qt::SortOrder order)
@@ -2169,7 +2189,7 @@ void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 /*!
   \reimpl
 
-  \sa sortItems()
+  \sa sortItems(), sortColumn()
 */
 void QTreeWidget::setSortingEnabled(bool enable)
 {
@@ -2198,6 +2218,8 @@ void QTreeWidget::editItem(QTreeWidgetItem *item, int column)
 
 /*!
   Opens a persistent editor for the \a item in the given \a column.
+
+  \sa closePersistentEditor()
 */
 
 void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
@@ -2213,6 +2235,8 @@ void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
 
   This function has no effect if no persistent editor is open for this
   combination of item and column.
+
+  \sa openPersistentEditor()
 */
 
 void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
@@ -2258,6 +2282,8 @@ void QTreeWidget::setItemWidget(QTreeWidgetItem *item, int column, QWidget *widg
 
 /*!
   Returns true if the \a item is selected; otherwise returns false.
+
+  \sa itemSelectionChanged()
 */
 bool QTreeWidget::isItemSelected(const QTreeWidgetItem *item) const
 {
@@ -2270,8 +2296,9 @@ bool QTreeWidget::isItemSelected(const QTreeWidgetItem *item) const
 /*!
   If \a select is true, the given \a item is selected; otherwise it is
   deselected.
-*/
 
+  \sa itemSelectionChanged()
+*/
 void QTreeWidget::setItemSelected(const QTreeWidgetItem *item, bool select)
 {
     Q_D(QTreeWidget);
@@ -2283,8 +2310,9 @@ void QTreeWidget::setItemSelected(const QTreeWidgetItem *item, bool select)
 
 /*!
   Returns a list of all selected non-hidden items.
-*/
 
+  \sa itemSelectionChanged()
+*/
 QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 {
     Q_D(const QTreeWidget);
@@ -2301,7 +2329,6 @@ QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 /*!
   Returns a list of items that match the given \a text, using the given \a flags, in the given \a column.
 */
-
 QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text, Qt::MatchFlags flags, int column) const
 {
     Q_D(const QTreeWidget);
@@ -2328,6 +2355,8 @@ bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
 
 /*!
   Hides the given \a item if \a hide is true; otherwise shows the item.
+
+  \sa itemChanged()
 */
 void QTreeWidget::setItemHidden(const QTreeWidgetItem *item, bool hide)
 {
@@ -2343,8 +2372,9 @@ void QTreeWidget::setItemHidden(const QTreeWidgetItem *item, bool hide)
 
 /*!
   Returns true if the given \a item is open; otherwise returns false.
-*/
 
+  \sa itemExpanded()
+*/
 bool QTreeWidget::isItemExpanded(const QTreeWidgetItem *item) const
 {
     Q_ASSERT(item);
@@ -2357,9 +2387,8 @@ bool QTreeWidget::isItemExpanded(const QTreeWidgetItem *item) const
     Sets the item referred to by \a item to either closed or opened,
     depending on the value of \a expand.
 
-    \sa expandItem(), collapseItem()
+    \sa expandItem(), collapseItem(), itemExpanded()
 */
-
 void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
 {
     Q_ASSERT(item);
@@ -2370,12 +2399,11 @@ void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
 }
 
 /*!
-  Ensures that the \a item is visible, scrolling the view if necessary using
-  the specified \a hint.
+    Ensures that the \a item is visible, scrolling the view if necessary using
+    the specified \a hint.
 
-  \sa currentItem(), itemAt(), topLevelItem()
+    \sa currentItem(), itemAt(), topLevelItem()
 */
-
 void QTreeWidget::scrollToItem(const QTreeWidgetItem *item, ScrollHint hint)
 {
     Q_ASSERT(item);
@@ -2389,9 +2417,8 @@ void QTreeWidget::scrollToItem(const QTreeWidgetItem *item, ScrollHint hint)
     Expands the \a item. This causes the tree containing the item's children
     to be expanded.
 
-    \sa collapseItem(), currentItem(), itemAt(), topLevelItem()
+    \sa collapseItem(), currentItem(), itemAt(), topLevelItem(), itemExpanded()
 */
-
 void QTreeWidget::expandItem(const QTreeWidgetItem *item)
 {
     Q_ASSERT(item);
@@ -2406,7 +2433,6 @@ void QTreeWidget::expandItem(const QTreeWidgetItem *item)
 
     \sa expandItem(), currentItem(), itemAt(), topLevelItem()
 */
-
 void QTreeWidget::collapseItem(const QTreeWidgetItem *item)
 {
     Q_ASSERT(item);
@@ -2416,15 +2442,14 @@ void QTreeWidget::collapseItem(const QTreeWidgetItem *item)
 }
 
 /*!
-  Clears the tree widget by removing all of its items and selections.
+    Clears the tree widget by removing all of its items and selections.
 
-  \bold{Note:} Since each item is removed from the tree widget before being
-  deleted, the return value of QTreeWidgetItem::treeWidget() will be invalid
-  when called from an item's destructor.
+    \bold{Note:} Since each item is removed from the tree widget before being
+    deleted, the return value of QTreeWidgetItem::treeWidget() will be invalid
+    when called from an item's destructor.
 
-  \sa taketopLevelItem()
+    \sa taketopLevelItem(), topLevelItemCount(), columnCount()
 */
-
 void QTreeWidget::clear()
 {
     Q_D(QTreeWidget);
@@ -2495,9 +2520,10 @@ QList<QTreeWidgetItem*> QTreeWidget::items(const QMimeData *data) const
 }
 
 /*!
-  Returns the QModelIndex assocated with the given \a item in the given \a column.
-*/
+    Returns the QModelIndex assocated with the given \a item in the given \a column.
 
+    \sa itemFromIndex(), topLevelItem()
+*/
 QModelIndex QTreeWidget::indexFromItem(QTreeWidgetItem *item, int column) const
 {
     Q_D(const QTreeWidget);
@@ -2506,9 +2532,10 @@ QModelIndex QTreeWidget::indexFromItem(QTreeWidgetItem *item, int column) const
 }
 
 /*!
-  Returns a pointer to the QTreeWidgetItem assocated with the given \a index.
-*/
+    Returns a pointer to the QTreeWidgetItem assocated with the given \a index.
 
+    \sa indexFromItem()
+*/
 QTreeWidgetItem *QTreeWidget::itemFromIndex(const QModelIndex &index) const
 {
     Q_D(const QTreeWidget);
