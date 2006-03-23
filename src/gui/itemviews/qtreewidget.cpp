@@ -2448,7 +2448,7 @@ void QTreeWidget::collapseItem(const QTreeWidgetItem *item)
     deleted, the return value of QTreeWidgetItem::treeWidget() will be invalid
     when called from an item's destructor.
 
-    \sa taketopLevelItem(), topLevelItemCount(), columnCount()
+    \sa takeTopLevelItem(), topLevelItemCount(), columnCount()
 */
 void QTreeWidget::clear()
 {
