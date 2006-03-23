@@ -204,55 +204,11 @@ struct Q3ListViewPrivate
 
     Q3ListViewItem *startDragItem;
     QPoint dragStartPos;
-    Q3ListViewToolTip *toolTip;
     int pressedColumn;
     Q3ListView::ResizeMode resizeMode;
 };
 
 Q_DECLARE_TYPEINFO(Q3ListViewPrivate::DrawableItem, Q_PRIMITIVE_TYPE);
-
-#if 0
-class Q3ListViewToolTip : public QToolTip
-{
-public:
-    Q3ListViewToolTip(QWidget *parent, Q3ListView *lv);
-
-    void maybeTip(const QPoint &pos);
-
-private:
-    Q3ListView *view;
-
-};
-
-Q3ListViewToolTip::Q3ListViewToolTip(QWidget *parent, Q3ListView *lv)
-    : QToolTip(parent), view(lv)
-{
-}
-
-void Q3ListViewToolTip::maybeTip(const QPoint &pos)
-{
-    if (!parentWidget() || !view || !view->showToolTips())
-        return;
-
-    Q3ListViewItem *item = view->itemAt(pos);
-    QPoint contentsPos = view->viewportToContents(pos);
-    if (!item || !item->columns)
-        return;
-    int col = view->header()->sectionAt(contentsPos.x());
-    Q3ListViewPrivate::ItemColumnInfo *ci = (Q3ListViewPrivate::ItemColumnInfo*)item->columns;
-    for (int i = 0; ci && (i < col); ++i)
-        ci = ci->next;
-
-    if (!ci || !ci->truncated)
-        return;
-
-    QRect r = view->itemRect(item);
-    int headerPos = view->header()->sectionPos(col);
-    r.setLeft(headerPos);
-    r.setRight(headerPos + view->header()->sectionSize(col));
-    tip(r, item->text(col));
-}
-#endif
 
 // these should probably be in Q3ListViewPrivate, for future thread safety
 static bool activatedByClick;
@@ -2649,9 +2605,6 @@ void Q3ListView::init()
     d->select = true;
     d->startDragItem = 0;
     d->toolTips = true;
-#if 0
-    d->toolTip = new Q3ListViewToolTip(viewport(), this);
-#endif
     d->updateHeader = false;
     d->fullRepaintOnComlumnChange = false;
     d->resizeMode = NoColumn;
@@ -3750,6 +3703,29 @@ bool Q3ListView::eventFilter(QObject * o, QEvent * e)
         case QEvent::FocusOut:
             focusOutEvent(fe);
             return true;
+        case QEvent::ToolTip:
+        {
+            if (!showToolTips())
+                return false;
+
+            QHelpEvent *he = static_cast<QHelpEvent *>(e);
+            Q3ListViewItem *item = itemAt(he->pos());
+            QPoint contentsPos = viewportToContents(he->pos());
+            if (!item || !item->columns) {
+                QToolTip::showText(he->globalPos(), QString(), viewport());
+                return true;
+            }
+            int col = header()->sectionAt(contentsPos.x());
+            Q3ListViewPrivate::ItemColumnInfo *ci = (Q3ListViewPrivate::ItemColumnInfo*)item->columns;
+            for (int i = 0; ci && (i < col); ++i)
+                ci = ci->next;
+
+            if (!ci || !ci->truncated)
+                QToolTip::showText(he->globalPos(), QString(), viewport());
+            else
+                QToolTip::showText(he->globalPos(), item->text(col), viewport());
+            return true;
+        }
         default:
             // nothing
             break;
