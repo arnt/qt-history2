@@ -666,7 +666,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         }
     }
 
-    bool isBitmap = false;
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS)
     if (device->devType() == QInternal::Pixmap) {
         QPixmap *pixmap = static_cast<QPixmap *>(device);
