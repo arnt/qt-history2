@@ -126,12 +126,12 @@
 
     \section1 MultiPageWidgetPlugin Class Definition
 
-    The \c MultiPageWidgetPlugin class expose \c the MultiPageWidget class to
-    \QD. Its definition is equivalent to the \l
+    The \c MultiPageWidgetPlugin class expose the \c MultiPageWidget
+    class to \QD. Its definition is similar to the \l
     {designer/customwidgetplugin}{Custom Widget Plugin} example's
-    plugin class which is explained in detail. The only part of the
-    class definition that is specific to this particular custom widget
-    is the class name:
+    plugin class which is explained in detail. The parts of the class
+    definition that is specific to this particular custom widget is
+    the class name and a couple of private slots:
 
     \quotefromfile designer/containerextension/multipagewidgetplugin.h
     \skipto #ifndef
@@ -186,13 +186,14 @@
     \skipto createWidget
     \printto isInitialized
 
-    In addition to actually creating the widget, we connect the
-    widget's currentIndexChanged() signal to the plugin's
-    currentIndexChanged() slot to update \QD's property editor. We
-    also connect the widget's pageTitleChanged() signal to the
-    plugin's pageTitleChanged() slot.
+    In addition to create and return the widget, we connect our custom
+    container widget's currentIndexChanged() signal to the plugin's
+    currentIndexChanged() slot to ensure that \QD's property editor is
+    updated whenever the user views another page. We also connect the
+    widget's pageTitleChanged() signal to the plugin's
+    pageTitleChanged() slot.
 
-    So the currentIndexChanged() slot is called whenever our custom
+    The currentIndexChanged() slot is called whenever our custom
     widget's currentIndexChanged() \e signal is emitted, i.e. whenever
     the user views another page:
 
@@ -200,74 +201,83 @@
     \printuntil sender
 
     First, we retrieve the object emitting the signal using the
-    QObject::sender() and qobject_cast() functions. If called in a
-    slot activated by a signal, QObject::sender() returns a pointer to
-    the object that sent the signal; otherwise it returns 0.
+    QObject::sender() and qobject_cast() functions. If it's called in
+    a slot activated by a signal, QObject::sender() returns a pointer
+    to the object that sent the signal; otherwise it returns 0.
 
     \skipto if (widget)
     \printuntil /^\}/
 
-    Then we need to update the property editor; we use the static
+    Once we have the widget we can update the property editor. \QD
+    uses the QDesignerPropertySheetExtension class to feed its
+    property editor, and whenever a widget is selected in its
+    workspace, Qt Designer will query for the widget's property sheet
+    extension and update the property editor.
+
+    So what we want to achieve is to notify \QD that our widget's \e
+    internal selection has changed: First we use the static
     QDesignerFormWindowInterface::findFormWindow() function to
-    retrieve the QDesignerFormWindowInterface object containg the
-    widget and emit its \l
+    retrieve the QDesignerFormWindowInterface object containing the
+    widget. The QDesignerFormWindowInterface class allows you to query
+    and manipulate form windows appearing in Qt Designer's
+    workspace. Then, all we have to do is to emit its \l
     {QDesignerFormWindowInterface::emitSelectionChanged()}{emitSelectionChanged()}
     signal, forcing an update of the property editor.
 
+    When changing a page title a generic refresh of the property
+    editor is not enough because it is actually the page's property
+    extension that needs to be updated. For that reason we need to
+    access the QDesignerPropertySheetExtension object for the page
+    which title we want to change. The QDesignerPropertySheetExtension
+    class also allows you to manipulate a widget's properties, but to
+    get hold of the extension we must first retrieve access to \QD's
+    extension manager:
+
     \skipto pageTitleChanged
     \printuntil sender
-
-    The pageTitleChanged() slot is called whenever our custom widget's
-    pageTitleChanged() \e signal is emitted. Again we first retrieve
-    the object emitting the signal using the QObject::sender() and
-    qobject_cast() functions. Then we need to update the property editor:
-
     \skipto if (widget)
     \printuntil findFormWindow
 
-    We retrieve the new current page from the widget that emitted the
-    signal, and again we use the static
-    QDesignerFormWindowInterface::findFormWindow() function to
-    retrieve the form containing the widget.
+    Again we first retrieve the widget emitting the signal, using the
+    QObject::sender() and qobject_cast() functions. Then we retrieve
+    the current page from the widget that emitted the signal, and we
+    use the static QDesignerFormWindowInterface::findFormWindow()
+    function to retrieve the form containing our widget.
 
     \skipto editor
     \printuntil manager
 
-    Then we use the QDesignerFormWindowInterface::core() function to
-    get hold of the current QDesignerFormEditorInterface object. The
+    Now that we have the form window, the QDesignerFormWindowInterface
+    class provides the \l
+    {QDesignerFormWindowInterface::core()}{core()} function which
+    returns the current QDesignerFormEditorInterface object. The
     QDesignerFormEditorInterface class allows you to access Qt
-    Designer's various components; a reference to \QD's extension
-    manager can be obtained using the
-    QDesignerFormEditorInterface::extensionManager() function.
+    Designer's various components. In particular, the
+    QDesignerFormEditorInterface::extensionManager() function returns
+    a reference to the current extension manager.
 
     \skipto sheet
     \printuntil /^\}/
 
-    Once we have the extension manager we can retrieve the current
-    QDesignerPropertySheetExtension object. \QD uses the
-    QDesignerPropertySheetExtension class to feed its property
-    editor. Whenever a widget is selected in its workspace, \QD will
-    query for the widget's property sheet extension. By calling the
-    the QDesignerPropertySheetExtension::setChanged() function, we
-    implicitly force an update of the property editor.
-
-    propertyIndex vs windowTitle
+    Once we have the extension manager we can update the extension
+    sheet: First we retrieve the property extension for the page which
+    title we want to change, using the qt_extension() function.  Then
+    we retrieve the index for the page title using the
+    QDesignerPropertySheetExtension::indexOf() function. Note that to
+    be able to give each page their own title, we have chosen to use
+    the QWidget::windowTitle property to store the page title (for
+    more information see the MultiPageWidget class \l
+    {designer/containerextension/multipagewidget.cpp}{implementation}).
+    Finally, we implicitly force an update of the page's property
+    sheet by calling the the
+    QDesignerPropertySheetExtension::setChanged() function.
 
     \quotefromfile designer/containerextension/multipagewidgetplugin.cpp
     \skipto initialize(
     \printuntil return;
 
     Note also the initialize() function: The \c initialize() function
-    takes a QDesignerFormEditorInterface object as argument. The
-    QDesignerFormEditorInterface class provides access to Qt
-    Designer's components.
-
-    In \QD you can create two kinds of plugins: custom widget plugins
-    and tool plugins. QDesignerFormEditorInterface provides access to
-    all the \QD components that you normally need to create a tool
-    plugin: the extension manager, the object inspector, the property
-    editor and the widget box. Custom widget plugins have access to
-    the same components.
+    takes a QDesignerFormEditorInterface object as argument.
 
     \skipto manager
     \printuntil manager
@@ -276,12 +286,8 @@
     need to access \QD's current extension manager which we retrieve
     from the QDesignerFormEditorInterface parameter.
 
-    \QD's QDesignerFormEditorInterface holds information about all Qt
-    Designer's components: The action editor, the object inspector,
-    the property editor, the widget box, and the extension and form
-    window managers.
-
-    The QExtensionManager class provides extension management
+    In addition to allowing you to manipulate a widget's properties,
+    the QExtensionManager class provides extension management
     facilities for \QD. Using \QD's current extension manager you can
     retrieve the extension for a given object. You can also register
     and unregister an extension for a given object. Remember that an
@@ -324,7 +330,7 @@
     \skipto Q_EXPORT_PLUGIN2
     \printline Q_EXPORT_PLUGIN2
 
-    Remember also to use the Q_EXPORT_PLUGIN2() macro to export the
+    Remember to use the Q_EXPORT_PLUGIN2() macro to export the
     MultiPageWidgetPlugin class for use with Qt's plugin handling
     classes: This macro ensures that \QD can access and construct the
     custom widget. Without this macro, there is no way for \QD to use
@@ -480,15 +486,21 @@
     widget inherits from QWidget and QObject, for example featuring
     the property editor.
 
-    Note the \c STORED attribute in the declaration of the \a
-    pageTitle property: This attribute indicates persistence, ie.e \c
-    STORED declares whether the property's value must be remembered
-    when storing an object's state, and only makes sense for writable
-    properties.  Technically superfluous properties define this to be
-    false; the default value is true.
+    Note the \c STORED attribute in the declaration of the \c
+    pageTitle property: The \c STORED attribute indicates persistence,
+    i.e. it declares whether the property's value must be remembered
+    when storing an object's state. As mentioned above, we have chosen
+    to store the page title using the QWidget::windowTitle property to
+    be able to give each page their own title. For that reason the \c
+    pageTitle property is a "fake" property, provided for editing
+    purposes, and doesn't need to be stored.
 
     We must also implement and emit the currentIndexChanged() and
     pageTitleChanged() signals to ensure that \QD's property editor is
     updated whenever the user views another page or changes one of the
     page titles.
+
+    See the MultiPageWidget class \l
+    {designer/containerextension/multipagewidget.cpp}{implementation}
+    for more details.
 */
