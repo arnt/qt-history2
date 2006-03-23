@@ -238,7 +238,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
 #endif
     glyphs[0].attributes.mark = false;
     glyphs[0].attributes.clusterStart = true;
-    glyphs[0].attributes.dontPrint = qIsControlChar(uc[0].unicode());
+    glyphs[0].attributes.dontPrint = (uc[0].unicode() == 0x00ad || qIsControlChar(uc[0].unicode()));
 
     int pos = 0;
     int lastCat = ::category(uc[0]);

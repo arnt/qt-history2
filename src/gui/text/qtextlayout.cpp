@@ -1583,13 +1583,14 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         if (lineEnd < si.position + eng->length(item)) {
             end = lineEnd;
             ge = logClusters[end-si.position];
-            // show soft-hyphen at line-break
-            if (eng->layoutData->string.at(lineEnd - 1) == 0x00ad)
-                glyphs[ge - 1].attributes.dontPrint = false;
         } else {
             end = si.position + si_len;
             ge = si.num_glyphs;
         }
+        // show soft-hyphen at line-break
+        if (si.position + si_len >= lineEnd
+            && eng->layoutData->string.at(lineEnd - 1) == 0x00ad)
+            glyphs[ge - 1].attributes.dontPrint = false;
 
         QFixed itemBaseLine = y;
 
