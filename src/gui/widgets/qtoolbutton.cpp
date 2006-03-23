@@ -30,6 +30,7 @@
 #include <qvariant.h>
 #include <qstylepainter.h>
 #include <private/qabstractbutton_p.h>
+#include <private/qaction_p.h>
 
 class QToolButtonPrivate : public QAbstractButtonPrivate
 {
@@ -931,7 +932,8 @@ void QToolButton::setDefaultAction(QAction *action)
     setCheckable(action->isCheckable());
     setChecked(action->isChecked());
     setEnabled(action->isEnabled());
-    setFont(action->font());
+    if (action->d_func()->fontSet)
+        setFont(action->font());
 }
 
 

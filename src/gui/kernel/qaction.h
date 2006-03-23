@@ -175,6 +175,7 @@ private:
     friend class QMenu;
     friend class QMenuBar;
     friend class QShortcutMap;
+    friend class QToolButton;
 };
 
 #include <QtGui/qactiongroup.h>

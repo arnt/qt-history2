@@ -68,6 +68,7 @@ public:
     uint checkable : 1;
     uint checked : 1;
     uint separator : 1;
+    uint fontSet : 1;
 
     QList<QWidget *> widgets;
 #ifndef QT_NO_SHORTCUT
