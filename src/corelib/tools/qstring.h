@@ -809,6 +809,13 @@ inline QStdWString QString::toStdWString() const
 {
     QStdWString str;
     str.resize(length());
+
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+    // VS2005 crashes if the string is empty
+    if (!length())
+        return str;
+#endif
+
     str.resize(toWCharArray(&(*str.begin())));
     return str;
 }
