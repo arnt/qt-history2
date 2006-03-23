@@ -404,6 +404,8 @@ bool QTreeView::isColumnHidden(int column) const
 void QTreeView::setColumnHidden(int column, bool hide)
 {
     Q_D(QTreeView);
+    if (column < 0 || column >= d->header->count())
+        return;
     d->header->setSectionHidden(column, hide);
 }
 

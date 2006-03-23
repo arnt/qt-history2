@@ -669,12 +669,12 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
     the specified selection \a flags.
 */
 void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
-{    
+{
     QModelIndex tl = indexAt(QPoint(isRightToLeft() ? rect.right() : rect.left(), rect.top()));
     QModelIndex br = indexAt(QPoint(isRightToLeft() ? rect.left() : rect.right(), rect.bottom()));
 
     if (!selectionModel() || !tl.isValid() || !br.isValid())
-        return;    
+        return;
 
     bool verticalMoved = verticalHeader()->sectionsMoved();
     bool horizontalMoved = horizontalHeader()->sectionsMoved();
@@ -850,7 +850,7 @@ void QTableView::updateGeometries()
     if (d->verticalHeader->isHidden())
         QMetaObject::invokeMethod(d->verticalHeader, "updateGeometries");
     d->verticalHeader->setOffset(verticalScrollBar()->value());
-    
+
     int horizontalTop = vg.top() - height;
     d->horizontalHeader->setGeometry(vg.left(), horizontalTop, vg.width(), height);
     if (d->horizontalHeader->isHidden())
@@ -864,7 +864,7 @@ void QTableView::updateGeometries()
 
     QSize vsize = d->viewport->size();
     QSize max = maximumViewportSize();
-    
+
     if (max.width() >= horizontalLength && max.height() >= verticalLength)
         vsize = max;
 
@@ -873,7 +873,7 @@ void QTableView::updateGeometries()
 
     horizontalScrollBar()->setPageStep(vsize.width());
     horizontalScrollBar()->setRange(0, horizontalLength - vsize.width());
-    
+
     QAbstractItemView::updateGeometries();
 }
 
@@ -1032,7 +1032,7 @@ int QTableView::columnWidth(int column) const
 
 /*!
     Returns true if the given \a row is hidden; otherwise returns false.
-    
+
     \sa setRowHidden
 */
 bool QTableView::isRowHidden(int row) const
@@ -1045,6 +1045,8 @@ bool QTableView::isRowHidden(int row) const
 */
 void QTableView::setRowHidden(int row, bool hide)
 {
+    if (row < 0 || row >= d_func()->verticalHeader->count())
+        return;
     d_func()->verticalHeader->setSectionHidden(row, hide);
 }
 
@@ -1064,6 +1066,8 @@ bool QTableView::isColumnHidden(int column) const
 */
 void QTableView::setColumnHidden(int column, bool hide)
 {
+    if (column < 0 || column >= d_func()->horizontalHeader->count())
+        return;
     d_func()->horizontalHeader->setSectionHidden(column, hide);
 }
 
@@ -1151,7 +1155,7 @@ QRect QTableView::visualRect(const QModelIndex &index) const
 {
     if (!index.isValid() ||index.parent() != rootIndex() || isIndexHidden(index) )
         return QRect();
-    
+
     d_func()->executePostedLayout();
 
     const int i = showGrid() ? 1 : 0;
@@ -1193,7 +1197,7 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     int verticalOffset = d->verticalHeader->offset();
     int verticalPosition = d->verticalHeader->sectionPosition(index.row());
     int cellHeight = d->verticalHeader->sectionSize(index.row());
-    
+
     if (verticalPosition - verticalOffset < 0 || cellHeight > viewportHeight) {
         if (hint == EnsureVisible)
             hint = PositionAtTop;
@@ -1267,12 +1271,12 @@ void QTableView::timerEvent(QTimerEvent *event)
         d->viewport->update(rect.normalized());
         d->columnsToUpdate.clear();
     }
-    
+
     if (event->timerId() == d->rowResizeTimerID) {
         updateGeometries();
         killTimer(d->rowResizeTimerID);
         d->rowResizeTimerID = 0;
-        
+
         int viewportHeight = d->viewport->height();
         int viewportWidth = d->viewport->width();
         int top = viewportHeight;
@@ -1282,7 +1286,7 @@ void QTableView::timerEvent(QTimerEvent *event)
         }
 
         d->viewport->update(QRect(0, top, viewportWidth, viewportHeight - top));
-        d->rowsToUpdate.clear();        
+        d->rowsToUpdate.clear();
     }
 
     QAbstractItemView::timerEvent(event);
