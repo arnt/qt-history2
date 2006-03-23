@@ -116,6 +116,13 @@ QGroupBox *Window::createPushButtonGroup()
     menu->addAction(tr("F&ourth Item"));
     popupButton->setMenu(menu);
 
+    QAction *newAction = menu->addAction(tr("Submenu"));
+    QMenu *subMenu = new QMenu(tr("Popup Submenu"));
+    subMenu->addAction(tr("Item 1"));
+    subMenu->addAction(tr("Item 2"));
+    subMenu->addAction(tr("Item 3"));
+    newAction->setMenu(subMenu);
+
     QVBoxLayout *vbox = new QVBoxLayout;
     vbox->addWidget(pushButton);
     vbox->addWidget(toggleButton);
