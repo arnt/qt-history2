@@ -3040,7 +3040,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         fi
         if [ "$PLATFORM_MAC" = "yes" ]; then
             echo "export MACOSX_DEPLOYMENT_TARGET = 10.2" >>$mkfile
-            echo "CARBON_LFLAGS +=-framework CoreServices -framework CoreFoundation" >>$mkfile
+            echo "CARBON_LFLAGS =-framework CoreServices -framework CoreFoundation" >>$mkfile
             EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
             EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
             EXTRA_CXXFLAGS="$EXTRA_CFLAGS \$(CARBON_CXXFLAGS)"
@@ -3053,9 +3053,11 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 		EXTRA_CXXFLAGS="$X86_CFLAGS $PPC_CFLAGS $EXTRA_CXXFLAGS" 
             fi
 	    if [ '!' -z "$CFG_SDK" ]; then
-		EXTRA_CFLAGS="-isysroot $CFG_SDK $EXTRA_CFLAGS"
-		EXTRA_CXXFLAGS="-isysroot $CFG_SDK $EXTRA_CXXFLAGS"
-		EXTRA_LFLAGS="-Wl,-syslibroot,$CFG_SDK $EXTRA_LFLAGS"
+		echo "SDK_LFLAGS =-Wl,-syslibroot,$CFG_SDK" >>$mkfile
+		echo "SDK_CFLAGS =-isysroot $CFG_SDK" >>$mkfile
+		EXTRA_CFLAGS="$EXTRA_CFLAGS \$(SDK_CFLAGS)"
+		EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(SDK_CFLAGS)"
+		EXTRA_LFLAGS="$EXTRA_LFLAGS \$(SDK_LFLAGS)"
             fi
         fi
         [ "$CFG_EMBEDDED" != "no" ] && EXTRA_CFLAGS="$EXTRA_CFLAGS -DQWS"
