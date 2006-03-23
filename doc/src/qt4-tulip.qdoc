@@ -40,8 +40,8 @@
     implemented as an array-list, it provides very fast prepends and
     appends. If you really need a linked-list, use QLinkedList; if you
     want your items to occupy consecutive memory locations, use QVector.
-    QStack and QQueue are convenience classes that provide FIFO and
-    LIFO semantics.
+    QStack and QQueue are convenience classes that provide LIFO and
+    FIFO semantics.
 
     Tulip also provides these associative containers: QMap,
     QMultiMap, QHash, QMultiHash, and QSet. The "Multi" containers
@@ -49,7 +49,7 @@
     key. The "Hash" containers provide faster lookup by using a hash
     function instead of a binary search on a sorted set.
 
-    The Tulip containers support the foreach keyword, a Qt-specific
+    The Tulip containers support the \l foreach keyword, a Qt-specific
     addition to the C++ language that is implemented using the standard
     C++ preprocessor. The syntax is:
 
