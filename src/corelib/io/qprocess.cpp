@@ -665,6 +665,7 @@ bool QProcessPrivate::_q_startupNotification()
     emit q->error(processError);
 #ifdef Q_OS_UNIX
     // make sure the process manager removes this entry
+    waitForDeadChild();
     findExitCode();
 #endif
     cleanup();
@@ -1038,12 +1039,7 @@ bool QProcess::waitForReadyRead(int msecs)
         return false;
     if (d->processChannel == QProcess::StandardError && d->standardErrorClosed)
         return false;
-
-    if (d->waitForReadyRead(msecs))
-        return true;
-
-    emit error(d->processError);
-    return false;
+    return d->waitForReadyRead(msecs);
 }
 
 /*! \reimp

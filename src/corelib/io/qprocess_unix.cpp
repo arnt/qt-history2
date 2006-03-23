@@ -739,8 +739,8 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 	}
 
 	if (childStartedPipe[0] != -1 && FD_ISSET(childStartedPipe[0], &fdread)) {
-	    if (!_q_startupNotification())
-		return false;
+            if (!_q_startupNotification())
+                return false;
 	}
 
         bool readyReadEmitted = false;
@@ -778,7 +778,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
     QTime stopWatch;
     stopWatch.start();
 
-    while (!writeBuffer.isEmpty()) {
+    forever {
         fd_set fdread;
         fd_set fdwrite;
 
