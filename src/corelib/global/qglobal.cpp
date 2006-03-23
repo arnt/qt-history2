@@ -307,6 +307,7 @@
 /*!
     \headerfile <QtGlobal>
     \title Global Qt Declarations
+    \ingroup architecture
 
     \brief The <QtGlobal> header file provides basic declarations and
     is included by all other Qt headers.
