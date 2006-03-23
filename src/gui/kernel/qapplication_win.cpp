@@ -1586,10 +1586,12 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 int fleft = widget->topData()->fleft;
                 int ftop = widget->topData()->ftop;
 
-                if (widget->minimumWidth() == widget->maximumWidth() && (pos.x() < 0 || pos.x() >= widget->width()))
-                    break;
-                if (widget->minimumHeight() == widget->maximumHeight() && (pos.y() < -(ftop - fleft) || pos.y() >= widget->height()))
-                    break;
+                if (!widget->isMinimized()) {
+                    if (widget->minimumWidth() == widget->maximumWidth() && (pos.x() < 0 || pos.x() >= widget->width()))
+                        break;
+                    if (widget->minimumHeight() == widget->maximumHeight() && (pos.y() < -(ftop - fleft) || pos.y() >= widget->height()))
+                        break;
+                }
             }
 
             result = false;
