@@ -1900,10 +1900,11 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     return;
 
 #elif defined Q_WS_QWS
-    if (d->txop < QPainterPrivate::TxScale) {
+    if (d->txop < QPainterPrivate::TxScale && !(ti.fontEngine->type() == QFontEngine::Freetype && static_cast<QFontEngineFT*>(ti.fontEngine)->drawAsOutline())) {
         ti.fontEngine->draw(this, qRound(p.x()), qRound(p.y()), ti);
         return;
     }
+
 #endif // Q_WS_WIN
 
     // Fallthrough for embedded and default for mac.

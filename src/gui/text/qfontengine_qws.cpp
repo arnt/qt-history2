@@ -131,8 +131,16 @@ QFontEngineFT::QFontEngineFT(const QFontDef& d, FT_Face ft_face, bool antialias)
     smooth = FT_IS_SCALABLE(face) && antialias;
     if (fontDef.styleStrategy & QFont::NoAntialias)
         smooth = false;
+
+//    outline_drawing = xsize > (64<<6) || ysize > (64<<6);
+    outline_drawing = fontDef.pixelSize > 48; //###
+
+    if (outline_drawing) {
+        rendered_glyphs = 0;
+    } else {
     rendered_glyphs = new QGlyph *[face->num_glyphs];
     memset(rendered_glyphs, 0, face->num_glyphs*sizeof(QGlyph *));
+    }
     cache_cost = face->num_glyphs*6*8; // ##########
     memset(cmapCache, 0, sizeof(cmapCache));
     TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(face, ft_sfnt_os2);
@@ -144,9 +152,11 @@ QFontEngineFT::QFontEngineFT(const QFontDef& d, FT_Face ft_face, bool antialias)
 
 QFontEngineFT::~QFontEngineFT()
 {
+    if (rendered_glyphs) {
     for (int i = 0; i < face->num_glyphs; ++i)
         delete rendered_glyphs[i];
     delete [] rendered_glyphs;
+    }
     FT_Done_Face(face);
 }
 
@@ -242,11 +252,19 @@ glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGl
 
 glyph_metrics_t QFontEngineFT::boundingBox(glyph_t glyph)
 {
+    if (outline_drawing) {
+        FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP);
+        FT_GlyphSlot g = face->glyph;
+        return glyph_metrics_t(g->metrics.horiBearingX/64, -g->metrics.horiBearingY/64,
+                               g->metrics.width/64, g->metrics.height/64, g->metrics.horiAdvance/64, 0);
+
+    } else {
     const QGlyph *g = rendered_glyphs[glyph];
     Q_ASSERT(g);
     return glyph_metrics_t(g->bearingx, -g->bearingy,
                             g->width, g->height,
                             g->advance, 0);
+    }
 }
 
 
@@ -464,9 +482,12 @@ QOpenType *QFontEngineFT::openType() const
 
 void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
 {
-    if (flags & QTextEngine::DesignMetrics) {
+    if (flags & QTextEngine::DesignMetrics || outline_drawing) {
         for (int i = 0; i < len; i++) {
-            FT_Load_Glyph(face, glyphs[i].glyph, FT_LOAD_NO_HINTING);
+            int load_flags = FT_LOAD_NO_HINTING;
+            if (outline_drawing)
+                load_flags |= FT_LOAD_NO_BITMAP;
+            FT_Load_Glyph(face, glyphs[i].glyph, load_flags);
             glyphs[i].advance.x = QFixed::fromFixed(face->glyph->metrics.horiAdvance);
             glyphs[i].advance.y = 0;
         }

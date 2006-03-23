@@ -250,9 +250,11 @@ public:
 
     bool canRender(const QChar *string, int len);
     inline const char *name() const { return 0; }
+    inline bool drawAsOutline() const { return outline_drawing; }
 
     FT_Face face;
     bool smooth;
+    bool outline_drawing;
     QGlyph **rendered_glyphs;
     QOpenType *_openType;
     enum { cmapCacheSize = 0x200 };
