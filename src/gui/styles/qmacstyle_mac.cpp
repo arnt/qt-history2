@@ -3276,11 +3276,15 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
             HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, cg,
                              kHIThemeOrientationNormal);
             if (cc == CC_Slider && slider->subControls & SC_SliderTickmarks) {
-                int numMarks;
-                if (slider->tickInterval)
-                    numMarks = ((slider->maximum - slider->minimum + 1) / slider->tickInterval) + 1;
-                else
-                    numMarks = ((slider->maximum - slider->minimum + 1) / slider->pageStep) + 1;
+                int interval = slider->tickInterval;
+                if (interval == 0) {
+                    interval = slider->pageStep;
+                    if (interval == 0)
+                        interval = slider->singleStep;
+                    if (interval == 0)
+                        interval = 1;
+                }
+                int numMarks = (slider->maximum - slider->minimum + 1) / interval;
                 if (tdi.trackInfo.slider.thumbDir == kThemeThumbPlain) {
                     // They asked for both, so we'll give it to them.
                     tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
