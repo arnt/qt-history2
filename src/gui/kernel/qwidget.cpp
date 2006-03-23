@@ -128,9 +128,8 @@ void QWidgetPrivate::scrollChildren(int dx, int dy)
         QPoint pd(dx, dy);
         QObjectList childObjects = q->children();
         for (int i = 0; i < childObjects.size(); ++i) { // move all children
-            QObject *object = childObjects.at(i);
-            if (object->isWidgetType()) {
-                QWidget *w = static_cast<QWidget *>(object);
+            QWidget *w = qobject_cast<QWidget*>(childObjects.at(i));
+            if (w && !w->isWindow()) {
                 QPoint oldp = w->pos();
                 QRect  r(w->pos() + pd, w->size());
                 w->data->crect = r;
