@@ -20,6 +20,7 @@
 #include "qlayout.h"
 #include "qstyle.h"
 #include "qapplication.h"
+#include "qvariant.h"
 #include "private/qlayoutengine_p.h"
 
 
@@ -373,7 +374,8 @@ bool QScrollArea::focusNextPrevChild(bool next)
     if (QWidget::focusNextPrevChild(next)) {
         if (QWidget *fw = focusWidget()) {
             if (d->widget && fw != d->widget && d->widget->isAncestorOf(fw)) {
-                QRect focusRect(fw->mapTo(d->widget, QPoint(0,0)), fw->size());
+                QRect focusRect = fw->inputMethodQuery(Qt::ImMicroFocus).toRect();
+                focusRect.moveTopLeft(fw->mapTo(d->widget, focusRect.topLeft()));
                 QRect visibleRect(-d->widget->pos(), d->viewport->size());
                 if (!visibleRect.contains(focusRect)) {
                     if (focusRect.right() > visibleRect.right())
