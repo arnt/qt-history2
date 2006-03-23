@@ -246,6 +246,15 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 }
 
 /*!
+    \fn void QToolTip::hideText()
+
+    Hides the tool tip. This is the same as calling showText() with an
+    empty string.
+
+    \sa showText()
+*/
+
+/*!
     Returns the palette used to render tooltips.
 */
 QPalette QToolTip::palette()

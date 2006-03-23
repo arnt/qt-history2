@@ -25,6 +25,7 @@ class Q_GUI_EXPORT QToolTip
     QToolTip();
 public:
     static void showText(const QPoint &pos, const QString &text, QWidget *w = 0);
+    static inline void hideText() { showText(QPoint(), QString()); }
 
     static QPalette palette();
 #ifdef QT3_SUPPORT
