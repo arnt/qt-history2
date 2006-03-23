@@ -1551,7 +1551,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
     enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                       E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
                       E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_UPPER, E_LOWER, E_FILES,
-                      E_PROMPT, E_RE_ESCAPE };
+                      E_PROMPT, E_RE_ESCAPE, E_REPLACE };
     static QMap<QString, int> *expands = 0;
     if(!expands) {
         expands = new QMap<QString, int>;
@@ -1578,6 +1578,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         expands->insert("re_escape", E_RE_ESCAPE);
         expands->insert("files", E_FILES);
         expands->insert("prompt", E_PROMPT);
+        expands->insert("replace", E_REPLACE);
     }
     ExpandFunc func_t = (ExpandFunc)expands->value(func.toLower());
     debug_msg(1, "Running project expand: %s(%s) [%d]",
@@ -1958,8 +1959,22 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
                 ret = t.readLine();
             }
         }
-        break;
-    }
+        break; }
+    case E_REPLACE: {
+        if(args.count() != 3 ) {
+            fprintf(stderr, "%s:%d replace(var, before, after) requires three arguments\n",
+                    parser.file.toLatin1().constData(), parser.line_no);
+        } else {
+            const QRegExp before( args[1] );
+            const QString after( args[2] );
+            QStringList var = values(args.first(), place);
+            for(QStringList::Iterator it = var.begin(); it != var.end(); ++it) {
+                if (!ret.isEmpty())
+                    ret += QString(Option::field_sep);
+                ret += it->replace(before, after);
+            }
+        }
+        break; }
     default: {
         if(replaceFunctions.contains(func)) {
             FunctionBlock *defined = replaceFunctions[func];
