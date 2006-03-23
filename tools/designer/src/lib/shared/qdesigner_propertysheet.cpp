@@ -27,6 +27,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QDialog>
 #include <QtGui/QStackedWidget>
+#include <QtGui/QLabel>
 
 namespace qdesigner_internal {
 
@@ -48,6 +49,8 @@ using namespace qdesigner_internal;
 static bool hasLayoutAttributes(QObject *object)
 {
     if (qobject_cast<QStackedWidget*>(object) != 0)
+        return false;
+    if (qobject_cast<QLabel*>(object) != 0)
         return false;
     return true;
 }
