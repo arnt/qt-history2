@@ -1409,8 +1409,26 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
     }
 
     const char *stylehint = styleHint(request);
-    if (stylehint)
-        FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)stylehint);
+    if (stylehint) {
+        value.u.s = (const FcChar8 *)stylehint;
+        FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
+    }
+    
+    if (!request.ignorePitch) {
+        char pitch_value = FC_PROPORTIONAL;
+        if (request.fixedPitch || (desc.family && desc.family->fixedPitch))
+            pitch_value = FC_MONO;
+        FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
+    }
+    FcPatternAddBool(pattern, FC_OUTLINE, !(request.styleStrategy & QFont::PreferBitmap));
+    if (::preferScalable(request) || (desc.style && desc.style->smoothScalable))
+        FcPatternAddBool(pattern, FC_SCALABLE, true);
+
+    addPatternProps(pattern, fp, script, request);
+
+    FcDefaultSubstitute(pattern);
+    FcConfigSubstitute(0, pattern, FcMatchPattern);
+    FcConfigSubstitute(0, pattern, FcMatchFont);
 
     // these should only get added to the pattern _after_ substitution
     // append the default fallback font for the specified script
@@ -1435,18 +1453,6 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
     value.u.s = (const FcChar8 *)cs.data();
     FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
 
-    if (!request.ignorePitch) {
-        char pitch_value = FC_PROPORTIONAL;
-        if (request.fixedPitch || (desc.family && desc.family->fixedPitch))
-            pitch_value = FC_MONO;
-        FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
-    }
-    FcPatternAddBool(pattern, FC_OUTLINE, !(request.styleStrategy & QFont::PreferBitmap));
-    if (::preferScalable(request) || (desc.style && desc.style->smoothScalable))
-        FcPatternAddBool(pattern, FC_SCALABLE, true);
-
-    addPatternProps(pattern, fp, script, request);
-
     return pattern;
 }
 
@@ -1467,10 +1473,6 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
 
     FcBool forceScalable = request.styleStrategy & QFont::ForceOutline;
 
-    FcDefaultSubstitute(pattern);
-    FcConfigSubstitute(0, pattern, FcMatchPattern);
-    FcConfigSubstitute(0, pattern, FcMatchFont);
-
 #ifdef FONT_MATCH_DEBUG
     FM_DEBUG("\n\nfinal FcPattern contains:\n");
     FcPatternPrint(pattern);
@@ -1478,6 +1480,11 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
 
     FcResult result;
     FcFontSet *fs = FcFontSort(0, pattern, FcTrue, 0, &result);
+#ifdef FONT_MATCH_DEBUG
+    FM_DEBUG("first font in fontset:\n");
+    FcPatternPrint(fs->fonts[0]);
+#endif
+    
     FcPatternDestroy(pattern);
     if (!fs)
         return 0;
