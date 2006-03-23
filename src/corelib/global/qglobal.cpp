@@ -404,11 +404,11 @@
     implement Qt's foreach loop.
 
     The Q_INT64_C() and Q_UINT64_C() macros wrap signed and unsigned
-    64-bit integers in a platform-independent way. The Q_CHECK_PTR()
-    macro prints a warning containing the source code's file name and
-    line number, saying that the program ran out of memory, if the
-    pointer is 0.  The qPrintable() macro represent an easy way of
-    printing text.
+    64-bit integer literals in a platform-independent way. The
+    Q_CHECK_PTR() macro prints a warning containing the source code's
+    file name and line number, saying that the program ran out of
+    memory, if the pointer is 0. The qPrintable() macro represent an
+    easy way of printing text.
 
     Finally, the QT_POINTER_SIZE macro expands to the size of a
     pointer in bytes, and the QT_VERSION and QT_VERSION_STR macros
@@ -2190,6 +2190,45 @@ QByteArray qgetenv(const char *varName)
 }
 
 /*!
+    \macro forever
+    \relates <QtGlobal>
+
+    This macro is provided for convenience for writing infinite
+    loops.
+
+    Example:
+
+    \code
+        forever {
+            ...
+        }
+    \endcode
+
+    It is equivalent to \c{for (;;)}.
+
+    If you're worried about namespace pollution, you can disable this
+    macro by adding the following line to your \c .pro file:
+
+    \code
+        CONFIG += no_keywords
+    \endcode
+
+    \sa Q_FOREVER
+*/
+
+/*!
+    \macro Q_FOREVER
+    \relates <QtGlobal>
+
+    Same as \l{forever}.
+    
+    This macro is available even when \c no_keywords is specified
+    using the \c .pro file's \c CONFIG variable.
+
+    \sa foreach()
+*/
+
+/*!
     \macro foreach(variable, container)
     \relates <QtGlobal>
 
@@ -2213,10 +2252,10 @@ QByteArray qgetenv(const char *varName)
     \macro Q_FOREACH(variable, container)
     \relates <QtGlobal>
 
-    Same as foreach() which is used to implement Qt's foreach
-    loop. The \a variable parameter is a variable name or variable
-    definition; the \a container parameter is a Qt container whose
-    value type corresponds to the type of the variable.
+    Same as foreach(\a variable, \a container).
+
+    This macro is available even when \c no_keywords is specified
+    using the \c .pro file's \c CONFIG variable.
 
     \sa foreach()
 */
