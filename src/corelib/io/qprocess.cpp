@@ -1047,6 +1047,18 @@ bool QProcess::waitForReadyRead(int msecs)
 bool QProcess::waitForBytesWritten(int msecs)
 {
     Q_D(QProcess);
+    if (d->processState == QProcess::NotRunning)
+        return false;
+    if (d->processState == QProcess::Starting) {
+        QTime stopWatch;
+        stopWatch.start();
+        bool started = waitForStarted(msecs);
+        if (!started)
+            return false;
+        if (msecs != -1)
+            msecs -= stopWatch.elapsed();
+    }
+
     return d->waitForBytesWritten(msecs);
 }
 
