@@ -675,7 +675,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         }
         QPixmapData *data = static_cast<QPixmap *>(device)->data;
         device = &data->image;
-        isBitmap = pixmap->depth() == 1;
     }
 #elif defined(Q_WS_MAC)
     if (device->devType() == QInternal::Pixmap) {
