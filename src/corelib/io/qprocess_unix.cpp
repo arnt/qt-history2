@@ -778,7 +778,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
     QTime stopWatch;
     stopWatch.start();
 
-    forever {
+    while (!writeBuffer.isEmpty()) {
         fd_set fdread;
         fd_set fdwrite;
 
@@ -805,7 +805,8 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
                 continue;
             break;
         }
-	if (ret == 0) {
+
+        if (ret == 0) {
 	    processError = QProcess::Timedout;
 	    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
 	    return false;
