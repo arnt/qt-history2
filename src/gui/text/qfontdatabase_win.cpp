@@ -510,6 +510,7 @@ static void initializeDb()
         qDebug("    %s: %p", family->name.latin1(), family);
         populate_database(family->name);
 
+#if 0
         qDebug("        scripts supported:");
         for (int i = 0; i < QUnicodeTables::ScriptCount; i++)
             if(family->writingSystems[i] & QtFontFamily::Supported)
@@ -519,8 +520,8 @@ static void initializeDb()
             qDebug("        %s", foundry->name.latin1());
             for (int s = 0; s < foundry->count; s++) {
                 QtFontStyle *style = foundry->styles[s];
-		qDebug("            style: italic=%d oblique=%d weight=%d smooth=%d",  style->key.italic,
-		       style->key.oblique, style->key.weight, style->smoothScalable );
+		qDebug("            style: style=%d weight=%d smooth=%d",  style->key.style,
+		       style->key.weight, style->smoothScalable );
 		if(!style->smoothScalable) {
 		    for(int i = 0; i < style->count; ++i) {
 			qDebug("                %d", style->pixelSizes[i].pixelSize);
@@ -528,6 +529,7 @@ static void initializeDb()
 		}
 	    }
         }
+#endif            
     }
 #endif // QFONTDATABASE_DEBUG
 
@@ -771,6 +773,9 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
             && (request.style == QFont::StyleItalic || (-lf.lfHeight > 18 && -lf.lfHeight != 24))) {
             fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
         }
+        if (fam == "Courier" && !(request.styleStrategy & QFont::PreferBitmap))
+            fam = "Courier New";
+        
         QT_WA({
             memcpy(lf.lfFaceName, fam.utf16(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
             hfont = CreateFontIndirect(&lf);
