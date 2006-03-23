@@ -38,7 +38,7 @@ public:
 private slots:
     void about();
     void changeStyle(bool checked);
-    void changeSize();
+    void changeSize(bool checked = true);
     void changeIcon();
     void addImage();
     void removeAllImages();

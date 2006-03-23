@@ -76,8 +76,11 @@ void MainWindow::changeStyle(bool checked)
     changeSize();
 }
 
-void MainWindow::changeSize()
+void MainWindow::changeSize(bool checked)
 {
+    if (!checked)
+        return;
+
     int extent;
 
     if (otherRadioButton->isChecked()) {
@@ -241,14 +244,14 @@ void MainWindow::createIconSizeGroupBox()
     otherSpinBox->setValue(64);
 
     connect(toolBarRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(changeSize()));
+            this, SLOT(changeSize(bool)));
     connect(listViewRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(changeSize()));
+            this, SLOT(changeSize(bool)));
     connect(iconViewRadioButton, SIGNAL(toggled(bool)),
-            this, SLOT(changeSize()));
-    connect(smallRadioButton, SIGNAL(toggled(bool)), this, SLOT(changeSize()));
-    connect(largeRadioButton, SIGNAL(toggled(bool)), this, SLOT(changeSize()));
-    connect(otherRadioButton, SIGNAL(toggled(bool)), this, SLOT(changeSize()));
+            this, SLOT(changeSize(bool)));
+    connect(smallRadioButton, SIGNAL(toggled(bool)), this, SLOT(changeSize(bool)));
+    connect(largeRadioButton, SIGNAL(toggled(bool)), this, SLOT(changeSize(bool)));
+    connect(otherRadioButton, SIGNAL(toggled(bool)), this, SLOT(changeSize(bool)));
     connect(otherSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeSize()));
 
     QHBoxLayout *otherSizeLayout = new QHBoxLayout;
