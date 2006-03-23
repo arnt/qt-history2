@@ -1325,9 +1325,12 @@ QColor QColor::toCmyk() const
 
     // cmy -> cmyk
     const qreal k = qMin(c, qMin(m, y));
-    c = (c - k) / (1.0 - k);
-    m = (m - k) / (1.0 - k);
-    y = (y - k) / (1.0 - k);
+
+    if (!qFuzzyCompare(k,1)) {
+        c = (c - k) / (1.0 - k);
+        m = (m - k) / (1.0 - k);
+        y = (y - k) / (1.0 - k);
+    }
 
     color.ct.acmyk.cyan    = qRound(c * USHRT_MAX);
     color.ct.acmyk.magenta = qRound(m * USHRT_MAX);
