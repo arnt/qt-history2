@@ -151,7 +151,7 @@ bool QTextCursorPrivate::canDelete(int pos) const
 {
     QTextDocumentPrivate::FragmentIterator fit = priv->find(pos);
     QTextCharFormat fmt = priv->formatCollection()->charFormat((*fit)->format);
-    return (fmt.objectIndex() == -1);
+    return (fmt.objectIndex() == -1 || fmt.objectType() == QTextFormat::ImageObject);
 }
 
 void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat)
